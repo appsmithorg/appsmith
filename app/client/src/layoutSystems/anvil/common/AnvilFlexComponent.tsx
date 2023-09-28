@@ -1,10 +1,4 @@
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import type { CSSProperties, MouseEvent } from "react";
 import { Flex } from "@design-system/widgets";
 import { useSelector } from "react-redux";
@@ -48,7 +42,6 @@ import type { WidgetConfigProps } from "WidgetProvider/constants";
  */
 
 export const AnvilFlexComponent = (props: AnvilFlexComponentProps) => {
-  const ref: React.RefObject<HTMLDivElement> = useRef<HTMLDivElement>(null);
   const isDropTarget = checkIsDropTarget(props.widgetType);
   const isFocused = useSelector(isCurrentWidgetFocused(props.widgetId));
   const isResizing = useSelector(getIsResizing);
@@ -85,27 +78,6 @@ export const AnvilFlexComponent = (props: AnvilFlexComponentProps) => {
     );
   }, [props.widgetType]);
 
-  useEffect(() => {
-    if (ref?.current) {
-      // Stop click event propagation
-      ref?.current.addEventListener("click", (e: any) =>
-        stopEventPropagation(e),
-      );
-      // Use click capture to select the widget before the click event is triggered on inner layers and component.
-      ref?.current.addEventListener("click", onClickFn, { capture: true });
-    }
-    return () => {
-      if (ref?.current) {
-        ref?.current.removeEventListener("click", (e: any) =>
-          stopEventPropagation(e),
-        );
-        ref?.current.removeEventListener("click", onClickFn, {
-          capture: true,
-        });
-      }
-    };
-  }, [ref?.current]);
-
   const { onHoverZIndex } = usePositionedContainerZIndex(
     isDropTarget,
     props.widgetId,
@@ -126,7 +98,7 @@ export const AnvilFlexComponent = (props: AnvilFlexComponentProps) => {
   // Memoize flex props to be passed to the WDS Flex component.
   // If the widget is being resized => update width and height to auto.
   const flexProps: FlexProps = useMemo(() => {
-    return {
+    const data: FlexProps = {
       alignSelf: verticalAlignment || FlexVerticalAlignment.Top,
       flexGrow: isFillWidget ? 1 : 0,
       flexShrink: isFillWidget ? 1 : 0,
@@ -135,23 +107,32 @@ export const AnvilFlexComponent = (props: AnvilFlexComponentProps) => {
         props.hasAutoHeight || isCurrentWidgetResizing
           ? "auto"
           : `${props.componentHeight}px`,
-      maxHeight: validateResponsiveProp(props.widgetSize?.maxHeight)
-        ? props.widgetSize?.maxHeight
-        : undefined,
-      maxWidth: validateResponsiveProp(props.widgetSize?.maxWidth)
-        ? props.widgetSize?.maxWidth
-        : undefined,
-      minHeight: validateResponsiveProp(props.widgetSize?.minHeight)
-        ? props.widgetSize?.minHeight
-        : undefined,
-      // Setting a base of 100% for Fill widgets to ensure that they expand on smaller sizes.
-      minWidth: getResponsiveMinWidth(props.widgetSize?.minWidth, isFillWidget),
       padding: WIDGET_PADDING + "px",
       width:
         isFillWidget || props.hasAutoWidth || isCurrentWidgetResizing
           ? "auto"
           : `${props.componentWidth}px`,
     };
+    if (props?.widgetSize) {
+      // adding min max limits only if they are available, as WDS Flex doesn't handle undefined values.
+      if (validateResponsiveProp(props.widgetSize?.maxHeight)) {
+        data.maxHeight = props.widgetSize.maxHeight;
+      }
+      if (validateResponsiveProp(props.widgetSize?.maxWidth)) {
+        data.maxWidth = props.widgetSize.maxWidth;
+      }
+      if (validateResponsiveProp(props.widgetSize?.minHeight)) {
+        data.minHeight = props.widgetSize.minHeight;
+      }
+      if (validateResponsiveProp(props.widgetSize?.minWidth)) {
+        // Setting a base of 100% for Fill widgets to ensure that they expand on smaller sizes.
+        data.minWidth = getResponsiveMinWidth(
+          props.widgetSize?.minWidth,
+          isFillWidget,
+        );
+      }
+    }
+    return data;
   }, [
     isCurrentWidgetResizing,
     isFillWidget,
@@ -173,8 +154,14 @@ export const AnvilFlexComponent = (props: AnvilFlexComponentProps) => {
   }, [onHoverZIndex]);
 
   return (
-    <Flex {...flexProps} className={className} ref={ref} style={styleProps}>
-      {props.children}
+    <Flex {...flexProps} className={className} style={styleProps}>
+      <div
+        className="w-full h-full"
+        onClick={stopEventPropagation}
+        onClickCapture={onClickFn}
+      >
+        {props.children}
+      </div>
     </Flex>
   );
 };
