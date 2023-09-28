@@ -1,5 +1,6 @@
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import {
+  FlexVerticalAlignment,
   LayoutDirection,
   Positioning,
 } from "layoutSystems/common/utils/constants";
@@ -84,6 +85,7 @@ class TabsWidget extends BaseWidget<
 
   static getDefaults() {
     return {
+      flexVerticalAlignment: FlexVerticalAlignment.Stretch,
       responsiveBehavior: ResponsiveBehavior.Fill,
       minWidth: FILL_WIDGET_MIN_WIDTH,
       rows: WidgetHeightLimits.MIN_CANVAS_HEIGHT_IN_ROWS + 5,

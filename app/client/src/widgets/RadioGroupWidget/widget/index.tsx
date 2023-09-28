@@ -27,6 +27,7 @@ import type {
   PropertyUpdates,
 } from "WidgetProvider/constants";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
+import { FlexVerticalAlignment } from "layoutSystems/common/utils/constants";
 
 /**
  * Validation rules:
@@ -229,6 +230,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
       alignment: Alignment.LEFT,
       widgetName: "RadioGroup",
       version: 1,
+      flexVerticalAlignment: FlexVerticalAlignment.Top,
     };
   }
 
