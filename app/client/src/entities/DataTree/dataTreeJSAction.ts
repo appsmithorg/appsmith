@@ -42,7 +42,9 @@ export const generateDataTreeJSAction = (js: JSCollectionData): any => {
       dynamicBindingPathList.push({ key: action.name });
       dependencyMap["body"].push(action.name);
       actionsData[action.name] = {
-        data: (js.data && js.data[`${action.id}`]) || {},
+        // Data is always set to {} in the unevalTree
+        // Action data is updated directly to the dataTree (see updateActionData.ts)
+        data: {},
       };
     }
   }

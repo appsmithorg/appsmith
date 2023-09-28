@@ -99,7 +99,7 @@ export const contentConfig = (
           validation: {
             type: ValidationTypes.OBJECT,
             params: {
-              default: [],
+              default: {},
             },
           },
           hidden: (props: ChartWidgetProps) =>

@@ -15,6 +15,9 @@ import type {
   TriggerKind,
   TriggerSource,
 } from "constants/AppsmithActionConstants/ActionConstants";
+import type { UpdateActionProps } from "workers/Evaluation/handlers/updateActionData";
+import { handleActionsDataUpdate } from "workers/Evaluation/handlers/updateActionData";
+import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
 
 const _internalSetTimeout = self.setTimeout;
 const _internalClearTimeout = self.clearTimeout;
@@ -122,6 +125,20 @@ const fnExecutionDataHandler = priorityBatchedActionHandler((data) => {
     },
     { JSExecutionData: {}, JSExecutionErrors: {} },
   );
+
+  const updateActionProps: UpdateActionProps[] = Object.entries(
+    batchedData.JSExecutionData,
+  ).map(([jsFnFullName, data]) => {
+    const { entityName, propertyPath: funcName } =
+      getEntityNameAndPropertyPath(jsFnFullName);
+    return {
+      entityName,
+      dataPath: `${funcName}.data`,
+      data,
+    };
+  });
+
+  handleActionsDataUpdate(updateActionProps);
 
   WorkerMessenger.ping({
     method: MAIN_THREAD_ACTION.PROCESS_JS_FUNCTION_EXECUTION,
