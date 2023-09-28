@@ -49,6 +49,7 @@ export class AggregateHelper extends ReusableHelper {
   private lazyCodeEditorFallback = ".t--lazyCodeEditor-fallback";
   private lazyCodeEditorRendered = ".t--lazyCodeEditor-editor";
   private toolTipSpan = ".rc-tooltip-inner span";
+  _walkthroughOverlay = ".t--walkthrough-overlay";
 
   private selectChars = (noOfChars: number) =>
     `${"{leftArrow}".repeat(noOfChars) + "{shift}{cmd}{leftArrow}{backspace}"}`;
