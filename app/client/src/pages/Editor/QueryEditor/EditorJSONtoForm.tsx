@@ -134,7 +134,7 @@ import { CloseDebugger } from "components/editorComponents/Debugger/DebuggerTabs
 import { isAIEnabled } from "@appsmith/components/editorComponents/GPT/trigger";
 import { editorSQLModes } from "components/editorComponents/CodeEditor/sql/config";
 import { EditorFormSignPosting } from "@appsmith/components/editorComponents/EditorFormSignPosting";
-import { DatasourceStructureContext } from "../Explorer/Datasources/DatasourceStructureContainer";
+import { DatasourceStructureContext } from "../Explorer/Datasources/DatasourceStructure";
 import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 
 const QueryFormContainer = styled.form`
@@ -315,7 +315,7 @@ const DocumentationButton = styled(Button)`
 
 const SidebarWrapper = styled.div<{ show: boolean }>`
   border-left: 1px solid var(--ads-v2-color-border);
-  padding: 0 var(--ads-v2-spaces-4) var(--ads-v2-spaces-4);
+  padding: 0 var(--ads-v2-spaces-7) var(--ads-v2-spaces-4);
   overflow: hidden;
   border-bottom: 0;
   display: ${(props) => (props.show ? "flex" : "none")};

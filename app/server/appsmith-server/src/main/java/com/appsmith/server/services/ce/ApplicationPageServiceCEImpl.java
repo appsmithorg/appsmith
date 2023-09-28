@@ -4,6 +4,7 @@ import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.helpers.AppsmithEventContext;
 import com.appsmith.external.helpers.AppsmithEventContextType;
 import com.appsmith.external.models.ActionDTO;
+import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Policy;
@@ -19,6 +20,7 @@ import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Page;
+import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
@@ -32,9 +34,14 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.ResponseUtils;
+import com.appsmith.server.helpers.UserPermissionUtils;
 import com.appsmith.server.migrations.ApplicationVersion;
 import com.appsmith.server.newactions.base.NewActionService;
+import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.ApplicationRepository;
+import com.appsmith.server.repositories.DatasourceRepository;
+import com.appsmith.server.repositories.NewActionRepository;
+import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.AnalyticsService;
@@ -47,9 +54,11 @@ import com.appsmith.server.services.ThemeService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ApplicationPermission;
+import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.WorkspacePermission;
 import com.google.common.base.Strings;
+import com.mongodb.bulk.BulkWriteResult;
 import com.mongodb.client.result.UpdateResult;
 import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
@@ -74,6 +83,7 @@ import java.util.stream.Collectors;
 
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
+import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static org.apache.commons.lang.ObjectUtils.defaultIfNull;
 
 @Slf4j
@@ -103,6 +113,11 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     private final TransactionalOperator transactionalOperator;
 
     private final PermissionGroupService permissionGroupService;
+    private final ActionCollectionRepository actionCollectionRepository;
+    private final NewActionRepository newActionRepository;
+    private final NewPageRepository newPageRepository;
+    private final DatasourceRepository datasourceRepository;
+    private final DatasourcePermission datasourcePermission;
 
     public static final Integer EVALUATION_VERSION = 2;
 
@@ -818,8 +833,14 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 })
                 .cache();
 
+        Mono<Application> applicationPostPermissionCheckMono = Mono.when(
+                        validateAllObjectsForPermissions(
+                                applicationMono, AppsmithError.APPLICATION_NOT_CLONED_MISSING_PERMISSIONS),
+                        validateDatasourcesForCreatePermission(applicationMono))
+                .then(applicationMono);
+
         // 2. Find the name for the cloned application which wouldn't lead to duplicate key exception
-        Mono<String> newAppNameMono = applicationMono.flatMap(application -> applicationService
+        Mono<String> newAppNameMono = applicationPostPermissionCheckMono.flatMap(application -> applicationService
                 // TODO: Convert this into a query that projects only application names
                 .findAllApplicationsByWorkspaceId(application.getWorkspaceId())
                 .map(Application::getName)
@@ -1146,7 +1167,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     if (isPublishedManually) {
                         application.setLastDeployedAt(Instant.now());
                     }
-                    Mono<UpdateResult> publishPagesMono =
+                    Mono<List<BulkWriteResult>> publishPagesMono =
                             newPageService.publishPages(editedPageIds, pagePermission.getEditPermission());
 
                     // Archive the deleted pages and save the application changes and then return the pages so that
@@ -1156,7 +1177,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 })
                 .cache(); // caching as we'll need this to send analytics attributes after publishing the app
 
-        Mono<UpdateResult> publishActionsMono =
+        Mono<List<BulkWriteResult>> publishActionsMono =
                 newActionService.publishActions(applicationId, actionPermission.getEditPermission());
 
         // this is a map of pluginType to count of actions for that pluginType, required for analytics
@@ -1266,9 +1287,14 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
     @Override
     public Mono<Application> publish(String defaultApplicationId, String branchName, boolean isPublishedManually) {
-        return applicationService
+        Mono<Application> applicationMono = applicationService
                 .findBranchedApplicationId(branchName, defaultApplicationId, applicationPermission.getEditPermission())
-                .flatMap(branchedApplicationId -> publish(branchedApplicationId, isPublishedManually))
+                .flatMap(branchedApplicationId ->
+                        applicationService.findById(branchedApplicationId, applicationPermission.getEditPermission()))
+                .cache();
+        return validateAllObjectsForPermissions(applicationMono, AppsmithError.UNABLE_TO_DEPLOY_MISSING_PERMISSION)
+                .then(applicationMono)
+                .flatMap(application -> publish(application.getId(), isPublishedManually))
                 .map(responseUtils::updateApplicationWithDefaultResources);
     }
 
@@ -1418,5 +1444,74 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 defaultIfNull(branchName, ""));
 
         return analyticsService.sendObjectEvent(AnalyticsEvents.PAGE_REORDER, application, data);
+    }
+
+    private Mono<Boolean> validateAllObjectsForPermissions(
+            Mono<Application> applicationMono, AppsmithError expectedError) {
+        Flux<BaseDomain> pageFlux = applicationMono.flatMapMany(application -> newPageRepository
+                .findAllByApplicationIdsWithoutPermission(List.of(application.getId()), List.of("id", "policies"))
+                .flatMap(newPageRepository::setUserPermissionsInObject));
+        Flux<BaseDomain> actionFlux = applicationMono.flatMapMany(application -> newActionRepository
+                .findAllByApplicationIdsWithoutPermission(List.of(application.getId()), List.of("id", "policies"))
+                .flatMap(newActionRepository::setUserPermissionsInObject));
+        Flux<BaseDomain> actionCollectionFlux = applicationMono.flatMapMany(application -> actionCollectionRepository
+                .findAllByApplicationIds(List.of(application.getId()), List.of("id", "policies"))
+                .flatMap(actionCollectionRepository::setUserPermissionsInObject));
+
+        Mono<Boolean> pagesValidatedForPermission = UserPermissionUtils.validateDomainObjectPermissionsOrError(
+                pageFlux,
+                FieldName.PAGE,
+                permissionGroupService.getSessionUserPermissionGroupIds(),
+                pagePermission.getEditPermission(),
+                expectedError);
+        Mono<Boolean> actionsValidatedForPermission = UserPermissionUtils.validateDomainObjectPermissionsOrError(
+                actionFlux,
+                FieldName.ACTION,
+                permissionGroupService.getSessionUserPermissionGroupIds(),
+                actionPermission.getEditPermission(),
+                expectedError);
+        Mono<Boolean> actionCollectionsValidatedForPermission =
+                UserPermissionUtils.validateDomainObjectPermissionsOrError(
+                        actionCollectionFlux,
+                        FieldName.ACTION,
+                        permissionGroupService.getSessionUserPermissionGroupIds(),
+                        actionPermission.getEditPermission(),
+                        expectedError);
+        return Mono.zip(
+                        pagesValidatedForPermission,
+                        actionsValidatedForPermission,
+                        actionCollectionsValidatedForPermission)
+                .thenReturn(Boolean.TRUE);
+    }
+
+    private Mono<Boolean> validateDatasourcesForCreatePermission(Mono<Application> applicationMono) {
+        Flux<BaseDomain> datasourceFlux = applicationMono
+                .flatMapMany(application -> newActionRepository.findAllByApplicationIdsWithoutPermission(
+                        List.of(application.getId()),
+                        List.of(
+                                "id",
+                                fieldName(QNewAction.newAction.unpublishedAction) + "."
+                                        + fieldName(QNewAction.newAction.unpublishedAction.datasource) + "."
+                                        + fieldName(QNewAction.newAction.unpublishedAction.datasource.id))))
+                .collectList()
+                .map(actions -> {
+                    return actions.stream()
+                            .map(action -> action.getUnpublishedAction()
+                                    .getDatasource()
+                                    .getId())
+                            .filter(datasourceId -> StringUtils.hasLength(datasourceId))
+                            .collect(Collectors.toSet());
+                })
+                .flatMapMany(datasourceIds -> datasourceRepository
+                        .findAllByIdsWithoutPermission(datasourceIds, List.of("id", "policies"))
+                        .flatMap(datasourceRepository::setUserPermissionsInObject));
+
+        return UserPermissionUtils.validateDomainObjectPermissionsOrError(
+                        datasourceFlux,
+                        FieldName.DATASOURCE,
+                        permissionGroupService.getSessionUserPermissionGroupIds(),
+                        datasourcePermission.getActionCreatePermission(),
+                        AppsmithError.APPLICATION_NOT_CLONED_MISSING_PERMISSIONS)
+                .thenReturn(Boolean.TRUE);
     }
 }
