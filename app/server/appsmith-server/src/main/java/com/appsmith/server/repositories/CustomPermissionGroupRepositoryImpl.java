@@ -81,10 +81,6 @@ public class CustomPermissionGroupRepositoryImpl extends CustomPermissionGroupRe
         return queryAll(List.of(criteria), includeFields, null, null, NO_RECORD_LIMIT);
     }
 
-    public Mono<Set<String>> getAllPermissionGroupsIdsForUser(User user) {
-        return super.getAllPermissionGroupsForUser(user);
-    }
-
     @Override
     public Mono<Long> countAllReadablePermissionGroupsForUser(User user) {
         return cacheableRepositoryHelper.getAllReadablePermissionGroupsForUser(user);
