@@ -22,7 +22,7 @@ additional_downstream_headers='
 add_header X-Content-Type-Options "nosniff";
 '
 
-cat <<EOF
+cat <<EOF > "$TMP/nginx-app.conf"
 map \$http_x_forwarded_proto \$origin_scheme {
   default \$http_x_forwarded_proto;
   '' \$scheme;
@@ -40,9 +40,6 @@ map \$http_forwarded \$final_forwarded {
 
 # redirect log to stdout for supervisor to capture
 access_log /dev/stdout;
-
-server_tokens off;
-more_set_headers 'Server: ';
 
 server {
 
@@ -72,10 +69,6 @@ fi
 
   client_max_body_size 150m;
 
-  gzip on;
-  gzip_types *;
-
-  root /opt/appsmith/editor;
   index index.html;
   error_page 404 /;
 

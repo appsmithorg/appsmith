@@ -46,7 +46,9 @@ export function getHintDetailsFromClassName(
   }
 }
 
-const MAX_NUMBER_OF_SQL_HINTS = 200;
+// Beyond 270 hints, the main thread task for rendering the hint tooltip becomes greater than 50ms
+// 50ms is the limit beyond which a task is considered a long task
+const MAX_NUMBER_OF_SQL_HINTS = 270;
 
 export function filterCompletions(completions: Hints) {
   completions.list = completions.list.slice(0, MAX_NUMBER_OF_SQL_HINTS);

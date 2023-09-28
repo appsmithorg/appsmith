@@ -4,11 +4,16 @@ import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.newactions.base.NewActionService;
+import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.ApplicationRepository;
+import com.appsmith.server.repositories.DatasourceRepository;
+import com.appsmith.server.repositories.NewActionRepository;
+import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.ce.ApplicationPageServiceCEImpl;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ApplicationPermission;
+import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.WorkspacePermission;
 import lombok.extern.slf4j.Slf4j;
@@ -39,7 +44,12 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
             PagePermission pagePermission,
             ActionPermission actionPermission,
             TransactionalOperator transactionalOperator,
-            PermissionGroupService permissionGroupService) {
+            PermissionGroupService permissionGroupService,
+            ActionCollectionRepository actionCollectionRepository,
+            NewActionRepository newActionRepository,
+            NewPageRepository newPageRepository,
+            DatasourceRepository datasourceRepository,
+            DatasourcePermission datasourcePermission) {
 
         super(
                 workspaceService,
@@ -61,6 +71,11 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
                 pagePermission,
                 actionPermission,
                 transactionalOperator,
-                permissionGroupService);
+                permissionGroupService,
+                actionCollectionRepository,
+                newActionRepository,
+                newPageRepository,
+                datasourceRepository,
+                datasourcePermission);
     }
 }

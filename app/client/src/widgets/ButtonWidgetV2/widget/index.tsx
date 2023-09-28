@@ -11,7 +11,7 @@ import { BUTTON_MIN_WIDTH } from "constants/minWidthConstants";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import type { ButtonWidgetProps, ButtonWidgetState } from "./types";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
-import { BUTTON_COLORS, BUTTON_VARIANTS } from "@design-system/widgets";
+import { COLORS, BUTTON_VARIANTS } from "@design-system/widgets";
 import type { AutocompletionDefinitions } from "WidgetProvider/constants";
 import { ButtonPlacementTypes, RecaptchaTypes } from "components/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
@@ -48,8 +48,8 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
     return {
       animateLoading: true,
       text: "Submit",
-      buttonVariant: BUTTON_VARIANTS.FILLED,
-      buttonColor: BUTTON_COLORS.ACCENT,
+      buttonVariant: BUTTON_VARIANTS.filled,
+      buttonColor: COLORS.accent,
       placement: ButtonPlacementTypes.CENTER,
       rows: 4,
       columns: 16,

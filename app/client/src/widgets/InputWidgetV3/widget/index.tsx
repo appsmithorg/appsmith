@@ -291,8 +291,6 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
         isDisabled={this.props.isDisabled}
         isLoading={this.props.isLoading}
         label={this.props.label}
-        labelAlign={this.props.labelAlignment}
-        labelPosition={this.props.labelPosition}
         maxChars={this.props.maxChars}
         maxNum={this.props.maxNum}
         minNum={this.props.minNum}
