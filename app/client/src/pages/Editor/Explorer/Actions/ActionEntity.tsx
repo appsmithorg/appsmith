@@ -19,9 +19,11 @@ import { keyBy } from "lodash";
 import { getActionConfig } from "./helpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useLocation } from "react-router";
-import { hasDeleteActionPermission } from "@appsmith/utils/permissionHelpers";
 import type { Datasource } from "entities/Datasource";
-import { getHasManageActionPermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import {
+  getHasDeleteActionPermission,
+  getHasManageActionPermission,
+} from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
@@ -80,7 +82,10 @@ export const ExplorerActionEntity = memo((props: ExplorerActionEntityProps) => {
 
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
 
-  const canDeleteAction = hasDeleteActionPermission(actionPermissions);
+  const canDeleteAction = getHasDeleteActionPermission(
+    isFeatureEnabled,
+    actionPermissions,
+  );
 
   const canManageAction = getHasManageActionPermission(
     isFeatureEnabled,

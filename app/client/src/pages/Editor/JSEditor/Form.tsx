@@ -53,10 +53,7 @@ import {
 } from "./styledComponents";
 import { getJSPaneConfigSelectedTab } from "selectors/jsPaneSelectors";
 import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
-import {
-  hasDeleteActionPermission,
-  hasExecuteActionPermission,
-} from "@appsmith/utils/permissionHelpers";
+import { hasExecuteActionPermission } from "@appsmith/utils/permissionHelpers";
 import {
   setCodeEditorCursorAction,
   setFocusableInputField,
@@ -173,7 +170,8 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
   const isExecutePermitted = hasExecuteActionPermission(
     currentJSCollection?.userPermissions || [],
   );
-  const isDeletePermitted = hasDeleteActionPermission(
+  const isDeletePermitted = getHasDeleteActionPermission(
+    isFeatureEnabled,
     currentJSCollection?.userPermissions || [],
   );
 

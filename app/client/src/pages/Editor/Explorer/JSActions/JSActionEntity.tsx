@@ -13,8 +13,10 @@ import type { PluginType } from "entities/Action";
 import { jsCollectionIdURL } from "RouteBuilder";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useLocation } from "react-router";
-import { hasDeleteActionPermission } from "@appsmith/utils/permissionHelpers";
-import { getHasManageActionPermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import {
+  getHasDeleteActionPermission,
+  getHasManageActionPermission,
+} from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
@@ -60,7 +62,10 @@ export const ExplorerJSCollectionEntity = memo(
 
     const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
 
-    const canDeleteJSAction = hasDeleteActionPermission(jsActionPermissions);
+    const canDeleteJSAction = getHasDeleteActionPermission(
+      isFeatureEnabled,
+      jsActionPermissions,
+    );
 
     const canManageJSAction = getHasManageActionPermission(
       isFeatureEnabled,

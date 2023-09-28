@@ -99,10 +99,7 @@ import {
   ResponseTabErrorDefaultMessage,
 } from "components/editorComponents/ApiResponseView";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
-import {
-  hasDeleteActionPermission,
-  hasExecuteActionPermission,
-} from "@appsmith/utils/permissionHelpers";
+import { hasExecuteActionPermission } from "@appsmith/utils/permissionHelpers";
 import { getQueryPaneConfigSelectedTabIndex } from "selectors/queryPaneSelectors";
 import { setQueryPaneConfigSelectedTabIndex } from "actions/queryPaneActions";
 import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
@@ -136,6 +133,7 @@ import { DatasourceStructureContext } from "../Explorer/Datasources/DatasourceSt
 import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 import {
   getHasCreateDatasourcePermission,
+  getHasDeleteActionPermission,
   getHasManageActionPermission,
 } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
@@ -434,7 +432,8 @@ export function EditorJSONtoForm(props: Props) {
   const isExecutePermitted = hasExecuteActionPermission(
     currentActionConfig?.userPermissions,
   );
-  const isDeletePermitted = hasDeleteActionPermission(
+  const isDeletePermitted = getHasDeleteActionPermission(
+    isFeatureEnabled,
     currentActionConfig?.userPermissions,
   );
 
