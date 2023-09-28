@@ -32,6 +32,7 @@ import StartScratch from "assets/images/start-from-scratch.svg";
 import StartTemplate from "assets/images/start-from-template.svg";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { TemplateView } from "pages/Templates/TemplateView";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 
 const SectionWrapper = styled.div`
   display: flex;
@@ -43,7 +44,7 @@ const SectionWrapper = styled.div`
   `}
 `;
 
-const BackWrapper = styled.div`
+const BackWrapper = styled.div<{ hidden?: boolean }>`
   position: sticky;
   ${(props) => `
     top: ${props.theme.homePage.header}px;
@@ -52,6 +53,7 @@ const BackWrapper = styled.div`
   padding: var(--ads-v2-spaces-3);
   z-index: 1;
   margin-left: -4px;
+  ${(props) => `${props.hidden && "visibility: hidden; opacity: 0;"}`}
 `;
 
 const FiltersWrapper = styled.div`
@@ -100,6 +102,7 @@ const CardContainer = styled.div`
   align-items: center;
   text-align: center;
   cursor: pointer;
+  border-radius: 4px;
   img {
     height: 160px;
     margin-bottom: 48px;
@@ -170,24 +173,34 @@ const CreateNewAppsOption = ({
     if (!isImportingTemplate) setSelectedTemplate(id);
   };
 
+  const resetCurrentWorkspaceForCreateNewApp = () => {
+    dispatch({
+      type: ReduxActionTypes.RESET_CURRENT_WORKSPACE_FOR_CREATE_NEW_APP,
+    });
+  };
+
   const onClickUseTemplate = (id: string) => {
     const title = getTemplateTitleById(id);
     AnalyticsUtil.logEvent("USE_TEMPLATE_FROM_DETAILS_PAGE_WHEN_ONBOARDING", {
       title,
     });
     // When Use template is clicked on template view detail screen
-    if (!isImportingTemplate)
+    if (!isImportingTemplate) {
       dispatch(importTemplateToWorkspace(id, currentSelectedWorkspace));
+      resetCurrentWorkspaceForCreateNewApp();
+    }
   };
 
   const onForkTemplateClick = (template: Template) => {
     const title = template.title;
     AnalyticsUtil.logEvent("FORK_TEMPLATE_WHEN_ONBOARDING", { title });
     // When fork template is clicked to add a new app using the template
-    if (!isImportingTemplate)
+    if (!isImportingTemplate) {
       dispatch(
         importTemplateToWorkspace(template.id, currentSelectedWorkspace),
       );
+      resetCurrentWorkspaceForCreateNewApp();
+    }
   };
 
   const getTemplateTitleById = (id: string) => {
@@ -223,7 +236,7 @@ const CreateNewAppsOption = ({
 
   return (
     <SectionWrapper>
-      <BackWrapper>
+      <BackWrapper hidden={!useTemplate}>
         <Link
           className="t--create-new-app-option-goback"
           data-testid="t--create-new-app-option-goback"

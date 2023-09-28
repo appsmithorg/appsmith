@@ -67,3 +67,7 @@ export const getDefaultRole = createSelector(
 export const getCurrentError = (state: AppState) => {
   return state.ui.errors.currentError;
 };
+
+export const getCurrentWorkspaceForCreateNewApp = (state: AppState) => {
+  return state.ui.workspaces.currentWorkspaceForCreateNewApp;
+};

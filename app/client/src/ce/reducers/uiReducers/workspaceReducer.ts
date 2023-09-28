@@ -38,6 +38,7 @@ export interface WorkspaceReduxState {
   workspaceUsers: WorkspaceUser[];
   workspaceRoles: any;
   currentWorkspace: Workspace;
+  currentWorkspaceForCreateNewApp?: string;
 }
 
 export const handlers = {
@@ -178,6 +179,17 @@ export const handlers = {
     draftState: WorkspaceReduxState,
   ) => {
     draftState.loadingStates.isFetchingWorkspace = false;
+  },
+  [ReduxActionTypes.SET_CURRENT_WORKSPACE_FOR_CREATE_NEW_APP]: (
+    draftState: WorkspaceReduxState,
+    action: ReduxAction<string>,
+  ) => {
+    draftState.currentWorkspaceForCreateNewApp = action.payload;
+  },
+  [ReduxActionTypes.RESET_CURRENT_WORKSPACE_FOR_CREATE_NEW_APP]: (
+    draftState: WorkspaceReduxState,
+  ) => {
+    draftState.currentWorkspaceForCreateNewApp = undefined;
   },
 };
 

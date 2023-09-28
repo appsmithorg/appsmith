@@ -48,6 +48,11 @@ export const redirectUserAfterSignup = (
             firstTimeUserOnboardingInit(applicationId, pageId as string),
           );
         } else {
+          if (!urlObject) {
+            try {
+              urlObject = new URL(redirectUrl, window.location.origin);
+            } catch (e) {}
+          }
           if (isEnabledForCreateNew) {
             urlObject?.searchParams.set("startCreateNewApp", "true");
           }

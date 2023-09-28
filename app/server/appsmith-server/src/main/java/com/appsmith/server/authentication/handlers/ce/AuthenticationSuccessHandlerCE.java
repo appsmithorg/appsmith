@@ -2,6 +2,7 @@ package com.appsmith.server.authentication.handlers.ce;
 
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.server.authentication.handlers.CustomServerOAuth2AuthorizationRequestResolver;
+import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.constants.ApiConstants;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.RateLimitConstants;
@@ -71,6 +72,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
     private final TenantService tenantService;
     private final UserService userService;
     private final FeatureFlagService featureFlagService;
+    private final CommonConfig commonConfig;
 
     private Mono<Boolean> isVerificationRequired(String userEmail, String method) {
         Mono<Boolean> emailVerificationEnabledMono = tenantService
@@ -218,9 +220,13 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
         User user = (User) authentication.getPrincipal();
         Mono<Boolean> isVerificationRequiredMono = Mono.just(FALSE);
 
-        HttpCookie SkipFlagCookie =
-                webFilterExchange.getExchange().getRequest().getCookies().getFirst(ApiConstants.SKIP_FLAG_CHECK_COOKIE);
-        boolean skipFlagCheckHeader = SkipFlagCookie != null && Boolean.parseBoolean(SkipFlagCookie.getValue());
+        HttpCookie SkipCreateNewFlag = webFilterExchange
+                .getExchange()
+                .getRequest()
+                .getCookies()
+                .getFirst(ApiConstants.SKIP_CREATE_NEW_APP_FLAG_COOKIE);
+        boolean skipCreateNewAppFlagCookieValue =
+                SkipCreateNewFlag != null && Boolean.parseBoolean(SkipCreateNewFlag.getValue());
 
         if (isFromSignup) {
             isVerificationRequiredMono = isVerificationRequired(user.getEmail(), "signup");
@@ -228,11 +234,13 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                 Mono<Boolean> finalIsVerificationRequiredMono = isVerificationRequiredMono;
                 redirectionMono = finalIsVerificationRequiredMono.flatMap(isVerificationRequired -> {
                     if (TRUE.equals(isVerificationRequired)) {
-                        return createDefaultApplication(defaultWorkspaceId, authentication, skipFlagCheckHeader)
+                        return createDefaultApplication(
+                                        defaultWorkspaceId, authentication, skipCreateNewAppFlagCookieValue)
                                 .flatMap(defaultApplication -> postVerificationRequiredHandler(
                                         webFilterExchange, user, defaultApplication, TRUE));
                     } else {
-                        return createDefaultApplication(defaultWorkspaceId, authentication, skipFlagCheckHeader)
+                        return createDefaultApplication(
+                                        defaultWorkspaceId, authentication, skipCreateNewAppFlagCookieValue)
                                 .flatMap(application ->
                                         redirectHelper.handleRedirect(webFilterExchange, application, true));
                     }
@@ -274,9 +282,13 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
         String originHeader =
                 webFilterExchange.getExchange().getRequest().getHeaders().getOrigin();
 
-        HttpCookie SkipFlagCookie =
-                webFilterExchange.getExchange().getRequest().getCookies().getFirst(ApiConstants.SKIP_FLAG_CHECK_COOKIE);
-        boolean skipFlagCheckHeader = SkipFlagCookie != null && Boolean.parseBoolean(SkipFlagCookie.getValue());
+        HttpCookie SkipCreateNewFlag = webFilterExchange
+                .getExchange()
+                .getRequest()
+                .getCookies()
+                .getFirst(ApiConstants.SKIP_CREATE_NEW_APP_FLAG_COOKIE);
+        boolean skipCreateNewAppFlagCookieValue =
+                SkipCreateNewFlag != null && Boolean.parseBoolean(SkipCreateNewFlag.getValue());
 
         if (authentication instanceof OAuth2AuthenticationToken) {
             // for oauth type signups, we don't need to verify email
@@ -315,7 +327,8 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                         .isCreateWorkspaceAllowed(TRUE)
                         .flatMap(isCreateWorkspaceAllowed -> {
                             if (isCreateWorkspaceAllowed.equals(Boolean.TRUE)) {
-                                return createDefaultApplication(defaultWorkspaceId, authentication, skipFlagCheckHeader)
+                                return createDefaultApplication(
+                                                defaultWorkspaceId, authentication, skipCreateNewAppFlagCookieValue)
                                         .flatMap(application -> handleOAuth2Redirect(
                                                 webFilterExchange, application, finalIsFromSignup));
                             }
@@ -384,7 +397,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
     }
 
     protected Mono<Application> createDefaultApplication(
-            String defaultWorkspaceId, Authentication authentication, boolean skipFlagCheckHeader) {
+            String defaultWorkspaceId, Authentication authentication, boolean skipCreateNewAppFlagCookieValue) {
 
         // need to create default application
         Application application = new Application();
@@ -427,7 +440,15 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
             Mono<Application> app = tuple.getT1();
             Boolean isEnabledForCreateNewApps = tuple.getT2();
 
-            if (Boolean.TRUE.equals(isEnabledForCreateNewApps) && !skipFlagCheckHeader) {
+            /*
+             * This flow is for not creating any default application which is :
+             * - when the user is enabled for create new app flow
+             * - when the skip create new app cookie is not set
+             * - when the instance is a cloudhosting
+             */
+            if (Boolean.TRUE.equals(isEnabledForCreateNewApps)
+                    && !skipCreateNewAppFlagCookieValue
+                    && commonConfig.isCloudHosting()) {
                 return app;
             }
 

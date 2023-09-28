@@ -103,6 +103,7 @@ import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import ResourceListLoader from "@appsmith/pages/Applications/ResourceListLoader";
+import { getCurrentWorkspaceForCreateNewApp } from "@appsmith/selectors/workspaceSelectors";
 
 const START_CREATE_NEW_APP_FLOW_URL_KEY = "startCreateNewApp";
 
@@ -752,7 +753,9 @@ export interface ApplicationProps {
 }
 
 const ApplicationContainerWrapper = () => {
-  const [currentSelectedWorkspace, setCurrentSelectedWorkspace] = useState("");
+  const currentSelectedWorkspace = useSelector(
+    getCurrentWorkspaceForCreateNewApp,
+  );
   const searchKeyword = useSelector(getApplicationSearchKeyword);
   const isFetchingApplications = useSelector(getIsFetchingApplications);
   const userWorkspaces = useSelector(getUserApplicationsWorkspacesList);
@@ -760,6 +763,13 @@ const ApplicationContainerWrapper = () => {
   const dispatch = useDispatch();
   const theme = useContext(ThemeContext);
   const creatingApplicationMap = useSelector(getIsCreatingApplication);
+
+  const setCurrentSelectedWorkspace = (id: string) => {
+    dispatch({
+      type: ReduxActionTypes.SET_CURRENT_WORKSPACE_FOR_CREATE_NEW_APP,
+      payload: id,
+    });
+  };
 
   //   A/B to enable the intermediary step for creating new application
   const isEnabledForCreateNew = useFeatureFlag(
@@ -829,8 +839,13 @@ const ApplicationContainerWrapper = () => {
   };
 
   const startFromScratch = () => {
-    AnalyticsUtil.logEvent("CREATE_APP_FROM_SCRATCH");
-    addNewAppInit(currentSelectedWorkspace);
+    if (currentSelectedWorkspace) {
+      AnalyticsUtil.logEvent("CREATE_APP_FROM_SCRATCH");
+      addNewAppInit(currentSelectedWorkspace);
+      dispatch({
+        type: ReduxActionTypes.RESET_CURRENT_WORKSPACE_FOR_CREATE_NEW_APP,
+      });
+    }
   };
 
   useEffect(() => {
@@ -866,7 +881,9 @@ const ApplicationContainerWrapper = () => {
   }, [isEnabledForCreateNew, updatedWorkspaces]);
 
   const onClickBack = () => {
-    setCurrentSelectedWorkspace("");
+    dispatch({
+      type: ReduxActionTypes.RESET_CURRENT_WORKSPACE_FOR_CREATE_NEW_APP,
+    });
   };
 
   return currentSelectedWorkspace ? (
