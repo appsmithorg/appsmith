@@ -762,12 +762,10 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
 
     protected Mono<UserProfileDTO> setRolesAndGroups(
             UserProfileDTO profile, User user, boolean showRolesAndGroups, boolean isCloudHosting) {
-        if (showRolesAndGroups) {
-            profile.setRoles(
-                    List.of(UPGRADE_TO_BUSINESS_EDITION_TO_ACCESS_ROLES_AND_GROUPS_FOR_CONDITIONAL_BUSINESS_LOGIC));
-            profile.setGroups(
-                    List.of(UPGRADE_TO_BUSINESS_EDITION_TO_ACCESS_ROLES_AND_GROUPS_FOR_CONDITIONAL_BUSINESS_LOGIC));
-        }
+        profile.setRoles(
+                List.of(UPGRADE_TO_BUSINESS_EDITION_TO_ACCESS_ROLES_AND_GROUPS_FOR_CONDITIONAL_BUSINESS_LOGIC));
+        profile.setGroups(
+                List.of(UPGRADE_TO_BUSINESS_EDITION_TO_ACCESS_ROLES_AND_GROUPS_FOR_CONDITIONAL_BUSINESS_LOGIC));
 
         return Mono.just(profile);
     }
