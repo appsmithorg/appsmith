@@ -88,6 +88,7 @@ import java.util.UUID;
 import java.util.regex.Pattern;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_USERS;
+import static com.appsmith.server.constants.AccessControlConstants.UPGRADE_TO_BUSINESS_EDITION_TO_ACCESS_ROLES_AND_GROUPS_FOR_CONDITIONAL_BUSINESS_LOGIC;
 import static com.appsmith.server.helpers.RedirectHelper.DEFAULT_REDIRECT_URL;
 import static com.appsmith.server.helpers.ValidationUtils.LOGIN_PASSWORD_MAX_LENGTH;
 import static com.appsmith.server.helpers.ValidationUtils.LOGIN_PASSWORD_MIN_LENGTH;
@@ -731,7 +732,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                         userFromDbMono,
                         userDataService.getForCurrentUser().defaultIfEmpty(new UserData()),
                         isSuperUserMono)
-                .map(tuple -> {
+                .flatMap(tuple -> {
                     final boolean isUsersEmpty = Boolean.TRUE.equals(tuple.getT1());
                     final User userFromDb = tuple.getT2();
                     final UserData userData = tuple.getT3();
@@ -755,9 +756,18 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                             commonConfig.isCloudHosting() ? true : userData.isIntercomConsentGiven());
                     profile.setSuperUser(isSuperUser);
                     profile.setConfigurable(!StringUtils.isEmpty(commonConfig.getEnvFilePath()));
-
-                    return profile;
+                    return setRolesAndGroups(profile, userFromDb, true, commonConfig.isCloudHosting());
                 });
+    }
+
+    protected Mono<UserProfileDTO> setRolesAndGroups(
+            UserProfileDTO profile, User user, boolean showRolesAndGroups, boolean isCloudHosting) {
+        profile.setRoles(
+                List.of(UPGRADE_TO_BUSINESS_EDITION_TO_ACCESS_ROLES_AND_GROUPS_FOR_CONDITIONAL_BUSINESS_LOGIC));
+        profile.setGroups(
+                List.of(UPGRADE_TO_BUSINESS_EDITION_TO_ACCESS_ROLES_AND_GROUPS_FOR_CONDITIONAL_BUSINESS_LOGIC));
+
+        return Mono.just(profile);
     }
 
     private EmailTokenDTO parseValueFromEncryptedToken(String encryptedToken) {

@@ -60,6 +60,7 @@ import java.util.Set;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_USERS;
 import static com.appsmith.server.acl.AclPermission.RESET_PASSWORD_USERS;
+import static com.appsmith.server.constants.AccessControlConstants.UPGRADE_TO_BUSINESS_EDITION_TO_ACCESS_ROLES_AND_GROUPS_FOR_CONDITIONAL_BUSINESS_LOGIC;
 import static com.appsmith.server.constants.Appsmith.DEFAULT_ORIGIN_HEADER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -495,6 +496,14 @@ public class UserServiceTest {
                 .assertNext(userProfileDTO -> {
                     assertNotNull(userProfileDTO);
                     assertThat(userProfileDTO.isIntercomConsentGiven()).isTrue();
+                    assertEquals(
+                            List.of(
+                                    UPGRADE_TO_BUSINESS_EDITION_TO_ACCESS_ROLES_AND_GROUPS_FOR_CONDITIONAL_BUSINESS_LOGIC),
+                            userProfileDTO.getGroups());
+                    assertEquals(
+                            List.of(
+                                    UPGRADE_TO_BUSINESS_EDITION_TO_ACCESS_ROLES_AND_GROUPS_FOR_CONDITIONAL_BUSINESS_LOGIC),
+                            userProfileDTO.getRoles());
                 })
                 .verifyComplete();
     }

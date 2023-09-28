@@ -85,4 +85,6 @@ public interface CustomNewActionRepositoryCE extends AppsmithRepository<NewActio
     Mono<UpdateResult> updateDatasourceNameInActions(Datasource datasource);
 
     Flux<PluginTypeAndCountDTO> countActionsByPluginType(String applicationId);
+
+    Flux<NewAction> findAllByApplicationIdsWithoutPermission(List<String> applicationIds, List<String> includeFields);
 }

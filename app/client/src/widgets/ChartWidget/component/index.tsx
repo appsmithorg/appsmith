@@ -1,6 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import * as echarts from "echarts";
+import "echarts-gl";
 import { invisible } from "constants/DefaultTheme";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import type {
@@ -17,8 +18,17 @@ import type { WidgetPositionProps } from "widgets/BaseWidget";
 import { ChartErrorComponent } from "./ChartErrorComponent";
 import { EChartsConfigurationBuilder } from "./EChartsConfigurationBuilder";
 import { EChartsDatasetBuilder } from "./EChartsDatasetBuilder";
-import { isBasicEChart } from "../widget";
-import { parseOnDataPointClickParams } from "./helpers";
+import {
+  generateEChartInstanceDisposalParams,
+  is3DChart,
+  isBasicEChart,
+  shouldDisposeEChartsInstance,
+} from "./helpers";
+import {
+  parseOnDataPointClickParams,
+  isCustomEChart,
+  isCustomFusionChart,
+} from "./helpers";
 // Leaving this require here. Ref: https://stackoverflow.com/questions/41292559/could-not-find-a-declaration-file-for-module-module-name-path-to-module-nam/42505940#42505940
 // FusionCharts comes with its own typings so there is no need to separately import them. But an import from fusioncharts/core still requires a declaration file.
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -55,6 +65,7 @@ export interface ChartComponentState {
   eChartsError: Error | undefined;
   chartType: ChartType;
 }
+
 export interface ChartComponentProps extends WidgetPositionProps {
   allowScroll: boolean;
   chartData: AllChartData;
@@ -118,10 +129,13 @@ class ChartComponent extends React.Component<
   echartsConfigurationBuilder: EChartsConfigurationBuilder;
 
   echartConfiguration: Record<string, any> = {};
+  is3DChart = false;
+  prevProps: ChartComponentProps;
 
   constructor(props: ChartComponentProps) {
     super(props);
     this.echartsConfigurationBuilder = new EChartsConfigurationBuilder();
+    this.prevProps = {} as ChartComponentProps;
 
     this.state = {
       eChartsError: undefined,
@@ -158,6 +172,27 @@ class ChartComponent extends React.Component<
     this.props.onDataPointClick(dataPointClickParams);
   };
 
+  disposeEChartsIfNeeded() {
+    if (this.echartsInstance?.isDisposed()) {
+      return;
+    }
+
+    let shouldDisposeEcharts = true;
+    if (Object.keys(this.prevProps).length == 0) {
+      shouldDisposeEcharts = true;
+    } else {
+      const config = generateEChartInstanceDisposalParams(
+        this.prevProps,
+        this.props,
+      );
+      shouldDisposeEcharts = shouldDisposeEChartsInstance(config);
+    }
+    this.prevProps = this.props;
+    if (shouldDisposeEcharts) {
+      this.echartsInstance?.dispose();
+    }
+  }
+
   initializeEchartsInstance = () => {
     this.eChartsHTMLContainer = document.getElementById(
       this.eChartsContainerId,
@@ -166,12 +201,15 @@ class ChartComponent extends React.Component<
       return;
     }
 
+    this.disposeEChartsIfNeeded();
+    this.is3DChart = is3DChart(this.props.customEChartConfig);
+
     if (!this.echartsInstance || this.echartsInstance.isDisposed()) {
       this.echartsInstance = echarts.init(
         this.eChartsHTMLContainer,
         undefined,
         {
-          renderer: "svg",
+          renderer: this.is3DChart ? "canvas" : "svg",
           width: this.props.dimensions.componentWidth,
           height: this.props.dimensions.componentHeight,
         },
@@ -191,6 +229,21 @@ class ChartComponent extends React.Component<
     return this.props.customEChartConfig;
   };
 
+  shouldSetOptions(eChartOptions: any) {
+    if (equal(this.echartConfiguration, eChartOptions)) {
+      if (this.is3DChart) {
+        return (
+          this.state.eChartsError == undefined ||
+          this.state.eChartsError == null
+        );
+      } else {
+        return false;
+      }
+    } else {
+      return true;
+    }
+  }
+
   renderECharts = () => {
     this.initializeEchartsInstance();
 
@@ -199,14 +252,14 @@ class ChartComponent extends React.Component<
     }
 
     let eChartOptions: Record<string, unknown> = {};
-    if (this.isCustomEChart(this.state.chartType)) {
+    if (isCustomEChart(this.state.chartType)) {
       eChartOptions = this.getCustomEChartOptions();
     } else if (isBasicEChart(this.state.chartType)) {
       eChartOptions = this.getBasicEChartOptions();
     }
 
     try {
-      if (!equal(this.echartConfiguration, eChartOptions)) {
+      if (this.shouldSetOptions(eChartOptions)) {
         this.echartConfiguration = eChartOptions;
         this.echartsInstance.setOption(this.echartConfiguration, true);
 
@@ -257,16 +310,16 @@ class ChartComponent extends React.Component<
 
   componentDidUpdate() {
     if (
-      this.isCustomFusionChart(this.props.chartType) &&
-      !this.isCustomFusionChart(this.state.chartType)
+      isCustomFusionChart(this.props.chartType) &&
+      !isCustomFusionChart(this.state.chartType)
     ) {
       this.setState({
         eChartsError: undefined,
         chartType: "CUSTOM_FUSION_CHART",
       });
     } else if (
-      this.isCustomEChart(this.props.chartType) &&
-      !this.isCustomEChart(this.state.chartType)
+      isCustomEChart(this.props.chartType) &&
+      !isCustomEChart(this.state.chartType)
     ) {
       this.echartConfiguration = {};
       this.setState({ eChartsError: undefined, chartType: "CUSTOM_ECHART" });
@@ -283,14 +336,6 @@ class ChartComponent extends React.Component<
     } else {
       this.renderChartingLibrary();
     }
-  }
-
-  isCustomFusionChart(type: ChartType) {
-    return type == "CUSTOM_FUSION_CHART";
-  }
-
-  isCustomEChart(type: ChartType) {
-    return type == "CUSTOM_ECHART";
   }
 
   disposeFusionCharts = () => {

@@ -435,6 +435,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
 
   it("6. Verify Adding Suggested widget with specific name functionality - S3 ", () => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE);
+    agHelper.Sleep(2500); //allowing sometime for widget to settle down
     dataSources.NavigateFromActiveDS(datasourceName, true);
     agHelper.GetObjectName().then(($queryName) => {
       entityExplorer.SelectEntityByName($queryName, "Queries/JS");
