@@ -57,14 +57,17 @@ import { RenderModes } from "constants/WidgetConstants";
 import log from "loglevel";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { getWidgets } from "./selectors";
-import { clearActionResponse } from "actions/pluginActionActions";
+import {
+  clearActionResponse,
+  updateActionData,
+} from "actions/pluginActionActions";
 import {
   importApplication,
   updateApplicationLayout,
 } from "@appsmith/actions/applicationActions";
 import { setPreviewModeAction } from "actions/editorActions";
 import type { FlattenedWidgetProps } from "WidgetProvider/constants";
-import type { ActionData } from "reducers/entityReducers/actionsReducer";
+import type { ActionData } from "@appsmith/reducers/entityReducers/actionsReducer";
 import { batchUpdateMultipleWidgetProperties } from "actions/controlActions";
 import {
   setExplorerActiveAction,
@@ -87,8 +90,6 @@ import type { StepState } from "reducers/uiReducers/onBoardingReducer";
 import { isUndefined } from "lodash";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import { SIGNPOSTING_ANALYTICS_STEP_NAME } from "pages/Editor/FirstTimeUserOnboarding/constants";
-import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 const GUIDED_TOUR_STORAGE_KEY = "GUIDED_TOUR_STORAGE_KEY";
 
@@ -218,6 +219,13 @@ function* setUpTourAppSaga() {
   // Update getCustomers query body
   const query: ActionData | undefined = yield select(getQueryAction);
   yield put(clearActionResponse(query?.config.id ?? ""));
+  yield put(
+    updateActionData({
+      entityName: query?.config.name || "",
+      dataPath: "data",
+      data: undefined,
+    }),
+  );
   const applicationId: string = yield select(getCurrentApplicationId);
   yield put(
     updateApplicationLayout(applicationId || "", {
@@ -460,27 +468,6 @@ function* firstTimeUserOnboardingInitSaga(
   }
 
   yield put(setSignpostingOverlay(showOverlay));
-  const tableWidgetExperimentEnabled: boolean = yield select(
-    selectFeatureFlagCheck,
-    FEATURE_FLAG.ab_table_widget_activation_enabled,
-  );
-  if (tableWidgetExperimentEnabled) {
-    yield take(ReduxActionTypes.FETCH_WORKSPACE_SUCCESS);
-    yield put({
-      type: ReduxActionTypes.WIDGET_ADD_CHILD,
-      payload: {
-        widgetId: "0",
-        type: "TABLE_WIDGET_V2",
-        leftColumn: 15,
-        topRow: 6,
-        columns: 34,
-        rows: 28,
-        parentRowSpace: 10,
-        parentColumnSpace: 13.390625,
-        newWidgetId: generateReactKey(),
-      },
-    });
-  }
   // Show the modal once the editor is loaded. The delay is to grab user attention back once the editor
   yield delay(1000);
   yield put({

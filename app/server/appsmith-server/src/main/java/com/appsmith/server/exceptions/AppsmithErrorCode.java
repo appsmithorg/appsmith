@@ -15,6 +15,7 @@ public enum AppsmithErrorCode {
     DEPRECATED_API("AE-APP-4008", "Deprecated api"),
     USER_DOESNT_BELONG_ANY_WORKSPACE("AE-APP-4009", "User doesn't belong any workspace"),
     USER_DOESNT_BELONG_TO_WORKSPACE("AE-APP-4010", "User doesn't belong to workspace"),
+    USER_NOT_ASSIGNED_TO_ROLE("AE-APP-4011", "User is not assigned to role"),
     INVALID_ACTION("AE-APP-4012", "Invalid action"),
     PAYLOAD_TOO_LARGE("AE-APP-4013", "Payload too large"),
     INVALID_ACTION_NAME("AE-APP-4014", "Invalid action name"),

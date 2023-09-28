@@ -11,23 +11,27 @@ registerWidgets([TableWidget]);
 const evalTree: DataTree = {};
 const configTree: ConfigTree = {};
 
-const tableWidgetDataTree = generateDataTreeWidget({
-  type: TableWidget.type,
-  widgetId: "random",
-  widgetName: "Table1",
-  children: [],
-  bottomRow: 0,
-  isLoading: false,
-  parentColumnSpace: 0,
-  parentRowSpace: 0,
-  version: 1,
-  leftColumn: 0,
-  renderMode: RenderModes.CANVAS,
-  rightColumn: 0,
-  topRow: 0,
-  primaryColumns: [],
-  tableData: [],
-});
+const tableWidgetDataTree = generateDataTreeWidget(
+  {
+    type: TableWidget.type,
+    widgetId: "random",
+    widgetName: "Table1",
+    children: [],
+    bottomRow: 0,
+    isLoading: false,
+    parentColumnSpace: 0,
+    parentRowSpace: 0,
+    version: 1,
+    leftColumn: 0,
+    renderMode: RenderModes.CANVAS,
+    rightColumn: 0,
+    topRow: 0,
+    primaryColumns: [],
+    tableData: [],
+  },
+  {},
+  new Set(),
+);
 
 evalTree["Table1"] = tableWidgetDataTree.unEvalEntity;
 configTree["Table1"] = tableWidgetDataTree.configEntity;

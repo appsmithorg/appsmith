@@ -37,7 +37,7 @@ import {
   PERMISSION_TYPE,
 } from "@appsmith/utils/permissionHelpers";
 import { getInitials } from "utils/AppsmithUtils";
-import { CustomRolesRamp } from "./WorkspaceInviteUsersForm";
+import { CustomRolesRamp } from "@appsmith/pages/workspace/WorkspaceInviteUsersForm";
 import { showProductRamps } from "@appsmith/selectors/rampSelectors";
 import { RAMP_NAME } from "utils/ProductRamps/RampsControlList";
 

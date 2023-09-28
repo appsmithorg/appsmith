@@ -31,14 +31,7 @@ describe("MySQL Datatype tests", function () {
     dataSources.CreateQueryFromOverlay(dsName, query, "createTable"); //Creating query from EE overlay
     dataSources.RunQuery();
 
-    entityExplorer.ExpandCollapseEntity("Datasources");
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: dsName,
-      action: "Refresh",
-    });
-    agHelper.AssertElementVisibility(
-      entityExplorer._entityNameInExplorer(inputData.tableName),
-    );
+    dataSources.AssertTableInVirtuosoList(dsName, inputData.tableName);
 
     //Creating SELECT query
     entityExplorer.ActionTemplateMenuByEntityName(
@@ -146,7 +139,7 @@ describe("MySQL Datatype tests", function () {
       entityExplorer.ExpandCollapseEntity("Datasources", false);
 
       //DS deletion
-      dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Since all queries exists
+      dataSources.DeleteDatasourceFromWithinDS(dsName, 409); //Since all queries exists
       entityExplorer.ExpandCollapseEntity("Queries/JS");
       ["createTable", "dropTable", "insertRecord", "selectRecords"].forEach(
         (type) => {
@@ -160,7 +153,7 @@ describe("MySQL Datatype tests", function () {
       deployMode.DeployApp();
       deployMode.NavigateBacktoEditor();
       entityExplorer.ExpandCollapseEntity("Queries/JS");
-      dataSources.DeleteDatasouceFromWinthinDS(dsName, 200);
+      dataSources.DeleteDatasourceFromWithinDS(dsName, 200);
     },
   );
 });
