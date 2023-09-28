@@ -2,10 +2,6 @@
 
 set -e
 
-if [[ ${DEBUG-0} == 1 ]]; then
-  set -o xtrace
-fi
-
 stacks_path=/appsmith-stacks
 
 export SUPERVISORD_CONF_TARGET="$TMP/supervisor-conf.d/"  # export for use in supervisord.conf
