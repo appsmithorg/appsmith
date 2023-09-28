@@ -11,10 +11,11 @@ export const getResponsiveMinWidth = (
   config: Record<string, string | number> | undefined,
   isFillWidget: boolean,
 ): Record<string, string | number> | undefined => {
-  if (!config)
+  if (!config) {
     return isFillWidget
       ? { base: "100%", [`${MOBILE_BREAKPOINT}px`]: "" }
       : undefined;
+  }
   if (!isFillWidget) return config;
   const minWidth = config["base"];
   return {

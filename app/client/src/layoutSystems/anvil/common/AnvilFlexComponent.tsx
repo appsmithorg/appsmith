@@ -104,7 +104,7 @@ export const AnvilFlexComponent = (props: AnvilFlexComponentProps) => {
         });
       }
     };
-  }, [ref]);
+  }, [ref?.current]);
 
   const { onHoverZIndex } = usePositionedContainerZIndex(
     isDropTarget,

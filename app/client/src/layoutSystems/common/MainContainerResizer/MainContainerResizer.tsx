@@ -73,7 +73,7 @@ export function MainContainerResizer({
   const ref = useRef(null);
   const dispatch = useDispatch();
   useEffect(() => {
-    const ele: any = document.getElementById(CANVAS_VIEWPORT);
+    const ele: HTMLElement | null = document.getElementById(CANVAS_VIEWPORT);
 
     if (isPageInitiated && enableMainCanvasResizer) {
       const buffer = isPreviewMode ? AUTOLAYOUT_RESIZER_WIDTH_BUFFER : 0;
@@ -101,6 +101,7 @@ export function MainContainerResizer({
         // Handle the mousedown event
         // that's triggered when user drags the resizer
         const mouseDownHandler = function (e: any) {
+          if (!ele) return;
           maxWidth =
             wrapperElement.offsetWidth - AUTOLAYOUT_RESIZER_WIDTH_BUFFER;
           // Get the current mouse position
@@ -121,6 +122,7 @@ export function MainContainerResizer({
         };
 
         const mouseMoveHandler = function (e: any) {
+          if (!ele) return;
           // How far the mouse has been moved
           // const multiplier = rightHandle ? 2 : -2;
           const multiplier = 2;
@@ -156,7 +158,7 @@ export function MainContainerResizer({
         };
       }
     } else {
-      ele.style.removeProperty("width");
+      ele?.style.removeProperty("width");
     }
   }, [
     appLayout,
