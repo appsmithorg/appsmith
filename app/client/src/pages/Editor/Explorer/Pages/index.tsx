@@ -36,13 +36,13 @@ import AddPageContextMenu from "./AddPageContextMenu";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useLocation } from "react-router";
 import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
-import {
-  hasCreatePagePermission,
-  hasManagePagePermission,
-} from "@appsmith/utils/permissionHelpers";
+import { hasManagePagePermission } from "@appsmith/utils/permissionHelpers";
 import type { AppState } from "@appsmith/reducers";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import { getInstanceId } from "@appsmith//selectors/tenantSelectors";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { getHasCreatePagePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 
 const ENTITY_HEIGHT = 36;
 const MIN_PAGES_HEIGHT = 60;
@@ -172,7 +172,12 @@ function Pages() {
     (state: AppState) => getCurrentApplication(state)?.userPermissions ?? [],
   );
 
-  const canCreatePages = hasCreatePagePermission(userAppPermissions);
+  const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+
+  const canCreatePages = getHasCreatePagePermission(
+    isFeatureEnabled,
+    userAppPermissions,
+  );
 
   const pageElements = useMemo(
     () =>
@@ -223,7 +228,7 @@ function Pages() {
       <StyledEntity
         addButtonHelptext={createMessage(ADD_PAGE_TOOLTIP)}
         alwaysShowRightIcon
-        className="group pages p-3 pb-0"
+        className="p-3 pb-0 group pages"
         collapseRef={pageResizeRef}
         customAddButton={
           <AddPageContextMenu

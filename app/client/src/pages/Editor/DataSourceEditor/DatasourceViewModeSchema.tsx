@@ -34,12 +34,14 @@ import type {
   QueryTemplate,
 } from "entities/Datasource";
 import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
-import { hasCreatePagePermission } from "@appsmith/utils/permissionHelpers";
 import type { AppState } from "@appsmith/reducers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import { getHasCreateDatasourceActionPermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import {
+  getHasCreateDatasourceActionPermission,
+  getHasCreatePagePermission,
+} from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 
 const ViewModeSchemaContainer = styled.div`
   height: 100%;
@@ -109,9 +111,13 @@ const DatasourceViewModeSchema = (props: Props) => {
   const userAppPermissions = useSelector(
     (state: AppState) => getCurrentApplication(state)?.userPermissions ?? [],
   );
-  const canCreatePages = hasCreatePagePermission(userAppPermissions);
 
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+
+  const canCreatePages = getHasCreatePagePermission(
+    isFeatureEnabled,
+    userAppPermissions,
+  );
 
   const canCreateDatasourceActions = getHasCreateDatasourceActionPermission(
     isFeatureEnabled,

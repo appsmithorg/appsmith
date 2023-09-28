@@ -23,7 +23,6 @@ import {
 import { openAppSettingsPaneAction } from "actions/appSettingsPaneActions";
 import { AppSettingsTabs } from "pages/Editor/AppSettingsPane/AppSettings";
 import {
-  hasCreatePagePermission,
   hasDeletePagePermission,
   hasManagePagePermission,
 } from "@appsmith/utils/permissionHelpers";
@@ -32,6 +31,9 @@ import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors"
 import type { AppState } from "@appsmith/reducers";
 import ContextMenu from "pages/Editor/Explorer/ContextMenu";
 import type { TreeDropdownOption } from "pages/Editor/Explorer/ContextMenu";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { getHasCreatePagePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 
 const CustomLabel = styled.div`
   display: flex;
@@ -123,7 +125,12 @@ export function PageContextMenu(props: {
     (state: AppState) => getCurrentApplication(state)?.userPermissions ?? [],
   );
 
-  const canCreatePages = hasCreatePagePermission(userAppPermissions);
+  const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+
+  const canCreatePages = getHasCreatePagePermission(
+    isFeatureEnabled,
+    userAppPermissions,
+  );
 
   const canManagePages = hasManagePagePermission(pagePermissions);
 
