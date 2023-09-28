@@ -2,7 +2,7 @@ import type {
   DataTreeEntity,
   JSActionEntity,
 } from "@appsmith/entities/DataTree/types";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE_VALUE } from "entities/DataTree/dataTreeFactory";
 import JSObjectCollection from "./JSObject/Collection";
 import JSFactory from "./JSObject/JSVariableFactory";
 import { jsObjectFunctionFactory } from "./fns/utils/jsObjectFnFactory";
@@ -40,7 +40,7 @@ export function getEntityForEvalContext(
 ) {
   if (entity && isObject(entity) && "ENTITY_TYPE" in entity) {
     switch (entity.ENTITY_TYPE) {
-      case ENTITY_TYPE.JSACTION: {
+      case ENTITY_TYPE_VALUE.JSACTION: {
         const jsObjectName = entityName;
         const jsObject = entity;
 

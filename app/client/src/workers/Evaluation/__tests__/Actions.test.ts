@@ -1,5 +1,5 @@
 import type { DataTree, ActionEntity } from "@appsmith/entities/DataTree/types";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE_VALUE } from "entities/DataTree/dataTreeFactory";
 import { PluginType } from "entities/Action";
 import type { EvalContext } from "workers/Evaluation/evaluate";
 import { createEvaluationContext } from "workers/Evaluation/evaluate";
@@ -34,7 +34,7 @@ describe("Add functions", () => {
       run: {},
       clear: {},
       responseMeta: { isExecutionSuccess: false },
-      ENTITY_TYPE: ENTITY_TYPE.ACTION,
+      ENTITY_TYPE: ENTITY_TYPE_VALUE.ACTION,
       dependencyMap: {},
       logBlackList: {},
     } as ActionEntity,

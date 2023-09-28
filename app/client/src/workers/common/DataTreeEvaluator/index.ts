@@ -32,7 +32,7 @@ import type {
   PrivateWidgets,
 } from "@appsmith/entities/DataTree/types";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { ENTITY_TYPE } from "@appsmith/entities/DataTree/types";
+import { ENTITY_TYPE_VALUE } from "@appsmith/entities/DataTree/types";
 import type { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
 
 import {
@@ -1026,13 +1026,13 @@ export default class DataTreeEvaluator {
             fullPropertyPath,
           );
 
-          const entityType = entityConfig.ENTITY_TYPE as ENTITY_TYPE;
+          const entityType = entityConfig.ENTITY_TYPE;
 
           if (!propertyPath)
             return set(currentTree, fullPropertyPath, evalPropertyValue);
 
           switch (entityType) {
-            case ENTITY_TYPE.WIDGET: {
+            case ENTITY_TYPE_VALUE.WIDGET: {
               if (isATriggerPath) return currentTree;
 
               const isNewWidget =
@@ -1080,7 +1080,7 @@ export default class DataTreeEvaluator {
 
               return currentTree;
             }
-            case ENTITY_TYPE.ACTION: {
+            case ENTITY_TYPE_VALUE.ACTION: {
               if (this.allActionValidationConfig) {
                 const configProperty = propertyPath.replace(
                   "config",
@@ -1119,7 +1119,7 @@ export default class DataTreeEvaluator {
               set(currentTree, fullPropertyPath, evalPropertyValue);
               return currentTree;
             }
-            case ENTITY_TYPE.JSACTION: {
+            case ENTITY_TYPE_VALUE.JSACTION: {
               const variableList =
                 (entityConfig as JSActionEntityConfig).variables || [];
 
@@ -1302,7 +1302,7 @@ export default class DataTreeEvaluator {
               triggerMeta: {
                 source: {
                   id: getEntityId(entity) || "",
-                  entityType: getEntityType(entity) || ENTITY_TYPE.WIDGET,
+                  entityType: getEntityType(entity) || ENTITY_TYPE_VALUE.WIDGET,
                   name: getEntityName(entity, entityConfig) || "",
                 },
                 triggerPropertyName: fullPropertyPath?.split(".")[1] || "",

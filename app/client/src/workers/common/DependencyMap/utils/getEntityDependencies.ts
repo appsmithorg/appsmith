@@ -3,7 +3,7 @@ import {
   getEntityNameAndPropertyPath,
   isATriggerPath,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE_VALUE } from "entities/DataTree/dataTreeFactory";
 import type {
   ActionEntity,
   ActionEntityConfig,
@@ -28,19 +28,19 @@ export function getEntityDependencies(
 ): Record<string, string[]> {
   if (!isWidgetActionOrJsObject(entity, entityConfig)) return {};
   switch (entity.ENTITY_TYPE) {
-    case ENTITY_TYPE.ACTION:
+    case ENTITY_TYPE_VALUE.ACTION:
       return getActionDependencies(
         entity,
         entityConfig as ActionEntityConfig,
         allKeys,
       );
-    case ENTITY_TYPE.JSACTION:
+    case ENTITY_TYPE_VALUE.JSACTION:
       return getJSDependencies(
         entity,
         entityConfig as JSActionEntityConfig,
         allKeys,
       );
-    case ENTITY_TYPE.WIDGET:
+    case ENTITY_TYPE_VALUE.WIDGET:
       return getWidgetDependencies(
         entity as WidgetEntity,
         entityConfig as WidgetEntityConfig,
@@ -157,21 +157,21 @@ export function getEntityPathDependencies(
 ) {
   if (!isWidgetActionOrJsObject(entity, entityConfig)) return [];
   switch (entity.ENTITY_TYPE) {
-    case ENTITY_TYPE.ACTION:
+    case ENTITY_TYPE_VALUE.ACTION:
       return getActionPropertyPathDependencies(
         entity,
         entityConfig as ActionEntityConfig,
         fullPropertyPath,
         allKeys,
       );
-    case ENTITY_TYPE.JSACTION:
+    case ENTITY_TYPE_VALUE.JSACTION:
       return getJSPropertyPathDependencies(
         entity,
         entityConfig as JSActionEntityConfig,
         fullPropertyPath,
         allKeys,
       );
-    case ENTITY_TYPE.WIDGET:
+    case ENTITY_TYPE_VALUE.WIDGET:
       return getWidgetPropertyPathDependencies(
         entity,
         entityConfig as WidgetEntityConfig,

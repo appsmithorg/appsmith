@@ -3,7 +3,7 @@ jest.useFakeTimers();
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { PluginType } from "entities/Action";
 import type { DataTree, ActionEntity } from "@appsmith/entities/DataTree/types";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE_VALUE } from "entities/DataTree/dataTreeFactory";
 import { overrideWebAPIs } from "../overrides";
 import ExecutionMetaData from "../utils/ExecutionMetaData";
 import { addPlatformFunctionsToEvalContext } from "@appsmith/workers/Evaluation/Actions";
@@ -25,7 +25,7 @@ const dataTree: DataTree = {
     run: {},
     clear: {},
     responseMeta: { isExecutionSuccess: false },
-    ENTITY_TYPE: ENTITY_TYPE.ACTION,
+    ENTITY_TYPE: ENTITY_TYPE_VALUE.ACTION,
     dependencyMap: {},
     logBlackList: {},
   } as ActionEntity,
