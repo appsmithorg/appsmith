@@ -764,10 +764,11 @@ export const getDataTreeForAutocomplete = (
 };
 
 /**
- *  overrideWidgetProperties method has logic to update overriddenPropertyPaths when overridingPropertyPaths are evaluated.
+ *  - This Method updates the values of the paths that are overridden by the `propertyPath`. These paths are present in `overridingPropertyPaths`
+ * For example: {"defaultText": ["text", "meta.text"]}
  *
  *  when we evaluate widget's overridingPropertyPaths for example defaultText of input widget,
- *  we override the values like text and meta.text in dataTree, these values are called as overriddenPropertyPaths
+ *  we override the values like `text` and `meta.text` in dataTree, these values are called as overriddenPropertyPaths
  *
  * @param {{
  *   entity: WidgetEntity;

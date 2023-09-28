@@ -219,33 +219,27 @@ const generateDataTreeWidgetWithoutMeta = (
   // Map of properties that can be overridden by both meta and default values
   const overridingMetaPropsMap: Record<string, boolean> = {};
 
-  Object.entries(defaultProps).forEach(
-    ([propertyName, defaultPropertyName]) => {
-      if (!(defaultPropertyName in widget)) {
-        unInitializedDefaultProps[defaultPropertyName] = undefined;
-      }
-      // defaultProperty on eval needs to override the widget's property eg: defaultText overrides text
+  Object.keys(defaultMetaProps).forEach((metaPropertyName) => {
+    if (metaPropertyName in defaultProps) {
       setOverridingProperty({
         propertyOverrideDependency,
         overridingPropertyPaths,
-        value: defaultPropertyName,
-        key: propertyName,
+        value: defaultProps[metaPropertyName],
+        key: metaPropertyName,
         type: OverridingPropertyType.DEFAULT,
       });
 
-      if (propertyName in defaultMetaProps) {
-        // Overriding properties will override the values of a property when evaluated
-        setOverridingProperty({
-          propertyOverrideDependency,
-          overridingPropertyPaths,
-          value: `meta.${propertyName}`,
-          key: propertyName,
-          type: OverridingPropertyType.META,
-        });
-        overridingMetaPropsMap[propertyName] = true;
-      }
-    },
-  );
+      overridingMetaPropsMap[metaPropertyName] = true;
+    }
+
+    setOverridingProperty({
+      propertyOverrideDependency,
+      overridingPropertyPaths,
+      value: `meta.${metaPropertyName}`,
+      key: metaPropertyName,
+      type: OverridingPropertyType.META,
+    });
+  });
 
   const { bindingPaths, reactivePaths, triggerPaths, validationPaths } =
     getAllPathsFromPropertyConfig(widget, propertyPaneConfigs, {

@@ -70,11 +70,46 @@ async function resetWidgetMetaProperty(
       if (evaluatedEntity) {
         const { defaultMetaProps, propertyOverrideDependency } =
           evaluatedEntityConfig;
+
         // propertyOverrideDependency has defaultProperty name for each meta property of widget
         const propertyOverrideDependencyEntries = Object.entries(
           propertyOverrideDependency as PropertyOverrideDependency,
         );
 
+        /**
+         * - Updates all the meta values which does not have a DEFAULT path for example, PhoneInput1.value.
+         *
+         * - When we set the value to undefined, the evalTreeWithChanges will update the meta value to the
+         * default value during evaluations
+         */
+        for (let i = 0; i < defaultMetaProps.length; i++) {
+          const propPath = defaultMetaProps[i];
+
+          if (!!propertyOverrideDependency[propPath]?.DEFAULT) {
+            continue;
+          }
+
+          updatedProperties.push([widgetName, `meta.${propPath}`]);
+          updatedProperties.push([widgetName, `${propPath}`]);
+
+          evalMetaUpdates.push({
+            widgetId: evaluatedEntity.widgetId,
+            metaPropertyPath: propPath.split("."),
+            value: undefined,
+          });
+
+          _.set(evalTree, `${widgetName}.meta.${propPath}`, undefined);
+          _.set(evalTree, `${widgetName}.${propPath}`, undefined);
+        }
+
+        /**
+         * - Updates all the meta values which HAVE a DEFAULT path for example, PhoneInput1.text has DEFAULT as PhoneInput1.defaultText
+         *
+         * - We recalculate the default value mapped to the meta value and set all the values to that. We need to recalculate as,
+         * setters can be used to set the defaultValue and to retrieve the original value, we need to rely on the binding in the
+         * unevalTree and recompute the value
+         *
+         */
         for (let i = 0; i < propertyOverrideDependencyEntries.length; i++) {
           const [propertyPath, dependency] =
             propertyOverrideDependencyEntries[i];
@@ -107,6 +142,9 @@ async function resetWidgetMetaProperty(
 
           const overriddenProperties: string[] = [];
 
+          /**
+           * Updates the values of the properties that are overriden by the `defaultPropertyPath`
+           */
           overrideWidgetProperties({
             entity: evaluatedEntity,
             propertyPath: defaultPropertyPath,
@@ -123,49 +161,12 @@ async function resetWidgetMetaProperty(
           overriddenProperties.forEach((propPath) => {
             updatedProperties.push([widgetName, propPath]);
           });
-          updatedProperties.push(
-            [widgetName, propertyPath],
-            [widgetName, defaultPropertyPath],
-          );
+
+          updatedProperties.push([widgetName, defaultPropertyPath]);
           evalMetaUpdates.push({
             widgetId: evaluatedEntity.widgetId,
             metaPropertyPath: propertyPath.split("."),
             value: finalValue,
-          });
-        }
-
-        const metaKeysInOverride = propertyOverrideDependencyEntries.map(
-          (path) => path[0],
-        );
-
-        for (let i = 0; i < defaultMetaProps.length; i++) {
-          if (metaKeysInOverride.includes(defaultMetaProps[i])) {
-            continue;
-          }
-
-          const overriddenProperties: string[] = [];
-
-          overrideWidgetProperties({
-            entity: evaluatedEntity,
-            propertyPath: `meta.${defaultMetaProps[i]}`,
-            value: undefined,
-            currentTree: evalTree,
-            configTree,
-            evalMetaUpdates,
-            fullPropertyPath: `${widgetName}.meta.${defaultMetaProps[i]}`,
-            isNewWidget: false,
-            shouldUpdateGlobalContext: true,
-            overriddenProperties,
-          });
-
-          overriddenProperties.forEach((propPath) => {
-            updatedProperties.push([widgetName, propPath]);
-          });
-
-          evalMetaUpdates.push({
-            widgetId: evaluatedEntity.widgetId,
-            metaPropertyPath: defaultMetaProps[i].split("."),
-            value: undefined,
           });
         }
       }
