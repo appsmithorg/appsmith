@@ -25,7 +25,6 @@ def get_backend_status():
     except ValueError as e:
         logging.error("Value Error ", e)
 
-
 def check_health_endpoint(url,sleep_sec = 3,timeout_sec = 180):
     for _ in range(timeout_sec//sleep_sec):
         try:
@@ -41,7 +40,6 @@ def check_health_endpoint(url,sleep_sec = 3,timeout_sec = 180):
                 break
     else:
         logging.error('Timeout Error: Backend health check timeout.')
-
 
 def remove_loading_page():
     retries = 3
@@ -61,17 +59,14 @@ def remove_loading_page():
 def add_loading_page():
     shutil.copyfile(LOADING_TEMPLATE_PAGE, LOADING_PAGE_EDITOR)
 
-
 @atexit.register
 def failsafe():
     remove_loading_page()
-
 
 def main():
     add_loading_page()
     check_health_endpoint(BACKEND_HEALTH_ENDPOINT)
     remove_loading_page()
-
 
 if __name__ == '__main__':
     main()
