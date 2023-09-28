@@ -15,11 +15,13 @@ describe("JSObjects OnLoad Actions tests", function () {
     homePage.CreateNewWorkspace("JSOnLoadTest", true);
   });
 
-  it("1. Tc #58 Verify JSOnPageload with ConfirmBefore calling - while imported", () => {
+  it("1. Bug 27594 - Tc #58 Verify JSOnPageload with ConfirmBefore calling - while imported", () => {
     homePage.ImportApp("ImportApps/JSOnLoadImport.json", "JSOnLoadTest");
     cy.wait("@importNewApplication").then(() => {
       agHelper.Sleep();
-      dataSources.ReconnectSingleDSNAssert("MySQL-Ds", "MySQL");
+
+      // This will fill in credentials and test the datasource
+      dataSources.ReconnectSingleDSNAssert("MySQL-Ds", "MySQL", true);
     });
     AssertJSOnPageLoad("runSpaceCraftImages", true);
   });
