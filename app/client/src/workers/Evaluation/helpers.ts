@@ -364,13 +364,29 @@ export const isValidFunction = (fn : any, whitelistedGlobals: string[]) : Valida
     // console.log("returning function ", newFn.toString())
     try {
       console.log("astpartsing", "parsing string ", fn.toString())
-      const astTree = parse(fn.toString(), { ecmaVersion: 11 })
-    console.log('astparsing', "ast tree is ", JSON.stringify(astTree))
-    const result : any = validFn(astTree, ["eval", "fetch", "constructor", "document", "window", "Function"])
-    console.log("astparsing", "result from ast parsing is ", result, fnString)
-    if (result.status == false) {
-      return { isValid: false, parsed: "", messages: [{ name: "TypeError", message: result.message}] }
-    }
+      const astTree : any = parse(fn.toString(), { ecmaVersion: 11 })
+
+      const programBody = astTree.body[0]
+
+      let functionBody = undefined;
+
+      if (programBody.type == "FunctionDeclaration") {
+          functionBody = programBody.body
+      } else if (programBody.type == "ExpressionStatement") {
+          functionBody = programBody.expression.body
+      }
+
+      // console.log('astparsing', "ast tree is ", JSON.stringify(astTree))
+      // console.log("astparsing", "program body is ", JSON.stringify(programBody), programBody.type, typeof(programBody), programBody["type"])
+      // console.log("astparsing", "function body is ", functionBody)
+
+      
+      const result : any = validFn(functionBody, ["eval", "fetch", "constructor", "document", "window", "Function"])
+      console.log("astparsing", "result from ast parsing is ", result, fnString)
+      
+      if (result.status == false) {
+        return { isValid: false, parsed: "", messages: [{ name: "TypeError", message: result.message}] }
+      }
     } catch(error) {
       console.log("astparsing", "coming in outer catch", error)
       return { isValid: false, parsed: fnString, messages: [{ message: "Invalid syntax", name: "TypeError" }] };
@@ -381,19 +397,15 @@ export const isValidFunction = (fn : any, whitelistedGlobals: string[]) : Valida
 }
 
 const validFn = (obj : any, blacklistedGlobals : string[]) => {
-  // console.log("astparsing", "valid fn called ", obj, " type is ", typeof(obj))
+  console.log("astparser", "valid fn called for obj ", JSON.stringify(obj))
   try {
-    console.log("astparsing", "coming in try")
     if (typeof(obj) == "object") {
-      // console.log("astparsing", "coming in first if for obj ", obj)
       if(obj == null || obj == undefined) {
-        // console.log("astparsing", "obj is null", obj)
           return { status: true, message: ""};
       }
+
       if (Array.isArray(obj)) {
-        // console.log("astparsing", "obj is array ", obj)
           for (const val of obj) {
-              // console.log("astparsing", "valid fn called with obj ", obj, typeof(obj))
               const nestedResult : any = validFn(val, blacklistedGlobals)
               if (nestedResult.status == false) {
                 return nestedResult
@@ -401,41 +413,42 @@ const validFn = (obj : any, blacklistedGlobals : string[]) => {
           }
           return { status: true, message: ""}
       } else {
-        // console.log("astparsing", "coming in first else for obj ", obj)
         if (obj["type"] == "Identifier") {
-              // console.log("astparsing", "found an identifier ", JSON.stringify(obj))
-              const result = !blacklistedGlobals.includes(obj.name)
-              let message = ""
-              if (!result) {
-                message = `found blacklisted identifier ${obj.name}`; 
-                // console.log(message)
-              }
-              return { status: result, message: message}
-          } else {
-              let result = { status: true, message: ""};
-              // console.log("astparsing", "coming in else for obj ", obj)
-              const values = Object.values(obj)
-              for (const value of values) {
-                  // console.log("astparsing", "iterating over value ", value)
-                  if (typeof(value) == "object") {
-                      // console.log("astparsing", "going to call validfn for nested object ", value)
-                      const nestedResult : any = validFn(value, blacklistedGlobals)
-                      if (nestedResult.status == false) {
-                          result = nestedResult;
-                          break;
-                      }
-                  }
-              }
-
-              return result;
+          console.log("astparsing", "got an identifier ", obj.name)
+          const result = !blacklistedGlobals.includes(obj.name)
+          let message = ""
+          if (!result) {
+            message = `found blacklisted identifier ${obj.name}`; 
           }
+          return { status: result, message: message}
+        } else if (obj["type"] == "ExpressionStatement" && obj.expression.type == "ArrowFunctionExpression") {
+          // if (obj.expression.type == "ArrowFunctionExpression") {
+            return { status: false, message: "Arrow functions cannot be declared inside a function"}
+          // } else {
+          //   return { status: true, message: [] }
+          // }
+        } else if (obj.type == "FunctionDeclaration") {
+          return { status: false, message: "Functions can't be declared inside the function"}
+        } else {
+            // let result = { status: false, message: "Invalid Function"};
+            const values = Object.values(obj)
+            for (const value of values) {
+                if (typeof(value) == "object") {
+                    const nestedResult : any = validFn(value, blacklistedGlobals)
+                    if (nestedResult.status == false) {
+                        return nestedResult
+                    }
+                }
+            }
+            return { status: true, message: ""};;
+        }
       }
   } else {
-    // console.log("astparsing", "coming in last else", obj)
     return { status: true, message: ""}
   }
   } catch (error) {
     console.log("astparsing", "coming in catch ", error)
+    return { status: false, message: "The function defintion isn't properly formatted"}
   }
 }
 

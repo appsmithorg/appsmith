@@ -25,6 +25,14 @@ const fn = (data) => {
 
 
 const result = acorn.parse(fn.toString())
+const programBody = result.body
+let functionBody = undefined;
+
+if (programBody.type == "FunctionDeclaration") {
+    functionBody = programBody.body
+} else if (programBody.type == "ExpressionStatement") {
+    functionBody = programBody.expression.body
+}
 
 const validFn = (obj, blacklistedGlobals) => {
     if (typeof(obj) == "object") {
