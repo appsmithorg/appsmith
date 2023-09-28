@@ -9,6 +9,7 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 
 import { REPO, CURRENT_REPO } from "../../../../fixtures/REPO";
+import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 const appNavigationLocators = require("../../../../locators/AppNavigation.json");
 
 describe("Create new workspace and share with a user", function () {
@@ -19,6 +20,8 @@ describe("Create new workspace and share with a user", function () {
     agHelper.Sleep(2000);
     agHelper.GenerateUUID();
     agHelper.GetElement("@guid").then((uid) => {
+      featureFlagIntercept({ license_gac_enabled: true });
+      agHelper.Sleep(2000);
       workspaceId = "shareApp" + uid;
       appid = "Share" + uid;
       homePage.CreateNewWorkspace(workspaceId);
@@ -39,6 +42,8 @@ describe("Create new workspace and share with a user", function () {
       Cypress.env("TESTPASSWORD1"),
       "App Viewer",
     );
+    featureFlagIntercept({ license_gac_enabled: true });
+    agHelper.Sleep(2000);
     homePage.FilterApplication(appid);
     // // eslint-disable-next-line cypress/no-unnecessary-waiting
     agHelper.Sleep(2000);
