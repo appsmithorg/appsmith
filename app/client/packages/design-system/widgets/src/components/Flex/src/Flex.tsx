@@ -12,6 +12,7 @@ const _Flex = (props: FlexProps, ref: Ref<HTMLDivElement>) => {
   const {
     children,
     className,
+    id,
     isContainer = false,
     isHidden = false,
     style,
@@ -39,6 +40,7 @@ const _Flex = (props: FlexProps, ref: Ref<HTMLDivElement>) => {
     return (
       <div
         className={clsx(className, flexClassName.current)}
+        id={id}
         ref={ref}
         style={style}
       >

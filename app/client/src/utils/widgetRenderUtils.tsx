@@ -179,25 +179,6 @@ export function buildChildWidgetTree(
   return [];
 }
 
-export function buildFlattenedChildCanvasWidgets(
-  canvasWidgets: CanvasWidgetsReduxState,
-  parentWidgetId: string,
-  flattenedChildCanvasWidgets: Record<string, FlattenedWidgetProps> = {},
-) {
-  const parentWidget = canvasWidgets[parentWidgetId];
-  parentWidget?.children?.forEach((childId) => {
-    flattenedChildCanvasWidgets[childId] = canvasWidgets[childId];
-
-    buildFlattenedChildCanvasWidgets(
-      canvasWidgets,
-      childId,
-      flattenedChildCanvasWidgets,
-    );
-  });
-
-  return flattenedChildCanvasWidgets;
-}
-
 function getWidgetSpecificChildProps(type: string) {
   if (type === "FORM_WIDGET") {
     return ["value", "isDirty", "isValid", "isLoading", "children"];

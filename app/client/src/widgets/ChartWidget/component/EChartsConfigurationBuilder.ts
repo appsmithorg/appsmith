@@ -1,5 +1,5 @@
 import type { ChartComponentProps } from ".";
-import type { AllChartData } from "../constants";
+import type { AllChartData, LongestLabelParams } from "../constants";
 import {
   LabelOrientation,
   type ChartData,
@@ -12,6 +12,7 @@ import { EChartsLayoutBuilder } from "./LayoutBuilders/EChartsLayoutBuilder";
 
 export class EChartsConfigurationBuilder {
   fontFamily: string | undefined;
+  fontSize = 14;
 
   #seriesConfigurationForPieChart(
     seriesID: string,
@@ -180,6 +181,10 @@ export class EChartsConfigurationBuilder {
   }
 
   #configForLabelOrientation(props: ChartComponentProps) {
+    if (props.chartType == "BAR_CHART") {
+      return 0;
+    }
+
     switch (props.labelOrientation) {
       case LabelOrientation.SLANT:
         return 45;
@@ -237,7 +242,7 @@ export class EChartsConfigurationBuilder {
         nameLocation: "middle",
         nameGap: layoutConfig.yAxis.nameGap,
         nameTextStyle: {
-          fontSize: 14,
+          fontSize: this.fontSize,
           fontFamily: this.fontFamily,
           color: Colors.DOVE_GRAY2,
         },
@@ -253,8 +258,7 @@ export class EChartsConfigurationBuilder {
       fontFamily: this.fontFamily,
       color: Colors.DOVE_GRAY2,
       show: layoutConfig.yAxis.show,
-      width: (layoutConfig.yAxis.axisLabel as Record<string, unknown>).width,
-      overflow: "break",
+      ...(layoutConfig.yAxis.axisLabel as Record<string, unknown>),
     };
     return config;
   };
@@ -279,8 +283,7 @@ export class EChartsConfigurationBuilder {
       fontFamily: this.fontFamily,
       color: Colors.DOVE_GRAY2,
       rotate: this.#configForLabelOrientation(props),
-      width: (layoutConfig.xAxis.axisLabel as Record<string, unknown>).width,
-      overflow: "break",
+      ...(layoutConfig.xAxis.axisLabel as Record<string, unknown>),
     };
 
     if (props.chartType == "BAR_CHART" && props.setAdaptiveYMin) {
@@ -292,7 +295,7 @@ export class EChartsConfigurationBuilder {
       config.nameLocation = "middle";
       config.nameGap = layoutConfig.xAxis.nameGap;
       config.nameTextStyle = {
-        fontSize: 14,
+        fontSize: this.fontSize,
         fontFamily: this.fontFamily,
         color: Colors.DOVE_GRAY2,
       };
@@ -313,9 +316,17 @@ export class EChartsConfigurationBuilder {
             show: layoutConfig.scrollBar.show,
             type: "slider",
             filterMode: "filter",
-            start: "20",
+            start: "0",
+            end: "50",
             bottom: layoutConfig.scrollBar.bottom,
             height: layoutConfig.scrollBar.height,
+          },
+          {
+            show: layoutConfig.scrollBar.show,
+            type: "inside",
+            filterMode: "filter",
+            start: "0",
+            end: "50",
           },
         ];
       }
@@ -323,21 +334,27 @@ export class EChartsConfigurationBuilder {
     return [];
   };
 
-  prepareEChartConfig(props: ChartComponentProps, allSeriesData: AllChartData) {
+  prepareEChartConfig(
+    props: ChartComponentProps,
+    allSeriesData: AllChartData,
+    longestLabels: LongestLabelParams,
+  ) {
+    this.fontFamily = this.#evaluateFontFamily(props.fontFamily);
     const layoutBuilder = new EChartsLayoutBuilder({
       allowScroll: props.allowScroll,
-      height: props.dimensions.componentHeight,
-      width: props.dimensions.componentWidth,
+      widgetHeight: props.dimensions.componentHeight,
+      widgetWidth: props.dimensions.componentWidth,
       labelOrientation: props.labelOrientation ?? LabelOrientation.AUTO,
       chartType: props.chartType,
       chartTitle: props.chartName,
+      seriesConfigs: props.chartData,
+      font: `${this.fontSize}px ${this.fontFamily}`,
+      longestLabels: longestLabels,
     });
     const layoutConfig: Record<
       string,
       Record<string, unknown>
     > = layoutBuilder.layoutConfig;
-
-    this.fontFamily = this.#evaluateFontFamily(props.fontFamily);
 
     const chartConfig: Record<string, unknown> =
       this.#defaultEChartConfig(layoutConfig);

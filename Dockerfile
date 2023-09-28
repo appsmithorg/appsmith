@@ -27,8 +27,8 @@ RUN apt-get update \
   && apt-get autoremove --yes
 
 # Install MongoDB v5.0.14, Redis, NodeJS - Service Layer, PostgreSQL v13
-RUN curl --silent --show-error --location https://www.mongodb.org/static/pgp/server-6.0.asc | apt-key add - \
-  && echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/6.0 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-6.0.list \
+RUN curl --silent --show-error --location https://www.mongodb.org/static/pgp/server-5.0.asc | apt-key add - \
+  && echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/5.0 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-5.0.list \
   && curl --silent --show-error --location https://deb.nodesource.com/setup_18.x | bash - \
   && echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" | tee /etc/apt/sources.list.d/pgdg.list \
   && curl --silent --show-error --location https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - \
@@ -53,7 +53,8 @@ RUN rm -rf \
 VOLUME [ "/appsmith-stacks" ]
 
 # ------------------------------------------------------------------------
-ENV TMP /tmp/appsmith
+ENV TMP="/tmp/appsmith"
+ENV NGINX_WWW_PATH="$TMP/www"
 
 # Add backend server - Application Layer
 ARG JAR_FILE=./app/server/dist/server-*.jar
@@ -81,9 +82,10 @@ COPY ./app/client/packages/rts/package.json ./app/client/packages/rts/dist rts/
 
 RUN cd ./utils && npm install --only=prod && npm install --only=prod -g . && cd - \
   && chmod 0644 /etc/cron.d/* \
-  && chmod +x entrypoint.sh renew-certificate.sh healthcheck.sh /watchtower-hooks/*.sh \
+  && chmod +x entrypoint.sh renew-certificate.sh healthcheck.sh templates/nginx-app.conf.sh /watchtower-hooks/*.sh \
   # Disable setuid/setgid bits for the files inside container.
-  && find / \( -path /proc -prune \) -o \( \( -perm -2000 -o -perm -4000 \) -print -exec chmod -s '{}' + \) || true
+  && find / \( -path /proc -prune \) -o \( \( -perm -2000 -o -perm -4000 \) -print -exec chmod -s '{}' + \) || true \
+  && node prepare-image.mjs
 
 # Update path to load appsmith utils tool as default
 ENV PATH /opt/appsmith/utils/node_modules/.bin:$PATH

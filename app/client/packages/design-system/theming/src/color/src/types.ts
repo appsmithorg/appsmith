@@ -36,6 +36,7 @@ export interface ColorModeTheme {
     fg: string;
     fgAccent: string;
     fgNeutral: string;
+    fgNeutralSubtle: string;
     fgPositive: string;
     fgNegative: string;
     fgWarning: string;

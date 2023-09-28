@@ -32,23 +32,11 @@ import { generateReactKey } from "widgets/WidgetUtils";
 import { LabelOrientation } from "../constants";
 import IconSVG from "../icon.svg";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
-import type { ChartType } from "../constants";
 import { EChartsDatasetBuilder } from "../component/EChartsDatasetBuilder";
 
 const ChartComponent = lazy(() =>
   retryPromise(() => import(/* webpackChunkName: "charts" */ "../component")),
 );
-
-export const isBasicEChart = (type: ChartType) => {
-  const types: ChartType[] = [
-    "AREA_CHART",
-    "PIE_CHART",
-    "LINE_CHART",
-    "BAR_CHART",
-    "COLUMN_CHART",
-  ];
-  return types.includes(type);
-};
 
 export const emptyChartData = (props: ChartWidgetProps) => {
   if (props.chartType == "CUSTOM_FUSION_CHART") {
@@ -56,12 +44,9 @@ export const emptyChartData = (props: ChartWidgetProps) => {
   } else if (props.chartType == "CUSTOM_ECHART") {
     return Object.keys(props.customEChartConfig).length == 0;
   } else {
-    const seriesData = EChartsDatasetBuilder.chartData(
-      props.chartType,
-      props.chartData,
-    );
+    const builder = new EChartsDatasetBuilder(props.chartType, props.chartData);
 
-    for (const seriesID in seriesData) {
+    for (const seriesID in builder.filteredChartData) {
       if (Object.keys(props.chartData[seriesID].data).length > 0) {
         return false;
       }

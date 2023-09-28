@@ -252,10 +252,8 @@ describe("2. privateWidgets", () => {
       Text3: true,
     };
 
-    const actualPrivateWidgetsList = getAllPrivateWidgetsInDataTree(
-      testDataTree,
-      testConfigTree,
-    );
+    const actualPrivateWidgetsList =
+      getAllPrivateWidgetsInDataTree(testConfigTree);
 
     expect(expectedPrivateWidgetsList).toStrictEqual(actualPrivateWidgetsList);
   });
@@ -618,6 +616,7 @@ describe("5. overrideWidgetProperties", () => {
           topRow: 0,
         },
         {},
+        new Set(),
       );
       currentTree["Input1"] = inputWidgetDataTree.unEvalEntity;
       configTree["Input1"] = inputWidgetDataTree.configEntity;
@@ -704,6 +703,7 @@ describe("5. overrideWidgetProperties", () => {
           topRow: 0,
         },
         {},
+        new Set(),
       );
       currentTree["Table1"] = tableWidgetDataTree.unEvalEntity;
       configTree["Table1"] = tableWidgetDataTree.configEntity;
@@ -831,7 +831,6 @@ describe("7. Test addErrorToEntityProperty method", () => {
     } as EvaluationError;
     addErrorToEntityProperty({
       errors: [error],
-      dataTree: dataTreeEvaluator.evalTree,
       evalProps: dataTreeEvaluator.evalProps,
       fullPropertyPath: "Api1.data",
       configTree: dataTreeEvaluator.oldConfigTree,

@@ -313,7 +313,7 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
     }
 
     private CommunityTemplateUploadDTO createCommunityTemplateUploadDTO(
-            ApplicationJson appJson, CommunityTemplateDTO templateDetails) {
+            String sourceApplicaionId, ApplicationJson appJson, CommunityTemplateDTO templateDetails) {
         ApplicationTemplate applicationTemplate = new ApplicationTemplate();
         applicationTemplate.setTitle(templateDetails.getTitle());
         applicationTemplate.setExcerpt(templateDetails.getHeadline());
@@ -324,6 +324,8 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
         CommunityTemplateUploadDTO communityTemplate = new CommunityTemplateUploadDTO();
         communityTemplate.setAppJson(appJson);
         communityTemplate.setApplicationTemplate(applicationTemplate);
+        communityTemplate.getApplicationTemplate().setAppUrl(templateDetails.getAppUrl());
+        communityTemplate.setSourceApplicaitonId(sourceApplicaionId);
         return communityTemplate;
     }
 
@@ -364,7 +366,8 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
     public Mono<Application> publishAsCommunityTemplate(CommunityTemplateDTO resource) {
         return importExportApplicationService
                 .exportApplicationById(resource.getApplicationId(), resource.getBranchName())
-                .flatMap(appJson -> uploadCommunityTemplateToCS(createCommunityTemplateUploadDTO(appJson, resource)))
+                .flatMap(appJson -> uploadCommunityTemplateToCS(
+                        createCommunityTemplateUploadDTO(resource.getApplicationId(), appJson, resource)))
                 .then(updateApplicationFlags(resource.getApplicationId(), resource.getBranchName()))
                 .flatMap(application -> {
                     ApplicationAccessDTO applicationAccessDTO = new ApplicationAccessDTO();

@@ -594,8 +594,8 @@ export class AggregateHelper extends ReusableHelper {
     cy.get(this.locator._canvasViewport).invoke("width", `${width}px`);
   }
 
-  public ClickOutside() {
-    cy.get("body").click(0, 0, { force: true });
+  public ClickOutside(x = 0, y = 0, force = true) {
+    cy.get("body").click(x, y, { force: force });
   }
 
   public RemoveMultiSelectItems(items: string[]) {
@@ -683,7 +683,11 @@ export class AggregateHelper extends ReusableHelper {
     metaKey = false,
   ) {
     return this.ScrollIntoView(selector, index)
-      .click({ force: force, ctrlKey: ctrlKey, metaKey })
+      .click({
+        force: force,
+        ctrlKey: ctrlKey,
+        metaKey,
+      })
       .wait(waitTimeInterval);
   }
 
@@ -1515,6 +1519,14 @@ export class AggregateHelper extends ReusableHelper {
       | "bottomRight",
   ) {
     return this.GetElement(selector).scrollTo(position).wait(2000);
+  }
+
+  public ScrollToXY(
+    selector: ElementType,
+    x: number | string,
+    y: number | string,
+  ) {
+    return this.GetElement(selector).scrollTo(x, y).wait(2000);
   }
 
   public GetWidth(widgetSelector: string) {

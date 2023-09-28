@@ -41,7 +41,7 @@ import {
   DELETE_WORKSPACE_SUCCESSFUL,
 } from "@appsmith/constants/messages";
 import { toast } from "design-system";
-import { resetCurrentWorkspace } from "../actions/workspaceActions";
+import { resetCurrentWorkspace } from "@appsmith/actions/workspaceActions";
 
 export function* fetchRolesSaga() {
   try {

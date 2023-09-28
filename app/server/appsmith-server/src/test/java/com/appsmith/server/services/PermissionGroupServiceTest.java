@@ -4,6 +4,7 @@ import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.UserRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -41,6 +42,9 @@ public class PermissionGroupServiceTest {
 
     @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    UserUtils userUtils;
 
     @Test
     @WithUserDetails(value = "api_user")
@@ -91,6 +95,12 @@ public class PermissionGroupServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void invalid_leaveRole() {
+
+        // Make api_user instance admin before running the test
+        userRepository
+                .findByEmail("api_user")
+                .flatMap(user -> userUtils.makeSuperUser(List.of(user)))
+                .block();
 
         PermissionGroup testPermissionGroup = new PermissionGroup();
         testPermissionGroup.setName("invalid_leaveRole");
