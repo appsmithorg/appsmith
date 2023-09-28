@@ -63,7 +63,7 @@ import {
   setFocusableInputField,
 } from "actions/editorContextActions";
 import history from "utils/history";
-import { CursorPositionOrigin } from "reducers/uiReducers/editorContextReducer";
+import { CursorPositionOrigin } from "@appsmith/reducers/uiReducers/editorContextReducer";
 import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
 import styled from "styled-components";
 import { showDebuggerFlag } from "selectors/debuggerSelectors";

@@ -40,9 +40,10 @@ import {
   getEnvironmentConfiguration,
   isEnvironmentValid,
 } from "@appsmith/utils/Environments";
-import type { ActionDataState } from "reducers/entityReducers/actionsReducer";
+import type { ActionDataState } from "@appsmith/reducers/entityReducers/actionsReducer";
 import { getDatatype } from "utils/AppsmithUtils";
 import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelectors";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 enum SortingWeights {
   alphabetical = 1,
@@ -161,7 +162,7 @@ export function useDatasource(searchText: string) {
               <DatasourceImage
                 alt=""
                 className="dataSourceImage"
-                src={pluginImages[datasource.pluginId]}
+                src={getAssetUrl(pluginImages[datasource.pluginId])}
               />
             </ImageWrapper>
           ),
@@ -253,13 +254,13 @@ export function useDatasource(searchText: string) {
                 <DatasourceImage
                   alt=""
                   className="dataSourceImage"
-                  src={
+                  src={getAssetUrl(
                     pluginImages[
                       invert(pluginsPackageNamesMap)[
                         datasource.packageName as string
                       ]
-                    ]
-                  }
+                    ],
+                  )}
                 />
               </ImageWrapper>
             ),
@@ -394,7 +395,7 @@ export function useDatasource(searchText: string) {
           <DatasourceImage
             alt=""
             className="dataSourceImage"
-            src={pluginImages[query.config.pluginId]}
+            src={getAssetUrl(pluginImages[query.config.pluginId])}
           />
         </ImageWrapper>
       ),

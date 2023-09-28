@@ -29,21 +29,13 @@ describe("Numeric Datatype tests", function () {
     agHelper.RenameWithInPane("createTable");
     agHelper.FocusElement(locators._codeMirrorTextArea);
     dataSources.RunQuery();
-    entityExplorer.ExpandCollapseEntity("Datasources");
-    entityExplorer.ExpandCollapseEntity(dsName);
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: dsName,
-      action: "Refresh",
-    });
-    agHelper.AssertElementVisibility(
-      entityExplorer._entityNameInExplorer("public.numerictypes"),
-    );
+    dataSources.AssertTableInVirtuosoList(dsName, "public.numerictypes");
   });
 
   it("2. Creating SELECT query - numerictypes + Bug 14493", () => {
     entityExplorer.ActionTemplateMenuByEntityName(
       "public.numerictypes",
-      "SELECT",
+      "Select",
     );
     dataSources.RunQuery();
     agHelper
@@ -57,7 +49,7 @@ describe("Numeric Datatype tests", function () {
     VALUES ({{Insertbigint.text}}, {{Insertdecimal.text}}, {{Insertnumeric.text}})`;
     entityExplorer.ActionTemplateMenuByEntityName(
       "public.numerictypes",
-      "INSERT",
+      "Insert",
     );
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("insertRecord");
@@ -69,7 +61,7 @@ describe("Numeric Datatype tests", function () {
   WHERE serialid = {{Table1.selectedRow.serialid}};`;
     entityExplorer.ActionTemplateMenuByEntityName(
       "public.numerictypes",
-      "UPDATE",
+      "Update",
     );
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("updateRecord");
@@ -77,7 +69,7 @@ describe("Numeric Datatype tests", function () {
     query = `DELETE FROM public."numerictypes"`;
     entityExplorer.ActionTemplateMenuByEntityName(
       "public.numerictypes",
-      "DELETE",
+      "Delete",
     );
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("deleteAllRecords");
@@ -85,7 +77,7 @@ describe("Numeric Datatype tests", function () {
     query = `drop table public."numerictypes"`;
     entityExplorer.ActionTemplateMenuByEntityName(
       "public.numerictypes",
-      "DELETE",
+      "Delete",
     );
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("dropTable");
@@ -94,7 +86,7 @@ describe("Numeric Datatype tests", function () {
     WHERE serialId ={{Table1.selectedRow.serialid}}`;
     entityExplorer.ActionTemplateMenuByEntityName(
       "public.numerictypes",
-      "DELETE",
+      "Delete",
     );
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("deleteRecord");
@@ -303,15 +295,7 @@ describe("Numeric Datatype tests", function () {
       expect($cellData).to.eq("0"); //Success response for dropped table!
     });
     entityExplorer.ExpandCollapseEntity("Queries/JS", false);
-    entityExplorer.ExpandCollapseEntity("Datasources");
-    entityExplorer.ExpandCollapseEntity(dsName);
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: dsName,
-      action: "Refresh",
-    });
-    agHelper.AssertElementAbsence(
-      entityExplorer._entityNameInExplorer("public.numerictypes"),
-    );
+    dataSources.AssertTableInVirtuosoList(dsName, "public.numerictypes", false);
     entityExplorer.ExpandCollapseEntity(dsName, false);
     entityExplorer.ExpandCollapseEntity("Datasources", false);
   });

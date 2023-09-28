@@ -57,14 +57,17 @@ import { RenderModes } from "constants/WidgetConstants";
 import log from "loglevel";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { getWidgets } from "./selectors";
-import { clearActionResponse } from "actions/pluginActionActions";
+import {
+  clearActionResponse,
+  updateActionData,
+} from "actions/pluginActionActions";
 import {
   importApplication,
   updateApplicationLayout,
 } from "@appsmith/actions/applicationActions";
 import { setPreviewModeAction } from "actions/editorActions";
 import type { FlattenedWidgetProps } from "WidgetProvider/constants";
-import type { ActionData } from "reducers/entityReducers/actionsReducer";
+import type { ActionData } from "@appsmith/reducers/entityReducers/actionsReducer";
 import { batchUpdateMultipleWidgetProperties } from "actions/controlActions";
 import {
   setExplorerActiveAction,
@@ -216,6 +219,13 @@ function* setUpTourAppSaga() {
   // Update getCustomers query body
   const query: ActionData | undefined = yield select(getQueryAction);
   yield put(clearActionResponse(query?.config.id ?? ""));
+  yield put(
+    updateActionData({
+      entityName: query?.config.name || "",
+      dataPath: "data",
+      data: undefined,
+    }),
+  );
   const applicationId: string = yield select(getCurrentApplicationId);
   yield put(
     updateApplicationLayout(applicationId || "", {

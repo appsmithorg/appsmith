@@ -1,0 +1,95 @@
+@import "../../../shared/colors/colors.module.css";
+
+.buttonGroup {
+  display: flex;
+
+  &[data-orientation="vertical"] {
+    flex-direction: column;
+  }
+
+  /* increasing z index to make sure the focused button is on top of the others */
+  & [data-button]:not([data-disabled]):focus-visible {
+    z-index: 1;
+  }
+
+  & [data-button]:first-child {
+    border-bottom-right-radius: 0;
+  }
+
+  & [data-button]:last-of-type {
+    border-top-left-radius: 0;
+  }
+
+  & [data-button]:not(:first-child):not(:last-of-type) {
+    border-radius: 0;
+  }
+
+  /**
+  * ----------------------------------------------------------------------------
+  * Horizontal orientation
+  *-----------------------------------------------------------------------------
+  */
+  &[data-orientation="horizontal"] [data-button]:not(:last-of-type) {
+    border-right-width: var(--border-width-1);
+  }
+
+  &[data-orientation="horizontal"] [data-button]:first-child {
+    border-top-right-radius: 0;
+  }
+
+  &[data-orientation="horizontal"] [data-button]:last-of-type {
+    border-bottom-left-radius: 0;
+  }
+
+  &[data-orientation="horizontal"] [data-variant="outlined"] {
+    margin-right: calc(-1 * var(--border-width-1));
+  }
+
+  /**
+  * ----------------------------------------------------------------------------
+  * Vertical orientation
+  *-----------------------------------------------------------------------------
+  */
+  &[data-orientation="vertical"] [data-button]:not(:last-of-type) {
+    border-bottom-width: var(--border-width-1);
+  }
+
+  &[data-orientation="vertical"] [data-button]:first-child {
+    border-bottom-left-radius: 0;
+  }
+
+  &[data-orientation="vertical"] [data-button]:last-of-type {
+    border-top-right-radius: 0;
+  }
+
+  &[data-orientation="vertical"] [data-variant="outlined"] {
+    margin-bottom: calc(-1 * var(--border-width-1));
+  }
+
+  /**
+  * ----------------------------------------------------------------------------
+  * Filled variant
+  *-----------------------------------------------------------------------------
+  */
+  & [data-variant="filled"] {
+    border-width: 0;
+  }
+
+  @each $color in colors {
+    & [data-variant="filled"][data-color="$(color)"] {
+      border-color: var(--color-bd-on-$(color));
+    }
+  }
+
+  /**
+  * ----------------------------------------------------------------------------
+  * Outlined variant
+  *-----------------------------------------------------------------------------
+  */
+
+  @each $color in colors {
+    & [data-variant="outlined"][data-color="$(color)"] {
+      border-color: var(--color-bd-$(color));
+    }
+  }
+}
