@@ -2099,7 +2099,7 @@ export const COMMUNITY_TEMPLATES = {
 // Create New Apps Intermediary step
 export const CREATE_NEW_APPS_STEP_TITLE = () => "Pick a starting point";
 export const CREATE_NEW_APPS_STEP_SUBTITLE = () =>
-  "Choose an option that fits your approach, and let&apos;s shape your app together.";
+  "Choose an option that fits your approach, and let's shape your app together.";
 export const START_FROM_TEMPLATE_TITLE = () =>
   "Begin with a specific scenario in mind. We'll guide you through tailoring your app.";
 export const START_FROM_TEMPLATE_SUBTITLE = () => "Start with use-case";
