@@ -86,7 +86,7 @@ const Form = styled.form`
 
 const MainConfiguration = styled.div`
   z-index: 7;
-  padding-left: var(--ads-v2-spaces-7);
+  padding: 0 var(--ads-v2-spaces-7);
   .api-info-row {
     padding-top: var(--ads-v2-spaces-5);
     .ads-v2-select > .rc-select-selector {
