@@ -179,8 +179,7 @@ describe("App Theming funtionality", function () {
     cy.contains("Save theme").click({ force: true });
 
     //Type the name of the theme:
-    cy.get("input[placeholder='My theme']").type("testtheme");
-
+    agHelper.TypeText("input[placeholder='My theme']", "testtheme");
     //Click on save theme button
     agHelper.ClickButton("Save theme");
     agHelper.ValidateToastMessage("Theme testtheme saved");
@@ -317,7 +316,7 @@ describe("App Theming funtionality", function () {
     cy.contains("Save theme").click({ force: true });
     cy.wait(200);
     //Type the name of the theme:
-    cy.get("input[placeholder='My theme']").type("testtheme");
+    agHelper.TypeText("input[placeholder='My theme']", "testtheme");
     cy.contains("Name must be unique");
 
     cy.get("input[placeholder='My theme']").clear().type("VioletYellowTheme");
@@ -746,6 +745,7 @@ describe("App Theming funtionality", function () {
     );
 
     agHelper.assertPageSave();
+    agHelper.Sleep();
     deployMode.DeployApp();
 
     //Verify Background color
