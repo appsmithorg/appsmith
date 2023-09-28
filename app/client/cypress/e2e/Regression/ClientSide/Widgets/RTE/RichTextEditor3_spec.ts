@@ -8,7 +8,8 @@ import {
 
 describe("Rich Text Editor widget Tests", function () {
   before(() => {
-    entityExplorer.DragDropWidgetNVerify("richtexteditorwidget", 500, 200);
+    agHelper.AddDsl("richTextEditorDsl");
+    entityExplorer.SelectEntityByName("RichTextEditor1", "Widgets");
   });
 
   it("1. Verify deleting text in default text property, updates data in widget", function () {
