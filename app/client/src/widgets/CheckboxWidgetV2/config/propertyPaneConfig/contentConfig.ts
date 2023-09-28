@@ -1,4 +1,3 @@
-import { LabelPosition } from "components/constants";
 import { ValidationTypes } from "constants/WidgetValidation";
 
 export const propertyPaneContentConfig = [
@@ -22,10 +21,10 @@ export const propertyPaneContentConfig = [
         controlType: "ICON_TABS",
         fullWidth: true,
         options: [
-          { label: "Left", value: LabelPosition.Left },
-          { label: "Right", value: LabelPosition.Right },
+          { label: "Left", value: "left" },
+          { label: "Right", value: "right" },
         ],
-        defaultValue: LabelPosition.Left,
+        defaultValue: "left",
         isBindProperty: false,
         isTriggerProperty: false,
         validation: { type: ValidationTypes.TEXT },

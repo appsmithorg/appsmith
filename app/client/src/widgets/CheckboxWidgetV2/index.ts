@@ -1,3 +1,3 @@
-import Widget from "./widget";
+import { CheckboxWidget } from "./widget";
 
-export default Widget;
+export { CheckboxWidget };

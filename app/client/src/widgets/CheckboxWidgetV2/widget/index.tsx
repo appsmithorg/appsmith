@@ -1,67 +1,39 @@
-import type { LabelPosition } from "components/constants";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import React from "react";
+import { Checkbox } from "@design-system/widgets";
+import type { SetterConfig } from "entities/AppTheming";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
-import type { AlignWidgetTypes } from "WidgetProvider/constants";
-import {
-  isAutoHeightEnabledForWidget,
-  DefaultAutocompleteDefinitions,
-} from "widgets/WidgetUtils";
-import type { WidgetProps, WidgetState } from "../../BaseWidget";
-import BaseWidget from "../../BaseWidget";
-import CheckboxComponent from "../component";
-import type { AutocompletionDefinitions } from "WidgetProvider/constants";
-import type {
-  SnipingModeProperty,
-  PropertyUpdates,
-} from "WidgetProvider/constants";
+import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 
-import IconSVG from "../icon.svg";
-import { WIDGET_TAGS } from "constants/WidgetConstants";
-import {
-  autoLayoutConfig,
-  defaultsConfig,
-  propertyPaneContentConfig,
-  featuresConfig,
-} from "./../config";
+import * as config from "./../config";
+import BaseWidget from "../../BaseWidget";
+import type { WidgetState } from "../../BaseWidget";
+import type { CheckboxWidgetProps } from "./types";
 
 class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
-  static type = "CHECKBOX_WIDGET";
+  static type = "CHECKBOX_WIDGET_V2";
 
   static getConfig() {
-    return defaultsConfig;
+    return config.metaConfig;
   }
 
   static getFeatures() {
-    return featuresConfig;
+    return config.featuresConfig;
   }
 
   static getDefaults() {
-    return defaultsConfig;
+    return config.defaultsConfig;
   }
 
   static getMethods() {
-    return {
-      getSnipingModeUpdates: (
-        propValueMap: SnipingModeProperty,
-      ): PropertyUpdates[] => {
-        return [
-          {
-            propertyPath: "defaultCheckedState",
-            propertyValue: propValueMap.data,
-            isDynamicPropertyPath: true,
-          },
-        ];
-      },
-    };
+    return config.methodsConfig;
   }
 
   static getAutoLayoutConfig() {
-    return autoLayoutConfig;
+    return config.autoLayoutConfig;
   }
 
-  static getAutocompleteDefinitions(): AutocompletionDefinitions {
+  static getAutocompleteDefinitions() {
     return {
       "!doc":
         "Checkbox is a simple UI widget you can use when you want users to make a binary choice",
@@ -73,7 +45,7 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
   }
 
   static getPropertyPaneContentConfig() {
-    return propertyPaneContentConfig;
+    return config.propertyPaneContentConfig;
   }
 
   static getPropertyPaneStyleConfig() {
@@ -100,11 +72,8 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
     };
   }
 
-  static getStylesheetConfig(): Stylesheet {
-    return {
-      accentColor: "{{appsmith.theme.colors.primaryColor}}",
-      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
-    };
+  static getSetterConfig(): SetterConfig {
+    return config.settersConfig;
   }
 
   componentDidUpdate(prevProps: CheckboxWidgetProps) {
@@ -116,56 +85,7 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
     }
   }
 
-  static getSetterConfig(): SetterConfig {
-    return {
-      __setters: {
-        setVisibility: {
-          path: "isVisible",
-          type: "boolean",
-        },
-        setDisabled: {
-          path: "isDisabled",
-          type: "boolean",
-        },
-        setRequired: {
-          path: "isRequired",
-          type: "boolean",
-        },
-        setValue: {
-          path: "defaultCheckedState",
-          type: "boolean",
-          accessor: "isChecked",
-        },
-      },
-    };
-  }
-
-  getWidgetView() {
-    return (
-      <CheckboxComponent
-        accentColor={this.props.accentColor}
-        alignWidget={this.props.alignWidget}
-        borderRadius={this.props.borderRadius}
-        isChecked={!!this.props.isChecked}
-        isDisabled={this.props.isDisabled}
-        isDynamicHeightEnabled={isAutoHeightEnabledForWidget(this.props)}
-        isLabelInline={this.isAutoLayoutMode}
-        isLoading={this.props.isLoading}
-        isRequired={this.props.isRequired}
-        key={this.props.widgetId}
-        label={this.props.label}
-        labelPosition={this.props.labelPosition}
-        labelStyle={this.props.labelStyle}
-        labelTextColor={this.props.labelTextColor}
-        labelTextSize={this.props.labelTextSize}
-        minHeight={this.props.minHeight}
-        onCheckChange={this.onCheckChange}
-        widgetId={this.props.widgetId}
-      />
-    );
-  }
-
-  onCheckChange = (isChecked: boolean) => {
+  onChange = (isChecked: boolean) => {
     if (!this.props.isDirty) {
       this.props.updateWidgetMetaProperty("isDirty", true);
     }
@@ -178,22 +98,22 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
       },
     });
   };
+
+  getWidgetView() {
+    return (
+      <Checkbox
+        id={this.props.widgetId}
+        isDisabled={this.props.isDisabled}
+        isRequired={this.props.isRequired}
+        isSelected={!!this.props.isChecked}
+        key={this.props.widgetId}
+        labelPosition={this.props.labelPosition}
+        onChange={this.onChange}
+      >
+        {this.props.label}
+      </Checkbox>
+    );
+  }
 }
 
-export interface CheckboxWidgetProps extends WidgetProps {
-  label: string;
-  defaultCheckedState: boolean;
-  isChecked?: boolean;
-  isDisabled?: boolean;
-  onCheckChange?: string;
-  isRequired?: boolean;
-  accentColor: string;
-  borderRadius: string;
-  alignWidget: AlignWidgetTypes;
-  labelPosition: LabelPosition;
-  labelTextColor?: string;
-  labelTextSize?: string;
-  labelStyle?: string;
-}
-
-export default CheckboxWidget;
+export { CheckboxWidget };
