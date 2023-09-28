@@ -796,9 +796,9 @@ export class DataSources {
     );
   }
 
-  public TestSaveDatasource(expectedRes = true, isForkModal = false) {
+  public TestSaveDatasource(expectedRes = true, isReconnectModal = false) {
     this.TestDatasource(expectedRes);
-    this.SaveDatasource(isForkModal);
+    this.SaveDatasource(isReconnectModal);
   }
 
   public TestDatasource(expectedRes = true) {
@@ -810,10 +810,10 @@ export class DataSources {
     }
   }
 
-  public SaveDatasource(isForkModal = false, isSavingEnvInOldDS = false) {
+  public SaveDatasource(isReconnectModal = false, isSavingEnvInOldDS = false) {
     this.agHelper.Sleep(500); //bit of time for CI!
     this.agHelper.GetNClick(this._saveDs);
-    if (!isForkModal) {
+    if (!isReconnectModal) {
       this.assertHelper.AssertNetworkStatus("@saveDatasource", 201);
       if (!isSavingEnvInOldDS)
         this.agHelper.AssertContains("datasource created");
@@ -1096,7 +1096,7 @@ export class DataSources {
     if (dsName == "PostgreSQL") this.FillPostgresDSForm();
     else if (dsName == "MySQL") this.FillMySqlDSForm();
     else if (dsName == "MongoDB") this.FillMongoDSForm();
-    this.SaveDatasource(true);
+    this.TestSaveDatasource(true, true);
     this.assertHelper.AssertNetworkStatus("@getPage", 200);
     this.assertHelper.AssertNetworkStatus("getWorkspace");
   }

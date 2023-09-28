@@ -2,7 +2,7 @@ import {
   createMessage,
   DATASOURCE_STRUCTURE_INPUT_PLACEHOLDER_TEXT,
   SCHEMA_NOT_AVAILABLE,
-  TABLE_OR_COLUMN_NOT_FOUND,
+  TABLE_NOT_FOUND,
 } from "@appsmith/constants/messages";
 import type { DatasourceStructure as DatasourceStructureType } from "entities/Datasource";
 import type { ReactElement } from "react";
@@ -185,7 +185,7 @@ const Container = (props: Props) => {
 
           {!datasourceStructure?.tables?.length && (
             <Text kind="body-s" renderAs="p">
-              {createMessage(TABLE_OR_COLUMN_NOT_FOUND)}
+              {createMessage(TABLE_NOT_FOUND)}
             </Text>
           )}
         </>

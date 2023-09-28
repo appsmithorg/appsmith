@@ -41,7 +41,9 @@ import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.ThemeService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
+import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.UserAndAccessManagementService;
+import com.appsmith.server.solutions.WorkspacePermission;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
@@ -72,9 +74,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
-import static com.appsmith.server.acl.AclPermission.WORKSPACE_CREATE_DATASOURCE;
 import static com.appsmith.server.constants.ce.FieldNameCE.DEFAULT_PAGE_LAYOUT;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -147,6 +147,12 @@ public class ApplicationForkingServiceTests {
 
     @Autowired
     WorkspaceRepository workspaceRepository;
+
+    @Autowired
+    PagePermission pagePermission;
+
+    @Autowired
+    WorkspacePermission workspacePermission;
 
     private static String sourceAppId;
 
@@ -290,7 +296,8 @@ public class ApplicationForkingServiceTests {
          * Now since, no one has the permissions to existing page, the application forking will fail.
          */
         Set<Policy> newPoliciesWithoutEdit = existingPolicies.stream()
-                .filter(policy -> !policy.getPermission().equals(MANAGE_PAGES.getValue()))
+                .filter(policy -> !policy.getPermission()
+                        .equals(pagePermission.getEditPermission().getValue()))
                 .collect(Collectors.toSet());
         appPage.setPolicies(newPoliciesWithoutEdit);
         NewPage updatedGitAppPage = newPageRepository.save(appPage).block();
@@ -332,7 +339,10 @@ public class ApplicationForkingServiceTests {
          * Now since, no one has the permissions for Target Workspace, the application forking will fail.
          */
         Set<Policy> newPoliciesWithoutCreateDatasource = existingPolicies.stream()
-                .filter(policy -> !policy.getPermission().equals(WORKSPACE_CREATE_DATASOURCE.getValue()))
+                .filter(policy -> !policy.getPermission()
+                        .equals(workspacePermission
+                                .getDatasourceCreatePermission()
+                                .getValue()))
                 .collect(Collectors.toSet());
         targetWorkspace.setPolicies(newPoliciesWithoutCreateDatasource);
         Workspace updatedargetWorkspace =

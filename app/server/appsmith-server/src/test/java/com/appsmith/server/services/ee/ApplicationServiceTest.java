@@ -44,8 +44,10 @@ import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.UserWorkspaceService;
 import com.appsmith.server.services.WorkspaceService;
+import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.EnvironmentPermission;
 import com.appsmith.server.solutions.ImportExportApplicationService;
+import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.UserAndAccessManagementService;
 import com.appsmith.server.solutions.roles.RoleConfigurationSolution;
 import com.appsmith.server.solutions.roles.constants.RoleTab;
@@ -73,11 +75,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.appsmith.server.acl.AclPermission.CREATE_DATASOURCE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_ENVIRONMENTS;
-import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
@@ -157,6 +157,12 @@ public class ApplicationServiceTest {
 
     @Autowired
     NewActionService newActionService;
+
+    @Autowired
+    PagePermission pagePermission;
+
+    @Autowired
+    DatasourcePermission datasourcePermission;
 
     String workspaceId;
 
@@ -573,7 +579,8 @@ public class ApplicationServiceTest {
          * Now since, no one has the permissions to Edit the 2nd page, teh application deployment will fail.
          */
         Set<Policy> newPoliciesWithoutEdit = existingPolicies.stream()
-                .filter(policy -> !policy.getPermission().equals(MANAGE_PAGES.getValue()))
+                .filter(policy -> !policy.getPermission()
+                        .equals(pagePermission.getEditPermission().getValue()))
                 .collect(Collectors.toSet());
         gitAppPage.setPolicies(newPoliciesWithoutEdit);
         NewPage updatedGitAppPage = newPageRepository.save(gitAppPage).block();
@@ -605,7 +612,8 @@ public class ApplicationServiceTest {
          * Now since, no one has the permissions to Edit the 2nd page, the application cloning will fail.
          */
         Set<Policy> newPoliciesWithoutEdit = existingPolicies.stream()
-                .filter(policy -> !policy.getPermission().equals(MANAGE_PAGES.getValue()))
+                .filter(policy -> !policy.getPermission()
+                        .equals(pagePermission.getEditPermission().getValue()))
                 .collect(Collectors.toSet());
         gitAppPage.setPolicies(newPoliciesWithoutEdit);
         NewPage updatedGitAppPage = newPageRepository.save(gitAppPage).block();
@@ -655,7 +663,8 @@ public class ApplicationServiceTest {
          * The created Workspace has a Datasource. And we will remove the Create Datasource Action permisison.
          */
         Set<Policy> newPoliciesWithoutEdit = existingPolicies.stream()
-                .filter(policy -> !policy.getPermission().equals(CREATE_DATASOURCE_ACTIONS.getValue()))
+                .filter(policy -> !policy.getPermission()
+                        .equals(datasourcePermission.getActionCreatePermission().getValue()))
                 .collect(Collectors.toSet());
         testDatasource1.setPolicies(newPoliciesWithoutEdit);
         Datasource updatedTestDatasource =

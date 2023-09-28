@@ -482,10 +482,6 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
                 .thenReturn(TRUE);
     }
 
-    public Mono<Set<String>> getSessionUserPermissionGroupIds() {
-        return sessionUserService.getCurrentUser().flatMap(repository::getAllPermissionGroupsIdsForUser);
-    }
-
     @Override
     public Mono<Set<String>> getAllDirectlyAndIndirectlyAssignedUserIds(PermissionGroup permissionGroup) {
         if (ObjectUtils.isEmpty(permissionGroup.getAssignedToGroupIds())

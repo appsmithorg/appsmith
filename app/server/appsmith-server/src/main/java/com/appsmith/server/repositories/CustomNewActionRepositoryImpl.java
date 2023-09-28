@@ -41,13 +41,6 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
     }
 
     @Override
-    public Flux<NewAction> findAllByApplicationIdsWithoutPermission(
-            List<String> applicationIds, List<String> includeFields) {
-        Criteria applicationCriteria = Criteria.where(FieldName.APPLICATION_ID).in(applicationIds);
-        return queryAll(List.of(applicationCriteria), includeFields, null, null, NO_RECORD_LIMIT);
-    }
-
-    @Override
     public Flux<NewAction> findAllByActionCollectionIdWithoutPermissions(
             List<String> collectionIds, List<String> includeFields) {
         String actionCollectionCriteriaQueryString = fieldName(QNewAction.newAction.unpublishedAction) + "."
