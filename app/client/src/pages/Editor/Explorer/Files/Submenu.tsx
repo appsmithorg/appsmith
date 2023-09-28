@@ -22,7 +22,6 @@ import {
 } from "@appsmith/constants/messages";
 import { useCloseMenuOnScroll } from "../hooks";
 import { SIDEBAR_ID } from "constants/Explorer";
-import { hasCreateActionPermission } from "@appsmith/utils/permissionHelpers";
 import {
   Menu,
   MenuContent,
@@ -33,6 +32,9 @@ import {
   Text,
 } from "design-system";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
+import { getHasCreateActionPermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 const SubMenuContainer = styled.div`
   width: 250px;
@@ -73,7 +75,12 @@ export default function ExplorerSubMenu({
 
   const pagePermissions = useSelector(getPagePermissions);
 
-  const canCreateActions = hasCreateActionPermission(pagePermissions);
+  const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+
+  const canCreateActions = getHasCreateActionPermission(
+    isFeatureEnabled,
+    pagePermissions,
+  );
 
   useEffect(() => {
     setQuery("");
@@ -173,7 +180,7 @@ export default function ExplorerSubMenu({
                   key={`file-op-${idx}`}
                   onClick={() => handleClick(item)}
                 >
-                  <div className="flex gap-2 items-center">
+                  <div className="flex items-center gap-2">
                     {icon && <span className="flex-shrink-0">{icon}</span>}
                     <span className="overflow-hidden whitespace-nowrap overflow-ellipsis">
                       {item.shortTitle || item.title}
