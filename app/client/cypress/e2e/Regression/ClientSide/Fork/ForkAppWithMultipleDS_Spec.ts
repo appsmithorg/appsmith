@@ -3,7 +3,6 @@ import {
   dataSources,
   homePage,
 } from "../../../../support/Objects/ObjectsCore";
-import reconnectDSLocator from "../../../../locators/ReconnectLocators.js";
 
 let workspaceId: string;
 
