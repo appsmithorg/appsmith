@@ -26,6 +26,9 @@ import { hasDeletePagePermission as hasDeletePagePermission_EE } from "@appsmith
 import { hasCreateActionPermission as hasCreateActionPermission_CE } from "ce/utils/permissionHelpers";
 import { hasCreateActionPermission as hasCreateActionPermission_EE } from "@appsmith/utils/permissionHelpers";
 
+import { hasManageActionPermission as hasManageActionPermission_CE } from "ce/utils/permissionHelpers";
+import { hasManageActionPermission as hasManageActionPermission_EE } from "@appsmith/utils/permissionHelpers";
+
 export const getHasCreateWorkspacePermission = (
   isEnabled: boolean,
   permissions?: string[],
@@ -96,4 +99,12 @@ export const getHasCreateActionPermission = (
 ) => {
   if (isEnabled) return hasCreateActionPermission_EE(permissions);
   else return hasCreateActionPermission_CE(permissions);
+};
+
+export const getHasManageActionPermission = (
+  isEnabled: boolean,
+  permissions?: string[],
+) => {
+  if (isEnabled) return hasManageActionPermission_EE(permissions);
+  else return hasManageActionPermission_CE(permissions);
 };

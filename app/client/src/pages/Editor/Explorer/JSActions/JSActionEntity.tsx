@@ -13,10 +13,10 @@ import type { PluginType } from "entities/Action";
 import { jsCollectionIdURL } from "RouteBuilder";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useLocation } from "react-router";
-import {
-  hasDeleteActionPermission,
-  hasManageActionPermission,
-} from "@appsmith/utils/permissionHelpers";
+import { hasDeleteActionPermission } from "@appsmith/utils/permissionHelpers";
+import { getHasManageActionPermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 type ExplorerJSCollectionEntityProps = {
   step: number;
@@ -58,9 +58,14 @@ export const ExplorerJSCollectionEntity = memo(
 
     const jsActionPermissions = jsAction.userPermissions || [];
 
+    const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+
     const canDeleteJSAction = hasDeleteActionPermission(jsActionPermissions);
 
-    const canManageJSAction = hasManageActionPermission(jsActionPermissions);
+    const canManageJSAction = getHasManageActionPermission(
+      isFeatureEnabled,
+      jsActionPermissions,
+    );
 
     const contextMenu = (
       <JSCollectionEntityContextMenu

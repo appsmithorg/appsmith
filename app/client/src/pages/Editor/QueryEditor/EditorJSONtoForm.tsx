@@ -102,7 +102,6 @@ import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig
 import {
   hasDeleteActionPermission,
   hasExecuteActionPermission,
-  hasManageActionPermission,
 } from "@appsmith/utils/permissionHelpers";
 import { getQueryPaneConfigSelectedTabIndex } from "selectors/queryPaneSelectors";
 import { setQueryPaneConfigSelectedTabIndex } from "actions/queryPaneActions";
@@ -135,7 +134,10 @@ import { editorSQLModes } from "components/editorComponents/CodeEditor/sql/confi
 import { EditorFormSignPosting } from "@appsmith/components/editorComponents/EditorFormSignPosting";
 import { DatasourceStructureContext } from "../Explorer/Datasources/DatasourceStructure";
 import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
-import { getHasCreateDatasourcePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import {
+  getHasCreateDatasourcePermission,
+  getHasManageActionPermission,
+} from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
@@ -422,7 +424,11 @@ export function EditorJSONtoForm(props: Props) {
     (action) => action.id === params.apiId || action.id === params.queryId,
   );
   const { pageId } = useParams<ExplorerURLParams>();
-  const isChangePermitted = hasManageActionPermission(
+
+  const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+
+  const isChangePermitted = getHasManageActionPermission(
+    isFeatureEnabled,
     currentActionConfig?.userPermissions,
   );
   const isExecutePermitted = hasExecuteActionPermission(
@@ -435,8 +441,6 @@ export function EditorJSONtoForm(props: Props) {
   const userWorkspacePermissions = useSelector(
     (state: AppState) => getCurrentAppWorkspace(state).userPermissions ?? [],
   );
-
-  const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
 
   const canCreateDatasource = getHasCreateDatasourcePermission(
     isFeatureEnabled,

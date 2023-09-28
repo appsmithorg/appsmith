@@ -56,7 +56,6 @@ import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
 import {
   hasDeleteActionPermission,
   hasExecuteActionPermission,
-  hasManageActionPermission,
 } from "@appsmith/utils/permissionHelpers";
 import {
   setCodeEditorCursorAction,
@@ -69,6 +68,9 @@ import styled from "styled-components";
 import { showDebuggerFlag } from "selectors/debuggerSelectors";
 import { Tab, TabPanel, Tabs, TabsList } from "design-system";
 import { JSEditorTab } from "reducers/uiReducers/jsPaneReducer";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { getHasManageActionPermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 
 interface JSFormProps {
   jsCollection: JSCollection;
@@ -162,7 +164,10 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
     }
   }, [hash]);
 
-  const isChangePermitted = hasManageActionPermission(
+  const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+
+  const isChangePermitted = getHasManageActionPermission(
+    isFeatureEnabled,
     currentJSCollection?.userPermissions || [],
   );
   const isExecutePermitted = hasExecuteActionPermission(
