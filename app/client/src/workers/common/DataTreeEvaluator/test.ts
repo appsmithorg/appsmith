@@ -16,6 +16,7 @@ import { replaceThisDotParams } from "./utils";
 import { isDataField } from "./utils";
 import widgets from "widgets";
 import type { WidgetConfiguration } from "WidgetProvider/constants";
+import { klona } from "klona";
 
 const widgetConfigMap: Record<
   string,
@@ -359,7 +360,7 @@ describe("DataTreeEvaluator", () => {
             nonDynamicFieldValidationOrder: nonDynamicFieldValidationOrder5,
             unEvalUpdates,
           } = dataTreeEvaluator.setupUpdateTree(
-            nestedArrayAccessorCyclicDependency.apiSuccessUnEvalTree,
+            klona(nestedArrayAccessorCyclicDependency.apiSuccessUnEvalTree),
             nestedArrayAccessorCyclicDependencyConfig.apiSuccessConfigTree,
           );
           dataTreeEvaluator.evalAndValidateSubTree(
@@ -423,7 +424,7 @@ describe("DataTreeEvaluator", () => {
           nonDynamicFieldValidationOrder,
           unEvalUpdates,
         } = dataTreeEvaluator.setupUpdateTree(
-          nestedArrayAccessorCyclicDependency.apiSuccessUnEvalTree,
+          klona(nestedArrayAccessorCyclicDependency.apiSuccessUnEvalTree),
           nestedArrayAccessorCyclicDependencyConfig.apiSuccessConfigTree,
         );
         dataTreeEvaluator.evalAndValidateSubTree(
@@ -470,7 +471,7 @@ describe("DataTreeEvaluator", () => {
           nonDynamicFieldValidationOrder: nonDynamicFieldValidationOrder2,
           unEvalUpdates,
         } = dataTreeEvaluator.setupUpdateTree(
-          nestedArrayAccessorCyclicDependency.apiSuccessUnEvalTree,
+          klona(nestedArrayAccessorCyclicDependency.apiSuccessUnEvalTree),
           nestedArrayAccessorCyclicDependencyConfig.apiSuccessConfigTree,
         );
         dataTreeEvaluator.evalAndValidateSubTree(

@@ -345,7 +345,8 @@ export default class DataTreeEvaluator {
 
     // Evaluate
     const { evalMetaUpdates, evaluatedTree, staleMetaIds } = this.evaluateTree(
-      this.oldUnEvalTree,
+      //we need to deep clone oldUnEvalTree because evaluateTree will mutate it
+      klona(this.oldUnEvalTree),
       evaluationOrder,
       undefined,
       this.oldConfigTree,
@@ -784,6 +785,7 @@ export default class DataTreeEvaluator {
       evaluatedTree: newEvalTree,
       staleMetaIds,
     } = this.evaluateTree(
+      // should not clone evalTree unnessarily because it is anyways being overwritten in the subsequent statement
       this.evalTree,
       evaluationOrder,
       {
@@ -924,7 +926,7 @@ export default class DataTreeEvaluator {
   }
 
   evaluateTree(
-    oldUnevalTree: DataTree,
+    dataTree: DataTree,
     evaluationOrder: Array<string>,
     options: {
       isFirstTree: boolean;
@@ -941,11 +943,10 @@ export default class DataTreeEvaluator {
     evalMetaUpdates: EvalMetaUpdates;
     staleMetaIds: string[];
   } {
-    const tree = klona(oldUnevalTree);
-    updateTreeWithData(tree, klonaJSON(DataStore.getDataStore()));
+    updateTreeWithData(dataTree, klonaJSON(DataStore.getDataStore()));
 
     errorModifier.updateAsyncFunctions(
-      tree,
+      dataTree,
       this.getConfigTree(),
       this.dependencyMap,
     );
@@ -1061,10 +1062,13 @@ export default class DataTreeEvaluator {
               });
 
               // setting evalPropertyValue in unParsedEvalTree
+              // cloning evalPropertyValue because parsedValue and evalPropertyValue could be equal, they both could share the same reference
+              //hence we are cloning evalPropertyValue to seperate them
+              // setting evalPropertyValue in unParsedEvalTree
               set(
                 this.getUnParsedEvalTree(),
                 fullPropertyPath,
-                evalPropertyValue,
+                klona(evalPropertyValue),
               );
 
               staleMetaIds = staleMetaIds.concat(
@@ -1176,7 +1180,7 @@ export default class DataTreeEvaluator {
               return set(currentTree, fullPropertyPath, evalPropertyValue);
           }
         },
-        tree,
+        dataTree,
       );
 
       return {
@@ -1189,7 +1193,7 @@ export default class DataTreeEvaluator {
         type: EvalErrorTypes.EVAL_TREE_ERROR,
         message: (error as Error).message,
       });
-      return { evaluatedTree: tree, evalMetaUpdates, staleMetaIds: [] };
+      return { evaluatedTree: dataTree, evalMetaUpdates, staleMetaIds: [] };
     }
   }
 

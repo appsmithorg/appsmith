@@ -2,6 +2,7 @@ import { PatchType } from "./JSVariableUpdates";
 import ExecutionMetaData from "../fns/utils/ExecutionMetaData";
 import type { JSActionEntity } from "entities/DataTree/types";
 import TriggerEmitter, { BatchKey } from "../fns/utils/TriggerEmitter";
+import { klona } from "klona/full";
 
 class JSFactory {
   static create(
@@ -10,7 +11,10 @@ class JSFactory {
   ): JSActionEntity {
     const newJSObject: any = {};
 
-    const variables = Object.entries(varState);
+    //we need perform deep clone here to pervent a mutation issue with JS actions
+    const variables = self.$isDataField
+      ? Object.entries(varState)
+      : klona(Object.entries(varState));
 
     for (const [varName, varValue] of variables) {
       let variable = varValue;
