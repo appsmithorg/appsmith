@@ -363,15 +363,17 @@ export const isValidFunction = (fn : any, whitelistedGlobals: string[]) : Valida
     // const newFn = sandboxedFn(fn)
     // console.log("returning function ", newFn.toString())
     try {
+      console.log("astpartsing", "parsing string ", fn.toString())
       const astTree = parse(fn.toString(), { ecmaVersion: 11 })
     console.log('astparsing', "ast tree is ", JSON.stringify(astTree))
-    const result : any = validFn(astTree, ["eval", "fetch", "constructor"])
+    const result : any = validFn(astTree, ["eval", "fetch", "constructor", "document", "window", "Function"])
     console.log("astparsing", "result from ast parsing is ", result, fnString)
     if (result.status == false) {
       return { isValid: false, parsed: "", messages: [{ name: "TypeError", message: result.message}] }
     }
     } catch(error) {
       console.log("astparsing", "coming in outer catch", error)
+      return { isValid: false, parsed: fnString, messages: [{ message: "Invalid syntax", name: "TypeError" }] };
     }
     
     return { isValid: true, parsed: fnString, messages: messages };
