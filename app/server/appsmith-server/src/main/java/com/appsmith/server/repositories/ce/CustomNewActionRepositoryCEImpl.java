@@ -638,6 +638,13 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
                 aggregation, mongoOperations.getCollectionName(NewAction.class), PluginTypeAndCountDTO.class);
     }
 
+    @Override
+    public Flux<NewAction> findAllByApplicationIdsWithoutPermission(
+            List<String> applicationIds, List<String> includeFields) {
+        Criteria applicationCriteria = Criteria.where(FieldName.APPLICATION_ID).in(applicationIds);
+        return queryAll(List.of(applicationCriteria), includeFields, null, null, NO_RECORD_LIMIT);
+    }
+
     /**
      * Sets the datasource.name and updatedAt fields of newAction as per the provided datasource. The actions which
      * have unpublishedAction.datasource.id same as the provided datasource.id will be updated.

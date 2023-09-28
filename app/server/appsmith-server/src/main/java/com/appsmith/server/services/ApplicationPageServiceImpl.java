@@ -70,13 +70,13 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
             ApplicationPermission applicationPermission,
             PagePermission pagePermission,
             ActionPermission actionPermission,
+            TransactionalOperator transactionalOperator,
             PermissionGroupService permissionGroupService,
-            NewPageRepository newPageRepository,
-            NewActionRepository newActionRepository,
             ActionCollectionRepository actionCollectionRepository,
+            NewActionRepository newActionRepository,
+            NewPageRepository newPageRepository,
             DatasourceRepository datasourceRepository,
-            DatasourcePermission datasourcePermission,
-            TransactionalOperator transactionalOperator) {
+            DatasourcePermission datasourcePermission) {
 
         super(
                 workspaceService,
@@ -98,7 +98,12 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
                 pagePermission,
                 actionPermission,
                 transactionalOperator,
-                permissionGroupService);
+                permissionGroupService,
+                actionCollectionRepository,
+                newActionRepository,
+                newPageRepository,
+                datasourceRepository,
+                datasourcePermission);
         this.applicationService = applicationService;
         this.applicationPermission = applicationPermission;
         this.permissionGroupService = permissionGroupService;
