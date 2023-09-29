@@ -6,6 +6,8 @@ import {
   dataSources,
   agHelper,
   entityExplorer,
+  assertHelper,
+  table,
 } from "../../support/Objects/ObjectsCore";
 
 describe("GSheet-Functional Tests With Read/Write Access", function () {
@@ -294,6 +296,22 @@ describe("GSheet-Functional Tests With Read/Write Access", function () {
         "Request had insufficient authentication scopes.",
       );
     });
+  });
+
+  it("9. Import an app with read write access sheet", function () {
+    homePage.NavigateToHome();
+    homePage.ImportApp("ImportAppReadWriteAccess.json");
+    assertHelper.WaitForNetworkCall("importNewApplication").then(() => {
+      agHelper.Sleep();
+      //Validate table is not empty!
+      table.WaitUntilTableLoad(0, 0, "v2");
+    });
+    // Assert table data
+    table.ReadTableRowColumnData(0, 0, "v2").then((cellData) => {
+      expect(cellData).to.eq("eac7efa5dbd3d667f26eb3d3ab504464");
+    });
+    homePage.NavigateToHome();
+    homePage.DeleteApplication("ImportAppReadWriteAccess");
   });
 
   after("Delete spreadsheet and app", function () {

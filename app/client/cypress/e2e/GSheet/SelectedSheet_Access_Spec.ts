@@ -6,6 +6,8 @@ import {
   dataSources,
   agHelper,
   entityExplorer,
+  assertHelper,
+  table,
 } from "../../support/Objects/ObjectsCore";
 
 const workspaceName = "gsheet apps";
@@ -288,6 +290,22 @@ describe("GSheet-Functional Tests With Selected Access", function () {
     cy.get("@postExecute").then((interception: any) => {
       expect(interception.response.body.data.body).to.deep.equal([]);
     });
+  });
+
+  it("8. Import an app with read write access sheet", function () {
+    homePage.NavigateToHome();
+    homePage.ImportApp("ImportAppSelectedAccess.json");
+    assertHelper.WaitForNetworkCall("importNewApplication").then(() => {
+      agHelper.Sleep();
+      //Validate table is not empty!
+      table.WaitUntilTableLoad(0, 0, "v2");
+    });
+    // Assert table data
+    table.ReadTableRowColumnData(0, 0, "v2").then((cellData) => {
+      expect(cellData).to.eq("eac7efa5dbd3d667f26eb3d3ab504464");
+    });
+    homePage.NavigateToHome();
+    homePage.DeleteApplication("ImportAppSelectedAccess");
   });
 
   after("Delete app", function () {

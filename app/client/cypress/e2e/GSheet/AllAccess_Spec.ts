@@ -6,6 +6,8 @@ import {
   dataSources,
   agHelper,
   entityExplorer,
+  table,
+  assertHelper,
 } from "../../support/Objects/ObjectsCore";
 
 const workspaceName = "gsheet apps";
@@ -283,6 +285,22 @@ describe("GSheet-Functional Tests With All Access", function () {
         "Deleted row successfully!",
       );
     });
+  });
+
+  it("8. Import an app with all access sheet", function () {
+    homePage.NavigateToHome();
+    homePage.ImportApp("ImportAppAllAccess.json", workspaceName);
+    assertHelper.WaitForNetworkCall("importNewApplication").then(() => {
+      agHelper.Sleep();
+      //Validate table is not empty!
+      table.WaitUntilTableLoad(0, 0, "v2");
+    });
+    // Assert table data
+    table.ReadTableRowColumnData(0, 0, "v2").then((cellData) => {
+      expect(cellData).to.eq("eac7efa5dbd3d667f26eb3d3ab504464");
+    });
+    homePage.NavigateToHome();
+    homePage.DeleteApplication("ImportAppAllAccess");
   });
 
   after("Delete spreadsheet and app", function () {
