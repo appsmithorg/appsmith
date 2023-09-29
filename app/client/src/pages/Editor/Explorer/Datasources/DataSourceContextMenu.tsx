@@ -13,15 +13,17 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import type { AppState } from "@appsmith/reducers";
-import {
-  hasDeleteDatasourcePermission,
-  hasManageDatasourcePermission,
-} from "@appsmith/utils/permissionHelpers";
 
 import { getDatasource } from "@appsmith/selectors/entitiesSelector";
 import type { TreeDropdownOption } from "pages/Editor/Explorer/ContextMenu";
 import ContextMenu from "pages/Editor/Explorer/ContextMenu";
 import { DatasourceStructureContext } from "./DatasourceStructure";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import {
+  getHasDeleteDatasourcePermission,
+  getHasManageDatasourcePermission,
+} from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 
 export function DataSourceContextMenu(props: {
   datasourceId: string;
@@ -51,13 +53,17 @@ export function DataSourceContextMenu(props: {
     getDatasource(state, props.datasourceId),
   );
 
+  const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+
   const datasourcePermissions = datasource?.userPermissions || [];
 
-  const canDeleteDatasource = hasDeleteDatasourcePermission(
+  const canDeleteDatasource = getHasDeleteDatasourcePermission(
+    isFeatureEnabled,
     datasourcePermissions,
   );
 
-  const canManageDatasource = hasManageDatasourcePermission(
+  const canManageDatasource = getHasManageDatasourcePermission(
+    isFeatureEnabled,
     datasourcePermissions,
   );
 
