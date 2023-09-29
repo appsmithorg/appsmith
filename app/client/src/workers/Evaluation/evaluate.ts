@@ -14,6 +14,7 @@ import { addDataTreeToContext } from "@appsmith/workers/Evaluation/Actions";
 import log from "loglevel";
 import * as Sentry from "@sentry/react";
 import type { DataTreeEntity } from "entities/DataTree/dataTreeFactory";
+import { isWidgetActionOrJsObject } from "workers/common/DataTreeEvaluator/utils";
 
 export type EvalResult = {
   result: any;
@@ -234,7 +235,23 @@ export function setEvalContext({
     isTriggerBased,
   });
 
-  Object.assign(self, evalContext);
+  Object.keys(dataTree || {}).forEach((entityName) => {
+    if (!isWidgetActionOrJsObject(dataTree[entityName])) return;
+    const value = evalContext[entityName];
+    Object.keys(value).forEach((childProperty) => {
+      Object.defineProperty(value, childProperty, {
+        writable: false,
+      });
+    });
+    Object.defineProperty(evalContext, entityName, {
+      writable: false,
+    });
+  });
+
+  //@ts-expect-error test
+  Object.keys(evalContext).forEach((k) => (self[k] = evalContext[k]));
+
+  return evalContext;
 }
 
 export default function evaluateSync(
@@ -265,7 +282,7 @@ export default function evaluateSync(
       };
     }
 
-    setEvalContext({
+    const evalContext = setEvalContext({
       dataTree,
       configTree,
       isDataField: true,
@@ -298,6 +315,18 @@ export default function evaluateSync(
       });
     } finally {
       self["$isDataField"] = false;
+      Object.keys(dataTree || {}).forEach((entityName) => {
+        if (!isWidgetActionOrJsObject(dataTree[entityName])) return;
+        const value = evalContext[entityName];
+        Object.keys(value).forEach((childProperty) => {
+          Object.defineProperty(value, childProperty, {
+            writable: true,
+          });
+        });
+        Object.defineProperty(evalContext, entityName, {
+          writable: true,
+        });
+      });
     }
     return { result, errors };
   })();
