@@ -300,6 +300,7 @@ export const isChildPropertyPath = (
 export const EVALUATION_PATH = "__evaluation__";
 export const EVAL_ERROR_PATH = `${EVALUATION_PATH}.errors`;
 export const EVAL_VALUE_PATH = `${EVALUATION_PATH}.evaluatedValues`;
+export const EVAL_FN_VALUES = `${EVALUATION_PATH}.evaluatedValues`;
 
 /**
  * non-populated object

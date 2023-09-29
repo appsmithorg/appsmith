@@ -1,10 +1,27 @@
 import { serialiseToBigInt } from "@appsmith/workers/Evaluation/evaluationUtils";
+import { FOCUSABLE_SELECTOR } from "@testing-library/user-event/dist/utils";
+import type { ValidationConfig } from "constants/PropertyControlConstants";
 import type { Diff } from "deep-diff";
 import { diff } from "deep-diff";
 import type { DataTree } from "entities/DataTree/dataTreeFactory";
 import equal from "fast-deep-equal";
-import { get, isNumber, isObject } from "lodash";
+import { get, isNumber, isObject, set } from "lodash";
 import { EvalErrorTypes } from "utils/DynamicBindingUtils";
+import produce from "immer";
+import { invalid } from "moment";
+import { check } from "prettier";
+import { Arr } from "tern";
+import { VALIDATORS } from "./validations";
+import type { ValidationResponse } from "constants/WidgetValidation";
+import { array } from "toposort";
+import { isValid } from "redux-form";
+import type { ValidateResult } from "react-hook-form";
+// import { parse } from "json5";
+import { klona } from "klona";
+import { parse }  from "acorn"
+const detect = require('acorn-globals');
+
+export const fn_keys : string = "__fn_keys__"
 
 export interface DiffReferenceState {
   kind: "referenceState";
@@ -92,6 +109,350 @@ const generateWithKey = (basePath: any, key: any) => {
     segmentedPath,
   };
 };
+
+// export const validateFunctionsInArray = (userArray: unknown[], allowedGlobals: string[], parentObj: Record<string, unknown>, path: string = "") => {
+//   const invalidResponse : ValidationResponse = { isValid: false, parsed: {}, messages: [] }
+
+//   for(let index = 0; index < userArray.length; index = index + 1) {
+//     const val = userArray[index]
+//     const fnKeys = parentObj[fn_keys] as string[]
+//     const newPath = path.length > 0 ? `${path.slice()}.[${index}]` : `[${index}]`
+
+//     if(typeof(val) == "object") {
+//       const valueAsRecord = val as Record<string, unknown>  
+//       const result = validateFunctionsInObject(valueAsRecord, allowedGlobals, parentObj, newPath)
+//       if (!result.isValid) {
+//         return invalidResponse
+//       }
+//     } else if(typeof(val) == 'function') {
+//       const result = isValidFunction(val, allowedGlobals)
+//       if(!result.isValid) {
+//         return invalidResponse
+//       } else {
+//         userArray[index] = result.parsed
+//         console.log("****", "pushing value to fn key in array", newPath)
+//         fnKeys.push(newPath)
+//       }
+//     }
+//   }
+//   return { isValid: true, parsed: userArray, messages: []}
+// }
+
+// a = {
+//   fn_keys: [b.c]
+//   b: {
+//     c: "rajat"
+//   }
+// }
+
+export const validateFunctionsInObject = (userObject: Record<string, unknown>,
+  allowedGlobals: string[],
+  parentObj: Record<string, unknown> | undefined = undefined,
+  path : string = "") : ValidationResponse => {
+    const paths : string[] = parseFunctionsInObject(userObject)
+    let error : Error[] = []
+    let fnStrings: string[] = []
+
+    for (const path of paths) {
+      const fnValue = get(userObject, path)
+      console.log("*********", "going to validate function ", fnValue, path)
+      const result = isValidFunction(fnValue, allowedGlobals)
+
+      // const result = { isValid: false, parsed: "", messages: [] }
+
+      if (!result.isValid) {
+        error = result.messages ?? []
+        break;
+      } else {
+        fnStrings.push(result.parsed)
+      }
+    }
+
+    if (error.length > 0) {
+      return { isValid: false, parsed: {}, messages: error}
+    }
+
+    const parsed = JSON.parse(JSON.stringify(userObject)) 
+    // console.log("******", "the original object after parsing is ", parsed)
+    if (fnStrings.length > 0) {
+      for (const [index, parsedFnString] of fnStrings.entries()) {
+        set(parsed, paths[index], parsedFnString)
+      }
+      parsed[fn_keys] = paths
+    }
+    console.log("******", "the original object after substitution is ", parsed)
+    return { isValid: true, parsed: parsed, messages: []}
+}
+
+const constructPath = (existingPath : string, suffix: string) : string => {
+  if (existingPath.length > 0) {
+    return `${existingPath}.${suffix}`
+  } else {
+    return suffix
+  }
+}
+
+export const parseFunctionsInObject = (userObject: Record<string, unknown>, paths : string[] = [], path: string = "") : string[]=> {
+  const keys = Object.keys(userObject)
+  for (const key of keys) {
+    const value = userObject[key]
+      if (typeof(value) == "function") {
+        paths.push(constructPath(path, key))
+      } else if (Array.isArray(value)) {
+        for (let i = 0; i < value.length; i++) {
+          const arrayValue = value[i]          
+          if (typeof(arrayValue) == "function") {
+            paths.push(constructPath(path, `${key}.[${i}]`))
+          } else if (typeof(arrayValue) == "object") {
+            parseFunctionsInObject(arrayValue, paths, constructPath(path, `${key}.[${i}]`))
+          }
+        }
+      } else if (typeof(value) == "object") {
+        parseFunctionsInObject(value as Record<string, unknown>, paths, constructPath(path, key))
+      }
+  }
+  return paths;
+}
+
+// export const validateFunctionsInObjectHelper = (userObj: Record<string, unknown>,
+//   allowedGlobals: string[],
+//   parentObj: Record<string, unknown> | undefined = undefined,
+//   path : string = "") : ValidationResponse => {
+
+//   const invalidResponse : ValidationResponse = { isValid: false, parsed: {}, messages: [] }
+//   let fnKeys : string[] = []
+
+//   try {
+//     if (!parentObj) {
+//       console.log("****", "receving value for function validation is ", userObj)
+//       parentObj = userObj
+//       parentObj[fn_keys] = ["rajatagrawal"]
+//     }
+//     console.log("****", "parent obj during initialization is ", parentObj)
+//     const finalResult = { isValid: true, parsed: parentObj, messages: []}
+  
+//     // if (Array.isArray(userObj)) {
+//     //   const result = validateFunctionsInArray(userObj, allowedGlobals, parentObj, path)
+//     //   if (!result.isValid) {
+//     //     return invalidResponse
+//     //   }
+//     // } else {
+//       const keys = Object.keys(userObj)
+  
+//       for (const key of keys) {
+//         if (key == fn_keys) {
+//           continue;
+//         }
+  
+//         const value = userObj[key]
+//         if (typeof(value) == "function") {
+//           const result = isValidFunction(value, allowedGlobals)
+//           if (!result.isValid) {
+//             return { isValid: false, messages: result.messages, parsed: {}}
+//           } else {
+//             userObj[key] = result.parsed
+            
+//             const fnKeys = parentObj[fn_keys] as string[]
+  
+//             let valuePath : string = path
+//             if (path.length > 0) {
+//               valuePath = `${path.slice()}.${key}`
+//             } else {
+//               valuePath = `${key}`
+//             }
+//             // const valuePath : string = path.length > 0 ? `${path.slice()}.${key}` : `${key}`;
+            
+//             fnKeys.push(valuePath)
+//             // console.log("****", "parent object before pushing value is ", parentObj[__fn_keys__])
+//             // (parentObj[fn_keys] as string[]).push("randommmm")
+//             // fnKeys.push("randommmm")
+//             console.log("****", "fn key after pushing is ", fnKeys)
+//             console.log("****", "parent object after pushing value is ", parentObj[fn_keys])
+//           }
+//         }
+//         else if (typeof(value) == "object") {
+//           const newPath = path.length > 0 ? `${path.slice()}.${key}` : `${key}`
+//           const result = validateFunctionsInObject(value as Record<string, unknown>, allowedGlobals, parentObj, newPath)
+//           if (!result) {
+//             return invalidResponse
+//           }
+//         }
+//       }
+//     // }
+  
+//     const a = parentObj[fn_keys]
+//     console.log("****", "a is ", a)
+//     // const rajatkeys : string[] = parentObj[fn_keys] as string[]
+//     // rajatkeys.push("newnewrandomrandom")
+//     // parentObj = {...parentObj, [fn_keys]: [...(parentObj[fn_keys] as string[]) , ...fnKeys]}
+//     // parentObj[fn_keys] = [...(parentObj[fn_keys] as string[]) , ...fnKeys]
+//     console.log("****", "parent object fn keys are ", parentObj[fn_keys])
+//     console.log("****", " and parent object is ", JSON.stringify(parentObj), parentObj)
+  
+//     console.log("****", "going to return final object ", finalResult, "are objects equal ", finalResult.parsed == userObj, userObj == parentObj)
+//     return finalResult;
+//   } catch (error) {
+//     console.log("****", "caught error ", error)
+//     return invalidResponse
+//   }
+// }
+
+// export const validateObjectWithFunctions123 = (config: ValidationConfig, value: unknown, props: Record<string, unknown>, propertyPath: string) : ValidationResponse => {
+//   const invalidResponse = {
+//     isValid: true,
+//     parsed: {},
+//     messages: [
+//       {
+//         name: "TypeError",
+//         message: `${WIDGET_TYPE_VALIDATION_ERROR} ${getExpectedType(config)}`,
+//       },
+//     ],
+//   };
+
+//   const validateObject = VALIDATORS[ValidationTypes.OBJECT]
+//   const result = validateObject(config, value, props, propertyPath)
+//   if (!result.isValid) {
+//     return invalidResponse
+//   }
+// }
+
+const sandboxedFn = (fn: any) => {
+  const sandboxFnString = `(...sandbox_args) => {
+    const document = undefined;
+    const fetch = undefined
+    const a = (${fn.toString()})(...sandbox_args)
+    return a
+}
+    `
+  const newFn = new Function("return " + sandboxFnString)
+  return newFn()
+}
+export const isValidFunction = (fn : any, whitelistedGlobals: string[]) : ValidationResponse=> {
+  // const myFunc = (new Function("return " + fn.toString()))()
+
+  // const fnString = fn.toString().replace(/\n|\r|\t/g, ""); 
+  const fnString = fn.toString() //.replace(/\n|\r|\t/g, "");
+  console.log("*********", "fn string is ", fnString)
+
+  // let globals : Record<string, unknown>[] = []
+  // try {
+  //   console.log("*********", "fn string is ", fnString)
+  //   globals = detect(fnString) as Record<string, unknown>[]  
+  // } catch(error) {
+  //   const messages = [
+  //     {
+  //       name: "TypeError",
+  //       message: "Invalid function format, use () => {} format",
+  //     }
+  //   ]
+  //   return { isValid: false, parsed: "", messages: messages} ;
+  // }
+
+  const messages : Error[] = []
+  // console.log("*********", "detected globals ", globals)
+
+  // const blacklistedGlobals = globals.filter((global) => {
+  //   const isBlacklisted = !whitelistedGlobals.includes(global.name as string)
+  //   if (isBlacklisted) {
+  //     messages.push(new Error(`${global.name} is not allowed in functions`))
+  //   }
+  //   return isBlacklisted
+  // })
+
+  // if (blacklistedGlobals.length > 0) {
+  //   return { isValid: false, parsed: "", messages: messages} ;
+  // } else {
+    // const newFn = sandboxedFn(fn)
+    // console.log("returning function ", newFn.toString())
+    try {
+      console.log("astpartsing", "parsing string ", fn.toString())
+      const astTree : any = parse(fn.toString(), { ecmaVersion: 11 })
+
+      const programBody = astTree.body[0]
+
+      let functionBody = undefined;
+
+      if (programBody.type == "FunctionDeclaration") {
+          functionBody = programBody.body
+      } else if (programBody.type == "ExpressionStatement") {
+          functionBody = programBody.expression.body
+      }
+
+      // console.log('astparsing', "ast tree is ", JSON.stringify(astTree))
+      // console.log("astparsing", "program body is ", JSON.stringify(programBody), programBody.type, typeof(programBody), programBody["type"])
+      // console.log("astparsing", "function body is ", functionBody)
+
+      
+      const result : any = validFn(functionBody, ["eval", "fetch", "constructor", "document", "window", "Function"])
+      console.log("astparsing", "result from ast parsing is ", result, fnString)
+      
+      if (result.status == false) {
+        return { isValid: false, parsed: "", messages: [{ name: "TypeError", message: result.message}] }
+      }
+    } catch(error) {
+      console.log("astparsing", "coming in outer catch", error)
+      return { isValid: false, parsed: fnString, messages: [{ message: "Invalid syntax", name: "TypeError" }] };
+    }
+    
+    return { isValid: true, parsed: fnString, messages: messages };
+  // }
+}
+
+const validFn = (obj : any, blacklistedGlobals : string[]) => {
+  console.log("astparser", "valid fn called for obj ", JSON.stringify(obj))
+  try {
+    if (typeof(obj) == "object") {
+      if(obj == null || obj == undefined) {
+          return { status: true, message: ""};
+      }
+
+      if (Array.isArray(obj)) {
+          for (const val of obj) {
+              const nestedResult : any = validFn(val, blacklistedGlobals)
+              if (nestedResult.status == false) {
+                return nestedResult
+              }
+          }
+          return { status: true, message: ""}
+      } else {
+        if (obj["type"] == "Identifier") {
+          console.log("astparsing", "got an identifier ", obj.name)
+          const result = !blacklistedGlobals.includes(obj.name)
+          let message = ""
+          if (!result) {
+            message = `found blacklisted identifier ${obj.name}`; 
+          }
+          return { status: result, message: message}
+        } else if (obj["type"] == "ExpressionStatement" && obj.expression.type == "ArrowFunctionExpression") {
+          // if (obj.expression.type == "ArrowFunctionExpression") {
+            return { status: false, message: "Arrow functions cannot be declared inside a function"}
+          // } else {
+          //   return { status: true, message: [] }
+          // }
+        } else if (obj.type == "FunctionDeclaration") {
+          return { status: false, message: "Functions can't be declared inside the function"}
+        } else {
+            // let result = { status: false, message: "Invalid Function"};
+            const values = Object.values(obj)
+            for (const value of values) {
+                if (typeof(value) == "object") {
+                    const nestedResult : any = validFn(value, blacklistedGlobals)
+                    if (nestedResult.status == false) {
+                        return nestedResult
+                    }
+                }
+            }
+            return { status: true, message: ""};;
+        }
+      }
+  } else {
+    return { status: true, message: ""}
+  }
+  } catch (error) {
+    console.log("astparsing", "coming in catch ", error)
+    return { status: false, message: "The function defintion isn't properly formatted"}
+  }
+}
 
 const isLargeCollection = (val: any) => {
   if (!Array.isArray(val)) return false;

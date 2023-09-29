@@ -147,7 +147,7 @@ describe("Validate Chart Widget's data property config", () => {
         "setAdaptiveYMin",
         "xAxisName",
         "yAxisName",
-        "customFusionChartConfig",
+        "customFusionChartConfig", 
         "title",
       ].includes(propertyConfig.propertyName);
     });

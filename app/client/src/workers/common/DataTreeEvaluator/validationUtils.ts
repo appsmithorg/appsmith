@@ -78,11 +78,13 @@ export function validateAndParseWidgetProperty({
   const { propertyPath } = getEntityNameAndPropertyPath(fullPropertyPath);
   if (isPathDynamicTrigger(widget, propertyPath)) {
     // TODO find a way to validate triggers
+    console.log("***", "it is a dynamic trigger")
     return unEvalPropertyValue;
   }
   const widgetConfig = configTree[widget.widgetName] as WidgetEntityConfig;
   const validation = widgetConfig.validationPaths[propertyPath];
 
+  console.log("***", "calling validate widget function", propertyPath)
   const { isValid, messages, parsed, transformed } = validateWidgetProperty(
     validation,
     evalPropertyValue,

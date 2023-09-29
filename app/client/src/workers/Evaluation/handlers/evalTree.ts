@@ -154,6 +154,14 @@ export default function (request: EvalWorkerSyncRequest) {
       nonDynamicFieldValidationOrder =
         setupUpdateTreeResponse.nonDynamicFieldValidationOrder;
 
+      console.log("***", "2")
+      
+      console.log("***","evalOrder", evalOrder)
+      console.log("***","nonDynamicFieldValidationOrder", nonDynamicFieldValidationOrder)
+      console.log("***","configTree", configTree)
+      console.log("***","unEvalUpdates", unEvalUpdates)
+      console.log("***","metaWidgets", metaWidgets)
+
       const updateResponse = dataTreeEvaluator.evalAndValidateSubTree(
         evalOrder,
         nonDynamicFieldValidationOrder,

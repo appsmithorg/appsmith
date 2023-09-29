@@ -16,6 +16,7 @@ type TPromiseResponse =
 function responseHandler(requestId: string): Promise<TPromiseResponse> {
   return new Promise((resolve) => {
     const listener = (event: MessageEvent) => {
+      console.log("listeningmessages", "got event 1 ", event)
       const { body, messageId, messageType } = event.data;
       if (messageId === requestId && messageType === MessageType.RESPONSE) {
         resolve(body.data);

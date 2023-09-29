@@ -19,7 +19,10 @@ import type { ValidationConfig } from "constants/PropertyControlConstants";
 
 import getIsSafeURL from "utils/validation/getIsSafeURL";
 import * as log from "loglevel";
-import { countOccurrences, findDuplicateIndex } from "./helpers";
+import { countOccurrences, findDuplicateIndex, parseFunctionsInObject, validateFunctionsInObject } from "./helpers";
+import { messages } from "widgets/ChartWidget/constants";
+
+
 
 export const UNDEFINED_VALIDATION = "UNDEFINED_VALIDATION";
 export const VALIDATION_ERROR_COUNT_THRESHOLD = 10;
@@ -113,6 +116,7 @@ function validateArray(
   props: Record<string, unknown>,
   propertyPath: string,
 ) {
+  // console.log("proppane", "validateArray called")
   let _isValid = true; // Let's first assume that this is valid
   const _messages: Error[] = []; // Initialise messages array
 
@@ -192,6 +196,7 @@ function validateArray(
       value as Array<Record<string, unknown>>,
       (a: Record<string, unknown>, b: Record<string, unknown>) => {
         // If any of the keys are the same, we fail the uniqueness test
+        // console.log("proppane", "fail 2")
         return uniqueKeys.some((key) => a[key] === b[key]);
       },
     );
@@ -199,6 +204,7 @@ function validateArray(
     if (uniqueEntries.length !== value.length) {
       // Bail out early
       // Because, we don't want to re-iterate, if this validation fails
+      // console.log("proppane", "fail 1")
       return {
         isValid: false,
         parsed: config.params?.default || [],
@@ -214,9 +220,12 @@ function validateArray(
     }
   }
 
+  const parsedValues = []
   // Loop
+  // console.log("proppane", "value is ", value)
   value.every((entry, index) => {
     // Validate for allowed values
+    // console.log("proppane", "validate for allowed values ", entry)
     if (shouldVerifyAllowedValues && !allowedValues.has(entry)) {
       _messages.push({
         name: "ValidationError",
@@ -234,6 +243,7 @@ function validateArray(
         props,
         `${propertyPath}[${index}]`,
       );
+      // console.log("proppane", "child validation result is ", childValidationResult)
 
       // If invalid, append to messages
       if (!childValidationResult.isValid) {
@@ -255,6 +265,7 @@ function validateArray(
     return true;
   });
 
+  // console.log("proppane", "going to return value in array ", value, config.params?.default)
   return {
     isValid: _isValid,
     parsed: _isValid ? value : config.params?.default || [],
@@ -316,6 +327,7 @@ export const validate = (
     isValid: true,
     parsed: value,
   };
+  // console.log("proppane", "validate function is ", validateFn, " config type is ", config)
   if (!validateFn) return staticValue;
 
   return validateFn(config, value, props, propertyPath) || staticValue;
@@ -388,6 +400,8 @@ export function getExpectedType(config?: ValidationConfig): string | undefined {
       return `base64 encoded image | data uri | image url`;
     case ValidationTypes.SAFE_URL:
       return "URL";
+    case ValidationTypes.PROPERTY_PANE_FUNCTION:
+      return "property pane function"
   }
 }
 
@@ -757,11 +771,13 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     props: Record<string, unknown>,
     propertyPath: string,
   ): ValidationResponse => {
+    console.log("proppane", "going to validate object first ", config.params?.required)
     if (
       value === undefined ||
       value === null ||
       (isString(value) && value.trim().length === 0)
     ) {
+      console.log("proppane", "received value is string and required ", config.params?.required)
       if (config.params && config.params.required) {
         return {
           isValid: false,
@@ -783,12 +799,15 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     }
 
     if (isPlainObject(value)) {
-      return validatePlainObject(
+      console.log("proppane", "is plain object ", value)
+      const result = validatePlainObject(
         config,
         value as Record<string, unknown>,
         props,
         propertyPath,
       );
+      console.log("proppane", "result is ", result)
+      return result;
     }
 
     try {
@@ -796,6 +815,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       if (isPlainObject(result.parsed)) {
         return validatePlainObject(config, result.parsed, props, propertyPath);
       }
+      
       return {
         isValid: false,
         parsed: config.params?.default || {},
@@ -809,6 +829,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
         ],
       };
     } catch (e) {
+      console.log("proppane", "catching exception here ", e)
       return {
         isValid: false,
         parsed: config.params?.default || {},
@@ -839,6 +860,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
         },
       ],
     };
+    // console.log("proppane", "error 3 value is ", value)
     if (value === undefined || value === null || value === "") {
       if (
         config.params &&
@@ -878,16 +900,22 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
         const _value = JSON.parse(value);
         if (Array.isArray(_value)) {
           const result = validateArray(config, _value, props, propertyPath);
+          // console.log("proppane", "result 1 from proppane is ", result)
           return result;
         }
       } catch (e) {
+        // console.log("proppane", "error 1", e)
         return invalidResponse;
       }
     }
 
     if (Array.isArray(value)) {
-      return validateArray(config, value, props, propertyPath);
+      // console.log("proppane", "before calling validate array")
+      const result = validateArray(config, value, props, propertyPath);
+      // console.log("proppane", "result 2 from proppane is ", result)
+      return result
     }
+    // console.log("proppane", "error 2")
 
     return invalidResponse;
   },
@@ -1248,6 +1276,45 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       parsed: resultValue,
     };
   },
+  [ValidationTypes.PROPERTY_PANE_FUNCTION]: (
+    config: ValidationConfig,
+    value: any,
+    props: Record<string, unknown>,
+    propertyPath: string,
+  ) : ValidationResponse => {
+    console.log("****", "beginning of validation")
+
+    const invalidResponse = {
+      isValid: true,
+      parsed: {},
+      messages: [
+        {
+          name: "TypeError",
+          message: `${WIDGET_TYPE_VALIDATION_ERROR} ${getExpectedType(config)}`,
+        },
+      ],
+    };
+
+    const { isValid, messages, parsed } = VALIDATORS[ValidationTypes.OBJECT](
+      config,
+      value,
+      props,
+      propertyPath,
+    );
+    
+
+    // return { isValid, messages, parsed }; // return the expected type
+
+    console.log("******", "is normal object valid ", isValid, "error messages", messages, "received value is ", value, "parsed value is ",  parsed)
+    if (!isValid) {
+      return { isValid, messages, parsed }; // return the expected type
+    } 
+    // return { isValid, messages, parsed }
+    console.log("******", "calling validateFunctionsInObject")
+    const funcValidationResult = validateFunctionsInObject(parsed, ["console"])
+    console.log("*********", "func validation result is ", funcValidationResult)
+    return funcValidationResult
+  },
   [ValidationTypes.UNION]: (
     config: ValidationConfig,
     value: unknown,
@@ -1292,3 +1359,34 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     }
   },
 };
+
+// const obj = {
+    //   a: "abc",
+    //   b: () => {
+
+    //   },
+    //   c: {
+    //     d: () => {
+
+    //     }
+    //   },
+    //   e: [
+    //     "123",
+    //     () => {},
+    //     { 
+    //       f: [
+    //         "f", 
+    //         () => {},
+    //         ["g", () => {}]
+    //         // ["g"]
+    //       ]
+    //     }
+    //     ]
+    // }
+
+    // try {
+    //   const paths = parseFunctionsInObject(obj)
+    // console.log("******", "paths in parsing functions in object are ", paths)
+    // } catch(error) {
+    //   console.log("******", "errors in parsing paths", error)
+    // }

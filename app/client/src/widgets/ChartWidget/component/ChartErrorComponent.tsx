@@ -49,6 +49,7 @@ export interface ChartErrorProps {
 
 export function ChartErrorComponent(props: ChartErrorProps) {
   const [bodyCollapsed, setBodyCollapsed] = useState(true);
+  console.log("xssattack", "props in error component ", props)
 
   const errorMessage = () => {
     const title = messages.ErrorTitle;
