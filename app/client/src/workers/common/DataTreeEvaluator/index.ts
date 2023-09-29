@@ -1122,7 +1122,7 @@ export default class DataTreeEvaluator {
             });
 
             set(currentTree, fullPropertyPath, evalPropertyValue);
-            set(newValuesMap, fullPropertyPath, evalPropertyValue);
+            newValuesMap.set(fullPropertyPath, evalPropertyValue);
             continue;
           }
           case ENTITY_TYPE_VALUE.JSACTION: {
@@ -1168,7 +1168,7 @@ export default class DataTreeEvaluator {
               });
 
               set(currentTree, fullPropertyPath, evalValue);
-              set(newValuesMap, fullPropertyPath, evalValue);
+              newValuesMap.set(fullPropertyPath, evalValue);
               JSObjectCollection.setVariableValue(evalValue, fullPropertyPath);
               JSObjectCollection.setPrevUnEvalState({
                 fullPath: fullPropertyPath,
@@ -1178,7 +1178,7 @@ export default class DataTreeEvaluator {
             continue;
           }
           default:
-            set(newValuesMap, fullPropertyPath, evalPropertyValue);
+            newValuesMap.set(fullPropertyPath, evalPropertyValue);
             set(currentTree, fullPropertyPath, evalPropertyValue);
             continue;
         }
@@ -1186,7 +1186,7 @@ export default class DataTreeEvaluator {
 
       const safeTree = klona(oldUnevalTree);
       updateTreeWithData(safeTree, klonaJSON(DataStore.getDataStore()));
-      for (const k of newValuesMap.keys()) {
+      for (const k of evaluationOrder) {
         set(safeTree, k, newValuesMap.get(k));
       }
       return {
@@ -1201,7 +1201,7 @@ export default class DataTreeEvaluator {
       });
       const safeTree = klona(oldUnevalTree);
       updateTreeWithData(safeTree, klonaJSON(DataStore.getDataStore()));
-      for (const k of newValuesMap.keys()) {
+      for (const k of evaluationOrder) {
         set(safeTree, k, newValuesMap.get(k));
       }
       return { evaluatedTree: safeTree, evalMetaUpdates, staleMetaIds: [] };
