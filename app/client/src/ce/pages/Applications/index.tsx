@@ -55,7 +55,6 @@ import { loadingUserWorkspaces } from "pages/Applications/ApplicationLoaders";
 import type { creatingApplicationMap } from "@appsmith/reducers/uiReducers/applicationsReducer";
 import {
   deleteWorkspace,
-  resetCurrentWorkspace,
   saveWorkspace,
 } from "@appsmith/actions/workspaceActions";
 import { leaveWorkspace } from "actions/userActions";
@@ -788,7 +787,6 @@ export interface ApplicationProps {
   ) => void;
   resetEditor: () => void;
   queryModuleFeatureFlagEnabled: boolean;
-  resetCurrentWorkspace: () => void;
 }
 
 export interface ApplicationState {
@@ -814,10 +812,6 @@ export class Applications<
     PerformanceTracker.stopTracking(PerformanceTransactionName.SIGN_UP);
     this.props.getAllApplication();
     this.props.setHeaderMetaData(true, true);
-
-    // Whenever we go back to home page from application page,
-    // we should reset current workspace, as this workspace is not in context anymore
-    this.props.resetCurrentWorkspace();
   }
 
   componentWillUnmount() {
@@ -881,7 +875,6 @@ const mapDispatchToProps = (dispatch: any) => ({
   ) => {
     dispatch(setHeaderMeta(hideHeaderShadow, showHeaderSeparator));
   },
-  resetCurrentWorkspace: () => dispatch(resetCurrentWorkspace()),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Applications);
