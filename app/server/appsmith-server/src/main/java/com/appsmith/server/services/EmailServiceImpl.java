@@ -7,8 +7,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class EmailServiceImpl extends EmailServiceCEImpl implements EmailService {
-    public EmailServiceImpl(
-            EmailSender emailSender, TenantService tenantService, EmailServiceHelper emailServiceHelper) {
-        super(emailSender, tenantService, emailServiceHelper);
+    public EmailServiceImpl(EmailSender emailSender, EmailServiceHelper emailServiceHelper) {
+        super(emailSender, emailServiceHelper);
     }
 }
