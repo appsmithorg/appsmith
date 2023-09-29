@@ -282,3 +282,11 @@ export const LOGO_DIFFERENT_TOOLTIP = () =>
   "Logo is different from the brand logo set.";
 export const RESET_LOGO_TOOLTIP = () => "Reset logo";
 // Provisioning end
+
+// Modules start
+export const SEARCH_APPS_AND_PACKAGES = () => "Search for apps or packages";
+export const NEW_PACKAGE = () => "New package";
+export const NEW_APP = () => "New app";
+export const EMPTY_PACKAGE_LIST = () => "No packages found";
+export const FETCH_PACKAGE_ERROR = () => "Failed to fetch Packages";
+// Modules end

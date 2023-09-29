@@ -15,14 +15,29 @@ import type {
   WorkspaceUserRoles,
 } from "@appsmith/constants/workspaceConstants";
 import { createImmerReducer } from "utils/ReducerUtils";
+import type { PackageMetadata } from "@appsmith/constants/PackageConstants";
 
 export const initialState: WorkspaceReduxState = {
   ...CE_initialState,
   groupSuggestions: [],
+
+  loadingStates: {
+    ...CE_initialState.loadingStates,
+    isFetchingPackagesList: false,
+  },
+  packagesList: [],
 };
 
-export interface WorkspaceReduxState extends CE_WorkspaceReduxState {
+type LoadingStates = CE_WorkspaceReduxState["loadingStates"] & {
+  isFetchingPackagesList: boolean;
+};
+
+type FilteredCE_WorkspaceRedux = Omit<CE_WorkspaceReduxState, "loadingStates">;
+
+export interface WorkspaceReduxState extends FilteredCE_WorkspaceRedux {
   groupSuggestions: { id: string; name: string }[];
+  loadingStates: LoadingStates;
+  packagesList: PackageMetadata[];
 }
 
 const handlers = {
@@ -228,6 +243,30 @@ const handlers = {
     draftState: WorkspaceReduxState,
   ) => {
     draftState.groupSuggestions = [];
+  },
+  [ReduxActionTypes.FETCH_ALL_PACKAGES_INIT]: (
+    draftState: WorkspaceReduxState,
+  ) => {
+    draftState.loadingStates.isFetchingPackagesList = true;
+
+    return draftState;
+  },
+  [ReduxActionErrorTypes.FETCH_ALL_PACKAGES_ERROR]: (
+    draftState: WorkspaceReduxState,
+  ) => {
+    draftState.loadingStates.isFetchingPackagesList = false;
+
+    return draftState;
+  },
+  [ReduxActionTypes.FETCH_ALL_PACKAGES_SUCCESS]: (
+    draftState: WorkspaceReduxState,
+    action: ReduxAction<PackageMetadata[]>,
+  ) => {
+    draftState.loadingStates.isFetchingPackagesList = false;
+
+    draftState.packagesList = action.payload || [];
+
+    return draftState;
   },
 };
 
