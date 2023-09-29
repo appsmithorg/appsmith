@@ -1206,6 +1206,7 @@ export interface ApplicationPayload {
   isPublishingAppToCommunityTemplate?: boolean;
   isCommunityTemplate?: boolean;
   publishedAppToCommunityTemplate?: boolean;
+  forkedFromTemplateTitle?: string;
 }
 
 export type WorkspaceDetails = {
