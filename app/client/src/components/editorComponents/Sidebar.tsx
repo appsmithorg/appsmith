@@ -13,8 +13,6 @@ import { useDispatch, useSelector } from "react-redux";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
-import Explorer from "pages/Editor/Explorer";
 import {
   setExplorerActiveAction,
   updateExplorerWidthAction,
@@ -28,9 +26,6 @@ import { tailwindLayers } from "constants/Layers";
 import { Tooltip } from "design-system";
 import { previewModeSelector } from "selectors/editorSelectors";
 import useHorizontalResize from "utils/hooks/useHorizontalResize";
-import OnboardingStatusbar from "pages/Editor/FirstTimeUserOnboarding/Statusbar";
-import Pages from "pages/Editor/Explorer/Pages";
-import { EntityProperties } from "pages/Editor/Explorer/Entity/EntityProperties";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { SIDEBAR_ID } from "constants/Explorer";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
@@ -59,7 +54,6 @@ type Props = {
   children: React.ReactNode;
 };
 
-// eslint-disable-next-line
 export const EntityExplorerSidebar = memo(({ children }: Props) => {
   let tooltipTimeout: ReturnType<typeof setTimeout>;
   const dispatch = useDispatch();
@@ -73,9 +67,6 @@ export const EntityExplorerSidebar = memo(({ children }: Props) => {
   );
   const isPreviewingApp =
     isPreviewMode || isAppSettingsPaneWithNavigationTabOpen;
-  const enableFirstTimeUserOnboarding = useSelector(
-    getIsFirstTimeUserOnboardingEnabled,
-  );
 
   /**
    * on entity explorer sidebar width change
@@ -244,13 +235,7 @@ export const EntityExplorerSidebar = memo(({ children }: Props) => {
         ref={sidebarRef}
         style={{ width: width }}
       >
-        {enableFirstTimeUserOnboarding && <OnboardingStatusbar />}
-        {/* PagesContainer */}
-        <Pages />
-        {/* Popover that contains the bindings info */}
-        <EntityProperties />
-        {/* Contains entity explorer & widgets library along with a switcher*/}
-        <Explorer />
+        {children}
       </div>
       {/* RESIZER */}
       <StyledResizer
