@@ -46,6 +46,8 @@ export enum EE_PERMISSION_TYPE {
   DELETE_WORKSPACE = "delete:workspace",
   /* Environment permissions */
   EXECUTE_ENVIRONMENT = "execute:environments",
+  /** Package permissions */
+  MANAGE_PACKAGE = "manage:packages",
 }
 
 export const PERMISSION_TYPE = {
@@ -115,3 +117,6 @@ export const hasExecuteActionPermission = (permissions: string[] = []) =>
 
 export const hasAuditLogsReadPermission = (permissions: string[] = []) =>
   isPermitted(permissions, PERMISSION_TYPE.READ_AUDIT_LOGS);
+
+export const hasManagePackagePermission = (permissions: string[] = []) =>
+  isPermitted(permissions, PERMISSION_TYPE.MANAGE_PACKAGE);

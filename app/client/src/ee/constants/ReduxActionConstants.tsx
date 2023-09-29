@@ -166,9 +166,19 @@ const AIWindowActionTypes = {
   SET_AI_TASK: "SET_AI_TASK",
 };
 
+const PackageActionTypes = {
+  FETCH_ALL_PACKAGES_INIT: "FETCH_ALL_PACKAGES_INIT",
+  FETCH_ALL_PACKAGES_SUCCESS: "FETCH_ALL_PACKAGES_SUCCESS",
+};
+
+const PackageActionErrorTypes = {
+  FETCH_ALL_PACKAGES_ERROR: "FETCH_ALL_PACKAGES_ERROR",
+};
+
 export const ReduxActionTypes = {
   ...CE_ReduxActionTypes,
   ...AuditLogsReduxActionTypes,
+  ...PackageActionTypes,
   REGISTER_SSO_IDENTITY_PROVIDER: "REGISTER_SSO_IDENTITY_PROVIDER",
   UPDATE_IDENTITY_PROVIDER_METADATA: "UPDATE_IDENTITY_PROVIDER_METADATA",
   FETCH_SAML_METADATA: "FETCH_SAML_METADATA",
@@ -290,6 +300,7 @@ export const ReduxActionTypes = {
 
 export const ReduxActionErrorTypes = {
   ...CE_ReduxActionErrorTypes,
+  ...PackageActionErrorTypes,
   FETCH_SAML_METADATA_ERROR: "FETCH_SAML_METADATA_ERROR",
   FETCH_ACL_USERS_ERROR: "FETCH_ACL_USERS_ERROR",
   FETCH_ACL_USER_BY_ID_ERROR: "FETCH_ACL_USER_BY_ID_ERROR",

@@ -12,7 +12,11 @@ import {
 } from "@appsmith/selectors/tenantSelectors";
 import { resetEditorRequest } from "actions/initActions";
 import { setHeaderMeta } from "actions/themeActions";
-import { createMessage, SEARCH_APPS } from "@appsmith/constants/messages";
+import {
+  createMessage,
+  SEARCH_APPS,
+  SEARCH_APPS_AND_PACKAGES,
+} from "@appsmith/constants/messages";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { AppState } from "@appsmith/reducers";
 import { MOBILE_MAX_WIDTH } from "constants/AppConstants";
@@ -29,10 +33,14 @@ import {
 } from "@appsmith/selectors/applicationSelectors";
 import { getCurrentUser } from "selectors/usersSelectors";
 import PageWrapper from "pages/common/PageWrapper";
+import { fetchAllPackages } from "@appsmith/actions/packageActions";
+import { getShowQueryModule } from "@appsmith/selectors/moduleFeatureSelectors";
 
 export interface EE_ApplicationProps extends CE_Applications.ApplicationProps {
+  fetchAllPackages: () => void;
   showBanner: boolean;
   showWarningBanner: boolean;
+  showQueryModule: boolean;
 }
 
 export type EE_ApplicationState = CE_Applications.ApplicationState;
@@ -51,6 +59,9 @@ export class Applications extends CE_AppClass<
 
   componentDidMount() {
     super.componentDidMount();
+    if (this.props.showQueryModule) {
+      this.props.fetchAllPackages();
+    }
   }
 
   componentWillUnmount() {
@@ -58,6 +69,10 @@ export class Applications extends CE_AppClass<
   }
 
   public render() {
+    const searchPlaceholder = this.props.showQueryModule
+      ? SEARCH_APPS_AND_PACKAGES
+      : SEARCH_APPS;
+
     return (
       <PageWrapper displayName="Applications">
         <CE_Applications.LeftPane
@@ -74,7 +89,7 @@ export class Applications extends CE_AppClass<
               <SubHeader
                 isBannerVisible={this.props.showWarningBanner}
                 search={{
-                  placeholder: createMessage(SEARCH_APPS),
+                  placeholder: createMessage(searchPlaceholder),
                   queryFn: this.props.searchApplications,
                   defaultValue: this.props.searchKeyword,
                 }}
@@ -102,6 +117,7 @@ const mapStateToProps = (state: AppState) => ({
   searchKeyword: getApplicationSearchKeyword(state),
   showBanner: isBEBannerVisible(state),
   showWarningBanner: shouldShowLicenseBanner(state),
+  showQueryModule: getShowQueryModule(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
@@ -125,6 +141,7 @@ const mapDispatchToProps = (dispatch: any) => ({
   ) => {
     dispatch(setHeaderMeta(hideHeaderShadow, showHeaderSeparator));
   },
+  fetchAllPackages: () => dispatch(fetchAllPackages()),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Applications);
