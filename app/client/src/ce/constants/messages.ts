@@ -777,6 +777,7 @@ export const GIT_DISCONNECT_POPUP_SUBTITLE = () =>
 export const GIT_DISCONNECT_POPUP_MAIN_HEADING = () => `Are you sure?`;
 
 export const CONFIGURE_GIT = () => "Configure git";
+export const IMPORT_APP = () => "Import app via git";
 export const SETTINGS_GIT = () => "Settings";
 
 export const GIT_CONNECTION = () => "Git connection";
