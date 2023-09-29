@@ -8,6 +8,7 @@ import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.annotations.FeatureFlagged;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.EmailConfig;
+import com.appsmith.server.constants.AccessControlConstants;
 import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.ProvisionResourceMetadata;
 import com.appsmith.server.domains.QUserGroup;
@@ -226,35 +227,11 @@ public class UserServiceImpl extends UserServiceCECompatibleImpl implements User
                 .flatMap(pair -> {
                     UserProfileDTO userProfileDTO = pair.getT1();
                     Tenant defaultTenantWithConfiguration = pair.getT2();
-                    // if programmatic access control is not enabled, don't return roles and groups for user
-                    if (Boolean.TRUE.equals(defaultTenantWithConfiguration
-                            .getTenantConfiguration()
-                            .getShowRolesAndGroups())) {
-                        Mono<List<String>> rolesUserHasBeenAssignedMono = Mono.just(List.of());
-                        Mono<List<String>> groupsUsersIsPartOfMono = Mono.just(List.of());
+                    boolean showRolesAndGroups = Optional.of(defaultTenantWithConfiguration)
+                            .map(cfg -> cfg.getTenantConfiguration().getShowRolesAndGroups())
+                            .orElse(false);
 
-                        if (StringUtils.isNotEmpty(user.getId())) {
-                            rolesUserHasBeenAssignedMono = permissionGroupService
-                                    .getRoleNamesAssignedToUserIds(Set.of(user.getId()))
-                                    .collectList();
-                            groupsUsersIsPartOfMono = userGroupRepository
-                                    .getAllByUsersIn(
-                                            Set.of(user.getId()),
-                                            Optional.of(List.of(fieldName(QUserGroup.userGroup.name))),
-                                            Optional.empty())
-                                    .map(UserGroup::getName)
-                                    .collectList();
-                        }
-                        return Mono.zip(rolesUserHasBeenAssignedMono, groupsUsersIsPartOfMono)
-                                .map(pair2 -> {
-                                    List<String> rolesAssigned = pair2.getT1();
-                                    List<String> memberOfRoles = pair2.getT2();
-                                    userProfileDTO.setRoles(rolesAssigned);
-                                    userProfileDTO.setGroups(memberOfRoles);
-                                    return userProfileDTO;
-                                });
-                    }
-                    return Mono.just(userProfileDTO);
+                    return setRolesAndGroups(userProfileDTO, user, showRolesAndGroups, commonConfig.isCloudHosting());
                 });
         return userProfileDTOWithRolesAndGroups;
     }
@@ -484,5 +461,44 @@ public class UserServiceImpl extends UserServiceCECompatibleImpl implements User
         Map<String, Object> analyticsProperties = new HashMap<>();
         analyticsProperties.put(IS_PROVISIONED, savedResource.getIsProvisioned());
         return analyticsProperties;
+    }
+
+    @Override
+    protected Mono<UserProfileDTO> setRolesAndGroups(
+            UserProfileDTO profile, User user, boolean showUsersAndGroups, boolean isCloudHosting) {
+        if (Boolean.TRUE.equals(commonConfig.isCloudHosting())) {
+            return super.setRolesAndGroups(profile, user, showUsersAndGroups, isCloudHosting);
+        }
+
+        if (showUsersAndGroups) {
+            Mono<List<String>> rolesUserHasBeenAssignedMono = Mono.just(List.of());
+            Mono<List<String>> groupsUsersIsPartOfMono = Mono.just(List.of());
+
+            if (StringUtils.isNotEmpty(user.getId())) {
+                rolesUserHasBeenAssignedMono = permissionGroupService
+                        .getRoleNamesAssignedToUserIds(Set.of(user.getId()))
+                        .collectList();
+                groupsUsersIsPartOfMono = userGroupRepository
+                        .getAllByUsersIn(
+                                Set.of(user.getId()),
+                                Optional.of(List.of(fieldName(QUserGroup.userGroup.name))),
+                                Optional.empty())
+                        .map(UserGroup::getName)
+                        .collectList();
+            }
+
+            return Mono.zip(rolesUserHasBeenAssignedMono, groupsUsersIsPartOfMono)
+                    .map(pair2 -> {
+                        List<String> rolesAssigned = pair2.getT1();
+                        List<String> memberOfRoles = pair2.getT2();
+                        profile.setRoles(rolesAssigned);
+                        profile.setGroups(memberOfRoles);
+                        return profile;
+                    });
+        } else {
+            profile.setRoles(List.of(AccessControlConstants.ENABLE_PROGRAMMATIC_ACCESS_CONTROL_IN_ADMIN_SETTINGS));
+            profile.setGroups(List.of(AccessControlConstants.ENABLE_PROGRAMMATIC_ACCESS_CONTROL_IN_ADMIN_SETTINGS));
+            return Mono.just(profile);
+        }
     }
 }

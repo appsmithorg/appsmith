@@ -54,7 +54,7 @@ public class GitServiceTest {
     @MockBean
     GitExecutor gitExecutor;
 
-    @MockBean
+    @SpyBean
     FeatureFlagService featureFlagService;
 
     @SpyBean

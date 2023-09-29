@@ -2,6 +2,7 @@ package com.appsmith.server.services;
 
 import com.appsmith.external.helpers.DataTypeStringUtils;
 import com.appsmith.server.configurations.LicenseConfig;
+import com.appsmith.server.constants.AccessControlConstants;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.LicenseOrigin;
 import com.appsmith.server.constants.LicensePlan;
@@ -429,16 +430,17 @@ public class TenantServiceTest {
                         .getShowRolesAndGroups())
                 .isFalse();
 
-        // Roles and Groups information should not be present in the User Profile.
         UserProfileDTO userProfileDTO_shouldNotContainRolesAndGroupInfo = sessionUserService
                 .getCurrentUser()
                 .flatMap(userService::buildUserProfileDTO)
                 .block();
 
-        Assertions.assertThat(userProfileDTO_shouldNotContainRolesAndGroupInfo.getRoles())
-                .isNullOrEmpty();
-        Assertions.assertThat(userProfileDTO_shouldNotContainRolesAndGroupInfo.getGroups())
-                .isNullOrEmpty();
+        assertEquals(
+                List.of(AccessControlConstants.ENABLE_PROGRAMMATIC_ACCESS_CONTROL_IN_ADMIN_SETTINGS),
+                userProfileDTO_shouldNotContainRolesAndGroupInfo.getRoles());
+        assertEquals(
+                List.of(AccessControlConstants.ENABLE_PROGRAMMATIC_ACCESS_CONTROL_IN_ADMIN_SETTINGS),
+                userProfileDTO_shouldNotContainRolesAndGroupInfo.getGroups());
     }
 
     @Test
@@ -486,14 +488,15 @@ public class TenantServiceTest {
         Mockito.when(featureFlagService.check(FeatureFlagEnum.license_pac_enabled))
                 .thenReturn(Mono.just(false));
 
-        // Roles and Groups information should not be present in the User Profile.
         UserProfileDTO userProfileDTO_noRolesAndGroupInfo = sessionUserService
                 .getCurrentUser()
                 .flatMap(userService::buildUserProfileDTO)
                 .block();
 
-        Assertions.assertThat(userProfileDTO_noRolesAndGroupInfo.getRoles()).isNullOrEmpty();
-        Assertions.assertThat(userProfileDTO_noRolesAndGroupInfo.getGroups()).isNullOrEmpty();
+        Assertions.assertThat(userProfileDTO_noRolesAndGroupInfo.getRoles())
+                .isEqualTo(List.of(AccessControlConstants.ENABLE_PROGRAMMATIC_ACCESS_CONTROL_IN_ADMIN_SETTINGS));
+        Assertions.assertThat(userProfileDTO_noRolesAndGroupInfo.getGroups())
+                .isEqualTo(List.of(AccessControlConstants.ENABLE_PROGRAMMATIC_ACCESS_CONTROL_IN_ADMIN_SETTINGS));
     }
 
     @Test
