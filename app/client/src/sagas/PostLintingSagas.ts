@@ -1,6 +1,6 @@
 import { ENTITY_TYPE, Severity } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import type { DataTree } from "entities/DataTree/dataTreeFactory";
+import type { DataTree } from "@appsmith/entities/DataTree/types";
 import { isEmpty } from "lodash";
 import AppsmithConsole from "utils/AppsmithConsole";
 import {
