@@ -6,6 +6,7 @@ const chalk = require("chalk");
 // const _ = require("lodash");
 // const del = require("del");
 const cypressLogToOutput = require("cypress-log-to-output");
+const installLogsPrinter = require("cypress-terminal-report/src/installLogsPrinter");
 //const { isFileExist } = require("cy-verify-downloads");
 const {
   addMatchImageSnapshotPlugin,
@@ -43,6 +44,16 @@ module.exports = async (on, config) => {
     }
     return false;
   });
+
+  const logsPrinterOptions = {
+    outputRoot: config.projectRoot,
+    outputTarget: {
+      "cypress-logs|json": "json",
+    },
+    specRoot: "cypress/e2e",
+    printLogsToFile: "onFail",
+  };
+  installLogsPrinter(on, logsPrinterOptions);
 
   on("file:preprocessor", tagify(config));
   addMatchImageSnapshotPlugin(on, config);
