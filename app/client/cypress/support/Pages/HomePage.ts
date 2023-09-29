@@ -367,7 +367,6 @@ export class HomePage {
     cy.get("body").then(($body) => {
       if ($body.find(SignupPageLocators.proficiencyGroupButton).length > 0) {
         this.agHelper.GetNClick(SignupPageLocators.proficiencyGroupButton);
-        this.agHelper.GetNClick(this.dropdownOption);
         this.agHelper.GetNClick(this.useCaseDropdown);
         this.agHelper.GetNClick(this.dropdownOption);
         this.agHelper.GetNClick(this.roleUsecaseSubmit, undefined, true);
