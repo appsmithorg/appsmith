@@ -316,6 +316,7 @@ describe("GSheet-Functional Tests With Read/Write Access", function () {
 
   after("Delete spreadsheet and app", function () {
     // Delete spreadsheet and app
+    homePage.SearchAndOpenApp(appName);
     gsheetHelper.DeleteSpreadsheetQuery(
       dataSourceName.allAccess,
       spreadSheetName,

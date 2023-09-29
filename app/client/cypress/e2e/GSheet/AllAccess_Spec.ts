@@ -305,6 +305,7 @@ describe("GSheet-Functional Tests With All Access", function () {
 
   after("Delete spreadsheet and app", function () {
     // Delete spreadsheet and app
+    homePage.SearchAndOpenApp(appName);
     gsheetHelper.DeleteSpreadsheetQuery(dataSourceName, spreadSheetName);
     cy.get("@postExecute").then((interception: any) => {
       expect(interception.response.body.data.body.message).to.deep.equal(
