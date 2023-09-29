@@ -1,6 +1,7 @@
 import { dataTreeEvaluator } from "./evalTree";
 import type { EvalWorkerASyncRequest } from "../types";
 import ExecutionMetaData from "../fns/utils/ExecutionMetaData";
+import { klona } from "klona/full";
 
 export default async function (request: EvalWorkerASyncRequest) {
   const { data } = request;
@@ -34,7 +35,7 @@ export default async function (request: EvalWorkerASyncRequest) {
 
   return dataTreeEvaluator.evaluateTriggers(
     dynamicTrigger,
-    evalTree,
+    klona(evalTree),
     unEvalTree.configTree,
     callbackData,
     {
