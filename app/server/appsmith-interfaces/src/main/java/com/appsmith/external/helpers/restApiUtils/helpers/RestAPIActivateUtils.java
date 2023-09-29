@@ -24,6 +24,8 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.reactive.ClientHttpRequest;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.BodyInserter;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
@@ -96,7 +98,12 @@ public class RestAPIActivateUtils {
                             actionExecutionRequest, isBodySentWithApiRequest));
 
                     result.setStatusCode(statusCode.toString());
-                    result.setIsExecutionSuccess(statusCode.is2xxSuccessful());
+
+                    // if something has moved permanently should we mark it as an execution failure?
+                    // here marking a redirection as an execution success if the url has moved permanently without a
+                    // forwarding Location
+                    boolean isExecutionSuccess = statusCode.is2xxSuccessful() || statusCode.is3xxRedirection();
+                    result.setIsExecutionSuccess(isExecutionSuccess);
 
                     // Convert the headers into json tree to store in the results
                     String headerInJsonString;
@@ -191,6 +198,11 @@ public class RestAPIActivateUtils {
                 .exchange()
                 .flatMap(response -> {
                     if (response.statusCode().is3xxRedirection()) {
+                        // if there is no redirect location then we should just return the response
+                        if (CollectionUtils.isEmpty(response.headers().header(HttpHeaders.LOCATION))) {
+                            return Mono.just(response);
+                        }
+
                         String redirectUrl =
                                 response.headers().header("Location").get(0);
                         /**
@@ -202,7 +214,8 @@ public class RestAPIActivateUtils {
                          */
                         final URI redirectUri;
                         try {
-                            redirectUri = new URI(redirectUrl);
+                            redirectUri = createRedirectUrl(redirectUrl, uri);
+                            //                            redirectUri = new URI(redirectUrl);
                         } catch (URISyntaxException e) {
                             return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e));
                         }
@@ -211,6 +224,20 @@ public class RestAPIActivateUtils {
                     }
                     return Mono.just(response);
                 });
+    }
+
+    public URI createRedirectUrl(String redirectUrl, URI originalUrl) throws URISyntaxException {
+        URI redirectUri = new URI(redirectUrl);
+        String scheme =
+                StringUtils.hasText(redirectUri.getScheme()) ? redirectUri.getScheme() : originalUrl.getScheme();
+        String authority = StringUtils.hasText(redirectUri.getAuthority())
+                ? redirectUri.getAuthority()
+                : originalUrl.getAuthority();
+        String path = redirectUri.getPath();
+        String query = redirectUri.getQuery();
+        String fragment = redirectUri.getFragment();
+
+        return new URI(scheme, authority, path, query, fragment);
     }
 
     public WebClient getWebClient(
