@@ -66,6 +66,8 @@ export const DropdownWrapper = styled(StyledFormGroup)`
 
   && > .bp3-label {
     color: var(--ads-v2-color-fg);
+    font-weight: normal;
+    margin-bottom: 0.5rem;
   }
 
   .dropdown-errorMsg {
