@@ -54,6 +54,7 @@ const CommunityTemplateForm = ({ onPublishSuccess }: Props) => {
 
   useEffect(() => {
     if (!currentApplication?.name) return;
+
     setTemplateName(currentApplication.name);
   }, [currentApplication?.name]);
 
