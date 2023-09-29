@@ -22,12 +22,13 @@ import {
 import { matchDatasourcePath, matchSAASGsheetsPath } from "constants/routes";
 import { isDatasourceInViewMode } from "selectors/ui";
 import { useLocation } from "react-router";
-import { datasourceEnvEnabled } from "@appsmith/selectors/featureFlagsSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { saveCurrentEnvironment } from "utils/storage";
 import { setCurrentEnvironment } from "@appsmith/actions/environmentAction";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 const Wrapper = styled.div`
   display: flex;
@@ -58,7 +59,9 @@ const SwitchEnvironment = ({
   // state to store the selected environment
   const [selectedEnv, setSelectedEnv] = useState(defaultEnvironment);
   // Fetching feature flags from the store and checking if the feature is enabled
-  const allowedToRender = useSelector(datasourceEnvEnabled);
+  const isMultipleEnvEnabled = useFeatureFlag(
+    FEATURE_FLAG.release_datasource_environments_enabled,
+  );
   const appId: string = useSelector(getCurrentApplicationId);
   const workspaceId: string = useSelector(getCurrentWorkspaceId);
   const dispatch = useDispatch();
@@ -110,7 +113,7 @@ const SwitchEnvironment = ({
   };
 
   // Show ramps if feature is not enabled or
-  if (!allowedToRender) return <CE_SwitchEnvironment viewMode />;
+  if (!isMultipleEnvEnabled) return <CE_SwitchEnvironment viewMode />;
   // skip the render if no environments are present
   if (environmentList.length <= 0) return null;
 
