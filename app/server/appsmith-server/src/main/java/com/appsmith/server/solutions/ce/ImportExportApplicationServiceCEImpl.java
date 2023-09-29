@@ -1945,6 +1945,13 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     Application application = tuple.getT1();
                     stopwatch.stopTimer();
                     stopwatch.stopAndLogTimeInMillis();
+                    int jsObjectCount = CollectionUtils.isEmpty(applicationJson.getActionCollectionList())
+                            ? 0
+                            : applicationJson.getActionCollectionList().size();
+                    int actionCount = CollectionUtils.isEmpty(applicationJson.getActionList())
+                            ? 0
+                            : applicationJson.getActionList().size();
+
                     final Map<String, Object> data = Map.of(
                             FieldName.APPLICATION_ID,
                             application.getId(),
@@ -1953,9 +1960,9 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                             "pageCount",
                             applicationJson.getPageList().size(),
                             "actionCount",
-                            applicationJson.getActionList().size(),
+                            actionCount,
                             "JSObjectCount",
-                            applicationJson.getActionCollectionList().size(),
+                            jsObjectCount,
                             FieldName.FLOW_NAME,
                             stopwatch.getFlow(),
                             "executionTime",

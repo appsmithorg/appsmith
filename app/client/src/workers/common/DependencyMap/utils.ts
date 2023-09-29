@@ -13,7 +13,7 @@ import type {
   ConfigTree,
   DataTreeEntity,
   WidgetEntityConfig,
-} from "entities/DataTree/dataTreeFactory";
+} from "@appsmith/entities/DataTree/types";
 import {
   DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS,
   JAVASCRIPT_KEYWORDS,

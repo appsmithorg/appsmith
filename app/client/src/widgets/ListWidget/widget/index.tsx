@@ -6,7 +6,7 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { GridDefaults, RenderModes } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
-import type { PrivateWidgets } from "entities/DataTree/types";
+import type { PrivateWidgets } from "@appsmith/entities/DataTree/types";
 import equal from "fast-deep-equal/es6";
 import { klona } from "klona/lite";
 import {
