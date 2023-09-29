@@ -54,6 +54,7 @@ class LicenseTest {
         assertNotEquals(license.getExpiry(), responseDTO.getExpiry());
         assertEquals(license.getExpiry(), licenseExpiry);
         assertEquals(license.getStatus(), LicenseStatus.EXPIRED);
+        assertNull(license.getSubscriptionDetails());
     }
 
     @Test
