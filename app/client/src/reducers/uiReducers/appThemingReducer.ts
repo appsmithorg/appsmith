@@ -30,6 +30,7 @@ const initialState: AppThemingState = {
     created_by: "",
     created_at: "",
     config: {
+      order: 0,
       colors: {
         backgroundColor: "#F8FAFC",
         primaryColor: "",

@@ -1,3 +1,3 @@
 import React from "react";
 
-export const AnvileResizable = () => <div />;
+export const AnvilResizable = () => <div />;

@@ -1,6 +1,6 @@
 import { getFormValues, isValid, getFormInitialValues } from "redux-form";
 import type { AppState } from "@appsmith/reducers";
-import type { ActionData } from "reducers/entityReducers/actionsReducer";
+import type { ActionData } from "@appsmith/reducers/entityReducers/actionsReducer";
 import type {
   DynamicValues,
   FormEvalOutput,

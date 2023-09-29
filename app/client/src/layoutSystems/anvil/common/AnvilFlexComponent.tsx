@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import type { MouseEvent } from "react";
-import styled from "styled-components";
+import type { CSSProperties, MouseEvent } from "react";
 import { Flex } from "@design-system/widgets";
 import { useSelector } from "react-redux";
 
@@ -21,27 +20,13 @@ import type { FlexProps } from "@design-system/widgets/src/components/Flex/src/t
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { checkIsDropTarget } from "WidgetProvider/factory/helpers";
 import type { AnvilFlexComponentProps } from "../utils/types";
-import { getResponsiveMinWidth } from "../utils/widgetUtils";
+import {
+  getResponsiveMinWidth,
+  validateResponsiveProp,
+} from "../utils/widgetUtils";
 import WidgetFactory from "WidgetProvider/factory";
 import type { WidgetProps } from "widgets/BaseWidget";
 import type { WidgetConfigProps } from "WidgetProvider/constants";
-
-// Using a button to wrap the widget to ensure that accessibility features are included by default.
-const FlexComponentWrapper = styled.button<{ onHoverZIndex: number }>`
-  padding: 0;
-  border: none;
-  outline: none;
-  font: inherit;
-  color: inherit;
-  background: none;
-  height: 100%;
-  width: 100%;
-  position: relative;
-
-  &:hover {
-    z-index: ${({ onHoverZIndex }) => onHoverZIndex};
-  }
-`;
 
 /**
  * Adds following functionalities to the widget:
@@ -68,6 +53,18 @@ export const AnvilFlexComponent = (props: AnvilFlexComponentProps) => {
   const [verticalAlignment, setVerticalAlignment] =
     useState<FlexVerticalAlignment>(FlexVerticalAlignment.Top);
 
+  const clickToSelectWidget = useClickToSelectWidget(props.widgetId);
+  const onClickFn = useCallback(
+    (e) => {
+      clickToSelectWidget(e);
+    },
+    [props.widgetId, clickToSelectWidget],
+  );
+
+  const stopEventPropagation = (e: MouseEvent<HTMLElement>) => {
+    !isSnipingMode && e.stopPropagation();
+  };
+
   useEffect(() => {
     const widgetConfig:
       | (Partial<WidgetProps> & WidgetConfigProps & { type: string })
@@ -81,24 +78,12 @@ export const AnvilFlexComponent = (props: AnvilFlexComponentProps) => {
     );
   }, [props.widgetType]);
 
-  const clickToSelectWidget = useClickToSelectWidget(props.widgetId);
-  const onClickFn = useCallback(
-    (e) => {
-      clickToSelectWidget(e);
-    },
-    [props.widgetId, clickToSelectWidget],
-  );
-
   const { onHoverZIndex } = usePositionedContainerZIndex(
     isDropTarget,
     props.widgetId,
     isFocused,
     isSelected,
   );
-
-  const stopEventPropagation = (e: MouseEvent<HTMLElement>) => {
-    !isSnipingMode && e.stopPropagation();
-  };
 
   const className = useMemo(
     () =>
@@ -113,7 +98,7 @@ export const AnvilFlexComponent = (props: AnvilFlexComponentProps) => {
   // Memoize flex props to be passed to the WDS Flex component.
   // If the widget is being resized => update width and height to auto.
   const flexProps: FlexProps = useMemo(() => {
-    return {
+    const data: FlexProps = {
       alignSelf: verticalAlignment || FlexVerticalAlignment.Top,
       flexGrow: isFillWidget ? 1 : 0,
       flexShrink: isFillWidget ? 1 : 0,
@@ -122,29 +107,32 @@ export const AnvilFlexComponent = (props: AnvilFlexComponentProps) => {
         props.hasAutoHeight || isCurrentWidgetResizing
           ? "auto"
           : `${props.componentHeight}px`,
-      maxHeight:
-        props.widgetSize?.maxHeight &&
-        Object.keys(props.widgetSize?.maxHeight).length
-          ? props.widgetSize?.maxHeight
-          : undefined,
-      maxWidth:
-        props.widgetSize?.maxWidth &&
-        Object.keys(props.widgetSize?.maxWidth).length
-          ? props.widgetSize?.maxWidth
-          : undefined,
-      minHeight:
-        props.widgetSize?.minHeight &&
-        Object.keys(props.widgetSize?.minHeight).length
-          ? props.widgetSize?.minHeight
-          : undefined,
-      // Setting a base of 100% for Fill widgets to ensure that they expand on smaller sizes.
-      minWidth: getResponsiveMinWidth(props.widgetSize?.minWidth, isFillWidget),
       padding: WIDGET_PADDING + "px",
       width:
         isFillWidget || props.hasAutoWidth || isCurrentWidgetResizing
           ? "auto"
           : `${props.componentWidth}px`,
     };
+    if (props?.widgetSize) {
+      // adding min max limits only if they are available, as WDS Flex doesn't handle undefined values.
+      if (validateResponsiveProp(props.widgetSize?.maxHeight)) {
+        data.maxHeight = props.widgetSize.maxHeight;
+      }
+      if (validateResponsiveProp(props.widgetSize?.maxWidth)) {
+        data.maxWidth = props.widgetSize.maxWidth;
+      }
+      if (validateResponsiveProp(props.widgetSize?.minHeight)) {
+        data.minHeight = props.widgetSize.minHeight;
+      }
+      if (validateResponsiveProp(props.widgetSize?.minWidth)) {
+        // Setting a base of 100% for Fill widgets to ensure that they expand on smaller sizes.
+        data.minWidth = getResponsiveMinWidth(
+          props.widgetSize?.minWidth,
+          isFillWidget,
+        );
+      }
+    }
+    return data;
   }, [
     isCurrentWidgetResizing,
     isFillWidget,
@@ -156,16 +144,24 @@ export const AnvilFlexComponent = (props: AnvilFlexComponentProps) => {
     verticalAlignment,
   ]);
 
+  const styleProps: CSSProperties = useMemo(() => {
+    return {
+      position: "relative",
+      "&:hover": {
+        zIndex: onHoverZIndex,
+      },
+    };
+  }, [onHoverZIndex]);
+
   return (
-    <Flex {...flexProps}>
-      <FlexComponentWrapper
-        className={className}
+    <Flex {...flexProps} className={className} style={styleProps}>
+      <div
+        className="w-full h-full"
         onClick={stopEventPropagation}
         onClickCapture={onClickFn}
-        onHoverZIndex={onHoverZIndex}
       >
         {props.children}
-      </FlexComponentWrapper>
+      </div>
     </Flex>
   );
 };

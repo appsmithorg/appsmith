@@ -11,7 +11,7 @@ import { getQueryParams } from "utils/URLUtils";
 import { datasourcesEditorIdURL } from "RouteBuilder";
 import { omit } from "lodash";
 import { getCurrentPageId } from "selectors/editorSelectors";
-import { DatasourceStructureContext } from "./DatasourceStructureContainer";
+import { DatasourceStructureContext } from "./DatasourceStructure";
 
 export type Props = {
   error: APIResponseError | { message: string } | undefined;

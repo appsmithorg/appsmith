@@ -114,8 +114,6 @@ describe("Validate auto height for container widget on auto layout canvas", () =
       .then((newHeight) => {
         const updatedHeight = parseInt(newHeight?.split("px")[0]);
         expect(updatedHeight).to.be.greaterThan(containerHeight);
-        cy.log(JSON.stringify(inputHeight));
-        cy.log(JSON.stringify(containerHeight));
         expect(updatedHeight).to.equal(
           containerHeight + inputHeight + WIDGET_PADDING + MOBILE_ROW_GAP,
         );

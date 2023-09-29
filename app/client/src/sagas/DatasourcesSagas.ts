@@ -45,12 +45,10 @@ import {
   getPluginByPackageName,
   getDatasourcesUsedInApplicationByActions,
   getEntityExplorerDatasources,
-  getUnconfiguredDatasources,
 } from "@appsmith/selectors/entitiesSelector";
 import {
   addMockDatasourceToWorkspace,
   setDatasourceViewModeFlag,
-  setUnconfiguredDatasourcesDuringImport,
 } from "actions/datasourceActions";
 import type {
   UpdateDatasourceSuccessAction,
@@ -154,7 +152,7 @@ import {
   isGoogleSheetPluginDS,
 } from "utils/editorContextUtils";
 import { getDefaultEnvId } from "@appsmith/api/ApiUtils";
-import type { DatasourceStructureContext } from "pages/Editor/Explorer/Datasources/DatasourceStructureContainer";
+import type { DatasourceStructureContext } from "pages/Editor/Explorer/Datasources/DatasourceStructure";
 import { MAX_DATASOURCE_SUGGESTIONS } from "pages/Editor/Explorer/hooks";
 import { klona } from "klona/lite";
 import {
@@ -524,14 +522,6 @@ function* updateDatasourceSaga(
       toast.show(createMessage(DATASOURCE_UPDATE, responseData.name), {
         kind: "success",
       });
-
-      const unconfiguredDSList: Datasource[] = yield select(
-        getUnconfiguredDatasources,
-      );
-      const updatedList = unconfiguredDSList.filter(
-        (d: Datasource) => d.id !== datasourcePayload?.id,
-      );
-      yield put(setUnconfiguredDatasourcesDuringImport(updatedList));
 
       const expandDatasourceId = state.ui.datasourcePane.expandDatasourceId;
 

@@ -1,6 +1,6 @@
 import type { DependencyMap, DynamicPath } from "utils/DynamicBindingUtils";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
-import type { ActionData } from "reducers/entityReducers/actionsReducer";
+import type { ActionData } from "@appsmith/reducers/entityReducers/actionsReducer";
 import {
   getBindingAndReactivePathsOfAction,
   getDataTreeActionConfigPath,
@@ -54,7 +54,9 @@ export const generateDataTreeAction = (
       actionId: action.config.id,
       run: {},
       clear: {},
-      data: action.data ? action.data.body : undefined,
+      // Data is always set to undefined in the unevalTree
+      // Action data is updated directly to the dataTree (see updateActionData.ts)
+      data: undefined,
       isLoading: action.isLoading,
       responseMeta: {
         statusCode: action.data?.statusCode,

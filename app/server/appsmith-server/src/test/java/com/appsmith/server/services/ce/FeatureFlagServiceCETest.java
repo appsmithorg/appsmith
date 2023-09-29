@@ -41,6 +41,7 @@ import static com.appsmith.server.constants.FeatureMigrationType.DISABLE;
 import static com.appsmith.server.constants.FeatureMigrationType.ENABLE;
 import static com.appsmith.server.constants.MigrationStatus.COMPLETED;
 import static com.appsmith.server.constants.MigrationStatus.PENDING;
+import static com.appsmith.server.featureflags.FeatureFlagEnum.TENANT_TEST_FEATURE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -149,12 +150,12 @@ public class FeatureFlagServiceCETest {
         StepVerifier.create(featureFlagService.getAllFeatureFlagsForUser())
                 .assertNext(result -> {
                     assertNotNull(result);
-                    assertNull(result.get(FeatureFlagEnum.TENANT_TEST_FEATURE.toString()));
+                    assertNull(result.get(TENANT_TEST_FEATURE.toString()));
                 })
                 .verifyComplete();
 
         Map<String, Boolean> tenantFeatures = new HashMap<>();
-        tenantFeatures.put(FeatureFlagEnum.TENANT_TEST_FEATURE.toString(), true);
+        tenantFeatures.put(TENANT_TEST_FEATURE.toString(), true);
         FeaturesResponseDTO responseDTO = new FeaturesResponseDTO();
         responseDTO.setFeatures(tenantFeatures);
         doReturn(Mono.just(responseDTO)).when(cacheableFeatureFlagHelper).getRemoteFeaturesForTenant(any());
@@ -162,7 +163,7 @@ public class FeatureFlagServiceCETest {
         StepVerifier.create(featureFlagService.getAllFeatureFlagsForUser())
                 .assertNext(result -> {
                     assertNotNull(result);
-                    assertTrue(result.get(FeatureFlagEnum.TENANT_TEST_FEATURE.toString()));
+                    assertTrue(result.get(TENANT_TEST_FEATURE.toString()));
                 })
                 .verifyComplete();
     }
@@ -268,7 +269,7 @@ public class FeatureFlagServiceCETest {
             getAllRemoteFeaturesForTenantAndUpdateFeatureFlagsWithPendingMigrations_disableMigration_statesUpdate() {
 
         Mockito.when(featureFlagMigrationHelper.getUpdatedFlagsWithPendingMigration(any()))
-                .thenReturn(Mono.just(Map.of(FeatureFlagEnum.TENANT_TEST_FEATURE, DISABLE)));
+                .thenReturn(Mono.just(Map.of(TENANT_TEST_FEATURE, DISABLE)));
 
         featureFlagService
                 .getAllRemoteFeaturesForTenantAndUpdateFeatureFlagsWithPendingMigrations()
@@ -276,7 +277,7 @@ public class FeatureFlagServiceCETest {
         StepVerifier.create(tenantService.getDefaultTenant())
                 .assertNext(tenant -> {
                     assertThat(tenant.getTenantConfiguration().getFeaturesWithPendingMigration())
-                            .isEqualTo(Map.of(FeatureFlagEnum.TENANT_TEST_FEATURE, DISABLE));
+                            .isEqualTo(Map.of(TENANT_TEST_FEATURE, DISABLE));
                     assertThat(tenant.getTenantConfiguration().getMigrationStatus())
                             .isEqualTo(PENDING);
                 })
@@ -287,7 +288,7 @@ public class FeatureFlagServiceCETest {
     public void getAllRemoteFeaturesForTenantAndUpdateFeatureFlagsWithPendingMigrations_enableMigration_statesUpdate() {
 
         Mockito.when(featureFlagMigrationHelper.getUpdatedFlagsWithPendingMigration(any()))
-                .thenReturn(Mono.just(Map.of(FeatureFlagEnum.TENANT_TEST_FEATURE, ENABLE)));
+                .thenReturn(Mono.just(Map.of(TENANT_TEST_FEATURE, ENABLE)));
 
         featureFlagService
                 .getAllRemoteFeaturesForTenantAndUpdateFeatureFlagsWithPendingMigrations()
@@ -295,9 +296,49 @@ public class FeatureFlagServiceCETest {
         StepVerifier.create(tenantService.getDefaultTenant())
                 .assertNext(tenant -> {
                     assertThat(tenant.getTenantConfiguration().getFeaturesWithPendingMigration())
-                            .isEqualTo(Map.of(FeatureFlagEnum.TENANT_TEST_FEATURE, ENABLE));
+                            .isEqualTo(Map.of(TENANT_TEST_FEATURE, ENABLE));
                     assertThat(tenant.getTenantConfiguration().getMigrationStatus())
                             .isEqualTo(PENDING);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void getTenantFeatureFlags_withDefaultTenant_fetchLatestFlags() {
+
+        Map<String, Boolean> tenantFeatures = new HashMap<>();
+        tenantFeatures.put(TENANT_TEST_FEATURE.name(), true);
+        FeaturesResponseDTO responseDTO = new FeaturesResponseDTO();
+        responseDTO.setFeatures(tenantFeatures);
+        doReturn(Mono.just(responseDTO)).when(cacheableFeatureFlagHelper).getRemoteFeaturesForTenant(any());
+        StepVerifier.create(featureFlagService.getTenantFeatures())
+                .assertNext(result -> {
+                    assertNotNull(result);
+                    assertTrue(result.get(TENANT_TEST_FEATURE.name()));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void getCachedTenantFeatureFlags_withDefaultTenant_tenantFeatureFlagsAreCached() {
+
+        // Assert that the cached feature flags are empty before the remote fetch
+        CachedFeatures cachedFeaturesBeforeRemoteCall = featureFlagService.getCachedTenantFeatureFlags();
+        assertTrue(cachedFeaturesBeforeRemoteCall.getFeatures().isEmpty());
+
+        Map<String, Boolean> tenantFeatures = new HashMap<>();
+        tenantFeatures.put(TENANT_TEST_FEATURE.name(), true);
+        FeaturesResponseDTO responseDTO = new FeaturesResponseDTO();
+        responseDTO.setFeatures(tenantFeatures);
+        doReturn(Mono.just(responseDTO)).when(cacheableFeatureFlagHelper).getRemoteFeaturesForTenant(any());
+        StepVerifier.create(featureFlagService.getTenantFeatures())
+                .assertNext(result -> {
+                    assertNotNull(result);
+                    assertTrue(result.get(TENANT_TEST_FEATURE.name()));
+
+                    // Check if the cached feature flags are updated after the remote fetch
+                    CachedFeatures cachedFeaturesAfterRemoteCall = featureFlagService.getCachedTenantFeatureFlags();
+                    assertTrue(cachedFeaturesAfterRemoteCall.getFeatures().get(TENANT_TEST_FEATURE.name()));
                 })
                 .verifyComplete();
     }

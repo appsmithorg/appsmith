@@ -357,9 +357,6 @@ export class HomePage {
   }
 
   public SignUp(uname: string, pswd: string) {
-    this.agHelper.Sleep(); //waiting for window to load
-    cy.window().its("store").invoke("dispatch", { type: "LOGOUT_USER_INIT" });
-    cy.wait("@postLogout");
     this.agHelper.VisitNAssert("/user/signup", "signUpLogin");
     this.agHelper.AssertElementVisibility(this.signupUsername);
     this.agHelper.TypeText(this.signupUsername, uname);
@@ -494,13 +491,21 @@ export class HomePage {
     this.NavigateToHome();
   }
 
-  public ImportApp(fixtureJson: string, intoWorkspaceName = "") {
-    cy.get(this._homeIcon).click({ force: true });
-    if (intoWorkspaceName)
-      this.agHelper.GetNClick(this._optionsIconInWorkspace(intoWorkspaceName));
-    else this.agHelper.GetNClick(this._optionsIcon);
-    this.agHelper.GetNClick(this._workspaceImport, 0, true);
-    this.agHelper.AssertElementVisibility(this._workspaceImportAppModal);
+  public ImportApp(
+    fixtureJson: string,
+    intoWorkspaceName = "",
+    onlyImport = false,
+  ) {
+    if (onlyImport === false) {
+      cy.get(this._homeIcon).click({ force: true });
+      if (intoWorkspaceName)
+        this.agHelper.GetNClick(
+          this._optionsIconInWorkspace(intoWorkspaceName),
+        );
+      else this.agHelper.GetNClick(this._optionsIcon);
+      this.agHelper.GetNClick(this._workspaceImport, 0, true);
+      this.agHelper.AssertElementVisibility(this._workspaceImportAppModal);
+    }
     cy.xpath(this._uploadFile).selectFile("cypress/fixtures/" + fixtureJson, {
       force: true,
     });
