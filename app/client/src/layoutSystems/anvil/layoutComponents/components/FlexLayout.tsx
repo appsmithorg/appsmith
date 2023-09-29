@@ -10,7 +10,7 @@ import type {
   SpacingDimension,
 } from "@design-system/widgets";
 import { MOBILE_ROW_GAP, ROW_GAP } from "layoutSystems/common/utils/constants";
-import { generateLayoutId } from "layoutSystems/anvil/utils/layoutUtils";
+import { generateLayoutId } from "layoutSystems/anvil/utils/layouts/layoutUtils";
 import { addPixelToSize } from "layoutSystems/common/utils/commonUtils";
 import React, { useMemo } from "react";
 import type { CSSProperties, ReactNode } from "react";
