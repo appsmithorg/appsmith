@@ -4,7 +4,7 @@ import {
   getEvaluationInverseDependencyMap,
   getDataTree,
 } from "selectors/dataTreeSelectors";
-import type { DataTree } from "entities/DataTree/dataTreeFactory";
+import type { DataTree } from "@appsmith/entities/DataTree/types";
 import { getActions } from "@appsmith/selectors/entitiesSelector";
 import type {
   ActionData,
