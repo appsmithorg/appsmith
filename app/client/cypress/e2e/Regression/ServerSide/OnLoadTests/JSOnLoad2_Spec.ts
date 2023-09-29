@@ -21,7 +21,7 @@ describe("JSObjects OnLoad Actions tests", function () {
       agHelper.Sleep();
 
       // This will fill in credentials and test the datasource
-      dataSources.ReconnectSingleDSNAssert("MySQL-Ds", "MySQL", true);
+      dataSources.ReconnectSingleDSNAssert("MySQL-Ds", "MySQL");
     });
     AssertJSOnPageLoad("runSpaceCraftImages", true);
   });
