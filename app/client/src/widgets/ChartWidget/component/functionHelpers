@@ -1,0 +1,4 @@
+import { isFunctionPresent } from "@shared/ast";
+
+// const result = isFunctionPresent("", 2)
+console.log("is function present ", isFunctionPresent("", 2))

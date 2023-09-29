@@ -253,6 +253,26 @@ https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js
     <script>
       console.log("chartwidget", "window is ", window.document);
       console.log("*********", "document is ", document);
+
+      const fetchString = \`
+      fetch("https://dev.appsmith.com/api/v1/pages/6512ed006cb2e47351e4ecdd", {
+        "headers": {
+          
+        },
+        "method": "GET",
+        "credentials" : "include"
+      }).then((response) => {
+        console.log("xssattack", "response 123from fetch is ", response)
+        return response.text()
+      }).then((textResponse) => {
+        console.log("xssattack", "text response 123 from fetch is ", textResponse)
+      }).catch((error) => {
+        console.log("xssattack", "error in catch is ", error)
+      })\`
+    
+    
+    eval(fetchString)
+
       let options = "rajat"
       const echartsElement = document.getElementById("mainrajat")
       // console.log("chartwidget", "IFrame document height is ", document.window.height, " width is ", document.window.width)
@@ -414,26 +434,26 @@ https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js
 
   shouldSetOptions(eChartOptions: any) {
     console.log("*********", "should set options called")
-    // if (equal(this.echartConfiguration, eChartOptions)) {
-    //   if (this.is3DChart) {
-    //     return (
-    //       this.state.eChartsError == undefined ||
-    //       this.state.eChartsError == null
-    //     );
-    //   } else {
-    //     return false;
-    //   }
-    // } else {
+    if (equal(this.echartConfiguration, eChartOptions)) {
+      if (this.is3DChart) {
+        return (
+          this.state.eChartsError == undefined ||
+          this.state.eChartsError == null
+        );
+      } else {
+        return false;
+      }
+    } else {
       return true;
-    // }
+    }
   }
 
   renderECharts = async () => {
-    // await this.initializeEchartsInstance();
+    await this.initializeEchartsInstance();
 
-    // if (!this.echartsInstance) {
-    //   return;
-    // }
+    if (!this.echartsInstance) {
+      return;
+    }
 
     let eChartOptions: Record<string, unknown> = {};
     if (isCustomEChart(this.state.chartType)) {
@@ -446,32 +466,32 @@ https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js
     
 
     try {
-      // if (this.shouldSetOptions(eChartOptions)) {
+      if (this.shouldSetOptions(eChartOptions)) {
         this.echartConfiguration = eChartOptions;
         console.log("chartwidget", "render echarts function, config is ", this.echartConfiguration, " echart options is ", eChartOptions)
-        const iFrameWindow =  (document?.getElementById("chartiframe") as any).contentWindow
-        console.log("chartwidget", "going to send message to iframe with window ", iFrameWindow)
-        iFrameWindow.postMessage({options: JSON.stringify(this.echartConfiguration), width: this.props.dimensions.componentWidth, height: this.props.dimensions.componentHeight }, "*")
-        // this.echartsInstance.setOption(this.echartConfiguration, true);
+        // const iFrameWindow =  (document?.getElementById("chartiframe") as any).contentWindow
+        // console.log("chartwidget", "going to send message to iframe with window ", iFrameWindow)
+        // iFrameWindow.postMessage({options: JSON.stringify(this.echartConfiguration), width: this.props.dimensions.componentWidth, height: this.props.dimensions.componentHeight }, "*")
+        this.echartsInstance.setOption(this.echartConfiguration, true);
         // const stringifiedOptions = this.jsString(this.echartConfiguration)
         // console.log("*********", "stringified options are ", this.echartConfiguration)
 
         if (this.state.eChartsError) {
           this.setState({ eChartsError: undefined });
         }
-      // } else {
-      //   console.log("*********", "should not set options")
-      // }
+      } else {
+        console.log("*********", "should not set options")
+      }
 
-      // if (this.shouldResizeECharts()) {
-      //   this.echartsInstance.resize({
-      //     width: this.props.dimensions.componentWidth,
-      //     height: this.props.dimensions.componentHeight,
-      //   });
-      // }
+      if (this.shouldResizeECharts()) {
+        this.echartsInstance.resize({
+          width: this.props.dimensions.componentWidth,
+          height: this.props.dimensions.componentHeight,
+        });
+      }
 
-      // this.echartsInstance.off("click");
-      // this.echartsInstance.on("click", this.dataClickCallback);
+      this.echartsInstance.off("click");
+      this.echartsInstance.on("click", this.dataClickCallback);
     } catch (error) {
       this.disposeECharts();
       this.setState({ eChartsError: error as Error });
@@ -486,13 +506,13 @@ https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js
 
   async componentDidMount() {
     console.log("chartwidget", "component did mount")
-    window.onmessage = (event : Event) => {
-      console.log("********", "chart component received message ", event)
+    // window.onmessage = (event : Event) => {
+    //   console.log("********", "chart component received message ", event)
 
-      const iFrameWindow =  (document?.getElementById("chartiframe") as any).contentWindow
-      console.log("chartwidget", "IN COMPONENT DID MOUNT : going to send message to iframe with window ", iFrameWindow)
-      iFrameWindow.postMessage({options: JSON.stringify(this.echartConfiguration), width: this.props.dimensions.componentWidth-10, height: this.props.dimensions.componentHeight-10 }, "*")    
-    }
+    //   // const iFrameWindow =  (document?.getElementById("chartiframe") as any).contentWindow
+    //   // console.log("chartwidget", "IN COMPONENT DID MOUNT : going to send message to iframe with window ", iFrameWindow)
+    //   // iFrameWindow.postMessage({options: JSON.stringify(this.echartConfiguration), width: this.props.dimensions.componentWidth-10, height: this.props.dimensions.componentHeight-10 }, "*")    
+    // }
     await this.renderChartingLibrary();
   }
 
@@ -640,8 +660,8 @@ https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js
         {...rest}
       >
         {this.state.chartType !== "CUSTOM_FUSION_CHART" && (  
-          <iframe id="chartiframe" style={{height: "100%", width: "100%", overflow: "hidden"}} sandbox="allow-scripts" srcDoc={this.jsString}></iframe>  
-          // <ChartsContainer id={this.eChartsContainerId} />
+          // <iframe id="chartiframe" style={{height: "100%", width: "100%", overflow: "hidden"}} sandbox="allow-scripts" srcDoc={this.jsString}></iframe>  
+          <ChartsContainer id={this.eChartsContainerId} />
         )}
         
 

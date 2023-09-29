@@ -258,6 +258,7 @@ class TextComponent extends React.Component<TextComponentProps, State> {
   };
 
   componentDidUpdate = (prevProps: TextComponentProps) => {
+    console.log("textwidget", "props are ", this.props)
     if (!equal(prevProps, this.props)) {
       if (this.props.overflow === OverflowTypes.TRUNCATE) {
         const textRef = get(this.textRef, "current.textRef");
@@ -299,6 +300,7 @@ class TextComponent extends React.Component<TextComponentProps, State> {
       truncateButtonColor,
     } = this.props;
 
+    console.log("textwidget", "text ref is ", this.textRef, text)
     return (
       <>
         <TextContainer

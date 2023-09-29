@@ -9,7 +9,7 @@ import type {
   WidgetEntityConfig,
 } from "entities/DataTree/dataTreeFactory";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
-import { pick } from "lodash";
+import { pick, property } from "lodash";
 import {
   WIDGET_DSL_STRUCTURE_PROPS,
   WIDGET_STATIC_PROPS,
@@ -69,6 +69,8 @@ function widgetErrorsFromStaticProps(props: Record<string, unknown>) {
 
   Object.keys(evaluationErrorMap).forEach((propertyPath) => {
     const propertyErrors = evaluationErrorMap[propertyPath];
+    console.log("prop-crash", "evaluationErrorMap is ", evaluationErrorMap, " property path is ", propertyPath)
+    console.log("prop-crash", "property errors are ", propertyErrors)
 
     propertyErrors.forEach((evalError) => {
       const widgetError: WidgetError = {

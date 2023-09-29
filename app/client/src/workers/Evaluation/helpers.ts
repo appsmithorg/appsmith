@@ -14,8 +14,9 @@ import type { ValidationResponse } from "constants/WidgetValidation";
 import { array } from "toposort";
 import { isValid } from "redux-form";
 import type { ValidateResult } from "react-hook-form";
-import { parse } from "json5";
+// import { parse } from "json5";
 import { klona } from "klona";
+import { parse }  from "acorn"
 const detect = require('acorn-globals');
 
 export const fn_keys : string = "__fn_keys__"
@@ -327,7 +328,8 @@ const sandboxedFn = (fn: any) => {
 export const isValidFunction = (fn : any, whitelistedGlobals: string[]) : ValidationResponse=> {
   // const myFunc = (new Function("return " + fn.toString()))()
 
-  const fnString = fn.toString().replace(/\n|\r|\t/g, ""); 
+  // const fnString = fn.toString().replace(/\n|\r|\t/g, ""); 
+  const fnString = fn.toString() //.replace(/\n|\r|\t/g, "");
   console.log("*********", "fn string is ", fnString)
 
   // let globals : Record<string, unknown>[] = []
@@ -358,10 +360,96 @@ export const isValidFunction = (fn : any, whitelistedGlobals: string[]) : Valida
   // if (blacklistedGlobals.length > 0) {
   //   return { isValid: false, parsed: "", messages: messages} ;
   // } else {
-    const newFn = sandboxedFn(fn)
-    console.log("returning function ", newFn.toString())
+    // const newFn = sandboxedFn(fn)
+    // console.log("returning function ", newFn.toString())
+    try {
+      console.log("astpartsing", "parsing string ", fn.toString())
+      const astTree : any = parse(fn.toString(), { ecmaVersion: 11 })
+
+      const programBody = astTree.body[0]
+
+      let functionBody = undefined;
+
+      if (programBody.type == "FunctionDeclaration") {
+          functionBody = programBody.body
+      } else if (programBody.type == "ExpressionStatement") {
+          functionBody = programBody.expression.body
+      }
+
+      // console.log('astparsing', "ast tree is ", JSON.stringify(astTree))
+      // console.log("astparsing", "program body is ", JSON.stringify(programBody), programBody.type, typeof(programBody), programBody["type"])
+      // console.log("astparsing", "function body is ", functionBody)
+
+      
+      const result : any = validFn(functionBody, ["eval", "fetch", "constructor", "document", "window", "Function"])
+      console.log("astparsing", "result from ast parsing is ", result, fnString)
+      
+      if (result.status == false) {
+        return { isValid: false, parsed: "", messages: [{ name: "TypeError", message: result.message}] }
+      }
+    } catch(error) {
+      console.log("astparsing", "coming in outer catch", error)
+      return { isValid: false, parsed: fnString, messages: [{ message: "Invalid syntax", name: "TypeError" }] };
+    }
+    
     return { isValid: true, parsed: fnString, messages: messages };
   // }
+}
+
+const validFn = (obj : any, blacklistedGlobals : string[]) => {
+  console.log("astparser", "valid fn called for obj ", JSON.stringify(obj))
+  try {
+    if (typeof(obj) == "object") {
+      if(obj == null || obj == undefined) {
+          return { status: true, message: ""};
+      }
+
+      if (Array.isArray(obj)) {
+          for (const val of obj) {
+              const nestedResult : any = validFn(val, blacklistedGlobals)
+              if (nestedResult.status == false) {
+                return nestedResult
+              }
+          }
+          return { status: true, message: ""}
+      } else {
+        if (obj["type"] == "Identifier") {
+          console.log("astparsing", "got an identifier ", obj.name)
+          const result = !blacklistedGlobals.includes(obj.name)
+          let message = ""
+          if (!result) {
+            message = `found blacklisted identifier ${obj.name}`; 
+          }
+          return { status: result, message: message}
+        } else if (obj["type"] == "ExpressionStatement" && obj.expression.type == "ArrowFunctionExpression") {
+          // if (obj.expression.type == "ArrowFunctionExpression") {
+            return { status: false, message: "Arrow functions cannot be declared inside a function"}
+          // } else {
+          //   return { status: true, message: [] }
+          // }
+        } else if (obj.type == "FunctionDeclaration") {
+          return { status: false, message: "Functions can't be declared inside the function"}
+        } else {
+            // let result = { status: false, message: "Invalid Function"};
+            const values = Object.values(obj)
+            for (const value of values) {
+                if (typeof(value) == "object") {
+                    const nestedResult : any = validFn(value, blacklistedGlobals)
+                    if (nestedResult.status == false) {
+                        return nestedResult
+                    }
+                }
+            }
+            return { status: true, message: ""};;
+        }
+      }
+  } else {
+    return { status: true, message: ""}
+  }
+  } catch (error) {
+    console.log("astparsing", "coming in catch ", error)
+    return { status: false, message: "The function defintion isn't properly formatted"}
+  }
 }
 
 const isLargeCollection = (val: any) => {

@@ -85,6 +85,9 @@ export const blockedApiRoutesForAirgapInterceptor = (
 // Request interceptor will add a timer property to the request.
 // this will be used to calculate the time taken for an action
 // execution request
+export const loggingInterceptor = (config : AxiosRequestConfig) => {
+  
+}
 export const apiRequestInterceptor = (config: AxiosRequestConfig) => {
   config.headers = config.headers ?? {};
 
