@@ -1,7 +1,6 @@
 import {
   agHelper,
   locators,
-  deployMode,
   entityExplorer,
   propPane,
 } from "../../../../../support/Objects/ObjectsCore";
@@ -10,6 +9,7 @@ describe("Rich Text Editor widget Tests", function () {
   before(() => {
     agHelper.AddDsl("richTextEditorDsl");
     entityExplorer.SelectEntityByName("RichTextEditor1", "Widgets");
+    //   entityExplorer.DragDropWidgetNVerify("richtexteditorwidget", 500, 200);
   });
 
   it("1. Verify deleting text in default text property, updates data in widget", function () {
@@ -25,9 +25,9 @@ describe("Rich Text Editor widget Tests", function () {
   });
 
   it("2. Verify changing style to Heading and pressing enter should change style to paragraph", function () {
-    agHelper.GetNClick('[title="Blocks"]');
-    agHelper.GetNClick('[title="Heading 1"]');
-    agHelper.AssertText(".tox-tbtn__select-label", "text", "Heading 1");
+    agHelper.GetNClick(locators._richText_TitleBlock);
+    agHelper.GetNClick(locators._richText_Heading);
+    agHelper.AssertText(locators._richText_Label_Text, "text", "Heading 1");
     agHelper
       .GetElement(
         locators._widgetInDeployed("richtexteditorwidget") + " iframe",
@@ -37,12 +37,12 @@ describe("Rich Text Editor widget Tests", function () {
         agHelper.TypeText($body, "Test Heading");
         agHelper.GetElement($body).type("{enter}");
       });
-    agHelper.AssertText(".tox-tbtn__select-label", "text", "Paragraph");
+    agHelper.AssertText(locators._richText_Label_Text, "text", "Paragraph");
   });
 
   it("3. Verify applying style in one line should be observed in next line", function () {
-    agHelper.GetNClick('[title="Text color"] .tox-split-button__chevron');
-    agHelper.GetNClick('[title="Red"]');
+    agHelper.GetNClick(locators._richText_Text_Color);
+    agHelper.GetNClick(locators._richText_color("Red"));
     agHelper
       .GetElement(
         locators._widgetInDeployed("richtexteditorwidget") + " iframe",
@@ -61,7 +61,7 @@ describe("Rich Text Editor widget Tests", function () {
       .then(($iframe) => {
         const iframe = $iframe.contents();
 
-        const $span = iframe.find("#tinymce p span");
+        const $span = iframe.find(locators._richText_line);
         agHelper.AssertAttribute($span, "style", "color: rgb(224, 62, 45);", 0);
         agHelper.AssertAttribute($span, "style", "color: rgb(224, 62, 45);", 1);
       });
