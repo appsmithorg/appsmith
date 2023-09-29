@@ -27,7 +27,7 @@ import type {
   JSVarMutatedEvents,
 } from "workers/Evaluation/types";
 import isEmpty from "lodash/isEmpty";
-import type { UnEvalTree } from "entities/DataTree/dataTreeFactory";
+import type { UnEvalTree } from "@appsmith/entities/DataTree/types";
 import { sortJSExecutionDataByCollectionId } from "workers/Evaluation/JSObject/utils";
 import type { LintTreeSagaRequestData } from "plugins/Linting/types";
 export type UpdateDataTreeMessageData = {

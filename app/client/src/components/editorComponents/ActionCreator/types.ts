@@ -3,7 +3,7 @@ import type {
   TreeDropdownOption,
   IconName,
 } from "design-system-old";
-import type { ENTITY_TYPE, MetaArgs } from "entities/DataTree/types";
+import type { ENTITY_TYPE, MetaArgs } from "@appsmith/entities/DataTree/types";
 import type React from "react";
 import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 import type { FieldType, ViewTypes, AppsmithFunction } from "./constants";
