@@ -50,6 +50,9 @@ export class AggregateHelper extends ReusableHelper {
   private lazyCodeEditorRendered = ".t--lazyCodeEditor-editor";
   private toolTipSpan = ".rc-tooltip-inner span";
   _walkthroughOverlay = ".t--walkthrough-overlay";
+  _walkthroughOverlayClose = ".t--walkthrough-overlay .t--walkthrough-close";
+  _walkthroughOverlayTitle = (title: string) =>
+    `//div[contains(@class, 't--walkthrough-overlay')]//p[text()='${title}']`;
 
   private selectChars = (noOfChars: number) =>
     `${"{leftArrow}".repeat(noOfChars) + "{shift}{cmd}{leftArrow}{backspace}"}`;
