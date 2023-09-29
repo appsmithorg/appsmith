@@ -6,6 +6,7 @@ import {
   agHelper,
   homePage,
 } from "../../../../../support/Objects/ObjectsCore";
+import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
 
 describe("Groups&Roles tab Tests", function () {
   let workspaceName;
@@ -228,6 +229,8 @@ describe("Groups&Roles tab Tests", function () {
   it("1. Verify user has create groups and roles permission", function () {
     //login as user1 the user should have admin access and should see groups tab
     cy.LoginFromAPI(Cypress.env("TESTUSERNAME1"), Cypress.env("TESTPASSWORD1"));
+    featureFlagIntercept({ license_gac_enabled: true });
+    cy.wait(2000);
     cy.get(locators.AdminSettingsEntryLink).should("be.visible");
     cy.get(locators.AdminSettingsEntryLink).click();
     cy.get(RBAC.usersTab).should("not.exist");
@@ -243,6 +246,8 @@ describe("Groups&Roles tab Tests", function () {
   });
 
   it("2. Verify user can invite user to group", function () {
+    featureFlagIntercept({ license_gac_enabled: true });
+    cy.wait(2000);
     agHelper.VisitNAssert("settings/groups", "fetchGroups");
     cy.get(RBAC.searchBar).type(GroupName);
     cy.wait(2000);
@@ -266,12 +271,16 @@ describe("Groups&Roles tab Tests", function () {
   });
 
   it("3. Verify user can remove user from group", function () {
+    featureFlagIntercept({ license_gac_enabled: true });
+    cy.wait(2000);
     cy.get(RBAC.usersTabinGroup).click();
     cy.wait(2000);
     // not able to remove user
   });
 
   it("4.Associate role to user and verify", function () {
+    featureFlagIntercept({ license_gac_enabled: true });
+    cy.wait(2000);
     cy.get(RBAC.rolesTabinGroup).click();
     cy.wait(2000);
     cy.get(RBAC.rolesinGroups).contains(EditPermissionWorkspaceLevel).click();
@@ -286,6 +295,8 @@ describe("Groups&Roles tab Tests", function () {
 
   it("5. Verify user has edit groups and roles permission", function () {
     cy.LoginFromAPI(Cypress.env("TESTUSERNAME2"), Cypress.env("TESTPASSWORD2"));
+    featureFlagIntercept({ license_gac_enabled: true });
+    cy.wait(2000);
     cy.get(homePageLocators.profileMenu).should("be.visible");
     cy.get(locators.AdminSettingsEntryLink).should("be.visible");
     cy.get(locators.AdminSettingsEntryLink).click();
@@ -357,6 +368,8 @@ describe("Groups&Roles tab Tests", function () {
   it("6. Verify user has view groups and roles permissions", function () {
     cy.SignupFromAPI(testUser4, password);
     cy.LogintoAppTestUser(testUser4, password);
+    featureFlagIntercept({ license_gac_enabled: true });
+    cy.wait(2000);
     //the user can only view the roles
     cy.get(locators.AdminSettingsEntryLink).should("be.visible").click();
     cy.get(RBAC.rolesTab).click();
@@ -386,6 +399,8 @@ describe("Groups&Roles tab Tests", function () {
   it("7. Verify user has associate role permission but no edit permission for groups", function () {
     cy.SignupFromAPI(testUser5, password);
     cy.LogintoAppTestUser(testUser5, password);
+    featureFlagIntercept({ license_gac_enabled: true });
+    cy.wait(2000);
     cy.get(locators.AdminSettingsEntryLink).should("be.visible").click();
     cy.get(RBAC.usersTab).should("not.exist");
     cy.get(RBAC.groupsTab).click();
@@ -422,6 +437,8 @@ describe("Groups&Roles tab Tests", function () {
   it("8.Verify user has delete groups and roles permission", function () {
     cy.SignupFromAPI(testUser3, password);
     cy.LogintoAppTestUser(testUser3, password);
+    featureFlagIntercept({ license_gac_enabled: true });
+    cy.wait(2000);
     agHelper.VisitNAssert("/applications", "getReleaseItems");
     cy.get(locators.AdminSettingsEntryLink).should("be.visible");
     cy.get(locators.AdminSettingsEntryLink).click();

@@ -39,7 +39,6 @@ import {
 } from "@appsmith/constants/messages";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import styled from "styled-components";
-import { showAdminSettings } from "@appsmith/utils/adminSettingsHelpers";
 import { useHistory } from "react-router";
 import {
   changeApplicationUserRole,
@@ -58,6 +57,9 @@ import { getInitials } from "utils/AppsmithUtils";
 import { RAMP_NAME } from "utils/ProductRamps/RampsControlList";
 import { showProductRamps } from "@appsmith/selectors/rampSelectors";
 import { CustomRolesRamp } from "@appsmith/pages/workspace/WorkspaceInviteUsersForm";
+import { getShowAdminSettings } from "@appsmith/utils/BusinessFeatures/adminSettingsHelpers";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -179,6 +181,7 @@ export default function MemberSettings(props: PageProps) {
     PERMISSION_TYPE.MANAGE_WORKSPACE,
   );
   const isAppInvite = !cloudHosting;
+  const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
 
   useEffect(() => {
     if (
@@ -366,7 +369,10 @@ export default function MemberSettings(props: PageProps) {
               };
             })
           : [];
-        if (!cloudHosting && showAdminSettings(currentUser)) {
+        if (
+          !cloudHosting &&
+          getShowAdminSettings(isFeatureEnabled, currentUser)
+        ) {
           roles.push({
             key: "custom-pg",
             value: "Assign Custom Role",

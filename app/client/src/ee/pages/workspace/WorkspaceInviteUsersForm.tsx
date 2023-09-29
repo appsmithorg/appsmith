@@ -67,7 +67,6 @@ import { useHistory } from "react-router-dom";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import store from "store";
 import TagListField from "../../utils/TagInput";
-import { showAdminSettings } from "@appsmith/utils/adminSettingsHelpers";
 import { getCurrentUser } from "selectors/usersSelectors";
 import {
   getAllAppUsers,
@@ -110,6 +109,9 @@ import {
   setPartnerProgramCalloutShown,
 } from "utils/storage";
 import { isFreePlan } from "@appsmith/selectors/tenantSelectors";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { getShowAdminSettings } from "@appsmith/utils/BusinessFeatures/adminSettingsHelpers";
 
 const NoEmailConfigImage = importSvg(
   () => import("assets/images/email-not-configured.svg"),
@@ -314,6 +316,8 @@ function WorkspaceInviteUsersForm(props: any) {
   const isAppLevelInviteOnSelfHost =
     (!cloudHosting && isApplicationInvite) || false;
 
+  const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+
   useEffect(() => {
     setSelectedOption([]);
   }, [submitSucceeded]);
@@ -385,7 +389,7 @@ function WorkspaceInviteUsersForm(props: any) {
           };
         });
 
-  if (isEEFeature && showAdminSettings(user)) {
+  if (isEEFeature && getShowAdminSettings(isFeatureEnabled, user)) {
     styledRoles.push({
       key: "custom-pg",
       value: "Assign Custom Role",
@@ -594,7 +598,7 @@ function WorkspaceInviteUsersForm(props: any) {
                   label={role.value}
                   value={isAppLevelInviteOnSelfHost ? role.value : role.key}
                 >
-                  <div className="flex gap-1 items-center">
+                  <div className="flex items-center gap-1">
                     {isMultiSelectDropdown && (
                       <StyledCheckbox
                         isSelected={selectedOption.find((v) =>
@@ -642,7 +646,7 @@ function WorkspaceInviteUsersForm(props: any) {
         </StyledInviteFieldGroupEE>
 
         {!isAclFlow && (
-          <div className="flex gap-2 mt-2 items-start">
+          <div className="flex items-start gap-2 mt-2">
             <Icon className="mt-1" name="user-3-line" size="md" />
             <WorkspaceText>
               <InviteUserText

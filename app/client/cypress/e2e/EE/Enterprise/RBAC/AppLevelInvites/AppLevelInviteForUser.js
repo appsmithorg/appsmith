@@ -3,6 +3,7 @@ import HomePage from "../../../../../locators/HomePage";
 const AppNavigation = require("../../../../../locators/AppNavigation.json");
 const RBAC = require("../../../../../locators/RBAClocators.json");
 const Explorer = require("../../../../../locators/explorerlocators.json");
+import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
 let workspaceId, appid;
 
 describe("Create new workspace and invite user & validate all roles", () => {
@@ -140,6 +141,8 @@ describe("Create new workspace and invite user & validate all roles", () => {
       Cypress.env("TESTPASSWORD1"),
       "App Viewer",
     );
+    featureFlagIntercept({ license_gac_enabled: true });
+    cy.wait(2000);
     cy.get(HomePage.searchInput).type(appid);
     _.agHelper.Sleep(2000);
     cy.get(HomePage.appsContainer).contains(workspaceId);
@@ -235,6 +238,10 @@ describe("Create new workspace and invite user & validate all roles", () => {
       Cypress.env("TESTPASSWORD1"),
       "App Viewer",
     );
+
+    featureFlagIntercept({ license_gac_enabled: true });
+    cy.wait(2000);
+
     cy.get(HomePage.searchInput).type(appid);
     _.agHelper.Sleep(2000);
     cy.get(HomePage.appsContainer).contains(workspaceId);

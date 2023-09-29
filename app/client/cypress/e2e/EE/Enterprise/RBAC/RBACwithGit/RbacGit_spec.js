@@ -7,6 +7,7 @@ import {
   entityExplorer,
   homePage,
 } from "../../../../../support/Objects/ObjectsCore";
+import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
 
 describe("RBAC for git connected apps tests", function () {
   let workspaceName;
@@ -148,6 +149,8 @@ describe("RBAC for git connected apps tests", function () {
 
   it("5. Login as test user, create new branch and verify given permission on new and old branch ", function () {
     cy.LogintoApp(Cypress.env("TESTUSERNAME1"), Cypress.env("TESTPASSWORD1"));
+    featureFlagIntercept({ license_gac_enabled: true });
+    cy.wait(2000);
     cy.get(homePageLocators.searchInput).clear().type(appName);
     cy.wait(2000);
     cy.get(homePageLocators.applicationCard).first().trigger("mouseover");

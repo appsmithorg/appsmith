@@ -86,7 +86,6 @@ import RepoLimitExceededErrorModal from "pages/Editor/gitSync/RepoLimitExceededE
 import { resetEditorRequest } from "actions/initActions";
 import {
   hasCreateNewAppPermission,
-  hasCreateWorkspacePermission,
   hasDeleteWorkspacePermission,
   isPermitted,
   PERMISSION_TYPE,
@@ -100,6 +99,9 @@ import { usePackage } from "@appsmith/pages/Applications/helpers";
 import PackageCardList from "@appsmith/pages/Applications/PackageCardList";
 import WorkspaceAction from "@appsmith/pages/Applications/WorkspaceAction";
 import ResourceListLoader from "@appsmith/pages/Applications/ResourceListLoader";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { getHasCreateWorkspacePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 
 export const { cloudHosting } = getAppsmithConfigs();
 
@@ -314,6 +316,7 @@ export function LeftPane(props: LeftPaneProps) {
   const fetchedUserWorkspaces = useSelector(getUserApplicationsWorkspaces);
   const isFetchingApplications = useSelector(getIsFetchingApplications);
   const isMobile = useIsMobileDevice();
+  const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
 
   let userWorkspaces;
   if (!isFetchingApplications) {
@@ -323,7 +326,10 @@ export function LeftPane(props: LeftPaneProps) {
   }
 
   const tenantPermissions = useSelector(getTenantPermissions);
-  const canCreateWorkspace = hasCreateWorkspacePermission(tenantPermissions);
+  const canCreateWorkspace = getHasCreateWorkspacePermission(
+    isFeatureEnabled,
+    tenantPermissions,
+  );
 
   const location = useLocation();
   const urlHash = location.hash.slice(1);
