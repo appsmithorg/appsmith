@@ -12,9 +12,11 @@ class JSFactory {
     const newJSObject: any = {};
 
     //we need perform deep clone here to pervent a mutation issue with JS actions
-    const variables = self.$isDataField
-      ? Object.entries(varState)
-      : klona(Object.entries(varState));
+    const variables = Object.entries(
+      ExecutionMetaData.getExecutionMetaData().enableJSVarUpdateTracking
+        ? klona(varState)
+        : varState,
+    );
 
     for (const [varName, varValue] of variables) {
       let variable = varValue;
