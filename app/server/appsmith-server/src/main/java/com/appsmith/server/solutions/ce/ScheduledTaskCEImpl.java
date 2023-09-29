@@ -26,7 +26,8 @@ public class ScheduledTaskCEImpl implements ScheduledTaskCE {
                 .getAllRemoteFeaturesForTenantAndUpdateFeatureFlagsWithPendingMigrations()
                 .then(tenantService
                         .getDefaultTenant()
-                        .flatMap(featureFlagService::checkAndExecuteMigrationsForTenantFeatureFlags))
+                        .flatMap(featureFlagService::checkAndExecuteMigrationsForTenantFeatureFlags)
+                        .then(tenantService.restartTenant()))
                 .doOnError(error -> log.error("Error while fetching features from Cloud Services {0}", error))
                 .subscribeOn(scheduler)
                 .subscribe();
