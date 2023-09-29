@@ -10,7 +10,7 @@ import type {
   SpacingDimension,
 } from "@design-system/widgets";
 import { MOBILE_ROW_GAP, ROW_GAP } from "layoutSystems/common/utils/constants";
-import { getLayoutClassName } from "layoutSystems/anvil/utils/layoutUtils";
+import { generateLayoutId } from "layoutSystems/anvil/utils/layoutUtils";
 import { addPixelToSize } from "layoutSystems/common/utils/commonUtils";
 import React, { useMemo } from "react";
 import type { CSSProperties, ReactNode } from "react";
@@ -61,10 +61,11 @@ export const FlexLayout = (props: FlexLayoutProps) => {
       justifyContent: props.justifyContent || "start",
       height: props.height || "auto",
       maxHeight: props.maxHeight || "none",
-      minWidth: props.minWidth || "none",
-      minHeight: props.minHeight || "none",
+      maxWidth: props.maxWidth || "none",
+      minHeight: props.minHeight || "unset",
+      minWidth: props.minWidth || "unset",
       width: props.width || "auto",
-      padding: props.padding || "none",
+      padding: props.padding || "0px",
       rowGap: props.rowGap || {
         base: addPixelToSize(MOBILE_ROW_GAP),
         [addPixelToSize(MOBILE_BREAKPOINT)]: addPixelToSize(ROW_GAP),
@@ -85,7 +86,7 @@ export const FlexLayout = (props: FlexLayoutProps) => {
   return (
     <Flex
       {...flexProps}
-      className={getLayoutClassName(props.canvasId, props.layoutId)}
+      id={generateLayoutId(props.canvasId, props.layoutId)}
       style={styleProps}
     >
       {props.children}
