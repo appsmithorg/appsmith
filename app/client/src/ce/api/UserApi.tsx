@@ -55,7 +55,7 @@ export interface InviteUserRequest {
 export interface UpdateUserRequest {
   name?: string;
   email?: string;
-  role?: string;
+  proficiency?: string;
   useCase?: string;
   intercomConsentGiven?: boolean;
 }
