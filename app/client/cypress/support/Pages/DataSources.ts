@@ -289,6 +289,7 @@ export class DataSources {
   private _dsVirtuosoList = `[data-test-id="virtuoso-item-list"]`;
   private _dsVirtuosoElementTable = (targetTableName: string) =>
     `.t--entity-item[data-testid='t--entity-item-${targetTableName}']`;
+  _gSheetQueryPlaceholder = ".CodeMirror-placeholder";
 
   public AssertDSEditViewMode(mode: "Edit" | "View") {
     if (mode == "Edit") this.agHelper.AssertElementAbsence(this._editButton);
