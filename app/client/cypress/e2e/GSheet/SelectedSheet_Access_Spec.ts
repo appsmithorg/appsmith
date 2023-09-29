@@ -294,7 +294,7 @@ describe("GSheet-Functional Tests With Selected Access", function () {
 
   it("8. Import an app with read write access sheet", function () {
     homePage.NavigateToHome();
-    homePage.ImportApp("ImportAppSelectedAccess.json");
+    homePage.ImportApp("ImportAppSelectedAccess.json", workspaceName);
     assertHelper.WaitForNetworkCall("importNewApplication").then(() => {
       agHelper.Sleep();
       //Validate table is not empty!

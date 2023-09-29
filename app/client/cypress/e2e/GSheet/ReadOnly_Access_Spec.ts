@@ -282,7 +282,7 @@ describe("GSheet-Functional Tests With Read Access", function () {
 
   it("8. Import an app with read write access sheet", function () {
     homePage.NavigateToHome();
-    homePage.ImportApp("ImportAppReadAccess.json");
+    homePage.ImportApp("ImportAppReadAccess.json", workspaceName);
     assertHelper.WaitForNetworkCall("importNewApplication").then(() => {
       agHelper.Sleep();
       //Validate table is not empty!
