@@ -36,12 +36,12 @@ public class Package extends BranchAwareDomain {
     String name;
 
     @JsonView(Views.Public.class)
-    String packageUniqueIdentifier; // module refers to this id
+    String packageUUID; // `packageUUID` is not globally unique but within the workspace
 
-    @JsonView(Views.Public.class)
+    @JsonView(Views.Internal.class)
     PackageDTO unpublishedPackage;
 
-    @JsonView(Views.Public.class)
+    @JsonView(Views.Internal.class)
     PackageDTO publishedPackage;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)

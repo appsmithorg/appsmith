@@ -105,4 +105,8 @@ public class FieldName extends FieldNameCE {
     public static final String LINKED_USERS = "linked_users";
     public static final String REMOVED = "removed";
     public static final String RETAINED = "retained";
+
+    // Package & module related constants
+    public static final String PACKAGE_ID = "packageId";
+    public static final String MODULE_ID = "moduleId";
 }

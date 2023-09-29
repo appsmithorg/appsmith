@@ -21,6 +21,10 @@ public class PackageDTO implements Identifiable {
     @JsonView(Views.Public.class)
     private String id;
 
+    @Transient
+    @JsonView(Views.Export.class)
+    private String packageUUID;
+
     @JsonView(Views.Public.class)
     String name;
 

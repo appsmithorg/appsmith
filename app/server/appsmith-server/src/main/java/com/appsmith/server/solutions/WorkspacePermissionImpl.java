@@ -20,4 +20,9 @@ public class WorkspacePermissionImpl extends WorkspacePermissionCEImpl implement
     public AclPermission getDatasourceCreatePermission() {
         return AclPermission.WORKSPACE_CREATE_DATASOURCE;
     }
+
+    @Override
+    public AclPermission getPackageCreatePermission() {
+        return AclPermission.WORKSPACE_CREATE_PACKAGE;
+    }
 }

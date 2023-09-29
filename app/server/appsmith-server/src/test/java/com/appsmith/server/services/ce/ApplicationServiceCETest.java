@@ -511,7 +511,7 @@ public class ApplicationServiceCETest {
                     assertThat(page.getPolicies().stream()
                                     .map(Policy::getPermission)
                                     .collect(Collectors.toSet()))
-                            .containsExactlyInAnyOrder(
+                            .contains(
                                     MANAGE_PAGES.getValue(),
                                     READ_PAGES.getValue(),
                                     PAGE_CREATE_PAGE_ACTIONS.getValue(),

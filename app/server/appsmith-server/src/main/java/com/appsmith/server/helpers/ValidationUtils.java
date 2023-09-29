@@ -40,4 +40,8 @@ public final class ValidationUtils {
         final Matcher matcher = EMAIL_CSV_PATTERN.matcher(inputString);
         return matcher.matches();
     }
+
+    public static boolean isEmptyParam(String param) {
+        return param == null || param.trim().isEmpty();
+    }
 }

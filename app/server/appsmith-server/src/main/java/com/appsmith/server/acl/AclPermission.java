@@ -84,7 +84,7 @@ public enum AclPermission {
     // Resource creation permissions for workspace
     WORKSPACE_CREATE_APPLICATION("create:applications", Workspace.class),
     WORKSPACE_CREATE_DATASOURCE("create:datasources", Workspace.class),
-    WORKSPACE_CREATE_PACKAGE("create:package", Workspace.class),
+    WORKSPACE_CREATE_PACKAGE("create:packages", Workspace.class),
 
     // Was the user assigned a global permission at the workspace level to manage applications?
     WORKSPACE_MANAGE_APPLICATIONS("manage:workspaceApplications", Workspace.class),
