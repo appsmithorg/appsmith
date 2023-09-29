@@ -7,14 +7,7 @@ import type {
 } from "constants/AppsmithActionConstants/ActionConstants";
 import { TriggerKind } from "constants/AppsmithActionConstants/ActionConstants";
 import * as log from "loglevel";
-import {
-  all,
-  call,
-  put,
-  takeEvery,
-  takeLatest,
-  select,
-} from "redux-saga/effects";
+import { all, call, put, takeEvery, takeLatest } from "redux-saga/effects";
 import {
   evaluateActionSelectorFieldSaga,
   evaluateAndExecuteDynamicTrigger,
@@ -26,10 +19,7 @@ import copySaga from "sagas/ActionExecution/CopyActionSaga";
 import resetWidgetActionSaga from "sagas/ActionExecution/ResetWidgetActionSaga";
 import showAlertSaga from "sagas/ActionExecution/ShowAlertActionSaga";
 import executePluginActionTriggerSaga from "sagas/ActionExecution/PluginActionSaga";
-import {
-  clearActionResponse,
-  updateActionData,
-} from "actions/pluginActionActions";
+import { clearActionResponse } from "actions/pluginActionActions";
 import {
   closeModalSaga,
   openModalSaga,
@@ -42,8 +32,6 @@ import {
 } from "sagas/ActionExecution/geolocationSaga";
 import { postMessageSaga } from "sagas/ActionExecution/PostMessageSaga";
 import type { ActionDescription } from "@appsmith/workers/Evaluation/fns";
-import { getActionById } from "selectors/editorSelectors";
-import type { AppState } from "@appsmith/reducers";
 
 export type TriggerMeta = {
   source?: TriggerSource;
@@ -70,25 +58,6 @@ export function* executeActionTriggers(
       break;
     case "CLEAR_PLUGIN_ACTION":
       yield put(clearActionResponse(trigger.payload.actionId));
-      const action: ReturnType<typeof getActionById> = yield select(
-        (state: AppState) =>
-          getActionById(state, {
-            match: {
-              params: {
-                apiId: trigger.payload.actionId,
-              },
-            },
-          }),
-      );
-      if (action) {
-        yield put(
-          updateActionData({
-            entityName: action.name,
-            dataPath: "data",
-            data: undefined,
-          }),
-        );
-      }
       break;
     case "NAVIGATE_TO":
       yield call(navigateActionSaga, trigger);

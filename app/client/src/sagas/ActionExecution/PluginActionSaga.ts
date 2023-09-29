@@ -15,7 +15,6 @@ import {
   executePluginActionSuccess,
   runAction,
   updateAction,
-  updateActionData,
 } from "actions/pluginActionActions";
 import { makeUpdateJSCollection } from "sagas/JSPaneSagas";
 
@@ -102,7 +101,7 @@ import * as log from "loglevel";
 import { EMPTY_RESPONSE } from "components/editorComponents/emptyResponse";
 import type { AppState } from "@appsmith/reducers";
 import { DEFAULT_EXECUTE_ACTION_TIMEOUT_MS } from "@appsmith/constants/ApiConstants";
-import { evalWorker, evaluateActionBindings } from "sagas/EvaluationsSaga";
+import { evaluateActionBindings } from "sagas/EvaluationsSaga";
 import { isBlobUrl, parseBlobUrl } from "utils/AppsmithUtils";
 import { getType, Types } from "utils/TypeHelpers";
 import { matchPath } from "react-router";
@@ -159,7 +158,6 @@ import {
   getCurrentEnvironmentDetails,
   getCurrentEnvironmentName,
 } from "@appsmith/selectors/environmentSelectors";
-import { EVAL_WORKER_ACTIONS } from "@appsmith/workers/Evaluation/evalWorkerActions";
 
 enum ActionResponseDataTypes {
   BINARY = "BINARY",
@@ -1173,13 +1171,6 @@ function* executePageLoadAction(pageAction: PageAction) {
           data: payload,
         }),
       );
-      yield put(
-        updateActionData({
-          entityName: action.name,
-          dataPath: "data",
-          data: payload.body,
-        }),
-      );
       PerformanceTracker.stopAsyncTracking(
         PerformanceTransactionName.EXECUTE_ACTION,
         {
@@ -1233,13 +1224,6 @@ function* executePageLoadAction(pageAction: PageAction) {
           id: pageAction.id,
           response: payload,
           isPageLoad: true,
-        }),
-      );
-      yield put(
-        updateActionData({
-          entityName: action.name,
-          dataPath: "data",
-          data: payload.body,
         }),
       );
       yield take(ReduxActionTypes.SET_EVALUATED_TREE);
@@ -1395,14 +1379,6 @@ function* executePluginActionSaga(
         response: payload,
       }),
     );
-
-    yield put(
-      updateActionData({
-        entityName: pluginAction.name,
-        dataPath: "data",
-        data: payload.body,
-      }),
-    );
     // TODO: Plugins are not always fetched before on page load actions are executed.
     try {
       let plugin: Plugin | undefined;
@@ -1454,13 +1430,6 @@ function* executePluginActionSaga(
       executePluginActionSuccess({
         id: actionId,
         response: EMPTY_RESPONSE,
-      }),
-    );
-    yield put(
-      updateActionData({
-        entityName: pluginAction.name,
-        dataPath: "data",
-        data: EMPTY_RESPONSE.body,
       }),
     );
     if (e instanceof UserCancelledActionExecutionError) {
@@ -1531,13 +1500,6 @@ function* clearTriggerActionResponse() {
     // Clear the action response if the action has data and is not executeOnLoad.
     if (action.data && !action.config.executeOnLoad) {
       yield put(clearActionResponse(action.config.id));
-      yield put(
-        updateActionData({
-          entityName: action.config.name,
-          dataPath: "data",
-          data: undefined,
-        }),
-      );
     }
   }
 }
@@ -1580,23 +1542,6 @@ function* softRefreshActionsSaga() {
   });
 }
 
-function* handleUpdateActionData(
-  action: ReduxAction<{
-    entityName: string;
-    dataPath: string;
-    data: unknown;
-  }>,
-) {
-  const { data, dataPath, entityName } = action.payload;
-  yield call(evalWorker.request, EVAL_WORKER_ACTIONS.UPDATE_ACTION_DATA, [
-    {
-      entityName,
-      dataPath,
-      data,
-    },
-  ]);
-}
-
 export function* watchPluginActionExecutionSagas() {
   yield all([
     takeLatest(ReduxActionTypes.RUN_ACTION_REQUEST, runActionSaga),
@@ -1610,6 +1555,5 @@ export function* watchPluginActionExecutionSagas() {
     ),
     takeLatest(ReduxActionTypes.PLUGIN_SOFT_REFRESH, softRefreshActionsSaga),
     takeEvery(ReduxActionTypes.EXECUTE_JS_UPDATES, makeUpdateJSCollection),
-    takeEvery(ReduxActionTypes.UPDATE_ACTION_DATA, handleUpdateActionData),
   ]);
 }

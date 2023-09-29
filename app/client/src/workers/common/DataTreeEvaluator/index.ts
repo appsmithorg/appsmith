@@ -94,7 +94,6 @@ import type {
   ValidationConfig,
 } from "constants/PropertyControlConstants";
 import { klona } from "klona/full";
-import { klona as klonaJSON } from "klona/json";
 import type { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
 import {
   updateDependencyMap,
@@ -124,8 +123,6 @@ import userLogs from "workers/Evaluation/fns/overrides/console";
 import ExecutionMetaData from "workers/Evaluation/fns/utils/ExecutionMetaData";
 import DependencyMap from "entities/DependencyMap";
 import { DependencyMapUtils } from "entities/DependencyMap/DependencyMapUtils";
-import DataStore from "workers/Evaluation/dataStore";
-import { updateTreeWithData } from "workers/Evaluation/dataStore/utils";
 
 type SortedDependencies = Array<string>;
 export type EvalProps = {
@@ -342,7 +339,6 @@ export default class DataTreeEvaluator {
     const evaluationStartTime = performance.now();
 
     const evaluationOrder = this.sortedDependencies;
-
     // Evaluate
     const { evalMetaUpdates, evaluatedTree, staleMetaIds } = this.evaluateTree(
       this.oldUnEvalTree,
@@ -499,7 +495,6 @@ export default class DataTreeEvaluator {
         isNewWidgetAdded: false,
       };
     }
-    DataStore.update(differences);
     let isNewWidgetAdded = false;
 
     //find all differences which can lead to updating of dependency map
@@ -942,7 +937,6 @@ export default class DataTreeEvaluator {
     staleMetaIds: string[];
   } {
     const tree = klona(oldUnevalTree);
-    updateTreeWithData(tree, klonaJSON(DataStore.getDataStore()));
 
     errorModifier.updateAsyncFunctions(
       tree,

@@ -54,9 +54,7 @@ export const generateDataTreeAction = (
       actionId: action.config.id,
       run: {},
       clear: {},
-      // Data is always set to undefined in the unevalTree
-      // Action data is updated directly to the dataTree (see updateActionData.ts)
-      data: undefined,
+      data: action.data ? action.data.body : undefined,
       isLoading: action.isLoading,
       responseMeta: {
         statusCode: action.data?.statusCode,
