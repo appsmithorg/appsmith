@@ -20,7 +20,6 @@ export const getShowAdminSettings = (
 export const getAdminSettingsPath = (
   isEnabled: boolean,
   isSuperUser: boolean | undefined,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   tenantPermissions: string[] = [],
 ) => {
   if (isEnabled) {

@@ -396,10 +396,10 @@ function* formValueChangeSaga(
     if (form !== API_EDITOR_FORM_NAME) return;
     if (field === "dynamicBindingPathList" || field === "name") return;
     const { values } = yield select(getFormData, API_EDITOR_FORM_NAME);
-    if (!values.id) return;
-
     const featureFlags: FeatureFlags = yield select(selectFeatureFlags);
     const isFeatureEnabled = isGACEnabled(featureFlags);
+
+    if (!values.id) return;
 
     if (
       !getHasManageActionPermission(isFeatureEnabled, values.userPermissions)
