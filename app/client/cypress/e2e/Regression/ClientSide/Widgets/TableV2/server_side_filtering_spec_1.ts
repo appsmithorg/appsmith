@@ -110,19 +110,3 @@ describe("Table widget v2: test server side filtering", function () {
     });
   });
 });
-
-describe("Table v2: Server side filtering hidden behind feature flag", () => {
-  before(() => {
-    entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 700, 300);
-  });
-
-  it("1. should test that server side filtering option and dtable.filters autocomplete should not be visible", () => {
-    agHelper.AssertElementAbsence(
-      propPane._propertyControl("serversidefiltering"),
-    );
-    entityExplorer.DragDropWidgetNVerify(draggableWidgets.TEXT, 300, 700);
-    entityExplorer.SelectEntityByName("Text1");
-    propPane.TypeTextIntoField("Text", "{{Table1.filters");
-    agHelper.AssertElementAbsence(locators._hints);
-  });
-});

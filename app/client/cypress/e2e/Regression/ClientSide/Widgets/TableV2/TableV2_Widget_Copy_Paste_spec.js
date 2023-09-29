@@ -42,22 +42,9 @@ describe("Test Suite to validate copy/paste table Widget V2", function () {
     });
     cy.wait(200);
     cy.get(apiwidget.propertyList).then(function ($lis) {
-      expect($lis).to.have.length(22);
+      expect($lis).to.have.length(23);
       expect($lis.eq(0)).to.contain("{{Table1Copy.selectedRow}}");
       expect($lis.eq(1)).to.contain("{{Table1Copy.selectedRows}}");
-    });
-  });
-
-  it("2. Should check that table binding list gets updated when .filters gets added to it", () => {
-    cy.CheckAndUnfoldWidgets();
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: "Table1Copy",
-      action: "Show bindings",
-    });
-    cy.wait(200);
-    cy.get(apiwidget.propertyList).then(function ($lis) {
-      expect($lis).to.have.length(23);
-      expect($lis.last()).to.contain("{{Table1Copy.filters}}");
     });
   });
 });
