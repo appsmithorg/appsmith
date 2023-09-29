@@ -1,7 +1,7 @@
 import { serialiseToBigInt } from "@appsmith/workers/Evaluation/evaluationUtils";
 import type { Diff } from "deep-diff";
 import { diff } from "deep-diff";
-import type { DataTree } from "entities/DataTree/dataTreeFactory";
+import type { DataTree } from "@appsmith/entities/DataTree/types";
 import equal from "fast-deep-equal";
 import { get, isNumber, isObject } from "lodash";
 import { EvalErrorTypes } from "utils/DynamicBindingUtils";

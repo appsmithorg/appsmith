@@ -67,7 +67,6 @@ import RealtimeAppEditors from "./RealtimeAppEditors";
 import { EditorSaveIndicator } from "./EditorSaveIndicator";
 import {
   adaptiveSignpostingEnabled,
-  datasourceEnvEnabled,
   selectFeatureFlags,
 } from "@appsmith/selectors/featureFlagsSelectors";
 import { retryPromise } from "utils/AppsmithUtils";
@@ -263,11 +262,13 @@ export function EditorHeader() {
 
   const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false);
   const [showModal, setShowModal] = useState(false);
+  const isMultipleEnvEnabled = useFeatureFlag(
+    FEATURE_FLAG.release_datasource_environments_enabled,
+  );
   const [
     showPublishCommunityTemplateModal,
     setShowPublishCommunityTemplateModal,
   ] = useState(false);
-  const dsEnvEnabled = useSelector(datasourceEnvEnabled);
 
   const handlePublish = () => {
     if (applicationId) {
@@ -322,7 +323,10 @@ export function EditorHeader() {
             : "Application name menu (top left)",
         });
       } else {
-        if (!dsEnvEnabled || getUserPreferenceFromStorage() === "true") {
+        if (
+          !isMultipleEnvEnabled ||
+          getUserPreferenceFromStorage() === "true"
+        ) {
           handlePublish();
         } else {
           dispatch(showEnvironmentDeployInfoModal());

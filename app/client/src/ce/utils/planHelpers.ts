@@ -16,3 +16,7 @@ export const isSAMLEnabled = (featureFlags: FeatureFlags) => {
 export const isGACEnabled = (featureFlags: FeatureFlags) => {
   return featureFlags?.license_gac_enabled;
 };
+
+export const isMultipleEnvEnabled = (featureFlags: FeatureFlags) => {
+  return featureFlags?.release_datasource_environments_enabled;
+};

@@ -14,7 +14,6 @@ import {
   getEvalValuePath,
   isChildPropertyPath,
   isDynamicValue,
-  isPathADynamicBinding,
   isPathDynamicTrigger,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
@@ -27,15 +26,13 @@ import type {
   WidgetEntityConfig,
   DataTreeEntityConfig,
   UnEvalTree,
-} from "entities/DataTree/dataTreeFactory";
-import type {
   ActionEntity,
   JSActionEntity,
   JSActionEntityConfig,
-} from "entities/DataTree/types";
+  PrivateWidgets,
+} from "@appsmith/entities/DataTree/types";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import type { PrivateWidgets } from "entities/DataTree/types";
-import { ENTITY_TYPE } from "entities/DataTree/types";
+import { ENTITY_TYPE_VALUE } from "@appsmith/entities/DataTree/types";
 import type { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
 
 import {
@@ -59,6 +56,7 @@ import {
   convertJSFunctionsToString,
   DataTreeDiffEvent,
   resetValidationErrorsForEntityProperty,
+  isAPathDynamicBindingPath,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
 import {
   difference,
@@ -106,11 +104,7 @@ import {
   parseJSActions,
   updateEvalTreeWithJSCollectionState,
 } from "workers/Evaluation/JSObject";
-import {
-  getFixedTimeDifference,
-  isWidgetActionOrJsObject,
-  replaceThisDotParams,
-} from "./utils";
+import { getFixedTimeDifference, replaceThisDotParams } from "./utils";
 import { isJSObjectFunction } from "workers/Evaluation/JSObject/utils";
 import {
   getValidatedTree,
@@ -124,6 +118,7 @@ import userLogs from "workers/Evaluation/fns/overrides/console";
 import ExecutionMetaData from "workers/Evaluation/fns/utils/ExecutionMetaData";
 import DependencyMap from "entities/DependencyMap";
 import { DependencyMapUtils } from "entities/DependencyMap/DependencyMapUtils";
+import { isWidgetActionOrJsObject } from "@appsmith/entities/DataTree/utils";
 import DataStore from "workers/Evaluation/dataStore";
 import { updateTreeWithData } from "workers/Evaluation/dataStore/utils";
 
@@ -959,13 +954,17 @@ export default class DataTreeEvaluator {
           const { entityName, propertyPath } =
             getEntityNameAndPropertyPath(fullPropertyPath);
           const entity = currentTree[entityName];
-          if (!isWidgetActionOrJsObject(entity)) return currentTree;
-          let unEvalPropertyValue = get(currentTree as any, fullPropertyPath);
           const entityConfig = oldConfigTree[entityName];
+          if (!isWidgetActionOrJsObject(entity, entityConfig))
+            return currentTree;
+          let unEvalPropertyValue = get(currentTree as any, fullPropertyPath);
 
-          const isADynamicBindingPath =
-            (isAction(entity) || isWidget(entity) || isJSAction(entity)) &&
-            isPathADynamicBinding(entityConfig, propertyPath);
+          const isADynamicBindingPath = isAPathDynamicBindingPath(
+            entity,
+            entityConfig,
+            propertyPath,
+          );
+
           const isATriggerPath =
             isWidget(entity) &&
             isPathDynamicTrigger(
@@ -983,7 +982,9 @@ export default class DataTreeEvaluator {
 
           if (requiresEval) {
             const evaluationSubstitutionType =
-              entityConfig.reactivePaths[propertyPath] ||
+              (!!entityConfig &&
+                entityConfig.hasOwnProperty("reactivePaths") &&
+                entityConfig.reactivePaths[propertyPath]) ||
               EvaluationSubstitutionType.TEMPLATE;
 
             const contextData: EvaluateContext = {};
@@ -1025,13 +1026,13 @@ export default class DataTreeEvaluator {
             fullPropertyPath,
           );
 
-          const entityType = entity.ENTITY_TYPE as ENTITY_TYPE;
+          const entityType = entityConfig.ENTITY_TYPE;
 
           if (!propertyPath)
             return set(currentTree, fullPropertyPath, evalPropertyValue);
 
           switch (entityType) {
-            case ENTITY_TYPE.WIDGET: {
+            case ENTITY_TYPE_VALUE.WIDGET: {
               if (isATriggerPath) return currentTree;
 
               const isNewWidget =
@@ -1079,7 +1080,7 @@ export default class DataTreeEvaluator {
 
               return currentTree;
             }
-            case ENTITY_TYPE.ACTION: {
+            case ENTITY_TYPE_VALUE.ACTION: {
               if (this.allActionValidationConfig) {
                 const configProperty = propertyPath.replace(
                   "config",
@@ -1118,7 +1119,7 @@ export default class DataTreeEvaluator {
               set(currentTree, fullPropertyPath, evalPropertyValue);
               return currentTree;
             }
-            case ENTITY_TYPE.JSACTION: {
+            case ENTITY_TYPE_VALUE.JSACTION: {
               const variableList =
                 (entityConfig as JSActionEntityConfig).variables || [];
 
@@ -1291,12 +1292,17 @@ export default class DataTreeEvaluator {
             ? jsSnippet.replace(/export default/g, "")
             : jsSnippet;
         if (jsSnippet) {
-          if (entity && entityConfig && !propertyPath.includes("body")) {
+          if (
+            entity &&
+            entityConfig &&
+            !!propertyPath &&
+            !propertyPath.includes("body")
+          ) {
             ExecutionMetaData.setExecutionMetaData({
               triggerMeta: {
                 source: {
                   id: getEntityId(entity) || "",
-                  entityType: getEntityType(entity) || ENTITY_TYPE.WIDGET,
+                  entityType: getEntityType(entity) || ENTITY_TYPE_VALUE.WIDGET,
                   name: getEntityName(entity, entityConfig) || "",
                 },
                 triggerPropertyName: fullPropertyPath?.split(".")[1] || "",
