@@ -22,6 +22,6 @@ export type PositionValues =
   | "relative"
   | "fixed"
   | "sticky"
-  | "Static";
+  | "static";
 
-export type OverflowValues = "overflow" | "hidden" | "visible" | "scroll";
+export type OverflowValues = "hidden" | "scroll" | "visible" | "auto";
