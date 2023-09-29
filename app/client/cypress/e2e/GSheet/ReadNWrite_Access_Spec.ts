@@ -8,6 +8,7 @@ import {
   entityExplorer,
   assertHelper,
   table,
+  appSettings,
 } from "../../support/Objects/ObjectsCore";
 
 describe("GSheet-Functional Tests With Read/Write Access", function () {
@@ -312,6 +313,26 @@ describe("GSheet-Functional Tests With Read/Write Access", function () {
     });
     homePage.NavigateToHome();
     homePage.DeleteApplication("ImportAppReadWriteAccess");
+  });
+
+  it("10. App level import of app with read and access gsheet", function () {
+    homePage.NavigateToHome();
+    homePage.CreateAppInWorkspace("AppLevelImportReadNWrite", workspaceName);
+    appSettings.OpenAppSettings();
+    appSettings.GoToImport();
+    agHelper.ClickButton("Import");
+    homePage.ImportApp("ImportAppReadWriteAccess.json", "", true);
+    cy.wait("@importNewApplication").then(() => {
+      agHelper.Sleep();
+      agHelper.RefreshPage();
+      table.WaitUntilTableLoad(0, 0, "v2");
+    });
+    // Assert table data
+    table.ReadTableRowColumnData(0, 0, "v2").then((cellData) => {
+      expect(cellData).to.eq("eac7efa5dbd3d667f26eb3d3ab504464");
+    });
+    homePage.NavigateToHome();
+    homePage.DeleteApplication("AppLevelImportReadNWrite");
   });
 
   after("Delete spreadsheet and app", function () {

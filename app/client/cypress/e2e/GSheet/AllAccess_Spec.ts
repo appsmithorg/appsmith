@@ -8,6 +8,7 @@ import {
   entityExplorer,
   table,
   assertHelper,
+  appSettings,
 } from "../../support/Objects/ObjectsCore";
 
 const workspaceName = "gsheet apps";
@@ -301,6 +302,26 @@ describe("GSheet-Functional Tests With All Access", function () {
     });
     homePage.NavigateToHome();
     homePage.DeleteApplication("ImportAppAllAccess");
+  });
+
+  it("9. App level import of app with all access gsheet", function () {
+    homePage.NavigateToHome();
+    homePage.CreateAppInWorkspace("AppLevelImport", workspaceName);
+    appSettings.OpenAppSettings();
+    appSettings.GoToImport();
+    agHelper.ClickButton("Import");
+    homePage.ImportApp("ImportAppAllAccess.json", "", true);
+    cy.wait("@importNewApplication").then(() => {
+      agHelper.Sleep();
+      agHelper.RefreshPage();
+      table.WaitUntilTableLoad(0, 0, "v2");
+    });
+    // Assert table data
+    table.ReadTableRowColumnData(0, 0, "v2").then((cellData) => {
+      expect(cellData).to.eq("eac7efa5dbd3d667f26eb3d3ab504464");
+    });
+    homePage.NavigateToHome();
+    homePage.DeleteApplication("AppLevelImport");
   });
 
   after("Delete spreadsheet and app", function () {
