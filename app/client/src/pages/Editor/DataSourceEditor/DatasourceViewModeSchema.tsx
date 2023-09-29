@@ -1,10 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  DatasourceStructureContainer as DatasourceStructureList,
-  DatasourceStructureContext,
-} from "../Explorer/Datasources/DatasourceStructureContainer";
+import { DatasourceStructureContext } from "../Explorer/Datasources/DatasourceStructure";
+import { DatasourceStructureContainer as DatasourceStructureList } from "../Explorer/Datasources/DatasourceStructureContainer";
 import {
   getDatasourceStructureById,
   getIsFetchingDatasourceStructure,
@@ -56,7 +54,7 @@ const StructureContainer = styled.div`
   width: 25%;
   display: flex;
   flex-direction: column;
-  overflow: scroll;
+  overflow: hidden;
 `;
 
 const DatasourceDataContainer = styled.div`
@@ -69,6 +67,17 @@ const DatasourceDataContainer = styled.div`
 const DatasourceListContainer = styled.div`
   height: 100%;
   margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  div {
+    flex-shrink: 0;
+  }
+  div ~ div {
+    flex-grow: 1;
+  }
+  .t--schema-virtuoso-container {
+    height: 100%;
+  }
 `;
 
 const ButtonContainer = styled.div`

@@ -19,14 +19,7 @@ describe("MySQL Datatype tests", function () {
       dataSources.CreateQueryAfterDSSaved(query, "createTable"); //Creating query from EE overlay
       dataSources.RunQuery();
 
-      entityExplorer.ExpandCollapseEntity("Datasources");
-      entityExplorer.ActionContextMenuByEntityName({
-        entityNameinLeftSidebar: dsName,
-        action: "Refresh",
-      });
-      agHelper.AssertElementVisibility(
-        entityExplorer._entityNameInExplorer(inputData.tableName),
-      );
+      dataSources.AssertTableInVirtuosoList(dsName, inputData.tableName);
     });
   });
 
@@ -34,7 +27,7 @@ describe("MySQL Datatype tests", function () {
   it("1. False Cases & Long Integer as query param", () => {
     entityExplorer.ActionTemplateMenuByEntityName(
       inputData.tableName,
-      "INSERT",
+      "Insert",
     );
     agHelper.RenameWithInPane("falseCases");
     inputData.falseResult.forEach((res_array, i) => {

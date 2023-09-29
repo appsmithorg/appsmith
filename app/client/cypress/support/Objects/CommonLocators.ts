@@ -306,4 +306,9 @@ export class CommonLocators {
   _jsonFormResetBtn = ".t--jsonform-reset-btn";
   _draggableFieldConfig = (fieldName: string) =>
     `[data-rbd-draggable-id=${fieldName}]`;
+  _fileUploadDashboardClose = ".uppy-Dashboard-close";
+  _fileUploadErrorContains = (msg: string) =>
+    `.uppy-Informer p:contains('${msg}')`;
+  _fileUploadAddMore = ".uppy-DashboardContent-addMore";
+  _buttonText = ".bp3-button-text";
 }

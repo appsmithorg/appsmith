@@ -64,23 +64,16 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     //agHelper.VerifyEvaluatedValue(tableCreateQuery);
 
     dataSources.RunQueryNVerifyResponseViews();
-    entityExplorer.ExpandCollapseEntity("Datasources");
-    entityExplorer.ExpandCollapseEntity(dsName);
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: dsName,
-      action: "Refresh",
-    });
-    agHelper.AssertElementVisibility(
-      entityExplorer._entityNameInExplorer("Stores"),
-    );
     agHelper.ActionContextMenuWithInPane({
       action: "Delete",
       entityType: entityItems.Query,
     });
+
+    dataSources.AssertTableInVirtuosoList(dsName, "Stores");
   });
 
   it("2. Validate Select record from Postgress datasource & verify query response", () => {
-    entityExplorer.ActionTemplateMenuByEntityName("Stores", "SELECT");
+    entityExplorer.ActionTemplateMenuByEntityName("Stores", "Select");
     dataSources.RunQueryNVerifyResponseViews(10);
     dataSources.AssertQueryTableResponse(5, "2112");
     dataSources.AssertQueryTableResponse(6, "Mike's Liquors");

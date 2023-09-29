@@ -5,8 +5,9 @@ import {
   getPluginDependencyConfig,
   getPluginEditorConfigs,
   getCurrentJSCollections,
+  getInputsForModule,
 } from "@appsmith/selectors/entitiesSelector";
-import type { DataTree, WidgetEntity } from "entities/DataTree/dataTreeFactory";
+import type { DataTree, WidgetEntity } from "@appsmith/entities/DataTree/types";
 import { DataTreeFactory } from "entities/DataTree/dataTreeFactory";
 import {
   getMetaWidgets,
@@ -44,9 +45,19 @@ const getLayoutSystemPayload = (state: AppState) => ({
   isMobile: state.ui.mainCanvas.isMobile,
 });
 
-export const getUnevaluatedDataTree = createSelector(
+const getCurrentActionEntities = createSelector(
   getCurrentActions,
   getCurrentJSCollections,
+  (actions, jsActions) => {
+    return {
+      actions: actions,
+      jsActions: jsActions,
+    };
+  },
+);
+
+export const getUnevaluatedDataTree = createSelector(
+  getCurrentActionEntities,
   getWidgetsForEval,
   getWidgetsMeta,
   getPageList,
@@ -55,11 +66,11 @@ export const getUnevaluatedDataTree = createSelector(
   getPluginDependencyConfig,
   getSelectedAppThemeProperties,
   getMetaWidgets,
+  getInputsForModule,
   getLayoutSystemPayload,
   getLoadingEntities,
   (
-    actions,
-    jsActions,
+    currentActionEntities,
     widgets,
     widgetsMeta,
     pageListPayload,
@@ -68,13 +79,13 @@ export const getUnevaluatedDataTree = createSelector(
     pluginDependencyConfig,
     selectedAppThemeProperty,
     metaWidgets,
+    moduleInputs,
     layoutSystemPayload,
     loadingEntities,
   ) => {
     const pageList = pageListPayload || [];
     return DataTreeFactory.create({
-      actions,
-      jsActions,
+      ...currentActionEntities,
       widgets,
       widgetsMeta,
       pageList,
@@ -83,6 +94,7 @@ export const getUnevaluatedDataTree = createSelector(
       pluginDependencyConfig,
       theme: selectedAppThemeProperty,
       metaWidgets,
+      moduleInputs,
       loadingEntities,
       ...layoutSystemPayload,
     });
