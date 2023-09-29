@@ -1728,7 +1728,7 @@ export default class DataTreeEvaluator {
       );
       return this.getDynamicValue(
         `{{${replacedBinding}}}`,
-        this.evalTree,
+        klona(this.evalTree),
         this.oldConfigTree,
         EvaluationSubstitutionType.TEMPLATE,
         // params can be accessed via "this.params" or "executionParams"
