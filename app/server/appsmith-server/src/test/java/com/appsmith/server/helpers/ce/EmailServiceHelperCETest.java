@@ -39,7 +39,7 @@ class EmailServiceHelperCETest {
         Tenant defautTenant = tenantService.getTenantConfiguration().block();
         String instanceName =
                 StringUtils.defaultIfEmpty(defautTenant.getTenantConfiguration().getInstanceName(), "Appsmith");
-        StepVerifier.create(emailServiceHelperCE.enrichWithBrandParams(new HashMap<>()))
+        StepVerifier.create(emailServiceHelperCE.enrichWithBrandParams(new HashMap<>(), "www.test.com"))
                 .assertNext(map -> {
                     assertThat(map.containsKey(INSTANCE_NAME)).isTrue();
                     assertThat(map.get(INSTANCE_NAME)).isEqualTo(instanceName);

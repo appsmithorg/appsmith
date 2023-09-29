@@ -23,7 +23,7 @@ public class EmailServiceHelperCEImpl implements EmailServiceHelperCE {
     private final TenantService tenantService;
 
     @Override
-    public Mono<Map<String, String>> enrichWithBrandParams(Map<String, String> params) {
+    public Mono<Map<String, String>> enrichWithBrandParams(Map<String, String> params, String origin) {
         return tenantService.getTenantConfiguration().map(tenant -> {
             final TenantConfiguration tenantConfiguration = tenant.getTenantConfiguration();
             params.put(INSTANCE_NAME, StringUtils.defaultIfEmpty(tenantConfiguration.getInstanceName(), "Appsmith"));

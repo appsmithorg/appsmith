@@ -5,7 +5,7 @@ import reactor.core.publisher.Mono;
 import java.util.Map;
 
 public interface EmailServiceHelperCE {
-    Mono<Map<String, String>> enrichWithBrandParams(Map<String, String> params);
+    Mono<Map<String, String>> enrichWithBrandParams(Map<String, String> params, String origin);
 
     String getForgotPasswordTemplate();
 

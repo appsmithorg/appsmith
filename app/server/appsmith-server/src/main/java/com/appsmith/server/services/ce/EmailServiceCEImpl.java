@@ -33,7 +33,7 @@ public class EmailServiceCEImpl implements EmailServiceCE {
         Map<String, String> params = new HashMap<>();
         params.put(RESET_URL, resetUrl);
         return emailServiceHelper
-                .enrichWithBrandParams(params)
+                .enrichWithBrandParams(params, originHeader)
                 .flatMap(updatedParams -> emailSender.sendMail(
                         email,
                         String.format(FORGOT_PASSWORD_EMAIL_SUBJECT, updatedParams.get(INSTANCE_NAME)),
@@ -59,7 +59,7 @@ public class EmailServiceCEImpl implements EmailServiceCE {
         Map<String, String> params = getInviteToWorkspaceEmailParams(
                 workspaceInvitedTo, invitingUser, inviteUrl, assignedPermissionGroup.getName(), isNewUser);
         return emailServiceHelper
-                .enrichWithBrandParams(params)
+                .enrichWithBrandParams(params, originHeader)
                 .flatMap(updatedParams -> emailSender.sendMail(
                         invitedUser.getEmail(),
                         emailSubject,
@@ -72,7 +72,7 @@ public class EmailServiceCEImpl implements EmailServiceCE {
         Map<String, String> params = new HashMap<>();
         params.put(EMAIL_VERIFICATION_URL, verificationURL);
         return emailServiceHelper
-                .enrichWithBrandParams(params)
+                .enrichWithBrandParams(params, originHeader)
                 .flatMap(updatedParams -> emailSender.sendMail(
                         user.getEmail(),
                         EMAIL_VERIFICATION_EMAIL_SUBJECT,
@@ -99,7 +99,7 @@ public class EmailServiceCEImpl implements EmailServiceCE {
             params.put(INVITER_FIRST_NAME, StringUtils.defaultIfEmpty(invitingUser.getName(), invitingUser.getEmail()));
         }
         return emailServiceHelper
-                .enrichWithBrandParams(params)
+                .enrichWithBrandParams(params, originHeader)
                 .flatMap(updatedParams -> emailSender.sendMail(
                         invitedUser.getEmail(),
                         String.format(INSTANCE_ADMIN_INVITE_EMAIL_SUBJECT),
