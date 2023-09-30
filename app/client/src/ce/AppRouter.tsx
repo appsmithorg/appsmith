@@ -204,12 +204,12 @@ function AppRouter(props: {
   );
 }
 
-const mapStateToProps = (state: AppState) => ({
+export const mapStateToProps = (state: AppState) => ({
   safeCrash: getSafeCrash(state),
   safeCrashCode: getSafeCrashCode(state),
 });
 
-const mapDispatchToProps = (dispatch: any) => ({
+export const mapDispatchToProps = (dispatch: any) => ({
   getCurrentUser: () => dispatch(getCurrentUser()),
   getFeatureFlags: () => dispatch(fetchFeatureFlagsInit()),
   getCurrentTenant: () => dispatch(getCurrentTenant(false)),
