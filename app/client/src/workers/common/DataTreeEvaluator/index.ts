@@ -956,7 +956,9 @@ export default class DataTreeEvaluator {
           getEntityNameAndPropertyPath(fullPropertyPath);
         const entity = currentTree[entityName];
         const entityConfig = oldConfigTree[entityName];
-        if (!isWidgetActionOrJsObject(entity, entityConfig)) continue;
+        if (!isWidgetActionOrJsObject(entity, entityConfig)) {
+          continue;
+        }
         let unEvalPropertyValue = get(currentTree as any, fullPropertyPath);
 
         const isADynamicBindingPath = isAPathDynamicBindingPath(
@@ -1187,6 +1189,10 @@ export default class DataTreeEvaluator {
       const safeTree = klona(oldUnevalTree);
       updateTreeWithData(safeTree, klonaJSON(DataStore.getDataStore()));
       for (const k of evaluationOrder) {
+        const { entityName } = getEntityNameAndPropertyPath(k);
+        const entity = currentTree[entityName];
+        const entityConfig = oldConfigTree[entityName];
+        if (!isWidgetActionOrJsObject(entity, entityConfig)) continue;
         set(safeTree, k, newValuesMap.get(k));
       }
       return {
@@ -1202,6 +1208,10 @@ export default class DataTreeEvaluator {
       const safeTree = klona(oldUnevalTree);
       updateTreeWithData(safeTree, klonaJSON(DataStore.getDataStore()));
       for (const k of evaluationOrder) {
+        const { entityName } = getEntityNameAndPropertyPath(k);
+        const entity = currentTree[entityName];
+        const entityConfig = oldConfigTree[entityName];
+        if (!isWidgetActionOrJsObject(entity, entityConfig)) continue;
         set(safeTree, k, newValuesMap.get(k));
       }
       return { evaluatedTree: safeTree, evalMetaUpdates, staleMetaIds: [] };
