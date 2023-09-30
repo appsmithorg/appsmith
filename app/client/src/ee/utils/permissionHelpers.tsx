@@ -47,7 +47,8 @@ export enum EE_PERMISSION_TYPE {
   /* Environment permissions */
   EXECUTE_ENVIRONMENT = "execute:environments",
   /** Package permissions */
-  MANAGE_PACKAGE = "manage:packages",
+  MANAGE_PACKAGES = "manage:workspacePackages",
+  CREATE_PACKAGE = "create:packages",
 }
 
 export const PERMISSION_TYPE = {
@@ -119,4 +120,7 @@ export const hasAuditLogsReadPermission = (permissions: string[] = []) =>
   isPermitted(permissions, PERMISSION_TYPE.READ_AUDIT_LOGS);
 
 export const hasManagePackagePermission = (permissions: string[] = []) =>
-  isPermitted(permissions, PERMISSION_TYPE.MANAGE_PACKAGE);
+  isPermitted(permissions, PERMISSION_TYPE.MANAGE_PACKAGES);
+
+export const hasCreatePackagePermission = (permissions: string[] = []) =>
+  isPermitted(permissions, PERMISSION_TYPE.CREATE_PACKAGE);

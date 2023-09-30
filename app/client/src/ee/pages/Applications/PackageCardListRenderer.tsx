@@ -3,7 +3,6 @@ export * from "ce/pages/Applications/PackageCardList";
 import React from "react";
 import styled from "styled-components";
 import { Button, Icon } from "design-system";
-import { noop } from "lodash";
 
 import PackageCard from "@appsmith/pages/Applications/PackageCard";
 import {
@@ -21,11 +20,12 @@ import {
 import type { Package } from "@appsmith/constants/PackageConstants";
 
 export type PackageCardListRendererProps = {
-  isMobile: boolean;
-  workspaceId: string;
-  packages?: Package[];
-  isFetchingPackages?: boolean;
+  createPackage: () => void;
   isCreatingPackage?: boolean;
+  isFetchingPackages?: boolean;
+  isMobile: boolean;
+  packages?: Package[];
+  workspaceId: string;
 };
 
 const NotFoundIcon = styled(Icon)`
@@ -41,6 +41,7 @@ const NotFoundIcon = styled(Icon)`
 `;
 
 function PackageCardListRenderer({
+  createPackage,
   isMobile,
   workspaceId,
   packages = [],
@@ -72,7 +73,7 @@ function PackageCardListRenderer({
             <Button
               className="t--new-package-button createnew"
               isLoading={isCreatingPackage}
-              onClick={noop}
+              onClick={createPackage}
               size="md"
               startIcon="plus"
             >

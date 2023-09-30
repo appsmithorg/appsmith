@@ -15,7 +15,11 @@ import type {
   WorkspaceUserRoles,
 } from "@appsmith/constants/workspaceConstants";
 import { createImmerReducer } from "utils/ReducerUtils";
-import type { PackageMetadata } from "@appsmith/constants/PackageConstants";
+import type {
+  PackageMetadata,
+  Package,
+} from "@appsmith/constants/PackageConstants";
+import type { CreatePackageFromWorkspacePayload } from "@appsmith/actions/packageActions";
 
 export const initialState: WorkspaceReduxState = {
   ...CE_initialState,
@@ -24,12 +28,16 @@ export const initialState: WorkspaceReduxState = {
   loadingStates: {
     ...CE_initialState.loadingStates,
     isFetchingPackagesList: false,
+    packageCreationRequestMap: {},
   },
   packagesList: [],
 };
 
+type ID = string;
+
 type LoadingStates = CE_WorkspaceReduxState["loadingStates"] & {
   isFetchingPackagesList: boolean;
+  packageCreationRequestMap: Record<ID, boolean>;
 };
 
 type FilteredCE_WorkspaceRedux = Omit<CE_WorkspaceReduxState, "loadingStates">;
@@ -265,6 +273,33 @@ const handlers = {
     draftState.loadingStates.isFetchingPackagesList = false;
 
     draftState.packagesList = action.payload || [];
+
+    return draftState;
+  },
+  [ReduxActionTypes.CREATE_PACKAGE_FROM_WORKSPACE_INIT]: (
+    draftState: WorkspaceReduxState,
+    action: ReduxAction<CreatePackageFromWorkspacePayload>,
+  ) => {
+    const { workspaceId } = action.payload;
+    draftState.loadingStates.packageCreationRequestMap[workspaceId] = true;
+
+    return draftState;
+  },
+  [ReduxActionTypes.CREATE_PACKAGE_FROM_WORKSPACE_SUCCESS]: (
+    draftState: WorkspaceReduxState,
+    action: ReduxAction<Package>,
+  ) => {
+    const { workspaceId } = action.payload;
+    draftState.loadingStates.packageCreationRequestMap[workspaceId] = false;
+
+    return draftState;
+  },
+  [ReduxActionErrorTypes.CREATE_PACKAGE_FROM_WORKSPACE_ERROR]: (
+    draftState: WorkspaceReduxState,
+    action: ReduxAction<{ workspaceId: string }>,
+  ) => {
+    const { workspaceId } = action.payload;
+    draftState.loadingStates.packageCreationRequestMap[workspaceId] = false;
 
     return draftState;
   },

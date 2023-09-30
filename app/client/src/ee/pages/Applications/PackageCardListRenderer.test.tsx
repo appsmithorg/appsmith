@@ -46,6 +46,7 @@ describe("PackageCardList", () => {
       <ThemeProvider theme={lightTheme}>
         <Provider store={store}>
           <PackageCardListRenderer
+            createPackage={jest.fn()}
             isMobile={false}
             packages={DEFAULT_PACKAGE_LIST}
             workspaceId="test"
@@ -66,6 +67,7 @@ describe("PackageCardList", () => {
       <ThemeProvider theme={lightTheme}>
         <Provider store={store}>
           <PackageCardListRenderer
+            createPackage={jest.fn()}
             isMobile={false}
             packages={packages}
             workspaceId="test"

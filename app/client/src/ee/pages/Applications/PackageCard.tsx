@@ -9,7 +9,10 @@ import {
 
 import Card from "components/common/Card";
 import { generateEditedByText } from "pages/Applications/helpers";
-import type { Package } from "@appsmith/constants/PackageConstants";
+import {
+  BASE_PACKAGE_URL,
+  type Package,
+} from "@appsmith/constants/PackageConstants";
 
 type PackageCardProps = {
   isFetchingPackages: boolean;
@@ -126,12 +129,10 @@ function PackageCard({ isFetchingPackages, isMobile, pkg }: PackageCardProps) {
       title={pkg.name}
       titleTestId="t--app-card-name"
     >
-      {/* TODO: @Ashit add manage permission */}
       {!isMenuOpen && (
         <Button
           className="t--package-edit-link"
-          // TODO: @Ashit add url placeholder after testing
-          href={"/packageEditorURL"}
+          href={`${BASE_PACKAGE_URL}/${pkg.id}`}
           size="md"
           startIcon={"pencil-line"}
         >

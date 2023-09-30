@@ -7,3 +7,9 @@ export type PackageMetadata = Pick<
   Package,
   "id" | "name" | "workspaceId" | "icon" | "color" | "modifiedAt" | "modifiedBy"
 >;
+
+export const DEFAULT_PACKAGE_COLOR = "#9747FF1A";
+export const DEFAULT_PACKAGE_ICON = "package";
+export const DEFAULT_PACKAGE_PREFIX = "Untitled Package ";
+
+export const BASE_PACKAGE_URL = "pkg";

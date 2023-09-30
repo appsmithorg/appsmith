@@ -13,6 +13,7 @@ import * as packageSelectors from "@appsmith/selectors/packageSelectors";
 import * as workspaceSelectors from "@appsmith/selectors/workspaceSelectors";
 import type { Package } from "@appsmith/constants/PackageConstants";
 import type { Workspaces } from "@appsmith/constants/workspaceConstants";
+import { PERMISSION_TYPE } from "@appsmith/utils/permissionHelpers";
 
 jest.mock("@appsmith/selectors/moduleFeatureSelectors");
 jest.mock("@appsmith/selectors/packageSelectors");
@@ -81,7 +82,7 @@ const DEFAULT_USER_WORKSPACES: Workspaces[] = [
     workspace: {
       id: DEFAULT_WORKSPACE_ID,
       name: "Test Workspace",
-      userPermissions: ["manage:packages"],
+      userPermissions: [PERMISSION_TYPE.MANAGE_PACKAGES],
     },
     applications: [],
     users: [],

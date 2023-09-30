@@ -285,8 +285,10 @@ export const RESET_LOGO_TOOLTIP = () => "Reset logo";
 
 // Modules start
 export const SEARCH_APPS_AND_PACKAGES = () => "Search for apps or packages";
+export const WORKSPACE_ACTION_BUTTON = () => "Create new";
 export const NEW_PACKAGE = () => "New package";
 export const NEW_APP = () => "New app";
 export const EMPTY_PACKAGE_LIST = () => "No packages found";
 export const FETCH_PACKAGE_ERROR = () => "Failed to fetch Packages";
+export const CREATE_PACKAGE_ERROR = () => "Failed to create package";
 // Modules end
