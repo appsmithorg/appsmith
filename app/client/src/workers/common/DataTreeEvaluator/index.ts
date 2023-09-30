@@ -338,9 +338,10 @@ export default class DataTreeEvaluator {
 
     const evaluationOrder = this.sortedDependencies;
 
+    const unEvalTreeClone = klona(this.oldUnEvalTree);
     // Evaluate
     const { evalMetaUpdates, evaluatedTree, staleMetaIds } = this.evaluateTree(
-      this.oldUnEvalTree,
+      unEvalTreeClone,
       evaluationOrder,
       undefined,
       this.oldConfigTree,
@@ -919,7 +920,7 @@ export default class DataTreeEvaluator {
   }
 
   evaluateTree(
-    oldUnevalTree: DataTree,
+    unEvalTree: DataTree,
     evaluationOrder: Array<string>,
     options: {
       isFirstTree: boolean;
@@ -936,12 +937,13 @@ export default class DataTreeEvaluator {
     evalMetaUpdates: EvalMetaUpdates;
     staleMetaIds: string[];
   } {
-    const currentTree = klona(oldUnevalTree);
-    updateTreeWithData(currentTree, klonaJSON(DataStore.getDataStore()));
+    const safeTree = klona(unEvalTree);
+    const dataStore = DataStore.getDataStore();
+    const dataStoreClone = klonaJSON(dataStore);
 
-    const safeTree = klona(oldUnevalTree);
-    updateTreeWithData(safeTree, klonaJSON(DataStore.getDataStore()));
-
+    updateTreeWithData(safeTree, dataStoreClone);
+    updateTreeWithData(unEvalTree, dataStore);
+    const currentTree = unEvalTree;
     errorModifier.updateAsyncFunctions(
       currentTree,
       this.getConfigTree(),
@@ -1187,12 +1189,15 @@ export default class DataTreeEvaluator {
         }
       }
 
+      DataStore.replaceDataStore(dataStoreClone);
+
       return {
         evaluatedTree: safeTree,
         evalMetaUpdates,
         staleMetaIds: staleMetaIds,
       };
     } catch (error) {
+      DataStore.replaceDataStore(dataStoreClone);
       this.errors.push({
         type: EvalErrorTypes.EVAL_TREE_ERROR,
         message: (error as Error).message,
