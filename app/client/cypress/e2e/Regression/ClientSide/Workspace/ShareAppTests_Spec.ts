@@ -47,7 +47,7 @@ describe("Create new workspace and share with a user", function () {
     featureFlagIntercept({ license_gac_enabled: true });
     agHelper.Sleep(3000);
 
-    homePage.FilterApplication(appid);
+    homePage.FilterApplication(appid, workspaceId, false);
     // // eslint-disable-next-line cypress/no-unnecessary-waiting
     agHelper.Sleep(2000);
     agHelper.GetNAssertContains(homePage._appContainer, workspaceId);
