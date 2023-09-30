@@ -849,7 +849,7 @@ export class Applications<
   }
 }
 
-const mapStateToProps = (state: AppState) => ({
+export const mapStateToProps = (state: AppState) => ({
   applicationList: getApplicationList(state),
   isFetchingApplications: getIsFetchingApplications(state),
   isCreatingApplication: getIsCreatingApplication(state),
@@ -860,7 +860,7 @@ const mapStateToProps = (state: AppState) => ({
   searchKeyword: getApplicationSearchKeyword(state),
 });
 
-const mapDispatchToProps = (dispatch: any) => ({
+export const mapDispatchToProps = (dispatch: any) => ({
   getAllApplication: () => {
     dispatch({ type: ReduxActionTypes.GET_ALL_APPLICATION_INIT });
   },
