@@ -939,7 +939,8 @@ export default class DataTreeEvaluator {
     const currentTree = klona(oldUnevalTree);
     updateTreeWithData(currentTree, klonaJSON(DataStore.getDataStore()));
 
-    const newValuesMap = new Map<string, unknown>();
+    const safeTree = klona(oldUnevalTree);
+    updateTreeWithData(safeTree, klonaJSON(DataStore.getDataStore()));
 
     errorModifier.updateAsyncFunctions(
       currentTree,
@@ -1031,8 +1032,8 @@ export default class DataTreeEvaluator {
         const entityType = entityConfig.ENTITY_TYPE;
 
         if (!propertyPath) {
-          newValuesMap.set(fullPropertyPath, evalPropertyValue);
           set(currentTree, fullPropertyPath, evalPropertyValue);
+          set(safeTree, fullPropertyPath, klona(evalPropertyValue));
           continue;
         }
 
@@ -1076,7 +1077,7 @@ export default class DataTreeEvaluator {
             );
 
             set(currentTree, fullPropertyPath, overwrittenParsedValue);
-            newValuesMap.set(fullPropertyPath, overwrittenParsedValue);
+            set(safeTree, fullPropertyPath, klona(overwrittenParsedValue));
 
             staleMetaIds = staleMetaIds.concat(
               getStaleMetaStateIds({
@@ -1124,7 +1125,7 @@ export default class DataTreeEvaluator {
             });
 
             set(currentTree, fullPropertyPath, evalPropertyValue);
-            newValuesMap.set(fullPropertyPath, evalPropertyValue);
+            set(safeTree, fullPropertyPath, klona(evalPropertyValue));
             continue;
           }
           case ENTITY_TYPE_VALUE.JSACTION: {
@@ -1170,7 +1171,7 @@ export default class DataTreeEvaluator {
               });
 
               set(currentTree, fullPropertyPath, evalValue);
-              newValuesMap.set(fullPropertyPath, evalValue);
+              set(safeTree, fullPropertyPath, klona(evalValue));
               JSObjectCollection.setVariableValue(evalValue, fullPropertyPath);
               JSObjectCollection.setPrevUnEvalState({
                 fullPath: fullPropertyPath,
@@ -1180,21 +1181,12 @@ export default class DataTreeEvaluator {
             continue;
           }
           default:
-            newValuesMap.set(fullPropertyPath, evalPropertyValue);
             set(currentTree, fullPropertyPath, evalPropertyValue);
+            set(safeTree, fullPropertyPath, klona(evalPropertyValue));
             continue;
         }
       }
 
-      const safeTree = klona(oldUnevalTree);
-      updateTreeWithData(safeTree, klonaJSON(DataStore.getDataStore()));
-      for (const k of evaluationOrder) {
-        const { entityName } = getEntityNameAndPropertyPath(k);
-        const entity = currentTree[entityName];
-        const entityConfig = oldConfigTree[entityName];
-        if (!isWidgetActionOrJsObject(entity, entityConfig)) continue;
-        set(safeTree, k, newValuesMap.get(k));
-      }
       return {
         evaluatedTree: safeTree,
         evalMetaUpdates,
@@ -1205,15 +1197,6 @@ export default class DataTreeEvaluator {
         type: EvalErrorTypes.EVAL_TREE_ERROR,
         message: (error as Error).message,
       });
-      const safeTree = klona(oldUnevalTree);
-      updateTreeWithData(safeTree, klonaJSON(DataStore.getDataStore()));
-      for (const k of evaluationOrder) {
-        const { entityName } = getEntityNameAndPropertyPath(k);
-        const entity = currentTree[entityName];
-        const entityConfig = oldConfigTree[entityName];
-        if (!isWidgetActionOrJsObject(entity, entityConfig)) continue;
-        set(safeTree, k, newValuesMap.get(k));
-      }
       return { evaluatedTree: safeTree, evalMetaUpdates, staleMetaIds: [] };
     }
   }
