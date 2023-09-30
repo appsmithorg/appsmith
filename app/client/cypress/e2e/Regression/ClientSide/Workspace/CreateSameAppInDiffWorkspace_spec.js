@@ -3,7 +3,7 @@ import homePage from "../../../../locators/HomePage";
 import { REPO, CURRENT_REPO } from "../../../../fixtures/REPO";
 const application = require("../../../../locators/Applications.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
-const newWSName = workspaceId + "1";
+import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
 describe("Create app same name in different workspace", function () {
   let workspaceId;
