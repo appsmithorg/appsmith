@@ -2,6 +2,7 @@ import { REPO, CURRENT_REPO } from "../../../../fixtures/REPO";
 import homePageLocators from "../../../../locators/HomePage";
 import { agHelper, homePage } from "../../../../support/Objects/ObjectsCore";
 const commonlocators = require("../../../../locators/commonlocators.json");
+import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
 describe("Export application as a JSON file", function () {
   let workspaceId;
