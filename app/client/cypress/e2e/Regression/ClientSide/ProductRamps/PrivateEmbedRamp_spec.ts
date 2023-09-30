@@ -1,5 +1,6 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
 import { CURRENT_REPO, REPO } from "../../../../fixtures/REPO";
+import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
 describe("Private embed in-app ramp", () => {
   function checkRampLink(section: string) {
@@ -54,6 +55,9 @@ describe("Private embed in-app ramp", () => {
     }
   }
   it("1. Ramp should be visibile to ADMIN and DEVELOPER", () => {
+    featureFlagIntercept({ license_gac_enabled: true });
+    cy.wait(2000);
+
     checkAppSettingsRamp();
     checkShareModalRamp();
     _.agHelper.GetNClick(_.homePage._homeIcon, 0, true, 2000);

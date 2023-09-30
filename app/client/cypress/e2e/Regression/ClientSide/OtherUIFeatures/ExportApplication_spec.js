@@ -81,6 +81,9 @@ describe("Export application as a JSON file", function () {
 
   it("3. User with developer access,should not be able to export the app", function () {
     cy.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+    featureFlagIntercept({ license_gac_enabled: true });
+    agHelper.Sleep(2000);
+
     homePage.NavigateToHome();
     agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {
@@ -116,6 +119,9 @@ describe("Export application as a JSON file", function () {
 
   it("4. User with viewer access,should not be able to export the app", function () {
     homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+    featureFlagIntercept({ license_gac_enabled: true });
+    agHelper.Sleep(2000);
+
     homePage.NavigateToHome();
     agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {

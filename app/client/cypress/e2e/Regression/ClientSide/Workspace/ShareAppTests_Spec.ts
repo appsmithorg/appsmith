@@ -18,10 +18,12 @@ describe("Create new workspace and share with a user", function () {
   it("1. Create workspace and then share with a user from Application share option within application", function () {
     homePage.NavigateToHome();
     agHelper.Sleep(2000);
+
+    featureFlagIntercept({ license_gac_enabled: true });
+    agHelper.Sleep(2000);
+
     agHelper.GenerateUUID();
     agHelper.GetElement("@guid").then((uid) => {
-      featureFlagIntercept({ license_gac_enabled: true });
-      agHelper.Sleep(2000);
       workspaceId = "shareApp" + uid;
       appid = "Share" + uid;
       homePage.CreateNewWorkspace(workspaceId);
@@ -43,7 +45,8 @@ describe("Create new workspace and share with a user", function () {
       "App Viewer",
     );
     featureFlagIntercept({ license_gac_enabled: true });
-    agHelper.Sleep(2000);
+    agHelper.Sleep(3000);
+
     homePage.FilterApplication(appid);
     // // eslint-disable-next-line cypress/no-unnecessary-waiting
     agHelper.Sleep(2000);
