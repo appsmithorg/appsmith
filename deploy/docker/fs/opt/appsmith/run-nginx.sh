@@ -5,38 +5,6 @@ set -o nounset
 set -o pipefail
 set -o xtrace
 
-ssl_conf_path="/appsmith-stacks/data/certificate/conf"
-
-mkdir -pv "$ssl_conf_path"
-
-cat <<EOF > "$ssl_conf_path/options-ssl-nginx.conf"
-# This file contains important security parameters. If you modify this file
-# manually, Certbot will be unable to automatically provide future security
-# updates. Instead, Certbot will print and log an error message with a path to
-# the up-to-date file that you will need to refer to when manually updating
-# this file.
-
-ssl_session_cache shared:le_nginx_SSL:10m;
-ssl_session_timeout 1440m;
-ssl_session_tickets off;
-
-ssl_protocols TLSv1.2 TLSv1.3;
-ssl_prefer_server_ciphers off;
-
-ssl_ciphers "ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384";
-EOF
-
-cat <<EOF > "$ssl_conf_path/ssl-dhparams.pem"
------BEGIN DH PARAMETERS-----
-MIIBCAKCAQEA//////////+t+FRYortKmq/cViAnPTzx2LnFg84tNpWp4TZBFGQz
-+8yTnc4kmz75fS/jY2MMddj2gbICrsRhetPfHtXV/WVhJDP1H18GbtCFY2VVPe0a
-87VXE15/V8k1mE8McODmi3fipona8+/och3xWKE2rec1MKzKT0g6eXq8CrGCsyT7
-YdEIqUuyyOP7uWrat2DX9GgdT0Kj3jlN9K5W7edjcrsZCwenyO4KbXCeAvzhzffi
-7MA0BM0oNC9hkXL+nOmFg/+OTxIy7vKBg8P+OxtMb61zO7X8vC7CIAXFjvGDfRaD
-ssbzSibBsu/6iGtCOGEoXJf//////////wIBAg==
------END DH PARAMETERS-----
-EOF
-
 if [[ -z "${APPSMITH_ALLOWED_FRAME_ANCESTORS-}" ]]; then
   # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors
   export APPSMITH_ALLOWED_FRAME_ANCESTORS="'self'"
@@ -51,23 +19,11 @@ if [[ -z "${APPSMITH_DISABLE_IFRAME_WIDGET_SANDBOX-}" ]]; then
   export APPSMITH_DISABLE_IFRAME_WIDGET_SANDBOX="true"
 fi
 
-# Check exist certificate with given custom domain
-# Heroku not support for custom domain, only generate HTTP config if deploying on Heroku
-use_https=0
+CADDY_LISTEN=:80
 if [[ -n ${APPSMITH_CUSTOM_DOMAIN-} ]] && [[ -z ${DYNO-} ]]; then
-  use_https=1
-  if ! [[ -e "/etc/letsencrypt/live/$APPSMITH_CUSTOM_DOMAIN" ]]; then
-    source "/opt/appsmith/init_ssl_cert.sh"
-    if ! init_ssl_cert "$APPSMITH_CUSTOM_DOMAIN"; then
-      echo "Status code from init_ssl_cert is $?"
-      use_https=0
-    fi
-  fi
+  CADDY_LISTEN="$APPSMITH_CUSTOM_DOMAIN"
 fi
-
-/opt/appsmith/templates/nginx-app.conf.sh "$use_https" "${APPSMITH_CUSTOM_DOMAIN-}"
-
-cp -r /opt/appsmith/editor/* "$NGINX_WWW_PATH"
+export CADDY_LISTEN
 
 apply-env-vars() {
   original="$1"
@@ -87,4 +43,15 @@ apply-env-vars() {
 
 apply-env-vars /opt/appsmith/editor/index.html "$NGINX_WWW_PATH/index.html"
 
-exec nginx -g "daemon off;error_log stderr info;"
+if [[ -e "/appsmith-stacks/ssl/fullchain.pem" ]] && [[ -e "/appsmith-stacks/ssl/privkey.pem" ]]; then
+  echo 'tls /appsmith-stacks/ssl/fullchain.pem /appsmith-stacks/ssl/privkey.pem' > "$TMP/caddy/custom-tls"
+fi
+
+export XDG_DATA_HOME=/appsmith-stacks/data
+export XDG_CONFIG_HOME=/appsmith-stacks/configuration
+mkdir -p "$XDG_DATA_HOME" "$XDG_CONFIG_HOME"
+
+# todo: use caddy storage export and import as part of backup/restore.
+
+#exec nginx -g "daemon off;error_log stderr info;"
+exec /opt/caddy/caddy run

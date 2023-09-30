@@ -49,6 +49,10 @@ RUN rm -rf \
   /var/lib/apt/lists/* \
   /tmp/*
 
+RUN mkdir -pv /opt/caddy \
+  && curl --location 'https://github.com/caddyserver/caddy/releases/download/v2.7.4/caddy_2.7.4_linux_arm64.tar.gz' \
+  | tar -xzf - -C /opt/caddy
+
 # Define volumes - Service Layer
 VOLUME [ "/appsmith-stacks" ]
 
