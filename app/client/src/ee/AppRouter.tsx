@@ -1,5 +1,10 @@
 export * from "ce/AppRouter";
-import { Routes as CE_Routes, SentryRoute } from "ce/AppRouter";
+import {
+  Routes as CE_Routes,
+  SentryRoute,
+  mapStateToProps as CE_mapStateToProps,
+  mapDispatchToProps as CE_mapDispatchToProps,
+} from "ce/AppRouter";
 import React, { Suspense, useEffect } from "react";
 import history from "utils/history";
 import AppHeader from "pages/common/AppHeader";
@@ -10,15 +15,8 @@ import ErrorPageHeader from "pages/common/ErrorPageHeader";
 import type { AppState } from "@appsmith/reducers";
 import { connect, useSelector } from "react-redux";
 
-import { getSafeCrash, getSafeCrashCode } from "selectors/errorSelectors";
-import { getCurrentUser } from "actions/authActions";
 import { getCurrentUserLoading } from "selectors/usersSelectors";
 import type { ERROR_CODES } from "@appsmith/constants/ApiConstants";
-import {
-  fetchFeatureFlagsInit,
-  fetchProductAlertInit,
-} from "actions/userActions";
-import { getCurrentTenant } from "@appsmith/actions/tenantActions";
 import useBrandingTheme from "utils/hooks/useBrandingTheme";
 import RouteChangeListener from "RouteChangeListener";
 import {
@@ -28,7 +26,6 @@ import {
 import LicenseCheckPage from "./pages/LicenseSetup/LicenseCheckPage";
 import { LICENSE_CHECK_PATH } from "constants/routes";
 import { requiresLicenseCheck } from "./requiresLicenseCheck";
-import { initCurrentPage } from "actions/initActions";
 import ProductAlertBanner from "components/editorComponents/ProductAlertBanner";
 import Walkthrough from "components/featureWalkthrough";
 
@@ -116,18 +113,19 @@ function AppRouter(props: {
   );
 }
 
-const mapStateToProps = (state: AppState) => ({
-  safeCrash: getSafeCrash(state),
-  safeCrashCode: getSafeCrashCode(state),
-  isLicenseValid: isValidLicense(state),
-});
+const mapStateToProps = (state: AppState) => {
+  const ceMapStateToProps = CE_mapStateToProps(state);
+  return {
+    ...ceMapStateToProps,
+    isLicenseValid: isValidLicense(state),
+  };
+};
 
-const mapDispatchToProps = (dispatch: any) => ({
-  getCurrentUser: () => dispatch(getCurrentUser()),
-  getFeatureFlags: () => dispatch(fetchFeatureFlagsInit()),
-  getCurrentTenant: () => dispatch(getCurrentTenant(false)),
-  initCurrentPage: () => dispatch(initCurrentPage()),
-  fetchProductAlert: () => dispatch(fetchProductAlertInit()),
-});
+const mapDispatchToProps = (dispatch: any) => {
+  const ceMapDispatchToProps = CE_mapDispatchToProps(dispatch);
+  return {
+    ...ceMapDispatchToProps,
+  };
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(AppRouter);

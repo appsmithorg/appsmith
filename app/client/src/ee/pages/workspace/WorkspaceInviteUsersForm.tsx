@@ -16,6 +16,8 @@ import {
   UserRole,
   WorkspaceInviteWrapper,
   WorkspaceText,
+  mapStateToProps as CE_mapStateToProps,
+  mapDispatchToProps as CE_mapDispatchToProps,
 } from "ce/pages/workspace/WorkspaceInviteUsersForm";
 import React, { useEffect, useState, useMemo, useRef } from "react";
 import styled from "styled-components";
@@ -31,7 +33,6 @@ import {
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { InviteUsersToWorkspaceFormValues } from "./helpers";
 import { inviteUsersToWorkspace } from "./helpers";
-import { INVITE_USERS_TO_WORKSPACE_FORM } from "@appsmith/constants/forms";
 import {
   createMessage,
   INVITE_USERS_SUBMIT_SUCCESS,
@@ -58,11 +59,6 @@ import {
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getInitialsFromName } from "utils/AppsmithUtils";
 import ManageUsers from "pages/workspace/ManageUsers";
-import {
-  fetchRolesForWorkspace,
-  fetchUsersForWorkspace,
-  fetchWorkspace,
-} from "@appsmith/actions/workspaceActions";
 import { useHistory } from "react-router-dom";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import store from "store";
@@ -781,36 +777,36 @@ function WorkspaceInviteUsersForm(props: any) {
   );
 }
 
-export default connect(
-  (
-    state: AppState,
-    {
-      formName,
-      isApplicationInvite,
-    }: { formName?: string; isApplicationInvite?: boolean },
-  ): any => {
-    const isAppLevelInviteOnSelfHost =
-      (!cloudHosting && isApplicationInvite) || false;
-    return {
-      roles: isAppLevelInviteOnSelfHost
-        ? getAppRolesForField(state)
-        : getRolesForField(state),
-      allUsers: isAppLevelInviteOnSelfHost
-        ? getAllAppUsers(state)
-        : getAllUsers(state),
-      isLoading: isAppLevelInviteOnSelfHost
-        ? state.ui.applications.loadingStates.isFetchAllUsers
-        : state.ui.workspaces.loadingStates.isFetchAllUsers,
-      form: formName || INVITE_USERS_TO_WORKSPACE_FORM,
-    };
-  },
-  (dispatch: any) => ({
-    fetchAllRoles: (workspaceId: string) =>
-      dispatch(fetchRolesForWorkspace(workspaceId)),
-    fetchCurrentWorkspace: (workspaceId: string) =>
-      dispatch(fetchWorkspace(workspaceId)),
-    fetchUser: (workspaceId: string) =>
-      dispatch(fetchUsersForWorkspace(workspaceId)),
+export const mapStateToProps = (
+  state: AppState,
+  {
+    formName,
+    isApplicationInvite,
+  }: { formName?: string; isApplicationInvite?: boolean },
+): any => {
+  const isAppLevelInviteOnSelfHost =
+    (!cloudHosting && isApplicationInvite) || false;
+  const ceMapStateToProps = CE_mapStateToProps(state, {
+    formName,
+  });
+  return {
+    ...ceMapStateToProps,
+    roles: isAppLevelInviteOnSelfHost
+      ? getAppRolesForField(state)
+      : getRolesForField(state),
+    allUsers: isAppLevelInviteOnSelfHost
+      ? getAllAppUsers(state)
+      : getAllUsers(state),
+    isLoading: isAppLevelInviteOnSelfHost
+      ? state.ui.applications.loadingStates.isFetchAllUsers
+      : state.ui.workspaces.loadingStates.isFetchAllUsers,
+  };
+};
+
+export const mapDispatchToProps = (dispatch: any) => {
+  const ceMapDispatchToProps = CE_mapDispatchToProps(dispatch);
+  return {
+    ...ceMapDispatchToProps,
     fetchGroupSuggestions: () =>
       dispatch({
         type: ReduxActionTypes.FETCH_GROUP_SUGGESTIONS,
@@ -819,7 +815,12 @@ export default connect(
       dispatch(fetchRolesForApplication(applicationId)),
     fetchAllAppUsers: (applicationId: string) =>
       dispatch(fetchUsersForApplication(applicationId)),
-  }),
+  };
+};
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
 )(
   reduxForm<
     InviteUsersToWorkspaceFormValues,
