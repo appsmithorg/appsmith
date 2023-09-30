@@ -13,8 +13,7 @@ import { mockDatasources } from "./mockTestData";
 import { updateCurrentPage } from "actions/pageActions";
 import urlBuilder from "entities/URLRedirect/URLAssembly";
 import * as helpers from "@appsmith/pages/Editor/Explorer/helpers";
-import * as permissionUtils from "@appsmith/utils/permissionHelpers";
-import * as explorerSelector from "selectors/explorerSelector";
+import * as permissionPageHelpers from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import userEvent from "@testing-library/user-event";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import * as widgetSelectionsActions from "actions/widgetSelectionActions";
@@ -39,6 +38,13 @@ jest.mock("@appsmith/utils/permissionHelpers", () => {
 jest.mock("@appsmith/pages/Editor/Explorer/helpers", () => ({
   __esModule: true,
   ...jest.requireActual("@appsmith/pages/Editor/Explorer/helpers"),
+}));
+
+jest.mock("@appsmith/utils/BusinessFeatures/permissionPageHelpers", () => ({
+  __esModule: true,
+  ...jest.requireActual(
+    "@appsmith/utils/BusinessFeatures/permissionPageHelpers",
+  ),
 }));
 
 jest.mock("selectors/explorerSelector", () => ({
@@ -79,7 +85,7 @@ describe("Entity Explorer tests", () => {
       payload: mockDatasources,
     });
     jest
-      .spyOn(permissionUtils, "hasCreateDatasourcePermission")
+      .spyOn(permissionPageHelpers, "getHasCreateDatasourcePermission")
       .mockReturnValue(true);
     store.dispatch(updateCurrentPage("pageId"));
     const component = render(<Datasources />);
@@ -93,7 +99,7 @@ describe("Entity Explorer tests", () => {
       payload: mockDatasources,
     });
     jest
-      .spyOn(permissionUtils, "hasCreateDatasourcePermission")
+      .spyOn(permissionPageHelpers, "getHasCreateDatasourcePermission")
       .mockReturnValue(false);
     const mockExplorerState = jest.spyOn(helpers, "getExplorerStatus");
     mockExplorerState.mockImplementationOnce(() => true);
@@ -113,13 +119,13 @@ describe("Entity Explorer tests", () => {
       payload: mockDatasources,
     });
     jest
-      .spyOn(permissionUtils, "hasCreateDatasourcePermission")
+      .spyOn(permissionPageHelpers, "getHasCreateDatasourcePermission")
       .mockReturnValue(true);
     jest
-      .spyOn(permissionUtils, "hasManageDatasourcePermission")
+      .spyOn(permissionPageHelpers, "getHasManageDatasourcePermission")
       .mockReturnValue(false);
     jest
-      .spyOn(permissionUtils, "hasDeleteDatasourcePermission")
+      .spyOn(permissionPageHelpers, "getHasDeleteDatasourcePermission")
       .mockReturnValue(false);
     const mockExplorerState = jest.spyOn(helpers, "getExplorerStatus");
     mockExplorerState.mockImplementationOnce(() => true);

@@ -584,9 +584,8 @@ export interface MemberExpressionData {
 
 export interface AssignmentExpressionData {
   property: NodeWithLocation<IdentifierNode | LiteralNode>;
-  object: NodeWithLocation<IdentifierNode>;
-  start: number;
-  end: number;
+  object: NodeWithLocation<IdentifierNode | MemberExpressionNode>;
+  parentNode: NodeWithLocation<AssignmentExpressionNode>;
 }
 
 export interface AssignmentExpressionNode extends Node {
@@ -706,15 +705,12 @@ export const extractExpressionsFromCode = (
       )
         return;
 
-      const { object, property } = node.left as MemberExpressionNode;
-      if (!isIdentifierNode(object)) return;
-      if (!(object.name in data)) return;
+      const { object, property } = node.left;
 
       assignmentExpressionsData.add({
         object,
         property,
-        start: node.start,
-        end: node.end,
+        parentNode: node,
       } as AssignmentExpressionData);
     },
   });
