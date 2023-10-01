@@ -6,7 +6,12 @@ import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.services.ce_compatible.BrandingServiceCECompatibleImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
+
+import static com.appsmith.server.domains.TenantConfiguration.DEFAULT_BACKGROUND_COLOR;
+import static com.appsmith.server.domains.TenantConfiguration.DEFAULT_FONT_COLOR;
+import static com.appsmith.server.domains.TenantConfiguration.DEFAULT_PRIMARY_COLOR;
 
 @Service
 @Slf4j
@@ -21,6 +26,18 @@ public class BrandingServiceImpl extends BrandingServiceCECompatibleImpl impleme
     @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_branding_enabled)
     @Override
     public Mono<TenantConfiguration> getTenantConfiguration(TenantConfiguration tenantConfiguration) {
+        TenantConfiguration.BrandColors brandColors = tenantConfiguration.getBrandColors() == null
+                ? new TenantConfiguration.BrandColors()
+                : tenantConfiguration.getBrandColors();
+        brandColors.setPrimary(
+                StringUtils.hasLength(brandColors.getPrimary()) ? brandColors.getPrimary() : DEFAULT_PRIMARY_COLOR);
+        brandColors.setBackground(
+                StringUtils.hasLength(brandColors.getBackground())
+                        ? brandColors.getBackground()
+                        : DEFAULT_BACKGROUND_COLOR);
+        brandColors.setFont(StringUtils.hasLength(brandColors.getFont()) ? brandColors.getFont() : DEFAULT_FONT_COLOR);
+        tenantConfiguration.setBrandColors(brandColors);
+
         return Mono.just(tenantConfiguration);
     }
 

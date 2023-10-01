@@ -13,6 +13,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
@@ -67,6 +68,22 @@ class BrandingServiceImplTest {
         StepVerifier.create(tenantConfigurationMono)
                 .assertNext(updatedTenantConfiguration -> {
                     assertEquals(tenantConfiguration, updatedTenantConfiguration);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void test_whenBrandingEnabled_nullBrandColors_getDefaultColors() {
+        TenantConfiguration tenantConfiguration = new TenantConfiguration();
+        Mono<TenantConfiguration> tenantConfigurationMono = brandingService.getTenantConfiguration(tenantConfiguration);
+
+        StepVerifier.create(tenantConfigurationMono)
+                .assertNext(tenantConfiguration1 -> {
+                    TenantConfiguration.BrandColors brandColors = tenantConfiguration1.getBrandColors();
+                    assertThat(brandColors).isNotNull();
+                    assertEquals(TenantConfiguration.DEFAULT_BACKGROUND_COLOR, brandColors.getBackground());
+                    assertEquals(TenantConfiguration.DEFAULT_PRIMARY_COLOR, brandColors.getPrimary());
+                    assertEquals(TenantConfiguration.DEFAULT_FONT_COLOR, brandColors.getFont());
                 })
                 .verifyComplete();
     }
