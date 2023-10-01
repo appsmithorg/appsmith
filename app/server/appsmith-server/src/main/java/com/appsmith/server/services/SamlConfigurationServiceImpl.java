@@ -1,8 +1,12 @@
 package com.appsmith.server.services;
 
+import com.appsmith.server.annotations.FeatureFlagged;
+import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.dtos.AuthenticationConfigurationDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.featureflags.FeatureFlagEnum;
+import com.appsmith.server.services.ce_compatible.SamlConfigurationServiceCECompatibleImpl;
 import com.appsmith.server.solutions.EnvManager;
 import com.appsmith.server.solutions.KeycloakIntegrationService;
 import org.apache.commons.lang3.StringUtils;
@@ -17,7 +21,8 @@ import static com.appsmith.server.constants.EnvVariables.APPSMITH_SSO_SAML_ENABL
 import static java.lang.Boolean.TRUE;
 
 @Service
-public class SamlConfigurationServiceImpl implements SamlConfigurationService {
+public class SamlConfigurationServiceImpl extends SamlConfigurationServiceCECompatibleImpl
+        implements SamlConfigurationService {
 
     private final KeycloakIntegrationService keycloakIntegrationService;
     private final EnvManager envManager;
@@ -119,5 +124,14 @@ public class SamlConfigurationServiceImpl implements SamlConfigurationService {
                 .flatMap(updatedConfig -> envManager.applyChanges(
                         Map.of(APPSMITH_SSO_SAML_ENABLED.toString(), "true", APPSMITH_BASE_URL.toString(), baseUrl),
                         origin));
+    }
+
+    @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_sso_saml_enabled)
+    public TenantConfiguration getTenantConfiguration(TenantConfiguration tenantConfiguration) {
+        if ("true".equals(System.getenv("APPSMITH_SSO_SAML_ENABLED"))) {
+            tenantConfiguration.addThirdPartyAuth("saml");
+        }
+        return tenantConfiguration;
     }
 }

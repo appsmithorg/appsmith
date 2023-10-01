@@ -72,8 +72,9 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
     private final BrandingService brandingService;
     private final SessionLimiterService sessionLimiterService;
     private final PACConfigurationService pacConfigurationService;
-
     private final FeatureFlagMigrationHelper featureFlagMigrationHelper;
+    private final OidcConfigurationService oidcConfigurationService;
+    private final SamlConfigurationService samlConfigurationService;
 
     private final Scheduler scheduler;
     private final UserUtils userUtils;
@@ -103,6 +104,8 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
             SessionLimiterService sessionLimiterService,
             FeatureFlagMigrationHelper featureFlagMigrationHelper,
             BrandingService brandingService,
+            OidcConfigurationService oidcConfigurationService,
+            @Lazy SamlConfigurationService samlConfigurationService,
             UserUtils userUtils,
             PACConfigurationService pacConfigurationService) {
 
@@ -128,6 +131,8 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
         this.sessionLimiterService = sessionLimiterService;
         this.featureFlagMigrationHelper = featureFlagMigrationHelper;
         this.scheduler = scheduler;
+        this.oidcConfigurationService = oidcConfigurationService;
+        this.samlConfigurationService = samlConfigurationService;
         this.pacConfigurationService = pacConfigurationService;
         this.userUtils = userUtils;
     }
@@ -149,14 +154,8 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
             final Tenant clientTenant = tuple.getT2();
             final TenantConfiguration config = clientTenant.getTenantConfiguration();
 
-            if (org.springframework.util.StringUtils.hasText(System.getenv("APPSMITH_OAUTH2_OIDC_CLIENT_ID"))) {
-                config.addThirdPartyAuth("oidc");
-            }
-
-            if ("true".equals(System.getenv("APPSMITH_SSO_SAML_ENABLED"))) {
-                config.addThirdPartyAuth("saml");
-            }
-
+            oidcConfigurationService.getTenantConfiguration(config);
+            samlConfigurationService.getTenantConfiguration(config);
             return getClientPertinentTenant(dbTenant, clientTenant);
         });
     }

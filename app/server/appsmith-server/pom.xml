@@ -433,6 +433,13 @@
             <artifactId>bucket4j-core</artifactId>
             <version>8.3.0</version>
         </dependency>
+        <!--        Dependency for adding the system env stub as the System.getEnv() is a UnmodifiableMap   -->
+        <!--        TODO remove this dependency once the SSO configs are moved to DB                        -->
+        <dependency>
+            <groupId>uk.org.webcompere</groupId>
+            <artifactId>system-stubs-jupiter</artifactId>
+            <version>2.1.1</version>
+        </dependency>
     </dependencies>
 
     <repositories>
