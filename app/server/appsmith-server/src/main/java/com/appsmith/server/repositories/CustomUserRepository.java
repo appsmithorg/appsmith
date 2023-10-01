@@ -2,6 +2,7 @@ package com.appsmith.server.repositories;
 
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.PagedDomain;
 import com.appsmith.server.repositories.ce.CustomUserRepositoryCE;
@@ -33,4 +34,6 @@ public interface CustomUserRepository extends CustomUserRepositoryCE {
 
     Mono<Boolean> updateUserPoliciesAndIsProvisionedWithoutPermission(
             String id, Boolean isProvisioned, Set<Policy> policies);
+
+    Mono<Boolean> makeUserPristineBasedOnLoginSourceAndTenantId(LoginSource loginSource, String tenantId);
 }

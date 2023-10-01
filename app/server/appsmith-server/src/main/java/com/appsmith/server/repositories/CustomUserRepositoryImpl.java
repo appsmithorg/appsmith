@@ -3,6 +3,7 @@ package com.appsmith.server.repositories;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.QUser;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.PagedDomain;
@@ -137,5 +138,19 @@ public class CustomUserRepositoryImpl extends CustomUserRepositoryCEImpl impleme
             }
         }
         return criteriaList;
+    }
+
+    @Override
+    public Mono<Boolean> makeUserPristineBasedOnLoginSourceAndTenantId(LoginSource loginSource, String tenantId) {
+        List<Criteria> criterias = new ArrayList<>();
+        Criteria criteriaLoginSource = where(fieldName(QUser.user.source)).is(loginSource);
+        Criteria tenantIdCriteria = where(fieldName(QUser.user.tenantId)).is(tenantId);
+        criterias.add(tenantIdCriteria);
+        criterias.add(criteriaLoginSource);
+
+        Update update = new Update();
+        update.set(fieldName(QUser.user.source), LoginSource.FORM);
+        update.set(fieldName(QUser.user.isEnabled), false);
+        return updateByCriteria(criterias, update, null).map(updateResult -> updateResult.getModifiedCount() > 0);
     }
 }

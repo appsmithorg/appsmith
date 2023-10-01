@@ -285,6 +285,7 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
                 .map(tenantWithUpdatedMigration -> {
                     // Run the migrations in a separate thread, as we expect the migrations can run for few seconds
                     this.checkAndExecuteMigrationsForTenantFeatureFlags(tenantWithUpdatedMigration)
+                            .then(this.restartTenant())
                             .subscribeOn(scheduler)
                             .subscribe();
                     return tenantWithUpdatedMigration;

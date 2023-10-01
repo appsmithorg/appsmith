@@ -501,4 +501,14 @@ public class UserServiceImpl extends UserServiceCECompatibleImpl implements User
             return Mono.just(profile);
         }
     }
+
+    @Override
+    public Mono<Boolean> makeUserPristineBasedOnLoginSource(LoginSource loginSource, String tenantId) {
+        return repository
+                .makeUserPristineBasedOnLoginSourceAndTenantId(loginSource, tenantId)
+                .onErrorResume(error -> {
+                    log.error("Error while making users pristine for login source: {}", loginSource, error);
+                    return Mono.just(false);
+                });
+    }
 }
