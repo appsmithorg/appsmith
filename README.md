@@ -143,7 +143,6 @@ Let's build great software together.
 [![tomjose92](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/5265702?v=4&w=50&h=50&mask=circle)](https://github.com/tomjose92)
 [![andreevanatasha](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/5361618?v=4&w=50&h=50&mask=circle)](https://github.com/andreevanatasha)
 [![LagunaElectric](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/6085143?v=4&w=50&h=50&mask=circle)](https://github.com/LagunaElectric)
-[![sw4ti493](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/8166029?v=4&w=50&h=50&mask=circle)](https://github.com/sw4ti493)
 [![sribalajig](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/15727421?v=4&w=50&h=50&mask=circle)](https://github.com/sribalajig)
 [![infinitetrooper](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/16632903?v=4&w=50&h=50&mask=circle)](https://github.com/infinitetrooper)
 [![RoopKrrish9696](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/16741628?v=4&w=50&h=50&mask=circle)](https://github.com/RoopKrrish9696)
