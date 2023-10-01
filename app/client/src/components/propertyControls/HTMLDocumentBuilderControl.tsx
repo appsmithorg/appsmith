@@ -25,7 +25,7 @@ class HTMLDocumentBuidlerControl extends BaseControl<
 
   onConfigure = () => {
     const widgetBuilder = window.open(
-      "https://dev.appsmith.com/widgets/builder",
+      window.origin + "/widgets/builder",
       "_blank",
     );
 
