@@ -3,13 +3,13 @@ import AdminConfig from "@appsmith/pages/AdminSettings/config";
 import { Redirect, useParams } from "react-router";
 import { SettingCategories } from "@appsmith/pages/AdminSettings/config/types";
 import SettingsForm from "pages/AdminSettings/SettingsForm";
-import {
-  getDefaultAdminSettingsPath,
-  getWrapperCategory,
-} from "@appsmith/utils/adminSettingsHelpers";
+import { getWrapperCategory } from "@appsmith/utils/adminSettingsHelpers";
 import { useSelector } from "react-redux";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { getTenantPermissions } from "@appsmith/selectors/tenantSelectors";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { getAdminSettingsPath } from "@appsmith/utils/BusinessFeatures/adminSettingsHelpers";
 
 const Main = () => {
   const params = useParams() as any;
@@ -22,6 +22,7 @@ const Main = () => {
     subCategory,
     category,
   );
+  const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
 
   if (!!wrapperCategory?.component) {
     const { component: WrapperCategoryComponent } = wrapperCategory;
@@ -32,7 +33,11 @@ const Main = () => {
   ) {
     return (
       <Redirect
-        to={getDefaultAdminSettingsPath({ isSuperUser, tenantPermissions })}
+        to={getAdminSettingsPath(
+          isFeatureEnabled,
+          isSuperUser,
+          tenantPermissions,
+        )}
       />
     );
   } else {

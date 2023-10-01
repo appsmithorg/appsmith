@@ -45,11 +45,6 @@ import {
 import type { PluginType } from "entities/Action";
 import AuthMessage from "pages/common/datasourceAuth/AuthMessage";
 import { isDatasourceInViewMode } from "selectors/ui";
-import {
-  hasCreateDatasourceActionPermission,
-  hasDeleteDatasourcePermission,
-  hasManageDatasourcePermission,
-} from "@appsmith/utils/permissionHelpers";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import {
   createTempDatasourceFromForm,
@@ -87,6 +82,13 @@ import GoogleSheetSchema from "./GoogleSheetSchema";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getDefaultEnvironmentId } from "@appsmith/selectors/environmentSelectors";
 import { DEFAULT_ENV_ID } from "@appsmith/api/ApiUtils";
+import {
+  getHasCreateDatasourceActionPermission,
+  getHasDeleteDatasourcePermission,
+  getHasManageDatasourcePermission,
+} from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 const ViewModeContainer = styled.div`
   display: flex;
@@ -707,19 +709,26 @@ const mapStateToProps = (state: AppState, props: any) => {
 
   const datasourcePermissions = datasource?.userPermissions || [];
 
-  const canManageDatasource = hasManageDatasourcePermission(
+  const isFeatureEnabled = selectFeatureFlagCheck(
+    state,
+    FEATURE_FLAG.license_gac_enabled,
+  );
+
+  const canManageDatasource = getHasManageDatasourcePermission(
+    isFeatureEnabled,
     datasourcePermissions,
   );
 
-  const canDeleteDatasource = hasDeleteDatasourcePermission(
+  const canDeleteDatasource = getHasDeleteDatasourcePermission(
+    isFeatureEnabled,
     datasourcePermissions,
   );
 
   const pagePermissions = getPagePermissions(state);
-  const canCreateDatasourceActions = hasCreateDatasourceActionPermission([
-    ...datasourcePermissions,
-    ...pagePermissions,
-  ]);
+  const canCreateDatasourceActions = getHasCreateDatasourceActionPermission(
+    isFeatureEnabled,
+    [...datasourcePermissions, ...pagePermissions],
+  );
 
   const gsheetToken = getGsheetToken(state);
   const gsheetProjectID = getGsheetProjectID(state);
