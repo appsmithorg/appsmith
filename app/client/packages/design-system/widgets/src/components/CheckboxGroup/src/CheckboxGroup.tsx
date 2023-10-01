@@ -18,7 +18,9 @@ const _CheckboxGroup = (
   ref: HeadlessCheckboxGroupRef,
 ) => {
   const { errorMessage, label, ...rest } = props;
-  const wrappedErrorMessage = errorMessage && <Text>{errorMessage}</Text>;
+  const wrappedErrorMessage = errorMessage && (
+    <Text variant="footnote">{errorMessage}</Text>
+  );
   const wrappedLabel = label && <Text>{label}</Text>;
 
   return (

@@ -31,15 +31,7 @@ describe("DateTime Datatype tests", function () {
     agHelper.RenameWithInPane("createTable");
     agHelper.FocusElement(locators._codeMirrorTextArea);
     dataSources.RunQuery();
-    entityExplorer.ExpandCollapseEntity("Datasources");
-    entityExplorer.ExpandCollapseEntity(dsName);
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: dsName,
-      action: "Refresh",
-    });
-    agHelper.AssertElementVisibility(
-      entityExplorer._entityNameInExplorer("public.datetimetypes"),
-    );
+    dataSources.AssertTableInVirtuosoList(dsName, "public.datetimetypes");
   });
 
   it("2. Creating SELECT query - datetimetypes + Bug 14493", () => {
@@ -51,7 +43,7 @@ describe("DateTime Datatype tests", function () {
     TO_CHAR (datetimeT.dater, 'W') as "WentityExplorer.k of Month" FROM public."datetimetypes" as datetimeT;`;
     entityExplorer.ActionTemplateMenuByEntityName(
       "public.datetimetypes",
-      "SELECT",
+      "Select",
     );
     dataSources.RunQuery();
     agHelper
@@ -66,7 +58,7 @@ describe("DateTime Datatype tests", function () {
     VALUES('{{Insertts.text}}', '{{Inserttstz.text}}', '{{Insertdater.text}}', '{{Inserttimer.text}}', '{{Insertintervaler.text}}');`;
     entityExplorer.ActionTemplateMenuByEntityName(
       "public.datetimetypes",
-      "INSERT",
+      "Insert",
     );
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("insertRecord");
@@ -77,7 +69,7 @@ describe("DateTime Datatype tests", function () {
     "intervaler" = '{{Updateintervaler.text}}' WHERE serialid = {{Table1.selectedRow.serialid}};`;
     entityExplorer.ActionTemplateMenuByEntityName(
       "public.datetimetypes",
-      "UPDATE",
+      "Update",
     );
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("updateRecord");
@@ -86,7 +78,7 @@ describe("DateTime Datatype tests", function () {
     query = `DELETE FROM public."datetimetypes"`;
     entityExplorer.ActionTemplateMenuByEntityName(
       "public.datetimetypes",
-      "DELETE",
+      "Delete",
     );
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("deleteAllRecords");
@@ -94,7 +86,7 @@ describe("DateTime Datatype tests", function () {
     query = `drop table public."datetimetypes"`;
     entityExplorer.ActionTemplateMenuByEntityName(
       "public.datetimetypes",
-      "DELETE",
+      "Delete",
     );
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("dropTable");
@@ -103,7 +95,7 @@ describe("DateTime Datatype tests", function () {
     WHERE serialId = {{Table1.selectedRow.serialid}};`;
     entityExplorer.ActionTemplateMenuByEntityName(
       "public.datetimetypes",
-      "DELETE",
+      "Delete",
     );
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("deleteRecord");
@@ -117,7 +109,7 @@ describe("DateTime Datatype tests", function () {
    EXTRACT (MINUTE  FROM  INTERVAL '5 hours 21 minutes');`;
     entityExplorer.ActionTemplateMenuByEntityName(
       "public.datetimetypes",
-      "SELECT",
+      "Select",
     );
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("intervalRecords");

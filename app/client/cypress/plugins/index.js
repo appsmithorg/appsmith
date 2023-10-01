@@ -12,7 +12,7 @@ const {
 } = require("cypress-image-snapshot/plugin");
 const { tagify } = require("cypress-tags");
 const { cypressHooks } = require("../scripts/cypress-hooks");
-const { cypressSplit } = require("../cypress-split");
+const { cypressSplit } = require("../scripts/cypress-split");
 // ***********************************************************
 // This example plugins/index.js can be used to load plugins
 //
@@ -216,7 +216,7 @@ module.exports = async (on, config) => {
   });
 
   if (process.env["RUNID"]) {
-    config = await cypressSplit(on, config);
+    config = await new cypressSplit().splitSpecs(on, config);
     cypressHooks(on, config);
   }
 

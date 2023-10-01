@@ -57,7 +57,6 @@ import {
   fetchProductAlertInit,
 } from "actions/userActions";
 import { getCurrentTenant } from "@appsmith/actions/tenantActions";
-import { getDefaultAdminSettingsPath } from "@appsmith/utils/adminSettingsHelpers";
 import { getCurrentUser as getCurrentUserSelector } from "selectors/usersSelectors";
 import {
   getTenantPermissions,
@@ -69,6 +68,9 @@ import { initCurrentPage } from "../actions/initActions";
 import Walkthrough from "components/featureWalkthrough";
 import ProductAlertBanner from "components/editorComponents/ProductAlertBanner";
 import WidgetBuilder from "pages/WidgetBuilder";
+import { getAdminSettingsPath } from "@appsmith/utils/BusinessFeatures/adminSettingsHelpers";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 export const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -77,6 +79,7 @@ export const loadingIndicator = <PageLoadingBar />;
 export function Routes() {
   const user = useSelector(getCurrentUserSelector);
   const tenantPermissions = useSelector(getTenantPermissions);
+  const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
 
   return (
     <Switch>
@@ -102,10 +105,11 @@ export function Routes() {
         to={
           !user
             ? ADMIN_SETTINGS_PATH
-            : getDefaultAdminSettingsPath({
-                isSuperUser: user?.isSuperUser || false,
+            : getAdminSettingsPath(
+                isFeatureEnabled,
+                user?.isSuperUser || false,
                 tenantPermissions,
-              })
+              )
         }
       />
       <SentryRoute
@@ -203,12 +207,12 @@ function AppRouter(props: {
   );
 }
 
-const mapStateToProps = (state: AppState) => ({
+export const mapStateToProps = (state: AppState) => ({
   safeCrash: getSafeCrash(state),
   safeCrashCode: getSafeCrashCode(state),
 });
 
-const mapDispatchToProps = (dispatch: any) => ({
+export const mapDispatchToProps = (dispatch: any) => ({
   getCurrentUser: () => dispatch(getCurrentUser()),
   getFeatureFlags: () => dispatch(fetchFeatureFlagsInit()),
   getCurrentTenant: () => dispatch(getCurrentTenant(false)),

@@ -12,7 +12,6 @@ import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstant
 import {
   APPLICATION_INVITE,
   createMessage,
-  INVITE_USERS_PLACEHOLDER,
   SHARE_APP,
 } from "@appsmith/constants/messages";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
@@ -82,7 +81,6 @@ const ShareButton = (props: ShareButtonProps) => {
           hideDefaultTrigger
           isOpen={showModal}
           onClose={() => setShowModal(false)}
-          placeholder={createMessage(INVITE_USERS_PLACEHOLDER, cloudHosting)}
           title={createMessage(
             APPLICATION_INVITE,
             currentWorkspace?.name,

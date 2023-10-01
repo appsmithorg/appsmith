@@ -78,11 +78,13 @@ public interface CustomNewActionRepositoryCE extends AppsmithRepository<NewActio
 
     Mono<List<BulkWriteResult>> bulkUpdate(List<NewAction> newActions);
 
-    Mono<UpdateResult> publishActions(String applicationId, AclPermission permission);
+    Mono<List<BulkWriteResult>> publishActions(String applicationId, AclPermission permission);
 
     Mono<UpdateResult> archiveDeletedUnpublishedActions(String applicationId, AclPermission permission);
 
     Mono<UpdateResult> updateDatasourceNameInActions(Datasource datasource);
 
     Flux<PluginTypeAndCountDTO> countActionsByPluginType(String applicationId);
+
+    Flux<NewAction> findAllByApplicationIdsWithoutPermission(List<String> applicationIds, List<String> includeFields);
 }
