@@ -25,6 +25,7 @@ import {
   VIEWER_PATCH_PATH,
   VIEWER_PATH,
   VIEWER_PATH_DEPRECATED,
+  WIDGET_BUILDER,
   WORKSPACE_URL,
 } from "constants/routes";
 import WorkspaceLoader from "pages/workspace/loader";
@@ -67,6 +68,7 @@ import RouteChangeListener from "RouteChangeListener";
 import { initCurrentPage } from "../actions/initActions";
 import Walkthrough from "components/featureWalkthrough";
 import ProductAlertBanner from "components/editorComponents/ProductAlertBanner";
+import WidgetBuilder from "pages/WidgetBuilder";
 
 export const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -92,6 +94,7 @@ export function Routes() {
       <SentryRoute component={SignupSuccess} exact path={SIGNUP_SUCCESS_URL} />
       <SentryRoute component={UserProfile} path={PROFILE} />
       <SentryRoute component={Setup} exact path={SETUP} />
+      <SentryRoute component={WidgetBuilder} exact path={WIDGET_BUILDER} />
       <SentryRoute component={TemplatesListLoader} path={TEMPLATES_PATH} />
       <Redirect
         exact

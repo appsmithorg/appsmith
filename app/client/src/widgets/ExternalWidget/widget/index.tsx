@@ -77,6 +77,7 @@ class ExternalWidget extends BaseWidget<ExternalWidgetProps, WidgetState> {
               return widget.isHosted;
             },
             dependencies: ["isHosted"],
+            evaluatedDependencies: ["defaultModel"],
           },
           {
             propertyName: "src",
