@@ -1,10 +1,10 @@
 import { generateReactKey } from "utils/generators";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 
-export const mockInputProps = (): BaseWidgetProps => ({
-  type: "INPUT_WIDGET_V2",
+export const mockButtonProps = (): BaseWidgetProps => ({
+  type: "BUTTON_WIDGET",
   widgetId: generateReactKey(),
-  widgetName: "Input1",
+  widgetName: "Button1",
   renderMode: "CANVAS",
   version: 1,
   isLoading: false,
@@ -13,5 +13,5 @@ export const mockInputProps = (): BaseWidgetProps => ({
   leftColumn: 0,
   rightColumn: 10,
   topRow: 0,
-  bottomRow: 7,
+  bottomRow: 4,
 });

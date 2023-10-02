@@ -73,3 +73,30 @@ export function removeChildFromLayout(
     layout: [...layout.slice(0, index), ...layout.slice(index + 1)],
   };
 }
+
+/**
+ * Update AlignedRow by removing children at a specified index from a specified alignment.
+ * @param props | LayoutComponentProps - Parent Layout.
+ * @param highlight | HighlightInfo - Drop Information.
+ * @returns LayoutComponentProps
+ */
+export function removeChildFromAlignedRow(
+  props: LayoutComponentProps,
+  highlight: HighlightInfo,
+): LayoutComponentProps {
+  const layout: string[][] = props.layout as string[][];
+  const { alignment, rowIndex: index } = highlight;
+  // Extract index of the affected alignment.
+  const alignmentIndex: number = AlignmentIndexMap[alignment];
+  // Extract the list data of the affected alignment.
+  const alignmentRow: string[] = layout[alignmentIndex];
+  // Remove child at the appropriate position.
+  const updatedAlignmentRow: string[] = [
+    ...alignmentRow.slice(0, index),
+    ...alignmentRow.slice(index + 1),
+  ] as string[];
+  const updatedLayout = [...layout];
+  // Update the affected alignment in the parent layout.
+  updatedLayout[alignmentIndex] = updatedAlignmentRow as string[];
+  return { ...props, layout: updatedLayout } as LayoutComponentProps;
+}

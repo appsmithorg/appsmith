@@ -10,7 +10,7 @@ import {
 } from "./commonUtils";
 import InputWidget from "widgets/InputWidgetV2/widget";
 import ButtonWidget from "widgets/ButtonWidget/widget";
-import { inputProps } from "mocks/widgetProps/input";
+import { mockInputProps } from "mocks/widgetProps/input";
 
 describe("Common Utils tests", () => {
   describe("getAutoDimensionsConfig", () => {
@@ -18,7 +18,7 @@ describe("Common Utils tests", () => {
       const config: AutoLayoutConfig | undefined =
         InputWidget.getAutoLayoutConfig();
       const autoDimension: AutoDimensionOptions | undefined =
-        getAutoDimensionsConfig(config || {}, inputProps);
+        getAutoDimensionsConfig(config || {}, mockInputProps());
       expect((autoDimension as AutoDimensionValues)?.height).toBeTruthy();
     });
     it("autoDimension.width for button widget should be true", () => {
@@ -26,7 +26,7 @@ describe("Common Utils tests", () => {
         ButtonWidget.getAutoLayoutConfig();
       const autoDimension: AutoDimensionOptions | undefined =
         getAutoDimensionsConfig(config || {}, {
-          ...inputProps,
+          ...mockInputProps(),
           type: "BUTTON_WIDGET",
         });
       expect((autoDimension as AutoDimensionValues)?.width).toBeTruthy();
@@ -43,7 +43,7 @@ describe("Common Utils tests", () => {
         minHeight: Record<string, string | number>;
         minWidth: Record<string, string | number>;
       } = restructureWidgetSizeConfig(config?.widgetSize || [], {
-        ...inputProps,
+        ...mockInputProps(),
         type: "BUTTON_WIDGET",
       });
 
@@ -60,7 +60,10 @@ describe("Common Utils tests", () => {
         maxWidth: Record<string, string | number>;
         minHeight: Record<string, string | number>;
         minWidth: Record<string, string | number>;
-      } = restructureWidgetSizeConfig(config?.widgetSize || [], inputProps);
+      } = restructureWidgetSizeConfig(
+        config?.widgetSize || [],
+        mockInputProps(),
+      );
 
       expect(sizeConfig.minWidth.base).toEqual("120px");
       expect(sizeConfig.minHeight.base).toBeFalsy();
