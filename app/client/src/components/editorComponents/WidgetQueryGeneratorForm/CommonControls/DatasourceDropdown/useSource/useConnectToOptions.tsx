@@ -6,7 +6,6 @@ import {
   getPluginIdPackageNamesMap,
 } from "@appsmith/selectors/entitiesSelector";
 import WidgetFactory from "WidgetProvider/factory";
-import type { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import { DatasourceImage, ImageWrapper } from "../../../styles";
 import { getDatatype } from "utils/AppsmithUtils";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -14,6 +13,7 @@ import type { DropdownOptionType } from "../../../types";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { WidgetQueryGeneratorFormContext } from "components/editorComponents/WidgetQueryGeneratorForm";
 import { PluginPackageName } from "entities/Action";
+import type { ActionDataState } from "@appsmith/reducers/entityReducers/actionsReducer";
 
 enum SortingWeights {
   alphabetical = 1,
