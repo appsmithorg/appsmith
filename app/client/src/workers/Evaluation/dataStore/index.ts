@@ -1,6 +1,6 @@
 import { convertPathToString } from "@appsmith/workers/Evaluation/evaluationUtils";
 import type { Diff } from "deep-diff";
-import type { DataTree } from "entities/DataTree/dataTreeFactory";
+import type { DataTree } from "@appsmith/entities/DataTree/types";
 import { get, set, unset } from "lodash";
 
 export type TDataStore = Record<string, Record<string, unknown>>;
