@@ -1468,6 +1468,7 @@ export default class DataTreeEvaluator {
     isNewWidget,
     parsedValue,
     propertyPath,
+    safeTree,
   }: {
     currentTree: DataTree;
     configTree: ConfigTree;
@@ -1488,6 +1489,7 @@ export default class DataTreeEvaluator {
       evalMetaUpdates,
       fullPropertyPath,
       isNewWidget,
+      safeTree,
     });
 
     if (overwriteObj && overwriteObj.overwriteParsedValue) {
