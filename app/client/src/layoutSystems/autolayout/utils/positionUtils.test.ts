@@ -2,8 +2,8 @@ import {
   FlexLayerAlignment,
   Positioning,
   ResponsiveBehavior,
-} from "layoutSystems/autolayout/utils/constants";
-import type { AlignmentInfo, FlexLayer, Row } from "./autoLayoutTypes";
+} from "layoutSystems/common/utils/constants";
+import type { AlignmentInfo, Row } from "../../autolayout/utils/types";
 import { RenderModes } from "constants/WidgetConstants";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import {
@@ -19,6 +19,7 @@ import {
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import { LabelPosition } from "components/constants";
 import * as utils from "./flexWidgetUtils";
+import type { FlexLayer } from "./types";
 
 describe("test PositionUtils methods", () => {
   const mainCanvasWidth = 960;
