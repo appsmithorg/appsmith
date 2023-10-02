@@ -5,7 +5,6 @@ import {
 } from "test/factories/WidgetFactoryUtils";
 import React from "react";
 import { MockPageDSL } from "test/testCommon";
-import Sidebar from "components/editorComponents/Sidebar";
 import { DEFAULT_ENTITY_EXPLORER_WIDTH } from "constants/AppConstants";
 import store, { runSagaMiddleware } from "store";
 import Datasources from "./Datasources";
@@ -14,12 +13,14 @@ import { mockDatasources } from "./mockTestData";
 import { updateCurrentPage } from "actions/pageActions";
 import urlBuilder from "entities/URLRedirect/URLAssembly";
 import * as helpers from "@appsmith/pages/Editor/Explorer/helpers";
+import * as explorerSelector from "selectors/explorerSelector";
 import * as permissionPageHelpers from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import userEvent from "@testing-library/user-event";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import * as widgetSelectionsActions from "actions/widgetSelectionActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { NavigationMethod } from "utils/history";
+import WidgetsEditorEntityExplorer from "../WidgetsEditorEntityExplorer";
 
 jest.useFakeTimers();
 const pushState = jest.spyOn(window.history, "pushState");
@@ -46,6 +47,15 @@ jest.mock("@appsmith/utils/BusinessFeatures/permissionPageHelpers", () => ({
     "@appsmith/utils/BusinessFeatures/permissionPageHelpers",
   ),
 }));
+
+jest.mock("selectors/explorerSelector", () => ({
+  __esModule: true,
+  ...jest.requireActual("selectors/explorerSelector"),
+}));
+
+jest
+  .spyOn(explorerSelector, "getExplorerWidth")
+  .mockImplementation(() => DEFAULT_ENTITY_EXPLORER_WIDTH);
 
 describe("Entity Explorer tests", () => {
   beforeAll(() => {
@@ -142,7 +152,7 @@ describe("Entity Explorer tests", () => {
     });
     const component = render(
       <MockPageDSL dsl={dsl}>
-        <Sidebar width={DEFAULT_ENTITY_EXPLORER_WIDTH} />
+        <WidgetsEditorEntityExplorer />
       </MockPageDSL>,
     );
     const widgetsTree: any = component.queryByText("Widgets", {
@@ -174,7 +184,7 @@ describe("Entity Explorer tests", () => {
       });
       const component = render(
         <MockPageDSL dsl={dsl}>
-          <Sidebar width={DEFAULT_ENTITY_EXPLORER_WIDTH} />
+          <WidgetsEditorEntityExplorer />
         </MockPageDSL>,
       );
       const tabsWidget: any = component.queryByText(children[0].widgetName);
@@ -205,7 +215,7 @@ describe("Entity Explorer tests", () => {
       });
       const component = render(
         <MockPageDSL dsl={dsl}>
-          <Sidebar width={DEFAULT_ENTITY_EXPLORER_WIDTH} />
+          <WidgetsEditorEntityExplorer />
         </MockPageDSL>,
       );
       const checkBox: any = component.queryByText(children[0].widgetName);
@@ -250,7 +260,7 @@ describe("Entity Explorer tests", () => {
       });
       const component = render(
         <MockPageDSL dsl={dsl}>
-          <Sidebar width={DEFAULT_ENTITY_EXPLORER_WIDTH} />
+          <WidgetsEditorEntityExplorer />
         </MockPageDSL>,
       );
 
@@ -330,7 +340,7 @@ describe("Entity Explorer tests", () => {
       });
       const component = render(
         <MockPageDSL dsl={dsl}>
-          <Sidebar width={DEFAULT_ENTITY_EXPLORER_WIDTH} />
+          <WidgetsEditorEntityExplorer />
         </MockPageDSL>,
       );
       const containerWidget: any = component.queryByText(
