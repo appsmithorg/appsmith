@@ -12,7 +12,7 @@ import type {
   UnEvalTreeEntity,
   WidgetEntityConfig,
   WidgetEntity,
-} from "entities/DataTree/dataTreeFactory";
+} from "@appsmith/entities/DataTree/types";
 import { isWidget } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { klona } from "klona";
 import { getDynamicBindings, isDynamicValue } from "utils/DynamicBindingUtils";
