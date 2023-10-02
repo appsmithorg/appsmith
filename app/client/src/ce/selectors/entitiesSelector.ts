@@ -52,9 +52,6 @@ export const getDatasources = (state: AppState): Datasource[] => {
   return state.entities.datasources.list;
 };
 
-export const getWidgetPositions = (state: AppState) =>
-  state.entities.widgetPositions;
-
 // Returns non temp datasources
 export const getSavedDatasources = (state: AppState): Datasource[] => {
   return state.entities.datasources.list.filter(
