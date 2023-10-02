@@ -13,6 +13,7 @@ import { mockDatasources } from "./mockTestData";
 import { updateCurrentPage } from "actions/pageActions";
 import urlBuilder from "entities/URLRedirect/URLAssembly";
 import * as helpers from "@appsmith/pages/Editor/Explorer/helpers";
+import * as explorerSelector from "selectors/explorerSelector";
 import * as permissionPageHelpers from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import userEvent from "@testing-library/user-event";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
