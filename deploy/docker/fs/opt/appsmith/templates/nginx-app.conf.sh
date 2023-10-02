@@ -75,6 +75,8 @@ fi
   # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors
   add_header Content-Security-Policy "frame-ancestors ${APPSMITH_ALLOWED_FRAME_ANCESTORS-'self' *}";
 
+  add_header Content-Security-Policy "script-src 'self' 'unsafe-inline' *";
+
   $additional_downstream_headers
 
   location /.well-known/acme-challenge/ {
