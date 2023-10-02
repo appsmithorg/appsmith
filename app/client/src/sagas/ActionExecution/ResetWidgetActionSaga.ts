@@ -9,7 +9,6 @@ import {
 import { getType, Types } from "utils/TypeHelpers";
 import type { FlattenedWidgetProps } from "WidgetProvider/constants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-
 import type { TResetWidgetDescription } from "workers/Evaluation/fns/resetWidget";
 
 export default function* resetWidgetActionSaga(

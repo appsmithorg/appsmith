@@ -56,7 +56,7 @@ import { migrateCheckboxGroupWidgetInlineProperty } from "./migrations/CheckboxG
 import { migrateMapWidgetIsClickedMarkerCentered } from "./migrations/MapWidget";
 import type { DSLWidget } from "WidgetProvider/constants";
 import { migrateRecaptchaType } from "./migrations/ButtonWidgetMigrations";
-import type { PrivateWidgets } from "entities/DataTree/types";
+import type { PrivateWidgets } from "@appsmith/entities/DataTree/types";
 import {
   migrateChildStylesheetFromDynamicBindingPathList,
   migrateStylingPropertiesForTheming,

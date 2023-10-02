@@ -1,4 +1,4 @@
-import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeFactory";
+import type { ConfigTree, DataTree } from "@appsmith/entities/DataTree/types";
 import type ReplayEntity from "entities/Replay";
 import ReplayCanvas from "entities/Replay/ReplayEntity/ReplayCanvas";
 import { isEmpty } from "lodash";

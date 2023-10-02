@@ -38,11 +38,13 @@ import {
   getCurrentPageId,
   getPagePermissions,
 } from "selectors/editorSelectors";
-import { hasCreateActionPermission } from "@appsmith/utils/permissionHelpers";
 import recommendedLibraries from "./recommendedLibraries";
 import { useTransition, animated } from "react-spring";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import { Installer } from "./Installer";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { getHasCreateActionPermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 
 const docsURLMap = recommendedLibraries.reduce((acc, lib) => {
   acc[lib.url] = lib.docsURL;
@@ -241,7 +243,7 @@ function LibraryEntity({ lib }: { lib: TJSLibrary }) {
           name="right-arrow-2"
           size={"md"}
         />
-        <div className="flex items-center flex-start flex-1 overflow-hidden">
+        <div className="flex items-center flex-1 overflow-hidden flex-start">
           <Name>{lib.name}</Name>
           {docsURL && (
             <div className="share">
@@ -262,7 +264,7 @@ function LibraryEntity({ lib }: { lib: TJSLibrary }) {
         <PrimaryCTA lib={lib} />
       </div>
       <Collapse className="text-xs" isOpen={isOpen}>
-        <div className="content pr-2">
+        <div className="pr-2 content">
           Available as{" "}
           <div className="accessor">
             {lib.accessor[lib.accessor.length - 1]}{" "}
@@ -300,7 +302,12 @@ function JSDependencies() {
 
   const pagePermissions = useSelector(getPagePermissions);
 
-  const canCreateActions = hasCreateActionPermission(pagePermissions);
+  const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+
+  const canCreateActions = getHasCreateActionPermission(
+    isFeatureEnabled,
+    pagePermissions,
+  );
 
   const isAirgappedInstance = isAirgapped();
 

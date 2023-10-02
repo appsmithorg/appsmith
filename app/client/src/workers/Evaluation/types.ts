@@ -1,7 +1,7 @@
 import type {
   ConfigTree,
   unEvalAndConfigTree,
-} from "entities/DataTree/dataTreeFactory";
+} from "@appsmith/entities/DataTree/types";
 import type { ActionValidationConfigMap } from "constants/PropertyControlConstants";
 import type { AppTheme } from "entities/AppTheming";
 
