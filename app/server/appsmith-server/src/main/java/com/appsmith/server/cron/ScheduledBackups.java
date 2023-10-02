@@ -3,6 +3,7 @@ package com.appsmith.server.cron;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.support.CronTrigger;
@@ -23,8 +24,7 @@ public class ScheduledBackups {
 
     private final TaskScheduler taskScheduler;
 
-    // Default to midnight every day.
-    @Value("${appsmith.backup-cron:0 0 0 * * *}")
+    @Value("${appsmith.backup-cron:}")
     private String cronExpression;
 
     private DateFormat dateFormat;
@@ -39,7 +39,10 @@ public class ScheduledBackups {
 
         String effectiveExpression = cronExpression;
 
-        if (effectiveExpression.split(" ").length == 5) {
+        if (StringUtils.isEmpty(effectiveExpression)) {
+            // Default to midnight every day.
+            effectiveExpression = "0 0 0 * * *";
+        } else if (effectiveExpression.split(" ").length == 5) {
             // If the cron expression is missing the seconds field, add it.
             // This is because Spring's CronTrigger requires the seconds field, but the Ubuntu cron utility does not.
             effectiveExpression = "0 " + effectiveExpression;
