@@ -30,11 +30,11 @@ import type { WrappedFieldInputProps } from "redux-form";
 import _, { debounce, isEqual } from "lodash";
 import scrollIntoView from "scroll-into-view-if-needed";
 
+import { ENTITY_TYPE_VALUE } from "entities/DataTree/dataTreeFactory";
 import type {
   DataTree,
   EvaluationSubstitutionType,
-} from "entities/DataTree/dataTreeFactory";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+} from "@appsmith/entities/DataTree/types";
 import { Skin } from "constants/DefaultTheme";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import "components/editorComponents/CodeEditor/sql/customMimes";
@@ -557,7 +557,8 @@ class CodeEditor extends Component<Props, State> {
       getEditorIdentifier(this.props) !== getEditorIdentifier(prevProps);
 
     const entityInformation = this.getEntityInformation();
-    const isWidgetType = entityInformation.entityType === ENTITY_TYPE.WIDGET;
+    const isWidgetType =
+      entityInformation.entityType === ENTITY_TYPE_VALUE.WIDGET;
 
     const hasFocusedValueChanged =
       getEditorIdentifier(this.props) !== this.props.focusedProperty;
@@ -1007,7 +1008,7 @@ class CodeEditor extends Component<Props, State> {
               }
 
               if (navigationData.url) {
-                if (navigationData.type === ENTITY_TYPE.ACTION) {
+                if (navigationData.type === ENTITY_TYPE_VALUE.ACTION) {
                   AnalyticsUtil.logEvent("EDIT_ACTION_CLICK", {
                     actionId: navigationData?.id,
                     datasourceId: navigationData?.datasourceId,
@@ -1287,9 +1288,9 @@ class CodeEditor extends Component<Props, State> {
         if ("ENTITY_TYPE" in entity) {
           const entityType = entity.ENTITY_TYPE;
           if (
-            entityType === ENTITY_TYPE.WIDGET ||
-            entityType === ENTITY_TYPE.ACTION ||
-            entityType === ENTITY_TYPE.JSACTION
+            entityType === ENTITY_TYPE_VALUE.WIDGET ||
+            entityType === ENTITY_TYPE_VALUE.ACTION ||
+            entityType === ENTITY_TYPE_VALUE.JSACTION
           ) {
             entityInformation.entityType = entityType;
           }

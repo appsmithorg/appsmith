@@ -37,7 +37,7 @@ import {
 } from "WidgetProvider/constants";
 import { getPropertiesToUpdate } from "./WidgetOperationSagas";
 import { klona as clone } from "klona/full";
-import type { DataTree } from "entities/DataTree/dataTreeFactory";
+import type { DataTree } from "@appsmith/entities/DataTree/types";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import { toast } from "design-system";
 import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";

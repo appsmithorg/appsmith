@@ -40,7 +40,7 @@ const CommunityTemplatesPublishInfo = ({
 };
 
 export default CommunityTemplatesPublishInfo;
-const COMMUNITY_PORTAL_BASE_URL = "https://community.appsmith.com/";
+const COMMUNITY_PORTAL_BASE_URL = "https://community.appsmith.com";
 
 const PublishedAppInstructions = () => {
   const currentApplication = useSelector(getCurrentApplication);

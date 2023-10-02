@@ -86,7 +86,7 @@ import type {
   DataTree,
   UnEvalTree,
   WidgetEntityConfig,
-} from "entities/DataTree/dataTreeFactory";
+} from "@appsmith/entities/DataTree/types";
 
 import { initiateLinting, lintWorker } from "./LintingSagas";
 import type {
