@@ -12,6 +12,19 @@ export type InviteUsersToWorkspaceFormValues = {
   usersByRole: InviteUsersToWorkspaceByRoleValues[];
 };
 
+export type InviteUsersProps = {
+  roles?: any;
+  applicationId?: string;
+  workspaceId?: string;
+  isApplicationPage?: boolean;
+  placeholder?: string;
+  customProps?: any;
+  selected?: any;
+  options?: any;
+  isMultiSelectDropdown?: boolean;
+  checkIfInvitedUsersFromDifferentDomain?: () => void;
+};
+
 export type CreateWorkspaceFormValues = {
   name: string;
 };

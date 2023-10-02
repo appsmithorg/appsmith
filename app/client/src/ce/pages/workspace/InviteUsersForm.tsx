@@ -5,7 +5,10 @@ import { reduxForm, SubmissionError } from "redux-form";
 import { connect, useSelector } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
 import { getRolesForField } from "@appsmith/selectors/workspaceSelectors";
-import type { InviteUsersToWorkspaceFormValues } from "@appsmith/pages/workspace/helpers";
+import type {
+  InviteUsersToWorkspaceFormValues,
+  InviteUsersProps,
+} from "@appsmith/pages/workspace/helpers";
 import { inviteUsersToWorkspace } from "@appsmith/pages/workspace/helpers";
 import { INVITE_USERS_TO_WORKSPACE_FORM } from "@appsmith/constants/forms";
 import {
@@ -334,7 +337,7 @@ function InviteUsersForm(props: any) {
         { kind: "success" },
       );
 
-      props.checkIfInvitedUsersFromDifferentDomain(invitedEmails.current);
+      props?.checkIfInvitedUsersFromDifferentDomain?.(invitedEmails.current);
     }
   }, [submitSucceeded, invitedEmails.current]);
 
@@ -517,21 +520,7 @@ export default connect(
   mapStateToProps,
   mapDispatchToProps,
 )(
-  reduxForm<
-    InviteUsersToWorkspaceFormValues,
-    {
-      roles?: any;
-      applicationId?: string;
-      workspaceId?: string;
-      isApplicationPage?: boolean;
-      placeholder?: string;
-      customProps?: any;
-      selected?: any;
-      options?: any;
-      isMultiSelectDropdown?: boolean;
-      checkIfInvitedUsersFromDifferentDomain?: () => void;
-    }
-  >({
+  reduxForm<InviteUsersToWorkspaceFormValues, InviteUsersProps>({
     validate,
   })(InviteUsersForm),
 );

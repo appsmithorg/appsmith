@@ -31,17 +31,14 @@ import {
   getAllAppUsers,
   getApplicationLoadingStates,
 } from "@appsmith/selectors/applicationSelectors";
-import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
-import store from "store";
-import { isGACEnabled } from "@appsmith/utils/planHelpers";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 
 const NoEmailConfigImage = importSvg(
   () => import("assets/images/email-not-configured.svg"),
 );
 
 const { cloudHosting } = getAppsmithConfigs();
-const featureFlags = selectFeatureFlags(store.getState());
-const isFeatureEnabled = isGACEnabled(featureFlags);
 
 export const WorkspaceInviteWrapper = styled.div``;
 
@@ -110,11 +107,12 @@ export const ManageUsersContainer = styled.div`
 `;
 
 function WorkspaceInviteUsers(props: any) {
-  const showAppLevelInviteModal =
-    (isFeatureEnabled && props.isApplicationPage) || false;
+  const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
   const userRef = React.createRef<HTMLDivElement>();
   const currentUser = useSelector(getCurrentUser);
   const currentWorkspace = useSelector(getCurrentAppWorkspace);
+  const showAppLevelInviteModal =
+    (isFeatureEnabled && props.isApplicationPage) || false;
   const allUsers = useSelector(
     showAppLevelInviteModal ? getAllAppUsers : getAllUsers,
   );
