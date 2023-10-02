@@ -475,6 +475,7 @@ export function ApplicationsSection(props: any) {
     dispatch(updateApplication(id, data));
   };
   const isLoadingResources = isFetchingApplications || isFetchingPackages;
+  const isGACEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
 
   useEffect(() => {
     // Clears URL params cache
@@ -669,7 +670,7 @@ export function ApplicationsSection(props: any) {
                         Form={WorkspaceInviteUsersForm}
                         placeholder={createMessage(
                           INVITE_USERS_PLACEHOLDER,
-                          cloudHosting,
+                          !isGACEnabled,
                         )}
                         workspace={workspace}
                       />

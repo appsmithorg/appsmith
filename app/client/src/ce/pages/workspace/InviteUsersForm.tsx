@@ -23,7 +23,6 @@ import {
   CUSTOM_ROLE_TEXT,
 } from "@appsmith/constants/messages";
 import { isEmail } from "utils/formhelpers";
-import { getAppsmithConfigs } from "@appsmith/configs";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import type { SelectOptionProps } from "design-system";
 import { Callout, Checkbox } from "design-system";
@@ -52,8 +51,12 @@ import {
   RampSection,
 } from "utils/ProductRamps/RampsControlList";
 import BusinessTag from "components/BusinessTag";
+import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
+import store from "store";
+import { isGACEnabled } from "@appsmith/utils/planHelpers";
 
-const { cloudHosting } = getAppsmithConfigs();
+const featureFlags = selectFeatureFlags(store.getState());
+const isFeatureEnabled = isGACEnabled(featureFlags);
 
 export const StyledForm = styled.form`
   width: 100%;
@@ -138,7 +141,7 @@ const validateFormValues = (values: {
         throw new SubmissionError({
           _error: createMessage(
             INVITE_USERS_VALIDATION_EMAIL_LIST,
-            cloudHosting,
+            !isFeatureEnabled,
           ),
         });
       }
@@ -173,7 +176,7 @@ const validate = (values: any) => {
       if (!isEmail(user)) {
         errors["users"] = createMessage(
           INVITE_USERS_VALIDATION_EMAIL_LIST,
-          cloudHosting,
+          !isFeatureEnabled,
         );
       }
     });
@@ -383,7 +386,7 @@ function InviteUsersForm(props: any) {
         invitedEmails.current = validEmails;
 
         AnalyticsUtil.logEvent("INVITE_USER", {
-          ...(cloudHosting ? { users: usersAsStringsArray } : {}),
+          ...(!isFeatureEnabled ? { users: usersAsStringsArray } : {}),
           role: roles,
           numberOfUsersInvited: usersAsStringsArray.length,
           orgId: props.workspaceId,
