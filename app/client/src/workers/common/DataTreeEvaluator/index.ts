@@ -1048,7 +1048,7 @@ export default class DataTreeEvaluator {
 
             const widgetEntity = entity as WidgetEntity;
 
-            const parsedValue = validateAndParseWidgetProperty({
+            let parsedValue = validateAndParseWidgetProperty({
               fullPropertyPath,
               widget: widgetEntity,
               configTree: oldConfigTree,
@@ -1056,6 +1056,18 @@ export default class DataTreeEvaluator {
               unEvalPropertyValue,
               evalProps: this.evalProps,
               evalPathsIdenticalToState: this.evalPathsIdenticalToState,
+            });
+
+            parsedValue = this.getParsedValueForWidgetProperty({
+              currentTree,
+              configTree: oldConfigTree,
+              entity: widgetEntity,
+              evalMetaUpdates,
+              fullPropertyPath,
+              parsedValue,
+              propertyPath,
+              isNewWidget,
+              safeTree,
             });
 
             // setting evalPropertyValue in unParsedEvalTree

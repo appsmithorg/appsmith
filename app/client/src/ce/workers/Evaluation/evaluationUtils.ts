@@ -814,7 +814,7 @@ export const overrideWidgetProperties = (params: {
     overridingPropertyPaths.forEach((overriddenPropertyPath) => {
       const overriddenPropertyPathArray = overriddenPropertyPath.split(".");
       if (pathsNotToOverride.includes(overriddenPropertyPath)) return;
-      const fullPath = `${entityName}.${overriddenPropertyPath}`;
+      const fullPath = [entityName, ...overriddenPropertyPathArray];
       _.set(currentTree, fullPath, clonedValue);
       if (safeTree) _.set(safeTree, fullPath, klona(value));
 
@@ -847,7 +847,7 @@ export const overrideWidgetProperties = (params: {
       const defaultValue = entity[propertyOverridingKeyMap.DEFAULT];
       if (defaultValue !== undefined) {
         const clonedDefaultValue = klona(defaultValue);
-        const fullPath = `${entityName}.${propertyPath}`;
+        const fullPath = [entityName, ...propertyPath.split(".")];
         _.set(currentTree, fullPath, clonedDefaultValue);
         if (safeTree) _.set(safeTree, fullPath, klona(defaultValue));
 
@@ -863,32 +863,6 @@ export const overrideWidgetProperties = (params: {
     }
   }
 };
-
-export function getPathsToOverride(
-  widget: WidgetEntity,
-  config: WidgetEntityConfig,
-  propertyPath: string,
-  isNewWidget: boolean,
-) {
-  const paths: Array<string> = [];
-  if (!(propertyPath in config.overridingPropertyPaths)) return paths;
-  const pathsNotToOverride = widgetPathsNotToOverride(
-    isNewWidget,
-    propertyPath,
-    config,
-  );
-  const overridingPropertyPaths = config.overridingPropertyPaths[propertyPath];
-  return overridingPropertyPaths.filter((p) => !pathsNotToOverride.includes(p));
-}
-
-export function getDefaultFieldForMetaField(
-  config: WidgetEntityConfig,
-  propertyPath: string,
-) {
-  if (propertyPath in config.propertyOverrideDependency) {
-    return config.propertyOverrideDependency[propertyPath].DEFAULT;
-  }
-}
 
 export function isValidEntity(
   entity: DataTreeEntity,
