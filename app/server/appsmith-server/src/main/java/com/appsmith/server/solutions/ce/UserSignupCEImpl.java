@@ -55,7 +55,7 @@ import static com.appsmith.server.constants.EnvVariables.APPSMITH_ADMIN_EMAILS;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_DISABLE_TELEMETRY;
 import static com.appsmith.server.constants.ce.FieldNameCE.EMAIL;
 import static com.appsmith.server.constants.ce.FieldNameCE.NAME;
-import static com.appsmith.server.constants.ce.FieldNameCE.ROLE;
+import static com.appsmith.server.constants.ce.FieldNameCE.PROFICIENCY;
 import static com.appsmith.server.helpers.RedirectHelper.REDIRECT_URL_QUERY_PARAM;
 import static com.appsmith.server.helpers.ValidationUtils.LOGIN_PASSWORD_MAX_LENGTH;
 import static com.appsmith.server.helpers.ValidationUtils.LOGIN_PASSWORD_MIN_LENGTH;
@@ -271,7 +271,7 @@ public class UserSignupCEImpl implements UserSignupCE {
                 })
                 .flatMap(user -> {
                     final UserData userData = new UserData();
-                    userData.setRole(userFromRequest.getRole());
+                    userData.setProficiency(userFromRequest.getProficiency());
                     userData.setUseCase(userFromRequest.getUseCase());
 
                     Mono<UserData> userDataMono = userDataService
@@ -350,8 +350,8 @@ public class UserSignupCEImpl implements UserSignupCE {
                     if (formData.containsKey(FieldName.NAME)) {
                         user.setName(formData.getFirst(FieldName.NAME));
                     }
-                    if (formData.containsKey("role")) {
-                        user.setRole(formData.getFirst("role"));
+                    if (formData.containsKey("proficiency")) {
+                        user.setProficiency(formData.getFirst("proficiency"));
                     }
                     if (formData.containsKey("useCase")) {
                         user.setUseCase(formData.getFirst("useCase"));
@@ -413,7 +413,7 @@ public class UserSignupCEImpl implements UserSignupCE {
                     analyticsProps.put(DISABLE_TELEMETRY, !userFromRequest.isAllowCollectingAnonymousData());
                     analyticsProps.put(SUBSCRIBE_MARKETING, userFromRequest.isSignupForNewsletter());
                     analyticsProps.put(EMAIL, newsletterSignedUpUserEmail);
-                    analyticsProps.put(ROLE, ObjectUtils.defaultIfNull(userData.getRole(), ""));
+                    analyticsProps.put(PROFICIENCY, ObjectUtils.defaultIfNull(userData.getProficiency(), ""));
                     analyticsProps.put(GOAL, ObjectUtils.defaultIfNull(userData.getUseCase(), ""));
                     // ip is a reserved keyword for tracking events in Mixpanel though this is allowed in
                     // Segment. Instead of showing the ip as is Mixpanel provides derived property.
@@ -426,7 +426,7 @@ public class UserSignupCEImpl implements UserSignupCE {
 
                     analyticsService.identifyInstance(
                             instanceId,
-                            userData.getRole(),
+                            userData.getProficiency(),
                             userData.getUseCase(),
                             newsletterSignedUpUserEmail,
                             newsletterSignedUpUserName,

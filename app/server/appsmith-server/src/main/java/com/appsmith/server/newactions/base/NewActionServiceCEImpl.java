@@ -269,9 +269,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     @Override
     public Mono<ActionDTO> validateAndSaveActionToRepository(NewAction newAction) {
 
-        if (newAction.getGitSyncId() == null) {
-            newAction.setGitSyncId(newAction.getApplicationId() + "_" + new ObjectId());
-        }
+        this.setGitSyncIdInNewAction(newAction);
 
         ActionDTO action = newAction.getUnpublishedAction();
 
@@ -295,9 +293,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.NAME));
         }
 
-        if (action.getPageId() == null || action.getPageId().isBlank()) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID));
-        }
+        this.validateCreatorId(action);
 
         if (!validateActionName(action.getName())) {
             action.setIsValid(false);
@@ -427,6 +423,19 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 .flatMap(repository::setUserPermissionsInObject)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.REPOSITORY_SAVE_FAILED)))
                 .flatMap(this::setTransientFieldsInUnpublishedAction);
+    }
+
+    protected Mono<ActionDTO> validateCreatorId(ActionDTO action) {
+        if (action.getPageId() == null || action.getPageId().isBlank()) {
+            throw new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID);
+        }
+        return Mono.just(action);
+    }
+
+    protected void setGitSyncIdInNewAction(NewAction newAction) {
+        if (newAction.getGitSyncId() == null) {
+            newAction.setGitSyncId(newAction.getApplicationId() + "_" + new ObjectId());
+        }
     }
 
     /**
