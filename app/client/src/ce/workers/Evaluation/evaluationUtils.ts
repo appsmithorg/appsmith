@@ -866,6 +866,33 @@ export const overrideWidgetProperties = (params: {
     }
   }
 };
+
+export function getPathsToOverride(
+  widget: WidgetEntity,
+  config: WidgetEntityConfig,
+  propertyPath: string,
+  isNewWidget: boolean,
+) {
+  const paths: Array<string> = [];
+  if (!(propertyPath in config.overridingPropertyPaths)) return paths;
+  const pathsNotToOverride = widgetPathsNotToOverride(
+    isNewWidget,
+    propertyPath,
+    config,
+  );
+  const overridingPropertyPaths = config.overridingPropertyPaths[propertyPath];
+  return overridingPropertyPaths.filter((p) => pathsNotToOverride.includes(p));
+}
+
+export function getDefaultFieldForMetaField(
+  config: WidgetEntityConfig,
+  propertyPath: string,
+) {
+  if (propertyPath in config.propertyOverrideDependency) {
+    return config.propertyOverrideDependency[propertyPath].DEFAULT;
+  }
+}
+
 export function isValidEntity(
   entity: DataTreeEntity,
 ): entity is DataTreeEntityObject {

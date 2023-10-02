@@ -57,6 +57,8 @@ import {
   DataTreeDiffEvent,
   resetValidationErrorsForEntityProperty,
   isAPathDynamicBindingPath,
+  getPathsToOverride,
+  getDefaultFieldForMetaField,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
 import {
   difference,
@@ -1048,7 +1050,7 @@ export default class DataTreeEvaluator {
 
             const widgetEntity = entity as WidgetEntity;
 
-            const parsedValue = validateAndParseWidgetProperty({
+            let value = validateAndParseWidgetProperty({
               fullPropertyPath,
               widget: widgetEntity,
               configTree: oldConfigTree,
@@ -1057,19 +1059,45 @@ export default class DataTreeEvaluator {
               evalProps: this.evalProps,
               evalPathsIdenticalToState: this.evalPathsIdenticalToState,
             });
+            const widgetConfig = oldConfigTree[
+              widgetEntity.widgetName
+            ] as WidgetEntityConfig;
 
-            const overwrittenParsedValue = this.getParsedValueForWidgetProperty(
-              {
-                currentTree,
-                configTree: oldConfigTree,
-                entity: widgetEntity,
-                evalMetaUpdates,
-                fullPropertyPath,
-                parsedValue,
-                propertyPath,
-                isNewWidget,
-              },
+            const pathsToOverride = getPathsToOverride(
+              widgetEntity,
+              widgetConfig,
+              propertyPath,
+              !!isNewEntity,
             );
+
+            pathsToOverride.forEach((p) => {
+              const clonedValueForSafeTree = klona(value);
+              const fullPath = `${entityName}.${p}`;
+              const overriddenPropertyPathArray = p.split(".");
+              set(currentTree, fullPath, klona(value));
+              set(safeTree, fullPath, clonedValueForSafeTree);
+              // evalMetaUpdates has all updates from property which overrides meta values.
+              if (
+                propertyPath.split(".")[0] !== "meta" &&
+                overriddenPropertyPathArray[0] === "meta"
+              ) {
+                const metaPropertyPath = overriddenPropertyPathArray.slice(1);
+                evalMetaUpdates.push({
+                  widgetId: widgetEntity.widgetId,
+                  metaPropertyPath,
+                  value: clonedValueForSafeTree,
+                });
+              }
+            });
+
+            const defaultFieldForMetaField = getDefaultFieldForMetaField(
+              widgetConfig,
+              propertyPath,
+            );
+
+            if (defaultFieldForMetaField && value === undefined) {
+              value = klona(widgetEntity[defaultFieldForMetaField]);
+            }
 
             // setting evalPropertyValue in unParsedEvalTree
             set(
@@ -1078,8 +1106,8 @@ export default class DataTreeEvaluator {
               evalPropertyValue,
             );
 
-            set(currentTree, fullPropertyPath, overwrittenParsedValue);
-            set(safeTree, fullPropertyPath, klona(overwrittenParsedValue));
+            set(currentTree, fullPropertyPath, value);
+            set(safeTree, fullPropertyPath, klona(value));
 
             staleMetaIds = staleMetaIds.concat(
               getStaleMetaStateIds({
