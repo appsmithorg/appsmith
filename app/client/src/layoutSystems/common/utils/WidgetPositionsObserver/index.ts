@@ -2,7 +2,7 @@ import { debounce } from "lodash";
 import type { RefObject } from "react";
 import { ANVIL_LAYER, ANVIL_WIDGET, LAYOUT } from "./utils";
 import store from "store";
-import { readWidgetPositions } from "actions/autoLayoutActions";
+import { readWidgetPositions } from "layoutSystems/anvil/integrations/actions";
 
 /**
  * This Class's main function is to batch all the registered widgets, Flex layers and layout components

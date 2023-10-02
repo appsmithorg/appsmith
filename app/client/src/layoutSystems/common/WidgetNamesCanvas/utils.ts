@@ -1,9 +1,6 @@
 import Konva from "konva";
-import type { WidgetPosition } from "reducers/entityReducers/widgetPositionsReducer";
-import type {
-  WidgetNameData,
-  WidgetNamePositionData,
-} from "./WidgetNameConstants";
+import type { WidgetPosition } from "layoutSystems/common/types";
+import type { WidgetNameData, WidgetNamePositionData } from "./WidgetNameTypes";
 import {
   warningSVGPath,
   WidgetNameState,

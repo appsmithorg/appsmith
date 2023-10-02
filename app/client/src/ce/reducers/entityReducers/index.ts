@@ -11,7 +11,7 @@ import pageListReducer from "reducers/entityReducers/pageListReducer";
 import pluginsReducer from "reducers/entityReducers/pluginsReducer";
 import autoHeightLayoutTreeReducer from "reducers/entityReducers/autoHeightReducers/autoHeightLayoutTreeReducer";
 import canvasLevelsReducer from "reducers/entityReducers/autoHeightReducers/canvasLevelsReducer";
-import widgetPositionsReducer from "reducers/entityReducers/widgetPositionsReducer";
+import widgetPositionsReducer from "layoutSystems/anvil/integrations/reducers/widgetPositionsReducer";
 
 export const entityReducerObject = {
   canvasWidgets: canvasWidgetsReducer,

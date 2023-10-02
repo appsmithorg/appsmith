@@ -2,7 +2,7 @@ import type { DragEventHandler, DragEvent } from "react";
 import React, { useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
 import { throttle } from "lodash";
-import { Layer, Stage } from "react-konva";
+import { Layer, Stage } from "react-konva/lib/ReactKonvaCore";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 
@@ -15,7 +15,7 @@ import type {
   WidgetNameData,
   WidgetNamePositionData,
   WIDGET_NAME_TYPE,
-} from "./WidgetNameConstants";
+} from "./WidgetNameTypes";
 import {
   DEFAULT_WIDGET_NAME_CANVAS_HEIGHT,
   WIDGET_NAME_CANVAS_PADDING,
@@ -25,8 +25,8 @@ import {
 import {
   getFocusedWidgetNameData,
   getSelectedWidgetNameData,
-} from "@appsmith/selectors/entitiesSelector";
-import type { WidgetPosition } from "reducers/entityReducers/widgetPositionsReducer";
+} from "../selectors";
+import type { WidgetPosition } from "layoutSystems/common/types";
 import { getShouldAllowDrag } from "selectors/widgetDragSelectors";
 import type { Stage as CanvasStageType } from "konva/lib/Stage";
 import type { Layer as KonvaLayer } from "konva/lib/Layer";

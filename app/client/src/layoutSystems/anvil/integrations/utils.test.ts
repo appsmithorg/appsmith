@@ -1,9 +1,6 @@
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { WidgetProps } from "widgets/BaseWidget";
-import {
-  getAffectedWidgetsFromLayers,
-  getAllChildWidgets,
-} from "./WidgetPositionsUtils";
+import { getAffectedWidgetsFromLayers, getAllChildWidgets } from "./utils";
 
 const widgets = {
   "0": {

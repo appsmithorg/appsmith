@@ -75,7 +75,10 @@ import type { AnalyticsReduxState } from "reducers/uiReducers/analyticsReducer";
 import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
 import type { layoutConversionReduxState } from "reducers/uiReducers/layoutConversionReducer";
 import type { OneClickBindingState } from "reducers/uiReducers/oneClickBindingReducer";
-import type { WidgetPositions } from "reducers/entityReducers/widgetPositionsReducer";
+
+/* Reducers which are integrated into the core system when registering a pluggable module
+    or done so by a module that is designed to be eventually pluggable */
+import type { WidgetPositionsReduxState } from "layoutSystems/anvil/integrations/reducers/widgetPositionsReducer";
 
 export const reducerObject = {
   entities: entityReducer,
@@ -153,7 +156,7 @@ export interface AppState {
     jsActions: JSCollectionDataState;
     autoHeightLayoutTree: AutoHeightLayoutTreeReduxState;
     canvasLevels: CanvasLevelsReduxState;
-    widgetPositions: WidgetPositions;
+    widgetPositions: WidgetPositionsReduxState;
   };
   evaluations: {
     tree: EvaluatedTreeState;

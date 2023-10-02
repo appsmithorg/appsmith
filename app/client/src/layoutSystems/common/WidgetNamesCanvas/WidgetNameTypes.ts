@@ -1,11 +1,7 @@
-import type { WidgetPosition } from "reducers/entityReducers/widgetPositionsReducer";
+import type { WidgetPosition } from "layoutSystems/common/types";
+import type { WidgetNameState } from "./WidgetNameConstants";
 
-//Indicates the state of widget name
-export enum WidgetNameState {
-  NORMAL = "NORMAL",
-  ERROR = "ERROR",
-  FOCUSED = "FOCUSED",
-}
+export type WIDGET_NAME_TYPE = "selected" | "focused";
 
 //Contains the data of widget which are required to draw widget names on canvas
 export type WidgetNameData = {

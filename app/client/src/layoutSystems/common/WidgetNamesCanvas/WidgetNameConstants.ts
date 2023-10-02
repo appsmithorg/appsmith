@@ -1,6 +1,5 @@
 import { Colors } from "constants/Colors";
 import type { CSSProperties } from "react";
-import type { WidgetPosition } from "reducers/entityReducers/widgetPositionsReducer";
 
 export const WIDGET_NAME_CANVAS = "widget-name-canvas";
 export const WIDGET_NAME_FONT_SIZE = 14;
@@ -18,8 +17,6 @@ export const WIDGET_NAME_HEIGHT = Math.floor(
 
 export const WIDGET_NAME_TEXT_COLOR = Colors.WHITE;
 
-export type WIDGET_NAME_TYPE = "selected" | "focused";
-
 //Adding this here as Konva accepts this type of path for SVG
 export const warningSVGPath =
   "M 18 9 C 18 13.9706 13.9706 18 9 18 C 4.0294 18 0 13.9706 0 9 C 0 4.0294 4.0294 0 9 0 C 13.9706 0 18 4.0294 18 9 Z M 7.875 3.9375 V 10.125 H 10.125 V 3.9375 H 7.875 Z M 9 14.0625 C 9.6213 14.0625 10.125 13.5588 10.125 12.9375 C 10.125 12.3162 9.6213 11.8125 9 11.8125 C 8.3787 11.8125 7.875 12.3162 7.875 12.9375 C 7.875 13.5588 8.3787 14.0625 9 14.0625 Z";
@@ -30,35 +27,6 @@ export enum WidgetNameState {
   ERROR = "ERROR",
   FOCUSED = "FOCUSED",
 }
-
-//Contains the data of widget which are required to draw widget names on canvas
-export type WidgetNameData = {
-  id: string;
-  position: WidgetPosition;
-  widgetName: string;
-  parentId: string;
-  nameState: WidgetNameState;
-  dragDisabled: boolean;
-};
-
-//Position of the widget name on canvas, required to enable interaction on canvas
-export type WidgetNamePositionData = {
-  left: number;
-  top: number;
-  width: number;
-  height: number;
-  widgetNameData: WidgetNameData;
-};
-
-//Position of canvas with respect to client browser
-export type CanvasPositions = {
-  top: number;
-  left: number;
-  xDiff: number;
-  width: number;
-  yDiff: number;
-  height: number;
-};
 
 //fill colors of widget name based on state
 export const WIDGET_NAME_FILL_COLORS = {
