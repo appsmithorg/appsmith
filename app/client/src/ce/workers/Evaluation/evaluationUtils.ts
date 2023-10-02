@@ -5,6 +5,7 @@ import {
   isDynamicValue,
   PropertyEvaluationErrorType,
   isPathDynamicTrigger,
+  isPathADynamicBinding,
 } from "utils/DynamicBindingUtils";
 import type { Diff } from "deep-diff";
 import type {
@@ -15,8 +16,8 @@ import type {
   DataTreeEntityConfig,
   ConfigTree,
   WidgetEntityConfig,
-} from "entities/DataTree/dataTreeFactory";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+} from "@appsmith/entities/DataTree/types";
+import { ENTITY_TYPE_VALUE } from "@appsmith/entities/DataTree/types";
 import _, { difference, find, get, has, isNil, set } from "lodash";
 import type { WidgetTypeConfigMap } from "WidgetProvider/factory";
 import { PluginType } from "entities/Action";
@@ -24,13 +25,13 @@ import { klona } from "klona/full";
 import { warn as logWarn } from "loglevel";
 import type { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
 import { isObject } from "lodash";
-import type { DataTreeEntityObject } from "entities/DataTree/dataTreeFactory";
+import type { DataTreeEntityObject } from "@appsmith/entities/DataTree/types";
 import type {
   JSActionEntityConfig,
   PrivateWidgets,
   JSActionEntity,
   ActionEntity,
-} from "entities/DataTree/types";
+} from "@appsmith/entities/DataTree/types";
 import type { EvalProps } from "workers/common/DataTreeEvaluator";
 import { validateWidgetProperty } from "workers/common/DataTreeEvaluator/validationUtils";
 
@@ -357,7 +358,7 @@ export function isWidget(
   return (
     typeof entity === "object" &&
     "ENTITY_TYPE" in entity &&
-    entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET
+    entity.ENTITY_TYPE === ENTITY_TYPE_VALUE.WIDGET
   );
 }
 
@@ -373,7 +374,7 @@ export function isAction(
   return (
     typeof entity === "object" &&
     "ENTITY_TYPE" in entity &&
-    entity.ENTITY_TYPE === ENTITY_TYPE.ACTION
+    entity.ENTITY_TYPE === ENTITY_TYPE_VALUE.ACTION
   );
 }
 
@@ -383,7 +384,7 @@ export function isAppsmithEntity(
   return (
     typeof entity === "object" &&
     "ENTITY_TYPE" in entity &&
-    entity.ENTITY_TYPE === ENTITY_TYPE.APPSMITH
+    entity.ENTITY_TYPE === ENTITY_TYPE_VALUE.APPSMITH
   );
 }
 
@@ -391,7 +392,7 @@ export function isJSAction(entity: DataTreeEntity): entity is JSActionEntity {
   return (
     typeof entity === "object" &&
     "ENTITY_TYPE" in entity &&
-    entity.ENTITY_TYPE === ENTITY_TYPE.JSACTION
+    entity.ENTITY_TYPE === ENTITY_TYPE_VALUE.JSACTION
   );
 }
 export function isJSActionConfig(
@@ -400,7 +401,7 @@ export function isJSActionConfig(
   return (
     typeof entity === "object" &&
     "ENTITY_TYPE" in entity &&
-    entity.ENTITY_TYPE === ENTITY_TYPE.JSACTION
+    entity.ENTITY_TYPE === ENTITY_TYPE_VALUE.JSACTION
   );
 }
 
@@ -408,7 +409,7 @@ export function isJSObject(entity: DataTreeEntity): entity is JSActionEntity {
   return (
     typeof entity === "object" &&
     "ENTITY_TYPE" in entity &&
-    entity.ENTITY_TYPE === ENTITY_TYPE.JSACTION &&
+    entity.ENTITY_TYPE === ENTITY_TYPE_VALUE.JSACTION &&
     "pluginType" in entity &&
     entity.pluginType === PluginType.JS
   );
@@ -579,31 +580,25 @@ export function getSafeToRenderDataTree(
 
 export const addErrorToEntityProperty = ({
   configTree,
-  dataTree,
   errors,
   evalProps,
   fullPropertyPath,
 }: {
   errors: EvaluationError[];
-  dataTree: DataTree;
   fullPropertyPath: string;
   evalProps: EvalProps;
   configTree: ConfigTree;
 }) => {
   const { entityName, propertyPath } =
     getEntityNameAndPropertyPath(fullPropertyPath);
-  const isPrivateEntityPath = getAllPrivateWidgetsInDataTree(
-    dataTree,
-    configTree,
-  )[entityName];
+  const isPrivateEntityPath =
+    getAllPrivateWidgetsInDataTree(configTree)[entityName];
   const logBlackList = get(configTree, `${entityName}.logBlackList`, {});
   if (propertyPath && !(propertyPath in logBlackList) && !isPrivateEntityPath) {
     const errorPath = `${entityName}.${EVAL_ERROR_PATH}['${propertyPath}']`;
     const existingErrors = get(evalProps, errorPath, []) as EvaluationError[];
     set(evalProps, errorPath, existingErrors.concat(errors));
   }
-
-  return dataTree;
 };
 
 export const resetValidationErrorsForEntityProperty = ({
@@ -712,15 +707,13 @@ export const isPrivateEntityPath = (
 };
 
 export const getAllPrivateWidgetsInDataTree = (
-  dataTree: DataTree,
   configTree: ConfigTree,
 ): PrivateWidgets => {
   let privateWidgets: PrivateWidgets = {};
 
-  Object.keys(dataTree).forEach((entityName) => {
-    const entity = dataTree[entityName];
+  Object.keys(configTree).forEach((entityName) => {
     const entityConfig = configTree[entityName] as WidgetEntityConfig;
-    if (isWidget(entity) && !_.isEmpty(entityConfig.privateWidgets)) {
+    if (isWidget(entityConfig) && !_.isEmpty(entityConfig.privateWidgets)) {
       privateWidgets = { ...privateWidgets, ...entityConfig.privateWidgets };
     }
   });
@@ -732,7 +725,7 @@ export const getDataTreeWithoutPrivateWidgets = (
   dataTree: DataTree,
   configTree: ConfigTree,
 ): DataTree => {
-  const privateWidgets = getAllPrivateWidgetsInDataTree(dataTree, configTree);
+  const privateWidgets = getAllPrivateWidgetsInDataTree(configTree);
   const privateWidgetNames = Object.keys(privateWidgets);
   const treeWithoutPrivateWidgets = _.omit(dataTree, privateWidgetNames);
   return treeWithoutPrivateWidgets;
@@ -972,7 +965,7 @@ export function convertJSFunctionsToString(
     for (const funcName in jsFunctions) {
       if (jsCollection[funcName] instanceof String) {
         if (has(jsCollection, [funcName, "data"])) {
-          set(jsCollection, [`${funcName}.data`], jsCollection[funcName].data);
+          set(jsCollection, [`${funcName}.data`], {});
         }
         set(jsCollection, funcName, jsCollection[funcName].toString());
       }
@@ -981,3 +974,14 @@ export function convertJSFunctionsToString(
 
   return collections;
 }
+
+export const isAPathDynamicBindingPath = (
+  entity: DataTreeEntity,
+  entityConfig: DataTreeEntityConfig,
+  propertyPath: string,
+) => {
+  return (
+    (isAction(entity) || isWidget(entity) || isJSAction(entity)) &&
+    isPathADynamicBinding(entityConfig, propertyPath)
+  );
+};

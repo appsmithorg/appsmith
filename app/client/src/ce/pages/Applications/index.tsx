@@ -55,6 +55,7 @@ import { loadingUserWorkspaces } from "pages/Applications/ApplicationLoaders";
 import type { creatingApplicationMap } from "@appsmith/reducers/uiReducers/applicationsReducer";
 import {
   deleteWorkspace,
+  resetCurrentWorkspace,
   saveWorkspace,
 } from "@appsmith/actions/workspaceActions";
 import { leaveWorkspace } from "actions/userActions";
@@ -85,7 +86,6 @@ import RepoLimitExceededErrorModal from "pages/Editor/gitSync/RepoLimitExceededE
 import { resetEditorRequest } from "actions/initActions";
 import {
   hasCreateNewAppPermission,
-  hasCreateWorkspacePermission,
   hasDeleteWorkspacePermission,
   isPermitted,
   PERMISSION_TYPE,
@@ -99,6 +99,9 @@ import { usePackage } from "@appsmith/pages/Applications/helpers";
 import PackageCardList from "@appsmith/pages/Applications/PackageCardList";
 import WorkspaceAction from "@appsmith/pages/Applications/WorkspaceAction";
 import ResourceListLoader from "@appsmith/pages/Applications/ResourceListLoader";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { getHasCreateWorkspacePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 
 export const { cloudHosting } = getAppsmithConfigs();
 
@@ -313,6 +316,7 @@ export function LeftPane(props: LeftPaneProps) {
   const fetchedUserWorkspaces = useSelector(getUserApplicationsWorkspaces);
   const isFetchingApplications = useSelector(getIsFetchingApplications);
   const isMobile = useIsMobileDevice();
+  const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
 
   let userWorkspaces;
   if (!isFetchingApplications) {
@@ -322,7 +326,10 @@ export function LeftPane(props: LeftPaneProps) {
   }
 
   const tenantPermissions = useSelector(getTenantPermissions);
-  const canCreateWorkspace = hasCreateWorkspacePermission(tenantPermissions);
+  const canCreateWorkspace = getHasCreateWorkspacePermission(
+    isFeatureEnabled,
+    tenantPermissions,
+  );
 
   const location = useLocation();
   const urlHash = location.hash.slice(1);
@@ -781,6 +788,7 @@ export interface ApplicationProps {
   ) => void;
   resetEditor: () => void;
   queryModuleFeatureFlagEnabled: boolean;
+  resetCurrentWorkspace: () => void;
 }
 
 export interface ApplicationState {
@@ -806,6 +814,10 @@ export class Applications<
     PerformanceTracker.stopTracking(PerformanceTransactionName.SIGN_UP);
     this.props.getAllApplication();
     this.props.setHeaderMetaData(true, true);
+
+    // Whenever we go back to home page from application page,
+    // we should reset current workspace, as this workspace is not in context anymore
+    this.props.resetCurrentWorkspace();
   }
 
   componentWillUnmount() {
@@ -837,7 +849,7 @@ export class Applications<
   }
 }
 
-const mapStateToProps = (state: AppState) => ({
+export const mapStateToProps = (state: AppState) => ({
   applicationList: getApplicationList(state),
   isFetchingApplications: getIsFetchingApplications(state),
   isCreatingApplication: getIsCreatingApplication(state),
@@ -848,7 +860,7 @@ const mapStateToProps = (state: AppState) => ({
   searchKeyword: getApplicationSearchKeyword(state),
 });
 
-const mapDispatchToProps = (dispatch: any) => ({
+export const mapDispatchToProps = (dispatch: any) => ({
   getAllApplication: () => {
     dispatch({ type: ReduxActionTypes.GET_ALL_APPLICATION_INIT });
   },
@@ -869,6 +881,7 @@ const mapDispatchToProps = (dispatch: any) => ({
   ) => {
     dispatch(setHeaderMeta(hideHeaderShadow, showHeaderSeparator));
   },
+  resetCurrentWorkspace: () => dispatch(resetCurrentWorkspace()),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Applications);

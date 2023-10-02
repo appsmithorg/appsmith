@@ -20,7 +20,7 @@ describe("Omnibar functionality test cases", () => {
     agHelper.Sleep(2000);
     deployMode.StubWindowNAssert(
       '//span[text()="Learn more"]',
-      "connect-datasource",
+      "connect-to-a-database",
       "getWorkspace",
     );
   });

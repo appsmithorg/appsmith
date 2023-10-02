@@ -954,7 +954,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
     private String validateApplicationJson(ApplicationJson importedDoc) {
         String errorField = "";
         if (CollectionUtils.isEmpty(importedDoc.getPageList())) {
-            errorField = FieldName.PAGES;
+            errorField = FieldName.PAGE_LIST;
         } else if (importedDoc.getExportedApplication() == null) {
             errorField = FieldName.APPLICATION;
         } else if (importedDoc.getActionList() == null) {
@@ -1835,7 +1835,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         String errorField = validateApplicationJson(importedDoc);
         if (!errorField.isEmpty()) {
             log.error("Error in importing application. Field {} is missing", errorField);
-            return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, errorField, INVALID_JSON_FILE));
+            return Mono.error(new AppsmithException(
+                    AppsmithError.VALIDATION_FAILURE, "Field '" + errorField + "' is missing in the JSON."));
         }
 
         Application importedApplication = importedDoc.getExportedApplication();
@@ -1944,6 +1945,13 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     Application application = tuple.getT1();
                     stopwatch.stopTimer();
                     stopwatch.stopAndLogTimeInMillis();
+                    int jsObjectCount = CollectionUtils.isEmpty(applicationJson.getActionCollectionList())
+                            ? 0
+                            : applicationJson.getActionCollectionList().size();
+                    int actionCount = CollectionUtils.isEmpty(applicationJson.getActionList())
+                            ? 0
+                            : applicationJson.getActionList().size();
+
                     final Map<String, Object> data = Map.of(
                             FieldName.APPLICATION_ID,
                             application.getId(),
@@ -1952,9 +1960,9 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                             "pageCount",
                             applicationJson.getPageList().size(),
                             "actionCount",
-                            applicationJson.getActionList().size(),
+                            actionCount,
                             "JSObjectCount",
-                            applicationJson.getActionCollectionList().size(),
+                            jsObjectCount,
                             FieldName.FLOW_NAME,
                             stopwatch.getFlow(),
                             "executionTime",
