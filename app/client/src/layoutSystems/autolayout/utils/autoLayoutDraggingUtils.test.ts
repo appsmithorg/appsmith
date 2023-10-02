@@ -1,4 +1,3 @@
-import type { FlexLayer } from "./autoLayoutTypes";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import {
   addNewLayer,
@@ -8,8 +7,9 @@ import {
   updateRelationships,
 } from "./autoLayoutDraggingUtils";
 import { getLayerIndexOfWidget } from "./AutoLayoutUtils";
-import { FlexLayerAlignment } from "./constants";
 import { data } from "./testData";
+import type { FlexLayer } from "./types";
+import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
 
 describe("test AutoLayoutDraggingUtils methods", () => {
   describe("test createFlexLayer method", () => {
