@@ -1,4 +1,4 @@
-import type { DataTree } from "entities/DataTree/dataTreeFactory";
+import type { DataTree } from "@appsmith/entities/DataTree/types";
 import { makeEntityConfigsAsObjProperties } from "@appsmith/workers/Evaluation/dataTreeUtils";
 import { smallDataSet } from "workers/Evaluation/__tests__/generateOpimisedUpdates.test";
 import produce from "immer";

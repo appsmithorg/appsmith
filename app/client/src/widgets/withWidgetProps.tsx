@@ -33,7 +33,7 @@ import {
 } from "utils/widgetRenderUtils";
 import type { WidgetProps } from "./BaseWidget";
 import type BaseWidget from "./BaseWidget";
-import type { WidgetEntityConfig } from "entities/DataTree/dataTreeFactory";
+import type { WidgetEntityConfig } from "@appsmith/entities/DataTree/types";
 import {
   defaultAutoLayoutWidgets,
   Positioning,

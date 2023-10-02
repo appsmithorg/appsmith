@@ -4,15 +4,18 @@ import memoize from "micro-memoize";
 import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { DynamicPath } from "utils/DynamicBindingUtils";
 import { getEntityDynamicBindingPathList } from "utils/DynamicBindingUtils";
-import type { WidgetEntityConfig, WidgetEntity } from "./dataTreeFactory";
-import { ENTITY_TYPE } from "./dataTreeFactory";
+import type {
+  WidgetEntityConfig,
+  WidgetEntity,
+} from "@appsmith/entities/DataTree/types";
+import { ENTITY_TYPE_VALUE } from "./dataTreeFactory";
 import type {
   OverridingPropertyPaths,
   PropertyOverrideDependency,
-} from "./types";
-import { OverridingPropertyType } from "./types";
+} from "@appsmith/entities/DataTree/types";
+import { OverridingPropertyType } from "@appsmith/entities/DataTree/types";
 
-import { setOverridingProperty } from "./utils";
+import { setOverridingProperty } from "@appsmith/entities/DataTree/utils";
 import { error } from "loglevel";
 import WidgetFactory from "WidgetProvider/factory";
 import { getComponentDimensions } from "layoutSystems/common/utils/ComponentSizeUtils";
@@ -289,7 +292,7 @@ const generateDataTreeWidgetWithoutMeta = (
 
   const dataTreeWidgetWithoutMetaProps = _.merge(
     {
-      ENTITY_TYPE: ENTITY_TYPE.WIDGET,
+      ENTITY_TYPE: ENTITY_TYPE_VALUE.WIDGET,
     },
     _.omit(widget, widgetPathsToOmit),
     unInitializedDefaultProps,
@@ -321,7 +324,7 @@ const generateDataTreeWidgetWithoutMeta = (
       reactivePaths,
       triggerPaths,
       validationPaths,
-      ENTITY_TYPE: ENTITY_TYPE.WIDGET,
+      ENTITY_TYPE: ENTITY_TYPE_VALUE.WIDGET,
       privateWidgets: {
         ...widget.privateWidgets,
       },

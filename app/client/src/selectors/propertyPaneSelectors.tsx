@@ -5,7 +5,7 @@ import type {
   DataTree,
   DataTreeEntity,
   WidgetEntity,
-} from "entities/DataTree/dataTreeFactory";
+} from "@appsmith/entities/DataTree/types";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type {
   PropertyPaneReduxState,

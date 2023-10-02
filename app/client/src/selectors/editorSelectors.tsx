@@ -29,7 +29,7 @@ import type {
   ConfigTree,
   WidgetEntity,
   WidgetEntityConfig,
-} from "entities/DataTree/dataTreeFactory";
+} from "@appsmith/entities/DataTree/types";
 import { find, sortBy } from "lodash";
 import {
   getDataTree,
