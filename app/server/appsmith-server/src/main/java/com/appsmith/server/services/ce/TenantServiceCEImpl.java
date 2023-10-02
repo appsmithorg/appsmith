@@ -18,6 +18,7 @@ import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.solutions.EnvManager;
 import jakarta.validation.Validator;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
@@ -30,6 +31,7 @@ import java.util.Map;
 import static com.appsmith.server.acl.AclPermission.MANAGE_TENANT;
 import static java.lang.Boolean.TRUE;
 
+@Slf4j
 public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, String> implements TenantServiceCE {
 
     private String tenantId = null;
@@ -231,6 +233,35 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
                     return Mono.error(
                             new AppsmithException(AppsmithError.FeatureFlagMigrationFailure, featureFlagEnum, ""));
                 });
+    }
+
+    @Override
+    public Mono<Tenant> retrieveById(String id) {
+        if (!StringUtils.hasLength(id)) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
+        }
+        return repository.retrieveById(id);
+    }
+
+    /**
+     * This function checks if the tenant needs to be restarted and restarts after the feature flag migrations are
+     * executed.
+     *
+     * @return
+     */
+    @Override
+    public Mono<Void> restartTenant() {
+        // Avoid dependency on user context as this method will be called internally by the server
+        Mono<Tenant> defaultTenantMono = this.getDefaultTenantId().flatMap(this::retrieveById);
+        return defaultTenantMono.flatMap(updatedTenant -> {
+            if (TRUE.equals(updatedTenant.getTenantConfiguration().getIsRestartRequired())) {
+                log.debug("Triggering tenant restart after the feature flag migrations are executed");
+                TenantConfiguration tenantConfiguration = updatedTenant.getTenantConfiguration();
+                tenantConfiguration.setIsRestartRequired(false);
+                return this.update(updatedTenant.getId(), updatedTenant).then(envManager.restartWithoutAclCheck());
+            }
+            return Mono.empty();
+        });
     }
 
     private boolean isMigrationRequired(Tenant tenant) {

@@ -40,7 +40,7 @@ import type {
   WidgetDefaultProps,
   WidgetMethods,
 } from "../WidgetProvider/constants";
-import type { WidgetEntity } from "entities/DataTree/dataTreeFactory";
+import type { WidgetEntity } from "@appsmith/entities/DataTree/types";
 import type { AutocompletionDefinitions } from "../WidgetProvider/constants";
 import type {
   FlexVerticalAlignment,
