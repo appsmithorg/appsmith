@@ -881,7 +881,7 @@ export function getPathsToOverride(
     config,
   );
   const overridingPropertyPaths = config.overridingPropertyPaths[propertyPath];
-  return overridingPropertyPaths.filter((p) => pathsNotToOverride.includes(p));
+  return overridingPropertyPaths.filter((p) => !pathsNotToOverride.includes(p));
 }
 
 export function getDefaultFieldForMetaField(
