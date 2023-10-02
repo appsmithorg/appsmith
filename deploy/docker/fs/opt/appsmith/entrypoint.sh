@@ -530,22 +530,6 @@ seed_embedded_postgres(){
     psql -U postgres -d users --file='/opt/appsmith/templates/users_postgres.sql'
 }
 
-configure_cron(){
-  # Cron for auto backup
-  local backup_cron_file="/etc/cron.d/backup"
-  # Set a default cron expression (e.g., run every day at midnight)
-  local cron_exp="0 */24 * * *"
-  if [[ "${APPSMITH_BACKUP_CRON_EXPRESSION-}" == "disable" ]]; then
-    rm -f "${backup_cron_file}"
-    return
-  elif [[ -n "${APPSMITH_BACKUP_CRON_EXPRESSION-}" ]]; then
-    cron_exp="${APPSMITH_BACKUP_CRON_EXPRESSION}"
-  fi 
-  
-  echo "${cron_exp} root appsmithctl backup --upload-to-s3" > "${backup_cron_file}"
-  chmod 0644 "${backup_cron_file}"
-}
-
 safe_init_postgres(){
 runEmbeddedPostgres=1
 # fail safe to prevent entrypoint from exiting, and prevent postgres from starting
@@ -602,8 +586,6 @@ check_redis_compatible_page_size
 safe_init_postgres
 
 configure_supervisord
-
-configure_cron
 
 # Ensure the restore path exists in the container, so an archive can be copied to it, if need be.
 mkdir -p /appsmith-stacks/data/{backup,restore,keycloak}

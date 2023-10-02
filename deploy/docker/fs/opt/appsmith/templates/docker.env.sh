@@ -101,7 +101,7 @@ APPSMITH_ALLOWED_FRAME_ANCESTORS="'self' *"
 
 APPSMITH_DISABLE_IFRAME_WIDGET_SANDBOX=false
 
-# Set the cron job expression to perform automatic backups; ex: "0 */24 * * *" - performa a backup at minute 0 past every 24th hour. To disable set the value to "disable"
-APPSMITH_BACKUP_CRON_EXPRESSION="0 */24 * * *"
+# Automatic scheduled backups at midnight everyday. To disable set the value to "disable".
+APPSMITH_BACKUP_CRON_EXPRESSION="0 0 * * *"
 
 EOF
