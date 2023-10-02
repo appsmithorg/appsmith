@@ -41,6 +41,26 @@ export const metaReducer = createReducer(initialState, {
     });
     return newMetaState;
   },
+  [ReduxActionTypes.RESET_WIDGET_META_UPDATES]: (
+    state: MetaState,
+    action: ReduxAction<{
+      evalMetaUpdates: EvalMetaUpdates;
+    }>,
+  ) => {
+    const { evalMetaUpdates } = action.payload;
+
+    if (!evalMetaUpdates.length) return state;
+
+    // if metaObject is updated in dataTree we also update meta values, to keep meta state in sync.
+    const newMetaState = produce(state, (draftMetaState) => {
+      evalMetaUpdates.forEach(({ metaPropertyPath, value, widgetId }) => {
+        set(draftMetaState, [widgetId, ...metaPropertyPath], value);
+      });
+      return draftMetaState;
+    });
+
+    return newMetaState;
+  },
   [ReduxActionTypes.SET_META_PROP]: (
     state: MetaState,
     action: ReduxAction<UpdateWidgetMetaPropertyPayload>,

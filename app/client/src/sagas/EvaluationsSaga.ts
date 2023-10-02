@@ -22,7 +22,7 @@ import {
   getDataTree,
   getUnevaluatedDataTree,
 } from "selectors/dataTreeSelectors";
-import { getMetaWidgets, getWidgets } from "sagas/selectors";
+import { getMetaWidgets, getWidgets, getWidgetsMeta } from "sagas/selectors";
 import type { WidgetTypeConfigMap } from "WidgetProvider/factory";
 import WidgetFactory from "WidgetProvider/factory";
 import { GracefulWorkerService } from "utils/WorkerUtil";
@@ -260,6 +260,9 @@ export function* evaluateTreeSaga(
     PerformanceTransactionName.DATA_TREE_EVALUATION,
   );
   const appMode: ReturnType<typeof getAppMode> = yield select(getAppMode);
+  const widgetsMeta: ReturnType<typeof getWidgetsMeta> = yield select(
+    getWidgetsMeta,
+  );
 
   const evalTreeRequestData: EvalTreeRequestData = {
     unevalTree: unEvalAndConfigTree,
@@ -271,6 +274,7 @@ export function* evaluateTreeSaga(
     forceEvaluation,
     metaWidgets,
     appMode,
+    widgetsMeta,
   };
 
   const workerResponse: EvalTreeResponseData = yield call(
