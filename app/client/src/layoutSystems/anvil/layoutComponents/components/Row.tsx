@@ -4,56 +4,76 @@ import type {
 } from "layoutSystems/anvil/utils/anvilTypes";
 import React from "react";
 import { FlexLayout } from "./FlexLayout";
-import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
 import { doesListIncludeWidgetIDs } from "layoutSystems/anvil/utils/layouts/typeUtils";
+import { renderWidgets } from "layoutSystems/anvil/utils/layouts/renderUtils";
+import { RenderModes } from "constants/WidgetConstants";
+import type { HighlightInfo } from "layoutSystems/common/utils/types";
+import {
+  addChildToLayout,
+  removeChildFromLayout,
+} from "layoutSystems/anvil/utils/layouts/layoutUtils";
 
 const Row = (props: LayoutComponentProps) => {
-  const { layoutStyle } = props;
+  const { canvasId, children, layoutId, layoutStyle } = props;
 
   return (
     <FlexLayout
-      canvasId="test-canvas-id"
+      alignSelf="stretch"
+      canvasId={canvasId}
+      columnGap="4px"
       direction="row"
-      layoutId={props.layoutId}
+      layoutId={layoutId}
       {...(layoutStyle || {})}
     >
-      {props.children}
+      {children}
     </FlexLayout>
   );
 };
 
 Row.type = "ROW" as LayoutComponentType;
 
+Row.addChild = (
+  props: LayoutComponentProps,
+  children: string[] | LayoutComponentProps[],
+  highlight: HighlightInfo,
+): LayoutComponentProps => {
+  return addChildToLayout(props, children, highlight);
+};
+
 Row.getWidth = () => {
   return 100;
 };
 
-Row.deriveHighlights = (canvasId: string) => {
-  return [
-    {
-      isNewLayer: true,
-      index: 0,
-      layerIndex: 0,
-      rowIndex: 0,
-      alignment: FlexLayerAlignment.Start,
-      posX: 4,
-      posY: 4,
-      width: 300,
-      height: 4,
-      isVertical: false,
-      canvasId: canvasId,
-      dropZone: {
-        top: 0,
-        bottom: 100,
-        left: 0,
-        right: 300,
-      },
-    },
-  ];
+Row.getChildTemplate = (
+  props: LayoutComponentProps,
+): LayoutComponentProps | undefined => {
+  if (!props) return;
+  const { childTemplate } = props;
+  if (childTemplate) return childTemplate;
+  return;
+};
+
+Row.deriveHighlights = () => {
+  return [];
 };
 
 Row.extractChildWidgetIds = (props: LayoutComponentProps): string[] => {
   return Row.rendersWidgets(props) ? (props.layout as string[]) : [];
+};
+
+Row.removeChild = (
+  props: LayoutComponentProps,
+  highlight: HighlightInfo,
+): LayoutComponentProps => {
+  return removeChildFromLayout(props, highlight);
+};
+
+Row.renderChildWidgets = (props: LayoutComponentProps): React.ReactNode => {
+  return renderWidgets(
+    Row.extractChildWidgetIds(props),
+    props.childrenMap,
+    props.renderMode || RenderModes.CANVAS,
+  );
 };
 
 Row.rendersWidgets = (props: LayoutComponentProps): boolean => {

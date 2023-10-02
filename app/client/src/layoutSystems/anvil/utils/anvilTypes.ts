@@ -15,6 +15,7 @@ export interface LayoutComponentProps {
   layoutType: LayoutComponentType; // Used to identify the correct layout component to render.
 
   allowedWidgetTypes?: string[]; // Array of widget types that can be dropped on the layout component.
+  canvasId: string; // Parent canvas of the layout.
   children?: React.ReactNode; // Children of layout component.
   childTemplate?: LayoutComponentProps; // The template of child layout components to wrap new widgets in.
   isDropTarget?: boolean; // Whether the layout component is a drop target. Accordingly, renders
@@ -28,8 +29,28 @@ export interface LayoutComponentProps {
 export interface LayoutComponent extends React.FC<LayoutComponentProps> {
   // add all other static props here
   type: LayoutComponentType;
+  // Add a child widget / layout to the parent layout component.
+  addChild: (
+    props: LayoutComponentProps,
+    children: string[] | LayoutComponentProps[],
+    highlight: HighlightInfo,
+  ) => LayoutComponentProps;
   getWidth: (arg0: any) => number;
+  // get template of layout component to wrap new widgets in.
+  getChildTemplate: (
+    props: LayoutComponentProps,
+  ) => LayoutComponentProps | undefined;
+  // Get a list of highlights to demarcate the drop positions within the layout.
   deriveHighlights: (canvasId: string) => HighlightInfo[];
+  // Get a list of child widgetIds rendered by the layout.
   extractChildWidgetIds: (props: LayoutComponentProps) => string[];
+  // Remove a child widget / layout from the layout component.
+  removeChild: (
+    props: LayoutComponentProps,
+    highlight: HighlightInfo,
+  ) => LayoutComponentProps;
+  // Render child widgets using the layout property.
+  renderChildWidgets: (props: LayoutComponentProps) => React.ReactNode;
+  // Check if the layout component renders widgets or layouts.
   rendersWidgets: (props: LayoutComponentProps) => boolean;
 }

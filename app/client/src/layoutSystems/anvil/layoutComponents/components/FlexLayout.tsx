@@ -20,7 +20,7 @@ import type {
   PositionValues,
 } from "layoutSystems/anvil/utils/types";
 
-interface FlexLayoutProps
+export interface FlexLayoutProps
   extends AlignSelf,
     JustifyContent,
     FlexDirection,
@@ -53,11 +53,10 @@ export const FlexLayout = (props: FlexLayoutProps) => {
     return {
       alignSelf: props.alignSelf || "flex-start",
       columnGap: props.columnGap || "0px",
-      flexDirection: props.direction || "column",
+      direction: props.direction || "column",
       flexGrow: props.flexGrow || 0,
       flexShrink: props.flexShrink || 0,
       flexBasis: props.flexBasis || "auto",
-      flexWrap: props.wrap || "nowrap",
       justifyContent: props.justifyContent || "start",
       height: props.height || "auto",
       maxHeight: props.maxHeight || "none",
@@ -70,6 +69,7 @@ export const FlexLayout = (props: FlexLayoutProps) => {
         base: addPixelToSize(MOBILE_ROW_GAP),
         [addPixelToSize(MOBILE_BREAKPOINT)]: addPixelToSize(ROW_GAP),
       },
+      wrap: props.wrap || "nowrap",
     };
   }, [props]);
 

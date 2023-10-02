@@ -3,9 +3,8 @@ import type {
   LayoutComponent,
   LayoutComponentProps,
 } from "../utils/anvilTypes";
-import { RenderModes } from "constants/WidgetConstants";
 import { AutoCanvasDraggingArena } from "layoutSystems/autolayout/editor/AutoLayoutCanvasArenas/AutoCanvasDraggingArena";
-import { renderLayouts, renderWidgets } from "../utils/layouts/renderUtils";
+import { renderLayouts } from "../utils/layouts/renderUtils";
 
 export function LayoutComponentHOC(Component: LayoutComponent) {
   const enhancedLayoutComponent = (props: LayoutComponentProps) => {
@@ -13,11 +12,7 @@ export function LayoutComponentHOC(Component: LayoutComponent) {
 
     const renderChildren = () => {
       if (Component.rendersWidgets(props)) {
-        return renderWidgets(
-          Component.extractChildWidgetIds(props),
-          props.childrenMap,
-          props.renderMode || RenderModes.CANVAS,
-        );
+        return Component.renderChildWidgets(props);
       } else {
         return renderLayouts(
           props.layout as LayoutComponentProps[],

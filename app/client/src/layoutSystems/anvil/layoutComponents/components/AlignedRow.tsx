@@ -5,23 +5,49 @@ import type {
 import React from "react";
 import { FlexLayout } from "./FlexLayout";
 import { doesAlignedRowRenderWidgets } from "layoutSystems/anvil/utils/layouts/typeUtils";
+import type { HighlightInfo } from "layoutSystems/common/utils/types";
+import {
+  addChildToAlignedRow,
+  removeChildFromLayout,
+} from "layoutSystems/anvil/utils/layouts/layoutUtils";
+import { renderWidgetsInAlignedRow } from "layoutSystems/anvil/utils/layouts/renderUtils";
 
 const AlignedRow = (props: LayoutComponentProps) => {
-  const { layoutStyle } = props;
+  const { canvasId, children, layoutId, layoutStyle } = props;
 
   return (
     <FlexLayout
-      canvasId="test-canvas-id"
+      alignSelf="stretch"
+      canvasId={canvasId}
+      columnGap="4px"
       direction="row"
-      layoutId={props.layoutId}
+      layoutId={layoutId}
+      wrap="wrap"
       {...(layoutStyle || {})}
     >
-      {props.children}
+      {children}
     </FlexLayout>
   );
 };
 
 AlignedRow.type = "ALIGNED_ROW" as LayoutComponentType;
+
+AlignedRow.addChild = (
+  props: LayoutComponentProps,
+  children: string[] | LayoutComponentProps[],
+  highlight: HighlightInfo,
+): LayoutComponentProps => {
+  return addChildToAlignedRow(props, children, highlight);
+};
+
+AlignedRow.getChildTemplate = (
+  props: LayoutComponentProps,
+): LayoutComponentProps | undefined => {
+  if (!props) return;
+  const { childTemplate } = props;
+  if (childTemplate) return childTemplate;
+  return;
+};
 
 AlignedRow.getWidth = () => {
   return 100;
@@ -37,6 +63,22 @@ AlignedRow.extractChildWidgetIds = (props: LayoutComponentProps): string[] => {
         return acc.concat(each);
       }, [])
     : [];
+};
+
+AlignedRow.removeChild = (
+  props: LayoutComponentProps,
+  highlight: HighlightInfo,
+): LayoutComponentProps => {
+  return removeChildFromLayout(props, highlight);
+};
+
+AlignedRow.renderChildWidgets = (
+  props: LayoutComponentProps,
+): React.ReactNode => {
+  return renderWidgetsInAlignedRow(
+    props,
+    AlignedRow.extractChildWidgetIds(props),
+  );
 };
 
 AlignedRow.rendersWidgets = (props: LayoutComponentProps): boolean => {
