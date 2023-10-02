@@ -24,7 +24,7 @@ jobs:
     uses: ./.github/workflows/server-build.yml
     secrets: inherit
     with:
-      pr: ${{ github.event.client_payload.pull_request.number }}
+      pr: 0
       skip-tests: ${{ github.event.inputs.skip-tests }}
       branch: ${{ github.event.inputs.branch }}
 
@@ -34,7 +34,7 @@ jobs:
     uses: ./.github/workflows/client-build.yml
     secrets: inherit
     with:
-      pr: ${{ github.event.client_payload.pull_request.number }}
+      pr: 0
       skip-tests: ${{ github.event.inputs.skip-tests }}
       branch: ${{ github.event.inputs.branch }}
       airgap-enabled: ${{ github.event.client_payload.slash_command.args.named.airgap-enabled }}
@@ -45,7 +45,7 @@ jobs:
     uses: ./.github/workflows/rts-build.yml
     secrets: inherit
     with:
-      pr: ${{ github.event.client_payload.pull_request.number }}
+      pr: 0
       branch: ${{ github.event.inputs.branch }}
 
   setup-optionals:
