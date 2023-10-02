@@ -57,8 +57,6 @@ import {
   DataTreeDiffEvent,
   resetValidationErrorsForEntityProperty,
   isAPathDynamicBindingPath,
-  getPathsToOverride,
-  getDefaultFieldForMetaField,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
 import {
   difference,
@@ -1050,7 +1048,7 @@ export default class DataTreeEvaluator {
 
             const widgetEntity = entity as WidgetEntity;
 
-            let value = validateAndParseWidgetProperty({
+            const parsedValue = validateAndParseWidgetProperty({
               fullPropertyPath,
               widget: widgetEntity,
               configTree: oldConfigTree,
@@ -1059,45 +1057,6 @@ export default class DataTreeEvaluator {
               evalProps: this.evalProps,
               evalPathsIdenticalToState: this.evalPathsIdenticalToState,
             });
-            const widgetConfig = oldConfigTree[
-              widgetEntity.widgetName
-            ] as WidgetEntityConfig;
-
-            const pathsToOverride = getPathsToOverride(
-              widgetEntity,
-              widgetConfig,
-              propertyPath,
-              !!isNewEntity,
-            );
-
-            pathsToOverride.forEach((p) => {
-              const clonedValueForSafeTree = klona(value);
-              const fullPath = `${entityName}.${p}`;
-              const overriddenPropertyPathArray = p.split(".");
-              set(currentTree, fullPath, klona(value));
-              set(safeTree, fullPath, clonedValueForSafeTree);
-              // evalMetaUpdates has all updates from property which overrides meta values.
-              if (
-                propertyPath.split(".")[0] !== "meta" &&
-                overriddenPropertyPathArray[0] === "meta"
-              ) {
-                const metaPropertyPath = overriddenPropertyPathArray.slice(1);
-                evalMetaUpdates.push({
-                  widgetId: widgetEntity.widgetId,
-                  metaPropertyPath,
-                  value: clonedValueForSafeTree,
-                });
-              }
-            });
-
-            const defaultFieldForMetaField = getDefaultFieldForMetaField(
-              widgetConfig,
-              propertyPath,
-            );
-
-            if (defaultFieldForMetaField && value === undefined) {
-              value = klona(widgetEntity[defaultFieldForMetaField]);
-            }
 
             // setting evalPropertyValue in unParsedEvalTree
             set(
@@ -1106,8 +1065,8 @@ export default class DataTreeEvaluator {
               evalPropertyValue,
             );
 
-            set(currentTree, fullPropertyPath, value);
-            set(safeTree, fullPropertyPath, klona(value));
+            set(currentTree, fullPropertyPath, parsedValue);
+            set(safeTree, fullPropertyPath, klona(parsedValue));
 
             staleMetaIds = staleMetaIds.concat(
               getStaleMetaStateIds({
@@ -1145,17 +1104,18 @@ export default class DataTreeEvaluator {
             if (!propertyPath) continue;
 
             const evalPath = getEvalValuePath(fullPropertyPath);
+            const valueForSafeTree = klona(evalPropertyValue);
             setToEvalPathsIdenticalToState({
               evalPath,
               evalPathsIdenticalToState: this.evalPathsIdenticalToState,
               evalProps: this.evalProps,
               isParsedValueTheSame: true,
               fullPropertyPath,
-              value: evalPropertyValue,
+              value: valueForSafeTree,
             });
 
             set(currentTree, fullPropertyPath, evalPropertyValue);
-            set(safeTree, fullPropertyPath, klona(evalPropertyValue));
+            set(safeTree, fullPropertyPath, valueForSafeTree);
             continue;
           }
           case ENTITY_TYPE_VALUE.JSACTION: {
@@ -1191,17 +1151,18 @@ export default class DataTreeEvaluator {
                 fullPath: true,
               });
 
+              const valueForSafeTree = klona(evalValue);
               setToEvalPathsIdenticalToState({
                 evalPath,
                 evalPathsIdenticalToState: this.evalPathsIdenticalToState,
                 evalProps: this.evalProps,
                 isParsedValueTheSame: true,
                 fullPropertyPath,
-                value: evalValue,
+                value: valueForSafeTree,
               });
 
               set(currentTree, fullPropertyPath, evalValue);
-              set(safeTree, fullPropertyPath, klona(evalValue));
+              set(safeTree, fullPropertyPath, valueForSafeTree);
               JSObjectCollection.setVariableValue(evalValue, fullPropertyPath);
               JSObjectCollection.setPrevUnEvalState({
                 fullPath: fullPropertyPath,
@@ -1504,6 +1465,7 @@ export default class DataTreeEvaluator {
     isNewWidget: boolean;
     parsedValue: unknown;
     propertyPath: string;
+    safeTree?: DataTree;
   }) {
     const overwriteObj = overrideWidgetProperties({
       entity,
