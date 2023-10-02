@@ -17,6 +17,7 @@ import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.EnvironmentPermission;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -108,6 +109,7 @@ public class CrudPackageServiceTest {
     }
 
     @WithUserDetails(value = "api_user")
+    @Test
     public void testCreateAndReadPackageWithValidInput() {
         final Package firstPackage = new Package();
         firstPackage.setName("Package X");
@@ -161,6 +163,7 @@ public class CrudPackageServiceTest {
     }
 
     @WithUserDetails(value = "api_user")
+    @Test
     public void shouldNotCreatePackageWhenPackageNameIsNotProvided() {
         final Package appsmithPackage = new Package();
         appsmithPackage.setColor("#C2DAF0");

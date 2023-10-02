@@ -26,17 +26,22 @@ import static com.appsmith.server.acl.AclPermission.TENANT_MANAGE_ALL_USERS;
 import static com.appsmith.server.acl.AclPermission.TENANT_READ_ALL_USERS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_CREATE_APPLICATION;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_CREATE_DATASOURCE;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_CREATE_PACKAGE;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_DATASOURCE_CREATE_DATASOURCE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_DELETE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_DELETE_DATASOURCES;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_DELETE_PACKAGES;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_EXECUTE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_EXPORT_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_EXPORT_PACKAGES;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_INVITE_USERS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_MAKE_PUBLIC_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_PUBLISH_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_PUBLISH_PACKAGES;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_READ_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_READ_PACKAGES;
 import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
 import static com.appsmith.server.constants.FieldName.DEVELOPER;
 import static com.appsmith.server.constants.FieldName.PROVISIONING_ROLE;
@@ -58,6 +63,10 @@ public enum AppsmithRole {
                     WORKSPACE_CREATE_DATASOURCE,
                     WORKSPACE_DELETE_DATASOURCES,
                     WORKSPACE_DELETE_APPLICATIONS,
+                    WORKSPACE_CREATE_PACKAGE,
+                    WORKSPACE_DELETE_PACKAGES,
+                    WORKSPACE_EXPORT_PACKAGES,
+                    WORKSPACE_PUBLISH_PACKAGES,
                     DELETE_WORKSPACES,
                     WORKSPACE_MAKE_PUBLIC_APPLICATIONS)),
     ORGANIZATION_DEVELOPER(
@@ -73,13 +82,17 @@ public enum AppsmithRole {
                     WORKSPACE_CREATE_APPLICATION,
                     WORKSPACE_CREATE_DATASOURCE,
                     WORKSPACE_DELETE_DATASOURCES,
-                    WORKSPACE_DELETE_APPLICATIONS)),
+                    WORKSPACE_DELETE_APPLICATIONS,
+                    WORKSPACE_CREATE_PACKAGE,
+                    WORKSPACE_DELETE_PACKAGES,
+                    WORKSPACE_READ_PACKAGES)),
     ORGANIZATION_VIEWER(
             VIEWER,
             WORKSPACE_VIEWER_DESCRIPTION,
             Set.of(
                     READ_WORKSPACES,
                     WORKSPACE_READ_APPLICATIONS,
+                    WORKSPACE_READ_PACKAGES,
                     WORKSPACE_INVITE_USERS,
                     WORKSPACE_EXECUTE_DATASOURCES)),
 
