@@ -379,7 +379,7 @@ export enum PropertyEvaluationErrorType {
 }
 
 export enum PropertyEvaluationErrorCategory {
-  INVALID_JS_FUNCTION_INVOCATION_IN_DATA_FIELD = "INVALID_JS_FUNCTION_INVOCATION_IN_DATA_FIELD",
+  ACTION_INVOCATION_IN_DATA_FIELD = "ACTION_INVOCATION_IN_DATA_FIELD",
 }
 export interface PropertyEvaluationErrorKind {
   category: PropertyEvaluationErrorCategory;

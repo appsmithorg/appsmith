@@ -482,7 +482,7 @@ function PopoverContent(props: PopoverContentProps) {
     ({ kind }) =>
       kind &&
       kind.category ===
-        PropertyEvaluationErrorCategory.INVALID_JS_FUNCTION_INVOCATION_IN_DATA_FIELD &&
+        PropertyEvaluationErrorCategory.ACTION_INVOCATION_IN_DATA_FIELD &&
       kind.rootcause,
   );
   const errorNavigationUrl = useSelector((state: AppState) =>
