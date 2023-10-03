@@ -15,7 +15,9 @@ import {
   Text,
 } from "design-system";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
-import { hasManageDatasourcePermission } from "@appsmith/utils/permissionHelpers";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { getHasManageDatasourcePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 
 interface SaveOrDiscardModalProps {
   isOpen: boolean;
@@ -39,7 +41,9 @@ function SaveOrDiscardDatasourceModal(props: SaveOrDiscardModalProps) {
   } = props;
 
   const createMode = datasourceId === TEMP_DATASOURCE_ID;
-  const canManageDatasources = hasManageDatasourcePermission(
+  const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+  const canManageDatasources = getHasManageDatasourcePermission(
+    isFeatureEnabled,
     datasourcePermissions,
   );
   const disableSaveButton = !createMode && !canManageDatasources;

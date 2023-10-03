@@ -1,5 +1,5 @@
-import type { DataTree } from "entities/DataTree/dataTreeFactory";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import type { DataTree, ENTITY_TYPE } from "@appsmith/entities/DataTree/types";
+import { ENTITY_TYPE_VALUE } from "entities/DataTree/dataTreeFactory";
 import { createSelector } from "reselect";
 import {
   getCurrentActions,
@@ -80,7 +80,7 @@ export const getEntitiesForNavigation = createSelector(
       navigationData[action.config.name] = createNavData({
         id: action.config.id,
         name: action.config.name,
-        type: ENTITY_TYPE.ACTION,
+        type: ENTITY_TYPE_VALUE.ACTION,
         url: config.getURL(
           pageId,
           action.config.id,
@@ -104,7 +104,7 @@ export const getEntitiesForNavigation = createSelector(
       navigationData[jsAction.config.name] = createNavData({
         id: jsAction.config.id,
         name: jsAction.config.name,
-        type: ENTITY_TYPE.JSACTION,
+        type: ENTITY_TYPE_VALUE.JSACTION,
         url: jsCollectionIdURL({ pageId, collectionId: jsAction.config.id }),
         children: result?.childNavData || {},
       });
@@ -121,7 +121,7 @@ export const getEntitiesForNavigation = createSelector(
       navigationData[widget.widgetName] = createNavData({
         id: widget.widgetId,
         name: widget.widgetName,
-        type: ENTITY_TYPE.WIDGET,
+        type: ENTITY_TYPE_VALUE.WIDGET,
         url: widgetURL({ pageId, selectedWidgets: [widget.widgetId] }),
         children: result?.childNavData || {},
         widgetType: widget.type,
