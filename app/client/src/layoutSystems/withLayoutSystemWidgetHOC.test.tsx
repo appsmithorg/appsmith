@@ -261,7 +261,7 @@ describe("Layout System HOC's Tests", () => {
   describe("Anvil Layers", () => {
     it("Layout system hoc should return Anvil Editor for ANVIL positioning and CANVAS render mode", () => {
       const widget = InputWidget;
-      const HOC = withLayoutSystemHOC(widget);
+      const HOC = withLayoutSystemWidgetHOC(widget);
       const widgetProps = WidgetTypeFactories[InputWidget.type].build();
       jest
         .spyOn(editorSelectors, "getRenderMode")
@@ -277,7 +277,7 @@ describe("Layout System HOC's Tests", () => {
     });
     it("should return Auto Modal Editor for ANVIL positioning and CANVAS render mode", () => {
       const widget = ModalWidget;
-      const HOC = withLayoutSystemHOC(widget);
+      const HOC = withLayoutSystemWidgetHOC(widget);
       const widgetProps = WidgetTypeFactories[ModalWidget.type].build({
         isVisible: true,
       });
@@ -298,7 +298,7 @@ describe("Layout System HOC's Tests", () => {
     });
     it("should return no wrapper for CANVAS WIDGET for ANVIL positioning and CANVAS render mode", () => {
       const widget = CanvasWidget;
-      const HOC = withLayoutSystemHOC(widget);
+      const HOC = withLayoutSystemWidgetHOC(widget);
       const widgetProps = WidgetTypeFactories[CanvasWidget.type].build();
       jest
         .spyOn(editorSelectors, "getRenderMode")
@@ -314,7 +314,7 @@ describe("Layout System HOC's Tests", () => {
     });
     it("should return Auto Modal Viewer for ANVIL positioning and PAGE render mode", () => {
       const widget = ModalWidget;
-      const HOC = withLayoutSystemHOC(widget);
+      const HOC = withLayoutSystemWidgetHOC(widget);
       const widgetProps = WidgetTypeFactories[ModalWidget.type].build({
         isVisible: true,
       });
@@ -335,7 +335,7 @@ describe("Layout System HOC's Tests", () => {
     });
     it("should return Anvil Viewer for ANVIL positioning and PAGE render mode", () => {
       const widget = InputWidget;
-      const HOC = withLayoutSystemHOC(widget);
+      const HOC = withLayoutSystemWidgetHOC(widget);
       const widgetProps = WidgetTypeFactories[InputWidget.type].build();
       jest
         .spyOn(editorSelectors, "getRenderMode")
@@ -351,7 +351,7 @@ describe("Layout System HOC's Tests", () => {
     });
     it("should return no wrapper for CANVAS WIDGET for ANVIL positioning and PAGE render mode", () => {
       const widget = CanvasWidget;
-      const HOC = withLayoutSystemHOC(widget);
+      const HOC = withLayoutSystemWidgetHOC(widget);
       const widgetProps = WidgetTypeFactories[CanvasWidget.type].build();
       jest
         .spyOn(editorSelectors, "getRenderMode")
