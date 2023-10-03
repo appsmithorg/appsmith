@@ -31,7 +31,6 @@ import {
 } from "utils/hooks/useDynamicAppLayout";
 import Canvas from "../Canvas";
 import type { AppState } from "@appsmith/reducers";
-import { MainContainerResizer } from "layoutSystems/autolayout/MainContainerResizer/MainContainerResizer";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { getIsAnonymousDataPopupVisible } from "selectors/onboardingSelectors";
 import {
@@ -39,6 +38,7 @@ import {
   useLayoutSystemFeatures,
 } from "../../../layoutSystems/common/useLayoutSystemFeatures";
 import { CANVAS_VIEWPORT } from "constants/componentClassNameConstants";
+import { MainContainerResizer } from "layoutSystems/common/mainContainerResizers/MainContainerResizer";
 
 type MainCanvasWrapperProps = {
   isPreviewMode: boolean;
