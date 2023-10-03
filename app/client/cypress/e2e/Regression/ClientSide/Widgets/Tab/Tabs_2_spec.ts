@@ -78,8 +78,10 @@ describe("Tabs widget Tests", function () {
 
     // Copy and paste widget using cmd+c and cmd+v
     entityExplorer.SelectEntityByName("NewTabs", "Widgets");
-    agHelper.GetElement("body").type(`{cmd}}{c}`);
-    agHelper.GetElement("body").type(`{cmd}}{v}`);
+    agHelper.GetElement("body").type(`{${agHelper._modifierKey}}{c}`);
+    agHelper.Sleep(500);
+    agHelper.GetElement("body").type(`{${agHelper._modifierKey}}{v}`);
+    agHelper.Sleep(1000);
     entityExplorer.ExpandCollapseEntity("Tab 1");
     entityExplorer.AssertEntityPresenceInExplorer("NewTabsCopy");
     entityExplorer.DeleteWidgetFromEntityExplorer("NewTabsCopy");
