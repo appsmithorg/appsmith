@@ -38,7 +38,7 @@ import {
   useLayoutSystemFeatures,
 } from "../../../layoutSystems/common/useLayoutSystemFeatures";
 import { CANVAS_VIEWPORT } from "constants/componentClassNameConstants";
-import { MainContainerResizer } from "layoutSystems/common/mainContainerResizers/MainContainerResizer";
+import { MainContainerResizer } from "layoutSystems/common/mainContainerResizer/MainContainerResizer";
 
 type MainCanvasWrapperProps = {
   isPreviewMode: boolean;
