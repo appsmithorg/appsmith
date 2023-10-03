@@ -14,6 +14,12 @@ export function generateLayoutComponentMock(
   const layout: string[] | LayoutComponentProps[] = [],
     childrenMap: { [key: string]: WidgetProps } = {};
   if (rendersWidgets) {
+    /**
+     * This generates a Row with button and input widgets in it.
+     * Row
+     *  Button
+     *  Input
+     */
     const buttonWidget: BaseWidgetProps = mockButtonProps();
     const inputWidget: BaseWidgetProps = mockInputProps();
     (layout as string[]).push(buttonWidget.widgetId);
@@ -44,6 +50,15 @@ export function generateLayoutComponentMock(
   };
 }
 
+/**
+ * This generates an AlignedRow with button and input widgets in start alignment.
+ * AlignedRow
+ *  Start
+ *   Button
+ *   Input
+ *  Center
+ *  End
+ */
 export function generateAlignedRowMock(
   data: Partial<LayoutComponentProps> = {},
   rendersWidgets = true,

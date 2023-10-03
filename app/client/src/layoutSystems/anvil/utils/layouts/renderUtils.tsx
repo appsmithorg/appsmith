@@ -51,7 +51,7 @@ export function renderLayouts(
  * @param res | Record<string, WidgetProps>
  * @returns Record<string, WidgetProps>
  */
-function getChildrenMap(
+export function getChildrenMap(
   layoutProps: LayoutComponentProps,
   map: LayoutComponentProps["childrenMap"],
   res: LayoutComponentProps["childrenMap"] = {},
@@ -131,6 +131,7 @@ export function renderWidgetsInAlignedRow(
     flexShrink: 1,
     wrap: { base: "wrap", [`${MOBILE_BREAKPOINT}px`]: "nowrap" },
   };
+
   // TODO: After positionObserver integration,
   // check if use of FlexLayout is causing performance or other issues.
   // WDS Flex can be used as a replacement.
