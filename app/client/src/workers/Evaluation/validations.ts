@@ -1306,9 +1306,9 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     // return { isValid, messages, parsed }; // return the expected type
 
     console.log("******", "is normal object valid ", isValid, "error messages", messages, "received value is ", value, "parsed value is ",  parsed)
-    if (!isValid) {
-      return { isValid, messages, parsed }; // return the expected type
-    } 
+    // if (!isValid) {
+    //   return { isValid, messages, parsed }; // return the expected type
+    // } 
     // return { isValid, messages, parsed }
     console.log("******", "calling validateFunctionsInObject")
     const funcValidationResult = validateFunctionsInObject(parsed, ["console"])
