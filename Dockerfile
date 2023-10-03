@@ -78,7 +78,7 @@ COPY ${PLUGIN_JARS} backend/plugins/
 COPY ./app/client/build editor/
 
 # Add RTS - Application Layer
-COPY ./app/client/packages/rts/package.json ./app/client/packages/rts/dist rts/
+COPY ./app/client/packages/rts/dist rts/
 
 RUN cd ./utils && npm install --only=prod && npm install --only=prod -g . && cd - \
   && chmod 0644 /etc/cron.d/* \

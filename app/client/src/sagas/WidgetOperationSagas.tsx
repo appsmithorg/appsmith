@@ -92,7 +92,6 @@ import {
 } from "entities/Widget/utils";
 import { getSelectedWidgets } from "selectors/ui";
 import { getReflow } from "selectors/widgetReflowSelectors";
-import type { FlexLayer } from "layoutSystems/autolayout/utils/autoLayoutTypes";
 import {
   addChildToPastedFlexLayers,
   getFlexLayersForSelectedWidgets,
@@ -181,8 +180,9 @@ import { getWidgetWidth } from "layoutSystems/autolayout/utils/flexWidgetUtils";
 import {
   FlexLayerAlignment,
   LayoutDirection,
-} from "layoutSystems/autolayout/utils/constants";
+} from "layoutSystems/common/utils/constants";
 import localStorage from "utils/localStorage";
+import type { FlexLayer } from "layoutSystems/autolayout/utils/types";
 import { EMPTY_BINDING } from "components/editorComponents/ActionCreator/constants";
 
 export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {

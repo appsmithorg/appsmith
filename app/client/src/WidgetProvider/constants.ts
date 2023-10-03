@@ -9,11 +9,6 @@ import { WIDGET_STATIC_PROPS } from "constants/WidgetConstants";
 import type { Stylesheet } from "entities/AppTheming";
 import { omit } from "lodash";
 import moment from "moment";
-import type {
-  LayoutDirection,
-  Positioning,
-  ResponsiveBehavior,
-} from "layoutSystems/autolayout/utils/constants";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import type { WidgetFeatures } from "utils/WidgetFeatures";
 import type { WidgetProps } from "../widgets/BaseWidget";
@@ -24,6 +19,11 @@ import type {
   WidgetQueryGenerationConfig,
   WidgetQueryGenerationFormConfig,
 } from "WidgetQueryGenerators/types";
+import type {
+  LayoutDirection,
+  Positioning,
+  ResponsiveBehavior,
+} from "layoutSystems/common/utils/constants";
 
 export type WidgetSizeConfig = {
   viewportMinWidth: number;
@@ -32,8 +32,8 @@ export type WidgetSizeConfig = {
 
 type ResizableValues = { vertical?: boolean; horizontal?: boolean };
 type ResizableOptions = ResizableValues | ((props: any) => ResizableValues);
-type AutoDimensionValues = { width?: boolean; height?: boolean };
-type AutoDimensionOptions =
+export type AutoDimensionValues = { width?: boolean; height?: boolean };
+export type AutoDimensionOptions =
   | AutoDimensionValues
   | ((props: any) => AutoDimensionValues);
 
