@@ -18,8 +18,8 @@ import { getFeatureWalkthroughShown } from "utils/storage";
 const Wrapper = styled.div`
   position: absolute;
   z-index: 9;
-  top: 0px;
-  left: 0pc;
+  top: 0;
+  left: 0;
   height: 100%;
   width: 100%;
   background: #ffffff61;
@@ -29,13 +29,15 @@ const Wrapper = styled.div`
 `;
 
 const Container = styled.div`
-  max-width: 440px;
   text-align: center;
   width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
   padding: 10px;
+  height: 100%;
+  justify-content: center;
+  backdrop-filter: blur(1px);
 `;
 
 const Header = styled.div`
@@ -50,7 +52,11 @@ const ConnecData = styled(Button)`
   margin-bottom: 16px;
 `;
 
-export function ConnectDataOverlay(props: { onConnectData: () => void }) {
+export function ConnectDataOverlay(props: {
+  onConnectData: () => void;
+  message: string;
+  btnText: string;
+}) {
   const {
     isOpened: isWalkthroughOpened,
     popFeature,
@@ -100,7 +106,7 @@ export function ConnectDataOverlay(props: { onConnectData: () => void }) {
     <Wrapper>
       <Container>
         <Header className="t--cypress-table-overlay-header">
-          Connect your data or use sample data to display table
+          {props.message}
         </Header>
         <ConnecData
           className="t--cypress-table-overlay-connectdata"
@@ -108,7 +114,7 @@ export function ConnectDataOverlay(props: { onConnectData: () => void }) {
           onClick={onClick}
           size="md"
         >
-          Connect data
+          {props.btnText}
         </ConnecData>
       </Container>
     </Wrapper>

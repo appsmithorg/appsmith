@@ -13,6 +13,7 @@ import {
 } from "../../../../../support/Objects/ObjectsCore";
 import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 let agHelper = ObjectsRegistry.AggregateHelper;
+let locators = ObjectsRegistry.CommonLocators;
 
 describe("JSONForm Select field - filterText update action trigger ", () => {
   beforeEach(() => {
@@ -31,7 +32,7 @@ describe("JSONForm Select field - filterText update action trigger ", () => {
       };
       cy.addDsl(dslWithoutSchema);
       cy.openPropertyPane("jsonformwidget");
-      cy.testJsontext("sourcedata", JSON.stringify(schema));
+      propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
       cy.openFieldConfiguration("color");
       cy.selectDropdownValue(commonlocators.jsonFormFieldType, /^Select$/);
       cy.closePropertyPane();
@@ -72,8 +73,7 @@ describe("JSONForm Select field - filterText update action trigger ", () => {
     };
     cy.addDsl(dslWithoutSchema);
     cy.openPropertyPane("jsonformwidget");
-    cy.testJsontext("sourcedata", JSON.stringify(schema));
-    cy.closePropertyPane();
+    propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
 
     const filterText = "Test string";
 
