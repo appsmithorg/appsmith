@@ -268,8 +268,8 @@ describe("Layout System HOC's Tests", () => {
         .spyOn(editorSelectors, "getRenderMode")
         .mockImplementation(() => RenderModes.CANVAS);
       jest
-        .spyOn(editorSelectors, "getAppPositioningType")
-        .mockImplementation(() => AppPositioningTypes.ANVIL);
+        .spyOn(layoutSystemSelectors, "getLayoutSystemType")
+        .mockImplementation(() => LayoutSystemTypes.ANVIL);
       const component = render(<HOC {...widgetProps} />);
       const flexPositionedLayer = component.container.getElementsByClassName(
         "anvil-layout-child-" + widgetProps.widgetId,
@@ -286,8 +286,8 @@ describe("Layout System HOC's Tests", () => {
         .spyOn(editorSelectors, "getRenderMode")
         .mockImplementation(() => RenderModes.CANVAS);
       jest
-        .spyOn(editorSelectors, "getAppPositioningType")
-        .mockImplementation(() => AppPositioningTypes.ANVIL);
+        .spyOn(layoutSystemSelectors, "getLayoutSystemType")
+        .mockImplementation(() => LayoutSystemTypes.ANVIL);
       const component = render(<HOC {...widgetProps} />);
       const flexPositionedLayer = component.container.getElementsByClassName(
         "anvil-layout-child-" + widgetProps.widgetId,
@@ -305,8 +305,8 @@ describe("Layout System HOC's Tests", () => {
         .spyOn(editorSelectors, "getRenderMode")
         .mockImplementation(() => RenderModes.CANVAS);
       jest
-        .spyOn(editorSelectors, "getAppPositioningType")
-        .mockImplementation(() => AppPositioningTypes.ANVIL);
+        .spyOn(layoutSystemSelectors, "getLayoutSystemType")
+        .mockImplementation(() => LayoutSystemTypes.ANVIL);
       const component = render(<HOC {...widgetProps} />);
       const flexPositionedLayer = component.container.getElementsByClassName(
         "anvil-layout-child-" + widgetProps.widgetId,
@@ -323,8 +323,8 @@ describe("Layout System HOC's Tests", () => {
         .spyOn(editorSelectors, "getRenderMode")
         .mockImplementation(() => RenderModes.PAGE);
       jest
-        .spyOn(editorSelectors, "getAppPositioningType")
-        .mockImplementation(() => AppPositioningTypes.ANVIL);
+        .spyOn(layoutSystemSelectors, "getLayoutSystemType")
+        .mockImplementation(() => LayoutSystemTypes.ANVIL);
       const component = render(<HOC {...widgetProps} />);
       const flexPositionedLayer = component.container.getElementsByClassName(
         "anvil-layout-child-" + widgetProps.widgetId,
@@ -342,8 +342,8 @@ describe("Layout System HOC's Tests", () => {
         .spyOn(editorSelectors, "getRenderMode")
         .mockImplementation(() => RenderModes.PAGE);
       jest
-        .spyOn(editorSelectors, "getAppPositioningType")
-        .mockImplementation(() => AppPositioningTypes.ANVIL);
+        .spyOn(layoutSystemSelectors, "getLayoutSystemType")
+        .mockImplementation(() => LayoutSystemTypes.ANVIL);
       const component = render(<HOC {...widgetProps} />);
       const flexPositionedLayer = component.container.getElementsByClassName(
         "anvil-layout-child-" + widgetProps.widgetId,
@@ -358,8 +358,8 @@ describe("Layout System HOC's Tests", () => {
         .spyOn(editorSelectors, "getRenderMode")
         .mockImplementation(() => RenderModes.PAGE);
       jest
-        .spyOn(editorSelectors, "getAppPositioningType")
-        .mockImplementation(() => AppPositioningTypes.ANVIL);
+        .spyOn(layoutSystemSelectors, "getLayoutSystemType")
+        .mockImplementation(() => LayoutSystemTypes.ANVIL);
       const component = render(<HOC {...widgetProps} />);
       const flexPositionedLayer = component.container.getElementsByClassName(
         "anvil-layout-child-" + widgetProps.widgetId,
