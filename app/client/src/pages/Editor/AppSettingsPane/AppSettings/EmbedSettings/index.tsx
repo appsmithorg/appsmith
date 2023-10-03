@@ -20,12 +20,10 @@ import {
   PERMISSION_TYPE,
 } from "@appsmith/utils/permissionHelpers";
 import MakeApplicationForkable from "./MakeApplicationForkable";
-// eslint-disable-next-line
-import CE_EmbedSnippetTab from "ce/pages/Applications/EmbedSnippetTab";
-import EE_EmbedSnippetTab from "@appsmith/pages/Applications/EmbedSnippetTab";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { getEmbedSnippetTab } from "@appsmith/utils/BusinessFeatures/privateEmbedHelpers";
 
 const StyledPropertyHelpLabel = styled(PropertyHelpLabel)`
   .bp3-popover-content > div {
@@ -105,11 +103,7 @@ function EmbedSettings() {
       {canMarkAppForkable && (
         <MakeApplicationForkable application={application} />
       )}
-      {isPrivateEmbedEnabled ? (
-        <EE_EmbedSnippetTab isAppSettings />
-      ) : (
-        <CE_EmbedSnippetTab isAppSettings />
-      )}
+      {getEmbedSnippetTab(isPrivateEmbedEnabled)}
     </div>
   );
 }

@@ -100,9 +100,6 @@ import EndTour from "./GuidedTour/EndTour";
 import { GUIDED_TOUR_STEPS } from "./GuidedTour/constants";
 import { viewerURL } from "RouteBuilder";
 import { useHref } from "./utils";
-// eslint-disable-next-line
-import CE_EmbedSnippetForm from "ce/pages/Applications/EmbedSnippetTab";
-import EE_EmbedSnippetForm from "@appsmith/pages/Applications/EmbedSnippetTab";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 import type { NavigationSetting } from "constants/AppConstants";
@@ -120,6 +117,7 @@ import CommunityTemplatesPublishInfo from "./CommunityTemplates/Modals/Community
 import PublishCommunityTemplateModal from "./CommunityTemplates/Modals/PublishCommunityTemplate";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { getEmbedSnippetForm } from "@appsmith/utils/BusinessFeatures/privateEmbedHelpers";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -593,15 +591,7 @@ export function EditorHeader() {
                       />
                     </TabPanel>
                     <TabPanel value="embed">
-                      {isPrivateEmbedEnabled ? (
-                        <EE_EmbedSnippetForm
-                          changeTab={() => setActiveTab("invite")}
-                        />
-                      ) : (
-                        <CE_EmbedSnippetForm
-                          changeTab={() => setActiveTab("invite")}
-                        />
-                      )}
+                      {getEmbedSnippetForm(isPrivateEmbedEnabled, setActiveTab)}
                     </TabPanel>
                     {cloudHosting && (
                       <TabPanel value="publish">
