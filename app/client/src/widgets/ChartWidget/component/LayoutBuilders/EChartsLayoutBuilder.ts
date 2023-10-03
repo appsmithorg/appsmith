@@ -1,22 +1,28 @@
 import type {
+  AllChartData,
   ChartType,
   LabelOrientation,
+  LongestLabelParams,
 } from "widgets/ChartWidget/constants";
+import type { EChartElementLayoutParams } from "./EChartsElementVisibilityCalculator";
 import { EChartElementVisibilityCalculator } from "./EChartsElementVisibilityCalculator";
 import { EChartsXAxisLayoutBuilder } from "./EChartsXAxisLayoutBuilder";
 import { EChartsYAxisLayoutBuilder } from "./EChartsYAxisLayoutBuilder";
 
 type LayoutProps = {
   allowScroll: boolean;
-  height: number;
-  width: number;
+  widgetHeight: number;
+  widgetWidth: number;
   labelOrientation: LabelOrientation;
   chartType: ChartType;
   chartTitle: string;
+  seriesConfigs: AllChartData;
+  font: string;
+  longestLabels: LongestLabelParams;
 };
 
 export class EChartsLayoutBuilder {
-  minimumHeight = 80;
+  gridMinimumHeight = 80;
   gridPadding = 30;
 
   heightForAllowScollBar = 30;
@@ -25,7 +31,7 @@ export class EChartsLayoutBuilder {
   heightForLegend = 50;
   heightForTitle = 50;
 
-  priorityOrderOfInclusion = ["xAxis", "legend", "title", "scrollBar"];
+  priorityOrderOfInclusion = ["legend", "title", "xAxis", "scrollBar"];
 
   positionLayoutForElement: Record<string, "top" | "bottom"> = {
     xAxis: "bottom",
@@ -44,16 +50,24 @@ export class EChartsLayoutBuilder {
 
   constructor(props: LayoutProps) {
     this.props = props;
-    this.xAxisLayoutBuilder = new EChartsXAxisLayoutBuilder(
-      this.props.labelOrientation,
-      this.props.chartType,
-    );
-    this.yAxisLayoutBuilder = new EChartsYAxisLayoutBuilder(this.props.width);
+    this.xAxisLayoutBuilder = new EChartsXAxisLayoutBuilder({
+      labelOrientation: this.props.labelOrientation,
+      chartType: this.props.chartType,
+      font: this.props.font,
+      longestLabel: this.props.longestLabels,
+    });
+
+    this.yAxisLayoutBuilder = new EChartsYAxisLayoutBuilder({
+      widgetWidth: this.props.widgetWidth,
+      chartType: this.props.chartType,
+      font: this.props.font,
+      longestLabel: this.props.longestLabels,
+    });
 
     this.elementVisibilityLayoutBuilder = new EChartElementVisibilityCalculator(
       {
-        height: props.height,
-        minimumHeight: this.minimumHeight,
+        height: props.widgetHeight,
+        gridMinimumHeight: this.gridMinimumHeight,
         layoutConfigs: this.configParamsForVisibilityCalculation(),
         padding: this.gridPadding,
       },
@@ -62,18 +76,32 @@ export class EChartsLayoutBuilder {
     this.layoutConfig = this.layoutConfigForElements();
   }
 
-  heightForElement = (elementName: string): number => {
+  heightConfigForElement = (
+    elementName: string,
+  ): { minHeight: number; maxHeight: number } => {
     switch (elementName) {
       case "xAxis":
-        return this.xAxisLayoutBuilder.heightForXAxis();
+        return this.xAxisLayoutBuilder.heightConfigForXAxis();
       case "legend":
-        return this.heightForLegend;
+        return {
+          minHeight: this.heightForLegend,
+          maxHeight: this.heightForLegend,
+        };
       case "title":
-        return this.heightForTitle;
+        return {
+          minHeight: this.heightForTitle,
+          maxHeight: this.heightForTitle,
+        };
       case "scrollBar":
-        return this.layoutHeightForScrollBar();
+        return {
+          minHeight: this.layoutHeightForScrollBar(),
+          maxHeight: this.layoutHeightForScrollBar(),
+        };
       default:
-        return 0;
+        return {
+          minHeight: 0,
+          maxHeight: 0,
+        };
     }
   };
 
@@ -90,13 +118,7 @@ export class EChartsLayoutBuilder {
       };
     });
     config.grid = this.defaultConfigForGrid();
-
     config.yAxis = this.yAxisLayoutBuilder.config();
-
-    config.xAxis = {
-      ...config.xAxis,
-      ...this.xAxisLayoutBuilder.configForXAxis(),
-    };
 
     config.scrollBar = {
       ...config.scrollBar,
@@ -107,9 +129,21 @@ export class EChartsLayoutBuilder {
     return config;
   };
 
+  layoutConfigForXAxis = () => {
+    const visibilityConfig =
+      this.elementVisibilityLayoutBuilder.visibleElements;
+    const xAxisConfig = visibilityConfig.find((config) => {
+      return config.elementName == "xAxis";
+    });
+
+    const xAxisConfigHeight = xAxisConfig?.height ?? 0;
+
+    return this.xAxisLayoutBuilder.configForXAxis(xAxisConfigHeight);
+  };
+
   layoutConfigForElements = () => {
-    const { bottom, top } = this.elementVisibilityLayoutBuilder.visibleElements;
-    const visibilityConfig = [...top, ...bottom];
+    const visibilityConfig =
+      this.elementVisibilityLayoutBuilder.visibleElements;
 
     const output = this.defaultConfigForElements();
 
@@ -122,16 +156,20 @@ export class EChartsLayoutBuilder {
     output.grid.top = gridOffsets.top;
     output.grid.bottom = gridOffsets.bottom;
     output.legend.top = output.title.show ? 50 : 0;
+    output.xAxis = {
+      ...output.xAxis,
+      ...this.layoutConfigForXAxis(),
+    };
 
     return output;
   };
 
-  configParamsForVisibilityCalculation = () => {
+  configParamsForVisibilityCalculation = (): EChartElementLayoutParams[] => {
     return this.configsToInclude().map((element) => {
       return {
         elementName: element,
         position: this.positionLayoutForElement[element],
-        height: this.heightForElement(element),
+        ...this.heightConfigForElement(element),
       };
     });
   };
@@ -149,6 +187,9 @@ export class EChartsLayoutBuilder {
       if (configName == "scrollBar") {
         return this.props.allowScroll;
       }
+      if (configName == "legend") {
+        return this.needsLegend(this.props.seriesConfigs);
+      }
       if (configName == "xAxis") {
         return this.props.chartType != "PIE_CHART";
       }
@@ -157,5 +198,18 @@ export class EChartsLayoutBuilder {
       }
       return true;
     });
+  }
+
+  needsLegend(seriesConfigs: AllChartData) {
+    const seriesKeys = Object.keys(seriesConfigs);
+    const numSeries = seriesKeys.length;
+    if (numSeries == 0) {
+      return false;
+    } else if (numSeries == 1) {
+      const seriesTitle = seriesConfigs[seriesKeys[0]].seriesName ?? "";
+      return seriesTitle.length > 0;
+    } else {
+      return true;
+    }
   }
 }

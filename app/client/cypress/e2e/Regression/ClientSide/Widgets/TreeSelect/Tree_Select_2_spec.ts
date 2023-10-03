@@ -194,10 +194,10 @@ describe("Tree Select widget Tests", function () {
     );
     agHelper.GetNClick(locators._dropDownMultiTreeValue("Green"));
     agHelper.ValidateToastMessage("Success");
-    deployMode.NavigateBacktoEditor();
   });
 
   it("7. Verify onOptionChange with Navigate To", () => {
+    deployMode.NavigateBacktoEditor();
     // Navigate To
     entityExplorer.SelectEntityByName("Form1", "Widgets");
     entityExplorer.SelectEntityByName("TreeSelect1", "Form1");
@@ -213,10 +213,10 @@ describe("Tree Select widget Tests", function () {
     agHelper.GetNClick(locators._dropDownMultiTreeValue("Red"));
     agHelper.AssertURL("yahoo.com");
     agHelper.BrowserNavigation(-1);
-    deployMode.NavigateBacktoEditor();
   });
 
   it("8. Verify onOptionChange with Alert", () => {
+    deployMode.NavigateBacktoEditor();
     // Alert
     entityExplorer.SelectEntityByName("Form1", "Widgets");
     entityExplorer.SelectEntityByName("TreeSelect1", "Form1");
@@ -230,10 +230,10 @@ describe("Tree Select widget Tests", function () {
     );
     agHelper.GetNClick(locators._dropDownMultiTreeValue("Green"));
     agHelper.ValidateToastMessage("Option Changed");
-    deployMode.NavigateBacktoEditor();
   });
 
   it("9. Verify onOptionChange with download", () => {
+    deployMode.NavigateBacktoEditor();
     // Download
     entityExplorer.SelectEntityByName("Form1", "Widgets");
     entityExplorer.SelectEntityByName("TreeSelect1", "Form1");
@@ -269,10 +269,10 @@ describe("Tree Select widget Tests", function () {
     );
     agHelper.GetNClick(locators._dropDownMultiTreeValue("Green"));
     agHelper.AssertExistingCheckedState(locators._checkboxInDeployedMode);
-    deployMode.NavigateBacktoEditor();
   });
 
   it("11. Verify onOptionChange with Modal", () => {
+    deployMode.NavigateBacktoEditor();
     // Modal
     entityExplorer.SelectEntityByName("Form1", "Widgets");
     entityExplorer.SelectEntityByName("TreeSelect1", "Form1");
@@ -291,10 +291,10 @@ describe("Tree Select widget Tests", function () {
     agHelper.GetNClick(locators._closeModal, 0, true);
     agHelper.Sleep(3000);
     agHelper.AssertElementAbsence(locators._modal);
-    deployMode.NavigateBacktoEditor();
   });
 
   it("12. Verify onOptionChange with iframe", () => {
+    deployMode.NavigateBacktoEditor();
     // Postmessage on iframe
     entityExplorer.SelectEntityByName("Iframe1", "Widgets");
     propPane.UpdatePropertyFieldValue(
@@ -326,6 +326,5 @@ describe("Tree Select widget Tests", function () {
 
       cy.wrap(iframe).find("#target").should("have.text", "Test");
     });
-    deployMode.NavigateBacktoEditor();
   });
 });

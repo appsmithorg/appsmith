@@ -45,6 +45,7 @@ import { getIsSafeRedirectURL } from "utils/helpers";
 import Container from "pages/UserAuth/Container";
 import {
   getIsFormLoginEnabled,
+  getTenantConfig,
   getThirdPartyAuths,
 } from "@appsmith/selectors/tenantSelectors";
 import Helmet from "react-helmet";
@@ -104,8 +105,9 @@ export function SignUp(props: SignUpFormProps) {
   const isBrandingEnabled = useFeatureFlag(
     FEATURE_FLAG.license_branding_enabled,
   );
-  const pageTitle = getHTMLPageTitle(isBrandingEnabled);
-  const htmlPageTitle = pageTitle();
+  const tentantConfig = useSelector(getTenantConfig);
+  const { instanceName } = tentantConfig;
+  const htmlPageTitle = getHTMLPageTitle(isBrandingEnabled, instanceName);
 
   const recaptchaStatus = useScript(
     `https://www.google.com/recaptcha/api.js?render=${googleRecaptchaSiteKey.apiKey}`,

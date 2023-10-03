@@ -108,6 +108,15 @@ public enum AppsmithError {
             "User doesn''t belong to this workspace",
             ErrorType.INTERNAL_ERROR,
             null),
+
+    USER_NOT_ASSIGNED_TO_ROLE(
+            400,
+            AppsmithErrorCode.USER_NOT_ASSIGNED_TO_ROLE.getCode(),
+            "User {0} has not been assigned role {1}",
+            AppsmithErrorAction.DEFAULT,
+            "User has not been assigned to this role",
+            ErrorType.ARGUMENT_ERROR,
+            null),
     NO_CONFIGURATION_FOUND_IN_DATASOURCE(
             400,
             AppsmithErrorCode.NO_CONFIGURATION_FOUND_IN_DATASOURCE.getCode(),
@@ -202,7 +211,7 @@ public enum AppsmithError {
     USER_ALREADY_EXISTS_IN_WORKSPACE(
             400,
             AppsmithErrorCode.USER_ALREADY_EXISTS_IN_WORKSPACE.getCode(),
-            "The user {0} has already been added to the workspace with role {1}. To change the role, please navigate to `Manage Users` page.",
+            "The user {0} has already been added to the workspace with role {1}. To change the role, please navigate to `Manage users` page.",
             AppsmithErrorAction.DEFAULT,
             "User already exists in this workspace",
             ErrorType.BAD_REQUEST,
@@ -959,6 +968,40 @@ public enum AppsmithError {
             AppsmithErrorAction.LOG_EXTERNALLY,
             "Invalid usage for custom annotation",
             ErrorType.CONFIGURATION_ERROR,
+            null),
+
+    FeatureFlagMigrationFailure(
+            500,
+            AppsmithErrorCode.FEATURE_FLAG_MIGRATION_FAILURE.getCode(),
+            "Migration failed for feature flag {0}, error: {1}",
+            AppsmithErrorAction.DEFAULT,
+            "Migration failed",
+            ErrorType.INTERNAL_ERROR,
+            null),
+    UNABLE_TO_DEPLOY_MISSING_PERMISSION(
+            403,
+            AppsmithErrorCode.UNABLE_TO_DEPLOY_MISSING_PERMISSION.getCode(),
+            "Unable to deploy the Application. You don''t have required permissions for {0}: {1}",
+            AppsmithErrorAction.DEFAULT,
+            "Unable to deploy",
+            ErrorType.INTERNAL_ERROR,
+            null),
+    APPLICATION_NOT_CLONED_MISSING_PERMISSIONS(
+            403,
+            AppsmithErrorCode.APPLICATION_NOT_CLONED_MISSING_PERMISSIONS.getCode(),
+            "Unable to clone application. You don''t have required permissions for {0}: {1}",
+            AppsmithErrorAction.DEFAULT,
+            "Cloning application failed",
+            ErrorType.INTERNAL_ERROR,
+            null),
+
+    APPLICATION_NOT_FORKED_MISSING_PERMISSIONS(
+            403,
+            AppsmithErrorCode.APPLICATION_NOT_FORKED_MISSING_PERMISSIONS.getCode(),
+            "Unable to fork application. You don''t have required permissions for {0}: {1}",
+            AppsmithErrorAction.DEFAULT,
+            "Forking application failed",
+            ErrorType.INTERNAL_ERROR,
             null),
     ;
 

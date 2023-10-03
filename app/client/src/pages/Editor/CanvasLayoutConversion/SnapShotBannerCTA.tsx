@@ -77,15 +77,13 @@ export function SnapShotBannerCTA() {
         links={[
           {
             children: createMessage(USE_SNAPSHOT_CTA),
-            onClick: (e) => {
-              e.preventDefault();
+            onClick: () => {
               openModal(CONVERSION_STATES.SNAPSHOT_START);
             },
           },
           {
             children: createMessage(DISCARD_SNAPSHOT_CTA),
-            onClick: (e) => {
-              e.preventDefault();
+            onClick: () => {
               openModal(CONVERSION_STATES.DISCARD_SNAPSHOT);
             },
           },

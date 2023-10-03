@@ -1,5 +1,4 @@
 import React from "react";
-import { Link } from "react-router-dom";
 import styled from "styled-components";
 import AdminConfig from "@appsmith/pages/AdminSettings/config";
 import {
@@ -9,19 +8,21 @@ import {
 import { adminSettingsCategoryUrl } from "RouteBuilder";
 import { useParams } from "react-router";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { Icon, Text } from "design-system";
+import { Link, Text } from "design-system";
 import { useDispatch, useSelector } from "react-redux";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { getCurrentUser } from "selectors/usersSelectors";
 import BusinessTag from "components/BusinessTag";
 import EnterpriseTag from "components/EnterpriseTag";
 import { getTenantPermissions } from "@appsmith/selectors/tenantSelectors";
-import { hasAuditLogsReadPermission } from "@appsmith/utils/permissionHelpers";
 import {
   getFilteredAclCategories,
   getFilteredGeneralCategories,
   getFilteredOtherCategories,
 } from "@appsmith/utils/adminSettingsHelpers";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { getHasAuditLogsReadPermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 
 export const Wrapper = styled.div`
   flex-basis: ${(props) => props.theme.sidebarWidth};
@@ -63,9 +64,13 @@ export const StyledLink = styled(Link)<{ $active: boolean }>`
   border-radius: var(--ads-v2-border-radius);
   background-color: ${(props) =>
     props.$active ? `var(--ads-v2-color-bg-muted)` : ""};
-  display: flex;
-  gap: 12px;
-  align-items: center;
+  text-decoration: none !important;
+
+  .ads-v2-text {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
 
   && {
     color: var(--ads-v2-color-fg);
@@ -149,6 +154,8 @@ export function Categories({
               onClick={() =>
                 onClickHandler(config.slug, showUpgradeTag || false)
               }
+              startIcon={showUpgradeTag ? "lock-2-line" : `${config.icon}`}
+              target="_self"
               to={
                 !parentCategory
                   ? adminSettingsCategoryUrl({ category: config.slug })
@@ -158,11 +165,6 @@ export function Categories({
                     })
               }
             >
-              {showUpgradeTag ? (
-                <Icon name="lock-2-line" />
-              ) : (
-                config?.icon && <Icon name={config?.icon} size="md" />
-              )}
               <SettingName active={active}>{config.title}</SettingName>
               {showUpgradeTag &&
                 (config?.isEnterprise ? <EnterpriseTag /> : <BusinessTag />)}
@@ -190,7 +192,11 @@ export default function LeftPane() {
   const user = useSelector(getCurrentUser);
   const isSuperUser = user?.isSuperUser;
   const tenantPermissions = useSelector(getTenantPermissions);
-  const isAuditLogsEnabled = hasAuditLogsReadPermission(tenantPermissions);
+  const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+  const isAuditLogsEnabled = getHasAuditLogsReadPermission(
+    isFeatureEnabled,
+    tenantPermissions,
+  );
 
   const filteredGeneralCategories = getFilteredGeneralCategories(categories);
 

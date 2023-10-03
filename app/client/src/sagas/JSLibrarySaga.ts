@@ -32,7 +32,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import type { TJSLibrary } from "workers/common/JSLibrary";
 import { getUsedActionNames } from "selectors/actionSelectors";
 import AppsmithConsole from "utils/AppsmithConsole";
-import { selectInstalledLibraries } from "selectors/entitiesSelector";
+import { selectInstalledLibraries } from "@appsmith/selectors/entitiesSelector";
 import { toast } from "design-system";
 
 export function parseErrorMessage(text: string) {

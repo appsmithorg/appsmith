@@ -35,6 +35,7 @@ export const STORAGE_KEYS: {
   AI_RECENT_QUERIES: "AI_RECENT_QUERIES",
   CURRENT_ENV: "CURRENT_ENV",
   AI_KNOWLEDGE_BASE: "AI_KNOWLEDGE_BASE",
+  PARTNER_PROGRAM_CALLOUT: "PARTNER_PROGRAM_CALLOUT",
 };
 
 const store = localforage.createInstance({
@@ -126,7 +127,10 @@ export const saveCurrentEnvironment = async (envId: string, appId: string) => {
 };
 
 // Function to fetch the current environment and related appId from indexedDB
-export const getSavedCurrentEnvironmentDetails = async () => {
+export const getSavedCurrentEnvironmentDetails = async (): Promise<{
+  envId: string;
+  appId: string;
+}> => {
   try {
     return (
       (await store.getItem(STORAGE_KEYS.CURRENT_ENV)) || {
@@ -136,6 +140,10 @@ export const getSavedCurrentEnvironmentDetails = async () => {
     );
   } catch (error) {
     log.error("An error occurred when fetching current env: ", error);
+    return {
+      envId: "",
+      appId: "",
+    };
   }
 };
 
@@ -804,5 +812,25 @@ export const getAISuggestedPromptShownForType = async (type: string) => {
     log.error("An error occurred while fetching AI_SUGGESTED_PROMPTS_SHOWN");
     log.error(error);
     return 0;
+  }
+};
+
+export const setPartnerProgramCalloutShown = async () => {
+  try {
+    await store.setItem(STORAGE_KEYS.PARTNER_PROGRAM_CALLOUT, true);
+    return true;
+  } catch (error) {
+    log.error("An error occurred while setting PARTNER_PROGRAM_CALLOUT");
+    log.error(error);
+  }
+};
+
+export const getPartnerProgramCalloutShown = async () => {
+  try {
+    const flag = await store.getItem(STORAGE_KEYS.PARTNER_PROGRAM_CALLOUT);
+    return flag;
+  } catch (error) {
+    log.error("An error occurred while fetching PARTNER_PROGRAM_CALLOUT");
+    log.error(error);
   }
 };

@@ -9,7 +9,7 @@ import noop from "lodash/noop";
 import { getJSEntityName } from "./helpers";
 import { initExplorerEntityNameEdit } from "actions/explorerActions";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE_VALUE } from "entities/DataTree/dataTreeFactory";
 import {
   CONTEXT_COPY,
   CONTEXT_DELETE,
@@ -20,7 +20,7 @@ import {
   CONTEXT_SHOW_BINDING,
   createMessage,
 } from "@appsmith/constants/messages";
-import { getPageListAsOptions } from "selectors/entitiesSelector";
+import { getPageListAsOptions } from "@appsmith/selectors/entitiesSelector";
 
 import ContextMenu from "pages/Editor/Explorer/ContextMenu";
 import type { TreeDropdownOption } from "pages/Editor/Explorer/ContextMenu";
@@ -45,7 +45,7 @@ export function JSCollectionEntityContextMenu(props: EntityContextMenuProps) {
         payload: {
           entityId: actionId,
           entityName: actionName,
-          entityType: ENTITY_TYPE.JSACTION,
+          entityType: ENTITY_TYPE_VALUE.JSACTION,
           show: true,
         },
       }),

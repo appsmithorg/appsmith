@@ -13,25 +13,24 @@ import { useDispatch, useSelector } from "react-redux";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
-import Explorer from "pages/Editor/Explorer";
-import { setExplorerActiveAction } from "actions/explorerActions";
+import {
+  setExplorerActiveAction,
+  updateExplorerWidthAction,
+} from "actions/explorerActions";
 import {
   getExplorerActive,
   getExplorerPinned,
+  getExplorerWidth,
 } from "selectors/explorerSelector";
 import { tailwindLayers } from "constants/Layers";
 import { Tooltip } from "design-system";
 import { previewModeSelector } from "selectors/editorSelectors";
 import useHorizontalResize from "utils/hooks/useHorizontalResize";
-import OnboardingStatusbar from "pages/Editor/FirstTimeUserOnboarding/Statusbar";
-import Pages from "pages/Editor/Explorer/Pages";
-import { EntityProperties } from "pages/Editor/Explorer/Entity/EntityProperties";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { SIDEBAR_ID } from "constants/Explorer";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 import { EntityClassNames } from "pages/Editor/Explorer/Entity";
-import { getEditingEntityName } from "selectors/entitiesSelector";
+import { getEditingEntityName } from "@appsmith/selectors/entitiesSelector";
 import styled from "styled-components";
 import moment from "moment";
 import AnalyticsUtil from "../../utils/AnalyticsUtil";
@@ -52,14 +51,13 @@ const StyledResizer = styled.div<{ resizing: boolean }>`
 `;
 
 type Props = {
-  width: number;
-  onWidthChange?: (width: number) => void;
-  onDragEnd?: () => void;
+  children: React.ReactNode;
 };
 
-export const EntityExplorerSidebar = memo((props: Props) => {
+export const EntityExplorerSidebar = memo(({ children }: Props) => {
   let tooltipTimeout: ReturnType<typeof setTimeout>;
   const dispatch = useDispatch();
+  const width = useSelector(getExplorerWidth);
   const active = useSelector(getExplorerActive);
   const sidebarRef = useRef<HTMLDivElement>(null);
   const pinned = useSelector(getExplorerPinned);
@@ -69,14 +67,26 @@ export const EntityExplorerSidebar = memo((props: Props) => {
   );
   const isPreviewingApp =
     isPreviewMode || isAppSettingsPaneWithNavigationTabOpen;
-  const enableFirstTimeUserOnboarding = useSelector(
-    getIsFirstTimeUserOnboardingEnabled,
-  );
-  const resizer = useHorizontalResize(
-    sidebarRef,
-    props.onWidthChange,
-    props.onDragEnd,
-  );
+
+  /**
+   * on entity explorer sidebar width change
+   *
+   * @return void
+   */
+  const onWidthChange = useCallback((newWidth) => {
+    dispatch(updateExplorerWidthAction(newWidth));
+  }, []);
+
+  /**
+   * on entity explorer sidebar drag end
+   *
+   * @return void
+   */
+  const onDragEnd = useCallback(() => {
+    dispatch(updateExplorerWidthAction(width));
+  }, [width]);
+
+  const resizer = useHorizontalResize(sidebarRef, onWidthChange, onDragEnd);
   const [tooltipIsOpen, setTooltipIsOpen] = useState(false);
   const isEditingEntityName = useSelector(getEditingEntityName);
   PerformanceTracker.startTracking(PerformanceTransactionName.SIDE_BAR_MOUNT);
@@ -138,7 +148,7 @@ export const EntityExplorerSidebar = memo((props: Props) => {
         // if user cursor is out of the entity explorer width ( with some extra window = 20px ), make the
         // entity explorer inactive. Also, 20px here is to increase the window in which a user can drag the resizer
         if (
-          currentX >= props.width + 20 &&
+          currentX >= width + 20 &&
           !resizer.resizing &&
           !isContextMenuOpen() &&
           !isEditingEntityName
@@ -175,8 +185,8 @@ export const EntityExplorerSidebar = memo((props: Props) => {
    * resizer left position
    */
   const resizerLeft = useMemo(() => {
-    return !pinned && !active ? 0 : props.width;
-  }, [pinned, active, props.width]);
+    return !pinned && !active ? 0 : width;
+  }, [pinned, active, width]);
 
   useEffect(() => {
     dispatch({
@@ -223,15 +233,9 @@ export const EntityExplorerSidebar = memo((props: Props) => {
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
         ref={sidebarRef}
-        style={{ width: props.width }}
+        style={{ width: width }}
       >
-        {enableFirstTimeUserOnboarding && <OnboardingStatusbar />}
-        {/* PagesContainer */}
-        <Pages />
-        {/* Popover that contains the bindings info */}
-        <EntityProperties />
-        {/* Contains entity explorer & widgets library along with a switcher*/}
-        <Explorer />
+        {children}
       </div>
       {/* RESIZER */}
       <StyledResizer

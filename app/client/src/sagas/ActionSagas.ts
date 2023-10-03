@@ -64,7 +64,7 @@ import {
 import type {
   ActionData,
   ActionDataState,
-} from "reducers/entityReducers/actionsReducer";
+} from "@appsmith/reducers/entityReducers/actionsReducer";
 import {
   getAction,
   getActions,
@@ -76,7 +76,7 @@ import {
   getPageNameByPageId,
   getPlugin,
   getSettingConfig,
-} from "selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import history from "utils/history";
 import { INTEGRATION_TABS } from "constants/routes";
 import PerformanceTracker, {

@@ -38,7 +38,6 @@ function BackButton() {
       className="t--back-button"
       onClick={goBack}
       startIcon="arrow-left-line"
-      target="_self"
     >
       Back
     </Back>

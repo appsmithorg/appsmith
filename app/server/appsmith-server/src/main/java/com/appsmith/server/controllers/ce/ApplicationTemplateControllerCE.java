@@ -2,8 +2,10 @@ package com.appsmith.server.controllers.ce;
 
 import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.Application;
 import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.ApplicationTemplate;
+import com.appsmith.server.dtos.CommunityTemplateDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.ApplicationTemplateService;
 import com.fasterxml.jackson.annotation.JsonView;
@@ -91,5 +93,14 @@ public class ApplicationTemplateControllerCE {
         return applicationTemplateService
                 .mergeTemplateWithApplication(templateId, applicationId, organizationId, branchName, pagesToImport)
                 .map(importedApp -> new ResponseDTO<>(HttpStatus.OK.value(), importedApp, null));
+    }
+
+    @JsonView(Views.Public.class)
+    @PostMapping("publish/{applicationId}/{organizationId}")
+    public Mono<ResponseDTO<Application>> publishAsCommunityTemplate(
+            @RequestBody(required = true) CommunityTemplateDTO resource) {
+        return applicationTemplateService
+                .publishAsCommunityTemplate(resource)
+                .map(template -> new ResponseDTO<>(HttpStatus.OK.value(), template, null));
     }
 }

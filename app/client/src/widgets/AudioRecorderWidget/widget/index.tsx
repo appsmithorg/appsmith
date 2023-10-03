@@ -12,7 +12,7 @@ import AudioRecorderComponent from "../component";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type { AutocompletionDefinitions } from "WidgetProvider/constants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
+import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import IconSVG from "../icon.svg";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 
@@ -302,17 +302,8 @@ class AudioRecorderWidget extends BaseWidget<
   }
 
   getWidgetView() {
-    const {
-      blobURL,
-      bottomRow,
-      iconColor,
-      isDisabled,
-      leftColumn,
-      parentColumnSpace,
-      parentRowSpace,
-      rightColumn,
-      topRow,
-    } = this.props;
+    const { blobURL, componentHeight, componentWidth, iconColor, isDisabled } =
+      this.props;
 
     return (
       <AudioRecorderComponent
@@ -320,12 +311,12 @@ class AudioRecorderWidget extends BaseWidget<
         blobUrl={blobURL}
         borderRadius={this.props.borderRadius}
         boxShadow={this.props.boxShadow}
-        height={(bottomRow - topRow) * parentRowSpace}
+        height={componentHeight}
         iconColor={iconColor}
         isDisabled={isDisabled}
         onRecordingComplete={this.handleRecordingComplete}
         onRecordingStart={this.handleRecordingStart}
-        width={(rightColumn - leftColumn) * parentColumnSpace}
+        width={componentWidth}
       />
     );
   }

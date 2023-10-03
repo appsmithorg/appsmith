@@ -8,7 +8,8 @@ import {
   isDynamicValue,
 } from "utils/DynamicBindingUtils";
 import type { FieldEntityInformation } from "components/editorComponents/CodeEditor/EditorConfig";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE_VALUE } from "entities/DataTree/dataTreeFactory";
+import type { ENTITY_TYPE } from "@appsmith/entities/DataTree/types";
 import { AutocompleteSorter } from "./AutocompleteSortRules";
 import { getCompletionsForKeyword } from "./keywordCompletion";
 import TernWorkerServer from "./TernWorkerService";
@@ -24,7 +25,7 @@ const bigDoc = 250;
 const cls = "CodeMirror-Tern-";
 const hintDelay = 1700;
 
-export type Completion = Hint & {
+export interface Completion extends Hint {
   origin: string;
   type: AutocompleteDataType | string;
   data: {
@@ -32,13 +33,15 @@ export type Completion = Hint & {
   };
   render?: any;
   isHeader?: boolean;
-};
+}
 
-export type CommandsCompletion = Completion & {
+export interface CommandsCompletion
+  extends Omit<Completion, "type" | "origin" | "data"> {
+  data: unknown;
   action?: () => void;
-  shortcut: string;
+  shortcut?: string;
   triggerCompletionsPostPick?: boolean;
-};
+}
 
 type TernDocs = Record<string, TernDoc>;
 
@@ -292,7 +295,7 @@ class CodeMirrorTernService {
     }
 
     const shouldComputeBestMatch =
-      this.fieldEntityInformation.entityType !== ENTITY_TYPE.JSACTION;
+      this.fieldEntityInformation.entityType !== ENTITY_TYPE_VALUE.JSACTION;
 
     completions = AutocompleteSorter.sort(
       completions,
@@ -381,7 +384,7 @@ class CodeMirrorTernService {
 
     // When a function is picked, move the cursor between the parenthesis
     const CodeMirror = getCodeMirrorNamespaceFromEditor(cm);
-    CodeMirror.on(hints, "pick", (selected: CommandsCompletion) => {
+    CodeMirror.on(hints, "pick", (selected: Completion) => {
       const hintsWithoutHeaders = hints.list.filter(
         (h: Record<string, unknown>) => h.isHeader !== true,
       );
