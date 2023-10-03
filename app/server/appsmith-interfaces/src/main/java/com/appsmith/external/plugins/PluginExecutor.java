@@ -354,8 +354,7 @@ public interface PluginExecutor<C> extends ExtensionPoint, CrudTemplateService {
     }
 
     /*
-     * This method returns ActionConfiguration required in order to fetch preview data,
-     * that needs to be shown on datasource review page.
+     * This method returns rate limit identifier required in order to apply rate limit on datasource test api,
      */
     default Mono<String> getIdentifierForRateLimit(DatasourceConfiguration datasourceConfiguration) {
         return Mono.just("");

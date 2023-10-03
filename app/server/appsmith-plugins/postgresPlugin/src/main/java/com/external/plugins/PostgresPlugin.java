@@ -288,11 +288,11 @@ public class PostgresPlugin extends BasePlugin {
         @Override
         public Mono<String> getIdentifierForRateLimit(DatasourceConfiguration datasourceConfiguration) {
             List<Endpoint> endpoints = datasourceConfiguration.getEndpoints();
-            String hostName = "";
+            String identifier = "";
             if (endpoints.size() > 0) {
-                hostName = endpoints.get(0).getHost();
+                identifier = endpoints.get(0).getHost() + endpoints.get(0).getPort();
             }
-            return Mono.just(hostName);
+            return Mono.just(identifier);
         }
 
         private Mono<ActionExecutionResult> executeCommon(

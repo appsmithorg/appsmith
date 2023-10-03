@@ -17,10 +17,11 @@ public class RateLimitService {
     private final Map<String, BucketProxy> apiBuckets;
     private final RateLimitConfig rateLimitConfig;
     // this number of tokens var can later be customised per API in the configuration.
+
     private final Integer DEFAULT_NUMBER_OF_TOKENS_CONSUMED_PER_REQUEST = 1;
     // this is required for blocking the execution if bucket exhausted
-
     private final RedisUtils redisUtils;
+    private final String BLOCKED_HOSTNAME_PREFIX = "blocked";
 
     public RateLimitService(
             Map<String, BucketProxy> apiBuckets, RateLimitConfig rateLimitConfig, RedisUtils redisUtils) {
@@ -53,12 +54,12 @@ public class RateLimitService {
 
     public Mono<Boolean> blockExecutionForPeriod(
             String apiIdentifier, String userIdentifier, Duration timePeriod, AppsmithException exception) {
-        String bucketIdentifier = "blocked" + apiIdentifier + userIdentifier;
+        String bucketIdentifier = BLOCKED_HOSTNAME_PREFIX + apiIdentifier + userIdentifier;
         return redisUtils.addFileLock(bucketIdentifier, timePeriod, exception);
     }
 
     public Mono<Boolean> isBlockingKeyPresent(String apiIdentifier, String userIdentifier) {
-        String bucketIdentifier = "blocked" + apiIdentifier + userIdentifier;
+        String bucketIdentifier = BLOCKED_HOSTNAME_PREFIX + apiIdentifier + userIdentifier;
         return redisUtils.hasKey(bucketIdentifier);
     }
 }
