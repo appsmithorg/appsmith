@@ -40,13 +40,13 @@ import type {
   WidgetDefaultProps,
   WidgetMethods,
 } from "../WidgetProvider/constants";
-import type { WidgetEntity } from "entities/DataTree/dataTreeFactory";
+import type { WidgetEntity } from "@appsmith/entities/DataTree/types";
 import type { AutocompletionDefinitions } from "../WidgetProvider/constants";
 import type {
   FlexVerticalAlignment,
   LayoutDirection,
   ResponsiveBehavior,
-} from "layoutSystems/autolayout/utils/constants";
+} from "layoutSystems/common/utils/constants";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import type { FeatureFlag } from "@appsmith/entities/FeatureFlag";
 import store from "store";
@@ -421,6 +421,9 @@ export interface WidgetBaseProps {
   additionalStaticProps?: string[];
   mainCanvasWidth?: number;
   isMobile?: boolean;
+  hasAutoHeight?: boolean;
+  hasAutoWidth?: boolean;
+  widgetSize?: { [key: string]: Record<string, string | number> };
 }
 
 export type WidgetRowCols = {
@@ -455,6 +458,7 @@ export interface WidgetPositionProps extends WidgetRowCols {
   appPositioningType?: AppPositioningTypes;
   widthInPercentage?: number; // Stores the widget's width set by the user
   mobileWidthInPercentage?: number;
+  width?: number;
 }
 
 export const WIDGET_DISPLAY_PROPS = {

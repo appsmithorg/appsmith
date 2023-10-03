@@ -1,35 +1,37 @@
-import React, { forwardRef } from "react";
+import React, { forwardRef, cloneElement } from "react";
+import styles from "./styles.module.css";
+import isArray from "lodash/isArray";
 
-import { StyledContainer } from "./index.styled";
+import type { Ref, ReactNode } from "react";
+import type { ButtonGroupProps } from "./types";
 
-// types
-export const ORIENTATION = {
-  VERTICAL: "vertical",
-  HORIZONTAL: "horizontal",
-} as const;
+const _ButtonGroup = (props: ButtonGroupProps, ref: Ref<HTMLDivElement>) => {
+  const {
+    children,
+    color = "accent",
+    orientation = "horizontal",
+    variant = "filled",
+    ...others
+  } = props;
 
-type Orientation = (typeof ORIENTATION)[keyof typeof ORIENTATION];
-export interface ButtonGroupProps
-  extends React.ComponentPropsWithoutRef<"div"> {
-  children?: React.ReactNode;
-  orientation?: Orientation;
-}
+  const cloneChildren = (elements: ReactNode) => {
+    if (isArray(elements)) {
+      return elements.map((element) =>
+        cloneElement(element, { variant, color }),
+      );
+    }
+  };
 
-// component
-export const ButtonGroup = forwardRef<HTMLDivElement, ButtonGroupProps>(
-  (props, ref) => {
-    const { orientation = ORIENTATION.HORIZONTAL, ...others } = props;
+  return (
+    <div
+      className={styles.buttonGroup}
+      data-orientation={orientation}
+      ref={ref}
+      {...others}
+    >
+      {cloneChildren(children)}
+    </div>
+  );
+};
 
-    return (
-      <StyledContainer
-        data-orientation={
-          orientation === ORIENTATION.VERTICAL ? "vertical" : undefined
-        }
-        ref={ref}
-        {...others}
-      />
-    );
-  },
-);
-
-ButtonGroup.displayName = "ButtonGroup";
+export const ButtonGroup = forwardRef(_ButtonGroup);

@@ -1,6 +1,6 @@
 import { PatchType } from "./JSVariableUpdates";
 import ExecutionMetaData from "../fns/utils/ExecutionMetaData";
-import type { JSActionEntity } from "entities/DataTree/types";
+import type { JSActionEntity } from "@appsmith/entities/DataTree/types";
 import TriggerEmitter, { BatchKey } from "../fns/utils/TriggerEmitter";
 
 class JSFactory {

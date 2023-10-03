@@ -29,7 +29,7 @@ import type {
   ConfigTree,
   WidgetEntity,
   WidgetEntityConfig,
-} from "entities/DataTree/dataTreeFactory";
+} from "@appsmith/entities/DataTree/types";
 import { find, sortBy } from "lodash";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import {
@@ -47,7 +47,6 @@ import {
 import { checkIsDropTarget } from "WidgetProvider/factory/helpers";
 import {
   buildChildWidgetTree,
-  buildFlattenedChildCanvasWidgets,
   createCanvasWidget,
   createLoadingWidget,
 } from "utils/widgetRenderUtils";
@@ -553,14 +552,6 @@ export const getChildWidgets = createSelector(
     (_state: AppState, widgetId: string) => widgetId,
   ],
   buildChildWidgetTree,
-);
-
-export const getFlattenedChildCanvasWidgets = createSelector(
-  [
-    getCanvasWidgets,
-    (_state: AppState, parentWidgetId: string) => parentWidgetId,
-  ],
-  buildFlattenedChildCanvasWidgets,
 );
 
 const getOccupiedSpacesForContainer = (

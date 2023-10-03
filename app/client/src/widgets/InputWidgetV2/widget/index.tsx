@@ -36,7 +36,6 @@ import { checkInputTypeTextByProps } from "widgets/BaseInputWidget/utils";
 import type { AutocompletionDefinitions } from "WidgetProvider/constants";
 import { LabelPosition } from "components/constants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
 import { DynamicHeight } from "utils/WidgetFeatures";
 
 import IconSVG from "../icon.svg";
@@ -46,6 +45,7 @@ import type {
   PropertyUpdates,
 } from "WidgetProvider/constants";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
+import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 
 export function defaultValueValidation(
   value: any,

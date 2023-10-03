@@ -1,7 +1,7 @@
 import DataTreeEvaluator from ".";
 import { unEvalTree } from "./mockData/mockUnEvalTree";
 import { configTree } from "./mockData/mockConfigTree";
-import type { DataTree, ConfigTree } from "entities/DataTree/dataTreeFactory";
+import type { DataTree, ConfigTree } from "@appsmith/entities/DataTree/types";
 import type { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
 import {
   arrayAccessorCyclicDependency,
@@ -16,7 +16,6 @@ import { replaceThisDotParams } from "./utils";
 import { isDataField } from "./utils";
 import widgets from "widgets";
 import type { WidgetConfiguration } from "WidgetProvider/constants";
-import { klona } from "klona";
 
 const widgetConfigMap: Record<
   string,
@@ -360,7 +359,7 @@ describe("DataTreeEvaluator", () => {
             nonDynamicFieldValidationOrder: nonDynamicFieldValidationOrder5,
             unEvalUpdates,
           } = dataTreeEvaluator.setupUpdateTree(
-            klona(nestedArrayAccessorCyclicDependency.apiSuccessUnEvalTree),
+            nestedArrayAccessorCyclicDependency.apiSuccessUnEvalTree,
             nestedArrayAccessorCyclicDependencyConfig.apiSuccessConfigTree,
           );
           dataTreeEvaluator.evalAndValidateSubTree(
@@ -424,7 +423,7 @@ describe("DataTreeEvaluator", () => {
           nonDynamicFieldValidationOrder,
           unEvalUpdates,
         } = dataTreeEvaluator.setupUpdateTree(
-          klona(nestedArrayAccessorCyclicDependency.apiSuccessUnEvalTree),
+          nestedArrayAccessorCyclicDependency.apiSuccessUnEvalTree,
           nestedArrayAccessorCyclicDependencyConfig.apiSuccessConfigTree,
         );
         dataTreeEvaluator.evalAndValidateSubTree(
@@ -471,7 +470,7 @@ describe("DataTreeEvaluator", () => {
           nonDynamicFieldValidationOrder: nonDynamicFieldValidationOrder2,
           unEvalUpdates,
         } = dataTreeEvaluator.setupUpdateTree(
-          klona(nestedArrayAccessorCyclicDependency.apiSuccessUnEvalTree),
+          nestedArrayAccessorCyclicDependency.apiSuccessUnEvalTree,
           nestedArrayAccessorCyclicDependencyConfig.apiSuccessConfigTree,
         );
         dataTreeEvaluator.evalAndValidateSubTree(

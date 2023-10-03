@@ -1,53 +1,55 @@
 import gitSyncLocators from "../../../../../locators/gitSyncLocators";
-import * as _ from "../../../../../support/Objects/ObjectsCore";
+import {
+  gitSync,
+  agHelper,
+  homePage,
+  onboarding,
+  locators,
+} from "../../../../../support/Objects/ObjectsCore";
 import { REPO, CURRENT_REPO } from "../../../../../fixtures/REPO";
 
 let repoName1, repoName2, repoName3, repoName4, windowOpenSpy;
 describe("Repo Limit Exceeded Error Modal", function () {
   before(() => {
-    cy.generateUUID().then((uid) => {
-      cy.Signup(`${uid}@appsmithtest.com`, uid);
-    });
     const uuid = require("uuid");
     repoName1 = uuid.v4().split("-")[0];
     repoName2 = uuid.v4().split("-")[0];
     repoName3 = uuid.v4().split("-")[0];
     repoName4 = uuid.v4().split("-")[0];
-    _.agHelper.AssertElementVisibility(_.locators._sidebar);
-    _.onboarding.closeIntroModal();
+    agHelper.AssertElementVisibility(locators._sidebar);
+    onboarding.closeIntroModal();
   });
 
-  it("1. Modal should be opened with proper components", function () {
-    _.homePage.NavigateToHome();
-    _.homePage.CreateNewApplication();
-    _.gitSync.CreateNConnectToGit(repoName1, true, true);
+  it("1. Verify Repo limit flow for CE instance", function () {
+    agHelper.Sleep(2000); // adding wait for app to load
+    homePage.LogOutviaAPI();
+    cy.generateUUID().then((uid) => {
+      cy.Signup(`${uid}@appsmithtest.com`, uid);
+    });
+    homePage.NavigateToHome();
+    homePage.CreateNewApplication();
+    gitSync.CreateNConnectToGit(repoName1, true, true);
     cy.get("@gitRepoName").then((repName) => {
       repoName1 = repName;
     });
-    _.homePage.NavigateToHome();
-    _.homePage.CreateNewApplication();
-    _.gitSync.CreateNConnectToGit(repoName2, true, true);
+    homePage.NavigateToHome();
+    homePage.CreateNewApplication();
+    gitSync.CreateNConnectToGit(repoName2, true, true);
     cy.get("@gitRepoName").then((repName) => {
       repoName2 = repName;
     });
-    _.homePage.NavigateToHome();
-    _.homePage.CreateNewApplication();
-    _.gitSync.CreateNConnectToGit(repoName3, true, true);
+    homePage.NavigateToHome();
+    homePage.CreateNewApplication();
+    gitSync.CreateNConnectToGit(repoName3, true, true);
     cy.get("@gitRepoName").then((repName) => {
       repoName3 = repName;
     });
-    _.homePage.NavigateToHome();
-    _.homePage.CreateNewApplication();
-    _.gitSync.CreateNConnectToGit(repoName4, false, true);
+    homePage.NavigateToHome();
+    homePage.CreateNewApplication();
+    gitSync.CreateNConnectToGit(repoName4, false, true);
     cy.get("@gitRepoName").then((repName) => {
       repoName4 = repName;
     });
-
-    // cy.createAppAndConnectGit(repoName1, false);
-    // cy.createAppAndConnectGit(repoName2, false);
-    // cy.createAppAndConnectGit(repoName3, false);
-    // cy.createAppAndConnectGit(repoName4, false, true);
-
     if (CURRENT_REPO === REPO.CE) {
       cy.get(gitSyncLocators.repoLimitExceededErrorModal).should("exist");
 
@@ -110,9 +112,9 @@ describe("Repo Limit Exceeded Error Modal", function () {
       url: "api/v1/applications/" + repoName4,
       failOnStatusCode: false,
     });
-    _.gitSync.DeleteTestGithubRepo(repoName1);
-    _.gitSync.DeleteTestGithubRepo(repoName2);
-    _.gitSync.DeleteTestGithubRepo(repoName3);
-    _.gitSync.DeleteTestGithubRepo(repoName4);
+    gitSync.DeleteTestGithubRepo(repoName1);
+    gitSync.DeleteTestGithubRepo(repoName2);
+    gitSync.DeleteTestGithubRepo(repoName3);
+    gitSync.DeleteTestGithubRepo(repoName4);
   });
 });

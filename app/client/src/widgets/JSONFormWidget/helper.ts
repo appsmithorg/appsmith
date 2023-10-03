@@ -13,6 +13,8 @@ import {
   inverseFieldType,
   getBindingTemplate,
 } from "./constants";
+import moment from "moment";
+import { ISO_DATE_FORMAT } from "constants/WidgetValidation";
 
 type ConvertFormDataOptions = {
   fromId: keyof SchemaItem | (keyof SchemaItem)[];
@@ -359,4 +361,25 @@ export const countFields = (
 
 export const isEmpty = (value?: string | null): value is null | undefined => {
   return value === "" || isNil(value);
+};
+
+export const generateSchemaWithDefaultValues = (
+  columns: Array<Record<string, unknown>>,
+) => {
+  const typeMappings: Record<string, unknown> = {
+    number: 0,
+    string: "",
+    date: moment(moment.now()).format(ISO_DATE_FORMAT),
+    array: [],
+  };
+
+  const convertedObject: Record<string, unknown> = columns.reduce(
+    (obj: any, curr: any) => {
+      obj[curr.name] = typeMappings[curr.type];
+      return obj;
+    },
+    {},
+  );
+
+  return convertedObject;
 };

@@ -235,7 +235,7 @@ function* connectToGitSaga(action: ConnectToGitReduxAction) {
       }
       /* commit effect END */
     }
-  } catch (error) {
+  } catch (error: any) {
     if (action.onErrorCallback) {
       action.onErrorCallback(error as Error, response);
     }
@@ -248,11 +248,14 @@ function* connectToGitSaga(action: ConnectToGitReduxAction) {
 
     // Api error
     // Display on the UI
-    if (response && !response?.responseMeta?.success) {
+
+    const errorResponse = response || error?.response?.data;
+
+    if (errorResponse && !errorResponse?.responseMeta?.success) {
       yield put({
         type: ReduxActionErrorTypes.CONNECT_TO_GIT_ERROR,
         payload: {
-          error: response?.responseMeta.error,
+          error: errorResponse?.responseMeta.error,
           show: false,
         },
       });

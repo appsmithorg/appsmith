@@ -40,18 +40,11 @@ describe("UUID Datatype tests", function () {
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("createTable");
     dataSources.RunQuery();
-    entityExplorer.ExpandCollapseEntity("Datasources");
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: dsName,
-      action: "Refresh",
-    });
-    agHelper.AssertElementVisibility(
-      entityExplorer._entityNameInExplorer("public.uuidtype"),
-    );
+    dataSources.AssertTableInVirtuosoList(dsName, "public.uuidtype");
   });
 
   it("3. Creating SELECT query - uuidtype + Bug 14493", () => {
-    entityExplorer.ActionTemplateMenuByEntityName("public.uuidtype", "SELECT");
+    entityExplorer.ActionTemplateMenuByEntityName("public.uuidtype", "Select");
     dataSources.RunQuery();
     agHelper
       .GetText(dataSources._noRecordFound)
@@ -390,7 +383,7 @@ describe("UUID Datatype tests", function () {
   });
 
   it("15. Verify Deletion of all created queries", () => {
-    dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Since all queries exists
+    dataSources.DeleteDatasourceFromWithinDS(dsName, 409); //Since all queries exists
     entityExplorer.ExpandCollapseEntity("Queries/JS");
     entityExplorer.DeleteAllQueriesForDB(dsName);
   });
@@ -399,6 +392,6 @@ describe("UUID Datatype tests", function () {
     deployMode.DeployApp();
     deployMode.NavigateBacktoEditor();
     entityExplorer.ExpandCollapseEntity("Queries/JS");
-    dataSources.DeleteDatasouceFromWinthinDS(dsName, 200);
+    dataSources.DeleteDatasourceFromWithinDS(dsName, 200);
   });
 });

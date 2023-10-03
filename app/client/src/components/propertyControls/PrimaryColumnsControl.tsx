@@ -17,7 +17,7 @@ import {
   getTableStyles,
 } from "widgets/TableWidget/component/TableUtilities";
 import { reorderColumns } from "widgets/TableWidget/component/TableHelpers";
-import type { DataTree } from "entities/DataTree/dataTreeFactory";
+import type { DataTree } from "@appsmith/entities/DataTree/types";
 import { getDataTreeForAutocomplete } from "selectors/dataTreeSelectors";
 import type { EvaluationError } from "utils/DynamicBindingUtils";
 import { getEvalErrorPath, getEvalValuePath } from "utils/DynamicBindingUtils";
