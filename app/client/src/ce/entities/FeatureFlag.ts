@@ -26,6 +26,7 @@ export const FEATURE_FLAG = {
   ab_mock_mongo_schema_enabled: "ab_mock_mongo_schema_enabled",
   release_show_publish_app_to_community_enabled:
     "release_show_publish_app_to_community_enabled",
+  license_gac_enabled: "license_gac_enabled",
 } as const;
 
 export type FeatureFlag = keyof typeof FEATURE_FLAG;
@@ -53,6 +54,7 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   deprecate_custom_fusioncharts_enabled: false,
   ab_mock_mongo_schema_enabled: false,
   release_show_publish_app_to_community_enabled: false,
+  license_gac_enabled: false,
 };
 
 export const AB_TESTING_EVENT_KEYS = {

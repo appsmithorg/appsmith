@@ -180,7 +180,7 @@ describe("Linting warning for setter methods", function () {
     agHelper.AssertElementVisibility(locators._lintErrorElement);
     agHelper.HoverElement(locators._lintErrorElement);
     agHelper.AssertContains(
-      "Direct mutation of widget properties aren't supported. Use Button1.setVisibility(value) instead.",
+      "Direct mutation of widget properties is not supported. Use Button1.setVisibility(value) instead.",
     );
     agHelper.Sleep();
 

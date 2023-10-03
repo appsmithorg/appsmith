@@ -8,12 +8,15 @@ import type {
   DataTreeEntity,
   WidgetEntity,
   WidgetEntityConfig,
-} from "entities/DataTree/dataTreeFactory";
+} from "@appsmith/entities/DataTree/types";
 import {
-  ENTITY_TYPE,
+  ENTITY_TYPE_VALUE,
   EvaluationSubstitutionType,
 } from "entities/DataTree/dataTreeFactory";
-import type { PrivateWidgets, JSActionEntity } from "entities/DataTree/types";
+import type {
+  PrivateWidgets,
+  JSActionEntity,
+} from "@appsmith/entities/DataTree/types";
 import type { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
 import {
   addErrorToEntityProperty,
@@ -33,7 +36,7 @@ import {
   overrideWidgetProperties,
   findDatatype,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
-import type { DataTree } from "entities/DataTree/dataTreeFactory";
+import type { DataTree } from "@appsmith/entities/DataTree/types";
 import type { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
 import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
 import TableWidget from "widgets/TableWidget";
@@ -61,7 +64,7 @@ const BASE_WIDGET: WidgetEntity = {
   type: "SKELETON_WIDGET",
   parentId: "0",
   version: 1,
-  ENTITY_TYPE: ENTITY_TYPE.WIDGET,
+  ENTITY_TYPE: ENTITY_TYPE_VALUE.WIDGET,
   meta: {},
 };
 
@@ -73,7 +76,7 @@ const BASE_WIDGET_CONFIG: WidgetEntityConfig = {
   reactivePaths: {},
   triggerPaths: {},
   validationPaths: {},
-  ENTITY_TYPE: ENTITY_TYPE.WIDGET,
+  ENTITY_TYPE: ENTITY_TYPE_VALUE.WIDGET,
   privateWidgets: {},
   propertyOverrideDependency: {},
   overridingPropertyPaths: {},
@@ -477,7 +480,7 @@ describe("4. translateDiffEvent", () => {
       diffs.map((diff) =>
         translateDiffEventToDataTreeDiffEvent(diff, {
           JsObject: {
-            ENTITY_TYPE: ENTITY_TYPE.JSACTION,
+            ENTITY_TYPE: ENTITY_TYPE_VALUE.JSACTION,
           } as unknown as DataTreeEntity,
         }),
       ),
@@ -862,7 +865,7 @@ describe("convertJSFunctionsToString", () => {
       },
       name: "JSObject1",
       actionId: "63ef4cb1a01b764626f2a6e5",
-      ENTITY_TYPE: ENTITY_TYPE.JSACTION,
+      ENTITY_TYPE: ENTITY_TYPE_VALUE.JSACTION,
       pluginType: PluginType.JS,
       bindingPaths: {
         body: EvaluationSubstitutionType.SMART_SUBSTITUTE,
@@ -885,7 +888,7 @@ describe("convertJSFunctionsToString", () => {
       },
     },
     JSObject2: {
-      ENTITY_TYPE: ENTITY_TYPE.JSACTION,
+      ENTITY_TYPE: ENTITY_TYPE_VALUE.JSACTION,
       meta: {
         myFun1: {
           arguments: [],
@@ -943,7 +946,7 @@ describe("convertJSFunctionsToString", () => {
     JSObject1: {
       myFun1: JSObject1MyFun1,
       body: 'export default {\nmyFun1:  ()=>{ \n\treturn "name"\n} \n}',
-      ENTITY_TYPE: ENTITY_TYPE.JSACTION,
+      ENTITY_TYPE: ENTITY_TYPE_VALUE.JSACTION,
 
       actionId: "63ef4cb1a01b764626f2a6e5",
     },
@@ -953,7 +956,7 @@ describe("convertJSFunctionsToString", () => {
       myFun1: JSObject2MyFun1,
       myFun2: JSObject2MyFun2,
       body: "export default {\n\tmyVar1: [],\n\tmyVar2: {},\n\tmyFun1: () => {\n\t\t//write code here\n\t},\n\tmyFun2: async () => {\n\t\t//use async-await or promises\n\t}\n}",
-      ENTITY_TYPE: ENTITY_TYPE.JSACTION,
+      ENTITY_TYPE: ENTITY_TYPE_VALUE.JSACTION,
 
       actionId: "63f78437d1a4ef55755952f1",
     },

@@ -6,7 +6,7 @@ import {
   entityDefinitions,
   getPropsForJSActionEntity,
 } from "@appsmith/utils/autocomplete/EntityDefinitions";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE_VALUE } from "entities/DataTree/dataTreeFactory";
 import { useDispatch, useSelector } from "react-redux";
 import PerformanceTracker, {
   PerformanceTransactionName,
@@ -135,7 +135,7 @@ export function EntityProperties() {
 
   if (!entity) return null;
   switch (entityType) {
-    case ENTITY_TYPE.JSACTION:
+    case ENTITY_TYPE_VALUE.JSACTION:
       const jsCollection = entity as JSCollectionData;
       const properties = getPropsForJSActionEntity(jsCollection);
       if (properties) {
@@ -152,7 +152,7 @@ export function EntityProperties() {
         );
       }
       break;
-    case ENTITY_TYPE.ACTION:
+    case ENTITY_TYPE_VALUE.ACTION:
       config = (entityDefinitions.ACTION as any)(entity as any);
 
       if (config) {
@@ -187,7 +187,7 @@ export function EntityProperties() {
           });
       }
       break;
-    case ENTITY_TYPE.WIDGET:
+    case ENTITY_TYPE_VALUE.WIDGET:
       const type: Exclude<
         EntityDefinitionsOptions,
         | "CANVAS_WIDGET"
