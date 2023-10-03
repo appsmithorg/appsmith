@@ -9,14 +9,10 @@ import {
 } from "utils/DynamicBindingUtils";
 import type { Diff } from "deep-diff";
 import type {
-  DataTree,
-  AppsmithEntity,
   DataTreeEntity,
-  WidgetEntity,
-  DataTreeEntityConfig,
+  DataTree,
   ConfigTree,
-  WidgetEntityConfig,
-} from "@appsmith/entities/DataTree/types";
+} from "entities/DataTree/dataTreeTypes";
 import { ENTITY_TYPE_VALUE } from "@appsmith/entities/DataTree/types";
 import _, { difference, find, get, has, isNil, set } from "lodash";
 import type { WidgetTypeConfigMap } from "WidgetProvider/factory";
@@ -25,12 +21,16 @@ import { klona } from "klona/full";
 import { warn as logWarn } from "loglevel";
 import type { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
 import { isObject } from "lodash";
-import type { DataTreeEntityObject } from "@appsmith/entities/DataTree/types";
 import type {
   JSActionEntityConfig,
   PrivateWidgets,
   JSActionEntity,
   ActionEntity,
+  DataTreeEntityObject,
+  AppsmithEntity,
+  WidgetEntity,
+  DataTreeEntityConfig,
+  WidgetEntityConfig,
 } from "@appsmith/entities/DataTree/types";
 import type { EvalProps } from "workers/common/DataTreeEvaluator";
 import { validateWidgetProperty } from "workers/common/DataTreeEvaluator/validationUtils";

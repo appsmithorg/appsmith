@@ -9,11 +9,11 @@ import type {
   ActionEntityConfig,
   JSActionEntity,
   JSActionEntityConfig,
-  DataTreeEntity,
   DataTreeEntityConfig,
   WidgetEntity,
   WidgetEntityConfig,
 } from "@appsmith/entities/DataTree/types";
+import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
 import { find, get, union } from "lodash";
 import {
   getDynamicBindings,

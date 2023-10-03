@@ -6,7 +6,7 @@ import {
   EXECUTION_PARAM_REFERENCE_REGEX,
   THIS_DOT_PARAMS_KEY,
 } from "constants/AppsmithActionConstants/ActionConstants";
-import type { ConfigTree, DataTree } from "@appsmith/entities/DataTree/types";
+import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeTypes";
 import type DependencyMap from "entities/DependencyMap";
 import type { TJSPropertiesState } from "workers/Evaluation/JSObject/jsPropertiesState";
 

@@ -8,13 +8,12 @@ import {
   isDynamicLeaf,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
 import type {
-  DataTree,
   WidgetEntity,
-  ConfigTree,
   WidgetEntityConfig,
   ActionEntity,
   JSActionEntity,
 } from "@appsmith/entities/DataTree/types";
+import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeTypes";
 import { getEntityId, getEvalErrorPath } from "utils/DynamicBindingUtils";
 import { convertArrayToObject, extractInfoFromBindings } from "./utils";
 import type DataTreeEvaluator from "workers/common/DataTreeEvaluator";

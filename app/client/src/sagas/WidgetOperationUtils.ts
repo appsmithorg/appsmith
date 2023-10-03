@@ -16,7 +16,7 @@ import {
   WIDGET_PADDING,
 } from "constants/WidgetConstants";
 import { all, call } from "redux-saga/effects";
-import type { DataTree } from "@appsmith/entities/DataTree/types";
+import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { select } from "redux-saga/effects";
 import { getCopiedWidgets } from "utils/storage";
 import type { WidgetProps } from "widgets/BaseWidget";

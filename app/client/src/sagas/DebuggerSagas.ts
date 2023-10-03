@@ -34,7 +34,7 @@ import type { Action } from "entities/Action";
 import { PluginType } from "entities/Action";
 import type { JSCollection } from "entities/JSCollection";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import type { ConfigTree, DataTree } from "@appsmith/entities/DataTree/types";
+import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeTypes";
 import {
   getConfigTree,
   getDataTree,

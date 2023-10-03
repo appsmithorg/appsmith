@@ -145,11 +145,6 @@ export type UnEvalTreeEntityObject =
   | JSActionEntity
   | WidgetEntity;
 
-export type UnEvalTreeEntity = UnEvalTreeEntityObject | AppsmithEntity | Page[];
-
-export type UnEvalTree = {
-  [entityName: string]: UnEvalTreeEntity;
-};
 export interface WidgetEntity extends WidgetProps {
   meta: Record<string, unknown>;
   ENTITY_TYPE: ENTITY_TYPE.WIDGET;
@@ -159,12 +154,6 @@ export type DataTreeEntityObject =
   | JSActionEntity
   | WidgetEntity
   | AppsmithEntity;
-
-export type DataTreeEntity = DataTreeEntityObject | Page[] | ActionDispatcher;
-
-export type DataTree = {
-  [entityName: string]: DataTreeEntity;
-};
 
 export interface WidgetEntityConfig
   extends Partial<WidgetProps>,
@@ -207,12 +196,3 @@ export type DataTreeEntityConfig =
   | WidgetEntityConfig
   | ActionEntityConfig
   | JSActionEntityConfig;
-
-export type ConfigTree = {
-  [entityName: string]: DataTreeEntityConfig;
-};
-
-export type unEvalAndConfigTree = {
-  unEvalTree: UnEvalTree;
-  configTree: ConfigTree;
-};

@@ -9,12 +9,14 @@ import {
 import { generateDataTreeModuleInputs } from "@appsmith/entities/DataTree/utils";
 import type {
   DataTreeSeed,
-  unEvalAndConfigTree,
-  ConfigTree,
   AppsmithEntity,
-  UnEvalTree,
   ENTITY_TYPE,
 } from "@appsmith/entities/DataTree/types";
+import type {
+  unEvalAndConfigTree,
+  ConfigTree,
+  UnEvalTree,
+} from "entities/DataTree/dataTreeTypes";
 import { isEmpty } from "lodash";
 
 export class DataTreeFactory {

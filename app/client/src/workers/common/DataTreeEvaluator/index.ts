@@ -19,18 +19,20 @@ import {
 } from "utils/DynamicBindingUtils";
 import type { WidgetTypeConfigMap } from "WidgetProvider/factory";
 import type {
-  DataTree,
-  DataTreeEntity,
   WidgetEntity,
-  ConfigTree,
   WidgetEntityConfig,
   DataTreeEntityConfig,
-  UnEvalTree,
   ActionEntity,
   JSActionEntity,
   JSActionEntityConfig,
   PrivateWidgets,
 } from "@appsmith/entities/DataTree/types";
+import type {
+  DataTree,
+  DataTreeEntity,
+  ConfigTree,
+  UnEvalTree,
+} from "entities/DataTree/dataTreeTypes";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { ENTITY_TYPE_VALUE } from "@appsmith/entities/DataTree/types";
 import type { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";

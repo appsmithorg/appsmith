@@ -2,14 +2,16 @@ import type {
   PropertyOverrideDependency,
   OverridingPropertyPaths,
   ModuleInput,
-  DataTreeEntity,
   WidgetEntity,
   ActionEntity,
   JSActionEntity,
-  ConfigTree,
-  UnEvalTree,
   DataTreeEntityConfig,
 } from "@appsmith/entities/DataTree/types";
+import type {
+  ConfigTree,
+  UnEvalTree,
+  DataTreeEntity,
+} from "entities/DataTree/dataTreeTypes";
 import { OverridingPropertyType } from "@appsmith/entities/DataTree/types";
 import {
   isAction,
