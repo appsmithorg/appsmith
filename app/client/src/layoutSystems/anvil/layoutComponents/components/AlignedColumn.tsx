@@ -42,10 +42,10 @@ AlignedColumn.getChildTemplate = (
   props: LayoutComponentProps,
 ): LayoutComponentProps | undefined => {
   if (!props) return;
-  const { childTemplate } = props;
+  const { canvasId, childTemplate } = props;
   if (childTemplate) return childTemplate;
   return {
-    canvasId: "",
+    canvasId: canvasId,
     insertChild: true,
     layoutId: "",
     layoutType: "ALIGNED_ROW",

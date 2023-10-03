@@ -1,6 +1,17 @@
 import type { HighlightInfo } from "layoutSystems/common/utils/types";
 import type { LayoutComponentProps } from "../anvilTypes";
 import { AlignmentIndexMap } from "../constants";
+import Row from "layoutSystems/anvil/layoutComponents/components/Row";
+import AlignedColumn from "layoutSystems/anvil/layoutComponents/components/AlignedColumn";
+import AlignedRow from "layoutSystems/anvil/layoutComponents/components/AlignedRow";
+import Column from "layoutSystems/anvil/layoutComponents/components/Column";
+import LayoutFactory from "layoutSystems/anvil/layoutComponents/LayoutFactory";
+
+const layoutComponents = [AlignedColumn, AlignedRow, Column, Row];
+
+export function registerLayoutComponents() {
+  LayoutFactory.initialize(layoutComponents);
+}
 
 export function generateLayoutId(canvasId: string, layoutId: string): string {
   return `layout-${canvasId}-${layoutId}`;

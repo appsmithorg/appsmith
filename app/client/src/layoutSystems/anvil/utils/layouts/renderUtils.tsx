@@ -2,7 +2,7 @@ import React from "react";
 import LayoutFactory from "layoutSystems/anvil/layoutComponents/LayoutFactory";
 import type { LayoutComponent, LayoutComponentProps } from "../anvilTypes";
 import WidgetFactory from "WidgetProvider/factory";
-import { RenderModes } from "constants/WidgetConstants";
+import { type RenderMode, RenderModes } from "constants/WidgetConstants";
 import { isFillWidgetPresentInList } from "./widgetUtils";
 import { MOBILE_BREAKPOINT } from "../constants";
 import {
@@ -13,7 +13,7 @@ import {
 export function renderWidgets(
   widgets: string[],
   childrenMap: LayoutComponentProps["childrenMap"] = {},
-  renderMode: RenderModes = RenderModes.CANVAS,
+  renderMode: RenderMode = RenderModes.CANVAS,
 ) {
   return widgets.map((widgetId) => {
     return WidgetFactory.createWidget(childrenMap[widgetId], renderMode);
@@ -29,7 +29,7 @@ export function renderWidgets(
 export function renderLayouts(
   layouts: LayoutComponentProps[],
   childrenMap: LayoutComponentProps["childrenMap"],
-) {
+): JSX.Element[] {
   return layouts.map((layout) => {
     const Component: LayoutComponent = LayoutFactory.get(layout.layoutType);
     return (
@@ -110,7 +110,7 @@ export function renderWidgetsInAlignedRow(
   const hasFillWidget: boolean = isFillWidgetPresentInList(
     Object.values(childrenMap || {}),
   );
-  const mode: RenderModes = renderMode || RenderModes.CANVAS;
+  const mode: RenderMode = renderMode || RenderModes.CANVAS;
   // If a Fill widget exists, then render the child widgets together.
   if (hasFillWidget) {
     return renderWidgets(childrenWidgetIds, childrenMap, mode);

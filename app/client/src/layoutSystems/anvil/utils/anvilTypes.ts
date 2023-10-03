@@ -1,4 +1,4 @@
-import type { RenderModes } from "constants/WidgetConstants";
+import type { RenderMode } from "constants/WidgetConstants";
 import type { HighlightInfo } from "layoutSystems/common/utils/types";
 import type { WidgetProps } from "widgets/BaseWidget";
 
@@ -23,7 +23,7 @@ export interface LayoutComponentProps {
   isPermanent?: boolean; // Whether the layout component can exist without any children.
 
   childrenMap?: Record<string, WidgetProps>; // Map of child widget ids to their props.
-  renderMode?: RenderModes;
+  renderMode?: RenderMode;
 }
 
 export interface LayoutComponent extends React.FC<LayoutComponentProps> {
