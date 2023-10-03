@@ -40,7 +40,7 @@ import { klona as clone } from "klona/full";
 import type { DataTree } from "@appsmith/entities/DataTree/types";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import { toast } from "design-system";
-import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
+import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import { isStack } from "../layoutSystems/autolayout/utils/AutoLayoutUtils";
 import {
   getCanvasWidth,

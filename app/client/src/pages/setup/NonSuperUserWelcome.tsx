@@ -55,10 +55,10 @@ const StyledBannerBody = styled.div`
   font-size: 24px;
   margin: ${(props) => props.theme.spaces[7]}px 0px;
   font-weight: 500;
-  margin-right: 9rem;
+  margin-left: 5rem;
   width: 100%;
   text-align: center;
-  color: var(--ads-v2-color-fg);
+  color: var(--ads-v2-color-fg-emphasis);
 `;
 
 const StyledImageBanner = styled.div`
@@ -74,7 +74,7 @@ const getWelcomeImage = () => `${ASSETS_CDN_URL}/welcome-banner-v2.svg`;
 const getAppsmithLogo = () => `${ASSETS_CDN_URL}/appsmith-logo.svg`;
 
 type LandingPageProps = {
-  onGetStarted?: (role?: string, useCase?: string) => void;
+  onGetStarted?: (proficiency?: string, useCase?: string) => void;
 };
 
 const WELCOME_PAGE_ANIMATION_CONTAINER = "welcome-page-animation-container";

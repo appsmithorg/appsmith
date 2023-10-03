@@ -2,6 +2,7 @@ package com.appsmith.server.repositories.ce;
 
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.PermissionGroup;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.repositories.AppsmithRepository;
 import com.mongodb.client.result.UpdateResult;
 import org.springframework.data.mongodb.core.query.Update;
@@ -31,4 +32,6 @@ public interface CustomPermissionGroupRepositoryCE extends AppsmithRepository<Pe
             Set<String> userIds, Optional<List<String>> includeFields, Optional<AclPermission> permission);
 
     Mono<Set<String>> getCurrentUserPermissionGroups();
+
+    Mono<Set<String>> getAllPermissionGroupsIdsForUser(User user);
 }
