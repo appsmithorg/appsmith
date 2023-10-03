@@ -746,7 +746,7 @@ export const EMPTY_ACTIVE_DATA_SOURCES = () => "No active datasources found.";
 // Datasource structure
 
 export const SCHEMA_NOT_AVAILABLE = () => "Schema not available";
-export const TABLE_OR_COLUMN_NOT_FOUND = () => "Table or column not found.";
+export const TABLE_NOT_FOUND = () => "Table not found.";
 export const DATASOURCE_STRUCTURE_INPUT_PLACEHOLDER_TEXT = () =>
   "Search for table or attribute";
 export const SCHEMA_LABEL = () => "Schema";
@@ -758,6 +758,7 @@ export const LOADING_SCHEMA = () => "Loading schema...";
 export const SCHEMA_WALKTHROUGH_TITLE = () => "Query data fast";
 export const SCHEMA_WALKTHROUGH_DESC = () =>
   "Select a template from a database table to quickly create your first query. ";
+export const SUGGESTED_TAG = () => "Suggested";
 
 // structure - View Mode
 
@@ -776,6 +777,7 @@ export const GIT_DISCONNECT_POPUP_SUBTITLE = () =>
 export const GIT_DISCONNECT_POPUP_MAIN_HEADING = () => `Are you sure?`;
 
 export const CONFIGURE_GIT = () => "Configure git";
+export const IMPORT_APP = () => "Import app via git";
 export const SETTINGS_GIT = () => "Settings";
 
 export const GIT_CONNECTION = () => "Git connection";
@@ -1240,7 +1242,8 @@ export const SNIPPET_TOOLTIP = () => "Search code snippets";
 
 //Welcome page
 export const WELCOME_HEADER = () => "Almost there";
-export const WELCOME_BODY = () => "Let's setup your account first";
+export const WELCOME_BODY = () =>
+  "Help us provide you with a customized experience.";
 export const WELCOME_ACTION = () => "Get started";
 
 // API Editor
@@ -1432,6 +1435,29 @@ export const WELCOME_FORM_NON_SUPER_USER_ROLE_DROPDOWN = () =>
 export const WELCOME_FORM_NON_SUPER_USER_ROLE = () => "Role";
 export const WELCOME_FORM_NON_SUPER_USER_USE_CASE = () =>
   "What are you planning to use Appsmith for?";
+export const WELCOME_FORM_NON_SUPER_USER_PROFICIENCY_LEVEL = () =>
+  "How would you rate your development proficiency?";
+
+export const WELCOME_FORM_PROFICIENCY_ERROR_MESSAGE = () =>
+  "Please select a proficiency level";
+export const WELCOME_FORM_USE_CASE_ERROR_MESSAGE = () =>
+  "Please select an use case";
+
+export const WELCOME_FORM_CUSTOM_USE_CASE_ERROR_MESSAGE = () =>
+  "Please enter a use case";
+
+export const WELCOME_FORM_EMAIL_ERROR_MESSAGE = () =>
+  "Enter a valid email address.";
+
+export const WELCOME_FORM_STRONG_PASSWORD_ERROR_MESSAGE = () =>
+  "Please enter a strong password.";
+
+export const WELCOME_FORM_GENERIC_ERROR_MESSAGE = () =>
+  "This field is required.";
+
+export const WELCOME_FORM_PASSWORDS_NOT_MATCHING_ERROR_MESSAGE = () =>
+  "TPasswords don't match.";
+
 export const QUERY_CONFIRMATION_MODAL_MESSAGE = () =>
   `Are you sure you want to run `;
 export const ENTITY_EXPLORER_TITLE = () => "NAVIGATION";

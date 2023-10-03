@@ -22,16 +22,18 @@ import {
 } from "@appsmith/constants/messages";
 import { openAppSettingsPaneAction } from "actions/appSettingsPaneActions";
 import { AppSettingsTabs } from "pages/Editor/AppSettingsPane/AppSettings";
-import {
-  hasCreatePagePermission,
-  hasDeletePagePermission,
-  hasManagePagePermission,
-} from "@appsmith/utils/permissionHelpers";
 import { getPageById } from "selectors/editorSelectors";
 import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
 import type { AppState } from "@appsmith/reducers";
 import ContextMenu from "pages/Editor/Explorer/ContextMenu";
 import type { TreeDropdownOption } from "pages/Editor/Explorer/ContextMenu";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import {
+  getHasCreatePagePermission,
+  getHasDeletePagePermission,
+  getHasManagePagePermission,
+} from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 
 const CustomLabel = styled.div`
   display: flex;
@@ -123,11 +125,22 @@ export function PageContextMenu(props: {
     (state: AppState) => getCurrentApplication(state)?.userPermissions ?? [],
   );
 
-  const canCreatePages = hasCreatePagePermission(userAppPermissions);
+  const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
 
-  const canManagePages = hasManagePagePermission(pagePermissions);
+  const canCreatePages = getHasCreatePagePermission(
+    isFeatureEnabled,
+    userAppPermissions,
+  );
 
-  const canDeletePages = hasDeletePagePermission(pagePermissions);
+  const canManagePages = getHasManagePagePermission(
+    isFeatureEnabled,
+    pagePermissions,
+  );
+
+  const canDeletePages = getHasDeletePagePermission(
+    isFeatureEnabled,
+    pagePermissions,
+  );
 
   const optionsTree = [
     canManagePages && {
