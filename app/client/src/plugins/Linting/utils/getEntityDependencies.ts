@@ -3,7 +3,7 @@ import {
   convertPathToString,
   getEntityNameAndPropertyPath,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
-import { ENTITY_TYPE } from "entities/DataTree/types";
+import { ENTITY_TYPE_VALUE } from "@appsmith/entities/DataTree/types";
 import type { DependencyMap as TDependencyMap } from "utils/DynamicBindingUtils";
 import { getPropertyPath } from "utils/DynamicBindingUtils";
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
@@ -18,17 +18,17 @@ import type {
   JSEntity,
   WidgetEntity,
 } from "../lib/entity";
-import type { DataTreeEntity } from "entities/DataTree/dataTreeFactory";
+import type { DataTreeEntity } from "@appsmith/entities/DataTree/types";
 
 export function getEntityDependencies(
   entity: IEntity,
 ): TDependencyMap | undefined {
   switch (entity.getType()) {
-    case ENTITY_TYPE.ACTION:
+    case ENTITY_TYPE_VALUE.ACTION:
       return getActionDependencies(entity as ActionEntity);
-    case ENTITY_TYPE.JSACTION:
+    case ENTITY_TYPE_VALUE.JSACTION:
       return getJSDependencies(entity as JSEntity);
-    case ENTITY_TYPE.WIDGET:
+    case ENTITY_TYPE_VALUE.WIDGET:
       return getWidgetDependencies(entity as WidgetEntity);
     default:
       return undefined;
@@ -143,17 +143,17 @@ export function getEntityPathDependencies(
   fullPropertyPath: string,
 ) {
   switch (entity.getType()) {
-    case ENTITY_TYPE.ACTION:
+    case ENTITY_TYPE_VALUE.ACTION:
       return getActionPropertyPathDependencies(
         entity as ActionEntity,
         fullPropertyPath,
       );
-    case ENTITY_TYPE.JSACTION:
+    case ENTITY_TYPE_VALUE.JSACTION:
       return getJSPropertyPathDependencies(
         entity as JSEntity,
         fullPropertyPath,
       );
-    case ENTITY_TYPE.WIDGET:
+    case ENTITY_TYPE_VALUE.WIDGET:
       return getWidgetPropertyPathDependencies(
         entity as WidgetEntity,
         fullPropertyPath,
