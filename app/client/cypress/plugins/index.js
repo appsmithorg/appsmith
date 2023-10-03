@@ -46,7 +46,7 @@ module.exports = async (on, config) => {
   });
 
   const logsPrinterOptions = {
-    outputRoot: config.projectRoot,
+    outputRoot: config.projectRoot + "/cypress/",
     outputTarget: {
       "cypress-logs|json": "json",
     },
