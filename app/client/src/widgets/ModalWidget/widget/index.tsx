@@ -5,11 +5,13 @@ import { GridDefaults } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { Stylesheet } from "entities/AppTheming";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
-import type {
-  Alignment,
-  Spacing,
-} from "layoutSystems/autolayout/utils/constants";
-import { Positioning } from "layoutSystems/autolayout/utils/constants";
+import {
+  FlexLayerAlignment,
+  type Alignment,
+  type Spacing,
+  ResponsiveBehavior,
+  Positioning,
+} from "layoutSystems/common/utils/constants";
 import { generateClassName } from "utils/generators";
 import WidgetFactory from "WidgetProvider/factory";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
@@ -31,13 +33,9 @@ import type {
 import { BlueprintOperationTypes } from "WidgetProvider/constants";
 import IconSVG from "../icon.svg";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import {
-  FlexLayerAlignment,
-  ResponsiveBehavior,
-} from "layoutSystems/autolayout/utils/constants";
 import { getWidgetBluePrintUpdates } from "utils/WidgetBlueprintUtils";
 import { DynamicHeight } from "utils/WidgetFeatures";
-import type { FlexLayer } from "layoutSystems/autolayout/utils/autoLayoutTypes";
+import type { FlexLayer } from "layoutSystems/autolayout/utils/types";
 
 export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
   static type = "MODAL_WIDGET";
