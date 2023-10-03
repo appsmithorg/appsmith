@@ -23,8 +23,8 @@ import static org.springframework.data.mongodb.core.query.Query.query;
 
 @Slf4j
 @RequiredArgsConstructor
-@ChangeUnit(order = "022", id = "remove-unassign-permission-from-workspace-dev-viewer-roles")
-public class Migration022RemoveUnassignPermissionFromUnnecessaryRoles {
+@ChangeUnit(order = "025", id = "remove-unassign-permission-from-workspace-dev-viewer-roles")
+public class Migration025RemoveUnassignPermissionFromUnnecessaryRoles {
 
     private final MongoTemplate mongoTemplate;
 
@@ -40,8 +40,12 @@ public class Migration022RemoveUnassignPermissionFromUnnecessaryRoles {
                         Criteria.where("defaultDomainType").is(Workspace.class.getSimpleName()),
                         Criteria.where("name").not().regex("^Administrator - .*"));
 
-        Query optimizedQueryForInterestingPermissionGroups = optimizeQueryForNoCursorTimeout(
-                mongoTemplate, new Query(workspaceDeveloperAndAppViewerRolesCriteria), PermissionGroup.class);
+        Query queryInterestingPermissionGroups = new Query(workspaceDeveloperAndAppViewerRolesCriteria);
+        queryInterestingPermissionGroups.fields().include("id");
+        queryInterestingPermissionGroups.fields().include("policies");
+
+        Query optimizedQueryForInterestingPermissionGroups =
+                optimizeQueryForNoCursorTimeout(mongoTemplate, queryInterestingPermissionGroups, PermissionGroup.class);
 
         mongoTemplate.stream(optimizedQueryForInterestingPermissionGroups, PermissionGroup.class)
                 .forEach(permissionGroup -> {
