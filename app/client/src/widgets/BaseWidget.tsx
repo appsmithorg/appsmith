@@ -46,12 +46,12 @@ import type {
   FlexVerticalAlignment,
   LayoutDirection,
   ResponsiveBehavior,
-} from "layoutSystems/autolayout/utils/constants";
-import { LayoutSystemTypes } from "layoutSystems/types";
+} from "layoutSystems/common/utils/constants";
 import type { FeatureFlag } from "@appsmith/entities/FeatureFlag";
 import store from "store";
 import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 import type { WidgetFeatures } from "utils/WidgetFeatures";
+import { LayoutSystemTypes } from "layoutSystems/types";
 
 /***
  * BaseWidget
@@ -421,6 +421,9 @@ export interface WidgetBaseProps {
   additionalStaticProps?: string[];
   mainCanvasWidth?: number;
   isMobile?: boolean;
+  hasAutoHeight?: boolean;
+  hasAutoWidth?: boolean;
+  widgetSize?: { [key: string]: Record<string, string | number> };
 }
 
 export type WidgetRowCols = {
@@ -455,6 +458,7 @@ export interface WidgetPositionProps extends WidgetRowCols {
   layoutSystemType?: LayoutSystemTypes;
   widthInPercentage?: number; // Stores the widget's width set by the user
   mobileWidthInPercentage?: number;
+  width?: number;
 }
 
 export const WIDGET_DISPLAY_PROPS = {

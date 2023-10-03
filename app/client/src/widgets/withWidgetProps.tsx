@@ -34,16 +34,14 @@ import {
 import type { WidgetProps } from "./BaseWidget";
 import type BaseWidget from "./BaseWidget";
 import type { WidgetEntityConfig } from "@appsmith/entities/DataTree/types";
-import {
-  defaultAutoLayoutWidgets,
-  Positioning,
-} from "layoutSystems/autolayout/utils/constants";
+import { Positioning } from "layoutSystems/common/utils/constants";
 import { isAutoHeightEnabledForWidget } from "./WidgetUtils";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import { getGoogleMapsApiKey } from "@appsmith/selectors/tenantSelectors";
 import ConfigTreeActions from "utils/configTree";
 import { getSelectedWidgetAncestry } from "../selectors/widgetSelectors";
 import { getWidgetMinMaxDimensionsInPixel } from "layoutSystems/autolayout/utils/flexWidgetUtils";
+import { defaultAutoLayoutWidgets } from "layoutSystems/autolayout/utils/constants";
 import { getFlattenedChildCanvasWidgets } from "selectors/flattenedChildCanvasSelector";
 import { LayoutSystemTypes } from "layoutSystems/types";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";

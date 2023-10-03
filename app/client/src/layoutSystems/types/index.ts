@@ -2,6 +2,7 @@
 export enum LayoutSystemTypes {
   FIXED = "FIXED",
   AUTO = "AUTO",
+  ANVIL = "ANVIL",
 }
 
 // interface for appPositioning(aka layoutStystem) details.

@@ -217,6 +217,7 @@ function ChooseGitProvider({
       ) : null}
       {isImport && (
         <Checkbox
+          data-testid="t--existing-repo-checkbox"
           isSelected={value?.gitExistingRepoExists}
           onChange={(v) => onChange({ gitExistingRepoExists: v })}
         >

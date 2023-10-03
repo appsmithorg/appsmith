@@ -7,6 +7,7 @@ import type { WidgetProps } from "widgets/BaseWidget";
 import { getAutoLayoutSystem } from "./autolayout";
 import { getFixedLayoutSystem } from "./fixedlayout";
 import { LayoutSystemTypes } from "./types";
+import { getAnvilSystem } from "./anvil";
 
 export type LayoutSystem = {
   LayoutSystemWrapper: (props: WidgetProps) => any;
@@ -17,10 +18,13 @@ export const getLayoutSystem = (
   renderMode: RenderModes,
   layoutSystemType: LayoutSystemTypes,
 ): LayoutSystem => {
-  if (layoutSystemType === LayoutSystemTypes.AUTO) {
-    return getAutoLayoutSystem(renderMode);
-  } else {
-    return getFixedLayoutSystem(renderMode);
+  switch (layoutSystemType) {
+    case LayoutSystemTypes.ANVIL:
+      return getAnvilSystem(renderMode);
+    case LayoutSystemTypes.AUTO:
+      return getAutoLayoutSystem(renderMode);
+    default:
+      return getFixedLayoutSystem(renderMode);
   }
 };
 
