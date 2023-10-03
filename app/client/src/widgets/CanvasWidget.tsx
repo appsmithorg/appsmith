@@ -1,4 +1,4 @@
-import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
+import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import ContainerWidget from "widgets/ContainerWidget/widget";

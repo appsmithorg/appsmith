@@ -1,5 +1,3 @@
-import { isFunction } from "lodash";
-import WidgetFactory from "WidgetProvider/factory";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import { RenderModes } from "../../constants/WidgetConstants";
 import { AutoLayoutEditorCanvas } from "./canvas/AutoLayoutEditorCanvas";
@@ -10,6 +8,11 @@ import { getAutoLayoutComponentDimensions } from "layoutSystems/common/utils/Com
 import type { LayoutSystem } from "layoutSystems/types";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import type { CanvasProps } from "layoutSystems/fixedlayout/canvas/FixedLayoutEditorCanvas";
+import {
+  getAutoDimensionsConfig,
+  getAutoLayoutWidgetConfig,
+} from "layoutSystems/common/utils/commonUtils";
+import type { AutoDimensionOptions } from "WidgetProvider/constants";
 
 /**
  * getAutoLayoutDimensionsConfig
@@ -19,18 +22,10 @@ import type { CanvasProps } from "layoutSystems/fixedlayout/canvas/FixedLayoutEd
  *
  * @returns AutoDimensionValues | undefined
  */
-
-const getAutoLayoutDimensionsConfig = (props: BaseWidgetProps) => {
-  let autoDimensionConfig = WidgetFactory.getWidgetAutoLayoutConfig(
-    props.type,
-  ).autoDimension;
-  if (isFunction(autoDimensionConfig)) {
-    autoDimensionConfig = autoDimensionConfig(props);
-  }
-  if (props.isListItemContainer && autoDimensionConfig) {
-    autoDimensionConfig.height = false;
-  }
-  return autoDimensionConfig;
+export const getAutoLayoutDimensionsConfig = (
+  props: BaseWidgetProps,
+): AutoDimensionOptions | undefined => {
+  return getAutoDimensionsConfig(getAutoLayoutWidgetConfig(props), props);
 };
 
 /**

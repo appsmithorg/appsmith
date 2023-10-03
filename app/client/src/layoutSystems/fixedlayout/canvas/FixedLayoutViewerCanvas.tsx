@@ -1,5 +1,5 @@
 import { GridDefaults, RenderModes } from "constants/WidgetConstants";
-import { Positioning } from "layoutSystems/autolayout/utils/constants";
+import { Positioning } from "layoutSystems/common/utils/constants";
 import { CanvasViewerWrapper } from "layoutSystems/common/canvasViewer/CanvasViewerWrapper";
 import { renderChildren } from "layoutSystems/common/utils/canvasUtils";
 import { compact, sortBy } from "lodash";

@@ -24,10 +24,14 @@ export const getLayoutSystem = (
   renderMode: RenderModes,
   appPositioningType: AppPositioningTypes,
 ): LayoutSystem => {
-  if (appPositioningType === AppPositioningTypes.AUTO) {
-    return getAutoLayoutSystem(renderMode);
-  } else {
-    return getFixedLayoutSystem(renderMode);
+  switch (appPositioningType) {
+    // Removing Anvil system until canvas system of Anvil is Implemented.
+    // case AppPositioningTypes.ANVIL:
+    //   return getAnvilSystem(renderMode);
+    case AppPositioningTypes.AUTO:
+      return getAutoLayoutSystem(renderMode);
+    default:
+      return getFixedLayoutSystem(renderMode);
   }
 };
 

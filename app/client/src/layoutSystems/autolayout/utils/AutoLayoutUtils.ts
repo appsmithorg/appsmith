@@ -1,8 +1,3 @@
-import type {
-  AlignmentColumnData,
-  FlexLayer,
-  LayerChild,
-} from "./autoLayoutTypes";
 import {
   FLEXBOX_PADDING,
   layoutConfigurations,
@@ -19,22 +14,25 @@ import type {
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import {
-  defaultAutoLayoutWidgets,
-  FlexLayerAlignment,
-  Positioning,
-  ResponsiveBehavior,
-  SNAPSHOT_EXPIRY_IN_DAYS,
-} from "layoutSystems/autolayout/utils/constants";
-import {
   updatePositionsOfParentAndSiblings,
   updateWidgetPositions,
 } from "layoutSystems/autolayout/utils/positionUtils";
-import type { AlignmentColumnInfo } from "./autoLayoutTypes";
 import { getWidgetWidth } from "./flexWidgetUtils";
 import type { DSLWidget } from "WidgetProvider/constants";
 import { getHumanizedTime, getReadableDateInFormat } from "utils/dayJsUtils";
 import WidgetFactory from "WidgetProvider/factory";
 import { isFunction } from "lodash";
+import { SNAPSHOT_EXPIRY_IN_DAYS, defaultAutoLayoutWidgets } from "./constants";
+import {
+  FlexLayerAlignment,
+  Positioning,
+  ResponsiveBehavior,
+} from "layoutSystems/common/utils/constants";
+import type {
+  AlignmentColumnData,
+  AlignmentColumnInfo,
+} from "layoutSystems/autolayout/utils/types";
+import type { FlexLayer, LayerChild } from "./types";
 
 export type ReadableSnapShotDetails = {
   timeSince: string;
@@ -506,7 +504,7 @@ function getCanvasWidth(
   //modal will be the total width instead of the mainCanvasWidth
   if (widget.type === "MODAL_WIDGET") {
     width = Math.min(
-      widget.width,
+      widget.width || 0,
       mainCanvasWidth * MAX_MODAL_WIDTH_FROM_MAIN_WIDTH,
     );
   }
