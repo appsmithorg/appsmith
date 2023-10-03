@@ -14,7 +14,7 @@ import type {
   ConfigTree,
 } from "entities/DataTree/dataTreeTypes";
 import { ENTITY_TYPE_VALUE } from "@appsmith/entities/DataTree/types";
-import _, { difference, find, get, has, isNil, set } from "lodash";
+import _, { difference, find, get, has, isEmpty, isNil, set } from "lodash";
 import type { WidgetTypeConfigMap } from "WidgetProvider/factory";
 import { PluginType } from "entities/Action";
 import { klona } from "klona/full";
@@ -26,7 +26,6 @@ import type {
   PrivateWidgets,
   JSActionEntity,
   ActionEntity,
-  DataTreeEntityObject,
   AppsmithEntity,
   WidgetEntity,
   DataTreeEntityConfig,
@@ -656,7 +655,8 @@ export const isDynamicLeaf = (
     return false;
   const relativePropertyPath = convertPathToString(propPathEls);
   return (
-    relativePropertyPath in entityConfig.reactivePaths ||
+    (!isEmpty(entityConfig.reactivePaths) &&
+      relativePropertyPath in entityConfig.reactivePaths) ||
     (isWidget(entityConfig) &&
       relativePropertyPath in entityConfig?.triggerPaths)
   );
@@ -867,8 +867,8 @@ export const overrideWidgetProperties = (params: {
   }
 };
 export function isValidEntity(
-  entity: DataTreeEntity,
-): entity is DataTreeEntityObject {
+  entity: DataTreeEntityConfig,
+): entity is DataTreeEntityConfig {
   if (!isObject(entity)) {
     return false;
   }

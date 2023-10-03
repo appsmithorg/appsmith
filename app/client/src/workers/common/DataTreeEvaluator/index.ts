@@ -26,6 +26,7 @@ import type {
   JSActionEntity,
   JSActionEntityConfig,
   PrivateWidgets,
+  ActionEntityConfig,
 } from "@appsmith/entities/DataTree/types";
 import type {
   DataTree,
@@ -52,7 +53,6 @@ import {
   trimDependantChangePaths,
   overrideWidgetProperties,
   getAllPaths,
-  isValidEntity,
   isNewEntity,
   getStaleMetaStateIds,
   convertJSFunctionsToString,
@@ -984,8 +984,7 @@ export default class DataTreeEvaluator {
 
           if (requiresEval) {
             const evaluationSubstitutionType =
-              (!!entityConfig &&
-                entityConfig.hasOwnProperty("reactivePaths") &&
+              (!isEmpty(entityConfig.reactivePaths) &&
                 entityConfig.reactivePaths[propertyPath]) ||
               EvaluationSubstitutionType.TEMPLATE;
 
@@ -1083,20 +1082,21 @@ export default class DataTreeEvaluator {
               return currentTree;
             }
             case ENTITY_TYPE_VALUE.ACTION: {
+              const actionEntity = entity as ActionEntity;
               if (this.allActionValidationConfig) {
                 const configProperty = propertyPath.replace(
                   "config",
                   "actionConfiguration",
                 );
                 const validationConfig =
-                  !!this.allActionValidationConfig[entity.actionId] &&
-                  this.allActionValidationConfig[entity.actionId][
+                  !!this.allActionValidationConfig[actionEntity.actionId] &&
+                  this.allActionValidationConfig[actionEntity.actionId][
                     configProperty
                   ];
                 if (!!validationConfig && !isEmpty(validationConfig)) {
                   this.validateActionProperty(
                     fullPropertyPath,
-                    entity as ActionEntity,
+                    actionEntity,
                     currentTree,
                     evalPropertyValue,
                     unEvalPropertyValue,
@@ -1233,7 +1233,8 @@ export default class DataTreeEvaluator {
       if (entity && isWidget(entity)) {
         entityType = entity.type;
       } else if (entity && isAction(entity)) {
-        entityType = entityConfig.pluginType;
+        const actionEntityConfig = entityConfig as ActionEntityConfig;
+        entityType = actionEntityConfig.pluginType;
       } else if (entity && isJSAction(entity)) {
         entityType = entity.ENTITY_TYPE;
       }
@@ -1572,23 +1573,6 @@ export default class DataTreeEvaluator {
     }
   }
 
-  /**
-   * Update the entity config set as prototype according to latest unEvalTree changes else code would consume stale configs.
-   *
-   * Example scenario: On addition of a JS binding to widget, it's dynamicBindingPathList changes and needs to be updated.
-   */
-  updateConfigForModifiedEntity(unEvalTree: DataTree, entityName: string) {
-    const unEvalEntity = unEvalTree[entityName];
-    // skip entity if entity is not present in the evalTree or is not a valid entity
-    if (!this.evalTree[entityName] || !isValidEntity(this.evalTree[entityName]))
-      return;
-    const entityConfig = Object.getPrototypeOf(unEvalEntity);
-    const newEntityObject = Object.create(entityConfig);
-    this.evalTree[entityName] = Object.assign(newEntityObject, {
-      ...this.evalTree[entityName],
-    });
-  }
-
   updateEvalTreeWithChanges({
     differences,
   }: {
@@ -1642,20 +1626,22 @@ export default class DataTreeEvaluator {
           );
         }
         const parentPropertyPath = convertPathToString(path);
-        Object.keys(entityConfig.reactivePaths).forEach((relativePath) => {
-          const childPropertyPath = `${entityName}.${relativePath}`;
-          // Check if relative path has dynamic binding
-          if (
-            entityDynamicBindingPaths &&
-            entityDynamicBindingPaths.length &&
-            entityDynamicBindingPaths.includes(relativePath)
-          ) {
-            changePaths.add(childPropertyPath);
-          }
-          if (isChildPropertyPath(parentPropertyPath, childPropertyPath)) {
-            changePaths.add(childPropertyPath);
-          }
-        });
+        if (!isEmpty(entityConfig.reactivePaths)) {
+          Object.keys(entityConfig.reactivePaths).forEach((relativePath) => {
+            const childPropertyPath = `${entityName}.${relativePath}`;
+            // Check if relative path has dynamic binding
+            if (
+              entityDynamicBindingPaths &&
+              entityDynamicBindingPaths.length &&
+              entityDynamicBindingPaths.includes(relativePath)
+            ) {
+              changePaths.add(childPropertyPath);
+            }
+            if (isChildPropertyPath(parentPropertyPath, childPropertyPath)) {
+              changePaths.add(childPropertyPath);
+            }
+          });
+        }
       }
     }
 

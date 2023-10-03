@@ -12,6 +12,7 @@ import type {
   WidgetEntityConfig,
   ActionEntity,
   JSActionEntity,
+  DataTreeEntityObject,
 } from "@appsmith/entities/DataTree/types";
 import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeTypes";
 import { getEntityId, getEvalErrorPath } from "utils/DynamicBindingUtils";
@@ -59,7 +60,7 @@ export function createDependencyMap(
     const entity = unEvalTree[entityName];
     const entityConfig = configTree[entityName];
     const entityDependencies = getEntityDependencies(
-      entity,
+      entity as DataTreeEntityObject,
       entityConfig,
       allKeys,
     );
@@ -141,7 +142,9 @@ export const updateDependencyMap = ({
       event === DataTreeDiffEvent.DELETE
         ? oldUnEvalTree[entityName]
         : unEvalDataTree[entityName];
-    const entityType = isValidEntity(entity) ? entity.ENTITY_TYPE : "noop";
+    const entityType = isValidEntity(entityConfig)
+      ? entityConfig.ENTITY_TYPE
+      : "noop";
 
     if (entityType !== "noop") {
       switch (event) {
