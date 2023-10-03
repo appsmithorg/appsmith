@@ -100,7 +100,7 @@ async function getLastBackupErrorMailSentInMilliSec() {
 async function getCurrentAppsmithVersion() {
   const githubRef = JSON.parse(await fsPromises.readFile("/opt/appsmith/info.json", "utf8")).githubRef;
   // This will be of the form "refs/tags/v1.2.3".
-  return githubRef.split("/").pop();
+  return githubRef.split("/").pop() ?? "";
 }
 
 function preprocessMongoDBURI(uri /* string */) {
