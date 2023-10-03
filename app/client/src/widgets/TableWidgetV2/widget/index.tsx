@@ -50,7 +50,6 @@ import type {
 } from "../constants";
 import {
   ActionColumnTypes,
-  ALLOW_TABLE_WIDGET_SERVER_SIDE_FILTERING,
   ColumnTypes,
   DEFAULT_BUTTON_LABEL,
   DEFAULT_COLUMN_WIDTH,
