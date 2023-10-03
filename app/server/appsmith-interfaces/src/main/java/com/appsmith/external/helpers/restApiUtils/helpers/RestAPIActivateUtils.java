@@ -25,7 +25,6 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.reactive.ClientHttpRequest;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.BodyInserter;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
@@ -227,17 +226,7 @@ public class RestAPIActivateUtils {
     }
 
     public URI createRedirectUrl(String redirectUrl, URI originalUrl) throws URISyntaxException {
-        URI redirectUri = new URI(redirectUrl);
-        String scheme =
-                StringUtils.hasText(redirectUri.getScheme()) ? redirectUri.getScheme() : originalUrl.getScheme();
-        String authority = StringUtils.hasText(redirectUri.getAuthority())
-                ? redirectUri.getAuthority()
-                : originalUrl.getAuthority();
-        String path = redirectUri.getPath();
-        String query = redirectUri.getQuery();
-        String fragment = redirectUri.getFragment();
-
-        return new URI(scheme, authority, path, query, fragment);
+        return originalUrl.resolve(redirectUrl);
     }
 
     public WebClient getWebClient(
