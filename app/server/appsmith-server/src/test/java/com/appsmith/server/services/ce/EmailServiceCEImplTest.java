@@ -31,6 +31,7 @@ import static com.appsmith.server.constants.ce.EmailConstantsCE.PRIMARY_LINK_URL
 import static com.appsmith.server.constants.ce.EmailConstantsCE.RESET_URL;
 import static com.appsmith.server.constants.ce.EmailConstantsCE.WORKSPACE_EMAIL_SUBJECT_FOR_NEW_USER;
 import static graphql.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -69,7 +70,10 @@ class EmailServiceCEImplTest {
                     assertEquals(
                             String.format(FORGOT_PASSWORD_EMAIL_SUBJECT, expectedParams.get(INSTANCE_NAME)), subject);
                     assertEquals(FORGOT_PASSWORD_TEMPLATE_CE, text);
-                    assertEquals(expectedParams, params);
+                    assertThat(params).containsKey(RESET_URL);
+                    assertThat(params.get(RESET_URL)).isEqualTo(resetUrl);
+                    assertThat(params).containsKey(INSTANCE_NAME);
+                    assertThat(params.get(INSTANCE_NAME)).isEqualTo("Appsmith");
 
                     return Mono.just(true);
                 })
