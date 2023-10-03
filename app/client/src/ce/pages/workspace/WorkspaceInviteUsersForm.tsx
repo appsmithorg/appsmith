@@ -718,23 +718,28 @@ function WorkspaceInviteUsersForm(props: any) {
   );
 }
 
+export const mapStateToProps = (
+  state: AppState,
+  { formName }: { formName?: string },
+) => ({
+  roles: getRolesForField(state),
+  allUsers: getAllUsers(state),
+  isLoading: state.ui.workspaces.loadingStates.isFetchAllUsers,
+  form: formName || INVITE_USERS_TO_WORKSPACE_FORM,
+});
+
+export const mapDispatchToProps = (dispatch: any) => ({
+  fetchAllRoles: (workspaceId: string) =>
+    dispatch(fetchRolesForWorkspace(workspaceId)),
+  fetchCurrentWorkspace: (workspaceId: string) =>
+    dispatch(fetchWorkspace(workspaceId)),
+  fetchUser: (workspaceId: string) =>
+    dispatch(fetchUsersForWorkspace(workspaceId)),
+});
+
 export default connect(
-  (state: AppState, { formName }: { formName?: string }) => {
-    return {
-      roles: getRolesForField(state),
-      allUsers: getAllUsers(state),
-      isLoading: state.ui.workspaces.loadingStates.isFetchAllUsers,
-      form: formName || INVITE_USERS_TO_WORKSPACE_FORM,
-    };
-  },
-  (dispatch: any) => ({
-    fetchAllRoles: (workspaceId: string) =>
-      dispatch(fetchRolesForWorkspace(workspaceId)),
-    fetchCurrentWorkspace: (workspaceId: string) =>
-      dispatch(fetchWorkspace(workspaceId)),
-    fetchUser: (workspaceId: string) =>
-      dispatch(fetchUsersForWorkspace(workspaceId)),
-  }),
+  mapStateToProps,
+  mapDispatchToProps,
 )(
   reduxForm<
     InviteUsersToWorkspaceFormValues,

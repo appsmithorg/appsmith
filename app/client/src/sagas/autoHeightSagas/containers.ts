@@ -14,7 +14,7 @@ import {
 } from "widgets/WidgetUtils";
 import { getChildOfContainerLikeWidget } from "./helpers";
 import { getDataTree } from "selectors/dataTreeSelectors";
-import type { DataTree, WidgetEntity } from "entities/DataTree/dataTreeFactory";
+import type { DataTree, WidgetEntity } from "@appsmith/entities/DataTree/types";
 import { getLayoutTree } from "./layoutTree";
 import { getWidgetsForBreakpoint } from "selectors/editorSelectors";
 

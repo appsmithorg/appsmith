@@ -1,6 +1,7 @@
 import { ObjectsRegistry } from "../Objects/Registry";
 import { REPO, CURRENT_REPO } from "../../fixtures/REPO";
 import HomePageLocators from "../../locators/HomePage";
+import SignupPageLocators from "../../locators/SignupPage";
 export class HomePage {
   private agHelper = ObjectsRegistry.AggregateHelper;
   private locator = ObjectsRegistry.CommonLocators;
@@ -364,9 +365,8 @@ export class HomePage {
     this.agHelper.GetNClick(this._submitBtn);
     this.agHelper.Sleep(1000);
     cy.get("body").then(($body) => {
-      if ($body.find(this.roleDropdown).length > 0) {
-        this.agHelper.GetNClick(this.roleDropdown);
-        this.agHelper.GetNClick(this.dropdownOption);
+      if ($body.find(SignupPageLocators.proficiencyGroupButton).length > 0) {
+        this.agHelper.GetNClick(SignupPageLocators.proficiencyGroupButton);
         this.agHelper.GetNClick(this.useCaseDropdown);
         this.agHelper.GetNClick(this.dropdownOption);
         this.agHelper.GetNClick(this.roleUsecaseSubmit, undefined, true);

@@ -2,7 +2,7 @@ import { entityDefinitions } from "@appsmith/utils/autocomplete/EntityDefinition
 import type {
   AppsmithEntity,
   DataTree,
-} from "entities/DataTree/dataTreeFactory";
+} from "@appsmith/entities/DataTree/types";
 import { createObjectPeekData } from "./Common";
 
 export const getAppsmithPeekData = (dataTree: DataTree) => {

@@ -15,12 +15,14 @@ import { getCurrentUser } from "selectors/usersSelectors";
 import BusinessTag from "components/BusinessTag";
 import EnterpriseTag from "components/EnterpriseTag";
 import { getTenantPermissions } from "@appsmith/selectors/tenantSelectors";
-import { hasAuditLogsReadPermission } from "@appsmith/utils/permissionHelpers";
 import {
   getFilteredAclCategories,
   getFilteredGeneralCategories,
   getFilteredOtherCategories,
 } from "@appsmith/utils/adminSettingsHelpers";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { getHasAuditLogsReadPermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 
 export const Wrapper = styled.div`
   flex-basis: ${(props) => props.theme.sidebarWidth};
@@ -190,7 +192,11 @@ export default function LeftPane() {
   const user = useSelector(getCurrentUser);
   const isSuperUser = user?.isSuperUser;
   const tenantPermissions = useSelector(getTenantPermissions);
-  const isAuditLogsEnabled = hasAuditLogsReadPermission(tenantPermissions);
+  const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+  const isAuditLogsEnabled = getHasAuditLogsReadPermission(
+    isFeatureEnabled,
+    tenantPermissions,
+  );
 
   const filteredGeneralCategories = getFilteredGeneralCategories(categories);
 

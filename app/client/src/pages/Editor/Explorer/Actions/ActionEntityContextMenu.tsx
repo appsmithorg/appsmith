@@ -11,7 +11,7 @@ import { getPageListAsOptions } from "@appsmith/selectors/entitiesSelector";
 import history from "utils/history";
 import { useNewActionName } from "./helpers";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE_VALUE } from "entities/DataTree/dataTreeFactory";
 import { inGuidedTour } from "selectors/onboardingSelectors";
 import { toggleShowDeviationDialog } from "actions/onboardingActions";
 import {
@@ -97,7 +97,7 @@ export function ActionEntityContextMenu(props: EntityContextMenuProps) {
         payload: {
           entityId: actionId,
           entityName: actionName,
-          entityType: ENTITY_TYPE.ACTION,
+          entityType: ENTITY_TYPE_VALUE.ACTION,
           show: true,
         },
       }),

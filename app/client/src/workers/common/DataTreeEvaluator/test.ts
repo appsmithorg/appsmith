@@ -1,7 +1,7 @@
 import DataTreeEvaluator from ".";
 import { unEvalTree } from "./mockData/mockUnEvalTree";
 import { configTree } from "./mockData/mockConfigTree";
-import type { DataTree, ConfigTree } from "entities/DataTree/dataTreeFactory";
+import type { DataTree, ConfigTree } from "@appsmith/entities/DataTree/types";
 import type { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
 import {
   arrayAccessorCyclicDependency,
