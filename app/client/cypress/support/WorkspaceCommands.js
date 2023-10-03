@@ -10,6 +10,7 @@ import { ObjectsRegistry } from "../support/Objects/Registry";
 
 const agHelper = ObjectsRegistry.AggregateHelper;
 const assertHelper = ObjectsRegistry.AssertHelper;
+const homePageTS = ObjectsRegistry.HomePage;
 
 export const initLocalstorage = () => {
   cy.window().then((window) => {
@@ -214,6 +215,7 @@ Cypress.Commands.add("launchApp", () => {
 });
 
 Cypress.Commands.add("AppSetupForRename", () => {
+  cy.wait(2000); //wait a bit for app to load
   cy.get(homePage.applicationName).then(($appName) => {
     if (!$appName.hasClass(homePage.editingAppName)) {
       cy.get(homePage.applicationName).click({ force: true });
@@ -256,25 +258,35 @@ Cypress.Commands.add("CreateAppForWorkspace", (workspaceName, appname) => {
 });
 
 Cypress.Commands.add("CreateAppInFirstListedWorkspace", (appname) => {
-  let applicationId;
+  let applicationId, appName;
   cy.get(homePage.createNew).first().click({ force: true });
   cy.wait("@createNewApplication").then((xhr) => {
     const response = xhr.response;
     expect(response.body.responseMeta.status).to.eq(201);
     applicationId = response.body.data.id;
+    appName = response.body.data.name;
+    cy.log("appName", appName);
     localStorage.setItem("applicationId", applicationId);
+    //});
+    //cy.get("#loading").should("not.exist");
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    //cy.reload();
+    cy.wait(4000);
+    cy.get("#loading").should("not.exist");
+
+    cy.url().then((url) => {
+      if (url.indexOf("/applications") > -1) {
+        homePageTS.EditAppFromAppHover(appName);
+        agHelper.Sleep(2000); //for app to open
+      }
+    });
   });
-  //cy.get("#loading").should("not.exist");
-  // eslint-disable-next-line cypress/no-unnecessary-waiting
-  //cy.reload();
-  cy.wait(4000);
-  cy.get("#loading").should("not.exist");
 
   assertHelper.AssertNetworkStatus("@getPage");
   assertHelper.AssertNetworkStatus("@getLibraries");
   assertHelper.AssertNetworkStatus("@getPlugins");
 
-  cy.get("#sidebar", { timeout: 60000 }).should("be.visible");
+  cy.get("#sidebar").should("be.visible");
   cy.wait("@getPluginForm") //replacing this since flaky in CI - to monitor
     .its("response.body.responseMeta.status")
     .should("eq", 200);

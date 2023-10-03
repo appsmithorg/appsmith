@@ -21,14 +21,16 @@ import {
   getOnSelectAction,
 } from "pages/common/CustomizedDropdown/dropdownHelpers";
 import { getCurrentUser } from "selectors/usersSelectors";
-import {
-  getDefaultAdminSettingsPath,
-  showAdminSettings,
-} from "@appsmith/utils/adminSettingsHelpers";
 import { getTenantPermissions } from "@appsmith/selectors/tenantSelectors";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import { ShowUpgradeMenuItem } from "@appsmith/utils/licenseHelpers";
 import { DISCORD_URL, DOCS_BASE_URL } from "constants/ThirdPartyConstants";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import {
+  getAdminSettingsPath,
+  getShowAdminSettings,
+} from "@appsmith/utils/BusinessFeatures/adminSettingsHelpers";
 
 export const Wrapper = styled.div`
   background-color: var(--ads-v2-color-bg);
@@ -84,26 +86,29 @@ function LeftPaneBottomSection() {
   const [isProductUpdatesModalOpen, setIsProductUpdatesModalOpen] =
     useState(false);
   const isAirgappedInstance = isAirgapped();
+  const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
 
   return (
     <Wrapper>
       <MenuWrapper>
         <ShowUpgradeMenuItem />
-        {showAdminSettings(user) && !isFetchingApplications && (
-          <MenuItem
-            className="admin-settings-menu-option"
-            icon="setting"
-            onSelect={() => {
-              getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
-                path: getDefaultAdminSettingsPath({
-                  isSuperUser: user?.isSuperUser,
-                  tenantPermissions,
-                }),
-              });
-            }}
-            text={createMessage(ADMIN_SETTINGS)}
-          />
-        )}
+        {getShowAdminSettings(isFeatureEnabled, user) &&
+          !isFetchingApplications && (
+            <MenuItem
+              className="admin-settings-menu-option"
+              icon="setting"
+              onSelect={() => {
+                getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
+                  path: getAdminSettingsPath(
+                    isFeatureEnabled,
+                    user?.isSuperUser,
+                    tenantPermissions,
+                  ),
+                });
+              }}
+              text={createMessage(ADMIN_SETTINGS)}
+            />
+          )}
         {!isAirgappedInstance && (
           <>
             <MenuItem

@@ -34,18 +34,16 @@ import {
 } from "utils/widgetRenderUtils";
 import type { WidgetProps } from "./BaseWidget";
 import type BaseWidget from "./BaseWidget";
-import type { WidgetEntityConfig } from "entities/DataTree/dataTreeFactory";
+import type { WidgetEntityConfig } from "@appsmith/entities/DataTree/types";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
-import {
-  defaultAutoLayoutWidgets,
-  Positioning,
-} from "layoutSystems/autolayout/utils/constants";
+import { Positioning } from "layoutSystems/common/utils/constants";
 import { isAutoHeightEnabledForWidget } from "./WidgetUtils";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import { getGoogleMapsApiKey } from "@appsmith/selectors/tenantSelectors";
 import ConfigTreeActions from "utils/configTree";
 import { getSelectedWidgetAncestry } from "../selectors/widgetSelectors";
 import { getWidgetMinMaxDimensionsInPixel } from "layoutSystems/autolayout/utils/flexWidgetUtils";
+import { defaultAutoLayoutWidgets } from "layoutSystems/autolayout/utils/constants";
 import { getFlattenedChildCanvasWidgets } from "selectors/flattenedChildCanvasSelector";
 
 const WIDGETS_WITH_CHILD_WIDGETS = ["LIST_WIDGET", "FORM_WIDGET"];

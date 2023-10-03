@@ -18,11 +18,11 @@ import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { useContext, useEffect, useRef } from "react";
 import type { AutoCanvasDraggingArenaProps } from "../AutoCanvasDraggingArena";
 import type { WidgetDraggingBlock } from "../../../../common/CanvasArenas/ArenaTypes";
-import type { HighlightInfo } from "layoutSystems/autolayout/utils/autoLayoutTypes";
+import type { HighlightInfo } from "layoutSystems/common/utils/types";
 import {
   LayoutDirection,
   AlignItems,
-} from "layoutSystems/autolayout/utils/constants";
+} from "layoutSystems/common/utils/constants";
 import {
   getBlocksToDraw,
   getParentDiff,
