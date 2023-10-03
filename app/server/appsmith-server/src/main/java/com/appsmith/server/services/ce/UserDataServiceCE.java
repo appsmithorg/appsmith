@@ -8,7 +8,7 @@ import org.springframework.http.codec.multipart.Part;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
-import java.util.Map;
+import java.util.Set;
 
 public interface UserDataServiceCE {
 
@@ -44,7 +44,7 @@ public interface UserDataServiceCE {
 
     Mono<UserData> addTemplateIdToLastUsedList(String templateId);
 
-    Mono<Map<String, Boolean>> getFeatureFlagsForCurrentUser();
+    Mono<Set<String>> getFeatureFlagsForCurrentUser();
 
     Mono<UpdateResult> removeRecentWorkspaceAndApps(String userId, String workspaceId);
 }

@@ -37,7 +37,9 @@ import reactor.util.function.Tuple2;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -73,6 +75,9 @@ public class UserDataServiceTest {
 
     @Autowired
     private GitService gitService;
+
+    @MockBean
+    FeatureFlagService featureFlagService;
 
     private Mono<User> userMono;
 
@@ -538,6 +543,44 @@ public class UserDataServiceTest {
                     AssertionsForClassTypes.assertThat(defaultProfile.getAuthorEmail())
                             .isEqualTo(gitGlobalConfigDTO.getAuthorEmail());
                 })
+                .verifyComplete();
+    }
+
+    @Test
+    public void getFeatureFlagsForCurrentUser_whenDisabledFeatureFlagsArePresent_filterDisabledFLags() {
+        HashMap<String, Boolean> featureFlags = new HashMap<>();
+        featureFlags.put("feature1", false);
+        featureFlags.put("feature2", true);
+        Mockito.when(featureFlagService.getAllFeatureFlagsForUser()).thenReturn(Mono.just(featureFlags));
+
+        Mono<Set<String>> featureFlagsForCurrentUser = userDataService.getFeatureFlagsForCurrentUser();
+        StepVerifier.create(featureFlagsForCurrentUser)
+                .assertNext(flags -> {
+                    assertThat(flags).contains("feature2");
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void getFeatureFlagsForCurrentUser_whenOnlyDisabledFeatureFlagsArePresent_returnEmptyMap() {
+        HashMap<String, Boolean> featureFlags = new HashMap<>();
+        featureFlags.put("feature1", false);
+        featureFlags.put("feature2", false);
+        Mockito.when(featureFlagService.getAllFeatureFlagsForUser()).thenReturn(Mono.just(featureFlags));
+
+        Mono<Set<String>> featureFlagsForCurrentUser = userDataService.getFeatureFlagsForCurrentUser();
+        StepVerifier.create(featureFlagsForCurrentUser)
+                .assertNext(flags -> assertThat(flags).isEmpty())
+                .verifyComplete();
+    }
+
+    @Test
+    public void getFeatureFlagsForCurrentUser_whenFeatureFlagsAreNotPresent_returnEmptyMap() {
+        Mockito.when(featureFlagService.getAllFeatureFlagsForUser()).thenReturn(Mono.just(new HashMap<>()));
+
+        Mono<Set<String>> featureFlagsForCurrentUser = userDataService.getFeatureFlagsForCurrentUser();
+        StepVerifier.create(featureFlagsForCurrentUser)
+                .assertNext(flags -> assertThat(flags).isEmpty())
                 .verifyComplete();
     }
 }

@@ -39,8 +39,10 @@ import reactor.util.function.Tuple2;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
+import static java.lang.Boolean.TRUE;
 
 public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserData, String>
         implements UserDataServiceCE {
@@ -302,8 +304,11 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
     }
 
     @Override
-    public Mono<Map<String, Boolean>> getFeatureFlagsForCurrentUser() {
-        return featureFlagService.getAllFeatureFlagsForUser();
+    public Mono<Set<String>> getFeatureFlagsForCurrentUser() {
+        return featureFlagService.getAllFeatureFlagsForUser().map(featureFlags -> {
+            featureFlags.entrySet().removeIf(entry -> !TRUE.equals(entry.getValue()));
+            return featureFlags.keySet();
+        });
     }
 
     /**

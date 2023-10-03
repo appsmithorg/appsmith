@@ -39,7 +39,7 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
 @RequestMapping(Url.USER_URL)
 @Slf4j
@@ -227,7 +227,7 @@ public class UserControllerCE extends BaseController<UserService, User, String> 
 
     @JsonView(Views.Public.class)
     @GetMapping("/features")
-    public Mono<ResponseDTO<Map<String, Boolean>>> getFeatureFlags() {
+    public Mono<ResponseDTO<Set<String>>> getFeatureFlags() {
         return userDataService
                 .getFeatureFlagsForCurrentUser()
                 .map(map -> new ResponseDTO<>(HttpStatus.OK.value(), map, null));
