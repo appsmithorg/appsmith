@@ -116,6 +116,8 @@ export const getComponentDimensions = memo(
     componentWidth: number;
   } => {
     switch (appPositioningType) {
+      case AppPositioningTypes.ANVIL:
+        return getAnvilComponentDimensions(props);
       case AppPositioningTypes.AUTO:
         return getAutoLayoutComponentDimensions({ ...props, isMobile });
       default:
