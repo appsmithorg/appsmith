@@ -2,7 +2,9 @@ import type {
   ConfigTree,
   DataTree,
   DataTreeEntity,
-} from "entities/DataTree/dataTreeFactory";
+  JSActionEntityConfig,
+  JSActionEntity,
+} from "@appsmith/entities/DataTree/types";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import type { ParsedBody, ParsedJSSubAction } from "utils/JSPaneUtils";
 import { unset, set, get, find } from "lodash";
@@ -15,16 +17,12 @@ import type {
 } from "reducers/entityReducers/jsActionsReducer";
 import { select } from "redux-saga/effects";
 import type { JSAction } from "entities/JSCollection";
-import { getJSCollectionsForCurrentPage } from "selectors/entitiesSelector";
+import { getCurrentJSCollections } from "@appsmith/selectors/entitiesSelector";
 import {
   getEntityNameAndPropertyPath,
   isJSAction,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
 import JSObjectCollection from "./Collection";
-import type {
-  JSActionEntityConfig,
-  JSActionEntity,
-} from "entities/DataTree/types";
 
 /**
  * here we add/remove the properties (variables and actions) which got added/removed from the JSObject parsedBody.
@@ -326,7 +324,7 @@ export function* sortJSExecutionDataByCollectionId(
   const sortedErrors: BatchedJSExecutionErrors = {};
 
   const JSCollectionsForCurrentPage: JSCollectionData[] = yield select(
-    getJSCollectionsForCurrentPage,
+    getCurrentJSCollections,
   );
 
   for (const jsfuncFullName of Object.keys(data)) {

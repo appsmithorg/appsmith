@@ -2,7 +2,6 @@ package com.appsmith.server.authentication.handlers.ce;
 
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.server.authentication.handlers.CustomServerOAuth2AuthorizationRequestResolver;
-import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.RateLimitConstants;
 import com.appsmith.server.constants.Security;
@@ -17,15 +16,11 @@ import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
-import com.appsmith.server.services.ConfigService;
-import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.UserDataService;
-import com.appsmith.server.services.UserIdentifierService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
-import com.appsmith.server.solutions.ForkExamplesWorkspace;
 import com.appsmith.server.solutions.WorkspacePermission;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -59,7 +54,6 @@ import static org.springframework.security.web.server.context.WebSessionServerSe
 public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSuccessHandler {
 
     private final ServerRedirectStrategy redirectStrategy = new DefaultServerRedirectStrategy();
-    private final ForkExamplesWorkspace examplesWorkspaceCloner;
     private final RedirectHelper redirectHelper;
     private final SessionUserService sessionUserService;
     private final AnalyticsService analyticsService;
@@ -69,10 +63,6 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
     private final WorkspaceService workspaceService;
     private final ApplicationPageService applicationPageService;
     private final WorkspacePermission workspacePermission;
-    private final ConfigService configService;
-    private final FeatureFlagService featureFlagService;
-    private final CommonConfig commonConfig;
-    private final UserIdentifierService userIdentifierService;
     private final RateLimitService rateLimitService;
     private final TenantService tenantService;
     private final UserService userService;
@@ -195,6 +185,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
      * It constructs the redirect uri based on user's request, and if email verification is required
      * then redirects the user to /verificationPending and sends the magic link with the user's redirectUrl
      * in the email.
+     *
      * @param webFilterExchange
      * @param defaultWorkspaceId
      * @param authentication
@@ -223,10 +214,9 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                                 .flatMap(defaultApplication -> postVerificationRequiredHandler(
                                         webFilterExchange, user, defaultApplication, TRUE));
                     } else {
-                        return Mono.zip(
-                                        userService.sendWelcomeEmail(user, originHeader),
-                                        createDefaultApplication(defaultWorkspaceId, authentication))
-                                .flatMap(obj -> redirectHelper.handleRedirect(webFilterExchange, obj.getT2(), true));
+                        return createDefaultApplication(defaultWorkspaceId, authentication)
+                                .flatMap(application ->
+                                        redirectHelper.handleRedirect(webFilterExchange, application, true));
                     }
                 });
             } else {
@@ -235,9 +225,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                     if (TRUE.equals(isVerificationRequired)) {
                         return postVerificationRequiredHandler(webFilterExchange, user, null, TRUE);
                     } else {
-                        return userService
-                                .sendWelcomeEmail(user, originHeader)
-                                .then(redirectHelper.handleRedirect(webFilterExchange, null, true));
+                        return redirectHelper.handleRedirect(webFilterExchange, null, true);
                     }
                 });
             }
@@ -248,9 +236,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                 if (TRUE.equals(isVerificationRequired)) {
                     return postVerificationRequiredHandler(webFilterExchange, user, null, FALSE);
                 } else {
-                    return userService
-                            .sendWelcomeEmail(user, originHeader)
-                            .then(redirectHelper.handleRedirect(webFilterExchange, null, false));
+                    return redirectHelper.handleRedirect(webFilterExchange, null, false);
                 }
             });
         }
@@ -300,17 +286,12 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                 redirectionMono = workspaceService
                         .isCreateWorkspaceAllowed(TRUE)
                         .flatMap(isCreateWorkspaceAllowed -> {
-                            if (isCreateWorkspaceAllowed) {
-
-                                return Mono.zip(
-                                                userService.sendWelcomeEmail(user, originHeader),
-                                                createDefaultApplication(defaultWorkspaceId, authentication))
-                                        .flatMap(objects -> handleOAuth2Redirect(
-                                                webFilterExchange, objects.getT2(), finalIsFromSignup));
+                            if (isCreateWorkspaceAllowed.equals(Boolean.TRUE)) {
+                                return createDefaultApplication(defaultWorkspaceId, authentication)
+                                        .flatMap(application -> handleOAuth2Redirect(
+                                                webFilterExchange, application, finalIsFromSignup));
                             }
-                            return userService
-                                    .sendWelcomeEmail(user, originHeader)
-                                    .then(handleOAuth2Redirect(webFilterExchange, null, finalIsFromSignup));
+                            return handleOAuth2Redirect(webFilterExchange, null, finalIsFromSignup);
                         });
             } else {
                 redirectionMono = handleOAuth2Redirect(webFilterExchange, null, isFromSignup);
@@ -364,7 +345,6 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                                         invitedAs,
                                         FieldName.MODE_OF_LOGIN,
                                         modeOfLogin)));
-                        monos.add(examplesWorkspaceCloner.forkExamplesWorkspace());
                     }
 
                     monos.add(analyticsService.sendObjectEvent(

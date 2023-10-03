@@ -7,6 +7,9 @@ public enum AppsmithErrorCode {
     INVALID_ACTION_COLLECTION("AE-ACC-4038", "Invalid action collection"),
     UNAUTHORIZED_ACCESS("AE-ACL-4003", "Unauthorized access"),
     ACL_NO_RESOURCE_FOUND("AE-ACL-4004", "Acl no resource found"),
+    APPLICATION_NOT_CLONED_MISSING_PERMISSIONS("AE-ACL-4005", "Cloning application failed"),
+    APPLICATION_NOT_FORKED_MISSING_PERMISSIONS("AE-ACL-4006", "Forking application failed"),
+    UNABLE_TO_DEPLOY_MISSING_PERMISSION("AE-ACL-4007", "Unable to deploy"),
     INVALID_PARAMETER("AE-APP-4000", "Invalid parameter"),
     PAGE_ID_NOT_GIVEN("AE-APP-4004", "Page id not given"),
     DUPLICATE_KEY_USER_ERROR("AE-APP-4005", "Duplicate key user error"),
@@ -15,6 +18,7 @@ public enum AppsmithErrorCode {
     DEPRECATED_API("AE-APP-4008", "Deprecated api"),
     USER_DOESNT_BELONG_ANY_WORKSPACE("AE-APP-4009", "User doesn't belong any workspace"),
     USER_DOESNT_BELONG_TO_WORKSPACE("AE-APP-4010", "User doesn't belong to workspace"),
+    USER_NOT_ASSIGNED_TO_ROLE("AE-APP-4011", "User is not assigned to role"),
     INVALID_ACTION("AE-APP-4012", "Invalid action"),
     PAYLOAD_TOO_LARGE("AE-APP-4013", "Payload too large"),
     INVALID_ACTION_NAME("AE-APP-4014", "Invalid action name"),
@@ -125,6 +129,7 @@ public enum AppsmithErrorCode {
     INVALID_EMAIL_VERIFICATION("AE-EMV-4098", "Invalid email verification request"),
 
     INVALID_METHOD_LEVEL_ANNOTATION_USAGE("AE-APP-4094", "Invalid usage for custom annotation"),
+    FEATURE_FLAG_MIGRATION_FAILURE("AE-APP-5045", "Feature flag based migration error"),
     ;
     private final String code;
     private final String description;

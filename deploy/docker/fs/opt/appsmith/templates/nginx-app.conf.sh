@@ -22,7 +22,7 @@ additional_downstream_headers='
 add_header X-Content-Type-Options "nosniff";
 '
 
-cat <<EOF
+cat <<EOF > "$TMP/nginx-app.conf"
 map \$http_x_forwarded_proto \$origin_scheme {
   default \$http_x_forwarded_proto;
   '' \$scheme;
@@ -40,9 +40,6 @@ map \$http_forwarded \$final_forwarded {
 
 # redirect log to stdout for supervisor to capture
 access_log /dev/stdout;
-
-server_tokens off;
-more_set_headers 'Server: ';
 
 server {
 
@@ -72,10 +69,6 @@ fi
 
   client_max_body_size 150m;
 
-  gzip on;
-  gzip_types *;
-
-  root /opt/appsmith/editor;
   index index.html;
   error_page 404 /;
 
@@ -97,17 +90,12 @@ fi
     proxy_buffering          off;
     proxy_max_temp_file_size 0;
     proxy_redirect           off;
-
     proxy_set_header  Host              \$http_host/supervisor/;
     proxy_set_header  X-Forwarded-For   \$proxy_add_x_forwarded_for;
     proxy_set_header  X-Forwarded-Proto \$origin_scheme;
     proxy_set_header  X-Forwarded-Host  \$origin_host;
     proxy_set_header  Connection        "";
-
     proxy_pass http://localhost:9001/;
-
-    auth_basic "Protected";
-    auth_basic_user_file /etc/nginx/passwords;
   }
 
   proxy_set_header X-Forwarded-Proto \$origin_scheme;
@@ -116,6 +104,11 @@ fi
 
   location / {
     try_files /loading.html \$uri /index.html =404;
+  }
+
+  location = /info {
+    add_header Content-Type application/json;
+    alias /opt/appsmith/info.json;
   }
 
   location ~ ^/static/(js|css|media)\b {

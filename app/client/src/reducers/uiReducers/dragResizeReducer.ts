@@ -110,7 +110,7 @@ export const widgetDraggingReducer = createImmerReducer(initialState, {
   },
 });
 
-type DraggingGroupCenter = {
+export type DraggingGroupCenter = {
   widgetId?: string;
   top?: number;
   left?: number;

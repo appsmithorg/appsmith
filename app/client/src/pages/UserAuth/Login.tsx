@@ -45,6 +45,7 @@ import Container from "pages/UserAuth/Container";
 import {
   getThirdPartyAuths,
   getIsFormLoginEnabled,
+  getTenantConfig,
 } from "@appsmith/selectors/tenantSelectors";
 import Helmet from "react-helmet";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
@@ -93,8 +94,9 @@ export function Login(props: LoginFormProps) {
   const isBrandingEnabled = useFeatureFlag(
     FEATURE_FLAG.license_branding_enabled,
   );
-  const pageTitle = getHTMLPageTitle(isBrandingEnabled);
-  const htmlPageTitle = pageTitle();
+  const tentantConfig = useSelector(getTenantConfig);
+  const { instanceName } = tentantConfig;
+  const htmlPageTitle = getHTMLPageTitle(isBrandingEnabled, instanceName);
   const invalidCredsForgotPasswordLinkText = createMessage(
     LOGIN_PAGE_INVALID_CREDS_FORGOT_PASSWORD_LINK,
   );

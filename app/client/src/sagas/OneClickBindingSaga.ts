@@ -15,7 +15,7 @@ import {
   getCurrentPageNameByActionId,
   getDatasource,
   getPlugin,
-} from "selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import { createNewQueryName } from "utils/AppsmithUtils";
 import WidgetQueryGeneratorRegistry from "utils/WidgetQueryGeneratorRegistry";
 import {
@@ -23,7 +23,7 @@ import {
   getPulginActionDefaultValues,
 } from "./ActionSagas";
 import "../WidgetQueryGenerators";
-import type { ActionDataState } from "reducers/entityReducers/actionsReducer";
+import type { ActionDataState } from "@appsmith/reducers/entityReducers/actionsReducer";
 import "WidgetQueryGenerators";
 import { getWidgetByID } from "./selectors";
 import type {

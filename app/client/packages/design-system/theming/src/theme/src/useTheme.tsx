@@ -95,17 +95,15 @@ export function useTheme(props: UseThemeProps = {}) {
   }, [seedColor]);
 
   useEffect(() => {
-    if (fontFamily) {
-      tokensAccessor.updateFontFamily(fontFamily);
+    tokensAccessor.updateFontFamily(fontFamily);
 
-      setTheme((prevState) => {
-        return {
-          ...prevState,
-          typography: tokensAccessor.getTypography(),
-          fontFamily: tokensAccessor.getFontFamily(),
-        };
-      });
-    }
+    setTheme((prevState) => {
+      return {
+        ...prevState,
+        typography: tokensAccessor.getTypography(),
+        fontFamily: tokensAccessor.getFontFamily(),
+      };
+    });
   }, [fontFamily]);
 
   useEffect(() => {

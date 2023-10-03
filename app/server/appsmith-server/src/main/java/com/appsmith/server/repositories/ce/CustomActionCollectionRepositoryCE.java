@@ -52,4 +52,6 @@ public interface CustomActionCollectionRepositoryCE extends AppsmithRepository<A
     Mono<List<InsertManyResult>> bulkInsert(List<ActionCollection> newActions);
 
     Mono<List<BulkWriteResult>> bulkUpdate(List<ActionCollection> actionCollections);
+
+    Flux<ActionCollection> findAllByApplicationIds(List<String> applicationIds, List<String> includeFields);
 }

@@ -1,4 +1,4 @@
-import type { DataTree } from "entities/DataTree/dataTreeFactory";
+import type { DataTree } from "@appsmith/entities/DataTree/types";
 import { createSelector } from "reselect";
 import WidgetFactory from "WidgetProvider/factory";
 import type { FlattenedWidgetProps } from "WidgetProvider/constants";
@@ -7,7 +7,7 @@ import { getDataTree } from "./dataTreeSelectors";
 import {
   getExistingPageNames,
   selectInstalledLibraries,
-} from "./entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import {
   getErrorForApiName,
   getErrorForJSObjectName,

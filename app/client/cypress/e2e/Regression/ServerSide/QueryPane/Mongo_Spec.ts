@@ -312,15 +312,7 @@ describe("Validate Mongo Query Pane Validations", () => {
       entityType: entityItems.Query,
     });
 
-    entityExplorer.ExpandCollapseEntity("Datasources");
-    entityExplorer.ExpandCollapseEntity(dsName);
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: dsName,
-      action: "Refresh",
-    });
-    agHelper.AssertElementVisibility(
-      entityExplorer._entityNameInExplorer("AuthorNAwards"),
-    );
+    dataSources.AssertTableInVirtuosoList(dsName, "AuthorNAwards");
   });
 
   it("3. Validate 'Find' record from new collection & verify query response", () => {
@@ -336,7 +328,7 @@ describe("Validate Mongo Query Pane Validations", () => {
   it("4. Validate 'Find by ID' record from new collection & verify query response", () => {
     entityExplorer.ActionTemplateMenuByEntityName(
       "AuthorNAwards",
-      "Find by ID",
+      "Find by id",
     );
     dataSources.ValidateNSelectDropdown("Commands", "Find document(s)");
     agHelper.EnterValue(`{"_id": ObjectId("51df07b094c6acd67e492f41")}`, {
@@ -696,15 +688,7 @@ describe("Validate Mongo Query Pane Validations", () => {
       action: "Delete",
       entityType: entityItems.Query,
     });
-    entityExplorer.ExpandCollapseEntity("Datasources");
-    entityExplorer.ExpandCollapseEntity(dsName);
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: dsName,
-      action: "Refresh",
-    });
-    agHelper.AssertElementAbsence(
-      entityExplorer._entityNameInExplorer("AuthorNAwards"),
-    );
+    dataSources.AssertTableInVirtuosoList(dsName, "AuthorNAwards", false);
   });
 
   it("18. Verify application does not break when user runs the query with wrong collection name", function () {
@@ -800,15 +784,7 @@ describe("Validate Mongo Query Pane Validations", () => {
       entityType: entityItems.Query,
     });
     //Execute a find query on this collection to see if dates are fetched properly
-    entityExplorer.ExpandCollapseEntity("Datasources");
-    entityExplorer.ExpandCollapseEntity(dsName);
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: dsName,
-      action: "Refresh",
-    });
-    agHelper.AssertElementVisibility(
-      entityExplorer._entityNameInExplorer("BirthNDeath"),
-    );
+    dataSources.AssertTableInVirtuosoList(dsName, "BirthNDeath");
 
     entityExplorer.ActionTemplateMenuByEntityName("BirthNDeath", "Find");
     dataSources.ValidateNSelectDropdown("Commands", "Find document(s)");
@@ -827,16 +803,7 @@ describe("Validate Mongo Query Pane Validations", () => {
     dataSources.EnterQuery(dropCollection);
     agHelper.FocusElement(locators._codeMirrorTextArea);
     dataSources.RunQuery();
-
-    entityExplorer.ExpandCollapseEntity("Datasources");
-    entityExplorer.ExpandCollapseEntity(dsName);
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: dsName,
-      action: "Refresh",
-    });
-    agHelper.AssertElementAbsence(
-      entityExplorer._entityNameInExplorer("BirthNDeath"),
-    );
+    dataSources.AssertTableInVirtuosoList(dsName, "BirthNDeath", false);
   });
 
   it("20. Verify Deletion of the datasource", () => {
@@ -846,7 +813,7 @@ describe("Validate Mongo Query Pane Validations", () => {
     // assertHelper.AssertNetworkStatus("@deletePage", 200);
     deployMode.DeployApp();
     deployMode.NavigateBacktoEditor();
-    dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Friends pages are still using this ds
+    dataSources.DeleteDatasourceFromWithinDS(dsName, 409); //Friends pages are still using this ds
   });
 
   function GenerateCRUDNValidateDeployPage(

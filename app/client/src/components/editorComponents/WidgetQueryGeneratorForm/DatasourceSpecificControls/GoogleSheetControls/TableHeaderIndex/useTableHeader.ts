@@ -4,7 +4,7 @@ import { WidgetQueryGeneratorFormContext } from "components/editorComponents/Wid
 import { isNumber } from "lodash";
 import { useCallback, useContext } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getDatasource } from "selectors/entitiesSelector";
+import { getDatasource } from "@appsmith/selectors/entitiesSelector";
 import { isValidGsheetConfig } from "components/editorComponents/WidgetQueryGeneratorForm/utils";
 
 export function useTableHeaderIndex() {

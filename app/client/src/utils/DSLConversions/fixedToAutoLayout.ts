@@ -5,14 +5,13 @@ import {
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
 import { get, partition } from "lodash";
-import type { FlexLayer } from "utils/autoLayout/autoLayoutTypes";
-import { alterLayoutForDesktop } from "utils/autoLayout/AutoLayoutUtils";
+import { alterLayoutForDesktop } from "layoutSystems/autolayout/utils/AutoLayoutUtils";
 import {
   FlexLayerAlignment,
   FlexVerticalAlignment,
   Positioning,
   ResponsiveBehavior,
-} from "utils/autoLayout/constants";
+} from "layoutSystems/common/utils/constants";
 import type { DynamicPath } from "utils/DynamicBindingUtils";
 import {
   isDynamicValue,
@@ -22,6 +21,7 @@ import WidgetFactory from "WidgetProvider/factory";
 // import { DynamicHeight } from "utils/WidgetFeatures";
 import type { WidgetProps } from "widgets/BaseWidget";
 import type { DSLWidget } from "WidgetProvider/constants";
+import type { FlexLayer } from "layoutSystems/autolayout/utils/types";
 
 const unHandledWidgets = ["LIST_WIDGET"];
 const specialCaseWidgets = ["LIST_WIDGET_V2"];

@@ -78,6 +78,7 @@ export interface QueryTemplate {
   title: string;
   body: string;
   pluginSpecifiedTemplates?: Array<{ key?: string; value?: unknown }>;
+  suggested: boolean;
 }
 export interface DatasourceTable {
   type: string;

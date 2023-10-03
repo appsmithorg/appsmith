@@ -5,9 +5,11 @@ import {
   homePage,
   assertHelper,
   inviteModal,
+  onboarding,
 } from "../../../../support/Objects/ObjectsCore";
 
 import { REPO, CURRENT_REPO } from "../../../../fixtures/REPO";
+const appNavigationLocators = require("../../../../locators/AppNavigation.json");
 
 describe("Create new workspace and share with a user", function () {
   let workspaceId: string, appid: string, currentUrl: any;
@@ -85,6 +87,12 @@ describe("Create new workspace and share with a user", function () {
     });
     // comment toggle should not exist for anonymous users
     agHelper.AssertElementAbsence(homePage._modeSwitchToggle);
+    cy.get(
+      `${appNavigationLocators.header} ${appNavigationLocators.shareButton}`,
+    )
+      .click()
+      .wait(1000);
+    agHelper.ClickButton("Copy application url");
   });
 
   it("5. login as uninvited user and then validate public access of Application", function () {
@@ -96,6 +104,12 @@ describe("Create new workspace and share with a user", function () {
     agHelper.GetText(locators._emptyPageTxt).then((text) => {
       expect(text).to.equal("This page seems to be blank");
     });
+    cy.get(
+      `${appNavigationLocators.header} ${appNavigationLocators.shareButton}`,
+    )
+      .click()
+      .wait(1000);
+    agHelper.ClickButton("Copy application url");
     homePage.LogOutviaAPI();
   });
 
@@ -127,5 +141,23 @@ describe("Create new workspace and share with a user", function () {
     agHelper.VisitNAssert(currentUrl);
     assertHelper.AssertNetworkStatus("@getPagesForViewApp", 404);
     agHelper.AssertContains("Sign in to your account", "be.visible");
+  });
+
+  it("8. Show partner program callout when invited user is from a different domain", function () {
+    if (CURRENT_REPO === REPO.CE) {
+      agHelper.GenerateUUID();
+      cy.get("@guid").then((uid) => {
+        homePage.SignUp(`${uid}@appsmithtest.com`, uid as unknown as string);
+        onboarding.closeIntroModal();
+
+        inviteModal.OpenShareModal();
+        homePage.InviteUserToApplication(`${uid}@appsmith.com`, "App Viewer");
+      });
+      agHelper.AssertElementVisibility(
+        `[data-testid="partner-program-callout"]`,
+      );
+
+      homePage.Signout();
+    }
   });
 });

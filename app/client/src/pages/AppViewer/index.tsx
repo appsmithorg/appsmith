@@ -46,7 +46,7 @@ import {
   areEnvironmentsFetched,
   getEnvironmentsWithPermission,
 } from "@appsmith/selectors/environmentSelectors";
-import { datasourceEnvEnabled } from "@appsmith/selectors/featureFlagsSelectors";
+import type { FontFamily } from "@design-system/theming";
 import {
   ThemeProvider as WDSThemeProvider,
   useTheme,
@@ -54,6 +54,8 @@ import {
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { RAMP_NAME } from "utils/ProductRamps/RampsControlList";
 import { showProductRamps } from "@appsmith/selectors/rampSelectors";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { KBViewerFloatingButton } from "@appsmith/pages/AppViewer/KnowledgeBase/KBViewerFloatingButton";
 
 const AppViewerBody = styled.section<{
   hasPages: boolean;
@@ -111,6 +113,7 @@ function AppViewer(props: Props) {
   const { theme } = useTheme({
     borderRadius: selectedTheme.properties.borderRadius.appBorderRadius,
     seedColor: selectedTheme.properties.colors.primaryColor,
+    fontFamily: selectedTheme.properties.fontFamily.appFont as FontFamily,
   });
   const focusRef = useWidgetFocus();
 
@@ -118,6 +121,9 @@ function AppViewer(props: Props) {
   const canShowRamp = useSelector(showRampSelector);
 
   const workspaceId = currentApplicationDetails?.workspaceId || "";
+  const isMultipleEnvEnabled = useFeatureFlag(
+    FEATURE_FLAG.release_datasource_environments_enabled,
+  );
   const environmentList = useSelector(getEnvironmentsWithPermission);
   // If there is only one environment and it is default, don't show the bottom bar
   const isOnlyDefaultShown =
@@ -125,7 +131,7 @@ function AppViewer(props: Props) {
   const showBottomBar = useSelector((state: AppState) => {
     return (
       areEnvironmentsFetched(state, workspaceId) &&
-      (datasourceEnvEnabled(state) || canShowRamp) &&
+      (isMultipleEnvEnabled || canShowRamp) &&
       environmentList.length &&
       !isOnlyDefaultShown
     );
@@ -230,18 +236,23 @@ function AppViewer(props: Props) {
               {isInitialized && <AppViewerPageContainer />}
             </AppViewerBody>
             {showBottomBar && <BottomBar viewMode />}
-            {!hideWatermark && (
-              <a
-                className={`fixed hidden right-8 ${
-                  showBottomBar ? "bottom-12" : "bottom-4"
-                } z-3 hover:no-underline md:flex`}
-                href="https://appsmith.com"
-                rel="noreferrer"
-                target="_blank"
-              >
-                <BrandingBadge />
-              </a>
-            )}
+            <div
+              className={`fixed hidden right-8 z-3 md:flex ${
+                showBottomBar ? "bottom-12" : "bottom-4"
+              }`}
+            >
+              {!hideWatermark && (
+                <a
+                  className="hover:no-underline"
+                  href="https://appsmith.com"
+                  rel="noreferrer"
+                  target="_blank"
+                >
+                  <BrandingBadge />
+                </a>
+              )}
+              <KBViewerFloatingButton />
+            </div>
           </AppViewerBodyContainer>
         </EditorContextProvider>
       </ThemeProvider>

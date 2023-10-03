@@ -3,7 +3,6 @@ package com.appsmith.server.services;
 import com.appsmith.external.services.EncryptionService;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.EmailConfig;
-import com.appsmith.server.helpers.RedirectHelper;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.ratelimiting.RateLimitService;
@@ -49,7 +48,7 @@ public class UserServiceImpl extends UserServiceCECompatibleImpl implements User
             PermissionGroupService permissionGroupService,
             UserUtils userUtils,
             EmailVerificationTokenRepository emailVerificationTokenRepository,
-            RedirectHelper redirectHelper,
+            EmailService emailService,
             RateLimitService rateLimitService) {
         super(
                 scheduler,
@@ -74,7 +73,7 @@ public class UserServiceImpl extends UserServiceCECompatibleImpl implements User
                 permissionGroupService,
                 userUtils,
                 emailVerificationTokenRepository,
-                redirectHelper,
+                emailService,
                 rateLimitService);
     }
 }

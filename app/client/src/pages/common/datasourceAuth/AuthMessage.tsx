@@ -9,7 +9,7 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   getPlugin,
   getPluginTypeFromDatasourceId,
-} from "selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import styled from "styled-components";
 import {
   GOOGLE_SHEETS_AUTHORIZE_DATASOURCE,
@@ -59,8 +59,7 @@ export default function AuthMessage(props: AuthMessageProps) {
   const plugin: Plugin | undefined = useSelector((state) =>
     getPlugin(state, pluginId),
   );
-  const handleOauthAuthorization: any = (e: React.MouseEvent) => {
-    e.preventDefault();
+  const handleOauthAuthorization: any = () => {
     if (!pluginType || !pageId) return;
     dispatch(redirectAuthorizationCode(pageId, datasource.id, pluginType));
   };

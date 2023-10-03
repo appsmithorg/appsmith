@@ -1,9 +1,12 @@
-import { Positioning, ResponsiveBehavior } from "utils/autoLayout/constants";
+import {
+  Positioning,
+  ResponsiveBehavior,
+} from "layoutSystems/common/utils/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { GridDefaults, RenderModes } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
-import type { PrivateWidgets } from "entities/DataTree/types";
+import type { PrivateWidgets } from "@appsmith/entities/DataTree/types";
 import equal from "fast-deep-equal/es6";
 import { klona } from "klona/lite";
 import {
@@ -846,7 +849,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
 
   renderChild = (childWidgetData: WidgetProps) => {
     const { shouldPaginate } = this.shouldPaginate();
-    const { componentHeight, componentWidth } = this.getComponentDimensions();
+    const { componentHeight, componentWidth } = this.props;
 
     childWidgetData.parentId = this.props.widgetId;
     // childWidgetData.shouldScrollContents = this.props.shouldScrollContents;
@@ -1346,9 +1349,9 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   /**
    * view that is rendered in editor
    */
-  getPageView() {
+  getWidgetView() {
     const children = this.renderChildren();
-    const { componentHeight } = this.getComponentDimensions();
+    const { componentHeight } = this.props;
     const { pageNo, serverSidePaginationEnabled } = this.props;
     const { perPage, shouldPaginate } = this.shouldPaginate();
     const templateBottomRow = get(

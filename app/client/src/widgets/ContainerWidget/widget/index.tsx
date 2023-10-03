@@ -14,7 +14,6 @@ import { compact, map, sortBy } from "lodash";
 import WidgetsMultiSelectBox from "pages/Editor/WidgetsMultiSelectBox";
 
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
-import { Positioning } from "utils/autoLayout/constants";
 import { getSnappedGrid } from "sagas/WidgetOperationUtils";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import {
@@ -36,8 +35,9 @@ import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { GridDefaults, WidgetHeightLimits } from "constants/WidgetConstants";
 import {
   FlexVerticalAlignment,
+  Positioning,
   ResponsiveBehavior,
-} from "utils/autoLayout/constants";
+} from "layoutSystems/common/utils/constants";
 
 export class ContainerWidget extends BaseWidget<
   ContainerWidgetProps<WidgetProps>,
@@ -288,7 +288,7 @@ export class ContainerWidget extends BaseWidget<
   }
 
   getSnapSpaces = () => {
-    const { componentWidth } = this.getComponentDimensions();
+    const { componentWidth } = this.props;
     const { snapGrid } = getSnappedGrid(this.props, componentWidth);
 
     return snapGrid;
@@ -297,7 +297,7 @@ export class ContainerWidget extends BaseWidget<
   renderChildWidget(childWidgetData: WidgetProps): React.ReactNode {
     const childWidget = { ...childWidgetData };
 
-    const { componentHeight, componentWidth } = this.getComponentDimensions();
+    const { componentHeight, componentWidth } = this.props;
 
     childWidget.rightColumn = componentWidth;
     childWidget.bottomRow = this.props.shouldScrollContents
@@ -349,7 +349,7 @@ export class ContainerWidget extends BaseWidget<
     );
   }
 
-  getPageView() {
+  getWidgetView() {
     return this.renderAsContainerComponent(this.props);
   }
 }

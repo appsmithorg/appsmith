@@ -1,5 +1,12 @@
 import { mergeConfig } from "vite";
 import svgr from "vite-plugin-svgr";
+import postcssNesting from "postcss-nesting";
+import postcssImport from "postcss-import";
+import postcssAtRulesVariables from "postcss-at-rules-variables";
+import postcssConditionals from "postcss-conditionals";
+import postcssFor from "postcss-for";
+import postcssEach from "postcss-each";
+import postcssModulesValues from "postcss-modules-values";
 import * as glob from "glob";
 import * as path from "path";
 
@@ -20,6 +27,19 @@ module.exports = {
     return mergeConfig(config, {
       define: { "process.env": {} },
       plugins: [svgr()],
+      css: {
+        postcss: {
+          plugins: [
+            postcssNesting,
+            postcssImport,
+            postcssAtRulesVariables,
+            postcssConditionals,
+            postcssFor,
+            postcssEach,
+            postcssModulesValues,
+          ],
+        },
+      },
     });
   },
   stories: getStories(),

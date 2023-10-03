@@ -1,8 +1,9 @@
 package com.appsmith.server.solutions.ce_compatible;
 
-import com.appsmith.server.notifications.EmailSender;
+import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.AnalyticsService;
+import com.appsmith.server.services.EmailService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserService;
@@ -21,8 +22,9 @@ public class UserAndAccessManagementServiceCECompatibleImpl extends UserAndAcces
             UserRepository userRepository,
             AnalyticsService analyticsService,
             UserService userService,
-            EmailSender emailSender,
-            PermissionGroupPermission permissionGroupPermission) {
+            PermissionGroupPermission permissionGroupPermission,
+            EmailService emailService,
+            CommonConfig commonConfig) {
         super(
                 sessionUserService,
                 permissionGroupService,
@@ -30,7 +32,8 @@ public class UserAndAccessManagementServiceCECompatibleImpl extends UserAndAcces
                 userRepository,
                 analyticsService,
                 userService,
-                emailSender,
-                permissionGroupPermission);
+                permissionGroupPermission,
+                emailService,
+                commonConfig);
     }
 }

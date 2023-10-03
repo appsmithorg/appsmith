@@ -4,9 +4,11 @@ import { useParams } from "react-router-dom";
 import EditableText, {
   EditInteractionKind,
 } from "components/editorComponents/EditableText";
-
 import type { AppState } from "@appsmith/reducers";
-import { getDatasource, getDatasources } from "selectors/entitiesSelector";
+import {
+  getDatasource,
+  getDatasources,
+} from "@appsmith/selectors/entitiesSelector";
 import { useSelector, useDispatch } from "react-redux";
 import type { Datasource } from "entities/Datasource";
 import { isNameValid } from "utils/helpers";

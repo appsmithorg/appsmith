@@ -1,5 +1,5 @@
 import { createFontStack, createStyleString } from "@capsizecss/core";
-import { fontMetrics, TypographyVariant } from "./types";
+import { FONT_METRICS, TYPOGRAPHY_VARIANTS } from "./types";
 import roboto from "@capsizecss/metrics/roboto";
 import ubuntu from "@capsizecss/metrics/ubuntu";
 import segoeUI from "@capsizecss/metrics/segoeUI";
@@ -8,12 +8,15 @@ import BlinkMacSystemFont from "@capsizecss/metrics/blinkMacSystemFont";
 
 import type { FontFamily, Typography } from "./types";
 
-export const getTypographyClassName = (key: keyof typeof TypographyVariant) => {
-  return `wds-${TypographyVariant[key]}-text`;
+export const getTypographyClassName = (
+  key: keyof typeof TYPOGRAPHY_VARIANTS,
+) => {
+  return `wds-${TYPOGRAPHY_VARIANTS[key]}-text`;
 };
 
 export const createTypographyStringMap = (
   typography: Typography,
+  containerCLassName: string,
   fontFamily?: FontFamily,
 ) => {
   return Object.keys(typography).reduce((prev, current) => {
@@ -23,7 +26,8 @@ export const createTypographyStringMap = (
       `${createTypographyString(
         capHeight,
         lineGap,
-        current as keyof typeof TypographyVariant,
+        current as keyof typeof TYPOGRAPHY_VARIANTS,
+        containerCLassName,
         fontFamily,
       )}`
     );
@@ -33,23 +37,30 @@ export const createTypographyStringMap = (
 export const createTypographyString = (
   capHeight: number,
   lineGap: number,
-  typographyVariant: keyof typeof TypographyVariant,
+  typographyVariant: keyof typeof TYPOGRAPHY_VARIANTS,
+  containerCLassName: string,
   fontFamily?: FontFamily,
 ) => {
   // if there is no font family, use the default font stack
-  if (!fontFamily) {
-    return createStyleString(getTypographyClassName(typographyVariant), {
-      capHeight,
-      lineGap,
-      fontMetrics: appleSystem,
-    });
+  if (!fontFamily || fontFamily === "System Default") {
+    return createStyleString(
+      `${containerCLassName} .${getTypographyClassName(typographyVariant)}`,
+      {
+        capHeight,
+        lineGap,
+        fontMetrics: appleSystem,
+      },
+    );
   }
 
-  return createStyleString(getTypographyClassName(typographyVariant), {
-    capHeight,
-    lineGap,
-    fontMetrics: fontMetrics[fontFamily],
-  });
+  return createStyleString(
+    `${containerCLassName} .${getTypographyClassName(typographyVariant)}`,
+    {
+      capHeight,
+      lineGap,
+      fontMetrics: FONT_METRICS[fontFamily],
+    },
+  );
 };
 
 export const createGlobalFontStack = () => {

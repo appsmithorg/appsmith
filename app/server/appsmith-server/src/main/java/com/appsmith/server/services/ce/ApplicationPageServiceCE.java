@@ -8,6 +8,8 @@ import com.appsmith.server.dtos.PageDTO;
 import com.mongodb.client.result.UpdateResult;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+
 public interface ApplicationPageServiceCE {
 
     Mono<PageDTO> createPage(PageDTO page);
@@ -37,6 +39,8 @@ public interface ApplicationPageServiceCE {
     Mono<Application> setApplicationPolicies(Mono<User> userMono, String workspaceId, Application application);
 
     Mono<Application> deleteApplication(String id);
+
+    Mono<List<Application>> deleteMultipleApps(List<String> ids);
 
     Mono<PageDTO> clonePage(String pageId);
 

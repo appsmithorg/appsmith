@@ -3,7 +3,7 @@ import Fuse from "fuse.js";
 import type { AppState } from "@appsmith/reducers";
 import { createSelector } from "reselect";
 import { getWorkspaceCreateApplication } from "@appsmith/selectors/applicationSelectors";
-import { getDefaultPlugins } from "./entitiesSelector";
+import { getDefaultPlugins } from "@appsmith/selectors/entitiesSelector";
 import type { Filter } from "pages/Templates/Filters";
 
 const fuzzySearchOptions = {

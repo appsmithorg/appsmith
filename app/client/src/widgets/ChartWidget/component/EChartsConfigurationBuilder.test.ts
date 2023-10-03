@@ -6,15 +6,24 @@ import { EChartsConfigurationBuilder } from "./EChartsConfigurationBuilder";
 
 describe("EChartsConfigurationBuilder", () => {
   const builder = new EChartsConfigurationBuilder();
+  const longestLabels = { x: "x1", y: "y1" };
 
   const dataZoomConfig = [
     {
       filterMode: "filter",
       bottom: 30,
-      start: "20",
+      start: "0",
+      end: "50",
       type: "slider",
       show: true,
       height: 30,
+    },
+    {
+      filterMode: "filter",
+      start: "0",
+      end: "50",
+      type: "inside",
+      show: true,
     },
   ];
 
@@ -43,7 +52,7 @@ describe("EChartsConfigurationBuilder", () => {
     isVisible: true,
     isLoading: false,
     setAdaptiveYMin: false,
-    labelOrientation: LabelOrientation.AUTO,
+    labelOrientation: LabelOrientation.ROTATE,
     onDataPointClick: (point) => {
       point.x;
     },
@@ -74,7 +83,7 @@ describe("EChartsConfigurationBuilder", () => {
       type: "scroll",
       show: true,
     },
-    grid: { top: 100, bottom: 80, left: 100, show: false },
+    grid: { top: 100, bottom: 52, left: 52, show: false },
     title: {
       show: true,
       text: defaultProps.chartName,
@@ -94,17 +103,17 @@ describe("EChartsConfigurationBuilder", () => {
     xAxis: {
       type: "category",
       axisLabel: {
-        rotate: 0,
+        rotate: 90,
         fontFamily: "fontfamily",
         color: Colors.DOVE_GRAY2,
         show: true,
-        width: 60,
-        overflow: "break",
+        width: 2,
+        overflow: "truncate",
       },
       show: true,
       name: "xaxisname",
       nameLocation: "middle",
-      nameGap: 40,
+      nameGap: 12,
       nameTextStyle: {
         fontSize: 14,
         fontFamily: "fontfamily",
@@ -115,14 +124,14 @@ describe("EChartsConfigurationBuilder", () => {
       axisLabel: {
         fontFamily: "fontfamily",
         color: Colors.DOVE_GRAY2,
-        overflow: "break",
+        overflow: "truncate",
         show: true,
-        width: 60,
+        width: 12,
       },
       show: true,
       name: "yaxisname",
       nameLocation: "middle",
-      nameGap: 70,
+      nameGap: 22,
       nameTextStyle: {
         fontSize: 14,
         fontFamily: "fontfamily",
@@ -152,7 +161,11 @@ describe("EChartsConfigurationBuilder", () => {
   };
 
   it("1. builds a right chart configuration", () => {
-    const output = builder.prepareEChartConfig(defaultProps, chartData);
+    const output = builder.prepareEChartConfig(
+      defaultProps,
+      chartData,
+      longestLabels,
+    );
     expect(output).toEqual(defaultExpectedConfig);
   });
 
@@ -166,7 +179,11 @@ describe("EChartsConfigurationBuilder", () => {
       );
       expectedConfig.dataZoom = [];
 
-      const output = builder.prepareEChartConfig(props, chartData);
+      const output = builder.prepareEChartConfig(
+        props,
+        chartData,
+        longestLabels,
+      );
 
       expect(output).toStrictEqual(expectedConfig);
     });
@@ -181,7 +198,11 @@ describe("EChartsConfigurationBuilder", () => {
       );
       expectedConfig.dataZoom = dataZoomConfig;
 
-      const output = builder.prepareEChartConfig(props, chartData);
+      const output = builder.prepareEChartConfig(
+        props,
+        chartData,
+        longestLabels,
+      );
       expect(output.dataZoom).toStrictEqual(expectedConfig.dataZoom);
     });
 
@@ -196,7 +217,11 @@ describe("EChartsConfigurationBuilder", () => {
       );
       expectedConfig.dataZoom = [];
 
-      const output = builder.prepareEChartConfig(props, chartData);
+      const output = builder.prepareEChartConfig(
+        props,
+        chartData,
+        longestLabels,
+      );
       expect(output.dataZoom).toStrictEqual(expectedConfig.dataZoom);
     });
   });
@@ -221,7 +246,11 @@ describe("EChartsConfigurationBuilder", () => {
         },
       };
 
-      const output = builder.prepareEChartConfig(props, chartData);
+      const output = builder.prepareEChartConfig(
+        props,
+        chartData,
+        longestLabels,
+      );
       expect(output.title).toStrictEqual(expectedConfig.title);
     });
 
@@ -245,20 +274,24 @@ describe("EChartsConfigurationBuilder", () => {
           },
         },
         {
-          top: 265,
-          left: "33.333333333333336%",
+          top: 80,
+          left: 495,
           textAlign: "center",
           text: "series1",
         },
         {
-          top: 265,
-          left: "66.66666666666667%",
+          top: 80,
+          left: 495,
           textAlign: "center",
           text: "series2",
         },
       ];
 
-      const output = builder.prepareEChartConfig(props, chartData);
+      const output = builder.prepareEChartConfig(
+        props,
+        chartData,
+        longestLabels,
+      );
       expect(output.title).toStrictEqual(expectedConfig.title);
     });
   });
@@ -268,11 +301,17 @@ describe("EChartsConfigurationBuilder", () => {
       const props = JSON.parse(JSON.stringify(defaultProps));
       props.chartType = "BAR_CHART";
 
-      const expectedConfig: any = { ...defaultExpectedConfig };
-      expectedConfig.xAxis = { ...expectedConfig.xAxis };
+      const expectedConfig: any = JSON.parse(
+        JSON.stringify(defaultExpectedConfig),
+      );
       expectedConfig.xAxis.type = "value";
+      expectedConfig.xAxis.axisLabel.rotate = 0;
 
-      const output = builder.prepareEChartConfig(props, chartData);
+      const output = builder.prepareEChartConfig(
+        props,
+        chartData,
+        longestLabels,
+      );
       expect(output.xAxis).toStrictEqual(expectedConfig.xAxis);
     });
 
@@ -280,13 +319,18 @@ describe("EChartsConfigurationBuilder", () => {
       const props = JSON.parse(JSON.stringify(defaultProps));
       props.labelOrientation = LabelOrientation.SLANT;
 
-      const expectedConfig: any = { ...defaultExpectedConfig };
-      expectedConfig.xAxis = JSON.parse(JSON.stringify(expectedConfig.xAxis));
+      const expectedConfig: any = JSON.parse(
+        JSON.stringify(defaultExpectedConfig),
+      );
       expectedConfig.xAxis.axisLabel.rotate = 45; // slant configuration needs rotate = 45;
-      expectedConfig.xAxis.axisLabel.width = 50;
-      expectedConfig.xAxis.nameGap = 60;
+      expectedConfig.xAxis.axisLabel.width = 2;
+      expectedConfig.xAxis.nameGap = 12;
 
-      const output = builder.prepareEChartConfig(props, chartData);
+      const output = builder.prepareEChartConfig(
+        props,
+        chartData,
+        longestLabels,
+      );
       expect(output.xAxis).toStrictEqual(expectedConfig.xAxis);
     });
 
@@ -299,12 +343,13 @@ describe("EChartsConfigurationBuilder", () => {
           JSON.stringify(defaultExpectedConfig),
         );
         labelRotatedConfig.xAxis.axisLabel.rotate = 90;
-        labelRotatedConfig.xAxis.nameGap = 70;
-        labelRotatedConfig.grid.bottom = 110;
+        labelRotatedConfig.xAxis.nameGap = 12;
+        labelRotatedConfig.grid.bottom = 52;
 
         const output = builder.prepareEChartConfig(
           labelRotatedProps,
           chartData,
+          longestLabels,
         );
         expect(output).toStrictEqual(labelRotatedConfig);
       });
@@ -314,12 +359,22 @@ describe("EChartsConfigurationBuilder", () => {
       const props = JSON.parse(JSON.stringify(defaultProps));
       props.labelOrientation = LabelOrientation.AUTO;
 
-      const expectedConfig: any = { ...defaultExpectedConfig };
-      expectedConfig.xAxis = { ...expectedConfig.xAxis };
-      expectedConfig.xAxis.axisLabel = { ...expectedConfig.xAxis.axisLabel };
-      expectedConfig.xAxis.axisLabel.rotate = 0;
+      const expectedConfig: any = JSON.parse(
+        JSON.stringify(defaultExpectedConfig),
+      );
+      expectedConfig.xAxis.axisLabel = {
+        color: Colors.DOVE_GRAY2,
+        fontFamily: "fontfamily",
+        rotate: 0,
+        show: true,
+      };
+      expectedConfig.xAxis.nameGap = 40;
 
-      const output = builder.prepareEChartConfig(props, chartData);
+      const output = builder.prepareEChartConfig(
+        props,
+        chartData,
+        longestLabels,
+      );
       expect(output.xAxis).toStrictEqual(expectedConfig.xAxis);
     });
 
@@ -332,12 +387,16 @@ describe("EChartsConfigurationBuilder", () => {
       );
       expectedConfig.xAxis = {
         type: "category",
-        axisLabel: { ...defaultExpectedConfig.xAxis.axisLabel },
+        axisLabel: { ...defaultExpectedConfig.xAxis.axisLabel, width: -50 },
         show: false,
       };
       expectedConfig.xAxis.axisLabel.show = false;
 
-      const output = builder.prepareEChartConfig(props, chartData);
+      const output = builder.prepareEChartConfig(
+        props,
+        chartData,
+        longestLabels,
+      );
       expect(output.xAxis).toStrictEqual(expectedConfig.xAxis);
     });
   });
@@ -352,7 +411,11 @@ describe("EChartsConfigurationBuilder", () => {
       );
       expectedConfig.yAxis.type = "category";
 
-      const output = builder.prepareEChartConfig(props, chartData);
+      const output = builder.prepareEChartConfig(
+        props,
+        chartData,
+        longestLabels,
+      );
       expect(output.yAxis).toStrictEqual(expectedConfig.yAxis);
     });
 
@@ -365,7 +428,11 @@ describe("EChartsConfigurationBuilder", () => {
       );
       expectedConfig.yAxis.min = "dataMin"; // "datamin" means that the y axis is adaptive in echarts
 
-      const output = builder.prepareEChartConfig(props, chartData);
+      const output = builder.prepareEChartConfig(
+        props,
+        chartData,
+        longestLabels,
+      );
       expect(output).toStrictEqual(expectedConfig);
     });
 
@@ -378,7 +445,11 @@ describe("EChartsConfigurationBuilder", () => {
         show: true,
       };
 
-      const output = builder.prepareEChartConfig(props, chartData);
+      const output = builder.prepareEChartConfig(
+        props,
+        chartData,
+        longestLabels,
+      );
       expect(output.yAxis).toStrictEqual(config);
     });
   });
@@ -394,7 +465,11 @@ describe("EChartsConfigurationBuilder", () => {
       );
       expectedConfig.series[0].itemStyle.color = "primarycolor";
 
-      const output = builder.prepareEChartConfig(props, modifiedChartData);
+      const output = builder.prepareEChartConfig(
+        props,
+        modifiedChartData,
+        longestLabels,
+      );
       expect(output).toStrictEqual(expectedConfig);
     });
 
@@ -408,7 +483,11 @@ describe("EChartsConfigurationBuilder", () => {
       );
       expectedConfig.series[1].itemStyle.color = "";
 
-      const output = builder.prepareEChartConfig(props, modifiedChartData);
+      const output = builder.prepareEChartConfig(
+        props,
+        modifiedChartData,
+        longestLabels,
+      );
       expect(output).toStrictEqual(expectedConfig);
     });
 
@@ -426,7 +505,11 @@ describe("EChartsConfigurationBuilder", () => {
       expectedConfig.series[1].type = "bar";
       expectedConfig.series[1].label.position = "right";
 
-      const output = builder.prepareEChartConfig(props, chartData);
+      const output = builder.prepareEChartConfig(
+        props,
+        chartData,
+        longestLabels,
+      );
       expect(output.series).toStrictEqual(expectedConfig.series);
     });
 
@@ -440,7 +523,11 @@ describe("EChartsConfigurationBuilder", () => {
       expectedConfig.series[0].type = "line";
       expectedConfig.series[1].type = "line";
 
-      const output = builder.prepareEChartConfig(props, chartData);
+      const output = builder.prepareEChartConfig(
+        props,
+        chartData,
+        longestLabels,
+      );
       expect(output.series).toStrictEqual(expectedConfig.series);
     });
 
@@ -454,7 +541,11 @@ describe("EChartsConfigurationBuilder", () => {
       expectedConfig.series[0].type = "bar";
       expectedConfig.series[1].type = "bar";
 
-      const output = builder.prepareEChartConfig(props, chartData);
+      const output = builder.prepareEChartConfig(
+        props,
+        chartData,
+        longestLabels,
+      );
       expect(output.series).toStrictEqual(expectedConfig.series);
     });
 
@@ -470,7 +561,11 @@ describe("EChartsConfigurationBuilder", () => {
       expectedConfig.series[0].areaStyle = {};
       expectedConfig.series[1].areaStyle = {};
 
-      const output = builder.prepareEChartConfig(props, chartData);
+      const output = builder.prepareEChartConfig(
+        props,
+        chartData,
+        longestLabels,
+      );
       expect(output.series).toStrictEqual(expectedConfig.series);
     });
 
@@ -484,8 +579,8 @@ describe("EChartsConfigurationBuilder", () => {
       expectedConfig.series = [
         {
           type: "pie",
-          radius: "60%",
-          center: ["50%", "60%"],
+          top: 100,
+          bottom: 30,
           name: "series1",
           encode: {
             itemName: "Category",
@@ -501,9 +596,13 @@ describe("EChartsConfigurationBuilder", () => {
         },
       ];
 
-      const output = builder.prepareEChartConfig(props, {
-        seriesID1: chartData1,
-      });
+      const output = builder.prepareEChartConfig(
+        props,
+        {
+          seriesID1: chartData1,
+        },
+        longestLabels,
+      );
       expect(output.series).toStrictEqual(expectedConfig.series);
     });
 
@@ -512,14 +611,22 @@ describe("EChartsConfigurationBuilder", () => {
       const chartDataParams = JSON.parse(JSON.stringify(chartData));
       chartDataParams.seriesID1.seriesName = "";
 
-      let output = builder.prepareEChartConfig(props, chartDataParams);
+      let output = builder.prepareEChartConfig(
+        props,
+        chartDataParams,
+        longestLabels,
+      );
       let firstSeriesName = (output.series as any[])[0].name;
-      expect(firstSeriesName).toEqual("Undefined");
+      expect(firstSeriesName).toEqual("Series");
 
       chartDataParams.seriesID1.seriesName = undefined;
-      output = builder.prepareEChartConfig(props, chartDataParams);
+      output = builder.prepareEChartConfig(
+        props,
+        chartDataParams,
+        longestLabels,
+      );
       firstSeriesName = (output.series as any[])[0].name;
-      expect(firstSeriesName).toEqual("Undefined");
+      expect(firstSeriesName).toEqual("Series");
     });
 
     it("6.9 PIE-CHART chooses a default series name for the legend if series name prop is empty", () => {
@@ -529,18 +636,26 @@ describe("EChartsConfigurationBuilder", () => {
       const chartDataParams = JSON.parse(JSON.stringify(chartData1));
       chartDataParams.seriesName = "";
 
-      let output = builder.prepareEChartConfig(props, {
-        seriesID1: chartDataParams,
-      });
+      let output = builder.prepareEChartConfig(
+        props,
+        {
+          seriesID1: chartDataParams,
+        },
+        longestLabels,
+      );
       let firstSeriesName = (output.series as any[])[0].name;
-      expect(firstSeriesName).toEqual("Undefined");
+      expect(firstSeriesName).toEqual("Series");
 
       chartDataParams.seriesName = undefined;
-      output = builder.prepareEChartConfig(props, {
-        seriesID1: chartDataParams,
-      });
+      output = builder.prepareEChartConfig(
+        props,
+        {
+          seriesID1: chartDataParams,
+        },
+        longestLabels,
+      );
       firstSeriesName = (output.series as any[])[0].name;
-      expect(firstSeriesName).toEqual("Undefined");
+      expect(firstSeriesName).toEqual("Series");
     });
 
     it("6.10 shows labels on series data if Show Labels if true otherwise false", () => {
@@ -554,14 +669,14 @@ describe("EChartsConfigurationBuilder", () => {
       expectedConfig.series[0].label.show = true;
       expectedConfig.series[1].label.show = true;
 
-      let output = builder.prepareEChartConfig(props, chartData);
+      let output = builder.prepareEChartConfig(props, chartData, longestLabels);
       expect(output.series).toStrictEqual(expectedConfig.series);
 
       props.showDataPointLabel = false;
       expectedConfig.series[0].label.show = false;
       expectedConfig.series[1].label.show = false;
 
-      output = builder.prepareEChartConfig(props, chartData);
+      output = builder.prepareEChartConfig(props, chartData, longestLabels);
       expect(output.series).toStrictEqual(expectedConfig.series);
     });
 
@@ -570,7 +685,7 @@ describe("EChartsConfigurationBuilder", () => {
       props.chartType = "PIE_CHART";
       props.showDataPointLabel = true;
 
-      let output = builder.prepareEChartConfig(props, chartData);
+      let output = builder.prepareEChartConfig(props, chartData, longestLabels);
       let seriesConfig = output.series as Record<
         string,
         Record<string, unknown>
@@ -580,7 +695,7 @@ describe("EChartsConfigurationBuilder", () => {
 
       props.showDataPointLabel = false;
 
-      output = builder.prepareEChartConfig(props, chartData);
+      output = builder.prepareEChartConfig(props, chartData, longestLabels);
       seriesConfig = output.series as Record<string, Record<string, unknown>>[];
 
       expect(seriesConfig[0].label.show).toEqual(false);

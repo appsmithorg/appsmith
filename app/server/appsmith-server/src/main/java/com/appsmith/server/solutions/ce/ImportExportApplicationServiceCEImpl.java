@@ -21,6 +21,8 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.ResourceModes;
 import com.appsmith.server.constants.SerialiseApplicationObjective;
+import com.appsmith.server.datasources.base.DatasourceService;
+import com.appsmith.server.datasourcestorages.base.DatasourceStorageService;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
@@ -50,6 +52,7 @@ import com.appsmith.server.helpers.ce.ImportApplicationPermissionProvider;
 import com.appsmith.server.migrations.ApplicationVersion;
 import com.appsmith.server.migrations.JsonSchemaMigration;
 import com.appsmith.server.migrations.JsonSchemaVersions;
+import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
@@ -61,9 +64,6 @@ import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.CustomJSLibService;
-import com.appsmith.server.services.DatasourceService;
-import com.appsmith.server.services.DatasourceStorageService;
-import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.SequenceService;
 import com.appsmith.server.services.SessionUserService;
@@ -477,6 +477,12 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                     ActionCollectionDTO actionCollectionDTO = unpublishedActionCollectionDTO != null
                                             ? unpublishedActionCollectionDTO
                                             : publishedActionCollectionDTO;
+
+                                    // TODO: check whether resource updated after last commit - move to a function
+                                    // we've replaced page id with page name in previous step
+                                    String pageName = actionCollectionDTO.getPageId();
+                                    boolean isPageUpdated =
+                                            ImportExportUtils.isPageNameInUpdatedList(applicationJson, pageName);
                                     String actionCollectionName = actionCollectionDTO != null
                                             ? actionCollectionDTO.getName()
                                                     + NAME_SEPARATOR
@@ -485,6 +491,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                     Instant actionCollectionUpdatedAt = actionCollection.getUpdatedAt();
                                     boolean isActionCollectionUpdated = isClientSchemaMigrated
                                             || isServerSchemaMigrated
+                                            || isPageUpdated
                                             || applicationLastCommittedAt == null
                                             || actionCollectionUpdatedAt == null
                                             || applicationLastCommittedAt.isBefore(actionCollectionUpdatedAt);
@@ -569,10 +576,15 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                     String newActionName = actionDTO != null
                                             ? actionDTO.getValidName() + NAME_SEPARATOR + actionDTO.getPageId()
                                             : null;
+                                    // TODO: check whether resource updated after last commit - move to a function
+                                    String pageName = actionDTO.getPageId();
+                                    boolean isPageUpdated =
+                                            ImportExportUtils.isPageNameInUpdatedList(applicationJson, pageName);
                                     Instant newActionUpdatedAt = newAction.getUpdatedAt();
                                     boolean isNewActionUpdated = isClientSchemaMigrated
                                             || isServerSchemaMigrated
                                             || applicationLastCommittedAt == null
+                                            || isPageUpdated
                                             || newActionUpdatedAt == null
                                             || applicationLastCommittedAt.isBefore(newActionUpdatedAt);
                                     if (isNewActionUpdated && newActionName != null) {
@@ -942,7 +954,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
     private String validateApplicationJson(ApplicationJson importedDoc) {
         String errorField = "";
         if (CollectionUtils.isEmpty(importedDoc.getPageList())) {
-            errorField = FieldName.PAGES;
+            errorField = FieldName.PAGE_LIST;
         } else if (importedDoc.getExportedApplication() == null) {
             errorField = FieldName.APPLICATION;
         } else if (importedDoc.getActionList() == null) {
@@ -1823,7 +1835,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         String errorField = validateApplicationJson(importedDoc);
         if (!errorField.isEmpty()) {
             log.error("Error in importing application. Field {} is missing", errorField);
-            return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, errorField, INVALID_JSON_FILE));
+            return Mono.error(new AppsmithException(
+                    AppsmithError.VALIDATION_FAILURE, "Field '" + errorField + "' is missing in the JSON."));
         }
 
         Application importedApplication = importedDoc.getExportedApplication();
@@ -1932,6 +1945,13 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     Application application = tuple.getT1();
                     stopwatch.stopTimer();
                     stopwatch.stopAndLogTimeInMillis();
+                    int jsObjectCount = CollectionUtils.isEmpty(applicationJson.getActionCollectionList())
+                            ? 0
+                            : applicationJson.getActionCollectionList().size();
+                    int actionCount = CollectionUtils.isEmpty(applicationJson.getActionList())
+                            ? 0
+                            : applicationJson.getActionList().size();
+
                     final Map<String, Object> data = Map.of(
                             FieldName.APPLICATION_ID,
                             application.getId(),
@@ -1940,9 +1960,9 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                             "pageCount",
                             applicationJson.getPageList().size(),
                             "actionCount",
-                            applicationJson.getActionList().size(),
+                            actionCount,
                             "JSObjectCount",
-                            applicationJson.getActionCollectionList().size(),
+                            jsObjectCount,
                             FieldName.FLOW_NAME,
                             stopwatch.getFlow(),
                             "executionTime",

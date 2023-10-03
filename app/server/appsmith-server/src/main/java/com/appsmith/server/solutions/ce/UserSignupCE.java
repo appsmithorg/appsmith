@@ -27,7 +27,8 @@ public interface UserSignupCE {
      */
     Mono<Void> signupAndLoginFromFormData(ServerWebExchange exchange);
 
-    Mono<User> signupAndLoginSuper(UserSignupRequestDTO userFromRequest, ServerWebExchange exchange);
+    Mono<User> signupAndLoginSuper(
+            UserSignupRequestDTO userFromRequest, String originHeader, ServerWebExchange exchange);
 
-    Mono<Void> signupAndLoginSuperFromFormData(ServerWebExchange exchange);
+    Mono<Void> signupAndLoginSuperFromFormData(String originHeader, ServerWebExchange exchange);
 }
