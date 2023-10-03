@@ -3,16 +3,11 @@ import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { WidgetPositions } from "layoutSystems/common/types";
 import { all, put, select, takeEvery } from "redux-saga/effects";
-import {
-  getAnvilWidgetId,
-  getLayoutId,
-} from "layoutSystems/common/utils/WidgetPositionsObserver/utils";
+import { getAnvilWidgetId } from "layoutSystems/common/utils/WidgetPositionsObserver/utils";
 import { getAffectedWidgetsFromLayers } from "layoutSystems/anvil/integrations/utils";
 import { getCanvasWidgets } from "@appsmith/selectors/entitiesSelector";
 import { CANVAS_ART_BOARD } from "constants/componentClassNameConstants";
 
-// TODO (abhinav): Figure out why the resizeObserver isn't sending the values directly,
-// Why do we have to call the `getBoundingClientRect` individually for each widget.
 /**
  * This saga is used to read and update widget position from the the list of widgets,
  * layers and layouts received from widget positions observer
@@ -32,8 +27,7 @@ function* readAndUpdateWidgetPositions(
 ) {
   const widgets: CanvasWidgetsReduxState = yield select(getCanvasWidgets);
 
-  const { layersProcessQueue, layoutsProcessQueue, widgetsProcessQueue } =
-    action.payload;
+  const { layersProcessQueue, widgetsProcessQueue } = action.payload;
 
   //get additional widgets from affected layers
   const affectedWidgetsFromLayers: {
@@ -45,8 +39,6 @@ function* readAndUpdateWidgetPositions(
     ...affectedWidgetsFromLayers,
   };
 
-  const layoutsToProcess = { ...layoutsProcessQueue };
-
   const widgetDimensions: WidgetPositions = {};
 
   const mainContainerDOMNode = document.getElementById(CANVAS_ART_BOARD);
@@ -56,27 +48,12 @@ function* readAndUpdateWidgetPositions(
   const { left = 0, top = 0 } = mainContainerDOMRect || {};
 
   //for every affected widget get the bounding client Rect
-  // TODO(abhinav): Understand why all widgets don't send an update individually
   // If they do, we don't have to update the positions here.
   for (const widgetId of Object.keys(widgetsToProcess)) {
     const element = document.getElementById(getAnvilWidgetId(widgetId));
     if (element) {
       const rect = element.getBoundingClientRect();
       widgetDimensions[widgetId] = {
-        left: rect.left - left,
-        top: rect.top - top,
-        height: rect.height,
-        width: rect.width,
-      };
-    }
-  }
-
-  //below logic will have to be modified while implementing for Layout Components
-  for (const layoutId of Object.keys(layoutsToProcess)) {
-    const element = document.getElementById(getLayoutId(layoutId));
-    if (element) {
-      const rect = element.getBoundingClientRect();
-      widgetDimensions[layoutId] = {
         left: rect.left - left,
         top: rect.top - top,
         height: rect.height,

@@ -11,8 +11,8 @@ import get from "lodash/get";
 import { getErrorCount } from "layoutSystems/common/widgetName/utils";
 import type { WidgetPositions } from "./types";
 import type { WidgetProps } from "widgets/BaseWidget";
-import type { DataTree } from "entities/DataTree/dataTreeFactory";
 import type { WidgetNameData } from "./WidgetNamesCanvas/WidgetNameTypes";
+import type { DataTree } from "@appsmith/entities/DataTree/types";
 
 export const getWidgetPositions = (state: AppState) =>
   state.entities.widgetPositions;
