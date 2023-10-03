@@ -352,4 +352,12 @@ public interface PluginExecutor<C> extends ExtensionPoint, CrudTemplateService {
     default ActionConfiguration getSchemaPreviewActionConfig(Template queryTemplate, Boolean isMock) {
         return null;
     }
+
+    /*
+     * This method returns ActionConfiguration required in order to fetch preview data,
+     * that needs to be shown on datasource review page.
+     */
+    default Mono<String> getIdentifierForRateLimit(DatasourceConfiguration datasourceConfiguration) {
+        return Mono.just("");
+    }
 }

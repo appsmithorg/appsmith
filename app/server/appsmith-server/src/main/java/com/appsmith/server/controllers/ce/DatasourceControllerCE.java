@@ -6,20 +6,16 @@ import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceStructure.Template;
 import com.appsmith.external.models.DatasourceTestResult;
-import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.TriggerRequestDTO;
 import com.appsmith.external.models.TriggerResultDTO;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.constants.RateLimitConstants;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.dtos.AuthorizationCodeCallbackDTO;
 import com.appsmith.server.dtos.MockDataSet;
 import com.appsmith.server.dtos.MockDataSource;
 import com.appsmith.server.dtos.ResponseDTO;
-import com.appsmith.server.exceptions.AppsmithError;
-import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.ratelimiting.RateLimitService;
 import com.appsmith.server.services.MockDataService;
 import com.appsmith.server.solutions.AuthenticationService;
@@ -140,25 +136,9 @@ public class DatasourceControllerCE {
             @RequestHeader(name = FieldName.ENVIRONMENT_ID, required = false) String activeEnvironmentId) {
 
         log.debug("Going to test the datasource with id: {}", datasourceStorageDTO.getDatasourceId());
-        List<Endpoint> endpoints =
-                datasourceStorageDTO.getDatasourceConfiguration().getEndpoints();
-        String hostName = "";
-        if (endpoints.size() > 0) {
-            hostName = endpoints.get(0).getHost();
-        }
-        return rateLimitService
-                .tryIncreaseCounter(RateLimitConstants.BUCKET_KEY_FOR_TEST_DATASOURCE_API, hostName)
-                .flatMap(counterIncreaseAttemptSuccessful -> {
-                    if (Boolean.TRUE.equals(counterIncreaseAttemptSuccessful)) {
-                        return datasourceService
-                                .testDatasource(datasourceStorageDTO, activeEnvironmentId)
-                                .map(testResult -> new ResponseDTO<>(HttpStatus.OK.value(), testResult, null));
-                    } else {
-                        AppsmithException exception = new AppsmithException(AppsmithError.TOO_MANY_REQUESTS);
-                        return Mono.just(new ResponseDTO<>(
-                                exception.getHttpStatus(), new DatasourceTestResult(exception.getMessage()), null));
-                    }
-                });
+        return datasourceService
+                .testDatasource(datasourceStorageDTO, activeEnvironmentId)
+                .map(testResult -> new ResponseDTO<>(HttpStatus.OK.value(), testResult, null));
     }
 
     @JsonView(Views.Public.class)

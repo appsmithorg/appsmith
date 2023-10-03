@@ -7,7 +7,6 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.DatasourceTestResult;
-import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.QDatasource;
@@ -23,6 +22,7 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.helpers.RedisUtils;
 import com.appsmith.server.ratelimiting.RateLimitService;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
@@ -48,6 +48,7 @@ import reactor.core.scheduler.Schedulers;
 import reactor.util.function.Tuple2;
 import reactor.util.function.Tuples;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -85,6 +86,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
     private final AnalyticsService analyticsService;
     private final EnvironmentPermission environmentPermission;
     private final RateLimitService rateLimitService;
+    private final RedisUtils redisUtils;
 
     @Autowired
     public DatasourceServiceCEImpl(
@@ -102,7 +104,8 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
             WorkspacePermission workspacePermission,
             DatasourceStorageService datasourceStorageService,
             EnvironmentPermission environmentPermission,
-            RateLimitService rateLimitService) {
+            RateLimitService rateLimitService,
+            RedisUtils redisUtils) {
 
         this.workspaceService = workspaceService;
         this.sessionUserService = sessionUserService;
@@ -119,6 +122,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
         this.repository = repository;
         this.environmentPermission = environmentPermission;
         this.rateLimitService = rateLimitService;
+        this.redisUtils = redisUtils;
     }
 
     @Override
@@ -445,7 +449,8 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
 
         DatasourceStorage datasourceStorage =
                 datasourceStorageService.createDatasourceStorageFromDatasourceStorageDTO(datasourceStorageDTO);
-        Mono<DatasourceStorage> datasourceStorageMono;
+        final Mono<DatasourceStorage> datasourceStorageMono;
+        Mono<String> rateLimitIdentifierMono = this.getRateLimitIdentifier(datasourceStorage);
 
         // Ideally there should also be a check for missing environmentId,
         // however since we are falling back to default this step is not required here.
@@ -494,11 +499,14 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
 
                         String datasourceId = datasourceStorage1.getDatasourceId();
                         String trueEnvironmentId = datasourceStorage1.getEnvironmentId();
-                        // Fetch any fields that maybe encrypted from the db if the datasource being tested does not
+                        // Fetch any fields that maybe encrypted from the db if the datasource being
+                        // tested does not
                         // have those fields set.
-                        // This scenario would happen whenever an existing datasource is being tested and no changes are
+                        // This scenario would happen whenever an existing datasource is being
+                        // tested and no changes are
                         // present in the
-                        // encrypted field (because encrypted fields are not sent over the network after encryption back
+                        // encrypted field (because encrypted fields are not sent over the network
+                        // after encryption back
                         // to the client
 
                         if (!hasText(datasourceStorage.getId())) {
@@ -515,9 +523,21 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                     .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS)));
         }
 
-        return datasourceStorageMono
-                .flatMap(datasourceStorageService::checkEnvironment)
-                .flatMap(this::verifyDatasourceAndTest);
+        return rateLimitIdentifierMono.flatMap(rateLimitIdentifier -> {
+            return redisUtils
+                    .hasKey("blocked" + RateLimitConstants.BUCKET_KEY_FOR_TEST_DATASOURCE_API + rateLimitIdentifier)
+                    .flatMap(isPresent -> {
+                        System.out.println("Rate Limit Identifier: " + rateLimitIdentifier + ":P     " + isPresent);
+                        if (!isPresent) {
+                            return datasourceStorageMono
+                                    .flatMap(datasourceStorageService::checkEnvironment)
+                                    .flatMap(this::verifyDatasourceAndTest);
+                        } else {
+                            AppsmithException exception = new AppsmithException(AppsmithError.TOO_MANY_REQUESTS);
+                            return Mono.just(new DatasourceTestResult(exception.getMessage()));
+                        }
+                    });
+        });
     }
 
     protected Mono<DatasourceTestResult> verifyDatasourceAndTest(DatasourceStorage datasourceStorage) {
@@ -535,32 +555,70 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                         datasourceTestResultMono = Mono.just(new DatasourceTestResult(storage.getInvalids()));
                     }
 
-                    List<Endpoint> endpoints =
-                            datasourceStorage.getDatasourceConfiguration().getEndpoints();
-                    String hostName = "";
-                    if (endpoints.size() > 0) {
-                        hostName = endpoints.get(0).getHost();
-                    }
+                    Mono<String> rateLimitIdentifierMono = this.getRateLimitIdentifier(datasourceStorage);
 
                     return datasourceTestResultMono
-                            .zipWith(sessionUserService.getCurrentUser())
+                            .zipWith(rateLimitIdentifierMono)
                             .flatMap(tuple -> {
                                 DatasourceTestResult datasourceTestResult = tuple.getT1();
-                                User user = tuple.getT2();
+                                String rateLimitIdentifier = tuple.getT2();
                                 if (!CollectionUtils.isEmpty(datasourceTestResult.getInvalids())) {
-                                    return analyticsService
-                                            .sendObjectEvent(
-                                                    AnalyticsEvents.DS_TEST_EVENT_FAILED,
-                                                    datasourceStorage,
-                                                    getAnalyticsPropertiesForTestEventStatus(
-                                                            datasourceStorage, datasourceTestResult, environmentName))
-                                            .thenReturn(datasourceTestResult);
-
+                                    return rateLimitService
+                                            .tryIncreaseCounter(
+                                                    RateLimitConstants.BUCKET_KEY_FOR_TEST_DATASOURCE_API,
+                                                    rateLimitIdentifier)
+                                            .flatMap(isSuccessful -> {
+                                                System.out.println("Consumed: " + isSuccessful);
+                                                if (!isSuccessful) {
+                                                    System.out.println("Block API: ");
+                                                    AppsmithException exception =
+                                                            new AppsmithException(AppsmithError.TOO_MANY_REQUESTS);
+                                                    return redisUtils
+                                                            .addFileLock(
+                                                                    "blocked"
+                                                                            + RateLimitConstants
+                                                                                    .BUCKET_KEY_FOR_TEST_DATASOURCE_API
+                                                                            + rateLimitIdentifier,
+                                                                    Duration.ofMinutes(5),
+                                                                    AppsmithError.TOO_MANY_REQUESTS)
+                                                            .flatMap(isAdded -> {
+                                                                System.out.println("Added: " + isAdded);
+                                                                return analyticsService
+                                                                        .sendObjectEvent(
+                                                                                AnalyticsEvents.DS_TEST_EVENT_FAILED,
+                                                                                datasourceStorage,
+                                                                                getAnalyticsPropertiesForTestEventStatus(
+                                                                                        datasourceStorage,
+                                                                                        datasourceTestResult,
+                                                                                        environmentName))
+                                                                        .thenReturn(new DatasourceTestResult(
+                                                                                exception.getMessage()));
+                                                            })
+                                                            .onErrorResume(error -> {
+                                                                System.out.println("Error occurred");
+                                                                return analyticsService
+                                                                        .sendObjectEvent(
+                                                                                AnalyticsEvents.DS_TEST_EVENT_FAILED,
+                                                                                datasourceStorage,
+                                                                                getAnalyticsPropertiesForTestEventStatus(
+                                                                                        datasourceStorage,
+                                                                                        datasourceTestResult,
+                                                                                        environmentName))
+                                                                        .thenReturn(new DatasourceTestResult(
+                                                                                exception.getMessage()));
+                                                            });
+                                                }
+                                                return analyticsService
+                                                        .sendObjectEvent(
+                                                                AnalyticsEvents.DS_TEST_EVENT_FAILED,
+                                                                datasourceStorage,
+                                                                getAnalyticsPropertiesForTestEventStatus(
+                                                                        datasourceStorage,
+                                                                        datasourceTestResult,
+                                                                        environmentName))
+                                                        .thenReturn(datasourceTestResult);
+                                            });
                                 } else {
-                                    // we reset the counter for datasource test after succuessful test
-                                    // TODO: need to replace localhost with actual hostName
-                                    rateLimitService.resetCounter(
-                                            RateLimitConstants.BUCKET_KEY_FOR_TEST_DATASOURCE_API, "localhost");
                                     return analyticsService
                                             .sendObjectEvent(
                                                     AnalyticsEvents.DS_TEST_EVENT_SUCCESS,
@@ -585,6 +643,16 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
 
         return pluginExecutorMono.flatMap(pluginExecutor -> ((PluginExecutor<Object>) pluginExecutor)
                 .testDatasource(datasourceStorage.getDatasourceConfiguration()));
+    }
+
+    protected Mono<String> getRateLimitIdentifier(DatasourceStorage datasourceStorage) {
+        Mono<PluginExecutor> pluginExecutorMono = pluginExecutorHelper
+                .getPluginExecutor(pluginService.findById(datasourceStorage.getPluginId()))
+                .switchIfEmpty(Mono.error(new AppsmithException(
+                        AppsmithError.NO_RESOURCE_FOUND, FieldName.PLUGIN, datasourceStorage.getPluginId())));
+
+        return pluginExecutorMono.flatMap(pluginExecutor -> ((PluginExecutor<Object>) pluginExecutor)
+                .getIdentifierForRateLimit(datasourceStorage.getDatasourceConfiguration()));
     }
 
     @Override

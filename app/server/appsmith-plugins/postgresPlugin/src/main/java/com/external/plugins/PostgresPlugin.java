@@ -285,6 +285,20 @@ public class PostgresPlugin extends BasePlugin {
             return actionConfig;
         }
 
+        @Override
+        public Mono<String> getIdentifierForRateLimit(DatasourceConfiguration datasourceConfiguration) {
+            List<Endpoint> endpoints = datasourceConfiguration.getEndpoints();
+            String hostName = "";
+            if (endpoints.size() > 0) {
+                hostName = endpoints.get(0).getHost();
+            }
+            if (hostName.isEmpty()) {
+                return Mono.just("");
+            } else {
+                return Mono.just(hostName);
+            }
+        }
+
         private Mono<ActionExecutionResult> executeCommon(
                 HikariDataSource connection,
                 DatasourceConfiguration datasourceConfiguration,

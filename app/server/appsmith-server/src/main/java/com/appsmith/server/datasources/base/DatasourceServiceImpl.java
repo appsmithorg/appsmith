@@ -3,6 +3,7 @@ package com.appsmith.server.datasources.base;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.datasourcestorages.base.DatasourceStorageService;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.helpers.RedisUtils;
 import com.appsmith.server.ratelimiting.RateLimitService;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
@@ -37,7 +38,8 @@ public class DatasourceServiceImpl extends DatasourceServiceCEImpl implements Da
             WorkspacePermission workspacePermission,
             DatasourceStorageService datasourceStorageService,
             EnvironmentPermission environmentPermission,
-            RateLimitService rateLimitService) {
+            RateLimitService rateLimitService,
+            RedisUtils redisUtils) {
 
         super(
                 repository,
@@ -54,6 +56,7 @@ public class DatasourceServiceImpl extends DatasourceServiceCEImpl implements Da
                 workspacePermission,
                 datasourceStorageService,
                 environmentPermission,
-                rateLimitService);
+                rateLimitService,
+                redisUtils);
     }
 }
