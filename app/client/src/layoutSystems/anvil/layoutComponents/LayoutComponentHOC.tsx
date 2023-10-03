@@ -5,10 +5,11 @@ import type {
 } from "../utils/anvilTypes";
 import { AutoCanvasDraggingArena } from "layoutSystems/autolayout/editor/AutoLayoutCanvasArenas/AutoCanvasDraggingArena";
 import { renderLayouts } from "../utils/layouts/renderUtils";
+import { RenderModes } from "constants/WidgetConstants";
 
 export function LayoutComponentHOC(Component: LayoutComponent) {
   const enhancedLayoutComponent = (props: LayoutComponentProps) => {
-    const { isDropTarget } = props;
+    const { isDropTarget, renderMode } = props;
 
     const renderChildren = () => {
       if (Component.rendersWidgets(props)) {
@@ -24,7 +25,7 @@ export function LayoutComponentHOC(Component: LayoutComponent) {
     // TODO: Remove hardcoded props by creating new dragging arena for anvil.
     return (
       <Component {...props}>
-        {isDropTarget && (
+        {isDropTarget && renderMode === RenderModes.CANVAS && (
           <AutoCanvasDraggingArena
             canExtend
             snapColumnSpace={18.40625}
