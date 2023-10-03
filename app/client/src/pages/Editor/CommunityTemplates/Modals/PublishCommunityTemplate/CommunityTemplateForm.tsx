@@ -103,7 +103,7 @@ const CommunityTemplateForm = ({ onPublishSuccess }: Props) => {
           currentApplication?.gitApplicationMetadata?.branchName || "",
         appUrl: `${window.location.origin}${viewerURL({
           pageId,
-        })}?embed=true`,
+        })}`,
       }),
     );
   };

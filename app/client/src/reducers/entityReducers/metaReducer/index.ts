@@ -14,7 +14,7 @@ import {
 import produce from "immer";
 import type { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
 import { getMetaWidgetResetObj } from "./metaReducerUtils";
-import type { WidgetEntityConfig } from "entities/DataTree/dataTreeFactory";
+import type { WidgetEntityConfig } from "@appsmith/entities/DataTree/types";
 
 export type WidgetMetaState = Record<string, unknown>;
 export type MetaState = Record<string, WidgetMetaState>;

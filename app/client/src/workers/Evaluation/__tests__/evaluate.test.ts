@@ -2,8 +2,8 @@ import evaluate, {
   evaluateAsync,
   convertAllDataTypesToString,
 } from "workers/Evaluation/evaluate";
-import type { DataTree, WidgetEntity } from "entities/DataTree/dataTreeFactory";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import type { DataTree, WidgetEntity } from "@appsmith/entities/DataTree/types";
+import { ENTITY_TYPE_VALUE } from "entities/DataTree/dataTreeFactory";
 import { RenderModes } from "constants/WidgetConstants";
 import setupEvalEnv from "../handlers/setupEvalEnv";
 import { resetJSLibraries } from "workers/common/JSLibrary/resetJSLibraries";
@@ -24,7 +24,7 @@ describe("evaluateSync", () => {
     widgetId: "",
     widgetName: "",
     text: "value",
-    ENTITY_TYPE: ENTITY_TYPE.WIDGET,
+    ENTITY_TYPE: ENTITY_TYPE_VALUE.WIDGET,
     bindingPaths: {},
     reactivePaths: {},
     triggerPaths: {},

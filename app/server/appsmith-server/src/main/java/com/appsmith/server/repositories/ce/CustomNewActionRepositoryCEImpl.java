@@ -636,4 +636,11 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
         return mongoOperations.aggregate(
                 aggregation, mongoOperations.getCollectionName(NewAction.class), PluginTypeAndCountDTO.class);
     }
+
+    @Override
+    public Flux<NewAction> findAllByApplicationIdsWithoutPermission(
+            List<String> applicationIds, List<String> includeFields) {
+        Criteria applicationCriteria = Criteria.where(FieldName.APPLICATION_ID).in(applicationIds);
+        return queryAll(List.of(applicationCriteria), includeFields, null, null, NO_RECORD_LIMIT);
+    }
 }

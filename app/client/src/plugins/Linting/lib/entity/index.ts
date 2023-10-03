@@ -5,19 +5,17 @@ import {
   isWidget,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
 import type {
-  JSActionEntity as TJSActionEntity,
-  ActionEntity as TActionEntity,
-  PagelistEntity as TPageListEntity,
-  ActionEntityConfig as TActionEntityConfig,
-  JSActionEntityConfig as TJSActionEntityConfig,
-} from "entities/DataTree/types";
-import type {
   WidgetEntity as TWidgetEntity,
   AppsmithEntity as TAppsmithEntity,
   DataTreeEntityConfig,
   DataTreeEntity,
   WidgetEntityConfig as TWidgetEntityConfig,
-} from "entities/DataTree/dataTreeFactory";
+  JSActionEntity as TJSActionEntity,
+  ActionEntity as TActionEntity,
+  PagelistEntity as TPageListEntity,
+  ActionEntityConfig as TActionEntityConfig,
+  JSActionEntityConfig as TJSActionEntityConfig,
+} from "@appsmith/entities/DataTree/types";
 import {
   defaultDiffGenerator,
   type EntityDiffGenerator,
