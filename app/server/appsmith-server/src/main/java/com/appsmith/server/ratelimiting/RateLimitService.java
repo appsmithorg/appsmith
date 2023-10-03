@@ -1,6 +1,6 @@
 package com.appsmith.server.ratelimiting;
 
-import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.RedisUtils;
 import io.github.bucket4j.distributed.BucketProxy;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +19,7 @@ public class RateLimitService {
     // this number of tokens var can later be customised per API in the configuration.
     private final Integer DEFAULT_NUMBER_OF_TOKENS_CONSUMED_PER_REQUEST = 1;
     // this is required for blocking the execution if bucket exhausted
+
     private final RedisUtils redisUtils;
 
     public RateLimitService(
@@ -50,10 +51,10 @@ public class RateLimitService {
                 .reset();
     }
 
-    public Mono<Boolean> blockExecutionForPeriod(String apiIdentifier, String userIdentifier, Duration timePeriod) {
+    public Mono<Boolean> blockExecutionForPeriod(
+            String apiIdentifier, String userIdentifier, Duration timePeriod, AppsmithException exception) {
         String bucketIdentifier = "blocked" + apiIdentifier + userIdentifier;
-        System.out.println("Add key");
-        return redisUtils.addFileLock(bucketIdentifier, timePeriod, AppsmithError.TOO_MANY_REQUESTS);
+        return redisUtils.addFileLock(bucketIdentifier, timePeriod, exception);
     }
 
     public Mono<Boolean> isBlockingKeyPresent(String apiIdentifier, String userIdentifier) {

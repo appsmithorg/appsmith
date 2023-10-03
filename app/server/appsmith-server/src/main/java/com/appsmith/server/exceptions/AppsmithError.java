@@ -978,6 +978,14 @@ public enum AppsmithError {
             "Migration failed",
             ErrorType.INTERNAL_ERROR,
             null),
+    TEST_API_TOO_MANY_REQUESTS(
+            429,
+            AppsmithErrorCode.TOO_MANY_REQUESTS.getCode(),
+            "Too many requests received. Please try again after 5 minutes",
+            AppsmithErrorAction.DEFAULT,
+            "Too many requests",
+            ErrorType.INTERNAL_ERROR,
+            null),
     ;
 
     private final Integer httpErrorCode;
