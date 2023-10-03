@@ -26,6 +26,7 @@ export const getLayoutSystem = (
 ): LayoutSystem => {
   switch (appPositioningType) {
     // Removing Anvil system until canvas system of Anvil is Implemented.
+    // when re-introducing pls make sure to uncomment anvil based test cases in withLayoutSystemWidgetHOC.test
     // case AppPositioningTypes.ANVIL:
     //   return getAnvilLayoutSystem(renderMode);
     case AppPositioningTypes.AUTO:
