@@ -102,7 +102,6 @@ import { getLintAnnotations, getLintTooltipDirection } from "./lintHelpers";
 import { executeCommandAction } from "actions/apiPaneActions";
 import { startingEntityUpdate } from "actions/editorActions";
 import type { SlashCommandPayload } from "entities/Action";
-import { SlashCommand } from "entities/Action";
 import type { Indices } from "constants/Layers";
 import { replayHighlightClass } from "globalStyles/portals";
 import {
@@ -163,6 +162,7 @@ import { CodeEditorSignPosting } from "@appsmith/components/editorComponents/Cod
 import { getFocusablePropertyPaneField } from "selectors/propertyPaneSelectors";
 import resizeObserver from "utils/resizeObserver";
 import { EMPTY_BINDING } from "../ActionCreator/constants";
+import { getJSFunctionStartLineFromCode } from "pages/Editor/JSEditor/utils";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
@@ -509,14 +509,7 @@ class CodeEditor extends Component<Props, State> {
 
   handleSlashCommandSelection = (...args: any) => {
     const [command] = args;
-
     if (command === APPSMITH_AI) {
-      this.props.executeCommand({
-        actionType: SlashCommand.ASK_AI,
-        args: {
-          mode: this.props.mode,
-        },
-      });
       this.setState({ showAIWindow: true });
     }
     this.handleAutocompleteVisibility(this.editor);
@@ -1052,6 +1045,8 @@ class CodeEditor extends Component<Props, State> {
   };
 
   handleCursorMovement = (cm: CodeMirror.Editor) => {
+    this.showAIPlaceholder();
+
     const line = cm.getCursor().line;
     this.handleCustomGutter(line, true);
     // ignore if disabled
@@ -1198,6 +1193,52 @@ class CodeEditor extends Component<Props, State> {
     }
   };
 
+  showAIPlaceholder = () => {
+    const { mode } = this.props;
+    if (!this.AIEnabled) {
+      return;
+    }
+
+    if (mode !== EditorModes.JAVASCRIPT) {
+      return;
+    }
+
+    const editorInstance = this.editor;
+    const currentCursorPos = editorInstance.getCursor();
+    const { actionName: functionName } =
+      getJSFunctionStartLineFromCode(
+        editorInstance.getValue(),
+        currentCursorPos.line,
+      ) || {};
+
+    const prevPlaceholders = document.getElementsByClassName(
+      "CodeMirror-ai-placeholder",
+    );
+
+    if (prevPlaceholders.length) {
+      for (const placeholder of prevPlaceholders) {
+        placeholder.remove();
+      }
+    }
+
+    if (functionName) {
+      const cursor = editorInstance.getCursor();
+
+      const line = editorInstance.getLine(cursor.line);
+      if (line.trim() === "") {
+        const pos = { line: cursor.line, ch: cursor.ch };
+        const placeholderElem = document.createElement("span");
+        placeholderElem.className = "CodeMirror-ai-placeholder";
+        placeholderElem.textContent = "Type /ai to generate code using AI";
+        placeholderElem.style.marginTop = "-21px";
+        placeholderElem.style.marginLeft = "3px";
+        placeholderElem.style.color = "var(--ads-v2-color-gray-400)";
+
+        editorInstance.addWidget(pos, placeholderElem, false);
+      }
+    }
+  };
+
   handleChange = (
     instance?: CodeMirror.Editor,
     changeObj?: CodeMirror.EditorChangeLinkedList,
@@ -1268,6 +1309,7 @@ class CodeEditor extends Component<Props, State> {
     }
     this.hidePeekOverlay();
     this.handleDebouncedChange(instance, changeObj);
+    this.showAIPlaceholder();
   };
 
   getEntityInformation = (): FieldEntityInformation => {
@@ -1342,7 +1384,6 @@ class CodeEditor extends Component<Props, State> {
 
   handleAutocompleteKeydown = (cm: CodeMirror.Editor, event: KeyboardEvent) => {
     const key = event.key;
-
     // Since selection from AutoComplete list is also done using the Enter keydown event
     // we need to return from here so that autocomplete selection works fine
     if (key === "Enter") return;
@@ -1627,6 +1668,7 @@ class CodeEditor extends Component<Props, State> {
             }}
             currentValue={this.props.input.value}
             dataTreePath={dataTreePath}
+            editor={this.editor}
             enableAIAssistance={this.AIEnabled}
             entitiesForNavigation={this.props.entitiesForNavigation}
             entity={entityInformation}

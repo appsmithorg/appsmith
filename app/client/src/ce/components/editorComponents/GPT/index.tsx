@@ -5,10 +5,11 @@ import type {
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import type { EntityNavigationData } from "selectors/navigationSelectors";
 import React from "react";
+import type CodeMirror from "codemirror";
 
 export type TAIWrapperProps = {
   children?: React.ReactNode;
-  isOpen?: boolean;
+  isOpen: boolean;
   currentValue: string;
   close: () => void;
   update?: (...args: any) => void;
@@ -18,6 +19,7 @@ export type TAIWrapperProps = {
   mode: TEditorModes;
   entity: FieldEntityInformation;
   entitiesForNavigation: EntityNavigationData;
+  editor: CodeMirror.Editor;
 };
 
 export function AIWindow(props: TAIWrapperProps) {

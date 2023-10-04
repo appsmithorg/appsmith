@@ -6,6 +6,7 @@ import type { HintHelper } from "components/editorComponents/CodeEditor/EditorCo
 import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
 import {
   checkIfCursorInsideBinding,
+  isAISlashCommand,
   isCursorOnEmptyToken,
 } from "components/editorComponents/CodeEditor/codeEditorUtils";
 import { ENTITY_TYPE_VALUE } from "entities/DataTree/dataTreeFactory";
@@ -16,7 +17,7 @@ import {
   getHintDetailsFromClassName,
 } from "./utils/sqlHint";
 
-export const bindingHintHelper: HintHelper = (editor) => {
+export const bindingHintHelper: HintHelper = (editor: CodeMirror.Editor) => {
   editor.setOption("extraKeys", {
     // @ts-expect-error: Types are not available
     ...editor.options.extraKeys,
@@ -46,11 +47,17 @@ export const bindingHintHelper: HintHelper = (editor) => {
 
       const entityType = entityInformation?.entityType;
       let shouldShow = false;
+
       if (entityType === ENTITY_TYPE_VALUE.JSACTION) {
         shouldShow = true;
       } else {
         shouldShow = checkIfCursorInsideBinding(editor);
       }
+
+      if (additionalData.enableAIAssistance) {
+        shouldShow = !isAISlashCommand(editor);
+      }
+
       if (shouldShow) {
         CodemirrorTernService.complete(editor);
 

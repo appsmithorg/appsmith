@@ -16,6 +16,7 @@ import type {
   EntityNavigationData,
   NavigationData,
 } from "selectors/navigationSelectors";
+import { getJSFunctionLocationFromCursor } from "pages/Editor/JSEditor/utils";
 
 export const slashCommandHintHelper: HintHelper = (
   _,
@@ -58,15 +59,52 @@ export const slashCommandHintHelper: HintHelper = (
       );
       const cursorBetweenBinding = checkIfCursorInsideBinding(editor);
       const value = editor.getValue();
-      const slashIndex = value.lastIndexOf("/");
+      const cursorPosition = editor.getCursor();
+      const currentLineValue = editor.getLine(cursorPosition.line);
+      const slashIndex = currentLineValue.lastIndexOf("/");
       const shouldShowBinding = !cursorBetweenBinding && slashIndex > -1;
+
       if (!shouldShowBinding) return false;
-      const searchText = value.substring(slashIndex + 1);
+
+      const searchText = currentLineValue.substring(slashIndex + 1);
+      const editorValue = editor.getValue();
+      const aiContext = {
+        functionName: "",
+        cursorLineNumber: 0,
+        functionString: "",
+        mode: editor.getMode().name,
+        cursorPosition,
+        cursorCoordinates: editor.cursorCoords(true, "local"),
+      };
+
+      if (entityInfo.entityType === ENTITY_TYPE_VALUE.JSACTION) {
+        const lines = editorValue.split("\n");
+
+        const slashCommand = currentLineValue.substring(slashIndex);
+        const lineToUpdate = lines[cursorPosition.line];
+        const updatedLine =
+          lineToUpdate.substring(0, cursorPosition.ch - slashCommand.length) +
+          lineToUpdate.substring(cursorPosition.ch);
+        lines[cursorPosition.line] = updatedLine;
+        const updatedEditorValue = lines.join("\n");
+
+        const { cursorLineNumber, functionName, functionString } =
+          getJSFunctionLocationFromCursor(updatedEditorValue, cursorPosition) ||
+          {};
+
+        if (!functionName) return false;
+
+        aiContext.functionName = functionName;
+        aiContext.cursorLineNumber = cursorLineNumber;
+        aiContext.functionString = functionString;
+      }
+
       const list = generateQuickCommands(
         filteredEntitiesForSuggestions,
         currentEntityType,
         searchText,
         {
+          aiContext,
           datasources,
           executeCommand,
           pluginIdToImageLocation,
@@ -105,10 +143,10 @@ export const slashCommandHintHelper: HintHelper = (
               });
               if (selected.action && typeof selected.action === "function") {
                 selected.action();
-              } else {
-                selected.triggerCompletionsPostPick &&
-                  CodeMirror.signal(editor, "postPick", selected.displayText);
               }
+
+              selected.triggerCompletionsPostPick &&
+                CodeMirror.signal(editor, "postPick", selected.displayText);
             });
             try {
               // eslint-disable-next-line @typescript-eslint/no-unused-vars

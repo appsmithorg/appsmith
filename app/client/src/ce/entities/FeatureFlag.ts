@@ -8,6 +8,8 @@ export const FEATURE_FLAG = {
     "release_appnavigationlogoupload_enabled",
   ask_ai_sql: "ask_ai_sql",
   ask_ai_js: "ask_ai_js",
+  release_ai_js_function_completion_enabled:
+    "release_ai_js_function_completion_enabled",
   release_embed_hide_share_settings_enabled:
     "release_embed_hide_share_settings_enabled",
   ab_gsheet_schema_enabled: "ab_gsheet_schema_enabled",
@@ -38,6 +40,7 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   release_appnavigationlogoupload_enabled: false,
   ask_ai_js: false,
   ask_ai_sql: false,
+  release_ai_js_function_completion_enabled: false,
   release_embed_hide_share_settings_enabled: false,
   ab_gsheet_schema_enabled: false,
   ab_wds_enabled: false,
