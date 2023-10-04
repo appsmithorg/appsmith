@@ -46,8 +46,8 @@ import type {
 import { getMetaFlexLayers, isTargetElementClickable } from "./helper";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
+import { LayoutSystemTypes } from "layoutSystems/types";
 import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
-import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import defaultProps from "./defaultProps";
 
 import IconSVG from "../icon.svg";
@@ -1187,7 +1187,7 @@ class ListWidget extends BaseWidget<
           child.rightColumn = componentWidth;
           child.canExtend = true;
           child.positioning = this.props.positioning;
-          if (this.props.appPositioningType === AppPositioningTypes.AUTO) {
+          if (this.props.layoutSystemType === LayoutSystemTypes.AUTO) {
             child.isListWidgetCanvas = true;
           }
           child.children = child.children?.map((container, viewIndex) => {
@@ -1196,7 +1196,7 @@ class ListWidget extends BaseWidget<
               this.props.renderMode === RenderModes.CANVAS && rowIndex === 0;
             const key = this.metaWidgetGenerator.getPrimaryKey(rowIndex);
             if (
-              this.props.appPositioningType === AppPositioningTypes.AUTO &&
+              this.props.layoutSystemType === LayoutSystemTypes.AUTO &&
               container.children?.[0]
             ) {
               container.children[0].isListWidgetCanvas = true;

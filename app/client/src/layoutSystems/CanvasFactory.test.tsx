@@ -1,5 +1,4 @@
 import { RenderModes } from "constants/WidgetConstants";
-import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import * as editorSelectors from "selectors/editorSelectors";
 import { buildChildren } from "test/factories/WidgetFactoryUtils";
 import { renderAppsmithCanvas } from "./CanvasFactory";
@@ -7,6 +6,8 @@ import { render } from "test/testUtils";
 import React from "react";
 import store from "store";
 import type { WidgetProps } from "widgets/BaseWidget";
+import { LayoutSystemTypes } from "./types";
+import * as layoutSystemSelectors from "selectors/layoutSystemSelectors";
 
 describe("Layout Based Canvas aka Canvas Widget Test cases", () => {
   it("Render Fixed Layout Editor Canvas when layoutSystemType/appPositioningType is FIXED and render mode is CANVAS/PAGE", () => {
@@ -25,8 +26,8 @@ describe("Layout Based Canvas aka Canvas Widget Test cases", () => {
         .spyOn(editorSelectors, "getRenderMode")
         .mockImplementation(() => RenderModes.CANVAS);
       jest
-        .spyOn(editorSelectors, "getAppPositioningType")
-        .mockImplementation(() => AppPositioningTypes.FIXED);
+        .spyOn(layoutSystemSelectors, "getLayoutSystemType")
+        .mockImplementation(() => LayoutSystemTypes.FIXED);
       const state = store.getState();
       const customState = {
         ...state,
@@ -71,8 +72,8 @@ describe("Layout Based Canvas aka Canvas Widget Test cases", () => {
         .spyOn(editorSelectors, "getRenderMode")
         .mockImplementation(() => RenderModes.CANVAS);
       jest
-        .spyOn(editorSelectors, "getAppPositioningType")
-        .mockImplementation(() => AppPositioningTypes.AUTO);
+        .spyOn(layoutSystemSelectors, "getLayoutSystemType")
+        .mockImplementation(() => LayoutSystemTypes.AUTO);
       const state = store.getState();
       const customState = {
         ...state,

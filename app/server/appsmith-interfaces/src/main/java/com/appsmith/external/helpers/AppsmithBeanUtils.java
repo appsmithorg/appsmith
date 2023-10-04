@@ -67,6 +67,10 @@ public final class AppsmithBeanUtils {
                 continue;
             }
 
+            // Please check if the getter function is overloaded in the domain
+            // for example, if a Boolean field's getter method is overloaded, to return false instead of a null
+            // the copyNestedNonNullProperties method will result in updating the target object with
+            // false even when the source field was null originally.
             Object sourceValue = sourceBeanWrapper.getPropertyValue(name);
 
             // If sourceValue is null, don't copy it over to target and just move on to the next property.

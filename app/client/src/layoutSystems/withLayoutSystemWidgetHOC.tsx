@@ -1,15 +1,13 @@
 import type { RenderModes } from "constants/WidgetConstants";
 import React from "react";
 import { useSelector } from "react-redux";
-import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
-import {
-  getAppPositioningType,
-  getRenderMode,
-} from "selectors/editorSelectors";
+import { getRenderMode } from "selectors/editorSelectors";
+import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { getAutoLayoutSystem } from "./autolayout";
 import { getFixedLayoutSystem } from "./fixedlayout";
 import type { LayoutSystem } from "./types";
+import { LayoutSystemTypes } from "./types";
 
 /**
  *
@@ -22,14 +20,14 @@ import type { LayoutSystem } from "./types";
 
 export const getLayoutSystem = (
   renderMode: RenderModes,
-  appPositioningType: AppPositioningTypes,
+  layoutSystemType: LayoutSystemTypes,
 ): LayoutSystem => {
-  switch (appPositioningType) {
+  switch (layoutSystemType) {
     // Removing Anvil system until canvas system of Anvil is Implemented.
     // when re-introducing pls make sure to uncomment anvil based test cases in withLayoutSystemWidgetHOC.test
-    // case AppPositioningTypes.ANVIL:
+    // case LayoutSystemTypes.ANVIL:
     //   return getAnvilLayoutSystem(renderMode);
-    case AppPositioningTypes.AUTO:
+    case LayoutSystemTypes.AUTO:
       return getAutoLayoutSystem(renderMode);
     default:
       return getFixedLayoutSystem(renderMode);
@@ -44,11 +42,11 @@ const LayoutSystemWrapper = ({
   Widget: (props: WidgetProps) => JSX.Element;
 }) => {
   const renderMode = useSelector(getRenderMode);
-  const appPositioningType = useSelector(getAppPositioningType);
-  // based on appPositioningType and renderMode
+  const layoutSystemType = useSelector(getLayoutSystemType);
+  // based on layoutSystemType and renderMode
   // get the layout system wrapper(adds layout system specific functionality) and
   // properties enhancer(adds/modifies properties of a widget based on layout system)
-  const { widgetSystem } = getLayoutSystem(renderMode, appPositioningType);
+  const { widgetSystem } = getLayoutSystem(renderMode, layoutSystemType);
   const { propertyEnhancer, WidgetWrapper } = widgetSystem;
   const enhancedProperties = propertyEnhancer(widgetProps);
   return (

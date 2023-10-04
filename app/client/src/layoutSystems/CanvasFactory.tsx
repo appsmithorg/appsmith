@@ -1,9 +1,7 @@
 import React, { memo, useMemo } from "react";
 import { useSelector } from "react-redux";
-import {
-  getAppPositioningType,
-  getRenderMode,
-} from "selectors/editorSelectors";
+import { getRenderMode } from "selectors/editorSelectors";
+import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import type { WidgetProps } from "widgets/BaseWidget";
 import withWidgetProps from "widgets/withWidgetProps";
 import { getLayoutSystem } from "./withLayoutSystemWidgetHOC";
@@ -18,13 +16,13 @@ import { getLayoutSystem } from "./withLayoutSystemWidgetHOC";
 
 const LayoutSystemBasedCanvas = memo((props: WidgetProps) => {
   const renderMode = useSelector(getRenderMode);
-  const appPositioningType = useSelector(getAppPositioningType);
+  const layoutSystemType = useSelector(getLayoutSystemType);
   const { canvasSystem } = useMemo(
-    () => getLayoutSystem(renderMode, appPositioningType),
+    () => getLayoutSystem(renderMode, layoutSystemType),
     [
       {
         renderMode,
-        appPositioningType,
+        layoutSystemType,
       },
     ],
   );
