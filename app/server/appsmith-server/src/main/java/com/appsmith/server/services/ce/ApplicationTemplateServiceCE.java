@@ -1,9 +1,7 @@
 package com.appsmith.server.services.ce;
 
-import com.appsmith.server.domains.Application;
 import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.ApplicationTemplate;
-import com.appsmith.server.dtos.CommunityTemplateDTO;
 import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -26,6 +24,4 @@ public interface ApplicationTemplateServiceCE {
             String templateId, String applicationId, String workspaceId, String branchName, List<String> pagesToImport);
 
     Mono<ApplicationTemplate> getFilters();
-
-    Mono<Application> publishAsCommunityTemplate(CommunityTemplateDTO resource);
 }

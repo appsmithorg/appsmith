@@ -194,10 +194,6 @@ public class Application extends BaseDomain {
     @JsonView(Views.Public.class)
     Boolean forkWithConfiguration;
 
-    // isCommunityTemplate represents whether this application has been published as a community template
-    @JsonView(Views.Public.class)
-    Boolean isCommunityTemplate;
-
     @JsonView(Views.Internal.class)
     @Deprecated
     String defaultPermissionGroup;
