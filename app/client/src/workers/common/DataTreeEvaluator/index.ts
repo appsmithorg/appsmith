@@ -1715,6 +1715,8 @@ export default class DataTreeEvaluator {
       );
     }
 
+    const dataTree = klona(this.evalTree);
+
     return bindings.map((binding) => {
       // Replace any reference of 'this.params' to 'executionParams' (backwards compatibility)
       // also helps with dealing with IIFE which are normal functions (not arrow)
@@ -1725,7 +1727,7 @@ export default class DataTreeEvaluator {
       );
       return this.getDynamicValue(
         `{{${replacedBinding}}}`,
-        klona(this.evalTree),
+        dataTree,
         this.oldConfigTree,
         EvaluationSubstitutionType.TEMPLATE,
         // params can be accessed via "this.params" or "executionParams"
