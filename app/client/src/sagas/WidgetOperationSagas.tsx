@@ -37,7 +37,6 @@ import {
 import {
   getCanvasWidth,
   getContainerWidgetSpacesSelector,
-  getCurrentAppPositioningType,
   getCurrentPageId,
   getIsAutoLayout,
   getIsAutoLayoutMobileBreakPoint,
@@ -171,7 +170,7 @@ import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { BlueprintOperationTypes } from "WidgetProvider/constants";
 import { toast } from "design-system";
 
-import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import { LayoutSystemTypes } from "layoutSystems/types";
 import {
   updatePositionsOfParentAndSiblings,
   updateWidgetPositions,
@@ -184,6 +183,7 @@ import {
 import localStorage from "utils/localStorage";
 import type { FlexLayer } from "layoutSystems/autolayout/utils/types";
 import { EMPTY_BINDING } from "components/editorComponents/ActionCreator/constants";
+import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 
 export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
   try {
@@ -212,8 +212,8 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
       widgetId,
     } = resizeAction.payload;
 
-    const appPositioningType: AppPositioningTypes = yield select(
-      getCurrentAppPositioningType,
+    const layoutSystemType: LayoutSystemTypes = yield select(
+      getLayoutSystemType,
     );
     const mainCanvasWidth: number = yield select(getCanvasWidth);
     widget = {
@@ -228,7 +228,7 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
       mobileBottomRow,
     };
 
-    if (appPositioningType === AppPositioningTypes.AUTO) {
+    if (layoutSystemType === LayoutSystemTypes.AUTO) {
       // Keeps track of user defined widget width in terms of percentage
       if (isMobile) {
         widget.mobileWidthInPercentage =
@@ -258,7 +258,7 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
     // If it is a fixed canvas, update bottomRow directly.
     if (
       updatedCanvasBottomRow &&
-      appPositioningType !== AppPositioningTypes.AUTO
+      layoutSystemType === LayoutSystemTypes.FIXED
     ) {
       const canvasWidget = movedWidgets[parentId];
       movedWidgets[parentId] = {
@@ -268,7 +268,7 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
     }
     // If it is an auto-layout canvas, then use positionUtils to update canvas bottomRow.
     let updatedWidgetsAfterResizing = movedWidgets;
-    if (appPositioningType === AppPositioningTypes.AUTO) {
+    if (layoutSystemType === LayoutSystemTypes.AUTO) {
       const metaProps: Record<string, any> = yield select(getWidgetsMeta);
       updatedWidgetsAfterResizing = updatePositionsOfParentAndSiblings(
         movedWidgets,
@@ -286,7 +286,7 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
 
     // Widget resize based auto-height is only required for fixed-layout
     // Auto-layout has UPDATE_WIDGET_DIMENSIONS to handle auto height
-    if (appPositioningType !== AppPositioningTypes.AUTO) {
+    if (layoutSystemType === LayoutSystemTypes.FIXED) {
       yield put(generateAutoHeightLayoutTreeAction(true, true));
     }
   } catch (error) {
