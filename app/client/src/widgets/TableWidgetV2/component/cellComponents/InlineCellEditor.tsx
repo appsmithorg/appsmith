@@ -8,6 +8,7 @@ import React, {
   useState,
 } from "react";
 import styled from "styled-components";
+import type { InputHTMLType } from "widgets/BaseInputWidget/component";
 import BaseInputComponent from "widgets/BaseInputWidget/component";
 import { InputTypes } from "widgets/BaseInputWidget/constants";
 import type { EditableCell } from "widgets/TableWidgetV2/constants";
@@ -132,7 +133,8 @@ function convertToNumber(inputValue: string) {
 type InlineEditorPropsType = {
   accentColor: string;
   compactMode: string;
-  inputType: InputTypes.TEXT | InputTypes.NUMBER | InputTypes.CURRENCY;
+  inputType: InputTypes;
+  inputHTMLType: InputHTMLType;
   multiline: boolean;
   onChange: (value: EditableCell["value"], inputValue: string) => void;
   onDiscard: () => void;
@@ -154,6 +156,7 @@ export function InlineCellEditor({
   additionalProps = {},
   autoFocus,
   compactMode,
+  inputHTMLType,
   inputType = InputTypes.TEXT,
   isEditableCellValid,
   multiline,
@@ -272,7 +275,7 @@ export function InlineCellEditor({
         disableNewLineOnPressEnterKey={false}
         errorMessage={validationErrorMessage}
         errorTooltipBoundary={`#table${widgetId} .tableWrap`}
-        inputHTMLType={inputType}
+        inputHTMLType={inputHTMLType}
         inputRef={inputRef}
         inputType={inputType}
         isInvalid={hasFocus && !isEditableCellValid}

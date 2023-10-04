@@ -20,6 +20,7 @@ import CurrencyTypeDropdown, {
 } from "widgets/CurrencyInputWidget/component/CurrencyCodeDropdown";
 import { getLocale } from "utils/helpers";
 import * as Sentry from "@sentry/react";
+import type { InputHTMLType } from "widgets/BaseInputWidget/component";
 
 const Container = styled.div<{
   isCellEditMode?: boolean;
@@ -212,14 +213,14 @@ function PlainTextCell(
   }, [value, decimals]);
 
   if (isCellEditMode) {
-    const inputType = (() => {
+    const [inputType, inputHTMLType] = (() => {
       switch (columnType) {
         case ColumnTypes.NUMBER:
-          return InputTypes.NUMBER;
+          return [InputTypes.NUMBER, "NUMBER"];
         case ColumnTypes.CURRENCY:
-          return InputTypes.CURRENCY;
+          return [InputTypes.CURRENCY, "NUMBER"];
         default:
-          return InputTypes.TEXT;
+          return [InputTypes.TEXT, "TEXT"];
       }
     })();
 
@@ -247,6 +248,7 @@ function PlainTextCell(
         allowCellWrapping={allowCellWrapping}
         autoFocus={!isNewRow}
         compactMode={compactMode}
+        inputHTMLType={inputHTMLType as InputHTMLType}
         inputType={inputType}
         isEditableCellValid={isEditableCellValid}
         multiline={isMultiline}
