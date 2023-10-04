@@ -338,7 +338,7 @@ export default class DataTreeEvaluator {
 
     const evaluationOrder = this.sortedDependencies;
 
-    const unEvalTreeClone = klona(this.oldUnEvalTree);
+    const unEvalTreeClone = klonaJSON(this.oldUnEvalTree);
     // Evaluate
     const { evalMetaUpdates, evaluatedTree, staleMetaIds } = this.evaluateTree(
       unEvalTreeClone,
