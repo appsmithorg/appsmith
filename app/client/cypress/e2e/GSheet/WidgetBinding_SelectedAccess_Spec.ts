@@ -50,9 +50,8 @@ describe("GSheet-widget binding for selected sheet access", function () {
     dataSources.RunQueryNVerifyResponseViews(10);
 
     // Adding suggested widgets and verify
-    agHelper.Sleep();
     dataSources.AddSuggestedWidget(Widgets.Table);
-    agHelper.Sleep();
+    agHelper.RefreshPage();
     table.ReadTableRowColumnData(0, 0, "v2").then((cellData) => {
       expect(cellData).to.eq("eac7efa5dbd3d667f26eb3d3ab504464");
     });
@@ -68,7 +67,6 @@ describe("GSheet-widget binding for selected sheet access", function () {
     );
 
     // Assert table data
-    agHelper.Sleep(2000);
     table.ReadTableRowColumnData(0, 0, "v2").then((cellData) => {
       expect(cellData).to.eq("eac7efa5dbd3d667f26eb3d3ab504464");
     });

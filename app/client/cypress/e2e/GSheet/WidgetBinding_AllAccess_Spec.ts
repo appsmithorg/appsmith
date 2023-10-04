@@ -48,11 +48,10 @@ describe("GSheet-widget binding", function () {
       spreadSheetName,
     );
     dataSources.RunQueryNVerifyResponseViews(10);
-    agHelper.Sleep(2000);
 
     // Adding suggested widgets and verify
     dataSources.AddSuggestedWidget(Widgets.Table);
-    agHelper.Sleep();
+    agHelper.RefreshPage();
     table.ReadTableRowColumnData(0, 0, "v2").then((cellData) => {
       expect(cellData).to.eq("eac7efa5dbd3d667f26eb3d3ab504464");
     });
@@ -68,7 +67,6 @@ describe("GSheet-widget binding", function () {
     );
 
     // Assert table data
-    agHelper.Sleep(2000);
     table.ReadTableRowColumnData(0, 0, "v2").then((cellData) => {
       expect(cellData).to.eq("eac7efa5dbd3d667f26eb3d3ab504464");
     });
