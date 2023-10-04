@@ -66,7 +66,6 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig]) => {
       cy.get(".t--text-widget-container").each((item, index, list) => {
         cy.wrap(item).should("contain.text", "BLUE");
       });
-      const inputs = testConfig.testCases;
       cy.get(getWidgetSelector(WIDGET.BUTTON))
         .scrollIntoView()
         .click({ force: true });
