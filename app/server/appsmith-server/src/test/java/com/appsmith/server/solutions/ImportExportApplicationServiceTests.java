@@ -949,7 +949,12 @@ public class ImportExportApplicationServiceTests {
                     assertEquals(1, importedJSLibList.size());
                     CustomJSLib importedJSLib = (CustomJSLib) importedJSLibList.toArray()[0];
                     CustomJSLib expectedJSLib = new CustomJSLib(
-                            "TestLib", Set.of("accessor1"), "url", "docsUrl", "1" + ".0", "defs_string");
+                            "TestLib",
+                            Set.of(Map.of(FieldName.ORIGINAL_ACCESSOR_KEY, "accessor1")),
+                            "url",
+                            "docsUrl",
+                            "1" + ".0",
+                            "defs_string");
                     assertEquals(expectedJSLib.getName(), importedJSLib.getName());
                     assertEquals(expectedJSLib.getAccessor(), importedJSLib.getAccessor());
                     assertEquals(expectedJSLib.getUrl(), importedJSLib.getUrl());
@@ -4595,7 +4600,13 @@ public class ImportExportApplicationServiceTests {
     @Test
     @WithUserDetails(value = "api_user")
     public void createExportAppJsonWithCustomJSLibTest() {
-        CustomJSLib jsLib = new CustomJSLib("TestLib", Set.of("accessor1"), "url", "docsUrl", "1.0", "defs_string");
+        CustomJSLib jsLib = new CustomJSLib(
+                "TestLib",
+                Set.of(Map.of(FieldName.ORIGINAL_ACCESSOR_KEY, "accessor1")),
+                "url",
+                "docsUrl",
+                "1.0",
+                "defs_string");
         Mono<Boolean> addJSLibMonoCached = customJSLibService
                 .addJSLibToApplication(testAppId, jsLib, null, false)
                 .flatMap(isJSLibAdded ->

@@ -190,4 +190,8 @@ public class FieldNameCE {
     public static final String FILE_LOCK_DURATION = "fileLockDuration";
 
     public static final String REMOTE_PLUGINS = "remotePlugins";
+    public static final String ORIGINAL_ACCESSOR_KEY = "original";
+    public static final String MODIFIED_ACCESSOR_KEY = "modified";
+    public static final String PARSER = "parser";
+    public static final String XML_PARSER = "xmlParser";
 }
