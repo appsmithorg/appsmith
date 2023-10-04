@@ -86,7 +86,7 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
                     }
                     Mono<Map<String, String>> envMono = Mono.empty();
                     // instance admin is setting the email verification to true but the SMTP settings are not configured
-                    if (tenantConfiguration.getEmailVerificationEnabled() == Boolean.TRUE) {
+                    if (tenantConfiguration.isEmailVerificationEnabled() == Boolean.TRUE) {
                         envMono = envManager.getAllNonEmpty().flatMap(properties -> {
                             String mailHost = properties.get("APPSMITH_MAIL_HOST");
                             if (mailHost == null || mailHost == "") {
