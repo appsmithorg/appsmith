@@ -201,8 +201,7 @@ class TenantServiceCETest {
 
         StepVerifier.create(resultMono)
                 .assertNext(tenantConfiguration -> {
-                    assertThat(tenantConfiguration.getEmailVerificationEnabled())
-                            .isTrue();
+                    assertThat(tenantConfiguration.isEmailVerificationEnabled()).isTrue();
                 })
                 .verifyComplete();
     }
@@ -220,8 +219,7 @@ class TenantServiceCETest {
 
         StepVerifier.create(resultMono)
                 .assertNext(tenantConfiguration -> {
-                    assertThat(tenantConfiguration.getEmailVerificationEnabled())
-                            .isFalse();
+                    assertThat(tenantConfiguration.isEmailVerificationEnabled()).isFalse();
                 })
                 .verifyComplete();
     }

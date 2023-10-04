@@ -405,7 +405,8 @@ public class Application extends BaseDomain {
 
         public enum Type {
             FIXED,
-            AUTO
+            AUTO,
+            ANVIL
         }
     }
 }
