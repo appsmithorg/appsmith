@@ -521,8 +521,18 @@ jobs:
           config-file: cypress_ci_custom.config.ts
           working-directory: app/client
           env: "NODE_ENV=development"
+      
+      - name: Trim number of cypress log files
+        run: |
+          find ${{ github.workspace }}/app/client/cypress/cypress-logs -name '*.json' -type f | tail -n +11 | xargs -I {} rm -- {}
+      
+      - name: Upload failed test cypress logs artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: cypress-console-logs
+          path: ${{ github.workspace }}/app/client/cypress/cypress-logs
 
-      - name: Collect CI container logs
+      - name: Test
         if: failure()
         working-directory: "."
         run: |

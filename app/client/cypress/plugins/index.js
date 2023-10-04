@@ -51,7 +51,7 @@ module.exports = async (on, config) => {
       "cypress-logs|json": "json",
     },
     specRoot: "cypress/e2e",
-    printLogsToFile: "onFail",
+    printLogsToFile: "always",
   };
   installLogsPrinter(on, logsPrinterOptions);
 
