@@ -2,7 +2,7 @@
 import {
   generateAlignedRowMock,
   generateLayoutComponentMock,
-} from "mocks/layoutComponentMock";
+} from "mocks/layoutComponents/layoutComponentMock";
 import {
   addWidgetsToTemplate,
   getAffectedLayout,

@@ -1,8 +1,8 @@
 import { RenderModes } from "constants/WidgetConstants";
 import type { LayoutComponentProps } from "layoutSystems/anvil/utils/anvilTypes";
-import { mockButtonProps } from "./widgetProps/button";
+import { mockButtonProps } from "../widgetProps/button";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
-import { mockInputProps } from "./widgetProps/input";
+import { mockInputProps } from "../widgetProps/input";
 import type { WidgetProps } from "widgets/BaseWidget";
 
 export function generateLayoutComponentMock(

@@ -1,4 +1,4 @@
-import { generateLayoutComponentMock } from "mocks/layoutComponentMock";
+import { generateLayoutComponentMock } from "mocks/layoutComponents/layoutComponentMock";
 import type { LayoutComponentProps } from "../anvilTypes";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { getChildrenMap } from "./renderUtils";

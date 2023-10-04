@@ -1,7 +1,7 @@
 import {
   generateAlignedRowMock,
   generateLayoutComponentMock,
-} from "mocks/layoutComponentMock";
+} from "mocks/layoutComponents/layoutComponentMock";
 import type { AnvilHighlightInfo, LayoutComponentProps } from "../anvilTypes";
 import {
   addChildToAlignedRow,
