@@ -37,7 +37,6 @@ import reactor.netty.resources.ConnectionProvider;
 import javax.crypto.SecretKey;
 import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
@@ -204,18 +203,11 @@ public class RestAPIActivateUtils {
 
                         String redirectUrl =
                                 response.headers().header("Location").get(0);
-                        /**
-                         * TODO
-                         * In case the redirected URL is not absolute (complete), create the new URL using the relative path
-                         * This particular scenario is seen in the URL : https://rickandmortyapi.com/api/character
-                         * It redirects to partial URI : /api/character/
-                         * In this scenario we should convert the partial URI to complete URI
-                         */
+
                         final URI redirectUri;
                         try {
                             redirectUri = createRedirectUrl(redirectUrl, uri);
-                            //                            redirectUri = new URI(redirectUrl);
-                        } catch (URISyntaxException e) {
+                        } catch (IllegalArgumentException e) {
                             return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e));
                         }
 
@@ -225,7 +217,7 @@ public class RestAPIActivateUtils {
                 });
     }
 
-    public URI createRedirectUrl(String redirectUrl, URI originalUrl) throws URISyntaxException {
+    public URI createRedirectUrl(String redirectUrl, URI originalUrl) {
         return originalUrl.resolve(redirectUrl);
     }
 
