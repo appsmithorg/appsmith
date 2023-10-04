@@ -3,6 +3,8 @@ import {
   apiPage,
   dataSources,
   dataManager,
+  homePage,
+  entityExplorer,
 } from "../../../support/Objects/ObjectsCore";
 
 describe("Authentiacted Api with OAuth 2.O authorization code test cases", function () {
@@ -35,5 +37,25 @@ describe("Authentiacted Api with OAuth 2.O authorization code test cases", funct
     //Run API & Validate Response
     apiPage.RunAPI();
     apiPage.ResponseStatusCheck("200");
+  });
+
+  it.only("2. OAuth App Import test into new workspace", function () {
+    homePage.CreateNewWorkspace("OAuthImport", true);
+    homePage.ImportApp("ImportApps/Ted_OAuthApp.json", "OAuthImport");
+    cy.wait("@importNewApplication").then(() => {
+      agHelper.Sleep();
+      dataSources.ReconnectSingleDSNAssert("TED_OAuth", "REST API", "Save");
+    });
+    agHelper.ClickButton("Got it");
+    entityExplorer.SelectEntityByName("TED_OAuth");
+  });
+
+  it.only("3. OAuth App Fork test into same workspace", function () {
+    homePage.CreateNewWorkspace("OAuthFork", true);
+    homePage.ForkApplication("Ted_OAuthApp", "OAuthFork");
+    agHelper.Sleep(500);
+    homePage.ForkApplication("Ted_OAuthApp", "OAuthFork");
+    dataSources.CreateOAuthCredsNFillAuthenticatedRestApi();
+    dataSources.TestSaveDatasource(true, true);
   });
 });

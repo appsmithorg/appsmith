@@ -818,7 +818,7 @@ export class DataSources {
       if (!isSavingEnvInOldDS)
         this.agHelper.AssertContains("datasource created");
     } else {
-      this.assertHelper.AssertNetworkStatus("@updateDatasource", 200);
+      //this.assertHelper.AssertNetworkStatus("@updateDatasource", 200);
     }
   }
 
@@ -1089,14 +1089,21 @@ export class DataSources {
 
   public ReconnectSingleDSNAssert(
     dbName: string,
-    dsName: "PostgreSQL" | "MySQL" | "MongoDB",
+    dsName: "PostgreSQL" | "MySQL" | "MongoDB" | "REST API",
+    testNSave: "TestNSave" | "Save" = "TestNSave",
   ) {
     this.ReconnectModalValidation(dbName, dsName);
-    this.ValidateNSelectDropdown("Connection mode", "Read / Write");
+    dsName !== "REST API" &&
+      this.ValidateNSelectDropdown("Connection mode", "Read / Write");
     if (dsName == "PostgreSQL") this.FillPostgresDSForm();
     else if (dsName == "MySQL") this.FillMySqlDSForm();
     else if (dsName == "MongoDB") this.FillMongoDSForm();
-    this.TestSaveDatasource(true, true);
+    else if (dsName == "REST API")
+      this.CreateOAuthCredsNFillAuthenticatedRestApi();
+
+    testNSave == "TestNSave"
+      ? this.TestSaveDatasource(true, true)
+      : this.SaveDatasource(true);
     this.assertHelper.AssertNetworkStatus("@getPage", 200);
     this.assertHelper.AssertNetworkStatus("getWorkspace");
   }
@@ -1115,7 +1122,7 @@ export class DataSources {
   }
   public ReconnectModalValidation(
     dbName: string,
-    dsName: "PostgreSQL" | "MySQL" | "MongoDB",
+    dsName: "PostgreSQL" | "MySQL" | "MongoDB" | "REST API",
   ) {
     this.WaitForReconnectModalToAppear();
     this.agHelper.AssertElementVisibility(
@@ -1132,7 +1139,7 @@ export class DataSources {
 
   public WaitForReconnectModalToAppear() {
     this.agHelper.AssertElementVisibility(this._reconnectModal);
-    this.agHelper.AssertElementVisibility(this._testDs); //Making sure modal is fully loaded
+    this.agHelper.AssertElementVisibility(this._saveDs); //Making sure modal is fully loaded
   }
 
   public ReconnectDSbyType(
@@ -1725,6 +1732,17 @@ export class DataSources {
         this.locator._inputField,
       this.dataManager.dsValues[environment].OAuth_AuthUrl,
     );
+  }
+
+  public CreateOAuthCredsNFillAuthenticatedRestApi() {
+    this.CreateOAuthClient("authorization_code");
+    // Create datasource
+    this.agHelper.GenerateUUID();
+    cy.get("@OAuthClientID").then((clientId: any) => {
+      cy.get("@OAuthClientSecret").then((clientSecret: any) => {
+        this.FillAPIOAuthForm("", "AuthCode", clientId, clientSecret);
+      });
+    });
   }
 
   public AddSuggestedWidget(

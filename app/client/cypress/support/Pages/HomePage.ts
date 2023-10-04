@@ -498,10 +498,7 @@ export class HomePage {
   ) {
     if (onlyImport === false) {
       cy.get(this._homeIcon).click({ force: true });
-      if (intoWorkspaceName)
-        this.agHelper.GetNClick(
-          this._optionsIconInWorkspace(intoWorkspaceName),
-        );
+      if (intoWorkspaceName) this.OpenWorkspaceOptions(intoWorkspaceName);
       else this.agHelper.GetNClick(this._optionsIcon);
       this.agHelper.GetNClick(this._workspaceImport, 0, true);
       this.agHelper.AssertElementVisibility(this._workspaceImportAppModal);
