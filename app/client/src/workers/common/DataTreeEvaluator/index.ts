@@ -81,7 +81,10 @@ import {
   THIS_DOT_PARAMS_KEY,
 } from "constants/AppsmithActionConstants/ActionConstants";
 import type { EvalResult, EvaluateContext } from "workers/Evaluation/evaluate";
-import evaluateSync, { evaluateAsync } from "workers/Evaluation/evaluate";
+import evaluateSync, {
+  evaluateAsync,
+  setEvalContext,
+} from "workers/Evaluation/evaluate";
 import { substituteDynamicBindingWithValues } from "workers/Evaluation/evaluationSubstitution";
 import { Severity } from "entities/AppsmithConsole";
 import { error as logError } from "loglevel";
@@ -1184,21 +1187,29 @@ export default class DataTreeEvaluator {
             set(safeTree, fullPropertyPath, klona(evalPropertyValue));
         }
       }
-
+    } catch (error) {
+      staleMetaIds = [];
+      this.errors.push({
+        type: EvalErrorTypes.EVAL_TREE_ERROR,
+        message: (error as Error).message,
+      });
+    } finally {
+      // Restore the dataStore since it was a part of currentTree and prone to mutation.
       DataStore.replaceDataStore(dataStoreClone);
+
+      // The below statement restores the execution context for async tasks are probably queued.
+      setEvalContext({
+        dataTree: currentTree,
+        configTree: oldConfigTree,
+        isDataField: false,
+        isTriggerBased: true,
+      });
 
       return {
         evaluatedTree: safeTree,
         evalMetaUpdates,
         staleMetaIds: staleMetaIds,
       };
-    } catch (error) {
-      DataStore.replaceDataStore(dataStoreClone);
-      this.errors.push({
-        type: EvalErrorTypes.EVAL_TREE_ERROR,
-        message: (error as Error).message,
-      });
-      return { evaluatedTree: safeTree, evalMetaUpdates, staleMetaIds: [] };
     }
   }
 
