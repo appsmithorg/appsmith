@@ -17,5 +17,4 @@ public class CommunityTemplateDTO extends BaseDomain {
     String description;
     List<String> useCases;
     String authorEmail;
-    String appUrl;
 }

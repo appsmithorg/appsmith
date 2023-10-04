@@ -65,10 +65,7 @@ import { snipingModeSelector } from "selectors/editorSelectors";
 import { showConnectGitModal } from "actions/gitSyncActions";
 import RealtimeAppEditors from "./RealtimeAppEditors";
 import { EditorSaveIndicator } from "./EditorSaveIndicator";
-import {
-  adaptiveSignpostingEnabled,
-  selectFeatureFlags,
-} from "@appsmith/selectors/featureFlagsSelectors";
+import { adaptiveSignpostingEnabled } from "@appsmith/selectors/featureFlagsSelectors";
 import { retryPromise } from "utils/AppsmithUtils";
 import { fetchUsersForWorkspace } from "@appsmith/actions/workspaceActions";
 
@@ -86,7 +83,6 @@ import {
   RENAME_APPLICATION_TOOLTIP,
   SHARE_BUTTON_TOOLTIP,
   SHARE_BUTTON_TOOLTIP_WITH_USER,
-  COMMUNITY_TEMPLATES,
   APPLICATION_INVITE,
 } from "@appsmith/constants/messages";
 import { getExplorerPinned } from "selectors/explorerSelector";
@@ -114,8 +110,6 @@ import WalkthroughContext from "components/featureWalkthrough/walkthroughContext
 import { getFeatureWalkthroughShown } from "utils/storage";
 import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
 import { SignpostingWalkthroughConfig } from "./FirstTimeUserOnboarding/Utils";
-import CommunityTemplatesPublishInfo from "./CommunityTemplates/Modals/CommunityTemplatesPublishInfo";
-import PublishCommunityTemplateModal from "./CommunityTemplates/Modals/PublishCommunityTemplate";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 
@@ -251,7 +245,6 @@ export function EditorHeader() {
   const pageId = useSelector(getCurrentPageId) as string;
   const sharedUserList = useSelector(getAllUsers);
   const currentUser = useSelector(getCurrentUser);
-  const featureFlags = useSelector(selectFeatureFlags);
 
   const deployLink = useHref(viewerURL, { pageId });
   const isAppSettingsPaneWithNavigationTabOpen = useSelector(
@@ -265,10 +258,6 @@ export function EditorHeader() {
   const isMultipleEnvEnabled = useFeatureFlag(
     FEATURE_FLAG.release_datasource_environments_enabled,
   );
-  const [
-    showPublishCommunityTemplateModal,
-    setShowPublishCommunityTemplateModal,
-  ] = useState(false);
 
   const handlePublish = () => {
     if (applicationId) {
@@ -571,15 +560,9 @@ export function EditorHeader() {
                       <Tab data-testid="t--tab-INVITE" value="invite">
                         {createMessage(INVITE_TAB)}
                       </Tab>
-                      <Tab data-testid="t--tab-EMBED" value="embed">
+                      <Tab data-tesid="t--tab-EMBED" value="embed">
                         {createMessage(IN_APP_EMBED_SETTING.embed)}
                       </Tab>
-                      {featureFlags.release_show_publish_app_to_community_enabled &&
-                        cloudHosting && (
-                          <Tab data-testid="t--tab-PUBLISH" value="publish">
-                            {createMessage(COMMUNITY_TEMPLATES.publish)}
-                          </Tab>
-                        )}
                     </TabsList>
                     <TabPanel value="invite">
                       <AppInviteUsersForm
@@ -592,28 +575,10 @@ export function EditorHeader() {
                         changeTab={() => setActiveTab("invite")}
                       />
                     </TabPanel>
-                    {cloudHosting && (
-                      <TabPanel value="publish">
-                        <CommunityTemplatesPublishInfo
-                          onPublishClick={() =>
-                            setShowPublishCommunityTemplateModal(true)
-                          }
-                          setShowHostModal={setShowModal}
-                        />
-                      </TabPanel>
-                    )}
                   </Tabs>
                 </ModalBody>
               </ModalContent>
             </Modal>
-            <PublishCommunityTemplateModal
-              onPublishSuccess={() => {
-                setShowPublishCommunityTemplateModal(false);
-                setShowModal(true);
-              }}
-              setShowModal={setShowPublishCommunityTemplateModal}
-              showModal={showPublishCommunityTemplateModal}
-            />
             <div className="flex items-center">
               <Tooltip
                 content={createMessage(DEPLOY_BUTTON_TOOLTIP)}

@@ -38,27 +38,8 @@ export type ImportTemplateResponse = ApiResponse<{
 export interface TemplateFiltersResponse extends ApiResponse {
   data: {
     functions: string[];
-    useCases?: string[];
   };
 }
-
-export type PublishCommunityTemplateRequest = {
-  applicationId: string;
-  workspaceId: string;
-  branchName: string;
-  title: string;
-  headline: string;
-  description: string;
-  useCases: string[];
-  authorEmail: string;
-};
-
-export type PublishCommunityTemplateResponse = ApiResponse<{
-  isPublic: boolean;
-  forkingEnabled: boolean;
-  isCommunityTemplate: boolean;
-  modifiedAt: string;
-}>;
 
 class TemplatesAPI extends Api {
   static baseUrl = "v1";
@@ -101,17 +82,6 @@ class TemplatesAPI extends Api {
   }
   static getTemplateFilters(): AxiosPromise<TemplateFiltersResponse> {
     return Api.get(TemplatesAPI.baseUrl + `/app-templates/filters`);
-  }
-  static publishCommunityTemplate(
-    applicationId: string,
-    workspaceId: string,
-    body: PublishCommunityTemplateRequest,
-  ): AxiosPromise<PublishCommunityTemplateResponse> {
-    return Api.post(
-      TemplatesAPI.baseUrl +
-        `/app-templates/publish/${applicationId}/${workspaceId}`,
-      body,
-    );
   }
 }
 
