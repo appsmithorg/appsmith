@@ -952,14 +952,14 @@ export default class DataTreeEvaluator {
     updateTreeWithData(unEvalTree, dataStore);
 
     /**
-     * CurrentTree is a mutable dataTree, it gets passed as a context for each evaluation
+     * contextTree is a mutable dataTree, it gets passed as a context for each evaluation
      * and gets updated both, with evaluated values and mutations.
      *
      * SafeTree is free of mutations because we make sure to only set evaluated values into it.
      */
-    const currentTree = unEvalTree;
+    const contextTree = unEvalTree;
     errorModifier.updateAsyncFunctions(
-      currentTree,
+      contextTree,
       this.getConfigTree(),
       this.dependencyMap,
     );
@@ -971,12 +971,11 @@ export default class DataTreeEvaluator {
       for (const fullPropertyPath of evaluationOrder) {
         const { entityName, propertyPath } =
           getEntityNameAndPropertyPath(fullPropertyPath);
-        const entity = currentTree[entityName];
+        const entity = contextTree[entityName];
         const entityConfig = oldConfigTree[entityName];
-        if (!isWidgetActionOrJsObject(entity, entityConfig)) {
-          continue;
-        }
-        let unEvalPropertyValue = get(currentTree as any, fullPropertyPath);
+        if (!isWidgetActionOrJsObject(entity, entityConfig)) continue;
+
+        let unEvalPropertyValue = get(contextTree as any, fullPropertyPath);
 
         const isADynamicBindingPath = isAPathDynamicBindingPath(
           entity,
@@ -1001,9 +1000,7 @@ export default class DataTreeEvaluator {
 
         if (requiresEval) {
           const evaluationSubstitutionType =
-            (!!entityConfig &&
-              entityConfig.hasOwnProperty("reactivePaths") &&
-              entityConfig.reactivePaths[propertyPath]) ||
+            entityConfig?.reactivePaths?.[propertyPath] ||
             EvaluationSubstitutionType.TEMPLATE;
 
           const contextData: EvaluateContext = {};
@@ -1018,7 +1015,7 @@ export default class DataTreeEvaluator {
           try {
             evalPropertyValue = this.getDynamicValue(
               unEvalPropertyValue,
-              currentTree,
+              contextTree,
               oldConfigTree,
               evaluationSubstitutionType,
               contextData,
@@ -1069,7 +1066,7 @@ export default class DataTreeEvaluator {
             });
 
             parsedValue = this.getParsedValueForWidgetProperty({
-              currentTree,
+              currentTree: contextTree,
               configTree: oldConfigTree,
               entity: widgetEntity,
               evalMetaUpdates,
@@ -1087,7 +1084,7 @@ export default class DataTreeEvaluator {
               evalPropertyValue,
             );
 
-            set(currentTree, fullPropertyPath, parsedValue);
+            set(contextTree, fullPropertyPath, parsedValue);
             set(safeTree, fullPropertyPath, klona(parsedValue));
 
             staleMetaIds = staleMetaIds.concat(
@@ -1102,77 +1099,90 @@ export default class DataTreeEvaluator {
             break;
           }
           case ENTITY_TYPE_VALUE.ACTION: {
-            if (this.allActionValidationConfig) {
-              const configProperty = propertyPath.replace(
-                "config",
-                "actionConfiguration",
-              );
-              const validationConfig =
-                !!this.allActionValidationConfig[entity.actionId] &&
-                this.allActionValidationConfig[entity.actionId][configProperty];
-              if (!!validationConfig && !isEmpty(validationConfig)) {
-                this.validateActionProperty(
-                  fullPropertyPath,
-                  entity as ActionEntity,
-                  currentTree,
-                  evalPropertyValue,
-                  unEvalPropertyValue,
-                  validationConfig,
-                  oldConfigTree,
-                );
-              }
-            }
+            const configProperty = propertyPath.replace(
+              "config",
+              "actionConfiguration",
+            );
+            const validationConfig =
+              this.allActionValidationConfig?.[entity.actionId]?.[
+                configProperty
+              ];
+            this.validateActionProperty(
+              fullPropertyPath,
+              entity as ActionEntity,
+              contextTree,
+              evalPropertyValue,
+              unEvalPropertyValue,
+              oldConfigTree,
+              validationConfig,
+            );
 
             if (!propertyPath) continue;
 
             const evalPath = getEvalValuePath(fullPropertyPath);
-            const valueForSafeTree = klona(evalPropertyValue);
             setToEvalPathsIdenticalToState({
               evalPath,
               evalPathsIdenticalToState: this.evalPathsIdenticalToState,
               evalProps: this.evalProps,
               isParsedValueTheSame: true,
               fullPropertyPath,
-              value: valueForSafeTree,
+              value: evalPropertyValue,
             });
 
-            set(currentTree, fullPropertyPath, evalPropertyValue);
-            set(safeTree, fullPropertyPath, valueForSafeTree);
+            /**
+             * Perf optimization very specific to handling actions
+             * Fields like Api1.data doesn't get evaluated since it is not in dynamicBindingPathList
+             * Action validation only captures validation error and doesn't transform the evaluated values.
+             * This means that the values we are looking to set back in the 2 dataTrees are already there.
+             */
+            if (!requiresEval) continue;
+
+            set(contextTree, fullPropertyPath, evalPropertyValue);
+            set(safeTree, fullPropertyPath, klona(evalPropertyValue));
             break;
           }
           case ENTITY_TYPE_VALUE.JSACTION: {
             const variableList =
               (entityConfig as JSActionEntityConfig).variables || [];
+            if (variableList.indexOf(propertyPath) === -1) break;
 
-            if (variableList.indexOf(propertyPath) > -1) {
-              const prevEvaluatedValue = get(
-                this.evalProps,
-                getEvalValuePath(fullPropertyPath, {
-                  isPopulated: true,
-                  fullPath: true,
-                }),
-              );
+            const prevEvaluatedValue = get(safeTree, fullPropertyPath);
 
-              const prevUnEvalValue = JSObjectCollection.getPrevUnEvalState({
-                fullPath: fullPropertyPath,
+            const prevUnEvalValue = JSObjectCollection.getPrevUnEvalState({
+              fullPath: fullPropertyPath,
+            });
+
+            const hasUnEvalValueModified = !isEqual(
+              prevUnEvalValue,
+              unEvalPropertyValue,
+            );
+
+            const skipVariableValueAssignment =
+              !hasUnEvalValueModified && prevEvaluatedValue;
+
+            const evalValue = skipVariableValueAssignment
+              ? prevEvaluatedValue
+              : evalPropertyValue;
+
+            const evalPath = getEvalValuePath(fullPropertyPath, {
+              isPopulated: true,
+              //what is the purpose of this argument
+              fullPath: true,
+            });
+
+            /** Variables defined in a JS object are not reactive.
+             * Their evaluated values need to be reset only when the variable is modified by the user.
+             * When uneval value of a js variable hasn't changed, it means that the previously evaluated values are in both trees already  */
+            if (skipVariableValueAssignment) {
+              setToEvalPathsIdenticalToState({
+                evalPath,
+                evalPathsIdenticalToState: this.evalPathsIdenticalToState,
+                evalProps: this.evalProps,
+                isParsedValueTheSame: true,
+                fullPropertyPath,
+                value: evalValue,
               });
-
-              const hasUnEvalValueModified = !isEqual(
-                prevUnEvalValue,
-                unEvalPropertyValue,
-              );
-
-              const evalValue =
-                !hasUnEvalValueModified && prevEvaluatedValue
-                  ? prevEvaluatedValue
-                  : evalPropertyValue;
-
-              const evalPath = getEvalValuePath(fullPropertyPath, {
-                isPopulated: true,
-                //what is the purpose of this argument
-                fullPath: true,
-              });
-
+            } else {
               const valueForSafeTree = klona(evalValue);
               setToEvalPathsIdenticalToState({
                 evalPath,
@@ -1183,7 +1193,7 @@ export default class DataTreeEvaluator {
                 value: valueForSafeTree,
               });
 
-              set(currentTree, fullPropertyPath, evalValue);
+              set(contextTree, fullPropertyPath, evalValue);
               set(safeTree, fullPropertyPath, valueForSafeTree);
               JSObjectCollection.setVariableValue(evalValue, fullPropertyPath);
               JSObjectCollection.setPrevUnEvalState({
@@ -1194,7 +1204,7 @@ export default class DataTreeEvaluator {
             break;
           }
           default:
-            set(currentTree, fullPropertyPath, evalPropertyValue);
+            set(contextTree, fullPropertyPath, evalPropertyValue);
             set(safeTree, fullPropertyPath, klona(evalPropertyValue));
         }
       }
@@ -1205,12 +1215,12 @@ export default class DataTreeEvaluator {
         message: (error as Error).message,
       });
     } finally {
-      // Restore the dataStore since it was a part of currentTree and prone to mutation.
+      // Restore the dataStore since it was a part of contextTree and prone to mutation.
       DataStore.replaceDataStore(dataStoreClone);
 
       // The below statement restores the execution context for async tasks are probably queued.
       setEvalContext({
-        dataTree: currentTree,
+        dataTree: contextTree,
         configTree: oldConfigTree,
         isDataField: false,
         isTriggerBased: true,
@@ -1218,7 +1228,7 @@ export default class DataTreeEvaluator {
 
       return {
         evaluatedTree: safeTree,
-        contextTree: currentTree,
+        contextTree: contextTree,
         evalMetaUpdates,
         staleMetaIds,
       };
@@ -1569,39 +1579,37 @@ export default class DataTreeEvaluator {
     currentTree: DataTree,
     evalPropertyValue: any,
     unEvalPropertyValue: string,
-    validationConfig: ValidationConfig,
     configTree: ConfigTree,
+    validationConfig?: ValidationConfig,
   ) {
-    if (evalPropertyValue && validationConfig) {
-      // runs VALIDATOR function and returns errors
-      const { isValid, messages } = validateActionProperty(
-        validationConfig,
-        evalPropertyValue,
-      );
-      if (!isValid) {
-        resetValidationErrorsForEntityProperty({
-          evalProps: this.evalProps,
-          fullPropertyPath,
-        });
-        const evalErrors: EvaluationError[] =
-          messages?.map((message) => {
-            return {
-              raw: unEvalPropertyValue,
-              errorMessage: message || { name: "", text: "" },
-              errorType: PropertyEvaluationErrorType.VALIDATION,
-              severity: Severity.ERROR,
-            };
-          }) ?? [];
-        // saves error in dataTree at fullPropertyPath
-        // Later errors can consumed by the forms and debugger
-        addErrorToEntityProperty({
-          errors: evalErrors,
-          evalProps: this.evalProps,
-          fullPropertyPath,
-          configTree,
-        });
-      }
-    }
+    if (!evalPropertyValue || isEmpty(validationConfig)) return;
+    // runs VALIDATOR function and returns errors
+    const { isValid, messages } = validateActionProperty(
+      validationConfig,
+      evalPropertyValue,
+    );
+    if (isValid) return;
+    resetValidationErrorsForEntityProperty({
+      evalProps: this.evalProps,
+      fullPropertyPath,
+    });
+    const evalErrors: EvaluationError[] =
+      messages?.map((message) => {
+        return {
+          raw: unEvalPropertyValue,
+          errorMessage: message || { name: "", text: "" },
+          errorType: PropertyEvaluationErrorType.VALIDATION,
+          severity: Severity.ERROR,
+        };
+      }) ?? [];
+    // saves error in dataTree at fullPropertyPath
+    // Later errors can consumed by the forms and debugger
+    addErrorToEntityProperty({
+      errors: evalErrors,
+      evalProps: this.evalProps,
+      fullPropertyPath,
+      configTree,
+    });
   }
 
   /**
