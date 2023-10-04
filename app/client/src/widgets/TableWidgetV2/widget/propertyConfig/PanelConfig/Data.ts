@@ -7,6 +7,7 @@ import {
   hideByColumnType,
   showByColumnType,
   uniqueColumnAliasValidation,
+  updateCurrencyDefaultValues,
   updateMenuItemsSource,
   updateNumberColumnTypeTextAlignment,
   updateThemeStylesheetsInColumns,
@@ -82,6 +83,7 @@ export default {
         updateNumberColumnTypeTextAlignment,
         updateThemeStylesheetsInColumns,
         updateMenuItemsSource,
+        updateCurrencyDefaultValues,
       ]),
       dependencies: ["primaryColumns", "columnOrder", "childStylesheet"],
       isBindProperty: false,
@@ -450,6 +452,11 @@ export default {
       isTriggerProperty: false,
       validation: {
         type: ValidationTypes.TEXT,
+        params: {
+          default: "USD",
+          required: true,
+          allowedValues: CurrencyDropdownOptions.map((option) => option.value),
+        },
       },
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         const baseProperty = getBasePropertyPath(propertyPath);
@@ -485,6 +492,8 @@ export default {
         params: {
           min: 0,
           max: 2,
+          default: 0,
+          required: true,
         },
       },
       hidden: (props: TableWidgetProps, propertyPath: string) => {
