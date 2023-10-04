@@ -2,17 +2,27 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 const explorer = require("../../../../../locators/explorerlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const jsonform = require("../../../../../locators/jsonFormWidget.json");
+import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 const {
   deployMode,
   entityExplorer,
+  locators,
+  propPane,
 } = require("../../../../../support/Objects/ObjectsCore");
 
 describe("JsonForm widget basis c usecases", function () {
   before(() => {
     cy.get(explorer.addWidget).click();
     cy.dragAndDropToCanvas("jsonformwidget", { x: 200, y: 200 });
-    cy.openPropertyPane("jsonformwidget");
-    cy.get(widgetsPage.jsonFormWidget).should("have.length", 1);
+    cy.fixture("TestDataSet1").then(function (dataSet) {
+      cy.openPropertyPane("jsonformwidget");
+      propPane.EnterJSContext(
+        "Source data",
+        JSON.stringify(dataSet.defaultSource),
+        true,
+      );
+      cy.get(widgetsPage.jsonFormWidget).should("have.length", 1);
+    });
   });
 
   it("json form widget validate default data", function () {

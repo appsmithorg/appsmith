@@ -302,9 +302,19 @@ export class CommonLocators {
   _callbackAddBtn = ".action-callback-add .ads-v2-button";
   _checkboxInDeployedMode = "//label[contains(@class, 'bp3-checkbox')]//input";
   _listText = "//span[text()='Blue']/../..";
+  _jsonFormSubmitBtn = ".t--jsonform-submit-btn";
+  _jsonFormResetBtn = ".t--jsonform-reset-btn";
+  _draggableFieldConfig = (fieldName: string) =>
+    `[data-rbd-draggable-id=${fieldName}]`;
   _fileUploadDashboardClose = ".uppy-Dashboard-close";
   _fileUploadErrorContains = (msg: string) =>
     `.uppy-Informer p:contains('${msg}')`;
   _fileUploadAddMore = ".uppy-DashboardContent-addMore";
   _buttonText = ".bp3-button-text";
+  _richText_TitleBlock = "[title='Blocks']";
+  _richText_Heading = "[title='Heading 1']";
+  _richText_Label_Text = ".tox-tbtn__select-label";
+  _richText_Text_Color = '[title="Text color"] .tox-split-button__chevron';
+  _richText_color = (value: string) => `[title='${value}']`;
+  _richText_line = "#tinymce p span";
 }

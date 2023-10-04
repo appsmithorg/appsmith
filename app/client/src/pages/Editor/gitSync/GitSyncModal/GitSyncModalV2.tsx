@@ -20,6 +20,7 @@ import {
   DEPLOY,
   MERGE,
   SETTINGS_GIT,
+  IMPORT_APP,
 } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Modal, ModalContent, ModalHeader } from "design-system";
@@ -41,10 +42,6 @@ const StyledModalContent = styled(ModalContent)`
     max-height: calc(100vh - 200px);
   }
 `;
-
-export const modalTitle: Partial<{ [K in GitSyncModalTab]: string }> = {
-  [GitSyncModalTab.GIT_CONNECTION]: createMessage(CONFIGURE_GIT),
-};
 
 const menuOptions = [
   {
@@ -77,6 +74,12 @@ function GitSyncModalV2({ isImport = false }: GitSyncModalV2Props) {
   if (!isGitConnected && activeTabKey !== GitSyncModalTab.GIT_CONNECTION) {
     activeTabKey = GitSyncModalTab.GIT_CONNECTION;
   }
+
+  const modalTitle: Partial<{ [K in GitSyncModalTab]: string }> = {
+    [GitSyncModalTab.GIT_CONNECTION]: isImport
+      ? createMessage(IMPORT_APP)
+      : createMessage(CONFIGURE_GIT),
+  };
 
   const dispatch = useDispatch();
 

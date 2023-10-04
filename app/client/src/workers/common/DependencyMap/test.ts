@@ -10,7 +10,7 @@ import type {
   ConfigTree,
   WidgetEntity,
   DataTreeEntityConfig,
-} from "entities/DataTree/dataTreeFactory";
+} from "@appsmith/entities/DataTree/types";
 import {
   unEvalTreeWidgetSelectWidgetConfig,
   configTree,

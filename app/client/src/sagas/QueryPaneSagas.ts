@@ -76,13 +76,16 @@ import { FormDataPaths } from "workers/Evaluation/formEval";
 import { fetchDynamicValuesSaga } from "./FormEvaluationSaga";
 import type { FormEvalOutput } from "reducers/evaluationReducers/formEvaluationReducer";
 import { validateResponse } from "./ErrorSagas";
-import { hasManageActionPermission } from "@appsmith/utils/permissionHelpers";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import { toast } from "design-system";
 import type { CreateDatasourceSuccessAction } from "actions/datasourceActions";
 import { createDefaultActionPayload } from "./ActionSagas";
 import { DB_NOT_SUPPORTED } from "@appsmith/utils/Environments";
 import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelectors";
+import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
+import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
+import { isGACEnabled } from "@appsmith/utils/planHelpers";
+import { getHasManageActionPermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 
 // Called whenever the query being edited is changed via the URL or query pane
 function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
@@ -175,7 +178,12 @@ function* formValueChangeSaga(
     const { values } = yield select(getFormData, QUERY_EDITOR_FORM_NAME);
     const hasRouteChanged = field === "id";
 
-    if (!hasManageActionPermission(values.userPermissions)) {
+    const featureFlags: FeatureFlags = yield select(selectFeatureFlags);
+    const isFeatureEnabled = isGACEnabled(featureFlags);
+
+    if (
+      !getHasManageActionPermission(isFeatureEnabled, values.userPermissions)
+    ) {
       yield validateResponse({
         status: 403,
         resourceType: values?.pluginType,
