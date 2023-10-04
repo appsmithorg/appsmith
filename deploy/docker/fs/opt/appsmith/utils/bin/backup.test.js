@@ -78,7 +78,7 @@ test('Test ln command generation', async () => {
 })
 
 it('Checks for the current Appsmith Version.', async () => {
-  fsPromises.readFile = jest.fn().mockImplementation(async (a) => `{"githubRef": "refs/tags/v1.2.3"}`);
+  fsPromises.readFile = jest.fn().mockImplementation(async () => `{"githubRef":"refs/tags/v1.2.3"}`);
   await expect(utils.getCurrentAppsmithVersion()).resolves.toBe("v1.2.3")
 })
 
