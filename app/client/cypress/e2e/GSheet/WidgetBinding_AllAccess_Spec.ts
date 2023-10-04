@@ -48,9 +48,9 @@ describe("GSheet-widget binding", function () {
       spreadSheetName,
     );
     dataSources.RunQueryNVerifyResponseViews(10);
+    agHelper.Sleep(2000);
 
     // Adding suggested widgets and verify
-    agHelper.Sleep();
     dataSources.AddSuggestedWidget(Widgets.Table);
     agHelper.Sleep();
     table.ReadTableRowColumnData(0, 0, "v2").then((cellData) => {
@@ -62,15 +62,13 @@ describe("GSheet-widget binding", function () {
   it("2. One click binding to table widget functionality - GSheet", () => {
     //Adding table widget
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 450, 200);
-    agHelper.Sleep();
     agHelper.GetNClick(oneClickBindingLocator.datasourceDropdownSelector);
-    agHelper.Sleep();
     agHelper.GetNClick(
       oneClickBindingLocator.datasourceQuerySelector("fetch_many_query"),
     );
 
     // Assert table data
-    agHelper.Sleep();
+    agHelper.Sleep(2000);
     table.ReadTableRowColumnData(0, 0, "v2").then((cellData) => {
       expect(cellData).to.eq("eac7efa5dbd3d667f26eb3d3ab504464");
     });

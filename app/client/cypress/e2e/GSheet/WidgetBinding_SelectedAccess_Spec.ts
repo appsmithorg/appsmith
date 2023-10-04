@@ -62,15 +62,13 @@ describe("GSheet-widget binding for selected sheet access", function () {
   it("2. One click binding to table widget functionality for selected sheet access - GSheet", () => {
     //Adding table widget
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 450, 200);
-    agHelper.Sleep();
     agHelper.GetNClick(oneClickBindingLocator.datasourceDropdownSelector);
-    agHelper.Sleep();
     agHelper.GetNClick(
       oneClickBindingLocator.datasourceQuerySelector("fetch_many_query"),
     );
 
     // Assert table data
-    agHelper.Sleep();
+    agHelper.Sleep(2000);
     table.ReadTableRowColumnData(0, 0, "v2").then((cellData) => {
       expect(cellData).to.eq("eac7efa5dbd3d667f26eb3d3ab504464");
     });

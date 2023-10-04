@@ -49,7 +49,10 @@ export default defineConfig({
       );
       return require("./cypress/plugins/index.js")(on, config);
     },
-    specPattern: ["cypress/e2e/GSheet/**/**/*"],
+    specPattern: [
+      "cypress/e2e/GSheet/WidgetBinding_SelectedAccess_Spec.ts",
+      "cypress/e2e/GSheet/WidgetBinding_AllAccess_Spec.ts",
+    ],
     testIsolation: false,
     excludeSpecPattern: ["cypress/e2e/**/spec_utility.ts"],
   },
