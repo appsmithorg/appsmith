@@ -302,6 +302,10 @@ export class CommonLocators {
   _callbackAddBtn = ".action-callback-add .ads-v2-button";
   _checkboxInDeployedMode = "//label[contains(@class, 'bp3-checkbox')]//input";
   _listText = "//span[text()='Blue']/../..";
+  _jsonFormSubmitBtn = ".t--jsonform-submit-btn";
+  _jsonFormResetBtn = ".t--jsonform-reset-btn";
+  _draggableFieldConfig = (fieldName: string) =>
+    `[data-rbd-draggable-id=${fieldName}]`;
   _fileUploadDashboardClose = ".uppy-Dashboard-close";
   _fileUploadErrorContains = (msg: string) =>
     `.uppy-Informer p:contains('${msg}')`;
