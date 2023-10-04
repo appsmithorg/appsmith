@@ -256,7 +256,10 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
       bottomRow,
     );
     // If it is a fixed canvas, update bottomRow directly.
-    if (updatedCanvasBottomRow && layoutSystemType !== LayoutSystemTypes.AUTO) {
+    if (
+      updatedCanvasBottomRow &&
+      layoutSystemType === LayoutSystemTypes.FIXED
+    ) {
       const canvasWidget = movedWidgets[parentId];
       movedWidgets[parentId] = {
         ...canvasWidget,
@@ -283,7 +286,7 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
 
     // Widget resize based auto-height is only required for fixed-layout
     // Auto-layout has UPDATE_WIDGET_DIMENSIONS to handle auto height
-    if (layoutSystemType !== LayoutSystemTypes.AUTO) {
+    if (layoutSystemType === LayoutSystemTypes.FIXED) {
       yield put(generateAutoHeightLayoutTreeAction(true, true));
     }
   } catch (error) {

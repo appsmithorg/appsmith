@@ -158,7 +158,7 @@ function ContainerComponent(props: ContainerComponentProps) {
         resizeDisabled={props.resizeDisabled}
         shouldScrollContents={
           props.shouldScrollContents &&
-          props.layoutSystemType !== LayoutSystemTypes.AUTO
+          props.layoutSystemType === LayoutSystemTypes.FIXED
         }
         type={props.type}
         widgetId={props.widgetId}
@@ -189,7 +189,7 @@ function ContainerComponent(props: ContainerComponentProps) {
         shouldScrollContents={
           props.shouldScrollContents &&
           // Disable scrollbar on auto-layout canvas as it meddles with canvas drag and highlight position.
-          (props.layoutSystemType !== LayoutSystemTypes.AUTO ||
+          (props.layoutSystemType === LayoutSystemTypes.FIXED ||
             // We need to allow scrollbars for list items as they don't have auto-height
             props.isListItemContainer)
         }

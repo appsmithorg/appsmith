@@ -545,7 +545,7 @@ class TabsWidget extends BaseWidget<
         selectedTabWidgetId={this.getSelectedTabWidgetId()}
         shouldScrollContents={
           this.props.shouldScrollContents &&
-          this.props.layoutSystemType !== LayoutSystemTypes.AUTO
+          this.props.layoutSystemType === LayoutSystemTypes.FIXED
         }
       >
         {this.renderComponent()}
