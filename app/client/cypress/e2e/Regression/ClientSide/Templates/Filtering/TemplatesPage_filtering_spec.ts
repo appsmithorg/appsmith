@@ -38,7 +38,6 @@ describe("excludeForAirgap", "Templates page filtering", () => {
       .GetText(templates.locators._resultsHeader, "text")
       .then((headerText) => {
         templates.FilterTemplatesByName(NAME_FILTER);
-        agHelper.Sleep();
         agHelper.GetNClick(templates.locators._templateCard);
         agHelper.GetNClick(templates.locators._templateViewGoBack);
         agHelper.AssertText(

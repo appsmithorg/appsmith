@@ -3,7 +3,7 @@ import log from "loglevel";
 import memoize from "micro-memoize";
 import type { RefObject } from "react";
 import React, { createRef } from "react";
-import { isEmpty, floor, isString, isNil } from "lodash";
+import { floor, isEmpty, isNil, isString } from "lodash";
 import { klona } from "klona";
 import hash from "object-hash";
 import type { WidgetOperation, WidgetProps } from "widgets/BaseWidget";
@@ -20,6 +20,7 @@ import MetaWidgetGenerator from "../MetaWidgetGenerator";
 import WidgetFactory from "WidgetProvider/factory";
 import type { BatchPropertyUpdatePayload } from "actions/controlActions";
 import type {
+  AutocompletionDefinitions,
   CanvasWidgetStructure,
   FlattenedWidgetProps,
   PropertyUpdates,
@@ -30,7 +31,11 @@ import {
   PropertyPaneContentConfig,
   PropertyPaneStyleConfig,
 } from "./propertyConfig";
-import { RenderModes, WIDGET_PADDING } from "constants/WidgetConstants";
+import {
+  RenderModes,
+  WIDGET_PADDING,
+  WIDGET_TAGS,
+} from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { ModifyMetaWidgetPayload } from "reducers/entityReducers/metaWidgetsReducer";
 import type { WidgetState } from "../../BaseWidget";
@@ -41,14 +46,12 @@ import type {
 } from "widgets/TabsWidget/constants";
 import { getMetaFlexLayers, isTargetElementClickable } from "./helper";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
-import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
-import type { AutocompletionDefinitions } from "WidgetProvider/constants";
-import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import { LayoutSystemTypes } from "layoutSystems/types";
+import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import defaultProps from "./defaultProps";
 
 import IconSVG from "../icon.svg";
-import { WIDGET_TAGS } from "constants/WidgetConstants";
 
 const getCurrentItemsViewBindingTemplate = () => ({
   prefix: "{{[",
@@ -63,6 +66,7 @@ export enum DynamicPathType {
   CURRENT_VIEW = "currentView",
   LEVEL = "level",
 }
+
 export type DynamicPathMap = Record<string, DynamicPathType[]>;
 
 export type MetaWidgets = Record<string, MetaWidget>;
@@ -174,6 +178,12 @@ class ListWidget extends BaseWidget<
             isDynamicPropertyPath: true,
           },
         ];
+      },
+      getOneClickBindingConnectableWidgetConfig: (widget: WidgetProps) => {
+        return {
+          widgetBindPath: `${widget.widgetName}.selectedItem`,
+          message: `Make sure ${widget.widgetName} data matches the column names in the connected datasource and has a default selected item`,
+        };
       },
     };
   }
@@ -1177,7 +1187,7 @@ class ListWidget extends BaseWidget<
           child.rightColumn = componentWidth;
           child.canExtend = true;
           child.positioning = this.props.positioning;
-          if (this.props.appPositioningType === AppPositioningTypes.AUTO) {
+          if (this.props.layoutSystemType === LayoutSystemTypes.AUTO) {
             child.isListWidgetCanvas = true;
           }
           child.children = child.children?.map((container, viewIndex) => {
@@ -1186,7 +1196,7 @@ class ListWidget extends BaseWidget<
               this.props.renderMode === RenderModes.CANVAS && rowIndex === 0;
             const key = this.metaWidgetGenerator.getPrimaryKey(rowIndex);
             if (
-              this.props.appPositioningType === AppPositioningTypes.AUTO &&
+              this.props.layoutSystemType === LayoutSystemTypes.AUTO &&
               container.children?.[0]
             ) {
               container.children[0].isListWidgetCanvas = true;

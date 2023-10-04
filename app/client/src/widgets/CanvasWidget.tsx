@@ -2,7 +2,7 @@ import {
   LayoutDirection,
   Positioning,
   ResponsiveBehavior,
-} from "layoutSystems/autolayout/utils/constants";
+} from "layoutSystems/common/utils/constants";
 import DropTargetComponent from "components/editorComponents/DropTargetComponent";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
@@ -23,7 +23,7 @@ import type {
   WidgetDefaultProps,
 } from "../WidgetProvider/constants";
 import ContainerComponent from "./ContainerWidget/component";
-import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import { LayoutSystemTypes } from "layoutSystems/types";
 import FlexBoxComponent from "../layoutSystems/autolayout/common/flexCanvas/FlexBoxComponent";
 import { AutoCanvasDraggingArena } from "layoutSystems/autolayout/editor/AutoLayoutCanvasArenas/AutoCanvasDraggingArena";
 import { FixedCanvasDraggingArena } from "layoutSystems/fixedlayout/editor/FixedLayoutCanvasArenas/FixedCanvasDraggingArena";
@@ -129,7 +129,7 @@ class CanvasWidget extends ContainerWidget {
       this.props.bottomRow,
       this.props.mobileBottomRow,
       this.props.isMobile,
-      this.props.appPositioningType === AppPositioningTypes.AUTO,
+      this.props.layoutSystemType === LayoutSystemTypes.AUTO,
     );
     return (
       <ContainerComponent {...props}>
@@ -222,7 +222,7 @@ class CanvasWidget extends ContainerWidget {
       this.props.bottomRow,
       this.props.mobileBottomRow,
       this.props.isMobile,
-      this.props.appPositioningType === AppPositioningTypes.AUTO,
+      this.props.layoutSystemType === LayoutSystemTypes.AUTO,
     );
     height = snapRows * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
     const style: CSSProperties = {

@@ -1,14 +1,13 @@
 import type { RenderModes } from "constants/WidgetConstants";
 import React from "react";
 import { useSelector } from "react-redux";
-import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
-import {
-  getAppPositioningType,
-  getRenderMode,
-} from "selectors/editorSelectors";
+import { getRenderMode } from "selectors/editorSelectors";
+import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { getAutoLayoutSystem } from "./autolayout";
 import { getFixedLayoutSystem } from "./fixedlayout";
+import { LayoutSystemTypes } from "./types";
+import { getAnvilSystem } from "./anvil";
 
 export type LayoutSystem = {
   LayoutSystemWrapper: (props: WidgetProps) => any;
@@ -17,12 +16,15 @@ export type LayoutSystem = {
 
 export const getLayoutSystem = (
   renderMode: RenderModes,
-  appPositioningType: AppPositioningTypes,
+  layoutSystemType: LayoutSystemTypes,
 ): LayoutSystem => {
-  if (appPositioningType === AppPositioningTypes.AUTO) {
-    return getAutoLayoutSystem(renderMode);
-  } else {
-    return getFixedLayoutSystem(renderMode);
+  switch (layoutSystemType) {
+    case LayoutSystemTypes.ANVIL:
+      return getAnvilSystem(renderMode);
+    case LayoutSystemTypes.AUTO:
+      return getAutoLayoutSystem(renderMode);
+    default:
+      return getFixedLayoutSystem(renderMode);
   }
 };
 
@@ -34,13 +36,13 @@ const LayoutSystemWrapper = ({
   Widget: (props: WidgetProps) => any;
 }) => {
   const renderMode = useSelector(getRenderMode);
-  const appPositioningType = useSelector(getAppPositioningType);
-  // based on appPositioningType and renderMode
+  const layoutSystemType = useSelector(getLayoutSystemType);
+  // based on layoutSystemType and renderMode
   // get the layout system wrapper(adds layout system specific functionality) and
   // properties enhancer(adds/modifies properties of a widget based on layout system)
   const { LayoutSystemWrapper, propertyEnhancer } = getLayoutSystem(
     renderMode,
-    appPositioningType,
+    layoutSystemType,
   );
   const enhancedProperties = propertyEnhancer(widgetProps);
   return (
