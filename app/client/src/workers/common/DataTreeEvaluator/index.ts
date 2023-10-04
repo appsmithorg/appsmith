@@ -1033,11 +1033,7 @@ export default class DataTreeEvaluator {
 
         const entityType = entityConfig.ENTITY_TYPE;
 
-        if (!propertyPath) {
-          set(currentTree, fullPropertyPath, evalPropertyValue);
-          set(safeTree, fullPropertyPath, klona(evalPropertyValue));
-          continue;
-        }
+        if (!propertyPath) continue;
 
         switch (entityType) {
           case ENTITY_TYPE_VALUE.WIDGET: {
@@ -1089,7 +1085,7 @@ export default class DataTreeEvaluator {
                 metaWidgets,
               }),
             );
-            continue;
+            break;
           }
           case ENTITY_TYPE_VALUE.ACTION: {
             if (this.allActionValidationConfig) {
@@ -1128,7 +1124,7 @@ export default class DataTreeEvaluator {
 
             set(currentTree, fullPropertyPath, evalPropertyValue);
             set(safeTree, fullPropertyPath, valueForSafeTree);
-            continue;
+            break;
           }
           case ENTITY_TYPE_VALUE.JSACTION: {
             const variableList =
@@ -1181,12 +1177,11 @@ export default class DataTreeEvaluator {
                 unEvalValue: unEvalPropertyValue,
               });
             }
-            continue;
+            break;
           }
           default:
             set(currentTree, fullPropertyPath, evalPropertyValue);
             set(safeTree, fullPropertyPath, klona(evalPropertyValue));
-            continue;
         }
       }
 
