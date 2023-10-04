@@ -311,14 +311,6 @@ init_keycloak() {
       || keycloak_migrate_h2_to_v3 \
       || echo "WARNING: Failed to migrate Keycloak data to v3 format. Will attempt again at next restart."
   fi
-
-  # Following is to remove any duplicate Keycloak credentials added to the `docker.env` file, preserving only the first
-  # (earliest in the file) set. This is needed due to a bug that added duplicate invalid credentials to `docker.env`.
-  out="$(
-    awk -F= '$1 != "KEYCLOAK_ADMIN_USERNAME" || u != 1 {print} $1 == "KEYCLOAK_ADMIN_USERNAME" {u=1}' /appsmith-stacks/configuration/docker.env \
-      | awk -F= '$1 != "KEYCLOAK_ADMIN_PASSWORD" || p != 1 {print} $1 == "KEYCLOAK_ADMIN_PASSWORD" {p=1}'
-  )"
-  echo "$out" > /appsmith-stacks/configuration/docker.env
 }
 
 keycloak_migrate_h2_to_v2() {
