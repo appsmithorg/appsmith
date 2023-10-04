@@ -8,8 +8,9 @@ const { cloudHosting } = getAppsmithConfigs();
 export const showProductRamps = (
   rampName: string,
   isEnterpriseOnlyFeature = false,
+  isFeatureFlagEnabled?: boolean,
 ) =>
-  cloudHosting || isEnterpriseOnlyFeature
+  cloudHosting || isEnterpriseOnlyFeature || !isFeatureFlagEnabled
     ? CE_showProductRamps(rampName)
     : createSelector(
         () => null,

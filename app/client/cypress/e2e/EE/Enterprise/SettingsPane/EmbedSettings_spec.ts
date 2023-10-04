@@ -5,6 +5,7 @@ describe("In-app embed settings", () => {
   before(() => {
     featureFlagIntercept({
       release_embed_hide_share_settings_enabled: true,
+      license_private_embeds_enabled: true,
     });
   });
 
@@ -134,5 +135,28 @@ describe("In-app embed settings", () => {
       "[data-testid='t--embed-settings-application-public']",
     );
     _.appSettings.ClosePane();
+  });
+  it("7. Check ramps are enabled / disabled based on Feature Flag", () => {
+    featureFlagIntercept({
+      license_private_embeds_enabled: false,
+    });
+    _.inviteModal.OpenShareModal();
+    _.inviteModal.SelectEmbedTab();
+    _.agHelper.GetNAssertElementText(
+      _.inviteModal.locators._privateEmbedRampAppSettings,
+      "Embed private Appsmith apps and seamlessly authenticate users through SSO in our Business Edition",
+      "contain.text",
+    );
+    _.inviteModal.CloseModal();
+    _.embedSettings.OpenEmbedSettings();
+    _.agHelper.AssertElementExist(_.inviteModal.locators._upgradeContent);
+    _.agHelper.AssertElementAbsence(
+      _.inviteModal.locators._shareSettingsButton,
+    );
+    _.agHelper.GetNAssertElementText(
+      _.inviteModal.locators._privateEmbedRampAppSettings,
+      "To embed private Appsmith apps and seamlessly authenticate users through SSO",
+      "contain.text",
+    );
   });
 });
