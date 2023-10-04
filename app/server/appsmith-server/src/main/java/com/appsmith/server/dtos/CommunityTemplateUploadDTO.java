@@ -8,5 +8,4 @@ import lombok.Setter;
 public class CommunityTemplateUploadDTO {
     ApplicationTemplate applicationTemplate;
     ApplicationJson appJson;
-    String sourceApplicaitonId;
 }
