@@ -110,12 +110,14 @@ export const getComponentDimensions = memo(
   (
     props: BaseWidgetProps,
     layoutSystemType: LayoutSystemTypes,
-    isMobile: boolean,
+    isMobile = false,
   ): {
     componentHeight: number;
     componentWidth: number;
   } => {
     switch (layoutSystemType) {
+      case LayoutSystemTypes.ANVIL:
+        return getAnvilComponentDimensions(props);
       case LayoutSystemTypes.AUTO:
         return getAutoLayoutComponentDimensions({ ...props, isMobile });
       default:

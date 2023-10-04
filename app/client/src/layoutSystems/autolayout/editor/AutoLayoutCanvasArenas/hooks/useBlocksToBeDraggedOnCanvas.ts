@@ -8,7 +8,7 @@ import { getOccupiedSpacesWhileMoving } from "selectors/editorSelectors";
 import type { WidgetSpace } from "constants/CanvasEditorConstants";
 import { getDragDetails, getWidgetByID, getWidgets } from "sagas/selectors";
 import { widgetOperationParams } from "utils/WidgetPropsUtils";
-import { DropTargetContext } from "components/editorComponents/DropTargetComponent";
+import { DropTargetContext } from "layoutSystems/common/dropTarget/DropTargetComponent";
 import equal from "fast-deep-equal/es6";
 import { useDispatch, useSelector } from "react-redux";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
@@ -17,7 +17,7 @@ import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { useContext, useEffect, useRef } from "react";
 import type { AutoCanvasDraggingArenaProps } from "../AutoCanvasDraggingArena";
-import type { WidgetDraggingBlock } from "../../../../common/CanvasArenas/ArenaTypes";
+import type { WidgetDraggingBlock } from "../../../../common/canvasArenas/ArenaTypes";
 import type { HighlightInfo } from "layoutSystems/common/utils/types";
 import {
   LayoutDirection,

@@ -6,7 +6,7 @@ import {
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import type { WidgetAddChild } from "actions/pageActions";
 import { updateAndSaveLayout } from "actions/pageActions";
-import { calculateDropTargetRows } from "components/editorComponents/DropTargetUtils";
+import { calculateDropTargetRows } from "layoutSystems/common/dropTarget/DropTargetUtils";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import type { OccupiedSpace } from "constants/CanvasEditorConstants";
 import {
@@ -40,7 +40,7 @@ import { collisionCheckPostReflow } from "utils/reflowHookUtils";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { BlueprintOperationTypes } from "WidgetProvider/constants";
 import { toast } from "design-system";
-import type { WidgetDraggingUpdateParams } from "layoutSystems/common/CanvasArenas/ArenaTypes";
+import type { WidgetDraggingUpdateParams } from "layoutSystems/common/canvasArenas/ArenaTypes";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 
 export type WidgetMoveParams = {
