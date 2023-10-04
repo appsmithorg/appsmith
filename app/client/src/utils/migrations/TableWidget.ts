@@ -821,3 +821,11 @@ export const migrateTableWidgetTableDataJsMode = (currentDSL: DSLWidget) => {
     }
   });
 };
+
+export const migrateTableServerSideFiltering = (currentDSL: DSLWidget) => {
+  return traverseDSLAndMigrate(currentDSL, (widget: WidgetProps) => {
+    if (widget.type === "TABLE_WIDGET_V2") {
+      widget.enableServerSideFiltering = false;
+    }
+  });
+};

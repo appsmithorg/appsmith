@@ -253,15 +253,6 @@ export interface AppLayoutConfig {
   type: SupportedLayouts;
 }
 
-export enum AppPositioningTypes {
-  FIXED = "FIXED",
-  ANVIL = "ANVIL",
-  AUTO = "AUTO",
-}
-export interface AppPositioningTypeConfig {
-  type: AppPositioningTypes;
-}
-
 export interface PageListReduxState {
   pages: Page[];
   applicationId: string;

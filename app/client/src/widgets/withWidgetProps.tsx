@@ -19,7 +19,6 @@ import {
 import {
   computeMainContainerWidget,
   getChildWidgets,
-  getCurrentAppPositioningType,
   getMainCanvasProps,
   getRenderMode,
   getMetaWidgetChildrenStructure,
@@ -35,7 +34,6 @@ import {
 import type { WidgetProps } from "./BaseWidget";
 import type BaseWidget from "./BaseWidget";
 import type { WidgetEntityConfig } from "@appsmith/entities/DataTree/types";
-import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import { Positioning } from "layoutSystems/common/utils/constants";
 import { isAutoHeightEnabledForWidget } from "./WidgetUtils";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
@@ -45,6 +43,8 @@ import { getSelectedWidgetAncestry } from "../selectors/widgetSelectors";
 import { getWidgetMinMaxDimensionsInPixel } from "layoutSystems/autolayout/utils/flexWidgetUtils";
 import { defaultAutoLayoutWidgets } from "layoutSystems/autolayout/utils/constants";
 import { getFlattenedChildCanvasWidgets } from "selectors/flattenedChildCanvasSelector";
+import { LayoutSystemTypes } from "layoutSystems/types";
+import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 
 const WIDGETS_WITH_CHILD_WIDGETS = ["LIST_WIDGET", "FORM_WIDGET"];
 const WIDGETS_REQUIRING_SELECTED_ANCESTRY = ["MODAL_WIDGET", "TABS_WIDGET"];
@@ -91,8 +91,8 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       equal,
     );
     const isMobile = useSelector(getIsAutoLayoutMobileBreakPoint);
-    const appPositioningType = useSelector(getCurrentAppPositioningType);
-    const isAutoLayout = appPositioningType === AppPositioningTypes.AUTO;
+    const layoutSystemType = useSelector(getLayoutSystemType);
+    const isAutoLayout = layoutSystemType === LayoutSystemTypes.AUTO;
 
     const configTree = ConfigTreeActions.getConfigTree();
     const evaluatedWidgetConfig = configTree[
@@ -164,7 +164,6 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       widgetProps = { ...canvasWidgetProps };
 
       widgetProps.isMobile = !!isMobile;
-      widgetProps.appPositioningType = appPositioningType;
       widgetProps.selectedWidgetAncestry = selectedWidgetAncestry || [];
 
       /**
@@ -215,7 +214,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       widgetProps.flattenedChildCanvasWidgets = flattenedChildCanvasWidgets;
     }
     //merging with original props
-    widgetProps = { ...props, ...widgetProps, renderMode };
+    widgetProps = { ...props, ...widgetProps, layoutSystemType, renderMode };
 
     // adding google maps api key to widget props (although meant for map widget only)
     widgetProps.googleMapsApiKey = googleMapsApiKey;
