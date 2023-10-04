@@ -1,2 +1,3 @@
-import { ButtonWidget } from "./widget";
-export { ButtonWidget };
+import { WDSButtonWidget } from "./widget";
+
+export { WDSButtonWidget };

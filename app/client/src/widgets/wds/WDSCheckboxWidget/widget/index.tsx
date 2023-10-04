@@ -9,8 +9,8 @@ import BaseWidget from "widgets/BaseWidget";
 import type { CheckboxWidgetProps } from "./types";
 import type { WidgetState } from "widgets/BaseWidget";
 
-class CheckboxWidgetV2 extends BaseWidget<CheckboxWidgetProps, WidgetState> {
-  static type = "CHECKBOX_WIDGET_V2";
+class WDSCheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
+  static type = "WDS_CHECKBOX_WIDGET";
 
   static getConfig() {
     return config.metaConfig;
@@ -108,4 +108,4 @@ class CheckboxWidgetV2 extends BaseWidget<CheckboxWidgetProps, WidgetState> {
   }
 }
 
-export { CheckboxWidgetV2 };
+export { WDSCheckboxWidget };

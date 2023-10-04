@@ -1,3 +1,3 @@
-import { CheckboxWidgetV2 } from "./widget";
+import { WDSCheckboxWidget } from "./widget";
 
-export { CheckboxWidgetV2 };
+export { WDSCheckboxWidget };

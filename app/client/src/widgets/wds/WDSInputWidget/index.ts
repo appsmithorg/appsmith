@@ -1,2 +1,3 @@
-import { InputWidget } from "./widget";
-export { InputWidget };
+import { WDSInputWidget } from "./widget";
+
+export { WDSInputWidget };
