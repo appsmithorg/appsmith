@@ -10,7 +10,8 @@ export class Tabs {
   private _showTabsProperty = "showtabs";
   public _addTab = ".t--add-tab-btn";
   public _placeholderTabTitle = "[placeholder='Tab title']";
-  public _tabsWidgetStyle= "(//div[contains(@class,'t--draggable-tabswidget')]//div)[6]"
+  public _tabsWidgetStyle =
+    "(//div[contains(@class,'t--draggable-tabswidget')]//div)[6]";
 
   public toggleShowTabHeader(showTabs = true, selector: string) {
     this.agHelper.GetNClick(selector).then(() => {
