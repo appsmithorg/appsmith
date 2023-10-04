@@ -82,19 +82,26 @@ public class ApiKeyServiceImpl extends BaseService<ApiKeyRepository, UserApiKey,
     @Override
     public Mono<Boolean> archiveAllApiKeysForUser(String email) {
         /*
-         * We want to restrict the API Key generation to Users who are associated with Instance Administrator Role.
+         * We want to restrict the API Key archive to Users who are associated with Instance Administrator Role.
          * Fetching the tenant with MANAGE_TENANT permission assures that.
          */
         Mono<Tenant> tenantMono = tenantService
                 .getDefaultTenant(AclPermission.MANAGE_TENANT)
                 .switchIfEmpty(
-                        Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "delete API Keys")))
-                .cache();
-        Mono<User> userMono = tenantMono
-                .then(userRepository
-                        .findByCaseInsensitiveEmail(email)
-                        .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.USER_NOT_FOUND, email))))
-                .cache();
+                        Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "delete API Keys")));
+        return tenantMono.then(archiveAllApiKeysForUserWithoutPermissionCheck(email));
+    }
+
+    /**
+     * This method archive API keys for email without checking if current user has permission to perform archive
+     * @param email - user email
+     * @return archive result
+     */
+    @Override
+    public Mono<Boolean> archiveAllApiKeysForUserWithoutPermissionCheck(String email) {
+        Mono<User> userMono = userRepository
+                .findByCaseInsensitiveEmail(email)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.USER_NOT_FOUND, email)));
 
         // Archive all API Keys which exist for the User.
         return userMono.flatMapMany(user -> repository.getByUserIdWithoutPermission(user.getId()))
