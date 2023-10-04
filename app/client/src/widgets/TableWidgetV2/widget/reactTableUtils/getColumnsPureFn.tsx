@@ -43,9 +43,7 @@ export const getColumnsPureFn: getColumns = (
             ? column.label
             : DEFAULT_COLUMN_NAME,
         alias: column.alias,
-        accessor: (row: any) => {
-          return row[column.alias];
-        },
+        accessor: (row: any) => row[column.alias],
         width: columnWidthMap[column.id] || DEFAULT_COLUMN_WIDTH,
         minWidth: COLUMN_MIN_WIDTH,
         draggable: true,

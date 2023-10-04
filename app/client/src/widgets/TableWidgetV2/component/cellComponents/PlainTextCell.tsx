@@ -153,9 +153,7 @@ function PlainTextCell(
           "",
           EditableCellActions.DISCARD,
         ),
-      onEdit: () => {
-        toggleCellEditMode(true, rowIndex, alias, value);
-      },
+      onEdit: () => toggleCellEditMode(true, rowIndex, alias, value),
       onSave: () =>
         toggleCellEditMode(
           false,
