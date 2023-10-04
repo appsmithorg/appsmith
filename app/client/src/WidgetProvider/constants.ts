@@ -13,7 +13,7 @@ import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import type { WidgetFeatures } from "utils/WidgetFeatures";
 import type { WidgetProps } from "../widgets/BaseWidget";
 import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
-import type { WidgetEntityConfig } from "entities/DataTree/dataTreeFactory";
+import type { WidgetEntityConfig } from "@appsmith/entities/DataTree/types";
 import type {
   WidgetQueryConfig,
   WidgetQueryGenerationConfig,
@@ -98,6 +98,7 @@ export type WidgetMethods = {
   getSnipingModeUpdates?: GetSnipingModeUpdates;
   getCanvasHeightOffset?: GetCanvasHeightOffset;
   getEditorCallouts?: GetEditorCallouts;
+  getOneClickBindingConnectableWidgetConfig?: GetOneClickBindingConnectableWidgetConfig;
 };
 
 type GetEditorCallouts = (props: WidgetProps) => WidgetCallout[];
@@ -114,6 +115,7 @@ export type WidgetCallout = {
 
 export type GetQueryGenerationConfig = (
   widgetProps: WidgetProps,
+  formConfig?: WidgetQueryGenerationFormConfig,
 ) => WidgetQueryGenerationConfig;
 
 export type GetPropertyUpdatesForQueryBinding = (
@@ -123,6 +125,15 @@ export type GetPropertyUpdatesForQueryBinding = (
 ) => Record<string, unknown>;
 
 type SnipingModeSupportedKeys = "data" | "run" | "isDynamicPropertyPath";
+
+type OneClickBindingConnectableWidgetConfig = {
+  widgetBindPath: string;
+  message: string;
+};
+
+export type GetOneClickBindingConnectableWidgetConfig = (
+  widgetProps: WidgetProps,
+) => OneClickBindingConnectableWidgetConfig;
 
 export type GetSnipingModeUpdates = (
   propValueMap: Record<SnipingModeSupportedKeys, string | boolean>,
@@ -195,6 +206,7 @@ export enum FileDataTypes {
 }
 
 export type AlignWidget = "LEFT" | "RIGHT";
+
 export enum AlignWidgetTypes {
   LEFT = "LEFT",
   RIGHT = "RIGHT",

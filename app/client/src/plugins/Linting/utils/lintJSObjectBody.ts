@@ -1,4 +1,7 @@
-import type { DataTree } from "entities/DataTree/dataTreeFactory";
+import type {
+  DataTree,
+  JSActionEntity,
+} from "@appsmith/entities/DataTree/types";
 import type { LintError } from "utils/DynamicBindingUtils";
 import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
 import { getScriptToEval, getScriptType } from "workers/Evaluation/evaluate";
@@ -8,7 +11,6 @@ import {
   JS_OBJECT_START_STATEMENT,
 } from "../constants";
 import { Severity } from "entities/AppsmithConsole";
-import type { JSActionEntity } from "entities/DataTree/types";
 import { getJSToLint } from "./getJSToLint";
 import getLintingErrors from "./getLintingErrors";
 

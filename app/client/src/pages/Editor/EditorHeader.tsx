@@ -67,7 +67,6 @@ import RealtimeAppEditors from "./RealtimeAppEditors";
 import { EditorSaveIndicator } from "./EditorSaveIndicator";
 import {
   adaptiveSignpostingEnabled,
-  datasourceEnvEnabled,
   selectFeatureFlags,
 } from "@appsmith/selectors/featureFlagsSelectors";
 import { retryPromise } from "utils/AppsmithUtils";
@@ -101,7 +100,6 @@ import EndTour from "./GuidedTour/EndTour";
 import { GUIDED_TOUR_STEPS } from "./GuidedTour/constants";
 import { viewerURL } from "RouteBuilder";
 import { useHref } from "./utils";
-import EmbedSnippetForm from "@appsmith/pages/Applications/EmbedSnippetTab";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 import type { NavigationSetting } from "constants/AppConstants";
@@ -117,6 +115,9 @@ import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
 import { SignpostingWalkthroughConfig } from "./FirstTimeUserOnboarding/Utils";
 import CommunityTemplatesPublishInfo from "./CommunityTemplates/Modals/CommunityTemplatesPublishInfo";
 import PublishCommunityTemplateModal from "./CommunityTemplates/Modals/PublishCommunityTemplate";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { getEmbedSnippetForm } from "@appsmith/utils/BusinessFeatures/privateEmbedHelpers";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -261,11 +262,13 @@ export function EditorHeader() {
 
   const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false);
   const [showModal, setShowModal] = useState(false);
+  const isMultipleEnvEnabled = useFeatureFlag(
+    FEATURE_FLAG.release_datasource_environments_enabled,
+  );
   const [
     showPublishCommunityTemplateModal,
     setShowPublishCommunityTemplateModal,
   ] = useState(false);
-  const dsEnvEnabled = useSelector(datasourceEnvEnabled);
 
   const handlePublish = () => {
     if (applicationId) {
@@ -320,7 +323,10 @@ export function EditorHeader() {
             : "Application name menu (top left)",
         });
       } else {
-        if (!dsEnvEnabled || getUserPreferenceFromStorage() === "true") {
+        if (
+          !isMultipleEnvEnabled ||
+          getUserPreferenceFromStorage() === "true"
+        ) {
           handlePublish();
         } else {
           dispatch(showEnvironmentDeployInfoModal());
@@ -364,6 +370,9 @@ export function EditorHeader() {
   const adaptiveSignposting = useSelector(adaptiveSignpostingEnabled);
   const isConnectionPresent = useSelector(isWidgetActionConnectionPresent);
   const isDeployed = !!useSelector(getApplicationLastDeployedAt);
+  const isPrivateEmbedEnabled = useFeatureFlag(
+    FEATURE_FLAG.license_private_embeds_enabled,
+  );
   useEffect(() => {
     if (
       signpostingEnabled &&
@@ -582,9 +591,7 @@ export function EditorHeader() {
                       />
                     </TabPanel>
                     <TabPanel value="embed">
-                      <EmbedSnippetForm
-                        changeTab={() => setActiveTab("invite")}
-                      />
+                      {getEmbedSnippetForm(isPrivateEmbedEnabled, setActiveTab)}
                     </TabPanel>
                     {cloudHosting && (
                       <TabPanel value="publish">

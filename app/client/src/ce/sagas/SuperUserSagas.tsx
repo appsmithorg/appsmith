@@ -5,7 +5,10 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import { APPLICATIONS_URL } from "constants/routes";
+import {
+  APPLICATIONS_URL,
+  WORKSPACE_SETTINGS_BILLING_PAGE_URL,
+} from "constants/routes";
 import type { User } from "constants/userConstants";
 import { call, put, delay, select } from "redux-saga/effects";
 import history from "utils/history";
@@ -26,9 +29,12 @@ import { getCurrentTenant } from "@appsmith/actions/tenantActions";
 import { toast } from "design-system";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
+  MIGRATION_STATUS,
   RESTART_POLL_INTERVAL,
   RESTART_POLL_TIMEOUT,
 } from "@appsmith/constants/tenantConstants";
+import type { FetchCurrentTenantConfigResponse } from "@appsmith/api/TenantApi";
+import TenantApi from "@appsmith/api/TenantApi";
 
 export function* FetchAdminSettingsSaga() {
   const response: ApiResponse = yield call(UserApi.fetchAdminSettings);
@@ -144,16 +150,23 @@ export function* RestartServerPoll() {
   yield call(RestryRestartServerPoll);
 }
 
-export function* RestryRestartServerPoll() {
+export function* RestryRestartServerPoll(isMigration = false) {
   let pollCount = 0;
   const maxPollCount = RESTART_POLL_TIMEOUT / RESTART_POLL_INTERVAL;
   while (pollCount < maxPollCount) {
     pollCount++;
     yield delay(RESTART_POLL_INTERVAL);
     try {
-      const response: ApiResponse = yield call(UserApi.getCurrentUser);
-      if (response.responseMeta.status === 200) {
-        window.location.reload();
+      const response: FetchCurrentTenantConfigResponse = yield call(
+        TenantApi.fetchCurrentTenantConfig,
+      );
+      if (
+        response.responseMeta.status === 200 &&
+        response.data?.tenantConfiguration?.migrationStatus ===
+          MIGRATION_STATUS.COMPLETED
+      ) {
+        if (!isMigration) window.location.reload();
+        else location.href = WORKSPACE_SETTINGS_BILLING_PAGE_URL;
       }
     } catch (e) {}
   }

@@ -1,5 +1,7 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const jsonFormDslWithSchemaAndWithoutSourceData = require("../../../../../fixtures/jsonFormDslWithSchemaAndWithoutSourceData.json");
+import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
+const locators = ObjectsRegistry.CommonLocators;
 const {
   deployMode,
   entityExplorer,
@@ -52,11 +54,10 @@ describe("JSON Form Widget Custom Field", () => {
 
     entityExplorer.SelectEntityByName("JSONForm1");
     propPane.NavigateBackToPropertyPane();
-    propPane.UpdatePropertyFieldValue(
-      "Source data",
-      JSON.stringify(sourceData),
-    );
+    propPane.EnterJSContext("Source data", JSON.stringify(sourceData), true);
     deployMode.DeployApp();
+
+    cy.wait(500);
 
     cy.get(`${fieldPrefix}-name label`).contains("Name");
     cy.get(`${fieldPrefix}-name input`).should("have.value", "John");

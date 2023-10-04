@@ -77,7 +77,7 @@ import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { hideIndicator } from "pages/Editor/GuidedTour/utils";
 import { updateWidgetName } from "actions/propertyPaneActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import type { DataTree } from "entities/DataTree/dataTreeFactory";
+import type { DataTree } from "@appsmith/entities/DataTree/types";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { User } from "constants/userConstants";
 import { builderURL, queryEditorIdURL } from "RouteBuilder";

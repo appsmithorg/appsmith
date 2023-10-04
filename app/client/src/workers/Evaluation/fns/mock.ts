@@ -1,4 +1,4 @@
-import type { DataTree } from "entities/DataTree/dataTreeFactory";
+import type { DataTree } from "@appsmith/entities/DataTree/types";
 import { ENTITY_TYPE } from "pages/common/SearchSnippets";
 import { createEvaluationContext } from "workers/Evaluation/evaluate";
 
