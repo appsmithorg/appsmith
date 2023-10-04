@@ -1,5 +1,5 @@
 import type CodeMirror from "codemirror";
-import type { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import type { DataTree, ENTITY_TYPE } from "@appsmith/entities/DataTree/types";
 import type { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { EntityNavigationData } from "selectors/navigationSelectors";
 import type { ExpectedValueExample } from "utils/validation/common";

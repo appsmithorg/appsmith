@@ -40,18 +40,18 @@ import type {
   WidgetDefaultProps,
   WidgetMethods,
 } from "../WidgetProvider/constants";
-import type { WidgetEntity } from "entities/DataTree/dataTreeFactory";
+import type { WidgetEntity } from "@appsmith/entities/DataTree/types";
 import type { AutocompletionDefinitions } from "../WidgetProvider/constants";
 import type {
   FlexVerticalAlignment,
   LayoutDirection,
   ResponsiveBehavior,
 } from "layoutSystems/common/utils/constants";
-import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import type { FeatureFlag } from "@appsmith/entities/FeatureFlag";
 import store from "store";
 import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 import type { WidgetFeatures } from "utils/WidgetFeatures";
+import { LayoutSystemTypes } from "layoutSystems/types";
 
 /***
  * BaseWidget
@@ -324,7 +324,7 @@ abstract class BaseWidget<
   }
 
   get isAutoLayoutMode() {
-    return this.props.appPositioningType === AppPositioningTypes.AUTO;
+    return this.props.layoutSystemType === LayoutSystemTypes.AUTO;
   }
 
   updateOneClickBindingOptionsVisibility(visibility: boolean) {
@@ -455,7 +455,7 @@ export interface WidgetPositionProps extends WidgetRowCols {
   minWidth?: number; // Required to avoid squishing of widgets on mobile viewport.
   isMobile?: boolean;
   flexVerticalAlignment?: FlexVerticalAlignment;
-  appPositioningType?: AppPositioningTypes;
+  layoutSystemType?: LayoutSystemTypes;
   widthInPercentage?: number; // Stores the widget's width set by the user
   mobileWidthInPercentage?: number;
   width?: number;

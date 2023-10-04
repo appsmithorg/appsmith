@@ -12,16 +12,14 @@ import type {
   WidgetEntity,
   ConfigTree,
   WidgetEntityConfig,
-} from "entities/DataTree/dataTreeFactory";
-import type { ActionEntity, JSActionEntity } from "entities/DataTree/types";
+  ActionEntity,
+  JSActionEntity,
+} from "@appsmith/entities/DataTree/types";
 import { getEntityId, getEvalErrorPath } from "utils/DynamicBindingUtils";
 import { convertArrayToObject, extractInfoFromBindings } from "./utils";
 import type DataTreeEvaluator from "workers/common/DataTreeEvaluator";
 import { get, isEmpty, set } from "lodash";
-import {
-  getFixedTimeDifference,
-  isWidgetActionOrJsObject,
-} from "../DataTreeEvaluator/utils";
+import { getFixedTimeDifference } from "../DataTreeEvaluator/utils";
 import {
   getEntityDependencies,
   getEntityPathDependencies,
@@ -33,6 +31,7 @@ import {
   getAllSetterFunctions,
   getEntitySetterFunctions,
 } from "@appsmith/workers/Evaluation/Actions";
+import { isWidgetActionOrJsObject } from "@appsmith/entities/DataTree/utils";
 
 interface CreateDependencyMap {
   dependencies: Record<string, string[]>;
@@ -164,7 +163,7 @@ export const updateDependencyMap = ({
 
           if (didUpdateDep) didUpdateDependencyMap = true;
 
-          if (isWidgetActionOrJsObject(entity)) {
+          if (isWidgetActionOrJsObject(entity, entityConfig)) {
             if (!isDynamicLeaf(unEvalDataTree, fullPropertyPath, configTree)) {
               const entityDependencyMap = getEntityDependencies(
                 entity,
@@ -256,7 +255,7 @@ export const updateDependencyMap = ({
 
           if (didUpdateDeps) didUpdateDependencyMap = true;
 
-          if (isWidgetActionOrJsObject(entity)) {
+          if (isWidgetActionOrJsObject(entity, entityConfig)) {
             const entityId = getEntityId(entity);
             for (const deletedPath of Object.keys(allDeletedPaths)) {
               removedPaths.push({
@@ -268,7 +267,10 @@ export const updateDependencyMap = ({
           break;
         }
         case DataTreeDiffEvent.EDIT: {
-          if (isWidgetActionOrJsObject(entity) && typeof value === "string") {
+          if (
+            isWidgetActionOrJsObject(entity, entityConfig) &&
+            typeof value === "string"
+          ) {
             const entity: ActionEntity | WidgetEntity | JSActionEntity =
               unEvalDataTree[entityName] as
                 | ActionEntity

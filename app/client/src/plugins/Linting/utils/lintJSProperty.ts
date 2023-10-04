@@ -1,4 +1,4 @@
-import type { DataTree } from "entities/DataTree/dataTreeFactory";
+import type { DataTree } from "@appsmith/entities/DataTree/types";
 import type { LintError } from "utils/DynamicBindingUtils";
 import { isNil } from "lodash";
 import {

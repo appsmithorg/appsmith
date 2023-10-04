@@ -27,9 +27,9 @@ import {
 } from "selectors/editorSelectors";
 import { getNearestParentCanvas } from "utils/generators";
 import { getAbsolutePixels } from "utils/helpers";
-import type { XYCord } from "layoutSystems/common/CanvasArenas/ArenaTypes";
-import { useCanvasDragToScroll } from "layoutSystems/common/CanvasArenas/useCanvasDragToScroll";
-import { StickyCanvasArena } from "layoutSystems/common/CanvasArenas/StickyCanvasArena";
+import type { XYCord } from "layoutSystems/common/canvasArenas/ArenaTypes";
+import { useCanvasDragToScroll } from "layoutSystems/common/canvasArenas/useCanvasDragToScroll";
+import { StickyCanvasArena } from "layoutSystems/common/canvasArenas/StickyCanvasArena";
 
 export interface SelectedArenaDimensions {
   top: number;

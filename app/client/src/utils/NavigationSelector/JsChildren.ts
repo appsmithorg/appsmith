@@ -1,5 +1,8 @@
-import type { DataTree } from "entities/DataTree/dataTreeFactory";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import type {
+  DataTree,
+  JSActionEntity,
+} from "@appsmith/entities/DataTree/types";
+import { ENTITY_TYPE_VALUE } from "entities/DataTree/dataTreeFactory";
 import { keyBy } from "lodash";
 import type { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 import { jsCollectionIdURL } from "RouteBuilder";
@@ -8,7 +11,6 @@ import type {
   NavigationData,
 } from "selectors/navigationSelectors";
 import { createNavData } from "./common";
-import type { JSActionEntity } from "entities/DataTree/types";
 
 export const getJsChildrenNavData = (
   jsAction: JSCollectionData,
@@ -24,7 +26,7 @@ export const getJsChildrenNavData = (
       return createNavData({
         id: `${jsAction.config.name}.${jsChild.name}`,
         name: `${jsAction.config.name}.${jsChild.name}`,
-        type: ENTITY_TYPE.JSACTION,
+        type: ENTITY_TYPE_VALUE.JSACTION,
         isfunction: true, // use this to identify function
         url: jsCollectionIdURL({
           pageId,
@@ -41,7 +43,7 @@ export const getJsChildrenNavData = (
         return createNavData({
           id: `${jsAction.config.name}.${jsChild.name}`,
           name: `${jsAction.config.name}.${jsChild.name}`,
-          type: ENTITY_TYPE.JSACTION,
+          type: ENTITY_TYPE_VALUE.JSACTION,
           isfunction: false,
           url: jsCollectionIdURL({
             pageId,

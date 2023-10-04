@@ -1,6 +1,6 @@
-import type { DataTree } from "entities/DataTree/dataTreeFactory";
+import type { DataTree } from "@appsmith/entities/DataTree/types";
+import { get, isObject, set, unset } from "lodash";
 import { klona } from "klona/json";
-import { get, set, unset } from "lodash";
 import type { EvalProps } from "workers/common/DataTreeEvaluator";
 
 /**
@@ -23,7 +23,9 @@ export function makeEntityConfigsAsObjProperties(
   const newDataTree: DataTree = {};
   for (const entityName of Object.keys(dataTree)) {
     const entity = dataTree[entityName];
-    newDataTree[entityName] = Object.assign({}, entity);
+    newDataTree[entityName] = isObject(entity)
+      ? Object.assign({}, entity)
+      : entity;
   }
   const dataTreeToReturn = sanitizeDataTree ? klona(newDataTree) : newDataTree;
 

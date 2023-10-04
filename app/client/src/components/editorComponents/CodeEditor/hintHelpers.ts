@@ -8,7 +8,7 @@ import {
   checkIfCursorInsideBinding,
   isCursorOnEmptyToken,
 } from "components/editorComponents/CodeEditor/codeEditorUtils";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE_VALUE } from "entities/DataTree/dataTreeFactory";
 import { isEmpty, isString } from "lodash";
 import type { getAllDatasourceTableKeys } from "@appsmith/selectors/entitiesSelector";
 import {
@@ -46,7 +46,7 @@ export const bindingHintHelper: HintHelper = (editor) => {
 
       const entityType = entityInformation?.entityType;
       let shouldShow = false;
-      if (entityType === ENTITY_TYPE.JSACTION) {
+      if (entityType === ENTITY_TYPE_VALUE.JSACTION) {
         shouldShow = true;
       } else {
         shouldShow = checkIfCursorInsideBinding(editor);
