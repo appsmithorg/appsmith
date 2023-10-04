@@ -4,8 +4,8 @@ import { useSelector } from "react-redux";
 import type { SpaceMap } from "reflow/reflowTypes";
 import { getZoomLevel } from "selectors/editorSelectors";
 import { getAbsolutePixels } from "utils/helpers";
-import type { XYCord } from "../../../../common/CanvasArenas/ArenaTypes";
-import type { WidgetDraggingBlock } from "../../../../common/CanvasArenas/ArenaTypes";
+import type { XYCord } from "../../../../common/canvasArenas/ArenaTypes";
+import type { WidgetDraggingBlock } from "../../../../common/canvasArenas/ArenaTypes";
 
 /**
  * returns a method that renders dragging blocks on canvas

@@ -17,7 +17,6 @@ import Loader from "../component/Loader";
 import MetaWidgetContextProvider from "../../MetaWidgetContextProvider";
 import type { GeneratorOptions, HookOptions } from "../MetaWidgetGenerator";
 import MetaWidgetGenerator from "../MetaWidgetGenerator";
-import WidgetFactory from "WidgetProvider/factory";
 import type { BatchPropertyUpdatePayload } from "actions/controlActions";
 import type {
   AutocompletionDefinitions,
@@ -52,6 +51,7 @@ import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import defaultProps from "./defaultProps";
 
 import IconSVG from "../icon.svg";
+import { renderAppsmithCanvas } from "layoutSystems/CanvasFactory";
 
 const getCurrentItemsViewBindingTemplate = () => ({
   prefix: "{{[",
@@ -1217,7 +1217,7 @@ class ListWidget extends BaseWidget<
               },
             };
           });
-          return WidgetFactory.createWidget(child, this.props.renderMode);
+          return renderAppsmithCanvas(child as WidgetProps);
         },
       );
 
