@@ -21,6 +21,7 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.RedisUtils;
 import com.appsmith.server.ratelimiting.RateLimitService;
@@ -28,6 +29,7 @@ import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.DatasourceContextService;
+import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.SequenceService;
 import com.appsmith.server.services.SessionUserService;
@@ -87,6 +89,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
     private final EnvironmentPermission environmentPermission;
     private final RateLimitService rateLimitService;
     private final RedisUtils redisUtils;
+    private final FeatureFlagService featureFlagService;
 
     private final Integer BLOCK_TEST_API_DURATION = 5;
 
@@ -107,7 +110,8 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
             DatasourceStorageService datasourceStorageService,
             EnvironmentPermission environmentPermission,
             RateLimitService rateLimitService,
-            RedisUtils redisUtils) {
+            RedisUtils redisUtils,
+            FeatureFlagService featureFlagService) {
 
         this.workspaceService = workspaceService;
         this.sessionUserService = sessionUserService;
@@ -125,6 +129,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
         this.environmentPermission = environmentPermission;
         this.rateLimitService = rateLimitService;
         this.redisUtils = redisUtils;
+        this.featureFlagService = featureFlagService;
     }
 
     @Override
@@ -449,99 +454,89 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
             DatasourceStorageDTO datasourceStorageDTO, String activeEnvironmentId) {
         DatasourceStorage datasourceStorage =
                 datasourceStorageService.createDatasourceStorageFromDatasourceStorageDTO(datasourceStorageDTO);
-        Mono<String> rateLimitIdentifierMono = this.getRateLimitIdentifier(datasourceStorage);
-        return rateLimitIdentifierMono.flatMap(rateLimitIdentifier -> {
-            return rateLimitService
-                    .isBlockingKeyPresent(RateLimitConstants.BUCKET_KEY_FOR_TEST_DATASOURCE_API, rateLimitIdentifier)
-                    .flatMap(isPresent -> {
-                        if (!isPresent) {
-                            final Mono<DatasourceStorage> datasourceStorageMono;
+        return this.shouldCheckForBlockingKey(datasourceStorage).flatMap(isPresent -> {
+            if (!isPresent) {
+                final Mono<DatasourceStorage> datasourceStorageMono;
 
-                            // Ideally there should also be a check for missing environmentId,
-                            // however since we are falling back to default this step is not required here.
+                // Ideally there should also be a check for missing environmentId,
+                // however since we are falling back to default this step is not required here.
 
-                            // Cases where the datasource hasn't been saved yet
-                            if (!hasText(datasourceStorage.getDatasourceId())) {
+                // Cases where the datasource hasn't been saved yet
+                if (!hasText(datasourceStorage.getDatasourceId())) {
 
-                                if (!hasText(datasourceStorage.getWorkspaceId())) {
-                                    return Mono.error(new AppsmithException(
-                                            AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
+                    if (!hasText(datasourceStorage.getWorkspaceId())) {
+                        return Mono.error(
+                                new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
+                    }
+
+                    datasourceStorageMono = getTrueEnvironmentId(
+                                    datasourceStorage.getWorkspaceId(),
+                                    datasourceStorage.getEnvironmentId(),
+                                    datasourceStorage.getPluginId(),
+                                    null)
+                            .map(trueEnvironmentId -> {
+                                datasourceStorage.setEnvironmentId(trueEnvironmentId);
+                                return datasourceStorage;
+                            });
+                } else {
+
+                    datasourceStorageMono = findById(
+                                    datasourceStorage.getDatasourceId(), datasourcePermission.getExecutePermission())
+                            .zipWhen(dbDatasource -> getTrueEnvironmentId(
+                                    dbDatasource.getWorkspaceId(),
+                                    datasourceStorage.getEnvironmentId(),
+                                    dbDatasource.getPluginId(),
+                                    null))
+                            .flatMap(tuple2 -> {
+                                Datasource datasource = tuple2.getT1();
+                                String trueEnvironmentId = tuple2.getT2();
+
+                                datasourceStorage.setEnvironmentId(trueEnvironmentId);
+                                datasourceStorage.prepareTransientFields(datasource);
+                                return Mono.zip(Mono.just(datasource), Mono.just(datasourceStorage));
+                            })
+                            .flatMap(tuple2 -> {
+                                Datasource datasource = tuple2.getT1();
+                                DatasourceStorage datasourceStorage1 = tuple2.getT2();
+                                DatasourceConfiguration datasourceConfiguration =
+                                        datasourceStorage1.getDatasourceConfiguration();
+                                if (datasourceConfiguration == null
+                                        || datasourceConfiguration.getAuthentication() == null) {
+                                    return Mono.just(datasourceStorage);
                                 }
 
-                                datasourceStorageMono = getTrueEnvironmentId(
-                                                datasourceStorage.getWorkspaceId(),
-                                                datasourceStorage.getEnvironmentId(),
-                                                datasourceStorage.getPluginId(),
-                                                null)
-                                        .map(trueEnvironmentId -> {
-                                            datasourceStorage.setEnvironmentId(trueEnvironmentId);
-                                            return datasourceStorage;
+                                String datasourceId = datasourceStorage1.getDatasourceId();
+                                String trueEnvironmentId = datasourceStorage1.getEnvironmentId();
+                                // Fetch any fields that maybe encrypted from the db if the datasource being
+                                // tested does not
+                                // have those fields set.
+                                // This scenario would happen whenever an existing datasource is being
+                                // tested and no changes are
+                                // present in the
+                                // encrypted field (because encrypted fields are not sent over the network
+                                // after encryption back
+                                // to the client
+
+                                if (!hasText(datasourceStorage.getId())) {
+                                    return Mono.just(datasourceStorage);
+                                }
+
+                                return datasourceStorageService
+                                        .findByDatasourceAndEnvironmentIdForExecution(datasource, trueEnvironmentId)
+                                        .map(dbDatasourceStorage -> {
+                                            copyNestedNonNullProperties(datasourceStorage, dbDatasourceStorage);
+                                            return dbDatasourceStorage;
                                         });
-                            } else {
-
-                                datasourceStorageMono = findById(
-                                                datasourceStorage.getDatasourceId(),
-                                                datasourcePermission.getExecutePermission())
-                                        .zipWhen(dbDatasource -> getTrueEnvironmentId(
-                                                dbDatasource.getWorkspaceId(),
-                                                datasourceStorage.getEnvironmentId(),
-                                                dbDatasource.getPluginId(),
-                                                null))
-                                        .flatMap(tuple2 -> {
-                                            Datasource datasource = tuple2.getT1();
-                                            String trueEnvironmentId = tuple2.getT2();
-
-                                            datasourceStorage.setEnvironmentId(trueEnvironmentId);
-                                            datasourceStorage.prepareTransientFields(datasource);
-                                            return Mono.zip(Mono.just(datasource), Mono.just(datasourceStorage));
-                                        })
-                                        .flatMap(tuple2 -> {
-                                            Datasource datasource = tuple2.getT1();
-                                            DatasourceStorage datasourceStorage1 = tuple2.getT2();
-                                            DatasourceConfiguration datasourceConfiguration =
-                                                    datasourceStorage1.getDatasourceConfiguration();
-                                            if (datasourceConfiguration == null
-                                                    || datasourceConfiguration.getAuthentication() == null) {
-                                                return Mono.just(datasourceStorage);
-                                            }
-
-                                            String datasourceId = datasourceStorage1.getDatasourceId();
-                                            String trueEnvironmentId = datasourceStorage1.getEnvironmentId();
-                                            // Fetch any fields that maybe encrypted from the db if the datasource being
-                                            // tested does not
-                                            // have those fields set.
-                                            // This scenario would happen whenever an existing datasource is being
-                                            // tested and no changes are
-                                            // present in the
-                                            // encrypted field (because encrypted fields are not sent over the network
-                                            // after encryption back
-                                            // to the client
-
-                                            if (!hasText(datasourceStorage.getId())) {
-                                                return Mono.just(datasourceStorage);
-                                            }
-
-                                            return datasourceStorageService
-                                                    .findByDatasourceAndEnvironmentIdForExecution(
-                                                            datasource, trueEnvironmentId)
-                                                    .map(dbDatasourceStorage -> {
-                                                        copyNestedNonNullProperties(
-                                                                datasourceStorage, dbDatasourceStorage);
-                                                        return dbDatasourceStorage;
-                                                    });
-                                        })
-                                        .switchIfEmpty(
-                                                Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS)));
-                            }
-                            return datasourceStorageMono
-                                    .flatMap(datasourceStorageService::checkEnvironment)
-                                    .flatMap(this::verifyDatasourceAndTest);
-                        } else {
-                            AppsmithException exception =
-                                    new AppsmithException(AppsmithError.TEST_API_TOO_MANY_REQUESTS);
-                            return Mono.just(new DatasourceTestResult(exception.getMessage()));
-                        }
-                    });
+                            })
+                            .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS)));
+                }
+                return datasourceStorageMono
+                        .flatMap(datasourceStorageService::checkEnvironment)
+                        .flatMap(this::verifyDatasourceAndTest);
+            } else {
+                AppsmithException exception = new AppsmithException(AppsmithError.TEST_API_TOO_MANY_REQUESTS);
+                return Mono.just(new DatasourceTestResult(exception.getMessage()));
+            }
         });
     }
 
@@ -569,10 +564,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                                 String rateLimitIdentifier = tuple.getT2();
                                 if (!CollectionUtils.isEmpty(datasourceTestResult.getInvalids())) {
                                     // Consumes a token from bucket whenever test api fails
-                                    return rateLimitService
-                                            .tryIncreaseCounter(
-                                                    RateLimitConstants.BUCKET_KEY_FOR_TEST_DATASOURCE_API,
-                                                    rateLimitIdentifier)
+                                    return this.shouldConsumeToken(datasourceStorage)
                                             .flatMap(isSuccessful -> {
                                                 if (!isSuccessful) {
                                                     AppsmithException exception = new AppsmithException(
@@ -644,6 +636,40 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
 
         return pluginExecutorMono.flatMap(pluginExecutor -> ((PluginExecutor<Object>) pluginExecutor)
                 .getIdentifierForRateLimit(datasourceStorage.getDatasourceConfiguration()));
+    }
+
+    protected Mono<Boolean> shouldCheckForBlockingKey(DatasourceStorage datasourceStorage) {
+        Mono<String> rateLimitIdentifierMono = this.getRateLimitIdentifier(datasourceStorage);
+        return featureFlagService
+                .check(FeatureFlagEnum.rollout_datasource_test_rate_limit_enabled)
+                .zipWith(rateLimitIdentifierMono)
+                .flatMap(tuple -> {
+                    Boolean isFlagEnabled = tuple.getT1();
+                    String rateLimitIdentifier = tuple.getT2();
+                    if (isFlagEnabled) {
+                        return rateLimitService.isBlockingKeyPresent(
+                                RateLimitConstants.BUCKET_KEY_FOR_TEST_DATASOURCE_API, rateLimitIdentifier);
+                    } else {
+                        return Mono.just(false);
+                    }
+                });
+    }
+
+    protected Mono<Boolean> shouldConsumeToken(DatasourceStorage datasourceStorage) {
+        Mono<String> rateLimitIdentifierMono = this.getRateLimitIdentifier(datasourceStorage);
+        return featureFlagService
+                .check(FeatureFlagEnum.rollout_datasource_test_rate_limit_enabled)
+                .zipWith(rateLimitIdentifierMono)
+                .flatMap(tuple -> {
+                    Boolean isFlagEnabled = tuple.getT1();
+                    String rateLimitIdentifier = tuple.getT2();
+                    if (isFlagEnabled) {
+                        return rateLimitService.tryIncreaseCounter(
+                                RateLimitConstants.BUCKET_KEY_FOR_TEST_DATASOURCE_API, rateLimitIdentifier);
+                    } else {
+                        return Mono.just(true);
+                    }
+                });
     }
 
     @Override

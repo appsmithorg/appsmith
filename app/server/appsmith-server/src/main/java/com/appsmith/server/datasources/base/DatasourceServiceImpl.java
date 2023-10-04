@@ -9,6 +9,7 @@ import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.DatasourceContextService;
+import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.SequenceService;
 import com.appsmith.server.services.SessionUserService;
@@ -39,7 +40,8 @@ public class DatasourceServiceImpl extends DatasourceServiceCEImpl implements Da
             DatasourceStorageService datasourceStorageService,
             EnvironmentPermission environmentPermission,
             RateLimitService rateLimitService,
-            RedisUtils redisUtils) {
+            RedisUtils redisUtils,
+            FeatureFlagService featureFlagService) {
 
         super(
                 repository,
@@ -57,6 +59,7 @@ public class DatasourceServiceImpl extends DatasourceServiceCEImpl implements Da
                 datasourceStorageService,
                 environmentPermission,
                 rateLimitService,
-                redisUtils);
+                redisUtils,
+                featureFlagService);
     }
 }
