@@ -3,7 +3,7 @@ import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import { AnvilFlexComponent } from "../common/AnvilFlexComponent";
 import SnipeableComponent from "layoutSystems/common/snipeable/SnipeableComponent";
 import { AnvilWidgetComponent } from "../common/widgetComponent/AnvilWidgetComponent";
-import DraggableComponent from "layoutSystems/common/draggable/DraggableComponent";
+import DraggableComponent from "layoutSystems/anvil/draggable/DraggableComponent";
 import { AnvilResizableLayer } from "../common/resizer/AnvilResizableLayer";
 
 /**
@@ -37,15 +37,8 @@ export const AnvilEditorWidgetOnion = (props: BaseWidgetProps) => {
     >
       <SnipeableComponent type={props.type} widgetId={props.widgetId}>
         <DraggableComponent
-          bottomRow={props.bottomRow}
-          isFlexChild
-          leftColumn={props.leftColumn}
-          parentColumnSpace={props.parentColumnSpace}
           parentId={props.parentId}
-          parentRowSpace={props.parentRowSpace}
           resizeDisabled={props.resizeDisabled}
-          rightColumn={props.rightColumn}
-          topRow={props.topRow}
           type={props.type}
           widgetId={props.widgetId}
         >

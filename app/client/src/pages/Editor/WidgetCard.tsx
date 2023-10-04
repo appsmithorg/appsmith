@@ -1,13 +1,14 @@
 import React, { useCallback, useContext } from "react";
 import type { WidgetCardProps } from "widgets/BaseWidget";
 import styled from "styled-components";
-import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { generateReactKey } from "utils/generators";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { IconWrapper } from "constants/IconConstants";
 import { Text } from "design-system";
 import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { useDispatch } from "react-redux";
 
 type CardProps = {
   details: WidgetCardProps;
@@ -59,7 +60,6 @@ export const BetaLabel = styled.div`
 `;
 
 function WidgetCard(props: CardProps) {
-  const { setDraggingNewWidget } = useWidgetDragResize();
   const { deselectAll } = useWidgetSelection();
 
   const { isOpened: isWalkthroughOpened, popFeature } =
@@ -70,20 +70,26 @@ function WidgetCard(props: CardProps) {
     }
   }, [isWalkthroughOpened, popFeature]);
 
-  const onDragStart = (e: any) => {
+  const dispatch = useDispatch();
+  const onDragStart: React.DragEventHandler<HTMLDivElement> = (e) => {
     e.preventDefault();
     e.stopPropagation();
     AnalyticsUtil.logEvent("WIDGET_CARD_DRAG", {
       widgetType: props.details.type,
       widgetName: props.details.displayName,
     });
-    setDraggingNewWidget &&
-      setDraggingNewWidget(true, {
-        ...props.details,
-        widgetId: generateReactKey(),
-      });
-    deselectAll();
 
+    dispatch({
+      type: ReduxActionTypes.SET_NEW_WIDGET_DRAGGING,
+      payload: {
+        isDragging: true,
+        newWidgetProps: { ...props.details, widgetId: generateReactKey() },
+      },
+    });
+
+    // A new widget is likely to be dropped on to the Canvas
+    // We pre-emptively deselect any selected widgets.
+    deselectAll();
     closeWalkthrough();
   };
 

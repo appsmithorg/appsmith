@@ -7,7 +7,7 @@ import DropTargetComponent from "components/editorComponents/DropTargetComponent
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { GridDefaults, RenderModes } from "constants/WidgetConstants";
-import WidgetsMultiSelectBox from "pages/Editor/WidgetsMultiSelectBox";
+import WidgetsMultiSelectBox from "layoutSystems/common/WidgetsMultiSelectBox";
 import type { CSSProperties } from "react";
 import React from "react";
 import { getCanvasClassName } from "utils/generators";

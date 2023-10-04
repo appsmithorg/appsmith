@@ -11,7 +11,7 @@ import BaseWidget from "widgets/BaseWidget";
 
 import { ValidationTypes } from "constants/WidgetValidation";
 import { compact, map, sortBy } from "lodash";
-import WidgetsMultiSelectBox from "pages/Editor/WidgetsMultiSelectBox";
+import WidgetsMultiSelectBox from "layoutSystems/common/WidgetsMultiSelectBox";
 
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { getSnappedGrid } from "sagas/WidgetOperationUtils";
