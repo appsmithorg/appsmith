@@ -8,6 +8,7 @@ import {
 } from "../../../../../support/Objects/ObjectsCore";
 import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 let agHelper = ObjectsRegistry.AggregateHelper;
+let locators = ObjectsRegistry.CommonLocators;
 
 describe("JSON Form Widget AutoGenerate Enabled", () => {
   beforeEach(() => {
@@ -38,11 +39,7 @@ describe("JSON Form Widget AutoGenerate Enabled", () => {
     };
 
     entityExplorer.SelectEntityByName("JSONForm1");
-    propPane.UpdatePropertyFieldValue(
-      "Source data",
-      JSON.stringify(sourceData),
-    );
-
+    propPane.EnterJSContext("Source data", JSON.stringify(sourceData), true);
     deployMode.DeployApp();
 
     cy.get(`${fieldPrefix}-name label`).contains("Name");
@@ -125,12 +122,12 @@ describe("JSON Form Widget AutoGenerate Enabled", () => {
       ],
     };
 
-    entityExplorer.SelectEntityByName("JSONForm1");
-    propPane.UpdatePropertyFieldValue(
+    cy.openPropertyPane("jsonformwidget");
+    propPane.EnterJSContext(
       "Source data",
       JSON.stringify(modifiedSourceData),
+      true,
     );
-
     deployMode.DeployApp();
 
     cy.get(`${fieldPrefix}-name label`).contains("Name");

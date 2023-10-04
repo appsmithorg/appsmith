@@ -70,13 +70,13 @@ public class TenantConfigurationCE {
         isFormLoginEnabled = ObjectUtils.defaultIfNull(tenantConfiguration.getIsFormLoginEnabled(), isFormLoginEnabled);
         instanceName = ObjectUtils.defaultIfNull(tenantConfiguration.getInstanceName(), instanceName);
         emailVerificationEnabled =
-                ObjectUtils.defaultIfNull(tenantConfiguration.getEmailVerificationEnabled(), emailVerificationEnabled);
+                ObjectUtils.defaultIfNull(tenantConfiguration.isEmailVerificationEnabled(), emailVerificationEnabled);
 
         featuresWithPendingMigration = tenantConfiguration.getFeaturesWithPendingMigration();
         migrationStatus = tenantConfiguration.getMigrationStatus();
     }
 
-    public Boolean getEmailVerificationEnabled() {
+    public Boolean isEmailVerificationEnabled() {
         return Boolean.TRUE.equals(this.emailVerificationEnabled);
     }
 }

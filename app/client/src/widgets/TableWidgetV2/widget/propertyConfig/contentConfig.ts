@@ -7,7 +7,6 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { TableWidgetProps } from "widgets/TableWidgetV2/constants";
-import { ALLOW_TABLE_WIDGET_SERVER_SIDE_FILTERING } from "../../constants";
 import { InlineEditingSaveOptions } from "widgets/TableWidgetV2/constants";
 import { composePropertyUpdateHook } from "widgets/WidgetUtils";
 import {
@@ -20,7 +19,6 @@ import {
   updateInlineEditingSaveOptionHook,
 } from "../propertyUtils";
 import panelConfig from "./PanelConfig";
-import Widget from "../index";
 
 export default [
   {
@@ -242,8 +240,6 @@ export default [
         isBindProperty: false,
         isTriggerProperty: false,
         defaultValue: false,
-        hidden: () =>
-          !Widget.getFeatureFlag(ALLOW_TABLE_WIDGET_SERVER_SIDE_FILTERING),
       },
       {
         propertyName: "onTableFilterUpdate",

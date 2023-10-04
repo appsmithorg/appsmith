@@ -8,6 +8,7 @@ import {
   deployMode,
   entityExplorer,
   propPane,
+  locators,
 } from "../../../../../support/Objects/ObjectsCore";
 
 const fieldPrefix = ".t--jsonformfield";
@@ -28,7 +29,7 @@ describe("Radio Group Field", () => {
     };
     agHelper.AddDsl("jsonFormDslWithoutSchema");
     entityExplorer.SelectEntityByName("JSONForm1");
-    propPane.UpdatePropertyFieldValue("Source data", JSON.stringify(schema));
+    propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
 
     cy.openFieldConfiguration("agree");
     cy.selectDropdownValue(commonlocators.jsonFormFieldType, /^Checkbox/);
@@ -54,7 +55,7 @@ describe("Radio Group Field", () => {
 
     agHelper.AddDsl("jsonFormDslWithoutSchema");
     entityExplorer.SelectEntityByName("JSONForm1");
-    propPane.UpdatePropertyFieldValue("Source data", JSON.stringify(schema));
+    propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
 
     cy.openFieldConfiguration("agree");
 
@@ -80,7 +81,7 @@ describe("Radio Group Field", () => {
     agHelper.AddDsl("jsonFormDslWithoutSchema");
 
     entityExplorer.SelectEntityByName("JSONForm1");
-    propPane.UpdatePropertyFieldValue("Source data", JSON.stringify(schema));
+    propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
 
     cy.openFieldConfiguration("dob");
 
