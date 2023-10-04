@@ -32,6 +32,7 @@ export function addWidgetsToPreset(
     layouts,
     [...layoutOrder],
   );
+
   if (!affectedLayout) return layouts;
 
   const Comp: LayoutComponent = LayoutFactory.get(affectedLayout.layoutType);

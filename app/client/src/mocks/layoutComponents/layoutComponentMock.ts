@@ -4,6 +4,7 @@ import { mockButtonProps } from "../widgetProps/button";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import { mockInputProps } from "../widgetProps/input";
 import type { WidgetProps } from "widgets/BaseWidget";
+import { generateReactKey } from "utils/generators";
 
 export function generateLayoutComponentMock(
   data: Partial<LayoutComponentProps> = {},
@@ -32,7 +33,7 @@ export function generateLayoutComponentMock(
   }
   return {
     layout,
-    layoutId: "",
+    layoutId: generateReactKey(),
     layoutStyle: {},
     layoutType: "ROW",
 

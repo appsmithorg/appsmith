@@ -8,7 +8,7 @@ import { FlexLayout } from "./FlexLayout";
 import { doesAlignedRowRenderWidgets } from "layoutSystems/anvil/utils/layouts/typeUtils";
 import {
   addChildToAlignedRow,
-  removeChildFromLayout,
+  removeChildFromAlignedRow,
 } from "layoutSystems/anvil/utils/layouts/layoutUtils";
 import { renderWidgetsInAlignedRow } from "layoutSystems/anvil/utils/layouts/renderUtils";
 
@@ -67,9 +67,9 @@ AlignedRow.extractChildWidgetIds = (props: LayoutComponentProps): string[] => {
 
 AlignedRow.removeChild = (
   props: LayoutComponentProps,
-  child: string,
+  child: string | LayoutComponentProps,
 ): LayoutComponentProps | undefined => {
-  return removeChildFromLayout(props, child);
+  return removeChildFromAlignedRow(props, child as string);
 };
 
 AlignedRow.renderChildWidgets = (
