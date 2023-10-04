@@ -3,11 +3,8 @@ const fs = require("fs");
 const path = require("path");
 const dotenv = require("dotenv");
 const chalk = require("chalk");
-// const _ = require("lodash");
-// const del = require("del");
 const cypressLogToOutput = require("cypress-log-to-output");
 const installLogsPrinter = require("cypress-terminal-report/src/installLogsPrinter");
-//const { isFileExist } = require("cy-verify-downloads");
 const {
   addMatchImageSnapshotPlugin,
 } = require("cypress-image-snapshot/plugin");

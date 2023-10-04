@@ -523,10 +523,12 @@ jobs:
           env: "NODE_ENV=development"
       
       - name: Trim number of cypress log files
+        if: steps.run_result.outputs.run_result == 'failedtest'
         run: |
           find ${{ github.workspace }}/app/client/cypress/cypress-logs -name '*.json' -type f | tail -n +11 | xargs -I {} rm -- {}
       
       - name: Upload failed test cypress logs artifact
+        if: steps.run_result.outputs.run_result == 'failedtest
         uses: actions/upload-artifact@v3
         with:
           name: cypress-console-logs
