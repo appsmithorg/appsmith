@@ -27,28 +27,16 @@ import { ChartErrorComponent } from "../component/ChartErrorComponent";
 import { syntaxErrorsFromProps } from "./SyntaxErrorsEvaluation";
 import { EmptyChartData } from "../component/EmptyChartData";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
+import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import { generateReactKey } from "widgets/WidgetUtils";
 import { LabelOrientation } from "../constants";
 import IconSVG from "../icon.svg";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
-import type { ChartType } from "../constants";
 import { EChartsDatasetBuilder } from "../component/EChartsDatasetBuilder";
 
 const ChartComponent = lazy(() =>
   retryPromise(() => import(/* webpackChunkName: "charts" */ "../component")),
 );
-
-export const isBasicEChart = (type: ChartType) => {
-  const types: ChartType[] = [
-    "AREA_CHART",
-    "PIE_CHART",
-    "LINE_CHART",
-    "BAR_CHART",
-    "COLUMN_CHART",
-  ];
-  return types.includes(type);
-};
 
 export const emptyChartData = (props: ChartWidgetProps) => {
   if (props.chartType == "CUSTOM_FUSION_CHART") {

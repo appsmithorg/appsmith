@@ -3,48 +3,44 @@ import {
   getEntityNameAndPropertyPath,
   isATriggerPath,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
-import type {
-  DataTreeEntityConfig,
-  WidgetEntity,
-  WidgetEntityConfig,
-} from "entities/DataTree/dataTreeFactory";
-import {
-  ENTITY_TYPE,
-  type DataTreeEntity,
-} from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE_VALUE } from "entities/DataTree/dataTreeFactory";
 import type {
   ActionEntity,
   ActionEntityConfig,
   JSActionEntity,
   JSActionEntityConfig,
-} from "entities/DataTree/types";
+  DataTreeEntity,
+  DataTreeEntityConfig,
+  WidgetEntity,
+  WidgetEntityConfig,
+} from "@appsmith/entities/DataTree/types";
 import { find, get, union } from "lodash";
 import {
   getDynamicBindings,
   getEntityDynamicBindingPathList,
 } from "utils/DynamicBindingUtils";
-import { isWidgetActionOrJsObject } from "workers/common/DataTreeEvaluator/utils";
+import { isWidgetActionOrJsObject } from "@appsmith/entities/DataTree/utils";
 
 export function getEntityDependencies(
   entity: DataTreeEntity,
   entityConfig: DataTreeEntityConfig,
   allKeys: Record<string, true>,
 ): Record<string, string[]> {
-  if (!isWidgetActionOrJsObject(entity)) return {};
+  if (!isWidgetActionOrJsObject(entity, entityConfig)) return {};
   switch (entity.ENTITY_TYPE) {
-    case ENTITY_TYPE.ACTION:
+    case ENTITY_TYPE_VALUE.ACTION:
       return getActionDependencies(
         entity,
         entityConfig as ActionEntityConfig,
         allKeys,
       );
-    case ENTITY_TYPE.JSACTION:
+    case ENTITY_TYPE_VALUE.JSACTION:
       return getJSDependencies(
         entity,
         entityConfig as JSActionEntityConfig,
         allKeys,
       );
-    case ENTITY_TYPE.WIDGET:
+    case ENTITY_TYPE_VALUE.WIDGET:
       return getWidgetDependencies(
         entity as WidgetEntity,
         entityConfig as WidgetEntityConfig,
@@ -159,23 +155,23 @@ export function getEntityPathDependencies(
   fullPropertyPath: string,
   allKeys: Record<string, true>,
 ) {
-  if (!isWidgetActionOrJsObject(entity)) return [];
+  if (!isWidgetActionOrJsObject(entity, entityConfig)) return [];
   switch (entity.ENTITY_TYPE) {
-    case ENTITY_TYPE.ACTION:
+    case ENTITY_TYPE_VALUE.ACTION:
       return getActionPropertyPathDependencies(
         entity,
         entityConfig as ActionEntityConfig,
         fullPropertyPath,
         allKeys,
       );
-    case ENTITY_TYPE.JSACTION:
+    case ENTITY_TYPE_VALUE.JSACTION:
       return getJSPropertyPathDependencies(
         entity,
         entityConfig as JSActionEntityConfig,
         fullPropertyPath,
         allKeys,
       );
-    case ENTITY_TYPE.WIDGET:
+    case ENTITY_TYPE_VALUE.WIDGET:
       return getWidgetPropertyPathDependencies(
         entity,
         entityConfig as WidgetEntityConfig,

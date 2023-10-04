@@ -171,15 +171,9 @@ describe("Validate Oracle DS", () => {
     agHelper.RenameWithInPane("CreateAircraft");
     dataSources.EnterQuery(query);
     dataSources.RunQuery();
-    entityExplorer.ExpandCollapseEntity("Datasources");
-    entityExplorer.ExpandCollapseEntity(dataSourceName);
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: dataSourceName,
-      action: "Refresh",
-    });
-    agHelper.AssertElementVisibility(
-      entityExplorer._entityNameInExplorer(guid.toUpperCase()),
-    );
+
+    dataSources.AssertTableInVirtuosoList(dataSourceName, guid.toUpperCase());
+
     query = `INSERT INTO ${guid} (
     aircraft_id,
     aircraft_type,
@@ -201,7 +195,7 @@ describe("Validate Oracle DS", () => {
     TO_DATE('2020-01-15', 'YYYY-MM-DD'),
     TO_DATE('{{DatePicker1.formattedDate}}', 'YYYY-MM-DD'),
     'This aircraft is used for domestic flights.')`;
-    entityExplorer.ActionTemplateMenuByEntityName(guid.toUpperCase(), "SELECT");
+    entityExplorer.ActionTemplateMenuByEntityName(guid.toUpperCase(), "Select");
     dataSources.RunQuery();
     agHelper
       .GetText(dataSources._noRecordFound)

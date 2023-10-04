@@ -15,8 +15,8 @@ import { COLORS, BUTTON_VARIANTS } from "@design-system/widgets";
 import type { AutocompletionDefinitions } from "WidgetProvider/constants";
 import { ButtonPlacementTypes, RecaptchaTypes } from "components/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
 import type { ExecutionResult } from "constants/AppsmithActionConstants/ActionConstants";
+import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 
 class WDSButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
   constructor(props: ButtonWidgetProps) {

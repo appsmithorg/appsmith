@@ -1,0 +1,82 @@
+{
+    "dsl": {
+        "widgetName": "MainContainer",
+        "backgroundColor": "none",
+        "rightColumn": 4896,
+        "snapColumns": 64,
+        "detachFromLayout": true,
+        "widgetId": "0",
+        "topRow": 0,
+        "bottomRow": 380,
+        "containerStyle": "none",
+        "snapRows": 124,
+        "parentRowSpace": 1,
+        "type": "CANVAS_WIDGET",
+        "canExtend": true,
+        "version": 86,
+        "minHeight": 1292,
+        "dynamicTriggerPathList": [],
+        "parentColumnSpace": 1,
+        "dynamicBindingPathList": [],
+        "leftColumn": 0,
+        "children": [
+            {
+                "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+                "mobileBottomRow": 27,
+                "widgetName": "RichTextEditor1",
+                "displayName": "Rich Text Editor",
+                "iconSVG": "/static/media/icon.074d534389d0f6262ecfbd8e81539d08.svg",
+                "labelText": "Label",
+                "searchTags": [
+                    "input",
+                    "rte"
+                ],
+                "topRow": 7,
+                "bottomRow": 38,
+                "parentRowSpace": 10,
+                "labelWidth": 5,
+                "type": "RICH_TEXT_EDITOR_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 44,
+                "animateLoading": true,
+                "parentColumnSpace": 10.078125,
+                "leftColumn": 9,
+                "dynamicBindingPathList": [
+                    {
+                        "key": "borderRadius"
+                    },
+                    {
+                        "key": "boxShadow"
+                    }
+                ],
+                "labelPosition": "Top",
+                "inputType": "html",
+                "isDisabled": false,
+                "key": "4xb1pqir3y",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 56,
+                "isDefaultClickDisabled": true,
+                "dynamicHeight": "FIXED",
+                "widgetId": "z67478an8a",
+                "minWidth": 450,
+                "isVisible": true,
+                "version": 1,
+                "parentId": "0",
+                "tags": [
+                    "Inputs"
+                ],
+                "labelAlignment": "left",
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 7,
+                "responsiveBehavior": "fill",
+                "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                "mobileLeftColumn": 20,
+                "maxDynamicHeight": 9000,
+                "defaultText": "This is the initial <b>content</b> of the editor",
+                "minDynamicHeight": 4
+            }
+        ]
+    }
+}
