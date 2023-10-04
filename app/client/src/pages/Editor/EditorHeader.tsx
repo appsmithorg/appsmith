@@ -100,7 +100,6 @@ import EndTour from "./GuidedTour/EndTour";
 import { GUIDED_TOUR_STEPS } from "./GuidedTour/constants";
 import { viewerURL } from "RouteBuilder";
 import { useHref } from "./utils";
-import EmbedSnippetForm from "@appsmith/pages/Applications/EmbedSnippetTab";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 import type { NavigationSetting } from "constants/AppConstants";
@@ -118,6 +117,7 @@ import CommunityTemplatesPublishInfo from "./CommunityTemplates/Modals/Community
 import PublishCommunityTemplateModal from "./CommunityTemplates/Modals/PublishCommunityTemplate";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { getEmbedSnippetForm } from "@appsmith/utils/BusinessFeatures/privateEmbedHelpers";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -370,6 +370,9 @@ export function EditorHeader() {
   const adaptiveSignposting = useSelector(adaptiveSignpostingEnabled);
   const isConnectionPresent = useSelector(isWidgetActionConnectionPresent);
   const isDeployed = !!useSelector(getApplicationLastDeployedAt);
+  const isPrivateEmbedEnabled = useFeatureFlag(
+    FEATURE_FLAG.license_private_embeds_enabled,
+  );
   useEffect(() => {
     if (
       signpostingEnabled &&
@@ -590,9 +593,7 @@ export function EditorHeader() {
                       />
                     </TabPanel>
                     <TabPanel value="embed">
-                      <EmbedSnippetForm
-                        changeTab={() => setActiveTab("invite")}
-                      />
+                      {getEmbedSnippetForm(isPrivateEmbedEnabled, setActiveTab)}
                     </TabPanel>
                     {cloudHosting && (
                       <TabPanel value="publish">
