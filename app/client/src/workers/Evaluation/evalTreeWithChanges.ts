@@ -14,8 +14,6 @@ import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActio
 import type { UpdateDataTreeMessageData } from "sagas/EvalWorkerActionSagas";
 import type { JSUpdate } from "utils/JSPaneUtils";
 import { generateOptimisedUpdatesAndSetPrevState } from "./helpers";
-import DataStore from "./dataStore";
-import { set } from "lodash";
 
 export function evalTreeWithChanges(
   updatedValuePaths: string[][],
@@ -76,13 +74,6 @@ export function evalTreeWithChanges(
     dataTree,
     dataTreeEvaluator,
   );
-
-  // Delete paths like Api1.data and JSObject.func1.data, to keep the evalTree lean for cloning
-  const dataPaths = DataStore.dataPaths;
-  dataPaths.forEach((p) => {
-    if (dataTreeEvaluator?.evalTree) set(dataTreeEvaluator.evalTree, p, {});
-  });
-
   const evalTreeResponse: EvalTreeResponseData = {
     updates,
     dependencies,

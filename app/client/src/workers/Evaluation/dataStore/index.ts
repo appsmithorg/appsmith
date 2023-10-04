@@ -6,11 +6,9 @@ import { get, set, unset } from "lodash";
 export type TDataStore = Record<string, Record<string, unknown>>;
 export default class DataStore {
   private static store: TDataStore = {};
-  static dataPaths: Array<string> = [];
 
   static setActionData(fullPath: string, value: unknown) {
     set(DataStore.store, fullPath, value);
-    DataStore.dataPaths.push(fullPath);
   }
 
   static getActionData(fullPath: string): unknown | undefined {
@@ -21,11 +19,9 @@ export default class DataStore {
   }
   static deleteActionData(fullPath: string) {
     unset(DataStore.store, fullPath);
-    DataStore.dataPaths = DataStore.dataPaths.filter((p) => p !== fullPath);
   }
   static clear() {
     DataStore.store = {};
-    DataStore.dataPaths = [];
   }
 
   static replaceDataStore(store: TDataStore) {

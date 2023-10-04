@@ -1,7 +1,7 @@
 import type { ConfigTree, DataTree } from "@appsmith/entities/DataTree/types";
 import type ReplayEntity from "entities/Replay";
 import ReplayCanvas from "entities/Replay/ReplayEntity/ReplayCanvas";
-import { isEmpty, set } from "lodash";
+import { isEmpty } from "lodash";
 import type { DependencyMap, EvalError } from "utils/DynamicBindingUtils";
 import { EvalErrorTypes } from "utils/DynamicBindingUtils";
 import type { JSUpdate } from "utils/JSPaneUtils";
@@ -209,12 +209,6 @@ export default function (request: EvalWorkerSyncRequest) {
     dataTree,
     dataTreeEvaluator,
   );
-
-  const dataPaths = DataStore.dataPaths;
-
-  dataPaths.forEach((p) => {
-    if (dataTreeEvaluator?.evalTree) set(dataTreeEvaluator.evalTree, p, {});
-  });
 
   const evalTreeResponse: EvalTreeResponseData = {
     updates,
