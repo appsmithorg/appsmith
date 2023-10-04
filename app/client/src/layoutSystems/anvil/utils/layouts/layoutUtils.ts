@@ -1,5 +1,4 @@
-import type { HighlightInfo } from "layoutSystems/common/utils/types";
-import type { LayoutComponentProps } from "../anvilTypes";
+import type { AnvilHighlightInfo, LayoutComponentProps } from "../anvilTypes";
 import { AlignmentIndexMap } from "../constants";
 import Row from "layoutSystems/anvil/layoutComponents/components/Row";
 import AlignedColumn from "layoutSystems/anvil/layoutComponents/components/AlignedColumn";
@@ -27,7 +26,7 @@ export function generateLayoutId(canvasId: string, layoutId: string): string {
 export function addChildToLayout(
   props: LayoutComponentProps,
   children: string[] | LayoutComponentProps[],
-  highlight: HighlightInfo,
+  highlight: AnvilHighlightInfo,
 ): LayoutComponentProps {
   const layout: any = props.layout;
   const { rowIndex: index } = highlight;
@@ -47,7 +46,7 @@ export function addChildToLayout(
 export function addChildToAlignedRow(
   props: LayoutComponentProps,
   children: string[] | LayoutComponentProps[],
-  highlight: HighlightInfo,
+  highlight: AnvilHighlightInfo,
 ): LayoutComponentProps {
   const layout: string[][] = props.layout as string[][];
   const { alignment, rowIndex: index } = highlight;
@@ -69,45 +68,67 @@ export function addChildToAlignedRow(
 
 /**
  * Update a layout by removing children at a specified index.
+ * return undefined if layout is not permanent and is empty after deletion.
  * @param props | LayoutComponentProps - Parent Layout.
- * @param highlight | HighlightInfo - Drop Information.
- * @returns LayoutComponentProps
+ * @param child | string | LayoutComponentProps - Child (widget / layout) to be removed.
+ * @returns LayoutComponentProps | undefined
  */
 export function removeChildFromLayout(
   props: LayoutComponentProps,
-  highlight: HighlightInfo,
-): LayoutComponentProps {
-  const layout: any = props.layout;
-  const { rowIndex: index } = highlight;
-  return {
-    ...props,
-    layout: [...layout.slice(0, index), ...layout.slice(index + 1)],
-  };
+  child: string | LayoutComponentProps,
+): LayoutComponentProps | undefined {
+  let updatedLayout: LayoutComponentProps = { ...props };
+  if (typeof child === "string") {
+    updatedLayout = {
+      ...props,
+      layout: (props.layout as string[]).filter(
+        (each: string) => each !== child,
+      ),
+    };
+  } else {
+    updatedLayout = {
+      ...props,
+      layout: (props.layout as LayoutComponentProps[]).filter(
+        (each: LayoutComponentProps) => each.layoutId !== child.layoutId,
+      ),
+    };
+  }
+  return updatedLayout.isPermanent || updatedLayout.layout?.length
+    ? updatedLayout
+    : undefined;
 }
 
 /**
  * Update AlignedRow by removing children at a specified index from a specified alignment.
+ * return undefined if layout is not permanent and is empty after deletion.
  * @param props | LayoutComponentProps - Parent Layout.
  * @param highlight | HighlightInfo - Drop Information.
- * @returns LayoutComponentProps
+ * @returns LayoutComponentProps | undefined
  */
 export function removeChildFromAlignedRow(
   props: LayoutComponentProps,
-  highlight: HighlightInfo,
-): LayoutComponentProps {
+  child: string,
+): LayoutComponentProps | undefined {
   const layout: string[][] = props.layout as string[][];
-  const { alignment, rowIndex: index } = highlight;
   // Extract index of the affected alignment.
-  const alignmentIndex: number = AlignmentIndexMap[alignment];
+  const alignmentIndex: number = layout.findIndex(
+    (each: string[]) => each.indexOf(child) !== -1,
+  );
+  if (alignmentIndex === -1) return props;
   // Extract the list data of the affected alignment.
   const alignmentRow: string[] = layout[alignmentIndex];
   // Remove child at the appropriate position.
-  const updatedAlignmentRow: string[] = [
-    ...alignmentRow.slice(0, index),
-    ...alignmentRow.slice(index + 1),
-  ] as string[];
+  const updatedAlignmentRow: string[] = alignmentRow.filter(
+    (each: string) => each !== child,
+  );
   const updatedLayout = [...layout];
   // Update the affected alignment in the parent layout.
   updatedLayout[alignmentIndex] = updatedAlignmentRow as string[];
-  return { ...props, layout: updatedLayout } as LayoutComponentProps;
+  return props.isPermanent ||
+    updatedLayout.reduce(
+      (acc: number, each: string[]) => acc + each.length,
+      0,
+    ) > 0
+    ? ({ ...props, layout: updatedLayout } as LayoutComponentProps)
+    : undefined;
 }

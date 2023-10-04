@@ -1,5 +1,6 @@
 import type { RenderMode } from "constants/WidgetConstants";
-import type { HighlightInfo } from "layoutSystems/common/utils/types";
+import type { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
+import type { DropZone } from "layoutSystems/common/utils/types";
 import type { WidgetProps } from "widgets/BaseWidget";
 
 export type LayoutComponentType =
@@ -33,7 +34,7 @@ export interface LayoutComponent extends React.FC<LayoutComponentProps> {
   addChild: (
     props: LayoutComponentProps,
     children: string[] | LayoutComponentProps[],
-    highlight: HighlightInfo,
+    highlight: AnvilHighlightInfo,
   ) => LayoutComponentProps;
   getWidth: (arg0: any) => number;
   // get template of layout component to wrap new widgets in.
@@ -41,16 +42,29 @@ export interface LayoutComponent extends React.FC<LayoutComponentProps> {
     props: LayoutComponentProps,
   ) => LayoutComponentProps | undefined;
   // Get a list of highlights to demarcate the drop positions within the layout.
-  deriveHighlights: (canvasId: string) => HighlightInfo[];
+  deriveHighlights: (canvasId: string) => AnvilHighlightInfo[];
   // Get a list of child widgetIds rendered by the layout.
   extractChildWidgetIds: (props: LayoutComponentProps) => string[];
   // Remove a child widget / layout from the layout component.
+  // return undefined if layout is not permanent and is empty after deletion.
   removeChild: (
     props: LayoutComponentProps,
-    highlight: HighlightInfo,
-  ) => LayoutComponentProps;
+    child: string | LayoutComponentProps,
+  ) => LayoutComponentProps | undefined;
   // Render child widgets using the layout property.
   renderChildWidgets: (props: LayoutComponentProps) => React.ReactNode;
   // Check if the layout component renders widgets or layouts.
   rendersWidgets: (props: LayoutComponentProps) => boolean;
+}
+
+export interface AnvilHighlightInfo {
+  alignment: FlexLayerAlignment; // Alignment of the child in the layout.
+  canvasId: string; // WidgetId of the canvas widget to which the highlight (/ layout) belongs.
+  dropZone: DropZone; // size of the drop zone of this highlight.
+  height: number; // height of the highlight.
+  layoutOrder: string[]; // (Top - down) Hierarchy list of layouts to which the highlight belongs. The last entry in the array is the immediate parent layout.
+  posX: number; // x position of the highlight.
+  posY: number; // y position of the highlight.
+  rowIndex: number; // Index with in the layout array to insert the child at.
+  width: number; // width of the highlight.
 }

@@ -1,4 +1,5 @@
 import type {
+  AnvilHighlightInfo,
   LayoutComponentProps,
   LayoutComponentType,
 } from "layoutSystems/anvil/utils/anvilTypes";
@@ -7,7 +8,6 @@ import { FlexLayout } from "./FlexLayout";
 import { doesListIncludeWidgetIDs } from "layoutSystems/anvil/utils/layouts/typeUtils";
 import { renderWidgets } from "layoutSystems/anvil/utils/layouts/renderUtils";
 import { RenderModes } from "constants/WidgetConstants";
-import type { HighlightInfo } from "layoutSystems/common/utils/types";
 import {
   addChildToLayout,
   removeChildFromLayout,
@@ -35,7 +35,7 @@ Row.type = "ROW" as LayoutComponentType;
 Row.addChild = (
   props: LayoutComponentProps,
   children: string[] | LayoutComponentProps[],
-  highlight: HighlightInfo,
+  highlight: AnvilHighlightInfo,
 ): LayoutComponentProps => {
   return addChildToLayout(props, children, highlight);
 };
@@ -63,9 +63,9 @@ Row.extractChildWidgetIds = (props: LayoutComponentProps): string[] => {
 
 Row.removeChild = (
   props: LayoutComponentProps,
-  highlight: HighlightInfo,
-): LayoutComponentProps => {
-  return removeChildFromLayout(props, highlight);
+  child: string | LayoutComponentProps,
+): LayoutComponentProps | undefined => {
+  return removeChildFromLayout(props, child);
 };
 
 Row.renderChildWidgets = (props: LayoutComponentProps): React.ReactNode => {

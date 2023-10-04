@@ -1,11 +1,11 @@
 import type {
+  AnvilHighlightInfo,
   LayoutComponentProps,
   LayoutComponentType,
 } from "layoutSystems/anvil/utils/anvilTypes";
 import React from "react";
 import { FlexLayout } from "./FlexLayout";
 import { doesAlignedRowRenderWidgets } from "layoutSystems/anvil/utils/layouts/typeUtils";
-import type { HighlightInfo } from "layoutSystems/common/utils/types";
 import {
   addChildToAlignedRow,
   removeChildFromLayout,
@@ -35,7 +35,7 @@ AlignedRow.type = "ALIGNED_ROW" as LayoutComponentType;
 AlignedRow.addChild = (
   props: LayoutComponentProps,
   children: string[] | LayoutComponentProps[],
-  highlight: HighlightInfo,
+  highlight: AnvilHighlightInfo,
 ): LayoutComponentProps => {
   return addChildToAlignedRow(props, children, highlight);
 };
@@ -67,9 +67,9 @@ AlignedRow.extractChildWidgetIds = (props: LayoutComponentProps): string[] => {
 
 AlignedRow.removeChild = (
   props: LayoutComponentProps,
-  highlight: HighlightInfo,
-): LayoutComponentProps => {
-  return removeChildFromLayout(props, highlight);
+  child: string,
+): LayoutComponentProps | undefined => {
+  return removeChildFromLayout(props, child);
 };
 
 AlignedRow.renderChildWidgets = (
@@ -82,6 +82,7 @@ AlignedRow.renderChildWidgets = (
 };
 
 AlignedRow.rendersWidgets = (props: LayoutComponentProps): boolean => {
+  // TODO: AlignedRow is expected to render widgets only. Shall this be hardcoded to true?
   return doesAlignedRowRenderWidgets(props);
 };
 

@@ -1,13 +1,13 @@
 import React from "react";
 import { FlexLayout } from "./FlexLayout";
 import type {
+  AnvilHighlightInfo,
   LayoutComponentProps,
   LayoutComponentType,
 } from "layoutSystems/anvil/utils/anvilTypes";
 import { doesListIncludeWidgetIDs } from "layoutSystems/anvil/utils/layouts/typeUtils";
 import { renderWidgets } from "layoutSystems/anvil/utils/layouts/renderUtils";
 import { RenderModes } from "constants/WidgetConstants";
-import type { HighlightInfo } from "layoutSystems/common/utils/types";
 import {
   addChildToLayout,
   removeChildFromLayout,
@@ -33,7 +33,7 @@ Column.type = "COLUMN" as LayoutComponentType;
 Column.addChild = (
   props: LayoutComponentProps,
   children: string[] | LayoutComponentProps[],
-  highlight: HighlightInfo,
+  highlight: AnvilHighlightInfo,
 ): LayoutComponentProps => {
   return addChildToLayout(props, children, highlight);
 };
@@ -67,9 +67,9 @@ Column.extractChildWidgetIds = (props: LayoutComponentProps): string[] => {
 
 Column.removeChild = (
   props: LayoutComponentProps,
-  highlight: HighlightInfo,
-): LayoutComponentProps => {
-  return removeChildFromLayout(props, highlight);
+  child: string | LayoutComponentProps,
+): LayoutComponentProps | undefined => {
+  return removeChildFromLayout(props, child);
 };
 
 Column.renderChildWidgets = (props: LayoutComponentProps): React.ReactNode => {
