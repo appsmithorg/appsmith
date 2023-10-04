@@ -17,8 +17,8 @@ import { moveWidgets } from "../utils/layouts/update/moveUtils";
 
 function* addWidgetsSaga(
   actionPayload: ReduxAction<{
-    newWidget: WidgetAddChild;
     highlight: AnvilHighlightInfo;
+    newWidget: WidgetAddChild;
   }>,
 ) {
   try {
