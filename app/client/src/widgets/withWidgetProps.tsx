@@ -164,7 +164,6 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       widgetProps = { ...canvasWidgetProps };
 
       widgetProps.isMobile = !!isMobile;
-      widgetProps.layoutSystemType = layoutSystemType;
       widgetProps.selectedWidgetAncestry = selectedWidgetAncestry || [];
 
       /**
@@ -215,7 +214,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       widgetProps.flattenedChildCanvasWidgets = flattenedChildCanvasWidgets;
     }
     //merging with original props
-    widgetProps = { ...props, ...widgetProps, renderMode };
+    widgetProps = { ...props, ...widgetProps, layoutSystemType, renderMode };
 
     // adding google maps api key to widget props (although meant for map widget only)
     widgetProps.googleMapsApiKey = googleMapsApiKey;
