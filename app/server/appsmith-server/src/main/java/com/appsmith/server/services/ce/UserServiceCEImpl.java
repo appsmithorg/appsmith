@@ -475,6 +475,8 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         userManagementPermissionGroup.setName(savedUser.getUsername() + FieldName.SUFFIX_USER_MANAGEMENT_ROLE);
         // Add CRUD permissions for user to the group
         userManagementPermissionGroup.setPermissions(Set.of(new Permission(savedUser.getId(), MANAGE_USERS)));
+        userManagementPermissionGroup.setDefaultDomainType(User.class.getSimpleName());
+        userManagementPermissionGroup.setDefaultDomainId(savedUser.getId());
 
         // Assign the permission group to the user
         userManagementPermissionGroup.setAssignedToUserIds(Set.of(savedUser.getId()));
@@ -691,8 +693,8 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
 
         if (allUpdates.hasUserDataUpdates()) {
             final UserData updates = new UserData();
-            if (StringUtils.hasLength(allUpdates.getRole())) {
-                updates.setRole(allUpdates.getRole());
+            if (StringUtils.hasLength(allUpdates.getProficiency())) {
+                updates.setProficiency(allUpdates.getProficiency());
             }
             if (StringUtils.hasLength(allUpdates.getUseCase())) {
                 updates.setUseCase(allUpdates.getUseCase());
@@ -816,7 +818,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                     }
                     return tenantService.getTenantConfiguration().flatMap(tenant -> {
                         Boolean emailVerificationEnabled =
-                                tenant.getTenantConfiguration().getEmailVerificationEnabled();
+                                tenant.getTenantConfiguration().isEmailVerificationEnabled();
                         // Email verification not enabled at tenant
                         if (!TRUE.equals(emailVerificationEnabled)) {
                             return Mono.error(

@@ -15,6 +15,7 @@ import {
   CollapsibleContent,
   CollapsibleHeader,
   Icon,
+  Link,
   Option,
   Select,
   Text,
@@ -269,14 +270,14 @@ function AddDeployKey({
         <WellText renderAs="p">
           Copy below SSH key and paste it in your{" "}
           {!!repositorySettingsUrl && value.gitProvider !== "others" ? (
-            <a
-              href={repositorySettingsUrl}
+            <Link
               rel="noreferrer"
-              style={{ color: "var(--ads-color-brand)" }}
+              style={{ display: "inline" }}
               target="_blank"
+              to={repositorySettingsUrl}
             >
               repository settings.
-            </a>
+            </Link>
           ) : (
             "repository settings."
           )}{" "}

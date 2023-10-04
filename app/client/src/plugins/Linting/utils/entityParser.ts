@@ -1,12 +1,10 @@
 import type {
   DataTreeEntity,
   DataTreeEntityConfig,
-} from "entities/DataTree/dataTreeFactory";
-import type {
   JSActionEntityConfig,
   JSActionEntity as TJSActionEntity,
-} from "entities/DataTree/types";
-import { EvaluationSubstitutionType } from "entities/DataTree/types";
+} from "@appsmith/entities/DataTree/types";
+import { EvaluationSubstitutionType } from "@appsmith/entities/DataTree/types";
 import type { TParsedJSProperty } from "@shared/ast";
 import { isJSFunctionProperty } from "@shared/ast";
 import { parseJSObject } from "@shared/ast";

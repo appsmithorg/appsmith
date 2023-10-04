@@ -1,26 +1,29 @@
 import { getCanvasWidgets } from "@appsmith/selectors/entitiesSelector";
 import { GridDefaults, type RenderModes } from "constants/WidgetConstants";
-import { getLayoutSystem } from "layoutSystems/withLayoutSystemHOC";
+import { getLayoutSystem } from "layoutSystems/withLayoutSystemWidgetHOC";
 import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
-import type { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import { createSelector } from "reselect";
-import { getAppPositioningType, getRenderMode } from "./editorSelectors";
+import { getRenderMode } from "./editorSelectors";
 import { getIsMobileBreakPoint } from "sagas/selectors";
 import type { AppState } from "@appsmith/reducers";
+import type { LayoutSystemTypes } from "layoutSystems/types";
+import { getLayoutSystemType } from "./layoutSystemSelectors";
 
 function buildFlattenedChildCanvasWidgets(
   canvasWidgets: CanvasWidgetsReduxState,
   renderMode: RenderModes,
-  appPositioningType: AppPositioningTypes,
+  layoutSystemType: LayoutSystemTypes,
   isMobile: boolean,
   parentWidgetId: string,
   flattenedChildCanvasWidgets: Record<string, FlattenedWidgetProps> = {},
 ) {
   const parentWidget = canvasWidgets[parentWidgetId];
-  const { propertyEnhancer } = getLayoutSystem(renderMode, appPositioningType);
+  const {
+    widgetSystem: { propertyEnhancer },
+  } = getLayoutSystem(renderMode, layoutSystemType);
   parentWidget?.children?.forEach((childId) => {
     const childWidget = canvasWidgets[childId];
     let parentRowSpace =
@@ -37,7 +40,7 @@ function buildFlattenedChildCanvasWidgets(
     buildFlattenedChildCanvasWidgets(
       canvasWidgets,
       renderMode,
-      appPositioningType,
+      layoutSystemType,
       isMobile,
       childId,
       flattenedChildCanvasWidgets,
@@ -51,7 +54,7 @@ export const getFlattenedChildCanvasWidgets = createSelector(
   [
     getCanvasWidgets,
     getRenderMode,
-    getAppPositioningType,
+    getLayoutSystemType,
     getIsMobileBreakPoint,
     (_state: AppState, parentWidgetId: string) => parentWidgetId,
   ],

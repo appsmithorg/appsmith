@@ -69,3 +69,25 @@ export const ErrorMessage = styled.div`
 export const Placeholder = styled.div`
   color: var(--ads-v2-color-fg-subtle);
 `;
+
+export const LabelWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+`;
+
+export const EditFieldsButton = styled(Button)`
+  cursor: pointer;
+
+  span,
+  svg {
+    color: var(--ads-v2-color-fg-brand) !important;
+  }
+`;
+
+export const FieldHint = styled.div`
+  font-size: 12px;
+  line-height: 14px;
+  color: var(--ads-v2-color-fg-subtle);
+  margin-top: 5px;
+`;

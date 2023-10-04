@@ -1,4 +1,4 @@
-import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeFactory";
+import type { ConfigTree, DataTree } from "@appsmith/entities/DataTree/types";
 import { isEmpty } from "lodash";
 import type { EvalContext } from "workers/Evaluation/evaluate";
 import { getEvaluationContext } from "./utils/getEvaluationContext";
