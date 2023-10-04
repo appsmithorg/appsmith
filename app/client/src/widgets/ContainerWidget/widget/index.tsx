@@ -1,18 +1,13 @@
 import type { MouseEventHandler } from "react";
 import React from "react";
-
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
-import WidgetFactory from "WidgetProvider/factory";
 import type { ContainerStyle } from "../component";
 import ContainerComponent from "../component";
-
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
-
 import { ValidationTypes } from "constants/WidgetValidation";
 import { compact, map, sortBy } from "lodash";
-import WidgetsMultiSelectBox from "layoutSystems/common/WidgetsMultiSelectBox";
-
+import WidgetsMultiSelectBox from "layoutSystems/fixedlayout/common/widgetGrouping/WidgetsMultiSelectBox";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { getSnappedGrid } from "sagas/WidgetOperationUtils";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
@@ -38,6 +33,7 @@ import {
   Positioning,
   ResponsiveBehavior,
 } from "layoutSystems/common/utils/constants";
+import { renderAppsmithCanvas } from "layoutSystems/CanvasFactory";
 
 export class ContainerWidget extends BaseWidget<
   ContainerWidgetProps<WidgetProps>,
@@ -314,7 +310,7 @@ export class ContainerWidget extends BaseWidget<
     childWidget.useAutoLayout = this.props.positioning
       ? this.props.positioning === Positioning.Vertical
       : false;
-    return WidgetFactory.createWidget(childWidget, this.props.renderMode);
+    return renderAppsmithCanvas(childWidget as WidgetProps);
   }
 
   renderChildren = () => {
