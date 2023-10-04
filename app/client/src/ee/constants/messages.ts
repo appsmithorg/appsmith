@@ -289,6 +289,7 @@ export const WORKSPACE_ACTION_BUTTON = () => "Create new";
 export const NEW_PACKAGE = () => "New package";
 export const NEW_APP = () => "New app";
 export const EMPTY_PACKAGE_LIST = () => "No packages found";
-export const FETCH_PACKAGE_ERROR = () => "Failed to fetch Packages";
+export const FETCH_PACKAGES_ERROR = () => "Failed to fetch Packages";
+export const FETCH_PACKAGE_ERROR = () => "Failed to fetch Package";
 export const CREATE_PACKAGE_ERROR = () => "Failed to create package";
 // Modules end

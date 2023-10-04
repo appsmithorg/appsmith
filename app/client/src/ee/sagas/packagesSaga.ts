@@ -11,22 +11,28 @@ import {
   CREATE_PACKAGE_ERROR,
   createMessage,
   FETCH_PACKAGE_ERROR,
+  FETCH_PACKAGES_ERROR,
 } from "@appsmith/constants/messages";
 import {
   getIsFetchingPackages,
   getPackagesList,
-  getIsCreatingPackage,
 } from "@appsmith/selectors/packageSelectors";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import {
-  BASE_PACKAGE_URL,
   DEFAULT_PACKAGE_COLOR,
   DEFAULT_PACKAGE_ICON,
   DEFAULT_PACKAGE_PREFIX,
 } from "@appsmith/constants/PackageConstants";
+import { BASE_PACKAGE_EDITOR_URL } from "@appsmith/constants/routes/packageRoutes";
 import type { ApiResponse } from "api/ApiResponses";
-import type { CreatePackageFromWorkspacePayload } from "@appsmith/actions/packageActions";
-import type { CreatePackagePayload } from "@appsmith/api/PackageApi";
+import type {
+  CreatePackageFromWorkspacePayload,
+  FetchPackagePayload,
+} from "@appsmith/actions/packageActions";
+import type {
+  CreatePackagePayload,
+  FetchPackageResponse,
+} from "@appsmith/api/PackageApi";
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import type {
   Package,
@@ -54,7 +60,7 @@ export function* fetchAllPackagesSaga() {
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.FETCH_ALL_PACKAGES_ERROR,
-      payload: { error: { message: createMessage(FETCH_PACKAGE_ERROR) } },
+      payload: { error: { message: createMessage(FETCH_PACKAGES_ERROR) } },
     });
   }
 }
@@ -69,12 +75,8 @@ export function* createPackageFromWorkspaceSaga(
     const { workspaceId } = action.payload;
 
     const isFetchingPackagesList: boolean = yield select(getIsFetchingPackages);
-    const isCreatingPackage: boolean = yield select(
-      getIsCreatingPackage,
-      workspaceId,
-    );
 
-    if (isFetchingPackagesList || isCreatingPackage) return;
+    if (isFetchingPackagesList) return;
 
     const response: ApiResponse<Package> = yield call(createPackageSaga, {
       workspaceId,
@@ -89,7 +91,7 @@ export function* createPackageFromWorkspaceSaga(
         payload: response.data,
       });
 
-      history.push(`${BASE_PACKAGE_URL}/${id}`);
+      history.push(`${BASE_PACKAGE_EDITOR_URL}/${id}`);
     }
   } catch (error) {
     yield put({
@@ -146,6 +148,34 @@ export function* createPackageSaga(payload: CreatePackageSagaProps) {
     return response;
   } catch (error) {
     throw error;
+  }
+}
+
+export function* fetchPackageSaga(payload: FetchPackagePayload) {
+  try {
+    const response: ApiResponse<FetchPackageResponse> = yield call(
+      PackageApi.fetchPackage,
+      payload,
+    );
+    const isValidResponse: boolean = yield validateResponse(response);
+
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.FETCH_PACKAGE_SUCCESS,
+        payload: response.data,
+      });
+
+      return response.data;
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.FETCH_PACKAGE_ERROR,
+      payload: {
+        error: {
+          message: createMessage(FETCH_PACKAGE_ERROR),
+        },
+      },
+    });
   }
 }
 

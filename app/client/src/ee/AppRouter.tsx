@@ -28,6 +28,9 @@ import { LICENSE_CHECK_PATH } from "constants/routes";
 import { requiresLicenseCheck } from "./requiresLicenseCheck";
 import ProductAlertBanner from "components/editorComponents/ProductAlertBanner";
 import Walkthrough from "components/featureWalkthrough";
+import PackageEditorLoader from "./pages/Editor/PackageEditor/PackageEditorLoader";
+import { PACKAGE_EDITOR_URL } from "@appsmith/constants/routes/packageRoutes";
+import { getShowQueryModule } from "@appsmith/selectors/moduleFeatureSelectors";
 
 const loadingIndicator = <PageLoadingBar />;
 
@@ -54,6 +57,7 @@ function AppRouter(props: {
   } = props;
   const tenantIsLoading = useSelector(isTenantLoading);
   const currentUserIsLoading = useSelector(getCurrentUserLoading);
+  const showQueryModule = useSelector(getShowQueryModule);
 
   useEffect(() => {
     getCurrentUser();
@@ -100,6 +104,12 @@ function AppRouter(props: {
                   <SentryRoute
                     component={LicenseCheckPage}
                     path={LICENSE_CHECK_PATH}
+                  />
+                )}
+                {showQueryModule && (
+                  <SentryRoute
+                    component={PackageEditorLoader}
+                    path={PACKAGE_EDITOR_URL}
                   />
                 )}
                 <EE_Routes />

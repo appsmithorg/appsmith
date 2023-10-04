@@ -8,11 +8,10 @@ import {
 } from "design-system-old";
 
 import Card from "components/common/Card";
+import history from "utils/history";
 import { generateEditedByText } from "pages/Applications/helpers";
-import {
-  BASE_PACKAGE_URL,
-  type Package,
-} from "@appsmith/constants/PackageConstants";
+import { BASE_PACKAGE_EDITOR_URL } from "@appsmith/constants/routes/packageRoutes";
+import type { Package } from "@appsmith/constants/PackageConstants";
 
 type PackageCardProps = {
   isFetchingPackages: boolean;
@@ -110,6 +109,10 @@ function PackageCard({ isFetchingPackages, isMobile, pkg }: PackageCardProps) {
     [handleMenuOnClose, isMenuOpen, pkg.name],
   );
 
+  const editPackage = useCallback(() => {
+    history.push(`${BASE_PACKAGE_EDITOR_URL}/${pkg.id}`);
+  }, [pkg.id]);
+
   return (
     <Card
       backgroundColor={pkg.color || DEFAULT_BACKGROUND_COLOR}
@@ -132,7 +135,8 @@ function PackageCard({ isFetchingPackages, isMobile, pkg }: PackageCardProps) {
       {!isMenuOpen && (
         <Button
           className="t--package-edit-link"
-          href={`${BASE_PACKAGE_URL}/${pkg.id}`}
+          href={`${BASE_PACKAGE_EDITOR_URL}/${pkg.id}`}
+          onClick={editPackage}
           size="md"
           startIcon={"pencil-line"}
         >
