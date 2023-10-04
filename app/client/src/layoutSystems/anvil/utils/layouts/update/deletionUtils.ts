@@ -1,5 +1,6 @@
 import LayoutFactory from "layoutSystems/anvil/layoutComponents/LayoutFactory";
 import type { LayoutComponent, LayoutComponentProps } from "../../anvilTypes";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 
 export function deleteWidgetFromPreset(
   preset: LayoutComponentProps[],
@@ -57,4 +58,26 @@ export function deleteWidgetFromLayout(
   return updatedLayout.isPermanent || updatedLayout.layout?.length
     ? updatedLayout
     : undefined;
+}
+
+/**
+ * Update layout of a canvas widget after a widget is deleted.
+ * @param allWidgets | CanvasWidgetsReduxState : all widgets.
+ * @param parentId | string : id of canvas widget to be updated.
+ * @param widgetId | string : id of widget that is deleted.
+ * @returns CanvasWidgetsReduxState
+ */
+export function updateAnvilParentPostWidgetDeletion(
+  allWidgets: CanvasWidgetsReduxState,
+  parentId: string,
+  widgetId: string,
+): CanvasWidgetsReduxState {
+  if (!parentId || !widgetId || !allWidgets[parentId]) return allWidgets;
+  return {
+    ...allWidgets,
+    [parentId]: {
+      ...allWidgets[parentId],
+      layout: deleteWidgetFromPreset(allWidgets[parentId].layout, widgetId),
+    },
+  };
 }
