@@ -57,6 +57,10 @@ if [[ $use_https == 1 ]]; then
     proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
   }
 
+  location /.well-known/acme-challenge/ {
+    root /appsmith-stacks/data/certificate/certbot;
+  }
+
   location / {
     return 301 https://\$host\$request_uri;
   }
