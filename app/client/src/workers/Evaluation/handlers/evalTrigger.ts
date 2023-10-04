@@ -1,10 +1,6 @@
 import { dataTreeEvaluator } from "./evalTree";
 import type { EvalWorkerASyncRequest } from "../types";
 import ExecutionMetaData from "../fns/utils/ExecutionMetaData";
-import { klona } from "klona/full";
-import { klona as klonaJSON } from "klona/json";
-import DataStore from "../dataStore";
-import { updateTreeWithData } from "../dataStore/utils";
 
 export default async function (request: EvalWorkerASyncRequest) {
   const { data } = request;
@@ -28,20 +24,16 @@ export default async function (request: EvalWorkerASyncRequest) {
       unEvalTree.configTree,
     );
 
-  dataTreeEvaluator.evalAndValidateSubTree(
+  const { contextTree } = dataTreeEvaluator.evalAndValidateSubTree(
     evalOrder,
     nonDynamicFieldValidationOrder,
     unEvalTree.configTree,
     unEvalUpdates,
   );
-  const evalTree = klona(dataTreeEvaluator.evalTree);
-  const dataStore = klonaJSON(DataStore.getDataStore());
-
-  updateTreeWithData(evalTree, dataStore);
 
   return dataTreeEvaluator.evaluateTriggers(
     dynamicTrigger,
-    evalTree,
+    contextTree,
     unEvalTree.configTree,
     callbackData,
     {

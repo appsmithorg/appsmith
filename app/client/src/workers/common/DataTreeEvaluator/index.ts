@@ -775,10 +775,12 @@ export default class DataTreeEvaluator {
     evalMetaUpdates: EvalMetaUpdates;
     staleMetaIds: string[];
     reValidatedPaths: string[];
+    contextTree: DataTree;
   } {
     const evaluationStartTime = performance.now();
 
     const {
+      contextTree,
       evalMetaUpdates,
       evaluatedTree: newEvalTree,
       staleMetaIds,
@@ -822,6 +824,7 @@ export default class DataTreeEvaluator {
       evalMetaUpdates,
       staleMetaIds,
       reValidatedPaths: pathsToValidate,
+      contextTree,
     };
   }
 
@@ -939,6 +942,7 @@ export default class DataTreeEvaluator {
     evaluatedTree: DataTree;
     evalMetaUpdates: EvalMetaUpdates;
     staleMetaIds: string[];
+    contextTree: DataTree;
   } {
     const safeTree = klona(unEvalTree);
     const dataStore = DataStore.getDataStore();
@@ -946,6 +950,13 @@ export default class DataTreeEvaluator {
 
     updateTreeWithData(safeTree, dataStoreClone);
     updateTreeWithData(unEvalTree, dataStore);
+
+    /**
+     * CurrentTree is a mutable dataTree, it gets passed as a context for each evaluation
+     * and gets updated both, with evaluated values and mutations.
+     *
+     * SafeTree is free of mutations because we make sure to only set evaluated values into it.
+     */
     const currentTree = unEvalTree;
     errorModifier.updateAsyncFunctions(
       currentTree,
@@ -1207,8 +1218,9 @@ export default class DataTreeEvaluator {
 
       return {
         evaluatedTree: safeTree,
+        contextTree: currentTree,
         evalMetaUpdates,
-        staleMetaIds: staleMetaIds,
+        staleMetaIds,
       };
     }
   }
