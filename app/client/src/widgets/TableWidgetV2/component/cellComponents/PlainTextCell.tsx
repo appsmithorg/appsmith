@@ -15,6 +15,11 @@ import { BasicCell } from "./BasicCell";
 import { InlineCellEditor } from "./InlineCellEditor";
 import styled from "styled-components";
 import fastdom from "fastdom";
+import CurrencyTypeDropdown, {
+  CurrencyDropdownOptions,
+} from "widgets/CurrencyInputWidget/component/CurrencyCodeDropdown";
+import { getLocale } from "utils/helpers";
+import * as Sentry from "@sentry/react";
 
 const Container = styled.div<{
   isCellEditMode?: boolean;
@@ -58,6 +63,11 @@ export type RenderDefaultPropsType = BaseCellComponentProps & {
   isNewRow: boolean;
 };
 
+export type RenderCurrencyPropsType = {
+  currencyCode?: string;
+  decimals?: number;
+};
+
 type editPropertyType = {
   alias: string;
   onSubmitString: string;
@@ -73,6 +83,8 @@ export function getCellText(
 
   if (value && columnType === ColumnTypes.URL && displayText) {
     text = displayText;
+  } else if (columnType === ColumnTypes.CURRENCY) {
+    text = value;
   } else if (!isNil(value) && (!isNumber(value) || !isNaN(value))) {
     text = (value as string).toString();
   } else {
@@ -89,7 +101,9 @@ function getContentHeight(ref: RefObject<HTMLDivElement>) {
   );
 }
 
-function PlainTextCell(props: RenderDefaultPropsType & editPropertyType) {
+function PlainTextCell(
+  props: RenderDefaultPropsType & editPropertyType & RenderCurrencyPropsType,
+) {
   const {
     accentColor,
     alias,
@@ -97,6 +111,8 @@ function PlainTextCell(props: RenderDefaultPropsType & editPropertyType) {
     cellBackground,
     columnType,
     compactMode,
+    currencyCode,
+    decimals,
     disabledEditIcon,
     disabledEditIconMessage,
     displayText,
@@ -137,7 +153,9 @@ function PlainTextCell(props: RenderDefaultPropsType & editPropertyType) {
           "",
           EditableCellActions.DISCARD,
         ),
-      onEdit: () => toggleCellEditMode(true, rowIndex, alias, value),
+      onEdit: () => {
+        toggleCellEditMode(true, rowIndex, alias, value);
+      },
       onSave: () =>
         toggleCellEditMode(
           false,
@@ -174,18 +192,64 @@ function PlainTextCell(props: RenderDefaultPropsType & editPropertyType) {
     }
   }, [value, isCellEditMode]);
 
+  const formattedValue = useMemo(() => {
+    if (columnType === ColumnTypes.CURRENCY) {
+      try {
+        const floatVal = parseFloat(value);
+
+        return isNaN(floatVal)
+          ? value
+          : Intl.NumberFormat(getLocale(), {
+              style: "decimal",
+              minimumFractionDigits: decimals,
+              maximumFractionDigits: decimals,
+            }).format(floatVal);
+      } catch (e) {
+        Sentry.captureException(e);
+        return value;
+      }
+    } else {
+      return value;
+    }
+  }, [value, decimals]);
+
   if (isCellEditMode) {
+    const inputType = (() => {
+      switch (columnType) {
+        case ColumnTypes.NUMBER:
+          return InputTypes.NUMBER;
+        case ColumnTypes.CURRENCY:
+          return InputTypes.CURRENCY;
+        default:
+          return InputTypes.TEXT;
+      }
+    })();
+
+    const additionalProps: Record<string, unknown> = {};
+
+    if (inputType === InputTypes.CURRENCY) {
+      additionalProps.inputHTMLType = "NUMBER";
+      additionalProps.leftIcon = (
+        <CurrencyTypeDropdown
+          accentColor={accentColor}
+          allowCurrencyChange={false}
+          options={CurrencyDropdownOptions}
+          selected={currencyCode}
+          widgetId={widgetId}
+        />
+      );
+      additionalProps.shouldUseLocale = true;
+      additionalProps.decimals = decimals;
+    }
+
     editor = (
       <InlineCellEditor
         accentColor={accentColor}
+        additionalProps={additionalProps}
         allowCellWrapping={allowCellWrapping}
         autoFocus={!isNewRow}
         compactMode={compactMode}
-        inputType={
-          columnType === ColumnTypes.NUMBER
-            ? InputTypes.NUMBER
-            : InputTypes.TEXT
-        }
+        inputType={inputType}
         isEditableCellValid={isEditableCellValid}
         multiline={isMultiline}
         onChange={editEvents.onChange}
@@ -230,7 +294,7 @@ function PlainTextCell(props: RenderDefaultPropsType & editPropertyType) {
         textColor={textColor}
         textSize={textSize}
         url={columnType === ColumnTypes.URL ? props.value : null}
-        value={value}
+        value={formattedValue}
         verticalAlignment={verticalAlignment}
       />
       {editor}

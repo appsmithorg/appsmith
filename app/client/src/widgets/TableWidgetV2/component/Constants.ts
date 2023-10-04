@@ -192,6 +192,11 @@ export interface DateCellProperties {
   timePrecision?: TimePrecision;
 }
 
+export interface CurrencyCellProperties {
+  currencyCode: string;
+  decimals: number;
+}
+
 export interface BaseCellProperties {
   horizontalAlignment?: CellAlignment;
   verticalAlignment?: VerticalAlignment;
@@ -217,6 +222,7 @@ export interface CellLayoutProperties
     SelectCellProperties,
     ImageCellProperties,
     DateCellProperties,
+    CurrencyCellProperties,
     BaseCellProperties {}
 
 export interface TableColumnMetaProps {
@@ -224,6 +230,7 @@ export interface TableColumnMetaProps {
   format?: string;
   inputFormat?: string;
   type: ColumnTypes;
+  decimals?: number;
 }
 
 export enum StickyType {
@@ -330,11 +337,17 @@ export interface EditActionColumnProperties {
   selectOptions?: DropdownOption[] | DropdownOption[][];
 }
 
+export interface CurrencyColumnProperties {
+  currencyCode: string;
+  decimals: number;
+}
+
 export interface ColumnProperties
   extends ColumnBaseProperties,
     ColumnStyleProperties,
     DateColumnProperties,
     ColumnEditabilityProperties,
+    CurrencyColumnProperties,
     EditActionColumnProperties {
   allowSameOptionsInNewRow?: boolean;
   newRowSelectOptions?: DropdownOption[];

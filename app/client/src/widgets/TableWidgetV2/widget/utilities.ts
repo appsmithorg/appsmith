@@ -508,6 +508,12 @@ export const getCellProperties = (
         rowIndex,
         true,
       ),
+      currencyCode: getPropertyValue(
+        columnProperties.currencyCode,
+        rowIndex,
+        true,
+      ),
+      decimals: columnProperties.decimals,
     } as CellLayoutProperties;
   }
   return {} as CellLayoutProperties;
@@ -520,6 +526,7 @@ const EdtiableColumnTypes: string[] = [
   ColumnTypes.CHECKBOX,
   ColumnTypes.SWITCH,
   ColumnTypes.DATE,
+  ColumnTypes.CURRENCY,
 ];
 
 export function isColumnTypeEditable(columnType: string) {
