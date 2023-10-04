@@ -1,7 +1,7 @@
 import type { IconName } from "@blueprintjs/icons";
 
 import type { InputComponentProps } from "../component/types";
-import type { BaseInputWidgetProps } from "widgets/BaseInputWidgetV2/widget/types";
+import type { BaseInputWidgetProps } from "../../WDSBaseInputWidget";
 
 export interface InputWidgetProps extends BaseInputWidgetProps {
   defaultText?: string | number;

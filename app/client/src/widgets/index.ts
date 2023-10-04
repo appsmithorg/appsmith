@@ -57,9 +57,9 @@ import RangeSliderWidget from "./RangeSliderWidget";
 import CategorySliderWidget from "./CategorySliderWidget";
 import CodeScannerWidget from "./CodeScannerWidget";
 import ListWidgetV2 from "./ListWidgetV2";
-import { ButtonWidget as ButtonWidgetV2 } from "./ButtonWidgetV2";
-import { InputWidget as InputWidgetV3 } from "./InputWidgetV3";
-import { CheckboxWidget as CheckboxWidgetV2 } from "./CheckboxWidgetV2";
+import { ButtonWidget as ButtonWidgetV2 } from "./wds/WDSButtonWidget";
+import { InputWidget as InputWidgetV3 } from "./wds/WDSInputWidget";
+import { CheckboxWidgetV2 } from "./wds/WDSCheckboxWidget";
 import type BaseWidget from "./BaseWidget";
 
 const Widgets = [

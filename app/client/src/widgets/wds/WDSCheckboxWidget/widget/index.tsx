@@ -5,11 +5,11 @@ import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 
 import * as config from "./../config";
-import BaseWidget from "../../BaseWidget";
+import BaseWidget from "widgets/BaseWidget";
 import type { CheckboxWidgetProps } from "./types";
-import type { WidgetState } from "../../BaseWidget";
+import type { WidgetState } from "widgets/BaseWidget";
 
-class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
+class CheckboxWidgetV2 extends BaseWidget<CheckboxWidgetProps, WidgetState> {
   static type = "CHECKBOX_WIDGET_V2";
 
   static getConfig() {
@@ -29,7 +29,7 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
   }
 
   static getAutoLayoutConfig() {
-    return config.autoLayoutConfig;
+    return {};
   }
 
   static getAutocompleteDefinitions() {
@@ -108,4 +108,4 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
   }
 }
 
-export { CheckboxWidget };
+export { CheckboxWidgetV2 };
