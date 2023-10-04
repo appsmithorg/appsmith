@@ -1,10 +1,8 @@
 import type {
   AlignmentChildren,
   AlignmentInfo,
-  FlexLayer,
-  LayerChild,
   Row,
-} from "./autoLayoutTypes";
+} from "../../autolayout/utils/types";
 import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
@@ -19,7 +17,7 @@ import {
   Positioning,
   ResponsiveBehavior,
   ROW_GAP,
-} from "layoutSystems/autolayout/utils/constants";
+} from "layoutSystems/common/utils/constants";
 import {
   getWidgetHeight,
   getWidgetMinMaxDimensionsInPixel,
@@ -39,6 +37,7 @@ import {
   shouldUpdateParentHeight,
   updateParentHeight,
 } from "./heightUpdateUtils";
+import type { FlexLayer, LayerChild } from "./types";
 
 /**
  * Calculate widget position on canvas.
