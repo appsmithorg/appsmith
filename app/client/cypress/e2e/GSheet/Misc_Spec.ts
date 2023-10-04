@@ -267,6 +267,7 @@ describe("GSheet Miscellaneous Tests", function () {
 
   after("Delete spreadsheet and app", function () {
     // Delete spreadsheet and app
+    homePage.NavigateToHome();
     homePage.SearchAndOpenApp(appName);
     gsheetHelper.DeleteSpreadsheetQuery(dataSourceName, spreadSheetName);
     cy.get("@postExecute").then((interception: any) => {

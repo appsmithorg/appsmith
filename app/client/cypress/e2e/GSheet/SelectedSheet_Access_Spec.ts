@@ -23,8 +23,7 @@ describe("GSheet-Functional Tests With Selected Access", function () {
 
     //Adding app
     homePage.NavigateToHome();
-    homePage.CreateAppInWorkspace(workspaceName);
-    homePage.RenameApplication(appName);
+    homePage.CreateAppInWorkspace(workspaceName, appName);
   });
 
   it("1. Add and verify fetch details query", () => {
@@ -293,7 +292,7 @@ describe("GSheet-Functional Tests With Selected Access", function () {
     });
   });
 
-  it("8. Import an app with read write access sheet", function () {
+  it("8. Import an app with selected access sheet", function () {
     homePage.NavigateToHome();
     homePage.ImportApp("ImportAppSelectedAccess.json", workspaceName);
     assertHelper.WaitForNetworkCall("importNewApplication").then(() => {
@@ -310,10 +309,9 @@ describe("GSheet-Functional Tests With Selected Access", function () {
   });
 
   it("9. App level import of app with Selected sheet access gsheet", function () {
-    homePage.NavigateToHome();
     homePage.CreateAppInWorkspace(
-      "AppLevelImportSelectedAccess",
       workspaceName,
+      "AppLevelImportSelectedAccess",
     );
     appSettings.OpenAppSettings();
     appSettings.GoToImport();
@@ -334,7 +332,6 @@ describe("GSheet-Functional Tests With Selected Access", function () {
 
   after("Delete app", function () {
     // Delete app
-    homePage.NavigateToHome();
     homePage.DeleteApplication(appName);
   });
 });

@@ -29,8 +29,7 @@ describe("GSheet-Functional Tests With Read/Write Access", function () {
 
     //Adding query to insert a new spreadsheet
     homePage.NavigateToHome();
-    homePage.CreateAppInWorkspace(workspaceName);
-    homePage.RenameApplication(appName);
+    homePage.CreateAppInWorkspace(workspaceName, appName);
     gsheetHelper.AddNewSpreadsheetQuery(
       dataSourceName.readNWrite,
       spreadSheetName,
@@ -315,9 +314,8 @@ describe("GSheet-Functional Tests With Read/Write Access", function () {
     homePage.DeleteApplication("ImportAppReadWriteAccess");
   });
 
-  it("10. App level import of app with read and access gsheet", function () {
-    homePage.NavigateToHome();
-    homePage.CreateAppInWorkspace("AppLevelImportReadNWrite", workspaceName);
+  it("10. App level import of app with read and write access gsheet", function () {
+    homePage.CreateAppInWorkspace(workspaceName, "AppLevelImportReadNWrite");
     appSettings.OpenAppSettings();
     appSettings.GoToImport();
     agHelper.ClickButton("Import");

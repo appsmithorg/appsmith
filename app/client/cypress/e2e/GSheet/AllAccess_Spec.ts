@@ -25,8 +25,7 @@ describe("GSheet-Functional Tests With All Access", function () {
 
     //Adding query to insert a new spreadsheet
     homePage.NavigateToHome();
-    homePage.CreateAppInWorkspace(workspaceName);
-    homePage.RenameApplication(appName);
+    homePage.CreateAppInWorkspace(workspaceName, appName);
     gsheetHelper.AddNewSpreadsheetQuery(
       dataSourceName,
       spreadSheetName,
@@ -305,8 +304,7 @@ describe("GSheet-Functional Tests With All Access", function () {
   });
 
   it("9. App level import of app with all access gsheet", function () {
-    homePage.NavigateToHome();
-    homePage.CreateAppInWorkspace("AppLevelImport", workspaceName);
+    homePage.CreateAppInWorkspace(workspaceName, "AppLevelImport");
     appSettings.OpenAppSettings();
     appSettings.GoToImport();
     agHelper.ClickButton("Import");

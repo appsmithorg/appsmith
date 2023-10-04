@@ -29,8 +29,7 @@ describe("GSheet-Functional Tests With Read Access", function () {
 
     //Adding query to insert a new spreadsheet
     homePage.NavigateToHome();
-    homePage.CreateAppInWorkspace(workspaceName);
-    homePage.RenameApplication(appName);
+    homePage.CreateAppInWorkspace(workspaceName, appName);
     gsheetHelper.AddNewSpreadsheetQuery(
       dataSourceName.allAccess,
       spreadSheetName,
@@ -281,7 +280,7 @@ describe("GSheet-Functional Tests With Read Access", function () {
     });
   });
 
-  it("8. Import an app with read write access sheet", function () {
+  it("8. Import an app with read only access sheet", function () {
     homePage.NavigateToHome();
     homePage.ImportApp("ImportAppReadAccess.json", workspaceName);
     assertHelper.WaitForNetworkCall("importNewApplication").then(() => {
@@ -298,10 +297,9 @@ describe("GSheet-Functional Tests With Read Access", function () {
   });
 
   it("9. App level import of app with read only access gsheet", function () {
-    homePage.NavigateToHome();
     homePage.CreateAppInWorkspace(
-      "AppLevelImportReadOnlyAccess",
       workspaceName,
+      "AppLevelImportReadOnlyAccess",
     );
     appSettings.OpenAppSettings();
     appSettings.GoToImport();
