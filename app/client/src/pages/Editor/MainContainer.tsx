@@ -1,9 +1,10 @@
 import * as Sentry from "@sentry/react";
-import { useDispatch, useSelector } from "react-redux";
 import React, { useCallback } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { Route, Switch, useRouteMatch } from "react-router";
 
 import { updateExplorerWidthAction } from "actions/explorerActions";
+import BottomBar from "components/BottomBar";
 import EntityExplorerSidebar from "components/editorComponents/Sidebar";
 import {
   BUILDER_CUSTOM_PATH,
@@ -14,10 +15,9 @@ import {
 } from "constants/routes";
 import { previewModeSelector } from "selectors/editorSelectors";
 import { getExplorerWidth } from "selectors/explorerSelector";
+import styled from "styled-components";
 import WidgetsEditor from "./WidgetsEditor";
 import EditorsRouter from "./routes";
-import styled from "styled-components";
-import BottomBar from "components/BottomBar";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
