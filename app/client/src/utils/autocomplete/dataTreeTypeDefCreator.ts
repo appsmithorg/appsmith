@@ -126,12 +126,11 @@ export function generateTypeDef(
   value: unknown,
   extraDefsToDefine?: ExtraDef,
   depth = 0,
-  maxDepth = 5,
 ): Def | string {
   switch (getType(value)) {
     case Types.ARRAY: {
       const array = value as [unknown];
-      if (maxDepth !== -1 && depth > maxDepth) {
+      if (depth > 5) {
         return `[?]`;
       }
 
