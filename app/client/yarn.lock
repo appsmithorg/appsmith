@@ -2562,7 +2562,7 @@ __metadata:
     eslint-plugin-storybook: ^0.6.8
     identity-obj-proxy: 3.0.0
     playwright: ^1.25.1
-    postcss: ^8.4.14
+    postcss: ^8.4.31
     postcss-import: ^14.1.0
     tsconfig-paths-webpack-plugin: ^3.5.2
     wait-on: ^5.3.0
@@ -10677,7 +10677,7 @@ __metadata:
     pg: ^8.11.3
     plop: ^3.1.1
     popper.js: ^1.15.0
-    postcss: ^8.4.30
+    postcss: ^8.4.31
     postcss-at-rules-variables: ^0.3.0
     postcss-conditionals: ^2.1.0
     postcss-each: ^1.1.0
@@ -25931,14 +25931,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"postcss@npm:*, postcss@npm:^8.3.5, postcss@npm:^8.4.14, postcss@npm:^8.4.21, postcss@npm:^8.4.23, postcss@npm:^8.4.27, postcss@npm:^8.4.30, postcss@npm:^8.4.4":
-  version: 8.4.30
-  resolution: "postcss@npm:8.4.30"
+"postcss@npm:*, postcss@npm:^8.3.5, postcss@npm:^8.4.21, postcss@npm:^8.4.23, postcss@npm:^8.4.27, postcss@npm:^8.4.31, postcss@npm:^8.4.4":
+  version: 8.4.31
+  resolution: "postcss@npm:8.4.31"
   dependencies:
     nanoid: ^3.3.6
     picocolors: ^1.0.0
     source-map-js: ^1.0.2
-  checksum: 6c810c10c9bd3e03ca016e0b6b6756261e640aba1a9a7b1200b55502bc34b9165e38f590aef3493afc2f30ab55cdfcd43fd0f8408d69a77318ddbcf2a8ad164b
+  checksum: 1d8611341b073143ad90486fcdfeab49edd243377b1f51834dc4f6d028e82ce5190e4f11bb2633276864503654fb7cab28e67abdc0fbf9d1f88cad4a0ff0beea
   languageName: node
   linkType: hard
 
