@@ -57,6 +57,7 @@ import BusinessTag from "components/BusinessTag";
 import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 import store from "store";
 import { isGACEnabled } from "@appsmith/utils/planHelpers";
+import type { DefaultOptionType } from "rc-select/lib/Select";
 
 const featureFlags = selectFeatureFlags(store.getState());
 const isFeatureEnabled = isGACEnabled(featureFlags);
@@ -352,7 +353,7 @@ function InviteUsersForm(props: any) {
           };
         });
 
-  const onSelect = (value: string, option?: any) => {
+  const onSelect = (value: string, option: DefaultOptionType) => {
     if (isMultiSelectDropdown) {
       setSelectedOption((selectedOptions) => [...selectedOptions, option]);
     } else {
@@ -364,7 +365,7 @@ function InviteUsersForm(props: any) {
     setEmailError(error);
   };
 
-  const onRemoveOptions = (value: string, option?: any) => {
+  const onRemoveOptions = (value: string, option: DefaultOptionType) => {
     if (isMultiSelectDropdown) {
       setSelectedOption((selectedOptions) =>
         selectedOptions.filter((opt) => opt.value !== option.value),
@@ -376,13 +377,15 @@ function InviteUsersForm(props: any) {
     <StyledForm
       onSubmit={handleSubmit((values: any, dispatch: any) => {
         const roles = isMultiSelectDropdown
-          ? selectedOption.map((option: any) => option.value).join(",")
+          ? selectedOption
+              .map((option: DefaultOptionType) => option.value)
+              .join(",")
           : selectedOption[0].value;
         validateFormValues({ ...values, role: roles });
         const usersAsStringsArray = values.users.split(",");
         // update state to show success message correctly
         updateNumberOfUsersInvited(usersAsStringsArray.length);
-        const validEmails = usersAsStringsArray.filter((user: any) =>
+        const validEmails = usersAsStringsArray.filter((user: string) =>
           isEmail(user),
         );
         const validEmailsString = validEmails.join(",");
@@ -441,7 +444,7 @@ function InviteUsersForm(props: any) {
             placeholder="Select a role"
             value={selectedOption}
           >
-            {styledRoles.map((role: any) => (
+            {styledRoles.map((role: DefaultOptionType) => (
               <Option key={role.key} label={role.value} value={role.key}>
                 <div className="flex gap-1 items-center">
                   {isMultiSelectDropdown && (

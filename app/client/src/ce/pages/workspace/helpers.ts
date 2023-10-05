@@ -1,6 +1,7 @@
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { SubmissionError } from "redux-form";
 import type { RouteChildrenProps, RouteComponentProps } from "react-router-dom";
+import type { DefaultOptionType } from "rc-select/lib/Select";
 export type InviteUsersToWorkspaceByRoleValues = {
   id: string;
   users?: string;
@@ -13,13 +14,13 @@ export type InviteUsersToWorkspaceFormValues = {
 };
 
 export type InviteUsersProps = {
-  roles?: any;
+  roles?: DefaultOptionType[];
   applicationId?: string;
   workspaceId?: string;
   isApplicationPage?: boolean;
   placeholder?: string;
   customProps?: any;
-  selected?: any;
+  selected?: DefaultOptionType;
   options?: any;
   isMultiSelectDropdown?: boolean;
   checkIfInvitedUsersFromDifferentDomain?: () => void;
