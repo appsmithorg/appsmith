@@ -10,6 +10,7 @@ import { Text } from "../../Text";
 import { Label } from "../../TextInput";
 import textAreaStyles from "./styles.module.css";
 import { textInputStyles, fieldStyles } from "../../../styles";
+import { ContextualHelp } from "../../TextInput/src/ContextualHelp";
 
 export interface TextAreaProps extends HeadlessTextAreaProps {
   /** loading state for the input */
@@ -25,6 +26,7 @@ export interface TextAreaProps extends HeadlessTextAreaProps {
 
 const _TextArea = (props: TextAreaProps, ref: HeadlessTextAreaRef) => {
   const {
+    contextualHelp: contextualHelpProp,
     description,
     errorMessage,
     includeNecessityIndicatorInAccessibilityName,
@@ -45,6 +47,10 @@ const _TextArea = (props: TextAreaProps, ref: HeadlessTextAreaRef) => {
     />
   );
 
+  const contextualHelp = contextualHelpProp && (
+    <ContextualHelp contextualHelp={contextualHelpProp} />
+  );
+
   const wrappedDescription = description && (
     <Text variant="footnote">{description}</Text>
   );
@@ -59,6 +65,7 @@ const _TextArea = (props: TextAreaProps, ref: HeadlessTextAreaRef) => {
         fieldStyles.field,
         textAreaStyles["textarea"],
       )}
+      contextualHelp={contextualHelp}
       description={wrappedDescription}
       errorMessage={wrappedErrorMessage}
       inputClassName="wds-body-text"

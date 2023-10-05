@@ -59,7 +59,7 @@ const _TextInput = (props: TextInputProps, ref: HeadlessTextInputRef) => {
     />
   );
 
-  const contextualHelp = label && contextualHelpProp && (
+  const contextualHelp = contextualHelpProp && (
     <ContextualHelp contextualHelp={contextualHelpProp} />
   );
 

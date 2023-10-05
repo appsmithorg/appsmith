@@ -64,7 +64,7 @@ function InputComponent(props: InputComponentProps) {
   const maxLength = (() => {
     if (
       props.inputType === INPUT_TYPES.TEXT ||
-      props.inputType === INPUT_TYPES.EMAIL
+      props.inputType === INPUT_TYPES.MULTI_LINE_TEXT
     ) {
       return !isNil(props.maxChars) ? props.maxChars : undefined;
     }
@@ -92,6 +92,7 @@ function InputComponent(props: InputComponentProps) {
       defaultValue={props.defaultValue}
       endIcon={endIcon}
       errorMessage={props.errorMessage}
+      isDisabled={props.isDisabled}
       label={props.label}
       max={max}
       maxLength={maxLength}

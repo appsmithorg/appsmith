@@ -61,7 +61,7 @@ const _Field = (props: FieldProps, ref: FieldRef) => {
           {label}
         </Label>
       )}
-      {label && contextualHelp}
+      {contextualHelp}
     </div>
   );
 
