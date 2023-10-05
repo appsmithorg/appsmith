@@ -16,9 +16,6 @@ RUN apt-get update \
     supervisor curl cron nfs-common nginx nginx-extras gnupg wget netcat openssh-client \
     gettext \
     python3-pip python3-venv git ca-certificates-java \
-  && wget -O - https://packages.adoptium.net/artifactory/api/gpg/key/public | apt-key add - \
-  && echo "deb https://packages.adoptium.net/artifactory/deb $(awk -F= '/^VERSION_CODENAME/{print$2}' /etc/os-release) main" | tee /etc/apt/sources.list.d/adoptium.list \
-  && apt-get update && apt-get install --no-install-recommends --yes temurin-17-jdk \
   && pip install --no-cache-dir git+https://github.com/coderanger/supervisor-stdout@973ba19967cdaf46d9c1634d1675fc65b9574f6e \
   && python3 -m venv --prompt certbot /opt/certbot/venv \
   && /opt/certbot/venv/bin/pip install --upgrade certbot setuptools pip \
@@ -48,6 +45,13 @@ RUN rm -rf \
   /usr/share/man \
   /var/lib/apt/lists/* \
   /tmp/*
+
+RUN set -o xtrace \
+  && mkdir -p /opt/java \
+  # Assets from https://github.com/adoptium/temurin17-binaries/releases
+  && version="$(curl --write-out '%{redirect_url}' 'https://github.com/adoptium/temurin17-binaries/releases/latest' | sed 's,.*jdk-,,')" \
+  && curl --location "https://github.com/adoptium/temurin17-binaries/releases/download/jdk-$version/OpenJDK17U-jdk_$(uname -m)_linux_hotspot_$(echo $version | tr + _).tar.gz" \
+    | tar -xz -C /opt/java --strip-components 1
 
 # Define volumes - Service Layer
 VOLUME [ "/appsmith-stacks" ]
@@ -87,8 +91,8 @@ RUN cd ./utils && npm install --only=prod && npm install --only=prod -g . && cd 
   && find / \( -path /proc -prune \) -o \( \( -perm -2000 -o -perm -4000 \) -print -exec chmod -s '{}' + \) || true \
   && node prepare-image.mjs
 
-# Update path to load appsmith utils tool as default
-ENV PATH /opt/appsmith/utils/node_modules/.bin:$PATH
+ENV PATH /opt/appsmith/utils/node_modules/.bin:/opt/java/bin:$PATH
+
 LABEL com.centurylinklabs.watchtower.lifecycle.pre-check=/watchtower-hooks/pre-check.sh
 LABEL com.centurylinklabs.watchtower.lifecycle.pre-update=/watchtower-hooks/pre-update.sh
 
