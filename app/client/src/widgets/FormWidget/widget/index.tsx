@@ -5,8 +5,12 @@ import type { WidgetProps } from "../../BaseWidget";
 import type { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
 import { ContainerWidget } from "widgets/ContainerWidget/widget";
 import type { ContainerComponentProps } from "widgets/ContainerWidget/component";
-import type { DerivedPropertiesMap } from "WidgetProvider/factory";
-import { Positioning } from "layoutSystems/autolayout/utils/constants";
+import {
+  FlexLayerAlignment,
+  FlexVerticalAlignment,
+  Positioning,
+  ResponsiveBehavior,
+} from "layoutSystems/common/utils/constants";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
@@ -17,16 +21,13 @@ import { Colors } from "constants/Colors";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { GridDefaults, WIDGET_TAGS } from "constants/WidgetConstants";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import {
-  FlexLayerAlignment,
-  ResponsiveBehavior,
-} from "layoutSystems/autolayout/utils/constants";
 import { getWidgetBluePrintUpdates } from "utils/WidgetBlueprintUtils";
 import { DynamicHeight } from "utils/WidgetFeatures";
 import { BlueprintOperationTypes } from "WidgetProvider/constants";
 import type { FlattenedWidgetProps } from "WidgetProvider/constants";
 import IconSVG from "../icon.svg";
-import type { FlexLayer } from "layoutSystems/autolayout/utils/autoLayoutTypes";
+import type { DerivedPropertiesMap } from "WidgetProvider/factory";
+import type { FlexLayer } from "layoutSystems/autolayout/utils/types";
 
 class FormWidget extends ContainerWidget {
   static type = "FORM_WIDGET";
@@ -262,11 +263,15 @@ class FormWidget extends ContainerWidget {
       },
       responsiveBehavior: ResponsiveBehavior.Fill,
       minWidth: FILL_WIDGET_MIN_WIDTH,
+      flexVerticalAlignment: FlexVerticalAlignment.Stretch,
     };
   }
 
   static getAutoLayoutConfig() {
     return {
+      autoDimension: {
+        height: true,
+      },
       widgetSize: [
         {
           viewportMinWidth: 0,

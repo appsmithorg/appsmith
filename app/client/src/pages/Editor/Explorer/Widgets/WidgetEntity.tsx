@@ -12,10 +12,12 @@ import WidgetIcon from "./WidgetIcon";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { builderURL } from "RouteBuilder";
 import { useLocation } from "react-router";
-import { hasManagePagePermission } from "@appsmith/utils/permissionHelpers";
 import { getPagePermissions } from "selectors/editorSelectors";
 import { NavigationMethod } from "utils/history";
 import { getEntityExplorerWidgetsToExpand } from "selectors/widgetSelectors";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { getHasManagePagePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 
 export type WidgetTree = WidgetProps & { children?: WidgetTree[] };
 
@@ -80,7 +82,12 @@ export const WidgetEntity = memo((props: WidgetEntityProps) => {
 
   const pagePermissions = useSelector(getPagePermissions);
 
-  const canManagePages = hasManagePagePermission(pagePermissions);
+  const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+
+  const canManagePages = getHasManagePagePermission(
+    isFeatureEnabled,
+    pagePermissions,
+  );
 
   const {
     isWidgetSelected,

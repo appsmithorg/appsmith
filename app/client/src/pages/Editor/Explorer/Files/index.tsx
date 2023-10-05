@@ -22,9 +22,11 @@ import {
 } from "@appsmith/pages/Editor/Explorer/helpers";
 import { AddEntity, EmptyComponent } from "../common";
 import ExplorerSubMenu from "./Submenu";
-import { hasCreateActionPermission } from "@appsmith/utils/permissionHelpers";
 import { Icon, Text } from "design-system";
 import styled from "styled-components";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { getHasCreateActionPermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 
 const StyledText = styled(Text)`
   color: var(--ads-v2-color-fg-emphasis);
@@ -63,7 +65,12 @@ function Files() {
 
   const pagePermissions = useSelector(getPagePermissions);
 
-  const canCreateActions = hasCreateActionPermission(pagePermissions);
+  const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+
+  const canCreateActions = getHasCreateActionPermission(
+    isFeatureEnabled,
+    pagePermissions,
+  );
 
   const onMenuClose = useCallback(() => openMenu(false), [openMenu]);
 

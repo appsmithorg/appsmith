@@ -38,8 +38,10 @@ import CopyToClipBoard from "components/designSystems/appsmith/CopyToClipBoard";
 import { updateReplayEntity } from "actions/pageActions";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
-import { hasManageDatasourcePermission } from "@appsmith/utils/permissionHelpers";
 import { Form } from "./DBForm";
+import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
+import { getHasManageDatasourcePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 interface DatasourceRestApiEditorProps {
   initializeReplayEntity: (id: string, data: any) => void;
@@ -73,6 +75,7 @@ interface DatasourceRestApiEditorProps {
   triggerSave?: boolean;
   datasourceDeleteTrigger: () => void;
   viewMode: boolean;
+  isFeatureEnabled: boolean;
 }
 
 type Props = DatasourceRestApiEditorProps &
@@ -189,9 +192,10 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
   };
 
   validate = (): boolean => {
-    const { datasource, datasourceId, formData } = this.props;
+    const { datasource, datasourceId, formData, isFeatureEnabled } = this.props;
     const createMode = datasourceId === TEMP_DATASOURCE_ID;
-    const canManageDatasource = hasManageDatasourcePermission(
+    const canManageDatasource = getHasManageDatasourcePermission(
+      isFeatureEnabled,
       datasource?.userPermissions || [],
     );
     if (!formData) return true;
@@ -1006,11 +1010,17 @@ const mapStateToProps = (state: AppState, props: any) => {
   const { currentEnvironment, datasource, formName } = props;
   const hintMessages = datasource && datasource.messages;
 
+  const isFeatureEnabled = selectFeatureFlagCheck(
+    state,
+    FEATURE_FLAG.license_gac_enabled,
+  );
+
   return {
     initialValues: datasourceToFormValues(datasource, currentEnvironment),
     formMeta: getFormMeta(formName)(state),
     messages: hintMessages,
     datasourceName: datasource?.name ?? "",
+    isFeatureEnabled,
   };
 };
 

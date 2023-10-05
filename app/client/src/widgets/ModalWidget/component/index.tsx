@@ -10,13 +10,13 @@ import { scrollCSS } from "widgets/WidgetUtils";
 import type { WidgetProps } from "widgets/BaseWidget";
 import type { RenderMode } from "constants/WidgetConstants";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
-import WidgetFactory from "WidgetProvider/factory";
 import { useModalWidth } from "./useModalWidth";
 import type {
   Alignment,
   Positioning,
   Spacing,
-} from "layoutSystems/autolayout/utils/constants";
+} from "layoutSystems/common/utils/constants";
+import { renderAppsmithCanvas } from "layoutSystems/CanvasFactory";
 
 const Content = styled.div<{ $scroll: boolean }>`
   overflow-x: hidden;
@@ -113,7 +113,7 @@ export default function ModalComponent(props: ModalComponentProps) {
     childData.positioning = props.positioning;
     childData.alignment = props.alignment;
     childData.spacing = props.spacing;
-    return WidgetFactory.createWidget(childData, props.renderMode);
+    return renderAppsmithCanvas(childData as WidgetProps);
   };
   const getChildren = (): ReactNode => {
     if (

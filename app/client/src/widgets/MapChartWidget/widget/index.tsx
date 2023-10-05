@@ -26,7 +26,10 @@ import {
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type { AutocompletionDefinitions } from "WidgetProvider/constants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
+import {
+  FlexVerticalAlignment,
+  ResponsiveBehavior,
+} from "layoutSystems/common/utils/constants";
 import IconSVG from "../icon.svg";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 
@@ -107,6 +110,7 @@ class MapChartWidget extends BaseWidget<MapChartWidgetProps, WidgetState> {
         },
       ],
       responsiveBehavior: ResponsiveBehavior.Fill,
+      flexVerticalAlignment: FlexVerticalAlignment.Top,
       minWidth: FILL_WIDGET_MIN_WIDTH,
     };
   }

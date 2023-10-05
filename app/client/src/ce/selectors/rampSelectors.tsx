@@ -35,6 +35,8 @@ export const showProductRamps = (
   rampName: string,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   isEnterpriseOnlyFeature = false,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  isFeatureFlagEnabled?: boolean,
 ) =>
   createSelector(uiState, (ui) => {
     function getUserRoleInWorkspace() {

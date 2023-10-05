@@ -29,6 +29,7 @@ import {
   migrateTableSelectOptionAttributesForNewRow,
   migrateBindingPrefixSuffixForInlineEditValidationControl,
   migrateTableWidgetTableDataJsMode,
+  migrateTableServerSideFiltering,
 } from "./migrations/TableWidget";
 import {
   migrateTextStyleFromTextWidget,
@@ -56,7 +57,7 @@ import { migrateCheckboxGroupWidgetInlineProperty } from "./migrations/CheckboxG
 import { migrateMapWidgetIsClickedMarkerCentered } from "./migrations/MapWidget";
 import type { DSLWidget } from "WidgetProvider/constants";
 import { migrateRecaptchaType } from "./migrations/ButtonWidgetMigrations";
-import type { PrivateWidgets } from "entities/DataTree/types";
+import type { PrivateWidgets } from "@appsmith/entities/DataTree/types";
 import {
   migrateChildStylesheetFromDynamicBindingPathList,
   migrateStylingPropertiesForTheming,
@@ -1227,6 +1228,11 @@ export const transformDSL = (currentDSL: DSLWidget, newPage = false) => {
 
   if (currentDSL.version === 85) {
     currentDSL = migrateDefaultValuesForCustomEChart(currentDSL);
+    currentDSL.version = 86;
+  }
+
+  if (currentDSL.version === 86) {
+    currentDSL = migrateTableServerSideFiltering(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 
