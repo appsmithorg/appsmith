@@ -10,7 +10,8 @@ import {
 } from "./commonUtils";
 import InputWidget from "widgets/InputWidgetV2/widget";
 import ButtonWidget from "widgets/ButtonWidget/widget";
-import { mockInputProps } from "mocks/widgetProps/input";
+import { InputFactory } from "test/factories/Widgets/InputFactory";
+import { ButtonFactory } from "test/factories/Widgets/ButtonFactory";
 
 describe("Common Utils tests", () => {
   describe("getAutoDimensionsConfig", () => {
@@ -18,17 +19,14 @@ describe("Common Utils tests", () => {
       const config: AutoLayoutConfig | undefined =
         InputWidget.getAutoLayoutConfig();
       const autoDimension: AutoDimensionOptions | undefined =
-        getAutoDimensionsConfig(config || {}, mockInputProps());
+        getAutoDimensionsConfig(config || {}, InputFactory.build());
       expect((autoDimension as AutoDimensionValues)?.height).toBeTruthy();
     });
     it("autoDimension.width for button widget should be true", () => {
       const config: AutoLayoutConfig | undefined =
         ButtonWidget.getAutoLayoutConfig();
       const autoDimension: AutoDimensionOptions | undefined =
-        getAutoDimensionsConfig(config || {}, {
-          ...mockInputProps(),
-          type: "BUTTON_WIDGET",
-        });
+        getAutoDimensionsConfig(config || {}, ButtonFactory.build());
       expect((autoDimension as AutoDimensionValues)?.width).toBeTruthy();
       expect((autoDimension as AutoDimensionValues)?.height).toBeFalsy();
     });
@@ -42,10 +40,10 @@ describe("Common Utils tests", () => {
         maxWidth: Record<string, string | number>;
         minHeight: Record<string, string | number>;
         minWidth: Record<string, string | number>;
-      } = restructureWidgetSizeConfig(config?.widgetSize || [], {
-        ...mockInputProps(),
-        type: "BUTTON_WIDGET",
-      });
+      } = restructureWidgetSizeConfig(
+        config?.widgetSize || [],
+        ButtonFactory.build(),
+      );
 
       expect(sizeConfig.minWidth.base).toEqual("120px");
       expect(sizeConfig.minHeight.base).toEqual("40px");
@@ -62,7 +60,7 @@ describe("Common Utils tests", () => {
         minWidth: Record<string, string | number>;
       } = restructureWidgetSizeConfig(
         config?.widgetSize || [],
-        mockInputProps(),
+        InputFactory.build(),
       );
 
       expect(sizeConfig.minWidth.base).toEqual("120px");

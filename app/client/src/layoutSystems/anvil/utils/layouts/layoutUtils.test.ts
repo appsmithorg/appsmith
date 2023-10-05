@@ -11,10 +11,10 @@ import {
   removeChildFromLayout,
 } from "./layoutUtils";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
-import { mockButtonProps } from "mocks/widgetProps/button";
 import type { HighlightInfo } from "layoutSystems/common/utils/types";
 import { mockHighlightInfo } from "mocks/mockHighlightInfo";
 import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
+import { ButtonFactory } from "test/factories/Widgets/ButtonFactory";
 
 describe("layoutUtils tests", () => {
   describe("generateLayoutId", () => {
@@ -28,7 +28,7 @@ describe("layoutUtils tests", () => {
   describe("addChildToLayout", () => {
     it("should add child to layout at provided index", () => {
       const layout: LayoutComponentProps = generateLayoutComponentMock();
-      const buttonWidget: BaseWidgetProps = mockButtonProps();
+      const buttonWidget: BaseWidgetProps = ButtonFactory.build();
       const children: string[] = [buttonWidget.widgetId];
       // Add child at rowIndex 1. layout already contains two widgets.
       let highlight: HighlightInfo = mockHighlightInfo({ rowIndex: 1 });
@@ -55,7 +55,7 @@ describe("layoutUtils tests", () => {
   describe("addChildToAlignedRow", () => {
     it("should add child to the defined alignment and index", () => {
       const layout: LayoutComponentProps = generateAlignedRowMock();
-      const buttonWidget: BaseWidgetProps = mockButtonProps();
+      const buttonWidget: BaseWidgetProps = ButtonFactory.build();
       const children: string[] = [buttonWidget.widgetId];
       // Add child at the beginning of start alignment.
       let highlight: HighlightInfo = mockHighlightInfo();
@@ -85,7 +85,7 @@ describe("layoutUtils tests", () => {
     });
     it("should add child at the end of the list, if provided rowIndex is out of bounds", () => {
       const layout: LayoutComponentProps = generateAlignedRowMock();
-      const buttonWidget: BaseWidgetProps = mockButtonProps();
+      const buttonWidget: BaseWidgetProps = ButtonFactory.build();
       const children: string[] = [buttonWidget.widgetId];
       const highlight: HighlightInfo = mockHighlightInfo({
         alignment: FlexLayerAlignment.Center,
