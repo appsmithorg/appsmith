@@ -1600,40 +1600,32 @@ public class DatabaseChangelog1 {
         for (Plugin plugin : mongoTemplate.findAll(Plugin.class)) {
             switch (plugin.getPackageName()) {
                 case "postgres-plugin":
-                    plugin.setDocumentationLink(
-                            "https://docs.appsmith.com/reference/datasources/querying-postgres");
+                    plugin.setDocumentationLink("https://docs.appsmith.com/reference/datasources/querying-postgres");
                     break;
                 case "mongo-plugin":
-                    plugin.setDocumentationLink(
-                            "https://docs.appsmith.com/reference/datasources/querying-mongodb/");
+                    plugin.setDocumentationLink("https://docs.appsmith.com/reference/datasources/querying-mongodb/");
                     break;
                 case "elasticsearch-plugin":
                     plugin.setDocumentationLink(
                             "https://docs.appsmith.com/reference/datasources/querying-elasticsearch");
                     break;
                 case "dynamo-plugin":
-                    plugin.setDocumentationLink(
-                            "https://docs.appsmith.com/reference/datasources/querying-dynamodb");
+                    plugin.setDocumentationLink("https://docs.appsmith.com/reference/datasources/querying-dynamodb");
                     break;
                 case "redis-plugin":
-                    plugin.setDocumentationLink(
-                            "https://docs.appsmith.com/reference/datasources/querying-redis");
+                    plugin.setDocumentationLink("https://docs.appsmith.com/reference/datasources/querying-redis");
                     break;
                 case "mssql-plugin":
-                    plugin.setDocumentationLink(
-                            "https://docs.appsmith.com/reference/datasources/querying-mssql");
+                    plugin.setDocumentationLink("https://docs.appsmith.com/reference/datasources/querying-mssql");
                     break;
                 case "firestore-plugin":
-                    plugin.setDocumentationLink(
-                            "https://docs.appsmith.com/reference/datasources/querying-firestore");
+                    plugin.setDocumentationLink("https://docs.appsmith.com/reference/datasources/querying-firestore");
                     break;
                 case "redshift-plugin":
-                    plugin.setDocumentationLink(
-                            "https://docs.appsmith.com/reference/datasources/querying-redshift");
+                    plugin.setDocumentationLink("https://docs.appsmith.com/reference/datasources/querying-redshift");
                     break;
                 case "mysql-plugin":
-                    plugin.setDocumentationLink(
-                            "https://docs.appsmith.com/reference/datasources/querying-mysql");
+                    plugin.setDocumentationLink("https://docs.appsmith.com/reference/datasources/querying-mysql");
                     break;
                 default:
                     continue;
