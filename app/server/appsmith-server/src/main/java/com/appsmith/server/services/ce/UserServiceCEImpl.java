@@ -37,6 +37,7 @@ import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.EmailService;
+import com.appsmith.server.services.PACConfigurationService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.TenantService;
@@ -88,7 +89,6 @@ import java.util.UUID;
 import java.util.regex.Pattern;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_USERS;
-import static com.appsmith.server.constants.AccessControlConstants.UPGRADE_TO_BUSINESS_EDITION_TO_ACCESS_ROLES_AND_GROUPS_FOR_CONDITIONAL_BUSINESS_LOGIC;
 import static com.appsmith.server.helpers.RedirectHelper.DEFAULT_REDIRECT_URL;
 import static com.appsmith.server.helpers.ValidationUtils.LOGIN_PASSWORD_MAX_LENGTH;
 import static com.appsmith.server.helpers.ValidationUtils.LOGIN_PASSWORD_MIN_LENGTH;
@@ -116,6 +116,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
     private final UserUtils userUtils;
     private final EmailService emailService;
     private final RateLimitService rateLimitService;
+    private final PACConfigurationService pacConfigurationService;
 
     private static final WebFilterChain EMPTY_WEB_FILTER_CHAIN = serverWebExchange -> Mono.empty();
     private static final String FORGOT_PASSWORD_CLIENT_URL_FORMAT = "%s/user/resetPassword?token=%s";
@@ -154,7 +155,8 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
             UserUtils userUtils,
             EmailVerificationTokenRepository emailVerificationTokenRepository,
             EmailService emailService,
-            RateLimitService rateLimitService) {
+            RateLimitService rateLimitService,
+            PACConfigurationService pacConfigurationService) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.workspaceService = workspaceService;
@@ -172,6 +174,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         this.rateLimitService = rateLimitService;
         this.emailVerificationTokenRepository = emailVerificationTokenRepository;
         this.emailService = emailService;
+        this.pacConfigurationService = pacConfigurationService;
     }
 
     @Override
@@ -475,6 +478,8 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         userManagementPermissionGroup.setName(savedUser.getUsername() + FieldName.SUFFIX_USER_MANAGEMENT_ROLE);
         // Add CRUD permissions for user to the group
         userManagementPermissionGroup.setPermissions(Set.of(new Permission(savedUser.getId(), MANAGE_USERS)));
+        userManagementPermissionGroup.setDefaultDomainType(User.class.getSimpleName());
+        userManagementPermissionGroup.setDefaultDomainId(savedUser.getId());
 
         // Assign the permission group to the user
         userManagementPermissionGroup.setAssignedToUserIds(Set.of(savedUser.getId()));
@@ -756,18 +761,9 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                             commonConfig.isCloudHosting() ? true : userData.isIntercomConsentGiven());
                     profile.setSuperUser(isSuperUser);
                     profile.setConfigurable(!StringUtils.isEmpty(commonConfig.getEnvFilePath()));
-                    return setRolesAndGroups(profile, userFromDb, true, commonConfig.isCloudHosting());
+                    return pacConfigurationService.setRolesAndGroups(
+                            profile, userFromDb, true, commonConfig.isCloudHosting());
                 });
-    }
-
-    protected Mono<UserProfileDTO> setRolesAndGroups(
-            UserProfileDTO profile, User user, boolean showRolesAndGroups, boolean isCloudHosting) {
-        profile.setRoles(
-                List.of(UPGRADE_TO_BUSINESS_EDITION_TO_ACCESS_ROLES_AND_GROUPS_FOR_CONDITIONAL_BUSINESS_LOGIC));
-        profile.setGroups(
-                List.of(UPGRADE_TO_BUSINESS_EDITION_TO_ACCESS_ROLES_AND_GROUPS_FOR_CONDITIONAL_BUSINESS_LOGIC));
-
-        return Mono.just(profile);
     }
 
     private EmailTokenDTO parseValueFromEncryptedToken(String encryptedToken) {

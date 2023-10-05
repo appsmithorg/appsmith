@@ -20,10 +20,5 @@ export const AnvilEditorWrapper = (props: WidgetProps) => {
       : AnvilEditorWidgetOnion;
   }, [props.type]);
 
-  //Canvas_Onion
-  if (props.type === "CANVAS_WIDGET") {
-    return props.children;
-  }
-
   return <WidgetOnion {...props}>{props.children}</WidgetOnion>;
 };

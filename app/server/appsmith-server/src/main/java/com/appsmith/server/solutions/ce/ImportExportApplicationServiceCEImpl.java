@@ -175,6 +175,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         ApplicationJson applicationJson = new ApplicationJson();
         Map<String, String> pluginMap = new HashMap<>();
         Map<String, String> datasourceIdToNameMap = new HashMap<>();
+        Map<String, Instant> datasourceNameToUpdatedAtMap = new HashMap<>();
         Map<String, String> pageIdToNameMap = new HashMap<>();
         Map<String, String> actionIdToNameMap = new HashMap<>();
         Map<String, String> collectionIdToNameMap = new HashMap<>();
@@ -397,8 +398,11 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                             .flatMapMany(tuple2 -> {
                                 List<Datasource> datasourceList = tuple2.getT1();
                                 String environmentId = tuple2.getT2();
-                                datasourceList.forEach(datasource ->
-                                        datasourceIdToNameMap.put(datasource.getId(), datasource.getName()));
+                                datasourceList.forEach(datasource -> {
+                                    datasourceIdToNameMap.put(datasource.getId(), datasource.getName());
+                                    datasourceNameToUpdatedAtMap.put(datasource.getName(), datasource.getUpdatedAt());
+                                });
+
                                 List<DatasourceStorage> storageList = datasourceList.stream()
                                         .map(datasource -> {
                                             DatasourceStorage storage =
@@ -578,6 +582,10 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                             : null;
                                     // TODO: check whether resource updated after last commit - move to a function
                                     String pageName = actionDTO.getPageId();
+                                    // we've replaced the datasource id with datasource name in previous step
+                                    boolean isDatasourceUpdated = ImportExportUtils.isDatasourceUpdatedSinceLastCommit(
+                                            datasourceNameToUpdatedAtMap, actionDTO, applicationLastCommittedAt);
+
                                     boolean isPageUpdated =
                                             ImportExportUtils.isPageNameInUpdatedList(applicationJson, pageName);
                                     Instant newActionUpdatedAt = newAction.getUpdatedAt();
@@ -585,6 +593,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                             || isServerSchemaMigrated
                                             || applicationLastCommittedAt == null
                                             || isPageUpdated
+                                            || isDatasourceUpdated
                                             || newActionUpdatedAt == null
                                             || applicationLastCommittedAt.isBefore(newActionUpdatedAt);
                                     if (isNewActionUpdated && newActionName != null) {
