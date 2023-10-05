@@ -123,7 +123,8 @@ public class UserServiceImpl extends UserServiceCECompatibleImpl implements User
             PolicyGenerator policyGenerator,
             ProvisionUtils provisionUtils,
             EmailService emailService,
-            RateLimitService rateLimitService) {
+            RateLimitService rateLimitService,
+            PACConfigurationService pacConfigurationService) {
         super(
                 scheduler,
                 validator,
@@ -148,7 +149,8 @@ public class UserServiceImpl extends UserServiceCECompatibleImpl implements User
                 userUtils,
                 emailVerificationTokenRepository,
                 emailService,
-                rateLimitService);
+                rateLimitService,
+                pacConfigurationService);
 
         this.userDataService = userDataService;
         this.tenantService = tenantService;
@@ -511,4 +513,5 @@ public class UserServiceImpl extends UserServiceCECompatibleImpl implements User
                     return Mono.just(false);
                 });
     }
+
 }
