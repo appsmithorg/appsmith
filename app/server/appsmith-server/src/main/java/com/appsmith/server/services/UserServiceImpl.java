@@ -8,14 +8,11 @@ import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.annotations.FeatureFlagged;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.EmailConfig;
-import com.appsmith.server.constants.AccessControlConstants;
 import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.ProvisionResourceMetadata;
-import com.appsmith.server.domains.QUserGroup;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
-import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.dtos.PagedDomain;
 import com.appsmith.server.dtos.ProvisionResourceDto;
 import com.appsmith.server.dtos.UserProfileDTO;
@@ -78,7 +75,6 @@ import static com.appsmith.server.constants.ce.FieldNameCE.EVENT_DATA;
 import static com.appsmith.server.constants.ce.FieldNameCE.NUMBER_OF_USERS_INVITED;
 import static com.appsmith.server.constants.ce.FieldNameCE.USER_EMAILS;
 import static com.appsmith.server.enums.ProvisionResourceType.USER;
-import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 
 @Slf4j
 @Service
@@ -235,7 +231,8 @@ public class UserServiceImpl extends UserServiceCECompatibleImpl implements User
                             .map(cfg -> cfg.getTenantConfiguration().getShowRolesAndGroups())
                             .orElse(false);
 
-                    return setRolesAndGroups(userProfileDTO, user, showRolesAndGroups, commonConfig.isCloudHosting());
+                    return pacConfigurationService.setRolesAndGroups(
+                            userProfileDTO, user, showRolesAndGroups, commonConfig.isCloudHosting());
                 });
         return userProfileDTOWithRolesAndGroups;
     }
@@ -465,44 +462,6 @@ public class UserServiceImpl extends UserServiceCECompatibleImpl implements User
         Map<String, Object> analyticsProperties = new HashMap<>();
         analyticsProperties.put(IS_PROVISIONED, savedResource.getIsProvisioned());
         return analyticsProperties;
-    }
-
-    protected Mono<UserProfileDTO> setRolesAndGroups(
-            UserProfileDTO profile, User user, boolean showUsersAndGroups, boolean isCloudHosting) {
-        if (Boolean.TRUE.equals(commonConfig.isCloudHosting())) {
-            return pacConfigurationService.setRolesAndGroups(profile, user, showUsersAndGroups, isCloudHosting);
-        }
-
-        if (showUsersAndGroups) {
-            Mono<List<String>> rolesUserHasBeenAssignedMono = Mono.just(List.of());
-            Mono<List<String>> groupsUsersIsPartOfMono = Mono.just(List.of());
-
-            if (StringUtils.isNotEmpty(user.getId())) {
-                rolesUserHasBeenAssignedMono = permissionGroupService
-                        .getRoleNamesAssignedToUserIds(Set.of(user.getId()))
-                        .collectList();
-                groupsUsersIsPartOfMono = userGroupRepository
-                        .getAllByUsersIn(
-                                Set.of(user.getId()),
-                                Optional.of(List.of(fieldName(QUserGroup.userGroup.name))),
-                                Optional.empty())
-                        .map(UserGroup::getName)
-                        .collectList();
-            }
-
-            return Mono.zip(rolesUserHasBeenAssignedMono, groupsUsersIsPartOfMono)
-                    .map(pair2 -> {
-                        List<String> rolesAssigned = pair2.getT1();
-                        List<String> memberOfRoles = pair2.getT2();
-                        profile.setRoles(rolesAssigned);
-                        profile.setGroups(memberOfRoles);
-                        return profile;
-                    });
-        } else {
-            profile.setRoles(List.of(AccessControlConstants.ENABLE_PROGRAMMATIC_ACCESS_CONTROL_IN_ADMIN_SETTINGS));
-            profile.setGroups(List.of(AccessControlConstants.ENABLE_PROGRAMMATIC_ACCESS_CONTROL_IN_ADMIN_SETTINGS));
-            return Mono.just(profile);
-        }
     }
 
     @Override

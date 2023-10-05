@@ -494,9 +494,15 @@ public class TenantServiceTest {
                 .block();
 
         Assertions.assertThat(userProfileDTO_noRolesAndGroupInfo.getRoles())
-                .isEqualTo(List.of(AccessControlConstants.ENABLE_PROGRAMMATIC_ACCESS_CONTROL_IN_ADMIN_SETTINGS));
+                .isEqualTo(
+                        List.of(
+                                AccessControlConstants
+                                        .UPGRADE_TO_BUSINESS_EDITION_TO_ACCESS_ROLES_AND_GROUPS_FOR_CONDITIONAL_BUSINESS_LOGIC));
         Assertions.assertThat(userProfileDTO_noRolesAndGroupInfo.getGroups())
-                .isEqualTo(List.of(AccessControlConstants.ENABLE_PROGRAMMATIC_ACCESS_CONTROL_IN_ADMIN_SETTINGS));
+                .isEqualTo(
+                        List.of(
+                                AccessControlConstants
+                                        .UPGRADE_TO_BUSINESS_EDITION_TO_ACCESS_ROLES_AND_GROUPS_FOR_CONDITIONAL_BUSINESS_LOGIC));
     }
 
     @Test

@@ -54,6 +54,7 @@ import static com.appsmith.server.acl.AclPermission.READ_USERS;
 import static com.appsmith.server.acl.AclPermission.READ_USER_GROUPS;
 import static com.appsmith.server.acl.AclPermission.RESET_PASSWORD_USERS;
 import static com.appsmith.server.constants.AccessControlConstants.ENABLE_PROGRAMMATIC_ACCESS_CONTROL_IN_ADMIN_SETTINGS;
+import static com.appsmith.server.constants.ce.AccessControlConstantsCE.UPGRADE_TO_BUSINESS_EDITION_TO_ACCESS_ROLES_AND_GROUPS_FOR_CONDITIONAL_BUSINESS_LOGIC;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -183,6 +184,34 @@ public class UserServiceTest {
                             .isEqualTo(List.of(ENABLE_PROGRAMMATIC_ACCESS_CONTROL_IN_ADMIN_SETTINGS));
                     assertThat(userProfileDTO.getGroups())
                             .isEqualTo(List.of(ENABLE_PROGRAMMATIC_ACCESS_CONTROL_IN_ADMIN_SETTINGS));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testBuildUserProfileDTOReturnsWarningDisplayMessageWhenProgrammaticAccessControlNotAvailable() {
+        Mockito.when(commonConfig.isCloudHosting()).thenReturn(false);
+        Mockito.when(featureFlagService.check(FeatureFlagEnum.license_pac_enabled))
+                .thenReturn(Mono.just(Boolean.FALSE));
+
+        Tenant defaultTenant = tenantService.getDefaultTenant().block();
+        assert defaultTenant != null;
+        TenantConfiguration tenantConfiguration = defaultTenant.getTenantConfiguration();
+        tenantConfiguration.setShowRolesAndGroups(Boolean.FALSE);
+        defaultTenant.setTenantConfiguration(tenantConfiguration);
+        tenantService.update(defaultTenant.getId(), defaultTenant).block();
+
+        StepVerifier.create(userService.buildUserProfileDTO(api_user))
+                .assertNext(userProfileDTO -> {
+                    assertThat(userProfileDTO.getRoles())
+                            .isEqualTo(
+                                    List.of(
+                                            UPGRADE_TO_BUSINESS_EDITION_TO_ACCESS_ROLES_AND_GROUPS_FOR_CONDITIONAL_BUSINESS_LOGIC));
+                    assertThat(userProfileDTO.getGroups())
+                            .isEqualTo(
+                                    List.of(
+                                            UPGRADE_TO_BUSINESS_EDITION_TO_ACCESS_ROLES_AND_GROUPS_FOR_CONDITIONAL_BUSINESS_LOGIC));
                 })
                 .verifyComplete();
     }
