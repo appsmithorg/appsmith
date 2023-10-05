@@ -2,6 +2,7 @@ import React from "react";
 import type {
   LayoutComponent,
   LayoutComponentProps,
+  LayoutProps,
 } from "../utils/anvilTypes";
 import { AutoCanvasDraggingArena } from "layoutSystems/autolayout/editor/AutoLayoutCanvasArenas/AutoCanvasDraggingArena";
 import { renderLayouts } from "../utils/layouts/renderUtils";
@@ -9,15 +10,17 @@ import { RenderModes } from "constants/WidgetConstants";
 
 export function LayoutComponentHOC(Component: LayoutComponent) {
   const enhancedLayoutComponent = (props: LayoutComponentProps) => {
-    const { isDropTarget, renderMode } = props;
+    const { canvasId, isDropTarget, renderMode } = props;
 
     const renderChildren = () => {
       if (Component.rendersWidgets(props)) {
         return Component.renderChildWidgets(props);
       } else {
         return renderLayouts(
-          props.layout as LayoutComponentProps[],
+          props.layout as LayoutProps[],
           props.childrenMap,
+          canvasId,
+          renderMode,
         );
       }
     };

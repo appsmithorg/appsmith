@@ -1,6 +1,10 @@
 import React from "react";
 import LayoutFactory from "layoutSystems/anvil/layoutComponents/LayoutFactory";
-import type { LayoutComponent, LayoutComponentProps } from "../anvilTypes";
+import type {
+  LayoutComponent,
+  LayoutComponentProps,
+  LayoutProps,
+} from "../anvilTypes";
 import WidgetFactory from "WidgetProvider/factory";
 import { type RenderMode, RenderModes } from "constants/WidgetConstants";
 import { isFillWidgetPresentInList } from "./widgetUtils";
@@ -27,16 +31,20 @@ export function renderWidgets(
  * @returns ReactNode
  */
 export function renderLayouts(
-  layouts: LayoutComponentProps[],
+  layouts: LayoutProps[],
   childrenMap: LayoutComponentProps["childrenMap"],
+  canvasId: string,
+  renderMode: RenderMode = RenderModes.CANVAS,
 ): JSX.Element[] {
   return layouts.map((layout) => {
     const Component: LayoutComponent = LayoutFactory.get(layout.layoutType);
     return (
       <Component
+        {...layout}
+        canvasId={canvasId}
         childrenMap={getChildrenMap(layout, childrenMap)}
         key={layout.layoutId}
-        {...layout}
+        renderMode={renderMode}
       />
     );
   });
@@ -52,7 +60,7 @@ export function renderLayouts(
  * @returns Record<string, WidgetProps>
  */
 export function getChildrenMap(
-  layoutProps: LayoutComponentProps,
+  layoutProps: LayoutProps,
   map: LayoutComponentProps["childrenMap"],
   res: LayoutComponentProps["childrenMap"] = {},
 ): LayoutComponentProps["childrenMap"] {
