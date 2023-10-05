@@ -8,6 +8,13 @@ export type LayoutComponentType =
   | "COLUMN"
   | "ROW";
 
+export enum LayoutComponentTypes {
+  ALIGNED_COLUMN = "ALIGNED_COLUMN",
+  ALIGNED_ROW = "ALIGNED_ROW",
+  COLUMN = "COLUMN",
+  ROW = "ROW",
+}
+
 export interface LayoutComponentProps {
   layout: LayoutComponentProps[] | string[] | string[][]; // Array of layout components or widgets to render.
   layoutId: string; // Identifier of layout

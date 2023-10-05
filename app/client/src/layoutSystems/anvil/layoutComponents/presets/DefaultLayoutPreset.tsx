@@ -1,14 +1,15 @@
 import {
   LayoutComponentTypes,
-  type LayoutProps,
+  type LayoutComponentProps,
 } from "layoutSystems/anvil/utils/anvilTypes";
 import { generateReactKey } from "utils/generators";
 
 export function generateDefaultLayoutPreset(
-  data: Partial<LayoutProps> = {},
-): LayoutProps[] {
+  data: Partial<LayoutComponentProps> = {},
+): LayoutComponentProps[] {
   return [
     {
+      canvasId: "",
       isDropTarget: true,
       isPermanent: true,
       layout: [],
