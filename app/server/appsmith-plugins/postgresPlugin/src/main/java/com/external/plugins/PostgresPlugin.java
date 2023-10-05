@@ -286,11 +286,20 @@ public class PostgresPlugin extends BasePlugin {
         }
 
         @Override
-        public Mono<String> getIdentifierForRateLimit(DatasourceConfiguration datasourceConfiguration) {
+        public Mono<String> getEndpointIdentifierForRateLimit(DatasourceConfiguration datasourceConfiguration) {
             List<Endpoint> endpoints = datasourceConfiguration.getEndpoints();
             String identifier = "";
+            // When hostname and port both are available, both will be used as identifier
+            // When port is not present, only hostname will be used
+            // This ensures rate limiting will only be applied if hostname is present
             if (endpoints.size() > 0) {
-                identifier = endpoints.get(0).getHost() + endpoints.get(0).getPort();
+                String hostName = endpoints.get(0).getHost();
+                Long port = endpoints.get(0).getPort();
+                if (hostName != null && Boolean.FALSE.equals(hostName.isEmpty()) && port != null) {
+                    identifier = hostName + "_" + port;
+                } else if (port == null) {
+                    identifier = hostName;
+                }
             }
             return Mono.just(identifier);
         }

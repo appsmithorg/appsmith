@@ -91,6 +91,8 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
     private final RedisUtils redisUtils;
     private final FeatureFlagService featureFlagService;
 
+    // Defines blocking duration for test as well as connection created for query execution
+    // This will block the execution for 5 minutes, in case of more than 3 failed connection attempts
     private final Integer BLOCK_TEST_API_DURATION = 5;
 
     @Autowired
@@ -454,8 +456,8 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
             DatasourceStorageDTO datasourceStorageDTO, String activeEnvironmentId) {
         DatasourceStorage datasourceStorage =
                 datasourceStorageService.createDatasourceStorageFromDatasourceStorageDTO(datasourceStorageDTO);
-        return this.shouldCheckForBlockingKey(datasourceStorage).flatMap(isPresent -> {
-            if (!isPresent) {
+        return this.isEndpointBlockedForRequest(datasourceStorage).flatMap(isBlocked -> {
+            if (!isBlocked) {
                 final Mono<DatasourceStorage> datasourceStorageMono;
 
                 // Ideally there should also be a check for missing environmentId,
@@ -505,7 +507,6 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                                     return Mono.just(datasourceStorage);
                                 }
 
-                                String datasourceId = datasourceStorage1.getDatasourceId();
                                 String trueEnvironmentId = datasourceStorage1.getEnvironmentId();
                                 // Fetch any fields that maybe encrypted from the db if the datasource being
                                 // tested does not
@@ -564,7 +565,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                                 String rateLimitIdentifier = tuple.getT2();
                                 if (!CollectionUtils.isEmpty(datasourceTestResult.getInvalids())) {
                                     // Consumes a token from bucket whenever test api fails
-                                    return this.shouldConsumeToken(datasourceStorage)
+                                    return this.consumeTokenIfAvailable(datasourceStorage)
                                             .flatMap(isSuccessful -> {
                                                 if (!isSuccessful) {
                                                     AppsmithException exception = new AppsmithException(
@@ -628,6 +629,11 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                 .testDatasource(datasourceStorage.getDatasourceConfiguration()));
     }
 
+    /*
+     * This method returns rate limit identifier required in order to apply rate limit on datasource test api
+     * and will also be used for creating connections during query execution.
+     * For more details: https://github.com/appsmithorg/appsmith/issues/22868
+     */
     protected Mono<String> getRateLimitIdentifier(DatasourceStorage datasourceStorage) {
         Mono<PluginExecutor> pluginExecutorMono = pluginExecutorHelper
                 .getPluginExecutor(pluginService.findById(datasourceStorage.getPluginId()))
@@ -635,10 +641,10 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                         AppsmithError.NO_RESOURCE_FOUND, FieldName.PLUGIN, datasourceStorage.getPluginId())));
 
         return pluginExecutorMono.flatMap(pluginExecutor -> ((PluginExecutor<Object>) pluginExecutor)
-                .getIdentifierForRateLimit(datasourceStorage.getDatasourceConfiguration()));
+                .getEndpointIdentifierForRateLimit(datasourceStorage.getDatasourceConfiguration()));
     }
 
-    protected Mono<Boolean> shouldCheckForBlockingKey(DatasourceStorage datasourceStorage) {
+    protected Mono<Boolean> isEndpointBlockedForRequest(DatasourceStorage datasourceStorage) {
         Mono<String> rateLimitIdentifierMono = this.getRateLimitIdentifier(datasourceStorage);
         return featureFlagService
                 .check(FeatureFlagEnum.rollout_datasource_test_rate_limit_enabled)
@@ -646,8 +652,11 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                 .flatMap(tuple -> {
                     Boolean isFlagEnabled = tuple.getT1();
                     String rateLimitIdentifier = tuple.getT2();
-                    if (isFlagEnabled) {
-                        return rateLimitService.isBlockingKeyPresent(
+                    // In case of endpoint identifier as empty string, no rate limiting will be applied
+                    // Currently this function is overridden only by postgresPlugin class, in future it will be done for
+                    // all plugins wherever applicable.
+                    if (isFlagEnabled && Boolean.FALSE.equals(rateLimitIdentifier.isEmpty())) {
+                        return rateLimitService.isEndpointBlockedForRequest(
                                 RateLimitConstants.BUCKET_KEY_FOR_TEST_DATASOURCE_API, rateLimitIdentifier);
                     } else {
                         return Mono.just(false);
@@ -655,7 +664,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                 });
     }
 
-    protected Mono<Boolean> shouldConsumeToken(DatasourceStorage datasourceStorage) {
+    protected Mono<Boolean> consumeTokenIfAvailable(DatasourceStorage datasourceStorage) {
         Mono<String> rateLimitIdentifierMono = this.getRateLimitIdentifier(datasourceStorage);
         return featureFlagService
                 .check(FeatureFlagEnum.rollout_datasource_test_rate_limit_enabled)
@@ -663,7 +672,10 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                 .flatMap(tuple -> {
                     Boolean isFlagEnabled = tuple.getT1();
                     String rateLimitIdentifier = tuple.getT2();
-                    if (isFlagEnabled) {
+                    // In case of endpoint identifier as empty string, no rate limiting will be applied
+                    // Currently this function is overridden only by postgresPlugin class, in future it will be done for
+                    // all plugins wherever applicable.
+                    if (isFlagEnabled && Boolean.FALSE.equals(rateLimitIdentifier.isEmpty())) {
                         return rateLimitService.tryIncreaseCounter(
                                 RateLimitConstants.BUCKET_KEY_FOR_TEST_DATASOURCE_API, rateLimitIdentifier);
                     } else {

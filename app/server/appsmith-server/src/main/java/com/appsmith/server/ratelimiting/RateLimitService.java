@@ -52,14 +52,31 @@ public class RateLimitService {
                 .reset();
     }
 
+    /* **************************************************************************************************** */
+    /*
+     * Following functions are used in case we need to block the endpoint for a specified period of time
+     * in case of token exhaustion.
+     * For test API and connections, we need to block the execution for 5 minutes if we receive more than
+     * 3 failed requests within 5 seconds
+     */
+    /* **************************************************************************************************** */
+
+    /*
+     * This function will add a unique identifier in redis cache for the execution that needs to be blocked
+     * along with TTL
+     */
     public Mono<Boolean> blockExecutionForPeriod(
-            String apiIdentifier, String userIdentifier, Duration timePeriod, AppsmithException exception) {
-        String bucketIdentifier = BLOCKED_HOSTNAME_PREFIX + apiIdentifier + userIdentifier;
+            String apiIdentifier, String endpointIdentifier, Duration timePeriod, AppsmithException exception) {
+        String bucketIdentifier = BLOCKED_HOSTNAME_PREFIX + apiIdentifier + endpointIdentifier;
         return redisUtils.addFileLock(bucketIdentifier, timePeriod, exception);
     }
 
-    public Mono<Boolean> isBlockingKeyPresent(String apiIdentifier, String userIdentifier) {
-        String bucketIdentifier = BLOCKED_HOSTNAME_PREFIX + apiIdentifier + userIdentifier;
+    /*
+     * This function checks in the redis cache if blocking key is present, if key is there
+     * we block the execution
+     */
+    public Mono<Boolean> isEndpointBlockedForRequest(String apiIdentifier, String endpointIdentifier) {
+        String bucketIdentifier = BLOCKED_HOSTNAME_PREFIX + apiIdentifier + endpointIdentifier;
         return redisUtils.hasKey(bucketIdentifier);
     }
 }
