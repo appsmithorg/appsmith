@@ -15,7 +15,7 @@ RUN apt-get update \
   && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends --yes \
     supervisor curl cron nfs-common nginx nginx-extras gnupg wget netcat openssh-client \
     gettext \
-    python3-pip python3-venv git ca-certificates-java \
+    python3-pip python3-venv git \
   && pip install --no-cache-dir git+https://github.com/coderanger/supervisor-stdout@973ba19967cdaf46d9c1634d1675fc65b9574f6e \
   && python3 -m venv --prompt certbot /opt/certbot/venv \
   && /opt/certbot/venv/bin/pip install --upgrade certbot setuptools pip \
@@ -35,6 +35,13 @@ RUN curl --silent --show-error --location https://www.mongodb.org/static/pgp/ser
   # This is to get semver 7.5.2, for a CVE fix, might be able to remove it with later versions on NodeJS.
   && npm install -g npm@9.7.2
 
+RUN set -o xtrace \
+  && mkdir -p /opt/java \
+  # Assets from https://github.com/adoptium/temurin17-binaries/releases
+  && version="$(curl --write-out '%{redirect_url}' 'https://github.com/adoptium/temurin17-binaries/releases/latest' | sed 's,.*jdk-,,')" \
+  && curl --location "https://github.com/adoptium/temurin17-binaries/releases/download/jdk-$version/OpenJDK17U-jdk_$(uname -m)_linux_hotspot_$(echo $version | tr + _).tar.gz" \
+    | tar -xz -C /opt/java --strip-components 1
+
 # Clean up cache file - Service layer
 RUN rm -rf \
   /root/.cache \
@@ -45,13 +52,6 @@ RUN rm -rf \
   /usr/share/man \
   /var/lib/apt/lists/* \
   /tmp/*
-
-RUN set -o xtrace \
-  && mkdir -p /opt/java \
-  # Assets from https://github.com/adoptium/temurin17-binaries/releases
-  && version="$(curl --write-out '%{redirect_url}' 'https://github.com/adoptium/temurin17-binaries/releases/latest' | sed 's,.*jdk-,,')" \
-  && curl --location "https://github.com/adoptium/temurin17-binaries/releases/download/jdk-$version/OpenJDK17U-jdk_$(uname -m)_linux_hotspot_$(echo $version | tr + _).tar.gz" \
-    | tar -xz -C /opt/java --strip-components 1
 
 # Define volumes - Service Layer
 VOLUME [ "/appsmith-stacks" ]

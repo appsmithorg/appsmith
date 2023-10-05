@@ -255,35 +255,36 @@ is_empty_directory() {
 }
 
 check_setup_custom_ca_certificates() {
-  local stacks_ca_certs_path
-  stacks_ca_certs_path="$stacks_path/ca-certs"
+  local stacks_ca_certs_path="$stacks_path/ca-certs"
+  local store="$TMP/cacerts"
+  local opts_file="$TMP/java-cacerts-opts"
 
-  local container_ca_certs_path
-  container_ca_certs_path="/usr/local/share/ca-certificates"
-
-  if [[ -d $stacks_ca_certs_path ]]; then
-    if [[ ! -L $container_ca_certs_path ]]; then
-      if is_empty_directory "$container_ca_certs_path"; then
-        rmdir -v "$container_ca_certs_path"
-      else
-        echo "The 'ca-certificates' directory inside the container is not empty. Please clear it and restart to use certs from 'stacks/ca-certs' directory." >&2
-        return
-      fi
-    fi
-
-    ln --verbose --force --symbolic --no-target-directory "$stacks_ca_certs_path" "$container_ca_certs_path"
-
-  elif [[ ! -e $container_ca_certs_path ]]; then
-    rm -vf "$container_ca_certs_path"  # If it exists as a broken symlink, this will be needed.
-    mkdir -v "$container_ca_certs_path"
-
-  fi
+  rm -f "$store" "$opts_file"
 
   if [[ -n "$(ls "$stacks_ca_certs_path"/*.pem 2>/dev/null)" ]]; then
-    echo "Looks like you have some '.pem' files in your 'ca-certs' folder. Please rename them to '.crt' to be picked up autatically.".
+    echo "Looks like you have some '.pem' files in your 'ca-certs' folder. Please rename them to '.crt' to be picked up automatically.".
   fi
 
-  update-ca-certificates --fresh
+  if ! [[ -d "$stacks_ca_certs_path" && "$(find "$stacks_ca_certs_path" -maxdepth 1 -type f -name '*.crt' | wc -l)" -gt 0 ]]; then
+    echo "No custom CA certificates found."
+    return
+  fi
+
+  # Import the system CA certificates into the store.
+  keytool -importkeystore \
+    -srckeystore /opt/java/lib/security/cacerts \
+    -destkeystore "$store" \
+    -srcstorepass changeit \
+    -deststorepass changeit
+
+  # Add the custom CA certificates to the store.
+  find "$stacks_ca_certs_path" -maxdepth 1 -type f -name '*.crt' \
+    -exec keytool -import -noprompt -keystore "$store" -file '{}' -storepass changeit ';'
+
+  {
+    echo "-Djavax.net.ssl.trustStore=$store"
+    echo "-Djavax.net.ssl.trustStorePassword=changeit"
+  } > "$opts_file"
 }
 
 configure_supervisord() {
