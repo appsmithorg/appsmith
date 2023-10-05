@@ -3,10 +3,10 @@ import {
   LayoutComponentTypes,
   type LayoutComponentProps,
 } from "layoutSystems/anvil/utils/anvilTypes";
+import { mockButtonProps } from "./widgetProps/button";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
+import { mockInputProps } from "./widgetProps/input";
 import type { WidgetProps } from "widgets/BaseWidget";
-import { ButtonFactory } from "test/factories/Widgets/ButtonFactory";
-import { InputFactory } from "test/factories/Widgets/InputFactory";
 
 export function generateLayoutComponentMock(
   data: Partial<LayoutComponentProps> = {},
@@ -23,8 +23,8 @@ export function generateLayoutComponentMock(
      *  Button
      *  Input
      */
-    const buttonWidget: BaseWidgetProps = ButtonFactory.build();
-    const inputWidget: BaseWidgetProps = InputFactory.build();
+    const buttonWidget: BaseWidgetProps = mockButtonProps();
+    const inputWidget: BaseWidgetProps = mockInputProps();
     (layout as string[]).push(buttonWidget.widgetId);
     (layout as string[]).push(inputWidget.widgetId);
     childrenMap[buttonWidget.widgetId] = buttonWidget;
@@ -69,8 +69,8 @@ export function generateAlignedRowMock(
   const layout: string[][] = [[], [], []],
     childrenMap: { [key: string]: WidgetProps } = {};
   if (rendersWidgets) {
-    const buttonWidget: BaseWidgetProps = ButtonFactory.build();
-    const inputWidget: BaseWidgetProps = InputFactory.build();
+    const buttonWidget: BaseWidgetProps = mockButtonProps();
+    const inputWidget: BaseWidgetProps = mockInputProps();
     layout[0].push(buttonWidget.widgetId);
     layout[0].push(inputWidget.widgetId);
     childrenMap[buttonWidget.widgetId] = buttonWidget;
