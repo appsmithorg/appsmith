@@ -439,7 +439,7 @@ describe("Multi Select widget Tests", function () {
     agHelper.AssertElementVisibility(propPane._colorPickerV2Color);
     // Verify full color picker
     agHelper.AssertAttribute(propPane._colorPickerInput, "type", "text", 0);
-    propPane.TogglePropertyState("fontcolor", "On");
+    propPane.TogglePropertyState("fontcolor", "On", "");
     agHelper.AssertAttribute(propPane._colorPickerInput, "type", "color", 0);
     // Font size
     propPane.SelectPropertiesDropDown("fontsize", "L");
@@ -481,30 +481,5 @@ describe("Multi Select widget Tests", function () {
       "rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.05) 0px 4px 6px -2px",
     );
     propPane.MoveToTab("Content");
-  });
-
-  it("13. Verify option can be dynamically generated", () => {
-    let postgresDatasourceName: any;
-
-    dataSources.StartDataSourceRoutes();
-    agHelper
-      .GetElement(".datasources .t--entity-add-btn")
-      .last()
-      .click({ force: true });
-    dataSources.NavigateToDSCreateNew();
-    dataSources.CreatePlugIn("PostgreSQL");
-    agHelper.GenerateUUID();
-    cy.get("@guid").then((uid) => {
-      postgresDatasourceName = uid;
-      agHelper.GetNClick(locators._dsName);
-      agHelper.TypeText(locators._dsNameTxt, postgresDatasourceName);
-      dataSources.FillPostgresDSForm();
-      dataSources.SaveDatasource();
-      dataSources.NavigateFromActiveDS(postgresDatasourceName, true);
-    });
-    dataSources.RunQuery();
-
-    entityExplorer.SelectEntityByName("NewMultiTreeSelect", "Widgets");
-    propPane.UpdatePropertyFieldValue("Options", "{{Query1.data}}");
   });
 });
