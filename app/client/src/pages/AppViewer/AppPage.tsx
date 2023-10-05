@@ -1,9 +1,7 @@
 import React, { useEffect } from "react";
-import WidgetFactory from "WidgetProvider/factory";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useDynamicAppLayout } from "utils/hooks/useDynamicAppLayout";
 import type { CanvasWidgetStructure } from "WidgetProvider/constants";
-import { RenderModes } from "constants/WidgetConstants";
 import { useSelector } from "react-redux";
 import {
   getCurrentApplication,
@@ -16,6 +14,8 @@ import { PageView, PageViewWrapper } from "./AppPage.styled";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 import { APP_MODE } from "entities/App";
 import { useLocation } from "react-router";
+import { renderAppsmithCanvas } from "layoutSystems/CanvasFactory";
+import type { WidgetProps } from "widgets/BaseWidget";
 
 type AppPageProps = {
   appName?: string;
@@ -63,7 +63,7 @@ export function AppPage(props: AppPageProps) {
     >
       <PageView className="t--app-viewer-page" width={props.canvasWidth}>
         {props.widgetsStructure.widgetId &&
-          WidgetFactory.createWidget(props.widgetsStructure, RenderModes.PAGE)}
+          renderAppsmithCanvas(props.widgetsStructure as WidgetProps)}
       </PageView>
     </PageViewWrapper>
   );
