@@ -12,11 +12,6 @@ describe("", () => {
     entityExplorer.DragNDropWidget(draggableWidgets.CHART);
   });
 
-  afterEach(() => {
-    deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("Chart1");
-  });
-
   it("1. Test Series tile chart", () => {
     propPane.SelectPropertiesDropDown("Chart Type", "Pie chart");
     propPane.UpdatePropertyFieldValue(
@@ -28,6 +23,8 @@ describe("", () => {
     agHelper
       .GetElement(locators._widgetInDeployed(draggableWidgets.CHART))
       .matchImageSnapshot("chartwidget/piechartsnapshotwithtitle");
+    deployMode.NavigateBacktoEditor();
+    entityExplorer.SelectEntityByName("Chart1");
   });
 
   it("2. Test Adaptive axis", () => {
@@ -44,6 +41,8 @@ describe("", () => {
     agHelper
       .GetElement(locators._widgetInDeployed(draggableWidgets.CHART))
       .matchImageSnapshot("chartwidget/columnchartsnapshotwithadaptiveaxis");
+    deployMode.NavigateBacktoEditor();
+    entityExplorer.SelectEntityByName("Chart1");
   });
 
   it("3. Test x axis label orientation chart", () => {
@@ -70,25 +69,26 @@ describe("", () => {
       .matchImageSnapshot(
         "chartwidget/linechartWithRotateXAxisLabelOrientation",
       );
+    deployMode.NavigateBacktoEditor();
+    entityExplorer.SelectEntityByName("Chart1");
   });
 
   it("4. Test x axis label orientation absence  in Pie, Bar, Custom Fusion Charts", () => {
     propPane.SelectPropertiesDropDown("Chart Type", "Pie chart");
     agHelper.AssertElementAbsence(
-      locators._selectPropPageDropdown("x-axis label orientation"),
+      propPane._selectPropDropdown("x-axis label orientation"),
     );
     propPane.SelectPropertiesDropDown("Chart Type", "Bar chart");
     agHelper.AssertElementAbsence(
-      locators._selectPropPageDropdown("x-axis label orientation"),
+      propPane._selectPropDropdown("x-axis label orientation"),
     );
     propPane.SelectPropertiesDropDown("Chart Type", "Custom Fusion Charts");
     agHelper.AssertElementAbsence(
-      locators._selectPropPageDropdown("x-axis label orientation"),
+      propPane._selectPropDropdown("x-axis label orientation"),
     );
     propPane.SelectPropertiesDropDown("Chart Type", "Column chart");
     agHelper.AssertElementExist(
-      locators._selectPropPageDropdown("x-axis label orientation"),
+      propPane._selectPropDropdown("x-axis label orientation"),
     );
-    deployMode.DeployApp();
   });
 });
