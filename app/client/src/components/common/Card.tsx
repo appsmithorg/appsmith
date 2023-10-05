@@ -102,7 +102,12 @@ const CircleAppIcon = styled(AppIcon)`
 
 const NameWrapper = styled((props: HTMLDivProps & NameWrapperProps) => (
   <div
-    {...omit(props, ["hasReadPermission", "showOverlay", "isContextMenuOpen"])}
+    {...omit(props, [
+      "hasReadPermission",
+      "showOverlay",
+      "isContextMenuOpen",
+      "testId",
+    ])}
   />
 ))`
   .bp3-card {

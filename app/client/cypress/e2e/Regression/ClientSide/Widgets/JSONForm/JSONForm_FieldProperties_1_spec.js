@@ -4,6 +4,7 @@ import {
   deployMode,
   entityExplorer,
   propPane,
+  locators,
 } from "../../../../../support/Objects/ObjectsCore";
 
 const fieldPrefix = ".t--jsonformfield";
@@ -24,7 +25,7 @@ describe("Text Field Property Control", () => {
     agHelper.AddDsl("jsonFormDslWithoutSchema");
 
     entityExplorer.SelectEntityByName("JSONForm1");
-    propPane.UpdatePropertyFieldValue("Source data", JSON.stringify(schema));
+    propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
   });
 
   it("1. updated field with change in default text", () => {
@@ -148,7 +149,7 @@ describe("Text Field Property Control", () => {
     agHelper.AddDsl("jsonFormDslWithoutSchema");
 
     cy.openPropertyPane("jsonformwidget");
-    cy.testJsontext("sourcedata", JSON.stringify(schema));
+    propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
     cy.openFieldConfiguration("check");
     cy.selectDropdownValue(commonlocators.jsonFormFieldType, "Checkbox");
     // check deafult property

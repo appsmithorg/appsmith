@@ -27,14 +27,13 @@ import {
   getWidgets,
   getWidgetsMeta,
 } from "./selectors";
-import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import { LayoutSystemTypes } from "layoutSystems/types";
 import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
 import {
   getCurrentApplicationId,
-  getCurrentAppPositioningType,
   getIsAutoLayout,
   getIsAutoLayoutMobileBreakPoint,
   getMainCanvasProps,
@@ -64,6 +63,7 @@ import { getIsResizing } from "selectors/widgetSelectors";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import type { AppState } from "@appsmith/reducers";
 import { nestDSL, flattenDSL } from "@shared/dsl";
+import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 
 function* shouldRunSaga(saga: any, action: ReduxAction<unknown>) {
   const isAutoLayout: boolean = yield select(getIsAutoLayout);
@@ -145,21 +145,21 @@ export function* updateLayoutForMobileCheckpoint(
  * @param actionPayload
  * @returns
  */
-export function* updateLayoutPositioningSaga(
-  actionPayload: ReduxAction<AppPositioningTypes>,
+export function* updateLayoutSystemTypeSaga(
+  actionPayload: ReduxAction<LayoutSystemTypes>,
 ) {
   try {
-    const currPositioningType: AppPositioningTypes = yield select(
-      getCurrentAppPositioningType,
+    const currLayoutSystemType: LayoutSystemTypes = yield select(
+      getLayoutSystemType,
     );
-    const payloadPositioningType = actionPayload.payload;
+    const payloadLayoutSystemType = actionPayload.payload;
 
-    if (currPositioningType === payloadPositioningType) return;
+    if (currLayoutSystemType === payloadLayoutSystemType) return;
 
     const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
 
     //Convert fixed layout to auto-layout
-    if (payloadPositioningType === AppPositioningTypes.AUTO) {
+    if (payloadLayoutSystemType === LayoutSystemTypes.AUTO) {
       const nestedDSL = nestDSL(allWidgets);
 
       const autoDSL = convertDSLtoAuto(nestedDSL);
@@ -177,7 +177,7 @@ export function* updateLayoutPositioningSaga(
       );
     }
 
-    yield call(updateApplicationLayoutType, payloadPositioningType);
+    yield call(updateApplicationLayoutType, payloadLayoutSystemType);
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.WIDGET_OPERATION_ERROR,
@@ -193,9 +193,7 @@ export function* updateLayoutPositioningSaga(
 export function* recalculateAutoLayoutColumnsAndSave(
   widgets?: CanvasWidgetsReduxState,
 ) {
-  const appPositioningType: AppPositioningTypes = yield select(
-    getCurrentAppPositioningType,
-  );
+  const layoutSystemType: LayoutSystemTypes = yield select(getLayoutSystemType);
   const mainCanvasProps: MainCanvasReduxState = yield select(
     getMainCanvasProps,
   );
@@ -203,7 +201,7 @@ export function* recalculateAutoLayoutColumnsAndSave(
   yield put(
     updateLayoutForMobileBreakpointAction(
       MAIN_CONTAINER_WIDGET_ID,
-      appPositioningType === AppPositioningTypes.AUTO
+      layoutSystemType === LayoutSystemTypes.AUTO
         ? mainCanvasProps?.isMobile
         : false,
       mainCanvasProps.width,
@@ -425,14 +423,14 @@ function* processAutoLayoutDimensionUpdatesSaga() {
 }
 
 export function* updateApplicationLayoutType(
-  positioningType: AppPositioningTypes,
+  layoutSystemType: LayoutSystemTypes,
 ) {
   const applicationId: string = yield select(getCurrentApplicationId);
   yield put(
     updateApplication(applicationId || "", {
       applicationDetail: {
         appPositioning: {
-          type: positioningType,
+          type: layoutSystemType,
         },
       },
     }),
@@ -499,8 +497,8 @@ export default function* layoutUpdateSagas() {
       updateLayoutForMobileCheckpoint,
     ),
     takeLatest(
-      ReduxActionTypes.UPDATE_LAYOUT_POSITIONING,
-      updateLayoutPositioningSaga,
+      ReduxActionTypes.UPDATE_LAYOUT_SYSTEM_TYPE,
+      updateLayoutSystemTypeSaga,
     ),
     takeLatest(
       ReduxActionTypes.UPDATE_WIDGET_DIMENSIONS,

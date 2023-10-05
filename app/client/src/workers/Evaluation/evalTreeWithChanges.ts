@@ -2,7 +2,7 @@ import type {
   ConfigTree,
   DataTree,
   UnEvalTree,
-} from "entities/DataTree/dataTreeFactory";
+} from "@appsmith/entities/DataTree/types";
 import { dataTreeEvaluator } from "./handlers/evalTree";
 import type { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
 import type { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
