@@ -29,7 +29,7 @@ check_ports_occupied() {
     if [[ -n $port_check_output ]]; then
         echo "***************** ERROR *****************"
         echo "Appsmith requires ports 80 & 443 to be open. Please shut down any other service(s) that may be running on these ports."
-        echo "You can run appsmith on another port following this guide https://docs.appsmith.com/v/v1.2.1/troubleshooting-guide/deployment-errors"
+        echo "You can run appsmith on another port following this guide https://docs.appsmith.com/help-and-support/troubleshooting-guide/deployment-errors"
         echo "*****************************************"
         echo ""
         exit 1
