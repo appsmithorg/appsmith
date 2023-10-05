@@ -18,6 +18,7 @@ import com.appsmith.server.repositories.PasswordResetTokenRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.EmailService;
+import com.appsmith.server.services.PACConfigurationService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.TenantService;
@@ -61,7 +62,8 @@ public class UserServiceCECompatibleImpl extends UserServiceCEImpl implements Us
             UserUtils userUtils,
             EmailVerificationTokenRepository emailVerificationTokenRepository,
             EmailService emailService,
-            RateLimitService rateLimitService) {
+            RateLimitService rateLimitService,
+            PACConfigurationService pacConfigurationService) {
         super(
                 scheduler,
                 validator,
@@ -86,7 +88,8 @@ public class UserServiceCECompatibleImpl extends UserServiceCEImpl implements Us
                 userUtils,
                 emailVerificationTokenRepository,
                 emailService,
-                rateLimitService);
+                rateLimitService,
+                pacConfigurationService);
     }
 
     @Override

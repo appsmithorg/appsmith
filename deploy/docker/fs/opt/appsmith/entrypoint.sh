@@ -452,21 +452,28 @@ configure_supervisord() {
   fi
 }
 
-# This is a workaround to get Redis working on diffent memory pagesize
+# This is a workaround to get Redis working on different memory pagesize
 # https://github.com/appsmithorg/appsmith/issues/11773
 check_redis_compatible_page_size() {
   local page_size
   page_size="$(getconf PAGE_SIZE)"
   if [[ $page_size -gt 4096 ]]; then
+    curl \
+      --silent \
+      --user "$APPSMITH_SEGMENT_CE_KEY:" \
+      --header 'Content-Type: application/json' \
+      --data '{ "userId": "'"$HOSTNAME"'", "event":"RedisCompile" }' \
+      https://api.segment.io/v1/track \
+      || true
     echo "Compile Redis stable with page size of $page_size"
-    echo "Downloading Redis source..."
-    curl https://download.redis.io/redis-stable.tar.gz -L | tar xvz
-    cd redis-stable/
-    echo "Compiling Redis from source..."
-    make && make install
-    echo "Cleaning up Redis source..."
-    cd ..
-    rm -rf redis-stable/
+    apt-get update
+    apt-get install --yes build-essential
+    curl --location https://download.redis.io/redis-stable.tar.gz | tar -xz -C /tmp
+    pushd /tmp/redis-stable
+    make
+    make install
+    popd
+    rm -rf /tmp/redis-stable
   else
     echo "Redis is compatible with page size of $page_size"
   fi

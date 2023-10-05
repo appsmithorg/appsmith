@@ -94,6 +94,7 @@ public class UserServiceImpl extends UserServiceCECompatibleImpl implements User
     private final PolicyGenerator policyGenerator;
     private final ProvisionUtils provisionUtils;
     private final SessionUserService sessionUserService;
+    private final PACConfigurationService pacConfigurationService;
 
     public UserServiceImpl(
             Scheduler scheduler,
@@ -123,7 +124,8 @@ public class UserServiceImpl extends UserServiceCECompatibleImpl implements User
             PolicyGenerator policyGenerator,
             ProvisionUtils provisionUtils,
             EmailService emailService,
-            RateLimitService rateLimitService) {
+            RateLimitService rateLimitService,
+            PACConfigurationService pacConfigurationService) {
         super(
                 scheduler,
                 validator,
@@ -148,7 +150,8 @@ public class UserServiceImpl extends UserServiceCECompatibleImpl implements User
                 userUtils,
                 emailVerificationTokenRepository,
                 emailService,
-                rateLimitService);
+                rateLimitService,
+                pacConfigurationService);
 
         this.userDataService = userDataService;
         this.tenantService = tenantService;
@@ -161,6 +164,7 @@ public class UserServiceImpl extends UserServiceCECompatibleImpl implements User
         this.policyGenerator = policyGenerator;
         this.provisionUtils = provisionUtils;
         this.sessionUserService = sessionUserService;
+        this.pacConfigurationService = pacConfigurationService;
     }
 
     @Override
@@ -463,11 +467,10 @@ public class UserServiceImpl extends UserServiceCECompatibleImpl implements User
         return analyticsProperties;
     }
 
-    @Override
     protected Mono<UserProfileDTO> setRolesAndGroups(
             UserProfileDTO profile, User user, boolean showUsersAndGroups, boolean isCloudHosting) {
         if (Boolean.TRUE.equals(commonConfig.isCloudHosting())) {
-            return super.setRolesAndGroups(profile, user, showUsersAndGroups, isCloudHosting);
+            return pacConfigurationService.setRolesAndGroups(profile, user, showUsersAndGroups, isCloudHosting);
         }
 
         if (showUsersAndGroups) {
