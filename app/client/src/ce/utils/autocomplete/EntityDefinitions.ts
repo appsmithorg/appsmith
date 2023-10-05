@@ -24,7 +24,7 @@ export const entityDefinitions = {
           "!doc":
             "The user's geo location information. Only available when requested",
           "!url":
-            "https://docs.appsmith.com/v/v1.2.1/framework-reference/geolocation",
+            "https://docs.appsmith.com/reference/appsmith-framework/context-object#geolocation-object",
           getCurrentPosition:
             "fn(onSuccess: fn() -> void, onError: fn() -> void, options: object) -> void",
           watchPosition: "fn(options: object) -> void",
@@ -49,7 +49,7 @@ export const entityDefinitions = {
     return {
       "!doc":
         "Actions allow you to connect your widgets to your backend data in a secure manner.",
-      "!url": "https://docs.appsmith.com/v/v1.2.1/framework-reference/run",
+      "!url": "https://docs.appsmith.com/reference/appsmith-framework/query-object",
       isLoading: "bool",
       data,
       responseMeta: {
