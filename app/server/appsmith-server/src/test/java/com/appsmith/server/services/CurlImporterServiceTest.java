@@ -15,6 +15,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.newactions.base.NewActionService;
+import com.appsmith.server.solutions.ApplicationPermission;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -70,6 +71,12 @@ public class CurlImporterServiceTest {
 
     @Autowired
     WorkspaceService workspaceService;
+
+    @Autowired
+    ApplicationService applicationService;
+
+    @Autowired
+    ApplicationPermission applicationPermission;
 
     String workspaceId;
 
@@ -178,11 +185,18 @@ public class CurlImporterServiceTest {
         Workspace toCreate = new Workspace();
         toCreate.setName("CurlImporterServiceTest");
 
-        if (workspaceId == null) {
-            Workspace workspace =
-                    workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
-            workspaceId = workspace.getId();
-        }
+        Workspace workspace =
+                workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
+        workspaceId = workspace.getId();
+    }
+
+    public void cleanup() {
+        List<Application> deletedApplications = applicationService
+                .findByWorkspaceId(workspaceId, applicationPermission.getDeletePermission())
+                .flatMap(remainingApplication -> applicationPageService.deleteApplication(remainingApplication.getId()))
+                .collectList()
+                .block();
+        Workspace deletedWorkspace = workspaceService.archiveById(workspaceId).block();
     }
 
     @Test
@@ -301,6 +315,7 @@ public class CurlImporterServiceTest {
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
                         && throwable.getMessage().equals(AppsmithError.INVALID_CURL_COMMAND.getMessage()))
                 .verify();
+        cleanup();
     }
 
     @Test
@@ -325,6 +340,7 @@ public class CurlImporterServiceTest {
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
                         && throwable.getMessage().equals(AppsmithError.EMPTY_CURL_INPUT_STATEMENT.getMessage()))
                 .verify();
+        cleanup();
     }
 
     @Test
@@ -349,6 +365,7 @@ public class CurlImporterServiceTest {
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
                         && throwable.getMessage().equals(AppsmithError.EMPTY_CURL_INPUT_STATEMENT.getMessage()))
                 .verify();
+        cleanup();
     }
 
     @Test
@@ -490,6 +507,7 @@ public class CurlImporterServiceTest {
                             .isEqualTo(newPage.getDefaultResources().getApplicationId());
                 })
                 .verifyComplete();
+        cleanup();
     }
 
     @Test

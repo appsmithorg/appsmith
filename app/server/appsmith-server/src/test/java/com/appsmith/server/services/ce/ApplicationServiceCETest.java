@@ -64,6 +64,7 @@ import com.appsmith.server.services.ThemeService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ApplicationFetcher;
+import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.EnvironmentPermission;
 import com.appsmith.server.solutions.ImportExportApplicationService;
@@ -76,6 +77,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -247,6 +249,9 @@ public class ApplicationServiceCETest {
     @Autowired
     DatasourceRepository datasourceRepository;
 
+    @Autowired
+    ApplicationPermission applicationPermission;
+
     String workspaceId;
     String defaultEnvironmentId;
 
@@ -276,10 +281,6 @@ public class ApplicationServiceCETest {
         defaultEnvironmentId = workspaceService
                 .getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission())
                 .block();
-
-        if (StringUtils.hasLength(gitConnectedApp.getId())) {
-            applicationPageService.deleteApplication(gitConnectedApp.getId()).block();
-        }
 
         gitConnectedApp = new Application();
         gitConnectedApp.setWorkspaceId(workspaceId);
@@ -336,6 +337,21 @@ public class ApplicationServiceCETest {
         datasource1.setDatasourceStorages(storages1);
 
         testDatasource1 = datasourceService.create(datasource1).block();
+    }
+
+    @AfterEach
+    public void cleanup() {
+        User currentUser = sessionUserService.getCurrentUser().block();
+        if (!currentUser.getEmail().equals("api_user")) {
+            // Since no setup was done, hence no cleanup needs to happen
+            return;
+        }
+        List<Application> deletedApplications = applicationService
+                .findByWorkspaceId(workspaceId, applicationPermission.getDeletePermission())
+                .flatMap(remainingApplication -> applicationPageService.deleteApplication(remainingApplication.getId()))
+                .collectList()
+                .block();
+        Workspace deletedWorkspace = workspaceService.archiveById(workspaceId).block();
     }
 
     private Mono<? extends BaseDomain> getArchivedResource(String id, Class<? extends BaseDomain> domainClass) {
