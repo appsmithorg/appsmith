@@ -4,7 +4,11 @@ import type {
   PropertyOverrideDependency,
 } from "@appsmith/entities/DataTree/types";
 import { klona } from "klona";
-import type { WidgetMetaState } from ".";
+import type { MetaState, WidgetMetaState } from ".";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import type { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
+import produce from "immer";
+import { set } from "lodash";
 
 export function getMetaWidgetResetObj(
   evaluatedWidget: WidgetEntity | undefined,
@@ -29,4 +33,25 @@ export function getMetaWidgetResetObj(
     });
   }
   return resetMetaObj;
+}
+
+export function getNextMetaStateWithUpdates(
+  state: MetaState,
+  action: ReduxAction<{
+    evalMetaUpdates: EvalMetaUpdates;
+  }>,
+) {
+  const { evalMetaUpdates } = action.payload;
+
+  if (!evalMetaUpdates.length) return state;
+
+  // if metaObject is updated in dataTree we also update meta values, to keep meta state in sync.
+  const newMetaState = produce(state, (draftMetaState) => {
+    evalMetaUpdates.forEach(({ metaPropertyPath, value, widgetId }) => {
+      set(draftMetaState, [widgetId, ...metaPropertyPath], value);
+    });
+    return draftMetaState;
+  });
+
+  return newMetaState;
 }
