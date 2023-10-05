@@ -79,11 +79,16 @@ describe("Private embed in-app ramp", () => {
     }
   }
   it("1. Ramp should be visibile to ADMIN and DEVELOPER", () => {
+    featureFlagIntercept({ license_gac_enabled: true });
+    cy.wait(2000);
+
     checkAppSettingsRamp();
     checkShareModalRamp();
     _.agHelper.GetNClick(_.homePage._homeIcon, 0, true, 2000);
     _.agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {
+      featureFlagIntercept({ license_gac_enabled: true });
+      cy.wait(2000);
       let workspaceName: any = uid;
       _.homePage.CreateNewWorkspace(workspaceName);
       _.homePage.InviteUserToWorkspace(
