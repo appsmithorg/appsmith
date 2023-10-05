@@ -301,6 +301,7 @@
     "cypress-plugin-tab": "^1.0.5",
     "cypress-real-events": "^1.8.1",
     "cypress-tags": "^1.1.2",
+    "cypress-terminal-report": "^5.3.6",
     "cypress-wait-until": "^1.7.2",
     "cypress-xpath": "^1.6.0",
     "diff": "^5.0.0",

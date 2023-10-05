@@ -30,6 +30,7 @@ import "./gitSync";
 import { initLocalstorageRegistry } from "./Objects/Registry";
 import RapidMode from "./RapidMode.ts";
 import "cypress-mochawesome-reporter/register";
+import installLogsCollector from "cypress-terminal-report/src/installLogsCollector";
 
 import "./WorkspaceCommands";
 import "./queryCommands";
@@ -42,6 +43,8 @@ import { CURRENT_REPO, REPO } from "../fixtures/REPO";
 import "cypress-plugin-tab";
 import { WALKTHROUGH_TEST_PAGE } from "./Constants.js";
 /// <reference types="cypress-xpath" />
+
+installLogsCollector();
 
 Cypress.on("uncaught:exception", () => {
   // returning false here prevents Cypress from
