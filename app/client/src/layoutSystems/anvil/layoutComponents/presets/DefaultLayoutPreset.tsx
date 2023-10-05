@@ -1,7 +1,10 @@
-import type { LayoutComponentProps } from "layoutSystems/anvil/utils/anvilTypes";
+import {
+  LayoutComponentTypes,
+  type LayoutComponentProps,
+} from "layoutSystems/anvil/utils/anvilTypes";
 import { generateReactKey } from "utils/generators";
 
-export function generateLayoutPresetOne(
+export function generateDefaultLayoutPreset(
   data: Partial<LayoutComponentProps> = {},
 ): LayoutComponentProps[] {
   return [
@@ -11,7 +14,7 @@ export function generateLayoutPresetOne(
       isPermanent: true,
       layout: [],
       layoutId: generateReactKey(),
-      layoutType: "ALIGNED_COLUMN",
+      layoutType: LayoutComponentTypes.ALIGNED_COLUMN,
       ...data,
     },
   ];

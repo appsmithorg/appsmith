@@ -13,6 +13,9 @@ import type {
   AutoLayoutConfig,
 } from "WidgetProvider/constants";
 import { getAnvilComponentDimensions } from "layoutSystems/common/utils/ComponentSizeUtils";
+import type { LayoutSystem } from "layoutSystems/types";
+import { AnvilCanvas } from "./canvas/AnvilCanvas";
+import { generateDefaultLayoutPreset } from "./layoutComponents/presets/DefaultLayoutPreset";
 
 export const getAnvilDimensionsConfig = (
   props: BaseWidgetProps,
@@ -52,9 +55,46 @@ const getAnvilSystemWrapper = (renderMode: RenderModes) => {
   return AnvilViewerWrapper;
 };
 
-export function getAnvilLayoutSystem(renderMode: RenderModes) {
+/**
+ * getAnvilCanvasWrapper
+ *
+ * utility function to return the anvil system canvas implementation.
+ *
+ * @returns current canvas component.
+ */
+const getAnvilCanvasWrapper = () => {
+  return AnvilCanvas;
+};
+
+/**
+ * getAnvilCanvasPropsEnhancer
+ *
+ * utility function to return the anvil system wrapper.
+ * wrapper is the component that wraps around a widget to provide layout-ing ability and enable editing experience.
+ *
+ * @returns current render mode specific wrapper.
+ */
+const getAnvilCanvasPropsEnhancer = (props: BaseWidgetProps) => {
   return {
-    LayoutSystemWrapper: getAnvilSystemWrapper(renderMode),
-    propertyEnhancer: getAnvilSystemPropsEnhancer,
+    ...props,
+    layout:
+      props?.layout ??
+      generateDefaultLayoutPreset({
+        canvasId: props.widgetId,
+        renderMode: props.renderMode,
+      }),
+  };
+};
+
+export function getAnvilLayoutSystem(renderMode: RenderModes): LayoutSystem {
+  return {
+    canvasSystem: {
+      Canvas: getAnvilCanvasWrapper(),
+      propertyEnhancer: getAnvilCanvasPropsEnhancer,
+    },
+    widgetSystem: {
+      WidgetWrapper: getAnvilSystemWrapper(renderMode),
+      propertyEnhancer: getAnvilSystemPropsEnhancer,
+    },
   };
 }
