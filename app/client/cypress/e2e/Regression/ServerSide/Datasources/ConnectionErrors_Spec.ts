@@ -29,7 +29,7 @@ describe("Validate Empty DS error messages", () => {
       agHelper.ValidateToastMessage("Missing database name.");
       agHelper.WaitUntilAllToastsDisappear();
       agHelper.UpdateInputValue(
-        dataSources._host,
+        dataSources._host(),
         dataManager.dsValues[dataManager.defaultEnviorment].postgres_host,
       );
       agHelper.UpdateInputValue(
@@ -85,7 +85,7 @@ describe("Validate Empty DS error messages", () => {
       agHelper.ValidateToastMessage("Missing database name.");
       agHelper.WaitUntilAllToastsDisappear();
       agHelper.UpdateInputValue(
-        dataSources._host,
+        dataSources._host(),
         dataManager.dsValues[dataManager.defaultEnviorment].mysql_host,
       );
       agHelper.UpdateInputValue(
@@ -167,7 +167,7 @@ describe("Validate Empty DS error messages", () => {
       dataSources.TestDatasource(false);
       agHelper.ValidateToastMessage("Missing endpoint(s)");
       agHelper.UpdateInputValue(
-        dataSources._host,
+        dataSources._host(),
         dataManager.dsValues[dataManager.defaultEnviorment].mongo_host,
       );
       agHelper.UpdateInputValue(

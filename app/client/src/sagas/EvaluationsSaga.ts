@@ -86,7 +86,7 @@ import type {
   DataTree,
   UnEvalTree,
   WidgetEntityConfig,
-} from "entities/DataTree/dataTreeFactory";
+} from "@appsmith/entities/DataTree/types";
 
 import { initiateLinting, lintWorker } from "./LintingSagas";
 import type {
@@ -102,6 +102,7 @@ import { waitForWidgetConfigBuild } from "./InitSagas";
 import { logDynamicTriggerExecution } from "@appsmith/sagas/analyticsSaga";
 import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 import { fetchFeatureFlagsInit } from "actions/userActions";
+import { parseUpdatesAndDeleteUndefinedUpdates } from "./EvaluationSaga.utils";
 const APPSMITH_CONFIGS = getAppsmithConfigs();
 export const evalWorker = new GracefulWorkerService(
   new Worker(
@@ -160,8 +161,8 @@ export function* updateDataTreeHandler(
   if (!isEmpty(staleMetaIds)) {
     yield put(resetWidgetsMetaState(staleMetaIds));
   }
-
-  yield put(setEvaluatedTree(updates));
+  const parsedUpdates = parseUpdatesAndDeleteUndefinedUpdates(updates);
+  yield put(setEvaluatedTree(parsedUpdates));
 
   ConfigTreeActions.setConfigTree(configTree);
 

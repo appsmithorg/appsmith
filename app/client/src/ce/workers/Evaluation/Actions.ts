@@ -6,7 +6,7 @@ import type {
   DataTree,
   DataTreeEntity,
   DataTreeEntityConfig,
-} from "entities/DataTree/dataTreeFactory";
+} from "@appsmith/entities/DataTree/types";
 import type { EvalContext } from "workers/Evaluation/evaluate";
 import type { EvaluationVersion } from "@appsmith/api/ApplicationApi";
 import { addFn } from "workers/Evaluation/fns/utils/fnGuard";

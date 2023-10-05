@@ -83,7 +83,7 @@ export const ForgotPassword = (props: ForgotPasswordProps) => {
             kind="warning"
             links={[
               {
-                to: "https://docs.appsmith.com/v/v1.2.1/setup/docker/email",
+                to: "https://docs.appsmith.com/getting-started/setup/instance-configuration/email#configure-email",
                 target: "_blank",
                 children: "Configure email service",
               },

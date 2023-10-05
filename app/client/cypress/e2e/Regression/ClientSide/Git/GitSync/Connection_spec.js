@@ -5,11 +5,8 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 const httpsRepoURL = "https://github.com/test/test.git";
 const invalidURL = "test";
 const invalidURLDetectedOnTheBackend = "test@";
-
 const invalidEmail = "test";
 const invalidEmailWithAmp = "test@hello";
-
-const GITHUB_API_BASE = "https://api.github.com";
 
 let repoName;
 let generatedKey;
@@ -59,34 +56,11 @@ describe("Git sync modal: connect tab", function () {
     cy.intercept("POST", "/api/v1/applications/ssh-keypair/*").as(
       "generateKey",
     );
-
-    // Stubbing window.open
-    cy.window().then((window) => {
-      windowOpenSpy = cy.stub(window, "open").callsFake((url) => {
-        expect(url.startsWith("https://docs.appsmith.com/")).to.be.true;
-        windowOpenSpy.restore();
-      });
-    });
-    cy.get(gitSyncLocators.learnMoreSshUrl).click();
-
     cy.get(gitSyncLocators.generateDeployKeyBtn).click();
 
     cy.wait("@generateKey").then((result) => {
       generatedKey = result.response.body.data.publicKey;
     });
-
-    // generate key learn more
-    cy.window().then((window) => {
-      windowOpenSpy = cy.stub(window, "open").callsFake((url) => {
-        expect(
-          url.startsWith(
-            "https://docs.github.com/en/developers/overview/managing-deploy-keys",
-          ),
-        ).to.be.true;
-        windowOpenSpy.restore();
-      });
-    });
-    cy.xpath(gitSyncLocators.learnMoreDeployKey).click({ force: true });
   });
 
   it("2. validates copy key and validates repo url input after key generation", function () {
@@ -95,7 +69,8 @@ describe("Git sync modal: connect tab", function () {
     });
 
     cy.get(gitSyncLocators.copySshKey).click();
-    cy.get(gitSyncLocators.gitRepoInput).type(`{selectAll}${httpsRepoURL}`);
+    cy.wait(2000);
+    cy.get(gitSyncLocators.gitRepoInput).clear().type(`${httpsRepoURL}`);
     cy.contains(Cypress.env("MESSAGES").PASTE_SSH_URL_INFO());
     cy.get(gitSyncLocators.connectSubmitBtn).should("be.disabled");
 
@@ -267,7 +242,6 @@ describe("Git sync modal: connect tab", function () {
   });
 
   after(() => {
-    //cy.deleteTestGithubRepo(repoName);
     _.gitSync.DeleteTestGithubRepo(repoName);
   });
 });

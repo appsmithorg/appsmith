@@ -3,15 +3,13 @@ import type { ApiResponse } from "api/ApiResponses";
 import type { AxiosPromise } from "axios";
 import type { AppColorCode } from "constants/DefaultTheme";
 import type { IconNames } from "design-system";
-import type {
-  AppLayoutConfig,
-  AppPositioningTypeConfig,
-} from "reducers/entityReducers/pageListReducer";
+import type { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
 import type { APP_MODE } from "entities/App";
 import type { ApplicationVersion } from "@appsmith/actions/applicationActions";
 import type { Datasource } from "entities/Datasource";
 import type { NavigationSetting } from "constants/AppConstants";
 import { getSnapShotAPIRoute } from "@appsmith/constants/ApiConstants";
+import type { LayoutSystemTypeConfig } from "layoutSystems/types";
 
 export type EvaluationVersion = number;
 
@@ -117,7 +115,7 @@ export type UpdateApplicationPayload = {
   embedSetting?: AppEmbedSetting;
   applicationDetail?: {
     navigationSetting?: NavigationSetting;
-    appPositioning?: AppPositioningTypeConfig;
+    appPositioning?: LayoutSystemTypeConfig;
   };
   forkingEnabled?: boolean;
 };
@@ -337,6 +335,12 @@ export class ApplicationApi extends Api {
         "/fork/" +
         request.workspaceId,
     );
+  }
+
+  static deleteMultipleApps(request: {
+    ids: string[];
+  }): AxiosPromise<ApiResponse> {
+    return Api.post(`${ApplicationApi.baseURL}/delete-apps`, request.ids);
   }
 
   static importApplicationToWorkspace(

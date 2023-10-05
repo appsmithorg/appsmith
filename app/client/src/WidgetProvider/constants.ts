@@ -9,21 +9,21 @@ import { WIDGET_STATIC_PROPS } from "constants/WidgetConstants";
 import type { Stylesheet } from "entities/AppTheming";
 import { omit } from "lodash";
 import moment from "moment";
-import type {
-  LayoutDirection,
-  Positioning,
-  ResponsiveBehavior,
-} from "layoutSystems/autolayout/utils/constants";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import type { WidgetFeatures } from "utils/WidgetFeatures";
 import type { WidgetProps } from "../widgets/BaseWidget";
 import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
-import type { WidgetEntityConfig } from "entities/DataTree/dataTreeFactory";
+import type { WidgetEntityConfig } from "@appsmith/entities/DataTree/types";
 import type {
   WidgetQueryConfig,
   WidgetQueryGenerationConfig,
   WidgetQueryGenerationFormConfig,
 } from "WidgetQueryGenerators/types";
+import type {
+  LayoutDirection,
+  Positioning,
+  ResponsiveBehavior,
+} from "layoutSystems/common/utils/constants";
 
 export type WidgetSizeConfig = {
   viewportMinWidth: number;
@@ -32,8 +32,8 @@ export type WidgetSizeConfig = {
 
 type ResizableValues = { vertical?: boolean; horizontal?: boolean };
 type ResizableOptions = ResizableValues | ((props: any) => ResizableValues);
-type AutoDimensionValues = { width?: boolean; height?: boolean };
-type AutoDimensionOptions =
+export type AutoDimensionValues = { width?: boolean; height?: boolean };
+export type AutoDimensionOptions =
   | AutoDimensionValues
   | ((props: any) => AutoDimensionValues);
 
@@ -98,6 +98,7 @@ export type WidgetMethods = {
   getSnipingModeUpdates?: GetSnipingModeUpdates;
   getCanvasHeightOffset?: GetCanvasHeightOffset;
   getEditorCallouts?: GetEditorCallouts;
+  getOneClickBindingConnectableWidgetConfig?: GetOneClickBindingConnectableWidgetConfig;
 };
 
 type GetEditorCallouts = (props: WidgetProps) => WidgetCallout[];
@@ -114,6 +115,7 @@ export type WidgetCallout = {
 
 export type GetQueryGenerationConfig = (
   widgetProps: WidgetProps,
+  formConfig?: WidgetQueryGenerationFormConfig,
 ) => WidgetQueryGenerationConfig;
 
 export type GetPropertyUpdatesForQueryBinding = (
@@ -124,6 +126,15 @@ export type GetPropertyUpdatesForQueryBinding = (
 
 type SnipingModeSupportedKeys = "data" | "run" | "isDynamicPropertyPath";
 
+type OneClickBindingConnectableWidgetConfig = {
+  widgetBindPath: string;
+  message: string;
+};
+
+export type GetOneClickBindingConnectableWidgetConfig = (
+  widgetProps: WidgetProps,
+) => OneClickBindingConnectableWidgetConfig;
+
 export type GetSnipingModeUpdates = (
   propValueMap: Record<SnipingModeSupportedKeys, string | boolean>,
 ) => Array<PropertyUpdates>;
@@ -131,6 +142,8 @@ export type GetSnipingModeUpdates = (
 export type GetCanvasHeightOffset = (widgetProps: WidgetProps) => number;
 
 export const GRID_DENSITY_MIGRATION_V1 = 4;
+
+export const COMPACT_MODE_MIN_ROWS = 4;
 
 export enum BlueprintOperationTypes {
   MODIFY_PROPS = "MODIFY_PROPS",
@@ -193,13 +206,14 @@ export enum FileDataTypes {
 }
 
 export type AlignWidget = "LEFT" | "RIGHT";
+
 export enum AlignWidgetTypes {
   LEFT = "LEFT",
   RIGHT = "RIGHT",
 }
 
-// Minimum Rows for Widget Popups
-export const MinimumPopupRows = 12;
+// Minimum width for Widget Popups
+export const MinimumPopupWidthInPercentage = 18.75;
 
 // Default boxShadowColor used in theming migration
 export const rgbaMigrationConstantV56 = "rgba(0, 0, 0, 0.25)";

@@ -1,20 +1,19 @@
 import type {
-  TypographyColor,
-  TypographyVariant,
-  TypographyFontWeight,
+  TYPOGRAPHY_VARIANTS,
+  TYPOGRAPHY_FONT_WEIGHTS,
 } from "@design-system/theming";
 import type { ReactNode } from "react";
-import type { OmitRename } from "../../../utils";
+import type { COLORS } from "../../../shared";
 
 export interface TextProps {
   /** Variant of the text
    * @default body
    */
-  variant?: keyof typeof TypographyVariant;
+  variant?: keyof typeof TYPOGRAPHY_VARIANTS;
   /** Color of the text
-   * @default default — sets inherit via CSS;
+   * @default inherit
    */
-  color?: keyof typeof TypographyColor;
+  color?: keyof typeof COLORS;
   /** Sets the weight (or boldness) of the font
    * @default false
    */
@@ -22,7 +21,7 @@ export interface TextProps {
   /** Sets the weight (or boldness) of the font. Has priority over isBold prop. See [MDN](https://developer.mozilla.org/en-US/docs/Web/CSS/font-weight).
    * @default 400
    */
-  fontWeight?: keyof typeof TypographyFontWeight;
+  fontWeight?: keyof typeof TYPOGRAPHY_FONT_WEIGHTS;
   /** Sets a font that is classified as italic.
    * @default false
    */
@@ -38,8 +37,3 @@ export interface TextProps {
   /** The children of the component. */
   children: ReactNode;
 }
-
-export type StyledTextProp = OmitRename<
-  TextProps,
-  "className" | "color" | "children"
->;

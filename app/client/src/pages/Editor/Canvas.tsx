@@ -3,20 +3,20 @@ import React from "react";
 import styled from "styled-components";
 import * as Sentry from "@sentry/react";
 import { useSelector } from "react-redux";
-import WidgetFactory from "WidgetProvider/factory";
 import type { CanvasWidgetStructure } from "WidgetProvider/constants";
-
-import { RenderModes } from "constants/WidgetConstants";
 import useWidgetFocus from "utils/hooks/useWidgetFocus";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { previewModeSelector } from "selectors/editorSelectors";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { getViewportClassName } from "layoutSystems/autolayout/utils/AutoLayoutUtils";
+import type { FontFamily } from "@design-system/theming";
 import {
   ThemeProvider as WDSThemeProvider,
   useTheme,
 } from "@design-system/theming";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
+import { renderAppsmithCanvas } from "layoutSystems/CanvasFactory";
+import type { WidgetProps } from "widgets/BaseWidget";
 
 interface CanvasProps {
   widgetsStructure: CanvasWidgetStructure;
@@ -42,9 +42,11 @@ const Canvas = (props: CanvasProps) => {
   );
   const selectedTheme = useSelector(getSelectedAppTheme);
   const isWDSV2Enabled = useFeatureFlag("ab_wds_enabled");
+
   const { theme } = useTheme({
     borderRadius: selectedTheme.properties.borderRadius.appBorderRadius,
     seedColor: selectedTheme.properties.colors.primaryColor,
+    fontFamily: selectedTheme.properties.fontFamily.appFont as FontFamily,
   });
 
   /**
@@ -87,10 +89,7 @@ const Canvas = (props: CanvasProps) => {
           width={canvasWidth}
         >
           {props.widgetsStructure.widgetId &&
-            WidgetFactory.createWidget(
-              props.widgetsStructure,
-              RenderModes.CANVAS,
-            )}
+            renderAppsmithCanvas(props.widgetsStructure as WidgetProps)}
         </Wrapper>
       </WDSThemeProvider>
     );

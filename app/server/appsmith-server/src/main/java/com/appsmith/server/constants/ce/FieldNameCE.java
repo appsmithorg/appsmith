@@ -45,6 +45,7 @@ public class FieldNameCE {
     public static String PAGES = "pages";
     public static String SIZE = "size";
     public static String ROLE = "role";
+    public static String PROFICIENCY = "proficiency";
     public static String DEFAULT_WIDGET_NAME = "MainContainer";
     public static String DEFAULT_PAGE_LAYOUT = "{\n" + "        \"widgetName\": \"MainContainer\",\n"
             + "        \"backgroundColor\": \"none\",\n"
@@ -187,4 +188,6 @@ public class FieldNameCE {
     public static final String IS_MERGEABLE = "isMergeable";
 
     public static final String FILE_LOCK_DURATION = "fileLockDuration";
+
+    public static final String REMOTE_PLUGINS = "remotePlugins";
 }

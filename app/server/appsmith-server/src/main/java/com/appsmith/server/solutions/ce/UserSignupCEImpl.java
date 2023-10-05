@@ -17,6 +17,7 @@ import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.CaptchaService;
 import com.appsmith.server.services.ConfigService;
+import com.appsmith.server.services.EmailService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.solutions.EnvManager;
@@ -54,7 +55,7 @@ import static com.appsmith.server.constants.EnvVariables.APPSMITH_ADMIN_EMAILS;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_DISABLE_TELEMETRY;
 import static com.appsmith.server.constants.ce.FieldNameCE.EMAIL;
 import static com.appsmith.server.constants.ce.FieldNameCE.NAME;
-import static com.appsmith.server.constants.ce.FieldNameCE.ROLE;
+import static com.appsmith.server.constants.ce.FieldNameCE.PROFICIENCY;
 import static com.appsmith.server.helpers.RedirectHelper.REDIRECT_URL_QUERY_PARAM;
 import static com.appsmith.server.helpers.ValidationUtils.LOGIN_PASSWORD_MAX_LENGTH;
 import static com.appsmith.server.helpers.ValidationUtils.LOGIN_PASSWORD_MIN_LENGTH;
@@ -75,6 +76,7 @@ public class UserSignupCEImpl implements UserSignupCE {
     private final CommonConfig commonConfig;
     private final UserUtils userUtils;
     private final NetworkUtils networkUtils;
+    private final EmailService emailService;
 
     private static final ServerRedirectStrategy redirectStrategy = new DefaultServerRedirectStrategy();
 
@@ -90,7 +92,8 @@ public class UserSignupCEImpl implements UserSignupCE {
             EnvManager envManager,
             CommonConfig commonConfig,
             UserUtils userUtils,
-            NetworkUtils networkUtils) {
+            NetworkUtils networkUtils,
+            EmailService emailService) {
 
         this.userService = userService;
         this.userDataService = userDataService;
@@ -102,6 +105,7 @@ public class UserSignupCEImpl implements UserSignupCE {
         this.commonConfig = commonConfig;
         this.userUtils = userUtils;
         this.networkUtils = networkUtils;
+        this.emailService = emailService;
     }
 
     /**
@@ -126,15 +130,15 @@ public class UserSignupCEImpl implements UserSignupCE {
         }
 
         // only creating user, welcome email will be sent post user email verification
-        Mono<UserSignupDTO> createUserAndSendEmailMono = userService
-                .createUser(user, exchange.getRequest().getHeaders().getOrigin())
+        Mono<UserSignupDTO> createUserMono = userService
+                .createUser(user)
                 .elapsed()
                 .map(pair -> {
                     log.debug("UserSignupCEImpl::Time taken for create user and send email: {} ms", pair.getT1());
                     return pair.getT2();
                 });
 
-        return Mono.zip(createUserAndSendEmailMono, exchange.getSession(), ReactiveSecurityContextHolder.getContext())
+        return Mono.zip(createUserMono, exchange.getSession(), ReactiveSecurityContextHolder.getContext())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR)))
                 .flatMap(tuple -> {
                     final User savedUser = tuple.getT1().getUser();
@@ -231,7 +235,8 @@ public class UserSignupCEImpl implements UserSignupCE {
                 });
     }
 
-    public Mono<User> signupAndLoginSuper(UserSignupRequestDTO userFromRequest, ServerWebExchange exchange) {
+    public Mono<User> signupAndLoginSuper(
+            UserSignupRequestDTO userFromRequest, String originHeader, ServerWebExchange exchange) {
         Mono<User> userMono = userService
                 .isUsersEmpty()
                 .flatMap(isEmpty -> {
@@ -266,7 +271,7 @@ public class UserSignupCEImpl implements UserSignupCE {
                 })
                 .flatMap(user -> {
                     final UserData userData = new UserData();
-                    userData.setRole(userFromRequest.getRole());
+                    userData.setProficiency(userFromRequest.getProficiency());
                     userData.setUseCase(userFromRequest.getUseCase());
 
                     Mono<UserData> userDataMono = userDataService
@@ -280,11 +285,13 @@ public class UserSignupCEImpl implements UserSignupCE {
                             });
 
                     Mono<Void> applyEnvManagerChangesMono = envManager
-                            .applyChanges(Map.of(
-                                    APPSMITH_DISABLE_TELEMETRY.name(),
-                                    String.valueOf(!userFromRequest.isAllowCollectingAnonymousData()),
-                                    APPSMITH_ADMIN_EMAILS.name(),
-                                    user.getEmail()))
+                            .applyChanges(
+                                    Map.of(
+                                            APPSMITH_DISABLE_TELEMETRY.name(),
+                                            String.valueOf(!userFromRequest.isAllowCollectingAnonymousData()),
+                                            APPSMITH_ADMIN_EMAILS.name(),
+                                            user.getEmail()),
+                                    originHeader)
                             // We need a non-empty value for `.elapsed` to work.
                             .thenReturn(true)
                             .elapsed()
@@ -331,7 +338,7 @@ public class UserSignupCEImpl implements UserSignupCE {
         });
     }
 
-    public Mono<Void> signupAndLoginSuperFromFormData(ServerWebExchange exchange) {
+    public Mono<Void> signupAndLoginSuperFromFormData(String originHeader, ServerWebExchange exchange) {
         return exchange.getFormData()
                 .map(formData -> {
                     final UserSignupRequestDTO user = new UserSignupRequestDTO();
@@ -343,8 +350,8 @@ public class UserSignupCEImpl implements UserSignupCE {
                     if (formData.containsKey(FieldName.NAME)) {
                         user.setName(formData.getFirst(FieldName.NAME));
                     }
-                    if (formData.containsKey("role")) {
-                        user.setRole(formData.getFirst("role"));
+                    if (formData.containsKey("proficiency")) {
+                        user.setProficiency(formData.getFirst("proficiency"));
                     }
                     if (formData.containsKey("useCase")) {
                         user.setUseCase(formData.getFirst("useCase"));
@@ -358,7 +365,7 @@ public class UserSignupCEImpl implements UserSignupCE {
                     }
                     return user;
                 })
-                .flatMap(user -> signupAndLoginSuper(user, exchange))
+                .flatMap(user -> signupAndLoginSuper(user, originHeader, exchange))
                 .then()
                 .onErrorResume(error -> {
                     String referer = exchange.getRequest().getHeaders().getFirst("referer");
@@ -406,7 +413,7 @@ public class UserSignupCEImpl implements UserSignupCE {
                     analyticsProps.put(DISABLE_TELEMETRY, !userFromRequest.isAllowCollectingAnonymousData());
                     analyticsProps.put(SUBSCRIBE_MARKETING, userFromRequest.isSignupForNewsletter());
                     analyticsProps.put(EMAIL, newsletterSignedUpUserEmail);
-                    analyticsProps.put(ROLE, ObjectUtils.defaultIfNull(userData.getRole(), ""));
+                    analyticsProps.put(PROFICIENCY, ObjectUtils.defaultIfNull(userData.getProficiency(), ""));
                     analyticsProps.put(GOAL, ObjectUtils.defaultIfNull(userData.getUseCase(), ""));
                     // ip is a reserved keyword for tracking events in Mixpanel though this is allowed in
                     // Segment. Instead of showing the ip as is Mixpanel provides derived property.
@@ -419,7 +426,7 @@ public class UserSignupCEImpl implements UserSignupCE {
 
                     analyticsService.identifyInstance(
                             instanceId,
-                            userData.getRole(),
+                            userData.getProficiency(),
                             userData.getUseCase(),
                             newsletterSignedUpUserEmail,
                             newsletterSignedUpUserName,

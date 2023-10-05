@@ -37,7 +37,7 @@ export const ComplexForm = () => {
           </Switch>
         </SwitchGroup>
 
-        <CheckboxGroup isEmphasized label="Dishes">
+        <CheckboxGroup label="Dishes">
           <Checkbox value="Hamburger">Hamburger</Checkbox>
           <Checkbox value="French fries">French fries</Checkbox>
           <Checkbox value="Coca-Cola">Coca-Cola</Checkbox>

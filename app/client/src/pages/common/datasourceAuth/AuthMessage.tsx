@@ -59,8 +59,7 @@ export default function AuthMessage(props: AuthMessageProps) {
   const plugin: Plugin | undefined = useSelector((state) =>
     getPlugin(state, pluginId),
   );
-  const handleOauthAuthorization: any = (e: React.MouseEvent) => {
-    e.preventDefault();
+  const handleOauthAuthorization: any = () => {
     if (!pluginType || !pageId) return;
     dispatch(redirectAuthorizationCode(pageId, datasource.id, pluginType));
   };

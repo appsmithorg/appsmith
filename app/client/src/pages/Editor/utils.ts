@@ -299,3 +299,7 @@ export const groupWidgetCardsByTags = (widgetCards: WidgetCardProps[]) => {
 
   return groupedCards;
 };
+
+export const transformTextToSentenceCase = (s: string) => {
+  return s.slice(0, 1).toUpperCase() + s.slice(1).toLowerCase();
+};

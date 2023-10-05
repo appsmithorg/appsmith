@@ -1,4 +1,4 @@
-import { ENTITY_TYPE } from "entities/DataTree/types";
+import { ENTITY_TYPE_VALUE } from "@appsmith/entities/DataTree/types";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 
 export const configTree = {
@@ -14,7 +14,7 @@ export const configTree = {
     reactivePaths: {},
     triggerPaths: {},
     validationPaths: {},
-    ENTITY_TYPE: ENTITY_TYPE.WIDGET,
+    ENTITY_TYPE: ENTITY_TYPE_VALUE.WIDGET,
     privateWidgets: {},
     bindingPaths: {},
     dynamicTriggerPathList: [],
@@ -26,7 +26,7 @@ export const configTree = {
     defaultProps: {},
     defaultMetaProps: ["recaptchaToken"],
     logBlackList: {},
-    ENTITY_TYPE: ENTITY_TYPE.WIDGET,
+    ENTITY_TYPE: ENTITY_TYPE_VALUE.WIDGET,
     privateWidgets: {},
     widgetName: "Button1",
     propertyOverrideDependency: {},
@@ -99,7 +99,7 @@ export const configTree = {
     type: "BUTTON_WIDGET",
     dynamicTriggerPathList: [],
     privateWidgets: {},
-    ENTITY_TYPE: ENTITY_TYPE.WIDGET,
+    ENTITY_TYPE: ENTITY_TYPE_VALUE.WIDGET,
     propertyOverrideDependency: {},
     overridingPropertyPaths: {},
     defaultProps: {},
@@ -366,7 +366,7 @@ export const unEvalTreeWidgetSelectWidgetConfig = {
         type: "TEXT",
       },
     },
-    ENTITY_TYPE: ENTITY_TYPE.WIDGET,
+    ENTITY_TYPE: ENTITY_TYPE_VALUE.WIDGET,
     privateWidgets: {},
   },
 };

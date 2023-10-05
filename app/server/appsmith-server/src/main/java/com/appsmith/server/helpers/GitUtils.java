@@ -1,5 +1,6 @@
 package com.appsmith.server.helpers;
 
+import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.util.WebClientUtils;
@@ -94,5 +95,11 @@ public class GitUtils {
             return "";
         }
         return sshUrl.split("\\.")[0].replaceFirst("git@", "");
+    }
+
+    public static String getDefaultBranchName(GitApplicationMetadata gitApplicationMetadata) {
+        return StringUtils.isEmptyOrNull(gitApplicationMetadata.getDefaultBranchName())
+                ? gitApplicationMetadata.getBranchName()
+                : gitApplicationMetadata.getDefaultBranchName();
     }
 }

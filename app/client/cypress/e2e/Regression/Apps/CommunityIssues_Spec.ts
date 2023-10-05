@@ -345,6 +345,7 @@ describe("AForce - Community Issues page validations", function () {
     agHelper.Sleep(2000);
     table.SelectTableRow(0, 1, true, "v2");
     agHelper.AssertElementVisibility(locators._widgetInDeployed("tabswidget"));
+    agHelper.Sleep(2000);
     agHelper
       .GetNClick(locators._inputWidgetv1InDeployed, 0, true, 0)
       .type("-updating title");

@@ -34,7 +34,7 @@ import type { Action } from "entities/Action";
 import { PluginType } from "entities/Action";
 import type { JSCollection } from "entities/JSCollection";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeFactory";
+import type { ConfigTree, DataTree } from "@appsmith/entities/DataTree/types";
 import {
   getConfigTree,
   getDataTree,
@@ -399,6 +399,7 @@ function* logDebuggerErrorAnalyticsSaga(
         pageId: currentPageId,
         errorMessage: payload.errorMessage,
         errorType: payload.errorType,
+        appMode: payload.appMode,
       });
     } else if (payload.entityType === ENTITY_TYPE.ACTION) {
       const action: Action | undefined = yield select(
@@ -424,6 +425,7 @@ function* logDebuggerErrorAnalyticsSaga(
         errorMessage: payload.errorMessage,
         errorType: payload.errorType,
         errorSubType: payload.errorSubType,
+        appMode: payload.appMode,
       });
     } else if (payload.entityType === ENTITY_TYPE.JSACTION) {
       const action: JSCollection = yield select(
@@ -441,6 +443,7 @@ function* logDebuggerErrorAnalyticsSaga(
         propertyPath: payload.propertyPath,
         errorMessages: payload.errorMessages,
         pageId: currentPageId,
+        appMode: payload.appMode,
       });
     }
   } catch (e) {

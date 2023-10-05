@@ -59,11 +59,6 @@ import { isDatasourceInViewMode } from "selectors/ui";
 import { getQueryParams } from "utils/URLUtils";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import SaveOrDiscardDatasourceModal from "./SaveOrDiscardDatasourceModal";
-import {
-  hasCreateDatasourceActionPermission,
-  hasDeleteDatasourcePermission,
-  hasManageDatasourcePermission,
-} from "@appsmith/utils/permissionHelpers";
 
 import { toast, Callout } from "design-system";
 import styled from "styled-components";
@@ -88,7 +83,7 @@ import type { ApiDatasourceForm } from "entities/Datasource/RestAPIForm";
 import { formValuesToDatasource } from "transformers/RestAPIDatasourceFormTransformer";
 import { DSFormHeader } from "./DSFormHeader";
 import type { PluginType } from "entities/Action";
-import { PluginPackageName } from "entities/Action";
+import { PluginName, PluginPackageName } from "entities/Action";
 import DSDataFilter from "@appsmith/components/DSDataFilter";
 import { DEFAULT_ENV_ID } from "@appsmith/api/ApiUtils";
 import { isStorageEnvironmentCreated } from "@appsmith/utils/Environments";
@@ -104,6 +99,12 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { DATASOURCES_ALLOWED_FOR_PREVIEW_MODE } from "constants/QueryEditorConstants";
 import { setCurrentEditingEnvironmentID } from "@appsmith/actions/environmentAction";
 import { getCurrentEnvironmentDetails } from "@appsmith/selectors/environmentSelectors";
+import { isGACEnabled } from "@appsmith/utils/planHelpers";
+import {
+  getHasCreateDatasourceActionPermission,
+  getHasDeleteDatasourcePermission,
+  getHasManageDatasourcePermission,
+} from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 
 interface ReduxStateProps {
   canCreateDatasourceActions: boolean;
@@ -960,6 +961,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
                     isSaving={isSaving}
                     isTesting={isTesting}
                     onCancel={() => this.onCancel()}
+                    pageId={pageId}
                     pluginName={pluginName}
                     pluginPackageName={pluginPackageName}
                     pluginType={pluginType as PluginType}
@@ -1037,19 +1039,24 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
 
   const datasourcePermissions = datasource?.userPermissions || [];
 
-  const canManageDatasource = hasManageDatasourcePermission(
+  const featureFlags = selectFeatureFlags(state);
+  const isFeatureEnabled = isGACEnabled(featureFlags);
+
+  const canManageDatasource = getHasManageDatasourcePermission(
+    isFeatureEnabled,
     datasourcePermissions,
   );
 
-  const canDeleteDatasource = hasDeleteDatasourcePermission(
+  const canDeleteDatasource = getHasDeleteDatasourcePermission(
+    isFeatureEnabled,
     datasourcePermissions,
   );
 
   const pagePermissions = getPagePermissions(state);
-  const canCreateDatasourceActions = hasCreateDatasourceActionPermission([
-    ...datasourcePermissions,
-    ...pagePermissions,
-  ]);
+  const canCreateDatasourceActions = getHasCreateDatasourceActionPermission(
+    isFeatureEnabled,
+    [...datasourcePermissions, ...pagePermissions],
+  );
   // Debugger render flag
   const showDebugger = showDebuggerFlag(state);
   const pluginPackageName = plugin?.packageName ?? "";
@@ -1069,17 +1076,24 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     pluginId,
   );
 
-  const featureFlags = selectFeatureFlags(state);
-
   //   A/B feature flag for datasource view mode preview data.
-  const isEnabledForDSViewModeSchema = selectFeatureFlagCheck(
+  let isEnabledForDSViewModeSchema = selectFeatureFlagCheck(
     state,
     FEATURE_FLAG.ab_gsheet_schema_enabled,
   );
 
+  // for mongoDB, the feature flag should be based on ab_mock_mongo_schema_enabled.
+  if (plugin?.name === PluginName.MONGO) {
+    isEnabledForDSViewModeSchema = selectFeatureFlagCheck(
+      state,
+      FEATURE_FLAG.ab_mock_mongo_schema_enabled,
+    );
+  }
+
   // should plugin be able to preview data
   const isPluginAllowedToPreviewData =
-    DATASOURCES_ALLOWED_FOR_PREVIEW_MODE.includes(plugin?.name || "");
+    DATASOURCES_ALLOWED_FOR_PREVIEW_MODE.includes(plugin?.name || "") ||
+    (plugin?.name === PluginName.MONGO && !!(datasource as Datasource)?.isMock);
 
   return {
     canCreateDatasourceActions,
