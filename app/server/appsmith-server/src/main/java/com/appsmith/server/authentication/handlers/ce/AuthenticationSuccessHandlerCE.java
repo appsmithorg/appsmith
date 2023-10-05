@@ -70,7 +70,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
     private Mono<Boolean> isVerificationRequired(String userEmail, String method) {
         Mono<Boolean> emailVerificationEnabledMono = tenantService
                 .getTenantConfiguration()
-                .map(tenant -> tenant.getTenantConfiguration().getEmailVerificationEnabled())
+                .map(tenant -> tenant.getTenantConfiguration().isEmailVerificationEnabled())
                 .cache();
 
         Mono<User> userMono = userRepository.findByEmail(userEmail).cache();

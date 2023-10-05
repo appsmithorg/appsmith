@@ -79,7 +79,6 @@ export const EVALUATE_REDUX_ACTIONS = [
   ReduxActionTypes.FETCH_JS_ACTIONS_VIEW_MODE_SUCCESS,
   ReduxActionErrorTypes.FETCH_JS_ACTIONS_VIEW_MODE_ERROR,
   ReduxActionTypes.UPDATE_JS_ACTION_BODY_SUCCESS,
-  ReduxActionTypes.SET_JS_FUNCTION_EXECUTION_DATA,
   // App Data
   ReduxActionTypes.SET_APP_MODE,
   ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS,
@@ -108,6 +107,8 @@ export const EVALUATE_REDUX_ACTIONS = [
   ReduxActionTypes.UNINSTALL_LIBRARY_SUCCESS,
   // Buffer
   ReduxActionTypes.BUFFERED_ACTION,
+  // Generic
+  ReduxActionTypes.TRIGGER_EVAL,
 ];
 // Topics used for datasource and query form evaluations
 export const FORM_EVALUATION_REDUX_ACTIONS = [

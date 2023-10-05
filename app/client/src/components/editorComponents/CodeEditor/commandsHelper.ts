@@ -8,8 +8,7 @@ import { generateQuickCommands } from "./generateQuickCommands";
 import type { Datasource } from "entities/Datasource";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import log from "loglevel";
-import type { DataTree } from "entities/DataTree/dataTreeFactory";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE_VALUE } from "entities/DataTree/dataTreeFactory";
 import { checkIfCursorInsideBinding } from "components/editorComponents/CodeEditor/codeEditorUtils";
 import type { SlashCommandPayload } from "entities/Action";
 import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
@@ -19,9 +18,8 @@ import type {
 } from "selectors/navigationSelectors";
 
 export const slashCommandHintHelper: HintHelper = (
-  editor,
-  data: DataTree,
-  entitiesForNavigation?: EntityNavigationData,
+  _,
+  entitiesForNavigation: EntityNavigationData,
 ) => {
   const entitiesForSuggestions: NavigationData[] = Object.values(
     entitiesForNavigation || {},
@@ -52,7 +50,7 @@ export const slashCommandHintHelper: HintHelper = (
       // @ts-expect-error: Types are not available
       editor.closeHint();
       const { entityType } = entityInfo;
-      const currentEntityType = entityType || ENTITY_TYPE.ACTION;
+      const currentEntityType = entityType || ENTITY_TYPE_VALUE.ACTION;
       const filteredEntitiesForSuggestions = entitiesForSuggestions.filter(
         (entity) => {
           return entity.type !== currentEntityType;

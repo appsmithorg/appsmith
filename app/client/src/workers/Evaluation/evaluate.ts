@@ -1,5 +1,9 @@
 /* eslint-disable no-console */
-import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeFactory";
+import type {
+  ConfigTree,
+  DataTree,
+  DataTreeEntity,
+} from "@appsmith/entities/DataTree/types";
 import type { EvaluationError } from "utils/DynamicBindingUtils";
 import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
 import unescapeJS from "unescape-js";
@@ -13,7 +17,6 @@ import { errorModifier, FoundPromiseInSyncEvalError } from "./errorModifier";
 import { addDataTreeToContext } from "@appsmith/workers/Evaluation/Actions";
 import log from "loglevel";
 import * as Sentry from "@sentry/react";
-import type { DataTreeEntity } from "entities/DataTree/dataTreeFactory";
 
 export type EvalResult = {
   result: any;

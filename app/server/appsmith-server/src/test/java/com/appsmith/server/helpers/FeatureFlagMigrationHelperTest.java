@@ -25,6 +25,7 @@ import java.util.UUID;
 
 import static com.appsmith.server.constants.FeatureMigrationType.DISABLE;
 import static com.appsmith.server.constants.FeatureMigrationType.ENABLE;
+import static com.appsmith.server.constants.MigrationStatus.PENDING;
 import static com.appsmith.server.featureflags.FeatureFlagEnum.TENANT_TEST_FEATURE;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -43,7 +44,7 @@ class FeatureFlagMigrationHelperTest {
     void setUp() {}
 
     @Test
-    void getUpdatedFlagsWithPendingMigration_diffForExistingAndLatestFlag_pendingMigrationReported() {
+    void getUpdatedFlagsWithPendingMigration_diffForExistingAndLatestFlag_pendingMigrationReportedWithDisableStatus() {
         Tenant defaultTenant = new Tenant();
         defaultTenant.setId(UUID.randomUUID().toString());
         defaultTenant.setTenantConfiguration(new TenantConfiguration());
@@ -76,6 +77,44 @@ class FeatureFlagMigrationHelperTest {
                     assertThat(featureFlagEnumFeatureMigrationTypeMap.size()).isEqualTo(1);
                     assertThat(featureFlagEnumFeatureMigrationTypeMap.get(TENANT_TEST_FEATURE))
                             .isEqualTo(DISABLE);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    void getUpdatedFlagsWithPendingMigration_diffForExistingAndLatestFlag_pendingMigrationReportedWithEnableStatus() {
+        Tenant defaultTenant = new Tenant();
+        defaultTenant.setId(UUID.randomUUID().toString());
+        defaultTenant.setTenantConfiguration(new TenantConfiguration());
+
+        CachedFeatures existingCachedFeatures = new CachedFeatures();
+        Map<String, Boolean> featureMap = new HashMap<>();
+        featureMap.put(TENANT_TEST_FEATURE.name(), false);
+        existingCachedFeatures.setFeatures(featureMap);
+        existingCachedFeatures.setRefreshedAt(Instant.now().minus(1, ChronoUnit.DAYS));
+
+        CachedFeatures latestCachedFeatures = new CachedFeatures();
+        Map<String, Boolean> latestFeatureMap = new HashMap<>();
+        latestFeatureMap.put(TENANT_TEST_FEATURE.name(), true);
+        latestCachedFeatures.setFeatures(latestFeatureMap);
+        latestCachedFeatures.setRefreshedAt(Instant.now());
+
+        Mockito.when(cacheableFeatureFlagHelper.fetchCachedTenantFeatures(any()))
+                .thenReturn(Mono.just(existingCachedFeatures))
+                .thenReturn(Mono.just(latestCachedFeatures));
+
+        Mockito.when(cacheableFeatureFlagHelper.evictCachedTenantFeatures(any()))
+                .thenReturn(Mono.empty());
+
+        Mono<Map<FeatureFlagEnum, FeatureMigrationType>> getUpdatedFlagsWithPendingMigration =
+                featureFlagMigrationHelper.getUpdatedFlagsWithPendingMigration(defaultTenant);
+
+        StepVerifier.create(getUpdatedFlagsWithPendingMigration)
+                .assertNext(featureFlagEnumFeatureMigrationTypeMap -> {
+                    assertThat(featureFlagEnumFeatureMigrationTypeMap).isNotEmpty();
+                    assertThat(featureFlagEnumFeatureMigrationTypeMap.size()).isEqualTo(1);
+                    assertThat(featureFlagEnumFeatureMigrationTypeMap.get(TENANT_TEST_FEATURE))
+                            .isEqualTo(ENABLE);
                 })
                 .verifyComplete();
     }
@@ -163,6 +202,8 @@ class FeatureFlagMigrationHelperTest {
         Tenant defaultTenant = new Tenant();
         TenantConfiguration tenantConfiguration = new TenantConfiguration();
         tenantConfiguration.setFeaturesWithPendingMigration(Map.of(TENANT_TEST_FEATURE, ENABLE));
+        tenantConfiguration.setMigrationStatus(PENDING);
+        defaultTenant.setTenantConfiguration(tenantConfiguration);
 
         CachedFeatures existingCachedFeatures = new CachedFeatures();
         Map<String, Boolean> featureMap = new HashMap<>();
@@ -175,7 +216,14 @@ class FeatureFlagMigrationHelperTest {
         Mono<Boolean> resultMono =
                 featureFlagMigrationHelper.checkAndExecuteMigrationsForFeatureFlag(defaultTenant, TENANT_TEST_FEATURE);
         StepVerifier.create(resultMono)
-                .assertNext(result -> assertThat(result).isTrue())
+                .assertNext(result -> {
+                    assertThat(result).isTrue();
+                    assertThat(tenantConfiguration
+                                    .getFeaturesWithPendingMigration()
+                                    .size())
+                            .isEqualTo(1);
+                    assertThat(tenantConfiguration.getMigrationStatus()).isEqualTo(PENDING);
+                })
                 .verifyComplete();
     }
 }

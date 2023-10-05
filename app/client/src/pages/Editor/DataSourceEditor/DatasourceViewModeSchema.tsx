@@ -1,10 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  DatasourceStructureContainer as DatasourceStructureList,
-  DatasourceStructureContext,
-} from "../Explorer/Datasources/DatasourceStructureContainer";
+import { DatasourceStructureContext } from "../Explorer/Datasources/DatasourceStructure";
+import { DatasourceStructureContainer as DatasourceStructureList } from "../Explorer/Datasources/DatasourceStructureContainer";
 import {
   getDatasourceStructureById,
   getIsFetchingDatasourceStructure,
@@ -36,12 +34,14 @@ import type {
   QueryTemplate,
 } from "entities/Datasource";
 import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
-import {
-  hasCreateDatasourceActionPermission,
-  hasCreatePagePermission,
-} from "@appsmith/utils/permissionHelpers";
 import type { AppState } from "@appsmith/reducers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import {
+  getHasCreateDatasourceActionPermission,
+  getHasCreatePagePermission,
+} from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 
 const ViewModeSchemaContainer = styled.div`
   height: 100%;
@@ -56,7 +56,7 @@ const StructureContainer = styled.div`
   width: 25%;
   display: flex;
   flex-direction: column;
-  overflow: scroll;
+  overflow: hidden;
 `;
 
 const DatasourceDataContainer = styled.div`
@@ -69,6 +69,17 @@ const DatasourceDataContainer = styled.div`
 const DatasourceListContainer = styled.div`
   height: 100%;
   margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  div {
+    flex-shrink: 0;
+  }
+  div ~ div {
+    flex-grow: 1;
+  }
+  .t--schema-virtuoso-container {
+    height: 100%;
+  }
 `;
 
 const ButtonContainer = styled.div`
@@ -100,12 +111,18 @@ const DatasourceViewModeSchema = (props: Props) => {
   const userAppPermissions = useSelector(
     (state: AppState) => getCurrentApplication(state)?.userPermissions ?? [],
   );
-  const canCreatePages = hasCreatePagePermission(userAppPermissions);
 
-  const canCreateDatasourceActions = hasCreateDatasourceActionPermission([
-    ...datasourcePermissions,
-    ...pagePermissions,
-  ]);
+  const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+
+  const canCreatePages = getHasCreatePagePermission(
+    isFeatureEnabled,
+    userAppPermissions,
+  );
+
+  const canCreateDatasourceActions = getHasCreateDatasourceActionPermission(
+    isFeatureEnabled,
+    [...datasourcePermissions, ...pagePermissions],
+  );
 
   const applicationId: string = useSelector(getCurrentApplicationId);
   const { pageId: currentPageId } = useParams<ExplorerURLParams>();

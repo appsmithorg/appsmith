@@ -53,7 +53,7 @@ describe("Date picker widget testcases", () => {
           .then((labelValue) => {
             const formattedDate = format(
               new Date(dateValueSet),
-              "dd MMMM, yyyy",
+              "d MMMM, yyyy",
             );
             expect(labelValue).to.contain(formattedDate);
           });

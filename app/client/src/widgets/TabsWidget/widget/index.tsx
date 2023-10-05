@@ -2,17 +2,16 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import {
   LayoutDirection,
   Positioning,
-} from "layoutSystems/autolayout/utils/constants";
+} from "layoutSystems/common/utils/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import type { ValidationResponse } from "constants/WidgetValidation";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { find } from "lodash";
 import React from "react";
-import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import { LayoutSystemTypes } from "layoutSystems/types";
 import type { WidgetProperties } from "selectors/propertyPaneSelectors";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
-import WidgetFactory from "WidgetProvider/factory";
 import type { WidgetState } from "../../BaseWidget";
 import BaseWidget from "../../BaseWidget";
 import TabsComponent from "../component";
@@ -25,7 +24,7 @@ import {
   DefaultAutocompleteDefinitions,
 } from "widgets/WidgetUtils";
 import type { AutocompletionDefinitions } from "WidgetProvider/constants";
-import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
+import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import { Colors } from "constants/Colors";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import {
@@ -36,6 +35,7 @@ import {
 import type { WidgetProps } from "widgets/BaseWidget";
 import { BlueprintOperationTypes } from "WidgetProvider/constants";
 import IconSVG from "../icon.svg";
+import { renderAppsmithCanvas } from "layoutSystems/CanvasFactory";
 
 export function selectedTabValidation(
   value: unknown,
@@ -545,7 +545,7 @@ class TabsWidget extends BaseWidget<
         selectedTabWidgetId={this.getSelectedTabWidgetId()}
         shouldScrollContents={
           this.props.shouldScrollContents &&
-          this.props.appPositioningType !== AppPositioningTypes.AUTO
+          this.props.layoutSystemType === LayoutSystemTypes.FIXED
         }
       >
         {this.renderComponent()}
@@ -577,7 +577,7 @@ class TabsWidget extends BaseWidget<
       (item) => item.widgetId === selectedTabWidgetId,
     )[0];
     const positioning: Positioning =
-      this.props.appPositioningType == AppPositioningTypes.AUTO
+      this.props.layoutSystemType == LayoutSystemTypes.AUTO
         ? Positioning.Vertical
         : Positioning.Fixed;
     childWidgetData.positioning = positioning;
@@ -588,8 +588,7 @@ class TabsWidget extends BaseWidget<
         : LayoutDirection.Horizontal;
     childWidgetData.alignment = selectedTabProps?.alignment;
     childWidgetData.spacing = selectedTabProps?.spacing;
-
-    return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
+    return renderAppsmithCanvas(childWidgetData as WidgetProps);
   };
 
   private getSelectedTabWidgetId() {
