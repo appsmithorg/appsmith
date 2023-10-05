@@ -52,7 +52,7 @@ const getAnvilSystemWrapper = (renderMode: RenderModes) => {
   return AnvilViewerWrapper;
 };
 
-export function getAnvilSystem(renderMode: RenderModes) {
+export function getAnvilLayoutSystem(renderMode: RenderModes) {
   return {
     LayoutSystemWrapper: getAnvilSystemWrapper(renderMode),
     propertyEnhancer: getAnvilSystemPropsEnhancer,
