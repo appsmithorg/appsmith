@@ -16,6 +16,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
+import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.PolicySolution;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
@@ -82,13 +83,18 @@ public class UserWorkspaceServiceTest {
     @Autowired
     PermissionGroupService permissionGroupService;
 
+    @Autowired
+    ApplicationPermission applicationPermission;
+
+    @Autowired
+    ApplicationService applicationService;
+
     private Workspace workspace;
     PermissionGroup developerPermissionGroup;
     User api_user;
     User developer_user;
 
     @BeforeEach
-    @WithUserDetails(value = "api_user")
     public void setup() {
         Workspace workspace = new Workspace();
         workspace.setName("Test org");
@@ -122,6 +128,17 @@ public class UserWorkspaceServiceTest {
         permissionGroupRepository.save(adminPermissionGroup).block();
         developerPermissionGroup.setAssignedToUserIds(Set.of(api_user.getId()));
         permissionGroupRepository.save(developerPermissionGroup).block();
+    }
+
+    @AfterEach
+    public void cleanup() {
+        List<Application> deletedApplications = applicationService
+                .findByWorkspaceId(workspace.getId(), applicationPermission.getDeletePermission())
+                .flatMap(remainingApplication -> applicationPageService.deleteApplication(remainingApplication.getId()))
+                .collectList()
+                .block();
+        Workspace deletedWorkspace =
+                workspaceService.archiveById(workspace.getId()).block();
     }
 
     private UserRole createUserRole(String username, String userId, AppsmithRole role) {
