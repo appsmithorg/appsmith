@@ -13,6 +13,8 @@ import type {
   AutoLayoutConfig,
 } from "WidgetProvider/constants";
 import { getAnvilComponentDimensions } from "layoutSystems/common/utils/ComponentSizeUtils";
+import type { LayoutSystem } from "layoutSystems/types";
+import { AnvilCanvas } from "./canvas/AnvilCanvas";
 
 export const getAnvilDimensionsConfig = (
   props: BaseWidgetProps,
@@ -52,9 +54,23 @@ const getAnvilSystemWrapper = (renderMode: RenderModes) => {
   return AnvilViewerWrapper;
 };
 
-export function getAnvilLayoutSystem(renderMode: RenderModes) {
+const getAnvilCanvasWrapper = () => {
+  return AnvilCanvas;
+};
+
+const getAnvilCanvasPropsEnhancer = (props: BaseWidgetProps) => {
+  return props;
+};
+
+export function getAnvilLayoutSystem(renderMode: RenderModes): LayoutSystem {
   return {
-    LayoutSystemWrapper: getAnvilSystemWrapper(renderMode),
-    propertyEnhancer: getAnvilSystemPropsEnhancer,
+    canvasSystem: {
+      Canvas: getAnvilCanvasWrapper(),
+      propertyEnhancer: getAnvilCanvasPropsEnhancer,
+    },
+    widgetSystem: {
+      WidgetWrapper: getAnvilSystemWrapper(renderMode),
+      propertyEnhancer: getAnvilSystemPropsEnhancer,
+    },
   };
 }
