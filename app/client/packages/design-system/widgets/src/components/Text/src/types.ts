@@ -36,4 +36,6 @@ export interface TextProps {
   className?: string;
   /** The children of the component. */
   children: ReactNode;
+
+  title?: string;
 }
