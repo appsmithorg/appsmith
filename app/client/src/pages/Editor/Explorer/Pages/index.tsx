@@ -43,10 +43,10 @@ import {
 } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import {
   ENTITY_HEIGHT,
-  EntityExplorerResizeHandler,
   RelativeContainer,
   StyledEntity,
 } from "../Common/components";
+import { EntityExplorerResizeHandler } from "../Common/EntityExplorerResizeHandler";
 
 function Pages() {
   const applicationId = useSelector(getCurrentApplicationId);

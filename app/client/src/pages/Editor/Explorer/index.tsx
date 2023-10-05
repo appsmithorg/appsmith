@@ -24,7 +24,7 @@ import {
   widgetsExistCurrentPage,
 } from "@appsmith/selectors/entitiesSelector";
 import { SignpostingWalkthroughConfig } from "../FirstTimeUserOnboarding/Utils";
-import { ExplorerWrapper } from "./Common/components";
+import { ExplorerWrapper } from "./Common/ExplorerWrapper";
 
 const selectForceOpenWidgetPanel = (state: AppState) =>
   state.ui.onBoarding.forceOpenWidgetPanel;

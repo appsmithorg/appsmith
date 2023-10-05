@@ -31,7 +31,7 @@ import { useDatasourceIdFromURL } from "@appsmith/pages/Editor/Explorer/helpers"
 import type { Datasource } from "entities/Datasource";
 import ExplorerDatasourceEntity from "./Datasources/DatasourceEntity";
 
-type DatasourceProps = {
+type DatasourcesProps = {
   isDatasourcesOpen: boolean;
   addDatasource: (source: string) => void;
   onDatasourcesToggle: (isOpen: boolean) => void;
@@ -43,7 +43,7 @@ const ShowAllButton = styled(Button)`
   margin: 0.25rem 1.5rem;
 `;
 
-const Datasources = React.memo((props: DatasourceProps) => {
+const Datasources = React.memo((props: DatasourcesProps) => {
   const { appWideDS, otherDS } = useAppWideAndOtherDatasource();
   const {
     addDatasource,

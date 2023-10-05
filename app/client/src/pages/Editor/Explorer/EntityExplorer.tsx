@@ -23,7 +23,7 @@ import { fetchWorkspace } from "@appsmith/actions/workspaceActions";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import { importSvg } from "design-system-old";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { EntityExplorerWrapper } from "./Common/components";
+import { EntityExplorerWrapper } from "./Common/EntityExplorerWrapper";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { INTEGRATION_TABS } from "constants/routes";
 import {
@@ -101,19 +101,22 @@ function EntityExplorer({ isActive }: { isActive: boolean }) {
     }
   }, [isWalkthroughOpened, popFeature]);
 
-  const addDatasource = (entryPoint: string) => {
-    history.push(
-      integrationEditorURL({
-        pageId,
-        selectedTab: INTEGRATION_TABS.NEW,
-      }),
-    );
-    // Event for datasource creation click
-    AnalyticsUtil.logEvent("NAVIGATE_TO_CREATE_NEW_DATASOURCE_PAGE", {
-      entryPoint,
-    });
-    closeWalkthrough();
-  };
+  const addDatasource = useCallback(
+    (entryPoint: string) => {
+      history.push(
+        integrationEditorURL({
+          pageId,
+          selectedTab: INTEGRATION_TABS.NEW,
+        }),
+      );
+      // Event for datasource creation click
+      AnalyticsUtil.logEvent("NAVIGATE_TO_CREATE_NEW_DATASOURCE_PAGE", {
+        entryPoint,
+      });
+      closeWalkthrough();
+    },
+    [pageId],
+  );
 
   const listDatasource = useCallback(() => {
     history.push(
