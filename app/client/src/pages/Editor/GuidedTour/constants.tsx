@@ -395,7 +395,7 @@ export const Steps: StepsType = {
                 &#123;&#123;CustomersTable.selectedRow.name&#125;&#125;
               </code>
             </b>{" "}
-            binding to the <b>Default Text</b> property
+            binding to the <b>Default Value</b> property
           </>
         ),
         // Get gif from url
