@@ -127,6 +127,8 @@ public class PostgresPlugin extends BasePlugin {
 
     private static final int HEAVY_OP_FREQUENCY = 100;
 
+    public static final Long DEFAULT_POSTGRES_PORT = 5432L;
+
     private static int MAX_SIZE_SUPPORTED;
 
     public static PostgresDatasourceUtils postgresDatasourceUtils = new PostgresDatasourceUtils();
@@ -299,7 +301,7 @@ public class PostgresPlugin extends BasePlugin {
                 if (hostName != null && Boolean.FALSE.equals(isBlank(hostName)) && port != null) {
                     identifier = hostName + "_" + port;
                 } else if (port == null) {
-                    identifier = hostName;
+                    identifier = hostName + "_" + DEFAULT_POSTGRES_PORT;
                 }
             }
             return Mono.just(identifier);

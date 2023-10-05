@@ -65,7 +65,7 @@ public class RateLimitService {
      * This function will add a unique identifier in redis cache for the execution that needs to be blocked
      * along with TTL
      */
-    public Mono<Boolean> blockExecutionForPeriod(
+    public Mono<Boolean> blockEndpointForConnectionRequest(
             String apiIdentifier, String endpointIdentifier, Duration timePeriod, AppsmithException exception) {
         String bucketIdentifier = BLOCKED_HOSTNAME_PREFIX + apiIdentifier + endpointIdentifier;
         return redisUtils.addFileLock(bucketIdentifier, timePeriod, exception);
@@ -75,7 +75,7 @@ public class RateLimitService {
      * This function checks in the redis cache if blocking key is present, if key is there
      * we block the execution
      */
-    public Mono<Boolean> isEndpointBlockedForRequest(String apiIdentifier, String endpointIdentifier) {
+    public Mono<Boolean> isEndpointBlockedForConnectionRequest(String apiIdentifier, String endpointIdentifier) {
         String bucketIdentifier = BLOCKED_HOSTNAME_PREFIX + apiIdentifier + endpointIdentifier;
         return redisUtils.hasKey(bucketIdentifier);
     }

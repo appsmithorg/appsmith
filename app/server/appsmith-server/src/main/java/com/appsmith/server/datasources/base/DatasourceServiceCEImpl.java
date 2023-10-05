@@ -93,7 +93,8 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
     private final FeatureFlagService featureFlagService;
 
     // Defines blocking duration for test as well as connection created for query execution
-    // This will block the execution for 5 minutes, in case of more than 3 failed connection attempts
+    // This will block the creation of datasource connection for 5 minutes, in case of more than 3 failed connection
+    // attempts
     private final Integer BLOCK_TEST_API_DURATION = 5;
 
     @Autowired
@@ -438,7 +439,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
             DatasourceStorageDTO datasourceStorageDTO, String activeEnvironmentId) {
         DatasourceStorage datasourceStorage =
                 datasourceStorageService.createDatasourceStorageFromDatasourceStorageDTO(datasourceStorageDTO);
-        return this.isEndpointBlockedForRequest(datasourceStorage).flatMap(isBlocked -> {
+        return this.isEndpointBlockedForConnectionRequest(datasourceStorage).flatMap(isBlocked -> {
             if (!isBlocked) {
                 final Mono<DatasourceStorage> datasourceStorageMono;
 
@@ -558,7 +559,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                                                     // This will block the test API for next 5 minutes, as bucket has
                                                     // been exhausted, and return too many requests response
                                                     return rateLimitService
-                                                            .blockExecutionForPeriod(
+                                                            .blockEndpointForConnectionRequest(
                                                                     RateLimitConstants
                                                                             .BUCKET_KEY_FOR_TEST_DATASOURCE_API,
                                                                     rateLimitIdentifier,
@@ -626,7 +627,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                 .getEndpointIdentifierForRateLimit(datasourceStorage.getDatasourceConfiguration()));
     }
 
-    protected Mono<Boolean> isEndpointBlockedForRequest(DatasourceStorage datasourceStorage) {
+    protected Mono<Boolean> isEndpointBlockedForConnectionRequest(DatasourceStorage datasourceStorage) {
         Mono<String> rateLimitIdentifierMono = this.getRateLimitIdentifier(datasourceStorage);
         return featureFlagService
                 .check(FeatureFlagEnum.rollout_datasource_test_rate_limit_enabled)
@@ -638,7 +639,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                     // Currently this function is overridden only by postgresPlugin class, in future it will be done for
                     // all plugins wherever applicable.
                     if (isFlagEnabled && Boolean.FALSE.equals(isBlank(rateLimitIdentifier))) {
-                        return rateLimitService.isEndpointBlockedForRequest(
+                        return rateLimitService.isEndpointBlockedForConnectionRequest(
                                 RateLimitConstants.BUCKET_KEY_FOR_TEST_DATASOURCE_API, rateLimitIdentifier);
                     } else {
                         return Mono.just(false);
