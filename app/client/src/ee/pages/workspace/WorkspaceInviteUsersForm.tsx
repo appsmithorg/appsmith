@@ -105,15 +105,20 @@ import {
   setPartnerProgramCalloutShown,
 } from "utils/storage";
 import { isFreePlan } from "@appsmith/selectors/tenantSelectors";
+import { isGACEnabled } from "@appsmith/utils/planHelpers";
+import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
+import { getShowAdminSettings } from "@appsmith/utils/BusinessFeatures/adminSettingsHelpers";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import { getShowAdminSettings } from "@appsmith/utils/BusinessFeatures/adminSettingsHelpers";
 
 const NoEmailConfigImage = importSvg(
   () => import("assets/images/email-not-configured.svg"),
 );
 
 const { cloudHosting } = getAppsmithConfigs();
+
+const featureFlags = selectFeatureFlags(store.getState());
+const isFeatureEnabled = isGACEnabled(featureFlags);
 
 const validateFormValues = (
   values: {
@@ -132,7 +137,7 @@ const validateFormValues = (
             isAclFlow
               ? CE_INVITE_USERS_VALIDATION_EMAIL_LIST
               : INVITE_USERS_VALIDATION_EMAIL_LIST,
-            cloudHosting,
+            !isFeatureEnabled,
           ),
         });
       }
@@ -167,7 +172,7 @@ const validate = (values: any) => {
       if (!isEmail(user) && !isUserGroup(user)) {
         errors["users"] = createMessage(
           INVITE_USERS_VALIDATION_EMAIL_LIST,
-          cloudHosting,
+          !isFeatureEnabled,
         );
       }
     });
@@ -197,13 +202,18 @@ const StyledUserList = styled(UserList)`
 function InviteUserText({
   isAppLevelInviteOnSelfHost,
   isApplicationInvite,
+  isFeatureEnabled,
 }: {
   isApplicationInvite: boolean;
   isAppLevelInviteOnSelfHost: boolean;
+  isFeatureEnabled: boolean;
 }) {
   let content: JSX.Element;
 
-  const showRampSelector = showProductRamps(RAMP_NAME.INVITE_USER_TO_APP);
+  const showRampSelector = showProductRamps(
+    RAMP_NAME.INVITE_USER_TO_APP,
+    !isFeatureEnabled,
+  );
   const canShowRamp = useSelector(showRampSelector);
 
   const rampLinkSelector = getRampLink({
@@ -218,7 +228,7 @@ function InviteUserText({
     content = <>{createMessage(USERS_HAVE_ACCESS_TO_ALL_APPS)}</>;
   }
 
-  if (cloudHosting && canShowRamp) {
+  if (!isFeatureEnabled && canShowRamp) {
     if (isApplicationInvite) {
       content = (
         <>
@@ -308,11 +318,12 @@ function WorkspaceInviteUsersForm(props: any) {
     userWorkspacePermissions,
     PERMISSION_TYPE.MANAGE_WORKSPACE,
   );
-  const isEEFeature = (!isAclFlow && !cloudHosting) || false;
-  const isAppLevelInviteOnSelfHost =
-    (!cloudHosting && isApplicationInvite) || false;
 
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+
+  const isEEFeature = (!isAclFlow && isFeatureEnabled) || false;
+  const isAppLevelInviteOnSelfHost =
+    (isApplicationInvite && isFeatureEnabled) || false;
 
   useEffect(() => {
     setSelectedOption([]);
@@ -328,7 +339,7 @@ function WorkspaceInviteUsersForm(props: any) {
         fetchAllRoles(props.workspaceId);
       }
       fetchCurrentWorkspace(props.workspaceId);
-      fetchGroupSuggestions();
+      if (isFeatureEnabled) fetchGroupSuggestions();
     }
   }, [
     props.workspaceId,
@@ -356,15 +367,15 @@ function WorkspaceInviteUsersForm(props: any) {
       if (isAclFlow) {
         toast.show(
           numberOfUsersInvited > 1
-            ? createMessage(CE_INVITE_USERS_SUBMIT_SUCCESS)
-            : createMessage(CE_INVITE_USER_SUBMIT_SUCCESS),
+            ? createMessage(CE_INVITE_USERS_SUBMIT_SUCCESS, !isFeatureEnabled)
+            : createMessage(CE_INVITE_USER_SUBMIT_SUCCESS, !isFeatureEnabled),
           { kind: "success" },
         );
       } else {
         toast.show(
           numberOfUsersInvited > 1
-            ? createMessage(INVITE_USERS_SUBMIT_SUCCESS)
-            : createMessage(INVITE_USER_SUBMIT_SUCCESS),
+            ? createMessage(INVITE_USERS_SUBMIT_SUCCESS, !isFeatureEnabled)
+            : createMessage(INVITE_USER_SUBMIT_SUCCESS, !isFeatureEnabled),
           { kind: "success" },
         );
         checkIfInvitedUsersFromDifferentDomain();
@@ -415,7 +426,7 @@ function WorkspaceInviteUsersForm(props: any) {
   );
 
   const onSelect = (value: string, option?: any) => {
-    if (option.value === "custom-pg") {
+    if (option.value === "custom-pg" || option.value === "Assign Custom Role") {
       history.push("/settings/groups");
     }
     if (isMultiSelectDropdown) {
@@ -441,8 +452,14 @@ function WorkspaceInviteUsersForm(props: any) {
       let error = "";
       if (hasInvalidUser) {
         error = isAclFlow
-          ? createMessage(CE_INVITE_USERS_VALIDATION_EMAIL_LIST, cloudHosting)
-          : createMessage(INVITE_USERS_VALIDATION_EMAIL_LIST, cloudHosting);
+          ? createMessage(
+              CE_INVITE_USERS_VALIDATION_EMAIL_LIST,
+              !isFeatureEnabled,
+            )
+          : createMessage(
+              INVITE_USERS_VALIDATION_EMAIL_LIST,
+              !isFeatureEnabled,
+            );
       }
       setEmailError(error);
     } else {
@@ -621,11 +638,13 @@ function WorkspaceInviteUsersForm(props: any) {
                   </div>
                 </Option>
               ))}
-              {cloudHosting && showProductRamps(RAMP_NAME.CUSTOM_ROLES) && (
-                <Option disabled>
-                  <CustomRolesRamp />
-                </Option>
-              )}
+              {!isFeatureEnabled &&
+                !isAclFlow &&
+                showProductRamps(RAMP_NAME.CUSTOM_ROLES) && (
+                  <Option disabled>
+                    <CustomRolesRamp />
+                  </Option>
+                )}
             </Select>
           </div>
           <div>
@@ -648,6 +667,7 @@ function WorkspaceInviteUsersForm(props: any) {
               <InviteUserText
                 isAppLevelInviteOnSelfHost={isAppLevelInviteOnSelfHost}
                 isApplicationInvite={isApplicationInvite}
+                isFeatureEnabled={isFeatureEnabled}
               />
             </WorkspaceText>
           </div>
@@ -784,8 +804,10 @@ export const mapStateToProps = (
     isApplicationInvite,
   }: { formName?: string; isApplicationInvite?: boolean },
 ): any => {
+  const featureFlags = selectFeatureFlags(store.getState());
+  const isFeatureEnabled = isGACEnabled(featureFlags);
   const isAppLevelInviteOnSelfHost =
-    (!cloudHosting && isApplicationInvite) || false;
+    (isFeatureEnabled && isApplicationInvite) || false;
   const ceMapStateToProps = CE_mapStateToProps(state, {
     formName,
   });

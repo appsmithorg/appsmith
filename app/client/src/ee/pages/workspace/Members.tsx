@@ -37,7 +37,6 @@ import {
   MEMBERS_TAB_TITLE,
   NO_SEARCH_DATA_TEXT,
 } from "@appsmith/constants/messages";
-import { getAppsmithConfigs } from "@appsmith/configs";
 import styled from "styled-components";
 import { useHistory } from "react-router";
 import {
@@ -57,11 +56,10 @@ import { getInitials } from "utils/AppsmithUtils";
 import { RAMP_NAME } from "utils/ProductRamps/RampsControlList";
 import { showProductRamps } from "@appsmith/selectors/rampSelectors";
 import { CustomRolesRamp } from "@appsmith/pages/workspace/WorkspaceInviteUsersForm";
+
 import { getShowAdminSettings } from "@appsmith/utils/BusinessFeatures/adminSettingsHelpers";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-
-const { cloudHosting } = getAppsmithConfigs();
 
 const Delimeter = styled.div`
   border-left: 1px solid var(--ads-v2-color-border);
@@ -94,6 +92,7 @@ export default function MemberSettings(props: PageProps) {
 
   const dispatch = useDispatch();
   const history = useHistory();
+  const isGACEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
 
   const [showMemberDeletionConfirmation, setShowMemberDeletionConfirmation] =
     useState(false);
@@ -102,7 +101,10 @@ export default function MemberSettings(props: PageProps) {
   const onCloseConfirmationModal = () =>
     setShowMemberDeletionConfirmation(false);
 
-  const showRampSelector = showProductRamps(RAMP_NAME.CUSTOM_ROLES);
+  const showRampSelector = showProductRamps(
+    RAMP_NAME.CUSTOM_ROLES,
+    !isGACEnabled,
+  );
   const canShowRamp = useSelector(showRampSelector);
 
   const [userToBeDeleted, setUserToBeDeleted] = useState<{
@@ -180,8 +182,8 @@ export default function MemberSettings(props: PageProps) {
     currentWorkspace?.userPermissions,
     PERMISSION_TYPE.MANAGE_WORKSPACE,
   );
-  const isAppInvite = !cloudHosting;
-  const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+
+  const isAppInvite = isGACEnabled;
 
   useEffect(() => {
     if (
@@ -272,7 +274,7 @@ export default function MemberSettings(props: PageProps) {
   const columns = [
     {
       Header: createMessage(() =>
-        MEMBERS_TAB_TITLE(filteredData?.length, cloudHosting),
+        MEMBERS_TAB_TITLE(filteredData?.length, !isGACEnabled),
       ),
       accessor: "users",
       Cell: function UserCell(props: any) {
@@ -369,10 +371,7 @@ export default function MemberSettings(props: PageProps) {
               };
             })
           : [];
-        if (
-          !cloudHosting &&
-          getShowAdminSettings(isFeatureEnabled, currentUser)
-        ) {
+        if (isGACEnabled && getShowAdminSettings(isGACEnabled, currentUser)) {
           roles.push({
             key: "custom-pg",
             value: "Assign Custom Role",
@@ -455,7 +454,7 @@ export default function MemberSettings(props: PageProps) {
                 </div>
               </Option>
             ))}
-            {cloudHosting && canShowRamp && (
+            {!isGACEnabled && canShowRamp && (
               <Option disabled>
                 <CustomRolesRamp />
               </Option>
@@ -637,7 +636,7 @@ export default function MemberSettings(props: PageProps) {
                           </div>
                         </Option>
                       ))}
-                      {cloudHosting && canShowRamp && (
+                      {!isGACEnabled && canShowRamp && (
                         <Option disabled>
                           <CustomRolesRamp />
                         </Option>
