@@ -27,7 +27,7 @@ describe("layoutUtils tests", () => {
   describe("addChildToLayout", () => {
     it("should add child to layout at provided index", () => {
       const layout: LayoutComponentProps = generateLayoutComponentMock();
-      const buttonWidget: BaseWidgetProps = ButtonFactory.build();
+      const buttonWidget: BaseWidgetProps = mockButtonProps();
       const children: string[] = [buttonWidget.widgetId];
       // Add child at rowIndex 1. layout already contains two widgets.
       let highlight: AnvilHighlightInfo = mockAnvilHighlightInfo({
@@ -58,7 +58,7 @@ describe("layoutUtils tests", () => {
   describe("addChildToAlignedRow", () => {
     it("should add child to the defined alignment and index", () => {
       const layout: LayoutComponentProps = generateAlignedRowMock();
-      const buttonWidget: BaseWidgetProps = ButtonFactory.build();
+      const buttonWidget: BaseWidgetProps = mockButtonProps();
       const children: string[] = [buttonWidget.widgetId];
       // Add child at the beginning of start alignment.
       let highlight: AnvilHighlightInfo = mockAnvilHighlightInfo();
@@ -90,7 +90,7 @@ describe("layoutUtils tests", () => {
     });
     it("should add child at the end of the list, if provided rowIndex is out of bounds", () => {
       const layout: LayoutComponentProps = generateAlignedRowMock();
-      const buttonWidget: BaseWidgetProps = ButtonFactory.build();
+      const buttonWidget: BaseWidgetProps = mockButtonProps();
       const children: string[] = [buttonWidget.widgetId];
       const highlight: AnvilHighlightInfo = mockAnvilHighlightInfo({
         alignment: FlexLayerAlignment.Center,
