@@ -27,7 +27,7 @@ import type { IconNames } from "design-system";
 import type { NavigationSetting } from "constants/AppConstants";
 import { defaultNavigationSetting } from "constants/AppConstants";
 import produce from "immer";
-import { groupBy } from "lodash";
+import { groupBy, isEmpty } from "lodash";
 
 export const initialState: ApplicationsReduxState = {
   isFetchingApplications: false,
@@ -246,7 +246,10 @@ export const handlers = {
       isFetchingApplication: false,
     };
 
-    if (!newState.currentApplication.applicationDetail.navigationSetting) {
+    if (
+      !newState.currentApplication.applicationDetail.navigationSetting ||
+      isEmpty(newState.currentApplication.applicationDetail.navigationSetting)
+    ) {
       newState.currentApplication.applicationDetail.navigationSetting =
         defaultNavigationSetting;
     }
