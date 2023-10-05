@@ -1,9 +1,17 @@
 {
   "extends": ["../.eslintrc.base.json"],
+  "ignorePatterns": [
+    "locators",
+    "fixtures",
+    "AudioRecorder_spec.js",
+    "audio_spec.js",
+    "Mongo_Spec.js"
+  ],
   "env": {
     "cypress/globals": true
   },
   "rules": {
+    "@typescript-eslint/strict-boolean-expressions": "off",
     "@typescript-eslint/no-array-constructor": "off",
     "@typescript-eslint/no-namespace": "off",
     "@typescript-eslint/no-unused-vars": "off",

@@ -17,10 +17,10 @@ function TextInputBase(props: TextInputBaseProps, ref: Ref<HTMLDivElement>) {
     inputClassName,
     inputProps,
     inputRef: userInputRef,
-    isDisabled,
-    isLoading,
+    isDisabled = false,
+    isLoading = false,
     labelProps,
-    multiLine,
+    multiLine = false,
     onBlur,
     onFocus,
     startIcon,
@@ -32,8 +32,10 @@ function TextInputBase(props: TextInputBaseProps, ref: Ref<HTMLDivElement>) {
   const defaultInputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
   const inputRef = userInputRef || defaultInputRef;
 
-  const ElementType: React.ElementType = multiLine ? "textarea" : "input";
-  const isInvalid = validationState === "invalid" && !isDisabled;
+  const ElementType: React.ElementType = Boolean(multiLine)
+    ? "textarea"
+    : "input";
+  const isInvalid = validationState === "invalid" && !Boolean(isDisabled);
 
   const { focusProps, isFocusVisible } = useFocusRing({
     isTextInput: true,

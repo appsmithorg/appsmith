@@ -34,7 +34,7 @@ const _TextArea = (props: TextAreaProps, ref: HeadlessTextAreaRef) => {
     ...rest
   } = props;
 
-  const wrappedLabel = label && (
+  const wrappedLabel = Boolean(label) && (
     <Label
       includeNecessityIndicatorInAccessibilityName={
         includeNecessityIndicatorInAccessibilityName
@@ -45,10 +45,10 @@ const _TextArea = (props: TextAreaProps, ref: HeadlessTextAreaRef) => {
     />
   );
 
-  const wrappedDescription = description && (
+  const wrappedDescription = Boolean(description) && (
     <Text variant="footnote">{description}</Text>
   );
-  const wrappedErrorMessage = errorMessage && (
+  const wrappedErrorMessage = Boolean(errorMessage) && (
     <Text variant="footnote">{errorMessage}</Text>
   );
 
