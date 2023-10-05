@@ -8,7 +8,8 @@ import reactor.core.publisher.Mono;
 
 @Service
 @Slf4j
-public class PACConfigurationServiceCECompatibleImpl extends PACConfigurationServiceCEImpl implements PACConfigurationServiceCECompatible {
+public class PACConfigurationServiceCECompatibleImpl extends PACConfigurationServiceCEImpl
+        implements PACConfigurationServiceCECompatible {
     @Override
     public Mono<TenantConfiguration> getTenantConfiguration(TenantConfiguration tenantConfiguration) {
         tenantConfiguration.setShowRolesAndGroups(false);
