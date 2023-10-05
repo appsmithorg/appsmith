@@ -221,6 +221,8 @@ export function getDefaultColumnProperties(
         )}"]))}}`,
     sticky: StickyType.NONE,
     validation: {},
+    currencyCode: "USD",
+    decimals: 0,
   };
 
   return columnProps;

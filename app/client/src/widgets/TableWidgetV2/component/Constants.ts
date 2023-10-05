@@ -338,8 +338,8 @@ export interface EditActionColumnProperties {
 }
 
 export interface CurrencyColumnProperties {
-  currencyCode: string;
-  decimals: number;
+  currencyCode?: string;
+  decimals?: number;
 }
 
 export interface ColumnProperties
