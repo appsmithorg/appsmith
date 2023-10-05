@@ -37,6 +37,7 @@ import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.EmailService;
+import com.appsmith.server.services.PACConfigurationService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.TenantService;
@@ -115,6 +116,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
     private final UserUtils userUtils;
     private final EmailService emailService;
     private final RateLimitService rateLimitService;
+    private final PACConfigurationService pacConfigurationService;
 
     private static final WebFilterChain EMPTY_WEB_FILTER_CHAIN = serverWebExchange -> Mono.empty();
     private static final String FORGOT_PASSWORD_CLIENT_URL_FORMAT = "%s/user/resetPassword?token=%s";
@@ -153,7 +155,8 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
             UserUtils userUtils,
             EmailVerificationTokenRepository emailVerificationTokenRepository,
             EmailService emailService,
-            RateLimitService rateLimitService) {
+            RateLimitService rateLimitService,
+            PACConfigurationService pacConfigurationService) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.workspaceService = workspaceService;
@@ -171,6 +174,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         this.rateLimitService = rateLimitService;
         this.emailVerificationTokenRepository = emailVerificationTokenRepository;
         this.emailService = emailService;
+        this.pacConfigurationService = pacConfigurationService;
     }
 
     @Override
@@ -474,6 +478,8 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         userManagementPermissionGroup.setName(savedUser.getUsername() + FieldName.SUFFIX_USER_MANAGEMENT_ROLE);
         // Add CRUD permissions for user to the group
         userManagementPermissionGroup.setPermissions(Set.of(new Permission(savedUser.getId(), MANAGE_USERS)));
+        userManagementPermissionGroup.setDefaultDomainType(User.class.getSimpleName());
+        userManagementPermissionGroup.setDefaultDomainId(savedUser.getId());
 
         // Assign the permission group to the user
         userManagementPermissionGroup.setAssignedToUserIds(Set.of(savedUser.getId()));
@@ -690,8 +696,8 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
 
         if (allUpdates.hasUserDataUpdates()) {
             final UserData updates = new UserData();
-            if (StringUtils.hasLength(allUpdates.getRole())) {
-                updates.setRole(allUpdates.getRole());
+            if (StringUtils.hasLength(allUpdates.getProficiency())) {
+                updates.setProficiency(allUpdates.getProficiency());
             }
             if (StringUtils.hasLength(allUpdates.getUseCase())) {
                 updates.setUseCase(allUpdates.getUseCase());
@@ -731,7 +737,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                         userFromDbMono,
                         userDataService.getForCurrentUser().defaultIfEmpty(new UserData()),
                         isSuperUserMono)
-                .map(tuple -> {
+                .flatMap(tuple -> {
                     final boolean isUsersEmpty = Boolean.TRUE.equals(tuple.getT1());
                     final User userFromDb = tuple.getT2();
                     final UserData userData = tuple.getT3();
@@ -755,8 +761,8 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                             commonConfig.isCloudHosting() ? true : userData.isIntercomConsentGiven());
                     profile.setSuperUser(isSuperUser);
                     profile.setConfigurable(!StringUtils.isEmpty(commonConfig.getEnvFilePath()));
-
-                    return profile;
+                    return pacConfigurationService.setRolesAndGroups(
+                            profile, userFromDb, true, commonConfig.isCloudHosting());
                 });
     }
 
@@ -806,7 +812,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                     }
                     return tenantService.getTenantConfiguration().flatMap(tenant -> {
                         Boolean emailVerificationEnabled =
-                                tenant.getTenantConfiguration().getEmailVerificationEnabled();
+                                tenant.getTenantConfiguration().isEmailVerificationEnabled();
                         // Email verification not enabled at tenant
                         if (!TRUE.equals(emailVerificationEnabled)) {
                             return Mono.error(
@@ -850,7 +856,8 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                             URLEncoder.encode(emailVerificationToken.getEmail(), StandardCharsets.UTF_8),
                             redirectUrlCopy);
 
-                    return emailService.sendEmailVerificationEmail(user, verificationUrl);
+                    return emailService.sendEmailVerificationEmail(
+                            user, verificationUrl, resendEmailVerificationDTO.getBaseUrl());
                 })
                 .thenReturn(true);
     }

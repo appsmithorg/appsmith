@@ -2,12 +2,12 @@ import React from "react";
 import { importRemixIcon } from "design-system-old";
 import type { Meta, StoryObj } from "@storybook/react";
 import { StoryGrid, DataAttrWrapper } from "@design-system/storybook";
-import { Button, BUTTON_VARIANTS, BUTTON_COLORS } from "@design-system/widgets";
+import { Button, BUTTON_VARIANTS, COLORS } from "@design-system/widgets";
 
 const icon = importRemixIcon(() => import("remixicon-react/StarFillIcon"));
 
 const variants = Object.values(BUTTON_VARIANTS);
-const colors = Object.values(BUTTON_COLORS);
+const colors = Object.values(COLORS);
 
 const meta: Meta<typeof Button> = {
   component: Button,

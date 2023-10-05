@@ -115,7 +115,10 @@ describe("Text widget tests", function () {
   it("5. Verify text widget styles", function () {
     propPane.MoveToTab("Style");
     //General
-    propPane.AssertPropertiesDropDownCurrentValue("Font family", "Nunito Sans");
+    propPane.AssertPropertiesDropDownCurrentValue(
+      "Font family",
+      "System Default",
+    );
     propPane.SelectPropertiesDropDown("Font family", "Poppins");
     propPane.AssertPropertiesDropDownCurrentValue("Font size", "M");
     propPane.SelectPropertiesDropDown("Font size", "S");
@@ -134,19 +137,19 @@ describe("Text widget tests", function () {
         widgetLocators.textWidgetContainer + " > div > div",
         "color",
       )
-      .then((textColor) => {
+      .then((textColor: any) => {
         agHelper
           .GetWidgetCSSFrAttribute(
             widgetLocators.textWidgetContainer + " > div > div",
             "background",
           )
-          .then((backgroundColor) => {
+          .then((backgroundColor: any) => {
             agHelper
               .GetWidgetCSSFrAttribute(
                 widgetLocators.textWidgetContainer,
                 "border-color",
               )
-              .then((borderColor) => {
+              .then((borderColor: any) => {
                 deployMode.DeployApp(
                   locators._widgetInDeployed(draggableWidgets.TEXT),
                 );
@@ -211,13 +214,13 @@ describe("Text widget tests", function () {
         widgetLocators.textWidgetContainer + " > div > div",
         "color",
       )
-      .then((textColor) => {
+      .then((textColor: any) => {
         agHelper
           .GetWidgetCSSFrAttribute(
             widgetLocators.textWidgetContainer + " > div > div",
             "background",
           )
-          .then((backgroundColor) => {
+          .then((backgroundColor: any) => {
             deployMode.DeployApp(
               locators._widgetInDeployed(draggableWidgets.TEXT),
             );
@@ -270,19 +273,19 @@ describe("Text widget tests", function () {
         widgetLocators.textWidgetContainer + " > div > div",
         "color",
       )
-      .then((textColor) => {
+      .then((textColor: any) => {
         agHelper
           .GetWidgetCSSFrAttribute(
             widgetLocators.textWidgetContainer + " > div > div",
             "background",
           )
-          .then((backgroundColor) => {
+          .then((backgroundColor: any) => {
             agHelper
               .GetWidgetCSSFrAttribute(
                 widgetLocators.textWidgetContainer,
                 "border-color",
               )
-              .then((borderColor) => {
+              .then((borderColor: any) => {
                 deployMode.DeployApp(
                   locators._widgetInDeployed(draggableWidgets.TEXT),
                 );

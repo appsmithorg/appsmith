@@ -16,7 +16,7 @@ public interface EmailServiceCE {
             String originHeader,
             boolean isNewUser);
 
-    Mono<Boolean> sendEmailVerificationEmail(User user, String verificationUrl);
+    Mono<Boolean> sendEmailVerificationEmail(User user, String verificationUrl, String originHeader);
 
     Mono<Boolean> sendInstanceAdminInviteEmail(
             User invitedUser, User invitingUser, String originHeader, boolean isNewUser);

@@ -683,7 +683,11 @@ export class AggregateHelper extends ReusableHelper {
     metaKey = false,
   ) {
     return this.ScrollIntoView(selector, index)
-      .click({ force: force, ctrlKey: ctrlKey, metaKey })
+      .click({
+        force: force,
+        ctrlKey: ctrlKey,
+        metaKey,
+      })
       .wait(waitTimeInterval);
   }
 
@@ -1516,6 +1520,14 @@ export class AggregateHelper extends ReusableHelper {
       | "bottomRight",
   ) {
     return this.GetElement(selector).scrollTo(position).wait(2000);
+  }
+
+  public ScrollToXY(
+    selector: ElementType,
+    x: number | string,
+    y: number | string,
+  ) {
+    return this.GetElement(selector).scrollTo(x, y).wait(2000);
   }
 
   public GetWidth(widgetSelector: string) {

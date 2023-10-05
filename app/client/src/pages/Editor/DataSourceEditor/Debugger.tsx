@@ -79,6 +79,9 @@ export const ResizerContentContainer = styled.div`
     display: flex;
     flex-direction: column;
     width: 100%;
+    form {
+      flex-grow: 1;
+    }
   }
 `;
 

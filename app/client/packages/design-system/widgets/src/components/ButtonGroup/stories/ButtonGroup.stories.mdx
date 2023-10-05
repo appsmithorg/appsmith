@@ -1,20 +1,32 @@
-import { Flex, Button, ButtonGroup } from "@design-system/widgets";
-import { Canvas, Meta, Story, ArgsTable } from "@storybook/addon-docs";
+import {
+  Flex,
+  ButtonGroupItem,
+  ButtonGroup,
+  COLORS,
+  BUTTON_VARIANTS,
+} from "@design-system/widgets";
+import { Canvas, Meta, Story, ArgsTable, Source } from "@storybook/addon-docs";
 
-<Meta title="Design-system/Widgets/Button Group" />
+<Meta title="Design-system/Widgets/Button Group" component={ButtonGroup} />
 
 # Button Group
 
-A button group is a group of buttons that are visually connected together.
+A `ButtonGroup` is a group of `ButtonGroupItem` that are visually connected together.
+The `ButtonGroupItem` accepts the same props as the `Button` except `variant` and `color`.
+More information about `Button` props you can find [here](?path=/docs/design-system-widgets-button--docs).
+
+export const Template = (args) => {
+  return (
+    <ButtonGroup {...args}>
+      <ButtonGroupItem>Option 1</ButtonGroupItem>
+      <ButtonGroupItem>Option 2</ButtonGroupItem>
+      <ButtonGroupItem>Option 3</ButtonGroupItem>
+    </ButtonGroup>
+  );
+};
 
 <Canvas>
-  <Story name="Button Group">
-    <ButtonGroup>
-      <Button>Option 1</Button>
-      <Button>Option 2</Button>
-      <Button>Option 3</Button>
-    </ButtonGroup>
-  </Story>
+  <Story name="Button Group">{Template.bind({})}</Story>
 </Canvas>
 
 <ArgsTable story="Button Group" of={ButtonGroup} />
@@ -23,101 +35,60 @@ A button group is a group of buttons that are visually connected together.
 
 `Button` component has 3 visual style variants and 5 semantic color options
 
-### Filled variant
-
-<Story name="Filled variant">
-  <Flex direction="column" gap="spacing-4">
-    {["accent", "neutral", "positive", "negative", "warning"].map((color) => (
-      <ButtonGroup>
-        <Button variant="filled" color={color} children={`filled-${color}`} />
-        <Button variant="filled" color={color} children={`filled-${color}`} />
-        <Button variant="filled" color={color} children={`filled-${color}`} />
-      </ButtonGroup>
-    ))}
-  </Flex>
-</Story>
-
-### Outlined variant
-
-<Story name="Outlined variant">
-  <Flex direction="column" gap="spacing-4">
-    {["accent", "neutral", "positive", "negative", "warning"].map((color) => (
-      <ButtonGroup>
-        <Button variant="outlined" color={color} children={`filled-${color}`} />
-        <Button variant="outlined" color={color} children={`filled-${color}`} />
-        <Button variant="outlined" color={color} children={`filled-${color}`} />
-      </ButtonGroup>
-    ))}
-  </Flex>
-</Story>
-
-### Ghost variant
-
-<Story name="Ghost variant">
-  <Flex direction="column" gap="spacing-4">
-    {["accent", "neutral", "positive", "negative", "warning"].map((color) => (
-      <ButtonGroup>
-        <Button variant="ghost" color={color} children={`filled-${color}`} />
-        <Button variant="ghost" color={color} children={`filled-${color}`} />
-        <Button variant="ghost" color={color} children={`filled-${color}`} />
-      </ButtonGroup>
-    ))}
+<Story name="Semantic">
+  <Flex direction="column" gap="spacing-4" alignItems="center">
+    {Object.values(BUTTON_VARIANTS).map((variant) =>
+      Object.values(COLORS).map((color) => (
+        <ButtonGroup
+          variant={variant}
+          color={color}
+          key={`${variant}-${color}`}
+        >
+          <ButtonGroupItem>
+            {variant} {color}
+          </ButtonGroupItem>
+          <ButtonGroupItem>
+            {variant} {color}
+          </ButtonGroupItem>
+          <ButtonGroupItem>
+            {variant} {color}
+          </ButtonGroupItem>
+        </ButtonGroup>
+      )),
+    )}
   </Flex>
 </Story>
 
 ## Orientation
 
-<Story name="Button Group - Vertical Filled">
-  <ButtonGroup orientation="vertical">
-    <Button variant="filled">Option 2</Button>
-    <Button variant="filled">Option 2</Button>
-    <Button variant="filled">Option 3</Button>
-  </ButtonGroup>
+<Story name="Orientation horizontal">{Template.bind({})}</Story>
+
+<Story
+  name="Orientation vertical"
+  args={{
+    orientation: "vertical",
+  }}
+>
+  {Template.bind({})}
 </Story>
-<Story name="Button Group - Vertical Outlined">
-  <ButtonGroup orientation="vertical">
-    <Button variant="outlined">Option 2</Button>
-    <Button variant="outlined">Option 2</Button>
-    <Button variant="outlined">Option 3</Button>
-  </ButtonGroup>
-</Story>
-<Story name="Button Group - Vertical Ghost">
-  <ButtonGroup orientation="vertical">
-    <Button variant="ghost">Option 2</Button>
-    <Button variant="ghost">Option 2</Button>
-    <Button variant="ghost">Option 3</Button>
+
+## ButtonGroupItem usage
+
+<Story name="ButtonGroupItem usage">
+  <ButtonGroup>
+    <ButtonGroupItem isDisabled>Option 2</ButtonGroupItem>
+    <ButtonGroupItem isLoading>Option 2</ButtonGroupItem>
+    <ButtonGroupItem>Option 3</ButtonGroupItem>
   </ButtonGroup>
 </Story>
 
-## Disabled
-
-<Story name="Button Group Filled Disabled">
-  <ButtonGroup>
-    {/* prettier-ignore */}
-    <Button variant="filled" isDisabled>Option 2</Button>
-    {/* prettier-ignore */}
-    <Button variant="filled" isDisabled>Option 2</Button>
-    {/* prettier-ignore */}
-    <Button variant="filled" isDisabled>Option 3</Button>
-  </ButtonGroup>
-</Story>
-<Story name="Button Group Outlined Disabled">
-  <ButtonGroup>
-    {/* prettier-ignore */}
-    <Button variant="outlined" isDisabled>Option 2</Button>
-    {/* prettier-ignore */}
-    <Button variant="outlined" isDisabled>Option 2</Button>
-    {/* prettier-ignore */}
-    <Button variant="outlined" isDisabled>Option 3</Button>
-  </ButtonGroup>
-</Story>
-<Story name="Button Group Ghost Disabled">
-  <ButtonGroup>
-    {/* prettier-ignore */}
-    <Button variant="ghost" isDisabled>Option 2</Button>
-    {/* prettier-ignore */}
-    <Button variant="ghost" isDisabled>Option 2</Button>
-    {/* prettier-ignore */}
-    <Button variant="ghost" isDisabled>Option 3</Button>
-  </ButtonGroup>
-</Story>
+<Source
+  dark
+  code={`
+<ButtonGroup>
+  <ButtonGroupItem isDisabled>Option 2</ButtonGroupItem>
+  <ButtonGroupItem isLoading>Option 2</ButtonGroupItem>
+  <ButtonGroupItem>Option 3</ButtonGroupItem>
+</ButtonGroup>
+`}
+/>

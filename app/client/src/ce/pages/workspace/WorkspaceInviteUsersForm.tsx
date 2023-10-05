@@ -75,12 +75,18 @@ import {
   getPartnerProgramCalloutShown,
   setPartnerProgramCalloutShown,
 } from "utils/storage";
+import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
+import store from "store";
+import { isGACEnabled } from "@appsmith/utils/planHelpers";
 
 const NoEmailConfigImage = importSvg(
   () => import("assets/images/email-not-configured.svg"),
 );
 
 const { cloudHosting } = getAppsmithConfigs();
+
+const featureFlags = selectFeatureFlags(store.getState());
+const isFeatureEnabled = isGACEnabled(featureFlags);
 
 export const WorkspaceInviteWrapper = styled.div`
   > div {
@@ -230,7 +236,7 @@ const validateFormValues = (values: {
         throw new SubmissionError({
           _error: createMessage(
             INVITE_USERS_VALIDATION_EMAIL_LIST,
-            cloudHosting,
+            !isFeatureEnabled,
           ),
         });
       }
@@ -265,7 +271,7 @@ const validate = (values: any) => {
       if (!isEmail(user)) {
         errors["users"] = createMessage(
           INVITE_USERS_VALIDATION_EMAIL_LIST,
-          cloudHosting,
+          !isFeatureEnabled,
         );
       }
     });
@@ -531,7 +537,7 @@ function WorkspaceInviteUsersForm(props: any) {
           invitedEmails.current = validEmails;
 
           AnalyticsUtil.logEvent("INVITE_USER", {
-            ...(cloudHosting ? { users: usersAsStringsArray } : {}),
+            ...(!isFeatureEnabled ? { users: usersAsStringsArray } : {}),
             role: roles,
             numberOfUsersInvited: usersAsStringsArray.length,
             orgId: props.workspaceId,
@@ -585,7 +591,7 @@ function WorkspaceInviteUsersForm(props: any) {
             >
               {styledRoles.map((role: any) => (
                 <Option key={role.key} label={role.value} value={role.key}>
-                  <div className="flex gap-1 items-center">
+                  <div className="flex items-center gap-1">
                     {isMultiSelectDropdown && (
                       <StyledCheckbox
                         isSelected={selectedOption.find(
@@ -626,7 +632,7 @@ function WorkspaceInviteUsersForm(props: any) {
             </Button>
           </div>
         </StyledInviteFieldGroup>
-        <div className="flex gap-2 mt-2 items-start">
+        <div className="flex items-start gap-2 mt-2">
           <Icon className="mt-1" name="user-3-line" size="md" />
           <WorkspaceText>
             <InviteUserText isApplicationInvite={isApplicationInvite} />
@@ -710,10 +716,7 @@ function WorkspaceInviteUsersForm(props: any) {
         </ErrorBox>
         {canManage && !disableManageUsers && (
           <ManageUsersContainer>
-            <ManageUsers
-              isApplicationInvite={isApplicationInvite}
-              workspaceId={props.workspaceId}
-            />
+            <ManageUsers workspaceId={props.workspaceId} />
           </ManageUsersContainer>
         )}
       </StyledForm>
@@ -721,23 +724,28 @@ function WorkspaceInviteUsersForm(props: any) {
   );
 }
 
+export const mapStateToProps = (
+  state: AppState,
+  { formName }: { formName?: string },
+) => ({
+  roles: getRolesForField(state),
+  allUsers: getAllUsers(state),
+  isLoading: state.ui.workspaces.loadingStates.isFetchAllUsers,
+  form: formName || INVITE_USERS_TO_WORKSPACE_FORM,
+});
+
+export const mapDispatchToProps = (dispatch: any) => ({
+  fetchAllRoles: (workspaceId: string) =>
+    dispatch(fetchRolesForWorkspace(workspaceId)),
+  fetchCurrentWorkspace: (workspaceId: string) =>
+    dispatch(fetchWorkspace(workspaceId)),
+  fetchUser: (workspaceId: string) =>
+    dispatch(fetchUsersForWorkspace(workspaceId)),
+});
+
 export default connect(
-  (state: AppState, { formName }: { formName?: string }) => {
-    return {
-      roles: getRolesForField(state),
-      allUsers: getAllUsers(state),
-      isLoading: state.ui.workspaces.loadingStates.isFetchAllUsers,
-      form: formName || INVITE_USERS_TO_WORKSPACE_FORM,
-    };
-  },
-  (dispatch: any) => ({
-    fetchAllRoles: (workspaceId: string) =>
-      dispatch(fetchRolesForWorkspace(workspaceId)),
-    fetchCurrentWorkspace: (workspaceId: string) =>
-      dispatch(fetchWorkspace(workspaceId)),
-    fetchUser: (workspaceId: string) =>
-      dispatch(fetchUsersForWorkspace(workspaceId)),
-  }),
+  mapStateToProps,
+  mapDispatchToProps,
 )(
   reduxForm<
     InviteUsersToWorkspaceFormValues,

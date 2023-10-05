@@ -1,4 +1,4 @@
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE_VALUE } from "entities/DataTree/dataTreeFactory";
 
 export const unEvalTree = {
   MainContainer: {
@@ -21,7 +21,7 @@ export const unEvalTree = {
     leftColumn: 0,
     children: ["j9dpft2lpu", "l0yem4eh6l"],
     meta: {},
-    ENTITY_TYPE: ENTITY_TYPE.WIDGET,
+    ENTITY_TYPE: ENTITY_TYPE_VALUE.WIDGET,
   },
   Button1: {
     widgetName: "Button1",
@@ -51,7 +51,7 @@ export const unEvalTree = {
     buttonVariant: "PRIMARY",
     placement: "CENTER",
     meta: {},
-    ENTITY_TYPE: ENTITY_TYPE.WIDGET,
+    ENTITY_TYPE: ENTITY_TYPE_VALUE.WIDGET,
   },
   Button2: {
     widgetName: "Button2",
@@ -81,7 +81,7 @@ export const unEvalTree = {
     buttonVariant: "PRIMARY",
     placement: "CENTER",
     meta: {},
-    ENTITY_TYPE: ENTITY_TYPE.WIDGET,
+    ENTITY_TYPE: ENTITY_TYPE_VALUE.WIDGET,
   },
   appsmith: {
     user: {
@@ -128,7 +128,7 @@ export const unEvalTree = {
       canBeRequested: true,
     },
     mode: "EDIT",
-    ENTITY_TYPE: ENTITY_TYPE.APPSMITH,
+    ENTITY_TYPE: ENTITY_TYPE_VALUE.APPSMITH,
   },
 };
 
@@ -181,7 +181,7 @@ export const unEvalTreeWidgetSelectWidget = {
     meta: {
       filterText: "",
     },
-    ENTITY_TYPE: ENTITY_TYPE.WIDGET,
+    ENTITY_TYPE: ENTITY_TYPE_VALUE.WIDGET,
     filterText: "",
     isDirty: false,
   },
