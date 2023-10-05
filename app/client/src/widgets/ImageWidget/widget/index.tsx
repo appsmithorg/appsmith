@@ -299,7 +299,17 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
   }
 
   getWidgetView() {
-    const { maxZoomLevel, objectFit } = this.props;
+    const { image, maxZoomLevel, objectFit } = this.props;
+
+    // Special case for inline SVG images. They're special because it's the only image format that can be represented
+    // in UTF8 readable text. But special characters in the image text like `#` or `"` cause the image to not render.
+    let imageUrl = image;
+    if (imageUrl?.startsWith("data:image/svg+xml;utf8,")) {
+      imageUrl =
+        "data:image/svg+xml;base64," +
+        window.btoa(imageUrl.replace("data:image/svg+xml;utf8,", ""));
+    }
+
     return (
       <ImageComponent
         borderRadius={this.props.borderRadius}
@@ -310,7 +320,7 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
         }}
         enableDownload={this.props.enableDownload}
         enableRotation={this.props.enableRotation}
-        imageUrl={this.props.image}
+        imageUrl={imageUrl}
         isLoading={this.props.isLoading}
         maxZoomLevel={maxZoomLevel}
         objectFit={objectFit}
