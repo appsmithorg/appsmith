@@ -14,6 +14,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
 
+import static com.appsmith.server.helpers.DateUtils.ISO_FORMATTER;
+
 @Getter
 @Setter
 @ToString
@@ -47,4 +49,13 @@ public class Package extends BranchAwareDomain {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JsonView(Views.Public.class)
     Instant lastPublishedAt; // when this package was last published
+
+    @JsonProperty(value = "modifiedAt", access = JsonProperty.Access.READ_ONLY)
+    @JsonView(Views.Public.class)
+    public String getLastUpdateTime() {
+        if (updatedAt != null) {
+            return ISO_FORMATTER.format(updatedAt);
+        }
+        return null;
+    }
 }

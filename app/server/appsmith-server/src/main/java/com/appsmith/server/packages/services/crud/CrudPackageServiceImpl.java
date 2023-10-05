@@ -9,6 +9,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.ResourceModes;
 import com.appsmith.server.domains.Package;
 import com.appsmith.server.domains.QPackage;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ModuleDTO;
 import com.appsmith.server.dtos.PackageDetailsDTO;
@@ -18,6 +19,7 @@ import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.ValidationUtils;
 import com.appsmith.server.modules.services.crud.CrudModuleService;
 import com.appsmith.server.repositories.PackageRepository;
+import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.PackagePermission;
 import com.appsmith.server.solutions.WorkspacePermission;
@@ -28,6 +30,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Set;
 
@@ -42,6 +45,7 @@ public class CrudPackageServiceImpl extends CrudPackageServiceCECompatibleImpl i
     private final PolicyGenerator policyGenerator;
     private final PackagePermission packagePermission;
     private final CrudModuleService crudModuleService;
+    private final SessionUserService sessionUserService;
 
     public CrudPackageServiceImpl(
             PackageRepository packageRepository,
@@ -49,7 +53,8 @@ public class CrudPackageServiceImpl extends CrudPackageServiceCECompatibleImpl i
             WorkspacePermission workspacePermission,
             PolicyGenerator policyGenerator,
             PackagePermission packagePermission,
-            CrudModuleService crudModuleService) {
+            CrudModuleService crudModuleService,
+            SessionUserService sessionUserService) {
         super(packageRepository);
         this.packageRepository = packageRepository;
         this.workspaceService = workspaceService;
@@ -57,6 +62,7 @@ public class CrudPackageServiceImpl extends CrudPackageServiceCECompatibleImpl i
         this.policyGenerator = policyGenerator;
         this.packagePermission = packagePermission;
         this.crudModuleService = crudModuleService;
+        this.sessionUserService = sessionUserService;
     }
 
     @Override
@@ -69,11 +75,16 @@ public class CrudPackageServiceImpl extends CrudPackageServiceCECompatibleImpl i
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
         }
 
+        Mono<User> userMono = sessionUserService.getCurrentUser().cache();
+
         return workspaceService
                 .findById(workspaceId, workspacePermission.getPackageCreatePermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.WORKSPACE_ID, workspaceId)))
-                .flatMap(workspace -> {
+                .zipWith(userMono)
+                .flatMap(tuple2 -> {
+                    Workspace workspace = tuple2.getT1();
+                    User currentUser = tuple2.getT2();
                     packageToBeCreated.setWorkspaceId(workspace.getId());
                     packageToBeCreated.setIcon(packageToBeCreated.getIcon());
                     packageToBeCreated.setColor(packageToBeCreated.getColor());
@@ -88,6 +99,7 @@ public class CrudPackageServiceImpl extends CrudPackageServiceCECompatibleImpl i
                     Set<Policy> policies = policyGenerator.getAllChildPolicies(
                             workspace.getPolicies(), Workspace.class, Package.class);
                     packageToBeCreated.setPolicies(policies);
+                    packageToBeCreated.setModifiedBy(currentUser.getUsername());
 
                     return createSuffixedPackage(packageToBeCreated, packageToBeCreated.getName(), 0);
                 });
@@ -145,17 +157,24 @@ public class CrudPackageServiceImpl extends CrudPackageServiceCECompatibleImpl i
     @Override
     @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_query_module_enabled)
     public Mono<Package> updatePackage(Package packageResource, String packageId) {
+        Mono<User> userMono = sessionUserService.getCurrentUser().cache();
+
         return packageRepository
                 .findById(packageId, packagePermission.getEditPermission())
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PACKAGE_ID, packageId)))
-                .flatMap(dbPackage -> {
+                .zipWith(userMono)
+                .flatMap(tuple2 -> {
+                    Package dbPackage = tuple2.getT1();
+                    User currentUser = tuple2.getT2();
                     Update updateObj = prepareUpdatableFieldsForPackage(packageResource);
 
                     if (updateObj.getUpdateObject().isEmpty()) {
                         dbPackage.setName(dbPackage.getUnpublishedPackage().getName());
                         return Mono.just(dbPackage);
                     }
+                    updateObj.set(fieldName(QPackage.package$.updatedAt), Instant.now());
+                    updateObj.set(fieldName(QPackage.package$.modifiedBy), currentUser.getUsername());
 
                     return packageRepository
                             .update(packageId, updateObj, packagePermission.getEditPermission())
@@ -195,6 +214,8 @@ public class CrudPackageServiceImpl extends CrudPackageServiceCECompatibleImpl i
         packageDTO.setColor(aPackage.getColor());
         packageDTO.setPackageUUID(aPackage.getPackageUUID());
         packageDTO.setUserPermissions(aPackage.getUserPermissions());
+        packageDTO.setModifiedAt(aPackage.getLastUpdateTime());
+        packageDTO.setModifiedBy(aPackage.getModifiedBy());
 
         return Mono.just(packageDTO);
     }

@@ -43,4 +43,12 @@ public class PackageDTO implements Identifiable {
     @Transient
     @JsonView(Views.Public.class)
     public Set<String> userPermissions = new HashSet<>();
+
+    @Transient
+    @JsonView(Views.Public.class)
+    String modifiedAt;
+
+    @Transient
+    @JsonView(Views.Public.class)
+    String modifiedBy;
 }

@@ -63,7 +63,7 @@ public class CrudPackageServiceTest {
     @Autowired
     EnvironmentPermission environmentPermission;
 
-    @MockBean
+    @SpyBean
     FeatureFlagService featureFlagService;
 
     @SpyBean
@@ -146,7 +146,7 @@ public class CrudPackageServiceTest {
         StepVerifier.create(allPackagesMono)
                 .assertNext(allPackages -> {
                     assertThat(allPackages).isNotNull();
-                    assertThat(allPackages).size().isEqualTo(2);
+                    assertThat(allPackages).size().isGreaterThanOrEqualTo(2);
                     packageId.set(allPackages.get(0).getId());
                 })
                 .verifyComplete();
@@ -175,5 +175,46 @@ public class CrudPackageServiceTest {
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
                         && throwable.getMessage().equals("Please enter a valid parameter name."))
                 .verify();
+    }
+
+    @WithUserDetails(value = "api_user")
+    @Test
+    public void updatePackageWithValidInput() {
+        final Package aPackage = new Package();
+        aPackage.setName("Package X");
+        aPackage.setColor("#C2DAF0");
+        aPackage.setIcon("rupee");
+
+        AtomicReference<String> packageId = new AtomicReference<>();
+        AtomicReference<Package> testPackageRef = new AtomicReference<>();
+
+        // create package test
+        Mono<Package> firstPackageMono = crudPackageService.createPackage(aPackage, workspaceId);
+
+        User currentUser = sessionUserService.getCurrentUser().block();
+
+        StepVerifier.create(firstPackageMono)
+                .assertNext(createdPackage -> {
+                    assertThat(createdPackage.getId()).isNotEmpty();
+                    packageId.set(createdPackage.getId());
+                    testPackageRef.set(createdPackage);
+                    assertThat(createdPackage.getName()).isEqualTo(aPackage.getName());
+                })
+                .verifyComplete();
+
+        Package testPackage = testPackageRef.get();
+        testPackage.setName("PackageX-V2");
+        testPackage.setIcon("package");
+
+        Mono<Package> updatePackageMono = crudPackageService.updatePackage(testPackage, testPackage.getId());
+
+        StepVerifier.create(updatePackageMono)
+                .assertNext(updatedPackage -> {
+                    assertThat(updatedPackage.getName()).isEqualTo(testPackage.getName());
+                    assertThat(updatedPackage.getIcon()).isEqualTo(testPackage.getIcon());
+                    assertThat(updatedPackage.getModifiedBy()).isEqualTo(currentUser.getUsername());
+                    assertThat(updatedPackage.getLastUpdateTime()).isNotEmpty();
+                })
+                .verifyComplete();
     }
 }
