@@ -191,18 +191,27 @@ function PlainTextCell(
     }
   }, [value, isCellEditMode]);
 
+  const currency = useMemo(
+    () => CurrencyDropdownOptions.find((d) => d.value === currencyCode),
+    [currencyCode],
+  );
+
   const formattedValue = useMemo(() => {
     if (columnType === ColumnTypes.CURRENCY) {
       try {
         const floatVal = parseFloat(value);
 
-        return isNaN(floatVal)
-          ? value
-          : Intl.NumberFormat(getLocale(), {
-              style: "decimal",
-              minimumFractionDigits: decimals,
-              maximumFractionDigits: decimals,
-            }).format(floatVal);
+        return (
+          currency?.id +
+          " " +
+          (isNaN(floatVal)
+            ? value
+            : Intl.NumberFormat(getLocale(), {
+                style: "decimal",
+                minimumFractionDigits: decimals,
+                maximumFractionDigits: decimals,
+              }).format(floatVal))
+        );
       } catch (e) {
         Sentry.captureException(e);
         return value;
@@ -210,7 +219,7 @@ function PlainTextCell(
     } else {
       return value;
     }
-  }, [value, decimals]);
+  }, [value, decimals, currencyCode]);
 
   if (isCellEditMode) {
     const [inputType, inputHTMLType] = (() => {
