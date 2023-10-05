@@ -1722,11 +1722,11 @@ export const CLEAN_URL_UPDATE = {
 export const MEMBERS_TAB_TITLE = (
   length: number,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  cloudHosting?: boolean,
+  isFreeInstance?: boolean,
 ) => `Users (${length})`;
 export const SEARCH_USERS = (
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  cloudHosting?: boolean,
+  isFreeInstance?: boolean,
 ) => `Search for users`;
 
 export const CREATE_PAGE = () => "New blank page";
