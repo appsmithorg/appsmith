@@ -364,16 +364,19 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
 
     @Override
     public Mono<Application> publishAsCommunityTemplate(CommunityTemplateDTO resource) {
-        return importExportApplicationService
-                .exportApplicationById(resource.getApplicationId(), resource.getBranchName())
-                .flatMap(appJson -> uploadCommunityTemplateToCS(
-                        createCommunityTemplateUploadDTO(resource.getApplicationId(), appJson, resource)))
-                .then(updateApplicationFlags(resource.getApplicationId(), resource.getBranchName()))
+        return updateApplicationFlags(resource.getApplicationId(), resource.getBranchName())
                 .flatMap(application -> {
                     ApplicationAccessDTO applicationAccessDTO = new ApplicationAccessDTO();
                     applicationAccessDTO.setPublicAccess(true);
                     return applicationService.changeViewAccess(
                             application.getId(), resource.getBranchName(), applicationAccessDTO);
+                })
+                .flatMap(application -> {
+                    importExportApplicationService
+                            .exportApplicationById(resource.getApplicationId(), resource.getBranchName())
+                            .flatMap(appJson -> uploadCommunityTemplateToCS(
+                                    createCommunityTemplateUploadDTO(resource.getApplicationId(), appJson, resource)));
+                    return Mono.just(application);
                 });
     }
 }
