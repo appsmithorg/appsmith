@@ -51,6 +51,7 @@ public class UserServiceImpl extends UserServiceCECompatibleImpl implements User
             EmailVerificationTokenRepository emailVerificationTokenRepository,
             EmailService emailService,
             RateLimitService rateLimitService,
+            PACConfigurationService pacConfigurationService,
             UserServiceHelper userServiceHelper) {
         super(
                 scheduler,
@@ -77,6 +78,7 @@ public class UserServiceImpl extends UserServiceCECompatibleImpl implements User
                 emailVerificationTokenRepository,
                 emailService,
                 rateLimitService,
+                pacConfigurationService,
                 userServiceHelper);
     }
 }

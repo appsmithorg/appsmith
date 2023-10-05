@@ -35,6 +35,7 @@ import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.EmailService;
+import com.appsmith.server.services.PACConfigurationService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.TenantService;
@@ -86,7 +87,6 @@ import java.util.UUID;
 import java.util.regex.Pattern;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_USERS;
-import static com.appsmith.server.constants.AccessControlConstants.UPGRADE_TO_BUSINESS_EDITION_TO_ACCESS_ROLES_AND_GROUPS_FOR_CONDITIONAL_BUSINESS_LOGIC;
 import static com.appsmith.server.helpers.RedirectHelper.DEFAULT_REDIRECT_URL;
 import static com.appsmith.server.helpers.ValidationUtils.LOGIN_PASSWORD_MAX_LENGTH;
 import static com.appsmith.server.helpers.ValidationUtils.LOGIN_PASSWORD_MIN_LENGTH;
@@ -114,6 +114,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
     private final UserUtils userUtils;
     private final EmailService emailService;
     private final RateLimitService rateLimitService;
+    private final PACConfigurationService pacConfigurationService;
 
     private final UserServiceHelper userPoliciesComputeHelper;
 
@@ -155,6 +156,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
             EmailVerificationTokenRepository emailVerificationTokenRepository,
             EmailService emailService,
             RateLimitService rateLimitService,
+            PACConfigurationService pacConfigurationService,
             UserServiceHelper userServiceHelper) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
@@ -174,6 +176,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         this.emailVerificationTokenRepository = emailVerificationTokenRepository;
         this.emailService = emailService;
         this.userPoliciesComputeHelper = userServiceHelper;
+        this.pacConfigurationService = pacConfigurationService;
     }
 
     @Override
@@ -737,18 +740,9 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                             commonConfig.isCloudHosting() ? true : userData.isIntercomConsentGiven());
                     profile.setSuperUser(isSuperUser);
                     profile.setConfigurable(!StringUtils.isEmpty(commonConfig.getEnvFilePath()));
-                    return setRolesAndGroups(profile, userFromDb, true, commonConfig.isCloudHosting());
+                    return pacConfigurationService.setRolesAndGroups(
+                            profile, userFromDb, true, commonConfig.isCloudHosting());
                 });
-    }
-
-    protected Mono<UserProfileDTO> setRolesAndGroups(
-            UserProfileDTO profile, User user, boolean showRolesAndGroups, boolean isCloudHosting) {
-        profile.setRoles(
-                List.of(UPGRADE_TO_BUSINESS_EDITION_TO_ACCESS_ROLES_AND_GROUPS_FOR_CONDITIONAL_BUSINESS_LOGIC));
-        profile.setGroups(
-                List.of(UPGRADE_TO_BUSINESS_EDITION_TO_ACCESS_ROLES_AND_GROUPS_FOR_CONDITIONAL_BUSINESS_LOGIC));
-
-        return Mono.just(profile);
     }
 
     private EmailTokenDTO parseValueFromEncryptedToken(String encryptedToken) {
@@ -797,7 +791,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                     }
                     return tenantService.getTenantConfiguration().flatMap(tenant -> {
                         Boolean emailVerificationEnabled =
-                                tenant.getTenantConfiguration().getEmailVerificationEnabled();
+                                tenant.getTenantConfiguration().isEmailVerificationEnabled();
                         // Email verification not enabled at tenant
                         if (!TRUE.equals(emailVerificationEnabled)) {
                             return Mono.error(
