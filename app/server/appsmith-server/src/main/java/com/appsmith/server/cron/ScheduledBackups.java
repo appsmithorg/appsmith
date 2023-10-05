@@ -1,5 +1,6 @@
 package com.appsmith.server.cron;
 
+import com.appsmith.server.cron.helpers.BackupHelper;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -9,13 +10,7 @@ import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.stereotype.Component;
 
-import java.io.File;
-import java.io.IOException;
 import java.nio.file.Path;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.TimeZone;
 
 @Slf4j
 @Component
@@ -24,10 +19,10 @@ public class ScheduledBackups {
 
     private final TaskScheduler taskScheduler;
 
+    private final BackupHelper backupHelper;
+
     @Value("${appsmith.backup-cron:}")
     private String cronExpression;
-
-    private DateFormat dateFormat;
 
     private static final Path BACKUP_PATH = Path.of("/appsmith-stacks/logs/appsmithctl/backup");
 
@@ -48,29 +43,12 @@ public class ScheduledBackups {
             effectiveExpression = "0 " + effectiveExpression;
         }
 
-        if (!BACKUP_PATH.toFile().mkdirs()) {
+        // Create the backup logs directory if it doesn't exist.
+        if (!BACKUP_PATH.toFile().exists() && !BACKUP_PATH.toFile().mkdirs()) {
             log.error("Unable to create backup logs directory");
             return;
         }
 
-        dateFormat = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
-        dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-
-        taskScheduler.schedule(this::takeBackup, new CronTrigger(effectiveExpression));
-    }
-
-    public void takeBackup() {
-        final File logFile =
-                BACKUP_PATH.resolve(dateFormat.format(new Date()) + ".log").toFile();
-
-        try {
-            new ProcessBuilder()
-                    .command("appsmithctl", "backup", "--upload-to-s3")
-                    .redirectErrorStream(true)
-                    .redirectOutput(logFile)
-                    .start();
-        } catch (IOException e) {
-            log.error("Failed to take backup", e);
-        }
+        taskScheduler.schedule(() -> backupHelper.takeBackup(BACKUP_PATH), new CronTrigger(effectiveExpression));
     }
 }

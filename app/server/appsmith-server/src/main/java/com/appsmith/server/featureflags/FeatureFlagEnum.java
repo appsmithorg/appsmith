@@ -102,4 +102,9 @@ public enum FeatureFlagEnum {
      * Feature flag to detect if Branch Configuration is supported for the tenant
      */
     license_git_branch_protection_enabled,
+
+    /**
+     * Feature flag to detect if scheduled backup is supported for the tenant
+     */
+    license_scheduled_backup_enabled,
 }
