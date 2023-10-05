@@ -1,14 +1,9 @@
 import type { RefObject } from "react";
 import type { TextFieldAria } from "@react-aria/textfield";
-import type { PressEvents, StyleProps } from "@react-types/shared";
+
 import type { OmitedSpectrumTextFieldProps } from "../../TextInput";
 
-export interface TextInputBaseProps
-  extends Omit<
-      OmitedSpectrumTextFieldProps,
-      "onChange" | "icon" | keyof StyleProps
-    >,
-    PressEvents {
+export interface TextInputBaseProps extends OmitedSpectrumTextFieldProps {
   /** classname for the input element */
   inputClassName?: string;
   /** indicates if the component is textarea */

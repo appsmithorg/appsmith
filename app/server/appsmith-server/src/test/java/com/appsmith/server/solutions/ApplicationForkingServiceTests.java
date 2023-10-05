@@ -13,6 +13,7 @@ import com.appsmith.external.models.JSValue;
 import com.appsmith.external.models.OAuth2;
 import com.appsmith.external.models.PEMCertificate;
 import com.appsmith.external.models.PluginType;
+import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.models.UploadedFile;
@@ -45,6 +46,7 @@ import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.PluginRepository;
+import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
@@ -182,6 +184,15 @@ public class ApplicationForkingServiceTests {
 
     @Autowired
     private EnvironmentPermission environmentPermission;
+
+    @Autowired
+    private PagePermission pagePermission;
+
+    @Autowired
+    private WorkspacePermission workspacePermission;
+
+    @Autowired
+    private WorkspaceRepository workspaceRepository;
 
     private Plugin installedPlugin;
 
@@ -582,6 +593,98 @@ public class ApplicationForkingServiceTests {
                     });
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void test5_failForkApplication_noPageEditPermission() {
+        Workspace targetWorkspace = new Workspace();
+        targetWorkspace.setName("Target Workspace");
+        targetWorkspace = workspaceService.create(targetWorkspace).block();
+
+        Application application = applicationService.findById(sourceAppId).block();
+        String appPageId = application.getPages().get(0).getId();
+        NewPage appPage = newPageRepository.findById(appPageId).block();
+        Set<Policy> existingPolicies = appPage.getPolicies();
+        /*
+         * We take away all Manage Page permissions for existing page.
+         * Now since, no one has the permissions to existing page, the application forking will fail.
+         */
+        Set<Policy> newPoliciesWithoutEdit = existingPolicies.stream()
+                .filter(policy -> !policy.getPermission()
+                        .equals(pagePermission.getEditPermission().getValue()))
+                .collect(Collectors.toSet());
+        appPage.setPolicies(newPoliciesWithoutEdit);
+        NewPage updatedGitAppPage = newPageRepository.save(appPage).block();
+
+        final Mono<ApplicationImportDTO> resultMono =
+                applicationForkingService.forkApplicationToWorkspace(sourceAppId, targetWorkspace.getId(), null);
+
+        StepVerifier.create(resultMono)
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && throwable
+                                .getMessage()
+                                .equals(AppsmithError.APPLICATION_NOT_FORKED_MISSING_PERMISSIONS.getMessage(
+                                        "page", appPageId)))
+                .verify();
+        updatedGitAppPage.setPolicies(existingPolicies);
+        NewPage setPoliciesBack = newPageRepository.save(updatedGitAppPage).block();
+
+        Mono<List<Application>> applicationsInWorkspace = applicationService
+                .findAllApplicationsByWorkspaceId(targetWorkspace.getId())
+                .collectList();
+        /*
+         * Check that no applications have been created in the Target Workspace
+         */
+        StepVerifier.create(applicationsInWorkspace)
+                .assertNext(applications -> assertThat(applications).isEmpty());
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void test6_failForkApplication_noDatasourceCreatePermission() {
+        Workspace targetWorkspace = new Workspace();
+        targetWorkspace.setName("Target Workspace");
+        targetWorkspace = workspaceService.create(targetWorkspace).block();
+        final String workspaceId = targetWorkspace.getId();
+
+        Set<Policy> existingPolicies = targetWorkspace.getPolicies();
+        /*
+         * We take away Workspace Datasource Permission for Target Workspace.
+         * Now since, no one has the permissions for Target Workspace, the application forking will fail.
+         */
+        Set<Policy> newPoliciesWithoutCreateDatasource = existingPolicies.stream()
+                .filter(policy -> !policy.getPermission()
+                        .equals(workspacePermission
+                                .getDatasourceCreatePermission()
+                                .getValue()))
+                .collect(Collectors.toSet());
+        targetWorkspace.setPolicies(newPoliciesWithoutCreateDatasource);
+        Workspace updatedargetWorkspace =
+                workspaceRepository.save(targetWorkspace).block();
+
+        final Mono<ApplicationImportDTO> resultMono =
+                applicationForkingService.forkApplicationToWorkspace(sourceAppId, targetWorkspace.getId(), null);
+
+        StepVerifier.create(resultMono)
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && throwable
+                                .getMessage()
+                                .equals(AppsmithError.APPLICATION_NOT_FORKED_MISSING_PERMISSIONS.getMessage(
+                                        "workspace", workspaceId)))
+                .verify();
+        targetWorkspace.setPolicies(existingPolicies);
+        Workspace setPoliciesBack =
+                workspaceRepository.save(updatedargetWorkspace).block();
+
+        Mono<List<Application>> applicationsInWorkspace = applicationService
+                .findAllApplicationsByWorkspaceId(targetWorkspace.getId())
+                .collectList();
+        /*
+         * Check that no applications have been created in the Target Workspace
+         */
+        StepVerifier.create(applicationsInWorkspace)
+                .assertNext(applications -> assertThat(applications).isEmpty());
     }
 
     @Test

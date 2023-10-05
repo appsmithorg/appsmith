@@ -3,77 +3,85 @@ import log from "loglevel";
 import memoizeOne from "memoize-one";
 
 import _, {
-  isNumber,
-  isString,
-  isNil,
-  xor,
-  without,
-  isArray,
-  xorWith,
-  isEmpty,
-  union,
-  isObject,
-  pickBy,
-  orderBy,
   filter,
+  isArray,
+  isEmpty,
+  isNil,
+  isNumber,
+  isObject,
+  isString,
   merge,
+  orderBy,
+  pickBy,
+  union,
+  without,
+  xor,
+  xorWith,
 } from "lodash";
 
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
-import { RenderModes, WIDGET_PADDING } from "constants/WidgetConstants";
+import {
+  RenderModes,
+  WIDGET_PADDING,
+  WIDGET_TAGS,
+} from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import Skeleton from "components/utils/Skeleton";
 import { noop, retryPromise } from "utils/AppsmithUtils";
-import { SORT_ORDER } from "../component/Constants";
-import { StickyType } from "../component/Constants";
-import type { ReactTableFilter } from "../component/Constants";
-import { AddNewRowActions, DEFAULT_FILTER } from "../component/Constants";
+import type {
+  ColumnProperties,
+  ReactTableColumnProps,
+  ReactTableFilter,
+} from "../component/Constants";
+import {
+  AddNewRowActions,
+  CompactModeTypes,
+  DEFAULT_FILTER,
+  SORT_ORDER,
+  SortOrderTypes,
+  StickyType,
+} from "../component/Constants";
 import type {
   EditableCell,
   OnColumnEventArgs,
   TableWidgetProps,
   TransientDataPayload,
 } from "../constants";
-import { ALLOW_TABLE_WIDGET_SERVER_SIDE_FILTERING } from "../constants";
 import {
   ActionColumnTypes,
   ColumnTypes,
-  defaultEditableCell,
   DEFAULT_BUTTON_LABEL,
   DEFAULT_COLUMN_WIDTH,
   DEFAULT_MENU_BUTTON_LABEL,
   DEFAULT_MENU_VARIANT,
+  defaultEditableCell,
   EditableCellActions,
   InlineEditingSaveOptions,
   ORIGINAL_INDEX_KEY,
-  TABLE_COLUMN_ORDER_KEY,
   PaginationDirection,
+  TABLE_COLUMN_ORDER_KEY,
 } from "../constants";
 import derivedProperties from "./parseDerivedProperties";
 import {
+  createEditActionColumn,
+  deleteLocalTableColumnOrderByWidgetId,
+  generateLocalNewColumnOrderFromStickyValue,
+  generateNewColumnOrderFromStickyValue,
+  getAllStickyColumnsCount,
   getAllTableColumnKeys,
+  getBooleanPropertyValue,
+  getCellProperties,
+  getColumnOrderByWidgetIdFromLS,
+  getColumnType,
   getDefaultColumnProperties,
   getDerivedColumns,
-  getTableStyles,
   getSelectRowIndex,
   getSelectRowIndices,
-  getCellProperties,
+  getTableStyles,
   isColumnTypeEditable,
-  getColumnType,
-  getBooleanPropertyValue,
-  deleteLocalTableColumnOrderByWidgetId,
-  getColumnOrderByWidgetIdFromLS,
-  generateLocalNewColumnOrderFromStickyValue,
   updateAndSyncTableLocalColumnOrders,
-  getAllStickyColumnsCount,
-  createEditActionColumn,
 } from "./utilities";
-import type {
-  ColumnProperties,
-  ReactTableColumnProps,
-} from "../component/Constants";
-import { CompactModeTypes, SortOrderTypes } from "../component/Constants";
 import contentConfig from "./propertyConfig/contentConfig";
 import styleConfig from "./propertyConfig/styleConfig";
 import type { BatchPropertyUpdatePayload } from "actions/controlActions";
@@ -82,8 +90,8 @@ import { IconNames } from "@blueprintjs/icons";
 import { Colors } from "constants/Colors";
 import equal from "fast-deep-equal/es6";
 import {
-  sanitizeKey,
   DefaultAutocompleteDefinitions,
+  sanitizeKey,
 } from "widgets/WidgetUtils";
 import PlainTextCell from "../component/cellComponents/PlainTextCell";
 import { ButtonCell } from "../component/cellComponents/ButtonCell";
@@ -98,7 +106,6 @@ import { SwitchCell } from "../component/cellComponents/SwitchCell";
 import { SelectCell } from "../component/cellComponents/SelectCell";
 import { CellWrapper } from "../component/TableStyledWrappers";
 import localStorage from "utils/localStorage";
-import { generateNewColumnOrderFromStickyValue } from "./utilities";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { DateCell } from "../component/cellComponents/DateCell";
 import type { MenuItem } from "widgets/MenuButtonWidget/constants";
@@ -113,20 +120,19 @@ import type {
 import { getMemoiseTransformDataWithEditableCell } from "./reactTableUtils/transformDataPureFn";
 import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
-import type { AutocompletionDefinitions } from "WidgetProvider/constants";
+import type {
+  AutocompletionDefinitions,
+  PropertyUpdates,
+  SnipingModeProperty,
+} from "WidgetProvider/constants";
 import type {
   WidgetQueryConfig,
   WidgetQueryGenerationFormConfig,
 } from "WidgetQueryGenerators/types";
 import type { DynamicPath } from "utils/DynamicBindingUtils";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
+import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import IconSVG from "../icon.svg";
-import type {
-  PropertyUpdates,
-  SnipingModeProperty,
-} from "WidgetProvider/constants";
-import { WIDGET_TAGS } from "constants/WidgetConstants";
 
 const ReactTableComponent = lazy(() =>
   retryPromise(() => import("../component")),
@@ -204,11 +210,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       delimiter: ",",
       version: 2,
       inlineEditingSaveOption: InlineEditingSaveOptions.ROW_LEVEL,
-      enableServerSideFiltering: TableWidgetV2.getFeatureFlag(
-        ALLOW_TABLE_WIDGET_SERVER_SIDE_FILTERING,
-      )
-        ? false
-        : undefined,
+      enableServerSideFiltering: false,
     };
   }
 
@@ -337,6 +339,12 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           },
         ];
       },
+      getOneClickBindingConnectableWidgetConfig: (widget: WidgetProps) => {
+        return {
+          widgetBindPath: `${widget.widgetName}.selectedRow`,
+          message: `Make sure ${widget.widgetName} is bound to the same data source`,
+        };
+      },
     };
   }
 
@@ -430,11 +438,8 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         isAddRowInProgress: "bool",
         previousPageVisited: generateTypeDef(widget.previousPageVisited),
         nextPageVisited: generateTypeDef(widget.nextPageButtonClicked),
+        filters: generateTypeDef(widget.filters),
       };
-
-      if (this.getFeatureFlag(ALLOW_TABLE_WIDGET_SERVER_SIDE_FILTERING)) {
-        config["filters"] = generateTypeDef(widget.filters);
-      }
 
       return config;
     };
@@ -1026,7 +1031,10 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
         pushBatchMetaUpdates("selectedRowIndex", -1);
       } else {
-        if (!isNil(defaultSelectedRowIndex) && defaultSelectedRowIndex > -1) {
+        if (
+          !isNil(defaultSelectedRowIndex) &&
+          parseInt(defaultSelectedRowIndex?.toString(), 10) > -1
+        ) {
           pushBatchMetaUpdates("selectedRowIndex", defaultSelectedRowIndex);
         }
 

@@ -30,19 +30,12 @@ describe("Array Datatype tests", function () {
     agHelper.RenameWithInPane("createTable");
     dataSources.RunQuery();
 
-    entityExplorer.ExpandCollapseEntity("Datasources");
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: dsName,
-      action: "Refresh",
-    });
-    agHelper.AssertElementVisibility(
-      entityExplorer._entityNameInExplorer("public.arraytypes"),
-    );
+    dataSources.AssertTableInVirtuosoList(dsName, "public.arraytypes");
 
     //Creating SELECT query - arraytypes + Bug 14493
     entityExplorer.ActionTemplateMenuByEntityName(
       "public.arraytypes",
-      "SELECT",
+      "Select",
     );
     agHelper.RenameWithInPane("selectRecords");
     dataSources.RunQuery();

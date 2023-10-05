@@ -33,7 +33,7 @@ RUN curl --silent --show-error --location https://www.mongodb.org/static/pgp/ser
   && echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" | tee /etc/apt/sources.list.d/pgdg.list \
   && curl --silent --show-error --location https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - \
   && apt update \
-  && apt-get install --no-install-recommends --yes mongodb-org nodejs redis build-essential postgresql-13 \
+  && apt-get install --no-install-recommends --yes mongodb-org nodejs redis postgresql-13 \
   && apt-get clean \
   # This is to get semver 7.5.2, for a CVE fix, might be able to remove it with later versions on NodeJS.
   && npm install -g npm@9.7.2
@@ -53,7 +53,8 @@ RUN rm -rf \
 VOLUME [ "/appsmith-stacks" ]
 
 # ------------------------------------------------------------------------
-ENV TMP /tmp/appsmith
+ENV TMP="/tmp/appsmith"
+ENV NGINX_WWW_PATH="$TMP/www"
 
 # Add backend server - Application Layer
 ARG JAR_FILE=./app/server/dist/server-*.jar
@@ -77,13 +78,14 @@ COPY ${PLUGIN_JARS} backend/plugins/
 COPY ./app/client/build editor/
 
 # Add RTS - Application Layer
-COPY ./app/client/packages/rts/package.json ./app/client/packages/rts/dist rts/
+COPY ./app/client/packages/rts/dist rts/
 
 RUN cd ./utils && npm install --only=prod && npm install --only=prod -g . && cd - \
   && chmod 0644 /etc/cron.d/* \
-  && chmod +x entrypoint.sh renew-certificate.sh healthcheck.sh /watchtower-hooks/*.sh \
+  && chmod +x entrypoint.sh renew-certificate.sh healthcheck.sh templates/nginx-app.conf.sh /watchtower-hooks/*.sh \
   # Disable setuid/setgid bits for the files inside container.
-  && find / \( -path /proc -prune \) -o \( \( -perm -2000 -o -perm -4000 \) -print -exec chmod -s '{}' + \) || true
+  && find / \( -path /proc -prune \) -o \( \( -perm -2000 -o -perm -4000 \) -print -exec chmod -s '{}' + \) || true \
+  && node prepare-image.mjs
 
 # Update path to load appsmith utils tool as default
 ENV PATH /opt/appsmith/utils/node_modules/.bin:$PATH

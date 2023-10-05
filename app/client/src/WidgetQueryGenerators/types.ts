@@ -1,3 +1,11 @@
+import type { AlertMessage } from "components/editorComponents/WidgetQueryGeneratorForm/types";
+
+type Column = {
+  name: string;
+  type: string;
+  isSelected: boolean;
+};
+
 type GsheetConfig = {
   sheetName?: string;
   tableHeaderIndex?: number;
@@ -11,9 +19,12 @@ export type WidgetQueryGenerationFormConfig = {
   }[];
   widgetId: string;
   searchableColumn: string;
-  columns: string[];
+  columns: Column[];
   primaryColumn: string;
   connectionMode: string;
+  otherFields?: Record<string, unknown>;
+  alertMessage?: AlertMessage;
+  dataIdentifier?: string;
 } & GsheetConfig;
 
 export type WidgetQueryGenerationConfig = {

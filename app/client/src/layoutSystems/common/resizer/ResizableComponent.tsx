@@ -9,7 +9,7 @@ import {
   WidgetHeightLimits,
 } from "constants/WidgetConstants";
 import { get, omit } from "lodash";
-import type { XYCord } from "layoutSystems/common/CanvasArenas/ArenaTypes";
+import type { XYCord } from "layoutSystems/common/canvasArenas/ArenaTypes";
 import React, { memo, useContext, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AutoLayoutResizable } from "layoutSystems/autolayout/common/resizer/AutoLayoutResizable";
@@ -29,7 +29,7 @@ import {
   isWidgetSelected,
 } from "selectors/widgetSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
+import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import {
   getWidgetHeight,
   getWidgetWidth,
@@ -47,7 +47,7 @@ import {
   isAutoHeightEnabledForWidget,
   isAutoHeightEnabledForWidgetWithLimits,
 } from "widgets/WidgetUtils";
-import { DropTargetContext } from "../../../components/editorComponents/DropTargetComponent";
+import { DropTargetContext } from "../dropTarget/DropTargetComponent";
 import {
   BottomHandleStyles,
   BottomLeftHandleStyles,

@@ -9,7 +9,7 @@ import IconSVG from "../icon.svg";
 import type { BaseInputWidgetProps } from "./types";
 import { propertyPaneContentConfig } from "./contentConfig";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
+import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import type { WidgetBaseConfiguration } from "WidgetProvider/constants";
 
 class BaseInputWidget<
