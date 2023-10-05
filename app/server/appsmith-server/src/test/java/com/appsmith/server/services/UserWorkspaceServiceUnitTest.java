@@ -3,6 +3,7 @@ package com.appsmith.server.services;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.PermissionGroup;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.MemberInfoDTO;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;
@@ -62,6 +63,9 @@ public class UserWorkspaceServiceUnitTest {
     @Autowired
     ApplicationPageService applicationPageService;
 
+    @Autowired
+    SessionUserService sessionUserService;
+
     ModelMapper modelMapper;
 
     Workspace workspace;
@@ -70,18 +74,28 @@ public class UserWorkspaceServiceUnitTest {
     public void setUp() {
         modelMapper = new ModelMapper();
 
+        User currentUser = sessionUserService.getCurrentUser().block();
+        if (null == currentUser) {
+            // Do not proceed with further setup, because user context doesn't exist.
+            return;
+        }
+
         // create a workspace object
         Workspace testWorkspace = new Workspace();
         testWorkspace.setName("Get All Members For Workspace Test");
         testWorkspace.setDomain("test.com");
         testWorkspace.setWebsite("https://test.com");
-        testWorkspace.setId("test-org-id");
 
         workspace = workspaceService.create(testWorkspace).block();
     }
 
     @AfterEach
     public void cleanup() {
+        User currentUser = sessionUserService.getCurrentUser().block();
+        if (null == currentUser) {
+            // Do not proceed with cleanup, because user context doesn't exist.
+            return;
+        }
         List<Application> deletedApplications = applicationService
                 .findByWorkspaceId(workspace.getId(), applicationPermission.getDeletePermission())
                 .flatMap(remainingApplication -> applicationPageService.deleteApplication(remainingApplication.getId()))
