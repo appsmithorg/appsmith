@@ -2,18 +2,15 @@ package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BranchAwareDomain;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.helpers.CollectionUtils;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -23,8 +20,8 @@ import java.util.Set;
 @Setter
 @ToString
 @NoArgsConstructor
-@Document
-public class CustomJSLib extends BranchAwareDomain {
+public class CustomJSLibCompatibilityDTO extends BranchAwareDomain {
+
     /* Library name */
     String name;
 
@@ -38,7 +35,7 @@ public class CustomJSLib extends BranchAwareDomain {
      * These are the namespaces under which the library functions reside. User would access lib methods like
      * `accessor.method`
      */
-    Set<Map<String, String>> accessor;
+    Set<String> accessor;
 
     /* Library UMD src url */
     String url;
@@ -54,9 +51,9 @@ public class CustomJSLib extends BranchAwareDomain {
     String defs;
 
     @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
-    public CustomJSLib(
+    public CustomJSLibCompatibilityDTO(
             @JsonProperty("name") String name,
-            @JsonProperty("accessor") Set<Map<String, String>> accessor,
+            @JsonProperty("accessor") Set<String> accessor,
             @JsonProperty("url") String url,
             @JsonProperty("docsUrl") String docsUrl,
             @JsonProperty("version") String version,
@@ -70,59 +67,37 @@ public class CustomJSLib extends BranchAwareDomain {
         setUidString();
     }
 
-    public CustomJSLib(CustomJSLibCompatibilityDTO customJSLibCompatibilityDTO) {
-        this.setId(customJSLibCompatibilityDTO.getId());
-
-        this.setAccessor(transformAccessor(customJSLibCompatibilityDTO.getAccessor()));
-        this.setName(customJSLibCompatibilityDTO.getName());
-        this.setUidString(customJSLibCompatibilityDTO.getUidString());
-        this.setUrl(customJSLibCompatibilityDTO.getUrl());
-        this.setVersion(customJSLibCompatibilityDTO.getVersion());
-        this.setDocsUrl(customJSLibCompatibilityDTO.getDocsUrl());
-        this.setDefs(customJSLibCompatibilityDTO.getDefs());
-
-        // base domain
-        this.setCreatedAt(customJSLibCompatibilityDTO.getCreatedAt());
-        this.setUpdatedAt(customJSLibCompatibilityDTO.getUpdatedAt());
-        this.setPolicies(customJSLibCompatibilityDTO.getPolicies());
-
-        // branch aware domain
-        this.setDefaultResources(customJSLibCompatibilityDTO.getDefaultResources());
-        this.modifyAccessorValueForXMLParser();
-    }
-
-    public Set<Map<String, String>> transformAccessor(Set<String> accessorSet) {
-        Set<Map<String, String>> transformedAccessor = new HashSet<>();
-        for (String accessorValue : accessorSet) {
-            Map<String, String> accessorMap = new HashMap<>();
-            accessorMap.put(FieldName.ORIGINAL_ACCESSOR_KEY, accessorValue);
-            accessorMap.put(FieldName.MODIFIED_ACCESSOR_KEY, accessorValue);
-            transformedAccessor.add(accessorMap);
-        }
-
-        return transformedAccessor;
+    public CustomJSLibCompatibilityDTO(CustomJSLib customJSLib) {
+        this.setId(customJSLib.getId());
+        this.setAccessor(transformAccessor(customJSLib.getAccessor(), FieldName.MODIFIED_ACCESSOR_KEY));
+        this.setName(customJSLib.getName());
+        this.setUidString(customJSLib.getUidString());
+        this.setUrl(customJSLib.getUrl());
+        this.setVersion(customJSLib.getVersion());
+        this.setDocsUrl(customJSLib.getDocsUrl());
+        this.setDefs(customJSLib.getDefs());
+        this.setCreatedAt(customJSLib.getCreatedAt());
+        this.setUpdatedAt(customJSLib.getUpdatedAt());
+        this.setPolicies(customJSLib.getPolicies());
+        this.setDefaultResources(customJSLib.getDefaultResources());
     }
 
     /**
-     *
+     * extracts string from the map and returns a new set which contains extracted key
+     * @param accessorMapSet : Set of accessor maps
+     * @param accessorKey : the key which is used to extract value from the map
+     * @return  Set of Maps of String, String
      */
-    public void modifyAccessorValueForXMLParser() {
-        if (CollectionUtils.isNullOrEmpty(this.getAccessor())) {
-            return;
+    public static Set<String> transformAccessor(Set<Map<String, String>> accessorMapSet, String accessorKey) {
+        Set<String> transformedAccessor = new HashSet<>();
+        for (Map<String, String> accessorMap : accessorMapSet) {
+            transformedAccessor.add(accessorMap.get(accessorKey));
         }
-
-        for (Map<String, String> accessorMap : this.accessor) {
-            if (!accessorMap.get(FieldName.ORIGINAL_ACCESSOR_KEY).equals(FieldName.PARSER)) {
-                continue;
-            }
-
-            accessorMap.put(FieldName.MODIFIED_ACCESSOR_KEY, FieldName.XML_PARSER);
-        }
+        return transformedAccessor;
     }
 
     public void setUidString() {
-        List<String> accessorList = new ArrayList(
-                CustomJSLibCompatibilityDTO.transformAccessor(this.accessor, FieldName.ORIGINAL_ACCESSOR_KEY));
+        List<String> accessorList = new ArrayList(this.accessor);
         Collections.sort(accessorList);
         this.uidString = String.join("_", accessorList) + "_" + this.url;
     }
