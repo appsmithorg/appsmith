@@ -71,4 +71,24 @@ describe("", () => {
         "chartwidget/linechartWithRotateXAxisLabelOrientation",
       );
   });
+
+  it("4. Test x axis label orientation absence  in Pie, Bar, Custom Fusion Charts", () => {
+    propPane.SelectPropertiesDropDown("Chart Type", "Pie chart");
+    agHelper.AssertElementAbsence(
+      locators._selectPropPageDropdown("x-axis label orientation"),
+    );
+    propPane.SelectPropertiesDropDown("Chart Type", "Bar chart");
+    agHelper.AssertElementAbsence(
+      locators._selectPropPageDropdown("x-axis label orientation"),
+    );
+    propPane.SelectPropertiesDropDown("Chart Type", "Custom Fusion Charts");
+    agHelper.AssertElementAbsence(
+      locators._selectPropPageDropdown("x-axis label orientation"),
+    );
+    propPane.SelectPropertiesDropDown("Chart Type", "Column chart");
+    agHelper.AssertElementExist(
+      locators._selectPropPageDropdown("x-axis label orientation"),
+    );
+    deployMode.DeployApp();
+  });
 });
