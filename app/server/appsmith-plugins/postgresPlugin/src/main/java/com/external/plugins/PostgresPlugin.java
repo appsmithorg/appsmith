@@ -96,6 +96,7 @@ import static com.external.plugins.utils.PostgresDataTypeUtils.DataType.VARCHAR;
 import static com.external.plugins.utils.PostgresDataTypeUtils.extractExplicitCasting;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Slf4j
 public class PostgresPlugin extends BasePlugin {
@@ -295,7 +296,7 @@ public class PostgresPlugin extends BasePlugin {
             if (endpoints.size() > 0) {
                 String hostName = endpoints.get(0).getHost();
                 Long port = endpoints.get(0).getPort();
-                if (hostName != null && Boolean.FALSE.equals(hostName.isEmpty()) && port != null) {
+                if (hostName != null && Boolean.FALSE.equals(isBlank(hostName)) && port != null) {
                     identifier = hostName + "_" + port;
                 } else if (port == null) {
                     identifier = hostName;

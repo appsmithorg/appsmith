@@ -68,6 +68,7 @@ import static com.appsmith.server.helpers.DatasourceAnalyticsUtils.getAnalyticsP
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.springframework.util.StringUtils.hasText;
 
 @Slf4j
@@ -636,7 +637,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                     // In case of endpoint identifier as empty string, no rate limiting will be applied
                     // Currently this function is overridden only by postgresPlugin class, in future it will be done for
                     // all plugins wherever applicable.
-                    if (isFlagEnabled && Boolean.FALSE.equals(rateLimitIdentifier.isEmpty())) {
+                    if (isFlagEnabled && Boolean.FALSE.equals(isBlank(rateLimitIdentifier))) {
                         return rateLimitService.isEndpointBlockedForRequest(
                                 RateLimitConstants.BUCKET_KEY_FOR_TEST_DATASOURCE_API, rateLimitIdentifier);
                     } else {
@@ -656,7 +657,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                     // In case of endpoint identifier as empty string, no rate limiting will be applied
                     // Currently this function is overridden only by postgresPlugin class, in future it will be done for
                     // all plugins wherever applicable.
-                    if (isFlagEnabled && Boolean.FALSE.equals(rateLimitIdentifier.isEmpty())) {
+                    if (isFlagEnabled && Boolean.FALSE.equals(isBlank(rateLimitIdentifier))) {
                         return rateLimitService.tryIncreaseCounter(
                                 RateLimitConstants.BUCKET_KEY_FOR_TEST_DATASOURCE_API, rateLimitIdentifier);
                     } else {
