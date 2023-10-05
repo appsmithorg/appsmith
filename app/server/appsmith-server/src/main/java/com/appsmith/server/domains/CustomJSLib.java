@@ -111,7 +111,7 @@ public class CustomJSLib extends BranchAwareDomain {
             return;
         }
 
-        for (Map<String, String> accessorMap: this.accessor) {
+        for (Map<String, String> accessorMap : this.accessor) {
             if (!accessorMap.get(FieldName.ORIGINAL_ACCESSOR_KEY).equals(FieldName.PARSER)) {
                 continue;
             }
