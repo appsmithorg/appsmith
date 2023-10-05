@@ -195,6 +195,8 @@ export interface DateCellProperties {
 export interface CurrencyCellProperties {
   currencyCode: string;
   decimals: number;
+  thousandSeparator: boolean;
+  notation: Intl.NumberFormatOptions["notation"];
 }
 
 export interface BaseCellProperties {
@@ -340,6 +342,8 @@ export interface EditActionColumnProperties {
 export interface CurrencyColumnProperties {
   currencyCode?: string;
   decimals?: number;
+  thousandSeparator?: boolean;
+  notation?: Intl.NumberFormatOptions["notation"];
 }
 
 export interface ColumnProperties

@@ -2471,12 +2471,14 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             isEditableCellValid={this.isColumnCellValid(alias)}
             isHidden={isHidden}
             isNewRow={isNewRow}
+            notation={cellProperties.notation}
             onCellTextChange={this.onCellTextChange}
             onSubmitString={props.cell.column.columnProperties.onSubmit}
             rowIndex={rowIndex}
             tableWidth={this.props.componentWidth}
             textColor={cellProperties.textColor}
             textSize={cellProperties.textSize}
+            thousandSeparator={cellProperties.thousandSeparator}
             toggleCellEditMode={this.toggleCellEditMode}
             validationErrorMessage={validationErrorMessage}
             value={props.cell.value}

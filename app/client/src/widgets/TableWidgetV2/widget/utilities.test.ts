@@ -2,6 +2,7 @@ import type { ColumnProperties, TableStyles } from "../component/Constants";
 import { StickyType } from "../component/Constants";
 import { ColumnTypes } from "../constants";
 import {
+  convertNumToCompactString,
   escapeString,
   generateNewColumnOrderFromStickyValue,
   getAllTableColumnKeys,
@@ -2669,5 +2670,24 @@ describe("getSelectOptions", () => {
         value: "abc",
       },
     ]);
+  });
+});
+
+describe("convertNumToCompactString", () => {
+  it("formats a number in thousands (K)", () => {
+    expect(convertNumToCompactString(5000)).toBe("5.0K");
+    expect(convertNumToCompactString(9999)).toBe("10.0K"); // Rounding
+    expect(convertNumToCompactString(123456)).toBe("123.5K"); // Rounding with precision
+  });
+
+  it("formats a number in millions (M)", () => {
+    expect(convertNumToCompactString(1500000)).toBe("1.5M");
+    expect(convertNumToCompactString(9999999)).toBe("10.0M"); // Rounding
+    expect(convertNumToCompactString(123456789)).toBe("123.5M"); // Rounding with precision
+  });
+
+  it("formats a number less than 1000 as is", () => {
+    expect(convertNumToCompactString(42)).toBe("42");
+    expect(convertNumToCompactString(999)).toBe("999");
   });
 });

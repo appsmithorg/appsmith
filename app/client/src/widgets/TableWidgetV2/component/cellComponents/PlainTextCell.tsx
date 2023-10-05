@@ -21,6 +21,7 @@ import CurrencyTypeDropdown, {
 import { getLocale } from "utils/helpers";
 import * as Sentry from "@sentry/react";
 import type { InputHTMLType } from "widgets/BaseInputWidget/component";
+import { getLocaleThousandSeparator } from "widgets/WidgetUtils";
 
 const Container = styled.div<{
   isCellEditMode?: boolean;
@@ -67,6 +68,8 @@ export type RenderDefaultPropsType = BaseCellComponentProps & {
 export type RenderCurrencyPropsType = {
   currencyCode?: string;
   decimals?: number;
+  notation?: Intl.NumberFormatOptions["notation"];
+  thousandSeparator?: boolean;
 };
 
 type editPropertyType = {
@@ -127,12 +130,14 @@ function PlainTextCell(
     isEditableCellValid,
     isHidden,
     isNewRow,
+    notation,
     onCellTextChange,
     onSubmitString,
     rowIndex,
     tableWidth,
     textColor,
     textSize,
+    thousandSeparator,
     toggleCellEditMode,
     validationErrorMessage,
     verticalAlignment,
@@ -201,17 +206,25 @@ function PlainTextCell(
       try {
         const floatVal = parseFloat(value);
 
-        return (
-          currency?.id +
-          " " +
-          (isNaN(floatVal)
-            ? value
-            : Intl.NumberFormat(getLocale(), {
-                style: "decimal",
-                minimumFractionDigits: decimals,
-                maximumFractionDigits: decimals,
-              }).format(floatVal))
-        );
+        if (isNaN(floatVal)) {
+          return value;
+        } else {
+          let formattedValue = Intl.NumberFormat(getLocale(), {
+            style: "decimal",
+            minimumFractionDigits: decimals,
+            maximumFractionDigits: decimals,
+            notation: notation,
+          }).format(floatVal);
+
+          if (!thousandSeparator) {
+            formattedValue = formattedValue.replaceAll(
+              getLocaleThousandSeparator(),
+              "",
+            );
+          }
+
+          return currency?.id + " " + formattedValue;
+        }
       } catch (e) {
         Sentry.captureException(e);
         return value;
@@ -219,7 +232,7 @@ function PlainTextCell(
     } else {
       return value;
     }
-  }, [value, decimals, currencyCode]);
+  }, [value, decimals, currencyCode, notation, thousandSeparator]);
 
   if (isCellEditMode) {
     const [inputType, inputHTMLType] = (() => {

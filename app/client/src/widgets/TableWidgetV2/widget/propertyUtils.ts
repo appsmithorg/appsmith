@@ -799,6 +799,20 @@ export const updateCurrencyDefaultValues = (
         propertyValue: 0,
       });
     }
+
+    if (get(props, `${baseProperty}.notation`) === undefined) {
+      propertiesToUpdate.push({
+        propertyPath: `${baseProperty}.notation`,
+        propertyValue: "standard",
+      });
+    }
+
+    if (get(props, `${baseProperty}.thousandSeparator`) === undefined) {
+      propertiesToUpdate.push({
+        propertyPath: `${baseProperty}.thousandSeparator`,
+        propertyValue: true,
+      });
+    }
   }
 
   return propertiesToUpdate?.length ? propertiesToUpdate : undefined;

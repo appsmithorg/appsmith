@@ -503,5 +503,50 @@ export default {
       },
       dependencies: ["primaryColumns", "columnType"],
     },
+    {
+      propertyName: "thousandSeparator",
+      helpText: "formats the currency with a thousand separator",
+      label: "Thousand separator",
+      controlType: "SWITCH",
+      dependencies: ["primaryColumns", "columnType"],
+      isJSConvertible: true,
+      isBindProperty: true,
+      isTriggerProperty: false,
+      validation: { type: ValidationTypes.BOOLEAN },
+      hidden: (props: TableWidgetProps, propertyPath: string) => {
+        const baseProperty = getBasePropertyPath(propertyPath);
+        const columnType = get(props, `${baseProperty}.columnType`, "");
+        return columnType !== ColumnTypes.CURRENCY;
+      },
+    },
+    {
+      propertyName: "notation",
+      helpText: "Displays the currency in standard or compact notation",
+      label: "Notation",
+      controlType: "DROP_DOWN",
+      options: [
+        {
+          label: "Standard",
+          value: "standard",
+        },
+        {
+          label: "Compact",
+          value: "compact",
+        },
+      ],
+      dependencies: ["primaryColumns", "columnType"],
+      isJSConvertible: true,
+      isBindProperty: true,
+      isTriggerProperty: false,
+      validation: {
+        type: ValidationTypes.TEXT,
+        params: { default: "standard", allowedValues: ["standard", "compact"] },
+      },
+      hidden: (props: TableWidgetProps, propertyPath: string) => {
+        const baseProperty = getBasePropertyPath(propertyPath);
+        const columnType = get(props, `${baseProperty}.columnType`, "");
+        return columnType !== ColumnTypes.CURRENCY;
+      },
+    },
   ],
 };
