@@ -1,9 +1,10 @@
 import React from "react";
 import { FlexLayout } from "./FlexLayout";
-import type {
-  AnvilHighlightInfo,
-  LayoutComponentProps,
-  LayoutComponentType,
+import {
+  LayoutComponentTypes,
+  type AnvilHighlightInfo,
+  type LayoutComponentProps,
+  type LayoutProps,
 } from "layoutSystems/anvil/utils/anvilTypes";
 import { doesListIncludeWidgetIDs } from "layoutSystems/anvil/utils/layouts/typeUtils";
 import { renderWidgets } from "layoutSystems/anvil/utils/layouts/renderUtils";
@@ -28,49 +29,42 @@ const AlignedColumn = (props: LayoutComponentProps) => {
   );
 };
 
-AlignedColumn.type = "ALIGNED_COLUMN" as LayoutComponentType;
+AlignedColumn.type = LayoutComponentTypes.ALIGNED_COLUMN;
 
 AlignedColumn.addChild = (
-  props: LayoutComponentProps,
-  children: string[] | LayoutComponentProps[],
+  props: LayoutProps,
+  children: string[] | LayoutProps[],
   highlight: AnvilHighlightInfo,
-): LayoutComponentProps => {
+): LayoutProps => {
   return addChildToLayout(props, children, highlight);
 };
 
 AlignedColumn.getChildTemplate = (
-  props: LayoutComponentProps,
-): LayoutComponentProps | undefined => {
+  props: LayoutProps,
+): LayoutProps | undefined => {
   if (!props) return;
-  const { canvasId, childTemplate } = props;
+  const { childTemplate } = props;
   if (childTemplate) return childTemplate;
   return {
-    canvasId: canvasId,
     insertChild: true,
     layoutId: "",
-    layoutType: "ALIGNED_ROW",
+    layoutType: LayoutComponentTypes.ALIGNED_ROW,
     layout: [[], [], []],
   };
-};
-
-AlignedColumn.getWidth = () => {
-  return 100;
 };
 
 AlignedColumn.deriveHighlights = () => {
   return [];
 };
 
-AlignedColumn.extractChildWidgetIds = (
-  props: LayoutComponentProps,
-): string[] => {
+AlignedColumn.extractChildWidgetIds = (props: LayoutProps): string[] => {
   return AlignedColumn.rendersWidgets(props) ? (props.layout as string[]) : [];
 };
 
 AlignedColumn.removeChild = (
-  props: LayoutComponentProps,
-  child: string | LayoutComponentProps,
-): LayoutComponentProps | undefined => {
+  props: LayoutProps,
+  child: string | LayoutProps,
+): LayoutProps | undefined => {
   return removeChildFromLayout(props, child);
 };
 
@@ -84,7 +78,7 @@ AlignedColumn.renderChildWidgets = (
   );
 };
 
-AlignedColumn.rendersWidgets = (props: LayoutComponentProps): boolean => {
+AlignedColumn.rendersWidgets = (props: LayoutProps): boolean => {
   return doesListIncludeWidgetIDs(props);
 };
 

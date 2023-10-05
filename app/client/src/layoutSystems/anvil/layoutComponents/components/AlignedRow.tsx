@@ -1,7 +1,8 @@
-import type {
-  AnvilHighlightInfo,
-  LayoutComponentProps,
-  LayoutComponentType,
+import {
+  LayoutComponentTypes,
+  type AnvilHighlightInfo,
+  type LayoutComponentProps,
+  type LayoutProps,
 } from "layoutSystems/anvil/utils/anvilTypes";
 import React from "react";
 import { FlexLayout } from "./FlexLayout";
@@ -30,34 +31,28 @@ const AlignedRow = (props: LayoutComponentProps) => {
   );
 };
 
-AlignedRow.type = "ALIGNED_ROW" as LayoutComponentType;
+AlignedRow.type = LayoutComponentTypes.ALIGNED_ROW;
 
 AlignedRow.addChild = (
-  props: LayoutComponentProps,
-  children: string[] | LayoutComponentProps[],
+  props: LayoutProps,
+  children: string[] | LayoutProps[],
   highlight: AnvilHighlightInfo,
-): LayoutComponentProps => {
+): LayoutProps => {
   return addChildToAlignedRow(props, children, highlight);
 };
 
-AlignedRow.getChildTemplate = (
-  props: LayoutComponentProps,
-): LayoutComponentProps | undefined => {
+AlignedRow.getChildTemplate = (props: LayoutProps): LayoutProps | undefined => {
   if (!props) return;
   const { childTemplate } = props;
   if (childTemplate) return childTemplate;
   return;
 };
 
-AlignedRow.getWidth = () => {
-  return 100;
-};
-
 AlignedRow.deriveHighlights = () => {
   return [];
 };
 
-AlignedRow.extractChildWidgetIds = (props: LayoutComponentProps): string[] => {
+AlignedRow.extractChildWidgetIds = (props: LayoutProps): string[] => {
   return AlignedRow.rendersWidgets(props)
     ? (props.layout as string[][]).reduce((acc: string[], each: string[]) => {
         return acc.concat(each);
@@ -66,9 +61,9 @@ AlignedRow.extractChildWidgetIds = (props: LayoutComponentProps): string[] => {
 };
 
 AlignedRow.removeChild = (
-  props: LayoutComponentProps,
-  child: string | LayoutComponentProps,
-): LayoutComponentProps | undefined => {
+  props: LayoutProps,
+  child: string | LayoutProps,
+): LayoutProps | undefined => {
   return removeChildFromAlignedRow(props, child as string);
 };
 
@@ -81,7 +76,7 @@ AlignedRow.renderChildWidgets = (
   );
 };
 
-AlignedRow.rendersWidgets = (props: LayoutComponentProps): boolean => {
+AlignedRow.rendersWidgets = (props: LayoutProps): boolean => {
   // TODO: AlignedRow is expected to render widgets only. Shall this be hardcoded to true?
   return doesAlignedRowRenderWidgets(props);
 };

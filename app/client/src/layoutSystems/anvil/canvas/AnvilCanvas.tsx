@@ -5,6 +5,7 @@ import type { LayoutComponentProps } from "../utils/anvilTypes";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { renderLayouts } from "../utils/layouts/renderUtils";
 import { getCanvasId } from "./utils";
+import { RenderModes } from "constants/WidgetConstants";
 
 export const AnvilCanvas = (props: BaseWidgetProps) => {
   const [childrenMap, setChildrenMap] = useState<
@@ -23,7 +24,12 @@ export const AnvilCanvas = (props: BaseWidgetProps) => {
 
   return (
     <div className="anvil-canvas" id={getCanvasId(props.widgetId)}>
-      {renderLayouts(props.layout, childrenMap)}
+      {renderLayouts(
+        props.layout,
+        childrenMap,
+        props.widgetId,
+        props.renderMode || RenderModes.CANVAS,
+      )}
     </div>
   );
 };

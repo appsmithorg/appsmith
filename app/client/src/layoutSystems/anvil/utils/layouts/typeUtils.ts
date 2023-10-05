@@ -1,8 +1,6 @@
-import type { LayoutComponentProps } from "../anvilTypes";
+import { LayoutComponentTypes, type LayoutProps } from "../anvilTypes";
 
-export function doesListIncludeWidgetIDs(
-  layoutProps: LayoutComponentProps,
-): boolean {
+export function doesListIncludeWidgetIDs(layoutProps: LayoutProps): boolean {
   // Return false whether layoutProps is undefined or layout is empty.
   if (!layoutProps || !layoutProps?.layout || !layoutProps?.layout?.length)
     return false;
@@ -15,9 +13,7 @@ export function doesListIncludeWidgetIDs(
   return typeof layout[0] === "string";
 }
 
-export function doesAlignedRowRenderWidgets(
-  layoutProps: LayoutComponentProps,
-): boolean {
+export function doesAlignedRowRenderWidgets(layoutProps: LayoutProps): boolean {
   // Return false whether layoutProps is undefined or layout is empty.
   if (!layoutProps || !layoutProps?.layout || !layoutProps?.layout?.length)
     return false;
@@ -35,14 +31,14 @@ export function doesAlignedRowRenderWidgets(
   }, false);
 }
 
-export function doesLayoutRenderWidgets(layoutProps: LayoutComponentProps) {
+export function doesLayoutRenderWidgets(layoutProps: LayoutProps) {
   // Return false whether layoutProps is undefined or layout is empty.
   if (!layoutProps || !layoutProps?.layout || !layoutProps?.layout?.length)
     return false;
 
   const { layoutType } = layoutProps;
 
-  if (layoutType === "ALIGNED_ROW") {
+  if (layoutType === LayoutComponentTypes.ALIGNED_ROW) {
     // AlignedRow's layout prop is a 2D array.
     return doesAlignedRowRenderWidgets(layoutProps);
   } else return doesListIncludeWidgetIDs(layoutProps);

@@ -1,5 +1,8 @@
 import { RenderModes } from "constants/WidgetConstants";
-import type { LayoutComponentProps } from "layoutSystems/anvil/utils/anvilTypes";
+import {
+  LayoutComponentTypes,
+  type LayoutComponentProps,
+} from "layoutSystems/anvil/utils/anvilTypes";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { generateReactKey } from "utils/generators";
@@ -10,7 +13,7 @@ export function generateLayoutComponentMock(
   data: Partial<LayoutComponentProps> = {},
   rendersWidgets = true,
 ): LayoutComponentProps {
-  if (data?.layoutType === "ALIGNED_ROW")
+  if (data?.layoutType === LayoutComponentTypes.ALIGNED_ROW)
     return generateAlignedRowMock(data, rendersWidgets);
   const layout: string[] | LayoutComponentProps[] = [],
     childrenMap: { [key: string]: WidgetProps } = {};
@@ -78,7 +81,7 @@ export function generateAlignedRowMock(
     layout,
     layoutId: "",
     layoutStyle: {},
-    layoutType: "ALIGNED_ROW",
+    layoutType: LayoutComponentTypes.ALIGNED_ROW,
 
     allowedWidgetTypes: [],
     canvasId: "",

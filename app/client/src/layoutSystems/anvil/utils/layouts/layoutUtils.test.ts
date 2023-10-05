@@ -2,7 +2,11 @@ import {
   generateAlignedRowMock,
   generateLayoutComponentMock,
 } from "mocks/layoutComponents/layoutComponentMock";
-import type { AnvilHighlightInfo, LayoutComponentProps } from "../anvilTypes";
+import type {
+  AnvilHighlightInfo,
+  LayoutComponentProps,
+  LayoutProps,
+} from "../anvilTypes";
 import {
   addChildToAlignedRow,
   addChildToLayout,
@@ -12,8 +16,8 @@ import {
 } from "./layoutUtils";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
-import { ButtonFactory } from "test/factories/Widgets/ButtonFactory";
 import { mockAnvilHighlightInfo } from "mocks/mockHighlightInfo";
+import { mockButtonProps } from "mocks/widgetProps/button";
 
 describe("layoutUtils tests", () => {
   describe("generateLayoutId", () => {
@@ -33,7 +37,7 @@ describe("layoutUtils tests", () => {
       let highlight: AnvilHighlightInfo = mockAnvilHighlightInfo({
         rowIndex: 1,
       });
-      let updatedLayout: LayoutComponentProps = addChildToLayout(
+      let updatedLayout: LayoutProps = addChildToLayout(
         layout,
         children,
         highlight,
@@ -62,7 +66,7 @@ describe("layoutUtils tests", () => {
       const children: string[] = [buttonWidget.widgetId];
       // Add child at the beginning of start alignment.
       let highlight: AnvilHighlightInfo = mockAnvilHighlightInfo();
-      let updatedLayout: LayoutComponentProps = addChildToAlignedRow(
+      let updatedLayout: LayoutProps = addChildToAlignedRow(
         layout,
         children,
         highlight,
@@ -96,7 +100,7 @@ describe("layoutUtils tests", () => {
         alignment: FlexLayerAlignment.Center,
         rowIndex: (layout.layout[1] as string[]).length + 2,
       });
-      const updatedLayout: LayoutComponentProps = addChildToAlignedRow(
+      const updatedLayout: LayoutProps = addChildToAlignedRow(
         layout,
         children,
         highlight,
@@ -121,8 +125,10 @@ describe("layoutUtils tests", () => {
           layout.layout.length - 1
         ] as string;
         // Remove last child in the layout.
-        const updatedLayout: LayoutComponentProps | undefined =
-          removeChildFromLayout(layout, lastChildWidgetId);
+        const updatedLayout: LayoutProps | undefined = removeChildFromLayout(
+          layout,
+          lastChildWidgetId,
+        );
         expect(
           (updatedLayout?.layout as string[]).includes(lastChildWidgetId),
         ).toBeFalsy();
@@ -134,11 +140,10 @@ describe("layoutUtils tests", () => {
           layoutProps.layout.length - 1
         ] as string;
         // Remove last child in the layout.
-        const updatedLayout: LayoutComponentProps | undefined =
-          removeChildFromLayout(
-            { ...layoutProps, layout: [lastChildWidgetId] },
-            lastChildWidgetId,
-          );
+        const updatedLayout: LayoutProps | undefined = removeChildFromLayout(
+          { ...layoutProps, layout: [lastChildWidgetId] },
+          lastChildWidgetId,
+        );
         expect(updatedLayout).toBeUndefined();
       });
     });
@@ -151,8 +156,10 @@ describe("layoutUtils tests", () => {
         (layout.layout[0] as string[]).length - 1
       ];
       // Remove last child in the layout.
-      const updatedLayout: LayoutComponentProps | undefined =
-        removeChildFromAlignedRow(layout, lastChildWidgetId);
+      const updatedLayout: LayoutProps | undefined = removeChildFromAlignedRow(
+        layout,
+        lastChildWidgetId,
+      );
       expect(
         (updatedLayout?.layout[0] as string[]).includes(lastChildWidgetId),
       ).toBeFalsy();
@@ -166,11 +173,10 @@ describe("layoutUtils tests", () => {
         (layoutProps.layout[0] as string[]).length - 1
       ];
       // Remove last child in the layout.
-      const updatedLayout: LayoutComponentProps | undefined =
-        removeChildFromAlignedRow(
-          { ...layoutProps, layout: [[lastChildWidgetId], [], []] },
-          lastChildWidgetId,
-        );
+      const updatedLayout: LayoutProps | undefined = removeChildFromAlignedRow(
+        { ...layoutProps, layout: [[lastChildWidgetId], [], []] },
+        lastChildWidgetId,
+      );
       expect(updatedLayout).toBeUndefined();
     });
   });

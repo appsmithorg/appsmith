@@ -1,9 +1,10 @@
 import React from "react";
 import { FlexLayout } from "./FlexLayout";
-import type {
-  AnvilHighlightInfo,
-  LayoutComponentProps,
-  LayoutComponentType,
+import {
+  LayoutComponentTypes,
+  type AnvilHighlightInfo,
+  type LayoutComponentProps,
+  type LayoutProps,
 } from "layoutSystems/anvil/utils/anvilTypes";
 import { doesListIncludeWidgetIDs } from "layoutSystems/anvil/utils/layouts/typeUtils";
 import { renderWidgets } from "layoutSystems/anvil/utils/layouts/renderUtils";
@@ -28,47 +29,40 @@ const Column = (props: LayoutComponentProps) => {
   );
 };
 
-Column.type = "COLUMN" as LayoutComponentType;
+Column.type = LayoutComponentTypes.COLUMN;
 
 Column.addChild = (
-  props: LayoutComponentProps,
-  children: string[] | LayoutComponentProps[],
+  props: LayoutProps,
+  children: string[] | LayoutProps[],
   highlight: AnvilHighlightInfo,
-): LayoutComponentProps => {
+): LayoutProps => {
   return addChildToLayout(props, children, highlight);
 };
 
-Column.getChildTemplate = (
-  props: LayoutComponentProps,
-): LayoutComponentProps | undefined => {
+Column.getChildTemplate = (props: LayoutProps): LayoutProps | undefined => {
   if (!props) return;
   const { childTemplate } = props;
   if (childTemplate) return childTemplate;
   return {
-    canvasId: "",
     insertChild: true,
     layoutId: "",
-    layoutType: "ROW",
+    layoutType: LayoutComponentTypes.ROW,
     layout: [],
   };
-};
-
-Column.getWidth = () => {
-  return 100;
 };
 
 Column.deriveHighlights = () => {
   return [];
 };
 
-Column.extractChildWidgetIds = (props: LayoutComponentProps): string[] => {
+Column.extractChildWidgetIds = (props: LayoutProps): string[] => {
   return Column.rendersWidgets(props) ? (props.layout as string[]) : [];
 };
 
 Column.removeChild = (
-  props: LayoutComponentProps,
-  child: string | LayoutComponentProps,
-): LayoutComponentProps | undefined => {
+  props: LayoutProps,
+  child: string | LayoutProps,
+): LayoutProps | undefined => {
   return removeChildFromLayout(props, child);
 };
 
@@ -80,7 +74,7 @@ Column.renderChildWidgets = (props: LayoutComponentProps): React.ReactNode => {
   );
 };
 
-Column.rendersWidgets = (props: LayoutComponentProps): boolean => {
+Column.rendersWidgets = (props: LayoutProps): boolean => {
   return doesListIncludeWidgetIDs(props);
 };
 

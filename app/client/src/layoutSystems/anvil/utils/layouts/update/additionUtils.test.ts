@@ -13,6 +13,7 @@ import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
 import type {
   AnvilHighlightInfo,
   LayoutComponentProps,
+  LayoutProps,
 } from "../../anvilTypes";
 import { AlignmentIndexMap } from "../../constants";
 
@@ -23,8 +24,7 @@ describe("Layouts - additionUtils tests", () => {
         {},
         false,
       );
-      const childLayoutOne: LayoutComponentProps = layout
-        .layout[0] as LayoutComponentProps;
+      const childLayoutOne: LayoutProps = layout.layout[0] as LayoutProps;
       expect(
         getAffectedLayout([layout], [layout.layoutId, childLayoutOne.layoutId]),
       ).toEqual(childLayoutOne);
@@ -43,21 +43,17 @@ describe("Layouts - additionUtils tests", () => {
         {},
         false,
       );
-      const childLayoutOne: LayoutComponentProps = layout
-        .layout[0] as LayoutComponentProps;
-      const updatedLayout: LayoutComponentProps = {
+      const childLayoutOne: LayoutProps = layout.layout[0] as LayoutProps;
+      const updatedLayout: LayoutProps = {
         ...childLayoutOne,
         layout: [],
       };
-      const res: LayoutComponentProps[] = updateAffectedLayout(
-        [layout],
-        updatedLayout,
-        [layout.layoutId, updatedLayout.layoutId],
-      );
+      const res: LayoutProps[] = updateAffectedLayout([layout], updatedLayout, [
+        layout.layoutId,
+        updatedLayout.layoutId,
+      ]);
 
-      expect((res[0].layout[0] as LayoutComponentProps).layout.length).toEqual(
-        0,
-      );
+      expect((res[0].layout[0] as LayoutProps).layout.length).toEqual(0);
     });
     it("should update the layout json in the correct place in a deeply nested layout", () => {
       /**
@@ -75,17 +71,16 @@ describe("Layouts - additionUtils tests", () => {
         {},
         false,
       );
-      const childLayoutOne: LayoutComponentProps = layoutTwo
-        .layout[0] as LayoutComponentProps;
+      const childLayoutOne: LayoutProps = layoutTwo.layout[0] as LayoutProps;
       // Update first child layout of layoutTwo to have empty layout property
-      const updatedChildLayoutOne: LayoutComponentProps = {
+      const updatedChildLayoutOne: LayoutProps = {
         ...childLayoutOne,
         layout: [],
       };
       // Add layoutTwo to parentLayout (layoutOne)
-      const updatedLayout: LayoutComponentProps = {
+      const updatedLayout: LayoutProps = {
         ...layoutOne,
-        layout: [...(layoutOne.layout as LayoutComponentProps[]), layoutTwo],
+        layout: [...(layoutOne.layout as LayoutProps[]), layoutTwo],
       };
       /**
        * Final structure:
@@ -96,35 +91,31 @@ describe("Layouts - additionUtils tests", () => {
        *   Row (childLayoutOne)
        *   Row
        */
-      const res: LayoutComponentProps[] = updateAffectedLayout(
+      const res: LayoutProps[] = updateAffectedLayout(
         [updatedLayout],
         updatedChildLayoutOne,
         [layoutOne.layoutId, layoutTwo.layoutId, childLayoutOne.layoutId],
       );
       expect(
-        (
-          (res[0].layout[2] as LayoutComponentProps)
-            .layout[0] as LayoutComponentProps
-        ).layout.length,
+        ((res[0].layout[2] as LayoutProps).layout[0] as LayoutProps).layout
+          .length,
       ).toEqual(0);
     });
   });
   describe("addWidgetsToTemplate", () => {
     it("should generate a layoutId for the template", () => {
-      const template: LayoutComponentProps = generateLayoutComponentMock();
+      const template: LayoutComponentProps = generateLayoutComponentMock({
+        layoutId: "",
+      });
       expect(template.layoutId.length).toEqual(0);
       const highlight: AnvilHighlightInfo = mockAnvilHighlightInfo();
-      const res: LayoutComponentProps = addWidgetsToTemplate(
-        template,
-        highlight,
-        [],
-      );
+      const res: LayoutProps = addWidgetsToTemplate(template, highlight, []);
       expect(res.layoutId.length).toBeGreaterThan(0);
     });
     it("should add widgets to the layout json", () => {
       const template: LayoutComponentProps = generateLayoutComponentMock();
       const highlight: AnvilHighlightInfo = mockAnvilHighlightInfo();
-      const res: LayoutComponentProps = addWidgetsToTemplate(
+      const res: LayoutProps = addWidgetsToTemplate(
         { ...template, layout: [] }, // Empty the layout prop of the mock template.
         highlight,
         ["1"],
@@ -133,11 +124,11 @@ describe("Layouts - additionUtils tests", () => {
       expect(res.layout[0]).toEqual("1");
     });
     it("should add widgets to correct alignment in an AlignedRow tempalte", () => {
-      const template: LayoutComponentProps = generateAlignedRowMock();
+      const template: LayoutProps = generateAlignedRowMock();
       const highlight: AnvilHighlightInfo = mockAnvilHighlightInfo({
         alignment: FlexLayerAlignment.End,
       });
-      const res: LayoutComponentProps = addWidgetsToTemplate(
+      const res: LayoutProps = addWidgetsToTemplate(
         { ...template, layout: [[], [], []] }, // Empty the layout prop of the mock template.
         highlight,
         ["1"],
@@ -157,15 +148,15 @@ describe("Layouts - additionUtils tests", () => {
         false,
       );
       // Remove insertChild from first child layout.
-      const updatedTemplate: LayoutComponentProps = {
+      const updatedTemplate: LayoutProps = {
         ...template,
         layout: [
           {
-            ...(template.layout[0] as LayoutComponentProps),
+            ...(template.layout[0] as LayoutProps),
             insertChild: false,
           },
           {
-            ...(template.layout[1] as LayoutComponentProps),
+            ...(template.layout[1] as LayoutProps),
             insertChild: true,
             layout: [],
           },
@@ -174,7 +165,7 @@ describe("Layouts - additionUtils tests", () => {
       const highlight: AnvilHighlightInfo = mockAnvilHighlightInfo({
         alignment: FlexLayerAlignment.End,
       });
-      const res: LayoutComponentProps = addWidgetsToTemplate(
+      const res: LayoutProps = addWidgetsToTemplate(
         updatedTemplate, // Empty the layout prop of the mock template.
         highlight,
         ["1"],
@@ -186,19 +177,17 @@ describe("Layouts - additionUtils tests", () => {
        *   "1"
        */
       expect(
-        ((res.layout[1] as LayoutComponentProps).layout as string[]).length,
+        ((res.layout[1] as LayoutProps).layout as string[]).length,
       ).toEqual(1);
       expect(
-        ((res.layout[1] as LayoutComponentProps).layout as string[]).includes(
-          "1",
-        ),
+        ((res.layout[1] as LayoutProps).layout as string[]).includes("1"),
       ).toBeTruthy();
     });
   });
   describe("prepareWidgetsForAddition", () => {
     it("should return empty array if widgets are not provided", () => {
       const layout: LayoutComponentProps = generateLayoutComponentMock();
-      const res: string[] | LayoutComponentProps[] = prepareWidgetsForAddition(
+      const res: string[] | LayoutProps[] = prepareWidgetsForAddition(
         {} as any,
         layout,
         mockAnvilHighlightInfo(),
@@ -208,7 +197,7 @@ describe("Layouts - additionUtils tests", () => {
     });
     it("should return the list of widgets if Component doesn't have a childTemplate", () => {
       const layout: LayoutComponentProps = generateLayoutComponentMock();
-      const res: string[] | LayoutComponentProps[] = prepareWidgetsForAddition(
+      const res: string[] | LayoutProps[] = prepareWidgetsForAddition(
         { getChildTemplate: () => undefined } as any,
         layout,
         mockAnvilHighlightInfo(),
@@ -218,17 +207,15 @@ describe("Layouts - additionUtils tests", () => {
     });
     it("should return updated childTemplate if present", () => {
       const layoutProps: LayoutComponentProps = generateLayoutComponentMock();
-      const res: string[] | LayoutComponentProps[] = prepareWidgetsForAddition(
+      const res: string[] | LayoutProps[] = prepareWidgetsForAddition(
         { getChildTemplate: () => ({ ...layoutProps, layout: [] }) } as any,
         layoutProps,
         mockAnvilHighlightInfo(),
         ["1"],
       );
-      expect((res[0] as LayoutComponentProps).layoutId.length).toBeGreaterThan(
-        0,
-      );
+      expect((res[0] as LayoutProps).layoutId.length).toBeGreaterThan(0);
       expect(
-        ((res[0] as LayoutComponentProps).layout as string[]).includes("1"),
+        ((res[0] as LayoutProps).layout as string[]).includes("1"),
       ).toBeTruthy();
     });
   });

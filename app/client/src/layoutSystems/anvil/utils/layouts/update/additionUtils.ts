@@ -1,25 +1,26 @@
 import LayoutFactory from "layoutSystems/anvil/layoutComponents/LayoutFactory";
-import type {
-  AnvilHighlightInfo,
-  LayoutComponent,
-  LayoutComponentProps,
-  LayoutComponentType,
+import {
+  LayoutComponentTypes,
+  type AnvilHighlightInfo,
+  type LayoutComponent,
+  type LayoutComponentType,
+  type LayoutProps,
 } from "../../anvilTypes";
 import { generateReactKey } from "utils/generators";
 import { AlignmentIndexMap } from "../../constants";
 
 /**
  * Update a layout preset by adding a list of widgets in correct position.
- * @param layouts | LayoutComponentProps[] : List of layouts forming a preset.
+ * @param layouts | LayoutProps[] : List of layouts forming a preset.
  * @param highlight | AnvilHighlightInfo : Drop information.
  * @param widgets | string[] : List of widgets to be added.
- * @returns LayoutComponentProps[]
+ * @returns LayoutProps[]
  */
 export function addWidgetsToPreset(
-  layouts: LayoutComponentProps[],
+  layouts: LayoutProps[],
   highlight: AnvilHighlightInfo,
   widgets: string[],
-): LayoutComponentProps[] {
+): LayoutProps[] {
   if (!layouts || !highlight || !widgets || !widgets.length) return layouts;
 
   /**
@@ -28,10 +29,9 @@ export function addWidgetsToPreset(
   const { layoutOrder } = highlight;
   if (!layoutOrder || !layoutOrder.length) return layouts;
 
-  const affectedLayout: LayoutComponentProps | undefined = getAffectedLayout(
-    layouts,
-    [...layoutOrder],
-  );
+  const affectedLayout: LayoutProps | undefined = getAffectedLayout(layouts, [
+    ...layoutOrder,
+  ]);
 
   if (!affectedLayout) return layouts;
 
@@ -40,7 +40,7 @@ export function addWidgetsToPreset(
   /**
    * STEP 2: Prepare the widgets to be added.
    */
-  const children: string[] | LayoutComponentProps[] = prepareWidgetsForAddition(
+  const children: string[] | LayoutProps[] = prepareWidgetsForAddition(
     Comp,
     affectedLayout,
     highlight,
@@ -50,7 +50,7 @@ export function addWidgetsToPreset(
   /**
    * STEP 3: Update the layout json of affected layout.
    */
-  const updatedLayout: LayoutComponentProps = Comp.addChild(
+  const updatedLayout: LayoutProps = Comp.addChild(
     affectedLayout,
     children,
     highlight,
@@ -64,48 +64,45 @@ export function addWidgetsToPreset(
 
 /**
  * Extract target layout component json from parent layout.
- * @param layouts | LayoutComponentProps[] - List of layouts to search in.
+ * @param layouts | LayoutProps[] - List of layouts to search in.
  * @param order | string[] - (Top - down) hierarchy of layoutIds.
- * @returns LayoutComponentProps
+ * @returns LayoutProps
  */
 export function getAffectedLayout(
-  layouts: LayoutComponentProps[],
+  layouts: LayoutProps[],
   order: string[],
-): LayoutComponentProps | undefined {
+): LayoutProps | undefined {
   if (!layouts || !order || !order.length) return;
 
   for (const each of layouts) {
     if (each.layoutId === order[0]) {
       if (order.length === 1) return each;
       else
-        return getAffectedLayout(
-          each.layout as LayoutComponentProps[],
-          order.slice(1),
-        );
+        return getAffectedLayout(each.layout as LayoutProps[], order.slice(1));
     }
   }
 }
 
 /**
  * Using provided order, update the nested layout structure with new child layout json.
- * @param layouts | LayoutComponentProps[] : List of layouts.
- * @param updatedLayout | LayoutComponentProps : Updated layout json.
+ * @param layouts | LayoutProps[] : List of layouts.
+ * @param updatedLayout | LayoutProps : Updated layout json.
  * @param order | string[] : (Top - down) hierarchy of layoutIds.
- * @returns LayoutComponentProps[]
+ * @returns LayoutProps[]
  */
 export function updateAffectedLayout(
-  layouts: LayoutComponentProps[],
-  updatedLayout: LayoutComponentProps,
+  layouts: LayoutProps[],
+  updatedLayout: LayoutProps,
   order: string[],
-): LayoutComponentProps[] {
-  return layouts.map((layout: LayoutComponentProps) => {
+): LayoutProps[] {
+  return layouts.map((layout: LayoutProps) => {
     if (layout.layoutId === order[0]) {
       if (order.length === 1) return updatedLayout;
       else {
         return {
           ...layout,
           layout: updateAffectedLayout(
-            layout.layout as LayoutComponentProps[],
+            layout.layout as LayoutProps[],
             updatedLayout,
             order.slice(1),
           ),
@@ -122,20 +119,20 @@ export function updateAffectedLayout(
  * 1. If layout has a childTemplate. Use the template to generate a new layout to wrap the widgets in.
  * 2. Else, widgets will be added to the layout directly.
  * @param Comp | LayoutComponent : LayoutComponent to drop the widgets into.
- * @param layoutProps | LayoutComponentProps : Layout json of the Comp.
+ * @param layoutProps | LayoutProps : Layout json of the Comp.
  * @param highlight | AnvilHighlightInfo : Drop information.
  * @param widgets | string[] : List of widgets to be added.
- * @returns string[] | LayoutComponentProps[]
+ * @returns string[] | LayoutProps[]
  */
 export function prepareWidgetsForAddition(
   Comp: LayoutComponent,
-  layoutProps: LayoutComponentProps,
+  layoutProps: LayoutProps,
   highlight: AnvilHighlightInfo,
   widgets: string[],
-): string[] | LayoutComponentProps[] {
+): string[] | LayoutProps[] {
   if (!widgets || !widgets.length) return [];
 
-  const childTemplate: LayoutComponentProps | undefined =
+  const childTemplate: LayoutProps | undefined =
     Comp.getChildTemplate(layoutProps);
 
   /**
@@ -159,18 +156,18 @@ export function prepareWidgetsForAddition(
 
 /**
  * Update the template json and add the widget(s) to it.
- * @param template | LayoutComponentProps : Json of the template to wrap the widget(s) in.
+ * @param template | LayoutProps : Json of the template to wrap the widget(s) in.
  * @param highlight | AnvilHighlightInfo : Drop information.
  * @param widgets | string[] : List of widget ids.
- * @returns LayoutComponentProps
+ * @returns LayoutProps
  */
 export function addWidgetsToTemplate(
-  template: LayoutComponentProps,
+  template: LayoutProps,
   highlight: AnvilHighlightInfo,
   widgets: string[],
-): LayoutComponentProps {
+): LayoutProps {
   // Generate a layoutId.
-  let obj: LayoutComponentProps = {
+  let obj: LayoutProps = {
     ...template,
     layoutId: generateReactKey(),
   };
@@ -193,19 +190,19 @@ export function addWidgetsToTemplate(
       obj = {
         ...obj,
         layout,
-      } as LayoutComponentProps;
+      } as LayoutProps;
     } else {
       obj = {
         ...obj,
         layout: [...obj.layout, ...widgets],
-      } as LayoutComponentProps;
+      } as LayoutProps;
     }
   } else if (obj.layout.length && typeof obj.layout[0] !== "string") {
     /**
      * There are nested layouts.
      * Parse them to identify the layout to drop widgets in.
      */
-    obj.layout = (obj.layout as LayoutComponentProps[]).map((each) =>
+    obj.layout = (obj.layout as LayoutProps[]).map((each) =>
       addWidgetsToTemplate(each, highlight, widgets),
     );
   }
@@ -213,5 +210,5 @@ export function addWidgetsToTemplate(
 }
 
 export function hasAlignments(layoutType: LayoutComponentType): boolean {
-  return layoutType === "ALIGNED_ROW";
+  return layoutType === LayoutComponentTypes.ALIGNED_ROW;
 }

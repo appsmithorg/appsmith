@@ -2,7 +2,7 @@ import {
   generateAlignedRowMock,
   generateLayoutComponentMock,
 } from "mocks/layoutComponents/layoutComponentMock";
-import type { LayoutComponentProps } from "../../anvilTypes";
+import type { LayoutComponentProps, LayoutProps } from "../../anvilTypes";
 import { registerLayoutComponents } from "../layoutUtils";
 import {
   deleteWidgetFromLayout,
@@ -22,7 +22,7 @@ describe("Layouts - deletionUtils tests", () => {
       const layout: LayoutComponentProps = generateLayoutComponentMock();
       const originalLength: number = layout.layout.length;
       const widgetId: string = layout.layout[0] as string;
-      const res: LayoutComponentProps | undefined = deleteWidgetFromLayout(
+      const res: LayoutProps | undefined = deleteWidgetFromLayout(
         layout,
         widgetId,
       );
@@ -36,7 +36,7 @@ describe("Layouts - deletionUtils tests", () => {
       });
       // layout has two widgets
       const originalLength: number = layout.layout.length;
-      let res: LayoutComponentProps | undefined = deleteWidgetFromLayout(
+      let res: LayoutProps | undefined = deleteWidgetFromLayout(
         layout,
         layout.layout[0] as string,
       );
@@ -56,7 +56,7 @@ describe("Layouts - deletionUtils tests", () => {
       });
       // layout has two widgets
       const originalLength: number = layout.layout.length;
-      let res: LayoutComponentProps | undefined = deleteWidgetFromLayout(
+      let res: LayoutProps | undefined = deleteWidgetFromLayout(
         layout,
         layout.layout[0] as string,
       );
@@ -78,7 +78,7 @@ describe("Layouts - deletionUtils tests", () => {
       // start alignment has two widgets
       const originalStartLength: number = (layout.layout[0] as string[]).length;
       const widgetId: string = (layout.layout[0] as string[])[0];
-      let res: LayoutComponentProps | undefined = deleteWidgetFromLayout(
+      let res: LayoutProps | undefined = deleteWidgetFromLayout(
         layout,
         widgetId,
       );
@@ -98,7 +98,7 @@ describe("Layouts - deletionUtils tests", () => {
       });
       // start alignment has two widgets
       const originalStartLength: number = (layout.layout[0] as string[]).length;
-      let res: LayoutComponentProps | undefined = deleteWidgetFromLayout(
+      let res: LayoutProps | undefined = deleteWidgetFromLayout(
         layout,
         (layout.layout[0] as string[])[0],
       );
@@ -121,7 +121,7 @@ describe("Layouts - deletionUtils tests", () => {
     });
     it("should return the layout as is if widgetId is not present in the layout", () => {
       const layout: LayoutComponentProps = generateAlignedRowMock();
-      const res: LayoutComponentProps | undefined = deleteWidgetFromLayout(
+      const res: LayoutProps | undefined = deleteWidgetFromLayout(
         layout,
         "randomWidgetId",
       );
@@ -145,7 +145,7 @@ describe("Layouts - deletionUtils tests", () => {
         false,
       );
       const layout2: LayoutComponentProps = generateLayoutComponentMock();
-      const res: LayoutComponentProps[] = deleteWidgetFromPreset(
+      const res: LayoutProps[] = deleteWidgetFromPreset(
         [layout2, layout],
         (layout.layout[0] as LayoutComponentProps).layout[0] as string,
       );
@@ -174,7 +174,7 @@ describe("Layouts - deletionUtils tests", () => {
         isPermanent: false,
       });
       // delete the first widget
-      let res: LayoutComponentProps[] = deleteWidgetFromPreset(
+      let res: LayoutProps[] = deleteWidgetFromPreset(
         [layout2, layout],
         layout2.layout[0] as string,
       );

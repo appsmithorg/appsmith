@@ -1,4 +1,8 @@
-import type { AnvilHighlightInfo, LayoutComponentProps } from "../anvilTypes";
+import type {
+  AnvilHighlightInfo,
+  LayoutComponentProps,
+  LayoutProps,
+} from "../anvilTypes";
 import { AlignmentIndexMap } from "../constants";
 import Row from "layoutSystems/anvil/layoutComponents/components/Row";
 import AlignedColumn from "layoutSystems/anvil/layoutComponents/components/AlignedColumn";
@@ -24,10 +28,10 @@ export function generateLayoutId(canvasId: string, layoutId: string): string {
  * @returns LayoutComponentProps
  */
 export function addChildToLayout(
-  props: LayoutComponentProps,
-  children: string[] | LayoutComponentProps[],
+  props: LayoutProps,
+  children: string[] | LayoutProps[],
   highlight: AnvilHighlightInfo,
-): LayoutComponentProps {
+): LayoutProps {
   const layout: any = props.layout;
   const { rowIndex: index } = highlight;
   return {
@@ -44,10 +48,10 @@ export function addChildToLayout(
  * @returns LayoutComponentProps
  */
 export function addChildToAlignedRow(
-  props: LayoutComponentProps,
-  children: string[] | LayoutComponentProps[],
+  props: LayoutProps,
+  children: string[] | LayoutProps[],
   highlight: AnvilHighlightInfo,
-): LayoutComponentProps {
+): LayoutProps {
   const layout: string[][] = props.layout as string[][];
   const { alignment, rowIndex: index } = highlight;
   // Extract index of the affected alignment.
@@ -63,7 +67,7 @@ export function addChildToAlignedRow(
   const updatedLayout = [...layout];
   // Update the affected alignment in the parent layout.
   updatedLayout[alignmentIndex] = updatedAlignmentRow as string[];
-  return { ...props, layout: updatedLayout } as LayoutComponentProps;
+  return { ...props, layout: updatedLayout } as LayoutProps;
 }
 
 /**
@@ -74,10 +78,10 @@ export function addChildToAlignedRow(
  * @returns LayoutComponentProps | undefined
  */
 export function removeChildFromLayout(
-  props: LayoutComponentProps,
-  child: string | LayoutComponentProps,
-): LayoutComponentProps | undefined {
-  let updatedLayout: LayoutComponentProps = { ...props };
+  props: LayoutProps,
+  child: string | LayoutProps,
+): LayoutProps | undefined {
+  let updatedLayout: LayoutProps = { ...props };
   if (typeof child === "string") {
     updatedLayout = {
       ...props,
@@ -106,9 +110,9 @@ export function removeChildFromLayout(
  * @returns LayoutComponentProps | undefined
  */
 export function removeChildFromAlignedRow(
-  props: LayoutComponentProps,
+  props: LayoutProps,
   child: string,
-): LayoutComponentProps | undefined {
+): LayoutProps | undefined {
   const layout: string[][] = props.layout as string[][];
   // Extract index of the affected alignment.
   const alignmentIndex: number = layout.findIndex(

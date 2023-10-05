@@ -1,19 +1,22 @@
 import {
   LayoutComponentTypes,
-  type LayoutComponentProps,
+  type LayoutProps,
 } from "layoutSystems/anvil/utils/anvilTypes";
 import { generateReactKey } from "utils/generators";
 
 export function generateDefaultLayoutPreset(
-  data: Partial<LayoutComponentProps> = {},
-): LayoutComponentProps[] {
+  data: Partial<LayoutProps> = {},
+): LayoutProps[] {
   return [
     {
-      canvasId: "",
       isDropTarget: true,
       isPermanent: true,
       layout: [],
       layoutId: generateReactKey(),
+      layoutStyle: {
+        minHeight: "40px",
+        height: "100%",
+      },
       layoutType: LayoutComponentTypes.ALIGNED_COLUMN,
       ...data,
     },

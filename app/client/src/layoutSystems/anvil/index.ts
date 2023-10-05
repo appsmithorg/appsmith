@@ -77,12 +77,7 @@ const getAnvilCanvasWrapper = () => {
 const getAnvilCanvasPropsEnhancer = (props: BaseWidgetProps) => {
   return {
     ...props,
-    layout:
-      props?.layout ??
-      generateDefaultLayoutPreset({
-        canvasId: props.widgetId,
-        renderMode: props.renderMode,
-      }),
+    layout: props?.layout ?? generateDefaultLayoutPreset(),
   };
 };
 

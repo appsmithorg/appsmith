@@ -31,6 +31,7 @@ export interface LayoutProps {
 
 export interface LayoutComponentProps extends LayoutProps {
   canvasId: string; // Parent canvas of the layout.
+  children?: React.ReactNode; // The children of the layout component
   childrenMap?: Record<string, WidgetProps>; // Map of child widget ids to their props.
   renderMode?: RenderMode;
 }
@@ -40,29 +41,26 @@ export interface LayoutComponent extends React.FC<LayoutComponentProps> {
   type: LayoutComponentType;
   // Add a child widget / layout to the parent layout component.
   addChild: (
-    props: LayoutComponentProps,
-    children: string[] | LayoutComponentProps[],
+    props: LayoutProps,
+    children: string[] | LayoutProps[],
     highlight: AnvilHighlightInfo,
-  ) => LayoutComponentProps;
-  getWidth: (arg0: any) => number;
+  ) => LayoutProps;
   // get template of layout component to wrap new widgets in.
-  getChildTemplate: (
-    props: LayoutComponentProps,
-  ) => LayoutComponentProps | undefined;
+  getChildTemplate: (props: LayoutProps) => LayoutProps | undefined;
   // Get a list of highlights to demarcate the drop positions within the layout.
   deriveHighlights: (canvasId: string) => AnvilHighlightInfo[];
   // Get a list of child widgetIds rendered by the layout.
-  extractChildWidgetIds: (props: LayoutComponentProps) => string[];
+  extractChildWidgetIds: (props: LayoutProps) => string[];
   // Remove a child widget / layout from the layout component.
   // return undefined if layout is not permanent and is empty after deletion.
   removeChild: (
-    props: LayoutComponentProps,
-    child: string | LayoutComponentProps,
-  ) => LayoutComponentProps | undefined;
+    props: LayoutProps,
+    child: string | LayoutProps,
+  ) => LayoutProps | undefined;
   // Render child widgets using the layout property.
   renderChildWidgets: (props: LayoutComponentProps) => React.ReactNode;
   // Check if the layout component renders widgets or layouts.
-  rendersWidgets: (props: LayoutComponentProps) => boolean;
+  rendersWidgets: (props: LayoutProps) => boolean;
 }
 
 export interface AnvilHighlightInfo {
