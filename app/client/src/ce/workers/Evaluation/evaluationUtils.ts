@@ -125,15 +125,6 @@ export function translateCollectionDiffs(
   return dataTreeDiffs;
 }
 
-//these paths are not required to go through evaluate tree as these are internal properties
-const ignorePathsForEvalRegex =
-  ".(reactivePaths|bindingPaths|triggerPaths|validationPaths|dynamicBindingPathList)";
-
-//match if paths are part of ignorePathsForEvalRegex
-const isUninterestingChangeForDependencyUpdate = (path: string) => {
-  return path.match(ignorePathsForEvalRegex);
-};
-
 export const translateDiffEventToDataTreeDiffEvent = (
   difference: Diff<any, any>,
   unEvalDataTree: DataTree,
@@ -156,12 +147,6 @@ export const translateDiffEventToDataTreeDiffEvent = (
     value: "",
   };
 
-  //we do not need evaluate these paths because these are internal paths
-  const isUninterestingPathForUpdateTree =
-    isUninterestingChangeForDependencyUpdate(propertyPath);
-  if (!!isUninterestingPathForUpdateTree) {
-    return result;
-  }
   const { entityName } = getEntityNameAndPropertyPath(propertyPath);
   const entity = unEvalDataTree[entityName];
   const isJsAction = isJSAction(entity);
