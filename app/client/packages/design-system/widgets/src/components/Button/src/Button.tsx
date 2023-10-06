@@ -68,6 +68,7 @@ const _Button = (props: ButtonProps, ref: HeadlessButtonRef) => {
       data-loading={isLoading ? "" : undefined}
       data-variant={variant}
       draggable
+      isDisabled={isDisabled}
       ref={ref}
       {...rest}
     >

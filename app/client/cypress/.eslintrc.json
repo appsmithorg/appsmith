@@ -1,12 +1,6 @@
 {
   "extends": ["../.eslintrc.base.json"],
-  "ignorePatterns": [
-    "locators",
-    "fixtures",
-    "AudioRecorder_spec.js",
-    "audio_spec.js",
-    "Mongo_Spec.js"
-  ],
+  "ignorePatterns": ["locators", "fixtures"],
   "env": {
     "cypress/globals": true
   },
