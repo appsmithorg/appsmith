@@ -22,10 +22,10 @@ export function generateLayoutId(canvasId: string, layoutId: string): string {
 
 /**
  * Update a layout component by adding supplied list of widgets / layouts to it.
- * @param props | LayoutComponentProps - Parent Layout.
- * @param children | string[] | LayoutComponentProps[] - List of child widgets or layouts to be added to the parent layout.
+ * @param props | LayoutProps - Parent Layout.
+ * @param children | WidgetLayoutProps[] | LayoutProps[] - List of child widgets or layouts to be added to the parent layout.
  * @param highlight | HighlightInfo - Drop Information.
- * @returns LayoutComponentProps
+ * @returns LayoutProps
  */
 export function addChildToLayout(
   props: LayoutProps,
@@ -45,9 +45,9 @@ export function addChildToLayout(
 /**
  * Update a layout by removing children at a specified index.
  * return undefined if layout is not permanent and is empty after deletion.
- * @param props | LayoutComponentProps - Parent Layout.
- * @param child | string | LayoutComponentProps - Child (widget / layout) to be removed.
- * @returns LayoutComponentProps | undefined
+ * @param props | LayoutProps - Parent Layout.
+ * @param child | WidgetLayoutProps | LayoutProps - Child (widget / layout) to be removed.
+ * @returns LayoutProps | undefined
  */
 export function removeChildFromLayout(
   props: LayoutProps,

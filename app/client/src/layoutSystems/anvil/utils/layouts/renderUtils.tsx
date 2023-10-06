@@ -30,7 +30,7 @@ export function renderWidgets(
 
 /**
  * Renders a list of layout components.
- * @param layouts | LayoutComponentProps[]
+ * @param layouts | LayoutProps[]
  * @param childrenMap | Record<string, WidgetProps>
  * @returns ReactNode
  */
@@ -58,7 +58,7 @@ export function renderLayouts(
  * Filters childrenMap by parsing given layout
  * to construct a map of only those widgets
  * that are rendered by this layout or its child layouts.
- * @param layoutProps | LayoutComponentProps
+ * @param layoutProps | LayoutProps
  * @param map | Record<string, WidgetProps>
  * @param res | Record<string, WidgetProps>
  * @returns Record<string, WidgetProps>
