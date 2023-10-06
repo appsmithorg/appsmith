@@ -298,7 +298,7 @@ public class PostgresPlugin extends BasePlugin {
             if (endpoints.size() > 0) {
                 String hostName = endpoints.get(0).getHost();
                 Long port = endpoints.get(0).getPort();
-                if (hostName != null && Boolean.FALSE.equals(isBlank(hostName)) && port != null) {
+                if (Boolean.FALSE.equals(isBlank(hostName)) && port != null) {
                     identifier = hostName + "_" + port;
                 } else if (port == null) {
                     identifier = hostName + "_" + DEFAULT_POSTGRES_PORT;

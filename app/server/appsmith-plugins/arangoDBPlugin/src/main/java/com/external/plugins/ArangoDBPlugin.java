@@ -57,6 +57,7 @@ import static com.external.utils.SSLUtils.setSSLContext;
 import static com.external.utils.SSLUtils.setSSLParam;
 import static com.external.utils.StructureUtils.generateTemplatesAndStructureForACollection;
 import static com.external.utils.StructureUtils.getOneDocumentQuery;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public class ArangoDBPlugin extends BasePlugin {
 
@@ -376,6 +377,25 @@ public class ArangoDBPlugin extends BasePlugin {
                     .collectList()
                     .thenReturn(structure)
                     .subscribeOn(scheduler);
+        }
+
+        @Override
+        public Mono<String> getEndpointIdentifierForRateLimit(DatasourceConfiguration datasourceConfiguration) {
+            List<Endpoint> endpoints = datasourceConfiguration.getEndpoints();
+            String identifier = "";
+            // When hostname and port both are available, both will be used as identifier
+            // When port is not present, only hostname will be used
+            // This ensures rate limiting will only be applied if hostname is present
+            if (endpoints.size() > 0) {
+                String hostName = endpoints.get(0).getHost();
+                Long port = endpoints.get(0).getPort();
+                if (Boolean.FALSE.equals(isBlank(hostName)) && port != null) {
+                    identifier = hostName + "_" + port;
+                } else if (port == null) {
+                    identifier = hostName + "_" + DEFAULT_PORT;
+                }
+            }
+            return Mono.just(identifier);
         }
     }
 }

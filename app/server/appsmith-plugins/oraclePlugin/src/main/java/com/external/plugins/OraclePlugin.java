@@ -12,6 +12,7 @@ import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
+import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.PsParameterDTO;
@@ -79,6 +80,7 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Slf4j
 public class OraclePlugin extends BasePlugin {
+    public static final Long ORACLE_DEFAULT_PORT = 1521L;
     public static final OracleDatasourceUtils oracleDatasourceUtils = new OracleDatasourceUtils();
 
     public OraclePlugin(PluginWrapper wrapper) {
@@ -426,6 +428,25 @@ public class OraclePlugin extends BasePlugin {
             }
 
             return preparedStatement;
+        }
+
+        @Override
+        public Mono<String> getEndpointIdentifierForRateLimit(DatasourceConfiguration datasourceConfiguration) {
+            List<Endpoint> endpoints = datasourceConfiguration.getEndpoints();
+            String identifier = "";
+            // When hostname and port both are available, both will be used as identifier
+            // When port is not present, only hostname will be used
+            // This ensures rate limiting will only be applied if hostname is present
+            if (endpoints.size() > 0) {
+                String hostName = endpoints.get(0).getHost();
+                Long port = endpoints.get(0).getPort();
+                if (Boolean.FALSE.equals(isBlank(hostName)) && port != null) {
+                    identifier = hostName + "_" + port;
+                } else if (port == null) {
+                    identifier = hostName + "_" + ORACLE_DEFAULT_PORT;
+                }
+            }
+            return Mono.just(identifier);
         }
     }
 }

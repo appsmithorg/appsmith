@@ -51,6 +51,7 @@ import java.util.regex.Pattern;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_PATH;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public class ElasticSearchPlugin extends BasePlugin {
 
@@ -314,6 +315,25 @@ public class ElasticSearchPlugin extends BasePlugin {
 
                 return new DatasourceTestResult();
             });
+        }
+
+        @Override
+        public Mono<String> getEndpointIdentifierForRateLimit(DatasourceConfiguration datasourceConfiguration) {
+            List<Endpoint> endpoints = datasourceConfiguration.getEndpoints();
+            String identifier = "";
+            // When hostname and port both are available, both will be used as identifier
+            // When port is not present, only hostname will be used
+            // This ensures rate limiting will only be applied if hostname is present
+            if (endpoints.size() > 0) {
+                String hostName = endpoints.get(0).getHost();
+                Long port = endpoints.get(0).getPort();
+                if (Boolean.FALSE.equals(isBlank(hostName)) && port != null) {
+                    identifier = hostName + "_" + port;
+                } else if (port == null) {
+                    identifier = hostName + "_" + ELASTIC_SEARCH_DEFAULT_PORT;
+                }
+            }
+            return Mono.just(identifier);
         }
     }
 }

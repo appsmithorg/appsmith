@@ -44,6 +44,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Slf4j
 public class RedisPlugin extends BasePlugin {
@@ -293,6 +294,25 @@ public class RedisPlugin extends BasePlugin {
             }
 
             return invalids;
+        }
+
+        @Override
+        public Mono<String> getEndpointIdentifierForRateLimit(DatasourceConfiguration datasourceConfiguration) {
+            List<Endpoint> endpoints = datasourceConfiguration.getEndpoints();
+            String identifier = "";
+            // When hostname and port both are available, both will be used as identifier
+            // When port is not present, only hostname will be used
+            // This ensures rate limiting will only be applied if hostname is present
+            if (endpoints.size() > 0) {
+                String hostName = endpoints.get(0).getHost();
+                Long port = endpoints.get(0).getPort();
+                if (Boolean.FALSE.equals(isBlank(hostName)) && port != null) {
+                    identifier = hostName + "_" + port;
+                } else if (port == null) {
+                    identifier = hostName + "_" + RedisURIUtils.DEFAULT_PORT;
+                }
+            }
+            return Mono.just(identifier);
         }
 
         private boolean isAuthenticationMissing(DBAuth auth) {

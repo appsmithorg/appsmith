@@ -43,13 +43,17 @@ import java.io.IOException;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import static org.apache.commons.lang3.StringUtils.isBlank;
+
 @Slf4j
 public class SmtpPlugin extends BasePlugin {
     private static final String BASE64_DELIMITER = ";base64,";
+    public static final Long SMTP_DEFAULT_PORT = 25L;
 
     public SmtpPlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -275,6 +279,25 @@ public class SmtpPlugin extends BasePlugin {
                         return invalids;
                     })
                     .map(DatasourceTestResult::new);
+        }
+
+        @Override
+        public Mono<String> getEndpointIdentifierForRateLimit(DatasourceConfiguration datasourceConfiguration) {
+            List<Endpoint> endpoints = datasourceConfiguration.getEndpoints();
+            String identifier = "";
+            // When hostname and port both are available, both will be used as identifier
+            // When port is not present, only hostname will be used
+            // This ensures rate limiting will only be applied if hostname is present
+            if (endpoints.size() > 0) {
+                String hostName = endpoints.get(0).getHost();
+                Long port = endpoints.get(0).getPort();
+                if (Boolean.FALSE.equals(isBlank(hostName)) && port != null) {
+                    identifier = hostName + "_" + port;
+                } else if (port == null) {
+                    identifier = hostName + "_" + SMTP_DEFAULT_PORT;
+                }
+            }
+            return Mono.just(identifier);
         }
     }
 }
