@@ -198,7 +198,7 @@ class PageApi extends Api {
     order: number,
   ) => `v1/applications/${applicationId}/page/${pageId}/reorder?order=${order}`;
 
-  static fetchPage(
+  static async fetchPage(
     pageRequest: FetchPageRequest,
   ): AxiosPromise<FetchPageResponse> {
     return Api.get(PageApi.url + "/" + pageRequest.id);
@@ -224,7 +224,7 @@ class PageApi extends Api {
     );
   }
 
-  static saveAllPages(
+  static async saveAllPages(
     applicationId: string,
     pageLayouts: PageLayoutsRequest[],
   ) {
@@ -233,7 +233,7 @@ class PageApi extends Api {
     });
   }
 
-  static fetchPublishedPage(
+  static async fetchPublishedPage(
     pageRequest: FetchPublishedPageRequest,
   ): AxiosPromise<FetchPublishedPageResponse> {
     return Api.get(
@@ -241,19 +241,19 @@ class PageApi extends Api {
     );
   }
 
-  static createPage(
+  static async createPage(
     createPageRequest: CreatePageRequest,
   ): AxiosPromise<FetchPageResponse> {
     return Api.post(PageApi.url, createPageRequest);
   }
 
-  static updatePage(
+  static async updatePage(
     request: UpdatePageRequest,
   ): AxiosPromise<ApiResponse<UpdatePageResponse>> {
     return Api.put(PageApi.updatePageUrl(request.id), request);
   }
 
-  static generateTemplatePage(
+  static async generateTemplatePage(
     request: GenerateTemplatePageRequest,
   ): AxiosPromise<ApiResponse> {
     if (request.pageId) {
@@ -263,33 +263,35 @@ class PageApi extends Api {
     }
   }
 
-  static fetchPageList(
+  static async fetchPageList(
     applicationId: string,
   ): AxiosPromise<FetchPageListResponse> {
     return Api.get(PageApi.url + "/application/" + applicationId);
   }
 
-  static fetchPageListViewMode(
+  static async fetchPageListViewMode(
     applicationId: string,
   ): AxiosPromise<FetchPageListResponse> {
     return Api.get(PageApi.url + "/view/application/" + applicationId);
   }
 
-  static deletePage(request: DeletePageRequest): AxiosPromise<ApiResponse> {
+  static async deletePage(
+    request: DeletePageRequest,
+  ): AxiosPromise<ApiResponse> {
     return Api.delete(PageApi.url + "/" + request.id);
   }
 
-  static clonePage(request: ClonePageRequest): AxiosPromise<ApiResponse> {
+  static async clonePage(request: ClonePageRequest): AxiosPromise<ApiResponse> {
     return Api.post(PageApi.url + "/clone/" + request.id);
   }
 
-  static updateWidgetName(
+  static async updateWidgetName(
     request: UpdateWidgetNameRequest,
   ): AxiosPromise<UpdateWidgetNameResponse> {
     return Api.put(PageApi.refactorLayoutURL, request);
   }
 
-  static setPageOrder(
+  static async setPageOrder(
     request: SetPageOrderRequest,
   ): AxiosPromise<FetchPageListResponse> {
     return Api.put(
@@ -301,7 +303,9 @@ class PageApi extends Api {
     );
   }
 
-  static fetchAppAndPages(params: any): AxiosPromise<FetchApplicationResponse> {
+  static async fetchAppAndPages(
+    params: any,
+  ): AxiosPromise<FetchApplicationResponse> {
     return Api.get(PageApi.url, params);
   }
 }

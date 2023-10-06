@@ -243,7 +243,7 @@ export class ApplicationApi extends Api {
     `/${applicationId}/changeAccess`;
   static setDefaultPagePath = (request: SetDefaultPageRequest) =>
     `${ApplicationApi.baseURL}/${request.applicationId}/page/${request.id}/makeDefault`;
-  static publishApplication(
+  static async publishApplication(
     publishApplicationRequest: PublishApplicationRequest,
   ): AxiosPromise<PublishApplicationResponse> {
     return Api.post(
@@ -253,25 +253,25 @@ export class ApplicationApi extends Api {
       {},
     );
   }
-  static fetchApplications(): AxiosPromise<FetchApplicationsResponse> {
+  static async fetchApplications(): AxiosPromise<FetchApplicationsResponse> {
     return Api.get(ApplicationApi.baseURL);
   }
 
-  static getAllApplication(): AxiosPromise<GetAllApplicationResponse> {
+  static async getAllApplication(): AxiosPromise<GetAllApplicationResponse> {
     return Api.get(ApplicationApi.baseURL + "/new");
   }
 
-  static getReleaseItems(): AxiosPromise<FetchReleaseItemsResponse> {
+  static async getReleaseItems(): AxiosPromise<FetchReleaseItemsResponse> {
     return Api.get(ApplicationApi.baseURL + "/releaseItems");
   }
 
-  static fetchApplication(
+  static async fetchApplication(
     applicationId: string,
   ): AxiosPromise<FetchApplicationResponse> {
     return Api.get(ApplicationApi.baseURL + "/" + applicationId);
   }
 
-  static fetchUnconfiguredDatasourceList(payload: {
+  static async fetchUnconfiguredDatasourceList(payload: {
     applicationId: string;
     workspaceId: string;
   }): AxiosPromise<FetchUnconfiguredDatasourceListResponse> {
@@ -280,13 +280,13 @@ export class ApplicationApi extends Api {
     );
   }
 
-  static fetchApplicationForViewMode(
+  static async fetchApplicationForViewMode(
     applicationId: string,
   ): AxiosPromise<FetchApplicationResponse> {
     return Api.get(ApplicationApi.baseURL + `/view/${applicationId}`);
   }
 
-  static createApplication(
+  static async createApplication(
     request: CreateApplicationRequest,
   ): AxiosPromise<PublishApplicationResponse> {
     return Api.post(
@@ -296,13 +296,13 @@ export class ApplicationApi extends Api {
     );
   }
 
-  static setDefaultApplicationPage(
+  static async setDefaultApplicationPage(
     request: SetDefaultPageRequest,
   ): AxiosPromise<ApiResponse> {
     return Api.put(ApplicationApi.setDefaultPagePath(request));
   }
 
-  static changeAppViewAccess(
+  static async changeAppViewAccess(
     request: ChangeAppViewAccessRequest,
   ): AxiosPromise<ApiResponse> {
     return Api.put(
@@ -312,20 +312,20 @@ export class ApplicationApi extends Api {
     );
   }
 
-  static updateApplication(
+  static async updateApplication(
     request: UpdateApplicationRequest,
   ): AxiosPromise<ApiResponse<UpdateApplicationResponse>> {
     const { id, ...rest } = request;
     return Api.put(ApplicationApi.baseURL + "/" + id, rest);
   }
 
-  static deleteApplication(
+  static async deleteApplication(
     request: DeleteApplicationRequest,
   ): AxiosPromise<ApiResponse> {
     return Api.delete(ApplicationApi.baseURL + "/" + request.applicationId);
   }
 
-  static forkApplication(
+  static async forkApplication(
     request: ForkApplicationRequest,
   ): AxiosPromise<ApiResponse> {
     return Api.post(
@@ -337,13 +337,13 @@ export class ApplicationApi extends Api {
     );
   }
 
-  static deleteMultipleApps(request: {
+  static async deleteMultipleApps(request: {
     ids: string[];
   }): AxiosPromise<ApiResponse> {
     return Api.post(`${ApplicationApi.baseURL}/delete-apps`, request.ids);
   }
 
-  static importApplicationToWorkspace(
+  static async importApplicationToWorkspace(
     request: ImportApplicationRequest,
   ): AxiosPromise<ApiResponse> {
     const formData = new FormData();
@@ -365,7 +365,7 @@ export class ApplicationApi extends Api {
     );
   }
 
-  static uploadNavigationLogo(
+  static async uploadNavigationLogo(
     request: UploadNavigationLogoRequest,
   ): AxiosPromise<ApiResponse> {
     const formData = new FormData();
@@ -386,7 +386,7 @@ export class ApplicationApi extends Api {
     );
   }
 
-  static deleteNavigationLogo(
+  static async deleteNavigationLogo(
     request: DeleteNavigationLogoRequest,
   ): AxiosPromise<ApiResponse> {
     return Api.delete(
@@ -394,19 +394,21 @@ export class ApplicationApi extends Api {
     );
   }
 
-  static createApplicationSnapShot(request: snapShotApplicationRequest) {
+  static async createApplicationSnapShot(request: snapShotApplicationRequest) {
     return Api.post(getSnapShotAPIRoute(request.applicationId));
   }
 
-  static getSnapShotDetails(request: snapShotApplicationRequest) {
+  static async getSnapShotDetails(request: snapShotApplicationRequest) {
     return Api.get(getSnapShotAPIRoute(request.applicationId));
   }
 
-  static restoreApplicationFromSnapshot(request: snapShotApplicationRequest) {
+  static async restoreApplicationFromSnapshot(
+    request: snapShotApplicationRequest,
+  ) {
     return Api.post(getSnapShotAPIRoute(request.applicationId) + "/restore");
   }
 
-  static deleteApplicationSnapShot(request: snapShotApplicationRequest) {
+  static async deleteApplicationSnapShot(request: snapShotApplicationRequest) {
     return Api.delete(getSnapShotAPIRoute(request.applicationId));
   }
 }

@@ -21,11 +21,11 @@ export type UpdateTenantConfigRequest = {
 export class TenantApi extends Api {
   static tenantsUrl = "v1/tenants";
 
-  static fetchCurrentTenantConfig(): AxiosPromise<FetchCurrentTenantConfigResponse> {
+  static async fetchCurrentTenantConfig(): AxiosPromise<FetchCurrentTenantConfigResponse> {
     return Api.get(`${TenantApi.tenantsUrl}/current`);
   }
 
-  static updateTenantConfig(
+  static async updateTenantConfig(
     request: UpdateTenantConfigRequest,
   ): AxiosPromise<UpdateTenantConfigResponse> {
     return Api.put(`${TenantApi.tenantsUrl}`, request.tenantConfiguration);

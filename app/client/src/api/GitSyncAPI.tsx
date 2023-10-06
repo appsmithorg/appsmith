@@ -46,7 +46,7 @@ type GitRemoteStatusParam = {
 class GitSyncAPI extends Api {
   static baseURL = `/v1/git`;
 
-  static commit({
+  static async commit({
     applicationId,
     branch,
     commitMessage,
@@ -61,7 +61,7 @@ class GitSyncAPI extends Api {
     );
   }
 
-  static merge({
+  static async merge({
     applicationId,
     destinationBranch,
     sourceBranch,
@@ -72,7 +72,7 @@ class GitSyncAPI extends Api {
     });
   }
 
-  static getMergeStatus({
+  static async getMergeStatus({
     applicationId,
     destinationBranch,
     sourceBranch,
@@ -83,26 +83,26 @@ class GitSyncAPI extends Api {
     });
   }
 
-  static pull({ applicationId }: { applicationId: string }) {
+  static async pull({ applicationId }: { applicationId: string }) {
     return Api.get(`${GitSyncAPI.baseURL}/pull/app/${applicationId}`);
   }
 
-  static connect(payload: ConnectToGitPayload, applicationId: string) {
+  static async connect(payload: ConnectToGitPayload, applicationId: string) {
     return Api.post(
       `${GitSyncAPI.baseURL}/connect/app/${applicationId}`,
       payload,
     );
   }
 
-  static getGlobalConfig() {
+  static async getGlobalConfig() {
     return Api.get(`${GitSyncAPI.baseURL}/profile/default`);
   }
 
-  static setGlobalConfig(payload: GitConfig) {
+  static async setGlobalConfig(payload: GitConfig) {
     return Api.post(`${GitSyncAPI.baseURL}/profile/default`, payload);
   }
 
-  static fetchBranches(applicationId: string, pruneBranches?: boolean) {
+  static async fetchBranches(applicationId: string, pruneBranches?: boolean) {
     const queryParams = {} as { pruneBranches?: boolean };
     if (pruneBranches) queryParams.pruneBranches = true;
     return Api.get(
@@ -111,7 +111,7 @@ class GitSyncAPI extends Api {
     );
   }
 
-  static checkoutBranch(applicationId: string, branch: string) {
+  static async checkoutBranch(applicationId: string, branch: string) {
     return Api.get(
       `${GitSyncAPI.baseURL}/checkout-branch/app/${applicationId}`,
       {
@@ -120,7 +120,7 @@ class GitSyncAPI extends Api {
     );
   }
 
-  static createNewBranch(applicationId: string, branch: string) {
+  static async createNewBranch(applicationId: string, branch: string) {
     return Api.post(
       `${GitSyncAPI.baseURL}/create-branch/app/${applicationId}`,
       {
@@ -129,18 +129,18 @@ class GitSyncAPI extends Api {
     );
   }
 
-  static getLocalConfig(applicationId: string) {
+  static async getLocalConfig(applicationId: string) {
     return Api.get(`${GitSyncAPI.baseURL}/profile/app/${applicationId}`);
   }
 
-  static setLocalConfig(payload: GitConfig, applicationId: string) {
+  static async setLocalConfig(payload: GitConfig, applicationId: string) {
     return Api.put(
       `${GitSyncAPI.baseURL}/profile/app/${applicationId}`,
       payload,
     );
   }
 
-  static getGitStatus({
+  static async getGitStatus({
     applicationId,
     branch,
     compareRemote = "true",
@@ -152,7 +152,10 @@ class GitSyncAPI extends Api {
     );
   }
 
-  static getGitRemoteStatus({ applicationId, branch }: GitRemoteStatusParam) {
+  static async getGitRemoteStatus({
+    applicationId,
+    branch,
+  }: GitRemoteStatusParam) {
     return Api.get(
       `${GitSyncAPI.baseURL}/fetch/remote/app/${applicationId}`,
       {},
@@ -160,19 +163,19 @@ class GitSyncAPI extends Api {
     );
   }
 
-  static revokeGit({ applicationId }: { applicationId: string }) {
+  static async revokeGit({ applicationId }: { applicationId: string }) {
     return Api.post(`${GitSyncAPI.baseURL}/disconnect/app/${applicationId}`);
   }
 
-  static importApp(payload: ConnectToGitPayload, workspaceId: string) {
+  static async importApp(payload: ConnectToGitPayload, workspaceId: string) {
     return Api.post(`${GitSyncAPI.baseURL}/import/${workspaceId}`, payload);
   }
 
-  static getSSHKeyPair(applicationId: string): AxiosPromise<ApiResponse> {
+  static async getSSHKeyPair(applicationId: string): AxiosPromise<ApiResponse> {
     return Api.get(ApplicationApi.baseURL + "/ssh-keypair/" + applicationId);
   }
 
-  static generateSSHKeyPair(
+  static async generateSSHKeyPair(
     applicationId: string,
     keyType: string,
     isImporting?: boolean,
@@ -183,7 +186,7 @@ class GitSyncAPI extends Api {
     return isImporting ? Api.get(url) : Api.post(url);
   }
 
-  static deleteBranch(
+  static async deleteBranch(
     applicationId: string,
     branchName: string,
   ): AxiosPromise<ApiResponse> {
@@ -192,7 +195,7 @@ class GitSyncAPI extends Api {
     });
   }
 
-  static discardChanges(applicationId: string) {
+  static async discardChanges(applicationId: string) {
     return Api.put(`${GitSyncAPI.baseURL}/discard/app/${applicationId}`);
   }
 }

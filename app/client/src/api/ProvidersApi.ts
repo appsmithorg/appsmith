@@ -68,33 +68,35 @@ export class ProvidersApi extends Api {
 
   static addApiToPageURL = `v1/items/addToPage`;
 
-  static fetchProviders(): AxiosPromise<FetchProvidersResponse> {
+  static async fetchProviders(): AxiosPromise<FetchProvidersResponse> {
     return Api.get(ProvidersApi.providersURL);
   }
 
-  static fetchProviderTemplates(
+  static async fetchProviderTemplates(
     request: FetchProviderTemplatesRequest,
   ): AxiosPromise<FetchProviderTemplateResponse> {
     const { providerId } = request;
     return Api.get(ProvidersApi.providerTemplateURL(providerId));
   }
 
-  static seachApiOrProvider(
+  static async seachApiOrProvider(
     request: SearchApiOrProviderRequest,
   ): AxiosPromise<SearchApiOrProviderResponse> {
     const { searchKey } = request;
     return Api.get(ProvidersApi.searchApiOrProviderUrl(searchKey));
   }
 
-  static addApiToPage(request: AddApiToPageRequest): AxiosPromise<ApiResponse> {
+  static async addApiToPage(
+    request: AddApiToPageRequest,
+  ): AxiosPromise<ApiResponse> {
     return Api.post(ProvidersApi.addApiToPageURL, request);
   }
 
-  static fetchProvidersCategories(): AxiosPromise<FetchProviderCategoriesResponse> {
+  static async fetchProvidersCategories(): AxiosPromise<FetchProviderCategoriesResponse> {
     return Api.get(ProvidersApi.providerCategoriesURL);
   }
 
-  static fetchProvidersWithCategory(
+  static async fetchProvidersWithCategory(
     request: FetchProviderWithCategoryRequest,
   ): AxiosPromise<FetchProvidersResponse> {
     const { page } = request;
@@ -103,7 +105,7 @@ export class ProvidersApi extends Api {
     );
   }
 
-  static fetchProviderDetailsByProviderId(
+  static async fetchProviderDetailsByProviderId(
     request: FetchProviderDetailsByProviderIdRequest,
   ): AxiosPromise<FetchProviderDetailsResponse> {
     const { providerId } = request;

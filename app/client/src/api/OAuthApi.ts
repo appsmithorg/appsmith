@@ -7,7 +7,7 @@ class OAuthApi extends Api {
   static url = "v1/saas";
 
   // Api endpoint to get "Appsmith token" from server
-  static getAppsmithToken(
+  static async getAppsmithToken(
     datasourceId: string,
     pageId: string,
     isImport?: boolean,
@@ -19,7 +19,7 @@ class OAuthApi extends Api {
   }
 
   // Api endpoint to get access token for datasource authorization
-  static getAccessToken(
+  static async getAccessToken(
     datasourceId: string,
     token: string,
   ): AxiosPromise<ApiResponse<Datasource>> {
