@@ -75,7 +75,6 @@ public class CustomJSLib extends BranchAwareDomain {
 
         this.setAccessor(transformAccessor(customJSLibCompatibilityDTO.getAccessor()));
         this.setName(customJSLibCompatibilityDTO.getName());
-        this.setUidString(customJSLibCompatibilityDTO.getUidString());
         this.setUrl(customJSLibCompatibilityDTO.getUrl());
         this.setVersion(customJSLibCompatibilityDTO.getVersion());
         this.setDocsUrl(customJSLibCompatibilityDTO.getDocsUrl());
@@ -89,6 +88,7 @@ public class CustomJSLib extends BranchAwareDomain {
         // branch aware domain
         this.setDefaultResources(customJSLibCompatibilityDTO.getDefaultResources());
         this.modifyAccessorValueForXMLParser();
+        this.setUidString();
     }
 
     public Set<Map<String, String>> transformAccessor(Set<String> accessorSet) {
@@ -122,7 +122,7 @@ public class CustomJSLib extends BranchAwareDomain {
 
     public void setUidString() {
         List<String> accessorList = new ArrayList(
-                CustomJSLibCompatibilityDTO.transformAccessor(this.accessor, FieldName.ORIGINAL_ACCESSOR_KEY));
+                CustomJSLibCompatibilityDTO.transformAccessor(this.accessor, FieldName.MODIFIED_ACCESSOR_KEY));
         Collections.sort(accessorList);
         this.uidString = String.join("_", accessorList) + "_" + this.url;
     }
