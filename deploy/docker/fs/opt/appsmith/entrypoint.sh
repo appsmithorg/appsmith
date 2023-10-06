@@ -247,25 +247,25 @@ is_empty_directory() {
   [[ -d $1 && -z "$(ls -A "$1")" ]]
 }
 
-check_setup_custom_ca_certificates() {
+setup-custom-ca-certificates() (
   local stacks_ca_certs_path="$stacks_path/ca-certs"
   local store="$TMP/cacerts"
   local opts_file="$TMP/java-cacerts-opts"
 
   rm -f "$store" "$opts_file"
 
-  if [[ ! -d /appsmith-stacks/ca-certs ]]; then
-    echo "No custom CA certificates found"
-    return
+  if [[ -n "$(ls "$stacks_ca_certs_path"/*.pem 2>/dev/null)" ]]; then
+    echo "Looks like you have some '.pem' files in your 'ca-certs' folder. Please rename them to '.crt' to be picked up automatically.".
   fi
 
-  if [[ -n "$(ls "$stacks_ca_certs_path"/*.pem 2>/dev/null)" ]]; then
-    echo "Looks like you have some '.pem' files in your 'ca-certs' folder. Please rename them to '.crt' to be picked up autatically.".
+  if ! [[ -d "$stacks_ca_certs_path" && "$(find "$stacks_ca_certs_path" -maxdepth 1 -type f -name '*.crt' | wc -l)" -gt 0 ]]; then
+    echo "No custom CA certificates found."
+    return
   fi
 
   # Import the system CA certificates into the store.
   keytool -importkeystore \
-    -srckeystore /usr/lib/jvm/temurin-17-jdk-arm64/lib/security/cacerts \
+    -srckeystore /opt/java/lib/security/cacerts \
     -destkeystore "$store" \
     -srcstorepass changeit \
     -deststorepass changeit
@@ -278,7 +278,7 @@ check_setup_custom_ca_certificates() {
     echo "-Djavax.net.ssl.trustStore=$store"
     echo "-Djavax.net.ssl.trustStorePassword=changeit"
   } > "$opts_file"
-}
+)
 
 configure_supervisord() {
   local supervisord_conf_source="/opt/appsmith/templates/supervisord"
@@ -304,21 +304,28 @@ configure_supervisord() {
 
 }
 
-# This is a workaround to get Redis working on diffent memory pagesize
+# This is a workaround to get Redis working on different memory pagesize
 # https://github.com/appsmithorg/appsmith/issues/11773
 check_redis_compatible_page_size() {
   local page_size
   page_size="$(getconf PAGE_SIZE)"
   if [[ $page_size -gt 4096 ]]; then
+    curl \
+      --silent \
+      --user "$APPSMITH_SEGMENT_CE_KEY:" \
+      --header 'Content-Type: application/json' \
+      --data '{ "userId": "'"$HOSTNAME"'", "event":"RedisCompile" }' \
+      https://api.segment.io/v1/track \
+      || true
     echo "Compile Redis stable with page size of $page_size"
-    echo "Downloading Redis source..."
-    curl https://download.redis.io/redis-stable.tar.gz -L | tar xvz
-    cd redis-stable/
-    echo "Compiling Redis from source..."
-    make && make install
-    echo "Cleaning up Redis source..."
-    cd ..
-    rm -rf redis-stable/
+    apt-get update
+    apt-get install --yes build-essential
+    curl --location https://download.redis.io/redis-stable.tar.gz | tar -xz -C /tmp
+    pushd /tmp/redis-stable
+    make
+    make install
+    popd
+    rm -rf /tmp/redis-stable
   else
     echo "Redis is compatible with page size of $page_size"
   fi
@@ -430,7 +437,7 @@ else
   export HOSTNAME="heroku_dyno"
 fi
 
-check_setup_custom_ca_certificates
+setup-custom-ca-certificates
 
 check_redis_compatible_page_size
 

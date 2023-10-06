@@ -12,7 +12,10 @@ import BaseWidget from "../../BaseWidget";
 import type { AutocompletionDefinitions } from "WidgetProvider/constants";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
-import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
+import {
+  FlexVerticalAlignment,
+  ResponsiveBehavior,
+} from "layoutSystems/common/utils/constants";
 import IconSVG from "../icon.svg";
 import type {
   SnipingModeProperty,
@@ -53,6 +56,7 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
       animateLoading: true,
       backgroundColor: "#000",
       responsiveBehavior: ResponsiveBehavior.Fill,
+      flexVerticalAlignment: FlexVerticalAlignment.Top,
     };
   }
 

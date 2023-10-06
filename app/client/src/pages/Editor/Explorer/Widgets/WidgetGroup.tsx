@@ -22,8 +22,10 @@ import {
 } from "@appsmith/pages/Editor/Explorer/helpers";
 import { AddEntity, EmptyComponent } from "../common";
 import { noop } from "lodash";
-import { hasManagePagePermission } from "@appsmith/utils/permissionHelpers";
 import { Icon } from "design-system";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { getHasManagePagePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 
 type ExplorerWidgetGroupProps = {
   step: number;
@@ -58,7 +60,12 @@ export const ExplorerWidgetGroup = memo((props: ExplorerWidgetGroupProps) => {
 
   const pagePermissions = useSelector(getPagePermissions);
 
-  const canManagePages = hasManagePagePermission(pagePermissions);
+  const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+
+  const canManagePages = getHasManagePagePermission(
+    isFeatureEnabled,
+    pagePermissions,
+  );
 
   return (
     <Entity

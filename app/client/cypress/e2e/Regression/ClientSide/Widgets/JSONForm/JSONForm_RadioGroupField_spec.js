@@ -3,6 +3,8 @@ const dslWithoutSchema = require("../../../../../fixtures/jsonFormDslWithoutSche
 const fieldPrefix = ".t--jsonformfield";
 import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 let agHelper = ObjectsRegistry.AggregateHelper;
+let locators = ObjectsRegistry.CommonLocators;
+let propPane = ObjectsRegistry.PropertyPane;
 
 function selectAndValidateOption(selector, option, expectedFormData) {
   // Select option Zero
@@ -68,7 +70,8 @@ describe("JSONForm RadioGroup Field", () => {
 
     // Apply schema and change the field type to radio group
     cy.openPropertyPane("jsonformwidget");
-    cy.testJsontext("sourcedata", JSON.stringify(schema));
+    propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
+
     cy.openFieldConfiguration("binary");
     cy.selectDropdownValue(commonlocators.jsonFormFieldType, /^Radio Group$/);
 
@@ -117,7 +120,8 @@ describe("JSONForm RadioGroup Field", () => {
 
     // Apply schema and change the field type to radio group
     cy.openPropertyPane("jsonformwidget");
-    cy.testJsontext("sourcedata", JSON.stringify(schema));
+    propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
+
     cy.openFieldConfiguration("accept");
     cy.selectDropdownValue(commonlocators.jsonFormFieldType, /^Radio Group$/);
 

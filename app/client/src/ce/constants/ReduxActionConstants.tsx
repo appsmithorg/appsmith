@@ -13,11 +13,9 @@ import type {
   LayoutOnLoadActionErrors,
   PageAction,
 } from "constants/AppsmithActionConstants/ActionConstants";
-import type {
-  AppLayoutConfig,
-  AppPositioningTypeConfig,
-} from "reducers/entityReducers/pageListReducer";
+import type { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
 import type { DSLWidget } from "WidgetProvider/constants";
+import type { LayoutSystemTypeConfig } from "layoutSystems/types";
 
 export const ReduxSagaChannels = {
   WEBSOCKET_APP_LEVEL_WRITE_CHANNEL: "WEBSOCKET_APP_LEVEL_WRITE_CHANNEL",
@@ -806,7 +804,7 @@ const ActionTypes = {
   AUTOLAYOUT_REORDER_WIDGETS: "AUTOLAYOUT_REORDER_WIDGETS",
   AUTOLAYOUT_ADD_NEW_WIDGETS: "AUTOLAYOUT_ADD_NEW_WIDGETS",
   RECALCULATE_COLUMNS: "RECALCULATE_COLUMNS",
-  UPDATE_LAYOUT_POSITIONING: "UPDATE_LAYOUT_POSITIONING",
+  UPDATE_LAYOUT_SYSTEM_TYPE: "UPDATE_LAYOUT_SYSTEM_TYPE",
   SET_LAYOUT_CONVERSION_STATE: "SET_LAYOUT_CONVERSION_STATE",
   START_CONVERSION_FLOW: "START_CONVERSION_FLOW",
   STOP_CONVERSION_FLOW: "STOP_CONVERSION_FLOW",
@@ -867,6 +865,7 @@ const ActionTypes = {
   DELETE_MULTIPLE_APPLICATION_SUCCESS: "DELETE_MULTIPLE_APPLICATION_SUCCESS",
   DELETE_MULTIPLE_APPLICATION_CANCEL: "DELETE_MULTIPLE_APPLICATION_CANCEL",
   TRIGGER_EVAL: "TRIGGER_EVAL",
+  UPDATE_ACTION_DATA: "UPDATE_ACTION_DATA",
 };
 
 export const ReduxActionTypes = {
@@ -1193,7 +1192,7 @@ export interface ApplicationPayload {
   isManualUpdate?: boolean;
   embedSetting?: AppEmbedSetting;
   applicationDetail?: {
-    appPositioning?: AppPositioningTypeConfig;
+    appPositioning?: LayoutSystemTypeConfig;
     navigationSetting?: NavigationSetting;
   };
   collapseInvisibleWidgets?: boolean;

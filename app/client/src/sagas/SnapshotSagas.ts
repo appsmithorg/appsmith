@@ -10,15 +10,13 @@ import log from "loglevel";
 import type { SnapShotDetails } from "reducers/uiReducers/layoutConversionReducer";
 import { CONVERSION_STATES } from "reducers/uiReducers/layoutConversionReducer";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
-import {
-  getAppPositioningType,
-  getCurrentApplicationId,
-} from "selectors/editorSelectors";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { getLogToSentryFromResponse } from "utils/helpers";
 import { validateResponse } from "./ErrorSagas";
 import { updateApplicationLayoutType } from "./AutoLayoutUpdateSagas";
-import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import { LayoutSystemTypes } from "layoutSystems/types";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 
 //Saga to create application snapshot
 export function* createSnapshotSaga() {
@@ -86,8 +84,8 @@ function* restoreApplicationFromSnapshotSaga() {
       applicationId,
     });
 
-    const currentAppPositioningType: AppPositioningTypes = yield select(
-      getAppPositioningType,
+    const currentLayoutSystemType: LayoutSystemTypes = yield select(
+      getLayoutSystemType,
     );
 
     const isValidResponse: boolean = yield validateResponse(
@@ -110,12 +108,12 @@ function* restoreApplicationFromSnapshotSaga() {
       });
     }
 
-    //update layout positioning type from
+    //update layout system type from
     yield call(
       updateApplicationLayoutType,
-      currentAppPositioningType === AppPositioningTypes.FIXED
-        ? AppPositioningTypes.AUTO
-        : AppPositioningTypes.FIXED,
+      currentLayoutSystemType === LayoutSystemTypes.FIXED
+        ? LayoutSystemTypes.AUTO
+        : LayoutSystemTypes.FIXED,
     );
 
     if (isValidResponse) {

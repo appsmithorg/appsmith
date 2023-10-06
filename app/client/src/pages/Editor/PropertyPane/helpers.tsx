@@ -5,7 +5,7 @@ import type {
 } from "constants/PropertyControlConstants";
 import { debounce } from "lodash";
 import { useCallback, useState } from "react";
-import { appPositioningBasedPropertyFilter } from "sagas/WidgetEnhancementHelpers";
+import { layoutSystemBasedPropertyFilter } from "sagas/WidgetEnhancementHelpers";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { Callout } from "design-system";
 import React from "react";
@@ -63,7 +63,7 @@ export function evaluateHiddenProperty(
       }
     } else if (controlConfig.controlType) {
       const isControlHidden =
-        appPositioningBasedPropertyFilter(
+        layoutSystemBasedPropertyFilter(
           widgetProps,
           controlConfig.propertyName,
         ) ||

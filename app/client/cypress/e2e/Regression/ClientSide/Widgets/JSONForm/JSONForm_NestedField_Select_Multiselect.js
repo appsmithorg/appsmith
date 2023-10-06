@@ -8,6 +8,8 @@ const dslWithoutSchema = require("../../../../../fixtures/jsonFormDslWithoutSche
 const fieldPrefix = ".t--jsonformfield";
 import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 let agHelper = ObjectsRegistry.AggregateHelper;
+let locators = ObjectsRegistry.CommonLocators;
+let propPane = ObjectsRegistry.PropertyPane;
 
 describe("JSONForm select field", () => {
   beforeEach(() => {
@@ -31,7 +33,8 @@ describe("JSONForm select field", () => {
     };
     cy.addDsl(dslWithoutSchema);
     cy.openPropertyPane("jsonformwidget");
-    cy.testJsontext("sourcedata", JSON.stringify(schema));
+    propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
+
     cy.openFieldConfiguration("object");
     cy.openFieldConfiguration("select", false);
     cy.selectDropdownValue(commonlocators.jsonFormFieldType, /^Select$/);
@@ -91,7 +94,8 @@ describe("JSONForm select field", () => {
     };
     cy.addDsl(dslWithoutSchema);
     cy.openPropertyPane("jsonformwidget");
-    cy.testJsontext("sourcedata", JSON.stringify(schema));
+    propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
+
     cy.openFieldConfiguration("object");
     cy.openFieldConfiguration("multiselect", false);
     cy.selectDropdownValue(commonlocators.jsonFormFieldType, /^Multiselect$/);

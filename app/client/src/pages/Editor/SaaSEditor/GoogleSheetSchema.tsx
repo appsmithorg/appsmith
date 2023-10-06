@@ -32,13 +32,15 @@ import {
   GSHEETS_SCHEMA_NO_DATA,
 } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import {
-  hasCreateDatasourceActionPermission,
-  hasCreatePagePermission,
-} from "@appsmith/utils/permissionHelpers";
 import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
 import type { AppState } from "@appsmith/reducers";
 import { getDatasource } from "@appsmith/selectors/entitiesSelector";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import {
+  getHasCreateDatasourceActionPermission,
+  getHasCreatePagePermission,
+} from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 
 export const MessageWrapper = styled.div`
   display: flex;
@@ -287,12 +289,18 @@ function GoogleSheetSchema(props: Props) {
   const userAppPermissions = useSelector(
     (state: AppState) => getCurrentApplication(state)?.userPermissions ?? [],
   );
-  const canCreatePages = hasCreatePagePermission(userAppPermissions);
 
-  const canCreateDatasourceActions = hasCreateDatasourceActionPermission([
-    ...datasourcePermissions,
-    ...pagePermissions,
-  ]);
+  const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+
+  const canCreatePages = getHasCreatePagePermission(
+    isFeatureEnabled,
+    userAppPermissions,
+  );
+
+  const canCreateDatasourceActions = getHasCreateDatasourceActionPermission(
+    isFeatureEnabled,
+    [...datasourcePermissions, ...pagePermissions],
+  );
 
   const showGeneratePageBtn =
     !isLoading &&

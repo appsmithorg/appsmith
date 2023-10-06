@@ -1,5 +1,7 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const dslWithSchema = require("../../../../../fixtures/jsonFormDslWithSchema.json");
+import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
+const locators = ObjectsRegistry.CommonLocators;
 const {
   agHelper,
   deployMode,
@@ -16,7 +18,7 @@ describe("JSON Form Widget Field Change", () => {
 
   it("1. modifies field type text to number", () => {
     cy.openPropertyPane("jsonformwidget");
-
+    cy.get(locators._jsToggle("sourcedata")).click({ force: true });
     cy.get(`${fieldPrefix}-name`).find("button").should("not.exist");
     cy.openFieldConfiguration("name");
     cy.selectDropdownValue(commonlocators.jsonFormFieldType, "Number Input");

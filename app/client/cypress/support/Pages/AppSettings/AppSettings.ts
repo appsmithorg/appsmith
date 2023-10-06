@@ -10,6 +10,7 @@ export class AppSettings {
     _generalSettingsHeader: "#t--general-settings-header",
     _embedSettingsHeader: "#t--share-embed-settings",
     _navigationSettingsTab: "#t--navigation-settings-header",
+    _importHeader: "#t--update-via-import",
     _navigationSettings: {
       _showNavbar: "#t--navigation-settings-show-navbar",
       _showSignIn: "#t--navigation-settings-show-sign-in",
@@ -85,6 +86,10 @@ export class AppSettings {
 
   public GoToEmbedSettings() {
     this.agHelper.GetNClick(this.locators._embedSettingsHeader);
+  }
+
+  public GoToImport() {
+    this.agHelper.GetNClick(this.locators._importHeader);
   }
 
   public GoToPageSettings(pageName: string) {

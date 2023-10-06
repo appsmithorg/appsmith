@@ -2,7 +2,7 @@ import {
   createMessage,
   DATASOURCE_STRUCTURE_INPUT_PLACEHOLDER_TEXT,
   SCHEMA_NOT_AVAILABLE,
-  TABLE_OR_COLUMN_NOT_FOUND,
+  TABLE_NOT_FOUND,
 } from "@appsmith/constants/messages";
 import type { DatasourceStructure as DatasourceStructureType } from "entities/Datasource";
 import type { ReactElement } from "react";
@@ -178,14 +178,18 @@ const Container = (props: Props) => {
               currentActionId={props.currentActionId || ""}
               datasourceId={props.datasourceId}
               forceExpand={hasSearchedOccured}
+              // If set, then it doesn't set the context menu to generate query from templates
+              onEntityTableClick={props.onEntityTableClick}
               step={props.step + 1}
+              // Selected table name for the view mode datasource preview data page
+              tableName={props.tableName}
               tables={datasourceStructure.tables}
             />
           )}
 
           {!datasourceStructure?.tables?.length && (
             <Text kind="body-s" renderAs="p">
-              {createMessage(TABLE_OR_COLUMN_NOT_FOUND)}
+              {createMessage(TABLE_NOT_FOUND)}
             </Text>
           )}
         </>

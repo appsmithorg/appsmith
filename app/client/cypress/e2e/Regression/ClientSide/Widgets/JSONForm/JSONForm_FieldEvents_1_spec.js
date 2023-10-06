@@ -9,6 +9,7 @@ import {
   deployMode,
   propPane,
   entityExplorer,
+  locators,
 } from "../../../../../support/Objects/ObjectsCore";
 
 const fieldPrefix = ".t--jsonformfield";
@@ -30,7 +31,7 @@ describe("Radio Group Field", () => {
     agHelper.AddDsl("jsonFormDslWithoutSchema");
 
     entityExplorer.SelectEntityByName("JSONForm1");
-    propPane.UpdatePropertyFieldValue("Source data", JSON.stringify(schema));
+    propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
 
     cy.openFieldConfiguration("answer");
     cy.selectDropdownValue(commonlocators.jsonFormFieldType, "Radio Group");
@@ -56,10 +57,13 @@ describe("Radio Group Field", () => {
     const schema = {
       colors: ["BLUE"],
     };
-
     entityExplorer.SelectEntityByName("JSONForm1");
-    propPane.UpdatePropertyFieldValue("Source data", JSON.stringify(schema));
+    propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
+    // cy.closePropertyPane();
+  });
 
+  it("4. Shows updated formData values in onOptionChange binding", () => {
+    cy.openPropertyPane("jsonformwidget");
     cy.openFieldConfiguration("colors");
 
     // Enable JS mode for onOptionChange
@@ -88,7 +92,8 @@ describe("Radio Group Field", () => {
     };
     agHelper.AddDsl("jsonFormDslWithoutSchema");
     entityExplorer.SelectEntityByName("JSONForm1");
-    propPane.UpdatePropertyFieldValue("Source data", JSON.stringify(schema));
+    propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
+
     cy.openFieldConfiguration("color");
     cy.selectDropdownValue(commonlocators.jsonFormFieldType, /^Select/);
 
@@ -117,7 +122,7 @@ describe("Radio Group Field", () => {
     agHelper.AddDsl("jsonFormDslWithoutSchema");
 
     entityExplorer.SelectEntityByName("JSONForm1");
-    propPane.UpdatePropertyFieldValue("Source data", JSON.stringify(schema));
+    propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
     cy.openFieldConfiguration("name");
 
     // Add onTextChanged action
