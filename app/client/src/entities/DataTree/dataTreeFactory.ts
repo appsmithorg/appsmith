@@ -23,10 +23,10 @@ export class DataTreeFactory {
   static create({
     actions,
     appData,
-    appPositioningType,
     editorConfigs,
     isMobile,
     jsActions,
+    layoutSystemType,
     loadingEntities,
     metaWidgets,
     moduleInputs,
@@ -80,12 +80,11 @@ export class DataTreeFactory {
         widget,
         widgetsMeta[widget.metaWidgetId || widget.widgetId],
         loadingEntities,
-        appPositioningType,
+        layoutSystemType,
         isMobile,
       );
 
       dataTree[widget.widgetName] = unEvalEntity;
-
       configTree[widget.widgetName] = configEntity;
     });
 

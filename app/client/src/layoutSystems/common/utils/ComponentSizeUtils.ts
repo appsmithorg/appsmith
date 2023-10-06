@@ -1,6 +1,6 @@
 import { GridDefaults } from "constants/WidgetConstants";
+import { LayoutSystemTypes } from "layoutSystems/types";
 import memo from "micro-memoize";
-import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 
 /**
@@ -109,14 +109,14 @@ export const getAnvilComponentDimensions = ({
 export const getComponentDimensions = memo(
   (
     props: BaseWidgetProps,
-    appPositioningType: AppPositioningTypes,
+    layoutSystemType: LayoutSystemTypes,
     isMobile: boolean,
   ): {
     componentHeight: number;
     componentWidth: number;
   } => {
-    switch (appPositioningType) {
-      case AppPositioningTypes.AUTO:
+    switch (layoutSystemType) {
+      case LayoutSystemTypes.AUTO:
         return getAutoLayoutComponentDimensions({ ...props, isMobile });
       default:
         return getFixedLayoutComponentDimensions(props);
