@@ -13,7 +13,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import java.util.Set;
 
 @Slf4j
-@ChangeUnit(order = "028", id = "customjslib-schema-update")
+@ChangeUnit(order = "028", id = "customjslib-schema-update", runAlways = true)
 public class Migration028ModifyingCustomJSLibSchema {
 
     private final MongoTemplate mongoTemplate;
