@@ -4,7 +4,7 @@ import {
   SettingCategories,
   SettingTypes,
 } from "@appsmith/pages/AdminSettings/config/types";
-import { googleMapsConfig } from "./googleMaps";
+import { googleMapsConfig } from "@appsmith/pages/AdminSettings/config/DeveloperSettings/googleMaps";
 
 export const config: AdminConfigType = {
   icon: "snippet",
