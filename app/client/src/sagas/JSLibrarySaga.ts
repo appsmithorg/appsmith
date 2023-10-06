@@ -122,7 +122,7 @@ export function* installLibrarySaga(lib: Partial<TJSLibrary>) {
     return;
   }
 
-  const name: string = lib.name || accessor[accessor.length - 1];
+  const name: string = lib.name || accessor[accessor.length - 1]?.modified;
   const applicationId: string = yield select(getCurrentApplicationId);
 
   const versionMatch = (url as string).match(/(?:@)(\d+\.)(\d+\.)(\d+)/);
