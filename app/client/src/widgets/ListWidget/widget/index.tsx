@@ -65,6 +65,7 @@ import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import IconSVG from "../icon.svg";
+import { renderAppsmithCanvas } from "layoutSystems/CanvasFactory";
 
 const LIST_WIDGET_PAGINATION_HEIGHT = 36;
 
@@ -865,8 +866,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       this.props.positioning || childWidgetData.positioning;
     childWidgetData.positioning = positioning;
     childWidgetData.useAutoLayout = positioning === Positioning.Vertical;
-
-    return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
+    return renderAppsmithCanvas(childWidgetData as WidgetProps);
   };
 
   getGridGap = () =>

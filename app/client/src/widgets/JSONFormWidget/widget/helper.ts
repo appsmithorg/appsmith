@@ -47,6 +47,7 @@ type ComputeSchemaProps = {
   widgetName: string;
   currentDynamicPropertyPathList?: PathList;
   fieldThemeStylesheets: FieldThemeStylesheet;
+  prevDynamicPropertyPathList?: PathList;
 };
 
 export enum ComputedSchemaStatus {
@@ -245,10 +246,10 @@ const computeDynamicPropertyPathList = (
   const pathListFromProps = (currentDynamicPropertyPathList || []).map(
     ({ key }) => key,
   );
-
   const newPaths = difference(pathListFromSchema, pathListFromProps);
-
-  return [...pathListFromProps, ...newPaths].map((path) => ({ key: path }));
+  return [...pathListFromProps, ...newPaths].map((path) => ({
+    key: path,
+  }));
 };
 
 /**
@@ -263,6 +264,7 @@ export const computeSchema = ({
   widgetName,
 }: ComputeSchemaProps): ComputedSchema => {
   // Hot path - early exit
+
   if (isEmpty(currSourceData) || equal(prevSourceData, currSourceData)) {
     return {
       status: ComputedSchemaStatus.UNCHANGED,

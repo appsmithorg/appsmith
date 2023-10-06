@@ -14,6 +14,7 @@ import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import IconSVG from "../icon.svg";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
+import { FlexVerticalAlignment } from "layoutSystems/common/utils/constants";
 
 class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
   constructor(props: ImageWidgetProps) {
@@ -45,6 +46,7 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
       widgetName: "Image",
       version: 1,
       animateLoading: true,
+      flexVerticalAlignment: FlexVerticalAlignment.Top,
     };
   }
 
