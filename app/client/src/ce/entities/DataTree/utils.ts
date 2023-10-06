@@ -7,11 +7,7 @@ import type {
   JSActionEntity,
   DataTreeEntityConfig,
 } from "@appsmith/entities/DataTree/types";
-import type {
-  ConfigTree,
-  UnEvalTree,
-  DataTreeEntity,
-} from "entities/DataTree/dataTreeTypes";
+import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
 import { OverridingPropertyType } from "@appsmith/entities/DataTree/types";
 import {
   isAction,
@@ -72,14 +68,12 @@ export const setOverridingProperty = ({
 };
 
 export const generateDataTreeModuleInputs = (
-  dataTree: UnEvalTree,
-  configTree: ConfigTree,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  moduleInputs: Record<string, ModuleInput>,
+  moduleInput: ModuleInput,
 ) => {
   return {
-    dataTree,
-    configTree,
+    unEvalEntity: null,
+    configEntity: null,
   };
 };
 
