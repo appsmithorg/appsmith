@@ -2,6 +2,7 @@ package com.appsmith.server.services.ce;
 
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.CustomJSLib;
+import com.appsmith.server.domains.CustomJSLibCompatibilityDTO;
 import com.appsmith.server.dtos.CustomJSLibApplicationDTO;
 import com.appsmith.server.repositories.CustomJSLibRepository;
 import com.appsmith.server.services.AnalyticsService;
@@ -16,6 +17,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -135,6 +137,19 @@ public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepository,
                     });
 
                     return jsLibList;
+                });
+    }
+
+    @Override
+    public Mono<List<CustomJSLibCompatibilityDTO>> getAllJSLibsCompatibilityDTOInApplicationForExport(
+            String applicationId, String branchName, Boolean isViewMode) {
+        return getAllJSLibsInApplicationForExport(applicationId, branchName, isViewMode)
+                .map(jsLibList -> {
+                    List<CustomJSLibCompatibilityDTO> compatibilityDTOList = new ArrayList<>();
+                    jsLibList.forEach(jsLib -> {
+                        compatibilityDTOList.add(new CustomJSLibCompatibilityDTO(jsLib));
+                    });
+                    return compatibilityDTOList;
                 });
     }
 

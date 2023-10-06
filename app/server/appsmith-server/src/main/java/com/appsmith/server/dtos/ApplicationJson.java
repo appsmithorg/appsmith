@@ -7,7 +7,7 @@ import com.appsmith.external.models.InvisibleActionFields;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.CustomJSLib;
+import com.appsmith.server.domains.CustomJSLibCompatibilityDTO;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Theme;
@@ -50,7 +50,7 @@ public class ApplicationJson {
     List<DatasourceStorageStructure> datasourceConfigurationStructureList;
 
     @JsonView({Views.Public.class, Views.Export.class})
-    List<CustomJSLib> customJSLibList;
+    List<CustomJSLibCompatibilityDTO> customJSLibList;
 
     @JsonView({Views.Public.class, Views.Export.class})
     List<NewPage> pageList;

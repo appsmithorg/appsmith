@@ -25,6 +25,7 @@ import com.appsmith.server.domains.ApplicationDetail;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.CustomJSLib;
+import com.appsmith.server.domains.CustomJSLibCompatibilityDTO;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
@@ -4625,7 +4626,7 @@ public class ImportExportApplicationServiceTests {
                     assertEquals(true, isJSLibAdded);
                     ApplicationJson exportedAppJson = tuple2.getT2();
                     assertEquals(1, exportedAppJson.getCustomJSLibList().size());
-                    CustomJSLib exportedJSLib =
+                    CustomJSLibCompatibilityDTO exportedJSLib =
                             exportedAppJson.getCustomJSLibList().get(0);
                     assertEquals(jsLib.getName(), exportedJSLib.getName());
                     assertEquals(jsLib.getAccessor(), exportedJSLib.getAccessor());
