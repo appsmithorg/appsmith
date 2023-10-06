@@ -214,7 +214,7 @@ describe("GSheet Miscellaneous Tests", function () {
     table.WaitUntilTableLoad();
   });
 
-  it("6. Verify placeholder texts for insert one/many queries", function () {
+  it("6. Bug: 16391 - Verify placeholder texts for insert one/many queries", function () {
     // Verify place holder text for Insert one query
     let placeholderText =
       '{\n  "name": {{nameInput.text}},\n  "dob": {{dobPicker.formattedDate}},\n  "gender": {{genderSelect.selectedOptionValue}} \n}';
@@ -247,6 +247,7 @@ describe("GSheet Miscellaneous Tests", function () {
     );
   });
 
+  // This test is commented since we can't use Cypress to go to the Google authorization screen. We will uncomment it whenever we figure out how to do it.
   // it("7. Bug#26024 App level import of gsheet app", function () {
   //   homePage.NavigateToHome();
   //   homePage.CreateNewWorkspace("AppLevelImport");
