@@ -10,7 +10,7 @@ export interface WidgetConfigsResponse {
 
 class WidgetConfigsApi extends Api {
   static url = "/widgetConfigs";
-  static fetchWidgetConfigs(): AxiosPromise<WidgetConfigsResponse> {
+  static async fetchWidgetConfigs(): AxiosPromise<WidgetConfigsResponse> {
     return Api.get(WidgetConfigsApi.url);
   }
 }

@@ -103,63 +103,69 @@ export class UserApi extends Api {
   static downloadConfigURL = "v1/admin/env/download";
   static sendTestEmailURL = "/v1/admin/send-test-email";
 
-  static createUser(
+  static async createUser(
     request: CreateUserRequest,
   ): AxiosPromise<CreateUserResponse> {
     return Api.post(UserApi.usersURL, request);
   }
 
-  static updateUser(request: UpdateUserRequest): AxiosPromise<ApiResponse> {
+  static async updateUser(
+    request: UpdateUserRequest,
+  ): AxiosPromise<ApiResponse> {
     return Api.put(UserApi.usersURL, request);
   }
 
-  static fetchUser(request: FetchUserRequest): AxiosPromise<FetchUserResponse> {
+  static async fetchUser(
+    request: FetchUserRequest,
+  ): AxiosPromise<FetchUserResponse> {
     return Api.get(UserApi.usersURL + "/" + request.id);
   }
 
-  static getCurrentUser(): AxiosPromise<ApiResponse> {
+  static async getCurrentUser(): AxiosPromise<ApiResponse> {
     return Api.get(UserApi.currentUserURL);
   }
 
-  static forgotPassword(
+  static async forgotPassword(
     request: ForgotPasswordRequest,
   ): AxiosPromise<ApiResponse> {
     return Api.post(UserApi.forgotPasswordURL, request);
   }
 
-  static verifyResetPasswordToken(
+  static async verifyResetPasswordToken(
     request: VerifyTokenRequest,
   ): AxiosPromise<ApiResponse> {
     return Api.get(UserApi.verifyResetPasswordTokenURL, request);
   }
 
-  static resetPassword(
+  static async resetPassword(
     request: TokenPasswordUpdateRequest,
   ): AxiosPromise<ApiResponse> {
     return Api.put(UserApi.resetPasswordURL, request);
   }
 
-  static inviteUser(request: InviteUserRequest): AxiosPromise<ApiResponse> {
+  static async inviteUser(
+    request: InviteUserRequest,
+  ): AxiosPromise<ApiResponse> {
     return Api.post(UserApi.inviteUserURL, request);
   }
 
-  static verifyUserInvite(
+  static async verifyUserInvite(
     request: VerifyTokenRequest,
   ): AxiosPromise<ApiResponse> {
     return Api.get(UserApi.verifyInviteTokenURL, request);
   }
 
-  static confirmInvitedUserSignup(
+  static async confirmInvitedUserSignup(
     request: TokenPasswordUpdateRequest,
   ): AxiosPromise<ApiResponse> {
     return Api.put(UserApi.confirmUserInviteURL, request);
   }
 
-  static logoutUser(): AxiosPromise<ApiResponse> {
+  static async logoutUser(): AxiosPromise<ApiResponse> {
     return Api.post(UserApi.logoutURL);
   }
 
-  static uploadPhoto(request: { file: File }): AxiosPromise<{
+  static async uploadPhoto(request: { file: File }): AxiosPromise<{
     id: string;
     new: boolean;
     profilePhotoAssetId: string;
@@ -177,21 +183,21 @@ export class UserApi extends Api {
     });
   }
 
-  static deletePhoto(): AxiosPromise<ApiResponse> {
+  static async deletePhoto(): AxiosPromise<ApiResponse> {
     return Api.delete(UserApi.photoURL);
   }
 
-  static leaveWorkspace(
+  static async leaveWorkspace(
     request: LeaveWorkspaceRequest,
   ): AxiosPromise<LeaveWorkspaceRequest> {
     return Api.put(UserApi.leaveWorkspaceURL + "/" + request.workspaceId);
   }
 
-  static fetchFeatureFlags(): AxiosPromise<ApiResponse<FeatureFlags>> {
+  static async fetchFeatureFlags(): AxiosPromise<ApiResponse<FeatureFlags>> {
     return Api.get(UserApi.featureFlagsURL);
   }
 
-  static createSuperUser(
+  static async createSuperUser(
     request: CreateSuperUserRequest,
   ): AxiosPromise<CreateUserResponse> {
     return Api.post(UserApi.superUserURL, request);
@@ -201,31 +207,31 @@ export class UserApi extends Api {
    * Super user endpoints
    */
 
-  static fetchAdminSettings(): AxiosPromise<ApiResponse> {
+  static async fetchAdminSettings(): AxiosPromise<ApiResponse> {
     return Api.get(UserApi.adminSettingsURL);
   }
 
-  static saveAdminSettings(
+  static async saveAdminSettings(
     request: Record<string, string>,
   ): AxiosPromise<ApiResponse> {
     return Api.put(UserApi.adminSettingsURL, request);
   }
 
-  static restartServer(): AxiosPromise<ApiResponse> {
+  static async restartServer(): AxiosPromise<ApiResponse> {
     return Api.post(UserApi.restartServerURL);
   }
 
-  static sendTestEmail(
+  static async sendTestEmail(
     payload: SendTestEmailPayload,
   ): AxiosPromise<ApiResponse> {
     return Api.post(UserApi.sendTestEmailURL, payload);
   }
 
-  static getProductAlert(): AxiosPromise<ApiResponse<ProductAlert>> {
+  static async getProductAlert(): AxiosPromise<ApiResponse<ProductAlert>> {
     return Api.get(UserApi.productAlertURL);
   }
 
-  static resendEmailVerification(email: string) {
+  static async resendEmailVerification(email: string) {
     return Api.post(UserApi.resendEmailVerificationURL, { email });
   }
 }

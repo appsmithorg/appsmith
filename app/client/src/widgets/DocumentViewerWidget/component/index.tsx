@@ -7,8 +7,12 @@ import { SUPPORTED_EXTENSIONS, Renderers } from "../constants";
 import { retryPromise } from "utils/AppsmithUtils";
 import Skeleton from "components/utils/Skeleton";
 
-const DocViewer = lazy(() => retryPromise(() => import("./DocViewer")));
-const XlsxViewer = lazy(() => retryPromise(() => import("./XlsxViewer")));
+const DocViewer = lazy(async () =>
+  retryPromise(async () => import("./DocViewer")),
+);
+const XlsxViewer = lazy(async () =>
+  retryPromise(async () => import("./XlsxViewer")),
+);
 
 const ErrorWrapper = styled.div`
   display: flex;

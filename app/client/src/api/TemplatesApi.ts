@@ -63,22 +63,22 @@ export type PublishCommunityTemplateResponse = ApiResponse<{
 class TemplatesAPI extends Api {
   static baseUrl = "v1";
 
-  static getAllTemplates(): AxiosPromise<FetchTemplatesResponse> {
+  static async getAllTemplates(): AxiosPromise<FetchTemplatesResponse> {
     return Api.get(TemplatesAPI.baseUrl + `/app-templates`);
   }
-  static getTemplateInformation(
+  static async getTemplateInformation(
     templateId: string,
   ): AxiosPromise<FetchTemplatesResponse> {
     return Api.get(TemplatesAPI.baseUrl + `/app-templates/${templateId}`);
   }
-  static getSimilarTemplates(
+  static async getSimilarTemplates(
     templateId: string,
   ): AxiosPromise<FetchTemplatesResponse> {
     return Api.get(
       TemplatesAPI.baseUrl + `/app-templates/${templateId}/similar`,
     );
   }
-  static importTemplate(
+  static async importTemplate(
     templateId: string,
     workspaceId: string,
   ): AxiosPromise<ImportTemplateResponse> {
@@ -87,7 +87,7 @@ class TemplatesAPI extends Api {
         `/app-templates/${templateId}/import/${workspaceId}`,
     );
   }
-  static importTemplateToApplication(
+  static async importTemplateToApplication(
     templateId: string,
     applicationId: string,
     organizationId: string,
@@ -99,10 +99,10 @@ class TemplatesAPI extends Api {
       body,
     );
   }
-  static getTemplateFilters(): AxiosPromise<TemplateFiltersResponse> {
+  static async getTemplateFilters(): AxiosPromise<TemplateFiltersResponse> {
     return Api.get(TemplatesAPI.baseUrl + `/app-templates/filters`);
   }
-  static publishCommunityTemplate(
+  static async publishCommunityTemplate(
     applicationId: string,
     workspaceId: string,
     body: PublishCommunityTemplateRequest,

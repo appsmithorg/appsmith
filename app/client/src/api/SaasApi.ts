@@ -5,14 +5,14 @@ import type { Datasource } from "entities/Datasource";
 
 class SaasApi extends Api {
   static url = "v1/saas";
-  static getAppsmithToken(
+  static async getAppsmithToken(
     datasourceId: string,
     pageId: string,
   ): AxiosPromise<ApiResponse<string>> {
     return Api.post(`${SaasApi.url}/${datasourceId}/pages/${pageId}/oauth`);
   }
 
-  static getAccessToken(
+  static async getAccessToken(
     datasourceId: string,
     token: string,
   ): AxiosPromise<ApiResponse<Datasource>> {

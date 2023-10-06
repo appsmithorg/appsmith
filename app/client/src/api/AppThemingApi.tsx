@@ -11,7 +11,7 @@ class AppThemingApi extends API {
    *
    * @returns
    */
-  static fetchThemes(
+  static async fetchThemes(
     applicationId: string,
   ): AxiosPromise<ApiResponse<AppTheme[]>> {
     return API.get(
@@ -25,7 +25,7 @@ class AppThemingApi extends API {
    * @param applicationId
    * @returns
    */
-  static fetchSelected(
+  static async fetchSelected(
     applicationId: string,
     mode = "EDIT",
   ): AxiosPromise<ApiResponse<AppTheme[]>> {
@@ -41,7 +41,7 @@ class AppThemingApi extends API {
    * @param theme
    * @returns
    */
-  static updateTheme(
+  static async updateTheme(
     applicationId: string,
     theme: AppTheme,
   ): AxiosPromise<ApiResponse<AppTheme[]>> {
@@ -58,7 +58,7 @@ class AppThemingApi extends API {
    * @param theme
    * @returns
    */
-  static changeTheme(
+  static async changeTheme(
     applicationId: string,
     theme: AppTheme,
   ): AxiosPromise<ApiResponse<AppTheme[]>> {
@@ -75,7 +75,7 @@ class AppThemingApi extends API {
    * @param theme
    * @returns
    */
-  static saveTheme(
+  static async saveTheme(
     applicationId: string,
     payload: { name: string },
   ): AxiosPromise<ApiResponse<AppTheme[]>> {
@@ -92,7 +92,9 @@ class AppThemingApi extends API {
    * @param theme
    * @returns
    */
-  static deleteTheme(themeId: string): AxiosPromise<ApiResponse<AppTheme[]>> {
+  static async deleteTheme(
+    themeId: string,
+  ): AxiosPromise<ApiResponse<AppTheme[]>> {
     return API.delete(`${AppThemingApi.baseUrl}/themes/${themeId}`);
   }
 }

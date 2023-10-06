@@ -80,7 +80,7 @@ import store from "store";
 import { isGACEnabled } from "@appsmith/utils/planHelpers";
 
 const NoEmailConfigImage = importSvg(
-  () => import("assets/images/email-not-configured.svg"),
+  async () => import("assets/images/email-not-configured.svg"),
 );
 
 const { cloudHosting } = getAppsmithConfigs();
@@ -522,7 +522,7 @@ function WorkspaceInviteUsersForm(props: any) {
   return (
     <WorkspaceInviteWrapper>
       <StyledForm
-        onSubmit={handleSubmit((values: any, dispatch: any) => {
+        onSubmit={handleSubmit(async (values: any, dispatch: any) => {
           const roles = isMultiSelectDropdown
             ? selectedOption.map((option: any) => option.value).join(",")
             : selectedOption[0].value;
