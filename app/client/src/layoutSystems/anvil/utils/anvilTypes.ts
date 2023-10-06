@@ -79,3 +79,14 @@ export interface AnvilHighlightInfo {
   rowIndex: number; // Index with in the layout array to insert the child at.
   width: number; // width of the highlight.
 }
+
+export interface PositionData {
+  height: number;
+  left: number;
+  top: number;
+  width: number;
+}
+
+export interface WidgetPositions {
+  [id: string]: PositionData;
+}
