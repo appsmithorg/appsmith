@@ -1146,7 +1146,13 @@ export default class DataTreeEvaluator {
               (entityConfig as JSActionEntityConfig).variables || [];
             if (variableList.indexOf(propertyPath) === -1) break;
 
-            const prevEvaluatedValue = get(safeTree, fullPropertyPath);
+            const prevEvaluatedValue = get(
+              this.evalProps,
+              getEvalValuePath(fullPropertyPath, {
+                isPopulated: true,
+                fullPath: true,
+              }),
+            );
 
             const prevUnEvalValue = JSObjectCollection.getPrevUnEvalState({
               fullPath: fullPropertyPath,
