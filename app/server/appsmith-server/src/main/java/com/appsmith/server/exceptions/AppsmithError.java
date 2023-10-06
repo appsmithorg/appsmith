@@ -1003,9 +1003,9 @@ public enum AppsmithError {
             "Forking application failed",
             ErrorType.INTERNAL_ERROR,
             null),
-    TEST_API_TOO_MANY_REQUESTS(
+    TOO_MANY_FAILED_DATASOURCE_CONNECTION_REQUESTS(
             429,
-            AppsmithErrorCode.TEST_API_TOO_MANY_REQUESTS.getCode(),
+            AppsmithErrorCode.TOO_MANY_FAILED_DATASOURCE_CONNECTION_REQUESTS.getCode(),
             "Too many failed requests received. Please try again after 5 minutes",
             AppsmithErrorAction.DEFAULT,
             "Too many requests",

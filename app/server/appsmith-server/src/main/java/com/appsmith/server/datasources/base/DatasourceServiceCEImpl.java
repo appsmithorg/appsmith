@@ -518,7 +518,8 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                         .flatMap(datasourceStorageService::checkEnvironment)
                         .flatMap(this::verifyDatasourceAndTest);
             } else {
-                AppsmithException exception = new AppsmithException(AppsmithError.TEST_API_TOO_MANY_REQUESTS);
+                AppsmithException exception =
+                        new AppsmithException(AppsmithError.TOO_MANY_FAILED_DATASOURCE_CONNECTION_REQUESTS);
                 return Mono.just(new DatasourceTestResult(exception.getMessage()));
             }
         });
@@ -552,7 +553,8 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                                             .flatMap(isSuccessful -> {
                                                 if (!isSuccessful) {
                                                     AppsmithException exception = new AppsmithException(
-                                                            AppsmithError.TEST_API_TOO_MANY_REQUESTS);
+                                                            AppsmithError
+                                                                    .TOO_MANY_FAILED_DATASOURCE_CONNECTION_REQUESTS);
                                                     DatasourceTestResult tooManyRequests =
                                                             new DatasourceTestResult(exception.getMessage());
 
