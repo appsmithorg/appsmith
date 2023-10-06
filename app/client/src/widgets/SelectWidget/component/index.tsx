@@ -24,6 +24,7 @@ import type { LabelPosition } from "components/constants";
 import SelectButton from "./SelectButton";
 import { labelMargin } from "../../WidgetUtils";
 import LabelWithTooltip from "widgets/components/LabelWithTooltip";
+import { CANVAS_ART_BOARD } from "constants/componentClassNameConstants";
 
 const DEBOUNCE_TIMEOUT = 800;
 const ITEM_SIZE = 40;
@@ -383,7 +384,7 @@ class SelectComponent extends React.Component<
             onQueryChange={this.onQueryChange}
             popoverProps={{
               portalContainer:
-                document.getElementById("art-board") || undefined,
+                document.getElementById(CANVAS_ART_BOARD) || undefined,
               boundary: "window",
               isOpen: this.state.isOpen,
               minimal: true,
