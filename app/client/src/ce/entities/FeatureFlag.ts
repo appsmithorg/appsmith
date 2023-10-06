@@ -24,6 +24,7 @@ export const FEATURE_FLAG = {
   deprecate_custom_fusioncharts_enabled:
     "deprecate_custom_fusioncharts_enabled",
   ab_mock_mongo_schema_enabled: "ab_mock_mongo_schema_enabled",
+  license_private_embeds_enabled: "license_private_embeds_enabled",
   release_show_publish_app_to_community_enabled:
     "release_show_publish_app_to_community_enabled",
   license_gac_enabled: "license_gac_enabled",
@@ -53,6 +54,7 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   release_git_connect_v2_enabled: false,
   deprecate_custom_fusioncharts_enabled: false,
   ab_mock_mongo_schema_enabled: false,
+  license_private_embeds_enabled: false,
   release_show_publish_app_to_community_enabled: false,
   license_gac_enabled: false,
 };
