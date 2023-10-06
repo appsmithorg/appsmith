@@ -7,7 +7,7 @@ export class LibraryInstaller {
   private _installer_close_locator =
     ".ads-v2-popover__body-header .ads-v2-icon";
 
-  private getLibraryLocatorInExplorer(libraryName: string) {
+  public getLibraryLocatorInExplorer(libraryName: string) {
     return `.t--installed-library-${libraryName}`;
   }
 
