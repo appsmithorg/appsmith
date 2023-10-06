@@ -15,7 +15,6 @@ import com.appsmith.server.solutions.EnvManager;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -102,8 +101,9 @@ public class FeatureFlagMigrationHelperImpl extends FeatureFlagMigrationHelperCE
         Mono<Boolean> enableFormLoginIfRequired = envManager
                 .getAllWithoutAclCheck()
                 .flatMap(envVarMap -> {
-                    String formLoginDisabledString = envVarMap.get(APPSMITH_FORM_LOGIN_DISABLED);
-                    if (!StringUtils.hasLength(formLoginDisabledString) || "true".equals(formLoginDisabledString)) {
+                    String formLoginDisabledString = envVarMap.get(APPSMITH_FORM_LOGIN_DISABLED.name());
+                    // If form login is disabled, enable it for the tenant and also register the server restart
+                    if ("true".equals(formLoginDisabledString)) {
                         log.debug("Enabling form login for tenant {}", tenantId);
                         tenant.getTenantConfiguration().setIsRestartRequired(true);
                         return envManager

@@ -57,6 +57,9 @@ import static com.appsmith.server.acl.AclPermission.RESET_PASSWORD_USERS;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_FORM_LOGIN_DISABLED;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 
@@ -140,6 +143,7 @@ class FeatureFlagMigrationHelperTest {
                 .block();
         // The result should be true as the migration is successful
         assertEquals(Boolean.TRUE, result);
+        assertTrue(tenant.getTenantConfiguration().getIsRestartRequired());
 
         // Assert if the user is made pristine to make sure form login is enabled for the user after the migration is
         // completed
@@ -323,6 +327,7 @@ class FeatureFlagMigrationHelperTest {
                 .block();
         // The result should be true as the migration is successful
         assertEquals(Boolean.TRUE, result);
+        assertTrue(tenant.getTenantConfiguration().getIsRestartRequired());
 
         // Assert if the user is made pristine to make sure form login is enabled for the user after the migration is
         // completed
@@ -395,5 +400,99 @@ class FeatureFlagMigrationHelperTest {
                     assertEquals(Boolean.TRUE, user1.getIsEnabled());
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    void executeMigrationsBasedOnFeatureFlag_disableOidcFlag_restartRequiredFieldIsRetained() {
+        Tenant tenant = tenantService.getDefaultTenant().block();
+        TenantConfiguration tenantConfiguration =
+                tenant != null ? tenant.getTenantConfiguration() : new TenantConfiguration();
+        Map<FeatureFlagEnum, FeatureMigrationType> featuresWithPendingMigration = new HashMap<>();
+        featuresWithPendingMigration.put(FeatureFlagEnum.license_sso_oidc_enabled, FeatureMigrationType.DISABLE);
+        tenantConfiguration.setFeaturesWithPendingMigration(featuresWithPendingMigration);
+        assert tenant != null : "Tenant should not be null";
+        tenant.setTenantConfiguration(tenantConfiguration);
+        tenant.getTenantConfiguration().setIsRestartRequired(true);
+
+        tenant = tenantService.save(tenant).block();
+        Boolean result = featureFlagMigrationHelper
+                .executeMigrationsBasedOnFeatureFlag(tenant, FeatureFlagEnum.license_sso_oidc_enabled)
+                .block();
+        // The result should be true as the migration is successful
+        assertEquals(Boolean.TRUE, result);
+        assertTrue(tenant.getTenantConfiguration().getIsRestartRequired());
+
+        tenant.getTenantConfiguration().setIsRestartRequired(false);
+        tenantService.save(tenant).block();
+
+        Mockito.when(envManager.getAllWithoutAclCheck()).thenReturn(Mono.just(Map.of()));
+        result = featureFlagMigrationHelper
+                .executeMigrationsBasedOnFeatureFlag(tenant, FeatureFlagEnum.license_sso_oidc_enabled)
+                .block();
+        // The result should be true as the migration is successful
+        assertEquals(Boolean.TRUE, result);
+        assertFalse(tenant.getTenantConfiguration().getIsRestartRequired());
+
+        tenant.getTenantConfiguration().setIsRestartRequired(null);
+        tenantService.save(tenant).block();
+    }
+
+    @Test
+    void executeMigrationsBasedOnFeatureFlag_disableSAMLFlag_restartRequiredFieldIsRetained() {
+        Tenant tenant = tenantService.getDefaultTenant().block();
+        TenantConfiguration tenantConfiguration =
+                tenant != null ? tenant.getTenantConfiguration() : new TenantConfiguration();
+        Map<FeatureFlagEnum, FeatureMigrationType> featuresWithPendingMigration = new HashMap<>();
+        featuresWithPendingMigration.put(FeatureFlagEnum.license_sso_saml_enabled, FeatureMigrationType.DISABLE);
+        tenantConfiguration.setFeaturesWithPendingMigration(featuresWithPendingMigration);
+        assert tenant != null : "Tenant should not be null";
+        tenant.setTenantConfiguration(tenantConfiguration);
+
+        tenant = tenantService.save(tenant).block();
+        Boolean result = featureFlagMigrationHelper
+                .executeMigrationsBasedOnFeatureFlag(tenant, FeatureFlagEnum.license_sso_saml_enabled)
+                .block();
+        // The result should be true as the migration is successful
+        assertEquals(Boolean.TRUE, result);
+        assertTrue(tenant.getTenantConfiguration().getIsRestartRequired());
+
+        tenant.getTenantConfiguration().setIsRestartRequired(false);
+        tenantService.save(tenant).block();
+
+        Mockito.when(envManager.getAllWithoutAclCheck()).thenReturn(Mono.just(Map.of()));
+
+        result = featureFlagMigrationHelper
+                .executeMigrationsBasedOnFeatureFlag(tenant, FeatureFlagEnum.license_sso_saml_enabled)
+                .block();
+        // The result should be true as the migration is successful
+        assertEquals(Boolean.TRUE, result);
+        assertFalse(tenant.getTenantConfiguration().getIsRestartRequired());
+
+        tenant.getTenantConfiguration().setIsRestartRequired(null);
+        tenantService.save(tenant).block();
+    }
+
+    @Test
+    void executeMigrationsBasedOnFeatureFlag_runSSOMigration_formLoginEnabled_restartIsNotRequired() {
+
+        // Mock the envManager to return true for form login disabled
+        Mockito.when(envManager.getAllWithoutAclCheck())
+                .thenReturn(Mono.just(Map.of(APPSMITH_FORM_LOGIN_DISABLED.toString(), "false")));
+        Tenant tenant = tenantService.getDefaultTenant().block();
+        TenantConfiguration tenantConfiguration =
+                tenant != null ? tenant.getTenantConfiguration() : new TenantConfiguration();
+        Map<FeatureFlagEnum, FeatureMigrationType> featuresWithPendingMigration = new HashMap<>();
+        featuresWithPendingMigration.put(FeatureFlagEnum.license_sso_oidc_enabled, FeatureMigrationType.DISABLE);
+        tenantConfiguration.setFeaturesWithPendingMigration(featuresWithPendingMigration);
+        assert tenant != null : "Tenant should not be null";
+        tenant.setTenantConfiguration(tenantConfiguration);
+
+        tenant = tenantService.save(tenant).block();
+        Boolean result = featureFlagMigrationHelper
+                .executeMigrationsBasedOnFeatureFlag(tenant, FeatureFlagEnum.license_sso_oidc_enabled)
+                .block();
+        // The result should be true as the migration is successful
+        assertEquals(Boolean.TRUE, result);
+        assertNull(tenant.getTenantConfiguration().getIsRestartRequired());
     }
 }
