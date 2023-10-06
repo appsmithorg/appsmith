@@ -21,16 +21,6 @@ enum LibraryInstallError {
   LibraryOverrideError,
 }
 
-// class NameCollisionError extends Error {
-//   code = LibraryInstallError.NameCollisionError;
-//   constructor(accessors: string) {
-//     super(
-//       createMessage(customJSLibraryMessages.NAME_COLLISION_ERROR, accessors),
-//     );
-//     this.name = "NameCollisionError";
-//   }
-// }
-
 class ImportError extends Error {
   code = LibraryInstallError.ImportError;
   constructor(url: string) {
