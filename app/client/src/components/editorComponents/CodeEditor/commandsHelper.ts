@@ -60,18 +60,19 @@ export const slashCommandHintHelper: HintHelper = (
       const currentLineValue = editor.getLine(cursorPosition.line);
       const slashIndex = currentLineValue.lastIndexOf("/");
       const shouldShowBinding = !cursorBetweenBinding && slashIndex > -1;
+      const searchText = currentLineValue.substring(slashIndex + 1);
 
       if (!shouldShowBinding) return false;
 
-      const searchText = currentLineValue.substring(slashIndex + 1);
-
-      const aiContext = getAIContext({
+      const { aiContext, shouldShowSlashMenu } = getAIContext({
         currentLineValue,
         cursorPosition,
         editor,
         slashIndex,
         entityType,
       });
+
+      if (!shouldShowSlashMenu) return false;
 
       const list = generateQuickCommands(
         filteredEntitiesForSuggestions,

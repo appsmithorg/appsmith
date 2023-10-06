@@ -71,6 +71,8 @@ export const getAIContext = ({
     cursorCoordinates: editor.cursorCoords(true, "local"),
   };
 
+  let shouldShowSlashMenu = true;
+
   if (entityType === ENTITY_TYPE_VALUE.JSACTION) {
     const editorValue = editor.getValue();
     const lines = editorValue.split("\n");
@@ -86,14 +88,16 @@ export const getAIContext = ({
     const { cursorLineNumber, functionName, functionString } =
       getJSFunctionLocationFromCursor(updatedEditorValue, cursorPosition) || {};
 
-    if (!functionName) return false;
-
-    aiContext.functionName = functionName;
-    aiContext.cursorLineNumber = cursorLineNumber;
-    aiContext.functionString = functionString;
+    if (!functionName) {
+      shouldShowSlashMenu = false;
+    } else {
+      aiContext.functionName = functionName;
+      aiContext.cursorLineNumber = cursorLineNumber;
+      aiContext.functionString = functionString;
+    }
   }
 
-  return aiContext;
+  return { aiContext, shouldShowSlashMenu };
 };
 
 export const getJSFunctionLocationFromCursor = (
