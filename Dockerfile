@@ -35,12 +35,15 @@ RUN curl --silent --show-error --location https://www.mongodb.org/static/pgp/ser
   # This is to get semver 7.5.2, for a CVE fix, might be able to remove it with later versions on NodeJS.
   && npm install -g npm@9.7.2
 
+# Install Java
 RUN set -o xtrace \
   && mkdir -p /opt/java \
   # Assets from https://github.com/adoptium/temurin17-binaries/releases
   && version="$(curl --write-out '%{redirect_url}' 'https://github.com/adoptium/temurin17-binaries/releases/latest' | sed 's,.*jdk-,,')" \
-  && curl --location "https://github.com/adoptium/temurin17-binaries/releases/download/jdk-$version/OpenJDK17U-jdk_$(uname -m)_linux_hotspot_$(echo $version | tr + _).tar.gz" \
-    | tar -xz -C /opt/java --strip-components 1
+  && curl --location --output /tmp/java.tar.gz "https://github.com/adoptium/temurin17-binaries/releases/download/jdk-$version/OpenJDK17U-jdk_$(uname -m)_linux_hotspot_$(echo $version | tr + _).tar.gz" \
+  # Get this from the above URL with `.sha256.txt` appended, and hardcode the hash here.
+  && echo "eefd3cf3b3dd47ff269fa5b5c10b5e096b163f4e9c1810023abdbc00dc6cc304 /tmp/java.tar.gz" | sha256sum --check \
+  && tar -xzf /tmp/java.tar.gz -C /opt/java --strip-components 1
 
 # Clean up cache file - Service layer
 RUN rm -rf \
