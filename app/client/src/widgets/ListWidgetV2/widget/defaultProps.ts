@@ -13,6 +13,7 @@ import { GridDefaults } from "constants/WidgetConstants";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import {
   FlexLayerAlignment,
+  FlexVerticalAlignment,
   Positioning,
   ResponsiveBehavior,
 } from "layoutSystems/common/utils/constants";
@@ -53,6 +54,7 @@ export default {
   //positioning: Positioning.Fixed,
   minWidth: FILL_WIDGET_MIN_WIDTH,
   responsiveBehavior: ResponsiveBehavior.Fill,
+  flexVerticalAlignment: FlexVerticalAlignment.Top,
   dynamicBindingPathList: [
     {
       key: "currentItemsView",

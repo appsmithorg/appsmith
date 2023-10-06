@@ -1,6 +1,6 @@
 import { getCanvasWidgets } from "@appsmith/selectors/entitiesSelector";
 import { GridDefaults, type RenderModes } from "constants/WidgetConstants";
-import { getLayoutSystem } from "layoutSystems/withLayoutSystemHOC";
+import { getLayoutSystem } from "layoutSystems/withLayoutSystemWidgetHOC";
 import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
@@ -21,7 +21,9 @@ function buildFlattenedChildCanvasWidgets(
   flattenedChildCanvasWidgets: Record<string, FlattenedWidgetProps> = {},
 ) {
   const parentWidget = canvasWidgets[parentWidgetId];
-  const { propertyEnhancer } = getLayoutSystem(renderMode, layoutSystemType);
+  const {
+    widgetSystem: { propertyEnhancer },
+  } = getLayoutSystem(renderMode, layoutSystemType);
   parentWidget?.children?.forEach((childId) => {
     const childWidget = canvasWidgets[childId];
     let parentRowSpace =

@@ -11,6 +11,7 @@ import org.springframework.data.mongodb.MongoTransactionException;
 import org.springframework.transaction.TransactionException;
 import org.springframework.util.CollectionUtils;
 
+import java.time.Instant;
 import java.util.Map;
 import java.util.Set;
 
@@ -130,5 +131,16 @@ public class ImportExportUtils {
             return false;
         }
         return pageName != null && updatedPageNames.contains(pageName);
+    }
+
+    public static boolean isDatasourceUpdatedSinceLastCommit(
+            Map<String, Instant> datasourceNameToUpdatedAtMap,
+            ActionDTO actionDTO,
+            Instant applicationLastCommittedAt) {
+        String datasourceName = actionDTO.getDatasource().getId();
+        Instant datasourceUpdatedAt = datasourceName != null ? datasourceNameToUpdatedAtMap.get(datasourceName) : null;
+        return datasourceUpdatedAt != null
+                && applicationLastCommittedAt != null
+                && datasourceUpdatedAt.isAfter(applicationLastCommittedAt);
     }
 }
