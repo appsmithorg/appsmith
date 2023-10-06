@@ -320,6 +320,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                 .map(permissionGroup ->
                         new Permission(permissionGroup.getId(), AclPermission.READ_PERMISSION_GROUP_MEMBERS))
                 .collect(Collectors.toSet());
+        // All the default permission groups should be unassignable by the administrator role of the workspace
         Set<Permission> unassignPermissionGroupPermissions = permissionGroups.stream()
                 .map(permissionGroup ->
                         new Permission(permissionGroup.getId(), AclPermission.UNASSIGN_PERMISSION_GROUPS))

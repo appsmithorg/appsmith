@@ -114,7 +114,7 @@ describe("Entity explorer tests related to pinning and unpinning", function () {
         (menu) => menu !== ExplorerMenu.ADD_LIBRARY,
       );
 
-      Cypress._.times(menu.length - 1, (index) => {
+      Cypress._.times(menu.length, (index) => {
         OpenExplorerMenu(menu[index]);
         agHelper.Sleep();
         cy.get("[data-testid=sidebar-active]").should("exist");

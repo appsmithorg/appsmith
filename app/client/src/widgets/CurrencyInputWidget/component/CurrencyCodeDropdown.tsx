@@ -8,6 +8,7 @@ import { Classes } from "@blueprintjs/core";
 import { countryToFlag } from "./utilities";
 import { Colors } from "constants/Colors";
 import { lightenColor } from "widgets/WidgetUtils";
+import { CANVAS_ART_BOARD } from "constants/componentClassNameConstants";
 
 const StyledDropdown = styled(Dropdown)`
   /*
@@ -256,7 +257,7 @@ export default function CurrencyTypeDropdown(props: CurrencyDropdownProps) {
         optionWidth="360px"
         options={props.options}
         portalClassName={`country-type-filter-dropdown-${props.widgetId}`}
-        portalContainer={document.getElementById("art-board") || undefined}
+        portalContainer={document.getElementById(CANVAS_ART_BOARD) || undefined}
         searchAutoFocus
         searchPlaceholder="Search by currency or country"
         selected={selectedOption}

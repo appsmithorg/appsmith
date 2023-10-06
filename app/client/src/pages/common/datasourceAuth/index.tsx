@@ -29,14 +29,15 @@ import {
 import { Button, toast } from "design-system";
 import type { ApiDatasourceForm } from "entities/Datasource/RestAPIForm";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
-
-import { hasManageDatasourcePermission } from "@appsmith/utils/permissionHelpers";
 import { INTEGRATION_TABS, SHOW_FILE_PICKER_KEY } from "constants/routes";
 import { integrationEditorURL } from "RouteBuilder";
 import { getQueryParams } from "utils/URLUtils";
 import type { AppsmithLocationState } from "utils/history";
 import type { PluginType } from "entities/Action";
 import { getCurrentEnvironmentDetails } from "@appsmith/selectors/environmentSelectors";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { getHasManageDatasourcePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 
 interface Props {
   datasource: Datasource;
@@ -161,7 +162,10 @@ function DatasourceAuth({
 
   const datasourcePermissions = datasource.userPermissions || [];
 
-  const canManageDatasource = hasManageDatasourcePermission(
+  const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+
+  const canManageDatasource = getHasManageDatasourcePermission(
+    isFeatureEnabled,
     datasourcePermissions,
   );
 

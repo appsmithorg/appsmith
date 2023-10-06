@@ -7,7 +7,7 @@ import type {
   WidgetEntity,
   DataTreeEntityConfig,
   WidgetEntityConfig,
-} from "../entities/DataTree/dataTreeFactory";
+} from "@appsmith/entities/DataTree/types";
 
 export interface UpdateWidgetMetaPropertyPayload {
   widgetId: string;
