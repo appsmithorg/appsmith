@@ -19,7 +19,10 @@ import BaseWidget from "../../BaseWidget";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import type { AutocompletionDefinitions } from "WidgetProvider/constants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
+import {
+  FlexVerticalAlignment,
+  ResponsiveBehavior,
+} from "layoutSystems/common/utils/constants";
 import { DynamicHeight } from "utils/WidgetFeatures";
 import IconSVG from "../icon.svg";
 
@@ -83,6 +86,7 @@ class RichTextEditorWidget extends BaseWidget<
       version: 1,
       responsiveBehavior: ResponsiveBehavior.Fill,
       minWidth: FILL_WIDGET_MIN_WIDTH,
+      flexVerticalAlignment: FlexVerticalAlignment.Top,
     };
   }
 
