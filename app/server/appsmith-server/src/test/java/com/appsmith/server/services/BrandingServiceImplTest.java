@@ -81,8 +81,9 @@ class BrandingServiceImplTest {
                 .assertNext(tenantConfiguration1 -> {
                     TenantConfiguration.BrandColors brandColors = tenantConfiguration1.getBrandColors();
                     assertThat(brandColors).isNotNull();
-                    assertEquals(TenantConfiguration.DEFAULT_BACKGROUND_COLOR, brandColors.getBackground());
-                    assertEquals(TenantConfiguration.DEFAULT_PRIMARY_COLOR, brandColors.getPrimary());
+                    // Assert default values for brand colors in plain text to avoid any unintended update
+                    assertEquals("#F1F5F9", brandColors.getBackground());
+                    assertEquals("#E15615", brandColors.getPrimary());
                     assertEquals(TenantConfiguration.DEFAULT_FONT_COLOR, brandColors.getFont());
                 })
                 .verifyComplete();

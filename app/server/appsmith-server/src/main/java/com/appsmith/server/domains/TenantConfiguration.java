@@ -23,8 +23,8 @@ public class TenantConfiguration extends TenantConfigurationCE {
 
     public static final String DEFAULT_APPSMITH_LOGO = "https://assets.appsmith.com/appsmith-logo-no-margin.png";
     public static final String DEFAULT_APPSMITH_FEVICON = "https://assets.appsmith.com/appsmith-favicon-orange.ico";
-    public static final String DEFAULT_PRIMARY_COLOR = "#F86A2B";
-    public static final String DEFAULT_BACKGROUND_COLOR = "#FFFFFF";
+    public static final String DEFAULT_PRIMARY_COLOR = "#E15615";
+    public static final String DEFAULT_BACKGROUND_COLOR = "#F1F5F9";
     public static final String DEFAULT_FONT_COLOR = "#FFFFFF";
 
     @JsonProperty("APPSMITH_BRAND_ENABLE")
