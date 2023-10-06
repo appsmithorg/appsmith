@@ -1,7 +1,4 @@
-import {
-  generateAlignedRowMock,
-  generateLayoutComponentMock,
-} from "mocks/layoutComponents/layoutComponentMock";
+import { generateLayoutComponentMock } from "mocks/layoutComponents/layoutComponentMock";
 import {
   addWidgetsToTemplate,
   getAffectedLayout,
@@ -14,8 +11,9 @@ import type {
   AnvilHighlightInfo,
   LayoutComponentProps,
   LayoutProps,
+  WidgetLayoutProps,
 } from "../../anvilTypes";
-import { AlignmentIndexMap } from "../../constants";
+import { extractWidgetIdsFromLayoutProps } from "../layoutUtils";
 
 describe("Layouts - additionUtils tests", () => {
   describe("getAffectedLayout", () => {
@@ -118,24 +116,10 @@ describe("Layouts - additionUtils tests", () => {
       const res: LayoutProps = addWidgetsToTemplate(
         { ...template, layout: [] }, // Empty the layout prop of the mock template.
         highlight,
-        ["1"],
+        [{ widgetId: "1", alignment: FlexLayerAlignment.Start }],
       );
       expect(res.layout.length).toEqual(1);
-      expect(res.layout[0]).toEqual("1");
-    });
-    it("should add widgets to correct alignment in an AlignedRow tempalte", () => {
-      const template: LayoutProps = generateAlignedRowMock();
-      const highlight: AnvilHighlightInfo = mockAnvilHighlightInfo({
-        alignment: FlexLayerAlignment.End,
-      });
-      const res: LayoutProps = addWidgetsToTemplate(
-        { ...template, layout: [[], [], []] }, // Empty the layout prop of the mock template.
-        highlight,
-        ["1"],
-      );
-      const index = AlignmentIndexMap[highlight.alignment];
-      expect((res.layout[index] as string[]).length).toEqual(1);
-      expect((res.layout[index] as string[]).includes("1")).toBeTruthy();
+      expect((res.layout[0] as WidgetLayoutProps).widgetId).toEqual("1");
     });
     it("should add widgets to a nested child layout", () => {
       /**
@@ -168,7 +152,7 @@ describe("Layouts - additionUtils tests", () => {
       const res: LayoutProps = addWidgetsToTemplate(
         updatedTemplate, // Empty the layout prop of the mock template.
         highlight,
-        ["1"],
+        [{ widgetId: "1", alignment: FlexLayerAlignment.End }],
       );
       /**
        * Row
@@ -177,45 +161,50 @@ describe("Layouts - additionUtils tests", () => {
        *   "1"
        */
       expect(
-        ((res.layout[1] as LayoutProps).layout as string[]).length,
+        ((res.layout[1] as LayoutProps).layout as WidgetLayoutProps[]).length,
       ).toEqual(1);
       expect(
-        ((res.layout[1] as LayoutProps).layout as string[]).includes("1"),
+        ((res.layout[1] as LayoutProps).layout as WidgetLayoutProps[])
+          .map((each: WidgetLayoutProps) => each.widgetId)
+          .includes("1"),
       ).toBeTruthy();
     });
   });
   describe("prepareWidgetsForAddition", () => {
     it("should return empty array if widgets are not provided", () => {
       const layout: LayoutComponentProps = generateLayoutComponentMock();
-      const res: string[] | LayoutProps[] = prepareWidgetsForAddition(
-        {} as any,
-        layout,
-        mockAnvilHighlightInfo(),
-        [],
-      );
+      const res: WidgetLayoutProps[] | LayoutProps[] =
+        prepareWidgetsForAddition(
+          {} as any,
+          layout,
+          mockAnvilHighlightInfo(),
+          [],
+        );
       expect(res.length).toEqual(0);
     });
     it("should return the list of widgets if Component doesn't have a childTemplate", () => {
       const layout: LayoutComponentProps = generateLayoutComponentMock();
-      const res: string[] | LayoutProps[] = prepareWidgetsForAddition(
-        { getChildTemplate: () => undefined } as any,
-        layout,
-        mockAnvilHighlightInfo(),
-        ["1"],
-      );
+      const res: WidgetLayoutProps[] | LayoutProps[] =
+        prepareWidgetsForAddition(
+          { getChildTemplate: () => undefined } as any,
+          layout,
+          mockAnvilHighlightInfo(),
+          [{ widgetId: "1", alignment: FlexLayerAlignment.Start }],
+        );
       expect(res.length).toEqual(1);
     });
     it("should return updated childTemplate if present", () => {
       const layoutProps: LayoutComponentProps = generateLayoutComponentMock();
-      const res: string[] | LayoutProps[] = prepareWidgetsForAddition(
-        { getChildTemplate: () => ({ ...layoutProps, layout: [] }) } as any,
-        layoutProps,
-        mockAnvilHighlightInfo(),
-        ["1"],
-      );
+      const res: WidgetLayoutProps[] | LayoutProps[] =
+        prepareWidgetsForAddition(
+          { getChildTemplate: () => ({ ...layoutProps, layout: [] }) } as any,
+          layoutProps,
+          mockAnvilHighlightInfo(),
+          [{ widgetId: "1", alignment: FlexLayerAlignment.Start }],
+        );
       expect((res[0] as LayoutProps).layoutId.length).toBeGreaterThan(0);
       expect(
-        ((res[0] as LayoutProps).layout as string[]).includes("1"),
+        extractWidgetIdsFromLayoutProps(res[0] as LayoutProps).includes("1"),
       ).toBeTruthy();
     });
   });

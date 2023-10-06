@@ -1,14 +1,14 @@
 import type {
   AnvilHighlightInfo,
-  LayoutComponentProps,
   LayoutProps,
+  WidgetLayoutProps,
 } from "../anvilTypes";
-import { AlignmentIndexMap } from "../constants";
 import Row from "layoutSystems/anvil/layoutComponents/components/Row";
 import AlignedColumn from "layoutSystems/anvil/layoutComponents/components/AlignedColumn";
 import AlignedRow from "layoutSystems/anvil/layoutComponents/components/AlignedRow";
 import Column from "layoutSystems/anvil/layoutComponents/components/Column";
 import LayoutFactory from "layoutSystems/anvil/layoutComponents/LayoutFactory";
+import { isWidgetLayoutProps } from "./typeUtils";
 
 const layoutComponents = [AlignedColumn, AlignedRow, Column, Row];
 
@@ -29,45 +29,17 @@ export function generateLayoutId(canvasId: string, layoutId: string): string {
  */
 export function addChildToLayout(
   props: LayoutProps,
-  children: string[] | LayoutProps[],
+  children: WidgetLayoutProps[] | LayoutProps[],
   highlight: AnvilHighlightInfo,
 ): LayoutProps {
-  const layout: any = props.layout;
+  const layout: WidgetLayoutProps[] | LayoutProps[] = props.layout;
   const { rowIndex: index } = highlight;
   return {
     ...props,
-    layout: [...layout.slice(0, index), ...children, ...layout.slice(index)],
+    layout: [...layout.slice(0, index), ...children, ...layout.slice(index)] as
+      | LayoutProps[]
+      | WidgetLayoutProps[],
   };
-}
-
-/**
- * Update an AlignedRow component by adding supplied list of widgets / layouts to the proper alignment.
- * @param props | LayoutComponentProps - Parent Layout.
- * @param children | string[] | LayoutComponentProps[] - List of child widgets or layouts to be added to the parent layout.
- * @param highlight | HighlightInfo - Drop Information.
- * @returns LayoutComponentProps
- */
-export function addChildToAlignedRow(
-  props: LayoutProps,
-  children: string[] | LayoutProps[],
-  highlight: AnvilHighlightInfo,
-): LayoutProps {
-  const layout: string[][] = props.layout as string[][];
-  const { alignment, rowIndex: index } = highlight;
-  // Extract index of the affected alignment.
-  const alignmentIndex: number = AlignmentIndexMap[alignment];
-  // Extract the list data of the affected alignment.
-  const alignmentRow: string[] = layout[alignmentIndex];
-  // Add children in the appropriate position.
-  const updatedAlignmentRow: string[] = [
-    ...alignmentRow.slice(0, index),
-    ...children,
-    ...alignmentRow.slice(index),
-  ] as string[];
-  const updatedLayout = [...layout];
-  // Update the affected alignment in the parent layout.
-  updatedLayout[alignmentIndex] = updatedAlignmentRow as string[];
-  return { ...props, layout: updatedLayout } as LayoutProps;
 }
 
 /**
@@ -79,21 +51,24 @@ export function addChildToAlignedRow(
  */
 export function removeChildFromLayout(
   props: LayoutProps,
-  child: string | LayoutProps,
+  child: WidgetLayoutProps | LayoutProps,
 ): LayoutProps | undefined {
+  if (!child) return props;
   let updatedLayout: LayoutProps = { ...props };
-  if (typeof child === "string") {
+  if (isWidgetLayoutProps(child)) {
     updatedLayout = {
       ...props,
-      layout: (props.layout as string[]).filter(
-        (each: string) => each !== child,
+      layout: (props.layout as WidgetLayoutProps[]).filter(
+        (each: WidgetLayoutProps) =>
+          each.widgetId !== (child as WidgetLayoutProps).widgetId,
       ),
     };
   } else {
     updatedLayout = {
       ...props,
-      layout: (props.layout as LayoutComponentProps[]).filter(
-        (each: LayoutComponentProps) => each.layoutId !== child.layoutId,
+      layout: (props.layout as LayoutProps[]).filter(
+        (each: LayoutProps) =>
+          each.layoutId !== (child as LayoutProps).layoutId,
       ),
     };
   }
@@ -102,37 +77,9 @@ export function removeChildFromLayout(
     : undefined;
 }
 
-/**
- * Update AlignedRow by removing children at a specified index from a specified alignment.
- * return undefined if layout is not permanent and is empty after deletion.
- * @param props | LayoutComponentProps - Parent Layout.
- * @param highlight | HighlightInfo - Drop Information.
- * @returns LayoutComponentProps | undefined
- */
-export function removeChildFromAlignedRow(
-  props: LayoutProps,
-  child: string,
-): LayoutProps | undefined {
-  const layout: string[][] = props.layout as string[][];
-  // Extract index of the affected alignment.
-  const alignmentIndex: number = layout.findIndex(
-    (each: string[]) => each.indexOf(child) !== -1,
+export function extractWidgetIdsFromLayoutProps(props: LayoutProps): string[] {
+  if (!props || !props.layout.length) return [];
+  return (props.layout as WidgetLayoutProps[]).map(
+    (each: WidgetLayoutProps) => each.widgetId,
   );
-  if (alignmentIndex === -1) return props;
-  // Extract the list data of the affected alignment.
-  const alignmentRow: string[] = layout[alignmentIndex];
-  // Remove child at the appropriate position.
-  const updatedAlignmentRow: string[] = alignmentRow.filter(
-    (each: string) => each !== child,
-  );
-  const updatedLayout = [...layout];
-  // Update the affected alignment in the parent layout.
-  updatedLayout[alignmentIndex] = updatedAlignmentRow as string[];
-  return props.isPermanent ||
-    updatedLayout.reduce(
-      (acc: number, each: string[]) => acc + each.length,
-      0,
-    ) > 0
-    ? ({ ...props, layout: updatedLayout } as LayoutComponentProps)
-    : undefined;
 }

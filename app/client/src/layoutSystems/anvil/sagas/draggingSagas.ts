@@ -24,6 +24,7 @@ function* addWidgetsSaga(
   try {
     const start = performance.now();
     const { highlight, newWidget } = actionPayload.payload;
+    const { alignment, canvasId } = highlight;
     const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
 
     // Execute Blueprint operation to update widget props before creation.
@@ -31,7 +32,7 @@ function* addWidgetsSaga(
       executeWidgetBlueprintBeforeOperations,
       BlueprintOperationTypes.UPDATE_CREATE_PARAMS_BEFORE_ADD,
       {
-        parentId: highlight.canvasId,
+        parentId: canvasId,
         widgetId: newWidget.newWidgetId,
         widgets: allWidgets,
         widgetType: newWidget.type,
@@ -44,11 +45,11 @@ function* addWidgetsSaga(
       getUpdateDslAfterCreatingChild,
       {
         ...updatedParams,
-        widgetId: highlight.canvasId,
+        widgetId: canvasId,
       },
     );
 
-    const canvasWidget = updatedWidgetsOnAddition[highlight.canvasId];
+    const canvasWidget = updatedWidgetsOnAddition[canvasId];
 
     /**
      * Add new widget to the children of parent canvas.
@@ -60,7 +61,10 @@ function* addWidgetsSaga(
         ...canvasWidget,
         children: [...(canvasWidget.children || []), newWidget.widgetId],
         layout: addWidgetsToPreset([canvasWidget.layout], highlight, [
-          newWidget.widgetId,
+          {
+            widgetId: newWidget.widgetId,
+            alignment,
+          },
         ]),
       },
     };

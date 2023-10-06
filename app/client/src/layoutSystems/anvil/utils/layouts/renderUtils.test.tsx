@@ -1,11 +1,11 @@
 import { generateLayoutComponentMock } from "mocks/layoutComponents/layoutComponentMock";
-import type { LayoutComponentProps } from "../anvilTypes";
+import type { LayoutComponentProps, WidgetLayoutProps } from "../anvilTypes";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { getChildrenMap } from "./renderUtils";
 
 describe("renderUtils tests", () => {
   describe("getChildrenMap", () => {
-    it("should exract proper children data for each layout", () => {
+    it("should extract proper children data for each layout", () => {
       /**
        * This will create a Layout Component that renders two layouts, each of which renders two widgets.
        * Row
@@ -23,9 +23,11 @@ describe("renderUtils tests", () => {
       const childLayoutOne: LayoutComponentProps = layout
         .layout[0] as LayoutComponentProps;
       const childLayoutTwo: LayoutComponentProps = layout
-        .layout[0] as LayoutComponentProps;
-      const childLayoutOneWidgets: string[] = childLayoutOne.layout as string[];
-      const childLayoutTwoWidgets: string[] = childLayoutTwo.layout as string[];
+        .layout[1] as LayoutComponentProps;
+      const childLayoutOneWidgets: WidgetLayoutProps[] =
+        childLayoutOne.layout as WidgetLayoutProps[];
+      const childLayoutTwoWidgets: WidgetLayoutProps[] =
+        childLayoutTwo.layout as WidgetLayoutProps[];
 
       // Create aggregate map of children
       const map: Record<string, WidgetProps> = {
@@ -38,15 +40,16 @@ describe("renderUtils tests", () => {
         map,
         {},
       );
+
       expect(Object.keys(res || {}).length).toEqual(2);
       expect(
-        Object.keys(res || {}).includes(childLayoutOneWidgets[0]),
+        Object.keys(res || {}).includes(childLayoutOneWidgets[0].widgetId),
       ).toBeTruthy();
 
       // Extract childrenMap for child layout two.
       res = getChildrenMap(childLayoutTwo, map, {});
       expect(
-        Object.keys(res || {}).includes(childLayoutTwoWidgets[1]),
+        Object.keys(res || {}).includes(childLayoutTwoWidgets[1].widgetId),
       ).toBeTruthy();
 
       res = getChildrenMap(layout, map, {});

@@ -4,6 +4,7 @@ import type {
   LayoutComponent,
   LayoutComponentProps,
   LayoutProps,
+  WidgetLayoutProps,
 } from "../anvilTypes";
 import WidgetFactory from "WidgetProvider/factory";
 import { type RenderMode, RenderModes } from "constants/WidgetConstants";
@@ -13,6 +14,9 @@ import {
   FlexLayout,
   type FlexLayoutProps,
 } from "layoutSystems/anvil/layoutComponents/components/FlexLayout";
+import { extractWidgetIdsFromLayoutProps } from "./layoutUtils";
+import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
+import { isWidgetLayoutProps } from "./typeUtils";
 
 export function renderWidgets(
   widgets: string[],
@@ -70,18 +74,13 @@ export function getChildrenMap(
 
   // Parse each item of layout.
   for (const each of layout) {
-    // if type === string => each is a widgetId.
-    if (typeof each === "string") {
+    // if each is a widgetId.
+    if (isWidgetLayoutProps(each)) {
       // add widget to the resultant map.
-      res[each] = map[each];
-    } else if (Array.isArray(each)) {
-      // if type === array => each could be a list of widgetIDs.
-      // ASSUMPTION: AlignedRow will only render widgets.
-      for (const id of each) {
-        res[id] = map[id];
-      }
+      res[(each as WidgetLayoutProps).widgetId] =
+        map[(each as WidgetLayoutProps).widgetId];
     } else {
-      getChildrenMap(each, map, res);
+      getChildrenMap(each as LayoutProps, map, res);
     }
   }
   return res;
@@ -111,7 +110,6 @@ export function getChildrenMap(
  */
 export function renderWidgetsInAlignedRow(
   props: LayoutComponentProps,
-  childrenWidgetIds: string[],
 ): React.ReactNode {
   const { canvasId, childrenMap, layoutId, renderMode } = props;
   // check if layout renders a Fill widget.
@@ -121,14 +119,18 @@ export function renderWidgetsInAlignedRow(
   const mode: RenderMode = renderMode || RenderModes.CANVAS;
   // If a Fill widget exists, then render the child widgets together.
   if (hasFillWidget) {
-    return renderWidgets(childrenWidgetIds, childrenMap, mode);
+    return renderWidgets(
+      extractWidgetIdsFromLayoutProps(props),
+      childrenMap,
+      mode,
+    );
   }
 
   /**
    * else render the child widgets separately
    * in their respective alignments.
    */
-  const layout: string[][] = props.layout as string[][];
+  const layout: WidgetLayoutProps[] = props.layout as WidgetLayoutProps[];
   const commonProps: Omit<FlexLayoutProps, "children" | "layoutId"> = {
     alignSelf: "stretch",
     canvasId,
@@ -150,7 +152,11 @@ export function renderWidgetsInAlignedRow(
       key={`${layoutId}-0`}
       layoutId={`${layoutId}-0`}
     >
-      {renderWidgets(layout[0], childrenMap, mode)}
+      {renderWidgets(
+        extractWidgetsForAlignment(layout, FlexLayerAlignment.Start),
+        childrenMap,
+        mode,
+      )}
     </FlexLayout>,
     <FlexLayout
       {...commonProps}
@@ -158,7 +164,11 @@ export function renderWidgetsInAlignedRow(
       key={`${layoutId}-1`}
       layoutId={`${layoutId}-1`}
     >
-      {renderWidgets(layout[1], childrenMap, mode)}
+      {renderWidgets(
+        extractWidgetsForAlignment(layout, FlexLayerAlignment.Center),
+        childrenMap,
+        mode,
+      )}
     </FlexLayout>,
     <FlexLayout
       {...commonProps}
@@ -166,7 +176,27 @@ export function renderWidgetsInAlignedRow(
       key={`${layoutId}-2`}
       layoutId={`${layoutId}-2`}
     >
-      {renderWidgets(layout[2], childrenMap, mode)}
+      {renderWidgets(
+        extractWidgetsForAlignment(layout, FlexLayerAlignment.End),
+        childrenMap,
+        mode,
+      )}
     </FlexLayout>,
   ];
+}
+
+/**
+ * Filter out widgetIds that belong to the target alignment.
+ * @param layout | WidgetLayoutProps[] : List of widgets
+ * @param alignment | FlexLayerAlignment : target alignment
+ * @returns string[] : List of widget ids.
+ */
+function extractWidgetsForAlignment(
+  layout: WidgetLayoutProps[],
+  alignment: FlexLayerAlignment,
+): string[] {
+  if (!layout || !layout.length) return [];
+  return layout
+    .filter((each: WidgetLayoutProps) => each.alignment === alignment)
+    .map((each: WidgetLayoutProps) => each.widgetId);
 }

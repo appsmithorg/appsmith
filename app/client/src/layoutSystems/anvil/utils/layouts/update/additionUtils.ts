@@ -1,13 +1,11 @@
 import LayoutFactory from "layoutSystems/anvil/layoutComponents/LayoutFactory";
-import {
-  LayoutComponentTypes,
-  type AnvilHighlightInfo,
-  type LayoutComponent,
-  type LayoutComponentType,
-  type LayoutProps,
+import type {
+  AnvilHighlightInfo,
+  LayoutComponent,
+  LayoutProps,
+  WidgetLayoutProps,
 } from "../../anvilTypes";
 import { generateReactKey } from "utils/generators";
-import { AlignmentIndexMap } from "../../constants";
 
 /**
  * Update a layout preset by adding a list of widgets in correct position.
@@ -19,7 +17,7 @@ import { AlignmentIndexMap } from "../../constants";
 export function addWidgetsToPreset(
   layouts: LayoutProps[],
   highlight: AnvilHighlightInfo,
-  widgets: string[],
+  widgets: WidgetLayoutProps[],
 ): LayoutProps[] {
   if (!layouts || !highlight || !widgets || !widgets.length) return layouts;
 
@@ -40,12 +38,8 @@ export function addWidgetsToPreset(
   /**
    * STEP 2: Prepare the widgets to be added.
    */
-  const children: string[] | LayoutProps[] = prepareWidgetsForAddition(
-    Comp,
-    affectedLayout,
-    highlight,
-    widgets,
-  );
+  const children: WidgetLayoutProps[] | LayoutProps[] =
+    prepareWidgetsForAddition(Comp, affectedLayout, highlight, widgets);
 
   /**
    * STEP 3: Update the layout json of affected layout.
@@ -128,8 +122,8 @@ export function prepareWidgetsForAddition(
   Comp: LayoutComponent,
   layoutProps: LayoutProps,
   highlight: AnvilHighlightInfo,
-  widgets: string[],
-): string[] | LayoutProps[] {
+  widgets: WidgetLayoutProps[],
+): WidgetLayoutProps[] | LayoutProps[] {
   if (!widgets || !widgets.length) return [];
 
   const childTemplate: LayoutProps | undefined =
@@ -164,7 +158,7 @@ export function prepareWidgetsForAddition(
 export function addWidgetsToTemplate(
   template: LayoutProps,
   highlight: AnvilHighlightInfo,
-  widgets: string[],
+  widgets: WidgetLayoutProps[],
 ): LayoutProps {
   // Generate a layoutId.
   let obj: LayoutProps = {
@@ -177,27 +171,11 @@ export function addWidgetsToTemplate(
    * is determined by presence of insertChild prop.
    */
   if (obj.insertChild) {
-    /**
-     * If child layout has alignments,
-     * then use highlight information to determine the alignment
-     * in which to drop the widgets.
-     */
-    if (hasAlignments(obj.layoutType)) {
-      const index: number = AlignmentIndexMap[highlight.alignment];
-      const layout: string[][] = obj.layout as string[][];
-      // Update the appropriate alignment.
-      layout[index] = [...layout[index], ...widgets];
-      obj = {
-        ...obj,
-        layout,
-      } as LayoutProps;
-    } else {
-      obj = {
-        ...obj,
-        layout: [...obj.layout, ...widgets],
-      } as LayoutProps;
-    }
-  } else if (obj.layout.length && typeof obj.layout[0] !== "string") {
+    obj = {
+      ...obj,
+      layout: [...obj.layout, ...widgets],
+    } as LayoutProps;
+  } else if (obj.layout?.length) {
     /**
      * There are nested layouts.
      * Parse them to identify the layout to drop widgets in.
@@ -207,8 +185,4 @@ export function addWidgetsToTemplate(
     );
   }
   return obj;
-}
-
-export function hasAlignments(layoutType: LayoutComponentType): boolean {
-  return layoutType === LayoutComponentTypes.ALIGNED_ROW;
 }

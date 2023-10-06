@@ -2,12 +2,14 @@ import { RenderModes } from "constants/WidgetConstants";
 import {
   LayoutComponentTypes,
   type LayoutComponentProps,
+  type WidgetLayoutProps,
 } from "layoutSystems/anvil/utils/anvilTypes";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { generateReactKey } from "utils/generators";
 import { mockButtonProps } from "mocks/widgetProps/button";
 import { mockInputProps } from "mocks/widgetProps/input";
+import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
 
 export function generateLayoutComponentMock(
   data: Partial<LayoutComponentProps> = {},
@@ -15,7 +17,7 @@ export function generateLayoutComponentMock(
 ): LayoutComponentProps {
   if (data?.layoutType === LayoutComponentTypes.ALIGNED_ROW)
     return generateAlignedRowMock(data, rendersWidgets);
-  const layout: string[] | LayoutComponentProps[] = [],
+  const layout: WidgetLayoutProps[] | LayoutComponentProps[] = [],
     childrenMap: { [key: string]: WidgetProps } = {};
   if (rendersWidgets) {
     /**
@@ -26,8 +28,14 @@ export function generateLayoutComponentMock(
      */
     const buttonWidget: BaseWidgetProps = mockButtonProps();
     const inputWidget: BaseWidgetProps = mockInputProps();
-    (layout as string[]).push(buttonWidget.widgetId);
-    (layout as string[]).push(inputWidget.widgetId);
+    (layout as WidgetLayoutProps[]).push({
+      widgetId: buttonWidget.widgetId,
+      alignment: FlexLayerAlignment.Start,
+    });
+    (layout as WidgetLayoutProps[]).push({
+      widgetId: inputWidget.widgetId,
+      alignment: FlexLayerAlignment.Start,
+    });
     childrenMap[buttonWidget.widgetId] = buttonWidget;
     childrenMap[inputWidget.widgetId] = inputWidget;
   } else {
@@ -38,7 +46,7 @@ export function generateLayoutComponentMock(
     layout,
     layoutId: generateReactKey(),
     layoutStyle: {},
-    layoutType: "ROW",
+    layoutType: LayoutComponentTypes.ROW,
 
     allowedWidgetTypes: [],
     canvasId: "",
@@ -67,13 +75,19 @@ export function generateAlignedRowMock(
   data: Partial<LayoutComponentProps> = {},
   rendersWidgets = true,
 ): LayoutComponentProps {
-  const layout: string[][] = [[], [], []],
+  const layout: WidgetLayoutProps[] = [],
     childrenMap: { [key: string]: WidgetProps } = {};
   if (rendersWidgets) {
     const buttonWidget: BaseWidgetProps = mockButtonProps();
     const inputWidget: BaseWidgetProps = mockInputProps();
-    layout[0].push(buttonWidget.widgetId);
-    layout[0].push(inputWidget.widgetId);
+    (layout as WidgetLayoutProps[]).push({
+      widgetId: buttonWidget.widgetId,
+      alignment: FlexLayerAlignment.Start,
+    });
+    (layout as WidgetLayoutProps[]).push({
+      widgetId: inputWidget.widgetId,
+      alignment: FlexLayerAlignment.Start,
+    });
     childrenMap[buttonWidget.widgetId] = buttonWidget;
     childrenMap[inputWidget.widgetId] = inputWidget;
   }

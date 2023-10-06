@@ -1,5 +1,5 @@
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import type { AnvilHighlightInfo } from "../../anvilTypes";
+import type { AnvilHighlightInfo, WidgetLayoutProps } from "../../anvilTypes";
 import { deleteWidgetFromPreset } from "./deletionUtils";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { addWidgetsToPreset } from "./additionUtils";
@@ -92,7 +92,15 @@ export function moveWidgets(
   });
 
   /**
-   * Step 2: Add all moved widgets to new parent and update its layout in the drop position specified by the highlight.
+   * Step 3: Create WidgetLayoutProps structure for addition to new parent's layout.
+   */
+  const newChildren: WidgetLayoutProps[] = movedWidgets.map((each: string) => ({
+    widgetId: each,
+    alignment: highlight.alignment,
+  }));
+
+  /**
+   * Step 4: Add all moved widgets to new parent and update its layout in the drop position specified by the highlight.
    */
   return {
     ...widgets,
@@ -104,7 +112,7 @@ export function moveWidgets(
         ),
         ...movedWidgets,
       ],
-      layout: addWidgetsToPreset(parent.layout, highlight, movedWidgets),
+      layout: addWidgetsToPreset(parent.layout, highlight, newChildren),
     },
   };
 }

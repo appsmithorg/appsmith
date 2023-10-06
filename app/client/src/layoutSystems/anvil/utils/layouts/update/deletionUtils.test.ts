@@ -2,12 +2,20 @@ import {
   generateAlignedRowMock,
   generateLayoutComponentMock,
 } from "mocks/layoutComponents/layoutComponentMock";
-import type { LayoutComponentProps, LayoutProps } from "../../anvilTypes";
-import { registerLayoutComponents } from "../layoutUtils";
+import type {
+  LayoutComponentProps,
+  LayoutProps,
+  WidgetLayoutProps,
+} from "../../anvilTypes";
+import {
+  extractWidgetIdsFromLayoutProps,
+  registerLayoutComponents,
+} from "../layoutUtils";
 import {
   deleteWidgetFromLayout,
   deleteWidgetFromPreset,
 } from "./deletionUtils";
+import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
 
 describe("Layouts - deletionUtils tests", () => {
   beforeAll(() => {
@@ -20,15 +28,18 @@ describe("Layouts - deletionUtils tests", () => {
     });
     it("should remove widget from the layout", () => {
       const layout: LayoutComponentProps = generateLayoutComponentMock();
+
       const originalLength: number = layout.layout.length;
-      const widgetId: string = layout.layout[0] as string;
+      const widgetId: string = (layout.layout[0] as WidgetLayoutProps).widgetId;
       const res: LayoutProps | undefined = deleteWidgetFromLayout(
-        layout,
+        layout as LayoutProps,
         widgetId,
       );
       if (!res) return;
       expect(res.layout.length).toEqual(originalLength - 1);
-      expect((res.layout as string[]).includes(widgetId)).toBeFalsy();
+      expect(
+        extractWidgetIdsFromLayoutProps(res).includes(widgetId),
+      ).toBeFalsy();
     });
     it("should return undefined if layout is temporary and empty after deletion", () => {
       const layout: LayoutComponentProps = generateLayoutComponentMock({
@@ -38,16 +49,21 @@ describe("Layouts - deletionUtils tests", () => {
       const originalLength: number = layout.layout.length;
       let res: LayoutProps | undefined = deleteWidgetFromLayout(
         layout,
-        layout.layout[0] as string,
+        (layout.layout[0] as WidgetLayoutProps).widgetId,
       );
       if (!res) return;
       expect(res.layout.length).toEqual(originalLength - 1);
       expect(
-        (res.layout as string[]).includes(layout.layout[0] as string),
+        extractWidgetIdsFromLayoutProps(res).includes(
+          (layout.layout[0] as WidgetLayoutProps).widgetId,
+        ),
       ).toBeFalsy();
 
       // Delete the other widget
-      res = deleteWidgetFromLayout(res, res.layout[0] as string);
+      res = deleteWidgetFromLayout(
+        res,
+        (res.layout[0] as WidgetLayoutProps).widgetId,
+      );
       expect(res).toBeUndefined();
     });
     it("should return empty layout on deleting last widget, if the layout is permanent", () => {
@@ -58,16 +74,21 @@ describe("Layouts - deletionUtils tests", () => {
       const originalLength: number = layout.layout.length;
       let res: LayoutProps | undefined = deleteWidgetFromLayout(
         layout,
-        layout.layout[0] as string,
+        (layout.layout[0] as WidgetLayoutProps).widgetId,
       );
       if (!res) return;
       expect(res.layout.length).toEqual(originalLength - 1);
       expect(
-        (res.layout as string[]).includes(layout.layout[0] as string),
+        extractWidgetIdsFromLayoutProps(res).includes(
+          (layout.layout[0] as WidgetLayoutProps).widgetId,
+        ),
       ).toBeFalsy();
 
       // Delete the other widget
-      res = deleteWidgetFromLayout(res, res.layout[0] as string);
+      res = deleteWidgetFromLayout(
+        res,
+        (res.layout[0] as WidgetLayoutProps).widgetId,
+      );
       if (!res) return;
       expect(res.layout.length).toEqual(0);
     });
@@ -76,20 +97,30 @@ describe("Layouts - deletionUtils tests", () => {
         isPermanent: false,
       });
       // start alignment has two widgets
-      const originalStartLength: number = (layout.layout[0] as string[]).length;
-      const widgetId: string = (layout.layout[0] as string[])[0];
+      const originalStartLength: number = (
+        layout.layout as WidgetLayoutProps[]
+      ).filter(
+        (each: WidgetLayoutProps) =>
+          each.alignment === FlexLayerAlignment.Start,
+      ).length;
+      const widgetId: string = (layout.layout[0] as WidgetLayoutProps).widgetId;
       let res: LayoutProps | undefined = deleteWidgetFromLayout(
         layout,
         widgetId,
       );
       if (!res) return;
-      expect((res.layout[0] as string[]).length).toEqual(
+      expect((res.layout as WidgetLayoutProps[]).length).toEqual(
         originalStartLength - 1,
       );
-      expect((res.layout[0] as string[]).includes(widgetId)).toBeFalsy();
+      expect(
+        extractWidgetIdsFromLayoutProps(res).includes(widgetId),
+      ).toBeFalsy();
 
       // Delete the other widget
-      res = deleteWidgetFromLayout(res, (res.layout[0] as string[])[0]);
+      res = deleteWidgetFromLayout(
+        res,
+        (res.layout[0] as WidgetLayoutProps).widgetId,
+      );
       expect(res).toBeUndefined();
     });
     it("should return empty AlignedRow on deleting last widget, if the layout is permanent", () => {
@@ -97,27 +128,35 @@ describe("Layouts - deletionUtils tests", () => {
         isPermanent: true,
       });
       // start alignment has two widgets
-      const originalStartLength: number = (layout.layout[0] as string[]).length;
+      const originalStartLength: number = (
+        layout.layout as WidgetLayoutProps[]
+      ).filter(
+        (each: WidgetLayoutProps) =>
+          each.alignment === FlexLayerAlignment.Start,
+      ).length;
       let res: LayoutProps | undefined = deleteWidgetFromLayout(
         layout,
-        (layout.layout[0] as string[])[0],
+        (layout.layout[0] as WidgetLayoutProps).widgetId,
       );
       if (!res) return;
 
-      expect((res.layout[0] as string[]).length).toEqual(
+      expect((res.layout as WidgetLayoutProps[]).length).toEqual(
         originalStartLength - 1,
       );
       expect(
-        (res.layout[0] as string[]).includes((layout.layout[0] as string[])[0]),
+        extractWidgetIdsFromLayoutProps(res).includes(
+          (layout.layout[0] as WidgetLayoutProps).widgetId,
+        ),
       ).toBeFalsy();
 
       // Delete the other widget
-      res = deleteWidgetFromLayout(res, (res.layout[0] as string[])[0]);
+      res = deleteWidgetFromLayout(
+        res,
+        (res.layout[0] as WidgetLayoutProps).widgetId,
+      );
 
       if (!res) return;
-      expect((res.layout[0] as string[]).length).toEqual(0);
-      expect((res.layout[1] as string[]).length).toEqual(0);
-      expect((res.layout[2] as string[]).length).toEqual(0);
+      expect(res.layout.length).toEqual(0);
     });
     it("should return the layout as is if widgetId is not present in the layout", () => {
       const layout: LayoutComponentProps = generateAlignedRowMock();
@@ -147,13 +186,16 @@ describe("Layouts - deletionUtils tests", () => {
       const layout2: LayoutComponentProps = generateLayoutComponentMock();
       const res: LayoutProps[] = deleteWidgetFromPreset(
         [layout2, layout],
-        (layout.layout[0] as LayoutComponentProps).layout[0] as string,
+        ((layout.layout[0] as LayoutProps).layout[0] as WidgetLayoutProps)
+          .widgetId,
       );
 
-      expect((res[1].layout[0] as LayoutComponentProps).layout.length).toEqual(
-        (layout.layout[0] as LayoutComponentProps).layout.length - 1,
+      expect((res[1].layout[0] as LayoutProps).layout.length).toEqual(
+        (layout.layout[0] as LayoutProps).layout.length - 1,
       );
-      expect(res[0].layout.length).toEqual((layout2.layout as string[]).length);
+      expect(res[0].layout.length).toEqual(
+        (layout2.layout as WidgetLayoutProps[]).length,
+      );
     });
     it("should filter empty temporary layouts after deletion", () => {
       /**
@@ -176,12 +218,15 @@ describe("Layouts - deletionUtils tests", () => {
       // delete the first widget
       let res: LayoutProps[] = deleteWidgetFromPreset(
         [layout2, layout],
-        layout2.layout[0] as string,
+        (layout2.layout[0] as WidgetLayoutProps).widgetId,
       );
       expect(res.length).toEqual(2);
 
       // delete the other widget
-      res = deleteWidgetFromPreset(res, res[0].layout[0] as string);
+      res = deleteWidgetFromPreset(
+        res,
+        (res[0].layout[0] as WidgetLayoutProps).widgetId,
+      );
       expect(res.length).toEqual(1);
       expect(res[0].layoutId).toEqual(layout.layoutId);
     });
