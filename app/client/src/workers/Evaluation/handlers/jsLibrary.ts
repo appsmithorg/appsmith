@@ -47,16 +47,6 @@ class TernDefinitionError extends Error {
   }
 }
 
-// class LibraryOverrideError extends Error {
-//   code = LibraryInstallError.LibraryOverrideError;
-//   data: any;
-//   constructor(name: string, data: any) {
-//     super(createMessage(customJSLibraryMessages.LIB_OVERRIDE_ERROR, name));
-//     this.name = "LibraryOverrideError";
-//     this.data = data;
-//   }
-// }
-
 const removeDataTreeFromContext = () => {
   if (!dataTreeEvaluator) return {};
   const evalTree = dataTreeEvaluator?.getEvalTree();
@@ -81,10 +71,6 @@ function addTempStoredDataTreeToContext(
   }
 }
 
-export const MARK_LIBRARY_AS_UNINSTALLED = Symbol.for(
-  "MARK_LIBRARY_AS_UNINSTALLED",
-);
-
 export async function installLibrary(request: EvalWorkerASyncRequest) {
   const { data } = request;
   const { takenAccessors, takenNamesMap, url } = data;
@@ -95,6 +81,8 @@ export async function installLibrary(request: EvalWorkerASyncRequest) {
    * We store the data tree in a temporary variable and add it back to the global scope after the library is imported.
    */
   const tempDataTreeStore = removeDataTreeFromContext();
+
+  // Map of all the currently installed libraries
   const tempLibStore = takenAccessors.reduce(
     (acc: Record<string, unknown>, a: string) => {
       //@ts-expect-error no types
@@ -109,13 +97,8 @@ export async function installLibrary(request: EvalWorkerASyncRequest) {
 
     const unsetKeys = envKeysBeforeInstallation.filter(
       //@ts-expect-error no types
-      (k) => self[k] === MARK_LIBRARY_AS_UNINSTALLED,
+      (k) => self[k] === undefined,
     );
-
-    const existingLibraries: Record<string, any> = {};
-    for (const acc of takenAccessors) {
-      existingLibraries[acc] = self[acc];
-    }
 
     const accessors = [];
 
@@ -123,16 +106,32 @@ export async function installLibrary(request: EvalWorkerASyncRequest) {
     try {
       self.importScripts(url);
       // Find keys add that were installed to the global scope.
+      const keysAfterInstallation = Object.keys(self);
+
+      const accessorList = difference(
+        keysAfterInstallation,
+        envKeysBeforeInstallation,
+      );
+      // Check this list of uninstalled libraries to see if any of their values have changed
+      // This is to find if the newly installed library has an accessor that was remove in an un-installation before.
+      accessorList.push(
+        ...unsetKeys.filter((k) => {
+          // @ts-expect-error no types
+          return self[k] !== undefined;
+        }),
+      );
+
+      // Check the list of installed library to see if their values have changed.
+      // This is to check if the newly installed library overwrites an already existing
+      accessorList.push(
+        ...Object.keys(tempLibStore).filter((k) => {
+          // @ts-expect-error no types
+          return tempLibStore[k] !== self[k];
+        }),
+      );
+
       accessors.push(
-        ...Object.keys(self)
-          .filter((k) => {
-            if (unsetKeys.includes(k)) {
-              // @ts-expect-error no types
-              return self[k] !== MARK_LIBRARY_AS_UNINSTALLED;
-            }
-            return envKeysBeforeInstallation.includes(k);
-          })
-          .map((k) => ({ original: k, modified: k })),
+        ...accessorList.map((a) => ({ original: a, modified: a })),
       );
     } catch (e) {
       try {
@@ -152,11 +151,11 @@ export async function installLibrary(request: EvalWorkerASyncRequest) {
       }
     }
 
-    // If no keys were added to the global scope, check if the module is a ESM module.
+    // If no accessor at this point, installation likely failed.
     if (accessors.length === 0)
       return { status: false, defs, accessor: accessors };
 
-    const collidingNames = accessors.map(
+    const collidingNames = accessors.filter(
       (k) =>
         takenNamesMap.hasOwnProperty(k.modified) ||
         takenAccessors.includes(k.modified),
@@ -208,6 +207,9 @@ export async function installLibrary(request: EvalWorkerASyncRequest) {
 
     return { success: true, defs, accessor: accessors };
   } catch (error) {
+    addTempStoredDataTreeToContext(tempDataTreeStore);
+    //@ts-expect-error no types
+    Object.keys(tempLibStore).forEach((k) => (self[k] = tempLibStore[k]));
     return { success: false, defs, error };
   }
 }
@@ -217,15 +219,11 @@ export function uninstallLibrary(request: EvalWorkerSyncRequest) {
   const accessor = data;
   try {
     for (const key of accessor) {
-      try {
-        delete self[key];
-      } catch (e) {
-        //@ts-expect-error ignore
-        self[key] = undefined;
-      }
+      //@ts-expect-error its ok
+      self[key.modified] = undefined;
       //we have to update invalidEntityIdentifiers as well
-      delete libraryReservedIdentifiers[key];
-      delete invalidEntityIdentifiers[key];
+      delete libraryReservedIdentifiers[key.modified];
+      delete invalidEntityIdentifiers[key.modified];
     }
     return { success: true };
   } catch (e) {

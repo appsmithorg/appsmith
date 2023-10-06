@@ -39,6 +39,8 @@ export function resetJSLibraries() {
       );
 
     // @ts-expect-error: Types are not available
-    self[library.accessor] = defaultLibImplementations[library.name];
+    self[library.accessor[0].modified] =
+      // @ts-expect-error: Types are not available
+      defaultLibImplementations[library.name];
   });
 }

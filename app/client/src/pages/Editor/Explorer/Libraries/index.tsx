@@ -267,7 +267,7 @@ function LibraryEntity({ lib }: { lib: TJSLibrary }) {
         <div className="pr-2 content">
           Available as{" "}
           <div className="accessor">
-            {lib.accessor[lib.accessor.length - 1]}{" "}
+            {lib.accessor[lib.accessor.length - 1]?.modified ?? ""}{" "}
             <Button
               // className="open-link"
               isIconButton

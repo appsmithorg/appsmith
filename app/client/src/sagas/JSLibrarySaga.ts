@@ -214,7 +214,7 @@ export function* installLibrarySaga(lib: Partial<TJSLibrary>) {
   toast.show(
     createMessage(
       customJSLibraryMessages.INSTALLATION_SUCCESSFUL,
-      accessor[accessor.length - 1],
+      accessor[accessor.length - 1].modified,
     ),
     {
       kind: "success",
