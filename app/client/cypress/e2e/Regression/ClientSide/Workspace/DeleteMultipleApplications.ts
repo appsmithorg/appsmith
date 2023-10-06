@@ -4,6 +4,7 @@ import {
   assertHelper,
   inviteModal,
 } from "../../../../support/Objects/ObjectsCore";
+import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
 const timestamp = Date.now();
 
@@ -96,6 +97,8 @@ describe("Delete multiple application", function () {
   });
 
   it("3. Unable to select to multiple delete if not enough permissions to delete", function () {
+    featureFlagIntercept({ license_gac_enabled: true });
+    cy.wait(2000);
     homePage.CreateNewWorkspace(UnableToDeleteWorkspace.workspaceName);
     homePage.CreateAppInWorkspace(
       UnableToDeleteWorkspace.workspaceName,

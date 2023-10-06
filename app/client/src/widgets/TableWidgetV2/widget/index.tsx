@@ -50,7 +50,6 @@ import type {
 } from "../constants";
 import {
   ActionColumnTypes,
-  ALLOW_TABLE_WIDGET_SERVER_SIDE_FILTERING,
   ColumnTypes,
   DEFAULT_BUTTON_LABEL,
   DEFAULT_COLUMN_WIDTH,
@@ -132,7 +131,10 @@ import type {
 } from "WidgetQueryGenerators/types";
 import type { DynamicPath } from "utils/DynamicBindingUtils";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
+import {
+  FlexVerticalAlignment,
+  ResponsiveBehavior,
+} from "layoutSystems/common/utils/constants";
 import IconSVG from "../icon.svg";
 
 const ReactTableComponent = lazy(() =>
@@ -177,6 +179,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
   static getDefaults() {
     return {
+      flexVerticalAlignment: FlexVerticalAlignment.Top,
       responsiveBehavior: ResponsiveBehavior.Fill,
       minWidth: FILL_WIDGET_MIN_WIDTH,
       rows: 28,
@@ -211,11 +214,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       delimiter: ",",
       version: 2,
       inlineEditingSaveOption: InlineEditingSaveOptions.ROW_LEVEL,
-      enableServerSideFiltering: TableWidgetV2.getFeatureFlag(
-        ALLOW_TABLE_WIDGET_SERVER_SIDE_FILTERING,
-      )
-        ? false
-        : undefined,
+      enableServerSideFiltering: false,
     };
   }
 
@@ -443,11 +442,8 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         isAddRowInProgress: "bool",
         previousPageVisited: generateTypeDef(widget.previousPageVisited),
         nextPageVisited: generateTypeDef(widget.nextPageButtonClicked),
+        filters: generateTypeDef(widget.filters),
       };
-
-      if (this.getFeatureFlag(ALLOW_TABLE_WIDGET_SERVER_SIDE_FILTERING)) {
-        config["filters"] = generateTypeDef(widget.filters);
-      }
 
       return config;
     };

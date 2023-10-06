@@ -16,7 +16,10 @@ import type {
   PropertyUpdates,
 } from "WidgetProvider/constants";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
-import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
+import {
+  FlexVerticalAlignment,
+  ResponsiveBehavior,
+} from "layoutSystems/common/utils/constants";
 
 const isAirgappedInstance = isAirgapped();
 
@@ -48,6 +51,7 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
       version: 1,
       animateLoading: true,
       responsiveBehavior: ResponsiveBehavior.Fill,
+      flexVerticalAlignment: FlexVerticalAlignment.Top,
     };
   }
 

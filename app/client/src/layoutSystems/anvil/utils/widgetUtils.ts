@@ -8,9 +8,9 @@ import { MOBILE_BREAKPOINT } from "./constants";
  * @returns Record<string, string | number> | undefined
  */
 export const getResponsiveMinWidth = (
-  config: Record<string, string | number> | undefined,
+  config: Record<string, string> | undefined,
   isFillWidget: boolean,
-): Record<string, string | number> | undefined => {
+): Record<string, string> | undefined => {
   if (!config) {
     return isFillWidget
       ? { base: "100%", [`${MOBILE_BREAKPOINT}px`]: "" }
