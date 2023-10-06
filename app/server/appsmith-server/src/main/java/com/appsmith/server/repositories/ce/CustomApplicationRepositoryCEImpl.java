@@ -345,4 +345,20 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
         return queryAllWithoutPermissions(criteria, List.of(fieldName(QApplication.application.id)), null, -1)
                 .map(application -> application.getId());
     }
+
+    @Override
+    public Mono<Long> getAllApplicationsCountAccessibleToARoleWithPermission(
+            AclPermission permission, String permissionGroupId) {
+
+        Query query = new Query();
+        Criteria permissionGroupCriteria = Criteria.where(fieldName(QBaseDomain.baseDomain.policies))
+                .elemMatch(Criteria.where("permissionGroups")
+                        .in(permissionGroupId)
+                        .and("permission")
+                        .is(permission.getValue()));
+
+        query.addCriteria(permissionGroupCriteria);
+        query.addCriteria(notDeleted());
+        return mongoOperations.count(query, Application.class);
+    }
 }
