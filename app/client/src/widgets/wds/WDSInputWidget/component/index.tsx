@@ -38,8 +38,6 @@ function InputComponent(props: InputComponentProps) {
         return "password";
       case INPUT_TYPES.EMAIL:
         return "email";
-      case INPUT_TYPES.NUMBER:
-        return "number";
       default:
         return "text";
     }

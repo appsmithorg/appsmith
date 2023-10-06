@@ -119,8 +119,8 @@ class WDSBaseInputWidget<
     if (
       typeof onSubmit === "string" &&
       onSubmit &&
-      ((isMultiLine && (e.metaKey || e.ctrlKey)) ||
-        (!isMultiLine && isEnterKey && isValid))
+      isEnterKey &&
+      ((isMultiLine && (e.metaKey || e.ctrlKey)) || (!isMultiLine && isValid))
     ) {
       // Originally super.executeAction was used to trigger the ON_SUBMIT action and updateMetaProperty
       // to update the text. Since executeAction is not queued and updateMetaProperty is, the user

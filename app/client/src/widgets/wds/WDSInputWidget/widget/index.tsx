@@ -1,5 +1,5 @@
 import React from "react";
-import { merge, toString } from "lodash";
+import { isNumber, merge, toString } from "lodash";
 
 import {
   propertyPaneContentConfig,
@@ -213,6 +213,36 @@ class WDSInputWidget extends WDSBaseInputWidget<InputWidgetProps, WidgetState> {
   };
 
   onKeyDown = (e: KeyDownEvent) => {
+    if (this.props.inputType === INPUT_TYPES.NUMBER) {
+      // don't allow entering anything other than numbers. but allow backspace, arrows delete, tab, enter
+      if (
+        !(
+          (e.key >= "0" && e.key <= "9") ||
+          (e.key >= "0" && e.key <= "9" && e.code.includes("Numpad")) ||
+          e.key === "Backspace" ||
+          e.key === "Tab" ||
+          e.key === "Enter" ||
+          e.key === "ArrowUp" ||
+          e.key === "ArrowDown" ||
+          e.key === "Delete"
+        )
+      ) {
+        e.preventDefault();
+      }
+
+      // increment or decrement the value by 1 on arrow up/down
+      // Note: we are doing this manually because we are using input="text" for inputType = NUMBER
+      if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+        const currentValue = Number(this.props.inputText);
+        const newValue =
+          e.key === "ArrowDown" ? currentValue - 1 : currentValue + 1;
+
+        if (isNumber(newValue) && !isNaN(newValue)) {
+          this.onValueChange(newValue.toString());
+        }
+      }
+    }
+
     super.onKeyDown(e, this.props.inputType === INPUT_TYPES.MULTI_LINE_TEXT);
   };
 
@@ -228,8 +258,10 @@ class WDSInputWidget extends WDSBaseInputWidget<InputWidgetProps, WidgetState> {
     }
 
     if (prevProps.inputType !== this.props.inputType) {
-      this.props.updateWidgetMetaProperty("text", this.props.defaultText);
-      this.props.updateWidgetMetaProperty("inputText", this.props.defaultText);
+      this.props.updateWidgetMetaProperty(
+        "text",
+        parseText(this.props.inputText, this.props.inputType),
+      );
     }
     // If defaultText property has changed, reset isDirty to false
     if (
