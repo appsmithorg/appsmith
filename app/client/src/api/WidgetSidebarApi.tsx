@@ -5,11 +5,12 @@ import type { AxiosPromise } from "axios";
 export interface WidgetSidebarResponse {
   cards: { [id: string]: WidgetCardProps[] };
 }
-// export interface WidgetCardsPaneRequest {}
 
 class WidgetSidebarApi extends Api {
   static url = "/widgetCards";
-  static fetchWidgetCards(): AxiosPromise<WidgetSidebarResponse> {
+  static async fetchWidgetCards(): Promise<
+    AxiosPromise<WidgetSidebarResponse>
+  > {
     return Api.get(WidgetSidebarApi.url);
   }
 }
