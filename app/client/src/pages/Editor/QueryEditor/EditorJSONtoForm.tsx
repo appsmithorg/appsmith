@@ -411,6 +411,8 @@ export function EditorJSONtoForm(props: Props) {
 
   const params = useParams<{ apiId?: string; queryId?: string }>();
 
+  // eslint-disable-next-line
+  console.log("QUERY EDITOR PARAMS", { params });
   // fetch the error count from the store.
   const errorCount = useSelector(getErrorCount);
 

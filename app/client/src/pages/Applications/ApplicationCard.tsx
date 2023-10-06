@@ -49,7 +49,7 @@ import ForkApplicationModal from "./ForkApplicationModal";
 import { getExportAppAPIRoute } from "@appsmith/constants/ApiConstants";
 import { builderURL, viewerURL } from "RouteBuilder";
 import history from "utils/history";
-import urlBuilder from "entities/URLRedirect/URLAssembly";
+import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
 import { toast } from "design-system";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { addItemsInContextMenu } from "@appsmith/utils";

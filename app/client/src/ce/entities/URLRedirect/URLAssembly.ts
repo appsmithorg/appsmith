@@ -11,17 +11,32 @@ import {
 } from "constants/routes";
 import { APP_MODE } from "entities/App";
 import { generatePath } from "react-router";
-import type { URLBuilderParams } from "RouteBuilder";
 import { getQueryStringfromObject } from "RouteBuilder";
+import store from "store";
 import getQueryParamsObject from "utils/getQueryParamsObject";
 
-enum URL_TYPE {
+export enum EDITOR_TYPE {
+  APP = "APP",
+  PKG = "PKG",
+}
+
+export type URLBuilderParams = {
+  suffix?: string;
+  branch?: string;
+  hash?: string;
+  params?: Record<string, any>;
+  pageId?: string;
+  persistExistingParams?: boolean;
+  editorType?: EDITOR_TYPE;
+};
+
+export enum URL_TYPE {
   DEFAULT,
   SLUG,
   CUSTOM_SLUG,
 }
 
-const baseURLRegistry = {
+export const baseURLRegistry = {
   [URL_TYPE.DEFAULT]: {
     [APP_MODE.EDIT]: BUILDER_PATH_DEPRECATED,
     [APP_MODE.PUBLISHED]: VIEWER_PATH_DEPRECATED,
@@ -71,7 +86,7 @@ export class URLBuilder {
 
   static _instance: URLBuilder;
 
-  private constructor() {
+  constructor() {
     this.appParams = {
       applicationId: "",
       applicationSlug: PLACEHOLDER_APP_SLUG,
@@ -137,6 +152,7 @@ export class URLBuilder {
     }
   }
 
+  // Currently only used in pages/Applications page on mount
   resetURLParams() {
     this.appParams = {
       applicationId: "",
@@ -145,11 +161,12 @@ export class URLBuilder {
     this.pageParams = {};
   }
 
+  // Current only used in src/pages/slug.test.tsx
   getURLParams(pageId: string) {
     return { ...this.appParams, ...this.pageParams[pageId] };
   }
 
-  generateBasePath(pageId: string, mode: APP_MODE) {
+  generateBasePathForApp(pageId: string, mode: APP_MODE) {
     const { applicationVersion } = this.appParams;
 
     const customSlug = this.pageParams[pageId]?.customSlug || "";
@@ -163,6 +180,10 @@ export class URLBuilder {
     const basePath = generatePath(urlPattern, formattedParams);
 
     return basePath;
+  }
+
+  generateBasePath(pageId: string, mode: APP_MODE) {
+    return this.generateBasePathForApp(pageId, mode);
   }
 
   getCustomSlugPathPreview(pageId: string, customSlug: string) {
@@ -188,6 +209,23 @@ export class URLBuilder {
     return generatePath(urlPattern, formattedParams).toLowerCase();
   }
 
+  resolveEntityIdForApp(builderParams: URLBuilderParams) {
+    const currentPageId: string =
+      store.getState().entities.pageList.currentPageId;
+
+    return {
+      entityId: builderParams.pageId || currentPageId,
+      entityType: "pageId",
+    };
+  }
+
+  resolveEntityId(builderParams: URLBuilderParams): {
+    entityId: string;
+    entityType: string;
+  } {
+    return this.resolveEntityIdForApp(builderParams);
+  }
+
   /**
    * @throws {URIError}
    * @param builderParams
@@ -200,17 +238,18 @@ export class URLBuilder {
       params = {},
       persistExistingParams = false,
       suffix,
-      pageId,
       branch,
     } = builderParams;
 
-    if (!pageId) {
+    const { entityId, entityType } = this.resolveEntityId(builderParams);
+
+    if (!entityId) {
       throw new URIError(
-        "Missing pageId. If you are trying to set href inside a react component use the 'useHref' hook.",
+        `Missing ${entityType}. If you are trying to set href inside a react component use the 'useHref' hook.`,
       );
     }
 
-    const basePath = this.generateBasePath(pageId, mode);
+    const basePath = this.generateBasePath(entityId, mode);
 
     const queryParamsToPersist = fetchQueryParamsToPersist(
       persistExistingParams,
