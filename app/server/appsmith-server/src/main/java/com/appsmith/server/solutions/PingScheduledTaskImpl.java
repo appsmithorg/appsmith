@@ -12,6 +12,7 @@ import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.ConfigService;
+import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.UsagePulseService;
 import com.appsmith.server.solutions.ce.PingScheduledTaskCEImpl;
@@ -51,7 +52,8 @@ public class PingScheduledTaskImpl extends PingScheduledTaskCEImpl implements Pi
             TenantService tenantService,
             AirgapInstanceConfig airgapInstanceConfig,
             UsagePulseService usagePulseService,
-            Scheduler scheduler) {
+            Scheduler scheduler,
+            PermissionGroupService permissionGroupService) {
 
         super(
                 configService,
@@ -64,7 +66,8 @@ public class PingScheduledTaskImpl extends PingScheduledTaskCEImpl implements Pi
                 datasourceRepository,
                 userRepository,
                 projectProperties,
-                networkUtils);
+                networkUtils,
+                permissionGroupService);
         this.tenantService = tenantService;
         this.airgapInstanceConfig = airgapInstanceConfig;
         this.usagePulseService = usagePulseService;
