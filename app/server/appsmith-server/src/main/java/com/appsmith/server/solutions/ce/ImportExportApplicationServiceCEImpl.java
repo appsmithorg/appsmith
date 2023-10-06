@@ -18,6 +18,7 @@ import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.OAuth2;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.constants.ApplicationConstants;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.ResourceModes;
 import com.appsmith.server.constants.SerialiseApplicationObjective;
@@ -27,6 +28,7 @@ import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.CustomJSLib;
+import com.appsmith.server.domains.CustomJSLibCompatibilityDTO;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
@@ -225,8 +227,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
          * Since we are exporting for git, we only consider unpublished JS libraries
          * Ref: https://theappsmith.slack.com/archives/CGBPVEJ5C/p1672225134025919
          */
-        Mono<List<CustomJSLib>> allCustomJSLibListMono = customJSLibService
-                .getAllJSLibsInApplicationForExport(applicationId, null, false)
+        Mono<List<CustomJSLibCompatibilityDTO>> allCustomJSLibListMono = customJSLibService
+                .getAllJSLibsCompatibilityDTOInApplicationForExport(applicationId, null, false)
                 .zipWith(applicationMono)
                 .map(tuple2 -> {
                     Application application = tuple2.getT2();
@@ -234,7 +236,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     Instant applicationLastCommittedAt =
                             gitApplicationMetadata != null ? gitApplicationMetadata.getLastCommittedAt() : null;
 
-                    List<CustomJSLib> unpublishedCustomJSLibList = tuple2.getT1();
+                    List<CustomJSLibCompatibilityDTO> unpublishedCustomJSLibList = tuple2.getT1();
                     List<String> updatedCustomJSLibList;
                     if (applicationLastCommittedAt != null) {
                         updatedCustomJSLibList = unpublishedCustomJSLibList.stream()
@@ -256,7 +258,9 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                      * resulted in uncommitted changes. Making it a list and sorting it by the UidString
                      * ensure that the order will be maintained. And this solves the issue.
                      */
-                    Collections.sort(unpublishedCustomJSLibList, Comparator.comparing(CustomJSLib::getUidString));
+                    Collections.sort(
+                            unpublishedCustomJSLibList,
+                            Comparator.comparing(CustomJSLibCompatibilityDTO::getUidString));
                     return unpublishedCustomJSLibList;
                 });
 
@@ -1726,16 +1730,20 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         });
     }
 
-    private Mono<List<CustomJSLibApplicationDTO>> getCustomJslibImportMono(List<CustomJSLib> customJSLibs) {
-        if (customJSLibs == null) {
-            customJSLibs = new ArrayList<>();
+    private Mono<List<CustomJSLibApplicationDTO>> getCustomJslibImportMono(
+            List<CustomJSLibCompatibilityDTO> customJSLibsCompatibilityDTO) {
+        if (customJSLibsCompatibilityDTO == null) {
+            customJSLibsCompatibilityDTO = new ArrayList<>();
         }
 
-        return Flux.fromIterable(customJSLibs)
-                .flatMap(customJSLib -> {
-                    customJSLib.setId(null);
-                    customJSLib.setCreatedAt(null);
-                    customJSLib.setUpdatedAt(null);
+        ensureCustomJSLibHasXmlParser(customJSLibsCompatibilityDTO);
+
+        return Flux.fromIterable(customJSLibsCompatibilityDTO)
+                .flatMap(customJSLibComaptibilityDTO -> {
+                    customJSLibComaptibilityDTO.setId(null);
+                    customJSLibComaptibilityDTO.setCreatedAt(null);
+                    customJSLibComaptibilityDTO.setUpdatedAt(null);
+                    CustomJSLib customJSLib = new CustomJSLib(customJSLibComaptibilityDTO);
                     return customJSLibService.persistCustomJSLibMetaDataIfDoesNotExistAndGetDTO(customJSLib, false);
                 })
                 .collectList()
@@ -1748,6 +1756,35 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     log.error("Error importing custom jslibs", e);
                     return Mono.error(e);
                 });
+    }
+
+    /**
+     *
+     * @param customJSLibList
+     * @return
+     */
+    private void ensureCustomJSLibHasXmlParser(List<CustomJSLibCompatibilityDTO> customJSLibList) {
+        boolean isXmlParserLibFound = false;
+        for (CustomJSLibCompatibilityDTO customJSLib : customJSLibList) {
+            if (!customJSLib.getUidString().equals(ApplicationConstants.XML_PARSER_LIBRARY_UID)) {
+                continue;
+            }
+
+            isXmlParserLibFound = true;
+            break;
+        }
+
+        if (!isXmlParserLibFound) {
+            CustomJSLibCompatibilityDTO xmlParserJsLib = new CustomJSLibCompatibilityDTO();
+            xmlParserJsLib.setName("parser");
+            xmlParserJsLib.setVersion("");
+            xmlParserJsLib.setAccessor(Set.of("parser"));
+            xmlParserJsLib.setUrl("https://cdnjs.cloudflare.com/ajax/libs/fast-xml-parser/3.17.5/parser.js");
+            xmlParserJsLib.setDefs(
+                    "{\"!name\":\"LIB/parser\",\"parser\":{\"parse\":{\"!type\":\"fn()\",\"prototype\":{}},\"convertTonimn\":{\"!type\":\"fn()\",\"prototype\":{}},\"getTraversalObj\":{\"!type\":\"fn()\",\"prototype\":{}},\"convertToJson\":{\"!type\":\"fn()\",\"prototype\":{}},\"convertToJsonString\":{\"!type\":\"fn()\",\"prototype\":{}},\"validate\":{\"!type\":\"fn()\",\"prototype\":{}},\"j2xParser\":{\"!type\":\"fn()\",\"prototype\":{\"parse\":{\"!type\":\"fn()\",\"prototype\":{}},\"j2x\":{\"!type\":\"fn()\",\"prototype\":{}}}},\"parseToNimn\":{\"!type\":\"fn()\",\"prototype\":{}}}}");
+            xmlParserJsLib.setUidString(ApplicationConstants.XML_PARSER_LIBRARY_UID);
+            customJSLibList.add(xmlParserJsLib);
+        }
     }
 
     private Mono<List<Datasource>> getExistingDatasourceMono(String applicationId, Flux<Datasource> datasourceFlux) {
