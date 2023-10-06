@@ -19,7 +19,7 @@ export const BreadcrumbCategories = {
     href: adminSettingsCategoryUrl({
       category: SettingCategories.DEVELOPER_SETTINGS,
     }),
-    text: "Developer Settings",
+    text: "Developer settings",
   },
   [SettingCategories.VERSION]: {
     href: adminSettingsCategoryUrl({ category: SettingCategories.VERSION }),
