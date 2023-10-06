@@ -5,7 +5,7 @@ import {
 } from "constants/WidgetConstants";
 import { debounce, isEmpty, throttle } from "lodash";
 import type React from "react";
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import type {
   MovementLimitMap,
   ReflowedSpaceMap,
@@ -107,13 +107,18 @@ export const useCanvasDragging = (
 
   const { setDraggingCanvas, setDraggingNewWidget, setDraggingState } =
     useWidgetDragResize();
-
+  const canvasRenderingDependencies = useMemo(
+    () => ({
+      snapRows,
+      canExtend,
+    }),
+    [snapRows, canExtend],
+  );
   const canScroll = useCanvasDragToScroll(
     slidingArenaRef,
     isCurrentDraggedCanvas,
     isDragging,
-    snapRows,
-    canExtend,
+    canvasRenderingDependencies,
   );
 
   const renderBlocks = useRenderBlocksOnCanvas(

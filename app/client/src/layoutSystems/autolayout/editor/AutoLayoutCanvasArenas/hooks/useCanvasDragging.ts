@@ -1,6 +1,6 @@
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import type React from "react";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useSelector } from "react-redux";
 
 import { getTotalTopOffset } from "selectors/autoLayoutSelectors";
@@ -92,12 +92,18 @@ export const useCanvasDragging = (
   const { setDraggingCanvas, setDraggingNewWidget, setDraggingState } =
     useWidgetDragResize();
 
+  const canvasRenderingDependencies = useMemo(
+    () => ({
+      snapRows,
+      canExtend,
+    }),
+    [snapRows, canExtend],
+  );
   const canScroll = useCanvasDragToScroll(
     slidingArenaRef,
     isCurrentDraggedCanvas,
     isDragging,
-    snapRows,
-    canExtend,
+    canvasRenderingDependencies,
   );
 
   const renderBlocks = useRenderBlocksOnCanvas(
