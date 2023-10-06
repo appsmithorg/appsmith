@@ -34,7 +34,7 @@
     "generate:widget": "plop --plopfile generators/index.js",
     "postinstall": "node cypress/apply-patches.js && yarn init-husky",
     "storybook": "yarn workspace @design-system/storybook storybook",
-    "lint": "eslint --cache --ext .js,.ts,.tsx ./src && eslint --cache --ext .js,.ts ./cypress",
+    "lint": "eslint --cache ./src && cd ./cypress && eslint -c .eslintrc.json --cache ./",
     "g:lint": "cd $INIT_CWD && eslint --cache .",
     "lint:ci": "yarn workspaces foreach -ptv run lint",
     "prettier": "prettier --check ./src && prettier --check ./cypress",
