@@ -254,7 +254,7 @@ is_empty_directory() {
   [[ -d $1 && -z "$(ls -A "$1")" ]]
 }
 
-check_setup_custom_ca_certificates() {
+check_setup_custom_ca_certificates() (
   local stacks_ca_certs_path="$stacks_path/ca-certs"
   local store="$TMP/cacerts"
   local opts_file="$TMP/java-cacerts-opts"
@@ -285,7 +285,7 @@ check_setup_custom_ca_certificates() {
     echo "-Djavax.net.ssl.trustStore=$store"
     echo "-Djavax.net.ssl.trustStorePassword=changeit"
   } > "$opts_file"
-}
+)
 
 configure_supervisord() {
   local supervisord_conf_source="/opt/appsmith/templates/supervisord"
