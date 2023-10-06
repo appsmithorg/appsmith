@@ -21,6 +21,8 @@ import {
 import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
 import log from "loglevel";
 import type CodeMirror from "codemirror";
+import { ENTITY_TYPE_VALUE } from "@appsmith/entities/DataTree/types";
+import type { ENTITY_TYPE } from "@appsmith/entities/DataTree/types";
 
 export interface JSActionDropdownOption extends DropdownOption {
   data: JSAction | null;
@@ -46,6 +48,53 @@ export const isCursorWithinNode = (
 
 const getNameFromPropertyNode = (node: PropertyNode): string =>
   isLiteralNode(node.key) ? String(node.key.value) : node.key.name;
+
+export const getAIContext = ({
+  currentLineValue,
+  cursorPosition,
+  editor,
+  entityType,
+  slashIndex,
+}: {
+  entityType?: ENTITY_TYPE;
+  slashIndex: number;
+  currentLineValue: string;
+  cursorPosition: CodeMirror.Position;
+  editor: CodeMirror.Editor;
+}) => {
+  const aiContext = {
+    functionName: "",
+    cursorLineNumber: 0,
+    functionString: "",
+    mode: editor.getMode().name,
+    cursorPosition,
+    cursorCoordinates: editor.cursorCoords(true, "local"),
+  };
+
+  if (entityType === ENTITY_TYPE_VALUE.JSACTION) {
+    const editorValue = editor.getValue();
+    const lines = editorValue.split("\n");
+
+    const slashCommand = currentLineValue.substring(slashIndex);
+    const lineToUpdate = lines[cursorPosition.line];
+    const updatedLine =
+      lineToUpdate.substring(0, cursorPosition.ch - slashCommand.length) +
+      lineToUpdate.substring(cursorPosition.ch);
+    lines[cursorPosition.line] = updatedLine;
+    const updatedEditorValue = lines.join("\n");
+
+    const { cursorLineNumber, functionName, functionString } =
+      getJSFunctionLocationFromCursor(updatedEditorValue, cursorPosition) || {};
+
+    if (!functionName) return false;
+
+    aiContext.functionName = functionName;
+    aiContext.cursorLineNumber = cursorLineNumber;
+    aiContext.functionString = functionString;
+  }
+
+  return aiContext;
+};
 
 export const getJSFunctionLocationFromCursor = (
   code: string,

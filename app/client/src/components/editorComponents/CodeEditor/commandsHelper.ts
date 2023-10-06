@@ -16,7 +16,7 @@ import type {
   EntityNavigationData,
   NavigationData,
 } from "selectors/navigationSelectors";
-import { getJSFunctionLocationFromCursor } from "pages/Editor/JSEditor/utils";
+import { getAIContext } from "pages/Editor/JSEditor/utils";
 
 export const slashCommandHintHelper: HintHelper = (
   _,
@@ -36,13 +36,11 @@ export const slashCommandHintHelper: HintHelper = (
         featureFlags,
         pluginIdToImageLocation,
         recentEntities,
-        update,
       }: {
         datasources: Datasource[];
         executeCommand: (payload: SlashCommandPayload) => void;
         pluginIdToImageLocation: Record<string, string>;
         recentEntities: string[];
-        update: (value: string) => void;
         entityId: string;
         featureFlags: FeatureFlags;
         enableAIAssistance: boolean;
@@ -58,7 +56,6 @@ export const slashCommandHintHelper: HintHelper = (
         },
       );
       const cursorBetweenBinding = checkIfCursorInsideBinding(editor);
-      const value = editor.getValue();
       const cursorPosition = editor.getCursor();
       const currentLineValue = editor.getLine(cursorPosition.line);
       const slashIndex = currentLineValue.lastIndexOf("/");
@@ -67,37 +64,14 @@ export const slashCommandHintHelper: HintHelper = (
       if (!shouldShowBinding) return false;
 
       const searchText = currentLineValue.substring(slashIndex + 1);
-      const editorValue = editor.getValue();
-      const aiContext = {
-        functionName: "",
-        cursorLineNumber: 0,
-        functionString: "",
-        mode: editor.getMode().name,
+
+      const aiContext = getAIContext({
+        currentLineValue,
         cursorPosition,
-        cursorCoordinates: editor.cursorCoords(true, "local"),
-      };
-
-      if (entityInfo.entityType === ENTITY_TYPE_VALUE.JSACTION) {
-        const lines = editorValue.split("\n");
-
-        const slashCommand = currentLineValue.substring(slashIndex);
-        const lineToUpdate = lines[cursorPosition.line];
-        const updatedLine =
-          lineToUpdate.substring(0, cursorPosition.ch - slashCommand.length) +
-          lineToUpdate.substring(cursorPosition.ch);
-        lines[cursorPosition.line] = updatedLine;
-        const updatedEditorValue = lines.join("\n");
-
-        const { cursorLineNumber, functionName, functionString } =
-          getJSFunctionLocationFromCursor(updatedEditorValue, cursorPosition) ||
-          {};
-
-        if (!functionName) return false;
-
-        aiContext.functionName = functionName;
-        aiContext.cursorLineNumber = cursorLineNumber;
-        aiContext.functionString = functionString;
-      }
+        editor,
+        slashIndex,
+        entityType,
+      });
 
       const list = generateQuickCommands(
         filteredEntitiesForSuggestions,
@@ -134,20 +108,19 @@ export const slashCommandHintHelper: HintHelper = (
             currentSelection = selected;
           }
           function handlePick(selected: CommandsCompletion) {
-            update(value.slice(0, slashIndex) + selected.text);
-            setTimeout(() => {
-              editor.focus();
-              editor.setCursor({
-                line: editor.lineCount() - 1,
-                ch: editor.getLine(editor.lineCount() - 1).length - 2,
-              });
-              if (selected.action && typeof selected.action === "function") {
-                selected.action();
-              }
-
-              selected.triggerCompletionsPostPick &&
-                CodeMirror.signal(editor, "postPick", selected.displayText);
+            editor.focus();
+            editor.setCursor({
+              line: editor.lineCount() - 1,
+              ch: editor.getLine(editor.lineCount() - 1).length - 2,
             });
+
+            if (selected.action && typeof selected.action === "function") {
+              selected.action();
+            }
+
+            selected.triggerCompletionsPostPick &&
+              CodeMirror.signal(editor, "postPick", selected.displayText);
+
             try {
               // eslint-disable-next-line @typescript-eslint/no-unused-vars
               const { data, render, ...rest } = selected;
