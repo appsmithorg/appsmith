@@ -1,6 +1,6 @@
 import { GOOGLE_MAPS_SETUP_DOC } from "constants/ThirdPartyConstants";
 import type { Setting } from "../types";
-import { SettingCategories, SettingSubtype, SettingTypes } from "../types";
+import { SettingCategories, SettingSubtype, SettingTypes } from "@appsmith/pages/AdminSettings/config/types";
 
 export const googleMapsConfig: Setting[] = [
   {
