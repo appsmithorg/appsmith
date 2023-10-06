@@ -51,7 +51,7 @@ class GitSyncAPI extends Api {
     branch,
     commitMessage,
     doPush,
-  }: CommitPayload): AxiosPromise<ApiResponse> {
+  }: CommitPayload): Promise<AxiosPromise<ApiResponse>> {
     return Api.post(
       `${GitSyncAPI.baseURL}/commit/app/${applicationId}?branchName=${branch}`,
       {
@@ -65,7 +65,7 @@ class GitSyncAPI extends Api {
     applicationId,
     destinationBranch,
     sourceBranch,
-  }: MergeBranchPayload): AxiosPromise<ApiResponse> {
+  }: MergeBranchPayload): Promise<AxiosPromise<ApiResponse>> {
     return Api.post(`${GitSyncAPI.baseURL}/merge/app/${applicationId}`, {
       sourceBranch,
       destinationBranch,
@@ -171,7 +171,9 @@ class GitSyncAPI extends Api {
     return Api.post(`${GitSyncAPI.baseURL}/import/${workspaceId}`, payload);
   }
 
-  static async getSSHKeyPair(applicationId: string): AxiosPromise<ApiResponse> {
+  static async getSSHKeyPair(
+    applicationId: string,
+  ): Promise<AxiosPromise<ApiResponse>> {
     return Api.get(ApplicationApi.baseURL + "/ssh-keypair/" + applicationId);
   }
 
@@ -179,7 +181,7 @@ class GitSyncAPI extends Api {
     applicationId: string,
     keyType: string,
     isImporting?: boolean,
-  ): AxiosPromise<ApiResponse> {
+  ): Promise<AxiosPromise<ApiResponse>> {
     const url = isImporting
       ? `v1/git/import/keys?keyType=${keyType}`
       : `${ApplicationApi.baseURL}/ssh-keypair/${applicationId}?keyType=${keyType}`;
@@ -189,7 +191,7 @@ class GitSyncAPI extends Api {
   static async deleteBranch(
     applicationId: string,
     branchName: string,
-  ): AxiosPromise<ApiResponse> {
+  ): Promise<AxiosPromise<ApiResponse>> {
     return Api.delete(GitSyncAPI.baseURL + "/branch/app/" + applicationId, {
       branchName,
     });

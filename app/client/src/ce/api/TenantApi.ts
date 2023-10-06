@@ -21,13 +21,15 @@ export type UpdateTenantConfigRequest = {
 export class TenantApi extends Api {
   static tenantsUrl = "v1/tenants";
 
-  static async fetchCurrentTenantConfig(): AxiosPromise<FetchCurrentTenantConfigResponse> {
+  static async fetchCurrentTenantConfig(): Promise<
+    AxiosPromise<FetchCurrentTenantConfigResponse>
+  > {
     return Api.get(`${TenantApi.tenantsUrl}/current`);
   }
 
   static async updateTenantConfig(
     request: UpdateTenantConfigRequest,
-  ): AxiosPromise<UpdateTenantConfigResponse> {
+  ): Promise<AxiosPromise<UpdateTenantConfigResponse>> {
     return Api.put(`${TenantApi.tenantsUrl}`, request.tenantConfiguration);
   }
 }

@@ -105,72 +105,74 @@ export class UserApi extends Api {
 
   static async createUser(
     request: CreateUserRequest,
-  ): AxiosPromise<CreateUserResponse> {
+  ): Promise<AxiosPromise<CreateUserResponse>> {
     return Api.post(UserApi.usersURL, request);
   }
 
   static async updateUser(
     request: UpdateUserRequest,
-  ): AxiosPromise<ApiResponse> {
+  ): Promise<AxiosPromise<ApiResponse>> {
     return Api.put(UserApi.usersURL, request);
   }
 
   static async fetchUser(
     request: FetchUserRequest,
-  ): AxiosPromise<FetchUserResponse> {
+  ): Promise<AxiosPromise<FetchUserResponse>> {
     return Api.get(UserApi.usersURL + "/" + request.id);
   }
 
-  static async getCurrentUser(): AxiosPromise<ApiResponse> {
+  static async getCurrentUser(): Promise<AxiosPromise<ApiResponse>> {
     return Api.get(UserApi.currentUserURL);
   }
 
   static async forgotPassword(
     request: ForgotPasswordRequest,
-  ): AxiosPromise<ApiResponse> {
+  ): Promise<AxiosPromise<ApiResponse>> {
     return Api.post(UserApi.forgotPasswordURL, request);
   }
 
   static async verifyResetPasswordToken(
     request: VerifyTokenRequest,
-  ): AxiosPromise<ApiResponse> {
+  ): Promise<AxiosPromise<ApiResponse>> {
     return Api.get(UserApi.verifyResetPasswordTokenURL, request);
   }
 
   static async resetPassword(
     request: TokenPasswordUpdateRequest,
-  ): AxiosPromise<ApiResponse> {
+  ): Promise<AxiosPromise<ApiResponse>> {
     return Api.put(UserApi.resetPasswordURL, request);
   }
 
   static async inviteUser(
     request: InviteUserRequest,
-  ): AxiosPromise<ApiResponse> {
+  ): Promise<AxiosPromise<ApiResponse>> {
     return Api.post(UserApi.inviteUserURL, request);
   }
 
   static async verifyUserInvite(
     request: VerifyTokenRequest,
-  ): AxiosPromise<ApiResponse> {
+  ): Promise<AxiosPromise<ApiResponse>> {
     return Api.get(UserApi.verifyInviteTokenURL, request);
   }
 
   static async confirmInvitedUserSignup(
     request: TokenPasswordUpdateRequest,
-  ): AxiosPromise<ApiResponse> {
+  ): Promise<AxiosPromise<ApiResponse>> {
     return Api.put(UserApi.confirmUserInviteURL, request);
   }
 
-  static async logoutUser(): AxiosPromise<ApiResponse> {
+  static async logoutUser(): Promise<AxiosPromise<ApiResponse>> {
     return Api.post(UserApi.logoutURL);
   }
 
-  static async uploadPhoto(request: { file: File }): AxiosPromise<{
-    id: string;
-    new: boolean;
-    profilePhotoAssetId: string;
-    recentlyUsedWorkspaceIds: string[];
-  }> {
+  static async uploadPhoto(request: { file: File }): Promise<
+    AxiosPromise<{
+      id: string;
+      new: boolean;
+      profilePhotoAssetId: string;
+      recentlyUsedWorkspaceIds: string[];
+    }>
+  > {
     const formData = new FormData();
     if (request.file) {
       formData.append("file", request.file);
@@ -183,23 +185,25 @@ export class UserApi extends Api {
     });
   }
 
-  static async deletePhoto(): AxiosPromise<ApiResponse> {
+  static async deletePhoto(): Promise<AxiosPromise<ApiResponse>> {
     return Api.delete(UserApi.photoURL);
   }
 
   static async leaveWorkspace(
     request: LeaveWorkspaceRequest,
-  ): AxiosPromise<LeaveWorkspaceRequest> {
+  ): Promise<AxiosPromise<LeaveWorkspaceRequest>> {
     return Api.put(UserApi.leaveWorkspaceURL + "/" + request.workspaceId);
   }
 
-  static async fetchFeatureFlags(): AxiosPromise<ApiResponse<FeatureFlags>> {
+  static async fetchFeatureFlags(): Promise<
+    AxiosPromise<ApiResponse<FeatureFlags>>
+  > {
     return Api.get(UserApi.featureFlagsURL);
   }
 
   static async createSuperUser(
     request: CreateSuperUserRequest,
-  ): AxiosPromise<CreateUserResponse> {
+  ): Promise<AxiosPromise<CreateUserResponse>> {
     return Api.post(UserApi.superUserURL, request);
   }
 
@@ -207,27 +211,29 @@ export class UserApi extends Api {
    * Super user endpoints
    */
 
-  static async fetchAdminSettings(): AxiosPromise<ApiResponse> {
+  static async fetchAdminSettings(): Promise<AxiosPromise<ApiResponse>> {
     return Api.get(UserApi.adminSettingsURL);
   }
 
   static async saveAdminSettings(
     request: Record<string, string>,
-  ): AxiosPromise<ApiResponse> {
+  ): Promise<AxiosPromise<ApiResponse>> {
     return Api.put(UserApi.adminSettingsURL, request);
   }
 
-  static async restartServer(): AxiosPromise<ApiResponse> {
+  static async restartServer(): Promise<AxiosPromise<ApiResponse>> {
     return Api.post(UserApi.restartServerURL);
   }
 
   static async sendTestEmail(
     payload: SendTestEmailPayload,
-  ): AxiosPromise<ApiResponse> {
+  ): Promise<AxiosPromise<ApiResponse>> {
     return Api.post(UserApi.sendTestEmailURL, payload);
   }
 
-  static async getProductAlert(): AxiosPromise<ApiResponse<ProductAlert>> {
+  static async getProductAlert(): Promise<
+    AxiosPromise<ApiResponse<ProductAlert>>
+  > {
     return Api.get(UserApi.productAlertURL);
   }
 

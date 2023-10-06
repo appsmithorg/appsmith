@@ -153,31 +153,31 @@ class ActionAPI extends API {
 
   static async createAction(
     apiConfig: Partial<Action>,
-  ): AxiosPromise<ActionCreateUpdateResponse> {
+  ): Promise<AxiosPromise<ActionCreateUpdateResponse>> {
     return API.post(ActionAPI.url, apiConfig);
   }
 
   static async fetchActions(
     applicationId: string,
-  ): AxiosPromise<ApiResponse<Action[]>> {
+  ): Promise<AxiosPromise<ApiResponse<Action[]>>> {
     return API.get(ActionAPI.url, { applicationId });
   }
 
   static async fetchActionsForViewMode(
     applicationId: string,
-  ): AxiosPromise<ApiResponse<ActionViewMode[]>> {
+  ): Promise<AxiosPromise<ApiResponse<ActionViewMode[]>>> {
     return API.get(`${ActionAPI.url}/view`, { applicationId });
   }
 
   static async fetchActionsByPageId(
     pageId: string,
-  ): AxiosPromise<ApiResponse<Action[]>> {
+  ): Promise<AxiosPromise<ApiResponse<Action[]>>> {
     return API.get(ActionAPI.url, { pageId });
   }
 
   static async updateAction(
     apiConfig: Partial<Action>,
-  ): AxiosPromise<ActionCreateUpdateResponse> {
+  ): Promise<AxiosPromise<ActionCreateUpdateResponse>> {
     if (ActionAPI.apiUpdateCancelTokenSource) {
       ActionAPI.apiUpdateCancelTokenSource.cancel();
     }
@@ -205,7 +205,7 @@ class ActionAPI extends API {
   static async executeAction(
     executeAction: FormData,
     timeout?: number,
-  ): AxiosPromise<ActionExecutionResponse> {
+  ): Promise<AxiosPromise<ActionExecutionResponse>> {
     ActionAPI.abortActionExecutionTokenSource = axios.CancelToken.source();
     return API.post(ActionAPI.url + "/execute", executeAction, undefined, {
       timeout: timeout || DEFAULT_EXECUTE_ACTION_TIMEOUT_MS,

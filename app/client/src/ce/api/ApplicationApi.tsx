@@ -245,7 +245,7 @@ export class ApplicationApi extends Api {
     `${ApplicationApi.baseURL}/${request.applicationId}/page/${request.id}/makeDefault`;
   static async publishApplication(
     publishApplicationRequest: PublishApplicationRequest,
-  ): AxiosPromise<PublishApplicationResponse> {
+  ): Promise<AxiosPromise<PublishApplicationResponse>> {
     return Api.post(
       ApplicationApi.baseURL +
         ApplicationApi.publishURLPath(publishApplicationRequest.applicationId),
@@ -253,28 +253,34 @@ export class ApplicationApi extends Api {
       {},
     );
   }
-  static async fetchApplications(): AxiosPromise<FetchApplicationsResponse> {
+  static async fetchApplications(): Promise<
+    AxiosPromise<FetchApplicationsResponse>
+  > {
     return Api.get(ApplicationApi.baseURL);
   }
 
-  static async getAllApplication(): AxiosPromise<GetAllApplicationResponse> {
+  static async getAllApplication(): Promise<
+    AxiosPromise<GetAllApplicationResponse>
+  > {
     return Api.get(ApplicationApi.baseURL + "/new");
   }
 
-  static async getReleaseItems(): AxiosPromise<FetchReleaseItemsResponse> {
+  static async getReleaseItems(): Promise<
+    AxiosPromise<FetchReleaseItemsResponse>
+  > {
     return Api.get(ApplicationApi.baseURL + "/releaseItems");
   }
 
   static async fetchApplication(
     applicationId: string,
-  ): AxiosPromise<FetchApplicationResponse> {
+  ): Promise<AxiosPromise<FetchApplicationResponse>> {
     return Api.get(ApplicationApi.baseURL + "/" + applicationId);
   }
 
   static async fetchUnconfiguredDatasourceList(payload: {
     applicationId: string;
     workspaceId: string;
-  }): AxiosPromise<FetchUnconfiguredDatasourceListResponse> {
+  }): Promise<AxiosPromise<FetchUnconfiguredDatasourceListResponse>> {
     return Api.get(
       `${ApplicationApi.baseURL}/import/${payload.workspaceId}/datasources?defaultApplicationId=${payload.applicationId}`,
     );
@@ -282,13 +288,13 @@ export class ApplicationApi extends Api {
 
   static async fetchApplicationForViewMode(
     applicationId: string,
-  ): AxiosPromise<FetchApplicationResponse> {
+  ): Promise<AxiosPromise<FetchApplicationResponse>> {
     return Api.get(ApplicationApi.baseURL + `/view/${applicationId}`);
   }
 
   static async createApplication(
     request: CreateApplicationRequest,
-  ): AxiosPromise<PublishApplicationResponse> {
+  ): Promise<AxiosPromise<PublishApplicationResponse>> {
     return Api.post(
       ApplicationApi.baseURL +
         ApplicationApi.createApplicationPath(request.workspaceId),
@@ -298,13 +304,13 @@ export class ApplicationApi extends Api {
 
   static async setDefaultApplicationPage(
     request: SetDefaultPageRequest,
-  ): AxiosPromise<ApiResponse> {
+  ): Promise<AxiosPromise<ApiResponse>> {
     return Api.put(ApplicationApi.setDefaultPagePath(request));
   }
 
   static async changeAppViewAccess(
     request: ChangeAppViewAccessRequest,
-  ): AxiosPromise<ApiResponse> {
+  ): Promise<AxiosPromise<ApiResponse>> {
     return Api.put(
       ApplicationApi.baseURL +
         ApplicationApi.changeAppViewAccessPath(request.applicationId),
@@ -314,20 +320,20 @@ export class ApplicationApi extends Api {
 
   static async updateApplication(
     request: UpdateApplicationRequest,
-  ): AxiosPromise<ApiResponse<UpdateApplicationResponse>> {
+  ): Promise<AxiosPromise<ApiResponse<UpdateApplicationResponse>>> {
     const { id, ...rest } = request;
     return Api.put(ApplicationApi.baseURL + "/" + id, rest);
   }
 
   static async deleteApplication(
     request: DeleteApplicationRequest,
-  ): AxiosPromise<ApiResponse> {
+  ): Promise<AxiosPromise<ApiResponse>> {
     return Api.delete(ApplicationApi.baseURL + "/" + request.applicationId);
   }
 
   static async forkApplication(
     request: ForkApplicationRequest,
-  ): AxiosPromise<ApiResponse> {
+  ): Promise<AxiosPromise<ApiResponse>> {
     return Api.post(
       ApplicationApi.baseURL +
         "/" +
@@ -339,13 +345,13 @@ export class ApplicationApi extends Api {
 
   static async deleteMultipleApps(request: {
     ids: string[];
-  }): AxiosPromise<ApiResponse> {
+  }): Promise<AxiosPromise<ApiResponse>> {
     return Api.post(`${ApplicationApi.baseURL}/delete-apps`, request.ids);
   }
 
   static async importApplicationToWorkspace(
     request: ImportApplicationRequest,
-  ): AxiosPromise<ApiResponse> {
+  ): Promise<AxiosPromise<ApiResponse>> {
     const formData = new FormData();
     if (request.applicationFile) {
       formData.append("file", request.applicationFile);
@@ -367,7 +373,7 @@ export class ApplicationApi extends Api {
 
   static async uploadNavigationLogo(
     request: UploadNavigationLogoRequest,
-  ): AxiosPromise<ApiResponse> {
+  ): Promise<AxiosPromise<ApiResponse>> {
     const formData = new FormData();
 
     if (request.logo) {
@@ -388,7 +394,7 @@ export class ApplicationApi extends Api {
 
   static async deleteNavigationLogo(
     request: DeleteNavigationLogoRequest,
-  ): AxiosPromise<ApiResponse> {
+  ): Promise<AxiosPromise<ApiResponse>> {
     return Api.delete(
       ApplicationApi.baseURL + "/" + request.applicationId + "/logo",
     );

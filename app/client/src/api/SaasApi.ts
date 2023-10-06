@@ -8,14 +8,14 @@ class SaasApi extends Api {
   static async getAppsmithToken(
     datasourceId: string,
     pageId: string,
-  ): AxiosPromise<ApiResponse<string>> {
+  ): Promise<AxiosPromise<ApiResponse<string>>> {
     return Api.post(`${SaasApi.url}/${datasourceId}/pages/${pageId}/oauth`);
   }
 
   static async getAccessToken(
     datasourceId: string,
     token: string,
-  ): AxiosPromise<ApiResponse<Datasource>> {
+  ): Promise<AxiosPromise<ApiResponse<Datasource>>> {
     return Api.post(
       `${SaasApi.url}/${datasourceId}/token?appsmithToken=${token}`,
     );

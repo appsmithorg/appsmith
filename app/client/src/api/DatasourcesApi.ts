@@ -36,7 +36,7 @@ class DatasourcesApi extends API {
 
   static async fetchDatasources(
     workspaceId: string,
-  ): AxiosPromise<ApiResponse<Datasource[]>> {
+  ): Promise<AxiosPromise<ApiResponse<Datasource[]>>> {
     return API.get(DatasourcesApi.url + `?workspaceId=${workspaceId}`);
   }
 
@@ -93,7 +93,9 @@ class DatasourcesApi extends API {
     );
   }
 
-  static async fetchMockDatasources(): AxiosPromise<ApiResponse<Datasource[]>> {
+  static async fetchMockDatasources(): Promise<
+    AxiosPromise<ApiResponse<Datasource[]>>
+  > {
     return API.get(DatasourcesApi.url + "/mocks");
   }
 

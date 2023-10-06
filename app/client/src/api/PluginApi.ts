@@ -57,13 +57,13 @@ class PluginsApi extends Api {
   }
   static async fetchPlugins(
     workspaceId: string,
-  ): AxiosPromise<ApiResponse<Plugin[]>> {
+  ): Promise<AxiosPromise<ApiResponse<Plugin[]>>> {
     return Api.get(PluginsApi.url, { workspaceId: workspaceId });
   }
 
   static async fetchFormConfig(
     id: string,
-  ): AxiosPromise<ApiResponse<PluginFormPayload>> {
+  ): Promise<AxiosPromise<ApiResponse<PluginFormPayload>>> {
     return Api.get(PluginsApi.url + `/${id}/form`);
   }
 
@@ -71,12 +71,12 @@ class PluginsApi extends Api {
   static async fetchDynamicFormValues(
     url: string,
     body: Record<string, any>,
-  ): AxiosPromise<ApiResponse> {
+  ): Promise<AxiosPromise<ApiResponse>> {
     return Api.post(url, body);
   }
 
-  static async fetchDefaultPlugins(): AxiosPromise<
-    ApiResponse<DefaultPlugin[]>
+  static async fetchDefaultPlugins(): Promise<
+    AxiosPromise<ApiResponse<DefaultPlugin[]>>
   > {
     return Api.get(PluginsApi.url + `/default/icons`);
   }

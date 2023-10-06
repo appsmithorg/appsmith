@@ -69,44 +69,48 @@ export interface CreateWorkspaceRequest {
 class WorkspaceApi extends Api {
   static rolesURL = "v1/groups";
   static workspacesURL = "v1/workspaces";
-  static async fetchRoles(): AxiosPromise<FetchWorkspaceRolesResponse> {
+  static async fetchRoles(): Promise<
+    AxiosPromise<FetchWorkspaceRolesResponse>
+  > {
     return Api.get(WorkspaceApi.rolesURL);
   }
-  static async fetchWorkspaces(): AxiosPromise<FetchWorkspacesResponse> {
+  static async fetchWorkspaces(): Promise<
+    AxiosPromise<FetchWorkspacesResponse>
+  > {
     return Api.get(WorkspaceApi.workspacesURL);
   }
   static async fetchWorkspace(
     request: FetchWorkspaceRequest,
-  ): AxiosPromise<FetchWorkspaceResponse> {
+  ): Promise<AxiosPromise<FetchWorkspaceResponse>> {
     return Api.get(WorkspaceApi.workspacesURL + "/" + request.workspaceId);
   }
   static async saveWorkspace(
     request: SaveWorkspaceRequest,
-  ): AxiosPromise<ApiResponse> {
+  ): Promise<AxiosPromise<ApiResponse>> {
     return Api.put(WorkspaceApi.workspacesURL + "/" + request.id, request);
   }
   static async createWorkspace(
     request: CreateWorkspaceRequest,
-  ): AxiosPromise<ApiResponse> {
+  ): Promise<AxiosPromise<ApiResponse>> {
     return Api.post(WorkspaceApi.workspacesURL, request);
   }
   static async fetchAllUsers(
     request: FetchAllUsersRequest,
-  ): AxiosPromise<FetchAllUsersResponse> {
+  ): Promise<AxiosPromise<FetchAllUsersResponse>> {
     return Api.get(
       `${WorkspaceApi.workspacesURL}/${request.workspaceId}/members`,
     );
   }
   static async fetchAllRoles(
     request: FetchAllRolesRequest,
-  ): AxiosPromise<FetchAllRolesResponse> {
+  ): Promise<AxiosPromise<FetchAllRolesResponse>> {
     return Api.get(
       `${WorkspaceApi.workspacesURL}/${request.workspaceId}/permissionGroups`,
     );
   }
   static async changeWorkspaceUserRole(
     request: ChangeUserRoleRequest,
-  ): AxiosPromise<ApiResponse> {
+  ): Promise<AxiosPromise<ApiResponse>> {
     return Api.put(
       `${WorkspaceApi.workspacesURL}/${request.workspaceId}/permissionGroup`,
       {
@@ -117,7 +121,7 @@ class WorkspaceApi extends Api {
   }
   static async deleteWorkspaceUser(
     request: DeleteWorkspaceUserRequest,
-  ): AxiosPromise<ApiResponse> {
+  ): Promise<AxiosPromise<ApiResponse>> {
     return Api.put(
       `${WorkspaceApi.workspacesURL}/${request.workspaceId}/permissionGroup`,
       {
@@ -127,7 +131,7 @@ class WorkspaceApi extends Api {
   }
   static async saveWorkspaceLogo(
     request: SaveWorkspaceLogo,
-  ): AxiosPromise<ApiResponse> {
+  ): Promise<AxiosPromise<ApiResponse>> {
     const formData = new FormData();
     if (request.logo) {
       formData.append("file", request.logo);
@@ -147,10 +151,12 @@ class WorkspaceApi extends Api {
   }
   static async deleteWorkspaceLogo(request: {
     id: string;
-  }): AxiosPromise<ApiResponse> {
+  }): Promise<AxiosPromise<ApiResponse>> {
     return Api.delete(WorkspaceApi.workspacesURL + "/" + request.id + "/logo");
   }
-  static async deleteWorkspace(workspaceId: string): AxiosPromise<ApiResponse> {
+  static async deleteWorkspace(
+    workspaceId: string,
+  ): Promise<AxiosPromise<ApiResponse>> {
     return Api.delete(`${WorkspaceApi.workspacesURL}/${workspaceId}`);
   }
 }

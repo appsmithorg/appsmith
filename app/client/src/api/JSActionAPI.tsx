@@ -59,25 +59,25 @@ class JSActionAPI extends API {
 
   static async fetchJSCollections(
     applicationId: string,
-  ): AxiosPromise<ApiResponse<JSCollection[]>> {
+  ): Promise<AxiosPromise<ApiResponse<JSCollection[]>>> {
     return API.get(JSActionAPI.url, { applicationId });
   }
 
   static async createJSCollection(
     jsConfig: CreateJSCollectionRequest,
-  ): AxiosPromise<JSCollectionCreateUpdateResponse> {
+  ): Promise<AxiosPromise<JSCollectionCreateUpdateResponse>> {
     return API.post(JSActionAPI.url, jsConfig);
   }
 
   static async copyJSCollection(
     jsConfig: Partial<JSCollection>,
-  ): AxiosPromise<JSCollectionCreateUpdateResponse> {
+  ): Promise<AxiosPromise<JSCollectionCreateUpdateResponse>> {
     return API.post(JSActionAPI.url, jsConfig);
   }
 
   static async updateJSCollection(
     jsConfig: JSCollection,
-  ): AxiosPromise<JSCollectionCreateUpdateResponse> {
+  ): Promise<AxiosPromise<JSCollectionCreateUpdateResponse>> {
     const jsAction = Object.assign({}, jsConfig);
     return API.put(`${JSActionAPI.url}/${jsAction.id}`, jsAction);
   }
@@ -92,13 +92,13 @@ class JSActionAPI extends API {
 
   static async fetchJSCollectionsByPageId(
     pageId: string,
-  ): AxiosPromise<ApiResponse<JSCollection[]>> {
+  ): Promise<AxiosPromise<ApiResponse<JSCollection[]>>> {
     return API.get(JSActionAPI.url, { pageId });
   }
 
   static async fetchJSCollectionsForViewMode(
     applicationId: string,
-  ): AxiosPromise<ApiResponse<JSCollection[]>> {
+  ): Promise<AxiosPromise<ApiResponse<JSCollection[]>>> {
     return API.get(`${JSActionAPI.url}/view`, { applicationId });
   }
 

@@ -35,7 +35,7 @@ import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 
 const NoEmailConfigImage = importSvg(
-  () => import("assets/images/email-not-configured.svg"),
+  async () => import("assets/images/email-not-configured.svg"),
 );
 
 const { cloudHosting } = getAppsmithConfigs();

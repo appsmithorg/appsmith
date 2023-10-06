@@ -63,17 +63,19 @@ export type PublishCommunityTemplateResponse = ApiResponse<{
 class TemplatesAPI extends Api {
   static baseUrl = "v1";
 
-  static async getAllTemplates(): AxiosPromise<FetchTemplatesResponse> {
+  static async getAllTemplates(): Promise<
+    AxiosPromise<FetchTemplatesResponse>
+  > {
     return Api.get(TemplatesAPI.baseUrl + `/app-templates`);
   }
   static async getTemplateInformation(
     templateId: string,
-  ): AxiosPromise<FetchTemplatesResponse> {
+  ): Promise<AxiosPromise<FetchTemplatesResponse>> {
     return Api.get(TemplatesAPI.baseUrl + `/app-templates/${templateId}`);
   }
   static async getSimilarTemplates(
     templateId: string,
-  ): AxiosPromise<FetchTemplatesResponse> {
+  ): Promise<AxiosPromise<FetchTemplatesResponse>> {
     return Api.get(
       TemplatesAPI.baseUrl + `/app-templates/${templateId}/similar`,
     );
@@ -81,7 +83,7 @@ class TemplatesAPI extends Api {
   static async importTemplate(
     templateId: string,
     workspaceId: string,
-  ): AxiosPromise<ImportTemplateResponse> {
+  ): Promise<AxiosPromise<ImportTemplateResponse>> {
     return Api.post(
       TemplatesAPI.baseUrl +
         `/app-templates/${templateId}/import/${workspaceId}`,
@@ -92,21 +94,23 @@ class TemplatesAPI extends Api {
     applicationId: string,
     organizationId: string,
     body?: string[],
-  ): AxiosPromise<ImportTemplateResponse> {
+  ): Promise<AxiosPromise<ImportTemplateResponse>> {
     return Api.post(
       TemplatesAPI.baseUrl +
         `/app-templates/${templateId}/merge/${applicationId}/${organizationId}`,
       body,
     );
   }
-  static async getTemplateFilters(): AxiosPromise<TemplateFiltersResponse> {
+  static async getTemplateFilters(): Promise<
+    AxiosPromise<TemplateFiltersResponse>
+  > {
     return Api.get(TemplatesAPI.baseUrl + `/app-templates/filters`);
   }
   static async publishCommunityTemplate(
     applicationId: string,
     workspaceId: string,
     body: PublishCommunityTemplateRequest,
-  ): AxiosPromise<PublishCommunityTemplateResponse> {
+  ): Promise<AxiosPromise<PublishCommunityTemplateResponse>> {
     return Api.post(
       TemplatesAPI.baseUrl +
         `/app-templates/publish/${applicationId}/${workspaceId}`,

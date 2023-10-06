@@ -35,6 +35,7 @@
     "project": "./tsconfig.json"
   },
   "rules": {
+    "@typescript-eslint/prefer-nullish-coalescing": "error",
     "@typescript-eslint/promise-function-async": "error",
     "@typescript-eslint/strict-boolean-expressions": "error",
     "@typescript-eslint/no-explicit-any": "error",
