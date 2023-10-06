@@ -6,7 +6,6 @@ import com.appsmith.server.domains.License;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.domains.User;
-import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.FeatureFlagMigrationHelper;
 import com.appsmith.server.services.ce.FeatureFlagServiceCEImpl;
@@ -16,13 +15,9 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
 
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
-import static com.appsmith.server.featureflags.FeatureFlagEnum.release_datasource_environments_enabled;
 import static java.lang.Boolean.TRUE;
 
 @Component
@@ -32,18 +27,6 @@ public class FeatureFlagServiceImpl extends FeatureFlagServiceCEImpl implements 
     private final FF4j ff4j;
     private final AirgapInstanceConfig airgapInstanceConfig;
     private final TenantService tenantService;
-
-    private static final List<FeatureFlagEnum> AIRGAPPED_LICENSED_DEFAULT_FEATURE_FLAGS = new LinkedList<>();
-    // List of all feature flags required for legacy licenses, where feature flag information was not included within
-    // the license key itself
-    static {
-        Arrays.stream(FeatureFlagEnum.values())
-                .filter(featureFlagEnum -> featureFlagEnum.name().startsWith("license_"))
-                .forEach(AIRGAPPED_LICENSED_DEFAULT_FEATURE_FLAGS::add);
-
-        // Exception for multiple environment as this is already a GA feature
-        AIRGAPPED_LICENSED_DEFAULT_FEATURE_FLAGS.add(release_datasource_environments_enabled);
-    }
 
     public FeatureFlagServiceImpl(
             SessionUserService sessionUserService,
@@ -87,11 +70,6 @@ public class FeatureFlagServiceImpl extends FeatureFlagServiceCEImpl implements 
         // Combine local flags, remote flags, and tenant features, and merge them into a single map
         return localFlagsForUser.zipWith(tenantFeaturesFlags).map(localAndTenantFlags -> {
             Map<String, Boolean> combinedFlags = new HashMap<>(localAndTenantFlags.getT1());
-            // Enable all the licensed feature flags to provide the support for all the GA features for legacy
-            // licenses
-            AIRGAPPED_LICENSED_DEFAULT_FEATURE_FLAGS.listIterator().forEachRemaining(featureFlagEnum -> {
-                combinedFlags.put(featureFlagEnum.toString(), TRUE);
-            });
             // Overwrite the flags with the remote flags
             combinedFlags.putAll(localAndTenantFlags.getT2());
             return combinedFlags;
