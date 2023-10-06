@@ -228,10 +228,8 @@ class WDSInputWidget extends WDSBaseInputWidget<InputWidgetProps, WidgetState> {
     }
 
     if (prevProps.inputType !== this.props.inputType) {
-      this.props.updateWidgetMetaProperty(
-        "text",
-        parseText(this.props.inputText, this.props.inputType),
-      );
+      this.props.updateWidgetMetaProperty("text", this.props.defaultText);
+      this.props.updateWidgetMetaProperty("inputText", this.props.defaultText);
     }
     // If defaultText property has changed, reset isDirty to false
     if (

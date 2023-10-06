@@ -36,6 +36,7 @@ export interface TextProps {
   className?: string;
   /** The children of the component. */
   children: ReactNode;
-
+  /** title attribute for the component */
   title?: string;
+  wordBreak?: "normal" | "break-all" | "keep-all" | "break-word";
 }

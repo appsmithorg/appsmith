@@ -25,7 +25,7 @@ const _Label = (props: LabelProps) => {
   );
 
   return (
-    <Text lineClamp={1} title={label}>
+    <Text lineClamp={1} title={label} wordBreak="break-all">
       {label}
       {/* necessityLabel is hidden to screen readers if the field is required because
        * aria-required is set on the field in that case. That will already be announced,
