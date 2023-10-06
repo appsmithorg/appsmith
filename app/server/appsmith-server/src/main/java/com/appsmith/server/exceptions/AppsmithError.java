@@ -1005,7 +1005,7 @@ public enum AppsmithError {
             null),
     TEST_API_TOO_MANY_REQUESTS(
             429,
-            AppsmithErrorCode.TOO_MANY_REQUESTS.getCode(),
+            AppsmithErrorCode.TEST_API_TOO_MANY_REQUESTS.getCode(),
             "Too many failed requests received. Please try again after 5 minutes",
             AppsmithErrorAction.DEFAULT,
             "Too many requests",
