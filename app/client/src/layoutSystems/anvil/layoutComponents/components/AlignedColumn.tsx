@@ -5,12 +5,14 @@ import {
   type AnvilHighlightInfo,
   type LayoutComponentProps,
   type LayoutProps,
+  type WidgetLayoutProps,
 } from "layoutSystems/anvil/utils/anvilTypes";
-import { doesListIncludeWidgetIDs } from "layoutSystems/anvil/utils/layouts/typeUtils";
+import { doesLayoutRenderWidgets } from "layoutSystems/anvil/utils/layouts/typeUtils";
 import { renderWidgets } from "layoutSystems/anvil/utils/layouts/renderUtils";
 import { RenderModes } from "constants/WidgetConstants";
 import {
   addChildToLayout,
+  extractWidgetIdsFromLayoutProps,
   removeChildFromLayout,
 } from "layoutSystems/anvil/utils/layouts/layoutUtils";
 
@@ -33,7 +35,7 @@ AlignedColumn.type = LayoutComponentTypes.ALIGNED_COLUMN;
 
 AlignedColumn.addChild = (
   props: LayoutProps,
-  children: string[] | LayoutProps[],
+  children: WidgetLayoutProps[] | LayoutProps[],
   highlight: AnvilHighlightInfo,
 ): LayoutProps => {
   return addChildToLayout(props, children, highlight);
@@ -49,7 +51,7 @@ AlignedColumn.getChildTemplate = (
     insertChild: true,
     layoutId: "",
     layoutType: LayoutComponentTypes.ALIGNED_ROW,
-    layout: [[], [], []],
+    layout: [],
   };
 };
 
@@ -58,12 +60,14 @@ AlignedColumn.deriveHighlights = () => {
 };
 
 AlignedColumn.extractChildWidgetIds = (props: LayoutProps): string[] => {
-  return AlignedColumn.rendersWidgets(props) ? (props.layout as string[]) : [];
+  return AlignedColumn.rendersWidgets(props)
+    ? extractWidgetIdsFromLayoutProps(props)
+    : [];
 };
 
 AlignedColumn.removeChild = (
   props: LayoutProps,
-  child: string | LayoutProps,
+  child: WidgetLayoutProps | LayoutProps,
 ): LayoutProps | undefined => {
   return removeChildFromLayout(props, child);
 };
@@ -79,7 +83,7 @@ AlignedColumn.renderChildWidgets = (
 };
 
 AlignedColumn.rendersWidgets = (props: LayoutProps): boolean => {
-  return doesListIncludeWidgetIDs(props);
+  return doesLayoutRenderWidgets(props);
 };
 
 export default AlignedColumn;

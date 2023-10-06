@@ -5,12 +5,14 @@ import {
   type AnvilHighlightInfo,
   type LayoutComponentProps,
   type LayoutProps,
+  type WidgetLayoutProps,
 } from "layoutSystems/anvil/utils/anvilTypes";
-import { doesListIncludeWidgetIDs } from "layoutSystems/anvil/utils/layouts/typeUtils";
+import { doesLayoutRenderWidgets } from "layoutSystems/anvil/utils/layouts/typeUtils";
 import { renderWidgets } from "layoutSystems/anvil/utils/layouts/renderUtils";
 import { RenderModes } from "constants/WidgetConstants";
 import {
   addChildToLayout,
+  extractWidgetIdsFromLayoutProps,
   removeChildFromLayout,
 } from "layoutSystems/anvil/utils/layouts/layoutUtils";
 
@@ -33,7 +35,7 @@ Column.type = LayoutComponentTypes.COLUMN;
 
 Column.addChild = (
   props: LayoutProps,
-  children: string[] | LayoutProps[],
+  children: WidgetLayoutProps[] | LayoutProps[],
   highlight: AnvilHighlightInfo,
 ): LayoutProps => {
   return addChildToLayout(props, children, highlight);
@@ -56,12 +58,14 @@ Column.deriveHighlights = () => {
 };
 
 Column.extractChildWidgetIds = (props: LayoutProps): string[] => {
-  return Column.rendersWidgets(props) ? (props.layout as string[]) : [];
+  return Column.rendersWidgets(props)
+    ? extractWidgetIdsFromLayoutProps(props)
+    : [];
 };
 
 Column.removeChild = (
   props: LayoutProps,
-  child: string | LayoutProps,
+  child: WidgetLayoutProps | LayoutProps,
 ): LayoutProps | undefined => {
   return removeChildFromLayout(props, child);
 };
@@ -75,7 +79,7 @@ Column.renderChildWidgets = (props: LayoutComponentProps): React.ReactNode => {
 };
 
 Column.rendersWidgets = (props: LayoutProps): boolean => {
-  return doesListIncludeWidgetIDs(props);
+  return doesLayoutRenderWidgets(props);
 };
 
 export default Column;

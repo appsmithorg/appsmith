@@ -16,8 +16,13 @@ export enum LayoutComponentTypes {
   ROW = "ROW",
 }
 
+export interface WidgetLayoutProps {
+  widgetId: string;
+  alignment: FlexLayerAlignment;
+}
+
 export interface LayoutProps {
-  layout: LayoutProps[] | string[] | string[][]; // Array of layout components or widgets to render.
+  layout: LayoutProps[] | WidgetLayoutProps[]; // Array of layout components or widgets to render.
   layoutId: string; // Identifier of layout
   layoutStyle?: { [key: string]: any }; // React.CSSProperties for overriding default layout style.
   layoutType: LayoutComponentType; // Used to identify the correct layout component to render.
@@ -42,7 +47,7 @@ export interface LayoutComponent extends React.FC<LayoutComponentProps> {
   // Add a child widget / layout to the parent layout component.
   addChild: (
     props: LayoutProps,
-    children: string[] | LayoutProps[],
+    children: WidgetLayoutProps[] | LayoutProps[],
     highlight: AnvilHighlightInfo,
   ) => LayoutProps;
   // get template of layout component to wrap new widgets in.
@@ -55,7 +60,7 @@ export interface LayoutComponent extends React.FC<LayoutComponentProps> {
   // return undefined if layout is not permanent and is empty after deletion.
   removeChild: (
     props: LayoutProps,
-    child: string | LayoutProps,
+    child: WidgetLayoutProps | LayoutProps,
   ) => LayoutProps | undefined;
   // Render child widgets using the layout property.
   renderChildWidgets: (props: LayoutComponentProps) => React.ReactNode;
