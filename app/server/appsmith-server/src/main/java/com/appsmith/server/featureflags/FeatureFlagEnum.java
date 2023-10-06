@@ -99,7 +99,7 @@ public enum FeatureFlagEnum {
     license_sso_saml_enabled,
 
     /**
-     * Feature flag to detect if Branch Configuration is supported for the tenant
+     * Flag to detect if branch protection and configuration is supported for the tenant
      */
     license_git_branch_protection_enabled,
 

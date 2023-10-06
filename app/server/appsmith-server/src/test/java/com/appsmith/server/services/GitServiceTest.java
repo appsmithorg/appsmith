@@ -1,7 +1,9 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.dtos.GitBranchDTO;
 import com.appsmith.external.git.GitExecutor;
 import com.appsmith.server.configurations.CommonConfig;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.GitAuth;
@@ -14,6 +16,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.GitCloudServicesUtils;
 import com.appsmith.server.helpers.GitFileUtils;
+import com.appsmith.server.repositories.ApplicationRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.jupiter.api.BeforeEach;
@@ -34,11 +37,16 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 
@@ -72,6 +80,9 @@ public class GitServiceTest {
     @Autowired
     ApplicationPageService applicationPageService;
 
+    @Autowired
+    ApplicationRepository applicationRepository;
+
     private static final GitProfile testUserProfile = new GitProfile();
 
     @BeforeEach
@@ -100,32 +111,27 @@ public class GitServiceTest {
     }
 
     private void mockForValidConnectRequest() throws IOException, GitAPIException {
-        Mockito.when(gitExecutor.cloneApplication(
-                        Mockito.any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+        Mockito.when(gitExecutor.cloneApplication(Mockito.any(), anyString(), anyString(), anyString()))
                 .thenReturn(Mono.just("defaultBranchName"));
         Mockito.when(gitExecutor.commitApplication(
                         Mockito.any(Path.class),
-                        Mockito.anyString(),
-                        Mockito.anyString(),
-                        Mockito.anyString(),
+                        anyString(),
+                        anyString(),
+                        anyString(),
                         Mockito.anyBoolean(),
                         Mockito.anyBoolean()))
                 .thenReturn(Mono.just("commit"));
-        Mockito.when(gitExecutor.checkoutToBranch(Mockito.any(Path.class), Mockito.anyString()))
+        Mockito.when(gitExecutor.checkoutToBranch(Mockito.any(Path.class), anyString()))
                 .thenReturn(Mono.just(true));
         Mockito.when(gitExecutor.pushApplication(
-                        Mockito.any(Path.class),
-                        Mockito.anyString(),
-                        Mockito.anyString(),
-                        Mockito.anyString(),
-                        Mockito.anyString()))
+                        Mockito.any(Path.class), anyString(), anyString(), anyString(), anyString()))
                 .thenReturn(Mono.just("success"));
         Mockito.when(gitFileUtils.checkIfDirectoryIsEmpty(Mockito.any(Path.class)))
                 .thenReturn(Mono.just(true));
-        Mockito.when(gitFileUtils.initializeReadme(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString()))
+        Mockito.when(gitFileUtils.initializeReadme(Mockito.any(Path.class), anyString(), anyString()))
                 .thenReturn(Mono.just(Paths.get("textPath")));
         Mockito.when(gitFileUtils.saveApplicationToLocalRepo(
-                        Mockito.any(Path.class), Mockito.any(ApplicationJson.class), Mockito.anyString()))
+                        Mockito.any(Path.class), Mockito.any(ApplicationJson.class), anyString()))
                 .thenReturn(Mono.just(Paths.get("path")));
     }
 
@@ -141,7 +147,7 @@ public class GitServiceTest {
         String limitPrivateRepoTestWorkspaceId =
                 workspaceService.create(workspace).map(Workspace::getId).block();
 
-        Mockito.when(gitCloudServicesUtils.getPrivateRepoLimitForOrg(Mockito.anyString(), Mockito.anyBoolean()))
+        Mockito.when(gitCloudServicesUtils.getPrivateRepoLimitForOrg(anyString(), Mockito.anyBoolean()))
                 .thenReturn(Mono.just(0));
 
         doReturn(TRUE).when(commonConfig).isCloudHosting();
@@ -178,7 +184,7 @@ public class GitServiceTest {
         String limitPrivateRepoTestWorkspaceId =
                 workspaceService.create(workspace).map(Workspace::getId).block();
 
-        Mockito.when(gitCloudServicesUtils.getPrivateRepoLimitForOrg(Mockito.anyString(), Mockito.anyBoolean()))
+        Mockito.when(gitCloudServicesUtils.getPrivateRepoLimitForOrg(anyString(), Mockito.anyBoolean()))
                 .thenReturn(Mono.just(0));
 
         doReturn(TRUE).when(commonConfig).isCloudHosting();
@@ -217,7 +223,7 @@ public class GitServiceTest {
                 workspaceService.create(workspace).map(Workspace::getId).block();
 
         mockForValidConnectRequest();
-        Mockito.when(gitCloudServicesUtils.getPrivateRepoLimitForOrg(Mockito.anyString(), Mockito.anyBoolean()))
+        Mockito.when(gitCloudServicesUtils.getPrivateRepoLimitForOrg(anyString(), Mockito.anyBoolean()))
                 .thenReturn(Mono.just(2));
 
         doReturn(TRUE).when(commonConfig).isCloudHosting();
@@ -257,7 +263,7 @@ public class GitServiceTest {
                 workspaceService.create(workspace).map(Workspace::getId).block();
 
         mockForValidConnectRequest();
-        Mockito.when(gitCloudServicesUtils.getPrivateRepoLimitForOrg(Mockito.anyString(), Mockito.anyBoolean()))
+        Mockito.when(gitCloudServicesUtils.getPrivateRepoLimitForOrg(anyString(), Mockito.anyBoolean()))
                 .thenReturn(Mono.just(2));
 
         doReturn(TRUE).when(commonConfig).isCloudHosting();
@@ -353,6 +359,241 @@ public class GitServiceTest {
                     assertThat(gitConnectedApp.getGitApplicationMetadata()).isNotNull();
                 })
                 .verifyComplete();
+    }
+
+    private Application createApplicationWithGitMetaData(
+            String workspaceId, String name, GitApplicationMetadata gitApplicationMetadata) {
+        Application application = new Application();
+        application.setName(name);
+        application.setWorkspaceId(workspaceId);
+        application.setGitApplicationMetadata(gitApplicationMetadata);
+        return application;
+    }
+
+    private GitApplicationMetadata createGitApplicationMetaData(
+            String defaultAppId, String branch, String defaultBranch, GitAuth gitAuth) {
+        GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
+        gitApplicationMetadata.setBranchName(branch);
+        gitApplicationMetadata.setDefaultBranchName(defaultBranch);
+        gitApplicationMetadata.setGitAuth(gitAuth);
+        gitApplicationMetadata.setDefaultApplicationId(defaultAppId);
+        gitApplicationMetadata.setRemoteUrl("https://example.com");
+        gitApplicationMetadata.setRepoName("my-test-repo");
+        return gitApplicationMetadata;
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void setDefaultBranch_WhenApplicationFound_DefaultBranchNameUpdated() {
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_git_branch_protection_enabled)))
+                .thenReturn(Mono.just(TRUE));
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_audit_logs_enabled)))
+                .thenReturn(Mono.just(FALSE));
+
+        Workspace workspace = new Workspace();
+        workspace.setName(UUID.randomUUID().toString());
+        String workspaceId =
+                workspaceService.create(workspace).map(Workspace::getId).block();
+        String defaultBranchBeforeChange = "main", defaultBranchAfterChange = "branch2";
+
+        // create the root application
+        Application rootApp = applicationPageService
+                .createApplication(createApplicationWithGitMetaData(workspaceId, "rootApp", null))
+                .block();
+        // now set the git application metadata, with the default application id
+        assert rootApp != null;
+        rootApp.setGitApplicationMetadata(createGitApplicationMetaData(
+                rootApp.getId(), defaultBranchBeforeChange, defaultBranchBeforeChange, getGitAuth()));
+
+        List<Application> applicationList = new ArrayList<>();
+        applicationList.add(rootApp);
+
+        // create 2 applications, one with branch=bracnh1, another with branch=branch2. default branch=main
+        for (int i = 1; i <= 2; i++) {
+            GitApplicationMetadata gitApplicationMetadata =
+                    createGitApplicationMetaData(rootApp.getId(), "branch" + i, defaultBranchBeforeChange, null);
+            Application application = createApplicationWithGitMetaData(workspaceId, "App" + i, gitApplicationMetadata);
+            application.setPolicies(rootApp.getPolicies());
+            applicationList.add(application);
+        }
+
+        // save all the applications
+        Mono<List<Application>> applicationListMono = applicationRepository
+                .saveAll(applicationList)
+                .then(gitService.setDefaultBranch(rootApp.getId(), defaultBranchAfterChange))
+                .thenMany(applicationRepository.findByWorkspaceId(workspaceId))
+                .collectList();
+
+        StepVerifier.create(applicationListMono)
+                .assertNext(applications -> {
+                    assertThat(applications.size()).isEqualTo(3);
+                    applications.forEach(application -> {
+                        GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
+                        assert application.getId() != null;
+                        if (application.getId().equals(rootApp.getId())) {
+                            assertThat(application.getGitApplicationMetadata().getGitAuth())
+                                    .isNotNull();
+                        }
+                        assertThat(gitApplicationMetadata.getDefaultBranchName())
+                                .isEqualTo(defaultBranchAfterChange);
+                        assertThat(gitApplicationMetadata.getBranchName()).isNotNull();
+                    });
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void setDefaultBranch_WhenNoApplicationFoundWithBranchName_ExceptionThrown() {
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_git_branch_protection_enabled)))
+                .thenReturn(Mono.just(TRUE));
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_audit_logs_enabled)))
+                .thenReturn(Mono.just(FALSE));
+
+        Workspace workspace = new Workspace();
+        workspace.setName(UUID.randomUUID().toString());
+        String workspaceId =
+                workspaceService.create(workspace).map(Workspace::getId).block();
+        String defaultBranchBeforeChange = "main", defaultBranchAfterChange = "invalidBranchName";
+
+        // create the root application
+        Application rootApp = applicationPageService
+                .createApplication(createApplicationWithGitMetaData(workspaceId, "rootApp", null))
+                .block();
+        // now set the git application metadata, with the default application id
+        assert rootApp != null;
+        rootApp.setGitApplicationMetadata(createGitApplicationMetaData(
+                rootApp.getId(), defaultBranchBeforeChange, defaultBranchBeforeChange, getGitAuth()));
+
+        List<Application> applicationList = new ArrayList<>();
+        applicationList.add(rootApp);
+
+        // create 2 applications, one with branch=bracnh1, another with branch=branch2. default branch=main
+        for (int i = 1; i <= 2; i++) {
+            GitApplicationMetadata gitApplicationMetadata =
+                    createGitApplicationMetaData(rootApp.getId(), "branch" + i, defaultBranchBeforeChange, null);
+            Application application = createApplicationWithGitMetaData(workspaceId, "App" + i, gitApplicationMetadata);
+            application.setPolicies(rootApp.getPolicies());
+            applicationList.add(application);
+        }
+
+        // save all the applications
+        Mono<String> applicationListMono = applicationRepository
+                .saveAll(applicationList)
+                .then(gitService.setDefaultBranch(rootApp.getId(), defaultBranchAfterChange));
+
+        StepVerifier.create(applicationListMono)
+                .verifyErrorMessage(AppsmithError.NO_RESOURCE_FOUND.getMessage(
+                        FieldName.APPLICATION, rootApp.getId() + "," + defaultBranchAfterChange));
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void setDefaultBranch_WhenFeatureFlagIsOff_UnsupportedExceptionThrown() {
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_audit_logs_enabled)))
+                .thenReturn(Mono.just(FALSE));
+
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_git_branch_protection_enabled)))
+                .thenReturn(Mono.just(FALSE));
+
+        StepVerifier.create(gitService.setDefaultBranch("abcd", "anyname"))
+                .verifyErrorMessage(AppsmithError.UNSUPPORTED_OPERATION.getMessage());
+    }
+
+    private void testDefaultBranchAfterListBranch(
+            String localDefaultBranch, String remoteDefaultBranch, String expectedDefaultBranch) {
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_audit_logs_enabled)))
+                .thenReturn(Mono.just(FALSE));
+
+        // mock the gitExecutor.getRemoteDefaultBranch so that it'll return value of remoteDefaultBranch
+        Mockito.when(gitExecutor.getRemoteDefaultBranch(any(Path.class), anyString(), anyString(), anyString()))
+                .thenReturn(Mono.just(remoteDefaultBranch));
+
+        // mock the gitExecutor.createAndCheckoutToBranch so that it'll return value of remoteDefaultBranch
+        Mockito.when(gitExecutor.createAndCheckoutToBranch(any(Path.class), anyString()))
+                .thenReturn(Mono.just(remoteDefaultBranch));
+
+        Mockito.when(gitExecutor.fetchRemote(
+                        any(Path.class), anyString(), anyString(), anyBoolean(), anyString(), anyBoolean()))
+                .thenReturn(Mono.just("success"));
+
+        GitBranchDTO gitBranchDTO = new GitBranchDTO();
+        gitBranchDTO.setBranchName(localDefaultBranch);
+        Mockito.when(gitExecutor.listBranches(any(Path.class))).thenReturn(Mono.just(List.of(gitBranchDTO)));
+
+        // create two real applications with default branch name=main
+        Workspace workspace = new Workspace();
+        workspace.setName(UUID.randomUUID().toString());
+        String workspaceId =
+                workspaceService.create(workspace).map(Workspace::getId).block();
+
+        // create the root application
+        Application rootApp = applicationPageService
+                .createApplication(createApplicationWithGitMetaData(workspaceId, "rootApp", null))
+                .block();
+        assert rootApp != null;
+        rootApp.setGitApplicationMetadata(
+                createGitApplicationMetaData(rootApp.getId(), localDefaultBranch, localDefaultBranch, getGitAuth()));
+
+        List<Application> applicationList = new ArrayList<>();
+        applicationList.add(rootApp);
+
+        // create 1 more application, with branch=remoteDefaultBranch
+        for (int i = 1; i <= 1; i++) {
+            GitApplicationMetadata gitApplicationMetadata =
+                    createGitApplicationMetaData(rootApp.getId(), remoteDefaultBranch, localDefaultBranch, null);
+            Application application = createApplicationWithGitMetaData(workspaceId, "App" + i, gitApplicationMetadata);
+            application.setPolicies(rootApp.getPolicies());
+            applicationList.add(application);
+        }
+
+        // save all the applications
+        Mono<List<Application>> applicationListMono = applicationRepository
+                .saveAll(applicationList)
+                .then(gitService.listBranchForApplication(rootApp.getId(), true, localDefaultBranch))
+                .thenMany(applicationRepository.findByWorkspaceId(workspaceId))
+                .collectList();
+
+        StepVerifier.create(applicationListMono)
+                .assertNext(applications -> {
+                    assertThat(applications.size()).isEqualTo(2);
+                    applications.forEach(application -> {
+                        GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
+                        assert application.getId() != null;
+                        if (application.getId().equals(rootApp.getId())) {
+                            assertThat(application.getGitApplicationMetadata().getGitAuth())
+                                    .isNotNull();
+                        }
+                        assertThat(gitApplicationMetadata.getDefaultBranchName())
+                                .isEqualTo(expectedDefaultBranch);
+                        assertThat(gitApplicationMetadata.getBranchName()).isNotNull();
+                    });
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void listBranchForApplication_WhenFeatureFlagOn_DefaultBranchIsNotUpdatedFromRemote() {
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_git_branch_protection_enabled)))
+                .thenReturn(Mono.just(TRUE));
+        testDefaultBranchAfterListBranch("main", "develop", "main");
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void listBranchForApplication_WhenFeatureFlagOff_DefaultBranchIsUpdatedFromRemote() {
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_git_branch_protection_enabled)))
+                .thenReturn(Mono.just(FALSE));
+        testDefaultBranchAfterListBranch("main", "develop", "develop");
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void listBranchForApplication_WhenPruneIsFalse_DefaultBranchIsNotUpdatedFromRemote() {
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_git_branch_protection_enabled)))
+                .thenReturn(Mono.just(TRUE));
+        testDefaultBranchAfterListBranch("main", "develop", "main");
     }
 
     @Test
