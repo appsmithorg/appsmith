@@ -20,7 +20,7 @@ export type InviteUsersProps = {
   isApplicationPage?: boolean;
   placeholder?: string;
   customProps?: any;
-  selected?: DefaultOptionType;
+  selected?: any;
   options?: any;
   isMultiSelectDropdown?: boolean;
   checkIfInvitedUsersFromDifferentDomain?: () => void;
