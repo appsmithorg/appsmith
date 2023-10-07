@@ -34,7 +34,7 @@ export const EditorShareButton = ({
       <Button
         className="t--application-share-btn"
         kind="tertiary"
-        onClick={() => setShowModal(false)} // should be true - needs page id for app viewer
+        onClick={() => setShowModal(true)}
         size="md"
         startIcon="share-line"
       >
