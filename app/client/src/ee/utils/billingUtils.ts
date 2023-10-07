@@ -9,6 +9,8 @@ export const goToCustomerPortal = () => {
   openInNewTab(`${appsmithConfigs.customerPortalUrl}/plans`);
 };
 
+export const customerPortalPlansUrl = `${appsmithConfigs.customerPortalUrl}/plans`;
+
 export const getDateSuffix = (date = "") => {
   const parsedDate = Number(date);
 
