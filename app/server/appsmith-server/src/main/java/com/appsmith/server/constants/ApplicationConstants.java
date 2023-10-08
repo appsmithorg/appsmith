@@ -14,5 +14,5 @@ public class ApplicationConstants {
      *  This CustomJSLib UID needs to be added to all the imported applications where we don't have any later versions of xmlParser present.
      */
     public static final String XML_PARSER_LIBRARY_UID =
-            "parser_https://cdnjs.cloudflare.com/ajax/libs/fast-xml-parser/3.17.5/parser.min.js";
+            "xmlParser_https://cdnjs.cloudflare.com/ajax/libs/fast-xml-parser/3.17.5/parser.min.js";
 }

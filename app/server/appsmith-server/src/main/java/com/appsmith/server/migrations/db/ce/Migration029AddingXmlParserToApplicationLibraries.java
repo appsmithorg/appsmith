@@ -20,7 +20,7 @@ import static com.appsmith.server.constants.ApplicationConstants.XML_PARSER_LIBR
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
-@ChangeUnit(order = "029", id = "add-xmlparser-to-application-jslibs", author = " ", runAlways = true)
+@ChangeUnit(order = "029", id = "add-xmlparser-to-application-jslibs", author = " ")
 public class Migration029AddingXmlParserToApplicationLibraries {
 
     private final MongoTemplate mongoTemplate;
