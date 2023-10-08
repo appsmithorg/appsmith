@@ -20,7 +20,13 @@ export type ButtonRef = React.Ref<HTMLButtonElement>;
 type ButtonRefObject = React.RefObject<HTMLButtonElement>;
 
 const _Button = (props: ButtonProps, ref: ButtonRef) => {
-  const { autoFocus, children, className, draggable, isDisabled } = props;
+  const {
+    autoFocus,
+    children,
+    className,
+    draggable = false,
+    isDisabled = false,
+  } = props;
   const { hoverProps, isHovered } = useHover({ isDisabled });
   const { focusProps, isFocusVisible } = useFocusRing({ autoFocus });
   const { buttonProps, isPressed } = useButton(props, ref as ButtonRefObject);
@@ -28,8 +34,8 @@ const _Button = (props: ButtonProps, ref: ButtonRef) => {
   return (
     <button
       {...mergeProps(buttonProps, hoverProps, focusProps)}
-      aria-busy={props["aria-busy"] ? true : undefined}
-      aria-disabled={props["aria-disabled"] ? true : undefined}
+      aria-busy={props["aria-busy"] ?? undefined}
+      aria-disabled={props["aria-disabled"] ?? undefined}
       className={className}
       data-active={isPressed ? "" : undefined}
       data-disabled={isDisabled ? "" : undefined}

@@ -19,7 +19,7 @@ function _HelpText(props: HelpTextProps, ref: DOMRef<HTMLDivElement>) {
     validationState,
   } = props;
   const domRef = useDOMRef(ref);
-  const isErrorMessage = errorMessage && validationState === "invalid";
+  const isErrorMessage = Boolean(errorMessage) && validationState === "invalid";
 
   return (
     <div ref={domRef}>

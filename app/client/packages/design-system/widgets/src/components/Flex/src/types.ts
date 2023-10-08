@@ -210,3 +210,27 @@ export interface FlexProps
   /** Sets the HTML [id](https://developer.mozilla.org/en-US/docs/Web/API/Element/id) for the element. */
   id?: string;
 }
+
+export type FlexCssProps = Omit<
+  FlexProps,
+  "isContainer" | "children" | "className" | "style" | "id"
+>;
+
+export type CssVarValues = FlexCssProps[
+  | "gap"
+  | "flexBasis"
+  | "margin"
+  | "marginLeft"
+  | "marginRight"
+  | "marginTop"
+  | "padding"
+  | "paddingLeft"
+  | "paddingRight"
+  | "paddingTop"
+  | "marginBottom"
+  | "width"
+  | "height"
+  | "minWidth"
+  | "minHeight"
+  | "maxWidth"
+  | "maxHeight"];

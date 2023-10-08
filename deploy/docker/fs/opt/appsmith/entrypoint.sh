@@ -255,6 +255,7 @@ is_empty_directory() {
 }
 
 check_setup_custom_ca_certificates() {
+  # old, deprecated, should be removed.
   local stacks_ca_certs_path
   stacks_ca_certs_path="$stacks_path/ca-certs"
 
@@ -279,12 +280,44 @@ check_setup_custom_ca_certificates() {
 
   fi
 
-  if [[ -n "$(ls "$stacks_ca_certs_path"/*.pem 2>/dev/null)" ]]; then
-    echo "Looks like you have some '.pem' files in your 'ca-certs' folder. Please rename them to '.crt' to be picked up autatically.".
-  fi
-
   update-ca-certificates --fresh
 }
+
+setup-custom-ca-certificates() (
+  local stacks_ca_certs_path="$stacks_path/ca-certs"
+  local store="$TMP/cacerts"
+  local opts_file="$TMP/java-cacerts-opts"
+
+  rm -f "$store" "$opts_file"
+
+  if [[ -n "$(ls "$stacks_ca_certs_path"/*.pem 2>/dev/null)" ]]; then
+    echo "Looks like you have some '.pem' files in your 'ca-certs' folder. Please rename them to '.crt' to be picked up automatically.".
+  fi
+
+  if ! [[ -d "$stacks_ca_certs_path" && "$(find "$stacks_ca_certs_path" -maxdepth 1 -type f -name '*.crt' | wc -l)" -gt 0 ]]; then
+    echo "No custom CA certificates found."
+    return
+  fi
+
+  # Import the system CA certificates into the store.
+  keytool -importkeystore \
+    -srckeystore /opt/java/lib/security/cacerts \
+    -destkeystore "$store" \
+    -srcstorepass changeit \
+    -deststorepass changeit
+
+  # Add the custom CA certificates to the store.
+  find "$stacks_ca_certs_path" -maxdepth 1 -type f -name '*.crt' \
+    -exec keytool -import -noprompt -keystore "$store" -file '{}' -storepass changeit ';'
+
+  {
+    echo "-Djavax.net.ssl.trustStore=$store"
+    echo "-Djavax.net.ssl.trustStorePassword=changeit"
+  } > "$opts_file"
+
+  # Get certbot to use the combined trusted CA certs file.
+  export REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
+)
 
 configure_supervisord() {
   local supervisord_conf_source="/opt/appsmith/templates/supervisord"
@@ -438,6 +471,8 @@ else
 fi
 
 check_setup_custom_ca_certificates
+setup-custom-ca-certificates
+
 mount_letsencrypt_directory
 
 check_redis_compatible_page_size
