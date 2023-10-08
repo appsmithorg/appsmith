@@ -24,6 +24,7 @@ import { isColumnTypeEditable } from "widgets/TableWidgetV2/widget/utilities";
 import { Popover2 } from "@blueprintjs/popover2";
 import { MenuDivider } from "@design-system/widgets-old";
 import { importRemixIcon, importSvg } from "@design-system/widgets-old";
+import { CANVAS_ART_BOARD } from "constants/componentClassNameConstants";
 
 const Check = importRemixIcon(() => import("remixicon-react/CheckFillIcon"));
 const ArrowDownIcon = importRemixIcon(
@@ -326,7 +327,9 @@ const HeaderCellComponent = (props: HeaderProps) => {
           onInteraction={setIsMenuOpen}
           placement="bottom-end"
           portalClassName={`${HEADER_MENU_PORTAL_CLASS}-${props.widgetId}`}
-          portalContainer={document.getElementById("art-board") || undefined}
+          portalContainer={
+            document.getElementById(CANVAS_ART_BOARD) || undefined
+          }
         >
           <ArrowDownIcon className="w-5 h-5" color="var(--wds-color-icon)" />
         </Popover2>
