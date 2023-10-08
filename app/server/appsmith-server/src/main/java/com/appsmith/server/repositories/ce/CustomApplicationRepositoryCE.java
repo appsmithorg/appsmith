@@ -83,4 +83,7 @@ public interface CustomApplicationRepositoryCE extends AppsmithRepository<Applic
 
     Flux<String> getAllApplicationIdsInWorkspaceAccessibleToARoleWithPermission(
             String workspaceId, AclPermission permission, String permissionGroupId);
+
+    Mono<Long> getAllApplicationsCountAccessibleToARoleWithPermission(
+            AclPermission permission, String permissionGroupId);
 }
