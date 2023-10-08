@@ -55,7 +55,7 @@ import { Avatar, Button, Icon, Option, Select, Text } from "design-system";
 import { getInitials } from "utils/AppsmithUtils";
 import { RAMP_NAME } from "utils/ProductRamps/RampsControlList";
 import { showProductRamps } from "@appsmith/selectors/rampSelectors";
-import { CustomRolesRamp } from "@appsmith/pages/workspace/WorkspaceInviteUsersForm";
+import { CustomRolesRamp } from "@appsmith/pages/workspace/InviteUsersForm";
 
 import { getShowAdminSettings } from "@appsmith/utils/BusinessFeatures/adminSettingsHelpers";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
