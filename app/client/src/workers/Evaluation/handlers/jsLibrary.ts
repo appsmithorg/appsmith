@@ -14,6 +14,12 @@ import { makeTernDefs } from "../../common/JSLibrary/ternDefinitionGenerator";
 import type { EvalWorkerASyncRequest, EvalWorkerSyncRequest } from "../types";
 import { dataTreeEvaluator } from "./evalTree";
 
+declare global {
+  interface Window {
+    [x: string]: unknown;
+  }
+}
+
 enum LibraryInstallError {
   NameCollisionError,
   ImportError,
@@ -43,9 +49,7 @@ const removeDataTreeFromContext = () => {
   const dataTreeEntityNames = Object.keys(evalTree);
   const tempDataTreeStore: Record<string, any> = {};
   for (const entityName of dataTreeEntityNames) {
-    // @ts-expect-error: self is a global variable
     tempDataTreeStore[entityName] = self[entityName];
-    // @ts-expect-error: self is a global variable
     delete self[entityName];
   }
   return tempDataTreeStore;
@@ -56,7 +60,6 @@ function addTempStoredDataTreeToContext(
 ) {
   const dataTreeEntityNames = Object.keys(tempDataTreeStore);
   for (const entityName of dataTreeEntityNames) {
-    // @ts-expect-error: self is a global variable
     self[entityName] = tempDataTreeStore[entityName];
   }
 }
@@ -75,7 +78,6 @@ export async function installLibrary(request: EvalWorkerASyncRequest) {
   // Map of all the currently installed libraries
   const tempLibStore = takenAccessors.reduce(
     (acc: Record<string, unknown>, a: string) => {
-      //@ts-expect-error no types
       acc[a] = self[a];
       return acc;
     },
@@ -86,7 +88,6 @@ export async function installLibrary(request: EvalWorkerASyncRequest) {
     const envKeysBeforeInstallation = Object.keys(self);
 
     const unsetKeys = envKeysBeforeInstallation.filter(
-      //@ts-expect-error no types
       (k) => self[k] === undefined,
     );
 
@@ -106,7 +107,6 @@ export async function installLibrary(request: EvalWorkerASyncRequest) {
       // This is to find if the newly installed library has an accessor that was remove in an un-installation before.
       accessorList.push(
         ...unsetKeys.filter((k) => {
-          // @ts-expect-error no types
           return self[k] !== undefined;
         }),
       );
@@ -115,7 +115,6 @@ export async function installLibrary(request: EvalWorkerASyncRequest) {
       // This is to check if the newly installed library overwrites an already existing
       accessorList.push(
         ...Object.keys(tempLibStore).filter((k) => {
-          // @ts-expect-error no types
           return tempLibStore[k] !== self[k];
         }),
       );
@@ -132,7 +131,6 @@ export async function installLibrary(request: EvalWorkerASyncRequest) {
             takenAccessors,
             takenNamesMap,
           );
-          // @ts-expect-error no types
           self[uniqAccessor] = flattenModule(module);
           accessors.push({ original: uniqAccessor, modified: uniqAccessor });
         }
@@ -163,7 +161,6 @@ export async function installLibrary(request: EvalWorkerASyncRequest) {
     }
 
     addTempStoredDataTreeToContext(tempDataTreeStore);
-    //@ts-expect-error no types
     Object.keys(tempLibStore).forEach((k) => (self[k] = tempLibStore[k]));
 
     if (accessors.length === 0)
@@ -175,7 +172,6 @@ export async function installLibrary(request: EvalWorkerASyncRequest) {
     defs["!name"] = `LIB/${name}`;
     try {
       for (const key of accessors) {
-        //@ts-expect-error no types
         defs[key.modified] = makeTernDefs(self[key?.modified]);
       }
     } catch (e) {
@@ -198,7 +194,6 @@ export async function installLibrary(request: EvalWorkerASyncRequest) {
     return { success: true, defs, accessor: accessors };
   } catch (error) {
     addTempStoredDataTreeToContext(tempDataTreeStore);
-    //@ts-expect-error no types
     Object.keys(tempLibStore).forEach((k) => (self[k] = tempLibStore[k]));
     return { success: false, defs, error };
   }
@@ -252,15 +247,12 @@ export async function loadLibraries(request: EvalWorkerASyncRequest) {
         const keysAfter = Object.keys(self);
         const newKeys = difference(keysAfter, keysBefore);
         for (const key of newKeys) {
-          const modifiedKey =
+          const modifiedKey: string =
             accessor.find((a: any) => a.original === key)?.modified || key;
-          //@ts-expect-error no types
           self[modifiedKey] = self[key];
           try {
-            //@ts-expect-error no types
             delete self[key];
           } catch (e) {
-            //@ts-expect-error no types
             self[key] = undefined;
           }
           libraryReservedIdentifiers[modifiedKey] = true;
