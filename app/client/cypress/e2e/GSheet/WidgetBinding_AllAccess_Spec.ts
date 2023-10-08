@@ -149,7 +149,7 @@ describe("GSheet-widget binding", function () {
     //check if that row is present
     agHelper.GetNAssertContains(
       oneClickBindingLocator.validTableRowData,
-      someText,
+      "rajat",
     );
 
     agHelper.GetNClick(propPane._deleteWidget);
