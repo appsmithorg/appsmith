@@ -120,7 +120,7 @@ public class PageControllerCE {
             @PathVariable String defaultPageId,
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         return applicationPageService
-                .getPageByBranchAndDefaultPageId(defaultPageId, branchName, false)
+                .getPageAndMigrateDslByBranchAndDefaultPageId(defaultPageId, branchName, false)
                 .map(page -> new ResponseDTO<>(HttpStatus.OK.value(), page, null));
     }
 
@@ -130,7 +130,7 @@ public class PageControllerCE {
             @PathVariable String defaultPageId,
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         return applicationPageService
-                .getPageByBranchAndDefaultPageId(defaultPageId, branchName, true)
+                .getPageAndMigrateDslByBranchAndDefaultPageId(defaultPageId, branchName, true)
                 .map(page -> new ResponseDTO<>(HttpStatus.OK.value(), page, null));
     }
 

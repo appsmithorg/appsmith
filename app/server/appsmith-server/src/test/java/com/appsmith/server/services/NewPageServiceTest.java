@@ -251,8 +251,8 @@ public class NewPageServiceTest {
                     pageDTO.setApplicationId(application.getId());
                     return applicationPageService.createPage(pageDTO);
                 })
-                .flatMap(pageDTO ->
-                        applicationPageService.getPageByBranchAndDefaultPageId(pageDTO.getId(), null, false));
+                .flatMap(pageDTO -> applicationPageService.getPageAndMigrateDslByBranchAndDefaultPageId(
+                        pageDTO.getId(), null, false));
 
         StepVerifier.create(applicationPageDTOMono)
                 .assertNext(applicationPageDTO -> {

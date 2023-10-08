@@ -274,7 +274,8 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     }
 
     @Override
-    public Mono<PageDTO> getPageByBranchAndDefaultPageId(String defaultPageId, String branchName, boolean viewMode) {
+    public Mono<PageDTO> getPageAndMigrateDslByBranchAndDefaultPageId(
+            String defaultPageId, String branchName, boolean viewMode) {
         // Fetch the page with read permission in both editor and in viewer.
         return newPageService
                 .findByBranchNameAndDefaultPageId(branchName, defaultPageId, pagePermission.getReadPermission())
