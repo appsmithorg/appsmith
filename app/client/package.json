@@ -333,7 +333,6 @@
     "postcss-at-rules-variables": "^0.3.0",
     "postcss-conditionals": "^2.1.0",
     "postcss-each": "^1.1.0",
-    "postcss-for": "^2.1.1",
     "postcss-import": "^15.1.0",
     "postcss-modules-values": "^4.0.0",
     "postcss-nesting": "^12.0.1",
