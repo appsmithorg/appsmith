@@ -61,11 +61,11 @@ public class ProvisionServiceImpl extends ProvisionServiceCECompatibleImpl imple
     private final TenantUtils tenantUtils;
     private final TenantService tenantService;
     private final UserRepository userRepository;
-    private final UserGroupRepository userGroupRepository;
-    private final ProvisionUtils provisionUtils;
     private final UserAndAccessManagementService userAndAccessManagementService;
-    private final UserUtils userUtils;
+    private final UserGroupRepository userGroupRepository;
     private final PolicyGenerator policyGenerator;
+    private final UserUtils userUtils;
+    private final ProvisionUtils provisionUtils;
 
     @Override
     @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_scim_enabled)
@@ -167,26 +167,12 @@ public class ProvisionServiceImpl extends ProvisionServiceCECompatibleImpl imple
     @Override
     @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_scim_enabled)
     public Mono<Boolean> disconnectProvisioning(DisconnectProvisioningDto disconnectProvisioningDto) {
+        Mono<Boolean> deleteOrUpdateUsersGroupsAndUpdateAssociatedRolesMono;
+
         // Check whether user is authorised to MANAGE_TENANT
         // Throw AppsmithError ACTION_IS_NOT_AUTHORIZED
         Mono<Tenant> tenantMono = tenantService
                 .getDefaultTenant(MANAGE_TENANT)
-                .switchIfEmpty(Mono.error(
-                        new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "disconnect provisioning")))
-                .cache();
-        return tenantMono.then(disconnectProvisioningWithoutUserContext(disconnectProvisioningDto));
-    }
-
-    private Mono<Boolean> archiveProvisionTokenWithoutPermissionCheck() {
-        return apiKeyService.archiveAllApiKeysForUserWithoutPermissionCheck(FieldName.PROVISIONING_USER);
-    }
-
-    @Override
-    public Mono<Boolean> disconnectProvisioningWithoutUserContext(DisconnectProvisioningDto disconnectProvisioningDto) {
-        Mono<Boolean> deleteOrUpdateUsersGroupsAndUpdateAssociatedRolesMono;
-
-        Mono<Tenant> tenantMono = tenantService
-                .getDefaultTenant()
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "disconnect provisioning")))
                 .cache();
@@ -213,14 +199,14 @@ public class ProvisionServiceImpl extends ProvisionServiceCECompatibleImpl imple
                     analyticsService.sendObjectEvent(AnalyticsEvents.SCIM_DISABLED, tenant, analyticsProperties);
             return deleteOrUpdateUsersGroupsAndUpdateAssociatedRolesMono
                     .flatMap(usersGroupsRolesUpdated -> scimDisabledMono)
-                    .flatMap(tenant1 -> archiveProvisionTokenWithoutPermissionCheck())
+                    .flatMap(tenant1 -> archiveProvisionToken())
                     .flatMap(archiveProvisionToken -> provisionUtils.updateStatus(INACTIVE, false));
         });
         return Mono.create(sink -> deleteOrUpdateUsersAndGroupsUpdateRolesAndArchiveTokenMono.subscribe(
                 sink::success, sink::error, null, sink.currentContext()));
     }
 
-    @NotNull protected Mono<Boolean> transferManagementPoliciesToInstanceAdministratorForAllProvisionedUsersAndGroups(
+    @NotNull private Mono<Boolean> transferManagementPoliciesToInstanceAdministratorForAllProvisionedUsersAndGroups(
             Mono<Tenant> tenantMono) {
         return tenantMono.flatMap(tenant -> {
             // Update permissions for User resources
@@ -238,7 +224,7 @@ public class ProvisionServiceImpl extends ProvisionServiceCECompatibleImpl imple
         });
     }
 
-    @NotNull protected Mono<Boolean> deleteAllProvisionedUsersAndGroupsAndUpdateAllAssociatedRoles() {
+    @NotNull private Mono<Boolean> deleteAllProvisionedUsersAndGroupsAndUpdateAllAssociatedRoles() {
         // We are interested only in the policies and email of the provisioned User resources.
         // We are interested only in the policies and users of the provisioned UserGroup resources.
         List<String> includeFieldsUsers = List.of(fieldName(QUser.user.policies), fieldName(QUser.user.email));
@@ -276,7 +262,7 @@ public class ProvisionServiceImpl extends ProvisionServiceCECompatibleImpl imple
                 unassignedFromRoles -> deleteAllProvisionedEntitiesMono);
     }
 
-    @NotNull protected Mono<Boolean> deleteUsersAndGroups(
+    @NotNull private Mono<Boolean> deleteUsersAndGroups(
             Mono<List<User>> provisionedUsersMono, Mono<List<UserGroup>> provisionedGroupsMono) {
         return Mono.zip(provisionedUsersMono, provisionedGroupsMono).flatMap(pair -> {
             List<User> provisionedUsers = pair.getT1();
@@ -294,7 +280,7 @@ public class ProvisionServiceImpl extends ProvisionServiceCECompatibleImpl imple
         });
     }
 
-    protected Mono<Boolean> updateAllProvisionedUsersDeleteAndManagePolicyWithSuperAdminAndUserManagementRole() {
+    private Mono<Boolean> updateAllProvisionedUsersDeleteAndManagePolicyWithSuperAdminAndUserManagementRole() {
         List<String> includeFieldsUsers = List.of(fieldName(QUser.user.policies));
         Flux<User> provisionedUserFlux = userRepository
                 .getAllUsersByIsProvisioned(Boolean.TRUE, Optional.of(includeFieldsUsers), Optional.empty())
@@ -312,13 +298,13 @@ public class ProvisionServiceImpl extends ProvisionServiceCECompatibleImpl imple
                 .map(list -> Boolean.TRUE);
     }
 
-    protected Mono<Boolean> updatedAllProvisionedGroupsWithInheritedTenantPolicies(Tenant tenant) {
+    private Mono<Boolean> updatedAllProvisionedGroupsWithInheritedTenantPolicies(Tenant tenant) {
         Set<Policy> policies = policyGenerator.getAllChildPolicies(tenant.getPolicies(), Tenant.class, UserGroup.class);
         return userGroupRepository.updateProvisionedUserGroupsPoliciesAndIsProvisionedWithoutPermission(
                 Boolean.FALSE, policies);
     }
 
-    protected Set<Policy> getUserPoliciesWithUpdatedDeleteAndManageUserPolicies(
+    private Set<Policy> getUserPoliciesWithUpdatedDeleteAndManageUserPolicies(
             User user, PermissionGroup instanceAdminRole) {
         Set<Policy> policiesWithoutDeleteAndManagePermissions = user.getPolicies().stream()
                 .filter(policy -> !policy.getPermission().equals(MANAGE_USERS.getValue())

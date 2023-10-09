@@ -8,6 +8,4 @@ public interface ApiKeyService extends CrudService<UserApiKey, String> {
     Mono<String> generateApiKey(ApiKeyRequestDto apiKeyRequestDto);
 
     Mono<Boolean> archiveAllApiKeysForUser(String email);
-
-    Mono<Boolean> archiveAllApiKeysForUserWithoutPermissionCheck(String email);
 }

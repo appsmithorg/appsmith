@@ -4,11 +4,9 @@ import com.appsmith.server.constants.FeatureMigrationType;
 import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.TenantConfiguration;
-import com.appsmith.server.dtos.DisconnectProvisioningDto;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.ce.FeatureFlagMigrationHelperCEImpl;
 import com.appsmith.server.services.CacheableFeatureFlagHelper;
-import com.appsmith.server.services.ProvisionService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.solutions.EnvManager;
@@ -32,19 +30,16 @@ public class FeatureFlagMigrationHelperImpl extends FeatureFlagMigrationHelperCE
     private final SessionUserService sessionUserService;
     private final UserService userService;
     private final EnvManager envManager;
-    private final ProvisionService provisionService;
 
     public FeatureFlagMigrationHelperImpl(
             CacheableFeatureFlagHelper cacheableFeatureFlagHelper,
             SessionUserService sessionUserService,
             @Lazy UserService userService,
-            @Lazy EnvManager envManager,
-            @Lazy ProvisionService provisionService) {
+            @Lazy EnvManager envManager) {
         super(cacheableFeatureFlagHelper);
         this.sessionUserService = sessionUserService;
         this.userService = userService;
         this.envManager = envManager;
-        this.provisionService = provisionService;
     }
 
     /**
@@ -75,16 +70,6 @@ public class FeatureFlagMigrationHelperImpl extends FeatureFlagMigrationHelperCE
                     // Run SSO OIDC migrations
                     migrationMonos.addAll(
                             executeDowngradeMigrationForSSOBasedOnLoginSourceAndTenantId(LoginSource.OIDC, tenant));
-                }
-            }
-
-            case license_scim_enabled -> {
-                if (DISABLE.equals(featuresWithPendingMigration.get(featureFlagEnum))) {
-                    // Run SCIM migrations
-                    DisconnectProvisioningDto disconnectProvisioningDto = new DisconnectProvisioningDto();
-                    disconnectProvisioningDto.setKeepAllProvisionedResources(true);
-                    migrationMonos.add(
-                            provisionService.disconnectProvisioningWithoutUserContext(disconnectProvisioningDto));
                 }
             }
             default -> {}
