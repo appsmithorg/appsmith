@@ -247,8 +247,10 @@ export default {
     Object.values(existingColumns).forEach((column) => {
       /* guard to not allow columns without id */
       if (column.id) {
-        column.isAscOrder = column.id === sortByColumn ? isAscOrder : undefined;
-        columns.push(column);
+        columns.push({
+          ...column,
+          isAscOrder: column.id === sortByColumn ? isAscOrder : undefined,
+        });
       }
     });
 
@@ -348,6 +350,7 @@ export default {
           } else {
             switch (columnType) {
               case "number":
+              case "currency":
                 return sortByOrder(
                   Number(a[sortByColumnOriginalId]) >
                     Number(b[sortByColumnOriginalId]),
