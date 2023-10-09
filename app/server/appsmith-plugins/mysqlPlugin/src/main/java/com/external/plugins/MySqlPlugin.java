@@ -267,12 +267,11 @@ public class MySqlPlugin extends BasePlugin {
             SSHConnection sshProxy = datasourceConfiguration.getSshProxy();
             String identifier = "";
             // When hostname and port both are available, both will be used as identifier
-            // When port is not present, only hostname will be used
+            // When port is not present, default port along with hostname will be used
             // This ensures rate limiting will only be applied if hostname is present
             if (endpoints.size() > 0) {
                 String hostName = endpoints.get(0).getHost();
-                Long port = endpoints.get(0).getPort();
-                if (Boolean.FALSE.equals(isBlank(hostName))) {
+                if (!isBlank(hostName)) {
                     identifier = hostName + "_"
                             + SSHUtils.getDBPortFromConfigOrDefault(datasourceConfiguration, MYSQL_DEFAULT_PORT);
                 }
@@ -280,9 +279,9 @@ public class MySqlPlugin extends BasePlugin {
 
             if (SSHUtils.isSSHEnabled(datasourceConfiguration, CONNECTION_METHOD_INDEX)
                     && sshProxy != null
-                    && Boolean.FALSE.equals(isBlank(sshProxy.getHost()))) {
-                identifier +=
-                        sshProxy.getHost() + "_" + SSHUtils.getSSHPortFromConfigOrDefault(datasourceConfiguration);
+                    && !isBlank(sshProxy.getHost())) {
+                identifier += "_" + sshProxy.getHost() + "_"
+                        + SSHUtils.getSSHPortFromConfigOrDefault(datasourceConfiguration);
             }
             return Mono.just(identifier);
         }

@@ -32,6 +32,7 @@ import jakarta.mail.internet.MimeMessage;
 import jakarta.mail.internet.MimeMultipart;
 import jakarta.mail.util.ByteArrayDataSource;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.ObjectUtils;
 import org.jetbrains.annotations.NotNull;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
@@ -286,15 +287,13 @@ public class SmtpPlugin extends BasePlugin {
             List<Endpoint> endpoints = datasourceConfiguration.getEndpoints();
             String identifier = "";
             // When hostname and port both are available, both will be used as identifier
-            // When port is not present, only hostname will be used
+            // When port is not present, default port along with hostname will be used
             // This ensures rate limiting will only be applied if hostname is present
             if (endpoints.size() > 0) {
                 String hostName = endpoints.get(0).getHost();
                 Long port = endpoints.get(0).getPort();
-                if (Boolean.FALSE.equals(isBlank(hostName)) && port != null) {
-                    identifier = hostName + "_" + port;
-                } else if (port == null) {
-                    identifier = hostName + "_" + SMTP_DEFAULT_PORT;
+                if (!isBlank(hostName)) {
+                    identifier = hostName + "_" + ObjectUtils.defaultIfNull(port, SMTP_DEFAULT_PORT);
                 }
             }
             return Mono.just(identifier);
