@@ -5,6 +5,7 @@
     "cypress/globals": true
   },
   "rules": {
+    "@typescript-eslint/prefer-nullish-coalescing": "off",
     "@typescript-eslint/strict-boolean-expressions": "off",
     "@typescript-eslint/no-array-constructor": "off",
     "@typescript-eslint/no-namespace": "off",

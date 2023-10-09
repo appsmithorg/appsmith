@@ -16,7 +16,7 @@ import TableActionIcon from "./TableActionIcon";
 import { importSvg } from "design-system-old";
 
 const VisibleIcon = importSvg(
-  () => import("assets/icons/control/columns-visibility.svg"),
+  async () => import("assets/icons/control/columns-visibility.svg"),
 );
 
 const DropDownWrapper = styled.div`
