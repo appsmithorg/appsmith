@@ -1,5 +1,6 @@
 package com.appsmith.server.migrations.db.ce;
 
+import com.appsmith.server.constants.ApplicationConstants;
 import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.CustomJSLibCompatibilityDTO;
 import io.mongock.api.annotations.ChangeUnit;
@@ -9,8 +10,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
-
-import java.util.Set;
 
 @Slf4j
 @ChangeUnit(order = "028", id = "customjslib-schema-update")
@@ -53,13 +52,6 @@ public class Migration028ModifyingCustomJSLibSchema {
     }
 
     private static CustomJSLib generateXmlParserJSLibObject() {
-        CustomJSLibCompatibilityDTO customJSLibCompatibilityDTO = new CustomJSLibCompatibilityDTO();
-        customJSLibCompatibilityDTO.setName("parser");
-        customJSLibCompatibilityDTO.setVersion("");
-        customJSLibCompatibilityDTO.setAccessor(Set.of("parser"));
-        customJSLibCompatibilityDTO.setUrl("https://cdnjs.cloudflare.com/ajax/libs/fast-xml-parser/3.17.5/parser.js");
-        customJSLibCompatibilityDTO.setDefs(
-                "{\"!name\":\"LIB/parser\",\"parser\":{\"parse\":{\"!type\":\"fn()\",\"prototype\":{}},\"convertTonimn\":{\"!type\":\"fn()\",\"prototype\":{}},\"getTraversalObj\":{\"!type\":\"fn()\",\"prototype\":{}},\"convertToJson\":{\"!type\":\"fn()\",\"prototype\":{}},\"convertToJsonString\":{\"!type\":\"fn()\",\"prototype\":{}},\"validate\":{\"!type\":\"fn()\",\"prototype\":{}},\"j2xParser\":{\"!type\":\"fn()\",\"prototype\":{\"parse\":{\"!type\":\"fn()\",\"prototype\":{}},\"j2x\":{\"!type\":\"fn()\",\"prototype\":{}}}},\"parseToNimn\":{\"!type\":\"fn()\",\"prototype\":{}}}}");
-        return new CustomJSLib(customJSLibCompatibilityDTO);
+        return new CustomJSLib(ApplicationConstants.getDefaultParserCustomJsLibCompatibilityDTO());
     }
 }
