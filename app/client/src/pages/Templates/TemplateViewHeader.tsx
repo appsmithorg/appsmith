@@ -3,7 +3,7 @@ import {
   GO_BACK,
   createMessage,
 } from "@appsmith/constants/messages";
-import { templateIdUrl } from "RouteBuilder";
+import { templateIdUrl } from "@appsmith/RouteBuilder";
 import { Button, Link, Text } from "design-system";
 import { useQuery } from "pages/Editor/utils";
 import React from "react";

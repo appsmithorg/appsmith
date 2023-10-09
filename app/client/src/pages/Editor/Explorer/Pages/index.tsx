@@ -24,7 +24,7 @@ import { resolveAsSpaceChar } from "utils/helpers";
 import { getExplorerPinned } from "selectors/explorerSelector";
 import { setExplorerPinnedAction } from "actions/explorerActions";
 import { selectAllPages } from "@appsmith/selectors/entitiesSelector";
-import { builderURL } from "RouteBuilder";
+import { builderURL } from "@appsmith/RouteBuilder";
 import {
   getExplorerStatus,
   saveExplorerStatus,

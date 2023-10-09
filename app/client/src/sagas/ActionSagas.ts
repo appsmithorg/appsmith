@@ -111,7 +111,7 @@ import {
   integrationEditorURL,
   queryEditorIdURL,
   saasEditorApiIdURL,
-} from "RouteBuilder";
+} from "@appsmith/RouteBuilder";
 import {
   RequestPayloadAnalyticsPath,
   checkAndLogErrorsIfCyclicDependency,

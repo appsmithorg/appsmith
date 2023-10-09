@@ -3,7 +3,7 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import { getCurrentPageId } from "@appsmith/selectors/entitiesSelector";
-import { viewerURL } from "RouteBuilder";
+import { viewerURL } from "@appsmith/RouteBuilder";
 import { publishCommunityTemplate } from "actions/communityTemplateActions";
 import { Button, Checkbox } from "design-system";
 import React, { useEffect, useMemo, useState } from "react";

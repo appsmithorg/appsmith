@@ -24,7 +24,7 @@ import {
 import {
   datasourcesEditorIdURL,
   saasEditorDatasourceIdURL,
-} from "RouteBuilder";
+} from "@appsmith/RouteBuilder";
 import { inGuidedTour } from "selectors/onboardingSelectors";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";

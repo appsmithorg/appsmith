@@ -8,7 +8,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { DatasourceEditEntryPoints } from "constants/Datasource";
 import history from "utils/history";
 import { getQueryParams } from "utils/URLUtils";
-import { datasourcesEditorIdURL } from "RouteBuilder";
+import { datasourcesEditorIdURL } from "@appsmith/RouteBuilder";
 import { omit } from "lodash";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { DatasourceStructureContext } from "./DatasourceStructure";

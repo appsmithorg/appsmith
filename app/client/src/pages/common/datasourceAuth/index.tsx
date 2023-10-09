@@ -30,7 +30,7 @@ import { Button, toast } from "design-system";
 import type { ApiDatasourceForm } from "entities/Datasource/RestAPIForm";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import { INTEGRATION_TABS, SHOW_FILE_PICKER_KEY } from "constants/routes";
-import { integrationEditorURL } from "RouteBuilder";
+import { integrationEditorURL } from "@appsmith/RouteBuilder";
 import { getQueryParams } from "utils/URLUtils";
 import type { AppsmithLocationState } from "utils/history";
 import type { PluginType } from "entities/Action";

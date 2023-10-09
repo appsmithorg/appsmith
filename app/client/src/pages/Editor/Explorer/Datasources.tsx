@@ -30,7 +30,7 @@ import {
 } from "@appsmith/pages/Editor/Explorer/helpers";
 import { Icon, Button } from "design-system";
 import { AddEntity, EmptyComponent } from "./common";
-import { integrationEditorURL } from "RouteBuilder";
+import { integrationEditorURL } from "@appsmith/RouteBuilder";
 import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
 
 import type { AppState } from "@appsmith/reducers";

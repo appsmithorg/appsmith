@@ -45,7 +45,7 @@ import { getUIComponent } from "./helpers";
 import type { Diff } from "deep-diff";
 import { diff } from "deep-diff";
 import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
-import { integrationEditorURL } from "RouteBuilder";
+import { integrationEditorURL } from "@appsmith/RouteBuilder";
 import { getConfigInitialValues } from "components/formControls/utils";
 import { merge } from "lodash";
 import { getPathAndValueFromActionDiffObject } from "../../../utils/getPathAndValueFromActionDiffObject";

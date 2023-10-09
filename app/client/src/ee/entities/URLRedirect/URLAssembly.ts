@@ -1,4 +1,3 @@
-/* eslint-disable */
 export * from "ce/entities/URLRedirect/URLAssembly";
 import type { URLBuilderParams as CE_URLBuilderParams } from "ce/entities/URLRedirect/URLAssembly";
 import {
@@ -7,7 +6,6 @@ import {
 } from "ce/entities/URLRedirect/URLAssembly";
 import { APP_MODE } from "entities/App";
 import { generatePath, matchPath } from "react-router";
-import store from "store";
 
 export type URLBuilderParams = CE_URLBuilderParams & {
   moduleId?: string;
@@ -38,6 +36,18 @@ type MatchProps = {
 };
 
 export class URLBuilder extends CE_URLBuilderClass {
+  static _instance: URLBuilder;
+
+  constructor() {
+    super();
+  }
+
+  static getInstance() {
+    if (URLBuilder._instance) return URLBuilder._instance;
+    URLBuilder._instance = new URLBuilder();
+    return URLBuilder._instance;
+  }
+
   getDefaultEditorType() {
     const editorType = location.pathname.startsWith("/pkg")
       ? EDITOR_TYPE.PKG
@@ -81,10 +91,10 @@ export class URLBuilder extends CE_URLBuilderClass {
   }
 
   resolveEntityIdForPkg(builderParams: URLBuilderParams) {
-    const currentModuleId: string = store.getState().ui.editor.currentModuleId;
+    const match = matchPath<MatchProps>(location.pathname, BASE_URL_PATTERN);
 
     return {
-      entityId: builderParams.moduleId || currentModuleId,
+      entityId: builderParams.moduleId || match?.params.moduleId || "",
       entityType: "moduleId",
     };
   }

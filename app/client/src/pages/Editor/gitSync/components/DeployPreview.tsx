@@ -14,7 +14,7 @@ import {
 import SuccessTick from "pages/common/SuccessTick";
 import { howMuchTimeBeforeText } from "utils/helpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { viewerURL } from "RouteBuilder";
+import { viewerURL } from "@appsmith/RouteBuilder";
 import { Link, Text } from "design-system";
 import { importSvg } from "design-system-old";
 

@@ -19,7 +19,7 @@ import {
   apiEditorIdURL,
   queryEditorIdURL,
   saasEditorApiIdURL,
-} from "RouteBuilder";
+} from "@appsmith/RouteBuilder";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 // TODO [new_urls] update would break for existing paths

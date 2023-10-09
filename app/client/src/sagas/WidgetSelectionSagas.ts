@@ -28,7 +28,7 @@ import {
   getIsFetchingPage,
   snipingModeSelector,
 } from "selectors/editorSelectors";
-import { builderURL, widgetURL } from "RouteBuilder";
+import { builderURL, widgetURL } from "@appsmith/RouteBuilder";
 import {
   getAppMode,
   getCanvasWidgets,

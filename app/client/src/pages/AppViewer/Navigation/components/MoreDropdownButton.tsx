@@ -15,7 +15,7 @@ import {
 import type { Page } from "@appsmith/constants/ReduxActionConstants";
 import { getAppMode } from "@appsmith/selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
-import { builderURL, viewerURL } from "RouteBuilder";
+import { builderURL, viewerURL } from "@appsmith/RouteBuilder";
 import { trimQueryString } from "utils/helpers";
 
 type MoreDropdownButtonProps = {

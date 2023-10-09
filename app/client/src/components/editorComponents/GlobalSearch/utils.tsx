@@ -22,7 +22,7 @@ import { createNewJSCollection } from "actions/jsPaneActions";
 import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
 import { getQueryParams } from "utils/URLUtils";
 import history from "utils/history";
-import { curlImportPageURL } from "RouteBuilder";
+import { curlImportPageURL } from "@appsmith/RouteBuilder";
 import { isMacOrIOS, modText, shiftText } from "utils/helpers";
 import { FocusEntity } from "navigation/FocusEntity";
 

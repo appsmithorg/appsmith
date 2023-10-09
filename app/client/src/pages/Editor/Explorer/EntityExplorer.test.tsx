@@ -11,7 +11,7 @@ import Datasources from "./Datasources";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { mockDatasources } from "./mockTestData";
 import { updateCurrentPage } from "actions/pageActions";
-import urlBuilder from "entities/URLRedirect/URLAssembly";
+import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
 import * as helpers from "@appsmith/pages/Editor/Explorer/helpers";
 import * as explorerSelector from "selectors/explorerSelector";
 import * as permissionPageHelpers from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";

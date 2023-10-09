@@ -68,7 +68,7 @@ import {
   generateTemplateFormURL,
   integrationEditorURL,
   queryEditorIdURL,
-} from "RouteBuilder";
+} from "@appsmith/RouteBuilder";
 import type { GenerateCRUDEnabledPluginMap, Plugin } from "api/PluginApi";
 import { UIComponentTypes } from "api/PluginApi";
 import { getUIComponent } from "pages/Editor/QueryEditor/helpers";

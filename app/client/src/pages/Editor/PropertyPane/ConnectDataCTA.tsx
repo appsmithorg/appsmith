@@ -7,7 +7,7 @@ import { INTEGRATION_EDITOR_MODES, INTEGRATION_TABS } from "constants/routes";
 import history from "utils/history";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import type { WidgetType } from "constants/WidgetConstants";
-import { integrationEditorURL } from "RouteBuilder";
+import { integrationEditorURL } from "@appsmith/RouteBuilder";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { DocsLink, openDoc } from "../../../constants/DocumentationLinks";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";

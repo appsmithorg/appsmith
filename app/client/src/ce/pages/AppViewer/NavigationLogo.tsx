@@ -16,7 +16,7 @@ import {
 } from "selectors/editorSelectors";
 import { useHref } from "pages/Editor/utils";
 import { APP_MODE } from "entities/App";
-import { builderURL, viewerURL } from "RouteBuilder";
+import { builderURL, viewerURL } from "@appsmith/RouteBuilder";
 import { get } from "lodash";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 

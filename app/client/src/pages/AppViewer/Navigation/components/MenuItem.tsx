@@ -6,7 +6,7 @@ import { APP_MODE } from "entities/App";
 import { get } from "lodash";
 import { useHref } from "pages/Editor/utils";
 import { useSelector } from "react-redux";
-import { builderURL, viewerURL } from "RouteBuilder";
+import { builderURL, viewerURL } from "@appsmith/RouteBuilder";
 import { getAppMode } from "@appsmith/selectors/applicationSelectors";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { trimQueryString } from "utils/helpers";

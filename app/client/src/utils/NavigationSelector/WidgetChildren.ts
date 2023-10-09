@@ -1,6 +1,6 @@
 import type { DataTree, WidgetEntity } from "@appsmith/entities/DataTree/types";
 import { ENTITY_TYPE_VALUE } from "entities/DataTree/dataTreeFactory";
-import { builderURL } from "RouteBuilder";
+import { builderURL } from "@appsmith/RouteBuilder";
 import type { EntityNavigationData } from "selectors/navigationSelectors";
 import { createNavData } from "./common";
 

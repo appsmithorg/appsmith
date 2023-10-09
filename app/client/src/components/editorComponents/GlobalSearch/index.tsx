@@ -59,7 +59,7 @@ import {
   builderURL,
   datasourcesEditorIdURL,
   jsCollectionIdURL,
-} from "RouteBuilder";
+} from "@appsmith/RouteBuilder";
 import { getPlugins } from "@appsmith/selectors/entitiesSelector";
 import {
   DatasourceCreateEntryPoints,

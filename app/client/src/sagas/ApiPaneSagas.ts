@@ -75,7 +75,7 @@ import {
   apiEditorIdURL,
   datasourcesEditorIdURL,
   integrationEditorURL,
-} from "RouteBuilder";
+} from "@appsmith/RouteBuilder";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { validateResponse } from "./ErrorSagas";
 import type { CreateDatasourceSuccessAction } from "actions/datasourceActions";

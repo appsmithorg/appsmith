@@ -23,7 +23,7 @@ import {
   datasourcesEditorIdURL,
   generateTemplateFormURL,
   saasEditorDatasourceIdURL,
-} from "RouteBuilder";
+} from "@appsmith/RouteBuilder";
 import {
   CONTEXT_DELETE,
   CONFIRM_CONTEXT_DELETE,

@@ -11,8 +11,7 @@ import {
 } from "constants/routes";
 import { APP_MODE } from "entities/App";
 import { generatePath } from "react-router";
-import { getQueryStringfromObject } from "RouteBuilder";
-import store from "store";
+import { getQueryStringfromObject } from "@appsmith/RouteBuilder";
 import getQueryParamsObject from "utils/getQueryParamsObject";
 
 export enum EDITOR_TYPE {
@@ -83,6 +82,7 @@ const fetchQueryParamsToPersist = (persistExistingParams: boolean) => {
 export class URLBuilder {
   appParams: ApplicationURLParams;
   pageParams: Record<string, PageURLParams>;
+  currentPageId?: string | null;
 
   static _instance: URLBuilder;
 
@@ -92,6 +92,7 @@ export class URLBuilder {
       applicationSlug: PLACEHOLDER_APP_SLUG,
     };
     this.pageParams = {};
+    this.currentPageId;
   }
 
   static getInstance() {
@@ -129,6 +130,10 @@ export class URLBuilder {
     };
 
     return { ...currentAppParams, ...currentPageParams };
+  }
+
+  setCurrentPageId(pageId: string) {
+    this.currentPageId = pageId;
   }
 
   public updateURLParams(
@@ -210,17 +215,14 @@ export class URLBuilder {
   }
 
   resolveEntityIdForApp(builderParams: URLBuilderParams) {
-    const currentPageId: string =
-      store.getState().entities.pageList.currentPageId;
-
     return {
-      entityId: builderParams.pageId || currentPageId,
+      entityId: builderParams.pageId || this.currentPageId,
       entityType: "pageId",
     };
   }
 
   resolveEntityId(builderParams: URLBuilderParams): {
-    entityId: string;
+    entityId?: string | null;
     entityType: string;
   } {
     return this.resolveEntityIdForApp(builderParams);
