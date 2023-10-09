@@ -18,7 +18,7 @@ import {
   EmptySearchResult,
   INVITE_USERS_TAB_ID,
 } from "./components";
-import WorkspaceInviteUsersForm from "@appsmith/pages/workspace/WorkspaceInviteUsersForm";
+import InviteUsersForm from "@appsmith/pages/workspace/InviteUsersForm";
 import { adminSettingsCategoryUrl } from "RouteBuilder";
 import { SettingCategories } from "@appsmith/pages/AdminSettings/config/types";
 import {
@@ -600,10 +600,7 @@ export function UserListing() {
                   </TabsList>
                   {tabs.map((tab) => (
                     <TabPanel key={tab.key} value={tab.key}>
-                      <WorkspaceInviteUsersForm
-                        isMultiSelectDropdown
-                        {...tab}
-                      />
+                      <InviteUsersForm isMultiSelectDropdown {...tab} />
                     </TabPanel>
                   ))}
                 </Tabs>

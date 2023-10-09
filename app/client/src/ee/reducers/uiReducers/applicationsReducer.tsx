@@ -17,8 +17,8 @@ export const initialState: ApplicationsReduxState = {
   applicationUsers: [],
   applicationRoles: [],
   loadingStates: {
-    isFetchAllRoles: false,
-    isFetchAllUsers: false,
+    isFetchingAllRoles: false,
+    isFetchingAllUsers: false,
   },
 };
 
@@ -26,8 +26,8 @@ export interface ApplicationsReduxState extends CE_ApplicationsReduxState {
   applicationUsers: WorkspaceUser[];
   applicationRoles: any;
   loadingStates: {
-    isFetchAllRoles: boolean;
-    isFetchAllUsers: boolean;
+    isFetchingAllRoles: boolean;
+    isFetchingAllUsers: boolean;
   };
 }
 

@@ -5,7 +5,7 @@ import { ActiveAllGroupsList } from "./ActiveAllGroupsList";
 import { PageHeader } from "./PageHeader";
 import { SaveButtonBar, StyledTabs } from "./components";
 import { debounce } from "lodash";
-import WorkspaceInviteUsersForm from "@appsmith/pages/workspace/WorkspaceInviteUsersForm";
+import InviteUsersForm from "@appsmith/pages/workspace/InviteUsersForm";
 import { useHistory, useParams } from "react-router";
 import type {
   BaseAclProps,
@@ -544,7 +544,7 @@ export function GroupAddEdit(props: GroupEditProps) {
         >
           <ModalHeader>{createMessage(ACL_INVITE_MODAL_TITLE)}</ModalHeader>
           <ModalBody>
-            <WorkspaceInviteUsersForm
+            <InviteUsersForm
               customProps={{
                 isAclFlow: true,
                 disableManageUsers: true,
