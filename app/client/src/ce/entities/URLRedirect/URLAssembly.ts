@@ -14,11 +14,6 @@ import { generatePath } from "react-router";
 import { getQueryStringfromObject } from "@appsmith/RouteBuilder";
 import getQueryParamsObject from "utils/getQueryParamsObject";
 
-export enum EDITOR_TYPE {
-  APP = "APP",
-  PKG = "PKG",
-}
-
 export type URLBuilderParams = {
   suffix?: string;
   branch?: string;
@@ -26,7 +21,6 @@ export type URLBuilderParams = {
   params?: Record<string, any>;
   pageId?: string;
   persistExistingParams?: boolean;
-  editorType?: EDITOR_TYPE;
 };
 
 export enum URL_TYPE {
@@ -79,6 +73,20 @@ const fetchQueryParamsToPersist = (persistExistingParams: boolean) => {
   return params;
 };
 
+/**
+ * NOTE TO ENGINEERS:
+ * This class has extended features in EE; please do check the EE implementation
+ * of it before modifying any functionality here.
+ *
+ * This class is inherited in EE and basePath generation is modified based on the type
+ * of editor the user is currently on. This is done to remove the dependency of current
+ * page as a required param to build any route. However if a pageId is provided while
+ * building a route, it will override the cache and use the passed pageId value.
+ *
+ * However the current implementation can be improved and a holistic solution can be
+ * devised to support all different types of routing pattern. The current solution acts as a stop-gap
+ * solution to help Package Editor feature in EE.
+ */
 export class URLBuilder {
   appParams: ApplicationURLParams;
   pageParams: Record<string, PageURLParams>;

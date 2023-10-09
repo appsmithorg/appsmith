@@ -582,7 +582,7 @@ export function EditorHeader() {
                       {featureFlags.release_show_publish_app_to_community_enabled &&
                         cloudHosting && (
                           <Tab data-testid="t--tab-PUBLISH" value="publish">
-                            {createMessage(COMMUNITY_TEMPLATES.tabTitle)}
+                            {createMessage(COMMUNITY_TEMPLATES.publish)}
                           </Tab>
                         )}
                     </TabsList>
