@@ -7,10 +7,10 @@ import { Button } from "design-system";
 import { PaddingWrapper } from "pages/Applications/CommonElements";
 import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
 
-type ResourcesLoaderProps = {
+interface ResourcesLoaderProps {
   isMobile: boolean;
   resources: ApplicationPayload[];
-};
+}
 
 const DEFAULT_BACKGROUND_COLOR = "#9747FF1A";
 const DEFAULT_ICON = "book";

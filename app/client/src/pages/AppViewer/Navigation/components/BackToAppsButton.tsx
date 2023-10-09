@@ -20,11 +20,11 @@ const AppsLineIcon = importRemixIcon(
   async () => import("remixicon-react/AppsLineIcon"),
 );
 
-type BackToAppsButtonProps = {
+interface BackToAppsButtonProps {
   currentApplicationDetails?: ApplicationPayload;
   insideSidebar?: boolean;
   isMinimal?: boolean;
-};
+}
 
 const StyledAppIcon = styled(AppsLineIcon)<{
   primaryColor: string;

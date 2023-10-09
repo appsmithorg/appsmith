@@ -4,10 +4,10 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { Location } from "history";
 import type { AppsmithLocationState } from "utils/history";
 
-export type RouteChangeActionPayload = {
+export interface RouteChangeActionPayload {
   location: Location<AppsmithLocationState>;
   prevLocation: Location<AppsmithLocationState>;
-};
+}
 
 export const routeChanged = (
   location: Location<AppsmithLocationState>,

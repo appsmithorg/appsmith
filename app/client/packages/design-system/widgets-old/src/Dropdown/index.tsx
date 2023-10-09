@@ -29,7 +29,7 @@ export type DropdownOnSelect = (
   isUpdatedViaKeyboard?: boolean,
 ) => void;
 
-export type DropdownOption = {
+export interface DropdownOption {
   label?: string;
   value?: string;
   id?: string;
@@ -47,7 +47,7 @@ export type DropdownOption = {
   disabledTooltipText?: string;
   hasCustomBadge?: boolean;
   link?: string;
-};
+}
 
 export interface DropdownSearchProps {
   enableSearch?: boolean;

@@ -130,12 +130,12 @@ const Tab = styled.div<{ isSelected: boolean }>`
   }
 `;
 
-type PageHeaderProps = {
+interface PageHeaderProps {
   user?: User;
   hideShadow?: boolean;
   showSeparator?: boolean;
   hideEditProfileLink?: boolean;
-};
+}
 
 export function PageHeader(props: PageHeaderProps) {
   const { user } = props;

@@ -27,7 +27,7 @@ import {
 } from "@appsmith/constants/messages";
 import { getAllApplications } from "@appsmith/actions/applicationActions";
 
-type ForkApplicationModalProps = {
+interface ForkApplicationModalProps {
   applicationId: string;
   // if a trigger is passed
   // it renders that component
@@ -36,7 +36,7 @@ type ForkApplicationModalProps = {
   handleOpen?: () => void;
   handleClose?: () => void;
   isInEditMode?: boolean;
-};
+}
 
 function ForkApplicationModal(props: ForkApplicationModalProps) {
   const { handleClose, handleOpen, isModalOpen } = props;

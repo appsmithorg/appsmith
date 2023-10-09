@@ -271,10 +271,10 @@ const PreparedStatementParameter = styled.span`
   color: #333;
 `;
 
-type PreparedStatementValue = {
+interface PreparedStatementValue {
   value: string;
   parameters: Record<string, number | string>;
-};
+}
 export function PreparedStatementViewer(props: {
   evaluatedValue: PreparedStatementValue;
 }) {

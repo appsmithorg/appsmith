@@ -11,7 +11,7 @@ type ControlType = {
   };
 }[keyof ControlPropsType];
 
-type ControlPropsType = {
+interface ControlPropsType {
   [SettingTypes.RADIO]: RadioOptionProps;
   [SettingTypes.TEXTINPUT]: unknown;
   [SettingTypes.TOGGLE]: unknown;
@@ -25,7 +25,7 @@ type ControlPropsType = {
   [SettingTypes.TAGINPUT]: unknown;
   [SettingTypes.DROPDOWN]: unknown;
   [SettingTypes.CHECKBOX]: unknown;
-};
+}
 
 export enum SettingTypes {
   RADIO = "RADIO",
@@ -126,7 +126,7 @@ export enum CategoryType {
   OTHER = "other",
 }
 
-export type AdminConfigType = {
+export interface AdminConfigType {
   type: string;
   controlType: SettingTypes;
   title: string;
@@ -141,4 +141,4 @@ export type AdminConfigType = {
   categoryType: CategoryType;
   isEnterprise?: boolean;
   isFeatureEnabled?: boolean;
-};
+}

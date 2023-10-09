@@ -18,10 +18,10 @@ import { addDataTreeToContext } from "@appsmith/workers/Evaluation/Actions";
 import log from "loglevel";
 import * as Sentry from "@sentry/react";
 
-export type EvalResult = {
+export interface EvalResult {
   result: any;
   errors: EvaluationError[];
-};
+}
 
 export enum EvaluationScriptType {
   EXPRESSION = "EXPRESSION",
@@ -187,13 +187,13 @@ export function sanitizeScript(js: string) {
  * globalContext will define it globally
  * requestId is used for completing promises
  */
-export type EvaluateContext = {
+export interface EvaluateContext {
   thisContext?: Record<string, any>;
   globalContext?: Record<string, any>;
   requestId?: string;
   eventType?: EventType;
   triggerMeta?: TriggerMeta;
-};
+}
 
 export const getUserScriptToEvaluate = (
   userScript: string,

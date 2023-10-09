@@ -40,7 +40,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
-type QuickActionButtonProps = {
+interface QuickActionButtonProps {
   className?: string;
   count?: number;
   disabled?: boolean;
@@ -48,7 +48,7 @@ type QuickActionButtonProps = {
   loading?: boolean;
   onClick: () => void;
   tooltipText: string;
-};
+}
 
 const SpinnerContainer = styled.div`
   padding: 0 10px;

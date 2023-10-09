@@ -25,9 +25,9 @@ type DroppableItem = BaseItemProps & {
   isCustomField: boolean;
 };
 
-type State = {
+interface State {
   focusedIndex: number | null;
-};
+}
 
 const DEFAULT_FIELD_NAME = "customField";
 

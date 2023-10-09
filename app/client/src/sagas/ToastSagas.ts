@@ -5,10 +5,10 @@ import { select } from "redux-saga/effects";
 import { getAppMode } from "@appsmith/selectors/entitiesSelector";
 import log from "loglevel";
 
-type ExtraOptions = {
+interface ExtraOptions {
   // This enables showing of toast no matter the conditions
   forceDisplay?: boolean;
-};
+}
 
 /**
  * Shows toast
