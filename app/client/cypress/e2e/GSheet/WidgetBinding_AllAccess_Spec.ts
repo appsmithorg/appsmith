@@ -9,11 +9,9 @@ import {
   propPane,
   table,
   draggableWidgets,
-  assertHelper,
 } from "../../support/Objects/ObjectsCore";
 import { Widgets } from "../../support/Pages/DataSources";
 import oneClickBindingLocator from "../../locators/OneClickBindingLocator";
-import { OneClickBinding } from "../Regression/ClientSide/OneClickBinding/spec_utility";
 
 const workspaceName = "gsheet apps";
 const dataSourceName = "gsheet";
@@ -62,7 +60,6 @@ describe("GSheet-widget binding", function () {
   it("2. One click binding to table widget functionality - GSheet", () => {
     //Adding table widget
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 450, 200);
-
     agHelper.GetNClick(oneClickBindingLocator.datasourceDropdownSelector);
     agHelper.GetNClick(
       oneClickBindingLocator.datasourceQuerySelector("fetch_many_query"),
