@@ -31,7 +31,6 @@ import type {
   WidgetEntityConfig,
 } from "@appsmith/entities/DataTree/types";
 import { find, sortBy } from "lodash";
-import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import {
   getDataTree,
   getLoadingEntities,
@@ -62,6 +61,8 @@ import { getIsAnonymousDataPopupVisible } from "./onboardingSelectors";
 import { WDS_V2_WIDGET_MAP } from "components/wds/constants";
 import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { LayoutSystemTypes } from "layoutSystems/types";
+import { getLayoutSystemType } from "./layoutSystemSelectors";
 
 const getIsDraggingOrResizing = (state: AppState) =>
   state.ui.widgetDragResize.isResizing || state.ui.widgetDragResize.isDragging;
@@ -217,7 +218,9 @@ export const selectURLSlugs = createSelector(
   getCurrentPageId,
   (application, pages, pageId) => {
     const applicationSlug = application?.slug || PLACEHOLDER_APP_SLUG;
-    const currentPage = pages.find((page) => page.pageId === pageId);
+    const currentPage: Page | undefined = pages.find(
+      (page) => page.pageId === pageId,
+    );
     const pageSlug = currentPage?.slug || PLACEHOLDER_PAGE_SLUG;
     const customSlug = currentPage?.customSlug;
     return { applicationSlug, pageSlug, customSlug };
@@ -257,36 +260,16 @@ const defaultLayout: AppLayoutConfig = {
 const getAppLayout = (state: AppState) =>
   state.ui.applications.currentApplication?.appLayout || defaultLayout;
 
-export const getAppPositioningType = (state: AppState) => {
-  if (
-    state.ui.applications?.currentApplication?.applicationDetail?.appPositioning
-      ?.type
-  ) {
-    return AppPositioningTypes[
-      state.ui.applications.currentApplication?.applicationDetail
-        ?.appPositioning?.type
-    ];
-  }
-  return AppPositioningTypes.FIXED;
-};
-
-export const getCurrentAppPositioningType = createSelector(
-  getAppPositioningType,
-  (appPositionType: AppPositioningTypes): AppPositioningTypes => {
-    return appPositionType || AppPositioningTypes.FIXED;
-  },
-);
-
 export const getIsAutoLayout = createSelector(
-  getCurrentAppPositioningType,
-  (positioningType) => positioningType === AppPositioningTypes.AUTO,
+  getLayoutSystemType,
+  (layoutSystemType) => layoutSystemType === LayoutSystemTypes.AUTO,
 );
 
 export const getCurrentApplicationLayout = createSelector(
   getAppLayout,
-  getCurrentAppPositioningType,
-  (appLayout: AppLayoutConfig, appPositionType) => {
-    return appPositionType === AppPositioningTypes.FIXED
+  getLayoutSystemType,
+  (appLayout: AppLayoutConfig, layoutSystemType) => {
+    return layoutSystemType === LayoutSystemTypes.FIXED
       ? appLayout
       : defaultLayout;
   },

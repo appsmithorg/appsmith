@@ -48,7 +48,14 @@ if [[ $use_https == 1 ]]; then
   echo "
   listen 80;
   server_name $custom_domain;
-  return 301 https://\$host\$request_uri;
+
+  location /.well-known/acme-challenge/ {
+    root /appsmith-stacks/data/certificate/certbot;
+  }
+
+  location / {
+    return 301 https://\$host\$request_uri;
+  }
 }
 
 server {

@@ -6,10 +6,6 @@ import React, { useMemo, useRef } from "react";
 import styled from "styled-components";
 import { useSelector } from "react-redux";
 import {
-  previewModeSelector,
-  snipingModeSelector,
-} from "selectors/editorSelectors";
-import {
   isCurrentWidgetFocused,
   isWidgetSelected,
 } from "selectors/widgetSelectors";
@@ -19,7 +15,7 @@ import {
   useShowTableFilterPane,
   useWidgetDragResize,
 } from "utils/hooks/dragResizeHooks";
-import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
+import { getShouldAllowDrag } from "selectors/widgetDragSelectors";
 
 const DraggableWrapper = styled.div`
   display: block;
@@ -43,6 +39,7 @@ type DraggableComponentProps = {
   parentRowSpace: number;
   parentColumnSpace: number;
   children: ReactNode;
+  dragDisabled?: boolean;
 };
 
 // Widget Boundaries which is shown to indicate the boundaries of the widget
@@ -59,42 +56,11 @@ const WidgetBoundaries = styled.div`
   left: 0;
 `;
 
-/**
- * can drag helper function to know if drag and drop should apply
- *
- * @param isResizingOrDragging
- * @param isDraggingDisabled
- * @param props
- * @param isSnipingMode
- * @param isPreviewMode
- * @returns
- */
-export const canDrag = (
-  isResizingOrDragging: boolean,
-  isDraggingDisabled: boolean,
-  props: any,
-  isSnipingMode: boolean,
-  isPreviewMode: boolean,
-  isAppSettingsPaneWithNavigationTabOpen: boolean,
-) => {
-  return (
-    !isResizingOrDragging &&
-    !isDraggingDisabled &&
-    !props?.dragDisabled &&
-    !isSnipingMode &&
-    !isPreviewMode &&
-    !isAppSettingsPaneWithNavigationTabOpen
-  );
-};
-
 function DraggableComponent(props: DraggableComponentProps) {
   // Dispatch hook handy to set a widget as focused/selected
   const { focusWidget, selectWidget } = useWidgetSelection();
-  const isSnipingMode = useSelector(snipingModeSelector);
-  const isPreviewMode = useSelector(previewModeSelector);
-  const isAppSettingsPaneWithNavigationTabOpen = useSelector(
-    getIsAppSettingsPaneWithNavigationTabOpen,
-  );
+
+  const shouldAllowDrag = useSelector(getShouldAllowDrag);
   // Dispatch hook handy to set any `DraggableComponent` as dragging/ not dragging
   // The value is boolean
   const { setDraggingState } = useWidgetDragResize();
@@ -118,13 +84,6 @@ function DraggableComponent(props: DraggableComponentProps) {
   const isDraggingSibling = useSelector(
     (state) =>
       state.ui.widgetDragResize?.dragDetails?.draggedOn === props.parentId,
-  );
-
-  // This state tells us to disable dragging,
-  // This is usually true when widgets themselves implement drag/drop
-  // This flag resolves conflicting drag/drop triggers.
-  const isDraggingDisabled: boolean = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.isDraggingDisabled,
   );
 
   // True when any widget is dragging or resizing, including this one
@@ -159,14 +118,7 @@ function DraggableComponent(props: DraggableComponentProps) {
     .join("")
     .toLowerCase()}`;
 
-  const allowDrag = canDrag(
-    isResizingOrDragging,
-    isDraggingDisabled,
-    props,
-    isSnipingMode,
-    isPreviewMode,
-    isAppSettingsPaneWithNavigationTabOpen,
-  );
+  const allowDrag = !props?.dragDisabled && shouldAllowDrag;
   const className = `${classNameForTesting}`;
   const draggableRef = useRef<HTMLDivElement>(null);
   const onDragStart: DragEventHandler = (e) => {

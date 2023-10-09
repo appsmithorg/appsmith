@@ -8,6 +8,7 @@ import { ISDCodeOptions } from "constants/ISDCodes_v2";
 import { Colors } from "constants/Colors";
 import { Classes } from "@blueprintjs/core";
 import { lightenColor } from "widgets/WidgetUtils";
+import { CANVAS_ART_BOARD } from "constants/componentClassNameConstants";
 
 type DropdownTriggerIconWrapperProp = {
   allowDialCodeChange: boolean;
@@ -280,7 +281,7 @@ export default function ISDCodeDropdown(props: ISDCodeDropdownProps) {
         optionWidth="360px"
         options={props.options}
         portalClassName={`country-type-filter-dropdown-${props.widgetId}`}
-        portalContainer={document.getElementById("art-board") || undefined}
+        portalContainer={document.getElementById(CANVAS_ART_BOARD) || undefined}
         searchAutoFocus
         searchPlaceholder="Search by ISD code or country"
         selected={props.selected}
