@@ -104,14 +104,14 @@ export default (props: PopperProps) => {
 
   const {
     boundaryParent = "viewport",
-    isDraggable = false,
+    cypressSelectorDragHandle,
     disablePopperEvents = false,
+    isDraggable = false,
+    onPositionChange = onPositionChangeFn,
     position,
     renderDragBlock,
-    onPositionChange = onPositionChangeFn,
-    themeMode = props.themeMode || ThemeMode.LIGHT,
     renderDragBlockPositions,
-    cypressSelectorDragHandle,
+    themeMode = props.themeMode || ThemeMode.LIGHT,
   } = props;
 
   // Memoizing to avoid rerender of draggable icon.

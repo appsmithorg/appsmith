@@ -40,11 +40,14 @@ export type FieldTypeKey = keyof typeof FieldType;
 
 export const inverseFieldType = Object.entries(FieldType).reduce<
   Record<FieldType, FieldTypeKey>
->((previousValue, currentValue) => {
-  const [key, value] = currentValue;
-  previousValue[value] = key as FieldTypeKey;
-  return previousValue;
-}, {} as Record<FieldType, FieldTypeKey>);
+>(
+  (previousValue, currentValue) => {
+    const [key, value] = currentValue;
+    previousValue[value] = key as FieldTypeKey;
+    return previousValue;
+  },
+  {} as Record<FieldType, FieldTypeKey>,
+);
 
 export enum DataType {
   STRING = "string",

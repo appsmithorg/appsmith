@@ -27,9 +27,12 @@ export default function GitSyncStatusbar(props: StatusbarProps) {
       }
     } else {
       if (percentage < 90) {
-        const interval = setInterval(() => {
-          setPercentage((percentage) => percentage + 10);
-        }, (period * 1000) / 9);
+        const interval = setInterval(
+          () => {
+            setPercentage((percentage) => percentage + 10);
+          },
+          (period * 1000) / 9,
+        );
         return () => clearInterval(interval);
       }
     }

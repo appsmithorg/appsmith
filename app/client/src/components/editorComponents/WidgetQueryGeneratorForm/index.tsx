@@ -121,22 +121,22 @@ function WidgetQueryGeneratorForm(props: Props) {
   const [pristine, setPristine] = useState(true);
 
   const {
-    aliases,
-    alertMessage,
-    showEditFieldsModal = false,
     actionButtonCtaText = createMessage(CONNECT_BUTTON_TEXT),
+    alertMessage,
+    aliases,
+    datasourceDropdownVariant,
     errorMsg,
     excludePrimaryColumnFromQueryGeneration,
     expectedType,
+    isConnectableToWidget,
     onUpdate,
+    otherFields = [],
     propertyPath,
     propertyValue,
     sampleData,
     searchableColumn,
+    showEditFieldsModal = false,
     widgetId,
-    otherFields = [],
-    isConnectableToWidget,
-    datasourceDropdownVariant,
   } = props;
 
   const isSourceOpen = useSelector(getIsOneClickBindingOptionsVisibility);

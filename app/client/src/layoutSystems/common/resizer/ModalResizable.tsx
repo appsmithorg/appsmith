@@ -42,7 +42,7 @@ type ResizableHandleProps = {
 
 function ResizableHandle(props: ResizableHandleProps) {
   const bind = useDrag(
-    ({ first, last, dragging, movement: [mx, my], memo }) => {
+    ({ dragging, first, last, memo, movement: [mx, my] }) => {
       if (!props.allowResize) {
         return;
       }

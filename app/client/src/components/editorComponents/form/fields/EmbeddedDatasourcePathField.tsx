@@ -147,7 +147,8 @@ const StyledTooltip = styled.span<{ width?: number }>`
   text-align: left;
   background-color: var(--ads-v2-color-bg-emphasis-max);
   border-radius: var(--ads-v2-border-radius);
-  box-shadow: 0 2px 4px -2px rgba(0, 0, 0, 0.06),
+  box-shadow:
+    0 2px 4px -2px rgba(0, 0, 0, 0.06),
     0 4px 8px -2px rgba(0, 0, 0, 0.1);
   color: var(--ads-v2-color-fg-on-emphasis-max);
   font-family: var(--ads-v2-font-family);

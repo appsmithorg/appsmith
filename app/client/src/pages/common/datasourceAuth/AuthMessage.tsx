@@ -47,9 +47,9 @@ export default function AuthMessage(props: AuthMessageProps) {
     calloutType = "error",
     datasource,
     description,
+    isInViewMode = false,
     pageId,
     style = {},
-    isInViewMode = false,
   } = props;
   const dispatch = useDispatch();
   const pluginType = useSelector((state: AppState) =>

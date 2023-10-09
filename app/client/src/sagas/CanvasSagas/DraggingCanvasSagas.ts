@@ -72,9 +72,8 @@ export function* getCanvasSizeAfterWidgetMove(
   let mainCanvasMinHeight;
   let canvasParentMinHeight = canvasWidget.minHeight;
   if (canvasWidgetId === MAIN_CONTAINER_WIDGET_ID) {
-    const mainCanvasProps: MainCanvasReduxState = yield select(
-      getMainCanvasProps,
-    );
+    const mainCanvasProps: MainCanvasReduxState =
+      yield select(getMainCanvasProps);
     mainCanvasMinHeight = mainCanvasProps?.height;
   } else if (canvasWidget.parentId) {
     const parent: FlattenedWidgetProps = yield select(
@@ -335,9 +334,8 @@ function* moveWidgetsSaga(
       );
     }
 
-    const layoutSystemType: LayoutSystemTypes = yield select(
-      getLayoutSystemType,
-    );
+    const layoutSystemType: LayoutSystemTypes =
+      yield select(getLayoutSystemType);
     let updatedWidgets: CanvasWidgetsReduxState = { ...allWidgets };
     if (layoutSystemType === LayoutSystemTypes.AUTO) {
       /**

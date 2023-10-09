@@ -36,8 +36,8 @@ const _Checkbox = (props: CheckboxProps, ref: CheckboxRef) => {
     icon: Icon = CheckIcon,
     isDisabled: isDisabledProp = false,
     isIndeterminate = false,
-    validationState,
     labelPosition = "right",
+    validationState,
   } = props;
   const state = useToggleState(props);
   const inputRef = useRef<HTMLInputElement>(null);

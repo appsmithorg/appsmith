@@ -188,10 +188,10 @@ export function MoreJSCollectionsMenu(props: EntityContextMenuProps) {
         />
       </MenuTrigger>
       <MenuContent avoidCollisions>
-        {options.map((option) => {
+        {options.map((option, index) => {
           if (option.children) {
             return (
-              <MenuSub>
+              <MenuSub key={index}>
                 <MenuSubTrigger startIcon={option.icon}>
                   {option.label}
                 </MenuSubTrigger>

@@ -152,12 +152,15 @@ function extractFromObj<T, K extends keyof T>(
   keys: K[],
 ): [Pick<T, K>, T[K][]] {
   const deps = [] as T[K][];
-  const newObj = keys.reduce((newObj, curr) => {
-    newObj[curr] = obj[curr];
-    deps.push(obj[curr]);
+  const newObj = keys.reduce(
+    (newObj, curr) => {
+      newObj[curr] = obj[curr];
+      deps.push(obj[curr]);
 
-    return newObj;
-  }, {} as Pick<T, K>);
+      return newObj;
+    },
+    {} as Pick<T, K>,
+  );
 
   return [newObj, deps];
 }

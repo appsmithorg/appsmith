@@ -168,9 +168,9 @@ type ResizableHandleProps = {
 export function ResizableHandle(props: ResizableHandleProps) {
   const bind = useDrag((state) => {
     const {
+      dragging,
       first,
       last,
-      dragging,
       memo,
       movement: [mx, my],
     } = state;

@@ -914,8 +914,8 @@ class MetaWidgetGenerator {
               }
               return newObj;
               })(${metaContainerName}.data, ${JSON.stringify(
-            BLACKLISTED_ENTITY_DEFINITION_IN_LEVEL_DATA[type],
-          )} )
+                BLACKLISTED_ENTITY_DEFINITION_IN_LEVEL_DATA[type],
+              )} )
           }}`,
         },
       },
@@ -1665,8 +1665,8 @@ class MetaWidgetGenerator {
           // "Input1: { value: List1_Input1_1.value, text: List1_Input1_1.text }"
           dependantBinding[templateWidgetName] = `
             ${templateWidgetName}: {${
-            dependantMetaWidget?.entityDefinition || ""
-          }}
+              dependantMetaWidget?.entityDefinition || ""
+            }}
           `;
         }
       });

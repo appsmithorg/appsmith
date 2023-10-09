@@ -120,6 +120,7 @@ type InlineEditorPropsType = {
 
 export function InlineCellEditor({
   accentColor,
+  allowCellWrapping,
   autoFocus,
   compactMode,
   inputType = InputTypes.TEXT,
@@ -129,10 +130,9 @@ export function InlineCellEditor({
   onDiscard,
   onSave,
   textSize,
-  value,
-  allowCellWrapping,
-  verticalAlignment,
   validationErrorMessage,
+  value,
+  verticalAlignment,
   widgetId,
 }: InlineEditorPropsType) {
   const inputRef = useRef<HTMLTextAreaElement | HTMLInputElement>(null);

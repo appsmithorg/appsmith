@@ -129,10 +129,13 @@ export class URLBuilder {
         appParams.applicationVersion || this.appParams.applicationVersion;
     }
     if (pageParams) {
-      const params = pageParams.reduce((acc, page) => {
-        acc[page.pageId] = page;
-        return acc;
-      }, {} as Record<string, PageURLParams>);
+      const params = pageParams.reduce(
+        (acc, page) => {
+          acc[page.pageId] = page;
+          return acc;
+        },
+        {} as Record<string, PageURLParams>,
+      );
       Object.assign(this.pageParams, params);
     }
   }
@@ -196,12 +199,12 @@ export class URLBuilder {
    */
   build(builderParams: URLBuilderParams, mode: APP_MODE = APP_MODE.EDIT) {
     const {
+      branch,
       hash = "",
+      pageId,
       params = {},
       persistExistingParams = false,
       suffix,
-      pageId,
-      branch,
     } = builderParams;
 
     if (!pageId) {

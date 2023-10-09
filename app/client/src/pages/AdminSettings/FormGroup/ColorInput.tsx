@@ -102,11 +102,11 @@ export const ColorInput = (props: ColorInputProps) => {
     useState<brandColorsKeys>("primary");
   const {
     className,
+    filter = () => true,
+    logEvent,
     onChange,
     tooltips,
     value,
-    filter = () => true,
-    logEvent,
   } = props;
   const colorInputRef = useRef<HTMLInputElement>(null);
 

@@ -158,7 +158,10 @@ export function isJSFunction(configTree: ConfigTree, fullPath: string) {
   );
 }
 export function convertArrayToObject(arr: string[]) {
-  return arr.reduce((acc, item) => {
-    return { ...acc, [item]: true } as const;
-  }, {} as Record<string, true>);
+  return arr.reduce(
+    (acc, item) => {
+      return { ...acc, [item]: true } as const;
+    },
+    {} as Record<string, true>,
+  );
 }

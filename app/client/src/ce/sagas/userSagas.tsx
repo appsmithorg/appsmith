@@ -228,9 +228,8 @@ export function* forgotPasswordSaga(
     );
     const isValidResponse: boolean = yield validateResponse(response);
     if (!isValidResponse) {
-      const errorMessage: string | undefined = yield getResponseErrorMessage(
-        response,
-      );
+      const errorMessage: string | undefined =
+        yield getResponseErrorMessage(response);
       yield call(reject, { _error: errorMessage });
     } else {
       yield put({
@@ -260,9 +259,8 @@ export function* resetPasswordSaga(
     const response: ApiResponse = yield callAPI(UserApi.resetPassword, request);
     const isValidResponse: boolean = yield validateResponse(response);
     if (!isValidResponse) {
-      const errorMessage: string | undefined = yield getResponseErrorMessage(
-        response,
-      );
+      const errorMessage: string | undefined =
+        yield getResponseErrorMessage(response);
       yield call(reject, { _error: errorMessage });
     } else {
       yield put({
@@ -294,9 +292,8 @@ export function* invitedUserSignupSaga(
     );
     const isValidResponse: boolean = yield validateResponse(response);
     if (!isValidResponse) {
-      const errorMessage: string | undefined = yield getResponseErrorMessage(
-        response,
-      );
+      const errorMessage: string | undefined =
+        yield getResponseErrorMessage(response);
       yield call(reject, { _error: errorMessage });
     } else {
       yield put(invitedUserSignupSuccess());
