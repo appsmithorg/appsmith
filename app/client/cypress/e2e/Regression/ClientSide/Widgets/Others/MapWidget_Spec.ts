@@ -26,8 +26,8 @@ const location = [
   },
 ];
 
-describe("GSheet-widget binding for selected sheet access", function () {
-  it("1. Drag Map Widget and Verify the Map Widget with Initial Location", () => {
+describe("Map Widget", function () {
+  it("1.Drag Map Widget and Verify the Map Widget with Initial Location", () => {
     //Add map and verify
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.MAP, 200, 200);
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.MAP));

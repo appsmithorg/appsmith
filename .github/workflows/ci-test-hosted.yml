@@ -311,8 +311,8 @@ jobs:
           name: results-${{github.run_attempt}}
           path: ~/results
 
-      - name: Upload cypress report
-        if: failure()
+      - name: Upload cypress snapshots
+        if: always()
         uses: actions/upload-artifact@v3
         with:
           name: snapshots
