@@ -20,7 +20,7 @@ public class RateLimitServiceCEImpl implements RateLimitServiceCE {
     private final Scheduler scheduler = Schedulers.boundedElastic();
     private final Map<String, BucketProxy> apiBuckets;
     private final RateLimitConfig rateLimitConfig;
-    // this number of tokens var can later be customised per API in the configuration.
+    // this number of tokens can later be customised per API in the configuration.
     private final Integer DEFAULT_NUMBER_OF_TOKENS_CONSUMED_PER_REQUEST = 1;
 
     public RateLimitServiceCEImpl(Map<String, BucketProxy> apiBuckets, RateLimitConfig rateLimitConfig) {
