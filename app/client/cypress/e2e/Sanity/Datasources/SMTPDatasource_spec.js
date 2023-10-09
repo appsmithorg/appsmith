@@ -115,7 +115,7 @@ describe("SMTP datasource test cases using ted", function () {
       },
     }).then((res) => {
       expect(res.status).equal(200);
-      expect(JSON.stringify(res.body)).to.contain("qwerty@appsmith.com");
+      expect(JSON.stringify(res.body)).to.contain("test@appsmith.com");
     });
   });
 });
