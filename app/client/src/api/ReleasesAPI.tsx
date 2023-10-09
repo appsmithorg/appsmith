@@ -5,7 +5,7 @@ import type { ApiResponse } from "./ApiResponses";
 class ReleasesAPI extends Api {
   static markAsReadURL = `v1/users/setReleaseNotesViewed`;
 
-  static markAsRead(): AxiosPromise<ApiResponse> {
+  static async markAsRead(): Promise<AxiosPromise<ApiResponse>> {
     return Api.put(ReleasesAPI.markAsReadURL);
   }
 }

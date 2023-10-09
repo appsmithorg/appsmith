@@ -375,7 +375,7 @@ export class GitSync {
         method: "GET",
         url: "/api/v1/git/checkout-branch/app/**",
       },
-      (req) => {
+      async (req) => {
         return new Promise((resolve) => {
           setTimeout(() => resolve(req.continue()), 1000);
         });
