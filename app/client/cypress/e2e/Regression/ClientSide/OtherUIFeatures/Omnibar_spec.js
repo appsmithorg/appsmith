@@ -20,7 +20,7 @@ describe("Omnibar functionality test cases", () => {
     cy.dragAndDropToCanvas(draggableWidgets.AUDIO, { x: 300, y: 500 });
     deployMode.StubWindowNAssert(
       '//span[text()="Learn more"]',
-      "connect-datasource",
+      "connect-to-a-database",
       "getWorkspace",
     );
   });
