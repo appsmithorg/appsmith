@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.server.configurations.WithMockAppsmithUser;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.PermissionGroup;
@@ -124,7 +125,6 @@ public class UserWorkspaceServiceUnitTest {
                 .findByDefaultDomainIdAndDefaultDomainType(workspace.getId(), Workspace.class.getSimpleName())
                 .flatMap(permissionGroup -> {
                     permissionGroup.setDefaultDomainId(null);
-                    permissionGroup.setDefaultDomainType(null);
                     return permissionGroupRepository.save(permissionGroup);
                 })
                 .collectList()
