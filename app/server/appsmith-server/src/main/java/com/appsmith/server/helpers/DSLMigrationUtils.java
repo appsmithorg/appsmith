@@ -74,24 +74,4 @@ public class DSLMigrationUtils {
                 .retrieve()
                 .bodyToMono(JSONObject.class);
     }
-
-    /**
-     * This method will check whether a migration is required or not and if required, it will migrate the page dsl.
-     * @param pageDsl Page dsl from the database
-     * @return Page dsl after migration or the same page dsl if no migration is required
-     */
-    public Mono<JSONObject> migratePageDslIfRequired(JSONObject pageDsl) {
-        Number version = pageDsl.getAsNumber("version");
-        if (version == null) {
-            return Mono.just(pageDsl);
-        }
-
-        int versionNumber = version.intValue();
-        return isMigrationRequired(versionNumber).flatMap(isMigrationRequired -> {
-            if (isMigrationRequired) {
-                return migratePageDsl(pageDsl);
-            }
-            return Mono.just(pageDsl);
-        });
-    }
 }
