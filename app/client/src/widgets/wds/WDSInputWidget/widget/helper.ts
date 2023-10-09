@@ -7,7 +7,6 @@ import {
   INPUT_DEFAULT_TEXT_MAX_NUM_ERROR,
   INPUT_DEFAULT_TEXT_MIN_NUM_ERROR,
   INPUT_TEXT_MAX_CHAR_ERROR,
-  INPUT_WIDGET_DEFAULT_VALIDATION_ERROR,
 } from "@appsmith/constants/messages";
 import { InputTypes } from "components/constants";
 import type { InputType } from "../component/types";
@@ -116,8 +115,7 @@ export const validateInput = (props: InputWidgetProps): Validation => {
   if (isDirty && "isValid" in props) {
     return {
       validationStatus: isValid ? "valid" : "invalid",
-      errorMessage:
-        errorMessage || createMessage(INPUT_WIDGET_DEFAULT_VALIDATION_ERROR),
+      errorMessage: errorMessage,
     };
   }
 
