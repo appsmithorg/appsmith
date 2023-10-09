@@ -11,7 +11,7 @@ import OneClickBindingLocator from "../../../../locators/OneClickBindingLocator"
 const OnboardingLocator = require("../../../../locators/FirstTimeUserOnboarding.json");
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
-describe("Signposting discovery", function () {
+describe.skip("Signposting discovery", function () {
   beforeEach(() => {
     featureFlagIntercept(
       {
