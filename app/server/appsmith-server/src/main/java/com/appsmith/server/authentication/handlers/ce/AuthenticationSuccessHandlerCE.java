@@ -252,7 +252,6 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
         log.debug("Login succeeded for user: {}", authentication.getPrincipal());
         Mono<Void> redirectionMono = null;
         User user = (User) authentication.getPrincipal();
-        rateLimitService.resetCounter(RateLimitConstants.BUCKET_KEY_FOR_LOGIN_API, user.getEmail());
         String originHeader =
                 webFilterExchange.getExchange().getRequest().getHeaders().getOrigin();
 
@@ -314,6 +313,11 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                 .getCurrentUser()
                 .flatMap(currentUser -> {
                     List<Mono<?>> monos = new ArrayList<>();
+
+                    // Since the user has successfully logged in, lets reset the rate limit counter for the user.
+                    monos.add(rateLimitService.resetCounter(
+                            RateLimitConstants.BUCKET_KEY_FOR_LOGIN_API, user.getEmail()));
+
                     monos.add(userDataService.ensureViewedCurrentVersionReleaseNotes(currentUser));
 
                     String modeOfLogin = FieldName.FORM_LOGIN;
