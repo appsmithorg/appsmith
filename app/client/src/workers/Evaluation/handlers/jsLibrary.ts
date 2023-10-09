@@ -140,7 +140,7 @@ export async function installLibrary(request: EvalWorkerASyncRequest) {
       }
     }
 
-    // If no accessor at this point, installation likely failed.
+    // If no accessors at this point, installation likely failed.
     if (accessors.length === 0)
       return { status: false, defs, accessor: accessors };
 
@@ -298,8 +298,8 @@ function generateUniqueAccessor(
   ) {
     return validVar;
   }
-  const index = 1;
-  while (true && index < 100) {
+  let index = 0;
+  while (index++ < 100) {
     const name = `${validVar}_${index}`;
     if (!takenAccessors.includes(name) && !takenNamesMap.hasOwnProperty(name)) {
       return name;

@@ -45,11 +45,11 @@ describe("Tests to assert install/uninstall flows", function () {
         "!name": "LIB/lodash",
         lodash: undefined,
       },
-      accessor: ["lodash"],
+      accessor: [{ original: "lodash", modified: "lodash" }],
     });
   });
 
-  it("Reinstalling a different version of the same installed library should fail", async function () {
+  it("Reinstalling a different version of the same installed library should create a new accessor", async function () {
     const res = await installLibrary({
       data: {
         url: "https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.16.0/lodash.min.js",
@@ -59,33 +59,40 @@ describe("Tests to assert install/uninstall flows", function () {
       method: EVAL_WORKER_ASYNC_ACTION.INSTALL_LIBRARY,
     });
     expect(res).toEqual({
-      success: false,
-      defs: {},
-      error: expect.any(Error),
+      success: true,
+      defs: {
+        "!name": "LIB/lodash_1",
+        lodash_1: undefined,
+      },
+      accessor: [{ original: "lodash", modified: "lodash_1" }],
     });
   });
 
-  it("Detects name space collision where there is another entity(api, widget or query) with the same name", async function () {
-    delete self.lodash;
+  it("Detects name space collision where there is another entity(api, widget or query) with the same name and creates a unique accessor", async function () {
+    delete self["lodash"];
     const res = await installLibrary({
       data: {
         url: "https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.16.0/lodash.min.js",
-        takenAccessors: [],
+        takenAccessors: ["lodash_1"],
         takenNamesMap: { lodash: true },
       },
       method: EVAL_WORKER_ASYNC_ACTION.INSTALL_LIBRARY,
     });
     expect(res).toEqual({
-      success: false,
-      defs: {},
-      error: expect.any(Error),
+      success: true,
+      defs: {
+        "!name": "LIB/lodash_2",
+        lodash_2: undefined,
+      },
+      accessor: [{ original: "lodash", modified: "lodash_2" }],
     });
+    delete self["lodash_2"];
   });
 
-  it("Removes or set the accessors to undefined on the global object on uninstallation", async function () {
+  it("Removes or set the accessors to undefined on the global object on un-installation", async function () {
     self.lodash = {};
     const res = await uninstallLibrary({
-      data: ["lodash"],
+      data: [{ original: "lodash", modified: "lodash" }],
       method: EVAL_WORKER_SYNC_ACTION.UNINSTALL_LIBRARY,
     });
     expect(res).toEqual({ success: true });
