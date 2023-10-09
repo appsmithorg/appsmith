@@ -151,6 +151,7 @@ describe("GSheet-widget binding", function () {
       oneClickBindingLocator.validTableRowData,
       "rajat",
     );
+    expect(1).to.equal(2)
 
     agHelper.GetNClick(propPane._deleteWidget);
   });
