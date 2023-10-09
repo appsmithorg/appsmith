@@ -114,9 +114,7 @@ function parseXLSFile(data: Blob): Promise<ExcelSheetData[]> {
       workbook.SheetNames.forEach((sheetName) => {
         const sheetData: ExcelSheetData = { name: "", data: [] };
         try {
-          const data = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], {
-            header: 1,
-          });
+          const data = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
           sheetData["name"] = sheetName;
           sheetData["data"] = data;
           sheetsData.push(sheetData);
