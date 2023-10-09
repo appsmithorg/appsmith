@@ -11,6 +11,8 @@ import OneClickBindingLocator from "../../../../locators/OneClickBindingLocator"
 const OnboardingLocator = require("../../../../locators/FirstTimeUserOnboarding.json");
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
+// TODO: We can delete the test, once the feature implementation is removed from the codebase.
+// The feature flag is turned off for all users.
 describe.skip("Signposting discovery", function () {
   beforeEach(() => {
     featureFlagIntercept(
