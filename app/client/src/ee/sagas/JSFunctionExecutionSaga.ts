@@ -7,7 +7,7 @@ import { getCurrentPageName } from "selectors/editorSelectors";
 import {
   getJSCollectionFromName,
   getJSActionFromJSCollection,
-} from "selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import type { TMessage } from "utils/MessageUtil";
 import { get, set, uniq } from "lodash";
 import { TriggerKind } from "constants/AppsmithActionConstants/ActionConstants";

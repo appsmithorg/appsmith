@@ -23,7 +23,7 @@ import {
   selectInstallationStatus,
   selectIsInstallerOpen,
   selectLibrariesForExplorer,
-} from "selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import { InstallState } from "reducers/uiReducers/libraryReducer";
 import { Collapse } from "@blueprintjs/core";
 import useClipboard from "utils/hooks/useClipboard";

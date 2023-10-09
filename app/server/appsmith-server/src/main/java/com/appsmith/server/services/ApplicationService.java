@@ -18,7 +18,8 @@ public interface ApplicationService extends ApplicationServiceCE {
 
     Mono<List<PermissionGroupInfoDTO>> fetchAllDefaultRoles(String applicationId);
 
-    Mono<List<MemberInfoDTO>> inviteToApplication(InviteUsersToApplicationDTO inviteToApplicationDTO);
+    Mono<List<MemberInfoDTO>> inviteToApplication(
+            InviteUsersToApplicationDTO inviteToApplicationDTO, String originHeader);
 
     Mono<MemberInfoDTO> updateRoleForMember(String applicationId, UpdateApplicationRoleDTO updateApplicationRoleDTO);
 

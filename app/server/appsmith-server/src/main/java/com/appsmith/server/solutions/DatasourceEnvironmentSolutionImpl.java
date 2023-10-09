@@ -1,6 +1,6 @@
 package com.appsmith.server.solutions;
 
-import com.appsmith.server.services.DatasourceService;
+import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.services.EnvironmentService;
 import com.appsmith.server.services.FeatureFlagService;
 import lombok.extern.slf4j.Slf4j;

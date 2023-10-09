@@ -3,7 +3,7 @@ import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { snipingModeBindToSelector } from "selectors/editorSelectors";
 import type { ActionData } from "reducers/entityReducers/actionsReducer";
-import { getCanvasWidgets } from "selectors/entitiesSelector";
+import { getCanvasWidgets } from "@appsmith/selectors/entitiesSelector";
 import {
   batchUpdateWidgetDynamicProperty,
   batchUpdateWidgetProperty,

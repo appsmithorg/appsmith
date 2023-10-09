@@ -127,6 +127,8 @@ spec:
             - secretRef:
                 name: {{ .Values.secretName }}
             {{- end }}
+          securityContext:
+            allowPrivilegeEscalation: false
       {{- if .Values.image.pullSecrets}}
       imagePullSecrets:
         - name: {{ .Values.image.pullSecrets }}

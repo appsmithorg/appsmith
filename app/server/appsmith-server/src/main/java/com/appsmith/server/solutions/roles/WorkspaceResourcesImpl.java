@@ -46,6 +46,7 @@ import reactor.util.function.Tuple2;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -474,7 +475,15 @@ public class WorkspaceResourcesImpl implements WorkspaceResources {
             // Get the default unpublished & published pages for the application.
             // This is to show the home page to the user in the application resources tab
             Set<String> defaultPageIds = new HashSet<>();
-            Optional<ApplicationPage> unpublishedDefaultPage = application.getPages().stream()
+
+            /*
+             * application#getPages() should not return a null object in a stable scenario but in some special
+             * cases(we don't know when) it does, and does not allow the role page to be loaded. We are handling this for now but
+             * can also be kept for later as it is a good check to have.
+             */
+            Optional<ApplicationPage> unpublishedDefaultPage = Optional.ofNullable(application.getPages())
+                    .orElse(Collections.emptyList()) // Default to an empty list if it's null
+                    .stream()
                     .filter(ApplicationPage::getIsDefault)
                     .findFirst();
             unpublishedDefaultPage.ifPresent(applicationPage -> defaultPageIds.add(applicationPage.getId()));

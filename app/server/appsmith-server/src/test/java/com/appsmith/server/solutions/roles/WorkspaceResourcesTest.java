@@ -9,6 +9,7 @@ import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.Environment;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Policy;
+import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.NewAction;
@@ -34,7 +35,6 @@ import com.appsmith.server.repositories.ThemeRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
-import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.EnvironmentService;
 import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.LayoutActionService;
@@ -98,6 +98,7 @@ import static com.appsmith.server.constants.FieldName.TENANT_ROLE;
 import static com.appsmith.server.constants.FieldName.VIEWER;
 import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 
 @SpringBootTest
@@ -183,6 +184,7 @@ public class WorkspaceResourcesTest {
 
     Workspace createdWorkspace;
     Application createdApplication;
+    Application createdApplicationWithoutPages;
     Datasource createdDatasource;
     ActionDTO createdActionDto;
     Plugin restApiPlugin;
@@ -220,7 +222,7 @@ public class WorkspaceResourcesTest {
 
         Application applicationWithoutPages = new Application();
         applicationWithoutPages.setName(UUID.randomUUID().toString());
-        Application createdApplicationWithoutPages = applicationPageService
+        createdApplicationWithoutPages = applicationPageService
                 .createApplication(applicationWithoutPages, workspace.getId())
                 .block();
 
@@ -317,6 +319,23 @@ public class WorkspaceResourcesTest {
                     assert action.getUnpublishedAction().getName().equals(createdActionDto.getName());
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testApplicationResourcesTabWithApplicationReturningNullPages() {
+        createdApplicationWithoutPages.setPages(null);
+        applicationRepository.save(createdApplicationWithoutPages).block();
+
+        CommonAppsmithObjectData dataFromRepositoryForAllTabs = workspaceResources.getDataFromRepositoryForAllTabs();
+
+        try {
+            workspaceResources
+                    .createApplicationResourcesTabView(superAdminPermissionGroupId, dataFromRepositoryForAllTabs)
+                    .block();
+        } catch (NullPointerException e) {
+            fail("NullPointerException occurred: " + e.getMessage());
+        }
     }
 
     @Test

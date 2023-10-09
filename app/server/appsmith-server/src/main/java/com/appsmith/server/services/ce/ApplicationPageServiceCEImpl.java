@@ -33,13 +33,13 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.migrations.ApplicationVersion;
+import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.LayoutActionService;
-import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
@@ -266,6 +266,11 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 .flatMap(newPage -> {
                     return sendPageViewAnalyticsEvent(newPage, viewMode).then(getPage(newPage, viewMode));
                 })
+                .flatMap(page -> {
+                    // Call the DSL Utils for on demand migration of the page.
+                    // Based on view mode save the migrated DSL to the database
+                    return Mono.just(page);
+                })
                 .map(responseUtils::updatePageDTOWithDefaultResources);
     }
 
@@ -473,6 +478,13 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     }
                     return Mono.just(application);
                 });
+    }
+
+    @Override
+    public Mono<List<Application>> deleteMultipleApps(List<String> ids) {
+        log.debug("Archiving application with ids: {}", ids.toString());
+
+        return Flux.fromIterable(ids).flatMap(id -> deleteApplication(id)).collectList();
     }
 
     public Mono<Application> deleteApplicationByResource(Application application) {

@@ -67,7 +67,7 @@ import { ButtonVariantTypes } from "components/constants";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import type { AutocompletionDefinitions } from "WidgetProvider/constants";
 import { cloneDeep, set } from "lodash";
-import { ResponsiveBehavior } from "utils/autoLayout/constants";
+import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
 import { combineDynamicBindings } from "utils/DynamicBindingUtils";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { BlueprintOperationTypes } from "WidgetProvider/constants";
@@ -457,7 +457,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     let columns: ReactTableColumnProps[] = [];
     const hiddenColumns: ReactTableColumnProps[] = [];
     const { columnSizeMap } = this.props;
-    const { componentWidth } = this.getComponentDimensions();
+    const { componentWidth } = this.props;
     let totalColumnSizes = 0;
     const defaultColumnWidth = 150;
     const allColumnProperties = this.props.tableColumns || [];
@@ -1146,7 +1146,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     this.disableDrag(disable);
   };
 
-  getPageView() {
+  getWidgetView() {
     const {
       totalRecordsCount,
       delimiter,
@@ -1165,7 +1165,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       isVisiblePagination ||
       isVisibleSearch;
 
-    const { componentHeight, componentWidth } = this.getComponentDimensions();
+    const { componentHeight, componentWidth } = this.props;
     return (
       <Suspense fallback={<Skeleton />}>
         <ReactTableComponent

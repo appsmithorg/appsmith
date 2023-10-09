@@ -3,7 +3,6 @@ import publish from "../../../../../locators/publishWidgetspage.json";
 import commonlocators from "../../../../../locators/commonlocators.json";
 import widgetsPage from "../../../../../locators/Widgets.json";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
-
 const widgetName = "codescannerwidget";
 const codeScannerVideoOnPublishPage = `${publish.codescannerwidget} ${commonlocators.codeScannerVideo}`;
 const codeScannerDisabledSVGIconOnPublishPage = `${publish.codescannerwidget} ${commonlocators.codeScannerDisabledSVGIcon}`;

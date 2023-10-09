@@ -38,6 +38,13 @@ export async function getGeoLocation(
   let response;
   try {
     response = await executor(successCallback, errorCallback, options);
+
+    // @ts-expect-error: globalThis type is not defined
+    const geolocation = globalThis.appsmith?.geolocation;
+
+    if (geolocation) {
+      geolocation.currentPosition = response;
+    }
     if (typeof successCallback === "function") {
       successCallback(response);
       return;

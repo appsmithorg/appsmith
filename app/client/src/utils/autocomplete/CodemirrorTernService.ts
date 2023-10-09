@@ -24,7 +24,7 @@ const bigDoc = 250;
 const cls = "CodeMirror-Tern-";
 const hintDelay = 1700;
 
-export type Completion = Hint & {
+export interface Completion extends Hint {
   origin: string;
   type: AutocompleteDataType | string;
   data: {
@@ -32,13 +32,15 @@ export type Completion = Hint & {
   };
   render?: any;
   isHeader?: boolean;
-};
+}
 
-export type CommandsCompletion = Completion & {
+export interface CommandsCompletion
+  extends Omit<Completion, "type" | "origin" | "data"> {
+  data: unknown;
   action?: () => void;
-  shortcut: string;
+  shortcut?: string;
   triggerCompletionsPostPick?: boolean;
-};
+}
 
 type TernDocs = Record<string, TernDoc>;
 
@@ -381,7 +383,7 @@ class CodeMirrorTernService {
 
     // When a function is picked, move the cursor between the parenthesis
     const CodeMirror = getCodeMirrorNamespaceFromEditor(cm);
-    CodeMirror.on(hints, "pick", (selected: CommandsCompletion) => {
+    CodeMirror.on(hints, "pick", (selected: Completion) => {
       const hintsWithoutHeaders = hints.list.filter(
         (h: Record<string, unknown>) => h.isHeader !== true,
       );

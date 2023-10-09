@@ -13,6 +13,7 @@ import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.AssetService;
 import com.appsmith.server.services.ConfigService;
+import com.appsmith.server.services.EmailService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.TenantService;
@@ -94,6 +95,8 @@ public class EnvManagerTest {
     @MockBean
     AssetService assetService;
 
+    private EmailService emailService;
+
     @BeforeEach
     public void setup() {
         envManager = new EnvManagerImpl(
@@ -112,7 +115,8 @@ public class EnvManagerTest {
                 userUtils,
                 tenantService,
                 objectMapper,
-                assetService);
+                assetService,
+                emailService);
     }
 
     @Test
@@ -120,21 +124,21 @@ public class EnvManagerTest {
         final String content =
                 "APPSMITH_MONGODB_URI='first value'\nAPPSMITH_REDIS_URL='second value'\n\nAPPSMITH_INSTANCE_NAME='third value'";
 
-        assertThat(envManager.transformEnvContent(content, Map.of("APPSMITH_MONGODB_URI", "new first value"), null))
+        assertThat(envManager.transformEnvContent(content, Map.of("APPSMITH_MONGODB_URI", "new first value")))
                 .containsExactly(
                         "APPSMITH_MONGODB_URI='new first value'",
                         "APPSMITH_REDIS_URL='second value'",
                         "",
                         "APPSMITH_INSTANCE_NAME='third value'");
 
-        assertThat(envManager.transformEnvContent(content, Map.of("APPSMITH_REDIS_URL", "new second value"), null))
+        assertThat(envManager.transformEnvContent(content, Map.of("APPSMITH_REDIS_URL", "new second value")))
                 .containsExactly(
                         "APPSMITH_MONGODB_URI='first value'",
                         "APPSMITH_REDIS_URL='new second value'",
                         "",
                         "APPSMITH_INSTANCE_NAME='third value'");
 
-        assertThat(envManager.transformEnvContent(content, Map.of("APPSMITH_INSTANCE_NAME", "new third value"), null))
+        assertThat(envManager.transformEnvContent(content, Map.of("APPSMITH_INSTANCE_NAME", "new third value")))
                 .containsExactly(
                         "APPSMITH_MONGODB_URI='first value'",
                         "APPSMITH_REDIS_URL='second value'",
@@ -145,8 +149,7 @@ public class EnvManagerTest {
                         content,
                         Map.of(
                                 "APPSMITH_MONGODB_URI", "new first value",
-                                "APPSMITH_INSTANCE_NAME", "new third value"),
-                        null))
+                                "APPSMITH_INSTANCE_NAME", "new third value")))
                 .containsExactly(
                         "APPSMITH_MONGODB_URI='new first value'",
                         "APPSMITH_REDIS_URL='second value'",
@@ -159,14 +162,14 @@ public class EnvManagerTest {
         final String content =
                 "APPSMITH_MONGODB_URI=first value\nAPPSMITH_REDIS_URL=\n\nAPPSMITH_INSTANCE_NAME=third value";
 
-        assertThat(envManager.transformEnvContent(content, Map.of("APPSMITH_REDIS_URL", "new second value"), null))
+        assertThat(envManager.transformEnvContent(content, Map.of("APPSMITH_REDIS_URL", "new second value")))
                 .containsExactly(
                         "APPSMITH_MONGODB_URI=first value",
                         "APPSMITH_REDIS_URL='new second value'",
                         "",
                         "APPSMITH_INSTANCE_NAME=third value");
 
-        assertThat(envManager.transformEnvContent(content, Map.of("APPSMITH_REDIS_URL", ""), null))
+        assertThat(envManager.transformEnvContent(content, Map.of("APPSMITH_REDIS_URL", "")))
                 .containsExactly(
                         "APPSMITH_MONGODB_URI=first value",
                         "APPSMITH_REDIS_URL=",
@@ -183,15 +186,14 @@ public class EnvManagerTest {
                         content,
                         Map.of(
                                 "APPSMITH_MONGODB_URI", "new first value",
-                                "APPSMITH_REDIS_URL", "new second value"),
-                        null))
+                                "APPSMITH_REDIS_URL", "new second value")))
                 .containsExactly(
                         "APPSMITH_MONGODB_URI='new first value'",
                         "APPSMITH_REDIS_URL='new second value'",
                         "",
                         "APPSMITH_INSTANCE_NAME='third value'");
 
-        assertThat(envManager.transformEnvContent(content, Map.of("APPSMITH_REDIS_URL", ""), null))
+        assertThat(envManager.transformEnvContent(content, Map.of("APPSMITH_REDIS_URL", "")))
                 .containsExactly(
                         "APPSMITH_MONGODB_URI='first value'",
                         "APPSMITH_REDIS_URL=",
@@ -202,8 +204,7 @@ public class EnvManagerTest {
                         content,
                         Map.of(
                                 "APPSMITH_INSTANCE_NAME", "Sponge-bob's Instance",
-                                "APPSMITH_REDIS_URL", "value with \" char in it"),
-                        null))
+                                "APPSMITH_REDIS_URL", "value with \" char in it")))
                 .containsExactly(
                         "APPSMITH_MONGODB_URI='first value'",
                         "APPSMITH_REDIS_URL='value with \" char in it'",
@@ -256,8 +257,7 @@ public class EnvManagerTest {
                         content,
                         Map.of(
                                 "APPSMITH_MONGODB_URI", "new first value",
-                                "DISALLOWED_NASTY_STUFF", "new second value"),
-                        null))
+                                "DISALLOWED_NASTY_STUFF", "new second value")))
                 .matches(value -> value instanceof AppsmithException
                         && AppsmithError.GENERIC_BAD_REQUEST.equals(((AppsmithException) value).getError()));
     }
@@ -271,8 +271,7 @@ public class EnvManagerTest {
                         content,
                         Map.of(
                                 "APPSMITH_MONGODB_URI", "new first value",
-                                "APPSMITH_DISABLE_TELEMETRY", "false"),
-                        null))
+                                "APPSMITH_DISABLE_TELEMETRY", "false")))
                 .containsExactly(
                         "APPSMITH_MONGODB_URI='new first value'",
                         "APPSMITH_REDIS_URL='quoted value'",
@@ -290,8 +289,7 @@ public class EnvManagerTest {
                         content,
                         Map.of(
                                 "APPSMITH_MONGODB_URI", "'just quotes'",
-                                "APPSMITH_DISABLE_TELEMETRY", "some quotes 'inside' it"),
-                        null))
+                                "APPSMITH_DISABLE_TELEMETRY", "some quotes 'inside' it")))
                 .containsExactly(
                         "APPSMITH_MONGODB_URI=\"'\"'just quotes'\"'\"",
                         "APPSMITH_REDIS_URL='quoted value'",

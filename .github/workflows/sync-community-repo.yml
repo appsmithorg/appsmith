@@ -88,8 +88,8 @@ jobs:
                 git add .github/config.json
                 git commit -m 'Merge CE, conflict in config.json'
               elif [[ "$CONFLICT_FILES" == "app/client/yarn.lock" ]]; then
-                # The `:3:` gets the file from CE here. See <https://git-scm.com/docs/gitrevisions#Documentation/gitrevisions.txt-emltngtltpathgtemegem0READMEememREADMEem>.
-                git show :3:app/client/yarn.lock > app/client/yarn.lock
+                # The `:2:` gets the file from EE here. See <https://git-scm.com/docs/gitrevisions#Documentation/gitrevisions.txt-emltngtltpathgtemegem0READMEememREADMEem>.
+                git show :2:app/client/yarn.lock > app/client/yarn.lock
                 cd app/client
                 yarn install
                 git add yarn.lock

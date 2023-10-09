@@ -113,7 +113,7 @@ public class InstanceAdminRoleUpdatesEnvTest {
                 Set.of(new UserCompactDTO(createdUser.getId(), createdUser.getUsername(), null)));
 
         Boolean roleAssociationChanged = userAndAccessManagementService
-                .changeRoleAssociations(updateRoleAssociationDTO)
+                .changeRoleAssociations(updateRoleAssociationDTO, "originHeader")
                 .block();
         assertThat(roleAssociationChanged).isTrue();
 

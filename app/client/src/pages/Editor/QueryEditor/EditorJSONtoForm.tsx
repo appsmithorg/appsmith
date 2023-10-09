@@ -7,7 +7,7 @@ import type { Datasource } from "entities/Datasource";
 import {
   getPluginImages,
   getPluginNameFromId,
-} from "selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import FormControl from "../FormControl";
 import {
   PluginName,
@@ -142,7 +142,7 @@ const QueryFormContainer = styled.form`
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  padding: var(--ads-v2-spaces-4) 0 0;
+  padding: var(--ads-v2-spaces-5) 0 0;
   width: 100%;
   .statementTextArea {
     font-size: 14px;
@@ -213,7 +213,8 @@ const ResponseContentWrapper = styled.div<{ isError: boolean }>`
 `;
 
 export const StyledFormRow = styled(FormRow)`
-  padding: 0px var(--ads-v2-spaces-7);
+  padding: 0px var(--ads-v2-spaces-7) var(--ads-v2-spaces-5)
+    var(--ads-v2-spaces-7);
   flex: 0;
 `;
 
@@ -314,7 +315,7 @@ const DocumentationButton = styled(Button)`
 
 const SidebarWrapper = styled.div<{ show: boolean }>`
   border-left: 1px solid var(--ads-v2-color-border);
-  padding: 0 var(--ads-v2-spaces-4) var(--ads-v2-spaces-4);
+  padding: 0 var(--ads-v2-spaces-7) var(--ads-v2-spaces-4);
   overflow: hidden;
   border-bottom: 0;
   display: ${(props) => (props.show ? "flex" : "none")};

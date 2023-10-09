@@ -1,12 +1,15 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useParams, useHistory } from "react-router";
-import { Link } from "react-router-dom";
 import styled from "styled-components";
 import debounce from "lodash/debounce";
 import { Listing } from "./Listing";
 import { HighlightText } from "design-system-old";
 import { PageHeader } from "./PageHeader";
-import { BottomSpace, LoaderContainer } from "pages/AdminSettings/components";
+import {
+  BottomSpace,
+  LoaderContainer,
+  NoUnderLineLink,
+} from "pages/AdminSettings/components";
 import {
   AclWrapper,
   DefaultRolesToggle,
@@ -132,8 +135,9 @@ export function RolesListing() {
       Cell: function RoleCell(cellProps: any) {
         const data = cellProps.cell.row.original;
         return (
-          <Link
+          <NoUnderLineLink
             data-testid="t--roles-cell"
+            target="_self"
             to={adminSettingsCategoryUrl({
               category: SettingCategories.ROLES_LISTING,
               selected: data.id,
@@ -166,7 +170,7 @@ export function RolesListing() {
                 )}
               </MoreInfoPill>
             </CellContainer>
-          </Link>
+          </NoUnderLineLink>
         );
       },
     },

@@ -9,10 +9,17 @@ export const fieldStyles = css<FieldStylesProps>`
   &[data-field] {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-3);
+    gap: var(--spacing-2);
 
     &[data-position="side"] {
       flex-direction: row;
+    }
+
+    // when the label is on the side, we need to make sure the label
+    // is centered aligned in case it is a field. For field group,
+    // align-items will be  of default value, that is flex-start
+    &[data-field-type="field"][data-position="side"] {
+      align-items: center;
     }
   }
 
@@ -21,24 +28,25 @@ export const fieldStyles = css<FieldStylesProps>`
   * FIELD LABEL
   *-----------------------------------------------------------------------------
   */
+  & [data-field-label-wrapper] {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-1);
+    height: var(--sizing-3);
+  }
+
   & [data-field-label] {
     display: flex;
     align-items: center;
-    gap: var(--spacing-2);
+    gap: var(--spacing-1);
     height: fit-content;
     color: var(--color-fg);
     font-weight: ${({ isEmphasized }) => (isEmphasized ? "bold" : "normal")};
 
     //  when the label is on the side, we need to make sure the label is aligned
     &[data-position="side"] {
-      min-height: var(--sizing-5);
       width: ${({ labelWidth }) => labelWidth};
     }
-  }
-
-  &[data-disabled] [data-field-label] {
-    opacity: var(--opacity-disabled);
-    cursor: default;
   }
 
   /**
@@ -49,6 +57,7 @@ export const fieldStyles = css<FieldStylesProps>`
   & [data-field-necessity-indicator-icon] {
     width: var(--spacing-2);
     height: var(--spacing-2);
+    color: var(--color-fg-negative);
   }
 
   /**
@@ -87,9 +96,19 @@ export const fieldStyles = css<FieldStylesProps>`
   * FIELD WRAPPER
   *-----------------------------------------------------------------------------
   */
-  & [data-field-wrapper] {
-    gap: var(--spacing-3);
+  & [data-field-input-wrapper] {
+    gap: var(--spacing-2);
     display: flex;
     flex-direction: column;
+  }
+
+  /**
+  * ----------------------------------------------------------------------------
+  * DISABLED
+  *-----------------------------------------------------------------------------
+  */
+  &[data-disabled] {
+    opacity: var(--opacity-disabled);
+    cursor: default;
   }
 `;

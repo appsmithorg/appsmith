@@ -423,64 +423,54 @@ public class GitExecutorImpl implements GitExecutor {
     }
 
     @Override
-    public Mono<List<GitBranchDTO>> listBranches(
-            Path repoSuffix, String remoteUrl, String privateKey, String publicKey, Boolean refreshBranches) {
-
-        String gitAction = Boolean.TRUE.equals(refreshBranches)
-                ? AnalyticsEvents.GIT_SYNC_BRANCH.getEventName()
-                : AnalyticsEvents.GIT_LIST_LOCAL_BRANCH.getEventName();
-        Stopwatch processStopwatch = StopwatchHelpers.startStopwatch(repoSuffix, gitAction);
-        ;
+    public Mono<List<GitBranchDTO>> listBranches(Path repoSuffix) {
         Path baseRepoPath = createRepoPath(repoSuffix);
         return Mono.fromCallable(() -> {
                     log.debug(Thread.currentThread().getName() + ": Get branches for the application " + repoSuffix);
-                    TransportConfigCallback transportConfigCallback =
-                            new SshTransportConfigCallback(privateKey, publicKey);
                     Git git = Git.open(baseRepoPath.toFile());
                     List<Ref> refList = git.branchList()
                             .setListMode(ListBranchCommand.ListMode.ALL)
                             .call();
-                    String defaultBranch = null;
-
-                    if (Boolean.TRUE.equals(refreshBranches)) {
-                        // Get default branch name from the remote
-                        defaultBranch = git.lsRemote()
-                                .setRemote(remoteUrl)
-                                .setTransportConfigCallback(transportConfigCallback)
-                                .callAsMap()
-                                .get("HEAD")
-                                .getTarget()
-                                .getName();
-                    }
 
                     List<GitBranchDTO> branchList = new ArrayList<>();
                     GitBranchDTO gitBranchDTO = new GitBranchDTO();
                     if (refList.isEmpty()) {
                         gitBranchDTO.setBranchName(git.getRepository().getBranch());
-                        gitBranchDTO.setDefault(true);
                         branchList.add(gitBranchDTO);
                     } else {
-                        if (Boolean.TRUE.equals(refreshBranches)) {
-                            gitBranchDTO.setBranchName(defaultBranch.replace("refs/heads/", ""));
-                            gitBranchDTO.setDefault(true);
-                            branchList.add(gitBranchDTO);
-                        }
-
                         for (Ref ref : refList) {
-                            if (!ref.getName().equals(defaultBranch)) {
-                                gitBranchDTO = new GitBranchDTO();
-                                gitBranchDTO.setBranchName(ref.getName()
-                                        .replace("refs/", "")
-                                        .replace("heads/", "")
-                                        .replace("remotes/", ""));
-                                gitBranchDTO.setDefault(false);
-                                branchList.add(gitBranchDTO);
-                            }
+                            // if (!ref.getName().equals(defaultBranch)) {
+                            gitBranchDTO = new GitBranchDTO();
+                            gitBranchDTO.setBranchName(ref.getName()
+                                    .replace("refs/", "")
+                                    .replace("heads/", "")
+                                    .replace("remotes/", ""));
+                            branchList.add(gitBranchDTO);
                         }
                     }
                     git.close();
-                    processStopwatch.stopAndLogTimeInMillis();
                     return branchList;
+                })
+                .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
+                .subscribeOn(scheduler);
+    }
+
+    @Override
+    public Mono<String> getRemoteDefaultBranch(Path repoSuffix, String remoteUrl, String privateKey, String publicKey) {
+        Path baseRepoPath = createRepoPath(repoSuffix);
+        return Mono.fromCallable(() -> {
+                    TransportConfigCallback transportConfigCallback =
+                            new SshTransportConfigCallback(privateKey, publicKey);
+                    Git git = Git.open(baseRepoPath.toFile());
+
+                    return git.lsRemote()
+                            .setRemote(remoteUrl)
+                            .setTransportConfigCallback(transportConfigCallback)
+                            .callAsMap()
+                            .get("HEAD")
+                            .getTarget()
+                            .getName()
+                            .replace("refs/heads/", "");
                 })
                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
                 .subscribeOn(scheduler);

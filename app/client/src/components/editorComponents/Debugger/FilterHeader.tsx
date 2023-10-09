@@ -84,6 +84,7 @@ function FilterHeader(props: FilterHeaderProps) {
       </div>
       <Select
         className="debugger-filter"
+        data-testid="t--log-filter"
         onSelect={props.onSelect}
         size="sm"
         value={{
@@ -98,6 +99,7 @@ function FilterHeader(props: FilterHeaderProps) {
         {props.options.map((option) => (
           <Option
             aria-label={option.label}
+            data-testid={`t--log-filter-${option.label}`}
             key={option.value}
             value={option.value}
           >

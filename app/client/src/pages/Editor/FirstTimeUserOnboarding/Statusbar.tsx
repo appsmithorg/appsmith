@@ -8,7 +8,7 @@ import {
   getCanvasWidgets,
   getPageActions,
   getSavedDatasources,
-} from "selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import { SIGNPOSTING_STEP } from "./Utils";
 import {
   getFirstTimeUserOnboardingComplete,

@@ -9,11 +9,5 @@
                 <param name="emailDomains" value="appsmith.com,moolya.com"/>
             </flipstrategy>
         </feature>
-        <feature uid="release_datasource_environments_enabled" enable="true"
-                 description="Datasource environments for Airgap instances">
-            <flipstrategy class="org.ff4j.strategy.PonderationStrategy">
-                <param name="weight" value="1"/>
-            </flipstrategy>
-        </feature>
     </features>
 </ff4j>

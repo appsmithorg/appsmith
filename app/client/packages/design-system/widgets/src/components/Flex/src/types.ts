@@ -1,5 +1,4 @@
-import type { OmitRename } from "../../../utils";
-import type { CSSProperties, ReactNode } from "react";
+import type { ReactNode, CSSProperties } from "react";
 import type { SizingDimension, SpacingDimension } from "./dimensions";
 
 export type Responsive<T> =
@@ -9,21 +8,64 @@ export type Responsive<T> =
       [custom: string]: T | undefined;
     };
 
-export interface FlexProps {
-  /*
-   * Layout props
+export interface AlignContent {
+  /**
+   * The distribution of space around child items along the cross axis. See [MDN](https://developer.mozilla.org/en-US/docs/Web/CSS/align-content).
+   * @default 'start'
    */
+  alignContent?: Responsive<
+    | "start"
+    | "end"
+    | "center"
+    | "space-between"
+    | "space-around"
+    | "space-evenly"
+    | "stretch"
+    | "baseline"
+    | "first baseline"
+    | "last baseline"
+    | "safe center"
+    | "unsafe center"
+  >;
+}
 
+export interface AlignItems {
   /**
-   * The direction in which to layout children. See [MDN](https://developer.mozilla.org/en-US/docs/Web/CSS/flex-direction).
-   * @default 'row'
+   * The alignment of children within their container. See [MDN](https://developer.mozilla.org/en-US/docs/Web/CSS/align-items).
+   * @default 'stretch'
    */
-  direction?: Responsive<"row" | "column" | "row-reverse" | "column-reverse">;
-  /**
-   * Whether to wrap items onto multiple lines. See [MDN](https://developer.mozilla.org/en-US/docs/Web/CSS/flex-wrap).
-   * @default false
-   */
-  wrap?: Responsive<boolean | "wrap" | "nowrap" | "wrap-reverse">;
+  alignItems?: Responsive<
+    | "start"
+    | "end"
+    | "center"
+    | "stretch"
+    | "self-start"
+    | "self-end"
+    | "baseline"
+    | "first baseline"
+    | "last baseline"
+    | "safe center"
+    | "unsafe center"
+  >;
+}
+
+export interface AlignSelf {
+  /** Overrides the `alignItems` property of a flex or grid container. See [MDN](https://developer.mozilla.org/en-US/docs/Web/CSS/align-self). */
+  alignSelf?: Responsive<
+    | "auto"
+    | "normal"
+    | "start"
+    | "end"
+    | "center"
+    | "flex-start"
+    | "flex-end"
+    | "self-start"
+    | "self-end"
+    | "stretch"
+  >;
+}
+
+export interface JustifyContent {
   /**
    * The distribution of space around items along the main axis. See [MDN](https://developer.mozilla.org/en-US/docs/Web/CSS/justify-content).
    * @default 'stretch'
@@ -44,55 +86,9 @@ export interface FlexProps {
     | "safe center"
     | "unsafe center"
   >;
-  /**
-   * The distribution of space around child items along the cross axis. See [MDN](https://developer.mozilla.org/en-US/docs/Web/CSS/align-content).
-   * @default 'start'
-   */
-  alignContent?: Responsive<
-    | "start"
-    | "end"
-    | "center"
-    | "space-between"
-    | "space-around"
-    | "space-evenly"
-    | "stretch"
-    | "baseline"
-    | "first baseline"
-    | "last baseline"
-    | "safe center"
-    | "unsafe center"
-  >;
-  /**
-   * The alignment of children within their container. See [MDN](https://developer.mozilla.org/en-US/docs/Web/CSS/align-items).
-   * @default 'stretch'
-   */
-  alignItems?: Responsive<
-    | "start"
-    | "end"
-    | "center"
-    | "stretch"
-    | "self-start"
-    | "self-end"
-    | "baseline"
-    | "first baseline"
-    | "last baseline"
-    | "safe center"
-    | "unsafe center"
-  >;
-  /** The space to display between both rows and columns. See [MDN](https://developer.mozilla.org/en-US/docs/Web/CSS/gap). */
-  gap?: Responsive<SpacingDimension>;
-  /** The space to display between columns. See [MDN](https://developer.mozilla.org/en-US/docs/Web/CSS/column-gap). */
-  columnGap?: Responsive<SpacingDimension>;
-  /** The space to display between rows. See [MDN](https://developer.mozilla.org/en-US/docs/Web/CSS/row-gap). */
-  rowGap?: Responsive<SpacingDimension>;
-  /** When used in a flex layout, specifies how the element will grow or shrink to fit the space available. See [MDN](https://developer.mozilla.org/en-US/docs/Web/CSS/flex). */
-  flex?: Responsive<string | number | boolean>;
-  /** When used in a flex layout, specifies how the element will grow to fit the space available. See [MDN](https://developer.mozilla.org/en-US/docs/Web/CSS/flex-grow). */
-  flexGrow?: Responsive<number>;
-  /** When used in a flex layout, specifies how the element will shrink to fit the space available. See [MDN](https://developer.mozilla.org/en-US/docs/Web/CSS/flex-shrink). */
-  flexShrink?: Responsive<number>;
-  /** When used in a flex layout, specifies the initial main size of the element. See [MDN](https://developer.mozilla.org/en-US/docs/Web/CSS/flex-basis). */
-  flexBasis?: Responsive<SizingDimension>;
+}
+
+export interface JustifySelf {
   /** Specifies how the element is justified inside a flex or grid container. See [MDN](https://developer.mozilla.org/en-US/docs/Web/CSS/justify-self). */
   justifySelf?: Responsive<
     | "auto"
@@ -107,20 +103,52 @@ export interface FlexProps {
     | "left"
     | "right"
     | "stretch"
-  >; // ...
-  /** Overrides the `alignItems` property of a flex or grid container. See [MDN](https://developer.mozilla.org/en-US/docs/Web/CSS/align-self). */
-  alignSelf?: Responsive<
-    | "auto"
-    | "normal"
-    | "start"
-    | "end"
-    | "center"
-    | "flex-start"
-    | "flex-end"
-    | "self-start"
-    | "self-end"
-    | "stretch"
   >;
+}
+
+export interface FlexDirection {
+  /**
+   * The direction in which to layout children. See [MDN](https://developer.mozilla.org/en-US/docs/Web/CSS/flex-direction).
+   * @default 'row'
+   */
+  direction?: Responsive<"row" | "column" | "row-reverse" | "column-reverse">;
+}
+
+export interface FlexWrap {
+  /**
+   * Whether to wrap items onto multiple lines. See [MDN](https://developer.mozilla.org/en-US/docs/Web/CSS/flex-wrap).
+   * @default false
+   */
+  wrap?: Responsive<boolean | "wrap" | "nowrap" | "wrap-reverse">;
+}
+
+export interface FlexProps
+  extends AlignContent,
+    AlignItems,
+    AlignSelf,
+    JustifyContent,
+    JustifySelf,
+    FlexDirection,
+    FlexWrap {
+  /*
+   * Layout props
+   */
+
+  /** The space to display between both rows and columns. See [MDN](https://developer.mozilla.org/en-US/docs/Web/CSS/gap). */
+  gap?: Responsive<SpacingDimension>;
+  /** The space to display between columns. See [MDN](https://developer.mozilla.org/en-US/docs/Web/CSS/column-gap). */
+  columnGap?: Responsive<SpacingDimension>;
+  /** The space to display between rows. See [MDN](https://developer.mozilla.org/en-US/docs/Web/CSS/row-gap). */
+  rowGap?: Responsive<SpacingDimension>;
+  /** When used in a flex layout, specifies how the element will grow or shrink to fit the space available. See [MDN](https://developer.mozilla.org/en-US/docs/Web/CSS/flex). */
+  flex?: Responsive<string | number | boolean>;
+  /** When used in a flex layout, specifies how the element will grow to fit the space available. See [MDN](https://developer.mozilla.org/en-US/docs/Web/CSS/flex-grow). */
+  flexGrow?: Responsive<number>;
+  /** When used in a flex layout, specifies how the element will shrink to fit the space available. See [MDN](https://developer.mozilla.org/en-US/docs/Web/CSS/flex-shrink). */
+  flexShrink?: Responsive<number>;
+  /** When used in a flex layout, specifies the initial main size of the element. See [MDN](https://developer.mozilla.org/en-US/docs/Web/CSS/flex-basis). */
+  flexBasis?: Responsive<SizingDimension>;
+
   /** The layout order for the element within a flex or grid container. See [MDN](https://developer.mozilla.org/en-US/docs/Web/CSS/order). */
   order?: Responsive<number>;
   /** Hides the element. */
@@ -179,11 +207,4 @@ export interface FlexProps {
   className?: string;
   /** Sets inline [style](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/style) for the element. Only use as a **last resort**. Use style props instead. */
   style?: CSSProperties;
-  /** Sets the HTML [id](https://developer.mozilla.org/en-US/docs/Web/API/Element/id) for the element. */
-  id?: string;
 }
-
-export type StyledFlexProps = OmitRename<
-  FlexProps,
-  "style" | "className" | "id"
->;

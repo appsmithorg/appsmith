@@ -11,7 +11,6 @@ import {
   LICENSE_ERROR_DESCRIPTION,
   VISIT_CUSTOMER_PORTAL,
 } from "@appsmith/constants/messages";
-import { goToCustomerPortal } from "@appsmith/utils/billingUtils";
 import {
   StyledPageWrapper,
   StyledBannerWrapper,
@@ -33,6 +32,7 @@ import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import { Icon, Text } from "design-system";
 import { getAssetUrl, isAirgapped } from "@appsmith/utils/airgapHelpers";
 import { getAppsmithConfigs } from "@appsmith/configs";
+import { goToCustomerPortal } from "@appsmith/utils/billingUtils";
 
 const { intercomAppID } = getAppsmithConfigs();
 

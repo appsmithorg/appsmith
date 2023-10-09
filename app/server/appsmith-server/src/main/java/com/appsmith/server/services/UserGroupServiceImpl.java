@@ -106,6 +106,8 @@ public class UserGroupServiceImpl extends UserGroupServiceCECompatibleImpl imple
     private final PolicySolution policySolution;
     private final UserRepository userRepository;
     private final ProvisionUtils provisionUtils;
+    private final EmailService emailService;
+    private final ConfigService configService;
 
     public UserGroupServiceImpl(
             Scheduler scheduler,
@@ -125,7 +127,9 @@ public class UserGroupServiceImpl extends UserGroupServiceCECompatibleImpl imple
             UserUtils userUtils,
             PolicySolution policySolution,
             UserRepository userRepository,
-            ProvisionUtils provisionUtils) {
+            ProvisionUtils provisionUtils,
+            EmailService emailService,
+            ConfigService configService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.sessionUserService = sessionUserService;
         this.tenantService = tenantService;
@@ -139,6 +143,8 @@ public class UserGroupServiceImpl extends UserGroupServiceCECompatibleImpl imple
         this.policySolution = policySolution;
         this.userRepository = userRepository;
         this.provisionUtils = provisionUtils;
+        this.emailService = emailService;
+        this.configService = configService;
     }
 
     @Override
@@ -271,21 +277,23 @@ public class UserGroupServiceImpl extends UserGroupServiceCECompatibleImpl imple
                         Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "add users to group")))
                 .collectList()
                 .flatMap(userGroups -> {
-                    Mono<Set<String>> toBeAddedUserIdsMono = Flux.fromIterable(usernames)
-                            .flatMap(username -> {
-                                User newUser = new User();
-                                newUser.setEmail(username.toLowerCase());
-                                newUser.setIsEnabled(false);
-                                return userService
-                                        .findByEmail(username)
-                                        .switchIfEmpty(userService.userCreate(newUser, false));
-                            })
+                    Flux<User> usersFlux = Flux.fromIterable(usernames).flatMap(username -> {
+                        User newUser = new User();
+                        newUser.setEmail(username.toLowerCase());
+                        newUser.setIsEnabled(false);
+                        return userService.findByEmail(username).switchIfEmpty(userService.userCreate(newUser, false));
+                    });
+
+                    Mono<Set<String>> toBeAddedUserIdsMono = usersFlux
                             .map(User::getId)
                             .collect(Collectors.toSet())
                             .cache();
 
-                    // add the users to the group
-                    // TODO : Add handling for sending emails intimating the users about the invite.
+                    Mono<User> currentUserMono =
+                            sessionUserService.getCurrentUser().cache();
+
+                    Mono<String> instanceIdMono = configService.getInstanceId();
+
                     Flux<UserGroup> updateUsersInGroupsMono = Flux.fromIterable(userGroups)
                             .zipWith(toBeAddedUserIdsMono.repeat())
                             .flatMap(tuple -> {
@@ -340,16 +348,28 @@ public class UserGroupServiceImpl extends UserGroupServiceCECompatibleImpl imple
                                     .map(usersList -> Tuples.of(updatedUserGroup.getId(), usersList)))
                             .collectMap(tuple -> tuple.getT1(), tuple -> tuple.getT2());
 
-                    return Mono.zip(invalidateCacheOfUsersMono, rolesInfoMono, usersInGroupMapMono)
+                    Mono<Tenant> tenantConfigMono = tenantService.getTenantConfiguration();
+
+                    return Mono.zip(invalidateCacheOfUsersMono, rolesInfoMono, usersInGroupMapMono, tenantConfigMono)
                             .flatMap(tuple -> {
                                 List<PermissionGroupInfoDTO> rolesInfoList = tuple.getT2();
                                 Map<String, List<UserCompactDTO>> usersInGroupMap = tuple.getT3();
+                                String instanceName =
+                                        tuple.getT4().getTenantConfiguration().getInstanceName();
+
                                 return Flux.fromIterable(userGroups)
                                         .flatMap(userGroup -> {
                                             List<UserCompactDTO> usersList = usersInGroupMap.get(userGroup.getId());
                                             return generateUserGroupDTO(userGroup, rolesInfoList, usersList);
                                         })
-                                        .collectList();
+                                        .collectList()
+                                        .flatMap(userGroupDTOS -> sendUserInvitationEmails(
+                                                        currentUserMono,
+                                                        usersFlux.collectList(),
+                                                        userGroups,
+                                                        instanceName,
+                                                        originHeader)
+                                                .thenReturn(userGroupDTOS));
                             });
                 });
     }
@@ -915,6 +935,26 @@ public class UserGroupServiceImpl extends UserGroupServiceCECompatibleImpl imple
         Map<String, Object> analyticsProperties = new HashMap<>();
         analyticsProperties.put(FieldName.IS_PROVISIONED, savedResource.getIsProvisioned());
         return analyticsProperties;
+    }
+
+    private Mono<Void> sendUserInvitationEmails(
+            Mono<User> invitingUser,
+            Mono<List<User>> invitedUsers,
+            List<UserGroup> groupsAddedTo,
+            String instanceName,
+            String originHeader) {
+
+        return Mono.zip(invitingUser, invitedUsers).flatMap(tuple -> {
+            User inviter = tuple.getT1();
+            List<User> invitedUserList = tuple.getT2();
+
+            return Flux.fromIterable(invitedUserList)
+                    .flatMap(invitedUser -> Flux.fromIterable(groupsAddedTo)
+                            .flatMap(group -> emailService.sendInviteUserToInstanceEmailViaGroupInvite(
+                                    inviter, invitedUser, group.getName(), instanceName, originHeader))
+                            .then())
+                    .then();
+        });
     }
 
     // TODO

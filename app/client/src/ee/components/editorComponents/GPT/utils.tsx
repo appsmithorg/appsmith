@@ -19,7 +19,7 @@ import { useLocation } from "react-router";
 import { createSelector } from "reselect";
 import { getEntityInCurrentPath } from "sagas/RecentEntitiesSagas";
 import { getDataTree } from "selectors/dataTreeSelectors";
-import { getActionsForCurrentPage } from "selectors/entitiesSelector";
+import { getCurrentActions } from "@appsmith/selectors/entitiesSelector";
 import FuzzySet from "fuzzyset";
 import WidgetFactory from "WidgetProvider/factory";
 import log from "loglevel";
@@ -333,7 +333,7 @@ export function useGPTContextGenerator(
   const dataTree = useSelector(getDataTree);
   const contextGenerator = useSelector(getGPTContextGenerator);
   const location = useLocation();
-  const actions = useSelector(getActionsForCurrentPage);
+  const actions = useSelector(getCurrentActions);
   const generator = useMemo(
     () =>
       (prompt: TChatGPTPrompt): [TChatGPTContext, string, boolean] => {

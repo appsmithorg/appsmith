@@ -26,6 +26,7 @@ import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.constants.AuditLogConstants;
 import com.appsmith.server.constants.AuditLogEvents;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
@@ -71,15 +72,17 @@ import com.appsmith.server.dtos.UserGroupCompactDTO;
 import com.appsmith.server.dtos.UserGroupDTO;
 import com.appsmith.server.dtos.UserGroupUpdateDTO;
 import com.appsmith.server.dtos.UsersForGroupDTO;
+import com.appsmith.server.featureflags.FeatureFlagEnum;
+import com.appsmith.server.fork.internal.ApplicationForkingService;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.helpers.WidgetSuggestionHelper;
+import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.repositories.AuditLogRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.solutions.ActionExecutionSolution;
-import com.appsmith.server.solutions.ApplicationForkingService;
 import com.appsmith.server.solutions.CreateDBTablePageSolution;
 import com.appsmith.server.solutions.EnvManager;
 import com.appsmith.server.solutions.EnvironmentPermission;
@@ -168,6 +171,7 @@ import static java.lang.Boolean.TRUE;
 import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 
 @ExtendWith(SpringExtension.class)
@@ -276,7 +280,7 @@ public class AuditLogServiceTest {
     @Autowired
     EnvironmentPermission environmentPermission;
 
-    @MockBean
+    @SpyBean
     FeatureFlagService featureFlagService;
 
     private static String workspaceId;
@@ -284,6 +288,7 @@ public class AuditLogServiceTest {
     private static Application app;
     private static Application gitConnectedApp;
     private static String workspaceName = "AuditLogsTest";
+    private static String originHeader = "http://localhost:8080";
 
     @BeforeEach
     @WithUserDetails(value = "api_user")
@@ -296,7 +301,8 @@ public class AuditLogServiceTest {
             Files.createFile(envFilePath);
         }
 
-        Mockito.when(featureFlagService.check(any())).thenReturn(Mono.just(TRUE));
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_audit_logs_enabled)))
+                .thenReturn(Mono.just(TRUE));
 
         if (StringUtils.isEmpty(workspaceId)) {
 
@@ -3145,7 +3151,7 @@ public class AuditLogServiceTest {
                 APPSMITH_OAUTH2_GITHUB_CLIENT_ID.name(), "testClientId",
                 APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET.name(), "testClientSecret"));
 
-        envManager.applyChanges(nonEmptyEnvChanges).block();
+        envManager.applyChanges(nonEmptyEnvChanges, "origin").block();
 
         MultiValueMap<String, String> params =
                 getAuditLogRequest(null, "instance_setting.updated", null, null, null, null, null, null, null);
@@ -3185,7 +3191,7 @@ public class AuditLogServiceTest {
                 .verifyComplete();
 
         // Test removing configuration
-        envManager.applyChanges(emptyEnvChanges).block();
+        envManager.applyChanges(emptyEnvChanges, "origin").block();
 
         StepVerifier.create(auditLogService.getAuditLogs(params))
                 .assertNext(auditLogs -> {
@@ -3234,7 +3240,7 @@ public class AuditLogServiceTest {
                 APPSMITH_OAUTH2_GOOGLE_CLIENT_ID.name(), "testClientId",
                 APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET.name(), "testClientSecret"));
 
-        envManager.applyChanges(nonEmptyEnvChanges).block();
+        envManager.applyChanges(nonEmptyEnvChanges, "origin").block();
 
         MultiValueMap<String, String> params =
                 getAuditLogRequest(null, "instance_setting.updated", null, null, null, null, null, null, null);
@@ -3269,7 +3275,7 @@ public class AuditLogServiceTest {
                 })
                 .verifyComplete();
         // Test removing configuration
-        envManager.applyChanges(emptyEnvChanges).block();
+        envManager.applyChanges(emptyEnvChanges, "origin").block();
         StepVerifier.create(auditLogService.getAuditLogs(params))
                 .assertNext(auditLogs -> {
                     // We are looking for the first event since Audit Logs sort order is DESC
@@ -3314,7 +3320,7 @@ public class AuditLogServiceTest {
                 APPSMITH_OAUTH2_OIDC_CLIENT_ID.name(), "testClientId",
                 APPSMITH_OAUTH2_OIDC_CLIENT_SECRET.name(), "testClientSecret"));
 
-        envManager.applyChanges(nonEmptyEnvChanges).block();
+        envManager.applyChanges(nonEmptyEnvChanges, "origin").block();
 
         MultiValueMap<String, String> params =
                 getAuditLogRequest(null, "instance_setting.updated", null, null, null, null, null, null, null);
@@ -3354,7 +3360,7 @@ public class AuditLogServiceTest {
                 .verifyComplete();
 
         // Test removing configuration
-        envManager.applyChanges(emptyEnvChanges).block();
+        envManager.applyChanges(emptyEnvChanges, "origin").block();
 
         StepVerifier.create(auditLogService.getAuditLogs(params))
                 .assertNext(auditLogs -> {
@@ -3401,7 +3407,7 @@ public class AuditLogServiceTest {
         Map<String, String> nonEmptyEnvChanges = new HashMap<>(Map.of(APPSMITH_SSO_SAML_ENABLED.name(), "true"));
 
         // Test adding configuration
-        envManager.applyChanges(nonEmptyEnvChanges).block();
+        envManager.applyChanges(nonEmptyEnvChanges, "origin").block();
 
         MultiValueMap<String, String> params =
                 getAuditLogRequest(null, "instance_setting.updated", null, null, null, null, null, null, null);
@@ -3441,7 +3447,7 @@ public class AuditLogServiceTest {
                 .verifyComplete();
 
         // Test removing configuration
-        envManager.applyChanges(emptyEnvChanges).block();
+        envManager.applyChanges(emptyEnvChanges, "origin").block();
 
         StepVerifier.create(auditLogService.getAuditLogs(params))
                 .assertNext(auditLogs -> {
@@ -3697,7 +3703,7 @@ public class AuditLogServiceTest {
                 entry(APPSMITH_REPLY_TO.name(), "testemail@test.com"),
                 entry(APPSMITH_CUSTOM_DOMAIN.name(), "testCustomDomain")));
 
-        envManager.applyChanges(envChanges).block();
+        envManager.applyChanges(envChanges, "origin").block();
 
         MultiValueMap<String, String> params =
                 getAuditLogRequest(null, "instance_setting.updated", null, null, null, null, null, null, null);
@@ -4196,6 +4202,10 @@ public class AuditLogServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testPermissionGroup_auditLogsTest_allOperations() {
+
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.release_datasource_environments_enabled)))
+                .thenReturn(Mono.just(TRUE));
+
         MultiValueMap<String, String> params;
         UserGroup userGroup = new UserGroup();
         userGroup.setName("testPermissionGroup_auditLogsTest_allOperations");
@@ -4318,7 +4328,7 @@ public class AuditLogServiceTest {
         assignUserGroups.setRolesAdded(Set.of(permissionGroupCompactDTO));
 
         Boolean changeRoleAssociationAssignUserGroups = userAndAccessManagementService
-                .changeRoleAssociations(assignUserGroups)
+                .changeRoleAssociations(assignUserGroups, "originHeader")
                 .block();
         assertThat(changeRoleAssociationAssignUserGroups).isTrue();
         params = getAuditLogRequest(
@@ -4383,7 +4393,7 @@ public class AuditLogServiceTest {
         unassignUserGroups.setRolesRemoved(Set.of(permissionGroupCompactDTO));
 
         Boolean changeRoleAssociationUnassignUserGroups = userAndAccessManagementService
-                .changeRoleAssociations(unassignUserGroups)
+                .changeRoleAssociations(unassignUserGroups, "originHeader")
                 .block();
         assertThat(changeRoleAssociationUnassignUserGroups).isTrue();
         params = getAuditLogRequest(
@@ -4445,7 +4455,7 @@ public class AuditLogServiceTest {
         assignUser.setRolesAdded(Set.of(permissionGroupCompactDTO));
 
         Boolean changeRoleAssociationAssignUser = userAndAccessManagementService
-                .changeRoleAssociations(assignUser)
+                .changeRoleAssociations(assignUser, "originHeader")
                 .block();
         assertThat(changeRoleAssociationAssignUser).isTrue();
         params = getAuditLogRequest(
@@ -4506,7 +4516,7 @@ public class AuditLogServiceTest {
         unassignUser.setRolesRemoved(Set.of(permissionGroupCompactDTO));
 
         Boolean changeRoleAssociationUnassignUsers = userAndAccessManagementService
-                .changeRoleAssociations(unassignUser)
+                .changeRoleAssociations(unassignUser, originHeader)
                 .block();
         assertThat(changeRoleAssociationUnassignUsers).isTrue();
         params = getAuditLogRequest(
@@ -4668,6 +4678,9 @@ public class AuditLogServiceTest {
     public void testPermissionGroup_testUpdateRoles() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
                 .thenReturn(Mono.just(new MockPluginExecutor()));
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.release_datasource_environments_enabled)))
+                .thenReturn(Mono.just(TRUE));
+
         User apiUser = userService.findByEmail("api_user").block();
         MultiValueMap<String, String> params;
         Workspace workspace = new Workspace();
@@ -4849,6 +4862,12 @@ public class AuditLogServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testUserDeleted() {
+
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_scim_enabled)))
+                .thenReturn(Mono.just(TRUE));
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.release_datasource_environments_enabled)))
+                .thenReturn(Mono.just(TRUE));
+
         MultiValueMap<String, String> params;
 
         User apiUser = userService.findByEmail("api_user").block();
@@ -4885,7 +4904,7 @@ public class AuditLogServiceTest {
         assignUser.setRolesAdded(Set.of(permissionGroupCompactDTO));
 
         Boolean changeRoleAssociationAssignUser = userAndAccessManagementService
-                .changeRoleAssociations(assignUser)
+                .changeRoleAssociations(assignUser, "originHeader")
                 .block();
         assertThat(changeRoleAssociationAssignUser).isTrue();
 
@@ -5089,7 +5108,7 @@ public class AuditLogServiceTest {
         inviteUsersToApplicationDTO.setRoleType(FieldName.APPLICATION_DEVELOPER);
 
         List<MemberInfoDTO> membersInvited = applicationService
-                .inviteToApplication(inviteUsersToApplicationDTO)
+                .inviteToApplication(inviteUsersToApplicationDTO, originHeader)
                 .block();
         List<PermissionGroup> defaultRolesForApplication = permissionGroupService
                 .getAllDefaultRolesForApplication(createdApplication, Optional.empty())
@@ -5258,7 +5277,7 @@ public class AuditLogServiceTest {
         inviteUsersToApplicationDTO.setRoleType(FieldName.APPLICATION_DEVELOPER);
 
         List<MemberInfoDTO> membersInvited = applicationService
-                .inviteToApplication(inviteUsersToApplicationDTO)
+                .inviteToApplication(inviteUsersToApplicationDTO, originHeader)
                 .block();
         List<PermissionGroup> defaultRolesForApplication = permissionGroupService
                 .getAllDefaultRolesForApplication(createdApplication, Optional.empty())
@@ -5871,6 +5890,10 @@ public class AuditLogServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testAuditLogs_updateProvisionGroup_sameUserGroupResource_shouldGenerateNoAuditLogs() {
+
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_scim_enabled)))
+                .thenReturn(Mono.just(TRUE));
+
         String testName = "testAuditLogs_updateProvisionGroup_sameUserGroupResource_shouldGenerateNoAuditLogs";
 
         User user1 = new User();
@@ -5927,6 +5950,10 @@ public class AuditLogServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testAuditLogs_updateProvisionGroup_sendNullName_shouldGenerateNoAuditLogs() {
+
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_scim_enabled)))
+                .thenReturn(Mono.just(TRUE));
+
         String testName = "testAuditLogs_updateProvisionGroup_sendNullName_shouldGenerateNoAuditLogs";
 
         User user1 = new User();
@@ -5982,6 +6009,10 @@ public class AuditLogServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testAuditLogs_updateProvisionGroup_sendNullDescription_shouldGenerateNoAuditLogs() {
+
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_scim_enabled)))
+                .thenReturn(Mono.just(TRUE));
+
         String testName = "testAuditLogs_updateProvisionGroup_sendNullDescription_shouldGenerateNoAuditLogs";
 
         User user1 = new User();
@@ -6039,6 +6070,9 @@ public class AuditLogServiceTest {
     public void testAuditLogs_updateProvisionGroup_sendNullUsersList_shouldGenerateNoAuditLogs() {
         String testName = "testAuditLogs_updateProvisionGroup_sendNullUsersList_shouldGenerateNoAuditLogs";
 
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_scim_enabled)))
+                .thenReturn(Mono.just(TRUE));
+
         User user1 = new User();
         user1.setEmail(testName + "_1@appsmith@.com");
         user1.setPassword(testName);
@@ -6092,6 +6126,9 @@ public class AuditLogServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testAuditLogs_updateProvisionGroup_sendNameUpdate_shouldGenerateGroupUpdateAuditLog() {
+
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_scim_enabled)))
+                .thenReturn(Mono.just(TRUE));
         String testName = "testAuditLogs_updateProvisionGroup_sendNameUpdate_shouldGenerateGroupUpdateAuditLog";
 
         User user1 = new User();
@@ -6172,6 +6209,10 @@ public class AuditLogServiceTest {
     @WithUserDetails(value = "api_user")
     public void
             testAuditLogs_updateProvisionGroup_sendAdditionalUserIdInList_shouldGenerateUserInvitedToGroupAuditLog() {
+
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_scim_enabled)))
+                .thenReturn(Mono.just(TRUE));
+
         String testName =
                 "testAuditLogs_updateProvisionGroup_sendAdditionalUserIdInList_shouldGenerateUserInvitedToGroupAuditLog";
 
@@ -6260,6 +6301,10 @@ public class AuditLogServiceTest {
     @WithUserDetails(value = "api_user")
     public void
             testAuditLogs_updateProvisionGroup_sendOneUserLessUserIdInList_shouldGenerateUserRemovedFromGroupAuditLog() {
+
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_scim_enabled)))
+                .thenReturn(Mono.just(TRUE));
+
         String testName =
                 "testAuditLogs_updateProvisionGroup_sendOneUserLessUserIdInList_shouldGenerateUserRemovedFromGroupAuditLog";
 
@@ -6342,6 +6387,10 @@ public class AuditLogServiceTest {
     @WithUserDetails(value = "api_user")
     public void
             testAuditLogs_updateProvisionGroup_updateNameAndListOfUsers_shouldGenerateUpdateUserGroupUserInvitedToGroupUserRemovedFromGroupAuditLog() {
+
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_scim_enabled)))
+                .thenReturn(Mono.just(TRUE));
+
         String testName =
                 "testAuditLogs_updateProvisionGroup_updateNameAndListOfUsers_shouldGenerateUpdateUserGroupUserInvitedToGroupUserRemovedFromGroupAuditLog";
 

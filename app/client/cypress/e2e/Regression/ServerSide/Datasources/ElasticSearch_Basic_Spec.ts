@@ -8,10 +8,10 @@ import {
 describe.skip("Validate Elasticsearch DS", () => {
   let dsName: any,
     books: any,
-    containerName = "elasticsearch1";
+    containerName = "elasticsearch";
 
   before("Create a new ElasticSearch DS", () => {
-    dataSources.StartContainerNVerify("Elasticsearch", containerName, 45000);
+    //dataSources.StartContainerNVerify("Elasticsearch", containerName, 45000); Since its run in Hosted runs & container is already running, commenting this line
     dataSources.CreateDataSource("Elasticsearch");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
@@ -214,6 +214,6 @@ describe.skip("Validate Elasticsearch DS", () => {
       action: "Delete",
       entityType: entityItems.Datasource,
     });
-    dataSources.StopNDeleteContainer(containerName);
+    //dataSources.StopNDeleteContainer(containerName);
   });
 });

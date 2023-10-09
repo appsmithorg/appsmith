@@ -1,10 +1,10 @@
 import { APP_MODE } from "entities/App";
 import AppViewerPageContainer from "pages/AppViewer/AppViewerPageContainer";
 import Canvas from "pages/Editor/Canvas";
-import MainContainer from "pages/Editor/MainContainer";
+import WidgetsEditorWrapper from "pages/Editor/WidgetsEditorWrapper";
 import React from "react";
 import { useSelector } from "react-redux";
-import { getCanvasWidgetsStructure } from "selectors/entitiesSelector";
+import { getCanvasWidgetsStructure } from "@appsmith/selectors/entitiesSelector";
 import { useMockDsl } from "./testCommon";
 
 export function MockCanvas() {
@@ -24,5 +24,5 @@ export function UpdateAppViewer({ dsl }: any) {
 }
 export function UpdatedEditor({ dsl }: any) {
   useMockDsl(dsl, APP_MODE.EDIT);
-  return <MainContainer />;
+  return <WidgetsEditorWrapper />;
 }

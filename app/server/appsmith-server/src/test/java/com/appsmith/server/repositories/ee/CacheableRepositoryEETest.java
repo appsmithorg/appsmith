@@ -108,7 +108,7 @@ public class CacheableRepositoryEETest {
 
         // Now assign the created group to the created custom role
         userAndAccessManagementService
-                .changeRoleAssociations(updateRoleAssociationDTO)
+                .changeRoleAssociations(updateRoleAssociationDTO, "originHeader")
                 .block();
 
         // Create a new workspace so that the user gets auto assigned the workspace administrator directly

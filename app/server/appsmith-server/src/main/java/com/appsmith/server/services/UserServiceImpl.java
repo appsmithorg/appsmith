@@ -12,7 +12,6 @@ import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.ProvisionResourceMetadata;
 import com.appsmith.server.domains.QUserGroup;
 import com.appsmith.server.domains.Tenant;
-import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.UserGroup;
@@ -25,7 +24,6 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.ProvisionUtils;
-import com.appsmith.server.helpers.RedirectHelper;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.ratelimiting.RateLimitService;
@@ -78,10 +76,6 @@ import static com.appsmith.server.constants.ce.FieldNameCE.EMAIL;
 import static com.appsmith.server.constants.ce.FieldNameCE.EVENT_DATA;
 import static com.appsmith.server.constants.ce.FieldNameCE.NUMBER_OF_USERS_INVITED;
 import static com.appsmith.server.constants.ce.FieldNameCE.USER_EMAILS;
-import static com.appsmith.server.domains.TenantConfiguration.DEFAULT_APPSMITH_LOGO;
-import static com.appsmith.server.domains.TenantConfiguration.DEFAULT_BACKGROUND_COLOR;
-import static com.appsmith.server.domains.TenantConfiguration.DEFAULT_FONT_COLOR;
-import static com.appsmith.server.domains.TenantConfiguration.DEFAULT_PRIMARY_COLOR;
 import static com.appsmith.server.enums.ProvisionResourceType.USER;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 
@@ -123,11 +117,11 @@ public class UserServiceImpl extends UserServiceCECompatibleImpl implements User
             PermissionGroupService permissionGroupService,
             UserUtils userUtils,
             EmailVerificationTokenRepository emailVerificationTokenRepository,
-            RedirectHelper redirectHelper,
             PermissionGroupRepository permissionGroupRepository,
             UserGroupRepository userGroupRepository,
             PolicyGenerator policyGenerator,
             ProvisionUtils provisionUtils,
+            EmailService emailService,
             RateLimitService rateLimitService) {
         super(
                 scheduler,
@@ -152,7 +146,7 @@ public class UserServiceImpl extends UserServiceCECompatibleImpl implements User
                 permissionGroupService,
                 userUtils,
                 emailVerificationTokenRepository,
-                redirectHelper,
+                emailService,
                 rateLimitService);
 
         this.userDataService = userDataService;
@@ -443,33 +437,6 @@ public class UserServiceImpl extends UserServiceCECompatibleImpl implements User
                     Boolean updateProvisioningStatus = pair.getT2();
                     return pagedUsers;
                 });
-    }
-
-    @Override
-    public Mono<Map<String, String>> updateTenantLogoInParams(Map<String, String> params, String origin) {
-        return tenantService.getDefaultTenant().map(tenant -> {
-            final TenantConfiguration tenantConfiguration = tenant.getTenantConfiguration();
-            String primaryColor = DEFAULT_PRIMARY_COLOR;
-            String backgroundColor = DEFAULT_BACKGROUND_COLOR;
-            String fontColor = DEFAULT_FONT_COLOR;
-            String logoUrl = StringUtils.isNotEmpty(origin) ? origin + tenantConfiguration.getBrandLogoUrl() : null;
-
-            if (tenantConfiguration.isWhitelabelEnabled()) {
-                final TenantConfiguration.BrandColors brandColors = tenantConfiguration.getBrandColors();
-                if (brandColors != null) {
-                    primaryColor = StringUtils.defaultIfEmpty(brandColors.getPrimary(), primaryColor);
-                    backgroundColor = StringUtils.defaultIfEmpty(brandColors.getBackground(), backgroundColor);
-                    fontColor = StringUtils.defaultIfEmpty(brandColors.getFont(), fontColor);
-                }
-            }
-
-            params.put("instanceName", StringUtils.defaultIfEmpty(tenantConfiguration.getInstanceName(), "Appsmith"));
-            params.put("logoUrl", StringUtils.defaultIfEmpty(logoUrl, DEFAULT_APPSMITH_LOGO));
-            params.put("brandPrimaryColor", primaryColor);
-            params.put("brandBackgroundColor", backgroundColor);
-            params.put("brandFontColor", fontColor);
-            return params;
-        });
     }
 
     @Override

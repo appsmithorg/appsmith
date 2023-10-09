@@ -19,8 +19,7 @@ let oosDatasourceName: string,
   stagingEnv: string,
   TABLE_DATA_STATIC: string;
 
-//skipping the spec as its flaky, it has been fixed in different PR
-describe.skip(
+describe(
   "excludeForAirgap",
   "Multiple environment datasource creation and test flow",
   function () {

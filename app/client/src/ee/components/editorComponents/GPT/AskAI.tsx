@@ -8,6 +8,7 @@ import {
   chatGenerationApi,
   getErrorMessage,
   getFormattedCode,
+  GPTTask,
 } from "./utils";
 import { useTextAutocomplete } from "./utils";
 import { useGPTTask } from "./utils";
@@ -105,9 +106,14 @@ export function AskAI(props: TAskAIProps) {
    * Stores the response and calls the update method
    * @param value
    */
-  const updateResponse = (response: TAssistantPrompt | null) => {
+  const updateResponse = (response: TAssistantPrompt) => {
     setResponse(response);
-    props.update?.(response?.content.editorCode || "");
+    const editorCode = response.content.editorCode.trim();
+
+    // Update the editor state only for JS Expressions
+    if (task.id === GPTTask.JS_EXPRESSION && editorCode) {
+      props.update?.(editorCode);
+    }
   };
 
   const prevOpen = usePrevious(props.isOpen);
@@ -150,7 +156,12 @@ export function AskAI(props: TAskAIProps) {
           widgetType: props.entity.widgetType,
           isSuggestedPrompt: promptTriggerSource === PromptTriggers.SUGGESTED,
           isRecentPrompt: promptTriggerSource === PromptTriggers.RECENT,
+          entityId: props.entity.entityId,
+          entityName: props.entity.entityName,
         });
+
+        // Update the editor state to reflect the accepted response
+        props.update?.(response.content.editorCode);
       }
       defaultValue.current = currentValue;
       setResponse(null);
@@ -277,6 +288,8 @@ export function AskAI(props: TAskAIProps) {
       widgetType: props.entity.widgetType,
       isSuggestedPrompt: promptTriggerSource === PromptTriggers.SUGGESTED,
       isRecentPrompt: promptTriggerSource === PromptTriggers.RECENT,
+      entityId: props.entity.entityId,
+      entityName: props.entity.entityName,
     });
     setResponse(null);
     props.update?.(defaultValue.current || "");
@@ -316,6 +329,8 @@ export function AskAI(props: TAskAIProps) {
         widgetType: props.entity.widgetType,
         isSuggestedPrompt,
         isRecentPrompt,
+        entityId: props.entity.entityId,
+        entityName: props.entity.entityName,
       });
 
       const start = performance.now();
@@ -375,6 +390,8 @@ export function AskAI(props: TAskAIProps) {
           widgetType: props.entity.widgetType,
           isSuggestedPrompt,
           isRecentPrompt,
+          entityId: props.entity.entityId,
+          entityName: props.entity.entityName,
         });
         updateResponse(message);
 
@@ -396,6 +413,8 @@ export function AskAI(props: TAskAIProps) {
           error: e,
           isSuggestedPrompt,
           isRecentPrompt,
+          entityId: props.entity.entityId,
+          entityName: props.entity.entityName,
         });
       } finally {
         setIsLoading(false);
@@ -450,6 +469,8 @@ export function AskAI(props: TAskAIProps) {
       totalPrompts: showSuggestedPrompts
         ? suggestedBindings.length
         : recentQueries.length,
+      entityId: props.entity.entityId,
+      entityName: props.entity.entityName,
     });
 
     setHasShownEventBeenFired(true);
@@ -475,6 +496,8 @@ export function AskAI(props: TAskAIProps) {
           : recentQueries.length,
       selectedPromptIndex: index,
       userQuery: query,
+      entityId: props.entity.entityId,
+      entityName: props.entity.entityName,
     });
 
     setQuery(query);
@@ -619,7 +642,7 @@ export function AskAI(props: TAskAIProps) {
               Response
             </Text>
             <pre
-              className="p-2"
+              className="p-2 whitespace-pre-wrap"
               style={{
                 border: "1px solid var(--ads-v2-color-gray-300)",
                 color: "var(--ads-v2-color-gray-400)",

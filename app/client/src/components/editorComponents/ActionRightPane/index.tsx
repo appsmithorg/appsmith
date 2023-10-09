@@ -42,7 +42,7 @@ import {
   getDatasourceStructureById,
   getPluginDatasourceComponentFromId,
   getPluginNameFromId,
-} from "selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import { DatasourceComponentTypes } from "api/PluginApi";
 import { fetchDatasourceStructure } from "actions/datasourceActions";
 import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";

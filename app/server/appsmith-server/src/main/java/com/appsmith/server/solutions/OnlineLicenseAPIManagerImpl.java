@@ -3,7 +3,6 @@ package com.appsmith.server.solutions;
 import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.server.domains.License;
 import com.appsmith.server.domains.Tenant;
-import com.appsmith.server.dtos.ChatGenerationResponseDTO;
 import com.appsmith.server.dtos.LicenseValidationResponseDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -28,6 +27,7 @@ import java.util.Objects;
 
 import static com.appsmith.server.constants.ApiConstants.CLOUD_SERVICES_SIGNATURE;
 import static com.appsmith.server.constants.ApiConstants.HMAC_SIGNATURE_HEADER;
+import static java.lang.Boolean.TRUE;
 
 /**
  * Class dedicated to SELF_SERVE and ENTERPRISE license validations
@@ -59,7 +59,7 @@ public class OnlineLicenseAPIManagerImpl extends BaseLicenseAPIManagerImpl imple
             System.exit(1);
         }
 
-        License license = Boolean.TRUE.equals(isLicenseKeyValid(tenant))
+        License license = TRUE.equals(isLicenseKeyValid(tenant))
                 ? tenant.getTenantConfiguration().getLicense()
                 : new License();
 
@@ -106,7 +106,7 @@ public class OnlineLicenseAPIManagerImpl extends BaseLicenseAPIManagerImpl imple
     public Mono<Boolean> downgradeTenantToFreePlan(Tenant tenant) {
         if (tenant.getTenantConfiguration() == null
                 || tenant.getTenantConfiguration().getLicense() == null) {
-            return Mono.just(Boolean.TRUE);
+            return Mono.just(TRUE);
         }
 
         log.debug("Initiating downgrade to free plan for tenant {}", tenant.getId());
@@ -114,6 +114,9 @@ public class OnlineLicenseAPIManagerImpl extends BaseLicenseAPIManagerImpl imple
         return this.populateTenantDowngradeRequest(tenant).flatMap(requestDTO -> {
             final String licenseKey =
                     tenant.getTenantConfiguration().getLicense().getKey();
+            if (StringUtils.isEmpty(licenseKey)) {
+                return Mono.just(TRUE);
+            }
             final String signatureHeader = HmacHashUtils.createHash(requestDTO.toString(), licenseKey);
             return WebClientUtils.create(baseUrl + "/api/v1/instance/downgrade")
                     .put()
@@ -130,7 +133,7 @@ public class OnlineLicenseAPIManagerImpl extends BaseLicenseAPIManagerImpl imple
                     })
                     .map(ResponseDTO::getData)
                     .onErrorMap(WebClientResponseException.class, e -> {
-                        ResponseDTO<ChatGenerationResponseDTO> responseDTO;
+                        ResponseDTO<Boolean> responseDTO;
                         try {
                             responseDTO = e.getResponseBodyAs(new ParameterizedTypeReference<>() {});
                         } catch (DecodingException | IllegalStateException e2) {

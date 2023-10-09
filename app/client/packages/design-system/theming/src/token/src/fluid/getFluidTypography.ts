@@ -6,7 +6,7 @@ import { calculateFluidScales } from "./calculateFluidScales";
 
 export const getFluidTypography = (
   scaleConfig: FluidConfig,
-  rootUnitRatio: number,
+  rootUnitRatio = 1,
   vw: number,
 ) => {
   const { maxVw, minVw, typography } = scaleConfig;

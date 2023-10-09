@@ -2,13 +2,41 @@ import { Callout } from "design-system";
 import styled from "styled-components";
 
 // TODO: Since there is no DS component yet to support upgrade banner, we are using Callout component with custom CSS
-export const StyledCallout = styled(Callout)`
+export const StyledCallout = styled(Callout)<{ isMobile?: boolean }>`
   > div:first-child {
     display: none;
   }
   > div:nth-child(2) {
     width: 100%;
   }
+
+  ${({ isMobile }) =>
+    isMobile
+      ? `
+  .banner-wrapper {
+    flex-direction: column;
+  }
+
+  .banner-content-wrapper{
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .banner-text-wrapper {
+    align-items: center;
+
+    .main-text {
+      text-align: center;
+    }
+  }
+  
+  .close-button {
+    position: absolute;
+    right: 0;
+    bottom: 220px;
+  }
+  `
+      : ""}
 `;
 
 export const BannerWrapper = styled.div`
@@ -17,8 +45,8 @@ export const BannerWrapper = styled.div`
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  min-width: 800px;
   padding: 12px;
+  gap: 12px;
 `;
 
 export const BannerContentWrapper = styled.div`

@@ -10,7 +10,10 @@ import NewQueryScreen from "./NewQuery";
 import ActiveDataSources from "./ActiveDataSources";
 import MockDataSources from "./MockDataSources";
 import AddDatasourceSecurely from "./AddDatasourceSecurely";
-import { getDatasources, getMockDatasources } from "selectors/entitiesSelector";
+import {
+  getDatasources,
+  getMockDatasources,
+} from "@appsmith/selectors/entitiesSelector";
 import type { Datasource, MockDatasource } from "entities/Datasource";
 import type { TabProp } from "design-system-old";
 import { IconSize, Text, TextType } from "design-system-old";
@@ -34,6 +37,7 @@ import Debugger, {
 import { showDebuggerFlag } from "selectors/debuggerSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
+import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 
 const HeaderFlex = styled.div`
   font-size: 20px;
@@ -216,6 +220,7 @@ function CreateNewSaasIntegration({
 }: any) {
   const newSaasAPIRef = useRef<HTMLDivElement>(null);
   const isMounted = useRef(false);
+  const isAirgappedInstance = isAirgapped();
 
   useEffect(() => {
     if (active && newSaasAPIRef.current) {
@@ -230,7 +235,7 @@ function CreateNewSaasIntegration({
       isMounted.current = true;
     }
   }, [active]);
-  return (
+  return !isAirgappedInstance ? (
     <div id="new-saas-api" ref={newSaasAPIRef}>
       <Text type={TextType.H2}>Saas Integrations</Text>
       <NewApiScreen
@@ -242,7 +247,7 @@ function CreateNewSaasIntegration({
         showUnsupportedPluginDialog={showUnsupportedPluginDialog}
       />
     </div>
-  );
+  ) : null;
 }
 
 function CreateNewDatasource({

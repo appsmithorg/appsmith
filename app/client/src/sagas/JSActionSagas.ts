@@ -30,7 +30,7 @@ import {
 import {
   getJSCollection,
   getPageNameByPageId,
-} from "selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import history from "utils/history";
 import { getCurrentPageId, getIsViewMode } from "selectors/editorSelectors";
 import type {

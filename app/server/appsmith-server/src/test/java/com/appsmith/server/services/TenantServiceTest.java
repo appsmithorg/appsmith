@@ -21,6 +21,7 @@ import com.appsmith.server.dtos.ce.FeaturesResponseDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.featureflags.CachedFeatures;
+import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.PermissionGroupUtils;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.repositories.PermissionGroupRepository;
@@ -62,7 +63,9 @@ import java.util.UUID;
 import static com.appsmith.server.constants.ApiConstants.CLOUD_SERVICES_SIGNATURE;
 import static com.appsmith.server.constants.ce.FieldNameCE.DEFAULT;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
@@ -104,10 +107,13 @@ public class TenantServiceTest {
     @Autowired
     UserGroupRepository userGroupRepository;
 
+    @Autowired
+    BrandingService brandingService;
+
     @SpyBean
     CacheableFeatureFlagHelper cacheableFeatureFlagHelper;
 
-    @MockBean
+    @SpyBean
     FeatureFlagService featureFlagService;
 
     private Tenant tenant;
@@ -127,7 +133,9 @@ public class TenantServiceTest {
         User api_user = userRepository.findByEmail("api_user").block();
         // Todo change this to tenant admin once we introduce multitenancy
         userUtils.makeSuperUser(List.of(api_user)).block();
-        when(featureFlagService.check(any())).thenReturn(Mono.just(true));
+        when(featureFlagService.check(FeatureFlagEnum.license_branding_enabled)).thenReturn(Mono.just(true));
+        when(featureFlagService.check(FeatureFlagEnum.license_session_limit_enabled))
+                .thenReturn(Mono.just(true));
     }
 
     @Test
@@ -265,7 +273,7 @@ public class TenantServiceTest {
         // Assert that `isActivated` does not get modified for invalid license
         StepVerifier.create(tenantService.getDefaultTenant())
                 .assertNext(tenant1 -> {
-                    assertFalse(tenant1.getTenantConfiguration().getIsActivated());
+                    assertNull(tenant1.getTenantConfiguration().getIsActivated());
                 })
                 .verifyComplete();
     }
@@ -494,17 +502,19 @@ public class TenantServiceTest {
         Tenant defaultTenant = tenantService.getTenantConfiguration().block();
         TenantConfiguration defaultTenantConfiguration = defaultTenant.getTenantConfiguration();
         String primary1 = "#df8d67";
+        String active1 = "#df8d67";
         String background1 = "#fdf9f7";
         String font1 = "#000";
         String disabled1 = "#f8e6dd";
         String hover1 = "#d66d3e";
         String primary2 = "#df8d68";
+        String active2 = "#df8d68";
         String background2 = "#fdf9f8";
         String font2 = "#001";
         String disabled2 = "#f8e6de";
-        Mono<String> update1_brandColors = Mono.just(
-                "{\"brandColors\": {\"primary\":\"" + primary1 + "\",\"background\":\"" + background1 + "\",\"font\":\""
-                        + font1 + "\",\"disabled\":\"" + disabled1 + "\",\"hover\":\"" + hover1 + "\"}}");
+        Mono<String> update1_brandColors = Mono.just("{\"brandColors\": {\"primary\":\"" + primary1
+                + "\",\"background\":\"" + background1 + "\",\"font\":\"" + font1 + "\",\"disabled\":\"" + disabled1
+                + "\",\"active\":\"" + active1 + "\", \"hover\":\"" + hover1 + "\"}}");
 
         Tenant defaultTenantPostUpdate1 = tenantService
                 .updateDefaultTenantConfiguration(update1_brandColors, Mono.empty(), Mono.empty())
@@ -513,6 +523,7 @@ public class TenantServiceTest {
         assertThat(newTenantConfiguration1.getBrandColors()).isNotNull();
         TenantConfiguration.BrandColors newBrandColors1 = newTenantConfiguration1.getBrandColors();
         assertThat(newBrandColors1.getPrimary()).isEqualTo(primary1);
+        assertThat(newBrandColors1.getActive()).isEqualTo(active1);
         assertThat(newBrandColors1.getBackground()).isEqualTo(background1);
         assertThat(newBrandColors1.getFont()).isEqualTo(font1);
         assertThat(newBrandColors1.getDisabled()).isEqualTo(disabled1);
@@ -520,9 +531,9 @@ public class TenantServiceTest {
         assertTenantConfigurations(
                 newTenantConfiguration1, defaultTenantConfiguration, true, true, true, true, true, false, true);
 
-        Mono<String> update2_brandColors =
-                Mono.just("{\"brandColors\": {\"primary\":\"" + primary2 + "\",\"background\":\"" + background2
-                        + "\",\"font\":\"" + font2 + "\",\"disabled\":\"" + disabled2 + "\"}}");
+        Mono<String> update2_brandColors = Mono.just(
+                "{\"brandColors\": {\"primary\":\"" + primary2 + "\",\"background\":\"" + background2 + "\",\"font\":\""
+                        + font2 + "\",\"active\":\"" + active2 + "\",\"disabled\":\"" + disabled2 + "\"}}");
 
         Tenant defaultTenantPostUpdate2 = tenantService
                 .updateDefaultTenantConfiguration(update2_brandColors, Mono.empty(), Mono.empty())
@@ -531,12 +542,73 @@ public class TenantServiceTest {
         assertThat(newTenantConfiguration2.getBrandColors()).isNotNull();
         TenantConfiguration.BrandColors newBrandColors2 = newTenantConfiguration2.getBrandColors();
         assertThat(newBrandColors2.getPrimary()).isEqualTo(primary2);
+        assertThat(newBrandColors2.getActive()).isEqualTo(active2);
         assertThat(newBrandColors2.getBackground()).isEqualTo(background2);
         assertThat(newBrandColors2.getFont()).isEqualTo(font2);
         assertThat(newBrandColors2.getDisabled()).isEqualTo(disabled2);
         assertThat(newBrandColors2.getHover()).isEqualTo(hover1);
         assertTenantConfigurations(
                 newTenantConfiguration2, defaultTenantConfiguration, true, true, true, true, true, false, true);
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void test_defaultBranding_whenFeatureFlagDisabled() {
+        when(featureFlagService.check(FeatureFlagEnum.license_branding_enabled)).thenReturn(Mono.just(false));
+        Mono<Tenant> tenantMono = tenantService.getTenantConfiguration();
+        StepVerifier.create(tenantMono)
+                .assertNext(tenant -> {
+                    TenantConfiguration tenantConfiguration = tenant.getTenantConfiguration();
+                    assertTrue(tenantConfiguration.getBrandLogoUrl().contains(Url.ASSET_URL));
+                    assertEquals(
+                            TenantConfiguration.DEFAULT_APPSMITH_FEVICON, tenantConfiguration.getBrandFaviconUrl());
+
+                    TenantConfiguration.BrandColors brandColors = tenantConfiguration.getBrandColors();
+                    assertEquals(TenantConfiguration.DEFAULT_BACKGROUND_COLOR, brandColors.getBackground());
+                    assertEquals(TenantConfiguration.DEFAULT_PRIMARY_COLOR, brandColors.getPrimary());
+                    assertEquals(TenantConfiguration.DEFAULT_FONT_COLOR, brandColors.getFont());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void test_updateBrandingNotAllowed_whenFeatureFlagDisabled() {
+        TenantConfiguration defaultTenantConfiguration = new TenantConfiguration();
+        defaultTenantConfiguration.setWhiteLabelEnable(Boolean.FALSE.toString());
+        defaultTenantConfiguration.setWhiteLabelFavicon(TenantConfiguration.DEFAULT_APPSMITH_FEVICON);
+        defaultTenantConfiguration.setWhiteLabelLogo(TenantConfiguration.DEFAULT_APPSMITH_LOGO);
+
+        TenantConfiguration.BrandColors defaultBrandColors = new TenantConfiguration.BrandColors();
+        defaultBrandColors.setPrimary(TenantConfiguration.DEFAULT_PRIMARY_COLOR);
+        defaultBrandColors.setFont(TenantConfiguration.DEFAULT_FONT_COLOR);
+        defaultBrandColors.setBackground(TenantConfiguration.DEFAULT_BACKGROUND_COLOR);
+        defaultTenantConfiguration.setBrandColors(defaultBrandColors);
+
+        Tenant defaultTenant = tenantService.getDefaultTenant().block();
+        tenantService
+                .updateTenantConfiguration(defaultTenant.getId(), defaultTenantConfiguration)
+                .block();
+
+        Mono<Part> favicon = Mono.just(createMockFilePart(1024));
+        Mono<Part> icon = Mono.just(createMockFilePart(2048));
+
+        // updating it from default value but since feature flag is disabled, update shouldn't happen
+        when(featureFlagService.check(FeatureFlagEnum.license_branding_enabled)).thenReturn(Mono.just(false));
+        Mono<Tenant> tenantMono = tenantService.updateDefaultTenantConfiguration(Mono.empty(), icon, favicon);
+        StepVerifier.create(tenantMono)
+                .assertNext(tenant -> {
+                    TenantConfiguration tenantConfiguration = tenant.getTenantConfiguration();
+                    assertTrue(tenantConfiguration.getBrandLogoUrl().contains(Url.ASSET_URL));
+                    assertEquals(
+                            TenantConfiguration.DEFAULT_APPSMITH_FEVICON, tenantConfiguration.getBrandFaviconUrl());
+
+                    TenantConfiguration.BrandColors brandColors = tenantConfiguration.getBrandColors();
+                    assertEquals(TenantConfiguration.DEFAULT_BACKGROUND_COLOR, brandColors.getBackground());
+                    assertEquals(TenantConfiguration.DEFAULT_PRIMARY_COLOR, brandColors.getPrimary());
+                    assertEquals(TenantConfiguration.DEFAULT_FONT_COLOR, brandColors.getFont());
+                })
+                .verifyComplete();
     }
 
     @Test
@@ -557,10 +629,14 @@ public class TenantServiceTest {
                 })
                 .verifyComplete();
 
+        License freeLicense = new License();
+        freeLicense.setActive(Boolean.FALSE);
+        freeLicense.setPreviousPlan(LicensePlan.FREE);
+        freeLicense.setPlan(LicensePlan.FREE);
         // Check if the license field is null after the license is removed as a part of downgrade to community flow
         StepVerifier.create(tenantService.removeLicenseKey())
                 .assertNext(tenant1 -> {
-                    assertThat(tenant1.getTenantConfiguration().getLicense()).isNull();
+                    assertThat(tenant1.getTenantConfiguration().getLicense()).isEqualTo(freeLicense);
                 })
                 .verifyComplete();
     }
@@ -608,7 +684,7 @@ public class TenantServiceTest {
                 .verifyComplete();
 
         // Check if the license field is null after the license is removed as a part of downgrade to community flow
-        StepVerifier.create(tenantService.syncLicensePlans())
+        StepVerifier.create(tenantService.syncLicensePlansAndRunFeatureBasedMigrations())
                 .assertNext(tenant1 -> {
                     assertThat(tenant1.getTenantConfiguration().getLicense()).isNotNull();
                     License tenantLicense = tenant1.getTenantConfiguration().getLicense();
@@ -675,14 +751,13 @@ public class TenantServiceTest {
         assertTenantConfigurations(
                 newTenantConfiguration1, defaultTenantConfiguration, true, true, true, true, false, true, true);
 
-        when(featureFlagService.check(any())).thenReturn(Mono.just(false));
         Mono<String> update2_singleSessionPerUserEnabled = Mono.just("{\"singleSessionPerUserEnabled\": false}");
 
         Tenant defaultTenantPostUpdate2 = tenantService
                 .updateDefaultTenantConfiguration(update2_singleSessionPerUserEnabled, Mono.empty(), Mono.empty())
                 .block();
         TenantConfiguration newTenantConfiguration2 = defaultTenantPostUpdate2.getTenantConfiguration();
-        assertThat(newTenantConfiguration2.getSingleSessionPerUserEnabled()).isTrue();
+        assertThat(newTenantConfiguration2.getSingleSessionPerUserEnabled()).isFalse();
         assertTenantConfigurations(
                 newTenantConfiguration2, defaultTenantConfiguration, true, true, true, true, false, true, true);
     }
@@ -747,6 +822,7 @@ public class TenantServiceTest {
                 assertThat(actualBrandColors.getFont()).isEqualTo(expectedBrandColors.getFont());
                 assertThat(actualBrandColors.getDisabled()).isEqualTo(expectedBrandColors.getDisabled());
                 assertThat(actualBrandColors.getHover()).isEqualTo(expectedBrandColors.getHover());
+                assertThat(actualBrandColors.getActive()).isEqualTo(expectedBrandColors.getActive());
             }
         }
         if (assertFirstTimeInteraction) {

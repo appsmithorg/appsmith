@@ -52,11 +52,11 @@ export class DataManager {
       smtp_username: "root",
       smtp_password: "root",
 
-      oracle_host: "random-data",
-      oracle_port: 40,
-      oracle_name: "random-name",
-      oracle_username: "random-username",
-      oracle_password: "random-password",
+      oracle_host: Cypress.env("ORACLE_HOST"),
+      oracle_port: 1521,
+      oracle_service: Cypress.env("ORACLE_SERVICE"),
+      oracle_username: Cypress.env("ORACLE_USERNAME"),
+      oracle_password: Cypress.env("ORACLE_PASSWORD"),
 
       redis_host: "host.docker.internal",
       redis_port: "6379",
@@ -148,7 +148,7 @@ export class DataManager {
 
       oracle_host: "random-data",
       oracle_port: 40,
-      oracle_name: "random-name",
+      oracle_service: "random-name",
       oracle_username: "random-username",
       oracle_password: "random-password",
 

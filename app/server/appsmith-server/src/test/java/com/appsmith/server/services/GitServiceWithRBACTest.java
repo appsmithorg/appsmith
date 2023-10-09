@@ -13,6 +13,7 @@ import com.appsmith.external.models.Environment;
 import com.appsmith.external.models.JSValue;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitApplicationMetadata;
@@ -41,6 +42,7 @@ import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.migrations.JsonSchemaMigration;
+import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.GenericDatabaseOperation;
 import com.appsmith.server.repositories.PluginRepository;
@@ -567,13 +569,7 @@ public class GitServiceWithRBACTest {
         remoteGitBranchDTO.setBranchName("origin/defaultBranch");
         branchList.add(remoteGitBranchDTO);
 
-        Mockito.when(gitExecutor.listBranches(
-                        Mockito.any(Path.class),
-                        Mockito.anyString(),
-                        Mockito.anyString(),
-                        Mockito.anyString(),
-                        eq(false)))
-                .thenReturn(Mono.just(branchList));
+        Mockito.when(gitExecutor.listBranches(Mockito.any(Path.class))).thenReturn(Mono.just(branchList));
         Mockito.when(gitFileUtils.deleteLocalRepo(Mockito.any(Path.class))).thenReturn(Mono.just(true));
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
                 .thenReturn(Mono.just(new MockPluginExecutor()));
@@ -836,13 +832,7 @@ public class GitServiceWithRBACTest {
         remoteGitBranchDTO.setBranchName("origin/defaultBranch");
         branchList.add(remoteGitBranchDTO);
 
-        Mockito.when(gitExecutor.listBranches(
-                        Mockito.any(Path.class),
-                        Mockito.anyString(),
-                        Mockito.anyString(),
-                        Mockito.anyString(),
-                        eq(false)))
-                .thenReturn(Mono.just(branchList));
+        Mockito.when(gitExecutor.listBranches(Mockito.any(Path.class))).thenReturn(Mono.just(branchList));
         Mockito.when(gitFileUtils.deleteLocalRepo(Mockito.any(Path.class))).thenReturn(Mono.just(true));
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
                 .thenReturn(Mono.just(new MockPluginExecutor()));
@@ -1212,9 +1202,7 @@ public class GitServiceWithRBACTest {
         Mockito.when(gitFileUtils.reconstructApplicationJsonFromGitRepo(
                         Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just(applicationJson));
-        Mockito.when(gitExecutor.listBranches(
-                        Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
-                .thenReturn(Mono.just(List.of()));
+        Mockito.when(gitExecutor.listBranches(Mockito.any())).thenReturn(Mono.just(List.of()));
 
         Application branchedApplication = runAs(
                         gitService.checkoutBranch(gitConnectedApplication.getId(), "origin/" + branchName), api_user)
@@ -1442,9 +1430,7 @@ public class GitServiceWithRBACTest {
         Mockito.when(gitFileUtils.reconstructApplicationJsonFromGitRepo(
                         Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just(applicationJson));
-        Mockito.when(gitExecutor.listBranches(
-                        Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
-                .thenReturn(Mono.just(branchList));
+        Mockito.when(gitExecutor.listBranches(Mockito.any())).thenReturn(Mono.just(branchList));
 
         String username = UUID.randomUUID() + "@test.com";
 
@@ -1539,9 +1525,7 @@ public class GitServiceWithRBACTest {
         Mockito.when(gitFileUtils.reconstructApplicationJsonFromGitRepo(
                         Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just(applicationJson));
-        Mockito.when(gitExecutor.listBranches(
-                        Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
-                .thenReturn(Mono.just(branchList));
+        Mockito.when(gitExecutor.listBranches(Mockito.any())).thenReturn(Mono.just(branchList));
 
         String username = UUID.randomUUID().toString() + "@test.com";
 
@@ -1810,9 +1794,7 @@ public class GitServiceWithRBACTest {
                         Mockito.anyString(),
                         Mockito.anyBoolean()))
                 .thenReturn(Mono.just("fetchResult"));
-        Mockito.when(gitExecutor.listBranches(
-                        Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
-                .thenReturn(Mono.just(new ArrayList<>()));
+        Mockito.when(gitExecutor.listBranches(Mockito.any())).thenReturn(Mono.just(new ArrayList<>()));
         Mockito.when(gitExecutor.createAndCheckoutToBranch(Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.just(createGitBranchDTO.getBranchName()));
         Mockito.when(gitFileUtils.saveApplicationToLocalRepo(
@@ -2100,9 +2082,7 @@ public class GitServiceWithRBACTest {
                         Mockito.anyString(),
                         Mockito.anyBoolean()))
                 .thenReturn(Mono.just("fetchResult"));
-        Mockito.when(gitExecutor.listBranches(
-                        Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
-                .thenReturn(Mono.just(new ArrayList<>()));
+        Mockito.when(gitExecutor.listBranches(Mockito.any())).thenReturn(Mono.just(new ArrayList<>()));
         Mockito.when(gitExecutor.createAndCheckoutToBranch(Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.just(createGitBranchDTO.getBranchName()));
         Mockito.when(gitFileUtils.saveApplicationToLocalRepo(

@@ -1,22 +1,16 @@
 import React from "react";
-import { Icon, Text } from "design-system";
+import { Link, Text } from "design-system";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { Link } from "react-router-dom";
 import styled from "styled-components";
 
-const StyledLink = styled(Link)`
-  text-decoration: underline;
-
-  &:hover {
-    color: var(--ads-v2-color-fg);
-  }
-
-  .ads-v2-icon {
+const Wrapper = styled.span`
+  a {
     display: inline;
-    margin-right: var(--ads-v2-spaces-2);
-
-    svg {
+    span {
       display: inline;
+      svg {
+        display: inline;
+      }
     }
   }
 `;
@@ -31,43 +25,39 @@ const ResourceLinks = ({
   provisionedUsers: number;
 }) => {
   return (
-    <>
-      <StyledLink
+    <Wrapper>
+      <Link
         data-testid="linked-resources-link"
         onClick={() =>
           AnalyticsUtil.logEvent("SCIM_PROVISIONED_USERS_CLICKED", {
             origin,
           })
         }
+        startIcon="user-3-line"
+        target="_self"
         to="/settings/users?provisioned=true"
       >
-        <Icon name="user-3-line" size="md" />
-        <Text>{`${
-          provisionedUsers === 1
-            ? `${provisionedUsers} user`
-            : `${provisionedUsers} users`
-        }`}</Text>
-      </StyledLink>
+        {provisionedUsers === 1
+          ? `${provisionedUsers} user`
+          : `${provisionedUsers} users`}
+      </Link>
       &nbsp;
       <Text>and</Text>&nbsp;
-      <StyledLink
+      <Link
         data-testid="linked-resources-link"
         onClick={() =>
           AnalyticsUtil.logEvent("SCIM_PROVISIONED_GROUPS_CLICKED", { origin })
         }
+        startIcon="group-line"
+        target="_self"
         to="/settings/groups?provisioned=true"
       >
-        <Icon name="group-line" size="md" />
-        <Text>
-          {`${
-            provisionedGroups === 1
-              ? `${provisionedGroups} group`
-              : `${provisionedGroups} groups`
-          }`}
-        </Text>
-      </StyledLink>
+        {provisionedGroups === 1
+          ? `${provisionedGroups} group`
+          : `${provisionedGroups} groups`}
+      </Link>
       &nbsp;
-    </>
+    </Wrapper>
   );
 };
 

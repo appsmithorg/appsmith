@@ -1,3 +1,5 @@
+export * from "ce/pages/Editor/KnowledgeBase/KBEditorNavButton";
+
 import React from "react";
 import { Button, Link, Text, Tooltip } from "design-system";
 import styled from "styled-components";
@@ -5,7 +7,7 @@ import { viewerURL } from "RouteBuilder";
 import { useSelector } from "react-redux";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { useHref } from "pages/Editor/utils";
-import { selectFeatureFlagCheck } from "ce/selectors/featureFlagsSelectors";
+import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
 
 const StyledLink = styled(Link)`
   & > * {

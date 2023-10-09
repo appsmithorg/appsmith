@@ -8,13 +8,13 @@ import com.appsmith.server.dtos.MemberInfoDTO;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.dtos.UpdateApplicationRoleDTO;
+import com.appsmith.server.fork.internal.ApplicationForkingService;
 import com.appsmith.server.services.ApplicationMemberService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.ApplicationSnapshotService;
 import com.appsmith.server.services.ThemeService;
 import com.appsmith.server.solutions.ApplicationFetcher;
-import com.appsmith.server.solutions.ApplicationForkingService;
 import com.appsmith.server.solutions.ImportExportApplicationService;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
@@ -69,9 +70,11 @@ public class ApplicationController extends ApplicationControllerCE {
 
     @PostMapping("/invite")
     public Mono<ResponseDTO<List<MemberInfoDTO>>> inviteToApplication(
-            @RequestBody InviteUsersToApplicationDTO inviteToApplicationDTO) {
+            @RequestBody InviteUsersToApplicationDTO inviteToApplicationDTO,
+            @RequestHeader("Origin") String originHeader) {
         log.debug("Inviting entities to application: {}", inviteToApplicationDTO.getApplicationId());
-        Mono<List<MemberInfoDTO>> memberInfoDTOSMono = service.inviteToApplication(inviteToApplicationDTO);
+        Mono<List<MemberInfoDTO>> memberInfoDTOSMono =
+                service.inviteToApplication(inviteToApplicationDTO, originHeader);
         return memberInfoDTOSMono.map(
                 invitedEntitiesDTO -> new ResponseDTO<>(HttpStatus.OK.value(), invitedEntitiesDTO, null));
     }

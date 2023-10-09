@@ -30,7 +30,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.LinkedMultiValueMap;
@@ -90,7 +90,7 @@ public class UserServiceTest {
     @Autowired
     TenantService tenantService;
 
-    @MockBean
+    @SpyBean
     FeatureFlagService featureFlagService;
 
     User api_user = null;
@@ -103,6 +103,7 @@ public class UserServiceTest {
     @BeforeEach
     public void setup() {
         mockFeatureFlag(FeatureFlagEnum.license_audit_logs_enabled, false);
+        mockFeatureFlag(FeatureFlagEnum.license_branding_enabled, true);
 
         api_user = userRepository.findByEmail("api_user").block();
 

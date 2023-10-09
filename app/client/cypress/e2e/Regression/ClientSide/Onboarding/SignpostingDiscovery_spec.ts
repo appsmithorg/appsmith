@@ -37,6 +37,7 @@ describe("Signposting discovery", function () {
     agHelper.AssertElementVisibility(onboarding.locators.create_query);
     agHelper.AssertElementVisibility(locators._walkthrough_overlay);
     agHelper.GetNClick(onboarding.locators.create_query);
+    agHelper.AssertElementVisibility(dataSources._runQueryBtn, true, 0, 20000);
 
     // Switch to widget pane
     agHelper.AssertElementVisibility(onboarding.locators.explorer_widget_tab);

@@ -157,10 +157,9 @@ public class PermissionGroupServiceTest {
                             .permission(ASSIGN_PERMISSION_GROUPS.getValue())
                             .permissionGroups(Set.of(superAdminPermissionGroupId))
                             .build();
-                    // The user who created the role should be always have unassign permission on the role they created.
                     Policy unassignPgPolicy = Policy.builder()
                             .permission(UNASSIGN_PERMISSION_GROUPS.getValue())
-                            .permissionGroups(Set.of(superAdminPermissionGroupId, id))
+                            .permissionGroups(Set.of(superAdminPermissionGroupId))
                             .build();
 
                     assertThat(permissionGroup1.getPolicies())
@@ -382,7 +381,7 @@ public class PermissionGroupServiceTest {
         updateRoleAssociationDTO.setRolesAdded(Set.of(
                 new PermissionGroupCompactDTO(createdPermissionGroup.getId(), createdPermissionGroup.getName())));
         userAndAccessManagementService
-                .changeRoleAssociations(updateRoleAssociationDTO)
+                .changeRoleAssociations(updateRoleAssociationDTO, "originHeader")
                 .block();
 
         PermissionGroup updatedPermissionGroup = permissionGroupService
@@ -436,7 +435,7 @@ public class PermissionGroupServiceTest {
 
         // Now assign the users to the roles
         userAndAccessManagementService
-                .changeRoleAssociations(updateRoleAssociationDTO)
+                .changeRoleAssociations(updateRoleAssociationDTO, "originHeader")
                 .block();
 
         Mono<Tuple2<PermissionGroup, PermissionGroup>> permissionGroupsPostUpdateMono = Mono.zip(
@@ -519,7 +518,7 @@ public class PermissionGroupServiceTest {
 
         // Now assign the users to the roles
         userAndAccessManagementService
-                .changeRoleAssociations(updateRoleAssociationDTO)
+                .changeRoleAssociations(updateRoleAssociationDTO, "originHeader")
                 .block();
 
         Mono<Tuple2<PermissionGroup, PermissionGroup>> permissionGroupsPostUpdateMono = Mono.zip(
@@ -646,7 +645,7 @@ public class PermissionGroupServiceTest {
                 new PermissionGroupCompactDTO(createdPermissionGroup3.getId(), createdPermissionGroup3.getName())));
 
         userAndAccessManagementService
-                .changeRoleAssociations(updateRoleAssociationDTO)
+                .changeRoleAssociations(updateRoleAssociationDTO, "originHeader")
                 .block();
 
         /**
@@ -673,7 +672,7 @@ public class PermissionGroupServiceTest {
                 new PermissionGroupCompactDTO(createdPermissionGroup3.getId(), createdPermissionGroup3.getName())));
 
         userAndAccessManagementService
-                .changeRoleAssociations(updateRoleAssociationDTO)
+                .changeRoleAssociations(updateRoleAssociationDTO, "originHeader")
                 .block();
 
         updateRoleAssociationDTO.setGroups(Set.of());
@@ -684,7 +683,7 @@ public class PermissionGroupServiceTest {
                 new PermissionGroupCompactDTO(createdPermissionGroup2.getId(), createdPermissionGroup2.getName())));
 
         userAndAccessManagementService
-                .changeRoleAssociations(updateRoleAssociationDTO)
+                .changeRoleAssociations(updateRoleAssociationDTO, "originHeader")
                 .block();
 
         Mono<Workspace> workspaceMonoWithPermission = workspaceService

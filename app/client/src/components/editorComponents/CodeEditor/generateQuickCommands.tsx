@@ -1,11 +1,9 @@
 import type { Datasource } from "entities/Datasource";
 import React from "react";
 import type { CommandsCompletion } from "utils/autocomplete/CodemirrorTernService";
-import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import ReactDOM from "react-dom";
-import sortBy from "lodash/sortBy";
 import type { SlashCommandPayload } from "entities/Action";
-import { PluginType, SlashCommand } from "entities/Action";
+import { SlashCommand } from "entities/Action";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { EntityIcon, JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
@@ -15,50 +13,44 @@ import { APPSMITH_AI } from "@appsmith/components/editorComponents/GPT/trigger";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import BetaCard from "../BetaCard";
+import type { NavigationData } from "selectors/navigationSelectors";
 
-enum Shortcuts {
+export enum Shortcuts {
   PLUS = "PLUS",
   BINDING = "BINDING",
   FUNCTION = "FUNCTION",
   ASK_AI = "ASK_AI",
 }
 
-const matchingCommands = (
-  list: any,
+export function matchingCommands(
+  list: CommandsCompletion[],
   searchText: string,
-  recentEntities: string[] = [],
   limit = 5,
-) => {
-  list = list.filter((action: any) => {
-    return (
-      action.displayText.toLowerCase().indexOf(searchText.toLowerCase()) > -1
-    );
-  });
-  list = sortBy(list, (a: any) => {
-    return (
-      (a.data.ENTITY_TYPE === ENTITY_TYPE.WIDGET
-        ? recentEntities.indexOf(a.data.widgetId)
-        : recentEntities.indexOf(a.data.actionId)) * -1
-    );
-  });
-  return list.slice(0, limit);
-};
+) {
+  return list
+    .filter((action) => {
+      return (
+        action.displayText &&
+        action.displayText.toLowerCase().indexOf(searchText.toLowerCase()) > -1
+      );
+    })
+    .slice(0, limit);
+}
 
-const commandsHeader = (
+export const commandsHeader = (
   displayText: string,
   text = "",
+  separator = true,
 ): CommandsCompletion => ({
   text: text,
   displayText: displayText,
-  className: "CodeMirror-command-header",
-  data: { doc: "" },
-  origin: "",
-  type: AutocompleteDataType.UNKNOWN,
+  className: `CodeMirror-command-header ${separator ? "separator" : ""}`,
+  data: {},
   isHeader: true,
   shortcut: "",
 });
 
-const generateCreateNewCommand = ({
+export const generateCreateNewCommand = ({
   action,
   description,
   displayText,
@@ -69,9 +61,7 @@ const generateCreateNewCommand = ({
 }: any): CommandsCompletion => ({
   text,
   displayText: displayText,
-  data: { doc: "" },
-  origin: "",
-  type: AutocompleteDataType.UNKNOWN,
+  data: {},
   className: "CodeMirror-commands",
   shortcut,
   action,
@@ -89,8 +79,8 @@ const generateCreateNewCommand = ({
   },
 });
 
-const iconsByType = {
-  [Shortcuts.BINDING]: <Icon name="binding" size="md" />,
+export const iconsByType = {
+  [Shortcuts.BINDING]: <Icon name="binding-new" size="md" />,
   [Shortcuts.PLUS]: (
     <Icon className="add-datasource-icon" name="add-box-line" size="md" />
   ),
@@ -100,7 +90,7 @@ const iconsByType = {
   [Shortcuts.ASK_AI]: <Icon className="magic" name="magic-line" size="md" />,
 };
 
-function Command(props: {
+export function Command(props: {
   icon: any;
   name: string;
   desc?: string;
@@ -110,18 +100,20 @@ function Command(props: {
     <div className="command-container">
       <div className="command">
         {props.icon}
-        <div className="overflow-hidden overflow-ellipsis whitespace-nowrap flex flex-row items-center gap-2">
-          {props.name}
-          {props.isBeta && <BetaCard />}
+        <div className="flex flex-col gap-1">
+          <div className="overflow-hidden overflow-ellipsis whitespace-nowrap flex flex-row items-center gap-2 text-[color:var(--ads-v2\-colors-content-label-default-fg)]">
+            {props.name}
+            {props.isBeta && <BetaCard />}
+          </div>
+          {props.desc ? <div className="command-desc">{props.desc}</div> : null}
         </div>
       </div>
-      {props.desc ? <div className="command-desc">{props.desc}</div> : null}
     </div>
   );
 }
 
 export const generateQuickCommands = (
-  entitiesForSuggestions: any[],
+  entitiesForSuggestions: NavigationData[],
   currentEntityType: ENTITY_TYPE,
   searchText: string,
   {
@@ -129,7 +121,6 @@ export const generateQuickCommands = (
     enableAIAssistance,
     executeCommand,
     pluginIdToImageLocation,
-    recentEntities,
   }: {
     datasources: Datasource[];
     executeCommand: (payload: SlashCommandPayload) => void;
@@ -139,12 +130,9 @@ export const generateQuickCommands = (
     enableAIAssistance: boolean;
   },
 ) => {
-  const suggestionsHeader: CommandsCompletion = commandsHeader("Bind data");
-  const createNewHeader: CommandsCompletion = commandsHeader("Create a query");
-  recentEntities.reverse();
   const newBinding: CommandsCompletion = generateCreateNewCommand({
     text: "{{}}",
-    displayText: "New binding",
+    displayText: "Add a binding",
     shortcut: Shortcuts.BINDING,
     triggerCompletionsPostPick: true,
   });
@@ -164,41 +152,46 @@ export const generateQuickCommands = (
     },
     shortcut: Shortcuts.PLUS,
   });
-  const suggestions = entitiesForSuggestions.map((suggestion: any) => {
-    const name = suggestion.entityName;
+  const suggestions = entitiesForSuggestions.map((suggestion) => {
+    const name = suggestion.name;
     return {
       text:
-        suggestion.ENTITY_TYPE === ENTITY_TYPE.ACTION
+        suggestion.type === ENTITY_TYPE.ACTION
           ? `{{${name}.data}}`
-          : suggestion.ENTITY_TYPE === ENTITY_TYPE.JSACTION
+          : suggestion.type === ENTITY_TYPE.JSACTION
           ? `{{${name}.}}`
           : `{{${name}}}`,
       displayText: `${name}`,
       className: "CodeMirror-commands",
       data: suggestion,
-      triggerCompletionsPostPick: suggestion.ENTITY_TYPE !== ENTITY_TYPE.ACTION,
-      render: (element: HTMLElement, self: any, data: any) => {
-        const pluginType = data.data.pluginType as PluginType;
+      triggerCompletionsPostPick: suggestion.type !== ENTITY_TYPE.ACTION,
+      render: (element: HTMLElement, _: unknown, data: CommandsCompletion) => {
         let icon = null;
-        if (pluginType === PluginType.JS) {
-          icon = JsFileIconV2();
-        } else if (pluginIdToImageLocation[data.data.pluginId]) {
+        const completionData = data.data as NavigationData;
+        if (completionData.type === ENTITY_TYPE.JSACTION) {
+          icon = JsFileIconV2(16, 16);
+        } else if (
+          completionData.pluginId &&
+          pluginIdToImageLocation[completionData.pluginId]
+        ) {
           icon = (
-            <EntityIcon>
+            <EntityIcon height="16px" width="16px">
               <img
-                src={getAssetUrl(pluginIdToImageLocation[data.data.pluginId])}
+                src={getAssetUrl(
+                  pluginIdToImageLocation[completionData.pluginId],
+                )}
               />
             </EntityIcon>
           );
         }
         ReactDOM.render(
-          <Command icon={icon} name={data.displayText} />,
+          <Command icon={icon} name={data.displayText as string} />,
           element,
         );
       },
     };
   });
-  const datasourceCommands = datasources.map((action: any) => {
+  const datasourceCommands = datasources.map((action) => {
     return {
       text: "",
       displayText: `${action.name}`,
@@ -209,11 +202,14 @@ export const generateQuickCommands = (
           actionType: SlashCommand.NEW_QUERY,
           args: { datasource: action },
         }),
-      render: (element: HTMLElement, self: any, data: any) => {
+      render: (element: HTMLElement, self: any, data: CommandsCompletion) => {
+        const completionData = data.data as Datasource;
         const icon = (
-          <EntityIcon>
+          <EntityIcon height="16px" width="16px">
             <img
-              src={getAssetUrl(pluginIdToImageLocation[data.data.pluginId])}
+              src={getAssetUrl(
+                pluginIdToImageLocation[completionData.pluginId],
+              )}
             />
           </EntityIcon>
         );
@@ -227,13 +223,10 @@ export const generateQuickCommands = (
   const suggestionsMatchingSearchText = matchingCommands(
     suggestions,
     searchText,
-    recentEntities,
     5,
   );
   const actionCommands = [newBinding];
 
-  // Adding this hack in the interest of time.
-  // TODO: Refactor slash commands generation for easier code splitting
   if (enableAIAssistance) {
     const askGPT: CommandsCompletion = generateCreateNewCommand({
       text: "",
@@ -245,34 +238,32 @@ export const generateQuickCommands = (
     });
     actionCommands.unshift(askGPT);
   }
-  let createNewCommands: any = [];
-  if (currentEntityType === ENTITY_TYPE.WIDGET) {
-    createNewCommands = [...datasourceCommands];
-  }
+  const createNewCommands: CommandsCompletion[] = [];
+
+  if (currentEntityType === ENTITY_TYPE.WIDGET)
+    createNewCommands.push(...datasourceCommands);
+
   const createNewCommandsMatchingSearchText = matchingCommands(
     createNewCommands,
     searchText,
-    [],
     3,
   );
   const actionCommandsMatchingSearchText = matchingCommands(
     actionCommands,
     searchText,
-    [],
   );
   if (currentEntityType === ENTITY_TYPE.WIDGET) {
     createNewCommandsMatchingSearchText.push(
-      ...matchingCommands([newIntegration], searchText, []),
+      ...matchingCommands([newIntegration], searchText),
     );
   }
   const list: CommandsCompletion[] = actionCommandsMatchingSearchText;
-
   if (suggestionsMatchingSearchText.length) {
-    list.push(suggestionsHeader);
+    list.push(commandsHeader("Bind data", "", list.length > 0));
   }
   list.push(...suggestionsMatchingSearchText);
   if (createNewCommandsMatchingSearchText.length) {
-    list.push(createNewHeader);
+    list.push(commandsHeader("Create a query", "", list.length > 0));
   }
   list.push(...createNewCommandsMatchingSearchText);
   return list;

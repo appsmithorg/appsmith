@@ -1,8 +1,8 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
 import {
-  ROW_GAP,
   MOBILE_ROW_GAP,
-} from "../../../../../src/utils/autoLayout/constants";
+  ROW_GAP,
+} from "../../../../../src/layoutSystems/autolayout/utils/constants";
 
 describe("Validating use cases for Auto Dimension", () => {
   before(() => {

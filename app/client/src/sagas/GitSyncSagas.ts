@@ -102,7 +102,10 @@ import { builderURL } from "RouteBuilder";
 import { APP_MODE } from "entities/App";
 import type { GitDiscardResponse } from "reducers/uiReducers/gitSyncReducer";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
-import { getActions, getJSCollections } from "selectors/entitiesSelector";
+import {
+  getActions,
+  getJSCollections,
+} from "@appsmith/selectors/entitiesSelector";
 import type { Action } from "entities/Action";
 import type { JSCollectionDataState } from "reducers/entityReducers/jsActionsReducer";
 import { toast } from "design-system";
@@ -232,7 +235,7 @@ function* connectToGitSaga(action: ConnectToGitReduxAction) {
       }
       /* commit effect END */
     }
-  } catch (error) {
+  } catch (error: any) {
     if (action.onErrorCallback) {
       action.onErrorCallback(error as Error, response);
     }
@@ -245,11 +248,14 @@ function* connectToGitSaga(action: ConnectToGitReduxAction) {
 
     // Api error
     // Display on the UI
-    if (response && !response?.responseMeta?.success) {
+
+    const errorResponse = response || error?.response?.data;
+
+    if (errorResponse && !errorResponse?.responseMeta?.success) {
       yield put({
         type: ReduxActionErrorTypes.CONNECT_TO_GIT_ERROR,
         payload: {
-          error: response?.responseMeta.error,
+          error: errorResponse?.responseMeta.error,
           show: false,
         },
       });
@@ -749,7 +755,11 @@ function* showConnectGitModal() {
   // currently it just opens the git sync modal assuming the APIs would
   // throw an error instead
   yield put(
-    setIsGitSyncModalOpen({ isOpen: true, tab: GitSyncModalTab.DEPLOY }),
+    setIsGitSyncModalOpen({
+      isOpen: true,
+      tab: GitSyncModalTab.DEPLOY,
+      isDeploying: true,
+    }),
   );
 }
 

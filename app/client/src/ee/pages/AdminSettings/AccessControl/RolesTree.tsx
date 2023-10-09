@@ -32,6 +32,7 @@ import {
 } from "design-system";
 import { usePrevious } from "@mantine/hooks";
 import { JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 let dataToBeSent: any[] = [];
 
@@ -697,12 +698,12 @@ export function updateData(
 
 export const getIcon = (iconLocations: any[], pluginId: string) => {
   const icon = iconLocations.find((d) => d.id === pluginId);
-  return <img alt={icon.name} src={icon.iconLocation} />;
+  return <img alt={icon.name} src={getAssetUrl(icon.iconLocation)} />;
 };
 
 export const getExtendedId = (rowData: any, type: string) => {
   return ["Groups", "Roles"].includes(rowData.name) && type === "Tenant"
-    ? `_Tenant${rowData.name.substring(0, rowData.name.length - 1)}`
+    ? `_${type}${rowData.name.substring(0, rowData.name.length - 1)}`
     : ``;
 };
 

@@ -26,7 +26,7 @@ import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import { Button, Text } from "design-system";
 import { getAssetUrl, isAirgapped } from "@appsmith/utils/airgapHelpers";
 
-export function BEBanner() {
+export function BEBanner({ isMobile }: { isMobile: boolean }) {
   const { days, suffix } = useSelector(getRemainingDays);
   const dispatch = useDispatch();
   const isAdmin = useSelector(isAdminUser);
@@ -39,9 +39,9 @@ export function BEBanner() {
   };
 
   return (
-    <StyledCallout>
-      <BannerWrapper data-testid="t--welcome-banner">
-        <BannerContentWrapper>
+    <StyledCallout isMobile={isMobile}>
+      <BannerWrapper className="banner-wrapper" data-testid="t--welcome-banner">
+        <BannerContentWrapper className="banner-content-wrapper">
           <img
             alt={createMessage(NO_ACTIVE_SUBSCRIPTION)}
             className="no-sub-img"
@@ -49,7 +49,7 @@ export function BEBanner() {
             src={getAssetUrl(`${ASSETS_CDN_URL}/upgrade-box.svg`)}
             width="180px"
           />
-          <BannerTextWrapper>
+          <BannerTextWrapper className="banner-text-wrapper">
             <Text
               className="main-text"
               color="var(--ads-v2-color-fg-emphasis)"

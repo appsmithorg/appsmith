@@ -9,7 +9,7 @@ import { SIDEBAR_ID } from "constants/Explorer";
 import { hasCreateDatasourceActionPermission } from "@appsmith/utils/permissionHelpers";
 import { useSelector } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
-import { getDatasource, getPlugin } from "selectors/entitiesSelector";
+import { getDatasource, getPlugin } from "@appsmith/selectors/entitiesSelector";
 import { getPagePermissions } from "selectors/editorSelectors";
 import { Menu, MenuTrigger, Button, Tooltip, MenuContent } from "design-system";
 import { SHOW_TEMPLATES, createMessage } from "@appsmith/constants/messages";

@@ -310,6 +310,7 @@ export default function QuickGitActions() {
           tab: isGitConnectV2Enabled
             ? GitSyncModalTab.SETTINGS
             : GitSyncModalTab.GIT_CONNECTION,
+          isDeploying: true,
         }),
       );
       AnalyticsUtil.logEvent("GS_SETTING_CLICK", {
@@ -330,6 +331,7 @@ export default function QuickGitActions() {
         setIsGitSyncModalOpen({
           isOpen: true,
           tab: GitSyncModalTab.MERGE,
+          isDeploying: true,
         }),
       );
     },

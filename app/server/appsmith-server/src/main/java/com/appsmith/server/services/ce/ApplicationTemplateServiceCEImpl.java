@@ -7,9 +7,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.UserData;
-import com.appsmith.server.dtos.ApplicationImportDTO;
-import com.appsmith.server.dtos.ApplicationJson;
-import com.appsmith.server.dtos.ApplicationTemplate;
+import com.appsmith.server.dtos.*;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ResponseUtils;
@@ -20,13 +18,17 @@ import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.ImportExportApplicationService;
 import com.appsmith.server.solutions.ReleaseNotesService;
 import com.appsmith.util.WebClientUtils;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.DefaultUriBuilderFactory;
@@ -308,5 +310,67 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
 
         return Mono.create(
                 sink -> importedApplicationMono.subscribe(sink::success, sink::error, null, sink.currentContext()));
+    }
+
+    private CommunityTemplateUploadDTO createCommunityTemplateUploadDTO(
+            ApplicationJson appJson, CommunityTemplateDTO templateDetails) {
+        ApplicationTemplate applicationTemplate = new ApplicationTemplate();
+        applicationTemplate.setTitle(templateDetails.getTitle());
+        applicationTemplate.setExcerpt(templateDetails.getHeadline());
+        applicationTemplate.setDescription(templateDetails.getDescription());
+        applicationTemplate.setUseCases(templateDetails.getUseCases());
+        applicationTemplate.setAuthorEmail(templateDetails.getAuthorEmail());
+
+        CommunityTemplateUploadDTO communityTemplate = new CommunityTemplateUploadDTO();
+        communityTemplate.setAppJson(appJson);
+        communityTemplate.setApplicationTemplate(applicationTemplate);
+        return communityTemplate;
+    }
+
+    private Mono<ApplicationTemplate> uploadCommunityTemplateToCS(CommunityTemplateUploadDTO communityTemplate) {
+        String url = cloudServicesConfig.getBaseUrl() + "/api/v1/app-templates/upload-community-template";
+        String authHeader = "Authorization";
+        String payload;
+        try {
+            ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+            payload = ow.writeValueAsString(communityTemplate);
+        } catch (Exception e) {
+            return Mono.error(e);
+        }
+
+        return WebClient.create()
+                .post()
+                .uri(url)
+                .header(authHeader, cloudServicesConfig.getTemplateUploadAuthHeader())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .body(BodyInserters.fromValue(payload))
+                .retrieve()
+                .bodyToMono(ApplicationTemplate.class);
+    }
+
+    private Mono<Application> updateApplicationFlags(String applicationId, String branchId) {
+        return applicationService
+                .findById(applicationId, applicationPermission.getEditPermission())
+                .flatMap(application -> {
+                    application.setForkingEnabled(true);
+                    application.setIsCommunityTemplate(true);
+
+                    return applicationService.update(applicationId, application, branchId);
+                });
+    }
+
+    @Override
+    public Mono<Application> publishAsCommunityTemplate(CommunityTemplateDTO resource) {
+        return importExportApplicationService
+                .exportApplicationById(resource.getApplicationId(), resource.getBranchName())
+                .flatMap(appJson -> uploadCommunityTemplateToCS(createCommunityTemplateUploadDTO(appJson, resource)))
+                .then(updateApplicationFlags(resource.getApplicationId(), resource.getBranchName()))
+                .flatMap(application -> {
+                    ApplicationAccessDTO applicationAccessDTO = new ApplicationAccessDTO();
+                    applicationAccessDTO.setPublicAccess(true);
+                    return applicationService.changeViewAccess(
+                            application.getId(), resource.getBranchName(), applicationAccessDTO);
+                });
     }
 }

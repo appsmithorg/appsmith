@@ -10,6 +10,7 @@ import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.CaptchaService;
 import com.appsmith.server.services.ConfigService;
+import com.appsmith.server.services.EmailService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;
 import org.junit.jupiter.api.BeforeEach;
@@ -57,6 +58,9 @@ public class UserSignupTest {
     @MockBean
     private NetworkUtils networkUtils;
 
+    @MockBean
+    private EmailService emailService;
+
     private UserSignup userSignup;
 
     @BeforeEach
@@ -71,7 +75,8 @@ public class UserSignupTest {
                 envManager,
                 commonConfig,
                 userUtils,
-                networkUtils);
+                networkUtils,
+                emailService);
     }
 
     private String createRandomString(int length) {

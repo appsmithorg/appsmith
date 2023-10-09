@@ -44,7 +44,7 @@
         <dependency>
             <groupId>com.graphql-java</groupId>
             <artifactId>graphql-java</artifactId>
-            <version>20.1</version>
+            <version>21.1</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.slf4j</groupId>
@@ -421,6 +421,11 @@
             <artifactId>quarkus-junit4-mock</artifactId>
             <version>2.14.2.Final</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.bucket4j</groupId>
+            <artifactId>bucket4j-core</artifactId>
+            <version>8.3.0</version>
         </dependency>
     </dependencies>
 

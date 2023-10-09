@@ -1,6 +1,7 @@
 export * from "ce/constants/messages";
 import {
   createMessage,
+  APPLICATION_INVITE as CE_APPLICATION_INVITE,
   INVITE_USERS_MESSAGE as CE_INVITE_USERS_MESSAGE,
   INVITE_USERS_PLACEHOLDER as CE_INVITE_USERS_PLACEHOLDER,
   INVITE_USERS_VALIDATION_EMAIL_LIST as CE_INVITE_USERS_VALIDATION_EMAIL_LIST,
@@ -82,6 +83,8 @@ export const INVITE_USER_SUBMIT_SUCCESS = (cloudHosting?: boolean) =>
   cloudHosting
     ? createMessage(CE_INVITE_USER_SUBMIT_SUCCESS)
     : `The user/group have been invited successfully`;
+export const APPLICATION_INVITE = (name: string, cloudHosting?: boolean) =>
+  cloudHosting ? CE_APPLICATION_INVITE(name) : "Application invite";
 export const EVENT_GROUP_ADD_USER_TOP_BAR = () =>
   "Group details page > Top bar";
 export const EVENT_GROUP_ADD_USER_EMPTY_STATE = () =>
@@ -208,8 +211,8 @@ export const PAGE_SERVER_UNAVAILABLE_TITLE = (cloudHosting: boolean) => {
 };
 
 // Environments
-export const ENVIRONMENT_FILTER_DISABLED_TOOLTIP = (PluginName = "This") =>
-  `${PluginName} data source doesn't support environments, your production configuration is also used for staging.`;
+export const ENVIRONMENT_FILTER_DISABLED_TOOLTIP = (PluginName = "this") =>
+  `Production and staging configurations are the same since ${PluginName.toLowerCase()} datasource doesn't support environments.`;
 export const ENV_INFO_MODAL_CHECKBOX_LABEL = () =>
   "I understand, don't tell me again.";
 export const ENV_INFO_MODAL_HEADER = () =>

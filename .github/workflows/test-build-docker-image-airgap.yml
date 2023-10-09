@@ -63,7 +63,7 @@ jobs:
     # Only run if the build step is successful
     if: success()
     name: ci-test
-    uses: ./.github/workflows/ci-test.yml
+    uses: ./.github/workflows/ci-test-custom-script.yml
     secrets: inherit
     with:
       pr: 0

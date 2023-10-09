@@ -1,0 +1,6 @@
+.flexContainer {
+  container-type: inline-size;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}

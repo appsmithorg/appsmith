@@ -136,7 +136,7 @@ public class UserAndAccessManagementServiceTest {
         updateRoleAssociationDTO.setRolesAdded(Set.of(permissionGroupCompactDTO1));
 
         Boolean created = userAndAccessManagementService
-                .changeRoleAssociations(updateRoleAssociationDTO)
+                .changeRoleAssociations(updateRoleAssociationDTO, "originHeader")
                 .block();
         assertThat(created).isTrue();
         PermissionGroup updatedAdminPermissionGroup = permissionGroupRepository
@@ -197,7 +197,8 @@ public class UserAndAccessManagementServiceTest {
         updateRoleAssociationDTO.setGroups(Set.of(userGroupCompactDTO));
         updateRoleAssociationDTO.setRolesAdded(Set.of(permissionGroupCompactDTO1));
 
-        StepVerifier.create(userAndAccessManagementService.changeRoleAssociations(updateRoleAssociationDTO))
+        StepVerifier.create(
+                        userAndAccessManagementService.changeRoleAssociations(updateRoleAssociationDTO, "originHeader"))
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
                         && throwable.getMessage().contains(AppsmithError.ROLES_FROM_SAME_WORKSPACE.getMessage()))
                 .verify();
@@ -255,7 +256,8 @@ public class UserAndAccessManagementServiceTest {
         updateRoleAssociationDTO.setGroups(Set.of(userGroupCompactDTO));
         updateRoleAssociationDTO.setRolesAdded(Set.of(permissionGroupCompactDTO1));
 
-        StepVerifier.create(userAndAccessManagementService.changeRoleAssociations(updateRoleAssociationDTO))
+        StepVerifier.create(
+                        userAndAccessManagementService.changeRoleAssociations(updateRoleAssociationDTO, "originHeader"))
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
                         && throwable.getMessage().contains(AppsmithError.ROLES_FROM_SAME_WORKSPACE.getMessage()))
                 .verify();
@@ -317,7 +319,8 @@ public class UserAndAccessManagementServiceTest {
         updateRoleAssociationDTO.setGroups(Set.of(userGroupCompactDTO));
         updateRoleAssociationDTO.setRolesAdded(Set.of(permissionGroupCompactDTO1));
 
-        StepVerifier.create(userAndAccessManagementService.changeRoleAssociations(updateRoleAssociationDTO))
+        StepVerifier.create(
+                        userAndAccessManagementService.changeRoleAssociations(updateRoleAssociationDTO, "originHeader"))
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
                         && throwable.getMessage().contains(AppsmithError.ROLES_FROM_SAME_WORKSPACE.getMessage()))
                 .verify();
@@ -381,7 +384,8 @@ public class UserAndAccessManagementServiceTest {
         updateRoleAssociationDTO.setGroups(Set.of(userGroupCompactDTO));
         updateRoleAssociationDTO.setRolesAdded(Set.of(permissionGroupCompactDTO1));
 
-        StepVerifier.create(userAndAccessManagementService.changeRoleAssociations(updateRoleAssociationDTO))
+        StepVerifier.create(
+                        userAndAccessManagementService.changeRoleAssociations(updateRoleAssociationDTO, "originHeader"))
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
                         && throwable.getMessage().contains(AppsmithError.ROLES_FROM_SAME_WORKSPACE.getMessage()))
                 .verify();
@@ -437,7 +441,8 @@ public class UserAndAccessManagementServiceTest {
         UpdateRoleAssociationDTO updateRoleAssociationDTO = new UpdateRoleAssociationDTO();
         updateRoleAssociationDTO.setGroups(Set.of(userGroupCompactDTO));
         updateRoleAssociationDTO.setRolesAdded(Set.of(permissionGroupCompactDTO));
-        StepVerifier.create(userAndAccessManagementService.changeRoleAssociations(updateRoleAssociationDTO))
+        StepVerifier.create(
+                        userAndAccessManagementService.changeRoleAssociations(updateRoleAssociationDTO, "originHeader"))
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
                         && throwable
                                 .getMessage()
@@ -487,7 +492,8 @@ public class UserAndAccessManagementServiceTest {
         UpdateRoleAssociationDTO updateRoleAssociationDTO = new UpdateRoleAssociationDTO();
         updateRoleAssociationDTO.setGroups(Set.of(userGroupCompactDTO));
         updateRoleAssociationDTO.setRolesRemoved(Set.of(permissionGroupCompactDTO));
-        StepVerifier.create(userAndAccessManagementService.changeRoleAssociations(updateRoleAssociationDTO))
+        StepVerifier.create(
+                        userAndAccessManagementService.changeRoleAssociations(updateRoleAssociationDTO, "originHeader"))
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
                         && throwable
                                 .getMessage()
@@ -605,7 +611,7 @@ public class UserAndAccessManagementServiceTest {
         updateRoleAssociationDTO.setRolesAdded(Set.of(
                 new PermissionGroupCompactDTO(createdPermissionGroup.getId(), createdPermissionGroup.getName())));
         userAndAccessManagementService
-                .changeRoleAssociations(updateRoleAssociationDTO)
+                .changeRoleAssociations(updateRoleAssociationDTO, "originHeader")
                 .block();
 
         // assertions

@@ -1,16 +1,20 @@
-import * as React from "react";
+import React, { forwardRef } from "react";
 
 import type {
-  TooltipTriggerProps as HeadlessTooltipTriggerProps,
   TooltipTriggerRef as HeadlessTooltipTriggerRef,
+  TooltipTriggerProps as HeadlessTooltipTriggerProps,
 } from "@design-system/headless";
-import { StyledTooltipTrigger } from "./index.styled";
+import { TooltipTrigger as HeadlessTooltipTrigger } from "@design-system/headless";
 
-export const TooltipTrigger = React.forwardRef(function TooltipTrigger(
+export const _TooltipTrigger = function TooltipTrigger(
   props: HeadlessTooltipTriggerProps,
   propRef: HeadlessTooltipTriggerRef,
 ) {
   const { children } = props;
 
-  return <StyledTooltipTrigger ref={propRef}>{children}</StyledTooltipTrigger>;
-});
+  return (
+    <HeadlessTooltipTrigger ref={propRef}>{children}</HeadlessTooltipTrigger>
+  );
+};
+
+export const TooltipTrigger = forwardRef(_TooltipTrigger);

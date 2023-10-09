@@ -18,7 +18,7 @@ import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type { AutocompletionDefinitions } from "WidgetProvider/constants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { DEFAULT_FONT_SIZE, WIDGET_TAGS } from "constants/WidgetConstants";
-import { ResponsiveBehavior } from "utils/autoLayout/constants";
+import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
 import { OverflowTypes } from "../constants";
 import IconSVG from "../icon.svg";
 import { DynamicHeight } from "utils/WidgetFeatures";
@@ -519,7 +519,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
     };
   }
 
-  getPageView() {
+  getWidgetView() {
     const disableLink: boolean = this.props.disableLink
       ? true
       : this.shouldDisableLink();
@@ -536,21 +536,17 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
         <TextComponent
           accentColor={this.props.accentColor}
           backgroundColor={this.props.backgroundColor}
-          bottomRow={this.props.bottomRow}
           disableLink={disableLink}
           fontFamily={this.props.fontFamily}
           fontSize={this.props.fontSize}
           fontStyle={this.props.fontStyle}
           isLoading={this.props.isLoading}
           key={this.props.widgetId}
-          leftColumn={this.props.leftColumn}
           minHeight={this.props.minHeight}
           overflow={this.props.overflow}
-          rightColumn={this.props.rightColumn}
           text={this.props.text}
           textAlign={this.props.textAlign ? this.props.textAlign : "LEFT"}
           textColor={this.props.textColor}
-          topRow={this.props.topRow}
           truncateButtonColor={
             this.props.truncateButtonColor || this.props.accentColor
           }

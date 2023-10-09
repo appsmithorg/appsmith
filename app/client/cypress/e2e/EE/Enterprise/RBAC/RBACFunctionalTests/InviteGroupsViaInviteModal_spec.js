@@ -33,7 +33,7 @@ describe("Create new workspace and invite group & validate all roles", () => {
       homePage.CreateNewWorkspace(workspaceId);
       homePage.CheckWorkspaceShareUsersCount(workspaceId, 1);
       cy.InviteGroupToWorkspace(workspaceId, GroupName, "App Viewer");
-      cy.xpath(homePage._visibleTextSpan("Manage Users")).click({
+      cy.xpath(homePage._visibleTextSpan("Manage users")).click({
         force: true,
       });
       homePage.NavigateToHome();

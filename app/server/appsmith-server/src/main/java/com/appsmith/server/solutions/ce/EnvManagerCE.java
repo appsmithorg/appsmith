@@ -12,13 +12,11 @@ import java.util.Map;
 
 public interface EnvManagerCE {
 
-    List<String> transformEnvContent(String envContent, Map<String, String> changes, String origin);
+    List<String> transformEnvContent(String envContent, Map<String, String> changes);
 
-    Mono<Void> applyChanges(Map<String, String> changes);
+    Mono<Void> applyChanges(Map<String, String> changes, String originHeader);
 
-    Mono<Void> applyChanges(Map<String, String> changes, String origin);
-
-    Mono<Void> applyChangesFromMultipartFormData(MultiValueMap<String, Part> formData, String origin);
+    Mono<Void> applyChangesFromMultipartFormData(MultiValueMap<String, Part> formData, String originHeader);
 
     void setAnalyticsEventAction(
             Map<String, Object> properties, String newVariable, String originalVariable, String authEnv);

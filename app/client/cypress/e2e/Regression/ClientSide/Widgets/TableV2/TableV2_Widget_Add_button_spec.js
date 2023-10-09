@@ -277,8 +277,7 @@ describe("Table Widget V2 property pane feature validation", function () {
     //click icon button again
     cy.get(widgetsPage.tableV2IconBtn).last().click({ force: true });
     cy.get(commonlocators.TextInside).should("have.text", "Tobias Funke");
-    cy.get("[data-testid='t--property-pane-back-btn']").click({ force: true });
-    cy.wait(500);
-    cy.get("[data-testid='t--property-pane-back-btn']").click({ force: true });
+    propPane.NavigateBackToPropertyPane(false);
+    propPane.NavigateBackToPropertyPane();
   });
 });
