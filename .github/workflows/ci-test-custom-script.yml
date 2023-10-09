@@ -12,6 +12,7 @@ on:
       branch:
         description: "Github Branch to be tested"
         required: false
+        type: string
 
 jobs:
   ci-test:

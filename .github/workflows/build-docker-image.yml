@@ -12,6 +12,7 @@ on:
       branch:
         description: "Github Branch for Docker image to be built"
         required: false
+        type: string
 
 jobs:
   build-docker:
