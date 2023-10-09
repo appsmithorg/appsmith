@@ -174,6 +174,10 @@ function AppViewer(props: Props) {
 
   useEffect(() => {
     urlBuilder.setCurrentPageId(pageId);
+
+    return () => {
+      urlBuilder.setCurrentPageId(null);
+    };
   }, [pageId]);
 
   useEffect(() => {

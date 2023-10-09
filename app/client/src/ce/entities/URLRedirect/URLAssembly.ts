@@ -19,7 +19,7 @@ export type URLBuilderParams = {
   branch?: string;
   hash?: string;
   params?: Record<string, any>;
-  pageId?: string;
+  pageId?: string | null;
   persistExistingParams?: boolean;
 };
 
@@ -140,7 +140,7 @@ export class URLBuilder {
     return { ...currentAppParams, ...currentPageParams };
   }
 
-  setCurrentPageId(pageId: string) {
+  setCurrentPageId(pageId?: string | null) {
     this.currentPageId = pageId;
   }
 

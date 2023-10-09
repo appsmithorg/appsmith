@@ -142,6 +142,7 @@ class Editor extends Component<Props> {
 
   componentWillUnmount() {
     this.props.resetEditorRequest();
+    urlBuilder.setCurrentPageId(null);
   }
 
   public render() {
