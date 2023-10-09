@@ -53,11 +53,9 @@ export class PropertyPane {
   _mode = (modeName: string) =>
     "//span[contains(text(),'" + modeName + "')]//parent::span";
   _propertyToggle = (controlToToggle: string) =>
-    ".t--property-control-" +
+    "//div[contains(@class,'t--property-control-" +
     controlToToggle.replace(/ +/g, "").toLowerCase() +
-    " input[type='checkbox'], label:contains('" +
-    controlToToggle +
-    "') input[type='checkbox']";
+    "')]//input[@type='checkbox']";
   _colorPickerV2Popover = ".t--colorpicker-v2-popover";
   _colorPickerV2Color = ".t--colorpicker-v2-color";
   _colorInput = (option: string) =>
@@ -163,6 +161,10 @@ export class PropertyPane {
   _countryCodeChangeDropDown = ".t--input-country-code-change .remixicon-icon";
   _searchCountryPlaceHolder = "[placeholder='Search by ISD code or country']";
   _closeModal = "//*[contains(@class,'ads-v2-button t--close')]";
+  _zoomLevelInput = ".t--property-control-zoomlevel input";
+  _zoomLevelControl = (control: "start" | "end") =>
+    ".t--property-control-zoomlevel .ads-v2-input__input-section-icon-" +
+    control;
 
   _dataIcon = (icon: string) => `[data-icon="${icon}"]`;
   public OpenJsonFormFieldSettings(fieldName: string) {
@@ -634,6 +636,22 @@ export class PropertyPane {
       this.agHelper.AssertElementVisibility(
         this._propertyPanePropertyControl(sectionTitle, property),
       );
+    });
+  }
+
+  public SetZoomLevel(zoom: number) {
+    this.agHelper.GetAttribute(this._zoomLevelInput, "value").then((value) => {
+      const currentValue = Number(value?.replace("%", ""));
+
+      if (currentValue === zoom || currentValue === 100 || currentValue === 0) {
+        return;
+      }
+      if (zoom > currentValue) {
+        this.agHelper.GetElement(this._zoomLevelControl("end")).click();
+      } else if (zoom < currentValue) {
+        this.agHelper.GetElement(this._zoomLevelControl("start")).click();
+      }
+      this.SetZoomLevel(zoom);
     });
   }
 }
