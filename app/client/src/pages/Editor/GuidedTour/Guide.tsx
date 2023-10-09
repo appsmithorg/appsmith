@@ -67,8 +67,6 @@ const Description = styled.span<{ addLeftSpacing?: boolean }>`
 
   padding-left: ${(props) => (props.addLeftSpacing ? `20px` : "0")};
   margin-top: var(--ads-v2-spaces-2);
-  flex: 1;
-  display: flex;
 `;
 
 const UpperContent = styled.div`

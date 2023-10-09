@@ -141,5 +141,5 @@ const cssVarValue = (value: CssVarValues) => {
 };
 
 const hiddenValue = (value: FlexCssProps["isHidden"]) => {
-  return value ? "none" : "flex";
+  return Boolean(value) ? "none" : "flex";
 };

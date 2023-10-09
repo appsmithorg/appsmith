@@ -6,6 +6,7 @@ import {
   propPane,
   table,
   tabs,
+  assertHelper,
 } from "../../../../../support/Objects/ObjectsCore";
 
 describe("Tabs widget Tests", function () {
@@ -205,6 +206,7 @@ describe("Tabs widget Tests", function () {
 
     // Border Color
     propPane.SelectColorFromColorPicker("bordercolor", 13);
+    assertHelper.AssertNetworkStatus("@updateLayout");
     agHelper.AssertCSS(
       tabs._tabsWidgetStyle,
       "border-color",
@@ -221,6 +223,7 @@ describe("Tabs widget Tests", function () {
 
     // Verify Box Shadow
     agHelper.GetNClick(`${propPane._segmentedControl("0")}:contains('Large')`);
+    assertHelper.AssertNetworkStatus("@updateLayout");
     agHelper.AssertCSS(
       tabs._tabsWidgetStyle,
       "box-shadow",
