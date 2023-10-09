@@ -15,9 +15,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { getApiRightPaneSelectedTab } from "selectors/apiPaneSelectors";
 import isUndefined from "lodash/isUndefined";
 import { Button, Tab, TabPanel, Tabs, TabsList, Tag } from "design-system";
-import { DatasourceStructureContext } from "../Explorer/Datasources/DatasourceStructureContainer";
+import { DatasourceStructureContext } from "../Explorer/Datasources/DatasourceStructure";
 import type { Datasource } from "entities/Datasource";
-import { getCurrentEnvironment } from "@appsmith/utils/Environments";
+import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelectors";
 
 const EmptyDatasourceContainer = styled.div`
   display: flex;
@@ -187,11 +187,9 @@ const API_RIGHT_PANE_TABS = {
 };
 function ApiRightPane(props: any) {
   const dispatch = useDispatch();
-  const { entityDependencies, hasDependencies } = useEntityDependencies(
-    props.actionName,
-  );
+  const { hasDependencies } = useEntityDependencies(props.actionName);
   const selectedTab = useSelector(getApiRightPaneSelectedTab);
-  const currentEnvironmentId = getCurrentEnvironment();
+  const currentEnvironmentId = useSelector(getCurrentEnvironmentId);
 
   const setSelectedTab = useCallback((selectedIndex: string) => {
     dispatch(setApiRightPaneSelectedTab(selectedIndex));
@@ -314,7 +312,6 @@ function ApiRightPane(props: any) {
                 actionName={props.actionName}
                 context={DatasourceStructureContext.API_EDITOR}
                 datasourceId={props.datasourceId}
-                entityDependencies={entityDependencies}
                 hasConnections={hasDependencies}
                 hasResponse={props.hasResponse}
                 pluginId={props.pluginId}

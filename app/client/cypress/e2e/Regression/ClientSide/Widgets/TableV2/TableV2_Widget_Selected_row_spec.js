@@ -1,18 +1,17 @@
-import * as _ from "../../../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  entityExplorer,
+} from "../../../../../support/Objects/ObjectsCore";
 
 describe("Table Widget v2 property pane feature validation", function () {
   before(() => {
-    _.agHelper.AddDsl("tableV2AndTextDsl");
+    agHelper.AddDsl("tableV2AndTextDsl");
   });
 
   it("1. Table widget v2 new menu button column should not deselect row", function () {
-    cy.openPropertyPane("tablewidgetv2");
-
+    entityExplorer.SelectEntityByName("Table1", "Widgets");
     cy.get(".t--widget-textwidget").should("have.text", "0");
-    cy.contains("Open Menu").click({
-      force: true,
-    });
-    cy.wait(1000);
+    agHelper.ClickButton("Open Menu");
     cy.get(".t--widget-textwidget").should("have.text", "0");
   });
 });

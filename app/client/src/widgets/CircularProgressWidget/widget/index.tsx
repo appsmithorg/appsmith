@@ -8,7 +8,10 @@ import type { CircularProgressComponentProps } from "../component";
 import CircularProgressComponent from "../component";
 import type { Stylesheet } from "entities/AppTheming";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
-import type { AutocompletionDefinitions } from "widgets/constants";
+import type { AutocompletionDefinitions } from "WidgetProvider/constants";
+import { Colors } from "constants/Colors";
+import IconSVG from "../icon.svg";
+
 interface CircularProgressWidgetProps
   extends WidgetProps,
     CircularProgressComponentProps {
@@ -19,6 +22,36 @@ class CircularProgressWidget extends BaseWidget<
   CircularProgressWidgetProps,
   WidgetState
 > {
+  static type = "CIRCULAR_PROGRESS_WIDGET";
+
+  static getConfig() {
+    return {
+      name: "Circular Progress",
+      hideCard: true,
+      isDeprecated: true,
+      replacement: "PROGRESS_WIDGET",
+      iconSVG: IconSVG,
+    };
+  }
+
+  static getDefaults() {
+    return {
+      counterClockWise: false,
+      fillColor: Colors.GREEN,
+      isVisible: true,
+      progress: 65,
+      showResult: true,
+
+      rows: 17,
+      columns: 16,
+      widgetName: "CircularProgress",
+      shouldScroll: false,
+      shouldTruncate: false,
+      version: 1,
+      animateLoading: true,
+    };
+  }
+
   static getPropertyPaneConfig() {
     return [
       {
@@ -108,7 +141,7 @@ class CircularProgressWidget extends BaseWidget<
     };
   }
 
-  getPageView() {
+  getWidgetView() {
     return (
       <CircularProgressComponent
         counterClockwise={this.props.counterClockwise}
@@ -117,10 +150,6 @@ class CircularProgressWidget extends BaseWidget<
         showResult={this.props.showResult}
       />
     );
-  }
-
-  static getWidgetType() {
-    return "CIRCULAR_PROGRESS_WIDGET";
   }
 }
 

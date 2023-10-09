@@ -152,7 +152,9 @@ describe("emptyChartData", () => {
       const props = JSON.parse(JSON.stringify(defaultProps));
       props.chartType = "CUSTOM_FUSION_CHART";
 
-      const messages = ChartWidget.editorCallouts(props);
+      const { getEditorCallouts } = ChartWidget.getMethods();
+
+      const messages = getEditorCallouts(props);
       expect(messages.length).toEqual(1);
 
       const deprecationMessage = messages[0];
@@ -171,13 +173,15 @@ describe("emptyChartData", () => {
       let props = JSON.parse(JSON.stringify(defaultProps));
       props.chartType = "LINE_CHART";
 
-      let messages = ChartWidget.editorCallouts(props);
+      const { getEditorCallouts } = ChartWidget.getMethods();
+
+      let messages = getEditorCallouts(props);
       expect(messages.length).toEqual(0);
 
       props = JSON.parse(JSON.stringify(defaultProps));
       props.chartType = "CUSTOM_ECHART";
 
-      messages = ChartWidget.editorCallouts(props);
+      messages = getEditorCallouts(props);
       expect(messages.length).toEqual(0);
     });
   });

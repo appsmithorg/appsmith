@@ -1,4 +1,3 @@
-import type { WidgetType } from "constants/WidgetConstants";
 import { DEFAULT_CENTER } from "constants/WidgetConstants";
 import React from "react";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
@@ -10,11 +9,22 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import styled from "styled-components";
-import type { DerivedPropertiesMap } from "utils/WidgetFactory";
+import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import type { MarkerProps } from "../constants";
 import { getBorderCSSShorthand } from "constants/DefaultTheme";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
-import type { AutocompletionDefinitions } from "widgets/constants";
+import type { AutocompletionDefinitions } from "WidgetProvider/constants";
+import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
+import {
+  FlexVerticalAlignment,
+  ResponsiveBehavior,
+} from "layoutSystems/common/utils/constants";
+import IconSVG from "../icon.svg";
+import type {
+  SnipingModeProperty,
+  PropertyUpdates,
+} from "WidgetProvider/constants";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
 
 const DisabledContainer = styled.div<{
   borderRadius: string;
@@ -22,6 +32,8 @@ const DisabledContainer = styled.div<{
 }>`
   background-color: white;
   height: 100%;
+  width: 100%;
+  overflow: scroll;
   text-align: center;
   display: flex;
   flex-direction: column;
@@ -48,6 +60,71 @@ type Center = {
 
 class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
   static defaultProps = {};
+
+  static type = "MAP_WIDGET";
+
+  static getConfig() {
+    return {
+      name: "Map",
+      iconSVG: IconSVG,
+      tags: [WIDGET_TAGS.CONTENT],
+      needsMeta: true,
+    };
+  }
+
+  static getDefaults() {
+    return {
+      rows: 40,
+      columns: 24,
+      isDisabled: false,
+      isVisible: true,
+      widgetName: "Map",
+      enableSearch: true,
+      zoomLevel: 50,
+      enablePickLocation: true,
+      allowZoom: true,
+      mapCenter: { lat: 25.122, long: 50.132 },
+      defaultMarkers: [{ lat: 25.122, long: 50.132, title: "Location1" }],
+      isClickedMarkerCentered: true,
+      version: 1,
+      animateLoading: true,
+      responsiveBehavior: ResponsiveBehavior.Fill,
+      minWidth: FILL_WIDGET_MIN_WIDTH,
+      flexVerticalAlignment: FlexVerticalAlignment.Top,
+    };
+  }
+
+  static getMethods() {
+    return {
+      getSnipingModeUpdates: (
+        propValueMap: SnipingModeProperty,
+      ): PropertyUpdates[] => {
+        return [
+          {
+            propertyPath: "defaultMarkers",
+            propertyValue: propValueMap.data,
+            isDynamicPropertyPath: true,
+          },
+        ];
+      },
+    };
+  }
+
+  static getAutoLayoutConfig() {
+    return {
+      widgetSize: [
+        {
+          viewportMinWidth: 0,
+          configuration: () => {
+            return {
+              minWidth: "280px",
+              minHeight: "300px",
+            };
+          },
+        },
+      ],
+    };
+  }
 
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
     return {
@@ -443,7 +520,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
     this.disableDrag(false);
   };
 
-  getPageView() {
+  getWidgetView() {
     return (
       <>
         {!this.props.googleMapsApiKey && (
@@ -457,7 +534,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
             <p>
               {"See our"}
               <a
-                href="https://docs.appsmith.com/v/v1.2.1/setup/docker/google-maps"
+                href="https://docs.appsmith.com/getting-started/setup/instance-configuration/google-maps"
                 rel="noopener noreferrer"
                 target="_blank"
               >
@@ -495,10 +572,6 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
         )}
       </>
     );
-  }
-
-  static getWidgetType(): WidgetType {
-    return "MAP_WIDGET";
   }
 }
 

@@ -6,11 +6,9 @@ import {
   draggableWidgets,
   propPane,
   dataManager,
-  locators,
   homePage,
 } from "../../../support/Objects/ObjectsCore";
 import { Widgets } from "../../../support/Pages/DataSources";
-import { featureFlagIntercept } from "../../../support/Objects/FeatureFlags";
 
 describe("Validate Arango & CURL Import Datasources", () => {
   let dsName: any,
@@ -51,15 +49,8 @@ describe("Validate Arango & CURL Import Datasources", () => {
       action: "Delete",
       entityType: entityItems.Api,
     });
-    entityExplorer.ExpandCollapseEntity("Datasources");
-    entityExplorer.ExpandCollapseEntity(dsName);
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: dsName,
-      action: "Refresh",
-    });
-    agHelper.AssertElementVisibility(
-      entityExplorer._entityNameInExplorer(collectionName),
-    );
+    dataSources.AssertTableInVirtuosoList(dsName, collectionName);
+
     //Add data into this newly created collection
     let curlDataAdd =
       `curl --request POST --url http://` +
@@ -297,25 +288,21 @@ describe("Validate Arango & CURL Import Datasources", () => {
   });
 
   it("3. Arango Widget Binding - from Suggested widget, Schema filter for Arango DS", () => {
-    featureFlagIntercept(
-      {
-        ab_ds_schema_enabled: true,
-      },
-      false,
-    );
     agHelper.RefreshPage();
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE);
     propPane.AssertPropertiesDropDownCurrentValue("Table data", "Connect data");
     entityExplorer.NavigateToSwitcher("Explorer");
     entityExplorer.SelectEntityByName("Query6");
-    dataSources.FilterAndVerifyDatasourceSchemaBySearch("country", "column");
+    dataSources.FilterAndVerifyDatasourceSchemaBySearch(collectionName);
     dataSources.RunQuery();
-    dataSources.AddSuggestedWidget(Widgets.Table, true); //Binding to new table from schema explorer
+    dataSources.AddSuggestedWidget(Widgets.Table); //Binding to new table from schema explorer
     propPane.AssertPropertiesDropDownCurrentValue("Table data", "Query6");
+
     entityExplorer.SelectEntityByName("Query6");
-    agHelper.ClickButton("Select widget"); //Binding to dragDropped table
-    agHelper.AssertElementVisibility(dataSources._snippingBanner);
-    agHelper.GetNClick(locators._widgetInDeployed(draggableWidgets.TABLE));
+    dataSources.AddSuggestedWidget(
+      Widgets.Table,
+      dataSources._addSuggestedExisting,
+    );
     propPane.AssertPropertiesDropDownCurrentValue("Table data", "Query6");
   });
 

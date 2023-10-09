@@ -14,6 +14,8 @@ export const getGitSyncState = (state: AppState): GitSyncReducerState =>
 export const getIsGitSyncModalOpen = (state: AppState) =>
   state.ui.gitSync.isGitSyncModalOpen;
 
+export const getIsDeploying = (state: AppState) => state.ui.gitSync.isDeploying;
+
 export const getIsDisconnectGitModalOpen = (state: AppState) =>
   state.ui.gitSync.isDisconnectGitModalOpen;
 
@@ -56,15 +58,10 @@ export const getIsGlobalConfigDefined = createSelector(
 );
 
 export const getIsFetchingGlobalGitConfig = (state: AppState) =>
-  state.ui.gitSync.isFetchingGitConfig;
+  state.ui.gitSync.isFetchingGlobalGitConfig;
 
 export const getIsFetchingLocalGitConfig = (state: AppState) =>
   state.ui.gitSync.isFetchingLocalGitConfig;
-
-export const getIsGitStatusLiteEnabled = createSelector(
-  selectFeatureFlags,
-  (flags) => !!flags?.release_git_status_lite_enabled,
-);
 
 export const getGitStatus = (state: AppState) => state.ui.gitSync.gitStatus;
 
@@ -187,7 +184,7 @@ export const getDisconnectDocUrl = () =>
   "https://docs.appsmith.com/advanced-concepts/version-control-with-git/disconnect-the-git-repository";
 
 export const getConnectingErrorDocUrl = (state: AppState) =>
-  state.ui.gitSync.connectError?.error.referenceDoc ||
+  state.ui.gitSync.connectError?.error?.referenceDoc ||
   FALLBACK_GIT_SYNC_DOCS_URL;
 
 export const getUpstreamErrorDocUrl = (state: AppState) =>
@@ -208,3 +205,14 @@ export const getBranchSwitchingDetails = (state: AppState) => ({
   isSwitchingBranch: state.ui.gitSync.isSwitchingBranch,
   switchingToBranch: state.ui.gitSync.switchingToBranch,
 });
+
+// feature flag selectors
+export const getIsGitStatusLiteEnabled = createSelector(
+  selectFeatureFlags,
+  (flags) => !!flags?.release_git_status_lite_enabled,
+);
+
+export const getIsGitConnectV2Enabled = createSelector(
+  selectFeatureFlags,
+  (flags) => !!flags?.release_git_connect_v2_enabled,
+);

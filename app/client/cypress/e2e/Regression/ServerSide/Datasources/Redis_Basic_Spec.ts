@@ -1,6 +1,5 @@
 import {
   agHelper,
-  entityExplorer,
   dataSources,
   entityItems,
 } from "../../../../support/Objects/ObjectsCore";
@@ -98,11 +97,13 @@ describe("Validate Redis DS", () => {
       action: "Delete",
       entityType: entityItems.Query,
     });
-    entityExplorer.SelectEntityByName(dsName, "Datasources");
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: dsName,
-      action: "Delete",
-      entityType: entityItems.Datasource,
-    });
+    dataSources.DeleteDatasouceFromActiveTab(dsName);
+    //commenting below since after query delete, we run into risk of not seeing the datasource in EntityExplorer
+    // entityExplorer.SelectEntityByName(dsName, "Datasources");
+    // entityExplorer.ActionContextMenuByEntityName({
+    //   entityNameinLeftSidebar: dsName,
+    //   action: "Delete",
+    //   entityType: entityItems.Datasource,
+    // });
   });
 });

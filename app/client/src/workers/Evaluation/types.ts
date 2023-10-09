@@ -1,7 +1,7 @@
 import type {
   ConfigTree,
   unEvalAndConfigTree,
-} from "entities/DataTree/dataTreeFactory";
+} from "@appsmith/entities/DataTree/types";
 import type { ActionValidationConfigMap } from "constants/PropertyControlConstants";
 import type { AppTheme } from "entities/AppTheming";
 
@@ -13,12 +13,11 @@ import type {
   EVAL_WORKER_SYNC_ACTION,
 } from "@appsmith/workers/Evaluation/evalWorkerActions";
 import type { JSUpdate } from "utils/JSPaneUtils";
-import type { WidgetTypeConfigMap } from "utils/WidgetFactory";
+import type { WidgetTypeConfigMap } from "WidgetProvider/factory";
 import type { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
 import type { WorkerRequest } from "@appsmith/workers/common/types";
 import type { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
 import type { APP_MODE } from "entities/App";
-import type { DiffWithReferenceState } from "./helpers";
 
 export type EvalWorkerSyncRequest = WorkerRequest<any, EVAL_WORKER_SYNC_ACTION>;
 export type EvalWorkerASyncRequest = WorkerRequest<
@@ -57,7 +56,7 @@ export interface EvalTreeResponseData {
   isNewWidgetAdded: boolean;
   undefinedEvalValuesMap: Record<string, boolean>;
   jsVarsCreatedEvent?: { path: string; type: string }[];
-  updates: DiffWithReferenceState[];
+  updates: string;
 }
 
 export type JSVarMutatedEvents = Record<string, { path: string; type: string }>;

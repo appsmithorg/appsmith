@@ -4,7 +4,6 @@ import {
   jsEditor,
   apiPage,
   dataManager,
-  locators,
   assertHelper,
 } from "../../../support/Objects/ObjectsCore";
 const commonlocators = require("../../../locators/commonlocators.json");

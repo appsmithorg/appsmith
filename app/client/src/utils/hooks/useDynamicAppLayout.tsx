@@ -11,15 +11,14 @@ import {
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
 import { APP_MODE } from "entities/App";
-import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import { LayoutSystemTypes } from "layoutSystems/types";
 import {
   getCurrentApplicationLayout,
-  getCurrentAppPositioningType,
   getCurrentPageId,
   getMainCanvasProps,
   previewModeSelector,
 } from "selectors/editorSelectors";
-import { getAppMode } from "selectors/entitiesSelector";
+import { getAppMode } from "@appsmith/selectors/entitiesSelector";
 import {
   getExplorerPinned,
   getExplorerWidth,
@@ -41,6 +40,8 @@ import { useWindowSizeHooks } from "./dragResizeHooks";
 import type { AppState } from "@appsmith/reducers";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { useLocation } from "react-router";
+import { CANVAS_VIEWPORT } from "constants/componentClassNameConstants";
+import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 
 const GUTTER_WIDTH = 72;
 export const AUTOLAYOUT_RESIZER_WIDTH_BUFFER = 40;
@@ -58,7 +59,7 @@ export const useDynamicAppLayout = () => {
   const isCanvasInitialized = useSelector(getIsCanvasInitialized);
   const appLayout = useSelector(getCurrentApplicationLayout);
   const isAppSettingsPaneOpen = useSelector(getIsAppSettingsPaneOpen);
-  const appPositioningType = useSelector(getCurrentAppPositioningType);
+  const layoutSystemType = useSelector(getLayoutSystemType);
   const isAppSidebarPinned = useSelector(getAppSidebarPinned);
   const sidebarWidth = useSelector(getSidebarWidth);
   const isAppSettingsPaneWithNavigationTabOpen = useSelector(
@@ -123,7 +124,7 @@ export const useDynamicAppLayout = () => {
     let calculatedWidth = screenWidth - scrollbarWidth();
 
     const gutterWidth =
-      appPositioningType === AppPositioningTypes.AUTO ? 0 : GUTTER_WIDTH;
+      layoutSystemType === LayoutSystemTypes.AUTO ? 0 : GUTTER_WIDTH;
 
     // if preview mode is not on and the app setting pane is not opened, we need to subtract the width of the property pane
     if (
@@ -173,7 +174,7 @@ export const useDynamicAppLayout = () => {
     if (isMobile) {
       maxWidth += sidebarWidth;
     }
-    const ele: any = document.getElementById("canvas-viewport");
+    const ele: any = document.getElementById(CANVAS_VIEWPORT);
     if (
       appMode === APP_MODE.EDIT &&
       appLayout?.type === "FLUID" &&
@@ -237,7 +238,7 @@ export const useDynamicAppLayout = () => {
 
   const resizeObserver = new ResizeObserver(immediateDebouncedResize);
   useEffect(() => {
-    const ele: any = document.getElementById("canvas-viewport");
+    const ele: any = document.getElementById(CANVAS_VIEWPORT);
     if (ele) {
       if (appLayout?.type === "FLUID") {
         resizeObserver.observe(ele);
@@ -304,7 +305,7 @@ export const useDynamicAppLayout = () => {
     dispatch(
       updateLayoutForMobileBreakpointAction(
         MAIN_CONTAINER_WIDGET_ID,
-        appPositioningType === AppPositioningTypes.AUTO
+        layoutSystemType === LayoutSystemTypes.AUTO
           ? mainCanvasProps?.isMobile
           : false,
         calculateCanvasWidth(),
@@ -320,7 +321,7 @@ export const useDynamicAppLayout = () => {
       dispatch(
         updateLayoutForMobileBreakpointAction(
           MAIN_CONTAINER_WIDGET_ID,
-          appPositioningType === AppPositioningTypes.AUTO
+          layoutSystemType === LayoutSystemTypes.AUTO
             ? mainCanvasProps?.isMobile
             : false,
           canvasWidth,

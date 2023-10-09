@@ -30,7 +30,7 @@ import {
   getActionResponses,
   getDatasourceByPluginId,
   getDBAndRemoteDatasources,
-} from "selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import { PLUGIN_PACKAGE_DBS } from "constants/QueryEditorConstants";
 import type { QueryAction, SaaSAction } from "entities/Action";
 import Spinner from "components/editorComponents/Spinner";
@@ -40,7 +40,7 @@ import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { initFormEvaluations } from "actions/evaluationActions";
+import { initFormEvaluations } from "@appsmith/actions/evaluationActions";
 import { getUIComponent } from "./helpers";
 import type { Diff } from "deep-diff";
 import { diff } from "deep-diff";
@@ -50,10 +50,7 @@ import { getConfigInitialValues } from "components/formControls/utils";
 import { merge } from "lodash";
 import { getPathAndValueFromActionDiffObject } from "../../../utils/getPathAndValueFromActionDiffObject";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
-import {
-  getCurrentEnvName,
-  getCurrentEnvironment,
-} from "@appsmith/utils/Environments";
+import { getCurrentEnvironmentDetails } from "@appsmith/selectors/environmentSelectors";
 
 const EmptyStateContainer = styled.div`
   display: flex;
@@ -106,6 +103,8 @@ type ReduxStateProps = {
   actionObjectDiff?: any;
   isSaas: boolean;
   datasourceId?: string;
+  currentEnvironmentId: string;
+  currentEnvironmentName: string;
 };
 
 type StateAndRouteProps = RouteComponentProps<QueryEditorRouteParams>;
@@ -167,8 +166,8 @@ class QueryEditor extends React.Component<Props> {
     AnalyticsUtil.logEvent("RUN_QUERY_CLICK", {
       actionId: this.props.actionId,
       dataSourceSize: dataSources.length,
-      environmentId: getCurrentEnvironment(),
-      environmentName: getCurrentEnvName(),
+      environmentId: this.props.currentEnvironmentId,
+      environmentName: this.props.currentEnvironmentName,
       pluginName: pluginName,
       datasourceId: datasource?.id,
       isMock: !!datasource?.isMock,
@@ -330,8 +329,12 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   let uiComponent = UIComponentTypes.DbEditorForm;
   if (!!pluginId) uiComponent = getUIComponent(pluginId, allPlugins);
 
+  const currentEnvDetails = getCurrentEnvironmentDetails(state);
+
   return {
     actionId,
+    currentEnvironmentId: currentEnvDetails?.id || "",
+    currentEnvironmentName: currentEnvDetails?.name || "",
     pluginId,
     plugins: allPlugins,
     runErrorMessage,

@@ -23,7 +23,7 @@ import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.PagePermission;
-import com.mongodb.client.result.UpdateResult;
+import com.mongodb.bulk.BulkWriteResult;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
@@ -489,10 +489,13 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
     }
 
     @Override
+    // Remove if not used
     public Mono<List<String>> findAllPageIdsInApplication(
             String applicationId, AclPermission aclPermission, Boolean view) {
         return findNewPagesByApplicationId(applicationId, aclPermission)
                 .flatMap(newPage -> {
+                    // Look if the page is migrated
+                    // Real time migration
                     if (Boolean.TRUE.equals(view)) {
                         if (newPage.getPublishedPage().getDeletedAt() != null) {
                             return Mono.just(newPage.getId());
@@ -646,6 +649,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
                 });
     }
 
+    // Remove the code
     @Override
     public Mono<NewPage> findByGitSyncIdAndDefaultApplicationId(
             String defaultApplicationId, String gitSyncId, AclPermission permission) {
@@ -692,7 +696,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
     }
 
     @Override
-    public Mono<UpdateResult> publishPages(Collection<String> pageIds, AclPermission permission) {
+    public Mono<List<BulkWriteResult>> publishPages(Collection<String> pageIds, AclPermission permission) {
         return repository.publishPages(pageIds, permission);
     }
 }

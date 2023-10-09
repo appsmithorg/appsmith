@@ -124,17 +124,16 @@ import {
   fetchJSCollectionsForPageSuccess,
 } from "actions/jsActionActions";
 
-import WidgetFactory from "utils/WidgetFactory";
+import WidgetFactory from "WidgetProvider/factory";
 import { toggleShowDeviationDialog } from "actions/onboardingActions";
 import { builderURL } from "RouteBuilder";
 import { failFastApiCalls, waitForWidgetConfigBuild } from "./InitSagas";
-import { hasManagePagePermission } from "@appsmith/utils/permissionHelpers";
 import { resizePublishedMainCanvasToLowestWidget } from "./WidgetOperationUtils";
 import { checkAndLogErrorsIfCyclicDependency } from "./helper";
 import { LOCAL_STORAGE_KEYS } from "utils/localStorage";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import { getUsedActionNames } from "selectors/actionSelectors";
-import { getPageList } from "selectors/entitiesSelector";
+import { getPageList } from "@appsmith/selectors/entitiesSelector";
 import { setPreviewModeAction } from "actions/editorActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { toast } from "design-system";
@@ -147,6 +146,10 @@ import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { nestDSL, flattenDSL } from "@shared/dsl";
 import { fetchSnapshotDetailsAction } from "actions/autoLayoutActions";
+import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
+import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
+import { isGACEnabled } from "@appsmith/utils/planHelpers";
+import { getHasManagePagePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -667,8 +670,14 @@ export function* saveLayoutSaga(action: ReduxAction<{ isRetry?: boolean }>) {
 
     const appMode: APP_MODE | undefined = yield select(getAppMode);
 
+    const featureFlags: FeatureFlags = yield select(selectFeatureFlags);
+    const isFeatureEnabled = isGACEnabled(featureFlags);
+
     if (
-      !hasManagePagePermission(currentPage?.userPermissions || []) &&
+      !getHasManagePagePermission(
+        isFeatureEnabled,
+        currentPage?.userPermissions || [],
+      ) &&
       appMode === APP_MODE.EDIT
     ) {
       yield validateResponse({
@@ -1377,5 +1386,6 @@ export default function* pageSagas() {
     ),
     takeEvery(ReduxActionTypes.SET_PREVIEW_MODE_INIT, setPreviewModeInitSaga),
     takeLatest(ReduxActionTypes.REFRESH_THE_APP, refreshTheApp),
+    takeLatest(ReduxActionTypes.CLEAR_CACHE, clearEvalCache),
   ]);
 }

@@ -5,7 +5,7 @@ import FormContext from "../FormContext";
 import Field from "widgets/JSONFormWidget/component/Field";
 import useEvents from "./useBlurAndFocusEvents";
 import useRegisterFieldValidity from "./useRegisterFieldValidity";
-import type { AlignWidget, AlignWidgetTypes } from "widgets/constants";
+import type { AlignWidget, AlignWidgetTypes } from "WidgetProvider/constants";
 import type {
   BaseFieldComponentProps,
   FieldComponentBaseProps,

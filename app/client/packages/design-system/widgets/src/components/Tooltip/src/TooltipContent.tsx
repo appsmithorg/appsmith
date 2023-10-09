@@ -1,12 +1,13 @@
 import React, { forwardRef } from "react";
 import { useThemeContext } from "@design-system/theming";
+import { Text } from "../../Text";
+import styles from "./styles.module.css";
+import { TooltipContent as HeadlessTooltipContent } from "@design-system/headless";
 
 import type {
   TooltipContentRef as HeadlessTooltipContentRef,
   TooltipContentProps as HeadlessTooltipContentProps,
 } from "@design-system/headless";
-import { Text } from "../../Text";
-import { StyledTooltipContent } from "./index.styled";
 
 const BORDER_RADIUS_THRESHOLD = 6;
 
@@ -24,9 +25,14 @@ const _TooltipContent = (
   const isRounded = borderRadius > BORDER_RADIUS_THRESHOLD;
 
   return (
-    <StyledTooltipContent $isRounded={isRounded} ref={ref} {...rest}>
+    <HeadlessTooltipContent
+      className={styles.tooltip}
+      data-is-rounded={isRounded ? "" : undefined}
+      ref={ref}
+      {...rest}
+    >
       {typeof children === "string" ? <Text>{children}</Text> : children}
-    </StyledTooltipContent>
+    </HeadlessTooltipContent>
   );
 };
 

@@ -100,6 +100,8 @@ public class MySqlPlugin extends BasePlugin {
     public static final int CONNECTION_METHOD_INDEX = 1;
     public static final MySqlErrorUtils mySqlErrorUtils = MySqlErrorUtils.getInstance();
 
+    public static final Long MYSQL_DEFAULT_PORT = 3306L;
+
     /**
      * Example output for COLUMNS_QUERY:
      * +------------+-----------+-------------+-------------+-------------+------------+----------------+
@@ -241,7 +243,7 @@ public class MySqlPlugin extends BasePlugin {
         }
 
         @Override
-        public ActionConfiguration getSchemaPreviewActionConfig(Template queryTemplate) {
+        public ActionConfiguration getSchemaPreviewActionConfig(Template queryTemplate, Boolean isMock) {
             ActionConfiguration actionConfig = new ActionConfiguration();
             // Sets query body
             actionConfig.setBody(queryTemplate.getBody());
@@ -615,7 +617,7 @@ public class MySqlPlugin extends BasePlugin {
                 ConnectionContext<ConnectionPool> connectionContext;
                 try {
                     connectionContext = getConnectionContext(
-                            datasourceConfiguration, CONNECTION_METHOD_INDEX, ConnectionPool.class);
+                            datasourceConfiguration, CONNECTION_METHOD_INDEX, MYSQL_DEFAULT_PORT, ConnectionPool.class);
                     ConnectionPool pool = getNewConnectionPool(datasourceConfiguration, connectionContext);
                     connectionContext.setConnection(pool);
                     return Mono.just(connectionContext);

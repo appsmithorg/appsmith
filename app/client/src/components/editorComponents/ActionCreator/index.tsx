@@ -274,6 +274,7 @@ const ActionCreator = React.forwardRef(
           {Object.entries(actions).map(([id, value], index) => (
             <Action
               code={value}
+              dataTreePath={props.dataTreePath}
               id={id}
               index={index}
               key={id}

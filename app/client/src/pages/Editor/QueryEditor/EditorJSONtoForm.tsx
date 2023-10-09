@@ -7,7 +7,7 @@ import type { Datasource } from "entities/Datasource";
 import {
   getPluginImages,
   getPluginNameFromId,
-} from "selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import FormControl from "../FormControl";
 import {
   PluginName,
@@ -99,12 +99,6 @@ import {
   ResponseTabErrorDefaultMessage,
 } from "components/editorComponents/ApiResponseView";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
-import {
-  hasCreateDatasourcePermission,
-  hasDeleteActionPermission,
-  hasExecuteActionPermission,
-  hasManageActionPermission,
-} from "@appsmith/utils/permissionHelpers";
 import { getQueryPaneConfigSelectedTabIndex } from "selectors/queryPaneSelectors";
 import { setQueryPaneConfigSelectedTabIndex } from "actions/queryPaneActions";
 import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
@@ -134,11 +128,15 @@ import { CloseDebugger } from "components/editorComponents/Debugger/DebuggerTabs
 import { isAIEnabled } from "@appsmith/components/editorComponents/GPT/trigger";
 import { editorSQLModes } from "components/editorComponents/CodeEditor/sql/config";
 import { EditorFormSignPosting } from "@appsmith/components/editorComponents/EditorFormSignPosting";
-import { DatasourceStructureContext } from "../Explorer/Datasources/DatasourceStructureContainer";
+import { DatasourceStructureContext } from "../Explorer/Datasources/DatasourceStructure";
+import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 import {
-  selectFeatureFlagCheck,
-  selectFeatureFlags,
-} from "@appsmith/selectors/featureFlagsSelectors";
+  getHasCreateDatasourcePermission,
+  getHasDeleteActionPermission,
+  getHasExecuteActionPermission,
+  getHasManageActionPermission,
+} from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 const QueryFormContainer = styled.form`
@@ -146,7 +144,7 @@ const QueryFormContainer = styled.form`
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  padding: var(--ads-v2-spaces-4) 0 0;
+  padding: var(--ads-v2-spaces-5) 0 0;
   width: 100%;
   .statementTextArea {
     font-size: 14px;
@@ -217,7 +215,8 @@ const ResponseContentWrapper = styled.div<{ isError: boolean }>`
 `;
 
 export const StyledFormRow = styled(FormRow)`
-  padding: 0px var(--ads-v2-spaces-7);
+  padding: 0px var(--ads-v2-spaces-7) var(--ads-v2-spaces-5)
+    var(--ads-v2-spaces-7);
   flex: 0;
 `;
 
@@ -318,7 +317,7 @@ const DocumentationButton = styled(Button)`
 
 const SidebarWrapper = styled.div<{ show: boolean }>`
   border-left: 1px solid var(--ads-v2-color-border);
-  padding: 0 var(--ads-v2-spaces-4) var(--ads-v2-spaces-4);
+  padding: 0 var(--ads-v2-spaces-7) var(--ads-v2-spaces-4);
   overflow: hidden;
   border-bottom: 0;
   display: ${(props) => (props.show ? "flex" : "none")};
@@ -404,6 +403,7 @@ export function EditorJSONtoForm(props: Props) {
     uiComponent,
     updateActionResponseDisplayFormat,
   } = props;
+
   let error = runErrorMessage;
   let output: Record<string, any>[] | null = null;
   let hintMessages: Array<string> = [];
@@ -422,13 +422,19 @@ export function EditorJSONtoForm(props: Props) {
     (action) => action.id === params.apiId || action.id === params.queryId,
   );
   const { pageId } = useParams<ExplorerURLParams>();
-  const isChangePermitted = hasManageActionPermission(
+
+  const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+
+  const isChangePermitted = getHasManageActionPermission(
+    isFeatureEnabled,
     currentActionConfig?.userPermissions,
   );
-  const isExecutePermitted = hasExecuteActionPermission(
+  const isExecutePermitted = getHasExecuteActionPermission(
+    isFeatureEnabled,
     currentActionConfig?.userPermissions,
   );
-  const isDeletePermitted = hasDeleteActionPermission(
+  const isDeletePermitted = getHasDeleteActionPermission(
+    isFeatureEnabled,
     currentActionConfig?.userPermissions,
   );
 
@@ -436,7 +442,8 @@ export function EditorJSONtoForm(props: Props) {
     (state: AppState) => getCurrentAppWorkspace(state).userPermissions ?? [],
   );
 
-  const canCreateDatasource = hasCreateDatasourcePermission(
+  const canCreateDatasource = getHasCreateDatasourcePermission(
+    isFeatureEnabled,
     userWorkspacePermissions,
   );
 
@@ -838,9 +845,7 @@ export function EditorJSONtoForm(props: Props) {
     },
   ];
 
-  const { entityDependencies, hasDependencies } = useEntityDependencies(
-    props.actionName,
-  );
+  const { hasDependencies } = useEntityDependencies(props.actionName);
 
   const pluginImages = useSelector(getPluginImages);
 
@@ -894,22 +899,11 @@ export function EditorJSONtoForm(props: Props) {
   //TODO: move this to a common place
   const onClose = () => dispatch(showDebugger(false));
 
-  // A/B feature flag for datasource structure.
-  const isEnabledForDSSchema = useSelector((state) =>
-    selectFeatureFlagCheck(state, FEATURE_FLAG.ab_ds_schema_enabled),
-  );
-
-  // A/B feature flag for query binding.
-  const isEnabledForQueryBinding = useSelector((state) =>
-    selectFeatureFlagCheck(state, FEATURE_FLAG.ab_ds_binding_enabled),
-  );
-
   // here we check for normal conditions for opening action pane
   // or if any of the flags are true, We should open the actionpane by default.
   const shouldOpenActionPaneByDefault =
     ((hasDependencies || !!output) && !guidedTourEnabled) ||
-    ((isEnabledForDSSchema || isEnabledForQueryBinding) &&
-      currentActionPluginName !== PluginName.SMTP);
+    currentActionPluginName !== PluginName.SMTP;
 
   // when switching between different redux forms, make sure this redux form has been initialized before rendering anything.
   // the initialized prop below comes from redux-form.
@@ -1121,7 +1115,6 @@ export function EditorJSONtoForm(props: Props) {
               actionName={actionName}
               context={DatasourceStructureContext.QUERY_EDITOR}
               datasourceId={props.datasourceId}
-              entityDependencies={entityDependencies}
               hasConnections={hasDependencies}
               hasResponse={!!output}
               pluginId={props.pluginId}

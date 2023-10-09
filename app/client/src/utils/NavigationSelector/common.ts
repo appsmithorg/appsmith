@@ -1,4 +1,4 @@
-import type { ENTITY_TYPE } from "entities/DataTree/types";
+import type { ENTITY_TYPE } from "@appsmith/entities/DataTree/types";
 import type {
   EntityNavigationData,
   NavigationData,
@@ -8,18 +8,22 @@ export const createNavData = (general: {
   name: string;
   id: string;
   type: ENTITY_TYPE;
+  isfunction?: boolean;
   children: EntityNavigationData;
   key?: string;
   url: string | undefined;
   pluginName?: string;
+  pluginId?: string;
   datasourceId?: string;
   isMock?: boolean;
   actionType?: string;
+  widgetType?: string;
 }): NavigationData => {
   return {
     name: general.name,
     id: general.id,
     type: general.type,
+    isfunction: general.isfunction,
     children: general.children,
     key: general.key,
     url: general.url,
@@ -28,5 +32,7 @@ export const createNavData = (general: {
     datasourceId: general.datasourceId,
     isMock: general.isMock,
     actionType: general.actionType,
+    pluginId: general.pluginId,
+    widgetType: general.widgetType,
   };
 };

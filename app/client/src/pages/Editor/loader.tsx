@@ -8,9 +8,11 @@ import { getSearchQuery } from "../../utils/helpers";
 import { GIT_BRANCH_QUERY_KEY } from "../../constants/routes";
 import { APP_MODE } from "../../entities/App";
 import type { RouteComponentProps } from "react-router";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 
 type Props = {
   initEditor: (payload: InitializeEditorPayload) => void;
+  clearCache: () => void;
 } & RouteComponentProps<{ pageId: string }>;
 
 class EditorLoader extends React.PureComponent<Props, { Page: any }> {
@@ -42,11 +44,16 @@ class EditorLoader extends React.PureComponent<Props, { Page: any }> {
 
   componentDidMount() {
     this.initialise();
-    retryPromise(() => import(/* webpackChunkName: "editor" */ "./index")).then(
-      (module) => {
-        this.setState({ Page: module.default });
-      },
-    );
+    retryPromise(
+      async () => import(/* webpackChunkName: "editor" */ "./index"),
+    ).then((module) => {
+      this.setState({ Page: module.default });
+    });
+  }
+
+  componentWillUnmount() {
+    const { clearCache } = this.props;
+    clearCache();
   }
   render() {
     const { Page } = this.state;
@@ -58,6 +65,9 @@ const mapDispatchToProps = (dispatch: any) => {
   return {
     initEditor: (payload: InitializeEditorPayload) =>
       dispatch(initEditor(payload)),
+    clearCache: () => {
+      dispatch({ type: ReduxActionTypes.CLEAR_CACHE });
+    },
   };
 };
 

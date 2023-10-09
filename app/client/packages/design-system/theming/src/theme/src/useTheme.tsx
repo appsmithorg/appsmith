@@ -56,7 +56,7 @@ export function useTheme(props: UseThemeProps = {}) {
   }, [colorMode]);
 
   useEffect(() => {
-    if (borderRadius) {
+    if (borderRadius != null) {
       tokensAccessor.updateBorderRadius({
         1: borderRadius,
       });
@@ -71,7 +71,7 @@ export function useTheme(props: UseThemeProps = {}) {
   }, [borderRadius]);
 
   useEffect(() => {
-    if (seedColor) {
+    if (seedColor != null) {
       let color;
 
       try {
@@ -95,21 +95,19 @@ export function useTheme(props: UseThemeProps = {}) {
   }, [seedColor]);
 
   useEffect(() => {
-    if (fontFamily) {
-      tokensAccessor.updateFontFamily(fontFamily);
+    tokensAccessor.updateFontFamily(fontFamily);
 
-      setTheme((prevState) => {
-        return {
-          ...prevState,
-          typography: tokensAccessor.getTypography(),
-          fontFamily: tokensAccessor.getFontFamily(),
-        };
-      });
-    }
+    setTheme((prevState) => {
+      return {
+        ...prevState,
+        typography: tokensAccessor.getTypography(),
+        fontFamily: tokensAccessor.getFontFamily(),
+      };
+    });
   }, [fontFamily]);
 
   useEffect(() => {
-    if (rootUnitRatioProp) {
+    if (rootUnitRatioProp != null) {
       setRootUnitRatio(rootUnitRatioProp);
     }
   }, [rootUnitRatioProp]);

@@ -1,21 +1,20 @@
-import entityReducer from "reducers/entityReducers";
-import uiReducer from "reducers/uiReducers";
+import entityReducer from "@appsmith/reducers/entityReducers";
+import uiReducer from "@appsmith/reducers/uiReducers";
 import evaluationsReducer from "reducers/evaluationReducers";
 import { reducer as formReducer } from "redux-form";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import type { EditorReduxState } from "reducers/uiReducers/editorReducer";
+import type { EditorReduxState } from "@appsmith/reducers/uiReducers/editorReducer";
 import type { ErrorReduxState } from "reducers/uiReducers/errorReducer";
-import type { ActionDataState } from "reducers/entityReducers/actionsReducer";
+import type { ActionDataState } from "@appsmith/reducers/entityReducers/actionsReducer";
 import type { PropertyPaneReduxState } from "reducers/uiReducers/propertyPaneReducer";
 import type { TemplatesReduxState } from "reducers/uiReducers/templateReducer";
-import type { WidgetConfigReducerState } from "reducers/entityReducers/widgetConfigReducer";
 import type { DatasourceDataState } from "reducers/entityReducers/datasourceReducer";
 import type { AppViewReduxState } from "reducers/uiReducers/appViewReducer";
 import type { DatasourcePaneReduxState } from "reducers/uiReducers/datasourcePaneReducer";
 import type { ApplicationsReduxState } from "@appsmith/reducers/uiReducers/applicationsReducer";
 import type { PageListReduxState } from "reducers/entityReducers/pageListReducer";
-import type { ApiPaneReduxState } from "reducers/uiReducers/apiPaneReducer";
-import type { QueryPaneReduxState } from "reducers/uiReducers/queryPaneReducer";
+import type { ApiPaneReduxState } from "@appsmith/reducers/uiReducers/apiPaneReducer";
+import type { QueryPaneReduxState } from "@appsmith/reducers/uiReducers/queryPaneReducer";
 import type { PluginDataState } from "reducers/entityReducers/pluginsReducer";
 import type { AuthState } from "reducers/uiReducers/authReducer";
 import type { WorkspaceReduxState } from "@appsmith/reducers/uiReducers/workspaceReducer";
@@ -27,8 +26,8 @@ import type { ProvidersReduxState } from "reducers/uiReducers/providerReducer";
 import type { MetaState } from "reducers/entityReducers/metaReducer";
 import type { ImportReduxState } from "reducers/uiReducers/importReducer";
 import type { HelpReduxState } from "reducers/uiReducers/helpReducer";
-import type { ApiNameReduxState } from "reducers/uiReducers/apiNameReducer";
-import type { ExplorerReduxState } from "reducers/uiReducers/explorerReducer";
+import type { ApiNameReduxState } from "@appsmith/reducers/uiReducers/apiNameReducer";
+import type { ExplorerReduxState } from "@appsmith/reducers/uiReducers/explorerReducer";
 import type { PageCanvasStructureReduxState } from "reducers/uiReducers/pageCanvasStructureReducer";
 import type { ModalActionReduxState } from "reducers/uiReducers/modalActionReducer";
 import type { AppDataState } from "reducers/entityReducers/appReducer";
@@ -60,12 +59,12 @@ import type { SettingsReduxState } from "@appsmith/reducers/settingsReducer";
 import SettingsReducer from "@appsmith/reducers/settingsReducer";
 import type { GuidedTourState } from "reducers/uiReducers/guidedTourReducer";
 import type { TriggerValuesEvaluationState } from "reducers/evaluationReducers/triggerReducer";
-import type { CanvasWidgetStructure } from "widgets/constants";
+import type { CanvasWidgetStructure } from "WidgetProvider/constants";
 import type { AppSettingsPaneReduxState } from "reducers/uiReducers/appSettingsPaneReducer";
 import type { TenantReduxState } from "@appsmith/reducers/tenantReducer";
 import tenantReducer from "@appsmith/reducers/tenantReducer";
 import type { FocusHistoryState } from "reducers/uiReducers/focusHistoryReducer";
-import type { EditorContextState } from "reducers/uiReducers/editorContextReducer";
+import type { EditorContextState } from "@appsmith/reducers/uiReducers/editorContextReducer";
 import type { LibraryState } from "reducers/uiReducers/libraryReducer";
 import type { AutoHeightLayoutTreeReduxState } from "reducers/entityReducers/autoHeightReducers/autoHeightLayoutTreeReducer";
 import type { CanvasLevelsReduxState } from "reducers/entityReducers/autoHeightReducers/canvasLevelsReducer";
@@ -76,6 +75,10 @@ import type { AnalyticsReduxState } from "reducers/uiReducers/analyticsReducer";
 import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
 import type { layoutConversionReduxState } from "reducers/uiReducers/layoutConversionReducer";
 import type { OneClickBindingState } from "reducers/uiReducers/oneClickBindingReducer";
+
+/* Reducers which are integrated into the core system when registering a pluggable module
+    or done so by a module that is designed to be eventually pluggable */
+import type { WidgetPositionsReduxState } from "layoutSystems/anvil/integrations/reducers/widgetPositionsReducer";
 
 export const reducerObject = {
   entities: entityReducer,
@@ -145,7 +148,6 @@ export interface AppState {
     canvasWidgets: CanvasWidgetsReduxState;
     metaWidgets: MetaWidgetsReduxState;
     actions: ActionDataState;
-    widgetConfig: WidgetConfigReducerState;
     datasources: DatasourceDataState;
     pageList: PageListReduxState;
     plugins: PluginDataState;
@@ -154,6 +156,7 @@ export interface AppState {
     jsActions: JSCollectionDataState;
     autoHeightLayoutTree: AutoHeightLayoutTreeReduxState;
     canvasLevels: CanvasLevelsReduxState;
+    widgetPositions: WidgetPositionsReduxState;
   };
   evaluations: {
     tree: EvaluatedTreeState;

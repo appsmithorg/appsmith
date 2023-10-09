@@ -1,6 +1,5 @@
 import React from "react";
 import type { WidgetProps } from "./BaseWidget";
-import type BaseWidget from "./BaseWidget";
 import { debounce, fromPairs, isEmpty } from "lodash";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import AppsmithConsole from "utils/AppsmithConsole";
@@ -11,6 +10,8 @@ import { connect } from "react-redux";
 import { getWidgetMetaProps } from "sagas/selectors";
 import type { AppState } from "@appsmith/reducers";
 import { error } from "loglevel";
+import WidgetFactory from "WidgetProvider/factory";
+import type BaseWidget from "./BaseWidget";
 export type pushAction = (
   propertyName: string | batchUpdateWidgetMetaPropertyType,
   propertyValue?: unknown,
@@ -53,7 +54,9 @@ function withMeta(WrappedWidget: typeof BaseWidget) {
     updatedProperties: Record<string, boolean>;
     constructor(props: metaHOCProps) {
       super(props);
-      const metaProperties = WrappedWidget.getMetaPropertiesMap();
+      const metaProperties = WidgetFactory.getWidgetMetaPropertiesMap(
+        WrappedWidget.type,
+      );
       this.initialMetaState = fromPairs(
         Object.entries(metaProperties).map(([key, value]) => {
           return [key, value];

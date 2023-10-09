@@ -12,7 +12,6 @@ import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
 
 import java.net.URI;
-import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
@@ -33,7 +32,7 @@ public class PreAuth implements WebFilter {
                 return rateLimitService
                         .tryIncreaseCounter(RateLimitConstants.BUCKET_KEY_FOR_LOGIN_API, username)
                         .flatMap(counterIncreaseAttemptSuccessful -> {
-                            if (!counterIncreaseAttemptSuccessful) {
+                            if (Boolean.FALSE.equals(counterIncreaseAttemptSuccessful)) {
                                 log.error("Rate limit exceeded. Redirecting to login page.");
                                 return handleRateLimitExceeded(exchange);
                             }
@@ -48,14 +47,9 @@ public class PreAuth implements WebFilter {
     }
 
     private Mono<String> getUsername(ServerWebExchange exchange) {
-        return exchange.getFormData().flatMap(formData -> {
-            String username = formData.getFirst(FieldName.USERNAME.toString());
-            if (username != null && !username.isEmpty()) {
-                return Mono.just(URLDecoder.decode(username, StandardCharsets.UTF_8));
-            }
-
-            return Mono.just("");
-        });
+        return exchange.getFormData()
+                .map(formData -> formData.getFirst(FieldName.USERNAME.toString()))
+                .defaultIfEmpty("");
     }
 
     private Mono<Void> handleRateLimitExceeded(ServerWebExchange exchange) {

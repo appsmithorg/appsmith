@@ -15,10 +15,10 @@ import {
 import { importSvg } from "design-system-old";
 
 const UnpinIcon = importSvg(
-  () => import("assets/icons/ads/double-arrow-right.svg"),
+  async () => import("assets/icons/ads/double-arrow-right.svg"),
 );
 const PinIcon = importSvg(
-  () => import("assets/icons/ads/double-arrow-left.svg"),
+  async () => import("assets/icons/ads/double-arrow-left.svg"),
 );
 
 type CollapseButtonProps = {

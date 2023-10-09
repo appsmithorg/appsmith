@@ -280,8 +280,7 @@ function multiTreeSelectAndReset() {
 }
 
 function radiogroupAndReset() {
-  cy.get("input").last().click({ force: true });
-  cy.wait(1000);
+  _.agHelper.GetNClick("input", 1, true, 1000);
   _.agHelper.GetNAssertElementText(
     _.locators._textWidgetInDeployed,
     "N",
@@ -350,8 +349,7 @@ function checkboxGroupAndReset() {
 }
 
 function checkboxAndReset() {
-  cy.get("input").last().click({ force: true });
-  cy.wait(1000);
+  _.agHelper.GetNClick("input", 0, true, 1000);
   _.agHelper.GetNAssertElementText(
     _.locators._textWidgetInDeployed,
     "false",

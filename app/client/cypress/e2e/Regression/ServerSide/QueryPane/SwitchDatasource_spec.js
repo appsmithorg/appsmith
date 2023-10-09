@@ -28,11 +28,11 @@ describe("Switch datasource", function () {
 
   it("4. By switching datasources execute a query with both the datasources", function () {
     dataSources.CreateQueryFromActiveTab(dsName_1);
-    cy.get(".rc-select-show-arrow").click();
+    agHelper.GetNClick(".rc-select-show-arrow");
     cy.contains(".rc-select-item-option-content", dsName_2).click().wait(1000);
     cy.runQuery();
     // Confirm mongo datasource is not present in the switch datasources dropdown
-    cy.get(".rc-select-show-arrow").click();
+    agHelper.GetNClick(".rc-select-show-arrow");
     cy.get(".rc-select-item-option-content").should("not.have", MongoDB);
   });
 

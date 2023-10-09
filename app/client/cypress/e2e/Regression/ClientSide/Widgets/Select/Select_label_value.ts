@@ -1,24 +1,23 @@
-import * as _ from "../../../../../support/Objects/ObjectsCore";
-const explorer = require("../../../../../locators/explorerlocators.json");
-const widgetsPage = require("../../../../../locators/Widgets.json");
-const commonlocators = require("../../../../../locators/commonlocators.json");
-const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
+import {
+  agHelper,
+  draggableWidgets,
+  entityExplorer,
+  locators,
+  propPane,
+} from "../../../../../support/Objects/ObjectsCore";
 
 describe("Select Widget Functionality", function () {
-  before(() => {
-    _.agHelper.AddDsl("emptyDSL");
-  });
-  beforeEach(() => {
-    cy.wait(2000);
-  });
-  it("Add new Select widget", () => {
-    _.agHelper.GetNClick(explorer.addWidget);
-    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.SELECT, 450, 200);
-    _.agHelper.AssertElementExist(".t--widget-selectwidget");
-
-    _.propPane.ToggleJSMode("sourcedata");
-
-    _.propPane.UpdatePropertyFieldValue(
+  it("Validate select widget data - source data , label key , value key, default selected value ", () => {
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.SELECT, 450, 200);
+    agHelper.ReadSelectedDropDownValue().then(($selectedValue) => {
+      expect($selectedValue).to.eq("Green");
+    });
+    propPane.UpdatePropertyFieldValue("Default selected value", "BLUE");
+    agHelper.ReadSelectedDropDownValue().then(($selectedValue) => {
+      expect($selectedValue).to.eq("Blue");
+      expect($selectedValue).not.to.contain("Green");
+    });
+    propPane.EnterJSContext(
       "Source Data",
       `[
       {
@@ -35,19 +34,13 @@ describe("Select Widget Functionality", function () {
         "3": "red"
       }
     ]`,
+      true,
     );
+    propPane.AssertPropertiesDropDownValues("Label key", ["1", "2", "3"]);
 
-    _.agHelper.GetNClick(_.propPane._selectPropDropdown("labelkey"));
-    ["1", "2", "3"].forEach((d) => {
-      _.agHelper.AssertElementExist(_.propPane._dropDownValue(d));
-    });
+    propPane.AssertPropertiesDropDownValues("Value key", ["1", "2", "3"]);
 
-    _.agHelper.GetNClick(_.propPane._selectPropDropdown("valuekey"), 0, true);
-    ["1", "2", "3"].forEach((d) => {
-      _.agHelper.AssertElementExist(_.propPane._dropDownValue(d));
-    });
-
-    _.propPane.UpdatePropertyFieldValue(
+    propPane.UpdatePropertyFieldValue(
       "Source Data",
       `[
       {
@@ -64,24 +57,17 @@ describe("Select Widget Functionality", function () {
       }
     ]`,
     );
+    propPane.AssertPropertiesDropDownValues("Label key", ["test1", "test2"]);
 
-    _.agHelper.GetNClick(_.propPane._selectPropDropdown("label"));
-    ["test1", "test2"].forEach((d) => {
-      _.agHelper.AssertElementExist(_.propPane._dropDownValue(d));
-    });
+    propPane.AssertPropertiesDropDownValues("Value key", ["test1", "test2"]);
 
-    _.agHelper.GetNClick(_.propPane._selectPropDropdown("value"), 0, true);
-    ["test1", "test2"].forEach((d) => {
-      _.agHelper.AssertElementExist(_.propPane._dropDownValue(d));
-    });
+    propPane.SelectPropertiesDropDown("label", "test1");
 
-    _.propPane.SelectPropertiesDropDown("label", "test1");
+    propPane.SelectPropertiesDropDown("value", "test2", "Action", 0, 1);
 
-    _.propPane.SelectPropertiesDropDown("value", "test2", "Action", 0, 1);
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.TEXT, 450, 500);
 
-    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TEXT, 450, 500);
-
-    _.propPane.UpdatePropertyFieldValue(
+    propPane.UpdatePropertyFieldValue(
       "Text",
       `{{Select1.selectedOptionLabel}}:{{Select1.selectedOptionValue}}`,
     );
@@ -100,30 +86,15 @@ describe("Select Widget Functionality", function () {
         text: "label3:value3",
       },
     ].forEach((d) => {
-      cy.get(formWidgetsPage.selectWidget)
-        .find(widgetsPage.dropdownSingleSelect)
-        .click({
-          force: true,
-        });
-
-      // confirm it only has a single child
-      cy.get(".select-popover-wrapper .menu-item-link")
-        .children()
-        .should("have.length", 3);
-
-      cy.get(commonlocators.singleSelectWidgetMenuItem)
-        .contains(d.label)
-        .click({
-          force: true,
-        });
-      cy.get(commonlocators.TextInside).first().should("have.text", d.text);
+      agHelper.SelectDropDown(d.label);
+      agHelper.AssertText(locators._textInside, "text", d.text);
     });
 
-    (cy as any).openPropertyPane("selectwidget");
+    entityExplorer.SelectEntityByName("Select1");
 
-    _.propPane.SelectPropertiesDropDown("label", "test2");
+    propPane.SelectPropertiesDropDown("label", "test2");
 
-    _.propPane.SelectPropertiesDropDown("value", "test1", "Action", 0, 1);
+    propPane.SelectPropertiesDropDown("value", "test1", "Action", 0, 1);
 
     [
       {
@@ -139,23 +110,8 @@ describe("Select Widget Functionality", function () {
         text: "value3:label3",
       },
     ].forEach((d) => {
-      cy.get(formWidgetsPage.selectWidget)
-        .find(widgetsPage.dropdownSingleSelect)
-        .click({
-          force: true,
-        });
-
-      // confirm it only has a single child
-      cy.get(".select-popover-wrapper .menu-item-link")
-        .children()
-        .should("have.length", 3);
-
-      cy.get(commonlocators.singleSelectWidgetMenuItem)
-        .contains(d.label)
-        .click({
-          force: true,
-        });
-      cy.get(commonlocators.TextInside).first().should("have.text", d.text);
+      agHelper.SelectDropDown(d.label);
+      agHelper.AssertText(locators._textInside, "text", d.text);
     });
   });
 });

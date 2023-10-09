@@ -1,3 +1,3 @@
-import DSDataFilter from "ce/components/editorComponents/DSDataFilter";
+import DSDataFilter from "ce/components/DSDataFilter";
 
 export default DSDataFilter;

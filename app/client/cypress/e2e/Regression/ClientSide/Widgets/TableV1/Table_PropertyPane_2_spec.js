@@ -52,7 +52,7 @@ describe("Table Widget property pane feature validation", function () {
     deployMode.DeployApp(locators._widgetInDeployed("tablewidget"));
     table.WaitUntilTableLoad(0, 0, "v1");
     // Change the Search text
-    cy.get(widgetsPage.searchField).type("Hello");
+    cy.get(widgetsPage.searchField).first().type("Hello");
     // Verify the search text is changed
     cy.get(commonlocators.toastmsg).contains("Search Text Changed");
     deployMode.NavigateBacktoEditor();

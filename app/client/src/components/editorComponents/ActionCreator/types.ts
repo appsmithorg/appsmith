@@ -3,7 +3,7 @@ import type {
   TreeDropdownOption,
   IconName,
 } from "design-system-old";
-import type { ENTITY_TYPE, MetaArgs } from "entities/DataTree/types";
+import type { ENTITY_TYPE, MetaArgs } from "@appsmith/entities/DataTree/types";
 import type React from "react";
 import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 import type { FieldType, ViewTypes, AppsmithFunction } from "./constants";
@@ -52,6 +52,7 @@ export type TextViewProps = ViewProps & {
   index?: number;
   additionalAutoComplete?: AdditionalDynamicDataTree;
   toolTip?: string;
+  dataTreePath?: string | undefined;
 };
 
 export type TabViewProps = Omit<ViewProps, "get" | "set"> & SwitcherProps;
@@ -77,6 +78,7 @@ export type ActionCreatorProps = {
   propertyName: string;
   widgetType: string;
   widgetName: string;
+  dataTreePath: string | undefined;
 };
 
 export type Field = {
@@ -114,6 +116,7 @@ export type FieldProps = {
   navigateToSwitches: Array<SwitchType>;
   activeTabApiAndQueryCallback: SwitchType;
   apiAndQueryCallbackTabSwitches: SwitchType[];
+  dataTreePath?: string | undefined;
 };
 
 export type FieldGroupProps = Omit<

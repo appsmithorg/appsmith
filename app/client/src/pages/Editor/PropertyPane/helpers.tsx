@@ -5,12 +5,12 @@ import type {
 } from "constants/PropertyControlConstants";
 import { debounce } from "lodash";
 import { useCallback, useState } from "react";
-import { appPositioningBasedPropertyFilter } from "sagas/WidgetEnhancementHelpers";
-import WidgetFactory from "utils/WidgetFactory";
+import { layoutSystemBasedPropertyFilter } from "sagas/WidgetEnhancementHelpers";
 import type { WidgetProps } from "widgets/BaseWidget";
-import type { WidgetCallout } from "widgets/constants";
 import { Callout } from "design-system";
 import React from "react";
+import WidgetFactory from "WidgetProvider/factory";
+import type { WidgetCallout } from "WidgetProvider/constants";
 
 export function useSearchText(initialVal: string) {
   const [searchText, setSearchText] = useState(initialVal);
@@ -63,7 +63,7 @@ export function evaluateHiddenProperty(
       }
     } else if (controlConfig.controlType) {
       const isControlHidden =
-        appPositioningBasedPropertyFilter(
+        layoutSystemBasedPropertyFilter(
           widgetProps,
           controlConfig.propertyName,
         ) ||

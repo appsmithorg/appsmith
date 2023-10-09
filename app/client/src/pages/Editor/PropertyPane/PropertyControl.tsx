@@ -49,16 +49,18 @@ import {
   setFocusablePropertyPaneField,
   setSelectedPropertyPanel,
 } from "actions/propertyPaneActions";
-import WidgetFactory from "utils/WidgetFactory";
+import WidgetFactory from "WidgetProvider/factory";
 import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 import clsx from "clsx";
 import styled from "styled-components";
 import { importSvg } from "design-system-old";
 import classNames from "classnames";
-import type { PropertyUpdates } from "widgets/constants";
+import type { PropertyUpdates } from "WidgetProvider/constants";
 import { getIsOneClickBindingOptionsVisibility } from "selectors/oneClickBindingSelectors";
 
-const ResetIcon = importSvg(() => import("assets/icons/control/undo_2.svg"));
+const ResetIcon = importSvg(
+  async () => import("assets/icons/control/undo_2.svg"),
+);
 
 const StyledDeviated = styled.div`
   background-color: var(--ads-v2-color-bg-brand);
@@ -785,7 +787,7 @@ const PropertyControl = memo((props: Props) => {
           }
           ref={controlRef}
         >
-          <div className="gap-1 flex items-center">
+          <div className="flex items-center gap-1">
             <PropertyHelpLabel
               label={label}
               theme={props.theme}

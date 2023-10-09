@@ -13,7 +13,7 @@ import type {
   DataTree,
   DataTreeEntity,
   DataTreeEntityConfig,
-} from "entities/DataTree/dataTreeFactory";
+} from "@appsmith/entities/DataTree/types";
 import { getFnWithGuards, isAsyncGuard } from "./fns/utils/fnGuard";
 import { shouldAddSetter } from "./evaluate";
 
@@ -29,7 +29,7 @@ class Setters {
    */
   private setterAccessorMap: Record<string, string> = {};
 
-  private applySetterMethod(
+  private async applySetterMethod(
     path: string,
     value: unknown,
     setterMethodName: string,

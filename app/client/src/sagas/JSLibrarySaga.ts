@@ -32,7 +32,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import type { TJSLibrary } from "workers/common/JSLibrary";
 import { getUsedActionNames } from "selectors/actionSelectors";
 import AppsmithConsole from "utils/AppsmithConsole";
-import { selectInstalledLibraries } from "selectors/entitiesSelector";
+import { selectInstalledLibraries } from "@appsmith/selectors/entitiesSelector";
 import { toast } from "design-system";
 
 export function parseErrorMessage(text: string) {
@@ -84,6 +84,23 @@ export function* installLibrarySaga(lib: Partial<TJSLibrary>) {
   const installedLibraries: TJSLibrary[] = yield select(
     selectInstalledLibraries,
   );
+
+  const alreadyInstalledLibrary = installedLibraries.find(
+    (library) => library.url === url,
+  );
+
+  if (alreadyInstalledLibrary) {
+    toast.show(
+      createMessage(
+        customJSLibraryMessages.INSTALLED_ALREADY,
+        alreadyInstalledLibrary.accessor,
+      ),
+      {
+        kind: "info",
+      },
+    );
+    return;
+  }
 
   const takenAccessors = ([] as string[]).concat(
     ...installedLibraries.map((lib) => lib.accessor),

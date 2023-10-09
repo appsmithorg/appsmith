@@ -1,4 +1,4 @@
-import type { DSLWidget } from "widgets/constants";
+import type { DSLWidget } from "WidgetProvider/constants";
 import {
   migrateCurrencyInputWidgetDefaultCurrencyCode,
   migrateInputWidgetShowStepArrows,

@@ -183,6 +183,24 @@ public interface PluginExecutor<C> extends ExtensionPoint, CrudTemplateService {
     }
 
     /**
+     * This function fetches the structure of the tables/collections in the datasource. It's used to make query creation
+     * easier for the user. This method is specifically for mock datasources
+     *
+     * @param connection
+     * @param datasourceConfiguration
+     * @param isMock
+     * @param isMongoSchemaEnabledForMockDB
+     * @return
+     */
+    default Mono<DatasourceStructure> getStructure(
+            C connection,
+            DatasourceConfiguration datasourceConfiguration,
+            Boolean isMock,
+            Boolean isMongoSchemaEnabledForMockDB) {
+        return this.getStructure(connection, datasourceConfiguration);
+    }
+
+    /**
      * Appsmith Server calls this function for execution of the action.
      * Default implementation which takes the variables that need to be substituted and then calls the plugin execute function
      * <p>
@@ -331,7 +349,7 @@ public interface PluginExecutor<C> extends ExtensionPoint, CrudTemplateService {
      * This method returns ActionConfiguration required in order to fetch preview data,
      * that needs to be shown on datasource review page.
      */
-    default ActionConfiguration getSchemaPreviewActionConfig(Template queryTemplate) {
+    default ActionConfiguration getSchemaPreviewActionConfig(Template queryTemplate, Boolean isMock) {
         return null;
     }
 }

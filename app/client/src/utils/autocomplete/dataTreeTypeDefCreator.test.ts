@@ -7,20 +7,19 @@ import {
 import type {
   WidgetEntity,
   WidgetEntityConfig,
-} from "entities/DataTree/dataTreeFactory";
+} from "@appsmith/entities/DataTree/types";
 import {
-  ENTITY_TYPE,
+  ENTITY_TYPE_VALUE,
   EvaluationSubstitutionType,
 } from "entities/DataTree/dataTreeFactory";
 
-import { registerWidget } from "utils/WidgetRegisterHelpers";
-import InputWidget, {
-  CONFIG as InputWidgetConfig,
-} from "widgets/InputWidgetV2";
+import InputWidget from "widgets/InputWidgetV2";
+import { registerWidgets } from "WidgetProvider/factory/registrationHelper";
 
 describe("dataTreeTypeDefCreator", () => {
   it("creates the right def for a widget", () => {
-    registerWidget(InputWidget, InputWidgetConfig);
+    registerWidgets([InputWidget]);
+
     const dataTreeEntity: WidgetEntity = {
       widgetId: "yolo",
       widgetName: "Input1",
@@ -28,7 +27,7 @@ describe("dataTreeTypeDefCreator", () => {
       renderMode: "CANVAS",
       text: "yo",
       type: "INPUT_WIDGET_V2",
-      ENTITY_TYPE: ENTITY_TYPE.WIDGET,
+      ENTITY_TYPE: ENTITY_TYPE_VALUE.WIDGET,
       parentColumnSpace: 1,
       parentRowSpace: 2,
       leftColumn: 2,
@@ -58,7 +57,7 @@ describe("dataTreeTypeDefCreator", () => {
       widgetId: "yolo",
       widgetName: "Input1",
       type: "INPUT_WIDGET_V2",
-      ENTITY_TYPE: ENTITY_TYPE.WIDGET,
+      ENTITY_TYPE: ENTITY_TYPE_VALUE.WIDGET,
     };
     const { def, entityInfo } = dataTreeTypeDefCreator(
       {
@@ -74,7 +73,7 @@ describe("dataTreeTypeDefCreator", () => {
 
     expect(def).toHaveProperty("Input1.isDisabled");
     expect(entityInfo.get("Input1")).toStrictEqual({
-      type: ENTITY_TYPE.WIDGET,
+      type: ENTITY_TYPE_VALUE.WIDGET,
       subType: "INPUT_WIDGET_V2",
     });
   });

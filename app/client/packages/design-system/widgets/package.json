@@ -12,11 +12,12 @@
   "dependencies": {
     "@design-system/headless": "workspace:^",
     "@design-system/theming": "workspace:^",
+    "@emotion/css": "^11.11.2",
     "@react-aria/utils": "^3.16.0",
     "@react-aria/visually-hidden": "^3.8.0",
-    "classnames": "*",
+    "clsx": "^2.0.0",
     "colorjs.io": "^0.4.3",
-    "styled-components": "6.0.2"
+    "lodash": "*"
   },
   "devDependencies": {
     "eslint-plugin-storybook": "^0.6.10"

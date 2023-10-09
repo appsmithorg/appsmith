@@ -1,6 +1,6 @@
 import { klona } from "klona";
 
-import type { DSLWidget } from "widgets/constants";
+import type { DSLWidget } from "WidgetProvider/constants";
 import { migrateChildStylesheetFromDynamicBindingPathList } from "./ThemingMigrations";
 
 const inputDSL1 = {

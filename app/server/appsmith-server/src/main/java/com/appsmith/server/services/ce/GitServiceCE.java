@@ -77,9 +77,7 @@ public interface GitServiceCE {
 
     Mono<List<GitDocsDTO>> getGitDocUrls();
 
-    Mono<Long> getApplicationCountWithPrivateRepo(String workspaceId);
-
-    Mono<Boolean> isRepoLimitReached(String workspaceId, Boolean isClearCache);
-
     Mono<BranchTrackingStatus> fetchRemoteChanges(String defaultApplicationId, String branchName, boolean isFileLock);
+
+    Mono<String> autoCommitDSLMigration(String defaultApplicationId, String branchName);
 }

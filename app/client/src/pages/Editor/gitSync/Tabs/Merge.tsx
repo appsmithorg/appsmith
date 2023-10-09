@@ -220,7 +220,9 @@ export default function Merge() {
   return (
     <>
       <ModalBody>
-        <Container style={{ overflow: "unset", paddingBottom: "4px" }}>
+        <Container
+          style={{ minHeight: 360, overflow: "unset", paddingBottom: "4px" }}
+        >
           <Text color={"var(--ads-v2-color-fg-emphasis)"} kind="heading-s">
             {createMessage(SELECT_BRANCH_TO_MERGE)}
           </Text>
@@ -288,7 +290,7 @@ export default function Merge() {
           ) : null}
         </Container>
       </ModalBody>
-      <ModalFooter>
+      <ModalFooter style={{ minHeight: 52 }}>
         {!showMergeSuccessIndicator && showMergeButton ? (
           <Button
             className="t--git-merge-button"

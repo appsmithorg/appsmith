@@ -1,6 +1,5 @@
 import React from "react";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import type { WidgetType } from "constants/WidgetConstants";
 import type { ExecutionResult } from "constants/AppsmithActionConstants/ActionConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { ButtonType } from "widgets/ButtonWidget/component";
@@ -22,11 +21,58 @@ import { Alignment } from "@blueprintjs/core";
 import type { ButtonWidgetProps } from "widgets/ButtonWidget/widget";
 import type { Stylesheet } from "entities/AppTheming";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
-import type { AutocompletionDefinitions } from "widgets/constants";
+import type {
+  AutocompletionDefinitions,
+  PropertyUpdates,
+  SnipingModeProperty,
+} from "WidgetProvider/constants";
+import IconSVG from "../icon.svg";
 
 class FormButtonWidget extends ButtonWidget {
   constructor(props: FormButtonWidgetProps) {
     super(props);
+  }
+
+  static type = "FORM_BUTTON_WIDGET";
+
+  static getConfig() {
+    return {
+      name: "FormButton",
+      iconSVG: IconSVG,
+      hideCard: true,
+      isDeprecated: true,
+      replacement: "BUTTON_WIDGET",
+      needsMeta: true,
+    } as any; // TODO (Sangeeth): Type error
+  }
+
+  static getDefaults() {
+    return {
+      rows: 4,
+      columns: 12,
+      widgetName: "FormButton",
+      text: "Submit",
+      isDefaultClickDisabled: true,
+      recaptchaType: RecaptchaTypes.V3,
+      version: 1,
+      animateLoading: true,
+    } as any; // TODO (Sangeeth): Type error
+  }
+
+  static getMethods() {
+    return {
+      getSnipingModeUpdates: (
+        propValueMap: SnipingModeProperty,
+      ): PropertyUpdates[] => {
+        return [
+          {
+            propertyPath: "onClick",
+            propertyValue: propValueMap.run,
+            isDynamicPropertyPath: true,
+          },
+        ];
+      },
+    };
   }
 
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
@@ -379,7 +425,7 @@ class FormButtonWidget extends ButtonWidget {
     }
   };
 
-  getPageView() {
+  getWidgetView() {
     const disabled =
       this.props.disabledWhenInvalid &&
       "isFormValid" in this.props &&
@@ -387,15 +433,11 @@ class FormButtonWidget extends ButtonWidget {
 
     return (
       <ButtonComponent
-        {...super.getPageView().props}
+        {...super.getWidgetView().props}
         isDisabled={disabled}
         onClick={!disabled ? this.onButtonClickBound : undefined}
       />
     );
-  }
-
-  static getWidgetType(): WidgetType {
-    return "FORM_BUTTON_WIDGET";
   }
 }
 

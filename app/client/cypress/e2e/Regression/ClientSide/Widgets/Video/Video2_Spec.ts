@@ -18,7 +18,7 @@ describe("Video widget tests", function () {
     homePage.ImportApp("videoWidgetApp.json");
   });
 
-  it("1. Verify Basic Functionality of Video Widget", function () {
+  it("1. Verify Basic Functionality of Video Widget - paused, ended", function () {
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.VIDEO));
     //Play , Pause & Resume Video
     agHelper.GetElement(widgetLocators.video).then(($video) => {
@@ -41,13 +41,16 @@ describe("Video widget tests", function () {
     //Wait for video to end
     agHelper.Sleep(5000);
     agHelper.AssertProperty(widgetLocators.video, "ended", true);
+  });
 
+  it("2. Verify Basic Functionality of Video Widget - muted", function () {
     deployMode.NavigateBacktoEditor();
     entityExplorer.SelectEntityByName("Video1", "Widgets");
     //Validate video for youtube url
     propPane.TypeTextIntoField("URL", testdata.videoUrl);
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.VIDEO));
     agHelper.GetNClick(locators._widgetInDeployed(draggableWidgets.VIDEO));
+    agHelper.Sleep(2000);
     agHelper.GetElement(widgetLocators.iFrame).then(($iframe) => {
       const doc = $iframe.contents();
       const video = doc.find(widgetLocators.video);
@@ -65,7 +68,7 @@ describe("Video widget tests", function () {
     });
   });
 
-  it("2. Verify widget for invalid URL's", function () {
+  it("3. Verify widget for invalid URL's", function () {
     deployMode.NavigateBacktoEditor();
     entityExplorer.SelectEntityByName("Video1", "Widgets");
     propPane.RemoveText("URL");
@@ -96,7 +99,7 @@ describe("Video widget tests", function () {
     });
   });
 
-  it("3. Verify auto play property", function () {
+  it("4. Verify auto play property", function () {
     deployMode.NavigateBacktoEditor();
     entityExplorer.SelectEntityByName("Video1", "Widgets");
     agHelper.AssertExistingToggleState("Autoplay", "false");
@@ -117,7 +120,7 @@ describe("Video widget tests", function () {
     agHelper.AssertProperty(widgetLocators.video, "paused", true);
   });
 
-  it("4. Verify visible property", function () {
+  it("5. Verify visible property", function () {
     deployMode.NavigateBacktoEditor();
     entityExplorer.SelectEntityByName("Video1", "Widgets");
     agHelper.AssertExistingToggleState("Visible", "true");
@@ -143,7 +146,7 @@ describe("Video widget tests", function () {
     );
   });
 
-  it("5. Verify OnPlay, OnPause, OnEnd events are JS convertible", function () {
+  it("6. Verify OnPlay, OnPause, OnEnd events are JS convertible", function () {
     deployMode.NavigateBacktoEditor();
     entityExplorer.SelectEntityByName("Video1", "Widgets");
     propPane.EnterJSContext(
@@ -182,20 +185,25 @@ describe("Video widget tests", function () {
     });
   });
 
-  it("6. Verify video styles", function () {
+  it("7. Verify video styles", function () {
     deployMode.NavigateBacktoEditor();
     entityExplorer.SelectEntityByName("Video1", "Widgets");
     propPane.MoveToTab("Style");
     propPane.SelectColorFromColorPicker("backgroundcolor", 9);
     agHelper.ContainsNClick("Medium");
     propPane.EnterJSContext("Border radius", "1.5rem");
-    deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.VIDEO));
-    agHelper.AssertCSS(
-      widgetLocators.video,
-      "background-color",
-      "rgb(252, 165, 165)",
-    );
-
+    agHelper
+      .GetWidgetCSSFrAttribute(widgetLocators.video, "background-color")
+      .then((backgroundcolor) => {
+        deployMode.DeployApp(
+          locators._widgetInDeployed(draggableWidgets.VIDEO),
+        );
+        agHelper.AssertCSS(
+          widgetLocators.video,
+          "background-color",
+          backgroundcolor,
+        );
+      });
     agHelper.AssertCSS(
       widgetLocators.video,
       "box-shadow",
@@ -205,7 +213,7 @@ describe("Video widget tests", function () {
   });
 
   //Skipping below test due to issue - https://github.com/appsmithorg/appsmith/issues/26166
-  // it("7. Verify Camera Binding", function () {
+  // it("8. Verify Camera Binding", function () {
   //   deployMode.NavigateBacktoEditor();
   //   entityExplorer.SelectEntityByName("Camera1", "Widgets");
   //   propPane.AssertPropertiesDropDownCurrentValue(

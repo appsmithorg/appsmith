@@ -179,26 +179,35 @@ export function getDependencyChain(
   propertyPath: string,
   inverseMap: DependencyMap,
 ) {
-  let currentChain: string[] = [];
-  const dependents = inverseMap[propertyPath];
+  const visited = new Set<string>();
 
-  if (!dependents || !dependents.length) return currentChain;
+  return getDependencyChainHelper(propertyPath);
 
-  const { entityName } = getEntityNameAndPropertyPath(propertyPath);
+  function getDependencyChainHelper(propertyPath: string): string[] {
+    let currentChain: string[] = [];
+    const dependents = inverseMap[propertyPath];
 
-  dependents.map((dependentPath) => {
-    if (!isChildPropertyPath(entityName, dependentPath)) {
-      currentChain.push(dependentPath);
+    if (!dependents || !dependents.length) return currentChain;
+
+    if (visited.has(propertyPath)) return currentChain;
+
+    const { entityName } = getEntityNameAndPropertyPath(propertyPath);
+
+    visited.add(propertyPath);
+
+    for (const dependentPath of dependents) {
+      if (!isChildPropertyPath(entityName, dependentPath)) {
+        currentChain.push(dependentPath);
+      }
+      if (dependentPath !== entityName) {
+        currentChain = union(
+          currentChain,
+          getDependencyChain(dependentPath, inverseMap),
+        );
+      }
     }
-
-    if (dependentPath !== entityName) {
-      currentChain = union(
-        currentChain,
-        getDependencyChain(dependentPath, inverseMap),
-      );
-    }
-  });
-  return currentChain;
+    return currentChain;
+  }
 }
 
 export const doesEntityHaveErrors = (

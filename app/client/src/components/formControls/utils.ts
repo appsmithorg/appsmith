@@ -19,7 +19,6 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import { getCurrentEditingEnvID } from "@appsmith/utils/Environments";
 
 // This function checks if the form is dirty
 // We needed this in the cases where datasources are created from APIs and the initial value
@@ -29,11 +28,12 @@ export const getIsFormDirty = (
   formData: any,
   isNewDatasource: boolean,
   isRestPlugin: boolean,
+  currentEditingEnvId: string,
 ) => {
   const url = isRestPlugin
     ? get(
         formData,
-        `datastoreStorages.${getCurrentEditingEnvID}.datasourceConfiguration.url`,
+        `datastoreStorages.${currentEditingEnvId}.datasourceConfiguration.url`,
         "",
       )
     : "";

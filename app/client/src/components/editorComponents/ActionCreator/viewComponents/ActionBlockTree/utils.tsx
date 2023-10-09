@@ -7,7 +7,7 @@ import { getFunctionName, getFunctionArguments } from "@shared/ast";
 import { FIELD_CONFIG } from "../../Field/FieldConfig";
 import { getCodeFromMoustache, getEvaluationVersion } from "../../utils";
 import { ApiMethodIcon } from "pages/Editor/Explorer/ExplorerIcons";
-import { getActionsForCurrentPage } from "selectors/entitiesSelector";
+import { getCurrentActions } from "@appsmith/selectors/entitiesSelector";
 import { useSelector } from "react-redux";
 import type { HTTP_METHOD } from "constants/ApiEditorConstants/CommonApiConstants";
 
@@ -15,7 +15,7 @@ function GetIconForAction(
   actionType: ActionTree["actionType"],
   code: string,
 ): React.FunctionComponent {
-  const actions = useSelector(getActionsForCurrentPage);
+  const actions = useSelector(getCurrentActions);
 
   switch (actionType) {
     case AppsmithFunction.none:

@@ -9,7 +9,7 @@ import type {
 } from "constants/WidgetConstants";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 import ResizeObserver from "resize-observer-polyfill";
-import WidgetFactory from "utils/WidgetFactory";
+import WidgetFactory from "WidgetProvider/factory";
 import {
   createMessage,
   WIDGET_DEPRECATION_MESSAGE,
@@ -298,4 +298,8 @@ export const groupWidgetCardsByTags = (widgetCards: WidgetCardProps[]) => {
   });
 
   return groupedCards;
+};
+
+export const transformTextToSentenceCase = (s: string) => {
+  return s.slice(0, 1).toUpperCase() + s.slice(1).toLowerCase();
 };

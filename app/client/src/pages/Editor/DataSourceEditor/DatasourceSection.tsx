@@ -7,15 +7,14 @@ import log from "loglevel";
 import { ComparisonOperationsEnum } from "components/formControls/BaseControl";
 import type { AppState } from "@appsmith/reducers";
 import { connect } from "react-redux";
-import { datasourceEnvEnabled } from "@appsmith/selectors/featureFlagsSelectors";
-import {
-  DB_NOT_SUPPORTED,
-  getCurrentEnvironment,
-} from "@appsmith/utils/Environments";
-import { getPlugin } from "selectors/entitiesSelector";
+import { getPlugin } from "@appsmith/selectors/entitiesSelector";
+import { DB_NOT_SUPPORTED } from "@appsmith/utils/Environments";
 import type { PluginType } from "entities/Action";
 import { getDefaultEnvId } from "@appsmith/api/ApiUtils";
 import { EnvConfigSection } from "@appsmith/components/EnvConfigSection";
+import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelectors";
+import { isMultipleEnvEnabled } from "@appsmith/utils/planHelpers";
+import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 
 const Key = styled.div`
   color: var(--ads-v2-color-fg-muted);
@@ -258,9 +257,10 @@ const mapStateToProps = (state: AppState, ownProps: any) => {
   const pluginType = plugin?.type;
   const isEnvEnabled = DB_NOT_SUPPORTED.includes(pluginType as PluginType)
     ? false
-    : datasourceEnvEnabled(state);
+    : isMultipleEnvEnabled(selectFeatureFlags(state));
+  const currentEnvironmentId = getCurrentEnvironmentId(state);
   return {
-    currentEnv: isEnvEnabled ? getCurrentEnvironment() : getDefaultEnvId(),
+    currentEnv: isEnvEnabled ? currentEnvironmentId : getDefaultEnvId(),
     isEnvEnabled,
   };
 };

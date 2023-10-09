@@ -33,7 +33,7 @@ import {
 } from "widgets/WidgetUtils";
 import { DragContainer } from "./DragContainer";
 import { buttonHoverActiveStyles } from "./utils";
-import type { ThemeProp } from "widgets/constants";
+import type { ThemeProp } from "WidgetProvider/constants";
 import { toast } from "design-system";
 
 const RecaptchaWrapper = styled.div`

@@ -175,11 +175,6 @@ export const resetCurrentApplication = () => {
   };
 };
 
-export const setShowAppInviteUsersDialog = (payload: boolean) => ({
-  type: ReduxActionTypes.SET_SHOW_APP_INVITE_USERS_MODAL,
-  payload,
-});
-
 export const initDatasourceConnectionDuringImportRequest = (
   payload: string,
 ) => ({

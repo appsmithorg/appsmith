@@ -24,8 +24,8 @@ import {
   getPlugin,
   getPluginDocumentationLinks,
   getDatasourceScopeValue,
-} from "selectors/entitiesSelector";
-import type { ActionDataState } from "reducers/entityReducers/actionsReducer";
+} from "@appsmith/selectors/entitiesSelector";
+import type { ActionDataState } from "@appsmith/reducers/entityReducers/actionsReducer";
 import type { JSONtoFormProps } from "../DataSourceEditor/JSONtoForm";
 import { JSONtoForm } from "../DataSourceEditor/JSONtoForm";
 import { normalizeValues, validate } from "components/formControls/utils";
@@ -45,11 +45,6 @@ import {
 import type { PluginType } from "entities/Action";
 import AuthMessage from "pages/common/datasourceAuth/AuthMessage";
 import { isDatasourceInViewMode } from "selectors/ui";
-import {
-  hasCreateDatasourceActionPermission,
-  hasDeleteDatasourcePermission,
-  hasManageDatasourcePermission,
-} from "@appsmith/utils/permissionHelpers";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import {
   createTempDatasourceFromForm,
@@ -79,15 +74,21 @@ import Debugger, {
 } from "../DataSourceEditor/Debugger";
 import { showDebuggerFlag } from "selectors/debuggerSelectors";
 import { Form, ViewModeWrapper } from "../DataSourceEditor/DBForm";
-import { getCurrentEditingEnvID } from "@appsmith/utils/Environments";
 import DSDataFilter from "@appsmith/components/DSDataFilter";
 import { DSEditorWrapper } from "../DataSourceEditor";
 import type { DatasourceFilterState } from "../DataSourceEditor";
 import { getQueryParams } from "utils/URLUtils";
 import GoogleSheetSchema from "./GoogleSheetSchema";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { getDefaultEnvironmentId } from "@appsmith/selectors/environmentSelectors";
+import { DEFAULT_ENV_ID } from "@appsmith/api/ApiUtils";
+import {
+  getHasCreateDatasourceActionPermission,
+  getHasDeleteDatasourcePermission,
+  getHasManageDatasourcePermission,
+} from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 const ViewModeContainer = styled.div`
   display: flex;
@@ -126,7 +127,6 @@ interface StateProps extends JSONtoFormProps {
   scopeValue?: string;
   requiredFields: Record<string, ControlProps>;
   configDetails: Record<string, string>;
-  isEnabledForGSheetSchema: boolean;
   isPluginAuthFailed: boolean;
 }
 interface DatasourceFormFunctions {
@@ -172,6 +172,7 @@ type State = {
 type SaasEditorWrappperProps = RouteProps & {
   hiddenHeader?: boolean; // for reconnect modal
   isInsideReconnectModal?: boolean; // for reconnect modal
+  currentEnvironment: string;
 };
 type RouteProps = {
   datasourceId: string;
@@ -182,7 +183,6 @@ type RouteProps = {
 type SaasEditorWrappperState = {
   requiredFields: Record<string, ControlProps>;
   configDetails: Record<string, string>;
-  currentEditingEnvironment: string;
 };
 class SaasEditorWrapper extends React.Component<
   SaasEditorWrappperProps,
@@ -193,7 +193,6 @@ class SaasEditorWrapper extends React.Component<
     this.state = {
       requiredFields: {},
       configDetails: {},
-      currentEditingEnvironment: getCurrentEditingEnvID(),
     };
   }
 
@@ -225,7 +224,6 @@ class SaasEditorWrapper extends React.Component<
       <SaaSEditor
         {...this.props}
         configDetails={this.state.configDetails}
-        currentEnvironment={this.state.currentEditingEnvironment}
         requiredFields={this.state.requiredFields}
         setupConfig={this.setupConfig}
       />
@@ -241,10 +239,9 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
       routesBlocked: false,
       readUrlParams: false,
       filterParams: {
-        id: "",
+        id: DEFAULT_ENV_ID,
         name: "",
         userPermissions: [],
-        showFilterPane: false,
       },
       unblock: () => {
         return undefined;
@@ -330,17 +327,8 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
     }
   }
 
-  updateFilter(
-    id: string,
-    name: string,
-    userPermissions: string[],
-    showFilterPane: boolean,
-  ) {
-    if (
-      this.state.filterParams.id === id &&
-      this.state.filterParams.showFilterPane === showFilterPane
-    )
-      return false;
+  updateFilter(id: string, name: string, userPermissions: string[]) {
+    if (this.state.filterParams.id === id) return false;
 
     AnalyticsUtil.logEvent("SWITCH_ENVIRONMENT", {
       fromEnvId: this.state.filterParams.id,
@@ -354,7 +342,6 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
         id,
         name,
         userPermissions,
-        showFilterPane,
       },
     });
     return true;
@@ -492,7 +479,6 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
       gsheetToken,
       hiddenHeader,
       isDeleting,
-      isEnabledForGSheetSchema,
       isInsideReconnectModal,
       isPluginAuthFailed,
       isPluginAuthorized,
@@ -517,7 +503,11 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
       if we want to extend this functionality for other plugins, we should be able
       to extend this function for other plugins
     */
-    const authErrorMessage = getDatasourceErrorMessage(formData, plugin);
+    const authErrorMessage = getDatasourceErrorMessage(
+      formData,
+      plugin,
+      this.state.filterParams.id,
+    );
 
     const googleSheetsInfoMessage = createMessage(
       GOOGLE_SHEETS_INFO_BANNER_MESSAGE,
@@ -529,7 +519,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
       authErrorMessage == GSHEET_AUTHORIZATION_ERROR;
 
     const isGoogleSheetSchemaAvailable =
-      isGoogleSheetPlugin && isPluginAuthorized && isEnabledForGSheetSchema;
+      isGoogleSheetPlugin && isPluginAuthorized;
 
     return (
       <>
@@ -555,7 +545,6 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
           <ResizerContentContainer className="db-form-resizer-content">
             <DSEditorWrapper>
               <DSDataFilter
-                datasourceId={datasourceId}
                 filterId={this.state.filterParams.id}
                 isInsideReconnectModal={!!isInsideReconnectModal}
                 pluginName={plugin?.name || ""}
@@ -568,7 +557,6 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
                   onSubmit={(e) => {
                     e.preventDefault();
                   }}
-                  showFilterComponent={this.state.filterParams.showFilterPane}
                   viewMode={viewMode}
                 >
                   {(!viewMode || createFlow || isInsideReconnectModal) && (
@@ -638,7 +626,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
                 {/* Render datasource form call-to-actions */}
                 {datasource && (
                   <DatasourceAuth
-                    currentEnvironment={this.props.currentEnvironment}
+                    currentEnvironment={this.state.filterParams.id}
                     datasource={datasource}
                     datasourceButtonConfiguration={
                       datasourceButtonConfiguration
@@ -658,7 +646,6 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
                     scopeValue={scopeValue}
                     setDatasourceViewMode={setDatasourceViewMode}
                     shouldDisplayAuthMessage={!isGoogleSheetPlugin}
-                    showFilterComponent={this.state.filterParams.showFilterPane}
                     triggerSave={this.props.isDatasourceBeingSavedFromPopup}
                     viewMode={viewMode}
                   />
@@ -704,12 +691,6 @@ const mapStateToProps = (state: AppState, props: any) => {
     state,
   ) as Datasource;
 
-  // A/B feature flag for gsheet schema.
-  const isEnabledForGSheetSchema = selectFeatureFlagCheck(
-    state,
-    FEATURE_FLAG.ab_gsheet_schema_enabled,
-  );
-
   // get scopeValue to be shown in analytical events
   const scopeValue = getDatasourceScopeValue(
     state,
@@ -728,19 +709,26 @@ const mapStateToProps = (state: AppState, props: any) => {
 
   const datasourcePermissions = datasource?.userPermissions || [];
 
-  const canManageDatasource = hasManageDatasourcePermission(
+  const isFeatureEnabled = selectFeatureFlagCheck(
+    state,
+    FEATURE_FLAG.license_gac_enabled,
+  );
+
+  const canManageDatasource = getHasManageDatasourcePermission(
+    isFeatureEnabled,
     datasourcePermissions,
   );
 
-  const canDeleteDatasource = hasDeleteDatasourcePermission(
+  const canDeleteDatasource = getHasDeleteDatasourcePermission(
+    isFeatureEnabled,
     datasourcePermissions,
   );
 
   const pagePermissions = getPagePermissions(state);
-  const canCreateDatasourceActions = hasCreateDatasourceActionPermission([
-    ...datasourcePermissions,
-    ...pagePermissions,
-  ]);
+  const canCreateDatasourceActions = getHasCreateDatasourceActionPermission(
+    isFeatureEnabled,
+    [...datasourcePermissions, ...pagePermissions],
+  );
 
   const gsheetToken = getGsheetToken(state);
   const gsheetProjectID = getGsheetProjectID(state);
@@ -754,13 +742,15 @@ const mapStateToProps = (state: AppState, props: any) => {
     viewMode = viewModeFromURLParams === "true";
   }
 
+  const { currentEnvironment } = props;
+
   // Returning false to isPluginAuthorized if there exists no plugin or formdata.
   const isPluginAuthorized =
     !!plugin && !!formData
       ? isDatasourceAuthorizedForQueryCreation(
           formData,
           plugin,
-          getCurrentEditingEnvID(),
+          currentEnvironment,
         )
       : false;
 
@@ -771,7 +761,7 @@ const mapStateToProps = (state: AppState, props: any) => {
       ? isDatasourceAuthorizedForQueryCreation(
           formData,
           plugin,
-          getCurrentEditingEnvID(),
+          currentEnvironment,
           [
             AuthenticationStatus.FAILURE,
             AuthenticationStatus.FAILURE_ACCESS_DENIED,
@@ -815,7 +805,6 @@ const mapStateToProps = (state: AppState, props: any) => {
     gsheetProjectID,
     showDebugger,
     scopeValue,
-    isEnabledForGSheetSchema,
     isPluginAuthFailed,
   };
 };
@@ -859,4 +848,6 @@ const SaaSEditor = connect(
   })(DatasourceSaaSEditor),
 );
 
-export default SaasEditorWrapper;
+export default connect((state) => ({
+  currentEnvironment: getDefaultEnvironmentId(state),
+}))(SaasEditorWrapper);

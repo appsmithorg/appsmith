@@ -16,7 +16,7 @@ const StyledThemeProvider = styled(ThemeProvider)`
 
 export const theming = (Story, args) => {
   const { theme } = useTheme({
-    seedColor: args.globals.accentColor,
+    seedColor: args.globals.seedColor,
     colorMode: args.parameters.colorMode || args.globals.colorMode,
     borderRadius: args.globals.borderRadius,
     fontFamily: args.globals.fontFamily,

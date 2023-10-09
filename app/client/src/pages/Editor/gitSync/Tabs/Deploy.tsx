@@ -285,6 +285,7 @@ function Deploy() {
         <Container
           data-testid={"t--deploy-tab-container"}
           ref={scrollWrapperRef}
+          style={{ minHeight: 360 }}
         >
           <Section>
             {hasChangesToCommit && (
@@ -356,16 +357,16 @@ function Deploy() {
                   links={[
                     {
                       children: createMessage(READ_DOCUMENTATION),
-                      onClick: (e) => {
-                        e.preventDefault();
+                      onClick: () => {
                         AnalyticsUtil.logEvent(
                           "GS_GIT_DOCUMENTATION_LINK_CLICK",
                           {
                             source: "UPSTREAM_CHANGES_LINK_ON_GIT_DEPLOY_MODAL",
                           },
                         );
-                        window.open(upstreamErrorDocumentUrl, "_blank");
                       },
+                      to: upstreamErrorDocumentUrl,
+                      target: "_blank",
                     },
                   ]}
                 >
@@ -428,7 +429,7 @@ function Deploy() {
           )}
         </Container>
       </ModalBody>
-      <ModalFooter key="footer">
+      <ModalFooter key="footer" style={{ minHeight: 52 }}>
         {showPullButton && (
           <Button
             className="t--pull-button"

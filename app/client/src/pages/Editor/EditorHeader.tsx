@@ -22,6 +22,7 @@ import {
 } from "selectors/editorSelectors";
 import {
   getAllUsers,
+  getCurrentAppWorkspace,
   getCurrentWorkspaceId,
 } from "@appsmith/selectors/workspaceSelectors";
 import { useDispatch, useSelector } from "react-redux";
@@ -66,7 +67,7 @@ import RealtimeAppEditors from "./RealtimeAppEditors";
 import { EditorSaveIndicator } from "./EditorSaveIndicator";
 import {
   adaptiveSignpostingEnabled,
-  datasourceEnvEnabled,
+  selectFeatureFlags,
 } from "@appsmith/selectors/featureFlagsSelectors";
 import { retryPromise } from "utils/AppsmithUtils";
 import { fetchUsersForWorkspace } from "@appsmith/actions/workspaceActions";
@@ -79,13 +80,14 @@ import {
   DEPLOY_MENU_OPTION,
   EDITOR_HEADER,
   INVITE_TAB,
-  INVITE_USERS_PLACEHOLDER,
   IN_APP_EMBED_SETTING,
   LOCK_ENTITY_EXPLORER_MESSAGE,
   LOGO_TOOLTIP,
   RENAME_APPLICATION_TOOLTIP,
   SHARE_BUTTON_TOOLTIP,
   SHARE_BUTTON_TOOLTIP_WITH_USER,
+  COMMUNITY_TEMPLATES,
+  APPLICATION_INVITE,
 } from "@appsmith/constants/messages";
 import { getExplorerPinned } from "selectors/explorerSelector";
 import {
@@ -98,7 +100,6 @@ import EndTour from "./GuidedTour/EndTour";
 import { GUIDED_TOUR_STEPS } from "./GuidedTour/constants";
 import { viewerURL } from "RouteBuilder";
 import { useHref } from "./utils";
-import EmbedSnippetForm from "@appsmith/pages/Applications/EmbedSnippetTab";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 import type { NavigationSetting } from "constants/AppConstants";
@@ -112,6 +113,11 @@ import WalkthroughContext from "components/featureWalkthrough/walkthroughContext
 import { getFeatureWalkthroughShown } from "utils/storage";
 import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
 import { SignpostingWalkthroughConfig } from "./FirstTimeUserOnboarding/Utils";
+import CommunityTemplatesPublishInfo from "./CommunityTemplates/Modals/CommunityTemplatesPublishInfo";
+import PublishCommunityTemplateModal from "./CommunityTemplates/Modals/PublishCommunityTemplate";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { getEmbedSnippetForm } from "@appsmith/utils/BusinessFeatures/privateEmbedHelpers";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -215,9 +221,9 @@ const SidebarNavButton = styled(Button)`
   }
 `;
 
-const GlobalSearch = lazy(() => {
+const GlobalSearch = lazy(async () => {
   return retryPromise(
-    () =>
+    async () =>
       import(
         /* webpackChunkName: "global-search" */ "components/editorComponents/GlobalSearch"
       ),
@@ -238,12 +244,14 @@ export function EditorHeader() {
   const isPreviewMode = useSelector(previewModeSelector);
   const signpostingEnabled = useSelector(getIsFirstTimeUserOnboardingEnabled);
   const workspaceId = useSelector(getCurrentWorkspaceId);
+  const currentWorkspace = useSelector(getCurrentAppWorkspace);
   const applicationId = useSelector(getCurrentApplicationId);
   const currentApplication = useSelector(getCurrentApplication);
   const isPublishing = useSelector(getIsPublishingApplication);
   const pageId = useSelector(getCurrentPageId) as string;
   const sharedUserList = useSelector(getAllUsers);
   const currentUser = useSelector(getCurrentUser);
+  const featureFlags = useSelector(selectFeatureFlags);
 
   const deployLink = useHref(viewerURL, { pageId });
   const isAppSettingsPaneWithNavigationTabOpen = useSelector(
@@ -254,7 +262,13 @@ export function EditorHeader() {
 
   const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false);
   const [showModal, setShowModal] = useState(false);
-  const dsEnvEnabled = useSelector(datasourceEnvEnabled);
+  const isMultipleEnvEnabled = useFeatureFlag(
+    FEATURE_FLAG.release_datasource_environments_enabled,
+  );
+  const [
+    showPublishCommunityTemplateModal,
+    setShowPublishCommunityTemplateModal,
+  ] = useState(false);
 
   const handlePublish = () => {
     if (applicationId) {
@@ -309,7 +323,10 @@ export function EditorHeader() {
             : "Application name menu (top left)",
         });
       } else {
-        if (!dsEnvEnabled || getUserPreferenceFromStorage() === "true") {
+        if (
+          !isMultipleEnvEnabled ||
+          getUserPreferenceFromStorage() === "true"
+        ) {
           handlePublish();
         } else {
           dispatch(showEnvironmentDeployInfoModal());
@@ -353,6 +370,9 @@ export function EditorHeader() {
   const adaptiveSignposting = useSelector(adaptiveSignpostingEnabled);
   const isConnectionPresent = useSelector(isWidgetActionConnectionPresent);
   const isDeployed = !!useSelector(getApplicationLastDeployedAt);
+  const isPrivateEmbedEnabled = useFeatureFlag(
+    FEATURE_FLAG.license_private_embeds_enabled,
+  );
   useEffect(() => {
     if (
       signpostingEnabled &&
@@ -381,6 +401,8 @@ export function EditorHeader() {
       pushFeature &&
       pushFeature(SignpostingWalkthroughConfig.DEPLOY_APP, true);
   };
+
+  const isGACEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
 
   return (
     <ThemeProvider theme={theme}>
@@ -415,7 +437,7 @@ export function EditorHeader() {
                 size="md"
               >
                 <div
-                  className="t--pin-entity-explorer group relative"
+                  className="relative t--pin-entity-explorer group"
                   onMouseEnter={onMenuHover}
                 >
                   <Icon
@@ -538,7 +560,13 @@ export function EditorHeader() {
               open={showModal}
             >
               <ModalContent style={{ width: "640px" }}>
-                <ModalHeader>Application Invite</ModalHeader>
+                <ModalHeader>
+                  {createMessage(
+                    APPLICATION_INVITE,
+                    currentWorkspace.name,
+                    !isGACEnabled,
+                  )}
+                </ModalHeader>
                 <ModalBody>
                   <Tabs
                     onValueChange={(value) => setActiveTab(value)}
@@ -548,29 +576,47 @@ export function EditorHeader() {
                       <Tab data-testid="t--tab-INVITE" value="invite">
                         {createMessage(INVITE_TAB)}
                       </Tab>
-                      <Tab data-tesid="t--tab-EMBED" value="embed">
+                      <Tab data-testid="t--tab-EMBED" value="embed">
                         {createMessage(IN_APP_EMBED_SETTING.embed)}
                       </Tab>
+                      {featureFlags.release_show_publish_app_to_community_enabled &&
+                        cloudHosting && (
+                          <Tab data-testid="t--tab-PUBLISH" value="publish">
+                            {createMessage(COMMUNITY_TEMPLATES.publish)}
+                          </Tab>
+                        )}
                     </TabsList>
                     <TabPanel value="invite">
                       <AppInviteUsersForm
                         applicationId={applicationId}
-                        placeholder={createMessage(
-                          INVITE_USERS_PLACEHOLDER,
-                          cloudHosting,
-                        )}
                         workspaceId={workspaceId}
                       />
                     </TabPanel>
                     <TabPanel value="embed">
-                      <EmbedSnippetForm
-                        changeTab={() => setActiveTab("invite")}
-                      />
+                      {getEmbedSnippetForm(isPrivateEmbedEnabled, setActiveTab)}
                     </TabPanel>
+                    {cloudHosting && (
+                      <TabPanel value="publish">
+                        <CommunityTemplatesPublishInfo
+                          onPublishClick={() =>
+                            setShowPublishCommunityTemplateModal(true)
+                          }
+                          setShowHostModal={setShowModal}
+                        />
+                      </TabPanel>
+                    )}
                   </Tabs>
                 </ModalBody>
               </ModalContent>
             </Modal>
+            <PublishCommunityTemplateModal
+              onPublishSuccess={() => {
+                setShowPublishCommunityTemplateModal(false);
+                setShowModal(true);
+              }}
+              setShowModal={setShowPublishCommunityTemplateModal}
+              showModal={showPublishCommunityTemplateModal}
+            />
             <div className="flex items-center">
               <Tooltip
                 content={createMessage(DEPLOY_BUTTON_TOOLTIP)}

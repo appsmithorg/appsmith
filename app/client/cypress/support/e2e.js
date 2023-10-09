@@ -22,12 +22,13 @@ import * as MESSAGES from "../../../client/src/ce/constants/messages.ts";
 import "./ApiCommands";
 // Import commands.js using ES2015 syntax:
 import "./commands";
-import { initLocalstorage } from "./commands";
+import { initLocalstorage, addIndexedDBKey } from "./commands";
 import "./dataSourceCommands";
 import "./gitSync";
 import { initLocalstorageRegistry } from "./Objects/Registry";
 import RapidMode from "./RapidMode.ts";
 import "cypress-mochawesome-reporter/register";
+import installLogsCollector from "cypress-terminal-report/src/installLogsCollector";
 
 import "./WorkspaceCommands";
 import "./queryCommands";
@@ -35,7 +36,13 @@ import "./widgetCommands";
 import "./themeCommands";
 import "./AdminSettingsCommands";
 import "cypress-plugin-tab";
+import {
+  FEATURE_WALKTHROUGH_INDEX_KEY,
+  WALKTHROUGH_TEST_PAGE,
+} from "./Constants.js";
 /// <reference types="cypress-xpath" />
+
+installLogsCollector();
 
 Cypress.on("uncaught:exception", () => {
   // returning false here prevents Cypress from
@@ -107,6 +114,15 @@ before(function () {
       cy.LogOut();
     }
   });
+
+  if (!Cypress.currentTest.titlePath[0].includes(WALKTHROUGH_TEST_PAGE)) {
+    // Adding key FEATURE_WALKTHROUGH (which is used to check if the walkthrough is already shown to the user or not) for non walkthrough cypress tests (to not show walkthrough)
+    addIndexedDBKey(FEATURE_WALKTHROUGH_INDEX_KEY, {
+      ab_ds_binding_enabled: true,
+      ab_ds_schema_enabled: true,
+      binding_widget: true,
+    });
+  }
 
   //console.warn = () => {};
   //Cypress.Cookies.preserveOnce("SESSION", "remember_token");

@@ -16,7 +16,7 @@ import {
   WIDGET_PADDING,
 } from "constants/WidgetConstants";
 import { all, call } from "redux-saga/effects";
-import type { DataTree } from "entities/DataTree/dataTreeFactory";
+import type { DataTree } from "@appsmith/entities/DataTree/types";
 import { select } from "redux-saga/effects";
 import { getCopiedWidgets } from "utils/storage";
 import type { WidgetProps } from "widgets/BaseWidget";
@@ -33,7 +33,7 @@ import {
   combineDynamicBindings,
 } from "utils/DynamicBindingUtils";
 import { getNextEntityName } from "utils/AppsmithUtils";
-import WidgetFactory from "utils/WidgetFactory";
+import WidgetFactory from "WidgetProvider/factory";
 import { getParentWithEnhancementFn } from "./WidgetEnhancementHelpers";
 import type {
   OccupiedSpace,
@@ -56,12 +56,12 @@ import {
 import { getContainerWidgetSpacesSelector } from "selectors/editorSelectors";
 import { reflow } from "reflow";
 import { getBottomRowAfterReflow } from "utils/reflowHookUtils";
-import type { WidgetEntity } from "entities/DataTree/dataTreeFactory";
+import type { WidgetEntity } from "@appsmith/entities/DataTree/types";
 import { isWidget } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import type { MetaState } from "reducers/entityReducers/metaReducer";
-import { Positioning } from "utils/autoLayout/constants";
-import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import { LayoutSystemTypes } from "layoutSystems/types";
+import { Positioning } from "layoutSystems/common/utils/constants";
 
 export interface CopiedWidgetGroup {
   widgetId: string;
@@ -747,7 +747,7 @@ export function getMousePositions(
 export function getSnappedGrid(LayoutWidget: WidgetProps, canvasWidth: number) {
   // For all widgets inside a container, we remove both container padding as well as widget padding from component width
   let padding =
-    ((LayoutWidget?.appPositioningType === AppPositioningTypes.AUTO
+    ((LayoutWidget?.layoutSystemType === LayoutSystemTypes.AUTO
       ? AUTO_LAYOUT_CONTAINER_PADDING
       : CONTAINER_GRID_PADDING) +
       WIDGET_PADDING) *
@@ -815,12 +815,12 @@ export function getDefaultCanvas(canvasWidgets: CanvasWidgetsReduxState) {
  * @param canvasId
  * @returns
  */
-export function getContainerIdForCanvas(canvasId: string) {
+export function getContainerIdForCanvas(canvasId: string): string | undefined {
   if (canvasId === MAIN_CONTAINER_WIDGET_ID) return canvasId;
 
   const selector = `#${getStickyCanvasName(canvasId)}`;
   const canvasDOM = document.querySelector(selector);
-  if (!canvasDOM) return "";
+  if (!canvasDOM) return undefined;
   //check for positionedWidget parent
   let containerDOM = canvasDOM.closest(`.${POSITIONED_WIDGET}`);
   //if positioned widget parent is not found, most likely is a modal widget
@@ -1644,6 +1644,8 @@ export function getParentColumnSpace(
   pastingIntoWidgetId: string,
 ) {
   const containerId = getContainerIdForCanvas(pastingIntoWidgetId);
+
+  if (containerId === undefined) return;
 
   const containerWidget = canvasWidgets[containerId];
   const canvasDOM = document.querySelector(

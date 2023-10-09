@@ -1,15 +1,13 @@
 import React, { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  DatasourceStructureContainer as DatasourceStructureList,
-  DatasourceStructureContext,
-} from "../Explorer/Datasources/DatasourceStructureContainer";
+import { DatasourceStructureContext } from "../Explorer/Datasources/DatasourceStructure";
+import { DatasourceStructureContainer as DatasourceStructureList } from "../Explorer/Datasources/DatasourceStructureContainer";
 import {
   getDatasourceStructureById,
   getIsFetchingDatasourceStructure,
   getNumberOfEntitiesInCurrentPage,
-} from "selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import DatasourceStructureHeader from "../Explorer/Datasources/DatasourceStructureHeader";
 import { MessageWrapper, TableWrapper } from "../SaaSEditor/GoogleSheetSchema";
 import { Spinner, Text, Button } from "design-system";
@@ -23,22 +21,27 @@ import {
 import Table from "pages/Editor/QueryEditor/Table";
 import { generateTemplateToUpdatePage } from "actions/pageActions";
 import { useParams } from "react-router";
-// eslint-disable-next-line @typescript-eslint/no-restricted-imports
-import type { ExplorerURLParams } from "ce/pages/Editor/Explorer/helpers";
+import type { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers";
 import {
   getCurrentApplicationId,
   getPagePermissions,
 } from "selectors/editorSelectors";
 import { GENERATE_PAGE_MODE } from "../GeneratePage/components/GeneratePageForm/GeneratePageForm";
 import { useDatasourceQuery } from "./hooks";
-import type { Datasource, DatasourceTable } from "entities/Datasource";
+import type {
+  Datasource,
+  DatasourceTable,
+  QueryTemplate,
+} from "entities/Datasource";
 import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
-import {
-  hasCreateDatasourceActionPermission,
-  hasCreatePagePermission,
-} from "@appsmith/utils/permissionHelpers";
 import type { AppState } from "@appsmith/reducers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import {
+  getHasCreateDatasourceActionPermission,
+  getHasCreatePagePermission,
+} from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 
 const ViewModeSchemaContainer = styled.div`
   height: 100%;
@@ -53,7 +56,7 @@ const StructureContainer = styled.div`
   width: 25%;
   display: flex;
   flex-direction: column;
-  overflow: scroll;
+  overflow: hidden;
 `;
 
 const DatasourceDataContainer = styled.div`
@@ -66,6 +69,17 @@ const DatasourceDataContainer = styled.div`
 const DatasourceListContainer = styled.div`
   height: 100%;
   margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  div {
+    flex-shrink: 0;
+  }
+  div ~ div {
+    flex-grow: 1;
+  }
+  .t--schema-virtuoso-container {
+    height: 100%;
+  }
 `;
 
 const ButtonContainer = styled.div`
@@ -97,12 +111,18 @@ const DatasourceViewModeSchema = (props: Props) => {
   const userAppPermissions = useSelector(
     (state: AppState) => getCurrentApplication(state)?.userPermissions ?? [],
   );
-  const canCreatePages = hasCreatePagePermission(userAppPermissions);
 
-  const canCreateDatasourceActions = hasCreateDatasourceActionPermission([
-    ...datasourcePermissions,
-    ...pagePermissions,
-  ]);
+  const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+
+  const canCreatePages = getHasCreatePagePermission(
+    isFeatureEnabled,
+    userAppPermissions,
+  );
+
+  const canCreateDatasourceActions = getHasCreateDatasourceActionPermission(
+    isFeatureEnabled,
+    [...datasourcePermissions, ...pagePermissions],
+  );
 
   const applicationId: string = useSelector(getCurrentApplicationId);
   const { pageId: currentPageId } = useParams<ExplorerURLParams>();
@@ -153,13 +173,24 @@ const DatasourceViewModeSchema = (props: Props) => {
       datasourceStructure &&
       datasourceStructure.tables
     ) {
-      const templates = datasourceStructure.tables.find(
-        (structure: DatasourceTable) => structure.name === tableName,
-      )?.templates;
+      const templates: QueryTemplate[] | undefined =
+        datasourceStructure.tables.find(
+          (structure: DatasourceTable) => structure.name === tableName,
+        )?.templates;
+
       if (templates) {
+        let suggestedTemPlate: QueryTemplate | undefined = templates?.find(
+          (template) => template.suggested,
+        );
+
+        // if no suggested template exists, default to first template.
+        if (!suggestedTemPlate) {
+          suggestedTemPlate = templates[0];
+        }
+
         fetchPreviewData({
           datasourceId: props.datasourceId,
-          template: templates[0],
+          template: suggestedTemPlate,
         });
       }
     }

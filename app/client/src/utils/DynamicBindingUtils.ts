@@ -13,7 +13,7 @@ import {
 import type {
   DataTreeEntity,
   DataTreeEntityConfig,
-} from "entities/DataTree/dataTreeFactory";
+} from "@appsmith/entities/DataTree/types";
 import { getType, Types } from "./TypeHelpers";
 import { ViewTypes } from "components/formControls/utils";
 
@@ -145,6 +145,7 @@ export enum EvalErrorTypes {
   PARSE_JS_ERROR = "PARSE_JS_ERROR",
   EXTRACT_DEPENDENCY_ERROR = "EXTRACT_DEPENDENCY_ERROR",
   CLONE_ERROR = "CLONE_ERROR",
+  SERIALIZATION_ERROR = "SERIALIZATION_ERROR",
 }
 
 export type EvalError = {
@@ -471,7 +472,7 @@ export function getDynamicBindingsChangesSaga(
   if (
     action.datasource &&
     ("datasourceConfiguration" in action.datasource ||
-      "datasourceConfiguration" in formData?.datasource) &&
+      "datasourceConfiguration" in (formData?.datasource || {})) &&
     field === "datasource"
   ) {
     // only the datasource.datasourceConfiguration.url can be a dynamic field

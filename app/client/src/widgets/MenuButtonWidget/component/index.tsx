@@ -33,7 +33,7 @@ import type {
   MenuItem,
   PopoverContentProps,
 } from "../constants";
-import type { ThemeProp } from "widgets/constants";
+import type { ThemeProp } from "WidgetProvider/constants";
 
 const PopoverStyles = createGlobalStyle<{
   parentWidth: number;

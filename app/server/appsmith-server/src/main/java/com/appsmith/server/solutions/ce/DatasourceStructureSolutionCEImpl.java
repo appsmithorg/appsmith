@@ -13,14 +13,16 @@ import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceStructure.Template;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.datasources.base.DatasourceService;
+import com.appsmith.server.datasourcestorages.base.DatasourceStorageService;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.DatasourceContextService;
-import com.appsmith.server.services.DatasourceService;
-import com.appsmith.server.services.DatasourceStorageService;
 import com.appsmith.server.services.DatasourceStructureService;
+import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.PluginService;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.EnvironmentPermission;
@@ -49,6 +51,7 @@ public class DatasourceStructureSolutionCEImpl implements DatasourceStructureSol
     private final DatasourceStructureService datasourceStructureService;
     private final AnalyticsService analyticsService;
     private final EnvironmentPermission environmentPermission;
+    private final FeatureFlagService featureFlagService;
 
     @Override
     public Mono<DatasourceStructure> getStructure(String datasourceId, boolean ignoreCache, String environmentId) {
@@ -101,16 +104,25 @@ public class DatasourceStructureSolutionCEImpl implements DatasourceStructureSol
                 datasourceStructureService.getByDatasourceIdAndEnvironmentId(
                         datasourceStorage.getDatasourceId(), datasourceStorage.getEnvironmentId());
 
+        Mono<Boolean> flagMono = featureFlagService.check(FeatureFlagEnum.ab_mock_mongo_schema_enabled);
+
         Mono<DatasourceStructure> fetchAndStoreNewStructureMono = pluginExecutorHelper
                 .getPluginExecutor(pluginService.findById(datasourceStorage.getPluginId()))
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.NO_RESOURCE_FOUND, FieldName.PLUGIN, datasourceStorage.getPluginId())))
                 .flatMap(pluginExecutor -> {
+                    return Mono.zip(Mono.just(pluginExecutor), flagMono);
+                })
+                .flatMap(tuple -> {
+                    PluginExecutor pluginExecutor = tuple.getT1();
+                    Boolean isMongoSchemaEnabledForMockDB = tuple.getT2();
                     return datasourceContextService.retryOnce(
                             datasourceStorage, resourceContext -> ((PluginExecutor<Object>) pluginExecutor)
                                     .getStructure(
                                             resourceContext.getConnection(),
-                                            datasourceStorage.getDatasourceConfiguration()));
+                                            datasourceStorage.getDatasourceConfiguration(),
+                                            datasourceStorage.getIsMock(),
+                                            isMongoSchemaEnabledForMockDB));
                 })
                 .timeout(Duration.ofSeconds(GET_STRUCTURE_TIMEOUT_SECONDS))
                 .onErrorMap(
@@ -220,8 +232,8 @@ public class DatasourceStructureSolutionCEImpl implements DatasourceStructureSol
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.NO_RESOURCE_FOUND, FieldName.PLUGIN, datasourceStorage.getPluginId())))
                 .flatMap(pluginExecutor -> {
-                    ActionConfiguration actionConfig =
-                            ((PluginExecutor<Object>) pluginExecutor).getSchemaPreviewActionConfig(queryTemplate);
+                    ActionConfiguration actionConfig = ((PluginExecutor<Object>) pluginExecutor)
+                            .getSchemaPreviewActionConfig(queryTemplate, datasourceStorage.getIsMock());
                     // actionConfig will be null for plugins which do not have this functionality yet
                     // Currently its only implemented for PostgreSQL, to be added subsequently for MySQL as well
                     if (actionConfig != null) {

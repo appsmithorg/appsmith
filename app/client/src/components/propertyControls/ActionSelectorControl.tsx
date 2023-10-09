@@ -18,7 +18,7 @@ import {
   getActions,
   getJSCollections,
   getPlugins,
-} from "selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import store from "store";
 import keyBy from "lodash/keyBy";
 import { getCurrentPageId } from "selectors/editorSelectors";
@@ -61,7 +61,13 @@ class ActionSelectorControl extends BaseControl<ControlProps> {
   };
 
   render() {
-    const { label, propertyName, propertyValue, widgetProperties } = this.props;
+    const {
+      dataTreePath,
+      label,
+      propertyName,
+      propertyValue,
+      widgetProperties,
+    } = this.props;
 
     return (
       <ActionCreator
@@ -70,6 +76,7 @@ class ActionSelectorControl extends BaseControl<ControlProps> {
         additionalControlData={
           this.props.additionalControlData as Record<string, any>
         }
+        dataTreePath={dataTreePath}
         onValueChange={this.handleValueUpdate}
         propertyName={propertyName}
         ref={this.componentRef}

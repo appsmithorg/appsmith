@@ -2,6 +2,7 @@ const queryLocators = require("../../../../locators/QueryEditor.json");
 const queryEditor = require("../../../../locators/QueryEditor.json");
 import homePage from "../../../../locators/HomePage";
 import * as _ from "../../../../support/Objects/ObjectsCore";
+import { Widgets } from "../../../../support/Pages/DataSources";
 
 let datasourceName;
 let currentUrl;
@@ -28,7 +29,7 @@ describe("Addwidget from Query and bind with other widgets", function () {
         fixture: "addWidgetTable-mock",
       });
       cy.onlyQueryRun();
-      cy.get(queryEditor.suggestedTableWidget).click();
+      _.dataSources.AddSuggestedWidget(Widgets.Table);
       _.jsEditor.CreateJSObject("return Query1.data;");
       cy.CheckAndUnfoldEntityItem("Widgets");
       cy.get(".t--entity-name").contains("Table1").click({ force: true });

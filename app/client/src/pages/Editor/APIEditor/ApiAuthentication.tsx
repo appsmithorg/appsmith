@@ -15,12 +15,14 @@ import {
 } from "@appsmith/constants/messages";
 import StoreAsDatasource from "components/editorComponents/StoreAsDatasource";
 import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
-import {
-  hasCreateDatasourcePermission,
-  hasManageDatasourcePermission,
-} from "@appsmith/utils/permissionHelpers";
 import { Icon, Text } from "design-system";
-import { getCurrentEnvironment } from "@appsmith/utils/Environments";
+import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelectors";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import {
+  getHasCreateDatasourcePermission,
+  getHasManageDatasourcePermission,
+} from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 interface ReduxStateProps {
   datasource: EmbeddedRestDatasource;
 }
@@ -96,13 +98,17 @@ function ApiAuthentication(props: Props): JSX.Element {
     (state: AppState) => getCurrentAppWorkspace(state)?.userPermissions ?? [],
   );
 
-  const canCreateDatasource = hasCreateDatasourcePermission(
+  const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+
+  const canCreateDatasource = getHasCreateDatasourcePermission(
+    isFeatureEnabled,
     userWorkspacePermissions,
   );
 
   const datasourcePermissions = datasource?.userPermissions || [];
 
-  const canManageDatasource = hasManageDatasourcePermission(
+  const canManageDatasource = getHasManageDatasourcePermission(
+    isFeatureEnabled,
     datasourcePermissions,
   );
 
@@ -129,7 +135,7 @@ function ApiAuthentication(props: Props): JSX.Element {
 const mapStateToProps = (state: AppState, ownProps: any): ReduxStateProps => {
   const apiFormValueSelector = formValueSelector(ownProps.formName);
   const datasourceFromAction = apiFormValueSelector(state, "datasource");
-  const currentEnvironment = getCurrentEnvironment();
+  const currentEnvironment = getCurrentEnvironmentId(state);
   let datasourceMerged: EmbeddedRestDatasource = datasourceFromAction;
   if (datasourceFromAction && "id" in datasourceFromAction) {
     const datasourceFromDataSourceList = state.entities.datasources.list.find(

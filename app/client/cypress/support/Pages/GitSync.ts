@@ -44,6 +44,8 @@ export class GitSync {
   public _discardCallout = "[data-testid='t--discard-callout']";
   public _gitStatusChanges = "[data-testid='t--git-change-statuses']";
   private _gitSyncBranches = ".t--sync-branches";
+  learnMoreSshUrl = ".t--learn-more-ssh-url";
+  repoLimitExceededErrorModal = ".t--git-repo-limited-modal";
 
   OpenGitSyncModal() {
     this.agHelper.GetNClick(this._connectGitBottomBar);
@@ -160,6 +162,138 @@ export class GitSync {
     }
   }
 
+  private providerRadioOthers = "[data-testid='t--git-provider-radio-others']";
+  private existingEmptyRepoYes = "[data-testid='t--existing-empty-repo-yes']";
+  private gitConnectNextBtn = "[data-testid='t--git-connect-next-button']";
+  private remoteUrlInput = "[data-testid='git-connect-remote-url-input']";
+  private addedDeployKeyCheckbox =
+    "[data-testid='t--added-deploy-key-checkbox']";
+  private startUsingGitButton = "[data-testid='t--start-using-git-button']";
+  private existingRepoCheckbox = "[data-testid='t--existing-repo-checkbox']";
+
+  CreateNConnectToGitV2(
+    repoName = "Repo",
+    assertConnect = true,
+    privateFlag = false,
+  ) {
+    this.agHelper.GenerateUUID();
+    cy.get("@guid").then((uid) => {
+      repoName += uid;
+      this.CreateTestGiteaRepo(repoName, privateFlag);
+
+      cy.intercept("POST", "/api/v1/applications/ssh-keypair/*").as(
+        `generateKey-${repoName}`,
+      );
+
+      this.OpenGitSyncModal();
+
+      this.agHelper.GetNClick(this.providerRadioOthers);
+      this.agHelper.GetNClick(this.existingEmptyRepoYes);
+      this.agHelper.GetNClick(this.gitConnectNextBtn);
+      this.agHelper.AssertAttribute(
+        this.remoteUrlInput,
+        "placeholder",
+        "git@example.com:user/repository.git",
+      );
+      this.agHelper.TypeText(
+        this.remoteUrlInput,
+        `${this.dataManager.GITEA_API_URL_TED}/${repoName}.git`,
+      );
+      this.agHelper.GetNClick(this.gitConnectNextBtn);
+
+      this.agHelper.GenerateUUID();
+      cy.get("@guid").then((uid) => {
+        cy.wait(`@generateKey-${repoName}`).then((result: any) => {
+          let generatedKey = result.response.body.data.publicKey;
+          generatedKey = generatedKey.slice(0, generatedKey.length - 1);
+          // fetch the generated key and post to the github repo
+          cy.request({
+            method: "POST",
+            url: `${this.dataManager.GITEA_API_BASE_TED}:${this.dataManager.GITEA_API_PORT_TED}/api/v1/repos/Cypress/${repoName}/keys`,
+            headers: {
+              Authorization: `token ${Cypress.env("GITEA_TOKEN")}`,
+            },
+            body: {
+              title: "key_" + uid,
+              key: generatedKey,
+              read_only: false,
+            },
+          }).then((resp: any) => {
+            cy.log("Deploy Key Id ", resp.body.key_id);
+            cy.wrap(resp.body.key_id).as("deployKeyId");
+          });
+        });
+      });
+      this.agHelper.GetNClick(this.addedDeployKeyCheckbox, 0, true);
+      this.agHelper.GetNClick(this.gitConnectNextBtn);
+
+      if (assertConnect) {
+        this.assertHelper.AssertNetworkStatus("@connectGitLocalRepo");
+        this.agHelper.GetNClick(this.startUsingGitButton);
+        this.agHelper.AssertElementExist(this._bottomBarCommit, 0, 30000);
+        this.CloseGitSyncModal();
+      }
+
+      cy.wrap(repoName).as("gitRepoName");
+    });
+  }
+
+  public ImportAppFromGitV2(
+    workspaceName: string,
+    repoName: string,
+    assertConnect = true,
+  ) {
+    cy.intercept("GET", "api/v1/git/import/keys?keyType=ECDSA").as(
+      `importKey-${repoName}`,
+    );
+
+    this.homePage.ImportGitApp(workspaceName);
+
+    this.agHelper.GetNClick(this.providerRadioOthers);
+    this.agHelper.GetNClick(this.existingRepoCheckbox, 0, true);
+    this.agHelper.GetNClick(this.gitConnectNextBtn);
+    this.agHelper.AssertAttribute(
+      this.remoteUrlInput,
+      "placeholder",
+      "git@example.com:user/repository.git",
+    );
+    this.agHelper.TypeText(
+      this.remoteUrlInput,
+      `${this.dataManager.GITEA_API_URL_TED}/${repoName}.git`,
+    );
+    this.agHelper.GetNClick(this.gitConnectNextBtn);
+
+    this.agHelper.GenerateUUID();
+    cy.get("@guid").then((uid) => {
+      cy.wait(`@importKey-${repoName}`).then((result: any) => {
+        let generatedKey = result.response.body.data.publicKey;
+        generatedKey = generatedKey.slice(0, generatedKey.length - 1);
+        // fetch the generated key and post to the github repo
+        cy.request({
+          method: "POST",
+          url: `${this.dataManager.GITEA_API_BASE_TED}:${this.dataManager.GITEA_API_PORT_TED}/api/v1/repos/Cypress/${repoName}/keys`,
+          headers: {
+            Authorization: `token ${Cypress.env("GITEA_TOKEN")}`,
+          },
+          body: {
+            title: "key_" + uid,
+            key: generatedKey,
+            read_only: false,
+          },
+        }).then((resp: any) => {
+          cy.log("Deploy Key Id ", resp.body.key_id);
+          cy.wrap(resp.body.key_id).as("deployKeyId");
+        });
+      });
+    });
+    this.agHelper.GetNClick(this.addedDeployKeyCheckbox, 0, true);
+    this.agHelper.GetNClick(this.gitConnectNextBtn);
+
+    if (assertConnect) {
+      this.assertHelper.AssertNetworkStatus("@importFromGit", 201);
+    }
+  }
+
   public ImportAppFromGit(
     workspaceName: string,
     repo: string,
@@ -241,7 +375,7 @@ export class GitSync {
         method: "GET",
         url: "/api/v1/git/checkout-branch/app/**",
       },
-      (req) => {
+      async (req) => {
         return new Promise((resolve) => {
           setTimeout(() => resolve(req.continue()), 1000);
         });

@@ -1,7 +1,7 @@
 import { traverseDSLAndMigrate } from "utils/WidgetMigrationUtils";
 import { InputTypes } from "widgets/BaseInputWidget/constants";
 import type { WidgetProps } from "widgets/BaseWidget";
-import type { DSLWidget } from "widgets/constants";
+import type { DSLWidget } from "WidgetProvider/constants";
 
 export const migrateCurrencyInputWidgetDefaultCurrencyCode = (
   currentDSL: DSLWidget,

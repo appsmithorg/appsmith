@@ -1,11 +1,13 @@
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionErrorTypes } from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import {
+  ReduxActionErrorTypes,
+  ReduxActionTypes,
+} from "@appsmith/constants/ReduxActionConstants";
 import type { Plugin } from "api/PluginApi";
 import type { Action, QueryActionConfig } from "entities/Action";
 import type { Datasource } from "entities/Datasource";
 import { invert, merge, omit, partition } from "lodash";
-import { all, call, put, select, takeLatest, take } from "redux-saga/effects";
+import { all, call, put, select, take, takeLatest } from "redux-saga/effects";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
@@ -15,7 +17,7 @@ import {
   getCurrentPageNameByActionId,
   getDatasource,
   getPlugin,
-} from "selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import { createNewQueryName } from "utils/AppsmithUtils";
 import WidgetQueryGeneratorRegistry from "utils/WidgetQueryGeneratorRegistry";
 import {
@@ -23,12 +25,14 @@ import {
   getPulginActionDefaultValues,
 } from "./ActionSagas";
 import "../WidgetQueryGenerators";
-import type { ActionDataState } from "reducers/entityReducers/actionsReducer";
+import type { ActionDataState } from "@appsmith/reducers/entityReducers/actionsReducer";
 import "WidgetQueryGenerators";
 import { getWidgetByID } from "./selectors";
-import type { WidgetQueryGenerationFormConfig } from "WidgetQueryGenerators/types";
+import type {
+  WidgetQueryConfig,
+  WidgetQueryGenerationFormConfig,
+} from "WidgetQueryGenerators/types";
 import { QUERY_TYPE } from "WidgetQueryGenerators/types";
-import WidgetFactory from "utils/WidgetFactory";
 import type { WidgetProps } from "widgets/BaseWidget";
 import type { ApiResponse } from "api/ApiResponses";
 import type { ActionCreateUpdateResponse } from "api/ActionAPI";
@@ -39,6 +43,7 @@ import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import { fetchActions, runAction } from "actions/pluginActionActions";
 import { Toaster, Variant } from "design-system-old";
+import WidgetFactory from "WidgetProvider/factory";
 
 export function* createActionsForOneClickBindingSaga(
   payload: Partial<Action> & { eventData: unknown; pluginId: string },
@@ -112,7 +117,10 @@ function* BindWidgetToDatasource(
       widget.type,
     );
 
-    const widgetQueryGenerationConfig = getQueryGenerationConfig(widget);
+    const widgetQueryGenerationConfig = getQueryGenerationConfig?.(
+      widget,
+      action.payload,
+    );
 
     const widgetQueryGenerator = WidgetQueryGeneratorRegistry.get(
       plugin.packageName,
@@ -216,7 +224,9 @@ function* BindWidgetToDatasource(
 
       const createdQueryNames = createdActions.map((d) => d.name);
 
-      const queryBindingConfig: Record<string, unknown> = {};
+      const queryBindingConfig: WidgetQueryConfig = {};
+
+      const { alertMessage } = action.payload;
 
       if (createdQueryNames.includes(queryNameMap[QUERY_TYPE.SELECT])) {
         queryBindingConfig[QUERY_TYPE.SELECT] = {
@@ -233,11 +243,21 @@ function* BindWidgetToDatasource(
       }
 
       if (createdQueryNames.includes(queryNameMap[QUERY_TYPE.UPDATE])) {
+        const selectQuery = queryNameMap[QUERY_TYPE.SELECT]
+          ? `${queryNameMap[QUERY_TYPE.SELECT]}.run()`
+          : "";
+
+        const successMessage = `${
+          alertMessage?.success
+            ? alertMessage.success?.update
+            : "Successfully saved!"
+        }`;
+
         queryBindingConfig[QUERY_TYPE.UPDATE] = {
           data: `{{${queryNameMap[QUERY_TYPE.UPDATE]}.data}}`,
           run: `{{${queryNameMap[QUERY_TYPE.UPDATE]}.run(() => {
-            showAlert("Successfully saved!");
-            ${queryNameMap[QUERY_TYPE.SELECT]}.run();
+            showAlert("${successMessage}");
+            ${selectQuery.toString()}
           }, () => {
             showAlert("Unable to save!");
           })}}`,
@@ -245,11 +265,21 @@ function* BindWidgetToDatasource(
       }
 
       if (createdQueryNames.includes(queryNameMap[QUERY_TYPE.CREATE])) {
+        const selectQuery = queryNameMap[QUERY_TYPE.SELECT]
+          ? `${queryNameMap[QUERY_TYPE.SELECT]}.run()`
+          : "";
+
+        const successMessage = `${
+          alertMessage?.success
+            ? alertMessage.success?.create
+            : "Successfully created!"
+        }`;
+
         queryBindingConfig[QUERY_TYPE.CREATE] = {
           data: `{{${queryNameMap[QUERY_TYPE.CREATE]}.data}}`,
           run: `{{${queryNameMap[QUERY_TYPE.CREATE]}.run(() => {
-            showAlert("Successfully created!");
-            ${queryNameMap[QUERY_TYPE.SELECT]}.run()
+            showAlert("${successMessage}");
+            ${selectQuery.toString()}
           }, () => {
             showAlert("Unable to create!");
           })}}`,
@@ -267,11 +297,12 @@ function* BindWidgetToDatasource(
 
       const updatedWidget: WidgetProps = yield select(getWidgetByID(widgetId));
 
-      const { dynamicUpdates, modify } = getPropertyUpdatesForQueryBinding(
-        queryBindingConfig,
-        updatedWidget,
-        action.payload,
-      );
+      const { dynamicUpdates, modify } =
+        getPropertyUpdatesForQueryBinding?.(
+          queryBindingConfig,
+          updatedWidget,
+          action.payload,
+        ) || {};
 
       yield put({
         type: ReduxActionTypes.BATCH_UPDATE_WIDGET_PROPERTY,
@@ -303,13 +334,14 @@ function* BindWidgetToDatasource(
     yield put({
       type: ReduxActionTypes.BIND_WIDGET_TO_DATASOURCE_SUCCESS,
     });
-
+    const { otherFields } = action.payload;
     AnalyticsUtil.logEvent("1_CLICK_BINDING_SUCCESS", {
       widgetName: widget.widgetName,
       widgetType: widget.type,
       pluginType: plugin.type,
       pluginName: plugin.name,
       isMock: datasource.isMock,
+      formType: otherFields?.formType,
     });
   } catch (e: any) {
     Toaster.show({

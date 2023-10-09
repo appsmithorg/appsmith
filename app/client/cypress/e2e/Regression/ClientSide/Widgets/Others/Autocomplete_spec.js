@@ -13,7 +13,7 @@ describe("Autocomplete using slash command and mustache tests", function () {
       // validates all autocomplete commands on entering / in label field
       cy.get(`${dynamicInputLocators.hints} li`)
         .eq(0)
-        .should("have.text", "New binding");
+        .should("have.text", "Add a binding");
       cy.get(`${dynamicInputLocators.hints} li`)
         .last()
         .should("have.text", "New datasource");
@@ -39,13 +39,16 @@ describe("Autocomplete using slash command and mustache tests", function () {
     cy.get(".t--property-control-onclick .CodeMirror textarea")
       .last()
       .focus()
+      .type("{uparrow}", { parseSpecialCharSequences: true })
+      .type("{ctrl}{shift}{downarrow}", { parseSpecialCharSequences: true })
+      .type("{backspace}", { parseSpecialCharSequences: true })
       .type("/")
       .then(() => {
         cy.get(dynamicInputLocators.hints).should("exist");
         // validates all autocomplete commands on entering / in onClick field
         cy.get(`${dynamicInputLocators.hints} li`)
           .eq(0)
-          .should("have.text", "New binding");
+          .should("have.text", "Add a binding");
         cy.get(`${dynamicInputLocators.hints} li`)
           .last()
           .should("have.text", "New datasource");
@@ -83,7 +86,7 @@ describe("Autocomplete using slash command and mustache tests", function () {
         // validates all autocomplete commands on entering / in text field
         cy.get(`${dynamicInputLocators.hints} li`)
           .eq(0)
-          .should("have.text", "New binding");
+          .should("have.text", "Add a binding");
         cy.get(`${dynamicInputLocators.hints} li`)
           .last()
           .should("have.text", "New datasource");
@@ -120,7 +123,7 @@ describe("Autocomplete using slash command and mustache tests", function () {
         // validates all autocomplete commands on entering / in text field
         cy.get(`${dynamicInputLocators.hints} li`)
           .eq(0)
-          .should("have.text", "New binding");
+          .should("have.text", "Add a binding");
         cy.get(`${dynamicInputLocators.hints} li`)
           .last()
           .should("have.text", "New datasource");

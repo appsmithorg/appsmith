@@ -64,6 +64,8 @@ import { getFirstTimeUserOnboardingComplete } from "selectors/onboardingSelector
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import { getAIPromptTriggered } from "utils/storage";
 import { trackOpenEditorTabs } from "../../utils/editor/browserTabsTracking";
+import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
+import { waitForFetchEnvironments } from "@appsmith/sagas/EnvironmentSagas";
 
 export default class AppEditorEngine extends AppEngine {
   constructor(mode: APP_MODE) {
@@ -148,6 +150,7 @@ export default class AppEditorEngine extends AppEngine {
 
     yield call(waitForFetchUserSuccess);
     yield call(waitForSegmentInit, true);
+    yield call(waitForFetchEnvironments);
     yield put(fetchAllPageEntityCompletion([executePageLoadActions()]));
   }
 
@@ -229,12 +232,26 @@ export default class AppEditorEngine extends AppEngine {
       });
     }
 
-    const noOfTimesAIPromptTriggered: number = yield getAIPromptTriggered();
+    const noOfTimesAIPromptTriggered: number = yield getAIPromptTriggered(
+      EditorModes.TEXT_WITH_BINDING,
+    );
 
     yield put({
       type: ReduxActionTypes.UPDATE_AI_TRIGGERED,
       payload: {
         value: noOfTimesAIPromptTriggered,
+        mode: EditorModes.TEXT_WITH_BINDING,
+      },
+    });
+
+    const noOfTimesAIPromptTriggeredForQuery: number =
+      yield getAIPromptTriggered(EditorModes.POSTGRESQL_WITH_BINDING);
+
+    yield put({
+      type: ReduxActionTypes.UPDATE_AI_TRIGGERED,
+      payload: {
+        value: noOfTimesAIPromptTriggeredForQuery,
+        mode: EditorModes.POSTGRESQL_WITH_BINDING,
       },
     });
 

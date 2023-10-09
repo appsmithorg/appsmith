@@ -82,7 +82,7 @@ describe("Table Widget V2 property pane feature validation", function () {
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
     table.WaitUntilTableLoad(0, 0, "v2");
     // Change the Search text
-    cy.get(widgetsPage.searchField).type("Hello");
+    cy.get(widgetsPage.searchField).first().type("Hello");
     // Verify the search text is changed
     agHelper.ValidateToastMessage("Search Text Changed");
     deployMode.NavigateBacktoEditor();

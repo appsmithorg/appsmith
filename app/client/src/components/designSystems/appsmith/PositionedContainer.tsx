@@ -20,7 +20,7 @@ import {
 import { POSITIONED_WIDGET } from "constants/componentClassNameConstants";
 import equal from "fast-deep-equal";
 import { widgetTypeClassname } from "widgets/WidgetUtils";
-import { checkIsDropTarget } from "utils/WidgetFactoryHelpers";
+import { checkIsDropTarget } from "WidgetProvider/factory/helpers";
 
 const PositionedWidget = styled.div<{
   zIndexOnHover: number;

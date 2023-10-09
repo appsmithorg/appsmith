@@ -2,12 +2,8 @@ import { ObjectsRegistry } from "../Objects/Registry";
 import { EntityItems } from "./AssertHelper";
 
 type templateActions =
-  | "SELECT"
-  | "INSERT"
-  | "UPDATE"
-  | "DELETE"
   | "Find"
-  | "Find by ID"
+  | "Find by id"
   | "Insert"
   | "Update"
   | "Delete"
@@ -48,7 +44,7 @@ export class EntityExplorer {
     entityNameinLeftSidebar +
     "']/ancestor::div[1]/following-sibling::div//button[contains(@class, 'entity-context-menu')]";
   _entityNameInExplorer = (entityNameinLeftSidebar: string) =>
-    "//div[contains(@class, 't--entity-name')][text()='" +
+    "//div[contains(@class, 't--entity-explorer')]//div[contains(@class, 't--entity-name')][text()='" +
     entityNameinLeftSidebar +
     "']";
   private _expandCollapseArrow = (entityNameinLeftSidebar: string) =>
