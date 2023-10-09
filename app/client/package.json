@@ -98,7 +98,7 @@
     "dayjs": "^1.10.6",
     "deep-diff": "^1.0.2",
     "design-system": "npm:@appsmithorg/design-system@2.1.21",
-    "design-system-old": "npm:@appsmithorg/design-system-old@1.1.11",
+    "design-system-old": "npm:@appsmithorg/design-system-old@1.1.12",
     "downloadjs": "^1.4.7",
     "echarts": "^5.4.2",
     "echarts-gl": "^2.0.9",
