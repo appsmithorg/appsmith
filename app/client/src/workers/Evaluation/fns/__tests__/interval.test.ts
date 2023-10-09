@@ -9,6 +9,8 @@ import ExecutionMetaData from "../utils/ExecutionMetaData";
 import { addPlatformFunctionsToEvalContext } from "@appsmith/workers/Evaluation/Actions";
 import { createEvaluationContext } from "workers/Evaluation/evaluate";
 
+declare const self: WorkerGlobalScope;
+
 const dataTree: DataTree = {
   action1: {
     actionId: "123",
@@ -101,10 +103,8 @@ describe("Tests for interval functions", () => {
 
   it("It should have access to platform fns inside callbacks", async () => {
     const showAlertMock = jest.fn();
-    //@ts-expect-error no types for this
     self.showAlert = showAlertMock;
     const interval = evalContext.setInterval(() => {
-      //@ts-expect-error no types for this
       self.showAlert("Hello World");
     }, 1000);
     jest.advanceTimersByTime(2000);

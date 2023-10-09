@@ -7,14 +7,14 @@ import * as mod from "../../../common/JSLibrary/ternDefinitionGenerator";
 
 jest.mock("../../../common/JSLibrary/ternDefinitionGenerator");
 
+declare const self: WorkerGlobalScope;
+
 describe("Tests to assert install/uninstall flows", function () {
   beforeAll(() => {
     self.importScripts = jest.fn(() => {
-      //@ts-expect-error importScripts is not defined in the test environment
       self.lodash = {};
     });
 
-    //@ts-expect-error importScripts is not defined in the test environment
     self.import = jest.fn();
 
     const mockTernDefsGenerator = jest.fn(() => ({}));
@@ -66,7 +66,6 @@ describe("Tests to assert install/uninstall flows", function () {
   });
 
   it("Detects name space collision where there is another entity(api, widget or query) with the same name", async function () {
-    //@ts-expect-error ignore
     delete self.lodash;
     const res = await installLibrary({
       data: {
@@ -84,14 +83,12 @@ describe("Tests to assert install/uninstall flows", function () {
   });
 
   it("Removes or set the accessors to undefined on the global object on uninstallation", async function () {
-    //@ts-expect-error ignore
     self.lodash = {};
     const res = await uninstallLibrary({
       data: ["lodash"],
       method: EVAL_WORKER_SYNC_ACTION.UNINSTALL_LIBRARY,
     });
     expect(res).toEqual({ success: true });
-    //@ts-expect-error ignore
     expect(self.lodash).toBeUndefined();
   });
 });

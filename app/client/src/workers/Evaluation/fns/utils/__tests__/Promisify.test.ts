@@ -21,6 +21,8 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import ExecutionMetaData from "../ExecutionMetaData";
 import { promisify } from "../Promisify";
 
+declare const self: WorkerGlobalScope;
+
 describe("Tests for promisify util", () => {
   const triggerMeta = {
     source: {
@@ -35,7 +37,6 @@ describe("Tests for promisify util", () => {
   });
   it("Should dispatch payload return by descriptor", async () => {
     const metaDataSpy = jest.spyOn(ExecutionMetaData, "setExecutionMetaData");
-    //@ts-expect-error No types;
     self.showAlert = undefined;
     const descriptor = jest.fn((key) => ({
       type: "TEST_TYPE",

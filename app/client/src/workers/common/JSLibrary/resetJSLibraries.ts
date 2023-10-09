@@ -12,6 +12,8 @@ const defaultLibImplementations = {
   forge: /*#__PURE*/ _.omit(forge, ["tls", "http", "xhr", "socket", "task"]),
 };
 
+declare const self: WorkerGlobalScope;
+
 export function resetJSLibraries() {
   JSLibraries.length = 0;
   JSLibraries.push(...defaultLibraries);
@@ -21,10 +23,8 @@ export function resetJSLibraries() {
   for (const key of Object.keys(libraryReservedIdentifiers)) {
     if (defaultLibraryAccessors.includes(key)) continue;
     try {
-      // @ts-expect-error: Types are not available
       delete self[key];
     } catch (e) {
-      // @ts-expect-error: Types are not available
       self[key] = undefined;
     }
     //we have to update invalidEntityIdentifiers as well
@@ -37,8 +37,6 @@ export function resetJSLibraries() {
       throw new Error(
         `resetJSLibraries(): implementation for library ${library.name} not found. Have you forgotten to add it to the defaultLibrariesImpls object?`,
       );
-
-    // @ts-expect-error: Types are not available
     self[library.accessor[0].modified] =
       // @ts-expect-error: Types are not available
       defaultLibImplementations[library.name];

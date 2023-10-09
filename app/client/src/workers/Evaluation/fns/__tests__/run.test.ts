@@ -22,6 +22,8 @@ jest.mock("../utils/Messenger.ts", () => ({
   },
 }));
 
+declare const self: WorkerGlobalScope;
+
 describe("Tests for run function in callback styled", () => {
   beforeAll(() => {
     self["$isDataField"] = false;
@@ -121,7 +123,6 @@ describe("Tests for run function in callback styled", () => {
   });
   it("4. Callback should have access to other platform functions and entities at all times", async () => {
     const showAlertMock = jest.fn();
-    //@ts-expect-error no types
     self.showAlert = showAlertMock;
     requestMock.mockReturnValue(
       new Promise((resolve) => {
@@ -133,7 +134,6 @@ describe("Tests for run function in callback styled", () => {
       }),
     );
     const successCallback = jest.fn(() =>
-      //@ts-expect-error no types
       self.showAlert(evalContext.action1.actionId),
     );
     await evalContext.action1.run(successCallback);

@@ -15,10 +15,12 @@ import type { EvalWorkerASyncRequest, EvalWorkerSyncRequest } from "../types";
 import { dataTreeEvaluator } from "./evalTree";
 
 declare global {
-  interface Window {
-    [x: string]: unknown;
+  interface WorkerGlobalScope {
+    [x: string]: any;
   }
 }
+
+declare const self: WorkerGlobalScope;
 
 enum LibraryInstallError {
   NameCollisionError,
@@ -98,7 +100,6 @@ export async function installLibrary(request: EvalWorkerASyncRequest) {
       self.importScripts(url);
       // Find keys add that were installed to the global scope.
       const keysAfterInstallation = Object.keys(self);
-
       const accessorList = difference(
         keysAfterInstallation,
         envKeysBeforeInstallation,
@@ -155,9 +156,8 @@ export async function installLibrary(request: EvalWorkerASyncRequest) {
         takenAccessors,
         takenNamesMap,
       );
+      self[newName] = self[cn.modified];
       cn.modified = newName;
-      //@ts-expect-error no types
-      self[newName] = self[cn];
     }
 
     addTempStoredDataTreeToContext(tempDataTreeStore);
@@ -176,8 +176,7 @@ export async function installLibrary(request: EvalWorkerASyncRequest) {
       }
     } catch (e) {
       for (const acc of accessors) {
-        //@ts-expect-error no types
-        self[acc] = undefined;
+        self[acc.modified] = undefined;
       }
       throw new TernDefinitionError(
         `Failed to generate autocomplete definitions: ${name}`,
@@ -204,7 +203,6 @@ export function uninstallLibrary(request: EvalWorkerSyncRequest) {
   const accessor = data;
   try {
     for (const key of accessor) {
-      //@ts-expect-error its ok
       self[key.modified] = undefined;
       //we have to update invalidEntityIdentifiers as well
       delete libraryReservedIdentifiers[key.modified];
@@ -280,7 +278,7 @@ function generateUniqueAccessor(
   takenAccessors: Array<string>,
   takenNamesMap: Record<string, true>,
 ) {
-  let fileName = urlOrName;
+  let name = urlOrName;
   // extract file name from url
   try {
     // Checks to see if a URL was passed
@@ -288,14 +286,12 @@ function generateUniqueAccessor(
     // URL pattern for ESM modules from jsDelivr - https://cdn.jsdelivr.net/npm/stripe@13.3.0/+esm
     // Assuming the file name is the last part of the path
     const urlPathParts = urlObject.pathname.split("/");
-    fileName = urlPathParts.pop() as string;
-    fileName = fileName?.includes("esm")
-      ? (urlPathParts.pop() as string)
-      : fileName;
+    name = urlPathParts.pop() as string;
+    name = name?.includes("+esm") ? (urlPathParts.pop() as string) : name;
   } catch (e) {}
 
   // Replace all non-alphabetic characters with underscores and remove trailing underscores
-  const validVar = fileName.replace(/[^a-zA-Z]/g, "_").replace(/_+$/, "");
+  const validVar = name.replace(/[^a-zA-Z]/g, "_").replace(/_+$/, "");
   if (
     !takenAccessors.includes(validVar) &&
     !takenNamesMap.hasOwnProperty(validVar)
@@ -304,7 +300,7 @@ function generateUniqueAccessor(
   }
   const index = 1;
   while (true && index < 100) {
-    const name = `Library_${index}`;
+    const name = `${validVar}_${index}`;
     if (!takenAccessors.includes(name) && !takenNamesMap.hasOwnProperty(name)) {
       return name;
     }
