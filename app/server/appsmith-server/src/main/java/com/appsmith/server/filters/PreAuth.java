@@ -38,7 +38,6 @@ public class PreAuth implements WebFilter {
                         .tryIncreaseCounter(RateLimitConstants.BUCKET_KEY_FOR_LOGIN_API, username)
                         .flatMap(counterIncreaseAttemptSuccessful -> {
                             if (FALSE.equals(counterIncreaseAttemptSuccessful)) {
-                                log.error("Rate limit exceeded. Redirecting to login page.");
                                 return handleRateLimitExceeded(exchange);
                             }
 

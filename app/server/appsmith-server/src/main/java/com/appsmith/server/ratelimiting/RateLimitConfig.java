@@ -72,11 +72,9 @@ public class RateLimitConfig {
         String bucketIdentifier = apiIdentifier + userId;
         Optional<BucketConfiguration> bucketProxy = proxyManager().getProxyConfiguration(bucketIdentifier.getBytes());
         if (bucketProxy.isPresent()) {
-            log.debug("Re-using existing bucket for apiIdentifier = {}, userId = {}", apiIdentifier, userId);
             return proxyManager().builder().build(bucketIdentifier.getBytes(), bucketProxy.get());
         }
 
-        log.debug("Creating bucket for apiIdentifier = {}, userId = {}", apiIdentifier, userId);
         return proxyManager().builder().build(bucketIdentifier.getBytes(), apiConfigurationMap.get(apiIdentifier));
     }
 

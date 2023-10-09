@@ -11,6 +11,7 @@ import reactor.core.scheduler.Schedulers;
 
 import java.util.Map;
 
+import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 
 @Slf4j
@@ -32,15 +33,21 @@ public class RateLimitServiceCEImpl implements RateLimitServiceCE {
 
         return sanitizeInput(apiIdentifier, userIdentifier)
                 .flatMap(isInputValid -> {
-                    log.debug(
-                            "RateLimitService.tryIncreaseCounter() called with apiIdentifier = {}, userIdentifier = {}",
-                            apiIdentifier,
-                            userIdentifier);
-
                     BucketProxy userSpecificBucket =
                             rateLimitConfig.getOrCreateAPIUserSpecificBucket(apiIdentifier, userIdentifier);
 
                     return Mono.just(userSpecificBucket.tryConsume(DEFAULT_NUMBER_OF_TOKENS_CONSUMED_PER_REQUEST));
+                })
+                .map(isSuccessful -> {
+                    if (FALSE.equals(isSuccessful)) {
+                        log.debug(
+                                "{} - Rate Limit exceeded for apiIdentifier = {}, userIdentifier = {}",
+                                Thread.currentThread().getName(),
+                                apiIdentifier,
+                                userIdentifier);
+                    }
+
+                    return isSuccessful;
                 })
                 // Since we are interacting with redis, we want to make sure that the operation is done on a separate
                 // thread pool
@@ -55,11 +62,6 @@ public class RateLimitServiceCEImpl implements RateLimitServiceCE {
                     rateLimitConfig
                             .getOrCreateAPIUserSpecificBucket(apiIdentifier, userIdentifier)
                             .reset();
-
-                    log.debug(
-                            "RateLimitService.reset() completed for apiIdentifier = {}, userIdentifier = {}",
-                            apiIdentifier,
-                            userIdentifier);
 
                     return Mono.just(TRUE);
                 })
@@ -76,7 +78,7 @@ public class RateLimitServiceCEImpl implements RateLimitServiceCE {
 
         return Mono.just(userIdentifier)
                 .flatMap(username -> {
-                    // handle the case where API itself is not rate limited
+                    // Handle the case where API itself is not rate limited.
                     if (!apiBuckets.containsKey(apiIdentifier)) {
                         return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
                     }
