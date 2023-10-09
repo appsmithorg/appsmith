@@ -3,6 +3,15 @@ name: Test, build and push Docker Image
 on:
   # This line enables manual triggering of this workflow.
   workflow_dispatch:
+    inputs:
+      branch:
+        description: "Github Branch to be built and deployed"
+        required: true
+        default: "release"
+      skip-tests:
+        description: "Flag to skip unit tests"
+        required: true
+        default: "true"
 
   # trigger for pushes to release and master
   push:
@@ -20,6 +29,8 @@ jobs:
     secrets: inherit
     with:
       pr: 0
+      branch: ${{ github.event.inputs.branch }}
+      skip-tests: ${{ github.event.inputs.skip-tests }}
 
   client-build:
     name: client-build
@@ -27,6 +38,8 @@ jobs:
     secrets: inherit
     with:
       pr: 0
+      branch: ${{ github.event.inputs.branch }}
+      skip-tests: ${{ github.event.inputs.skip-tests }}
 
   rts-build:
     name: rts-build
@@ -34,6 +47,7 @@ jobs:
     secrets: inherit
     with:
       pr: 0
+      branch: ${{ github.event.inputs.branch }}
 
   build-docker-image:
     needs: [client-build, server-build, rts-build]
@@ -44,6 +58,7 @@ jobs:
     secrets: inherit
     with:
       pr: 0
+      branch: ${{ github.event.inputs.branch }}
 
   perf-test:
     needs: [build-docker-image]
@@ -64,6 +79,7 @@ jobs:
     secrets: inherit
     with:
       pr: 0
+      branch: ${{ github.event.inputs.branch }}
 
   ci-test-result:
     needs: [ci-test]
@@ -267,7 +283,7 @@ jobs:
       id-token: write
 
     # Run this job irrespective of tests failing, if this is the release branch; or only if the tests pass, if this is the master branch.
-    if: ( success() && github.ref == 'refs/heads/master' )
+    if: ( always() && github.ref == 'refs/heads/master' )
 
     steps:
       - name: Checkout the head commit of the branch

@@ -9,6 +9,9 @@ on:
         description: "This is the PR number in case the workflow is being called in a pull request"
         required: false
         type: number
+      branch:
+        description: "Github Branch to be tested"
+        required: false
 
 jobs:
   ci-test:
@@ -58,9 +61,16 @@ jobs:
           fetch-depth: 0
           ref: "refs/pull/${{ inputs.pr }}/merge"
 
+      # Check out the specified branch in case this workflow is called by another workflow
+      - name: Checkout the specified branch
+        if: inputs.pr == 0 && inputs.branch != ''
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ inputs.branch }}
+
       # Checkout the code in the current branch in case the workflow is called because of a branch push event
       - name: Checkout the head commit of the branch
-        if: inputs.pr == 0
+        if: inputs.pr == 0 && inputs.branch == ''
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
