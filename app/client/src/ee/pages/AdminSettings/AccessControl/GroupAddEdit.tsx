@@ -547,8 +547,6 @@ export function GroupAddEdit(props: GroupEditProps) {
             <InviteUsersForm
               customProps={{
                 isAclFlow: true,
-                disableManageUsers: true,
-                disableUserList: true,
                 disableDropdown: true,
                 message: createMessage(ACL_INVITE_MODAL_MESSAGE),
                 onSubmitHandler: onFormSubmitHandler,

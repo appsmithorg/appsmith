@@ -466,9 +466,6 @@ export function UserListing() {
       })),
       customProps: {
         isAclFlow: true,
-        disableEmailSetup: true,
-        disableManageUsers: true,
-        disableUserList: true,
         dropdownPlaceholder: "Select role(s)",
         isMultiSelectDropdown: true,
         onSubmitHandler: onFormSubmitHandler,
@@ -483,9 +480,6 @@ export function UserListing() {
       })),
       customProps: {
         isAclFlow: true,
-        disableEmailSetup: true,
-        disableManageUsers: true,
-        disableUserList: true,
         dropdownPlaceholder: "Select group(s)",
         isMultiSelectDropdown: true,
         onSubmitHandler: onFormSubmitHandler,

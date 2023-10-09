@@ -56,7 +56,6 @@ import { getInitials } from "utils/AppsmithUtils";
 import { RAMP_NAME } from "utils/ProductRamps/RampsControlList";
 import { showProductRamps } from "@appsmith/selectors/rampSelectors";
 import { CustomRolesRamp } from "@appsmith/pages/workspace/InviteUsersForm";
-
 import { getShowAdminSettings } from "@appsmith/utils/BusinessFeatures/adminSettingsHelpers";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
@@ -94,18 +93,18 @@ export default function MemberSettings(props: PageProps) {
   const history = useHistory();
   const isGACEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
 
+  const showRampSelector = showProductRamps(
+    RAMP_NAME.CUSTOM_ROLES,
+    !isGACEnabled,
+  );
+  const canShowRamp = useSelector(showRampSelector);
+
   const [showMemberDeletionConfirmation, setShowMemberDeletionConfirmation] =
     useState(false);
   const [isDeletingUser, setIsDeletingUser] = useState(false);
   const onOpenConfirmationModal = () => setShowMemberDeletionConfirmation(true);
   const onCloseConfirmationModal = () =>
     setShowMemberDeletionConfirmation(false);
-
-  const showRampSelector = showProductRamps(
-    RAMP_NAME.CUSTOM_ROLES,
-    !isGACEnabled,
-  );
-  const canShowRamp = useSelector(showRampSelector);
 
   const [userToBeDeleted, setUserToBeDeleted] = useState<{
     name: string;
