@@ -448,7 +448,7 @@ describe("Groups&Roles tab Tests", function () {
     cy.DeleteRole(PermissionAppLevel);
     agHelper.VisitNAssert("settings/groups", "fetchGroups");
     cy.get(RBAC.searchBar).type(GroupName);
-    cy.wait(2000);
+    agHelper.Sleep(4000); // add wait for groups to load
     cy.get(RBAC.groupsRow)
       .first()
       .should("have.text", GroupName)
