@@ -1775,14 +1775,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         }
 
         if (!isXmlParserLibFound) {
-            CustomJSLibCompatibilityDTO xmlParserJsLib = new CustomJSLibCompatibilityDTO();
-            xmlParserJsLib.setName("parser");
-            xmlParserJsLib.setVersion("");
-            xmlParserJsLib.setAccessor(Set.of("parser"));
-            xmlParserJsLib.setUrl("https://cdnjs.cloudflare.com/ajax/libs/fast-xml-parser/3.17.5/parser.js");
-            xmlParserJsLib.setDefs(
-                    "{\"!name\":\"LIB/parser\",\"parser\":{\"parse\":{\"!type\":\"fn()\",\"prototype\":{}},\"convertTonimn\":{\"!type\":\"fn()\",\"prototype\":{}},\"getTraversalObj\":{\"!type\":\"fn()\",\"prototype\":{}},\"convertToJson\":{\"!type\":\"fn()\",\"prototype\":{}},\"convertToJsonString\":{\"!type\":\"fn()\",\"prototype\":{}},\"validate\":{\"!type\":\"fn()\",\"prototype\":{}},\"j2xParser\":{\"!type\":\"fn()\",\"prototype\":{\"parse\":{\"!type\":\"fn()\",\"prototype\":{}},\"j2x\":{\"!type\":\"fn()\",\"prototype\":{}}}},\"parseToNimn\":{\"!type\":\"fn()\",\"prototype\":{}}}}");
-            xmlParserJsLib.setUidString(ApplicationConstants.XML_PARSER_LIBRARY_UID);
+            CustomJSLibCompatibilityDTO xmlParserJsLib =
+                    ApplicationConstants.getDefaultParserCustomJsLibCompatibilityDTO();
             customJSLibList.add(xmlParserJsLib);
         }
     }

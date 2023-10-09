@@ -1,10 +1,27 @@
 package com.appsmith.server.constants;
 
+import com.appsmith.server.domains.CustomJSLibCompatibilityDTO;
+
+import java.util.Set;
+
 public class ApplicationConstants {
     public static final String[] APP_CARD_COLORS = {
         "#FFDEDE", "#FFEFDB", "#F3F1C7", "#F4FFDE", "#C7F3F0", "#D9E7FF", "#E3DEFF", "#F1DEFF", "#C7F3E3", "#F5D1D1",
         "#ECECEC", "#FBF4ED", "#D6D1F2", "#FFEBFB", "#EAEDFB"
     };
+
+    public static CustomJSLibCompatibilityDTO getDefaultParserCustomJsLibCompatibilityDTO() {
+        CustomJSLibCompatibilityDTO customJSLibCompatibilityDTO = new CustomJSLibCompatibilityDTO();
+        customJSLibCompatibilityDTO.setName("xmlParser");
+        customJSLibCompatibilityDTO.setVersion("3.17.5");
+        customJSLibCompatibilityDTO.setAccessor(Set.of("parser"));
+        customJSLibCompatibilityDTO.setUrl(
+                "https://cdnjs.cloudflare.com/ajax/libs/fast-xml-parser/3.17.5/parser.min.js");
+        customJSLibCompatibilityDTO.setDefs(
+                "{\"!name\":\"LIB/parser\",\"parser\":{\"parse\":{\"!type\":\"fn()\",\"prototype\":{}},\"convertTonimn\":{\"!type\":\"fn()\",\"prototype\":{}},\"getTraversalObj\":{\"!type\":\"fn()\",\"prototype\":{}},\"convertToJson\":{\"!type\":\"fn()\",\"prototype\":{}},\"convertToJsonString\":{\"!type\":\"fn()\",\"prototype\":{}},\"validate\":{\"!type\":\"fn()\",\"prototype\":{}},\"j2xParser\":{\"!type\":\"fn()\",\"prototype\":{\"parse\":{\"!type\":\"fn()\",\"prototype\":{}},\"j2x\":{\"!type\":\"fn()\",\"prototype\":{}}}},\"parseToNimn\":{\"!type\":\"fn()\",\"prototype\":{}}}}");
+        customJSLibCompatibilityDTO.setUidString(XML_PARSER_LIBRARY_UID);
+        return customJSLibCompatibilityDTO;
+    }
 
     /**
      *  Appsmith provides xmlParser v 3.17.5 and few other customJSLibraries by default, xmlParser has been
