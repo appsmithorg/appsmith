@@ -290,7 +290,10 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     // Migrate the DSL to the latest version if required
                     PageDTO pageDTO = objects.getT1();
                     NewPage newPage = objects.getT2();
-                    return migrateAndUpdatePageDsl(newPage, pageDTO, viewMode);
+                    if (pageDTO.getLayouts() != null) {
+                        return migrateAndUpdatePageDsl(newPage, pageDTO, viewMode);
+                    }
+                    return Mono.just(pageDTO);
                 })
                 .map(responseUtils::updatePageDTOWithDefaultResources);
     }
@@ -303,6 +306,10 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     return new AppsmithException(AppsmithError.RTS_SERVER_ERROR, "Error fetching latest DSL version");
                 })
                 .flatMap(latestDslVersion -> {
+                    // ensuring that the page has only one layout, as we don't support multiple layouts yet
+                    // when multiple layouts are supported, this code will have to be updated
+                    assert page.getLayouts().size() == 1;
+
                     Layout layout = page.getLayouts().get(0);
                     JSONObject layoutDsl = layout.getDsl();
                     int currentDslVersion = layoutDsl.getAsNumber("version").intValue();
