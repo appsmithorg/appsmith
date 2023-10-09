@@ -174,10 +174,10 @@ export const ColorGrid = (props: any) => {
                 >
                   <button
                     className={styles["color-grid"]}
-                    data-active={isActive ? "" : undefined}
-                    data-disabled={isDisabled ? "" : undefined}
-                    data-focused={isFocused ? "" : undefined}
-                    data-hovered={isHovered ? "" : undefined}
+                    data-active={Boolean(isActive) ? "" : undefined}
+                    data-disabled={Boolean(isDisabled) ? "" : undefined}
+                    data-focused={Boolean(isFocused) ? "" : undefined}
+                    data-hovered={Boolean(isHovered) ? "" : undefined}
                     data-variant={variant}
                   >
                     <Text lineClamp={2} textAlign="center" variant="footnote">

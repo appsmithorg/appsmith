@@ -27,7 +27,7 @@ const _Field = (props: FieldProps, ref: FieldRef) => {
     elementType,
     errorMessage,
     errorMessageProps = {},
-    isDisabled,
+    isDisabled = false,
     label,
     labelProps,
     validationState,
@@ -39,7 +39,8 @@ const _Field = (props: FieldProps, ref: FieldRef) => {
     fieldType = "field",
   } = props;
   const hasHelpText =
-    !!description || (errorMessage && validationState === "invalid");
+    Boolean(description) ||
+    (Boolean(errorMessage) && validationState === "invalid");
 
   const renderHelpText = () => {
     return (
@@ -56,12 +57,12 @@ const _Field = (props: FieldProps, ref: FieldRef) => {
 
   const labelAndContextualHelp = (
     <div data-field-label-wrapper="">
-      {label && (
+      {Boolean(label) && (
         <Label {...labelProps} elementType={elementType}>
           {label}
         </Label>
       )}
-      {label && contextualHelp}
+      {Boolean(label) && contextualHelp}
     </div>
   );
 
