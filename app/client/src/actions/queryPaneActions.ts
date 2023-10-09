@@ -2,24 +2,28 @@ import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { Action } from "entities/Action";
 
-export const changeQuery = (
-  id: string,
-  newQuery?: boolean,
-  action?: Action,
-): ReduxAction<{
+export type ChangeQueryPayload = {
   id: string;
+  packageId?: string;
+  applicationId?: string;
+  pageId?: string;
+  moduleId?: string;
   newQuery?: boolean;
-  action?: any;
-}> => {
+  action?: Action;
+};
+
+export const changeQuery = (payload: ChangeQueryPayload) => {
   return {
     type: ReduxActionTypes.QUERY_PANE_CHANGE,
-    payload: { id, newQuery, action },
+    payload,
   };
 };
 
 export const setQueryPaneConfigSelectedTabIndex: (
   payload: string,
-) => ReduxAction<{ selectedTabIndex: string }> = (payload: string) => ({
-  type: ReduxActionTypes.SET_QUERY_PANE_CONFIG_SELECTED_TAB,
-  payload: { selectedTabIndex: payload },
-});
+) => ReduxAction<{ selectedTabIndex: string }> = (payload: string) => {
+  return {
+    type: ReduxActionTypes.SET_QUERY_PANE_CONFIG_SELECTED_TAB,
+    payload: { selectedTabIndex: payload },
+  };
+};
