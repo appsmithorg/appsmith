@@ -10,15 +10,15 @@ import {
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { getWidgetBluePrintUpdates } from "utils/WidgetBlueprintUtils";
 import { GridDefaults } from "constants/WidgetConstants";
-import type { FlexLayer } from "utils/autoLayout/autoLayoutTypes";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import {
   FlexLayerAlignment,
   Positioning,
   ResponsiveBehavior,
-} from "utils/autoLayout/constants";
+} from "layoutSystems/autolayout/utils/constants";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import type { FlexLayer } from "layoutSystems/autolayout/utils/autoLayoutTypes";
 
 const DEFAULT_LIST_DATA = [
   {
@@ -83,7 +83,7 @@ export default {
     },
   },
   itemSpacing: 8,
-  templateBottomRow: 16,
+  templateHeight: 160,
   listData: DEFAULT_LIST_DATA,
   pageSize: DEFAULT_LIST_DATA.length,
   widgetName: "List",

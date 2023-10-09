@@ -25,9 +25,10 @@ export default function DiscardChangesWarning({
         kind="error"
         links={[
           {
-            onClick: () => window.open(discardDocUrl, "_blank"),
             children: "Learn More",
             endIcon: "right-arrow",
+            to: discardDocUrl,
+            target: "_blank",
           },
         ]}
         onClose={onCloseDiscardChangesWarning}

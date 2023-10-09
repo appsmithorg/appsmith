@@ -40,7 +40,6 @@ export const Header = styled.div`
   border-bottom: 1px solid var(--ads-v2-color-border);
   padding: var(--ads-v2-spaces-5) 0 var(--ads-v2-spaces-5);
   margin: 0 var(--ads-v2-spaces-7);
-  height: 120px;
 `;
 
 export const PluginImageWrapper = styled.div`

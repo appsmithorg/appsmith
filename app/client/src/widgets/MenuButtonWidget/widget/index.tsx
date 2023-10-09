@@ -5,7 +5,7 @@ import { isArray, orderBy } from "lodash";
 import { default as React } from "react";
 import type { WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
-import { MinimumPopupRows } from "WidgetProvider/constants";
+import { MinimumPopupWidthInPercentage } from "WidgetProvider/constants";
 import MenuButtonComponent from "../component";
 import type { MenuButtonWidgetProps, MenuItem } from "../constants";
 import { MenuItemsSource } from "../constants";
@@ -15,7 +15,7 @@ import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type { AutocompletionDefinitions } from "WidgetProvider/constants";
 import IconSVG from "../icon.svg";
 import { ButtonPlacementTypes, ButtonVariantTypes } from "components/constants";
-import { WIDGET_TAGS } from "constants/WidgetConstants";
+import { WIDGET_TAGS, layoutConfigurations } from "constants/WidgetConstants";
 
 class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
   static type = "MENU_BUTTON_WIDGET";
@@ -213,9 +213,11 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
     };
   }
 
-  getPageView() {
-    const { componentWidth } = this.getComponentDimensions();
-    const menuDropDownWidth = MinimumPopupRows * this.props.parentColumnSpace;
+  getWidgetView() {
+    const { componentWidth } = this.props;
+    const menuDropDownWidth =
+      (MinimumPopupWidthInPercentage / 100) *
+      (this.props.mainCanvasWidth ?? layoutConfigurations.MOBILE.maxWidth);
 
     return (
       <MenuButtonComponent

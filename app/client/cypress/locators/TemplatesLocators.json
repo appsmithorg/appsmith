@@ -8,5 +8,6 @@
   "templateDialogBox": "[data-testid=t--templates-dialog-component]",
   "selectCheckbox": ".ads-v2-checkbox",
   "closeButton": "//button[@aria-label='Close']//span",
-  "marketingDashboard": "//h1[text()='Marketing Dashboard']"
+  "marketingDashboard": "//h1[text()='Marketing Dashboard']",
+  "meetingSchedulerDashboard": "//h1[text()='Meeting Scheduler']"
 }

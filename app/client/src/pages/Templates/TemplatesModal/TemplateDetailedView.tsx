@@ -136,7 +136,6 @@ function TemplateDetailedView(props: TemplateDetailedViewProps) {
               kind="secondary"
               onClick={props.onBackPress}
               startIcon="back-control"
-              to="#"
             >
               {createMessage(TEMPLATES_BACK_BUTTON)}
             </Link>

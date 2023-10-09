@@ -14,7 +14,7 @@ import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type { AutocompletionDefinitions } from "WidgetProvider/constants";
 import { Alignment } from "@blueprintjs/core";
 import { LabelPosition } from "components/constants";
-import { ResponsiveBehavior } from "utils/autoLayout/constants";
+import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
 import IconSVG from "../icon.svg";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 
@@ -235,7 +235,7 @@ class RangeSliderWidget extends BaseWidget<
       : sliderValue.toString();
   };
 
-  getPageView() {
+  getWidgetView() {
     return (
       <RangeSliderComponent
         color={this.props.accentColor || TAILWIND_COLORS.green["600"]}
@@ -248,7 +248,7 @@ class RangeSliderWidget extends BaseWidget<
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
         labelTooltip={this.props.labelTooltip}
-        labelWidth={this.getLabelWidth()}
+        labelWidth={this.props.labelComponentWidth}
         // If showMarks is off don't show marks at all
         loading={this.props.isLoading}
         marks={this.props.showMarksLabel ? this.props.marks : []}

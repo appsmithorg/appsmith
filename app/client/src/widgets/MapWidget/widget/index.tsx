@@ -15,7 +15,7 @@ import { getBorderCSSShorthand } from "constants/DefaultTheme";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type { AutocompletionDefinitions } from "WidgetProvider/constants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import { ResponsiveBehavior } from "utils/autoLayout/constants";
+import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
 import IconSVG from "../icon.svg";
 import type {
   SnipingModeProperty,
@@ -29,6 +29,8 @@ const DisabledContainer = styled.div<{
 }>`
   background-color: white;
   height: 100%;
+  width: 100%;
+  overflow: scroll;
   text-align: center;
   display: flex;
   flex-direction: column;
@@ -514,7 +516,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
     this.disableDrag(false);
   };
 
-  getPageView() {
+  getWidgetView() {
     return (
       <>
         {!this.props.googleMapsApiKey && (

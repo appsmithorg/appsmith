@@ -14,7 +14,7 @@ import {
   getPlugin,
   getPluginForm,
   getPlugins,
-} from "selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import type { Datasource } from "entities/Datasource";
 import type { Plugin } from "api/PluginApi";
 import {

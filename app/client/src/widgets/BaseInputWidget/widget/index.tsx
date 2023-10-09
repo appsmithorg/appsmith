@@ -5,7 +5,7 @@ import type { ExecutionResult } from "constants/AppsmithActionConstants/ActionCo
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import React from "react";
-import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
+import { isAutoLayout } from "layoutSystems/autolayout/utils/flexWidgetUtils";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
@@ -15,7 +15,7 @@ import BaseInputComponent from "../component";
 import { InputTypes } from "../constants";
 import { checkInputTypeTextByProps } from "../utils";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import { ResponsiveBehavior } from "utils/autoLayout/constants";
+import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
 
 import IconSVG from "../icon.svg";
 import type {
@@ -596,7 +596,7 @@ class BaseInputWidget<
     }
   }
 
-  getPageView() {
+  getWidgetView() {
     return (
       <BaseInputComponent
         allowNumericCharactersOnly={this.props.allowNumericCharactersOnly}
@@ -620,7 +620,7 @@ class BaseInputWidget<
         labelStyle={this.props.labelStyle}
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
-        labelWidth={this.getLabelWidth()}
+        labelWidth={this.props.labelComponentWidth}
         maxChars={this.props.maxChars}
         multiline={this.props.multiline}
         onFocusChange={this.props.onFocusChange}
@@ -668,6 +668,7 @@ export interface BaseInputWidgetProps extends WidgetProps {
   iconName?: IconName;
   iconAlign?: Omit<Alignment, "center">;
   onSubmit?: string;
+  labelComponentWidth?: number;
 }
 
 export default BaseInputWidget;

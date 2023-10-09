@@ -27,24 +27,24 @@ import { useAllowEditorDragToSelect } from "utils/hooks/useAllowEditorDragToSele
 import { inGuidedTour } from "selectors/onboardingSelectors";
 import EditorContextProvider from "components/editorComponents/EditorContextProvider";
 import Guide from "../GuidedTour/Guide";
-import CanvasContainer from "./CanvasContainer";
-import CanvasTopSection from "./EmptyCanvasSection";
+import MainContainerWrapper from "./MainContainerWrapper";
+import EmptyCanvasPrompts from "./EmptyCanvasPrompts";
 import { useAutoHeightUIState } from "utils/hooks/autoHeightUIHooks";
-import { PageViewContainer } from "pages/AppViewer/AppPage.styled";
+import { PageViewWrapper } from "pages/AppViewer/AppPage.styled";
 import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 import {
   getAppSettingsPaneContext,
   getIsAppSettingsPaneWithNavigationTabOpen,
 } from "selectors/appSettingsPaneSelectors";
 import { AppSettingsTabs } from "../AppSettingsPane/AppSettings";
-import PropertyPaneContainer from "./PropertyPaneContainer";
+import PropertyPaneWrapper from "./PropertyPaneWrapper";
 import SnapShotBannerCTA from "../CanvasLayoutConversion/SnapShotBannerCTA";
 import { APP_MODE } from "entities/App";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 import classNames from "classnames";
 import { getSnapshotUpdatedTime } from "selectors/autoLayoutSelectors";
-import { getReadableSnapShotDetails } from "utils/autoLayout/AutoLayoutUtils";
+import { getReadableSnapShotDetails } from "layoutSystems/autolayout/utils/AutoLayoutUtils";
 import AnonymousDataPopup from "../FirstTimeUserOnboarding/AnonymousDataPopup";
 
 function WidgetsEditor() {
@@ -172,7 +172,9 @@ function WidgetsEditor() {
               isAppSettingsPaneWithNavigationTabOpen,
           })}
         >
-          {!isAppSettingsPaneWithNavigationTabOpen && <CanvasTopSection />}
+          {!isAppSettingsPaneWithNavigationTabOpen && (
+            <EmptyCanvasPrompts isPreviewMode={isPreviewMode} />
+          )}
           <AnonymousDataPopup />
           <div
             className="relative flex flex-row w-full overflow-hidden"
@@ -187,7 +189,7 @@ function WidgetsEditor() {
           >
             {showNavigation()}
 
-            <PageViewContainer
+            <PageViewWrapper
               className={classNames({
                 "relative flex flex-row w-full justify-center overflow-hidden":
                   true,
@@ -210,7 +212,8 @@ function WidgetsEditor() {
                   <SnapShotBannerCTA />
                 </div>
               )}
-              <CanvasContainer
+              <MainContainerWrapper
+                currentPageId={currentPageId}
                 isAppSettingsPaneWithNavigationTabOpen={
                   AppSettingsTabs.Navigation === appSettingsPaneContext?.type
                 }
@@ -218,13 +221,13 @@ function WidgetsEditor() {
                 navigationHeight={navigationHeight}
                 shouldShowSnapShotBanner={shouldShowSnapShotBanner}
               />
-            </PageViewContainer>
+            </PageViewWrapper>
 
             <CrudInfoModal />
           </div>
           <Debugger />
         </div>
-        <PropertyPaneContainer />
+        <PropertyPaneWrapper />
       </div>
     </EditorContextProvider>
   );

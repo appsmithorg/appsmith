@@ -49,7 +49,6 @@ function ThemeSelector() {
           kind="secondary"
           onClick={onClickBack}
           startIcon="back-control"
-          to="#"
         >
           Back
         </Link>

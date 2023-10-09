@@ -55,10 +55,8 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_USERS;
 import static com.appsmith.server.acl.AclPermission.RESET_PASSWORD_USERS;
@@ -125,43 +123,6 @@ public class UserServiceTest {
     public void setup() {
         userMono = userService.findByEmail("usertest@usertest.com");
     }
-
-    // Test if email params are updating correctly
-    @Test
-    public void checkEmailParamsForExistingUser() {
-        Workspace workspace = new Workspace();
-        workspace.setName("UserServiceTest Update Org");
-        workspace.setId(UUID.randomUUID().toString());
-
-        User inviter = new User();
-        inviter.setName("inviterUserToApplication");
-
-        String inviteUrl = "http://localhost:8080";
-        String expectedUrl = inviteUrl + "/applications#" + workspace.getId();
-
-        Map<String, String> params = userService.getEmailParams(workspace, inviter, inviteUrl, false);
-        assertEquals(expectedUrl, params.get("primaryLinkUrl"));
-        assertEquals("inviterUserToApplication", params.get("inviterFirstName"));
-        assertEquals("UserServiceTest Update Org", params.get("inviterWorkspaceName"));
-    }
-
-    @Test
-    public void checkEmailParamsForNewUser() {
-        Workspace workspace = new Workspace();
-        workspace.setId(UUID.randomUUID().toString());
-        workspace.setName("UserServiceTest Update Org");
-
-        User inviter = new User();
-        inviter.setName("inviterUserToApplication");
-
-        String inviteUrl = "http://localhost:8080";
-
-        Map<String, String> params = userService.getEmailParams(workspace, inviter, inviteUrl, true);
-        assertEquals(inviteUrl, params.get("primaryLinkUrl"));
-        assertEquals("inviterUserToApplication", params.get("inviterFirstName"));
-        assertEquals("UserServiceTest Update Org", params.get("inviterWorkspaceName"));
-    }
-
     // Test the update workspace flow.
     @Test
     public void updateInvalidUserWithAnything() {
@@ -388,9 +349,7 @@ public class UserServiceTest {
         signUpUser.setEmail(newUserEmail);
         signUpUser.setPassword("123456");
 
-        Mono<User> invitedUserSignUpMono = userService
-                .createUserAndSendEmail(signUpUser, "http://localhost:8080")
-                .map(UserSignupDTO::getUser);
+        Mono<User> invitedUserSignUpMono = userService.createUser(signUpUser).map(UserSignupDTO::getUser);
 
         StepVerifier.create(invitedUserSignUpMono)
                 .assertNext(user -> {
@@ -561,24 +520,6 @@ public class UserServiceTest {
                     assertEquals("New use case", userData.getUseCase());
                 })
                 .verifyComplete();
-    }
-
-    @Test
-    public void createUserAndSendEmail_WhenUserExistsWithEmailInOtherCase_ThrowsException() {
-        User existingUser = new User();
-        existingUser.setEmail("abcd@gmail.com");
-        userRepository.save(existingUser).block();
-
-        User newUser = new User();
-        newUser.setEmail("abCd@gmail.com"); // same as above except c in uppercase
-        newUser.setSource(LoginSource.FORM);
-        newUser.setPassword("abcdefgh");
-        Mono<User> userAndSendEmail =
-                userService.createUserAndSendEmail(newUser, null).map(UserSignupDTO::getUser);
-
-        StepVerifier.create(userAndSendEmail)
-                .expectErrorMessage(AppsmithError.USER_ALREADY_EXISTS_SIGNUP.getMessage(existingUser.getEmail()))
-                .verify();
     }
 
     @Test

@@ -169,7 +169,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     );
   });
 
-  it("2. Edit from S3 crud pages", function () {
+  it("2. Edit from S3 Deployed crud page", function () {
     let imageNameToUpload = "Datatypes/Bridge.jpg"; //Massachusetts
     let fixturePath = uid + imageNameToUpload;
     agHelper.ClickButton("Select Files"); //1 files selected
@@ -286,7 +286,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     );
   });
 
-  it("3. Uploading maximum files from UI - S3 Crud page", () => {
+  it("3. Uploading maximum files from UI - S3 Deployed Crud page", () => {
     let imageNameToUpload = "Datatypes/Georgia.jpeg",
       bulkyId = "BulkUpload/" + uid;
     // Datatypes/Maine.jpeg,

@@ -6,9 +6,9 @@ import { getWidgets } from "sagas/selectors";
 import {
   getActionResponses,
   getActions,
-  getActionsForCurrentPage,
+  getCurrentActions,
   getCanvasWidgets,
-} from "./entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import { getLastSelectedWidget } from "./ui";
 import { GuidedTourEntityNames } from "pages/Editor/GuidedTour/constants";
 import type { SIGNPOSTING_STEP } from "pages/Editor/FirstTimeUserOnboarding/Utils";
@@ -68,7 +68,7 @@ export const getIsAnonymousDataPopupVisible = (state: AppState) =>
   state.ui.onBoarding.showAnonymousDataPopup;
 export const isWidgetActionConnectionPresent = createSelector(
   getCanvasWidgets,
-  getActionsForCurrentPage,
+  getCurrentActions,
   getEvaluationInverseDependencyMap,
   (widgets, actions, deps) => {
     const actionLables = actions.map((action: any) => action.config.name);

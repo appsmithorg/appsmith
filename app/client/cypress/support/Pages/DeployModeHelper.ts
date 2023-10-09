@@ -167,9 +167,14 @@ export class DeployMode {
         "Internal server error while processing request",
       ),
     );
-    cy.window().then((win) => {
-      win.location.reload();
-    }); //only reloading edit page to load elements
+    // cy.window().then((win) => {
+    //   win.location.reload();
+    // });
+    cy.url().then((url) => {
+      cy.window().then((window) => {
+        window.location.href = url;
+      }); // //only reloading edit page to load elements
+    });
     this.assertHelper.AssertDocumentReady();
     this.assertHelper.AssertNetworkStatus("@getWorkspace");
     this.agHelper.AssertElementVisibility(this.locator._editPage); //Assert if canvas is visible after Navigating back!

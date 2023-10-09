@@ -38,11 +38,6 @@ export default function GitConnectError({
     }
   }, [error]);
 
-  const learnMoreClickHandler = (e: React.MouseEvent) => {
-    e.preventDefault();
-    window.open(connectingErrorDocumentUrl, "_blank");
-  };
-
   return error ? (
     <Container ref={containerRef}>
       <Callout
@@ -52,7 +47,8 @@ export default function GitConnectError({
         links={[
           {
             children: "Learn More",
-            onClick: learnMoreClickHandler,
+            target: "_blank",
+            to: connectingErrorDocumentUrl,
           },
         ]}
         onClose={onClose}

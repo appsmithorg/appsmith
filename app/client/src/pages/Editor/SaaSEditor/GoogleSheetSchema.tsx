@@ -38,7 +38,7 @@ import {
 } from "@appsmith/utils/permissionHelpers";
 import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
 import type { AppState } from "@appsmith/reducers";
-import { getDatasource } from "selectors/entitiesSelector";
+import { getDatasource } from "@appsmith/selectors/entitiesSelector";
 
 export const MessageWrapper = styled.div`
   display: flex;

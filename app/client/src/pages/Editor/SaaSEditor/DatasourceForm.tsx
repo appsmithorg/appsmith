@@ -24,7 +24,7 @@ import {
   getPlugin,
   getPluginDocumentationLinks,
   getDatasourceScopeValue,
-} from "selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import type { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import type { JSONtoFormProps } from "../DataSourceEditor/JSONtoForm";
 import { JSONtoForm } from "../DataSourceEditor/JSONtoForm";

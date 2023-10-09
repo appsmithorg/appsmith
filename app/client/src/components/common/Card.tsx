@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { Card as BlueprintCard, Classes } from "@blueprintjs/core";
-import { noop, omit } from "lodash";
+import { omit } from "lodash";
 import { AppIcon, Size, TextType, Text } from "design-system-old";
 import type { PropsWithChildren } from "react";
 import type { HTMLDivProps, ICardProps } from "@blueprintjs/core";
@@ -26,12 +26,14 @@ type CardProps = PropsWithChildren<{
   testId: string;
   title: string;
   titleTestId: string;
+  isSelected?: boolean;
 }>;
 
 type NameWrapperProps = {
   hasReadPermission: boolean;
   showOverlay: boolean;
   isContextMenuOpen: boolean;
+  testId: string;
 };
 
 type ModifiedMenuItemProps = MenuItemProps & {
@@ -164,6 +166,45 @@ const NameWrapper = styled((props: HTMLDivProps & NameWrapperProps) => (
       }
    `}
   overflow: hidden;
+
+  ${(props) => `&.${props.testId}-selected {
+    animation: deleteshake 0.5s linear infinite;
+    filter: grayscale(1);
+  }`}
+  @-webkit-keyframes deleteshake {
+    0% {
+      transform: rotate(0deg);
+    }
+    25% {
+      transform: rotate(5deg);
+    }
+    50% {
+      transform: rotate(0deg);
+    }
+    75% {
+      transform: rotate(-5deg);
+    }
+    100% {
+      transform: rotate(0deg);
+    }
+  }
+  @keyframes deleteshake {
+    0% {
+      transform: rotate(0deg);
+    }
+    25% {
+      transform: rotate(5deg);
+    }
+    50% {
+      transform: rotate(0deg);
+    }
+    75% {
+      transform: rotate(-5deg);
+    }
+    100% {
+      transform: rotate(0deg);
+    }
+  }
 `;
 
 const Wrapper = styled(
@@ -293,6 +334,7 @@ function Card({
   isContextMenuOpen,
   isFetching,
   isMobile,
+  isSelected,
   moreActionItems,
   primaryAction,
   setShowOverlay,
@@ -303,9 +345,9 @@ function Card({
   titleTestId,
 }: CardProps) {
   return (
-    <Container isMobile={isMobile} onClick={isMobile ? primaryAction : noop}>
+    <Container isMobile={isMobile} onClick={primaryAction}>
       <NameWrapper
-        className={testId}
+        className={`${testId} ${isSelected ? `${testId}-selected` : ""}`}
         hasReadPermission={hasReadPermission}
         isContextMenuOpen={isContextMenuOpen}
         onMouseEnter={() => {
@@ -317,6 +359,7 @@ function Card({
           !isContextMenuOpen && setShowOverlay(false);
         }}
         showOverlay={showOverlay}
+        testId={testId}
       >
         <Wrapper
           backgroundColor={backgroundColor}
@@ -343,7 +386,9 @@ function Card({
           )}
         </Wrapper>
         <CardFooter>
-          <ModifiedDataComponent>{editedByText}</ModifiedDataComponent>
+          <ModifiedDataComponent className="t--application-edited-text">
+            {editedByText}
+          </ModifiedDataComponent>
           {Boolean(moreActionItems.length) && !isMobile && contextMenu}
         </CardFooter>
       </NameWrapper>

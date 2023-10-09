@@ -16,8 +16,8 @@ describe("Property Pane Suggestions", () => {
     entityExplorer.SelectEntityByName("Button1", "Widgets");
     propPane.TypeTextIntoField("Label", "/");
     agHelper.Sleep(500);
-    agHelper.GetElementsNAssertTextPresence(locators._hints, "New binding");
-    agHelper.GetNClickByContains(locators._hints, "New binding");
+    agHelper.GetElementsNAssertTextPresence(locators._hints, "Add a binding");
+    agHelper.GetNClickByContains(locators._hints, "Add a binding");
     propPane.ValidatePropertyFieldValue("Label", "{{}}");
 
     //typing {{}}

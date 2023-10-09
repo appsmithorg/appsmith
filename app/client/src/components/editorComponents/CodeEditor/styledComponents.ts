@@ -197,9 +197,6 @@ export const EditorWrapper = styled.div<{
       }
 
       .cm-atom + span + .cm-property,
-      .cm-variable-2 + span + .cm-property {
-        color: #364252;
-      }
 
       /* object keys, object methods */
       .cm-keyword + span + .cm-property,

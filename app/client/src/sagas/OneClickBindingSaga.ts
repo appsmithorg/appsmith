@@ -15,7 +15,7 @@ import {
   getCurrentPageNameByActionId,
   getDatasource,
   getPlugin,
-} from "selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import { createNewQueryName } from "utils/AppsmithUtils";
 import WidgetQueryGeneratorRegistry from "utils/WidgetQueryGeneratorRegistry";
 import {

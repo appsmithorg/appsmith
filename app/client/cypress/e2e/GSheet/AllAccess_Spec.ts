@@ -185,7 +185,7 @@ describe("GSheet-Functional Tests With All Access", function () {
       inputFieldName: "Cell range",
     });
     dataSources.RunQuery();
-    dataSources.RunQueryNVerifyResponseViews(8);
+    dataSources.RunQueryNVerifyResponseViews(4);
     dataSources.AssertQueryTableResponse(0, "eac7efa5dbd3d667f26eb3d3ab504464");
   });
 

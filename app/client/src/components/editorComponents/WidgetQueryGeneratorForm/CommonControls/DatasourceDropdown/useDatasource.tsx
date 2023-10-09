@@ -14,14 +14,14 @@ import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router";
 import { integrationEditorURL } from "RouteBuilder";
 import {
-  getActionsForCurrentPage,
+  getCurrentActions,
   getDatasourceLoading,
   getDatasources,
   getMockDatasources,
   getPluginIdPackageNamesMap,
   getPluginImages,
   getPlugins,
-} from "selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import history from "utils/history";
 import WidgetQueryGeneratorRegistry from "utils/WidgetQueryGeneratorRegistry";
 import { WidgetQueryGeneratorFormContext } from "../..";
@@ -43,6 +43,7 @@ import {
 import type { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import { getDatatype } from "utils/AppsmithUtils";
 import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelectors";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 enum SortingWeights {
   alphabetical = 1,
@@ -161,7 +162,7 @@ export function useDatasource(searchText: string) {
               <DatasourceImage
                 alt=""
                 className="dataSourceImage"
-                src={pluginImages[datasource.pluginId]}
+                src={getAssetUrl(pluginImages[datasource.pluginId])}
               />
             </ImageWrapper>
           ),
@@ -253,13 +254,13 @@ export function useDatasource(searchText: string) {
                 <DatasourceImage
                   alt=""
                   className="dataSourceImage"
-                  src={
+                  src={getAssetUrl(
                     pluginImages[
                       invert(pluginsPackageNamesMap)[
                         datasource.packageName as string
                       ]
-                    ]
-                  }
+                    ],
+                  )}
                 />
               </ImageWrapper>
             ),
@@ -382,7 +383,7 @@ export function useDatasource(searchText: string) {
     return options;
   }, [currentPageId, history, propertyName, sampleData, addBinding]);
 
-  const queries = useSelector(getActionsForCurrentPage);
+  const queries = useSelector(getCurrentActions);
 
   const queryOptions = useMemo(() => {
     return sortQueries(queries, expectedType).map((query) => ({
@@ -394,7 +395,7 @@ export function useDatasource(searchText: string) {
           <DatasourceImage
             alt=""
             className="dataSourceImage"
-            src={pluginImages[query.config.pluginId]}
+            src={getAssetUrl(pluginImages[query.config.pluginId])}
           />
         </ImageWrapper>
       ),

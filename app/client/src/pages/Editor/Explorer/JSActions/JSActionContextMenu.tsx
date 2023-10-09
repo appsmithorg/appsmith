@@ -20,7 +20,7 @@ import {
   CONTEXT_SHOW_BINDING,
   createMessage,
 } from "@appsmith/constants/messages";
-import { getPageListAsOptions } from "selectors/entitiesSelector";
+import { getPageListAsOptions } from "@appsmith/selectors/entitiesSelector";
 
 import ContextMenu from "pages/Editor/Explorer/ContextMenu";
 import type { TreeDropdownOption } from "pages/Editor/Explorer/ContextMenu";

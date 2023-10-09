@@ -18,7 +18,7 @@ function ManageUsers({
       target="_self"
       to={`/workspace/${workspaceId}/settings/members`}
     >
-      Manage Users
+      Manage users
     </Link>
   ) : null;
 }

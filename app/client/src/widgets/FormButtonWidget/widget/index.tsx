@@ -425,7 +425,7 @@ class FormButtonWidget extends ButtonWidget {
     }
   };
 
-  getPageView() {
+  getWidgetView() {
     const disabled =
       this.props.disabledWhenInvalid &&
       "isFormValid" in this.props &&
@@ -433,7 +433,7 @@ class FormButtonWidget extends ButtonWidget {
 
     return (
       <ButtonComponent
-        {...super.getPageView().props}
+        {...super.getWidgetView().props}
         isDisabled={disabled}
         onClick={!disabled ? this.onButtonClickBound : undefined}
       />
