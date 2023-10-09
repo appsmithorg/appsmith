@@ -11,6 +11,7 @@ on:
       skip-tests:
         description: "Flag to skip unit tests"
         required: true
+        type: string
         default: "true"
 
   # trigger for pushes to release and master
