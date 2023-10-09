@@ -3,7 +3,6 @@ import {
   getAllPaths,
   DataTreeDiffEvent,
   isWidget,
-  isValidEntity,
   getEntityNameAndPropertyPath,
   isDynamicLeaf,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
@@ -32,6 +31,7 @@ import {
   getEntitySetterFunctions,
 } from "@appsmith/workers/Evaluation/Actions";
 import { isWidgetActionOrJsObject } from "@appsmith/entities/DataTree/utils";
+import { getValidEntityType } from "workers/common/DataTreeEvaluator/utils";
 
 interface CreateDependencyMap {
   dependencies: Record<string, string[]>;
@@ -142,9 +142,7 @@ export const updateDependencyMap = ({
       event === DataTreeDiffEvent.DELETE
         ? oldUnEvalTree[entityName]
         : unEvalDataTree[entityName];
-    const entityType = isValidEntity(entityConfig)
-      ? entityConfig.ENTITY_TYPE
-      : "noop";
+    const entityType = getValidEntityType(entity, entityConfig);
 
     if (entityType !== "noop") {
       switch (event) {

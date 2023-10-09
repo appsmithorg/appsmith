@@ -30,6 +30,7 @@ import type {
   WidgetEntity,
   DataTreeEntityConfig,
   WidgetEntityConfig,
+  DataTreeEntityObject,
 } from "@appsmith/entities/DataTree/types";
 import type { EvalProps } from "workers/common/DataTreeEvaluator";
 import { validateWidgetProperty } from "workers/common/DataTreeEvaluator/validationUtils";
@@ -867,13 +868,14 @@ export const overrideWidgetProperties = (params: {
   }
 };
 export function isValidEntity(
-  entity: DataTreeEntityConfig,
-): entity is DataTreeEntityConfig {
+  entity: DataTreeEntity,
+): entity is DataTreeEntityObject {
   if (!isObject(entity)) {
     return false;
   }
-  return "ENTITY_TYPE" in entity;
+  return true;
 }
+
 export const isATriggerPath = (
   entityConfig: DataTreeEntityConfig,
   propertyPath: string,
