@@ -20,16 +20,16 @@ import type { WidgetState } from "widgets/BaseWidget";
 import type { SetterConfig } from "entities/AppTheming";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 import derivedProperties from "./parsedDerivedProperties";
-import { BaseInputWidget } from "widgets/BaseInputWidgetV2";
+import { WDSBaseInputWidget } from "../../WDSBaseInputWidget";
 import type { InputWidgetProps, KeyDownEvent } from "./types";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
-import type { BaseInputWidgetProps } from "widgets/BaseInputWidgetV2";
+import type { BaseInputWidgetProps } from "../../WDSBaseInputWidget";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 
-class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
+class WDSInputWidget extends WDSBaseInputWidget<InputWidgetProps, WidgetState> {
   static getConfig() {
     return {
       name: "Input",
@@ -52,7 +52,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
 
   static getDefaults() {
     return {
-      ...BaseInputWidget.getDefaults(),
+      ...WDSBaseInputWidget.getDefaults(),
       rows: 7,
       labelPosition: "top",
       inputType: "TEXT",
@@ -307,7 +307,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
     );
   }
 
-  static type = "INPUT_WIDGET_V3";
+  static type = "WDS_INPUT_WIDGET";
 }
 
-export { InputWidget };
+export { WDSInputWidget };
