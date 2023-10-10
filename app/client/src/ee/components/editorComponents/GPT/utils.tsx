@@ -131,7 +131,7 @@ export const getErrorMessage = (
   return "We can not generate a response for this prompt, to get accurate responses we need prompts to be more specific.";
 };
 
-export const chatGenerationApi = ({
+export const chatGenerationApi = async ({
   context,
   query,
   taskId,

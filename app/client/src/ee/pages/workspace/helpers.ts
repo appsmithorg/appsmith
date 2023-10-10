@@ -2,7 +2,7 @@ export * from "ce/pages/workspace/helpers";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { SubmissionError } from "redux-form";
 
-export const inviteUsersToWorkspace = (
+export const inviteUsersToWorkspace = async (
   values: any,
   dispatch: any,
 ): Promise<any> => {

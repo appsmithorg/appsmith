@@ -47,29 +47,29 @@ export interface ChangeAppUserRoleRequest {
 }
 
 export class ApplicationApi extends CE_ApplicationApi {
-  static fetchApplicationUsers(
+  static async fetchApplicationUsers(
     request: FetchAllAppUsersRequest,
-  ): AxiosPromise<FetchAllAppUsersResponse> {
+  ): Promise<AxiosPromise<FetchAllAppUsersResponse>> {
     return Api.get(
       `${ApplicationApi.baseURL}/${request.applicationId}/members`,
     );
   }
 
-  static fetchApplicationRoles(
+  static async fetchApplicationRoles(
     request: FetchAllAppRolesRequest,
-  ): AxiosPromise<FetchAllAppRolesResponse> {
+  ): Promise<AxiosPromise<FetchAllAppRolesResponse>> {
     return Api.get(`${ApplicationApi.baseURL}/${request.applicationId}/roles`);
   }
 
-  static inviteUsersToApplication(
+  static async inviteUsersToApplication(
     request: InviteUserToAppRequest,
-  ): AxiosPromise<ApiResponse> {
+  ): Promise<AxiosPromise<ApiResponse>> {
     return Api.post(`${ApplicationApi.baseURL}/invite`, request);
   }
 
-  static deleteApplicationUser(
+  static async deleteApplicationUser(
     request: DeleteApplicationUserRequest,
-  ): AxiosPromise<ApiResponse> {
+  ): Promise<AxiosPromise<ApiResponse>> {
     return Api.put(`${ApplicationApi.baseURL}/${request.applicationId}/role`, {
       ...(request.userGroupId
         ? { userGroupId: request.userGroupId }
@@ -77,9 +77,9 @@ export class ApplicationApi extends CE_ApplicationApi {
     });
   }
 
-  static changeApplicationUserRole(
+  static async changeApplicationUserRole(
     request: ChangeAppUserRoleRequest,
-  ): AxiosPromise<ApiResponse> {
+  ): Promise<AxiosPromise<ApiResponse>> {
     return Api.put(`${ApplicationApi.baseURL}/${request.applicationId}/role`, {
       ...(request.userGroupId
         ? { userGroupId: request.userGroupId }
@@ -88,7 +88,9 @@ export class ApplicationApi extends CE_ApplicationApi {
     });
   }
 
-  static fetchDefaultApplicationRoles(): AxiosPromise<ApiResponse> {
+  static async fetchDefaultApplicationRoles(): Promise<
+    AxiosPromise<ApiResponse>
+  > {
     return Api.get(`${ApplicationApi.baseURL}/defaultRoles`);
   }
 }
