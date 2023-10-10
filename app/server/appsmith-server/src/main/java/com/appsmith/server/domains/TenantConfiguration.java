@@ -47,6 +47,8 @@ public class TenantConfiguration extends TenantConfigurationCE {
 
     Boolean singleSessionPerUserEnabled;
 
+    Integer connectionMaxPoolSize;
+
     public static final String ASSET_PREFIX = "asset:";
 
     // The user journey begins with the choice between the community and business versions, as we now offer both options
@@ -91,6 +93,7 @@ public class TenantConfiguration extends TenantConfigurationCE {
         this.showRolesAndGroups = tenantConfiguration.getShowRolesAndGroups();
         this.singleSessionPerUserEnabled = tenantConfiguration.getSingleSessionPerUserEnabled();
         this.isActivated = ObjectUtils.defaultIfNull(tenantConfiguration.getIsActivated(), false);
+        this.connectionMaxPoolSize = tenantConfiguration.connectionMaxPoolSize;
 
         boolean isLicenseExist = null != tenantConfiguration.getLicense()
                 && !StringUtils.isEmpty(tenantConfiguration.getLicense().getKey());

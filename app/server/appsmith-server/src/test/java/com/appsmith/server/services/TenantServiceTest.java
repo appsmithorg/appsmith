@@ -1111,4 +1111,23 @@ public class TenantServiceTest {
         // remove api_user superuser permissions
         userUtils.removeSuperUser(List.of(api_user)).block();
     }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void updateDefaultTenantConfigurationWithConnectionPoolConfig() {
+        Tenant defaultTenant = tenantService.getTenantConfiguration().block();
+        TenantConfiguration defaultTenantConfiguration = defaultTenant.getTenantConfiguration();
+
+        Mono<String> update1_updateFirstTimeInteraction = Mono.just("{\"connectionMaxPoolSize\": 20}");
+
+        Mono<Tenant> defaultTenantPostUpdateMono = tenantService.updateDefaultTenantConfiguration(
+                update1_updateFirstTimeInteraction, Mono.empty(), Mono.empty());
+
+        StepVerifier.create(defaultTenantPostUpdateMono).assertNext(dbTenant -> {
+            TenantConfiguration tenantConfiguration = dbTenant.getTenantConfiguration();
+            assertThat(tenantConfiguration.getConnectionMaxPoolSize()).isEqualTo(20);
+            assertTenantConfigurations(
+                    tenantConfiguration, defaultTenantConfiguration, true, true, true, true, true, true, false);
+        });
+    }
 }

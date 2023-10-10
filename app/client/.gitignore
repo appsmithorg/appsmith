@@ -68,7 +68,6 @@ stats.json
 !.yarn/versions
 
 LICENSE
-config
+config/*
 lib
 index.js
-!src/*/config
