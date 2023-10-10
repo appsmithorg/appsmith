@@ -20,7 +20,6 @@ import type {
 } from "../types";
 import { clearAllIntervals } from "../fns/overrides/interval";
 import JSObjectCollection from "workers/Evaluation/JSObject/Collection";
-import { setEvalContext } from "../evaluate";
 import { getJSVariableCreatedEvents } from "../JSObject/JSVariableEvents";
 import { errorModifier } from "../errorModifier";
 import { generateOptimisedUpdatesAndSetPrevState } from "../helpers";
@@ -117,13 +116,6 @@ export default function (request: EvalWorkerSyncRequest) {
 
       const dataTreeResponse = dataTreeEvaluator.evalAndValidateFirstTree();
 
-      setEvalContext({
-        dataTree: dataTreeEvaluator.evalTree,
-        configTree,
-        isDataField: false,
-        isTriggerBased: true,
-      });
-
       dataTree = makeEntityConfigsAsObjProperties(dataTreeResponse.evalTree, {
         evalProps: dataTreeEvaluator.evalProps,
         identicalEvalPathsPatches:
@@ -163,13 +155,6 @@ export default function (request: EvalWorkerSyncRequest) {
       );
 
       reValidatedPaths = updateResponse.reValidatedPaths;
-
-      setEvalContext({
-        dataTree: dataTreeEvaluator.evalTree,
-        configTree,
-        isDataField: false,
-        isTriggerBased: true,
-      });
 
       dataTree = makeEntityConfigsAsObjProperties(dataTreeEvaluator.evalTree, {
         evalProps: dataTreeEvaluator.evalProps,
