@@ -9,6 +9,7 @@ import {
   JSLibraries,
   libraryReservedIdentifiers,
 } from "../../common/JSLibrary";
+import type { TJSLibrary, TLibAccessor } from "../../common/JSLibrary";
 import { resetJSLibraries } from "../../common/JSLibrary/resetJSLibraries";
 import { makeTernDefs } from "../../common/JSLibrary/ternDefinitionGenerator";
 import type { EvalWorkerASyncRequest, EvalWorkerSyncRequest } from "../types";
@@ -66,7 +67,13 @@ function addTempStoredDataTreeToContext(
   }
 }
 
-export async function installLibrary(request: EvalWorkerASyncRequest) {
+export async function installLibrary(
+  request: EvalWorkerASyncRequest<{
+    url: string;
+    takenNamesMap: Record<string, true>;
+    takenAccessors: Array<string>;
+  }>,
+) {
   const { data } = request;
   const { takenAccessors, takenNamesMap, url } = data;
   const defs: Def = {};
@@ -198,7 +205,9 @@ export async function installLibrary(request: EvalWorkerASyncRequest) {
   }
 }
 
-export function uninstallLibrary(request: EvalWorkerSyncRequest) {
+export function uninstallLibrary(
+  request: EvalWorkerSyncRequest<TLibAccessor[]>,
+) {
   const { data } = request;
   const accessor = data;
   try {
@@ -214,7 +223,9 @@ export function uninstallLibrary(request: EvalWorkerSyncRequest) {
   }
 }
 
-export async function loadLibraries(request: EvalWorkerASyncRequest) {
+export async function loadLibraries(
+  request: EvalWorkerASyncRequest<TJSLibrary[]>,
+) {
   resetJSLibraries();
   //Add types
   const { data: libs } = request;
@@ -222,7 +233,7 @@ export async function loadLibraries(request: EvalWorkerASyncRequest) {
 
   try {
     for (const lib of libs) {
-      const url = lib.url;
+      const url = lib.url as string;
       const accessor = lib.accessor;
       const keysBefore = Object.keys(self);
       let module = null;

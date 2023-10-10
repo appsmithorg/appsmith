@@ -30,7 +30,7 @@ export let replayMap: Record<string, ReplayEntity<any>> | undefined;
 export let dataTreeEvaluator: DataTreeEvaluator | undefined;
 export const CANVAS = "canvas";
 
-export default function (request: EvalWorkerSyncRequest) {
+export default function (request: EvalWorkerSyncRequest<EvalTreeRequestData>) {
   const { data } = request;
   let evalOrder: string[] = [];
   let reValidatedPaths: string[] = [];
@@ -58,7 +58,7 @@ export default function (request: EvalWorkerSyncRequest) {
     unevalTree: __unevalTree__,
     widgets,
     widgetTypeConfigMap,
-  } = data as EvalTreeRequestData;
+  } = data;
 
   const unevalTree = __unevalTree__.unEvalTree;
   configTree = __unevalTree__.configTree as ConfigTree;
