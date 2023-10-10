@@ -1,4 +1,5 @@
-import type { DataTree, ENTITY_TYPE } from "@appsmith/entities/DataTree/types";
+import type { ENTITY_TYPE } from "@appsmith/entities/DataTree/types";
+import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { ENTITY_TYPE_VALUE } from "entities/DataTree/dataTreeFactory";
 import { createSelector } from "reselect";
 import {

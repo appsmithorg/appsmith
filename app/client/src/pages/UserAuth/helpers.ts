@@ -30,7 +30,7 @@ export type ForgotPasswordFormValues = {
   email?: string;
 };
 
-export const signupFormSubmitHandler = (
+export const signupFormSubmitHandler = async (
   values: SignupFormValues,
   dispatch: any,
 ): Promise<any> => {
@@ -50,7 +50,7 @@ export const signupFormSubmitHandler = (
   });
 };
 
-export const resetPasswordSubmitHandler = (
+export const resetPasswordSubmitHandler = async (
   values: ResetPasswordFormValues,
   dispatch: any,
 ): Promise<any> => {
@@ -71,7 +71,7 @@ export const resetPasswordSubmitHandler = (
   });
 };
 
-export const createPasswordSubmitHandler = (
+export const createPasswordSubmitHandler = async (
   values: CreatePasswordFormValues,
   dispatch: any,
 ): Promise<any> => {
@@ -92,7 +92,7 @@ export const createPasswordSubmitHandler = (
   });
 };
 
-export const forgotPasswordSubmitHandler = (
+export const forgotPasswordSubmitHandler = async (
   values: ForgotPasswordFormValues,
   dispatch: any,
 ): Promise<any> => {

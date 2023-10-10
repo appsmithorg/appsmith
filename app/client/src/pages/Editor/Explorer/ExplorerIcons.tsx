@@ -11,9 +11,13 @@ import { Icon } from "design-system";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { importSvg } from "design-system-old";
 
-const ApiIcon = importSvg(() => import("assets/icons/menu/api-colored.svg"));
-const CurlIcon = importSvg(() => import("assets/images/Curl-logo.svg"));
-const GraphqlIcon = importSvg(() => import("assets/images/Graphql-logo.svg"));
+const ApiIcon = importSvg(
+  async () => import("assets/icons/menu/api-colored.svg"),
+);
+const CurlIcon = importSvg(async () => import("assets/images/Curl-logo.svg"));
+const GraphqlIcon = importSvg(
+  async () => import("assets/images/Graphql-logo.svg"),
+);
 
 export const ENTITY_ICON_SIZE = 16;
 

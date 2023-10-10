@@ -178,7 +178,11 @@ const Container = (props: Props) => {
               currentActionId={props.currentActionId || ""}
               datasourceId={props.datasourceId}
               forceExpand={hasSearchedOccured}
+              // If set, then it doesn't set the context menu to generate query from templates
+              onEntityTableClick={props.onEntityTableClick}
               step={props.step + 1}
+              // Selected table name for the view mode datasource preview data page
+              tableName={props.tableName}
               tables={datasourceStructure.tables}
             />
           )}

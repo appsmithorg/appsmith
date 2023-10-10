@@ -15,7 +15,10 @@ import { getBorderCSSShorthand } from "constants/DefaultTheme";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type { AutocompletionDefinitions } from "WidgetProvider/constants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
+import {
+  FlexVerticalAlignment,
+  ResponsiveBehavior,
+} from "layoutSystems/common/utils/constants";
 import IconSVG from "../icon.svg";
 import type {
   SnipingModeProperty,
@@ -87,6 +90,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
       animateLoading: true,
       responsiveBehavior: ResponsiveBehavior.Fill,
       minWidth: FILL_WIDGET_MIN_WIDTH,
+      flexVerticalAlignment: FlexVerticalAlignment.Top,
     };
   }
 
@@ -530,7 +534,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
             <p>
               {"See our"}
               <a
-                href="https://docs.appsmith.com/v/v1.2.1/setup/docker/google-maps"
+                href="https://docs.appsmith.com/getting-started/setup/instance-configuration/google-maps"
                 rel="noopener noreferrer"
                 target="_blank"
               >

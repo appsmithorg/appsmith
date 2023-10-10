@@ -14,7 +14,9 @@ import ApplicationCard from "pages/Applications/ApplicationCard";
 import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
 import type { UpdateApplicationPayload } from "@appsmith/api/ApplicationApi";
 
-const NoAppsFoundIcon = importSvg(() => import("assets/svg/no-apps-icon.svg"));
+const NoAppsFoundIcon = importSvg(
+  async () => import("assets/svg/no-apps-icon.svg"),
+);
 
 type ApplicationCardListProps = {
   applications: ApplicationPayload[];

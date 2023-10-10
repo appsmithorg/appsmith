@@ -24,7 +24,10 @@ import {
   DEFAULT_CAMERA_LABEL_DESCRIPTION,
   FRONT_CAMERA_LABEL,
 } from "@appsmith/constants/messages";
-import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
+import {
+  FlexVerticalAlignment,
+  ResponsiveBehavior,
+} from "layoutSystems/common/utils/constants";
 import IconSVG from "../icon.svg";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 
@@ -53,6 +56,7 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
       isMirrored: true,
       version: 1,
       responsiveBehavior: ResponsiveBehavior.Hug,
+      flexVerticalAlignment: FlexVerticalAlignment.Top,
     };
   }
 
