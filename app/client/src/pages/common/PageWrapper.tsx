@@ -2,7 +2,6 @@ import type { ReactNode } from "react";
 import React, { useMemo } from "react";
 import { Helmet } from "react-helmet";
 import styled from "styled-components";
-import { Banner } from "@appsmith/utils/licenseHelpers";
 import {
   getPageTitle,
   getHTMLPageTitle,
@@ -84,7 +83,6 @@ export function PageWrapper(props: PageWrapperProps) {
 
   return (
     <Wrapper isFixed={isFixed}>
-      <Banner />
       <Helmet>
         <title>{pageTitle}</title>
       </Helmet>
