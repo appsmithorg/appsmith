@@ -1,11 +1,10 @@
 import type {
-  ConfigTree,
   WidgetEntity,
-  UnEvalTree,
   WidgetEntityConfig,
   ActionEntityConfig,
   ActionEntity,
 } from "@appsmith/entities/DataTree/types";
+import type { UnEvalTree, ConfigTree } from "entities/DataTree/dataTreeTypes";
 import {
   ENTITY_TYPE_VALUE,
   EvaluationSubstitutionType,
