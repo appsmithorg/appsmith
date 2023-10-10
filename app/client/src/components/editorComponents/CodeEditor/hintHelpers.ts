@@ -54,7 +54,7 @@ export const bindingHintHelper: HintHelper = (editor: CodeMirror.Editor) => {
         shouldShow = checkIfCursorInsideBinding(editor);
       }
 
-      if (additionalData.enableAIAssistance) {
+      if (additionalData?.enableAIAssistance) {
         shouldShow = !isAISlashCommand(editor);
       }
 
