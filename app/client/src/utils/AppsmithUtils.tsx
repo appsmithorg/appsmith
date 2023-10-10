@@ -12,7 +12,7 @@ import type { ActionDataState } from "@appsmith/reducers/entityReducers/actionsR
 import type { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 import AnalyticsUtil from "./AnalyticsUtil";
 
-export const initializeAnalyticsAndTrackers = () => {
+export const initializeAnalyticsAndTrackers = async () => {
   const appsmithConfigs = getAppsmithConfigs();
 
   try {
@@ -335,7 +335,7 @@ export function hexToRgb(hex: string): {
       };
 }
 
-export const retryPromise = (
+export const retryPromise = async (
   fn: () => Promise<any>,
   retriesLeft = 5,
   interval = 1000,
@@ -344,7 +344,7 @@ export const retryPromise = (
     fn()
       .then(resolve)
       .catch(() => {
-        setTimeout(() => {
+        setTimeout(async () => {
           if (retriesLeft === 1) {
             return Promise.reject({
               code: ERROR_CODES.SERVER_ERROR,

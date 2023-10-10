@@ -33,9 +33,9 @@ import {
 import IconSVG from "../icon.svg";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 
-const MapChartComponent = lazy(() =>
+const MapChartComponent = lazy(async () =>
   retryPromise(
-    () => import(/* webpackChunkName: "mapCharts" */ "../component"),
+    async () => import(/* webpackChunkName: "mapCharts" */ "../component"),
   ),
 );
 

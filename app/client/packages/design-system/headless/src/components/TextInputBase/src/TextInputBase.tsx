@@ -30,7 +30,7 @@ function TextInputBase(props: TextInputBaseProps, ref: Ref<HTMLDivElement>) {
   const { hoverProps, isHovered } = useHover({ isDisabled });
   const domRef = useRef<HTMLDivElement>(null);
   const defaultInputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
-  const inputRef = userInputRef || defaultInputRef;
+  const inputRef = userInputRef ?? defaultInputRef;
 
   const ElementType: React.ElementType = Boolean(multiLine)
     ? "textarea"

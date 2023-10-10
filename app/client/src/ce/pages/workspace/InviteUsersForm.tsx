@@ -375,7 +375,7 @@ function InviteUsersForm(props: any) {
 
   return (
     <StyledForm
-      onSubmit={handleSubmit((values: any, dispatch: any) => {
+      onSubmit={handleSubmit(async (values: any, dispatch: any) => {
         const roles = isMultiSelectDropdown
           ? selectedOption
               .map((option: DefaultOptionType) => option.value)

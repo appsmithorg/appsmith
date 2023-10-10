@@ -349,7 +349,7 @@ export function LeftPane(props: LeftPaneProps) {
               color="var(--ads-v2-color-fg-emphasis)"
               data-testid="t--workspace-new-workspace-auto-create"
               icon="plus"
-              onSelect={() =>
+              onSelect={async () =>
                 submitCreateWorkspaceForm(
                   {
                     name: getNextEntityName(
