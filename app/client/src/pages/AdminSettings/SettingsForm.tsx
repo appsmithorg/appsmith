@@ -337,8 +337,9 @@ export default withRouter(
         setting.controlType === SettingTypes.CHECKBOX &&
         !settingsConfig[name] &&
         !fieldValue;
-
-      if (fieldValue !== settingsConfig[name] && !doNotUpdate) {
+      //We are not performing type check here as inputs we take are stored as string
+      //But server stores as numeric, string etc..
+      if (fieldValue != settingsConfig[name] && !doNotUpdate) {
         newProps.settings[name] = fieldValue;
       }
     });

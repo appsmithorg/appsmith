@@ -16,7 +16,7 @@ import zipcelx from "zipcelx";
 import { importSvg } from "design-system-old";
 
 const DownloadIcon = importSvg(
-  () => import("assets/icons/control/download-data-icon.svg"),
+  async () => import("assets/icons/control/download-data-icon.svg"),
 );
 
 const DropDownWrapper = styled.div`

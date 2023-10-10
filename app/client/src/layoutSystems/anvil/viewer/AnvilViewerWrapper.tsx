@@ -19,9 +19,5 @@ export const AnvilViewerWrapper = (props: WidgetProps) => {
       : AnvilViewerWidgetOnion;
   }, [props.type]);
 
-  if (props.type === "CANVAS_WIDGET") {
-    return props.children;
-  }
-
   return <WidgetOnion {...props}>{props.children}</WidgetOnion>;
 };

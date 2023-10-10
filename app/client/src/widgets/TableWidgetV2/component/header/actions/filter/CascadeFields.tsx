@@ -20,10 +20,10 @@ import { ColumnTypes, ReadOnlyColumnTypes } from "../../../../constants";
 import { importRemixIcon } from "design-system-old";
 
 const CloseIcon = importRemixIcon(
-  () => import("remixicon-react/CloseCircleFillIcon"),
+  async () => import("remixicon-react/CloseCircleFillIcon"),
 );
 const ArrowDownIcon = importRemixIcon(
-  () => import("remixicon-react/ArrowDownSLineIcon"),
+  async () => import("remixicon-react/ArrowDownSLineIcon"),
 );
 
 const LabelWrapper = styled.div`

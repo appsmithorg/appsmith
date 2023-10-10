@@ -70,11 +70,11 @@ export const saveCopiedWidgets = async (widgetJSON: string) => {
   }
 };
 
-const getStoredUsersBetaFlags = (email: any) => {
+const getStoredUsersBetaFlags = async (email: any) => {
   return store.getItem(email);
 };
 
-const setStoredUsersBetaFlags = (email: any, userBetaFlagsObj: any) => {
+const setStoredUsersBetaFlags = async (email: any, userBetaFlagsObj: any) => {
   return store.setItem(email, userBetaFlagsObj);
 };
 

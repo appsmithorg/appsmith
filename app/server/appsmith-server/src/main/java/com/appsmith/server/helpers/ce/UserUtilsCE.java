@@ -204,7 +204,7 @@ public class UserUtilsCE {
                 .flatMap(instanceConfig -> {
                     JSONObject config = instanceConfig.getConfig();
                     String defaultPermissionGroup = (String) config.getOrDefault(DEFAULT_PERMISSION_GROUP, "");
-                    return permissionGroupRepository.findById(defaultPermissionGroup);
+                    return permissionGroupRepository.retrieveById(defaultPermissionGroup);
                 });
     }
 }

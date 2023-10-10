@@ -27,7 +27,7 @@ const _Text = (props: TextProps, ref: Ref<HTMLParagraphElement>) => {
 
   const getFontWeight = (
     fontWeight?: keyof typeof TYPOGRAPHY_FONT_WEIGHTS,
-    isBold?: boolean,
+    isBold = false,
   ) => {
     if (fontWeight) return fontWeight;
 
