@@ -24,7 +24,9 @@ import {
 import { getTenantPermissions } from "@appsmith/selectors/tenantSelectors";
 import { isPermitted } from "@appsmith/utils/permissionHelpers";
 import { PERMISSION_TYPE } from "@appsmith/utils/permissionHelpers";
-import { showAdminSettings } from "@appsmith/utils/adminSettingsHelpers";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { getShowAdminSettings } from "@appsmith/utils/BusinessFeatures/adminSettingsHelpers";
 
 export default function AuditLogsFeatureContainer() {
   const dispatch = useDispatch();
@@ -69,8 +71,9 @@ export default function AuditLogsFeatureContainer() {
     tenantPermissions,
     PERMISSION_TYPE.READ_AUDIT_LOGS,
   );
+  const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
 
-  if (!showAdminSettings(user) || !readAuditLogs) {
+  if (!getShowAdminSettings(isFeatureEnabled, user) || !readAuditLogs) {
     return <ErrorPage code={ERROR_CODES.REQUEST_NOT_AUTHORISED} />;
   }
 

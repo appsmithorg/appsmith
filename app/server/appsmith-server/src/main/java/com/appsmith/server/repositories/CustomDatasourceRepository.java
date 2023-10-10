@@ -10,6 +10,4 @@ import java.util.Set;
 public interface CustomDatasourceRepository extends CustomDatasourceRepositoryCE {
 
     Flux<Datasource> findAllByWorkspaceIdsWithoutPermission(Set<String> workspaceIds, List<String> includeFields);
-
-    Flux<Datasource> findAllByIdsWithoutPermission(Set<String> ids, List<String> includeFields);
 }

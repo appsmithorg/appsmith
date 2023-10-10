@@ -122,7 +122,7 @@ describe("Bug #14299 - The data from the query does not show up on the widget", 
       deployMode.DeployApp(locators._widgetInDeployed("tablewidget"), false);
       deployMode.NavigateBacktoEditor();
       entityExplorer.ExpandCollapseEntity("Datasources");
-      dataSources.DeleteDatasouceFromWinthinDS(dsName, 200);
+      dataSources.DeleteDatasourceFromWithinDS(dsName, 200);
     },
   );
 });

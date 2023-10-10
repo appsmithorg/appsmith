@@ -986,8 +986,14 @@ public enum AppsmithError {
             "Migration failed",
             ErrorType.INTERNAL_ERROR,
             null),
-
-    // EE-only errors below this line:
+    UNABLE_TO_DEPLOY_MISSING_PERMISSION(
+            403,
+            AppsmithErrorCode.UNABLE_TO_DEPLOY_MISSING_PERMISSION.getCode(),
+            "Unable to deploy the Application. You don''t have required permissions for {0}: {1}",
+            AppsmithErrorAction.DEFAULT,
+            "Unable to deploy",
+            ErrorType.INTERNAL_ERROR,
+            null),
     APPLICATION_NOT_CLONED_MISSING_PERMISSIONS(
             403,
             AppsmithErrorCode.APPLICATION_NOT_CLONED_MISSING_PERMISSIONS.getCode(),
@@ -996,7 +1002,6 @@ public enum AppsmithError {
             "Cloning application failed",
             ErrorType.INTERNAL_ERROR,
             null),
-
     APPLICATION_NOT_FORKED_MISSING_PERMISSIONS(
             403,
             AppsmithErrorCode.APPLICATION_NOT_FORKED_MISSING_PERMISSIONS.getCode(),
@@ -1006,6 +1011,7 @@ public enum AppsmithError {
             ErrorType.INTERNAL_ERROR,
             null),
 
+    // EE-only errors below this line:
     ASSIGN_UNASSIGN_MISSING_PERMISSION(
             403,
             AppsmithErrorCode.ASSIGN_UNASSIGN_MISSING_PERMISSION.getCode(),
@@ -1032,16 +1038,6 @@ public enum AppsmithError {
             "SAML configuration failed",
             ErrorType.ARGUMENT_ERROR,
             null),
-
-    UNABLE_TO_DEPLOY_MISSING_PERMISSION(
-            403,
-            AppsmithErrorCode.UNABLE_TO_DEPLOY_MISSING_PERMISSION.getCode(),
-            "Unable to deploy the Application. You don''t have required permissions for {0}: {1}",
-            AppsmithErrorAction.DEFAULT,
-            "Unable to deploy",
-            ErrorType.INTERNAL_ERROR,
-            null),
-
     UNKNOWN_SERVER_VARIABLE_TYPE(
             500,
             AppsmithErrorCode.UNKNOWN_SERVER_VARIABLE_TYPE.getCode(),
@@ -1128,6 +1124,14 @@ public enum AppsmithError {
             "{0}",
             AppsmithErrorAction.DEFAULT,
             "Knowledge base error",
+            ErrorType.INTERNAL_ERROR,
+            null),
+    NO_IMPLEMENTATION_ERROR(
+            400,
+            AppsmithErrorCode.NO_IMPLEMENTATION_EXCEPTION.getCode(),
+            "{0}",
+            AppsmithErrorAction.DEFAULT,
+            "No implementation error",
             ErrorType.INTERNAL_ERROR,
             null),
     ;

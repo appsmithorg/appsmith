@@ -10,11 +10,9 @@ import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.ProvisionResourceMetadata;
-import com.appsmith.server.domains.QUserGroup;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
-import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.dtos.PagedDomain;
 import com.appsmith.server.dtos.ProvisionResourceDto;
 import com.appsmith.server.dtos.UserProfileDTO;
@@ -77,7 +75,6 @@ import static com.appsmith.server.constants.ce.FieldNameCE.EVENT_DATA;
 import static com.appsmith.server.constants.ce.FieldNameCE.NUMBER_OF_USERS_INVITED;
 import static com.appsmith.server.constants.ce.FieldNameCE.USER_EMAILS;
 import static com.appsmith.server.enums.ProvisionResourceType.USER;
-import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 
 @Slf4j
 @Service
@@ -93,6 +90,7 @@ public class UserServiceImpl extends UserServiceCECompatibleImpl implements User
     private final PolicyGenerator policyGenerator;
     private final ProvisionUtils provisionUtils;
     private final SessionUserService sessionUserService;
+    private final PACConfigurationService pacConfigurationService;
 
     public UserServiceImpl(
             Scheduler scheduler,
@@ -122,7 +120,8 @@ public class UserServiceImpl extends UserServiceCECompatibleImpl implements User
             PolicyGenerator policyGenerator,
             ProvisionUtils provisionUtils,
             EmailService emailService,
-            RateLimitService rateLimitService) {
+            RateLimitService rateLimitService,
+            PACConfigurationService pacConfigurationService) {
         super(
                 scheduler,
                 validator,
@@ -147,7 +146,8 @@ public class UserServiceImpl extends UserServiceCECompatibleImpl implements User
                 userUtils,
                 emailVerificationTokenRepository,
                 emailService,
-                rateLimitService);
+                rateLimitService,
+                pacConfigurationService);
 
         this.userDataService = userDataService;
         this.tenantService = tenantService;
@@ -160,6 +160,7 @@ public class UserServiceImpl extends UserServiceCECompatibleImpl implements User
         this.policyGenerator = policyGenerator;
         this.provisionUtils = provisionUtils;
         this.sessionUserService = sessionUserService;
+        this.pacConfigurationService = pacConfigurationService;
     }
 
     @Override
@@ -226,34 +227,12 @@ public class UserServiceImpl extends UserServiceCECompatibleImpl implements User
                 .flatMap(pair -> {
                     UserProfileDTO userProfileDTO = pair.getT1();
                     Tenant defaultTenantWithConfiguration = pair.getT2();
-                    if (Boolean.TRUE.equals(defaultTenantWithConfiguration
-                            .getTenantConfiguration()
-                            .getShowRolesAndGroups())) {
-                        Mono<List<String>> rolesUserHasBeenAssignedMono = Mono.just(List.of());
-                        Mono<List<String>> groupsUsersIsPartOfMono = Mono.just(List.of());
+                    boolean showRolesAndGroups = Optional.of(defaultTenantWithConfiguration)
+                            .map(cfg -> cfg.getTenantConfiguration().getShowRolesAndGroups())
+                            .orElse(false);
 
-                        if (StringUtils.isNotEmpty(user.getId())) {
-                            rolesUserHasBeenAssignedMono = permissionGroupService
-                                    .getRoleNamesAssignedToUserIds(Set.of(user.getId()))
-                                    .collectList();
-                            groupsUsersIsPartOfMono = userGroupRepository
-                                    .getAllByUsersIn(
-                                            Set.of(user.getId()),
-                                            Optional.of(List.of(fieldName(QUserGroup.userGroup.name))),
-                                            Optional.empty())
-                                    .map(UserGroup::getName)
-                                    .collectList();
-                        }
-                        return Mono.zip(rolesUserHasBeenAssignedMono, groupsUsersIsPartOfMono)
-                                .map(pair2 -> {
-                                    List<String> rolesAssigned = pair2.getT1();
-                                    List<String> memberOfRoles = pair2.getT2();
-                                    userProfileDTO.setRoles(rolesAssigned);
-                                    userProfileDTO.setGroups(memberOfRoles);
-                                    return userProfileDTO;
-                                });
-                    }
-                    return Mono.just(userProfileDTO);
+                    return pacConfigurationService.setRolesAndGroups(
+                            userProfileDTO, user, showRolesAndGroups, commonConfig.isCloudHosting());
                 });
         return userProfileDTOWithRolesAndGroups;
     }
@@ -483,5 +462,15 @@ public class UserServiceImpl extends UserServiceCECompatibleImpl implements User
         Map<String, Object> analyticsProperties = new HashMap<>();
         analyticsProperties.put(IS_PROVISIONED, savedResource.getIsProvisioned());
         return analyticsProperties;
+    }
+
+    @Override
+    public Mono<Boolean> makeUserPristineBasedOnLoginSource(LoginSource loginSource, String tenantId) {
+        return repository
+                .makeUserPristineBasedOnLoginSourceAndTenantId(loginSource, tenantId)
+                .onErrorResume(error -> {
+                    log.error("Error while making users pristine for login source: {}", loginSource, error);
+                    return Mono.just(false);
+                });
     }
 }

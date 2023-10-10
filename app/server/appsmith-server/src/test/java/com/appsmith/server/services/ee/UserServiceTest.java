@@ -2,8 +2,11 @@ package com.appsmith.server.services.ee;
 
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.PolicyGenerator;
+import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.WithMockAppsmithUser;
 import com.appsmith.server.domains.PermissionGroup;
+import com.appsmith.server.domains.Tenant;
+import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.dtos.ProvisionResourceDto;
@@ -19,6 +22,7 @@ import com.appsmith.server.repositories.UserGroupRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.PermissionGroupService;
+import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.UserGroupService;
 import com.appsmith.server.services.UserService;
@@ -49,6 +53,8 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_USER_GROUPS;
 import static com.appsmith.server.acl.AclPermission.READ_USERS;
 import static com.appsmith.server.acl.AclPermission.READ_USER_GROUPS;
 import static com.appsmith.server.acl.AclPermission.RESET_PASSWORD_USERS;
+import static com.appsmith.server.constants.AccessControlConstants.ENABLE_PROGRAMMATIC_ACCESS_CONTROL_IN_ADMIN_SETTINGS;
+import static com.appsmith.server.constants.ce.AccessControlConstantsCE.UPGRADE_TO_BUSINESS_EDITION_TO_ACCESS_ROLES_AND_GROUPS_FOR_CONDITIONAL_BUSINESS_LOGIC;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -93,6 +99,12 @@ public class UserServiceTest {
     @SpyBean
     FeatureFlagService featureFlagService;
 
+    @Autowired
+    SessionUserService sessionUserService;
+
+    @SpyBean
+    CommonConfig commonConfig;
+
     User api_user = null;
     User admin_user = null;
 
@@ -104,6 +116,7 @@ public class UserServiceTest {
     public void setup() {
         mockFeatureFlag(FeatureFlagEnum.license_audit_logs_enabled, false);
         mockFeatureFlag(FeatureFlagEnum.license_branding_enabled, true);
+        mockFeatureFlag(FeatureFlagEnum.license_pac_enabled, true);
 
         api_user = userRepository.findByEmail("api_user").block();
 
@@ -149,6 +162,56 @@ public class UserServiceTest {
                     assertThat(userProfileDTO.getUsername()).isEqualTo("api_user");
                     assertThat(userProfileDTO.isSuperUser()).isFalse();
                     assertThat(userProfileDTO.isAdminSettingsVisible()).isFalse();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testBuildUserProfileDTOReturnsWarningDisplaymessageWhenProgrammaticAccessControlDisabled() {
+        Mockito.when(commonConfig.isCloudHosting()).thenReturn(false);
+
+        Tenant defaultTenant = tenantService.getDefaultTenant().block();
+        assert defaultTenant != null;
+        TenantConfiguration tenantConfiguration = defaultTenant.getTenantConfiguration();
+        tenantConfiguration.setShowRolesAndGroups(Boolean.FALSE);
+        defaultTenant.setTenantConfiguration(tenantConfiguration);
+        tenantService.update(defaultTenant.getId(), defaultTenant).block();
+
+        StepVerifier.create(userService.buildUserProfileDTO(api_user))
+                .assertNext(userProfileDTO -> {
+                    assertThat(userProfileDTO.getRoles())
+                            .isEqualTo(List.of(ENABLE_PROGRAMMATIC_ACCESS_CONTROL_IN_ADMIN_SETTINGS));
+                    assertThat(userProfileDTO.getGroups())
+                            .isEqualTo(List.of(ENABLE_PROGRAMMATIC_ACCESS_CONTROL_IN_ADMIN_SETTINGS));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testBuildUserProfileDTOReturnsWarningDisplayMessageWhenProgrammaticAccessControlNotAvailable() {
+        Mockito.when(commonConfig.isCloudHosting()).thenReturn(false);
+        Mockito.when(featureFlagService.check(FeatureFlagEnum.license_pac_enabled))
+                .thenReturn(Mono.just(Boolean.FALSE));
+
+        Tenant defaultTenant = tenantService.getDefaultTenant().block();
+        assert defaultTenant != null;
+        TenantConfiguration tenantConfiguration = defaultTenant.getTenantConfiguration();
+        tenantConfiguration.setShowRolesAndGroups(Boolean.FALSE);
+        defaultTenant.setTenantConfiguration(tenantConfiguration);
+        tenantService.update(defaultTenant.getId(), defaultTenant).block();
+
+        StepVerifier.create(userService.buildUserProfileDTO(api_user))
+                .assertNext(userProfileDTO -> {
+                    assertThat(userProfileDTO.getRoles())
+                            .isEqualTo(
+                                    List.of(
+                                            UPGRADE_TO_BUSINESS_EDITION_TO_ACCESS_ROLES_AND_GROUPS_FOR_CONDITIONAL_BUSINESS_LOGIC));
+                    assertThat(userProfileDTO.getGroups())
+                            .isEqualTo(
+                                    List.of(
+                                            UPGRADE_TO_BUSINESS_EDITION_TO_ACCESS_ROLES_AND_GROUPS_FOR_CONDITIONAL_BUSINESS_LOGIC));
                 })
                 .verifyComplete();
     }

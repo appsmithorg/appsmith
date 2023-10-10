@@ -2,7 +2,6 @@ package com.appsmith.server.services;
 
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceStorageDTO;
-import com.appsmith.external.models.Environment;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.AppsmithRole;
@@ -69,14 +68,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.ASSIGN_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
-import static com.appsmith.server.acl.AclPermission.EXECUTE_ENVIRONMENTS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_WORKSPACES;
@@ -151,9 +148,6 @@ public class WorkspaceServiceTest {
 
     @MockBean
     private PluginExecutorHelper pluginExecutorHelper;
-
-    @Autowired
-    EnvironmentService environmentService;
 
     @Autowired
     EnvironmentPermission environmentPermission;
@@ -290,15 +284,11 @@ public class WorkspaceServiceTest {
 
         Mono<User> userMono = userRepository.findByEmail("api_user");
 
-        Mono<List<Environment>> environmentListMono = workspaceResponse.flatMap(workspace1 ->
-                environmentService.findByWorkspaceId(workspace1.getId()).collectList());
-
-        StepVerifier.create(Mono.zip(workspaceResponse, userMono, defaultPermissionGroupsMono, environmentListMono))
+        StepVerifier.create(Mono.zip(workspaceResponse, userMono, defaultPermissionGroupsMono))
                 .assertNext(tuple -> {
                     Workspace workspace1 = tuple.getT1();
                     User user = tuple.getT2();
                     List<PermissionGroup> permissionGroups = tuple.getT3();
-                    List<Environment> environmentList = tuple.getT4();
                     assertThat(workspace1.getName()).isEqualTo("Test Name");
 
                     PermissionGroup adminPermissionGroup = permissionGroups.stream()
@@ -433,25 +423,6 @@ public class WorkspaceServiceTest {
                             .findFirst()
                             .ifPresent(policy -> assertThat(policy.getPermissionGroups())
                                     .containsAll(Set.of(adminPermissionGroup.getId())));
-
-                    assertThat(environmentList).hasSize(2);
-                    environmentList.forEach(environment -> {
-                        Optional<Policy> policyOptional = environment.getPolicies().stream()
-                                .filter(policy ->
-                                        EXECUTE_ENVIRONMENTS.getValue().equals(policy.getPermission()))
-                                .findFirst();
-
-                        assertThat(policyOptional).isNotEmpty();
-                        Policy policy = policyOptional.get();
-
-                        assertThat(policy.getPermissionGroups()).contains(adminPermissionGroup.getId());
-                        assertThat(policy.getPermissionGroups()).contains(developerPermissionGroup.getId());
-                        if (Boolean.TRUE.equals(environment.getIsDefault())) {
-                            assertThat(policy.getPermissionGroups()).contains(viewerPermissionGroup.getId());
-                        } else {
-                            assertThat(policy.getPermissionGroups()).doesNotContain(viewerPermissionGroup.getId());
-                        }
-                    });
                 })
                 .verifyComplete();
     }
@@ -1867,34 +1838,5 @@ public class WorkspaceServiceTest {
         long countWorkspaceWithAdditionalFieldAfterUpdate =
                 mongoTemplate.count(queryWorkspaceWithAdditionalField, Workspace.class);
         assertThat(countWorkspaceWithAdditionalFieldAfterUpdate).isEqualTo(1);
-    }
-
-    @Test
-    @WithUserDetails(value = "api_user")
-    void verifyEnvironmentIdByWorkspaceIdMethodProvidesEnvironmentId() {
-        Workspace createdWorkspace = workspaceService.create(workspace).block();
-        List<String> environmentIdList = environmentService
-                .findByWorkspaceId(createdWorkspace.getId())
-                .map(Environment::getId)
-                .collectList()
-                .block();
-
-        assertThat(environmentIdList.size()).isEqualTo(2);
-        String environmentIdOne = environmentIdList.get(0);
-
-        Mono<String> verifiedEnvironmentIdMono = workspaceService.verifyEnvironmentIdByWorkspaceId(
-                createdWorkspace.getId(), environmentIdOne, AclPermission.EXECUTE_ENVIRONMENTS);
-
-        StepVerifier.create(verifiedEnvironmentIdMono).assertNext(environmentId -> {
-            assertThat(environmentId).isEqualTo(environmentIdOne);
-        });
-
-        String environmentIdTwo = environmentIdList.get(1);
-        Mono<String> verifiedEnvironmentIdTwoMono = workspaceService.verifyEnvironmentIdByWorkspaceId(
-                createdWorkspace.getId(), environmentIdTwo, AclPermission.EXECUTE_ENVIRONMENTS);
-
-        StepVerifier.create(verifiedEnvironmentIdTwoMono).assertNext(environmentId -> {
-            assertThat(environmentId).isEqualTo(environmentIdTwo);
-        });
     }
 }

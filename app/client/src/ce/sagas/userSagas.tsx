@@ -371,12 +371,13 @@ export function* inviteUsers(
 
 export function* updateUserDetailsSaga(action: ReduxAction<UpdateUserRequest>) {
   try {
-    const { email, intercomConsentGiven, name, role, useCase } = action.payload;
+    const { email, intercomConsentGiven, name, proficiency, useCase } =
+      action.payload;
 
     const response: ApiResponse = yield callAPI(UserApi.updateUser, {
       email,
       name,
-      role,
+      proficiency,
       useCase,
       intercomConsentGiven,
     });

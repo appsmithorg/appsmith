@@ -79,10 +79,15 @@ describe("Others tab permission Tests", function () {
       Cypress.env("TESTPASSWORD1"),
     );
     cy.wait(2000);
+    featureFlagIntercept({
+      license_gac_enabled: true,
+      license_audit_logs_enabled: true,
+    });
+    cy.wait(2000);
     cy.get(locators.AdminSettingsEntryLink).should("be.visible");
     cy.get(locators.AdminSettingsEntryLink).click();
 
-    featureFlagIntercept({ license_audit_logs_enabled: true });
+    cy.wait(2000);
     // cy.url().should("contain", "/settings/general");
     cy.get(locators.LeftPaneAuditLogsLink).should("be.visible");
     cy.get(locators.LeftPaneAuditLogsLink).click();
@@ -95,6 +100,12 @@ describe("Others tab permission Tests", function () {
   });
 
   it("2. Verify user with ViewAuditlogsRole is able to view audit logs and verify logs", function () {
+    cy.wait(2000);
+    featureFlagIntercept({
+      license_audit_logs_enabled: true,
+      license_gac_enabled: true,
+    });
+    cy.wait(2000);
     cy.get(locators.RowsContainer)
       .children()
       .should("have.length.greaterThan", 1)

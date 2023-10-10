@@ -2,6 +2,7 @@ package com.appsmith.server.services;
 
 import com.appsmith.external.helpers.DataTypeStringUtils;
 import com.appsmith.server.configurations.LicenseConfig;
+import com.appsmith.server.constants.AccessControlConstants;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.LicenseOrigin;
 import com.appsmith.server.constants.LicensePlan;
@@ -10,6 +11,7 @@ import com.appsmith.server.constants.LicenseType;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.License;
 import com.appsmith.server.domains.PermissionGroup;
+import com.appsmith.server.domains.SubscriptionDetails;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.domains.User;
@@ -53,6 +55,7 @@ import reactor.test.StepVerifier;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -136,6 +139,7 @@ public class TenantServiceTest {
         when(featureFlagService.check(FeatureFlagEnum.license_branding_enabled)).thenReturn(Mono.just(true));
         when(featureFlagService.check(FeatureFlagEnum.license_session_limit_enabled))
                 .thenReturn(Mono.just(true));
+        when(featureFlagService.check(FeatureFlagEnum.license_pac_enabled)).thenReturn(Mono.just(true));
     }
 
     @Test
@@ -426,16 +430,79 @@ public class TenantServiceTest {
                         .getShowRolesAndGroups())
                 .isFalse();
 
-        // Roles and Groups information should not be present in the User Profile.
         UserProfileDTO userProfileDTO_shouldNotContainRolesAndGroupInfo = sessionUserService
                 .getCurrentUser()
                 .flatMap(userService::buildUserProfileDTO)
                 .block();
 
-        Assertions.assertThat(userProfileDTO_shouldNotContainRolesAndGroupInfo.getRoles())
-                .isNullOrEmpty();
-        Assertions.assertThat(userProfileDTO_shouldNotContainRolesAndGroupInfo.getGroups())
-                .isNullOrEmpty();
+        assertEquals(
+                List.of(AccessControlConstants.ENABLE_PROGRAMMATIC_ACCESS_CONTROL_IN_ADMIN_SETTINGS),
+                userProfileDTO_shouldNotContainRolesAndGroupInfo.getRoles());
+        assertEquals(
+                List.of(AccessControlConstants.ENABLE_PROGRAMMATIC_ACCESS_CONTROL_IN_ADMIN_SETTINGS),
+                userProfileDTO_shouldNotContainRolesAndGroupInfo.getGroups());
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void
+            test_setShowRolesAndGroupInTenant_checkRolesAndGroupsDoesNotExistInUserProfile_whenFeatureFlagDisabled() {
+        String testName =
+                "test_setShowRolesAndGroupInTenant_checkRolesAndGroupsDoesNotExistInUserProfile_whenFeatureFlagDisabled";
+        User apiUser = userRepository.findByEmail("api_user").block();
+
+        UserGroup userGroup = new UserGroup();
+        userGroup.setName(testName);
+        userGroup.setUsers(Set.of(apiUser.getId()));
+        UserGroupDTO createdUserGroupDTO =
+                userGroupService.createGroup(userGroup).block();
+
+        List<String> assignedToRoles = permissionGroupRepository
+                .findByAssignedToUserIdsIn(apiUser.getId())
+                .filter(role -> !PermissionGroupUtils.isUserManagementRole(role))
+                .map(PermissionGroup::getName)
+                .collectList()
+                .block();
+
+        List<String> memberOfGroups = userGroupRepository
+                .findAllByUsersIn(Set.of(apiUser.getId()))
+                .map(UserGroup::getName)
+                .collectList()
+                .block();
+
+        // Set the showRolesAndGroups property in tenant configuration to True.
+        TenantConfiguration tenantConfiguration_showRolesAndGroupsTrue = new TenantConfiguration();
+        tenantConfiguration_showRolesAndGroupsTrue.setShowRolesAndGroups(true);
+        Tenant updatedTenant_showRolesAndGroupsTrue = tenantService
+                .updateDefaultTenantConfiguration(tenantConfiguration_showRolesAndGroupsTrue)
+                .block();
+
+        Assertions.assertThat(updatedTenant_showRolesAndGroupsTrue.getTenantConfiguration())
+                .isNotNull();
+        Assertions.assertThat(updatedTenant_showRolesAndGroupsTrue
+                        .getTenantConfiguration()
+                        .getShowRolesAndGroups())
+                .isTrue();
+
+        // Disable the showRolesAndGroups feature flag
+        Mockito.when(featureFlagService.check(FeatureFlagEnum.license_pac_enabled))
+                .thenReturn(Mono.just(false));
+
+        UserProfileDTO userProfileDTO_noRolesAndGroupInfo = sessionUserService
+                .getCurrentUser()
+                .flatMap(userService::buildUserProfileDTO)
+                .block();
+
+        Assertions.assertThat(userProfileDTO_noRolesAndGroupInfo.getRoles())
+                .isEqualTo(
+                        List.of(
+                                AccessControlConstants
+                                        .UPGRADE_TO_BUSINESS_EDITION_TO_ACCESS_ROLES_AND_GROUPS_FOR_CONDITIONAL_BUSINESS_LOGIC));
+        Assertions.assertThat(userProfileDTO_noRolesAndGroupInfo.getGroups())
+                .isEqualTo(
+                        List.of(
+                                AccessControlConstants
+                                        .UPGRADE_TO_BUSINESS_EDITION_TO_ACCESS_ROLES_AND_GROUPS_FOR_CONDITIONAL_BUSINESS_LOGIC));
     }
 
     @Test
@@ -555,6 +622,7 @@ public class TenantServiceTest {
     @WithUserDetails("api_user")
     public void test_defaultBranding_whenFeatureFlagDisabled() {
         when(featureFlagService.check(FeatureFlagEnum.license_branding_enabled)).thenReturn(Mono.just(false));
+        when(featureFlagService.check(FeatureFlagEnum.license_pac_enabled)).thenReturn(Mono.just(true));
         Mono<Tenant> tenantMono = tenantService.getTenantConfiguration();
         StepVerifier.create(tenantMono)
                 .assertNext(tenant -> {
@@ -567,6 +635,66 @@ public class TenantServiceTest {
                     assertEquals(TenantConfiguration.DEFAULT_BACKGROUND_COLOR, brandColors.getBackground());
                     assertEquals(TenantConfiguration.DEFAULT_PRIMARY_COLOR, brandColors.getPrimary());
                     assertEquals(TenantConfiguration.DEFAULT_FONT_COLOR, brandColors.getFont());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void test_tenantConfiguration_whenPACFeatureFlagEnabled() {
+        when(featureFlagService.check(any())).thenReturn(Mono.just(true));
+        TenantConfiguration tenantConfiguration = new TenantConfiguration();
+        tenantConfiguration.setShowRolesAndGroups(true);
+
+        Mono<Tenant> tenantMono = tenantService.updateDefaultTenantConfiguration(tenantConfiguration);
+        StepVerifier.create(tenantMono)
+                .assertNext(tenant1 -> {
+                    TenantConfiguration tenantConfiguration1 = tenant1.getTenantConfiguration();
+                    assertTrue(tenantConfiguration1.getShowRolesAndGroups());
+                })
+                .verifyComplete();
+
+        tenantMono = tenantService.getTenantConfiguration();
+        StepVerifier.create(tenantMono)
+                .assertNext(tenant1 -> {
+                    TenantConfiguration tenantConfiguration1 = tenant1.getTenantConfiguration();
+                    assertTrue(tenantConfiguration1.getShowRolesAndGroups());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void test_tenantConfiguration_whenPACFeatureFlagDisabled() {
+        when(featureFlagService.check(any())).thenReturn(Mono.just(true));
+        TenantConfiguration tenantConfiguration = new TenantConfiguration();
+        tenantConfiguration.setShowRolesAndGroups(false);
+
+        Mono<Tenant> tenantMono = tenantService.updateDefaultTenantConfiguration(tenantConfiguration);
+        StepVerifier.create(tenantMono)
+                .assertNext(tenant1 -> {
+                    TenantConfiguration tenantConfiguration1 = tenant1.getTenantConfiguration();
+                    assertFalse(tenantConfiguration1.getShowRolesAndGroups());
+                })
+                .verifyComplete();
+
+        // disable PAC, now updates won't be taking in-effect and default tenant configuration will be returned
+        when(featureFlagService.check(FeatureFlagEnum.license_pac_enabled)).thenReturn(Mono.just(false));
+
+        tenantConfiguration.setShowRolesAndGroups(true);
+        tenantMono = tenantService.updateDefaultTenantConfiguration(tenantConfiguration);
+        StepVerifier.create(tenantMono)
+                .assertNext(tenant1 -> {
+                    TenantConfiguration tenantConfiguration1 = tenant1.getTenantConfiguration();
+                    assertFalse(tenantConfiguration1.getShowRolesAndGroups());
+                })
+                .verifyComplete();
+
+        tenantMono = tenantService.getTenantConfiguration();
+        StepVerifier.create(tenantMono)
+                .assertNext(tenant1 -> {
+                    TenantConfiguration tenantConfiguration1 = tenant1.getTenantConfiguration();
+                    assertFalse(tenantConfiguration1.getShowRolesAndGroups());
                 })
                 .verifyComplete();
     }
@@ -595,6 +723,7 @@ public class TenantServiceTest {
 
         // updating it from default value but since feature flag is disabled, update shouldn't happen
         when(featureFlagService.check(FeatureFlagEnum.license_branding_enabled)).thenReturn(Mono.just(false));
+        when(featureFlagService.check(FeatureFlagEnum.license_pac_enabled)).thenReturn(Mono.just(true));
         Mono<Tenant> tenantMono = tenantService.updateDefaultTenantConfiguration(Mono.empty(), icon, favicon);
         StepVerifier.create(tenantMono)
                 .assertNext(tenant -> {
@@ -931,5 +1060,55 @@ public class TenantServiceTest {
         assertThat(newTenantConfiguration1.getIsActivated()).isFalse();
         assertTenantConfigurations(
                 newTenantConfiguration1, defaultTenantConfiguration, true, true, true, true, true, true, false);
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void test_updateDefaultTenantConfiguration_subscriptionDetailsInLicense() {
+        Tenant defaultTenant = tenantService.getTenantConfiguration().block();
+        TenantConfiguration defaultTenantConfiguration = defaultTenant.getTenantConfiguration();
+        defaultTenantConfiguration.setLicense(new License());
+        SubscriptionDetails subscriptionDetails = new SubscriptionDetails();
+        subscriptionDetails.setSubscriptionStatus("ACTIVE");
+        subscriptionDetails.setUsers(10);
+        subscriptionDetails.setSessions(100);
+        subscriptionDetails.setEndDate(Instant.now().plus(100, ChronoUnit.DAYS));
+        subscriptionDetails.setStartDate(Instant.now());
+        subscriptionDetails.setCurrentCycleStartDate(subscriptionDetails.getStartDate());
+        subscriptionDetails.setCustomerEmail("dev@appsmith.com");
+
+        defaultTenantConfiguration.getLicense().setSubscriptionDetails(subscriptionDetails);
+
+        Tenant defaultTenantPostUpdate1 = tenantService
+                .updateDefaultTenantConfiguration(defaultTenantConfiguration)
+                .block();
+        TenantConfiguration newTenantConfiguration1 = defaultTenantPostUpdate1.getTenantConfiguration();
+
+        // since api_user is not a superuser, subscription details should be null
+        assertNull(newTenantConfiguration1.getLicense().getSubscriptionDetails());
+
+        // now make api_user superuser and subscription details should come
+
+        User api_user = userRepository.findByEmail("api_user").block();
+        userUtils.makeSuperUser(List.of(api_user)).block();
+
+        defaultTenant = tenantService.getDefaultTenant().block();
+        SubscriptionDetails defaultSubscriptionDetails =
+                defaultTenant.getTenantConfiguration().getLicense().getSubscriptionDetails();
+
+        assertEquals(
+                subscriptionDetails.getStartDate().getEpochSecond(),
+                defaultSubscriptionDetails.getStartDate().getEpochSecond());
+        assertEquals(
+                subscriptionDetails.getEndDate().getEpochSecond(),
+                defaultSubscriptionDetails.getEndDate().getEpochSecond());
+        assertEquals(
+                subscriptionDetails.getCurrentCycleStartDate().getEpochSecond(),
+                defaultSubscriptionDetails.getCurrentCycleStartDate().getEpochSecond());
+        assertEquals(subscriptionDetails.getCustomerEmail(), defaultSubscriptionDetails.getCustomerEmail());
+        assertEquals(subscriptionDetails.getUsers(), defaultSubscriptionDetails.getUsers());
+        assertEquals(subscriptionDetails.getSessions(), defaultSubscriptionDetails.getSessions());
+        // remove api_user superuser permissions
+        userUtils.removeSuperUser(List.of(api_user)).block();
     }
 }

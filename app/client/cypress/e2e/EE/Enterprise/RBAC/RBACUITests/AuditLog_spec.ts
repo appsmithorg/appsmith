@@ -41,6 +41,8 @@ describe("Checking audit logs permission", function () {
     agHelper.GenerateUUID();
     // get the guid from the alias and assign it to the workspace name
     cy.get("@guid").then((guid) => {
+      featureFlagIntercept({ license_gac_enabled: true });
+      cy.wait(2000);
       workspaceName = "workspace" + guid;
       appName = "app" + guid;
       homePage.CreateNewWorkspace(workspaceName, true);
@@ -108,12 +110,20 @@ describe("Checking audit logs permission", function () {
       Cypress.env("TESTPASSWORD1"),
       "App Viewer",
     );
+    cy.wait(5000);
+    featureFlagIntercept({
+      license_audit_logs_enabled: true,
+      license_gac_enabled: true,
+    });
+    cy.wait(5000);
     agHelper.GetNClick(adminSettings._adminSettingsBtn);
-    featureFlagIntercept({ license_audit_logs_enabled: true });
-    cy.wait(2000);
+
     assertHelper.AssertNetworkStatus("@fetchAuditLogs", 200);
     agHelper.GetNClick(auditlogloc.RefreshButton);
-    featureFlagIntercept({ license_audit_logs_enabled: true });
+    featureFlagIntercept({
+      license_audit_logs_enabled: true,
+      license_gac_enabled: true,
+    });
     cy.wait(2000);
     assertHelper.AssertNetworkStatus("@fetchAuditLogs", 200);
     agHelper.GetNClick(auditlogloc.DateFilterContainer);

@@ -14,10 +14,11 @@ import type { PluginType } from "entities/Action";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import type { AppState } from "@appsmith/reducers";
 import { DEFAULT_ENV_ID } from "@appsmith/api/ApiUtils";
-import { datasourceEnvEnabled } from "@appsmith/selectors/featureFlagsSelectors";
 import { showProductRamps } from "@appsmith/selectors/rampSelectors";
 import { RAMP_NAME } from "utils/ProductRamps/RampsControlList";
 import CE_DSDataFilter from "ce/components/DSDataFilter";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 export const defaultEnvironment = (workspaceId: string): EnvironmentType => ({
   id: DEFAULT_ENV_ID,
@@ -91,7 +92,9 @@ const DSDataFilter = ({
 }: DSDataFilterProps) => {
   const environments = useSelector((state: any) => getEnvironments(state));
   const [showFilterPane, setShowFilterPane] = React.useState(false);
-  const datasourceEnv: boolean = useSelector(datasourceEnvEnabled);
+  const isMultipleEnvEnabled = useFeatureFlag(
+    FEATURE_FLAG.release_datasource_environments_enabled,
+  );
   const workspaceId = useSelector(getCurrentWorkspaceId);
   const defaultSelectedEnvironment =
     environments.find((env: any) => env.isDefault) ||
@@ -111,7 +114,7 @@ const DSDataFilter = ({
   useEffect(() => {
     const isRenderAllowed =
       environments.length > 0 &&
-      datasourceEnv &&
+      isMultipleEnvEnabled &&
       !viewMode &&
       !isInsideReconnectModal;
 

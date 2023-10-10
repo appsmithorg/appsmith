@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.ce.SessionUserServiceCEImpl;
 import lombok.extern.slf4j.Slf4j;
@@ -8,6 +9,7 @@ import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuple2;
 
 import java.util.List;
 
@@ -36,6 +38,25 @@ public class SessionUserServiceImpl extends SessionUserServiceCEImpl implements 
                 .flatMap(creationTime -> getKeysForExistingSessionsAndFilterByCreationTime(email, creationTime))
                 .flatMap(super::deleteSessionsByKeys)
                 .then();
+    }
+
+    @Override
+    public Mono<Void> invalidateSessionByLoginSource(LoginSource source) {
+        return this.getSessionKeysByLoginSource(source)
+                .collectList()
+                .flatMap(super::deleteSessionsByKeys)
+                .then();
+    }
+
+    private Flux<String> getSessionKeysByLoginSource(LoginSource source) {
+        if (source == null) {
+            return Flux.empty();
+        }
+        return this.getSessionKeysWithUserSessions()
+                // Now we have tuples of session keys, and the corresponding user objects.
+                // Filter the ones based on the login source.
+                .filter(tuple -> source.equals(tuple.getT2().getSource()))
+                .map(Tuple2::getT1);
     }
 
     private Mono<List<String>> getKeysForExistingSessionsAndFilterByCreationTime(String email, Long createdAt) {

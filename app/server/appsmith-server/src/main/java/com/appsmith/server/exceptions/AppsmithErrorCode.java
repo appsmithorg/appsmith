@@ -147,6 +147,7 @@ public enum AppsmithErrorCode {
     HMAC_GENERATION_EXCEPTION("AE-MAC-4000", "HMAC signature generation failed"),
     TENANT_DOWNGRADE_EXCEPTION("AE-LIC-4000", "Tenant downgrade to free plan failed"),
     KNOWLEDGE_BASE_EXCEPTION("AE-KB-5000", "Knowledge base exception"),
+    NO_IMPLEMENTATION_EXCEPTION("AE-NI-4000", "No implementation exception"),
     ;
     private final String code;
     private final String description;

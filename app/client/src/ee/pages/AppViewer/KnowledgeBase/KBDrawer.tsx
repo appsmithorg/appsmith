@@ -1,14 +1,12 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button, Divider, Link, Spinner, Text, Callout } from "design-system";
-import type { KBDrawerBodyProps, KBDrawerProps, TApplicationKB } from "./types";
+import type { KBDrawerBodyProps, KBDrawerProps } from "./types";
 import KBPreview from "./KBPreview";
 import {
   getAnalyticsKBStatus,
-  getIsKbGenerationIdle,
   getIsKbGenerationPending,
   getIsPublishedKBPresent,
   getPagesArray,
-  getPublishedKbHash,
 } from "./utils";
 import { Drawer } from "@blueprintjs/core";
 import { useSelector } from "react-redux";
@@ -19,7 +17,6 @@ import {
   AI_KB_REGENERATE_CLICK,
 } from "./constants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { getAppKbState, initAppKbState } from "utils/storage";
 
 const GenerateKBSection = ({
   onGenerate,
@@ -164,76 +161,33 @@ const MemomisedKBDrawer = React.memo(
   ({
     applicationKB,
     currentPageSlug,
+    hasRead,
     isLoading,
     isUserAppBuilder,
     onClose,
     onGenerateKB,
-    size,
   }: KBDrawerProps) => {
-    const [showSuccessCallout, setShowSuccessCallout] = useState(false);
-    const successCalloutTimeoutId = React.useRef<number | null>(null);
-
-    const showKbGenerationCallout = useCallback(() => {
-      if (!isUserAppBuilder) return;
-
-      setShowSuccessCallout(true);
-
-      const timeoutId = setTimeout(() => {
-        setShowSuccessCallout(false);
-        successCalloutTimeoutId.current = null;
-      }, 5000);
-
-      successCalloutTimeoutId.current = timeoutId;
-    }, [isUserAppBuilder]);
-
-    const setAppKBStateInDB = useCallback(
-      async (appKb: TApplicationKB) => {
-        const checksum = getPublishedKbHash(appKb);
-
-        if (!currentPageSlug) return;
-
-        const pages = Object.keys(appKb.publishedKB);
-
-        initAppKbState(appKb.applicationId, checksum, pages);
-      },
-      [currentPageSlug],
+    const [showSuccessCallout, setShowSuccessCallout] = useState<boolean>(
+      !hasRead,
     );
-
-    const onKBGenerationViewed = useCallback(
-      async (applicationKB: TApplicationKB) => {
-        const { applicationId } = applicationKB;
-        const appKbStateInDB = await getAppKbState(applicationId);
-        const checksum = getPublishedKbHash(applicationKB);
-        const hasKBChanged = appKbStateInDB?.checksum !== checksum;
-
-        if (hasKBChanged) {
-          setAppKBStateInDB(applicationKB);
-          showKbGenerationCallout();
-        }
-      },
-      [],
-    );
+    const sucessCalloutTimeoutRef = React.useRef<number | null>(null);
 
     useEffect(() => {
-      const isPublishedKBPresent = getIsPublishedKBPresent(applicationKB);
-
-      if (
-        applicationKB &&
-        isPublishedKBPresent &&
-        getIsKbGenerationIdle(applicationKB)
-      ) {
-        onKBGenerationViewed(applicationKB);
+      if (showSuccessCallout) {
+        sucessCalloutTimeoutRef.current = setTimeout(() => {
+          setShowSuccessCallout(false);
+        }, 5000);
       }
 
       return () => {
-        if (successCalloutTimeoutId.current) {
-          clearTimeout(successCalloutTimeoutId.current);
+        if (sucessCalloutTimeoutRef.current) {
+          clearTimeout(sucessCalloutTimeoutRef.current);
         }
       };
-    }, [applicationKB]);
+    }, [showSuccessCallout]);
 
     return (
-      <Drawer canOutsideClickClose isOpen onClose={onClose} size={size}>
+      <Drawer canOutsideClickClose isOpen onClose={onClose} size="500px">
         <div className="p-4 pb-0">
           <div className="flex justify-between">
             <div>

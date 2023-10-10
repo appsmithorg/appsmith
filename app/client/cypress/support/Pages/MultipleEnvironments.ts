@@ -12,6 +12,7 @@ export class MultipleEnvironments {
   public env_switcher_dropdown_opt_stage =
     '[data-testid="t--switch-env-dropdown-option-staging"]';
   public ds_data_filter_disabled = '[data-testid="t--filter-disabled"]';
+  public ds_data_dropdown_tooltip = '[data-testid="t--switch-env-tooltip"]';
   public env_switcher_dropdown_opt = (envName: string) =>
     `[data-testid="t--switch-env-dropdown-option-${envName}"]`;
   public ds_review_mode_configs = (envName: string) =>

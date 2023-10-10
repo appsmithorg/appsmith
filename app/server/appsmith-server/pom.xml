@@ -118,6 +118,12 @@
             <groupId>io.mongock</groupId>
             <artifactId>mongock-springboot-v3</artifactId>
         </dependency>
+        <dependency>
+            <!-- remove after mongock-springboot-v3 brings v32.0.1-jre at least -->
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>32.0.1-jre</version>
+        </dependency>
 
         <dependency>
             <groupId>io.mongock</groupId>
@@ -426,6 +432,13 @@
             <groupId>com.bucket4j</groupId>
             <artifactId>bucket4j-core</artifactId>
             <version>8.3.0</version>
+        </dependency>
+        <!--        Dependency for adding the system env stub as the System.getEnv() is a UnmodifiableMap   -->
+        <!--        TODO remove this dependency once the SSO configs are moved to DB                        -->
+        <dependency>
+            <groupId>uk.org.webcompere</groupId>
+            <artifactId>system-stubs-jupiter</artifactId>
+            <version>2.1.1</version>
         </dependency>
     </dependencies>
 

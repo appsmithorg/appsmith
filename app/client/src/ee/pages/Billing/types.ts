@@ -37,3 +37,8 @@ export enum LICENSE_TYPE {
   PAID = "PAID",
   PAYMENT_FAILED = "IN_GRACE_PERIOD",
 }
+
+export enum LICENSE_PLANS {
+  FREE = "FREE",
+  PAID = "PAID",
+}

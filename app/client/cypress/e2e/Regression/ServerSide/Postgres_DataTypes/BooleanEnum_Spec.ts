@@ -31,20 +31,12 @@ describe("Boolean & Enum Datatype tests", function () {
     dataSources.CreateQueryFromOverlay(dsName, query, "createTable");
     dataSources.RunQuery();
 
-    entityExplorer.ExpandCollapseEntity("Datasources");
-    entityExplorer.ExpandCollapseEntity(dsName); //Clicking Create Query from Active DS is already expanding ds
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: dsName,
-      action: "Refresh",
-    });
-    agHelper.AssertElementVisibility(
-      entityExplorer._entityNameInExplorer("public.boolenumtypes"),
-    );
+    dataSources.AssertTableInVirtuosoList(dsName, "public.boolenumtypes");
 
     //Select query:
     entityExplorer.ActionTemplateMenuByEntityName(
       "public.boolenumtypes",
-      "SELECT",
+      "Select",
     );
     agHelper.RenameWithInPane("selectRecords");
     dataSources.RunQuery();
@@ -251,7 +243,7 @@ describe("Boolean & Enum Datatype tests", function () {
       entityExplorer.ExpandCollapseEntity("Datasources", false);
 
       //Delete queries
-      dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Since all queries exists
+      dataSources.DeleteDatasourceFromWithinDS(dsName, 409); //Since all queries exists
       entityExplorer.ExpandCollapseEntity("Queries/JS");
       entityExplorer.DeleteAllQueriesForDB(dsName);
 
@@ -259,7 +251,7 @@ describe("Boolean & Enum Datatype tests", function () {
       deployMode.DeployApp();
       deployMode.NavigateBacktoEditor();
       entityExplorer.ExpandCollapseEntity("Queries/JS");
-      dataSources.DeleteDatasouceFromWinthinDS(dsName, 200);
+      dataSources.DeleteDatasourceFromWithinDS(dsName, 200);
     },
   );
 });

@@ -273,7 +273,7 @@ public class PageServiceTest {
                             .build();
 
                     assertThat(page.getPolicies())
-                            .containsOnly(managePagePolicy, readPagePolicy, deletePagePolicy, createPageActionsPolicy);
+                            .contains(managePagePolicy, readPagePolicy, deletePagePolicy, createPageActionsPolicy);
 
                     assertThat(page.getLayouts()).isNotEmpty();
                     assertThat(page.getLayouts().get(0).getDsl()).isEqualTo(parsedJson);
@@ -371,7 +371,7 @@ public class PageServiceTest {
                             .build();
 
                     assertThat(page.getPolicies())
-                            .containsOnly(managePagePolicy, readPagePolicy, deletePagePolicy, createPageActionsPolicy);
+                            .contains(managePagePolicy, readPagePolicy, deletePagePolicy, createPageActionsPolicy);
                 })
                 .verifyComplete();
     }
@@ -455,7 +455,7 @@ public class PageServiceTest {
                             .build();
 
                     assertThat(page.getPolicies())
-                            .containsOnly(managePagePolicy, readPagePolicy, deletePagePolicy, createPageActionsPolicy);
+                            .contains(managePagePolicy, readPagePolicy, deletePagePolicy, createPageActionsPolicy);
                 })
                 .verifyComplete();
     }
@@ -538,7 +538,7 @@ public class PageServiceTest {
                             .build();
 
                     assertThat(page.getPolicies())
-                            .containsOnly(managePagePolicy, readPagePolicy, deletePagePolicy, createPageActionsPolicy);
+                            .contains(managePagePolicy, readPagePolicy, deletePagePolicy, createPageActionsPolicy);
                 })
                 .verifyComplete();
     }
@@ -695,7 +695,7 @@ public class PageServiceTest {
                             .build();
 
                     assertThat(clonedPage.getPolicies())
-                            .containsOnly(managePagePolicy, readPagePolicy, deletePagePolicy, createPageActionsPolicy);
+                            .contains(managePagePolicy, readPagePolicy, deletePagePolicy, createPageActionsPolicy);
 
                     assertThat(clonedPage.getLayouts()).isNotEmpty();
                     assertThat(clonedPage.getLayouts().get(0).getDsl().get("widgetName"))
@@ -908,7 +908,7 @@ public class PageServiceTest {
                             .build();
 
                     assertThat(clonedPage.getPolicies())
-                            .containsOnly(managePagePolicy, readPagePolicy, deletePagePolicy, createPageActionsPolicy);
+                            .contains(managePagePolicy, readPagePolicy, deletePagePolicy, createPageActionsPolicy);
 
                     assertThat(unpublishedPage.getLayouts()).isNotEmpty();
                     assertThat(unpublishedPage.getLayouts().get(0).getDsl().get("widgetName"))

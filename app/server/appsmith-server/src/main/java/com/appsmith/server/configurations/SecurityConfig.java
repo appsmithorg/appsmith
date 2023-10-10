@@ -5,6 +5,7 @@ import com.appsmith.server.authentication.handlers.AccessDeniedHandler;
 import com.appsmith.server.authentication.handlers.CustomServerOAuth2AuthorizationRequestResolver;
 import com.appsmith.server.authentication.handlers.LogoutSuccessHandler;
 import com.appsmith.server.authentication.managers.ApiKeyAuthenticationManager;
+import com.appsmith.server.authentication.oauth2clientrepositories.CustomOauth2ClientRepositoryManager;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.User;
@@ -135,6 +136,9 @@ public class SecurityConfig {
 
     @Autowired
     private RateLimitService rateLimitService;
+
+    @Autowired
+    private CustomOauth2ClientRepositoryManager oauth2ClientManager;
 
     @Value("${appsmith.internal.password}")
     private String INTERNAL_PASSWORD;
@@ -287,7 +291,10 @@ public class SecurityConfig {
                 .oauth2Login(oAuth2LoginSpec -> oAuth2LoginSpec
                         .authenticationFailureHandler(failureHandler)
                         .authorizationRequestResolver(new CustomServerOAuth2AuthorizationRequestResolver(
-                                reactiveClientRegistrationRepository, commonConfig, redirectHelper))
+                                reactiveClientRegistrationRepository,
+                                commonConfig,
+                                redirectHelper,
+                                oauth2ClientManager))
                         .authenticationSuccessHandler(authenticationSuccessHandler)
                         .authenticationFailureHandler(authenticationFailureHandler)
                         .authorizedClientRepository(new ClientUserRepository(userService, commonConfig)))

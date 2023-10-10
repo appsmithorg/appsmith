@@ -33,4 +33,8 @@ public interface KnowledgeStoreService extends KnowledgeStoreServiceCECompatible
     Mono<KnowledgeStore> addDSLToKnowledgeStore(KnowledgeStore knowledgeStore);
 
     Mono<KnowledgeStoreDownstreamDTO> sendPurgeRequestToCloudServer(KnowledgeStoreDownstreamDTO knowledgeStoreDTO);
+
+    Mono<KnowledgeStore> sendSuccessEvent(KnowledgeStore knowledgeStore);
+
+    Mono<KnowledgeStoreDownstreamDTO> sendFailureEvent(KnowledgeStoreDownstreamDTO knowledgeStoreDTO);
 }

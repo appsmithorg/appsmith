@@ -18,7 +18,7 @@ import type {
   EnvironmentType,
 } from "@appsmith/reducers/environmentReducer";
 import { ENVIRONMENT_QUERY_KEY } from "@appsmith/utils/Environments";
-import { datasourceEnvEnabled } from "@appsmith/selectors/featureFlagsSelectors";
+import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 import { PERMISSION_TYPE } from "@appsmith/utils/permissionHelpers";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import {
@@ -27,6 +27,8 @@ import {
   saveCurrentEnvironment,
 } from "utils/storage";
 import { getEnvironments } from "@appsmith/selectors/environmentSelectors";
+import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
+import { isMultipleEnvEnabled } from "@appsmith/utils/planHelpers";
 
 const fetchStoredEnv = (
   envs: EnvironmentType[],
@@ -90,8 +92,7 @@ function* FetchEnvironmentsInitSaga(action: ReduxAction<string>) {
           (env: EnvironmentType) => env.isDefault,
         );
 
-        // check if datasource env feature flag is enabled
-        const datasourceEnv: boolean = yield select(datasourceEnvEnabled);
+        const featureFlags: FeatureFlags = yield select(selectFeatureFlags);
 
         // if default env is present, use it as the selected env, else use the first env present
         const selectedEnv = defaultEnvironment
@@ -112,7 +113,7 @@ function* FetchEnvironmentsInitSaga(action: ReduxAction<string>) {
         if (!storedEnv) {
           // Save the current environment details in indexDb
           saveCurrentEnvironment(selectedEnv.id, appId);
-          if (datasourceEnv) {
+          if (isMultipleEnvEnabled(featureFlags)) {
             // Set new if there is no query param
             queryParams.set(
               ENVIRONMENT_QUERY_KEY,

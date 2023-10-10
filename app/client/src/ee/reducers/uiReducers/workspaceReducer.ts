@@ -15,14 +15,38 @@ import type {
   WorkspaceUserRoles,
 } from "@appsmith/constants/workspaceConstants";
 import { createImmerReducer } from "utils/ReducerUtils";
+import type {
+  PackageMetadata,
+  Package,
+} from "@appsmith/constants/PackageConstants";
+import type { CreatePackageFromWorkspacePayload } from "@appsmith/actions/packageActions";
 
 export const initialState: WorkspaceReduxState = {
   ...CE_initialState,
   groupSuggestions: [],
+
+  loadingStates: {
+    ...CE_initialState.loadingStates,
+    isFetchingPackagesList: false,
+    packageCreationRequestMap: {},
+  },
+  packagesList: [],
 };
 
-export interface WorkspaceReduxState extends CE_WorkspaceReduxState {
-  groupSuggestions: { id: string; name: string }[];
+type ID = string;
+
+type LoadingStates = CE_WorkspaceReduxState["loadingStates"] & {
+  isFetchingPackagesList: boolean;
+  packageCreationRequestMap: Record<ID, boolean>;
+};
+
+type FilteredCE_WorkspaceRedux = Omit<CE_WorkspaceReduxState, "loadingStates">;
+
+export type GroupSuggestions = { id: string; name: string };
+export interface WorkspaceReduxState extends FilteredCE_WorkspaceRedux {
+  groupSuggestions: GroupSuggestions[];
+  loadingStates: LoadingStates;
+  packagesList: PackageMetadata[];
 }
 
 const handlers = {
@@ -228,6 +252,57 @@ const handlers = {
     draftState: WorkspaceReduxState,
   ) => {
     draftState.groupSuggestions = [];
+  },
+  [ReduxActionTypes.FETCH_ALL_PACKAGES_INIT]: (
+    draftState: WorkspaceReduxState,
+  ) => {
+    draftState.loadingStates.isFetchingPackagesList = true;
+
+    return draftState;
+  },
+  [ReduxActionErrorTypes.FETCH_ALL_PACKAGES_ERROR]: (
+    draftState: WorkspaceReduxState,
+  ) => {
+    draftState.loadingStates.isFetchingPackagesList = false;
+
+    return draftState;
+  },
+  [ReduxActionTypes.FETCH_ALL_PACKAGES_SUCCESS]: (
+    draftState: WorkspaceReduxState,
+    action: ReduxAction<PackageMetadata[]>,
+  ) => {
+    draftState.loadingStates.isFetchingPackagesList = false;
+
+    draftState.packagesList = action.payload || [];
+
+    return draftState;
+  },
+  [ReduxActionTypes.CREATE_PACKAGE_FROM_WORKSPACE_INIT]: (
+    draftState: WorkspaceReduxState,
+    action: ReduxAction<CreatePackageFromWorkspacePayload>,
+  ) => {
+    const { workspaceId } = action.payload;
+    draftState.loadingStates.packageCreationRequestMap[workspaceId] = true;
+
+    return draftState;
+  },
+  [ReduxActionTypes.CREATE_PACKAGE_FROM_WORKSPACE_SUCCESS]: (
+    draftState: WorkspaceReduxState,
+    action: ReduxAction<Package>,
+  ) => {
+    const { workspaceId } = action.payload;
+    draftState.loadingStates.packageCreationRequestMap[workspaceId] = false;
+
+    return draftState;
+  },
+  [ReduxActionErrorTypes.CREATE_PACKAGE_FROM_WORKSPACE_ERROR]: (
+    draftState: WorkspaceReduxState,
+    action: ReduxAction<{ workspaceId: string }>,
+  ) => {
+    const { workspaceId } = action.payload;
+    draftState.loadingStates.packageCreationRequestMap[workspaceId] = false;
+
+    return draftState;
   },
 };
 

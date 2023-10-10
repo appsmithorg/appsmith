@@ -3,6 +3,7 @@ package com.appsmith.server.services.ce_compatible;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.SessionLimiterService;
 import com.appsmith.server.services.SessionUserService;
@@ -11,6 +12,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -22,8 +24,6 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
-
-import static org.mockito.ArgumentMatchers.any;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -44,7 +44,8 @@ public class SessionLimiterServiceCECompatibleTest {
 
     @BeforeEach
     public void setup() {
-        Mockito.when(featureFlagService.check(any())).thenReturn(Mono.just(false));
+        Mockito.when(featureFlagService.check(ArgumentMatchers.eq(FeatureFlagEnum.license_session_limit_enabled)))
+                .thenReturn(Mono.just(false));
     }
 
     @Test
@@ -56,6 +57,28 @@ public class SessionLimiterServiceCECompatibleTest {
         StepVerifier.create(tenantConfigurationMono)
                 .assertNext(tenantConfiguration1 -> {
                     Assertions.assertNull(tenantConfiguration1.getSingleSessionPerUserEnabled());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testGetTenantConfiguration_setSingleSessionPerUser() {
+        Mockito.when(featureFlagService.check(ArgumentMatchers.eq(FeatureFlagEnum.license_session_limit_enabled)))
+                .thenReturn(Mono.just(true));
+        TenantConfiguration tenantConfiguration = new TenantConfiguration();
+        tenantConfiguration.setSingleSessionPerUserEnabled(true);
+
+        sessionLimiterService.updateTenantConfiguration(tenantConfiguration).block();
+
+        // disable single session per user
+        Mockito.when(featureFlagService.check(ArgumentMatchers.eq(FeatureFlagEnum.license_session_limit_enabled)))
+                .thenReturn(Mono.just(false));
+
+        Mono<TenantConfiguration> tenantConfigurationMono =
+                sessionLimiterService.getTenantConfiguration(tenantConfiguration);
+        StepVerifier.create(tenantConfigurationMono)
+                .assertNext(tenantConfiguration1 -> {
+                    Assertions.assertFalse(tenantConfiguration1.getSingleSessionPerUserEnabled());
                 })
                 .verifyComplete();
     }

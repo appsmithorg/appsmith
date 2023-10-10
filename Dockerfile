@@ -15,11 +15,8 @@ RUN apt-get update \
   && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends --yes \
     supervisor curl cron nfs-common nginx nginx-extras gnupg wget netcat openssh-client \
     gettext \
-    python3-pip python3-venv git ca-certificates-java \
+    python3-pip python3-venv git ca-certificates \
     gawk \
-  && wget -O - https://packages.adoptium.net/artifactory/api/gpg/key/public | apt-key add - \
-  && echo "deb https://packages.adoptium.net/artifactory/deb $(awk -F= '/^VERSION_CODENAME/{print$2}' /etc/os-release) main" | tee /etc/apt/sources.list.d/adoptium.list \
-  && apt-get update && apt-get install --no-install-recommends --yes temurin-17-jdk \
   && pip install --no-cache-dir git+https://github.com/coderanger/supervisor-stdout@973ba19967cdaf46d9c1634d1675fc65b9574f6e \
   && python3 -m venv --prompt certbot /opt/certbot/venv \
   && /opt/certbot/venv/bin/pip install --upgrade certbot setuptools pip \
@@ -34,14 +31,22 @@ RUN curl --silent --show-error --location https://www.mongodb.org/static/pgp/ser
   && echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" | tee /etc/apt/sources.list.d/pgdg.list \
   && curl --silent --show-error --location https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - \
   && apt update \
-  && apt-get install --no-install-recommends --yes mongodb-org nodejs redis build-essential postgresql-13 \
+  && apt-get install --no-install-recommends --yes mongodb-org nodejs redis postgresql-13 \
   && apt-get clean \
   # This is to get semver 7.5.2, for a CVE fix, might be able to remove it with later versions on NodeJS.
   && npm install -g npm@9.7.2
 
+# Install Java
+RUN set -o xtrace \
+  && mkdir -p /opt/java \
+  # Assets from https://github.com/adoptium/temurin17-binaries/releases
+  && version="$(curl --write-out '%{redirect_url}' 'https://github.com/adoptium/temurin17-binaries/releases/latest' | sed 's,.*jdk-,,')" \
+  && curl --location --output /tmp/java.tar.gz "https://github.com/adoptium/temurin17-binaries/releases/download/jdk-$version/OpenJDK17U-jdk_$(uname -m | sed s/x86_64/x64/)_linux_hotspot_$(echo $version | tr + _).tar.gz" \
+  && tar -xzf /tmp/java.tar.gz -C /opt/java --strip-components 1
+
 # Untar & install keycloak - Service Layer
 RUN mkdir -p /opt/keycloak/data \
-  && curl --location --output /tmp/keycloak.tar.gz https://github.com/keycloak/keycloak/releases/download/22.0.1/keycloak-22.0.1.tar.gz \
+  && curl --location --output /tmp/keycloak.tar.gz https://github.com/keycloak/keycloak/releases/download/22.0.4/keycloak-22.0.4.tar.gz \
   && tar -C /opt/keycloak -zxvf /tmp/keycloak.tar.gz --strip-components 1 \
   && curl --location --output "/opt/h2-2.1.214.jar" 'https://search.maven.org/remotecontent?filepath=com/h2database/h2/2.1.214/h2-2.1.214.jar'
 
@@ -60,7 +65,8 @@ RUN rm -rf \
 VOLUME [ "/appsmith-stacks" ]
 
 # ------------------------------------------------------------------------
-ENV TMP /tmp/appsmith
+ENV TMP="/tmp/appsmith"
+ENV NGINX_WWW_PATH="$TMP/www"
 
 # Add backend server - Application Layer
 ARG JAR_FILE=./app/server/dist/server-*.jar
@@ -90,16 +96,17 @@ COPY ${PLUGIN_JARS} backend/plugins/
 COPY ${APPSMITH_CLIENT_BUILD_PATH} editor/
 
 # Add RTS - Application Layer
-COPY ./app/client/packages/rts/package.json ./app/client/packages/rts/dist rts/
+COPY ./app/client/packages/rts/dist rts/
 
 RUN cd ./utils && npm install --only=prod && npm install --only=prod -g . && cd - \
   && chmod 0644 /etc/cron.d/* \
-  && chmod +x entrypoint.sh renew-certificate.sh healthcheck.sh /watchtower-hooks/*.sh \
+  && chmod +x entrypoint.sh renew-certificate.sh healthcheck.sh templates/nginx-app.conf.sh /watchtower-hooks/*.sh \
   # Disable setuid/setgid bits for the files inside container.
-  && find / \( -path /proc -prune \) -o \( \( -perm -2000 -o -perm -4000 \) -print -exec chmod -s '{}' + \) || true
+  && find / \( -path /proc -prune \) -o \( \( -perm -2000 -o -perm -4000 \) -print -exec chmod -s '{}' + \) || true \
+  && node prepare-image.mjs
 
-# Update path to load appsmith utils tool as default
-ENV PATH /opt/appsmith/utils/node_modules/.bin:$PATH
+ENV PATH /opt/appsmith/utils/node_modules/.bin:/opt/java/bin:$PATH
+
 LABEL com.centurylinklabs.watchtower.lifecycle.pre-check=/watchtower-hooks/pre-check.sh
 LABEL com.centurylinklabs.watchtower.lifecycle.pre-update=/watchtower-hooks/pre-update.sh
 

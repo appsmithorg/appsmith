@@ -61,30 +61,32 @@ export const INVITE_USERS_MESSAGE = (cloudHosting?: boolean) =>
   cloudHosting
     ? createMessage(CE_INVITE_USERS_MESSAGE)
     : `Invite users or groups`;
-export const INVITE_USERS_PLACEHOLDER = (cloudHosting?: boolean) =>
-  cloudHosting
+export const INVITE_USERS_PLACEHOLDER = (isFreeInstance?: boolean) =>
+  isFreeInstance
     ? createMessage(CE_INVITE_USERS_PLACEHOLDER)
     : `Enter email address(es) or group(s)`;
-export const INVITE_USERS_VALIDATION_EMAIL_LIST = (cloudHosting?: boolean) =>
-  cloudHosting
+export const INVITE_USERS_VALIDATION_EMAIL_LIST = (isFreeInstance?: boolean) =>
+  isFreeInstance
     ? createMessage(CE_INVITE_USERS_VALIDATION_EMAIL_LIST)
     : `Invalid email address(es) or group(s) found`;
-export const MEMBERS_TAB_TITLE = (length: number, cloudHosting?: boolean) =>
-  cloudHosting
+export const MEMBERS_TAB_TITLE = (length: number, isFreeInstance?: boolean) =>
+  isFreeInstance
     ? createMessage(CE_MEMBERS_TAB_TITLE, length)
     : `Users / User Groups (${length})`;
-export const SEARCH_USERS = (cloudHosting?: boolean) =>
-  cloudHosting ? createMessage(CE_SEARCH_USERS) : `Search for users or groups`;
-export const INVITE_USERS_SUBMIT_SUCCESS = (cloudHosting?: boolean) =>
-  cloudHosting
+export const SEARCH_USERS = (isFreeInstance?: boolean) =>
+  isFreeInstance
+    ? createMessage(CE_SEARCH_USERS)
+    : `Search for users or groups`;
+export const INVITE_USERS_SUBMIT_SUCCESS = (isFreeInstance?: boolean) =>
+  isFreeInstance
     ? createMessage(CE_INVITE_USERS_SUBMIT_SUCCESS)
     : `The users/groups have been invited successfully`;
-export const INVITE_USER_SUBMIT_SUCCESS = (cloudHosting?: boolean) =>
-  cloudHosting
+export const INVITE_USER_SUBMIT_SUCCESS = (isFreeInstance?: boolean) =>
+  isFreeInstance
     ? createMessage(CE_INVITE_USER_SUBMIT_SUCCESS)
     : `The user/group have been invited successfully`;
-export const APPLICATION_INVITE = (name: string, cloudHosting?: boolean) =>
-  cloudHosting ? CE_APPLICATION_INVITE(name) : "Application invite";
+export const APPLICATION_INVITE = (name: string, isFreeInstance?: boolean) =>
+  isFreeInstance ? CE_APPLICATION_INVITE(name) : "Application invite";
 export const EVENT_GROUP_ADD_USER_TOP_BAR = () =>
   "Group details page > Top bar";
 export const EVENT_GROUP_ADD_USER_EMPTY_STATE = () =>
@@ -282,3 +284,14 @@ export const LOGO_DIFFERENT_TOOLTIP = () =>
   "Logo is different from the brand logo set.";
 export const RESET_LOGO_TOOLTIP = () => "Reset logo";
 // Provisioning end
+
+// Modules start
+export const SEARCH_APPS_AND_PACKAGES = () => "Search for apps or packages";
+export const WORKSPACE_ACTION_BUTTON = () => "Create new";
+export const NEW_PACKAGE = () => "New package";
+export const NEW_APP = () => "New app";
+export const EMPTY_PACKAGE_LIST = () => "No packages found";
+export const FETCH_PACKAGES_ERROR = () => "Failed to fetch Packages";
+export const FETCH_PACKAGE_ERROR = () => "Failed to fetch Package";
+export const CREATE_PACKAGE_ERROR = () => "Failed to create package";
+// Modules end

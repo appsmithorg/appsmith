@@ -16,24 +16,40 @@ import static com.appsmith.server.acl.AclPermission.CREATE_USER_GROUPS;
 import static com.appsmith.server.acl.AclPermission.DELETE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.DELETE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.DELETE_DATASOURCES;
+import static com.appsmith.server.acl.AclPermission.DELETE_MODULES;
+import static com.appsmith.server.acl.AclPermission.DELETE_MODULE_INSTANCES;
+import static com.appsmith.server.acl.AclPermission.DELETE_PACKAGES;
 import static com.appsmith.server.acl.AclPermission.DELETE_PAGES;
 import static com.appsmith.server.acl.AclPermission.DELETE_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.DELETE_USERS;
 import static com.appsmith.server.acl.AclPermission.DELETE_USER_GROUPS;
+import static com.appsmith.server.acl.AclPermission.DELETE_WORKSPACES;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
+import static com.appsmith.server.acl.AclPermission.EXECUTE_MODULES;
+import static com.appsmith.server.acl.AclPermission.EXECUTE_MODULE_INSTANCES;
 import static com.appsmith.server.acl.AclPermission.EXPORT_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.EXPORT_PACKAGES;
 import static com.appsmith.server.acl.AclPermission.INVITE_USERS_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MAKE_PUBLIC_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
+import static com.appsmith.server.acl.AclPermission.MANAGE_MODULES;
+import static com.appsmith.server.acl.AclPermission.MANAGE_MODULE_INSTANCES;
+import static com.appsmith.server.acl.AclPermission.MANAGE_PACKAGES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_USER_GROUPS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_WORKSPACES;
+import static com.appsmith.server.acl.AclPermission.PACKAGE_CREATE_MODULES;
+import static com.appsmith.server.acl.AclPermission.PAGE_CREATE_MODULE_INSTANCES;
 import static com.appsmith.server.acl.AclPermission.PAGE_CREATE_PAGE_ACTIONS;
+import static com.appsmith.server.acl.AclPermission.PUBLISH_PACKAGES;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_DATASOURCES;
+import static com.appsmith.server.acl.AclPermission.READ_MODULES;
+import static com.appsmith.server.acl.AclPermission.READ_MODULE_INSTANCES;
+import static com.appsmith.server.acl.AclPermission.READ_PACKAGES;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.READ_USERS;
@@ -54,13 +70,19 @@ import static com.appsmith.server.acl.AclPermission.TENANT_REMOVE_USER_FROM_ALL_
 import static com.appsmith.server.acl.AclPermission.TENANT_UNASSIGN_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.UNASSIGN_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_CREATE_DATASOURCE;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_CREATE_PACKAGE;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_DATASOURCE_CREATE_DATASOURCE_ACTIONS;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_DELETE_PACKAGES;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_EXECUTE_DATASOURCES;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_EXPORT_PACKAGES;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_INVITE_USERS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_MAKE_PUBLIC_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_MANAGE_DATASOURCES;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_MANAGE_PACKAGES;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_PUBLISH_PACKAGES;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_READ_DATASOURCES;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_READ_PACKAGES;
 
 @Component
 public class PolicyGenerator extends PolicyGeneratorCE {
@@ -72,6 +94,9 @@ public class PolicyGenerator extends PolicyGeneratorCE {
         createTenantPolicyGraph();
         createAuditLogPolicyGraph();
         createUserGroupPolicies();
+        createPackagePolicyGraph();
+        createModulePolicyGraph();
+        createModuleInstancePolicyGraph();
     }
 
     protected void createEnvironmentPolicyGraph() {
@@ -153,6 +178,20 @@ public class PolicyGenerator extends PolicyGeneratorCE {
         super.createWorkspacePolicyGraph();
 
         lateralGraph.addEdge(WORKSPACE_MAKE_PUBLIC_APPLICATIONS, WORKSPACE_READ_APPLICATIONS);
+
+        lateralGraph.addEdge(MANAGE_WORKSPACES, WORKSPACE_MANAGE_PACKAGES);
+        lateralGraph.addEdge(MANAGE_WORKSPACES, WORKSPACE_READ_PACKAGES);
+        lateralGraph.addEdge(MANAGE_WORKSPACES, WORKSPACE_PUBLISH_PACKAGES);
+
+        lateralGraph.addEdge(WORKSPACE_CREATE_PACKAGE, WORKSPACE_MANAGE_PACKAGES);
+        lateralGraph.addEdge(WORKSPACE_CREATE_PACKAGE, WORKSPACE_DELETE_PACKAGES);
+
+        lateralGraph.addEdge(WORKSPACE_MANAGE_PACKAGES, WORKSPACE_READ_PACKAGES);
+
+        lateralGraph.addEdge(WORKSPACE_DELETE_PACKAGES, WORKSPACE_READ_PACKAGES);
+        lateralGraph.addEdge(WORKSPACE_EXPORT_PACKAGES, WORKSPACE_READ_PACKAGES);
+
+        lateralGraph.addEdge(DELETE_WORKSPACES, WORKSPACE_DELETE_PACKAGES);
     }
 
     @Override
@@ -175,6 +214,8 @@ public class PolicyGenerator extends PolicyGeneratorCE {
     @Override
     protected void createPagePolicyGraph() {
         super.createPagePolicyGraph();
+
+        hierarchyGraph.addEdge(APPLICATION_CREATE_PAGES, PAGE_CREATE_MODULE_INSTANCES);
 
         lateralGraph.addEdge(PAGE_CREATE_PAGE_ACTIONS, MANAGE_PAGES);
         lateralGraph.addEdge(PAGE_CREATE_PAGE_ACTIONS, READ_PAGES);
@@ -213,6 +254,40 @@ public class PolicyGenerator extends PolicyGeneratorCE {
         hierarchyGraph.addEdge(TENANT_READ_ALL_USERS, READ_USERS);
 
         lateralGraph.addEdge(DELETE_USERS, READ_USERS);
+    }
+
+    protected void createPackagePolicyGraph() {
+        hierarchyGraph.addEdge(WORKSPACE_MANAGE_PACKAGES, MANAGE_PACKAGES);
+        hierarchyGraph.addEdge(WORKSPACE_READ_PACKAGES, READ_PACKAGES);
+        hierarchyGraph.addEdge(WORKSPACE_PUBLISH_PACKAGES, PUBLISH_PACKAGES);
+        hierarchyGraph.addEdge(WORKSPACE_EXPORT_PACKAGES, EXPORT_PACKAGES);
+        hierarchyGraph.addEdge(WORKSPACE_CREATE_PACKAGE, PACKAGE_CREATE_MODULES);
+        hierarchyGraph.addEdge(WORKSPACE_DELETE_PACKAGES, DELETE_PACKAGES);
+
+        // If the user is being given MANAGE_PACKAGES permission, they must also be given READ_PACKAGES perm
+        lateralGraph.addEdge(MANAGE_PACKAGES, READ_PACKAGES);
+        lateralGraph.addEdge(DELETE_PACKAGES, READ_PACKAGES);
+    }
+
+    protected void createModulePolicyGraph() {
+        hierarchyGraph.addEdge(MANAGE_PACKAGES, MANAGE_MODULES);
+        hierarchyGraph.addEdge(READ_PACKAGES, READ_MODULES);
+        hierarchyGraph.addEdge(DELETE_PACKAGES, DELETE_MODULES);
+
+        lateralGraph.addEdge(MANAGE_MODULES, READ_MODULES);
+        lateralGraph.addEdge(MANAGE_MODULES, EXECUTE_MODULES);
+        lateralGraph.addEdge(READ_MODULES, EXECUTE_MODULES);
+        lateralGraph.addEdge(DELETE_MODULES, READ_MODULES);
+    }
+
+    protected void createModuleInstancePolicyGraph() {
+        hierarchyGraph.addEdge(MANAGE_PAGES, MANAGE_MODULE_INSTANCES);
+        hierarchyGraph.addEdge(READ_PAGES, READ_MODULE_INSTANCES);
+        hierarchyGraph.addEdge(DELETE_PAGES, DELETE_MODULE_INSTANCES);
+
+        lateralGraph.addEdge(MANAGE_MODULE_INSTANCES, READ_MODULE_INSTANCES);
+        lateralGraph.addEdge(MANAGE_MODULE_INSTANCES, EXECUTE_MODULE_INSTANCES);
+        lateralGraph.addEdge(READ_MODULE_INSTANCES, EXECUTE_MODULE_INSTANCES);
     }
 
     public Set<AclPermission> getLateralPermissions(

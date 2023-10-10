@@ -8,6 +8,7 @@ const aws = require('./aws');
 
 const utils = require('./utils');
 const Constants = require('./constants');
+const {getCurrentAppsmithVersion} = require("./utils")
 
 async function getBackupFileName(){
   const backupFiles = await utils.listLocalBackupFiles();
@@ -121,8 +122,7 @@ async function restoreGitStorageArchive(restoreContentsPath, backupName) {
 }
 
 async function checkRestoreVersionCompatability(restoreContentsPath) {
-  const content = await fsPromises.readFile('/opt/appsmith/rts/version.js', { encoding: 'utf8' });
-  const currentVersion = content.match(/\bexports\.VERSION\s*=\s*["']([^"]+)["']/)[1];
+  const currentVersion = await getCurrentAppsmithVersion();
   const manifest_data = await fsPromises.readFile(restoreContentsPath + '/manifest.json', { encoding: 'utf8' });
   const manifest_json = JSON.parse(manifest_data);
   const restoreVersion = manifest_json["appsmithVersion"];

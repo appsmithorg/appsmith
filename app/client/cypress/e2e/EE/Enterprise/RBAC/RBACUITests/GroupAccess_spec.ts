@@ -1,3 +1,4 @@
+import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
 import {
   homePage,
   agHelper,
@@ -95,6 +96,9 @@ describe("Create group, check if users in group has group roles accessess", func
       Cypress.env("TESTPASSWORD1"),
       "App Viewer",
     );
+    cy.wait(5000);
+    featureFlagIntercept({ license_gac_enabled: true });
+    cy.wait(5000);
     homePage.SearchAndOpenApp(appName);
     entityExplorer.SelectEntityByName("Page1", "Pages");
     entityExplorer.DragNDropWidget("checkboxwidget");

@@ -4,6 +4,7 @@ import ScimGateway from "scimgateway/lib/scimgateway";
 import http from "http";
 import https from "https";
 import HttpsProxyAgent from "https-proxy-agent";
+import * as fs from "fs";
 import querystring from "querystring";
 import { getUsers } from "./handlers/users/getUsers";
 import { createUser } from "./handlers/users/createUser";
@@ -18,9 +19,15 @@ import { NO_RESPONSE_ERROR, createMessage } from "@scim/constants/messages";
 export const scimGateway: ScimGateway = new ScimGateway();
 scimGateway.authPassThroughAllowed = true;
 export const pluginName = "plugin-scim";
-export const configFile = "../config/plugin-scim.json";
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-export const config: any = require(configFile).endpoint;
+
+export const configFile = [
+  "/opt/appsmith/rts/config/server.json", // in the Appsmith Docker container.
+  "./src/scim/config/plugin-scim.json",
+].find(fs.existsSync);
+
+export const config: any = JSON.parse(
+  fs.readFileSync(configFile, "utf-8"),
+).endpoint;
 const _serviceClient: any = {};
 
 export const USER_PROVISION_ENDPOINT = "/users";

@@ -12,6 +12,7 @@ import auditLogslocators from "../../../../../locators/AuditLogsLocators";
 const AppNavigation = require("../../../../../locators/AppNavigation.json");
 const RBAC = require("../../../../../locators/RBAClocators.json");
 const Explorer = require("../../../../../locators/explorerlocators.json");
+import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
 let workspaceId, appid;
 
 describe("Create new workspace and invite group & validate all roles", () => {
@@ -34,10 +35,14 @@ describe("Create new workspace and invite group & validate all roles", () => {
 
   it("1. Create new Workspace, Share App Viewer workspace level access with a group", () => {
     homePage.NavigateToHome();
+    featureFlagIntercept({ license_gac_enabled: true });
+    cy.wait(2000);
+
     agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {
       workspaceId = uid;
       appid = uid;
+
       homePage.CreateNewWorkspace(workspaceId);
       homePage.CheckWorkspaceShareUsersCount(workspaceId, 1);
       agHelper.VisitNAssert("/applications", "getReleaseItems");
@@ -65,8 +70,11 @@ describe("Create new workspace and invite group & validate all roles", () => {
 
   it("2. Share Developer application level access with group", () => {
     homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+    featureFlagIntercept({ license_gac_enabled: true });
+    cy.wait(3000);
     homePage.NavigateToHome();
     homePage.FilterApplication(appid, workspaceId);
+
     cy.get(homePage._applicationCard).first().trigger("mouseover");
     agHelper.AssertElementExist(homePage._appHoverIcon("edit"));
     agHelper.GetNClick(homePage._appHoverIcon("edit"));
@@ -96,6 +104,8 @@ describe("Create new workspace and invite group & validate all roles", () => {
       Cypress.env("TESTPASSWORD1"),
       "App Viewer",
     );
+    featureFlagIntercept({ license_gac_enabled: true });
+    cy.wait(2000);
     cy.get(homePageLocators.searchInput).type(appid);
     agHelper.Sleep(2000);
     cy.get(homePageLocators.appsContainer).contains(workspaceId);
@@ -132,6 +142,10 @@ describe("Create new workspace and invite group & validate all roles", () => {
 
   it("4. Login as Administrator and change workspace level access for group to App Viewer and verify", () => {
     homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+
+    featureFlagIntercept({ license_gac_enabled: true });
+    cy.wait(3000);
+
     homePage.FilterApplication(appid, workspaceId);
     homePage.UpdateUserRoleInWorkspace(
       workspaceId,
@@ -148,6 +162,9 @@ describe("Create new workspace and invite group & validate all roles", () => {
       Cypress.env("TESTPASSWORD1"),
       "App Viewer",
     );
+    featureFlagIntercept({ license_gac_enabled: true });
+    cy.wait(3000);
+
     cy.get(homePageLocators.searchInput).type(appid);
     agHelper.Sleep(2000);
     cy.get(homePageLocators.appsContainer).contains(workspaceId);
@@ -184,6 +201,9 @@ describe("Create new workspace and invite group & validate all roles", () => {
 
   it("6. Login as Administrator and delete workspace level role for group", () => {
     homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+    featureFlagIntercept({ license_gac_enabled: true });
+    cy.wait(3000);
+
     homePage.DeleteUserFromWorkspace(appid, workspaceId, GroupName);
     agHelper.ClearNType(homePage._searchUsersInput, GroupName);
     cy.get(RBAC.searchHighlight).should("exist").contains(GroupName);
@@ -201,6 +221,9 @@ describe("Create new workspace and invite group & validate all roles", () => {
       Cypress.env("TESTPASSWORD1"),
       "App Viewer",
     );
+    featureFlagIntercept({ license_gac_enabled: true });
+    cy.wait(3000);
+
     cy.get(homePageLocators.searchInput).type(appid);
     agHelper.Sleep(2000);
     cy.get(homePageLocators.appsContainer).contains(workspaceId);
@@ -221,6 +244,8 @@ describe("Create new workspace and invite group & validate all roles", () => {
     agHelper.Sleep(2000);
     deployMode.DeployApp();
     deployMode.NavigateBacktoEditor();
+    featureFlagIntercept({ license_gac_enabled: true });
+    cy.wait(3000);
     agHelper.Sleep(2000);
     agHelper.ClickButton("Share");
     agHelper.Sleep();
@@ -246,7 +271,11 @@ describe("Create new workspace and invite group & validate all roles", () => {
 
   it("8. Login as Administrator and change app level access for group to App Viewer and verify", () => {
     homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+    featureFlagIntercept({ license_gac_enabled: true });
+    cy.wait(3000);
+
     homePage.FilterApplication(appid, workspaceId);
+
     agHelper.GetNClick(homePageLocators.optionsIcon);
     agHelper.GetNClick(homePage._visibleTextSpan("Members"));
     agHelper.TypeText(homePage._searchUsersInput, GroupName);
@@ -292,7 +321,11 @@ describe("Create new workspace and invite group & validate all roles", () => {
 
   it("9. Login as Administrator and delete app level access for group", () => {
     homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+    featureFlagIntercept({ license_gac_enabled: true });
+    cy.wait(3000);
+
     homePage.FilterApplication(appid, workspaceId);
+
     agHelper.GetNClick(homePageLocators.optionsIcon);
     agHelper.GetNClick(homePage._visibleTextSpan("Members"));
     agHelper.TypeText(homePage._searchUsersInput, GroupName);

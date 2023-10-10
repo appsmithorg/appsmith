@@ -8,8 +8,7 @@ import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import { generateAssistiveBindingCommands } from "./assistiveBindingCommands";
 import type { Datasource } from "entities/Datasource";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import type { DataTree } from "entities/DataTree/dataTreeFactory";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE_VALUE } from "entities/DataTree/dataTreeFactory";
 import type { SlashCommandPayload } from "entities/Action";
 import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
 import type {
@@ -20,9 +19,8 @@ import type {
 const PARTIAL_BINDING = "{}";
 
 export const assistiveBindingHinter: HintHelper = (
-  editor,
-  data: DataTree,
-  entitiesForNavigation?: EntityNavigationData,
+  _,
+  entitiesForNavigation: EntityNavigationData,
 ) => {
   const entitiesForSuggestions: NavigationData[] = Object.values(
     entitiesForNavigation || {},
@@ -51,7 +49,8 @@ export const assistiveBindingHinter: HintHelper = (
       // @ts-expect-error: Types are not available
       editor.closeHint();
       const currentEntityName = entityInfo.entityName;
-      const currentEntityType = entityInfo.entityType || ENTITY_TYPE.WIDGET;
+      const currentEntityType =
+        entityInfo.entityType || ENTITY_TYPE_VALUE.WIDGET;
       const expectedType =
         entityInfo.expectedType || AutocompleteDataType.UNKNOWN;
 

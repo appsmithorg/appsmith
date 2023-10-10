@@ -12,6 +12,8 @@ export type FieldProps = Omit<
   | "necessityIndicator"
   | "isRequired"
   | "showErrorIcon"
+  | "labelPosition"
+  | "labelAlign"
   | keyof StyleProps
 > & {
   fieldType?: "field" | "field-group";
@@ -25,10 +27,8 @@ const _Field = (props: FieldProps, ref: FieldRef) => {
     elementType,
     errorMessage,
     errorMessageProps = {},
-    isDisabled,
+    isDisabled = false,
     label,
-    labelAlign,
-    labelPosition = "top",
     labelProps,
     validationState,
     wrapperClassName,
@@ -39,7 +39,8 @@ const _Field = (props: FieldProps, ref: FieldRef) => {
     fieldType = "field",
   } = props;
   const hasHelpText =
-    !!description || (errorMessage && validationState === "invalid");
+    Boolean(description) ||
+    (Boolean(errorMessage) && validationState === "invalid");
 
   const renderHelpText = () => {
     return (
@@ -56,17 +57,12 @@ const _Field = (props: FieldProps, ref: FieldRef) => {
 
   const labelAndContextualHelp = (
     <div data-field-label-wrapper="">
-      {label && (
-        <Label
-          {...labelProps}
-          elementType={elementType}
-          labelAlign={labelAlign}
-          labelPosition={labelPosition}
-        >
+      {Boolean(label) && (
+        <Label {...labelProps} elementType={elementType}>
           {label}
         </Label>
       )}
-      {label && contextualHelp}
+      {Boolean(label) && contextualHelp}
     </div>
   );
 
@@ -74,11 +70,9 @@ const _Field = (props: FieldProps, ref: FieldRef) => {
     <div
       {...wrapperProps}
       className={wrapperClassName}
-      data-align={labelAlign}
       data-disabled={isDisabled ? "" : undefined}
       data-field=""
       data-field-type={fieldType}
-      data-position={labelPosition}
       ref={ref}
     >
       {labelAndContextualHelp}
