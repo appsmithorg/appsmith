@@ -269,9 +269,6 @@ class FormWidget extends ContainerWidget {
 
   static getAutoLayoutConfig() {
     return {
-      autoDimension: {
-        height: true,
-      },
       widgetSize: [
         {
           viewportMinWidth: 0,

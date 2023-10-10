@@ -27,7 +27,7 @@ class AppViewerLoader extends React.PureComponent<Props, { Page: any }> {
   componentDidMount() {
     this.initialize();
     retryPromise(
-      () => import(/* webpackChunkName: "AppViewer" */ "./index"),
+      async () => import(/* webpackChunkName: "AppViewer" */ "./index"),
     ).then((module) => {
       this.setState({ Page: module.default });
     });

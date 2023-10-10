@@ -30,7 +30,9 @@ const _Label = (props: LabelProps, ref: DOMRef<HTMLLabelElement>) => {
     <ElementType
       data-field-label=""
       {...filterDOMProps(otherProps)}
-      htmlFor={ElementType === "label" ? labelFor || htmlFor : undefined}
+      htmlFor={
+        ElementType === "label" ? Boolean(labelFor) || htmlFor : undefined
+      }
       onClick={onClick}
       ref={domRef}
     >

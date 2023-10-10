@@ -423,7 +423,7 @@ export interface WidgetBaseProps {
   isMobile?: boolean;
   hasAutoHeight?: boolean;
   hasAutoWidth?: boolean;
-  widgetSize?: { [key: string]: Record<string, string | number> };
+  widgetSize?: { [key: string]: Record<string, string> };
 }
 
 export type WidgetRowCols = {

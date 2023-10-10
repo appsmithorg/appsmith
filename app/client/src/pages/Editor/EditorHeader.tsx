@@ -221,9 +221,9 @@ const SidebarNavButton = styled(Button)`
   }
 `;
 
-const GlobalSearch = lazy(() => {
+const GlobalSearch = lazy(async () => {
   return retryPromise(
-    () =>
+    async () =>
       import(
         /* webpackChunkName: "global-search" */ "components/editorComponents/GlobalSearch"
       ),

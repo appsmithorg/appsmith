@@ -22,7 +22,7 @@ import { Colors } from "constants/Colors";
 import { importRemixIcon } from "design-system-old";
 
 const DeleteIcon = importRemixIcon(
-  () => import("remixicon-react/DeleteBinLineIcon"),
+  async () => import("remixicon-react/DeleteBinLineIcon"),
 );
 
 /**
