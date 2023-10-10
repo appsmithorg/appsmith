@@ -25,7 +25,7 @@ import { importSvg } from "design-system-old";
 import { CANVAS_ART_BOARD } from "constants/componentClassNameConstants";
 
 const DragHandleIcon = importSvg(
-  () => import("assets/icons/ads/app-icons/draghandler.svg"),
+  async () => import("assets/icons/ads/app-icons/draghandler.svg"),
 );
 
 const DragBlock = styled.div`

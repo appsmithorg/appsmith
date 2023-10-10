@@ -37,8 +37,10 @@ import IconSVG from "../icon.svg";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 import { EChartsDatasetBuilder } from "../component/EChartsDatasetBuilder";
 
-const ChartComponent = lazy(() =>
-  retryPromise(() => import(/* webpackChunkName: "charts" */ "../component")),
+const ChartComponent = lazy(async () =>
+  retryPromise(
+    async () => import(/* webpackChunkName: "charts" */ "../component"),
+  ),
 );
 
 export const emptyChartData = (props: ChartWidgetProps) => {
