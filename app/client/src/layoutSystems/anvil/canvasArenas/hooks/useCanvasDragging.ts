@@ -4,9 +4,9 @@ import { useEffect } from "react";
 import { getNearestParentCanvas } from "utils/generators";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 import type {
-  AnvilCanvasDraggingArenaProps,
+  HighlightingCanvasProps,
   RenderedBlockOnCanvas,
-} from "../AnvilCanvasDraggingArena";
+} from "../HighlightingCanvas";
 import { useCanvasDragToScroll } from "layoutSystems/common/canvasArenas/useCanvasDragToScroll";
 import { Colors } from "constants/Colors";
 import { useAnvilDnDStates } from "./useAnvilDnDStates";
@@ -14,7 +14,7 @@ import { useAnvilDnDStates } from "./useAnvilDnDStates";
 export const useCanvasDragging = (
   slidingArenaRef: React.RefObject<HTMLDivElement>,
   stickyCanvasRef: React.RefObject<HTMLCanvasElement>,
-  { onDrop, renderOnMouseMove, widgetId }: AnvilCanvasDraggingArenaProps,
+  { onDrop, renderOnMouseMove, widgetId }: HighlightingCanvasProps,
 ) => {
   const {
     isChildOfCanvas,
