@@ -77,8 +77,8 @@ import type {
 } from "WidgetProvider/constants";
 import IconSVG from "../icon.svg";
 
-const ReactTableComponent = lazy(() =>
-  retryPromise(() => import("../component")),
+const ReactTableComponent = lazy(async () =>
+  retryPromise(async () => import("../component")),
 );
 const defaultFilter = [
   {

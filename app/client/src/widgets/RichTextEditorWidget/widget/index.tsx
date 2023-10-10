@@ -36,8 +36,10 @@ export enum RTEFormats {
   MARKDOWN = "markdown",
   HTML = "html",
 }
-const RichTextEditorComponent = lazy(() =>
-  retryPromise(() => import(/* webpackChunkName: "rte" */ "../component")),
+const RichTextEditorComponent = lazy(async () =>
+  retryPromise(
+    async () => import(/* webpackChunkName: "rte" */ "../component"),
+  ),
 );
 
 const converter = new showdown.Converter();

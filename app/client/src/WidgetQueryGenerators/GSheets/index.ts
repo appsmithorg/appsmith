@@ -9,6 +9,7 @@ import type {
 } from "WidgetQueryGenerators/types";
 import { removeSpecialChars } from "utils/helpers";
 import { DatasourceConnectionMode } from "entities/Datasource";
+import type { DatasourceStorage } from "entities/Datasource";
 
 enum COMMAND_TYPES {
   "FIND" = "FETCH_MANY",
@@ -47,6 +48,7 @@ export default abstract class GSheets extends BaseQueryGenerator {
       },
     };
   }
+
   private static buildFind(
     widgetConfig: WidgetQueryGenerationConfig,
     formConfig: WidgetQueryGenerationFormConfig,
@@ -304,6 +306,16 @@ export default abstract class GSheets extends BaseQueryGenerator {
     }
 
     return configs.filter((val) => !!val);
+  }
+
+  static getConnectionMode(
+    datasourceConfiguration: DatasourceStorage["datasourceConfiguration"],
+  ) {
+    return datasourceConfiguration?.authentication?.scopeString?.includes(
+      "spreadsheets.readonly",
+    )
+      ? DatasourceConnectionMode.READ_ONLY
+      : DatasourceConnectionMode.READ_WRITE;
   }
 
   static getTotalRecordExpression(binding: string) {

@@ -1119,7 +1119,7 @@ export function setCatchBlockInQuery(
         );
       if (!catchCallExpressionInGivenQuery) {
         const expression = klona(
-          thenCallExpressionInGivenQuery || rootCallExpression,
+          thenCallExpressionInGivenQuery ?? rootCallExpression,
         );
         const callExpression = {
           type: NodeTypes.CallExpression,

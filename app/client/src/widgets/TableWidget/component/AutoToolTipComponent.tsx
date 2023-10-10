@@ -8,7 +8,7 @@ import equal from "fast-deep-equal/es6";
 import { importSvg } from "design-system-old";
 
 const OpenNewTabIcon = importSvg(
-  () => import("assets/icons/control/open-new-tab.svg"),
+  async () => import("assets/icons/control/open-new-tab.svg"),
 );
 
 const TooltipContentWrapper = styled.div<{ width: number }>`
