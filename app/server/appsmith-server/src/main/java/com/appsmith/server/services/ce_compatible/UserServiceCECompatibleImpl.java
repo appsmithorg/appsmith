@@ -29,8 +29,11 @@ import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
+
+import java.util.Set;
 
 @Service
 public class UserServiceCECompatibleImpl extends UserServiceCEImpl implements UserServiceCECompatible {
@@ -98,5 +101,15 @@ public class UserServiceCECompatibleImpl extends UserServiceCEImpl implements Us
     @Override
     public Mono<PagedDomain<ProvisionResourceDto>> getProvisionUsers(MultiValueMap<String, String> queryParams) {
         return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
+    }
+
+    @Override
+    public Flux<User> findAllByIdsIn(Set<String> ids) {
+        return Flux.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
+    }
+
+    @Override
+    public Flux<User> findAllByUsernameIn(Set<String> usernames) {
+        return Flux.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
     }
 }

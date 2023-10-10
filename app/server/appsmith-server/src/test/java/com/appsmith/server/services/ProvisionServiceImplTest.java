@@ -36,7 +36,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
@@ -113,23 +113,25 @@ class ProvisionServiceImplTest {
     @Autowired
     EncryptionService encryptionService;
 
-    @MockBean
+    @SpyBean
     FeatureFlagService featureFlagService;
 
     private License defaultLicense;
 
     @BeforeEach
     public void beforeSetup() {
-        User apiUser = userRepository.findByEmail("api_user").block();
-        userUtils.makeSuperUser(List.of(apiUser)).block();
-        Tenant tenant = tenantService.getDefaultTenant().block();
-        defaultLicense = tenant.getTenantConfiguration().getLicense();
         Mockito.when(featureFlagService.check(Mockito.eq(FeatureFlagEnum.license_scim_enabled)))
+                .thenReturn(Mono.just(Boolean.TRUE));
+        Mockito.when(featureFlagService.check(Mockito.eq(FeatureFlagEnum.license_gac_enabled)))
                 .thenReturn(Mono.just(Boolean.TRUE));
         Mockito.when(featureFlagService.check(Mockito.eq(FeatureFlagEnum.release_datasource_environments_enabled)))
                 .thenReturn(Mono.just(Boolean.FALSE));
         Mockito.when(featureFlagService.check(Mockito.eq(FeatureFlagEnum.license_audit_logs_enabled)))
                 .thenReturn(Mono.just(Boolean.FALSE));
+        User apiUser = userRepository.findByEmail("api_user").block();
+        userUtils.makeSuperUser(List.of(apiUser)).block();
+        Tenant tenant = tenantService.getDefaultTenant().block();
+        defaultLicense = tenant.getTenantConfiguration().getLicense();
     }
 
     @AfterEach

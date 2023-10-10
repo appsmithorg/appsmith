@@ -90,6 +90,7 @@ public class CustomPermissionGroupRepositoryImpl extends CustomPermissionGroupRe
     public Mono<Void> evictAllPermissionGroupCachesForUser(String email, String tenantId) {
         return Mono.when(
                         super.evictAllPermissionGroupCachesForUser(email, tenantId),
+                        cacheableRepositoryHelper.evictGacEnabledPermissionGroupsUser(email, tenantId),
                         cacheableRepositoryHelper.evictGetAllReadablePermissionGroupsForUser(email, tenantId))
                 .then();
     }

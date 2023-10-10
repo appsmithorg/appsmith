@@ -72,7 +72,6 @@ public enum FeatureFlagEnum {
      * Feature flag to enable the audit log functionality
      */
     license_audit_logs_enabled,
-
     /**
      * Feature flag to detect if unlimited private repos are supported for the tenant
      */

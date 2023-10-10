@@ -102,6 +102,8 @@ public class TenantResourcesTest {
     public void setup() {
         Mockito.when(featureFlagService.check(FeatureFlagEnum.license_audit_logs_enabled))
                 .thenReturn(Mono.just(Boolean.FALSE));
+        Mockito.when(featureFlagService.check(FeatureFlagEnum.license_gac_enabled))
+                .thenReturn(Mono.just(Boolean.TRUE));
         if (api_user == null) {
             api_user = userRepository.findByEmail("api_user").block();
         }
@@ -276,6 +278,8 @@ public class TenantResourcesTest {
     public void testSaveRoleConfigurationChangesForOthersTab() {
         Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.release_datasource_environments_enabled)))
                 .thenReturn(Mono.just(Boolean.FALSE));
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_gac_enabled)))
+                .thenReturn(Mono.just(Boolean.TRUE));
 
         Workspace workspace = new Workspace();
         workspace.setName("testSaveRoleConfigurationChanges workspace");
@@ -346,6 +350,8 @@ public class TenantResourcesTest {
                             .isEqualTo(List.of(-1, -1, -1, 1));
                 })
                 .verifyComplete();
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_gac_enabled)))
+                .thenReturn(Mono.just(Boolean.FALSE));
     }
 
     @Test
@@ -438,6 +444,8 @@ public class TenantResourcesTest {
 
         Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.release_datasource_environments_enabled)))
                 .thenReturn(Mono.just(Boolean.FALSE));
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_gac_enabled)))
+                .thenReturn(Mono.just(Boolean.TRUE));
         PermissionGroup permissionGroup = new PermissionGroup();
         String roleName = UUID.randomUUID().toString();
         permissionGroup.setName(roleName);
@@ -510,6 +518,9 @@ public class TenantResourcesTest {
                     });
                 })
                 .verifyComplete();
+
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_gac_enabled)))
+                .thenReturn(Mono.just(Boolean.FALSE));
     }
 
     @Test

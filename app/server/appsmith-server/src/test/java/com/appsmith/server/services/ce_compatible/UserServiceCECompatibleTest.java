@@ -24,6 +24,11 @@ import org.springframework.util.LinkedMultiValueMap;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.util.Set;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 @Slf4j
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -38,6 +43,10 @@ class UserServiceCECompatibleTest {
     @BeforeEach
     public void beforeSetup() {
         Mockito.when(featureFlagService.check(Mockito.eq(FeatureFlagEnum.license_scim_enabled)))
+                .thenReturn(Mono.just(Boolean.FALSE));
+        Mockito.when(featureFlagService.check(Mockito.eq(FeatureFlagEnum.license_gac_enabled)))
+                .thenReturn(Mono.just(Boolean.FALSE));
+        Mockito.when(featureFlagService.check(Mockito.eq(FeatureFlagEnum.license_audit_logs_enabled)))
                 .thenReturn(Mono.just(Boolean.FALSE));
     }
 
@@ -100,5 +109,27 @@ class UserServiceCECompatibleTest {
                 .expectErrorMatches(exception -> exception instanceof AppsmithException
                         && exception.getMessage().equals(AppsmithError.UNSUPPORTED_OPERATION.getMessage()))
                 .verify();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    void testFindAllByIdsIn() {
+        // Feature assertion started
+        AppsmithException unsupportedException = assertThrows(
+                AppsmithException.class,
+                () -> userService.findAllByIdsIn(Set.of()).collectList().block());
+        assertThat(unsupportedException.getMessage()).isEqualTo(AppsmithError.UNSUPPORTED_OPERATION.getMessage());
+        // Feature assertion finished
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    void testFindAllByUsernameIn() {
+        // Feature assertion started
+        AppsmithException unsupportedException = assertThrows(
+                AppsmithException.class,
+                () -> userService.findAllByUsernameIn(Set.of()).collectList().block());
+        assertThat(unsupportedException.getMessage()).isEqualTo(AppsmithError.UNSUPPORTED_OPERATION.getMessage());
+        // Feature assertion finished
     }
 }

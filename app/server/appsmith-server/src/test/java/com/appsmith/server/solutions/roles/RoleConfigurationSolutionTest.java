@@ -1,8 +1,10 @@
 package com.appsmith.server.solutions.roles;
 
 import com.appsmith.server.domains.User;
+import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.solutions.roles.constants.RoleTab;
 import com.appsmith.server.solutions.roles.dtos.RoleTabDTO;
 import com.appsmith.server.solutions.roles.dtos.RoleViewDTO;
@@ -23,6 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.eq;
 
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
@@ -44,6 +47,9 @@ public class RoleConfigurationSolutionTest {
     @MockBean
     WorkspaceResources workspaceResources;
 
+    @MockBean
+    FeatureFlagService featureFlagService;
+
     User api_user = null;
 
     String superAdminPermissionGroupId = null;
@@ -56,6 +62,8 @@ public class RoleConfigurationSolutionTest {
 
         // Make api_user instance administrator before starting the test
         userUtils.makeSuperUser(List.of(api_user)).block();
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_gac_enabled)))
+                .thenReturn(Mono.just(Boolean.TRUE));
     }
 
     @Test

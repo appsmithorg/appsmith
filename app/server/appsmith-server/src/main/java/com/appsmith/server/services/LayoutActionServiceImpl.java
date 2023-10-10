@@ -2,9 +2,11 @@ package com.appsmith.server.services;
 
 import com.appsmith.external.helpers.AppsmithEventContext;
 import com.appsmith.external.models.ActionDTO;
+import com.appsmith.server.annotations.FeatureFlagged;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.onpageload.internal.PageLoadExecutablesUtil;
@@ -61,6 +63,7 @@ public class LayoutActionServiceImpl extends LayoutActionServiceCEImpl implement
     }
 
     @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
     public Mono<ActionDTO> createAction(ActionDTO action, AppsmithEventContext eventContext, Boolean isJsAction) {
         Mono<ActionDTO> createActionMono = super.createAction(action, eventContext, isJsAction);
 

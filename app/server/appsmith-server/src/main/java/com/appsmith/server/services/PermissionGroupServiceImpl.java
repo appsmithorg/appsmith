@@ -4,6 +4,7 @@ import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
+import com.appsmith.server.annotations.FeatureFlagged;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.PermissionGroup;
@@ -15,8 +16,9 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.AppsmithComparators;
-import com.appsmith.server.helpers.PermissionGroupUtils;
+import com.appsmith.server.helpers.PermissionGroupHelper;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.repositories.ConfigRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
@@ -62,8 +64,8 @@ import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.f
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 
-@Service
 @Slf4j
+@Service
 public class PermissionGroupServiceImpl extends PermissionGroupServiceCECompatibleImpl
         implements PermissionGroupService {
 
@@ -73,7 +75,7 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCECompatib
     private final PolicyGenerator policyGenerator;
     private final UserGroupRepository userGroupRepository;
     private final RoleConfigurationSolution roleConfigurationSolution;
-    private final PermissionGroupUtils permissionGroupUtils;
+    private final PermissionGroupHelper permissionGroupHelper;
     private final UserUtils userUtils;
 
     public PermissionGroupServiceImpl(
@@ -93,7 +95,7 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCECompatib
             UserGroupRepository userGroupRepository,
             RoleConfigurationSolution roleConfigurationSolution,
             PermissionGroupPermission permissionGroupPermission,
-            PermissionGroupUtils permissionGroupUtils,
+            PermissionGroupHelper permissionGroupHelper,
             UserUtils userUtils) {
 
         super(
@@ -108,57 +110,60 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCECompatib
                 userRepository,
                 policySolution,
                 configRepository,
-                permissionGroupPermission);
+                permissionGroupPermission,
+                permissionGroupHelper);
         this.modelMapper = modelMapper;
         this.policyGenerator = policyGenerator;
         this.sessionUserService = sessionUserService;
         this.tenantService = tenantService;
         this.userGroupRepository = userGroupRepository;
         this.roleConfigurationSolution = roleConfigurationSolution;
-        this.permissionGroupUtils = permissionGroupUtils;
+        this.permissionGroupHelper = permissionGroupHelper;
         this.userUtils = userUtils;
     }
 
     @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
     public Mono<List<PermissionGroupInfoDTO>> getAll() {
-        return permissionGroupUtils
+        return permissionGroupHelper
                 .mapToPermissionGroupInfoDto(repository.findAll(READ_PERMISSION_GROUPS))
                 .sort(AppsmithComparators.permissionGroupInfoComparator())
                 .collectList();
     }
 
     @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
     public Mono<List<PermissionGroupInfoDTO>> getAllAssignableRoles() {
-        return permissionGroupUtils
+        return permissionGroupHelper
                 .mapToPermissionGroupInfoDto(repository.findAll(ASSIGN_PERMISSION_GROUPS))
                 .collectList();
     }
 
     @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
     public Mono<PermissionGroup> findById(String id, AclPermission permission) {
         return repository.findById(id, permission);
     }
 
     @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
     public Flux<PermissionGroup> findAllByAssignedToGroupIdsIn(Set<String> groupIds) {
         return repository.findAllByAssignedToGroupIdsIn(groupIds).flatMap(repository::setUserPermissionsInObject);
     }
 
     @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
     public Flux<PermissionGroup> findAllByAssignedToGroupId(String groupId) {
         return findAllByAssignedToGroupIdsIn(Set.of(groupId));
     }
 
-    @Override
-    public Flux<PermissionGroup> findAllByAssignedToUsersIn(Set<String> userIds) {
-        return repository.findAllByAssignedToUserIds(userIds, READ_PERMISSION_GROUPS);
-    }
-
-    @Override
-    public Flux<PermissionGroup> findAllByAssignedToUserId(String userId) {
-        return findAllByAssignedToUsersIn(Set.of(userId));
-    }
-
+    /**
+     * @implNote The permission group resource should inherit policies from the tenant at all times, and this should not
+     * fall behind gac feature flag. Earlier, the migration would add those policy changes, but with 1-click, since the
+     * migrations won't run, we should add these policy changes while creating the permission group resource.
+     * @param permissionGroup
+     * @return
+     */
     @Override
     public Mono<PermissionGroup> create(PermissionGroup permissionGroup) {
         Mono<Boolean> isCreateAllowedMono = Mono.zip(
@@ -204,7 +209,7 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCECompatib
 
         // make the default workspace roles uneditable
         Mono<PermissionGroup> ifDefaultPgMakeUneditableMono = createdPermissionMono
-                .flatMap(pg -> Mono.zip(Mono.just(pg), permissionGroupUtils.isAutoCreated(pg)))
+                .flatMap(pg -> Mono.zip(Mono.just(pg), permissionGroupHelper.isAutoCreated(pg)))
                 .flatMap(tuple -> {
                     PermissionGroup permissionGroup1 = tuple.getT1();
                     // If isAutoCreated is TRUE, it's a default document role and hence shouldn't be editable or
@@ -255,6 +260,7 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCECompatib
     }
 
     @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
     public Mono<PermissionGroup> archiveById(String id) {
         Mono<PermissionGroup> permissionGroupMono = repository
                 .findById(id, DELETE_PERMISSION_GROUPS)
@@ -296,6 +302,7 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCECompatib
     }
 
     @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
     public Mono<PermissionGroup> bulkUnassignFromUserGroupsWithoutPermission(
             PermissionGroup permissionGroup, Set<String> userGroupIds) {
 
@@ -316,14 +323,18 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCECompatib
                     String path = fieldName(QPermissionGroup.permissionGroup.assignedToGroupIds);
 
                     updateObj.set(path, assignedToGroupIds);
-                    return Mono.zip(
-                                    repository.updateById(permissionGroup.getId(), updateObj),
-                                    cleanPermissionGroupCacheForUsers(userIds).thenReturn(TRUE))
+                    Mono<UpdateResult> updatePermissionGroupResultMono =
+                            repository.updateById(permissionGroup.getId(), updateObj);
+                    Mono<Boolean> clearCacheForUsersMono =
+                            cleanPermissionGroupCacheForUsers(userIds).thenReturn(TRUE);
+                    return updatePermissionGroupResultMono
+                            .zipWhen(updatePermissionGroupResult -> clearCacheForUsersMono)
                             .then(repository.findById(permissionGroup.getId()));
                 });
     }
 
     @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
     public Mono<PermissionGroup> bulkUnassignFromUserGroups(
             PermissionGroup permissionGroup, Set<UserGroup> userGroups) {
         ensureAssignedToUserGroups(permissionGroup);
@@ -338,14 +349,19 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCECompatib
         List<String> userGroupIds = userGroups.stream().map(UserGroup::getId).collect(Collectors.toList());
         userGroupIds.forEach(permissionGroup.getAssignedToGroupIds()::remove);
 
-        return Mono.zip(
-                        repository.updateById(
-                                permissionGroup.getId(), permissionGroup, AclPermission.UNASSIGN_PERMISSION_GROUPS),
-                        cleanPermissionGroupCacheForUsers(userIds).thenReturn(TRUE))
+        Mono<PermissionGroup> updatePermissionGroupMono = repository.updateById(
+                permissionGroup.getId(), permissionGroup, AclPermission.UNASSIGN_PERMISSION_GROUPS);
+
+        Mono<Boolean> clearCacheForUsersMono =
+                cleanPermissionGroupCacheForUsers(userIds).thenReturn(TRUE);
+
+        return updatePermissionGroupMono
+                .zipWhen(updatedPermissionGroup -> clearCacheForUsersMono)
                 .map(tuple -> tuple.getT1());
     }
 
     @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
     public Mono<RoleViewDTO> findConfigurableRoleById(String id) {
         // The user should have atleast READ_PERMISSION_GROUPS permission to view the role. The edits would be allowed
         // via
@@ -364,6 +380,8 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCECompatib
                         }));
     }
 
+    @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
     public Mono<PermissionGroupInfoDTO> updatePermissionGroup(String id, PermissionGroup resource) {
         return repository
                 .findById(id, MANAGE_PERMISSION_GROUPS)
@@ -386,6 +404,7 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCECompatib
     }
 
     @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
     public Mono<RoleViewDTO> createCustomPermissionGroup(PermissionGroup permissionGroup) {
         return this.create(permissionGroup)
                 .flatMap(analyticsService::sendCreateEvent)
@@ -393,44 +412,7 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCECompatib
     }
 
     @Override
-    public Mono<Boolean> bulkUnassignUserFromPermissionGroupsWithoutPermission(
-            User user, Set<String> permissionGroupIds) {
-
-        return repository
-                .findAllById(permissionGroupIds)
-                .flatMap(pg -> {
-                    // Delete the User Management Role if user is being disassociated from it.
-                    if (PermissionGroupUtils.isUserManagementRole(pg)) {
-                        return repository.delete(pg);
-                    }
-
-                    Set<String> assignedToUserIds = pg.getAssignedToUserIds();
-                    assignedToUserIds.remove(user.getId());
-
-                    Update updateObj = new Update();
-                    String path = fieldName(QPermissionGroup.permissionGroup.assignedToUserIds);
-
-                    updateObj.set(path, assignedToUserIds);
-                    Mono<UpdateResult> updateAssignedToUserIdsForRoleMono =
-                            repository.updateById(pg.getId(), updateObj);
-
-                    // Trigger disassociation from role event, if the role is not Default Role For All Users.
-                    Mono<Long> sendEventUserRemovedFromRoleIfRoleIsNotDefaultRoleMono = permissionGroupUtils
-                            .getDefaultRoleForAllUserRoleId()
-                            .flatMap(defaultRoleId -> {
-                                if (!defaultRoleId.equals(pg.getId())) {
-                                    return sendEventUserRemovedFromRole(pg, List.of(user.getEmail()))
-                                            .thenReturn(1L);
-                                }
-                                return Mono.just(1L);
-                            });
-                    return updateAssignedToUserIdsForRoleMono.zipWhen(
-                            updatedRole -> sendEventUserRemovedFromRoleIfRoleIsNotDefaultRoleMono);
-                })
-                .then(Mono.just(TRUE));
-    }
-
-    @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
     public Flux<PermissionGroup> getAllByAssignedToUserGroupAndDefaultWorkspace(
             UserGroup userGroup, Workspace defaultWorkspace, AclPermission aclPermission) {
         return repository.findAllByAssignedToUserGroupIdAndDefaultWorkspaceId(
@@ -438,15 +420,19 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCECompatib
     }
 
     @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
     public Mono<PermissionGroup> unassignFromUserGroup(PermissionGroup permissionGroup, UserGroup userGroup) {
         return bulkUnassignFromUserGroups(permissionGroup, Set.of(userGroup));
     }
 
     @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
     public Mono<PermissionGroup> assignToUserGroup(PermissionGroup permissionGroup, UserGroup userGroup) {
         return this.bulkAssignToUserGroups(permissionGroup, Set.of(userGroup));
     }
 
+    @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
     public Mono<PermissionGroup> bulkAssignToUserGroups(PermissionGroup permissionGroup, Set<UserGroup> userGroups) {
         ensureAssignedToUserGroups(permissionGroup);
         // Get the userIds from all the user groups that we are unassigning
@@ -460,30 +446,16 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCECompatib
                 .updateById(permissionGroup.getId(), permissionGroup, ASSIGN_PERMISSION_GROUPS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND)));
 
-        return Mono.zip(
-                        permissionGroupUpdateMono,
-                        cleanPermissionGroupCacheForUsers(userIds).thenReturn(TRUE))
+        Mono<Boolean> clearCacheForUsersMono =
+                cleanPermissionGroupCacheForUsers(userIds).thenReturn(TRUE);
+
+        return permissionGroupUpdateMono
+                .zipWhen(updatedPermissionGroup -> clearCacheForUsersMono)
                 .map(tuple -> tuple.getT1());
     }
 
     @Override
-    public Mono<Boolean> bulkAssignToUsersWithoutPermission(PermissionGroup pg, List<User> users) {
-        ensureAssignedToUserIds(pg);
-        List<String> userIds = users.stream().map(User::getId).collect(Collectors.toList());
-        Update updateAssignedToUserIdsUpdate = new Update();
-        updateAssignedToUserIdsUpdate
-                .addToSet(fieldName(QPermissionGroup.permissionGroup.assignedToUserIds))
-                .each(userIds.toArray());
-
-        Mono<UpdateResult> permissionGroupUpdateMono = repository.updateById(pg.getId(), updateAssignedToUserIdsUpdate);
-
-        return Mono.zip(
-                        permissionGroupUpdateMono,
-                        cleanPermissionGroupCacheForUsers(userIds).thenReturn(TRUE))
-                .thenReturn(TRUE);
-    }
-
-    @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
     public Mono<Set<String>> getAllDirectlyAndIndirectlyAssignedUserIds(PermissionGroup permissionGroup) {
         if (ObjectUtils.isEmpty(permissionGroup.getAssignedToGroupIds())
                 && ObjectUtils.isEmpty(permissionGroup.getAssignedToUserIds())) {
@@ -510,6 +482,7 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCECompatib
     }
 
     @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
     public Mono<Void> deleteWithoutPermission(String id) {
         Mono<Void> deleteRoleMono = super.deleteWithoutPermission(id).cache();
         Mono<PermissionGroup> roleMono = repository.findById(id);
@@ -522,6 +495,7 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCECompatib
     }
 
     @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
     public Flux<PermissionGroup> getAllDefaultRolesForApplication(
             Application application, Optional<AclPermission> aclPermission) {
         return repository.findByDefaultApplicationId(application.getId(), aclPermission);
@@ -538,6 +512,7 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCECompatib
     }
 
     @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
     public Mono<PermissionGroup> bulkAssignToUsersAndGroups(
             PermissionGroup role, List<User> users, List<UserGroup> groups) {
         ensureAssignedToUserIds(role);
@@ -614,11 +589,13 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCECompatib
     }
 
     @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
     public Mono<PermissionGroup> assignToUserGroupAndSendEvent(PermissionGroup permissionGroup, UserGroup userGroup) {
         return bulkAssignToUserGroupsAndSendEvent(permissionGroup, Set.of(userGroup));
     }
 
     @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
     public Mono<PermissionGroup> bulkAssignToUserGroupsAndSendEvent(
             PermissionGroup permissionGroup, Set<UserGroup> userGroups) {
         List<String> groupNames = userGroups.stream().map(UserGroup::getName).toList();
@@ -627,12 +604,14 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCECompatib
     }
 
     @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
     public Mono<PermissionGroup> unAssignFromUserGroupAndSendEvent(
             PermissionGroup permissionGroup, UserGroup userGroup) {
         return bulkUnAssignFromUserGroupsAndSendEvent(permissionGroup, Set.of(userGroup));
     }
 
     @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
     public Mono<PermissionGroup> bulkUnAssignFromUserGroupsAndSendEvent(
             PermissionGroup permissionGroup, Set<UserGroup> userGroups) {
         List<String> groupNames = userGroups.stream().map(UserGroup::getName).toList();
@@ -648,16 +627,18 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCECompatib
      * @return
      */
     @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
     public Flux<String> getRoleNamesAssignedToUserIds(Set<String> userIds) {
         List<String> includeFields = List.of(
                 fieldName(QPermissionGroup.permissionGroup.name), fieldName(QPermissionGroup.permissionGroup.policies));
         return repository
                 .findAllByAssignedToUserIn(userIds, Optional.of(includeFields), Optional.empty())
-                .filter(role -> !PermissionGroupUtils.isUserManagementRole(role))
+                .filter(role -> !permissionGroupHelper.isUserManagementRole(role))
                 .map(PermissionGroup::getName);
     }
 
     @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
     public Mono<Boolean> bulkUnAssignUsersAndUserGroupsFromPermissionGroupsWithoutPermission(
             List<User> users, List<UserGroup> groups, List<PermissionGroup> roles) {
         Set<String> userIds = users.stream().map(User::getId).collect(Collectors.toSet());
@@ -685,25 +666,17 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCECompatib
         userIdsForClearingCache.addAll(userIds);
         Mono<Boolean> clearCacheForUsers =
                 cleanPermissionGroupCacheForUsers(userIdsForClearingCache).thenReturn(TRUE);
-        return Mono.zip(updateRolesMono, clearCacheForUsers).map(pair -> TRUE);
+        return updateRolesMono.zipWhen(updatedRoles -> clearCacheForUsers).map(pair -> TRUE);
     }
 
     @Override
-    public Flux<PermissionGroup> findAllByAssignedToUserIdsInWithoutPermission(Set<String> userIds) {
-        return repository.findAllByAssignedToUserIds(userIds, Optional.empty(), Optional.empty());
-    }
-
-    @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
     public Flux<PermissionGroup> findAllByAssignedToGroupIdsInWithoutPermission(Set<String> groupIds) {
         return repository.findAllByAssignedToGroupIds(groupIds, Optional.empty(), Optional.empty());
     }
 
     @Override
-    public Flux<PermissionGroup> findAllByAssignedToUserIdWithoutPermission(String userId) {
-        return findAllByAssignedToUserIdsInWithoutPermission(Set.of(userId));
-    }
-
-    @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
     public Flux<PermissionGroup> findAllByAssignedToGroupIdWithoutPermission(String groupId) {
         return findAllByAssignedToGroupIdsInWithoutPermission(Set.of(groupId));
     }

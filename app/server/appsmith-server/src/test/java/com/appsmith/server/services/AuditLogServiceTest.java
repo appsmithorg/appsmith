@@ -101,6 +101,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -167,6 +168,7 @@ import static com.appsmith.server.solutions.roles.constants.PermissionViewableNa
 import static com.appsmith.server.solutions.roles.constants.PermissionViewableName.EXPORT;
 import static com.appsmith.server.solutions.roles.constants.PermissionViewableName.MAKE_PUBLIC;
 import static com.appsmith.server.solutions.roles.constants.PermissionViewableName.VIEW;
+import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -176,7 +178,7 @@ import static org.mockito.Mockito.doReturn;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
-@DirtiesContext
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 @Slf4j
 public class AuditLogServiceTest {
     @Autowired
@@ -303,6 +305,12 @@ public class AuditLogServiceTest {
 
         Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_audit_logs_enabled)))
                 .thenReturn(Mono.just(TRUE));
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_gac_enabled)))
+                .thenReturn(Mono.just(TRUE));
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.release_datasource_environments_enabled)))
+                .thenReturn(Mono.just(FALSE));
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_scim_enabled)))
+                .thenReturn(Mono.just(FALSE));
 
         if (StringUtils.isEmpty(workspaceId)) {
 
@@ -329,6 +337,14 @@ public class AuditLogServiceTest {
             gitConnectedApp = createGitConnectedApp("getAuditLogs_withNoFilters_Success_git", "master")
                     .block();
         }
+    }
+
+    @AfterEach
+    public void resetMockFeatureFlags() {
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_audit_logs_enabled)))
+                .thenReturn(Mono.just(FALSE));
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_gac_enabled)))
+                .thenReturn(Mono.just(FALSE));
     }
 
     private FilePart createFilePart(String filePath) {
@@ -5890,10 +5906,8 @@ public class AuditLogServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testAuditLogs_updateProvisionGroup_sameUserGroupResource_shouldGenerateNoAuditLogs() {
-
         Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_scim_enabled)))
                 .thenReturn(Mono.just(TRUE));
-
         String testName = "testAuditLogs_updateProvisionGroup_sameUserGroupResource_shouldGenerateNoAuditLogs";
 
         User user1 = new User();
@@ -5950,10 +5964,8 @@ public class AuditLogServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testAuditLogs_updateProvisionGroup_sendNullName_shouldGenerateNoAuditLogs() {
-
         Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_scim_enabled)))
                 .thenReturn(Mono.just(TRUE));
-
         String testName = "testAuditLogs_updateProvisionGroup_sendNullName_shouldGenerateNoAuditLogs";
 
         User user1 = new User();
@@ -6009,10 +6021,8 @@ public class AuditLogServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testAuditLogs_updateProvisionGroup_sendNullDescription_shouldGenerateNoAuditLogs() {
-
         Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_scim_enabled)))
                 .thenReturn(Mono.just(TRUE));
-
         String testName = "testAuditLogs_updateProvisionGroup_sendNullDescription_shouldGenerateNoAuditLogs";
 
         User user1 = new User();
@@ -6068,6 +6078,8 @@ public class AuditLogServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testAuditLogs_updateProvisionGroup_sendNullUsersList_shouldGenerateNoAuditLogs() {
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_scim_enabled)))
+                .thenReturn(Mono.just(TRUE));
         String testName = "testAuditLogs_updateProvisionGroup_sendNullUsersList_shouldGenerateNoAuditLogs";
 
         Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_scim_enabled)))
@@ -6126,7 +6138,6 @@ public class AuditLogServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testAuditLogs_updateProvisionGroup_sendNameUpdate_shouldGenerateGroupUpdateAuditLog() {
-
         Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_scim_enabled)))
                 .thenReturn(Mono.just(TRUE));
         String testName = "testAuditLogs_updateProvisionGroup_sendNameUpdate_shouldGenerateGroupUpdateAuditLog";
@@ -6209,10 +6220,8 @@ public class AuditLogServiceTest {
     @WithUserDetails(value = "api_user")
     public void
             testAuditLogs_updateProvisionGroup_sendAdditionalUserIdInList_shouldGenerateUserInvitedToGroupAuditLog() {
-
         Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_scim_enabled)))
                 .thenReturn(Mono.just(TRUE));
-
         String testName =
                 "testAuditLogs_updateProvisionGroup_sendAdditionalUserIdInList_shouldGenerateUserInvitedToGroupAuditLog";
 
@@ -6301,10 +6310,8 @@ public class AuditLogServiceTest {
     @WithUserDetails(value = "api_user")
     public void
             testAuditLogs_updateProvisionGroup_sendOneUserLessUserIdInList_shouldGenerateUserRemovedFromGroupAuditLog() {
-
         Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_scim_enabled)))
                 .thenReturn(Mono.just(TRUE));
-
         String testName =
                 "testAuditLogs_updateProvisionGroup_sendOneUserLessUserIdInList_shouldGenerateUserRemovedFromGroupAuditLog";
 
@@ -6387,10 +6394,8 @@ public class AuditLogServiceTest {
     @WithUserDetails(value = "api_user")
     public void
             testAuditLogs_updateProvisionGroup_updateNameAndListOfUsers_shouldGenerateUpdateUserGroupUserInvitedToGroupUserRemovedFromGroupAuditLog() {
-
         Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_scim_enabled)))
                 .thenReturn(Mono.just(TRUE));
-
         String testName =
                 "testAuditLogs_updateProvisionGroup_updateNameAndListOfUsers_shouldGenerateUpdateUserGroupUserInvitedToGroupUserRemovedFromGroupAuditLog";
 

@@ -6,6 +6,7 @@ import com.appsmith.external.models.Environment;
 import com.appsmith.external.models.QDatasource;
 import com.appsmith.external.models.QEnvironment;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.annotations.FeatureFlagged;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GacEntityMetadata;
@@ -20,7 +21,9 @@ import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.helpers.PermissionGroupUtils;
+import com.appsmith.server.featureflags.FeatureFlagEnum;
+import com.appsmith.server.helpers.PermissionGroupHelper;
+import com.appsmith.server.helpers.PermissionGroupHelperImpl;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.DatasourceRepository;
@@ -39,6 +42,7 @@ import com.appsmith.server.solutions.roles.dtos.RoleViewDTO;
 import com.appsmith.server.solutions.roles.dtos.UpdateRoleConfigDTO;
 import com.appsmith.server.solutions.roles.dtos.UpdateRoleEntityDTO;
 import com.appsmith.server.solutions.roles.helpers.RoleConfigurationHelper;
+import com.appsmith.server.solutions.roles.helpers.ce_compatible.RoleConfigurationSolutionCECompatibleImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.ListUtils;
@@ -82,7 +86,8 @@ import static com.appsmith.server.solutions.roles.constants.AclPermissionAndView
 
 @Component
 @Slf4j
-public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution {
+public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECompatibleImpl
+        implements RoleConfigurationSolution {
 
     private final WorkspaceResources workspaceResources;
     private final TenantResources tenantResources;
@@ -90,7 +95,7 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
     private final ApplicationRepository applicationRepository;
     private final WorkspaceRepository workspaceRepository;
     private final PermissionGroupRepository permissionGroupRepository;
-    private final PermissionGroupUtils permissionGroupUtils;
+    private final PermissionGroupHelper permissionGroupHelper;
     private final ThemeRepository themeRepository;
     private final NewActionRepository newActionRepository;
     private final ActionCollectionRepository actionCollectionRepository;
@@ -107,7 +112,7 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
             ApplicationRepository applicationRepository,
             WorkspaceRepository workspaceRepository,
             PermissionGroupRepository permissionGroupRepository,
-            PermissionGroupUtils permissionGroupUtils,
+            PermissionGroupHelperImpl permissionGroupHelper,
             ThemeRepository themeRepository,
             NewActionRepository newActionRepository,
             ActionCollectionRepository actionCollectionRepository,
@@ -123,7 +128,7 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
         this.applicationRepository = applicationRepository;
         this.workspaceRepository = workspaceRepository;
         this.permissionGroupRepository = permissionGroupRepository;
-        this.permissionGroupUtils = permissionGroupUtils;
+        this.permissionGroupHelper = permissionGroupHelper;
         this.themeRepository = themeRepository;
         this.newActionRepository = newActionRepository;
         this.actionCollectionRepository = actionCollectionRepository;
@@ -135,6 +140,7 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
     }
 
     @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
     public Mono<RoleViewDTO> getAllTabViews(String permissionGroupId) {
         CommonAppsmithObjectData dataFromRepositoryForAllTabs = workspaceResources.getDataFromRepositoryForAllTabs();
         return Mono.zip(
@@ -164,6 +170,7 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
     }
 
     @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
     public Mono<RoleViewDTO> updateRoles(String permissionGroupId, UpdateRoleConfigDTO updateRoleConfigDTO) {
 
         /**
@@ -961,7 +968,7 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
         if (entityClass.equals(PermissionGroup.class)) {
             return findPermissionGroupsByIds(objectIds)
                     .flatMap(permissionGroup ->
-                            Mono.zip(permissionGroupUtils.isAutoCreated(permissionGroup), Mono.just(permissionGroup)))
+                            Mono.zip(permissionGroupHelper.isAutoCreated(permissionGroup), Mono.just(permissionGroup)))
                     .map(tuple -> {
                         boolean autoCreated = tuple.getT1();
                         PermissionGroup permissionGroup = tuple.getT2();
@@ -987,6 +994,8 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
         return permissionGroupRepository.findAllByIdsWithoutPermission(ids, includeFields);
     }
 
+    @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
     public Mono<Long> updateApplicationAndRelatedResourcesWithPermissionsForRole(
             String applicationId,
             String roleId,
@@ -1171,6 +1180,7 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
     }
 
     @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
     public Mono<Long> updateWorkspaceAndDatasourcesInWorkspaceWithPermissionsForRole(
             String workspaceId,
             String roleId,
@@ -1204,6 +1214,7 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
     }
 
     @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
     public Mono<Long> updateEnvironmentsInWorkspaceWithPermissionsForRole(
             String workspaceId,
             String roleId,

@@ -25,6 +25,8 @@ import com.appsmith.server.dtos.UpdateRoleAssociationDTO;
 import com.appsmith.server.dtos.UserCompactDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.featureflags.CachedFeatures;
+import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.UserUtils;
@@ -36,6 +38,7 @@ import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.EnvironmentService;
+import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.PermissionGroupService;
@@ -62,6 +65,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -71,6 +75,7 @@ import reactor.test.StepVerifier;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -82,7 +87,10 @@ import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
 import static com.appsmith.server.constants.FieldName.ANONYMOUS_USER;
+import static java.lang.Boolean.FALSE;
+import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.eq;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -158,6 +166,9 @@ public class ApplicationServiceTest {
     @Autowired
     NewActionService newActionService;
 
+    @SpyBean
+    FeatureFlagService featureFlagService;
+
     @Autowired
     PagePermission pagePermission;
 
@@ -180,6 +191,15 @@ public class ApplicationServiceTest {
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
                 .thenReturn(Mono.just(new MockPluginExecutor()));
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_audit_logs_enabled)))
+                .thenReturn(Mono.just(FALSE));
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.release_datasource_environments_enabled)))
+                .thenReturn(Mono.just(FALSE));
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_gac_enabled)))
+                .thenReturn(Mono.just(TRUE));
+        CachedFeatures cachedFeatures = new CachedFeatures();
+        cachedFeatures.setFeatures(Map.of(FeatureFlagEnum.license_gac_enabled.name(), TRUE));
+        Mockito.when(featureFlagService.getCachedTenantFeatureFlags()).thenReturn(cachedFeatures);
         User apiUser = userService.findByEmail("api_user").block();
 
         Workspace toCreate = new Workspace();
@@ -187,8 +207,7 @@ public class ApplicationServiceTest {
 
         if (workspaceId == null || workspace == null) {
 
-            workspace =
-                    workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
+            workspace = workspaceService.create(toCreate, apiUser, FALSE).block();
             workspaceId = workspace.getId();
 
             testPlugin = pluginService.findByPackageName("restapi-plugin").block();
@@ -361,7 +380,7 @@ public class ApplicationServiceTest {
         action.setApplicationId(createdApplication.getId());
 
         ActionDTO createdAction =
-                layoutActionService.createSingleAction(action, Boolean.FALSE).block();
+                layoutActionService.createSingleAction(action, FALSE).block();
 
         // Now lose the access to the workspace and get individual access to the application
         leaveWorkspaceToLoseAccess();
@@ -439,7 +458,7 @@ public class ApplicationServiceTest {
 
                         Policy policy = policyOptional.get();
 
-                        if (Boolean.TRUE.equals(environment.getIsDefault())) {
+                        if (TRUE.equals(environment.getIsDefault())) {
                             assertThat(policy.getPermissionGroups()).contains(permissionGroup.getId());
                         } else {
                             assertThat(policy.getPermissionGroups()).doesNotContain(permissionGroup.getId());
@@ -481,7 +500,7 @@ public class ApplicationServiceTest {
         action.setDatasource(testDatasource);
 
         ActionDTO createdAction =
-                layoutActionService.createSingleAction(action, Boolean.FALSE).block();
+                layoutActionService.createSingleAction(action, FALSE).block();
 
         // Now lose the access to the workspace and get individual access to the application
         leaveWorkspaceToLoseAccess();
@@ -656,7 +675,7 @@ public class ApplicationServiceTest {
         action.setActionConfiguration(actionConfiguration);
         action.setDatasource(testDatasource1);
         ActionDTO createdAction =
-                layoutActionService.createSingleAction(action, Boolean.FALSE).block();
+                layoutActionService.createSingleAction(action, FALSE).block();
 
         Set<Policy> existingPolicies = testDatasource1.getPolicies();
         /*
@@ -741,7 +760,7 @@ public class ApplicationServiceTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setHttpMethod(HttpMethod.GET);
         action.setActionConfiguration(actionConfiguration);
-        layoutActionService.createSingleAction(action, Boolean.FALSE).block();
+        layoutActionService.createSingleAction(action, FALSE).block();
 
         // Check environment before making app public
         PermissionGroup publicPermissionGroup =
@@ -792,7 +811,7 @@ public class ApplicationServiceTest {
         ActionConfiguration actionConfiguration2 = new ActionConfiguration();
         actionConfiguration2.setHttpMethod(HttpMethod.GET);
         action2.setActionConfiguration(actionConfiguration2);
-        layoutActionService.createSingleAction(action2, Boolean.FALSE).block();
+        layoutActionService.createSingleAction(action2, FALSE).block();
 
         // Make second application public
         ApplicationAccessDTO applicationAccessDTO2 = new ApplicationAccessDTO();

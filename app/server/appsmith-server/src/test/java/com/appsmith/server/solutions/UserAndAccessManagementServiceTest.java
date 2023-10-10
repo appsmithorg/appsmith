@@ -13,9 +13,11 @@ import com.appsmith.server.dtos.UserGroupDTO;
 import com.appsmith.server.dtos.UsersForGroupDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.repositories.UserDataRepository;
 import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.UserGroupService;
 import com.appsmith.server.services.UserService;
@@ -23,8 +25,10 @@ import com.appsmith.server.services.WorkspaceService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.LinkedMultiValueMap;
@@ -44,6 +48,7 @@ import static com.appsmith.server.constants.FieldName.DEFAULT_USER_PERMISSION_GR
 import static com.appsmith.server.constants.QueryParams.PROVISIONED_FILTER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.eq;
 
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
@@ -73,6 +78,9 @@ public class UserAndAccessManagementServiceTest {
     @Autowired
     UserDataRepository userDataRepository;
 
+    @SpyBean
+    FeatureFlagService featureFlagService;
+
     User api_user = null;
 
     String superAdminPermissionGroupId = null;
@@ -85,6 +93,10 @@ public class UserAndAccessManagementServiceTest {
 
         // Make api_user instance administrator before starting the test
         userUtils.makeSuperUser(List.of(api_user)).block();
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_audit_logs_enabled)))
+                .thenReturn(Mono.just(Boolean.FALSE));
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_gac_enabled)))
+                .thenReturn(Mono.just(Boolean.TRUE));
     }
 
     @Test
@@ -104,6 +116,7 @@ public class UserAndAccessManagementServiceTest {
                             .findFirst()
                             .get();
                     assertThat(apiUserDto.getId()).isEqualTo(api_user.getId());
+                    apiUserDto.getGroups().forEach(group -> System.out.println(group.getName()));
                     assertThat(apiUserDto.getGroups().size()).isEqualTo(0);
                     assertThat(apiUserDto.getRoles().size()).isEqualTo(2);
 
@@ -149,6 +162,7 @@ public class UserAndAccessManagementServiceTest {
                     assertThat(user).isNotNull();
 
                     assertThat(user.getId()).isEqualTo(api_user.getId());
+                    user.getGroups().forEach(group -> System.out.println(group.getName()));
                     assertThat(user.getGroups().size()).isEqualTo(0);
                     assertThat(user.getRoles().size()).isEqualTo(2);
 

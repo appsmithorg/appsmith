@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.server.annotations.FeatureFlagged;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
@@ -8,9 +9,11 @@ import com.appsmith.server.dtos.MemberInfoDTO;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.UserGroupRepository;
 import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.services.ce_compatible.ApplicationMemberServiceCECompatibleImpl;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.PermissionGroupPermission;
 import lombok.AllArgsConstructor;
@@ -33,7 +36,8 @@ import static com.appsmith.server.helpers.AppsmithComparators.applicationMembers
 
 @Service
 @AllArgsConstructor
-public class ApplicationMemberServiceImpl implements ApplicationMemberService {
+public class ApplicationMemberServiceImpl extends ApplicationMemberServiceCECompatibleImpl
+        implements ApplicationMemberService {
 
     private final UserGroupRepository userGroupRepository;
     private final PermissionGroupService permissionGroupService;
@@ -48,6 +52,7 @@ public class ApplicationMemberServiceImpl implements ApplicationMemberService {
      * @return
      */
     @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
     public Mono<List<MemberInfoDTO>> getAllMembersForApplication(String applicationId) {
         Mono<Application> applicationMono = applicationRepository
                 .findById(applicationId, Optional.of(applicationPermission.getReadPermission()))
@@ -170,6 +175,7 @@ public class ApplicationMemberServiceImpl implements ApplicationMemberService {
     }
 
     @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
     public Flux<MemberInfoDTO> getAllApplicationsMembersForWorkspace(String workspaceId) {
         Flux<Application> applicationFlux = applicationRepository
                 .getAllApplicationsInWorkspace(workspaceId, Optional.of(applicationPermission.getReadPermission()))

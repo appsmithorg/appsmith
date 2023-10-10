@@ -24,7 +24,7 @@ import static com.appsmith.server.acl.AclPermission.READ_PERMISSION_GROUPS;
 import static com.appsmith.server.constants.FieldName.DEFAULT_PERMISSION_GROUP;
 
 @Component
-public class PermissionGroupUtils {
+public class PermissionGroupHelperImpl implements PermissionGroupHelper {
     private Set<String> autoCreatedPermissionGroupIds = null;
 
     private String defaultRoleForAllUserRoleId = null;
@@ -34,7 +34,7 @@ public class PermissionGroupUtils {
 
     private final UserUtils userUtils;
 
-    public PermissionGroupUtils(ConfigRepository configRepository, ModelMapper modelMapper, UserUtils userUtils) {
+    public PermissionGroupHelperImpl(ConfigRepository configRepository, ModelMapper modelMapper, UserUtils userUtils) {
         this.configRepository = configRepository;
         this.modelMapper = modelMapper;
         this.userUtils = userUtils;
@@ -63,6 +63,7 @@ public class PermissionGroupUtils {
                 .doOnNext(permissionGroupIdsSet -> autoCreatedPermissionGroupIds = permissionGroupIdsSet);
     }
 
+    @Override
     public Mono<Boolean> isAutoCreated(PermissionGroup permissionGroup) {
         return getAutoCreatedPermissionGroupIds()
                 .map(autoCreatedPermissionGroupIdSet ->
@@ -70,6 +71,7 @@ public class PermissionGroupUtils {
                                 || Objects.nonNull(permissionGroup.getDefaultDomainType()));
     }
 
+    @Override
     public Flux<PermissionGroupInfoDTO> mapToPermissionGroupInfoDto(Flux<PermissionGroup> permissionGroupFlux) {
         return permissionGroupFlux
                 .flatMap(permissionGroup -> Mono.zip(Mono.just(permissionGroup), isAutoCreated(permissionGroup)))
@@ -83,6 +85,7 @@ public class PermissionGroupUtils {
                 });
     }
 
+    @Override
     public Mono<String> getDefaultRoleForAllUserRoleId() {
         if (org.apache.commons.lang3.StringUtils.isNotEmpty(this.defaultRoleForAllUserRoleId)) {
             return Mono.just(this.defaultRoleForAllUserRoleId);
@@ -94,7 +97,8 @@ public class PermissionGroupUtils {
                 .doOnNext(defaultRoleId -> this.defaultRoleForAllUserRoleId = defaultRoleId);
     }
 
-    public static boolean isUserManagementRole(PermissionGroup role) {
+    @Override
+    public boolean isUserManagementRole(PermissionGroup role) {
         Optional<Policy> readPolicy = role.getPolicies().stream()
                 .filter(policy -> policy.getPermission().equalsIgnoreCase(READ_PERMISSION_GROUPS.getValue()))
                 .findFirst();

@@ -1,6 +1,7 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.annotations.FeatureFlagged;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.UserGroup;
@@ -10,6 +11,7 @@ import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.dtos.UpdatePermissionGroupDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.repositories.UserDataRepository;
 import com.appsmith.server.repositories.UserGroupRepository;
@@ -81,6 +83,7 @@ public class UserWorkspaceServiceImpl extends UserWorkspaceServiceCEImpl impleme
     }
 
     @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
     public Mono<MemberInfoDTO> updatePermissionGroupForMember(
             String workspaceId, UpdatePermissionGroupDTO changeUserGroupDTO, String originHeader) {
         if (changeUserGroupDTO.getUsername() == null && changeUserGroupDTO.getUserGroupId() == null)
@@ -175,6 +178,7 @@ public class UserWorkspaceServiceImpl extends UserWorkspaceServiceCEImpl impleme
     }
 
     @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
     public Mono<List<MemberInfoDTO>> getWorkspaceMembers(String workspaceId) {
         Mono<List<MemberInfoDTO>> sortedOnlyUsersWorkspaceMembersMono = super.getWorkspaceMembers(workspaceId);
         Mono<List<MemberInfoDTO>> unsortedOnlyUserGroupWorkspaceMembersMono =
@@ -336,6 +340,7 @@ public class UserWorkspaceServiceImpl extends UserWorkspaceServiceCEImpl impleme
     }
 
     @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
     public Boolean isLastAdminRoleEntity(PermissionGroup permissionGroup) {
         return permissionGroup.getName().startsWith(FieldName.ADMINISTRATOR)
                 && ((permissionGroup.getAssignedToUserIds().size() == 1

@@ -15,9 +15,11 @@ import com.appsmith.server.dtos.UserGroupDTO;
 import com.appsmith.server.dtos.UsersForGroupDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.UserGroupService;
 import com.appsmith.server.services.UserService;
@@ -29,8 +31,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -48,6 +52,7 @@ import static com.appsmith.server.acl.AclPermission.ASSIGN_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.DELETE_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.READ_PERMISSION_GROUPS;
+import static com.appsmith.server.acl.AclPermission.READ_PERMISSION_GROUP_MEMBERS;
 import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
 import static com.appsmith.server.acl.AclPermission.UNASSIGN_PERMISSION_GROUPS;
 import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
@@ -56,6 +61,7 @@ import static com.appsmith.server.constants.FieldName.INSTANCE_ADMIN_ROLE;
 import static com.appsmith.server.constants.FieldName.VIEWER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.eq;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -89,6 +95,9 @@ public class PermissionGroupServiceTest {
     @Autowired
     UserWorkspaceService userWorkspaceService;
 
+    @SpyBean
+    FeatureFlagService featureFlagService;
+
     User api_user = null;
 
     Set<String> superAdminIds;
@@ -97,6 +106,12 @@ public class PermissionGroupServiceTest {
 
     @BeforeEach
     public void setup() {
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_gac_enabled)))
+                .thenReturn(Mono.just(Boolean.TRUE));
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_audit_logs_enabled)))
+                .thenReturn(Mono.just(Boolean.FALSE));
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_gac_enabled)))
+                .thenReturn(Mono.just(Boolean.TRUE));
         if (api_user == null) {
             api_user = userRepository.findByEmail("api_user").block();
         }
@@ -335,6 +350,10 @@ public class PermissionGroupServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testFindConfigurableRoleById() {
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_gac_enabled)))
+                .thenReturn(Mono.just(Boolean.TRUE));
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.release_datasource_environments_enabled)))
+                .thenReturn(Mono.just(Boolean.FALSE));
         String mockName = "mock-name";
         String mockDescription = "mock description";
         PermissionGroup mockPermissionGroup = new PermissionGroup();
@@ -840,5 +859,81 @@ public class PermissionGroupServiceTest {
                                 .getMessage()
                                 .contains(AppsmithError.ACTION_IS_NOT_AUTHORIZED.getMessage("update role")))
                 .verify();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testPoliciesOfWorkspaceRoles_gacFeatureFlagTurnedOff() {
+        Mockito.when(featureFlagService.check(Mockito.eq(FeatureFlagEnum.license_gac_enabled)))
+                .thenReturn(Mono.just(Boolean.FALSE));
+
+        User user = userRepository.findByEmail("api_user").block();
+
+        Workspace workspace = workspaceService
+                .createDefault(new Workspace(), user)
+                .switchIfEmpty(Mono.error(new Exception("createDefault is returning empty!!")))
+                .block();
+
+        String instanceAdminRoleId = userUtils
+                .getSuperAdminPermissionGroup()
+                .map(PermissionGroup::getId)
+                .block();
+
+        List<PermissionGroup> defaultPermissionGroups = permissionGroupRepository
+                .findAllById(workspace.getDefaultPermissionGroups())
+                .collectList()
+                .block();
+
+        defaultPermissionGroups.forEach(defaultPermissionGroup -> {
+            Set<Policy> policies = defaultPermissionGroup.getPolicies();
+            List<String> permissionsAllowed =
+                    policies.stream().map(Policy::getPermission).toList();
+            // No one should have the permissions to edit or delete these roles.
+            assertThat(permissionsAllowed)
+                    .containsExactlyInAnyOrder(
+                            READ_PERMISSION_GROUPS.getValue(),
+                            READ_PERMISSION_GROUP_MEMBERS.getValue(),
+                            UNASSIGN_PERMISSION_GROUPS.getValue(),
+                            ASSIGN_PERMISSION_GROUPS.getValue());
+            policies.forEach(policy -> assertThat(policy.getPermissionGroups()).contains(instanceAdminRoleId));
+        });
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testPoliciesOfWorkspaceRoles_gacFeatureFlagTurnedOn() {
+        Mockito.when(featureFlagService.check(Mockito.eq(FeatureFlagEnum.license_gac_enabled)))
+                .thenReturn(Mono.just(Boolean.TRUE));
+
+        User user = userRepository.findByEmail("api_user").block();
+
+        Workspace workspace = workspaceService
+                .createDefault(new Workspace(), user)
+                .switchIfEmpty(Mono.error(new Exception("createDefault is returning empty!!")))
+                .block();
+
+        String instanceAdminRoleId = userUtils
+                .getSuperAdminPermissionGroup()
+                .map(PermissionGroup::getId)
+                .block();
+
+        List<PermissionGroup> defaultPermissionGroups = permissionGroupRepository
+                .findAllById(workspace.getDefaultPermissionGroups())
+                .collectList()
+                .block();
+
+        defaultPermissionGroups.forEach(defaultPermissionGroup -> {
+            Set<Policy> policies = defaultPermissionGroup.getPolicies();
+            List<String> permissionsAllowed =
+                    policies.stream().map(Policy::getPermission).toList();
+            // No one should have the permissions to edit or delete these roles.
+            assertThat(permissionsAllowed)
+                    .containsExactlyInAnyOrder(
+                            READ_PERMISSION_GROUPS.getValue(),
+                            READ_PERMISSION_GROUP_MEMBERS.getValue(),
+                            UNASSIGN_PERMISSION_GROUPS.getValue(),
+                            ASSIGN_PERMISSION_GROUPS.getValue());
+            policies.forEach(policy -> assertThat(policy.getPermissionGroups()).contains(instanceAdminRoleId));
+        });
     }
 }

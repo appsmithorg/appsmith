@@ -1,7 +1,7 @@
 package com.appsmith.server.repositories;
 
 import com.appsmith.caching.annotations.Cache;
-import com.appsmith.caching.annotations.CacheEvict;
+import com.appsmith.server.annotations.FeatureFlagged;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.QPermissionGroup;
 import com.appsmith.server.domains.QUserGroup;
@@ -9,6 +9,7 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.InMemoryCacheableRepositoryHelper;
 import com.appsmith.server.repositories.ce_compatible.CacheableRepositoryHelperCECompatibleImpl;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
@@ -40,7 +41,8 @@ public class CacheableRepositoryHelperImpl extends CacheableRepositoryHelperCECo
         this.mongoOperations = mongoOperations;
     }
 
-    @Cache(cacheName = "permissionGroupsForUser", key = "{#user.email + #user.tenantId}")
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
+    @Cache(cacheName = "gacEnabled_permissionGroupsForUser", key = "{#user.email + #user.tenantId}")
     @Override
     public Mono<Set<String>> getPermissionGroupsOfUser(User user) {
 
@@ -57,7 +59,7 @@ public class CacheableRepositoryHelperImpl extends CacheableRepositoryHelperCECo
             return Mono.error(new AppsmithException(AppsmithError.SESSION_BAD_STATE));
         }
 
-        Mono<Set<String>> userPermissionGroupIds = super.getPermissionGroupsOfUser(user);
+        Mono<Set<String>> userPermissionGroupIds = getAllPermissionGroupsAssignedToUser(user);
 
         Mono<Set<String>> userGroupPermissionIds = getPermissionGroupsOfGroupsForUser(user.getId());
 
@@ -71,6 +73,28 @@ public class CacheableRepositoryHelperImpl extends CacheableRepositoryHelperCECo
 
             return userAccessibleGroups;
         });
+    }
+
+    private Mono<Set<String>> getAllPermissionGroupsAssignedToUser(User user) {
+
+        Criteria assignedToUserIdsCriteria = Criteria.where(
+                        fieldName(QPermissionGroup.permissionGroup.assignedToUserIds))
+                .is(user.getId());
+        Criteria notDeletedCriteria = notDeleted();
+
+        Criteria andCriteria = new Criteria();
+        andCriteria.andOperator(assignedToUserIdsCriteria, notDeletedCriteria);
+
+        Query query = new Query();
+        query.addCriteria(andCriteria);
+
+        // Since we are only interested in the permission group ids, we can project only the id field.
+        query.fields().include(fieldName(QPermissionGroup.permissionGroup.id));
+
+        return mongoOperations
+                .find(query, PermissionGroup.class)
+                .map(permissionGroup -> permissionGroup.getId())
+                .collect(Collectors.toSet());
     }
 
     private Mono<Set<String>> getPermissionGroupsOfGroupsForUser(String userId) {
@@ -110,6 +134,7 @@ public class CacheableRepositoryHelperImpl extends CacheableRepositoryHelperCECo
 
     @Override
     @Cache(cacheName = "readablePermissionGroupCountForUser", key = "{#user.email + #user.tenantId}")
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
     public Mono<Long> getAllReadablePermissionGroupsForUser(User user) {
         // The below call doesn't hit the case, but instead hits the whole function flow.
         Mono<Set<String>> permissionGroupsMono = getPermissionGroupsOfUser(user);
@@ -121,11 +146,5 @@ public class CacheableRepositoryHelperImpl extends CacheableRepositoryHelperCECo
                     return queryWithPermissions;
                 })
                 .flatMap(query -> mongoOperations.count(query, PermissionGroup.class));
-    }
-
-    @Override
-    @CacheEvict(cacheName = "readablePermissionGroupCountForUser", key = "{#email + #tenantId}")
-    public Mono<Void> evictGetAllReadablePermissionGroupsForUser(String email, String tenantId) {
-        return Mono.empty();
     }
 }

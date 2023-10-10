@@ -58,7 +58,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.DELETE_USERS;
@@ -92,6 +91,7 @@ public class UserServiceImpl extends UserServiceCECompatibleImpl implements User
     private final ProvisionUtils provisionUtils;
     private final SessionUserService sessionUserService;
     private final PACConfigurationService pacConfigurationService;
+    private final UserServiceHelper userServiceHelper;
 
     public UserServiceImpl(
             Scheduler scheduler,
@@ -159,9 +159,11 @@ public class UserServiceImpl extends UserServiceCECompatibleImpl implements User
         this.provisionUtils = provisionUtils;
         this.sessionUserService = sessionUserService;
         this.pacConfigurationService = pacConfigurationService;
+        this.userServiceHelper = userServiceHelper;
     }
 
     @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
     public Mono<UserProfileDTO> buildUserProfileDTO(User user) {
         Mono<Tenant> tenantWithConfigurationMono =
                 tenantService.getTenantConfiguration().cache();
@@ -236,11 +238,13 @@ public class UserServiceImpl extends UserServiceCECompatibleImpl implements User
     }
 
     @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
     public Flux<User> findAllByIdsIn(Set<String> ids) {
         return repository.findAllById(ids);
     }
 
     @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
     public Flux<User> findAllByUsernameIn(Set<String> usernames) {
         return repository.findAllByEmails(usernames);
     }
@@ -417,42 +421,16 @@ public class UserServiceImpl extends UserServiceCECompatibleImpl implements User
     }
 
     @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
     public Mono<User> userCreate(User user, boolean isAdminUser) {
         Mono<User> userCreateAndDefaultRoleAssignmentMono = super.userCreate(user, isAdminUser)
                 // After creating the user, assign the default role to the newly created user.
-                .flatMap(createdUser -> userUtils
-                        .getDefaultUserPermissionGroup()
-                        .flatMap(permissionGroup -> {
-                            log.debug(
-                                    "Assigning default user role to newly created user {}", createdUser.getUsername());
-                            return permissionGroupService.bulkAssignToUsersWithoutPermission(
-                                    permissionGroup, List.of(createdUser));
-                        })
-                        .then(Mono.just(createdUser)));
+                .flatMap(createdUser -> userServiceHelper.assignDefaultRoleToUser(user));
 
         //  Use a synchronous sink which does not take subscription cancellations into account. This that even if the
         //  subscriber has cancelled its subscription, the user create method will still generate its event.
         return Mono.create(sink -> userCreateAndDefaultRoleAssignmentMono.subscribe(
                 sink::success, sink::error, null, sink.currentContext()));
-    }
-
-    /**
-     * The overridden method updates policy for the user resource, where the User resource will inherit permissions
-     * from the Tenant.
-     */
-    @Override
-    protected Mono<User> addUserPolicies(User savedUser) {
-        return super.addUserPolicies(savedUser)
-                .zipWith(tenantService.getDefaultTenant())
-                .map(pair -> {
-                    User user = pair.getT1();
-                    Tenant tenant = pair.getT2();
-                    Map<String, Policy> userPoliciesMapWithNewPermissions =
-                            policyGenerator.getAllChildPolicies(tenant.getPolicies(), Tenant.class, User.class).stream()
-                                    .collect(Collectors.toMap(Policy::getPermission, Function.identity()));
-                    policySolution.addPoliciesToExistingObject(userPoliciesMapWithNewPermissions, user);
-                    return user;
-                });
     }
 
     @Override

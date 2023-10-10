@@ -4,12 +4,10 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.ce.FieldNameCE;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationMode;
-import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.helpers.EmailServiceHelper;
 import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.services.ce.EmailServiceCEImpl;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
@@ -18,24 +16,40 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.appsmith.server.constants.EmailConstants.*;
+import static com.appsmith.server.constants.EmailConstants.APPLICATION_EMAIL_SUBJECT_FOR_EXISTING_USER;
+import static com.appsmith.server.constants.EmailConstants.APPLICATION_EMAIL_SUBJECT_FOR_NEW_USER;
+import static com.appsmith.server.constants.EmailConstants.EMAIL_ROLE_DEVELOPER_TEXT;
+import static com.appsmith.server.constants.EmailConstants.EMAIL_ROLE_VIEWER_TEXT;
+import static com.appsmith.server.constants.EmailConstants.GROUP_NAME;
+import static com.appsmith.server.constants.EmailConstants.INSTANCE_NAME;
+import static com.appsmith.server.constants.EmailConstants.INVITER_APPLICATION_NAME;
+import static com.appsmith.server.constants.EmailConstants.INVITE_APP_TEMPLATE;
+import static com.appsmith.server.constants.EmailConstants.INVITE_TO_INSTANCE_EMAIL_SUBJECT;
+import static com.appsmith.server.constants.EmailConstants.INVITE_TO_INSTANCE_EMAIL_SUBJECT_VIA_GROUP;
+import static com.appsmith.server.constants.EmailConstants.INVITE_TO_INSTANCE_EMAIL_TEMPLATE;
+import static com.appsmith.server.constants.EmailConstants.INVITE_TO_INSTANCE_EMAIL_TEMPLATE_VIA_GROUPS;
+import static com.appsmith.server.constants.EmailConstants.INVITE_USER_CLIENT_URL_FORMAT;
+import static com.appsmith.server.constants.EmailConstants.PRIMARY_LINK_TEXT;
+import static com.appsmith.server.constants.EmailConstants.PRIMARY_LINK_TEXT_APPLICATION_REDIRECTION;
+import static com.appsmith.server.constants.EmailConstants.PRIMARY_LINK_TEXT_INSTANCE_INVITE;
+import static com.appsmith.server.constants.EmailConstants.PRIMARY_LINK_TEXT_USER_SIGNUP_APPLICATION_INVITE;
+import static com.appsmith.server.constants.EmailConstants.PRIMARY_LINK_URL;
+import static com.appsmith.server.constants.EmailConstants.ROLE_NAME;
 import static com.appsmith.server.constants.FieldName.INSTANCE_ID;
 import static com.appsmith.server.constants.ce.EmailConstantsCE.INVITER_FIRST_NAME;
-import static com.appsmith.server.domains.TenantConfiguration.DEFAULT_APPSMITH_LOGO;
-import static com.appsmith.server.domains.TenantConfiguration.DEFAULT_BACKGROUND_COLOR;
-import static com.appsmith.server.domains.TenantConfiguration.DEFAULT_FONT_COLOR;
-import static com.appsmith.server.domains.TenantConfiguration.DEFAULT_PRIMARY_COLOR;
 import static org.apache.commons.lang.StringUtils.defaultIfEmpty;
 
 @Service
 public class EmailServiceImpl extends EmailServiceCEImpl implements EmailService {
 
     private final EmailSender emailSender;
-    private final TenantService tenantService;
+
+    private final EmailServiceHelper emailServiceHelper;
 
     public EmailServiceImpl(EmailSender emailSender, EmailServiceHelper emailServiceHelper) {
         super(emailSender, emailServiceHelper);
         this.emailSender = emailSender;
+        this.emailServiceHelper = emailServiceHelper;
     }
 
     @Override
@@ -71,7 +85,8 @@ public class EmailServiceImpl extends EmailServiceCEImpl implements EmailService
 
         String finalSubject = subject;
 
-        return enrichWithBrandParams(params, originHeader)
+        return emailServiceHelper
+                .enrichWithBrandParams(params, originHeader)
                 .flatMap(updatedParams ->
                         emailSender.sendMail(invitedUser.getEmail(), finalSubject, INVITE_APP_TEMPLATE, updatedParams));
     }
@@ -86,7 +101,8 @@ public class EmailServiceImpl extends EmailServiceCEImpl implements EmailService
         String emailSubject = String.format(INVITE_TO_INSTANCE_EMAIL_SUBJECT, instanceName);
         Map<String, String> params =
                 getInstanceEmailParamsForRoleInvite(invitingUser, inviteUrl, addedRole, instanceName);
-        return enrichWithBrandParams(params, originHeader)
+        return emailServiceHelper
+                .enrichWithBrandParams(params, originHeader)
                 .flatMap(updatedParams -> emailSender.sendMail(
                         invitedUser.getEmail(), emailSubject, INVITE_TO_INSTANCE_EMAIL_TEMPLATE, params));
     }
@@ -101,60 +117,10 @@ public class EmailServiceImpl extends EmailServiceCEImpl implements EmailService
         String emailSubject = String.format(INVITE_TO_INSTANCE_EMAIL_SUBJECT_VIA_GROUP, groupAddedTo);
         Map<String, String> params =
                 getInstanceEmailParamsForGroupInvite(invitingUser, inviteUrl, groupAddedTo, instanceName);
-        return enrichWithBrandParams(params, originHeader)
+        return emailServiceHelper
+                .enrichWithBrandParams(params, originHeader)
                 .flatMap(updatedParams -> emailSender.sendMail(
                         invitedUser.getEmail(), emailSubject, INVITE_TO_INSTANCE_EMAIL_TEMPLATE_VIA_GROUPS, params));
-    }
-
-    @Override
-    protected Mono<Map<String, String>> enrichWithBrandParams(Map<String, String> params, String origin) {
-        return tenantService.getDefaultTenant().map(tenant -> {
-            final TenantConfiguration tenantConfiguration = tenant.getTenantConfiguration();
-            String primaryColor = DEFAULT_PRIMARY_COLOR;
-            String backgroundColor = DEFAULT_BACKGROUND_COLOR;
-            String fontColor = DEFAULT_FONT_COLOR;
-            String logoUrl = StringUtils.isNotEmpty(origin) ? origin + tenantConfiguration.getBrandLogoUrl() : null;
-
-            if (tenantConfiguration.isWhitelabelEnabled()) {
-                final TenantConfiguration.BrandColors brandColors = tenantConfiguration.getBrandColors();
-                if (brandColors != null) {
-                    primaryColor = StringUtils.defaultIfEmpty(brandColors.getPrimary(), primaryColor);
-                    backgroundColor = StringUtils.defaultIfEmpty(brandColors.getBackground(), backgroundColor);
-                    fontColor = defaultIfEmpty(brandColors.getFont(), fontColor);
-                }
-            }
-
-            params.put(INSTANCE_NAME, StringUtils.defaultIfEmpty(tenantConfiguration.getInstanceName(), "Appsmith"));
-            params.put(LOGO_URL, StringUtils.defaultIfEmpty(logoUrl, DEFAULT_APPSMITH_LOGO));
-            params.put(BRAND_PRIMARY_COLOR, primaryColor);
-            params.put(BRAND_BACKGROUND_COLOR, backgroundColor);
-            params.put(BRAND_FONT_COLOR, fontColor);
-            return params;
-        });
-    }
-
-    @Override
-    protected String getForgotPasswordTemplate() {
-        return FORGOT_PASSWORD_TEMPLATE_EE;
-    }
-
-    @Override
-    protected String getWorkspaceInviteTemplate(boolean isNewUser) {
-        if (isNewUser) {
-            return INVITE_TO_WORKSPACE_NEW_USER_TEMPLATE_EE;
-        }
-
-        return INVITE_TO_WORKSPACE_EXISTING_USER_TEMPLATE_EE;
-    }
-
-    @Override
-    protected String getEmailVerificationTemplate() {
-        return EMAIL_VERIFICATION_EMAIL_TEMPLATE_EE;
-    }
-
-    @Override
-    protected String getAdminInstanceInviteTemplate() {
-        return INVITE_TO_INSTANCE_ADMIN_EMAIL_TEMPLATE;
     }
 
     private Map<String, String> getApplicationEmailParams(

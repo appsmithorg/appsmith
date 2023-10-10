@@ -35,6 +35,8 @@ import com.appsmith.server.dtos.GitPullDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.featureflags.CachedFeatures;
+import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.GitCloudServicesUtils;
 import com.appsmith.server.helpers.GitFileUtils;
@@ -66,6 +68,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
@@ -178,6 +181,9 @@ public class GitServiceWithRBACTest {
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
 
+    @SpyBean
+    FeatureFlagService featureFlagService;
+
     private static String workspaceId;
     // private static Application gitConnectedApplication = new Application();
     private static final String DEFAULT_BRANCH = "defaultBranchName";
@@ -194,6 +200,15 @@ public class GitServiceWithRBACTest {
 
     @BeforeEach
     public void setup() throws IOException, GitAPIException {
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_gac_enabled)))
+                .thenReturn(Mono.just(Boolean.TRUE));
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_audit_logs_enabled)))
+                .thenReturn(Mono.just(Boolean.FALSE));
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_git_unlimited_repo_enabled)))
+                .thenReturn(Mono.just(Boolean.FALSE));
+        CachedFeatures cachedFeatures = new CachedFeatures();
+        cachedFeatures.setFeatures(Map.of(FeatureFlagEnum.license_gac_enabled.name(), Boolean.TRUE));
+        Mockito.when(featureFlagService.getCachedTenantFeatureFlags()).thenReturn(cachedFeatures);
 
         if (StringUtils.isEmpty(workspaceId)) {
 

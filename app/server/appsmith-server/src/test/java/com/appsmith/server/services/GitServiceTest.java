@@ -90,6 +90,8 @@ public class GitServiceTest {
 
         Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_git_unlimited_repo_enabled)))
                 .thenReturn(Mono.just(TRUE));
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_gac_enabled)))
+                .thenReturn(Mono.just(FALSE));
         testUserProfile.setAuthorEmail("test@email.com");
         testUserProfile.setAuthorName("testUser");
     }

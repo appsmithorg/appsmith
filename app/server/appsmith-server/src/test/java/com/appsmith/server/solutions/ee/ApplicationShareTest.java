@@ -26,6 +26,8 @@ import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.dtos.UpdateApplicationRoleDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.featureflags.CachedFeatures;
+import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.UserUtils;
@@ -42,6 +44,7 @@ import com.appsmith.server.services.ApplicationMemberService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.EnvironmentService;
+import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.LayoutCollectionService;
 import com.appsmith.server.services.PermissionGroupService;
@@ -63,6 +66,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
@@ -114,7 +118,10 @@ import static com.appsmith.server.constants.FieldName.APPLICATION_DEVELOPER;
 import static com.appsmith.server.constants.FieldName.APPLICATION_VIEWER;
 import static com.appsmith.server.constants.FieldName.DEVELOPER;
 import static com.appsmith.server.constants.FieldName.VIEWER;
+import static java.lang.Boolean.FALSE;
+import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.eq;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -206,6 +213,9 @@ public class ApplicationShareTest {
     @Autowired
     ActionCollectionRepository actionCollectionRepository;
 
+    @SpyBean
+    FeatureFlagService featureFlagService;
+
     User apiUser = null;
     User testUser = null;
 
@@ -220,6 +230,14 @@ public class ApplicationShareTest {
         if (testUser == null) {
             testUser = userRepository.findByEmail("usertest@usertest.com").block();
         }
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_gac_enabled)))
+                .thenReturn(Mono.just(TRUE));
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_audit_logs_enabled)))
+                .thenReturn(Mono.just(FALSE));
+
+        CachedFeatures cachedFeatures = new CachedFeatures();
+        cachedFeatures.setFeatures(Map.of(FeatureFlagEnum.license_gac_enabled.name(), TRUE));
+        Mockito.when(featureFlagService.getCachedTenantFeatureFlags()).thenReturn(cachedFeatures);
     }
 
     @Test
@@ -235,7 +253,7 @@ public class ApplicationShareTest {
         Workspace workspace = new Workspace();
         workspace.setName(testName);
         Workspace createdWorkspace =
-                workspaceService.create(workspace, testUser, Boolean.TRUE).block();
+                workspaceService.create(workspace, testUser, TRUE).block();
         List<PermissionGroup> defaultWorkspaceRoles = permissionGroupService
                 .findAllByIds(createdWorkspace.getDefaultPermissionGroups())
                 .collectList()
@@ -305,7 +323,7 @@ public class ApplicationShareTest {
         action.setDatasource(createdDatasource);
 
         ActionDTO createdActionBlock =
-                layoutActionService.createSingleAction(action, Boolean.FALSE).block();
+                layoutActionService.createSingleAction(action, FALSE).block();
 
         ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
         actionCollectionDTO.setName("testActionCollection");
@@ -521,7 +539,7 @@ public class ApplicationShareTest {
         Workspace workspace = new Workspace();
         workspace.setName(testName);
         Workspace createdWorkspace =
-                workspaceService.create(workspace, testUser, Boolean.TRUE).block();
+                workspaceService.create(workspace, testUser, TRUE).block();
         List<PermissionGroup> defaultWorkspaceRoles = permissionGroupService
                 .findAllByIds(createdWorkspace.getDefaultPermissionGroups())
                 .collectList()
@@ -583,7 +601,7 @@ public class ApplicationShareTest {
         action.setDatasource(createdDatasource);
 
         ActionDTO createdActionBlock =
-                layoutActionService.createSingleAction(action, Boolean.FALSE).block();
+                layoutActionService.createSingleAction(action, FALSE).block();
 
         System.out.println("Create Viewer Role");
         PermissionGroup viewApplicationRole = applicationService
@@ -833,7 +851,7 @@ public class ApplicationShareTest {
         Workspace workspace = new Workspace();
         workspace.setName(testName);
         Workspace createdWorkspace =
-                workspaceService.create(workspace, testUser, Boolean.TRUE).block();
+                workspaceService.create(workspace, testUser, TRUE).block();
         List<PermissionGroup> defaultWorkspaceRoles = permissionGroupService
                 .findAllByIds(createdWorkspace.getDefaultPermissionGroups())
                 .collectList()
@@ -902,7 +920,7 @@ public class ApplicationShareTest {
         action.setDatasource(createdDatasource);
 
         ActionDTO createdActionBlock =
-                layoutActionService.createSingleAction(action, Boolean.FALSE).block();
+                layoutActionService.createSingleAction(action, FALSE).block();
 
         PermissionGroup viewApplicationRole = applicationService
                 .createDefaultRole(createdApplication, APPLICATION_VIEWER)
@@ -1077,7 +1095,7 @@ public class ApplicationShareTest {
         Workspace workspace = new Workspace();
         workspace.setName(testName);
         Workspace createdWorkspace =
-                workspaceService.create(workspace, testUser, Boolean.TRUE).block();
+                workspaceService.create(workspace, testUser, TRUE).block();
         List<PermissionGroup> defaultWorkspaceRoles = permissionGroupService
                 .findAllByIds(createdWorkspace.getDefaultPermissionGroups())
                 .collectList()
@@ -1132,7 +1150,7 @@ public class ApplicationShareTest {
         action.setDatasource(createdDatasource);
 
         ActionDTO createdActionBlock =
-                layoutActionService.createSingleAction(action, Boolean.FALSE).block();
+                layoutActionService.createSingleAction(action, FALSE).block();
 
         System.out.println("Create Dev Role");
         PermissionGroup devApplicationRole = applicationService
@@ -1320,7 +1338,7 @@ public class ApplicationShareTest {
         Workspace workspace = new Workspace();
         workspace.setName(testName);
         Workspace createdWorkspace =
-                workspaceService.create(workspace, testUser, Boolean.TRUE).block();
+                workspaceService.create(workspace, testUser, TRUE).block();
 
         Application application = new Application();
         application.setName(testName);
@@ -1348,7 +1366,7 @@ public class ApplicationShareTest {
         Workspace workspace = new Workspace();
         workspace.setName(testName);
         Workspace createdWorkspace =
-                workspaceService.create(workspace, testUser, Boolean.TRUE).block();
+                workspaceService.create(workspace, testUser, TRUE).block();
         List<PermissionGroup> defaultWorkspaceRoles = permissionGroupService
                 .findAllByIds(createdWorkspace.getDefaultPermissionGroups())
                 .collectList()
@@ -1431,7 +1449,7 @@ public class ApplicationShareTest {
         Workspace workspace = new Workspace();
         workspace.setName(testName);
         Workspace createdWorkspace =
-                workspaceService.create(workspace, testUser, Boolean.TRUE).block();
+                workspaceService.create(workspace, testUser, TRUE).block();
 
         Application application = new Application();
         application.setName(testName);
@@ -1457,7 +1475,7 @@ public class ApplicationShareTest {
         Workspace workspace = new Workspace();
         workspace.setName(testName);
         Workspace createdWorkspace =
-                workspaceService.create(workspace, testUser, Boolean.TRUE).block();
+                workspaceService.create(workspace, testUser, TRUE).block();
 
         Application application = new Application();
         application.setName(testName);
@@ -1482,7 +1500,7 @@ public class ApplicationShareTest {
         Workspace workspace = new Workspace();
         workspace.setName(testName);
         Workspace createdWorkspace =
-                workspaceService.create(workspace, testUser, Boolean.TRUE).block();
+                workspaceService.create(workspace, testUser, TRUE).block();
 
         Application application = new Application();
         application.setName(testName);
@@ -1529,7 +1547,7 @@ public class ApplicationShareTest {
         Workspace workspace = new Workspace();
         workspace.setName(testName);
         Workspace createdWorkspace =
-                workspaceService.create(workspace, testUser, Boolean.TRUE).block();
+                workspaceService.create(workspace, testUser, TRUE).block();
 
         Application application = new Application();
         application.setName(testName);
@@ -1574,7 +1592,7 @@ public class ApplicationShareTest {
         Workspace workspace = new Workspace();
         workspace.setName(testName);
         Workspace createdWorkspace =
-                workspaceService.create(workspace, testUser, Boolean.TRUE).block();
+                workspaceService.create(workspace, testUser, TRUE).block();
 
         Application application = new Application();
         application.setName(testName);
@@ -1620,7 +1638,7 @@ public class ApplicationShareTest {
         Workspace workspace = new Workspace();
         workspace.setName(testName);
         Workspace createdWorkspace =
-                workspaceService.create(workspace, testUser, Boolean.TRUE).block();
+                workspaceService.create(workspace, testUser, TRUE).block();
 
         Application application = new Application();
         application.setName(testName);
@@ -1664,7 +1682,7 @@ public class ApplicationShareTest {
         Workspace workspace = new Workspace();
         workspace.setName(testName);
         Workspace createdWorkspace =
-                workspaceService.create(workspace, testUser, Boolean.TRUE).block();
+                workspaceService.create(workspace, testUser, TRUE).block();
 
         Application application = new Application();
         application.setName(testName);
@@ -1715,7 +1733,7 @@ public class ApplicationShareTest {
         Workspace workspace = new Workspace();
         workspace.setName(testName);
         Workspace createdWorkspace =
-                workspaceService.create(workspace, testUser, Boolean.TRUE).block();
+                workspaceService.create(workspace, testUser, TRUE).block();
 
         Application application = new Application();
         application.setName(testName);
@@ -1766,7 +1784,7 @@ public class ApplicationShareTest {
         Workspace workspace = new Workspace();
         workspace.setName(testName);
         Workspace createdWorkspace =
-                workspaceService.create(workspace, testUser, Boolean.TRUE).block();
+                workspaceService.create(workspace, testUser, TRUE).block();
 
         Application application = new Application();
         application.setName(testName);
@@ -1802,7 +1820,7 @@ public class ApplicationShareTest {
         Workspace workspace = new Workspace();
         workspace.setName(testName);
         Workspace createdWorkspace =
-                workspaceService.create(workspace, testUser, Boolean.TRUE).block();
+                workspaceService.create(workspace, testUser, TRUE).block();
 
         Application application = new Application();
         application.setName(testName);
@@ -1850,7 +1868,7 @@ public class ApplicationShareTest {
         Workspace workspace = new Workspace();
         workspace.setName(testName);
         Workspace createdWorkspace =
-                workspaceService.create(workspace, testUser, Boolean.TRUE).block();
+                workspaceService.create(workspace, testUser, TRUE).block();
 
         Application application = new Application();
         application.setName(testName);
@@ -1917,7 +1935,7 @@ public class ApplicationShareTest {
         Workspace workspace = new Workspace();
         workspace.setName(testName);
         Workspace createdWorkspace =
-                workspaceService.create(workspace, testUser, Boolean.TRUE).block();
+                workspaceService.create(workspace, testUser, TRUE).block();
 
         Application application = new Application();
         application.setName(testName);
@@ -1953,7 +1971,7 @@ public class ApplicationShareTest {
         Workspace workspace = new Workspace();
         workspace.setName(testName);
         Workspace createdWorkspace =
-                workspaceService.create(workspace, testUser, Boolean.TRUE).block();
+                workspaceService.create(workspace, testUser, TRUE).block();
 
         Application application = new Application();
         application.setName(testName);
@@ -2026,7 +2044,7 @@ public class ApplicationShareTest {
         Workspace workspace = new Workspace();
         workspace.setName(testName);
         Workspace createdWorkspace =
-                workspaceService.create(workspace, testUser, Boolean.TRUE).block();
+                workspaceService.create(workspace, testUser, TRUE).block();
 
         Application application = new Application();
         application.setName(testName);
@@ -2113,7 +2131,7 @@ public class ApplicationShareTest {
         Workspace workspace = new Workspace();
         workspace.setName(testName);
         Workspace createdWorkspace =
-                workspaceService.create(workspace, testUser, Boolean.TRUE).block();
+                workspaceService.create(workspace, testUser, TRUE).block();
 
         Application application = new Application();
         application.setName(testName);
@@ -2182,7 +2200,7 @@ public class ApplicationShareTest {
             assertThat(policyOptional).isNotEmpty();
             Policy policy = policyOptional.get();
 
-            if (Boolean.TRUE.equals(environment.getIsDefault())) {
+            if (TRUE.equals(environment.getIsDefault())) {
                 assertThat(policy.getPermissionGroups())
                         .contains(appViewerRole.get().getId());
             } else {
@@ -2205,7 +2223,7 @@ public class ApplicationShareTest {
         Workspace workspace = new Workspace();
         workspace.setName(testName);
         Workspace createdWorkspace =
-                workspaceService.create(workspace, testUser, Boolean.TRUE).block();
+                workspaceService.create(workspace, testUser, TRUE).block();
 
         Application application = new Application();
         application.setName(testName);
@@ -2295,7 +2313,7 @@ public class ApplicationShareTest {
         Workspace workspace = new Workspace();
         workspace.setName(testName);
         Workspace createdWorkspace =
-                workspaceService.create(workspace, testUser, Boolean.TRUE).block();
+                workspaceService.create(workspace, testUser, TRUE).block();
 
         Application application = new Application();
         application.setName(testName);
@@ -2385,7 +2403,7 @@ public class ApplicationShareTest {
         Workspace workspace = new Workspace();
         workspace.setName(testName);
         Workspace createdWorkspace =
-                workspaceService.create(workspace, testUser, Boolean.TRUE).block();
+                workspaceService.create(workspace, testUser, TRUE).block();
 
         Application application = new Application();
         application.setName(testName);
@@ -2442,7 +2460,7 @@ public class ApplicationShareTest {
         Workspace workspace = new Workspace();
         workspace.setName(testName);
         Workspace createdWorkspace =
-                workspaceService.create(workspace, testUser, Boolean.TRUE).block();
+                workspaceService.create(workspace, testUser, TRUE).block();
 
         Application application = new Application();
         application.setName(testName);
@@ -2530,7 +2548,7 @@ public class ApplicationShareTest {
         Workspace workspace = new Workspace();
         workspace.setName(testName);
         Workspace createdWorkspace =
-                workspaceService.create(workspace, testUser, Boolean.TRUE).block();
+                workspaceService.create(workspace, testUser, TRUE).block();
 
         Application application = new Application();
         application.setName(testName);
@@ -2609,7 +2627,7 @@ public class ApplicationShareTest {
         Workspace workspace = new Workspace();
         workspace.setName(testName);
         Workspace createdWorkspace =
-                workspaceService.create(workspace, testUser, Boolean.TRUE).block();
+                workspaceService.create(workspace, testUser, TRUE).block();
 
         Application application = new Application();
         application.setName(testName);
@@ -2696,7 +2714,7 @@ public class ApplicationShareTest {
         Workspace workspace = new Workspace();
         workspace.setName(testName);
         Workspace createdWorkspace =
-                workspaceService.create(workspace, testUser, Boolean.TRUE).block();
+                workspaceService.create(workspace, testUser, TRUE).block();
 
         Application application = new Application();
         application.setName(testName);
@@ -2750,7 +2768,7 @@ public class ApplicationShareTest {
         Workspace workspace = new Workspace();
         workspace.setName(testName);
         Workspace createdWorkspace =
-                workspaceService.create(workspace, testUser, Boolean.TRUE).block();
+                workspaceService.create(workspace, testUser, TRUE).block();
 
         Application application = new Application();
         application.setName(testName);
@@ -2839,7 +2857,7 @@ public class ApplicationShareTest {
         Workspace workspace = new Workspace();
         workspace.setName(testName);
         Workspace createdWorkspace =
-                workspaceService.create(workspace, testUser, Boolean.TRUE).block();
+                workspaceService.create(workspace, testUser, TRUE).block();
 
         Application application = new Application();
         application.setName(testName);
@@ -2919,7 +2937,7 @@ public class ApplicationShareTest {
         Workspace workspace = new Workspace();
         workspace.setName(testName);
         Workspace createdWorkspace =
-                workspaceService.create(workspace, testUser, Boolean.TRUE).block();
+                workspaceService.create(workspace, testUser, TRUE).block();
 
         Application application = new Application();
         application.setName(testName);
@@ -3001,7 +3019,7 @@ public class ApplicationShareTest {
         Workspace workspace = new Workspace();
         workspace.setName(testName);
         Workspace createdWorkspace =
-                workspaceService.create(workspace, testUser, Boolean.TRUE).block();
+                workspaceService.create(workspace, testUser, TRUE).block();
 
         Application application = new Application();
         application.setName(testName);
@@ -3123,7 +3141,7 @@ public class ApplicationShareTest {
         Workspace workspace = new Workspace();
         workspace.setName(testName);
         Workspace createdWorkspace =
-                workspaceService.create(workspace, testUser, Boolean.TRUE).block();
+                workspaceService.create(workspace, testUser, TRUE).block();
 
         Application application = new Application();
         application.setName(testName);
@@ -3323,7 +3341,7 @@ public class ApplicationShareTest {
         Workspace workspace = new Workspace();
         workspace.setName(testName);
         Workspace createdWorkspace =
-                workspaceService.create(workspace, testUser, Boolean.TRUE).block();
+                workspaceService.create(workspace, testUser, TRUE).block();
 
         Application application = new Application();
         application.setName(testName);
@@ -3462,7 +3480,7 @@ public class ApplicationShareTest {
         Workspace workspace = new Workspace();
         workspace.setName(testName);
         Workspace createdWorkspace =
-                workspaceService.create(workspace, testUser, Boolean.TRUE).block();
+                workspaceService.create(workspace, testUser, TRUE).block();
 
         Application application = new Application();
         application.setName(testName);
@@ -3549,7 +3567,7 @@ public class ApplicationShareTest {
         Workspace workspace = new Workspace();
         workspace.setName(testName);
         Workspace createdWorkspace =
-                workspaceService.create(workspace, testUser, Boolean.TRUE).block();
+                workspaceService.create(workspace, testUser, TRUE).block();
 
         PermissionGroup adminWorkspaceRole = permissionGroupRepository
                 .findAllById(createdWorkspace.getDefaultPermissionGroups())
@@ -3737,7 +3755,7 @@ public class ApplicationShareTest {
         Workspace workspace = new Workspace();
         workspace.setName(testName);
         Workspace createdWorkspace =
-                workspaceService.create(workspace, testUser, Boolean.TRUE).block();
+                workspaceService.create(workspace, testUser, TRUE).block();
 
         Application application = new Application();
         application.setName(testName);
@@ -3830,7 +3848,7 @@ public class ApplicationShareTest {
         action.setDatasource(createdDatasource);
 
         ActionDTO createdActionBlock =
-                layoutActionService.createSingleAction(action, Boolean.FALSE).block();
+                layoutActionService.createSingleAction(action, FALSE).block();
 
         Set<Policy> datasourcePoliciesAfterActionCreation =
                 datasourceRepository.findById(createdDatasource.getId()).block().getPolicies();
@@ -3865,7 +3883,7 @@ public class ApplicationShareTest {
         Workspace workspace = new Workspace();
         workspace.setName(testName);
         Workspace createdWorkspace =
-                workspaceService.create(workspace, testUser, Boolean.TRUE).block();
+                workspaceService.create(workspace, testUser, TRUE).block();
 
         Application application = new Application();
         application.setName(testName);
@@ -3964,7 +3982,7 @@ public class ApplicationShareTest {
         Workspace workspace = new Workspace();
         workspace.setName(testName);
         Workspace createdWorkspace =
-                workspaceService.create(workspace, testUser, Boolean.TRUE).block();
+                workspaceService.create(workspace, testUser, TRUE).block();
 
         Application application = new Application();
         application.setName(testName);
@@ -3999,7 +4017,7 @@ public class ApplicationShareTest {
         environmentListAfterRoleCreated.forEach(environment -> {
             for (Policy policy : environment.getPolicies()) {
                 if (policy.getPermission().equals(EXECUTE_ENVIRONMENTS.getValue())) {
-                    if (Boolean.TRUE.equals(environment.getIsDefault())) {
+                    if (TRUE.equals(environment.getIsDefault())) {
                         assertThat(policy.getPermissionGroups()).contains(viewApplicationRole.getId());
                     } else {
                         assertThat(policy.getPermissionGroups()).doesNotContain(viewApplicationRole.getId());
@@ -4019,7 +4037,7 @@ public class ApplicationShareTest {
         Workspace workspace = new Workspace();
         workspace.setName(testName);
         Workspace createdWorkspace =
-                workspaceService.create(workspace, testUser, Boolean.TRUE).block();
+                workspaceService.create(workspace, testUser, TRUE).block();
 
         Application application = new Application();
         application.setName(testName);

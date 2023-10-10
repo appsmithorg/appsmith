@@ -24,7 +24,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.featureflags.CachedFeatures;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
-import com.appsmith.server.helpers.PermissionGroupUtils;
+import com.appsmith.server.helpers.PermissionGroupHelper;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.TenantRepository;
@@ -71,6 +71,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
@@ -111,6 +112,9 @@ public class TenantServiceTest {
     UserGroupRepository userGroupRepository;
 
     @Autowired
+    PermissionGroupHelper permissionGroupHelper;
+
+    @Autowired
     BrandingService brandingService;
 
     @SpyBean
@@ -123,6 +127,7 @@ public class TenantServiceTest {
 
     @BeforeEach
     public void setup() {
+        when(featureFlagService.check(any())).thenReturn(Mono.just(true));
         TenantConfiguration tenantConfiguration = new TenantConfiguration();
         tenantConfiguration.setWhiteLabelEnable("true");
         tenantConfiguration.setWhiteLabelLogo("https://custom.random.url");
@@ -365,6 +370,8 @@ public class TenantServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void test_setShowRolesAndGroupInTenant_checkRolesAndGroupsExistInUserProfile() {
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_gac_enabled)))
+                .thenReturn(Mono.just(Boolean.TRUE));
         String testName = "test_setShowRolesAndGroupInTenant_checkRolesAndGroupsExistInUserProfile";
         User apiUser = userRepository.findByEmail("api_user").block();
 
@@ -376,7 +383,7 @@ public class TenantServiceTest {
 
         List<String> assignedToRoles = permissionGroupRepository
                 .findByAssignedToUserIdsIn(apiUser.getId())
-                .filter(role -> !PermissionGroupUtils.isUserManagementRole(role))
+                .filter(role -> !permissionGroupHelper.isUserManagementRole(role))
                 .map(PermissionGroup::getName)
                 .collectList()
                 .block();
@@ -441,6 +448,8 @@ public class TenantServiceTest {
         assertEquals(
                 List.of(AccessControlConstants.ENABLE_PROGRAMMATIC_ACCESS_CONTROL_IN_ADMIN_SETTINGS),
                 userProfileDTO_shouldNotContainRolesAndGroupInfo.getGroups());
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_gac_enabled)))
+                .thenReturn(Mono.just(Boolean.FALSE));
     }
 
     @Test
@@ -459,7 +468,7 @@ public class TenantServiceTest {
 
         List<String> assignedToRoles = permissionGroupRepository
                 .findByAssignedToUserIdsIn(apiUser.getId())
-                .filter(role -> !PermissionGroupUtils.isUserManagementRole(role))
+                .filter(role -> !permissionGroupHelper.isUserManagementRole(role))
                 .map(PermissionGroup::getName)
                 .collectList()
                 .block();
