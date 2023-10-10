@@ -828,15 +828,6 @@ const migrations: Migration[] = [
     ],
     version: 85,
   },
-  {
-    functionLookup: [
-      {
-        moduleObj: tableMigrations,
-        functionName: "migrateTableServerSideFiltering",
-      },
-    ],
-    version: 86,
-  },
 ];
 
 const mockFnObj: Record<number, any> = {};
