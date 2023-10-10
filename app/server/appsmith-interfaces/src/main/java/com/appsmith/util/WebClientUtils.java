@@ -33,7 +33,6 @@ public class WebClientUtils {
     public static final String HOST_NOT_ALLOWED = "Host not allowed.";
 
     public static final ExchangeFilterFunction IP_CHECK_FILTER = ExchangeFilterFunction.ofRequestProcessor(request -> {
-        request.url();
         if (!StringUtils.hasText(request.url().getHost())) {
             return Mono.error(new AppsmithPluginException(
                     AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR, "Requested url host is null or empty"));
