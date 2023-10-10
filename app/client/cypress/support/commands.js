@@ -1207,6 +1207,9 @@ Cypress.Commands.add("startServerAndRoutes", () => {
       statusCode: 200,
     },
   ).as("docsCall");
+  cy.intercept("POST", "/api/v1/datasources/*/schema-preview").as(
+    "schemaPreview",
+  );
 });
 
 Cypress.Commands.add("startErrorRoutes", () => {

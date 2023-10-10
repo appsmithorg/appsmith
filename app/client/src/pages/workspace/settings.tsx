@@ -18,7 +18,7 @@ import { getAllApplications } from "@appsmith/actions/applicationActions";
 import { useMediaQuery } from "react-responsive";
 import { BackButton, StickyHeader } from "components/utils/helperComponents";
 import { debounce } from "lodash";
-import WorkspaceInviteUsersForm from "@appsmith/pages/workspace/WorkspaceInviteUsersForm";
+import WorkspaceInviteUsersForm from "pages/workspace/WorkspaceInviteUsersForm";
 import { SettingsPageHeader } from "./SettingsPageHeader";
 import { navigateToTab } from "@appsmith/pages/workspace/helpers";
 import {

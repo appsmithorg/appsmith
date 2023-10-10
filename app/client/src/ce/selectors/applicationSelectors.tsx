@@ -278,3 +278,9 @@ export const selectEvaluationVersion = (state: AppState) =>
 export const getDeletingMultipleApps = (state: AppState) => {
   return state.ui.applications.deletingMultipleApps;
 };
+
+export const getApplicationLoadingStates = (state: AppState) => {
+  return state.ui.applications?.loadingStates;
+};
+
+export const getAllAppUsers = () => [];

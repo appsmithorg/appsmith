@@ -48,6 +48,8 @@ export type FeatureParams = {
   overlayColor?: string;
   // Close popup when clicking on the overlay
   dismissOnOverlayClick?: boolean;
+  // execute function just before showing walkthrough highlight
+  runBeforeWalkthrough?: () => void;
 };
 
 type WalkthroughContextType = {

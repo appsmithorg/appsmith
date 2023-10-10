@@ -988,4 +988,38 @@ describe("DataTreeEvaluator", () => {
     // @ts-expect-error: Types are not available
     expect(dataTree3.Api2.config.body).toBe("{ 'name': \"Test\" }");
   });
+  it("Prevents data mutation in eval cycle", () => {
+    const { configEntity, unEvalEntity } = generateDataTreeWidget(
+      {
+        ...BASE_WIDGET_CONFIG,
+        ...BASE_WIDGET,
+        widgetName: "TextX",
+        text: "{{Text1.text = 123}}",
+        dynamicBindingPathList: [{ key: "text" }],
+        type: "TEXT_WIDGET",
+      },
+      {},
+      new Set(),
+    );
+    const updatedUnEvalTree = {
+      ...unEvalTree,
+      TextX: unEvalEntity,
+    };
+    const updatedConfigTree = {
+      ...configTree,
+      TextX: configEntity,
+    };
+    const { evalOrder, nonDynamicFieldValidationOrder, unEvalUpdates } =
+      evaluator.setupUpdateTree(updatedUnEvalTree, updatedConfigTree);
+    expect(evalOrder).toContain("TextX.text");
+    evaluator.evalAndValidateSubTree(
+      evalOrder,
+      nonDynamicFieldValidationOrder,
+      updatedConfigTree,
+      unEvalUpdates,
+    );
+    const dataTree = evaluator.evalTree;
+    expect(dataTree).toHaveProperty("TextX.text", 123);
+    expect(dataTree).toHaveProperty("Text1.text", "Label");
+  });
 });

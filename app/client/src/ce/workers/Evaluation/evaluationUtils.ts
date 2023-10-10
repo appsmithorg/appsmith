@@ -782,6 +782,7 @@ export const overrideWidgetProperties = (params: {
   isNewWidget: boolean;
   shouldUpdateGlobalContext?: boolean;
   overriddenProperties?: string[];
+  safeTree?: DataTree;
 }) => {
   const {
     configTree,
@@ -792,14 +793,15 @@ export const overrideWidgetProperties = (params: {
     isNewWidget,
     overriddenProperties,
     propertyPath,
+    safeTree,
     shouldUpdateGlobalContext,
     value,
   } = params;
-  const clonedValue = klona(value);
   const { entityName } = getEntityNameAndPropertyPath(fullPropertyPath);
 
   const configEntity = configTree[entityName] as WidgetEntityConfig;
   if (propertyPath in configEntity.overridingPropertyPaths) {
+    const clonedValue = klona(value);
     const overridingPropertyPaths =
       configEntity.overridingPropertyPaths[propertyPath];
 
@@ -812,14 +814,12 @@ export const overrideWidgetProperties = (params: {
     overridingPropertyPaths.forEach((overriddenPropertyPath) => {
       const overriddenPropertyPathArray = overriddenPropertyPath.split(".");
       if (pathsNotToOverride.includes(overriddenPropertyPath)) return;
-      _.set(
-        currentTree,
-        [entityName, ...overriddenPropertyPathArray],
-        clonedValue,
-      );
+      const fullPath = [entityName, ...overriddenPropertyPathArray];
+      _.set(currentTree, fullPath, clonedValue);
+      if (safeTree) _.set(safeTree, fullPath, klona(value));
 
       if (shouldUpdateGlobalContext) {
-        _.set(self, [entityName, ...overriddenPropertyPathArray], clonedValue);
+        _.set(self, fullPath, clonedValue);
       }
       overriddenProperties?.push(overriddenPropertyPath);
       // evalMetaUpdates has all updates from property which overrides meta values.
@@ -837,7 +837,7 @@ export const overrideWidgetProperties = (params: {
     });
   } else if (
     propertyPath in configEntity.propertyOverrideDependency &&
-    clonedValue === undefined
+    value === undefined
   ) {
     // When a reset a widget its meta value becomes undefined, ideally they should reset to default value.
     // below we handle logic to reset meta values to default values.
@@ -845,17 +845,14 @@ export const overrideWidgetProperties = (params: {
       configEntity.propertyOverrideDependency[propertyPath];
     if (propertyOverridingKeyMap.DEFAULT) {
       const defaultValue = entity[propertyOverridingKeyMap.DEFAULT];
-      const clonedDefaultValue = klona(defaultValue);
       if (defaultValue !== undefined) {
-        const propertyPathArray = propertyPath.split(".");
-        _.set(
-          currentTree,
-          [entityName, ...propertyPathArray],
-          clonedDefaultValue,
-        );
+        const clonedDefaultValue = klona(defaultValue);
+        const fullPath = [entityName, ...propertyPath.split(".")];
+        _.set(currentTree, fullPath, clonedDefaultValue);
+        if (safeTree) _.set(safeTree, fullPath, klona(defaultValue));
 
         if (shouldUpdateGlobalContext) {
-          _.set(self, [entityName, ...propertyPathArray], clonedDefaultValue);
+          _.set(self, fullPath, clonedDefaultValue);
         }
 
         return {
@@ -866,6 +863,7 @@ export const overrideWidgetProperties = (params: {
     }
   }
 };
+
 export function isValidEntity(
   entity: DataTreeEntity,
 ): entity is DataTreeEntityObject {
