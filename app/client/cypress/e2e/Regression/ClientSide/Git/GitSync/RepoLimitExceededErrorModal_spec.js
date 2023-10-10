@@ -21,6 +21,7 @@ describe("Repo Limit Exceeded Error Modal", function () {
   });
 
   it("1. Verify Repo limit flow for CE instance", function () {
+    agHelper.Sleep(2000); // adding wait for app to load
     homePage.LogOutviaAPI();
     cy.generateUUID().then((uid) => {
       cy.Signup(`${uid}@appsmithtest.com`, uid);

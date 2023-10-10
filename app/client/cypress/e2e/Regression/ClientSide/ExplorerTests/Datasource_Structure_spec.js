@@ -54,9 +54,11 @@ describe("Entity explorer datasource structure", function () {
     // cy.get(".bp3-popover-content").should("be.visible");
 
     cy.get(explorer.templateMenuIcon).first().click({ force: true });
+    // assert suggested tag is present
+    cy.get(".t--structure-template-menu-popover").last().contains("Suggested");
     cy.get(".t--structure-template-menu-popover")
       .last()
-      .contains("SELECT")
+      .contains("Select")
       .click({ force: true });
     cy.wait("@createNewApi").should(
       "have.nested.property",
@@ -105,42 +107,18 @@ describe("Entity explorer datasource structure", function () {
     // cy.xpath(explorer.datsourceEntityPopover)
     //   .last()
     //   .click({ force: true });
-    entityExplorer.ExpandCollapseEntity("Datasources");
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: datasourceName,
-      action: "Refresh",
-    });
-    cy.wait("@getDatasourceStructure").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
+    dataSources.AssertTableInVirtuosoList(
+      datasourceName,
+      `public.${tableName}`,
     );
-    // Expand datasource
-    // cy.get(`.t--entity.datasource:contains(${datasourceName})`)
-    //   .find(explorer.collapse)
-    //   .first()
-    //   .click();
-    entityExplorer.AssertEntityPresenceInExplorer(`public.${tableName}`);
-
-    // cy.get(explorer.refreshStructure).click({ force: true });
-    // TODO (Akash): Check for new table name to be visible in UI as well
-    // cy.get(explorer.datasourceStructure)
-    //   .contains(`public.${tableName}`)
-    //   .should("be.visible");
 
     cy.typeValueNValidate(`DROP TABLE public.${tableName}`);
     cy.runQuery();
-    entityExplorer.ExpandCollapseEntity("Datasources");
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: datasourceName,
-      action: "Refresh",
-    });
-    cy.wait("@getDatasourceStructure").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
+    dataSources.AssertTableInVirtuosoList(
+      datasourceName,
+      `public.${tableName}`,
+      false,
     );
-    entityExplorer.AssertEntityAbsenceInExplorer(`public.${tableName}`);
     cy.deleteQueryUsingContext();
     cy.deleteDatasource(datasourceName);
   });

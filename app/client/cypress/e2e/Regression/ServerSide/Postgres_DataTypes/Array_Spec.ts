@@ -30,19 +30,12 @@ describe("Array Datatype tests", function () {
     agHelper.RenameWithInPane("createTable");
     dataSources.RunQuery();
 
-    entityExplorer.ExpandCollapseEntity("Datasources");
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: dsName,
-      action: "Refresh",
-    });
-    agHelper.AssertElementVisibility(
-      entityExplorer._entityNameInExplorer("public.arraytypes"),
-    );
+    dataSources.AssertTableInVirtuosoList(dsName, "public.arraytypes");
 
     //Creating SELECT query - arraytypes + Bug 14493
     entityExplorer.ActionTemplateMenuByEntityName(
       "public.arraytypes",
-      "SELECT",
+      "Select",
     );
     agHelper.RenameWithInPane("selectRecords");
     dataSources.RunQuery();
@@ -541,14 +534,14 @@ describe("Array Datatype tests", function () {
     "Verify Deletion of all created queries & Deletion of datasource",
     () => {
       //Verify Deletion of all created queries
-      dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Since all queries exists
+      dataSources.DeleteDatasourceFromWithinDS(dsName, 409); //Since all queries exists
       entityExplorer.ExpandCollapseEntity("Queries/JS");
       entityExplorer.DeleteAllQueriesForDB(dsName);
       //Ds Deletion
       deployMode.DeployApp();
       deployMode.NavigateBacktoEditor();
       entityExplorer.ExpandCollapseEntity("Queries/JS");
-      dataSources.DeleteDatasouceFromWinthinDS(dsName, 200);
+      dataSources.DeleteDatasourceFromWithinDS(dsName, 200);
     },
   );
 });

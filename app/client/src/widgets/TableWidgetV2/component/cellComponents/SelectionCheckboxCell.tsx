@@ -5,10 +5,10 @@ import { CheckboxState } from "../Constants";
 import { importSvg } from "design-system-old";
 
 const CheckBoxCheckIcon = importSvg(
-  () => import("assets/icons/widget/table/checkbox-check.svg"),
+  async () => import("assets/icons/widget/table/checkbox-check.svg"),
 );
 const CheckBoxLineIcon = importSvg(
-  () => import("assets/icons/widget/table/checkbox-line.svg"),
+  async () => import("assets/icons/widget/table/checkbox-line.svg"),
 );
 
 export const renderBodyCheckBoxCell = (

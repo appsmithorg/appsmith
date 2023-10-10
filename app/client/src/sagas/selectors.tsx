@@ -9,7 +9,7 @@ import type { WidgetProps } from "widgets/BaseWidget";
 import _, { defaults, omit } from "lodash";
 import type { WidgetType } from "constants/WidgetConstants";
 import { WIDGET_PROPS_TO_SKIP_FROM_EVAL } from "constants/WidgetConstants";
-import type { ActionData } from "reducers/entityReducers/actionsReducer";
+import type { ActionData } from "@appsmith/reducers/entityReducers/actionsReducer";
 import type { Page } from "@appsmith/constants/ReduxActionConstants";
 import { getActions, getPlugins } from "@appsmith/selectors/entitiesSelector";
 import type { Plugin } from "api/PluginApi";

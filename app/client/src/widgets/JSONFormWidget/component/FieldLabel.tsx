@@ -10,7 +10,7 @@ import { THEMEING_TEXT_SIZES } from "constants/ThemeConstants";
 import type { AlignWidget } from "WidgetProvider/constants";
 import { importSvg } from "design-system-old";
 
-const HelpIcon = importSvg(() => import("assets/icons/control/help.svg"));
+const HelpIcon = importSvg(async () => import("assets/icons/control/help.svg"));
 
 type AlignField = AlignWidget;
 

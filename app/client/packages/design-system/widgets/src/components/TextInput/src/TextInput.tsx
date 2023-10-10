@@ -1,8 +1,11 @@
+import clsx from "clsx";
 import type {
   TextInputRef as HeadlessTextInputRef,
   TextInputProps as HeadlessTextInputProps,
 } from "@design-system/headless";
 import React, { forwardRef, useState } from "react";
+import { getTypographyClassName } from "@design-system/theming";
+import { TextInput as HeadlessTextInput } from "@design-system/headless";
 
 import { Label } from "./Label";
 import { Text } from "../../Text";
@@ -10,9 +13,8 @@ import { Spinner } from "../../Spinner";
 import { EyeIcon } from "./icons/EyeIcon";
 import { IconButton } from "../../IconButton";
 import { EyeOffIcon } from "./icons/EyeOffIcon";
-import { StyledTextInput } from "./index.styled";
 import { ContextualHelp } from "./ContextualHelp";
-import { getTypographyClassName } from "@design-system/theming";
+import { textInputStyles, fieldStyles } from "../../../styles";
 
 export interface TextInputProps extends HeadlessTextInputProps {
   /** position for the laoding icon */
@@ -36,6 +38,7 @@ const _TextInput = (props: TextInputProps, ref: HeadlessTextInputRef) => {
     endIcon,
     errorMessage,
     includeNecessityIndicatorInAccessibilityName,
+    isLoading = false,
     isRequired,
     label,
     loaderPosition = "auto",
@@ -46,7 +49,7 @@ const _TextInput = (props: TextInputProps, ref: HeadlessTextInputRef) => {
   } = props;
   const [showPassword, togglePassword] = useState(false);
 
-  const wrappedLabel = label && (
+  const wrappedLabel = Boolean(label) && (
     <Label
       includeNecessityIndicatorInAccessibilityName={
         includeNecessityIndicatorInAccessibilityName
@@ -57,15 +60,15 @@ const _TextInput = (props: TextInputProps, ref: HeadlessTextInputRef) => {
     />
   );
 
-  const contextualHelp = label && contextualHelpProp && (
+  const contextualHelp = Boolean(label) && Boolean(contextualHelpProp) && (
     <ContextualHelp contextualHelp={contextualHelpProp} />
   );
 
-  const wrappedDescription = description && (
+  const wrappedDescription = Boolean(description) && (
     <Text variant="footnote">{description}</Text>
   );
 
-  const wrappedErrorMessage = errorMessage && (
+  const wrappedErrorMessage = Boolean(errorMessage) && (
     <Text variant="footnote">{errorMessage}</Text>
   );
 
@@ -75,9 +78,9 @@ const _TextInput = (props: TextInputProps, ref: HeadlessTextInputRef) => {
 
   const renderStartIcon = () => {
     const showLoadingIndicator =
-      props.isLoading &&
+      isLoading &&
       (loaderPosition === "start" ||
-        Boolean(startIcon && loaderPosition !== "end"));
+        (Boolean(startIcon) && loaderPosition !== "end"));
 
     if (!showLoadingIndicator) return startIcon;
 
@@ -99,9 +102,9 @@ const _TextInput = (props: TextInputProps, ref: HeadlessTextInputRef) => {
     }
 
     const showLoadingIndicator =
-      props.isLoading &&
+      isLoading &&
       (loaderPosition === "end" ||
-        Boolean(loaderPosition === "auto" && !startIcon));
+        Boolean(loaderPosition === "auto" && Boolean(startIcon)));
 
     if (!showLoadingIndicator) return endIcon;
 
@@ -109,7 +112,8 @@ const _TextInput = (props: TextInputProps, ref: HeadlessTextInputRef) => {
   };
 
   return (
-    <StyledTextInput
+    <HeadlessTextInput
+      className={clsx(textInputStyles["text-input"], fieldStyles.field)}
       contextualHelp={contextualHelp}
       description={wrappedDescription}
       endIcon={renderEndIcon()}

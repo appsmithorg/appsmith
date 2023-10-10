@@ -2,7 +2,10 @@ import { ContainerWidget } from "widgets/ContainerWidget/widget";
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
-import { Positioning } from "layoutSystems/autolayout/utils/constants";
+import {
+  FlexVerticalAlignment,
+  Positioning,
+} from "layoutSystems/common/utils/constants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type { AutocompletionDefinitions } from "WidgetProvider/constants";
@@ -11,7 +14,7 @@ import { Colors } from "constants/Colors";
 import {
   FlexLayerAlignment,
   ResponsiveBehavior,
-} from "layoutSystems/autolayout/utils/constants";
+} from "layoutSystems/common/utils/constants";
 import { GridDefaults, WIDGET_TAGS } from "constants/WidgetConstants";
 import type { WidgetProps } from "widgets/BaseWidget";
 import IconSVG from "../icon.svg";
@@ -21,7 +24,7 @@ import get from "lodash/get";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { DynamicHeight } from "utils/WidgetFeatures";
 import { getWidgetBluePrintUpdates } from "utils/WidgetBlueprintUtils";
-import type { FlexLayer } from "layoutSystems/autolayout/utils/autoLayoutTypes";
+import type { FlexLayer } from "layoutSystems/autolayout/utils/types";
 
 class StatboxWidget extends ContainerWidget {
   static type = "STATBOX_WIDGET";
@@ -75,6 +78,7 @@ class StatboxWidget extends ContainerWidget {
       children: [],
       positioning: Positioning.Fixed,
       responsiveBehavior: ResponsiveBehavior.Fill,
+      flexVerticalAlignment: FlexVerticalAlignment.Stretch,
       blueprint: {
         view: [
           {

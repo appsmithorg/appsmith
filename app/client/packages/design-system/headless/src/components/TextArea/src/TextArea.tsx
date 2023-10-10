@@ -11,6 +11,7 @@ export type TextAreaRef = Ref<HTMLDivElement>;
 
 function TextArea(props: TextAreaProps, ref: TextAreaRef) {
   const {
+    className,
     isDisabled = false,
     isReadOnly = false,
     isRequired = false,
@@ -31,7 +32,7 @@ function TextArea(props: TextAreaProps, ref: TextAreaRef) {
   const onHeightChange = useCallback(() => {
     // Quiet textareas always grow based on their text content.
     // Standard textareas also grow by default, unless an explicit height is set.
-    if (!props.height && inputRef.current) {
+    if (props.height == null && inputRef.current) {
       const input = inputRef.current;
       const prevAlignment = input.style.alignSelf;
       const prevOverflow = input.style.overflow;
@@ -59,7 +60,7 @@ function TextArea(props: TextAreaProps, ref: TextAreaRef) {
     }
   }, [onHeightChange, inputValue, inputRef.current]);
 
-  if (props.placeholder) {
+  if (props.placeholder != null) {
     // eslint-disable-next-line no-console
     console.warn(
       "Placeholders are deprecated due to accessibility issues. Please use help text instead. See the docs for details: https://react-spectrum.adobe.com/react-spectrum/TextArea.html#help-text",
@@ -79,6 +80,7 @@ function TextArea(props: TextAreaProps, ref: TextAreaRef) {
   return (
     <TextInputBase
       {...otherProps}
+      className={className}
       descriptionProps={descriptionProps}
       errorMessageProps={errorMessageProps}
       inputProps={inputProps}

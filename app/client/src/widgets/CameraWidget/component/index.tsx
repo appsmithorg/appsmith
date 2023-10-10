@@ -47,27 +47,28 @@ import type { ThemeProp } from "WidgetProvider/constants";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import { importSvg } from "design-system-old";
 import { getVideoConstraints } from "../../utils";
+import { CANVAS_ART_BOARD } from "constants/componentClassNameConstants";
 
 const CameraOfflineIcon = importSvg(
-  () => import("assets/icons/widget/camera/camera-offline.svg"),
+  async () => import("assets/icons/widget/camera/camera-offline.svg"),
 );
 const CameraIcon = importSvg(
-  () => import("assets/icons/widget/camera/camera.svg"),
+  async () => import("assets/icons/widget/camera/camera.svg"),
 );
 const CameraMutedIcon = importSvg(
-  () => import("assets/icons/widget/camera/camera-muted.svg"),
+  async () => import("assets/icons/widget/camera/camera-muted.svg"),
 );
 const MicrophoneIcon = importSvg(
-  () => import("assets/icons/widget/camera/microphone.svg"),
+  async () => import("assets/icons/widget/camera/microphone.svg"),
 );
 const MicrophoneMutedIcon = importSvg(
-  () => import("assets/icons/widget/camera/microphone-muted.svg"),
+  async () => import("assets/icons/widget/camera/microphone-muted.svg"),
 );
 const FullScreenIcon = importSvg(
-  () => import("assets/icons/widget/camera/fullscreen.svg"),
+  async () => import("assets/icons/widget/camera/fullscreen.svg"),
 );
 const ExitFullScreenIcon = importSvg(
-  () => import("assets/icons/widget/camera/exit-fullscreen.svg"),
+  async () => import("assets/icons/widget/camera/exit-fullscreen.svg"),
 );
 
 const overlayerMixin = css`
@@ -806,7 +807,9 @@ function DevicePopover(props: DevicePopoverProps) {
           content={<DeviceMenu items={items} onItemClick={onItemClick} />}
           disabled={disabledMenu}
           minimal
-          portalContainer={document.getElementById("art-board") || undefined}
+          portalContainer={
+            document.getElementById(CANVAS_ART_BOARD) || undefined
+          }
         >
           <Button
             disabled={disabledMenu}

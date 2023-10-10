@@ -1,6 +1,7 @@
 import {
   agHelper,
   dataSources,
+  draggableWidgets,
   entityExplorer,
   entityItems,
   locators,
@@ -12,6 +13,16 @@ describe("Entity explorer context menu should hide on scrolling", function () {
     "excludeForAirgap",
     "1. Bug #15474 - Entity explorer menu must close on scroll",
     function () {
+      entityExplorer.DragDropWidgetNVerify(draggableWidgets.MODAL);
+      agHelper.GetNClick(locators._closeModal, 0, true, 0);
+      entityExplorer.DragDropWidgetNVerify(draggableWidgets.MODAL);
+      agHelper.GetNClick(locators._closeModal, 0, true, 0);
+      entityExplorer.DragDropWidgetNVerify(draggableWidgets.MODAL);
+      entityExplorer.NavigateToSwitcher("Explorer");
+      entityExplorer.ExpandCollapseEntity("Modal1");
+      entityExplorer.ExpandCollapseEntity("Modal2");
+      entityExplorer.ExpandCollapseEntity("Modal3");
+
       // Setup to make the explorer scrollable
       entityExplorer.ExpandCollapseEntity("Queries/JS");
       entityExplorer.ExpandCollapseEntity("Datasources");
@@ -20,19 +31,15 @@ describe("Entity explorer context menu should hide on scrolling", function () {
         cy.log("Users DB created is " + $createdMockUsers);
         mockDBNameUsers = $createdMockUsers;
         dataSources.CreateQueryAfterDSSaved();
+        dataSources.AssertTableInVirtuosoList(mockDBNameUsers, "public.users");
 
         dataSources.CreateMockDB("Movies").then(($createdMockMovies) => {
           cy.log("Movies DB created is " + $createdMockMovies);
           mockDBNameMovies = $createdMockMovies;
           dataSources.CreateQueryAfterDSSaved();
 
-          agHelper.Sleep();
-          entityExplorer.ExpandCollapseEntity(mockDBNameUsers);
-          agHelper.Sleep();
-          entityExplorer.ExpandCollapseEntity(mockDBNameMovies);
+          dataSources.AssertTableInVirtuosoList(mockDBNameMovies, "movies");
 
-          entityExplorer.ExpandCollapseEntity("public.users");
-          entityExplorer.ExpandCollapseEntity("movies");
           agHelper.GetNClick(locators._createNew);
           agHelper.AssertElementVisibility(entityExplorer._adsPopup);
           agHelper.ScrollTo(entityExplorer._entityExplorerWrapper, "bottom");
@@ -46,6 +53,16 @@ describe("Entity explorer context menu should hide on scrolling", function () {
     "airgap",
     "1. Bug #15474 - Entity explorer menu must close on scroll - airgap",
     function () {
+      entityExplorer.DragDropWidgetNVerify(draggableWidgets.MODAL);
+      agHelper.GetNClick(locators._closeModal, 0, true, 0);
+      entityExplorer.DragDropWidgetNVerify(draggableWidgets.MODAL);
+      agHelper.GetNClick(locators._closeModal, 0, true, 0);
+      entityExplorer.DragDropWidgetNVerify(draggableWidgets.MODAL);
+      entityExplorer.NavigateToSwitcher("Explorer");
+      entityExplorer.ExpandCollapseEntity("Modal1");
+      entityExplorer.ExpandCollapseEntity("Modal2");
+      entityExplorer.ExpandCollapseEntity("Modal3");
+
       // Setup to make the explorer scrollable
       entityExplorer.ExpandCollapseEntity("Queries/JS");
       entityExplorer.ExpandCollapseEntity("Datasources");
@@ -55,18 +72,18 @@ describe("Entity explorer context menu should hide on scrolling", function () {
         mockDBNameUsers = $createdMockUsers;
         dataSources.CreateQueryAfterDSSaved();
 
+        dataSources.AssertTableInVirtuosoList(mockDBNameUsers, "public.users");
+
         dataSources.CreateDataSource("Mongo");
         cy.get("@dsName").then(($createdMockMovies: any) => {
           mockDBNameMovies = $createdMockMovies;
           dataSources.CreateQueryAfterDSSaved();
 
-          agHelper.Sleep();
-          entityExplorer.ExpandCollapseEntity(mockDBNameUsers);
-          agHelper.Sleep();
-          entityExplorer.ExpandCollapseEntity(mockDBNameMovies);
+          dataSources.AssertTableInVirtuosoList(
+            mockDBNameMovies,
+            "listingAndReviews",
+          );
 
-          entityExplorer.ExpandCollapseEntity("public.users");
-          entityExplorer.ExpandCollapseEntity("listingAndReviews");
           agHelper.GetNClick(locators._createNew);
           agHelper.AssertElementVisibility(entityExplorer._adsPopup);
           agHelper.ScrollTo(entityExplorer._entityExplorerWrapper, "bottom");
