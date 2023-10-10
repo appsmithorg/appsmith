@@ -25,7 +25,7 @@ const _Checkbox = (props: CheckboxProps, ref: HeadlessCheckboxRef) => {
         inlineLabelStyles["inline-label"],
       )}
     >
-      {Boolean(children) && <Text>{children}</Text>}
+      {Boolean(children) && <Text wordBreak="break-all">{children}</Text>}
     </HeadlessCheckbox>
   );
 };

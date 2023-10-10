@@ -3,7 +3,7 @@ import React from "react";
 import { useSelector } from "react-redux";
 import { getNearestParentCanvas } from "utils/generators";
 import { useCanvasDragging } from "./hooks/useCanvasDragging";
-import { StickyCanvasArena } from "layoutSystems/common/canvasArenas/StickyCanvasArena";
+import { StickyCanvasArena } from "layoutSystems/common/CanvasArenas/StickyCanvasArena";
 import type { LayoutDirection } from "layoutSystems/common/utils/constants";
 
 export interface AutoCanvasDraggingArenaProps {

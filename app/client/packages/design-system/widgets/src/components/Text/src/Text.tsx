@@ -20,6 +20,7 @@ const _Text = (props: TextProps, ref: Ref<HTMLParagraphElement>) => {
     lineClamp,
     textAlign = "left",
     variant = "body",
+    wordBreak = "normal",
     ...rest
   } = props;
 
@@ -41,6 +42,7 @@ const _Text = (props: TextProps, ref: Ref<HTMLParagraphElement>) => {
         fontWeight: getFontWeight(fontWeight, isBold),
         fontStyle: isItalic ? "italic" : "normal",
         textAlign,
+        wordBreak: wordBreak,
       }}
       {...rest}
     >

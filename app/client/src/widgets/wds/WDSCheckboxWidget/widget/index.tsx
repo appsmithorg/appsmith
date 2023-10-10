@@ -101,6 +101,7 @@ class WDSCheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
         key={this.props.widgetId}
         labelPosition={this.props.labelPosition}
         onChange={this.onChange}
+        validationState={this.props.isValid ? "valid" : "invalid"}
       >
         {this.props.label}
       </Checkbox>
