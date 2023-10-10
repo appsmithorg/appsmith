@@ -1,8 +1,8 @@
 import type { WidgetRowCols } from "widgets/BaseWidget";
 import { GridDefaults } from "constants/WidgetConstants";
-import type { XYCord } from "layoutSystems/common/CanvasArenas/ArenaTypes";
+import type { XYCord } from "layoutSystems/common/canvasArenas/ArenaTypes";
 import { ReflowDirection } from "reflow/reflowTypes";
-import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
+import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 
 export type UIElementSize = { height: number; width: number };
 

@@ -19,13 +19,13 @@ export interface DeleteWorkspaceUserRequest {
 class WorkspaceApi extends CE_WorkspaceApi {
   static fetchGroupSuggestionsURL = "/v1/user-groups/for-invite";
 
-  static fetchGroupSuggestions(): AxiosPromise<ApiResponse> {
+  static async fetchGroupSuggestions(): Promise<AxiosPromise<ApiResponse>> {
     return Api.get(WorkspaceApi.fetchGroupSuggestionsURL);
   }
 
-  static changeWorkspaceUserRole(
+  static async changeWorkspaceUserRole(
     request: ChangeUserRoleRequest,
-  ): AxiosPromise<ApiResponse> {
+  ): Promise<AxiosPromise<ApiResponse>> {
     return Api.put(
       `${WorkspaceApi.workspacesURL}/${request.workspaceId}/permissionGroup`,
       {
@@ -37,9 +37,9 @@ class WorkspaceApi extends CE_WorkspaceApi {
     );
   }
 
-  static deleteWorkspaceUser(
+  static async deleteWorkspaceUser(
     request: DeleteWorkspaceUserRequest,
-  ): AxiosPromise<ApiResponse> {
+  ): Promise<AxiosPromise<ApiResponse>> {
     return Api.put(
       `${WorkspaceApi.workspacesURL}/${request.workspaceId}/permissionGroup`,
       {

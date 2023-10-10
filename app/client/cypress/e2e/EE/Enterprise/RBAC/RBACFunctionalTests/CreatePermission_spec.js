@@ -15,6 +15,7 @@ import {
   homePage,
   dataManager,
 } from "../../../../../support/Objects/ObjectsCore";
+import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
 
 describe("Create Permission flow ", function () {
   let datasourceName;
@@ -301,6 +302,9 @@ describe("Create Permission flow ", function () {
       Cypress.env("TESTUSERNAME2"),
       Cypress.env("TESTPASSWORD2"),
     );
+
+    featureFlagIntercept({ license_gac_enabled: true });
+
     cy.wait(2000);
     cy.get(homePageLocators.searchInput).type(appName);
     cy.wait(2000);

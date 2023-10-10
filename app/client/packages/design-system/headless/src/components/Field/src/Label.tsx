@@ -4,26 +4,22 @@ import { filterDOMProps } from "@react-aria/utils";
 import type { DOMRef, StyleProps } from "@react-types/shared";
 import type { SpectrumLabelProps } from "@react-types/label";
 
-export interface LabelProps
-  extends Omit<
-    SpectrumLabelProps,
-    | "necessityIndicator"
-    | "includeNecessityIndicatorInAccessibilityName"
-    | "isRequired"
-    | keyof StyleProps
-  > {
-  isEmphasized?: boolean;
-  labelWidth?: string;
-}
+export type LabelProps = Omit<
+  SpectrumLabelProps,
+  | "necessityIndicator"
+  | "includeNecessityIndicatorInAccessibilityName"
+  | "isRequired"
+  | keyof StyleProps
+  | "labelPosition"
+  | "labelAlign"
+>;
 
 const _Label = (props: LabelProps, ref: DOMRef<HTMLLabelElement>) => {
   const {
     children,
-    labelPosition = "top",
-    labelAlign = labelPosition === "side" ? "start" : null,
-    htmlFor,
-    for: labelFor,
     elementType: ElementType = "label",
+    for: labelFor,
+    htmlFor,
     onClick,
     ...otherProps
   } = props;
@@ -32,11 +28,11 @@ const _Label = (props: LabelProps, ref: DOMRef<HTMLLabelElement>) => {
 
   return (
     <ElementType
-      data-align={labelAlign}
       data-field-label=""
-      data-position={labelPosition}
       {...filterDOMProps(otherProps)}
-      htmlFor={ElementType === "label" ? labelFor || htmlFor : undefined}
+      htmlFor={
+        ElementType === "label" ? Boolean(labelFor) || htmlFor : undefined
+      }
       onClick={onClick}
       ref={domRef}
     >

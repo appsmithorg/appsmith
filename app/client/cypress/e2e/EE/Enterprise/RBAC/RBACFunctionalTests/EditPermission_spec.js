@@ -15,6 +15,7 @@ import {
   dataSources,
   agHelper,
 } from "../../../../../support/Objects/ObjectsCore";
+import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
 
 describe("Edit Permission flow ", function () {
   let newWorkspaceName;
@@ -184,6 +185,8 @@ describe("Edit Permission flow ", function () {
       Cypress.env("TESTUSERNAME1"),
       Cypress.env("TESTPASSWORD1"),
     );
+    featureFlagIntercept({ license_gac_enabled: true });
+    cy.wait(2000);
     cy.intercept("PUT", "/api/v1/datasources/*").as("saveEditedDatasouce");
     cy.wait(2000);
     cy.get(homePageLocators.searchInput).clear().type(appName2);
@@ -256,6 +259,8 @@ describe("Edit Permission flow ", function () {
       Cypress.env("TESTPASSWORD2"),
     );
     cy.wait(2000);
+    featureFlagIntercept({ license_gac_enabled: true });
+    cy.wait(2000);
     cy.get(homePageLocators.searchInput).type(appName);
     cy.wait(2000);
     // verify user is able to edit pages in exisiting app
@@ -309,6 +314,8 @@ describe("Edit Permission flow ", function () {
   });
 
   it("4. Edit permission : App level, Verify user is not able to create or delete resources", function () {
+    featureFlagIntercept({ license_gac_enabled: true });
+    cy.wait(2000);
     // verify create button does not exist
     cy.get(explorer.AddPage).should("not.exist");
     cy.get(explorer.addDBQueryEntity).should("not.exist");
@@ -335,6 +342,8 @@ describe("Edit Permission flow ", function () {
   });
 
   it("6. Edit permission : Page level, Verify user is not able to create or delete resources", function () {
+    featureFlagIntercept({ license_gac_enabled: true });
+    cy.wait(2000);
     // verify create button does not exist
     cy.get(explorer.AddPage).should("not.exist");
     cy.get(explorer.addDBQueryEntity).should("not.exist");

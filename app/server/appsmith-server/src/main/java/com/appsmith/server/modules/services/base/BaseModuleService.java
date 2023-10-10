@@ -1,3 +1,3 @@
 package com.appsmith.server.modules.services.base;
 
-public interface BaseModuleService {}
+public interface BaseModuleService extends BaseModuleServiceCECompatible {}

@@ -18,9 +18,9 @@ export interface FetchSamlMetadataPayload {
 class UserApi extends CE_UserApi {
   static fetchSamlMetadataURL = "/v1/admin/sso/saml";
 
-  static fetchSamlMetadata(
+  static async fetchSamlMetadata(
     payload: FetchSamlMetadataPayload,
-  ): AxiosPromise<ApiResponse> {
+  ): Promise<AxiosPromise<ApiResponse>> {
     return Api.put(UserApi.fetchSamlMetadataURL, payload);
   }
 }

@@ -7,6 +7,8 @@ import {
 } from "../../../../../support/ee/ObjectsCore_EE";
 import rbac from "../../../../../locators/RBAClocators.json";
 
+import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
+
 describe("tests for user with remove user permission", function () {
   const groupName1 = "test-group" + fakerHelper.GetRandomNumber();
   const groupName2 = "test-group" + fakerHelper.GetRandomNumber();
@@ -42,6 +44,8 @@ describe("tests for user with remove user permission", function () {
       Cypress.env("TESTUSERNAME1"),
       Cypress.env("TESTPASSWORD1"),
     );
+    featureFlagIntercept({ license_gac_enabled: true });
+    cy.wait(2000);
     agHelper.GetNClick(adminSettings._adminSettingsBtn);
     agHelper.AssertElementAbsence(rbac.usersTab);
     agHelper.AssertElementAbsence(rbacHelper.textToClick(groupName2));

@@ -37,6 +37,7 @@ const _Checkbox = (props: CheckboxProps, ref: CheckboxRef) => {
     isDisabled: isDisabledProp = false,
     isIndeterminate = false,
     validationState,
+    labelPosition = "right",
   } = props;
   const state = useToggleState(props);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -50,7 +51,7 @@ const _Checkbox = (props: CheckboxProps, ref: CheckboxRef) => {
   const context = useContext(CheckboxGroupContext) as CheckboxGroupContextType;
   const isDisabled = isDisabledProp || context?.isDisabled;
   const { hoverProps, isHovered } = useHover({ isDisabled });
-  const { inputProps } = context?.state
+  const { inputProps } = Boolean(context?.state)
     ? // eslint-disable-next-line react-hooks/rules-of-hooks
       useCheckboxGroupItem(
         {
@@ -73,7 +74,7 @@ const _Checkbox = (props: CheckboxProps, ref: CheckboxRef) => {
 
   const dataState = isIndeterminate
     ? "indeterminate"
-    : inputProps.checked
+    : Boolean(inputProps.checked)
     ? "checked"
     : "unchecked";
 
@@ -81,11 +82,12 @@ const _Checkbox = (props: CheckboxProps, ref: CheckboxRef) => {
     <label
       {...hoverProps}
       className={className}
-      data-disabled={isDisabled ? "" : undefined}
+      data-disabled={Boolean(isDisabled) ? "" : undefined}
       data-focused={isFocusVisible ? "" : undefined}
       data-hovered={isHovered ? "" : undefined}
       data-invalid={validationState === "invalid" ? "" : undefined}
       data-label=""
+      data-label-position={labelPosition}
       data-state={dataState}
       ref={domRef}
     >

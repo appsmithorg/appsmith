@@ -60,5 +60,14 @@ describe(
       deployMode.NavigateBacktoEditor();
       deployMode.DeployApp(locators._emptyPageTxt, true, true, true, "absent");
     });
+    it("3. Ramps should visible when feature flag is false ", function () {
+      featureFlagIntercept({ release_datasource_environments_enabled: false });
+      agHelper.GetNClick(multipleEnv.env_switcher);
+      agHelper.GetNClick(multipleEnv.env_switcher_dropdown_opt_stage);
+      agHelper.GetNAssertContains(
+        multipleEnv.ds_data_dropdown_tooltip,
+        "To access environments for datasources",
+      );
+    });
   },
 );

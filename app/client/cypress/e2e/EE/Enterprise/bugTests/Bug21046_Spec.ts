@@ -3,6 +3,8 @@ import {
   agHelper,
   adminSettings,
 } from "../../../../support/Objects/ObjectsCore";
+
+import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 let workspaceId: any, username: any;
 
 describe("Validates role assigned to user on providing access to workspace", function () {
@@ -10,6 +12,8 @@ describe("Validates role assigned to user on providing access to workspace", fun
     homePage.NavigateToHome();
     agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {
+      featureFlagIntercept({ license_gac_enabled: true });
+      agHelper.Sleep(2000);
       workspaceId = uid;
       homePage.CreateNewWorkspace(workspaceId);
       homePage.CheckWorkspaceShareUsersCount(workspaceId, 1);

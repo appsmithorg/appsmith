@@ -5,6 +5,7 @@ describe("In-app embed settings", () => {
   before(() => {
     featureFlagIntercept({
       release_embed_hide_share_settings_enabled: true,
+      license_private_embeds_enabled: true,
     });
   });
 
@@ -14,7 +15,7 @@ describe("In-app embed settings", () => {
     showNavBar: boolean,
     isInviteModal?: boolean,
   ) {
-    const restMethods = ["oidc", "saml", "google"].filter(
+    const restMethods = ["oidc", "saml"].filter(
       (method) => method !== selectedMethod,
     );
     cy.get(locator).should("contain", `ssoTrigger=${selectedMethod}`);
@@ -51,9 +52,6 @@ describe("In-app embed settings", () => {
     _.agHelper.GetNClick(_.inviteModal.locatorsEE._inputSAML);
     ValidateSnippetUrl(_.embedSettings.locators._snippet, "saml", true, true);
 
-    _.agHelper.GetNClick(_.inviteModal.locatorsEE._inputGoogle);
-    ValidateSnippetUrl(_.embedSettings.locators._snippet, "google", true, true);
-
     _.inviteModal.CloseModal();
   });
 
@@ -67,14 +65,6 @@ describe("In-app embed settings", () => {
 
     _.agHelper.GetNClick(_.inviteModal.locatorsEE._inputSAML);
     ValidateSnippetUrl(_.embedSettings.locators._snippet, "saml", false, true);
-
-    _.agHelper.GetNClick(_.inviteModal.locatorsEE._inputGoogle);
-    ValidateSnippetUrl(
-      _.embedSettings.locators._snippet,
-      "google",
-      false,
-      true,
-    );
 
     _.inviteModal.CloseModal();
   });
@@ -95,9 +85,6 @@ describe("In-app embed settings", () => {
     _.agHelper.GetNClick(_.inviteModal.locatorsEE._inputSAML);
     ValidateSnippetUrl(_.embedSettings.locators._snippet, "saml", true);
 
-    _.agHelper.GetNClick(_.inviteModal.locatorsEE._inputGoogle);
-    ValidateSnippetUrl(_.embedSettings.locators._snippet, "google", true);
-
     _.appSettings.ClosePane();
   });
 
@@ -110,9 +97,6 @@ describe("In-app embed settings", () => {
 
     _.agHelper.GetNClick(_.inviteModal.locatorsEE._inputSAML);
     ValidateSnippetUrl(_.embedSettings.locators._snippet, "saml", false);
-
-    _.agHelper.GetNClick(_.inviteModal.locatorsEE._inputGoogle);
-    ValidateSnippetUrl(_.embedSettings.locators._snippet, "google", false);
 
     _.appSettings.ClosePane();
   });
@@ -151,5 +135,28 @@ describe("In-app embed settings", () => {
       "[data-testid='t--embed-settings-application-public']",
     );
     _.appSettings.ClosePane();
+  });
+  it("7. Check ramps are enabled / disabled based on Feature Flag", () => {
+    featureFlagIntercept({
+      license_private_embeds_enabled: false,
+    });
+    _.inviteModal.OpenShareModal();
+    _.inviteModal.SelectEmbedTab();
+    _.agHelper.GetNAssertElementText(
+      _.inviteModal.locators._privateEmbedRampAppSettings,
+      "Embed private Appsmith apps and seamlessly authenticate users through SSO in our Business Edition",
+      "contain.text",
+    );
+    _.inviteModal.CloseModal();
+    _.embedSettings.OpenEmbedSettings();
+    _.agHelper.AssertElementExist(_.inviteModal.locators._upgradeContent);
+    _.agHelper.AssertElementAbsence(
+      _.inviteModal.locators._shareSettingsButton,
+    );
+    _.agHelper.GetNAssertElementText(
+      _.inviteModal.locators._privateEmbedRampAppSettings,
+      "To embed private Appsmith apps and seamlessly authenticate users through SSO",
+      "contain.text",
+    );
   });
 });

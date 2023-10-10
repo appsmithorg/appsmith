@@ -6,7 +6,7 @@ export class AuditLogsApi extends Api {
   static fetchAuditLogsLogsURL = "/v1/audit-logs/logs";
   static fetchAuditLogsMetadataURL = "/v1/audit-logs/filter";
 
-  static fetchAuditLogsLogsNextPageFromDB(
+  static async fetchAuditLogsLogsNextPageFromDB(
     payload: AuditLogsFiltersReduxState & { cursor: string },
   ) {
     return Api.get(
@@ -15,16 +15,16 @@ export class AuditLogsApi extends Api {
     );
   }
 
-  static fetchAuditLogsLogsFromDB(payload: AuditLogsFiltersReduxState) {
+  static async fetchAuditLogsLogsFromDB(payload: AuditLogsFiltersReduxState) {
     return Api.get(
       AuditLogsApi.fetchAuditLogsLogsURL,
       payloadToQueryParams({ ...payload, cursor: "" }),
     );
   }
-  static fetchAuditLogsMetadataFromDB() {
+  static async fetchAuditLogsMetadataFromDB() {
     return Api.get(AuditLogsApi.fetchAuditLogsMetadataURL);
   }
-  static fetchAuditLogsForDownload(payload: AuditLogsFiltersReduxState) {
+  static async fetchAuditLogsForDownload(payload: AuditLogsFiltersReduxState) {
     return Api.get(
       AuditLogsApi.fetchAuditLogsLogsURL,
       payloadToQueryParams({ ...payload, cursor: "" }),

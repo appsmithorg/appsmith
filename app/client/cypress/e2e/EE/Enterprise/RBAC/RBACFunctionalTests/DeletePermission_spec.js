@@ -10,6 +10,7 @@ import homePageLocators from "../../../../../locators/HomePage";
 const datasources = require("../../../../../locators/DatasourcesEditor.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const explorer = require("../../../../../locators/explorerlocators.json");
+import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
 
 describe("Delete Permission flow ", function () {
   let appName;
@@ -187,6 +188,9 @@ describe("Delete Permission flow ", function () {
 
   it("2. Delete permission : App level; verify user don't have create permissions", function () {
     // verify create button does not exist
+    featureFlagIntercept({ license_gac_enabled: true });
+    cy.wait(2000);
+
     cy.get(explorer.AddPage).should("not.exist");
     cy.get(explorer.addDBQueryEntity).should("not.exist");
     cy.get(explorer.addEntityJSEditor).should("not.exist");
@@ -229,6 +233,9 @@ describe("Delete Permission flow ", function () {
   });
 
   it("4. Delete permission : Page level, verify user do not have create and edit permissions", function () {
+    featureFlagIntercept({ license_gac_enabled: true });
+    cy.wait(2000);
+
     // verify create button does not exist
     cy.get(explorer.AddPage).should("not.exist");
     cy.get(explorer.addDBQueryEntity).should("not.exist");
@@ -270,6 +277,10 @@ describe("Delete Permission flow ", function () {
       entityType: entityItems.Datasource,
     });
     assertHelper.AssertNetworkStatus("@deleteDatasource", 200);
+
+    featureFlagIntercept({ license_gac_enabled: true });
+    cy.wait(2000);
+
     // verify create button does not exist
     cy.get(explorer.AddPage).should("not.exist");
     cy.get(explorer.addDBQueryEntity).should("not.exist");

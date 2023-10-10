@@ -19,6 +19,15 @@ public class SessionLimiterServiceCECompatibleImpl implements SessionLimiterServ
         return Mono.just(tenantConfiguration);
     }
 
+    /**
+     * returns default state of tenant configuration if single session per user feature flag is disabled
+     */
+    @Override
+    public Mono<TenantConfiguration> getTenantConfiguration(TenantConfiguration tenantConfiguration) {
+        tenantConfiguration.setSingleSessionPerUserEnabled(false);
+        return Mono.just(tenantConfiguration);
+    }
+
     @Override
     public Mono<User> handleSessionLimits(Authentication authentication, WebFilterExchange exchange, Tenant tenant) {
         return Mono.just((User) authentication.getPrincipal());

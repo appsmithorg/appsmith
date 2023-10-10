@@ -18,8 +18,11 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document
 public class ModuleInstance extends BranchAwareDomain {
 
+    @JsonView(Views.Export.class)
+    String moduleUUID; // this refers to the `moduleUUID` field of the Module domain
+
     @JsonView(Views.Public.class)
-    String moduleId; // this refers to the `moduleUniqueIdentifier` field of the Module domain
+    String moduleId; // this refers to the `id` field of the Module domain
 
     // creatorId can be the consuming `pageId` or the consuming `moduleId`
     @JsonView(Views.Public.class)

@@ -277,29 +277,10 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
         // This is meant to be an update for just the datasource - like a renamed
         return datasourceMono
                 .map(datasourceInDb -> {
-                    // check whether name is going to be updated
-                    boolean isRenamed = StringUtils.hasLength(datasource.getName())
-                            && !datasource.getName().equals(datasourceInDb.getName());
                     copyNestedNonNullProperties(datasource, datasourceInDb);
-                    return Tuples.of(datasourceInDb, isRenamed);
+                    return datasourceInDb;
                 })
-                .flatMap(tuples -> {
-                    Datasource datasourceInDb = tuples.getT1();
-                    boolean isRenamed = tuples.getT2();
-                    return validateAndSaveDatasourceToRepository(datasourceInDb).flatMap(savedDatasource -> {
-                        if (isRenamed) {
-                            /*
-                             if name updated, we've to set the updatedAt date for the related actions.
-                             Because in git file system, actions are mapped with a datasource by the name.
-                             If updatedAt changed, git will remap the updated actions with new datasource name.
-                            */
-                            return newActionRepository
-                                    .updateDatasourceNameInActions(savedDatasource)
-                                    .thenReturn(savedDatasource);
-                        }
-                        return Mono.just(savedDatasource);
-                    });
-                })
+                .flatMap(this::validateAndSaveDatasourceToRepository)
                 .map(savedDatasource -> {
                     // not required by client side in order to avoid updating it to a null storage,
                     // one alternative is that we find and send datasourceStorages along, but that is an expensive call

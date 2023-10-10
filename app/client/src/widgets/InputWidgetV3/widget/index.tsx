@@ -27,7 +27,7 @@ import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type { BaseInputWidgetProps } from "widgets/BaseInputWidgetV2";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
+import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 
 class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
   static getConfig() {
@@ -291,8 +291,6 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
         isDisabled={this.props.isDisabled}
         isLoading={this.props.isLoading}
         label={this.props.label}
-        labelAlign={this.props.labelAlignment}
-        labelPosition={this.props.labelPosition}
         maxChars={this.props.maxChars}
         maxNum={this.props.maxNum}
         minNum={this.props.minNum}

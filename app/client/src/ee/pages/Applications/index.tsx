@@ -10,29 +10,24 @@ import {
   isBEBannerVisible,
   shouldShowLicenseBanner,
 } from "@appsmith/selectors/tenantSelectors";
-import { resetEditorRequest } from "actions/initActions";
-import { setHeaderMeta } from "actions/themeActions";
-import { createMessage, SEARCH_APPS } from "@appsmith/constants/messages";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import {
+  createMessage,
+  SEARCH_APPS,
+  SEARCH_APPS_AND_PACKAGES,
+} from "@appsmith/constants/messages";
 import type { AppState } from "@appsmith/reducers";
 import { MOBILE_MAX_WIDTH } from "constants/AppConstants";
 import SubHeader from "pages/common/SubHeader";
 import RepoLimitExceededErrorModal from "pages/Editor/gitSync/RepoLimitExceededErrorModal";
-import {
-  getIsFetchingApplications,
-  getApplicationList,
-  getIsCreatingApplication,
-  getCreateApplicationError,
-  getIsDeletingApplication,
-  getUserApplicationsWorkspacesList,
-  getApplicationSearchKeyword,
-} from "@appsmith/selectors/applicationSelectors";
-import { getCurrentUser } from "selectors/usersSelectors";
 import PageWrapper from "pages/common/PageWrapper";
+import { fetchAllPackages } from "@appsmith/actions/packageActions";
+import { getShowQueryModule } from "@appsmith/selectors/moduleFeatureSelectors";
 
 export interface EE_ApplicationProps extends CE_Applications.ApplicationProps {
+  fetchAllPackages: () => void;
   showBanner: boolean;
   showWarningBanner: boolean;
+  showQueryModule: boolean;
 }
 
 export type EE_ApplicationState = CE_Applications.ApplicationState;
@@ -51,6 +46,9 @@ export class Applications extends CE_AppClass<
 
   componentDidMount() {
     super.componentDidMount();
+    if (this.props.showQueryModule) {
+      this.props.fetchAllPackages();
+    }
   }
 
   componentWillUnmount() {
@@ -58,6 +56,10 @@ export class Applications extends CE_AppClass<
   }
 
   public render() {
+    const searchPlaceholder = this.props.showQueryModule
+      ? SEARCH_APPS_AND_PACKAGES
+      : SEARCH_APPS;
+
     return (
       <PageWrapper displayName="Applications">
         <CE_Applications.LeftPane
@@ -74,7 +76,7 @@ export class Applications extends CE_AppClass<
               <SubHeader
                 isBannerVisible={this.props.showWarningBanner}
                 search={{
-                  placeholder: createMessage(SEARCH_APPS),
+                  placeholder: createMessage(searchPlaceholder),
                   queryFn: this.props.searchApplications,
                   defaultValue: this.props.searchKeyword,
                 }}
@@ -91,40 +93,22 @@ export class Applications extends CE_AppClass<
   }
 }
 
-const mapStateToProps = (state: AppState) => ({
-  applicationList: getApplicationList(state),
-  isFetchingApplications: getIsFetchingApplications(state),
-  isCreatingApplication: getIsCreatingApplication(state),
-  createApplicationError: getCreateApplicationError(state),
-  deletingApplication: getIsDeletingApplication(state),
-  userWorkspaces: getUserApplicationsWorkspacesList(state),
-  currentUser: getCurrentUser(state),
-  searchKeyword: getApplicationSearchKeyword(state),
-  showBanner: isBEBannerVisible(state),
-  showWarningBanner: shouldShowLicenseBanner(state),
-});
+const mapStateToProps = (state: AppState) => {
+  const CE_mapStateToProps = CE_Applications.mapStateToProps(state);
+  return {
+    ...CE_mapStateToProps,
+    showBanner: isBEBannerVisible(state),
+    showWarningBanner: shouldShowLicenseBanner(state),
+    showQueryModule: getShowQueryModule(state),
+  };
+};
 
-const mapDispatchToProps = (dispatch: any) => ({
-  getAllApplication: () => {
-    dispatch({ type: ReduxActionTypes.GET_ALL_APPLICATION_INIT });
-  },
-  resetEditor: () => {
-    dispatch(resetEditorRequest());
-  },
-  searchApplications: (keyword: string) => {
-    dispatch({
-      type: ReduxActionTypes.SEARCH_APPLICATIONS,
-      payload: {
-        keyword,
-      },
-    });
-  },
-  setHeaderMetaData: (
-    hideHeaderShadow: boolean,
-    showHeaderSeparator: boolean,
-  ) => {
-    dispatch(setHeaderMeta(hideHeaderShadow, showHeaderSeparator));
-  },
-});
+const mapDispatchToProps = (dispatch: any) => {
+  const CE_mapDispatchToProps = CE_Applications.mapDispatchToProps(dispatch);
+  return {
+    ...CE_mapDispatchToProps,
+    fetchAllPackages: () => dispatch(fetchAllPackages()),
+  };
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(Applications);

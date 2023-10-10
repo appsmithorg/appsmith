@@ -13,10 +13,6 @@ const options = [
     label: "SAML",
     value: "saml",
   },
-  {
-    label: "Google OAuth",
-    value: "google",
-  },
 ];
 
 export const PrivateEmbedSettings = (props: {

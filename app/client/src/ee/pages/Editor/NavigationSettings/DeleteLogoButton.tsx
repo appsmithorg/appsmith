@@ -8,7 +8,9 @@ import { Button, Tooltip } from "design-system";
 import { importSvg } from "design-system-old";
 import React from "react";
 
-const ResetIcon = importSvg(() => import("assets/icons/control/undo_2.svg"));
+const ResetIcon = importSvg(
+  async () => import("assets/icons/control/undo_2.svg"),
+);
 
 export const DeleteLogoButton = ({
   handleDelete,

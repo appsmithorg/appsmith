@@ -141,6 +141,29 @@ public class ProvisionServiceImpl extends ProvisionServiceCECompatibleImpl imple
         return apiKeyService.archiveAllApiKeysForUser(FieldName.PROVISIONING_USER);
     }
 
+    /**
+     * Disconnect provisioning. Below are the steps which are followed in sequence.
+     * <ol>
+     *     <li>Deletes users & groups OR Update their access policies.</li>
+     *     <li>Updates associated roles</li>
+     *     <li>Send Analytics event</li>
+     *     <li>Archive existing provisioning token</li>
+     *     <li>Updates status</li>
+     * </ol>
+     * @param disconnectProvisioningDto
+     * @implNote Disconnect Provisioning flow needs to be a non-cancellable call, because it can become time-consuming
+     * depending upon the number of users, groups and roles which need to be updated.
+     * <p>
+     * There may be scenarios where the process may take time, and the client cancels the request midway. This leads to
+     * the flow getting stopped midway producing corrupted DB objects. The following ensures that even though the client
+     * may have cancelled the flow, the provisioning will be disconnected, i.e., users and groups will be updated
+     * accordingly (update policies or delete otherwise), roles associated to them will also be updated, and
+     * provisioning status will be updated as well.
+     * <p>
+     * To achieve this, we use a synchronous sink which does not take subscription cancellations into account. This
+     * means that even if the subscriber has cancelled its subscription, the create method still generates its event.
+     * @return Boolean (whether the process was successful or not.)
+     */
     @Override
     @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_scim_enabled)
     public Mono<Boolean> disconnectProvisioning(DisconnectProvisioningDto disconnectProvisioningDto) {
@@ -165,7 +188,7 @@ public class ProvisionServiceImpl extends ProvisionServiceCECompatibleImpl imple
         // Delete provisioned users & Groups and update Associated roles or
         // update access policies for all provisioned users and groups
         // then archive provision token
-        return tenantMono.flatMap(tenant -> {
+        Mono<Boolean> deleteOrUpdateUsersAndGroupsUpdateRolesAndArchiveTokenMono = tenantMono.flatMap(tenant -> {
             Map<String, Object> analyticsProperties = new HashMap<>();
             if (disconnectProvisioningDto.isKeepAllProvisionedResources()) {
                 analyticsProperties.put(LINKED_USERS, RETAINED);
@@ -179,6 +202,8 @@ public class ProvisionServiceImpl extends ProvisionServiceCECompatibleImpl imple
                     .flatMap(tenant1 -> archiveProvisionToken())
                     .flatMap(archiveProvisionToken -> provisionUtils.updateStatus(INACTIVE, false));
         });
+        return Mono.create(sink -> deleteOrUpdateUsersAndGroupsUpdateRolesAndArchiveTokenMono.subscribe(
+                sink::success, sink::error, null, sink.currentContext()));
     }
 
     @NotNull private Mono<Boolean> transferManagementPoliciesToInstanceAdministratorForAllProvisionedUsersAndGroups(

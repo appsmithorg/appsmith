@@ -6,7 +6,7 @@ import { isAssistantPrompt } from "@appsmith/components/editorComponents/GPT/uti
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
-import type { ENTITY_TYPE } from "entities/DataTree/types";
+import type { ENTITY_TYPE } from "@appsmith/entities/DataTree/types";
 import { createImmerReducer } from "utils/ReducerUtils";
 import type { ExpectedValueExample } from "utils/validation/common";
 

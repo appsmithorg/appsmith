@@ -30,8 +30,6 @@ public interface CustomPermissionGroupRepository extends CustomPermissionGroupRe
 
     Mono<Long> countAllReadablePermissionGroupsForUser(User user);
 
-    Mono<Set<String>> getAllPermissionGroupsIdsForUser(User user);
-
     Flux<PermissionGroup> findByDefaultApplicationId(String applicationId, Optional<AclPermission> permission);
 
     Flux<PermissionGroup> findByDefaultApplicationIds(Set<String> applicationIds, Optional<AclPermission> permission);

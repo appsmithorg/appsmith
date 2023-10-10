@@ -10,5 +10,7 @@ import reactor.core.publisher.Mono;
 public interface SessionLimiterServiceCECompatible {
     Mono<TenantConfiguration> updateTenantConfiguration(TenantConfiguration tenantConfiguration);
 
+    Mono<TenantConfiguration> getTenantConfiguration(TenantConfiguration tenantConfiguration);
+
     Mono<User> handleSessionLimits(Authentication authentication, WebFilterExchange exchange, Tenant tenant);
 }

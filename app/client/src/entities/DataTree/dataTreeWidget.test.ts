@@ -4,7 +4,7 @@ import {
   getSetterConfig,
 } from "entities/DataTree/dataTreeWidget";
 import {
-  ENTITY_TYPE,
+  ENTITY_TYPE_VALUE,
   EvaluationSubstitutionType,
 } from "entities/DataTree/dataTreeFactory";
 import WidgetFactory from "WidgetProvider/factory";
@@ -226,7 +226,7 @@ describe("generateDataTreeWidget", () => {
       topRow: 0,
       widgetId: "123",
       widgetName: "Input1",
-      ENTITY_TYPE: ENTITY_TYPE.WIDGET,
+      ENTITY_TYPE: ENTITY_TYPE_VALUE.WIDGET,
       componentWidth: 0,
       componentHeight: 0,
       defaultText: "",
@@ -248,7 +248,7 @@ describe("generateDataTreeWidget", () => {
     };
 
     const expectedConfig = {
-      ENTITY_TYPE: ENTITY_TYPE.WIDGET,
+      ENTITY_TYPE: ENTITY_TYPE_VALUE.WIDGET,
       widgetId: "123",
       bindingPaths,
       reactivePaths: {

@@ -71,6 +71,7 @@ public class License extends LicenseCE {
             this.setSubscriptionDetails(validationResponse.getSubscriptionDetails());
         } else {
             this.setStatus(LicenseStatus.EXPIRED);
+            this.setSubscriptionDetails(null);
         }
     }
 }

@@ -27,6 +27,7 @@ public enum FeatureFlagEnum {
     APP_NAVIGATION_LOGO_UPLOAD,
     release_embed_hide_share_settings_enabled,
     ab_mock_mongo_schema_enabled,
+    release_query_module_enabled,
 
     // Add EE flags below this line, to avoid conflicts.
     RBAC,
@@ -96,4 +97,14 @@ public enum FeatureFlagEnum {
      * Feature flag to detect if SSO SAML is supported for the tenant
      */
     license_sso_saml_enabled,
+
+    /**
+     * Flag to detect if branch protection and configuration is supported for the tenant
+     */
+    license_git_branch_protection_enabled,
+
+    /**
+     * Feature flag to detect if scheduled backup is supported for the tenant
+     */
+    license_scheduled_backup_enabled,
 }

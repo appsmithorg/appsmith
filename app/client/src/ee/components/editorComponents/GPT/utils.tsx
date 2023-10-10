@@ -33,7 +33,6 @@ import type {
 } from "selectors/navigationSelectors";
 import _, { isObject } from "lodash";
 import { AutocompleteSorter } from "utils/autocomplete/AutocompleteSortRules";
-import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeFactory";
 import type { Completion } from "utils/autocomplete/CodemirrorTernService";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { js_beautify } from "js-beautify";
@@ -43,7 +42,9 @@ import type { AxiosResponse, AxiosError } from "axios";
 import type {
   JSActionEntity,
   JSActionEntityConfig,
-} from "entities/DataTree/types";
+  ConfigTree,
+  DataTree,
+} from "@appsmith/entities/DataTree/types";
 
 export type TUserPrompt = {
   role: "user";
@@ -130,7 +131,7 @@ export const getErrorMessage = (
   return "We can not generate a response for this prompt, to get accurate responses we need prompts to be more specific.";
 };
 
-export const chatGenerationApi = ({
+export const chatGenerationApi = async ({
   context,
   query,
   taskId,

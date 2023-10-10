@@ -12,7 +12,7 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import { takeLatest, all, call, put } from "redux-saga/effects";
+import { takeLatest, all, call, put, select } from "redux-saga/effects";
 import { validateResponse } from "sagas/ErrorSagas";
 import type { ApiResponse } from "api/ApiResponses";
 import type { User } from "constants/userConstants";
@@ -29,10 +29,13 @@ import {
   EVENT_USER_ROLES_TAB,
   SUCCESSFULLY_SAVED,
 } from "@appsmith/constants/messages";
-import { showAdminSettings } from "@appsmith/utils/adminSettingsHelpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCurrentUser } from "actions/authActions";
 import omit from "lodash/omit";
+import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
+import { isGACEnabled } from "@appsmith/utils/planHelpers";
+import { getShowAdminSettings } from "@appsmith/utils/BusinessFeatures/adminSettingsHelpers";
+import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
 
 export function* fetchAclUsersSaga(action: any) {
   try {
@@ -850,7 +853,10 @@ export function* fetchIconLocationsSagas() {
 
 export function* InitAclSaga(action: ReduxAction<User>) {
   const user = action.payload;
-  if (showAdminSettings(user)) {
+  const featureFlags: FeatureFlags = yield select(selectFeatureFlags);
+  const isFeatureEnabled = isGACEnabled(featureFlags);
+
+  if (getShowAdminSettings(isFeatureEnabled, user)) {
     yield all([
       takeLatest(ReduxActionTypes.CREATE_ACL_USER, createAclUserSaga),
       takeLatest(ReduxActionTypes.DELETE_ACL_USER, deleteAclUserSaga),

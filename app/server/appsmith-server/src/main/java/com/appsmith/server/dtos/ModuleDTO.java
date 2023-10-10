@@ -13,6 +13,7 @@ import lombok.ToString;
 import org.springframework.data.annotation.Transient;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -25,6 +26,10 @@ public class ModuleDTO implements Identifiable {
     @JsonView(Views.Public.class)
     private String id;
 
+    @Transient
+    @JsonView(Views.Export.class)
+    private String moduleUUID;
+
     @JsonView(Views.Public.class)
     String name;
 
@@ -35,6 +40,10 @@ public class ModuleDTO implements Identifiable {
     @Transient
     @JsonView(Views.Public.class)
     String packageId;
+
+    @Transient
+    @JsonView(Views.Export.class)
+    String packageUUID;
 
     /*
      "inputs": {
@@ -50,9 +59,13 @@ public class ModuleDTO implements Identifiable {
 
     // Variants of publicEntity { Query module : ActionDTO, JS module: ActionCollectionDTO,
     // UI module: Layout}
+    @JsonView(Views.Public.class)
+    String publicEntityId;
+
+    // `entities` = {public entity, all private entities}
     @Transient
     @JsonView(Views.Public.class)
-    ModuleConsumable publicEntity;
+    List<ModuleConsumable> entities;
 
     @Transient
     @JsonView(Views.Public.class)

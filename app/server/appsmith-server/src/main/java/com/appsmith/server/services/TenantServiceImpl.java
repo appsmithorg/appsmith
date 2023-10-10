@@ -19,6 +19,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.FeatureFlagMigrationHelper;
 import com.appsmith.server.helpers.RedirectHelper;
+import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.TenantRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
@@ -70,10 +71,13 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
     private final ObjectMapper objectMapper;
     private final BrandingService brandingService;
     private final SessionLimiterService sessionLimiterService;
-
+    private final PACConfigurationService pacConfigurationService;
     private final FeatureFlagMigrationHelper featureFlagMigrationHelper;
+    private final OidcConfigurationService oidcConfigurationService;
+    private final SamlConfigurationService samlConfigurationService;
 
     private final Scheduler scheduler;
+    private final UserUtils userUtils;
 
     // Based on information provided on the Branding page.
     private static final int MAX_LOGO_SIZE_KB = 2048;
@@ -99,7 +103,11 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
             CacheableFeatureFlagHelper cacheableFeatureFlagHelper,
             SessionLimiterService sessionLimiterService,
             FeatureFlagMigrationHelper featureFlagMigrationHelper,
-            BrandingService brandingService) {
+            BrandingService brandingService,
+            OidcConfigurationService oidcConfigurationService,
+            @Lazy SamlConfigurationService samlConfigurationService,
+            UserUtils userUtils,
+            PACConfigurationService pacConfigurationService) {
 
         super(
                 scheduler,
@@ -123,6 +131,10 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
         this.sessionLimiterService = sessionLimiterService;
         this.featureFlagMigrationHelper = featureFlagMigrationHelper;
         this.scheduler = scheduler;
+        this.oidcConfigurationService = oidcConfigurationService;
+        this.samlConfigurationService = samlConfigurationService;
+        this.pacConfigurationService = pacConfigurationService;
+        this.userUtils = userUtils;
     }
 
     @Override
@@ -142,14 +154,8 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
             final Tenant clientTenant = tuple.getT2();
             final TenantConfiguration config = clientTenant.getTenantConfiguration();
 
-            if (org.springframework.util.StringUtils.hasText(System.getenv("APPSMITH_OAUTH2_OIDC_CLIENT_ID"))) {
-                config.addThirdPartyAuth("oidc");
-            }
-
-            if ("true".equals(System.getenv("APPSMITH_SSO_SAML_ENABLED"))) {
-                config.addThirdPartyAuth("saml");
-            }
-
+            oidcConfigurationService.getTenantConfiguration(config);
+            samlConfigurationService.getTenantConfiguration(config);
             return getClientPertinentTenant(dbTenant, clientTenant);
         });
     }
@@ -279,6 +285,7 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
                 .map(tenantWithUpdatedMigration -> {
                     // Run the migrations in a separate thread, as we expect the migrations can run for few seconds
                     this.checkAndExecuteMigrationsForTenantFeatureFlags(tenantWithUpdatedMigration)
+                            .then(this.restartTenant())
                             .subscribeOn(scheduler)
                             .subscribe();
                     return tenantWithUpdatedMigration;
@@ -512,6 +519,7 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
     public Mono<Tenant> updateTenantConfiguration(String tenantId, TenantConfiguration tenantConfiguration) {
         return brandingService
                 .updateTenantConfiguration(tenantConfiguration)
+                .flatMap(pacConfigurationService::updateTenantConfiguration)
                 .flatMap(sessionLimiterService::updateTenantConfiguration)
                 .flatMap(updatedTenantConfiguration ->
                         super.updateTenantConfiguration(tenantId, updatedTenantConfiguration));
@@ -595,9 +603,35 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
     @Override
     protected Mono<Tenant> getClientPertinentTenant(Tenant dbTenant, Tenant clientTenant) {
         TenantConfiguration tenantConfiguration = dbTenant.getTenantConfiguration();
-        return brandingService.getTenantConfiguration(tenantConfiguration).flatMap(updatedTenantConfiguration -> {
-            dbTenant.setTenantConfiguration(updatedTenantConfiguration);
-            return super.getClientPertinentTenant(dbTenant, clientTenant);
-        });
+        return brandingService
+                .getTenantConfiguration(tenantConfiguration)
+                .flatMap(pacConfigurationService::getTenantConfiguration)
+                .flatMap(sessionLimiterService::getTenantConfiguration)
+                .map(updatedTenantConfiguration -> {
+                    dbTenant.setTenantConfiguration(updatedTenantConfiguration);
+                    return dbTenant;
+                })
+                .flatMap(updatedDbTenant -> {
+                    // if user is superuser, then only return subscription details
+                    return sessionUserService
+                            .getCurrentUser()
+                            .flatMap(userUtils::isSuperUser)
+                            .map(isSuperUser -> {
+                                if (!isSuperUser
+                                        && updatedDbTenant.getTenantConfiguration() != null
+                                        && updatedDbTenant
+                                                        .getTenantConfiguration()
+                                                        .getLicense()
+                                                != null) {
+                                    updatedDbTenant
+                                            .getTenantConfiguration()
+                                            .getLicense()
+                                            .setSubscriptionDetails(null);
+                                }
+                                return updatedDbTenant;
+                            })
+                            .switchIfEmpty(Mono.just(updatedDbTenant));
+                })
+                .flatMap(updatedDbTenant -> super.getClientPertinentTenant(updatedDbTenant, clientTenant));
     }
 }

@@ -14,7 +14,7 @@ function TextInput(props: TextInputProps, ref: TextInputRef) {
   const { descriptionProps, errorMessageProps, inputProps, labelProps } =
     useTextField(rest, inputRef);
 
-  if (props.placeholder) {
+  if (props.placeholder != null) {
     // eslint-disable-next-line no-console
     console.warn(
       "Placeholders are deprecated due to accessibility issues. Please use help text instead. See the docs for details: https://react-spectrum.adobe.com/react-spectrum/TextField.html#help-text",

@@ -45,6 +45,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.BodyInserters;
 import reactor.core.publisher.Mono;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
@@ -1064,5 +1065,489 @@ class ProvisionServiceImplTest {
             String generatedToken = ApiKeyServiceImpl.generateToken(mockMongoId);
             assertThat(generatedToken).doesNotContain(FieldName.APIKEY_USERID_DELIMITER);
         });
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void
+            testDisconnectProvisioning_keepUsersAndGroups_cancelMidway_disconnectHappensAndUsersGroupsAreInCorrectState() {
+        String testName =
+                "testDisconnectProvisioning_keepUsersAndGroups_cancelMidway_disconnectHappensAndUsersGroupsAreInCorrectState";
+        setTenantLicenseAsEnterprise();
+        PermissionGroup instanceAdminRole =
+                userUtils.getSuperAdminPermissionGroup().block();
+        PermissionGroup provisioningRole = userUtils.getProvisioningRole().block();
+        String generatedProvisionToken =
+                provisionService.generateProvisionToken().block();
+        String provisioningUserId = Arrays.stream(encryptionService
+                        .decryptString(generatedProvisionToken)
+                        .split(FieldName.APIKEY_USERID_DELIMITER))
+                .toList()
+                .get(1);
+        String actualProvisioningToken = Arrays.stream(encryptionService
+                        .decryptString(generatedProvisionToken)
+                        .split(FieldName.APIKEY_USERID_DELIMITER))
+                .toList()
+                .get(0);
+        String provisionTokenId = apiKeyRepository
+                .getByUserIdWithoutPermission(provisioningUserId)
+                .filter(fetchedUserApiKey -> fetchedUserApiKey.getApiKey().equals(actualProvisioningToken))
+                .single()
+                .map(UserApiKey::getId)
+                .block();
+
+        ProvisionStatusDTO provisionStatusAfterGeneratingProvisionToken =
+                provisionService.getProvisionStatus().block();
+
+        assertThat(provisionStatusAfterGeneratingProvisionToken).isNotNull();
+        assertThat(provisionStatusAfterGeneratingProvisionToken.getProvisionStatus())
+                .isEqualTo(ProvisionStatus.INACTIVE.getValue());
+        assertThat(provisionStatusAfterGeneratingProvisionToken.getConfiguredStatus())
+                .isTrue();
+        assertThat(provisionStatusAfterGeneratingProvisionToken.getLastUpdatedAt())
+                .isNull();
+        assertThat(provisionStatusAfterGeneratingProvisionToken.getProvisionedUsers())
+                .isZero();
+        assertThat(provisionStatusAfterGeneratingProvisionToken.getProvisionedGroups())
+                .isZero();
+
+        Instant timeBeforeProvisioningUser1 = Instant.now();
+        Tenant tenant = tenantService.getDefaultTenant().block();
+        User user1 = new User();
+        user1.setEmail(testName + "_provisionedUser1");
+        ProvisionResourceDto provisionedUser1 =
+                userService.createProvisionUser(user1).block();
+        Optional<Policy> optionalResetPasswordPolicy1 = provisionedUser1.getResource().getPolicies().stream()
+                .filter(policy -> policy.getPermission().equals(RESET_PASSWORD_USERS.getValue()))
+                .findFirst();
+        assertThat(optionalResetPasswordPolicy1.isPresent()).isTrue();
+        assertThat(optionalResetPasswordPolicy1.get().getPermissionGroups()).hasSize(1);
+        String userManagementRoleId1 = optionalResetPasswordPolicy1.get().getPermissionGroups().stream()
+                .findFirst()
+                .get();
+        PermissionGroup userManagementRole1 =
+                permissionGroupService.findById(userManagementRoleId1).block();
+
+        ProvisionStatusDTO provisionStatusAfterProvisioningUser1 =
+                provisionService.getProvisionStatus().block();
+
+        assertThat(provisionStatusAfterProvisioningUser1).isNotNull();
+        assertThat(provisionStatusAfterProvisioningUser1.getProvisionStatus())
+                .isEqualTo(ProvisionStatus.ACTIVE.getValue());
+        assertThat(provisionStatusAfterProvisioningUser1.getLastUpdatedAt()).isNotNull();
+        assertThat(Instant.parse(provisionStatusAfterProvisioningUser1.getLastUpdatedAt()))
+                .isAfter(timeBeforeProvisioningUser1);
+        assertThat(Instant.parse(provisionStatusAfterProvisioningUser1.getLastUpdatedAt()))
+                .isBefore(Instant.now());
+        assertThat(provisionStatusAfterProvisioningUser1.getProvisionedUsers()).isEqualTo(1);
+        assertThat(provisionStatusAfterProvisioningUser1.getProvisionedGroups()).isZero();
+
+        Instant timeBeforeProvisioningUser2 = Instant.now();
+        User user2 = new User();
+        user2.setEmail(testName + "_provisionedUser2");
+        ProvisionResourceDto provisionedUser2 =
+                userService.createProvisionUser(user2).block();
+        Optional<Policy> optionalResetPasswordPolicy2 = provisionedUser2.getResource().getPolicies().stream()
+                .filter(policy -> policy.getPermission().equals(RESET_PASSWORD_USERS.getValue()))
+                .findFirst();
+        assertThat(optionalResetPasswordPolicy2.isPresent()).isTrue();
+        assertThat(optionalResetPasswordPolicy2.get().getPermissionGroups()).hasSize(1);
+        String userManagementRoleId2 = optionalResetPasswordPolicy2.get().getPermissionGroups().stream()
+                .findFirst()
+                .get();
+        PermissionGroup userManagementRole2 =
+                permissionGroupService.findById(userManagementRoleId2).block();
+
+        ProvisionStatusDTO provisionStatusAfterProvisioningUser2 =
+                provisionService.getProvisionStatus().block();
+
+        assertThat(provisionStatusAfterProvisioningUser2).isNotNull();
+        assertThat(provisionStatusAfterProvisioningUser2.getProvisionStatus())
+                .isEqualTo(ProvisionStatus.ACTIVE.getValue());
+        assertThat(provisionStatusAfterProvisioningUser2.getLastUpdatedAt()).isNotNull();
+        assertThat(Instant.parse(provisionStatusAfterProvisioningUser2.getLastUpdatedAt()))
+                .isAfter(timeBeforeProvisioningUser2);
+        assertThat(Instant.parse(provisionStatusAfterProvisioningUser2.getLastUpdatedAt()))
+                .isBefore(Instant.now());
+        assertThat(provisionStatusAfterProvisioningUser2.getProvisionedUsers()).isEqualTo(2);
+        assertThat(provisionStatusAfterProvisioningUser2.getProvisionedGroups()).isZero();
+
+        Instant timeBeforeProvisioningGroup1 = Instant.now();
+        UserGroup userGroup1 = new UserGroup();
+        userGroup1.setName(testName + "_provisionedGroup1");
+        ProvisionResourceDto provisionedGroup1 =
+                userGroupService.createProvisionGroup(userGroup1).block();
+
+        ProvisionStatusDTO provisionStatusAfterProvisioningGroup1 =
+                provisionService.getProvisionStatus().block();
+
+        assertThat(provisionStatusAfterProvisioningGroup1).isNotNull();
+        assertThat(provisionStatusAfterProvisioningGroup1.getProvisionStatus())
+                .isEqualTo(ProvisionStatus.ACTIVE.getValue());
+        assertThat(provisionStatusAfterProvisioningGroup1.getLastUpdatedAt()).isNotNull();
+        assertThat(Instant.parse(provisionStatusAfterProvisioningGroup1.getLastUpdatedAt()))
+                .isAfter(timeBeforeProvisioningGroup1);
+        assertThat(Instant.parse(provisionStatusAfterProvisioningGroup1.getLastUpdatedAt()))
+                .isBefore(Instant.now());
+        assertThat(provisionStatusAfterProvisioningGroup1.getProvisionedUsers()).isEqualTo(2);
+        assertThat(provisionStatusAfterProvisioningGroup1.getProvisionedGroups())
+                .isEqualTo(1);
+
+        Instant timeBeforeProvisioningGroup2 = Instant.now();
+        UserGroup userGroup2 = new UserGroup();
+        userGroup2.setName(testName + "_provisionedGroup2");
+        ProvisionResourceDto provisionedGroup2 =
+                userGroupService.createProvisionGroup(userGroup2).block();
+
+        ProvisionStatusDTO provisionStatusAfterProvisioningGroup2 =
+                provisionService.getProvisionStatus().block();
+
+        assertThat(provisionStatusAfterProvisioningGroup2).isNotNull();
+        assertThat(provisionStatusAfterProvisioningGroup2.getProvisionStatus())
+                .isEqualTo(ProvisionStatus.ACTIVE.getValue());
+        assertThat(provisionStatusAfterProvisioningGroup2.getLastUpdatedAt()).isNotNull();
+        assertThat(Instant.parse(provisionStatusAfterProvisioningGroup2.getLastUpdatedAt()))
+                .isAfter(timeBeforeProvisioningGroup2);
+        assertThat(Instant.parse(provisionStatusAfterProvisioningGroup2.getLastUpdatedAt()))
+                .isBefore(Instant.now());
+        assertThat(provisionStatusAfterProvisioningGroup2.getProvisionedUsers()).isEqualTo(2);
+        assertThat(provisionStatusAfterProvisioningGroup2.getProvisionedGroups())
+                .isEqualTo(2);
+
+        PermissionGroup role1 = new PermissionGroup();
+        role1.setAssignedToUserIds(Set.of(
+                provisionedUser1.getResource().getId(),
+                provisionedUser2.getResource().getId()));
+        role1.setAssignedToGroupIds(Set.of(
+                provisionedGroup1.getResource().getId(),
+                provisionedGroup2.getResource().getId()));
+        PermissionGroup createdRole1 = permissionGroupService
+                .createCustomPermissionGroup(role1)
+                .flatMap(roleViewDTO -> permissionGroupService.getById(roleViewDTO.getId()))
+                .block();
+        assertThat(createdRole1.getAssignedToUserIds())
+                .containsExactlyInAnyOrder(
+                        provisionedUser1.getResource().getId(),
+                        provisionedUser2.getResource().getId());
+        assertThat(createdRole1.getAssignedToGroupIds())
+                .containsExactlyInAnyOrder(
+                        provisionedGroup1.getResource().getId(),
+                        provisionedGroup2.getResource().getId());
+
+        DisconnectProvisioningDto disconnectProvisioningDto = DisconnectProvisioningDto.builder()
+                .keepAllProvisionedResources(true)
+                .build();
+        provisionService
+                .disconnectProvisioning(disconnectProvisioningDto)
+                .timeout(Duration.ofMillis(10))
+                .subscribe();
+
+        try {
+            // Sleep for 5 secs before getting provisioning status
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        ProvisionStatusDTO provisionStatusAfterDisconnectingProvisioning =
+                provisionService.getProvisionStatus().block();
+
+        assertThat(provisionStatusAfterDisconnectingProvisioning).isNotNull();
+        assertThat(provisionStatusAfterDisconnectingProvisioning.getProvisionStatus())
+                .isEqualTo(ProvisionStatus.INACTIVE.getValue());
+        assertThat(provisionStatusAfterDisconnectingProvisioning.getConfiguredStatus())
+                .isFalse();
+        assertThat(provisionStatusAfterDisconnectingProvisioning.getLastUpdatedAt())
+                .isNull();
+        assertThat(provisionStatusAfterDisconnectingProvisioning.getProvisionedUsers())
+                .isZero();
+        assertThat(provisionStatusAfterDisconnectingProvisioning.getProvisionedGroups())
+                .isZero();
+
+        User provisionedUser1AfterDisconnectingProvisioning =
+                userRepository.findById(provisionedUser1.getResource().getId()).block();
+        User provisionedUser2AfterDisconnectingProvisioning =
+                userRepository.findById(provisionedUser2.getResource().getId()).block();
+
+        assertThat(provisionedUser1AfterDisconnectingProvisioning).isNotNull();
+        assertThat(provisionedUser1AfterDisconnectingProvisioning.getIsProvisioned())
+                .isFalse();
+        assertThat(provisionedUser2AfterDisconnectingProvisioning).isNotNull();
+        assertThat(provisionedUser2AfterDisconnectingProvisioning.getIsProvisioned())
+                .isFalse();
+
+        Policy manageUserPolicy1 = Policy.builder()
+                .permission(MANAGE_USERS.getValue())
+                .permissionGroups(Set.of(userManagementRole1.getId()))
+                .build();
+        Policy readUserPolicy1 = Policy.builder()
+                .permission(READ_USERS.getValue())
+                .permissionGroups(
+                        Set.of(userManagementRole1.getId(), instanceAdminRole.getId(), provisioningRole.getId()))
+                .build();
+        Policy resetPasswordPolicy1 = Policy.builder()
+                .permission(RESET_PASSWORD_USERS.getValue())
+                .permissionGroups(Set.of(userManagementRole1.getId()))
+                .build();
+        Policy deleteUserPolicy1 = Policy.builder()
+                .permission(DELETE_USERS.getValue())
+                .permissionGroups(Set.of(instanceAdminRole.getId()))
+                .build();
+
+        Policy manageUserPolicy2 = Policy.builder()
+                .permission(MANAGE_USERS.getValue())
+                .permissionGroups(Set.of(userManagementRole2.getId()))
+                .build();
+        Policy readUserPolicy2 = Policy.builder()
+                .permission(READ_USERS.getValue())
+                .permissionGroups(
+                        Set.of(userManagementRole2.getId(), instanceAdminRole.getId(), provisioningRole.getId()))
+                .build();
+        Policy resetPasswordPolicy2 = Policy.builder()
+                .permission(RESET_PASSWORD_USERS.getValue())
+                .permissionGroups(Set.of(userManagementRole2.getId()))
+                .build();
+        Policy deleteUserPolicy2 = Policy.builder()
+                .permission(DELETE_USERS.getValue())
+                .permissionGroups(Set.of(instanceAdminRole.getId()))
+                .build();
+
+        assertThat(provisionedUser1AfterDisconnectingProvisioning.getPolicies())
+                .containsAll(Set.of(manageUserPolicy1, readUserPolicy1, resetPasswordPolicy1, deleteUserPolicy1));
+        assertThat(provisionedUser2AfterDisconnectingProvisioning.getPolicies())
+                .containsAll(Set.of(manageUserPolicy2, readUserPolicy2, resetPasswordPolicy2, deleteUserPolicy2));
+
+        UserGroup provisionedGroup1AfterDisconnectingProvisioning = userGroupRepository
+                .findById(provisionedGroup1.getResource().getId())
+                .block();
+        UserGroup provisionedGroup2AfterDisconnectingProvisioning = userGroupRepository
+                .findById(provisionedGroup2.getResource().getId())
+                .block();
+
+        assertThat(provisionedGroup1AfterDisconnectingProvisioning).isNotNull();
+        assertThat(provisionedGroup1AfterDisconnectingProvisioning.getIsProvisioned())
+                .isFalse();
+        assertThat(provisionedGroup2AfterDisconnectingProvisioning).isNotNull();
+        assertThat(provisionedGroup2AfterDisconnectingProvisioning.getIsProvisioned())
+                .isFalse();
+
+        Set<Policy> userGroupPolicies =
+                policyGenerator.getAllChildPolicies(tenant.getPolicies(), Tenant.class, UserGroup.class);
+
+        assertThat(provisionedGroup1AfterDisconnectingProvisioning.getPolicies())
+                .containsAll(userGroupPolicies);
+        assertThat(provisionedGroup2AfterDisconnectingProvisioning.getPolicies())
+                .containsAll(userGroupPolicies);
+
+        PermissionGroup updatedRole1 =
+                permissionGroupService.getById(createdRole1.getId()).block();
+        assertThat(updatedRole1.getAssignedToUserIds())
+                .containsExactlyInAnyOrder(
+                        provisionedUser1AfterDisconnectingProvisioning.getId(),
+                        provisionedUser2AfterDisconnectingProvisioning.getId());
+        assertThat(updatedRole1.getAssignedToGroupIds())
+                .containsExactlyInAnyOrder(
+                        provisionedGroup1AfterDisconnectingProvisioning.getId(),
+                        provisionedGroup2AfterDisconnectingProvisioning.getId());
+
+        UserApiKey provisionUserApiKey =
+                apiKeyRepository.findById(provisionTokenId).block();
+        assertThat(provisionUserApiKey).isNull();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    void testDisconnectProvisioning_deleteUsersAndGroups_cancelMidway_disconnectHappensAndUsersGroupsAreDeleted() {
+        String testName =
+                "testDisconnectProvisioning_deleteUsersAndGroups_cancelMidway_disconnectHappensAndUsersGroupsAreDeleted";
+        setTenantLicenseAsEnterprise();
+        String generatedProvisionToken =
+                provisionService.generateProvisionToken().block();
+        String provisioningUserId = Arrays.stream(encryptionService
+                        .decryptString(generatedProvisionToken)
+                        .split(FieldName.APIKEY_USERID_DELIMITER))
+                .toList()
+                .get(1);
+        String actualProvisioningToken = Arrays.stream(encryptionService
+                        .decryptString(generatedProvisionToken)
+                        .split(FieldName.APIKEY_USERID_DELIMITER))
+                .toList()
+                .get(0);
+        String provisionTokenId = apiKeyRepository
+                .getByUserIdWithoutPermission(provisioningUserId)
+                .filter(fetchedUserApiKey -> fetchedUserApiKey.getApiKey().equals(actualProvisioningToken))
+                .single()
+                .map(UserApiKey::getId)
+                .block();
+
+        ProvisionStatusDTO provisionStatusAfterGeneratingProvisionToken =
+                provisionService.getProvisionStatus().block();
+
+        assertThat(provisionStatusAfterGeneratingProvisionToken).isNotNull();
+        assertThat(provisionStatusAfterGeneratingProvisionToken.getProvisionStatus())
+                .isEqualTo(ProvisionStatus.INACTIVE.getValue());
+        assertThat(provisionStatusAfterGeneratingProvisionToken.getConfiguredStatus())
+                .isTrue();
+        assertThat(provisionStatusAfterGeneratingProvisionToken.getLastUpdatedAt())
+                .isNull();
+        assertThat(provisionStatusAfterGeneratingProvisionToken.getProvisionedUsers())
+                .isZero();
+        assertThat(provisionStatusAfterGeneratingProvisionToken.getProvisionedGroups())
+                .isZero();
+
+        Instant timeBeforeProvisioningUser1 = Instant.now();
+        User user1 = new User();
+        user1.setEmail(testName + "_provisionedUser1");
+        ProvisionResourceDto provisionedUser1 =
+                userService.createProvisionUser(user1).block();
+
+        ProvisionStatusDTO provisionStatusAfterProvisioningUser1 =
+                provisionService.getProvisionStatus().block();
+
+        assertThat(provisionStatusAfterProvisioningUser1).isNotNull();
+        assertThat(provisionStatusAfterProvisioningUser1.getProvisionStatus())
+                .isEqualTo(ProvisionStatus.ACTIVE.getValue());
+        assertThat(provisionStatusAfterProvisioningUser1.getLastUpdatedAt()).isNotNull();
+        assertThat(Instant.parse(provisionStatusAfterProvisioningUser1.getLastUpdatedAt()))
+                .isAfter(timeBeforeProvisioningUser1);
+        assertThat(Instant.parse(provisionStatusAfterProvisioningUser1.getLastUpdatedAt()))
+                .isBefore(Instant.now());
+        assertThat(provisionStatusAfterProvisioningUser1.getProvisionedUsers()).isEqualTo(1);
+        assertThat(provisionStatusAfterProvisioningUser1.getProvisionedGroups()).isZero();
+
+        Instant timeBeforeProvisioningUser2 = Instant.now();
+        User user2 = new User();
+        user2.setEmail(testName + "_provisionedUser2");
+        ProvisionResourceDto provisionedUser2 =
+                userService.createProvisionUser(user2).block();
+
+        ProvisionStatusDTO provisionStatusAfterProvisioningUser2 =
+                provisionService.getProvisionStatus().block();
+
+        assertThat(provisionStatusAfterProvisioningUser2).isNotNull();
+        assertThat(provisionStatusAfterProvisioningUser2.getProvisionStatus())
+                .isEqualTo(ProvisionStatus.ACTIVE.getValue());
+        assertThat(provisionStatusAfterProvisioningUser2.getLastUpdatedAt()).isNotNull();
+        assertThat(Instant.parse(provisionStatusAfterProvisioningUser2.getLastUpdatedAt()))
+                .isAfter(timeBeforeProvisioningUser2);
+        assertThat(Instant.parse(provisionStatusAfterProvisioningUser2.getLastUpdatedAt()))
+                .isBefore(Instant.now());
+        assertThat(provisionStatusAfterProvisioningUser2.getProvisionedUsers()).isEqualTo(2);
+        assertThat(provisionStatusAfterProvisioningUser2.getProvisionedGroups()).isZero();
+
+        Instant timeBeforeProvisioningGroup1 = Instant.now();
+        UserGroup userGroup1 = new UserGroup();
+        userGroup1.setName(testName + "_provisionedGroup1");
+        ProvisionResourceDto provisionedGroup1 =
+                userGroupService.createProvisionGroup(userGroup1).block();
+        ProvisionStatusDTO provisionStatusAfterProvisioningGroup1 =
+                provisionService.getProvisionStatus().block();
+
+        assertThat(provisionStatusAfterProvisioningGroup1).isNotNull();
+        assertThat(provisionStatusAfterProvisioningGroup1.getProvisionStatus())
+                .isEqualTo(ProvisionStatus.ACTIVE.getValue());
+        assertThat(provisionStatusAfterProvisioningGroup1.getLastUpdatedAt()).isNotNull();
+        assertThat(Instant.parse(provisionStatusAfterProvisioningGroup1.getLastUpdatedAt()))
+                .isAfter(timeBeforeProvisioningGroup1);
+        assertThat(Instant.parse(provisionStatusAfterProvisioningGroup1.getLastUpdatedAt()))
+                .isBefore(Instant.now());
+        assertThat(provisionStatusAfterProvisioningGroup1.getProvisionedUsers()).isEqualTo(2);
+        assertThat(provisionStatusAfterProvisioningGroup1.getProvisionedGroups())
+                .isEqualTo(1);
+
+        Instant timeBeforeProvisioningGroup2 = Instant.now();
+        UserGroup userGroup2 = new UserGroup();
+        userGroup2.setName(testName + "_provisionedGroup2");
+        ProvisionResourceDto provisionedGroup2 =
+                userGroupService.createProvisionGroup(userGroup2).block();
+        ProvisionStatusDTO provisionStatusAfterProvisioningGroup2 =
+                provisionService.getProvisionStatus().block();
+
+        assertThat(provisionStatusAfterProvisioningGroup2).isNotNull();
+        assertThat(provisionStatusAfterProvisioningGroup2.getProvisionStatus())
+                .isEqualTo(ProvisionStatus.ACTIVE.getValue());
+        assertThat(provisionStatusAfterProvisioningGroup2.getLastUpdatedAt()).isNotNull();
+        assertThat(Instant.parse(provisionStatusAfterProvisioningGroup2.getLastUpdatedAt()))
+                .isAfter(timeBeforeProvisioningGroup2);
+        assertThat(Instant.parse(provisionStatusAfterProvisioningGroup2.getLastUpdatedAt()))
+                .isBefore(Instant.now());
+        assertThat(provisionStatusAfterProvisioningGroup2.getProvisionedUsers()).isEqualTo(2);
+        assertThat(provisionStatusAfterProvisioningGroup2.getProvisionedGroups())
+                .isEqualTo(2);
+
+        PermissionGroup role1 = new PermissionGroup();
+        role1.setAssignedToUserIds(Set.of(
+                provisionedUser1.getResource().getId(),
+                provisionedUser2.getResource().getId()));
+        role1.setAssignedToGroupIds(Set.of(
+                provisionedGroup1.getResource().getId(),
+                provisionedGroup2.getResource().getId()));
+        PermissionGroup createdRole1 = permissionGroupService
+                .createCustomPermissionGroup(role1)
+                .flatMap(roleViewDTO -> permissionGroupService.getById(roleViewDTO.getId()))
+                .block();
+        assertThat(createdRole1.getAssignedToUserIds())
+                .containsExactlyInAnyOrder(
+                        provisionedUser1.getResource().getId(),
+                        provisionedUser2.getResource().getId());
+        assertThat(createdRole1.getAssignedToGroupIds())
+                .containsExactlyInAnyOrder(
+                        provisionedGroup1.getResource().getId(),
+                        provisionedGroup2.getResource().getId());
+
+        DisconnectProvisioningDto disconnectProvisioningDto = DisconnectProvisioningDto.builder()
+                .keepAllProvisionedResources(false)
+                .build();
+        provisionService
+                .disconnectProvisioning(disconnectProvisioningDto)
+                .timeout(Duration.ofMillis(10))
+                .subscribe();
+
+        try {
+            // Sleep for 5 secs before getting provisioning status
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        ProvisionStatusDTO provisionStatusAfterDisconnectingProvisioning =
+                provisionService.getProvisionStatus().block();
+
+        assertThat(provisionStatusAfterDisconnectingProvisioning).isNotNull();
+        assertThat(provisionStatusAfterDisconnectingProvisioning.getProvisionStatus())
+                .isEqualTo(ProvisionStatus.INACTIVE.getValue());
+        assertThat(provisionStatusAfterDisconnectingProvisioning.getConfiguredStatus())
+                .isFalse();
+        assertThat(provisionStatusAfterDisconnectingProvisioning.getLastUpdatedAt())
+                .isNull();
+        assertThat(provisionStatusAfterDisconnectingProvisioning.getProvisionedUsers())
+                .isZero();
+        assertThat(provisionStatusAfterDisconnectingProvisioning.getProvisionedGroups())
+                .isZero();
+
+        User provisionedUser1AfterDisconnectingProvisioning =
+                userRepository.findById(provisionedUser1.getResource().getId()).block();
+        User provisionedUser2AfterDisconnectingProvisioning =
+                userRepository.findById(provisionedUser2.getResource().getId()).block();
+        assertThat(provisionedUser1AfterDisconnectingProvisioning).isNull();
+        assertThat(provisionedUser2AfterDisconnectingProvisioning).isNull();
+
+        UserGroup provisionedGroup1AfterDisconnectingProvisioning = userGroupRepository
+                .findById(provisionedGroup1.getResource().getId())
+                .block();
+        UserGroup provisionedGroup2AfterDisconnectingProvisioning = userGroupRepository
+                .findById(provisionedGroup2.getResource().getId())
+                .block();
+        assertThat(provisionedGroup1AfterDisconnectingProvisioning).isNull();
+        assertThat(provisionedGroup2AfterDisconnectingProvisioning).isNull();
+
+        PermissionGroup updatedRole1 =
+                permissionGroupService.getById(createdRole1.getId()).block();
+        assertThat(updatedRole1.getAssignedToUserIds()).isEmpty();
+        assertThat(updatedRole1.getAssignedToGroupIds()).isEmpty();
+
+        UserApiKey provisionUserApiKey =
+                apiKeyRepository.findById(provisionTokenId).block();
+        assertThat(provisionUserApiKey).isNull();
     }
 }

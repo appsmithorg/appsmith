@@ -7,7 +7,7 @@ import {
 } from "@design-system/theming";
 import Color from "colorjs.io";
 import { Text } from "@design-system/widgets";
-import { StyledColorGridButton } from "./ColorGrid.styled";
+import styles from "./styles.module.css";
 import { COLORS as appsmithColors } from "./colors";
 
 const clean = (value: number) => {
@@ -172,11 +172,12 @@ export const ColorGrid = (props: any) => {
                     background: "var(--color-bg)",
                   }}
                 >
-                  <StyledColorGridButton
-                    data-active={isActive ? "" : undefined}
-                    data-disabled={isDisabled ? "" : undefined}
-                    data-focused={isFocused ? "" : undefined}
-                    data-hovered={isHovered ? "" : undefined}
+                  <button
+                    className={styles["color-grid"]}
+                    data-active={Boolean(isActive) ? "" : undefined}
+                    data-disabled={Boolean(isDisabled) ? "" : undefined}
+                    data-focused={Boolean(isFocused) ? "" : undefined}
+                    data-hovered={Boolean(isHovered) ? "" : undefined}
                     data-variant={variant}
                   >
                     <Text lineClamp={2} textAlign="center" variant="footnote">
@@ -185,7 +186,7 @@ export const ColorGrid = (props: any) => {
                         derived: getDerived(),
                       })}
                     </Text>
-                  </StyledColorGridButton>
+                  </button>
                 </div>
               </ThemeProvider>
             );

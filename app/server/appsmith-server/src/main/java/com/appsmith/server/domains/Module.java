@@ -18,14 +18,17 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class Module extends BranchAwareDomain {
 
     // Fields in module that are not allowed to change between published and unpublished versions
+    @JsonView(Views.Export.class)
+    String packageUUID; // this refers to the `packageUUID` field of the Package domain
+
     @JsonView(Views.Public.class)
-    String packageId; // this refers to the `packageUniqueIdentifier` field of the Package domain
+    String packageId; // this refers to the `id` field of the Package domain
 
     @JsonView(Views.Public.class)
     ModuleType type;
 
     @JsonView(Views.Public.class)
-    String moduleUniqueIdentifier; // ModuleInstance refers to this id
+    String moduleUUID; // `moduleUUID` is not globally unique but within the workspace
 
     @JsonView(Views.Public.class)
     ModuleDTO unpublishedModule;

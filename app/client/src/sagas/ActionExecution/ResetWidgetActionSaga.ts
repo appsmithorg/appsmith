@@ -17,7 +17,7 @@ import type {
   DataTree,
   ConfigTree,
   WidgetEntityConfig,
-} from "entities/DataTree/dataTreeFactory";
+} from "@appsmith/entities/DataTree/types";
 import { isWidget } from "@appsmith/workers/Evaluation/evaluationUtils";
 import type { TResetWidgetDescription } from "workers/Evaluation/fns/resetWidget";
 

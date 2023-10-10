@@ -27,8 +27,13 @@ public class ModuleInstanceDTO implements Identifiable {
     @JsonView(Views.Public.class)
     ModuleType type;
 
+    @Transient
     @JsonView(Views.Public.class)
     String moduleId;
+
+    @Transient
+    @JsonView(Views.Export.class)
+    String moduleUUID;
 
     @JsonView(Views.Public.class)
     String name;

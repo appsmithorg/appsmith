@@ -37,9 +37,7 @@ import {
   MEMBERS_TAB_TITLE,
   NO_SEARCH_DATA_TEXT,
 } from "@appsmith/constants/messages";
-import { getAppsmithConfigs } from "@appsmith/configs";
 import styled from "styled-components";
-import { showAdminSettings } from "@appsmith/utils/adminSettingsHelpers";
 import { useHistory } from "react-router";
 import {
   changeApplicationUserRole,
@@ -57,9 +55,10 @@ import { Avatar, Button, Icon, Option, Select, Text } from "design-system";
 import { getInitials } from "utils/AppsmithUtils";
 import { RAMP_NAME } from "utils/ProductRamps/RampsControlList";
 import { showProductRamps } from "@appsmith/selectors/rampSelectors";
-import { CustomRolesRamp } from "@appsmith/pages/workspace/WorkspaceInviteUsersForm";
-
-const { cloudHosting } = getAppsmithConfigs();
+import { CustomRolesRamp } from "@appsmith/pages/workspace/InviteUsersForm";
+import { getShowAdminSettings } from "@appsmith/utils/BusinessFeatures/adminSettingsHelpers";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 const Delimeter = styled.div`
   border-left: 1px solid var(--ads-v2-color-border);
@@ -92,6 +91,13 @@ export default function MemberSettings(props: PageProps) {
 
   const dispatch = useDispatch();
   const history = useHistory();
+  const isGACEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+
+  const showRampSelector = showProductRamps(
+    RAMP_NAME.CUSTOM_ROLES,
+    !isGACEnabled,
+  );
+  const canShowRamp = useSelector(showRampSelector);
 
   const [showMemberDeletionConfirmation, setShowMemberDeletionConfirmation] =
     useState(false);
@@ -99,9 +105,6 @@ export default function MemberSettings(props: PageProps) {
   const onOpenConfirmationModal = () => setShowMemberDeletionConfirmation(true);
   const onCloseConfirmationModal = () =>
     setShowMemberDeletionConfirmation(false);
-
-  const showRampSelector = showProductRamps(RAMP_NAME.CUSTOM_ROLES);
-  const canShowRamp = useSelector(showRampSelector);
 
   const [userToBeDeleted, setUserToBeDeleted] = useState<{
     name: string;
@@ -178,7 +181,8 @@ export default function MemberSettings(props: PageProps) {
     currentWorkspace?.userPermissions,
     PERMISSION_TYPE.MANAGE_WORKSPACE,
   );
-  const isAppInvite = !cloudHosting;
+
+  const isAppInvite = isGACEnabled;
 
   useEffect(() => {
     if (
@@ -269,7 +273,7 @@ export default function MemberSettings(props: PageProps) {
   const columns = [
     {
       Header: createMessage(() =>
-        MEMBERS_TAB_TITLE(filteredData?.length, cloudHosting),
+        MEMBERS_TAB_TITLE(filteredData?.length, !isGACEnabled),
       ),
       accessor: "users",
       Cell: function UserCell(props: any) {
@@ -366,7 +370,7 @@ export default function MemberSettings(props: PageProps) {
               };
             })
           : [];
-        if (!cloudHosting && showAdminSettings(currentUser)) {
+        if (isGACEnabled && getShowAdminSettings(isGACEnabled, currentUser)) {
           roles.push({
             key: "custom-pg",
             value: "Assign Custom Role",
@@ -449,7 +453,7 @@ export default function MemberSettings(props: PageProps) {
                 </div>
               </Option>
             ))}
-            {cloudHosting && canShowRamp && (
+            {!isGACEnabled && canShowRamp && (
               <Option disabled>
                 <CustomRolesRamp />
               </Option>
@@ -631,7 +635,7 @@ export default function MemberSettings(props: PageProps) {
                           </div>
                         </Option>
                       ))}
-                      {cloudHosting && canShowRamp && (
+                      {!isGACEnabled && canShowRamp && (
                         <Option disabled>
                           <CustomRolesRamp />
                         </Option>

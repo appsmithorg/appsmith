@@ -8,6 +8,7 @@ import {
   rbacHelper,
   dataSources,
 } from "../../../../../support/ee/ObjectsCore_EE";
+import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
 
 describe("User performing actions on page with access and without access Tests", function () {
   let workspaceName: string, appName: string, datasourceName;
@@ -99,6 +100,9 @@ describe("User performing actions on page with access and without access Tests",
       Cypress.env("TESTPASSWORD1"),
       "App Viewer",
     );
+    cy.wait(5000);
+    featureFlagIntercept({ license_gac_enabled: true });
+    cy.wait(5000);
     homePage.SearchAndOpenApp(appName);
     entityExplorer.SelectEntityByName("Page1", "Pages");
     entityExplorer.DragNDropWidget("checkboxwidget");
@@ -140,6 +144,9 @@ describe("User performing actions on page with access and without access Tests",
    */
   it("3. Verify query edit permission for test user", function () {
     homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+    cy.wait(5000);
+    featureFlagIntercept({ license_gac_enabled: true });
+    cy.wait(5000);
     adminSettings.NavigateToAdminSettings();
     rbacHelper.AssignRoleToUser(
       permissionAtPageLevel,
@@ -156,6 +163,8 @@ describe("User performing actions on page with access and without access Tests",
       Cypress.env("TESTPASSWORD2"),
       "App Viewer",
     );
+    featureFlagIntercept({ license_gac_enabled: true });
+    cy.wait(2000);
     homePage.SearchAndOpenApp(appName);
     entityExplorer.SelectEntityByName(pageName, "Pages");
     entityExplorer.SelectEntityByName(queryName, "Queries/JS");
