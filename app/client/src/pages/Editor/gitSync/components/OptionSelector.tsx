@@ -14,7 +14,7 @@ import { Classes as GitSyncClasses } from "pages/Editor/gitSync/constants";
 import { importSvg } from "design-system-old";
 
 const ChevronDown = importSvg(
-  () => import("assets/icons/ads/chevron-down.svg"),
+  async () => import("assets/icons/ads/chevron-down.svg"),
 );
 
 const SelectedValueNodeContainer = styled.div`

@@ -5,7 +5,7 @@ export const cssRule = (tokens: Theme) => {
   let styles = "";
 
   Object.values(tokens).forEach((token) => {
-    if (!token) return;
+    if (token == null) return;
 
     Object.keys(token).forEach((key) => {
       //@ts-expect-error: type mismatch
