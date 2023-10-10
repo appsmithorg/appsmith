@@ -1,0 +1,107 @@
+import React from "react";
+import type { SetterConfig } from "entities/AppTheming";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import BaseWidget from "widgets/BaseWidget";
+import * as config from "./../config";
+import type { IconButtonWidgetProps, IconButtonWidgetState } from "./types";
+import IconButtonComponent from "../component";
+
+class WDSIconButtonWidget extends BaseWidget<
+  IconButtonWidgetProps,
+  IconButtonWidgetState
+> {
+  constructor(props: IconButtonWidgetProps) {
+    super(props);
+
+    this.state = {
+      isLoading: false,
+    };
+  }
+
+  static type = "WDS_ICON_BUTTON_WIDGET";
+
+  static getConfig() {
+    return config.metaConfig;
+  }
+
+  static getDefaults() {
+    return config.defaultsConfig;
+  }
+
+  static getAutoLayoutConfig() {
+    return config.autoLayoutConfig;
+  }
+
+  static getAutocompleteDefinitions() {
+    return config.autocompleteConfig;
+  }
+
+  static getPropertyPaneContentConfig() {
+    return config.propertyPaneContentConfig;
+  }
+
+  static getPropertyPaneStyleConfig() {
+    return config.propertyPaneStyleConfig;
+  }
+
+  static getSetterConfig(): SetterConfig {
+    return config.settersConfig;
+  }
+
+  hasOnClickAction = () => {
+    const { isDisabled, onClick } = this.props;
+
+    return Boolean(onClick && !isDisabled);
+  };
+
+  handleActionComplete = () => {
+    this.setState({
+      isLoading: false,
+    });
+  };
+
+  onButtonClick = () => {
+    const { onClick } = this.props;
+
+    if (onClick) {
+      this.setState({ isLoading: true });
+
+      super.executeAction({
+        triggerPropertyName: "onClick",
+        dynamicString: onClick,
+        event: {
+          type: EventType.ON_CLICK,
+          callback: this.handleActionComplete,
+        },
+      });
+
+      return;
+    }
+  };
+
+  getWidgetView() {
+    const onPress = (() => {
+      if (this.hasOnClickAction()) {
+        return this.onButtonClick;
+      }
+
+      return undefined;
+    })();
+
+    return (
+      <IconButtonComponent
+        color={this.props.buttonColor}
+        iconName={this.props.iconName}
+        isDisabled={this.props.isDisabled}
+        isLoading={this.state.isLoading}
+        key={this.props.widgetId}
+        onPress={onPress}
+        tooltip={this.props.tooltip}
+        variant={this.props.buttonVariant}
+        visuallyDisabled={this.props.isVisible}
+      />
+    );
+  }
+}
+
+export { WDSIconButtonWidget };
