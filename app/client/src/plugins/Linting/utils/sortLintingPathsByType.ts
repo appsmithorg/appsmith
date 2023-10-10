@@ -1,4 +1,4 @@
-import type { DataTree, ConfigTree } from "@appsmith/entities/DataTree/types";
+import type { DataTree, ConfigTree } from "entities/DataTree/dataTreeTypes";
 import {
   getEntityNameAndPropertyPath,
   isATriggerPath,

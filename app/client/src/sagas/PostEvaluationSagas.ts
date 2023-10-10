@@ -4,12 +4,12 @@ import {
   PLATFORM_ERROR,
   Severity,
 } from "entities/AppsmithConsole";
+import type { WidgetEntityConfig } from "@appsmith/entities/DataTree/types";
 import type {
   ConfigTree,
   DataTree,
   UnEvalTree,
-  WidgetEntityConfig,
-} from "@appsmith/entities/DataTree/types";
+} from "entities/DataTree/dataTreeTypes";
 import type { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
 import {
   DataTreeDiffEvent,
