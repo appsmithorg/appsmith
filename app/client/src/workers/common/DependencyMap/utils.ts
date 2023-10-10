@@ -9,11 +9,11 @@ import {
   isWidget,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
 
+import type { WidgetEntityConfig } from "@appsmith/entities/DataTree/types";
 import type {
   ConfigTree,
   DataTreeEntity,
-  WidgetEntityConfig,
-} from "@appsmith/entities/DataTree/types";
+} from "entities/DataTree/dataTreeTypes";
 import {
   DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS,
   JAVASCRIPT_KEYWORDS,
