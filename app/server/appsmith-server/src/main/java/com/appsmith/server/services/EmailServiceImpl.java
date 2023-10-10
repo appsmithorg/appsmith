@@ -6,6 +6,7 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.helpers.EmailServiceHelper;
 import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.services.ce.EmailServiceCEImpl;
 import org.apache.commons.lang3.StringUtils;
@@ -32,10 +33,9 @@ public class EmailServiceImpl extends EmailServiceCEImpl implements EmailService
     private final EmailSender emailSender;
     private final TenantService tenantService;
 
-    public EmailServiceImpl(EmailSender emailSender, TenantService tenantService) {
-        super(emailSender, tenantService);
+    public EmailServiceImpl(EmailSender emailSender, EmailServiceHelper emailServiceHelper) {
+        super(emailSender, emailServiceHelper);
         this.emailSender = emailSender;
-        this.tenantService = tenantService;
     }
 
     @Override

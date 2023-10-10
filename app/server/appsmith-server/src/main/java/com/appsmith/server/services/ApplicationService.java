@@ -11,7 +11,10 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 
-public interface ApplicationService extends ApplicationServiceCE {
+import com.appsmith.server.services.ce_compatible.ApplicationServiceCECompatible;
+
+public interface ApplicationService extends ApplicationServiceCECompatible {
+
     Mono<PermissionGroup> createDefaultRole(Application application, String roleType);
 
     Mono<Void> deleteDefaultRole(Application application, PermissionGroup role);

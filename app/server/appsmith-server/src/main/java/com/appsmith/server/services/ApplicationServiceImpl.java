@@ -28,7 +28,7 @@ import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.UserGroupRepository;
-import com.appsmith.server.services.ce.ApplicationServiceCEImpl;
+import com.appsmith.server.services.ce_compatible.ApplicationServiceCECompatibleImpl;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PermissionGroupPermission;
@@ -75,7 +75,7 @@ import static com.appsmith.server.helpers.TextUtils.generateDefaultRoleNameForRe
 
 @Slf4j
 @Service
-public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements ApplicationService {
+public class ApplicationServiceImpl extends ApplicationServiceCECompatibleImpl implements ApplicationService {
 
     private final PermissionGroupService permissionGroupService;
     private final PolicySolution policySolution;

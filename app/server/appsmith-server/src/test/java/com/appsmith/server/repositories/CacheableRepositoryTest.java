@@ -3,7 +3,9 @@ package com.appsmith.server.repositories;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.services.WorkspaceService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +36,15 @@ public class CacheableRepositoryTest {
 
     @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    UserUtils userUtils;
+
+    @BeforeEach()
+    public void setup() {
+        User api_user = userRepository.findByEmail("api_user").block();
+        userUtils.makeSuperUser(List.of(api_user)).block();
+    }
 
     @Test
     @WithUserDetails(value = "api_user")

@@ -16,7 +16,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-public interface PermissionGroupService extends PermissionGroupServiceCE {
+import com.appsmith.server.services.ce_compatible.PermissionGroupServiceCECompatible;
+
+public interface PermissionGroupService extends PermissionGroupServiceCECompatible {
 
     Mono<List<PermissionGroupInfoDTO>> getAll();
 

@@ -46,6 +46,7 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.http.codec.multipart.Part;
+import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
@@ -68,6 +69,7 @@ import static com.appsmith.server.constants.Constraint.MAX_LOGO_SIZE_KB;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Slf4j
+@Service
 public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository, Application, String>
         implements ApplicationServiceCE {
 

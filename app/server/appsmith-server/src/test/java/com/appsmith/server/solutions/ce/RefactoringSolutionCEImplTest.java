@@ -11,9 +11,7 @@ import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.ActionPermission;
-import com.appsmith.server.solutions.ActionPermissionImpl;
 import com.appsmith.server.solutions.PagePermission;
-import com.appsmith.server.solutions.PagePermissionImpl;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +19,8 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
@@ -33,13 +33,19 @@ import java.util.regex.Pattern;
 
 @ExtendWith(SpringExtension.class)
 @Slf4j
+@SpringBootTest
 class RefactoringSolutionCEImplTest {
 
     private final String preWord = "\\b(";
     private final String postWord = ")\\b";
     RefactoringSolutionCEImpl refactoringSolutionCE;
+
+    @Autowired
     PagePermission pagePermission;
+
+    @Autowired
     ActionPermission actionPermission;
+
     ObjectMapper mapper = new ObjectMapper();
 
     @MockBean
@@ -77,8 +83,6 @@ class RefactoringSolutionCEImplTest {
 
     @BeforeEach
     public void setUp() {
-        pagePermission = new PagePermissionImpl();
-        actionPermission = new ActionPermissionImpl();
         refactoringSolutionCE = new RefactoringSolutionCEImpl(
                 objectMapper,
                 newPageService,

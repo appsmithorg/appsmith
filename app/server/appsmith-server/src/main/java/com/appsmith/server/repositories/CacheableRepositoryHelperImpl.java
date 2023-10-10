@@ -9,7 +9,8 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.repositories.ce.CacheableRepositoryHelperCEImpl;
+import com.appsmith.server.helpers.InMemoryCacheableRepositoryHelper;
+import com.appsmith.server.repositories.ce_compatible.CacheableRepositoryHelperCECompatibleImpl;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -27,13 +28,15 @@ import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.n
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.userAcl;
 
 @Component
-public class CacheableRepositoryHelperImpl extends CacheableRepositoryHelperCEImpl
+public class CacheableRepositoryHelperImpl extends CacheableRepositoryHelperCECompatibleImpl
         implements CacheableRepositoryHelper {
 
     private final ReactiveMongoOperations mongoOperations;
 
-    public CacheableRepositoryHelperImpl(ReactiveMongoOperations mongoOperations) {
-        super(mongoOperations);
+    public CacheableRepositoryHelperImpl(
+        ReactiveMongoOperations mongoOperations,
+        InMemoryCacheableRepositoryHelper inMemoryCacheableRepositoryHelper) {
+        super(mongoOperations, inMemoryCacheableRepositoryHelper);
         this.mongoOperations = mongoOperations;
     }
 
