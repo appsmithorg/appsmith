@@ -29,7 +29,7 @@ class Setters {
    */
   private setterAccessorMap: Record<string, string> = {};
 
-  private applySetterMethod(
+  private async applySetterMethod(
     path: string,
     value: unknown,
     setterMethodName: string,
