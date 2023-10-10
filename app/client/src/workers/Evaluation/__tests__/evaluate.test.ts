@@ -2,7 +2,8 @@ import evaluate, {
   evaluateAsync,
   convertAllDataTypesToString,
 } from "workers/Evaluation/evaluate";
-import type { DataTree, WidgetEntity } from "@appsmith/entities/DataTree/types";
+import type { WidgetEntity } from "@appsmith/entities/DataTree/types";
+import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { ENTITY_TYPE_VALUE } from "entities/DataTree/dataTreeFactory";
 import { RenderModes } from "constants/WidgetConstants";
 import setupEvalEnv from "../handlers/setupEvalEnv";

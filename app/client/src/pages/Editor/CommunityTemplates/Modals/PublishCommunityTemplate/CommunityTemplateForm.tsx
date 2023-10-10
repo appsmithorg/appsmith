@@ -2,8 +2,6 @@ import {
   COMMUNITY_TEMPLATES,
   createMessage,
 } from "@appsmith/constants/messages";
-import { getCurrentPageId } from "@appsmith/selectors/entitiesSelector";
-import { viewerURL } from "RouteBuilder";
 import { publishCommunityTemplate } from "actions/communityTemplateActions";
 import { Button, Checkbox } from "design-system";
 import React, { useEffect, useMemo, useState } from "react";
@@ -20,7 +18,10 @@ import {
 import ApplicationSettings from "./components/ApplicationSettings";
 import AuthorDetailsInput from "./components/AuthorDetailsInput";
 import PublishedInfo from "./components/PublishedInfo";
+import TemplateCardPreview from "./components/TemplateCardPreview";
 import TemplateInfoForm from "./components/TemplateInfoForm";
+import { viewerURL } from "RouteBuilder";
+import { getCurrentPageId } from "@appsmith/selectors/entitiesSelector";
 
 type Props = {
   onPublishSuccess: () => void;
@@ -109,11 +110,11 @@ const CommunityTemplateForm = ({ onPublishSuccess }: Props) => {
   return (
     <>
       <PublishPageBodyContainer>
-        {/*<TemplateCardPreview
+        <TemplateCardPreview
           excerpt={templateExcerpt}
           templateName={templateName}
           useCases={templateUseCases}
-  />*/}
+        />
         <PublishPageTemplateDetailsInputContainer>
           <TemplateInfoForm
             setTemplateDescription={setTemplateDescription}

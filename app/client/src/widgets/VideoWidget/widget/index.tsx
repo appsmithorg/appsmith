@@ -23,7 +23,9 @@ import type {
 } from "WidgetProvider/constants";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 
-const VideoComponent = lazy(() => retryPromise(() => import("../component")));
+const VideoComponent = lazy(async () =>
+  retryPromise(async () => import("../component")),
+);
 
 export enum PlayState {
   NOT_STARTED = "NOT_STARTED",

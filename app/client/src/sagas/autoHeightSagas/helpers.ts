@@ -15,7 +15,8 @@ import { previewModeSelector } from "selectors/editorSelectors";
 import { getAppMode } from "@appsmith/selectors/entitiesSelector";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import { getCanvasHeightOffset } from "utils/WidgetSizeUtils";
-import type { DataTree, WidgetEntity } from "@appsmith/entities/DataTree/types";
+import type { WidgetEntity } from "@appsmith/entities/DataTree/types";
+import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { getDataTree } from "selectors/dataTreeSelectors";
 
 export function* shouldWidgetsCollapse() {

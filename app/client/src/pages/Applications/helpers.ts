@@ -19,7 +19,7 @@ export type EditedByTextProps = {
 
 export const CREATE_APPLICATION_FORM_NAME_FIELD = "applicationName";
 
-export const createApplicationFormSubmitHandler = (
+export const createApplicationFormSubmitHandler = async (
   values: CreateApplicationFormValues,
   dispatch: any,
 ): Promise<any> => {
