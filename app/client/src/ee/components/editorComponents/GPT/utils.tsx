@@ -42,9 +42,8 @@ import type { AxiosResponse, AxiosError } from "axios";
 import type {
   JSActionEntity,
   JSActionEntityConfig,
-  ConfigTree,
-  DataTree,
 } from "@appsmith/entities/DataTree/types";
+import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeTypes";
 
 export type TUserPrompt = {
   role: "user";
