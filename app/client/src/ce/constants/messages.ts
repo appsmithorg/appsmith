@@ -2152,3 +2152,26 @@ export const COMMUNITY_TEMPLATES = {
     },
   },
 };
+
+export const PAGE_LAYOUTS = {
+  layouts: {
+    dashboard: {
+      name: () => "Dashboard",
+      description: () => "Visual representations of your data and a table",
+    },
+    form: {
+      name: () => "Form",
+      description: () => "Add records to a database with a form",
+    },
+    recordEdit: {
+      name: () => "Record Edit",
+      description: () => "Edit selected record with a form",
+    },
+    recordDetails: {
+      name: () => "Record Details",
+      description: () => "View more details about a selected record",
+    },
+  },
+  or: () => "or",
+  dragAndDrop: () => "Drag and Drop Widgets",
+};

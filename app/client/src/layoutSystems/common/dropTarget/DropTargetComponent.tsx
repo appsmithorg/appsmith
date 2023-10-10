@@ -39,6 +39,7 @@ import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettings
 import DragLayerComponent from "./DragLayerComponent";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import { LayoutSystemTypes } from "layoutSystems/types";
+import PageLayout from "./pageLayout";
 
 export type DropTargetComponentProps = PropsWithChildren<{
   snapColumnSpace: number;
@@ -64,9 +65,10 @@ const StyledDropTarget = styled.div`
 
 function Onboarding() {
   return (
-    <h2 className="absolute top-0 left-0 right-0 flex items-end h-108 justify-center text-2xl font-bold text-gray-300">
-      Drag and drop a widget here
-    </h2>
+    // <h2 className="absolute top-0 left-0 right-0 flex items-end h-108 justify-center text-2xl font-bold text-gray-300">
+    //   Drag and drop a widget here
+    // </h2>
+    <PageLayout />
   );
 }
 
