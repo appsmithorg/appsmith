@@ -7,11 +7,11 @@ import React from "react";
 
 export interface HighlightingCanvasProps {
   widgetId: string;
-  renderOnMouseMove: (e: MouseEvent) => RenderedBlockOnCanvas | undefined;
-  onDrop: (renderedBlock: RenderedBlockOnCanvas) => void;
+  renderOnMouseMove: (e: MouseEvent) => HighlightInfo | undefined;
+  onDrop: (renderedBlock: HighlightInfo) => void;
 }
 type AdditionDataToPassOnDrop = Record<string, any>;
-export interface RenderedBlockOnCanvas extends AdditionDataToPassOnDrop {
+export interface HighlightInfo extends AdditionDataToPassOnDrop {
   posX: number;
   posY: number;
   dropZone: {

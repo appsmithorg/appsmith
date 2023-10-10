@@ -5,7 +5,7 @@ import { getNearestParentCanvas } from "utils/generators";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 import type {
   HighlightingCanvasProps,
-  RenderedBlockOnCanvas,
+  HighlightInfo,
 } from "../HighlightingCanvas";
 import { useCanvasDragToScroll } from "layoutSystems/common/canvasArenas/useCanvasDragToScroll";
 import { Colors } from "constants/Colors";
@@ -38,7 +38,7 @@ export const useCanvasDragging = (
 
   const renderBlocksOnCanvas = (
     stickyCanvas: HTMLCanvasElement,
-    blockToRender: RenderedBlockOnCanvas,
+    blockToRender: HighlightInfo,
   ) => {
     const canvasCtx = stickyCanvas.getContext("2d") as CanvasRenderingContext2D;
     canvasCtx.clearRect(0, 0, stickyCanvas.width, stickyCanvas.height);
@@ -63,7 +63,7 @@ export const useCanvasDragging = (
       );
 
       let canvasIsDragging = false;
-      let currentRectanglesToDraw: RenderedBlockOnCanvas;
+      let currentRectanglesToDraw: HighlightInfo;
       const scrollObj: any = {};
       const resetCanvasState = () => {
         if (stickyCanvasRef.current && slidingArenaRef.current) {

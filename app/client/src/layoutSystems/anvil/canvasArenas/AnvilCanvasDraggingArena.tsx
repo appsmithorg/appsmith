@@ -1,11 +1,11 @@
 import React, { useCallback } from "react";
-import type { RenderedBlockOnCanvas } from "./HighlightingCanvas";
+import type { HighlightInfo } from "./HighlightingCanvas";
 import { HighlightingCanvas } from "./HighlightingCanvas";
 import { getClosestHighlight } from "./utils";
 
 type AnvilCanvasDraggingArenaProps = {
   widgetId: string;
-  deriveAllHighlightsFn: () => RenderedBlockOnCanvas[];
+  deriveAllHighlightsFn: () => HighlightInfo[];
 };
 
 export const AnvilCanvasDraggingArena = (
@@ -13,7 +13,7 @@ export const AnvilCanvasDraggingArena = (
 ) => {
   const { deriveAllHighlightsFn, widgetId } = props;
   const allHighLights = deriveAllHighlightsFn();
-  const onDrop = (renderedBlock: RenderedBlockOnCanvas) => {
+  const onDrop = (renderedBlock: HighlightInfo) => {
     return renderedBlock;
     // dispatch appropriate action to update the widgets
     // if (isNewWidget) addNewWidgetToAnvilLayout(dropPayload, drawingBlocks);

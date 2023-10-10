@@ -1,9 +1,9 @@
 import type { XYCord } from "layoutSystems/common/canvasArenas/ArenaTypes";
-import type { RenderedBlockOnCanvas } from "./HighlightingCanvas";
+import type { HighlightInfo } from "./HighlightingCanvas";
 
 export const getClosestHighlight = (
   e: MouseEvent,
-  highlights: RenderedBlockOnCanvas[],
+  highlights: HighlightInfo[],
 ) => {
   if (!highlights || !highlights.length) return;
 
@@ -15,7 +15,7 @@ export const getClosestHighlight = (
   /**
    * Filter highlights that  span the current mouse position.
    */
-  let filteredHighlights: RenderedBlockOnCanvas[] = [];
+  let filteredHighlights: HighlightInfo[] = [];
   filteredHighlights = getViableDropPositions(highlights, pos);
   if (!filteredHighlights || !filteredHighlights?.length) return;
 
@@ -31,19 +31,19 @@ export const getClosestHighlight = (
 };
 
 function getViableDropPositions(
-  arr: RenderedBlockOnCanvas[],
+  arr: HighlightInfo[],
   pos: XYCord,
-): RenderedBlockOnCanvas[] {
+): HighlightInfo[] {
   if (!arr) return arr || [];
   const DEFAULT_DROP_RANGE = 10;
   const verticalHighlights = arr.filter(
-    (highlight: RenderedBlockOnCanvas) => highlight.isVertical,
+    (highlight: HighlightInfo) => highlight.isVertical,
   );
   const horizontalHighlights = arr.filter(
-    (highlight: RenderedBlockOnCanvas) => !highlight.isVertical,
+    (highlight: HighlightInfo) => !highlight.isVertical,
   );
-  const selection: RenderedBlockOnCanvas[] = [];
-  verticalHighlights.forEach((highlight: RenderedBlockOnCanvas) => {
+  const selection: HighlightInfo[] = [];
+  verticalHighlights.forEach((highlight: HighlightInfo) => {
     if (pos.y >= highlight.posY && pos.y <= highlight.posY + highlight.height)
       if (
         (pos.x >= highlight.posX &&
@@ -57,7 +57,7 @@ function getViableDropPositions(
         selection.push(highlight);
   });
   const hasVerticalSelection = selection.length > 0;
-  horizontalHighlights.forEach((highlight: RenderedBlockOnCanvas) => {
+  horizontalHighlights.forEach((highlight: HighlightInfo) => {
     if (pos.x >= highlight.posX && pos.x <= highlight.posX + highlight.width)
       if (
         (pos.y >= highlight.posY &&
@@ -78,7 +78,7 @@ function getViableDropPositions(
   return selection;
 }
 
-function calculateDistance(a: RenderedBlockOnCanvas, b: XYCord): number {
+function calculateDistance(a: HighlightInfo, b: XYCord): number {
   let distX = 0,
     distY = 0;
   if (a.isVertical) {
