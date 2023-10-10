@@ -272,14 +272,14 @@ const getAllPathsFromPropertyConfigWithoutMemo = (
         if ("hidden" in controlConfig) {
           isHidden = controlConfig.hidden(widget, basePath);
         }
+        const path = controlConfig.propertyName;
+        const {
+          configBindingPaths,
+          configReactivePaths,
+          configTriggerPaths,
+          configValidationPaths,
+        } = checkPathsInConfig(controlConfig, path);
         if (!isHidden) {
-          const path = controlConfig.propertyName;
-          const {
-            configBindingPaths,
-            configReactivePaths,
-            configTriggerPaths,
-            configValidationPaths,
-          } = checkPathsInConfig(controlConfig, path);
           bindingPaths = {
             ...bindingPaths,
             ...configBindingPaths,
@@ -290,8 +290,8 @@ const getAllPathsFromPropertyConfigWithoutMemo = (
             ...configReactivePaths,
           };
           triggerPaths = { ...triggerPaths, ...configTriggerPaths };
-          validationPaths = { ...validationPaths, ...configValidationPaths };
         }
+        validationPaths = { ...validationPaths, ...configValidationPaths };
         // Has child Panel Config
         if (controlConfig.panelConfig) {
           const resultingPaths = childHasPanelConfig(

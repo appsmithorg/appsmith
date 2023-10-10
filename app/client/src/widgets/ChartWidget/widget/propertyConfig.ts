@@ -101,6 +101,7 @@ export const contentConfig = (
             params: {
               default: {},
             },
+            dependentPaths: ["chartType"],
           },
           hidden: (props: ChartWidgetProps) =>
             props.chartType !== "CUSTOM_ECHART",
