@@ -4,9 +4,9 @@ import type {
   LayoutComponentProps,
   LayoutProps,
 } from "../utils/anvilTypes";
-import { AutoCanvasDraggingArena } from "layoutSystems/autolayout/editor/AutoLayoutCanvasArenas/AutoCanvasDraggingArena";
 import { renderLayouts } from "../utils/layouts/renderUtils";
 import { RenderModes } from "constants/WidgetConstants";
+import { AnvilCanvasDraggingArena } from "../canvasArenas/AnvilCanvasDraggingArena";
 
 export function LayoutComponentHOC(Component: LayoutComponent) {
   const enhancedLayoutComponent = (props: LayoutComponentProps) => {
@@ -29,13 +29,46 @@ export function LayoutComponentHOC(Component: LayoutComponent) {
     return (
       <Component {...props}>
         {isDropTarget && renderMode === RenderModes.CANVAS && (
-          <AutoCanvasDraggingArena
-            canExtend
-            snapColumnSpace={18.40625}
-            snapRowSpace={10}
-            snapRows={129}
+          <AnvilCanvasDraggingArena
+            deriveAllHighlightsFn={() => [
+              {
+                posX: 10,
+                posY: 10,
+                dropZone: {
+                  top: 20,
+                  bottom: 20,
+                  left: 30,
+                  right: 30,
+                },
+                width: 10,
+                height: 100,
+              },
+              {
+                posX: 50,
+                posY: 10,
+                dropZone: {
+                  top: 20,
+                  bottom: 20,
+                  left: 30,
+                  right: 30,
+                },
+                width: 10,
+                height: 100,
+              },
+              {
+                posX: 100,
+                posY: 10,
+                dropZone: {
+                  top: 20,
+                  bottom: 20,
+                  left: 30,
+                  right: 30,
+                },
+                width: 10,
+                height: 100,
+              },
+            ]}
             widgetId="0"
-            {...props}
           />
         )}
         {renderChildren()}

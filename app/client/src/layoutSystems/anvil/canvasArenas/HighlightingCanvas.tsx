@@ -7,13 +7,19 @@ import React from "react";
 
 export interface HighlightingCanvasProps {
   widgetId: string;
-  renderOnMouseMove: (e: MouseEvent) => RenderedBlockOnCanvas;
+  renderOnMouseMove: (e: MouseEvent) => RenderedBlockOnCanvas | undefined;
   onDrop: (renderedBlock: RenderedBlockOnCanvas) => void;
 }
 type AdditionDataToPassOnDrop = Record<string, any>;
 export interface RenderedBlockOnCanvas extends AdditionDataToPassOnDrop {
-  xPos: number;
-  yPos: number;
+  posX: number;
+  posY: number;
+  dropZone: {
+    top: number;
+    bottom: number;
+    left: number;
+    right: number;
+  };
   width: number;
   height: number;
 }
@@ -43,7 +49,7 @@ export function HighlightingCanvas({
   const isDragging = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isDragging,
   );
-  return showDraggingCanvas ? (
+  return true ? (
     <StickyCanvasArena
       canvasId={`canvas-dragging-${widgetId}`}
       canvasPadding={0}

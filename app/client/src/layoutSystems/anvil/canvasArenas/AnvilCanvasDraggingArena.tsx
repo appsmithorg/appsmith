@@ -1,26 +1,39 @@
-import React from "react";
+import React, { useCallback } from "react";
 import type { RenderedBlockOnCanvas } from "./HighlightingCanvas";
 import { HighlightingCanvas } from "./HighlightingCanvas";
+import { getClosestHighlight } from "./utils";
 
 type AnvilCanvasDraggingArenaProps = {
   widgetId: string;
+  deriveAllHighlightsFn: () => RenderedBlockOnCanvas[];
 };
 
 export const AnvilCanvasDraggingArena = (
   props: AnvilCanvasDraggingArenaProps,
 ) => {
-  const { widgetId } = props;
+  const { deriveAllHighlightsFn, widgetId } = props;
+  const allHighLights = deriveAllHighlightsFn();
   const onDrop = (renderedBlock: RenderedBlockOnCanvas) => {
     return renderedBlock;
+    // dispatch appropriate action to update the widgets
+    // if (isNewWidget) addNewWidgetToAnvilLayout(dropPayload, drawingBlocks);
+    // else
+    //   dispatch({
+    //     type: ReduxActionTypes.ANVILLAYOUT_REORDER_WIDGETS,
+    //     payload: {
+    //       dropPayload,
+    //       movedWidgets: selectedWidgets,
+    //       parentId: widgetId,
+    //       direction,
+    //     },
+    //   });
   };
-  const renderOnMouseMove = (e: MouseEvent): RenderedBlockOnCanvas => {
-    return {
-      xPos: e.clientX,
-      yPos: 0,
-      width: 0,
-      height: 0,
-    };
-  };
+  const renderOnMouseMove = useCallback(
+    (e: MouseEvent) => {
+      return getClosestHighlight(e, allHighLights);
+    },
+    [allHighLights],
+  );
   return (
     <HighlightingCanvas
       onDrop={onDrop}

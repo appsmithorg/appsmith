@@ -23,6 +23,7 @@ export const getLayoutSystem = (
   renderMode: RenderModes,
   layoutSystemType: LayoutSystemTypes,
 ): LayoutSystem => {
+  return getAnvilLayoutSystem(renderMode);
   switch (layoutSystemType) {
     // Removing Anvil system until canvas system of Anvil is Implemented.
     // when re-introducing pls make sure to uncomment anvil based test cases in withLayoutSystemWidgetHOC.test

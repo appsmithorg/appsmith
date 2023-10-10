@@ -40,7 +40,10 @@ export const useCanvasDragging = (
     stickyCanvas: HTMLCanvasElement,
     blockToRender: RenderedBlockOnCanvas,
   ) => {
-    const canvasCtx: any = stickyCanvas.getContext("2d");
+    const canvasCtx = stickyCanvas.getContext("2d") as CanvasRenderingContext2D;
+    canvasCtx.clearRect(0, 0, stickyCanvas.width, stickyCanvas.height);
+    canvasCtx.stroke();
+    canvasCtx.beginPath();
     canvasCtx.fillStyle = Colors.HIGHLIGHT_FILL;
     canvasCtx.lineWidth = 1;
     canvasCtx.strokeStyle = Colors.HIGHLIGHT_OUTLINE;
@@ -51,7 +54,6 @@ export const useCanvasDragging = (
     else canvasCtx.rect(posX, posY, width, height);
     canvasCtx.fill();
     canvasCtx.stroke();
-    canvasCtx.save();
   };
 
   useEffect(() => {
@@ -128,17 +130,20 @@ export const useCanvasDragging = (
             slidingArenaRef.current &&
             stickyCanvasRef.current
           ) {
-            currentRectanglesToDraw = renderOnMouseMove(e);
-            renderBlocksOnCanvas(
-              stickyCanvasRef.current,
-              currentRectanglesToDraw,
-            );
-            scrollObj.lastMouseMoveEvent = {
-              offsetX: e.offsetX,
-              offsetY: e.offsetY,
-            };
-            scrollObj.lastScrollTop = scrollParent?.scrollTop;
-            scrollObj.lastScrollHeight = scrollParent?.scrollHeight;
+            const processedHighlight = renderOnMouseMove(e);
+            if (processedHighlight) {
+              currentRectanglesToDraw = processedHighlight;
+              renderBlocksOnCanvas(
+                stickyCanvasRef.current,
+                currentRectanglesToDraw,
+              );
+              scrollObj.lastMouseMoveEvent = {
+                offsetX: e.offsetX,
+                offsetY: e.offsetY,
+              };
+              scrollObj.lastScrollTop = scrollParent?.scrollTop;
+              scrollObj.lastScrollHeight = scrollParent?.scrollHeight;
+            }
           } else {
             onFirstMoveOnCanvas(e);
           }
