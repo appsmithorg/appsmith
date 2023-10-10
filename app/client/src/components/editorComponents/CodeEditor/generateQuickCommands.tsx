@@ -14,7 +14,7 @@ import { DatasourceCreateEntryPoints } from "constants/Datasource";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import BetaCard from "../BetaCard";
 import type { NavigationData } from "selectors/navigationSelectors";
-import type { AIEditorContext } from "@appsmith/reducers/AIReducer";
+import type { AIEditorContext } from "@appsmith/components/editorComponents/GPT";
 import type { ENTITY_TYPE } from "@appsmith/entities/DataTree/types";
 
 export enum Shortcuts {

@@ -7,6 +7,19 @@ import type { EntityNavigationData } from "selectors/navigationSelectors";
 import React from "react";
 import type CodeMirror from "codemirror";
 
+export type AIEditorContext = Partial<{
+  functionName: string;
+  cursorLineNumber: number;
+  functionString: string;
+  cursorPosition: CodeMirror.Position;
+  cursorCoordinates: {
+    left: number;
+    top: number;
+    bottom: number;
+  };
+  mode: string;
+}>;
+
 export type TAIWrapperProps = {
   children?: React.ReactNode;
   isOpen: boolean;
