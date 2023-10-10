@@ -3,6 +3,7 @@ package com.appsmith.server.services.ce_compatible;
 import com.appsmith.external.services.EncryptionService;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.EmailConfig;
+import com.appsmith.server.helpers.UserServiceHelper;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.ratelimiting.RateLimitService;
@@ -55,7 +56,8 @@ public class UserServiceCECompatibleImpl extends UserServiceCEImpl implements Us
             EmailVerificationTokenRepository emailVerificationTokenRepository,
             EmailService emailService,
             RateLimitService rateLimitService,
-            PACConfigurationService pacConfigurationService) {
+            PACConfigurationService pacConfigurationService,
+            UserServiceHelper userServiceHelper) {
         super(
                 scheduler,
                 validator,
@@ -81,6 +83,7 @@ public class UserServiceCECompatibleImpl extends UserServiceCEImpl implements Us
                 emailVerificationTokenRepository,
                 emailService,
                 rateLimitService,
-                pacConfigurationService);
+                pacConfigurationService,
+                userServiceHelper);
     }
 }
