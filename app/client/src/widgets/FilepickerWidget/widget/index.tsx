@@ -410,7 +410,7 @@ class FilePickerWidget extends BaseWidget<
 
     if (location.protocol === "https:") {
       uppy.use(Webcam, {
-        onBeforeSnapshot: () => Promise.resolve(),
+        onBeforeSnapshot: async () => Promise.resolve(),
         countdown: false,
         mirror: true,
         facingMode: "user",
@@ -431,7 +431,7 @@ class FilePickerWidget extends BaseWidget<
       const dslFiles = this.props.selectedFiles
         ? [...this.props.selectedFiles]
         : [];
-      const fileReaderPromises = files.map((file) => {
+      const fileReaderPromises = files.map(async (file) => {
         const reader = new FileReader();
         return new Promise((resolve) => {
           reader.readAsDataURL(file.data);

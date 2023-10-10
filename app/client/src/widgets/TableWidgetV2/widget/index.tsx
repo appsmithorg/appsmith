@@ -137,8 +137,8 @@ import {
 } from "layoutSystems/common/utils/constants";
 import IconSVG from "../icon.svg";
 
-const ReactTableComponent = lazy(() =>
-  retryPromise(() => import("../component")),
+const ReactTableComponent = lazy(async () =>
+  retryPromise(async () => import("../component")),
 );
 
 const emptyArr: any = [];
