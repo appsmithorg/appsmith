@@ -21,6 +21,7 @@ import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.TenantService;
 import com.appsmith.server.solutions.PermissionGroupPermission;
 import com.appsmith.server.solutions.PolicySolution;
+import com.mongodb.client.result.UpdateResult;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
@@ -180,9 +181,11 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
                 .updateById(pg.getId(), pg, permissionGroupPermission.getAssignPermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND)));
 
-        return Mono.zip(
-                        permissionGroupUpdateMono,
-                        cleanPermissionGroupCacheForUsers(userIds).thenReturn(TRUE))
+        Mono<Boolean> clearCacheForUsersMono =
+                cleanPermissionGroupCacheForUsers(userIds).thenReturn(TRUE);
+
+        return permissionGroupUpdateMono
+                .zipWhen(updatedPermissionGroup -> clearCacheForUsersMono)
                 .map(tuple -> tuple.getT1());
     }
 
@@ -211,9 +214,12 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
         ensureAssignedToUserIds(pg);
         List<String> userIds = users.stream().map(User::getId).collect(Collectors.toList());
         pg.getAssignedToUserIds().removeAll(userIds);
-        return Mono.zip(
-                        repository.updateById(pg.getId(), pg, permissionGroupPermission.getUnAssignPermission()),
-                        cleanPermissionGroupCacheForUsers(userIds).thenReturn(TRUE))
+        Mono<PermissionGroup> updatePermissionGroupMono =
+                repository.updateById(pg.getId(), pg, permissionGroupPermission.getUnAssignPermission());
+        Mono<Boolean> clearCacheForUsersMono =
+                cleanPermissionGroupCacheForUsers(userIds).thenReturn(TRUE);
+        return updatePermissionGroupMono
+                .zipWhen(updatedPermissionGroup -> clearCacheForUsersMono)
                 .map(tuple -> tuple.getT1());
     }
 
@@ -227,9 +233,12 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
     Mono<PermissionGroup> bulkUnassignFromUserIds(PermissionGroup pg, List<String> userIds) {
         ensureAssignedToUserIds(pg);
         pg.getAssignedToUserIds().removeAll(userIds);
-        return Mono.zip(
-                        repository.updateById(pg.getId(), pg, permissionGroupPermission.getUnAssignPermission()),
-                        cleanPermissionGroupCacheForUsers(userIds).thenReturn(TRUE))
+        Mono<PermissionGroup> updatePermissionGroupMono =
+                repository.updateById(pg.getId(), pg, permissionGroupPermission.getUnAssignPermission());
+        Mono<Boolean> clearCacheForUsersMono =
+                cleanPermissionGroupCacheForUsers(userIds).thenReturn(TRUE);
+        return updatePermissionGroupMono
+                .zipWhen(updatedPermissionGroup -> clearCacheForUsersMono)
                 .map(tuple -> tuple.getT1());
     }
 
@@ -247,9 +256,11 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
 
                     updateObj.set(path, assignedToUserIds);
 
-                    return Mono.zip(
-                                    repository.updateById(pg.getId(), updateObj),
-                                    cleanPermissionGroupCacheForUsers(List.copyOf(userIds)))
+                    Mono<UpdateResult> updatePermissionGroupResultMono = repository.updateById(pg.getId(), updateObj);
+                    Mono<Void> clearCacheForUsersMono = cleanPermissionGroupCacheForUsers(List.copyOf(userIds));
+
+                    return updatePermissionGroupResultMono
+                            .zipWhen(updatedPermissionGroupResult -> clearCacheForUsersMono)
                             .map(tuple -> tuple.getT1());
                 })
                 .then(Mono.just(TRUE));

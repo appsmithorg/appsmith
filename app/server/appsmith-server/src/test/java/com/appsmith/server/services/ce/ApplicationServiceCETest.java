@@ -81,6 +81,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.core.io.ClassPathResource;
@@ -160,7 +161,7 @@ public class ApplicationServiceCETest {
     @Autowired
     ApplicationService applicationService;
 
-    @Autowired
+    @Qualifier("applicationPageServiceImpl") @Autowired
     ApplicationPageServiceCE applicationPageService;
 
     @Autowired
@@ -266,11 +267,11 @@ public class ApplicationServiceCETest {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
                 .thenReturn(Mono.just(new MockPluginExecutor()));
         User apiUser = userService.findByEmail("api_user").block();
-
-        Workspace toCreate = new Workspace();
-        toCreate.setName("ApplicationServiceTest");
-
         if (workspaceId == null) {
+
+            Workspace toCreate = new Workspace();
+            toCreate.setName("ApplicationServiceTest");
+
             Workspace workspace =
                     workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
             workspaceId = workspace.getId();

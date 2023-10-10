@@ -22,6 +22,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.ProvisionUtils;
+import com.appsmith.server.helpers.UserServiceHelper;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.ratelimiting.RateLimitService;
@@ -121,7 +122,8 @@ public class UserServiceImpl extends UserServiceCECompatibleImpl implements User
             ProvisionUtils provisionUtils,
             EmailService emailService,
             RateLimitService rateLimitService,
-            PACConfigurationService pacConfigurationService) {
+            PACConfigurationService pacConfigurationService,
+            UserServiceHelper userServiceHelper) {
         super(
                 scheduler,
                 validator,
@@ -147,7 +149,8 @@ public class UserServiceImpl extends UserServiceCECompatibleImpl implements User
                 emailVerificationTokenRepository,
                 emailService,
                 rateLimitService,
-                pacConfigurationService);
+                pacConfigurationService,
+                userServiceHelper);
 
         this.userDataService = userDataService;
         this.tenantService = tenantService;

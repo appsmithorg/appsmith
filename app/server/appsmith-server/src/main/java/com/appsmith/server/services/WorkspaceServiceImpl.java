@@ -10,6 +10,7 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.UserUtils;
+import com.appsmith.server.helpers.WorkspaceServiceHelper;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.AssetRepository;
 import com.appsmith.server.repositories.PluginRepository;
@@ -62,7 +63,8 @@ public class WorkspaceServiceImpl extends WorkspaceServiceCEImpl implements Work
             PermissionGroupPermission permissionGroupPermission,
             TenantService tenantService,
             UserUtils userUtils,
-            EnvironmentService environmentService) {
+            EnvironmentService environmentService,
+            WorkspaceServiceHelper workspaceServiceHelper) {
 
         super(
                 scheduler,
@@ -80,7 +82,8 @@ public class WorkspaceServiceImpl extends WorkspaceServiceCEImpl implements Work
                 policySolution,
                 modelMapper,
                 workspacePermission,
-                permissionGroupPermission);
+                permissionGroupPermission,
+                workspaceServiceHelper);
 
         this.tenantService = tenantService;
         this.userUtils = userUtils;
