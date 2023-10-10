@@ -88,6 +88,13 @@ const PageLayoutContentItem = styled.div`
   display: flex;
   padding-vertical: 14px;
   padding-horizontal: 12px;
+  border-radius: 4px;
+  background: transparent;
+  transition: background 0.3s ease;
+
+  &:hover {
+    background: rgba(241, 245, 249, 1);
+  }
 `;
 
 const StyledPageLayoutIcon = styled(Icon)`
@@ -107,25 +114,25 @@ const layoutItems = [
     id: 1,
     title: createMessage(PAGE_LAYOUTS.layouts.dashboard.name),
     description: createMessage(PAGE_LAYOUTS.layouts.dashboard.description),
-    image: "",
+    icon: "workspace",
   },
   {
     id: 2,
     title: createMessage(PAGE_LAYOUTS.layouts.form.name),
     description: createMessage(PAGE_LAYOUTS.layouts.form.description),
-    image: "",
+    icon: "workspace",
   },
   {
     id: 3,
     title: createMessage(PAGE_LAYOUTS.layouts.recordEdit.name),
     description: createMessage(PAGE_LAYOUTS.layouts.recordEdit.description),
-    image: "",
+    icon: "workspace",
   },
   {
     id: 4,
     title: createMessage(PAGE_LAYOUTS.layouts.recordDetails.name),
     description: createMessage(PAGE_LAYOUTS.layouts.recordDetails.description),
-    image: "",
+    icon: "workspace",
   },
 ];
 
@@ -143,8 +150,7 @@ function PageLayout() {
         <PageLayoutContentGrid>
           {layoutItems.map((item) => (
             <PageLayoutContentItem key={item.id}>
-              {/* This will be changed to the correct icon when design system is updated */}
-              <StyledPageLayoutIcon name="workspace" size="lg" />
+              <StyledPageLayoutIcon name={item.icon} size="lg" />
 
               <PageLayoutContentItemContent>
                 <PageLayoutRowItemTitle>{item.title}</PageLayoutRowItemTitle>
