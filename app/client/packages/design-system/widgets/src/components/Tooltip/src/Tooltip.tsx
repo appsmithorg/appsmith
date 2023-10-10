@@ -11,7 +11,7 @@ export type TooltipProps = {
 export function Tooltip(props: TooltipProps) {
   const { children, tooltip, ...rest } = props;
 
-  if (!tooltip) return children;
+  if (tooltip == null) return children;
 
   return (
     <TooltipRoot {...rest}>

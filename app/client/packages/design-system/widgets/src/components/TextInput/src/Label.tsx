@@ -8,7 +8,7 @@ export type LabelProps = TextInputProps;
 const _Label = (props: LabelProps) => {
   const {
     includeNecessityIndicatorInAccessibilityName,
-    isRequired,
+    isRequired = false,
     label,
     necessityIndicator = "icon",
   } = props;
@@ -16,7 +16,9 @@ const _Label = (props: LabelProps) => {
   const icon = (
     <span
       aria-label={
-        includeNecessityIndicatorInAccessibilityName ? "(required)" : undefined
+        Boolean(includeNecessityIndicatorInAccessibilityName)
+          ? "(required)"
+          : undefined
       }
       data-field-necessity-indicator-icon=""
     >
@@ -36,7 +38,7 @@ const _Label = (props: LabelProps) => {
       {necessityIndicator === "label" && (
         <span
           aria-hidden={
-            !includeNecessityIndicatorInAccessibilityName
+            includeNecessityIndicatorInAccessibilityName == null
               ? isRequired
               : undefined
           }

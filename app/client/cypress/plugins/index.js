@@ -3,16 +3,14 @@ const fs = require("fs");
 const path = require("path");
 const dotenv = require("dotenv");
 const chalk = require("chalk");
-// const _ = require("lodash");
-// const del = require("del");
 const cypressLogToOutput = require("cypress-log-to-output");
-//const { isFileExist } = require("cy-verify-downloads");
+const installLogsPrinter = require("cypress-terminal-report/src/installLogsPrinter");
 const {
   addMatchImageSnapshotPlugin,
 } = require("cypress-image-snapshot/plugin");
 const { tagify } = require("cypress-tags");
 const { cypressHooks } = require("../scripts/cypress-hooks");
-const { cypressSplit } = require("../cypress-split");
+const { cypressSplit } = require("../scripts/cypress-split");
 // ***********************************************************
 // This example plugins/index.js can be used to load plugins
 //
@@ -43,6 +41,16 @@ module.exports = async (on, config) => {
     }
     return false;
   });
+
+  const logsPrinterOptions = {
+    outputRoot: config.projectRoot + "/cypress/",
+    outputTarget: {
+      "cypress-logs|json": "json",
+    },
+    specRoot: "cypress/e2e",
+    printLogsToFile: "onFail",
+  };
+  installLogsPrinter(on, logsPrinterOptions);
 
   on("file:preprocessor", tagify(config));
   addMatchImageSnapshotPlugin(on, config);
@@ -76,9 +84,9 @@ module.exports = async (on, config) => {
       // && browser.isHeadless) {
       launchOptions.preferences.fullscreen = true;
       launchOptions.preferences.darkTheme = true;
-      launchOptions["width"] = 1400;
-      launchOptions["height"] = 1100;
-      launchOptions["resizable"] = false;
+      launchOptions.preferences.width = 1400;
+      launchOptions.preferences.height = 1100;
+      launchOptions.preferences.resizable = false;
       return launchOptions;
     }
   });
@@ -216,7 +224,7 @@ module.exports = async (on, config) => {
   });
 
   if (process.env["RUNID"]) {
-    config = await cypressSplit(on, config);
+    config = await new cypressSplit().splitSpecs(on, config);
     cypressHooks(on, config);
   }
 

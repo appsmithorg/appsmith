@@ -1,10 +1,9 @@
 import * as Sentry from "@sentry/react";
-import { useDispatch, useSelector } from "react-redux";
-import React, { useCallback } from "react";
+import React from "react";
+import { useSelector } from "react-redux";
 import { Route, Switch, useRouteMatch } from "react-router";
 
-import { updateExplorerWidthAction } from "actions/explorerActions";
-import EntityExplorerSidebar from "components/editorComponents/Sidebar";
+import BottomBar from "components/BottomBar";
 import {
   BUILDER_CUSTOM_PATH,
   BUILDER_PATH,
@@ -13,63 +12,26 @@ import {
   WIDGETS_EDITOR_ID_PATH,
 } from "constants/routes";
 import { previewModeSelector } from "selectors/editorSelectors";
-import { getExplorerWidth } from "selectors/explorerSelector";
 import WidgetsEditor from "./WidgetsEditor";
 import EditorsRouter from "./routes";
-import styled from "styled-components";
-import BottomBar from "components/BottomBar";
+import EditorWrapperBody from "./commons/EditorWrapperBody";
+import WidgetsEditorEntityExplorer from "./WidgetsEditorEntityExplorer";
+import EditorWrapperContainer from "./commons/EditorWrapperContainer";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
-
-const Wrapper = styled.div`
-  display: flex;
-  height: calc(
-    100vh - ${(props) => props.theme.smallHeaderHeight} -
-      ${(props) => props.theme.bottomBarHeight}
-  );
-  background-color: ${(props) => props.theme.appBackground};
-`;
 
 /**
  * OldName: MainContainer
  */
 function WidgetsEditorWrapper() {
-  const dispatch = useDispatch();
-  const sidebarWidth = useSelector(getExplorerWidth);
   const { path } = useRouteMatch();
-
-  /**
-   * on entity explorer sidebar width change
-   *
-   * @return void
-   */
-  const onLeftSidebarWidthChange = useCallback((newWidth) => {
-    dispatch(updateExplorerWidthAction(newWidth));
-  }, []);
-
-  /**
-   * on entity explorer sidebar drag end
-   *
-   * @return void
-   */
-  const onLeftSidebarDragEnd = useCallback(() => {
-    dispatch(updateExplorerWidthAction(sidebarWidth));
-  }, [sidebarWidth]);
-
   const isPreviewMode = useSelector(previewModeSelector);
 
   return (
     <>
-      <Wrapper className="relative w-full overflow-x-hidden">
-        <EntityExplorerSidebar
-          onDragEnd={onLeftSidebarDragEnd}
-          onWidthChange={onLeftSidebarWidthChange}
-          width={sidebarWidth}
-        />
-        <div
-          className="relative flex flex-col w-full overflow-auto"
-          id="app-body"
-        >
+      <EditorWrapperContainer>
+        <WidgetsEditorEntityExplorer />
+        <EditorWrapperBody id="app-body">
           <Switch key={BUILDER_PATH}>
             <SentryRoute
               component={WidgetsEditor}
@@ -94,8 +56,8 @@ function WidgetsEditorWrapper() {
             />
             <SentryRoute component={EditorsRouter} />
           </Switch>
-        </div>
-      </Wrapper>
+        </EditorWrapperBody>
+      </EditorWrapperContainer>
       <BottomBar viewMode={isPreviewMode} />
     </>
   );

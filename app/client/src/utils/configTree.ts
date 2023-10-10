@@ -1,4 +1,4 @@
-import type { ConfigTree } from "entities/DataTree/dataTreeFactory";
+import type { ConfigTree } from "@appsmith/entities/DataTree/types";
 
 export default class ConfigTreeActions {
   static tree: ConfigTree = {};

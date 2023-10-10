@@ -13,7 +13,7 @@ type TPromiseResponse =
       data: null;
     };
 
-function responseHandler(requestId: string): Promise<TPromiseResponse> {
+async function responseHandler(requestId: string): Promise<TPromiseResponse> {
   return new Promise((resolve) => {
     const listener = (event: MessageEvent) => {
       const { body, messageId, messageType } = event.data;

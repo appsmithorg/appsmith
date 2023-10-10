@@ -4,7 +4,7 @@ import type { CommandsCompletion } from "utils/autocomplete/CodemirrorTernServic
 import ReactDOM from "react-dom";
 import type { SlashCommandPayload } from "entities/Action";
 import { SlashCommand } from "entities/Action";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE_VALUE } from "entities/DataTree/dataTreeFactory";
 import { EntityIcon, JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
@@ -14,6 +14,7 @@ import { DatasourceCreateEntryPoints } from "constants/Datasource";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import BetaCard from "../BetaCard";
 import type { NavigationData } from "selectors/navigationSelectors";
+import type { ENTITY_TYPE } from "@appsmith/entities/DataTree/types";
 
 export enum Shortcuts {
   PLUS = "PLUS",
@@ -156,19 +157,19 @@ export const generateQuickCommands = (
     const name = suggestion.name;
     return {
       text:
-        suggestion.type === ENTITY_TYPE.ACTION
+        suggestion.type === ENTITY_TYPE_VALUE.ACTION
           ? `{{${name}.data}}`
-          : suggestion.type === ENTITY_TYPE.JSACTION
+          : suggestion.type === ENTITY_TYPE_VALUE.JSACTION
           ? `{{${name}.}}`
           : `{{${name}}}`,
       displayText: `${name}`,
       className: "CodeMirror-commands",
       data: suggestion,
-      triggerCompletionsPostPick: suggestion.type !== ENTITY_TYPE.ACTION,
+      triggerCompletionsPostPick: suggestion.type !== ENTITY_TYPE_VALUE.ACTION,
       render: (element: HTMLElement, _: unknown, data: CommandsCompletion) => {
         let icon = null;
         const completionData = data.data as NavigationData;
-        if (completionData.type === ENTITY_TYPE.JSACTION) {
+        if (completionData.type === ENTITY_TYPE_VALUE.JSACTION) {
           icon = JsFileIconV2(16, 16);
         } else if (
           completionData.pluginId &&
@@ -240,7 +241,7 @@ export const generateQuickCommands = (
   }
   const createNewCommands: CommandsCompletion[] = [];
 
-  if (currentEntityType === ENTITY_TYPE.WIDGET)
+  if (currentEntityType === ENTITY_TYPE_VALUE.WIDGET)
     createNewCommands.push(...datasourceCommands);
 
   const createNewCommandsMatchingSearchText = matchingCommands(
@@ -252,7 +253,7 @@ export const generateQuickCommands = (
     actionCommands,
     searchText,
   );
-  if (currentEntityType === ENTITY_TYPE.WIDGET) {
+  if (currentEntityType === ENTITY_TYPE_VALUE.WIDGET) {
     createNewCommandsMatchingSearchText.push(
       ...matchingCommands([newIntegration], searchText),
     );

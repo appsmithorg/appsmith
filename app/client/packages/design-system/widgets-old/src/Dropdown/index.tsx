@@ -19,7 +19,9 @@ import { debounce, isArray } from "lodash";
 import "./styles.css";
 import { importSvg } from "../utils/icon-loadables";
 
-const Check = importSvg(() => import("../assets/icons/control/checkmark.svg"));
+const Check = importSvg(
+  async () => import("../assets/icons/control/checkmark.svg"),
+);
 
 export type DropdownOnSelect = (
   value?: string,

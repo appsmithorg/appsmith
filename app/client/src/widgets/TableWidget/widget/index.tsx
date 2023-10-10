@@ -67,7 +67,7 @@ import { ButtonVariantTypes } from "components/constants";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import type { AutocompletionDefinitions } from "WidgetProvider/constants";
 import { cloneDeep, set } from "lodash";
-import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
+import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import { combineDynamicBindings } from "utils/DynamicBindingUtils";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { BlueprintOperationTypes } from "WidgetProvider/constants";
@@ -77,8 +77,8 @@ import type {
 } from "WidgetProvider/constants";
 import IconSVG from "../icon.svg";
 
-const ReactTableComponent = lazy(() =>
-  retryPromise(() => import("../component")),
+const ReactTableComponent = lazy(async () =>
+  retryPromise(async () => import("../component")),
 );
 const defaultFilter = [
   {

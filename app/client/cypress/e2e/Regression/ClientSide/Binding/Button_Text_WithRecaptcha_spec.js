@@ -66,6 +66,7 @@ describe(
             .find(_.locators._widgetInCanvas("textwidget") + " span")
             .text() == ""
         ) {
+          _.agHelper.WaitUntilAllToastsDisappear();
           _.agHelper.ClickButton("Submit");
         }
       });
