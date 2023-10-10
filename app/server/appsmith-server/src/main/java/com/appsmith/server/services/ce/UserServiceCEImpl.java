@@ -425,8 +425,12 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                                                 .subscribe();
 
                                         // we reset the counter for user's login attempts once password is reset
-                                        rateLimitService.resetCounter(
-                                                RateLimitConstants.BUCKET_KEY_FOR_LOGIN_API, userFromDb.getEmail());
+                                        rateLimitService
+                                                .resetCounter(
+                                                        RateLimitConstants.BUCKET_KEY_FOR_LOGIN_API,
+                                                        userFromDb.getEmail())
+                                                .subscribeOn(Schedulers.boundedElastic())
+                                                .subscribe();
                                     })
                                     .thenReturn(true);
                         }));
