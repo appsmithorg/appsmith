@@ -45,8 +45,8 @@ describe("Admin settings page", function () {
 
   it("2. should test that page header is visible", () => {
     cy.get(adminsSettings.appsmithHeader).should("be.visible");
-    cy.visit(routes.GOOGLE_MAPS, { timeout: 60000 });
-    cy.url().should("contain", "/google-maps");
+    cy.visit(routes.DEVELOPER_SETTINGS, { timeout: 60000 });
+    cy.url().should("contain", "/developer-settings");
     cy.wait(2000); //page to load properly
     cy.get(adminsSettings.appsmithHeader).should("be.visible");
     cy.visit(routes.GOOGLEAUTH, { timeout: 60000 });
