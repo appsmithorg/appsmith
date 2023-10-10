@@ -31,10 +31,8 @@ import _, { debounce, isEqual } from "lodash";
 import scrollIntoView from "scroll-into-view-if-needed";
 
 import { ENTITY_TYPE_VALUE } from "entities/DataTree/dataTreeFactory";
-import type {
-  DataTree,
-  EvaluationSubstitutionType,
-} from "@appsmith/entities/DataTree/types";
+import type { EvaluationSubstitutionType } from "@appsmith/entities/DataTree/types";
+import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { Skin } from "constants/DefaultTheme";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import "components/editorComponents/CodeEditor/sql/customMimes";

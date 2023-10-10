@@ -60,7 +60,7 @@ import {
   isAction,
   isJSAction,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
-import type { DataTreeEntity } from "@appsmith/entities/DataTree/types";
+import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
 
 const actionList: {
   label: string;
