@@ -4,7 +4,6 @@ import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.services.EncryptionService;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.configurations.CommonConfig;
-import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.RateLimitConstants;
 import com.appsmith.server.domains.EmailVerificationToken;
@@ -26,9 +25,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.UserServiceHelper;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.helpers.ValidationUtils;
-import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.ratelimiting.RateLimitService;
-import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.EmailVerificationTokenRepository;
 import com.appsmith.server.repositories.PasswordResetTokenRepository;
 import com.appsmith.server.repositories.UserRepository;
@@ -36,12 +33,10 @@ import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.EmailService;
 import com.appsmith.server.services.PACConfigurationService;
-import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.WorkspaceService;
-import com.appsmith.server.solutions.PolicySolution;
 import com.appsmith.server.solutions.UserChangedHandler;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
@@ -104,13 +99,11 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
 
     private final PasswordEncoder passwordEncoder;
 
-    private final PolicySolution policySolution;
     private final CommonConfig commonConfig;
     private final UserChangedHandler userChangedHandler;
     private final EncryptionService encryptionService;
     private final UserDataService userDataService;
     private final TenantService tenantService;
-    private final PermissionGroupService permissionGroupService;
     private final UserUtils userUtils;
     private final EmailService emailService;
     private final RateLimitService rateLimitService;
@@ -142,16 +135,11 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
             SessionUserService sessionUserService,
             PasswordResetTokenRepository passwordResetTokenRepository,
             PasswordEncoder passwordEncoder,
-            EmailSender emailSender,
-            ApplicationRepository applicationRepository,
-            PolicySolution policySolution,
             CommonConfig commonConfig,
-            EmailConfig emailConfig,
             UserChangedHandler userChangedHandler,
             EncryptionService encryptionService,
             UserDataService userDataService,
             TenantService tenantService,
-            PermissionGroupService permissionGroupService,
             UserUtils userUtils,
             EmailVerificationTokenRepository emailVerificationTokenRepository,
             EmailService emailService,
@@ -164,13 +152,11 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         this.sessionUserService = sessionUserService;
         this.passwordResetTokenRepository = passwordResetTokenRepository;
         this.passwordEncoder = passwordEncoder;
-        this.policySolution = policySolution;
         this.commonConfig = commonConfig;
         this.userChangedHandler = userChangedHandler;
         this.encryptionService = encryptionService;
         this.userDataService = userDataService;
         this.tenantService = tenantService;
-        this.permissionGroupService = permissionGroupService;
         this.userUtils = userUtils;
         this.rateLimitService = rateLimitService;
         this.emailVerificationTokenRepository = emailVerificationTokenRepository;
