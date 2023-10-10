@@ -6,12 +6,10 @@ import com.appsmith.server.dtos.InviteUsersToApplicationDTO;
 import com.appsmith.server.dtos.MemberInfoDTO;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.dtos.UpdateApplicationRoleDTO;
-import com.appsmith.server.services.ce.ApplicationServiceCE;
+import com.appsmith.server.services.ce_compatible.ApplicationServiceCECompatible;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
-
-import com.appsmith.server.services.ce_compatible.ApplicationServiceCECompatible;
 
 public interface ApplicationService extends ApplicationServiceCECompatible {
 
