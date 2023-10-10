@@ -947,11 +947,15 @@ public class ImportExportApplicationServiceTests {
                     final List<ActionCollection> actionCollectionList = tuple.getT5();
                     final List<CustomJSLib> importedJSLibList = tuple.getT6();
 
-                    assertEquals(1, importedJSLibList.size());
+                    assertEquals(2, importedJSLibList.size());
                     CustomJSLib importedJSLib = (CustomJSLib) importedJSLibList.toArray()[0];
                     CustomJSLib expectedJSLib = new CustomJSLib(
                             "TestLib",
-                            Set.of(Map.of(FieldName.ORIGINAL_ACCESSOR_KEY, "accessor1")),
+                            Set.of(Map.of(
+                                    FieldName.ORIGINAL_ACCESSOR_KEY,
+                                    "accessor1",
+                                    FieldName.MODIFIED_ACCESSOR_KEY,
+                                    "accessor1")),
                             "url",
                             "docsUrl",
                             "1" + ".0",
@@ -962,10 +966,8 @@ public class ImportExportApplicationServiceTests {
                     assertEquals(expectedJSLib.getDocsUrl(), importedJSLib.getDocsUrl());
                     assertEquals(expectedJSLib.getVersion(), importedJSLib.getVersion());
                     assertEquals(expectedJSLib.getDefs(), importedJSLib.getDefs());
-                    assertEquals(1, application.getUnpublishedCustomJSLibs().size());
-                    assertEquals(
-                            getDTOFromCustomJSLib(expectedJSLib),
-                            application.getUnpublishedCustomJSLibs().toArray()[0]);
+                    // this would be two because of default addition of xmlParser customJsLib
+                    assertEquals(2, application.getUnpublishedCustomJSLibs().size());
 
                     assertThat(application.getName()).isEqualTo("valid_application");
                     assertThat(application.getWorkspaceId()).isNotNull();
@@ -4603,7 +4605,11 @@ public class ImportExportApplicationServiceTests {
     public void createExportAppJsonWithCustomJSLibTest() {
         CustomJSLib jsLib = new CustomJSLib(
                 "TestLib",
-                Set.of(Map.of(FieldName.ORIGINAL_ACCESSOR_KEY, "accessor1")),
+                Set.of(Map.of(
+                        FieldName.ORIGINAL_ACCESSOR_KEY,
+                        "accessor1",
+                        FieldName.MODIFIED_ACCESSOR_KEY,
+                        "modified-accessor1")),
                 "url",
                 "docsUrl",
                 "1.0",
@@ -4629,7 +4635,10 @@ public class ImportExportApplicationServiceTests {
                     CustomJSLibCompatibilityDTO exportedJSLib =
                             exportedAppJson.getCustomJSLibList().get(0);
                     assertEquals(jsLib.getName(), exportedJSLib.getName());
-                    assertEquals(jsLib.getAccessor(), exportedJSLib.getAccessor());
+                    assertEquals(
+                            CustomJSLibCompatibilityDTO.transformAccessor(
+                                    jsLib.getAccessor(), FieldName.MODIFIED_ACCESSOR_KEY),
+                            exportedJSLib.getAccessor());
                     assertEquals(jsLib.getUrl(), exportedJSLib.getUrl());
                     assertEquals(jsLib.getDocsUrl(), exportedJSLib.getDocsUrl());
                     assertEquals(jsLib.getVersion(), exportedJSLib.getVersion());
