@@ -44,13 +44,14 @@ import {
 
 installLogsCollector();
 
-Cypress.on("uncaught:exception", () => {
-  // returning false here prevents Cypress from
-  // failing the test
-  return false;
+Cypress.on("uncaught:exception", (error) => {
+  cy.log(error.message);
+  //return true; // returning false here prevents Cypress from failing the test
+  throw error; // throw error to have test still fail
 });
 
 Cypress.on("fail", (error) => {
+  cy.log(error.message);
   throw error; // throw error to have test still fail
 });
 
