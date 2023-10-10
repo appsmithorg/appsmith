@@ -9,4 +9,3 @@ public interface CacheableRepositoryHelper extends CacheableRepositoryHelperCECo
 
     Mono<Void> evictGetAllReadablePermissionGroupsForUser(String email, String tenantId);
 }
-

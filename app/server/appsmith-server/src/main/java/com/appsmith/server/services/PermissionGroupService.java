@@ -7,7 +7,7 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;
-import com.appsmith.server.services.ce.PermissionGroupServiceCE;
+import com.appsmith.server.services.ce_compatible.PermissionGroupServiceCECompatible;
 import com.appsmith.server.solutions.roles.dtos.RoleViewDTO;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -15,8 +15,6 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-
-import com.appsmith.server.services.ce_compatible.PermissionGroupServiceCECompatible;
 
 public interface PermissionGroupService extends PermissionGroupServiceCECompatible {
 
