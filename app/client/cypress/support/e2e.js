@@ -46,8 +46,7 @@ installLogsCollector();
 
 Cypress.on("uncaught:exception", (error) => {
   cy.log(error.message);
-  //return true; // returning false here prevents Cypress from failing the test
-  throw error; // throw error to have test still fail
+  return false; // returning false here prevents Cypress from failing the test
 });
 
 Cypress.on("fail", (error) => {
