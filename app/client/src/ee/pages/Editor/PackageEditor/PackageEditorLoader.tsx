@@ -33,11 +33,11 @@ class PackageEditorLoader extends React.Component<
     const { packageId } = match.params;
     initEditor({ packageId });
 
-    retryPromise(() => import(/* webpackChunkName: "editor" */ "./index")).then(
-      (module) => {
-        this.setState({ Editor: module.default });
-      },
-    );
+    retryPromise(
+      async () => import(/* webpackChunkName: "editor" */ "./index"),
+    ).then((module) => {
+      this.setState({ Editor: module.default });
+    });
   }
 
   render() {

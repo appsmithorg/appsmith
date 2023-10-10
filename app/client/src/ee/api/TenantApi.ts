@@ -4,15 +4,17 @@ import type { AxiosPromise } from "axios";
 import { TenantApi as CE_TenantApi } from "ce/api/TenantApi";
 
 export class TenantApi extends CE_TenantApi {
-  static forceCheckLicense(): AxiosPromise<ApiResponse> {
+  static async forceCheckLicense(): Promise<AxiosPromise<ApiResponse>> {
     return TenantApi.get("v1/tenants/license");
   }
-  static validateLicense(licenseKey: string): AxiosPromise<ApiResponse> {
+  static async validateLicense(
+    licenseKey: string,
+  ): Promise<AxiosPromise<ApiResponse>> {
     return TenantApi.put("v1/tenants/license", { key: licenseKey });
   }
-  static validateLicenseForOnboarding(
+  static async validateLicenseForOnboarding(
     licenseKey: string,
-  ): AxiosPromise<ApiResponse> {
+  ): Promise<AxiosPromise<ApiResponse>> {
     return TenantApi.post("v1/tenants/license", { key: licenseKey });
   }
 }

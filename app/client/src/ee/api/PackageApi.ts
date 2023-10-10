@@ -23,15 +23,15 @@ export type FetchPackageResponse = {
 const BASE_URL = "v1/packages";
 
 class PackageApi extends Api {
-  static fetchAllPackages() {
+  static async fetchAllPackages() {
     const url = `${BASE_URL}/`;
 
     return Api.get(url);
   }
 
-  static createPackage(
+  static async createPackage(
     payload: CreatePackagePayload,
-  ): AxiosPromise<ApiResponse<Package>> {
+  ): Promise<AxiosPromise<ApiResponse<Package>>> {
     const url = BASE_URL;
     const { workspaceId, ...body } = payload;
     const queryParams = {
@@ -41,9 +41,9 @@ class PackageApi extends Api {
     return Api.post(url, body, queryParams);
   }
 
-  static fetchPackage(
+  static async fetchPackage(
     payload: FetchPackagePayload,
-  ): AxiosPromise<ApiResponse<FetchPackageResponse>> {
+  ): Promise<AxiosPromise<ApiResponse<FetchPackageResponse>>> {
     const { packageId } = payload;
     const url = `${BASE_URL}/${packageId}`;
 

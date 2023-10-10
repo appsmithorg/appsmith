@@ -117,7 +117,7 @@ class JSActionAPI extends API {
     );
   }
 
-  static logActionExecution(payload: {
+  static async logActionExecution(payload: {
     metadata: {
       origin: string;
       viewMode: string;
@@ -130,7 +130,7 @@ class JSActionAPI extends API {
     event: string;
     resourceType: string;
     resourceId: string;
-  }): AxiosPromise<any> {
+  }): Promise<AxiosPromise<any>> {
     return API.post(`v1/analytics/event`, payload);
   }
 }
