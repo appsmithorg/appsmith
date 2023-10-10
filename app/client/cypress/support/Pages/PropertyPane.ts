@@ -55,7 +55,9 @@ export class PropertyPane {
   _propertyToggle = (controlToToggle: string) =>
     "//div[contains(@class,'t--property-control-" +
     controlToToggle.replace(/ +/g, "").toLowerCase() +
-    "')]//input[@type='checkbox']";
+    "')]//input[@type='checkbox'] | //label[text()='" +
+    controlToToggle +
+    "']//input[@type='checkbox']";
   _colorPickerV2Popover = ".t--colorpicker-v2-popover";
   _colorPickerV2Color = ".t--colorpicker-v2-color";
   _colorInput = (option: string) =>
