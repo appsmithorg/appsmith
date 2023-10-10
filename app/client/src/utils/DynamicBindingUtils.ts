@@ -380,6 +380,7 @@ export enum PropertyEvaluationErrorType {
 
 export enum PropertyEvaluationErrorCategory {
   ACTION_INVOCATION_IN_DATA_FIELD = "ACTION_INVOCATION_IN_DATA_FIELD",
+  UNDEFINED_ACTION_DATA = "UNDEFINED_ACTION_DATA",
 }
 export interface PropertyEvaluationErrorKind {
   category: PropertyEvaluationErrorCategory;

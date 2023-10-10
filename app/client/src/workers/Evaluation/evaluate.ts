@@ -287,7 +287,10 @@ export default function evaluateSync(
         throw new FoundPromiseInSyncEvalError();
       }
     } catch (error) {
-      const { errorCategory, errorMessage } = errorModifier.run(error as Error);
+      const { errorCategory, errorMessage } = errorModifier.run(
+        error as Error,
+        userScript,
+      );
       errors.push({
         errorMessage,
         severity: Severity.ERROR,
@@ -334,7 +337,7 @@ export async function evaluateAsync(
     } catch (e: any) {
       let errorMessage;
       if (e instanceof Error) {
-        errorMessage = { name: e.name, message: e.message };
+        errorMessage = errorModifier.run(e, userScript).errorMessage;
       } else {
         // this covers cases where any primitive value is thrown
         // for eg., throw "error";

@@ -2,6 +2,7 @@ import { isPromise } from "workers/Evaluation/JSObject/utils";
 import { postJSFunctionExecutionLog } from "@appsmith/workers/Evaluation/JSObject/postJSFunctionExecution";
 import TriggerEmitter, { BatchKey } from "./TriggerEmitter";
 import ExecutionMetaData from "./ExecutionMetaData";
+import { errorModifier } from "workers/Evaluation/errorModifier";
 
 declare global {
   interface Window {
@@ -44,7 +45,16 @@ export function jsObjectFunctionFactory<P extends ReadonlyArray<unknown>>(
 ) {
   return function (this: unknown, ...args: P) {
     if (!ExecutionMetaData.getExecutionMetaData().enableJSFnPostProcessors) {
-      return fn.call(this, ...args);
+      let result;
+      try {
+        result = fn.call(this, ...args);
+        return result;
+      } catch (e: any) {
+        e.message = `Error while executing ${name}. ${
+          errorModifier.run(e, fn.toString()).errorMessage.message
+        }`;
+        throw e;
+      }
     }
     const executionMetaData = ExecutionMetaData.getExecutionMetaData();
     try {
@@ -62,6 +72,9 @@ export function jsObjectFunctionFactory<P extends ReadonlyArray<unknown>>(
           return res;
         });
         result.catch((e) => {
+          e.message = `Error while executing ${name}. ${
+            errorModifier.run(e, fn.toString()).errorMessage.message
+          }`;
           postProcessors.forEach((p) =>
             p({
               executionMetaData,
@@ -83,7 +96,10 @@ export function jsObjectFunctionFactory<P extends ReadonlyArray<unknown>>(
         );
       }
       return result;
-    } catch (e) {
+    } catch (e: any) {
+      e.message = `Error while executing ${name}. ${
+        errorModifier.run(e, fn.toString()).errorMessage.message
+      }`;
       postProcessors.forEach((postProcessor) => {
         postProcessor({
           executionMetaData,

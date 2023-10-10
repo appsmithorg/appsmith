@@ -8,8 +8,12 @@ import {
   isDataField,
 } from "workers/common/DataTreeEvaluator/utils";
 import { jsPropertiesState } from "./JSObject/jsPropertiesState";
-import { isEmpty } from "lodash";
+import { get, isEmpty, toPath } from "lodash";
 import { APP_MODE } from "entities/App";
+import {
+  convertPathToString,
+  isAction,
+} from "@appsmith/workers/Evaluation/evaluationUtils";
 
 const FOUND_ASYNC_IN_SYNC_EVAL_MESSAGE =
   "Found an action invocation during evaluation. Data fields cannot execute actions.";
@@ -20,6 +24,7 @@ class ErrorModifier {
   private asyncFunctionsNameMap: Record<string, true> = {};
   private asyncJSFunctionsNames: string[] = [];
   private isDisabled = true;
+  private dataTree: DataTree = {};
 
   init(appMode?: APP_MODE) {
     this.isDisabled = appMode !== APP_MODE.EDIT;
@@ -40,9 +45,13 @@ class ErrorModifier {
     );
     this.asyncFunctionsNameMap = allAsyncEntityFunctions;
     this.asyncJSFunctionsNames = allAsyncJSFunctions;
+    this.dataTree = dataTree;
   }
 
-  run(error: Error): {
+  run(
+    error: Error,
+    userScript: string,
+  ): {
     errorMessage: ReturnType<typeof getErrorMessage>;
     errorCategory?: PropertyEvaluationErrorCategory;
   } {
@@ -60,6 +69,19 @@ class ErrorModifier {
     }
 
     if (!this.errorNamesToScan.includes(error.name)) return { errorMessage };
+
+    if (
+      error.name === "TypeError" &&
+      errorMessage.message.startsWith(
+        "Cannot read properties of undefined (reading",
+      )
+    ) {
+      return modifierUndefinedTypeErrorMessage(
+        error,
+        userScript,
+        this.dataTree,
+      );
+    }
 
     for (const asyncFunctionFullPath of Object.keys(
       this.asyncFunctionsNameMap,
@@ -173,4 +195,58 @@ function isAsyncFunctionCalledInSyncFieldError(error: EvaluationError) {
     error.kind?.category ===
     PropertyEvaluationErrorCategory.ACTION_INVOCATION_IN_DATA_FIELD
   );
+}
+const UNDEFINED_TYPE_ERROR_REGEX =
+  /Cannot read properties of undefined \(reading '([^\s]+)'/;
+const MEMBER_EXPRESSION_REGEX = (prop: string) =>
+  new RegExp(`([^\\s]+).${prop}\\b`, "g");
+
+function modifierUndefinedTypeErrorMessage(
+  error: Error,
+  userScript: string,
+  tree: DataTree,
+) {
+  const errorMessage = getErrorMessage(error);
+  const matchedString = errorMessage.message.match(UNDEFINED_TYPE_ERROR_REGEX);
+  if (!matchedString)
+    return {
+      errorMessage,
+    };
+  const undefinedProperty = matchedString[1];
+  const reg = MEMBER_EXPRESSION_REGEX(undefinedProperty);
+  const allMemberExpressions = userScript.match(reg);
+  if (!allMemberExpressions)
+    return {
+      errorMessage,
+    };
+  const possibleCauses = new Set<string>();
+  for (const memberExpression of allMemberExpressions) {
+    const paths = toPath(memberExpression);
+    const topLevelEntity = tree[paths[0]];
+    if (
+      paths.at(1) === "data" &&
+      isAction(topLevelEntity) &&
+      !get(self, `${paths[0]}.data`, undefined)
+    ) {
+      errorMessage.message = `${paths[0]} data is undefined, re-run your query or fix the data`;
+      return {
+        errorMessage,
+        errorCategory:
+          PropertyEvaluationErrorCategory.ACTION_INVOCATION_IN_DATA_FIELD,
+      };
+    }
+    const undefinedPath = convertPathToString(paths.slice(0, -1));
+    if (!get(self, undefinedPath, undefined)) {
+      possibleCauses.add(`"${undefinedPath}"`);
+    }
+  }
+  if (!isEmpty(possibleCauses)) {
+    errorMessage.message = `${Array.from(possibleCauses).join(
+      ", ",
+    )} could be undefined`;
+  }
+
+  return {
+    errorMessage,
+  };
 }
