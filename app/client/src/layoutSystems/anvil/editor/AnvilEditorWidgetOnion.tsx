@@ -24,6 +24,8 @@ import { generateDragStateForAnvilLayout } from "../utils/widgetUtils";
  */
 export const AnvilEditorWidgetOnion = (props: BaseWidgetProps) => {
   const { layoutId, parentId } = props;
+  // if layoutId is not present on widget props then we need a selector to fetch layout id of a widget.
+  // const layoutId = useSelector(getLayoutIdByWidgetId(props.widgetId));
   const generateDragState = useCallback(() => {
     return generateDragStateForAnvilLayout({
       canvasId: parentId || "",
