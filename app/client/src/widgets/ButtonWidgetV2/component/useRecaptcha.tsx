@@ -3,20 +3,20 @@ import { RecaptchaV3 } from "./RecaptchaV3";
 import type { ButtonComponentProps } from ".";
 import type { RecaptchaType } from "components/constants";
 
-export type UseRecaptchaProps = {
+export interface UseRecaptchaProps {
   recaptchaKey?: string;
   recaptchaType?: RecaptchaType;
   onRecaptchaSubmitError?: (error: string) => void;
   onRecaptchaSubmitSuccess?: (token: string) => void;
   handleRecaptchaV2Loading?: (isLoading: boolean) => void;
-};
+}
 
 export type RecaptchaProps = ButtonComponentProps & UseRecaptchaProps;
 
-type UseRecaptchaReturn = {
+interface UseRecaptchaReturn {
   onClick?: (...args: any[]) => void;
   recpatcha?: React.ReactElement;
-};
+}
 
 export const useRecaptcha = (props: RecaptchaProps): UseRecaptchaReturn => {
   const { onPress: onClickProp, recaptchaKey } = props;

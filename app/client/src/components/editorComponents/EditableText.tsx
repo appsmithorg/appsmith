@@ -12,7 +12,7 @@ export enum EditInteractionKind {
   DOUBLE,
 }
 
-type EditableTextProps = {
+interface EditableTextProps {
   type: "text" | "password" | "email" | "phone" | "date";
   defaultValue: string;
   onTextChanged: (value: string) => void;
@@ -37,7 +37,7 @@ type EditableTextProps = {
   minLines?: number;
   customErrorTooltip?: string;
   useFullWidth?: boolean;
-};
+}
 
 // using the !important keyword here is mandatory because a style is being applied to that element using the style attribute
 // which has higher specificity than other css selectors. It seems the overriding style is being applied by the package itself.

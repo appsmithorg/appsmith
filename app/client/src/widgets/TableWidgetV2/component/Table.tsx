@@ -138,7 +138,7 @@ const defaultColumn = {
   width: 150,
 };
 
-export type HeaderComponentProps = {
+export interface HeaderComponentProps {
   enableDrag: () => void;
   disableDrag: () => void;
   multiRowSelection?: boolean;
@@ -163,7 +163,7 @@ export type HeaderComponentProps = {
   headerWidth?: number;
   rowSelectionState: 0 | 1 | 2 | null;
   widgetId: string;
-};
+}
 
 const emptyArr: any = [];
 

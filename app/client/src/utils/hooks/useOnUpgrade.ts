@@ -10,12 +10,12 @@ import type {
   RampSection,
 } from "utils/ProductRamps/RampsControlList";
 
-type Props = {
+interface Props {
   logEventName?: EventName;
   logEventData?: any;
   featureName?: RampFeature;
   sectionName?: RampSection;
-};
+}
 
 const useOnUpgrade = (props: Props) => {
   const { featureName, logEventData, logEventName, sectionName } = props;

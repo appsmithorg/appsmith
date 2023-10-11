@@ -52,11 +52,11 @@ export const TYPOGRAPHY_FONT_WEIGHTS = {
 
 export type FontFamily = keyof typeof FONT_METRICS | "System Default";
 
-export type TypographyVariantMetric = {
+export interface TypographyVariantMetric {
   capHeight: number;
   lineGap: number;
   fontFamily?: FontFamily;
-};
+}
 
 export type Typography = {
   [key in keyof typeof TYPOGRAPHY_VARIANTS]: TypographyVariantMetric;

@@ -46,11 +46,11 @@ const SubMenuContainer = styled.div`
   }
 `;
 
-type SubMenuProps = {
+interface SubMenuProps {
   className: string;
   openMenu: boolean;
   onMenuClose: () => void;
-};
+}
 
 export default function ExplorerSubMenu({
   className,
