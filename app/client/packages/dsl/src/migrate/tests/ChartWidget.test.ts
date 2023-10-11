@@ -1,11 +1,10 @@
-import {
-  migrateChartWidgetLabelOrientationStaggerOption,
-  migrateAddShowHideDataPointLabels,
-  migrateDefaultValuesForCustomEChart,
-} from "./ChartWidget";
-import type { DSLWidget } from "WidgetProvider/constants";
-import type { ChartWidgetProps } from "widgets/ChartWidget/widget";
-import { LabelOrientation } from "widgets/ChartWidget/constants";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { migrateDefaultValuesForCustomEChart } from "../migrations/085-migrate-default-values-for-custom-echart";
+import { migrateAddShowHideDataPointLabels } from "../migrations/083-migrate-add-show-hide-data-point-labels";
+import { migrateChartWidgetLabelOrientationStaggerOption } from "../migrations/082-migrate-chart-widget-label-orientation-stagger-option";
+import type { DSLWidget } from "../types";
+
+type ChartWidgetProps = any;
 
 const inputDSL: DSLWidget = {
   widgetId: "",
@@ -34,7 +33,7 @@ const inputDSL: DSLWidget = {
       bottomRow: 0,
       leftColumn: 0,
       rightColumn: 0,
-      labelOrientation: LabelOrientation.STAGGER,
+      labelOrientation: "stagger",
       allowScroll: true,
       children: [],
     },

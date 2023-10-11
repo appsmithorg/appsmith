@@ -92,7 +92,7 @@ import type { DSLWidget } from "./types";
 
 export const LATEST_DSL_VERSION = 87;
 
-const calculateDynamicHeight = () => {
+export const calculateDynamicHeight = () => {
   const DEFAULT_GRID_ROW_HEIGHT = 10;
   const screenHeight = typeof window !== "undefined" ? window.innerHeight : 600;
   const gridRowHeight = DEFAULT_GRID_ROW_HEIGHT;

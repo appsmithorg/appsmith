@@ -1,6 +1,5 @@
-import { GridDefaults } from "constants/WidgetConstants";
-import type { DSLWidget } from "WidgetProvider/constants";
-import { migrateResizableModalWidgetProperties } from "./ModalWidget";
+import { migrateResizableModalWidgetProperties } from "../migrations/038-migrate-resizable-modal-widget-properties";
+import type { DSLWidget } from "../types";
 
 const inputDsl1: DSLWidget = {
   widgetName: "MainContainer",
@@ -48,7 +47,7 @@ const outputDsl1: DSLWidget = {
       widgetName: "modal",
       version: 2,
       type: "MODAL_WIDGET",
-      height: GridDefaults.DEFAULT_GRID_ROW_HEIGHT * 24,
+      height: 10 * 24,
       width: 456,
       parentId: "0",
       widgetId: "yf8bhokz7d",
@@ -117,7 +116,7 @@ const outputDsl2: DSLWidget = {
       widgetName: "modal",
       version: 2,
       type: "MODAL_WIDGET",
-      height: GridDefaults.DEFAULT_GRID_ROW_HEIGHT * 60,
+      height: 10 * 60,
       width: 532,
       parentId: "0",
       widgetId: "yf8bhokz7d",

@@ -1,17 +1,15 @@
-import { transformDSL } from "@shared/dsl";
-import { LATEST_PAGE_VERSION, RenderModes } from "constants/WidgetConstants";
-import type { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
-import type { WidgetProps } from "widgets/BaseWidget";
-import { OverflowTypes } from "widgets/TextWidget/constants";
-import { migrateRadioGroupAlignmentProperty } from "./migrations/RadioGroupWidget";
-import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
+import { LATEST_DSL_VERSION, transformDSL } from "..";
+import { migrateRadioGroupAlignmentProperty } from "../migrations/056-migrate-radio-group-alignment-property";
+import type { DSLWidget } from "../types";
+
+const ASSETS_CDN_URL = "https://assets.appsmith.com";
 
 describe("correctly migrate dsl", () => {
   it("transformDSL for private widget", () => {
     const currentVersion = 49; // before adding privateWidgets to all List widgets
-    const nextVersion = LATEST_PAGE_VERSION; // It runs Two Migrations, Always Update as migration increases
+    const nextVersion = LATEST_DSL_VERSION; // It runs Two Migrations, Always Update as migration increases
 
-    const currentDSL: ContainerWidgetProps<WidgetProps> = {
+    const currentDSL: DSLWidget = {
       backgroundColor: "none",
       bottomRow: 740,
       canExtend: true,
@@ -592,7 +590,7 @@ describe("correctly migrate dsl", () => {
       isLoading: false,
     };
 
-    const expectedNextDSL: ContainerWidgetProps<WidgetProps> = {
+    const expectedNextDSL: DSLWidget = {
       backgroundColor: "none",
       bottomRow: 740,
       canExtend: true,
@@ -1069,7 +1067,7 @@ describe("correctly migrate dsl", () => {
                           isVisible: true,
                           fontStyle: "BOLD",
                           textColor: "#231F20",
-                          overflow: OverflowTypes.NONE,
+                          overflow: "NONE",
                           version: 1,
                           parentId: "vqn2okwc6a",
                           renderMode: "CANVAS",
@@ -1143,7 +1141,7 @@ describe("correctly migrate dsl", () => {
                           isVisible: true,
                           fontStyle: "BOLD",
                           textColor: "#231F20",
-                          overflow: OverflowTypes.NONE,
+                          overflow: "NONE",
                           version: 1,
                           parentId: "vqn2okwc6a",
                           renderMode: "CANVAS",
@@ -1227,7 +1225,7 @@ describe("correctly migrate dsl", () => {
       type: "CANVAS_WIDGET",
       widgetId: "0",
       widgetName: "MainContainer",
-      renderMode: RenderModes.CANVAS,
+      renderMode: "CANVAS",
       isLoading: false,
     };
 
@@ -1238,8 +1236,8 @@ describe("correctly migrate dsl", () => {
 
   it("transformDSL for theming v1", () => {
     const currentVersion = 53;
-    const nextVersion = LATEST_PAGE_VERSION;
-    const currentDSL: ContainerWidgetProps<WidgetProps> = {
+    const nextVersion = LATEST_DSL_VERSION;
+    const currentDSL: DSLWidget = {
       backgroundColor: "none",
       bottomRow: 740,
       canExtend: true,
@@ -1820,7 +1818,7 @@ describe("correctly migrate dsl", () => {
       isLoading: false,
     };
 
-    const expectedNextDSL: ContainerWidgetProps<WidgetProps> = {
+    const expectedNextDSL: DSLWidget = {
       backgroundColor: "none",
       bottomRow: 740,
       canExtend: true,
@@ -2450,7 +2448,7 @@ describe("correctly migrate dsl", () => {
       type: "CANVAS_WIDGET",
       widgetId: "0",
       widgetName: "MainContainer",
-      renderMode: RenderModes.CANVAS,
+      renderMode: "CANVAS",
       isLoading: false,
     };
 
@@ -2461,9 +2459,9 @@ describe("correctly migrate dsl", () => {
 
   it("RadioGroupWidget: Add alignment property, set to LEFT", () => {
     const currentVersion = 51;
-    const currentDSL: ContainerWidgetProps<WidgetProps> = {
+    const currentDSL: DSLWidget = {
       widgetName: "MainContainer",
-      renderMode: RenderModes.CANVAS,
+      renderMode: "CANVAS",
       isLoading: false,
       backgroundColor: "none",
       rightColumn: 909,
@@ -2775,9 +2773,9 @@ describe("correctly migrate dsl", () => {
         },
       ],
     };
-    const expectedNextDSL: ContainerWidgetProps<WidgetProps> = {
+    const expectedNextDSL: DSLWidget = {
       widgetName: "MainContainer",
-      renderMode: RenderModes.CANVAS,
+      renderMode: "CANVAS",
       isLoading: false,
       backgroundColor: "none",
       rightColumn: 909,
@@ -3099,7 +3097,7 @@ describe("correctly migrate dsl", () => {
 
   it("correctly migrates currentIndex/currentRow properties for validations in table view", () => {
     const currentVersion = 78;
-    const currentDSL: ContainerWidgetProps<WidgetProps> = {
+    const currentDSL: DSLWidget = {
       bottomRow: 740,
       containerStyle: "none",
       detachFromLayout: true,
@@ -3174,6 +3172,7 @@ describe("correctly migrate dsl", () => {
     };
     const nextDSL = transformDSL(currentDSL);
 
+    // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
     const validations = (nextDSL.children || [])[0].primaryColumns.column1
       .validation;
 

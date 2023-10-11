@@ -1,5 +1,5 @@
-import type { DSLWidget } from "WidgetProvider/constants";
-import { migrateChartWidgetReskinningData } from "./ChartWidgetReskinningMigrations";
+import { migrateChartWidgetReskinningData } from "../migrations/059-migrate-chart-widget-reskinning-data";
+import type { DSLWidget } from "../types";
 
 const currentDslWithoutCustomConfig = {
   widgetName: "MainContainer",

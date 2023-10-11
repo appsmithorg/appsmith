@@ -1,9 +1,8 @@
-import type { DSLWidget } from "WidgetProvider/constants";
-import {
-  MigrateSelectTypeWidgetDefaultValue,
-  migrateSelectWidgetAddSourceDataPropertyPathList,
-  migrateSelectWidgetSourceDataBindingPathList,
-} from "./SelectWidget";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { MigrateSelectTypeWidgetDefaultValue } from "../migrations/062-migrate-select-type-widget-default-value";
+import { migrateSelectWidgetSourceDataBindingPathList } from "../migrations/081-migrate-select-widget-source-data-binding-path-list";
+import { migrateSelectWidgetAddSourceDataPropertyPathList } from "../migrations/084-migrate-select-widget-add-source-data-property-path-list";
+import type { DSLWidget } from "../types";
 
 describe("MigrateSelectTypeWidgetDefaultValue", () => {
   describe("Select widget", () => {

@@ -1,30 +1,92 @@
-import type { WidgetProps } from "widgets/BaseWidget";
-import type { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
-import * as DSLMigrations from "./DSLMigrations";
-import * as chartWidgetReskinningMigrations from "./migrations/ChartWidgetReskinningMigrations";
-import * as tableMigrations from "./migrations/TableWidget";
-import * as IncorrectDynamicBindingPathLists from "./migrations/IncorrectDynamicBindingPathLists";
-import * as TextStyleFromTextWidget from "./migrations/TextWidget";
-import * as menuButtonWidgetMigrations from "./migrations/MenuButtonWidget";
-import * as modalMigration from "./migrations/ModalWidget";
-import * as mapWidgetMigration from "./migrations/MapWidget";
-import * as checkboxMigration from "./migrations/CheckboxGroupWidget";
-import * as buttonWidgetMigrations from "./migrations/ButtonWidgetMigrations";
-import * as phoneInputMigration from "./migrations/PhoneInputWidgetMigrations";
-import * as inputCurrencyMigration from "./migrations/CurrencyInputWidgetMigrations";
-import * as radioGroupMigration from "./migrations/RadioGroupWidget";
-import * as propertyPaneMigrations from "./migrations/PropertyPaneMigrations";
-import * as themingMigration from "./migrations/ThemingMigrations";
-import * as selectWidgetMigration from "./migrations/SelectWidget";
-import * as mapChartReskinningMigrations from "./migrations/MapChartReskinningMigrations";
-import { LATEST_PAGE_VERSION } from "constants/WidgetConstants";
+/* eslint-disable @typescript-eslint/strict-boolean-expressions */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import * as DSLMigrations from "..";
+import type { DSLWidget } from "../types";
 import { originalDSLForDSLMigrations } from "./testDSLs";
-import * as rateWidgetMigrations from "./migrations/RateWidgetMigrations";
-import * as codeScannerWidgetMigrations from "./migrations/CodeScannerWidgetMigrations";
-import * as migrateLabelPosition from "./migrations/MigrateLabelPosition";
-import * as migrateAutoHeight from "./migrations/autoHeightMigrations";
-import * as chartMigrations from "./migrations/ChartWidget";
-import { transformDSL } from "@shared/dsl";
+
+import * as m1 from "../migrations/001-update-containers";
+import * as m2 from "../migrations/002-chart-data-migration";
+import * as m3 from "../migrations/003-map-data-migration";
+import * as m4 from "../migrations/004-single-chart-data-migration";
+import * as m5 from "../migrations/005-tabs-widget-property-migration";
+import * as m6 from "../migrations/006-dynamic-path-list-migration";
+import * as m7 from "../migrations/007-canvas-name-conflict-migration";
+import * as m8 from "../migrations/008-renamed-canvas-name-conflict-migration";
+import * as m9 from "../migrations/009-table-widget-property-pane-migration";
+import * as m10 from "../migrations/010-add-version-number-migration";
+import * as m11 from "../migrations/011-migrate-table-primary-columns-binding";
+import * as m12 from "../migrations/012-migrate-incorrect-dynamic-binding-path-lists";
+import * as m13 from "../migrations/013-migrate-old-chart-data";
+import * as m14 from "../migrations/014-rte-default-value-migration";
+import * as m15 from "../migrations/015-migrate-text-style-from-text-widget";
+import * as m16 from "../migrations/016-migrate-chart-data-from-array-to-object";
+import * as m17 from "../migrations/017-migrate-tabs-data";
+import * as m18 from "../migrations/018-migrate-initial-values";
+import * as m19 from "../migrations/019-migrate-to-new-layout";
+import * as m20 from "../migrations/020-migrate-newly-added-tabs-widgets-missing-data";
+import * as m21 from "../migrations/021-migrate-overflowing-tabs-widgets";
+import * as m22 from "../migrations/022-migrate-table-widget-parent-row-space-property";
+import * as m23 from "../migrations/023-add-log-blacklist-to-all-widget-children";
+import * as m24 from "../migrations/024-migrate-table-widget-header-visibility-properties";
+import * as m25 from "../migrations/025-migrate-items-to-list-data-in-list-widget";
+import * as m26 from "../migrations/026-migrate-datepicker-min-max-date";
+import * as m27 from "../migrations/027-migrate-filter-value-for-dropdown-widget";
+import * as m28 from "../migrations/028-migrate-table-primary-columns-computed-value";
+import * as m29 from "../migrations/029-migrate-to-new-multiselect";
+import * as m30 from "../migrations/030-migrate-table-widget-delimiter-properties";
+import * as m31 from "../migrations/031-migrate-is-disabled-to-button-column";
+import * as m32 from "../migrations/032-migrate-table-default-selected-row";
+import * as m33 from "../migrations/033-migrate-menu-button-widget-button-properties";
+import * as m34 from "../migrations/034-migrate-button-widget-validation";
+import * as m35 from "../migrations/035-migrate-input-validation";
+import * as m36 from "../migrations/036-revert-table-default-selected-row";
+import * as m37 from "../migrations/037-migrate-table-sanitize-column-keys";
+import * as m38 from "../migrations/038-migrate-resizable-modal-widget-properties";
+import * as m39 from "../migrations/039-migrate-table-widget-selected-row-bindings";
+import * as m40 from "../migrations/040-revert-button-style-to-button-color";
+import * as m41 from "../migrations/041-migrate-button-variant";
+import * as m42 from "../migrations/042-migrate-map-widget-is-clicked-marker-centered";
+import * as m43 from "../migrations/043-map-allow-horizontal-scroll-mirgation";
+import * as m44 from "../migrations/044-is-sortable-migration";
+import * as m45 from "../migrations/045-migrate-table-widget-icon-button-variant";
+import * as m46 from "../migrations/046-migrate-checkbox-group-widget-inline-property";
+import * as m48 from "../migrations/048-migrate-recaptcha-type";
+import * as m49 from "../migrations/049-add-private-widgets-to-all-list-widgets";
+import * as m51 from "../migrations/051-migrate-phone-input-widget-allow-formatting";
+import * as m52 from "../migrations/052-migrate-modal-icon-button-widget";
+import * as m53 from "../migrations/053-migrate-scroll-truncate-property";
+import * as m54 from "../migrations/054-migrate-phone-input-widget-default-dial-code";
+import * as m55 from "../migrations/055-migrate-currency-input-widget-default-currency-code";
+import * as m56 from "../migrations/056-migrate-radio-group-alignment-property";
+import * as m57 from "../migrations/057-migrate-styling-properties-for-theming";
+import * as m58 from "../migrations/058-migrate-checkbox-switch-property";
+import * as m59 from "../migrations/059-migrate-chart-widget-reskinning-data";
+import * as m60 from "../migrations/060-migrate-table-widget-v2-validation";
+import * as m62 from "../migrations/062-migrate-select-type-widget-default-value";
+import * as m63 from "../migrations/063-migrate-map-chart-widget-reskinning-data";
+import * as m64 from "../migrations/064-migrate-rate-widget-disabed-state";
+import * as m65 from "../migrations/065-migrate-code-scanner-layout";
+import * as m66 from "../migrations/066-migrate-table-widget-v2-validation-binding";
+import * as m67 from "../migrations/067-migrate-label-position";
+import * as m68 from "../migrations/068-migrate-properties-for-dynamic-height";
+import * as m69 from "../migrations/069-migrate-menu-button-dynamic-items";
+import * as m70 from "../migrations/070-migrate-child-stylesheet-from-dynamic-binding-path-list";
+import * as m71 from "../migrations/071-migrate-table-widget-v2-select-option";
+import * as m72 from "../migrations/072-migrate-list-widget-children-for-auto-height";
+import * as m73 from "../migrations/073-mirgate-input-widget-show-step-arrows";
+import * as m74 from "../migrations/074-migrate-mwnu-button-dynamic-items-inside-table-widget";
+import * as m75 from "../migrations/075-migrate-input-widgets-multiline-input-type";
+import * as m76 from "../migrations/076-migrate-column-freeze-attributes";
+import * as m77 from "../migrations/077-migrate-table-select-option-attributes-for-new-row";
+import * as m78 from "../migrations/078-migrate-binding-prefix-suffix-for-inline-edit-validation-control";
+import * as m79 from "../migrations/079-migrate-table-widget-table-data-js-mode";
+import * as m80 from "../migrations/080-migrate-select-widget-option-to-source-data";
+import * as m81 from "../migrations/081-migrate-select-widget-source-data-binding-path-list";
+import * as m82 from "../migrations/082-migrate-chart-widget-label-orientation-stagger-option";
+import * as m83 from "../migrations/083-migrate-add-show-hide-data-point-labels";
+import * as m84 from "../migrations/084-migrate-select-widget-add-source-data-property-path-list";
+import * as m85 from "../migrations/085-migrate-default-values-for-custom-echart";
+import * as m86 from "../migrations/086-migrate-table-server-side-filtering";
 
 interface Migration {
   functionLookup: {
@@ -62,7 +124,7 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
-        moduleObj: DSLMigrations,
+        moduleObj: m1,
         functionName: "updateContainers",
       },
     ],
@@ -71,7 +133,7 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
-        moduleObj: DSLMigrations,
+        moduleObj: m2,
         functionName: "chartDataMigration",
       },
     ],
@@ -80,7 +142,7 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
-        moduleObj: DSLMigrations,
+        moduleObj: m3,
         functionName: "mapDataMigration",
       },
     ],
@@ -89,7 +151,7 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
-        moduleObj: DSLMigrations,
+        moduleObj: m4,
         functionName: "singleChartDataMigration",
       },
     ],
@@ -98,7 +160,7 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
-        moduleObj: DSLMigrations,
+        moduleObj: m5,
         functionName: "tabsWidgetTabsPropertyMigration",
       },
     ],
@@ -107,7 +169,7 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
-        moduleObj: DSLMigrations,
+        moduleObj: m6,
         functionName: "dynamicPathListMigration",
       },
     ],
@@ -116,7 +178,7 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
-        moduleObj: DSLMigrations,
+        moduleObj: m7,
         functionName: "canvasNameConflictMigration",
       },
     ],
@@ -125,7 +187,7 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
-        moduleObj: DSLMigrations,
+        moduleObj: m8,
         functionName: "renamedCanvasNameConflictMigration",
       },
     ],
@@ -134,7 +196,7 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
-        moduleObj: tableMigrations,
+        moduleObj: m9,
         functionName: "tableWidgetPropertyPaneMigrations",
       },
     ],
@@ -143,7 +205,7 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
-        moduleObj: DSLMigrations,
+        moduleObj: m10,
         functionName: "addVersionNumberMigration",
       },
     ],
@@ -152,7 +214,7 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
-        moduleObj: tableMigrations,
+        moduleObj: m11,
         functionName: "migrateTablePrimaryColumnsBindings",
       },
     ],
@@ -161,7 +223,7 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
-        moduleObj: IncorrectDynamicBindingPathLists,
+        moduleObj: m12,
         functionName: "migrateIncorrectDynamicBindingPathLists",
       },
     ],
@@ -170,7 +232,7 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
-        moduleObj: DSLMigrations,
+        moduleObj: m13,
         functionName: "migrateOldChartData",
       },
     ],
@@ -179,7 +241,7 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
-        moduleObj: DSLMigrations,
+        moduleObj: m14,
         functionName: "rteDefaultValueMigration",
       },
     ],
@@ -188,7 +250,7 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
-        moduleObj: TextStyleFromTextWidget,
+        moduleObj: m15,
         functionName: "migrateTextStyleFromTextWidget",
       },
     ],
@@ -197,7 +259,7 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
-        moduleObj: DSLMigrations,
+        moduleObj: m16,
         functionName: "migrateChartDataFromArrayToObject",
       },
     ],
@@ -206,7 +268,7 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
-        moduleObj: DSLMigrations,
+        moduleObj: m17,
         functionName: "migrateTabsData",
       },
     ],
@@ -215,7 +277,7 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
-        moduleObj: DSLMigrations,
+        moduleObj: m18,
         functionName: "migrateInitialValues",
       },
     ],
@@ -224,7 +286,7 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
-        moduleObj: DSLMigrations,
+        moduleObj: m19,
         functionName: "migrateToNewLayout",
       },
     ],
@@ -233,7 +295,7 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
-        moduleObj: DSLMigrations,
+        moduleObj: m20,
         functionName: "migrateNewlyAddedTabsWidgetsMissingData",
       },
     ],
@@ -242,11 +304,11 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
-        moduleObj: DSLMigrations,
+        moduleObj: m21,
         functionName: "migrateWidgetsWithoutLeftRightColumns",
       },
       {
-        moduleObj: DSLMigrations,
+        moduleObj: m21,
         functionName: "migrateOverFlowingTabsWidgets",
       },
     ],
@@ -255,7 +317,7 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
-        moduleObj: tableMigrations,
+        moduleObj: m22,
         functionName: "migrateTableWidgetParentRowSpaceProperty",
       },
     ],
@@ -264,7 +326,7 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
-        moduleObj: DSLMigrations,
+        moduleObj: m23,
         functionName: "addLogBlackListToAllListWidgetChildren",
       },
     ],
@@ -273,7 +335,7 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
-        moduleObj: tableMigrations,
+        moduleObj: m24,
         functionName: "migrateTableWidgetHeaderVisibilityProperties",
       },
     ],
@@ -282,7 +344,7 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
-        moduleObj: DSLMigrations,
+        moduleObj: m25,
         functionName: "migrateItemsToListDataInListWidget",
       },
     ],
@@ -291,7 +353,7 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
-        moduleObj: DSLMigrations,
+        moduleObj: m26,
         functionName: "migrateDatePickerMinMaxDate",
       },
     ],
@@ -300,7 +362,7 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
-        moduleObj: DSLMigrations,
+        moduleObj: m27,
         functionName: "migrateFilterValueForDropDownWidget",
       },
     ],
@@ -309,7 +371,7 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
-        moduleObj: tableMigrations,
+        moduleObj: m28,
         functionName: "migrateTablePrimaryColumnsComputedValue",
       },
     ],
@@ -318,7 +380,7 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
-        moduleObj: DSLMigrations,
+        moduleObj: m29,
         functionName: "migrateToNewMultiSelect",
       },
     ],
@@ -327,7 +389,7 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
-        moduleObj: tableMigrations,
+        moduleObj: m30,
         functionName: "migrateTableWidgetDelimiterProperties",
       },
     ],
@@ -336,7 +398,7 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
-        moduleObj: DSLMigrations,
+        moduleObj: m31,
         functionName: "migrateIsDisabledToButtonColumn",
       },
     ],
@@ -345,7 +407,7 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
-        moduleObj: DSLMigrations,
+        moduleObj: m32,
         functionName: "migrateTableDefaultSelectedRow",
       },
     ],
@@ -354,7 +416,7 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
-        moduleObj: menuButtonWidgetMigrations,
+        moduleObj: m33,
         functionName: "migrateMenuButtonWidgetButtonProperties",
       },
     ],
@@ -363,7 +425,7 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
-        moduleObj: DSLMigrations,
+        moduleObj: m34,
         functionName: "migrateButtonWidgetValidation",
       },
     ],
@@ -372,7 +434,7 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
-        moduleObj: DSLMigrations,
+        moduleObj: m35,
         functionName: "migrateInputValidation",
       },
     ],
@@ -381,7 +443,7 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
-        moduleObj: DSLMigrations,
+        moduleObj: m36,
         functionName: "revertTableDefaultSelectedRow",
       },
     ],
@@ -390,7 +452,7 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
-        moduleObj: tableMigrations,
+        moduleObj: m37,
         functionName: "migrateTableSanitizeColumnKeys",
       },
     ],
@@ -399,7 +461,7 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
-        moduleObj: modalMigration,
+        moduleObj: m38,
         functionName: "migrateResizableModalWidgetProperties",
       },
     ],
@@ -408,7 +470,7 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
-        moduleObj: tableMigrations,
+        moduleObj: m39,
         functionName: "migrateTableWidgetSelectedRowBindings",
       },
     ],
@@ -417,7 +479,7 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
-        moduleObj: DSLMigrations,
+        moduleObj: m40,
         functionName: "revertButtonStyleToButtonColor",
       },
     ],
@@ -426,7 +488,7 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
-        moduleObj: DSLMigrations,
+        moduleObj: m41,
         functionName: "migrateButtonVariant",
       },
     ],
@@ -435,7 +497,7 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
-        moduleObj: mapWidgetMigration,
+        moduleObj: m42,
         functionName: "migrateMapWidgetIsClickedMarkerCentered",
       },
     ],
@@ -444,7 +506,7 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
-        moduleObj: DSLMigrations,
+        moduleObj: m43,
         functionName: "mapAllowHorizontalScrollMigration",
       },
     ],
@@ -453,7 +515,7 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
-        moduleObj: tableMigrations,
+        moduleObj: m44,
         functionName: "isSortableMigration",
       },
     ],
@@ -462,7 +524,7 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
-        moduleObj: tableMigrations,
+        moduleObj: m45,
         functionName: "migrateTableWidgetIconButtonVariant",
       },
     ],
@@ -471,7 +533,7 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
-        moduleObj: checkboxMigration,
+        moduleObj: m46,
         functionName: "migrateCheckboxGroupWidgetInlineProperty",
       },
     ],
@@ -489,7 +551,7 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
-        moduleObj: buttonWidgetMigrations,
+        moduleObj: m48,
         functionName: "migrateRecaptchaType",
       },
     ],
@@ -498,7 +560,7 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
-        moduleObj: DSLMigrations,
+        moduleObj: m49,
         functionName: "addPrivateWidgetsToAllListWidgets",
       },
     ],
@@ -516,7 +578,7 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
-        moduleObj: phoneInputMigration,
+        moduleObj: m51,
         functionName: "migratePhoneInputWidgetAllowFormatting",
       },
     ],
@@ -525,7 +587,7 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
-        moduleObj: modalMigration,
+        moduleObj: m52,
         functionName: "migrateModalIconButtonWidget",
       },
     ],
@@ -534,7 +596,7 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
-        moduleObj: TextStyleFromTextWidget,
+        moduleObj: m53,
         functionName: "migrateScrollTruncateProperties",
       },
     ],
@@ -543,7 +605,7 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
-        moduleObj: phoneInputMigration,
+        moduleObj: m54,
         functionName: "migratePhoneInputWidgetDefaultDialCode",
       },
     ],
@@ -552,7 +614,7 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
-        moduleObj: inputCurrencyMigration,
+        moduleObj: m55,
         functionName: "migrateCurrencyInputWidgetDefaultCurrencyCode",
       },
     ],
@@ -561,7 +623,7 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
-        moduleObj: radioGroupMigration,
+        moduleObj: m56,
         functionName: "migrateRadioGroupAlignmentProperty",
       },
     ],
@@ -570,7 +632,7 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
-        moduleObj: themingMigration,
+        moduleObj: m57,
         functionName: "migrateStylingPropertiesForTheming",
       },
     ],
@@ -579,7 +641,7 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
-        moduleObj: propertyPaneMigrations,
+        moduleObj: m58,
         functionName: "migrateCheckboxSwitchProperty",
       },
     ],
@@ -588,7 +650,7 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
-        moduleObj: chartWidgetReskinningMigrations,
+        moduleObj: m59,
         functionName: "migrateChartWidgetReskinningData",
       },
     ],
@@ -597,7 +659,7 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
-        moduleObj: tableMigrations,
+        moduleObj: m60,
         functionName: "migrateTableWidgetV2Validation",
       },
     ],
@@ -606,7 +668,7 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
-        moduleObj: chartWidgetReskinningMigrations,
+        moduleObj: m59,
         functionName: "migrateChartWidgetReskinningData",
       },
     ],
@@ -615,7 +677,7 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
-        moduleObj: selectWidgetMigration,
+        moduleObj: m62,
         functionName: "MigrateSelectTypeWidgetDefaultValue",
       },
     ],
@@ -624,7 +686,7 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
-        moduleObj: mapChartReskinningMigrations,
+        moduleObj: m63,
         functionName: "migrateMapChartWidgetReskinningData",
       },
     ],
@@ -633,7 +695,7 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
-        moduleObj: rateWidgetMigrations,
+        moduleObj: m64,
         functionName: "migrateRateWidgetDisabledState",
       },
     ],
@@ -642,7 +704,7 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
-        moduleObj: codeScannerWidgetMigrations,
+        moduleObj: m65,
         functionName: "migrateCodeScannerLayout",
       },
     ],
@@ -651,7 +713,7 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
-        moduleObj: tableMigrations,
+        moduleObj: m66,
         functionName: "migrateTableWidgetV2ValidationBinding",
       },
     ],
@@ -660,7 +722,7 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
-        moduleObj: migrateLabelPosition,
+        moduleObj: m67,
         functionName: "migrateLabelPosition",
       },
     ],
@@ -669,7 +731,7 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
-        moduleObj: migrateAutoHeight,
+        moduleObj: m68,
         functionName: "migratePropertiesForDynamicHeight",
       },
     ],
@@ -678,7 +740,7 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
-        moduleObj: menuButtonWidgetMigrations,
+        moduleObj: m69,
         functionName: "migrateMenuButtonDynamicItems",
       },
     ],
@@ -687,7 +749,7 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
-        moduleObj: themingMigration,
+        moduleObj: m70,
         functionName: "migrateChildStylesheetFromDynamicBindingPathList",
       },
     ],
@@ -696,7 +758,7 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
-        moduleObj: tableMigrations,
+        moduleObj: m71,
         functionName: "migrateTableWidgetV2SelectOption",
       },
     ],
@@ -705,7 +767,7 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
-        moduleObj: migrateAutoHeight,
+        moduleObj: m72,
         functionName: "migrateListWidgetChildrenForAutoHeight",
       },
     ],
@@ -714,7 +776,7 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
-        moduleObj: inputCurrencyMigration,
+        moduleObj: m73,
         functionName: "migrateInputWidgetShowStepArrows",
       },
     ],
@@ -723,7 +785,7 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
-        moduleObj: tableMigrations,
+        moduleObj: m74,
         functionName: "migrateMenuButtonDynamicItemsInsideTableWidget",
       },
     ],
@@ -732,7 +794,7 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
-        moduleObj: migrateAutoHeight,
+        moduleObj: m75,
         functionName: "migrateInputWidgetsMultiLineInputType",
       },
     ],
@@ -741,7 +803,7 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
-        moduleObj: tableMigrations,
+        moduleObj: m76,
         functionName: "migrateColumnFreezeAttributes",
       },
     ],
@@ -750,7 +812,7 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
-        moduleObj: tableMigrations,
+        moduleObj: m77,
         functionName: "migrateTableSelectOptionAttributesForNewRow",
       },
     ],
@@ -759,7 +821,7 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
-        moduleObj: tableMigrations,
+        moduleObj: m78,
         functionName:
           "migrateBindingPrefixSuffixForInlineEditValidationControl",
       },
@@ -769,7 +831,7 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
-        moduleObj: tableMigrations,
+        moduleObj: m79,
         functionName: "migrateTableWidgetTableDataJsMode",
       },
     ],
@@ -778,7 +840,7 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
-        moduleObj: selectWidgetMigration,
+        moduleObj: m80,
         functionName: "migrateSelectWidgetOptionToSourceData",
       },
     ],
@@ -787,7 +849,7 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
-        moduleObj: selectWidgetMigration,
+        moduleObj: m81,
         functionName: "migrateSelectWidgetSourceDataBindingPathList",
       },
     ],
@@ -796,7 +858,7 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
-        moduleObj: chartMigrations,
+        moduleObj: m82,
         functionName: "migrateChartWidgetLabelOrientationStaggerOption",
       },
     ],
@@ -805,7 +867,7 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
-        moduleObj: chartMigrations,
+        moduleObj: m83,
         functionName: "migrateAddShowHideDataPointLabels",
       },
     ],
@@ -814,7 +876,7 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
-        moduleObj: selectWidgetMigration,
+        moduleObj: m84,
         functionName: "migrateSelectWidgetAddSourceDataPropertyPathList",
       },
     ],
@@ -823,7 +885,7 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
-        moduleObj: chartMigrations,
+        moduleObj: m85,
         functionName: "migrateDefaultValuesForCustomEChart",
       },
     ],
@@ -832,7 +894,7 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
-        moduleObj: tableMigrations,
+        moduleObj: m86,
         functionName: "migrateTableServerSideFiltering",
       },
     ],
@@ -877,8 +939,8 @@ describe("Test all the migrations are running", () => {
   });
 
   // Runs all the migrations
-  transformDSL(
-    originalDSLForDSLMigrations as unknown as ContainerWidgetProps<WidgetProps>,
+  DSLMigrations.transformDSL(
+    originalDSLForDSLMigrations as unknown as DSLWidget,
   );
 
   migrations.forEach((item: any, testIdx: number) => {
@@ -924,6 +986,6 @@ describe("Test all the migrations are running", () => {
   });
 
   test("Check the migration count matches the lates page version", () => {
-    expect(migrations.length).toEqual(LATEST_PAGE_VERSION);
+    expect(migrations.length).toEqual(DSLMigrations.LATEST_DSL_VERSION);
   });
 });
