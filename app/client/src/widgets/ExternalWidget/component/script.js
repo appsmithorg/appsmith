@@ -1,7 +1,21 @@
 ((global) => {
   const modelSubscribers = [];
   const uiSubscribers = [];
+  const errors = [];
   let onReady;
+  const heightObserver = new ResizeObserver((entries) => {
+    const height = entries[0].contentRect.height;
+
+    global.parent.postMessage(
+      {
+        type: "UPDATE_HEIGHT",
+        data: {
+          height,
+        },
+      },
+      "*",
+    );
+  });
 
   global.addEventListener("message", (event) => {
     if (event.data.model) {
@@ -20,6 +34,8 @@
         global.appsmith.UIProvider.subscribe(
           generateAppsmithCssVariables("ui"),
         );
+
+        heightObserver.observe(global.document.body);
         break;
       case "MODEL_UPDATE":
         modelSubscribers.forEach((fn) => {
@@ -94,6 +110,10 @@
     ui: {},
     onReady: (fn) => {
       onReady = fn;
+    },
+    observeHeight: (element) => {
+      heightObserver.disconnect();
+      heightObserver.observe(element);
     },
   };
 

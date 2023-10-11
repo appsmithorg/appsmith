@@ -4,6 +4,9 @@ import styled from "styled-components";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 //@ts-ignore
 import script from "!!raw-loader!./script.js";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+//@ts-ignore
+import css from "!!raw-loader!./reset.css";
 
 const StyledIframe = styled.iframe`
   width: ${(props) => props.width}px;
@@ -38,6 +41,12 @@ function ExternalComponent(props: any) {
             },
             "*",
           );
+        } else if (message.type === "UPDATE_HEIGHT") {
+          const height = message.data.height;
+
+          if (height) {
+            iframe.current!.style.height = `${height}px`;
+          }
         }
       }
     };
@@ -78,14 +87,13 @@ function ExternalComponent(props: any) {
     <html>
       <head>
         <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+        <style>${css}</style>
       </head>
       <body>
         <script type="text/javascript">${script}</script>
         ${props.srcDoc.html}
-        <script type="text/babel"  data-presets="env,react">
-          appsmith.onReady(() => {
-            ${props.srcDoc.js}
-          });
+        <script type="text/babel"  data-presets="react" data-type="module">
+          ${props.srcDoc.js}
         </script>
         <style>${props.srcDoc.css}</style>
       </body>
@@ -101,7 +109,6 @@ function ExternalComponent(props: any) {
         srcDoc={srcDoc}
         width={props.width}
       />
-      ;
     </div>
   );
 }

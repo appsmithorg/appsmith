@@ -142,13 +142,6 @@ class WrappedCodeEditorControl extends BaseControl<WrappedCodeEditorControlProps
   };
 
   getComputedValue = (value: string) => {
-    if (
-      !isDynamicValue(value) &&
-      !this.props.additionalControlData?.isArrayValue
-    ) {
-      return value;
-    }
-
     const stringToEvaluate = stringToJS(value);
 
     if (stringToEvaluate === "") {

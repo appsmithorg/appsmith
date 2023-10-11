@@ -26,6 +26,15 @@ class ExternalWidget extends BaseWidget<ExternalWidgetProps, WidgetState> {
     };
   }
 
+  static getFeatures() {
+    return {
+      dynamicHeight: {
+        sectionIndex: 0,
+        active: true,
+      },
+    };
+  }
+
   static getDefaults() {
     return {
       widgetName: "External",
