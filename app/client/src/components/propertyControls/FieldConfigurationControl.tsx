@@ -113,7 +113,7 @@ class FieldConfigurationControl extends BaseControl<ControlProps, State> {
   addNewField = () => {
     if (this.isArrayItem()) return;
 
-    const { propertyValue = {}, propertyName, widgetProperties } = this.props;
+    const { propertyName, propertyValue = {}, widgetProperties } = this.props;
     const { childStylesheet, widgetName } =
       widgetProperties as JSONFormWidgetProps;
     const schema: Schema = propertyValue;
@@ -193,7 +193,7 @@ class FieldConfigurationControl extends BaseControl<ControlProps, State> {
   };
 
   render() {
-    const { propertyValue = {}, panelConfig } = this.props;
+    const { panelConfig, propertyValue = {} } = this.props;
     const schema: Schema = propertyValue;
     const schemaItems = Object.values(schema);
 

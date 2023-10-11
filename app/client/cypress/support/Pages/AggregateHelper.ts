@@ -1043,8 +1043,8 @@ export class AggregateHelper extends ReusableHelper {
 
   public ActionContextMenuWithInPane({
     action = "Delete",
-    subAction = "",
     entityType = EntityItems.JSObject,
+    subAction = "",
     toastToValidate = "",
   }: DeleteParams) {
     cy.get(this.locator._contextMenuInPane).click();

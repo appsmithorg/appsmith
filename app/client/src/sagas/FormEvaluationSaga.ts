@@ -270,9 +270,8 @@ function* formEvaluationChangeListenerSaga() {
         type: ReduxActionTypes.FORM_EVALUATION_EMPTY_BUFFER,
       });
     }
-    const action: ReduxAction<FormEvalActionPayload> = yield take(
-      formEvalChannel,
-    );
+    const action: ReduxAction<FormEvalActionPayload> =
+      yield take(formEvalChannel);
     yield call(setFormEvaluationSagaAsync, action);
   }
 }

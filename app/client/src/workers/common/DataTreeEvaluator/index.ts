@@ -650,15 +650,15 @@ export default class DataTreeEvaluator {
     },
   ) {
     const {
+      configTree,
       dependenciesOfRemovedPaths = [],
+      findDifferenceTime = "0",
+      isNewWidgetAdded,
+      pathsToSkipFromEval = [],
       removedPaths = [],
       totalUpdateTreeSetupStartTime = performance.now(),
       translatedDiffs = [],
-      pathsToSkipFromEval = [],
-      findDifferenceTime = "0",
       updateDependencyMapTime = "0",
-      configTree,
-      isNewWidgetAdded,
     } = extraParams;
 
     updateEvalTreeWithJSCollectionState(this.evalTree, this.oldUnEvalTree);

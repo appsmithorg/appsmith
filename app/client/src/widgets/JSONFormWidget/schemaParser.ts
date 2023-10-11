@@ -367,7 +367,7 @@ class SchemaParser {
    * @param schema Previous generated schema if present.
    */
   static parse = (widgetName: string, options: ParseOptions) => {
-    const { currSourceData, schema = {}, fieldThemeStylesheets } = options;
+    const { currSourceData, fieldThemeStylesheets, schema = {} } = options;
     if (!currSourceData)
       return { schema, modifiedSchemaItems: {}, removedSchemaItems: [] };
 
@@ -709,9 +709,9 @@ class SchemaParser {
   static convertObjectToSchema = ({
     baseSchemaPath,
     currSourceData,
-    removedSchemaItems,
     modifiedSchemaItems,
     prevSchema = {},
+    removedSchemaItems,
     sourceDataPath,
     ...rest
   }: Omit<ParserOptions, "identifier">): Schema => {

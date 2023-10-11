@@ -209,9 +209,8 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
       widgetId,
     } = resizeAction.payload;
 
-    const layoutSystemType: LayoutSystemTypes = yield select(
-      getLayoutSystemType,
-    );
+    const layoutSystemType: LayoutSystemTypes =
+      yield select(getLayoutSystemType);
     const mainCanvasWidth: number = yield select(getCanvasWidth);
     widget = {
       ...widget,
@@ -689,7 +688,7 @@ export function* getPropertiesUpdatedWidget(
 ) {
   const { dynamicUpdates, updates, widgetId } = updatesObj;
 
-  const { modify = {}, remove = [], postUpdateAction, triggerPaths } = updates;
+  const { modify = {}, postUpdateAction, remove = [], triggerPaths } = updates;
 
   const stateWidget: WidgetProps = yield select(getWidget, widgetId);
 
@@ -990,9 +989,8 @@ function* createSelectedWidgetsCopy(
  * @returns
  */
 function* copyWidgetSaga(action: ReduxAction<{ isShortcut: boolean }>) {
-  const allWidgets: { [widgetId: string]: FlattenedWidgetProps } = yield select(
-    getWidgets,
-  );
+  const allWidgets: { [widgetId: string]: FlattenedWidgetProps } =
+    yield select(getWidgets);
   const selectedWidgets: string[] = yield select(getSelectedWidgets);
   if (!selectedWidgets) {
     toast.show(createMessage(ERROR_WIDGET_COPY_NO_WIDGET_SELECTED), {
@@ -1834,9 +1832,8 @@ function* pasteWidgetSaga(
                   !flexLayers ||
                   flexLayers.length <= 0)
               ) {
-                const metaProps: Record<string, any> = yield select(
-                  getWidgetsMeta,
-                );
+                const metaProps: Record<string, any> =
+                  yield select(getWidgetsMeta);
                 if (widget.widgetId === widgetIdMap[copiedWidget.widgetId])
                   widgets = pasteWidgetInFlexLayers(
                     widgets,
@@ -1955,9 +1952,8 @@ function* pasteWidgetSaga(
 }
 
 function* cutWidgetSaga() {
-  const allWidgets: { [widgetId: string]: FlattenedWidgetProps } = yield select(
-    getWidgets,
-  );
+  const allWidgets: { [widgetId: string]: FlattenedWidgetProps } =
+    yield select(getWidgets);
   const selectedWidgets: string[] = yield select(getSelectedWidgets);
   if (!selectedWidgets) {
     toast.show(createMessage(ERROR_WIDGET_CUT_NO_WIDGET_SELECTED), {

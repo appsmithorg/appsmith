@@ -97,8 +97,9 @@ export const ACTION_PLUGIN_MAP: Array<ActionGroupConfig | undefined> = [
 ];
 
 export const getActionConfig = (type: PluginType) =>
-  ACTION_PLUGIN_MAP.find((configByType: ActionGroupConfig | undefined) =>
-    configByType?.types.includes(type),
+  ACTION_PLUGIN_MAP.find(
+    (configByType: ActionGroupConfig | undefined) =>
+      configByType?.types.includes(type),
   );
 
 export const useNewActionName = () => {

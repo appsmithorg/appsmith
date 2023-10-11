@@ -183,8 +183,8 @@ export const fetchGitStatusSuccess = (payload: GitStatusData) => ({
 });
 
 export const fetchGitRemoteStatusInit = ({
-  onSuccessCallback = noop,
   onErrorCallback = noop,
+  onSuccessCallback = noop,
 } = {}) => ({
   type: ReduxActionTypes.FETCH_GIT_REMOTE_STATUS_INIT,
   onSuccessCallback,

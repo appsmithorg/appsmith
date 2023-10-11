@@ -122,12 +122,12 @@ type BoundingRectTargets = Record<string, RefRectParams>;
 
 const WalkthroughRenderer = ({
   details,
-  offset,
-  targetId,
+  dismissOnOverlayClick,
   eventParams = {},
   multipleHighlights,
+  offset,
   overlayColor,
-  dismissOnOverlayClick,
+  targetId,
 }: FeatureParams) => {
   const [boundingRects, setBoundingRects] =
     useState<BoundingRectTargets | null>(null);

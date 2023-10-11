@@ -19,12 +19,12 @@ export function RecaptchaV2(props: RecaptchaV2Props) {
     props.handleRecaptchaV2Loading && props.handleRecaptchaV2Loading(isloading);
   };
   const {
-    isLoading,
     isDisabled,
-    recaptchaKey,
-    onRecaptchaSubmitSuccess,
-    onRecaptchaSubmitError = noop,
+    isLoading,
     onPress: onClickProp,
+    onRecaptchaSubmitError = noop,
+    onRecaptchaSubmitSuccess,
+    recaptchaKey,
   } = props;
   const onClick = () => {
     if (isDisabled) return onClickProp;

@@ -671,13 +671,11 @@ export const getSelectedWidgetWhenPasting = function* () {
   const { widgets: copiedWidgetGroups }: { widgets: CopiedWidgetGroup[] } =
     yield getCopiedWidgets();
 
-  let selectedWidget: FlattenedWidgetProps | undefined = yield select(
-    getSelectedWidget,
-  );
+  let selectedWidget: FlattenedWidgetProps | undefined =
+    yield select(getSelectedWidget);
 
-  const focusedWidget: FlattenedWidgetProps | undefined = yield select(
-    getFocusedWidget,
-  );
+  const focusedWidget: FlattenedWidgetProps | undefined =
+    yield select(getFocusedWidget);
 
   selectedWidget = getSelectedWidgetIfPastingIntoListWidget(
     canvasWidgets,
@@ -1490,9 +1488,8 @@ export function getNextWidgetName(
  * @returns
  */
 export function* createWidgetCopy(widget: FlattenedWidgetProps) {
-  const allWidgets: { [widgetId: string]: FlattenedWidgetProps } = yield select(
-    getWidgets,
-  );
+  const allWidgets: { [widgetId: string]: FlattenedWidgetProps } =
+    yield select(getWidgets);
   const widgetsToStore = getAllWidgetsInTree(widget.widgetId, allWidgets);
   return {
     widgetId: widget.widgetId,
