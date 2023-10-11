@@ -14,7 +14,7 @@ import type {
 import { HIGHLIGHT_SIZE } from "../../constants";
 import AlignedColumn from "layoutSystems/anvil/layoutComponents/components/AlignedColumn";
 import LayoutFactory from "layoutSystems/anvil/layoutComponents/LayoutFactory";
-import { getFinalVerticalDropZone, getVerticalDropZone } from "./common";
+import { getFinalVerticalDropZone, getVerticalDropZone } from "./dropZoneUtils";
 
 /**
  * @param layoutProps | LayoutProps
@@ -295,20 +295,10 @@ export function getHighlightsForLayoutAlignedColumn(
     // Extract information on current child layout.
     const { isDropTarget, layoutId, layoutType } = layout[index];
 
-    // Get current child layout component,
-    const Comp: LayoutComponent = LayoutFactory.get(layoutType);
-    if (!Comp) continue;
-    // Calculate highlights for the layout component.
-    const layoutHighlights: AnvilHighlightInfo[] = Comp.deriveHighlights(
-      layout[index],
-      widgetPositions,
-      canvasId,
-      draggedWidgets,
-      updatedOrder,
-    );
-
+    // Dimensions of the child layout.
     const { height, top } = widgetPositions[layoutId];
 
+    // Dimensions of neighboring layouts
     const prevLayoutDimensions: PositionData | undefined =
       index === 0 ? undefined : widgetPositions[layout[index - 1]?.layoutId];
     const nextLayoutDimensions: PositionData | undefined =
@@ -316,29 +306,40 @@ export function getHighlightsForLayoutAlignedColumn(
         ? undefined
         : widgetPositions[layout[index + 1]?.layoutId];
 
+    // Add a highlight for the drop zone above the child layout.
+    highlights.push(
+      ...generateAlignedHighlightList(
+        {
+          ...baseHighlight,
+          dropZone: getVerticalDropZone(
+            widgetPositions[layoutId],
+            prevLayoutDimensions,
+            nextLayoutDimensions,
+          ),
+          posY: Math.max(top - HIGHLIGHT_SIZE / 2, HIGHLIGHT_SIZE / 2),
+          rowIndex: index,
+        },
+        layoutWidth - HIGHLIGHT_SIZE / 2,
+        hasFillWidget,
+      ),
+    );
+
     /**
      * Add highlights for the child layout if it is not a drop target.
      * because if it is, then it can handle its own drag behavior.
      */
     if (!isDropTarget) {
-      // Add a highlight for the drop zone above the child layout.
-      highlights.push(
-        ...generateAlignedHighlightList(
-          {
-            ...baseHighlight,
-            dropZone: getVerticalDropZone(
-              widgetPositions[layoutId],
-              prevLayoutDimensions,
-              nextLayoutDimensions,
-            ),
-            posY: Math.max(top - HIGHLIGHT_SIZE / 2, HIGHLIGHT_SIZE / 2),
-            rowIndex: index,
-          },
-          layoutWidth - HIGHLIGHT_SIZE / 2,
-          hasFillWidget,
-        ),
+      // Get current child layout component,
+      const Comp: LayoutComponent = LayoutFactory.get(layoutType);
+      if (!Comp) continue;
+      // Calculate highlights for the layout component.
+      const layoutHighlights: AnvilHighlightInfo[] = Comp.deriveHighlights(
+        layout[index],
+        widgetPositions,
+        canvasId,
+        draggedWidgets,
+        updatedOrder,
       );
-
       highlights.push(...layoutHighlights);
     }
 

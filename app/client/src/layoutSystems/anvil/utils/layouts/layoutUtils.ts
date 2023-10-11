@@ -1,12 +1,13 @@
+/* eslint-disable no-console */
 import type {
   AnvilHighlightInfo,
   LayoutProps,
   WidgetLayoutProps,
 } from "../anvilTypes";
-import Row from "layoutSystems/anvil/layoutComponents/components/Row";
 import AlignedColumn from "layoutSystems/anvil/layoutComponents/components/AlignedColumn";
 import AlignedRow from "layoutSystems/anvil/layoutComponents/components/AlignedRow";
 import Column from "layoutSystems/anvil/layoutComponents/components/Column";
+import Row from "layoutSystems/anvil/layoutComponents/components/Row";
 import LayoutFactory from "layoutSystems/anvil/layoutComponents/LayoutFactory";
 import { isWidgetLayoutProps } from "./typeUtils";
 

@@ -431,7 +431,7 @@ describe("rowHighlights tests", () => {
        *  Input (I1)
        */
       const layoutOne: LayoutComponentProps = generateLayoutComponentMock({
-        isDropTarget: true,
+        isDropTarget: false,
       });
       const button1: string = (layoutOne.layout[0] as WidgetLayoutProps)
         .widgetId;
@@ -445,7 +445,7 @@ describe("rowHighlights tests", () => {
        *  Input (I2)
        */
       const layoutTwo: LayoutComponentProps = generateLayoutComponentMock({
-        isDropTarget: true,
+        isDropTarget: false,
       });
       const button2: string = (layoutTwo.layout[0] as WidgetLayoutProps)
         .widgetId;
@@ -460,7 +460,7 @@ describe("rowHighlights tests", () => {
        */
       const layout: LayoutComponentProps = generateLayoutComponentMock(
         {
-          isDropTarget: false,
+          isDropTarget: true,
           layout: [layoutOne, layoutTwo],
         },
         false,
@@ -475,6 +475,7 @@ describe("rowHighlights tests", () => {
         [layoutTwo.layoutId]: { height: 100, left: 510, top: 10, width: 500 },
         [button2]: { height: 40, left: 10, top: 10, width: 100 },
         [input2]: { height: 100, left: 60, top: 10, width: 430 },
+        [layout.layoutId]: { height: 100, left: 0, top: 0, width: 1020 },
       };
       const res: AnvilHighlightInfo[] = deriveRowHighlights(
         layout,
@@ -488,8 +489,8 @@ describe("rowHighlights tests", () => {
        * Each row has 2 widgets => 3 highlights each.
        */
       expect(res).toBeDefined();
-      expect(res.length).toBe(6);
-      expect(res[0].layoutOrder[1]).toEqual(layoutOne.layoutId);
+      expect(res.length).toBe(9);
+      expect(res[1].layoutOrder[1]).toEqual(layoutOne.layoutId);
       expect(res[5].layoutOrder[1]).toEqual(layoutTwo.layoutId);
     });
     it("should discount dragged child widgets in highlights calculation", () => {

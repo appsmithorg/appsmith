@@ -11,7 +11,10 @@ import type {
 import { HIGHLIGHT_SIZE } from "../../constants";
 import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
 import LayoutFactory from "layoutSystems/anvil/layoutComponents/LayoutFactory";
-import { getFinalHorizontalDropZone, getHorizontalDropZone } from "./common";
+import {
+  getFinalHorizontalDropZone,
+  getHorizontalDropZone,
+} from "./dropZoneUtils";
 
 export interface RowMetaInformation {
   metaData: RowMetaData[][];
@@ -68,6 +71,7 @@ export function deriveRowHighlights(
     return getHighlightsForLayoutRow(
       layoutProps,
       widgetPositions,
+      baseHighlight,
       canvasId,
       draggedWidgets,
       layoutOrder,
@@ -312,6 +316,7 @@ export function getInitialHighlight(
  * Calculate highlights for each child layout and combine them together.
  * @param layoutProps | LayoutProps
  * @param widgetPositions | WidgetPositions
+ * @param baseHighlight | AnvilHighlightInfo
  * @param canvasId | string
  * @param layoutOrder |string[] : Top - down hierarchy of parent layouts.
  * @returns AnvilHighlightInfo[] : List of highlights
@@ -319,6 +324,7 @@ export function getInitialHighlight(
 export function getHighlightsForLayoutRow(
   layoutProps: LayoutProps,
   widgetPositions: WidgetPositions,
+  baseHighlight: AnvilHighlightInfo,
   canvasId: string,
   draggedWidgets: DraggedWidget[],
   layoutOrder: string[],
@@ -326,18 +332,76 @@ export function getHighlightsForLayoutRow(
   const highlights: AnvilHighlightInfo[] = [];
   const layout: LayoutProps[] = layoutProps.layout as LayoutProps[];
   const updatedOrder: string[] = [...layoutOrder, layoutProps.layoutId];
-  for (const each of layout) {
-    const Comp: LayoutComponent = LayoutFactory.get(each.layoutType);
-    if (!Comp) continue;
-    highlights.push(
-      ...Comp.deriveHighlights(
-        each,
+  const { width: layoutWidth } = widgetPositions[layoutProps.layoutId];
+
+  let index = 0;
+  // Loop over each child layout
+  while (index < layout.length) {
+    // Extract information on current child layout.
+    const { isDropTarget, layoutId, layoutType } = layout[index];
+
+    // Dimensions of the child layout.
+    const { height, left, width } = widgetPositions[layoutId];
+
+    // Dimensions of neighboring layouts
+    const prevLayoutDimensions: PositionData | undefined =
+      index === 0 ? undefined : widgetPositions[layout[index - 1]?.layoutId];
+    const nextLayoutDimensions: PositionData | undefined =
+      index === layout.length - 1
+        ? undefined
+        : widgetPositions[layout[index + 1]?.layoutId];
+
+    // Add a highlight before the child layout
+    highlights.push({
+      ...baseHighlight,
+      dropZone: getHorizontalDropZone(
+        widgetPositions[layoutId],
+        prevLayoutDimensions,
+        nextLayoutDimensions,
+      ),
+      height,
+      posX: Math.max(left - HIGHLIGHT_SIZE / 2, HIGHLIGHT_SIZE / 2),
+      rowIndex: index,
+    });
+
+    /**
+     * Add highlights of the child layout if it is not a drop target.
+     * because if it is, then it can handle its own drag behavior.
+     */
+    if (!isDropTarget) {
+      // Get current child layout component,
+      const Comp: LayoutComponent = LayoutFactory.get(layoutType);
+      if (!Comp) continue;
+      // Calculate highlights for the layout component.
+      const layoutHighlights: AnvilHighlightInfo[] = Comp.deriveHighlights(
+        layout[index],
         widgetPositions,
         canvasId,
         draggedWidgets,
         updatedOrder,
-      ),
-    );
+      );
+
+      highlights.push(...layoutHighlights);
+    }
+
+    index += 1;
+
+    if (index === layout.length) {
+      // Add a highlight for the drop zone below the child layout.
+      highlights.push({
+        ...baseHighlight,
+        dropZone: getFinalHorizontalDropZone(
+          widgetPositions[layoutId],
+          widgetPositions[layoutProps.layoutId],
+        ),
+        height,
+        posX: Math.min(
+          left + width + HIGHLIGHT_SIZE / 2,
+          layoutWidth - HIGHLIGHT_SIZE / 2,
+        ),
+        rowIndex: index,
+      });
+    }
   }
   return highlights;
 }
