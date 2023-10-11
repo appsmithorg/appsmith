@@ -15,9 +15,9 @@ import { SubtractIcon } from "./icons/SubtractIcon";
 import { Icon as HeadlessIcon } from "../../Icon";
 import type { CheckboxGroupContextType } from "./context";
 
-export type InlineLabelProps = {
+export interface InlineLabelProps {
   labelPosition?: "left" | "right";
-};
+}
 
 export interface CheckboxProps
   extends Omit<SpectrumCheckboxProps, keyof StyleProps>,

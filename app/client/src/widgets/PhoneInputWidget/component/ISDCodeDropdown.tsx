@@ -10,10 +10,10 @@ import { Classes } from "@blueprintjs/core";
 import { lightenColor } from "widgets/WidgetUtils";
 import { CANVAS_ART_BOARD } from "constants/componentClassNameConstants";
 
-type DropdownTriggerIconWrapperProp = {
+interface DropdownTriggerIconWrapperProp {
   allowDialCodeChange: boolean;
   disabled?: boolean;
-};
+}
 
 const DropdownTriggerIconWrapper = styled.button<DropdownTriggerIconWrapperProp>`
   height: 100%;

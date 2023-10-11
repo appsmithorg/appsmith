@@ -49,7 +49,7 @@ import {
 } from "actions/autoLayoutActions";
 import { updateOneClickBindingOptionsVisibility } from "actions/oneClickBindingActions";
 
-export type EditorContextType<TCache = unknown> = {
+export interface EditorContextType<TCache = unknown> {
   executeAction?: (triggerPayload: ExecuteTriggerPayload) => void;
   updateWidget?: (
     operation: WidgetOperation,
@@ -99,7 +99,7 @@ export type EditorContextType<TCache = unknown> = {
   selectWidgetRequest?: WidgetSelectionRequest;
   updatePositionsOnTabChange?: (widgetId: string, selectedTab: string) => void;
   updateOneClickBindingOptionsVisibility?: (visibility: boolean) => void;
-};
+}
 export const EditorContext: Context<EditorContextType> = createContext({});
 
 type EditorContextProviderProps = EditorContextType & {

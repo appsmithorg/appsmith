@@ -1,4 +1,4 @@
-export type AdditionalAutoLayoutProperties = {
+export interface AdditionalAutoLayoutProperties {
   parentColumnSpace: number;
   parentRowSpace: number;
-};
+}

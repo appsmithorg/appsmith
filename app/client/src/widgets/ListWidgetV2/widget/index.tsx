@@ -81,16 +81,16 @@ export type MetaWidget<TProps = void> = TProps extends void
   ? BaseMetaWidget
   : TProps & BaseMetaWidget;
 
-export type LevelData = {
+export interface LevelData {
   [level: string]: {
     currentIndex: number;
     currentItem: string;
     currentRowCache: LevelDataRowCache;
     autocomplete: Record<string, unknown>;
   };
-};
+}
 
-export type MetaWidgetCacheProps = {
+export interface MetaWidgetCacheProps {
   entityDefinition: string;
   metaWidgetId: string;
   metaWidgetName: string;
@@ -103,7 +103,7 @@ export type MetaWidgetCacheProps = {
   type: string;
   viewIndex: number;
   prevViewIndex?: number;
-};
+}
 
 type LevelDataMetaWidgetCacheProps = Omit<
   MetaWidgetCacheProps,
@@ -114,9 +114,9 @@ export type MetaWidgetRowCache = Record<string, MetaWidgetCacheProps>;
 
 type LevelDataRowCache = Record<string, LevelDataMetaWidgetCacheProps>;
 
-export type MetaWidgetCache = {
+export interface MetaWidgetCache {
   [key: string]: MetaWidgetRowCache | undefined;
-};
+}
 
 type ExtendedCanvasWidgetStructure = CanvasWidgetStructure & {
   canExtend?: boolean;
@@ -124,12 +124,12 @@ type ExtendedCanvasWidgetStructure = CanvasWidgetStructure & {
   isListWidgetCanvas?: boolean;
 };
 
-type RenderChildrenOption = {
+interface RenderChildrenOption {
   componentWidth: number;
   parentColumnSpace: number;
   selectedItemKey?: string | null;
   startIndex: number;
-};
+}
 
 const LIST_WIDGET_PAGINATION_HEIGHT = 36;
 const EMPTY_BINDING = "{{{}}}";

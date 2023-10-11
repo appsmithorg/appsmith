@@ -36,17 +36,17 @@ const baseURLRegistry = {
   },
 };
 
-export type ApplicationURLParams = {
+export interface ApplicationURLParams {
   applicationId?: string;
   applicationSlug?: string;
   applicationVersion?: ApplicationVersion;
-};
+}
 
-export type PageURLParams = {
+export interface PageURLParams {
   pageId: string;
   pageSlug: string;
   customSlug?: string;
-};
+}
 
 const fetchQueryParamsToPersist = (persistExistingParams: boolean) => {
   const existingParams = getQueryParamsObject() || {};

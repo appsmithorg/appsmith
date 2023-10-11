@@ -1,7 +1,7 @@
-export type AnvilReduxAction<T> = {
+export interface AnvilReduxAction<T> {
   type: AnvilReduxActionTypes;
   payload: T;
-};
+}
 
 export enum AnvilReduxActionTypes {
   READ_WIDGET_POSITIONS = "READ_WIDGET_POSITIONS",

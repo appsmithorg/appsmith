@@ -61,7 +61,7 @@ import {
 import { isGACEnabled } from "@appsmith/utils/planHelpers";
 import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 
-type ReduxStateProps = {
+interface ReduxStateProps {
   workspaceId: string;
   currentEnvironment: string;
   datasource: EmbeddedRestDatasource;
@@ -73,11 +73,11 @@ type ReduxStateProps = {
   formName: string;
   userWorkspacePermissions: string[];
   isFeatureEnabled: boolean;
-};
+}
 
-type ReduxDispatchProps = {
+interface ReduxDispatchProps {
   updateDatasource: (datasource: EmbeddedRestDatasource) => void;
-};
+}
 
 type Props = EditorProps &
   ReduxStateProps &

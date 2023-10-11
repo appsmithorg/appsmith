@@ -306,10 +306,10 @@ export function* invitedUserSignupSaga(
   }
 }
 
-type InviteUserPayload = {
+interface InviteUserPayload {
   email: string;
   permissionGroupId: string;
-};
+}
 
 export function* inviteUser(payload: InviteUserPayload, reject: any) {
   const response: ApiResponse = yield callAPI(UserApi.inviteUser, payload);

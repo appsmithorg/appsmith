@@ -356,10 +356,10 @@ enum DynamicPathUpdateEffectEnum {
   NOOP = "NOOP",
 }
 
-type DynamicPathUpdate = {
+interface DynamicPathUpdate {
   propertyPath: string;
   effect: DynamicPathUpdateEffectEnum;
-};
+}
 
 function getDynamicTriggerPathListUpdate(
   widget: WidgetProps,

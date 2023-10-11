@@ -22,14 +22,14 @@ const StyledContainer = styled.div<ContainerProps>`
   }
 `;
 
-type ContainerProps = {
+interface ContainerProps {
   children?: React.ReactNode;
   renderMode?: RenderMode;
   showInAllModes?: boolean;
   minWidth?: number;
   maxWidth?: number;
   minHeight?: number;
-};
+}
 
 export function Container(props: ContainerProps) {
   const { children, ...rest } = props;

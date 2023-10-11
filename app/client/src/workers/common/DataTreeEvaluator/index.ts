@@ -128,9 +128,9 @@ import DataStore from "workers/Evaluation/dataStore";
 import { updateTreeWithData } from "workers/Evaluation/dataStore/utils";
 
 type SortedDependencies = Array<string>;
-export type EvalProps = {
+export interface EvalProps {
   [entityName: string]: DataTreeEvaluationProps;
-};
+}
 
 export type EvalPathsIdenticalToState = Record<string, string>;
 export default class DataTreeEvaluator {

@@ -5,21 +5,21 @@ import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { isEmpty, isEqual, xorWith } from "lodash";
 
-export type ParsedJSSubAction = {
+export interface ParsedJSSubAction {
   name: string;
   body: string;
   arguments: Array<Variable>;
-};
+}
 
-export type ParsedBody = {
+export interface ParsedBody {
   actions: Array<ParsedJSSubAction>;
   variables: Array<Variable>;
-};
+}
 
-export type JSUpdate = {
+export interface JSUpdate {
   id: string;
   parsedBody: ParsedBody | undefined;
-};
+}
 
 export const getDifferenceInJSArgumentArrays = (x: any, y: any) =>
   isEmpty(xorWith(x, y, isEqual));

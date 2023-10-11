@@ -69,13 +69,13 @@ export interface CopiedWidgetGroup {
   list: WidgetProps[];
 }
 
-export type NewPastePositionVariables = {
+export interface NewPastePositionVariables {
   bottomMostRow?: number;
   gridProps?: GridProps;
   newPastingPositionMap?: SpaceMap;
   reflowedMovementMap?: ReflowedSpaceMap;
   canvasId?: string;
-};
+}
 
 export const WIDGET_PASTE_PADDING = 1;
 
@@ -345,11 +345,11 @@ function sortWidgetsMetaByParent(widgetsMeta: MetaState, parentId: string) {
   );
 }
 
-export type DescendantWidgetMap = {
+export interface DescendantWidgetMap {
   id: string;
   // To accomodate metaWidgets which might not be present on the evalTree, evaluatedWidget might be undefined
   evaluatedWidget: WidgetEntity | undefined;
-};
+}
 
 /**
  * As part of widget's descendant, we add both children and metaWidgets.

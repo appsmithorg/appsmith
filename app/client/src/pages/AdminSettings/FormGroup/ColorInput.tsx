@@ -78,7 +78,7 @@ const StyledText = styled(Text)`
   font-weight: 500;
 `;
 
-type ColorInputProps = {
+interface ColorInputProps {
   value: Record<brandColorsKeys, string>;
   onChange?: (value: any) => void;
   className?: string;
@@ -86,7 +86,7 @@ type ColorInputProps = {
   filter?: (key: brandColorsKeys) => boolean;
   defaultValue?: Record<brandColorsKeys, string>;
   logEvent?: (property: string) => void;
-};
+}
 
 const LeftIcon = (
   props: Omit<ColorInputProps, "value"> & { value: string },

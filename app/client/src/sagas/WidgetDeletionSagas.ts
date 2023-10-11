@@ -51,13 +51,13 @@ import { updateFlexLayersOnDelete } from "../layoutSystems/autolayout/utils/Auto
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
-type WidgetDeleteTabChild = {
+interface WidgetDeleteTabChild {
   id: string;
   index: number;
   isVisible: boolean;
   label: string;
   widgetId: string;
-};
+}
 
 function* deleteTabChildSaga(
   deleteChildTabAction: ReduxAction<WidgetDeleteTabChild>,

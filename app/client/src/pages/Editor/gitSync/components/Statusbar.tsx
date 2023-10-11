@@ -2,12 +2,12 @@ import React, { useEffect, useState } from "react";
 import { Statusbar } from "design-system-old";
 import styled from "styled-components";
 
-type StatusbarProps = {
+interface StatusbarProps {
   completed: boolean;
   message?: string;
   period: number; // as seconds
   onHide?: () => void;
-};
+}
 
 export const StatusbarWrapper = styled.div`
   width: 252px;
