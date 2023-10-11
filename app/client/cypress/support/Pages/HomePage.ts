@@ -1,6 +1,7 @@
 import { ObjectsRegistry } from "../Objects/Registry";
 import { REPO, CURRENT_REPO } from "../../fixtures/REPO";
 import HomePageLocators from "../../locators/HomePage";
+import SignupPageLocators from "../../locators/SignupPage";
 export class HomePage {
   private agHelper = ObjectsRegistry.AggregateHelper;
   private locator = ObjectsRegistry.CommonLocators;
@@ -54,7 +55,7 @@ export class HomePage {
   private _homeAppsmithImage = "a.t--appsmith-logo";
   _appContainer = ".t--applications-container";
   _homePageAppCreateBtn = this._appContainer + " .createnew";
-  private _existingWorkspaceCreateNewApp = (existingWorkspaceName: string) =>
+  _existingWorkspaceCreateNewApp = (existingWorkspaceName: string) =>
     `//span[text()='${existingWorkspaceName}']/ancestor::div[contains(@class, 't--workspace-section')]//button[contains(@class, 't--new-button')]`;
   _applicationName = ".t--application-name";
   private _editAppName = "bp3-editable-text-editing";
@@ -83,7 +84,7 @@ export class HomePage {
   private _uploadFile = "//div/form/input";
   private _importSuccessModal = ".t--import-app-success-modal";
   private _forkModal = ".fork-modal";
-  private _appCard = (applicationName: string) =>
+  public _appCard = (applicationName: string) =>
     "//span[text()='" +
     applicationName +
     "']/ancestor::div[contains(@class, 't--application-card')]";
@@ -118,6 +119,10 @@ export class HomePage {
   private useCaseDropdown = ".setup-dropdown:last";
   private dropdownOption = ".rc-select-item-option:first";
   private roleUsecaseSubmit = ".t--get-started-button";
+  _multipleSelectedApplication = ".t--application-card-selected";
+  private _applicationEditedText = (applicationName: string) =>
+    this._appCard(applicationName) +
+    "//div[contains(@class, 't--application-edited-text')]";
 
   public SwitchToAppsTab() {
     this.agHelper.GetNClick(this._homeTab);
@@ -353,9 +358,6 @@ export class HomePage {
   }
 
   public SignUp(uname: string, pswd: string) {
-    this.agHelper.Sleep(); //waiting for window to load
-    cy.window().its("store").invoke("dispatch", { type: "LOGOUT_USER_INIT" });
-    cy.wait("@postLogout");
     this.agHelper.VisitNAssert("/user/signup", "signUpLogin");
     this.agHelper.AssertElementVisibility(this.signupUsername);
     this.agHelper.TypeText(this.signupUsername, uname);
@@ -363,9 +365,8 @@ export class HomePage {
     this.agHelper.GetNClick(this._submitBtn);
     this.agHelper.Sleep(1000);
     cy.get("body").then(($body) => {
-      if ($body.find(this.roleDropdown).length > 0) {
-        this.agHelper.GetNClick(this.roleDropdown);
-        this.agHelper.GetNClick(this.dropdownOption);
+      if ($body.find(SignupPageLocators.proficiencyGroupButton).length > 0) {
+        this.agHelper.GetNClick(SignupPageLocators.proficiencyGroupButton);
         this.agHelper.GetNClick(this.useCaseDropdown);
         this.agHelper.GetNClick(this.dropdownOption);
         this.agHelper.GetNClick(this.roleUsecaseSubmit, undefined, true);
@@ -490,13 +491,21 @@ export class HomePage {
     this.NavigateToHome();
   }
 
-  public ImportApp(fixtureJson: string, intoWorkspaceName = "") {
-    cy.get(this._homeIcon).click({ force: true });
-    if (intoWorkspaceName)
-      this.agHelper.GetNClick(this._optionsIconInWorkspace(intoWorkspaceName));
-    else this.agHelper.GetNClick(this._optionsIcon);
-    this.agHelper.GetNClick(this._workspaceImport, 0, true);
-    this.agHelper.AssertElementVisibility(this._workspaceImportAppModal);
+  public ImportApp(
+    fixtureJson: string,
+    intoWorkspaceName = "",
+    onlyImport = false,
+  ) {
+    if (onlyImport === false) {
+      cy.get(this._homeIcon).click({ force: true });
+      if (intoWorkspaceName)
+        this.agHelper.GetNClick(
+          this._optionsIconInWorkspace(intoWorkspaceName),
+        );
+      else this.agHelper.GetNClick(this._optionsIcon);
+      this.agHelper.GetNClick(this._workspaceImport, 0, true);
+      this.agHelper.AssertElementVisibility(this._workspaceImportAppModal);
+    }
     cy.xpath(this._uploadFile).selectFile("cypress/fixtures/" + fixtureJson, {
       force: true,
     });
@@ -614,6 +623,17 @@ export class HomePage {
     this.agHelper.WaitUntilToastDisappear("Deleting application...");
   }
 
+  public DeleteAppviaAPI(appId: any) {
+    cy.request({
+      method: "DELETE",
+      url: "api/v1/applications/" + appId,
+      failOnStatusCode: false,
+      headers: {
+        "X-Requested-By": "Appsmith",
+      },
+    });
+  }
+
   //Maps to leaveworkspace in command.js
   public LeaveWorkspace(workspaceName: string) {
     this.OpenWorkspaceOptions(workspaceName);
@@ -633,5 +653,16 @@ export class HomePage {
         this.NavigateToHome();
       }
     });
+  }
+
+  public SelectMultipleApplicationToDelete(applicationName: string) {
+    this.agHelper.GetNClick(
+      this._applicationEditedText(applicationName),
+      0,
+      false,
+      500,
+      false,
+      true,
+    );
   }
 }

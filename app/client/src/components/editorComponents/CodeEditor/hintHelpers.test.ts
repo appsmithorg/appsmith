@@ -1,23 +1,23 @@
-import { bindingHint } from "components/editorComponents/CodeEditor/hintHelpers";
+import { bindingHintHelper } from "components/editorComponents/CodeEditor/hintHelpers";
 import { MockCodemirrorEditor } from "../../../../test/__mocks__/CodeMirrorEditorMock";
 
 describe("hint helpers", () => {
   describe("binding hint helper", () => {
     it("is initialized correctly", () => {
       // @ts-expect-error: Types are not available
-      const helper = bindingHint(MockCodemirrorEditor, {});
+      const helper = bindingHintHelper(MockCodemirrorEditor, {});
       expect(MockCodemirrorEditor.setOption).toBeCalled();
       expect(helper).toHaveProperty("showHint");
     });
 
     it("opens hint correctly", () => {
       // Setup
-      type Case = {
+      interface Case {
         value: string;
         cursor: { ch: number; line: number };
         toCall: "closeHint" | "showHint";
         getLine?: string[];
-      };
+      }
       const cases: Case[] = [
         { value: "ABC", cursor: { ch: 3, line: 0 }, toCall: "closeHint" },
         { value: "{{ }}", cursor: { ch: 3, line: 0 }, toCall: "showHint" },
@@ -67,7 +67,7 @@ describe("hint helpers", () => {
       // Test
       cases.forEach(() => {
         // @ts-expect-error: Types are not available
-        const helper = bindingHint(MockCodemirrorEditor, {});
+        const helper = bindingHintHelper(MockCodemirrorEditor, {});
         // @ts-expect-error: Types are not available
         helper.showHint(MockCodemirrorEditor);
       });

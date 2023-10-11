@@ -5,9 +5,12 @@ import {
   homePage,
   assertHelper,
   inviteModal,
+  onboarding,
 } from "../../../../support/Objects/ObjectsCore";
 
 import { REPO, CURRENT_REPO } from "../../../../fixtures/REPO";
+import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
+const appNavigationLocators = require("../../../../locators/AppNavigation.json");
 
 describe("Create new workspace and share with a user", function () {
   let workspaceId: string, appid: string, currentUrl: any;
@@ -15,6 +18,10 @@ describe("Create new workspace and share with a user", function () {
   it("1. Create workspace and then share with a user from Application share option within application", function () {
     homePage.NavigateToHome();
     agHelper.Sleep(2000);
+
+    featureFlagIntercept({ license_gac_enabled: true });
+    agHelper.Sleep(2000);
+
     agHelper.GenerateUUID();
     agHelper.GetElement("@guid").then((uid) => {
       workspaceId = "shareApp" + uid;
@@ -37,7 +44,10 @@ describe("Create new workspace and share with a user", function () {
       Cypress.env("TESTPASSWORD1"),
       "App Viewer",
     );
-    homePage.FilterApplication(appid);
+    featureFlagIntercept({ license_gac_enabled: true });
+    agHelper.Sleep(3000);
+
+    homePage.FilterApplication(appid, workspaceId, false);
     // // eslint-disable-next-line cypress/no-unnecessary-waiting
     agHelper.Sleep(2000);
     agHelper.GetNAssertContains(homePage._appContainer, workspaceId);
@@ -85,6 +95,12 @@ describe("Create new workspace and share with a user", function () {
     });
     // comment toggle should not exist for anonymous users
     agHelper.AssertElementAbsence(homePage._modeSwitchToggle);
+    cy.get(
+      `${appNavigationLocators.header} ${appNavigationLocators.shareButton}`,
+    )
+      .click()
+      .wait(1000);
+    agHelper.ClickButton("Copy application url");
   });
 
   it("5. login as uninvited user and then validate public access of Application", function () {
@@ -96,6 +112,12 @@ describe("Create new workspace and share with a user", function () {
     agHelper.GetText(locators._emptyPageTxt).then((text) => {
       expect(text).to.equal("This page seems to be blank");
     });
+    cy.get(
+      `${appNavigationLocators.header} ${appNavigationLocators.shareButton}`,
+    )
+      .click()
+      .wait(1000);
+    agHelper.ClickButton("Copy application url");
     homePage.LogOutviaAPI();
   });
 
@@ -127,5 +149,23 @@ describe("Create new workspace and share with a user", function () {
     agHelper.VisitNAssert(currentUrl);
     assertHelper.AssertNetworkStatus("@getPagesForViewApp", 404);
     agHelper.AssertContains("Sign in to your account", "be.visible");
+  });
+
+  it("8. Show partner program callout when invited user is from a different domain", function () {
+    if (CURRENT_REPO === REPO.CE) {
+      agHelper.GenerateUUID();
+      cy.get("@guid").then((uid) => {
+        homePage.SignUp(`${uid}@appsmithtest.com`, uid as unknown as string);
+        onboarding.closeIntroModal();
+
+        inviteModal.OpenShareModal();
+        homePage.InviteUserToApplication(`${uid}@appsmith.com`, "App Viewer");
+      });
+      agHelper.AssertElementVisibility(
+        `[data-testid="partner-program-callout"]`,
+      );
+
+      homePage.Signout();
+    }
   });
 });

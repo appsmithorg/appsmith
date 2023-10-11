@@ -4,7 +4,10 @@ set -e
 
 stacks_path=/appsmith-stacks
 
+export SUPERVISORD_CONF_TARGET="$TMP/supervisor-conf.d/"  # export for use in supervisord.conf
 export MONGODB_TMP_KEY_PATH="$TMP/mongodb-key"  # export for use in supervisor process mongodb.conf
+
+mkdir -pv "$SUPERVISORD_CONF_TARGET" "$NGINX_WWW_PATH"
 
 # ip is a reserved keyword for tracking events in Mixpanel. Instead of showing the ip as is Mixpanel provides derived properties.
 # As we want derived props alongwith the ip address we are sharing the ip address in separate keys
@@ -65,7 +68,7 @@ init_env_file() {
   TEMPLATES_PATH="/opt/appsmith/templates"
 
   # Build an env file with current env variables. We single-quote the values, as well as escaping any single-quote characters.
-  printenv | grep -E '^APPSMITH_|^MONGO_' | sed "s/'/'\"'\"'/; s/=/='/; s/$/'/" > "$TEMPLATES_PATH/pre-define.env"
+  printenv | grep -E '^APPSMITH_|^MONGO_' | sed "s/'/'\\\''/g; s/=/='/; s/$/'/" > "$TEMPLATES_PATH/pre-define.env"
 
   echo "Initialize .env file"
   if ! [[ -e "$ENV_PATH" ]]; then
@@ -252,6 +255,7 @@ is_empty_directory() {
 }
 
 check_setup_custom_ca_certificates() {
+  # old, deprecated, should be removed.
   local stacks_ca_certs_path
   stacks_ca_certs_path="$stacks_path/ca-certs"
 
@@ -276,57 +280,96 @@ check_setup_custom_ca_certificates() {
 
   fi
 
-  if [[ -n "$(ls "$stacks_ca_certs_path"/*.pem 2>/dev/null)" ]]; then
-    echo "Looks like you have some '.pem' files in your 'ca-certs' folder. Please rename them to '.crt' to be picked up autatically.".
-  fi
-
   update-ca-certificates --fresh
 }
 
-configure_supervisord() {
-  SUPERVISORD_CONF_PATH="/opt/appsmith/templates/supervisord"
-  if [[ -n "$(ls -A /etc/supervisor/conf.d)" ]]; then
-    rm -f "/etc/supervisor/conf.d/"*
+setup-custom-ca-certificates() (
+  local stacks_ca_certs_path="$stacks_path/ca-certs"
+  local store="$TMP/cacerts"
+  local opts_file="$TMP/java-cacerts-opts"
+
+  rm -f "$store" "$opts_file"
+
+  if [[ -n "$(ls "$stacks_ca_certs_path"/*.pem 2>/dev/null)" ]]; then
+    echo "Looks like you have some '.pem' files in your 'ca-certs' folder. Please rename them to '.crt' to be picked up automatically.".
   fi
 
-  cp -f "$SUPERVISORD_CONF_PATH/application_process/"*.conf /etc/supervisor/conf.d
+  if ! [[ -d "$stacks_ca_certs_path" && "$(find "$stacks_ca_certs_path" -maxdepth 1 -type f -name '*.crt' | wc -l)" -gt 0 ]]; then
+    echo "No custom CA certificates found."
+    return
+  fi
+
+  # Import the system CA certificates into the store.
+  keytool -importkeystore \
+    -srckeystore /opt/java/lib/security/cacerts \
+    -destkeystore "$store" \
+    -srcstorepass changeit \
+    -deststorepass changeit
+
+  # Add the custom CA certificates to the store.
+  find "$stacks_ca_certs_path" -maxdepth 1 -type f -name '*.crt' \
+    -exec keytool -import -noprompt -keystore "$store" -file '{}' -storepass changeit ';'
+
+  {
+    echo "-Djavax.net.ssl.trustStore=$store"
+    echo "-Djavax.net.ssl.trustStorePassword=changeit"
+  } > "$opts_file"
+
+  # Get certbot to use the combined trusted CA certs file.
+  export REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
+)
+
+configure_supervisord() {
+  local supervisord_conf_source="/opt/appsmith/templates/supervisord"
+  if [[ -n "$(ls -A "$SUPERVISORD_CONF_TARGET")" ]]; then
+    rm -f "$SUPERVISORD_CONF_TARGET"/*
+  fi
+
+  cp -f "$supervisord_conf_source"/application_process/*.conf "$SUPERVISORD_CONF_TARGET"
 
   # Disable services based on configuration
   if [[ -z "${DYNO}" ]]; then
     if [[ $isUriLocal -eq 0 ]]; then
-      cp "$SUPERVISORD_CONF_PATH/mongodb.conf" /etc/supervisor/conf.d/
+      cp "$supervisord_conf_source/mongodb.conf" "$SUPERVISORD_CONF_TARGET"
     fi
     if [[ $APPSMITH_REDIS_URL == *"localhost"* || $APPSMITH_REDIS_URL == *"127.0.0.1"* ]]; then
-      cp "$SUPERVISORD_CONF_PATH/redis.conf" /etc/supervisor/conf.d/
+      cp "$supervisord_conf_source/redis.conf" "$SUPERVISORD_CONF_TARGET"
       mkdir -p "$stacks_path/data/redis"
     fi
     if ! [[ -e "/appsmith-stacks/ssl/fullchain.pem" ]] || ! [[ -e "/appsmith-stacks/ssl/privkey.pem" ]]; then
-      cp "$SUPERVISORD_CONF_PATH/cron.conf" /etc/supervisor/conf.d/
+      cp "$supervisord_conf_source/cron.conf" "$SUPERVISORD_CONF_TARGET"
     fi
     if [[ $runEmbeddedPostgres -eq 1 ]]; then
-      cp "$SUPERVISORD_CONF_PATH/postgres.conf" /etc/supervisor/conf.d/
+      cp "$supervisord_conf_source/postgres.conf" "$SUPERVISORD_CONF_TARGET"
       # Update hosts lookup to resolve to embedded postgres
       echo '127.0.0.1     mockdb.internal.appsmith.com' >> /etc/hosts
     fi
-
   fi
+
 }
 
-# This is a workaround to get Redis working on diffent memory pagesize
+# This is a workaround to get Redis working on different memory pagesize
 # https://github.com/appsmithorg/appsmith/issues/11773
 check_redis_compatible_page_size() {
   local page_size
   page_size="$(getconf PAGE_SIZE)"
   if [[ $page_size -gt 4096 ]]; then
+    curl \
+      --silent \
+      --user "$APPSMITH_SEGMENT_CE_KEY:" \
+      --header 'Content-Type: application/json' \
+      --data '{ "userId": "'"$HOSTNAME"'", "event":"RedisCompile" }' \
+      https://api.segment.io/v1/track \
+      || true
     echo "Compile Redis stable with page size of $page_size"
-    echo "Downloading Redis source..."
-    curl https://download.redis.io/redis-stable.tar.gz -L | tar xvz
-    cd redis-stable/
-    echo "Compiling Redis from source..."
-    make && make install
-    echo "Cleaning up Redis source..."
-    cd ..
-    rm -rf redis-stable/
+    apt-get update
+    apt-get install --yes build-essential
+    curl --location https://download.redis.io/redis-stable.tar.gz | tar -xz -C /tmp
+    pushd /tmp/redis-stable
+    make
+    make install
+    popd
+    rm -rf /tmp/redis-stable
   else
     echo "Redis is compatible with page size of $page_size"
   fi
@@ -344,10 +387,10 @@ init_postgres() {
         chown -R postgres:postgres "$POSTGRES_DB_PATH"
     else
       echo "Initializing local postgresql database"
-      mkdir -p "$POSTGRES_DB_PATH"
+      mkdir -p "$POSTGRES_DB_PATH" "$TMP/postgres-stats"
 
       # Postgres does not allow it's server to be run with super user access, we use user postgres and the file system owner also needs to be the same user postgres
-      chown postgres:postgres "$POSTGRES_DB_PATH"
+      chown postgres:postgres "$POSTGRES_DB_PATH" "$TMP/postgres-stats"
 
       # Initialize the postgres db file system
       su postgres -c "/usr/lib/postgresql/13/bin/initdb -D $POSTGRES_DB_PATH"
@@ -389,15 +432,19 @@ init_postgres || runEmbeddedPostgres=0
 }
 
 init_loading_pages(){
-  # The default NGINX configuration includes an IPv6 listen directive. But not all
-  # servers support it, and we don't need it. So we remove it here before starting
-  # NGINX.
-  sed -i '/\[::\]:80 default_server;/d' /etc/nginx/sites-available/default
   local starting_page="/opt/appsmith/templates/appsmith_starting.html"
   local initializing_page="/opt/appsmith/templates/appsmith_initializing.html"
-  local editor_load_page="/opt/appsmith/editor/loading.html"
-  # Update default nginx page for initializing page
-  cp "$initializing_page" /var/www/html/index.nginx-debian.html
+  local editor_load_page="$NGINX_WWW_PATH/loading.html"
+  cp "$initializing_page" "$NGINX_WWW_PATH/index.html"
+  # TODO: Also listen on 443, if HTTP certs are available.
+  cat <<EOF > "$TMP/nginx-app.conf"
+    server {
+      listen ${PORT:-80} default_server;
+      location / {
+        try_files \$uri \$uri/ /index.html =404;
+      }
+    }
+EOF
   # Start nginx page to display the Appsmith is Initializing page
   nginx
   # Update editor nginx page for starting page
@@ -424,6 +471,8 @@ else
 fi
 
 check_setup_custom_ca_certificates
+setup-custom-ca-certificates
+
 mount_letsencrypt_directory
 
 check_redis_compatible_page_size
@@ -432,16 +481,11 @@ safe_init_postgres
 
 configure_supervisord
 
-CREDENTIAL_PATH="/etc/nginx/passwords"
-if ! [[ -e "$CREDENTIAL_PATH" ]]; then
-  echo "Generating Basic Authentication file"
-  printf "$APPSMITH_SUPERVISOR_USER:$(openssl passwd -apr1 $APPSMITH_SUPERVISOR_PASSWORD)" > "$CREDENTIAL_PATH"
-fi
 # Ensure the restore path exists in the container, so an archive can be copied to it, if need be.
 mkdir -p /appsmith-stacks/data/{backup,restore}
 
 # Create sub-directory to store services log in the container mounting folder
-mkdir -p /appsmith-stacks/logs/{backend,cron,editor,rts,mongodb,redis,postgres,appsmithctl}
+mkdir -p /appsmith-stacks/logs/{supervisor,backend,cron,editor,rts,mongodb,redis,postgres,appsmithctl}
 
 # Stop nginx gracefully
 nginx -s quit

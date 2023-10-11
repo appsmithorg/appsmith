@@ -24,7 +24,10 @@ import {
   DEFAULT_CAMERA_LABEL_DESCRIPTION,
   FRONT_CAMERA_LABEL,
 } from "@appsmith/constants/messages";
-import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
+import {
+  FlexVerticalAlignment,
+  ResponsiveBehavior,
+} from "layoutSystems/common/utils/constants";
 import IconSVG from "../icon.svg";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 
@@ -53,6 +56,7 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
       isMirrored: true,
       version: 1,
       responsiveBehavior: ResponsiveBehavior.Hug,
+      flexVerticalAlignment: FlexVerticalAlignment.Top,
     };
   }
 
@@ -321,22 +325,17 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
 
   getWidgetView() {
     const {
-      bottomRow,
+      componentHeight,
+      componentWidth,
       defaultCamera,
       isDisabled,
       isMirrored,
-      leftColumn,
       mode,
-      parentColumnSpace,
-      parentRowSpace,
-      rightColumn,
-      topRow,
       videoBlobURL,
     } = this.props;
 
-    const height = (bottomRow - topRow) * parentRowSpace - WIDGET_PADDING * 2;
-    const width =
-      (rightColumn - leftColumn) * parentColumnSpace - WIDGET_PADDING * 2;
+    const height = componentHeight - WIDGET_PADDING * 2;
+    const width = componentWidth - WIDGET_PADDING * 2;
 
     return (
       <CameraComponent

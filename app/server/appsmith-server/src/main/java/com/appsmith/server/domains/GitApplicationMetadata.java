@@ -8,6 +8,7 @@ import lombok.Data;
 import org.springframework.data.annotation.Transient;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Map;
 
 // This class will be used for one-to-one mapping for the DB application and the application present in the git repo.
@@ -63,4 +64,10 @@ public class GitApplicationMetadata implements AppsmithDomain {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssX", timezone = "UTC")
     @JsonView(Views.Public.class)
     Instant lastCommittedAt;
+
+    @JsonView(Views.Public.class)
+    List<String> branchProtectionRules;
+
+    @JsonView(Views.Public.class)
+    Boolean isProtectedBranch;
 }

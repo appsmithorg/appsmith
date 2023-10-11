@@ -311,9 +311,8 @@ Cypress.Commands.add("Signup", (uname, pword) => {
   cy.get(signupPage.submitBtn).click();
   cy.wait(1000);
   cy.get("body").then(($body) => {
-    if ($body.find(signupPage.roleDropdown).length > 0) {
-      cy.get(signupPage.roleDropdown).click();
-      cy.get(signupPage.dropdownOption).click();
+    if ($body.find(signupPage.useCaseDropdown).length > 0) {
+      cy.get(signupPage.proficiencyGroupButton).first().click();
       cy.get(signupPage.useCaseDropdown).click();
       cy.get(signupPage.dropdownOption).click();
       cy.get(signupPage.roleUsecaseSubmit).click({ force: true });
@@ -1022,6 +1021,9 @@ Cypress.Commands.add("startServerAndRoutes", () => {
     "makePageDefault",
   );
   cy.intercept("DELETE", "/api/v1/applications/*").as("deleteApp");
+  cy.intercept("POST", "/api/v1/applications/delete-apps").as(
+    "deleteMultipleApp",
+  );
   cy.intercept("DELETE", "/api/v1/pages/*").as("deletePage");
   //cy.intercept("POST", "/api/v1/datasources").as("createDatasource");
   cy.intercept("DELETE", "/api/v1/datasources/*").as("deleteDatasource");
@@ -1196,6 +1198,18 @@ Cypress.Commands.add("startServerAndRoutes", () => {
       });
     },
   ).as("productAlert");
+  cy.intercept(
+    {
+      method: "GET",
+      url: /domain\/docs\.appsmith\.com\/token$/,
+    },
+    {
+      statusCode: 200,
+    },
+  ).as("docsCall");
+  cy.intercept("POST", "/api/v1/datasources/*/schema-preview").as(
+    "schemaPreview",
+  );
 });
 
 Cypress.Commands.add("startErrorRoutes", () => {
@@ -1385,8 +1399,7 @@ Cypress.Commands.add("createSuperUser", () => {
   cy.get(welcomePage.continueButton).should("not.be.disabled");
   cy.get(welcomePage.continueButton).click();
 
-  cy.get(welcomePage.roleDropdown).click();
-  cy.get(welcomePage.roleDropdownOption).eq(1).click();
+  cy.get(welcomePage.proficiencyGroupButton).first().click();
   cy.get(welcomePage.submitButton).should("be.disabled");
   cy.get(welcomePage.useCaseDropdown).click();
   cy.get(welcomePage.useCaseDropdownOption).eq(1).click();

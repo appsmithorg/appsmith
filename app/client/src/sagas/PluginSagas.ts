@@ -14,7 +14,7 @@ import {
   getPlugin,
   getPluginForm,
   getPlugins,
-} from "selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import type { Datasource } from "entities/Datasource";
 import type { Plugin } from "api/PluginApi";
 import {
@@ -38,7 +38,7 @@ import type {
   FormDependencyConfigs,
   FormDatasourceButtonConfigs,
 } from "utils/DynamicBindingUtils";
-import type { ActionDataState } from "reducers/entityReducers/actionsReducer";
+import type { ActionDataState } from "@appsmith/reducers/entityReducers/actionsReducer";
 
 function* fetchPluginsSaga(
   action: ReduxAction<{ workspaceId?: string } | undefined>,
@@ -214,7 +214,10 @@ export function* checkAndGetPluginFormConfigsSaga(pluginId: string) {
   }
 }
 
-type GetPluginFormConfigParams = { id: string; type: string };
+interface GetPluginFormConfigParams {
+  id: string;
+  type: string;
+}
 
 function* getPluginFormConfig({ id }: GetPluginFormConfigParams) {
   yield call(checkAndGetPluginFormConfigsSaga, id);

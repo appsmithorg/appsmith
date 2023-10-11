@@ -49,6 +49,10 @@ export class AggregateHelper extends ReusableHelper {
   private lazyCodeEditorFallback = ".t--lazyCodeEditor-fallback";
   private lazyCodeEditorRendered = ".t--lazyCodeEditor-editor";
   private toolTipSpan = ".rc-tooltip-inner span";
+  _walkthroughOverlay = ".t--walkthrough-overlay";
+  _walkthroughOverlayClose = ".t--walkthrough-overlay .t--walkthrough-close";
+  _walkthroughOverlayTitle = (title: string) =>
+    `//div[contains(@class, 't--walkthrough-overlay')]//p[text()='${title}']`;
 
   private selectChars = (noOfChars: number) =>
     `${"{leftArrow}".repeat(noOfChars) + "{shift}{cmd}{leftArrow}{backspace}"}`;
@@ -176,9 +180,8 @@ export class AggregateHelper extends ReusableHelper {
       .type(renameVal, { force: true, delay: 0 })
       .should("have.value", renameVal)
       .blur();
-    this.PressEnter();
+    this.PressEnter(); //allow lil more time for new name to settle
     this.AssertElementVisibility(this.locator._editIcon);
-    this.Sleep(300); //allow lil more time for new name to settle
   }
 
   public CheckForPageSaveError() {
@@ -572,16 +575,19 @@ export class AggregateHelper extends ReusableHelper {
     //     .click()
   }
 
-  public PressEscape() {
+  public PressEscape(sleep = 500) {
     cy.get("body").type("{esc}");
+    this.Sleep(sleep);
   }
 
-  public PressEnter() {
+  public PressEnter(sleep = 500) {
     cy.get("body").type("{enter}");
+    this.Sleep(sleep);
   }
 
-  public PressDelete() {
+  public PressDelete(sleep = 500) {
     cy.get("body").type(`{del}`, { force: true });
+    this.Sleep(sleep);
   }
 
   public SelectAllWidgets(parentWidget = ".appsmith_widget_0") {
@@ -592,8 +598,8 @@ export class AggregateHelper extends ReusableHelper {
     cy.get(this.locator._canvasViewport).invoke("width", `${width}px`);
   }
 
-  public ClickOutside() {
-    cy.get("body").click(0, 0, { force: true });
+  public ClickOutside(x = 0, y = 0, force = true) {
+    cy.get("body").click(x, y, { force: force });
   }
 
   public RemoveMultiSelectItems(items: string[]) {
@@ -678,9 +684,14 @@ export class AggregateHelper extends ReusableHelper {
     force = false,
     waitTimeInterval = 500,
     ctrlKey = false,
+    metaKey = false,
   ) {
     return this.ScrollIntoView(selector, index)
-      .click({ force: force, ctrlKey: ctrlKey })
+      .click({
+        force: force,
+        ctrlKey: ctrlKey,
+        metaKey,
+      })
       .wait(waitTimeInterval);
   }
 
@@ -790,6 +801,11 @@ export class AggregateHelper extends ReusableHelper {
       this.TypeText(selector, totype, index);
     }
   }
+  public ClickNClear(selector: string, force = false, index = 0) {
+    this.GetNClick(selector, index, force);
+    this.ClearTextField(selector, force, index);
+  }
+
   public ClearTextField(selector: string, force = false, index = 0) {
     this.GetElement(selector).eq(index).clear({ force });
     this.Sleep(500); //for text to clear for CI runs
@@ -1027,8 +1043,8 @@ export class AggregateHelper extends ReusableHelper {
 
   public ActionContextMenuWithInPane({
     action = "Delete",
-    subAction = "",
     entityType = EntityItems.JSObject,
+    subAction = "",
     toastToValidate = "",
   }: DeleteParams) {
     cy.get(this.locator._contextMenuInPane).click();
@@ -1509,6 +1525,14 @@ export class AggregateHelper extends ReusableHelper {
     return this.GetElement(selector).scrollTo(position).wait(2000);
   }
 
+  public ScrollToXY(
+    selector: ElementType,
+    x: number | string,
+    y: number | string,
+  ) {
+    return this.GetElement(selector).scrollTo(x, y).wait(2000);
+  }
+
   public GetWidth(widgetSelector: string) {
     this.GetElement(widgetSelector).then(($element) => {
       cy.wrap(Number($element.width())).as("eleWidth");
@@ -1637,6 +1661,10 @@ export class AggregateHelper extends ReusableHelper {
 
   public AssertClassExists(selector: string, className: string) {
     this.GetElement(selector).should("have.class", className);
+  }
+
+  public VerifySnapshot(selector: string, identifier: string) {
+    this.GetElement(selector).matchImageSnapshot(identifier);
   }
 
   //Not used:

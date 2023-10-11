@@ -8,10 +8,10 @@ import React, { lazy, Suspense } from "react";
 import showdown from "showdown";
 import { retryPromise } from "utils/AppsmithUtils";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
-import { GRID_DENSITY_MIGRATION_V1 } from "WidgetProvider/constants";
 import {
   isAutoHeightEnabledForWidget,
   DefaultAutocompleteDefinitions,
+  isCompactMode,
 } from "widgets/WidgetUtils";
 import type { WidgetProps, WidgetState } from "../../BaseWidget";
 import BaseWidget from "../../BaseWidget";
@@ -19,7 +19,10 @@ import BaseWidget from "../../BaseWidget";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import type { AutocompletionDefinitions } from "WidgetProvider/constants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
+import {
+  FlexVerticalAlignment,
+  ResponsiveBehavior,
+} from "layoutSystems/common/utils/constants";
 import { DynamicHeight } from "utils/WidgetFeatures";
 import IconSVG from "../icon.svg";
 
@@ -33,8 +36,10 @@ export enum RTEFormats {
   MARKDOWN = "markdown",
   HTML = "html",
 }
-const RichTextEditorComponent = lazy(() =>
-  retryPromise(() => import(/* webpackChunkName: "rte" */ "../component")),
+const RichTextEditorComponent = lazy(async () =>
+  retryPromise(
+    async () => import(/* webpackChunkName: "rte" */ "../component"),
+  ),
 );
 
 const converter = new showdown.Converter();
@@ -83,6 +88,7 @@ class RichTextEditorWidget extends BaseWidget<
       version: 1,
       responsiveBehavior: ResponsiveBehavior.Fill,
       minWidth: FILL_WIDGET_MIN_WIDTH,
+      flexVerticalAlignment: FlexVerticalAlignment.Top,
     };
   }
 
@@ -510,19 +516,14 @@ class RichTextEditorWidget extends BaseWidget<
     if (this.props.inputType === RTEFormats.MARKDOWN) {
       value = converter.makeHtml(value);
     }
+    const { componentHeight } = this.props;
 
     return (
       <Suspense fallback={<Skeleton />}>
         <RichTextEditorComponent
           borderRadius={this.props.borderRadius}
           boxShadow={this.props.boxShadow}
-          compactMode={
-            !(
-              (this.props.bottomRow - this.props.topRow) /
-                GRID_DENSITY_MIGRATION_V1 >
-              1
-            )
-          }
+          compactMode={isCompactMode(componentHeight)}
           isDisabled={this.props.isDisabled}
           isDynamicHeightEnabled={isAutoHeightEnabledForWidget(this.props)}
           isMarkdown={this.props.inputType === RTEFormats.MARKDOWN}
@@ -537,7 +538,7 @@ class RichTextEditorWidget extends BaseWidget<
           labelTextColor={this.props.labelTextColor}
           labelTextSize={this.props.labelTextSize}
           labelTooltip={this.props.labelTooltip}
-          labelWidth={this.getLabelWidth()}
+          labelWidth={this.props.labelComponentWidth}
           onValueChange={this.onValueChange}
           placeholder={this.props.placeholder}
           value={value}
@@ -568,6 +569,7 @@ export interface RichTextEditorWidgetProps extends WidgetProps {
   labelTextSize?: TextSize;
   labelStyle?: string;
   isDirty: boolean;
+  labelComponentWidth?: number;
 }
 
 export default RichTextEditorWidget;

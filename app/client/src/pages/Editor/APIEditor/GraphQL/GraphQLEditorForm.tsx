@@ -13,10 +13,7 @@ import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig
 import useHorizontalResize from "utils/hooks/useHorizontalResize";
 import get from "lodash/get";
 import type { Datasource } from "entities/Datasource";
-import {
-  getAction,
-  getActionData,
-} from "../../../../selectors/entitiesSelector";
+import { getAction, getActionData } from "@appsmith/selectors/entitiesSelector";
 import { isEmpty } from "lodash";
 import type { CommonFormProps } from "../CommonEditorForm";
 import CommonEditorForm from "../CommonEditorForm";
@@ -151,9 +148,9 @@ function GraphQLEditorForm(props: Props) {
 
 const selector = formValueSelector(API_EDITOR_FORM_NAME);
 
-type ReduxDispatchProps = {
+interface ReduxDispatchProps {
   updateDatasource: (datasource: Datasource) => void;
-};
+}
 
 const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
   updateDatasource: (datasource) => {

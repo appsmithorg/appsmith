@@ -6,8 +6,8 @@ import { useDispatch, useSelector } from "react-redux";
 import CollapseComponent from "components/utils/CollapseComponent";
 import {
   getPluginImages,
-  getActionsForCurrentPage,
-} from "selectors/entitiesSelector";
+  getCurrentActions,
+} from "@appsmith/selectors/entitiesSelector";
 import styled from "styled-components";
 import type { AppState } from "@appsmith/reducers";
 import history from "utils/history";
@@ -15,7 +15,7 @@ import RenderDatasourceInformation from "pages/Editor/DataSourceEditor/Datasourc
 import { getQueryParams } from "utils/URLUtils";
 import { Button, MenuContent, MenuItem, MenuTrigger } from "design-system";
 import { deleteDatasource } from "actions/datasourceActions";
-import { getGenerateCRUDEnabledPluginMap } from "selectors/entitiesSelector";
+import { getGenerateCRUDEnabledPluginMap } from "@appsmith/selectors/entitiesSelector";
 import type { GenerateCRUDEnabledPluginMap, Plugin } from "api/PluginApi";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import NewActionButton from "../DataSourceEditor/NewActionButton";
@@ -37,12 +37,6 @@ import {
   getCurrentPageId,
   getPagePermissions,
 } from "selectors/editorSelectors";
-import {
-  hasCreateDatasourceActionPermission,
-  hasCreatePagePermission,
-  hasDeleteDatasourcePermission,
-  hasManageDatasourcePermission,
-} from "@appsmith/utils/permissionHelpers";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { MenuWrapper, StyledMenu } from "components/utils/formComponents";
 import { DatasourceEditEntryPoints } from "constants/Datasource";
@@ -53,6 +47,14 @@ import {
 } from "@appsmith/utils/Environments";
 import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
 import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelectors";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import {
+  getHasCreateDatasourceActionPermission,
+  getHasCreatePagePermission,
+  getHasDeleteDatasourcePermission,
+  getHasManageDatasourcePermission,
+} from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 
 const Wrapper = styled.div`
   padding: 15px;
@@ -133,10 +135,10 @@ const CollapseComponentWrapper = styled.div`
   width: fit-content;
 `;
 
-type DatasourceCardProps = {
+interface DatasourceCardProps {
   datasource: Datasource;
   plugin: Plugin;
-};
+}
 
 function DatasourceCard(props: DatasourceCardProps) {
   const dispatch = useDispatch();
@@ -153,7 +155,7 @@ function DatasourceCard(props: DatasourceCardProps) {
   const datasourceFormConfigs = useSelector(
     (state: AppState) => state.entities.plugins.formConfigs,
   );
-  const queryActions = useSelector(getActionsForCurrentPage);
+  const queryActions = useSelector(getCurrentActions);
   const queriesWithThisDatasource = queryActions.filter(
     (action) =>
       isStoredDatasource(action.config.datasource) &&
@@ -167,18 +169,26 @@ function DatasourceCard(props: DatasourceCardProps) {
   const userAppPermissions = useSelector(
     (state: AppState) => getCurrentApplication(state)?.userPermissions ?? [],
   );
-  const canCreatePages = hasCreatePagePermission(userAppPermissions);
 
-  const canCreateDatasourceActions = hasCreateDatasourceActionPermission([
-    ...datasourcePermissions,
-    ...pagePermissions,
-  ]);
+  const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
 
-  const canEditDatasource = hasManageDatasourcePermission(
+  const canCreatePages = getHasCreatePagePermission(
+    isFeatureEnabled,
+    userAppPermissions,
+  );
+
+  const canCreateDatasourceActions = getHasCreateDatasourceActionPermission(
+    isFeatureEnabled,
+    [...datasourcePermissions, ...pagePermissions],
+  );
+
+  const canEditDatasource = getHasManageDatasourcePermission(
+    isFeatureEnabled,
     datasourcePermissions,
   );
 
-  const canDeleteDatasource = hasDeleteDatasourcePermission(
+  const canDeleteDatasource = getHasDeleteDatasourcePermission(
+    isFeatureEnabled,
     datasourcePermissions,
   );
 

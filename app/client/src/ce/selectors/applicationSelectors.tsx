@@ -274,3 +274,13 @@ const DEFAULT_EVALUATION_VERSION = 2;
 export const selectEvaluationVersion = (state: AppState) =>
   state.ui.applications.currentApplication?.evaluationVersion ||
   DEFAULT_EVALUATION_VERSION;
+
+export const getDeletingMultipleApps = (state: AppState) => {
+  return state.ui.applications.deletingMultipleApps;
+};
+
+export const getApplicationLoadingStates = (state: AppState) => {
+  return state.ui.applications?.loadingStates;
+};
+
+export const getAllAppUsers = () => [];

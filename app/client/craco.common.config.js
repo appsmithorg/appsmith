@@ -38,6 +38,33 @@ module.exports = {
             test: /\.m?js/,
             resolve: { fullySpecified: false },
           },
+          {
+            test: /\.module\.css$/,
+            use: [
+              {
+                loader: "postcss-loader",
+                options: {
+                  postcssOptions: {
+                    plugins: [
+                      "postcss-nesting",
+                      "postcss-import",
+                      "postcss-at-rules-variables",
+                      "postcss-conditionals",
+                      "postcss-each",
+                      "postcss-url",
+                      "postcss-modules-values",
+                      [
+                        "cssnano",
+                        {
+                          preset: ["default"],
+                        },
+                      ],
+                    ],
+                  },
+                },
+              },
+            ],
+          },
         ],
       },
       optimization: {

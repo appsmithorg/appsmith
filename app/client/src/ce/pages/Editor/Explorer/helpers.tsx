@@ -17,7 +17,7 @@ import {
   SAAS_EDITOR_API_ID_PATH,
   SAAS_EDITOR_DATASOURCE_ID_PATH,
 } from "pages/Editor/SaaSEditor/constants";
-import type { ActionData } from "reducers/entityReducers/actionsReducer";
+import type { ActionData } from "@appsmith/reducers/entityReducers/actionsReducer";
 import type { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 import type { PluginType } from "entities/Action";
 import localStorage from "utils/localStorage";
@@ -37,15 +37,15 @@ export const ContextMenuPopoverModifiers: IPopoverSharedProps["modifiers"] = {
   },
 };
 
-export type ExplorerURLParams = {
+export interface ExplorerURLParams {
   pageId: string;
-};
+}
 
-export type ExplorerFileEntity = {
+export interface ExplorerFileEntity {
   type: PluginType | "group";
   group?: string;
   entity: ActionData | JSCollectionData;
-};
+}
 
 export const matchBasePath = (pathname: string) => {
   const basePathMatch = matchPath(pathname, {
@@ -154,12 +154,12 @@ export const useDatasourceIdFromURL = () => {
 
 const EXPLORER_STORAGE_PREFIX = "explorerState_";
 
-export type ExplorerStateType = {
+export interface ExplorerStateType {
   pages: boolean;
   widgets: boolean;
   queriesAndJs: boolean;
   datasource: boolean;
-};
+}
 
 export const getExplorerStatus = (
   appId: string,

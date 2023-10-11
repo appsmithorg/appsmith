@@ -15,12 +15,12 @@ const BackDropContainer = styled.div`
   display: none;
 `;
 
-type useDropdownProps = {
+interface useDropdownProps {
   inputRef: React.RefObject<HTMLInputElement>;
   renderMode?: RenderMode;
   onDropdownOpen?: () => void;
   onDropdownClose?: () => void;
-};
+}
 const FOCUS_TIMEOUT = 500;
 
 // TODO: Refactor More functionalities in MultiSelect, MultiTreeSelect and TreeSelect Components

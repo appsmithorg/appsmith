@@ -15,6 +15,7 @@ import {
   executePluginActionSuccess,
   runAction,
   updateAction,
+  updateActionData,
 } from "actions/pluginActionActions";
 import { makeUpdateJSCollection } from "sagas/JSPaneSagas";
 
@@ -42,7 +43,7 @@ import {
   isActionSaving,
   getJSCollection,
   getDatasource,
-} from "selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import { getIsGitSyncModalOpen } from "selectors/gitSyncSelectors";
 import {
   getAppMode,
@@ -101,7 +102,7 @@ import * as log from "loglevel";
 import { EMPTY_RESPONSE } from "components/editorComponents/emptyResponse";
 import type { AppState } from "@appsmith/reducers";
 import { DEFAULT_EXECUTE_ACTION_TIMEOUT_MS } from "@appsmith/constants/ApiConstants";
-import { evaluateActionBindings } from "sagas/EvaluationsSaga";
+import { evalWorker, evaluateActionBindings } from "sagas/EvaluationsSaga";
 import { isBlobUrl, parseBlobUrl } from "utils/AppsmithUtils";
 import { getType, Types } from "utils/TypeHelpers";
 import { matchPath } from "react-router";
@@ -147,8 +148,8 @@ import { toast } from "design-system";
 import type { TRunDescription } from "workers/Evaluation/fns/actionFns";
 import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
 import { FILE_SIZE_LIMIT_FOR_BLOBS } from "constants/WidgetConstants";
-import { getActionsForCurrentPage } from "selectors/entitiesSelector";
-import type { ActionData } from "reducers/entityReducers/actionsReducer";
+import { getCurrentActions } from "@appsmith/selectors/entitiesSelector";
+import type { ActionData } from "@appsmith/reducers/entityReducers/actionsReducer";
 import { handleStoreOperations } from "./StoreActionSaga";
 import { fetchPage } from "actions/pageActions";
 import type { Datasource } from "entities/Datasource";
@@ -158,17 +159,18 @@ import {
   getCurrentEnvironmentDetails,
   getCurrentEnvironmentName,
 } from "@appsmith/selectors/environmentSelectors";
+import { EVAL_WORKER_ACTIONS } from "@appsmith/workers/Evaluation/evalWorkerActions";
 
 enum ActionResponseDataTypes {
   BINARY = "BINARY",
 }
 
-type FilePickerInstumentationObject = {
+interface FilePickerInstumentationObject {
   numberOfFiles: number;
   totalSize: number;
   fileTypes: Array<string>;
   fileSizes: Array<number>;
-};
+}
 
 export const getActionTimeout = (
   state: AppState,
@@ -224,7 +226,7 @@ const isErrorResponse = (response: ActionExecutionResponse) => {
  */
 function* readBlob(blobUrl: string): any {
   const [url, fileType] = parseBlobUrl(blobUrl);
-  const file = yield fetch(url).then((r) => r.blob());
+  const file = yield fetch(url).then(async (r) => r.blob());
 
   return yield new Promise((resolve) => {
     const reader = new FileReader();
@@ -724,11 +726,11 @@ function* runActionShortcutSaga() {
   }
 }
 
-type RunActionError = {
+interface RunActionError {
   name: string;
   message: string;
   clientDefinedError?: boolean;
-};
+}
 
 function* runActionSaga(
   reduxAction: ReduxAction<{
@@ -1171,6 +1173,13 @@ function* executePageLoadAction(pageAction: PageAction) {
           data: payload,
         }),
       );
+      yield put(
+        updateActionData({
+          entityName: action.name,
+          dataPath: "data",
+          data: payload.body,
+        }),
+      );
       PerformanceTracker.stopAsyncTracking(
         PerformanceTransactionName.EXECUTE_ACTION,
         {
@@ -1226,6 +1235,13 @@ function* executePageLoadAction(pageAction: PageAction) {
           isPageLoad: true,
         }),
       );
+      yield put(
+        updateActionData({
+          entityName: action.name,
+          dataPath: "data",
+          data: payload.body,
+        }),
+      );
       yield take(ReduxActionTypes.SET_EVALUATED_TREE);
     }
   }
@@ -1268,10 +1284,10 @@ function* executePageLoadActionsSaga() {
   }
 }
 
-type ExecutePluginActionResponse = {
+interface ExecutePluginActionResponse {
   payload: ActionResponse;
   isError: boolean;
-};
+}
 /*
  * This saga handles the complete plugin action execution flow. It will respond with a
  * payload and isError property which indicates if the response is of an error type.
@@ -1379,6 +1395,14 @@ function* executePluginActionSaga(
         response: payload,
       }),
     );
+
+    yield put(
+      updateActionData({
+        entityName: pluginAction.name,
+        dataPath: "data",
+        data: payload.body,
+      }),
+    );
     // TODO: Plugins are not always fetched before on page load actions are executed.
     try {
       let plugin: Plugin | undefined;
@@ -1430,6 +1454,13 @@ function* executePluginActionSaga(
       executePluginActionSuccess({
         id: actionId,
         response: EMPTY_RESPONSE,
+      }),
+    );
+    yield put(
+      updateActionData({
+        entityName: pluginAction.name,
+        dataPath: "data",
+        data: EMPTY_RESPONSE.body,
       }),
     );
     if (e instanceof UserCancelledActionExecutionError) {
@@ -1495,13 +1526,18 @@ function* openDebugger() {
 
 // Function to clear the action responses for the actions which are not executeOnLoad.
 function* clearTriggerActionResponse() {
-  const currentPageActions: ActionData[] = yield select(
-    getActionsForCurrentPage,
-  );
+  const currentPageActions: ActionData[] = yield select(getCurrentActions);
   for (const action of currentPageActions) {
     // Clear the action response if the action has data and is not executeOnLoad.
     if (action.data && !action.config.executeOnLoad) {
       yield put(clearActionResponse(action.config.id));
+      yield put(
+        updateActionData({
+          entityName: action.config.name,
+          dataPath: "data",
+          data: undefined,
+        }),
+      );
     }
   }
 }
@@ -1544,6 +1580,23 @@ function* softRefreshActionsSaga() {
   });
 }
 
+function* handleUpdateActionData(
+  action: ReduxAction<{
+    entityName: string;
+    dataPath: string;
+    data: unknown;
+  }>,
+) {
+  const { data, dataPath, entityName } = action.payload;
+  yield call(evalWorker.request, EVAL_WORKER_ACTIONS.UPDATE_ACTION_DATA, [
+    {
+      entityName,
+      dataPath,
+      data,
+    },
+  ]);
+}
+
 export function* watchPluginActionExecutionSagas() {
   yield all([
     takeLatest(ReduxActionTypes.RUN_ACTION_REQUEST, runActionSaga),
@@ -1557,5 +1610,6 @@ export function* watchPluginActionExecutionSagas() {
     ),
     takeLatest(ReduxActionTypes.PLUGIN_SOFT_REFRESH, softRefreshActionsSaga),
     takeEvery(ReduxActionTypes.EXECUTE_JS_UPDATES, makeUpdateJSCollection),
+    takeEvery(ReduxActionTypes.UPDATE_ACTION_DATA, handleUpdateActionData),
   ]);
 }

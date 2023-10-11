@@ -9,6 +9,7 @@ import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ConfigService;
+import com.appsmith.server.services.EmailService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.TenantService;
@@ -38,7 +39,8 @@ public class EnvManagerImpl extends EnvManagerCEImpl implements EnvManager {
             ConfigService configService,
             UserUtils userUtils,
             TenantService tenantService,
-            ObjectMapper objectMapper) {
+            ObjectMapper objectMapper,
+            EmailService emailService) {
 
         super(
                 sessionUserService,
@@ -55,6 +57,7 @@ public class EnvManagerImpl extends EnvManagerCEImpl implements EnvManager {
                 configService,
                 userUtils,
                 tenantService,
-                objectMapper);
+                objectMapper,
+                emailService);
     }
 }

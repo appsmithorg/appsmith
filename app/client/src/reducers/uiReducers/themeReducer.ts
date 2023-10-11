@@ -22,10 +22,10 @@ export type ThemeState = HeaderMetaState & {
   theme: any;
 };
 
-export type HeaderMetaState = {
+export interface HeaderMetaState {
   hideHeaderShadow: boolean;
   showHeaderSeparator: boolean;
-};
+}
 
 const themeReducer = createImmerReducer(initialState, {
   [ReduxActionTypes.SET_THEME]: (

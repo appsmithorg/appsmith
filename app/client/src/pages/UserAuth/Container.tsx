@@ -5,14 +5,14 @@ import FooterLinks from "./FooterLinks";
 import { getTenantConfig } from "@appsmith/selectors/tenantSelectors";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
-type ContainerProps = {
+interface ContainerProps {
   title: string;
   subtitle?: React.ReactNode;
   children: React.ReactNode;
   footer?: React.ReactNode;
   disabledLoginForm?: boolean;
   testId?: string;
-};
+}
 
 function Container(props: ContainerProps) {
   const { children, footer, subtitle, testId, title } = props;

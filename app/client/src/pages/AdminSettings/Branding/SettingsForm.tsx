@@ -40,7 +40,7 @@ const StyledText = styled(Text)`
   font-weight: var(--ads-v2-font-weight-bold);
 `;
 
-type SettingsFormProps = {
+interface SettingsFormProps {
   disabled?: boolean;
   control: Control<Inputs, any>;
   formState: FormState<Inputs>;
@@ -50,7 +50,7 @@ type SettingsFormProps = {
   setValue: UseFormSetValue<Inputs>;
   resetField: UseFormResetField<Inputs>;
   values: Inputs;
-};
+}
 
 function SettingsForm(props: SettingsFormProps) {
   const { control, defaultValues, disabled, formState, handleSubmit } = props;
@@ -155,7 +155,7 @@ function SettingsForm(props: SettingsFormProps) {
             <ColorInput
               className="t--settings-brand-color-input"
               defaultValue={defaultValues.brandColors}
-              filter={(key) => !["disabled", "hover"].includes(key)}
+              filter={(key) => !["disabled", "hover", "active"].includes(key)}
               logEvent={(property: string) => {
                 AnalyticsUtil.logEvent("BRANDING_PROPERTY_UPDATE", {
                   propertyName: property,

@@ -5,7 +5,7 @@ import type { RouteComponentProps } from "react-router-dom";
 import { withRouter } from "react-router-dom";
 import type { BuilderRouteParams } from "constants/routes";
 import type { AppState } from "@appsmith/reducers";
-import MainContainer from "./MainContainer";
+import WidgetsEditorWrapper from "./WidgetsEditorWrapper";
 import {
   getCurrentApplicationId,
   getIsEditorInitialized,
@@ -44,7 +44,7 @@ import { editorInitializer } from "../../utils/editor/EditorUtils";
 import { widgetInitialisationSuccess } from "../../actions/widgetActions";
 import { EnvDeployInfoModal } from "@appsmith/components/EnvDeployInfoModal";
 
-type EditorProps = {
+interface EditorProps {
   currentApplicationId?: string;
   currentApplicationName?: string;
   initEditor: (payload: InitializeEditorPayload) => void;
@@ -64,7 +64,7 @@ type EditorProps = {
   pageLevelSocketRoomId: string;
   isMultiPane: boolean;
   widgetConfigBuildSuccess: () => void;
-};
+}
 
 type Props = EditorProps & RouteComponentProps<BuilderRouteParams>;
 
@@ -159,7 +159,7 @@ class Editor extends Component<Props> {
             </title>
           </Helmet>
           <GlobalHotKeys>
-            <MainContainer />
+            <WidgetsEditorWrapper />
             <GitSyncModal />
             <EnvDeployInfoModal />
             <DisconnectGitModal />

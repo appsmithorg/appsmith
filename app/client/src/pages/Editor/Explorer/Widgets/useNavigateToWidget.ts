@@ -4,7 +4,7 @@ import { useParams } from "react-router";
 import type { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers";
 import { useDispatch } from "react-redux";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
-import { getCurrentPageWidgets } from "selectors/entitiesSelector";
+import { getCurrentPageWidgets } from "@appsmith/selectors/entitiesSelector";
 import store from "store";
 import type { NavigationMethod } from "utils/history";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";

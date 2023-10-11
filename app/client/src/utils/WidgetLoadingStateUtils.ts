@@ -1,4 +1,4 @@
-import type { DataTree } from "entities/DataTree/dataTreeFactory";
+import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { get, set } from "lodash";
 import {
   isJSObject,

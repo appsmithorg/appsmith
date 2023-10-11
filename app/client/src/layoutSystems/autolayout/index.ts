@@ -1,9 +1,18 @@
-import { isFunction } from "lodash";
-import WidgetFactory from "WidgetProvider/factory";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import { RenderModes } from "../../constants/WidgetConstants";
+import { AutoLayoutEditorCanvas } from "./canvas/AutoLayoutEditorCanvas";
+import { AutoLayoutViewerCanvas } from "./canvas/AutoLayoutViewerCanvas";
 import { AutoLayoutEditorWrapper } from "./editor/AutoLayoutEditorWrapper";
 import { AutoLayoutViewerWrapper } from "./viewer/AutoLayoutViewerWrapper";
+import { getAutoLayoutComponentDimensions } from "layoutSystems/common/utils/ComponentSizeUtils";
+import type { LayoutSystem } from "layoutSystems/types";
+import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
+import type { CanvasProps } from "layoutSystems/fixedlayout/canvas/FixedLayoutEditorCanvas";
+import {
+  getAutoDimensionsConfig,
+  getAutoLayoutWidgetConfig,
+} from "layoutSystems/common/utils/commonUtils";
+import type { AutoDimensionOptions } from "WidgetProvider/constants";
 
 /**
  * getAutoLayoutDimensionsConfig
@@ -13,71 +22,14 @@ import { AutoLayoutViewerWrapper } from "./viewer/AutoLayoutViewerWrapper";
  *
  * @returns AutoDimensionValues | undefined
  */
-
-const getAutoLayoutDimensionsConfig = (props: BaseWidgetProps) => {
-  let autoDimensionConfig = WidgetFactory.getWidgetAutoLayoutConfig(
-    props.type,
-  ).autoDimension;
-  if (isFunction(autoDimensionConfig)) {
-    autoDimensionConfig = autoDimensionConfig(props);
-  }
-  if (props.isListItemContainer && autoDimensionConfig) {
-    autoDimensionConfig.height = false;
-  }
-  return autoDimensionConfig;
+export const getAutoLayoutDimensionsConfig = (
+  props: BaseWidgetProps,
+): AutoDimensionOptions | undefined => {
+  return getAutoDimensionsConfig(getAutoLayoutWidgetConfig(props), props);
 };
 
 /**
- * getAutoLayoutComponentDimensions
- *
- * utility function to compute a widgets dimensions in Auto layout system
- *
- * @returns
- *  @property {number} componentHeight The calculated height of a widget in pixels.
- *  @property {number} componentWidth The calculated width of a widget in pixels.
- */
-
-const getAutoLayoutComponentDimensions = ({
-  bottomRow,
-  isFlexChild,
-  isMobile,
-  leftColumn,
-  mobileBottomRow,
-  mobileLeftColumn,
-  mobileRightColumn,
-  mobileTopRow,
-  parentColumnSpace,
-  parentRowSpace,
-  rightColumn,
-  topRow,
-}: BaseWidgetProps) => {
-  let left = leftColumn;
-  let right = rightColumn;
-  let top = topRow;
-  let bottom = bottomRow;
-  if (isFlexChild && isMobile) {
-    if (mobileLeftColumn !== undefined && parentColumnSpace !== 1) {
-      left = mobileLeftColumn;
-    }
-    if (mobileRightColumn !== undefined && parentColumnSpace !== 1) {
-      right = mobileRightColumn;
-    }
-    if (mobileTopRow !== undefined && parentRowSpace !== 1) {
-      top = mobileTopRow;
-    }
-    if (mobileBottomRow !== undefined && parentRowSpace !== 1) {
-      bottom = mobileBottomRow;
-    }
-  }
-
-  return {
-    componentWidth: (right - left) * parentColumnSpace,
-    componentHeight: (bottom - top) * parentRowSpace,
-  };
-};
-
-/**
- * getAutoLayoutSystemPropsEnhancer
+ * getAutoLayoutSystemWidgetPropsEnhancer
  *
  * utility function to enhance BaseWidgetProps with Auto Layout system specific props
  *
@@ -88,12 +40,51 @@ const getAutoLayoutComponentDimensions = ({
  *
  */
 
-const getAutoLayoutSystemPropsEnhancer = (props: BaseWidgetProps) => {
+const getAutoLayoutSystemWidgetPropsEnhancer = (props: BaseWidgetProps) => {
   const autoDimensionConfig = getAutoLayoutDimensionsConfig(props);
   const { componentHeight, componentWidth } =
     getAutoLayoutComponentDimensions(props);
   return {
     ...props,
+    autoDimensionConfig,
+    componentHeight,
+    componentWidth,
+  };
+};
+
+const defaultAutoLayoutCanvasProps: Partial<CanvasProps> = {
+  parentRowSpace: 1,
+  parentColumnSpace: 1,
+  topRow: 0,
+  leftColumn: 0,
+  containerStyle: "none",
+  detachFromLayout: true,
+  shouldScrollContents: false,
+};
+
+/**
+ * getAutoLayoutSystemCanvasPropsEnhancer
+ *
+ * utility function to enhance BaseWidgetProps of canvas with Auto Layout system specific props
+ *
+ * @returns EnhancedBaseWidgetProps
+ *  @property {AutoDimensionValues | undefined} autoDimensionConfig The auto dimension configuration of a widget.
+ *  @property {number} componentHeight The calculated height of a widget in pixels.
+ *  @property {number} componentWidth The calculated width of a widget in pixels.
+ *
+ */
+
+const getAutoLayoutSystemCanvasPropsEnhancer = (props: BaseWidgetProps) => {
+  const enhancedProps = {
+    minHeight: CANVAS_DEFAULT_MIN_HEIGHT_PX,
+    ...props,
+    ...defaultAutoLayoutCanvasProps,
+  };
+  const autoDimensionConfig = getAutoLayoutDimensionsConfig(enhancedProps);
+  const { componentHeight, componentWidth } =
+    getAutoLayoutComponentDimensions(enhancedProps);
+  return {
+    ...enhancedProps,
     autoDimensionConfig,
     componentHeight,
     componentWidth,
@@ -118,21 +109,41 @@ const getAutoLayoutSystemWrapper = (renderMode: RenderModes) => {
 };
 
 /**
+ * getAutoLayoutSystemCanvasWrapper
+ *
+ * utility function to return the auto layout system canvas implementation based on render mode.
+ *
+ * @returns current render mode specific canvas component.
+ */
+
+function getAutoLayoutSystemCanvasWrapper(renderMode: RenderModes) {
+  if (renderMode === RenderModes.CANVAS) {
+    return AutoLayoutEditorCanvas;
+  } else {
+    return AutoLayoutViewerCanvas;
+  }
+}
+
+/**
  * getAutoLayoutSystem
  *
  * utility function to return the auto layout system config for
  * wrapper based on render mode and property enhancer function
  *
  * @returns
- *  @function LayoutSystemWrapper - layout and render mode specific component which is wrapped around a widget
- *  pls check getAutoLayoutSystemWrapper for more details.
- *  @function propertyEnhancer - layout specific enhancer function which adds more properties generated/used by the layout system.
- *  pls check getAutoLayoutSystemPropsEnhancer for more details.
+ *  @property widgetSystem - widget specific wrappers and enhancers of a layout system
+ *  @property canvasSystem - canvas specific implementation and enhancers of a layout system
  */
 
-export function getAutoLayoutSystem(renderMode: RenderModes) {
+export function getAutoLayoutSystem(renderMode: RenderModes): LayoutSystem {
   return {
-    LayoutSystemWrapper: getAutoLayoutSystemWrapper(renderMode),
-    propertyEnhancer: getAutoLayoutSystemPropsEnhancer,
+    widgetSystem: {
+      WidgetWrapper: getAutoLayoutSystemWrapper(renderMode),
+      propertyEnhancer: getAutoLayoutSystemWidgetPropsEnhancer,
+    },
+    canvasSystem: {
+      Canvas: getAutoLayoutSystemCanvasWrapper(renderMode),
+      propertyEnhancer: getAutoLayoutSystemCanvasPropsEnhancer,
+    },
   };
 }

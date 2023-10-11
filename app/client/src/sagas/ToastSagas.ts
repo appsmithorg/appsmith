@@ -2,13 +2,13 @@ import type { ToastProps } from "design-system";
 import { toast } from "design-system";
 import { APP_MODE } from "entities/App";
 import { select } from "redux-saga/effects";
-import { getAppMode } from "selectors/entitiesSelector";
+import { getAppMode } from "@appsmith/selectors/entitiesSelector";
 import log from "loglevel";
 
-type ExtraOptions = {
+interface ExtraOptions {
   // This enables showing of toast no matter the conditions
   forceDisplay?: boolean;
-};
+}
 
 /**
  * Shows toast

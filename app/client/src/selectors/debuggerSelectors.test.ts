@@ -1,6 +1,6 @@
 import { Severity, ENTITY_TYPE, LOG_CATEGORY } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import type { DataTree } from "entities/DataTree/dataTreeFactory";
+import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
 import { getFilteredErrors } from "./debuggerSelectors";

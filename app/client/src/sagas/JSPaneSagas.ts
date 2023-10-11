@@ -18,7 +18,10 @@ import {
   getCurrentPageId,
   getIsSavingEntity,
 } from "selectors/editorSelectors";
-import { getJSCollection, getJSCollections } from "selectors/entitiesSelector";
+import {
+  getJSCollection,
+  getJSCollections,
+} from "@appsmith/selectors/entitiesSelector";
 import type {
   JSCollectionData,
   JSCollectionDataState,
@@ -565,9 +568,8 @@ function* handleRefactorJSActionNameSaga(
       const refactorResponse: ApiResponse =
         yield JSActionAPI.updateJSCollectionActionRefactor(requestData);
 
-      const isRefactorSuccessful: boolean = yield validateResponse(
-        refactorResponse,
-      );
+      const isRefactorSuccessful: boolean =
+        yield validateResponse(refactorResponse);
 
       const currentPageId: string | undefined = yield select(getCurrentPageId);
 

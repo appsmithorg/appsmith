@@ -8,18 +8,24 @@ import type { SpectrumCheckboxGroupProps } from "@react-types/checkbox";
 
 import { Field } from "@design-system/headless";
 import { CheckboxGroupContext } from "./context";
-import type { LabelProps } from "@design-system/headless";
 
 export type CheckboxGroupRef = DOMRef<HTMLDivElement>;
+
 export interface CheckboxGroupProps
-  extends Omit<SpectrumCheckboxGroupProps, keyof StyleProps> {
+  extends Omit<
+    SpectrumCheckboxGroupProps,
+    keyof StyleProps | "labelPosition" | "labelAlign" | "isEmphasized"
+  > {
   className?: string;
-  /** label width for the width, only used in side position */
-  labelWidth?: LabelProps["labelWidth"];
 }
 
 const _CheckboxGroup = (props: CheckboxGroupProps, ref: CheckboxGroupRef) => {
-  const { children, className, isDisabled, orientation = "vertical" } = props;
+  const {
+    children,
+    className,
+    isDisabled = false,
+    orientation = "vertical",
+  } = props;
   const domRef = useDOMRef(ref);
   const state = useCheckboxGroupState(props);
   const { descriptionProps, errorMessageProps, groupProps, labelProps } =
@@ -30,14 +36,14 @@ const _CheckboxGroup = (props: CheckboxGroupProps, ref: CheckboxGroupRef) => {
       {...props}
       descriptionProps={descriptionProps}
       errorMessageProps={errorMessageProps}
-      includeNecessityIndicatorInAccessibilityName
+      fieldType="field-group"
       labelProps={labelProps}
       ref={domRef}
       wrapperClassName={className}
     >
       <div
         {...groupProps}
-        data-disabled={props.isDisabled ? "" : undefined}
+        data-disabled={isDisabled ? "" : undefined}
         data-field-group=""
         data-orientation={orientation}
       >

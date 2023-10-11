@@ -8,7 +8,10 @@ import type { AppState } from "@appsmith/reducers";
 import type { JSCollection } from "entities/JSCollection";
 import { Classes } from "@blueprintjs/core";
 import { saveJSObjectName } from "actions/jsActionActions";
-import { getJSCollection, getPlugin } from "selectors/entitiesSelector";
+import {
+  getJSCollection,
+  getPlugin,
+} from "@appsmith/selectors/entitiesSelector";
 import NameEditorComponent from "components/utils/NameEditorComponent";
 import {
   ACTION_NAME_PLACEHOLDER,
@@ -45,7 +48,7 @@ const JSObjectNameWrapper = styled.div<{ page?: string }>`
       : null}
 `;
 
-type JSObjectNameEditorProps = {
+interface JSObjectNameEditorProps {
   /*
     This prop checks if page is API Pane or Query Pane or Curl Pane
     So, that we can toggle between ads editable-text component and existing editable-text component
@@ -54,7 +57,7 @@ type JSObjectNameEditorProps = {
   */
   page?: string;
   disabled?: boolean;
-};
+}
 
 const IconContainer = styled.div`
   height: 34px;

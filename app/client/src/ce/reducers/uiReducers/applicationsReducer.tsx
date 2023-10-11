@@ -27,6 +27,7 @@ import type { IconNames } from "design-system";
 import type { NavigationSetting } from "constants/AppConstants";
 import { defaultNavigationSetting } from "constants/AppConstants";
 import produce from "immer";
+import { groupBy, isEmpty } from "lodash";
 
 export const initialState: ApplicationsReduxState = {
   isFetchingApplications: false,
@@ -50,6 +51,11 @@ export const initialState: ApplicationsReduxState = {
   isErrorSavingNavigationSetting: false,
   isUploadingNavigationLogo: false,
   isDeletingNavigationLogo: false,
+  deletingMultipleApps: {},
+  loadingStates: {
+    isFetchingAllRoles: false,
+    isFetchingAllUsers: false,
+  },
 };
 
 export const handlers = {
@@ -91,6 +97,96 @@ export const handlers = {
     state: ApplicationsReduxState,
   ) => {
     return { ...state, deletingApplication: false };
+  },
+  [ReduxActionTypes.DELETE_MULTIPLE_APPS_TOGGLE]: (
+    state: ApplicationsReduxState,
+    action: ReduxAction<{ id: string }>,
+  ) => {
+    let deleteMultipleAppsList = state.deletingMultipleApps.list || [];
+    if (deleteMultipleAppsList.includes(action.payload.id)) {
+      deleteMultipleAppsList = deleteMultipleAppsList.filter(
+        (i) => i !== action.payload.id,
+      );
+    } else {
+      deleteMultipleAppsList = [...deleteMultipleAppsList, action.payload.id];
+    }
+    return {
+      ...state,
+      deletingMultipleApps: {
+        list: deleteMultipleAppsList,
+      },
+    };
+  },
+  [ReduxActionTypes.DELETE_MULTIPLE_APPS_INIT]: (
+    state: ApplicationsReduxState,
+  ) => {
+    return {
+      ...state,
+      deletingMultipleApps: {
+        list: state.deletingMultipleApps.list,
+        isDeleting: true,
+      },
+    };
+  },
+  [ReduxActionTypes.DELETE_MULTIPLE_APPLICATION_SUCCESS]: (
+    state: ApplicationsReduxState,
+    action: ReduxAction<ApplicationPayload[]>,
+  ) => {
+    const workspacesWithDeletedApps = groupBy(
+      action.payload,
+      (e) => e.workspaceId,
+    );
+    const _workspaces = state.userWorkspaces.map((workspace: Workspaces) => {
+      if (workspacesWithDeletedApps[workspace.workspace.id]) {
+        const deletedApplicationIds = workspacesWithDeletedApps[
+          workspace.workspace.id
+        ].map((e) => e.id);
+
+        let applications = workspace.applications;
+        applications = applications.filter(
+          (application: ApplicationPayload) => {
+            return !deletedApplicationIds.includes(application.id);
+          },
+        );
+
+        return {
+          ...workspace,
+          applications,
+        };
+      }
+
+      return workspace;
+    });
+
+    return {
+      ...state,
+      userWorkspaces: _workspaces,
+      deletingMultipleApps: {
+        list: [],
+        isDeleting: false,
+      },
+    };
+  },
+  [ReduxActionTypes.DELETE_MULTIPLE_APPLICATION_CANCEL]: (
+    state: ApplicationsReduxState,
+  ) => {
+    return {
+      ...state,
+      deletingMultipleApps: {
+        list: [],
+        isDeleting: false,
+      },
+    };
+  },
+  [ReduxActionErrorTypes.DELETE_MULTIPLE_APPLICATION_ERROR]: (
+    state: ApplicationsReduxState,
+  ) => {
+    return {
+      ...state,
+      deletingMultipleApps: {
+        isDeleting: false,
+      },
+    };
   },
   [ReduxActionTypes.CHANGE_APPVIEW_ACCESS_INIT]: (
     state: ApplicationsReduxState,
@@ -150,7 +246,10 @@ export const handlers = {
       isFetchingApplication: false,
     };
 
-    if (!newState.currentApplication.applicationDetail.navigationSetting) {
+    if (
+      !newState.currentApplication.applicationDetail.navigationSetting ||
+      isEmpty(newState.currentApplication.applicationDetail.navigationSetting)
+    ) {
       newState.currentApplication.applicationDetail.navigationSetting =
         defaultNavigationSetting;
     }
@@ -656,11 +755,77 @@ export const handlers = {
       isDeletingNavigationLogo: false,
     };
   },
+  [ReduxActionTypes.CURRENT_APPLICATION_COMMUNITY_TEMPLATE_STATUS_UPDATE]: (
+    state: ApplicationsReduxState,
+    action: ReduxAction<{
+      isCommunityTemplate: boolean;
+      forkingEnabled: boolean;
+      isPublic: boolean;
+    }>,
+  ) => ({
+    ...state,
+    currentApplication: {
+      ...state.currentApplication,
+      isCommunityTemplate: action.payload.isCommunityTemplate,
+      isPublic: action.payload.isPublic,
+      forkingEnabled: action.payload.forkingEnabled,
+    },
+  }),
+  [ReduxActionTypes.PUBLISH_APP_AS_COMMUNITY_TEMPLATE_INIT]: (
+    state: ApplicationsReduxState,
+  ) => {
+    return {
+      ...state,
+      currentApplication: {
+        ...state.currentApplication,
+        isPublishingAppToCommunityTemplate: true,
+      },
+    };
+  },
+  [ReduxActionTypes.SET_PUBLISHED_APP_TO_COMMUNITY_PORTAL]: (
+    state: ApplicationsReduxState,
+  ) => {
+    return {
+      ...state,
+      currentApplication: {
+        ...state.currentApplication,
+        publishedAppToCommunityTemplate: false,
+      },
+    };
+  },
+  [ReduxActionTypes.PUBLISH_APP_AS_COMMUNITY_TEMPLATE_SUCCESS]: (
+    state: ApplicationsReduxState,
+  ) => {
+    return {
+      ...state,
+      currentApplication: {
+        ...state.currentApplication,
+        isPublishingAppToCommunityTemplate: false,
+        publishedAppToCommunityTemplate: true,
+      },
+    };
+  },
+  [ReduxActionErrorTypes.PUBLISH_APP_AS_COMMUNITY_TEMPLATE_ERROR]: (
+    state: ApplicationsReduxState,
+  ) => {
+    return {
+      ...state,
+      currentApplication: {
+        ...state.currentApplication,
+        isPublishingAppToCommunityTemplate: false,
+      },
+    };
+  },
 };
 
 const applicationsReducer = createReducer(initialState, handlers);
 
 export type creatingApplicationMap = Record<string, boolean>;
+
+export interface DeletingMultipleApps {
+  list?: string[];
+  isDeleting?: boolean;
+}
 
 export interface ApplicationsReduxState {
   applicationList: ApplicationPayload[];
@@ -688,6 +853,11 @@ export interface ApplicationsReduxState {
   isErrorSavingNavigationSetting: boolean;
   isUploadingNavigationLogo: boolean;
   isDeletingNavigationLogo: boolean;
+  deletingMultipleApps: DeletingMultipleApps;
+  loadingStates: {
+    isFetchingAllRoles: boolean;
+    isFetchingAllUsers: boolean;
+  };
 }
 
 export interface Application {

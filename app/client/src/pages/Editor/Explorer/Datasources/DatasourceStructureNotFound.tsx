@@ -11,15 +11,15 @@ import { getQueryParams } from "utils/URLUtils";
 import { datasourcesEditorIdURL } from "RouteBuilder";
 import { omit } from "lodash";
 import { getCurrentPageId } from "selectors/editorSelectors";
-import { DatasourceStructureContext } from "./DatasourceStructureContainer";
+import { DatasourceStructureContext } from "./DatasourceStructure";
 
-export type Props = {
+export interface Props {
   error: APIResponseError | { message: string } | undefined;
   datasourceId: string;
   pluginName?: string;
   customEditDatasourceFn?: () => void;
   context: DatasourceStructureContext;
-};
+}
 
 const NotFoundContainer = styled.div`
   display: flex;

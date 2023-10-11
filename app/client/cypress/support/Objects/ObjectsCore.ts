@@ -34,3 +34,4 @@ export const entityItems = EntityItems;
 export const tabs = ObjectsRegistry.Tabs;
 export const gsheetHelper = ObjectsRegistry.GSheetHelper;
 export const widgetLocators = WIDGETSKIT;
+export const communityTemplates = ObjectsRegistry.CommunityTemplates;

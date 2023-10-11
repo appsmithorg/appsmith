@@ -1,5 +1,5 @@
 import { find, toPath, union } from "lodash";
-import type { EvalError, DependencyMap } from "utils/DynamicBindingUtils";
+import type { EvalError } from "utils/DynamicBindingUtils";
 import { EvalErrorTypes } from "utils/DynamicBindingUtils";
 import { extractIdentifierInfoFromCode } from "@shared/ast";
 import {
@@ -9,12 +9,11 @@ import {
   isWidget,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
 
+import type { WidgetEntityConfig } from "@appsmith/entities/DataTree/types";
 import type {
   ConfigTree,
   DataTreeEntity,
-  WidgetEntity,
-  WidgetEntityConfig,
-} from "entities/DataTree/dataTreeFactory";
+} from "entities/DataTree/dataTreeTypes";
 import {
   DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS,
   JAVASCRIPT_KEYWORDS,
@@ -111,30 +110,6 @@ export const extractInfoFromBindings = (
   );
 };
 
-export function listValidationDependencies(
-  entity: WidgetEntity,
-  entityName: string,
-  entityConfig: WidgetEntityConfig,
-): DependencyMap {
-  const validationDependency: DependencyMap = {};
-  if (isWidget(entity)) {
-    const { validationPaths } = entityConfig;
-
-    Object.entries(validationPaths).forEach(
-      ([propertyPath, validationConfig]) => {
-        if (validationConfig.dependentPaths) {
-          const dependencyArray = validationConfig.dependentPaths.map(
-            (path) => `${entityName}.${path}`,
-          );
-          validationDependency[`${entityName}.${propertyPath}`] =
-            dependencyArray;
-        }
-      },
-    );
-  }
-  return validationDependency;
-}
-
 /**This function returns a unique array containing a merge of both arrays
  * @param currentArr
  * @param updateArr
@@ -183,7 +158,10 @@ export function isJSFunction(configTree: ConfigTree, fullPath: string) {
   );
 }
 export function convertArrayToObject(arr: string[]) {
-  return arr.reduce((acc, item) => {
-    return { ...acc, [item]: true } as const;
-  }, {} as Record<string, true>);
+  return arr.reduce(
+    (acc, item) => {
+      return { ...acc, [item]: true } as const;
+    },
+    {} as Record<string, true>,
+  );
 }

@@ -7,9 +7,9 @@ import { Colors } from "constants/Colors";
 import { useParams } from "react-router";
 
 import {
-  getActionsForCurrentPage,
+  getCurrentActions,
   getPluginImages,
-} from "selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import styled from "styled-components";
 import type { AppState } from "@appsmith/reducers";
 import history from "utils/history";
@@ -81,10 +81,10 @@ const ButtonsWrapper = styled.div`
   gap: 10px;
 `;
 
-type DatasourceCardProps = {
+interface DatasourceCardProps {
   datasource: Datasource;
   onCreate: (datasource: Datasource) => void;
-};
+}
 
 // TODO: This is largely a quick copy pasta and edit of QueryEditor/DatasourceCard.tsx
 // When we move Google Sheets over to regular oauth2 integrations, we will need to refactor this.
@@ -98,7 +98,7 @@ function DatasourceCard(props: DatasourceCardProps) {
   const datasourceFormConfigs = useSelector(
     (state: AppState) => state.entities.plugins.formConfigs,
   );
-  const queryActions = useSelector(getActionsForCurrentPage);
+  const queryActions = useSelector(getCurrentActions);
   const queriesWithThisDatasource = queryActions.filter(
     (action) =>
       isStoredDatasource(action.config.datasource) &&

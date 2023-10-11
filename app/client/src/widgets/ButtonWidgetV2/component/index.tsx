@@ -5,10 +5,10 @@ import type { IconName } from "@blueprintjs/icons";
 import { Container } from "./Container";
 import { useRecaptcha } from "./useRecaptcha";
 import type { UseRecaptchaProps } from "./useRecaptcha";
+import { Button, Tooltip } from "@design-system/widgets";
 import type { ButtonProps } from "@design-system/widgets";
-import { Button, Icon, Tooltip } from "@design-system/widgets";
 
-export type ButtonComponentProps = {
+export interface ButtonComponentProps {
   text?: string;
   tooltip?: string;
   minWidth?: number;
@@ -23,18 +23,18 @@ export type ButtonComponentProps = {
   type: ButtonProps["type"];
   onPress?: ButtonProps["onPress"];
   iconPosition?: ButtonProps["iconPosition"];
-};
+}
 
 function ButtonComponent(props: ButtonComponentProps & UseRecaptchaProps) {
   const { iconName, maxWidth, minHeight, minWidth, text, tooltip, ...rest } =
     props;
   const containerProps = { maxWidth, minHeight, minWidth };
 
-  const icon = iconName && (
-    <Icon>
-      <BIcon icon={iconName} />
-    </Icon>
-  );
+  const icon =
+    iconName &&
+    (() => {
+      return <BIcon icon={iconName} />;
+    });
 
   const { onClick, recpatcha } = useRecaptcha(props);
 

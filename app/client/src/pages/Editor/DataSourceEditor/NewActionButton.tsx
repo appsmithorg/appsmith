@@ -19,10 +19,10 @@ import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelecto
 import { getFeatureWalkthroughShown } from "utils/storage";
 import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
 import { adaptiveSignpostingEnabled } from "@appsmith/selectors/featureFlagsSelectors";
-import { actionsExistInCurrentPage } from "selectors/entitiesSelector";
+import { actionsExistInCurrentPage } from "@appsmith/selectors/entitiesSelector";
 import { SignpostingWalkthroughConfig } from "../FirstTimeUserOnboarding/Utils";
 
-type NewActionButtonProps = {
+interface NewActionButtonProps {
   datasource?: Datasource;
   disabled?: boolean;
   packageName?: string;
@@ -31,7 +31,7 @@ type NewActionButtonProps = {
   pluginType?: string;
   style?: any;
   isNewQuerySecondaryButton?: boolean;
-};
+}
 function NewActionButton(props: NewActionButtonProps) {
   const { datasource, disabled, isNewQuerySecondaryButton, pluginType } = props;
   const [isSelected, setIsSelected] = useState(false);

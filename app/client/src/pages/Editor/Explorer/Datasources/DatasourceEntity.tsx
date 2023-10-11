@@ -13,16 +13,14 @@ import {
 } from "actions/datasourceActions";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
-import {
-  DatasourceStructureContainer,
-  DatasourceStructureContext,
-} from "./DatasourceStructureContainer";
+import { DatasourceStructureContainer } from "./DatasourceStructureContainer";
+import { DatasourceStructureContext } from "./DatasourceStructure";
 import { isStoredDatasource, PluginType } from "entities/Action";
 import {
   getAction,
   getDatasourceStructureById,
   getIsFetchingDatasourceStructure,
-} from "selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import {
   datasourcesEditorIdURL,
   saasEditorDatasourceIdURL,
@@ -34,8 +32,9 @@ import { useLocation } from "react-router";
 import omit from "lodash/omit";
 import { getQueryParams } from "utils/URLUtils";
 import { debounce } from "lodash";
+import styled from "styled-components";
 
-type ExplorerDatasourceEntityProps = {
+interface ExplorerDatasourceEntityProps {
   plugin: Plugin;
   datasource: Datasource;
   step: number;
@@ -43,7 +42,18 @@ type ExplorerDatasourceEntityProps = {
   pageId: string;
   isActive: boolean;
   canManageDatasource?: boolean;
-};
+}
+
+const MAX_HEIGHT_LIST_WRAPPER = 300;
+
+const DataStructureListWrapper = styled.div<{ height: number }>`
+  overflow-y: auto;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  max-height: ${MAX_HEIGHT_LIST_WRAPPER}px;
+  ${(props) => `min-height: ${props.height}px;`}
+`;
 
 const ExplorerDatasourceEntity = React.memo(
   (props: ExplorerDatasourceEntityProps) => {
@@ -167,12 +177,19 @@ const ExplorerDatasourceEntity = React.memo(
         step={props.step}
         updateEntityName={updateDatasourceNameCall}
       >
-        <DatasourceStructureContainer
-          context={DatasourceStructureContext.EXPLORER}
-          datasourceId={props.datasource.id}
-          datasourceStructure={datasourceStructure}
-          step={props.step}
-        />
+        <DataStructureListWrapper
+          height={Math.min(
+            (datasourceStructure?.tables?.length || 0) * 50,
+            MAX_HEIGHT_LIST_WRAPPER,
+          )}
+        >
+          <DatasourceStructureContainer
+            context={DatasourceStructureContext.EXPLORER}
+            datasourceId={props.datasource.id}
+            datasourceStructure={datasourceStructure}
+            step={props.step}
+          />
+        </DataStructureListWrapper>
       </Entity>
     );
   },

@@ -5,7 +5,7 @@ import history from "utils/history";
 import {
   getGenerateCRUDEnabledPluginMap,
   getPlugin,
-} from "selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import type { Action } from "entities/Action";
 import { PluginType } from "entities/Action";
 import type { GenerateCRUDEnabledPluginMap, Plugin } from "api/PluginApi";

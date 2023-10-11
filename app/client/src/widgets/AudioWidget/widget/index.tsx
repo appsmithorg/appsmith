@@ -12,11 +12,13 @@ import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import type { SetterConfig } from "entities/AppTheming";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
+import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import IconSVG from "../icon.svg";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 
-const AudioComponent = lazy(() => retryPromise(() => import("../component")));
+const AudioComponent = lazy(async () =>
+  retryPromise(async () => import("../component")),
+);
 
 export enum PlayState {
   NOT_STARTED = "NOT_STARTED",

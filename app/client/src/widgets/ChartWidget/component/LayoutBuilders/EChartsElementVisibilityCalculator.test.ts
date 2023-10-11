@@ -3,119 +3,119 @@ import type { EChartElementLayoutParams } from "./EChartsElementVisibilityCalcul
 
 describe("EChartsElementVisibilityCalculator", () => {
   describe("visibility calculator", () => {
-    it("returns no elements if current height is equal to minimumHeight", () => {
+    it("returns no elements if element minHeight is equal to gridMinimumHeight", () => {
       const elements: EChartElementLayoutParams[] = [
         {
           elementName: "element1",
-          height: 10,
+          minHeight: 10,
+          maxHeight: 10,
           position: "top",
         },
         {
           elementName: "element2",
-          height: 10,
+          minHeight: 10,
+          maxHeight: 10,
           position: "bottom",
         },
       ];
 
-      const minimumHeight = 80;
+      const gridMinimumHeight = 80;
       const heightAvailable = 80;
 
       const builder = new EChartElementVisibilityCalculator({
         height: heightAvailable,
         padding: 0,
-        minimumHeight: minimumHeight,
+        gridMinimumHeight: gridMinimumHeight,
         layoutConfigs: elements,
       });
 
-      expect(builder.visibleElements.top.length).toEqual(0);
-      expect(builder.visibleElements.bottom.length).toEqual(0);
+      expect(builder.visibleElements.length).toEqual(0);
     });
 
     it("fits as many elements possible within the height available", () => {
       const elements: EChartElementLayoutParams[] = [
         {
           elementName: "element1",
-          height: 10,
+          minHeight: 10,
+          maxHeight: 10,
           position: "top",
         },
         {
           elementName: "element2",
-          height: 30,
+          minHeight: 30,
+          maxHeight: 30,
           position: "bottom",
         },
       ];
-      const minimumHeight = 80;
+      const gridMinimumHeight = 80;
       const heightAvailable = 120;
 
       const builder = new EChartElementVisibilityCalculator({
         height: heightAvailable,
         padding: 0,
-        minimumHeight: minimumHeight,
+        gridMinimumHeight: gridMinimumHeight,
         layoutConfigs: elements,
       });
 
-      expect(builder.visibleElements.top.length).toEqual(1);
-      expect(builder.visibleElements.bottom.length).toEqual(1);
-
-      expect(builder.visibleElements.top[0]).toEqual(elements[0]);
-      expect(builder.visibleElements.bottom[0]).toEqual(elements[1]);
+      expect(builder.visibleElements.length).toEqual(2);
     });
 
     it("excludes elements that can't fit within the height available", () => {
       const elements: EChartElementLayoutParams[] = [
         {
           elementName: "element1",
-          height: 10,
+          minHeight: 10,
+          maxHeight: 10,
           position: "top",
         },
         {
           elementName: "element2",
-          height: 30,
+          minHeight: 30,
+          maxHeight: 30,
           position: "bottom",
         },
       ];
 
-      const minimumHeight = 80;
+      const gridMinimumHeight = 80;
       const heightAvailable = 100;
 
       const builder = new EChartElementVisibilityCalculator({
         height: heightAvailable,
         padding: 0,
-        minimumHeight: minimumHeight,
+        gridMinimumHeight: gridMinimumHeight,
         layoutConfigs: elements,
       });
 
-      expect(builder.visibleElements.top.length).toEqual(1);
-      expect(builder.visibleElements.bottom.length).toEqual(0);
-
-      expect(builder.visibleElements.top[0]).toEqual(elements[0]);
+      expect(builder.visibleElements.length).toEqual(1);
+      expect(builder.visibleElements[0].elementName).toEqual("element1");
     });
 
     it("excludes lower priority fitting elements if higher priority elements can't fit", () => {
       const elements: EChartElementLayoutParams[] = [
         {
           elementName: "element1",
-          height: 30,
+          minHeight: 30,
+          maxHeight: 30,
           position: "top",
         },
         {
           elementName: "element2",
-          height: 10,
+          minHeight: 10,
+          maxHeight: 10,
           position: "bottom",
         },
       ];
-      const minimumHeight = 80;
+      const gridMinimumHeight = 80;
       const heightAvailable = 90;
 
       const builder = new EChartElementVisibilityCalculator({
         height: heightAvailable,
         padding: 0,
-        minimumHeight: minimumHeight,
+        gridMinimumHeight: gridMinimumHeight,
         layoutConfigs: elements,
       });
 
-      expect(builder.visibleElements.top.length).toEqual(0);
-      expect(builder.visibleElements.bottom.length).toEqual(0);
+      expect(builder.visibleElements.length).toEqual(0);
     });
   });
 
@@ -127,30 +127,28 @@ describe("EChartsElementVisibilityCalculator", () => {
       const elements: EChartElementLayoutParams[] = [
         {
           elementName: "element1",
-          height: topElementHeight,
+          minHeight: topElementHeight,
+          maxHeight: topElementHeight,
           position: "top",
         },
         {
           elementName: "element2",
-          height: bottomElementHeight,
+          minHeight: bottomElementHeight,
+          maxHeight: bottomElementHeight,
           position: "bottom",
         },
       ];
-      const minimumHeight = 80;
+      const gridMinimumHeight = 80;
       const heightAvailable = 120;
 
       const builder = new EChartElementVisibilityCalculator({
         height: heightAvailable,
         padding: 0,
-        minimumHeight: minimumHeight,
+        gridMinimumHeight: gridMinimumHeight,
         layoutConfigs: elements,
       });
 
-      expect(builder.visibleElements.top.length).toEqual(1);
-      expect(builder.visibleElements.bottom.length).toEqual(1);
-
-      expect(builder.visibleElements.top[0]).toEqual(elements[0]);
-      expect(builder.visibleElements.bottom[0]).toEqual(elements[1]);
+      expect(builder.visibleElements.length).toEqual(2);
 
       const offsets = builder.calculateOffsets();
       expect(offsets.top).toEqual(topElementHeight);
@@ -162,23 +160,23 @@ describe("EChartsElementVisibilityCalculator", () => {
       const elements: EChartElementLayoutParams[] = [
         {
           elementName: "element1",
-          height: elementHeight,
+          minHeight: elementHeight,
+          maxHeight: elementHeight,
           position: "bottom",
         },
       ];
-      const minimumHeight = 80;
+      const gridMinimumHeight = 80;
       const heightAvailable = 90;
 
       const customPadding = 5;
       const builder = new EChartElementVisibilityCalculator({
         height: heightAvailable,
         padding: customPadding,
-        minimumHeight: minimumHeight,
+        gridMinimumHeight: gridMinimumHeight,
         layoutConfigs: elements,
       });
 
-      expect(builder.visibleElements.top.length).toEqual(0);
-      expect(builder.visibleElements.bottom.length).toEqual(1);
+      expect(builder.visibleElements.length).toEqual(1);
 
       const offsets = builder.calculateOffsets();
 
@@ -191,28 +189,90 @@ describe("EChartsElementVisibilityCalculator", () => {
       const elements: EChartElementLayoutParams[] = [
         {
           elementName: "element1",
-          height: elementHeight,
+          minHeight: elementHeight,
+          maxHeight: elementHeight,
           position: "top",
         },
       ];
-      const minimumHeight = 80;
+      const gridMinimumHeight = 80;
       const heightAvailable = 90;
 
       const customPadding = 5;
       const builder = new EChartElementVisibilityCalculator({
         height: heightAvailable,
         padding: customPadding,
-        minimumHeight: minimumHeight,
+        gridMinimumHeight: gridMinimumHeight,
         layoutConfigs: elements,
       });
 
-      expect(builder.visibleElements.top.length).toEqual(1);
-      expect(builder.visibleElements.bottom.length).toEqual(0);
+      expect(builder.visibleElements.length).toEqual(1);
 
       const offsets = builder.calculateOffsets();
 
       expect(offsets.top).toEqual(elementHeight);
       expect(offsets.bottom).toEqual(customPadding);
+    });
+
+    it("allocates max height to element if there is remaining space inside the widget", () => {
+      const minElementHeight = 10;
+      const maxElementHeight = 40;
+      const elements: EChartElementLayoutParams[] = [
+        {
+          elementName: "element1",
+          minHeight: minElementHeight,
+          maxHeight: maxElementHeight,
+          position: "bottom",
+        },
+      ];
+      const gridMinimumHeight = 80;
+      const heightAvailable = 120;
+
+      const customPadding = 5;
+      const builder = new EChartElementVisibilityCalculator({
+        height: heightAvailable,
+        padding: customPadding,
+        gridMinimumHeight: gridMinimumHeight,
+        layoutConfigs: elements,
+      });
+
+      expect(builder.visibleElements.length).toEqual(1);
+      expect(builder.visibleElements[0].height).toEqual(maxElementHeight);
+
+      const offsets = builder.calculateOffsets();
+
+      expect(offsets.top).toEqual(customPadding);
+      expect(offsets.bottom).toEqual(maxElementHeight);
+    });
+
+    it("allocates max height possible to element if there is remaining space inside the widget", () => {
+      const minElementHeight = 10;
+      const maxElementHeight = 40;
+      const elements: EChartElementLayoutParams[] = [
+        {
+          elementName: "element1",
+          minHeight: minElementHeight,
+          maxHeight: maxElementHeight,
+          position: "bottom",
+        },
+      ];
+      const gridMinimumHeight = 80;
+      const heightAvailable = 110;
+
+      const customPadding = 5;
+      const builder = new EChartElementVisibilityCalculator({
+        height: heightAvailable,
+        padding: customPadding,
+        gridMinimumHeight: gridMinimumHeight,
+        layoutConfigs: elements,
+      });
+
+      expect(builder.visibleElements.length).toEqual(1);
+      expect(builder.visibleElements[0].height).toEqual(30);
+
+      const offsets = builder.calculateOffsets();
+
+      expect(offsets.top).toEqual(customPadding);
+      expect(offsets.bottom).toEqual(30);
     });
   });
 });

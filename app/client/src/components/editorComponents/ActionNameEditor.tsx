@@ -13,7 +13,7 @@ import type { Action } from "entities/Action";
 import { saveActionName } from "actions/pluginActionActions";
 import { Spinner } from "design-system";
 import { Classes } from "@blueprintjs/core";
-import { getAction, getPlugin } from "selectors/entitiesSelector";
+import { getAction, getPlugin } from "@appsmith/selectors/entitiesSelector";
 import type { Plugin } from "api/PluginApi";
 import NameEditorComponent from "components/utils/NameEditorComponent";
 import {
@@ -58,7 +58,7 @@ const ApiIconBox = styled.div`
   margin-right: 8px;
   flex-shrink: 0;
 `;
-type ActionNameEditorProps = {
+interface ActionNameEditorProps {
   /*
     This prop checks if page is API Pane or Query Pane or Curl Pane
     So, that we can toggle between ads editable-text component and existing editable-text component
@@ -67,7 +67,7 @@ type ActionNameEditorProps = {
   */
   page?: string;
   disabled?: boolean;
-};
+}
 
 function ActionNameEditor(props: ActionNameEditorProps) {
   const params = useParams<{ apiId?: string; queryId?: string }>();

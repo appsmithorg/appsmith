@@ -164,7 +164,7 @@ export const INVITE_TAB = () => "Invite";
 export const INVITE_USERS_VALIDATION_EMAIL_LIST = () =>
   `Invalid email address(es) found`;
 export const INVITE_USERS_VALIDATION_ROLE_EMPTY = () => `Please select a role`;
-export const APPLICATION_INVITE = () => "Application Invite";
+export const APPLICATION_INVITE = (name: string) => `Invite users to ${name}`;
 export const INVITE_USERS_EMAIL_LIST_PLACEHOLDER = () =>
   `Comma separated emails`;
 export const INVITE_USERS_ROLE_SELECT_PLACEHOLDER = () => `Select role`;
@@ -197,6 +197,12 @@ export const USERS_HAVE_ACCESS_TO_ONLY_THIS_APP = () =>
   "Users will only have access to this application";
 export const NO_USERS_INVITED = () => "You haven't invited any users yet";
 export const BUSINESS_EDITION_TEXT = () => "business edition";
+export const PARTNER_PROGRAM_CALLOUT = (
+  email: string,
+) => `${email} is outside your organisation. If you’re building this app
+for someone else, you should check out our partner program.`;
+export const PARTNER_PROGRAM_CALLOUT_LINK = () =>
+  `Learn about Appsmith Partner Program`;
 
 export const USER_PROFILE_PICTURE_UPLOAD_FAILED = () =>
   "Unable to upload display picture.";
@@ -215,6 +221,15 @@ export const CREATE_PASSWORD_RESET_SUCCESS = () => `Your password has been set`;
 export const CREATE_PASSWORD_RESET_SUCCESS_LOGIN_LINK = () => `Login`;
 
 export const DELETING_APPLICATION = () => `Deleting application...`;
+export const DELETING_MULTIPLE_APPLICATION = () =>
+  `Deleting multiple applications...`;
+export const NO_PERMISSION_TO_SELECT_FOR_DELETE = () =>
+  `You don't have permission to delete this application`;
+
+export const DELETING_MULTIPLE_APPLICATION_MODAL_TITLE = () =>
+  `Delete Confirmation`;
+export const DELETING_MULTIPLE_APPLICATION_MODAL_DESC = () =>
+  `Are you sure you want to delete selected applications?`;
 
 export const FORGOT_PASSWORD_PAGE_LOGIN_LINK = () => `Back to sign in`;
 export const ADD_API_TO_PAGE_SUCCESS_MESSAGE = (actionName: string) =>
@@ -732,7 +747,7 @@ export const EMPTY_ACTIVE_DATA_SOURCES = () => "No active datasources found.";
 // Datasource structure
 
 export const SCHEMA_NOT_AVAILABLE = () => "Schema not available";
-export const TABLE_OR_COLUMN_NOT_FOUND = () => "Table or column not found.";
+export const TABLE_NOT_FOUND = () => "Table not found.";
 export const DATASOURCE_STRUCTURE_INPUT_PLACEHOLDER_TEXT = () =>
   "Search for table or attribute";
 export const SCHEMA_LABEL = () => "Schema";
@@ -744,6 +759,7 @@ export const LOADING_SCHEMA = () => "Loading schema...";
 export const SCHEMA_WALKTHROUGH_TITLE = () => "Query data fast";
 export const SCHEMA_WALKTHROUGH_DESC = () =>
   "Select a template from a database table to quickly create your first query. ";
+export const SUGGESTED_TAG = () => "Suggested";
 
 // structure - View Mode
 
@@ -762,6 +778,7 @@ export const GIT_DISCONNECT_POPUP_SUBTITLE = () =>
 export const GIT_DISCONNECT_POPUP_MAIN_HEADING = () => `Are you sure?`;
 
 export const CONFIGURE_GIT = () => "Configure git";
+export const IMPORT_APP = () => "Import app via git";
 export const SETTINGS_GIT = () => "Settings";
 
 export const GIT_CONNECTION = () => "Git connection";
@@ -1226,7 +1243,8 @@ export const SNIPPET_TOOLTIP = () => "Search code snippets";
 
 //Welcome page
 export const WELCOME_HEADER = () => "Almost there";
-export const WELCOME_BODY = () => "Let's setup your account first";
+export const WELCOME_BODY = () =>
+  "Help us provide you with a customized experience.";
 export const WELCOME_ACTION = () => "Get started";
 
 // API Editor
@@ -1418,6 +1436,29 @@ export const WELCOME_FORM_NON_SUPER_USER_ROLE_DROPDOWN = () =>
 export const WELCOME_FORM_NON_SUPER_USER_ROLE = () => "Role";
 export const WELCOME_FORM_NON_SUPER_USER_USE_CASE = () =>
   "What are you planning to use Appsmith for?";
+export const WELCOME_FORM_NON_SUPER_USER_PROFICIENCY_LEVEL = () =>
+  "How would you rate your development proficiency?";
+
+export const WELCOME_FORM_PROFICIENCY_ERROR_MESSAGE = () =>
+  "Please select a proficiency level";
+export const WELCOME_FORM_USE_CASE_ERROR_MESSAGE = () =>
+  "Please select an use case";
+
+export const WELCOME_FORM_CUSTOM_USE_CASE_ERROR_MESSAGE = () =>
+  "Please enter a use case";
+
+export const WELCOME_FORM_EMAIL_ERROR_MESSAGE = () =>
+  "Enter a valid email address.";
+
+export const WELCOME_FORM_STRONG_PASSWORD_ERROR_MESSAGE = () =>
+  "Please enter a strong password.";
+
+export const WELCOME_FORM_GENERIC_ERROR_MESSAGE = () =>
+  "This field is required.";
+
+export const WELCOME_FORM_PASSWORDS_NOT_MATCHING_ERROR_MESSAGE = () =>
+  "TPasswords don't match.";
+
 export const QUERY_CONFIRMATION_MODAL_MESSAGE = () =>
   `Are you sure you want to run `;
 export const ENTITY_EXPLORER_TITLE = () => "NAVIGATION";
@@ -1682,11 +1723,11 @@ export const CLEAN_URL_UPDATE = {
 export const MEMBERS_TAB_TITLE = (
   length: number,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  cloudHosting?: boolean,
+  isFreeInstance?: boolean,
 ) => `Users (${length})`;
 export const SEARCH_USERS = (
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  cloudHosting?: boolean,
+  isFreeInstance?: boolean,
 ) => `Search for users`;
 
 export const CREATE_PAGE = () => "New blank page";
@@ -2002,3 +2043,113 @@ export const BACK_CAMERA_LABEL = () => "Back (Rear)";
 
 // Color picker
 export const FULL_COLOR_PICKER_LABEL = () => "Full color picker";
+
+// Column selector modal
+export const EDIT_FIELDS = () => "Edit fields";
+export const FIELDS_CONFIGURATION = () => "Fields Configuration";
+export const SAVE_CHANGES = () => "Save changes";
+export const COLUMN_TYPE = () => "Column type";
+export const COLUMN_NAME = () => "Column name";
+export const EDIT_FIELDS_DISABLED_TOOLTIP_TEXT = () =>
+  "Select a table to edit fields";
+
+export const SAVE_CHANGES_DISABLED_TOOLTIP_TEXT = () =>
+  "You have to select at least 1 field to save";
+
+export const NO_CONNECTABLE_WIDGET_FOUND = () =>
+  "Add a table or list widget with data to get the values from";
+
+export const CONNECT_BUTTON_TEXT = () => "Connect data";
+
+export const NO_FIELDS_ADDED = () => "No fields added";
+
+// One click binding control
+export const DATASOURCE_DROPDOWN_OPTIONS = {
+  CONNECT_TO_QUERY: () => "Connect to query",
+  CONNECT_TO: () => "Connect to",
+  CHOOSE_DATASOURCE_TO_CONNECT: () => "Choose datasource to connect",
+  CREATE_OR_EDIT_RECORDS: () => "Create or Edit records",
+  WRITE_JSON_SCHEMA: () => "Write JSON schema",
+  SELECT_A_DATASOURCE: () => "Select a datasource",
+  CONNECT_DATA: () => "Connect data",
+  OTHER_ACTIONS: () => "Other actions",
+};
+
+export const COMMUNITY_TEMPLATES = {
+  publish: () => "Publish",
+  cancel: () => "Cancel",
+  publishSuccessPage: {
+    title: () => "Live on Appsmith community",
+    description: () =>
+      "This application is live on community as a template for users to fork and remix.",
+    viewTemplateButton: () => "View template",
+  },
+  publishFormPage: {
+    title: () => "Publish to community",
+    footer: {
+      publishButton: () => "Publish to community",
+      tnCText: () =>
+        "I understand publishing this app will allow users outside my workspace to fork it to their workspace.",
+    },
+    preview: {
+      thumbnail: () => "Thumbnail will be generated automatically",
+    },
+    templateForm: {
+      titleInputLabel: () => "Title",
+      titleInputPlaceholder: () => "Title of the template",
+      titleRequiredError: () => `Please provide title`,
+
+      excerptInputLabel: () => "Headline",
+      excerptInputPlaceholder: () => "One line excerpt",
+
+      descriptionInputLabel: () => "Description",
+      descriptionInputPlaceholder: () => "Description of the template",
+
+      useCasesInputLabel: () => "Use-cases",
+      useCasesInputPlaceholder: () => "Select use cases",
+    },
+    authorDetails: {
+      title: () => "Author details",
+      displayNameLabel: () => "Display name",
+      displayNamePlaceholder: () => "Display name",
+      nameRequiredError: () => `Please provide name`,
+
+      emailLabel: () => "Email",
+      emailPlaceholder: () => "Email",
+    },
+    applicationSettings: {
+      title: () => "Application settings",
+      publicSetting: () => "Make application public",
+      forkableSetting: () => "Make application forkable",
+    },
+    publishedInfo: {
+      title: () => "What is published?",
+      correct: [
+        () => "Widgets & their properties",
+        () => "Queries & JS Objects",
+        () => "Datasource types",
+      ],
+      incorrect: [
+        () => "Datasource credentials",
+        () => "API authentication details",
+        () => "Environment variables",
+        () => "Git credentials",
+      ],
+    },
+    publishedFailedError: () => "Unable to publish",
+  },
+  modals: {
+    unpublishedInfo: {
+      title: () => "Publish to Appsmith community",
+      description: () =>
+        "Publish this app to Appsmith community for the public to view, fork, and remix.",
+      publishBtn: () => "Start publishing",
+    },
+    publishedInfo: {
+      title: () => "Live on Appsmith community!",
+      description: () =>
+        "This application is live on community as a template for users to fork and remix.",
+      viewTemplate: () => "View template",
+    },
+  },
+};

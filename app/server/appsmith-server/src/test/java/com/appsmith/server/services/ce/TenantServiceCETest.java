@@ -201,8 +201,7 @@ class TenantServiceCETest {
 
         StepVerifier.create(resultMono)
                 .assertNext(tenantConfiguration -> {
-                    assertThat(tenantConfiguration.getEmailVerificationEnabled())
-                            .isTrue();
+                    assertThat(tenantConfiguration.isEmailVerificationEnabled()).isTrue();
                 })
                 .verifyComplete();
     }
@@ -220,8 +219,7 @@ class TenantServiceCETest {
 
         StepVerifier.create(resultMono)
                 .assertNext(tenantConfiguration -> {
-                    assertThat(tenantConfiguration.getEmailVerificationEnabled())
-                            .isFalse();
+                    assertThat(tenantConfiguration.isEmailVerificationEnabled()).isFalse();
                 })
                 .verifyComplete();
     }
@@ -264,7 +262,6 @@ class TenantServiceCETest {
         final Mono<Tenant> resultMono = tenantService.checkAndExecuteMigrationsForTenantFeatureFlags(tenant);
         StepVerifier.create(resultMono)
                 .assertNext(tenant1 -> {
-                    assertThat(tenant1).isEqualTo(tenant);
                     assertThat(tenant1.getTenantConfiguration().getFeaturesWithPendingMigration())
                             .isEmpty();
                     assertThat(tenant1.getTenantConfiguration().getMigrationStatus())

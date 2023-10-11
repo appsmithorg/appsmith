@@ -1,22 +1,17 @@
 import {
   getEntityNameAndPropertyPath,
-  isAction,
   isJSAction,
-  isWidget,
+  isValidEntity,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
 import {
   EXECUTION_PARAM_REFERENCE_REGEX,
   THIS_DOT_PARAMS_KEY,
 } from "constants/AppsmithActionConstants/ActionConstants";
-import type {
-  ConfigTree,
-  DataTree,
-  DataTreeEntity,
-  WidgetEntity,
-} from "entities/DataTree/dataTreeFactory";
-import type { ActionEntity, JSActionEntity } from "entities/DataTree/types";
+import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeTypes";
 import type DependencyMap from "entities/DependencyMap";
 import type { TJSPropertiesState } from "workers/Evaluation/JSObject/jsPropertiesState";
+import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
+import type { DataTreeEntityConfig } from "@appsmith/entities/DataTree/types";
 
 export function getFixedTimeDifference(endTime: number, startTime: number) {
   return (endTime - startTime).toFixed(2) + " ms";
@@ -28,12 +23,6 @@ export function isDataField(fullPath: string, configTree: ConfigTree) {
     return !(propertyPath in entityConfig.triggerPaths);
   }
   return false;
-}
-
-export function isWidgetActionOrJsObject(
-  entity: DataTreeEntity,
-): entity is ActionEntity | WidgetEntity | JSActionEntity {
-  return isWidget(entity) || isAction(entity) || isJSAction(entity);
 }
 
 export function replaceThisDotParams(code: string) {
@@ -67,4 +56,16 @@ export function getAllAsyncJSFunctions(
     }
   }
   return allAsyncJSFunctions;
+}
+
+export function getValidEntityType(
+  entity: DataTreeEntity,
+  entityConfig: DataTreeEntityConfig,
+) {
+  let entityType;
+  if (isValidEntity(entity)) {
+    entityType =
+      (!!entityConfig && entityConfig.ENTITY_TYPE) || entity.ENTITY_TYPE;
+  }
+  return !!entityType ? entityType : "noop";
 }

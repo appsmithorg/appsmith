@@ -15,7 +15,7 @@ import {
   getPageActions,
   getCanvasWidgets,
   getSavedDatasources,
-} from "selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import { showSignpostingTooltip } from "actions/onboardingActions";
 import { SIGNPOSTING_STEP } from "./Utils";
 import { isWidgetActionConnectionPresent } from "selectors/onboardingSelectors";

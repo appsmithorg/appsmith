@@ -1,11 +1,12 @@
 import type {
-  ConfigTree,
   WidgetEntity,
-  UnEvalTree,
   WidgetEntityConfig,
-} from "entities/DataTree/dataTreeFactory";
+  ActionEntityConfig,
+  ActionEntity,
+} from "@appsmith/entities/DataTree/types";
+import type { UnEvalTree, ConfigTree } from "entities/DataTree/dataTreeTypes";
 import {
-  ENTITY_TYPE,
+  ENTITY_TYPE_VALUE,
   EvaluationSubstitutionType,
 } from "entities/DataTree/dataTreeFactory";
 import type { WidgetTypeConfigMap } from "WidgetProvider/factory";
@@ -16,7 +17,6 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import WidgetFactory from "WidgetProvider/factory";
 import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
 import { sortObjectWithArray } from "../../../utils/treeUtils";
-import type { ActionEntityConfig, ActionEntity } from "entities/DataTree/types";
 
 const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
   CONTAINER_WIDGET: {
@@ -236,7 +236,7 @@ const BASE_WIDGET = {
   type: "SKELETON_WIDGET",
   parentId: "0",
   version: 1,
-  ENTITY_TYPE: ENTITY_TYPE.WIDGET,
+  ENTITY_TYPE: ENTITY_TYPE_VALUE.WIDGET,
   meta: {},
 } as unknown as WidgetEntity;
 
@@ -244,7 +244,7 @@ const BASE_WIDGET_CONFIG = {
   logBlackList: {},
   widgetId: "randomID",
   type: "SKELETON_WIDGET",
-  ENTITY_TYPE: ENTITY_TYPE.WIDGET,
+  ENTITY_TYPE: ENTITY_TYPE_VALUE.WIDGET,
 } as unknown as WidgetEntityConfig;
 
 export const BASE_ACTION: ActionEntity = {
@@ -258,7 +258,7 @@ export const BASE_ACTION: ActionEntity = {
   run: {},
   data: {},
   responseMeta: { isExecutionSuccess: false },
-  ENTITY_TYPE: ENTITY_TYPE.ACTION,
+  ENTITY_TYPE: ENTITY_TYPE_VALUE.ACTION,
 };
 export const BASE_ACTION_CONFIG: ActionEntityConfig = {
   actionId: "randomId",
@@ -267,7 +267,7 @@ export const BASE_ACTION_CONFIG: ActionEntityConfig = {
   name: "randomActionName",
   dynamicBindingPathList: [],
   pluginType: PluginType.API,
-  ENTITY_TYPE: ENTITY_TYPE.ACTION,
+  ENTITY_TYPE: ENTITY_TYPE_VALUE.ACTION,
   bindingPaths: {},
   reactivePaths: {
     isLoading: EvaluationSubstitutionType.TEMPLATE,
@@ -359,6 +359,7 @@ describe("DataTreeEvaluator", () => {
       },
     },
     {},
+    new Set(),
   );
   const input1unEvalEntity = unEvalEntity;
   const input1ConfigEntity = configEntity;
@@ -374,6 +375,7 @@ describe("DataTreeEvaluator", () => {
         type: "TEXT_WIDGET",
       },
       {},
+      new Set(),
     ).unEvalEntity,
     Text2: generateDataTreeWidget(
       {
@@ -385,6 +387,7 @@ describe("DataTreeEvaluator", () => {
         type: "TEXT_WIDGET",
       },
       {},
+      new Set(),
     ).unEvalEntity,
     Text3: generateDataTreeWidget(
       {
@@ -396,6 +399,7 @@ describe("DataTreeEvaluator", () => {
         type: "TEXT_WIDGET",
       },
       {},
+      new Set(),
     ).unEvalEntity,
     Dropdown1: generateDataTreeWidget(
       {
@@ -415,6 +419,7 @@ describe("DataTreeEvaluator", () => {
         type: "SELECT_WIDGET",
       },
       {},
+      new Set(),
     ).unEvalEntity,
     Table1: generateDataTreeWidget(
       {
@@ -430,6 +435,7 @@ describe("DataTreeEvaluator", () => {
         selectedRowIndices: undefined,
       },
       {},
+      new Set(),
     ).unEvalEntity,
     Text4: generateDataTreeWidget(
       {
@@ -447,6 +453,7 @@ describe("DataTreeEvaluator", () => {
         },
       },
       {},
+      new Set(),
     ).unEvalEntity,
   };
 
@@ -460,6 +467,7 @@ describe("DataTreeEvaluator", () => {
         type: "TEXT_WIDGET",
       },
       {},
+      new Set(),
     ).configEntity,
     Text2: generateDataTreeWidget(
       {
@@ -471,6 +479,7 @@ describe("DataTreeEvaluator", () => {
         type: "TEXT_WIDGET",
       },
       {},
+      new Set(),
     ).configEntity,
     Text3: generateDataTreeWidget(
       {
@@ -482,6 +491,7 @@ describe("DataTreeEvaluator", () => {
         type: "TEXT_WIDGET",
       },
       {},
+      new Set(),
     ).configEntity,
     Dropdown1: generateDataTreeWidget(
       {
@@ -501,6 +511,7 @@ describe("DataTreeEvaluator", () => {
         type: "SELECT_WIDGET",
       },
       {},
+      new Set(),
     ).configEntity,
     Table1: generateDataTreeWidget(
       {
@@ -513,6 +524,7 @@ describe("DataTreeEvaluator", () => {
         type: "TABLE_WIDGET",
       },
       {},
+      new Set(),
     ).configEntity,
     Text4: generateDataTreeWidget(
       {
@@ -531,6 +543,7 @@ describe("DataTreeEvaluator", () => {
         dynamicTriggerPathList: [],
       },
       {},
+      new Set(),
     ).configEntity,
   };
 
@@ -973,5 +986,39 @@ describe("DataTreeEvaluator", () => {
     ]);
     // @ts-expect-error: Types are not available
     expect(dataTree3.Api2.config.body).toBe("{ 'name': \"Test\" }");
+  });
+  it("Prevents data mutation in eval cycle", () => {
+    const { configEntity, unEvalEntity } = generateDataTreeWidget(
+      {
+        ...BASE_WIDGET_CONFIG,
+        ...BASE_WIDGET,
+        widgetName: "TextX",
+        text: "{{Text1.text = 123}}",
+        dynamicBindingPathList: [{ key: "text" }],
+        type: "TEXT_WIDGET",
+      },
+      {},
+      new Set(),
+    );
+    const updatedUnEvalTree = {
+      ...unEvalTree,
+      TextX: unEvalEntity,
+    };
+    const updatedConfigTree = {
+      ...configTree,
+      TextX: configEntity,
+    };
+    const { evalOrder, nonDynamicFieldValidationOrder, unEvalUpdates } =
+      evaluator.setupUpdateTree(updatedUnEvalTree, updatedConfigTree);
+    expect(evalOrder).toContain("TextX.text");
+    evaluator.evalAndValidateSubTree(
+      evalOrder,
+      nonDynamicFieldValidationOrder,
+      updatedConfigTree,
+      unEvalUpdates,
+    );
+    const dataTree = evaluator.evalTree;
+    expect(dataTree).toHaveProperty("TextX.text", 123);
+    expect(dataTree).toHaveProperty("Text1.text", "Label");
   });
 });

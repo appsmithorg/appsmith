@@ -2,12 +2,8 @@ import { ObjectsRegistry } from "../Objects/Registry";
 import { EntityItems } from "./AssertHelper";
 
 type templateActions =
-  | "SELECT"
-  | "INSERT"
-  | "UPDATE"
-  | "DELETE"
   | "Find"
-  | "Find by ID"
+  | "Find by id"
   | "Insert"
   | "Update"
   | "Delete"
@@ -32,6 +28,7 @@ interface EntityActionParams {
     | "Refresh"
     | "Set as home page";
   subAction?: string;
+  //@ts-expect-error: type mismatch
   entityType?: EntityItems;
   toAssertAction?: boolean;
   toastToValidate?: string;
@@ -236,10 +233,10 @@ export class EntityExplorer {
   }
 
   public ActionContextMenuByEntityName({
-    entityNameinLeftSidebar,
     action = "Delete",
-    subAction = "",
+    entityNameinLeftSidebar,
     entityType = EntityItems.Query,
+    subAction = "",
     toAssertAction,
     toastToValidate = "",
   }: EntityActionParams) {

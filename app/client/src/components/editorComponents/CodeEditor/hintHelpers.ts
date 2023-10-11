@@ -8,15 +8,15 @@ import {
   checkIfCursorInsideBinding,
   isCursorOnEmptyToken,
 } from "components/editorComponents/CodeEditor/codeEditorUtils";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE_VALUE } from "entities/DataTree/dataTreeFactory";
 import { isEmpty, isString } from "lodash";
-import type { getAllDatasourceTableKeys } from "selectors/entitiesSelector";
+import type { getAllDatasourceTableKeys } from "@appsmith/selectors/entitiesSelector";
 import {
   filterCompletions,
   getHintDetailsFromClassName,
 } from "./utils/sqlHint";
 
-export const bindingHint: HintHelper = (editor) => {
+export const bindingHintHelper: HintHelper = (editor) => {
   editor.setOption("extraKeys", {
     // @ts-expect-error: Types are not available
     ...editor.options.extraKeys,
@@ -46,7 +46,7 @@ export const bindingHint: HintHelper = (editor) => {
 
       const entityType = entityInformation?.entityType;
       let shouldShow = false;
-      if (entityType === ENTITY_TYPE.JSACTION) {
+      if (entityType === ENTITY_TYPE_VALUE.JSACTION) {
         shouldShow = true;
       } else {
         shouldShow = checkIfCursorInsideBinding(editor);

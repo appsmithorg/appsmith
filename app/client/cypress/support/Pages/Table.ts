@@ -189,7 +189,7 @@ export class Table {
   _divFirstChild = "div:first-child abbr";
   _listPreviousPage = ".rc-pagination-prev";
   _listNavigation = (move: string) =>
-    "//button[@area-label='" + move + " page']";
+    "//button[@aria-label='" + move + " page']";
   _listNextPage = ".rc-pagination-next";
   _listActivePage = (version: "v1" | "v2") =>
     `.t--widget-listwidget${
@@ -198,6 +198,8 @@ export class Table {
   _paginationItem = (value: number) => `.rc-pagination-item-${value}`;
   _cellWrapOff = "//div[@class='tableWrap virtual']";
   _cellWrapOn = "//div[@class='tableWrap']";
+  _multirowselect = ".t--table-multiselect";
+  _selectedrow = ".selected-row";
 
   public GetNumberOfRows() {
     return this.agHelper.GetElement(this._tr).its("length");

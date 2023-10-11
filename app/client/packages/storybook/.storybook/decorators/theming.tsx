@@ -1,6 +1,5 @@
 import * as React from "react";
 import styled from "styled-components";
-// @ts-ignore
 import isChromatic from "chromatic/isChromatic";
 import { ThemeProvider, useTheme } from "@design-system/theming";
 
