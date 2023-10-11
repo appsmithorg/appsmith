@@ -51,12 +51,12 @@ import {
 import { updateTenantConfig } from "@appsmith/actions/tenantActions";
 import { tenantConfigConnection } from "@appsmith/constants/tenantConstants";
 
-type FormProps = {
+interface FormProps {
   settings: Record<string, string>;
   settingsConfig: Record<string, string | boolean>;
   isSaving: boolean;
   showReleaseNotes: boolean;
-};
+}
 
 function getSettingLabel(name = "") {
   return name.replace(/-/g, "");

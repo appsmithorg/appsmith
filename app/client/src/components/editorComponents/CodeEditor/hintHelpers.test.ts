@@ -12,12 +12,12 @@ describe("hint helpers", () => {
 
     it("opens hint correctly", () => {
       // Setup
-      type Case = {
+      interface Case {
         value: string;
         cursor: { ch: number; line: number };
         toCall: "closeHint" | "showHint";
         getLine?: string[];
-      };
+      }
       const cases: Case[] = [
         { value: "ABC", cursor: { ch: 3, line: 0 }, toCall: "closeHint" },
         { value: "{{ }}", cursor: { ch: 3, line: 0 }, toCall: "showHint" },

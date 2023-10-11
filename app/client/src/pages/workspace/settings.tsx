@@ -37,12 +37,12 @@ import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
-type TabProp = {
+interface TabProp {
   key: string;
   title: string;
   count?: number;
   panelComponent?: JSX.Element;
-};
+}
 
 const SettingsWrapper = styled.div<{
   isMobile?: boolean;

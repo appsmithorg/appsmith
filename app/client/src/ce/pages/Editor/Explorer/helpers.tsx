@@ -37,15 +37,15 @@ export const ContextMenuPopoverModifiers: IPopoverSharedProps["modifiers"] = {
   },
 };
 
-export type ExplorerURLParams = {
+export interface ExplorerURLParams {
   pageId: string;
-};
+}
 
-export type ExplorerFileEntity = {
+export interface ExplorerFileEntity {
   type: PluginType | "group";
   group?: string;
   entity: ActionData | JSCollectionData;
-};
+}
 
 export const matchBasePath = (pathname: string) => {
   const basePathMatch = matchPath(pathname, {
@@ -154,13 +154,13 @@ export const useDatasourceIdFromURL = () => {
 
 const EXPLORER_STORAGE_PREFIX = "explorerState_";
 
-export type ExplorerStateType = {
+export interface ExplorerStateType {
   pages: boolean;
   widgets: boolean;
   queriesAndJs: boolean;
   datasource: boolean;
   packages: boolean;
-};
+}
 
 export const getExplorerStatus = (
   resourceId: string,

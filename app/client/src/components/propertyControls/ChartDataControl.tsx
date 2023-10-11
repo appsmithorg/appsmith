@@ -81,7 +81,7 @@ const Box = styled.div`
   height: 16px;
 `;
 
-type RenderComponentProps = {
+interface RenderComponentProps {
   index: string;
   item: ChartData;
   length: number;
@@ -95,7 +95,7 @@ type RenderComponentProps = {
   };
   theme: EditorTheme;
   isPieChart?: boolean;
-};
+}
 
 const expectedSeriesName: CodeEditorExpected = {
   type: "string",

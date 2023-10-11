@@ -35,7 +35,7 @@ const renderComponent = (
   );
 };
 
-export type FormTextAreaFieldProps = {
+export interface FormTextAreaFieldProps {
   name?: string;
   placeholder?: string;
   label?: string;
@@ -44,7 +44,7 @@ export type FormTextAreaFieldProps = {
   autoFocus?: boolean;
   hideErrorMessage?: boolean;
   setting: Setting;
-};
+}
 
 function FormTextAreaField(props: FormTextAreaFieldProps) {
   const { setting } = props;

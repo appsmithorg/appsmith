@@ -21,14 +21,14 @@ const PinIcon = importSvg(
   async () => import("assets/icons/ads/double-arrow-left.svg"),
 );
 
-type CollapseButtonProps = {
+interface CollapseButtonProps {
   borderRadius: string;
   primaryColor: string;
   navColorStyle: NavigationSetting["colorStyle"];
   isOpen: boolean;
   isPinned: boolean;
   setIsPinned: (isPinned: boolean) => void;
-};
+}
 
 const CollapseButton = (props: CollapseButtonProps) => {
   const {

@@ -39,10 +39,10 @@ export type UpdateSetting = (
   value: NavigationSetting[keyof NavigationSetting],
 ) => void;
 
-export type LogoConfigurationSwitches = {
+export interface LogoConfigurationSwitches {
   logo: boolean;
   applicationTitle: boolean;
-};
+}
 
 function NavigationSettings() {
   const application = useSelector(getCurrentApplication);

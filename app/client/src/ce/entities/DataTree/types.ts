@@ -170,7 +170,7 @@ export interface AppsmithEntity extends Omit<AppDataState, "store"> {
   theme: AppTheme["properties"];
 }
 
-export type DataTreeSeed = {
+export interface DataTreeSeed {
   actions: ActionDataState;
   editorConfigs: Record<string, any[]>;
   pluginDependencyConfig: Record<string, DependencyMap>;
@@ -185,12 +185,12 @@ export type DataTreeSeed = {
   moduleInputs: Record<string, ModuleInput>;
   layoutSystemType: LayoutSystemTypes;
   loadingEntities: LoadingEntitiesState;
-};
+}
 
-export type ModuleInput = {
+export interface ModuleInput {
   name: string;
   defaultValue: any;
-};
+}
 
 export type DataTreeEntityConfig =
   | WidgetEntityConfig

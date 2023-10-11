@@ -34,11 +34,11 @@ export interface CreateJSCollectionRequest {
   pluginType: PluginType;
 }
 
-export type SetFunctionPropertyPayload = {
+export interface SetFunctionPropertyPayload {
   action: JSAction;
   propertyName: string;
   value: any;
-};
+}
 export interface RefactorAction {
   pageId: string;
   actionId: string;

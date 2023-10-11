@@ -30,21 +30,21 @@ import {
 import type { ButtonProps } from "components/editorComponents/Button";
 import Button from "components/editorComponents/Button";
 
-export type CustomizedDropdownOptionSection = {
+export interface CustomizedDropdownOptionSection {
   isSticky?: boolean;
   options?: CustomizedDropdownOption[];
-};
+}
 
-export type CustomizedDropdownOption = {
+export interface CustomizedDropdownOption {
   content: ReactNode;
   active?: boolean;
   onSelect?: () => void;
   intent?: Intent;
   shouldCloseDropdown?: boolean;
   disabled?: boolean;
-};
+}
 
-export type CustomizedDropdownProps = {
+export interface CustomizedDropdownProps {
   sections: CustomizedDropdownOptionSection[];
   trigger: ButtonProps & {
     content?: ReactNode;
@@ -58,7 +58,7 @@ export type CustomizedDropdownProps = {
   borderRadius?: string;
   customizedDropdownId?: string;
   modifiers?: IPopoverSharedProps["modifiers"];
-};
+}
 
 const PopoverStyles = createGlobalStyle<{
   id?: string;

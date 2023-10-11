@@ -16,12 +16,12 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
 const { appVersion, cloudHosting, intercomAppID } = getAppsmithConfigs();
 
-type HelpItem = {
+interface HelpItem {
   label: string;
   link?: string;
   id?: string;
   icon: string;
-};
+}
 const HELP_MENU_ITEMS: HelpItem[] = [
   {
     icon: "book-line",

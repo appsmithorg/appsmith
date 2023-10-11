@@ -40,12 +40,12 @@ const SubMenuContainer = styled.div`
   }
 `;
 
-type SubMenuProps = {
+interface SubMenuProps {
   canCreateActions: boolean;
   className: string;
   openMenu: boolean;
   onMenuClose: () => void;
-};
+}
 
 export default function ExplorerSubMenu({
   canCreateActions,

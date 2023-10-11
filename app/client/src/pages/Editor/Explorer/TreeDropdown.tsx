@@ -32,7 +32,7 @@ export type TreeDropdownOption = DropdownOption & {
 
 type Setter = (value: TreeDropdownOption, defaultVal?: string) => void;
 
-type TreeDropdownProps = {
+interface TreeDropdownProps {
   optionTree: TreeDropdownOption[];
   selectedValue: string;
   getDefaults?: (value: any) => any;
@@ -52,7 +52,7 @@ type TreeDropdownProps = {
   icon?: React.ReactNode;
   editorPage?: boolean;
   menuWidth?: number;
-};
+}
 
 export const StyledPopover = styled(Popover)<{
   children?: React.ReactNode;

@@ -33,7 +33,7 @@ import { getQueryParams } from "utils/URLUtils";
 import { debounce } from "lodash";
 import styled from "styled-components";
 
-type ExplorerDatasourceEntityProps = {
+interface ExplorerDatasourceEntityProps {
   plugin: Plugin;
   datasource: Datasource;
   step: number;
@@ -41,7 +41,7 @@ type ExplorerDatasourceEntityProps = {
   entityId: string;
   isActive: boolean;
   canManageDatasource?: boolean;
-};
+}
 
 const MAX_HEIGHT_LIST_WRAPPER = 300;
 
