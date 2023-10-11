@@ -1,4 +1,4 @@
-import { flattenDSL } from "../DSL";
+import { flattenDSL } from "../dsl-transform";
 import { updateContainers } from "./migrations/001-update-containers";
 import { chartDataMigration } from "./migrations/002-chart-data-migration";
 import { mapDataMigration } from "./migrations/003-map-data-migration";
@@ -92,10 +92,55 @@ import type { DSLWidget } from "./types";
 
 export const LATEST_DSL_VERSION = 87;
 
+const calculateDynamicHeight = () => {
+  const DEFAULT_GRID_ROW_HEIGHT = 10;
+  const screenHeight = typeof window !== "undefined" ? window.innerHeight : 600;
+  const gridRowHeight = DEFAULT_GRID_ROW_HEIGHT;
+  // DGRH - DEFAULT_GRID_ROW_HEIGHT
+  // View Mode: Header height + Page Selection Tab = 8 * DGRH (approx)
+  // Edit Mode: Header height + Canvas control = 8 * DGRH (approx)
+  // buffer: ~8 grid row height
+  const buffer =
+    gridRowHeight +
+    2 * 48 /*pixelToNumber(theme.smallHeaderHeight) */ +
+    37; /*pixelToNumber(theme.bottomBarHeight);*/
+  const calculatedMinHeight =
+    Math.floor((screenHeight - buffer) / gridRowHeight) * gridRowHeight;
+  return calculatedMinHeight;
+};
+
+const buildInitialDSL = (currentDSL: DSLWidget) => {
+  const DEFAULT_GRID_ROW_HEIGHT = 10;
+  if (currentDSL.version === undefined) {
+    // Since this top level widget is a CANVAS_WIDGET,
+    // DropTargetComponent needs to know the minimum height the canvas can take
+    // See DropTargetUtils.ts
+    currentDSL.minHeight = calculateDynamicHeight();
+    currentDSL.bottomRow = currentDSL.minHeight - DEFAULT_GRID_ROW_HEIGHT;
+    // For the first time the DSL is created, remove one row from the total possible rows
+    // to adjust for padding and margins.
+    currentDSL.snapRows =
+      Math.floor(currentDSL.bottomRow / DEFAULT_GRID_ROW_HEIGHT) - 1;
+
+    // Force the width of the canvas to 1224 px
+    currentDSL.rightColumn = 1224;
+    // The canvas is a CANVAS_WIDGET which doesn't have a background or borders by default
+    currentDSL.backgroundColor = "none";
+    currentDSL.containerStyle = "none";
+    currentDSL.type = "CANVAS_WIDGET";
+    currentDSL.detachFromLayout = true;
+    currentDSL.canExtend = true;
+
+    // Update version to make sure this doesn't run every time.
+    currentDSL.version = 1;
+  }
+  return currentDSL;
+};
+
 // A rudimentary transform function which updates the DSL based on its version.
 // A more modular approach needs to be designed.
 // This needs the widget config to be already built to migrate correctly
-export const migrateDSL = (currentDSL: DSLWidget, newPage = false) => {
+const migrateDSL = (currentDSL: DSLWidget, newPage = false) => {
   if (currentDSL.version === 1) {
     if (currentDSL.children && currentDSL.children.length > 0)
       currentDSL.children = currentDSL.children.map(updateContainers);
@@ -539,4 +584,16 @@ export const migrateDSL = (currentDSL: DSLWidget, newPage = false) => {
   }
 
   return currentDSL;
+};
+
+export const transformDSL = (
+  currentDSL: DSLWidget,
+  newPage = false,
+): DSLWidget => {
+  if (currentDSL.version === undefined) {
+    const initialDSL = buildInitialDSL(currentDSL);
+    return migrateDSL(initialDSL, newPage) as DSLWidget;
+  } else {
+    return migrateDSL(currentDSL, newPage) as DSLWidget;
+  }
 };

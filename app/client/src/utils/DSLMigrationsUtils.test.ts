@@ -1,4 +1,4 @@
-import { transformDSL } from "./DSLMigrations";
+import { transformDSL } from "@shared/dsl";
 import { LATEST_PAGE_VERSION, RenderModes } from "constants/WidgetConstants";
 import type { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
 import type { WidgetProps } from "widgets/BaseWidget";

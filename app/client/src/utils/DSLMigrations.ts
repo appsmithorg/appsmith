@@ -95,7 +95,7 @@ import type { DSLWidget } from "WidgetProvider/constants";
 //   migrateAddShowHideDataPointLabels,
 //   migrateDefaultValuesForCustomEChart,
 // } from "./migrations/ChartWidget";
-import { migrateDSL } from "@shared/dsl";
+// import { migrateDSL } from "@shared/dsl";
 import type { PrivateWidgets } from "@appsmith/entities/DataTree/types";
 
 /**
@@ -1237,17 +1237,17 @@ export const buildInitialDSL = (currentDSL: DSLWidget) => {
 //   return currentDSL;
 // };
 
-export const transformDSL = (
-  currentDSL: DSLWidget,
-  newPage = false,
-): DSLWidget => {
-  if (currentDSL.version === undefined) {
-    const initialDSL = buildInitialDSL(currentDSL);
-    return migrateDSL(initialDSL, newPage) as DSLWidget;
-  } else {
-    return migrateDSL(currentDSL, newPage) as DSLWidget;
-  }
-};
+// export const transformDSL = (
+//   currentDSL: DSLWidget,
+//   newPage = false,
+// ): DSLWidget => {
+//   if (currentDSL.version === undefined) {
+//     const initialDSL = buildInitialDSL(currentDSL);
+//     return migrateDSL(initialDSL, newPage) as DSLWidget;
+//   } else {
+//     return migrateDSL(currentDSL, newPage) as DSLWidget;
+//   }
+// };
 
 export const migrateButtonVariant = (currentDSL: DSLWidget) => {
   if (

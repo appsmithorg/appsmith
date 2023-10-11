@@ -8,4 +8,4 @@ export type {
   FlattenedDSLEntities,
 } from "./dsl-transform";
 
-export { migrateDSL } from "./migrate";
+export { transformDSL } from "./migrate";

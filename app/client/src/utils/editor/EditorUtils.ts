@@ -15,7 +15,6 @@ export const editorInitializer = async () => {
       features: widget.getFeatures(),
     };
   }
-  console.log("buga", propertyPaneObject);
 
   PropertyControlRegistry.registerPropertyControlBuilders();
 };

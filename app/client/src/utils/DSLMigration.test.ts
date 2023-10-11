@@ -24,6 +24,7 @@ import * as codeScannerWidgetMigrations from "./migrations/CodeScannerWidgetMigr
 import * as migrateLabelPosition from "./migrations/MigrateLabelPosition";
 import * as migrateAutoHeight from "./migrations/autoHeightMigrations";
 import * as chartMigrations from "./migrations/ChartWidget";
+import { transformDSL } from "@shared/dsl";
 
 interface Migration {
   functionLookup: {
@@ -876,7 +877,7 @@ describe("Test all the migrations are running", () => {
   });
 
   // Runs all the migrations
-  DSLMigrations.transformDSL(
+  transformDSL(
     originalDSLForDSLMigrations as unknown as ContainerWidgetProps<WidgetProps>,
   );
 
