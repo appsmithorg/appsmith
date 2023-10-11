@@ -177,7 +177,7 @@ const usersReducer = createReducer(initialState, {
   [ReduxActionTypes.FETCH_FEATURE_FLAGS_INIT]: (state: UsersReduxState) => ({
     ...state,
     featureFlag: {
-      ...state.featureFlag.data,
+      ...state.featureFlag,
       isFetched: false,
       isFetching: true,
     },
