@@ -19,4 +19,9 @@ public class ModulePermissionImpl implements ModulePermission {
     public AclPermission getReadPermission() {
         return AclPermission.READ_MODULES;
     }
+
+    @Override
+    public AclPermission getExportPermission(boolean isGitSync, boolean exportWithConfiguration) {
+        return null;
+    }
 }
