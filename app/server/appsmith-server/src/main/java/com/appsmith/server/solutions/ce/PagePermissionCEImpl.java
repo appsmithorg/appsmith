@@ -1,9 +1,11 @@
 package com.appsmith.server.solutions.ce;
 
 import com.appsmith.server.acl.AclPermission;
+import org.springframework.stereotype.Component;
 
 import static java.lang.Boolean.TRUE;
 
+@Component
 public class PagePermissionCEImpl implements PagePermissionCE, DomainPermissionCE {
     @Override
     public AclPermission getEditPermission() {

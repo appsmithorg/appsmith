@@ -51,7 +51,7 @@ export const CurlyBraces = styled.span`
   font-weight: var(--ads-v2-font-weight-bold);
 `;
 
-type InputTextProp = {
+interface InputTextProp {
   label: string;
   value: string;
   onChange: (event: React.ChangeEvent<HTMLTextAreaElement> | string) => void;
@@ -62,7 +62,7 @@ type InputTextProp = {
   additionalDynamicData: AdditionalDynamicDataTree;
   theme: EditorTheme;
   promptMessage?: JSX.Element;
-};
+}
 
 export function InputText(props: InputTextProp) {
   const {

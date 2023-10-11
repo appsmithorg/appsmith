@@ -18,13 +18,13 @@ export interface ThemeProviderProps {
   style?: CSSProperties;
 }
 
-export type UseThemeProps = {
+export interface UseThemeProps {
   seedColor?: string;
   colorMode?: ColorMode;
   borderRadius?: string;
   fontFamily?: FontFamily;
   rootUnitRatio?: number;
-};
+}
 
 export const SHEET_TYPES = {
   fontFace: "fontFace",

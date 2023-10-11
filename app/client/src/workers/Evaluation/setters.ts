@@ -8,12 +8,12 @@ import { evalTreeWithChanges } from "./evalTreeWithChanges";
 import { dataTreeEvaluator } from "./handlers/evalTree";
 import { get, set } from "lodash";
 import { validate } from "./validations";
+import type { DataTreeEntityConfig } from "@appsmith/entities/DataTree/types";
 import type {
   ConfigTree,
   DataTree,
   DataTreeEntity,
-  DataTreeEntityConfig,
-} from "@appsmith/entities/DataTree/types";
+} from "entities/DataTree/dataTreeTypes";
 import { getFnWithGuards, isAsyncGuard } from "./fns/utils/fnGuard";
 import { shouldAddSetter } from "./evaluate";
 
@@ -29,7 +29,7 @@ class Setters {
    */
   private setterAccessorMap: Record<string, string> = {};
 
-  private applySetterMethod(
+  private async applySetterMethod(
     path: string,
     value: unknown,
     setterMethodName: string,

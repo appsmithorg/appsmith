@@ -148,9 +148,9 @@ function GraphQLEditorForm(props: Props) {
 
 const selector = formValueSelector(API_EDITOR_FORM_NAME);
 
-type ReduxDispatchProps = {
+interface ReduxDispatchProps {
   updateDatasource: (datasource: Datasource) => void;
-};
+}
 
 const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
   updateDatasource: (datasource) => {

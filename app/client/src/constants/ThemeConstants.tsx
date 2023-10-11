@@ -5,11 +5,11 @@ import { invert } from "lodash";
  *
  * NOTE: these are used in colorpicker
  */
-export type TailwindColors = {
+export interface TailwindColors {
   [key: string]: {
     [key: string]: string;
   };
-};
+}
 
 export const TAILWIND_COLORS: TailwindColors = {
   gray: {

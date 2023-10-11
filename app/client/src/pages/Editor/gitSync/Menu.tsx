@@ -1,11 +1,11 @@
 import React from "react";
 import { Tab, Tabs, TabsList } from "design-system";
 
-type Props = {
+interface Props {
   activeTabKey: string;
   onSelect: (key: string) => void;
   options: Array<{ key: string; title: string }>;
-};
+}
 
 export default function Menu(props: Props) {
   return (

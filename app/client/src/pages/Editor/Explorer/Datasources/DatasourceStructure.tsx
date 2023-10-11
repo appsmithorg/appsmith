@@ -29,7 +29,7 @@ export enum DatasourceStructureContext {
   API_EDITOR = "api-editor",
 }
 
-type DatasourceStructureItemProps = {
+interface DatasourceStructureItemProps {
   dbStructure: DatasourceTable;
   step: number;
   datasourceId: string;
@@ -39,7 +39,7 @@ type DatasourceStructureItemProps = {
   currentActionId: string;
   onEntityTableClick?: (table: string) => void;
   tableName?: string;
-};
+}
 
 const StyledMenuContent = styled(MenuContent)`
   min-width: 220px;

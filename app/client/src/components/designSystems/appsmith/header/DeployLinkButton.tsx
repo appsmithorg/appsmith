@@ -13,10 +13,10 @@ import {
 import { Button } from "design-system";
 import { KBEditorMenuItem } from "@appsmith/pages/Editor/KnowledgeBase/KBEditorMenuItem";
 
-type Props = {
+interface Props {
   trigger: ReactNode;
   link: string;
-};
+}
 
 export const DeployLinkButton = (props: Props) => {
   const dispatch = useDispatch();

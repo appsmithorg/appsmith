@@ -3,11 +3,11 @@ import styled from "styled-components";
 import { range } from "lodash";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 
-type LoaderProps = {
+interface LoaderProps {
   pageSize: number;
   itemSpacing?: number;
   templateHeight: number;
-};
+}
 
 type LoaderItemProps = Pick<LoaderProps, "templateHeight" | "itemSpacing">;
 type StyledWrapperProps = Pick<LoaderProps, "itemSpacing">;

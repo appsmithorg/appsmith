@@ -198,8 +198,11 @@ public class ImportExportApplicationServiceTests {
     @Autowired
     EnvironmentPermission environmentPermission;
 
-    PagePermission pagePermission = new PagePermissionImpl();
-    ApplicationPermission applicationPermission = new ApplicationPermissionImpl();
+    @Autowired
+    PagePermission pagePermission;
+
+    @Autowired
+    ApplicationPermission applicationPermission;
 
     @BeforeEach
     public void setup() {

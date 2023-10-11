@@ -19,10 +19,10 @@ import { getTenantConfig } from "@appsmith/selectors/tenantSelectors";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { DeleteLogoButton } from "@appsmith/pages/Editor/NavigationSettings/DeleteLogoButton";
 
-export type ButtonGroupSettingProps = {
+export interface ButtonGroupSettingProps {
   updateSetting: UpdateSetting;
   navigationSetting: NavigationSetting;
-};
+}
 
 export const { cloudHosting } = getAppsmithConfigs();
 
