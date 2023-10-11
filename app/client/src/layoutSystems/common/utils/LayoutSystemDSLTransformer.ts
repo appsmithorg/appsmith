@@ -19,6 +19,6 @@ export function getLayoutSystemDSLTransformer(
     case LayoutSystemTypes.AUTO:
       return autoLayoutDSLTransformer(mainCanvasWidth);
     case LayoutSystemTypes.ANVIL:
-      return anvilDSLTransformer();
+      return anvilDSLTransformer;
   }
 }

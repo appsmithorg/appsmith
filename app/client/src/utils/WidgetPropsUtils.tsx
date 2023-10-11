@@ -42,15 +42,15 @@ const defaultDSL = defaultTemplate;
  * @param fetchPageResponse The response from the fetchPage API Call
  * @returns The updated DSL and the layoutId
  */
-export const extractCurrentDSL = (
-  dslTransformer?: (dsl: DSLWidget) => DSLWidget,
-  fetchPageResponse?: FetchPageResponse,
-): { dsl: DSLWidget; layoutId: string | undefined } => {
+export const extractCurrentDSL = (params: {
+  dslTransformer?: (dsl: DSLWidget) => DSLWidget;
+  response?: FetchPageResponse;
+}): { dsl: DSLWidget; layoutId: string | undefined } => {
   // If fetch page response doesn't exist
   // It means we are creating a new page
-  const newPage = !fetchPageResponse;
+  const newPage = !params.response;
   // Get the DSL from the response or default to the defaultDSL
-  const currentDSL = fetchPageResponse?.data.layouts[0].dsl || {
+  const currentDSL = params.response?.data.layouts[0].dsl || {
     ...defaultDSL,
   };
 
@@ -63,13 +63,13 @@ export const extractCurrentDSL = (
   let dsl = transformedDSL;
   // If this DSL is meant to be transformed
   // then the dslTransformer would have been passed by the caller
-  if (dslTransformer) {
-    dsl = dslTransformer(transformedDSL);
+  if (params.dslTransformer) {
+    dsl = params.dslTransformer(transformedDSL);
   }
 
   return {
     dsl,
-    layoutId: fetchPageResponse?.data.layouts[0].id,
+    layoutId: params.response?.data.layouts[0].id,
   };
 };
 
