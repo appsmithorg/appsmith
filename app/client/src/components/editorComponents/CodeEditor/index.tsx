@@ -30,11 +30,9 @@ import type { WrappedFieldInputProps } from "redux-form";
 import _, { debounce, isEqual } from "lodash";
 import scrollIntoView from "scroll-into-view-if-needed";
 
-import type {
-  DataTree,
-  EvaluationSubstitutionType,
-} from "entities/DataTree/dataTreeFactory";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE_VALUE } from "entities/DataTree/dataTreeFactory";
+import type { EvaluationSubstitutionType } from "@appsmith/entities/DataTree/types";
+import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { Skin } from "constants/DefaultTheme";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import "components/editorComponents/CodeEditor/sql/customMimes";
@@ -130,7 +128,7 @@ import { getCodeCommentKeyMap, handleCodeComment } from "./utils/codeComment";
 import type { EntityNavigationData } from "selectors/navigationSelectors";
 import { getEntitiesForNavigation } from "selectors/navigationSelectors";
 import history, { NavigationMethod } from "utils/history";
-import { CursorPositionOrigin } from "reducers/uiReducers/editorContextReducer";
+import { CursorPositionOrigin } from "@appsmith/reducers/uiReducers/editorContextReducer";
 import type { PeekOverlayStateProps } from "./PeekOverlayPopup/PeekOverlayPopup";
 import {
   PeekOverlayPopUp,
@@ -144,6 +142,7 @@ import {
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 import { AIWindow } from "@appsmith/components/editorComponents/GPT";
+import { AskAIButton } from "@appsmith/components/editorComponents/GPT/AskAIButton";
 import classNames from "classnames";
 import {
   APPSMITH_AI,
@@ -274,15 +273,10 @@ const getEditorIdentifier = (props: EditorProps): string => {
 };
 
 class CodeEditor extends Component<Props, State> {
-  hintHelper: HintHelper[] = [
-    bindingHintHelper,
-    slashCommandHintHelper,
-    sqlHint.hinter,
-  ];
   static defaultProps = {
     marking: [entityMarker],
     lineCommentString: "//",
-    hinting: [],
+    hinting: [bindingHintHelper, slashCommandHintHelper, sqlHint.hinter],
   };
   // this is the higlighted element for any highlighted text in the codemirror
   highlightedUrlElement: HTMLElement | undefined;
@@ -471,8 +465,7 @@ class CodeEditor extends Component<Props, State> {
         this.hinters = CodeEditor.startAutocomplete(
           editor,
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          [...this.hintHelper, ...this.props.hinting!], // ! since defaultProps are set
-          this.props.dynamicData,
+          this.props.hinting!, // ! since defaultProps are set
           this.props.entitiesForNavigation, // send navigation here
         );
 
@@ -562,7 +555,8 @@ class CodeEditor extends Component<Props, State> {
       getEditorIdentifier(this.props) !== getEditorIdentifier(prevProps);
 
     const entityInformation = this.getEntityInformation();
-    const isWidgetType = entityInformation.entityType === ENTITY_TYPE.WIDGET;
+    const isWidgetType =
+      entityInformation.entityType === ENTITY_TYPE_VALUE.WIDGET;
 
     const hasFocusedValueChanged =
       getEditorIdentifier(this.props) !== this.props.focusedProperty;
@@ -971,11 +965,10 @@ class CodeEditor extends Component<Props, State> {
   static startAutocomplete(
     editor: CodeMirror.Editor,
     hinting: Array<HintHelper>,
-    dynamicData: DataTree,
     entitiesForNavigation: EntityNavigationData,
   ) {
     return hinting.map((helper) => {
-      return helper(editor, dynamicData, entitiesForNavigation);
+      return helper(editor, entitiesForNavigation);
     });
   }
 
@@ -1013,7 +1006,7 @@ class CodeEditor extends Component<Props, State> {
               }
 
               if (navigationData.url) {
-                if (navigationData.type === ENTITY_TYPE.ACTION) {
+                if (navigationData.type === ENTITY_TYPE_VALUE.ACTION) {
                   AnalyticsUtil.logEvent("EDIT_ACTION_CLICK", {
                     actionId: navigationData?.id,
                     datasourceId: navigationData?.datasourceId,
@@ -1293,9 +1286,9 @@ class CodeEditor extends Component<Props, State> {
         if ("ENTITY_TYPE" in entity) {
           const entityType = entity.ENTITY_TYPE;
           if (
-            entityType === ENTITY_TYPE.WIDGET ||
-            entityType === ENTITY_TYPE.ACTION ||
-            entityType === ENTITY_TYPE.JSACTION
+            entityType === ENTITY_TYPE_VALUE.WIDGET ||
+            entityType === ENTITY_TYPE_VALUE.ACTION ||
+            entityType === ENTITY_TYPE_VALUE.JSACTION
           ) {
             entityInformation.entityType = entityType;
           }
@@ -1597,6 +1590,16 @@ class CodeEditor extends Component<Props, State> {
           >
             /
           </Button>
+        </div>
+
+        <div className="absolute bottom-[6px] right-[6px] z-4">
+          <AskAIButton
+            entity={entityInformation}
+            mode={this.props.mode}
+            onClick={() => {
+              this.setState({ showAIWindow: true });
+            }}
+          />
         </div>
 
         <EvaluatedValuePopup

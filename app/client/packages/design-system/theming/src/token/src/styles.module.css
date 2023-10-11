@@ -1,8 +1,6 @@
 //THIS FILE IS CREATED AUTOMATICALLY. PLEASE DON'T EDIT IT.
 :root {
   --root-unit: clamp(4px, calc(0.06vw + 3.77px), 5px);
-}
-:root {
   --spacing-0: 0;
   --spacing-1: clamp(4px, calc(0.13vw + 3.54px), 6px);
   --spacing-2: clamp(5.04px, calc(0.23vw + 4.21px), 8.65px);
@@ -12,8 +10,6 @@
   --spacing-6: clamp(12.7px, calc(1.59vw + 6.99px), 37.44px);
   --spacing-7: clamp(16px, calc(2.44vw + 7.23px), 54px);
   --spacing-8: clamp(20.16px, calc(3.7vw + 6.84px), 77.88px);
-}
-:root {
   --sizing-0: 0;
   --sizing-1: calc(1 * var(--root-unit));
   --sizing-2: calc(2 * var(--root-unit));
@@ -115,47 +111,53 @@
   --sizing-98: calc(98 * var(--root-unit));
   --sizing-99: calc(99 * var(--root-unit));
   --sizing-100: calc(100 * var(--root-unit));
-}
-:root {
   --color-bg: rgb(97.488% 97.871% 100%);
   --color-bg-accent: rgb(33.333% 23.922% 91.373%);
   --color-bg-accent-hover: rgb(38.033% 31.188% 98.353%);
   --color-bg-accent-active: rgb(31.537% 20.805% 88.597%);
+  --color-bg-accent-subtle: rgb(88.264% 89.286% 100%);
   --color-bg-accent-subtle-hover: rgb(91.308% 92.034% 100%);
   --color-bg-accent-subtle-active: rgb(86.728% 87.915% 100%);
   --color-bg-assistive: rgb(3.6713% 2.414% 16.412%);
   --color-bg-neutral: rgb(27.359% 28.199% 35.2%);
   --color-bg-neutral-hover: rgb(32.654% 33.544% 40.754%);
   --color-bg-neutral-active: rgb(26.32% 27.149% 34.105%);
+  --color-bg-neutral-subtle: rgb(90.262% 90.681% 93.577%);
   --color-bg-neutral-subtle-hover: rgb(92.856% 93.277% 96.189%);
   --color-bg-neutral-subtle-active: rgb(88.971% 89.388% 92.276%);
   --color-bg-positive: rgb(6.7435% 63.436% 18.481%);
   --color-bg-positive-hover: rgb(18.172% 69.721% 25.266%);
   --color-bg-positive-active: rgb(0% 60.947% 15.563%);
+  --color-bg-positive-subtle: rgb(81.329% 100% 81.391%);
   --color-bg-positive-subtle-hover: rgb(84.848% 100% 84.841%);
   --color-bg-positive-subtle-active: rgb(80.049% 98.746% 80.116%);
   --color-bg-negative: rgb(83.108% 4.6651% 10.252%);
   --color-bg-negative-hover: rgb(90.296% 17.3% 17.376%);
   --color-bg-negative-active: rgb(80.244% 0% 6.8069%);
+  --color-bg-negative-subtle: rgb(80.244% 0% 6.8069%);
   --color-bg-negative-subtle-hover: rgb(100% 93.667% 92.497%);
   --color-bg-negative-subtle-active: rgb(100% 88.348% 86.422%);
   --color-bg-warning: rgb(85.145% 64.66% 8.0286%);
   --color-bg-warning-hover: rgb(89.037% 68.413% 15.627%);
   --color-bg-warning-active: rgb(83.854% 63.416% 4.0505%);
+  --color-bg-warning-subtle: rgb(100% 94.114% 80.142%);
   --color-bg-warning-subtle-hover: rgb(100% 97.012% 87.859%);
   --color-bg-warning-subtle-active: rgb(99.63% 92.81% 78.869%);
   --color-fg: rgb(1.6475% 1.7126% 6.8084%);
   --color-fg-accent: rgb(33.333% 23.922% 91.373%);
   --color-fg-neutral: rgb(37.193% 38.537% 50.855%);
+  --color-fg-neutral-subtle: rgb(48.439% 49.938% 62.827%);
   --color-fg-positive: rgb(6.7435% 63.436% 18.481%);
   --color-fg-negative: rgb(100% 0% 28.453%);
   --color-fg-warning: rgb(71.79% 51.231% 0%);
   --color-fg-on-accent: rgb(91.588% 90.378% 100%);
+  --color-fg-on-accent-subtle: rgb(1.6475% 1.7126% 6.8084%);
   --color-fg-on-assistive: rgb(94.469% 95.075% 100%);
   --color-fg-on-neutral: rgb(93.156% 94.218% 100%);
   --color-fg-on-positive: rgb(89.702% 100% 89.053%);
   --color-fg-on-negative: rgb(100% 87.612% 85.249%);
   --color-fg-on-warning: rgb(21.953% 9.0775% 0%);
+  --color-bd: rgb(72.54% 73.727% 82.602%);
   --color-bd-accent: rgb(33.333% 23.922% 91.373%);
   --color-bd-focus: rgb(78.161% 34.431% 0%);
   --color-bd-neutral: rgb(37.869% 38.922% 47.553%);
@@ -171,21 +173,11 @@
   --color-bd-on-positive: rgb(0% 22.552% 3.6201%);
   --color-bd-on-negative: rgb(21.923% 0% 2.8118%);
   --color-bd-on-warning: rgb(39.972% 27.552% 0%);
-}
-:root {
   --border-radius-1: 0px;
-}
-:root {
   --box-shadow-1: 0 2px 2px 0 rgba(0, 0, 0, 0.2);
-}
-:root {
   --border-width-1: 1px;
   --border-width-2: 2px;
-}
-:root {
   --opacity-disabled: 0.3;
-}
-:root {
   --z-index-1: 3;
   --z-index-2: 4;
   --z-index-3: 10;

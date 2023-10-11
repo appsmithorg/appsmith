@@ -1,11 +1,23 @@
+import type { Ref } from "react";
 import React, { forwardRef } from "react";
 import type { SpectrumFieldProps } from "@react-types/label";
-import type { Ref } from "react";
 
 import { Label } from "./Label";
-import { ErrorText } from "./ErrorText";
+import { HelpText } from "./HelpText";
+import type { StyleProps } from "@react-types/shared";
 
-export type FieldProps = SpectrumFieldProps;
+export type FieldProps = Omit<
+  SpectrumFieldProps,
+  | "includeNecessityIndicatorInAccessibilityName"
+  | "necessityIndicator"
+  | "isRequired"
+  | "showErrorIcon"
+  | "labelPosition"
+  | "labelAlign"
+  | keyof StyleProps
+> & {
+  fieldType?: "field" | "field-group";
+};
 
 export type FieldRef = Ref<HTMLDivElement>;
 
@@ -15,63 +27,58 @@ const _Field = (props: FieldProps, ref: FieldRef) => {
     elementType,
     errorMessage,
     errorMessageProps = {},
-    includeNecessityIndicatorInAccessibilityName,
-    isDisabled,
-    isRequired,
+    isDisabled = false,
     label,
-    labelAlign,
-    labelPosition = "top",
     labelProps,
-    necessityIndicator,
-    showErrorIcon,
     validationState,
     wrapperClassName,
+    description,
+    descriptionProps,
     wrapperProps = {},
+    contextualHelp,
+    fieldType = "field",
   } = props;
-  const hasErrorText = errorMessage && validationState === "invalid";
+  const hasHelpText =
+    Boolean(description) ||
+    (Boolean(errorMessage) && validationState === "invalid");
 
-  const renderErrorText = () => {
+  const renderHelpText = () => {
     return (
-      <ErrorText
+      <HelpText
+        description={description}
+        descriptionProps={descriptionProps}
         errorMessage={errorMessage}
         errorMessageProps={errorMessageProps}
         isDisabled={isDisabled}
-        showErrorIcon={showErrorIcon}
         validationState={validationState}
       />
     );
   };
 
-  const labelAndContextualHelp = label && (
-    <Label
-      {...labelProps}
-      elementType={elementType}
-      includeNecessityIndicatorInAccessibilityName={
-        includeNecessityIndicatorInAccessibilityName
-      }
-      isRequired={isRequired}
-      labelAlign={labelAlign}
-      labelPosition={labelPosition}
-      necessityIndicator={necessityIndicator}
-    >
-      {label}
-    </Label>
+  const labelAndContextualHelp = (
+    <div data-field-label-wrapper="">
+      {Boolean(label) && (
+        <Label {...labelProps} elementType={elementType}>
+          {label}
+        </Label>
+      )}
+      {Boolean(label) && contextualHelp}
+    </div>
   );
 
   return (
     <div
       {...wrapperProps}
       className={wrapperClassName}
-      data-align={labelAlign}
-      data-disabled={isDisabled}
+      data-disabled={isDisabled ? "" : undefined}
       data-field=""
-      data-position={labelPosition}
+      data-field-type={fieldType}
       ref={ref}
     >
       {labelAndContextualHelp}
-      <div data-field-wrapper="">
+      <div data-field-input-wrapper="">
         {children}
-        {hasErrorText && renderErrorText()}
+        {hasHelpText && renderHelpText()}
       </div>
     </div>
   );

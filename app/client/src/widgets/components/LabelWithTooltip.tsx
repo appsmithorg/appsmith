@@ -10,7 +10,7 @@ import { Colors } from "constants/Colors";
 import { IconWrapper } from "constants/IconConstants";
 import { importSvg } from "design-system-old";
 
-const HelpIcon = importSvg(() => import("assets/icons/control/help.svg"));
+const HelpIcon = importSvg(async () => import("assets/icons/control/help.svg"));
 
 export interface LabelWithTooltipProps {
   alignment?: Alignment;

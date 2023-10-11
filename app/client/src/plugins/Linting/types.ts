@@ -2,7 +2,7 @@ import type {
   ConfigTree,
   DataTree,
   DataTreeEntity,
-} from "entities/DataTree/dataTreeFactory";
+} from "entities/DataTree/dataTreeTypes";
 import type { LintErrorsStore } from "reducers/lintingReducers/lintErrorsReducers";
 import type {
   createEvaluationContext,

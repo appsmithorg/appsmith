@@ -246,7 +246,7 @@ export class CommonLocators {
     `//button[contains(@class, 't--open-dropdown-${value}')]`;
   _fixedLayout = "#t--layout-conversion-cta:contains('fixed')";
   _forkAppToWorkspaceBtn = ".t--fork-app-to-workspace-button";
-  _popoverToolTip = ".bp3-popover-content";
+  _popoverToolTip = ".bp3-popover-content, .bp3-popover2-content";
   _selectedWidget = "div[data-testid='t--selected']";
   _appsmithWidget = (widgetId: string) => `.appsmith_widget_${widgetId}`;
   _selectionCanvas = (canvasId: string) => `#div-selection-${canvasId}`;
@@ -302,5 +302,21 @@ export class CommonLocators {
   _callbackAddBtn = ".action-callback-add .ads-v2-button";
   _checkboxInDeployedMode = "//label[contains(@class, 'bp3-checkbox')]//input";
   _listText = "//span[text()='Blue']/../..";
-  _popover2ToolTip = ".bp3-popover2-content";
+  _jsonFormSubmitBtn = ".t--jsonform-submit-btn";
+  _jsonFormResetBtn = ".t--jsonform-reset-btn";
+  _draggableFieldConfig = (fieldName: string) =>
+    `[data-rbd-draggable-id=${fieldName}]`;
+  _fileUploadDashboardClose = ".uppy-Dashboard-close";
+  _fileUploadErrorContains = (msg: string) =>
+    `.uppy-Informer p:contains('${msg}')`;
+  _fileUploadAddMore = ".uppy-DashboardContent-addMore";
+  _buttonText = ".bp3-button-text";
+  _richText_TitleBlock = "[title='Blocks']";
+  _richText_Heading = "[title='Heading 1']";
+  _richText_Label_Text = ".tox-tbtn__select-label";
+  _richText_Text_Color = '[title="Text color"] .tox-split-button__chevron';
+  _richText_color = (value: string) => `[title='${value}']`;
+  _richText_line = "#tinymce p span";
+  _treeSelectedContent = ".rc-tree-select-selection-item-content";
+  _switcherIcon = ".switcher-icon";
 }

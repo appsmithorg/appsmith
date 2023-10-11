@@ -11,7 +11,7 @@ import { getCanvasWidgets } from "@appsmith/selectors/entitiesSelector";
 import { editorInitializer } from "utils/editor/EditorUtils";
 import { extractCurrentDSL } from "utils/WidgetPropsUtils";
 import type { AppState } from "@appsmith/reducers";
-import type { WidgetEntity } from "entities/DataTree/dataTreeFactory";
+import type { WidgetEntity } from "@appsmith/entities/DataTree/types";
 import urlBuilder from "entities/URLRedirect/URLAssembly";
 import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsStructureReducer";
 import type { DSLWidget } from "WidgetProvider/constants";

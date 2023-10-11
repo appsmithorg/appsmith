@@ -1,7 +1,7 @@
-import type { DataTree } from "entities/DataTree/dataTreeFactory";
-import { get, set, unset } from "lodash";
+import type { DataTree } from "entities/DataTree/dataTreeTypes";
+import { get, isObject, set, unset } from "lodash";
+import { klona } from "klona/json";
 import type { EvalProps } from "workers/common/DataTreeEvaluator";
-import { removeFunctionsAndSerialzeBigInt } from "@appsmith/workers/Evaluation/evaluationUtils";
 
 /**
  * This method loops through each entity object of dataTree and sets the entity config from prototype as object properties.
@@ -23,11 +23,11 @@ export function makeEntityConfigsAsObjProperties(
   const newDataTree: DataTree = {};
   for (const entityName of Object.keys(dataTree)) {
     const entity = dataTree[entityName];
-    newDataTree[entityName] = Object.assign({}, entity);
+    newDataTree[entityName] = isObject(entity)
+      ? Object.assign({}, entity)
+      : entity;
   }
-  const dataTreeToReturn = sanitizeDataTree
-    ? removeFunctionsAndSerialzeBigInt(newDataTree)
-    : newDataTree;
+  const dataTreeToReturn = sanitizeDataTree ? klona(newDataTree) : newDataTree;
 
   if (!evalProps) return dataTreeToReturn;
 
@@ -58,9 +58,7 @@ export function makeEntityConfigsAsObjProperties(
     unset(evalProps, evalPath);
   });
 
-  const sanitizedEvalProps = removeFunctionsAndSerialzeBigInt(
-    evalProps,
-  ) as EvalProps;
+  const sanitizedEvalProps = klona(evalProps) as EvalProps;
   Object.entries(alreadySanitisedDataSet).forEach(([path, val]) => {
     // add it to sanitised Eval props
     set(sanitizedEvalProps, path, val);

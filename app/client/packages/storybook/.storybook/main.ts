@@ -1,16 +1,15 @@
 import { mergeConfig } from "vite";
 import svgr from "vite-plugin-svgr";
-import * as glob from "glob";
-import * as path from "path";
-
-const dsDir = path.resolve(__dirname, "../../design-system");
 import postcssNesting from "postcss-nesting";
 import postcssImport from "postcss-import";
 import postcssAtRulesVariables from "postcss-at-rules-variables";
 import postcssConditionals from "postcss-conditionals";
-import postcssFor from "postcss-for";
 import postcssEach from "postcss-each";
 import postcssModulesValues from "postcss-modules-values";
+import * as glob from "glob";
+import * as path from "path";
+
+const dsDir = path.resolve(__dirname, "../../design-system");
 
 function getStories() {
   if (process.env.CHROMATIC) {
@@ -34,7 +33,6 @@ module.exports = {
             postcssImport,
             postcssAtRulesVariables,
             postcssConditionals,
-            postcssFor,
             postcssEach,
             postcssModulesValues,
           ],

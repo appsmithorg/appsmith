@@ -1,6 +1,6 @@
 import { getFormValues, isValid, getFormInitialValues } from "redux-form";
 import type { AppState } from "@appsmith/reducers";
-import type { ActionData } from "reducers/entityReducers/actionsReducer";
+import type { ActionData } from "@appsmith/reducers/entityReducers/actionsReducer";
 import type {
   DynamicValues,
   FormEvalOutput,
@@ -9,7 +9,7 @@ import type {
 import { createSelector } from "reselect";
 import { isEmpty, replace } from "lodash";
 import { getDataTree } from "./dataTreeSelectors";
-import type { DataTree } from "entities/DataTree/dataTreeFactory";
+import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import type { Action } from "entities/Action";
 import type { EvaluationError } from "utils/DynamicBindingUtils";
 import { getActionIdFromURL } from "@appsmith/pages/Editor/Explorer/helpers";

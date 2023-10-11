@@ -1,5 +1,6 @@
 import type { Log } from "entities/AppsmithConsole";
-import type { DataTree, WidgetEntity } from "entities/DataTree/dataTreeFactory";
+import type { WidgetEntity } from "@appsmith/entities/DataTree/types";
+import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { isEmpty } from "lodash";
 import type { AppState } from "@appsmith/reducers";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";

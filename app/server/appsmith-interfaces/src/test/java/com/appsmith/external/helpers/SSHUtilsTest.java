@@ -2,15 +2,21 @@ package com.appsmith.external.helpers;
 
 import com.appsmith.external.models.ConnectionContext;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.Property;
+import com.appsmith.external.models.SSHConnection;
 import net.schmizz.sshj.SSHClient;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static com.appsmith.external.helpers.SSHUtils.getConnectionContext;
+import static com.appsmith.external.helpers.SSHUtils.getDBPortFromConfigOrDefault;
+import static com.appsmith.external.helpers.SSHUtils.getSSHPortFromConfigOrDefault;
 import static com.appsmith.external.helpers.SSHUtils.isSSHEnabled;
 import static com.appsmith.external.helpers.SSHUtils.isSSHTunnelConnected;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -91,8 +97,24 @@ public class SSHUtilsTest {
         properties.add(new Property("Connection method", "Standard"));
         datasourceConfiguration.setProperties(properties);
 
-        ConnectionContext connectionContext = getConnectionContext(datasourceConfiguration, 1, Object.class);
+        ConnectionContext connectionContext = getConnectionContext(datasourceConfiguration, 1, null, Object.class);
         assertTrue(connectionContext.getConnection() == null, connectionContext.toString());
         assertTrue(connectionContext.getSshTunnelContext() == null, connectionContext.toString());
+    }
+
+    @Test
+    public void testDefaultSSHPortValue() {
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        datasourceConfiguration.setSshProxy(new SSHConnection()); // port number not provided
+
+        assertEquals(getSSHPortFromConfigOrDefault(datasourceConfiguration), 22L);
+    }
+
+    @Test
+    public void testDefaultDBPortValue() {
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        datasourceConfiguration.setEndpoints(List.of(new Endpoint()));
+
+        assertEquals(getDBPortFromConfigOrDefault(datasourceConfiguration, 1234L), 1234L);
     }
 }

@@ -27,6 +27,7 @@ import { isAutoLayout } from "layoutSystems/autolayout/utils/flexWidgetUtils";
 import type { AutocompletionDefinitions } from "WidgetProvider/constants";
 import IconSVG from "../icon.svg";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
+import { FlexVerticalAlignment } from "layoutSystems/common/utils/constants";
 
 export function defaultSelectedValuesValidation(
   value: unknown,
@@ -94,6 +95,7 @@ class CheckboxGroupWidget extends BaseWidget<
       labelWidth: 5,
       widgetName: "CheckboxGroup",
       version: 2,
+      flexVerticalAlignment: FlexVerticalAlignment.Top,
     };
   }
 

@@ -76,11 +76,11 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
       });
     });
     cy.wait(2000);
-    // agHelper.ActionContextMenuWithInPane({
-    //   action: "Delete",
-    //   entityType: entityItems.Query,
-    // });//do not want to delete it for the sake of keeping the DS in Entity Explorer
-    entityExplorer.ExpandCollapseEntity(datasourceName);
+
+    dataSources.AssertTableInVirtuosoList(
+      datasourceName,
+      "assets-test--appsmith",
+    );
 
     entityExplorer.ActionTemplateMenuByEntityName(
       "assets-test--appsmith",
@@ -513,7 +513,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
 
   it("7. Validate Deletion of the Newly Created Page", () => {
     cy.NavigateToQueryEditor();
-    dataSources.DeleteDatasouceFromWinthinDS(datasourceName, 409);
+    dataSources.DeleteDatasourceFromWithinDS(datasourceName, 409);
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "Assets-test.appsmith.com",
       action: "Delete",

@@ -4,12 +4,12 @@ import {
   PLATFORM_ERROR,
   Severity,
 } from "entities/AppsmithConsole";
+import type { WidgetEntityConfig } from "@appsmith/entities/DataTree/types";
 import type {
   ConfigTree,
   DataTree,
   UnEvalTree,
-  WidgetEntityConfig,
-} from "entities/DataTree/dataTreeFactory";
+} from "entities/DataTree/dataTreeTypes";
 import type { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
 import {
   DataTreeDiffEvent,
@@ -44,7 +44,7 @@ import CodemirrorTernService from "utils/autocomplete/CodemirrorTernService";
 import type { JSAction } from "entities/JSCollection";
 import { isWidgetPropertyNamePath } from "utils/widgetEvalUtils";
 import { toast } from "design-system";
-import type { ActionEntityConfig } from "entities/DataTree/types";
+import type { ActionEntityConfig } from "@appsmith/entities/DataTree/types";
 import type { SuccessfulBindings } from "utils/SuccessfulBindingsMap";
 import SuccessfulBindingMap from "utils/SuccessfulBindingsMap";
 import { logActionExecutionError } from "./ActionExecution/errorUtils";

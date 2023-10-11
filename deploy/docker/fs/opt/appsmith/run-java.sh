@@ -5,7 +5,7 @@ set -o pipefail
 set -o nounset
 set -o noglob
 
-declare -a proxy_args
+declare -a extra_args
 proxy_configured=0
 
 match-proxy-url() {
@@ -22,23 +22,23 @@ match-proxy-url() {
 }
 
 if match-proxy-url "${HTTP_PROXY-}"; then
-  proxy_args+=(-Dhttp.proxyHost="$proxy_host" -Dhttp.proxyPort="$proxy_port")
+  extra_args+=(-Dhttp.proxyHost="$proxy_host" -Dhttp.proxyPort="$proxy_port")
   if [[ -n $proxy_user ]]; then
-    proxy_args+=(-Dhttp.proxyUser="$proxy_user")
+    extra_args+=(-Dhttp.proxyUser="$proxy_user")
   fi
   if [[ -n $proxy_pass ]]; then
-    proxy_args+=(-Dhttp.proxyPassword="$proxy_pass")
+    extra_args+=(-Dhttp.proxyPassword="$proxy_pass")
   fi
   proxy_configured=1
 fi
 
 if match-proxy-url "${HTTPS_PROXY-}"; then
-  proxy_args+=(-Dhttps.proxyHost="$proxy_host" -Dhttps.proxyPort="$proxy_port")
+  extra_args+=(-Dhttps.proxyHost="$proxy_host" -Dhttps.proxyPort="$proxy_port")
   if [[ -n $proxy_user ]]; then
-    proxy_args+=(-Dhttps.proxyUser="$proxy_user")
+    extra_args+=(-Dhttps.proxyUser="$proxy_user")
   fi
   if [[ -n $proxy_pass ]]; then
-    proxy_args+=(-Dhttps.proxyPassword="$proxy_pass")
+    extra_args+=(-Dhttps.proxyPassword="$proxy_pass")
   fi
   proxy_configured=1
 fi
@@ -50,11 +50,15 @@ if [[ -z "${NO_PROXY-}" ]]; then
 fi
 
 if [[ $proxy_configured == 1 ]]; then
-  proxy_args+=(-Djava.net.useSystemProxies=true -Dhttp.nonProxyHosts="${NO_PROXY//,/|}")
+  extra_args+=(-Djava.net.useSystemProxies=true -Dhttp.nonProxyHosts="${NO_PROXY//,/|}")
+fi
+
+if [[ -f "$TMP/java-cacerts-opts" ]]; then
+  extra_args+=("@$TMP/java-cacerts-opts")
 fi
 
 # Wait until RTS started and listens on port 8091
-while ! curl --fail --silent localhost/rts-api/v1/health-check; do
+while ! curl --fail --silent localhost:"${APPSMITH_RTS_PORT:-8091}"/rts-api/v1/health-check; do
   echo 'Waiting for RTS to start ...'
   sleep 1
 done
@@ -69,5 +73,5 @@ exec java ${APPSMITH_JAVA_ARGS:-} ${APPSMITH_JAVA_HEAP_ARG:-} \
   -XX:+ShowCodeDetailsInExceptionMessages \
   -Djava.security.egd=file:/dev/./urandom \
   -Dlog4j2.formatMsgNoLookups=true \
-  "${proxy_args[@]}" \
+  "${extra_args[@]}" \
   -jar server.jar

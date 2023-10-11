@@ -1,14 +1,15 @@
 import { PluginType, PaginationType } from "entities/Action";
 import type {
-  DataTree,
   WidgetEntity,
   WidgetEntityConfig,
-} from "entities/DataTree/dataTreeFactory";
+  ActionEntityConfig,
+  ActionEntity,
+} from "@appsmith/entities/DataTree/types";
+import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import {
   EvaluationSubstitutionType,
-  ENTITY_TYPE,
+  ENTITY_TYPE_VALUE,
 } from "entities/DataTree/dataTreeFactory";
-import type { ActionEntityConfig, ActionEntity } from "entities/DataTree/types";
 
 export const nestedArrayAccessorCyclicDependency: Record<string, DataTree> = {
   initUnEvalTree: {
@@ -42,7 +43,7 @@ export const nestedArrayAccessorCyclicDependency: Record<string, DataTree> = {
       responseMeta: {
         isExecutionSuccess: false,
       },
-      ENTITY_TYPE: ENTITY_TYPE.ACTION,
+      ENTITY_TYPE: ENTITY_TYPE_VALUE.ACTION,
       isLoading: false,
       datasourceUrl: "https://jsonplaceholder.typicode.com",
     } as unknown as ActionEntity,
@@ -77,7 +78,7 @@ export const nestedArrayAccessorCyclicDependency: Record<string, DataTree> = {
       borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
       fontSize: "1rem",
       value: "{{ Text1.text }}",
-      ENTITY_TYPE: ENTITY_TYPE.WIDGET,
+      ENTITY_TYPE: ENTITY_TYPE_VALUE.WIDGET,
       meta: {},
     } as unknown as WidgetEntity,
   },
@@ -204,7 +205,7 @@ export const nestedArrayAccessorCyclicDependency: Record<string, DataTree> = {
           "X-APPSMITH-DATATYPE": ["JSON"],
         },
       },
-      ENTITY_TYPE: ENTITY_TYPE.ACTION,
+      ENTITY_TYPE: ENTITY_TYPE_VALUE.ACTION,
       isLoading: false,
       datasourceUrl: "https://jsonplaceholder.typicode.com",
     },
@@ -240,7 +241,7 @@ export const nestedArrayAccessorCyclicDependency: Record<string, DataTree> = {
       borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
       fontSize: "1rem",
       value: "{{ Text1.text }}",
-      ENTITY_TYPE: ENTITY_TYPE.WIDGET,
+      ENTITY_TYPE: ENTITY_TYPE_VALUE.WIDGET,
       meta: {},
     } as unknown as WidgetEntity,
   },
@@ -299,7 +300,7 @@ export const nestedArrayAccessorCyclicDependency: Record<string, DataTree> = {
           "X-APPSMITH-DATATYPE": ["JSON"],
         },
       },
-      ENTITY_TYPE: ENTITY_TYPE.ACTION,
+      ENTITY_TYPE: ENTITY_TYPE_VALUE.ACTION,
       isLoading: false,
       datasourceUrl: "https://jsonplaceholder.typicode.com",
     },
@@ -335,7 +336,7 @@ export const nestedArrayAccessorCyclicDependency: Record<string, DataTree> = {
       borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
       fontSize: "1rem",
       value: "{{ Text1.text }}",
-      ENTITY_TYPE: ENTITY_TYPE.WIDGET,
+      ENTITY_TYPE: ENTITY_TYPE_VALUE.WIDGET,
       meta: {},
     } as unknown as WidgetEntity,
   },
@@ -440,7 +441,7 @@ export const nestedArrayAccessorCyclicDependency: Record<string, DataTree> = {
           "X-APPSMITH-DATATYPE": ["JSON"],
         },
       },
-      ENTITY_TYPE: ENTITY_TYPE.ACTION,
+      ENTITY_TYPE: ENTITY_TYPE_VALUE.ACTION,
       isLoading: false,
       datasourceUrl: "https://jsonplaceholder.typicode.com",
     },
@@ -475,7 +476,7 @@ export const nestedArrayAccessorCyclicDependency: Record<string, DataTree> = {
       borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
       fontSize: "1rem",
       value: "{{ Text1.text }}",
-      ENTITY_TYPE: ENTITY_TYPE.WIDGET,
+      ENTITY_TYPE: ENTITY_TYPE_VALUE.WIDGET,
       meta: {},
     } as unknown as WidgetEntity,
   },
@@ -581,7 +582,7 @@ export const nestedArrayAccessorCyclicDependency: Record<string, DataTree> = {
           "X-APPSMITH-DATATYPE": ["JSON"],
         },
       },
-      ENTITY_TYPE: ENTITY_TYPE.ACTION,
+      ENTITY_TYPE: ENTITY_TYPE_VALUE.ACTION,
       isLoading: false,
       datasourceUrl: "https://jsonplaceholder.typicode.com",
     },
@@ -617,7 +618,7 @@ export const nestedArrayAccessorCyclicDependency: Record<string, DataTree> = {
       borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
       fontSize: "1rem",
       value: "{{ Text1.text }}",
-      ENTITY_TYPE: ENTITY_TYPE.WIDGET,
+      ENTITY_TYPE: ENTITY_TYPE_VALUE.WIDGET,
       meta: {},
     } as unknown as WidgetEntity,
   },
@@ -631,7 +632,7 @@ export const nestedArrayAccessorCyclicDependencyConfig = {
       pluginId: "5ca385dc81b37f0004b4db85",
       pluginType: PluginType.API,
       dynamicBindingPathList: [],
-      ENTITY_TYPE: ENTITY_TYPE.ACTION,
+      ENTITY_TYPE: ENTITY_TYPE_VALUE.ACTION,
       bindingPaths: {
         "config.path": EvaluationSubstitutionType.TEMPLATE,
         "config.body": EvaluationSubstitutionType.SMART_SUBSTITUTE,
@@ -660,7 +661,7 @@ export const nestedArrayAccessorCyclicDependencyConfig = {
       type: "TEXT_WIDGET",
       widgetId: "1p9hcl50i8",
       privateWidgets: {},
-      ENTITY_TYPE: ENTITY_TYPE.WIDGET,
+      ENTITY_TYPE: ENTITY_TYPE_VALUE.WIDGET,
       defaultProps: {},
       defaultMetaProps: [],
       logBlackList: {
@@ -775,7 +776,7 @@ export const nestedArrayAccessorCyclicDependencyConfig = {
       actionId: "6285d928db0f9c6e620d454a",
       pluginType: PluginType.API,
       dynamicBindingPathList: [],
-      ENTITY_TYPE: ENTITY_TYPE.ACTION,
+      ENTITY_TYPE: ENTITY_TYPE_VALUE.ACTION,
       bindingPaths: {
         "config.path": EvaluationSubstitutionType.TEMPLATE,
         "config.body": EvaluationSubstitutionType.SMART_SUBSTITUTE,
@@ -810,7 +811,7 @@ export const nestedArrayAccessorCyclicDependencyConfig = {
           key: "value",
         },
       ],
-      ENTITY_TYPE: ENTITY_TYPE.WIDGET,
+      ENTITY_TYPE: ENTITY_TYPE_VALUE.WIDGET,
       privateWidgets: {},
       defaultProps: {},
       defaultMetaProps: [],
@@ -911,7 +912,7 @@ export const nestedArrayAccessorCyclicDependencyConfig = {
       actionId: "6285d928db0f9c6e620d454a",
       pluginType: PluginType.API,
       dynamicBindingPathList: [],
-      ENTITY_TYPE: ENTITY_TYPE.ACTION,
+      ENTITY_TYPE: ENTITY_TYPE_VALUE.ACTION,
       bindingPaths: {
         "config.path": EvaluationSubstitutionType.TEMPLATE,
         "config.body": EvaluationSubstitutionType.SMART_SUBSTITUTE,
@@ -947,7 +948,7 @@ export const nestedArrayAccessorCyclicDependencyConfig = {
       ],
       widgetId: "1p9hcl50i8",
       privateWidgets: {},
-      ENTITY_TYPE: ENTITY_TYPE.WIDGET,
+      ENTITY_TYPE: ENTITY_TYPE_VALUE.WIDGET,
       defaultProps: {},
       defaultMetaProps: [],
       logBlackList: {
@@ -1042,7 +1043,7 @@ export const nestedArrayAccessorCyclicDependencyConfig = {
   },
   apiSuccessConfigTree2: {
     Api1: {
-      ENTITY_TYPE: ENTITY_TYPE.ACTION,
+      ENTITY_TYPE: ENTITY_TYPE_VALUE.ACTION,
       name: "Api1",
       actionId: "6285d928db0f9c6e620d454a",
       pluginId: "5ca385dc81b37f0004b4db85",
@@ -1173,12 +1174,12 @@ export const nestedArrayAccessorCyclicDependencyConfig = {
           type: "TEXT",
         },
       },
-      ENTITY_TYPE: ENTITY_TYPE.WIDGET,
+      ENTITY_TYPE: ENTITY_TYPE_VALUE.WIDGET,
     } as unknown as WidgetEntityConfig,
   },
   apiSuccessConfigTree3: {
     Api1: {
-      ENTITY_TYPE: ENTITY_TYPE.ACTION,
+      ENTITY_TYPE: ENTITY_TYPE_VALUE.ACTION,
       name: "Api1",
       actionId: "6285d928db0f9c6e620d454a",
       pluginId: "5ca385dc81b37f0004b4db85",
@@ -1219,7 +1220,7 @@ export const nestedArrayAccessorCyclicDependencyConfig = {
           key: "value",
         },
       ],
-      ENTITY_TYPE: ENTITY_TYPE.WIDGET,
+      ENTITY_TYPE: ENTITY_TYPE_VALUE.WIDGET,
       defaultProps: {},
       defaultMetaProps: [],
       logBlackList: {

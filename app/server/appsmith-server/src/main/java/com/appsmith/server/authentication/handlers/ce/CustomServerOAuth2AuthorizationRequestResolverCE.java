@@ -1,5 +1,7 @@
 package com.appsmith.server.authentication.handlers.ce;
 
+import com.appsmith.server.authentication.oauth2clientrepositories.BaseClientRegistrationRepository;
+import com.appsmith.server.authentication.oauth2clientrepositories.CustomOauth2ClientRepositoryManager;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.constants.Security;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -77,22 +79,27 @@ public class CustomServerOAuth2AuthorizationRequestResolverCE implements ServerO
 
     private final RedirectHelper redirectHelper;
 
+    private final CustomOauth2ClientRepositoryManager ouath2ClientManager;
+
     /**
      * Creates a new instance
      *
-     * @param clientRegistrationRepository the repository to resolve the {@link ClientRegistration}
+     * @param clientRegistrationRepository  the repository to resolve the {@link ClientRegistration}
      * @param commonConfig
      * @param redirectHelper
+     * @param oauth2ClientManager           Client repository manager to get client repository based on registration id
      */
     public CustomServerOAuth2AuthorizationRequestResolverCE(
             ReactiveClientRegistrationRepository clientRegistrationRepository,
             CommonConfig commonConfig,
-            RedirectHelper redirectHelper) {
+            RedirectHelper redirectHelper,
+            CustomOauth2ClientRepositoryManager oauth2ClientManager) {
         this(
                 clientRegistrationRepository,
                 new PathPatternParserServerWebExchangeMatcher(DEFAULT_AUTHORIZATION_REQUEST_PATTERN),
                 commonConfig,
-                redirectHelper);
+                redirectHelper,
+                oauth2ClientManager);
     }
 
     /**
@@ -102,13 +109,16 @@ public class CustomServerOAuth2AuthorizationRequestResolverCE implements ServerO
      * @param authorizationRequestMatcher  the matcher that determines if the request is a match and extracts the
      *                                     {@link #DEFAULT_REGISTRATION_ID_URI_VARIABLE_NAME} from the path variables.
      * @param redirectHelper
+     * @param ouath2ClientManager          Client repository manager to get client repository based on registration id
      */
     public CustomServerOAuth2AuthorizationRequestResolverCE(
             ReactiveClientRegistrationRepository clientRegistrationRepository,
             ServerWebExchangeMatcher authorizationRequestMatcher,
             CommonConfig commonConfig,
-            RedirectHelper redirectHelper) {
+            RedirectHelper redirectHelper,
+            CustomOauth2ClientRepositoryManager ouath2ClientManager) {
         this.redirectHelper = redirectHelper;
+        this.ouath2ClientManager = ouath2ClientManager;
         Assert.notNull(clientRegistrationRepository, "clientRegistrationRepository cannot be null");
         Assert.notNull(authorizationRequestMatcher, "authorizationRequestMatcher cannot be null");
         this.clientRegistrationRepository = clientRegistrationRepository;
@@ -138,11 +148,21 @@ public class CustomServerOAuth2AuthorizationRequestResolverCE implements ServerO
         });
     }
 
+    /**
+     * Method to find the client registration repository based on the registration id
+     *
+     * @param clientRegistration    Registration id of the client
+     * @return                      Client registration repository
+     */
     private Mono<ClientRegistration> findByRegistrationId(String clientRegistration) {
-        return this.clientRegistrationRepository
-                .findByRegistrationId(clientRegistration)
-                .switchIfEmpty(Mono.error(
-                        () -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid client registration id")));
+        BaseClientRegistrationRepository customClientRegistrationRepository =
+                this.ouath2ClientManager.findClientRegistrationRepositoryByRegistrationId(clientRegistration);
+
+        Mono<ClientRegistration> clientRegistrationMono = customClientRegistrationRepository == null
+                ? this.clientRegistrationRepository.findByRegistrationId(clientRegistration)
+                : customClientRegistrationRepository.findByRegistrationId(clientRegistration);
+        return clientRegistrationMono.switchIfEmpty(Mono.error(
+                () -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid client registration id")));
     }
 
     private Mono<OAuth2AuthorizationRequest> authorizationRequest(
