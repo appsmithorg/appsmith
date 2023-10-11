@@ -5,10 +5,10 @@ import type { ContainerOrientation } from "constants/WidgetConstants";
 import { Input, Icon } from "design-system";
 import useInteractionAnalyticsEvent from "utils/hooks/useInteractionAnalyticsEvent";
 
-type ControlWrapperProps = {
+interface ControlWrapperProps {
   orientation?: ContainerOrientation;
   isAction?: boolean;
-};
+}
 
 export const ControlWrapper = styled.div<ControlWrapperProps>`
   display: ${(props) =>

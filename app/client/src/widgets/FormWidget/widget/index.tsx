@@ -7,6 +7,7 @@ import { ContainerWidget } from "widgets/ContainerWidget/widget";
 import type { ContainerComponentProps } from "widgets/ContainerWidget/component";
 import {
   FlexLayerAlignment,
+  FlexVerticalAlignment,
   Positioning,
   ResponsiveBehavior,
 } from "layoutSystems/common/utils/constants";
@@ -262,6 +263,7 @@ class FormWidget extends ContainerWidget {
       },
       responsiveBehavior: ResponsiveBehavior.Fill,
       minWidth: FILL_WIDGET_MIN_WIDTH,
+      flexVerticalAlignment: FlexVerticalAlignment.Stretch,
     };
   }
 

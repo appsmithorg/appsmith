@@ -73,9 +73,9 @@ const StyledImageBanner = styled.div`
 const getWelcomeImage = () => `${ASSETS_CDN_URL}/welcome-banner-v2.svg`;
 const getAppsmithLogo = () => `${ASSETS_CDN_URL}/appsmith-logo.svg`;
 
-type LandingPageProps = {
+interface LandingPageProps {
   onGetStarted?: (proficiency?: string, useCase?: string) => void;
-};
+}
 
 const WELCOME_PAGE_ANIMATION_CONTAINER = "welcome-page-animation-container";
 

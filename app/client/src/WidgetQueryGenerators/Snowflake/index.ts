@@ -110,7 +110,10 @@ export default abstract class Snowflake extends BaseQueryGenerator {
 
     const { value, where } = update;
 
-    const columns = without(formConfig.columns, formConfig.primaryColumn);
+    const columns = without(
+      formConfig.columns.map((d) => d.name),
+      formConfig.primaryColumn,
+    );
 
     return {
       type: QUERY_TYPE.UPDATE,
@@ -119,7 +122,7 @@ export default abstract class Snowflake extends BaseQueryGenerator {
         body: `UPDATE ${formConfig.tableName} SET ${columns
           .map((column) => `${column}= '{{${value}.${column}}}'`)
           .join(", ")} WHERE ${formConfig.primaryColumn}= '{{${where}.${
-          formConfig.primaryColumn
+          formConfig.dataIdentifier
         }}}';`,
       },
       dynamicBindingPathList: [
@@ -140,7 +143,10 @@ export default abstract class Snowflake extends BaseQueryGenerator {
       return;
     }
 
-    const columns = without(formConfig.columns, formConfig.primaryColumn);
+    const columns = without(
+      formConfig.columns.map((d) => d.name),
+      formConfig.primaryColumn,
+    );
 
     return {
       type: QUERY_TYPE.CREATE,

@@ -165,12 +165,12 @@ enum ActionResponseDataTypes {
   BINARY = "BINARY",
 }
 
-type FilePickerInstumentationObject = {
+interface FilePickerInstumentationObject {
   numberOfFiles: number;
   totalSize: number;
   fileTypes: Array<string>;
   fileSizes: Array<number>;
-};
+}
 
 export const getActionTimeout = (
   state: AppState,
@@ -226,7 +226,7 @@ const isErrorResponse = (response: ActionExecutionResponse) => {
  */
 function* readBlob(blobUrl: string): any {
   const [url, fileType] = parseBlobUrl(blobUrl);
-  const file = yield fetch(url).then((r) => r.blob());
+  const file = yield fetch(url).then(async (r) => r.blob());
 
   return yield new Promise((resolve) => {
     const reader = new FileReader();
@@ -726,11 +726,11 @@ function* runActionShortcutSaga() {
   }
 }
 
-type RunActionError = {
+interface RunActionError {
   name: string;
   message: string;
   clientDefinedError?: boolean;
-};
+}
 
 function* runActionSaga(
   reduxAction: ReduxAction<{
@@ -1284,10 +1284,10 @@ function* executePageLoadActionsSaga() {
   }
 }
 
-type ExecutePluginActionResponse = {
+interface ExecutePluginActionResponse {
   payload: ActionResponse;
   isError: boolean;
-};
+}
 /*
  * This saga handles the complete plugin action execution flow. It will respond with a
  * payload and isError property which indicates if the response is of an error type.

@@ -77,6 +77,21 @@ export const getDatasourceStructureById = (
   return state.entities.datasources.structure[id];
 };
 
+/**
+ * Selector to indicate if the widget name should be shown/drawn on canvas
+ */
+export const getShouldShowWidgetName = createSelector(
+  (state: AppState) => state.ui.widgetDragResize.isResizing,
+  (state: AppState) => state.ui.widgetDragResize.isDragging,
+  (state: AppState) => state.ui.editor.isPreviewMode,
+  (state: AppState) => state.ui.widgetDragResize.isAutoCanvasResizing,
+  (isResizing, isDragging, isPreviewMode, isAutoCanvasResizing) => {
+    return (
+      !isResizing && !isDragging && !isPreviewMode && !isAutoCanvasResizing
+    );
+  },
+);
+
 export const getDatasourceTableColumns =
   (datasourceId: string, tableName: string) => (state: AppState) => {
     const structure = getDatasourceStructureById(state, datasourceId);
@@ -845,10 +860,13 @@ export const getPageActions = (pageId = "") => {
 export const selectDatasourceIdToNameMap = createSelector(
   getDatasources,
   (datasources) => {
-    return datasources.reduce((acc, datasource) => {
-      acc[datasource.id] = datasource.name;
-      return acc;
-    }, {} as Record<string, string>);
+    return datasources.reduce(
+      (acc, datasource) => {
+        acc[datasource.id] = datasource.name;
+        return acc;
+      },
+      {} as Record<string, string>,
+    );
   },
 );
 
@@ -1170,9 +1188,8 @@ export const getDatasourceScopeValue = (
   const options = formConfig[0]?.children?.find(
     (child: any) => child?.configProperty === configProperty,
   )?.options;
-  const label = options?.find(
-    (option: any) => option.value === scopeValue,
-  )?.label;
+  const label = options?.find((option: any) => option.value === scopeValue)
+    ?.label;
   return label;
 };
 

@@ -165,7 +165,7 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
                       : VIEW_MODE_TABS.CONFIGURATIONS
                   }
                 >
-                  <TabsList>
+                  <TabsList className="t--datasource-tab-list">
                     <Tab value={VIEW_MODE_TABS.VIEW_DATA}>
                       {createMessage(DATASOURCE_VIEW_DATA_TAB)}
                     </Tab>
@@ -173,7 +173,10 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
                       {createMessage(DATASOURCE_CONFIGURATIONS_TAB)}
                     </Tab>
                   </TabsList>
-                  <TabPanelContainer value={VIEW_MODE_TABS.VIEW_DATA}>
+                  <TabPanelContainer
+                    className="t--datasource-tab-container"
+                    value={VIEW_MODE_TABS.VIEW_DATA}
+                  >
                     <DatasourceViewModeSchema
                       datasource={datasource}
                       datasourceId={datasourceId}
@@ -183,6 +186,7 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
                     />
                   </TabPanelContainer>
                   <ConfigurationTabPanelContainer
+                    className="t--datasource-tab-container"
                     value={VIEW_MODE_TABS.CONFIGURATIONS}
                   >
                     <ViewModeWrapper data-testid="t--ds-review-section">

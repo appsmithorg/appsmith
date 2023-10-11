@@ -170,12 +170,12 @@ export interface DebuggerReduxState {
   context: DebuggerContext;
 }
 
-export type DebuggerContext = {
+export interface DebuggerContext {
   scrollPosition: number;
   errorCount: number;
   selectedDebuggerTab: string;
   responseTabHeight: number;
   selectedDebuggerFilter: string;
-};
+}
 
 export default debuggerReducer;

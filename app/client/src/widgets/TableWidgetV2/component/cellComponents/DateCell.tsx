@@ -55,11 +55,11 @@ const COMPONENT_DEFAULT_VALUES = {
   timePrecision: TimePrecision.MINUTE,
 };
 
-type editPropertyType = {
+interface editPropertyType {
   alias: string;
   onDateSelectedString: string;
   rowIndex: number;
-};
+}
 
 const DEFAULT_BORDER_RADIUS = "0";
 

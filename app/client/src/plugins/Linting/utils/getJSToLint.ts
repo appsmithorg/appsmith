@@ -1,4 +1,4 @@
-import type { DataTreeEntity } from "@appsmith/entities/DataTree/types";
+import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
 import { isJSAction } from "@appsmith/workers/Evaluation/evaluationUtils";
 
 // Removes "export default" statement from js Object

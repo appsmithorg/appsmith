@@ -1,7 +1,9 @@
 package com.appsmith.server.solutions.ce;
 
 import com.appsmith.server.acl.AclPermission;
+import org.springframework.stereotype.Component;
 
+@Component
 public class ActionPermissionCEImpl implements ActionPermissionCE, DomainPermissionCE {
     @Override
     public AclPermission getEditPermission() {

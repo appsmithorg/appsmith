@@ -1,10 +1,10 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const requestMock = jest.fn((...args: any) => Promise.resolve("success"));
+const requestMock = jest.fn(async (...args: any) => Promise.resolve("success"));
 
 jest.mock("../Messenger.ts", () => ({
   ...jest.requireActual("../Messenger.ts"),
   WorkerMessenger: {
-    request: (...args: any) => requestMock(...args),
+    request: async (...args: any) => requestMock(...args),
   },
 }));
 

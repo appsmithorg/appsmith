@@ -31,20 +31,20 @@ type renderImageType = BaseCellComponentProps & {
 
 export function ImageCell(props: renderImageType) {
   const {
-    compactMode,
-    value,
-    isHidden,
-    isCellVisible,
-    onClick = noop,
     allowCellWrapping,
-    horizontalAlignment,
-    verticalAlignment,
     cellBackground,
+    compactMode,
     fontStyle,
-    textColor,
-    textSize,
+    horizontalAlignment,
     imageSize,
     isCellDisabled,
+    isCellVisible,
+    isHidden,
+    onClick = noop,
+    textColor,
+    textSize,
+    value,
+    verticalAlignment,
   } = props;
 
   if (!value) {

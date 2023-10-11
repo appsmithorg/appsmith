@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { clamp } from "./utils";
 
-type MousePosition = {
+interface MousePosition {
   x: number;
   y: number;
-};
+}
 
 type Direction = "ltr" | "rtl";
 

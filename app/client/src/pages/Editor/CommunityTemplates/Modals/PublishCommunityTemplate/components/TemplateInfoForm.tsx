@@ -12,7 +12,7 @@ import {
 import { useSelector } from "react-redux";
 import { allTemplatesFiltersSelector } from "selectors/templatesSelectors";
 
-type Props = {
+interface Props {
   setTemplateDescription: (templateDescription: string) => void;
   setTemplateExcerpt: (excerpt: string) => void;
   setTemplateName: (templateName: string) => void;
@@ -21,7 +21,7 @@ type Props = {
   templateExcerpt: string;
   templateName: string;
   templateUseCases: string[];
-};
+}
 
 const TemplateInfoForm = ({
   setTemplateDescription,
@@ -115,10 +115,10 @@ const TemplateInfoForm = ({
 
 export default TemplateInfoForm;
 
-type UseCaseProps = {
+interface UseCaseProps {
   setTemplateUseCases: (useCases: string[]) => void;
   templateUseCases: string[];
-};
+}
 const UseCasesSelect = ({
   setTemplateUseCases,
   templateUseCases,
