@@ -24,7 +24,7 @@ const initialState: UsersReduxState = {
   featureFlag: {
     data: DEFAULT_FEATURE_FLAG_VALUE,
     isFetched: false,
-    isFetching: false,
+    isFetching: true,
   },
   productAlert: {
     config: {
