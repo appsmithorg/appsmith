@@ -2,7 +2,6 @@ import React, { useContext, useEffect } from "react";
 import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
 import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
 import { SegmentedControl } from "design-system";
-import { tailwindLayers } from "constants/Layers";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router";
 import type { AppState } from "@appsmith/reducers";
@@ -25,6 +24,7 @@ import {
   widgetsExistCurrentPage,
 } from "@appsmith/selectors/entitiesSelector";
 import { SignpostingWalkthroughConfig } from "../FirstTimeUserOnboarding/Utils";
+import { ExplorerWrapper } from "./Common/ExplorerWrapper";
 
 const selectForceOpenWidgetPanel = (state: AppState) =>
   state.ui.onBoarding.forceOpenWidgetPanel;
@@ -91,6 +91,7 @@ function ExplorerContent() {
     popFeature,
     pushFeature,
   } = useContext(WalkthroughContext) || {};
+
   const handleCloseWalkthrough = () => {
     if (isWalkthroughOpened && popFeature) {
       popFeature();
@@ -128,11 +129,9 @@ function ExplorerContent() {
   ]);
 
   return (
-    <div
-      className={`flex-1 flex flex-col overflow-hidden ${tailwindLayers.entityExplorer}`}
-    >
+    <ExplorerWrapper>
       <div
-        className="flex-shrink-0 p-3 pb-2 mt-1 border-t"
+        className="flex-shrink-0 p-3 pb-2"
         data-testid="explorer-tab-options"
         id="explorer-tab-options"
       >
@@ -146,7 +145,7 @@ function ExplorerContent() {
       <WidgetSidebarWithTags isActive={activeOption === "widgets"} />
 
       <EntityExplorer isActive={activeOption === "explorer"} />
-    </div>
+    </ExplorerWrapper>
   );
 }
 

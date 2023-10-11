@@ -1,6 +1,6 @@
 import React, { Suspense, useEffect } from "react";
 import history from "utils/history";
-import AppHeader from "pages/common/AppHeader";
+import AppHeader from "@appsmith/pages/common/AppHeader";
 import { Redirect, Route, Router, Switch } from "react-router-dom";
 import {
   ADMIN_SETTINGS_CATEGORY_PATH,
