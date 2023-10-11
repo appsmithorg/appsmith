@@ -3,7 +3,7 @@ import momentPackageJson from "moment-timezone/package.json";
 
 export type TLibAccessor = { original: string; modified: string };
 
-export type TJSLibrary = {
+export interface TJSLibrary {
   version?: string;
   docsURL: string;
   name: string;
