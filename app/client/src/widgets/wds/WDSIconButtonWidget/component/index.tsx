@@ -4,21 +4,14 @@ import { IconButton, Tooltip } from "@design-system/widgets";
 import type { IconButtonComponentProps } from "./types";
 
 function IconButtonComponent(props: IconButtonComponentProps) {
-  const { iconName, isDisabled, isLoading, tooltip, ...rest } = props;
+  const { iconName, tooltip, ...rest } = props;
   const icon =
     iconName &&
     (() => {
       return <BIcon icon={iconName} />;
     });
 
-  const renderIconButton = (
-    <IconButton
-      aria-busy={isLoading}
-      aria-disabled={isDisabled}
-      icon={icon}
-      {...rest}
-    />
-  );
+  const renderIconButton = <IconButton icon={icon} {...rest} />;
 
   if (tooltip) {
     return <Tooltip tooltip={tooltip}>{renderIconButton}</Tooltip>;
