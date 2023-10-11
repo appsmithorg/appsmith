@@ -15,6 +15,7 @@ import {
   useTheme,
 } from "@design-system/theming";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
+import { CANVAS_ART_BOARD } from "constants/componentClassNameConstants";
 import { renderAppsmithCanvas } from "layoutSystems/CanvasFactory";
 import type { WidgetProps } from "widgets/BaseWidget";
 
@@ -83,8 +84,8 @@ const Canvas = (props: CanvasProps) => {
           className={`relative t--canvas-artboard ${paddingBottomClass} transition-all duration-400  ${marginHorizontalClass} ${getViewportClassName(
             canvasWidth,
           )}`}
-          data-testid="t--canvas-artboard"
-          id="art-board"
+          data-testid={"t--canvas-artboard"}
+          id={CANVAS_ART_BOARD}
           ref={focusRef}
           width={canvasWidth}
         >
