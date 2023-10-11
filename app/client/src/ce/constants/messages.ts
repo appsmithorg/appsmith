@@ -2153,7 +2153,7 @@ export const COMMUNITY_TEMPLATES = {
   },
 };
 
-export const PAGE_LAYOUTS = {
+export const STARTER_TEMPLATE_PAGE_LAYOUTS = {
   layouts: {
     dashboard: {
       name: () => "Dashboard",
