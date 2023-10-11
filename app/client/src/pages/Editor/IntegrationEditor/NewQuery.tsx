@@ -13,7 +13,7 @@ const QueryHomePage = styled.div`
   }
 `;
 
-type QueryHomeScreenProps = {
+interface QueryHomeScreenProps {
   pageId: string;
   isCreating: boolean;
   location: {
@@ -24,7 +24,7 @@ type QueryHomeScreenProps = {
     push: (data: string) => void;
   };
   showUnsupportedPluginDialog: (callback: any) => void;
-};
+}
 
 class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
   render() {

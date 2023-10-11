@@ -5,7 +5,7 @@ import type { FetchPageRequest } from "api/PageApi";
 import type { FormConfigType } from "components/formControls/BaseControl";
 
 // Type for the object that will store the dynamic values for each component
-export type DynamicValues = {
+export interface DynamicValues {
   allowedToFetch: boolean;
   isLoading: boolean;
   hasStarted: boolean;
@@ -14,20 +14,23 @@ export type DynamicValues = {
   config: DynamicValuesConfig;
   evaluatedConfig: DynamicValuesConfig;
   dynamicDependencyPathList?: Set<string> | undefined;
-};
+}
 
-export type DynamicValuesConfig = { url?: string; params: Record<string, any> };
+export interface DynamicValuesConfig {
+  url?: string;
+  params: Record<string, any>;
+}
 
-export type EvaluatedFormConfig = {
+export interface EvaluatedFormConfig {
   updateEvaluatedConfig: boolean;
   paths: string[];
   evaluateFormConfigObject: FormConfigEvalObject;
-};
+}
 
 export type ConditonalObject = Record<string, any>;
 
 // Type for the object that will store the evaluation output for each component
-export type ConditionalOutput = {
+export interface ConditionalOutput {
   visible?: boolean;
   enabled?: boolean;
   fetchDynamicValues?: DynamicValues;
@@ -35,11 +38,11 @@ export type ConditionalOutput = {
   evaluateFormConfig?: EvaluatedFormConfig;
   configPropertyPath?: string;
   staticDependencyPathList?: Set<string> | undefined;
-};
+}
 
-export type FormConfigEvalObject = {
+export interface FormConfigEvalObject {
   [path: string]: { expression: string; output: string };
-};
+}
 
 // Type for the object that will store the eval output for the form
 export type FormEvalOutput = Record<string, ConditionalOutput>;

@@ -149,9 +149,8 @@ export function* updateLayoutSystemTypeSaga(
   actionPayload: ReduxAction<LayoutSystemTypes>,
 ) {
   try {
-    const currLayoutSystemType: LayoutSystemTypes = yield select(
-      getLayoutSystemType,
-    );
+    const currLayoutSystemType: LayoutSystemTypes =
+      yield select(getLayoutSystemType);
     const payloadLayoutSystemType = actionPayload.payload;
 
     if (currLayoutSystemType === payloadLayoutSystemType) return;
@@ -194,9 +193,8 @@ export function* recalculateAutoLayoutColumnsAndSave(
   widgets?: CanvasWidgetsReduxState,
 ) {
   const layoutSystemType: LayoutSystemTypes = yield select(getLayoutSystemType);
-  const mainCanvasProps: MainCanvasReduxState = yield select(
-    getMainCanvasProps,
-  );
+  const mainCanvasProps: MainCanvasReduxState =
+    yield select(getMainCanvasProps);
 
   yield put(
     updateLayoutForMobileBreakpointAction(

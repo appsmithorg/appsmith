@@ -431,7 +431,7 @@ export interface WidgetBaseProps {
 // So there is no quick fix here, and we will need to refactor the whole system
 // Going forward, it is likely that Anvil will be our only layout system
 // So this choice makes sense while we're experimenting.
-export type WidgetRowCols = {
+export interface WidgetRowCols {
   leftColumn?: number;
   rightColumn?: number;
   topRow?: number;
@@ -442,7 +442,7 @@ export type WidgetRowCols = {
   mobileTopRow?: number;
   mobileBottomRow?: number;
   height?: number;
-};
+}
 
 export interface WidgetPositionProps extends WidgetRowCols {
   parentColumnSpace?: number;

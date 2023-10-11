@@ -21,11 +21,11 @@ interface CopyButtonProps {
 }
 
 export function CopyButton({
-  value,
   delay = 2000,
+  isDisabled = false,
   onCopy = noop,
   tooltipMessage,
-  isDisabled = false,
+  value,
 }: CopyButtonProps) {
   const timerRef = useRef<number>();
   const [showCopied, setShowCopied] = useState(false);

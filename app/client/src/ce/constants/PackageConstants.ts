@@ -1,6 +1,6 @@
 type ID = string;
 
-export type Package = {
+export interface Package {
   id: ID;
   name: string; // Name of the package.
   icon: string;
@@ -10,6 +10,6 @@ export type Package = {
   modifiedBy: string;
   modifiedAt: string;
   userPermissions: string[];
-};
+}
 
 export type PackageMetadata = Package;

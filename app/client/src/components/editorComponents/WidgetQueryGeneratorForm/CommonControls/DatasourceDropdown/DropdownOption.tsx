@@ -28,12 +28,12 @@ const Label = styled.div`
   text-overflow: ellipsis;
 `;
 
-type Props = {
+interface Props {
   label?: JSX.Element | string;
   leftIcon?: JSX.Element;
   rightIcon?: JSX.Element;
   className?: string;
-};
+}
 
 export function DropdownOption(props: Props) {
   const { className, label, leftIcon, rightIcon } = props;
@@ -49,10 +49,10 @@ export function DropdownOption(props: Props) {
   );
 }
 
-type LoadmoreProps = {
+interface LoadmoreProps {
   count: number;
   onLoadMore: () => void;
-};
+}
 
 export function LoadMoreOptions(props: LoadmoreProps) {
   if (props.count > DEFAULT_QUERY_OPTIONS_COUNTS_TO_SHOW) {

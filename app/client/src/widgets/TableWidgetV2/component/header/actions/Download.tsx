@@ -75,10 +75,10 @@ interface TableDataDownloadProps {
 
 type FileDownloadType = "CSV" | "EXCEL";
 
-type DataCellProps = {
+interface DataCellProps {
   value: string | number;
   type: "string" | "number";
-};
+}
 
 interface DownloadOptionProps {
   label: string;

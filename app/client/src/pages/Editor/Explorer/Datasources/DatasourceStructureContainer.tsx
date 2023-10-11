@@ -25,7 +25,7 @@ import { setFeatureWalkthroughShown } from "utils/storage";
 import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
 import { SCHEMA_SECTION_ID } from "entities/Action";
 
-type Props = {
+interface Props {
   datasourceId: string;
   datasourceStructure?: DatasourceStructureType;
   step: number;
@@ -35,7 +35,7 @@ type Props = {
   onEntityTableClick?: (table: string) => void;
   tableName?: string;
   customEditDatasourceFn?: () => void;
-};
+}
 
 // leaving out DynamoDB and Firestore because they have a schema but not templates
 export const SCHEMALESS_PLUGINS: Array<string> = [

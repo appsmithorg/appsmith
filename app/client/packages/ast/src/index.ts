@@ -142,12 +142,12 @@ export interface BlockStatementNode extends Node {
   body: [Node];
 }
 
-type NodeList = {
+interface NodeList {
   references: Set<string>;
   functionalParams: Set<string>;
   variableDeclarations: Set<string>;
   identifierList: Array<IdentifierNode>;
-};
+}
 
 // https://github.com/estree/estree/blob/master/es5.md#property
 export interface PropertyNode extends Node {
@@ -185,10 +185,10 @@ export type NodeWithLocation<NodeType> = NodeType & {
 
 type AstOptions = Omit<Options, "ecmaVersion">;
 
-type EntityRefactorResponse = {
+interface EntityRefactorResponse {
   isSuccess: boolean;
   body: { script: string; refactorCount: number } | { error: string };
-};
+}
 
 /* We need these functions to typescript casts the nodes with the correct types */
 export const isIdentifierNode = (node: Node): node is IdentifierNode => {
@@ -507,7 +507,10 @@ export const entityRefactorFromCode = (
   }
 };
 
-export type functionParam = { paramName: string; defaultValue: unknown };
+export interface functionParam {
+  paramName: string;
+  defaultValue: unknown;
+}
 
 export const getFunctionalParamsFromNode = (
   node:

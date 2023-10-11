@@ -31,14 +31,14 @@ import {
 } from "design-system";
 import { useToggle } from "@mantine/hooks";
 
-type EntityContextMenuProps = {
+interface EntityContextMenuProps {
   id: string;
   name: string;
   className?: string;
   pageId: string;
   isChangePermitted?: boolean;
   isDeletePermitted?: boolean;
-};
+}
 
 export function MoreActionsMenu(props: EntityContextMenuProps) {
   const [isMenuOpen, toggleMenuOpen] = useToggle([false, true]);

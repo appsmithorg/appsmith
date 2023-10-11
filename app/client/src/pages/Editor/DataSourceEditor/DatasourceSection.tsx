@@ -43,14 +43,14 @@ const FieldWrapper = styled.div`
   }
 `;
 
-type RenderDatasourceSectionProps = {
+interface RenderDatasourceSectionProps {
   config: any;
   datasource: Datasource;
   viewMode?: boolean;
   showOnlyCurrentEnv?: boolean;
   currentEnv: string;
   isEnvEnabled: boolean;
-};
+}
 const renderKVArray = (
   children: Array<any>,
   currentEnvironment: string,

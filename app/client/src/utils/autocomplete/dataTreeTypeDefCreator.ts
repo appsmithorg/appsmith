@@ -1,10 +1,12 @@
 import type {
-  ConfigTree,
-  DataTree,
-  DataTreeEntity,
   WidgetEntityConfig,
   JSActionEntityConfig,
 } from "@appsmith/entities/DataTree/types";
+import type {
+  ConfigTree,
+  DataTree,
+  DataTreeEntity,
+} from "entities/DataTree/dataTreeTypes";
 import { ENTITY_TYPE_VALUE } from "entities/DataTree/dataTreeFactory";
 import { uniqueId, isFunction, isObject } from "lodash";
 import { entityDefinitions } from "@appsmith/utils/autocomplete/EntityDefinitions";

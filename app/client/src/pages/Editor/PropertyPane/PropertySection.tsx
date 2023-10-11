@@ -72,7 +72,7 @@ const SectionWrapper = styled.div`
   }
 `;
 
-type PropertySectionProps = {
+interface PropertySectionProps {
   id: string;
   name: string;
   childrenId?: string;
@@ -85,7 +85,7 @@ type PropertySectionProps = {
   propertyPath?: string;
   tag?: string; // Used to show a tag on the section title on search results
   panelPropertyPath?: string;
-};
+}
 
 const areEqual = (prev: PropertySectionProps, next: PropertySectionProps) => {
   return prev.id === next.id && prev.childrenId === next.childrenId;
