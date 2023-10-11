@@ -46,6 +46,7 @@ import com.appsmith.server.dtos.AuditLogExportDTO;
 import com.appsmith.server.dtos.AuditLogFilterDTO;
 import com.appsmith.server.dtos.ExportFileDTO;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
+import com.appsmith.server.helpers.ModuleUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.AuditLogRepository;
 import com.appsmith.server.repositories.ConfigRepository;
@@ -696,6 +697,10 @@ public class AuditLogServiceImpl extends AuditLogServiceCECompatibleImpl impleme
             }
         }
         auditLog.setResource(auditLogResource);
+
+        if (ModuleUtils.isModuleContext(newAction.getUnpublishedAction())) {
+            return Mono.empty();
+        }
 
         return setPage(auditLog, newAction.getUnpublishedAction().getPageId(), properties)
                 .flatMap(newPage -> setApplication(auditLog, newAction.getApplicationId(), properties))

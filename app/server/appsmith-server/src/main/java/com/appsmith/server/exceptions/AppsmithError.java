@@ -1134,6 +1134,14 @@ public enum AppsmithError {
             "No implementation error",
             ErrorType.INTERNAL_ERROR,
             null),
+    MODULE_HAS_INSTANCES(
+            409,
+            AppsmithErrorCode.MODULE_HAS_INSTANCES.getCode(),
+            "Module cannot be deleted since it has {0} module instance(s) using it.",
+            AppsmithErrorAction.DEFAULT,
+            "Module cannot be deleted",
+            ErrorType.BAD_REQUEST,
+            null),
     ;
 
     private final Integer httpErrorCode;

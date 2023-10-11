@@ -109,4 +109,5 @@ public class FieldName extends FieldNameCE {
     // Package & module related constants
     public static final String PACKAGE_ID = "packageId";
     public static final String MODULE_ID = "moduleId";
+    public static final String ENTITY = "entity";
 }

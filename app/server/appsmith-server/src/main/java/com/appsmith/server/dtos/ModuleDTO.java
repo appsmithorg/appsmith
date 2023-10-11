@@ -1,11 +1,12 @@
 package com.appsmith.server.dtos;
 
 import com.appsmith.external.helpers.Identifiable;
-import com.appsmith.external.helpers.ModuleConsumable;
 import com.appsmith.external.models.ModuleInput;
 import com.appsmith.external.models.ModuleType;
 import com.appsmith.external.views.Views;
+import com.appsmith.server.helpers.ModuleConsumable;
 import com.fasterxml.jackson.annotation.JsonView;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -13,7 +14,6 @@ import lombok.ToString;
 import org.springframework.data.annotation.Transient;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -31,11 +31,11 @@ public class ModuleDTO implements Identifiable {
     private String moduleUUID;
 
     @JsonView(Views.Public.class)
-    String name;
+    @NotNull String name;
 
     @Transient
     @JsonView(Views.Public.class)
-    ModuleType type;
+    @NotNull ModuleType type;
 
     @Transient
     @JsonView(Views.Public.class)
@@ -62,10 +62,9 @@ public class ModuleDTO implements Identifiable {
     @JsonView(Views.Public.class)
     String publicEntityId;
 
-    // `entities` = {public entity, all private entities}
     @Transient
     @JsonView(Views.Public.class)
-    List<ModuleConsumable> entities;
+    ModuleConsumable entity;
 
     @Transient
     @JsonView(Views.Public.class)

@@ -13,6 +13,9 @@ import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.dtos.AnalyticEventDTO;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.ModuleUtils;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.repositories.NewActionRepository;
@@ -34,6 +37,7 @@ import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.ListUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
@@ -166,7 +170,8 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
             // We don't want to update the Datasource policy if Plugin Type is JS
             // Or the Datasource doesn't exist.
             if (actionDTO.getPluginType() == PluginType.JS
-                    || StringUtils.isEmpty(actionDTO.getDatasource().getId())) {
+                    || StringUtils.isEmpty(actionDTO.getDatasource().getId())
+                    || ModuleUtils.isModuleContext(actionDTO)) {
                 return Mono.just(actionDTO);
             }
             return newPageService
@@ -255,5 +260,27 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
                     });
                     return mapPermissionToDefaultApplicationRoleId;
                 });
+    }
+
+    @Override
+    protected Mono<ActionDTO> validateCreatorId(ActionDTO action) {
+        if (ModuleUtils.isModuleContext(action)) {
+            if (action.getModuleId() == null || action.getModuleId().isBlank()) {
+                throw new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.MODULE_ID);
+            }
+        } else {
+            super.validateCreatorId(action);
+        }
+        return Mono.just(action);
+    }
+
+    @Override
+    protected void setGitSyncIdInNewAction(NewAction newAction) {
+        ActionDTO action = newAction.getUnpublishedAction();
+        if (ModuleUtils.isModuleContext(action)) {
+            newAction.setGitSyncId(action.getModuleId() + "_" + new ObjectId());
+        } else {
+            super.setGitSyncIdInNewAction(newAction);
+        }
     }
 }

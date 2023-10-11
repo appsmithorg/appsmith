@@ -148,6 +148,7 @@ public enum AppsmithErrorCode {
     TENANT_DOWNGRADE_EXCEPTION("AE-LIC-4000", "Tenant downgrade to free plan failed"),
     KNOWLEDGE_BASE_EXCEPTION("AE-KB-5000", "Knowledge base exception"),
     NO_IMPLEMENTATION_EXCEPTION("AE-NI-4000", "No implementation exception"),
+    MODULE_HAS_INSTANCES("AE-MOD-4090", "Module has instances"),
     ;
     private final String code;
     private final String description;
