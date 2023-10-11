@@ -32,6 +32,7 @@
     "sourceMap": true,
     "baseUrl": "./src",
     "noFallthroughCasesInSwitch": true,
+    "ignoreDeprecations": "5.0",
     "importsNotUsedAsValues": "error"
   },
   "include": ["./src/**/*", "./packages"],

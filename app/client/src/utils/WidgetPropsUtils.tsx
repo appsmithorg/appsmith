@@ -19,8 +19,7 @@ import type { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
 import type { BlockSpace, GridProps } from "reflow/reflowTypes";
 import type { Rect } from "./boxHelpers";
 import { areIntersecting } from "./boxHelpers";
-import convertDSLtoAutoAndUpdatePositions from "./DSLConversions/fixedToAutoLayout";
-import { checkIsDSLAutoLayout } from "../layoutSystems/autolayout/utils/AutoLayoutUtils";
+
 import type {
   WidgetDraggingBlock,
   XYCord,
@@ -34,35 +33,42 @@ export type WidgetOperationParams = {
 
 const defaultDSL = defaultTemplate;
 
+/**
+ * This function is responsible for the following operations:
+ * 1. Using the default DSL if the response doesn't give us a DSL
+ * 2. Running all the DSL migrations on the DSL (transformDSL)
+ * 3. Transforming the DSL for the specifications of the layout system (only if a DSLTransformer is passed as an argument)
+ * @param dslTransformer A function that takes a DSL and returns a DSL transformed for the specifications of the layout system
+ * @param fetchPageResponse The response from the fetchPage API Call
+ * @returns The updated DSL and the layoutId
+ */
 export const extractCurrentDSL = (
+  dslTransformer?: (dsl: DSLWidget) => DSLWidget,
   fetchPageResponse?: FetchPageResponse,
-  isAutoLayout?: boolean,
-  mainCanvasWidth?: number,
 ): { dsl: DSLWidget; layoutId: string | undefined } => {
+  // If fetch page response doesn't exist
+  // It means we are creating a new page
   const newPage = !fetchPageResponse;
+  // Get the DSL from the response or default to the defaultDSL
   const currentDSL = fetchPageResponse?.data.layouts[0].dsl || {
     ...defaultDSL,
   };
 
+  // Run all the migrations on this DSL
   const transformedDSL = transformDSL(
     currentDSL as ContainerWidgetProps<WidgetProps>,
     newPage,
   );
 
-  if (!isAutoLayout || checkIsDSLAutoLayout(transformedDSL)) {
-    return {
-      dsl: transformedDSL,
-      layoutId: fetchPageResponse?.data.layouts[0].id,
-    };
+  let dsl = transformedDSL;
+  // If this DSL is meant to be transformed
+  // then the dslTransformer would have been passed by the caller
+  if (dslTransformer) {
+    dsl = dslTransformer(transformedDSL);
   }
 
-  const convertedDSL = convertDSLtoAutoAndUpdatePositions(
-    transformedDSL,
-    mainCanvasWidth,
-  );
-
   return {
-    dsl: convertedDSL,
+    dsl,
     layoutId: fetchPageResponse?.data.layouts[0].id,
   };
 };
