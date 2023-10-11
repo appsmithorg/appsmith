@@ -1,6 +1,6 @@
 import type { WidgetOperationParams } from "utils/WidgetPropsUtils";
 
-//This File contains all the types that are common types required in layout System's CanvasArenas
+//This File contains all the types that are common types required in layout System's canvasArenas
 
 //WidgetDraggingBlock contains information related to a dragging widget,
 //that is used in computing logic to enable drag and drop of the particular widget

@@ -5,9 +5,10 @@ import WidgetFactory from "WidgetProvider/factory";
 import type { HighlightInfo } from "layoutSystems/common/utils/types";
 import { useRef } from "react";
 import { getIsAutoLayoutMobileBreakPoint } from "selectors/editorSelectors";
-import type { WidgetDraggingBlock } from "layoutSystems/common/CanvasArenas/ArenaTypes";
+import type { WidgetDraggingBlock } from "layoutSystems/common/canvasArenas/ArenaTypes";
 import { deriveHighlightsFromLayers } from "layoutSystems/autolayout/utils/highlightUtils";
 import type { Point } from "layoutSystems/autolayout/utils/highlightSelectionUtils";
+import { getHighlightPayload } from "layoutSystems/autolayout/utils/highlightSelectionUtils";
 import { getHighlightPayload } from "layoutSystems/autolayout/utils/highlightSelectionUtils";
 
 export interface AutoLayoutHighlightProps {

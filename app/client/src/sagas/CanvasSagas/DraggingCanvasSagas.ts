@@ -40,7 +40,7 @@ import { collisionCheckPostReflow } from "utils/reflowHookUtils";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { BlueprintOperationTypes } from "WidgetProvider/constants";
 import { toast } from "design-system";
-import type { WidgetDraggingUpdateParams } from "layoutSystems/common/CanvasArenas/ArenaTypes";
+import type { WidgetDraggingUpdateParams } from "layoutSystems/common/canvasArenas/ArenaTypes";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 
 export type WidgetMoveParams = {

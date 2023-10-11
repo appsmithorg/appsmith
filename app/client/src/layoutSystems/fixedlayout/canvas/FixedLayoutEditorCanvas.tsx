@@ -1,7 +1,7 @@
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import { GridDefaults, RenderModes } from "constants/WidgetConstants";
 import { renderChildren } from "layoutSystems/common/utils/canvasUtils";
-import { CanvasSelectionArena } from "layoutSystems/fixedlayout/editor/FixedLayoutCanvasArenas/CanvasSelectionArena";
+import { CanvasSelectionArena } from "layoutSystems/fixedlayout/editor/FixedLayoutcanvasArenas/CanvasSelectionArena";
 import WidgetsMultiSelectBox from "layoutSystems/fixedlayout/common/widgetGrouping/WidgetsMultiSelectBox";
 import React, { useMemo } from "react";
 import { getSnappedGrid } from "sagas/WidgetOperationUtils";
@@ -10,7 +10,7 @@ import type { WidgetProps } from "widgets/BaseWidget";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import ContainerComponent from "widgets/ContainerWidget/component";
 import { DropTargetComponentWrapper } from "../../common/dropTarget/DropTargetComponentWrapper";
-import { FixedCanvasDraggingArena } from "../editor/FixedLayoutCanvasArenas/FixedCanvasDraggingArena";
+import { FixedCanvasDraggingArena } from "../editor/FixedLayoutcanvasArenas/FixedCanvasDraggingArena";
 import { compact, sortBy } from "lodash";
 import { Positioning } from "layoutSystems/common/utils/constants";
 import type { DSLWidget } from "WidgetProvider/constants";
