@@ -6,7 +6,6 @@ import com.appsmith.server.featureflags.CachedFeatures;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.TenantService;
-import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -96,11 +95,11 @@ class EmailServiceHelperTest {
         newBrandColors.setPrimary("F");
         newBrandColors.setFont("F");
         originalTenantConfiguration.setBrandColors(newBrandColors);
+        originalTenantConfiguration.setInstanceName("any instance name");
 
         tenantService.save(originalTenant).block();
         Tenant defautTenant = tenantService.getTenantConfiguration().block();
-        String instanceName =
-                StringUtils.defaultIfEmpty(defautTenant.getTenantConfiguration().getInstanceName(), "Appsmith");
+        String instanceName = defautTenant.getTenantConfiguration().getInstanceName();
         String logoUrl =
                 "http://www.test.com" + defautTenant.getTenantConfiguration().getBrandLogoUrl();
         StepVerifier.create(emailServiceHelper.enrichWithBrandParams(new HashMap<>(), "http://www.test.com"))
@@ -135,12 +134,12 @@ class EmailServiceHelperTest {
         newBrandColors.setPrimary("F");
         newBrandColors.setFont("F");
         originalTenantConfiguration.setBrandColors(newBrandColors);
+        originalTenantConfiguration.setInstanceName("any instance name");
 
         tenantService.save(originalTenant).block();
 
         Tenant defautTenant = tenantService.getTenantConfiguration().block();
-        String instanceName =
-                StringUtils.defaultIfEmpty(defautTenant.getTenantConfiguration().getInstanceName(), "Appsmith");
+        String instanceName = defautTenant.getTenantConfiguration().getInstanceName();
         String primaryColor =
                 defautTenant.getTenantConfiguration().getBrandColors().getPrimary();
         String backgroundColor =

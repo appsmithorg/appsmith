@@ -1,7 +1,5 @@
 package com.appsmith.server.services.ce_compatible;
 
-import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.dtos.InviteUsersToApplicationDTO;
 import com.appsmith.server.dtos.MemberInfoDTO;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;
@@ -12,9 +10,6 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 
 public interface ApplicationServiceCECompatible extends ApplicationServiceCE {
-    Mono<PermissionGroup> createDefaultRole(Application application, String roleType);
-
-    Mono<Void> deleteDefaultRole(Application application, PermissionGroup role);
 
     Mono<List<PermissionGroupInfoDTO>> fetchAllDefaultRoles(String applicationId);
 

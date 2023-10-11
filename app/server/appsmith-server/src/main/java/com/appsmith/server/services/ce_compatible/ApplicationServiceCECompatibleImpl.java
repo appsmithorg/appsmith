@@ -1,7 +1,5 @@
 package com.appsmith.server.services.ce_compatible;
 
-import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.dtos.InviteUsersToApplicationDTO;
 import com.appsmith.server.dtos.MemberInfoDTO;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;
@@ -61,16 +59,6 @@ public class ApplicationServiceCECompatibleImpl extends ApplicationServiceCEImpl
                 assetService,
                 datasourcePermission,
                 applicationPermission);
-    }
-
-    @Override
-    public Mono<PermissionGroup> createDefaultRole(Application application, String roleType) {
-        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
-    }
-
-    @Override
-    public Mono<Void> deleteDefaultRole(Application application, PermissionGroup role) {
-        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
     }
 
     @Override

@@ -238,13 +238,11 @@ public class UserServiceImpl extends UserServiceCECompatibleImpl implements User
     }
 
     @Override
-    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
     public Flux<User> findAllByIdsIn(Set<String> ids) {
         return repository.findAllById(ids);
     }
 
     @Override
-    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
     public Flux<User> findAllByUsernameIn(Set<String> usernames) {
         return repository.findAllByEmails(usernames);
     }
@@ -421,7 +419,6 @@ public class UserServiceImpl extends UserServiceCECompatibleImpl implements User
     }
 
     @Override
-    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
     public Mono<User> userCreate(User user, boolean isAdminUser) {
         Mono<User> userCreateAndDefaultRoleAssignmentMono = super.userCreate(user, isAdminUser)
                 // After creating the user, assign the default role to the newly created user.

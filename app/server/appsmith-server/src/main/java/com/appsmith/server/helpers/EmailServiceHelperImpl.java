@@ -37,7 +37,7 @@ public class EmailServiceHelperImpl extends EmailServiceHelperCEImpl implements 
     public Mono<Map<String, String>> enrichWithBrandParams(Map<String, String> params, String origin) {
         return tenantService.getTenantConfiguration().map(tenant -> {
             final TenantConfiguration tenantConfiguration = tenant.getTenantConfiguration();
-            params.put(INSTANCE_NAME, StringUtils.defaultIfEmpty(tenantConfiguration.getInstanceName(), "Appsmith"));
+            params.put(INSTANCE_NAME, tenantConfiguration.getInstanceName());
             params.put(LOGO_URL, getBrandLogoUrl(tenantConfiguration.getBrandLogoUrl(), origin));
             params.put(BRAND_PRIMARY_COLOR, tenantConfiguration.getBrandColors().getPrimary());
             params.put(

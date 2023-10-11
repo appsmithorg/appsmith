@@ -11,6 +11,8 @@ import reactor.core.publisher.Mono;
 public class BrandingServiceCECompatibleImpl implements BrandingServiceCECompatible {
     private final AssetService assetService;
 
+    protected static final String BRANDING_DISABLED_INSTANCE_NAME = "Appsmith";
+
     public BrandingServiceCECompatibleImpl(AssetService assetService) {
         this.assetService = assetService;
     }
@@ -21,6 +23,7 @@ public class BrandingServiceCECompatibleImpl implements BrandingServiceCECompati
     public Mono<TenantConfiguration> getTenantConfiguration(TenantConfiguration tenantConfiguration) {
         tenantConfiguration.setWhiteLabelEnable(Boolean.FALSE.toString());
         tenantConfiguration.setWhiteLabelFavicon(TenantConfiguration.DEFAULT_APPSMITH_FEVICON);
+        tenantConfiguration.setInstanceName(BRANDING_DISABLED_INSTANCE_NAME);
 
         TenantConfiguration.BrandColors brandColors = new TenantConfiguration.BrandColors();
         brandColors.setPrimary(TenantConfiguration.DEFAULT_PRIMARY_COLOR);

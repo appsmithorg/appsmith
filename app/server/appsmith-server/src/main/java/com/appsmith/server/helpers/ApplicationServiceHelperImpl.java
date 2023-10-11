@@ -1,9 +1,7 @@
 package com.appsmith.server.helpers;
 
-import com.appsmith.server.annotations.FeatureFlagged;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.PermissionGroup;
-import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.ce_compatible.ApplicationServiceHelperCECompatibleImpl;
 import com.appsmith.server.services.PermissionGroupService;
 import org.apache.commons.lang3.StringUtils;
@@ -28,8 +26,15 @@ public class ApplicationServiceHelperImpl extends ApplicationServiceHelperCEComp
         this.permissionGroupService = permissionGroupService;
     }
 
+    /**
+     * This method updates the names of default application roles without permission, when the associated application
+     * name is updated. Now we should not put this method behind the feature flag, because we want the DB to be in the
+     * sane state, when we go through an upgrade or downgrade.
+     * @param updateResource
+     * @param updatedApplicationMono
+     * @return
+     */
     @Override
-    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
     public Mono<Application> updateApplicationDefaultRolesWhenApplicationUpdated(
             Application updateResource, Mono<Application> updatedApplicationMono) {
         if (StringUtils.isEmpty(updateResource.getName())) {

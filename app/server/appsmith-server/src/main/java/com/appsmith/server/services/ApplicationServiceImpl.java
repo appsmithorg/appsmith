@@ -159,9 +159,9 @@ public class ApplicationServiceImpl extends ApplicationServiceCECompatibleImpl i
      * @param application {@link Application}
      * @param roleType    {@link String}
      * @return {@link Mono}<{@link PermissionGroup}>
+     * @implNote The method is used internally and doesn't need to be feature flagged.
      */
     @Override
-    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
     public Mono<PermissionGroup> createDefaultRole(Application application, String roleType) {
         Mono<PermissionGroup> createdDefaultRoleMono;
         if (roleType.equalsIgnoreCase(APPLICATION_DEVELOPER)) {
@@ -540,9 +540,9 @@ public class ApplicationServiceImpl extends ApplicationServiceCECompatibleImpl i
      *
      * @param application Application for which the default role is being deleted.
      * @param role        Role which is being deleted.
+     * @implNote The method is used internally and doesn't need to be feature flagged.
      */
     @Override
-    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
     public Mono<Void> deleteDefaultRole(Application application, PermissionGroup role) {
         if (StringUtils.isNotEmpty(role.getDefaultDomainId())
                 && role.getDefaultDomainId().equals(application.getId())
@@ -674,10 +674,13 @@ public class ApplicationServiceImpl extends ApplicationServiceCECompatibleImpl i
      * @param applicationId ID of the application to be updated.
      * @param application   Resources to update.
      * @param branchName    updates application in a particular branch.
+     * @implNote Not annotating the method with feature flag, because we need the DB in the sane state.
+     * Take the following flow: BE -> Create Application -> App Share -> Downgrade to CE
+     * Application default roles will exist for this application, and whenever the application name is updated, these
+     * role names should update as well.
      * @return
      */
     @Override
-    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
     public Mono<Application> update(String applicationId, Application application, String branchName) {
         Mono<Application> updateApplicationMono = super.update(applicationId, application, branchName);
         return applicationServiceHelper.updateApplicationDefaultRolesWhenApplicationUpdated(

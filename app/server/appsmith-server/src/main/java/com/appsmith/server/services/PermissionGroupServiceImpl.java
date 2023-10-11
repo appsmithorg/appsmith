@@ -110,8 +110,7 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCECompatib
                 userRepository,
                 policySolution,
                 configRepository,
-                permissionGroupPermission,
-                permissionGroupHelper);
+                permissionGroupPermission);
         this.modelMapper = modelMapper;
         this.policyGenerator = policyGenerator;
         this.sessionUserService = sessionUserService;
@@ -302,7 +301,6 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCECompatib
     }
 
     @Override
-    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
     public Mono<PermissionGroup> bulkUnassignFromUserGroupsWithoutPermission(
             PermissionGroup permissionGroup, Set<String> userGroupIds) {
 
@@ -481,8 +479,14 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCECompatib
         return Mono.just(directAssignedUserIds);
     }
 
+    /**
+     * Used to delete the Permission Groups without permission.
+     * @param id
+     * @return
+     * @implNote We don't need to feature flag this method, because we are unassigning the permission group from
+     * user group without permission, and this will lead to cleaning of cache, which is required.
+     */
     @Override
-    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
     public Mono<Void> deleteWithoutPermission(String id) {
         Mono<Void> deleteRoleMono = super.deleteWithoutPermission(id).cache();
         Mono<PermissionGroup> roleMono = repository.findById(id);
@@ -495,7 +499,6 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCECompatib
     }
 
     @Override
-    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
     public Flux<PermissionGroup> getAllDefaultRolesForApplication(
             Application application, Optional<AclPermission> aclPermission) {
         return repository.findByDefaultApplicationId(application.getId(), aclPermission);
@@ -627,7 +630,6 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCECompatib
      * @return
      */
     @Override
-    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
     public Flux<String> getRoleNamesAssignedToUserIds(Set<String> userIds) {
         List<String> includeFields = List.of(
                 fieldName(QPermissionGroup.permissionGroup.name), fieldName(QPermissionGroup.permissionGroup.policies));
@@ -679,5 +681,81 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCECompatib
     @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
     public Flux<PermissionGroup> findAllByAssignedToGroupIdWithoutPermission(String groupId) {
         return findAllByAssignedToGroupIdsInWithoutPermission(Set.of(groupId));
+    }
+
+    @Override
+    public Flux<PermissionGroup> findAllByAssignedToUsersIn(Set<String> userIds) {
+        return repository.findAllByAssignedToUserIds(userIds, READ_PERMISSION_GROUPS);
+    }
+
+    @Override
+    public Mono<Boolean> bulkUnassignUserFromPermissionGroupsWithoutPermission(
+            User user, Set<String> permissionGroupIds) {
+        return repository
+                .findAllById(permissionGroupIds)
+                .flatMap(pg -> {
+                    // Delete the User Management Role if user is being disassociated from it.
+                    if (permissionGroupHelper.isUserManagementRole(pg)) {
+                        return repository.delete(pg);
+                    }
+
+                    Set<String> assignedToUserIds = pg.getAssignedToUserIds();
+                    assignedToUserIds.remove(user.getId());
+
+                    Update updateObj = new Update();
+                    String path = fieldName(QPermissionGroup.permissionGroup.assignedToUserIds);
+
+                    updateObj.set(path, assignedToUserIds);
+                    Mono<UpdateResult> updateAssignedToUserIdsForRoleMono =
+                            repository.updateById(pg.getId(), updateObj);
+
+                    // Trigger disassociation from role event, if the role is not Default Role For All Users.
+                    Mono<Long> sendEventUserRemovedFromRoleIfRoleIsNotDefaultRoleMono = permissionGroupHelper
+                            .getDefaultRoleForAllUserRoleId()
+                            .flatMap(defaultRoleId -> {
+                                if (!defaultRoleId.equals(pg.getId())) {
+                                    return sendEventUserRemovedFromRole(pg, List.of(user.getEmail()))
+                                            .thenReturn(1L);
+                                }
+                                return Mono.just(1L);
+                            });
+                    return updateAssignedToUserIdsForRoleMono.zipWhen(
+                            updatedRole -> sendEventUserRemovedFromRoleIfRoleIsNotDefaultRoleMono);
+                })
+                .then(Mono.just(TRUE));
+    }
+
+    @Override
+    public Flux<PermissionGroup> findAllByAssignedToUserId(String userId) {
+        return findAllByAssignedToUsersIn(Set.of(userId));
+    }
+
+    @Override
+    public Mono<Boolean> bulkAssignToUsersWithoutPermission(PermissionGroup pg, List<User> users) {
+        ensureAssignedToUserIds(pg);
+        List<String> userIds = users.stream().map(User::getId).collect(Collectors.toList());
+        Update updateAssignedToUserIdsUpdate = new Update();
+        updateAssignedToUserIdsUpdate
+                .addToSet(fieldName(QPermissionGroup.permissionGroup.assignedToUserIds))
+                .each(userIds.toArray());
+
+        Mono<UpdateResult> permissionGroupUpdateMono = repository.updateById(pg.getId(), updateAssignedToUserIdsUpdate);
+
+        Mono<Boolean> clearCacheForUsersMono =
+                cleanPermissionGroupCacheForUsers(userIds).thenReturn(TRUE);
+
+        return permissionGroupUpdateMono
+                .zipWhen(updatedPermissionGroup -> clearCacheForUsersMono)
+                .thenReturn(TRUE);
+    }
+
+    @Override
+    public Flux<PermissionGroup> findAllByAssignedToUserIdsInWithoutPermission(Set<String> userIds) {
+        return repository.findAllByAssignedToUserIds(userIds, Optional.empty(), Optional.empty());
+    }
+
+    @Override
+    public Flux<PermissionGroup> findAllByAssignedToUserIdWithoutPermission(String userId) {
+        return findAllByAssignedToUserIdsInWithoutPermission(Set.of(userId));
     }
 }

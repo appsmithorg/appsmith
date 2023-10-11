@@ -38,6 +38,11 @@ public class BrandingServiceImpl extends BrandingServiceCECompatibleImpl impleme
         brandColors.setFont(StringUtils.hasLength(brandColors.getFont()) ? brandColors.getFont() : DEFAULT_FONT_COLOR);
         tenantConfiguration.setBrandColors(brandColors);
 
+        String instanceName = StringUtils.hasLength(tenantConfiguration.getInstanceName())
+                ? tenantConfiguration.getInstanceName()
+                : BRANDING_DISABLED_INSTANCE_NAME;
+        tenantConfiguration.setInstanceName(instanceName);
+
         return Mono.just(tenantConfiguration);
     }
 

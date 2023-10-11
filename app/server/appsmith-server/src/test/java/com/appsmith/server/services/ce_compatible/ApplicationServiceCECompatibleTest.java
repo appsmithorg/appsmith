@@ -1,7 +1,5 @@
 package com.appsmith.server.services.ce_compatible;
 
-import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.dtos.InviteUsersToApplicationDTO;
 import com.appsmith.server.dtos.UpdateApplicationRoleDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -32,28 +30,6 @@ class ApplicationServiceCECompatibleTest {
     @BeforeEach
     public void setup() {
         Mockito.when(featureFlagService.check(Mockito.any())).thenReturn(Mono.just(Boolean.FALSE));
-    }
-
-    @Test
-    @WithUserDetails(value = "api_user")
-    void testCreateDefaultRoleCECompatible() {
-        // Feature assertion started
-        AppsmithException unsupportedException = assertThrows(AppsmithException.class, () -> applicationService
-                .createDefaultRole(new Application(), "")
-                .block());
-        assertThat(unsupportedException.getMessage()).isEqualTo(AppsmithError.UNSUPPORTED_OPERATION.getMessage());
-        // Feature assertion finished
-    }
-
-    @Test
-    @WithUserDetails(value = "api_user")
-    void testDeleteDefaultRoleCECompatible() {
-        // Feature assertion started
-        AppsmithException unsupportedException = assertThrows(AppsmithException.class, () -> applicationService
-                .deleteDefaultRole(new Application(), new PermissionGroup())
-                .block());
-        assertThat(unsupportedException.getMessage()).isEqualTo(AppsmithError.UNSUPPORTED_OPERATION.getMessage());
-        // Feature assertion finished
     }
 
     @Test

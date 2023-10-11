@@ -1,10 +1,8 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.acl.PolicyGenerator;
-import com.appsmith.server.annotations.FeatureFlagged;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.PermissionGroup;
-import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.newactions.base.NewActionService;
@@ -97,7 +95,6 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
      * @return The modified application object with the deleted flag set
      */
     @Override
-    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
     public Mono<Application> deleteApplication(String id) {
         Mono<Application> deletedApplicationMono = super.deleteApplication(id).cache();
         Flux<PermissionGroup> defaultApplicationRoles = deletedApplicationMono.flatMapMany(deletedApplication ->
