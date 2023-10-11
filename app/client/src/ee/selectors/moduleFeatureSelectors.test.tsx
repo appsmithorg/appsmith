@@ -26,7 +26,7 @@ const mockCloudHosting = (value: boolean) => {
     () =>
       ({
         cloudHosting: value,
-      } as AppsmithUIConfigs),
+      }) as AppsmithUIConfigs,
   );
 };
 

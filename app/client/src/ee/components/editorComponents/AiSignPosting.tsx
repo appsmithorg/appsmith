@@ -6,11 +6,11 @@ import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfig
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { GPTTask } from "./GPT/utils";
 
-export type AISignPostingProps = {
+export interface AISignPostingProps {
   isOpen?: boolean;
   mode?: TEditorModes;
   forComp?: string;
-};
+}
 
 const SubContent = styled.div`
   color: var(--ads-v2-color-fg-muted);

@@ -11,11 +11,11 @@ import {
   validateResponse,
 } from "@scim/lib/plugin-scim";
 
-type modifyGroup = {
+interface modifyGroup {
   id: string;
   displayName?: string;
   meta?: any;
-};
+}
 
 export async function modifyGroup(
   baseEntity: string,

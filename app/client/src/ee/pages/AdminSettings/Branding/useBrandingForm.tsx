@@ -32,9 +32,9 @@ export const pluckDirtyValues = (dirtyFields: any, allValues: any): any => {
   );
 };
 
-type useBrandingFormProps = {
+interface useBrandingFormProps {
   dirtyFields: Record<string, any>;
-};
+}
 
 export const useBrandingForm = (props: useBrandingFormProps) => {
   const { dirtyFields } = props;

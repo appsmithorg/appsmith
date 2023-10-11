@@ -1,12 +1,12 @@
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 
-export type CreatePackageFromWorkspacePayload = {
+export interface CreatePackageFromWorkspacePayload {
   workspaceId: string;
-};
+}
 
-export type FetchPackagePayload = {
+export interface FetchPackagePayload {
   packageId: string;
-};
+}
 
 export const fetchAllPackages = () => {
   return {

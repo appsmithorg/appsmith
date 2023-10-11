@@ -14,16 +14,16 @@ import { hasManagePackagePermission } from "@appsmith/utils/permissionHelpers";
 import { createPackageFromWorkspace } from "@appsmith/actions/packageActions";
 import type { Package } from "@appsmith/constants/PackageConstants";
 
-export type PackageCardListProps = {
+export interface PackageCardListProps {
   isMobile: boolean;
   workspaceId: string;
   packages?: Package[];
-};
+}
 
 function PackageCardList({
   isMobile,
-  workspaceId,
   packages = [],
+  workspaceId,
 }: PackageCardListProps) {
   const dispatch = useDispatch();
   const showQueryModule = useSelector(getShowQueryModule);

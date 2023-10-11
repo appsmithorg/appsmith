@@ -146,11 +146,11 @@ export enum EvalErrorTypes {
   SERIALIZATION_ERROR = "SERIALIZATION_ERROR",
 }
 
-export type EvalError = {
+export interface EvalError {
   type: EvalErrorTypes;
   message: string;
   context?: Record<string, any>;
-};
+}
 
 export interface DynamicPath {
   key: string;

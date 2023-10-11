@@ -11,11 +11,11 @@ import {
   validateResponse,
 } from "@scim/lib/plugin-scim";
 
-type createGroup = {
+interface createGroup {
   id: string;
   displayName?: string;
   meta?: any;
-};
+}
 
 export async function createGroup(
   baseEntity: string,

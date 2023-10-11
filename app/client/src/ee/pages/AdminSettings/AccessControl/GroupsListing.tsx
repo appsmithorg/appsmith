@@ -193,8 +193,8 @@ export function GroupListing() {
       setSearchValue(search);
       const results =
         userGroups &&
-        userGroups.filter((userGroup) =>
-          userGroup.name?.toLocaleUpperCase().includes(search),
+        userGroups.filter(
+          (userGroup) => userGroup.name?.toLocaleUpperCase().includes(search),
         );
       setData(results);
     } else {

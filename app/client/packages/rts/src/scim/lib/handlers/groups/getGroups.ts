@@ -11,7 +11,7 @@ import {
   validateResponse,
 } from "@scim/lib/plugin-scim";
 
-type getGroups = {
+interface getGroups {
   Resources: {
     id?: string;
     displayName?: string;
@@ -19,7 +19,7 @@ type getGroups = {
     members?: { value: string; type: string }[];
   }[];
   totalResults: number | null;
-};
+}
 
 export async function getGroups(
   baseEntity: string,

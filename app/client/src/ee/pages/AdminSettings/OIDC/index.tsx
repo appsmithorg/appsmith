@@ -48,11 +48,11 @@ import {
 import { adminSettingsCategoryUrl } from "RouteBuilder";
 import history from "utils/history";
 
-type FormProps = {
+interface FormProps {
   settings: Record<string, string>;
   settingsConfig: Record<string, string | boolean>;
   isSaving: boolean;
-};
+}
 
 function getSettingLabel(name = "") {
   return name.replace(/-/g, "");

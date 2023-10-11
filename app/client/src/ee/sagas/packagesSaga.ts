@@ -39,12 +39,12 @@ import type {
   PackageMetadata,
 } from "@appsmith/constants/PackageConstants";
 
-type CreatePackageSagaProps = {
+interface CreatePackageSagaProps {
   workspaceId: string;
   name?: string;
   icon?: string;
   color?: string;
-};
+}
 
 export function* fetchAllPackagesSaga() {
   try {

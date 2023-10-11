@@ -1,11 +1,11 @@
 type ID = string;
 
-export type ModuleInput = {
+export interface ModuleInput {
   name: string;
   defaultValue?: string;
-};
+}
 
-export type Module = {
+export interface Module {
   id: ID;
   name: string;
   packageId: ID;
@@ -19,4 +19,4 @@ export type Module = {
    * for Actions/Queries as public, value would depend on plugin's settings
    */
   whitelistedPublicEntitySettingsForModuleInstance: string[];
-};
+}

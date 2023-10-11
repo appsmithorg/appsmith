@@ -1,20 +1,20 @@
 import type { ProvisioningReduxState } from "@appsmith/reducers/ProvisioningReducer";
 
-export type MethodType = {
+export interface MethodType {
   id: string;
   category?: string;
   label: string;
   subText?: string;
   image?: string;
   icon?: string;
-};
+}
 
-export type ScimProps = {
+export interface ScimProps {
   provisioningDetails: ProvisioningReduxState;
-};
+}
 
-export type DisableScimModalProps = {
+export interface DisableScimModalProps {
   provisioningDetails: ProvisioningReduxState;
   isModalOpen: boolean;
   setIsModalOpen: (val: boolean) => void;
-};
+}

@@ -109,20 +109,20 @@ export const useDatasourceOptions = ({
 //   deleteFormat: "SHEET",
 // };
 
-type FetchAllSpreadSheets = {
+interface FetchAllSpreadSheets {
   selectedDatasourceId: string;
   pluginId: string;
   requestObject?: Record<any, string>;
-};
+}
 
-export type UseSpreadSheetsReturn = {
+export interface UseSpreadSheetsReturn {
   fetchAllSpreadsheets: ({
     requestObject,
     selectedDatasourceId,
   }: FetchAllSpreadSheets) => void;
   isFetchingSpreadsheets: boolean;
   failedFetchingSpreadsheets: boolean;
-};
+}
 
 export const useSpreadSheets = ({
   setSelectedDatasourceIsInvalid,
@@ -234,22 +234,22 @@ export type Sheets = Sheet[];
 export const getSheetUrl = (sheetId: string): string =>
   `https://docs.google.com/spreadsheets/d/${sheetId}/edit#gid=0`;
 
-export type FetchSheetsList = {
+export interface FetchSheetsList {
   selectedDatasourceId: string;
   selectedSpreadsheetUrl: string;
   pluginId: string;
   requestObject?: Record<any, string>;
-};
+}
 
-export type FetchSheetData = {
+export interface FetchSheetData {
   selectedDatasourceId: string;
   selectedSpreadsheetUrl: string;
   selectedSheetName: string;
   pluginId: string;
   requestObject?: Record<any, string>;
-};
+}
 
-export type UseSheetListReturn = {
+export interface UseSheetListReturn {
   sheetsList: DropdownOption[];
   isFetchingSheetsList: boolean;
   failedFetchingSheetsList: boolean;
@@ -258,9 +258,9 @@ export type UseSheetListReturn = {
     selectedDatasourceId,
     selectedSpreadsheetUrl,
   }: FetchSheetsList) => void;
-};
+}
 
-export type UseSheetDataReturn = {
+export interface UseSheetDataReturn {
   sheetData: Array<any>;
   isFetchingSheetData: boolean;
   failedFetchingSheetData: boolean;
@@ -270,7 +270,7 @@ export type UseSheetDataReturn = {
     selectedSheetName,
     selectedSpreadsheetUrl,
   }: FetchSheetData) => void;
-};
+}
 
 export const useSheetsList = (): UseSheetListReturn => {
   const dispatch = useDispatch();
@@ -439,16 +439,16 @@ export const useSheetData = (): UseSheetDataReturn => {
   };
 };
 
-export type FetchColumnHeaderListParams = {
+export interface FetchColumnHeaderListParams {
   selectedDatasourceId: string;
   selectedSpreadsheetUrl: string;
   sheetName: string;
   pluginId: string;
   tableHeaderIndex: string;
   requestObject?: Record<any, string>; //possily unneccesary
-};
+}
 
-export type UseSheetColumnHeadersReturn = {
+export interface UseSheetColumnHeadersReturn {
   columnHeaderList: DropdownOption[];
   isFetchingColumnHeaderList: boolean;
   errorFetchingColumnHeaderList: string;
@@ -458,7 +458,7 @@ export type UseSheetColumnHeadersReturn = {
     sheetName,
     tableHeaderIndex,
   }: FetchColumnHeaderListParams) => void;
-};
+}
 
 export const useSheetColumnHeaders = () => {
   const dispatch = useDispatch();

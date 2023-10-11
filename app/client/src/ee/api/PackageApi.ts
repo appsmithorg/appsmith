@@ -4,21 +4,21 @@ import type { ApiResponse } from "api/ApiResponses";
 import type { AxiosPromise } from "axios";
 import type { Module } from "@appsmith/constants/ModuleConstants";
 
-export type CreatePackagePayload = {
+export interface CreatePackagePayload {
   workspaceId: string;
   name: string;
   icon?: string;
   color?: string;
-};
+}
 
-type FetchPackagePayload = {
+interface FetchPackagePayload {
   packageId: string;
-};
+}
 
-export type FetchPackageResponse = {
+export interface FetchPackageResponse {
   packageData: Package;
   modules: Module[];
-};
+}
 
 const BASE_URL = "v1/packages";
 

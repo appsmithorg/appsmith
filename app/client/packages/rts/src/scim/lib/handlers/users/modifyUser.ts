@@ -13,14 +13,14 @@ import {
 
 const validScimAttr: string[] = [];
 
-type modifyResponse = {
+interface modifyResponse {
   id?: string;
   userName?: string;
   active?: boolean;
   email?: string;
   meta?: any;
   displayName?: string;
-};
+}
 
 export async function modifyUser(
   baseEntity: string,

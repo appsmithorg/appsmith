@@ -228,8 +228,8 @@ export function RolesListing() {
       setSearchValue(search);
       const results =
         filteredRoles &&
-        filteredRoles.filter((role) =>
-          role.name?.toLocaleUpperCase().includes(search),
+        filteredRoles.filter(
+          (role) => role.name?.toLocaleUpperCase().includes(search),
         );
       setData(results);
     } else {

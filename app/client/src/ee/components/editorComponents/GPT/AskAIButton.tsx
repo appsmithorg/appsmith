@@ -11,11 +11,11 @@ import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { GPTTask } from "./utils";
 
-type AskAIButtonProps = {
+interface AskAIButtonProps {
   mode: TEditorModes;
   onClick: () => void;
   entity: FieldEntityInformation;
-};
+}
 
 export function AskAIButton(props: AskAIButtonProps) {
   const { entity, mode, onClick } = props;

@@ -124,18 +124,18 @@ const ConnectionContainer = styled.div`
   width: 100%;
 `;
 
-type ConnectionsProps = {
+interface ConnectionsProps {
   entityName: string;
   entityDependencies: {
     inverseDependencies: string[];
     directDependencies: string[];
   } | null;
-};
+}
 
-type ConnectionProps = {
+interface ConnectionProps {
   entityName: string;
   onClick: (entityName: string, entityType: string) => void;
-};
+}
 
 const getEntityDescription = (entityType?: ENTITY_TYPE) => {
   if (entityType === ENTITY_TYPE.WIDGET) {

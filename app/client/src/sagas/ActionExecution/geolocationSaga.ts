@@ -12,7 +12,10 @@ import type {
 } from "workers/Evaluation/fns/geolocationFns";
 
 class GeoLocationError extends Error {
-  constructor(message: string, private responseData?: any) {
+  constructor(
+    message: string,
+    private responseData?: any,
+  ) {
     super(message);
   }
 }

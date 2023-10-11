@@ -5,10 +5,7 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import {
-  APPLICATIONS_URL,
-  WORKSPACE_SETTINGS_BILLING_PAGE_URL,
-} from "constants/routes";
+import { APPLICATIONS_URL } from "constants/routes";
 import type { User } from "constants/userConstants";
 import { call, put, delay, select } from "redux-saga/effects";
 import history from "utils/history";
@@ -150,7 +147,7 @@ export function* RestartServerPoll() {
   yield call(RestryRestartServerPoll);
 }
 
-export function* RestryRestartServerPoll(isMigration = false) {
+export function* RestryRestartServerPoll() {
   let pollCount = 0;
   const maxPollCount = RESTART_POLL_TIMEOUT / RESTART_POLL_INTERVAL;
   while (pollCount < maxPollCount) {
@@ -165,8 +162,7 @@ export function* RestryRestartServerPoll(isMigration = false) {
         response.data?.tenantConfiguration?.migrationStatus ===
           MIGRATION_STATUS.COMPLETED
       ) {
-        if (!isMigration) window.location.reload();
-        else location.href = WORKSPACE_SETTINGS_BILLING_PAGE_URL;
+        window.location.reload();
       }
     } catch (e) {}
   }

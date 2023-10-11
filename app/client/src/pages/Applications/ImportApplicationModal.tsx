@@ -183,13 +183,13 @@ function GitImportCard(props: { children?: ReactNode; handler?: () => void }) {
   );
 }
 
-type ImportApplicationModalProps = {
+interface ImportApplicationModalProps {
   workspaceId?: string;
   isModalOpen?: boolean;
   onClose?: () => void;
   appId?: string;
   toApp?: boolean;
-};
+}
 
 function ImportApplicationModal(props: ImportApplicationModalProps) {
   const { appId, isModalOpen, onClose, toApp = false, workspaceId } = props;

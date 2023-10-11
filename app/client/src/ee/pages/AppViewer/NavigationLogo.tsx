@@ -23,9 +23,9 @@ import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { getTenantConfig } from "@appsmith/selectors/tenantSelectors";
 import { getAppsmithConfigs } from "@appsmith/configs";
 
-type NavigationLogoProps = {
+interface NavigationLogoProps {
   logoConfiguration: NavigationSetting["logoConfiguration"];
-};
+}
 
 const StyledImage = styled.img`
   max-width: 10rem;

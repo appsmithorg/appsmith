@@ -45,13 +45,13 @@ import type {
 } from "@appsmith/entities/DataTree/types";
 import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeTypes";
 
-export type TUserPrompt = {
+export interface TUserPrompt {
   role: "user";
   content: string;
   taskId: GPTTask;
-};
+}
 
-export type TAssistantPrompt = {
+export interface TAssistantPrompt {
   role: "assistant";
   content: {
     previewCode: string;
@@ -61,22 +61,22 @@ export type TAssistantPrompt = {
   liked?: boolean;
   taskId: GPTTask;
   query: string;
-};
+}
 
-export type TErrorPrompt = {
+export interface TErrorPrompt {
   role: "error";
   content: string;
   taskId: GPTTask;
-};
+}
 
-export type TChatGenerationResponse = {
+export interface TChatGenerationResponse {
   data: { response: string; messageId: string };
   errorDisplay: string;
   responseMeta: {
     status: number;
     success: true;
   };
-};
+}
 
 export type TChatGPTPrompt = TAssistantPrompt | TUserPrompt | TErrorPrompt;
 

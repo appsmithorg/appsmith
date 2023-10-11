@@ -23,12 +23,12 @@ import { StyledForm, StyledInput, InputWrapper } from "./styles";
 import { Button, Text, toast } from "design-system";
 import { getFirstTimeUserOnboardingTelemetryCalloutIsAlreadyShown } from "utils/storage";
 
-export type LicenseFormProps = {
+export interface LicenseFormProps {
   label?: string;
   placeholder?: string;
   actionBtnText?: string;
   isModal?: boolean;
-};
+}
 
 export const LicenseForm = (props: LicenseFormProps) => {
   const urlParams = new URLSearchParams(window.location.search);

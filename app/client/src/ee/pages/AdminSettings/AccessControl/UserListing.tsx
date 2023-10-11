@@ -502,8 +502,9 @@ export function UserListing() {
       setSearchValue(search);
       const results =
         aclUsers &&
-        aclUsers.filter((user: UserProps) =>
-          user.username?.toLocaleUpperCase().includes(search),
+        aclUsers.filter(
+          (user: UserProps) =>
+            user.username?.toLocaleUpperCase().includes(search),
         );
       setData(results);
     } else {
