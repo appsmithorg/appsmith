@@ -11,7 +11,7 @@ interface RadioButtonGroupProps {
   input?: Partial<WrappedFieldInputProps>;
   showSubtitle?: boolean;
   testid: string;
-};
+}
 
 interface RadioButtonProps {
   label: string;
