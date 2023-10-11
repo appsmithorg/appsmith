@@ -30,6 +30,7 @@ export function LayoutComponentHOC(Component: LayoutComponent) {
       <Component {...props}>
         {isDropTarget && renderMode === RenderModes.CANVAS && (
           <AnvilCanvasDraggingArena
+            canvasId="0"
             deriveAllHighlightsFn={() => [
               {
                 posX: 10,
@@ -68,7 +69,7 @@ export function LayoutComponentHOC(Component: LayoutComponent) {
                 height: 100,
               },
             ]}
-            widgetId="0"
+            layoutId="0"
           />
         )}
         {renderChildren()}

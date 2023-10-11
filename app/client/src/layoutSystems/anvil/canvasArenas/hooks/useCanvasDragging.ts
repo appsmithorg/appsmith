@@ -14,7 +14,7 @@ import { useAnvilDnDStates } from "./useAnvilDnDStates";
 export const useCanvasDragging = (
   slidingArenaRef: React.RefObject<HTMLDivElement>,
   stickyCanvasRef: React.RefObject<HTMLCanvasElement>,
-  { onDrop, renderOnMouseMove, widgetId }: HighlightingCanvasProps,
+  { canvasId, layoutId, onDrop, renderOnMouseMove }: HighlightingCanvasProps,
 ) => {
   const {
     isChildOfCanvas,
@@ -24,7 +24,8 @@ export const useCanvasDragging = (
     isNewWidgetInitialTargetCanvas,
     isResizing,
   } = useAnvilDnDStates({
-    widgetId,
+    canvasId,
+    layoutId,
   });
 
   const { setDraggingCanvas, setDraggingNewWidget, setDraggingState } =
@@ -115,7 +116,7 @@ export const useCanvasDragging = (
           ) {
             if (!isCurrentDraggedCanvas) {
               // we can just use canvasIsDragging but this is needed to render the relative DragLayerComponent
-              setDraggingCanvas(widgetId);
+              setDraggingCanvas(layoutId);
             }
             canvasIsDragging = true;
             slidingArenaRef.current.style.zIndex = "2";

@@ -15,6 +15,7 @@ import {
 } from "selectors/widgetSelectors";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
+import type { SetDraggingStateActionPayload } from "utils/hooks/dragResizeHooks";
 import {
   useShowTableFilterPane,
   useWidgetDragResize,
@@ -30,20 +31,18 @@ const DraggableWrapper = styled.div`
   cursor: grab;
 `;
 
-type DraggableComponentProps = {
+export interface DraggableComponentProps {
   widgetId: string;
   parentId?: string;
   isFlexChild?: boolean;
   resizeDisabled?: boolean;
   type: string;
-  bottomRow: number;
-  topRow: number;
-  leftColumn: number;
-  rightColumn: number;
-  parentRowSpace: number;
-  parentColumnSpace: number;
   children: ReactNode;
-};
+  generateDragState: (
+    e: React.DragEvent<Element>,
+    draggableRef: HTMLElement,
+  ) => SetDraggingStateActionPayload;
+}
 
 // Widget Boundaries which is shown to indicate the boundaries of the widget
 const WidgetBoundaries = styled.div`
@@ -180,27 +179,9 @@ function DraggableComponent(props: DraggableComponentProps) {
       if (!isSelected) {
         selectWidget(SelectionRequestType.One, [props.widgetId]);
       }
-      const widgetHeight = props.bottomRow - props.topRow;
-      const widgetWidth = props.rightColumn - props.leftColumn;
-      const bounds = draggableRef.current.getBoundingClientRect();
-      const startPoints = {
-        top: Math.min(
-          Math.max((e.clientY - bounds.top) / props.parentRowSpace, 0),
-          widgetHeight - 1,
-        ),
-        left: Math.min(
-          Math.max((e.clientX - bounds.left) / props.parentColumnSpace, 0),
-          widgetWidth - 1,
-        ),
-      };
       showTableFilterPane();
-      setDraggingState({
-        isDragging: true,
-        dragGroupActualParent: props.parentId || "",
-        draggingGroupCenter: { widgetId: props.widgetId },
-        startPoints,
-        draggedOn: props.parentId,
-      });
+      const draggingState = props.generateDragState(e, draggableRef.current);
+      setDraggingState(draggingState);
     }
   };
 

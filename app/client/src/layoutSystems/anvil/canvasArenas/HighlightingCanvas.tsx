@@ -6,7 +6,8 @@ import { StickyCanvasArena } from "layoutSystems/common/canvasArenas/StickyCanva
 import React from "react";
 
 export interface HighlightingCanvasProps {
-  widgetId: string;
+  canvasId: string;
+  layoutId: string;
   renderOnMouseMove: (e: MouseEvent) => HighlightInfo | undefined;
   onDrop: (renderedBlock: HighlightInfo) => void;
 }
@@ -25,9 +26,10 @@ export interface HighlightInfo extends AdditionDataToPassOnDrop {
 }
 
 export function HighlightingCanvas({
+  canvasId,
+  layoutId,
   onDrop,
   renderOnMouseMove,
-  widgetId,
 }: HighlightingCanvasProps) {
   const slidingArenaRef = React.useRef<HTMLDivElement>(null);
   const stickyCanvasRef = React.useRef<HTMLCanvasElement>(null);
@@ -36,9 +38,10 @@ export function HighlightingCanvas({
     slidingArenaRef,
     stickyCanvasRef,
     {
+      canvasId,
+      layoutId,
       onDrop,
       renderOnMouseMove,
-      widgetId,
     },
   );
   const canvasRef = React.useRef({
@@ -51,13 +54,13 @@ export function HighlightingCanvas({
   );
   return true ? (
     <StickyCanvasArena
-      canvasId={`canvas-dragging-${widgetId}`}
+      canvasId={`canvas-dragging-${layoutId}`}
       canvasPadding={0}
       getRelativeScrollingParent={getNearestParentCanvas}
       ref={canvasRef}
       shouldObserveIntersection={isDragging}
       showCanvas={showDraggingCanvas}
-      sliderId={`div-dragarena-${widgetId}`}
+      sliderId={`div-dragarena-${layoutId}`}
     />
   ) : null;
 }

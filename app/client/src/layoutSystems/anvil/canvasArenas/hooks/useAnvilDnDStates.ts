@@ -5,7 +5,13 @@ import { useSelector } from "react-redux";
 import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
 import { useEffect, useRef } from "react";
 
-export const useAnvilDnDStates = ({ widgetId }: { widgetId: string }) => {
+export const useAnvilDnDStates = ({
+  canvasId,
+  layoutId,
+}: {
+  canvasId: string;
+  layoutId: string;
+}) => {
   const lastDraggedCanvas = useRef<string | undefined>(undefined);
 
   // dragDetails contains of info needed for a container jump:
@@ -17,12 +23,13 @@ export const useAnvilDnDStates = ({ widgetId }: { widgetId: string }) => {
   const draggingCanvas = useSelector(
     getWidgetByID(dragDetails.draggedOn || ""),
   );
+
   useEffect(() => {
     if (
       dragDetails.draggedOn &&
       draggingCanvas &&
       draggingCanvas.parentId &&
-      ![widgetId, MAIN_CONTAINER_WIDGET_ID].includes(dragDetails.draggedOn)
+      ![canvasId, MAIN_CONTAINER_WIDGET_ID].includes(dragDetails.draggedOn)
     ) {
       lastDraggedCanvas.current = draggingCanvas.parentId;
     }
@@ -37,10 +44,10 @@ export const useAnvilDnDStates = ({ widgetId }: { widgetId: string }) => {
     (state: AppState) => state.ui.widgetDragResize.isDragging,
   );
 
-  const isChildOfCanvas = dragParent === widgetId;
-  const isCurrentDraggedCanvas = dragDetails.draggedOn === widgetId;
+  const isChildOfCanvas = dragParent === canvasId;
+  const isCurrentDraggedCanvas = dragDetails.draggedOn === layoutId;
   const isNewWidgetInitialTargetCanvas =
-    isNewWidget && widgetId === MAIN_CONTAINER_WIDGET_ID;
+    isNewWidget && layoutId === MAIN_CONTAINER_WIDGET_ID;
 
   return {
     isChildOfCanvas,

@@ -4,15 +4,17 @@ import { HighlightingCanvas } from "./HighlightingCanvas";
 import { getClosestHighlight } from "./utils";
 
 type AnvilCanvasDraggingArenaProps = {
-  widgetId: string;
+  canvasId: string;
+  layoutId: string;
   deriveAllHighlightsFn: () => HighlightInfo[];
 };
 
 export const AnvilCanvasDraggingArena = (
   props: AnvilCanvasDraggingArenaProps,
 ) => {
-  const { deriveAllHighlightsFn, widgetId } = props;
+  const { canvasId, deriveAllHighlightsFn, layoutId } = props;
   const allHighLights = deriveAllHighlightsFn();
+
   const onDrop = (renderedBlock: HighlightInfo) => {
     return renderedBlock;
     // dispatch appropriate action to update the widgets
@@ -36,9 +38,10 @@ export const AnvilCanvasDraggingArena = (
   );
   return (
     <HighlightingCanvas
+      canvasId={canvasId}
+      layoutId={layoutId}
       onDrop={onDrop}
       renderOnMouseMove={renderOnMouseMove}
-      widgetId={widgetId}
     />
   );
 };
