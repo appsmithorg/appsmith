@@ -19,12 +19,12 @@ import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.f
 
 @Slf4j
 @RequiredArgsConstructor
-@ChangeUnit(order = "024", id = "tag-users-with-no-user-management-roles")
-public class Migration024TagUsersWithNoUserManagementRoles {
+@ChangeUnit(order = "030", id = "tag-users-with-no-user-management-roles")
+public class Migration030TagUsersWithNoUserManagementRoles {
 
     private final MongoTemplate mongoTemplate;
 
-    public static final String MIGRATION_FLAG_024_TAG_USER_WITHOUT_USER_MANAGEMENT_ROLE =
+    public static final String MIGRATION_FLAG_030_TAG_USER_WITHOUT_USER_MANAGEMENT_ROLE =
             "tagUserWithoutUserManagementRole";
 
     @RollbackExecution
@@ -63,7 +63,7 @@ public class Migration024TagUsersWithNoUserManagementRoles {
                 new Query(criteriaUsersWithNoUserManagementRolesAndUserPoliciesExists);
 
         Update updateSetMigrationFlag = new Update();
-        updateSetMigrationFlag.set(MIGRATION_FLAG_024_TAG_USER_WITHOUT_USER_MANAGEMENT_ROLE, Boolean.TRUE);
+        updateSetMigrationFlag.set(MIGRATION_FLAG_030_TAG_USER_WITHOUT_USER_MANAGEMENT_ROLE, Boolean.TRUE);
 
         mongoTemplate.updateMulti(queryUsersWithNoUserManagementRoles, updateSetMigrationFlag, User.class);
     }

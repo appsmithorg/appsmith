@@ -27,11 +27,11 @@ import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.n
 
 @Slf4j
 @RequiredArgsConstructor
-@ChangeUnit(order = "022", id = "tag-user-management-roles-without-default-domain-type-and-id")
-public class Migration022TagUserManagementRolesWithoutDefaultDomainTypeAndId {
+@ChangeUnit(order = "028", id = "tag-user-management-roles-without-default-domain-type-and-id")
+public class Migration028TagUserManagementRolesWithoutDefaultDomainTypeAndId {
     private final MongoTemplate mongoTemplate;
 
-    public static final String MIGRATION_FLAG_022_TAG_USER_MANAGEMENT_ROLE_WITHOUT_DEFAULT_DOMAIN_TYPE_AND_ID =
+    public static final String MIGRATION_FLAG_028_TAG_USER_MANAGEMENT_ROLE_WITHOUT_DEFAULT_DOMAIN_TYPE_AND_ID =
             "tagUserManagementRoleWithoutDefaultDomainTypeAndId";
 
     @RollbackExecution
@@ -80,7 +80,7 @@ public class Migration022TagUserManagementRolesWithoutDefaultDomainTypeAndId {
 
         Update updateSetMigrationFlag = new Update();
         updateSetMigrationFlag.set(
-                MIGRATION_FLAG_022_TAG_USER_MANAGEMENT_ROLE_WITHOUT_DEFAULT_DOMAIN_TYPE_AND_ID, Boolean.TRUE);
+                MIGRATION_FLAG_028_TAG_USER_MANAGEMENT_ROLE_WITHOUT_DEFAULT_DOMAIN_TYPE_AND_ID, Boolean.TRUE);
 
         mongoTemplate.updateMulti(
                 queryUserManagementRolesWithDefaultDomainIdDoesNotExist, updateSetMigrationFlag, PermissionGroup.class);

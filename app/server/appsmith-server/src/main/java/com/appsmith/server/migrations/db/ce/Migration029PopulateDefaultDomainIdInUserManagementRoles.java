@@ -29,8 +29,8 @@ import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.n
 
 @Slf4j
 @RequiredArgsConstructor
-@ChangeUnit(order = "023", id = "populate-default-domain-id-in-user-management-roles")
-public class Migration023PopulateDefaultDomainIdInUserManagementRoles {
+@ChangeUnit(order = "029", id = "populate-default-domain-id-in-user-management-roles")
+public class Migration029PopulateDefaultDomainIdInUserManagementRoles {
 
     private final MongoTemplate mongoTemplate;
 
@@ -63,8 +63,8 @@ public class Migration023PopulateDefaultDomainIdInUserManagementRoles {
                 });
 
         Criteria criteriaUserManagementRolesWithMigrationFlag022Set = Criteria.where(
-                        Migration022TagUserManagementRolesWithoutDefaultDomainTypeAndId
-                                .MIGRATION_FLAG_022_TAG_USER_MANAGEMENT_ROLE_WITHOUT_DEFAULT_DOMAIN_TYPE_AND_ID)
+                        Migration028TagUserManagementRolesWithoutDefaultDomainTypeAndId
+                                .MIGRATION_FLAG_028_TAG_USER_MANAGEMENT_ROLE_WITHOUT_DEFAULT_DOMAIN_TYPE_AND_ID)
                 .exists(Boolean.TRUE);
         Query queryUserManagementRolesWithWithMigrationFlag022Set =
                 new Query(criteriaUserManagementRolesWithMigrationFlag022Set);
@@ -96,8 +96,8 @@ public class Migration023PopulateDefaultDomainIdInUserManagementRoles {
                             fieldName(QPermissionGroup.permissionGroup.defaultDomainType), User.class.getSimpleName());
 
                     updateDefaultDomainIdOfUserManagementRole.unset(
-                            Migration022TagUserManagementRolesWithoutDefaultDomainTypeAndId
-                                    .MIGRATION_FLAG_022_TAG_USER_MANAGEMENT_ROLE_WITHOUT_DEFAULT_DOMAIN_TYPE_AND_ID);
+                            Migration028TagUserManagementRolesWithoutDefaultDomainTypeAndId
+                                    .MIGRATION_FLAG_028_TAG_USER_MANAGEMENT_ROLE_WITHOUT_DEFAULT_DOMAIN_TYPE_AND_ID);
                     mongoTemplate.updateFirst(
                             queryUserManagementRoleById,
                             updateDefaultDomainIdOfUserManagementRole,

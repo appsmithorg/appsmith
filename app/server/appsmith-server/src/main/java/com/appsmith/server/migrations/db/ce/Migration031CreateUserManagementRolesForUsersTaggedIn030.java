@@ -30,8 +30,8 @@ import static java.lang.Boolean.TRUE;
 
 @Slf4j
 @RequiredArgsConstructor
-@ChangeUnit(order = "025", id = "create-user-management-roles-for-users-tagged-in-migration-024")
-public class Migration025CreateUserManagementRolesForUsersTaggedIn024 {
+@ChangeUnit(order = "031", id = "create-user-management-roles-for-users-tagged-in-migration-030")
+public class Migration031CreateUserManagementRolesForUsersTaggedIn030 {
     private final MongoTemplate mongoTemplate;
     private final PolicySolution policySolution;
 
@@ -46,8 +46,8 @@ public class Migration025CreateUserManagementRolesForUsersTaggedIn024 {
     @Execution
     public void createUserManagementRolesForUsersTaggedInMigration024() {
         Criteria criteriaUsersTaggedInMigration024 = Criteria.where(
-                        Migration024TagUsersWithNoUserManagementRoles
-                                .MIGRATION_FLAG_024_TAG_USER_WITHOUT_USER_MANAGEMENT_ROLE)
+                        Migration030TagUsersWithNoUserManagementRoles
+                                .MIGRATION_FLAG_030_TAG_USER_WITHOUT_USER_MANAGEMENT_ROLE)
                 .is(TRUE);
 
         Query queryUsersTaggedInMigration024 = new Query(criteriaUsersTaggedInMigration024);
@@ -67,8 +67,8 @@ public class Migration025CreateUserManagementRolesForUsersTaggedIn024 {
                         User userWithUpdatedPolicies = createUserManagementRoleAndGetUserWithUpdatedPolicies(user);
                         Update updateMigrationFlagAndPoliciesForUser = new Update();
                         updateMigrationFlagAndPoliciesForUser.unset(
-                                Migration024TagUsersWithNoUserManagementRoles
-                                        .MIGRATION_FLAG_024_TAG_USER_WITHOUT_USER_MANAGEMENT_ROLE);
+                                Migration030TagUsersWithNoUserManagementRoles
+                                        .MIGRATION_FLAG_030_TAG_USER_WITHOUT_USER_MANAGEMENT_ROLE);
                         updateMigrationFlagAndPoliciesForUser.set(
                                 fieldName(QUser.user.policies), userWithUpdatedPolicies.getPolicies());
                         Criteria criteriaUserId = Criteria.where(fieldName(QBaseDomain.baseDomain.id))
