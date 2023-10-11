@@ -8,15 +8,20 @@ import { getSelectedWidgets } from "selectors/ui";
 import type { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 
 export const useAnvilDnDStates = ({
+  allowedWidgetTypes,
   canvasId,
   layoutId,
 }: {
+  allowedWidgetTypes: string[];
   canvasId: string;
   layoutId: string;
 }) => {
   const lastDraggedCanvas = useRef<string | undefined>(undefined);
-  const selectedWidgets = useSelector(getSelectedWidgets);
   const allWidgets = useSelector(getWidgets);
+  const selectedWidgets = useSelector(getSelectedWidgets);
+  const filteredSelectedWidgets = selectedWidgets.filter(
+    (eachWidgetId) => !!allWidgets[eachWidgetId],
+  );
   // dragDetails contains of info needed for a container jump:
   // which parent the dragging widget belongs,
   // which canvas is active(being dragged on),
@@ -26,7 +31,9 @@ export const useAnvilDnDStates = ({
   const draggingCanvas = useSelector(
     getWidgetByID(dragDetails.draggedOn || ""),
   );
-
+  const isDragging = useSelector(
+    (state: AppState) => state.ui.widgetDragResize.isDragging,
+  );
   useEffect(() => {
     if (
       dragDetails.draggedOn &&
@@ -43,10 +50,6 @@ export const useAnvilDnDStates = ({
     (state: AppState) => state.ui.widgetDragResize.isResizing,
   );
   const isNewWidget = !!newWidget && !dragParent;
-  const isDragging = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.isDragging,
-  );
-
   const isChildOfCanvas = dragParent === canvasId;
   const isCurrentDraggedCanvas = dragDetails.draggedOn === layoutId;
   const isNewWidgetInitialTargetCanvas =
@@ -66,14 +69,29 @@ export const useAnvilDnDStates = ({
         },
       ];
     } else {
-      return selectedWidgets.map((eachWidgetId) => ({
+      return filteredSelectedWidgets.map((eachWidgetId) => ({
         type: allWidgets[eachWidgetId].type,
         widgetId: eachWidgetId,
         responsiveBehavior: allWidgets[eachWidgetId].responsiveBehavior,
       }));
     }
   };
+  const checkIfWidgetTypeDraggedIsAllowedToDrop = () => {
+    if (allowedWidgetTypes.length === 0) {
+      return true;
+    }
+    if (isNewWidget) {
+      const { newWidget } = dragDetails;
+      return allowedWidgetTypes.includes(newWidget.type);
+    } else {
+      return filteredSelectedWidgets.every((eachWidgetId) => {
+        return allowedWidgetTypes.includes(allWidgets[eachWidgetId].type);
+      });
+    }
+  };
+  const allowToDrop = isDragging && checkIfWidgetTypeDraggedIsAllowedToDrop();
   return {
+    allowToDrop,
     draggedBlocks: getDraggedBlocks(),
     dragDetails,
     isChildOfCanvas,

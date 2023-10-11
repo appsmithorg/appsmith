@@ -8,15 +8,17 @@ export const addNewAnvilWidgetAction = (
   newWidget: {
     width: number;
     height: number;
-    widgetId: string;
+    newWidgetId: string;
     type: string;
   },
   highlight: AnvilHighlightInfo,
 ) => {
   return {
     type: ReduxActionTypes.ANVIL_ADD_NEW_WIDGET,
-    highlight,
-    newWidget,
+    payload: {
+      highlight,
+      newWidget,
+    },
   };
 };
 
@@ -29,7 +31,9 @@ export const moveAnvilWidgets = (
 ) => {
   return {
     type: ReduxActionTypes.ANVIL_MOVE_WIDGET,
-    highlight,
-    movedWidgets,
+    payload: {
+      highlight,
+      movedWidgets,
+    },
   };
 };

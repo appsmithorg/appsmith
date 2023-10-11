@@ -56,6 +56,12 @@ export const useCanvasDragging = (
     canvasCtx.stroke();
   };
 
+  const renderDisallowOnCanvas = (slidingArena: HTMLDivElement) => {
+    slidingArena.style.backgroundColor = "red";
+    slidingArena.style.color = "white";
+    slidingArena.innerText = "This Layout Doesn't support the widget";
+  };
+
   useEffect(() => {
     if (slidingArenaRef.current && !isResizing && isDragging) {
       const scrollParent: Element | null = getNearestParentCanvas(
@@ -75,6 +81,9 @@ export const useCanvasDragging = (
             stickyCanvasRef.current.height,
           );
           slidingArenaRef.current.style.zIndex = "";
+          slidingArenaRef.current.style.backgroundColor = "unset";
+          slidingArenaRef.current.style.color = "unset";
+          slidingArenaRef.current.innerText = "";
           canvasIsDragging = false;
         }
         if (isDragging) {
@@ -84,7 +93,12 @@ export const useCanvasDragging = (
 
       if (isDragging) {
         const onMouseUp = () => {
-          if (isDragging && canvasIsDragging && currentRectanglesToDraw) {
+          if (
+            isDragging &&
+            canvasIsDragging &&
+            currentRectanglesToDraw &&
+            anvilDragStates.allowToDrop
+          ) {
             onDrop(currentRectanglesToDraw);
           }
           resetCanvasState();
@@ -130,6 +144,10 @@ export const useCanvasDragging = (
             slidingArenaRef.current &&
             stickyCanvasRef.current
           ) {
+            if (!anvilDragStates.allowToDrop) {
+              renderDisallowOnCanvas(slidingArenaRef.current);
+              return;
+            }
             const processedHighlight = renderOnMouseMove(e);
             if (processedHighlight) {
               currentRectanglesToDraw = processedHighlight;
@@ -251,7 +269,7 @@ export const useCanvasDragging = (
         resetCanvasState();
       }
     }
-  }, [isDragging, isResizing]);
+  }, [isDragging, isResizing, anvilDragStates.allowToDrop]);
   return {
     showCanvas: isDragging && !isResizing,
   };

@@ -8,6 +8,7 @@ import type { AnvilHighlightInfo } from "../utils/anvilTypes";
 
 export interface HighlightingCanvasProps {
   anvilDragStates: {
+    allowToDrop: boolean;
     isChildOfCanvas: boolean;
     isCurrentDraggedCanvas: boolean;
     isDragging: boolean;
@@ -47,7 +48,7 @@ export function HighlightingCanvas({
   const isDragging = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isDragging,
   );
-  return true ? (
+  return showDraggingCanvas ? (
     <StickyCanvasArena
       canvasId={`canvas-dragging-${layoutId}`}
       canvasPadding={0}

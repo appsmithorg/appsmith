@@ -14,6 +14,7 @@ import { getWidgets } from "sagas/selectors";
 import type { AnvilHighlightInfo } from "../utils/anvilTypes";
 import { addWidgetsToPreset } from "../utils/layouts/update/additionUtils";
 import { moveWidgets } from "../utils/layouts/update/moveUtils";
+import { generateDefaultLayoutPreset } from "../layoutComponents/presets/DefaultLayoutPreset";
 
 function* addWidgetsSaga(
   actionPayload: ReduxAction<{
@@ -21,7 +22,7 @@ function* addWidgetsSaga(
     newWidget: {
       width: number;
       height: number;
-      widgetId: string;
+      newWidgetId: string;
       type: string;
     };
   }>,
@@ -38,7 +39,7 @@ function* addWidgetsSaga(
       BlueprintOperationTypes.UPDATE_CREATE_PARAMS_BEFORE_ADD,
       {
         parentId: canvasId,
-        widgetId: newWidget.widgetId,
+        widgetId: newWidget.newWidgetId,
         widgets: allWidgets,
         widgetType: newWidget.type,
       },
@@ -55,7 +56,9 @@ function* addWidgetsSaga(
     );
 
     const canvasWidget = updatedWidgetsOnAddition[canvasId];
-
+    const canvasLayout = canvasWidget.layout
+      ? canvasWidget.layout
+      : generateDefaultLayoutPreset();
     /**
      * Add new widget to the children of parent canvas.
      * Also add it to parent canvas' layout.
@@ -64,10 +67,9 @@ function* addWidgetsSaga(
       ...updatedWidgetsOnAddition,
       [canvasWidget.widgetId]: {
         ...canvasWidget,
-        children: [...(canvasWidget.children || []), newWidget.widgetId],
-        layout: addWidgetsToPreset([canvasWidget.layout], highlight, [
+        layout: addWidgetsToPreset(canvasLayout, highlight, [
           {
-            widgetId: newWidget.widgetId,
+            widgetId: newWidget.newWidgetId,
             alignment,
           },
         ]),

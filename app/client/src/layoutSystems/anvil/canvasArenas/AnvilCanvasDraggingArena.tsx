@@ -9,6 +9,7 @@ import { getClosestHighlight } from "./utils";
 type AnvilCanvasDraggingArenaProps = {
   canvasId: string;
   layoutId: string;
+  allowedWidgetTypes: string[];
   deriveAllHighlightsFn: (
     draggingWidgets: {
       widgetId?: string;
@@ -21,13 +22,15 @@ type AnvilCanvasDraggingArenaProps = {
 export const AnvilCanvasDraggingArena = (
   props: AnvilCanvasDraggingArenaProps,
 ) => {
-  const { canvasId, deriveAllHighlightsFn, layoutId } = props;
+  const { allowedWidgetTypes, canvasId, deriveAllHighlightsFn, layoutId } =
+    props;
   const anvilDragStates = useAnvilDnDStates({
+    allowedWidgetTypes,
     canvasId,
     layoutId,
   });
   const allHighLights = deriveAllHighlightsFn(anvilDragStates.draggedBlocks);
-  const onDrop = useAnvilWidgetDrop(anvilDragStates);
+  const onDrop = useAnvilWidgetDrop(canvasId, anvilDragStates);
   const renderOnMouseMove = useCallback(
     (e: MouseEvent) => {
       return getClosestHighlight(e, allHighLights);

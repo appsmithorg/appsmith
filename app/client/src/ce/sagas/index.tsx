@@ -51,6 +51,7 @@ import widgetOperationSagas from "sagas/WidgetOperationSagas";
 import oneClickBindingSaga from "sagas/OneClickBindingSaga";
 import entityNavigationSaga from "sagas/NavigationSagas";
 import communityTemplateSagas from "sagas/CommunityTemplatesSagas";
+import anvilDraggingSagas from "layoutSystems/anvil/sagas/draggingSagas";
 
 export const sagas = [
   initSagas,
@@ -106,4 +107,5 @@ export const sagas = [
   oneClickBindingSaga,
   entityNavigationSaga,
   communityTemplateSagas,
+  anvilDraggingSagas,
 ];
