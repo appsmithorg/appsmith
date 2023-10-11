@@ -169,6 +169,7 @@ export class GitSync {
   private addedDeployKeyCheckbox =
     "[data-testid='t--added-deploy-key-checkbox']";
   private startUsingGitButton = "[data-testid='t--start-using-git-button']";
+  private existingRepoCheckbox = "[data-testid='t--existing-repo-checkbox']";
 
   CreateNConnectToGitV2(
     repoName = "Repo",
@@ -179,22 +180,77 @@ export class GitSync {
     cy.get("@guid").then((uid) => {
       repoName += uid;
       this.CreateTestGiteaRepo(repoName, privateFlag);
-      this.AuthorizeKeyToGiteaV2(repoName, assertConnect);
+
+      cy.intercept("POST", "/api/v1/applications/ssh-keypair/*").as(
+        `generateKey-${repoName}`,
+      );
+
+      this.OpenGitSyncModal();
+
+      this.agHelper.GetNClick(this.providerRadioOthers);
+      this.agHelper.GetNClick(this.existingEmptyRepoYes);
+      this.agHelper.GetNClick(this.gitConnectNextBtn);
+      this.agHelper.AssertAttribute(
+        this.remoteUrlInput,
+        "placeholder",
+        "git@example.com:user/repository.git",
+      );
+      this.agHelper.TypeText(
+        this.remoteUrlInput,
+        `${this.dataManager.GITEA_API_URL_TED}/${repoName}.git`,
+      );
+      this.agHelper.GetNClick(this.gitConnectNextBtn);
+
+      this.agHelper.GenerateUUID();
+      cy.get("@guid").then((uid) => {
+        cy.wait(`@generateKey-${repoName}`).then((result: any) => {
+          let generatedKey = result.response.body.data.publicKey;
+          generatedKey = generatedKey.slice(0, generatedKey.length - 1);
+          // fetch the generated key and post to the github repo
+          cy.request({
+            method: "POST",
+            url: `${this.dataManager.GITEA_API_BASE_TED}:${this.dataManager.GITEA_API_PORT_TED}/api/v1/repos/Cypress/${repoName}/keys`,
+            headers: {
+              Authorization: `token ${Cypress.env("GITEA_TOKEN")}`,
+            },
+            body: {
+              title: "key_" + uid,
+              key: generatedKey,
+              read_only: false,
+            },
+          }).then((resp: any) => {
+            cy.log("Deploy Key Id ", resp.body.key_id);
+            cy.wrap(resp.body.key_id).as("deployKeyId");
+          });
+        });
+      });
+      this.agHelper.GetNClick(this.addedDeployKeyCheckbox, 0, true);
+      this.agHelper.GetNClick(this.gitConnectNextBtn);
+
+      if (assertConnect) {
+        this.assertHelper.AssertNetworkStatus("@connectGitLocalRepo");
+        this.agHelper.GetNClick(this.startUsingGitButton);
+        this.agHelper.AssertElementExist(this._bottomBarCommit, 0, 30000);
+        this.CloseGitSyncModal();
+      }
+
       cy.wrap(repoName).as("gitRepoName");
     });
   }
 
-  public AuthorizeKeyToGiteaV2(repo: string, assertConnect = true) {
-    let generatedKey;
-
-    cy.intercept("POST", "/api/v1/applications/ssh-keypair/*").as(
-      `generateKey-${repo}`,
+  public ImportAppFromGitV2(
+    workspaceName: string,
+    repoName: string,
+    assertConnect = true,
+  ) {
+    cy.intercept("GET", "api/v1/git/import/keys?keyType=ECDSA").as(
+      `importKey-${repoName}`,
     );
 
-    this.OpenGitSyncModal();
+    this.homePage.ImportGitApp(workspaceName);
 
     this.agHelper.GetNClick(this.providerRadioOthers);
-    this.agHelper.GetNClick(this.existingEmptyRepoYes);
+    this.agHelper.GetNClick(this.existingRepoCheckbox, 0, true);
     this.agHelper.GetNClick(this.gitConnectNextBtn);
     this.agHelper.AssertAttribute(
       this.remoteUrlInput,
@@ -203,19 +259,19 @@ export class GitSync {
     );
     this.agHelper.TypeText(
       this.remoteUrlInput,
-      `${this.dataManager.GITEA_API_URL_TED}/${repo}.git`,
+      `${this.dataManager.GITEA_API_URL_TED}/${repoName}.git`,
     );
     this.agHelper.GetNClick(this.gitConnectNextBtn);
 
     this.agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {
-      cy.wait(`@generateKey-${repo}`).then((result: any) => {
-        generatedKey = result.response.body.data.publicKey;
+      cy.wait(`@importKey-${repoName}`).then((result: any) => {
+        let generatedKey = result.response.body.data.publicKey;
         generatedKey = generatedKey.slice(0, generatedKey.length - 1);
         // fetch the generated key and post to the github repo
         cy.request({
           method: "POST",
-          url: `${this.dataManager.GITEA_API_BASE_TED}:${this.dataManager.GITEA_API_PORT_TED}/api/v1/repos/Cypress/${repo}/keys`,
+          url: `${this.dataManager.GITEA_API_BASE_TED}:${this.dataManager.GITEA_API_PORT_TED}/api/v1/repos/Cypress/${repoName}/keys`,
           headers: {
             Authorization: `token ${Cypress.env("GITEA_TOKEN")}`,
           },
@@ -234,10 +290,7 @@ export class GitSync {
     this.agHelper.GetNClick(this.gitConnectNextBtn);
 
     if (assertConnect) {
-      this.assertHelper.AssertNetworkStatus("@connectGitLocalRepo");
-      this.agHelper.GetNClick(this.startUsingGitButton);
-      this.agHelper.AssertElementExist(this._bottomBarCommit, 0, 30000);
-      this.CloseGitSyncModal();
+      this.assertHelper.AssertNetworkStatus("@importFromGit", 201);
     }
   }
 
@@ -322,7 +375,7 @@ export class GitSync {
         method: "GET",
         url: "/api/v1/git/checkout-branch/app/**",
       },
-      (req) => {
+      async (req) => {
         return new Promise((resolve) => {
           setTimeout(() => resolve(req.continue()), 1000);
         });

@@ -82,12 +82,8 @@ import {
   getAllActionValidationConfig,
   getAllJSActionsData,
 } from "@appsmith/selectors/entitiesSelector";
-import type {
-  DataTree,
-  UnEvalTree,
-  WidgetEntityConfig,
-} from "@appsmith/entities/DataTree/types";
-
+import type { WidgetEntityConfig } from "@appsmith/entities/DataTree/types";
+import type { DataTree, UnEvalTree } from "entities/DataTree/dataTreeTypes";
 import { initiateLinting, lintWorker } from "./LintingSagas";
 import type {
   EvalTreeRequestData,

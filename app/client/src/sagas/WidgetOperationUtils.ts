@@ -16,7 +16,7 @@ import {
   WIDGET_PADDING,
 } from "constants/WidgetConstants";
 import { all, call } from "redux-saga/effects";
-import type { DataTree } from "@appsmith/entities/DataTree/types";
+import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { select } from "redux-saga/effects";
 import { getCopiedWidgets } from "utils/storage";
 import type { WidgetProps } from "widgets/BaseWidget";
@@ -60,8 +60,8 @@ import type { WidgetEntity } from "@appsmith/entities/DataTree/types";
 import { isWidget } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import type { MetaState } from "reducers/entityReducers/metaReducer";
-import { Positioning } from "layoutSystems/autolayout/utils/constants";
-import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import { LayoutSystemTypes } from "layoutSystems/types";
+import { Positioning } from "layoutSystems/common/utils/constants";
 
 export interface CopiedWidgetGroup {
   widgetId: string;
@@ -747,7 +747,7 @@ export function getMousePositions(
 export function getSnappedGrid(LayoutWidget: WidgetProps, canvasWidth: number) {
   // For all widgets inside a container, we remove both container padding as well as widget padding from component width
   let padding =
-    ((LayoutWidget?.appPositioningType === AppPositioningTypes.AUTO
+    ((LayoutWidget?.layoutSystemType === LayoutSystemTypes.AUTO
       ? AUTO_LAYOUT_CONTAINER_PADDING
       : CONTAINER_GRID_PADDING) +
       WIDGET_PADDING) *

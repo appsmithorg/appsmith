@@ -9,22 +9,24 @@ import {
 import { generateDataTreeModuleInputs } from "@appsmith/entities/DataTree/utils";
 import type {
   DataTreeSeed,
-  unEvalAndConfigTree,
-  ConfigTree,
   AppsmithEntity,
-  UnEvalTree,
   ENTITY_TYPE,
 } from "@appsmith/entities/DataTree/types";
+import type {
+  unEvalAndConfigTree,
+  ConfigTree,
+  UnEvalTree,
+} from "entities/DataTree/dataTreeTypes";
 import { isEmpty } from "lodash";
 
 export class DataTreeFactory {
   static create({
     actions,
     appData,
-    appPositioningType,
     editorConfigs,
     isMobile,
     jsActions,
+    layoutSystemType,
     loadingEntities,
     metaWidgets,
     moduleInputs,
@@ -34,8 +36,8 @@ export class DataTreeFactory {
     widgets,
     widgetsMeta,
   }: DataTreeSeed): unEvalAndConfigTree {
-    let dataTree: UnEvalTree = {};
-    let configTree: ConfigTree = {};
+    const dataTree: UnEvalTree = {};
+    const configTree: ConfigTree = {};
     const start = performance.now();
     const startActions = performance.now();
 
@@ -64,13 +66,14 @@ export class DataTreeFactory {
     const startWidgets = performance.now();
 
     if (!isEmpty(moduleInputs)) {
-      const data = generateDataTreeModuleInputs(
-        dataTree,
-        configTree,
-        moduleInputs,
-      );
-      dataTree = data.dataTree;
-      configTree = data.configTree;
+      for (const [key, value] of Object.entries(moduleInputs)) {
+        const { configEntity, unEvalEntity } =
+          generateDataTreeModuleInputs(value);
+        if (!!configEntity && !!unEvalEntity) {
+          dataTree[key] = unEvalEntity;
+          configTree[key] = configEntity;
+        }
+      }
     }
 
     Object.values(widgets).forEach((widget) => {
@@ -78,12 +81,11 @@ export class DataTreeFactory {
         widget,
         widgetsMeta[widget.metaWidgetId || widget.widgetId],
         loadingEntities,
-        appPositioningType,
+        layoutSystemType,
         isMobile,
       );
 
       dataTree[widget.widgetName] = unEvalEntity;
-
       configTree[widget.widgetName] = configEntity;
     });
 

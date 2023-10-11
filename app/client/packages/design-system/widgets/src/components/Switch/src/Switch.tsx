@@ -23,7 +23,7 @@ const _Switch = (props: SwitchProps, ref: HeadlessSwitchRef) => {
       ref={ref}
       {...rest}
     >
-      {children && <Text>{children}</Text>}
+      {Boolean(children) && <Text>{children}</Text>}
     </HeadlessSwitch>
   );
 };

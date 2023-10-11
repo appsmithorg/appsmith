@@ -62,8 +62,8 @@ describe("Admin settings page", function () {
       cy.url().should("contain", "/settings/authentication");
       cy.get(adminsSettings.emailTab).click();
       cy.url().should("contain", "/settings/email");
-      cy.get(adminsSettings.googleMapsTab).click();
-      cy.url().should("contain", "/settings/google-maps");
+      cy.get(adminsSettings.developerSettingsTab).click();
+      cy.url().should("contain", "/settings/developer-settings");
       cy.get(adminsSettings.versionTab).click();
       cy.url().should("contain", "/settings/version");
     },
@@ -90,7 +90,7 @@ describe("Admin settings page", function () {
       cy.url().should("contain", "/settings/authentication");
       cy.get(adminsSettings.emailTab).click();
       cy.url().should("contain", "/settings/email");
-      cy.get(adminsSettings.googleMapsTab).should("not.exist");
+      cy.get(adminsSettings.developerSettingsTab).should("not.exist");
       cy.get(adminsSettings.versionTab).click();
       cy.url().should("contain", "/settings/version");
     },

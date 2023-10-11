@@ -1,9 +1,7 @@
-import React from "react";
 import type { AppState } from "@appsmith/reducers";
-import { Icon } from "design-system";
 import { PluginPackageName } from "entities/Action";
-import { get, isArray } from "lodash";
-import { useCallback, useContext, useMemo } from "react";
+import { isArray } from "lodash";
+import { useContext, useMemo } from "react";
 import { useSelector } from "react-redux";
 import {
   getGsheetsColumns,
@@ -15,16 +13,18 @@ import {
   getPluginPackageFromDatasourceId,
 } from "@appsmith/selectors/entitiesSelector";
 import { WidgetQueryGeneratorFormContext } from "../..";
-import { DropdownOption as Option } from "../../CommonControls/DatasourceDropdown/DropdownOption";
 import { getisOneClickBindingConnectingForWidget } from "selectors/oneClickBindingSelectors";
-import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getWidget } from "sagas/selectors";
-import { ALLOWED_SEARCH_DATATYPE } from "pages/Editor/GeneratePage/components/constants";
+import { useColumnDropdown } from "./useColumnDropdown";
 
 export function useColumns(alias: string, isSearcheable: boolean) {
-  const { config, propertyName, updateConfig, widgetId } = useContext(
-    WidgetQueryGeneratorFormContext,
-  );
+  const {
+    config,
+    excludePrimaryColumnFromQueryGeneration,
+    propertyName,
+    updateConfig,
+    widgetId,
+  } = useContext(WidgetQueryGeneratorFormContext);
 
   const widget = useSelector((state: AppState) => getWidget(state, widgetId));
 
@@ -51,52 +51,42 @@ export function useColumns(alias: string, isSearcheable: boolean) {
     getPluginPackageFromDatasourceId(state, config.datasource),
   );
 
-  const options = useMemo(() => {
-    if (
-      selectedDatasourcePluginPackageName === PluginPackageName.GOOGLE_SHEETS &&
-      isArray(sheetColumns?.value)
-    ) {
-      return sheetColumns.value.map((column: any) => {
-        return {
-          ...column,
-          id: column.value,
-          icon: (
-            <Icon
-              color="var(--ads-v2-color-fg)"
-              name="layout-column-line"
-              size="md"
-            />
-          ),
-        };
-      });
-    } else if (isArray(columns)) {
-      return columns
-        .filter((column: any) => {
-          return (
-            !isSearcheable ||
-            (column.type &&
-              ALLOWED_SEARCH_DATATYPE.includes(column.type.toLowerCase()))
-          );
-        })
-        .map((column: any) => {
-          return {
-            id: column.name,
-            label: column.name,
-            value: column.name,
-            subText: column.type,
-            icon: (
-              <Icon
-                color="var(--ads-v2-color-fg)"
-                name="layout-column-line"
-                size="md"
-              />
-            ),
-          };
-        });
-    } else {
-      return [];
+  const columnDropdownProps = {
+    alias,
+    columns,
+    config,
+    isSearcheable,
+    propertyName,
+    selectedDatasourcePluginPackageName,
+    sheetColumns,
+    updateConfig,
+    widget,
+  };
+
+  const { onClear, onSelect, options, selected } = useColumnDropdown({
+    ...columnDropdownProps,
+  });
+
+  const getType = (type: string) => {
+    switch (type) {
+      case "int4":
+      case "int2":
+      case "Integer":
+      case "Double":
+        return "number";
+      case "varchar":
+      case "text":
+      case "String":
+        return "string";
+      case "date":
+      case "timestamptz":
+        return "date";
+      case "Array":
+        return "array";
+      default:
+        return "string";
     }
-  }, [columns, sheetColumns, config, selectedDatasourcePluginPackageName]);
+  };
 
   const columnList = useMemo(() => {
     if (
@@ -107,13 +97,23 @@ export function useColumns(alias: string, isSearcheable: boolean) {
         return {
           name: column.value,
           type: "string",
+          isSelected:
+            (column.name !== primaryColumn ||
+              !excludePrimaryColumnFromQueryGeneration) &&
+            (!config.selectedColumns ||
+              config.selectedColumns.includes(column.name)),
         };
       });
     } else if (isArray(columns)) {
       return columns.map((column: any) => {
         return {
           name: column.name,
-          type: column.type,
+          type: getType(column.type),
+          isSelected:
+            (column.name !== primaryColumn ||
+              !excludePrimaryColumnFromQueryGeneration) &&
+            (!config.selectedColumns ||
+              config.selectedColumns.includes(column.name)),
         };
       });
     } else {
@@ -121,42 +121,11 @@ export function useColumns(alias: string, isSearcheable: boolean) {
     }
   }, [columns, sheetColumns, config, selectedDatasourcePluginPackageName]);
 
-  const onSelect = useCallback(
-    (column, columnObj) => {
-      updateConfig(alias, columnObj.value);
-
-      if (column) {
-        AnalyticsUtil.logEvent(`GENERATE_QUERY_SET_COLUMN`, {
-          columnAlias: alias,
-          columnName: columnObj.value,
-          widgetName: widget.widgetName,
-          widgetType: widget.type,
-          propertyName: propertyName,
-          pluginType: config.datasourcePluginType,
-          pluginName: config.datasourcePluginName,
-          connectionMode: config.datasourceConnectionMode,
-        });
-      }
-    },
-    [updateConfig, alias, widget, config],
-  );
-
-  const onClear = useCallback(() => {
-    updateConfig(alias, "");
-  }, [updateConfig]);
-
-  const selectedValue = get(config, alias);
-
-  const selected = useMemo(() => {
-    if (selectedValue) {
-      const option = options.find((option) => option.value === selectedValue);
-
-      return {
-        label: <Option label={option?.label} leftIcon={option?.icon} />,
-        key: option?.id,
-      };
-    }
-  }, [selectedValue, options]);
+  const selectedColumnsNames: string[] = useMemo(() => {
+    return columnList
+      .filter((column) => column.isSelected)
+      .map((column) => column.name);
+  }, [columnList]);
 
   const isConnecting = useSelector(
     getisOneClickBindingConnectingForWidget(widgetId),
@@ -179,5 +148,6 @@ export function useColumns(alias: string, isSearcheable: boolean) {
     columns: columnList,
     disabled: isConnecting,
     onClear,
+    selectedColumnsNames,
   };
 }

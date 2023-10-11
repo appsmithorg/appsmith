@@ -100,7 +100,6 @@ import EndTour from "./GuidedTour/EndTour";
 import { GUIDED_TOUR_STEPS } from "./GuidedTour/constants";
 import { viewerURL } from "RouteBuilder";
 import { useHref } from "./utils";
-import EmbedSnippetForm from "@appsmith/pages/Applications/EmbedSnippetTab";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 import type { NavigationSetting } from "constants/AppConstants";
@@ -116,8 +115,9 @@ import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
 import { SignpostingWalkthroughConfig } from "./FirstTimeUserOnboarding/Utils";
 import CommunityTemplatesPublishInfo from "./CommunityTemplates/Modals/CommunityTemplatesPublishInfo";
 import PublishCommunityTemplateModal from "./CommunityTemplates/Modals/PublishCommunityTemplate";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { getEmbedSnippetForm } from "@appsmith/utils/BusinessFeatures/privateEmbedHelpers";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -221,9 +221,9 @@ const SidebarNavButton = styled(Button)`
   }
 `;
 
-const GlobalSearch = lazy(() => {
+const GlobalSearch = lazy(async () => {
   return retryPromise(
-    () =>
+    async () =>
       import(
         /* webpackChunkName: "global-search" */ "components/editorComponents/GlobalSearch"
       ),
@@ -370,6 +370,9 @@ export function EditorHeader() {
   const adaptiveSignposting = useSelector(adaptiveSignpostingEnabled);
   const isConnectionPresent = useSelector(isWidgetActionConnectionPresent);
   const isDeployed = !!useSelector(getApplicationLastDeployedAt);
+  const isPrivateEmbedEnabled = useFeatureFlag(
+    FEATURE_FLAG.license_private_embeds_enabled,
+  );
   useEffect(() => {
     if (
       signpostingEnabled &&
@@ -398,6 +401,8 @@ export function EditorHeader() {
       pushFeature &&
       pushFeature(SignpostingWalkthroughConfig.DEPLOY_APP, true);
   };
+
+  const isGACEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
 
   return (
     <ThemeProvider theme={theme}>
@@ -432,7 +437,7 @@ export function EditorHeader() {
                 size="md"
               >
                 <div
-                  className="t--pin-entity-explorer group relative"
+                  className="relative t--pin-entity-explorer group"
                   onMouseEnter={onMenuHover}
                 >
                   <Icon
@@ -559,7 +564,7 @@ export function EditorHeader() {
                   {createMessage(
                     APPLICATION_INVITE,
                     currentWorkspace.name,
-                    cloudHosting,
+                    !isGACEnabled,
                   )}
                 </ModalHeader>
                 <ModalBody>
@@ -588,9 +593,7 @@ export function EditorHeader() {
                       />
                     </TabPanel>
                     <TabPanel value="embed">
-                      <EmbedSnippetForm
-                        changeTab={() => setActiveTab("invite")}
-                      />
+                      {getEmbedSnippetForm(isPrivateEmbedEnabled, setActiveTab)}
                     </TabPanel>
                     {cloudHosting && (
                       <TabPanel value="publish">

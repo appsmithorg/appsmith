@@ -281,7 +281,13 @@ const InstructionsComponent = ({
         <Text kind="heading-s" renderAs="p">
           {details.title}
         </Text>
-        <Icon color="black" name="close" onClick={onClose} size="md" />
+        <Icon
+          className="t--walkthrough-close"
+          color="black"
+          name="close"
+          onClick={onClose}
+          size="md"
+        />
       </InstructionsHeaderWrapper>
       <Text>{details.description}</Text>
       {details.imageURL && (

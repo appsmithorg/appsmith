@@ -3,7 +3,6 @@ import Button from "../../AppViewerButton";
 import { Icon, Tooltip } from "design-system";
 import AppInviteUsersForm from "pages/workspace/AppInviteUsersForm";
 import { useSelector } from "react-redux";
-import { getAppsmithConfigs } from "@appsmith/configs";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { getApplicationNameTextColor } from "pages/AppViewer/utils";
 import { NAVIGATION_SETTINGS } from "constants/AppConstants";
@@ -16,8 +15,8 @@ import {
 } from "@appsmith/constants/messages";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
 import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
-
-const { cloudHosting } = getAppsmithConfigs();
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 type ShareButtonProps = {
   currentApplicationDetails?: ApplicationPayload;
@@ -47,6 +46,8 @@ const ShareButton = (props: ShareButtonProps) => {
     "properties.colors.primaryColor",
     "inherit",
   );
+
+  const isGACEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
 
   return (
     <>
@@ -84,7 +85,7 @@ const ShareButton = (props: ShareButtonProps) => {
           title={createMessage(
             APPLICATION_INVITE,
             currentWorkspace?.name,
-            cloudHosting,
+            !isGACEnabled,
           )}
           workspace={currentWorkspace}
         />
