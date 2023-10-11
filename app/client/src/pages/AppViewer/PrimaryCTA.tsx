@@ -117,6 +117,7 @@ function PrimaryCTA(props: Props) {
     pageId: currentPageID,
     params: {
       fork: "true",
+      branch: null,
     },
   });
 
