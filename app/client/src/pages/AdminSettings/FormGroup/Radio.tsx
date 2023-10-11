@@ -24,9 +24,9 @@ type RadioOption = {
   };
   label: string;
 } & RadioProps;
-export type RadioOptionProps = {
+export interface RadioOptionProps {
   options: RadioOption[];
-};
+}
 
 const StyledTag = styled(Tag)<{ selected?: boolean }>`
   /* 

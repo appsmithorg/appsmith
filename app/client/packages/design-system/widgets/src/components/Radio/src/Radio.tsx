@@ -23,7 +23,7 @@ const _Radio = (props: RadioProps, ref: HeadlessRadioRef) => {
       ref={ref}
       {...rest}
     >
-      {children && <Text>{children}</Text>}
+      {Boolean(children) && <Text>{children}</Text>}
     </HeadlessRadio>
   );
 };

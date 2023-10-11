@@ -105,13 +105,13 @@ export interface SegmentedControlProps extends ControlProps {
   formValues: Partial<Action>;
 }
 
-type ReduxDispatchProps = {
+interface ReduxDispatchProps {
   updateConfigPropertyValue: (
     formName: string,
     field: string,
     value: any,
   ) => void;
-};
+}
 
 type Props = SegmentedControlProps & ReduxDispatchProps;
 

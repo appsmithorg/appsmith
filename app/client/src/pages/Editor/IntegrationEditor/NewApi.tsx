@@ -117,7 +117,7 @@ const CardContentWrapper = styled.div`
   padding-left: 13.5px;
 `;
 
-type ApiHomeScreenProps = {
+interface ApiHomeScreenProps {
   createNewApiAction: (
     pageId: string,
     from: EventLocation,
@@ -137,7 +137,7 @@ type ApiHomeScreenProps = {
   showUnsupportedPluginDialog: (callback: any) => void;
   createTempDatasourceFromForm: (data: any) => void;
   showSaasAPIs: boolean; // If this is true, only SaaS APIs will be shown
-};
+}
 
 type Props = ApiHomeScreenProps;
 

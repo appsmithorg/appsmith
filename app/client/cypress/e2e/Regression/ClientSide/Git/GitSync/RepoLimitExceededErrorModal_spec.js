@@ -92,26 +92,10 @@ describe("Repo Limit Exceeded Error Modal", function () {
   });
 
   after(() => {
-    cy.request({
-      method: "DELETE",
-      url: "api/v1/applications/" + repoName1,
-      failOnStatusCode: false,
-    });
-    cy.request({
-      method: "DELETE",
-      url: "api/v1/applications/" + repoName2,
-      failOnStatusCode: false,
-    });
-    cy.request({
-      method: "DELETE",
-      url: "api/v1/applications/" + repoName3,
-      failOnStatusCode: false,
-    });
-    cy.request({
-      method: "DELETE",
-      url: "api/v1/applications/" + repoName4,
-      failOnStatusCode: false,
-    });
+    homePage.DeleteAppviaAPI(repoName1);
+    homePage.DeleteAppviaAPI(repoName2);
+    homePage.DeleteAppviaAPI(repoName3);
+    homePage.DeleteAppviaAPI(repoName4);
     gitSync.DeleteTestGithubRepo(repoName1);
     gitSync.DeleteTestGithubRepo(repoName2);
     gitSync.DeleteTestGithubRepo(repoName3);

@@ -306,8 +306,8 @@ function generateUniqueAccessor(
   ) {
     return validVar;
   }
-  const index = 1;
-  while (true && index < 100) {
+  let index = 0;
+  while (index++ < 100) {
     const name = `Library_${index}`;
     if (!takenAccessors.includes(name) && !takenNamesMap.hasOwnProperty(name)) {
       return name;

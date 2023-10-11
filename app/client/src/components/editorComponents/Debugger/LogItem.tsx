@@ -210,7 +210,7 @@ export const getLogItemProps = (e: Log) => {
   };
 };
 
-type LogItemProps = {
+interface LogItemProps {
   collapsible?: boolean;
   icon: string;
   timestamp: string;
@@ -226,7 +226,7 @@ type LogItemProps = {
   expand?: boolean;
   messages?: Message[];
   occurences: number;
-};
+}
 
 function LogItem(props: LogItemProps) {
   const [isOpen, setIsOpen] = useState(!!props.expand);

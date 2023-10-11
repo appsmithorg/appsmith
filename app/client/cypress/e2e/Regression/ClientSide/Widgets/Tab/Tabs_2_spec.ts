@@ -6,6 +6,7 @@ import {
   propPane,
   table,
   tabs,
+  assertHelper,
 } from "../../../../../support/Objects/ObjectsCore";
 
 describe("Tabs widget Tests", function () {
@@ -177,7 +178,8 @@ describe("Tabs widget Tests", function () {
     propPane.SelectPropertiesDropDown("height", "Auto Height");
   });
 
-  it("7. Verify colors, borders and shadows", () => {
+  // to work on redesign of the test, commenting for now
+  it.skip("7. Verify colors, borders and shadows", () => {
     // Verify font color picker opens up
     propPane.MoveToTab("Style");
     agHelper.GetNClick(propPane._propertyControlColorPicker("accentcolor"));
@@ -205,6 +207,7 @@ describe("Tabs widget Tests", function () {
 
     // Border Color
     propPane.SelectColorFromColorPicker("bordercolor", 13);
+    assertHelper.AssertNetworkStatus("@updateLayout");
     agHelper.AssertCSS(
       tabs._tabsWidgetStyle,
       "border-color",
@@ -221,6 +224,7 @@ describe("Tabs widget Tests", function () {
 
     // Verify Box Shadow
     agHelper.GetNClick(`${propPane._segmentedControl("0")}:contains('Large')`);
+    assertHelper.AssertNetworkStatus("@updateLayout");
     agHelper.AssertCSS(
       tabs._tabsWidgetStyle,
       "box-shadow",

@@ -27,10 +27,10 @@ export interface TextComponentProps extends ComponentProps {
   overflow: OverflowTypes;
 }
 
-type State = {
+interface State {
   isTruncated: boolean;
   showModal: boolean;
-};
+}
 
 type TextRef = React.Ref<Text> | undefined;
 

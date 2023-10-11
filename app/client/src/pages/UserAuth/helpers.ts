@@ -6,31 +6,31 @@ import UserApi from "@appsmith/api/UserApi";
 import { toast } from "design-system";
 import type { ApiResponse } from "../../api/ApiResponses";
 
-export type LoginFormValues = {
+export interface LoginFormValues {
   username?: string;
   password?: string;
   remember?: string;
-};
+}
 
-export type SignupFormValues = {
+export interface SignupFormValues {
   email?: string;
   password?: string;
   name?: string;
-};
+}
 
-export type ResetPasswordFormValues = {
+export interface ResetPasswordFormValues {
   password?: string;
   token?: string;
   email?: string;
-};
+}
 
 export type CreatePasswordFormValues = ResetPasswordFormValues;
 
-export type ForgotPasswordFormValues = {
+export interface ForgotPasswordFormValues {
   email?: string;
-};
+}
 
-export const signupFormSubmitHandler = (
+export const signupFormSubmitHandler = async (
   values: SignupFormValues,
   dispatch: any,
 ): Promise<any> => {
@@ -50,7 +50,7 @@ export const signupFormSubmitHandler = (
   });
 };
 
-export const resetPasswordSubmitHandler = (
+export const resetPasswordSubmitHandler = async (
   values: ResetPasswordFormValues,
   dispatch: any,
 ): Promise<any> => {
@@ -71,7 +71,7 @@ export const resetPasswordSubmitHandler = (
   });
 };
 
-export const createPasswordSubmitHandler = (
+export const createPasswordSubmitHandler = async (
   values: CreatePasswordFormValues,
   dispatch: any,
 ): Promise<any> => {
@@ -92,7 +92,7 @@ export const createPasswordSubmitHandler = (
   });
 };
 
-export const forgotPasswordSubmitHandler = (
+export const forgotPasswordSubmitHandler = async (
   values: ForgotPasswordFormValues,
   dispatch: any,
 ): Promise<any> => {

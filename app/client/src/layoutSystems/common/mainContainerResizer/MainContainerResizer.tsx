@@ -9,7 +9,7 @@ import { importSvg } from "design-system-old";
 import { CANVAS_VIEWPORT } from "constants/componentClassNameConstants";
 
 const CanvasResizerIcon = importSvg(
-  () => import("assets/icons/ads/app-icons/canvas-resizer.svg"),
+  async () => import("assets/icons/ads/app-icons/canvas-resizer.svg"),
 );
 
 const AutoLayoutCanvasResizer = styled.div`
