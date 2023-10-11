@@ -8,8 +8,6 @@ import {
 } from "../handlers/evalTree";
 import _ from "lodash";
 import type {
-  DataTree,
-  UnEvalTreeEntity,
   WidgetEntityConfig,
   WidgetEntity,
 } from "@appsmith/entities/DataTree/types";
@@ -21,6 +19,10 @@ import type { DescendantWidgetMap } from "sagas/WidgetOperationUtils";
 import type { MetaState } from "reducers/entityReducers/metaReducer";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
+import type {
+  DataTree,
+  UnEvalTreeEntity,
+} from "entities/DataTree/dataTreeTypes";
 
 function resetWidgetFnDescriptor(
   widgetName: string,
@@ -211,6 +213,7 @@ export function getWidgetDescendantToReset(
 
   if (widget) {
     const { children = [] } = widget;
+
     if (children && children.length) {
       for (const childIndex in children) {
         if (children.hasOwnProperty(childIndex)) {
