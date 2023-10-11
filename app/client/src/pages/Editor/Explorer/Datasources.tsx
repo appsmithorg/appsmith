@@ -31,13 +31,13 @@ import { useDatasourceIdFromURL } from "@appsmith/pages/Editor/Explorer/helpers"
 import type { Datasource } from "entities/Datasource";
 import ExplorerDatasourceEntity from "./Datasources/DatasourceEntity";
 
-type DatasourcesProps = {
+interface DatasourcesProps {
   isDatasourcesOpen: boolean | null;
   addDatasource: (source: string) => void;
   onDatasourcesToggle: (isOpen: boolean) => void;
   listDatasource: () => void;
   entityId: string;
-};
+}
 
 const ShowAllButton = styled(Button)`
   margin: 0.25rem 1.5rem;
