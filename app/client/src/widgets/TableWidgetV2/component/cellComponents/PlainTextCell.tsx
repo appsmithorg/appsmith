@@ -88,7 +88,7 @@ export function getCellText(
   if (value && columnType === ColumnTypes.URL && displayText) {
     text = displayText;
   } else if (columnType === ColumnTypes.CURRENCY) {
-    text = value;
+    text = !isNil(value) ? value : "";
   } else if (!isNil(value) && (!isNumber(value) || !isNaN(value))) {
     text = (value as string).toString();
   } else {
@@ -232,7 +232,7 @@ function PlainTextCell(
     } else {
       return value;
     }
-  }, [value, decimals, currencyCode, notation, thousandSeparator]);
+  }, [value, decimals, currencyCode, notation, thousandSeparator, columnType]);
 
   if (isCellEditMode) {
     const [inputType, inputHTMLType] = (() => {

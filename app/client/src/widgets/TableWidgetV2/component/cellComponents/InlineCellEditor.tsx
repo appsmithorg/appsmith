@@ -83,9 +83,21 @@ const Wrapper = styled.div<{
        */
       box-shadow: none !important;
       padding: 0px 5px 0px 6px;
-      min-height: 34px;
+      height: ${(props) =>
+        TABLE_SIZES[props.compactMode].EDITABLE_CELL_HEIGHT}px;
+      min-height: ${(props) =>
+        TABLE_SIZES[props.compactMode].EDITABLE_CELL_HEIGHT}px;
       font-size: ${(props) => props.textSize};
     }
+
+    .currency-change-dropdown-trigger {
+      border: none;
+      height: ${(props) =>
+        TABLE_SIZES[props.compactMode].EDITABLE_CELL_HEIGHT}px;
+      padding: 0 0 0 5px;
+      margin-right: 0;
+    }
+
     .bp3-button-group.bp3-vertical {
       display: none;
     }
