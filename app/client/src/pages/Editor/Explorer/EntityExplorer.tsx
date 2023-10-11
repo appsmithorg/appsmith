@@ -34,7 +34,7 @@ import { integrationEditorURL } from "RouteBuilder";
 import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
 
 const NoEntityFoundSvg = importSvg(
-  () => import("assets/svg/no_entities_found.svg"),
+  async () => import("assets/svg/no_entities_found.svg"),
 );
 
 const NoResult = styled(NonIdealState)`

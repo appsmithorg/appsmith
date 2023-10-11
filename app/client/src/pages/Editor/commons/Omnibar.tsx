@@ -26,9 +26,9 @@ const BindingBanner = styled.div`
   z-index: 9999;
 `;
 
-const GlobalSearch = lazy(() => {
+const GlobalSearch = lazy(async () => {
   return retryPromise(
-    () =>
+    async () =>
       import(
         /* webpackChunkName: "global-search" */ "components/editorComponents/GlobalSearch"
       ),

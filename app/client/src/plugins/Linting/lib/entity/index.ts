@@ -8,7 +8,6 @@ import type {
   WidgetEntity as TWidgetEntity,
   AppsmithEntity as TAppsmithEntity,
   DataTreeEntityConfig,
-  DataTreeEntity,
   WidgetEntityConfig as TWidgetEntityConfig,
   JSActionEntity as TJSActionEntity,
   ActionEntity as TActionEntity,
@@ -16,6 +15,7 @@ import type {
   ActionEntityConfig as TActionEntityConfig,
   JSActionEntityConfig as TJSActionEntityConfig,
 } from "@appsmith/entities/DataTree/types";
+import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
 import {
   defaultDiffGenerator,
   type EntityDiffGenerator,

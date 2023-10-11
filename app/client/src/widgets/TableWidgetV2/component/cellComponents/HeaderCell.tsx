@@ -26,12 +26,14 @@ import { MenuDivider } from "@design-system/widgets-old";
 import { importRemixIcon, importSvg } from "@design-system/widgets-old";
 import { CANVAS_ART_BOARD } from "constants/componentClassNameConstants";
 
-const Check = importRemixIcon(() => import("remixicon-react/CheckFillIcon"));
+const Check = importRemixIcon(
+  async () => import("remixicon-react/CheckFillIcon"),
+);
 const ArrowDownIcon = importRemixIcon(
-  () => import("remixicon-react/ArrowDownSLineIcon"),
+  async () => import("remixicon-react/ArrowDownSLineIcon"),
 );
 const EditIcon = importSvg(
-  () => import("assets/icons/control/edit-variant1.svg"),
+  async () => import("assets/icons/control/edit-variant1.svg"),
 );
 
 const AscendingIcon = styled(ControlIcons.SORT_CONTROL)`
