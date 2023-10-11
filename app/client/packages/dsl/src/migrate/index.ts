@@ -87,9 +87,10 @@ import { migrateChartWidgetLabelOrientationStaggerOption } from "./migrations/08
 import { migrateAddShowHideDataPointLabels } from "./migrations/083-migrate-add-show-hide-data-point-labels";
 import { migrateSelectWidgetAddSourceDataPropertyPathList } from "./migrations/084-migrate-select-widget-add-source-data-property-path-list";
 import { migrateDefaultValuesForCustomEChart } from "./migrations/085-migrate-default-values-for-custom-echart";
+import { migrateTableServerSideFiltering } from "./migrations/086-migrate-table-server-side-filtering";
 import type { DSLWidget } from "./types";
 
-export const LATEST_DSL_VERSION = 86;
+export const LATEST_DSL_VERSION = 87;
 
 // A rudimentary transform function which updates the DSL based on its version.
 // A more modular approach needs to be designed.
@@ -529,6 +530,11 @@ export const migrateDSL = (currentDSL: DSLWidget, newPage = false) => {
 
   if (currentDSL.version === 85) {
     currentDSL = migrateDefaultValuesForCustomEChart(currentDSL);
+    currentDSL.version = 86;
+  }
+
+  if (currentDSL.version === 86) {
+    currentDSL = migrateTableServerSideFiltering(currentDSL);
     currentDSL.version = LATEST_DSL_VERSION;
   }
 
