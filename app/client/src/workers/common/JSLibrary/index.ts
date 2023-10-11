@@ -9,7 +9,7 @@ export type TJSLibrary = {
   name: string;
   accessor: Array<TLibAccessor>;
   url?: string;
-};
+}
 
 export const defaultLibraries: TJSLibrary[] = [
   {

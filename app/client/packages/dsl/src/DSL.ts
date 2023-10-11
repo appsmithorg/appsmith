@@ -6,9 +6,13 @@ export type NestedDSLWidget<W> = W & { children?: NestedDSLWidget<W>[] };
 export type NestedDSL<W> = NestedDSLWidget<W>;
 
 export type FlattenedDSLWidget<W> = W & { children?: string[] };
-export type FlattenedDSL<W> = { [widgetId: string]: FlattenedDSLWidget<W> };
+export interface FlattenedDSL<W> {
+  [widgetId: string]: FlattenedDSLWidget<W>;
+}
 
-export type FlattenedDSLEntities<W> = { canvasWidgets: FlattenedDSL<W> };
+export interface FlattenedDSLEntities<W> {
+  canvasWidgets: FlattenedDSL<W>;
+}
 
 // Schema by widgetId
 const SCHEMA_BY_ID = new schema.Entity(

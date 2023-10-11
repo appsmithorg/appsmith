@@ -916,7 +916,7 @@ export const IconCollection = Object.keys(ICON_LOOKUP);
 
 export type IconName = (typeof IconCollection)[number];
 
-export type IconProps = {
+export interface IconProps {
   size?: IconSize;
   name?: IconName;
   invisible?: boolean;
@@ -930,7 +930,7 @@ export type IconProps = {
   disabled?: boolean;
   withWrapper?: boolean;
   wrapperColor?: string;
-};
+}
 
 const Icon = forwardRef(
   (

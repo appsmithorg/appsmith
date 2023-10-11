@@ -4,12 +4,12 @@ import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
 import { Button } from "design-system";
 
-export type OnButtonClickProps = {
+export interface OnButtonClickProps {
   props: ControlProps;
   updateProperty: (propertyName: string, propertyValue: any) => void;
   deleteProperties: (propertyPaths: string[]) => void;
   batchUpdateProperties: (updates: Record<string, unknown>) => void;
-};
+}
 
 export type ButtonControlProps = ControlProps & {
   onClick: (props: OnButtonClickProps) => void;
@@ -17,9 +17,9 @@ export type ButtonControlProps = ControlProps & {
   isDisabled?: (widgetProperties: any) => boolean;
 };
 
-type ButtonControlState = {
+interface ButtonControlState {
   isLoading: boolean;
-};
+}
 
 class ButtonControl extends BaseControl<
   ButtonControlProps,

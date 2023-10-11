@@ -822,10 +822,10 @@ const applicationsReducer = createReducer(initialState, handlers);
 
 export type creatingApplicationMap = Record<string, boolean>;
 
-export type DeletingMultipleApps = {
+export interface DeletingMultipleApps {
   list?: string[];
   isDeleting?: boolean;
-};
+}
 
 export interface ApplicationsReduxState {
   applicationList: ApplicationPayload[];

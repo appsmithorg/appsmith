@@ -52,15 +52,15 @@ import { isFunction } from "lodash";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
-type GeneratedWidgetPayload = {
+interface GeneratedWidgetPayload {
   widgetId: string;
   widgets: { [widgetId: string]: FlattenedWidgetProps };
-};
+}
 
-type WidgetAddTabChild = {
+interface WidgetAddTabChild {
   tabs: any;
   widgetId: string;
-};
+}
 
 function* getEntityNames() {
   const evalTree: DataTree = yield select(getDataTree);

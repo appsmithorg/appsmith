@@ -66,7 +66,7 @@ const ControlGroup = styled.div`
   }
 `;
 
-type WidgetNameComponentProps = {
+interface WidgetNameComponentProps {
   widgetName: string;
   widgetId: string;
   parentId?: string;
@@ -75,7 +75,7 @@ type WidgetNameComponentProps = {
   topRow: number;
   errorCount: number;
   widgetWidth: number;
-};
+}
 
 export function WidgetNameComponent(props: WidgetNameComponentProps) {
   const dispatch = useDispatch();

@@ -318,9 +318,12 @@ class LintService {
 }
 
 function convertArrayToObject(arr: string[]) {
-  return arr.reduce((acc, item) => {
-    return { ...acc, [item]: true } as const;
-  }, {} as Record<string, true>);
+  return arr.reduce(
+    (acc, item) => {
+      return { ...acc, [item]: true } as const;
+    },
+    {} as Record<string, true>,
+  );
 }
 
 function filterDataPaths(paths: string[], entityTree: EntityTree) {

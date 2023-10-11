@@ -10,9 +10,9 @@ export enum LayoutSystemTypes {
 // interface for appPositioning(aka layoutStystem) details.
 // It is part of applicationDetails Record of an Application
 // Refer to ApplicationPayload
-export type LayoutSystemTypeConfig = {
+export interface LayoutSystemTypeConfig {
   type: LayoutSystemTypes;
-};
+}
 
 /**
  * @type WidgetLayoutSystem
@@ -23,10 +23,10 @@ export type LayoutSystemTypeConfig = {
  * @property propertyEnhancer - function that is used to enhance/modify widget properties as per the layout system
  */
 
-export type WidgetLayoutSystem = {
+export interface WidgetLayoutSystem {
   WidgetWrapper: (props: WidgetProps) => JSX.Element;
   propertyEnhancer: (props: WidgetProps) => WidgetProps;
-};
+}
 
 /**
  * @type CanvasLayoutSystem
@@ -36,10 +36,10 @@ export type WidgetLayoutSystem = {
  * @property propertyEnhancer - function that is used to enhance/modify canvas properties as per the layout system
  */
 
-export type CanvasLayoutSystem = {
+export interface CanvasLayoutSystem {
   Canvas: (props: WidgetProps) => JSX.Element;
   propertyEnhancer: (props: WidgetProps) => WidgetProps;
-};
+}
 
 /**
  * @type LayoutSystem
@@ -51,7 +51,7 @@ export type CanvasLayoutSystem = {
  * @property canvasSystem - provides canvas specific entities
  */
 
-export type LayoutSystem = {
+export interface LayoutSystem {
   widgetSystem: WidgetLayoutSystem;
   canvasSystem: CanvasLayoutSystem;
-};
+}

@@ -15,11 +15,11 @@ export enum InstallState {
   Success,
 }
 
-export type LibraryState = {
+export interface LibraryState {
   installationStatus: Record<string, InstallState>;
   installedLibraries: TJSLibrary[];
   isInstallerOpen: boolean;
-};
+}
 
 const initialState = {
   isInstallerOpen: false,

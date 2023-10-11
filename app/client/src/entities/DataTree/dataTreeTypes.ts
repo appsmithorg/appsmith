@@ -7,21 +7,21 @@ import type {
 } from "@appsmith/entities/DataTree/types";
 import type { Page } from "@appsmith/constants/ReduxActionConstants";
 
-export type unEvalAndConfigTree = {
+export interface unEvalAndConfigTree {
   unEvalTree: UnEvalTree;
   configTree: ConfigTree;
-};
+}
 
-export type ConfigTree = {
+export interface ConfigTree {
   [entityName: string]: DataTreeEntityConfig;
-};
+}
 export type DataTreeEntity = DataTreeEntityObject | Page[] | ActionDispatcher;
 
-export type DataTree = {
+export interface DataTree {
   [entityName: string]: DataTreeEntity;
-};
+}
 export type UnEvalTreeEntity = UnEvalTreeEntityObject | AppsmithEntity | Page[];
 
-export type UnEvalTree = {
+export interface UnEvalTree {
   [entityName: string]: UnEvalTreeEntity;
-};
+}
