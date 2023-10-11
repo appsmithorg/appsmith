@@ -27,4 +27,9 @@ public class PermissionGroupPermissionCEImpl implements PermissionGroupPermissio
     public AclPermission getReadPermission() {
         return AclPermission.READ_PERMISSION_GROUPS;
     }
+
+    @Override
+    public AclPermission getExportPermission(boolean isGitSync, boolean exportWithConfiguration) {
+        return null;
+    }
 }
