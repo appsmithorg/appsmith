@@ -46,7 +46,7 @@ public class SamlConfigurationServiceImpl extends SamlConfigurationServiceCEComp
                                 && error.getAppErrorCode()
                                         .equals(AppsmithError.SAML_CONFIGURATION_FAILURE.getAppErrorCode())) {
                             // Looks like the realm was already deleted. Let's continue.
-                            Mono.just(TRUE);
+                            return Mono.just(TRUE);
                         }
 
                         return Mono.error(error);
