@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import PageWrapper from "@appsmith/pages/common/PageWrapper";
+import PageWrapper from "pages/common/PageWrapper";
 import styled from "styled-components";
 import { Tabs, Tab, TabsList, TabPanel } from "design-system";
 import General from "./General";

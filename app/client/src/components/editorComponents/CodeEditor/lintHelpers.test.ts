@@ -4,7 +4,7 @@ import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
 import {
   INVALID_JSOBJECT_START_STATEMENT,
   INVALID_JSOBJECT_START_STATEMENT_ERROR_CODE,
-} from "workers/Linting/constants";
+} from "plugins/Linting/constants";
 import { CODE_EDITOR_START_POSITION } from "./constants";
 import {
   getKeyPositionInString,

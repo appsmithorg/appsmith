@@ -43,7 +43,5 @@ public interface WorkspaceServiceCE extends CrudService<Workspace, String> {
 
     Mono<Workspace> archiveById(String s);
 
-    Mono<Boolean> isCreateWorkspaceAllowed(Boolean isDefaultWorkspace);
-
-    Mono<String> getDefaultEnvironmentId(String workspaceId);
+    Mono<String> getDefaultEnvironmentId(String workspaceId, AclPermission aclPermission);
 }

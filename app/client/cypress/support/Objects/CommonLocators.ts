@@ -1,18 +1,21 @@
 export class CommonLocators {
   _body = "body";
+  _inputField = "input";
   _canvasViewport = "#canvas-viewport";
   _emptyPageTxt = ".bp3-heading";
-  _chevronUp = ".bp3-icon-chevron-up";
+  _chevronUp = "span[contains(@class, 'bp3-icon-chevron-up')]";
+  _chevronDown = "span[contains(@class, 'bp3-icon-chevron-down')]";
   _loading = "#loading";
-  _spinner = ".ads-v2-spinner";
   _animationSpnner = ".bp3-spinner-animation";
-  _runBtnSpinner = ".ads-v2-spinner";
+  _btnSpinner = ".ads-v2-spinner";
   _sidebar = ".t--sidebar";
   _queryName = ".t--action-name-edit-field span";
   _queryNameTxt = ".t--action-name-edit-field input";
+  _editIcon = ".t--action-name-edit-icon";
   _emptyCanvasCta = "[data-testid='canvas-ctas']";
   _dsName = ".t--edit-datasource-name span";
   _dsNameTxt = ".t--edit-datasource-name input";
+  _tableRecordsContainer = ".show-page-items";
   _widgetName = (widgetName: string) =>
     ".editable-text-container:contains('" +
     widgetName +
@@ -29,7 +32,22 @@ export class CommonLocators {
   _codeEditorTarget = "div.CodeEditorTarget";
   _entityExplorersearch = "#entity-explorer-search";
   _propertyControl = ".t--property-control-";
+  _propertyControlTextArea = (uiName: string) =>
+    this._propertyControl +
+    uiName.replace(/ +/g, "").toLowerCase() +
+    " " +
+    this._codeMirrorTextArea;
+  _propertyControlInput = (uiName: string) =>
+    this._propertyControl +
+    uiName.replace(/ +/g, "").toLowerCase() +
+    " " +
+    this._inputField;
+  _propertyInputField = (uiName: string) =>
+    `${this._propertyControlTextArea(uiName)}, ${this._propertyControlInput(
+      uiName,
+    )}`;
   _textWidget = ".t--draggable-textwidget .t--text-widget-container span";
+  _tableWidget = ".t--widget-tablewidgetv2";
   _inputWidget = ".t--draggable-inputwidgetv2 input";
   _publishButton = ".t--application-publish-btn";
   _widgetInCanvas = (widgetType: string) => `.t--draggable-${widgetType}`;
@@ -37,6 +55,8 @@ export class CommonLocators {
   _widgetInputSelector = (widgetType: string) =>
     this._widgetInDeployed(widgetType) + " input";
   _textWidgetInDeployed = this._widgetInDeployed("textwidget") + " span";
+  _textWidgetStyleInDeployed =
+    this._widgetInDeployed("textwidget") + " .bp3-ui-text";
   _inputWidgetv1InDeployed = this._widgetInDeployed("inputwidget") + " input";
   _textAreainputWidgetv1InDeployed =
     this._widgetInDeployed("inputwidget") + " textarea";
@@ -57,13 +77,15 @@ export class CommonLocators {
     item +
     "']/parent::div[@role='menuitem'] | //div[text()='" +
     item +
-    "']/ancestor::div[@role='menuitem']| //span[text()='" +
+    "']/ancestor::div[@role='menuitem'] | //span[text()='" +
     item +
     "']/ancestor::div[@role='menuitem']";
   _visibleTextDiv = (divText: string) => "//div[text()='" + divText + "']";
-  _visibleTextSpan = (spanText: string) => `//span[text()="` + spanText + `"]`;
+  _visibleTextSpan = (spanText: string, isCss = false) =>
+    isCss ? `span:contains("${spanText}")` : `//span[text()="${spanText}"]`;
   _openWidget = ".widgets .t--entity-add-btn";
   _dropHere = ".t--drop-target";
+  _editPage = "[data-testid=onboarding-tasks-datasource-text], .t--drop-target";
   _crossBtn = "span.cancel-icon";
   _createNew = ".t--entity-add-btn.group.files button";
   _uploadFiles = "div.uppy-Dashboard-AddFiles input";
@@ -82,8 +104,8 @@ export class CommonLocators {
     "']/parent::div[contains(@class, 't--entity-name editing')]/input";
   _jsToggle = (controlToToggle: string) =>
     ".t--property-control-" + controlToToggle + " .t--js-toggle";
-  _spanButton = (btnVisibleText: string) =>
-    `//span[text()="${btnVisibleText}"]/ancestor::button`;
+  _buttonByText = (btnVisibleText: string) =>
+    `//span[text()="${btnVisibleText}"]/ancestor::button | //button[text()="${btnVisibleText}" or @title="${btnVisibleText}"]`;
   _selectPropPageDropdown = (ddName: string) =>
     "//div[contains(@class, 't--property-control-" +
     ddName.replace(/ +/g, "").toLowerCase() +
@@ -104,7 +126,7 @@ export class CommonLocators {
     `.t--widget-card-draggable-${widgetType}`;
   _propertyToggleValue = (controlToToggle: string) =>
     "//div[contains(@class, 't--property-control-" +
-    controlToToggle +
+    controlToToggle.replace(/ +/g, "").toLowerCase() +
     "')]//input[@type='checkbox']/parent::label";
   _openNavigationTab = (tabToOpen: string) =>
     `//span[text()='${tabToOpen}']/ancestor::div`;
@@ -135,6 +157,13 @@ export class CommonLocators {
   _evaluatedValuePopDragHandler = ".drag-handle-block";
   _evaluatedErrorMessage =
     ".t--CodeEditor-evaluatedValue .t--evaluatedPopup-error";
+  _evalPopup = ".evaluated-value-popup";
+  _checkboxTypeByOption = (option: string) =>
+    "//div[contains(text(),'" +
+    option +
+    "')]/parent::label/input | //label[contains(text(),'" +
+    option +
+    "')]/input";
   _multiSelectOptions = (option: string) =>
     "div[title='" + option + "'] input[type='checkbox']";
   _divWithClass = (className: string) =>
@@ -175,6 +204,7 @@ export class CommonLocators {
   _cancelActionExecution = ".t--cancel-action-button";
   _widgetPane = "[data-testid='widget-sidebar-scrollable-wrapper']";
   _sliderThumb = '[data-testid="slider-thumb"]';
+  _optionsJsToggle = ".t--property-control-options .t--js-toggle";
   _bottomPaneCollapseIcon = ".t--tabs-collapse-icon";
   _dropDownMultiTreeValue = (dropdownOption: string) =>
     "//span[@class='rc-tree-select-tree-title']/parent::span[@title='" +
@@ -202,6 +232,7 @@ export class CommonLocators {
   _ds_uppy_upload_btn = ".uppy-StatusBar-actionBtn--upload";
 
   _goBack = this._visibleTextSpan("Back") + "/parent::a";
+  _learnMore = this._visibleTextSpan("Learn more") + "/parent::a";
   _resizeHandles = {
     left: "t--resizable-handle-LEFT",
     right: "t--resizable-handle-RIGHT",
@@ -213,7 +244,79 @@ export class CommonLocators {
     `//*[text()='${popupname}']/following-sibling::button`;
   _selectByValue = (value: string) =>
     `//button[contains(@class, 't--open-dropdown-${value}')]`;
-  _fixedLayout = "#t--layout-conversion-cta:contains('Fixed')";
+  _fixedLayout = "#t--layout-conversion-cta:contains('fixed')";
   _forkAppToWorkspaceBtn = ".t--fork-app-to-workspace-button";
+  _popoverToolTip = ".bp3-popover-content, .bp3-popover2-content";
+  _selectedWidget = "div[data-testid='t--selected']";
+  _appsmithWidget = (widgetId: string) => `.appsmith_widget_${widgetId}`;
+  _selectionCanvas = (canvasId: string) => `#div-selection-${canvasId}`;
   _sqlKeyword = ".cm-m-sql.cm-keyword";
+  _appLeveltooltip = (toolTip: string) => `span:contains('${toolTip}')`;
+  _appEditMenu = "[data-testid='t--application-edit-menu']";
+  _appEditMenuBtn = "[data-testid='t--application-edit-menu-cta']";
+  _appEditMenuSettings = "[data-testid='t--application-edit-menu-settings']";
+  _appEditExportSettings =
+    "[data-testid='t--application-edit-menu-export-application']";
+  _appThemeSettings = "#t--theme-settings-header";
+  _appChangeThemeBtn = ".t--change-theme-btn";
+  _appThemeCard = ".t--theme-card";
+  _appNavigationSettings = "#t--navigation-settings-header";
+  _appNavigationSettingsShowTitle = "#t--navigation-settings-application-title";
+  _fontSelect = "fontsize .rc-select";
+  _fontInput = "fontsize input";
+  _pagination = ".rc-pagination";
+  _controlOption = ".t--property-control-options";
+  _canvasBody = "[data-testid='div-selection-0']";
+  _itemContainerWidget = ".t--widget-containerwidget div.style-container";
+  _adsV2Content = ".ads-v2__content";
+  _adsV2CollapsibleHeader = ".ads-v2-collapsible__header";
+  _adsV2Text = ".ads-v2-text";
+  _svg = "svg";
+  _imgWidgetInsideList = `//div[@data-testid='styledImage']//img`;
+  _containerWidget = "[type='CONTAINER_WIDGET']";
+  _evaluatedValue = ".t-property-evaluated-value";
+  public ds_editor_env_filter = (envName: string) =>
+    `[data-testid="t--ds-data-filter-${envName}"]`;
+  _textWidgetContaioner = ".t--text-widget-container span";
+  _label = ".bp3-label";
+  _input = ".bp3-input";
+  _tooltipIcon = ".bp3-popover-target svg";
+  _checkboxHelpIcon = ".bp3-popover-target svg";
+  _checkboxWidgetLabel = ".t--checkbox-widget-label";
+  _buttonWidgetInForm =
+    "//*[contains(@class,'t--widget-buttonwidget')]//button[contains(@class,'bp3-button')]";
+  _walkthrough_overlay = `.t--walkthrough-overlay`;
+  _autoHeightHandles = "[data-testid='t-auto-height-overlay-handles']";
+  _autoHeightMin = "[data-testid='t--auto-height-overlay-handles-min']";
+  _autoHeightMax = "[data-testid='t--auto-height-overlay-handles-max']";
+  _position = (value: string) => `//*[@data-value='${value}']`;
+  _alignment = (value: string) => `//*[@data-value='${value}']`;
+  _borderRadius = (value: string) => `//*[@data-value='${value}']`;
+  _textInside = ".bp3-ui-text span";
+  _listActivePage = ".t--widget-listwidgetv2 .rc-pagination-item-active";
+  _hintsList = "ul.CodeMirror-hints";
+  _buttonInDeployedMode = ".bp3-button";
+  _treeSelectPlaceholder = ".rc-tree-select-selection-placeholder";
+  _treeSelectTitle = ".rc-tree-select-tree-title";
+  _newDataSourceBtn = ".datasources .t--entity-add-btn";
+  _callbackAddBtn = ".action-callback-add .ads-v2-button";
+  _checkboxInDeployedMode = "//label[contains(@class, 'bp3-checkbox')]//input";
+  _listText = "//span[text()='Blue']/../..";
+  _jsonFormSubmitBtn = ".t--jsonform-submit-btn";
+  _jsonFormResetBtn = ".t--jsonform-reset-btn";
+  _draggableFieldConfig = (fieldName: string) =>
+    `[data-rbd-draggable-id=${fieldName}]`;
+  _fileUploadDashboardClose = ".uppy-Dashboard-close";
+  _fileUploadErrorContains = (msg: string) =>
+    `.uppy-Informer p:contains('${msg}')`;
+  _fileUploadAddMore = ".uppy-DashboardContent-addMore";
+  _buttonText = ".bp3-button-text";
+  _richText_TitleBlock = "[title='Blocks']";
+  _richText_Heading = "[title='Heading 1']";
+  _richText_Label_Text = ".tox-tbtn__select-label";
+  _richText_Text_Color = '[title="Text color"] .tox-split-button__chevron';
+  _richText_color = (value: string) => `[title='${value}']`;
+  _richText_line = "#tinymce p span";
+  _treeSelectedContent = ".rc-tree-select-selection-item-content";
+  _switcherIcon = ".switcher-icon";
 }

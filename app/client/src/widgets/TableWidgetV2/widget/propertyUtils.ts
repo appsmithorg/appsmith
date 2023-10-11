@@ -14,8 +14,10 @@ import {
   createEditActionColumn,
   generateNewColumnOrderFromStickyValue,
 } from "./utilities";
-import type { PropertyHookUpdates } from "constants/PropertyControlConstants";
+import type { PropertyUpdates } from "WidgetProvider/constants";
 import { MenuItemsSource } from "widgets/MenuButtonWidget/constants";
+import type { ValidationConfig } from "constants/PropertyControlConstants";
+import type { ValidationResponse } from "constants/WidgetValidation";
 
 export function totalRecordsCountValidation(
   value: unknown,
@@ -241,7 +243,7 @@ export const updateInlineEditingOptionDropdownVisibilityHook = (
   props: TableWidgetProps,
   propertyPath: string,
   propertyValue: any,
-): Array<PropertyHookUpdates> | undefined => {
+): Array<PropertyUpdates> | undefined => {
   let propertiesToUpdate = [];
 
   if (
@@ -495,7 +497,7 @@ export const updateInlineEditingSaveOptionHook = (
   props: TableWidgetProps,
   propertyPath: string,
   propertyValue: any,
-): Array<PropertyHookUpdates> | undefined => {
+): Array<PropertyUpdates> | undefined => {
   if (propertyValue !== InlineEditingSaveOptions.ROW_LEVEL) {
     const columnsArray = Object.values(props.primaryColumns);
     const edtiActionColumn = columnsArray.find(
@@ -568,14 +570,14 @@ export function updateThemeStylesheetsInColumns(
   props: TableWidgetProps,
   propertyPath: string,
   propertyValue: any,
-): Array<PropertyHookUpdates> | undefined {
+): Array<PropertyUpdates> | undefined {
   const regex = /^primaryColumns\.(\w+)\.(.*)$/;
   const matches = propertyPath.match(regex);
   const columnId = matches?.[1];
   const columnProperty = matches?.[2];
 
   if (columnProperty === "columnType") {
-    const propertiesToUpdate: Array<PropertyHookUpdates> = [];
+    const propertiesToUpdate: Array<PropertyUpdates> = [];
     const oldColumnType = get(props, `primaryColumns.${columnId}.columnType`);
     const newColumnType = propertyValue;
 
@@ -669,7 +671,7 @@ export const updateCustomColumnAliasOnLabelChange = (
   props: TableWidgetProps,
   propertyPath: string,
   propertyValue: unknown,
-): Array<PropertyHookUpdates> | undefined => {
+): Array<PropertyUpdates> | undefined => {
   // alias will be updated along with label change only for custom columns
   const regex = /^primaryColumns\.(customColumn\d+)\.label$/;
   if (propertyPath?.length && regex.test(propertyPath)) {
@@ -781,6 +783,7 @@ export function selectColumnOptionsValidation(
     _parsed,
     _message = "";
   let uniqueValues: Set<unknown>;
+  const invalidArrayValueMessage = `This value does not evaluate to type: { "label": string | number, "value": string | number | boolean }`;
   const invalidMessage = `This value does not evaluate to type Array<{ "label": string | number, "value": string | number | boolean }>`;
   const allowedValueTypes = ["string", "number", "boolean"];
   const allowedLabelTypes = ["string", "number"];
@@ -793,6 +796,15 @@ export function selectColumnOptionsValidation(
       rowIndex !== null ? ` Row: ${rowIndex}` : ""
     } index: ${optionIndex}.`;
   };
+
+  const generateInvalidArrayValueMessage = (
+    rowIndex: number | null,
+    optionIndex: number,
+  ) =>
+    `${generateErrorMessagePrefix(
+      rowIndex,
+      optionIndex,
+    )} ${invalidArrayValueMessage}`;
 
   const validateOption = (
     option: any,
@@ -899,6 +911,12 @@ export function selectColumnOptionsValidation(
               uniqueValues = new Set();
 
               for (let j = 0; j < value[i].length; j++) {
+                if (_.isNil(value[i][j])) {
+                  _isValid = false;
+                  _message = generateInvalidArrayValueMessage(i, j);
+                  _parsed = [];
+                  break;
+                }
                 if ((_message = validateOption(value[i][j], i, j))) {
                   _isValid = false;
                   break;
@@ -915,6 +933,13 @@ export function selectColumnOptionsValidation(
           _parsed = value;
           _isValid = true;
           for (let i = 0; i < (value as Array<unknown>).length; i++) {
+            if (_.isNil((value as Array<unknown>)[i])) {
+              _isValid = false;
+              _message = generateInvalidArrayValueMessage(null, i);
+              _parsed = [];
+              break;
+            }
+
             if (
               (_message = validateOption((value as Array<unknown>)[i], null, i))
             ) {
@@ -947,3 +972,361 @@ export function selectColumnOptionsValidation(
 
 export const getColumnPath = (propPath: string) =>
   propPath.split(".").slice(0, 2).join(".");
+
+export const tableDataValidation = (
+  value: unknown,
+  props: TableWidgetProps,
+  _?: any,
+) => {
+  const invalidResponse = {
+    isValid: false,
+    parsed: [],
+    messages: [
+      {
+        name: "TypeError",
+        message: `This value does not evaluate to type Array<Object>}`,
+      },
+    ],
+  };
+
+  if (value === "") {
+    return {
+      isValid: true,
+      parsed: [],
+    };
+  }
+
+  if (value === undefined || value === null) {
+    return {
+      isValid: false,
+      parsed: [],
+      messages: [
+        {
+          name: "ValidationError",
+          message: "Data is undefined, re-run your query or fix the data",
+        },
+      ],
+    };
+  }
+
+  if (!_.isString(value) && !Array.isArray(value)) {
+    return invalidResponse;
+  }
+
+  let parsed = value;
+
+  if (_.isString(value)) {
+    try {
+      parsed = JSON.parse(value as string);
+    } catch (e) {
+      return invalidResponse;
+    }
+  }
+
+  if (Array.isArray(parsed)) {
+    if (parsed.length === 0) {
+      return {
+        isValid: true,
+        parsed: [],
+      };
+    }
+
+    for (let i = 0; i < parsed.length; i++) {
+      if (!_.isPlainObject(parsed[i])) {
+        return {
+          isValid: false,
+          parsed: [],
+          messages: [
+            {
+              name: "ValidationError",
+              message: `Invalid object at index ${i}`,
+            },
+          ],
+        };
+      }
+    }
+
+    return { isValid: true, parsed };
+  }
+
+  return invalidResponse;
+};
+
+export function textForEachRowValidation(
+  value: unknown,
+  props: TableWidgetProps,
+  _: any,
+): ValidationResponse {
+  const generateResponseAndReturn = (
+    isValid = false,
+    message = { name: "", message: "" },
+  ) => {
+    return {
+      isValid,
+      parsed: isValid ? value : [],
+      messages: [message],
+    };
+  };
+
+  const DEFAULT_MESSAGE = {
+    name: "TypeError",
+    message: "The evaluated value should be either a string or a number.",
+  };
+
+  if (
+    _.isString(value) ||
+    _.isNumber(value) ||
+    Array.isArray(value) ||
+    value === undefined
+  ) {
+    if (Array.isArray(value)) {
+      const isValid = value.every((item) => {
+        if (_.isString(item) || _.isNumber(item) || item === undefined) {
+          return true;
+        }
+
+        if (Array.isArray(item)) {
+          return item.every(
+            (subItem) =>
+              _.isString(subItem) ||
+              _.isNumber(subItem) ||
+              subItem === undefined,
+          );
+        }
+
+        return false;
+      });
+
+      return isValid
+        ? generateResponseAndReturn(true)
+        : generateResponseAndReturn(false, DEFAULT_MESSAGE);
+    }
+
+    return generateResponseAndReturn(true);
+  }
+
+  return generateResponseAndReturn(false, DEFAULT_MESSAGE);
+}
+
+export function booleanForEachRowValidation(
+  value: unknown,
+): ValidationResponse {
+  const generateResponseAndReturn = (
+    isValid = false,
+    message = { name: "", message: "" },
+  ) => {
+    return {
+      isValid,
+      parsed: isValid ? value : true,
+      messages: [message],
+    };
+  };
+
+  const isBoolean = (value: unknown) => {
+    const isABoolean = value === true || value === false;
+    const isStringTrueFalse = value === "true" || value === "false";
+
+    return isABoolean || isStringTrueFalse || value === undefined;
+  };
+
+  const DEFAULT_MESSAGE = {
+    name: "TypeError",
+    message: "The evaluated value should be a boolean.",
+  };
+
+  if (isBoolean(value)) {
+    return generateResponseAndReturn(true);
+  }
+
+  if (Array.isArray(value)) {
+    const isValid = value.every((item) => {
+      if (isBoolean(item)) {
+        return true;
+      }
+
+      if (Array.isArray(item)) {
+        return item.every((subItem) => isBoolean(subItem));
+      }
+
+      return false;
+    });
+
+    return isValid
+      ? generateResponseAndReturn(true)
+      : generateResponseAndReturn(false, DEFAULT_MESSAGE);
+  }
+
+  return generateResponseAndReturn(false, DEFAULT_MESSAGE);
+}
+
+export function iconNamesForEachRowValidation(
+  value: unknown,
+  props: TableWidgetProps,
+  _: any,
+  moment: any,
+  propertyPath: string,
+  config: ValidationConfig,
+): ValidationResponse {
+  const generateResponseAndReturn = (
+    isValid = false,
+    message = { name: "", message: "" },
+  ) => {
+    return {
+      isValid,
+      parsed: isValid ? value : true,
+      messages: [message],
+    };
+  };
+
+  const DEFAULT_MESSAGE = {
+    name: "TypeError",
+    message:
+      "The evaluated value should either be an icon name, undefined, null, or an empty string. We currently use the icons from the Blueprint library. You can see the list of icons at https://blueprintjs.com/docs/#icons",
+  };
+
+  const isIconName = (value: unknown) => {
+    return (
+      config?.params?.allowedValues?.includes(value as string) ||
+      value === undefined ||
+      value === null ||
+      value === ""
+    );
+  };
+
+  if (isIconName(value)) {
+    return generateResponseAndReturn(true);
+  }
+
+  if (Array.isArray(value)) {
+    const isValid = value.every((item) => {
+      if (isIconName(item)) {
+        return true;
+      }
+
+      if (Array.isArray(item)) {
+        return item.every((subItem) => isIconName(subItem));
+      }
+
+      return false;
+    });
+
+    return isValid
+      ? generateResponseAndReturn(true)
+      : generateResponseAndReturn(false, DEFAULT_MESSAGE);
+  }
+
+  return generateResponseAndReturn(false, DEFAULT_MESSAGE);
+}
+
+export function iconPositionForEachRowValidation(
+  value: unknown,
+  props: TableWidgetProps,
+  _: any,
+  moment: any,
+  propertyPath: string,
+  config: ValidationConfig,
+): ValidationResponse {
+  const generateResponseAndReturn = (
+    isValid = false,
+    message = { name: "", message: "" },
+  ) => {
+    return {
+      isValid,
+      parsed: isValid ? value : true,
+      messages: [message],
+    };
+  };
+
+  const DEFAULT_MESSAGE = {
+    name: "TypeError",
+    message: `The evaluated value should be one of the allowed values => ${config?.params?.allowedValues?.join(
+      ", ",
+    )}, undefined, null, or an empty string`,
+  };
+
+  const isIconPosition = (value: unknown) => {
+    return (
+      config?.params?.allowedValues?.includes(value as string) ||
+      value === undefined ||
+      value === null ||
+      value === ""
+    );
+  };
+
+  if (isIconPosition(value)) {
+    return generateResponseAndReturn(true);
+  }
+
+  if (Array.isArray(value)) {
+    const isValid = value.every((item) => {
+      if (isIconPosition(item)) {
+        return true;
+      }
+
+      if (Array.isArray(item)) {
+        return item.every((subItem) => isIconPosition(subItem));
+      }
+
+      return false;
+    });
+
+    return isValid
+      ? generateResponseAndReturn(true)
+      : generateResponseAndReturn(false, DEFAULT_MESSAGE);
+  }
+
+  return generateResponseAndReturn(false, DEFAULT_MESSAGE);
+}
+
+export function colorForEachRowValidation(
+  value: unknown,
+  props: TableWidgetProps,
+  _: any,
+  moment: any,
+  propertyPath: string,
+  config: ValidationConfig,
+): ValidationResponse {
+  const generateResponseAndReturn = (
+    isValid = false,
+    message = { name: "", message: "" },
+  ) => {
+    return {
+      isValid,
+      parsed: isValid ? value : true,
+      messages: [message],
+    };
+  };
+
+  const DEFAULT_MESSAGE = {
+    name: "TypeError",
+    message: `The evaluated value should match ${config?.params?.regex}`,
+  };
+
+  const isColor = (value: unknown) => {
+    return config?.params?.regex?.test(value as string);
+  };
+
+  if (isColor(value)) {
+    return generateResponseAndReturn(true);
+  }
+
+  if (Array.isArray(value)) {
+    const isValid = value.every((item) => {
+      if (isColor(item)) {
+        return true;
+      }
+
+      if (Array.isArray(item)) {
+        return item.every((subItem) => isColor(subItem));
+      }
+
+      return false;
+    });
+
+    return isValid
+      ? generateResponseAndReturn(true)
+      : generateResponseAndReturn(false, DEFAULT_MESSAGE);
+  }
+
+  return generateResponseAndReturn(false, DEFAULT_MESSAGE);
+}

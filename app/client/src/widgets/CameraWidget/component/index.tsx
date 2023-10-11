@@ -43,30 +43,32 @@ import {
   MediaCaptureActionTypes,
   MediaCaptureStatusTypes,
 } from "../constants";
-import type { ThemeProp } from "widgets/constants";
+import type { ThemeProp } from "WidgetProvider/constants";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import { importSvg } from "design-system-old";
+import { getVideoConstraints } from "../../utils";
+import { CANVAS_ART_BOARD } from "constants/componentClassNameConstants";
 
 const CameraOfflineIcon = importSvg(
-  () => import("assets/icons/widget/camera/camera-offline.svg"),
+  async () => import("assets/icons/widget/camera/camera-offline.svg"),
 );
 const CameraIcon = importSvg(
-  () => import("assets/icons/widget/camera/camera.svg"),
+  async () => import("assets/icons/widget/camera/camera.svg"),
 );
 const CameraMutedIcon = importSvg(
-  () => import("assets/icons/widget/camera/camera-muted.svg"),
+  async () => import("assets/icons/widget/camera/camera-muted.svg"),
 );
 const MicrophoneIcon = importSvg(
-  () => import("assets/icons/widget/camera/microphone.svg"),
+  async () => import("assets/icons/widget/camera/microphone.svg"),
 );
 const MicrophoneMutedIcon = importSvg(
-  () => import("assets/icons/widget/camera/microphone-muted.svg"),
+  async () => import("assets/icons/widget/camera/microphone-muted.svg"),
 );
 const FullScreenIcon = importSvg(
-  () => import("assets/icons/widget/camera/fullscreen.svg"),
+  async () => import("assets/icons/widget/camera/fullscreen.svg"),
 );
 const ExitFullScreenIcon = importSvg(
-  () => import("assets/icons/widget/camera/exit-fullscreen.svg"),
+  async () => import("assets/icons/widget/camera/exit-fullscreen.svg"),
 );
 
 const overlayerMixin = css`
@@ -95,6 +97,7 @@ const CameraContainer = styled.div<CameraContainerProps>`
   justify-content: center;
   overflow: hidden;
   height: 100%;
+  width: 100%;
   border-radius: ${({ borderRadius }) => borderRadius};
   box-shadow: ${({ boxShadow }) => boxShadow};
   background: ${({ disabled }) => (disabled ? Colors.GREY_3 : Colors.BLACK)};
@@ -804,7 +807,9 @@ function DevicePopover(props: DevicePopoverProps) {
           content={<DeviceMenu items={items} onItemClick={onItemClick} />}
           disabled={disabledMenu}
           minimal
-          portalContainer={document.getElementById("art-board") || undefined}
+          portalContainer={
+            document.getElementById(CANVAS_ART_BOARD) || undefined
+          }
         >
           <Button
             disabled={disabledMenu}
@@ -835,6 +840,7 @@ function CameraComponent(props: CameraComponentProps) {
   const {
     borderRadius,
     boxShadow,
+    defaultCamera,
     disabled,
     mirrored,
     mode,
@@ -849,7 +855,6 @@ function CameraComponent(props: CameraComponentProps) {
   const webcamRef = useRef<Webcam>(null);
   const mediaRecorderRef = useRef<MediaRecorder>();
   const videoElementRef = useRef<HTMLVideoElement>(null);
-
   const isMobile = useIsMobileDevice();
   const [audioInputs, setAudioInputs] = useState<MediaDeviceInfo[]>([]);
   const [videoInputs, setVideoInputs] = useState<MediaDeviceInfo[]>([]);
@@ -861,6 +866,7 @@ function CameraComponent(props: CameraComponentProps) {
         ? {
             height: 720,
             width: 1280,
+            facingMode: { ideal: defaultCamera },
           }
         : {},
     );
@@ -979,10 +985,13 @@ function CameraComponent(props: CameraComponentProps) {
         });
       }
       if (mediaDeviceInfo.kind === "videoinput") {
-        setVideoConstraints({
-          ...videoConstraints,
-          deviceId: mediaDeviceInfo.deviceId,
-        });
+        const constraints = getVideoConstraints(
+          videoConstraints,
+          isMobile,
+          "", // when switching camera device we don't want to set the default camera ( facing mode )
+          mediaDeviceInfo.deviceId,
+        );
+        setVideoConstraints(constraints);
       }
     },
     [],
@@ -1210,6 +1219,7 @@ export interface CameraComponentProps {
   width: number;
   borderRadius: string;
   boxShadow: string;
+  defaultCamera: string;
 }
 
 export default CameraComponent;

@@ -4,17 +4,14 @@ import type {
   ControlProps,
   ControlFunctions,
   ControlData,
+  ControlMethods,
 } from "components/propertyControls/BaseControl";
 import type BaseControl from "components/propertyControls/BaseControl";
 import { isArray } from "lodash";
 import type { AdditionalDynamicDataTree } from "./autocomplete/customTreeTypeDefCreator";
-
 class PropertyControlFactory {
   static controlMap: Map<ControlType, ControlBuilder<ControlProps>> = new Map();
-  static controlUIToggleValidation: Map<
-    ControlType,
-    typeof BaseControl.canDisplayValueInUI
-  > = new Map();
+  static controlMethods: Map<ControlType, ControlMethods> = new Map();
   static inputComputedValueMap: Map<
     ControlType,
     typeof BaseControl.getInputComputedValue
@@ -23,11 +20,11 @@ class PropertyControlFactory {
   static registerControlBuilder(
     controlType: ControlType,
     controlBuilder: ControlBuilder<ControlProps>,
-    validationFn: typeof BaseControl.canDisplayValueInUI,
+    controlMethods: ControlMethods,
     inputComputedValueFn: typeof BaseControl.getInputComputedValue,
   ) {
     this.controlMap.set(controlType, controlBuilder);
-    this.controlUIToggleValidation.set(controlType, validationFn);
+    this.controlMethods.set(controlType, controlMethods);
     this.inputComputedValueMap.set(controlType, inputComputedValueFn);
   }
 

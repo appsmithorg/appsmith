@@ -4,24 +4,105 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { isString, xor } from "lodash";
-import type { DerivedPropertiesMap } from "utils/WidgetFactory";
+import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
 
 import { LabelPosition } from "components/constants";
 import type { TextSize } from "constants/WidgetConstants";
-import type { Stylesheet } from "entities/AppTheming";
-import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
-import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
+import {
+  isAutoHeightEnabledForWidget,
+  isCompactMode,
+} from "widgets/WidgetUtils";
 import type { OptionProps } from "../component";
 import SwitchGroupComponent from "../component";
-import type { AutocompletionDefinitions } from "widgets/constants";
-import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
+import { isAutoLayout } from "layoutSystems/autolayout/utils/flexWidgetUtils";
+import type { AutocompletionDefinitions } from "WidgetProvider/constants";
+import IconSVG from "../icon.svg";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
+import { FlexVerticalAlignment } from "layoutSystems/common/utils/constants";
 
 class SwitchGroupWidget extends BaseWidget<
   SwitchGroupWidgetProps,
   WidgetState
 > {
+  static type = "SWITCH_GROUP_WIDGET";
+
+  static getConfig() {
+    return {
+      name: "Switch Group", // The display name which will be made in uppercase and show in the widgets panel ( can have spaces )
+      iconSVG: IconSVG,
+      tags: [WIDGET_TAGS.TOGGLES],
+      needsMeta: true, // Defines if this widget adds any meta properties
+      isCanvas: false, // Defines if this widget has a canvas within in which we can drop other widgets
+    };
+  }
+
+  static getFeatures() {
+    return {
+      dynamicHeight: {
+        sectionIndex: 3,
+        active: true,
+      },
+    };
+  }
+
+  static getDefaults() {
+    return {
+      widgetName: "SwitchGroup",
+      rows: 6,
+      columns: 26,
+      options: [
+        { label: "Blue", value: "BLUE" },
+        { label: "Green", value: "GREEN" },
+        { label: "Red", value: "RED" },
+      ],
+      defaultSelectedValues: ["BLUE"],
+      isDisabled: false,
+      isRequired: false,
+      isInline: true,
+      isVisible: true,
+      animateLoading: true,
+      alignment: Alignment.LEFT,
+      labelText: "Label",
+      labelPosition: LabelPosition.Top,
+      labelAlignment: Alignment.LEFT,
+      labelWidth: 5,
+      version: 1,
+      labelTextSize: "0.875rem",
+      flexVerticalAlignment: FlexVerticalAlignment.Top,
+    };
+  }
+
+  static getAutoLayoutConfig() {
+    return {
+      disabledPropsDefaults: {
+        labelPosition: LabelPosition.Top,
+      },
+      defaults: {
+        columns: 14,
+        rows: 7,
+      },
+      autoDimension: {
+        height: true,
+      },
+      widgetSize: [
+        {
+          viewportMinWidth: 0,
+          configuration: () => {
+            return {
+              minWidth: "240px",
+              minHeight: "70px",
+            };
+          },
+        },
+      ],
+      disableResizeHandles: {
+        vertical: true,
+      },
+    };
+  }
   static getPropertyPaneContentConfig() {
     return [
       {
@@ -108,7 +189,7 @@ class SwitchGroupWidget extends BaseWidget<
             propertyName: "labelPosition",
             label: "Position",
             controlType: "ICON_TABS",
-            fullWidth: false,
+            fullWidth: true,
             hidden: isAutoLayout,
             options: [
               { label: "Auto", value: LabelPosition.Auto },
@@ -254,6 +335,25 @@ class SwitchGroupWidget extends BaseWidget<
     ];
   }
 
+  static getSetterConfig(): SetterConfig {
+    return {
+      __setters: {
+        setVisibility: {
+          path: "isVisible",
+          type: "boolean",
+        },
+        setDisable: {
+          path: "isDisabled",
+          type: "boolean",
+        },
+        setRequired: {
+          path: "isRequired",
+          type: "boolean",
+        },
+      },
+    };
+  }
+
   static getPropertyPaneStyleConfig() {
     return [
       {
@@ -342,6 +442,7 @@ class SwitchGroupWidget extends BaseWidget<
             helpText: "Sets the alignment of the widget",
             label: "Alignment",
             controlType: "ICON_TABS",
+            defaultValue: Alignment.LEFT,
             fullWidth: true,
             isBindProperty: true,
             isTriggerProperty: false,
@@ -416,10 +517,6 @@ class SwitchGroupWidget extends BaseWidget<
     };
   }
 
-  static getWidgetType(): string {
-    return "SWITCH_GROUP_WIDGET";
-  }
-
   componentDidUpdate(prevProps: SwitchGroupWidgetProps): void {
     if (
       xor(this.props.defaultSelectedValues, prevProps.defaultSelectedValues)
@@ -436,11 +533,10 @@ class SwitchGroupWidget extends BaseWidget<
     }
   }
 
-  getPageView() {
+  getWidgetView() {
     const {
       accentColor,
       alignment,
-      bottomRow,
       isDisabled,
       isInline,
       isRequired,
@@ -454,11 +550,10 @@ class SwitchGroupWidget extends BaseWidget<
       labelTooltip,
       options,
       selectedValues,
-      topRow,
       widgetId,
     } = this.props;
 
-    const { componentHeight } = this.getComponentDimensions();
+    const { componentHeight } = this.props;
 
     // TODO(abhinav): Not sure why we have to do this.
     // Check with the App Viewers Pod
@@ -473,7 +568,7 @@ class SwitchGroupWidget extends BaseWidget<
       <SwitchGroupComponent
         accentColor={accentColor}
         alignment={alignment}
-        compactMode={!((bottomRow - topRow) / GRID_DENSITY_MIGRATION_V1 > 1)}
+        compactMode={isCompactMode(componentHeight)}
         disabled={isDisabled}
         height={componentHeight}
         inline={isInline}
@@ -485,7 +580,7 @@ class SwitchGroupWidget extends BaseWidget<
         labelTextColor={labelTextColor}
         labelTextSize={labelTextSize}
         labelTooltip={labelTooltip}
-        labelWidth={this.getLabelWidth()}
+        labelWidth={this.props.labelComponentWidth}
         onChange={this.handleSwitchStateChange}
         options={_options}
         required={isRequired}
@@ -545,6 +640,7 @@ export interface SwitchGroupWidgetProps extends WidgetProps {
   labelStyle?: string;
   onSelectionChange?: string;
   accentColor: string;
+  labelComponentWidth?: number;
 }
 
 export default SwitchGroupWidget;

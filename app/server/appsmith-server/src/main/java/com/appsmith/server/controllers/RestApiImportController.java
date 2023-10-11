@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class RestApiImportController extends RestApiImportControllerCE {
 
-    public RestApiImportController(CurlImporterService curlImporterService,
-                                   PostmanImporterService postmanImporterService) {
+    public RestApiImportController(
+            CurlImporterService curlImporterService, PostmanImporterService postmanImporterService) {
 
         super(curlImporterService, postmanImporterService);
     }

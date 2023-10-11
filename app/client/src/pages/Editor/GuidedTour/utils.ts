@@ -6,6 +6,7 @@ import {
   setExplorerActiveAction,
   setExplorerPinnedAction,
 } from "actions/explorerActions";
+import log from "loglevel";
 
 // data-guided-tour-id - used for the rectangular highlight
 // data-guided-tour-iid - iid(indicator id) used for the lottie animation show near an element
@@ -59,7 +60,12 @@ class IndicatorHelper {
         this.indicatorWidthOffset +
         "px";
     } else if (position === "bottom") {
-      this.indicatorWrapper.style.top = coordinates.height + offset.top + "px";
+      this.indicatorWrapper.style.top =
+        coordinates.top +
+        coordinates.height -
+        this.indicatorHeightOffset +
+        offset.top +
+        "px";
       this.indicatorWrapper.style.left =
         coordinates.width / 2 +
         coordinates.left -
@@ -68,7 +74,7 @@ class IndicatorHelper {
         "px";
     } else if (position === "left") {
       this.indicatorWrapper.style.top =
-        coordinates.top + this.indicatorHeightOffset + offset.top + "px";
+        coordinates.top - this.indicatorHeightOffset + offset.top + "px";
       this.indicatorWrapper.style.left =
         coordinates.left - this.indicatorWidthOffset + offset.left + "px";
     } else {
@@ -90,6 +96,7 @@ class IndicatorHelper {
     offset: {
       top: number;
       left: number;
+      zIndex?: number;
     },
   ) {
     if (this.timerId || this.indicatorWrapper) this.destroy();
@@ -111,6 +118,9 @@ class IndicatorHelper {
       loop: true,
     });
 
+    if (offset.zIndex) {
+      this.indicatorWrapper.style.zIndex = `${offset.zIndex}`;
+    }
     // This is to invoke at the start and then recalculate every 3 seconds
     // 3 seconds is an arbitrary value here to avoid calling getBoundingClientRect to many times
     this.calculate(primaryReference, position, offset);
@@ -129,7 +139,7 @@ const indicatorHelperInstance = new IndicatorHelper();
 
 // To check if the element is behind another element for e.g when it is scrolled
 // out of view
-function isBehindOtherElement(element: Element) {
+async function isBehindOtherElement(element: Element) {
   return new Promise((resolve) => {
     const o = new IntersectionObserver(([entry]) => {
       resolve(entry.intersectionRatio !== 1);
@@ -237,12 +247,16 @@ export function highlightSection(
 export function showIndicator(
   selector: string,
   position = "right",
-  offset = { top: 0, left: 0 },
+  offset: { top: number; left: number; zIndex?: number } = { top: 0, left: 0 },
 ) {
-  let primaryReference: Element | null = null;
+  try {
+    let primaryReference: Element | null = null;
 
-  primaryReference = document.querySelector(selector);
-  indicatorHelperInstance.show(primaryReference, position, offset);
+    primaryReference = document.querySelector(selector);
+    indicatorHelperInstance.show(primaryReference, position, offset);
+  } catch (e) {
+    log.debug(e);
+  }
 }
 
 export function hideIndicator() {

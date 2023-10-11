@@ -15,8 +15,20 @@ describe("excludeForAirgap", "Welcome tour spec", function () {
   });
   it("2. Bug: 22281: Debugger should not open by default in welcome tour", function () {
     //Get back to application page
-    _.agHelper.GetNClick(_.homePage._homeIcon);
+    _.homePage.NavigateToHome();
     _.agHelper.WaitUntilEleAppear(_.homePage._homePageAppCreateBtn);
+
+    // Temporary workaround until https://github.com/appsmithorg/appsmith/issues/24665 is fixed
+    _.agHelper.GenerateUUID();
+    cy.get("@guid").then((uid) => {
+      _.homePage.CreateNewWorkspace("GuidedtourWorkspace" + uid);
+      _.homePage.CreateAppInWorkspace(
+        "GuidedtourWorkspace" + uid,
+        `GuidedtourApp${uid}`,
+      );
+      _.homePage.NavigateToHome();
+    });
+
     //Start welcome tour
     _.agHelper.GetNClick(_.homePage._welcomeTour);
     _.agHelper.WaitUntilEleAppear(_.homePage._welcomeTourBuildingButton);

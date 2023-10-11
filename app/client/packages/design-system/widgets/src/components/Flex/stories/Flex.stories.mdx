@@ -1,0 +1,129 @@
+import styles from "./styles.module.css";
+import { Flex, Text } from "@design-system/widgets";
+import { Canvas, Meta, Story, ArgsTable } from "@storybook/addon-docs";
+
+<Meta
+  title="Design-system/Widgets/Flex"
+  component={Flex}
+  args={{
+    children: "Flex",
+    gap: "spacing-6",
+  }}
+/>
+
+# Flex
+
+The Flex component can be used to layout its children in one dimension with [flexbox](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Flexible_Box_Layout/Basic_Concepts_of_Flexbox). Any React component can be used as a child, and Flex components can be nested to create more complex layouts.
+
+In addition to the properties widely supported by CSS, we also shim the [gap](https://developer.mozilla.org/en-US/docs/Web/CSS/gap) property, along with [rowGap](https://developer.mozilla.org/en-US/docs/Web/CSS/row-gap) and [columnGap](https://developer.mozilla.org/en-US/docs/Web/CSS/column-gap). These properties make it much easier to build layouts with consistent space between each item.
+The props of component can be defined with [sizing](/?path=/docs/design-system-theme-theme--sizing) and [spacing](http://localhost:6006/?path=/docs/design-system-theme-theme--spacing) dimension variables to ensure consistency across applications, and allow the layout to adapt to different devices automatically. In addition, these values can be autocompleted in many IDEs for convenience.
+
+export const Template = (args) => (
+  <Flex {...args}>
+    <div className={styles["demo-block"]} data-color="negative" />
+    <div className={styles["demo-block"]} data-color="positive" />
+    <div className={styles["demo-block"]} data-color="warning" />
+  </Flex>
+);
+
+<Canvas>
+  <Story name="Flex">{Template.bind({})}</Story>
+</Canvas>
+
+<ArgsTable story="Flex" of={Flex} />
+
+## Vertical stack with gap
+
+<Story name="Vertical stack">
+  <Flex direction="column" gap="spacing-2">
+    <div className={styles["demo-block"]} data-color="negative" />
+    <div className={styles["demo-block"]} data-color="positive" />
+    <div className={styles["demo-block"]} data-color="warning" />
+  </Flex>
+</Story>
+
+## Horizontal stack with gap
+
+<Story name="Horizontal stack">
+  <Flex gap="spacing-2">
+    <div className={styles["demo-block"]} data-color="negative" />
+    <div className={styles["demo-block"]} data-color="positive" />
+    <div className={styles["demo-block"]} data-color="warning" />
+  </Flex>
+</Story>
+
+## Nesting
+
+<Story name="Nesting">
+  <Flex direction="column" gap="spacing-2" width="100%">
+    <div className={styles["demo-block"]} data-color="accent" />
+    <Flex gap="spacing-2" height="sizing-40">
+      <div className={styles["demo-block"]} data-color="negative" />
+      <div className={styles["demo-block"]} data-color="positive" />
+      <div className={styles["demo-block"]} data-color="warning" />
+    </Flex>
+    <div className={styles["demo-block"]} data-color="warning" />
+  </Flex>
+</Story>
+
+## Responsive
+
+The component interface supports `Responsive` props. Using such props, we can easily create responsive interfaces.
+Specifying the props is based on the principle of **mobile first**, respectively, specifying `base` is applied for the smallest value, then breaking points are added.
+It should also be taken into account that the break points indicate the width of the parent component and not the user's viewport because we use [container queries](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_container_queries).
+To make everything work, we just need to add `isContainer` prop to the parent FLex component.
+
+**Usage example**: `<Flex isContainer direction={{ base: "column", "520px": "row" }}>...</Flex>`
+
+## Responsive cards
+
+<Story name="Responsive cards">
+  <Flex isContainer gap="spacing-2" width="100%" wrap>
+    {[...Array(12)].map(() => (
+      <Flex
+        flex="1"
+        minWidth={{
+          base: "44%",
+          "400px": "30%",
+          "680px": "22%",
+          "926px": "14%",
+        }}
+      >
+        <div className={styles["responsive-block"]} />
+      </Flex>
+    ))}
+  </Flex>
+</Story>
+
+## Responsive list
+
+<Story name="Responsive list">
+  <Flex
+    direction={{ base: "row", "520px": "column" }}
+    gap="spacing-6"
+    wrap
+    isContainer
+  >
+    {[...Array(4)].map(() => (
+      <Flex
+        direction={{ base: "column", "520px": "row" }}
+        flex={{ base: "0", "320px": "1", "520px": "none" }}
+        gap="spacing-4"
+        minWidth={{ base: "100%", "320px": "45%", "520px": "100%" }}
+      >
+        <Flex flex="1" maxWidth={{ base: "100%", "520px": "sizing-38" }}>
+          <div className={styles["responsive-block"]} />
+        </Flex>
+        <Flex direction="column" flex="1" gap="spacing-4">
+          <Text variant="subtitle">Title</Text>
+          <Text>
+            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Autem
+            consequuntur explicabo quia veniam? Aliquid amet cum delectus
+            deleniti eligendi eum facilis, fugit in iusto nemo, porro quod
+            reiciendis sint velit?
+          </Text>
+        </Flex>
+      </Flex>
+    ))}
+  </Flex>
+</Story>

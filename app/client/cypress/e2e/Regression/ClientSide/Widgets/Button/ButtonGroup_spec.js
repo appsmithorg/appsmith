@@ -1,21 +1,28 @@
 const explorer = require("../../../../../locators/explorerlocators.json");
 const { modifierKey } = require("../../../../../support/Constants");
 
+import { draggableWidgets } from "../../../../../support/Objects/ObjectsCore";
+import {
+  entityExplorer,
+  agHelper,
+  assertHelper,
+} from "../../../../../support/Objects/ObjectsCore";
+
+import { buttongroupwidgetlocators } from "../../../../../locators/WidgetLocators";
+
+import { PropertyPane } from "../../../../../support/Pages/PropertyPane";
+
 const firstButton = ".t--buttongroup-widget > div > button > div";
 const menuButton =
   ".t--buttongroup-widget .bp3-popover2-target > div > button > div";
 
 describe("Button Group Widget Functionality", function () {
   before(() => {
-    // no dsl required
-  });
-
-  it("Add new Button Group", () => {
-    cy.wait(1000);
-    cy.get(explorer.addWidget).click();
-    cy.dragAndDropToCanvas("buttongroupwidget", { x: 300, y: 300 });
-    cy.get(".t--buttongroup-widget").should("exist");
-    cy.get(".t--buttongroup-widget").children().should("have.length", 3);
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON_GROUP);
+    agHelper
+      .GetElement(buttongroupwidgetlocators.buttongroup)
+      .children()
+      .should("have.length", 3);
   });
 
   it("ButtonGroup Widget Functionality on undo after delete", function () {
@@ -25,19 +32,25 @@ describe("Button Group Widget Functionality", function () {
     });
 
     // Check if the Button got deleted
-    cy.get(".t--buttongroup-widget").children().should("have.length", 2);
+    agHelper
+      .GetElement(buttongroupwidgetlocators.buttongroup)
+      .children()
+      .should("have.length", 2);
 
     // Check the first button
-    cy.get(firstButton).contains("Add");
+    agHelper.GetNAssertElementText(firstButton, "Add");
 
     // Undo
     cy.get("body").type(`{${modifierKey}+z}`);
 
     // Check if the button is back
-    cy.get(".t--buttongroup-widget").children().should("have.length", 3);
+    agHelper
+      .GetElement(buttongroupwidgetlocators.buttongroup)
+      .children()
+      .should("have.length", 3);
 
     // Check the first button
-    cy.get(firstButton).contains("Favorite");
+    agHelper.GetNAssertElementText(firstButton, "Favorite");
 
     // Navigate to the first button property pane
     cy.get(".t--property-control-buttons .t--edit-column-btn").eq(0).click({

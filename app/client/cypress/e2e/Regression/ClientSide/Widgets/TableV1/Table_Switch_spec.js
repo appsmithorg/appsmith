@@ -1,9 +1,9 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
-const dsl = require("../../../../../fixtures/swtchTableDsl.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Table Widget and Switch binding Functionality", function () {
   before(() => {
-    cy.addDsl(dsl);
+    _.agHelper.AddDsl("swtchTableDsl");
   });
 
   it("Table Widget Data validation with Switch ON", function () {

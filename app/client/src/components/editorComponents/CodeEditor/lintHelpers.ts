@@ -14,7 +14,7 @@ import {
   IDENTIFIER_NOT_DEFINED_LINT_ERROR_CODE,
   INVALID_JSOBJECT_START_STATEMENT,
   INVALID_JSOBJECT_START_STATEMENT_ERROR_CODE,
-} from "workers/Linting/constants";
+} from "plugins/Linting/constants";
 export const getIndexOfRegex = (
   str: string,
   regex: RegExp,

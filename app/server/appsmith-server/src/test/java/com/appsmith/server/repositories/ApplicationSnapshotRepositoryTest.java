@@ -15,7 +15,6 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-
 @SpringBootTest
 public class ApplicationSnapshotRepositoryTest {
     @Autowired
@@ -39,14 +38,17 @@ public class ApplicationSnapshotRepositoryTest {
         snapshot2.setApplicationId(testAppId2);
         snapshot2.setChunkOrder(1);
 
-        Mono<ApplicationSnapshot> snapshotMono = applicationSnapshotRepository.saveAll(List.of(snapshot1, snapshot2))
+        Mono<ApplicationSnapshot> snapshotMono = applicationSnapshotRepository
+                .saveAll(List.of(snapshot1, snapshot2))
                 .then(applicationSnapshotRepository.findWithoutData(testAppId2));
 
-        StepVerifier.create(snapshotMono).assertNext(applicationSnapshot -> {
-            assertThat(applicationSnapshot.getApplicationId()).isEqualTo(testAppId2);
-            assertThat(applicationSnapshot.getData()).isNull();
-            assertThat(applicationSnapshot.getChunkOrder()).isEqualTo(1);
-        }).verifyComplete();
+        StepVerifier.create(snapshotMono)
+                .assertNext(applicationSnapshot -> {
+                    assertThat(applicationSnapshot.getApplicationId()).isEqualTo(testAppId2);
+                    assertThat(applicationSnapshot.getData()).isNull();
+                    assertThat(applicationSnapshot.getChunkOrder()).isEqualTo(1);
+                })
+                .verifyComplete();
     }
 
     @Test
@@ -63,13 +65,16 @@ public class ApplicationSnapshotRepositoryTest {
         snapshot2.setApplicationId(testAppId1);
         snapshot2.setChunkOrder(2);
 
-        Mono<ApplicationSnapshot> snapshotMono = applicationSnapshotRepository.saveAll(List.of(snapshot1, snapshot2))
+        Mono<ApplicationSnapshot> snapshotMono = applicationSnapshotRepository
+                .saveAll(List.of(snapshot1, snapshot2))
                 .then(applicationSnapshotRepository.findWithoutData(testAppId1));
 
-        StepVerifier.create(snapshotMono).assertNext(applicationSnapshot -> {
-            assertThat(applicationSnapshot.getApplicationId()).isEqualTo(testAppId1);
-            assertThat(applicationSnapshot.getChunkOrder()).isEqualTo(1);
-        }).verifyComplete();
+        StepVerifier.create(snapshotMono)
+                .assertNext(applicationSnapshot -> {
+                    assertThat(applicationSnapshot.getApplicationId()).isEqualTo(testAppId1);
+                    assertThat(applicationSnapshot.getChunkOrder()).isEqualTo(1);
+                })
+                .verifyComplete();
     }
 
     @Test
@@ -91,12 +96,12 @@ public class ApplicationSnapshotRepositoryTest {
         snapshot3.setApplicationId(testAppId2);
         snapshot3.setChunkOrder(1);
 
-        Flux<ApplicationSnapshot> applicationSnapshots = applicationSnapshotRepository.saveAll(List.of(snapshot1, snapshot2, snapshot3))
+        Flux<ApplicationSnapshot> applicationSnapshots = applicationSnapshotRepository
+                .saveAll(List.of(snapshot1, snapshot2, snapshot3))
                 .then(applicationSnapshotRepository.deleteAllByApplicationId(testAppId1))
                 .thenMany(applicationSnapshotRepository.findByApplicationId(testAppId1));
 
-        StepVerifier.create(applicationSnapshots)
-                .verifyComplete();
+        StepVerifier.create(applicationSnapshots).verifyComplete();
 
         StepVerifier.create(applicationSnapshotRepository.findByApplicationId(testAppId2))
                 .assertNext(applicationSnapshot -> {
@@ -125,7 +130,8 @@ public class ApplicationSnapshotRepositoryTest {
         snapshot3.setApplicationId(testAppId2);
         snapshot3.setChunkOrder(1);
 
-        Flux<ApplicationSnapshot> applicationSnapshots = applicationSnapshotRepository.saveAll(List.of(snapshot1, snapshot2, snapshot3))
+        Flux<ApplicationSnapshot> applicationSnapshots = applicationSnapshotRepository
+                .saveAll(List.of(snapshot1, snapshot2, snapshot3))
                 .thenMany(applicationSnapshotRepository.findByApplicationId(testAppId1));
 
         StepVerifier.create(applicationSnapshots)

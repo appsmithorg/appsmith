@@ -1,4 +1,11 @@
-import * as _ from "../../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  dataSources,
+  draggableWidgets,
+  entityExplorer,
+  entityItems,
+  locators,
+} from "../../../../support/Objects/ObjectsCore";
 let mockDBNameUsers: string, mockDBNameMovies: string;
 
 describe("Entity explorer context menu should hide on scrolling", function () {
@@ -6,32 +13,37 @@ describe("Entity explorer context menu should hide on scrolling", function () {
     "excludeForAirgap",
     "1. Bug #15474 - Entity explorer menu must close on scroll",
     function () {
+      entityExplorer.DragDropWidgetNVerify(draggableWidgets.MODAL);
+      agHelper.GetNClick(locators._closeModal, 0, true, 0);
+      entityExplorer.DragDropWidgetNVerify(draggableWidgets.MODAL);
+      agHelper.GetNClick(locators._closeModal, 0, true, 0);
+      entityExplorer.DragDropWidgetNVerify(draggableWidgets.MODAL);
+      entityExplorer.NavigateToSwitcher("Explorer");
+      entityExplorer.ExpandCollapseEntity("Modal1");
+      entityExplorer.ExpandCollapseEntity("Modal2");
+      entityExplorer.ExpandCollapseEntity("Modal3");
+
       // Setup to make the explorer scrollable
-      _.entityExplorer.ExpandCollapseEntity("Queries/JS");
-      _.entityExplorer.ExpandCollapseEntity("Datasources");
-      _.agHelper.ContainsNClick("Libraries");
-      _.dataSources.CreateMockDB("Users").then(($createdMockUsers) => {
+      entityExplorer.ExpandCollapseEntity("Queries/JS");
+      entityExplorer.ExpandCollapseEntity("Datasources");
+      agHelper.ContainsNClick("Libraries");
+      dataSources.CreateMockDB("Users").then(($createdMockUsers) => {
+        cy.log("Users DB created is " + $createdMockUsers);
         mockDBNameUsers = $createdMockUsers;
-        _.dataSources.CreateQueryFromActiveTab($createdMockUsers, false);
+        dataSources.CreateQueryAfterDSSaved();
+        dataSources.AssertTableInVirtuosoList(mockDBNameUsers, "public.users");
 
-        _.dataSources.CreateMockDB("Movies").then(($createdMockMovies) => {
+        dataSources.CreateMockDB("Movies").then(($createdMockMovies) => {
+          cy.log("Movies DB created is " + $createdMockMovies);
           mockDBNameMovies = $createdMockMovies;
-          _.dataSources.CreateQueryFromActiveTab($createdMockMovies, false);
+          dataSources.CreateQueryAfterDSSaved();
 
-          _.agHelper.Sleep();
-          _.entityExplorer.ExpandCollapseEntity(mockDBNameUsers);
-          _.agHelper.Sleep();
-          _.entityExplorer.ExpandCollapseEntity(mockDBNameMovies);
+          dataSources.AssertTableInVirtuosoList(mockDBNameMovies, "movies");
 
-          _.entityExplorer.ExpandCollapseEntity("public.users");
-          _.entityExplorer.ExpandCollapseEntity("movies");
-          _.agHelper.GetNClick(_.locators._createNew);
-          _.agHelper.AssertElementVisible(_.entityExplorer._adsPopup);
-          _.agHelper.ScrollTo(
-            _.entityExplorer._entityExplorerWrapper,
-            "bottom",
-          );
-          _.agHelper.AssertElementAbsence(_.entityExplorer._adsPopup);
+          agHelper.GetNClick(locators._createNew);
+          agHelper.AssertElementVisibility(entityExplorer._adsPopup);
+          agHelper.ScrollTo(entityExplorer._entityExplorerWrapper, "bottom");
+          agHelper.AssertElementAbsence(entityExplorer._adsPopup);
         });
       });
     },
@@ -41,36 +53,41 @@ describe("Entity explorer context menu should hide on scrolling", function () {
     "airgap",
     "1. Bug #15474 - Entity explorer menu must close on scroll - airgap",
     function () {
+      entityExplorer.DragDropWidgetNVerify(draggableWidgets.MODAL);
+      agHelper.GetNClick(locators._closeModal, 0, true, 0);
+      entityExplorer.DragDropWidgetNVerify(draggableWidgets.MODAL);
+      agHelper.GetNClick(locators._closeModal, 0, true, 0);
+      entityExplorer.DragDropWidgetNVerify(draggableWidgets.MODAL);
+      entityExplorer.NavigateToSwitcher("Explorer");
+      entityExplorer.ExpandCollapseEntity("Modal1");
+      entityExplorer.ExpandCollapseEntity("Modal2");
+      entityExplorer.ExpandCollapseEntity("Modal3");
+
       // Setup to make the explorer scrollable
-      _.entityExplorer.ExpandCollapseEntity("Queries/JS");
-      _.entityExplorer.ExpandCollapseEntity("Datasources");
-      _.agHelper.ContainsNClick("Libraries");
-      _.dataSources.CreateDataSource("Postgres");
+      entityExplorer.ExpandCollapseEntity("Queries/JS");
+      entityExplorer.ExpandCollapseEntity("Datasources");
+      agHelper.ContainsNClick("Libraries");
+      dataSources.CreateDataSource("Postgres");
       cy.get("@dsName").then(($createdMockUsers: any) => {
         mockDBNameUsers = $createdMockUsers;
-        _.dataSources.NavigateToActiveTab();
-        _.dataSources.CreateQueryFromActiveTab($createdMockUsers, false);
+        dataSources.CreateQueryAfterDSSaved();
 
-        _.dataSources.CreateDataSource("Mongo");
+        dataSources.AssertTableInVirtuosoList(mockDBNameUsers, "public.users");
+
+        dataSources.CreateDataSource("Mongo");
         cy.get("@dsName").then(($createdMockMovies: any) => {
-          _.dataSources.NavigateToActiveTab();
           mockDBNameMovies = $createdMockMovies;
-          _.dataSources.CreateQueryFromActiveTab($createdMockMovies, false);
+          dataSources.CreateQueryAfterDSSaved();
 
-          _.agHelper.Sleep();
-          _.entityExplorer.ExpandCollapseEntity(mockDBNameUsers);
-          _.agHelper.Sleep();
-          _.entityExplorer.ExpandCollapseEntity(mockDBNameMovies);
-
-          _.entityExplorer.ExpandCollapseEntity("public.users");
-          _.entityExplorer.ExpandCollapseEntity("listingAndReviews");
-          _.agHelper.GetNClick(_.locators._createNew);
-          _.agHelper.AssertElementVisible(_.entityExplorer._adsPopup);
-          _.agHelper.ScrollTo(
-            _.entityExplorer._entityExplorerWrapper,
-            "bottom",
+          dataSources.AssertTableInVirtuosoList(
+            mockDBNameMovies,
+            "listingAndReviews",
           );
-          _.agHelper.AssertElementAbsence(_.entityExplorer._adsPopup);
+
+          agHelper.GetNClick(locators._createNew);
+          agHelper.AssertElementVisibility(entityExplorer._adsPopup);
+          agHelper.ScrollTo(entityExplorer._entityExplorerWrapper, "bottom");
+          agHelper.AssertElementAbsence(entityExplorer._adsPopup);
         });
       });
     },
@@ -78,17 +95,18 @@ describe("Entity explorer context menu should hide on scrolling", function () {
 
   after(() => {
     //clean up
-    _.entityExplorer.ActionContextMenuByEntityName(
-      "Query1",
-      "Delete",
-      "Are you sure?",
-    );
-    _.entityExplorer.ActionContextMenuByEntityName(
-      "Query2",
-      "Delete",
-      "Are you sure?",
-    );
-    _.dataSources.DeleteDatasouceFromActiveTab(mockDBNameMovies); //Since sometimes after Queries are deleted, ds is no more visible in EE tr_.ee
-    _.dataSources.DeleteDatasouceFromActiveTab(mockDBNameUsers);
+    entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: "Query1",
+      action: "Delete",
+      entityType: entityItems.Query,
+    });
+
+    entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: "Query2",
+      action: "Delete",
+      entityType: entityItems.Query,
+    });
+    dataSources.DeleteDatasouceFromActiveTab(mockDBNameMovies); //Since sometimes after Queries are deleted, ds is no more visible in EE tree
+    dataSources.DeleteDatasouceFromActiveTab(mockDBNameUsers);
   });
 });

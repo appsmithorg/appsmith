@@ -11,22 +11,33 @@ declare global {
     ) => any;
   }
 }
+export type PostProcessorArg = {
+  executionMetaData: ReturnType<typeof ExecutionMetaData.getExecutionMetaData>;
+  jsFnFullName: string;
+  executionResponse: unknown;
+  isSuccess: boolean;
+};
+
+export type PostProcessor = (args: PostProcessorArg) => void;
 export interface JSExecutionData {
   data: unknown;
   funcName: string;
 }
 
-function saveExecutionData(name: string, data: unknown) {
+function saveExecutionData({
+  executionResponse,
+  jsFnFullName,
+}: PostProcessorArg) {
   TriggerEmitter.emit(BatchKey.process_batched_fn_execution, {
-    name,
-    data,
+    name: jsFnFullName,
+    data: executionResponse,
   });
 }
 
 export function jsObjectFunctionFactory<P extends ReadonlyArray<unknown>>(
   fn: (...args: P) => unknown,
   name: string,
-  postProcessors: Array<(name: string, res: unknown) => void> = [
+  postProcessors: PostProcessor[] = [
     saveExecutionData,
     postJSFunctionExecutionLog,
   ],
@@ -35,24 +46,51 @@ export function jsObjectFunctionFactory<P extends ReadonlyArray<unknown>>(
     if (!ExecutionMetaData.getExecutionMetaData().enableJSFnPostProcessors) {
       return fn.call(this, ...args);
     }
+    const executionMetaData = ExecutionMetaData.getExecutionMetaData();
     try {
       const result = fn.call(this, ...args);
       if (isPromise(result)) {
         result.then((res) => {
-          postProcessors.forEach((p) => p(name, res));
+          postProcessors.forEach((p) =>
+            p({
+              executionMetaData,
+              jsFnFullName: name,
+              executionResponse: res,
+              isSuccess: true,
+            }),
+          );
           return res;
         });
         result.catch((e) => {
-          postProcessors.forEach((p) => p(name, undefined));
+          postProcessors.forEach((p) =>
+            p({
+              executionMetaData,
+              jsFnFullName: name,
+              executionResponse: undefined,
+              isSuccess: true,
+            }),
+          );
           throw e;
         });
       } else {
-        postProcessors.forEach((p) => p(name, result));
+        postProcessors.forEach((p) =>
+          p({
+            executionMetaData,
+            jsFnFullName: name,
+            executionResponse: result,
+            isSuccess: true,
+          }),
+        );
       }
       return result;
     } catch (e) {
       postProcessors.forEach((postProcessor) => {
-        postProcessor(name, undefined);
+        postProcessor({
+          executionMetaData,
+          jsFnFullName: name,
+          executionResponse: undefined,
+          isSuccess: false,
+        });
       });
       throw e;
     }

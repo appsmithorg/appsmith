@@ -1,6 +1,5 @@
-const dsl = require("../../../../../fixtures/emptyDSL.json");
-const explorer = require("../../../../../locators/explorerlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 const defaultValue = `[
         {
@@ -11,17 +10,16 @@ const defaultValue = `[
 
 describe("MultiSelect Widget Functionality", function () {
   before(() => {
-    cy.addDsl(dsl);
+    _.agHelper.AddDsl("emptyDSL");
   });
   beforeEach(() => {
     cy.wait(3000);
   });
   it("1. Add new multiselect widget", () => {
-    cy.get(explorer.addWidget).click();
-    cy.dragAndDropToCanvas("multiselectwidgetv2", { x: 300, y: 300 });
-    cy.get(".t--widget-multiselectwidgetv2").should("exist");
-    cy.updateCodeInput(
-      ".t--property-control-options",
+    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.MULTISELECT);
+    _.propPane.ToggleJSMode("sourcedata");
+    _.propPane.UpdatePropertyFieldValue(
+      "Source Data",
       `[
         {
           "label": "Blue",
@@ -37,8 +35,18 @@ describe("MultiSelect Widget Functionality", function () {
         }
       ]`,
     );
+
+    _.propPane.ToggleJSMode("labelkey");
     cy.updateCodeInput(
-      ".t--property-control-defaultselectedvalues",
+      ".t--property-control-wrapper.t--property-control-labelkey",
+      `label`,
+    );
+
+    _.propPane.ToggleJSMode("valuekey");
+    cy.updateCodeInput(".t--property-control-valuekey", `value`);
+
+    _.propPane.UpdatePropertyFieldValue(
+      "Default selected values",
       defaultValue,
     );
   });

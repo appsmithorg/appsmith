@@ -1,6 +1,5 @@
 const widgetsPage = require("../../../../../locators/Widgets.json");
-const publishPage = require("../../../../../locators/publishWidgetspage.json");
-
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
 
 describe("List widget v2 Regression", () => {
@@ -13,7 +12,7 @@ describe("List widget v2 Regression", () => {
 
     cy.get(widgetsPage.toggleVisible).click({ force: true });
     cy.testJsontext("visible", "false");
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(`${widgetSelector("Text1")}`).should("not.exist");
 
     cy.get(`${widgetSelector("List1")} div[type="CONTAINER_WIDGET"]`).each(
@@ -24,6 +23,5 @@ describe("List widget v2 Regression", () => {
           .should("have.css", "outline", "rgb(59, 130, 246) solid 1px");
       },
     );
-    cy.get(publishPage.backToEditor).click({ force: true });
   });
 });

@@ -28,5 +28,4 @@ public interface CrudService<T extends BaseDomain, ID> {
     }
 
     Map<String, Object> getAnalyticsProperties(T savedResource);
-
 }

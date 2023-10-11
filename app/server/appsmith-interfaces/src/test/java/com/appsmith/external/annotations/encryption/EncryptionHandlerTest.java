@@ -35,84 +35,91 @@ public class EncryptionHandlerTest {
         assertNotNull(candidateFieldsForType);
 
         // For encrypted string
-        final Optional<CandidateField> encryptedString = candidateFieldsForType
-                .stream()
+        final Optional<CandidateField> encryptedString = candidateFieldsForType.stream()
                 .filter(x -> x.getType().equals(CandidateField.Type.ANNOTATED_FIELD))
                 .findFirst();
         assertTrue(encryptedString.isPresent());
         assertEquals("encryptedInDomain", encryptedString.get().getField().getName());
 
         // For encrypted subtype when the subtype is null
-        final Optional<CandidateField> encryptedSubDomainWithoutValue = candidateFieldsForType
-                .stream()
+        final Optional<CandidateField> encryptedSubDomainWithoutValue = candidateFieldsForType.stream()
                 .filter(x -> x.getType().equals(CandidateField.Type.APPSMITH_FIELD_UNKNOWN))
                 .findFirst();
         assertTrue(encryptedSubDomainWithoutValue.isPresent());
-        assertEquals("encryptedSubDomainWithoutValue", encryptedSubDomainWithoutValue.get().getField().getName());
+        assertEquals(
+                "encryptedSubDomainWithoutValue",
+                encryptedSubDomainWithoutValue.get().getField().getName());
 
         // For encrypted subtype when the subtype is not null and has encrypted field
-        final Optional<CandidateField> encryptedSubDomainWithValue = candidateFieldsForType
-                .stream()
+        final Optional<CandidateField> encryptedSubDomainWithValue = candidateFieldsForType.stream()
                 .filter(x -> x.getType().equals(CandidateField.Type.APPSMITH_FIELD_KNOWN))
                 .findFirst();
         assertTrue(encryptedSubDomainWithValue.isPresent());
-        assertEquals("encryptedSubDomainWithValue", encryptedSubDomainWithValue.get().getField().getName());
+        assertEquals(
+                "encryptedSubDomainWithValue",
+                encryptedSubDomainWithValue.get().getField().getName());
 
         // For encrypted subtype when the subtype is polymorphic
-        final Optional<CandidateField> polymorphicSubDomain = candidateFieldsForType
-                .stream()
+        final Optional<CandidateField> polymorphicSubDomain = candidateFieldsForType.stream()
                 .filter(x -> x.getType().equals(CandidateField.Type.APPSMITH_FIELD_POLYMORPHIC))
                 .findFirst();
         assertTrue(polymorphicSubDomain.isPresent());
-        assertEquals("polymorphicSubDomain", polymorphicSubDomain.get().getField().getName());
+        assertEquals(
+                "polymorphicSubDomain", polymorphicSubDomain.get().getField().getName());
 
         // For encrypted list
-        final Optional<CandidateField> testSubDomainListWithElements = candidateFieldsForType
-                .stream()
+        final Optional<CandidateField> testSubDomainListWithElements = candidateFieldsForType.stream()
                 .filter(x -> x.getType().equals(CandidateField.Type.APPSMITH_COLLECTION_KNOWN))
                 .findFirst();
         assertTrue(testSubDomainListWithElements.isPresent());
-        assertEquals("testSubDomainListWithElements", testSubDomainListWithElements.get().getField().getName());
+        assertEquals(
+                "testSubDomainListWithElements",
+                testSubDomainListWithElements.get().getField().getName());
 
         // For encrypted list when the list is polymorphic and null
-        final Optional<CandidateField> polymorphicSubDomainListWithoutElements = candidateFieldsForType
-                .stream()
+        final Optional<CandidateField> polymorphicSubDomainListWithoutElements = candidateFieldsForType.stream()
                 .filter(x -> x.getType().equals(CandidateField.Type.APPSMITH_COLLECTION_UNKNOWN))
                 .findFirst();
         assertTrue(polymorphicSubDomainListWithoutElements.isPresent());
-        assertEquals("polymorphicSubDomainListWithoutElements", polymorphicSubDomainListWithoutElements.get().getField().getName());
+        assertEquals(
+                "polymorphicSubDomainListWithoutElements",
+                polymorphicSubDomainListWithoutElements.get().getField().getName());
 
         // For encrypted list when the list is polymorphic and null
-        final Optional<CandidateField> polymorphicSubDomainListWithElements = candidateFieldsForType
-                .stream()
+        final Optional<CandidateField> polymorphicSubDomainListWithElements = candidateFieldsForType.stream()
                 .filter(x -> x.getType().equals(CandidateField.Type.APPSMITH_COLLECTION_POLYMORPHIC))
                 .findFirst();
         assertTrue(polymorphicSubDomainListWithElements.isPresent());
-        assertEquals("polymorphicSubDomainListWithElements", polymorphicSubDomainListWithElements.get().getField().getName());
+        assertEquals(
+                "polymorphicSubDomainListWithElements",
+                polymorphicSubDomainListWithElements.get().getField().getName());
 
         // For encrypted map
-        final Optional<CandidateField> testSubDomainMapWithElements = candidateFieldsForType
-                .stream()
+        final Optional<CandidateField> testSubDomainMapWithElements = candidateFieldsForType.stream()
                 .filter(x -> x.getType().equals(CandidateField.Type.APPSMITH_MAP_KNOWN))
                 .findFirst();
         assertTrue(testSubDomainMapWithElements.isPresent());
-        assertEquals("testSubDomainMapWithElements", testSubDomainMapWithElements.get().getField().getName());
+        assertEquals(
+                "testSubDomainMapWithElements",
+                testSubDomainMapWithElements.get().getField().getName());
 
         // For encrypted map when the map is polymorphic and null
-        final Optional<CandidateField> polymorphicSubDomainMapWithoutElements = candidateFieldsForType
-                .stream()
+        final Optional<CandidateField> polymorphicSubDomainMapWithoutElements = candidateFieldsForType.stream()
                 .filter(x -> x.getType().equals(CandidateField.Type.APPSMITH_MAP_UNKNOWN))
                 .findFirst();
         assertTrue(polymorphicSubDomainMapWithoutElements.isPresent());
-        assertEquals("polymorphicSubDomainMapWithoutElements", polymorphicSubDomainMapWithoutElements.get().getField().getName());
+        assertEquals(
+                "polymorphicSubDomainMapWithoutElements",
+                polymorphicSubDomainMapWithoutElements.get().getField().getName());
 
         // For encrypted map when the map is polymorphic and not null
-        final Optional<CandidateField> polymorphicSubDomainMapWithElements = candidateFieldsForType
-                .stream()
+        final Optional<CandidateField> polymorphicSubDomainMapWithElements = candidateFieldsForType.stream()
                 .filter(x -> x.getType().equals(CandidateField.Type.APPSMITH_MAP_POLYMORPHIC))
                 .findFirst();
         assertTrue(polymorphicSubDomainMapWithElements.isPresent());
-        assertEquals("polymorphicSubDomainMapWithElements", polymorphicSubDomainMapWithElements.get().getField().getName());
+        assertEquals(
+                "polymorphicSubDomainMapWithElements",
+                polymorphicSubDomainMapWithElements.get().getField().getName());
 
         assertEquals(10, candidateFieldsForType.size());
     }
@@ -161,13 +168,29 @@ public class EncryptionHandlerTest {
         assertEquals("Encrypted-String", testDomain.getEncryptedInDomain());
         assertEquals("String", testDomain.getNotEncrypted());
         assertEquals("String", testDomain.getTestSubDomainWithoutEncryption().getNotEncryptedInSubDomain());
-        assertEquals("Encrypted-String", testDomain.getEncryptedSubDomainWithValue().getEncryptedInSubDomain());
-        assertEquals("Encrypted-String", ((PolymorphicSubdomain1) testDomain.getPolymorphicSubDomain()).getEncryptedInPolymorphicSubdomain1());
-        assertEquals("Encrypted-String", testDomain.getTestSubDomainListWithElements().get(0).getEncryptedInSubDomain());
-        assertEquals("Encrypted-String", ((PolymorphicSubdomain1) testDomain.getPolymorphicSubDomainListWithElements().get(0)).getEncryptedInPolymorphicSubdomain1());
-        assertEquals("Encrypted-String", testDomain.getTestSubDomainMapWithElements().get("Test1").getEncryptedInSubDomain());
-        assertEquals("Encrypted-String", ((PolymorphicSubdomain1) testDomain.getPolymorphicSubDomainMapWithElements().get("Test2")).getEncryptedInPolymorphicSubdomain1());
-
+        assertEquals(
+                "Encrypted-String", testDomain.getEncryptedSubDomainWithValue().getEncryptedInSubDomain());
+        assertEquals(
+                "Encrypted-String",
+                ((PolymorphicSubdomain1) testDomain.getPolymorphicSubDomain()).getEncryptedInPolymorphicSubdomain1());
+        assertEquals(
+                "Encrypted-String",
+                testDomain.getTestSubDomainListWithElements().get(0).getEncryptedInSubDomain());
+        assertEquals(
+                "Encrypted-String",
+                ((PolymorphicSubdomain1) testDomain
+                                .getPolymorphicSubDomainListWithElements()
+                                .get(0))
+                        .getEncryptedInPolymorphicSubdomain1());
+        assertEquals(
+                "Encrypted-String",
+                testDomain.getTestSubDomainMapWithElements().get("Test1").getEncryptedInSubDomain());
+        assertEquals(
+                "Encrypted-String",
+                ((PolymorphicSubdomain1) testDomain
+                                .getPolymorphicSubDomainMapWithElements()
+                                .get("Test2"))
+                        .getEncryptedInPolymorphicSubdomain1());
     }
 
     @Test
@@ -179,16 +202,17 @@ public class EncryptionHandlerTest {
         testDomain.setSet(new HashSet<>());
 
         boolean b = encryptionHandler.convertEncryption(testDomain, "Encrypted-"::concat);
-        assertTrue(b); //First time field will be detected as APPSMITH_COLLECTION_UNKNOWN
+        assertTrue(b); // First time field will be detected as APPSMITH_COLLECTION_UNKNOWN
 
-        AppsmithTestSubDomainWithoutEncryption testSubDomainWithoutEncryption = new AppsmithTestSubDomainWithoutEncryption();
+        AppsmithTestSubDomainWithoutEncryption testSubDomainWithoutEncryption =
+                new AppsmithTestSubDomainWithoutEncryption();
         testSubDomainWithoutEncryption.setNotEncryptedInSubDomain("String");
 
         testDomain.setSet(new HashSet<>());
         testDomain.getSet().add(testSubDomainWithoutEncryption);
 
         b = encryptionHandler.convertEncryption(testDomain, "Encrypted-"::concat);
-        assertFalse(b); //Second time field will be removed from cache but returns true
+        assertFalse(b); // Second time field will be removed from cache but returns true
     }
 
     @Test
@@ -197,7 +221,8 @@ public class EncryptionHandlerTest {
 
         TestDomainWithSet testDomain = new TestDomainWithSet();
 
-        AppsmithTestSubDomainWithoutEncryption testSubDomainWithoutEncryption = new AppsmithTestSubDomainWithoutEncryption();
+        AppsmithTestSubDomainWithoutEncryption testSubDomainWithoutEncryption =
+                new AppsmithTestSubDomainWithoutEncryption();
         testSubDomainWithoutEncryption.setNotEncryptedInSubDomain("String");
 
         testDomain.setSet(new HashSet<>());
@@ -212,8 +237,7 @@ public class EncryptionHandlerTest {
     static class TestDomain implements AppsmithDomain {
 
         // For an annotated field, we should straight up recognize this as an encrypted type
-        @Encrypted
-        String encryptedInDomain;
+        @Encrypted String encryptedInDomain;
 
         // For non-Appsmith types that are not annotated, we should skip the fields
         String notEncrypted;
@@ -236,7 +260,8 @@ public class EncryptionHandlerTest {
         // For lists of Appsmith types that have encrypted fields, we should recognize it as a known list
         List<TestSubDomain> testSubDomainListWithElements;
 
-        // For lists of Appsmith types (polymorphic or not) that do not have any elements, we should recognize it as unknown list types
+        // For lists of Appsmith types (polymorphic or not) that do not have any elements, we should recognize it as
+        // unknown list types
         List<PolymorphicSubDomain> polymorphicSubDomainListWithoutElements;
 
         // For lists of polymorphic Appsmith types that have elements, we should recognize it as polymorphic list types
@@ -248,7 +273,8 @@ public class EncryptionHandlerTest {
         // For maps of Appsmith types that have encrypted fields, we should recognize it as a known map
         Map<String, TestSubDomain> testSubDomainMapWithElements;
 
-        // For maps of Appsmith types (polymorphic or not) that do not have any elements, we should recognize it as unknown map types
+        // For maps of Appsmith types (polymorphic or not) that do not have any elements, we should recognize it as
+        // unknown map types
         Map<String, PolymorphicSubDomain> polymorphicSubDomainMapWithoutElements;
 
         // For maps of polymorphic Appsmith types that have elements, we should recognize it as polymorphic map types
@@ -271,7 +297,7 @@ public class EncryptionHandlerTest {
     @Getter
     @Setter
     static class TestDomainWithSet implements AppsmithDomain {
-        //this list will be created innitially empty
+        // this list will be created innitially empty
         Set<AppsmithTestSubDomainWithoutEncryption> set;
     }
 
@@ -285,18 +311,15 @@ public class EncryptionHandlerTest {
     @Setter
     static class TestSubDomain implements AppsmithDomain {
 
-        @Encrypted
-        String encryptedInSubDomain;
+        @Encrypted String encryptedInSubDomain;
     }
 
-    static abstract class PolymorphicSubDomain implements AppsmithDomain {
-    }
+    abstract static class PolymorphicSubDomain implements AppsmithDomain {}
 
     @Getter
     @Setter
     static class PolymorphicSubdomain1 extends PolymorphicSubDomain {
 
-        @Encrypted
-        String encryptedInPolymorphicSubdomain1;
+        @Encrypted String encryptedInPolymorphicSubdomain1;
     }
 }

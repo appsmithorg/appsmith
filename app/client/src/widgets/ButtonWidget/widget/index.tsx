@@ -12,17 +12,25 @@ import {
 } from "components/constants";
 import type { ExecutionResult } from "constants/AppsmithActionConstants/ActionConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import type { WidgetType } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
-import type { Stylesheet } from "entities/AppTheming";
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import React from "react";
-import type { DerivedPropertiesMap } from "utils/WidgetFactory";
+import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
 import ButtonComponent, { ButtonType } from "../component";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
-import type { AutocompletionDefinitions } from "widgets/constants";
+import type { AutocompletionDefinitions } from "WidgetProvider/constants";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
+import { BUTTON_MIN_WIDTH } from "constants/minWidthConstants";
+import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
+import IconSVG from "../icon.svg";
+
+import type {
+  PropertyUpdates,
+  SnipingModeProperty,
+} from "WidgetProvider/constants";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
 
 class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
   onButtonClickBound: (event: React.MouseEvent<HTMLElement>) => void;
@@ -33,6 +41,83 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
     this.clickWithRecaptchaBound = this.clickWithRecaptcha.bind(this);
     this.state = {
       isLoading: false,
+    };
+  }
+
+  static type = "BUTTON_WIDGET";
+
+  static getConfig() {
+    return {
+      name: "Button",
+      iconSVG: IconSVG,
+      tags: [WIDGET_TAGS.BUTTONS],
+      needsMeta: true,
+      searchTags: ["click", "submit"],
+    };
+  }
+
+  static getDefaults() {
+    return {
+      animateLoading: true,
+      text: "Submit",
+      buttonVariant: ButtonVariantTypes.PRIMARY,
+      placement: ButtonPlacementTypes.CENTER,
+      rows: 4,
+      columns: 16,
+      widgetName: "Button",
+      isDisabled: false,
+      isVisible: true,
+      isDefaultClickDisabled: true,
+      disabledWhenInvalid: false,
+      resetFormOnClick: false,
+      recaptchaType: RecaptchaTypes.V3,
+      version: 1,
+      responsiveBehavior: ResponsiveBehavior.Hug,
+      minWidth: BUTTON_MIN_WIDTH,
+    };
+  }
+
+  static getMethods() {
+    return {
+      getSnipingModeUpdates: (
+        propValueMap: SnipingModeProperty,
+      ): PropertyUpdates[] => {
+        return [
+          {
+            propertyPath: "onClick",
+            propertyValue: propValueMap.run,
+            isDynamicPropertyPath: true,
+          },
+        ];
+      },
+    };
+  }
+
+  static getAutoLayoutConfig() {
+    return {
+      defaults: {
+        rows: 4,
+        columns: 6.453,
+      },
+      autoDimension: {
+        width: true,
+      },
+      widgetSize: [
+        {
+          viewportMinWidth: 0,
+          configuration: () => {
+            return {
+              minWidth: "120px",
+              maxWidth: "360px",
+              minHeight: "40px",
+            };
+          },
+        },
+      ],
+      disableResizeHandles: {
+        horizontal: true,
+        vertical: true,
+      },
     };
   }
 
@@ -201,6 +286,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
             propertyName: "buttonVariant",
             label: "Button variant",
             controlType: "ICON_TABS",
+            defaultValue: ButtonVariantTypes.PRIMARY,
             fullWidth: true,
             helpText: "Sets the variant of the icon button",
             options: [
@@ -269,6 +355,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
             label: "Position",
             helpText: "Sets the icon alignment of the button",
             controlType: "ICON_TABS",
+            defaultValue: "left",
             fullWidth: false,
             options: [
               {
@@ -442,7 +529,30 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
     }
   };
 
-  getPageView() {
+  static getSetterConfig(): SetterConfig {
+    return {
+      __setters: {
+        setVisibility: {
+          path: "isVisible",
+          type: "boolean",
+        },
+        setDisabled: {
+          path: "isDisabled",
+          type: "boolean",
+        },
+        setLabel: {
+          path: "text",
+          type: "string",
+        },
+        setColor: {
+          path: "buttonColor",
+          type: "string",
+        },
+      },
+    };
+  }
+
+  getWidgetView() {
     const disabled =
       this.props.disabledWhenInvalid &&
       "isFormValid" in this.props &&
@@ -462,9 +572,13 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
         isDisabled={isDisabled}
         isLoading={this.props.isLoading || this.state.isLoading}
         key={this.props.widgetId}
+        maxWidth={this.props.maxWidth}
+        minHeight={this.props.minHeight}
+        minWidth={this.props.minWidth}
         onClick={this.hasOnClickAction() ? this.onButtonClickBound : undefined}
         placement={this.props.placement}
         recaptchaType={this.props.recaptchaType}
+        shouldFitContent={this.isAutoLayoutMode}
         text={this.props.text}
         tooltip={this.props.tooltip}
         type={this.props.buttonType || ButtonType.BUTTON}
@@ -472,10 +586,6 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
         widgetName={this.props.widgetName}
       />
     );
-  }
-
-  static getWidgetType(): WidgetType {
-    return "BUTTON_WIDGET";
   }
 }
 

@@ -9,5 +9,4 @@ import java.util.List;
 public interface ProviderServiceCE extends CrudService<Provider, String> {
 
     public Mono<List<String>> getAllCategories();
-
 }

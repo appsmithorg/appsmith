@@ -10,7 +10,5 @@ import lombok.Setter;
 @NoArgsConstructor
 public class ApplicationAccessDTO {
 
-    @NotNull
-    Boolean publicAccess;
-
+    @NotNull Boolean publicAccess;
 }

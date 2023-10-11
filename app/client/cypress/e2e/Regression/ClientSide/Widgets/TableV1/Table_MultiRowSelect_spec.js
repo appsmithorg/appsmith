@@ -1,12 +1,13 @@
 const widgetsPage = require("../../../../../locators/Widgets.json");
-const dsl = require("../../../../../fixtures/tableNewDsl.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Table Widget row multi select validation", function () {
   before(() => {
-    cy.addDsl(dsl);
+    _.agHelper.AddDsl("tableNewDsl");
   });
-  it("Test multi select column shows when enable Multirowselection is true", function () {
+
+  it("1. Test multi select column shows when enable Multirowselection is true", function () {
     cy.openPropertyPane("tablewidget");
     cy.get(widgetsPage.toggleEnableMultirowselection_tablev1)
       .first()
@@ -23,11 +24,11 @@ describe("Table Widget row multi select validation", function () {
     // un-select all rows
     cy.get(".t--table-multiselect-header").first().click({ force: true });
     // click on first row select box
-    cy.get(".t--table-multiselect").first().click({ force: true });
+    cy.get(".t--table-multiselect").first().click({ force: true }).wait(500);
     // check if header cell is in half check state
     cy.get(".t--table-multiselect-header-half-check-svg").should("be.visible");
   });
-  it("Test action configured on onRowSelected get triggered whenever a table row is selected", function () {
+  it("2. Test action configured on onRowSelected get triggered whenever a table row is selected", function () {
     cy.openPropertyPane("tablewidget");
     cy.getAlert("onRowSelected", "Row Selected");
     // un select first row
@@ -38,7 +39,7 @@ describe("Table Widget row multi select validation", function () {
     cy.get(commonlocators.toastmsg).contains("Row Selected");
   });
 
-  it("It should deselected default Selected Row when the header cell is clicked", () => {
+  it("3. It should deselected default Selected Row when the header cell is clicked", () => {
     cy.openPropertyPane("tablewidget");
     cy.testJsontext("defaultselectedrow", 0);
 

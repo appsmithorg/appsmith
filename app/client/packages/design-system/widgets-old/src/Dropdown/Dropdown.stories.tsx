@@ -1,15 +1,15 @@
-import React from "react";
+import * as React from "react";
 import type { ComponentMeta, ComponentStory } from "@storybook/react";
 
-import { default as Dropdown } from "./index";
+import { Dropdown } from "@design-system/widgets-old";
 
 export default {
-  title: "Design System/widgets-old/Dropdown",
+  title: "Design System/Widgets-old/Dropdown",
   component: Dropdown,
 } as ComponentMeta<typeof Dropdown>;
 
 // eslint-disable-next-line react/function-component-definition
-const Template: ComponentStory<typeof Dropdown> = (args: any) => {
+const Template: ComponentStory<typeof Dropdown> = (args) => {
   return <Dropdown {...args} />;
 };
 
@@ -38,7 +38,7 @@ DropdownExample.args = {
   isMultiSelect: true,
   // eslint-disable-next-line no-console
   onSelect: () => console.log("selected"),
-  options: options,
-  selected: selected,
+  options,
+  selected,
   showLabelOnly: true,
 };

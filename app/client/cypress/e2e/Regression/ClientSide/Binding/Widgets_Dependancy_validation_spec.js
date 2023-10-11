@@ -1,11 +1,15 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
-const dsl = require("../../../../fixtures/MultipleInput.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const testdata = require("../../../../fixtures/testdata.json");
+import {
+  entityExplorer,
+  agHelper,
+  deployMode,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Binding the multiple input Widget", function () {
   before(() => {
-    cy.addDsl(dsl);
+    agHelper.AddDsl("MultipleInput");
   });
 
   Cypress.on("uncaught:exception", (err, runnable) => {
@@ -15,7 +19,7 @@ describe("Binding the multiple input Widget", function () {
   });
 
   it("1. Cyclic depedancy error message validation", function () {
-    cy.openPropertyPane("inputwidgetv2");
+    entityExplorer.SelectEntityByName("Input1");
     cy.testJsontext("defaultvalue", testdata.defaultMoustacheData + "}}");
 
     cy.wait("@updateLayout").should(
@@ -27,7 +31,7 @@ describe("Binding the multiple input Widget", function () {
   });
 
   it("2. Binding input widget1 and validating", function () {
-    cy.openPropertyPane("inputwidgetv2");
+    entityExplorer.SelectEntityByName("Input1");
     cy.testJsontext("defaultvalue", testdata.defaultdata);
 
     cy.wait("@updateLayout").should(
@@ -53,7 +57,7 @@ describe("Binding the multiple input Widget", function () {
     cy.xpath(testdata.input2)
       .invoke("attr", "value")
       .should("contain", testdata.defaultdata);
-    cy.PublishtheApp();
+    deployMode.DeployApp();
     cy.get(publish.inputWidget + " " + "input")
       .first()
       .invoke("attr", "value")
@@ -61,7 +65,7 @@ describe("Binding the multiple input Widget", function () {
     cy.xpath(testdata.input2)
       .invoke("attr", "value")
       .should("contain", testdata.defaultdata);
-    cy.get(publish.backToEditor).click();
+    deployMode.NavigateBacktoEditor();
   });
 
   it("4. Binding third input widget with first input widget and validating", function () {
@@ -74,7 +78,7 @@ describe("Binding the multiple input Widget", function () {
       "response.body.responseMeta.status",
       200,
     );
-    cy.PublishtheApp();
+    deployMode.DeployApp();
     cy.get(publish.inputWidget + " " + "input")
       .first()
       .invoke("attr", "value")

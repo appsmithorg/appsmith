@@ -1,6 +1,7 @@
 import { RenderModes } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import type { CanvasWidgetsReduxState } from "../reducers/entityReducers/canvasWidgetsReducer";
 import { AutocompleteDataType } from "./autocomplete/AutocompleteDataType";
 import {
   flattenObject,
@@ -13,7 +14,7 @@ import {
   pushToArray,
   concatWithArray,
 } from "./helpers";
-import WidgetFactory from "./WidgetFactory";
+import WidgetFactory from "../WidgetProvider/factory";
 import * as Sentry from "@sentry/react";
 import { Colors } from "constants/Colors";
 
@@ -550,20 +551,30 @@ describe("#captureInvalidDynamicBindingPath", () => {
 
 describe("#extractColorsFromString", () => {
   it("Check if the extractColorsFromString returns rgb, rgb, hex color strings", () => {
-    const borderWithHex = `2px solid ${Colors.GREEN}`;
-    const borderWithRgb = "2px solid rgb(0,0,0)";
-    const borderWithRgba = `2px solid ${Colors.BOX_SHADOW_DEFAULT_VARIANT1}`;
+    const widgets = {
+      0: { color: `${Colors.GREEN}` },
+      1: { color: "rgb(0,0,0)" },
+      2: { color: `${Colors.BOX_SHADOW_DEFAULT_VARIANT1}` },
+      3: { color: `LightGoldenrodYellow` },
+      4: { color: `lch(54.292% 106.839 40.853)` },
+    } as unknown as CanvasWidgetsReduxState;
 
     //Check Hex value
-    expect(extractColorsFromString(borderWithHex)[0]).toEqual("#03b365");
-
-    //Check rgba value
-    expect(extractColorsFromString(borderWithRgba)[0]).toEqual(
-      "rgba(0, 0, 0, 0.25)",
-    );
+    expect(extractColorsFromString(widgets)[0]).toEqual("#03B365");
 
     //Check rgb
-    expect(extractColorsFromString(borderWithRgb)[0]).toEqual("rgb(0,0,0)");
+    expect(extractColorsFromString(widgets)[1]).toEqual("rgb(0,0,0)");
+
+    //Check rgba value
+    expect(extractColorsFromString(widgets)[2]).toEqual("rgba(0, 0, 0, 0.25)");
+
+    //Check name value
+    expect(extractColorsFromString(widgets)[3]).toEqual("LightGoldenrodYellow");
+
+    //Check lch value
+    expect(extractColorsFromString(widgets)[4]).toEqual(
+      "lch(54.292% 106.839 40.853)",
+    );
   });
 });
 

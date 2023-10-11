@@ -9,6 +9,7 @@ import {
 import {
   all,
   call,
+  fork,
   put,
   race,
   select,
@@ -16,7 +17,7 @@ import {
   takeEvery,
   takeLatest,
 } from "redux-saga/effects";
-import type { Datasource } from "entities/Datasource";
+import type { Datasource, DatasourceStructure } from "entities/Datasource";
 import type { ActionCreateUpdateResponse } from "api/ActionAPI";
 import ActionAPI from "api/ActionAPI";
 import type { ApiResponse } from "api/ApiResponses";
@@ -43,12 +44,13 @@ import {
 import { getDynamicBindingsChangesSaga } from "utils/DynamicBindingUtils";
 import { validateResponse } from "./ErrorSagas";
 import { transformRestAction } from "transformers/RestActionTransformer";
-import { getActionById, getCurrentPageId } from "selectors/editorSelectors";
-import type { EventLocation } from "utils/AnalyticsUtil";
+import { getCurrentPageId } from "selectors/editorSelectors";
+import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import type {
   Action,
   ActionViewMode,
+  ApiAction,
   ApiActionConfig,
   SlashCommandPayload,
 } from "entities/Action";
@@ -62,18 +64,19 @@ import {
 import type {
   ActionData,
   ActionDataState,
-} from "reducers/entityReducers/actionsReducer";
+} from "@appsmith/reducers/entityReducers/actionsReducer";
 import {
   getAction,
   getActions,
   getCurrentPageNameByActionId,
   getDatasource,
+  getDatasourceStructureById,
   getDatasources,
   getEditorConfig,
   getPageNameByPageId,
   getPlugin,
   getSettingConfig,
-} from "selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import history from "utils/history";
 import { INTEGRATION_TABS } from "constants/routes";
 import PerformanceTracker, {
@@ -87,7 +90,7 @@ import {
   ERROR_ACTION_MOVE_FAIL,
   ERROR_ACTION_RENAME_FAIL,
 } from "@appsmith/constants/messages";
-import { get, merge } from "lodash";
+import { get, isEmpty, merge } from "lodash";
 import {
   fixActionPayloadForMongoQuery,
   getConfigInitialValues,
@@ -99,23 +102,7 @@ import {
   createNewApiAction,
   createNewQueryAction,
 } from "actions/apiPaneActions";
-import { getQueryParams } from "utils/URLUtils";
-import {
-  setGlobalSearchCategory,
-  setGlobalSearchFilterContext,
-} from "actions/globalSearchActions";
-import {
-  filterCategories,
-  SEARCH_CATEGORY_ID,
-} from "components/editorComponents/GlobalSearch/utils";
-import { getSelectedWidget, getWidgetByID } from "./selectors";
-import {
-  onApiEditor,
-  onQueryEditor,
-} from "components/editorComponents/Debugger/helpers";
 import type { Plugin } from "api/PluginApi";
-import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
-import { SnippetAction } from "reducers/uiReducers/globalSearchReducer";
 import * as log from "loglevel";
 import { shouldBeDefined } from "utils/helpers";
 import {
@@ -125,7 +112,11 @@ import {
   queryEditorIdURL,
   saasEditorApiIdURL,
 } from "RouteBuilder";
-import { checkAndLogErrorsIfCyclicDependency } from "./helper";
+import {
+  RequestPayloadAnalyticsPath,
+  checkAndLogErrorsIfCyclicDependency,
+  enhanceRequestPayloadWithEventData,
+} from "./helper";
 import { setSnipingMode as setSnipingModeAction } from "actions/propertyPaneActions";
 import { toast } from "design-system";
 import { getFormValues } from "redux-form";
@@ -136,6 +127,11 @@ import {
 import { DEFAULT_GRAPHQL_ACTION_CONFIG } from "constants/ApiEditorConstants/GraphQLEditorConstants";
 import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants/ApiEditorConstants";
 import { createNewApiName, createNewQueryName } from "utils/AppsmithUtils";
+import { fetchDatasourceStructure } from "actions/datasourceActions";
+import { setAIPromptTriggered } from "utils/storage";
+import { getDefaultTemplateActionConfig } from "utils/editorContextUtils";
+import { sendAnalyticsEventSaga } from "./AnalyticsSaga";
+import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
 
 export function* createDefaultActionPayload(
   pageId: string,
@@ -169,6 +165,17 @@ export function* createDefaultActionPayload(
       ? createNewQueryName(actions, pageId || "")
       : createNewApiName(actions, pageId || "");
 
+  const dsStructure: DatasourceStructure | undefined = yield select(
+    getDatasourceStructureById,
+    datasource?.id,
+  );
+
+  const defaultActionConfig: any = getDefaultTemplateActionConfig(
+    plugin,
+    dsStructure,
+    datasource?.isMock,
+  );
+
   return {
     name: newActionName,
     pageId,
@@ -185,7 +192,11 @@ export function* createDefaultActionPayload(
       isMock: !!datasource?.isMock,
     },
     actionConfiguration:
-      plugin?.type === PluginType.API ? defaultApiActionConfig : {},
+      plugin?.type === PluginType.API
+        ? defaultApiActionConfig
+        : !!defaultActionConfig
+        ? defaultActionConfig
+        : {},
   };
 }
 
@@ -256,12 +267,28 @@ export function* createActionSaga(
       const newAction = response.data;
       // @ts-expect-error: type mismatch ActionCreateUpdateResponse vs Action
       yield put(createActionSuccess(newAction));
+
+      // we fork to prevent the call from blocking
+      yield fork(fetchActionDatasourceStructure, newAction);
     }
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.CREATE_ACTION_ERROR,
       payload: actionPayload.payload,
     });
+  }
+}
+
+function* fetchActionDatasourceStructure(action: ActionCreateUpdateResponse) {
+  if (action.datasource?.id) {
+    const doesDatasourceStructureAlreadyExist: DatasourceStructure =
+      yield select(getDatasourceStructureById, action.datasource.id);
+    if (doesDatasourceStructureAlreadyExist) {
+      return;
+    }
+    yield put(fetchDatasourceStructure(action.datasource.id, true));
+  } else {
+    return;
   }
 }
 
@@ -379,19 +406,39 @@ export function* fetchActionsForPageSaga(
   }
 }
 
-export function* updateActionSaga(
-  actionPayload: ReduxAction<{ id: string; action?: Action }>,
-) {
+export function* updateActionSaga(actionPayload: ReduxAction<{ id: string }>) {
   try {
     PerformanceTracker.startAsyncTracking(
       PerformanceTransactionName.UPDATE_ACTION_API,
       { actionid: actionPayload.payload.id },
     );
-    let action = actionPayload.payload.action;
-    if (!action) action = yield select(getAction, actionPayload.payload.id);
+
+    let action: Action = yield select(getAction, actionPayload.payload.id);
     if (!action) throw new Error("Could not find action to update");
 
     if (isAPIAction(action)) {
+      // get api action object from redux form
+      const reduxFormApiAction: ApiAction = yield select(
+        getFormValues(API_EDITOR_FORM_NAME),
+      );
+
+      // run transformation on redux form action's headers, bodyformData and queryParameters.
+      // the reason we do this is because the transformation should only be done on the raw action data from the redux form.
+      // However sometimes when we attempt to save an API as a datasource, we update the Apiaction with the datasource information and the redux form data will not be available i.e. reduxFormApiAction = undefined
+      // In this scenario we can just default to the action object - (skip the if block below).
+      if (!isEmpty(reduxFormApiAction)) {
+        action = {
+          ...action,
+          actionConfiguration: {
+            ...action.actionConfiguration,
+            headers: reduxFormApiAction.actionConfiguration.headers,
+            bodyFormData: reduxFormApiAction.actionConfiguration.bodyFormData,
+            queryParameters:
+              reduxFormApiAction.actionConfiguration.queryParameters,
+          },
+        };
+      }
+
       action = transformRestAction(action);
     }
 
@@ -401,10 +448,7 @@ export function* updateActionSaga(
       // @ts-expect-error: Types are not available
       action = fixActionPayloadForMongoQuery(action);
     }
-    const response: ApiResponse<Action> = yield ActionAPI.updateAction(
-      // @ts-expect-error: Types are not available
-      action,
-    );
+    const response: ApiResponse<Action> = yield ActionAPI.updateAction(action);
 
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
@@ -413,24 +457,10 @@ export function* updateActionSaga(
         response.data.id,
       );
 
-      if (action?.pluginType === PluginType.DB) {
-        AnalyticsUtil.logEvent("SAVE_QUERY", {
-          queryName: action.name,
-          pageName,
-        });
-      } else if (action?.pluginType === PluginType.API) {
-        AnalyticsUtil.logEvent("SAVE_API", {
-          apiId: response.data.id,
-          apiName: response.data.name,
-          pageName: pageName,
-        });
-      } else if (action?.pluginType === PluginType.SAAS) {
-        AnalyticsUtil.logEvent("SAVE_SAAS", {
-          apiId: response.data.id,
-          apiName: response.data.name,
-          pageName: pageName,
-        });
-      }
+      yield sendAnalyticsEventSaga(actionPayload.type, {
+        action,
+        pageName,
+      });
 
       PerformanceTracker.stopAsyncTracking(
         PerformanceTransactionName.UPDATE_ACTION_API,
@@ -595,14 +625,21 @@ function* moveActionSaga(
 function* copyActionSaga(
   action: ReduxAction<{ id: string; destinationPageId: string; name: string }>,
 ) {
-  const actionObject: Action = yield select(getAction, action.payload.id);
+  let actionObject: Action = yield select(getAction, action.payload.id);
   try {
     if (!actionObject) throw new Error("Could not find action to copy");
+    // At this point the actionObject.id will be the id of the action to be copied
+    // We enhance the payload with eventData to track the action being copied
+    actionObject = enhanceRequestPayloadWithEventData(
+      actionObject,
+      action.type,
+    ) as Action;
 
     const copyAction = Object.assign({}, actionObject, {
       name: action.payload.name,
       pageId: action.payload.destinationPageId,
     }) as Partial<Action>;
+
     delete copyAction.id;
     const response: ApiResponse<ActionCreateUpdateResponse> =
       yield ActionAPI.createAction(copyAction);
@@ -621,25 +658,33 @@ function* copyActionSaga(
           kind: "success",
         },
       );
-    }
 
-    AnalyticsUtil.logEvent("DUPLICATE_API", {
-      // @ts-expect-error: name not present on ActionCreateUpdateResponse
-      apiName: response.data.name,
-      pageName: pageName,
-      apiID: response.data.id,
-    });
+      // At this point the `actionObject.id` will not exist
+      // So we need to get the originalActionId from the payload
+      // if the eventData in the actionObject doesn't exist
+      const originalActionId = get(
+        actionObject,
+        `${RequestPayloadAnalyticsPath}.originalActionId`,
+        action.payload.id,
+      );
+      AnalyticsUtil.logEvent("DUPLICATE_ACTION", {
+        // @ts-expect-error: name not present on ActionCreateUpdateResponse
+        actionName: response.data.name,
+        pageName: pageName,
+        actionId: response.data.id,
+        originalActionId,
+        actionType: actionObject.pluginType,
+      });
+    }
 
     // checking if there is existing datasource to be added to the action payload
     const existingDatasource = datasources.find(
-      // @ts-expect-error: datasource not present on ActionCreateUpdateResponse
       (d: Datasource) => d.id === response.data.datasource.id,
     );
 
     let payload = response.data;
 
     if (existingDatasource) {
-      // @ts-expect-error: datasource not present on ActionCreateUpdateResponse
       payload = { ...payload, datasource: existingDatasource };
     }
 
@@ -894,137 +939,10 @@ function* handleMoveOrCopySaga(actionPayload: ReduxAction<{ id: string }>) {
   }
 }
 
-function* buildMetaForSnippets(
-  entityId: any,
-  entityType: string,
-  expectedType: string,
-  propertyPath: string,
-) {
-  /*
-    Score is set to sort the snippets in the following order.
-      1. Field (10)
-      2. Entity + (All Queries / All Widgets) +Data Type (9)
-      3. Entity + Data Type (8)
-      4. Entity (5)
-      5. All Queries / All Widgets + Data Type (4)
-      6. All Queries / All Widgets 1
-  */
-  /*
-  UNKNOWN is given priority over other non matching dataTypes.
-  Eg. If there are no snippets matching a dataType criteria, we are promote snippets of type UNKNOWN
- */
-  const refinements: any = {
-    entities: [entityType],
-  };
-  const fieldMeta: {
-    dataType: Array<string>;
-    fields?: Array<string>;
-    entities?: Array<string>;
-  } = {
-    dataType: [`${expectedType}<score=3>`, `UNKNOWN<score=1>`],
-  };
-  if (propertyPath) {
-    const relevantField = propertyPath.split(".").slice(-1).pop();
-    fieldMeta.fields = [`${relevantField}<score=10>`];
-  }
-  if (entityType === ENTITY_TYPE.ACTION && entityId) {
-    const currentEntity: Action = yield select(getActionById, {
-      match: { params: { apiId: entityId } },
-    });
-    const plugin: Plugin = yield select(getPlugin, currentEntity.pluginId);
-    const type: string = plugin.packageName || "";
-    refinements.entities = [type, entityType];
-    fieldMeta.entities = [`${type}<score=5>`, `${entityType}<score=1>`];
-  }
-  if (entityType === ENTITY_TYPE.WIDGET && entityId) {
-    const currentEntity: FlattenedWidgetProps = yield select(
-      getWidgetByID(entityId),
-    );
-    const type: string = currentEntity.type || "";
-    refinements.entities = [type, entityType];
-    fieldMeta.entities = [`${type}<score=5>`, `${entityType}<score=1>`];
-  }
-  return { refinements, fieldMeta };
-}
-
-export function* getCurrentEntity(
-  pageId: string,
-  params: Record<string, string>,
-) {
-  let entityId = "",
-    entityType = "";
-  if (onApiEditor() || onQueryEditor()) {
-    const id = params.apiId || params.queryId;
-    const action: Action = yield select(getAction, id);
-    entityId = action?.id;
-    entityType = ENTITY_TYPE.ACTION;
-  } else {
-    const widget: FlattenedWidgetProps = yield select(getSelectedWidget);
-    entityId = widget?.widgetId;
-    entityType = ENTITY_TYPE.WIDGET;
-  }
-  return { entityId, entityType };
-}
-
 function* executeCommandSaga(actionPayload: ReduxAction<SlashCommandPayload>) {
   const pageId: string = yield select(getCurrentPageId);
   const callback = get(actionPayload, "payload.callback");
-  const params = getQueryParams();
   switch (actionPayload.payload.actionType) {
-    case SlashCommand.NEW_SNIPPET:
-      let { entityId, entityType } = get(actionPayload, "payload.args", {});
-      const { expectedType, propertyPath } = get(
-        actionPayload,
-        "payload.args",
-        {},
-      );
-      // Entity is derived using the dataTreePath property.
-      // Fallback to find current entity when dataTreePath property value is empty (Eg. trigger fields)
-      if (!entityId) {
-        const currentEntity: {
-          entityId: string;
-          entityType: string;
-        } = yield getCurrentEntity(pageId, params);
-        entityId = currentEntity.entityId;
-        entityType = currentEntity.entityType;
-      }
-
-      const { fieldMeta, refinements } = yield buildMetaForSnippets(
-        entityId,
-        entityType,
-        expectedType,
-        propertyPath,
-      );
-      yield put(
-        setGlobalSearchFilterContext({
-          refinements,
-          fieldMeta,
-        }),
-      );
-
-      yield put(
-        setGlobalSearchCategory(filterCategories[SEARCH_CATEGORY_ID.SNIPPETS]),
-      );
-      yield put(
-        setGlobalSearchFilterContext({
-          onEnter:
-            typeof callback === "function"
-              ? SnippetAction.INSERT
-              : SnippetAction.COPY, //Set insertSnippet to true only if values
-          hideOuterBindings: entityType === ENTITY_TYPE.JSACTION,
-        }),
-      );
-      AnalyticsUtil.logEvent("SNIPPET_LOOKUP", {
-        source:
-          typeof callback === "function" ? "SLASH_COMMAND" : "SNIPPET_BUTTON",
-      });
-      const effectRaceResult: { failure: any; success: any } = yield race({
-        failure: take(ReduxActionTypes.CANCEL_SNIPPET),
-        success: take(ReduxActionTypes.INSERT_SNIPPET),
-      });
-      if (effectRaceResult.failure) return;
-      if (callback) callback(effectRaceResult.success.payload);
-      break;
     case SlashCommand.NEW_INTEGRATION:
       history.push(
         integrationEditorURL({
@@ -1048,6 +966,31 @@ function* executeCommandSaga(actionPayload: ReduxAction<SlashCommandPayload>) {
       break;
     case SlashCommand.ASK_AI: {
       const context = get(actionPayload, "payload.args", {});
+      const isJavascriptMode = context.mode === EditorModes.TEXT_WITH_BINDING;
+
+      const noOfTimesAIPromptTriggered: number = yield select(
+        (state) => state.ai.noOfTimesAITriggered,
+      );
+
+      const noOfTimesAIPromptTriggeredForQuery: number = yield select(
+        (state) => state.ai.noOfTimesAITriggeredForQuery,
+      );
+
+      const triggerCount = isJavascriptMode
+        ? noOfTimesAIPromptTriggered
+        : noOfTimesAIPromptTriggeredForQuery;
+
+      if (triggerCount < 5) {
+        const currentValue: number = yield setAIPromptTriggered(context.mode);
+        yield put({
+          type: ReduxActionTypes.UPDATE_AI_TRIGGERED,
+          payload: {
+            value: currentValue,
+            mode: context.mode,
+          },
+        });
+      }
+
       yield put({
         type: ReduxActionTypes.TOGGLE_AI_WINDOW,
         payload: {

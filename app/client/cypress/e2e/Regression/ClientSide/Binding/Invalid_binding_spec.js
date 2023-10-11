@@ -1,17 +1,22 @@
-const dsl = require("../../../../fixtures/Invalid_binding_dsl.json");
 const testdata = require("../../../../fixtures/testdata.json");
+import {
+  entityExplorer,
+  agHelper,
+  propPane,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Binding the multiple widgets and validating default data", function () {
   before(() => {
-    cy.addDsl(dsl);
+    agHelper.AddDsl("Invalid_binding_dsl");
   });
 
   it("1. Dropdown widget test with invalid binding value", function () {
-    cy.openPropertyPane("selectwidget");
-    cy.testJsontext("options", JSON.stringify(testdata.defaultdataBinding));
+    entityExplorer.SelectEntityByName("Dropdown1");
+    propPane.ToggleJSMode("sourcedata");
+    cy.testJsontext("sourcedata", JSON.stringify(testdata.defaultdataBinding));
     cy.evaluateErrorMessage(testdata.dropdownErrorMsg);
     //Table widget test with invalid binding value
-    cy.openPropertyPane("tablewidget");
+    entityExplorer.SelectEntityByName("Table1");
     cy.testJsontext("tabledata", JSON.stringify(testdata.defaultdataBinding));
     cy.evaluateErrorMessage(testdata.tableWidgetErrorMsg);
   });

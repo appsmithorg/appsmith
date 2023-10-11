@@ -3,7 +3,9 @@ package com.appsmith.server.repositories;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.services.WorkspaceService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +37,14 @@ public class CacheableRepositoryTest {
     @Autowired
     UserRepository userRepository;
 
+    @Autowired
+    UserUtils userUtils;
+
+    @BeforeEach()
+    public void setup() {
+        User api_user = userRepository.findByEmail("api_user").block();
+        userUtils.makeSuperUser(List.of(api_user)).block();
+    }
 
     @Test
     @WithUserDetails(value = "api_user")
@@ -46,8 +56,14 @@ public class CacheableRepositoryTest {
         workspace.setName("getUserPermissionsTest_onPermissionGroupDelete_valid Workspace");
         Workspace createdWorkspace = workspaceService.create(workspace).block();
 
-        List<PermissionGroup> defaultPermissionGroups = permissionGroupRepository.findAllById(createdWorkspace.getDefaultPermissionGroups()).collectList().block();
-        PermissionGroup adminPg = defaultPermissionGroups.stream().filter(pg -> pg.getName().startsWith(ADMINISTRATOR)).findFirst().get();
+        List<PermissionGroup> defaultPermissionGroups = permissionGroupRepository
+                .findAllById(createdWorkspace.getDefaultPermissionGroups())
+                .collectList()
+                .block();
+        PermissionGroup adminPg = defaultPermissionGroups.stream()
+                .filter(pg -> pg.getName().startsWith(ADMINISTRATOR))
+                .findFirst()
+                .get();
 
         Mono<Set<String>> permissionGroupsOfUserMono = cacheableRepositoryHelper.getPermissionGroupsOfUser(api_user);
 
@@ -61,7 +77,8 @@ public class CacheableRepositoryTest {
         // Now delete the workspace and assert that user permission groups does not contain the admin pg
         workspaceService.archiveById(createdWorkspace.getId()).block();
 
-        Set<String> userPermissionGroupsPostWorkspaceDelete = cacheableRepositoryHelper.getPermissionGroupsOfUser(api_user).block();
+        Set<String> userPermissionGroupsPostWorkspaceDelete =
+                cacheableRepositoryHelper.getPermissionGroupsOfUser(api_user).block();
         assertThat(userPermissionGroupsPostWorkspaceDelete).doesNotContain(adminPg.getId());
     }
 }

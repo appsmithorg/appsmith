@@ -7,14 +7,13 @@ const api1 = "API1";
 
 describe("Canvas context widget selection", function () {
   before(() => {
-    cy.addDsl(dsl);
+    _.agHelper.AddDsl("editorContextdsl");
     cy.Createpage(page2);
     cy.dragAndDropToCanvas("textwidget", { x: 300, y: 200 });
     _.entityExplorer.SelectEntityByName(page1, "Pages");
     cy.CreateAPI(api1);
     _.agHelper.Sleep(2000); // adding wait for page to load
     _.entityExplorer.NavigateToSwitcher("Widgets");
-    _.agHelper.RefreshPage();
   });
 
   beforeEach(() => {
@@ -272,5 +271,41 @@ describe("Canvas context widget selection", function () {
     //verify the tab 2 is open and Button 4 is selected in page1
     cy.get(".is-selected").should("contain", "Tab 2");
     cy.get(".t--property-pane-title").should("contain", "Button4");
+  });
+
+  it("11. Widgets inside modal widget should open when loaded from the URL", function () {
+    //select widget in page1
+    _.entityExplorer.SelectEntityInModal("Modal1", "Widgets");
+
+    //verify the Modal1 is open and Text1 is selected in page1
+    cy.get(`div[data-testid='t--selected']`).should("have.length", 1);
+    cy.get(".t--modal-widget").should("have.length", 1);
+    cy.get(".t--property-pane-title").should("contain", "Text1");
+
+    // Get the current URL
+    cy.url().then((url) => {
+      //switch to page2
+      _.entityExplorer.SelectEntityByName(page2, "Pages");
+
+      //select widget in page2
+      _.entityExplorer.SelectEntityByName("Text1", "Widgets");
+
+      //verify the widget is selected in page2
+      cy.get(`div[data-testid='t--selected']`).should("have.length", 1);
+
+      // open the URL
+      cy.visit(url);
+
+      // wati for the page to load
+      cy.wait(4000);
+
+      //select widget in page1
+      _.entityExplorer.SelectEntityInModal("Modal1", "Widgets");
+
+      //verify the Modal1 is open and Text1 is selected in page1
+      cy.get(`div[data-testid='t--selected']`).should("have.length", 1);
+      cy.get(".t--modal-widget").should("have.length", 1);
+      cy.get(".t--property-pane-title").should("contain", "Text1");
+    });
   });
 });

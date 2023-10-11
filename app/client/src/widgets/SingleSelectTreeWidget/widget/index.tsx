@@ -2,10 +2,10 @@ import { Alignment } from "@blueprintjs/core";
 import { LabelPosition } from "components/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { Layers } from "constants/Layers";
-import type { TextSize, WidgetType } from "constants/WidgetConstants";
+import type { TextSize } from "constants/WidgetConstants";
 import type { ValidationResponse } from "constants/WidgetValidation";
 import { ValidationTypes } from "constants/WidgetValidation";
-import type { Stylesheet } from "entities/AppTheming";
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { isArray } from "lodash";
 import type { DefaultValueType } from "rc-tree-select/lib/interface";
@@ -14,15 +14,22 @@ import React from "react";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
-import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
-import { GRID_DENSITY_MIGRATION_V1, MinimumPopupRows } from "widgets/constants";
+import { isAutoLayout } from "layoutSystems/autolayout/utils/flexWidgetUtils";
+import { MinimumPopupWidthInPercentage } from "WidgetProvider/constants";
 import {
   isAutoHeightEnabledForWidget,
   DefaultAutocompleteDefinitions,
+  isCompactMode,
 } from "widgets/WidgetUtils";
 import SingleSelectTreeComponent from "../component";
 import derivedProperties from "./parseDerivedProperties";
-import type { AutocompletionDefinitions } from "widgets/constants";
+import type { AutocompletionDefinitions } from "WidgetProvider/constants";
+import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
+import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
+import { DynamicHeight } from "utils/WidgetFeatures";
+import IconSVG from "../icon.svg";
+
+import { WIDGET_TAGS, layoutConfigurations } from "constants/WidgetConstants";
 
 function defaultOptionValueValidation(value: unknown): ValidationResponse {
   if (typeof value === "string") return { isValid: true, parsed: value.trim() };
@@ -43,6 +50,97 @@ class SingleSelectTreeWidget extends BaseWidget<
   SingleSelectTreeWidgetProps,
   WidgetState
 > {
+  static type = "SINGLE_SELECT_TREE_WIDGET";
+
+  static getConfig() {
+    return {
+      name: "TreeSelect",
+      searchTags: ["dropdown", "singleselecttree"],
+      iconSVG: IconSVG,
+      tags: [WIDGET_TAGS.SELECT],
+      needsMeta: true,
+    };
+  }
+
+  static getFeatures() {
+    return {
+      dynamicHeight: {
+        sectionIndex: 3,
+        defaultValue: DynamicHeight.FIXED,
+        active: true,
+      },
+    };
+  }
+
+  static getDefaults() {
+    return {
+      rows: 7,
+      columns: 20,
+      animateLoading: true,
+      options: [
+        {
+          label: "Blue",
+          value: "BLUE",
+          children: [
+            {
+              label: "Dark Blue",
+              value: "DARK BLUE",
+            },
+            {
+              label: "Light Blue",
+              value: "LIGHT BLUE",
+            },
+          ],
+        },
+        { label: "Green", value: "GREEN" },
+        { label: "Red", value: "RED" },
+      ],
+      widgetName: "TreeSelect",
+      defaultOptionValue: "BLUE",
+      version: 1,
+      isVisible: true,
+      isRequired: false,
+      isDisabled: false,
+      allowClear: false,
+      expandAll: false,
+      placeholderText: "Select option",
+      labelText: "Label",
+      labelPosition: LabelPosition.Top,
+      labelAlignment: Alignment.LEFT,
+      labelWidth: 5,
+      labelTextSize: "0.875rem",
+      responsiveBehavior: ResponsiveBehavior.Fill,
+      minWidth: FILL_WIDGET_MIN_WIDTH,
+    };
+  }
+
+  static getAutoLayoutConfig() {
+    return {
+      disabledPropsDefaults: {
+        labelPosition: LabelPosition.Top,
+        labelTextSize: "0.875rem",
+      },
+      defaults: {
+        rows: 6.6,
+      },
+      autoDimension: {
+        height: true,
+      },
+      widgetSize: [
+        {
+          viewportMinWidth: 0,
+          configuration: () => {
+            return {
+              minWidth: "160px",
+            };
+          },
+        },
+      ],
+      disableResizeHandles: {
+        vertical: true,
+      },
+    };
+  }
   static getPropertyPaneContentConfig() {
     return [
       {
@@ -159,7 +257,7 @@ class SingleSelectTreeWidget extends BaseWidget<
             propertyName: "labelPosition",
             label: "Position",
             controlType: "ICON_TABS",
-            fullWidth: false,
+            fullWidth: true,
             hidden: isAutoLayout,
             options: [
               { label: "Auto", value: LabelPosition.Auto },
@@ -350,6 +448,21 @@ class SingleSelectTreeWidget extends BaseWidget<
     };
   }
 
+  static getSetterConfig(): SetterConfig {
+    return {
+      __setters: {
+        setDisabled: {
+          path: "isDisabled",
+          type: "boolean",
+        },
+        setRequired: {
+          path: "isRequired",
+          type: "boolean",
+        },
+      },
+    };
+  }
+
   static getPropertyPaneStyleConfig() {
     return [
       {
@@ -490,7 +603,7 @@ class SingleSelectTreeWidget extends BaseWidget<
       },
       isDisabled: "bool",
       isValid: "bool",
-      options: "[$__dropdownOption__$]",
+      options: "[$__dropdrowOptionWithChildren__$]",
     };
   }
 
@@ -528,25 +641,22 @@ class SingleSelectTreeWidget extends BaseWidget<
     }
   }
 
-  getPageView() {
+  getWidgetView() {
     const options = isArray(this.props.options) ? this.props.options : [];
     const isInvalid =
       "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
-    const dropDownWidth = MinimumPopupRows * this.props.parentColumnSpace;
-    const { componentWidth } = this.getComponentDimensions();
+    const dropDownWidth =
+      (MinimumPopupWidthInPercentage / 100) *
+      (this.props.mainCanvasWidth ?? layoutConfigurations.MOBILE.maxWidth);
+    const { componentHeight, componentWidth } = this.props;
+
     return (
       <SingleSelectTreeComponent
         accentColor={this.props.accentColor}
         allowClear={this.props.allowClear}
         borderRadius={this.props.borderRadius}
         boxShadow={this.props.boxShadow}
-        compactMode={
-          !(
-            (this.props.bottomRow - this.props.topRow) /
-              GRID_DENSITY_MIGRATION_V1 >
-            1
-          )
-        }
+        compactMode={isCompactMode(componentHeight)}
         disabled={this.props.isDisabled ?? false}
         dropDownWidth={dropDownWidth}
         dropdownStyle={{
@@ -563,7 +673,7 @@ class SingleSelectTreeWidget extends BaseWidget<
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
         labelTooltip={this.props.labelTooltip}
-        labelWidth={this.getLabelWidth()}
+        labelWidth={this.props.labelComponentWidth}
         loading={this.props.isLoading}
         onChange={this.onOptionChange}
         onDropdownClose={this.onDropdownClose}
@@ -621,10 +731,6 @@ class SingleSelectTreeWidget extends BaseWidget<
       });
     }
   };
-
-  static getWidgetType(): WidgetType {
-    return "SINGLE_SELECT_TREE_WIDGET";
-  }
 }
 
 export interface DropdownOption {
@@ -662,6 +768,7 @@ export interface SingleSelectTreeWidgetProps extends WidgetProps {
   boxShadow?: string;
   accentColor: string;
   isDirty?: boolean;
+  labelComponentWidth?: number;
 }
 
 export default SingleSelectTreeWidget;

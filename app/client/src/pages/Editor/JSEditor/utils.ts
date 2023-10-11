@@ -18,7 +18,7 @@ import {
   NodeTypes,
   SourceType,
 } from "@shared/ast";
-import type { EventLocation } from "utils/AnalyticsUtil";
+import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
 
 export interface JSActionDropdownOption extends DropdownOption {
   data: JSAction | null;
@@ -180,7 +180,6 @@ export const convertJSActionToDropdownOption = (
   label: JSAction.name,
   value: JSAction.id,
   data: JSAction,
-  hasCustomBadge: !!JSAction.actionConfiguration.isAsync,
 });
 
 export const getActionFromJsCollection = (

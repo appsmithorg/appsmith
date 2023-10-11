@@ -1,11 +1,24 @@
 import React from "react";
-import { Tooltip } from "design-system";
+import { Spinner, Tooltip } from "design-system";
 import { isEllipsisActive } from "utils/helpers";
 import { Text, TextType } from "design-system-old";
 import { BranchListItemContainer } from "./BranchListItemContainer";
+import { useSelector } from "react-redux";
+import { getBranchSwitchingDetails } from "selectors/gitSyncSelectors";
+import styled from "styled-components";
+
+const OptionsContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  height: 100%;
+`;
 
 export function RemoteBranchListItem({ branch, className, onClick }: any) {
   const textRef = React.useRef<HTMLSpanElement>(null);
+  const { isSwitchingBranch, switchingToBranch } = useSelector(
+    getBranchSwitchingDetails,
+  );
   return (
     <BranchListItemContainer
       active={false}
@@ -35,6 +48,11 @@ export function RemoteBranchListItem({ branch, className, onClick }: any) {
           {branch}
         </Text>
       </Tooltip>
+      <OptionsContainer>
+        {switchingToBranch === branch && isSwitchingBranch && (
+          <Spinner size="md" />
+        )}
+      </OptionsContainer>
     </BranchListItemContainer>
   );
 }

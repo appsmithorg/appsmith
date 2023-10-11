@@ -12,8 +12,22 @@
         {
           "label": "Collection",
           "configProperty": "actionConfiguration.formData.collection.data",
-          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-          "evaluationSubstitutionType": "TEMPLATE"
+          "controlType": "DROP_DOWN",
+          "evaluationSubstitutionType": "TEMPLATE",
+          "propertyName": "get_collections",
+          "fetchOptionsConditionally": true,
+          "alternateViewTypes": ["json"],
+          "conditionals": {
+            "fetchDynamicValues": {
+              "condition": "{{true}}",
+              "config": {
+                "params": {
+                  "requestType": "_GET_STRUCTURE",
+                  "displayType": "DROP_DOWN"
+                }
+              }
+            }
+          }
         }
       ]
     },

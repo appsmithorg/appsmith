@@ -17,6 +17,7 @@ import {
   isIdentifierNode,
   isExpressionStatementNode,
   isTypeOfFunction,
+  isBlockStatementNode,
 } from "../index";
 import { sanitizeScript } from "../utils";
 import { findNodeAt, simple } from "acorn-walk";
@@ -1118,7 +1119,7 @@ export function setCatchBlockInQuery(
         );
       if (!catchCallExpressionInGivenQuery) {
         const expression = klona(
-          thenCallExpressionInGivenQuery || rootCallExpression,
+          thenCallExpressionInGivenQuery ?? rootCallExpression,
         );
         const callExpression = {
           type: NodeTypes.CallExpression,
@@ -1483,5 +1484,59 @@ export function checkIfArgumentExistAtPosition(
     return true;
   } catch (e) {
     return false;
+  }
+}
+
+export function setGenericArgAtPostition(
+  arg: string,
+  code: string,
+  position: number,
+) {
+  try {
+    const commentArray: Array<Comment> = [];
+    const argCommentArray: Array<Comment> = [];
+    const sanitizedScript = sanitizeScript(code, 2);
+    const ast = getAST(sanitizedScript, {
+      locations: true,
+      ranges: true,
+      onComment: commentArray,
+    });
+    arg = arg.trim();
+    const astWithComments = attachCommentsToAst(ast, commentArray);
+
+    let argAst;
+    let argASTWithComments;
+    let argNode;
+    try {
+      argAst = getAST(arg, {
+        locations: true,
+        ranges: true,
+        onComment: argCommentArray,
+      });
+      argASTWithComments = attachCommentsToAst(argAst, argCommentArray);
+      if (isBlockStatementNode(argASTWithComments.body[0])) {
+        throw "Object interpretted as Block statement";
+      }
+      argNode = argASTWithComments.body[0].expression;
+    } catch (e) {
+      // If the arg is { a: 2 }, ast will BlockStatement and would end up here.
+      // If the arg is { a: 2, b: 3 }, ast will throw error and would end up here.
+      argAst = getAST(`var temp = ${arg}`, {
+        locations: true,
+        ranges: true,
+        onComment: argCommentArray,
+      });
+      argASTWithComments = attachCommentsToAst(argAst, argCommentArray);
+      argNode = argASTWithComments.body[0].declarations[0].init;
+    }
+
+    const rootCallExpression = findRootCallExpression(astWithComments);
+    if (!rootCallExpression) return code;
+    const args = rootCallExpression.arguments || [];
+    args[position] = argNode;
+    rootCallExpression.arguments = args;
+    return generate(ast).trim();
+  } catch (e) {
+    return code;
   }
 }

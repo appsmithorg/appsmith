@@ -195,7 +195,6 @@ function GitConnection({ isImport }: Props) {
   }, []);
 
   const stopShowingCopiedAfterDelay = () => {
-    // @ts-expect-error: setTimeout return type mismatch
     timerRef.current = setTimeout(() => {
       setShowCopied(false);
     }, 2000);
@@ -374,15 +373,13 @@ function GitConnection({ isImport }: Props) {
                     <Link
                       className="t--learn-more-ssh-url learn-more-link"
                       kind="primary"
-                      onClick={(e: React.MouseEvent) => {
-                        e.preventDefault();
+                      onClick={() => {
                         AnalyticsUtil.logEvent(
                           "GS_GIT_DOCUMENTATION_LINK_CLICK",
                           {
                             source: "REMOTE_URL_ON_GIT_CONNECTION_MODAL",
                           },
                         );
-                        window.open(RepoUrlDocumentUrl, "_blank");
                       }}
                       target={"_blank"}
                       to={RepoUrlDocumentUrl}
@@ -404,7 +401,7 @@ function GitConnection({ isImport }: Props) {
               value={remoteUrl}
             />
             {SSHKeyPair && isGitConnected && (
-              <Tooltip content="Disconnect git">
+              <Tooltip content="Disconnect Git">
                 <Button
                   className="t--git-disconnect-icon"
                   isIconButton

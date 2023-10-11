@@ -1,4 +1,7 @@
-import type { ReduxActionWithCallbacks } from "@appsmith/constants/ReduxActionConstants";
+import type {
+  ReduxAction,
+  ReduxActionWithCallbacks,
+} from "@appsmith/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
@@ -6,12 +9,21 @@ import {
 import type { ConnectToGitPayload } from "api/GitSyncAPI";
 import type { GitConfig, GitSyncModalTab, MergeStatus } from "entities/GitSync";
 import type { GitApplicationMetadata } from "@appsmith/api/ApplicationApi";
-import type { GitStatusData } from "reducers/uiReducers/gitSyncReducer";
+import type {
+  GitStatusData,
+  GitRemoteStatusData,
+} from "reducers/uiReducers/gitSyncReducer";
 import type { ResponseMeta } from "api/ApiResponses";
+import { noop } from "lodash";
+
+export type GitStatusParams = {
+  compareRemote?: boolean;
+};
 
 export const setIsGitSyncModalOpen = (payload: {
   isOpen: boolean;
   tab?: GitSyncModalTab;
+  isDeploying?: boolean;
 }) => {
   return {
     type: ReduxActionTypes.SET_IS_GIT_SYNC_MODAL_OPEN,
@@ -57,14 +69,14 @@ export type ConnectToGitResponse = {
 type ConnectToGitRequestParams = {
   payload: ConnectToGitPayload;
   onSuccessCallback?: (payload: ConnectToGitResponse) => void;
-  onErrorCallback?: (error: string) => void;
+  onErrorCallback?: (error: any, response?: any) => void;
 };
 
-export type ConnectToGitReduxAction = ReduxActionWithCallbacks<
-  ConnectToGitPayload,
-  ConnectToGitResponse,
-  string
->;
+export interface ConnectToGitReduxAction
+  extends ReduxAction<ConnectToGitPayload> {
+  onSuccessCallback?: (response: ConnectToGitResponse) => void;
+  onErrorCallback?: (error: Error, response?: any) => void;
+}
 
 export const connectToGitInit = ({
   onErrorCallback,
@@ -160,13 +172,27 @@ export const fetchLocalGitConfigSuccess = (payload: GitConfig) => ({
   payload,
 });
 
-export const fetchGitStatusInit = () => ({
+export const fetchGitStatusInit = (payload?: GitStatusParams) => ({
   type: ReduxActionTypes.FETCH_GIT_STATUS_INIT,
-  payload: null,
+  payload,
 });
 
 export const fetchGitStatusSuccess = (payload: GitStatusData) => ({
   type: ReduxActionTypes.FETCH_GIT_STATUS_SUCCESS,
+  payload,
+});
+
+export const fetchGitRemoteStatusInit = ({
+  onSuccessCallback = noop,
+  onErrorCallback = noop,
+} = {}) => ({
+  type: ReduxActionTypes.FETCH_GIT_REMOTE_STATUS_INIT,
+  onSuccessCallback,
+  onErrorCallback,
+});
+
+export const fetchGitRemoteStatusSuccess = (payload: GitRemoteStatusData) => ({
+  type: ReduxActionTypes.FETCH_GIT_REMOTE_STATUS_SUCCESS,
   payload,
 });
 

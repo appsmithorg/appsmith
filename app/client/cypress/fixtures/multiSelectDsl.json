@@ -134,7 +134,10 @@
                   }
                 ],
                 "borderRadius": "0px",
-                "options": "",
+                "sourceData": "",
+                "optionLabel": "label",
+                "optionValue": "value",
+                "dynamicPropertyPathList": [{"key": "sourceData"}],
                 "isDisabled": false
               },
               {
@@ -341,7 +344,9 @@
                     "key": "accentColor"
                   }
                 ],
-                "options": "",
+                "sourceData": "",
+                "optionLabel": "",
+                "optionValue": "",
                 "placeholderText": "",
                 "isDisabled": false,
                 "labelTextSize": "0.875rem",

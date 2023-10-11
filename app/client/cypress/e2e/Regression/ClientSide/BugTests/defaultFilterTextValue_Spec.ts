@@ -4,9 +4,7 @@ const agHelper = ObjectsRegistry.AggregateHelper;
 
 describe("Select widget filterText", () => {
   before(() => {
-    cy.fixture("defaultFilterText").then((val: any) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("defaultFilterText");
   });
 
   it("1. default value should be an empty string", () => {

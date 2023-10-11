@@ -93,21 +93,19 @@ public class OAuth2AuthorizedClientDTO {
                         pd.getIssuerUri(),
                         pd.getUserInfoEndpoint().getUri(),
                         pd.getUserInfoEndpoint().getAuthenticationMethod().getValue(),
-                        pd.getUserInfoEndpoint().getUserNameAttributeName()
-                ),
+                        pd.getUserInfoEndpoint().getUserNameAttributeName()),
                 new OAuth2AccessTokenDTO(
                         at.getTokenType().getValue(),
                         at.getTokenValue(),
                         ObjectUtils.defaultIfNull(at.getIssuedAt(), "").toString(),
                         ObjectUtils.defaultIfNull(at.getExpiresAt(), "").toString(),
-                        at.getScopes()
-                ),
-                rt == null ? null : new OAuth2RefreshTokenDTO(
-                        rt.getTokenValue(),
-                        ObjectUtils.defaultIfNull(rt.getIssuedAt(), "").toString(),
-                        ObjectUtils.defaultIfNull(rt.getExpiresAt(), "").toString()
-                )
-        );
+                        at.getScopes()),
+                rt == null
+                        ? null
+                        : new OAuth2RefreshTokenDTO(
+                                rt.getTokenValue(),
+                                ObjectUtils.defaultIfNull(rt.getIssuedAt(), "").toString(),
+                                ObjectUtils.defaultIfNull(rt.getExpiresAt(), "").toString()));
     }
 
     public OAuth2AuthorizedClient makeOAuth2AuthorizedClient() {
@@ -115,16 +113,17 @@ public class OAuth2AuthorizedClientDTO {
         if (OAuth2AccessToken.TokenType.BEARER.getValue().equals(accessToken.tokenType)) {
             tokenType = OAuth2AccessToken.TokenType.BEARER;
         } else {
-            throw new IllegalArgumentException("Could not deserialize OAuth2AuthorizedClient, unknown token type: " + accessToken.tokenType);
+            throw new IllegalArgumentException(
+                    "Could not deserialize OAuth2AuthorizedClient, unknown token type: " + accessToken.tokenType);
         }
 
         return new OAuth2AuthorizedClient(
-                ClientRegistration
-                        .withRegistrationId(clientRegistration.registrationId)
+                ClientRegistration.withRegistrationId(clientRegistration.registrationId)
                         .clientId(clientRegistration.clientId)
                         .clientSecret(clientRegistration.clientSecret)
                         // TODO: Don't recreate this object, use one of the static constants already in that class.
-                        .clientAuthenticationMethod(new ClientAuthenticationMethod(clientRegistration.clientAuthenticationMethod))
+                        .clientAuthenticationMethod(
+                                new ClientAuthenticationMethod(clientRegistration.clientAuthenticationMethod))
                         // TODO: Don't recreate this object, use one of the static constants already in that class.
                         .authorizationGrantType(new AuthorizationGrantType(clientRegistration.authorizationGrantType))
                         .redirectUri(clientRegistration.redirectUri)
@@ -135,7 +134,8 @@ public class OAuth2AuthorizedClientDTO {
                         .issuerUri(clientRegistration.issuerUri)
                         .jwkSetUri(clientRegistration.jwkSetUri)
                         .userInfoUri(clientRegistration.userInfoUri)
-                        .userInfoAuthenticationMethod(new AuthenticationMethod(clientRegistration.userInfoAuthenticationMethod))
+                        .userInfoAuthenticationMethod(
+                                new AuthenticationMethod(clientRegistration.userInfoAuthenticationMethod))
                         .userNameAttributeName(clientRegistration.userNameAttributeName)
                         .build(),
                 principalName,
@@ -144,18 +144,16 @@ public class OAuth2AuthorizedClientDTO {
                         accessToken.tokenValue,
                         parseInstant(accessToken.issuedAt),
                         parseInstant(accessToken.expiresAt),
-                        Set.copyOf(accessToken.scopes)
-                ),
-                refreshToken == null ? null : new OAuth2RefreshToken(
-                        refreshToken.tokenValue,
-                        parseInstant(refreshToken.issuedAt),
-                        parseInstant(refreshToken.expiresAt)
-                )
-        );
+                        Set.copyOf(accessToken.scopes)),
+                refreshToken == null
+                        ? null
+                        : new OAuth2RefreshToken(
+                                refreshToken.tokenValue,
+                                parseInstant(refreshToken.issuedAt),
+                                parseInstant(refreshToken.expiresAt)));
     }
 
     private Instant parseInstant(String refreshToken) {
         return StringUtils.isEmpty(refreshToken) ? null : Instant.parse(refreshToken);
     }
-
 }

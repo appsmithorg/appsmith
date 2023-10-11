@@ -9,7 +9,6 @@ import type {
   AppLayoutConfig,
   PageListReduxState,
 } from "reducers/entityReducers/pageListReducer";
-import type { WidgetConfigReducerState } from "reducers/entityReducers/widgetConfigReducer";
 import type { WidgetCardProps, WidgetProps } from "widgets/BaseWidget";
 
 import type { Page } from "@appsmith/constants/ReduxActionConstants";
@@ -26,14 +25,11 @@ import {
 } from "constants/WidgetConstants";
 import { APP_MODE } from "entities/App";
 import type {
-  DataTree,
-  ConfigTree,
   WidgetEntity,
   WidgetEntityConfig,
-} from "entities/DataTree/dataTreeFactory";
+} from "@appsmith/entities/DataTree/types";
+import type { DataTree, ConfigTree } from "entities/DataTree/dataTreeTypes";
 import { find, sortBy } from "lodash";
-import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
-import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import {
   getDataTree,
   getLoadingEntities,
@@ -45,29 +41,33 @@ import {
   getActions,
   getCanvasWidgets,
   getJSCollections,
-} from "selectors/entitiesSelector";
-import { checkIsDropTarget } from "utils/WidgetFactoryHelpers";
+} from "@appsmith/selectors/entitiesSelector";
+import { checkIsDropTarget } from "WidgetProvider/factory/helpers";
 import {
   buildChildWidgetTree,
-  buildFlattenedChildCanvasWidgets,
   createCanvasWidget,
   createLoadingWidget,
 } from "utils/widgetRenderUtils";
 import type { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
 import { LOCAL_STORAGE_KEYS } from "utils/localStorage";
-import type { CanvasWidgetStructure } from "widgets/constants";
+import type { CanvasWidgetStructure } from "WidgetProvider/constants";
 import { denormalize } from "utils/canvasStructureHelpers";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
-import WidgetFactory from "utils/WidgetFactory";
+import WidgetFactory from "WidgetProvider/factory";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
+import { nestDSL } from "@shared/dsl";
+import { getIsAnonymousDataPopupVisible } from "./onboardingSelectors";
+import { WDS_V2_WIDGET_MAP } from "components/wds/constants";
+import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { LayoutSystemTypes } from "layoutSystems/types";
+import { getLayoutSystemType } from "./layoutSystemSelectors";
 
 const getIsDraggingOrResizing = (state: AppState) =>
   state.ui.widgetDragResize.isResizing || state.ui.widgetDragResize.isDragging;
 
 const getIsResizing = (state: AppState) => state.ui.widgetDragResize.isResizing;
 
-export const getWidgetConfigs = (state: AppState) =>
-  state.entities.widgetConfig;
 const getPageListState = (state: AppState) => state.entities.pageList;
 
 export const getProviderCategories = (state: AppState) =>
@@ -78,6 +78,9 @@ const getWidgets = (state: AppState): CanvasWidgetsReduxState =>
 
 export const getIsEditorInitialized = (state: AppState) =>
   state.ui.editor.initialized;
+
+export const getIsWidgetConfigBuilt = (state: AppState) =>
+  state.ui.editor.widgetConfigBuilt;
 
 export const getIsEditorLoading = (state: AppState) =>
   state.ui.editor.loadingStates.loading;
@@ -214,7 +217,9 @@ export const selectURLSlugs = createSelector(
   getCurrentPageId,
   (application, pages, pageId) => {
     const applicationSlug = application?.slug || PLACEHOLDER_APP_SLUG;
-    const currentPage = pages.find((page) => page.pageId === pageId);
+    const currentPage: Page | undefined = pages.find(
+      (page) => page.pageId === pageId,
+    );
     const pageSlug = currentPage?.slug || PLACEHOLDER_PAGE_SLUG;
     const customSlug = currentPage?.customSlug;
     return { applicationSlug, pageSlug, customSlug };
@@ -254,44 +259,16 @@ const defaultLayout: AppLayoutConfig = {
 const getAppLayout = (state: AppState) =>
   state.ui.applications.currentApplication?.appLayout || defaultLayout;
 
-export const getAppPositioningType = (state: AppState) => {
-  if (
-    state.ui.applications?.currentApplication?.applicationDetail?.appPositioning
-      ?.type
-  ) {
-    return AppPositioningTypes[
-      state.ui.applications.currentApplication?.applicationDetail
-        ?.appPositioning?.type
-    ];
-  }
-  return AppPositioningTypes.FIXED;
-};
-
-export const isAutoLayoutEnabled = (state: AppState): boolean => {
-  return state.ui.users.featureFlag.data.AUTO_LAYOUT === true;
-};
-
-export const getCurrentAppPositioningType = createSelector(
-  isAutoLayoutEnabled,
-  getAppPositioningType,
-  (
-    autoLayoutEnabled: boolean,
-    appPositionType: AppPositioningTypes,
-  ): AppPositioningTypes => {
-    return autoLayoutEnabled ? appPositionType : AppPositioningTypes.FIXED;
-  },
-);
-
 export const getIsAutoLayout = createSelector(
-  getCurrentAppPositioningType,
-  (positioningType) => positioningType === AppPositioningTypes.AUTO,
+  getLayoutSystemType,
+  (layoutSystemType) => layoutSystemType === LayoutSystemTypes.AUTO,
 );
 
 export const getCurrentApplicationLayout = createSelector(
   getAppLayout,
-  getCurrentAppPositioningType,
-  (appLayout: AppLayoutConfig, appPositionType) => {
-    return appPositionType === AppPositioningTypes.FIXED
+  getLayoutSystemType,
+  (appLayout: AppLayoutConfig, layoutSystemType) => {
+    return layoutSystemType === LayoutSystemTypes.FIXED
       ? appLayout
       : defaultLayout;
   },
@@ -338,14 +315,32 @@ export const getCurrentPageName = createSelector(
 );
 
 export const getWidgetCards = createSelector(
-  getWidgetConfigs,
   getIsAutoLayout,
-  (widgetConfigs: WidgetConfigReducerState, isAutoLayout: boolean) => {
-    const cards = Object.values(widgetConfigs.config).filter((config) => {
-      return isAirgapped()
-        ? config.widgetName !== "Map" && !config.hideCard
-        : !config.hideCard;
+  (_state) => selectFeatureFlagCheck(_state, FEATURE_FLAG.ab_wds_enabled),
+  (isAutoLayout, isWDSEnabled) => {
+    const widgetConfigs = WidgetFactory.getConfigs();
+
+    const cards = Object.values(widgetConfigs).filter((config) => {
+      // if wds_vs is not enabled, hide all wds_v2 widgets
+      if (
+        Object.values(WDS_V2_WIDGET_MAP).includes(config.type) &&
+        isWDSEnabled === false
+      ) {
+        return false;
+      }
+
+      if (isAirgapped()) {
+        return config.widgetName !== "Map" && !config.hideCard;
+      }
+
+      // if wds is enabled, only show the wds_v2 widgets
+      if (isWDSEnabled === true) {
+        return Object.values(WDS_V2_WIDGET_MAP).includes(config.type);
+      }
+
+      return !config.hideCard;
     });
+
     const _cards: WidgetCardProps[] = cards.map((config) => {
       const {
         detachFromLayout = false,
@@ -353,6 +348,7 @@ export const getWidgetCards = createSelector(
         iconSVG,
         key,
         searchTags,
+        tags,
         type,
       } = config;
       let { columns, rows } = config;
@@ -372,10 +368,12 @@ export const getWidgetCards = createSelector(
         displayName,
         icon: iconSVG,
         searchTags,
+        tags,
         isDynamicHeight: isAutoHeightEnabledForWidget(config as WidgetProps),
       };
     });
     const sortedCards = sortBy(_cards, ["displayName"]);
+
     return sortedCards;
   },
 );
@@ -522,10 +520,7 @@ export const getCanvasWidgetDsl = createSelector(
           canvasWidget.widgetName,
         );
       });
-
-    return CanvasWidgetsNormalizer.denormalize("0", {
-      canvasWidgets: widgets,
-    });
+    return nestDSL(widgets);
   },
 );
 
@@ -539,14 +534,6 @@ export const getChildWidgets = createSelector(
     (_state: AppState, widgetId: string) => widgetId,
   ],
   buildChildWidgetTree,
-);
-
-export const getFlattenedChildCanvasWidgets = createSelector(
-  [
-    getCanvasWidgets,
-    (_state: AppState, parentWidgetId: string) => parentWidgetId,
-  ],
-  buildFlattenedChildCanvasWidgets,
 );
 
 const getOccupiedSpacesForContainer = (
@@ -608,11 +595,11 @@ const generateOccupiedSpacesMap = (
   widgets: CanvasWidgetsReduxState,
   fetchNow = true,
   dimensionMap = DefaultDimensionMap,
-): { [containerWidgetId: string]: WidgetSpace[] } | undefined => {
+): { [containerWidgetId: string]: WidgetSpace[] } => {
   const occupiedSpaces: {
     [containerWidgetId: string]: WidgetSpace[];
   } = {};
-  if (!fetchNow) return;
+  if (!fetchNow) return {};
   // Get all widgets with type "CONTAINER_WIDGET" and has children
   const containerWidgets: FlattenedWidgetProps[] = Object.values(
     widgets,
@@ -639,7 +626,7 @@ const generateOccupiedSpacesMap = (
     });
   }
   // Return undefined if there are no occupiedSpaces.
-  return Object.keys(occupiedSpaces).length > 0 ? occupiedSpaces : undefined;
+  return Object.keys(occupiedSpaces).length > 0 ? occupiedSpaces : {};
 };
 
 // returns occupied spaces
@@ -978,14 +965,16 @@ export const showCanvasTopSectionSelector = createSelector(
   getCanvasWidgets,
   previewModeSelector,
   getCurrentPageId,
-  (canvasWidgets, inPreviewMode, pageId) => {
+  getIsAnonymousDataPopupVisible,
+  (canvasWidgets, inPreviewMode, pageId, isAnonymousDataPopupVisible) => {
     const state = JSON.parse(
       localStorage.getItem(LOCAL_STORAGE_KEYS.CANVAS_CARDS_STATE) ?? "{}",
     );
     if (
       !state[pageId] ||
       Object.keys(canvasWidgets).length > 1 ||
-      inPreviewMode
+      inPreviewMode ||
+      isAnonymousDataPopupVisible
     )
       return false;
 

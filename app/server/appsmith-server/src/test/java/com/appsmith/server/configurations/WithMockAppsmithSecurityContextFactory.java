@@ -16,7 +16,8 @@ public class WithMockAppsmithSecurityContextFactory implements WithSecurityConte
         principal.setId(mockAppsmithUser.username());
         principal.setEmail(mockAppsmithUser.username());
         principal.setName(mockAppsmithUser.name());
-        Authentication auth = new UsernamePasswordAuthenticationToken(principal, "password", principal.getAuthorities());
+        Authentication auth =
+                new UsernamePasswordAuthenticationToken(principal, "password", principal.getAuthorities());
         context.setAuthentication(auth);
         return context;
     }

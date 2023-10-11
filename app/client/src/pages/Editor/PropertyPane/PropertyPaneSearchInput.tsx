@@ -11,7 +11,7 @@ import { PROPERTY_SEARCH_INPUT_PLACEHOLDER } from "@appsmith/constants/messages"
 
 const Container = styled.div`
   position: sticky;
-  top: 42px;
+  top: 44px;
   z-index: 3;
   margin-bottom: 2px;
   background: var(--ads-v2-color-white);

@@ -6,5 +6,5 @@ import reactor.core.publisher.Mono;
 
 public interface CustomDatasourceStructureRepositoryCE {
 
-    Mono<UpdateResult> updateStructure(String datasourceId, DatasourceStructure structure);
+    Mono<UpdateResult> updateStructure(String datasourceId, String environmentId, DatasourceStructure structure);
 }

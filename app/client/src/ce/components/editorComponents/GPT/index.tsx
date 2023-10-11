@@ -1,5 +1,9 @@
 import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
-import type { TEditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
+import type {
+  FieldEntityInformation,
+  TEditorModes,
+} from "components/editorComponents/CodeEditor/EditorConfig";
+import type { EntityNavigationData } from "selectors/navigationSelectors";
 import React from "react";
 
 export type TAIWrapperProps = {
@@ -12,6 +16,8 @@ export type TAIWrapperProps = {
   enableAIAssistance: boolean;
   dataTreePath?: string;
   mode: TEditorModes;
+  entity: FieldEntityInformation;
+  entitiesForNavigation: EntityNavigationData;
 };
 
 export function AIWindow(props: TAIWrapperProps) {

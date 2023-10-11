@@ -1,0 +1,36 @@
+# This workflow is responsible for running Spotless check on server code base
+name: Server Spotless Check
+
+on:
+  workflow_call:
+    inputs:
+      pr:
+        description: "This is the PR number in case the workflow is being called in a pull request"
+        required: false
+        type: number
+
+# Change the working directory for all the jobs in this workflow
+defaults:
+  run:
+    working-directory: app/server
+
+jobs:
+  spotless-check:
+    runs-on: ubuntu-latest
+    steps:
+      # Check out merge commit with the base branch in case this workflow is invoked via pull request
+      - name: Checkout the merged commit from PR and base branch
+        uses: actions/checkout@v3
+        with:
+          ref: refs/pull/${{ inputs.pr }}/merge
+
+      # Setup Java
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      # Run maven step for spotless check
+      - name: Run spotless check
+        run: mvn spotless:check

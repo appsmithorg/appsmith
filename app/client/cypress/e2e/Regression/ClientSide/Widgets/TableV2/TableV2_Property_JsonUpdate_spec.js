@@ -1,15 +1,17 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
-const dsl = require("../../../../../fixtures/tableV2TextPaginationDsl.json");
 
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Test Create Api and Bind to Table widget V2", () => {
   before("Create an API and Execute the API and bind with Table V", () => {
-    cy.addDsl(dsl);
+    _.agHelper.AddDsl("tableV2TextPaginationDsl");
   });
 
   it("1. Create an API and Execute the API and bind with Table", function () {
-    cy.createAndFillApi(this.data.paginationUrl, this.data.paginationParam);
+    cy.createAndFillApi(
+      this.dataSet.paginationUrl,
+      this.dataSet.paginationParam,
+    );
     cy.RunAPI();
   });
 
@@ -44,7 +46,10 @@ describe("Test Create Api and Bind to Table widget V2", () => {
     // Open property pane
     _.entityExplorer.SelectEntityByName("Table1");
     // Change the table data
-    cy.testJsontext("tabledata", JSON.stringify(this.data.TableInputWithNull));
+    cy.testJsontext(
+      "tabledata",
+      JSON.stringify(this.dataSet.TableInputWithNull),
+    );
     cy.wait("@updateLayout");
     // Verify the columns are visible in property pane
     cy.tableV2ColumnDataValidation("id");
@@ -78,7 +83,7 @@ describe("Test Create Api and Bind to Table widget V2", () => {
     // Empty first row
     cy.testJsontext("tabledata", "[]");
     cy.wait("@updateLayout");
-    const newTableData = [...this.data.TableInput];
+    const newTableData = [...this.dataSet.TableInput];
     newTableData[0].userName = "";
     // Change table data from empty to some
     cy.testJsontext("tabledata", JSON.stringify(newTableData));

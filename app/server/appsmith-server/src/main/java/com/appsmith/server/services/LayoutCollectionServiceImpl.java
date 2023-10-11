@@ -1,6 +1,7 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.helpers.ResponseUtils;
+import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.services.ce.LayoutCollectionServiceCEImpl;
 import com.appsmith.server.solutions.ActionPermission;
@@ -13,18 +14,28 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class LayoutCollectionServiceImpl extends LayoutCollectionServiceCEImpl implements LayoutCollectionService {
 
-    public LayoutCollectionServiceImpl(NewPageService newPageService,
-                                       LayoutActionService layoutActionService,
-                                       RefactoringSolution refactoringSolution,
-                                       ActionCollectionService actionCollectionService,
-                                       NewActionService newActionService,
-                                       AnalyticsService analyticsService,
-                                       ResponseUtils responseUtils,
-                                       ActionCollectionRepository actionCollectionRepository,
-                                       PagePermission pagePermission,
-                                       ActionPermission actionPermission) {
+    public LayoutCollectionServiceImpl(
+            NewPageService newPageService,
+            LayoutActionService layoutActionService,
+            RefactoringSolution refactoringSolution,
+            ActionCollectionService actionCollectionService,
+            NewActionService newActionService,
+            AnalyticsService analyticsService,
+            ResponseUtils responseUtils,
+            ActionCollectionRepository actionCollectionRepository,
+            PagePermission pagePermission,
+            ActionPermission actionPermission) {
 
-        super(newPageService, layoutActionService, refactoringSolution, actionCollectionService, newActionService, analyticsService,
-                responseUtils, actionCollectionRepository, pagePermission, actionPermission);
+        super(
+                newPageService,
+                layoutActionService,
+                refactoringSolution,
+                actionCollectionService,
+                newActionService,
+                analyticsService,
+                responseUtils,
+                actionCollectionRepository,
+                pagePermission,
+                actionPermission);
     }
 }

@@ -1,9 +1,7 @@
 import React, { useEffect } from "react";
-import WidgetFactory from "utils/WidgetFactory";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useDynamicAppLayout } from "utils/hooks/useDynamicAppLayout";
-import type { CanvasWidgetStructure } from "widgets/constants";
-import { RenderModes } from "constants/WidgetConstants";
+import type { CanvasWidgetStructure } from "WidgetProvider/constants";
 import { useSelector } from "react-redux";
 import {
   getCurrentApplication,
@@ -12,9 +10,12 @@ import {
   getAppMode,
 } from "@appsmith/selectors/applicationSelectors";
 import { NAVIGATION_SETTINGS } from "constants/AppConstants";
-import { PageView, PageViewContainer } from "./AppPage.styled";
+import { PageView, PageViewWrapper } from "./AppPage.styled";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 import { APP_MODE } from "entities/App";
+import { useLocation } from "react-router";
+import { renderAppsmithCanvas } from "layoutSystems/CanvasFactory";
+import type { WidgetProps } from "widgets/BaseWidget";
 
 type AppPageProps = {
   appName?: string;
@@ -31,6 +32,11 @@ export function AppPage(props: AppPageProps) {
   const isMobile = useIsMobileDevice();
   const appMode = useSelector(getAppMode);
   const isPublished = appMode === APP_MODE.PUBLISHED;
+  const { search } = useLocation();
+  const queryParams = new URLSearchParams(search);
+  const isEmbed = queryParams.get("embed");
+  const isNavbarVisibleInEmbeddedApp = queryParams.get("navbar");
+  const isEmbeddedAppWithNavVisible = isEmbed && isNavbarVisibleInEmbeddedApp;
 
   useDynamicAppLayout();
 
@@ -44,20 +50,22 @@ export function AppPage(props: AppPageProps) {
   }, [props.pageId, props.pageName]);
 
   return (
-    <PageViewContainer
+    <PageViewWrapper
       hasPinnedSidebar={
         currentApplicationDetails?.applicationDetail?.navigationSetting
           ?.orientation === NAVIGATION_SETTINGS.ORIENTATION.SIDE &&
         isAppSidebarPinned
       }
       isPublished={isPublished}
-      sidebarWidth={isMobile ? 0 : sidebarWidth}
+      sidebarWidth={
+        isMobile || (isEmbed && !isEmbeddedAppWithNavVisible) ? 0 : sidebarWidth
+      }
     >
       <PageView className="t--app-viewer-page" width={props.canvasWidth}>
         {props.widgetsStructure.widgetId &&
-          WidgetFactory.createWidget(props.widgetsStructure, RenderModes.PAGE)}
+          renderAppsmithCanvas(props.widgetsStructure as WidgetProps)}
       </PageView>
-    </PageViewContainer>
+    </PageViewWrapper>
   );
 }
 

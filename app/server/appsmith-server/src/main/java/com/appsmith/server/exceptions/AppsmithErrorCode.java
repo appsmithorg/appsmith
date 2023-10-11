@@ -7,6 +7,9 @@ public enum AppsmithErrorCode {
     INVALID_ACTION_COLLECTION("AE-ACC-4038", "Invalid action collection"),
     UNAUTHORIZED_ACCESS("AE-ACL-4003", "Unauthorized access"),
     ACL_NO_RESOURCE_FOUND("AE-ACL-4004", "Acl no resource found"),
+    APPLICATION_NOT_CLONED_MISSING_PERMISSIONS("AE-ACL-4005", "Cloning application failed"),
+    APPLICATION_NOT_FORKED_MISSING_PERMISSIONS("AE-ACL-4006", "Forking application failed"),
+    UNABLE_TO_DEPLOY_MISSING_PERMISSION("AE-ACL-4007", "Unable to deploy"),
     INVALID_PARAMETER("AE-APP-4000", "Invalid parameter"),
     PAGE_ID_NOT_GIVEN("AE-APP-4004", "Page id not given"),
     DUPLICATE_KEY_USER_ERROR("AE-APP-4005", "Duplicate key user error"),
@@ -15,6 +18,7 @@ public enum AppsmithErrorCode {
     DEPRECATED_API("AE-APP-4008", "Deprecated api"),
     USER_DOESNT_BELONG_ANY_WORKSPACE("AE-APP-4009", "User doesn't belong any workspace"),
     USER_DOESNT_BELONG_TO_WORKSPACE("AE-APP-4010", "User doesn't belong to workspace"),
+    USER_NOT_ASSIGNED_TO_ROLE("AE-APP-4011", "User is not assigned to role"),
     INVALID_ACTION("AE-APP-4012", "Invalid action"),
     PAYLOAD_TOO_LARGE("AE-APP-4013", "Payload too large"),
     INVALID_ACTION_NAME("AE-APP-4014", "Invalid action name"),
@@ -62,6 +66,7 @@ public enum AppsmithErrorCode {
     PLUGIN_EXECUTION_TIMEOUT("AE-APP-5040", "Plugin execution timeout"),
     MARKETPLACE_TIMEOUT("AE-APP-5041", "Marketplace timeout"),
     GOOGLE_RECAPTCHA_TIMEOUT("AE-APP-5042", "Google recaptcha timeout"),
+    INVALID_PROPERTIES_CONFIGURATION("AE-APP-5044", "Property configuration is wrong or malformed"),
     NAME_CLASH_NOT_ALLOWED_IN_REFACTOR("AE-AST-4009", "Name clash not allowed in refactor"),
     GENERIC_BAD_REQUEST("AE-BAD-4000", "Generic bad request"),
     MALFORMED_REQUEST("AE-BAD-4001", "Malformed request body"),
@@ -112,6 +117,19 @@ public enum AppsmithErrorCode {
     USER_NOT_FOUND("AE-USR-4004", "User not found"),
     CSRF_TOKEN_INVALID("AE-APP-4039", "CSRF token missing/invalid"),
     UNSUPPORTED_IMPORT_OPERATION("AE-APP-4040", "Unsupported operation for import application via file"),
+    DUPLICATE_DATASOURCE_CONFIGURATION("AE-APP-4093", "Duplicate datasource configuration"),
+
+    INVALID_SMTP_CONFIGURATION("AE-APP-4099", "Invalid SMTP configuration"),
+
+    USER_EMAIL_ALREADY_VERIFIED("AE-EMV-4095", "User email already verified"),
+
+    EMAIL_VERIFICATION_TOKEN_EXPIRED("AE-EMV-4096", "Email Verification Token expired"),
+    TENANT_EMAIL_VERIFICATION_NOT_ENABLED("AE-EMV-4097", "Email Verification not enabled"),
+
+    INVALID_EMAIL_VERIFICATION("AE-EMV-4098", "Invalid email verification request"),
+
+    INVALID_METHOD_LEVEL_ANNOTATION_USAGE("AE-APP-4094", "Invalid usage for custom annotation"),
+    FEATURE_FLAG_MIGRATION_FAILURE("AE-APP-5045", "Feature flag based migration error"),
     ;
     private final String code;
     private final String description;

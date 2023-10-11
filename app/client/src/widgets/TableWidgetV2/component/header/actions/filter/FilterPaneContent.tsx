@@ -15,7 +15,7 @@ import {
   TABLE_FILTER_COLUMN_TYPE_CALLOUT,
 } from "@appsmith/constants/messages";
 import { Icon, IconSize } from "@design-system/widgets-old";
-import Button from "pages/AppViewer/AppViewerButton";
+import { StyledButton as Button } from "widgets/ButtonWidget/component";
 import { ButtonVariantTypes } from "components/constants";
 
 import { cloneDeep } from "lodash";
@@ -26,7 +26,9 @@ import {
 import { generateReactKey } from "utils/generators";
 import { importRemixIcon } from "design-system-old";
 
-const AddIcon = importRemixIcon(() => import("remixicon-react/AddLineIcon"));
+const AddIcon = importRemixIcon(
+  async () => import("remixicon-react/AddLineIcon"),
+);
 
 const TableFilterOuterWrapper = styled.div<{
   borderRadius?: string;
@@ -160,7 +162,7 @@ function TableFilterPaneContent(props: TableFilterProps) {
   };
 
   const clearFilters = useCallback(() => {
-    props.applyFilter(defaultFilters);
+    props.applyFilter([]);
   }, [props]);
 
   const columns: DropdownOption[] = props.columns
@@ -246,9 +248,6 @@ function TableFilterPaneContent(props: TableFilterProps) {
                     ...updatedFilters.slice(0, index),
                     ...updatedFilters.slice(index + 1),
                   ];
-                }
-                if (newFilters.length === 0) {
-                  newFilters.push({ ...DEFAULT_FILTER });
                 }
                 // removed filter directly update redux
                 // with redux update, useEffect will update local state too

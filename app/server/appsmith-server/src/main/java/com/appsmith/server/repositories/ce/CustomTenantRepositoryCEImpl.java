@@ -8,11 +8,13 @@ import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 
 @Slf4j
-public class CustomTenantRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Tenant> implements CustomTenantRepositoryCE {
+public class CustomTenantRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Tenant>
+        implements CustomTenantRepositoryCE {
 
-    public CustomTenantRepositoryCEImpl(ReactiveMongoOperations mongoOperations,
-                                        MongoConverter mongoConverter,
-                                        CacheableRepositoryHelper cacheableRepositoryHelper) {
+    public CustomTenantRepositoryCEImpl(
+            ReactiveMongoOperations mongoOperations,
+            MongoConverter mongoConverter,
+            CacheableRepositoryHelper cacheableRepositoryHelper) {
         super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
     }
 }

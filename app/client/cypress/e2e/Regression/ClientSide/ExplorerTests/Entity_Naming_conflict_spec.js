@@ -1,15 +1,12 @@
-const dsl = require("../../../../fixtures/basicTabledsl.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-
-let ee = ObjectsRegistry.EntityExplorer;
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Tab widget test", function () {
   const apiName = "Table1";
   const tableName = "Table1";
   before(() => {
-    cy.addDsl(dsl);
+    _.agHelper.AddDsl("basicTabledsl");
   });
 
   it("1. Rename API with table widget name validation test", function () {
@@ -22,7 +19,7 @@ describe("Tab widget test", function () {
       .type(tableName, { force: true })
       .should("have.value", tableName);
     //Rename Table widget with api name validation test
-    ee.AssertEntityPresenceInExplorer("Table1");
+    _.entityExplorer.AssertEntityPresenceInExplorer("Table1");
     cy.CheckAndUnfoldEntityItem("Queries/JS");
     cy.RenameEntity(apiName);
     cy.validateMessage(apiName);

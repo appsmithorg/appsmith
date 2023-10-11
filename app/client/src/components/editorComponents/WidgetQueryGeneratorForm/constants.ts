@@ -38,8 +38,4 @@ export const PluginFormInputFieldMap: Record<
   },
 };
 
-export const DATASOURCE_DROPDOWN_SECTIONS = {
-  BIND_TO_QUERY: "Bind to query",
-  GENERATE_A_QUERY: "Generate a query",
-  OTHER_ACTIONS: "Other actions",
-};
+export const DEFAULT_QUERY_OPTIONS_COUNTS_TO_SHOW = 4;

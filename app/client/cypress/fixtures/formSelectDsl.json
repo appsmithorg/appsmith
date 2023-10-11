@@ -120,7 +120,9 @@
                                 "isVisible": true,
                                 "placeholderText": "Select option",
                                 "labelText": "Label",
-                                "options": "[\n  {\n    \"label\": \"Active\",\n    \"value\": \"1\"\n  },\n  {\n    \"label\": \"Inactive\",\n    \"value\": \"0\"\n  }\n]",
+                                "sourceData": "[\n  {\n    \"label\": \"Active\",\n    \"value\": \"1\"\n  },\n  {\n    \"label\": \"Inactive\",\n    \"value\": \"0\"\n  }\n]",
+                                "optionLabel": "label",
+                                "optionValue": "value",
                                 "serverSideFiltering": false,
                                 "widgetName": "Select1",
                                 "defaultOptionValue": " {\n    \"label\": \"Active\",\n    \"value\": \"1\"\n  }",
@@ -145,6 +147,7 @@
                                 "bottomRow": 23,
                                 "parentId": "anq2not518",
                                 "dynamicBindingPathList": [],
+                                "dynamicPropertyPathList": [{"key": "sourceData"}],
                                 "dynamicTriggerPathList": []
                             }
                         ],

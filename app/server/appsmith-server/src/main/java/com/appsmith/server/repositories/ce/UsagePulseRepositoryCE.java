@@ -5,6 +5,4 @@ import com.appsmith.server.repositories.BaseRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface UsagePulseRepositoryCE extends BaseRepository<UsagePulse, String>, CustomUsagePulseRepositoryCE {
-
-}
+public interface UsagePulseRepositoryCE extends BaseRepository<UsagePulse, String>, CustomUsagePulseRepositoryCE {}

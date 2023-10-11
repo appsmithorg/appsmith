@@ -10,7 +10,7 @@ import _ from "lodash";
 const initialState: ErrorReduxState = {
   safeCrash: false,
   safeCrashCode: undefined,
-  currentError: { sourceAction: "", message: "" },
+  currentError: { sourceAction: "", message: "", stackTrace: "" },
 };
 
 const errorReducer = createReducer(initialState, {
@@ -31,6 +31,7 @@ const errorReducer = createReducer(initialState, {
       currentError: {
         sourceAction: action.payload.source,
         message: action.payload.message,
+        stackTrace: action.payload.stackTrace,
       },
     };
   },
@@ -45,6 +46,7 @@ export interface ErrorReduxState {
   currentError: {
     sourceAction?: string;
     message?: string;
+    stackTrace?: string;
   };
 }
 

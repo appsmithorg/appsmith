@@ -10,6 +10,7 @@ export class AppSettings {
     _generalSettingsHeader: "#t--general-settings-header",
     _embedSettingsHeader: "#t--share-embed-settings",
     _navigationSettingsTab: "#t--navigation-settings-header",
+    _importHeader: "#t--update-via-import",
     _navigationSettings: {
       _showNavbar: "#t--navigation-settings-show-navbar",
       _showSignIn: "#t--navigation-settings-show-sign-in",
@@ -23,8 +24,43 @@ export class AppSettings {
       },
     },
     _navigationMenuItem: ".t--page-switch-tab",
+    _sideNavbar: ".t--app-viewer-navigation-sidebar",
     _getPageSettingsHeader: (pageName: string) =>
       `#t--page-settings-${pageName}`,
+    _updateStatus: ".ads-v2-icon.rotate",
+    _header: ".t--app-viewer-navigation-header",
+    _topStacked: ".t--app-viewer-navigation-top-stacked",
+    _applicationName: ".t--app-viewer-application-name",
+    _shareButton: ".t--app-viewer-share-button",
+    _modal: "div[role=dialog]",
+    _modalClose: "div[role=dialog] button[aria-label='Close']",
+    _canvas: ".t--canvas-artboard",
+    _userProfileDropdownMenu: ".ads-v2-menu",
+    _navigationPreview: ".t--navigation-preview",
+    _navStyleOptions: {
+      _stacked:
+        ".t--navigation-settings-navStyle .ads-v2-segmented-control-value-stacked",
+      _inline:
+        ".t--navigation-settings-navStyle .ads-v2-segmented-control-value-inline",
+    },
+    _colorStyleOptions: {
+      _light:
+        ".t--navigation-settings-colorStyle .ads-v2-segmented-control-value-light",
+      _theme:
+        ".t--navigation-settings-colorStyle .ads-v2-segmented-control-value-theme",
+    },
+    _topInline: ".t--app-viewer-navigation-top-inline",
+    _sidebarCollapseButton: ".t--app-viewer-navigation-sidebar-collapse",
+    _topStackedScrollableContainer:
+      ".t--app-viewer-navigation-top-stacked .hidden-scrollbar",
+    _topInlineMoreButton: ".t--app-viewer-navigation-top-inline-more-button",
+    _topInlineMoreDropdown:
+      ".t--app-viewer-navigation-top-inline-more-dropdown",
+    _topInlineMoreDropdownItem:
+      ".t--app-viewer-navigation-top-inline-more-dropdown-item",
+    _scrollArrows: ".scroll-arrows",
+    _getActivePage: (pageName: string) =>
+      `//span[contains(text(),"${pageName}")]//ancestor::a[contains(@class,'is-active')]`,
   };
 
   public errorMessageSelector = (fieldId: string) => {
@@ -50,6 +86,10 @@ export class AppSettings {
 
   public GoToEmbedSettings() {
     this.agHelper.GetNClick(this.locators._embedSettingsHeader);
+  }
+
+  public GoToImport() {
+    this.agHelper.GetNClick(this.locators._importHeader);
   }
 
   public GoToPageSettings(pageName: string) {
@@ -81,6 +121,7 @@ export class AppSettings {
     customSlug?: string,
     editMode = true,
   ) {
+    this.agHelper.AssertElementAbsence(this.locators._updateStatus, 10000);
     cy.location("pathname").then((pathname) => {
       if (customSlug && customSlug.length > 0) {
         const pageId = pathname.split("/")[2]?.split("-").pop();

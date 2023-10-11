@@ -1,0 +1,57 @@
+{
+  "seedColor": "#553de9",
+  "fluid": {
+    "minVw": 360,
+    "maxVw": 1920,
+    "rootUnit": {
+      "minV": 4,
+      "maxV": 5,
+      "minR": 1,
+      "maxR": 1,
+      "minN": 1,
+      "maxN": 1,
+      "stepsUp": 1,
+      "stepsDown": 0
+    },
+    "spacing": {
+      "minV": 4,
+      "maxV": 6,
+      "minR": 2,
+      "maxR": 3,
+      "minN": 3,
+      "maxN": 3,
+      "stepsUp": 8,
+      "stepsDown": 0
+    },
+    "typography": {
+      "minV": 10,
+      "maxV": 12,
+      "minR": 2,
+      "maxR": 4,
+      "minN": 3,
+      "maxN": 5,
+      "stepsUp": 5,
+      "stepsDown": 1
+    }
+  },
+  "colorMode": "light",
+  "borderRadius": {
+    "1": "0px"
+  },
+  "boxShadow": {
+    "1": "0 2px 2px 0 rgba(0, 0, 0, 0.2)"
+  },
+  "borderWidth": {
+    "1": "1px",
+    "2": "2px"
+  },
+  "opacity": {
+    "disabled": 0.3
+  },
+  "zIndex": {
+    "1": 3,
+    "2": 4,
+    "3": 10,
+    "99": 9999
+  }
+}

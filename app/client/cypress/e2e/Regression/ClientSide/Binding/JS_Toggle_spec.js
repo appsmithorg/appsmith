@@ -1,12 +1,15 @@
-const dsl = require("../../../../fixtures/Js_toggle_dsl.json");
+import {
+  entityExplorer,
+  agHelper,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("JS Toggle tests", () => {
   before(() => {
-    cy.addDsl(dsl);
+    agHelper.AddDsl("Js_toggle_dsl");
   });
 
   it("1. switches the toggle to Button widget", () => {
-    cy.openPropertyPane("buttonwidget");
+    entityExplorer.SelectEntityByName("Button1");
     cy.get(".t--property-control-visible").find(".t--js-toggle").click();
 
     cy.get(".t--property-control-visible")

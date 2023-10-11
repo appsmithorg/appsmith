@@ -1,7 +1,9 @@
 package com.appsmith.server.solutions.ce;
 
 import com.appsmith.server.acl.AclPermission;
+import org.springframework.stereotype.Component;
 
+@Component
 public class DatasourcePermissionCEImpl implements DatasourcePermissionCE, DomainPermissionCE {
     @Override
     public AclPermission getReadPermission() {
@@ -21,5 +23,10 @@ public class DatasourcePermissionCEImpl implements DatasourcePermissionCE, Domai
     @Override
     public AclPermission getExecutePermission() {
         return AclPermission.EXECUTE_DATASOURCES;
+    }
+
+    @Override
+    public AclPermission getActionCreatePermission() {
+        return AclPermission.MANAGE_DATASOURCES;
     }
 }

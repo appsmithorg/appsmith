@@ -15,6 +15,4 @@ public class ApplicationPagesDTO {
     Application application;
 
     List<PageNameIdDTO> pages;
-
-    String latestSnapshotTime;
 }

@@ -1,4 +1,4 @@
-import { fork, put, select } from "redux-saga/effects";
+import { fork, put, select, call } from "redux-saga/effects";
 import type { RouteChangeActionPayload } from "actions/focusHistoryActions";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
 import log from "loglevel";
@@ -19,6 +19,7 @@ import { contextSwitchingSaga } from "sagas/ContextSwitchingSaga";
 import { getSafeCrash } from "selectors/errorSelectors";
 import { flushErrors } from "actions/errorActions";
 import type { NavigationMethod } from "utils/history";
+import UsagePulse from "usagePulse";
 
 let previousPath: string;
 
@@ -28,6 +29,7 @@ export function* handleRouteChange(
   const { pathname, state } = action.payload.location;
   try {
     yield fork(clearErrors);
+    yield fork(watchForTrackableUrl, action.payload);
     const isAnEditorPath = isEditorPath(pathname);
 
     // handled only on edit mode
@@ -65,6 +67,28 @@ function* clearErrors() {
   }
 }
 
+function* watchForTrackableUrl(payload: RouteChangeActionPayload) {
+  const oldPathname = payload.prevLocation.pathname;
+  const newPathname = payload.location.pathname;
+  const isOldPathTrackable: boolean = yield call(
+    UsagePulse.isTrackableUrl,
+    oldPathname,
+  );
+  const isNewPathTrackable: boolean = yield call(
+    UsagePulse.isTrackableUrl,
+    newPathname,
+  );
+
+  // Trackable to Trackable URL -> No pulse
+  // Non-Trackable to Non-Trackable URL -> No pulse
+  // Trackable to Non-Trackable -> No Pulse
+  // Non-Trackable to Trackable URL -> Send Pulse
+
+  if (!isOldPathTrackable && isNewPathTrackable) {
+    yield call(UsagePulse.sendPulseAndScheduleNext);
+  }
+}
+
 function* logNavigationAnalytics(payload: RouteChangeActionPayload) {
   const {
     location: { pathname, state },
@@ -75,6 +99,7 @@ function* logNavigationAnalytics(payload: RouteChangeActionPayload) {
   const isRecent = recentEntityIds.some(
     (entityId) => entityId === currentEntity.id,
   );
+  const { height, width } = window.screen;
   AnalyticsUtil.logEvent("ROUTE_CHANGE", {
     toPath: pathname,
     fromPath: previousPath || undefined,
@@ -83,6 +108,8 @@ function* logNavigationAnalytics(payload: RouteChangeActionPayload) {
     recentLength: recentEntityIds.length,
     toType: currentEntity.entity,
     fromType: previousEntity.entity,
+    screenHeight: height,
+    screenWidth: width,
   });
 }
 

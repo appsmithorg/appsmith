@@ -1,7 +1,7 @@
 package com.appsmith.server.dtos;
 
-import com.appsmith.external.models.DatasourceStorageStructure;
 import com.appsmith.external.models.DatasourceStorage;
+import com.appsmith.external.models.DatasourceStorageStructure;
 import com.appsmith.external.models.DecryptedSensitiveFields;
 import com.appsmith.external.models.InvisibleActionFields;
 import com.appsmith.external.views.Views;

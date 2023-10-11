@@ -1,0 +1,94 @@
+import {
+  Flex,
+  ButtonGroupItem,
+  ButtonGroup,
+  COLORS,
+  BUTTON_VARIANTS,
+} from "@design-system/widgets";
+import { Canvas, Meta, Story, ArgsTable, Source } from "@storybook/addon-docs";
+
+<Meta title="Design-system/Widgets/Button Group" component={ButtonGroup} />
+
+# Button Group
+
+A `ButtonGroup` is a group of `ButtonGroupItem` that are visually connected together.
+The `ButtonGroupItem` accepts the same props as the `Button` except `variant` and `color`.
+More information about `Button` props you can find [here](?path=/docs/design-system-widgets-button--docs).
+
+export const Template = (args) => {
+  return (
+    <ButtonGroup {...args}>
+      <ButtonGroupItem>Option 1</ButtonGroupItem>
+      <ButtonGroupItem>Option 2</ButtonGroupItem>
+      <ButtonGroupItem>Option 3</ButtonGroupItem>
+    </ButtonGroup>
+  );
+};
+
+<Canvas>
+  <Story name="Button Group">{Template.bind({})}</Story>
+</Canvas>
+
+<ArgsTable story="Button Group" of={ButtonGroup} />
+
+## Semantic
+
+`Button` component has 3 visual style variants and 5 semantic color options
+
+<Story name="Semantic">
+  <Flex direction="column" gap="spacing-4" alignItems="center">
+    {Object.values(BUTTON_VARIANTS).map((variant) =>
+      Object.values(COLORS).map((color) => (
+        <ButtonGroup
+          variant={variant}
+          color={color}
+          key={`${variant}-${color}`}
+        >
+          <ButtonGroupItem>
+            {variant} {color}
+          </ButtonGroupItem>
+          <ButtonGroupItem>
+            {variant} {color}
+          </ButtonGroupItem>
+          <ButtonGroupItem>
+            {variant} {color}
+          </ButtonGroupItem>
+        </ButtonGroup>
+      )),
+    )}
+  </Flex>
+</Story>
+
+## Orientation
+
+<Story name="Orientation horizontal">{Template.bind({})}</Story>
+
+<Story
+  name="Orientation vertical"
+  args={{
+    orientation: "vertical",
+  }}
+>
+  {Template.bind({})}
+</Story>
+
+## ButtonGroupItem usage
+
+<Story name="ButtonGroupItem usage">
+  <ButtonGroup>
+    <ButtonGroupItem isDisabled>Option 2</ButtonGroupItem>
+    <ButtonGroupItem isLoading>Option 2</ButtonGroupItem>
+    <ButtonGroupItem>Option 3</ButtonGroupItem>
+  </ButtonGroup>
+</Story>
+
+<Source
+  dark
+  code={`
+<ButtonGroup>
+  <ButtonGroupItem isDisabled>Option 2</ButtonGroupItem>
+  <ButtonGroupItem isLoading>Option 2</ButtonGroupItem>
+  <ButtonGroupItem>Option 3</ButtonGroupItem>
+</ButtonGroup>
+`}
+/>

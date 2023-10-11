@@ -12,7 +12,7 @@ import isEqual from "fast-deep-equal/es6";
 
 import Queue from "./Queue";
 import { extractTillNestedListWidget } from "./widget/helper";
-import type { FlattenedWidgetProps } from "widgets/constants";
+import type { FlattenedWidgetProps } from "WidgetProvider/constants";
 import { generateReactKey } from "utils/generators";
 import {
   GridDefaults,
@@ -27,14 +27,14 @@ import type {
   MetaWidgetCacheProps,
   MetaWidgets,
 } from "./widget";
-import { DEFAULT_TEMPLATE_BOTTOM_ROW, DynamicPathType } from "./widget";
+import { DEFAULT_TEMPLATE_HEIGHT, DynamicPathType } from "./widget";
 import type { WidgetProps } from "widgets/BaseWidget";
 import type { DynamicPath } from "utils/DynamicBindingUtils";
 import {
   combineDynamicBindings,
   getDynamicBindings,
 } from "utils/DynamicBindingUtils";
-import WidgetFactory from "utils/WidgetFactory";
+import WidgetFactory from "WidgetProvider/factory";
 
 type TemplateWidgets =
   ListWidgetProps<WidgetProps>["flattenedChildCanvasWidgets"];
@@ -90,7 +90,7 @@ export type GeneratorOptions = {
   primaryKeys?: string[];
   scrollElement: HTMLDivElement | null;
   serverSidePagination: boolean;
-  templateBottomRow: number;
+  templateHeight: number;
   widgetName: string;
 };
 
@@ -247,7 +247,7 @@ class MetaWidgetGenerator {
   private serverSidePagination: GeneratorOptions["serverSidePagination"];
   private setWidgetCache: ConstructorProps["setWidgetCache"];
   private setWidgetReferenceCache: ConstructorProps["setWidgetReferenceCache"];
-  private templateBottomRow: GeneratorOptions["templateBottomRow"];
+  private templateHeight: GeneratorOptions["templateHeight"];
   private templateWidgetCandidates: Set<string>;
   private templateWidgetStatus: TemplateWidgetStatus;
   private virtualizer?: VirtualizerInstance;
@@ -287,7 +287,7 @@ class MetaWidgetGenerator {
     this.scrollElement = null;
     this.setWidgetCache = props.setWidgetCache;
     this.setWidgetReferenceCache = props.setWidgetReferenceCache;
-    this.templateBottomRow = DEFAULT_TEMPLATE_BOTTOM_ROW;
+    this.templateHeight = DEFAULT_TEMPLATE_HEIGHT;
     this.templateWidgetCandidates = new Set();
     this.templateWidgetStatus = {
       added: new Set(),
@@ -310,7 +310,7 @@ class MetaWidgetGenerator {
     this.pageSize = options.pageSize;
     this.scrollElement = options.scrollElement;
     this.serverSidePagination = options.serverSidePagination;
-    this.templateBottomRow = options.templateBottomRow;
+    this.templateHeight = options.templateHeight;
     this.widgetName = options.widgetName;
     this.hooks = options.hooks;
     this.currTemplateWidgets = extractTillNestedListWidget(
@@ -942,7 +942,13 @@ class MetaWidgetGenerator {
     metaWidgetName: string,
     templateWidgetName: string,
   ) => {
-    if (metaWidgetName === templateWidgetName) return binding;
+    /*
+     * There are certain edge cases where binding would be `undefined`
+     * so assering type before performing replace operation
+     */
+    if (metaWidgetName === templateWidgetName || typeof binding !== "string") {
+      return binding;
+    }
 
     const pattern = new RegExp(`${templateWidgetName}\\.`, "g");
 
@@ -967,7 +973,7 @@ class MetaWidgetGenerator {
     dynamicPaths.forEach(({ isTriggerPath, key: path }) => {
       if (excludedPaths.includes(path)) return;
 
-      let propertyValue: string = get(metaWidget, path);
+      let propertyValue = get(metaWidget, path);
 
       propertyValue = this.updateWidgetNameInDynamicBinding(
         propertyValue,
@@ -1006,7 +1012,7 @@ class MetaWidgetGenerator {
         if (levelPaths) {
           this.addLevelProperty(metaWidget, levelPaths);
 
-          levelPaths.forEach((levelPath) => {
+          levelPaths.forEach((levelPath: string) => {
             const [level] = levelPath.split(".");
 
             pathTypes.add(level);
@@ -1445,7 +1451,7 @@ class MetaWidgetGenerator {
       prevOptions?.infiniteScroll !== this.infiniteScroll ||
       prevOptions?.itemSpacing !== this.itemSpacing ||
       prevOptions?.serverSidePagination !== this.serverSidePagination ||
-      prevOptions?.templateBottomRow !== this.templateBottomRow ||
+      prevOptions?.templateHeight !== this.templateHeight ||
       !isEqual(this.currTemplateWidgets, this.prevTemplateWidgets) ||
       !isEqual(this.prevPrimaryKeys, this.primaryKeys)
     );
@@ -1926,7 +1932,7 @@ class MetaWidgetGenerator {
           const listCount = this.data?.length || 0;
           const itemSpacing =
             listCount && ((listCount - 1) * this.itemSpacing) / listCount;
-          return this.templateBottomRow * 10 + itemSpacing;
+          return this.templateHeight + itemSpacing;
         },
         getScrollElement: () => scrollElement,
         observeElementOffset,

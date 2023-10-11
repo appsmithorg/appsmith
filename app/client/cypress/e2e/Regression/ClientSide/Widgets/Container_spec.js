@@ -1,7 +1,6 @@
-const commonlocators = require("../../../../locators/commonlocators.json");
-const publish = require("../../../../locators/publishWidgetspage.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 const dsl = require("../../../../fixtures/containerdsl.json");
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 const boxShadowOptions = {
   none: "none",
@@ -12,8 +11,7 @@ const boxShadowOptions = {
 
 describe("Container Widget Functionality", function () {
   before(() => {
-    cy.addDsl(dsl);
-    cy.wait(4000); //for dsl to settle!
+    _.agHelper.AddDsl("containerdsl");
   });
 
   it("Container Widget Functionality", function () {
@@ -36,7 +34,7 @@ describe("Container Widget Functionality", function () {
       .first()
       .click({ force: true })
       .clear()
-      .type(widgetsPage.yellowColorHex);
+      .type(widgetsPage.yellowColorHex, { delay: 0 });
     cy.get(
       `div[data-testid='container-wrapper-${dsl.dsl.children[0].widgetId}']`,
     )
@@ -49,7 +47,7 @@ describe("Container Widget Functionality", function () {
       .first()
       .click({ force: true })
       .clear()
-      .type(widgetsPage.greenColorHex);
+      .type(widgetsPage.greenColorHex, { delay: 0 });
     cy.get(widgetsPage.containerD)
       .should("have.css", "background")
       .and(
@@ -65,7 +63,7 @@ describe("Container Widget Functionality", function () {
       .eq(0)
       .scrollIntoView({ easing: "linear" })
       .should("be.visible");
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
   });
   it("Container Widget Functionality To Verify The Colour", function () {
     cy.get(widgetsPage.containerD)
@@ -78,7 +76,7 @@ describe("Container Widget Functionality", function () {
   });
 
   it("Test border width and verity", function () {
-    cy.get(publish.backToEditor).click();
+    _.deployMode.NavigateBacktoEditor();
     cy.openPropertyPane("containerwidget");
     cy.moveToStyleTab();
     cy.testJsontext("borderwidth", "10");

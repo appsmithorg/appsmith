@@ -11,5 +11,4 @@ public abstract class BasePlugin extends Plugin {
     public BasePlugin(PluginWrapper wrapper) {
         super(wrapper);
     }
-
 }

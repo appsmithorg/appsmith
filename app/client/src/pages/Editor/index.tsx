@@ -5,7 +5,7 @@ import type { RouteComponentProps } from "react-router-dom";
 import { withRouter } from "react-router-dom";
 import type { BuilderRouteParams } from "constants/routes";
 import type { AppState } from "@appsmith/reducers";
-import MainContainer from "./MainContainer";
+import WidgetsEditorWrapper from "./WidgetsEditorWrapper";
 import {
   getCurrentApplicationId,
   getIsEditorInitialized,
@@ -15,7 +15,6 @@ import {
 } from "selectors/editorSelectors";
 import type { InitializeEditorPayload } from "actions/initActions";
 import { initEditor, resetEditorRequest } from "actions/initActions";
-import { editorInitializer } from "utils/editor/EditorUtils";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import { getCurrentUser } from "selectors/usersSelectors";
 import type { User } from "constants/userConstants";
@@ -40,6 +39,10 @@ import { GIT_BRANCH_QUERY_KEY } from "constants/routes";
 import TemplatesModal from "pages/Templates/TemplatesModal";
 import ReconnectDatasourceModal from "./gitSync/ReconnectDatasourceModal";
 import { Spinner } from "design-system";
+import SignpostingOverlay from "pages/Editor/FirstTimeUserOnboarding/Overlay";
+import { editorInitializer } from "../../utils/editor/EditorUtils";
+import { widgetInitialisationSuccess } from "../../actions/widgetActions";
+import { EnvDeployInfoModal } from "@appsmith/components/EnvDeployInfoModal";
 
 type EditorProps = {
   currentApplicationId?: string;
@@ -60,36 +63,18 @@ type EditorProps = {
   currentPageId?: string;
   pageLevelSocketRoomId: string;
   isMultiPane: boolean;
+  widgetConfigBuildSuccess: () => void;
 };
 
 type Props = EditorProps & RouteComponentProps<BuilderRouteParams>;
 
 class Editor extends Component<Props> {
-  public state = {
-    registered: false,
-  };
-
   componentDidMount() {
     editorInitializer().then(() => {
-      this.setState({ registered: true });
+      this.props.widgetConfigBuildSuccess();
     });
-
-    const {
-      location: { search },
-    } = this.props;
-    const branch = getSearchQuery(search, GIT_BRANCH_QUERY_KEY);
-
-    const { applicationId, pageId } = this.props.match.params;
-    if (pageId)
-      this.props.initEditor({
-        applicationId,
-        pageId,
-        branch,
-        mode: APP_MODE.EDIT,
-      });
   }
-
-  shouldComponentUpdate(nextProps: Props, nextState: { registered: boolean }) {
+  shouldComponentUpdate(nextProps: Props) {
     const isBranchUpdated = getIsBranchUpdated(
       this.props.location,
       nextProps.location,
@@ -106,8 +91,7 @@ class Editor extends Component<Props> {
       nextProps.errorPublishing !== this.props.errorPublishing ||
       nextProps.isEditorInitializeError !==
         this.props.isEditorInitializeError ||
-      nextProps.loadingGuidedTour !== this.props.loadingGuidedTour ||
-      nextState.registered !== this.state.registered
+      nextProps.loadingGuidedTour !== this.props.loadingGuidedTour
     );
   }
 
@@ -156,11 +140,7 @@ class Editor extends Component<Props> {
   }
 
   public render() {
-    if (
-      !this.props.isEditorInitialized ||
-      !this.state.registered ||
-      this.props.loadingGuidedTour
-    ) {
+    if (!this.props.isEditorInitialized || this.props.loadingGuidedTour) {
       return (
         <CenteredWrapper
           style={{ height: `calc(100vh - ${theme.smallHeaderHeight})` }}
@@ -179,14 +159,16 @@ class Editor extends Component<Props> {
             </title>
           </Helmet>
           <GlobalHotKeys>
-            <MainContainer />
+            <WidgetsEditorWrapper />
             <GitSyncModal />
+            <EnvDeployInfoModal />
             <DisconnectGitModal />
             <GuidedTourModal />
             <RepoLimitExceededErrorModal />
             <TemplatesModal />
             <ImportedApplicationSuccessModal />
             <ReconnectDatasourceModal />
+            <SignpostingOverlay />
           </GlobalHotKeys>
         </div>
         <RequestConfirmationModal />
@@ -216,6 +198,7 @@ const mapDispatchToProps = (dispatch: any) => {
     resetEditorRequest: () => dispatch(resetEditorRequest()),
     fetchPage: (pageId: string) => dispatch(fetchPage(pageId)),
     updateCurrentPage: (pageId: string) => dispatch(updateCurrentPage(pageId)),
+    widgetConfigBuildSuccess: () => dispatch(widgetInitialisationSuccess()),
   };
 };
 

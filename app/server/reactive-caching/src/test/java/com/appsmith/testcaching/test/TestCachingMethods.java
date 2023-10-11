@@ -1,23 +1,21 @@
 package com.appsmith.testcaching.test;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-
-import java.util.List;
-
+import com.appsmith.caching.components.CacheManager;
+import com.appsmith.testcaching.model.ArgumentModel;
+import com.appsmith.testcaching.model.TestModel;
+import com.appsmith.testcaching.service.CacheTestService;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import com.appsmith.caching.components.CacheManager;
-import com.appsmith.testcaching.model.ArgumentModel;
-import com.appsmith.testcaching.model.TestModel;
-import com.appsmith.testcaching.service.CacheTestService;
+import java.util.List;
 
-import lombok.extern.slf4j.Slf4j;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 @SpringBootTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -51,15 +49,17 @@ public class TestCachingMethods {
      */
     @Test
     public void testCacheAndEvictFlux() {
-        List<TestModel> model = cacheTestService.getListFor("test1").collectList().block();
-        List<TestModel> model2 = cacheTestService.getListFor("test1").collectList().block();
+        List<TestModel> model =
+                cacheTestService.getListFor("test1").collectList().block();
+        List<TestModel> model2 =
+                cacheTestService.getListFor("test1").collectList().block();
         assertArrayEquals(model.toArray(), model2.toArray());
 
         cacheTestService.evictListFor("test1").block();
 
         // If not evicted with above call, this will return the same object
         model2 = cacheTestService.getListFor("test1").collectList().block();
-        for(int i = model.size() - 1; i >= 0; i--) {
+        for (int i = model.size() - 1; i >= 0; i--) {
             assertNotEquals(model.get(i), model2.get(i));
         }
     }
@@ -86,8 +86,10 @@ public class TestCachingMethods {
      */
     @Test
     public void testExpression() {
-        TestModel model = cacheTestService.getObjectForWithKey(ArgumentModel.of("test1")).block();
-        TestModel model2 = cacheTestService.getObjectForWithKey(ArgumentModel.of("test1")).block();
+        TestModel model =
+                cacheTestService.getObjectForWithKey(ArgumentModel.of("test1")).block();
+        TestModel model2 =
+                cacheTestService.getObjectForWithKey(ArgumentModel.of("test1")).block();
         assertEquals(model, model2);
 
         cacheTestService.evictObjectForWithKey("test1").block();
@@ -106,7 +108,7 @@ public class TestCachingMethods {
         TestModel model1 = cacheTestService.getObjectFor("test1").block();
         long initialTime = System.nanoTime();
         int count = 100;
-        for(int i = 0; i < count; i++) {
+        for (int i = 0; i < count; i++) {
             cacheTestService.getObjectFor("test1").block();
         }
         long finalTime = System.nanoTime();

@@ -1,0 +1,93 @@
+import {
+  Button,
+  ButtonGroup,
+  TooltipRoot,
+  TooltipTrigger,
+  TooltipContent,
+  Tooltip,
+} from "@design-system/widgets";
+import { Canvas, Meta, Story, ArgsTable } from "@storybook/addon-docs";
+
+<Meta
+  title="Design-system/Widgets/Tooltip"
+  component={TooltipRoot}
+  args={{
+    open: undefined,
+    onOpenChange: undefined,
+  }}
+/>
+
+export const Template = (args) => {
+  return (
+    <TooltipRoot {...args}>
+      <TooltipTrigger>
+        <Button>My trigger</Button>
+      </TooltipTrigger>
+      <TooltipContent>My tooltip</TooltipContent>
+    </TooltipRoot>
+  );
+};
+
+# Tooltip
+
+A tooltip is a small pop-up that appears when a user places their cursor over an element such as a link or button. Tooltips can be used to provide users with additional information about an element without having to clutter up the UI with additional text.
+
+<Canvas>
+  <Story name="Tooltip">{Template.bind({})}</Story>
+</Canvas>
+
+<ArgsTable story="Tooltip" of={Tooltip} />
+
+# Placement
+
+The placement of the tooltip can be changed by passing the `placement` prop.
+
+<Story name="Tooltip placement">
+  <ButtonGroup>
+    <TooltipRoot placement="left">
+      <TooltipTrigger>
+        <Button variant="outlined">Left</Button>
+      </TooltipTrigger>
+      <TooltipContent>My tooltip</TooltipContent>
+    </TooltipRoot>
+    <TooltipRoot placement="top">
+      <TooltipTrigger>
+        <Button variant="outlined">Top</Button>
+      </TooltipTrigger>
+      <TooltipContent>My tooltip</TooltipContent>
+    </TooltipRoot>
+    <TooltipRoot placement="bottom">
+      <TooltipTrigger>
+        <Button variant="outlined">Bottom</Button>
+      </TooltipTrigger>
+      <TooltipContent>My tooltip</TooltipContent>
+    </TooltipRoot>
+    <TooltipRoot placement="right">
+      <TooltipTrigger>
+        <Button variant="outlined">Right</Button>
+      </TooltipTrigger>
+      <TooltipContent>My tooltip</TooltipContent>
+    </TooltipRoot>
+  </ButtonGroup>
+</Story>
+
+# Disabled
+
+If the trigger is disabled, the tooltip will still be displayed.
+
+<Story name="Tooltip disabled">
+  <TooltipRoot>
+    <TooltipTrigger>
+      <Button isDisabled>My trigger</Button>
+    </TooltipTrigger>
+    <TooltipContent>My tooltip</TooltipContent>
+  </TooltipRoot>
+</Story>
+
+# Tooltip Component
+
+<Story name="Tooltip Component">
+  <Tooltip tooltip="Tooltip">
+    <Button>My trigger</Button>
+  </Tooltip>
+</Story>

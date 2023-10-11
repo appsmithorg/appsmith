@@ -19,8 +19,8 @@ import LabelWithTooltip, {
   labelLayoutStyles,
   LABEL_CONTAINER_CLASS,
 } from "widgets/components/LabelWithTooltip";
-import type { ThemeProp } from "widgets/constants";
-import { AlignWidgetTypes } from "widgets/constants";
+import type { ThemeProp } from "WidgetProvider/constants";
+import { AlignWidgetTypes } from "WidgetProvider/constants";
 
 export interface InputContainerProps {
   inline?: boolean;
@@ -28,6 +28,7 @@ export interface InputContainerProps {
   valid?: boolean;
   optionAlignment?: string;
   isDynamicHeightEnabled?: boolean;
+  minWidth?: number;
 }
 
 const InputContainer = styled.div<ThemeProp & InputContainerProps>`
@@ -50,9 +51,8 @@ const InputContainer = styled.div<ThemeProp & InputContainerProps>`
   height: 100%;
   border: 1px solid transparent;
 
-  .auto-layout & {
-    min-width: 232px;
-  }
+  ${({ minWidth }) => `
+    ${minWidth ? `min-width: ${minWidth}px;` : ""}`};
 
   .${Classes.CONTROL} {
     display: flex;
@@ -149,6 +149,7 @@ export interface CheckboxGroupComponentProps extends ComponentProps {
   labelTooltip?: string;
   accentColor: string;
   borderRadius: string;
+  minWidth?: number;
 }
 function CheckboxGroupComponent(props: CheckboxGroupComponentProps) {
   const {
@@ -218,6 +219,7 @@ function CheckboxGroupComponent(props: CheckboxGroupComponentProps) {
         data-testid="checkbox-group-container"
         inline={isInline}
         isDynamicHeightEnabled={isDynamicHeightEnabled}
+        minWidth={props.minWidth}
         optionAlignment={optionAlignment}
         optionCount={options.length}
       >

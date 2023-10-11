@@ -1,6 +1,9 @@
 import { setupServer } from "msw/node";
 import { handlers } from "./__mocks__/apiHandlers";
 import "../src/polyfills/requestIdleCallback";
+import { Crypto } from "@peculiar/webcrypto";
+
+global.crypto = new Crypto();
 
 export const server = setupServer(...handlers);
 

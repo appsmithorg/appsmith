@@ -12,12 +12,13 @@ public class GitConstants {
     public static final String DEFAULT_COMMIT_MESSAGE = "System generated commit, ";
     public static final String EMPTY_COMMIT_ERROR_MESSAGE = "On current branch nothing to commit, working tree clean";
     public static final String MERGE_CONFLICT_BRANCH_NAME = "_mergeConflict";
-    public static final String CONFLICTED_SUCCESS_MESSAGE = "branch has been created from conflicted state. Please " +
-            "resolve merge conflicts in remote and pull again";
+    public static final String CONFLICTED_SUCCESS_MESSAGE = "branch has been created from conflicted state. Please "
+            + "resolve merge conflicts in remote and pull again";
 
-    public static final String GIT_CONFIG_ERROR = "Unable to find the git configuration, please configure your application " +
-            "with git to use version control service";
+    public static final String GIT_CONFIG_ERROR =
+            "Unable to find the git configuration, please configure your application "
+                    + "with git to use version control service";
 
-    public static final String GIT_PROFILE_ERROR = "Unable to find git author configuration for logged-in user. You can" +
-            " set up a git profile from the user profile section.";
+    public static final String GIT_PROFILE_ERROR = "Unable to find git author configuration for logged-in user. You can"
+            + " set up a git profile from the user profile section.";
 }

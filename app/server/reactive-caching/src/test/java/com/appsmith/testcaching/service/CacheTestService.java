@@ -1,20 +1,18 @@
 package com.appsmith.testcaching.service;
 
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.springframework.stereotype.Service;
-
+import com.appsmith.caching.annotations.Cache;
 import com.appsmith.caching.annotations.CacheEvict;
 import com.appsmith.testcaching.model.ArgumentModel;
 import com.appsmith.testcaching.model.TestModel;
-import com.appsmith.caching.annotations.Cache;
-
+import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import uk.co.jemos.podam.api.PodamFactory;
 import uk.co.jemos.podam.api.PodamFactoryImpl;
+
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class CacheTestService {
@@ -60,7 +58,7 @@ public class CacheTestService {
     @Cache(cacheName = "listcache")
     public Flux<TestModel> getListFor(String id) {
         List<TestModel> testModels = new ArrayList<>();
-        for(int i = 0;i < 5;i++) {
+        for (int i = 0; i < 5; i++) {
             TestModel model = factory.manufacturePojo(TestModel.class);
             model.setId(id);
             testModels.add(model);
@@ -86,7 +84,6 @@ public class CacheTestService {
     public Mono<Void> evictAllLists() {
         return Mono.empty();
     }
-    
 
     /**
      * This method is used to test SPEL expression in the caching annotation.

@@ -78,7 +78,8 @@ public class OAuth2ClientCredentials extends APIConnection implements UpdatableC
                     connection.setHeader(token.getIsTokenHeader());
                     connection.setHeaderPrefix(token.getHeaderPrefix());
                     connection.setExpiresAt(token.getAuthenticationResponse().getExpiresAt());
-                    connection.setTokenResponse(token.getAuthenticationResponse().getTokenResponse());
+                    connection.setTokenResponse(
+                            token.getAuthenticationResponse().getTokenResponse());
                     return Mono.just(connection);
                 });
     }
@@ -90,8 +91,7 @@ public class OAuth2ClientCredentials extends APIConnection implements UpdatableC
         // Webclient
         final WebClient.Builder webClientBuilder = WebClientUtils.builder(securedHttpClient)
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-                .exchangeStrategies(ExchangeStrategies
-                        .builder()
+                .exchangeStrategies(ExchangeStrategies.builder()
                         .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(MAX_IN_MEMORY_SIZE))
                         .build());
 
@@ -161,9 +161,10 @@ public class OAuth2ClientCredentials extends APIConnection implements UpdatableC
     private Mono<ClientRequest> addTokenToRequest(ClientRequest clientRequest) {
         // Check to see where the token needs to be added
         if (this.isHeader()) {
-            final String finalHeaderPrefix = this.getHeaderPrefix() != null && !this.getHeaderPrefix().isBlank() ?
-                    this.getHeaderPrefix().trim() + " "
-                    : "";
+            final String finalHeaderPrefix =
+                    this.getHeaderPrefix() != null && !this.getHeaderPrefix().isBlank()
+                            ? this.getHeaderPrefix().trim() + " "
+                            : "";
             return Mono.justOrEmpty(ClientRequest.from(clientRequest)
                     .headers(headers -> headers.set("Authorization", finalHeaderPrefix + this.getToken()))
                     .build());
@@ -172,15 +173,13 @@ public class OAuth2ClientCredentials extends APIConnection implements UpdatableC
                     .queryParam(Authentication.ACCESS_TOKEN, this.getToken())
                     .build()
                     .toUri();
-            return Mono.justOrEmpty(ClientRequest.from(clientRequest)
-                    .url(url)
-                    .build());
+            return Mono.justOrEmpty(ClientRequest.from(clientRequest).url(url).build());
         }
     }
 
     private BodyInserters.FormInserter<String> clientCredentialsTokenBody(OAuth2 oAuth2) {
-        BodyInserters.FormInserter<String> body = BodyInserters
-                .fromFormData(Authentication.GRANT_TYPE, Authentication.CLIENT_CREDENTIALS);
+        BodyInserters.FormInserter<String> body =
+                BodyInserters.fromFormData(Authentication.GRANT_TYPE, Authentication.CLIENT_CREDENTIALS);
 
         if (Boolean.FALSE.equals(oAuth2.getIsAuthorizationHeader())) {
             body.with(Authentication.CLIENT_ID, oAuth2.getClientId())
@@ -199,11 +198,11 @@ public class OAuth2ClientCredentials extends APIConnection implements UpdatableC
         if (!CollectionUtils.isEmpty(oAuth2.getScope())) {
             body.with(Authentication.SCOPE, StringUtils.collectionToDelimitedString(oAuth2.getScope(), " "));
         }
-        //Custom Token Parameters
+        // Custom Token Parameters
         if (oAuth2.getCustomTokenParameters() != null) {
-             oAuth2.getCustomTokenParameters().forEach(params ->
-               body.with(params.getKey(), params.getValue().toString())
-                    );
+            oAuth2.getCustomTokenParameters()
+                    .forEach(params ->
+                            body.with(params.getKey(), params.getValue().toString()));
         }
         return body;
     }

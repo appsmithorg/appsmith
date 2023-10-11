@@ -36,7 +36,9 @@ yarn-error.log*
 .storybook-out/
 cypress/videos
 cypress/screenshots
+cypress/limited-tests.txt
 cypress.env.json
+cypress/cypress-logs
 results/
 
 

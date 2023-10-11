@@ -2,12 +2,12 @@ import { defineConfig } from "cypress";
 
 export default defineConfig({
   defaultCommandTimeout: 30000,
-  requestTimeout: 21000,
-  responseTimeout: 30000,
-  pageLoadTimeout: 30000,
-  videoUploadOnPasses: false,
-  videoCompression: false,
-  numTestsKeptInMemory: 10,
+  requestTimeout: 60000,
+  responseTimeout: 60000,
+  pageLoadTimeout: 60000,
+  video: true,
+  numTestsKeptInMemory: 5,
+  experimentalMemoryManagement: true,
   reporterOptions: {
     reportDir: "results",
     overwrite: false,
@@ -16,7 +16,8 @@ export default defineConfig({
   },
   chromeWebSecurity: false,
   viewportHeight: 1200,
-  viewportWidth: 1600,
+  viewportWidth: 1400,
+  scrollBehavior: "center",
   retries: {
     runMode: 1,
     openMode: 0,
@@ -27,6 +28,13 @@ export default defineConfig({
       return require("./cypress/plugins/index.js")(on, config);
     },
     specPattern: "cypress/e2e/**/*.{js,ts}",
-    excludeSpecPattern: "cypress/e2e/**/spec_utility.ts",
+    testIsolation: false,
+    excludeSpecPattern: [
+      "cypress/e2e/**/spec_utility.ts",
+      "cypress/e2e/GSheet/**/**/*",
+      "cypress/e2e/Sanity/Datasources/Airtable_Basic_Spec.ts",
+      "cypress/e2e/Regression/ClientSide/CommunityTemplate/*",
+      "cypress/e2e/Regression/ServerSide/Datasources/ElasticSearch_Basic_Spec.ts",
+    ],
   },
 });

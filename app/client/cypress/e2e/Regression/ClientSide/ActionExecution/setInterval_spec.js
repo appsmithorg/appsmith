@@ -1,42 +1,35 @@
-const dsl = require("../../../../fixtures/buttonApiDsl.json");
-const publishPage = require("../../../../locators/publishWidgetspage.json");
-
-import * as _ from "../../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  entityExplorer,
+  propPane,
+  deployMode,
+} from "../../../../support/Objects/ObjectsCore";
+import data from "../../../../fixtures/TestDataSet1.json";
 
 describe("Test Create Api and Bind to Button widget", function () {
-  let dataSet;
   before("Test_Add users api and execute api", () => {
-    cy.addDsl(dsl);
-
-    cy.fixture("example").then(function (data) {
-      dataSet = data;
-      cy.createAndFillApi(dataSet.userApi, "/users");
-      cy.RunAPI();
-    });
+    agHelper.AddDsl("buttonApiDsl");
+    cy.createAndFillApi(data.userApi, "/mock-api?records=10");
+    cy.RunAPI();
   });
 
   it("1. Selects set interval function, Fill setInterval action creator and test code generated ", () => {
-    _.entityExplorer.SelectEntityByName("Button1");
-    _.propPane.SelectPlatformFunction("onClick", "Set interval");
-    _.agHelper.EnterActionValue(
-      "Callback function",
-      "{{() => { Api1.run() }}}",
-    );
-    _.agHelper.EnterActionValue("Id", "myInterval");
-    _.propPane.EnterJSContext(
+    entityExplorer.SelectEntityByName("Button1");
+    propPane.SelectPlatformFunction("onClick", "Set interval");
+    agHelper.EnterActionValue("Callback function", "{{() => { Api1.run() }}}");
+    agHelper.EnterActionValue("Id", "myInterval");
+    propPane.EnterJSContext(
       "onClick",
       "{{setInterval(() => {  Api1.run();}, 5000, 'myInterval');}}",
     );
 
     //Works in the published version"
-    cy.PublishtheApp();
+    deployMode.DeployApp();
     cy.wait(3000);
     cy.get("span:contains('Submit')").closest("div").click();
-    cy.wait("@postExecute").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
+    cy.wait("@postExecute")
+      .its("response.body.responseMeta.status")
+      .should("eq", 200);
     cy.wait(3000);
 
     cy.wait("@postExecute").should(
@@ -44,19 +37,19 @@ describe("Test Create Api and Bind to Button widget", function () {
       "response.body.responseMeta.status",
       200,
     );
-    cy.get(publishPage.backToEditor).click({ force: true });
+    deployMode.NavigateBacktoEditor();
   });
 
   it("2. Selects clear interval function, Fill clearInterval action creator and test code generated", () => {
-    _.entityExplorer.SelectEntityByName("Button1", "Widgets");
-    _.jsEditor.DisableJSContext("onClick");
+    entityExplorer.SelectEntityByName("Button1", "Widgets");
+    propPane.ToggleJSMode("onClick", false);
     cy.get(".action-block-tree").click({ force: true });
     cy.get(".t--action-selector-popup .t--delete").click({ force: true });
-    _.propPane.SelectPlatformFunction("onClick", "Clear interval");
-    _.agHelper.EnterActionValue("Id", "myInterval");
+    propPane.SelectPlatformFunction("onClick", "Clear interval");
+    agHelper.EnterActionValue("Id", "myInterval");
 
-    _.jsEditor.EnableJSContext("onClick");
-    _.propPane.ValidatePropertyFieldValue(
+    propPane.ToggleJSMode("onClick");
+    propPane.ValidatePropertyFieldValue(
       "onClick",
       `{{clearInterval('myInterval');}}`,
     );

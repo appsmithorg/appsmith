@@ -13,7 +13,7 @@ import type { SourceEntity } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import ReadOnlyEditor from "components/editorComponents/ReadOnlyEditor";
-import { getActionResponses } from "selectors/entitiesSelector";
+import { getActionResponses } from "@appsmith/selectors/entitiesSelector";
 import { isArray, isEmpty, isString } from "lodash";
 import {
   CHECK_REQUEST_BODY,
@@ -62,6 +62,7 @@ import type { Action } from "entities/Action";
 import { SegmentedControlContainer } from "../../pages/Editor/QueryEditor/EditorJSONtoForm";
 import ActionExecutionInProgressView from "./ActionExecutionInProgressView";
 import { CloseDebugger } from "./Debugger/DebuggerTabs";
+import { EMPTY_RESPONSE } from "./emptyResponse";
 
 type TextStyleProps = {
   accent: "primary" | "secondary" | "error";
@@ -202,22 +203,6 @@ type Props = ReduxStateProps &
     responseDisplayFormat: { title: string; value: string };
   };
 
-export const EMPTY_RESPONSE: ActionResponse = {
-  statusCode: "",
-  duration: "",
-  body: "",
-  headers: {},
-  request: {
-    headers: {},
-    body: {},
-    httpMethod: "",
-    url: "",
-  },
-  size: "",
-  responseDisplayFormat: "",
-  dataTypes: [],
-};
-
 const StatusCodeText = styled(BaseText)<PropsWithChildren<{ code: string }>>`
   color: ${(props) =>
     props.code.startsWith("2")
@@ -274,7 +259,6 @@ export const responseTabComponent = (
   return {
     [API_RESPONSE_TYPE_OPTIONS.JSON]: (
       <ReadOnlyEditor
-        containerHeight={tableBodyHeight}
         folding
         height={"100%"}
         input={{
@@ -287,7 +271,6 @@ export const responseTabComponent = (
     ),
     [API_RESPONSE_TYPE_OPTIONS.RAW]: (
       <ReadOnlyEditor
-        containerHeight={tableBodyHeight}
         folding
         height={"100%"}
         input={{
@@ -492,7 +475,7 @@ function ApiResponseView(props: Props) {
                 </ResponseTabErrorDefaultMessage>
                 {response.pluginErrorDetails && (
                   <>
-                    <div>
+                    <div className="t--debugger-log-downstream-message">
                       {response.pluginErrorDetails.downstreamErrorMessage}
                     </div>
                     {response.pluginErrorDetails.downstreamErrorCode && (

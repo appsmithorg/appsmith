@@ -7,5 +7,4 @@ import lombok.Data;
 public class UserChangedEvent {
 
     private final User user;
-
 }

@@ -21,6 +21,7 @@ import {
   OAUTH_AUTHORIZATION_APPSMITH_ERROR,
   OAUTH_AUTHORIZATION_FAILED,
   SAVE_AND_AUTHORIZE_BUTTON_TEXT,
+  SAVE_AND_RE_AUTHORIZE_BUTTON_TEXT,
   SAVE_BUTTON_TEXT,
   TEST_BUTTON_TEXT,
   createMessage,
@@ -28,20 +29,24 @@ import {
 import { Button, toast } from "design-system";
 import type { ApiDatasourceForm } from "entities/Datasource/RestAPIForm";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
-
-import { hasManageDatasourcePermission } from "@appsmith/utils/permissionHelpers";
 import { INTEGRATION_TABS, SHOW_FILE_PICKER_KEY } from "constants/routes";
 import { integrationEditorURL } from "RouteBuilder";
 import { getQueryParams } from "utils/URLUtils";
 import type { AppsmithLocationState } from "utils/history";
 import type { PluginType } from "entities/Action";
+import { getCurrentEnvironmentDetails } from "@appsmith/selectors/environmentSelectors";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { getHasManageDatasourcePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 
 interface Props {
   datasource: Datasource;
   formData: Datasource | ApiDatasourceForm;
   getSanitizedFormData: () => Datasource;
+  currentEnvironment: string;
   isInvalid: boolean;
   pageId?: string;
+  formName: string;
   viewMode?: boolean;
   shouldRender?: boolean;
   isInsideReconnectModal?: boolean;
@@ -49,14 +54,17 @@ interface Props {
   pluginType: PluginType;
   pluginName: string;
   pluginPackageName: string;
-  setDatasourceViewMode: (viewMode: boolean) => void;
+  setDatasourceViewMode: (payload: {
+    datasourceId: string;
+    viewMode: boolean;
+  }) => void;
   isSaving: boolean;
   isTesting: boolean;
   shouldDisplayAuthMessage?: boolean;
   triggerSave?: boolean;
   isFormDirty?: boolean;
   scopeValue?: string;
-  showFilterComponent: boolean;
+  onCancel: () => void;
 }
 
 export type DatasourceFormButtonTypes = Record<string, string[]>;
@@ -86,13 +94,11 @@ export const DatasourceButtonType: Record<
 
 export const ActionButton = styled(Button)<{
   floatLeft: boolean;
-  showFilterComponent: boolean;
 }>`
   &&& {
     // Pulling button to the left if floatLeft is set as true
     margin-right: ${(props) => (props.floatLeft ? "auto" : "9px")};
-    // If filter component is present, then we need to push the button to the right
-    margin-left: ${(props) => (props.showFilterComponent ? "24px" : "0px")};
+    margin-left: ${(props) => (props.floatLeft ? "16px" : "0px")};
   }
 `;
 
@@ -120,6 +126,7 @@ const StyledAuthMessage = styled.div`
 `;
 
 function DatasourceAuth({
+  currentEnvironment,
   datasource,
   datasourceButtonConfiguration = [
     DatasourceButtonTypeEnum.CANCEL,
@@ -128,7 +135,7 @@ function DatasourceAuth({
   formData,
   getSanitizedFormData,
   isInvalid,
-  pageId: pageIdProp,
+  pageId: pageIdProp = "",
   pluginType,
   pluginName,
   pluginPackageName,
@@ -136,27 +143,33 @@ function DatasourceAuth({
   isTesting,
   viewMode,
   shouldDisplayAuthMessage = true,
-  setDatasourceViewMode,
   triggerSave,
   isFormDirty,
   scopeValue,
   isInsideReconnectModal,
-  showFilterComponent,
+  onCancel,
 }: Props) {
   const shouldRender = !viewMode || isInsideReconnectModal;
   const authType =
     formData && "authType" in formData
       ? formData?.authType
-      : formData?.datasourceConfiguration?.authentication?.authenticationType;
+      : formData?.datasourceStorages &&
+        formData?.datasourceStorages[currentEnvironment]
+          ?.datasourceConfiguration?.authentication?.authenticationType;
 
   const { id: datasourceId } = datasource;
   const applicationId = useSelector(getCurrentApplicationId);
 
   const datasourcePermissions = datasource.userPermissions || [];
 
-  const canManageDatasource = hasManageDatasourcePermission(
+  const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+
+  const canManageDatasource = getHasManageDatasourcePermission(
+    isFeatureEnabled,
     datasourcePermissions,
   );
+
+  const currentEnvDetails = useSelector(getCurrentEnvironmentDetails);
 
   // hooks
   const dispatch = useDispatch();
@@ -164,7 +177,9 @@ function DatasourceAuth({
   const { pageId: pageIdQuery } = useParams<ExplorerURLParams>();
   const history = useHistory<AppsmithLocationState>();
 
-  const pageId = (pageIdQuery || pageIdProp) as string;
+  const pageId = isInsideReconnectModal
+    ? pageIdProp
+    : ((pageIdQuery || pageIdProp) as string);
 
   useEffect(() => {
     if (authType === AuthType.OAUTH2) {
@@ -223,10 +238,13 @@ function DatasourceAuth({
       }
     }
   }, [triggerSave]);
-
   const isAuthorized =
-    datasource?.datasourceConfiguration?.authentication
-      ?.authenticationStatus === AuthenticationStatus.SUCCESS;
+    datasource?.datasourceStorages && authType === AuthType.OAUTH2
+      ? datasource?.datasourceStorages[currentEnvDetails.editingId]
+          ?.datasourceConfiguration?.authentication?.isAuthorized
+      : datasource?.datasourceStorages[currentEnvironment]
+          ?.datasourceConfiguration?.authentication?.authenticationStatus ===
+        AuthenticationStatus.SUCCESS;
 
   // Button Operations for respective buttons.
 
@@ -236,6 +254,8 @@ function DatasourceAuth({
       pageId: pageId,
       appId: applicationId,
       datasourceId: datasourceId,
+      environmentId: currentEnvironment,
+      environmentName: currentEnvDetails.name,
       pluginName: pluginName,
     });
     dispatch(testDatasource(getSanitizedFormData()));
@@ -247,6 +267,8 @@ function DatasourceAuth({
     AnalyticsUtil.logEvent("SAVE_DATA_SOURCE_CLICK", {
       pageId: pageId,
       appId: applicationId,
+      environmentId: currentEnvironment,
+      environmentName: currentEnvDetails.name,
       pluginName: pluginName || "",
       pluginPackageName: pluginPackageName || "",
     });
@@ -258,6 +280,7 @@ function DatasourceAuth({
       dispatch(
         updateDatasource(
           getSanitizedFormData(),
+          currentEnvironment,
           undefined,
           undefined,
           isInsideReconnectModal,
@@ -282,6 +305,7 @@ function DatasourceAuth({
       dispatch(
         updateDatasource(
           getSanitizedFormData(),
+          currentEnvironment,
           pluginType
             ? redirectAuthorizationCode(pageId, datasourceId, pluginType)
             : undefined,
@@ -297,7 +321,6 @@ function DatasourceAuth({
   };
 
   const createMode = datasourceId === TEMP_DATASOURCE_ID;
-
   const datasourceButtonsComponentMap = (buttonType: string): JSX.Element => {
     return {
       [DatasourceButtonType.TEST]: (
@@ -308,7 +331,6 @@ function DatasourceAuth({
           key={buttonType}
           kind="secondary"
           onClick={handleDatasourceTest}
-          showFilterComponent={showFilterComponent}
           size="md"
         >
           {createMessage(TEST_BUTTON_TEXT)}
@@ -327,7 +349,9 @@ function DatasourceAuth({
                 params: getQueryParams(),
               });
               history.push(URL);
-            } else setDatasourceViewMode(true);
+            } else {
+              !!onCancel && onCancel();
+            }
           }}
           size="md"
         >
@@ -338,14 +362,24 @@ function DatasourceAuth({
         <Button
           className="t--save-datasource"
           isDisabled={
-            isInvalid || !isFormDirty || (!createMode && !canManageDatasource)
+            isInvalid ||
+            (!createMode && !isFormDirty) ||
+            (!createMode && !canManageDatasource)
           }
           isLoading={isSaving}
           key={buttonType}
-          onClick={handleDefaultAuthDatasourceSave}
+          onClick={
+            authType === AuthType.OAUTH2
+              ? handleOauthDatasourceSave
+              : handleDefaultAuthDatasourceSave
+          }
           size="md"
         >
-          {createMessage(SAVE_BUTTON_TEXT)}
+          {authType === AuthType.OAUTH2
+            ? isAuthorized
+              ? createMessage(SAVE_AND_RE_AUTHORIZE_BUTTON_TEXT)
+              : createMessage(SAVE_AND_AUTHORIZE_BUTTON_TEXT)
+            : createMessage(SAVE_BUTTON_TEXT)}
         </Button>
       ),
       [DatasourceButtonType.SAVE_AND_AUTHORIZE]: (

@@ -6,8 +6,8 @@ import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.Property;
 import graphql.parser.InvalidSyntaxException;
 import graphql.parser.Parser;
-import org.json.JSONObject;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +23,8 @@ public class GraphQLBodyUtils {
     public static final String QUERY_KEY = "query";
     public static final String VARIABLES_KEY = "variables";
 
-    public static String convertToGraphQLPOSTBodyFormat(ActionConfiguration actionConfiguration) throws AppsmithPluginException {
+    public static String convertToGraphQLPOSTBodyFormat(ActionConfiguration actionConfiguration)
+            throws AppsmithPluginException {
         JSONObject query = new JSONObject();
         query.put(QUERY_KEY, actionConfiguration.getBody());
 
@@ -34,20 +35,22 @@ public class GraphQLBodyUtils {
                 JSONObject json = parseStringIntoJSONObject(variables);
                 query.put(VARIABLES_KEY, json);
             } catch (JSONException | ClassCastException e) {
-                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "GraphQL query " +
-                        "variables are not in proper JSON format: " + e.getMessage());
+                throw new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                        "GraphQL query " + "variables are not in proper JSON format: " + e.getMessage());
             }
         }
 
         return query.toString();
     }
 
-    public static void validateBodyAndVariablesSyntax(ActionConfiguration actionConfiguration) throws AppsmithPluginException {
+    public static void validateBodyAndVariablesSyntax(ActionConfiguration actionConfiguration)
+            throws AppsmithPluginException {
         if (isBlank(actionConfiguration.getBody())) {
             throw new AppsmithPluginException(
                     AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                    "Your GraphQL query body is empty. Please edit the 'Body' tab of your GraphQL API to provide a " +
-                            "query body.");
+                    "Your GraphQL query body is empty. Please edit the 'Body' tab of your GraphQL API to provide a "
+                            + "query body.");
         }
 
         Parser graphqlParser = new Parser();
@@ -55,8 +58,7 @@ public class GraphQLBodyUtils {
             graphqlParser.parseDocument(actionConfiguration.getBody());
         } catch (InvalidSyntaxException e) {
             throw new AppsmithPluginException(
-                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                    "Invalid GraphQL body: " + e.getMessage());
+                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Invalid GraphQL body: " + e.getMessage());
         }
         final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
         String variables = getValueSafelyFromPropertyList(properties, QUERY_VARIABLES_INDEX, String.class);
@@ -66,8 +68,7 @@ public class GraphQLBodyUtils {
             } catch (JSONException e) {
                 throw new AppsmithPluginException(
                         AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                        "GraphQL query variables are not in proper JSON format: " + e.getMessage()
-                );
+                        "GraphQL query variables are not in proper JSON format: " + e.getMessage());
             }
         }
     }

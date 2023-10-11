@@ -30,14 +30,12 @@ public class ApiKeyAuthentication extends APIConnection {
     Type addTo;
 
     public static Mono<ApiKeyAuthentication> create(ApiKeyAuth apiKeyAuth) {
-        return Mono.just(
-                ApiKeyAuthentication.builder()
-                        .label(apiKeyAuth.getLabel())
-                        .headerPrefix(apiKeyAuth.getHeaderPrefix())
-                        .value(apiKeyAuth.getValue())
-                        .addTo(apiKeyAuth.getAddTo())
-                        .build()
-        );
+        return Mono.just(ApiKeyAuthentication.builder()
+                .label(apiKeyAuth.getLabel())
+                .headerPrefix(apiKeyAuth.getHeaderPrefix())
+                .value(apiKeyAuth.getValue())
+                .addTo(apiKeyAuth.getAddTo())
+                .build());
     }
 
     @Override
@@ -51,13 +49,10 @@ public class ApiKeyAuthentication extends APIConnection {
                 requestBuilder.headers(header -> header.set(label, this.getHeaderValue()));
                 break;
             default:
-                return Mono.error(
-                        new AppsmithPluginException(
-                                AppsmithPluginError.PLUGIN_ERROR,
-                                "Appsmith server has found an unsupported api key authentication type. Please reach " +
-                                        "out to Appsmith customer support to resolve this."
-                        )
-                );
+                return Mono.error(new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_ERROR,
+                        "Appsmith server has found an unsupported api key authentication type. Please reach "
+                                + "out to Appsmith customer support to resolve this."));
         }
 
         return Mono.justOrEmpty(requestBuilder.build())
@@ -79,8 +74,7 @@ public class ApiKeyAuthentication extends APIConnection {
 
     private URI appendApiKeyParamToUrl(URI oldUrl) {
 
-        return UriComponentsBuilder
-                .newInstance()
+        return UriComponentsBuilder.newInstance()
                 .scheme(oldUrl.getScheme())
                 .host(oldUrl.getHost())
                 .port(oldUrl.getPort())

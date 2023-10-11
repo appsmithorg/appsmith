@@ -4,12 +4,12 @@ import {
   PLATFORM_ERROR,
   Severity,
 } from "entities/AppsmithConsole";
+import type { WidgetEntityConfig } from "@appsmith/entities/DataTree/types";
 import type {
   ConfigTree,
   DataTree,
   UnEvalTree,
-  WidgetEntityConfig,
-} from "entities/DataTree/dataTreeFactory";
+} from "entities/DataTree/dataTreeTypes";
 import type { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
 import {
   DataTreeDiffEvent,
@@ -23,7 +23,7 @@ import type { EvalError, EvaluationError } from "utils/DynamicBindingUtils";
 import { EvalErrorTypes, getEvalErrorPath } from "utils/DynamicBindingUtils";
 import { find, get, some } from "lodash";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import { put, select } from "redux-saga/effects";
+import { call, put, select } from "redux-saga/effects";
 import type { AnyReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import AppsmithConsole from "utils/AppsmithConsole";
 import * as Sentry from "@sentry/react";
@@ -44,10 +44,16 @@ import CodemirrorTernService from "utils/autocomplete/CodemirrorTernService";
 import type { JSAction } from "entities/JSCollection";
 import { isWidgetPropertyNamePath } from "utils/widgetEvalUtils";
 import { toast } from "design-system";
-import type { ActionEntityConfig } from "entities/DataTree/types";
+import type { ActionEntityConfig } from "@appsmith/entities/DataTree/types";
 import type { SuccessfulBindings } from "utils/SuccessfulBindingsMap";
 import SuccessfulBindingMap from "utils/SuccessfulBindingsMap";
 import { logActionExecutionError } from "./ActionExecution/errorUtils";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
+import { getInstanceId } from "@appsmith/selectors/tenantSelectors";
+import type {
+  EvalTreeResponseData,
+  JSVarMutatedEvents,
+} from "workers/Evaluation/types";
 
 let successfulBindingsMap: SuccessfulBindingMap | undefined;
 
@@ -56,9 +62,9 @@ const getDebuggerErrors = (state: AppState) => state.ui.debugger.errors;
 function logLatestEvalPropertyErrors(
   currentDebuggerErrors: Record<string, Log>,
   dataTree: DataTree,
-  evaluationOrder: Array<string>,
+  evalAndValidationOrder: Array<string>,
   configTree: ConfigTree,
-  pathsToClearErrorsFor?: any[],
+  removedPaths?: Array<{ entityId: string; fullpath: string }>,
 ) {
   const errorsToAdd = [];
   const errorsToDelete = [];
@@ -66,7 +72,7 @@ function logLatestEvalPropertyErrors(
     ...currentDebuggerErrors,
   };
 
-  for (const evaluatedPath of evaluationOrder) {
+  for (const evaluatedPath of evalAndValidationOrder) {
     const { entityName, propertyPath } =
       getEntityNameAndPropertyPath(evaluatedPath);
     const entity = dataTree[entityName];
@@ -194,15 +200,11 @@ function logLatestEvalPropertyErrors(
   for those paths.
   */
 
-  if (pathsToClearErrorsFor) {
-    for (const error of pathsToClearErrorsFor) {
-      const widgetId = error.widgetId;
-
-      error.paths.forEach((path: string) => {
-        const { propertyPath } = getEntityNameAndPropertyPath(path);
-
-        errorsToDelete.push({ id: `${widgetId}-${propertyPath}` });
-      });
+  if (removedPaths?.length) {
+    for (const removedPath of removedPaths) {
+      const { entityId, fullpath } = removedPath;
+      const { propertyPath } = getEntityNameAndPropertyPath(fullpath);
+      errorsToDelete.push({ id: `${entityId}-${propertyPath}` });
     }
   }
 
@@ -215,20 +217,26 @@ export function* evalErrorHandler(
   errors: EvalError[],
   dataTree?: DataTree,
   evaluationOrder?: Array<string>,
+  reValidatedPaths?: Array<string>,
   configTree?: ConfigTree,
-  pathsToClearErrorsFor?: any[],
-): any {
-  if (dataTree && evaluationOrder && configTree) {
+  removedPaths?: Array<{ entityId: string; fullpath: string }>,
+) {
+  if (dataTree && evaluationOrder && configTree && reValidatedPaths) {
     const currentDebuggerErrors: Record<string, Log> = yield select(
       getDebuggerErrors,
     );
+
+    const evalAndValidationOrder = new Set([
+      ...reValidatedPaths,
+      ...evaluationOrder,
+    ]);
     // Update latest errors to the debugger
     logLatestEvalPropertyErrors(
       currentDebuggerErrors,
       dataTree,
-      evaluationOrder,
+      [...evalAndValidationOrder],
       configTree,
-      pathsToClearErrorsFor,
+      removedPaths,
     );
   }
 
@@ -244,19 +252,22 @@ export function* evalErrorHandler(
           AppsmithConsole.error({
             text: `${error.message} Node was: ${node}`,
           });
-          // Send the generic error message to sentry for better grouping
-          Sentry.captureException(new Error(error.message), {
-            tags: {
-              node,
-              entityType,
-            },
-            extra: {
-              dependencyMap,
-              diffs,
-            },
-            // Level is warning because it could be a user error
-            level: Sentry.Severity.Warning,
-          });
+          if (error.context.logToSentry) {
+            // Send the generic error message to sentry for better grouping
+            Sentry.captureException(new Error(error.message), {
+              tags: {
+                node,
+                entityType,
+              },
+              extra: {
+                dependencyMap,
+                diffs,
+              },
+              // Level is warning because it could be a user error
+              level: Sentry.Severity.Warning,
+            });
+          }
+
           // Log an analytics event for cyclical dep errors
           AnalyticsUtil.logEvent("CYCLICAL_DEPENDENCY_ERROR", {
             node,
@@ -319,12 +330,36 @@ export function* evalErrorHandler(
   });
 }
 
+export function* logJSVarCreatedEvent(
+  jsVarsCreatedEvent: EvalTreeResponseData["jsVarsCreatedEvent"],
+) {
+  if (!jsVarsCreatedEvent) return;
+
+  jsVarsCreatedEvent.forEach(({ path, type }) => {
+    AnalyticsUtil.logEvent("JS_VARIABLE_CREATED", {
+      path,
+      type,
+    });
+  });
+}
+
+export function* logJSVarMutationEvent(
+  jsVarsMutationEvent: JSVarMutatedEvents,
+) {
+  Object.values(jsVarsMutationEvent).forEach(({ path, type }) => {
+    AnalyticsUtil.logEvent("JS_VARIABLE_MUTATED", {
+      path,
+      type,
+    });
+  });
+}
+
 export function* dynamicTriggerErrorHandler(errors: any[]) {
   if (errors.length > 0) {
     for (const error of errors) {
       const errorMessage =
         error.errorMessage.message.message || error.errorMessage.message;
-      logActionExecutionError(errorMessage, true);
+      yield call(logActionExecutionError, errorMessage, true);
     }
   }
 }
@@ -345,6 +380,9 @@ export function* logSuccessfulBindings(
   const successfulBindingPaths: SuccessfulBindings = !successfulBindingsMap
     ? {}
     : { ...successfulBindingsMap.get() };
+
+  const workspaceId: string = yield select(getCurrentWorkspaceId);
+  const instanceId: string = yield select(getInstanceId);
 
   evaluationOrder.forEach((evaluatedPath) => {
     const { entityName, propertyPath } =
@@ -404,6 +442,8 @@ export function* logSuccessfulBindings(
               entityType,
               propertyPath,
               isUndefined,
+              orgId: workspaceId,
+              instanceId,
             });
           }
         }
@@ -513,7 +553,7 @@ export function* handleJSFunctionExecutionErrorLog(
               id: action.collectionId ? action.collectionId : action.id,
               name: `${collectionName}.${action.name}`,
               type: ENTITY_TYPE.JSACTION,
-              propertyPath: `${collectionName}.${action.name}`,
+              propertyPath: `${action.name}`,
             },
           },
         },

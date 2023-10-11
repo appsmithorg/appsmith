@@ -36,6 +36,8 @@ export type AppTheme = {
   // NOTE: config represents options available and
   // properties represents the selected option
   config: {
+    order: number;
+    isDeprecated?: boolean;
     colors: {
       primaryColor: string;
       backgroundColor: string;
@@ -72,6 +74,17 @@ export type AppTheme = {
     };
     fontFamily: {
       [key: string]: string;
+    };
+  };
+};
+
+export type SetterConfig = {
+  __setters: {
+    [key: string]: {
+      path: string;
+      type: string;
+      disabled?: string;
+      accessor?: string;
     };
   };
 };

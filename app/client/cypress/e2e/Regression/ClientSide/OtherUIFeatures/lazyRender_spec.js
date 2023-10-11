@@ -1,8 +1,8 @@
-const dsl = require("../../../../fixtures/lazyRender.json");
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("lazy widget component render", () => {
   before(() => {
-    cy.addDsl(dsl);
+    _.agHelper.AddDsl("lazyRender");
   });
 
   it("1. Should check below the fold widgets are getting rendered", () => {

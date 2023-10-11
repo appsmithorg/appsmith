@@ -1,15 +1,18 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
-const dsl = require("../../../../fixtures/tableV2WidgetDsl.json");
 import apiPage from "../../../../locators/ApiEditor";
-import * as _ from "../../../../support/Objects/ObjectsCore";
+import {
+  entityExplorer,
+  agHelper,
+  deployMode,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Test Create Api and Bind to Table widget V2", function () {
   let apiData;
   before(() => {
-    cy.addDsl(dsl);
+    agHelper.AddDsl("tableV2WidgetDsl");
   });
   it("1. Test_Add users api and execute api", function () {
-    cy.createAndFillApi(this.data.userApi, "/mock-api?records=100");
+    cy.createAndFillApi(this.dataSet.userApi, "/mock-api?records=100");
     cy.RunAPI();
     cy.get(apiPage.jsonResponseTab).click();
     cy.get(apiPage.responseBody)
@@ -26,10 +29,8 @@ describe("Test Create Api and Bind to Table widget V2", function () {
   });
 
   it("2. Test_Validate the Api data is updated on Table widget", function () {
-    _.entityExplorer.ExpandCollapseEntity("Widgets");
-    _.entityExplorer.ExpandCollapseEntity("Container3");
-    _.entityExplorer.SelectEntityByName("Table1");
-    cy.openPropertyPane("tablewidgetv2");
+    entityExplorer.ExpandCollapseEntity("Widgets");
+    entityExplorer.SelectEntityByName("Table1", "Container3");
     cy.testJsontext("tabledata", "{{Api1.data}}");
 
     /**
@@ -39,7 +40,7 @@ describe("Test Create Api and Bind to Table widget V2", function () {
     cy.readTableV2data("0", "5").then((tabData) => {
       expect(apiData).to.eq(`\"${tabData}\"`);
     });
-    cy.PublishtheApp();
+    deployMode.DeployApp();
     cy.wait("@postExecute").then((interception) => {
       apiData = JSON.stringify(interception.response.body.data.body[0].name);
     });
@@ -57,11 +58,8 @@ describe("Test Create Api and Bind to Table widget V2", function () {
   });
 
   it("3. Validate onSearchTextChanged function is called when configured for search text", function () {
-    _.entityExplorer.ExpandCollapseEntity("Widgets");
-    _.entityExplorer.ExpandCollapseEntity("Container3");
-    _.entityExplorer.SelectEntityByName("Table1");
-
-    cy.openPropertyPane("tablewidgetv2");
+    entityExplorer.ExpandCollapseEntity("Widgets");
+    entityExplorer.SelectEntityByName("Table1", "Container3");
     cy.togglebarDisable(
       ".t--property-control-clientsidesearch input[type='checkbox']",
     );

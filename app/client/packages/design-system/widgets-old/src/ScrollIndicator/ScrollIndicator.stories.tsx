@@ -1,15 +1,15 @@
-import React, { useRef } from "react";
-import type { ComponentMeta } from "@storybook/react";
+import * as React from "react";
+import { useRef } from "react";
+import type { ComponentStory, ComponentMeta } from "@storybook/react";
 
-import ScrollIndicatorComponent from "./index";
+import { ScrollIndicator } from "@design-system/widgets-old";
 
 export default {
-  title: "Design System/widgets-old/ScrollIndicator",
-  component: ScrollIndicatorComponent,
-} as ComponentMeta<typeof ScrollIndicatorComponent>;
+  title: "Design System/Widgets-old/Scroll Indicator",
+  component: ScrollIndicator,
+} as ComponentMeta<typeof ScrollIndicator>;
 
-// eslint-disable-next-line react/function-component-definition
-export const ScrollIndicator = () => {
+const Template: ComponentStory<typeof ScrollIndicator> = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   return (
     <div
@@ -22,7 +22,7 @@ export const ScrollIndicator = () => {
       }}
     >
       <div style={{ height: "800px" }} />
-      <ScrollIndicatorComponent
+      <ScrollIndicator
         alwaysShowScrollbar
         containerRef={containerRef}
         mode="DARK"
@@ -32,3 +32,6 @@ export const ScrollIndicator = () => {
     </div>
   );
 };
+
+export const ScrollIndicatorStory = Template.bind({});
+ScrollIndicatorStory.storyName = "Scroll Indicator";

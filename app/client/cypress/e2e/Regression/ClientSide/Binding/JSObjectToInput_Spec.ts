@@ -9,9 +9,7 @@ let agHelper = ObjectsRegistry.AggregateHelper,
 
 describe("Validate JSObjects binding to Input widget", () => {
   before(() => {
-    cy.fixture("formInputTableDsl").then((val: any) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("formInputTableDsl");
   });
 
   let jsOjbNameReceived: any;

@@ -1,6 +1,6 @@
 import { FUNC_ARGS_REGEX } from "./regex";
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
-import { isValidURL } from "utils/URLUtils";
+import { isValidURL, matchesURLPattern } from "utils/URLUtils";
 import {
   getTextArgumentAtPosition,
   getEnumArgumentAtPosition,
@@ -27,6 +27,7 @@ import { FIELD_GROUP_CONFIG } from "./FieldGroup/FieldGroupConfig";
 import store from "store";
 import { selectEvaluationVersion } from "@appsmith/selectors/applicationSelectors";
 import { FIELD_CONFIG } from "./Field/FieldConfig";
+import { setGenericArgAtPostition } from "@shared/ast/src/actionCreator";
 
 export const stringToJS = (string: string): string => {
   const { jsSnippets, stringSegments } = getDynamicBindings(string);
@@ -215,6 +216,17 @@ export const callBackFieldGetter = (value: string, argNumber = 0) => {
   return `{{${funcExpr}}}`;
 };
 
+export const genericSetter = (
+  codeFragment: string,
+  code: string,
+  argNum = 0,
+) => {
+  codeFragment = codeFragment ? stringToJS(codeFragment) : "''";
+  code = getCodeFromMoustache(code);
+  const funcExpr = setGenericArgAtPostition(codeFragment, code, argNum);
+  return `{{${funcExpr}}}`;
+};
+
 /*
  * This function extracts the 1st string argument from value
  * and determines if the string is a valid url
@@ -228,7 +240,11 @@ export const isValueValidURL = (value: string) => {
       }
     }
     const str = value.substring(indices[0], indices[1] + 1);
-    return isValidURL(str);
+    const isValid = isValidURL(str);
+    if (isValid) return isValid;
+    const looksLikeURL = matchesURLPattern(str);
+    if (!looksLikeURL) return false;
+    return isValidURL(`https://${str}`);
   }
 };
 

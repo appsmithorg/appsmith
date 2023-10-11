@@ -22,8 +22,8 @@ public enum MongoSpecialDataTypes {
             return false;
         }
     },
-    // BinData - not sure about this
-    ;
+// BinData - not sure about this
+;
 
     /**
      * Some data types require their argument to be wrapped inside quotes whereas the others don't. This method is

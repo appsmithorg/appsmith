@@ -1,3 +1,2 @@
-export default function SwitchEnvironment() {
-  return null;
-}
+import SwitchEnvironment from "ce/components/SwitchEnvironment";
+export default SwitchEnvironment;

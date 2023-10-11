@@ -1,13 +1,16 @@
 package com.external.plugins.exceptions;
 
-public class DynamoErrorMessages {
-    private DynamoErrorMessages() {
-        //Prevents instantiation
-    }
+import com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorMessages;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
-    public static final String MISSING_ACTION_NAME_ERROR_MSG = "Missing action name (like `ListTables`, `GetItem` etc.).";
+@NoArgsConstructor(access = AccessLevel.PRIVATE) // To prevent instantiation
+public class DynamoErrorMessages extends BasePluginErrorMessages {
+    public static final String MISSING_ACTION_NAME_ERROR_MSG =
+            "Missing action name (like `ListTables`, `GetItem` etc.).";
 
-    public static final String UNKNOWN_ACTION_NAME_ERROR_MSG = "Unknown action: `%s`. Note that action names are case-sensitive.";
+    public static final String UNKNOWN_ACTION_NAME_ERROR_MSG =
+            "Unknown action: `%s`. Note that action names are case-sensitive.";
 
     public static final String QUERY_EXECUTION_FAILED_ERROR_MSG = "Error occurred while executing DynamoDB query.";
 
@@ -15,7 +18,9 @@ public class DynamoErrorMessages {
 
     public static final String INVALID_ATTRIBUTE_ERROR_MSG = "Invalid attribute/value by name %s";
 
-    public static final String UNKNOWN_TYPE_DURING_DESERIALIZATION_ERROR_MSG = "Unknown value type while deserializing: %s";
+    public static final String UNKNOWN_TYPE_DURING_DESERIALIZATION_ERROR_MSG =
+            "Unknown value type while deserializing: %s";
 
-    public static final String UNKNOWN_TYPE_FOUND_TO_CONVERT_TO_SDK_STYLE_ERROR_MSG = "Unknown type to convert to SDK style %s";
+    public static final String UNKNOWN_TYPE_FOUND_TO_CONVERT_TO_SDK_STYLE_ERROR_MSG =
+            "Unknown type to convert to SDK style %s";
 }

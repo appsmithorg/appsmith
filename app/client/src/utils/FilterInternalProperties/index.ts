@@ -1,8 +1,9 @@
 import { getActionChildrenPeekData } from "./Action";
 import type {
+  ConfigTree,
   DataTree,
   DataTreeEntity,
-} from "entities/DataTree/dataTreeFactory";
+} from "entities/DataTree/dataTreeTypes";
 import type { JSCollectionDataState } from "reducers/entityReducers/jsActionsReducer";
 import { getWidgetChildrenPeekData } from "./Widget";
 import { getJsActionPeekData } from "./JsAction";
@@ -14,13 +15,14 @@ import {
 import {
   isAppsmithEntity,
   isJSAction,
-} from "ce/workers/Evaluation/evaluationUtils";
+} from "@appsmith/workers/Evaluation/evaluationUtils";
 
 export const filterInternalProperties = (
   objectName: string,
   dataTreeEntity: DataTreeEntity,
   jsActions: JSCollectionDataState,
   dataTree: DataTree,
+  configTree: ConfigTree,
 ) => {
   if (!dataTreeEntity) return;
   if (isActionEntity(dataTreeEntity)) {
@@ -35,8 +37,12 @@ export const filterInternalProperties = (
       ? getJsActionPeekData(jsAction, dataTree)?.peekData
       : dataTreeEntity;
   } else if (isWidgetEntity(dataTreeEntity)) {
-    return getWidgetChildrenPeekData(objectName, dataTreeEntity.type, dataTree)
-      ?.peekData;
+    return getWidgetChildrenPeekData(
+      objectName,
+      dataTreeEntity.type,
+      dataTree,
+      configTree,
+    )?.peekData;
   }
   return dataTreeEntity;
 };

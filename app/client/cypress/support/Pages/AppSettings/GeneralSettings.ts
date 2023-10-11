@@ -3,6 +3,7 @@ import { ObjectsRegistry } from "../../Objects/Registry";
 export class GeneralSettings {
   private agHelper = ObjectsRegistry.AggregateHelper;
   private appSettings = ObjectsRegistry.AppSettings;
+  private assertHelper = ObjectsRegistry.AssertHelper;
 
   private locators = {
     _appNameField: "#t--general-settings-app-name",
@@ -25,9 +26,8 @@ export class GeneralSettings {
           (currentAppName as string).length,
           newAppName,
         );
-        this.agHelper.PressEnter();
-        this.agHelper.Sleep();
-        this.agHelper.ValidateNetworkStatus("@updateApplication", 200);
+        this.agHelper.PressEnter(1000);
+        this.assertHelper.AssertNetworkStatus("@updateApplication", 200);
         this.appSettings.CheckUrl(appNameToBeVerified, pageName);
         if (reset) {
           this.agHelper.RemoveCharsNType(
@@ -35,8 +35,8 @@ export class GeneralSettings {
             newAppName.length,
             currentAppName as string,
           );
-          this.agHelper.PressEnter();
-          this.agHelper.ValidateNetworkStatus("@updateApplication", 200);
+          this.agHelper.PressEnter(1000);
+          this.assertHelper.AssertNetworkStatus("@updateApplication", 200);
           this.appSettings.CheckUrl(currentAppName as string, pageName);
         }
       });
@@ -53,6 +53,6 @@ export class GeneralSettings {
 
   UpdateAppIcon() {
     this.agHelper.GetNClick(this.locators._appNonSelectedIcon, 0);
-    this.agHelper.ValidateNetworkStatus("@updateApplication", 200);
+    this.assertHelper.AssertNetworkStatus("@updateApplication", 200);
   }
 }

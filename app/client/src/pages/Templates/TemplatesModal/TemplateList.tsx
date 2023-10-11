@@ -67,7 +67,8 @@ function TemplateList(props: TemplateListProps) {
         </FilterWrapper>
         <ListWrapper>
           <TemplatesContent
-            isForkingEnabled
+            filterWithAllowPageImport
+            isForkingEnabled={false}
             onForkTemplateClick={onForkTemplateClick}
             onTemplateClick={props.onTemplateClick}
             stickySearchBar

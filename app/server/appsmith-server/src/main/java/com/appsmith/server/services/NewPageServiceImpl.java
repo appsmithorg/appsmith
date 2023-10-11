@@ -17,20 +17,32 @@ import reactor.core.scheduler.Scheduler;
 @Slf4j
 public class NewPageServiceImpl extends NewPageServiceCEImpl implements NewPageService {
 
-    public NewPageServiceImpl(Scheduler scheduler,
-                              Validator validator,
-                              MongoConverter mongoConverter,
-                              ReactiveMongoTemplate reactiveMongoTemplate,
-                              NewPageRepository repository,
-                              AnalyticsService analyticsService,
-                              ApplicationService applicationService,
-                              UserDataService userDataService,
-                              ResponseUtils responseUtils,
-                              ApplicationPermission applicationPermission,
-                              PagePermission pagePermission,
-                              ApplicationSnapshotRepository applicationSnapshotRepository) {
+    public NewPageServiceImpl(
+            Scheduler scheduler,
+            Validator validator,
+            MongoConverter mongoConverter,
+            ReactiveMongoTemplate reactiveMongoTemplate,
+            NewPageRepository repository,
+            AnalyticsService analyticsService,
+            ApplicationService applicationService,
+            UserDataService userDataService,
+            ResponseUtils responseUtils,
+            ApplicationPermission applicationPermission,
+            PagePermission pagePermission,
+            ApplicationSnapshotRepository applicationSnapshotRepository) {
 
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService,
-                applicationService, userDataService, responseUtils, applicationPermission, pagePermission, applicationSnapshotRepository);
+        super(
+                scheduler,
+                validator,
+                mongoConverter,
+                reactiveMongoTemplate,
+                repository,
+                analyticsService,
+                applicationService,
+                userDataService,
+                responseUtils,
+                applicationPermission,
+                pagePermission,
+                applicationSnapshotRepository);
     }
 }

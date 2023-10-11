@@ -10,5 +10,4 @@ public interface SequenceServiceCE {
     Mono<Long> getNext(Class<? extends BaseDomain> domainClass, String suffix);
 
     Mono<String> getNextAsSuffix(Class<? extends BaseDomain> domainClass, String suffix);
-
 }

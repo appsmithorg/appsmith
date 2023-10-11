@@ -1,10 +1,12 @@
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-const agHelper = ObjectsRegistry.AggregateHelper,
-  ee = ObjectsRegistry.EntityExplorer,
-  apiPage = ObjectsRegistry.ApiPage,
-  propPane = ObjectsRegistry.PropertyPane,
-  locator = ObjectsRegistry.CommonLocators,
-  deployMode = ObjectsRegistry.DeployMode;
+import {
+  agHelper,
+  entityExplorer,
+  propPane,
+  deployMode,
+  apiPage,
+  locators,
+  entityItems,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Layout OnLoad Actions tests", function () {
   beforeEach(() => {
@@ -16,11 +18,9 @@ describe("Layout OnLoad Actions tests", function () {
   });
 
   it("1. Bug 8595: OnPageLoad execution - when No api to run on Pageload", function () {
-    cy.fixture("onPageLoadActionsDsl").then((val: any) => {
-      agHelper.AddDsl(val);
-    });
-    ee.SelectEntityByName("Widgets");
-    ee.SelectEntityByName("Page1");
+    agHelper.AddDsl("onPageLoadActionsDsl");
+    entityExplorer.SelectEntityByName("Widgets");
+    entityExplorer.SelectEntityByName("Page1");
     cy.url().then((url) => {
       const pageid = url.split("/")[5]?.split("-").pop();
       cy.log(pageid + "page id");
@@ -34,9 +34,7 @@ describe("Layout OnLoad Actions tests", function () {
   });
 
   it("2. Bug 8595: OnPageLoad execution - when Query Parmas added via Params tab", function () {
-    cy.fixture("onPageLoadActionsDsl").then((val: any) => {
-      agHelper.AddDsl(val, locator._imageWidget);
-    });
+    agHelper.AddDsl("onPageLoadActionsDsl", locators._imageWidget);
     apiPage.CreateAndFillApi(
       "https://source.unsplash.com/collection/1599413",
       "RandomFlora",
@@ -68,23 +66,23 @@ describe("Layout OnLoad Actions tests", function () {
     //apiPage.RunAPI();
 
     //Adding dependency in right order matters!
-    ee.ExpandCollapseEntity("Widgets");
-    ee.SelectEntityByName("Image1");
+    entityExplorer.ExpandCollapseEntity("Widgets");
+    entityExplorer.SelectEntityByName("Image1");
     propPane.UpdatePropertyFieldValue("Image", `{{RandomFlora.data}}`);
 
-    ee.SelectEntityByName("Image2");
+    entityExplorer.SelectEntityByName("Image2");
     propPane.UpdatePropertyFieldValue(
       "Image",
       `{{RandomUser.data.results[0].picture.large}}`,
     );
 
-    ee.SelectEntityByName("Text1");
+    entityExplorer.SelectEntityByName("Text1");
     propPane.UpdatePropertyFieldValue(
       "Text",
       `{{InspiringQuotes.data.quote.body}}\n--\n{{InspiringQuotes.data.quote.author}}\n`,
     );
 
-    ee.SelectEntityByName("Text2");
+    entityExplorer.SelectEntityByName("Text2");
     propPane.UpdatePropertyFieldValue(
       "Text",
       `Hi, here is {{RandomUser.data.results[0].name.first}} & I'm {{RandomUser.data.results[0].dob.age}}'yo\nI live in {{RandomUser.data.results[0].location.country}}\nMy Suggestion : {{Suggestions.data.activity}}\n\nI'm {{Genderize.data.gender}}`,
@@ -129,7 +127,7 @@ describe("Layout OnLoad Actions tests", function () {
     //   });
     // });
 
-    deployMode.DeployApp(locator._widgetInDeployed("textwidget"), false);
+    deployMode.DeployApp(locators._widgetInDeployed("textwidget"), false);
     agHelper.Sleep(5000); //for all api's to ccomplete call!
     cy.wait("@viewPage").then(($response) => {
       const respBody = JSON.stringify($response.response?.body);
@@ -168,12 +166,16 @@ describe("Layout OnLoad Actions tests", function () {
 
     deployMode.NavigateBacktoEditor();
     //Verify if debugger is closed after failure of onpageload actions.issue #22283
-    agHelper.AssertElementAbsence(locator._errorTab);
+    agHelper.AssertElementAbsence(locators._errorTab);
   });
 
   it("3. Bug 10049, 10055: Dependency not executed in expected order in layoutOnLoadActions when dependency added via URL", function () {
-    ee.SelectEntityByName("Genderize", "Queries/JS");
-    ee.ActionContextMenuByEntityName("Genderize", "Delete", "Are you sure?");
+    entityExplorer.SelectEntityByName("Genderize", "Queries/JS");
+    entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: "Genderize",
+      action: "Delete",
+      entityType: entityItems.Api,
+    });
 
     apiPage.CreateAndFillApi(
       "https://api.genderize.io?name={{RandomUser.data.results[0].name.first}}",
@@ -185,7 +187,7 @@ describe("Layout OnLoad Actions tests", function () {
       value: "{{RandomUser.data.results[0].name.first}}",
     }); // verifies Bug 10055
 
-    deployMode.DeployApp(locator._widgetInDeployed("textwidget"), false);
+    deployMode.DeployApp(locators._widgetInDeployed("textwidget"), false);
     agHelper.Sleep(5000); //for all api's to ccomplete call!
     cy.wait("@viewPage").then(($response) => {
       const respBody = JSON.stringify($response.response?.body);

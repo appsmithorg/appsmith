@@ -18,4 +18,3 @@ public enum ErrorType {
     REPOSITORY_NOT_FOUND,
     EE_FEATURE_ERROR
 }
-

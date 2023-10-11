@@ -1,21 +1,14 @@
-const commonlocators = require("../../../../locators/commonlocators.json");
+import * as _ from "../../../../support/Objects/ObjectsCore";
+
 let theight;
 let twidth;
 
 describe("Validating Mobile Views for Fill Widget", function () {
   it("Validate change with height width for fill widget - Input widget", function () {
-    cy.get(commonlocators.autoConvert).click({
-      force: true,
-    });
-    cy.get(commonlocators.convert).click({
-      force: true,
-    });
-    cy.get(commonlocators.refreshApp).click({
-      force: true,
-    });
+    _.autoLayout.ConvertToAutoLayoutAndVerify(false);
     cy.dragAndDropToCanvas("inputwidgetv2", { x: 100, y: 200 });
     cy.dragAndDropToCanvas("inputwidgetv2", { x: 10, y: 20 });
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(".t--widget-inputwidgetv2").first().should("be.visible");
     cy.get(".t--widget-inputwidgetv2").last().should("be.visible");
     cy.get(".t--widget-inputwidgetv2")

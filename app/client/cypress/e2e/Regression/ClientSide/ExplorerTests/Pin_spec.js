@@ -1,36 +1,46 @@
-const dsl = require("../../../../fixtures/displayWidgetDsl.json");
-import { WIDGET } from "../../../../locators/WidgetLocators";
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-
-const ee = ObjectsRegistry.EntityExplorer,
-  agHelper = ObjectsRegistry.AggregateHelper,
-  locator = ObjectsRegistry.CommonLocators,
-  library = ObjectsRegistry.LibraryInstaller;
+import {
+  agHelper,
+  entityExplorer,
+  locators,
+  draggableWidgets,
+  installer,
+  homePage,
+} from "../../../../support/Objects/ObjectsCore";
 
 const ExplorerMenu = {
   ADD_PAGE: "ADD_PAGE",
   ENTITY: "ENTITY",
-  ADD_QUERY_JS: "ADD_QUERY_JS",
   ADD_LIBRARY: "ADD_LIBRARY",
+  ADD_QUERY_JS: "ADD_QUERY_JS",
 };
 
 const OpenExplorerMenu = (menu) => {
   switch (menu) {
     case ExplorerMenu.ADD_PAGE:
-      agHelper.GetNClick(ee.locator._newPage);
-      cy.get(locator._canvas).trigger("mousemove", 500, 400, { force: true });
+      agHelper.GetNClick(locators._newPage);
+      cy.get(locators._canvas).trigger("mousemove", 500, 400, {
+        force: true,
+      });
       break;
     case ExplorerMenu.ENTITY:
-      cy.xpath(ee._contextMenu("Page1")).last().click({ force: true });
-      cy.get(locator._canvas).trigger("mousemove", 500, 400, { force: true });
+      cy.xpath(entityExplorer._contextMenu("Page1"))
+        .last()
+        .click({ force: true });
+      cy.get(locators._canvas).trigger("mousemove", 500, 400, {
+        force: true,
+      });
       break;
     case ExplorerMenu.ADD_QUERY_JS:
-      cy.get(ee.locator._createNew).last().click({ force: true });
-      cy.get(locator._canvas).trigger("mousemove", 500, 300, { force: true });
+      cy.get(locators._createNew).last().click({ force: true });
+      cy.get(locators._canvas).trigger("mousemove", 500, 300, {
+        force: true,
+      });
       break;
     case ExplorerMenu.ADD_LIBRARY:
-      library.openInstaller(true);
-      cy.get(locator._canvas).trigger("mousemove", 500, 100, { force: true });
+      installer.OpenInstaller(true);
+      cy.get(locators._canvas).trigger("mousemove", 500, 100, {
+        force: true,
+      });
       break;
     default:
   }
@@ -38,7 +48,7 @@ const OpenExplorerMenu = (menu) => {
 
 describe("Entity explorer tests related to pinning and unpinning", function () {
   before(() => {
-    cy.addDsl(dsl);
+    agHelper.AddDsl("displayWidgetDsl");
   });
 
   it("1. checks entity explorer visibility on unpin", function () {
@@ -55,21 +65,25 @@ describe("Entity explorer tests related to pinning and unpinning", function () {
   });
 
   it("2. Widgets visibility in widget pane", function () {
-    ee.NavigateToSwitcher("Widgets");
-    agHelper.ScrollTo(locator._widgetPane, "bottom");
-    agHelper.AssertElementVisible(ee.locator._widgetPageIcon(WIDGET.VIDEO));
-    ee.PinUnpinEntityExplorer(true);
-    agHelper.AssertElementVisible(ee.locator._widgetPageIcon(WIDGET.VIDEO));
-    ee.PinUnpinEntityExplorer(false);
-    ee.NavigateToSwitcher("Explorer");
+    entityExplorer.NavigateToSwitcher("Widgets");
+    agHelper.ScrollTo(locators._widgetPane, "bottom");
+    agHelper.AssertElementVisibility(
+      locators._widgetPageIcon(draggableWidgets.VIDEO),
+    );
+    entityExplorer.PinUnpinEntityExplorer(true);
+    agHelper.AssertElementVisibility(
+      locators._widgetPageIcon(draggableWidgets.VIDEO),
+    );
+    entityExplorer.PinUnpinEntityExplorer(false);
+    entityExplorer.NavigateToSwitcher("Explorer");
   });
 
   it(
     "excludeForAirgap",
     "3. Unpinned explorer is to be open when any context menu is open or when an entity name is being edited",
     function () {
-      agHelper.AssertElementVisible(ee._entityExplorer);
-      ee.PinUnpinEntityExplorer(true);
+      agHelper.AssertElementVisibility(entityExplorer._entityExplorer);
+      entityExplorer.PinUnpinEntityExplorer(true);
       const menu = Object.keys(ExplorerMenu);
 
       Cypress._.times(menu.length, (index) => {
@@ -79,9 +93,13 @@ describe("Entity explorer tests related to pinning and unpinning", function () {
       });
 
       // when an entity is being edited
-      ee.ActionContextMenuByEntityName("Page1", "Edit name");
-      cy.get(locator._canvas).trigger("mousemove", 500, 400);
-      agHelper.AssertElementVisible(ee._entityExplorer);
+      entityExplorer.ActionContextMenuByEntityName({
+        entityNameinLeftSidebar: "Page1",
+        action: "Edit name",
+      });
+      cy.get(locators._canvas).trigger("mousemove", 500, 400);
+      agHelper.AssertElementVisibility(entityExplorer._entityExplorer);
+      entityExplorer.PinUnpinEntityExplorer(false);
     },
   );
 
@@ -89,20 +107,41 @@ describe("Entity explorer tests related to pinning and unpinning", function () {
     "airgap",
     "4. Unpinned explorer is to be open when any context menu is open or when an entity name is being edited",
     function () {
-      agHelper.AssertElementVisible(ee._entityExplorer);
-      ee.PinUnpinEntityExplorer(true);
-      const menu = Object.keys(ExplorerMenu);
+      agHelper.AssertElementVisibility(entityExplorer._entityExplorer);
+      entityExplorer.PinUnpinEntityExplorer(true);
+      // We cannot add libraries on airgap
+      const menu = Object.keys(ExplorerMenu).filter(
+        (menu) => menu !== ExplorerMenu.ADD_LIBRARY,
+      );
 
-      Cypress._.times(menu.length - 1, (index) => {
+      Cypress._.times(menu.length, (index) => {
         OpenExplorerMenu(menu[index]);
         agHelper.Sleep();
         cy.get("[data-testid=sidebar-active]").should("exist");
       });
 
       // when an entity is being edited
-      ee.ActionContextMenuByEntityName("Page1", "Edit name");
-      cy.get(locator._canvas).trigger("mousemove", 500, 400);
-      agHelper.AssertElementVisible(ee._entityExplorer);
+      entityExplorer.ActionContextMenuByEntityName({
+        entityNameinLeftSidebar: "Page1",
+        action: "Edit name",
+      });
+      cy.get(locators._canvas).trigger("mousemove", 500, 400);
+      agHelper.AssertElementVisibility(entityExplorer._entityExplorer);
+      entityExplorer.PinUnpinEntityExplorer(false);
     },
   );
+
+  it("5. Explorer should be visible by default on a new application", function () {
+    agHelper.AssertElementVisibility(entityExplorer._entityExplorer);
+    entityExplorer.PinUnpinEntityExplorer(true);
+    agHelper.GetElement(locators._canvas).trigger("mousemove", 500, 100, {
+      force: true,
+    });
+    agHelper
+      .GetElement(entityExplorer._entityExplorer)
+      .should("not.be.visible");
+    homePage.NavigateToHome();
+    homePage.CreateNewApplication();
+    agHelper.AssertElementVisibility(entityExplorer._entityExplorer);
+  });
 });

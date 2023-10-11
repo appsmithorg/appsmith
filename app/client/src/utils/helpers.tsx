@@ -16,7 +16,7 @@ import { hasCreateNewAppPermission } from "@appsmith/utils/permissionHelpers";
 import moment from "moment";
 import { isDynamicValue } from "./DynamicBindingUtils";
 import type { ApiResponse } from "api/ApiResponses";
-import type { DSLWidget } from "widgets/constants";
+import type { DSLWidget } from "WidgetProvider/constants";
 import * as Sentry from "@sentry/react";
 import { matchPath } from "react-router";
 import {
@@ -29,12 +29,15 @@ import {
 } from "constants/routes";
 import history from "./history";
 import { APPSMITH_GLOBAL_FUNCTIONS } from "components/editorComponents/ActionCreator/constants";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type {
+  CanvasWidgetsReduxState,
+  FlattenedWidgetProps,
+} from "reducers/entityReducers/canvasWidgetsReducer";
 import { checkContainerScrollable } from "widgets/WidgetUtils";
-import type { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
-import type { WidgetProps } from "widgets/BaseWidget";
 import { getContainerIdForCanvas } from "sagas/WidgetOperationUtils";
 import scrollIntoView from "scroll-into-view-if-needed";
+import validateColor from "validate-color";
+import { CANVAS_VIEWPORT } from "constants/componentClassNameConstants";
 
 export const snapToGrid = (
   columnWidth: number,
@@ -231,9 +234,9 @@ export const quickScrollToWidget = (
   if (!widgetId || widgetId === "") return;
   window.requestIdleCallback(() => {
     const el = document.getElementById(widgetId);
-    const canvas = document.getElementById("canvas-viewport");
+    const canvas = document.getElementById(CANVAS_VIEWPORT);
 
-    if (el && canvas && !isElementVisibleInContainer(el, canvas)) {
+    if (el && canvas && !isElementVisibleInContainer(el, canvas, 5)) {
       const scrollElement = getWidgetElementToScroll(widgetId, canvasWidgets);
       if (scrollElement) {
         scrollIntoView(scrollElement, {
@@ -288,25 +291,57 @@ function isElementVisibleInContainer(
   return visiblePercentage >= percentage;
 }
 
+/**
+ * This function provides the correct DOM element to scroll to
+ * such that the widget (argument) is visible in the viewport.
+ * This function has been implemented to run when the viewer or editor
+ * is loaded with a widget ID in the URL.
+ * This is a part of the Context preserving logic
+ *
+ * @param widgetId : Widget ID to scroll to
+ * @param canvasWidgets : Canvas widgets redux state
+ * @returns HTMLElement to scroll to or null
+ */
 function getWidgetElementToScroll(
   widgetId: string,
   canvasWidgets: CanvasWidgetsReduxState,
-) {
+): HTMLElement | null {
   const widget = canvasWidgets[widgetId];
-  const parentId = widget.parentId || "";
+  const parentId = widget.parentId;
+  // If the widget doesn't have a parent, scroll to the widget itself
+  // This is the case for the main container widget, however,
+  // this scenario is not likely to occur in a normal use case.
+  if (parentId == undefined) return document.getElementById(widgetId);
+
+  // Get the containing container like widget for the widget
+  // Note: The parentId is usually pointing to a CANVAS_WIDGET
+  // However, we can only scroll a container like widget which is the parent
+  // of the CANVAS_WIDGET. Hence, we need to get the container like widget's Id.
   const containerId = getContainerIdForCanvas(parentId);
-  if (containerId === MAIN_CONTAINER_WIDGET_ID) {
-    if (widget.type !== "MODAL_WIDGET") {
-      return document.getElementById(widgetId);
-    }
-  }
-  const containerWidget = canvasWidgets[
-    containerId
-  ] as ContainerWidgetProps<WidgetProps>;
-  if (checkContainerScrollable(containerWidget)) {
+
+  // If we failed to get the container, try to scroll to the widget itself
+  if (containerId === undefined) {
     return document.getElementById(widgetId);
   } else {
-    return document.getElementById(containerId);
+    // If the widget is not within a modal widget,
+    // but is the child of the main container widget,
+    // scroll to the widget itself
+    if (containerId === MAIN_CONTAINER_WIDGET_ID) {
+      if (widget.type !== "MODAL_WIDGET") {
+        return document.getElementById(widgetId);
+      }
+    }
+
+    // Get the container widget props from the redux state
+    const containerWidget: FlattenedWidgetProps = canvasWidgets[containerId];
+
+    // If the widget is within a container, check if the container is scrollable
+    if (checkContainerScrollable(containerWidget)) {
+      return document.getElementById(widgetId);
+    } else {
+      // If the container is not scrollable, scroll to the container itself
+      return document.getElementById(containerId);
+    }
   }
 }
 
@@ -757,26 +792,34 @@ export function getLogToSentryFromResponse(response?: ApiResponse) {
   return response && response?.responseMeta?.status >= 500;
 }
 
-const BLACKLIST_COLORS = ["#ffffff"];
-const HEX_REGEX = /#[0-9a-fA-F]{6}/gi;
-const RGB_REGEX = /rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d+(?:\.\d+)?))?\)/gi;
-
 /**
  * extract colors from string
  *
- * @param text
  * @returns
+ * @param widgets
  */
-export function extractColorsFromString(text: string) {
+export function extractColorsFromString(widgets: CanvasWidgetsReduxState) {
   const colors = new Set();
 
-  [...(text.match(RGB_REGEX) || []), ...(text.match(HEX_REGEX) || [])]
-    .filter((d) => BLACKLIST_COLORS.indexOf(d.toLowerCase()) === -1)
-    .forEach((color) => {
-      colors.add(color.toLowerCase());
+  Object.values(widgets).forEach((widget) => {
+    Object.values(widget).forEach((widgetProp) => {
+      if (isString(widgetProp) && validateColor(widgetProp)) {
+        colors.add(widgetProp);
+      }
     });
+  });
 
   return Array.from(colors) as Array<string>;
+}
+
+/**
+ * validate color string
+ *
+ * @returns {boolean} true if empty string or includes url or is valid color
+ * @param color
+ */
+export function isValidColor(color: string) {
+  return color?.includes("url") || validateColor(color) || isEmptyOrNill(color);
 }
 
 /*
@@ -1146,3 +1189,11 @@ export const capitalizeFirstLetter = (str: string) => {
     str.slice(firstLetterIndex + 1).toLocaleLowerCase()
   );
 };
+
+export function getDomainFromEmail(email: string) {
+  const email_string_array = email.split("@");
+  const domain_string_location = email_string_array.length - 1;
+  const final_domain = email_string_array[domain_string_location];
+
+  return final_domain;
+}

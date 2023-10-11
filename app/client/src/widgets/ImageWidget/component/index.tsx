@@ -6,13 +6,13 @@ import { createMessage, IMAGE_LOAD_ERROR } from "@appsmith/constants/messages";
 import { importSvg } from "design-system-old";
 
 const RotateLeftIcon = importSvg(
-  () => import("assets/icons/widget/image/rotate-left.svg"),
+  async () => import("assets/icons/widget/image/rotate-left.svg"),
 );
 const RotateRightIcon = importSvg(
-  () => import("assets/icons/widget/image/rotate-right.svg"),
+  async () => import("assets/icons/widget/image/rotate-right.svg"),
 );
 const DownloadIcon = importSvg(
-  () => import("assets/icons/widget/image/download.svg"),
+  async () => import("assets/icons/widget/image/download.svg"),
 );
 
 export interface StyledImageProps {
@@ -168,6 +168,7 @@ class ImageComponent extends React.Component<
 
   render() {
     const { imageUrl, maxZoomLevel } = this.props;
+
     const { imageError, imageRotation } = this.state;
     const zoomActive =
       maxZoomLevel !== undefined && maxZoomLevel > 1 && !this.isPanning;

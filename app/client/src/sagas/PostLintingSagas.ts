@@ -1,6 +1,6 @@
 import { ENTITY_TYPE, Severity } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import type { DataTree } from "entities/DataTree/dataTreeFactory";
+import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { isEmpty } from "lodash";
 import AppsmithConsole from "utils/AppsmithConsole";
 import {
@@ -33,6 +33,7 @@ export function* logLatestLintPropertyErrors({
       type: error.errorType,
       message: error.errorMessage,
       lineNumber: error.line,
+      character: error.ch,
     }));
     const debuggerKey = entity.actionId + propertyPath + "-lint";
 

@@ -1,12 +1,12 @@
 package com.appsmith.server.solutions;
 
+import com.appsmith.server.datasources.base.DatasourceService;
+import com.appsmith.server.datasourcestorages.base.DatasourceStorageService;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
-import com.appsmith.server.services.DatasourceService;
-import com.appsmith.server.services.DatasourceStorageService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.PluginService;
@@ -17,26 +17,42 @@ import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
-public class CreateDBTablePageSolutionImpl extends CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolution {
+public class CreateDBTablePageSolutionImpl extends CreateDBTablePageSolutionCEImpl
+        implements CreateDBTablePageSolution {
 
-    public CreateDBTablePageSolutionImpl(DatasourceService datasourceService,
-                                         DatasourceStorageService datasourceStorageService,
-                                         NewPageService newPageService,
-                                         LayoutActionService layoutActionService,
-                                         ApplicationPageService applicationPageService,
-                                         ApplicationService applicationService,
-                                         PluginService pluginService,
-                                         AnalyticsService analyticsService,
-                                         SessionUserService sessionUserService,
-                                         ResponseUtils responseUtils,
-                                         PluginExecutorHelper pluginExecutorHelper,
-                                         DatasourcePermission datasourcePermission,
-                                         ApplicationPermission applicationPermission,
-                                         PagePermission pagePermission,
-                                         DatasourceStructureSolution datasourceStructureSolution) {
-        super(datasourceService, datasourceStorageService, newPageService, layoutActionService,
-                applicationPageService, applicationService, pluginService, analyticsService,
-                sessionUserService, responseUtils, pluginExecutorHelper, datasourcePermission,
-                applicationPermission, pagePermission, datasourceStructureSolution);
+    public CreateDBTablePageSolutionImpl(
+            DatasourceService datasourceService,
+            DatasourceStorageService datasourceStorageService,
+            NewPageService newPageService,
+            LayoutActionService layoutActionService,
+            ApplicationPageService applicationPageService,
+            ApplicationService applicationService,
+            PluginService pluginService,
+            AnalyticsService analyticsService,
+            SessionUserService sessionUserService,
+            ResponseUtils responseUtils,
+            PluginExecutorHelper pluginExecutorHelper,
+            DatasourcePermission datasourcePermission,
+            ApplicationPermission applicationPermission,
+            PagePermission pagePermission,
+            DatasourceStructureSolution datasourceStructureSolution,
+            EnvironmentPermission environmentPermission) {
+        super(
+                datasourceService,
+                datasourceStorageService,
+                newPageService,
+                layoutActionService,
+                applicationPageService,
+                applicationService,
+                pluginService,
+                analyticsService,
+                sessionUserService,
+                responseUtils,
+                pluginExecutorHelper,
+                datasourcePermission,
+                applicationPermission,
+                pagePermission,
+                datasourceStructureSolution,
+                environmentPermission);
     }
 }

@@ -1,32 +1,41 @@
 package com.appsmith.server.configurations;
 
-
 import com.appsmith.server.authentication.handlers.AccessDeniedHandler;
 import com.appsmith.server.authentication.handlers.CustomServerOAuth2AuthorizationRequestResolver;
 import com.appsmith.server.authentication.handlers.LogoutSuccessHandler;
+import com.appsmith.server.authentication.oauth2clientrepositories.CustomOauth2ClientRepositoryManager;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.filters.CSRFFilter;
+import com.appsmith.server.filters.ConditionalFilter;
+import com.appsmith.server.filters.PreAuth;
 import com.appsmith.server.helpers.RedirectHelper;
+import com.appsmith.server.ratelimiting.RateLimitService;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.ServerAuthenticationEntryPoint;
 import org.springframework.security.web.server.authentication.ServerAuthenticationEntryPointFailureHandler;
 import org.springframework.security.web.server.authentication.ServerAuthenticationFailureHandler;
 import org.springframework.security.web.server.authentication.ServerAuthenticationSuccessHandler;
+import org.springframework.security.web.server.util.matcher.PathPatternParserServerWebExchangeMatcher;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.RouterFunctions;
@@ -34,9 +43,11 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 import org.springframework.web.server.adapter.ForwardedHeaderTransformer;
 import org.springframework.web.server.session.CookieWebSessionIdResolver;
 import org.springframework.web.server.session.WebSessionIdResolver;
+import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 import java.util.HashSet;
+import java.util.List;
 
 import static com.appsmith.server.constants.Url.ACTION_COLLECTION_URL;
 import static com.appsmith.server.constants.Url.ACTION_URL;
@@ -44,6 +55,7 @@ import static com.appsmith.server.constants.Url.APPLICATION_URL;
 import static com.appsmith.server.constants.Url.ASSET_URL;
 import static com.appsmith.server.constants.Url.CUSTOM_JS_LIB_URL;
 import static com.appsmith.server.constants.Url.PAGE_URL;
+import static com.appsmith.server.constants.Url.PRODUCT_ALERT;
 import static com.appsmith.server.constants.Url.TENANT_URL;
 import static com.appsmith.server.constants.Url.THEME_URL;
 import static com.appsmith.server.constants.Url.USAGE_PULSE_URL;
@@ -85,6 +97,17 @@ public class SecurityConfig {
     @Autowired
     private RedirectHelper redirectHelper;
 
+    @Autowired
+    private RateLimitService rateLimitService;
+
+    @Autowired
+    private CustomOauth2ClientRepositoryManager oauth2ClientManager;
+
+    @Value("${appsmith.internal.password}")
+    private String INTERNAL_PASSWORD;
+
+    private static final String INTERNAL = "INTERNAL";
+
     /**
      * This routerFunction is required to map /public/** endpoints to the src/main/resources/public folder
      * This is to allow static resources to be served by the server. Couldn't find an easier way to do this,
@@ -100,8 +123,7 @@ public class SecurityConfig {
      */
     @Bean
     public RouterFunction<ServerResponse> publicRouter() {
-        return RouterFunctions
-                .resources("/public/**", new ClassPathResource("public/"));
+        return RouterFunctions.resources("/public/**", new ClassPathResource("public/"));
     }
 
     @Bean
@@ -109,24 +131,63 @@ public class SecurityConfig {
         return new ForwardedHeaderTransformer();
     }
 
+    @Order(Ordered.HIGHEST_PRECEDENCE)
+    @Bean
+    public SecurityWebFilterChain internalWebFilterChain(ServerHttpSecurity http) {
+        return http.securityMatcher(new PathPatternParserServerWebExchangeMatcher("/actuator/**"))
+                .httpBasic()
+                .authenticationManager(authentication -> {
+                    if (INTERNAL_PASSWORD.equals(authentication.getCredentials().toString())) {
+                        return Mono.just(UsernamePasswordAuthenticationToken.authenticated(
+                                authentication.getPrincipal(),
+                                authentication.getCredentials(),
+                                List.of(new SimpleGrantedAuthority(INTERNAL))));
+                    } else {
+                        return Mono.just(UsernamePasswordAuthenticationToken.unauthenticated(
+                                authentication.getPrincipal(), authentication.getCredentials()));
+                    }
+                })
+                .and()
+                .authorizeExchange()
+                .anyExchange()
+                .hasAnyAuthority(INTERNAL)
+                .and()
+                .build();
+    }
+
     @Bean
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
-        ServerAuthenticationEntryPointFailureHandler failureHandler = new ServerAuthenticationEntryPointFailureHandler(authenticationEntryPoint);
+        ServerAuthenticationEntryPointFailureHandler failureHandler =
+                new ServerAuthenticationEntryPointFailureHandler(authenticationEntryPoint);
 
         return http
                 // The native CSRF solution doesn't work with WebFlux, yet, but only for WebMVC. So we make our own.
-                .csrf().disable()
+                .csrf()
+                .disable()
                 .addFilterAt(new CSRFFilter(), SecurityWebFiltersOrder.CSRF)
-                .anonymous().principal(createAnonymousUser())
+                // Default security headers configuration from
+                // https://docs.spring.io/spring-security/site/docs/5.0.x/reference/html/headers.html
+                .headers()
+                // Disabled here because add it in NGINX instead.
+                .contentTypeOptions()
+                .disable()
+                // Disabled because we use CSP's `frame-ancestors` instead.
+                .frameOptions()
+                .disable()
                 .and()
-                // This returns 401 unauthorized for all requests that are not authenticated but authentication is required
+                .anonymous()
+                .principal(createAnonymousUser())
+                .and()
+                // This returns 401 unauthorized for all requests that are not authenticated but authentication is
+                // required
                 // The client will redirect to the login page if we return 401 as Http status response
                 .exceptionHandling()
                 .authenticationEntryPoint(authenticationEntryPoint)
                 .accessDeniedHandler(accessDeniedHandler)
                 .and()
                 .authorizeExchange()
-                .matchers(ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, Url.LOGIN_URL),
+                .matchers(
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, Url.LOGIN_URL),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, Url.HEALTH_CHECK),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, USER_URL),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, USER_URL + "/super"),
@@ -146,29 +207,42 @@ public class SecurityConfig {
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, ACTION_URL + "/execute"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, TENANT_URL + "/current"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, USAGE_PULSE_URL),
-                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, CUSTOM_JS_LIB_URL + "/*/view")
-                )
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, CUSTOM_JS_LIB_URL + "/*/view"),
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, USER_URL + "/resendEmailVerification"),
+                        ServerWebExchangeMatchers.pathMatchers(
+                                HttpMethod.POST, USER_URL + "/verifyEmailVerificationToken"),
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, PRODUCT_ALERT + "/alert"))
                 .permitAll()
-                .pathMatchers("/public/**", "/oauth2/**", "/actuator/**").permitAll()
+                .pathMatchers("/public/**", "/oauth2/**")
+                .permitAll()
                 .anyExchange()
                 .authenticated()
                 .and()
+                // Add Pre Auth rate limit filter before authentication filter
+                .addFilterBefore(
+                        new ConditionalFilter(new PreAuth(rateLimitService), Url.LOGIN_URL),
+                        SecurityWebFiltersOrder.FORM_LOGIN)
                 .httpBasic(httpBasicSpec -> httpBasicSpec.authenticationFailureHandler(failureHandler))
-                .formLogin(formLoginSpec -> formLoginSpec.authenticationFailureHandler(failureHandler)
+                .formLogin(formLoginSpec -> formLoginSpec
+                        .authenticationFailureHandler(failureHandler)
                         .loginPage(Url.LOGIN_URL)
                         .authenticationEntryPoint(authenticationEntryPoint)
-                        .requiresAuthenticationMatcher(ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, Url.LOGIN_URL))
+                        .requiresAuthenticationMatcher(
+                                ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, Url.LOGIN_URL))
                         .authenticationSuccessHandler(authenticationSuccessHandler)
                         .authenticationFailureHandler(authenticationFailureHandler))
-
                 // For Github SSO Login, check transformation class: CustomOAuth2UserServiceImpl
                 // For Google SSO Login, check transformation class: CustomOAuth2UserServiceImpl
-                .oauth2Login(oAuth2LoginSpec -> oAuth2LoginSpec.authenticationFailureHandler(failureHandler)
-                        .authorizationRequestResolver(new CustomServerOAuth2AuthorizationRequestResolver(reactiveClientRegistrationRepository, commonConfig, redirectHelper))
+                .oauth2Login(oAuth2LoginSpec -> oAuth2LoginSpec
+                        .authenticationFailureHandler(failureHandler)
+                        .authorizationRequestResolver(new CustomServerOAuth2AuthorizationRequestResolver(
+                                reactiveClientRegistrationRepository,
+                                commonConfig,
+                                redirectHelper,
+                                oauth2ClientManager))
                         .authenticationSuccessHandler(authenticationSuccessHandler)
                         .authenticationFailureHandler(authenticationFailureHandler)
                         .authorizedClientRepository(new ClientUserRepository(userService, commonConfig)))
-
                 .logout()
                 .logoutUrl(Url.LOGOUT_URL)
                 .logoutSuccessHandler(new LogoutSuccessHandler(objectMapper, analyticsService))

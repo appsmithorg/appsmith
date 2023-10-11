@@ -3,16 +3,13 @@ import API from "api/Api";
 import type { ApiResponse } from "./ApiResponses";
 import type { AxiosPromise } from "axios";
 
-import type { DatasourceAuthentication, Datasource } from "entities/Datasource";
+import type { Datasource, DatasourceStorage } from "entities/Datasource";
 export interface CreateDatasourceConfig {
   name: string;
   pluginId: string;
   type?: string;
-  datasourceConfiguration: {
-    url: string;
-    databaseName?: string;
-    authentication?: DatasourceAuthentication;
-  };
+  // key in the map representation of environment id of type string
+  datasourceStorages: Record<string, DatasourceStorage>;
   //Passed for logging purposes.
   appName?: string;
 }
@@ -29,42 +26,65 @@ export interface EmbeddedRestDatasourceRequest {
 // type executeQueryData = Array<{ key?: string; value?: string }>;
 type executeQueryData = Record<string, any>;
 
-export interface executeDatasourceQueryRequest {
+interface executeDatasourceQueryRequest {
   datasourceId: string;
-  data: executeQueryData;
+  data?: executeQueryData;
 }
 
 class DatasourcesApi extends API {
   static url = "v1/datasources";
 
-  static fetchDatasources(
+  static async fetchDatasources(
     workspaceId: string,
-  ): AxiosPromise<ApiResponse<Datasource[]>> {
+  ): Promise<AxiosPromise<ApiResponse<Datasource[]>>> {
     return API.get(DatasourcesApi.url + `?workspaceId=${workspaceId}`);
   }
 
-  static createDatasource(datasourceConfig: Partial<Datasource>): Promise<any> {
+  static async createDatasource(
+    datasourceConfig: Partial<Datasource>,
+  ): Promise<any> {
     return API.post(DatasourcesApi.url, datasourceConfig);
   }
 
-  static testDatasource(datasourceConfig: Partial<Datasource>): Promise<any> {
-    return API.post(`${DatasourcesApi.url}/test`, datasourceConfig, undefined, {
-      timeout: DEFAULT_TEST_DATA_SOURCE_TIMEOUT_MS,
-    });
+  // Api to test current environment datasource
+  static async testDatasource(
+    datasourceConfig: Partial<DatasourceStorage>,
+    pluginId: string,
+    workspaceId: string,
+  ): Promise<any> {
+    return API.post(
+      `${DatasourcesApi.url}/test`,
+      { ...datasourceConfig, pluginId, workspaceId },
+      undefined,
+      {
+        timeout: DEFAULT_TEST_DATA_SOURCE_TIMEOUT_MS,
+      },
+    );
   }
 
-  static updateDatasource(
+  // Api to update datasource name.
+  static async updateDatasource(
     datasourceConfig: Partial<Datasource>,
     id: string,
   ): Promise<any> {
     return API.put(DatasourcesApi.url + `/${id}`, datasourceConfig);
   }
 
-  static deleteDatasource(id: string): Promise<any> {
+  // Api to update specific datasource storage/environment configuration
+  static async updateDatasourceStorage(
+    datasourceConfig: Partial<DatasourceStorage>,
+  ): Promise<any> {
+    return API.put(
+      DatasourcesApi.url + `/datasource-storages`,
+      datasourceConfig,
+    );
+  }
+
+  static async deleteDatasource(id: string): Promise<any> {
     return API.delete(DatasourcesApi.url + `/${id}`);
   }
 
-  static fetchDatasourceStructure(
+  static async fetchDatasourceStructure(
     id: string,
     ignoreCache = false,
   ): Promise<any> {
@@ -73,11 +93,13 @@ class DatasourcesApi extends API {
     );
   }
 
-  static fetchMockDatasources(): AxiosPromise<ApiResponse<Datasource[]>> {
+  static async fetchMockDatasources(): Promise<
+    AxiosPromise<ApiResponse<Datasource[]>>
+  > {
     return API.get(DatasourcesApi.url + "/mocks");
   }
 
-  static addMockDbToDatasources(
+  static async addMockDbToDatasources(
     name: string,
     workspaceId: string,
     pluginId: string,
@@ -91,17 +113,17 @@ class DatasourcesApi extends API {
     });
   }
 
-  static executeDatasourceQuery({
+  static async executeDatasourceQuery({
     data,
     datasourceId,
   }: executeDatasourceQueryRequest) {
-    return API.put(
-      DatasourcesApi.url + `/datasource-query` + `/${datasourceId}`,
+    return API.post(
+      DatasourcesApi.url + `/${datasourceId}` + `/schema-preview`,
       data,
     );
   }
 
-  static executeGoogleSheetsDatasourceQuery({
+  static async executeGoogleSheetsDatasourceQuery({
     data,
     datasourceId,
   }: executeDatasourceQueryRequest) {

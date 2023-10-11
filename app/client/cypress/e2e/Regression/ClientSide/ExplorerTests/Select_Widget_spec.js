@@ -1,4 +1,3 @@
-import dsl from "../../../../fixtures/explorerHiddenWidgets.json";
 import commonLocators from "../../../../locators/commonlocators.json";
 import widgets from "../../../../locators/Widgets.json";
 const widgetLocators = require("../../../../locators/Widgets.json");
@@ -6,7 +5,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Explorer hidden widget Selection", () => {
   before(() => {
-    cy.addDsl(dsl);
+    _.agHelper.AddDsl("explorerHiddenWidgets");
   });
   afterEach(() => {
     cy.get(commonLocators.canvas).click({ force: true });

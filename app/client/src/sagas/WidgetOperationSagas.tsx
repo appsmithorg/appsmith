@@ -13,6 +13,7 @@ import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
   RenderModes,
+  WIDGET_ID_SHOW_WALKTHROUGH,
 } from "constants/WidgetConstants";
 import log from "loglevel";
 import type { WidgetResize } from "actions/pageActions";
@@ -36,7 +37,6 @@ import {
 import {
   getCanvasWidth,
   getContainerWidgetSpacesSelector,
-  getCurrentAppPositioningType,
   getCurrentPageId,
   getIsAutoLayout,
   getIsAutoLayoutMobileBreakPoint,
@@ -44,6 +44,8 @@ import {
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { convertToString } from "utils/AppsmithUtils";
 import type {
+  BatchUpdateDynamicPropertyUpdates,
+  BatchUpdateWidgetDynamicPropertyPayload,
   DeleteWidgetPropertyPayload,
   SetWidgetDynamicPropertyPayload,
   UpdateWidgetPropertyPayload,
@@ -64,8 +66,8 @@ import {
   isPathDynamicTrigger,
 } from "utils/DynamicBindingUtils";
 import type { WidgetProps } from "widgets/BaseWidget";
-import _, { cloneDeep, isString, set, uniq } from "lodash";
-import WidgetFactory from "utils/WidgetFactory";
+import _, { cloneDeep, get, isString, set, uniq } from "lodash";
+import WidgetFactory from "WidgetProvider/factory";
 import { generateReactKey } from "utils/generators";
 import { getCopiedWidgets, saveCopiedWidgets } from "utils/storage";
 import { getWidget, getWidgets, getWidgetsMeta } from "./selectors";
@@ -89,7 +91,6 @@ import {
 } from "entities/Widget/utils";
 import { getSelectedWidgets } from "selectors/ui";
 import { getReflow } from "selectors/widgetReflowSelectors";
-import type { FlexLayer } from "utils/autoLayout/autoLayoutTypes";
 import {
   addChildToPastedFlexLayers,
   getFlexLayersForSelectedWidgets,
@@ -97,7 +98,7 @@ import {
   getNewFlexLayers,
   isStack,
   pasteWidgetInFlexLayers,
-} from "../utils/autoLayout/AutoLayoutUtils";
+} from "../layoutSystems/autolayout/utils/AutoLayoutUtils";
 import type {
   CopiedWidgetGroup,
   NewPastePositionVariables,
@@ -136,11 +137,8 @@ import {
   purgeOrphanedDynamicPaths,
 } from "./WidgetOperationUtils";
 import { widgetSelectionSagas } from "./WidgetSelectionSagas";
-import type {
-  DataTree,
-  ConfigTree,
-  WidgetEntityConfig,
-} from "entities/DataTree/dataTreeFactory";
+import type { WidgetEntityConfig } from "@appsmith/entities/DataTree/types";
+import type { DataTree, ConfigTree } from "entities/DataTree/dataTreeTypes";
 import { getCanvasSizeAfterWidgetMove } from "./CanvasSagas/DraggingCanvasSagas";
 import widgetAdditionSagas from "./WidgetAdditionSagas";
 import widgetDeletionSagas from "./WidgetDeletionSagas";
@@ -166,19 +164,23 @@ import {
 } from "./WidgetBlueprintSagas";
 import type { MetaState } from "reducers/entityReducers/metaReducer";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
-import { BlueprintOperationTypes } from "widgets/constants";
+import { BlueprintOperationTypes } from "WidgetProvider/constants";
 import { toast } from "design-system";
 
-import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import { LayoutSystemTypes } from "layoutSystems/types";
 import {
   updatePositionsOfParentAndSiblings,
   updateWidgetPositions,
-} from "utils/autoLayout/positionUtils";
-import { getWidgetWidth } from "utils/autoLayout/flexWidgetUtils";
+} from "layoutSystems/autolayout/utils/positionUtils";
+import { getWidgetWidth } from "layoutSystems/autolayout/utils/flexWidgetUtils";
 import {
   FlexLayerAlignment,
   LayoutDirection,
-} from "utils/autoLayout/constants";
+} from "layoutSystems/common/utils/constants";
+import localStorage from "utils/localStorage";
+import type { FlexLayer } from "layoutSystems/autolayout/utils/types";
+import { EMPTY_BINDING } from "components/editorComponents/ActionCreator/constants";
+import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 
 export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
   try {
@@ -207,8 +209,8 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
       widgetId,
     } = resizeAction.payload;
 
-    const appPositioningType: AppPositioningTypes = yield select(
-      getCurrentAppPositioningType,
+    const layoutSystemType: LayoutSystemTypes = yield select(
+      getLayoutSystemType,
     );
     const mainCanvasWidth: number = yield select(getCanvasWidth);
     widget = {
@@ -223,7 +225,7 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
       mobileBottomRow,
     };
 
-    if (appPositioningType === AppPositioningTypes.AUTO) {
+    if (layoutSystemType === LayoutSystemTypes.AUTO) {
       // Keeps track of user defined widget width in terms of percentage
       if (isMobile) {
         widget.mobileWidthInPercentage =
@@ -253,7 +255,7 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
     // If it is a fixed canvas, update bottomRow directly.
     if (
       updatedCanvasBottomRow &&
-      appPositioningType !== AppPositioningTypes.AUTO
+      layoutSystemType === LayoutSystemTypes.FIXED
     ) {
       const canvasWidget = movedWidgets[parentId];
       movedWidgets[parentId] = {
@@ -261,9 +263,9 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
         bottomRow: updatedCanvasBottomRow,
       };
     }
-    // If it is an auto layout canvas, then use positionUtils to update canvas bottomRow.
+    // If it is an auto-layout canvas, then use positionUtils to update canvas bottomRow.
     let updatedWidgetsAfterResizing = movedWidgets;
-    if (appPositioningType === AppPositioningTypes.AUTO) {
+    if (layoutSystemType === LayoutSystemTypes.AUTO) {
       const metaProps: Record<string, any> = yield select(getWidgetsMeta);
       updatedWidgetsAfterResizing = updatePositionsOfParentAndSiblings(
         movedWidgets,
@@ -281,7 +283,7 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
 
     // Widget resize based auto-height is only required for fixed-layout
     // Auto-layout has UPDATE_WIDGET_DIMENSIONS to handle auto height
-    if (appPositioningType !== AppPositioningTypes.AUTO) {
+    if (layoutSystemType === LayoutSystemTypes.FIXED) {
       yield put(generateAutoHeightLayoutTreeAction(true, true));
     }
   } catch (error) {
@@ -480,21 +482,21 @@ export function removeDynamicBindingProperties(
   }
 }
 
-export function* setWidgetDynamicPropertySaga(
-  action: ReduxAction<SetWidgetDynamicPropertyPayload>,
+export function* handleUpdateWidgetDynamicProperty(
+  widget: WidgetProps,
+  update: BatchUpdateDynamicPropertyUpdates,
 ) {
   const {
     isDynamic,
     propertyPath,
     shouldRejectDynamicBindingPathList = true,
-    widgetId,
-  } = action.payload;
-  const stateWidget: WidgetProps = yield select(getWidget, widgetId);
-  let widget = cloneDeep({ ...stateWidget });
-  const propertyValue = _.get(widget, propertyPath);
+    skipValidation = false,
+  } = update;
 
+  const propertyValue = _.get(widget, propertyPath);
   let dynamicPropertyPathList = getWidgetDynamicPropertyPathList(widget);
   let dynamicBindingPathList = getEntityDynamicBindingPathList(widget);
+
   if (isDynamic) {
     const keyExists =
       dynamicPropertyPathList.findIndex((path) => path.key === propertyPath) >
@@ -517,18 +519,76 @@ export function* setWidgetDynamicPropertySaga(
       );
     }
 
-    const { parsed } = yield call(
-      validateProperty,
-      propertyPath,
-      propertyValue,
-      widget,
-    );
+    /*
+     * We need to run the validation function to parse the value present in the
+     * js mode to use that in the non js mode.
+     *  - if the value is valid to be used on non js mode, we will use the same value
+     *  - if the value is invalid to be used on non js mode, we will use the default value
+     *    returned by the validation function.
+     *
+     * Sometimes (eg: in one click binding control) we don't want to do validation and retain the
+     * same value while switching from js to non js mode. use `skipValidation` flag to turn off validation.
+     */
 
-    widget = set(widget, propertyPath, parsed);
+    if (!skipValidation) {
+      const { parsed } = yield call(
+        validateProperty,
+        propertyPath,
+        propertyValue,
+        widget,
+      );
+
+      widget = set(widget, propertyPath, parsed);
+    }
   }
-
   widget.dynamicPropertyPathList = dynamicPropertyPathList;
   widget.dynamicBindingPathList = dynamicBindingPathList;
+  return widget;
+}
+
+export function* batchUpdateWidgetDynamicPropertySaga(
+  action: ReduxAction<BatchUpdateWidgetDynamicPropertyPayload>,
+) {
+  const { updates, widgetId } = action.payload;
+  const stateWidget: WidgetProps = yield select(getWidget, widgetId);
+  let widget = cloneDeep({ ...stateWidget });
+
+  for (const update of updates) {
+    widget = yield call(handleUpdateWidgetDynamicProperty, widget, update);
+  }
+
+  const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+  const widgets = { ...stateWidgets, [widgetId]: widget };
+  // Save the layout
+  yield put(updateAndSaveLayout(widgets));
+}
+
+export function* setWidgetDynamicPropertySaga(
+  action: ReduxAction<SetWidgetDynamicPropertyPayload>,
+) {
+  const {
+    isDynamic,
+    propertyPath,
+    shouldRejectDynamicBindingPathList = true,
+    skipValidation = false,
+    widgetId,
+  } = action.payload;
+  const stateWidget: WidgetProps = yield select(getWidget, widgetId);
+  let widget = cloneDeep({ ...stateWidget });
+  const update = {
+    isDynamic,
+    propertyPath,
+    shouldRejectDynamicBindingPathList,
+    skipValidation,
+  };
+
+  widget = yield call(handleUpdateWidgetDynamicProperty, widget, update);
+
+  const propertyValue = get(widget, propertyPath);
+  if (!propertyValue && isDynamic) {
+    set(widget, propertyPath, EMPTY_BINDING);
+  }
+
   const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
   const widgets = { ...stateWidgets, [widgetId]: widget };
 
@@ -942,7 +1002,12 @@ function* copyWidgetSaga(action: ReduxAction<{ isShortcut: boolean }>) {
   }
 
   const allAllowedToCopy = selectedWidgets.some((each) => {
-    return allWidgets[each] && !allWidgets[each].disallowCopy;
+    //should not allow canvas widgets to be copied
+    return (
+      allWidgets[each] &&
+      !allWidgets[each].disallowCopy &&
+      allWidgets[each].type !== "CANVAS_WIDGET"
+    );
   });
 
   if (!allAllowedToCopy) {
@@ -1150,10 +1215,16 @@ function* getNewPositionsBasedOnSelectedWidgets(
   copiedLeftMostColumn: number,
 ) {
   //get Parent canvasId
-  const parentId = selectedWidgets[0].parentId || "";
+  const parentId: string | undefined = selectedWidgets[0].parentId;
 
-  // get the Id of the container widget based on the canvasId
+  // If we failed to get the parent canvas widget Id then return empty object
+  if (parentId === undefined) return {};
+
+  // get the Id of the container like widget based on the canvasId
   const containerId = getContainerIdForCanvas(parentId);
+
+  // If we failed to get the containing container like widget Id then return empty object
+  if (containerId === undefined) return {};
 
   const containerWidget = canvasWidgets[containerId];
   const canvasDOM = document.querySelector(`#${getSlidingArenaName(parentId)}`);
@@ -1896,7 +1967,12 @@ function* cutWidgetSaga() {
   }
 
   const allAllowedToCut = selectedWidgets.some((each) => {
-    return allWidgets[each] && !allWidgets[each].disallowCopy;
+    //should not allow canvas widgets to be cut
+    return (
+      allWidgets[each] &&
+      !allWidgets[each].disallowCopy &&
+      allWidgets[each].type !== "CANVAS_WIDGET"
+    );
   });
 
   if (!allAllowedToCut) {
@@ -1952,7 +2028,11 @@ function* cutWidgetSaga() {
 }
 
 function* addSuggestedWidget(action: ReduxAction<Partial<WidgetProps>>) {
+  const isSetWidgetIdForWalkthrough = !!(
+    action.payload.props.setWidgetIdForWalkthrough === "true"
+  );
   const widgetConfig = action.payload;
+  delete widgetConfig.props?.setWidgetIdForWalkthrough;
 
   if (!widgetConfig.type) return;
 
@@ -2014,6 +2094,10 @@ function* addSuggestedWidget(action: ReduxAction<Partial<WidgetProps>>) {
 
     yield take(ReduxActionTypes.UPDATE_LAYOUT);
 
+    if (isSetWidgetIdForWalkthrough) {
+      localStorage.setItem(WIDGET_ID_SHOW_WALKTHROUGH, newWidget.newWidgetId);
+    }
+
     yield put(
       selectWidgetInitAction(SelectionRequestType.One, [newWidget.newWidgetId]),
     );
@@ -2030,7 +2114,7 @@ function* addSuggestedWidget(action: ReduxAction<Partial<WidgetProps>>) {
 export function* groupWidgetsSaga() {
   const selectedWidgetIDs: string[] = yield select(getSelectedWidgets);
   const isMultipleWidgetsSelected = selectedWidgetIDs.length > 1;
-  // Grouping functionality has been temporarily disabled for auto layout canvas.
+  // Grouping functionality has been temporarily disabled for auto-layout canvas.
   const isAutoLayout: boolean = yield select(getIsAutoLayout);
   if (isAutoLayout) return;
   if (isMultipleWidgetsSelected) {
@@ -2085,6 +2169,10 @@ export default function* widgetOperationSagas() {
     takeEvery(
       ReduxActionTypes.SET_WIDGET_DYNAMIC_PROPERTY,
       setWidgetDynamicPropertySaga,
+    ),
+    takeEvery(
+      ReduxActionTypes.BATCH_SET_WIDGET_DYNAMIC_PROPERTY,
+      batchUpdateWidgetDynamicPropertySaga,
     ),
     takeEvery(
       ReduxActionTypes.RESET_CHILDREN_WIDGET_META,

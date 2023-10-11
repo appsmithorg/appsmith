@@ -43,6 +43,7 @@ type SidebarProps = {
   pages: Page[];
   currentWorkspaceId: string;
   currentUser: User | undefined;
+  showUserSettings: boolean;
 };
 
 export function Sidebar(props: SidebarProps) {
@@ -128,7 +129,7 @@ export function Sidebar(props: SidebarProps) {
     const suffix = ")";
 
     if (isPreviewMode) {
-      prefix += theme.smallHeaderHeight;
+      prefix += `${theme.smallHeaderHeight} - ${theme.bottomBarHeight}`;
     } else if (isAppSettingsPaneWithNavigationTabOpen) {
       // We deduct 64px as well since it is the margin coming from "m-8" class from tailwind
       prefix += `${theme.smallHeaderHeight} - ${theme.bottomBarHeight} - 64px`;
@@ -210,40 +211,42 @@ export function Sidebar(props: SidebarProps) {
         })}
       </StyledMenuContainer>
 
-      <StyledFooter navColorStyle={navColorStyle} primaryColor={primaryColor}>
-        {currentApplicationDetails && (
-          <StyledCtaContainer>
-            <ShareButton
-              currentApplicationDetails={currentApplicationDetails}
-              currentWorkspaceId={currentWorkspaceId}
-              insideSidebar
-              isMinimal={isMinimal}
-            />
+      {props.showUserSettings && (
+        <StyledFooter navColorStyle={navColorStyle} primaryColor={primaryColor}>
+          {currentApplicationDetails && (
+            <StyledCtaContainer>
+              <ShareButton
+                currentApplicationDetails={currentApplicationDetails}
+                currentWorkspaceId={currentWorkspaceId}
+                insideSidebar
+                isMinimal={isMinimal}
+              />
 
-            <PrimaryCTA
-              className="t--back-to-editor"
-              insideSidebar
-              isMinimal={isMinimal}
-              navColorStyle={navColorStyle}
-              primaryColor={primaryColor}
-              url={editorURL}
-            />
+              <PrimaryCTA
+                className="t--back-to-editor"
+                insideSidebar
+                isMinimal={isMinimal}
+                navColorStyle={navColorStyle}
+                primaryColor={primaryColor}
+                url={editorURL}
+              />
 
-            <BackToAppsButton
-              currentApplicationDetails={currentApplicationDetails}
-              insideSidebar
-              isMinimal={isMinimal}
-            />
-          </StyledCtaContainer>
-        )}
+              <BackToAppsButton
+                currentApplicationDetails={currentApplicationDetails}
+                insideSidebar
+                isMinimal={isMinimal}
+              />
+            </StyledCtaContainer>
+          )}
 
-        <SidebarProfileComponent
-          currentUser={currentUser}
-          isMinimal={isMinimal}
-          navColorStyle={navColorStyle}
-          primaryColor={primaryColor}
-        />
-      </StyledFooter>
+          <SidebarProfileComponent
+            currentUser={currentUser}
+            isMinimal={isMinimal}
+            navColorStyle={navColorStyle}
+            primaryColor={primaryColor}
+          />
+        </StyledFooter>
+      )}
     </StyledSidebar>
   );
 }

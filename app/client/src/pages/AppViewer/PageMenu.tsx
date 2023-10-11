@@ -80,11 +80,6 @@ export function PageMenu(props: NavigationProps) {
     });
   }
 
-  // TODO: Rahul - Check how to use this function in the new layout.
-  // const handleFormOpenOrClose = useCallback((isOpen: boolean) => {
-  //   dispatch(setShowAppInviteUsersDialog(isOpen));
-  // }, []);
-
   return (
     <>
       {/* BG OVERLAY */}

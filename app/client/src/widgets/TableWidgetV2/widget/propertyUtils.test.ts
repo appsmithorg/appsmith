@@ -517,6 +517,22 @@ describe("selectColumnOptionsValidation", () => {
       });
     });
 
+    it("should check that there are no null or undefined values", () => {
+      expect(
+        selectColumnOptionsValidation(
+          [null, { label: "2", value: "1" }],
+          {} as TableWidgetProps,
+          _,
+        ),
+      ).toEqual({
+        isValid: false,
+        parsed: [],
+        messages: [
+          `Invalid entry at index: 0. This value does not evaluate to type: { "label": string | number, "value": string | number | boolean }`,
+        ],
+      });
+    });
+
     it("should check that value should be an array of objects", () => {
       expect(
         selectColumnOptionsValidation([1, 2], {} as TableWidgetProps, _),

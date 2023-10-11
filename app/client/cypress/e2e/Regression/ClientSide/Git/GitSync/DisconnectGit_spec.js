@@ -5,7 +5,7 @@ let repoName;
 let windowOpenSpy;
 describe("Git disconnect modal:", function () {
   before(() => {
-    cy.NavigateToHome();
+    _.homePage.NavigateToHome();
     cy.createWorkspace();
     cy.wait("@createWorkspace").then((interception) => {
       const newWorkspaceName = interception.response.body.data.name;
@@ -85,8 +85,9 @@ describe("Git disconnect modal:", function () {
       });
 
     // disconnecting validation
-    cy.route("POST", "api/v1/git/disconnect/app/*").as("disconnect");
+    cy.intercept("POST", "api/v1/git/disconnect/app/*").as("disconnect");
     cy.get(gitSyncLocators.disconnectButton).click();
+    cy.wait(3000);
     //cy.get(gitSyncLocators.disconnectButton).should("be.disabled");
     cy.wait("@disconnect").should(
       "have.nested.property",

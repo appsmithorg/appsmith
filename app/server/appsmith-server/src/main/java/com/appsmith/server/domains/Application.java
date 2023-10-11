@@ -36,11 +36,10 @@ import static com.appsmith.server.helpers.DateUtils.ISO_FORMATTER;
 @Document
 public class Application extends BaseDomain {
 
-    @NotNull
-    @JsonView(Views.Public.class)
+    @NotNull @JsonView(Views.Public.class)
     String name;
 
-    //Organizations migrated to workspaces, kept the field as deprecated to support the old migration
+    // Organizations migrated to workspaces, kept the field as deprecated to support the old migration
     @Deprecated
     @JsonView(Views.Public.class)
     String organizationId;
@@ -48,9 +47,7 @@ public class Application extends BaseDomain {
     @JsonView(Views.Public.class)
     String workspaceId;
 
-    /*
-    TODO: remove default values from application.
-     */
+    // TODO: remove default values from application
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @Deprecated(forRemoval = true)
     @JsonView(Views.Public.class)
@@ -193,9 +190,13 @@ public class Application extends BaseDomain {
     @JsonView(Views.Public.class)
     Boolean exportWithConfiguration;
 
-    //forkWithConfiguration represents whether credentials are shared or not while forking an app
+    // forkWithConfiguration represents whether credentials are shared or not while forking an app
     @JsonView(Views.Public.class)
     Boolean forkWithConfiguration;
+
+    // isCommunityTemplate represents whether this application has been published as a community template
+    @JsonView(Views.Public.class)
+    Boolean isCommunityTemplate;
 
     @JsonView(Views.Internal.class)
     @Deprecated
@@ -211,8 +212,12 @@ public class Application extends BaseDomain {
         this.clonedFromApplicationId = application.getId();
         this.color = application.getColor();
         this.icon = application.getIcon();
-        this.unpublishedAppLayout = application.getUnpublishedAppLayout() == null ? null : new AppLayout(application.getUnpublishedAppLayout().type);
-        this.publishedAppLayout = application.getPublishedAppLayout() == null ? null : new AppLayout(application.getPublishedAppLayout().type);
+        this.unpublishedAppLayout = application.getUnpublishedAppLayout() == null
+                ? null
+                : new AppLayout(application.getUnpublishedAppLayout().type);
+        this.publishedAppLayout = application.getPublishedAppLayout() == null
+                ? null
+                : new AppLayout(application.getPublishedAppLayout().type);
         this.setUnpublishedApplicationDetail(new ApplicationDetail());
         this.setPublishedApplicationDetail(new ApplicationDetail());
         if (application.getUnpublishedApplicationDetail() == null) {
@@ -221,12 +226,28 @@ public class Application extends BaseDomain {
         if (application.getPublishedApplicationDetail() == null) {
             application.setPublishedApplicationDetail(new ApplicationDetail());
         }
-        AppPositioning unpublishedAppPositioning = application.getUnpublishedApplicationDetail().getAppPositioning() == null ? null : new AppPositioning(application.getUnpublishedApplicationDetail().getAppPositioning().type);
+        AppPositioning unpublishedAppPositioning =
+                application.getUnpublishedApplicationDetail().getAppPositioning() == null
+                        ? null
+                        : new AppPositioning(
+                                application.getUnpublishedApplicationDetail().getAppPositioning().type);
         this.getUnpublishedApplicationDetail().setAppPositioning(unpublishedAppPositioning);
-        AppPositioning publishedAppPositioning = application.getPublishedApplicationDetail().getAppPositioning() == null ? null : new AppPositioning(application.getPublishedApplicationDetail().getAppPositioning().type);
+        AppPositioning publishedAppPositioning =
+                application.getPublishedApplicationDetail().getAppPositioning() == null
+                        ? null
+                        : new AppPositioning(
+                                application.getPublishedApplicationDetail().getAppPositioning().type);
         this.getPublishedApplicationDetail().setAppPositioning(publishedAppPositioning);
-        this.getUnpublishedApplicationDetail().setNavigationSetting(application.getUnpublishedApplicationDetail().getNavigationSetting() == null ? null : new NavigationSetting());
-        this.getPublishedApplicationDetail().setNavigationSetting(application.getPublishedApplicationDetail().getNavigationSetting() == null ? null : new NavigationSetting());
+        this.getUnpublishedApplicationDetail()
+                .setNavigationSetting(
+                        application.getUnpublishedApplicationDetail().getNavigationSetting() == null
+                                ? null
+                                : new NavigationSetting());
+        this.getPublishedApplicationDetail()
+                .setNavigationSetting(
+                        application.getPublishedApplicationDetail().getNavigationSetting() == null
+                                ? null
+                                : new NavigationSetting());
         this.unpublishedCustomJSLibs = application.getUnpublishedCustomJSLibs();
         this.collapseInvisibleWidgets = application.getCollapseInvisibleWidgets();
     }
@@ -369,7 +390,6 @@ public class Application extends BaseDomain {
         private Boolean showSignIn;
     }
 
-
     /**
      * AppPositioning captures widget positioning Mode of the application
      */
@@ -385,10 +405,8 @@ public class Application extends BaseDomain {
 
         public enum Type {
             FIXED,
-            AUTO
+            AUTO,
+            ANVIL
         }
-
     }
-
-
 }

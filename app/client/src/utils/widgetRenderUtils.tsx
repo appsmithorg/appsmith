@@ -3,21 +3,24 @@ import type {
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import type {
-  ConfigTree,
-  DataTree,
   WidgetEntity,
   WidgetEntityConfig,
-} from "entities/DataTree/dataTreeFactory";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+} from "@appsmith/entities/DataTree/types";
+import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeTypes";
+import { ENTITY_TYPE_VALUE } from "entities/DataTree/dataTreeFactory";
 import { pick } from "lodash";
 import {
   WIDGET_DSL_STRUCTURE_PROPS,
   WIDGET_STATIC_PROPS,
 } from "constants/WidgetConstants";
-import WidgetFactory from "./WidgetFactory";
+import WidgetFactory from "../WidgetProvider/factory";
 import type { WidgetProps } from "widgets/BaseWidget";
 import type { LoadingEntitiesState } from "reducers/evaluationReducers/loadingEntitiesReducer";
 import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
+import type { WidgetError } from "widgets/BaseWidget";
+import { get } from "lodash";
+import type { DataTreeError } from "utils/DynamicBindingUtils";
+import { EVAL_ERROR_PATH } from "utils/DynamicBindingUtils";
 
 export const createCanvasWidget = (
   canvasWidget: FlattenedWidgetProps,
@@ -40,12 +43,47 @@ export const createCanvasWidget = (
     ? pick(evaluatedWidget, specificChildProps)
     : evaluatedWidget;
 
-  return {
+  const widgetProps = {
     ...evaluatedStaticProps,
     ...evaluatedWidgetConfig,
     ...widgetStaticProps,
   } as any;
+  widgetProps.errors = widgetErrorsFromStaticProps(evaluatedStaticProps);
+  return widgetProps;
 };
+
+function widgetErrorsFromStaticProps(props: Record<string, unknown>) {
+  /**
+   * Evaluation Error Map
+   * {
+     widgetPropertyName : DataTreeError[]
+    }
+   */
+
+  const evaluationErrorMap = get(props, EVAL_ERROR_PATH, {}) as Record<
+    string,
+    DataTreeError[]
+  >;
+  const widgetErrors: WidgetError[] = [];
+
+  Object.keys(evaluationErrorMap).forEach((propertyPath) => {
+    const propertyErrors = evaluationErrorMap[propertyPath];
+
+    propertyErrors.forEach((evalError) => {
+      const widgetError: WidgetError = {
+        name: evalError.errorMessage.name,
+        message: evalError.errorMessage.message,
+        stack: evalError.raw,
+        type: "property",
+        path: propertyPath,
+      };
+
+      widgetErrors.push(widgetError);
+    });
+  });
+
+  return widgetErrors;
+}
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 export const createLoadingWidget = (
@@ -58,7 +96,7 @@ export const createLoadingWidget = (
   return {
     ...widgetStaticProps,
     type: WidgetTypes.SKELETON_WIDGET,
-    ENTITY_TYPE: ENTITY_TYPE.WIDGET,
+    ENTITY_TYPE: ENTITY_TYPE_VALUE.WIDGET,
     bindingPaths: {},
     reactivePaths: {},
     triggerPaths: {},
@@ -138,25 +176,6 @@ export function buildChildWidgetTree(
   }
 
   return [];
-}
-
-export function buildFlattenedChildCanvasWidgets(
-  canvasWidgets: CanvasWidgetsReduxState,
-  parentWidgetId: string,
-  flattenedChildCanvasWidgets: Record<string, FlattenedWidgetProps> = {},
-) {
-  const parentWidget = canvasWidgets[parentWidgetId];
-  parentWidget?.children?.forEach((childId) => {
-    flattenedChildCanvasWidgets[childId] = canvasWidgets[childId];
-
-    buildFlattenedChildCanvasWidgets(
-      canvasWidgets,
-      childId,
-      flattenedChildCanvasWidgets,
-    );
-  });
-
-  return flattenedChildCanvasWidgets;
 }
 
 function getWidgetSpecificChildProps(type: string) {

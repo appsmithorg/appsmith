@@ -1,18 +1,16 @@
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-
-const {
-  AggregateHelper: agHelper,
-  CommonLocators: locator,
-  DeployMode: deployMode,
-  EntityExplorer: ee,
-  JSEditor: jsEditor,
-  PropertyPane: propPane,
-} = ObjectsRegistry;
+import {
+  agHelper,
+  entityExplorer,
+  jsEditor,
+  propPane,
+  deployMode,
+  debuggerHelper,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("storeValue Action test", () => {
   before(() => {
-    ee.DragDropWidgetNVerify("buttonwidget", 100, 100);
-    ee.NavigateToSwitcher("Explorer");
+    entityExplorer.DragDropWidgetNVerify("buttonwidget", 100, 100);
+    entityExplorer.NavigateToSwitcher("Explorer");
   });
 
   it("1. Bug 14653: Running consecutive storeValue actions and await", function () {
@@ -42,7 +40,7 @@ describe("storeValue Action test", () => {
       shouldCreateNewJSObj: true,
     });
 
-    ee.SelectEntityByName("Button1", "Widgets");
+    entityExplorer.SelectEntityByName("Button1", "Widgets");
     propPane.UpdatePropertyFieldValue("Label", "");
     propPane.TypeTextIntoField("Label", "StoreTest");
     cy.get("@jsObjName").then((jsObj: any) => {
@@ -104,7 +102,7 @@ describe("storeValue Action test", () => {
     });
 
     // Button1
-    ee.SelectEntityByName("Button1", "Widgets");
+    entityExplorer.SelectEntityByName("Button1", "Widgets");
     propPane.UpdatePropertyFieldValue("Label", "StorePathTest");
     cy.get(".action-block-tree").click({ force: true });
     cy.get("@jsObjName").then((jsObj: any) => {
@@ -115,8 +113,8 @@ describe("storeValue Action test", () => {
     });
 
     // Button 2
-    ee.DragDropWidgetNVerify("buttonwidget", 100, 200);
-    ee.SelectEntityByName("Button2", "Widgets");
+    entityExplorer.DragDropWidgetNVerify("buttonwidget", 100, 200);
+    entityExplorer.SelectEntityByName("Button2", "Widgets");
     propPane.UpdatePropertyFieldValue("Label", "modifyStorePath");
     cy.get("@jsObjName").then((jsObj: any) => {
       propPane.SelectJSFunctionToExecute(
@@ -171,7 +169,7 @@ describe("storeValue Action test", () => {
       shouldCreateNewJSObj: true,
     });
 
-    ee.SelectEntityByName("Button1", "Widgets");
+    entityExplorer.SelectEntityByName("Button1", "Widgets");
     propPane.UpdatePropertyFieldValue("Label", "SetStore");
     cy.get(".action-block-tree").click({ force: true });
     cy.get("@jsObjName").then((jsObj: any) => {
@@ -181,7 +179,7 @@ describe("storeValue Action test", () => {
       );
     });
 
-    ee.SelectEntityByName("Button2", "Widgets");
+    entityExplorer.SelectEntityByName("Button2", "Widgets");
     propPane.UpdatePropertyFieldValue("Label", "ShowStore");
     cy.get(".action-block-tree").click({ force: true });
     cy.get("@jsObjName").then((jsObj: any) => {
@@ -200,5 +198,41 @@ describe("storeValue Action test", () => {
     agHelper.ClickButton("ShowStore");
     agHelper.ValidateToastMessage(JSON.stringify(TEST_OBJECT), 0);
     deployMode.NavigateBacktoEditor();
+  });
+
+  it("4. Bug 24882. StoreValue, removeValue and clearStore should emit platform generated logs", function () {
+    const jsObjectBody = `export default {
+      storeFns: () => {
+        storeValue("xyz", 123);
+        removeValue("xyz");
+        clearStore();
+      }
+    }`;
+
+    jsEditor.CreateJSObject(jsObjectBody, {
+      paste: true,
+      completeReplace: true,
+      toRun: true,
+      shouldCreateNewJSObj: true,
+    });
+
+    entityExplorer.DragDropWidgetNVerify("buttonwidget", 400, 400);
+    entityExplorer.SelectEntityByName("Button3", "Widgets");
+    propPane.UpdatePropertyFieldValue("Label", "Test store logs");
+    cy.get("@jsObjName").then((jsObj: any) => {
+      propPane.SelectJSFunctionToExecute(
+        "onClick",
+        jsObj as string,
+        "storeFns",
+      );
+    });
+    agHelper.ClickButton("Test store logs");
+
+    debuggerHelper.ClickDebuggerIcon();
+    debuggerHelper.ClickLogsTab();
+    debuggerHelper.changeLogsGroup("System Logs");
+    debuggerHelper.DoesConsoleLogExist("storeValue('xyz', '123', true)");
+    debuggerHelper.DoesConsoleLogExist("removeValue('xyz')");
+    debuggerHelper.DoesConsoleLogExist("clearStore()");
   });
 });

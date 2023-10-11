@@ -30,23 +30,18 @@ public class DatabaseChangelog0 {
     public void initializeSchemaVersion(MongoTemplate mongoTemplate) {
 
         Config instanceIdConfig = mongoTemplate.findOne(
-                query(where(fieldName(QConfig.config1.name)).is("instance-id")),
-                Config.class);
+                query(where(fieldName(QConfig.config1.name)).is("instance-id")), Config.class);
 
         if (instanceIdConfig != null) {
             // If instance id exists, this is an existing instance
             // Instantiate with the first version so that we expect to go through all the migrations
-            mongoTemplate.insert(new Config(
-                    new JSONObject(Map.of("value", 1)),
-                    Appsmith.INSTANCE_SCHEMA_VERSION
-            ));
+            mongoTemplate.insert(new Config(new JSONObject(Map.of("value", 1)), Appsmith.INSTANCE_SCHEMA_VERSION));
         } else {
             // Is no instance id exists, this is a new instance
             // Instantiate with latest schema version that this Appsmith release shipped with
             mongoTemplate.insert(new Config(
                     new JSONObject(Map.of("value", CommonConfig.LATEST_INSTANCE_SCHEMA_VERSION)),
-                    Appsmith.INSTANCE_SCHEMA_VERSION
-            ));
+                    Appsmith.INSTANCE_SCHEMA_VERSION));
         }
     }
 }

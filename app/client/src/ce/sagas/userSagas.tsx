@@ -36,6 +36,8 @@ import {
   invitedUserSignupSuccess,
   fetchFeatureFlagsSuccess,
   fetchFeatureFlagsError,
+  fetchProductAlertSuccess,
+  fetchProductAlertFailure,
 } from "actions/userActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { INVITE_USERS_TO_WORKSPACE_FORM } from "@appsmith/constants/forms";
@@ -69,13 +71,20 @@ import {
   segmentInitSuccess,
 } from "actions/analyticsActions";
 import type { SegmentState } from "reducers/uiReducers/analyticsReducer";
-import type FeatureFlags from "entities/FeatureFlags";
+import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
+import { DEFAULT_FEATURE_FLAG_VALUE } from "@appsmith/entities/FeatureFlag";
 import UsagePulse from "usagePulse";
 import { toast } from "design-system";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
-import { USER_PROFILE_PICTURE_UPLOAD_FAILED } from "ce/constants/messages";
-import { UPDATE_USER_DETAILS_FAILED } from "ce/constants/messages";
+import {
+  USER_PROFILE_PICTURE_UPLOAD_FAILED,
+  UPDATE_USER_DETAILS_FAILED,
+} from "@appsmith/constants/messages";
 import { createMessage } from "design-system-old/build/constants/messages";
+import type {
+  ProductAlert,
+  ProductAlertConfig,
+} from "reducers/uiReducers/usersReducer";
 
 export function* createUserSaga(
   action: ReduxActionWithPromise<CreateUserRequest>,
@@ -362,12 +371,13 @@ export function* inviteUsers(
 
 export function* updateUserDetailsSaga(action: ReduxAction<UpdateUserRequest>) {
   try {
-    const { email, intercomConsentGiven, name, role, useCase } = action.payload;
+    const { email, intercomConsentGiven, name, proficiency, useCase } =
+      action.payload;
 
     const response: ApiResponse = yield callAPI(UserApi.updateUser, {
       email,
       name,
-      role,
+      proficiency,
       useCase,
       intercomConsentGiven,
     });
@@ -512,7 +522,12 @@ export function* fetchFeatureFlags() {
     );
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
-      yield put(fetchFeatureFlagsSuccess(response.data));
+      yield put(
+        fetchFeatureFlagsSuccess({
+          ...DEFAULT_FEATURE_FLAG_VALUE,
+          ...response.data,
+        }),
+      );
     }
   } catch (error) {
     log.error(error);
@@ -543,11 +558,13 @@ export function* leaveWorkspaceSaga(
 ) {
   try {
     const request: LeaveWorkspaceRequest = action.payload;
+    const { workspaceId } = action.payload;
     const response: ApiResponse = yield call(UserApi.leaveWorkspace, request);
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put({
-        type: ReduxActionTypes.GET_ALL_APPLICATION_INIT,
+        type: ReduxActionTypes.DELETE_WORKSPACE_SUCCESS,
+        payload: workspaceId,
       });
       toast.show(`You have successfully left the workspace`, {
         kind: "success",
@@ -557,3 +574,55 @@ export function* leaveWorkspaceSaga(
     // do nothing as it's already handled globally
   }
 }
+
+export function* fetchProductAlertSaga() {
+  try {
+    const response: ApiResponse<ProductAlert> = yield call(
+      UserApi.getProductAlert,
+    );
+    const isValidResponse: boolean = yield validateResponse(response);
+    if (isValidResponse) {
+      const message = response.data;
+      if (message.messageId) {
+        const config = getMessageConfig(message.messageId);
+        yield put(fetchProductAlertSuccess({ message, config }));
+      }
+    } else {
+      yield put(fetchProductAlertFailure(response.data));
+    }
+  } catch (e) {
+    yield put(fetchProductAlertFailure(e));
+  }
+}
+
+export const PRODUCT_ALERT_CONFIG_STORAGE_KEY = "PRODUCT_ALERT_CONFIG";
+export const getMessageConfig = (id: string): ProductAlertConfig => {
+  const storedConfig =
+    localStorage.getItem(PRODUCT_ALERT_CONFIG_STORAGE_KEY) || "{}";
+  const alertConfig: Record<string, ProductAlertConfig> =
+    JSON.parse(storedConfig);
+  if (id in alertConfig) {
+    return alertConfig[id];
+  }
+  return {
+    snoozeTill: new Date(),
+    dismissed: false,
+  };
+};
+
+export const setMessageConfig = (id: string, config: ProductAlertConfig) => {
+  const storedConfig =
+    localStorage.getItem(PRODUCT_ALERT_CONFIG_STORAGE_KEY) || "{}";
+  const alertConfig: Record<string, ProductAlertConfig> =
+    JSON.parse(storedConfig);
+
+  const updatedConfig: Record<string, ProductAlertConfig> = {
+    ...alertConfig,
+    [id]: config,
+  };
+
+  localStorage.setItem(
+    PRODUCT_ALERT_CONFIG_STORAGE_KEY,
+    JSON.stringify(updatedConfig),
+  );
+};

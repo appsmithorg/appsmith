@@ -19,5 +19,4 @@ public class Permission {
     String documentId;
 
     AclPermission aclPermission;
-
 }

@@ -6,9 +6,7 @@ const agHelper = ObjectsRegistry.AggregateHelper,
 
 describe("Validate basic binding of Input widget to Input widget", () => {
   before(() => {
-    cy.fixture("Select_table_dsl").then((val: any) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("Select_table_dsl");
   });
 
   it("1. Validation of default displayed in Select widget based on row selected", function () {
@@ -45,34 +43,34 @@ describe("Validate basic binding of Input widget to Input widget", () => {
     });
   });
 
-  //Till bug fixed
-  it.skip("2. Validation of default displayed in Select widget based on row selected + Bug 12531", function () {
-    table.SelectTableRow(1);
-    agHelper.ReadSelectedDropDownValue().then(($selectedValue) => {
-      expect($selectedValue).to.eq("#2");
-    });
+  // //Till bug fixed
+  // it.skip("2. Validation of default displayed in Select widget based on row selected + Bug 12531", function () {
+  //   table.SelectTableRow(1);
+  //   agHelper.ReadSelectedDropDownValue().then(($selectedValue) => {
+  //     expect($selectedValue).to.eq("#2");
+  //   });
 
-    table.SelectTableRow(0);
-    agHelper.ReadSelectedDropDownValue().then(($selectedValue) => {
-      expect($selectedValue).to.eq("#1");
-    });
+  //   table.SelectTableRow(0);
+  //   agHelper.ReadSelectedDropDownValue().then(($selectedValue) => {
+  //     expect($selectedValue).to.eq("#1");
+  //   });
 
-    table.SelectTableRow(2);
-    agHelper.ReadSelectedDropDownValue().then(($selectedValue) => {
-      expect($selectedValue).to.eq("Select option");
-    });
+  //   table.SelectTableRow(2);
+  //   agHelper.ReadSelectedDropDownValue().then(($selectedValue) => {
+  //     expect($selectedValue).to.eq("Select option");
+  //   });
 
-    //Change select value now - failing here!
-    agHelper.SelectDropDown("#1");
-    agHelper.ReadSelectedDropDownValue().then(($selectedValue) => {
-      expect($selectedValue).to.eq("#1");
-    });
+  //   //Change select value now - failing here!
+  //   agHelper.SelectDropDown("#1");
+  //   agHelper.ReadSelectedDropDownValue().then(($selectedValue) => {
+  //     expect($selectedValue).to.eq("#1");
+  //   });
 
-    table.SelectTableRow(2, 0, false); //Deselecting here!
-    agHelper.ReadSelectedDropDownValue().then(($selectedValue) => {
-      expect($selectedValue).to.eq("Select option");
-    });
-  });
+  //   table.SelectTableRow(2, 0, false); //Deselecting here!
+  //   agHelper.ReadSelectedDropDownValue().then(($selectedValue) => {
+  //     expect($selectedValue).to.eq("Select option");
+  //   });
+  // });
 
   it("3. Verify Selecting the already selected row deselects it", () => {
     table.SelectTableRow(0); //select here

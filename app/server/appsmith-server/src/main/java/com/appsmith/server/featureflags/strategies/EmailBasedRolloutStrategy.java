@@ -29,7 +29,8 @@ public class EmailBasedRolloutStrategy extends AbstractFlipStrategy {
     public void init(String featureName, Map<String, String> initParam) {
         super.init(featureName, initParam);
         if (!initParam.containsKey(PARAM_EMAIL_DOMAINS) && !initParam.containsKey(PARAM_EMAILS)) {
-            String msg = String.format("Either '%s' or '%s' is required for EmailBasedRolloutStrategy", PARAM_EMAIL_DOMAINS, PARAM_EMAILS);
+            String msg = String.format(
+                    "Either '%s' or '%s' is required for EmailBasedRolloutStrategy", PARAM_EMAIL_DOMAINS, PARAM_EMAILS);
             throw new IllegalArgumentException(msg);
         }
         if (!StringUtils.isEmpty(initParam.get(PARAM_EMAIL_DOMAINS))) {
@@ -58,6 +59,5 @@ public class EmailBasedRolloutStrategy extends AbstractFlipStrategy {
             }
         }
         return false;
-
     }
 }

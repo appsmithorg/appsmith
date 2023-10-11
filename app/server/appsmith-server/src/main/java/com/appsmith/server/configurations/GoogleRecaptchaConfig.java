@@ -15,5 +15,4 @@ public class GoogleRecaptchaConfig {
 
     @Value("${google.recaptcha.key.secret}")
     private String secretKey;
-
 }

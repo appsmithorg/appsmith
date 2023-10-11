@@ -10,6 +10,7 @@ import type { TableWidgetProps } from "widgets/TableWidgetV2/constants";
 import { InlineEditingSaveOptions } from "widgets/TableWidgetV2/constants";
 import { composePropertyUpdateHook } from "widgets/WidgetUtils";
 import {
+  tableDataValidation,
   totalRecordsCountValidation,
   uniqueColumnNameValidation,
   updateColumnOrderHook,
@@ -29,18 +30,31 @@ export default [
         propertyName: "tableData",
         label: "Table data",
         controlType: "ONE_CLICK_BINDING_CONTROL",
+        controlConfig: {
+          searchableColumn: true,
+        },
         placeholderText: '[{ "name": "John" }]',
         inputType: "ARRAY",
         isBindProperty: true,
         isTriggerProperty: false,
         isJSConvertible: true,
         validation: {
-          type: ValidationTypes.OBJECT_ARRAY,
+          type: ValidationTypes.FUNCTION,
           params: {
-            default: [],
+            fn: tableDataValidation,
+            expected: {
+              type: "Array",
+              example: `[{ "name": "John" }]`,
+              autocompleteDataType: AutocompleteDataType.ARRAY,
+            },
           },
         },
         evaluationSubstitutionType: EvaluationSubstitutionType.SMART_SUBSTITUTE,
+        shouldSwitchToNormalMode: (
+          isDynamic: boolean,
+          isToggleDisabled: boolean,
+          triggerFlag?: boolean,
+        ) => triggerFlag && isDynamic && !isToggleDisabled,
       },
       {
         helpText: "Columns",
@@ -84,6 +98,7 @@ export default [
         helpText: "Choose the save experience to save the edited cell",
         label: "Update mode",
         controlType: "ICON_TABS",
+        defaultValue: InlineEditingSaveOptions.ROW_LEVEL,
         fullWidth: true,
         isBindProperty: true,
         isTriggerProperty: false,
@@ -216,6 +231,26 @@ export default [
         isTriggerProperty: false,
         hidden: (props: TableWidgetProps) => !props.isVisibleSearch,
         dependencies: ["isVisibleSearch"],
+      },
+      {
+        propertyName: "enableServerSideFiltering",
+        label: "Server side filtering",
+        helpText: "Filters all the results on the server side",
+        controlType: "SWITCH",
+        isBindProperty: false,
+        isTriggerProperty: false,
+        defaultValue: false,
+      },
+      {
+        propertyName: "onTableFilterUpdate",
+        label: "onTableFilterUpdate",
+        helpText: "when table filter is modified by the user",
+        controlType: "ACTION_SELECTOR",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: true,
+        hidden: (props: TableWidgetProps) => !props.enableServerSideFiltering,
+        dependencies: ["enableServerSideFiltering"],
       },
       {
         propertyName: "defaultSearchText",

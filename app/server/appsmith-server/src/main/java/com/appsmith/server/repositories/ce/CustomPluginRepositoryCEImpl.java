@@ -11,20 +11,24 @@ import reactor.core.publisher.Flux;
 
 import java.util.List;
 
-public class CustomPluginRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Plugin> implements CustomPluginRepositoryCE {
+public class CustomPluginRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Plugin>
+        implements CustomPluginRepositoryCE {
 
-    public CustomPluginRepositoryCEImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter, CacheableRepositoryHelper cacheableRepositoryHelper) {
+    public CustomPluginRepositoryCEImpl(
+            ReactiveMongoOperations mongoOperations,
+            MongoConverter mongoConverter,
+            CacheableRepositoryHelper cacheableRepositoryHelper) {
         super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
     }
 
     @Override
     public Flux<Plugin> findDefaultPluginIcons() {
-        Criteria criteria = Criteria.where(fieldName(QPlugin.plugin.defaultInstall)).is(Boolean.TRUE);
+        Criteria criteria =
+                Criteria.where(fieldName(QPlugin.plugin.defaultInstall)).is(Boolean.TRUE);
         List<String> projections = List.of(
                 fieldName(QPlugin.plugin.name),
                 fieldName(QPlugin.plugin.packageName),
-                fieldName(QPlugin.plugin.iconLocation)
-        );
+                fieldName(QPlugin.plugin.iconLocation));
         return this.queryAll(List.of(criteria), projections, null, null);
     }
 }

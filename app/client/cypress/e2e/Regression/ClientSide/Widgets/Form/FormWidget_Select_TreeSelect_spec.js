@@ -1,10 +1,10 @@
 const widgetsPage = require("../../../../../locators/Widgets.json");
-const dsl = require("../../../../../fixtures/formSelectTreeselectDsl.json");
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Form Widget Functionality", function () {
   before(() => {
-    cy.addDsl(dsl);
+    _.agHelper.AddDsl("formSelectTreeselectDsl");
   });
   it("Validate Select and TreeSelect Widget", function () {
     cy.get(widgetsPage.formButtonWidget)

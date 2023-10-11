@@ -1,4 +1,4 @@
-const dsl = require("../../../../../fixtures/emptyDSL.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 const explorer = require("../../../../../locators/explorerlocators.json");
 const themelocators = require("../../../../../locators/ThemeLocators.json");
 
@@ -7,7 +7,7 @@ const widgetInput = `.t--widget-${widgetName} input`;
 
 describe("Currency widget - ", () => {
   before(() => {
-    cy.addDsl(dsl);
+    _.agHelper.AddDsl("emptyDSL");
   });
 
   it("1. Add new dropdown widget", () => {

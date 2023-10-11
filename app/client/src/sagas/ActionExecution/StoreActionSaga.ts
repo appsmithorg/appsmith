@@ -3,7 +3,7 @@ import { getAppStoreName } from "constants/AppConstants";
 import localStorage from "utils/localStorage";
 import { updateAppStore } from "actions/pageActions";
 import AppsmithConsole from "utils/AppsmithConsole";
-import { getAppStoreData } from "selectors/entitiesSelector";
+import { getAppStoreData } from "@appsmith/selectors/entitiesSelector";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import type { AppStoreState } from "reducers/entityReducers/appReducer";
@@ -55,8 +55,8 @@ export function* handleStoreOperations(triggers: StoreOperation[]) {
     logs.map((text) => ({
       text,
       severity: Severity.INFO,
-      category: LOG_CATEGORY.USER_GENERATED,
-      timestamp: moment().format("hh:mm:ss"),
+      category: LOG_CATEGORY.PLATFORM_GENERATED,
+      timestamp: moment().format("HH:mm:ss"),
       isExpanded: false,
     })),
   );

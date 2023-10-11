@@ -99,7 +99,7 @@ export default function BranchMoreMenu({ branchName, open, setOpen }: Props) {
       <MenuContent
         align="end"
         onEscapeKeyDown={handleMenuClose}
-        onInteractOutside={handleMenuClose}
+        onPointerDownOutside={handleMenuClose}
       >
         {buttons}
       </MenuContent>

@@ -1,21 +1,13 @@
+import { apiPage } from "../../../../support/Objects/ObjectsCore";
+
 describe("Name uniqueness test", function () {
-  it("Test api name unique error", () => {
-    cy.log("Login Successful");
-    cy.NavigateToAPI_Panel();
-    cy.log("Navigation to API Panel screen successful");
-    cy.CreateAPI("Uni");
-    cy.log("Creation of UniqueName Action successful");
-  });
-
   it("1. Validate Unique Name", () => {
+    apiPage.CreateApi("Uni"); //Creation of UniqueName Action successful
     cy.CreationOfUniqueAPIcheck("Uni");
-  });
-
-  it("2. Validate download apiname check", () => {
+    //2. Validate download apiname check
     cy.CreationOfUniqueAPIcheck("download");
-  });
-
-  it("3. Validate dedicated worker scope object property(Blob)apiname check", () => {
+    //3. Validate dedicated worker scope object property(Blob)apiname check
     cy.CreationOfUniqueAPIcheck("Blob");
+    // expect(2 + 2).to.equal(5);
   });
 });

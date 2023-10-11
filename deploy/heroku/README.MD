@@ -31,8 +31,7 @@ Quickly set up Appsmith to explore product functionality using Heroku.
       - Github Oauth:
         - `APPSMITH_OAUTH2_GITHUB_CLIENT_ID`: Client ID provided by Github for OAuth2 login
         - `APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET`: Client secret provided by Github for OAuth2 login
-    - `APPSMITH_GOOGLE_MAPS_API_KEY`: Google Maps API key which is required if you wish to leverage Google Maps widget. Read more at: https://docs.appsmith.com/v/v1.2.1/setup/docker/google-maps
-    - `APPSMITH_DISABLE_TELEMETRY`: We want to be transparent and request that you share anonymous usage data with us. This data is purely statistical in nature and helps us understand your needs & provide better support to your self-hosted instance. You can read more about what information is collected in our documentation https://docs.appsmith.com/v/v1.2.1/setup/telemetry
+    - `APPSMITH_DISABLE_TELEMETRY`: We want to be transparent and request that you share anonymous usage data with us. This data is purely statistical in nature and helps us understand your needs & provide better support to your self-hosted instance. You can read more about what information is collected in our documentation https://docs.appsmith.com/product/telemetry
     - Google reCAPTCHA v3 Configuration:
       - `APPSMITH_RECAPTCHA_SITE_KEY`: Google reCAPTCHA v3 site key, it is required if you wish to enable protection against spam/abusive users. Read more at: https://developers.google.com/recaptcha/docs/v3
       - `APPSMITH_RECAPTCHA_SECRET_KEY`: Google reCAPTCHA v3 verification secret key, it is required if you wish to enable spam protection in your backend server.
@@ -56,8 +55,8 @@ To create your custom domain with your app, please follow these steps below:
   ![App setting](./images/app-settings.png)
 - Click `Add domain` button in Domains section
   ![Add domain button](./images/add-domain-button.png)
-- Input your domain name & click `Next`. Heroku will provide you a DNS Target that you can map your domain with  
-  ![Add domain form](./images/add-domain-form.png)  
+- Input your domain name & click `Next`. Heroku will provide you a DNS Target that you can map your domain with
+  ![Add domain form](./images/add-domain-form.png)
   ![Finish](./images/finish.png)
 
 - Make sure that your DNS Record is update so that your custom domain will map to `DNS Target`

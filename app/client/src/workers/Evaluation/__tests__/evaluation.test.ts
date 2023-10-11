@@ -1,22 +1,22 @@
 import type {
-  ConfigTree,
   WidgetEntity,
-  UnEvalTree,
   WidgetEntityConfig,
-} from "entities/DataTree/dataTreeFactory";
+  ActionEntityConfig,
+  ActionEntity,
+} from "@appsmith/entities/DataTree/types";
+import type { UnEvalTree, ConfigTree } from "entities/DataTree/dataTreeTypes";
 import {
-  ENTITY_TYPE,
+  ENTITY_TYPE_VALUE,
   EvaluationSubstitutionType,
 } from "entities/DataTree/dataTreeFactory";
-import type { WidgetTypeConfigMap } from "utils/WidgetFactory";
+import type { WidgetTypeConfigMap } from "WidgetProvider/factory";
 import { RenderModes } from "constants/WidgetConstants";
 import { PluginType } from "entities/Action";
 import DataTreeEvaluator from "workers/common/DataTreeEvaluator";
 import { ValidationTypes } from "constants/WidgetValidation";
-import WidgetFactory from "utils/WidgetFactory";
+import WidgetFactory from "WidgetProvider/factory";
 import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
 import { sortObjectWithArray } from "../../../utils/treeUtils";
-import type { ActionEntityConfig, ActionEntity } from "entities/DataTree/types";
 
 const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
   CONTAINER_WIDGET: {
@@ -236,7 +236,7 @@ const BASE_WIDGET = {
   type: "SKELETON_WIDGET",
   parentId: "0",
   version: 1,
-  ENTITY_TYPE: ENTITY_TYPE.WIDGET,
+  ENTITY_TYPE: ENTITY_TYPE_VALUE.WIDGET,
   meta: {},
 } as unknown as WidgetEntity;
 
@@ -244,7 +244,7 @@ const BASE_WIDGET_CONFIG = {
   logBlackList: {},
   widgetId: "randomID",
   type: "SKELETON_WIDGET",
-  ENTITY_TYPE: ENTITY_TYPE.WIDGET,
+  ENTITY_TYPE: ENTITY_TYPE_VALUE.WIDGET,
 } as unknown as WidgetEntityConfig;
 
 export const BASE_ACTION: ActionEntity = {
@@ -258,7 +258,7 @@ export const BASE_ACTION: ActionEntity = {
   run: {},
   data: {},
   responseMeta: { isExecutionSuccess: false },
-  ENTITY_TYPE: ENTITY_TYPE.ACTION,
+  ENTITY_TYPE: ENTITY_TYPE_VALUE.ACTION,
 };
 export const BASE_ACTION_CONFIG: ActionEntityConfig = {
   actionId: "randomId",
@@ -267,7 +267,7 @@ export const BASE_ACTION_CONFIG: ActionEntityConfig = {
   name: "randomActionName",
   dynamicBindingPathList: [],
   pluginType: PluginType.API,
-  ENTITY_TYPE: ENTITY_TYPE.ACTION,
+  ENTITY_TYPE: ENTITY_TYPE_VALUE.ACTION,
   bindingPaths: {},
   reactivePaths: {
     isLoading: EvaluationSubstitutionType.TEMPLATE,
@@ -282,7 +282,7 @@ const mockDefault = jest.spyOn(WidgetFactory, "getWidgetDefaultPropertiesMap");
 
 const mockDerived = jest.spyOn(WidgetFactory, "getWidgetDerivedPropertiesMap");
 
-const dependencyMap = {
+const initialdependencies = {
   Dropdown1: [
     "Dropdown1.defaultOptionValue",
     "Dropdown1.filterText",
@@ -315,7 +315,7 @@ const dependencyMap = {
     "Table1.tableData",
   ],
   "Table1.searchText": ["Table1.defaultSearchText"],
-  "Table1.selectedRow": [],
+  "Table1.selectedRow": ["Table1.selectedRowIndex"],
   "Table1.selectedRowIndex": ["Table1.defaultSelectedRow"],
   "Table1.selectedRowIndices": ["Table1.defaultSelectedRow"],
   "Table1.selectedRows": [],
@@ -359,6 +359,7 @@ describe("DataTreeEvaluator", () => {
       },
     },
     {},
+    new Set(),
   );
   const input1unEvalEntity = unEvalEntity;
   const input1ConfigEntity = configEntity;
@@ -374,6 +375,7 @@ describe("DataTreeEvaluator", () => {
         type: "TEXT_WIDGET",
       },
       {},
+      new Set(),
     ).unEvalEntity,
     Text2: generateDataTreeWidget(
       {
@@ -385,6 +387,7 @@ describe("DataTreeEvaluator", () => {
         type: "TEXT_WIDGET",
       },
       {},
+      new Set(),
     ).unEvalEntity,
     Text3: generateDataTreeWidget(
       {
@@ -396,6 +399,7 @@ describe("DataTreeEvaluator", () => {
         type: "TEXT_WIDGET",
       },
       {},
+      new Set(),
     ).unEvalEntity,
     Dropdown1: generateDataTreeWidget(
       {
@@ -415,6 +419,7 @@ describe("DataTreeEvaluator", () => {
         type: "SELECT_WIDGET",
       },
       {},
+      new Set(),
     ).unEvalEntity,
     Table1: generateDataTreeWidget(
       {
@@ -425,8 +430,12 @@ describe("DataTreeEvaluator", () => {
           "{{Api1.data.map(datum => ({ ...datum, raw: Text1.text }) )}}",
         dynamicBindingPathList: [{ key: "tableData" }],
         type: "TABLE_WIDGET",
+        searchText: undefined,
+        selectedRowIndex: undefined,
+        selectedRowIndices: undefined,
       },
       {},
+      new Set(),
     ).unEvalEntity,
     Text4: generateDataTreeWidget(
       {
@@ -444,6 +453,7 @@ describe("DataTreeEvaluator", () => {
         },
       },
       {},
+      new Set(),
     ).unEvalEntity,
   };
 
@@ -457,6 +467,7 @@ describe("DataTreeEvaluator", () => {
         type: "TEXT_WIDGET",
       },
       {},
+      new Set(),
     ).configEntity,
     Text2: generateDataTreeWidget(
       {
@@ -468,6 +479,7 @@ describe("DataTreeEvaluator", () => {
         type: "TEXT_WIDGET",
       },
       {},
+      new Set(),
     ).configEntity,
     Text3: generateDataTreeWidget(
       {
@@ -479,6 +491,7 @@ describe("DataTreeEvaluator", () => {
         type: "TEXT_WIDGET",
       },
       {},
+      new Set(),
     ).configEntity,
     Dropdown1: generateDataTreeWidget(
       {
@@ -498,6 +511,7 @@ describe("DataTreeEvaluator", () => {
         type: "SELECT_WIDGET",
       },
       {},
+      new Set(),
     ).configEntity,
     Table1: generateDataTreeWidget(
       {
@@ -510,6 +524,7 @@ describe("DataTreeEvaluator", () => {
         type: "TABLE_WIDGET",
       },
       {},
+      new Set(),
     ).configEntity,
     Text4: generateDataTreeWidget(
       {
@@ -528,6 +543,7 @@ describe("DataTreeEvaluator", () => {
         dynamicTriggerPathList: [],
       },
       {},
+      new Set(),
     ).configEntity,
   };
 
@@ -536,10 +552,13 @@ describe("DataTreeEvaluator", () => {
   evaluator.evalAndValidateFirstTree();
   it("Evaluates a binding in first run", () => {
     const evaluation = evaluator.evalTree;
-    const dependencyMap = evaluator.dependencyMap;
+    const dependencies = evaluator.dependencies;
+    expect(evaluation).toHaveProperty("Text1.text", "Label");
     expect(evaluation).toHaveProperty("Text2.text", "Label");
     expect(evaluation).toHaveProperty("Text3.text", "Label");
-    expect(sortObjectWithArray(dependencyMap)).toStrictEqual(dependencyMap);
+    expect(sortObjectWithArray(dependencies)).toStrictEqual(
+      initialdependencies,
+    );
   });
 
   it("Evaluates a value change in update run", () => {
@@ -565,6 +584,8 @@ describe("DataTreeEvaluator", () => {
       unEvalUpdates,
     );
     const dataTree = evaluator.evalTree;
+
+    expect(dataTree).toHaveProperty("Text1.text", "Hey there");
     expect(dataTree).toHaveProperty("Text2.text", "Hey there");
     expect(dataTree).toHaveProperty("Text3.text", "Hey there");
   });
@@ -584,6 +605,11 @@ describe("DataTreeEvaluator", () => {
         dynamicBindingPathList: [],
       },
     };
+    const expectedDependencies = {
+      ...initialdependencies,
+      // Binding has been removed
+      ["Text3.text"]: [],
+    };
 
     const { evalOrder, nonDynamicFieldValidationOrder, unEvalUpdates } =
       evaluator.setupUpdateTree(updatedUnEvalTree, updatedConfigTree);
@@ -595,12 +621,14 @@ describe("DataTreeEvaluator", () => {
     );
 
     const dataTree = evaluator.evalTree;
-    const updatedDependencyMap = evaluator.dependencyMap;
+    const updatedDependencies = evaluator.dependencies;
+
+    expect(dataTree).toHaveProperty("Text1.text", "Label");
     expect(dataTree).toHaveProperty("Text2.text", "Label");
     expect(dataTree).toHaveProperty("Text3.text", "Label 3");
 
-    expect(sortObjectWithArray(updatedDependencyMap)).toStrictEqual(
-      dependencyMap,
+    expect(sortObjectWithArray(updatedDependencies)).toStrictEqual(
+      expectedDependencies,
     );
   });
 
@@ -614,6 +642,18 @@ describe("DataTreeEvaluator", () => {
       ...configTree,
       Input1: input1ConfigEntity,
     };
+    const expectedDependencies = {
+      ...initialdependencies,
+      Input1: [
+        "Input1.defaultText",
+        "Input1.isValid",
+        "Input1.text",
+        "Input1.value",
+      ],
+      "Input1.isValid": ["Input1.text"],
+      "Input1.text": ["Input1.defaultText"],
+      "Input1.value": ["Input1.text"],
+    };
 
     const { evalOrder, nonDynamicFieldValidationOrder, unEvalUpdates } =
       evaluator.setupUpdateTree(updatedUnEvalTree, updatedConfigTree);
@@ -625,6 +665,9 @@ describe("DataTreeEvaluator", () => {
     );
     const dataTree = evaluator.evalTree;
     expect(dataTree).toHaveProperty("Input1.text", "Default value");
+    expect(sortObjectWithArray(evaluator.dependencies)).toStrictEqual(
+      expectedDependencies,
+    );
   });
 
   it("Evaluates for value changes in nested diff paths", () => {
@@ -671,7 +714,7 @@ describe("DataTreeEvaluator", () => {
         validationPaths: {},
       },
     } as unknown as ConfigTree;
-
+    const expectedDependencies = { ...initialdependencies };
     const { evalOrder, nonDynamicFieldValidationOrder, unEvalUpdates } =
       evaluator.setupUpdateTree(updatedUnEvalTree, updatedConfigTree);
 
@@ -682,7 +725,11 @@ describe("DataTreeEvaluator", () => {
       unEvalUpdates,
     );
     const dataTree = evaluator.evalTree;
+    const updatedDependencies = evaluator.dependencies;
     expect(dataTree).toHaveProperty("Dropdown2.options.0.label", "newValue");
+    expect(sortObjectWithArray(updatedDependencies)).toStrictEqual(
+      expectedDependencies,
+    );
   });
 
   it("Adds an entity with a complicated binding", () => {
@@ -700,6 +747,7 @@ describe("DataTreeEvaluator", () => {
         ],
       },
     } as unknown as UnEvalTree;
+
     const updatedConfigTree = {
       ...configTree,
       Api1: {
@@ -710,7 +758,6 @@ describe("DataTreeEvaluator", () => {
 
     const { evalOrder, nonDynamicFieldValidationOrder, unEvalUpdates } =
       evaluator.setupUpdateTree(updatedUnEvalTree, updatedConfigTree);
-
     evaluator.evalAndValidateSubTree(
       evalOrder,
       nonDynamicFieldValidationOrder,
@@ -718,7 +765,7 @@ describe("DataTreeEvaluator", () => {
       unEvalUpdates,
     );
     const dataTree = evaluator.evalTree;
-    const updatedDependencyMap = evaluator.dependencyMap;
+    const updatedDependencies = evaluator.dependencies;
     expect(dataTree).toHaveProperty("Table1.tableData", [
       {
         test: "Hey",
@@ -729,10 +776,9 @@ describe("DataTreeEvaluator", () => {
         raw: "Label",
       },
     ]);
-
-    expect(sortObjectWithArray(updatedDependencyMap)).toStrictEqual({
+    expect(sortObjectWithArray(updatedDependencies)).toStrictEqual({
       Api1: ["Api1.data"],
-      ...dependencyMap,
+      ...initialdependencies,
       "Table1.tableData": ["Api1.data", "Text1.text"],
       "Text3.text": ["Text1.text"],
     });
@@ -782,7 +828,7 @@ describe("DataTreeEvaluator", () => {
       unEvalUpdates,
     );
     const dataTree = evaluator.evalTree;
-    const updatedDependencyMap = evaluator.dependencyMap;
+    const updatedDependencies = evaluator.dependencies;
     expect(dataTree).toHaveProperty("Table1.tableData", [
       {
         test: "Hey",
@@ -794,9 +840,11 @@ describe("DataTreeEvaluator", () => {
       },
     ]);
     expect(dataTree).toHaveProperty("Text4.text", "Hey");
-    expect(sortObjectWithArray(updatedDependencyMap)).toStrictEqual({
+
+    expect(sortObjectWithArray(updatedDependencies)).toStrictEqual({
       Api1: ["Api1.data"],
-      ...dependencyMap,
+      ...initialdependencies,
+      "Table1.selectedRow": [],
       "Table1.tableData": ["Api1.data", "Text1.text"],
       "Text3.text": ["Text1.text"],
     });
@@ -851,7 +899,7 @@ describe("DataTreeEvaluator", () => {
       updatedConfigTree1,
       unEvalUpdates,
     );
-    expect(evaluator.dependencyMap["Api2.config.body"]).toStrictEqual([
+    expect(evaluator.dependencies["Api2.config.body"]).toStrictEqual([
       "Api2.config.pluginSpecifiedTemplates[0].value",
     ]);
     const updatedTree2 = {
@@ -889,9 +937,9 @@ describe("DataTreeEvaluator", () => {
       unEvalUpdates2,
     );
     const dataTree = evaluator.evalTree;
-    expect(evaluator.dependencyMap["Api2.config.body"]).toStrictEqual([
-      "Text1.text",
+    expect(evaluator.dependencies["Api2.config.body"]).toStrictEqual([
       "Api2.config.pluginSpecifiedTemplates[0].value",
+      "Text1.text",
     ]);
     // @ts-expect-error: Types are not available
     expect(dataTree.Api2.config.body).toBe("{ 'name': Test }");
@@ -932,11 +980,45 @@ describe("DataTreeEvaluator", () => {
       unEvalUpdates3,
     );
     const dataTree3 = evaluator.evalTree;
-    expect(evaluator.dependencyMap["Api2.config.body"]).toStrictEqual([
-      "Text1.text",
+    expect(evaluator.dependencies["Api2.config.body"]).toStrictEqual([
       "Api2.config.pluginSpecifiedTemplates[0].value",
+      "Text1.text",
     ]);
     // @ts-expect-error: Types are not available
     expect(dataTree3.Api2.config.body).toBe("{ 'name': \"Test\" }");
+  });
+  it("Prevents data mutation in eval cycle", () => {
+    const { configEntity, unEvalEntity } = generateDataTreeWidget(
+      {
+        ...BASE_WIDGET_CONFIG,
+        ...BASE_WIDGET,
+        widgetName: "TextX",
+        text: "{{Text1.text = 123}}",
+        dynamicBindingPathList: [{ key: "text" }],
+        type: "TEXT_WIDGET",
+      },
+      {},
+      new Set(),
+    );
+    const updatedUnEvalTree = {
+      ...unEvalTree,
+      TextX: unEvalEntity,
+    };
+    const updatedConfigTree = {
+      ...configTree,
+      TextX: configEntity,
+    };
+    const { evalOrder, nonDynamicFieldValidationOrder, unEvalUpdates } =
+      evaluator.setupUpdateTree(updatedUnEvalTree, updatedConfigTree);
+    expect(evalOrder).toContain("TextX.text");
+    evaluator.evalAndValidateSubTree(
+      evalOrder,
+      nonDynamicFieldValidationOrder,
+      updatedConfigTree,
+      unEvalUpdates,
+    );
+    const dataTree = evaluator.evalTree;
+    expect(dataTree).toHaveProperty("TextX.text", 123);
+    expect(dataTree).toHaveProperty("Text1.text", "Label");
   });
 });

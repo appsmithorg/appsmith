@@ -2,7 +2,7 @@ package com.appsmith.external.datatypes;
 
 import com.appsmith.external.constants.DataType;
 
-public class DoubleType implements AppsmithType{
+public class DoubleType implements AppsmithType {
     @Override
     public String performSmartSubstitution(String value) {
         return String.valueOf(value);

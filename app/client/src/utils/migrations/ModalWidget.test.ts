@@ -1,5 +1,5 @@
 import { GridDefaults } from "constants/WidgetConstants";
-import type { DSLWidget } from "widgets/constants";
+import type { DSLWidget } from "WidgetProvider/constants";
 import { migrateResizableModalWidgetProperties } from "./ModalWidget";
 
 const inputDsl1: DSLWidget = {

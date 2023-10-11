@@ -14,8 +14,13 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
 import { DatasourceStructureContainer } from "./DatasourceStructureContainer";
+import { DatasourceStructureContext } from "./DatasourceStructure";
 import { isStoredDatasource, PluginType } from "entities/Action";
-import { getAction } from "selectors/entitiesSelector";
+import {
+  getAction,
+  getDatasourceStructureById,
+  getIsFetchingDatasourceStructure,
+} from "@appsmith/selectors/entitiesSelector";
 import {
   datasourcesEditorIdURL,
   saasEditorDatasourceIdURL,
@@ -27,6 +32,7 @@ import { useLocation } from "react-router";
 import omit from "lodash/omit";
 import { getQueryParams } from "utils/URLUtils";
 import { debounce } from "lodash";
+import styled from "styled-components";
 
 type ExplorerDatasourceEntityProps = {
   plugin: Plugin;
@@ -37,6 +43,17 @@ type ExplorerDatasourceEntityProps = {
   isActive: boolean;
   canManageDatasource?: boolean;
 };
+
+const MAX_HEIGHT_LIST_WRAPPER = 300;
+
+const DataStructureListWrapper = styled.div<{ height: number }>`
+  overflow-y: auto;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  max-height: ${MAX_HEIGHT_LIST_WRAPPER}px;
+  ${(props) => `min-height: ${props.height}px;`}
+`;
 
 const ExplorerDatasourceEntity = React.memo(
   (props: ExplorerDatasourceEntityProps) => {
@@ -71,7 +88,7 @@ const ExplorerDatasourceEntity = React.memo(
         name: props.datasource.name,
       });
       history.push(url, { invokedBy: NavigationMethod.EntityExplorer });
-    }, [props.datasource.id, props.datasource.name, location.pathname]);
+    }, [props.datasource.id, props.datasource.name, location.pathname, pageId]);
 
     const queryId = getQueryIdFromURL();
     const queryAction = useSelector((state: AppState) =>
@@ -81,9 +98,13 @@ const ExplorerDatasourceEntity = React.memo(
     const updateDatasourceNameCall = (id: string, name: string) =>
       updateDatasourceName({ id: props.datasource.id, name });
 
-    const datasourceStructure = useSelector((state: AppState) => {
-      return state.entities.datasources.structure[props.datasource.id];
-    });
+    const datasourceStructure = useSelector((state: AppState) =>
+      getDatasourceStructureById(state, props.datasource.id),
+    );
+
+    const isFetchingDatasourceStructure = useSelector((state: AppState) =>
+      getIsFetchingDatasourceStructure(state, props.datasource.id),
+    );
 
     const expandDatasourceId = useSelector((state: AppState) => {
       return state.ui.datasourcePane.expandDatasourceId;
@@ -91,18 +112,29 @@ const ExplorerDatasourceEntity = React.memo(
 
     //Debounce fetchDatasourceStructure request.
     const debounceFetchDatasourceRequest = debounce(async () => {
-      dispatch(fetchDatasourceStructure(props.datasource.id, true));
+      dispatch(
+        fetchDatasourceStructure(
+          props.datasource.id,
+          true,
+          DatasourceStructureContext.EXPLORER,
+        ),
+      );
     }, 300);
 
     const getDatasourceStructure = useCallback(
       (isOpen: boolean) => {
-        if (!datasourceStructure && isOpen) {
+        if (!datasourceStructure && !isFetchingDatasourceStructure && isOpen) {
           debounceFetchDatasourceRequest();
         }
 
         dispatch(expandDatasourceEntity(isOpen ? props.datasource.id : ""));
       },
-      [datasourceStructure, props.datasource.id, dispatch],
+      [
+        datasourceStructure,
+        props.datasource.id,
+        dispatch,
+        isFetchingDatasourceStructure,
+      ],
     );
 
     const nameTransformFn = useCallback(
@@ -145,11 +177,19 @@ const ExplorerDatasourceEntity = React.memo(
         step={props.step}
         updateEntityName={updateDatasourceNameCall}
       >
-        <DatasourceStructureContainer
-          datasourceId={props.datasource.id}
-          datasourceStructure={datasourceStructure}
-          step={props.step}
-        />
+        <DataStructureListWrapper
+          height={Math.min(
+            (datasourceStructure?.tables?.length || 0) * 50,
+            MAX_HEIGHT_LIST_WRAPPER,
+          )}
+        >
+          <DatasourceStructureContainer
+            context={DatasourceStructureContext.EXPLORER}
+            datasourceId={props.datasource.id}
+            datasourceStructure={datasourceStructure}
+            step={props.step}
+          />
+        </DataStructureListWrapper>
       </Entity>
     );
   },

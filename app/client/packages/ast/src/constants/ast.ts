@@ -24,6 +24,7 @@ export enum NodeTypes {
   MemberExpression = "MemberExpression",
   FunctionExpression = "FunctionExpression",
   ArrowFunctionExpression = "ArrowFunctionExpression",
+  AssignmentExpression = "AssignmentExpression",
   ObjectExpression = "ObjectExpression",
   ArrayExpression = "ArrayExpression",
   ThisExpression = "ThisExpression",

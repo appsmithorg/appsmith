@@ -14,6 +14,7 @@ import { Center } from "pages/setup/common";
 import { Spinner } from "design-system";
 import { isValidLicense } from "@appsmith/selectors/tenantSelectors";
 import { redirectUserAfterSignup } from "@appsmith/utils/signupHelpers";
+import { setUserSignedUpFlag } from "utils/storage";
 
 export function SignupSuccess() {
   const dispatch = useDispatch();
@@ -23,8 +24,11 @@ export function SignupSuccess() {
     "enableFirstTimeUserExperience",
   );
   const validLicense = useSelector(isValidLicense);
+  const user = useSelector(getCurrentUser);
+
   useEffect(() => {
     PerformanceTracker.stopTracking(PerformanceTransactionName.SIGN_UP);
+    user?.email && setUserSignedUpFlag(user?.email);
   }, []);
 
   const redirectUsingQueryParam = useCallback(
@@ -38,18 +42,17 @@ export function SignupSuccess() {
     [],
   );
 
-  const onGetStarted = useCallback((role?: string, useCase?: string) => {
+  const onGetStarted = useCallback((proficiency?: string, useCase?: string) => {
     dispatch({
       type: ReduxActionTypes.UPDATE_USER_DETAILS_INIT,
       payload: {
-        role,
+        proficiency,
         useCase,
       },
     });
     redirectUsingQueryParam();
   }, []);
 
-  const user = useSelector(getCurrentUser);
   const { cloudHosting } = getAppsmithConfigs();
   const isCypressEnv = !!(window as any).Cypress;
 
@@ -59,7 +62,7 @@ export function SignupSuccess() {
    *    For a super user, since we already collected role and useCase during signup
    *    For a normal user, who has filled in their role and useCase and try to visit signup-success url by entering manually.
    *    For an invited user, we don't want to collect the data. we just want to redirect to the workspace they have been invited to.
-   *      We identify an invited user based on `enableFirstTimeUserExperience` flag in url.
+   *    We identify an invited user based on `enableFirstTimeUserExperience` flag in url.
    */
   //TODO(Balaji): Factor in case, where user had closed the tab, while filling the form.And logs back in again.
   if (

@@ -91,6 +91,8 @@ export interface LogActionPayload {
   logType?: LOG_TYPE;
   // This is the preview of the log that the user sees.
   text: string;
+  // The environment in which the log was generated.
+  environmentName?: string;
   // Number of times this log has been repeated
   occurrenceCount?: number;
   // Deconstructed data of the log, this includes the whole nested objects/arrays/strings etc.
@@ -116,6 +118,7 @@ export interface Message {
   type?: ErrorType;
   subType?: string;
   lineNumber?: number;
+  character?: number;
   // The section of code being referred to
   // codeSegment?: string;
 }

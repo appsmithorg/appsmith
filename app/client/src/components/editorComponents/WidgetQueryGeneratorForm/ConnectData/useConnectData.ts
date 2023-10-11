@@ -1,44 +1,34 @@
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import type { AppState } from "@appsmith/reducers";
-import { PluginPackageName } from "entities/Action";
-import { isNumber } from "lodash";
-import { useContext } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { getWidget } from "sagas/selectors";
-import { getPluginPackageFromDatasourceId } from "selectors/entitiesSelector";
+import { getPluginPackageFromDatasourceId } from "@appsmith/selectors/entitiesSelector";
 import { getisOneClickBindingConnectingForWidget } from "selectors/oneClickBindingSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { WidgetQueryGeneratorFormContext } from "..";
-import { useColumns } from "../WidgetSpecificControls/ColumnDropdown/useColumns";
+import { isValidGsheetConfig } from "../utils";
+import { useContext, useMemo } from "react";
+import { WidgetQueryGeneratorFormContext } from "../index";
+import { PluginPackageName } from "../../../../entities/Action";
+import { useFormConfig } from "../common/useFormConfig";
 
 export function useConnectData() {
   const dispatch = useDispatch();
 
-  const { config, propertyName, widgetId } = useContext(
+  const { aliases, config, otherFields, propertyName, widgetId } = useContext(
     WidgetQueryGeneratorFormContext,
   );
 
-  const widget = useSelector((state: AppState) => getWidget(state, widgetId));
+  const widget = useSelector((state) => getWidget(state, widgetId));
 
-  const { columns, primaryColumn } = useColumns("");
+  const formConfig = useFormConfig();
 
   const isLoading = useSelector(
     getisOneClickBindingConnectingForWidget(widgetId),
   );
 
   const onClick = () => {
-    const payload = {
-      tableName: config.table,
-      datasourceId: config.datasource,
-      widgetId: widgetId,
-      searchableColumn: config.searchableColumn,
-      columns: columns.map((column) => column.name),
-      primaryColumn,
-    };
-
     dispatch({
       type: ReduxActionTypes.BIND_WIDGET_TO_DATASOURCE,
-      payload,
+      payload: formConfig, // Use the formConfig payload directly
     });
 
     AnalyticsUtil.logEvent(`GENERATE_QUERY_CONNECT_DATA_CLICK`, {
@@ -47,25 +37,41 @@ export function useConnectData() {
       propertyName: propertyName,
       pluginType: config.datasourcePluginType,
       pluginName: config.datasourcePluginName,
+      connectionMode: config.datasourceConnectionMode,
       additionalData: {
         dataTableName: config.table,
         searchableColumn: config.searchableColumn,
+        alias: config.alias,
+        formType: config.otherFields?.formType,
       },
     });
   };
 
-  const selectedDatasourcePluginPackageName = useSelector((state: AppState) =>
+  const selectedDatasourcePluginPackageName = useSelector((state) =>
     getPluginPackageFromDatasourceId(state, config.datasource),
   );
 
   const show = !!config.datasource;
 
-  const disabled =
-    !config.table ||
-    (selectedDatasourcePluginPackageName === PluginPackageName.GOOGLE_SHEETS &&
-      (!config.tableHeaderIndex ||
-        !isNumber(Number(config.tableHeaderIndex)) ||
-        isNaN(Number(config.tableHeaderIndex))));
+  const disabled = useMemo(() => {
+    return (
+      !config.table ||
+      (selectedDatasourcePluginPackageName ===
+        PluginPackageName.GOOGLE_SHEETS &&
+        !isValidGsheetConfig(config)) ||
+      aliases?.some((alias) => {
+        return alias.isRequired && !config.alias[alias.name];
+      }) ||
+      (otherFields &&
+        otherFields?.some((field) => {
+          return (
+            field.isRequired &&
+            field.isVisible?.(config) &&
+            !config.otherFields?.[field.name]
+          );
+        }))
+    );
+  }, [config, aliases]);
 
   return {
     show,

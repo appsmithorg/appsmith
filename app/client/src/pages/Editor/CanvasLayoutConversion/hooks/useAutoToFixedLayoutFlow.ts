@@ -27,9 +27,9 @@ import { getSnapshotUpdatedTime } from "selectors/autoLayoutSelectors";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { snapShotFlow } from "./useSnapShotForm";
 import { commonConversionFlows } from "./CommonConversionFlows";
-import { getReadableSnapShotDetails } from "utils/autoLayout/AutoLayoutUtils";
+import { getReadableSnapShotDetails } from "layoutSystems/autolayout/utils/AutoLayoutUtils";
 
-//returns props for Auto to Fixed Layout conversion flows based on which the Conversion Form can be rendered
+//returns props for Auto to fixed layout conversion flows based on which the Conversion Form can be rendered
 export const useAutoToFixedLayoutFlow = (
   dispatch: Dispatch<any>,
 ): {

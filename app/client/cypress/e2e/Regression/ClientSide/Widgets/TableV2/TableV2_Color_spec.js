@@ -1,22 +1,17 @@
-const ObjectsRegistry =
-  require("../../../../../support/Objects/Registry").ObjectsRegistry;
-let propPane = ObjectsRegistry.PropertyPane;
 const widgetsPage = require("../../../../../locators/Widgets.json");
-const dsl = require("../../../../../fixtures/tableV2NewDsl.json");
-const publish = require("../../../../../locators/publishWidgetspage.json");
-let agHelper = ObjectsRegistry.AggregateHelper;
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Table Widget V2 property pane feature validation", function () {
   beforeEach(() => {
-    agHelper.RestoreLocalStorageCache();
+    _.agHelper.RestoreLocalStorageCache();
   });
 
   afterEach(() => {
-    agHelper.SaveLocalStorageCache();
+    _.agHelper.SaveLocalStorageCache();
   });
 
   beforeEach(() => {
-    cy.addDsl(dsl);
+    _.agHelper.AddDsl("tableV2NewDsl");
   });
 
   it("1. Test to validate text color and text background", function () {
@@ -29,12 +24,12 @@ describe("Table Widget V2 property pane feature validation", function () {
     cy.wait(500);
     cy.wait("@updateLayout");
     // Verify the text color is green
-    cy.readTableV2dataValidateCSS("1", "0", "color", "rgb(126, 34, 206)");
+    cy.readTableV2dataValidateCSS("1", "0", "color", "rgb(219, 234, 254)");
     // Change the text color and enter purple in input field
     cy.get(widgetsPage.textColor)
       .scrollIntoView()
       .clear({ force: true })
-      .type("purple", { force: true });
+      .type("purple", { force: true, delay: 0 });
     cy.wait("@updateLayout");
     // Verify the text color is purple
     cy.readTableV2dataValidateCSS("1", "0", "color", "rgb(128, 0, 128)");
@@ -46,7 +41,7 @@ describe("Table Widget V2 property pane feature validation", function () {
 
     cy.wait("@updateLayout");
     cy.assertPageSave();
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.wait(4000);
 
     // Verify the cell background color is green
@@ -54,18 +49,20 @@ describe("Table Widget V2 property pane feature validation", function () {
       "1",
       "1",
       "background-color",
-      "rgb(126, 34, 206)",
+      "rgb(219, 234, 254)",
     );
-    cy.get(publish.backToEditor).click();
+    _.deployMode.NavigateBacktoEditor();
     cy.openPropertyPane("tablewidgetv2");
     cy.moveToStyleTab();
     // Change the cell background color and enter purple in input field
-    cy.get(`.t--property-control-cellbackgroundcolor input`)
+    cy.get(
+      `.t--property-control-cellbackgroundcolor [data-testid='t--color-picker-input']`,
+    )
       .clear({ force: true })
-      .type("purple", { force: true });
+      .type("purple", { force: true, delay: 0 });
     cy.wait("@updateLayout");
     //cy.assertPageSave();
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.wait(4000);
 
     // Verify the cell background color is purple
@@ -75,7 +72,7 @@ describe("Table Widget V2 property pane feature validation", function () {
       "background-color",
       "rgb(128, 0, 128)",
     );
-    cy.get(publish.backToEditor).click();
+    _.deployMode.NavigateBacktoEditor();
   });
 
   it("2. check background of the edit action column", function () {
@@ -86,7 +83,7 @@ describe("Table Widget V2 property pane feature validation", function () {
     cy.get(".t--property-control-cellbackgroundcolor")
       .find(".t--js-toggle")
       .click();
-    propPane.UpdatePropertyFieldValue(
+    _.propPane.UpdatePropertyFieldValue(
       "Cell background color",
       "rgb(255, 0, 0)",
     );

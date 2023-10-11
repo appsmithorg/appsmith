@@ -19,10 +19,9 @@ public class SoftDeleteMongoRepositoryFactory extends ReactiveMongoRepositoryFac
     }
 
     @Override
-    protected Optional<QueryLookupStrategy> getQueryLookupStrategy(QueryLookupStrategy.Key key,
-                                                                   QueryMethodEvaluationContextProvider evaluationContextProvider) {
-        Optional<QueryLookupStrategy> optStrategy = super.getQueryLookupStrategy(key,
-                evaluationContextProvider);
+    protected Optional<QueryLookupStrategy> getQueryLookupStrategy(
+            QueryLookupStrategy.Key key, QueryMethodEvaluationContextProvider evaluationContextProvider) {
+        Optional<QueryLookupStrategy> optStrategy = super.getQueryLookupStrategy(key, evaluationContextProvider);
         return optStrategy.map(this::createSoftDeleteQueryLookupStrategy);
     }
 

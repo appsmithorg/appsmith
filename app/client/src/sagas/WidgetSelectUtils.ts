@@ -20,9 +20,9 @@ import {
 } from "sagas/selectors";
 import { getWidgetChildrenIds } from "sagas/WidgetOperationUtils";
 import { getLastSelectedWidget, getSelectedWidgets } from "selectors/ui";
-import WidgetFactory from "utils/WidgetFactory";
+import WidgetFactory from "WidgetProvider/factory";
 import { toast } from "design-system";
-import { checkIsDropTarget } from "utils/WidgetFactoryHelpers";
+import { checkIsDropTarget } from "WidgetProvider/factory/helpers";
 
 /**
  * Selection types that are possible for widget select

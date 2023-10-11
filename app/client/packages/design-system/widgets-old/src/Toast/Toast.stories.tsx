@@ -1,18 +1,16 @@
-import React from "react";
+import * as React from "react";
 import type { ComponentMeta, ComponentStory } from "@storybook/react";
 
-import { ToastComponent } from "./index";
-import { Variant } from "../constants/variants";
-import Button from "../Button";
+import { ToastComponent, Variant, Button } from "@design-system/widgets-old";
 
 export default {
   // change ComponentDisplay to the name of the component you are writing a story for
-  title: "Design System/widgets-old/Toast",
+  title: "Design System/Widgets-old/Toast",
   component: ToastComponent,
 } as ComponentMeta<typeof ToastComponent>;
 
 // eslint-disable-next-line react/function-component-definition
-const Template: ComponentStory<typeof ToastComponent> = (args: any) => {
+const Template: ComponentStory<typeof ToastComponent> = (args) => {
   return <ToastComponent {...args} />;
 };
 

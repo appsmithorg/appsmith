@@ -1,15 +1,20 @@
-import React, { useCallback, useEffect, useState, lazy, Suspense } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useState,
+  lazy,
+  Suspense,
+  useContext,
+} from "react";
 import styled, { ThemeProvider } from "styled-components";
 import classNames from "classnames";
-import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { APPLICATIONS_URL } from "constants/routes";
 import AppInviteUsersForm from "pages/workspace/AppInviteUsersForm";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import AppsmithLogo from "assets/images/appsmith_logo_square.png";
 import { Link } from "react-router-dom";
-import type { AppState } from "@appsmith/reducers";
 import {
+  getApplicationLastDeployedAt,
   getCurrentApplicationId,
   getCurrentPageId,
   getIsPublishingApplication,
@@ -17,19 +22,23 @@ import {
 } from "selectors/editorSelectors";
 import {
   getAllUsers,
+  getCurrentAppWorkspace,
   getCurrentWorkspaceId,
 } from "@appsmith/selectors/workspaceSelectors";
-import { connect, useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import DeployLinkButtonDialog from "components/designSystems/appsmith/header/DeployLinkButton";
-import { updateApplication } from "@appsmith/actions/applicationActions";
+import {
+  publishApplication,
+  updateApplication,
+} from "@appsmith/actions/applicationActions";
 import {
   getApplicationList,
   getIsSavingAppName,
   getIsErroredSavingAppName,
+  getCurrentApplication,
 } from "@appsmith/selectors/applicationSelectors";
 import EditorAppName from "./EditorAppName";
 import { getCurrentUser } from "selectors/usersSelectors";
-import type { User } from "constants/userConstants";
 import {
   EditInteractionKind,
   SavingState,
@@ -56,10 +65,12 @@ import { snipingModeSelector } from "selectors/editorSelectors";
 import { showConnectGitModal } from "actions/gitSyncActions";
 import RealtimeAppEditors from "./RealtimeAppEditors";
 import { EditorSaveIndicator } from "./EditorSaveIndicator";
-
+import {
+  adaptiveSignpostingEnabled,
+  selectFeatureFlags,
+} from "@appsmith/selectors/featureFlagsSelectors";
 import { retryPromise } from "utils/AppsmithUtils";
 import { fetchUsersForWorkspace } from "@appsmith/actions/workspaceActions";
-import type { WorkspaceUser } from "@appsmith/constants/workspaceConstants";
 
 import { getIsGitConnected } from "selectors/gitSyncSelectors";
 import {
@@ -69,13 +80,14 @@ import {
   DEPLOY_MENU_OPTION,
   EDITOR_HEADER,
   INVITE_TAB,
-  INVITE_USERS_PLACEHOLDER,
   IN_APP_EMBED_SETTING,
   LOCK_ENTITY_EXPLORER_MESSAGE,
   LOGO_TOOLTIP,
   RENAME_APPLICATION_TOOLTIP,
   SHARE_BUTTON_TOOLTIP,
   SHARE_BUTTON_TOOLTIP_WITH_USER,
+  COMMUNITY_TEMPLATES,
+  APPLICATION_INVITE,
 } from "@appsmith/constants/messages";
 import { getExplorerPinned } from "selectors/explorerSelector";
 import {
@@ -88,9 +100,24 @@ import EndTour from "./GuidedTour/EndTour";
 import { GUIDED_TOUR_STEPS } from "./GuidedTour/constants";
 import { viewerURL } from "RouteBuilder";
 import { useHref } from "./utils";
-import EmbedSnippetForm from "@appsmith/pages/Applications/EmbedSnippetTab";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
+import type { NavigationSetting } from "constants/AppConstants";
+import { getUserPreferenceFromStorage } from "@appsmith/utils/Environments";
+import { showEnvironmentDeployInfoModal } from "@appsmith/actions/environmentAction";
+import {
+  getIsFirstTimeUserOnboardingEnabled,
+  isWidgetActionConnectionPresent,
+} from "selectors/onboardingSelectors";
+import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
+import { getFeatureWalkthroughShown } from "utils/storage";
+import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
+import { SignpostingWalkthroughConfig } from "./FirstTimeUserOnboarding/Utils";
+import CommunityTemplatesPublishInfo from "./CommunityTemplates/Modals/CommunityTemplatesPublishInfo";
+import PublishCommunityTemplateModal from "./CommunityTemplates/Modals/PublishCommunityTemplate";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { getEmbedSnippetForm } from "@appsmith/utils/BusinessFeatures/privateEmbedHelpers";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -194,26 +221,9 @@ const SidebarNavButton = styled(Button)`
   }
 `;
 
-type EditorHeaderProps = {
-  pageSaveError?: boolean;
-  pageName?: string;
-  pageId: string;
-  isPublishing: boolean;
-  publishedTime?: string;
-  workspaceId: string;
-  applicationId?: string;
-  currentApplication?: ApplicationPayload;
-  isSaving: boolean;
-  publishApplication: (appId: string) => void;
-  lastUpdatedTime?: number;
-  inOnboarding: boolean;
-  sharedUserList: WorkspaceUser[];
-  currentUser?: User;
-};
-
-const GlobalSearch = lazy(() => {
+const GlobalSearch = lazy(async () => {
   return retryPromise(
-    () =>
+    async () =>
       import(
         /* webpackChunkName: "global-search" */ "components/editorComponents/GlobalSearch"
       ),
@@ -222,15 +232,7 @@ const GlobalSearch = lazy(() => {
 
 const theme = getTheme(ThemeMode.LIGHT);
 
-export function EditorHeader(props: EditorHeaderProps) {
-  const {
-    applicationId,
-    currentApplication,
-    isPublishing,
-    pageId,
-    publishApplication,
-    workspaceId,
-  } = props;
+export function EditorHeader() {
   const [activeTab, setActiveTab] = useState("invite");
   const dispatch = useDispatch();
   const isSnipingMode = useSelector(snipingModeSelector);
@@ -240,6 +242,17 @@ export function EditorHeader(props: EditorHeaderProps) {
   const isErroredSavingName = useSelector(getIsErroredSavingAppName);
   const applicationList = useSelector(getApplicationList);
   const isPreviewMode = useSelector(previewModeSelector);
+  const signpostingEnabled = useSelector(getIsFirstTimeUserOnboardingEnabled);
+  const workspaceId = useSelector(getCurrentWorkspaceId);
+  const currentWorkspace = useSelector(getCurrentAppWorkspace);
+  const applicationId = useSelector(getCurrentApplicationId);
+  const currentApplication = useSelector(getCurrentApplication);
+  const isPublishing = useSelector(getIsPublishingApplication);
+  const pageId = useSelector(getCurrentPageId) as string;
+  const sharedUserList = useSelector(getAllUsers);
+  const currentUser = useSelector(getCurrentUser);
+  const featureFlags = useSelector(selectFeatureFlags);
+
   const deployLink = useHref(viewerURL, { pageId });
   const isAppSettingsPaneWithNavigationTabOpen = useSelector(
     getIsAppSettingsPaneWithNavigationTabOpen,
@@ -249,15 +262,46 @@ export function EditorHeader(props: EditorHeaderProps) {
 
   const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false);
   const [showModal, setShowModal] = useState(false);
+  const isMultipleEnvEnabled = useFeatureFlag(
+    FEATURE_FLAG.release_datasource_environments_enabled,
+  );
+  const [
+    showPublishCommunityTemplateModal,
+    setShowPublishCommunityTemplateModal,
+  ] = useState(false);
 
   const handlePublish = () => {
     if (applicationId) {
-      publishApplication(applicationId);
+      dispatch(publishApplication(applicationId));
 
       const appName = currentApplication ? currentApplication.name : "";
+      const pageCount = currentApplication?.pages?.length;
+      const navigationSettingsWithPrefix: Record<
+        string,
+        NavigationSetting[keyof NavigationSetting]
+      > = {};
+
+      if (currentApplication?.applicationDetail?.navigationSetting) {
+        const settingKeys = Object.keys(
+          currentApplication.applicationDetail.navigationSetting,
+        ) as Array<keyof NavigationSetting>;
+
+        settingKeys.map((key: keyof NavigationSetting) => {
+          if (currentApplication?.applicationDetail?.navigationSetting?.[key]) {
+            const value: NavigationSetting[keyof NavigationSetting] =
+              currentApplication.applicationDetail.navigationSetting[key];
+
+            navigationSettingsWithPrefix[`navigationSetting_${key}`] = value;
+          }
+        });
+      }
+
       AnalyticsUtil.logEvent("PUBLISH_APP", {
         appId: applicationId,
         appName,
+        pageCount,
+        ...navigationSettingsWithPrefix,
+        isPublic: !!currentApplication?.isPublic,
       });
     }
   };
@@ -279,8 +323,17 @@ export function EditorHeader(props: EditorHeaderProps) {
             : "Application name menu (top left)",
         });
       } else {
-        handlePublish();
+        if (
+          !isMultipleEnvEnabled ||
+          getUserPreferenceFromStorage() === "true"
+        ) {
+          handlePublish();
+        } else {
+          dispatch(showEnvironmentDeployInfoModal());
+        }
       }
+
+      closeWalkthrough();
     },
     [dispatch, handlePublish],
   );
@@ -305,9 +358,51 @@ export function EditorHeader(props: EditorHeaderProps) {
       dispatch(fetchUsersForWorkspace(workspaceId));
     }
   }, [workspaceId]);
-  const filteredSharedUserList = props.sharedUserList.filter(
-    (user) => user.username !== props.currentUser?.username,
+  const filteredSharedUserList = sharedUserList.filter(
+    (user) => user.username !== currentUser?.username,
   );
+
+  const {
+    isOpened: isWalkthroughOpened,
+    popFeature,
+    pushFeature,
+  } = useContext(WalkthroughContext) || {};
+  const adaptiveSignposting = useSelector(adaptiveSignpostingEnabled);
+  const isConnectionPresent = useSelector(isWidgetActionConnectionPresent);
+  const isDeployed = !!useSelector(getApplicationLastDeployedAt);
+  const isPrivateEmbedEnabled = useFeatureFlag(
+    FEATURE_FLAG.license_private_embeds_enabled,
+  );
+  useEffect(() => {
+    if (
+      signpostingEnabled &&
+      isConnectionPresent &&
+      adaptiveSignposting &&
+      !isDeployed
+    ) {
+      checkAndShowWalkthrough();
+    }
+  }, [
+    signpostingEnabled,
+    isConnectionPresent,
+    adaptiveSignposting,
+    isDeployed,
+  ]);
+  const closeWalkthrough = () => {
+    if (popFeature && isWalkthroughOpened) {
+      popFeature();
+    }
+  };
+  const checkAndShowWalkthrough = async () => {
+    const isFeatureWalkthroughShown = await getFeatureWalkthroughShown(
+      FEATURE_WALKTHROUGH_KEYS.deploy,
+    );
+    !isFeatureWalkthroughShown &&
+      pushFeature &&
+      pushFeature(SignpostingWalkthroughConfig.DEPLOY_APP, true);
+  };
+
+  const isGACEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
 
   return (
     <ThemeProvider theme={theme}>
@@ -316,59 +411,68 @@ export function EditorHeader(props: EditorHeaderProps) {
         data-testid="t--appsmith-editor-header"
       >
         <HeaderSection className="space-x-2">
-          <Tooltip
-            content={
-              <div className="flex items-center justify-between">
-                <span>
-                  {!pinned
-                    ? createMessage(LOCK_ENTITY_EXPLORER_MESSAGE)
-                    : createMessage(CLOSE_ENTITY_EXPLORER_MESSAGE)}
-                </span>
-                <span className="ml-4">{modText()} /</span>
-              </div>
-            }
-            placement="bottomLeft"
-          >
-            <SidebarNavButton
-              className={classNames({
-                "transition-all transform duration-400": true,
-                "-translate-x-full opacity-0": isPreviewingApp,
-                "translate-x-0 opacity-100": !isPreviewingApp,
-              })}
-              kind="tertiary"
-              onClick={onPin}
-              size="md"
+          {!signpostingEnabled && (
+            <Tooltip
+              content={
+                <div className="flex items-center justify-between">
+                  <span>
+                    {!pinned
+                      ? createMessage(LOCK_ENTITY_EXPLORER_MESSAGE)
+                      : createMessage(CLOSE_ENTITY_EXPLORER_MESSAGE)}
+                  </span>
+                  <span className="ml-4">{modText()} /</span>
+                </div>
+              }
+              placement="bottomLeft"
             >
-              <div
-                className="t--pin-entity-explorer group relative"
-                onMouseEnter={onMenuHover}
+              <SidebarNavButton
+                className={classNames({
+                  "transition-all transform duration-400": true,
+                  "-translate-x-full opacity-0": isPreviewingApp,
+                  "translate-x-0 opacity-100": !isPreviewingApp,
+                })}
+                data-testid="sidebar-nav-button"
+                kind="tertiary"
+                onClick={onPin}
+                size="md"
               >
-                <Icon
-                  className="absolute transition-opacity group-hover:opacity-0"
-                  name="hamburger"
-                  size="md"
-                />
-                {pinned && (
+                <div
+                  className="relative t--pin-entity-explorer group"
+                  onMouseEnter={onMenuHover}
+                >
                   <Icon
-                    className="absolute transition-opacity opacity-0 group-hover:opacity-100"
-                    name="menu-fold"
-                    onClick={onPin}
+                    className="absolute transition-opacity group-hover:opacity-0"
+                    name="hamburger"
                     size="md"
                   />
-                )}
-                {!pinned && (
-                  <Icon
-                    className="absolute transition-opacity opacity-0 group-hover:opacity-100"
-                    name="menu-unfold"
-                    onClick={onPin}
-                    size="md"
-                  />
-                )}
-              </div>
-            </SidebarNavButton>
-          </Tooltip>
+                  {pinned && (
+                    <Icon
+                      className="absolute transition-opacity opacity-0 group-hover:opacity-100"
+                      name="menu-fold"
+                      onClick={onPin}
+                      size="md"
+                    />
+                  )}
+                  {!pinned && (
+                    <Icon
+                      className="absolute transition-opacity opacity-0 group-hover:opacity-100"
+                      name="menu-unfold"
+                      onClick={onPin}
+                      size="md"
+                    />
+                  )}
+                </div>
+              </SidebarNavButton>
+            </Tooltip>
+          )}
+
           <Tooltip content={createMessage(LOGO_TOOLTIP)} placement="bottomLeft">
-            <AppsmithLink to={APPLICATIONS_URL}>
+            <AppsmithLink
+              className={classNames({
+                "ml-2": signpostingEnabled,
+              })}
+              to={APPLICATIONS_URL}
+            >
               <img
                 alt="Appsmith logo"
                 className="t--appsmith-logo"
@@ -456,7 +560,13 @@ export function EditorHeader(props: EditorHeaderProps) {
               open={showModal}
             >
               <ModalContent style={{ width: "640px" }}>
-                <ModalHeader>Application Invite</ModalHeader>
+                <ModalHeader>
+                  {createMessage(
+                    APPLICATION_INVITE,
+                    currentWorkspace.name,
+                    !isGACEnabled,
+                  )}
+                </ModalHeader>
                 <ModalBody>
                   <Tabs
                     onValueChange={(value) => setActiveTab(value)}
@@ -466,29 +576,47 @@ export function EditorHeader(props: EditorHeaderProps) {
                       <Tab data-testid="t--tab-INVITE" value="invite">
                         {createMessage(INVITE_TAB)}
                       </Tab>
-                      <Tab data-tesid="t--tab-EMBED" value="embed">
+                      <Tab data-testid="t--tab-EMBED" value="embed">
                         {createMessage(IN_APP_EMBED_SETTING.embed)}
                       </Tab>
+                      {featureFlags.release_show_publish_app_to_community_enabled &&
+                        cloudHosting && (
+                          <Tab data-testid="t--tab-PUBLISH" value="publish">
+                            {createMessage(COMMUNITY_TEMPLATES.publish)}
+                          </Tab>
+                        )}
                     </TabsList>
                     <TabPanel value="invite">
                       <AppInviteUsersForm
                         applicationId={applicationId}
-                        placeholder={createMessage(
-                          INVITE_USERS_PLACEHOLDER,
-                          cloudHosting,
-                        )}
                         workspaceId={workspaceId}
                       />
                     </TabPanel>
                     <TabPanel value="embed">
-                      <EmbedSnippetForm
-                        changeTab={() => setActiveTab("invite")}
-                      />
+                      {getEmbedSnippetForm(isPrivateEmbedEnabled, setActiveTab)}
                     </TabPanel>
+                    {cloudHosting && (
+                      <TabPanel value="publish">
+                        <CommunityTemplatesPublishInfo
+                          onPublishClick={() =>
+                            setShowPublishCommunityTemplateModal(true)
+                          }
+                          setShowHostModal={setShowModal}
+                        />
+                      </TabPanel>
+                    )}
                   </Tabs>
                 </ModalBody>
               </ModalContent>
             </Modal>
+            <PublishCommunityTemplateModal
+              onPublishSuccess={() => {
+                setShowPublishCommunityTemplateModal(false);
+                setShowModal(true);
+              }}
+              setShowModal={setShowPublishCommunityTemplateModal}
+              showModal={showPublishCommunityTemplateModal}
+            />
             <div className="flex items-center">
               <Tooltip
                 content={createMessage(DEPLOY_BUTTON_TOOLTIP)}
@@ -497,6 +625,7 @@ export function EditorHeader(props: EditorHeaderProps) {
                 <Button
                   className="t--application-publish-btn"
                   data-guided-tour-iid="deploy"
+                  id={"application-publish-btn"}
                   isLoading={isPublishing}
                   kind="tertiary"
                   onClick={() => handleClickDeploy(true)}
@@ -524,30 +653,4 @@ export function EditorHeader(props: EditorHeaderProps) {
   );
 }
 
-const mapStateToProps = (state: AppState) => ({
-  pageName: state.ui.editor.currentPageName,
-  workspaceId: getCurrentWorkspaceId(state),
-  applicationId: getCurrentApplicationId(state),
-  currentApplication: state.ui.applications.currentApplication,
-  isPublishing: getIsPublishingApplication(state),
-  pageId: getCurrentPageId(state) as string,
-  sharedUserList: getAllUsers(state),
-  currentUser: getCurrentUser(state),
-});
-
-const mapDispatchToProps = (dispatch: any) => ({
-  publishApplication: (applicationId: string) => {
-    dispatch({
-      type: ReduxActionTypes.PUBLISH_APPLICATION_INIT,
-      payload: {
-        applicationId,
-      },
-    });
-  },
-});
-
-EditorHeader.whyDidYouRender = {
-  logOnDifferentValues: false,
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(EditorHeader);
+export default EditorHeader;

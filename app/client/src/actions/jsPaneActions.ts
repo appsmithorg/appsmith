@@ -5,8 +5,8 @@ import type {
   RefactorAction,
   SetFunctionPropertyPayload,
 } from "api/JSActionAPI";
-import type { EventLocation } from "utils/AnalyticsUtil";
-import type { JSEditorTab } from "../reducers/uiReducers/jsPaneReducer";
+import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
+import type { JSEditorTab } from "reducers/uiReducers/jsPaneReducer";
 
 export const createNewJSCollection = (
   pageId: string,

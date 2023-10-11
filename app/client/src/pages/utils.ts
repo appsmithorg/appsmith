@@ -14,10 +14,16 @@ export const getIsBranchUpdated = (
   return branch1 !== branch2;
 };
 
-export const addClassToDocumentBody = (className: string) => {
-  document.body.classList.add(className);
+export const addClassToDocumentRoot = (className: string) => {
+  const element: HTMLElement | null = document.querySelector("#root");
+  if (!!element) {
+    element.classList.add(className);
+  }
 };
 
-export const removeClassFromDocumentBody = (className: string) => {
-  document.body.classList.remove(className);
+export const removeClassFromDocumentRoot = (className: string) => {
+  const element: HTMLElement | null = document.querySelector("#root");
+  if (!!element) {
+    element.classList.remove(className);
+  }
 };

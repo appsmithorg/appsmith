@@ -13,8 +13,10 @@ public class JsonSchemaMigration {
 
     public static ApplicationJson migrateApplicationToLatestSchema(ApplicationJson applicationJson) {
         // Check if the schema versions are available and set to initial version if not present
-        Integer serverSchemaVersion = applicationJson.getServerSchemaVersion() == null ? 0 : applicationJson.getServerSchemaVersion();
-        Integer clientSchemaVersion = applicationJson.getClientSchemaVersion() == null ? 0 : applicationJson.getClientSchemaVersion();
+        Integer serverSchemaVersion =
+                applicationJson.getServerSchemaVersion() == null ? 0 : applicationJson.getServerSchemaVersion();
+        Integer clientSchemaVersion =
+                applicationJson.getClientSchemaVersion() == null ? 0 : applicationJson.getClientSchemaVersion();
 
         applicationJson.setClientSchemaVersion(clientSchemaVersion);
         applicationJson.setServerSchemaVersion(serverSchemaVersion);
@@ -52,7 +54,8 @@ public class JsonSchemaMigration {
                 applicationJson.setServerSchemaVersion(4);
             case 4:
                 // Remove unwanted fields from DTO and allow serialization for JsonIgnore fields
-                if (!CollectionUtils.isNullOrEmpty(applicationJson.getPageList()) && applicationJson.getExportedApplication() != null) {
+                if (!CollectionUtils.isNullOrEmpty(applicationJson.getPageList())
+                        && applicationJson.getExportedApplication() != null) {
                     MigrationHelperMethods.arrangeApplicationPagesAsPerImportedPageOrder(applicationJson);
                     MigrationHelperMethods.updateMongoEscapedWidget(applicationJson);
                 }
@@ -78,6 +81,4 @@ public class JsonSchemaMigration {
         // supporting this on server side
         return applicationJson;
     }
-
-
 }

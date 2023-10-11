@@ -1,9 +1,9 @@
-const dsl = require("../../../../fixtures/displayWidgetDsl.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Entity explorer tests related to widgets and validation", function () {
   before(() => {
-    cy.addDsl(dsl);
+    _.agHelper.AddDsl("displayWidgetDsl");
   });
 
   it("1. Widget edit/delete/copy to clipboard validation", function () {

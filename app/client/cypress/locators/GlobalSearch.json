@@ -1,6 +1,6 @@
 {
   "createNew": ".t--entity-add-btn.group.files > button",
-  "docHint": ".t--docHit",
+  "searchHit": ".t--searchHit",
   "filterButton": ".t--filter-button",
   "category": ".t--global-search-category",
   "blankDatasource": ".ads-v2-menu__menu-item span:contains('New datasource')",

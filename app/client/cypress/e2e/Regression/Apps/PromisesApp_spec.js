@@ -1,19 +1,26 @@
-import * as _ from "../../../support/Objects/ObjectsCore";
-import homePage from "../../../locators/HomePage";
-const dsl = require("../../../fixtures/promisesStoreValueDsl.json");
+import {
+  agHelper,
+  entityExplorer,
+  jsEditor,
+  apiPage,
+  dataManager,
+  assertHelper,
+} from "../../../support/Objects/ObjectsCore";
 const commonlocators = require("../../../locators/commonlocators.json");
 
 describe("JSEditor tests", function () {
   before(() => {
-    cy.addDsl(dsl);
+    agHelper.AddDsl("promisesStoreValueDsl");
   });
 
   it("1. Testing promises with resetWidget, storeValue action and API call", () => {
-    cy.fixture("datasources").then((datasourceFormData) => {
-      _.apiPage.CreateAndFillApi(datasourceFormData["mockApiUrl"], "TC1api");
-      _.apiPage.RunAPI();
-      _.jsEditor.CreateJSObject(
-        `export default {
+    apiPage.CreateAndFillApi(
+      dataManager.dsValues[dataManager.defaultEnviorment].mockApiUrl,
+      "TC1api",
+    );
+    apiPage.RunAPI();
+    jsEditor.CreateJSObject(
+      `export default {
         myFun1: async () => { //comment
           await this.clearStore()		//clear store value before running the case
           return resetWidget('Switch1')
@@ -40,89 +47,76 @@ describe("JSEditor tests", function () {
            })
         }
       }`,
-        {
-          paste: true,
-          completeReplace: true,
-          toRun: false,
-          shouldCreateNewJSObj: true,
-        },
-      );
-      _.entityExplorer.SelectEntityByName("Page1", "Pages");
-      // verify text in the text widget
-      cy.get(".t--draggable-textwidget span")
-        .eq(5)
-        .invoke("text")
-        .then((text) => {
-          expect(text).to.equal(
-            "Step 4: Value is Green and will default to undefined",
-          );
-        });
-      // toggle off the switch
-      cy.get(".t--switch-widget-active .bp3-control-indicator").click({
-        force: true,
-      });
-      cy.get(homePage.toastMessage).should(
-        "contain",
-        "Switch widget has changed",
-      );
-
-      // select an option from select widget
-      cy.get(".bp3-button.select-button").click({ force: true });
-      cy.get(".menu-item-text").eq(2).click({ force: true });
-      cy.wait(2000);
-      // verify text in the text widget
-      cy.get(".t--draggable-textwidget span")
-        .eq(5)
-        .invoke("text")
-        .then((text) => {
-          expect(text).to.equal(
-            "Step 4: Value is Red and will default to undefined",
-          );
-        });
-      // move to page  2 on table widget
-      cy.get(commonlocators.tableNextPage).click();
-      cy.get(".t--table-widget-page-input").within(() => {
-        cy.get("input.bp3-input").should("have.value", "2");
-      });
-      cy.wait(3000);
-      // hit audio play button and trigger actions
-      /* cy.openPropertyPane("audiowidget");
-    cy.get(widgetsPage.autoPlay).click({ force: true });
-    cy.wait("@postExecute").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
+      {
+        paste: true,
+        completeReplace: true,
+        toRun: false,
+        shouldCreateNewJSObj: true,
+      },
     );
-    cy.wait(1000)
-     // verify text is visible
-     cy.get(".t--draggable-textwidget span")
-     .eq(2)
-     .invoke("text")
-     .then((text) => {
-       expect(text).to.equal("Step 4: Value is Green and will default to Green");
-     });
-     cy.get(commonlocators.tableNextPage).click()
-     cy.get('.t--table-widget-page-input').within(()=>{
-       cy.get('input.bp3-input').should('have.value', '1')
-     })
-    cy.get(homePage.toastMessage).should(
-      "contain",
-      "Success running API query",
-      "GREEN",
-    ); */
+    entityExplorer.SelectEntityByName("Page1", "Pages");
+    cy.wait(2000);
+    // verify text in the text widget
+    cy.get(".t--draggable-textwidget span")
+      .eq(5)
+      .invoke("text")
+      .then((text) => {
+        expect(text).to.equal(
+          "Step 4: Value is Green and will default to undefined",
+        );
+      });
+    // toggle off the switch
+    cy.get(".t--switch-widget-active .bp3-control-indicator").click({
+      force: true,
     });
+    agHelper.AssertContains("Switch widget has changed");
+
+    // select an option from select widget
+    cy.get(".bp3-button.select-button").click({ force: true });
+    cy.get(".menu-item-text").eq(2).click({ force: true });
+    cy.wait(2000);
+    // verify text in the text widget
+    cy.get(".t--draggable-textwidget span")
+      .eq(5)
+      .invoke("text")
+      .then((text) => {
+        expect(text).to.equal(
+          "Step 4: Value is Red and will default to undefined",
+        );
+      });
+    // move to page  2 on table widget
+    cy.get(commonlocators.tableNextPage).click();
+    cy.get(".t--table-widget-page-input").within(() => {
+      cy.get("input.bp3-input").should("have.value", "2");
+    });
+    cy.wait(3000);
+
+    // hit audio play button and trigger actions
+    entityExplorer.SelectEntityByName("Audio1", "Widgets");
+    agHelper.GetElement("audio").then(($audio) => {
+      $audio[0].play();
+    });
+    assertHelper.AssertNetworkStatus("@postExecute");
+    agHelper.Sleep(1000);
+    // verify text is visible
+    agHelper.AssertContains(
+      "Step 4: Value is Green and will default to GREEN",
+      "be.visible",
+      ".t--draggable-textwidget span",
+    );
+    agHelper.GetNClick(commonlocators.tableNextPage);
+    agHelper.GetElement(".t--table-widget-page-input").within(() => {
+      agHelper.ValidateFieldInputValue("input.bp3-input", "2");
+    });
+    agHelper.ValidateToastMessage("Success running API query");
+    agHelper.ValidateToastMessage("GREEN");
   });
 
-  //Skipping reason? to add
-  it.skip("2. Testing dynamic widgets display using consecutive storeValue calls", () => {
-    _.entityExplorer.SelectEntityByName("JSObject1", "Queries/JS");
-    _.jsEditor.SelectFunctionDropdown("clearStore");
-    _.jsEditor.RunJSObj();
-    cy.wait("@postExecute").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
+  it("2. Testing dynamic widgets display using consecutive storeValue calls", () => {
+    entityExplorer.SelectEntityByName("JSObject1", "Queries/JS");
+    jsEditor.SelectFunctionDropdown("clearStore");
+    jsEditor.RunJSObj();
+    entityExplorer.SelectEntityByName("Page1", "Pages");
     cy.xpath("//span[text()='Clear store']").click({ force: true });
     cy.get(".t--draggable-textwidget span")
       .eq(5)

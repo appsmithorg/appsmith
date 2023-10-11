@@ -1,42 +1,39 @@
-const commonlocators = require("../../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
-const dsl = require("../../../../../fixtures/newFormDsl.json");
-const widgetsPage = require("../../../../../locators/Widgets.json");
+import {
+  agHelper,
+  propPane,
+  deployMode,
+  entityExplorer,
+  locators,
+  draggableWidgets,
+} from "../../../../../support/Objects/ObjectsCore";
 
 describe("Radio Widget Functionality", function () {
   before(() => {
-    cy.addDsl(dsl);
+    agHelper.AddDsl("newFormDsl");
   });
-  it("Radio Widget Functionality", function () {
-    cy.openPropertyPane("radiogroupwidget");
-    /**
-     * @param{Text} Random Text
-     * @param{RadioWidget}Mouseover
-     * @param{RadioPre Css} Assertion
-     */
-    cy.widgetText(
-      "radiotest",
-      formWidgetsPage.radioWidget,
-      widgetsPage.widgetNameSpan,
-    );
+
+  it("1. Radio Widget Functionality", function () {
+    entityExplorer.ExpandCollapseEntity("Container3");
+    propPane.RenameWidget("RadioGroup1", "RGtest");
     /**
      * @param{IndexValue} Provide Input Index Value
      * @param{Text} Index Text Value.
      *
      */
-    cy.radioInput(0, this.data.radio1);
+    cy.radioInput(0, this.dataSet.radio1);
     cy.get(formWidgetsPage.labelradio).eq(0).should("have.text", "test1");
     cy.radioInput(1, "1");
-    cy.radioInput(2, this.data.radio2);
+    cy.radioInput(2, this.dataSet.radio2);
     cy.get(formWidgetsPage.labelradio)
       .eq(1)
-      .should("have.text", this.data.radio2);
+      .should("have.text", this.dataSet.radio2);
     cy.radioInput(3, "2");
-    cy.get(formWidgetsPage.radioAddButton).click({ force: true });
-    cy.radioInput(4, this.data.radio4);
-    cy.get(formWidgetsPage.deleteradiovalue).eq(2).click({ force: true });
-    cy.get(formWidgetsPage.labelradio).should("not.have.value", "test4");
+    agHelper.ClickButton("Add option");
+    cy.radioInput(4, this.dataSet.radio4);
+    cy.get(formWidgetsPage.deleteradiovalue).eq(1).click({ force: true });
+    cy.get(formWidgetsPage.labelradio).should("not.have.value", "test2");
     /**
      * @param{Show Alert} Css for InputChange
      */
@@ -46,29 +43,29 @@ describe("Radio Widget Functionality", function () {
       .scrollIntoView()
       .click({ force: true })
       .type("2");
-    cy.PublishtheApp();
+    deployMode.DeployApp(
+      locators._widgetInDeployed(draggableWidgets.RADIO_GROUP),
+    );
+    agHelper.AssertExistingCheckedState(
+      locators._checkboxTypeByOption("test1"),
+    );
+    agHelper.CheckUncheck(locators._checkboxTypeByOption("test4"));
+    agHelper.ValidateToastMessage("hello");
+    deployMode.NavigateBacktoEditor();
   });
-  it("Radio Functionality To Unchecked Visible Widget", function () {
-    cy.get(publish.backToEditor).click();
+
+  it("2. Radio Functionality To Check/Uncheck Visible property", function () {
     cy.openPropertyPane("radiogroupwidget");
-    cy.togglebarDisable(commonlocators.visibleCheckbox);
-    cy.PublishtheApp();
+    propPane.TogglePropertyState("Visible", "Off");
+    deployMode.DeployApp();
     cy.get(publish.radioWidget + " " + "input").should("not.exist");
-    cy.get(publish.backToEditor).click();
-  });
-  it("Radio Functionality To Check Visible Widget", function () {
+    deployMode.NavigateBacktoEditor();
+    //Radio Functionality To Check Visible Widget
     cy.openPropertyPane("radiogroupwidget");
-    cy.togglebar(commonlocators.visibleCheckbox);
-    cy.PublishtheApp();
-    cy.get(publish.radioWidget + " " + "input").should("be.checked");
+    propPane.TogglePropertyState("Visible", "On");
+    deployMode.DeployApp();
+    agHelper.AssertExistingCheckedState(
+      locators._checkboxTypeByOption("test1"),
+    );
   });
-  it("Radio Functionality To Button Text", function () {
-    cy.get(publish.radioWidget + " " + "label")
-      .eq(1)
-      .should("have.text", "test2");
-    cy.get(publish.backToEditor).click();
-  });
-});
-afterEach(() => {
-  // put your clean up code if any
 });

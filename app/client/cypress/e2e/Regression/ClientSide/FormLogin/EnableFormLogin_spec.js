@@ -21,9 +21,7 @@ describe("Form Login test functionality", function () {
     cy.get(adminSettings.saveButton).should("be.visible");
     cy.get(adminSettings.saveButton).should("not.be.disabled");
     cy.get(adminSettings.saveButton).click();
-    cy.get(adminSettings.restartNotice).should("be.visible");
-    // adding wait for server to restart
-    cy.wait(120000);
+    cy.waitForServerRestart();
     cy.waitUntil(() => cy.get(homePage.profileMenu).should("be.visible"));
     cy.get(homePage.profileMenu).click();
     cy.get(homePage.signOutIcon).click();
@@ -47,8 +45,7 @@ describe("Form Login test functionality", function () {
       cy.get(adminSettings.formSignupDisabled).click({ force: true });
       cy.wait(2000);
       cy.get(adminSettings.saveButton).click();
-      cy.get(adminSettings.restartNotice).should("be.visible");
-      cy.wait(120000);
+      cy.waitForServerRestart();
       cy.waitUntil(() => cy.get(homePage.profileMenu).should("be.visible"));
       cy.get(homePage.profileMenu).click();
       cy.get(homePage.signOutIcon).click();
@@ -97,9 +94,7 @@ describe("Form Login test functionality", function () {
       cy.get(adminSettings.saveButton).should("be.visible");
       cy.get(adminSettings.saveButton).should("not.be.disabled");
       cy.get(adminSettings.saveButton).click();
-      cy.get(adminSettings.restartNotice).should("be.visible");
-      // adding wait for server to restart
-      cy.wait(120000);
+      cy.waitForServerRestart();
       cy.waitUntil(() => cy.get(homePage.profileMenu).should("be.visible"));
       cy.get(homePage.profileMenu).click();
       cy.get(homePage.signOutIcon).click();
@@ -124,9 +119,7 @@ describe("Form Login test functionality", function () {
       cy.get(adminSettings.saveButton).should("be.visible");
       cy.get(adminSettings.saveButton).should("not.be.disabled");
       cy.get(adminSettings.saveButton).click();
-      cy.get(adminSettings.restartNotice).should("be.visible");
-      // adding wait for server to restart
-      cy.wait(120000);
+      cy.waitForServerRestart();
       cy.waitUntil(() => cy.get(homePage.profileMenu).should("be.visible"));
       cy.reload();
 

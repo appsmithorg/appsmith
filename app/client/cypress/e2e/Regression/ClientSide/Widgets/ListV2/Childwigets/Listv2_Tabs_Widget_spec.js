@@ -1,9 +1,9 @@
-const dsl = require("../../../../../../fixtures/Listv2/simpleListWithTabsWidget.json");
+import * as _ from "../../../../../../support/Objects/ObjectsCore";
 const commonlocators = require("../../../../../../locators/commonlocators.json");
 
 describe("List v2- Tabs Widget", () => {
   before(() => {
-    cy.addDsl(dsl);
+    _.agHelper.AddDsl("Listv2/simpleListWithTabsWidget");
   });
 
   it("1. change in the properties of the tabs widget should retain the default selected tab", () => {

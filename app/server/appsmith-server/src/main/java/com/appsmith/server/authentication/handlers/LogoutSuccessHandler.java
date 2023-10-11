@@ -11,5 +11,4 @@ public class LogoutSuccessHandler extends LogoutSuccessHandlerCE {
     public LogoutSuccessHandler(ObjectMapper objectMapper, AnalyticsService analyticsService) {
         super(objectMapper, analyticsService);
     }
-
 }

@@ -14,6 +14,7 @@ import com.appsmith.server.dtos.GitConnectDTO;
 import com.appsmith.server.dtos.GitDocsDTO;
 import com.appsmith.server.dtos.GitMergeDTO;
 import com.appsmith.server.dtos.GitPullDTO;
+import org.eclipse.jgit.lib.BranchTrackingStatus;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -23,7 +24,8 @@ public interface GitServiceCE {
 
     Mono<Map<String, GitProfile>> updateOrCreateGitProfileForCurrentUser(GitProfile gitProfile);
 
-    Mono<Map<String, GitProfile>> updateOrCreateGitProfileForCurrentUser(GitProfile gitProfile, String defaultApplicationId);
+    Mono<Map<String, GitProfile>> updateOrCreateGitProfileForCurrentUser(
+            GitProfile gitProfile, String defaultApplicationId);
 
     Mono<GitProfile> getDefaultGitProfileOrCreateIfEmpty();
 
@@ -33,7 +35,8 @@ public interface GitServiceCE {
 
     Mono<Application> updateGitMetadata(String applicationId, GitApplicationMetadata gitApplicationMetadata);
 
-    Mono<String> commitApplication(GitCommitDTO commitDTO, String defaultApplicationId, String branchName, boolean doAmend);
+    Mono<String> commitApplication(
+            GitCommitDTO commitDTO, String defaultApplicationId, String branchName, boolean doAmend);
 
     Mono<String> commitApplication(GitCommitDTO commitDTO, String defaultApplicationId, String branchName);
 
@@ -49,11 +52,12 @@ public interface GitServiceCE {
 
     Mono<GitPullDTO> pullApplication(String defaultApplicationId, String branchName);
 
-    Mono<List<GitBranchDTO>> listBranchForApplication(String defaultApplicationId, Boolean pruneBranches, String currentBranch);
+    Mono<List<GitBranchDTO>> listBranchForApplication(
+            String defaultApplicationId, Boolean pruneBranches, String currentBranch);
 
     Mono<GitApplicationMetadata> getGitApplicationMetadata(String defaultApplicationId);
 
-    Mono<GitStatusDTO> getStatus(String defaultApplicationId, String branchName);
+    Mono<GitStatusDTO> getStatus(String defaultApplicationId, boolean compareRemote, String branchName);
 
     Mono<MergeStatusDTO> mergeBranch(String applicationId, GitMergeDTO gitMergeDTO);
 
@@ -73,7 +77,7 @@ public interface GitServiceCE {
 
     Mono<List<GitDocsDTO>> getGitDocUrls();
 
-    Mono<Long> getApplicationCountWithPrivateRepo(String workspaceId);
+    Mono<BranchTrackingStatus> fetchRemoteChanges(String defaultApplicationId, String branchName, boolean isFileLock);
 
-    Mono<Boolean> isRepoLimitReached(String workspaceId, Boolean isClearCache);
+    Mono<String> autoCommitDSLMigration(String defaultApplicationId, String branchName);
 }

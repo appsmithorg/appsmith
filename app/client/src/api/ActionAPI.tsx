@@ -7,6 +7,7 @@ import axios from "axios";
 import type { Action, ActionViewMode } from "entities/Action";
 import type { APIRequest } from "constants/AppsmithActionConstants/ActionConstants";
 import type { WidgetType } from "constants/WidgetConstants";
+import { omit } from "lodash";
 
 export interface CreateActionRequest<T> extends APIRequest {
   datasourceId: string;
@@ -40,6 +41,9 @@ export interface QueryConfig {
 export type ActionCreateUpdateResponse = ApiResponse & {
   id: string;
   jsonPathKeys: Record<string, string>;
+  datasource: {
+    id?: string;
+  };
 };
 
 export type PaginationField = "PREV" | "NEXT";
@@ -68,6 +72,7 @@ export interface ActionApiResponseReq {
   body: Record<string, unknown> | null;
   httpMethod: HttpMethod | "";
   url: string;
+  requestedAt?: number;
 }
 
 export type ActionExecutionResponse = ApiResponse<{
@@ -146,57 +151,61 @@ class ActionAPI extends API {
   static queryUpdateCancelTokenSource: CancelTokenSource;
   static abortActionExecutionTokenSource: CancelTokenSource;
 
-  static createAction(
+  static async createAction(
     apiConfig: Partial<Action>,
-  ): AxiosPromise<ActionCreateUpdateResponse> {
+  ): Promise<AxiosPromise<ActionCreateUpdateResponse>> {
     return API.post(ActionAPI.url, apiConfig);
   }
 
-  static fetchActions(
+  static async fetchActions(
     applicationId: string,
-  ): AxiosPromise<ApiResponse<Action[]>> {
+  ): Promise<AxiosPromise<ApiResponse<Action[]>>> {
     return API.get(ActionAPI.url, { applicationId });
   }
 
-  static fetchActionsForViewMode(
+  static async fetchActionsForViewMode(
     applicationId: string,
-  ): AxiosPromise<ApiResponse<ActionViewMode[]>> {
+  ): Promise<AxiosPromise<ApiResponse<ActionViewMode[]>>> {
     return API.get(`${ActionAPI.url}/view`, { applicationId });
   }
 
-  static fetchActionsByPageId(
+  static async fetchActionsByPageId(
     pageId: string,
-  ): AxiosPromise<ApiResponse<Action[]>> {
+  ): Promise<AxiosPromise<ApiResponse<Action[]>>> {
     return API.get(ActionAPI.url, { pageId });
   }
 
-  static updateAction(
+  static async updateAction(
     apiConfig: Partial<Action>,
-  ): AxiosPromise<ActionCreateUpdateResponse> {
+  ): Promise<AxiosPromise<ActionCreateUpdateResponse>> {
     if (ActionAPI.apiUpdateCancelTokenSource) {
       ActionAPI.apiUpdateCancelTokenSource.cancel();
     }
     ActionAPI.apiUpdateCancelTokenSource = axios.CancelToken.source();
-    const action = Object.assign({}, apiConfig);
+    let action = Object.assign({}, apiConfig);
     // While this line is not required, name can not be changed from this endpoint
     delete action.name;
+    // Removing datasource storages from the action object since embedded datasources don't have storages
+    action = omit(action, ["datasource.datasourceStorages"]);
     return API.put(`${ActionAPI.url}/${action.id}`, action, undefined, {
       cancelToken: ActionAPI.apiUpdateCancelTokenSource.token,
     });
   }
 
-  static updateActionName(updateActionNameRequest: UpdateActionNameRequest) {
+  static async updateActionName(
+    updateActionNameRequest: UpdateActionNameRequest,
+  ) {
     return API.put(ActionAPI.url + "/refactor", updateActionNameRequest);
   }
 
-  static deleteAction(id: string) {
+  static async deleteAction(id: string) {
     return API.delete(`${ActionAPI.url}/${id}`);
   }
 
-  static executeAction(
+  static async executeAction(
     executeAction: FormData,
     timeout?: number,
-  ): AxiosPromise<ActionExecutionResponse> {
+  ): Promise<AxiosPromise<ActionExecutionResponse>> {
     ActionAPI.abortActionExecutionTokenSource = axios.CancelToken.source();
     return API.post(ActionAPI.url + "/execute", executeAction, undefined, {
       timeout: timeout || DEFAULT_EXECUTE_ACTION_TIMEOUT_MS,
@@ -209,13 +218,16 @@ class ActionAPI extends API {
     });
   }
 
-  static moveAction(moveRequest: MoveActionRequest) {
+  static async moveAction(moveRequest: MoveActionRequest) {
     return API.put(ActionAPI.url + "/move", moveRequest, undefined, {
       timeout: DEFAULT_EXECUTE_ACTION_TIMEOUT_MS,
     });
   }
 
-  static toggleActionExecuteOnLoad(actionId: string, shouldExecute: boolean) {
+  static async toggleActionExecuteOnLoad(
+    actionId: string,
+    shouldExecute: boolean,
+  ) {
     return API.put(ActionAPI.url + `/executeOnLoad/${actionId}`, undefined, {
       flag: shouldExecute.toString(),
     });

@@ -1,15 +1,15 @@
-import React from "react";
+import * as React from "react";
 import type { ComponentMeta, ComponentStory } from "@storybook/react";
 
-import TextComponent, { TextType } from "./index";
+import { Text as TextComponent, TextType } from "@design-system/widgets-old";
 
 export default {
-  title: "Design System/widgets-old/Text",
+  title: "Design System/Widgets-old/Text",
   component: TextComponent,
 } as ComponentMeta<typeof TextComponent>;
 
 // eslint-disable-next-line react/function-component-definition
-const Template: ComponentStory<typeof TextComponent> = (args: any) => {
+const Template: ComponentStory<typeof TextComponent> = (args) => {
   return <TextComponent {...args}> Some Content 🍎 </TextComponent>;
 };
 

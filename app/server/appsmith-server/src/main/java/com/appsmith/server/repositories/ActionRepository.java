@@ -4,6 +4,4 @@ import com.appsmith.server.repositories.ce.ActionRepositoryCE;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface ActionRepository extends ActionRepositoryCE, CustomActionRepository {
-
-}
+public interface ActionRepository extends ActionRepositoryCE, CustomActionRepository {}

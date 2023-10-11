@@ -19,6 +19,5 @@ import lombok.ToString;
 public class BearerTokenAuth extends AuthenticationDTO {
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    @Encrypted
-    String bearerToken;
+    @Encrypted String bearerToken;
 }

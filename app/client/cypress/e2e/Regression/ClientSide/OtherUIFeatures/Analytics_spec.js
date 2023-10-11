@@ -1,28 +1,28 @@
 let appId;
+import { agHelper, homePage } from "../../../../support/Objects/ObjectsCore";
 
 describe(
   "excludeForAirgap",
   "Checks for analytics for enableTelemtry",
   function () {
     before(() => {
-      cy.visit("/applications");
+      homePage.NavigateToHome();
       cy.get(".admin-settings-menu-option").click();
       cy.get("[data-testid='APPSMITH_DISABLE_TELEMETRY']").should("be.checked"); //Bug 21191
       cy.get("[data-testid='APPSMITH_DISABLE_TELEMETRY']").uncheck({
         force: true,
-      });
-      //disabling sharing of anonymous data
+      }); //disabling sharing of anonymous data
       cy.get(".t--admin-settings-save-button").click();
       cy.wait(2000);
-      cy.get(".t--admin-settings-restart-notice", { timeout: 120000 }).should(
+      cy.get(".t--admin-settings-restart-notice", { timeout: 180000 }).should(
         "not.exist",
       );
       cy.wait("@getGeneral").its("response.statusCode").should("eq", 200);
     });
 
     it("1. Should check analytics is not initialised when enableTelemtry is false", function () {
-      cy.visit("/applications");
-      // cy.reload();
+      agHelper.VisitNAssert("/applications", "getReleaseItems");
+      // agHelper.RefreshPage();
       // cy.wait(3000);
       // cy.wait("@getMe")
       //   //.wait("@getMe")
@@ -52,8 +52,7 @@ describe(
     });
 
     it("2. Should check smartlook is not initialised when enableTelemtry is false", function () {
-      cy.visit("/applications");
-      cy.reload();
+      agHelper.VisitNAssert("/applications", "getReleaseItems");
       cy.wait(3000);
       cy.wait("@getMe");
       cy.window().then((window) => {
@@ -76,8 +75,7 @@ describe(
     });
 
     it("3. Should check Sentry is not initialised when enableTelemtry is false", function () {
-      cy.visit("/applications");
-      cy.reload();
+      agHelper.VisitNAssert("/applications", "getReleaseItems");
       cy.wait(3000);
       cy.wait("@getMe");
       cy.window().then((window) => {

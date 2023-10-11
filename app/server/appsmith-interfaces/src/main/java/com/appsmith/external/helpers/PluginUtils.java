@@ -54,8 +54,7 @@ public class PluginUtils {
         }
     };
 
-    public static final TypeReference<Object> OBJECT_TYPE = new TypeReference<>() {
-    };
+    public static final TypeReference<Object> OBJECT_TYPE = new TypeReference<>() {};
 
     // Pattern to match all words in the text
     private static final Pattern WORD_PATTERN = Pattern.compile("\\w+");
@@ -72,8 +71,7 @@ public class PluginUtils {
     public static String MATCH_QUOTED_WORDS_REGEX = "([\\\"'])(?:(?=(\\\\?))\\2.)*?\\1";
 
     public static List<String> getColumnsListForJdbcPlugin(ResultSetMetaData metaData) throws SQLException {
-        List<String> columnsList = IntStream
-                .range(1, metaData.getColumnCount()+1) // JDBC column indexes start from 1
+        List<String> columnsList = IntStream.range(1, metaData.getColumnCount() + 1) // JDBC column indexes start from 1
                 .mapToObj(i -> {
                     try {
                         return metaData.getColumnName(i);
@@ -93,9 +91,8 @@ public class PluginUtils {
         /*
          * - Get frequency of each column name
          */
-        Map<String, Long> columnFrequencies = columnNames
-                .stream()
-                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+        Map<String, Long> columnFrequencies =
+                columnNames.stream().collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
 
         /*
          * - Filter only the inputs which have frequency greater than 1
@@ -120,14 +117,17 @@ public class PluginUtils {
         return getValueSafelyFromFormData(formData, field) != null;
     }
 
-    public static <T> Boolean validDataConfigurationPresentInFormData(Map<String, Object> formData, String field, TypeReference<T> type) {
+    public static <T> Boolean validDataConfigurationPresentInFormData(
+            Map<String, Object> formData, String field, TypeReference<T> type) {
         return getDataValueSafelyFromFormData(formData, field, type) != null;
     }
 
     private static <T> T getDataValueAsTypeFromFormData(Map<String, Object> formDataValueMap, TypeReference<T> type) {
         assert formDataValueMap != null;
         final Object formDataValue = formDataValueMap.get("data");
-        if (formDataValueMap.containsKey("viewType") && "json".equals(formDataValueMap.get("viewType")) && type != STRING_TYPE) {
+        if (formDataValueMap.containsKey("viewType")
+                && "json".equals(formDataValueMap.get("viewType"))
+                && type != STRING_TYPE) {
             try {
                 return objectMapper.readValue((String) formDataValue, type);
             } catch (JsonProcessingException e) {
@@ -149,8 +149,8 @@ public class PluginUtils {
      * @param <T>          : type parameter to which the obtained value is cast to.
      * @return : obtained value (post type cast) if non-null, otherwise defaultValue
      */
-    public static <T> T getDataValueSafelyFromFormData(Map<String, Object> formData, String field, TypeReference<T> type,
-                                                       T defaultValue) {
+    public static <T> T getDataValueSafelyFromFormData(
+            Map<String, Object> formData, String field, TypeReference<T> type, T defaultValue) {
         Map<String, Object> formDataValueMap = (Map<String, Object>) getValueSafelyFromFormData(formData, field);
         if (formDataValueMap == null) {
             return defaultValue;
@@ -183,7 +183,8 @@ public class PluginUtils {
      * @param <T>      : type parameter to which the obtained value is cast to.
      * @return : obtained value (post type cast) if non-null, otherwise null.
      */
-    public static <T> T getDataValueSafelyFromFormData(Map<String, Object> formData, String field, TypeReference<T> type) {
+    public static <T> T getDataValueSafelyFromFormData(
+            Map<String, Object> formData, String field, TypeReference<T> type) {
         Map<String, Object> formDataValueMap = (Map<String, Object>) getValueSafelyFromFormData(formData, field);
         if (formDataValueMap == null) {
             return null;
@@ -191,8 +192,8 @@ public class PluginUtils {
         return getDataValueAsTypeFromFormData(formDataValueMap, type);
     }
 
-    public static <T> T getValueSafelyFromFormData(Map<String, Object> formData, String field, Class<T> type,
-                                                    T defaultValue) {
+    public static <T> T getValueSafelyFromFormData(
+            Map<String, Object> formData, String field, Class<T> type, T defaultValue) {
         Object value = getValueSafelyFromFormData(formData, field);
         return value == null ? defaultValue : (T) value;
     }
@@ -226,7 +227,6 @@ public class PluginUtils {
             // This is a top level field. Return the value
             return formData.getOrDefault(field, null);
         }
-
     }
 
     public static String getValueSafelyFromFormDataAsString(Map<String, Object> formData, String field) {
@@ -318,8 +318,7 @@ public class PluginUtils {
         localhostUrlIdentifiers.add("127.0.0.1");
 
         String host = endpoint.getHost().toLowerCase();
-        return localhostUrlIdentifiers.stream()
-                .anyMatch(identifier -> host.contains(identifier));
+        return localhostUrlIdentifiers.stream().anyMatch(identifier -> host.contains(identifier));
     }
 
     /**
@@ -333,21 +332,18 @@ public class PluginUtils {
         if (datasourceConfiguration != null) {
             boolean usingLocalhostUrl = false;
 
-            if(!StringUtils.isEmpty(datasourceConfiguration.getUrl())) {
+            if (!StringUtils.isEmpty(datasourceConfiguration.getUrl())) {
                 usingLocalhostUrl = datasourceConfiguration.getUrl().contains("localhost");
-            }
-            else if(!CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())) {
-                usingLocalhostUrl = datasourceConfiguration
-                        .getEndpoints()
-                        .stream()
+            } else if (!CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())) {
+                usingLocalhostUrl = datasourceConfiguration.getEndpoints().stream()
                         .anyMatch(endpoint -> endpointContainsLocalhost(endpoint));
             }
 
-            if(usingLocalhostUrl) {
-                message.add("You may not be able to access your localhost if Appsmith is running inside a docker " +
-                        "container or on the cloud. To enable access to your localhost you may use ngrok to expose " +
-                        "your local endpoint to the internet. Please check out Appsmith's documentation to understand more" +
-                        ".");
+            if (usingLocalhostUrl) {
+                message.add("You may not be able to access your localhost if Appsmith is running inside a docker "
+                        + "container or on the cloud. To enable access to your localhost you may use ngrok to expose "
+                        + "your local endpoint to the internet. Please check out Appsmith's documentation to understand more"
+                        + ".");
             }
         }
 
@@ -365,7 +361,8 @@ public class PluginUtils {
 
         ConditionalOperator operator;
         try {
-            operator = ConditionalOperator.valueOf(((String) unparsedOperator).trim().toUpperCase());
+            operator = ConditionalOperator.valueOf(
+                    ((String) unparsedOperator).trim().toUpperCase());
         } catch (IllegalArgumentException e) {
             // The operator could not be cast into a known type. Throw an exception
             log.error(e.getMessage());
@@ -402,9 +399,11 @@ public class PluginUtils {
         return objectMapper.readValue(arrayString, ArrayList.class);
     }
 
-    public static <T> T getValueSafelyFromPropertyList(List<Property> properties, int index, Class<T> type,
-                                                       T defaultValue) {
-        if (CollectionUtils.isEmpty(properties) || index > properties.size() - 1 || properties.get(index) == null
+    public static <T> T getValueSafelyFromPropertyList(
+            List<Property> properties, int index, Class<T> type, T defaultValue) {
+        if (CollectionUtils.isEmpty(properties)
+                || index > properties.size() - 1
+                || properties.get(index) == null
                 || properties.get(index).getValue() == null) {
             return defaultValue;
         }
@@ -424,22 +423,21 @@ public class PluginUtils {
         return new JSONObject(body);
     }
 
-    public static void setValueSafelyInPropertyList(List<Property> properties, int index, Object value) throws AppsmithPluginException {
+    public static void setValueSafelyInPropertyList(List<Property> properties, int index, Object value)
+            throws AppsmithPluginException {
         if (properties == null) {
             throw new AppsmithPluginException(
                     AppsmithPluginError.PLUGIN_ERROR,
-                    "Appsmith server encountered an unexpected error: property list is null. Please reach out to " +
-                            "our customer support to resolve this."
-            );
+                    "Appsmith server encountered an unexpected error: property list is null. Please reach out to "
+                            + "our customer support to resolve this.");
         }
 
         if (index < 0 || index > properties.size() - 1) {
             throw new AppsmithPluginException(
                     AppsmithPluginError.PLUGIN_ERROR,
-                    "Appsmith server encountered an unexpected error: index value out or range: index: " + index +
-                            ", property list size: " + properties.size() + ". Please reach out to our customer " +
-                            "support to resolve this."
-            );
+                    "Appsmith server encountered an unexpected error: index value out or range: index: " + index
+                            + ", property list size: "
+                            + properties.size() + ". Please reach out to our customer " + "support to resolve this.");
         }
 
         properties.get(index).setValue(value);
@@ -455,8 +453,8 @@ public class PluginUtils {
         // the column name with user one.
         Matcher matcher = WORD_PATTERN.matcher(propertyValue.toString());
         if (matcher.find()) {
-            return matcher.replaceAll(key ->
-                    mappedColumns.get(key.group()) == null ? key.group() : mappedColumns.get(key.group()));
+            return matcher.replaceAll(
+                    key -> mappedColumns.get(key.group()) == null ? key.group() : mappedColumns.get(key.group()));
         }
 
         return propertyValue.toString();
@@ -473,18 +471,18 @@ public class PluginUtils {
         }
     }
 
-    public static ExecuteActionDTO getExecuteDTOForTestWithBindingAndValueAndDataType(LinkedHashMap<String, List> bindingValueDataTypeMap) {
+    public static ExecuteActionDTO getExecuteDTOForTestWithBindingAndValueAndDataType(
+            LinkedHashMap<String, List> bindingValueDataTypeMap) {
         List<Param> params = new ArrayList<>();
-        bindingValueDataTypeMap.keySet().stream()
-                .forEach(bindingName -> {
-                    String bindingValue = (String) (bindingValueDataTypeMap.get(bindingName)).get(0);
-                    ClientDataType clientDataType = (ClientDataType) (bindingValueDataTypeMap.get(bindingName)).get(1);
-                    Param param = new Param();
-                    param.setKey(bindingName);
-                    param.setValue(bindingValue);
-                    param.setClientDataType(clientDataType);
-                    params.add(param);
-                });
+        bindingValueDataTypeMap.keySet().stream().forEach(bindingName -> {
+            String bindingValue = (String) (bindingValueDataTypeMap.get(bindingName)).get(0);
+            ClientDataType clientDataType = (ClientDataType) (bindingValueDataTypeMap.get(bindingName)).get(1);
+            Param param = new Param();
+            param.setKey(bindingName);
+            param.setValue(bindingValue);
+            param.setClientDataType(clientDataType);
+            params.add(param);
+        });
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         executeActionDTO.setParams(params);

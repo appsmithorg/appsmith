@@ -15,26 +15,26 @@ import java.util.List;
 public class CustomApplicationSnapshotRepositoryCEImpl extends BaseAppsmithRepositoryImpl<ApplicationSnapshot>
         implements CustomApplicationSnapshotRepositoryCE {
 
-    public CustomApplicationSnapshotRepositoryCEImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter, CacheableRepositoryHelper cacheableRepositoryHelper) {
+    public CustomApplicationSnapshotRepositoryCEImpl(
+            ReactiveMongoOperations mongoOperations,
+            MongoConverter mongoConverter,
+            CacheableRepositoryHelper cacheableRepositoryHelper) {
         super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
     }
 
     @Override
     public Mono<ApplicationSnapshot> findWithoutData(String applicationId) {
         List<Criteria> criteriaList = new ArrayList<>();
-        criteriaList.add(
-                Criteria.where(fieldName(QApplicationSnapshot.applicationSnapshot.applicationId)).is(applicationId)
-        );
-        criteriaList.add(
-                Criteria.where(fieldName(QApplicationSnapshot.applicationSnapshot.chunkOrder)).is(1)
-        );
+        criteriaList.add(Criteria.where(fieldName(QApplicationSnapshot.applicationSnapshot.applicationId))
+                .is(applicationId));
+        criteriaList.add(Criteria.where(fieldName(QApplicationSnapshot.applicationSnapshot.chunkOrder))
+                .is(1));
 
         List<String> fieldNames = List.of(
                 fieldName(QApplicationSnapshot.applicationSnapshot.applicationId),
                 fieldName(QApplicationSnapshot.applicationSnapshot.chunkOrder),
                 fieldName(QApplicationSnapshot.applicationSnapshot.createdAt),
-                fieldName(QApplicationSnapshot.applicationSnapshot.updatedAt)
-        );
+                fieldName(QApplicationSnapshot.applicationSnapshot.updatedAt));
         return queryOne(criteriaList, fieldNames);
     }
 }

@@ -1,10 +1,9 @@
 const widgetsPage = require("../../../../../locators/Widgets.json");
-const dsl = require("../../../../../fixtures/tableNewDsl.json");
-const publish = require("../../../../../locators/publishWidgetspage.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Table Widget property pane feature validation", function () {
   before(() => {
-    cy.addDsl(dsl);
+    _.agHelper.AddDsl("tableNewDsl");
   });
 
   it("1. Test to validate text color and text background", function () {
@@ -17,12 +16,12 @@ describe("Table Widget property pane feature validation", function () {
     cy.wait(500);
     cy.wait("@updateLayout");
     // Verify the text color is green
-    cy.readTabledataValidateCSS("1", "0", "color", "rgb(126, 34, 206)");
+    cy.readTabledataValidateCSS("1", "0", "color", "rgb(219, 234, 254)");
     // Change the text color and enter purple in input field
     cy.get(widgetsPage.textColor)
       .scrollIntoView()
       .clear({ force: true })
-      .type("purple", { force: true });
+      .type("purple", { force: true, delay: 0 });
     cy.wait("@updateLayout");
     // Verify the text color is purple
     cy.readTabledataValidateCSS("1", "0", "color", "rgb(128, 0, 128)");
@@ -34,7 +33,7 @@ describe("Table Widget property pane feature validation", function () {
 
     cy.wait("@updateLayout");
     cy.assertPageSave();
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.wait(4000);
 
     // Verify the cell background color is green
@@ -42,18 +41,20 @@ describe("Table Widget property pane feature validation", function () {
       "1",
       "1",
       "background-color",
-      "rgb(126, 34, 206)",
+      "rgb(219, 234, 254)",
     );
-    cy.get(publish.backToEditor).click();
+    _.deployMode.NavigateBacktoEditor();
     cy.openPropertyPane("tablewidget");
 
     // Change the cell background color and enter purple in input field
-    cy.get(`${widgetsPage.cellBackground_tablev1} input`)
+    cy.get(
+      `${widgetsPage.cellBackground_tablev1} [data-testid='t--color-picker-input']`,
+    )
       .clear({ force: true })
-      .type("purple", { force: true });
+      .type("purple", { force: true, delay: 0 });
     cy.wait("@updateLayout");
     cy.assertPageSave();
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.wait(4000);
 
     // Verify the cell background color is purple
@@ -63,6 +64,5 @@ describe("Table Widget property pane feature validation", function () {
       "background-color",
       "rgb(128, 0, 128)",
     );
-    cy.get(publish.backToEditor).click();
   });
 });

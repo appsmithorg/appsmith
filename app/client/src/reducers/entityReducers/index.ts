@@ -1,5 +1,4 @@
 import { combineReducers } from "redux";
-import actionsReducer from "./actionsReducer";
 import appReducer from "./appReducer";
 import canvasWidgetsReducer from "./canvasWidgetsReducer";
 import canvasWidgetsStructureReducer from "./canvasWidgetsStructureReducer";
@@ -10,15 +9,18 @@ import jsExecutionsReducer from "./jsExecutionsReducer";
 import metaReducer from "./metaReducer";
 import pageListReducer from "./pageListReducer";
 import pluginsReducer from "reducers/entityReducers/pluginsReducer";
-import widgetConfigReducer from "./widgetConfigReducer";
 import autoHeightLayoutTreeReducer from "./autoHeightReducers/autoHeightLayoutTreeReducer";
 import canvasLevelsReducer from "./autoHeightReducers/canvasLevelsReducer";
+import actionsReducer from "@appsmith/reducers/entityReducers/actionsReducer";
+
+/* Reducers which are integrated into the core system when registering a pluggable module
+    or done so by a module that is designed to be eventually pluggable */
+import widgetPositionsReducer from "layoutSystems/anvil/integrations/reducers/widgetPositionsReducer";
 
 const entityReducer = combineReducers({
   canvasWidgets: canvasWidgetsReducer,
   canvasWidgetsStructure: canvasWidgetsStructureReducer,
   metaWidgets: metaWidgetsReducer,
-  widgetConfig: widgetConfigReducer,
   actions: actionsReducer,
   datasources: datasourceReducer,
   pageList: pageListReducer,
@@ -29,6 +31,7 @@ const entityReducer = combineReducers({
   jsActions: jsActionsReducer,
   autoHeightLayoutTree: autoHeightLayoutTreeReducer,
   canvasLevels: canvasLevelsReducer,
+  widgetPositions: widgetPositionsReducer,
 });
 
 export default entityReducer;

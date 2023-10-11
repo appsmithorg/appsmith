@@ -21,12 +21,13 @@ export class PropertyPane {
   private agHelper = ObjectsRegistry.AggregateHelper;
   private entityExplorer = ObjectsRegistry.EntityExplorer;
   private locator = ObjectsRegistry.CommonLocators;
+  private assertHelper = ObjectsRegistry.AssertHelper;
 
-  _fieldConfig = (fieldName: string) =>
+  _jsonFieldEdit = (fieldName: string) =>
     "//input[@placeholder='Field label'][@value='" +
     fieldName +
     "']/ancestor::div/following-sibling::div/button[contains(@class, 't--edit-column-btn')]";
-  private _goBackToProperty = "button[data-testid='t--property-pane-back-btn']";
+  public _goBackToProperty = "button[data-testid='t--property-pane-back-btn']";
   private _copyWidget = "[data-testid='t--copy-widget']";
   _deleteWidget = "[data-testid='t--delete-widget']";
   private _styleTabBtn = (tab: string) =>
@@ -37,23 +38,26 @@ export class PropertyPane {
     "']//ancestor::div[@class= 'space-y-1 group']";
   private _jsonFieldConfigList =
     "//div[contains(@class, 't--property-control-fieldconfiguration group')]//div[contains(@class, 'content')]/div//input";
-  private _tableEditColumnButton = ".t--edit-column-btn";
+  _tableEditColumnButton = ".t--edit-column-btn";
   private _tableColumnSettings = (column: string) =>
     `[data-rbd-draggable-id='${column}'] ${this._tableEditColumnButton}`;
   private _sectionCollapse = (section: string) =>
     `.t--property-pane-section-collapse-${section}`;
   private _sectionCollapseWithTag = (section: string, tab: string) =>
     `.t--property-pane-section-collapse-${section} .t--property-section-tag-${tab}`;
-  private _propertyControl = (property: string) =>
-    `.t--property-control-${property}`;
+  _propertyControl = (property: string) => `.t--property-control-${property}`;
   private _addAction = (property: string) => `.t--add-action-${property}`;
   _propertyPaneSearchInputWrapper = ".t--property-pane-search-input-wrapper";
   _propertyPaneSearchInput = `${this._propertyPaneSearchInputWrapper} input`;
   _propertyPaneEmptySearchResult = ".t--property-pane-no-search-results";
+  _mode = (modeName: string) =>
+    "//span[contains(text(),'" + modeName + "')]//parent::span";
   _propertyToggle = (controlToToggle: string) =>
     ".t--property-control-" +
     controlToToggle.replace(/ +/g, "").toLowerCase() +
-    " input[type='checkbox']";
+    " input[type='checkbox'], label:contains('" +
+    controlToToggle +
+    "') input[type='checkbox']";
   _colorPickerV2Popover = ".t--colorpicker-v2-popover";
   _colorPickerV2Color = ".t--colorpicker-v2-color";
   _colorInput = (option: string) =>
@@ -87,29 +91,82 @@ export class PropertyPane {
   _selectorViewLabel = '[data-testId="selector-view-label"]';
   _textView = ".text-view";
   _selectorView = ".selector-view";
+  _dropdownOptions =
+    "//div[@class='rc-virtual-list']//div[contains(@class, 'rc-select-item-option')]";
   _dropDownValue = (dropdownOption: string) =>
-    `.rc-virtual-list .rc-select-item-option span:contains('${dropdownOption}')`;
+    `${this._dropdownOptions}//span[text()='${dropdownOption}']`;
   _selectPropDropdown = (ddName: string) =>
     "//div[contains(@class, 't--property-control-" +
     ddName.replace(/ +/g, "").toLowerCase() +
-    "')]//input[@class='rc-select-selection-search-input']";
-  private _createModalButton = ".t--create-modal-btn";
+    "')]//input[@class='rc-select-selection-search-input'] | //p[text()='" +
+    ddName +
+    "']/ancestor::div[@class='form-config-top']/following-sibling::div" +
+    "//input[@class='rc-select-selection-search-input']";
+  _selectPropDropdownValue = (ddName: string) =>
+    "//div[contains(@class, 't--property-control-" +
+    ddName.replace(/ +/g, "").toLowerCase() +
+    "')]//input[@class='rc-select-selection-search-input']/parent::span/following-sibling::span//span | //div[contains(@class, 't--property-control-" +
+    ddName.replace(/ +/g, "").toLowerCase() +
+    "')]//input[@class='rc-select-selection-search-input']/parent::span/following-sibling::span | //div[contains(@class, 't--property-control-" +
+    ddName.replace(/ +/g, "").toLowerCase() +
+    "')]//div[@class='selected-item']/div";
+  public _createModalButton = ".t--create-modal-btn";
   _pageName = (option: string) => "//a/div[text()='" + option + "']";
-
   private isMac = Cypress.platform === "darwin";
   private selectAllJSObjectContentShortcut = `${
     this.isMac ? "{cmd}{a}" : "{ctrl}{a}"
   }`;
+  private _propPaneSelectedItem = (option: string) =>
+    `.t--property-control-${option} span.rc-select-selection-item span`;
+  _propertyDateFormat = ".t--property-control-dateformat";
+  _propertyPanePropertyControl = (propPane: string, propControl: string) =>
+    `.t--property-pane-section-${propPane} .t--property-control-${propControl}`;
+  _autoHeightLimitMin = "[data-testid='t--auto-height-overlay-handles-min']";
+  _autoHeightLimitMin_div =
+    "[data-testid='t--auto-height-overlay-handles-min'] div";
+  _autoHeightLimitMax = "[data-testid='t--auto-height-overlay-handles-max']";
+  public _labelContains = (value: string) => `label:Contains('${value}')`;
+  _showColumnButton = ".t--show-column-btn";
+  _propertyPaneHeightLabel =
+    ".t--property-pane-section-general .t--property-control-label:contains('Height')";
+  _tabId1 = ".t--tabid-tab1";
+  _tabId2 = ".t--tabid-tab2";
+  _showTabsProperty = ".t--property-control-showtabs input";
+  _addOptionProperty = ".t--property-control-options-add";
+  _optionContent = ".rc-select-item-option-content";
+  _dropdownOptionSpan = ".t--dropdown-option span";
+  public _propertyControlColorPicker = (property: string) =>
+    `.t--property-control-${property} .bp3-input-group input`;
+  _propertyText = ".bp3-ui-text span";
+  _paneTitle = ".t--property-pane-title";
+  _segmentedControl = (value: string) =>
+    `.ads-v2-segmented-control-value-${value}`;
+  _addMenuItem = ".t--add-menu-item-btn";
+  _addColumnItem = ".t--add-column-btn";
+  _widgetToVerifyText = (widgetName: string) =>
+    `${this.locator._widgetByName(widgetName)} ${this._propertyText}`;
+  _placeholderName = "[placeholder='Name']";
+  _placeholderValue = "[placeholder='Value']";
+  _optionsDeleteButton = "[orientation='HORIZONTAL'] .ads-v2-button";
+  _colorPickerInput = "[data-testid='t--color-picker-input']";
+  _emphasisSelector = (value: string) => `.t--button-group-${value}`;
+  _checkbox = ".bp3-checkbox";
+  _roundCursorPointer = ".rounded-full.cursor-pointer";
+  _sliderMark = ".slider-mark";
+  _styleSize = (size: string) => `.ads-v2-segmented-control-value-${size}`;
+  _themeColor =
+    "//h3[text()='Theme Colors']//..//div[contains(@class, 't--colorpicker-v2-color')]";
+  _fillColor = ".t--colorpicker-v2-popover .rounded-full";
+  _multiSelect = ".rc-select-multiple";
+  _currencyChangeDropdownIcon =
+    ".currency-change-dropdown-trigger .remixicon-icon";
+  _countryCodeChangeDropDown = ".t--input-country-code-change .remixicon-icon";
+  _searchCountryPlaceHolder = "[placeholder='Search by ISD code or country']";
+  _closeModal = "//*[contains(@class,'ads-v2-button t--close')]";
 
-  private getWidgetSelector = (widgetType: string) =>
-    `div.t--widget-${widgetType}`;
-
-  public openWidgetPropertyPane(widgetType: string) {
-    this.agHelper.GetNClick(this.getWidgetSelector(widgetType));
-  }
-
+  _dataIcon = (icon: string) => `[data-icon="${icon}"]`;
   public OpenJsonFormFieldSettings(fieldName: string) {
-    this.agHelper.GetNClick(this._fieldConfig(fieldName));
+    this.agHelper.GetNClick(this._jsonFieldEdit(fieldName));
   }
 
   public ChangeJsonFormFieldType(
@@ -124,16 +181,19 @@ export class PropertyPane {
     this.OpenJsonFormFieldSettings(fieldName);
     this.agHelper.SelectDropdownList("Field Type", newDataType);
     this.agHelper.AssertAutoSave();
-    this.agHelper.ValidateNetworkStatus("@updateLayout");
+    this.assertHelper.AssertNetworkStatus("@updateLayout");
   }
 
-  public NavigateBackToPropertyPane() {
+  public NavigateBackToPropertyPane(assertElementVisible = true) {
     this.agHelper.GetNClick(this._goBackToProperty);
-    this.agHelper.AssertElementVisible(this._copyWidget);
-    //this.agHelper.AssertElementVisible(this._deleteWidget); //extra valisation, hence commenting!
+
+    if (assertElementVisible) {
+      this.agHelper.AssertElementVisibility(this._copyWidget);
+    }
+    //this.agHelper.AssertElementVisibility(this._deleteWidget); //extra valisation, hence commenting!
   }
 
-  public CopyWidgetFromPropertyPane(widgetName: string) {
+  public CopyPasteWidgetFromPropertyPane(widgetName: string) {
     this.entityExplorer.SelectEntityByName(widgetName, "Widgets");
     this.agHelper.GetNClick(this._copyWidget);
     this.agHelper.Sleep(200);
@@ -142,9 +202,13 @@ export class PropertyPane {
     this.entityExplorer.AssertEntityPresenceInExplorer(widgetName + "Copy");
   }
 
+  public DeleteWidgetDirectlyFromPropertyPane() {
+    this.agHelper.GetNClick(this._deleteWidget);
+  }
+
   public DeleteWidgetFromPropertyPane(widgetName: string) {
     this.entityExplorer.SelectEntityByName(widgetName, "Widgets");
-    this.agHelper.GetNClick(this._deleteWidget);
+    this.DeleteWidgetDirectlyFromPropertyPane();
     this.agHelper.Sleep(500);
     this.entityExplorer.AssertEntityAbsenceInExplorer(widgetName);
   }
@@ -168,7 +232,7 @@ export class PropertyPane {
     this.GetJSONFormConfigurationFileds();
     cy.get("@fieldNames").each(($filedName: any) => {
       field = $filedName;
-      this.agHelper.GetNClick(this._fieldConfig(field as string));
+      this.OpenJsonFormFieldSettings(field as string);
       this.agHelper.Sleep(200);
       this.RemoveText("Default value", false);
       this.agHelper
@@ -184,17 +248,24 @@ export class PropertyPane {
     });
   }
 
-  public ToggleOnOrOff(propertyName: string, toggle: "On" | "Off" = "On") {
+  public TogglePropertyState(
+    propertyName: string,
+    toggle: "On" | "Off" = "On",
+    networkCall = "updateLayout",
+  ) {
     if (toggle == "On") {
-      cy.get(this._propertyToggle(propertyName))
+      this.agHelper
+        .GetElement(this._propertyToggle(propertyName))
         .check({ force: true })
         .should("be.checked");
     } else {
-      cy.get(this._propertyToggle(propertyName))
+      this.agHelper
+        .GetElement(this._propertyToggle(propertyName))
         .uncheck({ force: true })
         .should("not.be.checked");
     }
     this.agHelper.AssertAutoSave();
+    networkCall && this.assertHelper.AssertNetworkStatus(networkCall);
   }
 
   public MoveToTab(tab: "Content" | "Style") {
@@ -207,6 +278,8 @@ export class PropertyPane {
     dropdownOption: string,
     action: "Action" | "Page" = "Action",
     index = 0,
+    optionIndex = 0,
+    force = false,
   ) {
     if (action == "Action")
       this.agHelper.GetNClick(this._selectPropDropdown(endpoint), index);
@@ -215,7 +288,58 @@ export class PropertyPane {
         this.locator._selectPropPageDropdown(endpoint),
         index,
       );
-    cy.get(this._dropDownValue(dropdownOption)).click();
+    this.agHelper.GetNClick(
+      this._dropDownValue(dropdownOption),
+      optionIndex,
+      force,
+    );
+  }
+
+  public AssertPropertiesDropDownCurrentValue(
+    endpoint: string,
+    dropdownExpectedSelection: string,
+  ) {
+    this.agHelper
+      .GetElement(this._selectPropDropdownValue(endpoint))
+      .then(($ddVisibleTexts: any) => {
+        let found = false;
+        $ddVisibleTexts.each((index: any, element: any) => {
+          const spanText = Cypress.$(element).text().trim();
+          if (spanText === dropdownExpectedSelection) {
+            found = true;
+            cy.log("selected dropdown text is " + spanText);
+            return false; // Exit the loop if the expected text is found
+          }
+        });
+        expect(found).to.be.true;
+      });
+  }
+
+  public AssertPropertiesDropDownValues(
+    endpoint: string,
+    dropdownExpectedValues: string[],
+  ) {
+    this.agHelper.GetNClick(this._selectPropDropdown(endpoint));
+    this.agHelper
+      .GetElement(this._dropdownOptions)
+      .then(($ddVisibleTexts: any) => {
+        let foundAll = true; // Flag to track if all expected selections are found
+        const foundSelections: string[] = []; // Array to track found selections
+        $ddVisibleTexts.each((index: any, element: any) => {
+          const spanText = Cypress.$(element).text().trim();
+          foundSelections.push(spanText);
+        });
+        // Check if all expected selections are found in the dropdown
+        dropdownExpectedValues.forEach((expectedSelection) => {
+          if (!foundSelections.includes(expectedSelection)) {
+            foundAll = false;
+            cy.log("Expected dropdown text not found: " + expectedSelection);
+          }
+        });
+        expect(foundAll).to.be.true;
+        cy.log("All dropdown values are present");
+      });
+    this.agHelper.GetNClick(this._selectPropDropdown(endpoint)); //Closing dropdown
   }
 
   public SelectJSFunctionToExecuteInExistingActionBlock(
@@ -223,9 +347,13 @@ export class PropertyPane {
     funcName: string,
   ) {
     cy.get(".t--action-selector-popup .bp3-button").click({ force: true });
-    cy.get(this.locator._dropDownValue("Execute a JS function")).click();
-    cy.get(this.locator._dropDownValue(jsName)).click();
-    cy.get(this.locator._dropDownValue(funcName)).click();
+    this.agHelper.GetNClick(
+      this.locator._dropDownValue("Execute a JS function"),
+      0,
+      true,
+    );
+    this.agHelper.GetNClick(this.locator._dropDownValue(jsName), 0, true);
+    this.agHelper.GetNClick(this.locator._dropDownValue(funcName), 0, true);
     this.agHelper.AssertAutoSave();
   }
 
@@ -249,12 +377,15 @@ export class PropertyPane {
     propFieldName: string,
     valueToEnter: string,
     toVerifySave = true,
+    toValidateNetworkCall = true,
   ) {
     this.agHelper.UpdateCodeInput(
       this.locator._existingFieldTextByName(propFieldName),
       valueToEnter,
     );
     toVerifySave && this.agHelper.AssertAutoSave(); //Allowing time for saving entered value
+    toValidateNetworkCall &&
+      this.assertHelper.AssertNetworkStatus("@updateLayout");
   }
 
   public ValidatePropertyFieldValue(
@@ -275,19 +406,35 @@ export class PropertyPane {
     this.agHelper.GetNClick(this.locator._jsToggle(fieldName.toLowerCase()));
   }
 
-  public ToggleJsMode(fieldName: string) {
-    this.agHelper.GetNClick(
-      this.locator._jsToggle(fieldName.toLowerCase().replaceAll(" ", "")),
-    );
+  public ToggleJSMode(endp: string, toToggleOnJS: true | false = true) {
+    cy.get(this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()))
+      .invoke("attr", "class")
+      .then((classes: any) => {
+        if (toToggleOnJS && !classes.includes("is-active"))
+          this.agHelper.GetNClick(
+            this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()),
+            0,
+            true,
+          );
+        else if (!toToggleOnJS && classes.includes("is-active"))
+          this.agHelper.GetNClick(
+            this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()),
+            0,
+            true,
+          );
+        else this.agHelper.Sleep(500);
+      });
   }
 
   public EvaluateExistingPropertyFieldValue(fieldName = "", currentValue = "") {
     let val: any;
     if (fieldName) {
       cy.xpath(this.locator._existingFieldValueByName(fieldName)).eq(0).click();
-      val = cy.get(fieldName).then(($field) => {
-        cy.wrap($field).find(".CodeMirror-code span").first().invoke("text");
-      });
+      val = this.agHelper
+        .GetElement(this.locator._existingFieldValueByName(fieldName))
+        .then(($field) => {
+          cy.wrap($field).find(".CodeMirror-code span").first().invoke("text");
+        });
     } else {
       this.agHelper.GetNClick(this.locator._codeMirrorCode);
       val = cy
@@ -304,15 +451,12 @@ export class PropertyPane {
   }
 
   public RemoveText(endp: string, toVerifySave = true) {
-    cy.get(
-      this.locator._propertyControl +
-        endp.replace(/ +/g, "").toLowerCase() +
-        " " +
-        this.locator._codeMirrorTextArea,
-    )
+    this.agHelper
+      .GetElement(this.locator._propertyInputField(endp))
       .first()
       .scrollIntoView()
       .focus()
+      .wait(200)
       .type(this.selectAllJSObjectContentShortcut)
       .type("{backspace}", { force: true });
 
@@ -324,16 +468,17 @@ export class PropertyPane {
     toVerifySave && this.agHelper.AssertAutoSave();
   }
 
-  public TypeTextIntoField(endp: string, value: string, removeText = true) {
+  public TypeTextIntoField(
+    endp: string,
+    value: string,
+    removeText = true,
+    toVerifySave = true,
+  ) {
     if (removeText) {
-      this.RemoveText(endp);
+      this.RemoveText(endp, toVerifySave);
     }
-    cy.get(
-      this.locator._propertyControl +
-        endp.replace(/ +/g, "").toLowerCase() +
-        " " +
-        this.locator._codeMirrorTextArea,
-    )
+    this.agHelper
+      .GetElement(this.locator._propertyInputField(endp))
       .first()
       .then((el: any) => {
         cy.get(el).type(value, {
@@ -346,12 +491,8 @@ export class PropertyPane {
   }
 
   public ToggleCommentInTextField(endp: string) {
-    cy.get(
-      this.locator._propertyControl +
-        endp.replace(/ +/g, "").toLowerCase() +
-        " " +
-        this.locator._codeMirrorTextArea,
-    )
+    this.agHelper
+      .GetElement(this.locator._propertyInputField(endp))
       .first()
       .then((el: any) => {
         cy.get(el).type(this.agHelper.isMac ? "{meta}/" : "{ctrl}/");
@@ -366,19 +507,7 @@ export class PropertyPane {
     toToggleOnJS = true,
     paste = true,
   ) {
-    cy.get(this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()))
-      .invoke("attr", "class")
-      .then((classes: any) => {
-        if (toToggleOnJS && !classes.includes("is-active"))
-          cy.get(this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()))
-            .first()
-            .click({ force: true });
-        else if (!toToggleOnJS && classes.includes("is-active"))
-          cy.get(this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()))
-            .first()
-            .click({ force: true });
-        else this.agHelper.Sleep(500);
-      });
+    this.ToggleJSMode(endp, toToggleOnJS);
 
     if (paste) this.UpdatePropertyFieldValue(endp, value);
     else this.TypeTextIntoField(endp, value);
@@ -391,12 +520,8 @@ export class PropertyPane {
   }
 
   public Search(query: string) {
-    cy.get(this._propertyPaneSearchInput)
-      .first()
-      .then((el: any) => {
-        cy.get(el).clear();
-        if (query) cy.get(el).type(query, { force: true });
-      });
+    this.agHelper.ClearNType(this._propertyPaneSearchInput, query);
+    this.agHelper.Sleep();
   }
 
   public ToggleSection(section: string) {
@@ -420,13 +545,33 @@ export class PropertyPane {
       this.agHelper.AssertElementExist(this._propertyControl(property));
   }
 
-  public AddAction(property: string) {
-    cy.get(this._addAction(property)).scrollIntoView().click({ force: true });
+  public AssertIfPropertyIsVisible(property: string) {
+    this.agHelper.AssertElementVisibility(this._propertyControl(property));
   }
 
-  public SelectPlatformFunction(eventName: string, dropdownValue: string) {
+  public AssertIfPropertyIsNotVisible(property: string) {
+    this.agHelper.AssertElementVisibility(
+      this._propertyControl(property),
+      false,
+    );
+  }
+
+  public AddAction(property: string) {
+    this.agHelper.GetNClick(this._addAction(property), 0, true);
+  }
+
+  public SelectPlatformFunction(
+    eventName: string,
+    dropdownValue: string,
+    force = false,
+    index = 0,
+  ) {
     this.AddAction(eventName);
-    cy.get(this.locator._dropDownValue(dropdownValue)).click();
+    this.agHelper.GetNClick(
+      this.locator._dropDownValue(dropdownValue),
+      index,
+      force,
+    );
   }
 
   public SelectActionByTitleAndValue(title: string, value: string) {
@@ -439,17 +584,29 @@ export class PropertyPane {
     cy.get(this.locator._jsToggle(property.toLowerCase())).click();
   }
 
-  public AssertJSToggleDisabled(property: string) {
-    cy.get(this.locator._jsToggle(property.toLowerCase())).should(
-      "be.disabled",
-    );
+  public AssertJSToggleState(property: string, state: "enabled" | "disabled") {
+    cy.get(
+      this.locator._jsToggle(property.toLowerCase().replaceAll(" ", "")),
+    ).should(`be.${state}`);
   }
 
   public AssertSelectValue(value: string) {
     this.agHelper.AssertElementExist(this.locator._selectByValue(value));
   }
 
-  public CreateModal(modalName: string, property: string) {
+  public RenameWidget(oldName: string, newName: string) {
+    this.entityExplorer.SelectEntityByName(oldName, "Widgets");
+    this.agHelper.GetNClick(this.locator._widgetName(oldName), 0, true);
+    cy.get(this.locator._widgetNameTxt)
+      .clear({ force: true })
+      .type(newName, { force: true })
+      .should("have.value", newName)
+      .blur();
+    this.agHelper.PressEnter(1000);
+    this.assertHelper.AssertNetworkStatus("@updateWidgetName");
+  }
+
+  public CreateModal(property: string) {
     this.SelectPlatformFunction(property, "Show modal");
     this.agHelper.GetNClick(this._actionOpenDropdownSelectModal);
     this.agHelper.GetNClick(this._createModalButton);
@@ -463,9 +620,20 @@ export class PropertyPane {
     this.agHelper.AssertAutoSave();
   }
 
-  public DeleteWidget() {
-    ObjectsRegistry.AggregateHelper.GetNClick(
-      `[data-testid="t--delete-widget"]`,
-    );
+  public GetSelectedItemText(property: string) {
+    return this.agHelper.GetText(this._propPaneSelectedItem(property));
+  }
+
+  public SelectColorFromColorPicker(property: string, colorOffset: number) {
+    this.agHelper.GetNClick(this._propertyControlColorPicker(property));
+    this.agHelper.GetNClick(this._colorPickerV2Color, colorOffset, true);
+  }
+
+  public AssertPropertyVisibility(properties: string[], sectionTitle: string) {
+    properties.forEach((property: string) => {
+      this.agHelper.AssertElementVisibility(
+        this._propertyPanePropertyControl(sectionTitle, property),
+      );
+    });
   }
 }

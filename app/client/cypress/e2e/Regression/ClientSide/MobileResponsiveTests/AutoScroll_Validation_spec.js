@@ -1,26 +1,19 @@
-const commonlocators = require("../../../../locators/commonlocators.json");
+import * as _ from "../../../../support/Objects/ObjectsCore";
+
 let theight;
 let twidth;
 
 describe("Validating Mobile View related usecases for Autoscroll", function () {
   it("1. Capture the height/width of autofill widgets in webview", function () {
-    cy.get(commonlocators.autoConvert).click({
-      force: true,
-    });
-    cy.get(commonlocators.convert).click({
-      force: true,
-    });
-    cy.get(commonlocators.refreshApp).click({
-      force: true,
-    });
-    cy.wait(2000);
+    _.autoLayout.ConvertToAutoLayoutAndVerify(false);
+
     cy.dragAndDropToCanvas("listwidgetv2", { x: 100, y: 200 });
     cy.dragAndDropToCanvas("containerwidget", { x: 620, y: 820 });
     for (let i = 0; i < 10; i++) {
       cy.dragAndDropToCanvas("inputwidgetv2", { x: 450, y: 530 });
     }
     cy.get(".t--widget-inputwidgetv2").first().should("be.visible");
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.wait(2000);
     cy.get(".t--widget-inputwidgetv2")
       .invoke("css", "height")

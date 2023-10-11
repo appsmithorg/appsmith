@@ -1,9 +1,9 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
-const dsl = require("../../../../../fixtures/snippetDsl.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Linting warning validation with Checkbox widget", function () {
   before(() => {
-    cy.addDsl(dsl);
+    _.agHelper.AddDsl("snippetDsl");
   });
   it("Linting warning validation", function () {
     cy.openPropertyPane("checkboxwidget");

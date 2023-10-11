@@ -11,9 +11,9 @@ import {
   getJSCollections,
   getPlugins,
   getRecentDatasourceIds,
-} from "selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import { useSelector } from "react-redux";
-import type { EventLocation } from "utils/AnalyticsUtil";
+import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
 import history from "utils/history";
 import type { ActionOperation } from "./utils";
 import {
@@ -26,30 +26,32 @@ import { PluginType } from "entities/Action";
 import { integrationEditorURL } from "RouteBuilder";
 import { EntityIcon } from "pages/Editor/Explorer/ExplorerIcons";
 import { createNewQueryAction } from "actions/apiPaneActions";
-import {
-  hasCreateActionPermission,
-  hasCreateDatasourceActionPermission,
-  hasCreateDatasourcePermission,
-} from "@appsmith/utils/permissionHelpers";
 import type { AppState } from "@appsmith/reducers";
 import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
 import { importRemixIcon } from "design-system-old";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import {
+  getHasCreateActionPermission,
+  getHasCreateDatasourceActionPermission,
+  getHasCreateDatasourcePermission,
+} from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 const AddLineIcon = importRemixIcon(
-  () => import("remixicon-react/AddLineIcon"),
+  async () => import("remixicon-react/AddLineIcon"),
 );
 
 export const useFilteredFileOperations = (query = "") => {
   const { appWideDS = [], otherDS = [] } = useAppWideAndOtherDatasource();
   const recentDatasourceIds = useSelector(getRecentDatasourceIds);
   // helper map for sorting based on recent usage
-  const recentlyUsedOrderMap = recentDatasourceIds.reduce(
-    (map: Record<string, number>, id, index) => {
-      map[id] = index;
-      return map;
-    },
-    {},
+  const recentlyUsedOrderMap = useMemo(
+    () =>
+      recentDatasourceIds.reduce((map: Record<string, number>, id, index) => {
+        map[id] = index;
+        return map;
+      }, {}),
+    [recentDatasourceIds],
   );
   /**
    *  Work around to get the rest api cloud image.
@@ -72,9 +74,15 @@ export const useFilteredFileOperations = (query = "") => {
 
   const pagePermissions = useSelector(getPagePermissions);
 
-  const canCreateActions = hasCreateActionPermission(pagePermissions);
+  const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
 
-  const canCreateDatasource = hasCreateDatasourcePermission(
+  const canCreateActions = getHasCreateActionPermission(
+    isFeatureEnabled,
+    pagePermissions,
+  );
+
+  const canCreateDatasource = getHasCreateDatasourcePermission(
+    isFeatureEnabled,
     userWorkspacePermissions,
   );
 
@@ -89,7 +97,15 @@ export const useFilteredFileOperations = (query = "") => {
         canCreateDatasource,
         pagePermissions,
       ),
-    [query, appWideDS, otherDS],
+    [
+      appWideDS,
+      canCreateActions,
+      canCreateDatasource,
+      otherDS,
+      pagePermissions,
+      query,
+      recentlyUsedOrderMap,
+    ],
   );
 };
 
@@ -101,16 +117,17 @@ export const getFilteredAndSortedFileOperations = (
   canCreateActions = true,
   canCreateDatasource = true,
   pagePermissions: string[] = [],
+  isFeatureEnabled = false,
 ) => {
   const fileOperations: ActionOperation[] = [];
   if (!canCreateActions) return fileOperations;
 
-  // Add JS object operation
+  // Add JS Object operation
   fileOperations.push(actionOperations[2]);
   // Add app datasources
   if (appWideDS.length > 0 || otherDS.length > 0) {
     const showCreateQuery = [...appWideDS, ...otherDS].some((ds: Datasource) =>
-      hasCreateDatasourceActionPermission([
+      getHasCreateDatasourceActionPermission(isFeatureEnabled, [
         ...(ds.userPermissions ?? []),
         ...pagePermissions,
       ]),
@@ -127,7 +144,7 @@ export const getFilteredAndSortedFileOperations = (
 
   // get all datasources, app ds listed first
   const datasources = [...appWideDS, ...otherDS].filter((ds) =>
-    hasCreateDatasourceActionPermission([
+    getHasCreateDatasourceActionPermission(isFeatureEnabled, [
       ...(ds.userPermissions ?? []),
       ...pagePermissions,
     ]),
@@ -198,8 +215,8 @@ export const getFilteredAndSortedFileOperations = (
 
 export const useFilteredWidgets = (query: string) => {
   const allWidgets = useSelector(getAllPageWidgets);
-  const pages = useSelector(getPageList) || [];
-  const pageMap = keyBy(pages, "pageId");
+  const pages = useSelector(getPageList);
+  const pageMap = useMemo(() => keyBy(pages || [], "pageId"), [pages]);
   const searchableWidgets = useMemo(
     () =>
       allWidgets.filter(
@@ -218,7 +235,7 @@ export const useFilteredWidgets = (query: string) => {
 
       return isWidgetNameMatching || isPageNameMatching;
     });
-  }, [allWidgets, query, pages]);
+  }, [query, searchableWidgets, pageMap]);
 };
 
 export const useFilteredActions = (query: string) => {
@@ -234,7 +251,7 @@ export const useFilteredActions = (query: string) => {
 
       return isActionNameMatching || isPageNameMatching;
     });
-  }, [actions, query, pages]);
+  }, [query, actions, pageMap]);
 };
 
 export const useFilteredJSCollections = (query: string) => {
@@ -252,12 +269,14 @@ export const useFilteredJSCollections = (query: string) => {
 
       return isActionNameMatching || isPageNameMatching;
     });
-  }, [jsActions, query, pages]);
+  }, [query, jsActions, pageMap]);
 };
 
 export const useFilteredPages = (query: string) => {
-  const pages = useSelector(getPageList) || [];
+  const pages = useSelector(getPageList);
+
   return useMemo(() => {
+    if (!pages) return [];
     if (!query) return attachKind(pages, SEARCH_ITEM_TYPES.page);
     return attachKind(
       pages.filter(

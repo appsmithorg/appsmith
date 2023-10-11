@@ -3,13 +3,20 @@
   "$schema": "http://json.schemastore.org/eslintrc",
   "root": true,
   "parser": "@typescript-eslint/parser",
+  "ignorePatterns": [
+    "jest.config.js",
+    "jest.setup.ts",
+    "rollup.config.js",
+    ".eslintrc.js"
+  ],
   "plugins": [
     "react",
     "@typescript-eslint",
     "prettier",
     "react-hooks",
     "sort-destructure-keys",
-    "cypress"
+    "cypress",
+    "jest"
   ],
   "extends": [
     "plugin:react/recommended", // Uses the recommended rules from @eslint-plugin-react
@@ -24,20 +31,17 @@
     "sourceType": "module", // Allows for the use of imports
     "ecmaFeatures": {
       "jsx": true // Allows for the parsing of JSX
-    }
+    },
+    "project": "./tsconfig.json"
   },
   "rules": {
-    "@typescript-eslint/no-explicit-any": "off",
-    "@typescript-eslint/no-use-before-define": "off",
-    "@typescript-eslint/no-var-requires": "off",
-    "import/no-webpack-loader-syntax": "off",
-    "no-undef": "off",
-    "react/prop-types": "off",
-    "react/display-name": "off",
-    "@typescript-eslint/explicit-module-boundary-types": "off",
-    "cypress/no-unnecessary-waiting": "off",
-    "cypress/no-assigning-return-values": "off",
+    "@typescript-eslint/prefer-nullish-coalescing": "error",
+    "@typescript-eslint/promise-function-async": "error",
+    "@typescript-eslint/strict-boolean-expressions": "error",
+    "@typescript-eslint/no-explicit-any": "error",
     "@typescript-eslint/no-unused-vars": "error",
+    "jest/no-focused-tests": "error",
+    "jest/no-disabled-tests": "error",
     // enforce `import type` for all type-only imports so the bundler knows to erase them
     "@typescript-eslint/consistent-type-imports": "error",
     "react-hooks/rules-of-hooks": "error",
@@ -50,8 +54,28 @@
       "error",
       { "caseSensitive": false }
     ],
-    "no-console": "warn",
-    "no-debugger": "warn"
+    "no-console": "error",
+    "no-debugger": "error",
+    "@typescript-eslint/no-restricted-imports": [
+      "error",
+      {
+        "patterns": [
+          {
+            "group": ["@blueprintjs/core/lib/esnext/*"],
+            "message": "Reason: @blueprintjs/core has both lib/esnext and lib/esm directories which export the same components. To avoid duplicating components in the bundle, please import only from the lib/esm directory."
+          },
+          {
+            "group": ["*.svg"],
+            "importNames": ["ReactComponent"],
+            "message": "Reason: Please don’t import SVG icons statically. (They won’t always be needed, but they *will* always be present in the bundle and will increase the bundle size.) Instead, please either import them as SVG paths (e.g. import starIconUrl from './star.svg'), or use the importSvg wrapper from design-system-old (e.g. const StarIcon = importSvg(() => import('./star.svg')))."
+          },
+          {
+            "group": ["remixicon-react/*"],
+            "message": "Reason: Please don’t import Remix icons statically. (They won’t always be needed, but they *will* always be present in the bundle and will increase the bundle size.) Instead, please use the importRemixIcon wrapper from design-system-old (e.g. const StarIcon = importRemixIcon(() => import('remixicon-react/Star')))."
+          }
+        ]
+      }
+    ]
   },
   "settings": {
     "import/resolver": {

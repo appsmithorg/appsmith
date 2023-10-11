@@ -294,7 +294,8 @@ describe("messages without input", () => {
     { key: "MERGED_SUCCESSFULLY", value: "Merged successfully" },
     {
       key: "DISCARD_CHANGES_WARNING",
-      value: "Discarding these changes will pull previous changes from Git.",
+      value:
+        "This action will replace your local changes with the latest remote version.",
     },
     {
       key: "DISCARD_SUCCESS",
@@ -310,7 +311,7 @@ describe("messages without input", () => {
     },
     {
       key: "DISCARD_CHANGES",
-      value: "Discard changes",
+      value: "Discard & pull",
     },
     {
       key: "IMPORTING_APP_FROM_GIT",
@@ -464,7 +465,7 @@ describe("Audit logs messages", () => {
     const input = [INTRODUCING, EXCLUSIVE_TO_BUSINESS];
     const expected = [
       `Introducing XYZ`,
-      `The XYZ feature is exclusive to workspaces on the Business Plan`,
+      `The XYZ feature is exclusive to workspaces on the Business Edition`,
     ];
     const actual = input.map((f) => createMessage(f, "XYZ"));
     expect(actual).toEqual(expected);

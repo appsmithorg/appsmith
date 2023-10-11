@@ -1,9 +1,9 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
-const dsl = require("../../../../../fixtures/textLintErrorDsl.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Linting warning validation with text widget", function () {
   before(() => {
-    cy.addDsl(dsl);
+    _.agHelper.AddDsl("textLintErrorDsl");
   });
   it("Linting Error validation on mouseover and errorlog tab", function () {
     cy.openPropertyPane("textwidget");

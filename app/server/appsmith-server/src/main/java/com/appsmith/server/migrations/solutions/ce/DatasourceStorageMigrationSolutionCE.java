@@ -11,8 +11,7 @@ public class DatasourceStorageMigrationSolutionCE {
         return Map.of();
     }
 
-    public String getEnvironmentIdForDatasource(Map<String, String> wsIdToEnvIdMap,
-                                                String workspaceId) {
+    public String getEnvironmentIdForDatasource(Map<String, String> wsIdToEnvIdMap, String workspaceId) {
         return FieldName.UNUSED_ENVIRONMENT_ID;
     }
 }

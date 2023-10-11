@@ -8,6 +8,8 @@ import {
 
 const DEFAULT_METHOD_TYPE = HTTP_METHOD.GET;
 
+export const DEFAULT_DATASOURCE_NAME = "DEFAULT_REST_DATASOURCE";
+
 export const DEFAULT_API_ACTION_CONFIG: ApiActionConfig = {
   timeoutInMillisecond: DEFAULT_ACTION_TIMEOUT,
   encodeParamsToggle: true,
@@ -30,7 +32,7 @@ export const DEFAULT_API_ACTION_CONFIG: ApiActionConfig = {
 export const DEFAULT_CREATE_API_CONFIG = {
   config: DEFAULT_API_ACTION_CONFIG,
   datasource: {
-    name: "DEFAULT_REST_DATASOURCE",
+    name: DEFAULT_DATASOURCE_NAME,
   },
   eventData: {
     actionType: "API",

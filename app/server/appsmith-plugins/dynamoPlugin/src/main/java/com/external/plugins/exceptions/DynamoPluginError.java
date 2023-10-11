@@ -5,7 +5,6 @@ import com.appsmith.external.exceptions.pluginExceptions.BasePluginError;
 import com.appsmith.external.models.ErrorType;
 import lombok.Getter;
 
-
 @Getter
 public enum DynamoPluginError implements BasePluginError {
     QUERY_EXECUTION_FAILED(
@@ -16,8 +15,7 @@ public enum DynamoPluginError implements BasePluginError {
             "Query execution error",
             ErrorType.INTERNAL_ERROR,
             "{1}",
-            "{2}"
-    ),
+            "{2}"),
     UNKNOWN_ACTION_NAME(
             500,
             "PE-DYN-5001",
@@ -26,8 +24,7 @@ public enum DynamoPluginError implements BasePluginError {
             "Query execution error",
             ErrorType.INTERNAL_ERROR,
             "{1}",
-            "{2}"
-    ),
+            "{2}"),
     ;
 
     private final Integer httpErrorCode;
@@ -41,8 +38,15 @@ public enum DynamoPluginError implements BasePluginError {
 
     private final String downstreamErrorCode;
 
-    DynamoPluginError(Integer httpErrorCode, String appErrorCode, String message, AppsmithErrorAction errorAction,
-                      String title, ErrorType errorType, String downstreamErrorMessage, String downstreamErrorCode) {
+    DynamoPluginError(
+            Integer httpErrorCode,
+            String appErrorCode,
+            String message,
+            AppsmithErrorAction errorAction,
+            String title,
+            ErrorType errorType,
+            String downstreamErrorMessage,
+            String downstreamErrorCode) {
         this.httpErrorCode = httpErrorCode;
         this.appErrorCode = appErrorCode;
         this.errorType = errorType;
@@ -69,5 +73,7 @@ public enum DynamoPluginError implements BasePluginError {
     }
 
     @Override
-    public String getErrorType() { return this.errorType.toString(); }
+    public String getErrorType() {
+        return this.errorType.toString();
+    }
 }

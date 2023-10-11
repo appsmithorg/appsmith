@@ -1,24 +1,21 @@
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
-const formWidgetsPage = require("../../../../locators/FormWidgets.json");
-const dsl = require("../../../../fixtures/formWidgetdsl.json");
-const widgetsPage = require("../../../../locators/Widgets.json");
-const _ = require("../../../../support/Objects/ObjectsCore");
+import {
+  agHelper,
+  entityExplorer,
+  propPane,
+} from "../../../../support/Objects/ObjectsCore";
 
 before(() => {
-  cy.addDsl(dsl);
+  agHelper.AddDsl("formWidgetdsl");
 });
 
 describe("Test Suite to validate copy/delete/undo functionalites", function () {
   const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
 
   it("1. Drag and drop form widget and validate copy widget via toast message", function () {
-    cy.openPropertyPane("formwidget");
-    cy.widgetText(
-      "FormTest",
-      formWidgetsPage.formWidget,
-      widgetsPage.widgetNameSpan,
-    );
+    entityExplorer.SelectEntityByName("Form1", "Widgets");
+    propPane.RenameWidget("Form1", "FormTest");
     cy.get(commonlocators.copyWidget).click();
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
@@ -26,7 +23,10 @@ describe("Test Suite to validate copy/delete/undo functionalites", function () {
   });
 
   it("2. Delete Widget from sidebar and Undo action validation", function () {
-    _.entityExplorer.ActionContextMenuByEntityName("FormTest", "Show bindings");
+    entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: "FormTest",
+      action: "Show bindings",
+    });
     cy.get(apiwidget.propertyList).then(function ($lis) {
       expect($lis).to.have.length(3);
       expect($lis.eq(0)).to.contain("{{FormTest.isVisible}}");

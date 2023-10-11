@@ -51,12 +51,12 @@
           "initialValue": "READ_WRITE",
           "options": [
             {
-              "label": "Read only",
-              "value": "READ_ONLY"
-            },
-            {
               "label": "Read / Write",
               "value": "READ_WRITE"
+            },
+            {
+              "label": "Read only",
+              "value": "READ_ONLY"
             }
           ],
           "hidden": {
@@ -111,7 +111,8 @@
                 "path": "datasourceConfiguration.properties[0].value",
                 "comparison": "EQUALS",
                 "value": "Yes"
-              }
+              },
+              "placeholderText": "27017"
             }
           ]
         },

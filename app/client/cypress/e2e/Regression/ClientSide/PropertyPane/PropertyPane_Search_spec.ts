@@ -1,18 +1,16 @@
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-
-const agHelper = ObjectsRegistry.AggregateHelper,
-  ee = ObjectsRegistry.EntityExplorer,
-  propPane = ObjectsRegistry.PropertyPane;
+import {
+  agHelper,
+  entityExplorer,
+  propPane,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Property Pane Search", function () {
   before(() => {
-    cy.fixture("swtchTableV2Dsl").then((val: any) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("swtchTableV2Dsl");
   });
 
   it("1. Verify if the search Input is getting focused when a widget is selected", function () {
-    ee.SelectEntityByName("Table1", "Widgets");
+    entityExplorer.SelectEntityByName("Table1", "Widgets");
 
     // Initially the search input will only be soft focused
     // We need to press Enter to properly focus it
@@ -29,8 +27,8 @@ describe("Property Pane Search", function () {
     agHelper.AssertElementFocus(propPane._propertyPaneSearchInputWrapper);
 
     // Opening some other widget and then going back to the initial widget should soft focus the search input that is inside a panel
-    ee.SelectEntityByName("Switch1", "Widgets");
-    ee.SelectEntityByName("Table1", "Widgets");
+    entityExplorer.SelectEntityByName("Switch1", "Widgets");
+    entityExplorer.SelectEntityByName("Table1", "Widgets");
     agHelper.AssertElementFocus(propPane._propertyPaneSearchInputWrapper);
 
     // Going out of the panel should soft focus the search input
@@ -69,8 +67,7 @@ describe("Property Pane Search", function () {
     propPane.Search("text formaTTing");
     propPane.AssertIfPropertyOrSectionExists("textformatting", "STYLE");
 
-    // Clear the search input for the next test
-    propPane.Search("");
+    agHelper.ClearTextField(propPane._propertyPaneSearchInput);
   });
 
   it("4. Search for Properties inside a panel", function () {
@@ -111,7 +108,7 @@ describe("Property Pane Search", function () {
     propPane.Search("pagination");
     propPane.AssertIfPropertyOrSectionExists("pagination", "CONTENT");
     // Do the operation so that the dymnamic property is visible
-    propPane.ToggleOnOrOff("Server side pagination", "On");
+    propPane.TogglePropertyState("Server side pagination", "On");
     // Verify if the property is visible
     propPane.AssertIfPropertyOrSectionExists(
       "pagination",
@@ -120,13 +117,13 @@ describe("Property Pane Search", function () {
     );
 
     // Do the operation so that the dymnamic property is hidden again
-    propPane.ToggleOnOrOff("Server side pagination", "Off");
+    propPane.TogglePropertyState("Server side pagination", "Off");
     // Verify whether the property is hidden
     agHelper.AssertElementAbsence(".t--property-control-onpagechange");
   });
 
   it("8. Verify the search works even if the section is collapsed initially", function () {
-    ee.SelectEntityByName("Switch1", "Widgets");
+    entityExplorer.SelectEntityByName("Switch1", "Widgets");
     // Collapse All the sections both in CONTENT and STYLE tabs
     propPane.ToggleSection("label");
     propPane.ToggleSection("general");
@@ -140,7 +137,7 @@ describe("Property Pane Search", function () {
     propPane.AssertIfPropertyOrSectionExists("events", "CONTENT");
 
     propPane.Search("visible");
-    propPane.AssertIfPropertyOrSectionExists("events", "CONTENT", "visible");
+    propPane.AssertIfPropertyOrSectionExists("general", "CONTENT", "visible");
 
     propPane.Search("color");
     propPane.AssertIfPropertyOrSectionExists("color", "STYLE");
@@ -157,7 +154,7 @@ describe("Property Pane Search", function () {
     propPane.Search("visible");
     propPane.AssertSearchInputValue("visible");
 
-    ee.SelectEntityByName("Table1", "Widgets");
+    entityExplorer.SelectEntityByName("Table1", "Widgets");
     propPane.AssertSearchInputValue("");
   });
 

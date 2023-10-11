@@ -7,9 +7,9 @@ import { USER_PHOTO_ASSET_URL } from "constants/userConstants";
 import { DisplayImageUpload } from "design-system-old";
 
 import type Uppy from "@uppy/core";
-import { ReduxActionErrorTypes } from "ce/constants/ReduxActionConstants";
+import { ReduxActionErrorTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { ErrorActionPayload } from "sagas/ErrorSagas";
-import { USER_DISPLAY_PICTURE_FILE_INVALID } from "ce/constants/messages";
+import { USER_DISPLAY_PICTURE_FILE_INVALID } from "@appsmith/constants/messages";
 
 function FormDisplayImage() {
   const [file, setFile] = useState<any>();

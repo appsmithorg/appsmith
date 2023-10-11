@@ -3,11 +3,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { getDefaultPageId } from "sagas/selectors";
 import { getSettings } from "selectors/settingsSelectors";
 import { getCurrentUser } from "selectors/usersSelectors";
-
-import {
-  AppsmithFrameAncestorsSetting,
-  APPSMITH_ALLOWED_FRAME_ANCESTORS_SETTING,
-} from "@appsmith/pages/AdminSettings/config/general";
 import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import debounce from "lodash/debounce";
@@ -17,6 +12,9 @@ import {
   createMessage,
   IN_APP_EMBED_SETTING,
 } from "@appsmith/constants/messages";
+import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
+import { AppsmithFrameAncestorsSetting } from "./Constants/constants";
+import { formatEmbedSettings } from "./Utils/utils";
 
 const regex = /^[1-9][0-9]{0,3}((px)|(em)|(%)|(vw)|(vh))?$/;
 
@@ -46,11 +44,10 @@ function useUpdateEmbedSnippet() {
   const settings = useSelector(getSettings);
   const user = useSelector(getCurrentUser);
   const defaultPageId = useSelector(getDefaultPageId);
-  const currentSetting: EmbedSetting =
-    APPSMITH_ALLOWED_FRAME_ANCESTORS_SETTING.format &&
-    APPSMITH_ALLOWED_FRAME_ANCESTORS_SETTING.format(
-      settings["APPSMITH_ALLOWED_FRAME_ANCESTORS"] as string,
-    ).value;
+  const featureFlags = useSelector(selectFeatureFlags);
+  const currentSetting: EmbedSetting = formatEmbedSettings(
+    settings["APPSMITH_ALLOWED_FRAME_ANCESTORS"] as string,
+  ).value;
   const embedSettingContent = embedSettingContentConfig[currentSetting];
   const [embedSetting, setEmbedSetting] = useState({
     height: "720px",
@@ -109,10 +106,17 @@ function useUpdateEmbedSnippet() {
     const url = viewerURL({
       pageId: defaultPageId,
     });
+    const allowHidingShareSettingsInEmbedView =
+      featureFlags.release_embed_hide_share_settings_enabled;
     const fullUrl = new URL(window.location.origin.toString() + url);
     if (embedSetting?.showNavigationBar) {
+      if (allowHidingShareSettingsInEmbedView) {
+        fullUrl.searchParams.append("embed", "true");
+        fullUrl.searchParams.append("navbar", "true");
+      }
       return fullUrl.toString();
     }
+
     fullUrl.searchParams.append("embed", "true");
     return fullUrl.toString();
   }, [defaultPageId, embedSetting?.showNavigationBar]);

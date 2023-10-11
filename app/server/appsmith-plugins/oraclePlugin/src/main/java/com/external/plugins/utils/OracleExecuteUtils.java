@@ -49,17 +49,19 @@ public class OracleExecuteUtils implements SmartSubstitutionInterface {
      * required. "
      * Ref: https://docs.oracle.com/cd/B14117_01/appdev.101/b10807/13_elems003.htm#:~:text=A%20PL%2FSQL%20block%20is,the%20executable%20part%20is%20required.
      */
-    private static final String PLSQL_MATCH_REGEX = "(\\bdeclare\\b(\\s))|(\\bbegin\\b(\\s))|(\\bend\\b(\\s|;))|(\\bexception\\b(\\s))";
+    private static final String PLSQL_MATCH_REGEX =
+            "(\\bdeclare\\b(\\s))|(\\bbegin\\b(\\s))|(\\bend\\b(\\s|;))|(\\bexception\\b(\\s))";
+
     private static final Pattern PL_SQL_MATCH_PATTERN = Pattern.compile(PLSQL_MATCH_REGEX);
 
-    public static void closeConnectionPostExecution(ResultSet resultSet, Statement statement,
-                                                    PreparedStatement preparedQuery, Connection connectionFromPool) {
+    public static void closeConnectionPostExecution(
+            ResultSet resultSet, Statement statement, PreparedStatement preparedQuery, Connection connectionFromPool) {
         if (resultSet != null) {
             try {
                 resultSet.close();
             } catch (SQLException e) {
-                System.out.println(Thread.currentThread().getName() +
-                        ": Execute Error closing Oracle ResultSet" + e.getMessage());
+                System.out.println(
+                        Thread.currentThread().getName() + ": Execute Error closing Oracle ResultSet" + e.getMessage());
             }
         }
 
@@ -67,8 +69,8 @@ public class OracleExecuteUtils implements SmartSubstitutionInterface {
             try {
                 statement.close();
             } catch (SQLException e) {
-                System.out.println(Thread.currentThread().getName() +
-                        ": Execute Error closing Oracle Statement" + e.getMessage());
+                System.out.println(
+                        Thread.currentThread().getName() + ": Execute Error closing Oracle Statement" + e.getMessage());
             }
         }
 
@@ -76,13 +78,16 @@ public class OracleExecuteUtils implements SmartSubstitutionInterface {
             try {
                 preparedQuery.close();
             } catch (SQLException e) {
-                System.out.println(Thread.currentThread().getName() +
-                        ": Execute Error closing Oracle Statement" + e.getMessage());
+                System.out.println(
+                        Thread.currentThread().getName() + ": Execute Error closing Oracle Statement" + e.getMessage());
             }
         }
 
-        safelyCloseSingleConnectionFromHikariCP(connectionFromPool, MessageFormat.format("{0}: Execute Error returning " +
-                "Oracle connection to pool", Thread.currentThread().getName()));
+        safelyCloseSingleConnectionFromHikariCP(
+                connectionFromPool,
+                MessageFormat.format(
+                        "{0}: Execute Error returning " + "Oracle connection to pool",
+                        Thread.currentThread().getName()));
     }
 
     /**
@@ -105,18 +110,24 @@ public class OracleExecuteUtils implements SmartSubstitutionInterface {
          * Please don't use Java's String.matches(...) function here because it doesn't behave like normal regex
          * match. It returns true only if the entire string matches the regex as opposed to finding a substring
          * matching the pattern.
-         * Ref: https://stackoverflow.com/questions/8923398/regex-doesnt-work-in-string-matches 
+         * Ref: https://stackoverflow.com/questions/8923398/regex-doesnt-work-in-string-matches
          */
         return PL_SQL_MATCH_PATTERN.matcher(query.toLowerCase()).find();
     }
 
-    public static void populateRowsAndColumns(List<Map<String, Object>> rowsList, List<String> columnsList,
-                                              ResultSet resultSet, Boolean isResultSet, Boolean preparedStatement,
-                                              Statement statement, PreparedStatement preparedQuery) throws SQLException {
+    public static void populateRowsAndColumns(
+            List<Map<String, Object>> rowsList,
+            List<String> columnsList,
+            ResultSet resultSet,
+            Boolean isResultSet,
+            Boolean preparedStatement,
+            Statement statement,
+            PreparedStatement preparedQuery)
+            throws SQLException {
         if (!isResultSet) {
-            Object updateCount = FALSE.equals(preparedStatement) ?
-                    ObjectUtils.defaultIfNull(statement.getUpdateCount(), 0) :
-                    ObjectUtils.defaultIfNull(preparedQuery.getUpdateCount(), 0);
+            Object updateCount = FALSE.equals(preparedStatement)
+                    ? ObjectUtils.defaultIfNull(statement.getUpdateCount(), 0)
+                    : ObjectUtils.defaultIfNull(preparedQuery.getUpdateCount(), 0);
 
             rowsList.add(Map.of(AFFECTED_ROWS_KEY, updateCount));
         } else {
@@ -136,20 +147,22 @@ public class OracleExecuteUtils implements SmartSubstitutionInterface {
                         value = null;
 
                     } else if (DATE_COLUMN_TYPE_NAME.equalsIgnoreCase(typeName)) {
-                        value = DateTimeFormatter.ISO_DATE.format(resultSet.getDate(i).toLocalDate());
+                        value = DateTimeFormatter.ISO_DATE.format(
+                                resultSet.getDate(i).toLocalDate());
 
-                    } else if (TIMESTAMP_TYPE_NAME.equalsIgnoreCase(typeName) || TIMESTAMPTZ_TYPE_NAME.equalsIgnoreCase(typeName) || TIMESTAMPLTZ_TYPE_NAME.equalsIgnoreCase(typeName)) {
-                        value = DateTimeFormatter.ISO_DATE_TIME.format(
-                                resultSet.getObject(i, OffsetDateTime.class)
-                        );
+                    } else if (TIMESTAMP_TYPE_NAME.equalsIgnoreCase(typeName)
+                            || TIMESTAMPTZ_TYPE_NAME.equalsIgnoreCase(typeName)
+                            || TIMESTAMPLTZ_TYPE_NAME.equalsIgnoreCase(typeName)) {
+                        value = DateTimeFormatter.ISO_DATE_TIME.format(resultSet.getObject(i, OffsetDateTime.class));
                     } else if (CLOB_TYPE_NAME.equalsIgnoreCase(typeName) || NCLOB_TYPE_NAME.equals(typeName)) {
                         /**
                          * clob, nclob are textual data.
                          * Ref: https://docs.oracle.com/javadb/10.10.1.2/ref/rrefclob.html
                          */
-                        value = String.valueOf(((CLOB)resultSet.getObject(i)).getTarget().getPrefetchedData());
+                        value = String.valueOf(
+                                ((CLOB) resultSet.getObject(i)).getTarget().getPrefetchedData());
                     } else if (resultSet.getObject(i) instanceof OracleArray) {
-                        value = ((OracleArray)resultSet.getObject(i)).getArray();
+                        value = ((OracleArray) resultSet.getObject(i)).getArray();
                     } else if (RAW_TYPE_NAME.equalsIgnoreCase(typeName)) {
                         /**
                          * Raw / Blob data cannot be interpreted as anything but a byte array. Hence, send it back as a
@@ -158,18 +171,16 @@ public class OracleExecuteUtils implements SmartSubstitutionInterface {
                          * select utl_raw.cast_to_varchar2(c_raw) as c_raw, utl_raw.cast_to_varchar2(c_blob) as c_blob from TYPESTEST4
                          */
                         value = Base64.getEncoder().encodeToString((byte[]) resultSet.getObject(i));
-                    }
-                    else if (BLOB_TYPE_NAME.equalsIgnoreCase(typeName)) {
+                    } else if (BLOB_TYPE_NAME.equalsIgnoreCase(typeName)) {
                         /**
                          * Raw / Blob data cannot be interpreted as anything but a byte array. Hence, send it back as a
                          * base64 encoded string. The correct way to read the data for these types is for the user to
                          * cast them to a type before reading them, example:
                          * select utl_raw.cast_to_varchar2(c_raw) as c_raw, utl_raw.cast_to_varchar2(c_blob) as c_blob from TYPESTEST4
                          */
-                        value = ((OracleBlob)resultSet.getObject(i)).getBytes(1L,
-                                (int) ((OracleBlob)resultSet.getObject(i)).length());
-                    }
-                    else {
+                        value = ((OracleBlob) resultSet.getObject(i))
+                                .getBytes(1L, (int) ((OracleBlob) resultSet.getObject(i)).length());
+                    } else {
                         value = resultSet.getObject(i).toString();
                     }
 

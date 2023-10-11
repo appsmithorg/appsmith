@@ -159,6 +159,7 @@ export const getLogItemProps = (e: Log) => {
     collapsable: showToggleIcon(e),
     pluginErrorDetails: e.pluginErrorDetails,
     isExpanded: e.isExpanded,
+    environmentName: e.environmentName,
   };
 };
 
@@ -180,6 +181,7 @@ export type LogItemProps = {
   messages?: Message[];
   pluginErrorDetails?: PluginErrorDetails;
   isExpanded: boolean;
+  environmentName?: string;
 };
 
 // Log item component
@@ -240,6 +242,15 @@ const ErrorLogItem = (props: LogItemProps) => {
               kind="tertiary"
               onClick={() => expandToggle()}
               startIcon={"expand-more"}
+            />
+          )}
+
+          {props.environmentName && (
+            <LogAdditionalInfo
+              text={`${
+                props.environmentName.charAt(0).toUpperCase() +
+                props.environmentName.slice(1)
+              }`}
             />
           )}
           <div className={`debugger-error-type`}>

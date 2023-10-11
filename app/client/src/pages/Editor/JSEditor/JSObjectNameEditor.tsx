@@ -8,7 +8,10 @@ import type { AppState } from "@appsmith/reducers";
 import type { JSCollection } from "entities/JSCollection";
 import { Classes } from "@blueprintjs/core";
 import { saveJSObjectName } from "actions/jsActionActions";
-import { getJSCollection, getPlugin } from "selectors/entitiesSelector";
+import {
+  getJSCollection,
+  getPlugin,
+} from "@appsmith/selectors/entitiesSelector";
 import NameEditorComponent from "components/utils/NameEditorComponent";
 import {
   ACTION_NAME_PLACEHOLDER,
@@ -20,7 +23,7 @@ import EditableText, {
   EditInteractionKind,
 } from "components/editorComponents/EditableText";
 import { Spinner } from "design-system";
-import { getAssetUrl } from "../../../ce/utils/airgapHelpers";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 const JSObjectNameWrapper = styled.div<{ page?: string }>`
   min-width: 50%;
@@ -128,7 +131,7 @@ export function JSObjectNameEditor(props: JSObjectNameEditorProps) {
               isEditingDefault={isNew}
               isInvalid={isInvalidNameForEntity}
               onTextChanged={handleNameChange}
-              placeholder={createMessage(ACTION_NAME_PLACEHOLDER, "JS object")}
+              placeholder={createMessage(ACTION_NAME_PLACEHOLDER, "JS Object")}
               type="text"
               underline
               updating={saveStatus.isSaving}

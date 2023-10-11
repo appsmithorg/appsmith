@@ -18,5 +18,4 @@ public class UsagePulse extends BaseDomain {
     private String tenantId;
     private Boolean viewMode;
     private Boolean isAnonymousUser;
-
 }

@@ -15,7 +15,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
-
 @RequiredArgsConstructor
 @Slf4j
 public class ReleaseNotesServiceCEImpl implements ReleaseNotesServiceCE {
@@ -78,7 +77,7 @@ public class ReleaseNotesServiceCEImpl implements ReleaseNotesServiceCE {
     @Scheduled(initialDelay = 2 * 60 * 1000 /* two minutes */, fixedRate = 2 * 60 * 60 * 1000 /* two hours */)
     public void refreshReleaseNotes() {
 
-        cacheExpiryTime = null;  // Bust the release notes cache to force fetching again.
+        cacheExpiryTime = null; // Bust the release notes cache to force fetching again.
         getReleaseNodes()
                 .map(releaseNodes -> {
                     cacheExpiryTime = Instant.now().plusSeconds(2 * 60 * 60);
@@ -95,5 +94,4 @@ public class ReleaseNotesServiceCEImpl implements ReleaseNotesServiceCE {
     public void setReleaseNodesCache(List<ReleaseNode> nodes) {
         this.releaseNodesCache = nodes;
     }
-
 }

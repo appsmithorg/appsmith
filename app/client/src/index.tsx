@@ -1,3 +1,6 @@
+// This file must be executed as early as possible to ensure the preloads are triggered ASAP
+import "./preload-route-chunks";
+
 import React from "react";
 import "./wdyr";
 import ReactDOM from "react-dom";

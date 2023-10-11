@@ -1,15 +1,18 @@
-import React from "react";
-import type { ComponentMeta } from "@storybook/react";
+import * as React from "react";
+import type { ComponentMeta, ComponentStory } from "@storybook/react";
 
-import MenuDivider from "./index";
+import { MenuDivider } from "@design-system/widgets-old";
 
 export default {
-  title: "Design System/widgets-old/Menu Divider",
+  title: "Design System/Widgets-old/Menu Divider",
   component: MenuDivider,
 } as ComponentMeta<typeof MenuDivider>;
 
-export const MenuDividerExample = (
+const Template: ComponentStory<typeof MenuDivider> = () => (
   <div style={{ minWidth: "8rem" }}>
     <MenuDivider />
   </div>
 );
+
+export const MenuDividerStory = Template.bind({});
+MenuDividerStory.storyName = "Menu Divider";

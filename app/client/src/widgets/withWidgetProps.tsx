@@ -8,6 +8,7 @@ import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
   RenderModes,
+  WIDGET_PADDING,
 } from "constants/WidgetConstants";
 import { useDispatch, useSelector } from "react-redux";
 import { getWidget } from "sagas/selectors";
@@ -18,12 +19,10 @@ import {
 import {
   computeMainContainerWidget,
   getChildWidgets,
-  getCurrentAppPositioningType,
   getMainCanvasProps,
   getRenderMode,
   getMetaWidgetChildrenStructure,
   getMetaWidget,
-  getFlattenedChildCanvasWidgets,
   previewModeSelector,
   getIsAutoLayoutMobileBreakPoint,
   getCanvasWidth,
@@ -34,17 +33,18 @@ import {
 } from "utils/widgetRenderUtils";
 import type { WidgetProps } from "./BaseWidget";
 import type BaseWidget from "./BaseWidget";
-import type { WidgetEntityConfig } from "entities/DataTree/dataTreeFactory";
-import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
-import {
-  defaultAutoLayoutWidgets,
-  Positioning,
-} from "utils/autoLayout/constants";
+import type { WidgetEntityConfig } from "@appsmith/entities/DataTree/types";
+import { Positioning } from "layoutSystems/common/utils/constants";
 import { isAutoHeightEnabledForWidget } from "./WidgetUtils";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import { getGoogleMapsApiKey } from "@appsmith/selectors/tenantSelectors";
 import ConfigTreeActions from "utils/configTree";
 import { getSelectedWidgetAncestry } from "../selectors/widgetSelectors";
+import { getWidgetMinMaxDimensionsInPixel } from "layoutSystems/autolayout/utils/flexWidgetUtils";
+import { defaultAutoLayoutWidgets } from "layoutSystems/autolayout/utils/constants";
+import { getFlattenedChildCanvasWidgets } from "selectors/flattenedChildCanvasSelector";
+import { LayoutSystemTypes } from "layoutSystems/types";
+import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 
 const WIDGETS_WITH_CHILD_WIDGETS = ["LIST_WIDGET", "FORM_WIDGET"];
 const WIDGETS_REQUIRING_SELECTED_ANCESTRY = ["MODAL_WIDGET", "TABS_WIDGET"];
@@ -61,6 +61,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       type,
       widgetId,
     } = props;
+
     const isPreviewMode = useSelector(previewModeSelector);
     const canvasWidget = useSelector((state: AppState) =>
       getWidget(state, widgetId),
@@ -80,6 +81,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
     const evaluatedWidget = useSelector((state: AppState) =>
       getWidgetEvalValues(state, widgetName),
     );
+
     const isLoading = useSelector((state: AppState) =>
       getIsWidgetLoading(state, widgetName),
     );
@@ -89,8 +91,8 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       equal,
     );
     const isMobile = useSelector(getIsAutoLayoutMobileBreakPoint);
-    const appPositioningType = useSelector(getCurrentAppPositioningType);
-    const isAutoLayout = appPositioningType === AppPositioningTypes.AUTO;
+    const layoutSystemType = useSelector(getLayoutSystemType);
+    const isAutoLayout = layoutSystemType === LayoutSystemTypes.AUTO;
 
     const configTree = ConfigTreeActions.getConfigTree();
     const evaluatedWidgetConfig = configTree[
@@ -162,7 +164,6 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       widgetProps = { ...canvasWidgetProps };
 
       widgetProps.isMobile = !!isMobile;
-      widgetProps.appPositioningType = appPositioningType;
       widgetProps.selectedWidgetAncestry = selectedWidgetAncestry || [];
 
       /**
@@ -213,7 +214,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       widgetProps.flattenedChildCanvasWidgets = flattenedChildCanvasWidgets;
     }
     //merging with original props
-    widgetProps = { ...props, ...widgetProps, renderMode };
+    widgetProps = { ...props, ...widgetProps, layoutSystemType, renderMode };
 
     // adding google maps api key to widget props (although meant for map widget only)
     widgetProps.googleMapsApiKey = googleMapsApiKey;
@@ -240,7 +241,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       renderMode === RenderModes.CANVAS &&
       !isPreviewMode;
 
-    widgetProps.maincanvasWidth = mainCanvasWidth;
+    widgetProps.mainCanvasWidth = mainCanvasWidth;
 
     // We don't render invisible widgets in view mode
     if (shouldCollapseWidgetInViewOrPreviewMode) {
@@ -292,6 +293,28 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       }
     }
 
+    // Sets the min/max height/width of the widget
+    if (isAutoLayout) {
+      const minMaxDimensions = getWidgetMinMaxDimensionsInPixel(
+        widgetProps,
+        mainCanvasWidth,
+      );
+      widgetProps = {
+        ...widgetProps,
+        minWidth: minMaxDimensions.minWidth
+          ? minMaxDimensions.minWidth - 2 * WIDGET_PADDING
+          : undefined,
+        minHeight: minMaxDimensions.minHeight
+          ? minMaxDimensions.minHeight - 2 * WIDGET_PADDING
+          : undefined,
+        maxWidth: minMaxDimensions.maxWidth
+          ? minMaxDimensions.maxWidth - 2 * WIDGET_PADDING
+          : undefined,
+        maxHeight: minMaxDimensions.maxHeight
+          ? minMaxDimensions.maxHeight - 2 * WIDGET_PADDING
+          : undefined,
+      };
+    }
     return <WrappedWidget {...widgetProps} />;
   }
 

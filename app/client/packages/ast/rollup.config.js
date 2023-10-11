@@ -2,8 +2,7 @@ import peerDepsExternal from "rollup-plugin-peer-deps-external";
 import commonjs from "@rollup/plugin-commonjs";
 import typescript from "rollup-plugin-typescript2";
 import generatePackageJson from "rollup-plugin-generate-package-json";
-
-const packageJson = require("./package.json");
+import packageJson from "./package.json";
 
 export default {
   // TODO: Figure out regex where each directory can be a separate module without having to manually add them

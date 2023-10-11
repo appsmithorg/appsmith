@@ -19,8 +19,7 @@ import java.util.List;
 public class Page extends BaseDomain {
     String name;
 
-    @NotNull
-    String applicationId;
+    @NotNull String applicationId;
 
     List<Layout> layouts;
 }

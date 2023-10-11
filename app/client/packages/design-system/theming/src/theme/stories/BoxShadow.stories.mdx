@@ -1,0 +1,35 @@
+import { Meta } from "@storybook/addon-docs";
+import { useTheme, ThemeProvider } from "@design-system/theming";
+import { TokenTable, StyledSquarePreview } from "@design-system/storybook";
+
+<Meta title="Design-system/Theme/Tokens/BoxShadow" />
+
+# BoxShadow
+
+Box shadow is a visual effect that creates a three-dimensional look on a
+two-dimensional element. It is used in web design to add depth and
+texture to user interfaces. In a design system, box shadow is an
+important element that helps to maintain consistency across all
+components.
+
+## Tokens Table
+
+export const BoxShadow = () => {
+  const { theme } = useTheme();
+  const { boxShadow } = theme;
+  return (
+    <ThemeProvider theme={theme}>
+      <TokenTable prefix="box-shadow" tokens={boxShadow}>
+        {(cssVar) => (
+          <StyledSquarePreview
+            style={{
+              boxShadow: cssVar,
+            }}
+          />
+        )}
+      </TokenTable>
+    </ThemeProvider>
+  );
+};
+
+<BoxShadow />

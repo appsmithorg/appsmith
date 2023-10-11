@@ -13,13 +13,15 @@
               "controlType": "KEYVALUE_ARRAY",
               "validationMessage": "Please enter a valid host",
               "validationRegex": "^((?![/:]).)*$",
-              "isRequired": true
+              "isRequired": true,
+              "placeholderText": "myapp.abcde.oracle.net"
             },
             {
               "label": "Port",
               "configProperty": "datasourceConfiguration.endpoints[*].port",
               "dataType": "NUMBER",
-              "controlType": "KEYVALUE_ARRAY"
+              "controlType": "KEYVALUE_ARRAY",
+              "placeholderText": "1521"
             }
           ]
         },

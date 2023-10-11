@@ -1,35 +1,31 @@
-const dsl = require("../../../../../fixtures/Table/InlineEditingDSL.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
-import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
-
-const propPane = ObjectsRegistry.PropertyPane;
-const agHelper = ObjectsRegistry.AggregateHelper;
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Table widget inline editing validation functionality", () => {
   afterEach(() => {
-    agHelper.SaveLocalStorageCache();
+    _.agHelper.SaveLocalStorageCache();
   });
 
   beforeEach(() => {
-    agHelper.RestoreLocalStorageCache();
-    cy.addDsl(dsl);
+    _.agHelper.RestoreLocalStorageCache();
+    _.agHelper.AddDsl("Table/InlineEditingDSL");
   });
 
   it("1. should check that validation only appears when editable enabled", () => {
     cy.openPropertyPane("tablewidgetv2");
     cy.editColumn("step");
     cy.get(".t--property-pane-section-collapse-validation").should("not.exist");
-    propPane.ToggleOnOrOff("Editable", "On");
+    _.propPane.TogglePropertyState("Editable", "On");
     cy.get(".t--property-pane-section-collapse-validation").should("exist");
-    propPane.ToggleOnOrOff("Editable", "Off");
+    _.propPane.TogglePropertyState("Editable", "Off");
     cy.get(".t--property-pane-section-collapse-validation").should("not.exist");
   });
 
   it("2. should check that validation only appears for plain text and number", () => {
     cy.openPropertyPane("tablewidgetv2");
     cy.editColumn("step");
-    propPane.ToggleOnOrOff("Editable", "On");
+    _.propPane.TogglePropertyState("Editable", "On");
     cy.get(".t--property-pane-section-collapse-validation").should("exist");
     cy.get(commonlocators.changeColType).last().click();
     cy.get(".t--dropdown-option").children().contains("Number").click();
@@ -52,7 +48,7 @@ describe("Table widget inline editing validation functionality", () => {
   it("3. should check that regex, valid & required appear for plain text column", () => {
     cy.openPropertyPane("tablewidgetv2");
     cy.editColumn("step");
-    propPane.ToggleOnOrOff("Editable", "On");
+    _.propPane.TogglePropertyState("Editable", "On");
     cy.get(".t--property-pane-section-collapse-validation").should("exist");
     ["regex", "valid", "errormessage", "required"].forEach((property) => {
       cy.get(`.t--property-control-${property}`).should("exist");
@@ -62,7 +58,7 @@ describe("Table widget inline editing validation functionality", () => {
   it("4. should check that min, max, regex, valid & required appear for number column", () => {
     cy.openPropertyPane("tablewidgetv2");
     cy.editColumn("step");
-    propPane.ToggleOnOrOff("Editable", "On");
+    _.propPane.TogglePropertyState("Editable", "On");
     cy.get(commonlocators.changeColType).last().click();
     cy.get(".t--dropdown-option").children().contains("Number").click();
     cy.wait("@updateLayout");
@@ -78,51 +74,44 @@ describe("Table widget inline editing validation functionality", () => {
     it("a. Regex", () => {
       cy.openPropertyPane("tablewidgetv2");
       cy.editColumn("step");
-      propPane.ToggleOnOrOff("Editable", "On");
-      propPane.UpdatePropertyFieldValue("Regex", "^#1$");
+      _.propPane.TogglePropertyState("Editable", "On");
+      _.propPane.UpdatePropertyFieldValue("Regex", "^#1$");
       cy.editTableCell(0, 0);
       cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("not.exist");
       cy.enterTableCellValue(0, 0, "22");
-      cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("exist");
       cy.enterTableCellValue(0, 0, "#1");
-      cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("not.exist");
     });
 
     it("b. Valid", () => {
       cy.openPropertyPane("tablewidgetv2");
       cy.editColumn("step");
-      propPane.ToggleOnOrOff("Editable", "On");
-      propPane.UpdatePropertyFieldValue("Valid", "{{editedValue === '#1'}}");
+      _.propPane.TogglePropertyState("Editable", "On");
+      _.propPane.UpdatePropertyFieldValue("Valid", "{{editedValue === '#1'}}");
       cy.editTableCell(0, 0);
       cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("not.exist");
       cy.enterTableCellValue(0, 0, "22");
-      cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("exist");
       cy.enterTableCellValue(0, 0, "#1");
-      cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("not.exist");
     });
 
     it("c. Required", () => {
       cy.openPropertyPane("tablewidgetv2");
       cy.editColumn("step");
-      propPane.ToggleOnOrOff("Editable", "On");
-      propPane.ToggleOnOrOff("Required", "On");
+      _.propPane.TogglePropertyState("Editable", "On");
+      _.propPane.TogglePropertyState("Required", "On");
       cy.editTableCell(0, 0);
       cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("exist");
       cy.enterTableCellValue(0, 0, "22");
-      cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("not.exist");
       cy.enterTableCellValue(0, 0, "#1");
-      cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("not.exist");
       cy.enterTableCellValue(0, 0, "");
-      cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("exist");
     });
   });
@@ -131,62 +120,52 @@ describe("Table widget inline editing validation functionality", () => {
     it("a. Min", () => {
       cy.openPropertyPane("tablewidgetv2");
       cy.editColumn("step");
-      propPane.ToggleOnOrOff("Editable", "On");
+      _.propPane.TogglePropertyState("Editable", "On");
 
       cy.get(commonlocators.changeColType).last().click();
       cy.get(".t--dropdown-option").children().contains("Number").click();
       cy.wait("@updateLayout");
 
-      propPane.UpdatePropertyFieldValue("Min", "5");
+      _.propPane.UpdatePropertyFieldValue("Min", "5");
 
       cy.editTableCell(0, 0);
       cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("not.exist");
       cy.enterTableCellValue(0, 0, "6");
-      cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("not.exist");
       cy.enterTableCellValue(0, 0, "7");
-      cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("not.exist");
       cy.enterTableCellValue(0, 0, "4");
-      cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("exist");
       cy.enterTableCellValue(0, 0, "3");
-      cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("exist");
       cy.enterTableCellValue(0, 0, "8");
-      cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("not.exist");
     });
 
     it("b. Max", () => {
       cy.openPropertyPane("tablewidgetv2");
       cy.editColumn("step");
-      propPane.ToggleOnOrOff("Editable", "On");
+      _.propPane.TogglePropertyState("Editable", "On");
 
       cy.get(commonlocators.changeColType).last().click();
       cy.get(".t--dropdown-option").children().contains("Number").click();
       cy.wait("@updateLayout");
 
-      propPane.UpdatePropertyFieldValue("Max", "5");
+      _.propPane.UpdatePropertyFieldValue("Max", "5");
 
       cy.editTableCell(0, 0);
       cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("not.exist");
       cy.enterTableCellValue(0, 0, "6");
-      cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("exist");
       cy.enterTableCellValue(0, 0, "7");
-      cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("exist");
       cy.enterTableCellValue(0, 0, "4");
-      cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("not.exist");
       cy.enterTableCellValue(0, 0, "3");
-      cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("not.exist");
       cy.enterTableCellValue(0, 0, "8");
-      cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("exist");
     });
   });
@@ -194,13 +173,15 @@ describe("Table widget inline editing validation functionality", () => {
   it("7. should check the error message property", () => {
     cy.openPropertyPane("tablewidgetv2");
     cy.editColumn("step");
-    propPane.ToggleOnOrOff("Editable", "On");
-    propPane.UpdatePropertyFieldValue("Valid", "{{editedValue === '#1'}}");
-    propPane.UpdatePropertyFieldValue("Error message", "You got error mate!!");
+    _.propPane.TogglePropertyState("Editable", "On");
+    _.propPane.UpdatePropertyFieldValue("Valid", "{{editedValue === '#1'}}");
+    _.propPane.UpdatePropertyFieldValue(
+      "Error message",
+      "You got error mate!!",
+    );
     cy.editTableCell(0, 0);
     cy.wait(1000);
     cy.enterTableCellValue(0, 0, "123");
-    cy.wait(500);
     cy.get(".bp3-overlay.error-tooltip .bp3-popover-content").should(
       "contain",
       "You got error mate!!",
@@ -211,9 +192,9 @@ describe("Table widget inline editing validation functionality", () => {
     it("a. save should only work when there is no error", () => {
       cy.openPropertyPane("tablewidgetv2");
       cy.editColumn("step");
-      propPane.ToggleOnOrOff("Editable", "On");
+      _.propPane.TogglePropertyState("Editable", "On");
       cy.getAlert("onSubmit", "Saved!!");
-      propPane.UpdatePropertyFieldValue("Valid", "{{editedValue === '#1'}}");
+      _.propPane.UpdatePropertyFieldValue("Valid", "{{editedValue === '#1'}}");
       cy.editTableCell(0, 0);
       cy.enterTableCellValue(0, 0, "123");
       cy.get(`.t--inlined-cell-editor`).should("exist");
@@ -224,7 +205,6 @@ describe("Table widget inline editing validation functionality", () => {
       cy.get(`.t--inlined-cell-editor-has-error`).should("exist");
       cy.get(widgetsPage.toastAction).should("not.exist");
       cy.enterTableCellValue(0, 0, "#1");
-      cy.wait(500);
       cy.saveTableCellValue(0, 0);
       cy.get(`.t--inlined-cell-editor`).should("not.exist");
       cy.get(`.t--inlined-cell-editor-has-error`).should("not.exist");
@@ -240,8 +220,8 @@ describe("Table widget inline editing validation functionality", () => {
     it("b. discard should only work when there is no error", () => {
       cy.openPropertyPane("tablewidgetv2");
       cy.editColumn("step");
-      propPane.ToggleOnOrOff("Editable", "On");
-      propPane.UpdatePropertyFieldValue("Valid", "{{editedValue === '#1'}}");
+      _.propPane.TogglePropertyState("Editable", "On");
+      _.propPane.UpdatePropertyFieldValue("Valid", "{{editedValue === '#1'}}");
       cy.editTableCell(0, 0);
       cy.enterTableCellValue(0, 0, "123");
       cy.get(`.t--inlined-cell-editor`).should("exist");
@@ -271,8 +251,8 @@ describe("Table widget inline editing validation functionality", () => {
   it("should check that save/discard button is disabled when there is a validation error", () => {
     cy.openPropertyPane("tablewidgetv2");
     cy.editColumn("step");
-    propPane.ToggleOnOrOff("Editable", "On");
-    propPane.UpdatePropertyFieldValue("Valid", "{{editedValue === '#1'}}");
+    _.propPane.TogglePropertyState("Editable", "On");
+    _.propPane.UpdatePropertyFieldValue("Valid", "{{editedValue === '#1'}}");
     cy.editTableCell(0, 0);
     cy.enterTableCellValue(0, 0, "123");
     cy.openPropertyPane("tablewidgetv2");

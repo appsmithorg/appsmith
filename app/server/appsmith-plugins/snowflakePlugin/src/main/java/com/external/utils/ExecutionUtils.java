@@ -17,6 +17,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.external.plugins.exceptions.SnowflakeErrorMessages.CONNECTION_INVALID_ERROR_MSG;
+
 @Slf4j
 public class ExecutionUtils {
     /**
@@ -28,8 +30,8 @@ public class ExecutionUtils {
      * @throws AppsmithPluginException
      * @throws StaleConnectionException
      */
-    public static List<Map<String, Object>> getRowsFromQueryResult(Connection connection, String query) throws
-            AppsmithPluginException, StaleConnectionException {
+    public static List<Map<String, Object>> getRowsFromQueryResult(Connection connection, String query)
+            throws AppsmithPluginException, StaleConnectionException {
         List<Map<String, Object>> rowsList = new ArrayList<>();
         ResultSet resultSet = null;
         Statement statement = null;
@@ -38,7 +40,7 @@ public class ExecutionUtils {
             // Instead for every execution, we check for connection validity,
             // and reset the connection if required
             if (!connection.isValid(30)) {
-                throw new StaleConnectionException();
+                throw new StaleConnectionException(CONNECTION_INVALID_ERROR_MSG);
             }
 
             statement = connection.createStatement();
@@ -58,10 +60,14 @@ public class ExecutionUtils {
             }
         } catch (SQLException e) {
             if (e instanceof SnowflakeReauthenticationRequest) {
-                throw new StaleConnectionException();
+                throw new StaleConnectionException(e.getMessage());
             }
             log.error("Exception caught when executing Snowflake query. Cause: ", e);
-            throw new AppsmithPluginException(SnowflakePluginError.QUERY_EXECUTION_FAILED, SnowflakeErrorMessages.QUERY_EXECUTION_FAILED_ERROR_MSG, e.getMessage(), "SQLSTATE: " + e.getSQLState() );
+            throw new AppsmithPluginException(
+                    SnowflakePluginError.QUERY_EXECUTION_FAILED,
+                    SnowflakeErrorMessages.QUERY_EXECUTION_FAILED_ERROR_MSG,
+                    e.getMessage(),
+                    "SQLSTATE: " + e.getSQLState());
 
         } finally {
             if (resultSet != null) {

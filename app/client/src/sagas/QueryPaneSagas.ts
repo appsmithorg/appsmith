@@ -38,7 +38,7 @@ import {
   getSettingConfig,
   getPlugins,
   getGenerateCRUDEnabledPluginMap,
-} from "selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import type { Action, QueryAction } from "entities/Action";
 import { PluginType } from "entities/Action";
 import {
@@ -58,10 +58,10 @@ import get from "lodash/get";
 import {
   initFormEvaluations,
   startFormEvaluations,
-} from "actions/evaluationActions";
+} from "@appsmith/actions/evaluationActions";
 import { updateReplayEntity } from "actions/pageActions";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
-import type { EventLocation } from "utils/AnalyticsUtil";
+import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   datasourcesEditorIdURL,
@@ -76,11 +76,16 @@ import { FormDataPaths } from "workers/Evaluation/formEval";
 import { fetchDynamicValuesSaga } from "./FormEvaluationSaga";
 import type { FormEvalOutput } from "reducers/evaluationReducers/formEvaluationReducer";
 import { validateResponse } from "./ErrorSagas";
-import { hasManageActionPermission } from "@appsmith/utils/permissionHelpers";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import { toast } from "design-system";
 import type { CreateDatasourceSuccessAction } from "actions/datasourceActions";
 import { createDefaultActionPayload } from "./ActionSagas";
+import { DB_NOT_SUPPORTED } from "@appsmith/utils/Environments";
+import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelectors";
+import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
+import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
+import { isGACEnabled } from "@appsmith/utils/planHelpers";
+import { getHasManageActionPermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 
 // Called whenever the query being edited is changed via the URL or query pane
 function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
@@ -173,7 +178,12 @@ function* formValueChangeSaga(
     const { values } = yield select(getFormData, QUERY_EDITOR_FORM_NAME);
     const hasRouteChanged = field === "id";
 
-    if (!hasManageActionPermission(values.userPermissions)) {
+    const featureFlags: FeatureFlags = yield select(selectFeatureFlags);
+    const isFeatureEnabled = isGACEnabled(featureFlags);
+
+    if (
+      !getHasManageActionPermission(isFeatureEnabled, values.userPermissions)
+    ) {
       yield validateResponse({
         status: 403,
         resourceType: values?.pluginType,
@@ -189,6 +199,7 @@ function* formValueChangeSaga(
 
     const plugins: Plugin[] = yield select(getPlugins);
     const uiComponent = getUIComponent(values.pluginId, plugins);
+    const plugin = plugins.find((p) => p.id === values.pluginId);
 
     if (field === "datasource.id") {
       const datasource: Datasource | undefined = yield select(
@@ -257,9 +268,21 @@ function* formValueChangeSaga(
       getDatasource,
       values.datasource.id,
     );
+    const datasourceStorages = datasource?.datasourceStorages || {};
 
     // Editing form fields triggers evaluations.
     // We pass the action to run form evaluations when the dataTree evaluation is complete
+    let currentEnvironment: string = yield select(getCurrentEnvironmentId);
+    const pluginType = plugin?.type;
+    if (
+      (!!pluginType && DB_NOT_SUPPORTED.includes(pluginType)) ||
+      !datasourceStorages.hasOwnProperty(currentEnvironment) ||
+      !datasourceStorages[currentEnvironment].hasOwnProperty(
+        "datasourceConfiguration",
+      )
+    ) {
+      currentEnvironment = Object.keys(datasourceStorages)[0];
+    }
     const postEvalActions =
       uiComponent === UIComponentTypes.UQIDbEditorForm
         ? [
@@ -270,7 +293,7 @@ function* formValueChangeSaga(
               values.pluginId,
               field,
               hasRouteChanged,
-              datasource?.datasourceConfiguration,
+              datasourceStorages[currentEnvironment].datasourceConfiguration,
             ),
           ]
         : [];
@@ -319,7 +342,6 @@ function* handleQueryCreatedSaga(actionPayload: ReduxAction<QueryAction>) {
     actionPayload.payload;
   const pageId: string = yield select(getCurrentPageId);
   if (pluginType !== PluginType.DB && pluginType !== PluginType.REMOTE) return;
-  yield put(initialize(QUERY_EDITOR_FORM_NAME, actionPayload.payload));
   const pluginTemplates: Record<string, unknown> = yield select(
     getPluginTemplates,
   );

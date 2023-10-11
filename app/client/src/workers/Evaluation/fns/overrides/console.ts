@@ -99,7 +99,7 @@ class UserLog {
   private parseLogs(method: Methods, data: any[]): LogObject {
     // Create an ID
     const id = uuid4();
-    const timestamp = moment().format("hh:mm:ss");
+    const timestamp = moment().format("HH:mm:ss");
     // Parse the methods
     let output = data;
     // For logs UI we only keep 3 levels of severity, info, warn, error

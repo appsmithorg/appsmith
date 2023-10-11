@@ -1,12 +1,12 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
 import {
-  ROW_GAP,
   MOBILE_ROW_GAP,
-} from "../../../../../src/utils/autoLayout/constants";
+  ROW_GAP,
+} from "../../../../../src/layoutSystems/common/utils/constants";
 
 describe("Validating use cases for Auto Dimension", () => {
   before(() => {
-    _.autoLayout.ConvertToAutoLayout();
+    _.autoLayout.ConvertToAutoLayoutAndVerify(false);
     _.entityExplorer.DragDropWidgetNVerify(
       _.draggableWidgets.INPUT_V2,
       100,

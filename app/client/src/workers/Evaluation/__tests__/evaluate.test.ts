@@ -2,13 +2,13 @@ import evaluate, {
   evaluateAsync,
   convertAllDataTypesToString,
 } from "workers/Evaluation/evaluate";
-import type { DataTree, WidgetEntity } from "entities/DataTree/dataTreeFactory";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import type { WidgetEntity } from "@appsmith/entities/DataTree/types";
+import type { DataTree } from "entities/DataTree/dataTreeTypes";
+import { ENTITY_TYPE_VALUE } from "entities/DataTree/dataTreeFactory";
 import { RenderModes } from "constants/WidgetConstants";
 import setupEvalEnv from "../handlers/setupEvalEnv";
-import { functionDeterminer } from "../functionDeterminer";
 import { resetJSLibraries } from "workers/common/JSLibrary/resetJSLibraries";
-import { EVAL_WORKER_ACTIONS } from "ce/workers/Evaluation/evalWorkerActions";
+import { EVAL_WORKER_ACTIONS } from "@appsmith/workers/Evaluation/evalWorkerActions";
 
 describe("evaluateSync", () => {
   const widget: WidgetEntity = {
@@ -25,7 +25,7 @@ describe("evaluateSync", () => {
     widgetId: "",
     widgetName: "",
     text: "value",
-    ENTITY_TYPE: ENTITY_TYPE.WIDGET,
+    ENTITY_TYPE: ENTITY_TYPE_VALUE.WIDGET,
     bindingPaths: {},
     reactivePaths: {},
     triggerPaths: {},
@@ -236,43 +236,7 @@ describe("evaluateAsync", () => {
   });
 });
 
-describe("isFunctionAsync", () => {
-  it("identifies async functions", () => {
-    // eslint-disable-next-line @typescript-eslint/ban-types
-    const cases: Array<{ script: Function | string; expected: boolean }> = [
-      {
-        script: () => {
-          return 1;
-        },
-        expected: false,
-      },
-      {
-        script: () => {
-          return new Promise((resolve) => {
-            resolve(1);
-          });
-        },
-        expected: true,
-      },
-      {
-        script: "() => { showAlert('yo') }",
-        expected: true,
-      },
-    ];
-
-    for (const testCase of cases) {
-      let testFunc = testCase.script;
-      if (typeof testFunc === "string") {
-        testFunc = eval(testFunc);
-      }
-      functionDeterminer.setupEval({});
-      const actual = functionDeterminer.isFunctionAsync(testFunc);
-      expect(actual).toBe(testCase.expected);
-    }
-  });
-});
-
-describe.only("convertAllDataTypesToString", () => {
+describe("convertAllDataTypesToString", () => {
   const cases = [
     { index: 0, input: 0, expected: "0" },
     { index: 1, input: -1, expected: "-1" },

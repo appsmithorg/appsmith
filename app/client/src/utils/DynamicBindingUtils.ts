@@ -10,10 +10,8 @@ import {
   isTrueObject,
   isWidget,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
-import type {
-  DataTreeEntity,
-  DataTreeEntityConfig,
-} from "entities/DataTree/dataTreeFactory";
+import type { DataTreeEntityConfig } from "@appsmith/entities/DataTree/types";
+import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
 import { getType, Types } from "./TypeHelpers";
 import { ViewTypes } from "components/formControls/utils";
 
@@ -145,6 +143,7 @@ export enum EvalErrorTypes {
   PARSE_JS_ERROR = "PARSE_JS_ERROR",
   EXTRACT_DEPENDENCY_ERROR = "EXTRACT_DEPENDENCY_ERROR",
   CLONE_ERROR = "CLONE_ERROR",
+  SERIALIZATION_ERROR = "SERIALIZATION_ERROR",
 }
 
 export type EvalError = {
@@ -273,9 +272,12 @@ export const unsafeFunctionForEval = [
 export const isChildPropertyPath = (
   parentPropertyPath: string,
   childPropertyPath: string,
+  // In non-strict mode, an exact match is treated as a child path
+  // Eg. "Api1" is a child property path of "Api1"
+  strict = false,
 ): boolean => {
   return (
-    parentPropertyPath === childPropertyPath ||
+    (!strict && parentPropertyPath === childPropertyPath) ||
     childPropertyPath.startsWith(`${parentPropertyPath}.`) ||
     childPropertyPath.startsWith(`${parentPropertyPath}[`)
   );
@@ -468,7 +470,7 @@ export function getDynamicBindingsChangesSaga(
   if (
     action.datasource &&
     ("datasourceConfiguration" in action.datasource ||
-      "datasourceConfiguration" in formData?.datasource) &&
+      "datasourceConfiguration" in (formData?.datasource || {})) &&
     field === "datasource"
   ) {
     // only the datasource.datasourceConfiguration.url can be a dynamic field

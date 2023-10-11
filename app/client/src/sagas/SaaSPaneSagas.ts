@@ -5,7 +5,7 @@ import history from "utils/history";
 import {
   getGenerateCRUDEnabledPluginMap,
   getPlugin,
-} from "selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import type { Action } from "entities/Action";
 import { PluginType } from "entities/Action";
 import type { GenerateCRUDEnabledPluginMap, Plugin } from "api/PluginApi";
@@ -18,7 +18,7 @@ import { getCurrentPageId } from "selectors/editorSelectors";
 import type { CreateDatasourceSuccessAction } from "actions/datasourceActions";
 import { getQueryParams } from "utils/URLUtils";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
-import { DATASOURCE_SAAS_FORM } from "ce/constants/forms";
+import { DATASOURCE_SAAS_FORM } from "@appsmith/constants/forms";
 import { initialize } from "redux-form";
 import { omit } from "lodash";
 

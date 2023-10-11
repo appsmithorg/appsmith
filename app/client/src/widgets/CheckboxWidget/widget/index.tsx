@@ -1,12 +1,11 @@
 import { LabelPosition } from "components/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import type { WidgetType } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
-import type { Stylesheet } from "entities/AppTheming";
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import React from "react";
-import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
-import type { DerivedPropertiesMap } from "utils/WidgetFactory";
-import { AlignWidgetTypes } from "widgets/constants";
+import { isAutoLayout } from "layoutSystems/autolayout/utils/flexWidgetUtils";
+import type { DerivedPropertiesMap } from "WidgetProvider/factory";
+import { AlignWidgetTypes } from "WidgetProvider/constants";
 import {
   isAutoHeightEnabledForWidget,
   DefaultAutocompleteDefinitions,
@@ -14,9 +13,95 @@ import {
 import type { WidgetProps, WidgetState } from "../../BaseWidget";
 import BaseWidget from "../../BaseWidget";
 import CheckboxComponent from "../component";
-import type { AutocompletionDefinitions } from "widgets/constants";
+import type { AutocompletionDefinitions } from "WidgetProvider/constants";
+import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
+import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
+import type {
+  SnipingModeProperty,
+  PropertyUpdates,
+} from "WidgetProvider/constants";
+
+import IconSVG from "../icon.svg";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
 
 class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
+  static type = "CHECKBOX_WIDGET";
+
+  static getConfig() {
+    return {
+      name: "Checkbox",
+      iconSVG: IconSVG,
+      tags: [WIDGET_TAGS.TOGGLES],
+      needsMeta: true,
+      searchTags: ["boolean"],
+    };
+  }
+
+  static getFeatures() {
+    return {
+      dynamicHeight: {
+        sectionIndex: 2,
+        active: true,
+      },
+    };
+  }
+
+  static getDefaults() {
+    return {
+      rows: 4,
+      columns: 12,
+      label: "Label",
+      defaultCheckedState: true,
+      widgetName: "Checkbox",
+      version: 1,
+      alignWidget: AlignWidgetTypes.LEFT,
+      labelPosition: LabelPosition.Left,
+      isDisabled: false,
+      isRequired: false,
+      animateLoading: true,
+      responsiveBehavior: ResponsiveBehavior.Fill,
+      minWidth: FILL_WIDGET_MIN_WIDTH,
+    };
+  }
+
+  static getMethods() {
+    return {
+      getSnipingModeUpdates: (
+        propValueMap: SnipingModeProperty,
+      ): PropertyUpdates[] => {
+        return [
+          {
+            propertyPath: "defaultCheckedState",
+            propertyValue: propValueMap.data,
+            isDynamicPropertyPath: true,
+          },
+        ];
+      },
+    };
+  }
+
+  static getAutoLayoutConfig() {
+    return {
+      disabledPropsDefaults: {
+        labelTextSize: "0.875rem",
+      },
+      widgetSize: [
+        {
+          viewportMinWidth: 0,
+          configuration: () => {
+            return {
+              minWidth: "120px",
+              minHeight: "40px",
+            };
+          },
+        },
+      ],
+      disableResizeHandles: {
+        vertical: true,
+      },
+    };
+  }
+
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
     return {
       "!doc":
@@ -314,7 +399,31 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
     }
   }
 
-  getPageView() {
+  static getSetterConfig(): SetterConfig {
+    return {
+      __setters: {
+        setVisibility: {
+          path: "isVisible",
+          type: "boolean",
+        },
+        setDisabled: {
+          path: "isDisabled",
+          type: "boolean",
+        },
+        setRequired: {
+          path: "isRequired",
+          type: "boolean",
+        },
+        setValue: {
+          path: "defaultCheckedState",
+          type: "boolean",
+          accessor: "isChecked",
+        },
+      },
+    };
+  }
+
+  getWidgetView() {
     return (
       <CheckboxComponent
         accentColor={this.props.accentColor}
@@ -323,6 +432,7 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
         isChecked={!!this.props.isChecked}
         isDisabled={this.props.isDisabled}
         isDynamicHeightEnabled={isAutoHeightEnabledForWidget(this.props)}
+        isLabelInline={this.isAutoLayoutMode}
         isLoading={this.props.isLoading}
         isRequired={this.props.isRequired}
         key={this.props.widgetId}
@@ -331,6 +441,7 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
         labelStyle={this.props.labelStyle}
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
+        minHeight={this.props.minHeight}
         onCheckChange={this.onCheckChange}
         widgetId={this.props.widgetId}
       />
@@ -350,10 +461,6 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
       },
     });
   };
-
-  static getWidgetType(): WidgetType {
-    return "CHECKBOX_WIDGET";
-  }
 }
 
 export interface CheckboxWidgetProps extends WidgetProps {

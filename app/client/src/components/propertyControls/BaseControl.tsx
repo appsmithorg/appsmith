@@ -8,6 +8,12 @@ import type { PropertyPaneControlConfig } from "constants/PropertyControlConstan
 import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 
+export type ControlMethods = Record<
+  "canDisplayValueInUI" | "shouldValidateValueOnDynamicPropertyOff",
+  | typeof BaseControl.canDisplayValueInUI
+  | typeof BaseControl.shouldValidateValueOnDynamicPropertyOff
+>;
+
 // eslint-disable-next-line @typescript-eslint/ban-types
 class BaseControl<P extends ControlProps, S = {}> extends Component<P, S> {
   shoudUpdateProperty(propertyValue: unknown) {
@@ -66,6 +72,16 @@ class BaseControl<P extends ControlProps, S = {}> extends Component<P, S> {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   static canDisplayValueInUI(config: ControlData, value: any): boolean {
     return false;
+  }
+
+  //checks whether we need to validate the value when swtiching from js mode to non js mode
+  static shouldValidateValueOnDynamicPropertyOff(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    config?: ControlData,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    value?: any,
+  ): boolean {
+    return true;
   }
 
   // Only applicable for JSONFormComputeControl & ComputeTablePropertyControl

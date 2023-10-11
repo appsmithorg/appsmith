@@ -4,17 +4,19 @@ import CodemirrorTernService from "utils/autocomplete/CodemirrorTernService";
 import KeyboardShortcuts from "constants/KeyboardShortcuts";
 import type { HintHelper } from "components/editorComponents/CodeEditor/EditorConfig";
 import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
-import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   checkIfCursorInsideBinding,
   isCursorOnEmptyToken,
 } from "components/editorComponents/CodeEditor/codeEditorUtils";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE_VALUE } from "entities/DataTree/dataTreeFactory";
 import { isEmpty, isString } from "lodash";
-import type { getAllDatasourceTableKeys } from "selectors/entitiesSelector";
-import { renderHint } from "./customSQLHint";
+import type { getAllDatasourceTableKeys } from "@appsmith/selectors/entitiesSelector";
+import {
+  filterCompletions,
+  getHintDetailsFromClassName,
+} from "./utils/sqlHint";
 
-export const bindingHint: HintHelper = (editor) => {
+export const bindingHintHelper: HintHelper = (editor) => {
   editor.setOption("extraKeys", {
     // @ts-expect-error: Types are not available
     ...editor.options.extraKeys,
@@ -44,14 +46,14 @@ export const bindingHint: HintHelper = (editor) => {
 
       const entityType = entityInformation?.entityType;
       let shouldShow = false;
-      if (entityType === ENTITY_TYPE.JSACTION) {
+      if (entityType === ENTITY_TYPE_VALUE.JSACTION) {
         shouldShow = true;
       } else {
         shouldShow = checkIfCursorInsideBinding(editor);
       }
       if (shouldShow) {
-        AnalyticsUtil.logEvent("AUTO_COMPLETE_SHOW", {});
         CodemirrorTernService.complete(editor);
+
         return true;
       }
       // @ts-expect-error: Types are not available
@@ -76,8 +78,8 @@ class SqlHintHelper {
   constructor() {
     this.hinter = this.hinter.bind(this);
     this.setDatasourceTableKeys = this.setDatasourceTableKeys.bind(this);
-    this.addCustomRendererToCompletions =
-      this.addCustomRendererToCompletions.bind(this);
+    this.addCustomAttributesToCompletions =
+      this.addCustomAttributesToCompletions.bind(this);
     this.generateTables = this.generateTables.bind(this);
   }
 
@@ -94,10 +96,15 @@ class SqlHintHelper {
         if (!showHints) return false;
         editor.showHint({
           hint: () => {
+            editor.on("mousedown", () => {
+              // @ts-expect-error: Types are not available
+              editor.closeHint();
+            });
             return completions;
           },
           completeSingle: false,
           alignWithWord: false,
+          closeOnUnfocus: true,
           extraKeys: {
             Tab: (editor: CodeMirror.Editor, handle) => {
               handle.pick();
@@ -122,11 +129,19 @@ class SqlHintHelper {
     return editorMode?.name === EditorModes.SQL;
   }
 
-  addCustomRendererToCompletions(completions: Hints): Hints {
+  addCustomAttributesToCompletions(completions: Hints): Hints {
     completions.list = completions.list.map((completion) => {
       if (isString(completion)) return completion;
-      completion.render = (LiElement, data, currentHint) => {
-        renderHint(LiElement, currentHint.text, currentHint.className);
+      completion.render = (LiElement, _data, { className, text }) => {
+        const { hintType, iconBgType, iconText } = getHintDetailsFromClassName(
+          text,
+          className,
+        );
+        LiElement.setAttribute("hinttype", hintType);
+        LiElement.setAttribute("icontext", iconText);
+        LiElement.classList.add("cm-sql-hint");
+        LiElement.classList.add(`cm-sql-hint-${iconBgType}`);
+        LiElement.innerHTML = text;
       };
       return completion;
     });
@@ -137,12 +152,13 @@ class SqlHintHelper {
     const noHints = { showHints: false, completions: null } as const;
     if (isCursorOnEmptyToken(editor) || !this.isSqlMode(editor)) return noHints;
     // @ts-expect-error: No types available
-    const completions: Hints = CodeMirror.hint.sql(editor, {
+    let completions: Hints = CodeMirror.hint.sql(editor, {
       tables: this.tables,
     });
     if (isEmpty(completions.list)) return noHints;
+    completions = filterCompletions(completions);
     return {
-      completions: this.addCustomRendererToCompletions(completions),
+      completions: this.addCustomAttributesToCompletions(completions),
       showHints: true,
     };
   }

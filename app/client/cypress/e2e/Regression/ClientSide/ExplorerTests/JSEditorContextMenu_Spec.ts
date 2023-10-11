@@ -1,62 +1,68 @@
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-
-const ee = ObjectsRegistry.EntityExplorer,
-  jsEditor = ObjectsRegistry.JSEditor;
+import {
+  entityExplorer,
+  jsEditor,
+  entityItems,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Validate basic operations on Entity explorer JSEditor structure", () => {
   const pageId = "Page1";
 
   it("1. Validate JSObject creation & Run", () => {
     jsEditor.CreateJSObject('return "Hello World";');
-    ee.ExpandCollapseEntity("Queries/JS");
-    ee.AssertEntityPresenceInExplorer("JSObject1");
+    entityExplorer.ExpandCollapseEntity("Queries/JS");
+    entityExplorer.AssertEntityPresenceInExplorer("JSObject1");
     jsEditor.ValidateDefaultJSObjProperties("JSObject1");
 
     //Validate Rename JSObject from Form Header
     jsEditor.RenameJSObjFromPane("RenamedJSObject");
-    ee.AssertEntityPresenceInExplorer("RenamedJSObject");
+    entityExplorer.AssertEntityPresenceInExplorer("RenamedJSObject");
     jsEditor.ValidateDefaultJSObjProperties("RenamedJSObject");
 
     // Validate Copy JSObject
-    ee.ActionContextMenuByEntityName("RenamedJSObject", "Copy to page", pageId);
+    entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: "RenamedJSObject",
+      action: "Copy to page",
+      subAction: pageId,
+      toastToValidate: "copied to page",
+    });
     cy.wait("@createNewJSCollection").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       201,
     );
-    ee.AssertEntityPresenceInExplorer("RenamedJSObjectCopy");
+    entityExplorer.AssertEntityPresenceInExplorer("RenamedJSObjectCopy");
     jsEditor.ValidateDefaultJSObjProperties("RenamedJSObjectCopy");
 
     //Validate Rename JSObject from Entity Explorer
     jsEditor.RenameJSObjFromExplorer("RenamedJSObject", "ExplorerRenamed");
-    ee.AssertEntityPresenceInExplorer("ExplorerRenamed");
+    entityExplorer.AssertEntityPresenceInExplorer("ExplorerRenamed");
     jsEditor.ValidateDefaultJSObjProperties("ExplorerRenamed");
   });
 
   it("2. Validate Move JSObject", function () {
     const newPageId = "Page2";
-    ee.AddNewPage();
-    ee.AssertEntityPresenceInExplorer(newPageId);
-    ee.SelectEntityByName(pageId);
-    ee.ActionContextMenuByEntityName(
-      "RenamedJSObjectCopy",
-      "Move to page",
-      newPageId,
-    );
-    ee.SelectEntityByName(newPageId);
-    ee.ExpandCollapseEntity("Queries/JS");
-    ee.AssertEntityPresenceInExplorer("RenamedJSObjectCopy");
+    entityExplorer.AddNewPage();
+    entityExplorer.AssertEntityPresenceInExplorer(newPageId);
+    entityExplorer.SelectEntityByName(pageId);
+    entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: "RenamedJSObjectCopy",
+      action: "Move to page",
+      subAction: newPageId,
+      toastToValidate: "moved to page",
+    });
+    entityExplorer.SelectEntityByName(newPageId);
+    entityExplorer.ExpandCollapseEntity("Queries/JS");
+    entityExplorer.AssertEntityPresenceInExplorer("RenamedJSObjectCopy");
     jsEditor.ValidateDefaultJSObjProperties("RenamedJSObjectCopy");
   });
 
   it("3. Validate Deletion of JSObject", function () {
-    ee.SelectEntityByName(pageId);
-    ee.ActionContextMenuByEntityName(
-      "ExplorerRenamed",
-      "Delete",
-      "Are you sure?",
-      true,
-    );
-    ee.AssertEntityAbsenceInExplorer("ExplorerRenamed");
+    entityExplorer.SelectEntityByName(pageId);
+    entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: "ExplorerRenamed",
+      action: "Delete",
+      entityType: entityItems.JSObject,
+    });
+    entityExplorer.AssertEntityAbsenceInExplorer("ExplorerRenamed");
   });
 });

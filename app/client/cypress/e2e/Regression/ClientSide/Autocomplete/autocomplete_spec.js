@@ -1,15 +1,17 @@
-const dsl = require("../../../../fixtures/autocomp.json");
 const dynamicInputLocators = require("../../../../locators/DynamicInput.json");
+import {
+  entityExplorer,
+  agHelper,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Dynamic input autocomplete", () => {
   before(() => {
-    cy.addDsl(dsl);
+    agHelper.AddDsl("autocomp");
   });
+
   it("1. Opens autocomplete for bindings", () => {
-    cy.selectEntityByName("TestModal");
-    cy.wait(3000);
-    cy.selectEntityByName("Aditya");
-    cy.openPropertyPane("buttonwidget");
+    entityExplorer.SelectEntityByName("Aditya");
+    entityExplorer.SelectEntityByName("Button2", "TestModal");
     cy.testJsontext("label", "", {
       parseSpecialCharSequences: true,
     });
@@ -33,7 +35,6 @@ describe("Dynamic input autocomplete", () => {
         cy.get(`${dynamicInputLocators.hints} li`)
           .eq(1)
           .should("have.text", "Button1.text");
-
         cy.testJsontext("label", "", {
           parseSpecialCharSequences: true,
         });

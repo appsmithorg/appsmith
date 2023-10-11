@@ -105,6 +105,8 @@ export interface TableWidgetProps
   isAddRowInProgress: boolean;
   newRow: Record<string, unknown>;
   firstEditableColumnIdByOrder: string;
+  enableServerSideFiltering: boolean;
+  onTableFilterUpdate: string;
 }
 
 export enum TableVariantTypes {

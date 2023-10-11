@@ -1,15 +1,69 @@
-import type { WidgetType } from "constants/WidgetConstants";
 import React from "react";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
 import DividerComponent from "../component";
-
 import { ValidationTypes } from "constants/WidgetValidation";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
-import type { AutocompletionDefinitions } from "widgets/constants";
-import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
+import { isAutoLayout } from "layoutSystems/autolayout/utils/flexWidgetUtils";
+import type { AutocompletionDefinitions } from "WidgetProvider/constants";
+import type { SetterConfig } from "entities/AppTheming";
+import { Colors } from "constants/Colors";
+import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
+import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
+import IconSVG from "../icon.svg";
+
+import { WIDGET_TAGS } from "constants/WidgetConstants";
 
 class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
+  static type = "DIVIDER_WIDGET";
+
+  static getConfig() {
+    return {
+      name: "Divider",
+      iconSVG: IconSVG,
+      tags: [WIDGET_TAGS.LAYOUT],
+      searchTags: ["line"],
+    };
+  }
+
+  static getDefaults() {
+    return {
+      rows: 4,
+      columns: 20,
+      widgetName: "Divider",
+      orientation: "horizontal",
+      capType: "nc",
+      capSide: 0,
+      strokeStyle: "solid",
+      dividerColor: Colors.GRAY,
+      thickness: 2,
+      isVisible: true,
+      version: 1,
+      animateLoading: true,
+      responsiveBehavior: ResponsiveBehavior.Fill,
+      minWidth: FILL_WIDGET_MIN_WIDTH,
+    };
+  }
+
+  static getAutoLayoutConfig() {
+    return {
+      widgetSize: [
+        {
+          viewportMinWidth: 0,
+          configuration: () => {
+            return {
+              minWidth: "280px",
+              minHeight: "40px",
+            };
+          },
+        },
+      ],
+      disableResizeHandles: {
+        vertical: true,
+      },
+    };
+  }
+
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
     return {
       "!doc": "Divider is a simple UI widget used as a separator",
@@ -21,6 +75,17 @@ class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
       strokeStyle: "string",
       dividerColor: "string",
       thickness: "number",
+    };
+  }
+
+  static getSetterConfig(): SetterConfig {
+    return {
+      __setters: {
+        setVisibility: {
+          path: "isVisible",
+          type: "boolean",
+        },
+      },
     };
   }
 
@@ -65,6 +130,7 @@ class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
             propertyName: "orientation",
             label: "Direction",
             controlType: "ICON_TABS",
+            defaultValue: "horizontal",
             fullWidth: true,
             options: [
               {
@@ -203,7 +269,7 @@ class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
                 value: 1,
               },
             ],
-            defaultValue: "0",
+            defaultValue: 0,
             isBindProperty: false,
             isTriggerProperty: false,
           },
@@ -212,7 +278,7 @@ class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
     ];
   }
 
-  getPageView() {
+  getWidgetView() {
     return (
       <DividerComponent
         capSide={this.props.capSide}
@@ -223,10 +289,6 @@ class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
         thickness={this.props.thickness}
       />
     );
-  }
-
-  static getWidgetType(): WidgetType {
-    return "DIVIDER_WIDGET";
   }
 }
 

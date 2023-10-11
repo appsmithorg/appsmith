@@ -8,7 +8,7 @@ public class StringOutputStream extends OutputStream {
 
     @Override
     public void write(int b) throws IOException {
-        this.string.append((char) b );
+        this.string.append((char) b);
     }
 
     public String toString() {

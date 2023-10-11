@@ -47,36 +47,37 @@ public class GitFileUtilsTest {
 
     private static final Path localRepoPath = Path.of("localRepoPath");
     private static final String filePath = "test_assets/ImportExportServiceTest/valid-application.json";
+
     @MockBean
     FileInterface fileInterface;
+
     @Autowired
     GitFileUtils gitFileUtils;
+
     @Autowired
     AnalyticsService analyticsService;
+
     @Autowired
     SessionUserService userService;
+
     @Autowired
     Gson gson;
 
     private Mono<ApplicationJson> createAppJson(String filePath) {
         FilePart filePart = Mockito.mock(FilePart.class, Mockito.RETURNS_DEEP_STUBS);
-        Flux<DataBuffer> dataBufferFlux = DataBufferUtils
-                .read(
-                        new ClassPathResource(filePath),
-                        new DefaultDataBufferFactory(),
-                        4096)
+        Flux<DataBuffer> dataBufferFlux = DataBufferUtils.read(
+                        new ClassPathResource(filePath), new DefaultDataBufferFactory(), 4096)
                 .cache();
 
         Mockito.when(filePart.content()).thenReturn(dataBufferFlux);
         Mockito.when(filePart.headers().getContentType()).thenReturn(MediaType.APPLICATION_JSON);
 
-        Mono<String> stringifiedFile = DataBufferUtils.join(filePart.content())
-                .map(dataBuffer -> {
-                    byte[] data = new byte[dataBuffer.readableByteCount()];
-                    dataBuffer.read(data);
-                    DataBufferUtils.release(dataBuffer);
-                    return new String(data);
-                });
+        Mono<String> stringifiedFile = DataBufferUtils.join(filePart.content()).map(dataBuffer -> {
+            byte[] data = new byte[dataBuffer.readableByteCount()];
+            dataBuffer.read(data);
+            DataBufferUtils.release(dataBuffer);
+            return new String(data);
+        });
 
         return stringifiedFile
                 .map(data -> {
@@ -90,19 +91,18 @@ public class GitFileUtilsTest {
         ApplicationJson validAppJson = createAppJson(filePath).block();
         ApplicationGitReference applicationGitReference = gitFileUtils.createApplicationReference(validAppJson);
 
-        List<String> pageNames = validAppJson.getPageList()
-                .stream()
+        List<String> pageNames = validAppJson.getPageList().stream()
                 .map(newPage -> newPage.getUnpublishedPage().getName())
                 .collect(Collectors.toList());
 
-        List<String> actionNames = validAppJson.getActionList()
-                .stream()
-                .map(newAction -> newAction.getUnpublishedAction().getValidName().replace(".", "-"))
+        List<String> actionNames = validAppJson.getActionList().stream()
+                .map(newAction ->
+                        newAction.getUnpublishedAction().getValidName().replace(".", "-"))
                 .collect(Collectors.toList());
 
-        List<String> collectionNames = validAppJson.getActionCollectionList()
-                .stream()
-                .map(actionCollection -> actionCollection.getUnpublishedCollection().getName())
+        List<String> collectionNames = validAppJson.getActionCollectionList().stream()
+                .map(actionCollection ->
+                        actionCollection.getUnpublishedCollection().getName())
                 .collect(Collectors.toList());
 
         Map<String, Object> actions = applicationGitReference.getActions();
@@ -135,20 +135,18 @@ public class GitFileUtilsTest {
     public void getSerializableResource_withDeletedEntities_excludeDeletedEntities() {
         ApplicationJson validAppJson = createAppJson(filePath).block();
 
-        NewPage deletedPage = validAppJson.getPageList().get(validAppJson.getPageList().size() - 1);
-        deletedPage
-                .getUnpublishedPage()
-                .setDeletedAt(Instant.now());
+        NewPage deletedPage =
+                validAppJson.getPageList().get(validAppJson.getPageList().size() - 1);
+        deletedPage.getUnpublishedPage().setDeletedAt(Instant.now());
 
-        NewAction deletedAction = validAppJson.getActionList().get(validAppJson.getActionList().size() - 1);
-        deletedAction
-                .getUnpublishedAction()
-                .setDeletedAt(Instant.now());
+        NewAction deletedAction =
+                validAppJson.getActionList().get(validAppJson.getActionList().size() - 1);
+        deletedAction.getUnpublishedAction().setDeletedAt(Instant.now());
 
-        ActionCollection deletedCollection = validAppJson.getActionCollectionList().get(validAppJson.getActionCollectionList().size() - 1);
-        deletedCollection
-                .getUnpublishedCollection()
-                .setDeletedAt(Instant.now());
+        ActionCollection deletedCollection = validAppJson
+                .getActionCollectionList()
+                .get(validAppJson.getActionCollectionList().size() - 1);
+        deletedCollection.getUnpublishedCollection().setDeletedAt(Instant.now());
 
         ApplicationGitReference applicationGitReference = gitFileUtils.createApplicationReference(validAppJson);
 
@@ -157,7 +155,8 @@ public class GitFileUtilsTest {
             String[] names = entry.getKey().split(NAME_SEPARATOR);
             final String queryName = names[0].replace(".", "-");
             assertThat(queryName).isNotEmpty();
-            assertThat(deletedAction.getUnpublishedAction().getValidName().replace(".", "-")).isNotEqualTo(queryName);
+            assertThat(deletedAction.getUnpublishedAction().getValidName().replace(".", "-"))
+                    .isNotEqualTo(queryName);
         }
 
         Map<String, Object> actionsCollections = applicationGitReference.getActionCollections();
@@ -183,13 +182,14 @@ public class GitFileUtilsTest {
     public void saveApplicationToLocalRepo_allResourcesArePresent_removePublishedResources() {
         ApplicationJson validAppJson = createAppJson(filePath).block();
 
-        Mockito.when(fileInterface.saveApplicationToGitRepo(Mockito.any(Path.class), Mockito.any(ApplicationGitReference.class), Mockito.anyString()))
+        Mockito.when(fileInterface.saveApplicationToGitRepo(
+                        Mockito.any(Path.class), Mockito.any(ApplicationGitReference.class), Mockito.anyString()))
                 .thenReturn(Mono.just(Path.of("orgId", "appId", "repoName")));
 
-        Mono<Path> resultMono = gitFileUtils.saveApplicationToLocalRepo(Path.of("orgId/appId/repoName"), validAppJson, "gitFileTest");
+        Mono<Path> resultMono =
+                gitFileUtils.saveApplicationToLocalRepo(Path.of("orgId/appId/repoName"), validAppJson, "gitFileTest");
 
-        StepVerifier
-                .create(resultMono)
+        StepVerifier.create(resultMono)
                 .assertNext(path -> {
                     validAppJson.getPageList().forEach(newPage -> {
                         assertThat(newPage.getUnpublishedPage()).isNotNull();
@@ -235,16 +235,15 @@ public class GitFileUtilsTest {
         applicationReference.setActions(actionRef);
         applicationReference.setActionCollections(actionCollectionRef);
 
-        Mockito.when(fileInterface.reconstructApplicationReferenceFromGitRepo(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+        Mockito.when(fileInterface.reconstructApplicationReferenceFromGitRepo(
+                        Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just(applicationReference));
 
-        Mono<ApplicationJson> resultMono = gitFileUtils.reconstructApplicationJsonFromGitRepo(
-                        "orgId", "appId", "repoName", "branch"
-                )
+        Mono<ApplicationJson> resultMono = gitFileUtils
+                .reconstructApplicationJsonFromGitRepo("orgId", "appId", "repoName", "branch")
                 .cache();
 
-        StepVerifier
-                .create(resultMono)
+        StepVerifier.create(resultMono)
                 .assertNext(applicationJson1 -> {
                     applicationJson1.getPageList().forEach(newPage -> {
                         assertThat(newPage.getUnpublishedPage()).isNotNull();
@@ -254,7 +253,8 @@ public class GitFileUtilsTest {
 
                         // Check if the published versions are deep copy of the unpublished version and updating any
                         // will not affect the other
-                        final String unpublishedName = newPage.getUnpublishedPage().getName();
+                        final String unpublishedName =
+                                newPage.getUnpublishedPage().getName();
                         newPage.getUnpublishedPage().setName("updatedName");
 
                         assertThat(newPage.getPublishedPage().getName()).isEqualTo(unpublishedName);
@@ -264,23 +264,26 @@ public class GitFileUtilsTest {
                         assertThat(newAction.getUnpublishedAction()).isNotNull();
                         assertThat(newAction.getPublishedAction()).isNotEqualTo(newAction.getUnpublishedAction());
 
-                        final String unpublishedName = newAction.getUnpublishedAction().getName();
+                        final String unpublishedName =
+                                newAction.getUnpublishedAction().getName();
                         newAction.getUnpublishedAction().setName("updatedName");
                         assertThat(newAction.getPublishedAction().getName()).isEqualTo(unpublishedName);
                         assertThat(newAction.getUnpublishedAction().getName()).isNotEqualTo(unpublishedName);
                     });
                     applicationJson1.getActionCollectionList().forEach(actionCollection -> {
                         assertThat(actionCollection.getUnpublishedCollection()).isNotNull();
-                        assertThat(actionCollection.getPublishedCollection()).isNotEqualTo(actionCollection.getUnpublishedCollection());
+                        assertThat(actionCollection.getPublishedCollection())
+                                .isNotEqualTo(actionCollection.getUnpublishedCollection());
 
-                        final String unpublishedName = actionCollection.getUnpublishedCollection().getName();
+                        final String unpublishedName =
+                                actionCollection.getUnpublishedCollection().getName();
                         actionCollection.getUnpublishedCollection().setName("updatedName");
-                        assertThat(actionCollection.getPublishedCollection().getName()).isEqualTo(unpublishedName);
-                        assertThat(actionCollection.getUnpublishedCollection().getName()).isNotEqualTo(unpublishedName);
+                        assertThat(actionCollection.getPublishedCollection().getName())
+                                .isEqualTo(unpublishedName);
+                        assertThat(actionCollection.getUnpublishedCollection().getName())
+                                .isNotEqualTo(unpublishedName);
                     });
                 })
                 .verifyComplete();
-
     }
-
 }

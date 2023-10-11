@@ -1,7 +1,18 @@
 import type { MutableRefObject } from "react";
 import React, { useCallback, useRef } from "react";
 import styled from "styled-components";
-import { Button, Icon, Spinner, toast, Tooltip } from "design-system";
+import {
+  Button,
+  Icon,
+  Popover,
+  PopoverBody,
+  PopoverContent,
+  PopoverHeader,
+  PopoverTrigger,
+  Spinner,
+  toast,
+  Tooltip,
+} from "design-system";
 import Entity, { AddButtonWrapper, EntityClassNames } from "../Entity";
 import {
   createMessage,
@@ -12,21 +23,28 @@ import {
   selectInstallationStatus,
   selectIsInstallerOpen,
   selectLibrariesForExplorer,
-} from "selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import { InstallState } from "reducers/uiReducers/libraryReducer";
 import { Collapse } from "@blueprintjs/core";
 import useClipboard from "utils/hooks/useClipboard";
 import {
+  clearInstalls,
   toggleInstaller,
   uninstallLibraryInit,
 } from "actions/JSLibraryActions";
 import EntityAddButton from "../Entity/AddButton";
 import type { TJSLibrary } from "workers/common/JSLibrary";
-import { getPagePermissions } from "selectors/editorSelectors";
-import { hasCreateActionPermission } from "@appsmith/utils/permissionHelpers";
+import {
+  getCurrentPageId,
+  getPagePermissions,
+} from "selectors/editorSelectors";
 import recommendedLibraries from "./recommendedLibraries";
 import { useTransition, animated } from "react-spring";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
+import { Installer } from "./Installer";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { getHasCreateActionPermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 
 const docsURLMap = recommendedLibraries.reduce((acc, lib) => {
   acc[lib.url] = lib.docsURL;
@@ -225,7 +243,7 @@ function LibraryEntity({ lib }: { lib: TJSLibrary }) {
           name="right-arrow-2"
           size={"md"}
         />
-        <div className="flex items-center flex-start flex-1 overflow-hidden">
+        <div className="flex items-center flex-1 overflow-hidden flex-start">
           <Name>{lib.name}</Name>
           {docsURL && (
             <div className="share">
@@ -246,7 +264,7 @@ function LibraryEntity({ lib }: { lib: TJSLibrary }) {
         <PrimaryCTA lib={lib} />
       </div>
       <Collapse className="text-xs" isOpen={isOpen}>
-        <div className="content pr-2">
+        <div className="pr-2 content">
           Available as{" "}
           <div className="accessor">
             {lib.accessor[lib.accessor.length - 1]}{" "}
@@ -266,6 +284,7 @@ function LibraryEntity({ lib }: { lib: TJSLibrary }) {
 }
 
 function JSDependencies() {
+  const pageId = useSelector(getCurrentPageId) || "";
   const libraries = useSelector(selectLibrariesForExplorer);
   const transitions = useTransition(libraries, {
     keys: (lib) => lib.name,
@@ -283,7 +302,12 @@ function JSDependencies() {
 
   const pagePermissions = useSelector(getPagePermissions);
 
-  const canCreateActions = hasCreateActionPermission(pagePermissions);
+  const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+
+  const canCreateActions = getHasCreateActionPermission(
+    isFeatureEnabled,
+    pagePermissions,
+  );
 
   const isAirgappedInstance = isAirgapped();
 
@@ -295,23 +319,46 @@ function JSDependencies() {
     <Entity
       className={"group libraries"}
       customAddButton={
-        <Tooltip
-          content={createMessage(customJSLibraryMessages.ADD_JS_LIBRARY)}
-          isDisabled={isOpen}
-          placement="right"
-          {...(isOpen ? { visible: false } : {})}
+        <Popover
+          onOpenChange={() => {
+            dispatch(clearInstalls());
+            dispatch(toggleInstaller(false));
+          }}
+          open={isOpen}
         >
-          <AddButtonWrapper>
-            <EntityAddButton
-              className={`${
-                EntityClassNames.ADD_BUTTON
-              } group libraries h-100 ${isOpen ? "selected" : ""}`}
-              onClick={openInstaller}
-            />
-          </AddButtonWrapper>
-        </Tooltip>
+          <Tooltip
+            content={createMessage(customJSLibraryMessages.ADD_JS_LIBRARY)}
+            isDisabled={isOpen}
+            placement="right"
+            {...(isOpen ? { visible: false } : {})}
+          >
+            <PopoverTrigger>
+              <AddButtonWrapper>
+                <EntityAddButton
+                  className={`${
+                    EntityClassNames.ADD_BUTTON
+                  } group libraries h-100 ${isOpen ? "selected" : ""}`}
+                  onClick={openInstaller}
+                />
+              </AddButtonWrapper>
+            </PopoverTrigger>
+          </Tooltip>
+          <PopoverContent
+            align="start"
+            className="z-[25]"
+            side="left"
+            size="md"
+          >
+            <PopoverHeader className="sticky top-0" isClosable>
+              {createMessage(customJSLibraryMessages.ADD_JS_LIBRARY)}
+            </PopoverHeader>
+            <PopoverBody className={"!overflow-y-clip"}>
+              <Installer />
+            </PopoverBody>
+          </PopoverContent>
+        </Popover>
       }
-      entityId="library_section"
+      entityId={pageId + "_library_section"}
       icon={null}
       isDefaultExpanded={isOpen}
       isSticky

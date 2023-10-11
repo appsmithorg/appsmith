@@ -1,5 +1,3 @@
-import { ObjectsRegistry } from "../../../support/Objects/Registry";
-const { ApiPage, DataSources, EntityExplorer } = ObjectsRegistry;
 import * as _ from "../../../support/Objects/ObjectsCore";
 
 describe("Validate generate CRUD operation by creating a datasource from generate CRUD form", () => {
@@ -7,12 +5,11 @@ describe("Validate generate CRUD operation by creating a datasource from generat
     "excludeForAirgap",
     "1. Generated CRUD app should work when there are no entities in the page & when there are entities in the current page",
     () => {
-      DataSources.GeneratePageWithMockDB();
-
+      _.dataSources.GeneratePageWithMockDB();
       //when there are entities in the current page
-      EntityExplorer.AddNewPage();
-      ApiPage.CreateApi();
-      DataSources.GeneratePageWithMockDB();
+      _.entityExplorer.AddNewPage();
+      _.apiPage.CreateApi();
+      _.dataSources.GeneratePageWithMockDB();
     },
   );
   it(
@@ -21,12 +18,12 @@ describe("Validate generate CRUD operation by creating a datasource from generat
     () => {
       _.dataSources.CreateDataSource("Postgres");
       cy.get("@dsName").then(($dsName) => {
-        DataSources.GeneratePageWithDB($dsName, "public.city");
+        _.dataSources.GeneratePageWithDB($dsName, "public.city");
 
         //when there are entities in the current page
-        EntityExplorer.AddNewPage();
-        ApiPage.CreateApi();
-        DataSources.GeneratePageWithDB($dsName, "public.city");
+        _.entityExplorer.AddNewPage();
+        _.apiPage.CreateApi();
+        _.dataSources.GeneratePageWithDB($dsName, "public.city");
       });
     },
   );

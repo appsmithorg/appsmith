@@ -15,6 +15,8 @@ import { useApisQueriesAndJsActionOptions } from "./helpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getActionTypeLabel } from "./viewComponents/ActionBlockTree/utils";
 import { AppsmithFunction } from "./constants";
+import { isEmpty } from "lodash";
+import styled from "styled-components";
 
 export const ActionCreatorContext = React.createContext<{
   label: string;
@@ -154,6 +156,9 @@ const ActionCreator = React.forwardRef(
             actionType: getActionTypeLabel(actionType),
             code: newValueWithoutMoustache,
             callback: null,
+            widgetName: props.widgetName,
+            propertyName: props.propertyName,
+            widgetType: props.widgetType,
           });
         } else {
           const prevRootCallExpression = getCallExpressions(
@@ -173,6 +178,9 @@ const ActionCreator = React.forwardRef(
               actionType: getActionTypeLabel(actionType),
               code: newValueWithoutMoustache,
               callback: null,
+              widgetName: props.widgetName,
+              propertyName: props.propertyName,
+              widgetType: props.widgetType,
             });
           }
         }
@@ -187,6 +195,9 @@ const ActionCreator = React.forwardRef(
           actionType: getActionTypeLabel(actionType),
           code: newActions[id],
           callback: null,
+          widgetName: props.widgetName,
+          propertyName: props.propertyName,
+          widgetType: props.widgetType,
         });
         delete newActions[id];
         !actions[id] && setActions(newActions);
@@ -223,6 +234,7 @@ const ActionCreator = React.forwardRef(
       const hasAnEmptyBlock = Object.entries(actions).find(([, action]) =>
         isEmptyBlock(action),
       );
+
       if (hasAnEmptyBlock) {
         selectBlock(hasAnEmptyBlock[0]);
         const children = ref.current?.children || [];
@@ -243,16 +255,33 @@ const ActionCreator = React.forwardRef(
       [selectedBlockId, props.action, selectBlock],
     );
 
+    const EmptyState = styled.div`
+      padding: var(--ads-v2-spaces-3);
+      border-radius: var(--ads-v2-border-radius);
+      border: solid 0 var(--ads-v2-color-gray-300);
+      background-color: var(--ads-v2-color-gray-100);
+      color: var(--ads-v2-color-gray-400);
+      font-size: 14px;
+    `;
+
+    if (isEmpty(actions)) {
+      return <EmptyState className="mt-1">No action</EmptyState>;
+    }
+
     return (
       <ActionCreatorContext.Provider value={contextValue}>
         <div className="flex flex-col gap-[2px]" ref={ref}>
           {Object.entries(actions).map(([id, value], index) => (
             <Action
               code={value}
+              dataTreePath={props.dataTreePath}
               id={id}
               index={index}
               key={id}
               onChange={handleActionChange(id)}
+              propertyName={props.propertyName}
+              widgetName={props.widgetName}
+              widgetType={props.widgetType}
             />
           ))}
         </div>

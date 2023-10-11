@@ -1,4 +1,4 @@
-import { removeClassFromDocumentBody } from "pages/utils";
+import { removeClassFromDocumentRoot } from "pages/utils";
 import React, { useState, useEffect } from "react";
 import { FilePickerActionStatus } from "entities/Datasource";
 import { useDispatch } from "react-redux";
@@ -8,7 +8,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   createMessage,
   GOOGLE_SHEETS_FILE_PICKER_TITLE,
-} from "ce/constants/messages";
+} from "@appsmith/constants/messages";
 
 interface Props {
   datasourceId: string;
@@ -58,7 +58,6 @@ function GoogleSheetFilePicker({
       // When the reconnect modal the ads modal disables pointer events everywhere else.
       // To enable selection from the google sheets picker we set pointer events auto to it.
       if (!!element) {
-        element.style.opacity = "1";
         element.style.pointerEvents = "auto";
       }
       elements.forEach((element) => {
@@ -101,8 +100,6 @@ function GoogleSheetFilePicker({
   // Ref: https://github.com/appsmithorg/appsmith/issues/22753
   useEffect(() => {
     if (!!pickerVisible) {
-      removeClassFromDocumentBody(GOOGLE_SHEET_FILE_PICKER_OVERLAY_CLASS);
-
       // Event would be emitted when file picker initialisation is done,
       // but its either showing cookies permission page or the files to select
       AnalyticsUtil.logEvent("GOOGLE_SHEET_FILE_PICKER_INITIATED");
@@ -153,6 +150,7 @@ function GoogleSheetFilePicker({
       data.action === FilePickerActionStatus.CANCEL ||
       data.action === FilePickerActionStatus.PICKED
     ) {
+      removeClassFromDocumentRoot(GOOGLE_SHEET_FILE_PICKER_OVERLAY_CLASS);
       setPickerVisible(false);
       const fileIds = data?.docs?.map((element: any) => element.id) || [];
       dispatch(

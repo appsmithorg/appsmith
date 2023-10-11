@@ -1,22 +1,20 @@
 const dsl = require("../../../../../../fixtures/Listv2/simpleLargeListv2.json");
 const dslWithCurrencyWidget = require("../../../../../../fixtures/Listv2/simpleListWithCurrencyWidget.json");
-const publish = require("../../../../../../locators/publishWidgetspage.json");
-const widgetsPage = require("../../../../../../locators/Widgets.json");
-const commonlocators = require("../../../../../../locators/commonlocators.json");
-
-import { ObjectsRegistry } from "../../../../../../support/Objects/Registry";
-
-const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
-const widgetSelectorByType = (name) => `.t--widget-${name}`;
-
-let agHelper = ObjectsRegistry.AggregateHelper;
+import {
+  agHelper,
+  locators,
+  entityExplorer,
+  propPane,
+  draggableWidgets,
+  deployMode,
+} from "../../../../../../support/Objects/ObjectsCore";
 
 // TODO: Test for Reset functionality
 const items = JSON.parse(dsl.dsl.children[0].listData);
 
 describe("Input Widgets", function () {
   before(() => {
-    cy.addDsl(dsl);
+    agHelper.AddDsl("Listv2/simpleLargeListv2");
   });
 
   beforeEach(() => {
@@ -28,119 +26,135 @@ describe("Input Widgets", function () {
   });
 
   it("1. Input Widgets default value", function () {
-    cy.dragAndDropToWidget("currencyinputwidget", "listwidgetv2", {
-      x: 50,
-      y: 50,
-    });
-    cy.dragAndDropToWidget("phoneinputwidget", "listwidgetv2", {
-      x: 50,
-      y: 120,
-    });
-
-    cy.dragAndDropToWidget("inputwidgetv2", "listwidgetv2", {
-      x: 50,
-      y: 200,
-    });
-    cy.openPropertyPane("currencyinputwidget");
-    cy.updateCodeInput(
-      ".t--property-control-defaultvalue",
-      `{{currentItem.id}}`,
+    entityExplorer.DragDropWidgetNVerify(
+      draggableWidgets.CURRENCY_INPUT,
+      200,
+      100,
     );
-    cy.togglebar(commonlocators.requiredCheckbox);
+    propPane.UpdatePropertyFieldValue("Default value", "{{currentItem.id}}");
+    propPane.TogglePropertyState("Required", "On");
 
-    cy.openPropertyPane("phoneinputwidget");
-    cy.updateCodeInput(
-      ".t--property-control-defaultvalue",
-      `{{currentItem.phoneNumber}}`,
+    entityExplorer.DragDropWidgetNVerify(
+      draggableWidgets.PHONE_INPUT,
+      200,
+      200,
     );
-    cy.togglebar(commonlocators.requiredCheckbox);
-    cy.togglebarDisable(commonlocators.EnableFormatting);
-
-    cy.openPropertyPane("inputwidgetv2");
-    cy.updateCodeInput(
-      ".t--property-control-defaultvalue",
-      `{{currentItem.email}}`,
+    propPane.UpdatePropertyFieldValue(
+      "Default value",
+      "{{currentItem.phoneNumber}}",
     );
-    cy.togglebar(commonlocators.requiredCheckbox);
+    propPane.TogglePropertyState("Required", "On");
+    propPane.TogglePropertyState("Enable formatting", "Off");
 
-    cy.get(publish.inputWidget + " " + "input")
-      .invoke("attr", "value")
-      .should("contain", items[0].email);
-    cy.get(widgetsPage.currencyInputWidget + " " + "input")
-      .invoke("attr", "value")
-      .should("contain", items[0].id);
-    cy.get(widgetsPage.phoneInputWidget + " " + "input")
-      .invoke("attr", "value")
-      .should("contain", items[0].phoneNumber);
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.INPUT_V2, 200, 300);
+    propPane.UpdatePropertyFieldValue("Default value", "{{currentItem.email}}");
+    propPane.TogglePropertyState("Required", "On");
+
+    agHelper.AssertText(
+      locators._widgetInCanvas(draggableWidgets.INPUT_V2) +
+        " " +
+        locators._inputField,
+      "val",
+      items[0].email,
+    );
+
+    agHelper.AssertText(
+      locators._widgetInCanvas(draggableWidgets.CURRENCY_INPUT) +
+        " " +
+        locators._inputField,
+      "val",
+      items[0].id.toString(),
+    );
+    agHelper.AssertText(
+      locators._widgetInCanvas(draggableWidgets.PHONE_INPUT) +
+        " " +
+        locators._inputField,
+      "val",
+      items[0].phoneNumber.toString(),
+    );
   });
 
   it("2. Input Widgets isValid", function () {
     // Test for isValid === True
-    cy.dragAndDropToWidget("textwidget", "listwidgetv2", {
-      x: 350,
-      y: 50,
-    });
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.TEXT, 500, 100);
+    propPane.RenameWidget("Text1", "Currency_Widget");
+    agHelper.Sleep();
+    propPane.UpdatePropertyFieldValue(
+      "Text",
+      "{{currentView.CurrencyInput1.isValid}}",
+    );
+    agHelper.AssertText(
+      propPane._widgetToVerifyText("Currency_Widget"),
+      "text",
+      "true",
+    );
 
-    cy.RenameWidgetFromPropertyPane("textwidget", "Text1", "Input_Widget");
-    cy.wait(1000);
-    cy.testJsontext("text", `{{currentView.Input1.isValid}}`);
-    cy.get(`${widgetSelector("Input_Widget")} ${commonlocators.bodyTextStyle}`)
-      .first()
-      .should("have.text", "true");
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.TEXT, 500, 200);
+    propPane.RenameWidget("Text1", "PhoneInput_Widget");
+    agHelper.Sleep();
+    propPane.UpdatePropertyFieldValue(
+      "Text",
+      "{{currentView.PhoneInput1.isValid}}",
+    );
+    agHelper.AssertText(
+      propPane._widgetToVerifyText("PhoneInput_Widget"),
+      "text",
+      "true",
+    );
 
-    cy.dragAndDropToWidget("textwidget", "listwidgetv2", {
-      x: 350,
-      y: 120,
-    });
-
-    cy.RenameWidgetFromPropertyPane("textwidget", "Text1", "Currency_Widget");
-    cy.wait(1000);
-    cy.testJsontext("text", `{{currentView.CurrencyInput1.isValid}}`);
-    cy.get(
-      `${widgetSelector("Currency_Widget")} ${commonlocators.bodyTextStyle}`,
-    )
-      .first()
-      .should("have.text", "true");
-
-    cy.dragAndDropToWidget("textwidget", "listwidgetv2", {
-      x: 350,
-      y: 210,
-    });
-
-    cy.RenameWidgetFromPropertyPane("textwidget", "Text1", "PhoneInput_Widget");
-    cy.wait(1000);
-    cy.testJsontext("text", `{{currentView.PhoneInput1.isValid}}`);
-    cy.get(
-      `${widgetSelector("PhoneInput_Widget")} ${commonlocators.bodyTextStyle}`,
-    )
-      .first()
-      .should("have.text", "true");
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.TEXT, 500, 300);
+    propPane.RenameWidget("Text1", "Input_Widget");
+    agHelper.Sleep();
+    propPane.UpdatePropertyFieldValue("Text", "{{currentView.Input1.isValid}}");
+    agHelper.AssertText(
+      propPane._widgetToVerifyText("Input_Widget"),
+      "text",
+      "true",
+    );
 
     // Test for isValid === false
-    cy.get(`${widgetSelectorByType("inputwidgetv2")} input`).clear({
-      force: true,
-    });
-    cy.get(`${widgetSelector("Input_Widget")} ${commonlocators.bodyTextStyle}`)
-      .first()
-      .should("have.text", "false");
+    deployMode.DeployApp();
+    // cy.get(`${widgetSelectorByType("inputwidgetv2")} input`).clear({
+    //   force: true,
+    // });
+    agHelper.ClearTextField(
+      locators._widgetInDeployed(draggableWidgets.INPUT_V2) +
+        " " +
+        locators._inputField,
+      true,
+    );
+    agHelper.AssertText(
+      locators._widgetInDeployed(draggableWidgets.TEXT),
+      "text",
+      "false",
+      2,
+    );
 
-    cy.get(`${widgetSelectorByType("phoneinputwidget")} input`).clear({
-      force: true,
-    });
-    cy.get(
-      `${widgetSelector("PhoneInput_Widget")} ${commonlocators.bodyTextStyle}`,
-    )
-      .first()
-      .should("have.text", "false");
+    agHelper.ClearTextField(
+      locators._widgetInDeployed(draggableWidgets.PHONE_INPUT) +
+        " " +
+        locators._inputField,
+      true,
+    );
+    agHelper.AssertText(
+      locators._widgetInDeployed(draggableWidgets.TEXT),
+      "text",
+      "false",
+      1,
+    );
 
-    cy.get(`${widgetSelectorByType("currencyinputwidget")} input`).clear({
-      force: true,
-    });
-    cy.get(
-      `${widgetSelector("Currency_Widget")} ${commonlocators.bodyTextStyle}`,
-    )
-      .first()
-      .should("have.text", "false");
+    agHelper.ClearTextField(
+      locators._widgetInDeployed(draggableWidgets.CURRENCY_INPUT) +
+        " " +
+        locators._inputField,
+      true,
+    );
+    agHelper.AssertText(
+      locators._widgetInDeployed(draggableWidgets.TEXT),
+      "text",
+      "false",
+    );
+    deployMode.NavigateBacktoEditor();
   });
 
   it("3. Currency widget default value is retained over page change", () => {

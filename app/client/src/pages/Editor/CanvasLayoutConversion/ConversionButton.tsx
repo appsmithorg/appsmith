@@ -25,7 +25,7 @@ import {
 } from "actions/autoLayoutActions";
 import { CONVERSION_STATES } from "reducers/uiReducers/layoutConversionReducer";
 import { useConversionForm } from "./hooks/useConversionForm";
-import type { AppState } from "ce/reducers";
+import type { AppState } from "@appsmith/reducers";
 
 function ConversionButton() {
   const [showModal, setShowModal] = React.useState(false);
@@ -37,7 +37,7 @@ function ConversionButton() {
     (state: AppState) => state.ui.layoutConversion.conversionState,
   );
 
-  //Text base on if it is an Auto layout
+  //Text base on if it is an auto-layout
   const titleText = isAutoLayout.current
     ? CONVERT_TO_FIXED_TITLE
     : CONVERT_TO_AUTO_TITLE;

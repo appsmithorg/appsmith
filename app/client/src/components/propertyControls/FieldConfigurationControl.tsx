@@ -5,19 +5,20 @@ import { isEmpty, isString, maxBy, set, sortBy } from "lodash";
 
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
-import EmptyDataState from "components/utils/EmptyDataState";
 import SchemaParser, {
   getKeysFromSchema,
 } from "widgets/JSONFormWidget/schemaParser";
 import type { Schema } from "widgets/JSONFormWidget/constants";
 import { ARRAY_ITEM_KEY } from "widgets/JSONFormWidget/constants";
-import { Button } from "design-system";
+import { Button, Text } from "design-system";
 import type { BaseItemProps } from "./DraggableListComponent";
 import { DraggableListCard } from "components/propertyControls/DraggableListCard";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import { InputText } from "./InputTextControl";
 import type { JSONFormWidgetProps } from "widgets/JSONFormWidget/widget";
 import { DraggableListControl } from "pages/Editor/PropertyPane/DraggableListControl";
+import styled from "styled-components";
+import { NO_FIELDS_ADDED, createMessage } from "@appsmith/constants/messages";
 
 type DroppableItem = BaseItemProps & {
   index: number;
@@ -29,6 +30,16 @@ type State = {
 };
 
 const DEFAULT_FIELD_NAME = "customField";
+
+const FlexContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
+const StyledText = styled(Text)`
+  margin: 20px;
+  text-align: center;
+`;
 
 class FieldConfigurationControl extends BaseControl<ControlProps, State> {
   constructor(props: ControlProps) {
@@ -56,6 +67,7 @@ class FieldConfigurationControl extends BaseControl<ControlProps, State> {
 
     if (schemaItem) {
       this.props.openNextPanel({
+        index,
         ...schemaItem,
         propPaneId: this.props.widgetProperties.widgetId,
       });
@@ -108,7 +120,7 @@ class FieldConfigurationControl extends BaseControl<ControlProps, State> {
     const existingKeys = getKeysFromSchema(schema, ["identifier", "accessor"]);
     const schemaItems = Object.values(schema);
     const lastSchemaItem = maxBy(schemaItems, ({ position }) => position);
-    const lastSchemaItemPosition = lastSchemaItem?.position || -1;
+    const lastSchemaItemPosition = lastSchemaItem?.position ?? -1;
     const nextFieldKey = getNextEntityName(DEFAULT_FIELD_NAME, existingKeys);
     const schemaItem = SchemaParser.getSchemaItemFor(nextFieldKey, {
       currSourceData: "",
@@ -128,11 +140,16 @@ class FieldConfigurationControl extends BaseControl<ControlProps, State> {
 
     if (isEmpty(widgetProperties.schema)) {
       const newSchema = {
-        schema: SchemaParser.parse(widgetProperties.widgetName, {}),
+        schema: SchemaParser.parse(widgetProperties.widgetName, {
+          currSourceData: {},
+        }), // since we need sourceData to generate root schema, we initialize the parser with {} object if there is no source data.
       };
-      set(newSchema, path, schemaItem);
 
-      this.updateProperty("schema", newSchema.schema);
+      const { schema: schemaObject } = newSchema; // This is {schema:{__root_schema__},..rest}
+
+      set(schemaObject, path, schemaItem);
+
+      this.updateProperty("schema", schemaObject.schema); // This updates the schema property with the schema property of the newSchema object {schema:{schema:{__root_schema__:{}}}} => {schema:{__root_schema__:{}}}
     } else {
       /**
        * TODO(Ashit): Not suppose to update the whole schema but just
@@ -194,10 +211,12 @@ class FieldConfigurationControl extends BaseControl<ControlProps, State> {
 
     if (isEmpty(schema)) {
       return (
-        <>
-          <EmptyDataState />
+        <FlexContainer>
+          <StyledText color="var(--ads-v2-color-fg-muted)" kind="body-s">
+            {createMessage(NO_FIELDS_ADDED)}
+          </StyledText>
           {addNewFieldButton}
-        </>
+        </FlexContainer>
       );
     }
 

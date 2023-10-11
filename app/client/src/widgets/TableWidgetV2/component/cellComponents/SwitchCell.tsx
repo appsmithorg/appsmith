@@ -5,7 +5,7 @@ import { CellWrapper, TooltipContentWrapper } from "../TableStyledWrappers";
 import { LabelPosition } from "components/constants";
 import styled from "styled-components";
 import SwitchComponent from "widgets/SwitchWidget/component";
-import { AlignWidgetTypes } from "widgets/constants";
+import { AlignWidgetTypes } from "WidgetProvider/constants";
 import { Tooltip } from "@blueprintjs/core";
 
 const UnsavedChangesMarker = styled.div<{ accentColor: string }>`

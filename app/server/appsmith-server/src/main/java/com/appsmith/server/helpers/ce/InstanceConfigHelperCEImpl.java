@@ -8,12 +8,16 @@ import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.services.ConfigService;
+import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.util.WebClientUtils;
+import joptsimple.internal.Strings;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.Document;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.BodyInserters;
@@ -36,37 +40,45 @@ public class InstanceConfigHelperCEImpl implements InstanceConfigHelperCE {
 
     private final ApplicationContext applicationContext;
 
+    private final ReactiveMongoTemplate reactiveMongoTemplate;
+
+    private final FeatureFlagService featureFlagService;
+
     private boolean isRtsAccessible = false;
 
     @Override
     public Mono<? extends Config> registerInstance() {
 
-        log.debug("Triggering registration of this instance...");
-
         final String baseUrl = cloudServicesConfig.getBaseUrl();
         if (baseUrl == null || StringUtils.isEmpty(baseUrl)) {
             return Mono.error(new AppsmithException(
-                    AppsmithError.INSTANCE_REGISTRATION_FAILURE, "Unable to find cloud services base URL")
-            );
+                    AppsmithError.INSTANCE_REGISTRATION_FAILURE, "Unable to find cloud services base URL"));
         }
 
         return configService
                 .getInstanceId()
-                .flatMap(instanceId -> WebClientUtils
-                        .create(baseUrl + "/api/v1/installations")
-                        .post()
-                        .body(BodyInserters.fromValue(Map.of("key", instanceId)))
-                        .headers(httpHeaders -> httpHeaders.set(HttpHeaders.CONTENT_TYPE, "application/json"))
-                        .exchange())
-                .flatMap(clientResponse -> clientResponse.toEntity(new ParameterizedTypeReference<ResponseDTO<String>>() {
-                }))
+                .flatMap(instanceId -> {
+                    log.debug("Triggering registration of this instance...");
+
+                    return WebClientUtils.create(baseUrl + "/api/v1/installations")
+                            .post()
+                            .body(BodyInserters.fromValue(Map.of("key", instanceId)))
+                            .headers(httpHeaders -> httpHeaders.set(HttpHeaders.CONTENT_TYPE, "application/json"))
+                            .exchange();
+                })
+                .flatMap(clientResponse ->
+                        clientResponse.toEntity(new ParameterizedTypeReference<ResponseDTO<String>>() {}))
                 .flatMap(responseEntity -> {
                     if (responseEntity.getStatusCode().is2xxSuccessful()) {
-                        return Mono.justOrEmpty(Objects.requireNonNull(responseEntity.getBody()).getData());
+                        return Mono.justOrEmpty(
+                                Objects.requireNonNull(responseEntity.getBody()).getData());
                     }
                     return Mono.error(new AppsmithException(
                             AppsmithError.INSTANCE_REGISTRATION_FAILURE,
-                            Objects.requireNonNull(responseEntity.getBody()).getResponseMeta().getError().getMessage()));
+                            Objects.requireNonNull(responseEntity.getBody())
+                                    .getResponseMeta()
+                                    .getError()
+                                    .getMessage()));
                 })
                 .flatMap(instanceId -> {
                     log.debug("Registration successful, updating state ...");
@@ -76,17 +88,23 @@ public class InstanceConfigHelperCEImpl implements InstanceConfigHelperCE {
 
     @Override
     public Mono<Config> checkInstanceSchemaVersion() {
-        return configService.getByName(Appsmith.INSTANCE_SCHEMA_VERSION)
+        return configService
+                .getByName(Appsmith.INSTANCE_SCHEMA_VERSION)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.SCHEMA_VERSION_NOT_FOUND_ERROR)))
-                .onErrorMap(AppsmithException.class, e -> new AppsmithException(AppsmithError.SCHEMA_VERSION_NOT_FOUND_ERROR))
+                .onErrorMap(
+                        AppsmithException.class,
+                        e -> new AppsmithException(AppsmithError.SCHEMA_VERSION_NOT_FOUND_ERROR))
                 .flatMap(config -> {
-                    if (CommonConfig.LATEST_INSTANCE_SCHEMA_VERSION == config.getConfig().get("value")) {
+                    if (CommonConfig.LATEST_INSTANCE_SCHEMA_VERSION
+                            == config.getConfig().get("value")) {
                         return Mono.just(config);
                     }
-                    return Mono.error(populateSchemaMismatchError((Integer) config.getConfig().get("value")));
+                    return Mono.error(populateSchemaMismatchError(
+                            (Integer) config.getConfig().get("value")));
                 })
                 .doOnError(errorSignal -> {
-                    log.error("""
+                    log.error(
+                            """
 
                                     ################################################
                                     Error while trying to start up Appsmith instance:\s
@@ -107,10 +125,11 @@ public class InstanceConfigHelperCEImpl implements InstanceConfigHelperCE {
 
         // Keep adding version numbers that brought in breaking instance schema migrations here
         switch (currentInstanceSchemaVersion) {
-            // Example, we expect that in v1.9.2, all instances will have been migrated to instanceSchemaVer 2
+                // Example, we expect that in v1.9.2, all instances will have been migrated to instanceSchemaVer 2
             case 1:
                 versions.add("v1.9.2");
-                docs.add("https://docs.appsmith.com/help-and-support/troubleshooting-guide/deployment-errors#server-shuts-down-with-schema-mismatch-error");
+                docs.add(
+                        "https://docs.appsmith.com/help-and-support/troubleshooting-guide/deployment-errors#server-shuts-down-with-schema-mismatch-error");
             default:
         }
 
@@ -120,8 +139,7 @@ public class InstanceConfigHelperCEImpl implements InstanceConfigHelperCE {
     public Mono<Void> performRtsHealthCheck() {
         log.debug("Performing RTS health check of this instance...");
 
-        return WebClientUtils
-                .create(commonConfig.getRtsBaseUrl() + "/rts-api/v1/health-check")
+        return WebClientUtils.create(commonConfig.getRtsBaseUrl() + "/rts-api/v1/health-check")
                 .get()
                 .retrieve()
                 .toBodilessEntity()
@@ -132,8 +150,8 @@ public class InstanceConfigHelperCEImpl implements InstanceConfigHelperCE {
                 .onErrorResume(errorSignal -> {
                     log.debug("RTS health check failed with error: \n{}", errorSignal.getMessage());
                     return Mono.empty();
-
-                }).then();
+                })
+                .then();
     }
 
     @Override
@@ -149,8 +167,7 @@ public class InstanceConfigHelperCEImpl implements InstanceConfigHelperCE {
                         ╚═╝  ╚═╝╚═╝     ╚═╝     ╚══════╝╚═╝     ╚═╝╚═╝   ╚═╝   ╚═╝  ╚═╝    ╚═╝╚══════╝    ╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═══╝╚═╝  ╚═══╝╚═╝╚═╝  ╚═══╝ ╚═════╝ ╚═╝
 
                         Please open http://localhost:<port> in your browser to experience Appsmith!
-                        """
-        );
+                        """);
     }
 
     @Override
@@ -164,4 +181,25 @@ public class InstanceConfigHelperCEImpl implements InstanceConfigHelperCE {
         return Mono.just(true);
     }
 
+    @Override
+    public Mono<String> checkMongoDBVersion() {
+        return reactiveMongoTemplate
+                .executeCommand(new Document("buildInfo", 1))
+                .map(buildInfo -> {
+                    commonConfig.setMongoDBVersion(buildInfo.getString("version"));
+                    log.info("Fetched and set conenncted mongo db version as: {}", commonConfig.getMongoDBVersion());
+                    return commonConfig.getMongoDBVersion();
+                })
+                .onErrorResume(error -> {
+                    log.error(
+                            "Error while getting mongo db version. Hence current mongo db version will remain unavailable in context",
+                            error);
+                    return Mono.just(Strings.EMPTY);
+                });
+    }
+
+    @Override
+    public Mono<Void> updateCacheForTenantFeatureFlags() {
+        return featureFlagService.getTenantFeatures().then();
+    }
 }

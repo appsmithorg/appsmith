@@ -1,8 +1,8 @@
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE_VALUE } from "entities/DataTree/dataTreeFactory";
 import type { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import type { DependencyMap } from "utils/DynamicBindingUtils";
-import type { MetaArgs } from "./types";
+import type { MetaArgs } from "@appsmith/entities/DataTree/types";
 
 const reg = /this\./g;
 
@@ -36,14 +36,15 @@ export const generateDataTreeJSAction = (js: JSCollectionData): any => {
       const action = actions[i];
       meta[action.name] = {
         arguments: action.actionConfiguration.jsArguments,
-        isAsync: action.actionConfiguration.isAsync,
         confirmBeforeExecute: !!action.confirmBeforeExecute,
       };
       bindingPaths[action.name] = EvaluationSubstitutionType.SMART_SUBSTITUTE;
       dynamicBindingPathList.push({ key: action.name });
       dependencyMap["body"].push(action.name);
       actionsData[action.name] = {
-        data: (js.data && js.data[`${action.id}`]) || {},
+        // Data is always set to {} in the unevalTree
+        // Action data is updated directly to the dataTree (see updateActionData.ts)
+        data: {},
       };
     }
   }
@@ -52,7 +53,7 @@ export const generateDataTreeJSAction = (js: JSCollectionData): any => {
       ...variableList,
       ...actionsData,
       body: removeThisReference,
-      ENTITY_TYPE: ENTITY_TYPE.JSACTION,
+      ENTITY_TYPE: ENTITY_TYPE_VALUE.JSACTION,
       actionId: js.config.id,
     },
     configEntity: {
@@ -60,7 +61,7 @@ export const generateDataTreeJSAction = (js: JSCollectionData): any => {
       meta: meta,
       name: js.config.name,
       pluginType: js.config.pluginType,
-      ENTITY_TYPE: ENTITY_TYPE.JSACTION,
+      ENTITY_TYPE: ENTITY_TYPE_VALUE.JSACTION,
       bindingPaths: bindingPaths, // As all js object function referred to as action is user javascript code, we add them as binding paths.
       reactivePaths: { ...bindingPaths },
       dynamicBindingPathList: dynamicBindingPathList,

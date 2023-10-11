@@ -49,6 +49,11 @@ import websocketSagas from "sagas/WebsocketSagas/WebsocketSagas";
 import actionExecutionChangeListeners from "sagas/WidgetLoadingSaga";
 import widgetOperationSagas from "sagas/WidgetOperationSagas";
 import oneClickBindingSaga from "sagas/OneClickBindingSaga";
+import entityNavigationSaga from "sagas/NavigationSagas";
+import communityTemplateSagas from "sagas/CommunityTemplatesSagas";
+
+/* Sagas that are registered by a module that is designed to be independent of the core platform */
+import WidgetPositionSaga from "layoutSystems/anvil/integrations/sagas/WidgetPositionsSaga";
 
 export const sagas = [
   initSagas,
@@ -102,4 +107,7 @@ export const sagas = [
   layoutConversionSagas,
   snapshotSagas,
   oneClickBindingSaga,
+  entityNavigationSaga,
+  WidgetPositionSaga,
+  communityTemplateSagas,
 ];

@@ -2,11 +2,11 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
-const dsl = require("../../../../../fixtures/newFormDsl.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Switch Widget Functionality", function () {
   before(() => {
-    cy.addDsl(dsl);
+    _.agHelper.AddDsl("newFormDsl");
   });
   it("1. Switch Widget Functionality", function () {
     cy.openPropertyPane("switchwidget");
@@ -23,7 +23,7 @@ describe("Switch Widget Functionality", function () {
     /**
      * @param{Text} Random Value
      */
-    cy.testCodeMirror(this.data.switchInputName);
+    cy.testCodeMirror(this.dataSet.switchInputName);
     cy.get(widgetsPage.switchLabel).should("have.text", "Switch1");
     /**
      * @param{toggleButton Css} Assert to be checked
@@ -33,43 +33,43 @@ describe("Switch Widget Functionality", function () {
      * @param{Show Alert} Css for InputChange
      */
     cy.getAlert("onChange");
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
   });
 
   it("2. Switch Functionality To Switch Label", function () {
     cy.get(publish.switchwidget + " " + "label").should(
       "have.text",
-      this.data.switchInputName,
+      this.dataSet.switchInputName,
     );
-    cy.get(publish.backToEditor).click();
+    _.deployMode.NavigateBacktoEditor();
 
     //Switch Functionality To Check Disabled Widget
     cy.openPropertyPane("switchwidget");
     cy.togglebar(commonlocators.Disablejs + " " + "input");
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(publish.switchwidget + " " + "input").should("be.disabled");
-    cy.get(publish.backToEditor).click();
+    _.deployMode.NavigateBacktoEditor();
 
     //Switch Functionality To Check Enabled Widget
     cy.openPropertyPane("switchwidget");
     cy.togglebarDisable(commonlocators.Disablejs + " " + "input");
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(publish.switchwidget + " " + "input").should("be.enabled");
-    cy.get(publish.backToEditor).click();
+    _.deployMode.NavigateBacktoEditor();
 
     //Switch Functionality To Unchecked Visible Widget
     cy.openPropertyPane("switchwidget");
     cy.togglebarDisable(commonlocators.visibleCheckbox);
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(publish.switchwidget + " " + "input").should("not.exist");
-    cy.get(publish.backToEditor).click();
+    _.deployMode.NavigateBacktoEditor();
 
     // Switch Functionality To Check Visible Widget
     cy.openPropertyPane("switchwidget");
     cy.togglebar(commonlocators.visibleCheckbox);
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(publish.switchwidget + " " + "input").should("be.checked");
-    cy.get(publish.backToEditor).click();
+    _.deployMode.NavigateBacktoEditor();
   });
 
   it("3. Switch Functionality To swap label alignment of switch", function () {
@@ -82,13 +82,13 @@ describe("Switch Widget Functionality", function () {
     // align right
     cy.xpath(widgetsPage.rightAlign).first().click({ force: true });
     cy.wait(200);
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(publish.switchwidget + " " + ".t--switch-widget-label").should(
       "have.css",
       "text-align",
       "right",
     );
-    cy.get(publish.backToEditor).click();
+    _.deployMode.NavigateBacktoEditor();
   });
 
   it("4. Switch Functionality To swap label position of switch", function () {
@@ -99,11 +99,11 @@ describe("Switch Widget Functionality", function () {
     cy.wait(200);
     cy.get(commonlocators.optionpositionL).last().click({ force: true });
     cy.wait(200);
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(publish.switchwidget + " " + ".bp3-align-right").should("exist");
     cy.get(publish.switchwidget + " " + ".bp3-align-left").should("not.exist");
 
-    cy.get(publish.backToEditor).click();
+    _.deployMode.NavigateBacktoEditor();
   });
 
   it("5. Switch Functionality To change label color of switch", function () {
@@ -111,13 +111,13 @@ describe("Switch Widget Functionality", function () {
     cy.moveToStyleTab();
     cy.get(".t--property-control-fontcolor .bp3-input").type("red");
     cy.wait(200);
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(publish.switchwidget + " " + ".t--switch-widget-label").should(
       "have.css",
       "color",
       "rgb(255, 0, 0)",
     );
-    cy.get(publish.backToEditor).click();
+    _.deployMode.NavigateBacktoEditor();
 
     //Switch Functionality To change label size of switch
     cy.openPropertyPane("switchwidget");
@@ -126,25 +126,25 @@ describe("Switch Widget Functionality", function () {
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000);
     cy.selectTxtSize("XL");
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(publish.switchwidget + " " + ".t--switch-widget-label").should(
       "have.css",
       "font-size",
       "30px",
     );
-    cy.get(publish.backToEditor).click();
+    _.deployMode.NavigateBacktoEditor();
 
     //Switch Functionality To change label style of switch
     cy.openPropertyPane("switchwidget");
     cy.moveToStyleTab();
     cy.get(".t--property-control-emphasis .t--button-group-BOLD").click();
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(publish.switchwidget + " " + ".t--switch-widget-label").should(
       "have.css",
       "font-weight",
       "700",
     );
-    cy.get(publish.backToEditor).click();
+    _.deployMode.NavigateBacktoEditor();
   });
 
   it("6. Check isDirty meta property", function () {

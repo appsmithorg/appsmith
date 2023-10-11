@@ -50,12 +50,18 @@ public class JacksonModelViewTests {
     public void test_withJsonView_measureDeserializingPerformance() throws JsonProcessingException {
         // Warm up
         for (int i = 0; i < 1000000; i++) {
-            objectMapper.readerWithView(Views.Public.class).forType(TestModelJsonView.class).readValue(JSON_OUT);
+            objectMapper
+                    .readerWithView(Views.Public.class)
+                    .forType(TestModelJsonView.class)
+                    .readValue(JSON_OUT);
         }
         // Measure
         long start = System.currentTimeMillis();
         for (int i = 0; i < 1000000; i++) {
-            objectMapper.readerWithView(Views.Public.class).forType(TestModelJsonView.class).readValue(JSON_OUT);
+            objectMapper
+                    .readerWithView(Views.Public.class)
+                    .forType(TestModelJsonView.class)
+                    .readValue(JSON_OUT);
         }
         long end = System.currentTimeMillis();
         log.info("test_withJsonView_measureDeserializingPerformance: {} ms for 1000000 iterations", end - start);
@@ -93,22 +99,24 @@ public class JacksonModelViewTests {
     }
 
     interface Views {
-        interface Public {
-        }
+        interface Public {}
 
-        interface Internal extends Public {
-        }
+        interface Internal extends Public {}
     }
 
     @Data
     public static class TestModelJsonIgnore {
         private String name = "name";
+
         @JsonIgnore
         private String password = "password";
+
         private String email = "email";
         private String phone = "phone";
+
         @JsonIgnore
         private String address = "address";
+
         private String city = "city";
     }
 
@@ -116,14 +124,19 @@ public class JacksonModelViewTests {
     public static class TestModelJsonView {
         @JsonView(Views.Public.class)
         private String name = "name";
+
         @JsonView(Views.Internal.class)
         private String password = "password";
+
         @JsonView(Views.Public.class)
         private String email = "email";
+
         @JsonView(Views.Public.class)
         private String phone = "phone";
+
         @JsonView(Views.Internal.class)
         private String address = "address";
+
         @JsonView(Views.Public.class)
         private String city = "city";
     }

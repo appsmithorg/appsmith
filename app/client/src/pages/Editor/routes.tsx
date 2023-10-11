@@ -26,7 +26,7 @@ import PerformanceTracker, {
 import * as Sentry from "@sentry/react";
 import { SaaSEditorRoutes } from "./SaaSEditor/routes";
 import OnboardingChecklist from "./FirstTimeUserOnboarding/Checklist";
-import { DatasourceEditorRoutes } from "@appsmith/pages/routes";
+import { DatasourceEditorRoutes } from "pages/routes";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 

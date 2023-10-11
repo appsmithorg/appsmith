@@ -41,7 +41,7 @@ import {
   DELETE_WORKSPACE_SUCCESSFUL,
 } from "@appsmith/constants/messages";
 import { toast } from "design-system";
-import { resetCurrentWorkspace } from "../actions/workspaceActions";
+import { resetCurrentWorkspace } from "@appsmith/actions/workspaceActions";
 
 export function* fetchRolesSaga() {
   try {
@@ -77,7 +77,7 @@ export function* fetchWorkspaceSaga(
     );
     const isValidResponse: boolean = yield request.skipValidation ||
       validateResponse(response);
-    if (isValidResponse) {
+    if (isValidResponse && response) {
       yield put({
         type: ReduxActionTypes.FETCH_WORKSPACE_SUCCESS,
         payload: response.data || {},

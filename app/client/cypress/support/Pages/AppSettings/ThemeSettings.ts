@@ -9,7 +9,8 @@ export class ThemeSettings {
       themeName +
       "']//ancestor::div[@class= 'space-y-1 group']",
     _colorPickerV2Popover: ".t--colorpicker-v2-popover",
-    _colorPickerV2Color: ".t--colorpicker-v2-color",
+    _colorPickerV2Color:
+      "[data-testid='t--all-colors'] .t--colorpicker-v2-color",
     _colorRingPrimary: "[data-testid='theme-primaryColor']",
     _colorRingBackground: "[data-testid='theme-backgroundColor']",
     _colorInput: (option: string) =>
@@ -25,7 +26,7 @@ export class ThemeSettings {
   public ChangeTheme(newTheme: string) {
     this.agHelper.GetNClick(this.locators._changeThemeBtn, 0, true);
     this.agHelper.GetNClick(this.locators._themeCard(newTheme));
-    this.agHelper.AssertContains("Theme " + newTheme + " Applied");
+    this.agHelper.AssertContains("Theme " + newTheme + " applied");
   }
 
   public ChangeThemeColor(
@@ -46,7 +47,7 @@ export class ThemeSettings {
       this.agHelper.TypeText(this.locators._colorInput(type), colorIndex); //Doing it again for since sometimes it does not type properpy
       this.agHelper.GetElement(this.locators._colorInput(type)).clear();
       this.agHelper.TypeText(this.locators._colorInput(type), colorIndex);
-      //this.agHelper.UpdateInput(this._colorInputField(type), colorIndex);//not working!
+      // this.agHelper.TypeText(this._colorInputField(type), colorIndex); //not working!
     }
   }
 }

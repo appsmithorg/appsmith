@@ -15,6 +15,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { getApiRightPaneSelectedTab } from "selectors/apiPaneSelectors";
 import isUndefined from "lodash/isUndefined";
 import { Button, Tab, TabPanel, Tabs, TabsList, Tag } from "design-system";
+import { DatasourceStructureContext } from "../Explorer/Datasources/DatasourceStructure";
+import type { Datasource } from "entities/Datasource";
+import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelectors";
 
 const EmptyDatasourceContainer = styled.div`
   display: flex;
@@ -123,7 +126,7 @@ const DataSourceNameContainer = styled.div`
 
 const SomeWrapper = styled.div`
   height: 100%;
-  padding: 0 var(--ads-v2-spaces-6);
+  padding: 0 var(--ads-v2-spaces-4);
 `;
 
 const NoEntityFoundWrapper = styled.div`
@@ -184,10 +187,9 @@ const API_RIGHT_PANE_TABS = {
 };
 function ApiRightPane(props: any) {
   const dispatch = useDispatch();
-  const { entityDependencies, hasDependencies } = useEntityDependencies(
-    props.actionName,
-  );
+  const { hasDependencies } = useEntityDependencies(props.actionName);
   const selectedTab = useSelector(getApiRightPaneSelectedTab);
+  const currentEnvironmentId = useSelector(getCurrentEnvironmentId);
 
   const setSelectedTab = useCallback((selectedIndex: string) => {
     dispatch(setApiRightPaneSelectedTab(selectedIndex));
@@ -245,7 +247,7 @@ function ApiRightPane(props: any) {
                   selectedTab === API_RIGHT_PANE_TABS.DATASOURCES ? "show" : ""
                 }
               >
-                {(sortedDatasources || []).map((d: any, idx: number) => {
+                {(sortedDatasources || []).map((d: Datasource, idx: number) => {
                   const dataSourceInfo: string = getDatasourceInfo(d);
                   return (
                     <DatasourceCard key={idx} onClick={() => props.onClick(d)}>
@@ -276,7 +278,8 @@ function ApiRightPane(props: any) {
                         />
                       </DataSourceNameContainer>
                       <DatasourceURL>
-                        {d.datasourceConfiguration?.url}
+                        {d.datasourceStorages[currentEnvironmentId]
+                          ?.datasourceConfiguration?.url || ""}
                       </DatasourceURL>
                       {dataSourceInfo && (
                         <Text type={TextType.P3} weight={FontWeight.NORMAL}>
@@ -307,9 +310,11 @@ function ApiRightPane(props: any) {
             <SomeWrapper>
               <ActionRightPane
                 actionName={props.actionName}
-                entityDependencies={entityDependencies}
+                context={DatasourceStructureContext.API_EDITOR}
+                datasourceId={props.datasourceId}
                 hasConnections={hasDependencies}
                 hasResponse={props.hasResponse}
+                pluginId={props.pluginId}
                 suggestedWidgets={props.suggestedWidgets}
               />
             </SomeWrapper>

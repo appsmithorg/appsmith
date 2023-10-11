@@ -4,6 +4,7 @@ import { Button, Text } from "design-system";
 import type { FooterProps } from "./types";
 import {
   AVAILABLE_ON_BUSINESS,
+  AVAILABLE_ON_ENTERPRISE,
   createMessage,
   UPGRADE,
 } from "@appsmith/constants/messages";
@@ -31,11 +32,12 @@ const FooterContainer = styled.div`
 
   & .right {
     flex-grow: 1;
+    text-align: end;
   }
 `;
 
 export function FooterComponent(props: FooterProps) {
-  const { message, onClick, showHeading = true } = props;
+  const { isEnterprise = false, message, onClick, showHeading = true } = props;
   return (
     <FooterContainer
       className="upgrade-page-footer-container"
@@ -49,7 +51,9 @@ export function FooterComponent(props: FooterProps) {
               kind="heading-m"
               renderAs="h1"
             >
-              {createMessage(AVAILABLE_ON_BUSINESS)}
+              {createMessage(
+                isEnterprise ? AVAILABLE_ON_ENTERPRISE : AVAILABLE_ON_BUSINESS,
+              )}
             </Text>
           </div>
         )}
@@ -60,7 +64,7 @@ export function FooterComponent(props: FooterProps) {
         </div>
       </div>
       <div className="right">
-        <Button onClick={onClick} size="md">
+        <Button data-testid="t--button-upgrade" onClick={onClick} size="md">
           {createMessage(UPGRADE)}
         </Button>
       </div>

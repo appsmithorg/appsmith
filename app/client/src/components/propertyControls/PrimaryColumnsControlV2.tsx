@@ -18,7 +18,7 @@ import {
   isColumnTypeEditable,
   reorderColumns,
 } from "widgets/TableWidgetV2/widget/utilities";
-import type { DataTree } from "entities/DataTree/dataTreeFactory";
+import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import {
   getDataTreeForAutocomplete,
   getPathEvalErrors,

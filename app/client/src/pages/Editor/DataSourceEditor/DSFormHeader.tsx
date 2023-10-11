@@ -7,6 +7,7 @@ import {
   CONFIRM_CONTEXT_DELETING,
   CONFIRM_CONTEXT_DELETE,
   CONTEXT_DELETE,
+  EDIT,
   createMessage,
 } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -17,7 +18,6 @@ import type { ApiDatasourceForm } from "entities/Datasource/RestAPIForm";
 import { MenuWrapper, StyledMenu } from "components/utils/formComponents";
 import styled from "styled-components";
 import { Button, MenuContent, MenuItem, MenuTrigger } from "design-system";
-import { EDIT } from "ce/constants/messages";
 import { DatasourceEditEntryPoints } from "constants/Datasource";
 
 export const ActionWrapper = styled.div`
@@ -38,9 +38,8 @@ export const Header = styled.div`
   align-items: center;
   justify-content: space-between;
   border-bottom: 1px solid var(--ads-v2-color-border);
-  padding: var(--ads-v2-spaces-7) 0 var(--ads-v2-spaces-7);
+  padding: var(--ads-v2-spaces-5) 0 var(--ads-v2-spaces-5);
   margin: 0 var(--ads-v2-spaces-7);
-  height: 120px;
 `;
 
 export const PluginImageWrapper = styled.div`
@@ -77,8 +76,12 @@ type DSFormHeaderProps = {
   pluginImage: string;
   pluginType: string;
   pluginName: string;
-  setDatasourceViewMode: (viewMode: boolean) => void;
+  setDatasourceViewMode: (payload: {
+    datasourceId: string;
+    viewMode: boolean;
+  }) => void;
   viewMode: boolean;
+  isNewQuerySecondaryButton?: boolean;
 };
 
 export const DSFormHeader = (props: DSFormHeaderProps) => {
@@ -90,6 +93,7 @@ export const DSFormHeader = (props: DSFormHeaderProps) => {
     datasourceId,
     isDeleting,
     isNewDatasource,
+    isNewQuerySecondaryButton,
     isPluginAuthorized,
     pluginImage,
     pluginName,
@@ -173,7 +177,10 @@ export const DSFormHeader = (props: DSFormHeaderProps) => {
             className="t--edit-datasource"
             kind="secondary"
             onClick={() => {
-              setDatasourceViewMode(false);
+              setDatasourceViewMode({
+                datasourceId: datasourceId,
+                viewMode: false,
+              });
               AnalyticsUtil.logEvent("EDIT_DATASOURCE_CLICK", {
                 datasourceId: datasourceId,
                 pluginName,
@@ -188,6 +195,7 @@ export const DSFormHeader = (props: DSFormHeaderProps) => {
             datasource={datasource as Datasource}
             disabled={!canCreateDatasourceActions || !isPluginAuthorized}
             eventFrom="datasource-pane"
+            isNewQuerySecondaryButton={isNewQuerySecondaryButton}
             pluginType={pluginType}
           />
         </ActionWrapper>

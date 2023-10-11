@@ -1,14 +1,18 @@
-const dsl = require("../../../../../fixtures/chartCustomDataDsl.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
+import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
 
 describe("Chart Widget Functionality around custom chart data", function () {
   before(() => {
-    cy.addDsl(dsl);
+    _.agHelper.AddDsl("chartCustomDataDsl");
   });
 
   it("1. change chart type to custom chart", function () {
     const value1 = 40;
+    featureFlagIntercept({
+      deprecate_custom_fusioncharts_enabled: true,
+    });
     cy.openPropertyPane("chartwidget");
-    cy.UpdateChartType("Custom chart");
+    cy.UpdateChartType("Custom Fusion Charts (deprecated)");
     //change chart value via input widget and validate
     enterAndTest("inputwidgetv2", value1, value1);
     cy.wait(400);

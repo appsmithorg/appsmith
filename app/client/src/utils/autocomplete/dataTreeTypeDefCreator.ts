@@ -1,5 +1,13 @@
-import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeFactory";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import type {
+  WidgetEntityConfig,
+  JSActionEntityConfig,
+} from "@appsmith/entities/DataTree/types";
+import type {
+  ConfigTree,
+  DataTree,
+  DataTreeEntity,
+} from "entities/DataTree/dataTreeTypes";
+import { ENTITY_TYPE_VALUE } from "entities/DataTree/dataTreeFactory";
 import { uniqueId, isFunction, isObject } from "lodash";
 import { entityDefinitions } from "@appsmith/utils/autocomplete/EntityDefinitions";
 import { getType, Types } from "utils/TypeHelpers";
@@ -15,9 +23,9 @@ import type { DataTreeDefEntityInformation } from "utils/autocomplete/Codemirror
 
 export type ExtraDef = Record<string, Def | string>;
 
-import type { JSActionEntityConfig } from "entities/DataTree/types";
 import type { Variable } from "entities/JSCollection";
-import WidgetFactory from "utils/WidgetFactory";
+import WidgetFactory from "WidgetProvider/factory";
+import { shouldAddSetter } from "workers/Evaluation/evaluate";
 
 // Def names are encoded with information about the entity
 // This so that we have more info about them
@@ -45,14 +53,24 @@ export const dataTreeTypeDefCreator = (
         WidgetFactory.getAutocompleteDefinitions(widgetType);
 
       if (autocompleteDefinitions) {
+        const entityConfig = configTree[entityName] as WidgetEntityConfig;
+
         if (isFunction(autocompleteDefinitions)) {
-          def[entityName] = autocompleteDefinitions(entity, extraDefsToDefine);
+          def[entityName] = autocompleteDefinitions(
+            entity,
+            extraDefsToDefine,
+            entityConfig,
+          );
         } else {
           def[entityName] = autocompleteDefinitions;
         }
+
+        addSettersToDefinitions(def[entityName] as Def, entity, entityConfig);
+
         flattenDef(def, entityName);
+
         entityMap.set(entityName, {
-          type: ENTITY_TYPE.WIDGET,
+          type: ENTITY_TYPE_VALUE.WIDGET,
           subType: widgetType,
         });
       }
@@ -60,14 +78,14 @@ export const dataTreeTypeDefCreator = (
       def[entityName] = entityDefinitions.ACTION(entity, extraDefsToDefine);
       flattenDef(def, entityName);
       entityMap.set(entityName, {
-        type: ENTITY_TYPE.ACTION,
+        type: ENTITY_TYPE_VALUE.ACTION,
         subType: "ACTION",
       });
     } else if (isAppsmithEntity(entity)) {
       def.appsmith = entityDefinitions.APPSMITH(entity, extraDefsToDefine);
       entityMap.set("appsmith", {
-        type: ENTITY_TYPE.APPSMITH,
-        subType: ENTITY_TYPE.APPSMITH,
+        type: ENTITY_TYPE_VALUE.APPSMITH,
+        subType: ENTITY_TYPE_VALUE.APPSMITH,
       });
     } else if (isJSAction(entity)) {
       const entityConfig = configTree[entityName] as JSActionEntityConfig;
@@ -92,9 +110,8 @@ export const dataTreeTypeDefCreator = (
       }
 
       def[entityName] = jsPropertiesDef;
-      flattenDef(def, entityName);
       entityMap.set(entityName, {
-        type: ENTITY_TYPE.JSACTION,
+        type: ENTITY_TYPE_VALUE.JSACTION,
         subType: "JSACTION",
       });
     }
@@ -159,26 +176,30 @@ export function generateTypeDef(
 
 export const flattenDef = (def: Def, entityName: string): Def => {
   const flattenedDef = def;
-  if (isTrueObject(def[entityName])) {
-    Object.entries(def[entityName]).forEach(([key, value]) => {
-      if (!key.startsWith("!")) {
-        flattenedDef[`${entityName}.${key}`] = value;
-        if (isTrueObject(value)) {
-          Object.entries(value).forEach(([subKey, subValue]) => {
-            if (!subKey.startsWith("!")) {
-              flattenedDef[`${entityName}.${key}.${subKey}`] = subValue;
-            }
-          });
-        }
-      }
+  if (!isTrueObject(def[entityName])) return flattenedDef;
+  Object.entries(def[entityName]).forEach(([key, value]) => {
+    if (key.startsWith("!")) return;
+    const keyIsValid = isValidVariableName(key);
+    const parentCompletion = !keyIsValid
+      ? `${entityName}["${key}"]`
+      : `${entityName}.${key}`;
+    flattenedDef[parentCompletion] = value;
+    if (!isTrueObject(value)) return;
+    Object.entries(value).forEach(([subKey, subValue]) => {
+      if (subKey.startsWith("!")) return;
+      const childKeyIsValid = isValidVariableName(subKey);
+      const childCompletion = !childKeyIsValid
+        ? `${parentCompletion}["${subKey}"]`
+        : `${parentCompletion}.${subKey}`;
+      flattenedDef[childCompletion] = subValue;
     });
-  }
+  });
   return flattenedDef;
 };
 
 const VALID_VARIABLE_NAME_REGEX = /^([a-zA-Z_$][a-zA-Z\d_$]*)$/;
 
-const isValidVariableName = (variableName: string) =>
+export const isValidVariableName = (variableName: string) =>
   VALID_VARIABLE_NAME_REGEX.test(variableName);
 
 export const getFunctionsArgsType = (args: Variable[]): string => {
@@ -214,4 +235,25 @@ export function generateJSFunctionTypeDef(
     "!type": getFunctionsArgsType([]),
     data: generateTypeDef(jsData[fullFunctionName], extraDefs),
   };
+}
+
+export function addSettersToDefinitions(
+  definitions: Def,
+  entity: DataTreeEntity,
+  entityConfig?: WidgetEntityConfig,
+) {
+  if (entityConfig && entityConfig.__setters) {
+    const setters = Object.keys(entityConfig.__setters);
+
+    setters.forEach((setterName: string) => {
+      const setter = entityConfig.__setters?.[setterName];
+      const setterType = entityConfig.__setters?.[setterName].type;
+
+      if (shouldAddSetter(setter, entity)) {
+        definitions[
+          setterName
+        ] = `fn(value:${setterType}) -> +Promise[:t=[!0.<i>.:t]]`;
+      }
+    });
+  }
 }

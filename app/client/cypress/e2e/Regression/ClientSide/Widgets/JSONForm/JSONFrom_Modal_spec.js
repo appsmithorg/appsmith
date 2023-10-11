@@ -1,5 +1,5 @@
 const jsonFormInModalDsl = require("../../../../../fixtures/jsonFormInModalDsl.json");
-const publishPage = require("../../../../../locators/publishWidgetspage.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 const fieldPrefix = ".t--jsonformfield";
 
@@ -57,8 +57,7 @@ describe("JSONForm in Modal", () => {
     cy.addDsl(jsonFormInModalDsl);
     cy.get(".t--widget-tablewidget .tableWrap").should("be.visible");
     cy.wait(1000);
-    cy.PublishtheApp();
-
+    _.deployMode.DeployApp();
     // Click action button of first row
     cy.get(".t--widget-tablewidget .tableWrap")
       .find("button")
@@ -74,6 +73,6 @@ describe("JSONForm in Modal", () => {
       .click({ force: true });
     checkFormModalValues(tableData[2]);
 
-    cy.get(publishPage.backToEditor).click({ force: true });
+    _.deployMode.NavigateBacktoEditor();
   });
 });

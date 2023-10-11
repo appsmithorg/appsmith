@@ -8,7 +8,7 @@ import {
   getIsFetchingSinglePluginForm,
   getDatasourcesStructure,
   getNumberOfEntitiesInCurrentPage,
-} from "selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 
 import type { Datasource } from "entities/Datasource";
 import { fetchDatasourceStructure } from "actions/datasourceActions";
@@ -54,22 +54,19 @@ import {
 } from "../constants";
 import { Bold, Label, SelectWrapper } from "./styles";
 import type { GeneratePagePayload } from "./types";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 
-import {
-  getFirstTimeUserOnboardingComplete,
-  getIsFirstTimeUserOnboardingEnabled,
-} from "selectors/onboardingSelectors";
 import { datasourcesEditorIdURL, integrationEditorURL } from "RouteBuilder";
 import { PluginPackageName } from "entities/Action";
-import { removeFirstTimeUserOnboardingApplicationId } from "actions/onboardingActions";
 import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
-import { hasCreateDatasourcePermission } from "@appsmith/utils/permissionHelpers";
-import { getPluginImages } from "selectors/entitiesSelector";
+import { getPluginImages } from "@appsmith/selectors/entitiesSelector";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
 import { isGoogleSheetPluginDS } from "utils/editorContextUtils";
+import equal from "fast-deep-equal";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { getHasCreateDatasourcePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 
 //  ---------- Styles ----------
 
@@ -147,7 +144,7 @@ const OptionWrapper = styled.div`
 const datasourceIcon = "layout-5-line";
 const columnIcon = "layout-column-line";
 
-const GENERATE_PAGE_MODE = {
+export const GENERATE_PAGE_MODE = {
   NEW: "NEW", // a new page is created for the template. (new pageId created)
   REPLACE_EMPTY: "REPLACE_EMPTY", // current page's content (DSL) is updated to template DSL. (same pageId)
 };
@@ -237,10 +234,6 @@ function GeneratePageForm() {
     useState<string>("");
   const datasourcesStructure = useSelector(getDatasourcesStructure);
 
-  const isFetchingDatasourceStructure = useSelector(
-    getIsFetchingDatasourceStructure,
-  );
-
   const generateCRUDSupportedPlugin: GenerateCRUDEnabledPluginMap = useSelector(
     getGenerateCRUDEnabledPluginMap,
   );
@@ -253,6 +246,10 @@ function GeneratePageForm() {
 
   const [selectedDatasource, selectDataSource] = useState<DropdownOption>(
     DEFAULT_DROPDOWN_OPTION,
+  );
+
+  const isFetchingDatasourceStructure = useSelector((state: AppState) =>
+    getIsFetchingDatasourceStructure(state, selectedDatasource.id || ""),
   );
 
   const [isSelectedTableEmpty, setIsSelectedTableEmpty] =
@@ -292,13 +289,6 @@ function GeneratePageForm() {
 
   const { bucketList, failedFetchingBucketList, isFetchingBucketList } =
     useS3BucketList();
-
-  const isFirstTimeUserOnboardingEnabled = useSelector(
-    getIsFirstTimeUserOnboardingEnabled,
-  );
-  const isFirstTimeUserOnboardingComplete = useSelector(
-    getFirstTimeUserOnboardingComplete,
-  );
 
   const onSelectDataSource = useCallback(
     (
@@ -410,19 +400,31 @@ function GeneratePageForm() {
     [selectColumn],
   );
 
-  const canCreateDatasource = hasCreateDatasourcePermission(
+  const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+
+  const canCreateDatasource = getHasCreateDatasourcePermission(
+    isFeatureEnabled,
     workspace?.userPermissions || [],
   );
-
-  const dataSourceOptions = useDatasourceOptions({
-    canCreateDatasource,
-    datasources,
-    generateCRUDSupportedPlugin,
-  });
 
   const spreadSheetsProps = useSpreadSheets({
     setSelectedDatasourceTableOptions,
     setSelectedDatasourceIsInvalid,
+  });
+
+  // Flag to indicate fetching of datasource configs or structure
+  const fetchingDatasourceConfigs =
+    isFetchingDatasourceStructure ||
+    (isFetchingBucketList && isS3Plugin) ||
+    ((isFetchingSheetPluginForm || spreadSheetsProps.isFetchingSpreadsheets) &&
+      isGoogleSheetPlugin);
+
+  // Options for datasource dropdown
+  const dataSourceOptions = useDatasourceOptions({
+    canCreateDatasource,
+    datasources,
+    generateCRUDSupportedPlugin,
+    fetchingDatasourceConfigs,
   });
 
   const sheetsListProps = useSheetsList();
@@ -500,11 +502,23 @@ function GeneratePageForm() {
         }
       }
     }
+
+    // The datasourceOptions can be update in case the environments are refreshed, need to sync the
+    // selected datasource with the updated datasourceOptions
+    for (let i = 0; i < dataSourceOptions.length; i++) {
+      if (dataSourceOptions[i].id === selectedDatasource.id) {
+        if (!equal(dataSourceOptions[i], selectedDatasource))
+          selectDataSource(dataSourceOptions[i]);
+        break;
+      }
+    }
   }, [
     dataSourceOptions,
     datasourceIdToBeSelected,
     onSelectDataSource,
+    selectedDatasource,
     setDatasourceIdToBeSelected,
+    selectDataSource,
   ]);
 
   useEffect(() => {
@@ -568,15 +582,6 @@ function GeneratePageForm() {
 
     AnalyticsUtil.logEvent("GEN_CRUD_PAGE_FORM_SUBMIT");
     dispatch(generateTemplateToUpdatePage(payload));
-    if (isFirstTimeUserOnboardingEnabled) {
-      dispatch(removeFirstTimeUserOnboardingApplicationId(applicationId));
-    }
-    if (isFirstTimeUserOnboardingComplete) {
-      dispatch({
-        type: ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_COMPLETE,
-        payload: false,
-      });
-    }
   };
 
   const handleFormSubmit = () => {
@@ -614,12 +619,6 @@ function GeneratePageForm() {
 
   let tableDropdownErrorMsg = "";
 
-  const fetchingDatasourceConfigs =
-    isFetchingDatasourceStructure ||
-    (isFetchingBucketList && isS3Plugin) ||
-    ((isFetchingSheetPluginForm || spreadSheetsProps.isFetchingSpreadsheets) &&
-      isGoogleSheetPlugin);
-
   const fetchingDatasourceConfigError =
     selectedDatasourceIsInvalid ||
     !isValidDatasourceConfig ||
@@ -644,6 +643,8 @@ function GeneratePageForm() {
 
   const showSearchableColumn =
     !!selectedTable.value &&
+    !fetchingDatasourceConfigs &&
+    !fetchingDatasourceConfigError &&
     PluginPackageName.S3 !== selectedDatasourcePluginPackageName;
 
   const showSubmitButton =

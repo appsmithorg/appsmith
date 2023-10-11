@@ -38,7 +38,12 @@ import { Classes as PopOver2Classes } from "@blueprintjs/popover2";
 import StaticTable from "./StaticTable";
 import VirtualTable from "./VirtualTable";
 import fastdom from "fastdom";
-import { ConnectDataOverlay } from "./ConnectDataOverlay";
+import { ConnectDataOverlay } from "widgets/ConnectDataOverlay";
+import { TABLE_CONNECT_OVERLAY_TEXT } from "../constants/messages";
+import {
+  createMessage,
+  CONNECT_BUTTON_TEXT,
+} from "@appsmith/constants/messages";
 
 const SCROLL_BAR_OFFSET = 2;
 const HEADER_MENU_PORTAL_CLASS = ".header-menu-portal";
@@ -47,18 +52,18 @@ const PopoverStyles = createGlobalStyle<{
   widgetId: string;
   borderRadius: string;
 }>`
-    ${HEADER_MENU_PORTAL_CLASS}-${({ widgetId }) => widgetId}
-    {
-      font-family: var(--wds-font-family) !important;
+  ${HEADER_MENU_PORTAL_CLASS}-${({ widgetId }) => widgetId} {
+    font-family: var(--wds-font-family) !important;
 
-      & .${PopOver2Classes.POPOVER2},
-      .${PopOver2Classes.POPOVER2_CONTENT},
-      .bp3-menu {
-        border-radius: ${({ borderRadius }) =>
-          borderRadius >= `1.5rem` ? `0.375rem` : borderRadius} !important;
-      }
+    & .${PopOver2Classes.POPOVER2},
+    .${PopOver2Classes.POPOVER2_CONTENT},
+    .bp3-menu {
+      border-radius: ${({ borderRadius }) =>
+        borderRadius >= `1.5rem` ? `0.375rem` : borderRadius} !important;
     }
+  }
 `;
+
 export interface TableProps {
   width: number;
   height: number;
@@ -320,7 +325,11 @@ export function Table(props: TableProps) {
   return (
     <>
       {showConnectDataOverlay && (
-        <ConnectDataOverlay onConnectData={props.onConnectData} />
+        <ConnectDataOverlay
+          btnText={createMessage(CONNECT_BUTTON_TEXT)}
+          message={createMessage(TABLE_CONNECT_OVERLAY_TEXT)}
+          onConnectData={props.onConnectData}
+        />
       )}
       <TableWrapper
         accentColor={props.accentColor}
@@ -329,7 +338,6 @@ export function Table(props: TableProps) {
         borderRadius={props.borderRadius}
         borderWidth={props.borderWidth}
         boxShadow={props.boxShadow}
-        className={showConnectDataOverlay ? "blur" : ""}
         height={props.height}
         id={`table${props.widgetId}`}
         isAddRowInProgress={props.isAddRowInProgress}

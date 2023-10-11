@@ -8,6 +8,7 @@ import { isDynamicValue } from "utils/DynamicBindingUtils";
 import type { DSEventDetail } from "utils/AppsmithUtils";
 import { DSEventTypes, DS_EVENT } from "utils/AppsmithUtils";
 import { emitInteractionAnalyticsEvent } from "utils/AppsmithUtils";
+import { getValidationErrorForProperty } from "./utils";
 
 const FlagWrapper = styled.span`
   font-family: "Twemoji Country Flags";
@@ -18,6 +19,14 @@ const FlagWrapper = styled.span`
   position: relative;
   top: 1px;
   overflow: initial !important;
+`;
+
+const ErrorMessage = styled.div`
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 14px;
+  color: var(--ads-v2-color-fg-error);
+  margin-top: 5px;
 `;
 
 class DropDownControl extends BaseControl<DropDownControlProps> {
@@ -94,13 +103,25 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
       selected = options.find(
         (option) => option.value === computedValue,
       )?.value;
+
+      if (this.props.alwaysShowSelected && !selected) {
+        selected = computedValue;
+      }
     }
+
+    const errors = getValidationErrorForProperty(
+      this.props.widgetProperties,
+      this.props.propertyName,
+    );
+
+    const errorMessage = errors?.[errors.length - 1]?.errorMessage?.message;
 
     return (
       <div className="w-full h-full" ref={this.containerRef}>
         <Select
           defaultValue={defaultSelected}
           isMultiSelect={this.props.isMultiSelect}
+          isValid={!errors.length}
           onDeselect={this.onDeselect}
           onSelect={this.onSelect}
           optionFilterProp="label"
@@ -117,37 +138,44 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
               label={option.label}
               value={option.value}
             >
-              {/* Show Flag if present */}
-              {option.leftElement && (
-                <FlagWrapper>{option.leftElement}</FlagWrapper>
-              )}
+              <div className="flex flex-row w-full">
+                {/* Show Flag if present */}
+                {option.leftElement && (
+                  <FlagWrapper>{option.leftElement}</FlagWrapper>
+                )}
 
-              {/* Show icon if present */}
-              {option.icon && (
-                <Icon className="mr-1" name={option.icon} size="md" />
-              )}
+                {/* Show icon if present */}
+                {option.icon && (
+                  <Icon className="mr-1" name={option.icon} size="md" />
+                )}
 
-              {option.subText ? (
-                this.props.hideSubText ? (
-                  // Show subText below the main text eg - DatePicker control
-                  <div className="w-full flex flex-col">
-                    <Text kind="action-m">{option.label}</Text>
-                    <Text kind="action-s">{option.subText}</Text>
-                  </div>
+                {option.subText ? (
+                  this.props.hideSubText ? (
+                    // Show subText below the main text eg - DatePicker control
+                    <div className="w-full flex flex-col">
+                      <Text kind="action-m">{option.label}</Text>
+                      <Text kind="action-s">{option.subText}</Text>
+                    </div>
+                  ) : (
+                    // Show subText to the right side eg - Label fontsize control
+                    <div className="w-full flex justify-between items-end">
+                      <Text kind="action-m">{option.label}</Text>
+                      <Text kind="action-s">{option.subText}</Text>
+                    </div>
+                  )
                 ) : (
-                  // Show subText to the right side eg - Label fontsize control
-                  <div className="w-full flex justify-between items-end">
-                    <Text kind="action-m">{option.label}</Text>
-                    <Text kind="action-s">{option.subText}</Text>
-                  </div>
-                )
-              ) : (
-                // Only show the label eg - Auto height control
-                <Text kind="action-m">{option.label}</Text>
-              )}
+                  // Only show the label eg - Auto height control
+                  <Text kind="action-m">{option.label}</Text>
+                )}
+              </div>
             </Option>
           ))}
         </Select>
+        {errorMessage && (
+          <ErrorMessage data-testid="t---dropdown-control-error">
+            {errorMessage}
+          </ErrorMessage>
+        )}
       </div>
     );
   }
@@ -247,6 +275,7 @@ export interface DropDownControlProps extends ControlProps {
   optionWidth?: string;
   hideSubText?: boolean;
   dropdownUsePropertyValue?: boolean;
+  alwaysShowSelected?: boolean;
 }
 
 export default DropDownControl;

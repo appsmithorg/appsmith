@@ -7,11 +7,7 @@ import {
   DEFAULT_COLUMN_WIDTH,
   DEFAULT_COLUMN_NAME,
 } from "../../constants";
-import { fetchSticky } from "../utilities";
-import type {
-  ColumnProperties,
-  ReactTableColumnProps,
-} from "../../component/Constants";
+import type { ReactTableColumnProps } from "../../component/Constants";
 import memoizeOne from "memoize-one";
 
 export type getColumns = (
@@ -19,9 +15,7 @@ export type getColumns = (
   columnWidthMap: { [key: string]: number } | undefined,
   orderedTableColumns: any,
   componentWidth: number,
-  primaryColumns: Record<string, ColumnProperties>,
   renderMode: RenderMode,
-  widgetId: string,
 ) => ReactTableColumnProps[];
 
 //TODO: (Vamsi) need to unit test this function
@@ -31,9 +25,7 @@ export const getColumnsPureFn: getColumns = (
   columnWidthMap = {},
   orderedTableColumns = [],
   componentWidth,
-  primaryColumns,
   renderMode,
-  widgetId,
 ) => {
   let columns: ReactTableColumnProps[] = [];
   const hiddenColumns: ReactTableColumnProps[] = [];
@@ -58,7 +50,7 @@ export const getColumnsPureFn: getColumns = (
         isHidden: false,
         isAscOrder: column.isAscOrder,
         isDerived: column.isDerived,
-        sticky: fetchSticky(column.id, primaryColumns, renderMode, widgetId),
+        sticky: column.sticky,
         metaProperties: {
           isHidden: isHidden,
           type: column.columnType,
@@ -109,8 +101,10 @@ export const getColumnsPureFn: getColumns = (
       if the last column spills over resulting in horizontal scroll
     */
     const extraWidth = totalColumnWidth - componentWidth;
-    const lastColWidth = columns[lastColumnIndex].width || DEFAULT_COLUMN_WIDTH;
-    /*
+    if (columns[lastColumnIndex]) {
+      const lastColWidth =
+        columns[lastColumnIndex].width || DEFAULT_COLUMN_WIDTH;
+      /*
       Below if condition explanation:
       Condition 1: (lastColWidth > COLUMN_MIN_WIDTH)
         We will downsize the last column only if its greater than COLUMN_MIN_WIDTH
@@ -118,16 +112,17 @@ export const getColumnsPureFn: getColumns = (
         This condition checks whether the last column is the only column that is spilling over.
         If more than one columns are spilling over we won't downsize the last column
     */
-    if (lastColWidth > COLUMN_MIN_WIDTH && extraWidth < lastColWidth) {
-      const availableWidthForLastColumn = lastColWidth - extraWidth;
-      /*
+      if (lastColWidth > COLUMN_MIN_WIDTH && extraWidth < lastColWidth) {
+        const availableWidthForLastColumn = lastColWidth - extraWidth;
+        /*
         Below we are making sure last column width doesn't go lower than COLUMN_MIN_WIDTH again
         as availableWidthForLastColumn might go lower than COLUMN_MIN_WIDTH in some cases
       */
-      columns[lastColumnIndex].width =
-        availableWidthForLastColumn < COLUMN_MIN_WIDTH
-          ? COLUMN_MIN_WIDTH
-          : availableWidthForLastColumn;
+        columns[lastColumnIndex].width =
+          availableWidthForLastColumn < COLUMN_MIN_WIDTH
+            ? COLUMN_MIN_WIDTH
+            : availableWidthForLastColumn;
+      }
     }
   }
 

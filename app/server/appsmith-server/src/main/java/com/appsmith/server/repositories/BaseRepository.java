@@ -1,16 +1,25 @@
 package com.appsmith.server.repositories;
 
-import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
 import com.mongodb.client.result.UpdateResult;
+import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
 import org.springframework.data.repository.NoRepositoryBean;
 import reactor.core.publisher.Mono;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
 @NoRepositoryBean
 public interface BaseRepository<T, ID extends Serializable> extends ReactiveMongoRepository<T, ID> {
+
+    /**
+     * This function should be used to get an object from the DB without applying any ACL rules
+     *
+     * @param id The identifier for this type
+     * @return Mono<T>
+     */
+    Mono<T> retrieveById(ID id);
 
     /**
      * This function sets the deleted flag to true and then saves the modified document.
@@ -35,7 +44,7 @@ public interface BaseRepository<T, ID extends Serializable> extends ReactiveMong
      * @param ids The list of ids of the document that needs to be archived.
      * @return
      */
-    Mono<Boolean> archiveAllById(List<ID> ids);
+    Mono<Boolean> archiveAllById(Collection<ID> ids);
 
     Mono<T> findByIdAndBranchName(ID id, String branchName);
 

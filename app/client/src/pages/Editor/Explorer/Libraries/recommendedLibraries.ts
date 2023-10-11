@@ -48,6 +48,15 @@ export default [
     icon: "https://github.com/LiosK.png?s=20",
   },
   {
+    name: "bcryptjs",
+    url: "https://cdn.jsdelivr.net/npm/bcryptjs@2.4.3/dist/bcrypt.min.js",
+    description: "A library to help you hash passwords",
+    author: "dcodeIO",
+    docsURL: "https://github.com/dcodeIO/bcrypt.js#bcryptjs",
+    version: "2.4.3",
+    icon: "https://github.com/dcodeIO.png?s=20",
+  },
+  {
     name: "Papa Parse 5",
     description:
       "Fast and powerful CSV (delimited text) parser that gracefully handles large files and malformed input",
@@ -112,16 +121,6 @@ export default [
     author: "dchester",
     docsURL: "https://github.com/dchester/jsonpath/#jsonpath",
     icon: "https://github.com/dchester.png?s=20",
-  },
-  {
-    name: "browser-image-compression",
-    url: "https://cdn.jsdelivr.net/npm/browser-image-compression@2.0.0/dist/browser-image-compression.min.js",
-    version: "2.0.0",
-    author: "Donaldcwl",
-    docsURL:
-      "https://github.com/Donaldcwl/browser-image-compression/#browser-image-compression",
-    description: "Compress images in the browser",
-    icon: "https://github.com/Donaldcwl.png?s=20",
   },
   // We'll be enabling support for segment soon
   // {

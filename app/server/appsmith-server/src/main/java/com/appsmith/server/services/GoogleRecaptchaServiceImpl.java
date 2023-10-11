@@ -9,9 +9,10 @@ import org.springframework.web.reactive.function.client.WebClient;
 @Service
 public class GoogleRecaptchaServiceImpl extends GoogleRecaptchaServiceCEImpl implements CaptchaService {
 
-    public GoogleRecaptchaServiceImpl(WebClient.Builder webClientBuilder,
-                                      GoogleRecaptchaConfig googleRecaptchaConfig,
-                                      ObjectMapper objectMapper) {
+    public GoogleRecaptchaServiceImpl(
+            WebClient.Builder webClientBuilder,
+            GoogleRecaptchaConfig googleRecaptchaConfig,
+            ObjectMapper objectMapper) {
 
         super(webClientBuilder, googleRecaptchaConfig, objectMapper);
     }

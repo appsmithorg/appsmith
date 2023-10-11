@@ -4,18 +4,77 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { base64ToBlob, createBlobUrl } from "utils/AppsmithUtils";
-import type { DerivedPropertiesMap } from "utils/WidgetFactory";
+import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
-import { FileDataTypes } from "widgets/constants";
+import {
+  FileDataTypes,
+  DefaultMobileCameraTypes,
+} from "WidgetProvider/constants";
 
-import type { Stylesheet } from "entities/AppTheming";
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import CameraComponent from "../component";
 import type { CameraMode } from "../constants";
 import { CameraModeTypes, MediaCaptureStatusTypes } from "../constants";
-import type { AutocompletionDefinitions } from "widgets/constants";
+import type { AutocompletionDefinitions } from "WidgetProvider/constants";
+import {
+  BACK_CAMERA_LABEL,
+  createMessage,
+  DEFAULT_CAMERA_LABEL,
+  DEFAULT_CAMERA_LABEL_DESCRIPTION,
+  FRONT_CAMERA_LABEL,
+} from "@appsmith/constants/messages";
+import {
+  FlexVerticalAlignment,
+  ResponsiveBehavior,
+} from "layoutSystems/common/utils/constants";
+import IconSVG from "../icon.svg";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
 
 class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
+  static type = "CAMERA_WIDGET";
+
+  static getConfig() {
+    return {
+      name: "Camera", // The display name which will be made in uppercase and show in the widgets panel ( can have spaces )
+      iconSVG: IconSVG,
+      tags: [WIDGET_TAGS.EXTERNAL],
+      needsMeta: true, // Defines if this widget adds any meta properties
+      isCanvas: false, // Defines if this widget has a canvas within in which we can drop other widgets
+      searchTags: ["photo", "video recorder"],
+    };
+  }
+
+  static getDefaults() {
+    return {
+      widgetName: "Camera",
+      rows: 33,
+      columns: 25,
+      mode: CameraModeTypes.CAMERA,
+      isDisabled: false,
+      isVisible: true,
+      isMirrored: true,
+      version: 1,
+      responsiveBehavior: ResponsiveBehavior.Hug,
+      flexVerticalAlignment: FlexVerticalAlignment.Top,
+    };
+  }
+
+  static getAutoLayoutConfig() {
+    return {
+      widgetSize: [
+        {
+          viewportMinWidth: 0,
+          configuration: () => {
+            return {
+              minWidth: "280px",
+              minHeight: "300px",
+            };
+          },
+        },
+      ],
+    };
+  }
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
     return {
       "!doc":
@@ -39,6 +98,7 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
             propertyName: "mode",
             label: "Mode",
             controlType: "ICON_TABS",
+            defaultValue: "CAMERA",
             fullWidth: true,
             helpText: "Whether a picture is taken or a video is recorded",
             options: [
@@ -90,6 +150,35 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            propertyName: "defaultCamera",
+            label: createMessage(DEFAULT_CAMERA_LABEL),
+            helpText: createMessage(DEFAULT_CAMERA_LABEL_DESCRIPTION),
+            controlType: "DROP_DOWN",
+            defaultValue: DefaultMobileCameraTypes.BACK,
+            options: [
+              {
+                label: createMessage(FRONT_CAMERA_LABEL),
+                value: DefaultMobileCameraTypes.FRONT,
+              },
+              {
+                label: createMessage(BACK_CAMERA_LABEL),
+                value: DefaultMobileCameraTypes.BACK,
+              },
+            ],
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                allowedValues: [
+                  DefaultMobileCameraTypes.FRONT,
+                  DefaultMobileCameraTypes.BACK,
+                ],
+                default: DefaultMobileCameraTypes.BACK,
+              },
+            },
           },
         ],
       },
@@ -219,32 +308,40 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
     };
   }
 
-  static getWidgetType(): string {
-    return "CAMERA_WIDGET";
+  static getSetterConfig(): SetterConfig {
+    return {
+      __setters: {
+        setVisibility: {
+          path: "isVisible",
+          type: "boolean",
+        },
+        setDisabled: {
+          path: "isDisabled",
+          type: "boolean",
+        },
+      },
+    };
   }
 
-  getPageView() {
+  getWidgetView() {
     const {
-      bottomRow,
+      componentHeight,
+      componentWidth,
+      defaultCamera,
       isDisabled,
       isMirrored,
-      leftColumn,
       mode,
-      parentColumnSpace,
-      parentRowSpace,
-      rightColumn,
-      topRow,
       videoBlobURL,
     } = this.props;
 
-    const height = (bottomRow - topRow) * parentRowSpace - WIDGET_PADDING * 2;
-    const width =
-      (rightColumn - leftColumn) * parentColumnSpace - WIDGET_PADDING * 2;
+    const height = componentHeight - WIDGET_PADDING * 2;
+    const width = componentWidth - WIDGET_PADDING * 2;
 
     return (
       <CameraComponent
         borderRadius={this.props.borderRadius}
         boxShadow={this.props.boxShadow}
+        defaultCamera={defaultCamera}
         disabled={isDisabled}
         height={height}
         mirrored={isMirrored}
@@ -385,6 +482,7 @@ export interface CameraWidgetProps extends WidgetProps {
   borderRadius: string;
   boxShadow: string;
   isDirty: boolean;
+  defaultCamera: string;
 }
 
 export default CameraWidget;

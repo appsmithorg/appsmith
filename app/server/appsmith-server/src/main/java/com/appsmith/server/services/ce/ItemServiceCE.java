@@ -12,5 +12,4 @@ public interface ItemServiceCE {
     Flux<ItemDTO> get(MultiValueMap<String, String> params);
 
     Mono<ActionDTO> addItemToPage(AddItemToPageDTO addItemToPageDTO);
-
 }

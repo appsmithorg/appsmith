@@ -50,6 +50,7 @@ body:
     label: RACI matrix
     description: Please fill the table below.
     value: |
+      | Role | People |
       | ------------- | ------------- |
       | Responsible   |               |
       | Accountable   |               |

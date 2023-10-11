@@ -55,6 +55,7 @@ export default {
   shareApp: ".t--application-share-btn",
   enablePublicAccess:
     "//div[contains(@class, 't--share-public-toggle')]//input[@role='switch']",
+  enablePublicAccessSettingsPage: "[data-testid=t--embed-settings-application-public]",
   switchLabel: ".ads-v2-switch__label",
   closeBtn: ".ads-v2-modal__content-header-close-button",
   editModeInviteModalCloseBtn: ".ads-v2-modal__content-header-close-button",

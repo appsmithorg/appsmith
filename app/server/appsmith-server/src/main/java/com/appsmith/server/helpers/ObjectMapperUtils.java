@@ -14,20 +14,14 @@ public class ObjectMapperUtils {
     }
 
     public <T> T readFromString(String src, Class viewsClass, Class<T> resultClass) throws IOException {
-        return objectMapper
-                .readerWithView(viewsClass)
-                .readValue(src, resultClass);
+        return objectMapper.readerWithView(viewsClass).readValue(src, resultClass);
     }
 
     public <T> T readFromFile(File file, Class viewsClass, Class<T> resultClass) throws IOException {
-        return objectMapper
-                .readerWithView(viewsClass)
-                .readValue(file, resultClass);
+        return objectMapper.readerWithView(viewsClass).readValue(file, resultClass);
     }
 
     public String writeAsString(Object src, Class viewsClass) throws JsonProcessingException {
-        return objectMapper
-                .writerWithView(viewsClass)
-                .writeValueAsString(src);
+        return objectMapper.writerWithView(viewsClass).writeValueAsString(src);
     }
 }

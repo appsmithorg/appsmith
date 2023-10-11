@@ -12,6 +12,8 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
+import static java.lang.Boolean.TRUE;
+
 @Slf4j
 @RequiredArgsConstructor
 @Component
@@ -23,13 +25,13 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
 
     private final InstanceConfigHelper instanceConfigHelper;
 
-
     @Override
     public void onApplicationEvent(ApplicationReadyEvent applicationReadyEvent) {
 
-        Mono<Void> registrationAndRtsCheckMono = configService.getByName(Appsmith.APPSMITH_REGISTERED)
-                .filter(config -> Boolean.TRUE.equals(config.getConfig().get("value")))
-                .switchIfEmpty(instanceConfigHelper.registerInstance())
+        Mono<Void> registrationAndRtsCheckMono = configService
+                .getByName(Appsmith.APPSMITH_REGISTERED)
+                .filter(config -> TRUE.equals(config.getConfig().get("value")))
+                .switchIfEmpty(Mono.defer(() -> instanceConfigHelper.registerInstance()))
                 .onErrorResume(errorSignal -> {
                     log.debug("Instance registration failed with error: \n{}", errorSignal.getMessage());
                     return Mono.empty();
@@ -37,12 +39,25 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
                 .then(instanceConfigHelper.performRtsHealthCheck())
                 .doFinally(ignored -> instanceConfigHelper.printReady());
 
-        Mono<?> startupProcess = instanceConfigHelper.checkInstanceSchemaVersion()
+        Mono<?> startupProcess = instanceConfigHelper
+                .checkMongoDBVersion()
+                .flatMap(ignored -> instanceConfigHelper.checkInstanceSchemaVersion())
                 .flatMap(signal -> registrationAndRtsCheckMono)
                 // Prefill the server cache with anonymous user permission group ids.
                 .then(cacheableRepositoryHelper.preFillAnonymousUserPermissionGroupIdsCache())
                 // Add cold publisher as we have dependency on the instance registration
-                .then(Mono.defer(instanceConfigHelper::isLicenseValid));
+                // TODO Update implementation to fetch license status for all the tenants once multi-tenancy is
+                //  introduced
+                .then(Mono.defer(instanceConfigHelper::isLicenseValid)
+                        // Ensure that the tenant feature flags are refreshed with the latest values after completing
+                        // the
+                        // license verification process.
+                        .flatMap(isValid -> {
+                            log.debug(
+                                    "License verification completed with status: {}",
+                                    TRUE.equals(isValid) ? "valid" : "invalid");
+                            return instanceConfigHelper.updateCacheForTenantFeatureFlags();
+                        }));
 
         try {
             startupProcess.block();
@@ -55,5 +70,4 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
     public boolean getIsRtsAccessible() {
         return instanceConfigHelper.getIsRtsAccessible();
     }
-
 }

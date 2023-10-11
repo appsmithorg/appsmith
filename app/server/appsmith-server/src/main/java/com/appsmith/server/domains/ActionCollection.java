@@ -20,11 +20,12 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @NoArgsConstructor
 @Document
 public class ActionCollection extends BranchAwareDomain {
-    // Default resources from BranchAwareDomain will be used to store branchName, defaultApplicationId and defaultActionCollectionId
+    // Default resources from BranchAwareDomain will be used to store branchName, defaultApplicationId and
+    // defaultActionCollectionId
     @JsonView(Views.Public.class)
     String applicationId;
 
-    //Organizations migrated to workspaces, kept the field as depricated to support the old migration
+    // Organizations migrated to workspaces, kept the field as depricated to support the old migration
     @Deprecated
     @JsonView(Views.Public.class)
     String organizationId;

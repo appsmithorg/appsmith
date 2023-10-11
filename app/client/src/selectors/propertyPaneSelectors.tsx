@@ -1,11 +1,8 @@
 import type { AppState } from "@appsmith/reducers";
-import { find, get, pick, set } from "lodash";
+import { find, get, set } from "lodash";
 import { createSelector } from "reselect";
-import type {
-  DataTree,
-  DataTreeEntity,
-  WidgetEntity,
-} from "entities/DataTree/dataTreeFactory";
+import type { WidgetEntity } from "@appsmith/entities/DataTree/types";
+import type { DataTree, DataTreeEntity } from "entities/DataTree/dataTreeTypes";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type {
   PropertyPaneReduxState,
@@ -21,9 +18,9 @@ import {
 import { generateClassName } from "utils/generators";
 import { getGoogleMapsApiKey } from "@appsmith/selectors/tenantSelectors";
 import type { WidgetProps } from "widgets/BaseWidget";
-import { getCanvasWidgets } from "./entitiesSelector";
+import { getCanvasWidgets } from "@appsmith/selectors/entitiesSelector";
 import { getLastSelectedWidget, getSelectedWidgets } from "./ui";
-import { getCurrentAppPositioningType } from "./editorSelectors";
+import { getLayoutSystemType } from "./layoutSystemSelectors";
 
 export type WidgetProperties = WidgetProps & {
   [EVALUATION_PATH]?: DataTreeEntity;
@@ -71,44 +68,32 @@ const getCurrentWidgetName = createSelector(
 
 export const getWidgetPropsForPropertyPane = createSelector(
   getCurrentWidgetProperties,
-  getCurrentAppPositioningType,
-  getDataTree,
+  getLayoutSystemType,
+  (state) => {
+    const currentWidget = getCurrentWidgetProperties(state);
+    if (!currentWidget) return;
+    const evaluatedWidget = find(getDataTree(state), {
+      widgetId: currentWidget.widgetId,
+    }) as WidgetEntity;
+    if (!evaluatedWidget) return;
+    return evaluatedWidget[EVALUATION_PATH];
+  },
   (
     widget: WidgetProps | undefined,
-    appPositioningType,
-    evaluatedTree: DataTree,
+    layoutSystemType,
+    evaluatedValue: any,
   ): WidgetProps | undefined => {
     if (!widget) return undefined;
-    const evaluatedWidget = find(evaluatedTree, {
-      widgetId: widget.widgetId,
-    }) as WidgetEntity;
+
     const widgetProperties = {
       ...widget,
-      appPositioningType,
+      layoutSystemType,
     };
-    if (evaluatedWidget) {
-      widgetProperties[EVALUATION_PATH] = evaluatedWidget[EVALUATION_PATH];
+    if (evaluatedValue) {
+      widgetProperties[EVALUATION_PATH] = evaluatedValue;
     }
     return widgetProperties;
   },
-);
-
-type WidgetPropertiesForPropertyPaneView = {
-  type: string;
-  widgetId: string;
-  widgetName: string;
-  displayName: string;
-};
-
-export const getWidgetPropsForPropertyPaneView = createSelector(
-  getWidgetPropsForPropertyPane,
-  (props) =>
-    pick(props, [
-      "type",
-      "widgetId",
-      "widgetName",
-      "displayName",
-    ]) as WidgetPropertiesForPropertyPaneView,
 );
 
 export const selectedWidgetsPresentInCanvas = createSelector(

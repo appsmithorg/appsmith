@@ -1,6 +1,6 @@
 import JSFactory from "../JSVariableFactory";
 import ExecutionMetaData from "workers/Evaluation/fns/utils/ExecutionMetaData";
-import type { JSActionEntity } from "entities/DataTree/types";
+import type { JSActionEntity } from "@appsmith/entities/DataTree/types";
 import TriggerEmitter, {
   jsVariableUpdatesHandlerWrapper,
 } from "workers/Evaluation/fns/utils/TriggerEmitter";
@@ -11,6 +11,11 @@ jest.mock("../JSVariableUpdates.ts", () => ({
   applyJSVariableUpdatesToEvalTree: (...args: any[]) => {
     applyJSVariableUpdatesToEvalTreeMock(args);
   },
+}));
+
+jest.mock("../../../../utils/MessageUtil.ts", () => ({
+  ...jest.requireActual("../../../../utils/MessageUtil.ts"),
+  sendMessage: jest.fn(),
 }));
 
 TriggerEmitter.on(

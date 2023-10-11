@@ -34,7 +34,10 @@ import ApplicationApi from "@appsmith/api/ApplicationApi";
 import { all, call, put, select, take } from "redux-saga/effects";
 
 import { validateResponse } from "sagas/ErrorSagas";
-import { getUserApplicationsWorkspacesList } from "@appsmith/selectors/applicationSelectors";
+import {
+  getDeletingMultipleApps,
+  getUserApplicationsWorkspacesList,
+} from "@appsmith/selectors/applicationSelectors";
 import type { ApiResponse } from "api/ApiResponses";
 import history from "utils/history";
 import type { AppState } from "@appsmith/reducers";
@@ -61,6 +64,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   createMessage,
   DELETING_APPLICATION,
+  DELETING_MULTIPLE_APPLICATION,
   DISCARD_SUCCESS,
   ERROR_IMPORTING_APPLICATION_TO_WORKSPACE,
 } from "@appsmith/constants/messages";
@@ -102,9 +106,12 @@ import { GUIDED_TOUR_STEPS } from "pages/Editor/GuidedTour/constants";
 import { builderURL, viewerURL } from "RouteBuilder";
 import { getDefaultPageId as selectDefaultPageId } from "sagas/selectors";
 import PageApi from "api/PageApi";
-import { identity, merge, pickBy } from "lodash";
+import { identity, isEmpty, merge, pickBy } from "lodash";
 import { checkAndGetPluginFormConfigsSaga } from "sagas/PluginSagas";
-import { getPageList, getPluginForm } from "selectors/entitiesSelector";
+import {
+  getPageList,
+  getPluginForm,
+} from "@appsmith/selectors/entitiesSelector";
 import { getConfigInitialValues } from "components/formControls/utils";
 import DatasourcesApi from "api/DatasourcesApi";
 import { resetApplicationWidgets } from "actions/pageActions";
@@ -121,7 +128,9 @@ import {
   defaultNavigationSetting,
   keysOfNavigationSetting,
 } from "constants/AppConstants";
-import { setAllEntityCollapsibleStates } from "../../actions/editorContextActions";
+import { setAllEntityCollapsibleStates } from "actions/editorContextActions";
+import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelectors";
+import type { DeletingMultipleApps } from "@appsmith/reducers/uiReducers/applicationsReducer";
 
 export const getDefaultPageId = (
   pages?: ApplicationPagePayload[],
@@ -463,6 +472,40 @@ export function* deleteApplicationSaga(
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.DELETE_APPLICATION_ERROR,
+      payload: {
+        error,
+      },
+    });
+  }
+}
+
+export function* deleteMultipleApplicationSaga() {
+  try {
+    toast.show(createMessage(DELETING_MULTIPLE_APPLICATION));
+    const deleteMultipleAppsObject: DeletingMultipleApps = yield select(
+      getDeletingMultipleApps,
+    );
+
+    if (deleteMultipleAppsObject.list?.length) {
+      const response: ApiResponse = yield call(
+        ApplicationApi.deleteMultipleApps,
+        { ids: deleteMultipleAppsObject.list },
+      );
+      const isValidResponse: boolean = yield validateResponse(response);
+      if (isValidResponse) {
+        yield put({
+          type: ReduxActionTypes.DELETE_MULTIPLE_APPLICATION_SUCCESS,
+          payload: response.data,
+        });
+        deleteMultipleAppsObject.list.forEach(function* (id) {
+          yield call(deleteRecentAppEntities, id);
+        });
+        toast.dismiss();
+      }
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.DELETE_MULTIPLE_APPLICATION_ERROR,
       payload: {
         error,
       },
@@ -851,7 +894,19 @@ export function* fetchUnconfiguredDatasourceList(
 }
 
 export function* initializeDatasourceWithDefaultValues(datasource: Datasource) {
-  if (!datasource.datasourceConfiguration) {
+  let currentEnvironment: string = yield select(getCurrentEnvironmentId);
+  if (!datasource.datasourceStorages.hasOwnProperty(currentEnvironment)) {
+    // if the currentEnvironemnt is not present for use here, take the first key from datasourceStorages
+    currentEnvironment = Object.keys(datasource.datasourceStorages)[0];
+  }
+  // Added isEmpty instead of ! condition as ! does not account for
+  // datasourceConfiguration being empty
+  if (
+    isEmpty(
+      datasource.datasourceStorages[currentEnvironment]
+        ?.datasourceConfiguration,
+    )
+  ) {
     yield call(checkAndGetPluginFormConfigsSaga, datasource.pluginId);
     const formConfig: Record<string, unknown>[] = yield select(
       getPluginForm,
@@ -861,11 +916,13 @@ export function* initializeDatasourceWithDefaultValues(datasource: Datasource) {
       getConfigInitialValues,
       formConfig,
     );
-    const payload = merge(initialValues, datasource);
+    const payload = merge(
+      initialValues,
+      datasource.datasourceStorages[currentEnvironment],
+    );
     payload.isConfigured = false; // imported datasource as not configured yet
-    const response: ApiResponse = yield DatasourcesApi.updateDatasource(
+    const response: ApiResponse = yield DatasourcesApi.updateDatasourceStorage(
       payload,
-      datasource.id,
     );
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {

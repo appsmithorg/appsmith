@@ -1,10 +1,9 @@
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
-const dsl = require("../../../../../fixtures/datePicker2dsl.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("DatePicker Widget Property pane tests with js bindings", function () {
   before(() => {
-    cy.addDsl(dsl);
+    _.agHelper.AddDsl("datePicker2dsl");
   });
 
   it("1. Datepicker default date validation with js binding and default date", function () {
@@ -130,8 +129,8 @@ describe("DatePicker Widget Property pane tests with js bindings", function () {
     );
   });
 
-  it("9. Datepicker default date validation with js binding", function () {
-    cy.PublishtheApp();
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
-  });
+  // it("9. Datepicker default date validation with js binding", function () {
+  //   _.deployMode.DeployApp();
+  //   // eslint-disable-next-line cypress/no-unnecessary-waiting
+  // });
 });

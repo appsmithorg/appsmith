@@ -26,7 +26,7 @@ import { getAppsmithConfigs } from "@appsmith/configs";
 import * as Sentry from "@sentry/react";
 import { CONTENT_TYPE_HEADER_KEY } from "constants/ApiEditorConstants/CommonApiConstants";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
-import { getEnvironmentIdForHeader } from "@appsmith/api/ApiUtils";
+import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelectors";
 
 const executeActionRegex = /actions\/execute/;
 const timeoutErrorRegex = /timeout of (\d+)ms exceeded/;
@@ -46,6 +46,17 @@ export const BLOCKED_ROUTES_REGEX = new RegExp(
   `^(${BLOCKED_ROUTES.join("|")})($|/)`,
 );
 
+export const ENV_ENABLED_ROUTES = [
+  "v1/datasources/[a-z0-9]+/structure",
+  "/v1/datasources/[a-z0-9]+/trigger",
+  "v1/actions/execute",
+  "v1/saas",
+];
+
+export const ENV_ENABLED_ROUTES_REGEX = new RegExp(
+  `^(${ENV_ENABLED_ROUTES.join("|")})($|/)`,
+);
+
 const makeExecuteActionResponse = (response: any): ActionExecutionResponse => ({
   ...response.data,
   clientMeta: {
@@ -59,7 +70,7 @@ const is404orAuthPath = () => {
   return /^\/404/.test(pathName) || /^\/user\/\w+/.test(pathName);
 };
 
-export const blockedApiRoutesForAirgapInterceptor = (
+export const blockedApiRoutesForAirgapInterceptor = async (
   config: AxiosRequestConfig,
 ) => {
   const { url } = config;
@@ -83,8 +94,8 @@ export const apiRequestInterceptor = (config: AxiosRequestConfig) => {
     config.headers["X-Requested-By"] = "Appsmith";
   }
 
-  const branch =
-    getCurrentGitBranch(store.getState()) || getQueryParamsObject().branch;
+  const state = store.getState();
+  const branch = getCurrentGitBranch(state) || getQueryParamsObject().branch;
   if (branch && config.headers) {
     config.headers.branchName = branch;
   }
@@ -92,11 +103,13 @@ export const apiRequestInterceptor = (config: AxiosRequestConfig) => {
     config.timeout = 1000 * 120; // increase timeout for git specific APIs
   }
 
-  // Add header for environment name
-  const activeEnv = getEnvironmentIdForHeader();
+  if (ENV_ENABLED_ROUTES_REGEX.test(config.url?.split("?")[0] || "")) {
+    // Add header for environment name
+    const activeEnv = getCurrentEnvironmentId(state);
 
-  if (activeEnv && config.headers) {
-    config.headers.environmentId = activeEnv;
+    if (activeEnv && config.headers) {
+      config.headers.environmentId = activeEnv;
+    }
   }
 
   const anonymousId = AnalyticsUtil.getAnonymousId();
@@ -130,7 +143,7 @@ export const apiSuccessResponseInterceptor = (
 };
 
 // Handle different api failure scenarios
-export const apiFailureResponseInterceptor = (error: any) => {
+export const apiFailureResponseInterceptor = async (error: any) => {
   // this can be extended to other errors we want to catch.
   // in this case it is 413.
   if (error && error?.response && error?.response.status === 413) {
@@ -200,7 +213,9 @@ export const apiFailureResponseInterceptor = (error: any) => {
             )}`,
           }),
         );
+        Sentry.captureException(error);
         return Promise.reject({
+          ...error,
           code: ERROR_CODES.REQUEST_NOT_AUTHORISED,
           message: "Unauthorized. Redirecting to login page...",
           show: false,
@@ -212,7 +227,9 @@ export const apiFailureResponseInterceptor = (error: any) => {
         (SERVER_ERROR_CODES.RESOURCE_NOT_FOUND.includes(errorData.error.code) ||
           SERVER_ERROR_CODES.UNABLE_TO_FIND_PAGE.includes(errorData.error.code))
       ) {
+        Sentry.captureException(error);
         return Promise.reject({
+          ...error,
           code: ERROR_CODES.PAGE_NOT_FOUND,
           message: "Resource Not Found",
           show: false,

@@ -4,16 +4,20 @@ import { RenderModes } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 
 import type {
-  ConfigTree,
-  DataTreeEntity,
   WidgetEntity,
   WidgetEntityConfig,
-} from "entities/DataTree/dataTreeFactory";
+  PrivateWidgets,
+  JSActionEntity,
+} from "@appsmith/entities/DataTree/types";
 import {
-  ENTITY_TYPE,
+  ENTITY_TYPE_VALUE,
   EvaluationSubstitutionType,
 } from "entities/DataTree/dataTreeFactory";
-import type { PrivateWidgets, JSActionEntity } from "entities/DataTree/types";
+import type {
+  ConfigTree,
+  DataTreeEntity,
+  DataTree,
+} from "entities/DataTree/dataTreeTypes";
 import type { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
 import {
   addErrorToEntityProperty,
@@ -33,18 +37,14 @@ import {
   overrideWidgetProperties,
   findDatatype,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
-import type { DataTree } from "entities/DataTree/dataTreeFactory";
 import type { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
 import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
-import TableWidget, { CONFIG as TableWidgetConfig } from "widgets/TableWidget";
-import InputWidget, {
-  CONFIG as InputWidgetV2Config,
-} from "widgets/InputWidgetV2";
-import { registerWidget } from "utils/WidgetRegisterHelpers";
-import type { WidgetConfiguration } from "widgets/constants";
+import TableWidget from "widgets/TableWidget";
+import InputWidget from "widgets/InputWidgetV2";
 import DataTreeEvaluator from "workers/common/DataTreeEvaluator";
 import { Severity } from "entities/AppsmithConsole";
 import { PluginType } from "entities/Action";
+import { registerWidgets } from "WidgetProvider/factory/registrationHelper";
 
 // to check if logWarn was called.
 // use jest.unmock, if the mock needs to be removed.
@@ -64,7 +64,7 @@ const BASE_WIDGET: WidgetEntity = {
   type: "SKELETON_WIDGET",
   parentId: "0",
   version: 1,
-  ENTITY_TYPE: ENTITY_TYPE.WIDGET,
+  ENTITY_TYPE: ENTITY_TYPE_VALUE.WIDGET,
   meta: {},
 };
 
@@ -76,7 +76,7 @@ const BASE_WIDGET_CONFIG: WidgetEntityConfig = {
   reactivePaths: {},
   triggerPaths: {},
   validationPaths: {},
-  ENTITY_TYPE: ENTITY_TYPE.WIDGET,
+  ENTITY_TYPE: ENTITY_TYPE_VALUE.WIDGET,
   privateWidgets: {},
   propertyOverrideDependency: {},
   overridingPropertyPaths: {},
@@ -255,10 +255,8 @@ describe("2. privateWidgets", () => {
       Text3: true,
     };
 
-    const actualPrivateWidgetsList = getAllPrivateWidgetsInDataTree(
-      testDataTree,
-      testConfigTree,
-    );
+    const actualPrivateWidgetsList =
+      getAllPrivateWidgetsInDataTree(testConfigTree);
 
     expect(expectedPrivateWidgetsList).toStrictEqual(actualPrivateWidgetsList);
   });
@@ -482,7 +480,7 @@ describe("4. translateDiffEvent", () => {
       diffs.map((diff) =>
         translateDiffEventToDataTreeDiffEvent(diff, {
           JsObject: {
-            ENTITY_TYPE: ENTITY_TYPE.JSACTION,
+            ENTITY_TYPE: ENTITY_TYPE_VALUE.JSACTION,
           } as unknown as DataTreeEntity,
         }),
       ),
@@ -597,11 +595,7 @@ describe("4. translateDiffEvent", () => {
 
 describe("5. overrideWidgetProperties", () => {
   beforeAll(() => {
-    registerWidget(TableWidget, TableWidgetConfig);
-    registerWidget(
-      InputWidget,
-      InputWidgetV2Config as unknown as WidgetConfiguration,
-    );
+    registerWidgets([TableWidget, InputWidget]);
   });
 
   describe("1. Input widget ", () => {
@@ -610,7 +604,7 @@ describe("5. overrideWidgetProperties", () => {
     beforeAll(() => {
       const inputWidgetDataTree = generateDataTreeWidget(
         {
-          type: InputWidget.getWidgetType(),
+          type: InputWidget.type,
           widgetId: "egwwwfgab",
           widgetName: "Input1",
           children: [],
@@ -625,6 +619,7 @@ describe("5. overrideWidgetProperties", () => {
           topRow: 0,
         },
         {},
+        new Set(),
       );
       currentTree["Input1"] = inputWidgetDataTree.unEvalEntity;
       configTree["Input1"] = inputWidgetDataTree.configEntity;
@@ -696,7 +691,7 @@ describe("5. overrideWidgetProperties", () => {
     beforeAll(() => {
       const tableWidgetDataTree = generateDataTreeWidget(
         {
-          type: TableWidget.getWidgetType(),
+          type: TableWidget.type,
           widgetId: "random",
           widgetName: "Table1",
           children: [],
@@ -711,6 +706,7 @@ describe("5. overrideWidgetProperties", () => {
           topRow: 0,
         },
         {},
+        new Set(),
       );
       currentTree["Table1"] = tableWidgetDataTree.unEvalEntity;
       configTree["Table1"] = tableWidgetDataTree.configEntity;
@@ -838,7 +834,6 @@ describe("7. Test addErrorToEntityProperty method", () => {
     } as EvaluationError;
     addErrorToEntityProperty({
       errors: [error],
-      dataTree: dataTreeEvaluator.evalTree,
       evalProps: dataTreeEvaluator.evalProps,
       fullPropertyPath: "Api1.data",
       configTree: dataTreeEvaluator.oldConfigTree,
@@ -870,7 +865,7 @@ describe("convertJSFunctionsToString", () => {
       },
       name: "JSObject1",
       actionId: "63ef4cb1a01b764626f2a6e5",
-      ENTITY_TYPE: ENTITY_TYPE.JSACTION,
+      ENTITY_TYPE: ENTITY_TYPE_VALUE.JSACTION,
       pluginType: PluginType.JS,
       bindingPaths: {
         body: EvaluationSubstitutionType.SMART_SUBSTITUTE,
@@ -893,7 +888,7 @@ describe("convertJSFunctionsToString", () => {
       },
     },
     JSObject2: {
-      ENTITY_TYPE: ENTITY_TYPE.JSACTION,
+      ENTITY_TYPE: ENTITY_TYPE_VALUE.JSACTION,
       meta: {
         myFun1: {
           arguments: [],
@@ -951,7 +946,7 @@ describe("convertJSFunctionsToString", () => {
     JSObject1: {
       myFun1: JSObject1MyFun1,
       body: 'export default {\nmyFun1:  ()=>{ \n\treturn "name"\n} \n}',
-      ENTITY_TYPE: ENTITY_TYPE.JSACTION,
+      ENTITY_TYPE: ENTITY_TYPE_VALUE.JSACTION,
 
       actionId: "63ef4cb1a01b764626f2a6e5",
     },
@@ -961,7 +956,7 @@ describe("convertJSFunctionsToString", () => {
       myFun1: JSObject2MyFun1,
       myFun2: JSObject2MyFun2,
       body: "export default {\n\tmyVar1: [],\n\tmyVar2: {},\n\tmyFun1: () => {\n\t\t//write code here\n\t},\n\tmyFun2: async () => {\n\t\t//use async-await or promises\n\t}\n}",
-      ENTITY_TYPE: ENTITY_TYPE.JSACTION,
+      ENTITY_TYPE: ENTITY_TYPE_VALUE.JSACTION,
 
       actionId: "63f78437d1a4ef55755952f1",
     },

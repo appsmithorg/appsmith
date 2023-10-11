@@ -10,7 +10,6 @@ describe("Visual regression tests", () => {
 
   it("1. Layout validation for app page in edit mode", () => {
     _.homePage.NavigateToHome();
-    //cy.visit("/applications");
     //cy.wait(3000);
     _.homePage.CreateNewApplication();
     //cy.get(".createnew").should("be.visible").first().click();
@@ -31,7 +30,7 @@ describe("Visual regression tests", () => {
     cy.get("#root").matchImageSnapshot("emptyAppBuilder");
 
     //Layout Validation for Empty deployed app
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.wait(3000);
     // taking screenshot of empty deployed app
     cy.get("#root").matchImageSnapshot("EmptyApp");

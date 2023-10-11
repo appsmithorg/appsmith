@@ -1,12 +1,9 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
-const dsl = require("../../../../../fixtures/tableV2NewDslWithPagination.json");
-const { ObjectsRegistry } = require("../../../../../support/Objects/Registry");
-
-const table = ObjectsRegistry.Table;
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Table Widget property pane feature validation", function () {
   before(() => {
-    cy.addDsl(dsl);
+    _.agHelper.AddDsl("tableV2NewDslWithPagination");
   });
 
   it("1. updates previous and next pagination propeties properly in non server side pagination mode", function () {
@@ -33,16 +30,16 @@ describe("Table Widget property pane feature validation", function () {
 
     // pagination flags should get reset whenever a user searches for any text
 
-    table.SearchTable("Michael Lawson");
+    _.table.SearchTable("Michael Lawson");
     cy.get(commonlocators.bodyTextStyle).should("have.text", "false false");
-    table.resetSearch();
+    _.table.ResetSearch();
 
     // Pagination properties should get reset when user filters for any criteria.
     cy.get(".t--table-widget-next-page").click();
     cy.get(commonlocators.bodyTextStyle).should("have.text", "false true");
-    table.OpenNFilterTable("userName", "contains", "Michael Lawson");
+    _.table.OpenNFilterTable("userName", "contains", "Michael Lawson");
     cy.get(commonlocators.bodyTextStyle).should("have.text", "false false");
-    table.RemoveFilter();
+    _.table.RemoveFilter();
 
     cy.get(".t--table-widget-next-page").click();
     cy.get(commonlocators.bodyTextStyle).should("have.text", "false true");

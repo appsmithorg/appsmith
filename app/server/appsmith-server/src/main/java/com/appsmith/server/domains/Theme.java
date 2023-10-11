@@ -18,7 +18,7 @@ import java.util.Map;
 @Document
 public class Theme extends BaseDomain {
     public static final String LEGACY_THEME_NAME = "classic";
-    public static final String DEFAULT_THEME_NAME = "default";
+    public static final String DEFAULT_THEME_NAME = "default-new";
 
     // name will be used internally to identify system themes for import, export application and theme migration
     // it'll never change. We need to remove this from API response in future when FE uses displayName everywhere
@@ -32,7 +32,7 @@ public class Theme extends BaseDomain {
     @JsonView(Views.Public.class)
     private String applicationId;
 
-    //Organizations migrated to workspaces, kept the field as deprecated to support the old migration
+    // Organizations migrated to workspaces, kept the field as deprecated to support the old migration
     @Deprecated
     @JsonView(Views.Public.class)
     private String organizationId;
@@ -49,9 +49,9 @@ public class Theme extends BaseDomain {
     @JsonView(Views.Public.class)
     private Map<String, Object> stylesheet;
 
-    @JsonProperty("isSystemTheme")  // manually setting property name to make sure it's compatible with Gson
+    @JsonProperty("isSystemTheme") // manually setting property name to make sure it's compatible with Gson
     @JsonView({Views.Public.class})
-    private boolean isSystemTheme = false;  // should be false by default
+    private boolean isSystemTheme = false; // should be false by default
 
     @Data
     @AllArgsConstructor

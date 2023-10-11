@@ -1,22 +1,17 @@
 import {
   getEntityNameAndPropertyPath,
-  isAction,
   isJSAction,
-  isWidget,
+  isValidEntity,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
 import {
   EXECUTION_PARAM_REFERENCE_REGEX,
   THIS_DOT_PARAMS_KEY,
 } from "constants/AppsmithActionConstants/ActionConstants";
-import type {
-  ConfigTree,
-  DataTreeEntity,
-  WidgetEntity,
-} from "entities/DataTree/dataTreeFactory";
-import type { ActionEntity, JSActionEntity } from "entities/DataTree/types";
-import type { EvaluationError } from "utils/DynamicBindingUtils";
-import { errorModifier } from "workers/Evaluation/errorModifier";
-import { asyncJsFunctionInDataFields } from "workers/Evaluation/JSObject/asyncJSFunctionBoundToDataField";
+import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeTypes";
+import type DependencyMap from "entities/DependencyMap";
+import type { TJSPropertiesState } from "workers/Evaluation/JSObject/jsPropertiesState";
+import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
+import type { DataTreeEntityConfig } from "@appsmith/entities/DataTree/types";
 
 export function getFixedTimeDifference(endTime: number, startTime: number) {
   return (endTime - startTime).toFixed(2) + " ms";
@@ -30,34 +25,47 @@ export function isDataField(fullPath: string, configTree: ConfigTree) {
   return false;
 }
 
-export function isWidgetActionOrJsObject(
-  entity: DataTreeEntity,
-): entity is ActionEntity | WidgetEntity | JSActionEntity {
-  return isWidget(entity) || isAction(entity) || isJSAction(entity);
-}
-
-export function addRootcauseToAsyncInvocationErrors(
-  fullPropertyPath: string,
-  configTree: ConfigTree,
-  errors: EvaluationError[],
-) {
-  let updatedErrors = errors;
-
-  if (isDataField(fullPropertyPath, configTree)) {
-    const asyncFunctionBindingInPath =
-      asyncJsFunctionInDataFields.getAsyncFunctionBindingInDataField(
-        fullPropertyPath,
-      );
-    if (asyncFunctionBindingInPath) {
-      updatedErrors = errorModifier.setAsyncInvocationErrorsRootcause(
-        errors,
-        asyncFunctionBindingInPath,
-      );
-    }
-  }
-  return updatedErrors;
-}
-
 export function replaceThisDotParams(code: string) {
   return code.replace(EXECUTION_PARAM_REFERENCE_REGEX, THIS_DOT_PARAMS_KEY);
+}
+
+export function getAllAsyncJSFunctions(
+  unevalTree: DataTree,
+  jsPropertiesState: TJSPropertiesState,
+  dependencyMap: DependencyMap,
+  allAsyncNodes: string[],
+) {
+  const allAsyncJSFunctions: string[] = [];
+  for (const [entityName, entity] of Object.entries(unevalTree)) {
+    if (!isJSAction(entity)) continue;
+    const jsEntityState = jsPropertiesState[entityName];
+    if (!jsEntityState) continue;
+    for (const [propertyName, propertyState] of Object.entries(jsEntityState)) {
+      if (!("isMarkedAsync" in propertyState)) continue;
+      if (propertyState.isMarkedAsync) {
+        allAsyncJSFunctions.push(`${entityName}.${propertyName}`);
+        continue;
+      } else {
+        const reacheableAsyncNodes = dependencyMap.getAllReachableNodes(
+          `${entityName}.${propertyName}`,
+          allAsyncNodes,
+        );
+        reacheableAsyncNodes.length &&
+          allAsyncJSFunctions.push(`${entityName}.${propertyName}`);
+      }
+    }
+  }
+  return allAsyncJSFunctions;
+}
+
+export function getValidEntityType(
+  entity: DataTreeEntity,
+  entityConfig: DataTreeEntityConfig,
+) {
+  let entityType;
+  if (isValidEntity(entity)) {
+    entityType =
+      (!!entityConfig && entityConfig.ENTITY_TYPE) || entity.ENTITY_TYPE;
+  }
+  return !!entityType ? entityType : "noop";
 }

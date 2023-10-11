@@ -22,7 +22,6 @@ import reactor.core.publisher.Mono;
  * We transform the {@link OAuth2User} object to {@link User} object via the {@link #loadUser(OidcUserRequest)}
  * We also create the user if it doesn't exist we create it via {@link #checkAndCreateUser(OidcUser, OidcUserRequest)}
  */
-
 @Slf4j
 public class CustomOidcUserServiceCEImpl extends OidcReactiveOAuth2UserService {
 
@@ -49,7 +48,8 @@ public class CustomOidcUserServiceCEImpl extends OidcReactiveOAuth2UserService {
 
         String username = (!StringUtils.isEmpty(oidcUser.getEmail())) ? oidcUser.getEmail() : oidcUser.getName();
 
-        return repository.findByEmail(username)
+        return repository
+                .findByEmail(username)
                 .switchIfEmpty(repository.findByCaseInsensitiveEmail(username))
                 .switchIfEmpty(Mono.defer(() -> {
                     User newUser = new User();
@@ -59,7 +59,8 @@ public class CustomOidcUserServiceCEImpl extends OidcReactiveOAuth2UserService {
                         newUser.setName(oidcUser.getName());
                     }
                     newUser.setEmail(username);
-                    LoginSource loginSource = LoginSource.fromString(userRequest.getClientRegistration().getRegistrationId());
+                    LoginSource loginSource = LoginSource.fromString(
+                            userRequest.getClientRegistration().getRegistrationId());
                     newUser.setSource(loginSource);
                     newUser.setState(UserState.ACTIVATED);
                     newUser.setIsEnabled(true);
@@ -76,8 +77,6 @@ public class CustomOidcUserServiceCEImpl extends OidcReactiveOAuth2UserService {
                 .onErrorMap(
                         AppsmithException.class,
                         error -> new OAuth2AuthenticationException(
-                                new OAuth2Error(error.getAppErrorCode().toString(), error.getMessage(), "")
-                        )
-                );
+                                new OAuth2Error(error.getAppErrorCode().toString(), error.getMessage(), "")));
     }
 }

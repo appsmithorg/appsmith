@@ -136,7 +136,6 @@ function TemplateDetailedView(props: TemplateDetailedViewProps) {
               kind="secondary"
               onClick={props.onBackPress}
               startIcon="back-control"
-              to="#"
             >
               {createMessage(TEMPLATES_BACK_BUTTON)}
             </Link>
@@ -148,14 +147,14 @@ function TemplateDetailedView(props: TemplateDetailedViewProps) {
               <div className="round yellow" />
               <div className="round green" />
             </IframeTopBar>
-            <iframe src={`${previewUrl}?embed=true`} />
+            <iframe src={previewUrl} />
           </IframeWrapper>
           <TemplateDescriptionWrapper>
-            <TemplateDescription hideForkButton template={currentTemplate} />
+            <TemplateDescription template={currentTemplate} />
           </TemplateDescriptionWrapper>
           <StyledSimilarTemplatesWrapper
             breakpointCols={breakpointColumns}
-            isForkingEnabled
+            isForkingEnabled={false}
             onBackPress={props.onBackPress}
             onClick={onSimilarTemplateClick}
             onFork={onSimilarTemplateClick}

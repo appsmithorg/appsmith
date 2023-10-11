@@ -1,15 +1,15 @@
-import React from "react";
+import * as React from "react";
 import type { ComponentMeta, ComponentStory } from "@storybook/react";
 
-import TooltipComponent from "./index";
+import { TooltipComponent } from "@design-system/widgets-old";
 
 export default {
-  title: "Design System/widgets-old/Tooltip",
+  title: "Design System/Widgets-old/Tooltip",
   component: TooltipComponent,
 } as ComponentMeta<typeof TooltipComponent>;
 
 // eslint-disable-next-line react/function-component-definition
-const Template: ComponentStory<typeof TooltipComponent> = (args: any) => (
+const Template: ComponentStory<typeof TooltipComponent> = (args) => (
   <TooltipComponent {...args}>Hover over me 😁</TooltipComponent>
 );
 

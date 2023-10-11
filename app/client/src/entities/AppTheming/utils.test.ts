@@ -1,19 +1,13 @@
 import { RenderModes } from "constants/WidgetConstants";
 import { getPropertiesToUpdateForReset } from "./utils";
-import { registerWidget } from "utils/WidgetRegisterHelpers";
-import ButtonWidget, {
-  CONFIG as ButtonWidgetConfig,
-} from "widgets/ButtonWidget";
-import TableWidget, { CONFIG as TableWidgetConfig } from "widgets/TableWidget";
-import JSONFormWidget, {
-  CONFIG as JSONFormWidgetConfig,
-} from "widgets/JSONFormWidget";
+import ButtonWidget from "widgets/ButtonWidget";
+import TableWidget from "widgets/TableWidget";
+import JSONFormWidget from "widgets/JSONFormWidget";
+import { registerWidgets } from "WidgetProvider/factory/registrationHelper";
 
 describe("AppThemingSaga test", () => {
   beforeAll(() => {
-    registerWidget(ButtonWidget, ButtonWidgetConfig);
-    registerWidget(TableWidget, TableWidgetConfig);
-    registerWidget(JSONFormWidget, JSONFormWidgetConfig);
+    registerWidgets([ButtonWidget, TableWidget, JSONFormWidget]);
   });
 
   it("Checks if button widget resets to correct value", () => {

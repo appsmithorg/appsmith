@@ -51,6 +51,7 @@ export const Layers = {
   productUpdates: Indices.Layer7,
   portals: Indices.Layer9,
   header: Indices.Layer9,
+  signpostingOverlay: Indices.Layer9,
   snipeableZone: Indices.Layer10,
   max: Indices.LayerMax,
   sideStickyBar: Indices.Layer7,
@@ -59,6 +60,9 @@ export const Layers = {
   manualUpgrade: Indices.Layer10,
 
   autoHeightWithLimitsOverlay: Indices.Layer3,
+
+  // Should be higher than header and portal layer
+  guidedTour: Indices.Layer10,
 };
 
 export const tailwindLayers = {

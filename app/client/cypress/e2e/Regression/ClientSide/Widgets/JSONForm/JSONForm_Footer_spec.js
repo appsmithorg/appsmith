@@ -1,26 +1,22 @@
-const dslWithoutSchema = require("../../../../../fixtures/jsonFormDslWithoutSchema.json");
-const dslWithSchema = require("../../../../../fixtures/jsonFormDslWithSchema.json");
-import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
-
-let agHelper = ObjectsRegistry.AggregateHelper;
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("JSONForm Footer spec", () => {
   beforeEach(() => {
-    agHelper.RestoreLocalStorageCache();
+    _.agHelper.RestoreLocalStorageCache();
   });
 
   afterEach(() => {
-    agHelper.SaveLocalStorageCache();
+    _.agHelper.SaveLocalStorageCache();
   });
 
   it("1. sticks to the bottom when fixed footer is true and content is less", () => {
-    cy.addDsl(dslWithoutSchema);
+    _.agHelper.AddDsl("jsonFormDslWithoutSchema");
     // add small source data
     const sourceData = {
       name: "John",
     };
     cy.openPropertyPane("jsonformwidget");
-    cy.testJsontext("sourcedata", JSON.stringify(sourceData));
+    _.propPane.EnterJSContext("Source data", JSON.stringify(sourceData), true);
 
     // check if fixed footer enabled
     cy.get(".t--property-control-fixedfooter")
@@ -52,11 +48,11 @@ describe("JSONForm Footer spec", () => {
   });
 
   it("3. floats to the bottom when fixed footer is true and content overflows", () => {
-    cy.addDsl(dslWithSchema);
-    cy.addDsl(dslWithSchema);
-    cy.wait(3000); //for dsl to settle
+    _.agHelper.AddDsl("jsonFormDslWithSchema");
+    _.agHelper.AddDsl("jsonFormDslWithSchema"); //Should not be needed, to check
 
     cy.openPropertyPane("jsonformwidget");
+    cy.get(_.locators._jsToggle("sourcedata")).click({ force: true });
     // check if fixed footer enabled
     cy.get(".t--property-control-fixedfooter")
       .find(".ads-v2-switch input")

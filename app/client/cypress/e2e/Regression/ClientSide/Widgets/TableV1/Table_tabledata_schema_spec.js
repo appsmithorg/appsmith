@@ -1,11 +1,9 @@
-const publish = require("../../../../../locators/publishWidgetspage.json");
 const explorer = require("../../../../../locators/explorerlocators.json");
-const dsl = require("../../../../../fixtures/tableNewDsl.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Table Widget", function () {
   before(() => {
-    cy.addDsl(dsl);
+    _.agHelper.AddDsl("tableNewDsl");
   });
   it("1. Table Widget Functionality To Check with changing schema of tabledata", () => {
     let jsContext = `{{Switch1.isSwitchedOn?[{name: "joe"}]:[{employee_name: "john"}];}}`;
@@ -17,7 +15,7 @@ describe("Table Widget", function () {
     cy.get(".t--property-control-tabledata").then(($el) => {
       cy.updateCodeInput($el, jsContext);
     });
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.getTableDataSelector("0", "0").then((element) => {
       cy.get(element).should("be.visible");
     });
@@ -42,7 +40,7 @@ describe("Table Widget", function () {
     cy.readTabledataPublish("0", "0").then((value) => {
       expect(value).to.be.equal("joe");
     });
-    cy.get(publish.backToEditor).click().wait(1000);
+    _.deployMode.NavigateBacktoEditor();
     cy.CheckAndUnfoldEntityItem("Widgets");
     _.entityExplorer.DeleteWidgetFromEntityExplorer("Switch1");
     _.entityExplorer.DeleteWidgetFromEntityExplorer("Table1");

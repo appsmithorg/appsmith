@@ -29,6 +29,7 @@ import {
   migrateTableSelectOptionAttributesForNewRow,
   migrateBindingPrefixSuffixForInlineEditValidationControl,
   migrateTableWidgetTableDataJsMode,
+  migrateTableServerSideFiltering,
 } from "./migrations/TableWidget";
 import {
   migrateTextStyleFromTextWidget,
@@ -37,9 +38,8 @@ import {
 import { DATA_BIND_REGEX_GLOBAL } from "constants/BindingsConstants";
 import { theme } from "constants/DefaultTheme";
 import { getCanvasSnapRows } from "./WidgetPropsUtils";
-import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
 import type { FetchPageResponse } from "api/PageApi";
-import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import { GRID_DENSITY_MIGRATION_V1 } from "WidgetProvider/constants";
 // import defaultTemplate from "templates/default";
 import { renameKeyInObject } from "./helpers";
 import type { ColumnProperties } from "widgets/TableWidget/component/Constants";
@@ -55,9 +55,9 @@ import {
 } from "./migrations/ModalWidget";
 import { migrateCheckboxGroupWidgetInlineProperty } from "./migrations/CheckboxGroupWidget";
 import { migrateMapWidgetIsClickedMarkerCentered } from "./migrations/MapWidget";
-import type { DSLWidget } from "widgets/constants";
+import type { DSLWidget } from "WidgetProvider/constants";
 import { migrateRecaptchaType } from "./migrations/ButtonWidgetMigrations";
-import type { PrivateWidgets } from "entities/DataTree/types";
+import type { PrivateWidgets } from "@appsmith/entities/DataTree/types";
 import {
   migrateChildStylesheetFromDynamicBindingPathList,
   migrateStylingPropertiesForTheming,
@@ -74,7 +74,12 @@ import {
 import { migrateRadioGroupAlignmentProperty } from "./migrations/RadioGroupWidget";
 import { migrateCheckboxSwitchProperty } from "./migrations/PropertyPaneMigrations";
 import { migrateChartWidgetReskinningData } from "./migrations/ChartWidgetReskinningMigrations";
-import { MigrateSelectTypeWidgetDefaultValue } from "./migrations/SelectWidget";
+import {
+  MigrateSelectTypeWidgetDefaultValue,
+  migrateSelectWidgetAddSourceDataPropertyPathList,
+  migrateSelectWidgetOptionToSourceData,
+  migrateSelectWidgetSourceDataBindingPathList,
+} from "./migrations/SelectWidget";
 import { migrateMapChartWidgetReskinningData } from "./migrations/MapChartReskinningMigrations";
 
 import { migrateRateWidgetDisabledState } from "./migrations/RateWidgetMigrations";
@@ -85,6 +90,13 @@ import {
   migrateListWidgetChildrenForAutoHeight,
   migratePropertiesForDynamicHeight,
 } from "./migrations/autoHeightMigrations";
+
+import {
+  migrateChartWidgetLabelOrientationStaggerOption,
+  migrateAddShowHideDataPointLabels,
+  migrateDefaultValuesForCustomEChart,
+} from "./migrations/ChartWidget";
+import { flattenDSL } from "@shared/dsl";
 
 /**
  * adds logBlackList key for all list widget children
@@ -754,6 +766,7 @@ export const migrateInitialValues = (currentDSL: DSLWidget) => {
 
 // A rudimentary transform function which updates the DSL based on its version.
 // A more modular approach needs to be designed.
+// This needs the widget config to be already built to migrate correctly
 export const transformDSL = (currentDSL: DSLWidget, newPage = false) => {
   if (currentDSL.version === undefined) {
     // Since this top level widget is a CANVAS_WIDGET,
@@ -882,9 +895,7 @@ export const transformDSL = (currentDSL: DSLWidget, newPage = false) => {
   }
 
   if (currentDSL.version === 21) {
-    const {
-      entities: { canvasWidgets },
-    } = CanvasWidgetsNormalizer.normalize(currentDSL);
+    const canvasWidgets = flattenDSL(currentDSL);
     currentDSL = migrateWidgetsWithoutLeftRightColumns(
       currentDSL,
       canvasWidgets,
@@ -1187,6 +1198,41 @@ export const transformDSL = (currentDSL: DSLWidget, newPage = false) => {
 
   if (currentDSL.version == 79) {
     currentDSL = migrateTableWidgetTableDataJsMode(currentDSL);
+    currentDSL.version = 80;
+  }
+
+  if (currentDSL.version === 80) {
+    currentDSL = migrateSelectWidgetOptionToSourceData(currentDSL);
+    currentDSL.version = 81;
+  }
+
+  if (currentDSL.version === 81) {
+    currentDSL = migrateSelectWidgetSourceDataBindingPathList(currentDSL);
+    currentDSL.version = 82;
+  }
+
+  if (currentDSL.version == 82) {
+    currentDSL = migrateChartWidgetLabelOrientationStaggerOption(currentDSL);
+    currentDSL.version = 83;
+  }
+
+  if (currentDSL.version == 83) {
+    currentDSL = migrateAddShowHideDataPointLabels(currentDSL);
+    currentDSL.version = 84;
+  }
+
+  if (currentDSL.version === 84) {
+    currentDSL = migrateSelectWidgetAddSourceDataPropertyPathList(currentDSL);
+    currentDSL.version = 85;
+  }
+
+  if (currentDSL.version === 85) {
+    currentDSL = migrateDefaultValuesForCustomEChart(currentDSL);
+    currentDSL.version = 86;
+  }
+
+  if (currentDSL.version === 86) {
+    currentDSL = migrateTableServerSideFiltering(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 

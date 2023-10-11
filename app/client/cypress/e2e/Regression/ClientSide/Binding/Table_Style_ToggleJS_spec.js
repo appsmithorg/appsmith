@@ -1,25 +1,20 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
 
 const widgetsPage = require("../../../../locators/Widgets.json");
-const dsl = require("../../../../fixtures/tableNewDsl.json");
 const testdata = require("../../../../fixtures/testdata.json");
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-
-const propPane = ObjectsRegistry.PropertyPane,
-  ee = ObjectsRegistry.EntityExplorer,
-  agHelper = ObjectsRegistry.AggregateHelper;
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Table Widget property pane feature validation", function () {
   before(() => {
-    cy.addDsl(dsl);
+    _.agHelper.AddDsl("tableNewDsl");
   });
 
   it("1. Table widget toggle test for text alignment", function () {
-    ee.SelectEntityByName("Table1");
+    _.entityExplorer.SelectEntityByName("Table1");
     cy.editColumn("id");
     //cy.movetoStyleTab();
-    agHelper.Sleep();
-    propPane.EnterJSContext("Text align", testdata.bindingAlign);
+    _.agHelper.Sleep();
+    _.propPane.EnterJSContext("Text align", testdata.bindingAlign);
     cy.wait("@updateLayout");
     cy.readTabledataValidateCSS("0", "0", "justify-content", "flex-start");
     cy.readTabledataValidateCSS("1", "0", "justify-content", "flex-end");
@@ -29,15 +24,18 @@ describe("Table Widget property pane feature validation", function () {
     cy.readTabledataValidateCSS("0", "0", "font-size", "14px");
     //cy.movetoStyleTab();
     cy.get(widgetsPage.textSize).last().click({ force: true });
-    agHelper.Sleep();
+    _.agHelper.Sleep();
     cy.selectTxtSize("XL");
     cy.readTabledataValidateCSS("0", "0", "font-size", "30px");
   });
 
   it("3. Table widget toggle test for vertical Alignment", function () {
     //cy.movetoStyleTab();
-    agHelper.Sleep();
-    propPane.EnterJSContext("Vertical alignment", testdata.bindingVerticalAlig);
+    _.agHelper.Sleep();
+    _.propPane.EnterJSContext(
+      "Vertical alignment",
+      testdata.bindingVerticalAlig,
+    );
     cy.wait("@updateLayout");
     cy.readTabledataValidateCSS("0", "0", "align-items", "flex-start");
     cy.readTabledataValidateCSS("1", "0", "align-items", "flex-end");
@@ -45,8 +43,8 @@ describe("Table Widget property pane feature validation", function () {
 
   it("4. Table widget toggle test for text size", function () {
     //cy.movetoStyleTab();
-    agHelper.Sleep();
-    propPane.EnterJSContext("Text size", testdata.bindingSize);
+    _.agHelper.Sleep();
+    _.propPane.EnterJSContext("Text size", testdata.bindingSize);
     cy.wait(2000);
     cy.wait("@updateLayout");
     cy.readTabledataValidateCSS("0", "0", "font-size", "14px");
@@ -55,8 +53,8 @@ describe("Table Widget property pane feature validation", function () {
 
   it("5. Table widget toggle test for style Alignment", function () {
     //cy.movetoStyleTab();
-    agHelper.Sleep();
-    propPane.EnterJSContext("Font Style", testdata.bindingStyle);
+    _.agHelper.Sleep();
+    _.propPane.EnterJSContext("Font Style", testdata.bindingStyle);
     cy.wait("@updateLayout");
     cy.readTabledataValidateCSS("0", "0", "font-style", "normal");
     cy.readTabledataValidateCSS("1", "0", "font-style", "italic");
@@ -64,8 +62,8 @@ describe("Table Widget property pane feature validation", function () {
 
   it("6. Table widget toggle test for text color", function () {
     //cy.movetoStyleTab();
-    agHelper.Sleep();
-    propPane.EnterJSContext("Text color", testdata.bindingTextColor);
+    _.agHelper.Sleep();
+    _.propPane.EnterJSContext("Text color", testdata.bindingTextColor);
     cy.wait("@updateLayout");
     cy.readTabledataValidateCSS("0", "0", "color", "rgb(0, 128, 0)");
     cy.readTabledataValidateCSS("1", "0", "color", "rgb(255, 0, 0)");
@@ -73,8 +71,8 @@ describe("Table Widget property pane feature validation", function () {
 
   it("7. Table widget toggle test for background color", function () {
     //cy.movetoStyleTab();
-    agHelper.Sleep();
-    propPane.EnterJSContext("Cell Background", testdata.bindingTextColor);
+    _.agHelper.Sleep();
+    _.propPane.EnterJSContext("Cell Background", testdata.bindingTextColor);
     cy.wait("@updateLayout");
     cy.readTabledataValidateCSS(
       "0",

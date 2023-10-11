@@ -4,12 +4,13 @@ import {
   getEvaluationInverseDependencyMap,
   getDataTree,
 } from "selectors/dataTreeSelectors";
-import type { DataTree } from "entities/DataTree/dataTreeFactory";
-import { getActions } from "selectors/entitiesSelector";
+import type { DataTree } from "entities/DataTree/dataTreeTypes";
+import { getActions } from "@appsmith/selectors/entitiesSelector";
 import type {
   ActionData,
   ActionDataState,
-} from "reducers/entityReducers/actionsReducer";
+} from "@appsmith/reducers/entityReducers/actionsReducer";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
@@ -18,18 +19,34 @@ import log from "loglevel";
 import * as Sentry from "@sentry/react";
 import { findLoadingEntities } from "utils/WidgetLoadingStateUtils";
 
+const actionExecutionRequestActions = [
+  ReduxActionTypes.EXECUTE_PLUGIN_ACTION_REQUEST,
+  ReduxActionTypes.RUN_ACTION_REQUEST,
+];
+
+const actionExecutionCompletionActions = [
+  ReduxActionTypes.EXECUTE_PLUGIN_ACTION_SUCCESS,
+  ReduxActionTypes.RUN_ACTION_SUCCESS,
+  ReduxActionErrorTypes.RUN_ACTION_ERROR,
+  ReduxActionErrorTypes.EXECUTE_PLUGIN_ACTION_ERROR,
+];
+
 const ACTION_EXECUTION_REDUX_ACTIONS = [
   // Actions
-  ReduxActionTypes.RUN_ACTION_REQUEST,
-  ReduxActionTypes.RUN_ACTION_SUCCESS,
-  ReduxActionTypes.EXECUTE_PLUGIN_ACTION_REQUEST,
-  ReduxActionTypes.EXECUTE_PLUGIN_ACTION_SUCCESS,
-  ReduxActionErrorTypes.EXECUTE_PLUGIN_ACTION_ERROR,
+  ...actionExecutionRequestActions,
+  ...actionExecutionCompletionActions,
+  ReduxActionTypes.RUN_ACTION_CANCELLED,
+
   // Widget evalution
   ReduxActionTypes.SET_EVALUATED_TREE,
 ];
 
-function* setWidgetsLoadingSaga() {
+function* setWidgetsLoadingSaga(action: ReduxAction<unknown>) {
+  if (actionExecutionCompletionActions.includes(action.type)) {
+    // Ensure that data is already available in the dataTree and all
+    // dependent entities have been re-evaluated
+    yield take(ReduxActionTypes.SET_EVALUATED_TREE);
+  }
   const actions: ActionDataState = yield select(getActions);
   const isLoadingActions: string[] = actions
     .filter((action: ActionData) => action.isLoading)
@@ -51,18 +68,25 @@ function* setWidgetsLoadingSaga() {
       dataTree,
       inverseMap,
     );
-
     yield put({
       type: ReduxActionTypes.SET_LOADING_ENTITIES,
       payload: loadingEntities,
+    });
+  }
+
+  if (action.type !== ReduxActionTypes.SET_EVALUATED_TREE) {
+    yield put({
+      type: ReduxActionTypes.TRIGGER_EVAL,
     });
   }
 }
 
 function* actionExecutionChangeListenerSaga() {
   while (true) {
-    yield take(ACTION_EXECUTION_REDUX_ACTIONS);
-    yield fork(setWidgetsLoadingSaga);
+    const action: ReduxAction<unknown> = yield take(
+      ACTION_EXECUTION_REDUX_ACTIONS,
+    );
+    yield fork(setWidgetsLoadingSaga, action);
   }
 }
 

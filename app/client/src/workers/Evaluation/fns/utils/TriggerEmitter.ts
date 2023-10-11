@@ -7,6 +7,17 @@ import type {
 } from "workers/Evaluation/JSObject/JSVariableUpdates";
 import { applyJSVariableUpdatesToEvalTree } from "workers/Evaluation/JSObject/JSVariableUpdates";
 import ExecutionMetaData from "./ExecutionMetaData";
+import { get } from "lodash";
+import { getType } from "utils/TypeHelpers";
+import type { JSVarMutatedEvents } from "workers/Evaluation/types";
+import { dataTreeEvaluator } from "workers/Evaluation/handlers/evalTree";
+import type {
+  TriggerKind,
+  TriggerSource,
+} from "constants/AppsmithActionConstants/ActionConstants";
+import type { UpdateActionProps } from "workers/Evaluation/handlers/updateActionData";
+import { handleActionsDataUpdate } from "workers/Evaluation/handlers/updateActionData";
+import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
 
 const _internalSetTimeout = self.setTimeout;
 const _internalClearTimeout = self.clearTimeout;
@@ -18,6 +29,7 @@ export enum BatchKey {
   process_batched_fn_execution = "process_batched_fn_execution",
   process_js_variable_updates = "process_js_variable_updates",
   process_batched_fn_invoke_log = "process_batched_fn_invoke_log",
+  process_js_var_mutation_events = "process_js_var_mutation_events",
 }
 
 const TriggerEmitter = new EventEmitter();
@@ -52,12 +64,12 @@ export function priorityBatchedActionHandler<T>(
  * @param deferredTask
  * @returns
  */
-export const deferredBatchedActionHandler = function (
-  deferredTask: (batchedData: unknown) => void,
+export function deferredBatchedActionHandler<T>(
+  deferredTask: (batchedData: T[]) => void,
 ) {
-  let batchedData: unknown[] = [];
+  let batchedData: T[] = [];
   let timerId: number | null = null;
-  return (data: unknown) => {
+  return (data: T) => {
     batchedData.push(data);
     if (timerId) _internalClearTimeout(timerId);
     timerId = _internalSetTimeout(() => {
@@ -65,7 +77,7 @@ export const deferredBatchedActionHandler = function (
       batchedData = [];
     });
   };
-};
+}
 
 const logsHandler = deferredBatchedActionHandler((batchedData) =>
   WorkerMessenger.ping({
@@ -114,6 +126,20 @@ const fnExecutionDataHandler = priorityBatchedActionHandler((data) => {
     { JSExecutionData: {}, JSExecutionErrors: {} },
   );
 
+  const updateActionProps: UpdateActionProps[] = Object.entries(
+    batchedData.JSExecutionData,
+  ).map(([jsFnFullName, data]) => {
+    const { entityName, propertyPath: funcName } =
+      getEntityNameAndPropertyPath(jsFnFullName);
+    return {
+      entityName,
+      dataPath: `${funcName}.data`,
+      data,
+    };
+  });
+
+  handleActionsDataUpdate(updateActionProps);
+
   WorkerMessenger.ping({
     method: MAIN_THREAD_ACTION.PROCESS_JS_FUNCTION_EXECUTION,
     data: batchedData,
@@ -125,13 +151,43 @@ TriggerEmitter.on(
   fnExecutionDataHandler,
 );
 
+export const jsVariableMutationEventHandler = deferredBatchedActionHandler(
+  (batchedUpdatesMap: UpdatedPathsMap[]) => {
+    const jsVarMutatedEvents: JSVarMutatedEvents = {};
+    for (const batchedUpdateMap of batchedUpdatesMap) {
+      for (const path in batchedUpdateMap) {
+        const variableValue = get(dataTreeEvaluator?.getEvalTree() || {}, path);
+        jsVarMutatedEvents[path] = {
+          path,
+          type: getType(variableValue),
+        };
+      }
+    }
+
+    WorkerMessenger.ping({
+      method: MAIN_THREAD_ACTION.PROCESS_JS_VAR_MUTATION_EVENTS,
+      data: jsVarMutatedEvents,
+    });
+  },
+);
+
+TriggerEmitter.on(
+  BatchKey.process_js_var_mutation_events,
+  jsVariableMutationEventHandler,
+);
+
 const jsVariableUpdatesHandler = priorityBatchedActionHandler<Patch>(
   (batchedData) => {
     const updatesMap: UpdatedPathsMap = {};
     for (const patch of batchedData) {
       updatesMap[patch.path] = patch;
     }
+
     applyJSVariableUpdatesToEvalTree(updatesMap);
+
+    TriggerEmitter.emit(BatchKey.process_js_var_mutation_events, {
+      ...updatesMap,
+    });
   },
 );
 
@@ -147,11 +203,18 @@ TriggerEmitter.on(
   jsVariableUpdatesHandlerWrapper,
 );
 
-export const fnInvokeLogHandler = priorityBatchedActionHandler((data) => {
-  const set = new Set([...data]);
+export const fnInvokeLogHandler = deferredBatchedActionHandler<{
+  jsFnFullName: string;
+  isSuccess: boolean;
+  triggerMeta: {
+    source: TriggerSource;
+    triggerPropertyName: string | undefined;
+    triggerKind: TriggerKind | undefined;
+  };
+}>((data) => {
   WorkerMessenger.ping({
     method: MAIN_THREAD_ACTION.LOG_JS_FUNCTION_EXECUTION,
-    data: [...set],
+    data,
   });
 });
 

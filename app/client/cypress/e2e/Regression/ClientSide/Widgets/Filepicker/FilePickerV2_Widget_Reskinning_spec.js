@@ -1,24 +1,20 @@
-import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
-
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const themeLocator = require("../../../../../locators/ThemeLocators.json");
-const dsl = require("../../../../../fixtures/filePickerV2WidgetReskinDsl.json");
-
-const appSettings = ObjectsRegistry.AppSettings;
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Checkbox Widget Functionality", function () {
   before(() => {
-    cy.addDsl(dsl);
+    _.agHelper.AddDsl("filePickerV2WidgetReskinDsl");
   });
 
   it("1. Elements inside upload modal should follow theme border radius", () => {
     // Click on canvas to get global theme settings
     cy.get(commonlocators.canvas).click({ force: true });
 
-    appSettings.OpenAppSettings();
-    appSettings.GoToThemeSettings();
+    _.appSettings.OpenAppSettings();
+    _.appSettings.GoToThemeSettings();
     cy.get(commonlocators.themeAppBorderRadiusBtn).last().click();
-    appSettings.ClosePane();
+    _.appSettings.ClosePane();
 
     cy.get(commonlocators.filepickerv2).click();
 
@@ -60,10 +56,10 @@ describe("Checkbox Widget Functionality", function () {
 
     // Change the theme border radius to M and check if the remove file icon's border radius is 4px;
     cy.get(commonlocators.canvas).click({ force: true });
-    appSettings.OpenAppSettings();
-    appSettings.GoToThemeSettings();
+    _.appSettings.OpenAppSettings();
+    _.appSettings.GoToThemeSettings();
     cy.get(commonlocators.themeAppBorderRadiusBtn).eq(1).click();
-    appSettings.ClosePane();
+    _.appSettings.ClosePane();
 
     cy.get(commonlocators.filepickerv2).click();
 
@@ -82,8 +78,8 @@ describe("Checkbox Widget Functionality", function () {
     // Change the global theme primary color
     cy.get(commonlocators.canvas).click({ force: true });
     cy.wait(300);
-    appSettings.OpenAppSettings();
-    appSettings.GoToThemeSettings();
+    _.appSettings.OpenAppSettings();
+    _.appSettings.GoToThemeSettings();
 
     cy.get(themeLocator.inputColor).click({ force: true });
     cy.get(".t--colorpicker-v2-color")
@@ -91,7 +87,7 @@ describe("Checkbox Widget Functionality", function () {
       .click({ force: true })
       .then(($elem) => {
         const primaryColor = $elem.css("background-color");
-        appSettings.ClosePane();
+        _.appSettings.ClosePane();
         cy.get(commonlocators.filepickerv2).click();
         cy.get(".uppy-StatusBar-actionBtn--upload").should(
           "have.css",
@@ -115,13 +111,13 @@ describe("Checkbox Widget Functionality", function () {
     cy.get(".uppy-Dashboard-close").click({ force: true });
     cy.get(commonlocators.canvas).click({ force: true });
     cy.wait(300);
-    appSettings.OpenAppSettings();
-    appSettings.GoToThemeSettings();
+    _.appSettings.OpenAppSettings();
+    _.appSettings.GoToThemeSettings();
 
     cy.get(themeLocator.fontsSelected).click({ force: true });
 
     cy.contains("Roboto").click({ force: true });
-    appSettings.ClosePane();
+    _.appSettings.ClosePane();
 
     cy.get(commonlocators.filepickerv2).click();
     cy.get(".uppy-DashboardContent-back").should(

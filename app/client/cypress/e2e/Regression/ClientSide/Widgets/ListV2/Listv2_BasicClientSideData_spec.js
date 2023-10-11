@@ -1,14 +1,10 @@
-const simpleListDSL = require("../../../../../fixtures/Listv2/simpleList.json");
-const simpleListWithInputAndButtonDSL = require("../../../../../fixtures/Listv2/simpleListWithInputAndButton.json");
 const publishLocators = require("../../../../../locators/publishWidgetspage.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 
-import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
 const containerWidgetSelector = `[type="CONTAINER_WIDGET"]`;
-
-let agHelper = ObjectsRegistry.AggregateHelper;
 
 const simpleListData1 = [
   {
@@ -30,15 +26,15 @@ const simpleListData1 = [
 
 describe("List widget v2 - Basic client side data tests", () => {
   beforeEach(() => {
-    agHelper.RestoreLocalStorageCache();
+    _.agHelper.RestoreLocalStorageCache();
   });
 
   afterEach(() => {
-    agHelper.SaveLocalStorageCache();
+    _.agHelper.SaveLocalStorageCache();
   });
 
   it("1. shows correct number of items", () => {
-    cy.addDsl(simpleListDSL);
+    _.agHelper.AddDsl("Listv2/simpleList");
     cy.get(publishLocators.containerWidget).should("have.length", 3);
     cy.get(publishLocators.imageWidget).should("have.length", 3);
     cy.get(publishLocators.textWidget).should("have.length", 6);
@@ -58,7 +54,7 @@ describe("List widget v2 - Basic client side data tests", () => {
   });
 
   it("3. retains input values when pages are switched", () => {
-    cy.addDsl(simpleListWithInputAndButtonDSL);
+    _.agHelper.AddDsl("Listv2/simpleListWithInputAndButton");
 
     cy.get(publishLocators.inputWidget).should("have.length", 2);
 

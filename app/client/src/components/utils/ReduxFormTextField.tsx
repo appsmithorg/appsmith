@@ -20,11 +20,10 @@ const renderComponent = (
       {...omit(componentProps, "type")}
       {...componentProps.input}
       errorMessage={
-        !componentProps.hideErrorMessage &&
-        showError &&
-        componentProps.meta.error &&
-        componentProps.meta.error
+        !componentProps.hideErrorMessage && componentProps.meta.error
       }
+      isDisabled={componentProps.disabled}
+      label={componentProps.label as string}
     />
   ) : (
     <Input
@@ -35,6 +34,7 @@ const renderComponent = (
         showError &&
         componentProps.meta.error
       }
+      isDisabled={componentProps.disabled}
       renderAs={"input"}
       size="md"
     />
@@ -46,7 +46,7 @@ export type FormTextFieldProps = {
   placeholder: string;
   description?: string;
   type?: InputType;
-  label?: string;
+  label?: React.ReactNode;
   intent?: Intent;
   disabled?: boolean;
   autoFocus?: boolean;

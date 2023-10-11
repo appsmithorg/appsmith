@@ -18,5 +18,4 @@ public class Asset extends BaseDomain {
     String contentType;
 
     byte[] data;
-
 }

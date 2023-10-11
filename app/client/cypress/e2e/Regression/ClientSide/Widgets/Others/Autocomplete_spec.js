@@ -1,9 +1,9 @@
-const dsl = require("../../../../../fixtures/slashcommandDsl.json");
 const dynamicInputLocators = require("../../../../../locators/DynamicInput.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Autocomplete using slash command and mustache tests", function () {
   before(() => {
-    cy.addDsl(dsl);
+    _.agHelper.AddDsl("slashcommandDsl");
   });
 
   it("Slash command and mustache autocomplete validation for button widget", function () {
@@ -12,11 +12,8 @@ describe("Autocomplete using slash command and mustache tests", function () {
       cy.get(dynamicInputLocators.hints).should("exist");
       // validates all autocomplete commands on entering / in label field
       cy.get(`${dynamicInputLocators.hints} li`)
-        .eq(1)
-        .should("have.text", "New binding");
-      cy.get(`${dynamicInputLocators.hints} li`)
-        .eq(2)
-        .should("have.text", "Insert snippet");
+        .eq(0)
+        .should("have.text", "Add a binding");
       cy.get(`${dynamicInputLocators.hints} li`)
         .last()
         .should("have.text", "New datasource");
@@ -42,16 +39,16 @@ describe("Autocomplete using slash command and mustache tests", function () {
     cy.get(".t--property-control-onclick .CodeMirror textarea")
       .last()
       .focus()
+      .type("{uparrow}", { parseSpecialCharSequences: true })
+      .type("{ctrl}{shift}{downarrow}", { parseSpecialCharSequences: true })
+      .type("{backspace}", { parseSpecialCharSequences: true })
       .type("/")
       .then(() => {
         cy.get(dynamicInputLocators.hints).should("exist");
         // validates all autocomplete commands on entering / in onClick field
         cy.get(`${dynamicInputLocators.hints} li`)
-          .eq(1)
-          .should("have.text", "New binding");
-        cy.get(`${dynamicInputLocators.hints} li`)
-          .eq(2)
-          .should("have.text", "Insert snippet");
+          .eq(0)
+          .should("have.text", "Add a binding");
         cy.get(`${dynamicInputLocators.hints} li`)
           .last()
           .should("have.text", "New datasource");
@@ -67,13 +64,13 @@ describe("Autocomplete using slash command and mustache tests", function () {
         cy.get(dynamicInputLocators.hints).should("exist");
         // validates all autocomplete functions on entering {{}} in onClick field
         cy.get(`${dynamicInputLocators.hints} li`)
-          .eq(1)
+          .eq(7)
           .should("have.text", "storeValue()");
         cy.get(`${dynamicInputLocators.hints} li`)
-          .eq(2)
+          .eq(8)
           .should("have.text", "showAlert()");
         cy.get(`${dynamicInputLocators.hints} li`)
-          .eq(3)
+          .eq(9)
           .should("have.text", "navigateTo()");
       });
   });
@@ -88,11 +85,8 @@ describe("Autocomplete using slash command and mustache tests", function () {
         cy.get(dynamicInputLocators.hints).should("exist");
         // validates all autocomplete commands on entering / in text field
         cy.get(`${dynamicInputLocators.hints} li`)
-          .eq(1)
-          .should("have.text", "New binding");
-        cy.get(`${dynamicInputLocators.hints} li`)
-          .eq(2)
-          .should("have.text", "Insert snippet");
+          .eq(0)
+          .should("have.text", "Add a binding");
         cy.get(`${dynamicInputLocators.hints} li`)
           .last()
           .should("have.text", "New datasource");
@@ -128,11 +122,8 @@ describe("Autocomplete using slash command and mustache tests", function () {
         cy.get(dynamicInputLocators.hints).should("exist");
         // validates all autocomplete commands on entering / in text field
         cy.get(`${dynamicInputLocators.hints} li`)
-          .eq(1)
-          .should("have.text", "New binding");
-        cy.get(`${dynamicInputLocators.hints} li`)
-          .eq(2)
-          .should("have.text", "Insert snippet");
+          .eq(0)
+          .should("have.text", "Add a binding");
         cy.get(`${dynamicInputLocators.hints} li`)
           .last()
           .should("have.text", "New datasource");

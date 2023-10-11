@@ -1,0 +1,93 @@
+import {
+  TYPOGRAPHY_VARIANTS,
+  TYPOGRAPHY_FONT_WEIGHTS,
+} from "@design-system/theming";
+import { Text, Flex, COLORS } from "@design-system/widgets";
+import { Canvas, Meta, Story, ArgsTable } from "@storybook/addon-docs";
+
+<Meta
+  title="Design-system/Widgets/Text"
+  component={Text}
+  args={{
+    children:
+      "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.",
+  }}
+/>
+
+export const Template = (args) => <Text {...args} />;
+
+# Text
+
+Text is a component that renders a capsized text.
+
+<Canvas>
+  <Story name="Text">{Template.bind({})}</Story>
+</Canvas>
+
+<ArgsTable of={Text} story="Text" />
+
+## Line clamp
+
+<Story
+  name="Line clamp"
+  parameters={{
+    width: 300,
+  }}
+  args={{
+    lineClamp: 2,
+  }}
+>
+  {Template.bind({})}
+</Story>
+
+## Variant
+
+<Story name="Variant">
+  <Flex
+    flex="1"
+    gap="spacing-6"
+    alignItems="center"
+    justifyContent="start"
+    direction="row-reverse"
+  >
+    {Object.values(TYPOGRAPHY_VARIANTS).map((variant) => (
+      <Text variant={variant}>aA</Text>
+    ))}
+  </Flex>
+</Story>
+
+## Color
+
+<Story name="Color">
+  <Flex
+    flex="1"
+    gap="spacing-6"
+    alignItems="center"
+    justifyContent="start"
+    direction="row-reverse"
+  >
+    {Object.values(COLORS).map((color) => (
+      <Text variant="heading" color={color}>
+        aA
+      </Text>
+    ))}
+  </Flex>
+</Story>
+
+## Font weight
+
+<Story name="FontWeight">
+  <Flex
+    flex="1"
+    gap="spacing-6"
+    alignItems="center"
+    justifyContent="start"
+    direction="row-reverse"
+  >
+    {Object.values(TYPOGRAPHY_FONT_WEIGHTS).map((fontWeight) => (
+      <Text variant="heading" fontWeight={fontWeight}>
+        aA
+      </Text>
+    ))}
+  </Flex>
+</Story>

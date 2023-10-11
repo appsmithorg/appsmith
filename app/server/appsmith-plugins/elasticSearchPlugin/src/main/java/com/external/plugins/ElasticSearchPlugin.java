@@ -66,20 +66,17 @@ public class ElasticSearchPlugin extends BasePlugin {
 
         private final Scheduler scheduler = Schedulers.boundedElastic();
 
-        private static final Pattern patternForUnauthorized = Pattern.compile(
-                ".*unauthorized.*",
-                Pattern.CASE_INSENSITIVE
-        );
+        private static final Pattern patternForUnauthorized =
+                Pattern.compile(".*unauthorized.*", Pattern.CASE_INSENSITIVE);
 
-        private static final Pattern patternForNotFound = Pattern.compile(
-                ".*not.?found|refused|not.?known|timed?\\s?out.*",
-                Pattern.CASE_INSENSITIVE
-        );
+        private static final Pattern patternForNotFound =
+                Pattern.compile(".*not.?found|refused|not.?known|timed?\\s?out.*", Pattern.CASE_INSENSITIVE);
 
         @Override
-        public Mono<ActionExecutionResult> execute(RestClient client,
-                                                   DatasourceConfiguration datasourceConfiguration,
-                                                   ActionConfiguration actionConfiguration) {
+        public Mono<ActionExecutionResult> execute(
+                RestClient client,
+                DatasourceConfiguration datasourceConfiguration,
+                ActionConfiguration actionConfiguration) {
 
             final Map<String, Object> requestData = new HashMap<>();
 
@@ -96,8 +93,8 @@ public class ElasticSearchPlugin extends BasePlugin {
 
                         HttpMethod httpMethod = actionConfiguration.getHttpMethod();
                         requestData.put("method", httpMethod.name());
-                        requestParams.add(new RequestParamDTO("actionConfiguration.httpMethod", httpMethod.name(), null,
-                                null, null));
+                        requestParams.add(new RequestParamDTO(
+                                "actionConfiguration.httpMethod", httpMethod.name(), null, null, null));
                         requestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, path, null, null, null));
                         requestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY, query, null, null, null));
 
@@ -113,12 +110,17 @@ public class ElasticSearchPlugin extends BasePlugin {
                                 try {
                                     List<Object> commands = objectMapper.readValue(body, ArrayList.class);
                                     for (Object object : commands) {
-                                        ndJsonBuilder.append(objectMapper.writeValueAsString(object)).append("\n");
+                                        ndJsonBuilder
+                                                .append(objectMapper.writeValueAsString(object))
+                                                .append("\n");
                                     }
                                 } catch (IOException e) {
                                     final String message = "Error converting array to ND-JSON: " + e.getMessage();
                                     log.warn(message, e);
-                                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, ElasticSearchErrorMessages.ARRAY_TO_ND_JSON_ARRAY_CONVERSION_ERROR_MSG, e.getMessage()));
+                                    return Mono.error(new AppsmithPluginException(
+                                            AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                                            ElasticSearchErrorMessages.ARRAY_TO_ND_JSON_ARRAY_CONVERSION_ERROR_MSG,
+                                            e.getMessage()));
                                 }
                                 body = ndJsonBuilder.toString();
                             }
@@ -129,13 +131,18 @@ public class ElasticSearchPlugin extends BasePlugin {
                         }
 
                         try {
-                            final String responseBody = new String(
-                                    client.performRequest(request).getEntity().getContent().readAllBytes());
+                            final String responseBody = new String(client.performRequest(request)
+                                    .getEntity()
+                                    .getContent()
+                                    .readAllBytes());
                             result.setBody(objectMapper.readValue(responseBody, HashMap.class));
                         } catch (IOException e) {
                             final String message = "Error performing request: " + e.getMessage();
                             log.warn(message, e);
-                            return Mono.error(new AppsmithPluginException(ElasticSearchPluginError.QUERY_EXECUTION_FAILED, ElasticSearchErrorMessages.QUERY_EXECUTION_FAILED_ERROR_MSG, e.getMessage()));
+                            return Mono.error(new AppsmithPluginException(
+                                    ElasticSearchPluginError.QUERY_EXECUTION_FAILED,
+                                    ElasticSearchErrorMessages.QUERY_EXECUTION_FAILED_ERROR_MSG,
+                                    e.getMessage()));
                         }
 
                         result.setIsExecutionSuccess(true);
@@ -147,8 +154,11 @@ public class ElasticSearchPlugin extends BasePlugin {
                     .onErrorResume(error -> {
                         ActionExecutionResult result = new ActionExecutionResult();
                         result.setIsExecutionSuccess(false);
-                        if (! (error instanceof AppsmithPluginException)) {
-                            error = new AppsmithPluginException(ElasticSearchPluginError.QUERY_EXECUTION_FAILED, ElasticSearchErrorMessages.QUERY_EXECUTION_FAILED_ERROR_MSG, error);
+                        if (!(error instanceof AppsmithPluginException)) {
+                            error = new AppsmithPluginException(
+                                    ElasticSearchPluginError.QUERY_EXECUTION_FAILED,
+                                    ElasticSearchErrorMessages.QUERY_EXECUTION_FAILED_ERROR_MSG,
+                                    error);
                         }
                         result.setErrorInfo(error);
                         return Mono.just(result);
@@ -188,7 +198,8 @@ public class ElasticSearchPlugin extends BasePlugin {
                 try {
                     url = new URL(endpoint.getHost());
                 } catch (MalformedURLException e) {
-                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                    return Mono.error(new AppsmithPluginException(
+                            AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
                             ElasticSearchErrorMessages.DS_INVALID_HOST_ERROR_MSG));
                 }
                 String scheme = "http";
@@ -199,7 +210,7 @@ public class ElasticSearchPlugin extends BasePlugin {
                 hosts.add(new HttpHost(url.getHost(), getPort(endpoint).intValue(), scheme));
             }
 
-            final RestClientBuilder clientBuilder = RestClient.builder(hosts.toArray(new HttpHost[]{}));
+            final RestClientBuilder clientBuilder = RestClient.builder(hosts.toArray(new HttpHost[] {}));
 
             final DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
             if (authentication != null
@@ -208,27 +219,19 @@ public class ElasticSearchPlugin extends BasePlugin {
                 final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
                 credentialsProvider.setCredentials(
                         AuthScope.ANY,
-                        new UsernamePasswordCredentials(authentication.getUsername(), authentication.getPassword())
-                );
+                        new UsernamePasswordCredentials(authentication.getUsername(), authentication.getPassword()));
 
-                clientBuilder
-                        .setHttpClientConfigCallback(
-                                httpClientBuilder -> httpClientBuilder
-                                        .setDefaultCredentialsProvider(credentialsProvider)
-                        );
+                clientBuilder.setHttpClientConfigCallback(
+                        httpClientBuilder -> httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider));
             }
 
             if (!CollectionUtils.isEmpty(datasourceConfiguration.getHeaders())) {
-                clientBuilder.setDefaultHeaders(
-                        (Header[]) datasourceConfiguration.getHeaders()
-                                .stream()
-                                .map(h -> new BasicHeader(h.getKey(), (String) h.getValue()))
-                                .toArray()
-                );
+                clientBuilder.setDefaultHeaders((Header[]) datasourceConfiguration.getHeaders().stream()
+                        .map(h -> new BasicHeader(h.getKey(), (String) h.getValue()))
+                        .toArray());
             }
 
-            return Mono.fromCallable(clientBuilder::build)
-                    .subscribeOn(scheduler);
+            return Mono.fromCallable(clientBuilder::build).subscribeOn(scheduler);
         }
 
         @Override
@@ -258,9 +261,7 @@ public class ElasticSearchPlugin extends BasePlugin {
                             invalids.add(ElasticSearchErrorMessages.DS_INVALID_HOST_ERROR_MSG);
                         }
                     }
-
                 }
-
             }
 
             return invalids;
@@ -272,7 +273,8 @@ public class ElasticSearchPlugin extends BasePlugin {
                 if (connection == null) {
                     return new DatasourceTestResult("Null client object to ElasticSearch.");
                 }
-                // This HEAD request is to check if the base of datasource exists. It responds with 200 if the index exists,
+                // This HEAD request is to check if the base of datasource exists. It responds with 200 if the index
+                // exists,
                 // 404 if it doesn't. We just check for either of these two.
                 // Ref: https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-exists.html
                 Request request = new Request("HEAD", "/");
@@ -307,8 +309,7 @@ public class ElasticSearchPlugin extends BasePlugin {
                 }
 
                 if (statusLine.getStatusCode() != 200) {
-                    return new DatasourceTestResult(
-                            "Unexpected response from ElasticSearch: " + statusLine);
+                    return new DatasourceTestResult("Unexpected response from ElasticSearch: " + statusLine);
                 }
 
                 return new DatasourceTestResult();

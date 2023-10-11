@@ -9,11 +9,9 @@ import org.springframework.stereotype.Component;
 @Component
 public class PluginScheduledTaskUtilsImpl extends PluginScheduledTaskUtilsCEImpl implements PluginScheduledTaskUtils {
 
-    public PluginScheduledTaskUtilsImpl(ConfigService configService,
-                                        PluginService pluginService,
-                                        CloudServicesConfig cloudServicesConfig) {
+    public PluginScheduledTaskUtilsImpl(
+            ConfigService configService, PluginService pluginService, CloudServicesConfig cloudServicesConfig) {
 
         super(configService, pluginService, cloudServicesConfig);
     }
-
 }

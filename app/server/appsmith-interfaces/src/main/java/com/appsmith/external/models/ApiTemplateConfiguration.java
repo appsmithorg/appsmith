@@ -10,7 +10,7 @@ import lombok.ToString;
 @ToString
 @NoArgsConstructor
 public class ApiTemplateConfiguration implements AppsmithDomain {
-    String documentation; //Documentation for this particular API comes here
-    String documentationUrl; //URL for this particular api's documentation comes here
+    String documentation; // Documentation for this particular API comes here
+    String documentationUrl; // URL for this particular api's documentation comes here
     ActionExecutionResult sampleResponse;
 }

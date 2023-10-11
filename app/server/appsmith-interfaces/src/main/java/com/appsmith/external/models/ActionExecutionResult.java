@@ -40,7 +40,6 @@ public class ActionExecutionResult {
 
     List<WidgetSuggestionDTO> suggestedWidgets;
 
-
     PluginErrorDetails pluginErrorDetails;
 
     public void setErrorInfo(Throwable error, AppsmithPluginErrorUtils pluginErrorUtils) {

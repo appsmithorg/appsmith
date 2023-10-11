@@ -38,7 +38,78 @@ module.exports = {
             test: /\.m?js/,
             resolve: { fullySpecified: false },
           },
+          {
+            test: /\.module\.css$/,
+            use: [
+              {
+                loader: "postcss-loader",
+                options: {
+                  postcssOptions: {
+                    plugins: [
+                      "postcss-nesting",
+                      "postcss-import",
+                      "postcss-at-rules-variables",
+                      "postcss-conditionals",
+                      "postcss-for",
+                      "postcss-each",
+                      "postcss-url",
+                      "postcss-modules-values",
+                      [
+                        "cssnano",
+                        {
+                          preset: ["default"],
+                        },
+                      ],
+                    ],
+                  },
+                },
+              },
+            ],
+          },
         ],
+      },
+      optimization: {
+        splitChunks: {
+          cacheGroups: {
+            icons: {
+              // This determines which modules are considered icons
+              test: (module) => {
+                const modulePath = module.resource;
+                if (!modulePath) return false;
+
+                return (
+                  modulePath.match(/node_modules[\\\/]remixicon-react[\\\/]/) ||
+                  modulePath.endsWith(".svg.js") ||
+                  modulePath.endsWith(".svg")
+                );
+              },
+              // This determines which chunk to put the icon into.
+              //
+              // Why have three separate cache groups for three different kinds of
+              // icons? Purely as an optimization: not every page needs all icons,
+              // so we can avoid loading unused icons sometimes.
+              name: (module) => {
+                if (
+                  module.resource?.match(
+                    /node_modules[\\\/]remixicon-react[\\\/]/,
+                  )
+                ) {
+                  return "remix-icons";
+                }
+
+                if (module.resource?.includes("blueprint")) {
+                  return "blueprint-icons";
+                }
+
+                return "svg-icons";
+              },
+              // This specifies that only icons from import()ed chunks should be moved
+              chunks: "async",
+              // This makes webpack ignore the minimum chunk size requirement
+              enforce: true,
+            },
+          },
+        },
       },
       ignoreWarnings: [
         function ignoreSourcemapsloaderWarnings(warning) {

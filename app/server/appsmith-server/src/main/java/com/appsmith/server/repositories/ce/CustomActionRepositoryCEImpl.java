@@ -19,9 +19,13 @@ import java.util.Set;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
-public class CustomActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Action> implements CustomActionRepositoryCE {
+public class CustomActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Action>
+        implements CustomActionRepositoryCE {
 
-    public CustomActionRepositoryCEImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter, CacheableRepositoryHelper cacheableRepositoryHelper) {
+    public CustomActionRepositoryCEImpl(
+            ReactiveMongoOperations mongoOperations,
+            MongoConverter mongoConverter,
+            CacheableRepositoryHelper cacheableRepositoryHelper) {
         super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
     }
 
@@ -40,10 +44,8 @@ public class CustomActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Act
     }
 
     @Override
-    public Flux<Action> findActionsByNameInAndPageIdAndActionConfiguration_HttpMethod(Set<String> names,
-                                                                                      String pageId,
-                                                                                      String httpMethod,
-                                                                                      AclPermission aclPermission) {
+    public Flux<Action> findActionsByNameInAndPageIdAndActionConfiguration_HttpMethod(
+            Set<String> names, String pageId, String httpMethod, AclPermission aclPermission) {
         Criteria namesCriteria = where(fieldName(QAction.action.name)).in(names);
         Criteria pageCriteria = where(fieldName(QAction.action.pageId)).is(pageId);
         String httpMethodQueryKey = fieldName(QAction.action.actionConfiguration)
@@ -56,14 +58,13 @@ public class CustomActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Act
     }
 
     @Override
-    public Flux<Action> findAllActionsByNameAndPageIds(String name, List<String> pageIds, AclPermission aclPermission,
-                                                       Sort sort) {
+    public Flux<Action> findAllActionsByNameAndPageIds(
+            String name, List<String> pageIds, AclPermission aclPermission, Sort sort) {
         /**
          * TODO : This function is called by get(params) to get all actions by params and hence
          * only covers criteria of few fields like page id, name, etc. Make this generic to cover
          * all possible fields
          */
-
         List<Criteria> criteriaList = new ArrayList<>();
 
         if (name != null) {

@@ -20,5 +20,4 @@ public class Endpoint {
     String host;
 
     Long port;
-
 }

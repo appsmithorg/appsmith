@@ -16,10 +16,7 @@ import {
   deleteWidgetProperty,
   setWidgetDynamicProperty,
 } from "actions/controlActions";
-import type {
-  PropertyHookUpdates,
-  PropertyPaneControlConfig,
-} from "constants/PropertyControlConstants";
+import type { PropertyPaneControlConfig } from "constants/PropertyControlConstants";
 import type { IPanelProps } from "@blueprintjs/core";
 import PanelPropertiesEditor from "./PanelPropertiesEditor";
 import type { DynamicPath } from "utils/DynamicBindingUtils";
@@ -48,15 +45,22 @@ import {
   shouldFocusOnPropertyControl,
 } from "utils/editorContextUtils";
 import PropertyPaneHelperText from "./PropertyPaneHelperText";
-import { setFocusablePropertyPaneField } from "actions/propertyPaneActions";
-import WidgetFactory from "utils/WidgetFactory";
+import {
+  setFocusablePropertyPaneField,
+  setSelectedPropertyPanel,
+} from "actions/propertyPaneActions";
+import WidgetFactory from "WidgetProvider/factory";
 import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 import clsx from "clsx";
 import styled from "styled-components";
 import { importSvg } from "design-system-old";
 import classNames from "classnames";
+import type { PropertyUpdates } from "WidgetProvider/constants";
+import { getIsOneClickBindingOptionsVisibility } from "selectors/oneClickBindingSelectors";
 
-const ResetIcon = importSvg(() => import("assets/icons/control/undo_2.svg"));
+const ResetIcon = importSvg(
+  async () => import("assets/icons/control/undo_2.svg"),
+);
 
 const StyledDeviated = styled.div`
   background-color: var(--ads-v2-color-bg-brand);
@@ -181,8 +185,14 @@ const PropertyControl = memo((props: Props) => {
     updateDataTreePathFn: childWidgetDataTreePathEnhancementFn,
   } = enhancementFns || {};
 
+  const connectDataClicked = useSelector(getIsOneClickBindingOptionsVisibility);
+
   const toggleDynamicProperty = useCallback(
-    (propertyName: string, isDynamic: boolean) => {
+    (
+      propertyName: string,
+      isDynamic: boolean,
+      shouldValidateValueOnDynamicPropertyOff?: boolean,
+    ) => {
       AnalyticsUtil.logEvent("WIDGET_TOGGLE_JS_PROP", {
         widgetType: widgetProperties?.type,
         widgetName: widgetProperties?.widgetName,
@@ -195,10 +205,11 @@ const PropertyControl = memo((props: Props) => {
       // we don't want to remove the path from dynamic binding list
       // on toggling of js in case of few widgets
       if (
-        SHOULD_NOT_REJECT_DYNAMIC_BINDING_LIST_FOR.includes(
+        (SHOULD_NOT_REJECT_DYNAMIC_BINDING_LIST_FOR.includes(
           props.controlType,
         ) &&
-        isDynamicValue(propertyValue)
+          isDynamicValue(propertyValue)) ||
+        !shouldValidateValueOnDynamicPropertyOff
       ) {
         shouldRejectDynamicBindingPathList = false;
       }
@@ -209,6 +220,7 @@ const PropertyControl = memo((props: Props) => {
           propertyName,
           !isDynamic,
           shouldRejectDynamicBindingPathList,
+          !shouldValidateValueOnDynamicPropertyOff,
         ),
       );
     },
@@ -246,6 +258,7 @@ const PropertyControl = memo((props: Props) => {
   const {
     isTriggerProperty,
     postUpdateAction,
+    shouldSwitchToNormalMode,
     updateHook,
     updateRelatedWidgetProperties,
   } = props;
@@ -255,7 +268,7 @@ const PropertyControl = memo((props: Props) => {
       propertyName: string,
       propertyValue: any,
     ): UpdateWidgetPropertyPayload | undefined => {
-      let propertiesToUpdate: Array<PropertyHookUpdates> | undefined;
+      let propertiesToUpdate: Array<PropertyUpdates> | undefined;
       // To support updating multiple properties of same widget.
       if (updateHook) {
         propertiesToUpdate = updateHook(
@@ -560,6 +573,12 @@ const PropertyControl = memo((props: Props) => {
   const openPanel = useCallback(
     (panelProps: any) => {
       if (props.panelConfig) {
+        dispatch(
+          setSelectedPropertyPanel(
+            `${widgetProperties.widgetName}.${props.propertyName}`,
+            panelProps.index,
+          ),
+        );
         props.panel.openPanel({
           component: PanelPropertiesEditor,
           props: {
@@ -574,6 +593,7 @@ const PropertyControl = memo((props: Props) => {
       }
     },
     [
+      widgetProperties.widgetName,
       props.panelConfig,
       props.panel,
       props.propertyName,
@@ -689,8 +709,9 @@ const PropertyControl = memo((props: Props) => {
     };
 
     const uniqId = btoa(`${widgetProperties.widgetId}.${propertyName}`);
-    const canDisplayValueInUI =
-      PropertyControlFactory.controlUIToggleValidation.get(config.controlType);
+    const controlMethods = PropertyControlFactory.controlMethods.get(
+      config.controlType,
+    );
 
     const customJSControl = getCustomJSControl();
 
@@ -713,7 +734,8 @@ const PropertyControl = memo((props: Props) => {
         }
 
         // disable button if value can't be represented in UI mode
-        if (!canDisplayValueInUI?.(config, value)) isToggleDisabled = true;
+        if (!controlMethods?.canDisplayValueInUI?.(config, value))
+          isToggleDisabled = true;
       }
 
       // Enable button if the value is same as the one defined in theme stylesheet.
@@ -739,6 +761,17 @@ const PropertyControl = memo((props: Props) => {
       };
     }
 
+    if (shouldSwitchToNormalMode) {
+      const switchMode = shouldSwitchToNormalMode(
+        isDynamic,
+        isToggleDisabled,
+        connectDataClicked,
+      );
+      if (switchMode) {
+        toggleDynamicProperty(propertyName, true);
+      }
+    }
+
     try {
       return (
         <ControlWrapper
@@ -754,7 +787,7 @@ const PropertyControl = memo((props: Props) => {
           }
           ref={controlRef}
         >
-          <div className="gap-1 flex items-center">
+          <div className="flex items-center gap-1">
             <PropertyHelpLabel
               label={label}
               theme={props.theme}
@@ -774,7 +807,14 @@ const PropertyControl = memo((props: Props) => {
                     isDisabled={isToggleDisabled}
                     isSelected={isDynamic}
                     onClick={() =>
-                      toggleDynamicProperty(propertyName, isDynamic)
+                      toggleDynamicProperty(
+                        propertyName,
+                        isDynamic,
+                        controlMethods?.shouldValidateValueOnDynamicPropertyOff(
+                          config,
+                          propertyValue,
+                        ),
+                      )
                     }
                     size="sm"
                   />

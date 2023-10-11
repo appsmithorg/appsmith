@@ -5,18 +5,12 @@ import { useDispatch } from "react-redux";
 import type { Message, SourceEntity } from "entities/AppsmithConsole";
 import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import {
-  setGlobalSearchQuery,
-  setGlobalSearchCategory,
-} from "actions/globalSearchActions";
-import { filterCategories, SEARCH_CATEGORY_ID } from "../GlobalSearch/utils";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import {
   createMessage,
   DEBUGGER_APPSMITH_SUPPORT,
   DEBUGGER_INTERCOM_TEXT,
   DEBUGGER_OPEN_DOCUMENTATION,
-  DEBUGGER_SEARCH_SNIPPET,
   TROUBLESHOOT_ISSUE,
 } from "@appsmith/constants/messages";
 import {
@@ -26,14 +20,13 @@ import {
   MenuTrigger,
   Tooltip,
 } from "design-system";
-import { executeCommandAction } from "actions/apiPaneActions";
-import { SlashCommand } from "entities/Action";
 import type { FieldEntityInformation } from "../CodeEditor/EditorConfig";
+import { DocsLink, openDoc } from "../../../constants/DocumentationLinks";
+
 const { intercomAppID } = getAppsmithConfigs();
 
 enum CONTEXT_MENU_ACTIONS {
   DOCS = "DOCS",
-  SNIPPET = "SNIPPET",
   INTERCOM = "INTERCOM",
 }
 
@@ -47,7 +40,6 @@ enum PLUGIN_EXECUTION_ERRORS {
 const getOptions = (type?: string, subType?: string) => {
   const defaultOptions = [
     CONTEXT_MENU_ACTIONS.DOCS,
-    CONTEXT_MENU_ACTIONS.SNIPPET,
     CONTEXT_MENU_ACTIONS.INTERCOM,
   ];
 
@@ -68,41 +60,12 @@ const getOptions = (type?: string, subType?: string) => {
   } else {
     switch (type) {
       case PropertyEvaluationErrorType.VALIDATION:
-        return [
-          CONTEXT_MENU_ACTIONS.DOCS,
-          CONTEXT_MENU_ACTIONS.SNIPPET,
-          CONTEXT_MENU_ACTIONS.INTERCOM,
-        ];
+        return [CONTEXT_MENU_ACTIONS.DOCS, CONTEXT_MENU_ACTIONS.INTERCOM];
       case PropertyEvaluationErrorType.PARSE:
-        return [CONTEXT_MENU_ACTIONS.DOCS, CONTEXT_MENU_ACTIONS.SNIPPET];
-      case PropertyEvaluationErrorType.LINT:
-        return [CONTEXT_MENU_ACTIONS.SNIPPET];
+        return [CONTEXT_MENU_ACTIONS.DOCS];
       default:
         return defaultOptions;
     }
-  }
-};
-
-const isFieldEntityInformation = (
-  entity: FieldEntityInformation | SourceEntity,
-): entity is FieldEntityInformation => {
-  return entity.hasOwnProperty("entityType");
-};
-
-const getSnippetArgs = function (
-  entity?: FieldEntityInformation | SourceEntity,
-) {
-  if (!entity) return {};
-  if (isFieldEntityInformation(entity)) {
-    return {
-      entityId: entity.entityId,
-      entityType: entity.entityType,
-    };
-  } else {
-    return {
-      entityId: entity.id,
-      entityType: entity.type,
-    };
   }
 };
 
@@ -128,20 +91,11 @@ const searchAction: Record<
   [CONTEXT_MENU_ACTIONS.DOCS]: {
     icon: "book-line",
     text: createMessage(DEBUGGER_OPEN_DOCUMENTATION),
-    onSelect: (error: Message, dispatch: Dispatch) => {
+    onSelect: () => {
       AnalyticsUtil.logEvent("DEBUGGER_CONTEXT_MENU_CLICK", {
         menuItem: CONTEXT_MENU_ACTIONS.DOCS,
       });
-      // Search through the omnibar
-      AnalyticsUtil.logEvent("OPEN_OMNIBAR", {
-        source: "DEBUGGER",
-        searchTerm: error.message,
-        errorType: error.type,
-      });
-      dispatch(setGlobalSearchQuery(error.message.message || ""));
-      dispatch(
-        setGlobalSearchCategory(filterCategories[SEARCH_CATEGORY_ID.INIT]),
-      );
+      openDoc(DocsLink.TROUBLESHOOT_ERROR);
     },
   },
   [CONTEXT_MENU_ACTIONS.INTERCOM]: {
@@ -158,28 +112,6 @@ const searchAction: Record<
           createMessage(DEBUGGER_INTERCOM_TEXT, error.message.message),
         );
       }
-    },
-  },
-  [CONTEXT_MENU_ACTIONS.SNIPPET]: {
-    icon: "snippet",
-    text: createMessage(DEBUGGER_SEARCH_SNIPPET),
-    onSelect: (error: Message, dispatch: Dispatch, entity) => {
-      AnalyticsUtil.logEvent("DEBUGGER_CONTEXT_MENU_CLICK", {
-        menuItem: CONTEXT_MENU_ACTIONS.SNIPPET,
-      });
-      /// Search through the omnibar
-      AnalyticsUtil.logEvent("OPEN_OMNIBAR", {
-        source: "DEBUGGER",
-        searchTerm: error.message,
-        errorType: error.type,
-      });
-      dispatch(setGlobalSearchQuery(""));
-      dispatch(
-        executeCommandAction({
-          actionType: SlashCommand.NEW_SNIPPET,
-          args: getSnippetArgs(entity),
-        }),
-      );
     },
   },
 };

@@ -12,5 +12,4 @@ public class SequenceServiceImpl extends SequenceServiceCEImpl implements Sequen
     public SequenceServiceImpl(ReactiveMongoTemplate mongoTemplate) {
         super(mongoTemplate);
     }
-
 }

@@ -7,21 +7,15 @@ import { Colors } from "constants/Colors";
 import { Icon } from "design-system";
 import { Tooltip } from "design-system";
 import React, { memo } from "react";
-import {
-  Row,
-  RowHeading,
-  SelectWrapper,
-  TooltipWrapper,
-} from "../../../styles";
+import { Label, Row, RowHeading, SelectWrapper } from "../../../styles";
 import styled from "styled-components";
 import { useTableHeaderIndex } from "./useTableHeader";
 import { Input } from "design-system";
 
 const RoundBg = styled.div`
   width: 16px;
-  height: 16px;
   border-radius: 16px;
-  background-color: ${Colors.GRAY};
+  background-color: ${Colors.WHITE};
   display: flex;
   justify-content: center;
   align-items: center;
@@ -33,22 +27,29 @@ export default memo(function TableHeaderIndex() {
   if (show) {
     return (
       <SelectWrapper className="space-y-2">
-        <Row>
-          <RowHeading>{createMessage(GEN_CRUD_TABLE_HEADER_LABEL)}</RowHeading>
-          <TooltipWrapper>
+        <Label>
+          <Row>
+            <RowHeading>
+              {createMessage(GEN_CRUD_TABLE_HEADER_LABEL)}
+            </RowHeading>
             <Tooltip
               content={createMessage(GEN_CRUD_TABLE_HEADER_TOOLTIP_DESC)}
             >
               <RoundBg>
-                <Icon name="help" />
+                <Icon name="question-line" size="md" />
               </RoundBg>
             </Tooltip>
-          </TooltipWrapper>
-        </Row>
+          </Row>
+        </Label>
         <Input
+          className="space-y-4"
           errorMessage={error}
+          isRequired
+          labelPosition="top"
           onChange={onChange}
-          placeholder="Table Header Index"
+          placeholder="Table header index"
+          size="md"
+          type="number"
           value={value.toString()}
         />
       </SelectWrapper>

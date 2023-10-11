@@ -1,17 +1,10 @@
-const commonlocators = require("../../../../locators/commonlocators.json");
+import * as _ from "../../../../support/Objects/ObjectsCore";
+
 describe("Validating Mobile Views for Hug Widget", function () {
   it("1. Validate change with height width for hug widget - image widget", function () {
-    cy.get(commonlocators.autoConvert).click({
-      force: true,
-    });
-    cy.get(commonlocators.convert).click({
-      force: true,
-    });
-    cy.get(commonlocators.refreshApp).click({
-      force: true,
-    });
+    _.autoLayout.ConvertToAutoLayoutAndVerify(false);
     cy.dragAndDropToCanvas("imagewidget", { x: 300, y: 600 });
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(".t--widget-imagewidget").first().should("be.visible");
   });
   //Added viewports of iphone14 and samsung galaxy s22 for testing purpose

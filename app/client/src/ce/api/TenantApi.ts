@@ -14,23 +14,23 @@ export type UpdateTenantConfigResponse = ApiResponse<{
 
 export type UpdateTenantConfigRequest = {
   tenantConfiguration: Record<string, string>;
-  isOnlyTenantSettings: boolean;
+  needsRefresh?: boolean;
+  isOnlyTenantSettings?: boolean;
 };
 
 export class TenantApi extends Api {
   static tenantsUrl = "v1/tenants";
 
-  static fetchCurrentTenantConfig(): AxiosPromise<FetchCurrentTenantConfigResponse> {
+  static async fetchCurrentTenantConfig(): Promise<
+    AxiosPromise<FetchCurrentTenantConfigResponse>
+  > {
     return Api.get(`${TenantApi.tenantsUrl}/current`);
   }
 
-  static updateTenantConfig(
+  static async updateTenantConfig(
     request: UpdateTenantConfigRequest,
-  ): AxiosPromise<UpdateTenantConfigResponse> {
-    return Api.put(
-      `${TenantApi.tenantsUrl}/updateDefaultTenantConfiguration`,
-      request.tenantConfiguration,
-    );
+  ): Promise<AxiosPromise<UpdateTenantConfigResponse>> {
+    return Api.put(`${TenantApi.tenantsUrl}`, request.tenantConfiguration);
   }
 }
 

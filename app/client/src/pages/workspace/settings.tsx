@@ -14,14 +14,11 @@ import { Tabs, Tab, TabsList, TabPanel } from "design-system";
 import MemberSettings from "@appsmith/pages/workspace/Members";
 import { GeneralSettings } from "./General";
 import * as Sentry from "@sentry/react";
-import {
-  getAllApplications,
-  setShowAppInviteUsersDialog,
-} from "@appsmith/actions/applicationActions";
+import { getAllApplications } from "@appsmith/actions/applicationActions";
 import { useMediaQuery } from "react-responsive";
 import { BackButton, StickyHeader } from "components/utils/helperComponents";
 import { debounce } from "lodash";
-import WorkspaceInviteUsersForm from "@appsmith/pages/workspace/WorkspaceInviteUsersForm";
+import WorkspaceInviteUsersForm from "pages/workspace/WorkspaceInviteUsersForm";
 import { SettingsPageHeader } from "./SettingsPageHeader";
 import { navigateToTab } from "@appsmith/pages/workspace/helpers";
 import {
@@ -33,11 +30,10 @@ import {
   INVITE_USERS_PLACEHOLDER,
   SEARCH_USERS,
 } from "@appsmith/constants/messages";
-import { getAppsmithConfigs } from "@appsmith/configs";
 import { APPLICATIONS_URL } from "constants/routes";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
-
-const { cloudHosting } = getAppsmithConfigs();
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -116,6 +112,8 @@ export default function Settings() {
 
   const history = useHistory();
 
+  const isGACEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+
   const currentTab = location.pathname.split("/").pop();
   // const [selectedTab, setSelectedTab] = useState(currentTab);
 
@@ -158,10 +156,6 @@ export default function Settings() {
       dispatch(getAllApplications());
     }
   }, [dispatch, currentWorkspace]);
-
-  const handleFormOpenOrClose = useCallback((isOpen: boolean) => {
-    dispatch(setShowAppInviteUsersDialog(isOpen));
-  }, []);
 
   const GeneralSettingsComponent = (
     <SentryRoute
@@ -230,7 +224,7 @@ export default function Settings() {
             onButtonClick={onButtonClick}
             onSearch={onSearch}
             pageMenuItems={pageMenuItems}
-            searchPlaceholder={createMessage(SEARCH_USERS, cloudHosting)}
+            searchPlaceholder={createMessage(SEARCH_USERS, !isGACEnabled)}
             showMoreOptions={false}
             showSearchNButton={isMembersPage}
             title={pageTitle}
@@ -276,8 +270,7 @@ export default function Settings() {
           hideDefaultTrigger
           isOpen={showModal}
           onClose={() => setShowModal(false)}
-          onOpenOrClose={handleFormOpenOrClose}
-          placeholder={createMessage(INVITE_USERS_PLACEHOLDER, cloudHosting)}
+          placeholder={createMessage(INVITE_USERS_PLACEHOLDER, !isGACEnabled)}
           workspace={currentWorkspace}
         />
       )}

@@ -10,14 +10,18 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import java.util.List;
 import java.util.Map;
 
-
 public interface IFilterDataServiceCE {
 
     ArrayNode filterDataNew(ArrayNode items, UQIDataFilterParams uqiDataFilterParams);
 
-    ArrayNode filterDataNew(ArrayNode items, UQIDataFilterParams uqiDataFilterParams, Map<DataType, DataType> dataTypeConversionMap);
+    ArrayNode filterDataNew(
+            ArrayNode items, UQIDataFilterParams uqiDataFilterParams, Map<DataType, DataType> dataTypeConversionMap);
 
-    void insertAllData(String tableName, ArrayNode items, Map<String, DataType> schema, Map<DataType, DataType> dataTypeConversionMap);
+    void insertAllData(
+            String tableName,
+            ArrayNode items,
+            Map<String, DataType> schema,
+            Map<DataType, DataType> dataTypeConversionMap);
 
     String generateTable(Map<String, DataType> schema);
 
@@ -27,8 +31,9 @@ public interface IFilterDataServiceCE {
 
     boolean validConditionList(List<Condition> conditionList, Map<String, DataType> schema);
 
-    String generateLogicalExpression(List<Condition> conditions, List<PreparedStatementValueDTO> values,
-                                     Map<String, DataType> schema, ConditionalOperator logicOp);
-
+    String generateLogicalExpression(
+            List<Condition> conditions,
+            List<PreparedStatementValueDTO> values,
+            Map<String, DataType> schema,
+            ConditionalOperator logicOp);
 }
-

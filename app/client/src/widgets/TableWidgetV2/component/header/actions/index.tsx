@@ -237,7 +237,13 @@ function Actions(props: ActionsPropsType) {
                 props.pageNo === props.pageCount - 1
               }
               onClick={() => {
-                props.nextPageClick();
+                if (
+                  !(
+                    !!props.totalRecordsCount &&
+                    props.pageNo === props.pageCount - 1
+                  )
+                )
+                  props.nextPageClick();
               }}
             >
               <Icon

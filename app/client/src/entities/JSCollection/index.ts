@@ -23,11 +23,11 @@ export interface JSCollection {
 
 export interface JSActionConfig {
   body: string;
-  isAsync: boolean;
   timeoutInMillisecond: number;
   jsArguments: Array<Variable>;
 }
 export interface JSAction extends BaseAction {
   actionConfiguration: JSActionConfig;
   clientSideExecution: boolean;
+  fullyQualifiedName?: string;
 }

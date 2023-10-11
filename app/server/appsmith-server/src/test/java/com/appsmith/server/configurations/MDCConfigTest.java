@@ -47,8 +47,7 @@ class MDCConfigTest {
                 .subscribe(new BaseSubscriber<>() {
                     @Override
                     public Context currentContext() {
-                        return Context.empty()
-                                .put(LogHelper.CONTEXT_MAP, initialMap);
+                        return Context.empty().put(LogHelper.CONTEXT_MAP, initialMap);
                     }
                 });
     }
@@ -58,10 +57,10 @@ class MDCConfigTest {
         Mono.fromSupplier(() -> "testString")
                 .flatMap((firstValue) -> {
                     final String firstThread = MDC.get(MDCFilter.THREAD);
-                    log.debug("First thread -> {} ; Context thread -> {}",
+                    log.debug(
+                            "First thread -> {} ; Context thread -> {}",
                             Thread.currentThread().getName(),
-                            firstThread
-                    );
+                            firstThread);
                     Assertions.assertFalse(MDC.getCopyOfContextMap().isEmpty());
                     Assertions.assertEquals(firstThread, "main");
                     Assertions.assertEquals(firstThread, Thread.currentThread().getName());
@@ -69,27 +68,26 @@ class MDCConfigTest {
 
                     return Mono.fromSupplier(() -> "secondString")
                             .doOnEach((secondValue) -> {
-
                                 final String secondThread = MDC.get(MDCFilter.THREAD);
-                                log.debug("Second thread -> {} ; Context thread -> {} ; on signal {}",
+                                log.debug(
+                                        "Second thread -> {} ; Context thread -> {} ; on signal {}",
                                         Thread.currentThread().getName(),
                                         secondThread,
-                                        secondValue.getType()
-                                );
+                                        secondValue.getType());
                                 Assertions.assertFalse(MDC.getCopyOfContextMap().isEmpty());
                                 Assertions.assertNotEquals(secondThread, "main");
-                                Assertions.assertEquals(secondThread, Thread.currentThread().getName());
+                                Assertions.assertEquals(
+                                        secondThread, Thread.currentThread().getName());
                                 Assertions.assertEquals(MDC.get("constantKey"), "constantValue");
                             })
                             .subscribeOn(Schedulers.boundedElastic());
-                }).subscribe(new BaseSubscriber<>() {
+                })
+                .subscribe(new BaseSubscriber<>() {
                     @Override
                     public Context currentContext() {
-                        return Context.empty()
-                                .put(LogHelper.CONTEXT_MAP, initialMap);
+                        return Context.empty().put(LogHelper.CONTEXT_MAP, initialMap);
                     }
                 });
-
     }
 
     @Test
@@ -97,10 +95,10 @@ class MDCConfigTest {
         Mono.fromSupplier(() -> "testString")
                 .flatMap((firstValue) -> {
                     final String firstThread = MDC.get(MDCFilter.THREAD);
-                    log.debug("First thread -> {} ; Context thread -> {}",
+                    log.debug(
+                            "First thread -> {} ; Context thread -> {}",
                             Thread.currentThread().getName(),
-                            firstThread
-                    );
+                            firstThread);
                     Assertions.assertFalse(MDC.getCopyOfContextMap().isEmpty());
                     Assertions.assertEquals(firstThread, "main");
                     Assertions.assertEquals(firstThread, Thread.currentThread().getName());
@@ -108,33 +106,32 @@ class MDCConfigTest {
 
                     return Mono.error(() -> new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR))
                             .doOnEach((errorValue) -> {
-
                                 final String secondThread = MDC.get(MDCFilter.THREAD);
-                                log.debug("Error thread -> {} ; Context thread -> {} ; on signal {}",
+                                log.debug(
+                                        "Error thread -> {} ; Context thread -> {} ; on signal {}",
                                         Thread.currentThread().getName(),
                                         secondThread,
-                                        errorValue.getType()
-                                );
+                                        errorValue.getType());
                                 Assertions.assertFalse(MDC.getCopyOfContextMap().isEmpty());
                                 Assertions.assertNotEquals(secondThread, "main");
-                                Assertions.assertEquals(secondThread, Thread.currentThread().getName());
+                                Assertions.assertEquals(
+                                        secondThread, Thread.currentThread().getName());
                                 Assertions.assertEquals(MDC.get("constantKey"), "constantValue");
 
                                 Assertions.assertEquals(errorValue.getType(), SignalType.ON_ERROR);
 
-                                final Map<String, String> contextMap = ((BaseException) errorValue.get()).getContextMap();
+                                final Map<String, String> contextMap =
+                                        ((BaseException) errorValue.get()).getContextMap();
                                 Assertions.assertEquals(contextMap.get("constantKey"), "constantValue");
                                 Assertions.assertEquals(contextMap.get(MDCFilter.THREAD), secondThread);
                             })
                             .subscribeOn(Schedulers.boundedElastic());
-                }).subscribe(new BaseSubscriber<>() {
+                })
+                .subscribe(new BaseSubscriber<>() {
                     @Override
                     public Context currentContext() {
-                        return Context.empty()
-                                .put(LogHelper.CONTEXT_MAP, initialMap);
+                        return Context.empty().put(LogHelper.CONTEXT_MAP, initialMap);
                     }
                 });
-
     }
-
 }

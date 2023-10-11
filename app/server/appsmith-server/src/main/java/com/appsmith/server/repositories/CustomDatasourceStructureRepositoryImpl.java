@@ -4,12 +4,12 @@ import com.appsmith.server.repositories.ce.CustomDatasourceStructureRepositoryCE
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 
-public class CustomDatasourceStructureRepositoryImpl
-        extends CustomDatasourceStructureRepositoryCEImpl
+public class CustomDatasourceStructureRepositoryImpl extends CustomDatasourceStructureRepositoryCEImpl
         implements CustomDatasourceStructureRepository {
-    public CustomDatasourceStructureRepositoryImpl(ReactiveMongoOperations mongoOperations,
-                                                   MongoConverter mongoConverter,
-                                                   CacheableRepositoryHelper cacheableRepositoryHelper) {
+    public CustomDatasourceStructureRepositoryImpl(
+            ReactiveMongoOperations mongoOperations,
+            MongoConverter mongoConverter,
+            CacheableRepositoryHelper cacheableRepositoryHelper) {
         super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
     }
 }

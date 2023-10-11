@@ -1,5 +1,5 @@
+import { JS_OBJECT_START_STATEMENT } from "plugins/Linting/constants";
 import type { Position } from "codemirror";
-import { JS_OBJECT_START_STATEMENT } from "workers/Linting/constants";
 
 export const LINT_TOOLTIP_CLASS = "CodeMirror-lint-tooltip";
 export const LINT_TOOLTIP_JUSTIFIED_LEFT_CLASS = "CodeMirror-lint-tooltip-left";

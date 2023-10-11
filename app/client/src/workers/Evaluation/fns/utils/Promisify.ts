@@ -21,7 +21,7 @@ export function promisify<P extends ReadonlyArray<unknown>>(
         ...metaData,
       },
     });
-    if (!dataTreeEvaluator) throw new Error("No Data Tree Evaluator found");
+    if (!dataTreeEvaluator) throw new Error("No data tree evaluator found");
     ExecutionMetaData.setExecutionMetaData(metaData);
     self["$isDataField"] = false;
     const { data, error } = response;

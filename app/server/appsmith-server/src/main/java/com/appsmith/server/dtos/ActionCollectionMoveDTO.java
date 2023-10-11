@@ -8,12 +8,9 @@ import lombok.Setter;
 @Setter
 public class ActionCollectionMoveDTO {
 
-    @NotNull
-    String name;
+    @NotNull String name;
 
-    @NotNull
-    String collectionId;
+    @NotNull String collectionId;
 
-    @NotNull
-    String destinationPageId;
+    @NotNull String destinationPageId;
 }

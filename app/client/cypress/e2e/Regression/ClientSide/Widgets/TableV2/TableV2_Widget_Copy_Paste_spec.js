@@ -1,12 +1,14 @@
 const apiwidget = require("../../../../../locators/apiWidgetslocator.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
-const dsl = require("../../../../../fixtures/tableV2NewDsl.json");
-import * as _ from "../../../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  entityExplorer,
+} from "../../../../../support/Objects/ObjectsCore";
 
 describe("Test Suite to validate copy/paste table Widget V2", function () {
   before(() => {
-    cy.addDsl(dsl);
+    agHelper.AddDsl("tableV2NewDsl");
   });
   it("1. Copy paste table widget and valdiate application status", function () {
     const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
@@ -34,13 +36,13 @@ describe("Test Suite to validate copy/paste table Widget V2", function () {
       "not.exist",
     );
     cy.CheckAndUnfoldWidgets();
-    _.entityExplorer.ActionContextMenuByEntityName(
-      "Table1Copy",
-      "Show bindings",
-    );
+    entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: "Table1Copy",
+      action: "Show bindings",
+    });
     cy.wait(200);
     cy.get(apiwidget.propertyList).then(function ($lis) {
-      expect($lis).to.have.length(22);
+      expect($lis).to.have.length(23);
       expect($lis.eq(0)).to.contain("{{Table1Copy.selectedRow}}");
       expect($lis.eq(1)).to.contain("{{Table1Copy.selectedRows}}");
     });

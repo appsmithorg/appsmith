@@ -7,7 +7,7 @@ import apiActionEditorConfig from "constants/AppsmithActionConstants/formConfig/
 import saasActionSettingsConfig from "constants/AppsmithActionConstants/formConfig/GoogleSheetsSettingsConfig";
 import apiActionDependencyConfig from "constants/AppsmithActionConstants/formConfig/ApiDependencyConfigs";
 import apiActionDatasourceFormButtonConfig from "constants/AppsmithActionConstants/formConfig/ApiDatasourceFormsButtonConfig";
-import type { ENTITY_TYPE } from "entities/DataTree/types";
+import type { ENTITY_TYPE } from "@appsmith/entities/DataTree/types";
 
 export type ExecuteActionPayloadEvent = {
   type: EventType;
@@ -26,6 +26,10 @@ export type TriggerSource = {
   isJSAction?: boolean;
   actionId?: string;
 };
+export enum TriggerKind {
+  EVENT_EXECUTION = "EVENT_EXECUTION", // Eg. Button onClick
+  JS_FUNCTION_EXECUTION = "JS_FUNCTION_EXECUTION", // Executing js function from jsObject page
+}
 
 export type ExecuteTriggerPayload = {
   dynamicString: string;
@@ -144,14 +148,8 @@ export interface LayoutOnLoadActionErrors {
 // Group 1 = datasource (https://www.domain.com)
 // Group 2 = path (/nested/path)
 // Group 3 = params (?param=123&param2=12)
-export const DATASOURCE_PATH_EXACT_MATCH_REGEX =
+export const DATASOURCE_URL_EXACT_MATCH_REGEX =
   /^(https?:\/{2}\S+?)(\/[\s\S]*?)?(\?(?![^{]*})[\s\S]*)?$/;
-
-// this regex is for matching patterns that does not conform with our standards.
-// Group 1 = datasource (https:/www.domain.com) or (https:/www.domain.com) or (htt/www.domain.com)
-// Group 2 = path (/nested/path)
-// Group 3 = params (?param=123&param2=12)
-export const DATASOURCE_PATH_PARTIAL_MATCH_REGEX = /^(.*?)\/(.*?)$/;
 
 export const EXECUTION_PARAM_KEY = "executionParams";
 export const EXECUTION_PARAM_REFERENCE_REGEX = /this.params|this\?.params/g;

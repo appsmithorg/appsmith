@@ -10,25 +10,13 @@ import {
   SEARCH_CATEGORY_ID,
 } from "components/editorComponents/GlobalSearch/utils";
 
-export enum SnippetAction {
-  INSERT,
-  COPY,
-}
-
 const initialState: GlobalSearchReduxState = {
   query: "", // used to prefill when opened via contextual help links
   modalOpen: false,
   recentEntities: [],
   recentEntitiesRestored: false,
   filterContext: {
-    category: filterCategories[SEARCH_CATEGORY_ID.DOCUMENTATION],
-    fieldMeta: {},
-    refinements: {},
-    evaluatedSnippet: "",
-    executionInProgress: false,
-    evaluatedArguments: {},
-    onEnter: SnippetAction.COPY,
-    hideOuterBindings: false,
+    category: filterCategories[SEARCH_CATEGORY_ID.INIT],
   },
 };
 
@@ -55,7 +43,6 @@ const globalSearchReducer = createReducer(initialState, {
     filterContext: {
       ...state.filterContext,
       category: action.payload,
-      onEnter: SnippetAction.COPY,
     },
   }),
   [ReduxActionTypes.SET_SEARCH_FILTER_CONTEXT]: (
@@ -66,38 +53,6 @@ const globalSearchReducer = createReducer(initialState, {
     filterContext: {
       ...state.filterContext,
       ...action.payload,
-    },
-  }),
-  [ReduxActionTypes.SET_EVALUATED_SNIPPET]: (
-    state: GlobalSearchReduxState,
-    action: ReduxAction<Partial<GlobalSearchReduxState["filterContext"]>>,
-  ) => ({
-    ...state,
-    filterContext: {
-      ...state.filterContext,
-      evaluatedSnippet: action.payload,
-    },
-  }),
-  [ReduxActionTypes.SET_EVALUATED_ARGUMENT]: (
-    state: GlobalSearchReduxState,
-    action: ReduxAction<Partial<GlobalSearchReduxState["filterContext"]>>,
-  ) => ({
-    ...state,
-    filterContext: {
-      ...state.filterContext,
-      evaluatedArguments: {
-        ...state.filterContext.evaluatedArguments,
-        ...action.payload,
-      },
-    },
-  }),
-  [ReduxActionTypes.UNSET_EVALUATED_ARGUMENT]: (
-    state: GlobalSearchReduxState,
-  ) => ({
-    ...state,
-    filterContext: {
-      ...state.filterContext,
-      evaluatedArguments: {},
     },
   }),
   [ReduxActionTypes.SET_RECENT_ENTITIES]: (
@@ -128,18 +83,6 @@ export interface GlobalSearchReduxState {
   recentEntitiesRestored: boolean;
   filterContext: {
     category: SearchCategory;
-    refinements: {
-      entities?: [string];
-    };
-    fieldMeta?: {
-      dataType?: string;
-      field?: string;
-    };
-    onEnter: SnippetAction;
-    evaluatedSnippet: string;
-    executionInProgress: boolean;
-    evaluatedArguments: any;
-    hideOuterBindings: boolean;
   };
 }
 

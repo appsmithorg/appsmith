@@ -14,7 +14,8 @@ public interface UserWorkspaceServiceCE {
 
     Mono<User> leaveWorkspace(String workspaceId);
 
-    Mono<MemberInfoDTO> updatePermissionGroupForMember(String workspaceId, UpdatePermissionGroupDTO changeUserGroupDTO, String originHeader);
+    Mono<MemberInfoDTO> updatePermissionGroupForMember(
+            String workspaceId, UpdatePermissionGroupDTO changeUserGroupDTO, String originHeader);
 
     Mono<List<MemberInfoDTO>> getWorkspaceMembers(String workspaceId);
 

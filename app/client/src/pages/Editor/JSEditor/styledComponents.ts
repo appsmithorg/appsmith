@@ -49,11 +49,11 @@ export const Form = styled.form`
     display: none;
   }
   flex: 1;
-  padding: 20px 0px 0px 0px;
+  padding: var(--ads-v2-spaces-5) 0 0;
 `;
 
 export const StyledFormRow = styled(FormRow)`
-  padding: 0px 20px;
+  padding: 0px 20px 16px 20px;
   flex: 0;
 `;
 
@@ -105,7 +105,7 @@ export const TabbedViewContainer = styled.div<{ isExecuting: boolean }>`
     }
     .ads-v2-tabs__panel {
       ${CodeEditorWithGutterStyles};
-      height: calc(100% - 40px);
+      height: calc(100% - 38px);
       margin-top: 0px;
       background-color: var(--ads-v2-color-bg);
       .CodeEditorTarget {

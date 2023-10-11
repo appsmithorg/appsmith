@@ -4,16 +4,15 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DatasourceConfiguration;
-import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
 public class InitUtils {
 
-    public String initializeRequestUrl(ActionConfiguration actionConfiguration,
-                                            DatasourceConfiguration datasourceConfiguration ) {
+    public String initializeRequestUrl(
+            ActionConfiguration actionConfiguration, DatasourceConfiguration datasourceConfiguration) {
         String path = (actionConfiguration.getPath() == null) ? "" : actionConfiguration.getPath();
-        return datasourceConfiguration.getUrl().trim() + path;
+        return datasourceConfiguration.getUrl().trim() + path.trim();
     }
 
     public void initializeResponseWithError(ActionExecutionResult result) {

@@ -35,6 +35,7 @@ export default {
       label: "Position",
       helpText: "Sets the icon alignment of the menu button",
       controlType: "ICON_TABS",
+      defaultValue: "left",
       fullWidth: false,
       options: [
         {

@@ -14,9 +14,10 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class PageController extends PageControllerCE {
 
-    public PageController(ApplicationPageService applicationPageService,
-                          NewPageService newPageService,
-                          CreateDBTablePageSolution createDBTablePageSolution) {
+    public PageController(
+            ApplicationPageService applicationPageService,
+            NewPageService newPageService,
+            CreateDBTablePageSolution createDBTablePageSolution) {
 
         super(applicationPageService, newPageService, createDBTablePageSolution);
     }

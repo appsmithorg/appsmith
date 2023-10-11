@@ -92,7 +92,10 @@
                 "isVisible": true,
                 "label": "",
                 "selectionType": "SINGLE_SELECT",
-                "options": "",
+                "sourceData": "",
+                "optionLabel": "label",
+                "optionValue": "value",
+                "dynamicPropertyPathList": [{"key": "sourceData"}],
                 "widgetName": "Dropdown1",
                 "type": "SELECT_WIDGET",
                 "isLoading": false,
@@ -131,7 +134,10 @@
                 ],
                 "parentColumnSpace": 71.75,
                 "leftColumn": 10,
-                "options": [
+                "optionLable": "label",
+                "optionValue": "value",
+                "dynamicPropertyPathList": [{"key": "sourceData"}],
+                "sourceData": [
                   {
                     "label": "Hashirama Senju",
                     "value": "First"

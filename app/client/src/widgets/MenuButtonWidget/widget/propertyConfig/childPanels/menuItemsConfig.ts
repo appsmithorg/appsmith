@@ -81,6 +81,7 @@ export default {
           label: "Position",
           helpText: "Sets the icon alignment of a menu item",
           controlType: "ICON_TABS",
+          defaultValue: "left",
           fullWidth: false,
           options: [
             {

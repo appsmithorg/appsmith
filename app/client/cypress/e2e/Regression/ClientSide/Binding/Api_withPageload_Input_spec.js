@@ -1,35 +1,30 @@
 const testdata = require("../../../../fixtures/testdata.json");
-const apiwidget = require("../../../../locators/apiWidgetslocator.json");
-const dsl = require("../../../../fixtures/MultipleInput.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Binding the API with pageOnLoad and input Widgets", function () {
   before(() => {
-    cy.addDsl(dsl);
+    _.agHelper.AddDsl("MultipleInput");
   });
 
   it("1. Will load an api on load", function () {
-    cy.NavigateToAPI_Panel();
-    cy.CreateAPI("PageLoadApi");
-    cy.enterDatasourceAndPath(testdata.baseUrl, testdata.methods);
-    cy.WaitAutoSave();
-    cy.get(apiwidget.settings).click({ force: true });
-    cy.get(apiwidget.onPageLoad).click({ force: true });
-    cy.wait("@setExecuteOnLoad");
-    cy.reload();
+    _.apiPage.CreateAndFillApi(
+      testdata.baseUrl + testdata.methods,
+      "PageLoadApi",
+    );
+    _.apiPage.ToggleOnPageLoadRun(true);
+    _.agHelper.RefreshPage();
+    _.apiPage.ResponseStatusCheck("200 OK"); //Verify if api is run on pageload!
   });
 
   it("2. Input widget updated with deafult data", function () {
-    cy.selectEntityByName("Widgets");
-    cy.selectEntityByName("Input1");
+    _.entityExplorer.SelectEntityByName("Input1", "Widgets");
     cy.get(widgetsPage.defaultInput).type("3");
 
-    cy.wait("@updateLayout").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
+    cy.wait("@updateLayout")
+      .its("response.body.responseMeta.status")
+      .should("eq", 200);
     cy.get(publish.inputWidget + " " + "input")
       .first()
       .invoke("attr", "value")
@@ -41,13 +36,11 @@ describe("Binding the API with pageOnLoad and input Widgets", function () {
     cy.get(widgetsPage.defaultInput).type(testdata.pageloadBinding, {
       parseSpecialCharSequences: false,
     });
+    cy.wait("@updateLayout")
+      .its("response.body.responseMeta.status")
+      .should("eq", 200);
 
-    cy.wait("@updateLayout").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(publish.inputWidget + " " + "input")
       .first()
       .invoke("attr", "value")
@@ -56,6 +49,5 @@ describe("Binding the API with pageOnLoad and input Widgets", function () {
       .last()
       .invoke("attr", "value")
       .should("contain", "23");
-    cy.get(publish.backToEditor).click();
   });
 });

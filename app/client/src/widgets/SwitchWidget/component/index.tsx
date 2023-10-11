@@ -4,7 +4,7 @@ import { BlueprintControlTransform } from "constants/DefaultTheme";
 import React from "react";
 import styled from "styled-components";
 import type { ComponentProps } from "widgets/BaseComponent";
-import { AlignWidgetTypes } from "widgets/constants";
+import { AlignWidgetTypes } from "WidgetProvider/constants";
 import { Colors } from "constants/Colors";
 import { FontStyleTypes } from "constants/WidgetConstants";
 import { darkenColor } from "widgets/WidgetUtils";
@@ -22,19 +22,25 @@ export interface SwitchComponentProps extends ComponentProps {
   labelTextSize?: string;
   labelStyle?: string;
   isDynamicHeightEnabled?: boolean;
+  minHeight?: number;
+  isLabelInline?: boolean;
 }
 
 const SwitchComponentContainer = styled.div<{
   accentColor: string;
+  minHeight?: number;
+  width?: string;
 }>`
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: stretch;
-  .auto-layout & {
-    width: 100%;
-    min-height: 32px;
-  }
+
+  ${({ minHeight }) => `
+    ${minHeight ? `min-height: ${minHeight}px;` : undefined}`};
+
+  width: 100%;
+
   ${BlueprintControlTransform}
 `;
 
@@ -45,6 +51,7 @@ const SwitchLabel = styled.div<{
   labelTextSize?: string;
   labelStyle?: string;
   isDynamicHeightEnabled?: boolean;
+  isLabelInline?: boolean;
 }>`
   width: 100%;
   display: inline-block;
@@ -62,12 +69,14 @@ const SwitchLabel = styled.div<{
   ${({ isDynamicHeightEnabled }) =>
     isDynamicHeightEnabled ? "&& { word-break: break-all; }" : ""};
 
-  .auto-layout & {
+  ${({ isLabelInline }) =>
+    isLabelInline &&
+    `
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
     word-wrap: normal;
-  }
+  `}
 `;
 
 export const StyledSwitch = styled(Switch)<{
@@ -111,12 +120,14 @@ function SwitchComponent({
   labelTextColor,
   labelTextSize,
   onChange,
+  minHeight,
+  isLabelInline,
 }: SwitchComponentProps): JSX.Element {
   const switchAlignClass =
     labelPosition === LabelPosition.Right ? "left" : "right";
 
   return (
-    <SwitchComponentContainer accentColor={accentColor}>
+    <SwitchComponentContainer accentColor={accentColor} minHeight={minHeight}>
       <StyledSwitch
         $accentColor={accentColor}
         alignIndicator={switchAlignClass}
@@ -138,6 +149,7 @@ function SwitchComponent({
             className="t--switch-widget-label"
             disabled={isDisabled}
             isDynamicHeightEnabled={isDynamicHeightEnabled}
+            isLabelInline={isLabelInline}
             labelStyle={labelStyle}
             labelTextColor={labelTextColor}
             labelTextSize={labelTextSize}

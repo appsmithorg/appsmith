@@ -11,13 +11,13 @@ import com.external.constants.ErrorMessages;
 import com.external.plugins.GoogleSheetsPlugin;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class RowsAppendMethodTest {
 
@@ -29,19 +29,30 @@ public class RowsAppendMethodTest {
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setAuthentication(getOAuthObject());
 
-        Map<String,Object> formData = new HashMap<>();
-        formData.put("command", Collections.singletonMap("data","INSERT_ONE"));
-        formData.put("entityType", Collections.singletonMap("data","ROWS"));
-        formData.put("tableHeaderIndex", Collections.singletonMap("data","1"));
-        formData.put("projection", Collections.singletonMap("data",Collections.emptyList()));
-        formData.put("queryFormat", Collections.singletonMap("data","ROWS"));
-        formData.put("range", Collections.singletonMap("data",""));
-        formData.put("where", Collections.singletonMap("data",Map.of("condition","AND","children",Collections.singletonList(Collections.singletonMap("condition","LT")))));
-        formData.put("pagination",Collections.singletonMap("data",Map.of("limit",20,"offset",0)));
-        formData.put("smartSubstitution",Collections.singletonMap("data",true));
-        formData.put("sheetUrl",Collections.singletonMap("data","https://docs.google.com/spreadsheets/d/123/edit"));
-        formData.put("sheetName",Collections.singletonMap("data","portSheet"));
-        formData.put("sortBy",Collections.singletonMap("data",Collections.singletonList(Map.of("column","","order","Ascending"))));
+        Map<String, Object> formData = new HashMap<>();
+        formData.put("command", Collections.singletonMap("data", "INSERT_ONE"));
+        formData.put("entityType", Collections.singletonMap("data", "ROWS"));
+        formData.put("tableHeaderIndex", Collections.singletonMap("data", "1"));
+        formData.put("projection", Collections.singletonMap("data", Collections.emptyList()));
+        formData.put("queryFormat", Collections.singletonMap("data", "ROWS"));
+        formData.put("range", Collections.singletonMap("data", ""));
+        formData.put(
+                "where",
+                Collections.singletonMap(
+                        "data",
+                        Map.of(
+                                "condition",
+                                "AND",
+                                "children",
+                                Collections.singletonList(Collections.singletonMap("condition", "LT")))));
+        formData.put("pagination", Collections.singletonMap("data", Map.of("limit", 20, "offset", 0)));
+        formData.put("smartSubstitution", Collections.singletonMap("data", true));
+        formData.put("sheetUrl", Collections.singletonMap("data", "https://docs.google.com/spreadsheets/d/123/edit"));
+        formData.put("sheetName", Collections.singletonMap("data", "portSheet"));
+        formData.put(
+                "sortBy",
+                Collections.singletonMap(
+                        "data", Collections.singletonList(Map.of("column", "", "order", "Ascending"))));
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
@@ -50,19 +61,20 @@ public class RowsAppendMethodTest {
         actionConfiguration.setEncodeParamsToggle(true);
         actionConfiguration.setFormData(formData);
 
-        String[] testDataArray = {null,"","{}"};
+        String[] testDataArray = {null, "", "{}"};
 
-        for(int i=0; i<testDataArray.length; i++) {
+        for (int i = 0; i < testDataArray.length; i++) {
 
-            formData.put("rowObjects",new HashMap<>(Collections.singletonMap("data",testDataArray[i])));
+            formData.put("rowObjects", new HashMap<>(Collections.singletonMap("data", testDataArray[i])));
 
             AppsmithPluginException appsmithPluginException = assertThrows(AppsmithPluginException.class, () -> {
-                pluginExecutor.executeParameterized(null,new ExecuteActionDTO(),datasourceConfiguration,actionConfiguration);
+                pluginExecutor.executeParameterized(
+                        null, new ExecuteActionDTO(), datasourceConfiguration, actionConfiguration);
             });
 
             String actualMessage = appsmithPluginException.getMessage();
 
-            assertEquals(actualMessage,ErrorMessages.EMPTY_ROW_OBJECT_MESSAGE);
+            assertEquals(actualMessage, ErrorMessages.EMPTY_ROW_OBJECT_MESSAGE);
         }
     }
 
@@ -70,13 +82,16 @@ public class RowsAppendMethodTest {
      * Simulated oAuth2 object, just to bypass few case.
      * @return
      */
-    private OAuth2 getOAuthObject(){
+    private OAuth2 getOAuthObject() {
         OAuth2 oAuth2 = new OAuth2();
-        oAuth2.setAuthenticationResponse(new AuthenticationResponse() );
+        oAuth2.setAuthenticationResponse(new AuthenticationResponse());
         oAuth2.getAuthenticationResponse().setToken("welcome123");
         oAuth2.setGrantType(OAuth2.Type.AUTHORIZATION_CODE);
-        oAuth2.setScopeString("https://www.googleapis.com/auth/spreadsheets.readonly,https://www.googleapis.com/auth/drive.readonly");
-        oAuth2.setScope(Set.of("https://www.googleapis.com/auth/spreadsheets.readonly","https://www.googleapis.com/auth/drive.readonly"));
+        oAuth2.setScopeString(
+                "https://www.googleapis.com/auth/spreadsheets.readonly,https://www.googleapis.com/auth/drive.readonly");
+        oAuth2.setScope(Set.of(
+                "https://www.googleapis.com/auth/spreadsheets.readonly",
+                "https://www.googleapis.com/auth/drive.readonly"));
         return oAuth2;
     }
 }

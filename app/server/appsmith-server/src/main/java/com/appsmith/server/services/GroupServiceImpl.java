@@ -13,15 +13,22 @@ import reactor.core.scheduler.Scheduler;
 @Slf4j
 public class GroupServiceImpl extends GroupServiceCEImpl implements GroupService {
 
-    public GroupServiceImpl(Scheduler scheduler,
-                            Validator validator,
-                            MongoConverter mongoConverter,
-                            ReactiveMongoTemplate reactiveMongoTemplate,
-                            GroupRepository repository,
-                            AnalyticsService analyticsService,
-                            SessionUserService sessionUserService) {
+    public GroupServiceImpl(
+            Scheduler scheduler,
+            Validator validator,
+            MongoConverter mongoConverter,
+            ReactiveMongoTemplate reactiveMongoTemplate,
+            GroupRepository repository,
+            AnalyticsService analyticsService,
+            SessionUserService sessionUserService) {
 
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService,
+        super(
+                scheduler,
+                validator,
+                mongoConverter,
+                reactiveMongoTemplate,
+                repository,
+                analyticsService,
                 sessionUserService);
     }
 }

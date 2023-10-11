@@ -9,9 +9,6 @@ import java.util.List;
 import java.util.Map;
 
 import static com.appsmith.external.helpers.PluginUtils.setDataValueSafelyInFormData;
-import static com.external.plugins.AmazonS3Plugin.DEFAULT_URL_EXPIRY_IN_MINUTES;
-import static com.external.plugins.AmazonS3Plugin.NO;
-import static com.external.plugins.AmazonS3Plugin.YES;
 import static com.external.plugins.constants.FieldName.BODY;
 import static com.external.plugins.constants.FieldName.BUCKET;
 import static com.external.plugins.constants.FieldName.COMMAND;
@@ -23,6 +20,9 @@ import static com.external.plugins.constants.FieldName.LIST_WHERE;
 import static com.external.plugins.constants.FieldName.PATH;
 import static com.external.plugins.constants.FieldName.READ_DATATYPE;
 import static com.external.plugins.constants.FieldName.READ_EXPIRY;
+import static com.external.plugins.constants.S3PluginConstants.DEFAULT_URL_EXPIRY_IN_MINUTES;
+import static com.external.plugins.constants.S3PluginConstants.NO;
+import static com.external.plugins.constants.S3PluginConstants.YES;
 
 public class TemplateUtils {
 
@@ -78,7 +78,7 @@ public class TemplateUtils {
         setDataValueSafelyInFormData(configMap, BUCKET, bucketName);
         setDataValueSafelyInFormData(configMap, PATH, LIST_OF_FILES_STRING);
 
-        return new Template(DELETE_MULTIPLE_FILES_TEMPLATE_NAME, configMap);
+        return new Template(DELETE_MULTIPLE_FILES_TEMPLATE_NAME, configMap, false);
     }
 
     private static Template getDeleteFileTemplate(String bucketName, String fileName) {
@@ -87,7 +87,7 @@ public class TemplateUtils {
         setDataValueSafelyInFormData(configMap, BUCKET, bucketName);
         setDataValueSafelyInFormData(configMap, PATH, fileName);
 
-        return new Template(DELETE_FILE_TEMPLATE_NAME, configMap);
+        return new Template(DELETE_FILE_TEMPLATE_NAME, configMap, false);
     }
 
     private static Template getReadFileTemplate(String bucketName, String fileName) {
@@ -98,7 +98,7 @@ public class TemplateUtils {
         setDataValueSafelyInFormData(configMap, READ_EXPIRY, DEFAULT_URL_EXPIRY_IN_MINUTES);
         setDataValueSafelyInFormData(configMap, PATH, fileName);
 
-        return new Template(READ_FILE_TEMPLATE_NAME, configMap);
+        return new Template(READ_FILE_TEMPLATE_NAME, configMap, false);
     }
 
     private static Template getCreateFileTemplate(String bucketName, String fileName) {
@@ -110,7 +110,7 @@ public class TemplateUtils {
         setDataValueSafelyInFormData(configMap, PATH, fileName);
         setDataValueSafelyInFormData(configMap, BODY, FILE_PICKER_DATA_EXPRESSION);
 
-        return new Template(CREATE_FILE_TEMPLATE_NAME, configMap);
+        return new Template(CREATE_FILE_TEMPLATE_NAME, configMap, false);
     }
 
     private static Template getCreateMultipleFilesTemplate(String bucketName) {
@@ -122,7 +122,7 @@ public class TemplateUtils {
         setDataValueSafelyInFormData(configMap, PATH, DEFAULT_DIR);
         setDataValueSafelyInFormData(configMap, BODY, FILE_PICKER_MULTIPLE_FILES_DATA_EXPRESSION);
 
-        return new Template(CREATE_MULTIPLE_FILES_TEMPLATE_NAME, configMap);
+        return new Template(CREATE_MULTIPLE_FILES_TEMPLATE_NAME, configMap, false);
     }
 
     private static Template getListFilesTemplate(String bucketName) {
@@ -131,10 +131,12 @@ public class TemplateUtils {
         setDataValueSafelyInFormData(configMap, BUCKET, bucketName);
         setDataValueSafelyInFormData(configMap, LIST_SIGNED_URL, NO);
         setDataValueSafelyInFormData(configMap, LIST_UNSIGNED_URL, YES);
-        setDataValueSafelyInFormData(configMap, LIST_WHERE, new HashMap<String, Object>() {{
-            put("condition", "AND");
-        }});
+        setDataValueSafelyInFormData(configMap, LIST_WHERE, new HashMap<String, Object>() {
+            {
+                put("condition", "AND");
+            }
+        });
 
-        return new Template(LIST_FILES_TEMPLATE_NAME, configMap);
+        return new Template(LIST_FILES_TEMPLATE_NAME, configMap, true);
     }
 }

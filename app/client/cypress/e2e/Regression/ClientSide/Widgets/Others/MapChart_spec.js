@@ -1,118 +1,117 @@
 const commonLocators = require("../../../../../locators/commonlocators.json");
 const viewWidgetsPage = require("../../../../../locators/ViewWidgets.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
-const dsl = require("../../../../../fixtures/MapChartDsl.json");
-const { ObjectsRegistry } = require("../../../../../support/Objects/Registry");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Map Chart Widget Functionality", function () {
   before(() => {
-    cy.addDsl(dsl);
+    _.agHelper.AddDsl("MapChartDsl");
   });
 
   beforeEach(() => {
-    cy.openPropertyPane("mapchartwidget");
+    _.entityExplorer.SelectEntityByName("MapChart1", "Widgets");
   });
 
   afterEach(() => {
-    cy.goToEditFromPublish();
+    _.deployMode.NavigateBacktoEditor();
   });
 
-  it("Change Title", function () {
-    cy.testJsontext("title", this.data.chartIndata);
+  it("1. Change Title", function () {
+    cy.testJsontext("title", this.dataSet.chartIndata);
     cy.get(viewWidgetsPage.chartInnerText)
       .contains("App Sign Up")
       .should("have.text", "App Sign Up");
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
   });
 
-  it("Show Labels: FALSE", function () {
+  it("2. Show Labels: FALSE", function () {
     cy.togglebarDisable(commonLocators.mapChartShowLabels);
     cy.get(viewWidgetsPage.mapChartEntityLabels).should("not.exist");
-    cy.PublishtheApp();
-  });
-
-  it("Show Labels: TRUE", function () {
+    _.deployMode.DeployApp();
+    // Show Labels: TRUE
+    _.deployMode.NavigateBacktoEditor();
+    _.entityExplorer.SelectEntityByName("MapChart1", "Widgets");
     cy.togglebar(commonLocators.mapChartShowLabels);
     cy.get(viewWidgetsPage.mapChartEntityLabels).eq(1).should("exist");
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
   });
 
-  it("Map type: World with Antarctica", function () {
+  it("3. Map type: World with Antarctica", function () {
     // Change the map type
     cy.updateMapType("World with Antarctica");
     // Verify the number of entities
     cy.get(viewWidgetsPage.mapChartEntityLabels).should("have.length", 7);
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
   });
 
-  it("Map type: World", function () {
+  it("4. Map type: World", function () {
     // Change the map type
     cy.updateMapType("World");
     // Verify the number of entities
     cy.get(viewWidgetsPage.mapChartEntityLabels).should("have.length", 6);
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
   });
 
-  it("Map type: Europe", function () {
+  it("5. Map type: Europe", function () {
     // Change the map type
     cy.updateMapType("Europe");
     // Verify the number of entities
     cy.get(viewWidgetsPage.mapChartEntityLabels).should("have.length", 47);
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
   });
 
-  it("Map type: North America", function () {
+  it("6. Map type: North America", function () {
     // Change the map type
     cy.updateMapType("North America");
     // Verify the number of entities
     cy.get(viewWidgetsPage.mapChartEntityLabels).should("have.length", 26);
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
   });
 
-  it("Map type: South America", function () {
+  it("7. Map type: South America", function () {
     // Change the map type
     cy.updateMapType("South America");
     // Verify the number of entities
     cy.get(viewWidgetsPage.mapChartEntityLabels).should("have.length", 16);
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
   });
 
-  it("Map type: Asia", function () {
+  it("8. Map type: Asia", function () {
     // Change the map type
     cy.updateMapType("Asia");
     // Verify the number of entities
     cy.get(viewWidgetsPage.mapChartEntityLabels).should("have.length", 49);
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
   });
 
-  it("Map type: Oceania", function () {
+  it("9. Map type: Oceania", function () {
     // Change the map type
     cy.updateMapType("Oceania");
     // Verify the number of entities
     cy.get(viewWidgetsPage.mapChartEntityLabels).should("have.length", 15);
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
   });
 
-  it("Map type: Africa", function () {
+  it("10. Map type: Africa", function () {
     // Change the map type
     cy.updateMapType("Africa");
     // Verify the number of entities
     cy.get(viewWidgetsPage.mapChartEntityLabels).should("have.length", 56);
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
   });
 
-  it("Map type: USA", function () {
+  it("11. Map type: USA", function () {
     // Change the map type
     cy.updateMapType("USA");
     // Verify the number of entities
     cy.get(viewWidgetsPage.mapChartEntityLabels).should("have.length", 51);
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
   });
 
-  it("Action: onDataPointClick, Open modal", function () {
+  it("12. Action: onDataPointClick, Open modal", function () {
     // Create the Alert Modal and verify Modal name
-    cy.createModal(this.data.ModalName, "onDataPointClick");
-    cy.PublishtheApp();
+    cy.createModal(this.dataSet.ModalName, "onDataPointClick");
+    _.deployMode.DeployApp();
     /*
     cy.get(widgetsPage.mapChartPlot)
       .children()
@@ -120,22 +119,15 @@ describe("Map Chart Widget Functionality", function () {
       .click({ force: true });
     cy.get(modalWidgetPage.modelTextField).should(
       "have.text",
-      this.data.ModalName,
+      this.dataSet.ModalName,
     );
     */
   });
 
-  it("Action: onDataPointClick, Show message using selectedDataPoint", function () {
-    cy.get(ObjectsRegistry.CommonLocators._jsToggle("ondatapointclick"))
-      .scrollIntoView()
-      .click();
-    ObjectsRegistry.PropertyPane.UpdatePropertyFieldValue(
-      "onDataPointClick",
-      "",
-    );
-    cy.get(
-      ObjectsRegistry.CommonLocators._jsToggle("ondatapointclick"),
-    ).click();
+  it("13. Action: onDataPointClick, Show message using selectedDataPoint", function () {
+    cy.get(_.locators._jsToggle("ondatapointclick")).scrollIntoView().click();
+    _.propPane.UpdatePropertyFieldValue("onDataPointClick", "");
+    cy.get(_.locators._jsToggle("ondatapointclick")).click();
 
     const expectedEntityData = {
       value: 2.04,
@@ -155,5 +147,6 @@ describe("Map Chart Widget Functionality", function () {
     cy.get(widgetsPage.mapChartPlot).children().first().click({ force: true });
     // Assert
     cy.validateToastMessage(JSON.stringify(expectedEntityData));
+    _.deployMode.DeployApp();
   });
 });

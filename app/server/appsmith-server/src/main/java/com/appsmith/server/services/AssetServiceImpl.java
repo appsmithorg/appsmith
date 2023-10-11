@@ -9,8 +9,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class AssetServiceImpl extends AssetServiceCEImpl implements AssetService {
 
-    public AssetServiceImpl(AssetRepository repository,
-                            AnalyticsService analyticsService) {
+    public AssetServiceImpl(AssetRepository repository, AnalyticsService analyticsService) {
 
         super(repository, analyticsService);
     }

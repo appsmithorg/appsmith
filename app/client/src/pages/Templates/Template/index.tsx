@@ -70,7 +70,7 @@ const TemplateDatasources = styled.div`
 `;
 
 export interface TemplateProps {
-  isForkingEnabled: boolean;
+  hideForkTemplateButton: boolean;
   template: TemplateInterface;
   size?: string;
   onClick?: (id: string) => void;
@@ -153,7 +153,7 @@ export function TemplateLayout(props: TemplateLayoutProps) {
                 );
               })}
             </TemplateDatasources>
-            {props.isForkingEnabled && (
+            {props.hideForkTemplateButton && (
               <Tooltip
                 content={createMessage(FORK_THIS_TEMPLATE)}
                 placement={Position.BOTTOM}

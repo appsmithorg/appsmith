@@ -38,6 +38,7 @@ export const initialState: any = {
       firstTimeUserOnboardingComplete: false,
       showFirstTimeUserOnboardingModal: true,
       firstTimeUserOnboardingApplicationIds: ["1"],
+      stepState: [],
     },
     theme: {
       theme: {
@@ -49,6 +50,11 @@ export const initialState: any = {
             main: "#e2e2e2",
           },
         },
+      },
+    },
+    users: {
+      featureFlag: {
+        data: {},
       },
     },
   },

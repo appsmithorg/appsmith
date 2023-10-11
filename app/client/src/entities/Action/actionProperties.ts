@@ -16,6 +16,7 @@ import {
 import formControlTypes from "utils/formControl/formControlTypes";
 import { getAllBindingPathsForGraphqlPagination } from "utils/editor/EditorBindingPaths";
 import EditorControlTypes from "utils/editor/EditorControlTypes";
+import type { DynamicPath } from "utils/DynamicBindingUtils";
 
 const dynamicFields = [
   formControlTypes.QUERY_DYNAMIC_TEXT,
@@ -38,6 +39,7 @@ const getCorrectEvaluationSubstitutionType = (substitutionType?: string) => {
 export const getBindingAndReactivePathsOfAction = (
   action: Action,
   formConfig?: any[],
+  dynamicBindingPathList?: DynamicPath[],
 ): { reactivePaths: ReactivePaths; bindingPaths: BindingPaths } => {
   let reactivePaths: ReactivePaths = {
     data: EvaluationSubstitutionType.TEMPLATE,
@@ -46,6 +48,9 @@ export const getBindingAndReactivePathsOfAction = (
   };
   const bindingPaths: BindingPaths = {};
   if (!formConfig) {
+    dynamicBindingPathList?.forEach((dynamicPath) => {
+      reactivePaths[dynamicPath.key] = EvaluationSubstitutionType.TEMPLATE;
+    });
     reactivePaths = {
       ...reactivePaths,
       config: EvaluationSubstitutionType.TEMPLATE,

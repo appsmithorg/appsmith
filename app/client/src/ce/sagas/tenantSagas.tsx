@@ -10,8 +10,9 @@ import { TenantApi } from "@appsmith/api/TenantApi";
 import { validateResponse } from "sagas/ErrorSagas";
 import { safeCrashAppRequest } from "actions/errorActions";
 import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
-import { defaultBrandingConfig as CE_defaultBrandingConfig } from "ce/reducers/tenantReducer";
+import { defaultBrandingConfig as CE_defaultBrandingConfig } from "@appsmith/reducers/tenantReducer";
 import { toast } from "design-system";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 // On CE we don't expose tenant config so this shouldn't make any API calls and should just return necessary permissions for the user
 export function* fetchCurrentTenantConfigSaga() {
@@ -21,10 +22,12 @@ export function* fetchCurrentTenantConfigSaga() {
     );
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
+      const data: any = response.data;
       yield put({
         type: ReduxActionTypes.FETCH_CURRENT_TENANT_CONFIG_SUCCESS,
-        payload: response.data,
+        payload: data,
       });
+      AnalyticsUtil.initInstanceId(data.instanceId);
     }
   } catch (error) {
     yield put({
@@ -43,6 +46,17 @@ export function* updateTenantConfigSaga(
   action: ReduxAction<UpdateTenantConfigRequest>,
 ) {
   try {
+    const settings = action.payload.tenantConfiguration;
+    const hasSingleSessionUserSetting = settings.hasOwnProperty(
+      "singleSessionPerUserEnabled",
+    );
+    const hasShowRolesAndGroupsSetting =
+      settings.hasOwnProperty("showRolesAndGroups");
+
+    const hasEmailVerificationSetting = settings.hasOwnProperty(
+      "emailVerificationEnabled",
+    );
+
     const response: ApiResponse = yield call(
       TenantApi.updateTenantConfig,
       action.payload,
@@ -51,6 +65,26 @@ export function* updateTenantConfigSaga(
 
     if (isValidResponse) {
       const payload = response.data as any;
+
+      if (hasSingleSessionUserSetting || hasShowRolesAndGroupsSetting) {
+        AnalyticsUtil.logEvent("GENERAL_SETTINGS_UPDATE", {
+          ...(hasSingleSessionUserSetting
+            ? { session_limit_enabled: settings["singleSessionPerUserEnabled"] }
+            : {}),
+          ...(hasShowRolesAndGroupsSetting
+            ? {
+                programmatic_access_control_enabled:
+                  settings["showRolesAndGroups"],
+              }
+            : {}),
+        });
+      }
+
+      if (hasEmailVerificationSetting) {
+        AnalyticsUtil.logEvent("EMAIL_VERIFICATION_SETTING_UPDATE", {
+          enabled: settings["emailVerificationEnabled"],
+        });
+      }
 
       // If the tenant config is not present, we need to set the default config
       yield put({
@@ -68,6 +102,10 @@ export function* updateTenantConfigSaga(
         toast.show("Successfully saved", {
           kind: "success",
         });
+      }
+
+      if (action.payload.needsRefresh) {
+        location.reload();
       }
     }
   } catch (error) {

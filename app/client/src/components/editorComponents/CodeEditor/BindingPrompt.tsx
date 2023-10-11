@@ -28,6 +28,7 @@ function BindingPrompt(props: {
   isOpen: boolean;
   editorTheme?: EditorTheme;
   showLightningMenu?: boolean;
+  isAIEnabled?: boolean;
 }): JSX.Element {
   const promptRef = useRef<HTMLDivElement>(null);
   const customMessage = !!props.promptMessage;

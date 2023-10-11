@@ -1,11 +1,13 @@
-const dsl = require("../../../../../fixtures/Listv2/simpleLargeListv2.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
-
-import * as _ from "../../../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  entityExplorer,
+  propPane,
+} from "../../../../../support/Objects/ObjectsCore";
 
 describe("List Widget V2 Functionality", function () {
   before(() => {
-    cy.addDsl(dsl);
+    agHelper.AddDsl("Listv2/simpleLargeListv2");
   });
 
   const allowed = [
@@ -53,13 +55,11 @@ describe("List Widget V2 Functionality", function () {
     "excludeForAirgap",
     "should validate that all widgets can be added to List",
     () => {
-      _.entityExplorer.NavigateToSwitcher("Widgets");
-
+      entityExplorer.NavigateToSwitcher("Widgets");
       allowed.forEach((widget) => {
-        cy.dragAndDropToWidget(widget, "listwidgetv2", { x: 350, y: 50 });
-        cy.assertPageSave();
-        cy.get(`.t--draggable-${widget}`).should("exist");
-        cy.get(widgetsPage.removeWidget).click({ force: true });
+        entityExplorer.DragDropWidgetNVerify(widget);
+        //cy.dragAndDropToWidget(widget, "listwidgetv2", { x: 350, y: 50 });
+        agHelper.GetNClick(propPane._deleteWidget);
         cy.wait("@updateLayout");
       });
     },
@@ -69,10 +69,12 @@ describe("List Widget V2 Functionality", function () {
     "airgap",
     "should validate that all widgets can be added to List except mapwidget - airgap",
     () => {
-      _.entityExplorer.NavigateToSwitcher("Widgets");
+      entityExplorer.NavigateToSwitcher("Widgets");
       const airgapAllowed = allowed.filter((widget) => widget !== "mapwidget");
       airgapAllowed.forEach((widget) => {
-        cy.dragAndDropToWidget(widget, "listwidgetv2", { x: 350, y: 50 });
+        entityExplorer.DragDropWidgetNVerify(widget);
+
+        //cy.dragAndDropToWidget(widget, "listwidgetv2", { x: 350, y: 50 });
         cy.assertPageSave();
         cy.get(`.t--draggable-${widget}`).should("exist");
         cy.get(widgetsPage.removeWidget).click({ force: true });
@@ -80,8 +82,4 @@ describe("List Widget V2 Functionality", function () {
       });
     },
   );
-
-  afterEach(() => {
-    cy.goToEditFromPublish();
-  });
 });

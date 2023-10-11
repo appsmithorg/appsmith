@@ -1,9 +1,9 @@
 const viewWidgetsPage = require("../../../../../locators/ViewWidgets.json");
-const dsl = require("../../../../../fixtures/base64imagedsl.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Image Widget Functionality with base64", function () {
   before(() => {
-    cy.addDsl(dsl);
+    _.agHelper.AddDsl("base64imagedsl");
   });
 
   it("Image Widget Functionality Base64 validation", function () {
@@ -11,16 +11,16 @@ describe("Image Widget Functionality with base64", function () {
     /**
      * Test for Base64 encoded image
      */
-    cy.testJsontext("image", this.data.base64image.withoutPrefix);
+    cy.testJsontext("image", this.dataSet.base64image.withoutPrefix);
     cy.wait("@updateLayout").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       200,
     );
-    cy.EvaluateCurrentValue(this.data.base64image.withPrefix);
+    cy.EvaluateCurrentValue(this.dataSet.base64image.withPrefix);
     cy.get(viewWidgetsPage.imageinner)
       .invoke("attr", "src")
-      .should("contain", this.data.base64image.withPrefix);
+      .should("contain", this.dataSet.base64image.withPrefix);
     cy.closePropertyPane();
   });
 });

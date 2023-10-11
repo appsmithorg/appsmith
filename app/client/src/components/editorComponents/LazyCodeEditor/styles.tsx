@@ -53,15 +53,21 @@ export const ContentWrapper = styled("div")<{
   contentKind: ContentKind;
   showLineNumbers?: boolean;
   folding?: boolean;
+  height?: string | number;
 }>`
   overflow: hidden;
   width: 100%;
-  height: ${({ contentKind }) =>
-    contentKind === ContentKind.PLACEHOLDER ? "36px" : "auto"};
-  min-height: 34px;
+  height: ${({ contentKind, height }) =>
+    !!height
+      ? height
+      : contentKind === ContentKind.PLACEHOLDER
+      ? "36px"
+      : "auto"};
+  min-height: 36px;
   border: 1px solid;
   border-color: inherit;
   ${(props) => props.showLineNumbers && "border: none"}
+  border-radius: var(--ads-v2-border-radius);
 `;
 
 const opacityAnimation = keyframes`

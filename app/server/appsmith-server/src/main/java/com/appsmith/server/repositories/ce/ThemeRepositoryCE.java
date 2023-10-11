@@ -5,6 +5,4 @@ import com.appsmith.server.repositories.BaseRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface ThemeRepositoryCE extends BaseRepository<Theme, String>, CustomThemeRepositoryCE {
-
-}
+public interface ThemeRepositoryCE extends BaseRepository<Theme, String>, CustomThemeRepositoryCE {}

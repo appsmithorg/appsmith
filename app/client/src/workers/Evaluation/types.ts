@@ -1,8 +1,7 @@
 import type {
   ConfigTree,
-  DataTree,
   unEvalAndConfigTree,
-} from "entities/DataTree/dataTreeFactory";
+} from "entities/DataTree/dataTreeTypes";
 import type { ActionValidationConfigMap } from "constants/PropertyControlConstants";
 import type { AppTheme } from "entities/AppTheming";
 
@@ -14,7 +13,7 @@ import type {
   EVAL_WORKER_SYNC_ACTION,
 } from "@appsmith/workers/Evaluation/evalWorkerActions";
 import type { JSUpdate } from "utils/JSPaneUtils";
-import type { WidgetTypeConfigMap } from "utils/WidgetFactory";
+import type { WidgetTypeConfigMap } from "WidgetProvider/factory";
 import type { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
 import type { WorkerRequest } from "@appsmith/workers/common/types";
 import type { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
@@ -36,25 +35,28 @@ export interface EvalTreeRequestData {
   allActionValidationConfig: {
     [actionId: string]: ActionValidationConfigMap;
   };
-  requiresLinting: boolean;
   forceEvaluation: boolean;
   metaWidgets: MetaWidgetsReduxState;
-  appMode: APP_MODE | undefined;
+  appMode?: APP_MODE;
 }
 
 export interface EvalTreeResponseData {
-  dataTree: DataTree;
   dependencies: DependencyMap;
   errors: EvalError[];
   evalMetaUpdates: EvalMetaUpdates;
   evaluationOrder: string[];
+  reValidatedPaths: string[];
   jsUpdates: Record<string, JSUpdate>;
   logs: unknown[];
   unEvalUpdates: DataTreeDiff[];
   isCreateFirstTree: boolean;
   configTree: ConfigTree;
   staleMetaIds: string[];
-  pathsToClearErrorsFor: any[];
+  removedPaths: Array<{ entityId: string; fullpath: string }>;
   isNewWidgetAdded: boolean;
   undefinedEvalValuesMap: Record<string, boolean>;
+  jsVarsCreatedEvent?: { path: string; type: string }[];
+  updates: string;
 }
+
+export type JSVarMutatedEvents = Record<string, { path: string; type: string }>;

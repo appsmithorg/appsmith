@@ -1,11 +1,11 @@
-const dsl = require("../../../../../fixtures/menuButtonDsl.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const { modifierKey } = require("../../../../../support/Constants");
 
 describe("Menu button Widget Functionality", () => {
   before(() => {
-    cy.addDsl(dsl);
+    _.agHelper.AddDsl("menuButtonDsl");
   });
 
   it("1. Icon alignment should not change when changing the icon", () => {
@@ -99,7 +99,7 @@ describe("Menu button Widget Functionality", () => {
     // Add sample source data
     cy.testJsontext(
       "sourcedata",
-      JSON.stringify(this.data.MenuButtonSourceData),
+      JSON.stringify(this.dataSet.MenuButtonSourceData),
     );
 
     // Open configure array item panel

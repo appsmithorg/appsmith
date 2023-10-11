@@ -64,6 +64,8 @@ const StyledRadioGroup = styled(RadioGroup)<StyledRadioGroupProps>`
         );
       }
     }
+
+    margin-bottom: 0;
   }
 
   .${Classes.SWITCH} {

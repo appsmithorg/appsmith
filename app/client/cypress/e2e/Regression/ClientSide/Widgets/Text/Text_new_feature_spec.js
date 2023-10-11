@@ -1,17 +1,20 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
-const publishPage = require("../../../../../locators/publishWidgetspage.json");
-const dsl = require("../../../../../fixtures/textDsl.json");
+import {
+  agHelper,
+  deployMode,
+  propPane,
+} from "../../../../../support/Objects/ObjectsCore";
 
 describe("Text Widget color/font/alignment Functionality", function () {
   before(() => {
-    cy.addDsl(dsl);
+    agHelper.AddDsl("textDsl");
   });
 
   beforeEach(() => {
     cy.openPropertyPane("textwidget");
   });
-  it("Test to validate parsing link", function () {
+  it("1. Test to validate parsing link", function () {
     // Add link to text widget
     cy.testCodeMirror("app.appsmith.com");
     // check if it's a link when no http or https is passed,
@@ -40,31 +43,31 @@ describe("Text Widget color/font/alignment Functionality", function () {
     cy.closePropertyPane();
   });
 
-  it("Text-TextStyle Heading, Text Name Validation", function () {
+  it("2. Text-TextStyle Heading, Text Name Validation", function () {
     //changing the Text Name and verifying
     cy.widgetText(
-      this.data.TextName,
+      this.dataSet.TextName,
       widgetsPage.textWidget,
       widgetsPage.widgetNameSpan,
     );
 
     //Changing the text label
-    cy.testCodeMirror(this.data.TextLabelValueScrollable);
+    cy.testCodeMirror(this.dataSet.TextLabelValueScrollable);
     cy.moveToStyleTab();
     cy.ChangeTextStyle(
-      this.data.TextHeading,
+      this.dataSet.TextHeading,
       commonlocators.headingTextStyle,
-      this.data.TextLabelValueScrollable,
+      this.dataSet.TextLabelValueScrollable,
     );
     cy.wait("@updateLayout");
-    cy.PublishtheApp();
+    deployMode.DeployApp();
     cy.get(commonlocators.headingTextStyle)
-      .should("have.text", this.data.TextLabelValueScrollable)
+      .should("have.text", this.dataSet.TextLabelValueScrollable)
       .should("have.css", "font-size", "16px");
-    cy.get(publishPage.backToEditor).click({ force: true });
+    deployMode.NavigateBacktoEditor();
   });
 
-  it("Test to validate text format", function () {
+  it("3. Test to validate text format", function () {
     cy.moveToStyleTab();
     //Changing the Text Style's and validating
     cy.get(widgetsPage.italics).click();
@@ -78,7 +81,7 @@ describe("Text Widget color/font/alignment Functionality", function () {
     cy.closePropertyPane();
   });
 
-  it("Test to validate color changes in text and background", function () {
+  it("4. Test to validate color changes in text and background", function () {
     cy.moveToStyleTab();
     //Changing the Text Style's and validating
     cy.get(widgetsPage.textColor).first().click({ force: true });
@@ -86,10 +89,9 @@ describe("Text Widget color/font/alignment Functionality", function () {
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
     cy.wait("@updateLayout");
-    cy.readTextDataValidateCSS("color", "rgb(126, 34, 206)");
-    cy.get(widgetsPage.textColor)
-      .clear({ force: true })
-      .type("purple", { force: true });
+    cy.readTextDataValidateCSS("color", "rgb(219, 234, 254)");
+    propPane.EnterJSContext("Text color", "purple");
+    agHelper.Sleep(1000);
     cy.wait("@updateLayout");
     cy.readTextDataValidateCSS("color", "rgb(128, 0, 128)");
 
@@ -106,18 +108,17 @@ describe("Text Widget color/font/alignment Functionality", function () {
     cy.get(`${widgetsPage.textWidget} .bp3-ui-text`).should(
       "have.css",
       "background-color",
-      "rgb(126, 34, 206)",
+      "rgb(219, 234, 254)",
     );
 
     //Toggle JS check with cell background:
-    cy.get(widgetsPage.cellBackgroundToggle).click({ force: true });
-    cy.updateCodeInput(widgetsPage.cellBackground, "purple");
+    propPane.EnterJSContext("Background color", "purple");
 
     cy.wait("@updateLayout");
     cy.readTextDataValidateCSS("color", "rgb(128, 0, 128)");
   });
 
-  it("Test to validate text alignment", function () {
+  it("5. Test to validate text alignment", function () {
     cy.xpath(widgetsPage.textCenterAlign).first().click({ force: true });
     cy.readTextDataValidateCSS("text-align", "center");
     cy.xpath(widgetsPage.rightAlign).first().click({ force: true });
@@ -127,7 +128,7 @@ describe("Text Widget color/font/alignment Functionality", function () {
     cy.closePropertyPane();
   });
 
-  it("Test to validate enable scroll feature", function () {
+  it("6. Test to validate enable scroll feature", function () {
     cy.moveToContentTab();
     cy.get("[data-value='SCROLL']").click({ force: true });
     cy.wait("@updateLayout");
@@ -137,7 +138,7 @@ describe("Text Widget color/font/alignment Functionality", function () {
     cy.get(commonlocators.headingTextStyle).scrollIntoView({ duration: 2000 });
     cy.closePropertyPane();
   });
-  it("Test border width, color and verity", function () {
+  it("7. Test border width, color and verity", function () {
     cy.moveToStyleTab();
     cy.testJsontext("borderwidth", "10");
     cy.wait("@updateLayout");

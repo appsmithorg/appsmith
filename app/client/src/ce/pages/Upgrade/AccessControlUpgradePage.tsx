@@ -16,18 +16,16 @@ import {
   RESTRICT_PUBLIC_EXPOSURE_DETAIL1,
   SECURITY_APPS_LEAST_PRIVILEGE,
   SECURITY_APPS_LEAST_PRIVILEGE_DETAIL1,
-  UPGRADE_TO_EE_FEATURE,
 } from "@appsmith/constants/messages";
 import useOnUpgrade from "utils/hooks/useOnUpgrade";
+import { RampFeature, RampSection } from "utils/ProductRamps/RampsControlList";
 
 export function AccessControlUpgradePage() {
   const { onUpgrade } = useOnUpgrade({
     logEventName: "GAC_UPGRADE_CLICK_ADMIN_SETTINGS",
     logEventData: { source: "Granular Access Control" },
-    intercomMessage: createMessage(
-      UPGRADE_TO_EE_FEATURE,
-      "Granular Access Control for teams",
-    ),
+    featureName: RampFeature.Gac,
+    sectionName: RampSection.AdminSettings,
   });
 
   const header: Header = {
@@ -57,17 +55,17 @@ export function AccessControlUpgradePage() {
     ],
     targets: [
       <img
-        alt="Secure apps by the least privilege needed"
+        alt={createMessage(SECURITY_APPS_LEAST_PRIVILEGE)}
         key="secure-apps-least-privilege"
         src={SecureAppsLeastPrivilegeImage}
       />,
       <img
-        alt="Prevent accidental damage to data"
+        alt={createMessage(PREVENT_ACCIDENTAL_DAMAGE)}
         key="prevent-accidental-damage"
         src={PreventAccidentalDamageImage}
       />,
       <img
-        alt="Restrict public exposure of sensitive data"
+        alt={createMessage(RESTRICT_PUBLIC_EXPOSURE)}
         key="restrict-exposure-sensitive-data"
         src={RestrictPublicExposureImage}
       />,

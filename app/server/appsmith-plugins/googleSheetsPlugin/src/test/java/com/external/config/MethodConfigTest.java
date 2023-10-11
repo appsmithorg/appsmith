@@ -1,6 +1,5 @@
 package com.external.config;
 
-
 import com.appsmith.external.helpers.PluginUtils;
 import org.junit.jupiter.api.Test;
 
@@ -16,7 +15,7 @@ public class MethodConfigTest {
         MethodConfig methodConfig;
         final String[] testPropKeys = {"range", "tableHeaderIndex", "rowIndex"};
 
-        //Test data Expected output vs inputs
+        // Test data Expected output vs inputs
         Map<String, String> testDataMap = new HashMap<String, String>();
         testDataMap.put("2", "2 ");
         testDataMap.put("22", " 22 ");
@@ -49,46 +48,44 @@ public class MethodConfigTest {
                         assertEquals(e.getKey(), methodConfig.getRowIndex());
                         break;
                 }
-
             }
         }
     }
 
-//    @Test
-//    public void testInitialEmptyWhereCondition() {
-//        Map condition = new LinkedHashMap();
-//        condition.put(PATH_KEY, "");
-//        condition.put(VALUE_KEY, "");
-//
-//        List<Map> listOfConditions = new ArrayList<>();
-//        listOfConditions.add(condition);
-//
-//        Property property = new Property("where", listOfConditions);
-//        List<Property> propertyList = new ArrayList();
-//        propertyList.add(property);
-//
-//        MethodConfig methodConfig = new MethodConfig(propertyList);
-//        List<Condition> parsedWhereConditions = methodConfig.getWhereConditions();
-//        assertEquals(0, parsedWhereConditions.size());
-//    }
-//
-//    @Test(expected = AppsmithPluginException.class)
-//    public void testNonEmptyOperatorWithEmptyColumnWhereCondition() {
-//        Map condition = new LinkedHashMap();
-//        condition.put(PATH_KEY, "");
-//        condition.put(OPERATOR_KEY, "EQ");
-//        condition.put(VALUE_KEY, "");
-//
-//        List<Map> listOfConditions = new ArrayList<>();
-//        listOfConditions.add(condition);
-//
-//        Property property = new Property("where", listOfConditions);
-//        List<Property> propertyList = new ArrayList();
-//        propertyList.add(property);
-//
-//        MethodConfig methodConfig = new MethodConfig(propertyList);
-//        List<Condition> parsedWhereConditions = methodConfig.getWhereConditions();
-//        assertEquals(0, parsedWhereConditions.size());
-//    }
+    //    @Test
+    //    public void testInitialEmptyWhereCondition() {
+    //        Map condition = new LinkedHashMap();
+    //        condition.put(PATH_KEY, "");
+    //        condition.put(VALUE_KEY, "");
+    //
+    //        List<Map> listOfConditions = new ArrayList<>();
+    //        listOfConditions.add(condition);
+    //
+    //        Property property = new Property("where", listOfConditions);
+    //        List<Property> propertyList = new ArrayList();
+    //        propertyList.add(property);
+    //
+    //        MethodConfig methodConfig = new MethodConfig(propertyList);
+    //        List<Condition> parsedWhereConditions = methodConfig.getWhereConditions();
+    //        assertEquals(0, parsedWhereConditions.size());
+    //    }
+    //
+    //    @Test(expected = AppsmithPluginException.class)
+    //    public void testNonEmptyOperatorWithEmptyColumnWhereCondition() {
+    //        Map condition = new LinkedHashMap();
+    //        condition.put(PATH_KEY, "");
+    //        condition.put(OPERATOR_KEY, "EQ");
+    //        condition.put(VALUE_KEY, "");
+    //
+    //        List<Map> listOfConditions = new ArrayList<>();
+    //        listOfConditions.add(condition);
+    //
+    //        Property property = new Property("where", listOfConditions);
+    //        List<Property> propertyList = new ArrayList();
+    //        propertyList.add(property);
+    //
+    //        MethodConfig methodConfig = new MethodConfig(propertyList);
+    //        List<Condition> parsedWhereConditions = methodConfig.getWhereConditions();
+    //        assertEquals(0, parsedWhereConditions.size());
+    //    }
 }
-

@@ -1,4 +1,4 @@
-import type { AutocompletionDefinitions } from "widgets/constants";
+import type { AutocompletionDefinitions } from "WidgetProvider/constants";
 import ListWidget from ".";
 import type { WidgetProps } from "widgets/BaseWidget";
 

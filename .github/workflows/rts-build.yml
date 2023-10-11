@@ -10,6 +10,10 @@ on:
         description: "This is the PR number in case the workflow is being called in a pull request"
         required: false
         type: number
+      branch:
+        description: "This is the branch to be used for the build."
+        required: false
+        type: string
 
   pull_request:
     branches: [release, master]
@@ -44,9 +48,17 @@ jobs:
           fetch-depth: 0
           ref: refs/pull/${{ inputs.pr }}/merge
 
+      # Check out the specified branch in case this workflow is called by another workflow
+      - name: Checkout the specified branch
+        if: inputs.pr == 0 && inputs.branch != ''
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ inputs.branch }}
+
+
       # Checkout the code in the current branch in case the workflow is called because of a branch push event
       - name: Checkout the head commit of the branch
-        if: inputs.pr == 0
+        if: inputs.pr == 0 && inputs.branch == ''
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
@@ -56,9 +68,6 @@ jobs:
 
       - name: Print the Github event
         run: echo ${{ github.event_name }}
-
-      - name: Set up Depot CLI
-        uses: depot/setup-action@v1
 
       # In case this is second attempt try restoring status of the prior attempt from cache
       - name: Restore the previous run result
@@ -77,11 +86,11 @@ jobs:
       - if: steps.run_result.outputs.run_result != 'success'
         run: echo "I'm alive!" && exit 0
 
-      - name: Use Node.js 16.14.0
+      - name: Use Node.js
         if: steps.run_result.outputs.run_result != 'success'
         uses: actions/setup-node@v3
         with:
-          node-version: "16.14.0"
+          node-version-file: app/client/package.json
 
       # actions/setup-node@v3 doesn’t work properly with Yarn 3
       # when the project lives in a subdirectory: https://github.com/actions/setup-node/issues/488

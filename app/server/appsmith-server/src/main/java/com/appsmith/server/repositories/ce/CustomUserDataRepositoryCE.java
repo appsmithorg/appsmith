@@ -17,5 +17,4 @@ public interface CustomUserDataRepositoryCE extends AppsmithRepository<UserData>
     Flux<UserData> findPhotoAssetsByUserIds(Iterable<String> userId);
 
     Mono<String> fetchMostRecentlyUsedWorkspaceId(String userId);
-
 }

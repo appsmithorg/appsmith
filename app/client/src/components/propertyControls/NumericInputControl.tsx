@@ -56,7 +56,7 @@ class NumericInputControl extends BaseControl<NumericInputControlProps> {
           this.inputElement = element;
         }}
         scale={stepSize}
-        value={parseInt(propertyValue)}
+        value={propertyValue}
       />
     );
   }
@@ -65,11 +65,11 @@ class NumericInputControl extends BaseControl<NumericInputControlProps> {
     return !isNaN(Number(value));
   }
 
-  private handleValueChange = (value: number) => {
+  private handleValueChange = (value: string | undefined) => {
     // Update the propertyValue
     this.updateProperty(
       this.props.propertyName,
-      value.toString(),
+      value?.toString(),
       document.activeElement === this.inputElement,
     );
   };

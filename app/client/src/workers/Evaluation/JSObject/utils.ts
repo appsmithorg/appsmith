@@ -1,9 +1,12 @@
 import type {
+  JSActionEntityConfig,
+  JSActionEntity,
+} from "@appsmith/entities/DataTree/types";
+import type {
   ConfigTree,
   DataTree,
-  AppsmithEntity,
   DataTreeEntity,
-} from "entities/DataTree/dataTreeFactory";
+} from "entities/DataTree/dataTreeTypes";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import type { ParsedBody, ParsedJSSubAction } from "utils/JSPaneUtils";
 import { unset, set, get, find } from "lodash";
@@ -16,17 +19,12 @@ import type {
 } from "reducers/entityReducers/jsActionsReducer";
 import { select } from "redux-saga/effects";
 import type { JSAction } from "entities/JSCollection";
-import { getJSCollectionsForCurrentPage } from "selectors/entitiesSelector";
+import { getCurrentJSCollections } from "@appsmith/selectors/entitiesSelector";
 import {
   getEntityNameAndPropertyPath,
   isJSAction,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
 import JSObjectCollection from "./Collection";
-import type { APP_MODE } from "entities/App";
-import type {
-  JSActionEntityConfig,
-  JSActionEntity,
-} from "entities/DataTree/types";
 
 /**
  * here we add/remove the properties (variables and actions) which got added/removed from the JSObject parsedBody.
@@ -71,7 +69,6 @@ export const updateJSCollectionInUnEvalTree = (
           );
 
           set(modifiedUnEvalTree, `${entityName}.${action.name}.data`, data);
-          set(oldConfig.meta?.[action.name], `isAsync`, action.isAsync);
         }
       } else {
         const reactivePaths = oldConfig.reactivePaths;
@@ -90,7 +87,6 @@ export const updateJSCollectionInUnEvalTree = (
         const meta = oldConfig.meta;
         meta[action.name] = {
           arguments: action.arguments,
-          isAsync: action.isAsync,
           confirmBeforeExecute: false,
         };
 
@@ -272,11 +268,6 @@ export function isJSObjectVariable(
   );
 }
 
-export function getAppMode(dataTree: DataTree) {
-  const appsmithObj = dataTree.appsmith as AppsmithEntity;
-  return appsmithObj.mode as APP_MODE;
-}
-
 export function isPromise(value: any): value is Promise<unknown> {
   return Boolean(value && typeof value.then === "function");
 }
@@ -335,7 +326,7 @@ export function* sortJSExecutionDataByCollectionId(
   const sortedErrors: BatchedJSExecutionErrors = {};
 
   const JSCollectionsForCurrentPage: JSCollectionData[] = yield select(
-    getJSCollectionsForCurrentPage,
+    getCurrentJSCollections,
   );
 
   for (const jsfuncFullName of Object.keys(data)) {

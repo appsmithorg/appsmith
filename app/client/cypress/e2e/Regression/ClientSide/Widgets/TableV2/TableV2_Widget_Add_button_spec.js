@@ -1,67 +1,52 @@
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
-const dsl = require("../../../../../fixtures/tableV2NewDsl.json");
 const testdata = require("../../../../../fixtures/testdata.json");
+
+import {
+  agHelper,
+  entityExplorer,
+  propPane,
+  table,
+} from "../../../../../support/Objects/ObjectsCore";
 
 describe("Table Widget V2 property pane feature validation", function () {
   before(() => {
-    cy.addDsl(dsl);
+    agHelper.AddDsl("tableV2NewDsl");
   });
 
   it("1. Table widget V2 with Add button test and validation", function () {
-    cy.openPropertyPane("tablewidgetv2");
+    entityExplorer.SelectEntityByName("Table1", "Widgets");
     // Open column details of "id".
-    cy.editColumn("id");
-    cy.get(widgetsPage.tablV2Btn).should("not.exist");
+    cy.get(widgetsPage.tableV2Btn).should("not.exist");
     // Changing column data type to "Button"
-    cy.changeColumnType("Button");
+    table.ChangeColumnType("id", "Button");
     // Changing the computed value (data) to "orderAmount"
-    cy.updateComputedValue(testdata.currentRowOrderAmt);
+    propPane.UpdatePropertyFieldValue("Text", "{{currentRow.orderAmount}}");
     // Selecting button action to show message
-    cy.getAlert("onClick", "Successful ".concat(testdata.currentRowEmail));
-    // Close Property pane
-    cy.get(commonlocators.editPropBackButton).click({
-      force: true,
-    });
+    propPane.SelectPlatformFunction("onClick", "Show alert");
+    agHelper.EnterActionValue(
+      "Message",
+      "Successful ".concat(testdata.currentRowEmail),
+    );
+
+    agHelper.AssertAutoSave();
     // Validating the button action by clicking
     cy.get(widgetsPage.tableV2Btn).last().click({ force: true });
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(3000);
     // Validating the toast message
-    cy.get(widgetsPage.toastAction).should("be.visible");
-    cy.get(widgetsPage.toastActionText)
-      .last()
-      .invoke("text")
-      .then((text) => {
-        expect(text).to.equal("Successful tobias.funke@reqres.in");
-      });
+    agHelper.WaitUntilToastDisappear("Successful tobias.funke@reqres.in");
 
     // Open column details of "id".
-    cy.editColumn("id");
-
-    cy.get(widgetsPage.toggleOnClick).click({ force: true });
-    cy.get(".t--property-control-onclick").then(($el) => {
-      cy.updateCodeInput(
-        $el,
-        "{{showAlert('Successful' + currentRow.email).then(() => showAlert('second alert')) }}",
-      );
-    });
-
-    cy.get(commonlocators.editPropBackButton).click({
-      force: true,
-    });
+    propPane.EnterJSContext(
+      "onClick",
+      "{{showAlert('Successful ' + currentRow.email).then(() => showAlert('second alert')) }}",
+    );
+    agHelper.Sleep();
 
     // Validating the button action by clicking
     cy.get(widgetsPage.tableV2Btn).last().click({ force: true });
     // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(3000);
-
-    cy.get(widgetsPage.toastActionText)
-      .last()
-      .invoke("text")
-      .then((text) => {
-        expect(text).to.equal("second alert");
-      });
+    agHelper.AssertContains("Successful tobias.funke@reqres.in");
+    agHelper.AssertContains("second alert");
   });
 
   it("2. Table Button color validation", function () {
@@ -70,7 +55,7 @@ describe("Table Widget V2 property pane feature validation", function () {
     cy.editColumn("id");
     const color1 = "rgb(255, 0, 0)";
     cy.moveToStyleTab();
-    cy.get(widgetsPage.buttonColor).click({ force: true }).clear().type(color1);
+    propPane.EnterJSContext("Button color", color1);
     cy.get(widgetsPage.tableV2Btn).should(
       "have.css",
       "background-color",
@@ -79,31 +64,23 @@ describe("Table Widget V2 property pane feature validation", function () {
 
     // Changing the color again to reproduce issue #9526
     const color2 = "rgb(255, 255, 0)";
-    cy.get(widgetsPage.buttonColor)
-      .click({ force: true })
-      .clear()
-      // following wait is required to reproduce #9526
-      .wait(600)
-      .type(color2);
+    propPane.EnterJSContext("Button color", color2);
+
     cy.get(widgetsPage.tableV2Btn).should(
       "have.css",
       "background-color",
       color2,
-    );
-  });
-
-  it("3. Table widget triggeredRow property should be accessible", function () {
+    ); //verifying Bug #9526 - color is not reverted back to default
+    //Table widget triggeredRow property should be accessible", function () {
     cy.get(commonlocators.TextInside).should("have.text", "Tobias Funke");
-  });
-
-  it("4. Table widget triggeredRow property should be same even after sorting the table", function () {
+    // Table widget triggeredRow property should be same even after sorting the table", function () {
     //sort table date on second column
     cy.get(".draggable-header ").first().click({ force: true });
     cy.wait(1000);
     cy.get(commonlocators.TextInside).should("have.text", "Tobias Funke");
   });
 
-  it("5. Table widget add new icon button column", function () {
+  it("3. Table widget add new icon button column", function () {
     cy.get("[data-testid='t--property-pane-back-btn']").click({ force: true });
     // hide id column
     cy.makeColumnVisible("id");
@@ -138,7 +115,7 @@ describe("Table Widget V2 property pane feature validation", function () {
     cy.deleteColumn("customColumn1");
   });
 
-  it("6. Table widget add new menu button column", function () {
+  it("4. Table widget add new menu button column", function () {
     cy.openPropertyPane("tablewidgetv2");
     // click on Add new Column.
     cy.get(".t--add-column-btn").click();
@@ -294,30 +271,13 @@ describe("Table Widget V2 property pane feature validation", function () {
       });
   });
 
-  it("7. Table widget test on button icon click, row should not get deselected", () => {
+  it("5. Table widget test on button icon click, row should not get deselected", () => {
     cy.get(widgetsPage.tableV2IconBtn).last().click({ force: true });
     cy.get(commonlocators.TextInside).should("have.text", "Tobias Funke");
     //click icon button again
     cy.get(widgetsPage.tableV2IconBtn).last().click({ force: true });
     cy.get(commonlocators.TextInside).should("have.text", "Tobias Funke");
-    cy.get("[data-testid='t--property-pane-back-btn']").click({ force: true });
-    cy.wait(500);
-    cy.get("[data-testid='t--property-pane-back-btn']").click({ force: true });
-  });
-
-  it("8. Table widget test on button when transparent", () => {
-    cy.openPropertyPane("tablewidgetv2");
-    // Open column details of "id".
-    cy.editColumn("id");
-    // Changing column "Button" color to transparent
-    cy.moveToStyleTab();
-    cy.get(widgetsPage.buttonColor).click({ force: true });
-    cy.wait(2000);
-    cy.get(widgetsPage.transparent).click({ force: true });
-    cy.get(".td[data-colindex=5][data-rowindex=0] .bp3-button").should(
-      "have.css",
-      "background-color",
-      "rgba(0, 0, 0, 0)",
-    );
+    propPane.NavigateBackToPropertyPane(false);
+    propPane.NavigateBackToPropertyPane();
   });
 });

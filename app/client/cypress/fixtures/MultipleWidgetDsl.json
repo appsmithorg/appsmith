@@ -39,7 +39,10 @@
         "isVisible": true,
         "label": "",
         "selectionType": "SINGLE_SELECT",
-        "options": "",
+        "sourceData": "",
+        "optionLabel": "label",
+        "optionValue": "value",
+        "dynamicPropertyPathList": [{"key": "sourceData"}],
         "widgetName": "Dropdown1",
         "defaultOptionValue": {
           "value":"VEG",

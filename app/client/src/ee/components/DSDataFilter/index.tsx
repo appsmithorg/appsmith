@@ -1,15 +1,3 @@
-type DSDataFilterProps = {
-  updateFilter: (
-    id: string,
-    name: string,
-    userPermissions: string[],
-    showFilterPane: boolean,
-  ) => void;
-  pluginType: string;
-  showFilterComponent: boolean;
-};
+import DSDataFilter from "ce/components/DSDataFilter";
 
-function DSDataFilter({}: DSDataFilterProps) {
-  return null;
-}
 export default DSDataFilter;

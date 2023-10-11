@@ -1,6 +1,7 @@
 name: Cleanup Deploy Previews
 
 on:
+  workflow_dispatch:
   schedule:
     - cron: 0 0 * * *
 
@@ -42,5 +43,6 @@ jobs:
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
           DB_URL: ${{ secrets.DB_URL }}
           GH_TOKEN: ${{ secrets.APPSMITH_DEPLOY_PREVIEW_PAT }}
+          DP_EFS_ID: ${{ secrets.APPSMITH_DP_EFS_ID }}
 
         run: /bin/bash ./scripts/cleanup_dp.sh

@@ -1,0 +1,107 @@
+name: Quality checks
+
+on:
+  pull_request:
+    branches: [release, master]
+
+jobs:
+  path-filter:
+    runs-on: ubuntu-latest
+    outputs:
+      server: ${{ steps.filter.outputs.server }}
+      client: ${{ steps.filter.outputs.client == 'true' && steps.filter.outputs.not-cypress-manual == 'true' }}
+    steps:
+      # Check out merge commit with the base branch in case this workflow is invoked via pull request
+      - name: Checkout the merged commit from PR and base branch
+        uses: actions/checkout@v3
+        with:
+          ref: refs/pull/${{ github.event.pull_request.number }}/merge
+    
+      - uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          filters: |
+            server:
+              - 'app/server/**'
+            client:
+              - 'app/client/**'
+            not-cypress-manual:
+              - '!app/client/cypress/manual_TestSuite/**'
+
+  server-spotless:
+    name: server-spotless
+    needs: path-filter
+    if: needs.path-filter.outputs.server == 'true'
+    uses: ./.github/workflows/server-spotless.yml
+    secrets: inherit
+    with:
+      pr: ${{ github.event.pull_request.number }}
+
+  server-unit-tests:
+    name: server-unit-tests
+    needs: path-filter
+    if: needs.path-filter.outputs.server == 'true'
+    uses: ./.github/workflows/server-build.yml
+    secrets: inherit
+    with:
+      pr: ${{ github.event.pull_request.number }}
+
+  client-build:
+    name: client-build
+    needs: path-filter
+    if: needs.path-filter.outputs.client == 'true'
+    uses: ./.github/workflows/client-build.yml
+    secrets: inherit
+    with:
+      pr: ${{ github.event.pull_request.number }}
+
+  client-prettier:
+    name: client-prettier
+    needs: path-filter
+    if: needs.path-filter.outputs.client == 'true'
+    uses: ./.github/workflows/client-prettier.yml
+    secrets: inherit
+    with:
+      pr: ${{ github.event.pull_request.number }}
+
+  client-unit-tests:
+    name: client-unit-tests
+    needs: path-filter
+    if: needs.path-filter.outputs.client == 'true'
+    uses: ./.github/workflows/client-unit-tests.yml
+    secrets: inherit
+    with:
+      pr: ${{ github.event.pull_request.number }}
+
+  client-lint:
+    name: client-lint
+    needs: path-filter
+    if: needs.path-filter.outputs.client == 'true'
+    uses: ./.github/workflows/client-lint.yml
+    secrets: inherit
+    with:
+      pr: ${{ github.event.pull_request.number }}
+
+  qc-result:
+    name: qc-result
+    needs: [server-spotless, server-unit-tests, client-build, client-prettier, client-unit-tests, client-lint]
+    if: always()
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Return status for quality checks
+        run: |
+          if [[ "${{ needs.server-spotless.result }}" == "failure" || \
+           "${{ needs.server-unit-tests.result }}" == "failure" || \
+           "${{ needs.client-build.result }}" == "failure" || \
+           "${{ needs.client-prettier.result }}" == "failure" || \
+           "${{ needs.client-unit-tests.result }}" == "failure" || \
+           "${{ needs.client-lint.result }}" == "failure" ]]; then
+            echo "Quality checks failed";
+            exit 1;
+          else
+            echo "Quality checks successful";
+            exit 0;
+          fi

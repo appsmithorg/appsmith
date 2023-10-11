@@ -14,5 +14,4 @@ public interface UserRepositoryCE extends BaseRepository<User, String>, CustomUs
     Mono<Long> countByDeletedAtNull();
 
     Mono<User> findByEmailAndTenantId(String email, String tenantId);
-
 }

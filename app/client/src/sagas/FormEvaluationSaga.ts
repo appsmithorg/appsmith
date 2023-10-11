@@ -11,23 +11,24 @@ import type {
   DynamicValues,
   FormEvaluationState,
 } from "reducers/evaluationReducers/formEvaluationReducer";
-import { FORM_EVALUATION_REDUX_ACTIONS } from "actions/evaluationActions";
+import { FORM_EVALUATION_REDUX_ACTIONS } from "@appsmith/actions/evaluationActions";
 import type { Action, ActionConfig } from "entities/Action";
 import type { FormConfigType } from "components/formControls/BaseControl";
 import PluginsApi from "api/PluginApi";
 import type { ApiResponse } from "api/ApiResponses";
-import { getAction } from "selectors/entitiesSelector";
+import { getAction } from "@appsmith/selectors/entitiesSelector";
 import { getDataTreeActionConfigPath } from "entities/Action/actionProperties";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { getDynamicBindings, isDynamicValue } from "utils/DynamicBindingUtils";
 import get from "lodash/get";
 import { klona } from "klona/lite";
-import type { DataTree } from "entities/DataTree/dataTreeFactory";
+import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import {
   extractFetchDynamicValueFormConfigs,
   extractQueueOfValuesToBeFetched,
 } from "./helper";
 import type { DatasourceConfiguration } from "entities/Datasource";
+import { buffers } from "redux-saga";
 
 export type FormEvalActionPayload = {
   formId: string;
@@ -231,7 +232,7 @@ function* fetchDynamicValueSaga(
     }
 
     // Call the API to fetch the dynamic values
-    const response: ApiResponse = yield call(
+    const response: ApiResponse<{ trigger?: unknown }> = yield call(
       PluginsApi.fetchDynamicFormValues,
       url,
       {
@@ -243,7 +244,6 @@ function* fetchDynamicValueSaga(
       },
     );
     dynamicFetchedValues.isLoading = false;
-    // @ts-expect-error: we don't know what the response will be
     if (response.responseMeta.status === 200 && "trigger" in response.data) {
       dynamicFetchedValues.data = response.data.trigger;
       dynamicFetchedValues.hasFetchFailed = false;
@@ -261,9 +261,15 @@ function* fetchDynamicValueSaga(
 }
 
 function* formEvaluationChangeListenerSaga() {
+  const buffer = buffers.fixed();
   const formEvalChannel: ActionPattern<ReduxAction<FormEvalActionPayload>> =
-    yield actionChannel(FORM_EVALUATION_REDUX_ACTIONS);
+    yield actionChannel(FORM_EVALUATION_REDUX_ACTIONS, buffer as any);
   while (true) {
+    if (buffer.isEmpty()) {
+      yield put({
+        type: ReduxActionTypes.FORM_EVALUATION_EMPTY_BUFFER,
+      });
+    }
     const action: ReduxAction<FormEvalActionPayload> = yield take(
       formEvalChannel,
     );

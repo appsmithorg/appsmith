@@ -1,11 +1,15 @@
-import React from "react";
+import * as React from "react";
 import type { ComponentMeta, ComponentStory } from "@storybook/react";
 
-import IconComponent, { IconCollection, IconSize } from "./index";
+import {
+  Icon as IconComponent,
+  IconCollection,
+  IconSize,
+} from "@design-system/widgets-old";
 import styled from "styled-components";
 
 export default {
-  title: "Design System/widgets-old/Icon",
+  title: "Design System/Widgets-old/Icon",
   component: IconComponent,
   argTypes: {
     size: {
@@ -30,7 +34,7 @@ export default {
 } as ComponentMeta<typeof IconComponent>;
 
 // eslint-disable-next-line react/function-component-definition
-const Template: ComponentStory<typeof IconComponent> = (args: any) => (
+const Template: ComponentStory<typeof IconComponent> = (args) => (
   <IconComponent {...args} />
 );
 

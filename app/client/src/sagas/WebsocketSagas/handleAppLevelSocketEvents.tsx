@@ -2,12 +2,8 @@ import { put } from "redux-saga/effects";
 import { APP_LEVEL_SOCKET_EVENTS } from "./socketEvents";
 
 import { collabSetAppEditors } from "actions/appCollabActions";
-import {
-  createMessage,
-  INFO_VERSION_MISMATCH_FOUND_RELOAD_REQUEST,
-} from "@appsmith/constants/messages";
 import { getAppsmithConfigs } from "@appsmith/configs";
-import { toast } from "design-system";
+import { handleVersionUpdate } from "./versionUpdatePrompt";
 
 export default function* handleAppLevelSocketEvents(event: any) {
   switch (event.type) {
@@ -19,15 +15,8 @@ export default function* handleAppLevelSocketEvents(event: any) {
     // notification on release version
     case APP_LEVEL_SOCKET_EVENTS.RELEASE_VERSION_NOTIFICATION: {
       const { appVersion } = getAppsmithConfigs();
-      if (appVersion.id && appVersion.id != event.payload[0]) {
-        toast.show(createMessage(INFO_VERSION_MISMATCH_FOUND_RELOAD_REQUEST), {
-          kind: "info",
-          action: {
-            text: "refresh",
-            effect: () => location.reload(),
-          },
-        });
-      }
+      const [serverVersion] = event.payload;
+      handleVersionUpdate(appVersion, serverVersion);
       return;
     }
   }

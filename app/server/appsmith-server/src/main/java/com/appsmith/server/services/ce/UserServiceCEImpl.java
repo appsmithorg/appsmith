@@ -1,39 +1,38 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.helpers.AppsmithBeanUtils;
-import com.appsmith.external.models.Policy;
 import com.appsmith.external.services.EncryptionService;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.configurations.CommonConfig;
-import com.appsmith.server.configurations.EmailConfig;
-import com.appsmith.server.constants.Appsmith;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.constants.RateLimitConstants;
+import com.appsmith.server.domains.EmailVerificationToken;
 import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.PasswordResetToken;
-import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.QUser;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.EmailTokenDTO;
 import com.appsmith.server.dtos.InviteUsersDTO;
-import com.appsmith.server.dtos.Permission;
+import com.appsmith.server.dtos.ResendEmailVerificationDTO;
 import com.appsmith.server.dtos.ResetUserPasswordDTO;
 import com.appsmith.server.dtos.UserProfileDTO;
 import com.appsmith.server.dtos.UserSignupDTO;
 import com.appsmith.server.dtos.UserUpdateDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.helpers.PolicyUtils;
+import com.appsmith.server.helpers.UserServiceHelper;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.helpers.ValidationUtils;
-import com.appsmith.server.notifications.EmailSender;
-import com.appsmith.server.repositories.ApplicationRepository;
+import com.appsmith.server.ratelimiting.RateLimitService;
+import com.appsmith.server.repositories.EmailVerificationTokenRepository;
 import com.appsmith.server.repositories.PasswordResetTokenRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
-import com.appsmith.server.services.PermissionGroupService;
+import com.appsmith.server.services.EmailService;
+import com.appsmith.server.services.PACConfigurationService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.UserDataService;
@@ -41,23 +40,33 @@ import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.UserChangedHandler;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.message.BasicNameValuePair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.server.DefaultServerRedirectStrategy;
+import org.springframework.security.web.server.ServerRedirectStrategy;
+import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
-import reactor.core.Exceptions;
+import org.springframework.web.server.WebFilterChain;
+import org.springframework.web.server.WebSession;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
+import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
@@ -66,16 +75,20 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_USERS;
+import static com.appsmith.server.helpers.RedirectHelper.DEFAULT_REDIRECT_URL;
 import static com.appsmith.server.helpers.ValidationUtils.LOGIN_PASSWORD_MAX_LENGTH;
 import static com.appsmith.server.helpers.ValidationUtils.LOGIN_PASSWORD_MIN_LENGTH;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
+import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
+import static org.springframework.security.web.server.context.WebSessionServerSecurityContextRepository.DEFAULT_SPRING_SECURITY_CONTEXT_ATTR_NAME;
 
 @Slf4j
 public class UserServiceCEImpl extends BaseService<UserRepository, User, String> implements UserServiceCE {
@@ -83,70 +96,78 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
     private final WorkspaceService workspaceService;
     private final SessionUserService sessionUserService;
     private final PasswordResetTokenRepository passwordResetTokenRepository;
+
     private final PasswordEncoder passwordEncoder;
-    private final EmailSender emailSender;
-    private final ApplicationRepository applicationRepository;
-    private final PolicyUtils policyUtils;
+
     private final CommonConfig commonConfig;
-    private final EmailConfig emailConfig;
     private final UserChangedHandler userChangedHandler;
     private final EncryptionService encryptionService;
     private final UserDataService userDataService;
     private final TenantService tenantService;
-    private final PermissionGroupService permissionGroupService;
     private final UserUtils userUtils;
+    private final EmailService emailService;
+    private final RateLimitService rateLimitService;
+    private final PACConfigurationService pacConfigurationService;
 
-    private static final String WELCOME_USER_EMAIL_TEMPLATE = "email/welcomeUserTemplate.html";
-    private static final String FORGOT_PASSWORD_EMAIL_TEMPLATE = "email/forgotPasswordTemplate.html";
+    private final UserServiceHelper userPoliciesComputeHelper;
+
+    private static final WebFilterChain EMPTY_WEB_FILTER_CHAIN = serverWebExchange -> Mono.empty();
     private static final String FORGOT_PASSWORD_CLIENT_URL_FORMAT = "%s/user/resetPassword?token=%s";
-    private static final String INVITE_USER_CLIENT_URL_FORMAT = "%s/user/signup?email=%s";
-    public static final String INVITE_USER_EMAIL_TEMPLATE = "email/inviteUserTemplate.html";
     private static final Pattern ALLOWED_ACCENTED_CHARACTERS_PATTERN = Pattern.compile("^[\\p{L} 0-9 .\'\\-]+$");
 
+    private static final String EMAIL_VERIFICATION_CLIENT_URL_FORMAT =
+            "%s/user/verify?token=%s&email=%s&redirectUrl=%s";
+
+    private static final String EMAIL_VERIFICATION_ERROR_URL_FORMAT = "/user/verify-error?code=%s&message=%s&email=%s";
+    private final EmailVerificationTokenRepository emailVerificationTokenRepository;
+
+    private final ServerRedirectStrategy redirectStrategy = new DefaultServerRedirectStrategy();
+
     @Autowired
-    public UserServiceCEImpl(Scheduler scheduler,
-                             Validator validator,
-                             MongoConverter mongoConverter,
-                             ReactiveMongoTemplate reactiveMongoTemplate,
-                             UserRepository repository,
-                             WorkspaceService workspaceService,
-                             AnalyticsService analyticsService,
-                             SessionUserService sessionUserService,
-                             PasswordResetTokenRepository passwordResetTokenRepository,
-                             PasswordEncoder passwordEncoder,
-                             EmailSender emailSender,
-                             ApplicationRepository applicationRepository,
-                             PolicyUtils policyUtils,
-                             CommonConfig commonConfig,
-                             EmailConfig emailConfig,
-                             UserChangedHandler userChangedHandler,
-                             EncryptionService encryptionService,
-                             UserDataService userDataService,
-                             TenantService tenantService,
-                             PermissionGroupService permissionGroupService,
-                             UserUtils userUtils) {
+    public UserServiceCEImpl(
+            Scheduler scheduler,
+            Validator validator,
+            MongoConverter mongoConverter,
+            ReactiveMongoTemplate reactiveMongoTemplate,
+            UserRepository repository,
+            WorkspaceService workspaceService,
+            AnalyticsService analyticsService,
+            SessionUserService sessionUserService,
+            PasswordResetTokenRepository passwordResetTokenRepository,
+            PasswordEncoder passwordEncoder,
+            CommonConfig commonConfig,
+            UserChangedHandler userChangedHandler,
+            EncryptionService encryptionService,
+            UserDataService userDataService,
+            TenantService tenantService,
+            UserUtils userUtils,
+            EmailVerificationTokenRepository emailVerificationTokenRepository,
+            EmailService emailService,
+            RateLimitService rateLimitService,
+            PACConfigurationService pacConfigurationService,
+            UserServiceHelper userServiceHelper) {
+
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.workspaceService = workspaceService;
         this.sessionUserService = sessionUserService;
         this.passwordResetTokenRepository = passwordResetTokenRepository;
         this.passwordEncoder = passwordEncoder;
-        this.emailSender = emailSender;
-        this.applicationRepository = applicationRepository;
-        this.policyUtils = policyUtils;
         this.commonConfig = commonConfig;
-        this.emailConfig = emailConfig;
         this.userChangedHandler = userChangedHandler;
         this.encryptionService = encryptionService;
         this.userDataService = userDataService;
         this.tenantService = tenantService;
-        this.permissionGroupService = permissionGroupService;
         this.userUtils = userUtils;
+        this.rateLimitService = rateLimitService;
+        this.emailVerificationTokenRepository = emailVerificationTokenRepository;
+        this.emailService = emailService;
+        this.userPoliciesComputeHelper = userServiceHelper;
+        this.pacConfigurationService = pacConfigurationService;
     }
 
     @Override
     public Mono<User> findByEmail(String email) {
-        return tenantService.getDefaultTenantId()
-                .flatMap(tenantId -> findByEmailAndTenantId(email, tenantId));
+        return tenantService.getDefaultTenantId().flatMap(tenantId -> findByEmailAndTenantId(email, tenantId));
     }
 
     @Override
@@ -166,7 +187,8 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         if (workspaceId == null || workspaceId.isEmpty()) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "workspaceId"));
         }
-        return sessionUserService.getCurrentUser()
+        return sessionUserService
+                .getCurrentUser()
                 .flatMap(user -> repository.findByEmail(user.getUsername()))
                 .flatMap(user -> {
                     log.debug("Going to set workspaceId: {} for user: {}", workspaceId, user.getId());
@@ -177,7 +199,8 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
 
                     Set<String> workspaceIds = user.getWorkspaceIds();
                     if (workspaceIds == null || workspaceIds.isEmpty()) {
-                        return Mono.error(new AppsmithException(AppsmithError.USER_DOESNT_BELONG_ANY_WORKSPACE, user.getId()));
+                        return Mono.error(
+                                new AppsmithException(AppsmithError.USER_DOESNT_BELONG_ANY_WORKSPACE, user.getId()));
                     }
 
                     Optional<String> maybeWorkspaceId = workspaceIds.stream()
@@ -190,10 +213,10 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                     }
 
                     // Throw an exception if the workspaceId is not part of the user's workspaces
-                    return Mono.error(new AppsmithException(AppsmithError.USER_DOESNT_BELONG_TO_WORKSPACE, user.getId(), workspaceId));
+                    return Mono.error(new AppsmithException(
+                            AppsmithError.USER_DOESNT_BELONG_TO_WORKSPACE, user.getId(), workspaceId));
                 });
     }
-
 
     /**
      * This function creates a one-time token for resetting the user's password. This token is stored in the `passwordResetToken`
@@ -209,7 +232,8 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.EMAIL));
         }
 
-        if (resetUserPasswordDTO.getBaseUrl() == null || resetUserPasswordDTO.getBaseUrl().isBlank()) {
+        if (resetUserPasswordDTO.getBaseUrl() == null
+                || resetUserPasswordDTO.getBaseUrl().isBlank()) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORIGIN));
         }
 
@@ -219,13 +243,16 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         final String token = UUID.randomUUID().toString();
 
         // Check if the user exists in our DB. If not, we will not send a password reset link to the user
-        return repository.findByEmail(email)
+        return repository
+                .findByEmail(email)
                 .switchIfEmpty(repository.findByCaseInsensitiveEmail(email))
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, email)))
+                .switchIfEmpty(
+                        Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, email)))
                 .flatMap(user -> {
                     // an user found with the provided email address
                     // Generate the password reset link for the user
-                    return passwordResetTokenRepository.findByEmail(user.getEmail())
+                    return passwordResetTokenRepository
+                            .findByEmail(user.getEmail())
                             .switchIfEmpty(Mono.defer(() -> {
                                 PasswordResetToken passwordResetToken = new PasswordResetToken();
                                 passwordResetToken.setEmail(user.getEmail());
@@ -251,18 +278,11 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                     String resetUrl = String.format(
                             FORGOT_PASSWORD_CLIENT_URL_FORMAT,
                             resetUserPasswordDTO.getBaseUrl(),
-                            encryptionService.encryptString(urlParams)
-                    );
+                            encryptionService.encryptString(urlParams));
 
                     log.debug("Password reset url for email: {}: {}", passwordResetToken.getEmail(), resetUrl);
 
-                    Map<String, String> params = new HashMap<>();
-                    params.put("resetUrl", resetUrl);
-
-                    return updateTenantLogoInParams(params, resetUserPasswordDTO.getBaseUrl())
-                            .flatMap(updatedParams ->
-                                    emailSender.sendMail(email, "Appsmith Password Reset", FORGOT_PASSWORD_EMAIL_TEMPLATE, updatedParams)
-                            );
+                    return emailService.sendForgotPasswordEmail(email, resetUrl, resetUserPasswordDTO.getBaseUrl());
                 })
                 .thenReturn(true);
     }
@@ -290,6 +310,15 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                 resetToken.setFirstRequestTime(Instant.now());
             }
         }
+    }
+
+    private Boolean isEmailVerificationTokenValid(EmailVerificationToken emailVerificationToken) {
+        Duration duration = Duration.between(emailVerificationToken.getTokenGeneratedAt(), Instant.now());
+        long l = duration.toHours();
+        if (l > 48) { // the token has expired
+            return FALSE;
+        }
+        return TRUE;
     }
 
     /**
@@ -336,7 +365,8 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                 .findByEmail(emailTokenDTO.getEmail())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_PASSWORD_RESET)))
                 .map(passwordResetToken -> {
-                    boolean matches = this.passwordEncoder.matches(emailTokenDTO.getToken(), passwordResetToken.getTokenHash());
+                    boolean matches =
+                            this.passwordEncoder.matches(emailTokenDTO.getToken(), passwordResetToken.getTokenHash());
                     if (!matches) {
                         throw new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, FieldName.TOKEN);
                     } else {
@@ -345,35 +375,49 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                 })
                 .flatMap(emailAddress -> repository
                         .findByEmail(emailAddress)
-                        .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, emailAddress)))
+                        .switchIfEmpty(Mono.error(
+                                new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, emailAddress)))
                         .flatMap(userFromDb -> {
                             if (!ValidationUtils.validateLoginPassword(user.getPassword())) {
                                 return Mono.error(new AppsmithException(
-                                        AppsmithError.INVALID_PASSWORD_LENGTH, LOGIN_PASSWORD_MIN_LENGTH, LOGIN_PASSWORD_MAX_LENGTH)
-                                );
+                                        AppsmithError.INVALID_PASSWORD_LENGTH,
+                                        LOGIN_PASSWORD_MIN_LENGTH,
+                                        LOGIN_PASSWORD_MAX_LENGTH));
                             }
 
-                            //User has verified via the forgot password token verfication route. Allow the user to set new password.
+                            // User has verified via the forgot password token verfication route. Allow the user to set
+                            // new password.
                             userFromDb.setPasswordResetInitiated(false);
                             userFromDb.setPassword(passwordEncoder.encode(user.getPassword()));
 
-                            // If the user has been invited but has not signed up yet, and is following the route of reset
+                            // If the user has been invited but has not signed up yet, and is following the route of
+                            // reset
                             // password flow to set up their password, enable the user's account as well
                             userFromDb.setIsEnabled(true);
 
                             return passwordResetTokenRepository
                                     .findByEmail(userFromDb.getEmail())
                                     .switchIfEmpty(Mono.error(new AppsmithException(
-                                            AppsmithError.NO_RESOURCE_FOUND, FieldName.TOKEN, emailTokenDTO.getToken()
-                                    )))
+                                            AppsmithError.NO_RESOURCE_FOUND,
+                                            FieldName.TOKEN,
+                                            emailTokenDTO.getToken())))
                                     .flatMap(passwordResetTokenRepository::delete)
                                     .then(repository.save(userFromDb))
-                                    .doOnSuccess(result ->
-                                            // In a separate thread, we delete all other sessions of this user.
-                                            sessionUserService.logoutAllSessions(userFromDb.getEmail())
-                                                    .subscribeOn(Schedulers.boundedElastic())
-                                                    .subscribe()
-                                    )
+                                    .doOnSuccess(result -> {
+                                        // In a separate thread, we delete all other sessions of this user.
+                                        sessionUserService
+                                                .logoutAllSessions(userFromDb.getEmail())
+                                                .subscribeOn(Schedulers.boundedElastic())
+                                                .subscribe();
+
+                                        // we reset the counter for user's login attempts once password is reset
+                                        rateLimitService
+                                                .resetCounter(
+                                                        RateLimitConstants.BUCKET_KEY_FOR_LOGIN_API,
+                                                        userFromDb.getEmail())
+                                                .subscribeOn(Schedulers.boundedElastic())
+                                                .subscribe();
+                                    })
                                     .thenReturn(true);
                         }));
     }
@@ -381,9 +425,8 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
     @Override
     public Mono<User> create(User user) {
         // This is the path that is taken when a new user signs up on its own
-        return createUserAndSendEmail(user, null).map(UserSignupDTO::getUser);
+        return createUser(user).map(UserSignupDTO::getUser);
     }
-
 
     @Override
     public Mono<User> userCreate(User user, boolean isAdminUser) {
@@ -392,97 +435,40 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         // convert the user email to lowercase
         user.setEmail(user.getEmail().toLowerCase());
 
-        Mono<User> userWithTenantMono = Mono.just(user)
-                .flatMap(userBeforeSave -> {
-                    if (userBeforeSave.getTenantId() == null) {
-                        return tenantService.getDefaultTenantId()
-                                .map(tenantId -> {
-                                    userBeforeSave.setTenantId(tenantId);
-                                    return userBeforeSave;
-                                });
-                    }
-                    // The tenant has been set already. No need to set the default tenant id.
-                    return Mono.just(userBeforeSave);
+        Mono<User> userWithTenantMono = Mono.just(user).flatMap(userBeforeSave -> {
+            if (userBeforeSave.getTenantId() == null) {
+                return tenantService.getDefaultTenantId().map(tenantId -> {
+                    userBeforeSave.setTenantId(tenantId);
+                    return userBeforeSave;
                 });
+            }
+            // The tenant has been set already. No need to set the default tenant id.
+            return Mono.just(userBeforeSave);
+        });
 
         // Save the new user
         return userWithTenantMono
                 .flatMap(this::validateObject)
                 .flatMap(repository::save)
-                .elapsed().map(pair -> {
-                    log.debug("UserServiceCEImpl::Time taken to save user: {} ms", pair.getT1());
-                    return pair.getT2();
-                })
-                .flatMap(savedUser -> addUserPolicies(savedUser, isAdminUser))
-                .elapsed().map(pair -> {
-                    log.debug("UserServiceCEImpl::Time taken to create user role: {} ms", pair.getT1());
-                    return pair.getT2();
+                .flatMap(this::addUserPoliciesAndSaveToRepo)
+                .flatMap(crudUser -> {
+                    if (isAdminUser) {
+                        return userUtils.makeSuperUser(List.of(crudUser)).then(Mono.just(crudUser));
+                    }
+                    return Mono.just(crudUser);
                 })
                 .then(Mono.zip(
                         repository.findByEmail(user.getUsername()),
-                        userDataService.getForUserEmail(user.getUsername())
-                ))
-                .flatMap(tuple -> analyticsService.identifyUser(tuple.getT1(), tuple.getT2()))
-                .elapsed().map(pair -> {
-                    log.debug("UserServiceCEImpl::Time taken to identify user: {} ms", pair.getT1());
-                    return pair.getT2();
-                });
+                        userDataService.getForUserEmail(user.getUsername())))
+                .flatMap(tuple -> analyticsService.identifyUser(tuple.getT1(), tuple.getT2()));
     }
 
-    private Mono<User> addUserPolicies(User savedUser, Boolean isAdminUser) {
-
-        // Create user management permission group
-        PermissionGroup userManagementPermissionGroup = new PermissionGroup();
-        userManagementPermissionGroup.setName(savedUser.getUsername() + FieldName.SUFFIX_USER_MANAGEMENT_ROLE);
-        // Add CRUD permissions for user to the group
-        userManagementPermissionGroup.setPermissions(
-                Set.of(
-                        new Permission(savedUser.getId(), MANAGE_USERS)
-                )
-        );
-
-        // Assign the permission group to the user
-        userManagementPermissionGroup.setAssignedToUserIds(Set.of(savedUser.getId()));
-
-        return permissionGroupService.save(userManagementPermissionGroup)
-                .flatMap(savedPermissionGroup -> {
-
-                    Map<String, Policy> crudUserPolicies = policyUtils.generatePolicyFromPermissionGroupForObject(savedPermissionGroup,
-                            savedUser.getId());
-
-                    User updatedWithPolicies = policyUtils.addPoliciesToExistingObject(crudUserPolicies, savedUser);
-
-                    return repository.save(updatedWithPolicies);
-                })
-                .flatMap(crudUser -> {
-                    if (isAdminUser) {
-                        return userUtils.makeSuperUser(List.of(crudUser))
-                                .then(Mono.just(crudUser));
-                    }
-                    return Mono.just(crudUser);
-                });
+    private Mono<User> addUserPoliciesAndSaveToRepo(User user) {
+        return userPoliciesComputeHelper.addPoliciesToUser(user).flatMap(repository::save);
     }
 
-    /**
-     * This function creates a new user in the system. Primarily used by new users signing up for the first time on the
-     * platform. This flow also ensures that a default workspace name is created for the user. The new user is then
-     * given admin permissions to the default workspace.
-     * <p>
-     * For new user invite flow, please {@link com.appsmith.server.solutions.UserAndAccessManagementService#inviteUsers(InviteUsersDTO, String)}
-     *
-     * @param user User object representing the user to be created/enabled.
-     * @return Publishes the user object, after having been saved.
-     */
     @Override
-    public Mono<UserSignupDTO> createUserAndSendEmail(User user, String originHeader) {
-
-        if (originHeader == null || originHeader.isBlank()) {
-            // Default to the production link
-            originHeader = Appsmith.DEFAULT_ORIGIN_HEADER;
-        }
-
-        final String finalOriginHeader = originHeader;
-
+    public Mono<UserSignupDTO> createUser(User user) {
         // Only encode the password if it's a form signup. For OAuth signups, we don't need password
         if (LoginSource.FORM.equals(user.getSource())) {
             if (user.getPassword() == null || user.getPassword().isBlank()) {
@@ -492,7 +478,8 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         }
 
         // If the user doesn't exist, create the user. If the user exists, return a duplicate key exception
-        return repository.findByCaseInsensitiveEmail(user.getUsername())
+        return repository
+                .findByCaseInsensitiveEmail(user.getUsername())
                 .flatMap(savedUser -> {
                     if (!savedUser.isEnabled()) {
                         // First enable the user
@@ -506,7 +493,8 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                             return userSignupDTO;
                         });
                     }
-                    return Mono.error(new AppsmithException(AppsmithError.USER_ALREADY_EXISTS_SIGNUP, savedUser.getUsername()));
+                    return Mono.error(
+                            new AppsmithException(AppsmithError.USER_ALREADY_EXISTS_SIGNUP, savedUser.getUsername()));
                 })
                 .switchIfEmpty(Mono.defer(() -> {
                     return signupIfAllowed(user)
@@ -514,43 +502,54 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                                 final UserSignupDTO userSignupDTO = new UserSignupDTO();
                                 userSignupDTO.setUser(savedUser);
 
-                                return workspaceService.createDefault(new Workspace(), savedUser)
+                                return workspaceService
+                                        .createDefault(new Workspace(), savedUser)
                                         .elapsed()
                                         .map(pair -> {
-                                            log.debug("UserServiceCEImpl::Time taken to create default workspace: {} ms", pair.getT1());
+                                            log.debug(
+                                                    "UserServiceCEImpl::Time taken to create default workspace: {} ms",
+                                                    pair.getT1());
                                             return pair.getT2();
                                         })
                                         .map(workspace -> {
-                                            log.debug("Created blank default workspace for user '{}'.", savedUser.getEmail());
+                                            log.debug(
+                                                    "Created blank default workspace for user '{}'.",
+                                                    savedUser.getEmail());
                                             userSignupDTO.setDefaultWorkspaceId(workspace.getId());
                                             return userSignupDTO;
                                         })
                                         .onErrorResume(e -> {
-                                            log.debug("Error creating default workspace for user '{}'.", savedUser.getEmail(), e);
+                                            log.debug(
+                                                    "Error creating default workspace for user '{}'.",
+                                                    savedUser.getEmail(),
+                                                    e);
                                             return Mono.just(userSignupDTO);
                                         });
                             })
-                            .flatMap(userSignupDTO -> findByEmail(userSignupDTO.getUser().getEmail()).map(user1 -> {
-                                userSignupDTO.setUser(user1);
-                                return userSignupDTO;
-                            }))
+                            .flatMap(userSignupDTO -> findByEmail(
+                                            userSignupDTO.getUser().getEmail())
+                                    .map(user1 -> {
+                                        userSignupDTO.setUser(user1);
+                                        return userSignupDTO;
+                                    }))
                             .elapsed()
                             .map(pair -> {
                                 log.debug("UserServiceCEImpl::Time taken to find created user: {} ms", pair.getT1());
                                 return pair.getT2();
                             });
-                }))
-                .flatMap(userSignupDTO -> {
-                            User savedUser = userSignupDTO.getUser();
-                            Mono<User> userMono = emailConfig.isWelcomeEmailEnabled()
-                                    ? sendWelcomeEmail(savedUser, finalOriginHeader)
-                                    : Mono.just(savedUser);
-                            return userMono.thenReturn(userSignupDTO);
-                        }
-
-                );
+                }));
     }
 
+    /**
+     * This function creates a new user in the system. Primarily used by new users signing up for the first time on the
+     * platform. This flow also ensures that a default workspace name is created for the user. The new user is then
+     * given admin permissions to the default workspace.
+     * <p>
+     * For new user invite flow, please {@link com.appsmith.server.solutions.UserAndAccessManagementService#inviteUsers(InviteUsersDTO, String)}
+     *
+     * @param user User object representing the user to be created/enabled.
+     * @return Publishes the user object, after having been saved.
+     */
     private Mono<User> signupIfAllowed(User user) {
         boolean isAdminUser = false;
 
@@ -579,48 +578,19 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         }
 
         // No special configurations found, allow signup for the new user.
-        return userCreate(user, isAdminUser)
-                .elapsed()
-                .map(pair -> {
-                    log.debug("UserServiceCEImpl::Time taken for create user: {} ms", pair.getT1());
-                    return pair.getT2();
-                });
-    }
-
-    public Mono<User> sendWelcomeEmail(User user, String originHeader) {
-        Map<String, String> params = new HashMap<>();
-        params.put("primaryLinkUrl", originHeader);
-
-        return updateTenantLogoInParams(params, originHeader)
-                .flatMap(updatedParams -> emailSender.sendMail(
-                        user.getEmail(),
-                        "Welcome to Appsmith",
-                        WELCOME_USER_EMAIL_TEMPLATE,
-                        updatedParams))
-                .elapsed()
-                .map(pair -> {
-                    log.debug("UserServiceCEImpl::Time taken to send email: {} ms", pair.getT1());
-                    return pair.getT2();
-                })
-                .onErrorResume(error -> {
-                    // Swallowing this exception because we don't want this to affect the rest of the flow.
-                    log.error(
-                            "Ignoring error: Unable to send welcome email to the user {}. Cause: ",
-                            user.getEmail(),
-                            Exceptions.unwrap(error)
-                    );
-                    return Mono.just(TRUE);
-                })
-                .thenReturn(user);
+        return userCreate(user, isAdminUser).elapsed().map(pair -> {
+            log.debug("UserServiceCEImpl::Time taken for create user: {} ms", pair.getT1());
+            return pair.getT2();
+        });
     }
 
     @Override
     public Mono<User> update(String id, User userUpdate) {
-        Mono<User> userFromRepository = repository.findById(id, MANAGE_USERS)
+        Mono<User> userFromRepository = repository
+                .findById(id, MANAGE_USERS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, id)));
 
-        return userFromRepository
-                .flatMap(existingUser -> this.update(existingUser, userUpdate));
+        return userFromRepository.flatMap(existingUser -> this.update(existingUser, userUpdate));
     }
 
     /**
@@ -632,11 +602,11 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
      */
     @Override
     public Mono<User> updateWithoutPermission(String id, User update) {
-        Mono<User> userFromRepository = repository.findById(id)
+        Mono<User> userFromRepository = repository
+                .findById(id)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, id)));
 
-        return userFromRepository
-                .flatMap(existingUser -> this.update(existingUser, update));
+        return userFromRepository.flatMap(existingUser -> this.update(existingUser, update));
     }
 
     private Mono<User> update(User existingUser, User userUpdate) {
@@ -647,45 +617,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         }
 
         AppsmithBeanUtils.copyNewFieldValuesIntoOldObject(userUpdate, existingUser);
-        return repository.save(existingUser)
-                .map(userChangedHandler::publish);
-    }
-
-    @Override
-    public Mono<? extends User> createNewUserAndSendInviteEmail(String email, String originHeader,
-                                                                Workspace workspace, User inviter, String role) {
-        User newUser = new User();
-        newUser.setEmail(email.toLowerCase());
-
-        // This is a new user. Till the user signs up, this user would be disabled.
-        newUser.setIsEnabled(false);
-
-        // The invite token is not used today and doesn't need to be verified. We still save the invite token with the
-        // role information to classify the user persona.
-        newUser.setInviteToken(role + ":" + UUID.randomUUID());
-
-        boolean isAdminUser = commonConfig.getAdminEmails().contains(email.toLowerCase());
-
-        // Call user service's userCreate function so that the default workspace, etc are also created along with assigning basic permissions.
-        return userCreate(newUser, isAdminUser)
-                .flatMap(createdUser -> {
-                    log.debug("Going to send email for invite user to {}", createdUser.getEmail());
-                    String inviteUrl = String.format(
-                            INVITE_USER_CLIENT_URL_FORMAT,
-                            originHeader,
-                            URLEncoder.encode(createdUser.getEmail(), StandardCharsets.UTF_8)
-                    );
-
-                    // Email template parameters initialization below.
-                    Map<String, String> params = getEmailParams(workspace, inviter, inviteUrl, true);
-
-                    // We have sent out the emails. Just send back the saved user.
-                    return updateTenantLogoInParams(params, originHeader)
-                            .flatMap(updatedParams ->
-                                    emailSender.sendMail(createdUser.getEmail(), "Invite for Appsmith", INVITE_USER_EMAIL_TEMPLATE, updatedParams)
-                            )
-                            .thenReturn(createdUser);
-                });
+        return repository.save(existingUser).map(userChangedHandler::publish);
     }
 
     @Override
@@ -696,9 +628,9 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
 
     private boolean validateName(String name) {
         /*
-            Regex allows for Accented characters and alphanumeric with some special characters dot (.), apostrophe ('),
-            hyphen (-) and spaces
-         */
+           Regex allows for Accented characters and alphanumeric with some special characters dot (.), apostrophe ('),
+           hyphen (-) and spaces
+        */
         return ALLOWED_ACCENTED_CHARACTERS_PATTERN.matcher(name).matches();
     }
 
@@ -717,25 +649,24 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                 return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.NAME));
             }
             updates.setName(inputName);
-            updatedUserMono = sessionUserService.getCurrentUser()
-                    .flatMap(user ->
-                            update(user.getEmail(), updates, fieldName(QUser.user.email))
-                                    .then(exchange == null
+            updatedUserMono = sessionUserService
+                    .getCurrentUser()
+                    .flatMap(user -> update(user.getEmail(), updates, fieldName(QUser.user.email))
+                            .then(
+                                    exchange == null
                                             ? repository.findByEmail(user.getEmail())
-                                            : sessionUserService.refreshCurrentUser(exchange))
-                    )
+                                            : sessionUserService.refreshCurrentUser(exchange)))
                     .map(userChangedHandler::publish)
                     .cache();
             monos.add(updatedUserMono.then());
         } else {
-            updatedUserMono = sessionUserService.getCurrentUser()
-                    .flatMap(user -> findByEmail(user.getEmail()));
+            updatedUserMono = sessionUserService.getCurrentUser().flatMap(user -> findByEmail(user.getEmail()));
         }
 
         if (allUpdates.hasUserDataUpdates()) {
             final UserData updates = new UserData();
-            if (StringUtils.hasLength(allUpdates.getRole())) {
-                updates.setRole(allUpdates.getRole());
+            if (StringUtils.hasLength(allUpdates.getProficiency())) {
+                updates.setProficiency(allUpdates.getProficiency());
             }
             if (StringUtils.hasLength(allUpdates.getUseCase())) {
                 updates.setUseCase(allUpdates.getUseCase());
@@ -759,28 +690,6 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
     }
 
     @Override
-    public Map<String, String> getEmailParams(Workspace workspace, User inviter, String inviteUrl, boolean isNewUser) {
-        Map<String, String> params = new HashMap<>();
-
-        if (inviter != null) {
-            params.put("inviterFirstName", org.apache.commons.lang3.StringUtils.defaultIfEmpty(inviter.getName(), inviter.getEmail()));
-        }
-        if (workspace != null) {
-            params.put("inviterWorkspaceName", workspace.getName());
-        }
-        if (isNewUser) {
-            params.put("primaryLinkUrl", inviteUrl);
-            params.put("primaryLinkText", "Sign up now");
-        } else {
-            if (workspace != null) {
-                params.put("primaryLinkUrl", inviteUrl + "/applications#" + workspace.getId());
-            }
-            params.put("primaryLinkText", "Go to workspace");
-        }
-        return params;
-    }
-
-    @Override
     public Mono<Boolean> isUsersEmpty() {
         return repository.isUsersEmpty();
     }
@@ -788,19 +697,16 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
     @Override
     public Mono<UserProfileDTO> buildUserProfileDTO(User user) {
 
-        Mono<User> userFromDbMono = findByEmail(user.getEmail())
-                .cache();
+        Mono<User> userFromDbMono = findByEmail(user.getEmail()).cache();
 
-        Mono<Boolean> isSuperUserMono = userFromDbMono
-                .flatMap(userUtils::isSuperUser);
+        Mono<Boolean> isSuperUserMono = userFromDbMono.flatMap(userUtils::isSuperUser);
 
         return Mono.zip(
                         isUsersEmpty(),
                         userFromDbMono,
                         userDataService.getForCurrentUser().defaultIfEmpty(new UserData()),
-                        isSuperUserMono
-                )
-                .map(tuple -> {
+                        isSuperUserMono)
+                .flatMap(tuple -> {
                     final boolean isUsersEmpty = Boolean.TRUE.equals(tuple.getT1());
                     final User userFromDb = tuple.getT2();
                     final UserData userData = tuple.getT3();
@@ -820,11 +726,12 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                     profile.setPhotoId(userData.getProfilePhotoAssetId());
                     profile.setEnableTelemetry(!commonConfig.isTelemetryDisabled());
                     // Intercom consent is defaulted to true on cloud hosting
-                    profile.setIntercomConsentGiven(commonConfig.isCloudHosting() ? true : userData.isIntercomConsentGiven());
+                    profile.setIntercomConsentGiven(
+                            commonConfig.isCloudHosting() ? true : userData.isIntercomConsentGiven());
                     profile.setSuperUser(isSuperUser);
                     profile.setConfigurable(!StringUtils.isEmpty(commonConfig.getEnvFilePath()));
-
-                    return profile;
+                    return pacConfigurationService.setRolesAndGroups(
+                            profile, userFromDb, true, commonConfig.isCloudHosting());
                 });
     }
 
@@ -845,7 +752,189 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
     }
 
     @Override
-    public Mono<Map<String, String>> updateTenantLogoInParams(Map<String, String> params, String origin) {
-        return Mono.just(params);
+    public Mono<Boolean> resendEmailVerification(
+            ResendEmailVerificationDTO resendEmailVerificationDTO, String redirectUrl) {
+
+        if (resendEmailVerificationDTO.getEmail() == null
+                || resendEmailVerificationDTO.getEmail().isBlank()) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.EMAIL));
+        }
+
+        if (resendEmailVerificationDTO.getBaseUrl() == null
+                || resendEmailVerificationDTO.getBaseUrl().isBlank()) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORIGIN));
+        }
+
+        String email = resendEmailVerificationDTO.getEmail();
+
+        // Create a random token to be sent out.
+        final String token = UUID.randomUUID().toString();
+
+        // Check if the user exists in our DB. If not, we will not send the email verification link to the user
+        Mono<User> userMono = repository.findByEmail(email).cache();
+        return userMono.switchIfEmpty(repository.findByCaseInsensitiveEmail(email))
+                .switchIfEmpty(
+                        Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, email)))
+                .flatMap(user -> {
+                    if (TRUE.equals(user.getEmailVerified())) {
+                        return Mono.error(new AppsmithException(AppsmithError.USER_ALREADY_VERIFIED));
+                    }
+                    return tenantService.getTenantConfiguration().flatMap(tenant -> {
+                        Boolean emailVerificationEnabled =
+                                tenant.getTenantConfiguration().isEmailVerificationEnabled();
+                        // Email verification not enabled at tenant
+                        if (!TRUE.equals(emailVerificationEnabled)) {
+                            return Mono.error(
+                                    new AppsmithException(AppsmithError.TENANT_EMAIL_VERIFICATION_NOT_ENABLED));
+                        }
+                        return emailVerificationTokenRepository
+                                .findByEmail(user.getEmail())
+                                .switchIfEmpty(Mono.defer(() -> {
+                                    // No existing email verification request
+                                    EmailVerificationToken emailVerificationToken = new EmailVerificationToken();
+                                    emailVerificationToken.setEmail(user.getEmail());
+                                    emailVerificationToken.setTokenGeneratedAt(Instant.now());
+                                    emailVerificationToken.setTokenHash(passwordEncoder.encode(token));
+                                    return Mono.just(emailVerificationToken);
+                                }))
+                                .map(emailVerificationToken -> {
+                                    // generate new token and update in db
+                                    emailVerificationToken.setTokenHash(passwordEncoder.encode(token));
+                                    emailVerificationToken.setTokenGeneratedAt(Instant.now());
+                                    return emailVerificationToken;
+                                });
+                    });
+                })
+                .flatMap(emailVerificationTokenRepository::save)
+                .zipWith(userMono)
+                .flatMap(tuple -> {
+                    EmailVerificationToken emailVerificationToken = tuple.getT1();
+                    User user = tuple.getT2();
+                    List<NameValuePair> nameValuePairs = new ArrayList<>(2);
+                    nameValuePairs.add(new BasicNameValuePair("email", emailVerificationToken.getEmail()));
+                    nameValuePairs.add(new BasicNameValuePair("token", token));
+                    String urlParams = URLEncodedUtils.format(nameValuePairs, StandardCharsets.UTF_8);
+                    String redirectUrlCopy = redirectUrl;
+                    if (redirectUrlCopy == null) {
+                        redirectUrlCopy = String.format("%s/applications", resendEmailVerificationDTO.getBaseUrl());
+                    }
+                    String verificationUrl = String.format(
+                            EMAIL_VERIFICATION_CLIENT_URL_FORMAT,
+                            resendEmailVerificationDTO.getBaseUrl(),
+                            encryptionService.encryptString(urlParams),
+                            URLEncoder.encode(emailVerificationToken.getEmail(), StandardCharsets.UTF_8),
+                            redirectUrlCopy);
+
+                    return emailService.sendEmailVerificationEmail(
+                            user, verificationUrl, resendEmailVerificationDTO.getBaseUrl());
+                })
+                .thenReturn(true);
+    }
+
+    private String getEmailVerificationErrorRedirectUrl(AppsmithError appsmithError, String userEmail, Object... args) {
+        String appErrorCode = appsmithError.getAppErrorCode();
+        String errorMessage = appsmithError.getMessage(args);
+        errorMessage = errorMessage.replace(" ", "-").replace(".", "");
+        return String.format(
+                EMAIL_VERIFICATION_ERROR_URL_FORMAT,
+                appErrorCode,
+                errorMessage,
+                URLEncoder.encode(userEmail, StandardCharsets.UTF_8));
+    }
+
+    @Override
+    public Mono<Void> verifyEmailVerificationToken(ServerWebExchange exchange) {
+        return exchange.getFormData().flatMap(formData -> {
+            final WebFilterExchange webFilterExchange = new WebFilterExchange(exchange, EMPTY_WEB_FILTER_CHAIN);
+            EmailTokenDTO parsedEmailTokenDTO;
+            String requestEmail = formData.getFirst("email");
+            String requestedToken = formData.getFirst("token");
+            String redirectUrl = formData.getFirst("redirectUrl");
+            String enableFirstTimeUserExperienceParam =
+                    ObjectUtils.defaultIfNull(formData.getFirst("enableFirstTimeUserExperience"), "false");
+
+            String baseUrl = exchange.getRequest().getHeaders().getOrigin();
+            if (redirectUrl == null) {
+                redirectUrl = baseUrl + DEFAULT_REDIRECT_URL;
+            }
+
+            String postVerificationRedirectUrl = "/signup-success?redirectUrl=" + redirectUrl
+                    + "&enableFirstTimeUserExperience=" + enableFirstTimeUserExperienceParam;
+            String errorRedirectUrl = "";
+
+            if (requestEmail == null) {
+                errorRedirectUrl =
+                        getEmailVerificationErrorRedirectUrl(AppsmithError.INVALID_PARAMETER, "", FieldName.EMAIL);
+                return redirectStrategy.sendRedirect(webFilterExchange.getExchange(), URI.create(errorRedirectUrl));
+            }
+            if (requestedToken == null) {
+                errorRedirectUrl = getEmailVerificationErrorRedirectUrl(
+                        AppsmithError.INVALID_PARAMETER, requestEmail, FieldName.TOKEN);
+                return redirectStrategy.sendRedirect(webFilterExchange.getExchange(), URI.create(errorRedirectUrl));
+            }
+
+            try {
+                parsedEmailTokenDTO = parseValueFromEncryptedToken(requestedToken);
+            } catch (ArrayIndexOutOfBoundsException | IllegalStateException | IllegalArgumentException e) {
+                errorRedirectUrl = getEmailVerificationErrorRedirectUrl(
+                        AppsmithError.INVALID_PARAMETER, requestEmail, FieldName.TOKEN);
+                return redirectStrategy.sendRedirect(webFilterExchange.getExchange(), URI.create(errorRedirectUrl));
+            }
+
+            Mono<WebSession> sessionMono = exchange.getSession();
+            Mono<SecurityContext> securityContextMono = ReactiveSecurityContextHolder.getContext();
+            Mono<User> userMono = repository.findByEmail(parsedEmailTokenDTO.getEmail());
+
+            Mono<EmailVerificationToken> emailVerificationTokenMono = emailVerificationTokenRepository
+                    .findByEmail(parsedEmailTokenDTO.getEmail())
+                    .defaultIfEmpty(new EmailVerificationToken());
+
+            return Mono.zip(emailVerificationTokenMono, userMono, sessionMono, securityContextMono)
+                    .flatMap(tuple -> {
+                        EmailVerificationToken emailVerificationToken = tuple.getT1();
+                        User user = tuple.getT2();
+                        WebSession session = tuple.getT3();
+                        SecurityContext securityContext = tuple.getT4();
+                        String errorRedirectUrl1 = "";
+
+                        if (!Objects.equals(emailVerificationToken.getEmail(), requestEmail)) {
+                            errorRedirectUrl1 = getEmailVerificationErrorRedirectUrl(
+                                    AppsmithError.INVALID_PARAMETER, requestEmail, FieldName.TOKEN);
+                            return redirectStrategy.sendRedirect(
+                                    webFilterExchange.getExchange(), URI.create(errorRedirectUrl1));
+                        }
+                        if (FALSE.equals(isEmailVerificationTokenValid(emailVerificationToken))) {
+                            errorRedirectUrl1 = getEmailVerificationErrorRedirectUrl(
+                                    AppsmithError.EMAIL_VERIFICATION_TOKEN_EXPIRED, requestEmail);
+                            return redirectStrategy.sendRedirect(
+                                    webFilterExchange.getExchange(), URI.create(errorRedirectUrl1));
+                        }
+
+                        if (TRUE.equals(user.getEmailVerified())) {
+                            errorRedirectUrl1 = getEmailVerificationErrorRedirectUrl(
+                                    AppsmithError.USER_ALREADY_VERIFIED, requestEmail);
+                            return redirectStrategy.sendRedirect(
+                                    webFilterExchange.getExchange(), URI.create(errorRedirectUrl1));
+                        }
+                        Boolean tokenMatched = this.passwordEncoder.matches(
+                                parsedEmailTokenDTO.getToken(), emailVerificationToken.getTokenHash());
+                        if (!tokenMatched) {
+                            errorRedirectUrl1 = getEmailVerificationErrorRedirectUrl(
+                                    AppsmithError.INVALID_EMAIL_VERIFICATION, requestEmail);
+                            return redirectStrategy.sendRedirect(
+                                    webFilterExchange.getExchange(), URI.create(errorRedirectUrl1));
+                        }
+
+                        Authentication authentication =
+                                new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+                        securityContext.setAuthentication(authentication);
+                        session.getAttributes().put(DEFAULT_SPRING_SECURITY_CONTEXT_ATTR_NAME, securityContext);
+
+                        user.setEmailVerified(TRUE);
+                        Mono<Void> redirectionMono = redirectStrategy.sendRedirect(
+                                webFilterExchange.getExchange(), URI.create(postVerificationRedirectUrl));
+                        return repository.save(user).then(redirectionMono);
+                    });
+        });
     }
 }

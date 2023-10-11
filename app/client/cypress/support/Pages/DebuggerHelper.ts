@@ -45,6 +45,13 @@ export class DebuggerHelper {
     _helpButton: "[data-testid='t--help-button']",
     _intercomOption: "#intercom-trigger",
     _intercomConsentText: "[data-testid='t--intercom-consent-text']",
+    _logsTab: "[data-testid='t--tab-LOGS_TAB']",
+    _debuggerFilterClear:
+      "//input[@data-testid='t--debugger-search']/following-sibling::span",
+    _logsGroup: "[data-testid='t--log-filter']",
+    _logGroupOption: (option: string) =>
+      `[data-testid='t--log-filter-${option}']`,
+    _downStreamLogMessage: ".t--debugger-log-downstream-message",
   };
 
   ClickDebuggerIcon(
@@ -83,6 +90,10 @@ export class DebuggerHelper {
     this.agHelper.GetNClick(this.commonLocators._responseTab);
   }
 
+  ClickLogsTab() {
+    this.agHelper.GetNClick(this.locators._logsTab);
+  }
+
   CloseBottomBar() {
     this.agHelper.GetNClick(this.locators._closeButton);
   }
@@ -96,7 +107,7 @@ export class DebuggerHelper {
       case PageType.JsEditor:
       case PageType.Query:
       case PageType.DataSources:
-        this.agHelper.AssertElementVisible(
+        this.agHelper.AssertElementVisibility(
           this.locators._bottomPaneContainer[pageType],
         );
         // this.agHelper.AssertHeight(
@@ -106,7 +117,7 @@ export class DebuggerHelper {
         break;
       // case PageType.Query:
       // case PageType.DataSources:
-      //   this.agHelper.AssertElementVisible(
+      //   this.agHelper.AssertElementVisibility(
       //     this.locators._bottomPaneContainer[pageType],
       //   );
       //   // this.agHelper.AssertHeight(
@@ -126,23 +137,16 @@ export class DebuggerHelper {
     this.agHelper.AssertSelectedTab(this.locators._debuggerSelectedTab, "true");
   }
 
-  DoesConsoleLogExist(
-    text: string,
-    exists = true,
-    index?: number,
-    timeout?: number,
-  ) {
+  DoesConsoleLogExist(text: string, exists = true) {
     this.agHelper.GetNAssertContains(
       this.locators._logMessage,
       text,
       exists ? "exist" : "not.exist",
-      index,
-      timeout,
     );
   }
 
   DebuggerLogsFilter(text: string) {
-    this.agHelper.RemoveCharsNType(this.locators._debuggerFilter, -1, text);
+    this.agHelper.SelectAllAndType(this.locators._debuggerFilter, text);
   }
 
   LogStateContains(text: string, index?: number) {
@@ -158,11 +162,16 @@ export class DebuggerHelper {
     this.agHelper.GetNAssertContains(this.locators._errorCount, count);
   }
 
+  changeLogsGroup(option: string) {
+    this.agHelper.GetNClick(this.locators._logsGroup);
+    this.agHelper.GetNClick(this.locators._logGroupOption(option));
+  }
+
   ClearLogs() {
     this.agHelper.GetNClick(this.locators._clearLogs);
   }
 
-  Assert_Consecutive_Console_Log_Count(count: number) {
+  AssertConsecutiveConsoleLogCount(count: number) {
     count > 0
       ? this.agHelper.GetNAssertContains(
           this.locators._logMessageOccurence,
@@ -173,7 +182,7 @@ export class DebuggerHelper {
 
   AssertVisibleErrorMessagesCount(count: number) {
     if (count > 0) {
-      this.agHelper.AssertElementVisible(this.locators._debuggerMessage);
+      this.agHelper.AssertElementVisibility(this.locators._debuggerMessage);
       this.agHelper.AssertElementLength(this.locators._debuggerMessage, count);
     } else {
       this.agHelper.AssertElementAbsence(this.locators._debuggerMessage);
@@ -184,12 +193,17 @@ export class DebuggerHelper {
     this.agHelper.GetNClick(this.locators._debuggerMessage, index);
   }
 
-  ClicklogEntityLink(index?: number) {
+  ClicklogEntityLink(last = false, index?: number) {
+    if (last) {
+      this.agHelper.GetElement(this.locators._logEntityLink).last().click();
+      return;
+    }
+
     this.agHelper.GetNClick(this.locators._logEntityLink, index);
   }
 
   AssertContextMenuItemVisible() {
-    this.agHelper.AssertElementVisible(this.locators._contextMenuItem);
+    this.agHelper.AssertElementVisibility(this.locators._contextMenuItem);
   }
 
   AssertDebugError(
@@ -228,5 +242,19 @@ export class DebuggerHelper {
       "not.exist",
       this.locators._debuggerList,
     );
+  }
+
+  AssertDownStreamLogError(message: string, shouldOpenDebugger = true) {
+    if (shouldOpenDebugger) {
+      this.ClickDebuggerIcon();
+    }
+
+    this.agHelper.GetNClick(this.commonLocators._responseTab, 0, true, 0);
+
+    this.agHelper
+      .GetText(this.locators._downStreamLogMessage, "text", 0)
+      .then(($text) => {
+        expect($text).to.contains(message);
+      });
   }
 }

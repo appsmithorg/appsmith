@@ -1,0 +1,83 @@
+import { Switch, SwitchGroup } from "@design-system/widgets";
+import { Canvas, Meta, Story, ArgsTable } from "@storybook/addon-docs";
+
+<Meta
+  title="Design-system/widgets/SwitchGroup"
+  component={SwitchGroup}
+  args={{
+    label: "Switch Group",
+    defaultValue: ["value-1"],
+    children: (
+      <>
+        <Switch value="value-1">Value 1</Switch>
+        <Switch value="value-2">Value 2</Switch>
+      </>
+    ),
+  }}
+/>
+
+export const Template = (args) => <SwitchGroup {...args} />;
+
+# Switch Group
+
+Switch Group is a group of checkboxes that can be selected together.
+
+<Canvas>
+  <Story name="Switch Group">{Template.bind({})}</Story>
+</Canvas>
+
+<ArgsTable story="Switch Group" of={SwitchGroup} />
+
+# Orientation
+
+<Story
+  args={{
+    orientation: "vertical",
+  }}
+  name="Orientation - Vertical"
+>
+  {Template.bind({})}
+</Story>
+
+<Story
+  args={{
+    orientation: "horizontal",
+  }}
+  name="Orientation - Horizontal"
+>
+  {Template.bind({})}
+</Story>
+
+# Is Disabled
+
+<Story
+  args={{
+    isDisabled: true,
+  }}
+  name="Is Disabled"
+>
+  {Template.bind({})}
+</Story>
+
+# Is Required
+
+<Story
+  args={{
+    isRequired: true,
+  }}
+  name="Is Required"
+>
+  {Template.bind({})}
+</Story>
+
+# Invalid State
+
+<Story
+  args={{
+    validationState: "invalid",
+    errorMessage: "This is a error message",
+  }}
+  name="Invalid State"
+>
+  {Template.bind({})}
+</Story>

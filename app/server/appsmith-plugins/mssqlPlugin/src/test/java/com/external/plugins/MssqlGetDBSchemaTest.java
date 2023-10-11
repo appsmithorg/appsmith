@@ -24,21 +24,19 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @Testcontainers
 public class MssqlGetDBSchemaTest {
     public static final String SQL_QUERY_TO_CREATE_TABLE_WITH_PRIMARY_KEY =
-            "CREATE TABLE supplier\n" +
-            "( supplier_id int not null,\n" +
-            "  supplier_name varchar(50) not null,\n" +
-            "  contact_name varchar(50),\n" +
-            "  CONSTRAINT supplier_pk PRIMARY KEY (supplier_id)\n" +
-            ")";
+            "CREATE TABLE supplier\n" + "( supplier_id int not null,\n"
+                    + "  supplier_name varchar(50) not null,\n"
+                    + "  contact_name varchar(50),\n"
+                    + "  CONSTRAINT supplier_pk PRIMARY KEY (supplier_id)\n"
+                    + ")";
 
     public static final String SQL_QUERY_TO_CREATE_TABLE_WITH_FOREIGN_KEY =
-            "CREATE TABLE products\n" +
-            "( product_id int not null,\n" +
-            "  supplier_id int not null,\n" +
-            "  CONSTRAINT fk_supplier\n" +
-            "  FOREIGN KEY (supplier_id)\n" +
-            "  REFERENCES supplier(supplier_id)\n" +
-            ")";
+            "CREATE TABLE products\n" + "( product_id int not null,\n"
+                    + "  supplier_id int not null,\n"
+                    + "  CONSTRAINT fk_supplier\n"
+                    + "  FOREIGN KEY (supplier_id)\n"
+                    + "  REFERENCES supplier(supplier_id)\n"
+                    + ")";
 
     @SuppressWarnings("rawtypes") // The type parameter for the container type is just itself and is pseudo-optional.
     @Container
@@ -48,15 +46,16 @@ public class MssqlGetDBSchemaTest {
 
     @BeforeAll
     public static void setup() throws SQLException {
-        sharedConnectionPool = mssqlPluginExecutor.datasourceCreate(createDatasourceConfiguration(container)).block();
+        sharedConnectionPool = mssqlPluginExecutor
+                .datasourceCreate(createDatasourceConfiguration(container))
+                .block();
         createTablesForTest();
     }
 
     @Test
     public void testDBSchemaShowsAllTables() {
         Mono<DatasourceStructure> datasourceStructureMono =
-                mssqlPluginExecutor.getStructure(sharedConnectionPool,
-                        createDatasourceConfiguration(container));
+                mssqlPluginExecutor.getStructure(sharedConnectionPool, createDatasourceConfiguration(container));
 
         StepVerifier.create(datasourceStructureMono)
                 .assertNext(datasourceStructure -> {
@@ -65,7 +64,9 @@ public class MssqlGetDBSchemaTest {
                             .map(String::toLowerCase)
                             .collect(Collectors.toSet());
 
-                    assertTrue(setOfAllTableNames.equals(Set.of("dbo.supplier","dbo.products")), setOfAllTableNames.toString());
+                    assertTrue(
+                            setOfAllTableNames.equals(Set.of("dbo.supplier", "dbo.products")),
+                            setOfAllTableNames.toString());
                 })
                 .verifyComplete();
     }
@@ -73,8 +74,7 @@ public class MssqlGetDBSchemaTest {
     @Test
     public void testDBSchemaShowsAllColumnsAndTypesInATable() {
         Mono<DatasourceStructure> datasourceStructureMono =
-                mssqlPluginExecutor.getStructure(sharedConnectionPool,
-                        createDatasourceConfiguration(container));
+                mssqlPluginExecutor.getStructure(sharedConnectionPool, createDatasourceConfiguration(container));
 
         StepVerifier.create(datasourceStructureMono)
                 .assertNext(datasourceStructure -> {
@@ -91,21 +91,19 @@ public class MssqlGetDBSchemaTest {
                     Set<String> expectedColumnNames = Set.of("supplier_id", "supplier_name", "contact_name");
                     assertEquals(expectedColumnNames, allColumnNames, allColumnNames.toString());
 
-                    supplierTable.get().getColumns()
-                            .forEach(column -> {
-                                String columnName = column.getName().toLowerCase();
-                                String columnType = column.getType().toLowerCase();
-                                String expectedColumnType;
+                    supplierTable.get().getColumns().forEach(column -> {
+                        String columnName = column.getName().toLowerCase();
+                        String columnType = column.getType().toLowerCase();
+                        String expectedColumnType;
 
-                                if ("supplier_id".equals(columnName)) {
-                                    expectedColumnType = "int";
-                                }
-                                else {
-                                    expectedColumnType = "varchar";
-                                }
+                        if ("supplier_id".equals(columnName)) {
+                            expectedColumnType = "int";
+                        } else {
+                            expectedColumnType = "varchar";
+                        }
 
-                                assertEquals(expectedColumnType, columnType, columnType);
-                            });
+                        assertEquals(expectedColumnType, columnType, columnType);
+                    });
                 })
                 .verifyComplete();
     }
@@ -113,8 +111,7 @@ public class MssqlGetDBSchemaTest {
     @Test
     public void testDynamicSqlTemplateQueriesForATable() {
         Mono<DatasourceStructure> datasourceStructureMono =
-                mssqlPluginExecutor.getStructure(sharedConnectionPool,
-                        createDatasourceConfiguration(container));
+                mssqlPluginExecutor.getStructure(sharedConnectionPool, createDatasourceConfiguration(container));
 
         StepVerifier.create(datasourceStructureMono)
                 .assertNext(datasourceStructure -> {
@@ -125,7 +122,8 @@ public class MssqlGetDBSchemaTest {
                     assertTrue(supplierTable.isPresent(), "supplier table not found in DB schema");
 
                     supplierTable.get().getTemplates().stream()
-                            .filter(template -> "select".equalsIgnoreCase(template.getTitle()) || "delete".equalsIgnoreCase(template.getTitle()))
+                            .filter(template -> "select".equalsIgnoreCase(template.getTitle())
+                                    || "delete".equalsIgnoreCase(template.getTitle()))
                             .forEach(template -> {
 
                                 /*
@@ -137,15 +135,16 @@ public class MssqlGetDBSchemaTest {
                                 String expectedQueryTemplate = null;
                                 if ("select".equalsIgnoreCase(template.getTitle())) {
                                     expectedQueryTemplate = "select top 10 * from dbo.supplier";
-                                }
-                                else if ("delete".equalsIgnoreCase(template.getTitle())) {
-                                    expectedQueryTemplate = "delete from dbo.supplier where 1=0 -- specify a valid" +
-                                            " condition here. removing the condition may delete everything in the " +
-                                            "table!";
+                                } else if ("delete".equalsIgnoreCase(template.getTitle())) {
+                                    expectedQueryTemplate = "delete from dbo.supplier where 1=0 -- specify a valid"
+                                            + " condition here. removing the condition may delete everything in the "
+                                            + "table!";
                                 }
 
                                 String templateQuery = template.getBody();
-                                assertEquals(expectedQueryTemplate, templateQuery.toLowerCase(),
+                                assertEquals(
+                                        expectedQueryTemplate,
+                                        templateQuery.toLowerCase(),
                                         templateQuery.toLowerCase());
                             });
                 })

@@ -23,12 +23,14 @@ import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
-
 @Component
 @RequiredArgsConstructor
 public class RedirectHelper {
 
     public static final String DEFAULT_REDIRECT_URL = "/applications";
+    public static final String ERROR = "error";
+    public static final String CHARACTER_QUESTION_MARK = "?";
+    public static final String CHARACTER_EQUALS = "=";
     public static final String SIGNUP_SUCCESS_URL = "/signup-success";
     public static final String APPLICATION_PAGE_URL = "/applications/%s/pages/%s/edit";
     private static final String REDIRECT_URL_HEADER = "X-Redirect-Url";
@@ -54,15 +56,13 @@ public class RedirectHelper {
         HttpHeaders httpHeaders = request.getHeaders();
 
         if (queryParams.getFirst(REDIRECT_URL_QUERY_PARAM) != null) {
-            return Mono.just(fulfillRedirectUrl(
-                    queryParams.getFirst(REDIRECT_URL_QUERY_PARAM),
-                    httpHeaders
-            ));
+            return Mono.just(fulfillRedirectUrl(queryParams.getFirst(REDIRECT_URL_QUERY_PARAM), httpHeaders));
 
         } else if (queryParams.getFirst(FORK_APP_ID_QUERY_PARAM) != null) {
             final String forkAppId = queryParams.getFirst(FORK_APP_ID_QUERY_PARAM);
             final String defaultRedirectUrl = httpHeaders.getOrigin() + DEFAULT_REDIRECT_URL;
-            return applicationRepository.findByClonedFromApplicationId(forkAppId, applicationPermission.getReadPermission())
+            return applicationRepository
+                    .findByClonedFromApplicationId(forkAppId, applicationPermission.getReadPermission())
                     .map(application -> {
                         // Get the default page in the application, or if there's no default page, get the first page
                         // in the application and redirect to edit that page.
@@ -89,7 +89,6 @@ public class RedirectHelper {
                     })
                     .defaultIfEmpty(defaultRedirectUrl)
                     .last();
-
         }
 
         return Mono.just(getRedirectUrlFromHeader(httpHeaders));
@@ -168,7 +167,9 @@ public class RedirectHelper {
             }
         } else if (!StringUtils.isEmpty(httpHeaders.getHost())) {
             // For HTTP v1 requests
-            String port = httpHeaders.getHost().getPort() != 80 ? ":" + httpHeaders.getHost().getPort() : "";
+            String port = httpHeaders.getHost().getPort() != 80
+                    ? ":" + httpHeaders.getHost().getPort()
+                    : "";
             redirectOrigin = httpHeaders.getHost().getHostName() + port;
         }
 
@@ -177,9 +178,12 @@ public class RedirectHelper {
 
     public String buildApplicationUrl(Application application, HttpHeaders httpHeaders) {
         String redirectUrl = RedirectHelper.DEFAULT_REDIRECT_URL;
-        if (application != null && application.getPages() != null && application.getPages().size() > 0) {
+        if (application != null
+                && application.getPages() != null
+                && application.getPages().size() > 0) {
             ApplicationPage applicationPage = application.getPages().get(0);
-            redirectUrl = String.format(RedirectHelper.APPLICATION_PAGE_URL, application.getId(), applicationPage.getId());
+            redirectUrl =
+                    String.format(RedirectHelper.APPLICATION_PAGE_URL, application.getId(), applicationPage.getId());
         }
         return fulfillRedirectUrl(redirectUrl, httpHeaders);
     }
@@ -201,29 +205,35 @@ public class RedirectHelper {
         }
     }
 
-    public Mono<Void> handleRedirect(WebFilterExchange webFilterExchange, Application defaultApplication, boolean isFromSignup) {
+    public Mono<String> getAuthSuccessRedirectUrl(
+            WebFilterExchange webFilterExchange, Application defaultApplication, boolean isFromSignup) {
+        ServerWebExchange exchange = webFilterExchange.getExchange();
+        return Mono.just(exchange.getRequest()).flatMap(this::getRedirectUrl).map(redirectUrl -> {
+            String url = redirectUrl;
+            if (isFromSignup) {
+                boolean addFirstTimeExperienceParam = false;
+
+                // only redirect to default application if the redirectUrl contains no other url
+                if (isDefaultRedirectUrl(url) && defaultApplication != null) {
+                    addFirstTimeExperienceParam = true;
+                    HttpHeaders headers = exchange.getRequest().getHeaders();
+                    url = this.buildApplicationUrl(defaultApplication, headers);
+                }
+                // This redirectUrl will be used by the client to redirect after showing a welcome page.
+                url = buildSignupSuccessUrl(url, addFirstTimeExperienceParam);
+            }
+            return url;
+        });
+    }
+
+    public Mono<Void> handleRedirect(
+            WebFilterExchange webFilterExchange, Application defaultApplication, boolean isFromSignup) {
         ServerWebExchange exchange = webFilterExchange.getExchange();
 
         // On authentication success, we send a redirect to the client's home page. This ensures that the session
         // is set in the cookie on the browser.
-        return Mono.just(exchange.getRequest())
-                .flatMap(this::getRedirectUrl)
-                .map(s -> {
-                    String url = s;
-                    if (isFromSignup) {
-                        boolean addFirstTimeExperienceParam = false;
 
-                        // only redirect to default application if the redirectUrl contains no other url
-                        if (isDefaultRedirectUrl(url) && defaultApplication != null) {
-                            addFirstTimeExperienceParam = true;
-                            HttpHeaders headers = exchange.getRequest().getHeaders();
-                            url = this.buildApplicationUrl(defaultApplication, headers);
-                        }
-                        // This redirectUrl will be used by the client to redirect after showing a welcome page.
-                        url = buildSignupSuccessUrl(url, addFirstTimeExperienceParam);
-                    }
-                    return url;
-                })
+        return getAuthSuccessRedirectUrl(webFilterExchange, defaultApplication, isFromSignup)
                 .map(URI::create)
                 .flatMap(redirectUri -> redirectStrategy.sendRedirect(exchange, redirectUri));
     }
@@ -234,5 +244,36 @@ public class RedirectHelper {
             url += "&" + FIRST_TIME_USER_EXPERIENCE_PARAM + "=true";
         }
         return url;
+    }
+
+    /**
+     * To build failure URL
+     * @param redirectPrefix Redirect URL prefix
+     * @param failureMessage Failure message to be added to redirect URL
+     * @return Redirect URL
+     */
+    private String buildFailureUrl(String redirectPrefix, String failureMessage) {
+        String url = redirectPrefix
+                + CHARACTER_QUESTION_MARK
+                + ERROR
+                + CHARACTER_EQUALS
+                + URLEncoder.encode(failureMessage, StandardCharsets.UTF_8);
+
+        return url;
+    }
+
+    /**
+     * To redirect in error cases
+     * @param webFilterExchange WebFilterExchange
+     * @param redirectPrefix Redirect URL prefix
+     * @param failureMessage Failure message to be added to redirect URL
+     * @return Mono of void
+     */
+    public Mono<Void> handleErrorRedirect(
+            WebFilterExchange webFilterExchange, String redirectPrefix, String failureMessage) {
+        ServerWebExchange exchange = webFilterExchange.getExchange();
+        URI redirectURI = URI.create(buildFailureUrl(redirectPrefix, failureMessage));
+
+        return redirectStrategy.sendRedirect(exchange, redirectURI);
     }
 }

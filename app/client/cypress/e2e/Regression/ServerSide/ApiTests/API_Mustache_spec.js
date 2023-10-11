@@ -1,15 +1,17 @@
-/* eslint-disable cypress/no-unnecessary-waiting */
-const commonlocators = require("../../../../locators/commonlocators.json");
-const dsl = require("../../../../fixtures/commondsl.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 const testdata = require("../../../../fixtures/testdata.json");
+import {
+  entityExplorer,
+  agHelper,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Moustache test Functionality", function () {
   beforeEach(() => {
-    cy.addDsl(dsl);
+    agHelper.AddDsl("commondsl");
   });
   it("1. Moustache test Functionality", function () {
-    cy.openPropertyPane("textwidget");
+    entityExplorer.ExpandCollapseEntity("Aditya");
+    entityExplorer.SelectEntityByName("TestTextBox", "Aditya");
     cy.widgetText("Api", widgetsPage.textWidget, widgetsPage.textInputval);
     cy.testCodeMirror(testdata.methods);
     cy.NavigateToAPI_Panel();

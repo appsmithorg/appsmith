@@ -25,14 +25,15 @@ import {
 } from "design-system";
 import {
   getConflictFoundDocUrlDeploy,
-  getDiscardDocUrl,
   getGitCommitAndPushError,
   getGitDiscardError,
   getGitStatus,
   getIsCommitSuccessful,
   getIsCommittingInProgress,
   getIsDiscardInProgress,
+  getIsFetchingGitRemoteStatus,
   getIsFetchingGitStatus,
+  getIsGitStatusLiteEnabled,
   getIsPullingProgress,
   getPullFailed,
   getUpstreamErrorDocUrl,
@@ -47,6 +48,7 @@ import {
   clearDiscardErrorState,
   commitToRepoInit,
   discardChanges,
+  fetchGitRemoteStatusInit,
   fetchGitStatusInit,
   gitPullInit,
 } from "actions/gitSyncActions";
@@ -73,7 +75,7 @@ import DiscardFailedWarning from "../components/DiscardChangesError";
 
 const Section = styled.div`
   margin-top: 0;
-  margin-bottom: ${(props) => props.theme.spaces[11]}px;
+  margin-bottom: ${(props) => props.theme.spaces[7]}px;
 `;
 
 const Row = styled.div`
@@ -105,6 +107,7 @@ function Deploy() {
   const gitMetaData = useSelector(getCurrentAppGitMetaData);
   const gitStatus = useSelector(getGitStatus) as GitStatusData;
   const isFetchingGitStatus = useSelector(getIsFetchingGitStatus);
+  const remoteStatusLoading = useSelector(getIsFetchingGitRemoteStatus);
   const isPullingProgress = useSelector(getIsPullingProgress);
   const isCommitAndPushSuccessful = useSelector(getIsCommitSuccessful);
   const hasChangesToCommit = !gitStatus?.isClean;
@@ -113,7 +116,6 @@ function Deploy() {
   const pullFailed = useSelector(getPullFailed);
   const commitInputRef = useRef<HTMLInputElement>(null);
   const upstreamErrorDocumentUrl = useSelector(getUpstreamErrorDocUrl);
-  const discardDocUrl = useSelector(getDiscardDocUrl);
   const [commitMessage, setCommitMessage] = useState(
     gitMetaData?.remoteUrl && lastDeployedAt ? "" : FIRST_COMMIT,
   );
@@ -127,6 +129,7 @@ function Deploy() {
   const currentApplication = useSelector(getCurrentApplication);
   const { changeReasonText, isAutoUpdate, isManualUpdate } =
     changeInfoSinceLastCommit(currentApplication);
+  const isGitStatusLiteEnabled = useSelector(getIsGitStatusLiteEnabled);
 
   const handleCommit = (doPush: boolean) => {
     setShowDiscardWarning(false);
@@ -157,11 +160,17 @@ function Deploy() {
   const commitButtonText = createMessage(COMMIT_AND_PUSH);
 
   useEffect(() => {
-    dispatch(fetchGitStatusInit());
+    if (isGitStatusLiteEnabled) {
+      dispatch(fetchGitStatusInit({ compareRemote: false }));
+      dispatch(fetchGitRemoteStatusInit());
+    } else {
+      dispatch(fetchGitStatusInit({ compareRemote: true }));
+    }
     return () => {
       dispatch(clearCommitSuccessfulState());
     };
   }, []);
+
   const commitButtonDisabled =
     !hasChangesToCommit || !commitMessage || commitMessage.trim().length < 1;
   const commitButtonLoading = isCommittingInProgress;
@@ -276,6 +285,7 @@ function Deploy() {
         <Container
           data-testid={"t--deploy-tab-container"}
           ref={scrollWrapperRef}
+          style={{ minHeight: 360 }}
         >
           <Section>
             {hasChangesToCommit && (
@@ -336,10 +346,10 @@ function Deploy() {
                 value={commitMessageDisplay}
               />
             </SubmitWrapper>
-            {isFetchingGitStatus && (
+            {(isFetchingGitStatus || remoteStatusLoading) && (
               <StatusLoader loaderMsg={createMessage(FETCH_GIT_STATUS)} />
             )}
-            <Space size={11} />
+            {/* <Space size={11} /> */}
             {pullRequired && !isConflicting && (
               <>
                 <Callout
@@ -347,16 +357,16 @@ function Deploy() {
                   links={[
                     {
                       children: createMessage(READ_DOCUMENTATION),
-                      onClick: (e) => {
-                        e.preventDefault();
+                      onClick: () => {
                         AnalyticsUtil.logEvent(
                           "GS_GIT_DOCUMENTATION_LINK_CLICK",
                           {
                             source: "UPSTREAM_CHANGES_LINK_ON_GIT_DEPLOY_MODAL",
                           },
                         );
-                        window.open(upstreamErrorDocumentUrl, "_blank");
                       },
+                      to: upstreamErrorDocumentUrl,
+                      target: "_blank",
                     },
                   ]}
                 >
@@ -410,7 +420,6 @@ function Deploy() {
 
           {showDiscardWarning && (
             <DiscardChangesWarning
-              discardDocUrl={discardDocUrl}
               onCloseDiscardChangesWarning={onCloseDiscardWarning}
             />
           )}
@@ -420,7 +429,7 @@ function Deploy() {
           )}
         </Container>
       </ModalBody>
-      <ModalFooter key="footer">
+      <ModalFooter key="footer" style={{ minHeight: 52 }}>
         {showPullButton && (
           <Button
             className="t--pull-button"

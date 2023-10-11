@@ -11,6 +11,7 @@ export const DefaultDebuggerContext = {
   selectedDebuggerTab: "",
   responseTabHeight: ActionExecutionResizerHeight,
   errorCount: 0,
+  selectedDebuggerFilter: "",
 };
 
 const initialState: DebuggerReduxState = {
@@ -116,6 +117,12 @@ const debuggerReducer = createImmerReducer(initialState, {
   ) => {
     state.context.selectedDebuggerTab = action.selectedTab;
   },
+  [ReduxActionTypes.SET_DEBUGGER_SELECTED_FILTER]: (
+    state: DebuggerReduxState,
+    action: { selectedFilter: string },
+  ) => {
+    state.context.selectedDebuggerFilter = action.selectedFilter;
+  },
   [ReduxActionTypes.SET_RESPONSE_PANE_HEIGHT]: (
     state: DebuggerReduxState,
     action: { height: number },
@@ -168,6 +175,7 @@ export type DebuggerContext = {
   errorCount: number;
   selectedDebuggerTab: string;
   responseTabHeight: number;
+  selectedDebuggerFilter: string;
 };
 
 export default debuggerReducer;

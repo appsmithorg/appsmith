@@ -1,19 +1,18 @@
-import React from "react";
+import * as React from "react";
 import type { ComponentMeta, ComponentStory } from "@storybook/react";
 
 // change ThisComponentName to the name of the component you are writing a story for
-import LabelWithTooltip from "./index";
+import { LabelWithTooltip, LabelPosition } from "@design-system/widgets-old";
 import { Alignment } from "@blueprintjs/core";
-import { LabelPosition } from "../types/common";
 
 export default {
   // change ComponentDisplay to the name of the component you are writing a story for
-  title: "Design System/widgets-old/LabelWithTooltip",
+  title: "Design System/Widgets-old/LabelWithTooltip",
   component: LabelWithTooltip,
 } as ComponentMeta<typeof LabelWithTooltip>;
 
 // eslint-disable-next-line react/function-component-definition
-const Template: ComponentStory<typeof LabelWithTooltip> = (args: any) => {
+const Template: ComponentStory<typeof LabelWithTooltip> = (args) => {
   return <LabelWithTooltip {...args} />;
 };
 

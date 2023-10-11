@@ -3,14 +3,14 @@ const fs = require("fs");
 const path = require("path");
 const dotenv = require("dotenv");
 const chalk = require("chalk");
-// const _ = require("lodash");
-// const del = require("del");
 const cypressLogToOutput = require("cypress-log-to-output");
-//const { isFileExist } = require("cy-verify-downloads");
+const installLogsPrinter = require("cypress-terminal-report/src/installLogsPrinter");
 const {
   addMatchImageSnapshotPlugin,
 } = require("cypress-image-snapshot/plugin");
 const { tagify } = require("cypress-tags");
+const { cypressHooks } = require("../scripts/cypress-hooks");
+const { cypressSplit } = require("../scripts/cypress-split");
 // ***********************************************************
 // This example plugins/index.js can be used to load plugins
 //
@@ -27,37 +27,34 @@ const { tagify } = require("cypress-tags");
 /**
  * @type {Cypress.PluginConfig}
  */
-module.exports = (on, config) => {
-  // Todo: maybe raise a PR instead of overwriting `on("before:browser:launch", ...)` twice.
+
+module.exports = async (on, config) => {
+  // on("task", {
+  //   isFileExist,
+  // });
+  // `on` is used to hook into various events Cypress emits
+  // `config` is the resolved Cypress config
+
   cypressLogToOutput.install(on, (type, event) => {
     if (event.level === "error" || event.type === "error") {
       return true;
     }
     return false;
   });
-};
 
-// module.exports = (on, config) => {
-//   on("after:spec", (spec, results) => {
-//     if (results && results.video) {
-//       // Do we have failures for any retry attempts?
-//       const failures = _.some(results.tests, (test) => {
-//         return _.some(test.attempts, { state: "failed" });
-//       });
-//       if (!failures) {
-//         // delete the video if the spec passed and no tests retried
-//         return del(results.video);
-//       }
-//     }
-//   });
-// };
+  const logsPrinterOptions = {
+    outputRoot: config.projectRoot + "/cypress/",
+    outputTarget: {
+      "cypress-logs|json": "json",
+    },
+    specRoot: "cypress/e2e",
+    printLogsToFile: "onFail",
+  };
+  installLogsPrinter(on, logsPrinterOptions);
 
-module.exports = (on, config) => {
-  // on("task", {
-  //   isFileExist,
-  // });
-  // `on` is used to hook into various events Cypress emits
-  // `config` is the resolved Cypress config
+  on("file:preprocessor", tagify(config));
+  addMatchImageSnapshotPlugin(on, config);
+
   on("before:browser:launch", (browser = {}, launchOptions) => {
     /*
         Uncomment below to get console log printed in cypress output
@@ -68,8 +65,18 @@ module.exports = (on, config) => {
       launchOptions.args,
     );
     if (browser.name === "chrome") {
+      const video = path.join(
+        "cypress",
+        "fixtures",
+        "Videos",
+        "webCamVideo.y4m",
+      );
       launchOptions.args.push("--disable-dev-shm-usage");
-      launchOptions.push("--window-size=1400,1100");
+      launchOptions.args.push("--window-size=1400,1100");
+      launchOptions.args.push("--use-fake-ui-for-media-stream");
+      launchOptions.args.push("--use-fake-device-for-media-stream");
+      //Stream default video source for camera & code scanner
+      launchOptions.args.push(`--use-file-for-fake-video-capture=${video}`);
       return launchOptions;
     }
 
@@ -77,13 +84,26 @@ module.exports = (on, config) => {
       // && browser.isHeadless) {
       launchOptions.preferences.fullscreen = true;
       launchOptions.preferences.darkTheme = true;
-      launchOptions["width"] = 1400;
-      launchOptions["height"] = 1100;
-      launchOptions["resizable"] = false;
+      launchOptions.preferences.width = 1400;
+      launchOptions.preferences.height = 1100;
+      launchOptions.preferences.resizable = false;
+      return launchOptions;
     }
-
-    return launchOptions;
   });
+  // module.exports = (on, config) => {
+  //   on("after:spec", (spec, results) => {
+  //     if (results && results.video) {
+  //       // Do we have failures for any retry attempts?
+  //       const failures = _.some(results.tests, (test) => {
+  //         return _.some(test.attempts, { state: "failed" });
+  //       });
+  //       if (!failures) {
+  //         // delete the video if the spec passed and no tests retried
+  //         return del(results.video);
+  //       }
+  //     }
+  //   });
+  // };
 
   /**
    * Fallback to APPSMITH_* env variables for Cypress.env if config.env doesn't already have it.
@@ -151,12 +171,62 @@ module.exports = (on, config) => {
       console.log(message);
       return null;
     },
+
+    /*
+    Change video source for for camera & code scanner 
+    */
+    changeVideoSource(videoSource) {
+      console.log("TASK - Changing video source to", videoSource);
+      const webcamPath = path.join(
+        "cypress",
+        "fixtures",
+        "Videos",
+        "webCamVideo.y4m",
+      );
+      const defaultVideoPath = path.join(
+        "cypress",
+        "fixtures",
+        "Videos",
+        videoSource,
+      );
+
+      const video = fs.readFileSync(defaultVideoPath);
+
+      fs.writeFile(webcamPath, video);
+
+      return null;
+    },
+
+    /*
+   Reset video source to default
+   */
+    resetVideoSource() {
+      console.log("TASK - Resetting video source");
+      const webcamPath = path.join(
+        "cypress",
+        "fixtures",
+        "Videos",
+        "webCamVideo.y4m",
+      );
+      const defaultVideoPath = path.join(
+        "cypress",
+        "fixtures",
+        "Videos",
+        "defaultVideo.y4m",
+      );
+
+      const video = fs.readFileSync(defaultVideoPath);
+
+      fs.writeFile(webcamPath, video);
+
+      return null;
+    },
   });
 
-  return config;
-};
+  if (process.env["RUNID"]) {
+    config = await new cypressSplit().splitSpecs(on, config);
+    cypressHooks(on, config);
+  }
 
-module.exports = (on, config) => {
-  on("file:preprocessor", tagify(config));
-  addMatchImageSnapshotPlugin(on, config);
+  return config;
 };

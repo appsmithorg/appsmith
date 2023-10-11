@@ -3,7 +3,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Widget Selection", function () {
   before(() => {
-    cy.addDsl(dsl);
+    _.agHelper.AddDsl("widgetSelection");
   });
 
   it("1. Multi Select widgets using cmd + click", function () {

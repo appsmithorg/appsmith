@@ -2,15 +2,10 @@ import type { JSAction } from "entities/JSCollection";
 import { JSResponseState } from "./JSResponseView";
 
 export const isHtml = (str: string) => {
-  const fragment = document.createRange().createContextualFragment(str);
-
-  // remove all non text nodes from fragment
-  fragment
-    .querySelectorAll("*")
-    .forEach((el: any) => el.parentNode.removeChild(el));
-
-  // if there is textContent, then its not a pure HTML
-  return !(fragment.textContent || "").trim();
+  const doc = new DOMParser().parseFromString(str, "text/html");
+  return Array.from(doc.body.childNodes).some(
+    (node: any) => node.nodeType === 1,
+  );
 };
 
 /**

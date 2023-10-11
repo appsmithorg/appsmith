@@ -1,11 +1,9 @@
-const dsl = require("../../../../fixtures/conversionFrAutoLayoutDsl.json");
-const commonlocators = require("../../../../locators/commonlocators.json");
 let testHeight;
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Auto conversion algorithm usecases for fixed Layout", function () {
   it("1. Validate basic conversion algorithm usecases fixed layout Desktop", function () {
-    cy.addDsl(dsl);
-    cy.wait(5000); //for dsl to settle
+    _.agHelper.AddDsl("conversionFrAutoLayoutDsl");
     //cy.openPropertyPane("containerwidget");
     cy.get("@getPage").then((httpResponse) => {
       const data = httpResponse.response.body.data;
@@ -25,17 +23,9 @@ describe("Auto conversion algorithm usecases for fixed Layout", function () {
                 cy.log(bheight);
                 cy.log(dheight);
                 cy.wait(3000);
-                cy.get(commonlocators.autoConvert).click({ force: true });
-                cy.wait(2000);
-                cy.get(commonlocators.convert).click({ force: true });
-                cy.wait(2000);
-                cy.get(commonlocators.refreshApp).click({ force: true });
-                cy.wait(2000);
-                cy.wait("@updateLayout").should(
-                  "have.nested.property",
-                  "response.body.responseMeta.status",
-                  200,
-                );
+
+                _.autoLayout.ConvertToAutoLayoutAndVerify();
+
                 cy.get(".t--widget-audiorecorderwidget")
                   .invoke("css", "height")
                   .then((a1height) => {
@@ -48,34 +38,11 @@ describe("Auto conversion algorithm usecases for fixed Layout", function () {
                             expect(aheight).to.not.equal(a1height);
                             expect(bheight).to.not.equal(b1height);
                             expect(dheight).to.not.equal(d1height);
-                            cy.get(commonlocators.discardSnapshot).click({
-                              force: true,
-                            });
-                            cy.wait(2000);
-                            cy.get(commonlocators.discard).click({
-                              force: true,
-                            });
-                            cy.reload();
-                            cy.wait(5000);
-                            cy.get(commonlocators.autoConvert).click({
-                              force: true,
-                            });
-                            cy.wait(2000);
-                            cy.get(commonlocators.convert).click({
-                              force: true,
-                            });
-                            cy.wait(2000);
-                            cy.get(commonlocators.refreshApp).click({
-                              force: true,
-                            });
-                            cy.wait(2000);
-                            /*
-                            cy.wait("@updateLayout").should(
-                              "have.nested.property",
-                              "response.body.responseMeta.status",
-                              200,
+
+                            _.autoLayout.ConvertToFixedLayoutAndVerify(
+                              "DESKTOP",
                             );
-                            */
+
                             cy.wait(15000);
                             cy.get(".t--widget-audiorecorderwidget")
                               .invoke("css", "height")

@@ -1,12 +1,16 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const dslWithSchema = require("../../../../../fixtures/jsonFormDslWithSchema.json");
-const jsonFormDslWithSchemaAndWithoutSourceData = require("../../../../../fixtures/jsonFormDslWithSchemaAndWithoutSourceData.json");
 const fieldPrefix = ".t--jsonformfield";
 const education = `${fieldPrefix}-education`;
 const addButton = ".t--jsonformfield-array-add-btn";
 const deleteButton = ".t--jsonformfield-array-delete-btn";
-import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
-let agHelper = ObjectsRegistry.AggregateHelper;
+import {
+  agHelper,
+  deployMode,
+  entityExplorer,
+  propPane,
+  locators,
+} from "../../../../../support/Objects/ObjectsCore";
 
 describe("JSON Form Widget Array Field", () => {
   beforeEach(() => {
@@ -17,8 +21,8 @@ describe("JSON Form Widget Array Field", () => {
     agHelper.SaveLocalStorageCache();
   });
 
-  it("can remove default items when default value changes from undefined to an array", () => {
-    cy.addDsl(jsonFormDslWithSchemaAndWithoutSourceData);
+  it("1. can remove default items when default value changes from undefined to an array", () => {
+    agHelper.AddDsl("jsonFormDslWithSchemaAndWithoutSourceData");
 
     const sourceData = {
       name: "John",
@@ -38,16 +42,18 @@ describe("JSON Form Widget Array Field", () => {
     };
 
     cy.openPropertyPane("jsonformwidget");
-    cy.testJsontext("sourcedata", JSON.stringify(sourceData));
-    cy.closePropertyPane();
+    propPane.EnterJSContext("Source data", JSON.stringify(sourceData), true);
 
+    deployMode.DeployApp();
     cy.get(`${education} ${addButton}`).click({ force: true });
     cy.get(`${education}-item`).should("have.length", 2);
 
-    cy.get(`${education}-item`).within(() => {
-      cy.get(`${education}-1--college input`).type("Dummy college");
-      cy.get(`${education}-1--year input`).type("10/08/2010");
-    });
+    cy.get(`${education}-item`)
+      .last()
+      .within(() => {
+        cy.get(`${education}-1--college input`).type("Dummy college");
+        cy.get(`${education}-1--year input`).type("10/08/2010");
+      });
 
     cy.get(`${education}-item.t--item-0`)
       .find(deleteButton)
@@ -55,22 +61,27 @@ describe("JSON Form Widget Array Field", () => {
 
     cy.get(`${education}-item`).should("have.length", 1);
 
-    cy.get(`${education}-item`).within(() => {
-      cy.get(`${education}-0--college input`).should(
-        "have.value",
-        "Dummy college",
-      );
-      cy.get(`${education}-0--year input`).should("have.value", "10/08/2010");
-    });
+    cy.get(`${education}-item`)
+      .last()
+      .within(() => {
+        cy.get(`${education}-0--college input`).should(
+          "have.value",
+          "Dummy college",
+        );
+        cy.get(`${education}-0--year input`).should("have.value", "10/08/2010");
+      });
+
+    deployMode.NavigateBacktoEditor();
   });
 
-  it("can add more items to the field", () => {
+  it("2. can add more items to the field", () => {
     cy.addDsl(dslWithSchema);
 
     cy.openPropertyPane("jsonformwidget");
-
+    cy.get(locators._jsToggle("sourcedata")).click({ force: true });
     cy.get(`${education}-item`)
       .should("have.length", 1)
+      .first()
       .within(() => {
         cy.get(`${education}-0--college input`).should("have.value", "MIT");
         cy.get(`${education}-0--year input`).should("have.value", "20/10/2014");
@@ -80,29 +91,40 @@ describe("JSON Form Widget Array Field", () => {
 
     cy.get(`${education}-item`)
       .should("have.length", 2)
+      .first()
       .within(() => {
         cy.get(`${education}-0--college input`).should("have.value", "MIT");
         cy.get(`${education}-0--year input`).should("have.value", "20/10/2014");
+      });
+
+    cy.get(`${education}-item`)
+      .should("have.length", 2)
+      .last()
+      .within(() => {
         cy.get(`${education}-1--college input`).should("have.value", "");
         cy.get(`${education}-1--year input`).should("have.value", "");
       });
   });
 
-  it("can remove items from the field", () => {
+  it("3. can remove items from the field", () => {
     cy.get(`${education} ${addButton}`).click({ force: true });
     cy.get(`${education}-item`).should("have.length", 3);
 
-    cy.get(`${education}-item`).within(() => {
-      cy.get(`${education}-1--college input`).type("Dummy college");
-      cy.get(`${education}-1--year input`).type("10/08/2010");
-    });
+    cy.get(`${education}-item`)
+      .eq(1)
+      .within(() => {
+        cy.get(`${education}-1--college input`).type("Dummy college");
+        cy.get(`${education}-1--year input`).type("10/08/2010");
+      });
 
     cy.get(commonlocators.canvas).click({ force: true });
 
-    cy.get(`${education}-item`).within(() => {
-      cy.get(`${education}-2--college input`).type("Dummy college 2");
-      cy.get(`${education}-2--year input`).type("01/01/2020");
-    });
+    cy.get(`${education}-item`)
+      .eq(2)
+      .within(() => {
+        cy.get(`${education}-2--college input`).type("Dummy college 2");
+        cy.get(`${education}-2--year input`).type("01/01/2020");
+      });
 
     cy.get(commonlocators.canvas).click({ force: true });
 
@@ -112,57 +134,75 @@ describe("JSON Form Widget Array Field", () => {
 
     cy.get(`${education}-item`).should("have.length", 2);
 
-    cy.get(`${education}-item`).within(() => {
-      cy.get(`${education}-1--college input`).should(
-        "have.value",
-        "Dummy college 2",
-      );
-      cy.get(`${education}-1--year input`).should("have.value", "01/01/2020");
-    });
+    cy.get(`${education}-item`)
+      .eq(1)
+      .within(() => {
+        cy.get(`${education}-1--college input`).should(
+          "have.value",
+          "Dummy college 2",
+        );
+        cy.get(`${education}-1--year input`).should("have.value", "01/01/2020");
+      });
   });
 
-  it("can change the visibility of the field", () => {
+  it("4. can change the visibility of the field", () => {
     cy.get(education).should("exist");
-
+    agHelper.AssertElementExist(education);
+    entityExplorer.SelectEntityByName("JSONForm1");
     cy.openPropertyPane("jsonformwidget");
     cy.openFieldConfiguration("education");
 
     // Visible -> false
-    cy.togglebarDisable(".t--property-control-visible input");
-    cy.get(education).should("not.exist");
+    propPane.TogglePropertyState("Visible", "Off");
+    deployMode.DeployApp();
+    agHelper.AssertElementAbsence(education);
+    deployMode.NavigateBacktoEditor();
 
     // Visible -> true
-    cy.togglebar(".t--property-control-visible input");
-    cy.get(education).should("exist");
+    entityExplorer.SelectEntityByName("JSONForm1");
+    cy.openFieldConfiguration("education");
+
+    propPane.TogglePropertyState("Visible", "On");
+    agHelper.AssertElementExist(education);
   });
 
-  it("disables all underlying field when array field is disabled", () => {
-    cy.closePropertyPane();
-    cy.openPropertyPane("jsonformwidget");
+  it("5. disables all underlying field when array field is disabled", () => {
+    entityExplorer.SelectEntityByName("JSONForm1");
     cy.openFieldConfiguration("education");
 
     // Disable -> true
-    cy.togglebar(".t--property-control-disabled input");
-    cy.get(education).within(() => {
-      cy.get(`${education}-0--college input`).should("have.attr", "disabled");
-      cy.get(`${education}-0--year input`).should("have.attr", "disabled");
-    });
+    propPane.TogglePropertyState("Disabled", "On");
+    // cy.togglebar(".t--property-control-disabled input");
+    deployMode.DeployApp();
+    cy.get(education)
+      .first()
+      .within(() => {
+        cy.get(`${education}-0--college input`).should("have.attr", "disabled");
+        cy.get(`${education}-0--year input`).should("have.attr", "disabled");
+      });
 
-    // Disable -> false
-    cy.togglebarDisable(".t--property-control-disabled input");
+    deployMode.NavigateBacktoEditor();
+    entityExplorer.SelectEntityByName("JSONForm1");
+    cy.openFieldConfiguration("education");
+    propPane.TogglePropertyState("Disabled", "Off");
+    // cy.togglebarDisable(".t--property-control-disabled input");
     cy.get(education).should("exist");
-    cy.get(education).within(() => {
-      cy.get(`${education}-0--college input`).should(
-        "not.have.attr",
-        "disabled",
-      );
-      cy.get(`${education}-0--year input`).should("not.have.attr", "disabled");
-    });
+    cy.get(education)
+      .first()
+      .within(() => {
+        cy.get(`${education}-0--college input`).should(
+          "not.have.attr",
+          "disabled",
+        );
+        cy.get(`${education}-0--year input`).should(
+          "not.have.attr",
+          "disabled",
+        );
+      });
   });
 
-  it("disables add new and remove buttons when array field is disabled", () => {
-    cy.closePropertyPane();
-    cy.openPropertyPane("jsonformwidget");
+  it("6. disables add new and remove buttons when array field is disabled", () => {
+    entityExplorer.SelectEntityByName("JSONForm1");
     cy.openFieldConfiguration("education");
 
     let initialNoOfItems = 0;
@@ -171,7 +211,9 @@ describe("JSON Form Widget Array Field", () => {
     });
 
     // Disable -> true
-    cy.togglebar(".t--property-control-disabled input");
+    propPane.TogglePropertyState("Disabled", "On");
+    deployMode.DeployApp();
+    // cy.togglebar(".t--property-control-disabled input");
     cy.get(`${education} ${addButton}`).should("have.attr", "disabled");
     cy.get(`${education} ${addButton}`).should("have.attr", "disabled");
 
@@ -186,8 +228,13 @@ describe("JSON Form Widget Array Field", () => {
       expect($items.length).equal(initialNoOfItems);
     });
 
+    deployMode.NavigateBacktoEditor();
+    entityExplorer.SelectEntityByName("JSONForm1");
+    cy.openFieldConfiguration("education");
+    propPane.TogglePropertyState("Disabled", "Off");
+
+    deployMode.DeployApp();
     // Disable -> false
-    cy.togglebarDisable(".t--property-control-disabled input");
     cy.get(addButton).should("not.have.attr", "disabled");
     cy.get(deleteButton).should("not.have.attr", "disabled");
     // Click add button
@@ -200,13 +247,13 @@ describe("JSON Form Widget Array Field", () => {
     cy.get(`${education}-item`).then(($items) => {
       expect($items.length).equal(initialNoOfItems);
     });
+    deployMode.NavigateBacktoEditor();
   });
 
-  it("should not render field level default value if form level is present", () => {
+  it("7. should not render field level default value if form level is present", () => {
     const collegeFieldDefaultValue = "College default value";
 
-    cy.closePropertyPane();
-    cy.openPropertyPane("jsonformwidget");
+    entityExplorer.SelectEntityByName("JSONForm1");
 
     cy.openFieldConfiguration("education")
       .openFieldConfiguration("__array_item__", false)
@@ -217,6 +264,7 @@ describe("JSON Form Widget Array Field", () => {
     cy.closePropertyPane();
     cy.get(`${education}-item`)
       .should("have.length", 1)
+      .first()
       .within(() => {
         cy.get(`${education}-0--college input`).should("have.value", "MIT");
         cy.get(`${education}-0--year input`).should("have.value", "20/10/2014");
@@ -227,9 +275,15 @@ describe("JSON Form Widget Array Field", () => {
 
     cy.get(`${education}-item`)
       .should("have.length", 2)
+      .first()
       .within(() => {
         cy.get(`${education}-0--college input`).should("have.value", "MIT");
         cy.get(`${education}-0--year input`).should("have.value", "20/10/2014");
+      });
+    cy.get(`${education}-item`)
+      .should("have.length", 2)
+      .last()
+      .within(() => {
         cy.get(`${education}-1--college input`).should(
           "have.value",
           collegeFieldDefaultValue,
@@ -238,10 +292,8 @@ describe("JSON Form Widget Array Field", () => {
       });
   });
 
-  it("phone input dropdown should update the selected value", () => {
-    cy.closePropertyPane();
-    cy.openPropertyPane("jsonformwidget");
-
+  it("8. phone input dropdown should update the selected value", () => {
+    entityExplorer.SelectEntityByName("JSONForm1");
     cy.openFieldConfiguration("education");
     cy.openFieldConfiguration("__array_item__", false);
 
@@ -263,6 +315,7 @@ describe("JSON Form Widget Array Field", () => {
     // Change the label of the field to Phone Number
     cy.testJsontext("text", "Phone Number");
 
+    deployMode.DeployApp();
     // Open country code dropdown and select +91
     cy.get(".t--input-country-code-change").first().click();
     cy.get(".t--search-input input").type("+91");
@@ -270,12 +323,11 @@ describe("JSON Form Widget Array Field", () => {
     cy.get(".t--dropdown-option").contains("+91").click({ force: true });
 
     cy.get(".t--input-country-code-change").should("contain", "🇮🇳+91");
+    deployMode.NavigateBacktoEditor();
   });
 
-  it("currency input dropdown should update the selected value", () => {
-    cy.closePropertyPane();
-    cy.openPropertyPane("jsonformwidget");
-
+  it("9. currency input dropdown should update the selected value", () => {
+    entityExplorer.SelectEntityByName("JSONForm1");
     cy.openFieldConfiguration("education");
     cy.openFieldConfiguration("__array_item__", false);
 
@@ -294,6 +346,7 @@ describe("JSON Form Widget Array Field", () => {
     // Change the label of the field to Phone Number
     cy.testJsontext("text", "Currency");
 
+    deployMode.DeployApp();
     // Open country code dropdown and select gbp
     cy.get(".t--input-currency-change").first().click();
     cy.get(".t--search-input input").type("gbp");

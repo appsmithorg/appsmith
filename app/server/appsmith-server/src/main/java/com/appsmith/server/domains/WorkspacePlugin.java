@@ -20,5 +20,4 @@ public class WorkspacePlugin extends BaseDomain {
     String pluginId;
 
     WorkspacePluginStatus status;
-
 }

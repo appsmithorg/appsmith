@@ -11,9 +11,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 @Service
 public class MarketplaceServiceImpl extends MarketplaceServiceCEImpl implements MarketplaceService {
 
-    public MarketplaceServiceImpl(WebClient.Builder webClientBuilder,
-                                  CloudServicesConfig cloudServicesConfig,
-                                  ObjectMapper objectMapper) {
+    public MarketplaceServiceImpl(
+            WebClient.Builder webClientBuilder, CloudServicesConfig cloudServicesConfig, ObjectMapper objectMapper) {
 
         super(webClientBuilder, cloudServicesConfig, objectMapper);
     }

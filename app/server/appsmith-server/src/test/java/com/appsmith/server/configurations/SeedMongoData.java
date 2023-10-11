@@ -16,7 +16,6 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.WorkspacePlugin;
 import com.appsmith.server.dtos.Permission;
 import com.appsmith.server.dtos.WorkspacePluginStatus;
-import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.PageRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
@@ -24,6 +23,7 @@ import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.TenantRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
+import com.appsmith.server.solutions.PolicySolution;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
@@ -60,15 +60,16 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 public class SeedMongoData {
 
     @Bean
-    ApplicationRunner init(UserRepository userRepository,
-                           WorkspaceRepository workspaceRepository,
-                           ApplicationRepository applicationRepository,
-                           PageRepository pageRepository,
-                           PluginRepository pluginRepository,
-                           ReactiveMongoTemplate mongoTemplate,
-                           TenantRepository tenantRepository,
-                           PermissionGroupRepository permissionGroupRepository,
-                           PolicyUtils policyUtils) {
+    ApplicationRunner init(
+            UserRepository userRepository,
+            WorkspaceRepository workspaceRepository,
+            ApplicationRepository applicationRepository,
+            PageRepository pageRepository,
+            PluginRepository pluginRepository,
+            ReactiveMongoTemplate mongoTemplate,
+            TenantRepository tenantRepository,
+            PermissionGroupRepository permissionGroupRepository,
+            PolicySolution policySolution) {
 
         log.info("Seeding the data");
         final String API_USER_EMAIL = "api_user";
@@ -76,92 +77,145 @@ public class SeedMongoData {
         final String ADMIN_USER_EMAIL = "admin@solutiontest.com";
         final String DEV_USER_EMAIL = "developer@solutiontest.com";
 
-        Policy manageAppPolicy = Policy.builder().permission(MANAGE_APPLICATIONS.getValue())
+        Policy manageAppPolicy = Policy.builder()
+                .permission(MANAGE_APPLICATIONS.getValue())
                 .users(Set.of(API_USER_EMAIL))
                 .build();
 
-        Policy readAppPolicy = Policy.builder().permission(READ_APPLICATIONS.getValue())
+        Policy readAppPolicy = Policy.builder()
+                .permission(READ_APPLICATIONS.getValue())
                 .users(Set.of(API_USER_EMAIL))
                 .build();
 
-        Policy manageWorkspaceAppPolicy = Policy.builder().permission(WORKSPACE_MANAGE_APPLICATIONS.getValue())
+        Policy manageWorkspaceAppPolicy = Policy.builder()
+                .permission(WORKSPACE_MANAGE_APPLICATIONS.getValue())
                 .users(Set.of(API_USER_EMAIL))
                 .build();
 
-        Policy exportWorkspaceAppPolicy = Policy.builder().permission(WORKSPACE_EXPORT_APPLICATIONS.getValue())
+        Policy exportWorkspaceAppPolicy = Policy.builder()
+                .permission(WORKSPACE_EXPORT_APPLICATIONS.getValue())
                 .users(Set.of(API_USER_EMAIL))
                 .build();
 
-        Policy userManageWorkspacePolicy = Policy.builder().permission(USER_MANAGE_WORKSPACES.getValue())
+        Policy userManageWorkspacePolicy = Policy.builder()
+                .permission(USER_MANAGE_WORKSPACES.getValue())
                 .users(Set.of(API_USER_EMAIL, TEST_USER_EMAIL, ADMIN_USER_EMAIL, DEV_USER_EMAIL))
                 .build();
 
-        Policy inviteUserWorkspacePolicy = Policy.builder().permission(WORKSPACE_INVITE_USERS.getValue())
+        Policy inviteUserWorkspacePolicy = Policy.builder()
+                .permission(WORKSPACE_INVITE_USERS.getValue())
                 .users(Set.of(API_USER_EMAIL))
                 .build();
 
-        Policy managePagePolicy = Policy.builder().permission(MANAGE_PAGES.getValue())
+        Policy managePagePolicy = Policy.builder()
+                .permission(MANAGE_PAGES.getValue())
                 .users(Set.of(API_USER_EMAIL))
                 .build();
 
-        Policy readPagePolicy = Policy.builder().permission(READ_PAGES.getValue())
+        Policy readPagePolicy = Policy.builder()
+                .permission(READ_PAGES.getValue())
                 .users(Set.of(API_USER_EMAIL))
                 .build();
 
-        Policy readWorkspacePolicy = Policy.builder().permission(READ_WORKSPACES.getValue())
+        Policy readWorkspacePolicy = Policy.builder()
+                .permission(READ_WORKSPACES.getValue())
                 .users(Set.of(API_USER_EMAIL))
                 .build();
 
-        Policy manageWorkspacePolicy = Policy.builder().permission(MANAGE_WORKSPACES.getValue())
+        Policy manageWorkspacePolicy = Policy.builder()
+                .permission(MANAGE_WORKSPACES.getValue())
                 .users(Set.of(API_USER_EMAIL))
                 .build();
 
-        Policy readApiUserPolicy = Policy.builder().permission(READ_USERS.getValue())
+        Policy readApiUserPolicy = Policy.builder()
+                .permission(READ_USERS.getValue())
                 .users(Set.of(API_USER_EMAIL))
                 .build();
 
-        Policy manageApiUserPolicy = Policy.builder().permission(MANAGE_USERS.getValue())
+        Policy manageApiUserPolicy = Policy.builder()
+                .permission(MANAGE_USERS.getValue())
                 .users(Set.of(API_USER_EMAIL))
                 .build();
 
-        Policy readTestUserPolicy = Policy.builder().permission(READ_USERS.getValue())
+        Policy readTestUserPolicy = Policy.builder()
+                .permission(READ_USERS.getValue())
                 .users(Set.of(TEST_USER_EMAIL))
                 .build();
 
-        Policy readAdminUserPolicy = Policy.builder().permission(READ_USERS.getValue())
+        Policy readAdminUserPolicy = Policy.builder()
+                .permission(READ_USERS.getValue())
                 .users(Set.of(ADMIN_USER_EMAIL))
                 .build();
 
-        Policy readDevUserPolicy = Policy.builder().permission(READ_USERS.getValue())
+        Policy readDevUserPolicy = Policy.builder()
+                .permission(READ_USERS.getValue())
                 .users(Set.of(DEV_USER_EMAIL))
                 .build();
 
         Object[][] userData = {
-                {"user test", TEST_USER_EMAIL, UserState.ACTIVATED, new HashSet<>(Arrays.asList(readTestUserPolicy, userManageWorkspacePolicy))},
-                {"api_user", API_USER_EMAIL, UserState.ACTIVATED, new HashSet<>(Arrays.asList(userManageWorkspacePolicy, readApiUserPolicy, manageApiUserPolicy))},
-                {"admin test", ADMIN_USER_EMAIL, UserState.ACTIVATED, new HashSet<>(Arrays.asList(readAdminUserPolicy, userManageWorkspacePolicy))},
-                {"developer test", DEV_USER_EMAIL, UserState.ACTIVATED, new HashSet<>(Arrays.asList(readDevUserPolicy, userManageWorkspacePolicy))},
+            {
+                "user test",
+                TEST_USER_EMAIL,
+                UserState.ACTIVATED,
+                new HashSet<>(Arrays.asList(readTestUserPolicy, userManageWorkspacePolicy))
+            },
+            {
+                "api_user",
+                API_USER_EMAIL,
+                UserState.ACTIVATED,
+                new HashSet<>(Arrays.asList(userManageWorkspacePolicy, readApiUserPolicy, manageApiUserPolicy))
+            },
+            {
+                "admin test",
+                ADMIN_USER_EMAIL,
+                UserState.ACTIVATED,
+                new HashSet<>(Arrays.asList(readAdminUserPolicy, userManageWorkspacePolicy))
+            },
+            {
+                "developer test",
+                DEV_USER_EMAIL,
+                UserState.ACTIVATED,
+                new HashSet<>(Arrays.asList(readDevUserPolicy, userManageWorkspacePolicy))
+            },
         };
         Object[][] workspaceData = {
-                {"Spring Test Workspace", "appsmith-spring-test.com", "appsmith.com", "spring-test-workspace",
-                        Set.of(manageWorkspaceAppPolicy, manageWorkspacePolicy, readWorkspacePolicy, inviteUserWorkspacePolicy, exportWorkspaceAppPolicy)},
-                {"Another Test Workspace", "appsmith-another-test.com", "appsmith.com", "another-test-workspace",
-                        Set.of(manageWorkspaceAppPolicy, manageWorkspacePolicy, readWorkspacePolicy, inviteUserWorkspacePolicy, exportWorkspaceAppPolicy)}
+            {
+                "Spring Test Workspace",
+                "appsmith-spring-test.com",
+                "appsmith.com",
+                "spring-test-workspace",
+                Set.of(
+                        manageWorkspaceAppPolicy,
+                        manageWorkspacePolicy,
+                        readWorkspacePolicy,
+                        inviteUserWorkspacePolicy,
+                        exportWorkspaceAppPolicy)
+            },
+            {
+                "Another Test Workspace",
+                "appsmith-another-test.com",
+                "appsmith.com",
+                "another-test-workspace",
+                Set.of(
+                        manageWorkspaceAppPolicy,
+                        manageWorkspacePolicy,
+                        readWorkspacePolicy,
+                        inviteUserWorkspacePolicy,
+                        exportWorkspaceAppPolicy)
+            }
         };
 
         Object[][] appData = {
-                {"LayoutServiceTest TestApplications", Set.of(manageAppPolicy, readAppPolicy)},
-                {"TestApplications", Set.of(manageAppPolicy, readAppPolicy)},
-                {"Another TestApplications", Set.of(manageAppPolicy, readAppPolicy)}
+            {"LayoutServiceTest TestApplications", Set.of(manageAppPolicy, readAppPolicy)},
+            {"TestApplications", Set.of(manageAppPolicy, readAppPolicy)},
+            {"Another TestApplications", Set.of(manageAppPolicy, readAppPolicy)}
         };
-        Object[][] pageData = {
-                {"validPageName", Set.of(managePagePolicy, readPagePolicy)}
-        };
+        Object[][] pageData = {{"validPageName", Set.of(managePagePolicy, readPagePolicy)}};
         Object[][] pluginData = {
-                {"Installed Plugin Name", PluginType.API, "installed-plugin"},
-                {"Installed DB Plugin Name", PluginType.DB, "installed-db-plugin"},
-                {"Installed JS Plugin Name", PluginType.JS, "installed-js-plugin"},
-                {"Not Installed Plugin Name", PluginType.API, "not-installed-plugin"}
+            {"Installed Plugin Name", PluginType.API, "installed-plugin"},
+            {"Installed DB Plugin Name", PluginType.DB, "installed-db-plugin"},
+            {"Installed JS Plugin Name", PluginType.JS, "installed-js-plugin"},
+            {"Not Installed Plugin Name", PluginType.API, "not-installed-plugin"}
         };
 
         // Seed the plugin data into the DB
@@ -174,7 +228,8 @@ public class SeedMongoData {
                     plugin.setPackageName((String) array[2]);
                     log.debug("Create plugin: {}", plugin);
                     return plugin;
-                }).flatMap(pluginRepository::save)
+                })
+                .flatMap(pluginRepository::save)
                 .cache();
 
         Tenant defaultTenant = new Tenant();
@@ -182,7 +237,8 @@ public class SeedMongoData {
         defaultTenant.setSlug("default");
         defaultTenant.setPricingPlan(PricingPlan.FREE);
 
-        Mono<String> defaultTenantId = tenantRepository.findBySlug("default")
+        Mono<String> defaultTenantId = tenantRepository
+                .findBySlug("default")
                 .switchIfEmpty(tenantRepository.save(defaultTenant))
                 .map(Tenant::getId)
                 .cache();
@@ -202,34 +258,35 @@ public class SeedMongoData {
                     permissionGroupUser.setPermissions(Set.of(new Permission(user.getId(), MANAGE_USERS)));
                     permissionGroupUser.setName(user.getId() + "User Name");
                     permissionGroupUser.setAssignedToUserIds(Set.of(user.getId()));
-                    return permissionGroupRepository.save(permissionGroupUser)
-                            .flatMap(savedPermissionGroup -> {
-                                Map<String, Policy> crudUserPolicies = policyUtils.generatePolicyFromPermissionGroupForObject(savedPermissionGroup,
-                                        user.getId());
+                    return permissionGroupRepository.save(permissionGroupUser).flatMap(savedPermissionGroup -> {
+                        Map<String, Policy> crudUserPolicies =
+                                policySolution.generatePolicyFromPermissionGroupForObject(
+                                        savedPermissionGroup, user.getId());
 
-                                User updatedWithPolicies = policyUtils.addPoliciesToExistingObject(crudUserPolicies, user);
+                        User updatedWithPolicies = policySolution.addPoliciesToExistingObject(crudUserPolicies, user);
 
-                                return userRepository.save(updatedWithPolicies);
-                            });
+                        return userRepository.save(updatedWithPolicies);
+                    });
                 })
                 .collectList()
                 .zipWith(defaultTenantId)
                 .flatMapMany(tuple -> {
                     List<User> users = tuple.getT1();
                     String tenantId = tuple.getT2();
-                    return Flux.fromIterable(users)
-                            .map(user -> {
-                                user.setTenantId(tenantId);
-                                log.debug("Creating user: {}", user);
-                                return user;
-                            });
+                    return Flux.fromIterable(users).map(user -> {
+                        user.setTenantId(tenantId);
+                        log.debug("Creating user: {}", user);
+                        return user;
+                    });
                 })
                 .flatMap(userRepository::save)
                 .cache();
 
         // Seed the workspace data into the DB
         Flux<Workspace> workspaceFlux = mongoTemplate
-                .find(new Query().addCriteria(where("name").in(pluginData[0][0], pluginData[1][0], pluginData[2][0])), Plugin.class)
+                .find(
+                        new Query().addCriteria(where("name").in(pluginData[0][0], pluginData[1][0], pluginData[2][0])),
+                        Plugin.class)
                 .map(plugin -> new WorkspacePlugin(plugin.getId(), WorkspacePluginStatus.FREE))
                 .collect(Collectors.toSet())
                 .cache()
@@ -261,39 +318,38 @@ public class SeedMongoData {
                 })
                 .flatMap(workspaceRepository::save);
 
-        Flux<Workspace> workspaceFlux1 = workspaceRepository.deleteAll()
+        Flux<Workspace> workspaceFlux1 = workspaceRepository
+                .deleteAll()
                 .thenMany(pluginFlux)
                 .thenMany(userFlux)
                 .thenMany(workspaceFlux);
 
-        Flux<User> addUserWorkspaceFlux = workspaceFlux1
-                .flatMap(workspace -> userFlux
-                        .flatMap(user -> {
-                            log.debug("**** In the addUserWorkspaceFlux");
-                            log.debug("User: {}", user);
-                            log.debug("Workspace: {}", workspace);
-                            user.setCurrentWorkspaceId(workspace.getId());
-                            Set<String> workspaceIds = user.getWorkspaceIds();
-                            if (workspaceIds == null) {
-                                workspaceIds = new HashSet<>();
-                            }
-                            workspaceIds.add(workspace.getId());
-                            user.setWorkspaceIds(workspaceIds);
-                            log.debug("AddUserWorkspace User: {}, Workspace: {}", user, workspace);
-                            return userRepository.save(user)
-                                    .map(u -> {
-                                        log.debug("Saved the workspace to user. User: {}", u);
-                                        return u;
-                                    });
-                        })
-                );
+        Flux<User> addUserWorkspaceFlux = workspaceFlux1.flatMap(workspace -> userFlux.flatMap(user -> {
+            log.debug("**** In the addUserWorkspaceFlux");
+            log.debug("User: {}", user);
+            log.debug("Workspace: {}", workspace);
+            user.setCurrentWorkspaceId(workspace.getId());
+            Set<String> workspaceIds = user.getWorkspaceIds();
+            if (workspaceIds == null) {
+                workspaceIds = new HashSet<>();
+            }
+            workspaceIds.add(workspace.getId());
+            user.setWorkspaceIds(workspaceIds);
+            log.debug("AddUserWorkspace User: {}, Workspace: {}", user, workspace);
+            return userRepository.save(user).map(u -> {
+                log.debug("Saved the workspace to user. User: {}", u);
+                return u;
+            });
+        }));
 
         Query workspaceNameQuery = new Query(where("slug").is(workspaceData[0][3]));
-        Mono<Workspace> workspaceByNameMono = mongoTemplate.findOne(workspaceNameQuery, Workspace.class)
+        Mono<Workspace> workspaceByNameMono = mongoTemplate
+                .findOne(workspaceNameQuery, Workspace.class)
                 .switchIfEmpty(Mono.error(new Exception("Can't find workspace")));
 
         Query appNameQuery = new Query(where("name").is(appData[0][0]));
-        Mono<Application> appByNameMono = mongoTemplate.findOne(appNameQuery, Application.class)
+        Mono<Application> appByNameMono = mongoTemplate
+                .findOne(appNameQuery, Application.class)
                 .switchIfEmpty(Mono.error(new Exception("Can't find app")));
         return args -> {
             workspaceFlux1
@@ -302,7 +358,8 @@ public class SeedMongoData {
                     .then(workspaceByNameMono)
                     .map(workspace -> workspace.getId())
                     // Seed the user data into the DB
-                    .flatMapMany(workspaceId ->
+                    .flatMapMany(
+                            workspaceId ->
                                     // Seed the application data into the DB
                                     Flux.just(appData)
                                             .map(array -> {
@@ -314,7 +371,8 @@ public class SeedMongoData {
                                             })
                                             .flatMap(applicationRepository::save)
                             // Query the seed data to get the applicationId (required for page creation)
-                    ).then(appByNameMono)
+                            )
+                    .then(appByNameMono)
                     .map(application -> application.getId())
                     .flatMapMany(appId -> Flux.just(pageData)
                             // Seed the page data into the DB
@@ -325,10 +383,8 @@ public class SeedMongoData {
                                 page.setPolicies((Set<Policy>) array[1]);
                                 return page;
                             })
-                            .flatMap(pageRepository::save)
-                    )
+                            .flatMap(pageRepository::save))
                     .blockLast();
         };
-
     }
 }

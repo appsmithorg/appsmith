@@ -23,7 +23,7 @@ import { Button, Icon, Tooltip } from "design-system";
 import { importSvg } from "design-system-old";
 
 const LongArrowSVG = importSvg(
-  () => import("assets/images/long-arrow-right.svg"),
+  async () => import("assets/images/long-arrow-right.svg"),
 );
 
 const ConnectionType = styled.span`

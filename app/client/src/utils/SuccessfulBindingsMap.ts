@@ -1,4 +1,4 @@
-import type { UnEvalTreeEntity } from "entities/DataTree/dataTreeFactory";
+import type { UnEvalTreeEntity } from "entities/DataTree/dataTreeTypes";
 
 export type SuccessfulBindings = {
   [entityName: string]: UnEvalTreeEntity;

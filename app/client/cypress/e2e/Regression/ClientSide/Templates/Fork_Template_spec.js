@@ -5,9 +5,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("excludeForAirgap", "Fork a template to an workspace", () => {
   it("1. Fork a template to an workspace", () => {
-    cy.NavigateToHome();
-    cy.get(templateLocators.templatesTab).click();
-    cy.wait(1000);
+    _.templates.SwitchToTemplatesTab();
     cy.xpath(
       "//h1[text()='Customer Support Dashboard']/parent::div//button[contains(@class, 't--fork-template')]",
     )
@@ -25,24 +23,22 @@ describe("excludeForAirgap", "Fork a template to an workspace", () => {
   });
 
   it("2. Update query param on opening fork modal in template detailed view", () => {
-    cy.NavigateToHome();
-    cy.get(templateLocators.templatesTab).click();
+    _.templates.SwitchToTemplatesTab();
     cy.get(templateLocators.templateCard).first().click();
     _.agHelper.CheckForErrorToast("INTERNAL_SERVER_ERROR");
-    cy.get(templateLocators.templateViewForkButton).click();
-    cy.location().should((location) => {
-      expect(location.search).to.eq("?showForkTemplateModal=true");
-    });
+    _.agHelper.GetNClick(templateLocators.templateViewForkButton);
+    // cy.location().should((location) => {
+    //   expect(location.search).to.eq("?showForkTemplateModal=true");
+    // });
+    _.agHelper.AssertURL("?showForkTemplateModal=true");
   });
 
   it("3. Hide template fork button if user does not have a valid workspace to fork", () => {
-    _.homePage.NavigateToHome();
     // Mock user with App Viewer permission
     cy.intercept("/api/v1/applications/new", {
       fixture: "Templates/MockAppViewerUser.json",
     });
-    _.agHelper.RefreshPage();
-    _.homePage.SwitchToTemplatesTab();
+    _.templates.SwitchToTemplatesTab();
     _.agHelper.Sleep(2000);
     _.agHelper.CheckForErrorToast(
       "Internal server error while processing request",
@@ -56,7 +52,7 @@ describe("excludeForAirgap", "Fork a template to an workspace", () => {
   });
 
   it("4. Check if tooltip is working in 'Reconnect Datasources'", () => {
-    cy.NavigateToHome();
+    _.homePage.NavigateToHome();
     cy.get("body").then(($ele) => {
       if ($ele.find(reconnectDatasourceLocators.Modal).length) {
         cy.get(_.dataSources._skiptoApplicationBtn).click();

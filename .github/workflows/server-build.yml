@@ -2,8 +2,6 @@
 name: Appsmith Server Workflow
 
 on:
-  # This line enables manual triggering of this workflow.
-  workflow_dispatch:
   workflow_call:
     inputs:
       pr:
@@ -15,12 +13,10 @@ on:
         required: false
         type: string
         default: "false"
-
-
-  pull_request:
-    branches: [release, master]
-    paths:
-      - "app/server/**"
+      branch:
+        description: "This is the branch to be used for the build."
+        required: false
+        type: string
 
 # Change the working directory for all the jobs in this workflow
 defaults:
@@ -28,14 +24,8 @@ defaults:
     working-directory: app/server
 
 jobs:
-  build:
+  server-unit-tests:
     runs-on: ubuntu-latest-8-cores
-    # Only run this workflow for internally triggered events
-    if: |
-      github.event.pull_request.head.repo.full_name == github.repository ||
-      github.event_name == 'push' ||
-      github.event_name == 'workflow_dispatch' ||
-      github.event_name == 'repository_dispatch'
 
     # Service containers to run with this job. Required for running tests
     services:
@@ -60,10 +50,17 @@ jobs:
           fetch-depth: 0
           ref: refs/pull/${{ inputs.pr }}/merge
 
+      # Check out the specified branch in case this workflow is called by another workflow
+      - name: Checkout the specified branch
+        if: inputs.pr == 0 && inputs.branch != ''
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ inputs.branch }}
+  
       # Checkout the code in the current branch in case the workflow is called because of a branch push event
       - name: Check out the head commit of the branch
         uses: actions/checkout@v3
-        if: inputs.pr == 0
+        if: inputs.pr == 0 && inputs.branch == ''
         with:
           fetch-depth: 0
 
@@ -134,6 +131,7 @@ jobs:
           ACTIVE_PROFILE: test
           APPSMITH_MONGODB_URI: "mongodb://localhost:27017/mobtools"
           APPSMITH_CLOUD_SERVICES_BASE_URL: "https://release-cs.appsmith.com"
+          APPSMITH_CLOUD_SERVICES_TEMPLATE_UPLOAD_AUTH: ${{ secrets.APPSMITH_CLOUD_SERVICES_TEMPLATE_UPLOAD_AUTH }}
           APPSMITH_REDIS_URL: "redis://127.0.0.1:6379"
           APPSMITH_ENCRYPTION_PASSWORD: "password"
           APPSMITH_ENCRYPTION_SALT: "salt"

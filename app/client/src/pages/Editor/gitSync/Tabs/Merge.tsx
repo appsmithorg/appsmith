@@ -59,8 +59,6 @@ const Row = styled.div`
   align-items: center;
 `;
 
-const DEFAULT_OPTION = "--Select--";
-
 function MergeSuccessIndicator() {
   const theme = useTheme() as Theme;
 
@@ -98,10 +96,10 @@ export default function Merge() {
   const [showMergeSuccessIndicator, setShowMergeSuccessIndicator] =
     useState(false);
 
-  const [selectedBranchOption, setSelectedBranchOption] = useState({
-    label: DEFAULT_OPTION,
-    value: DEFAULT_OPTION,
-  });
+  const [selectedBranchOption, setSelectedBranchOption] = useState<{
+    label: string;
+    value: string;
+  }>();
 
   /**
    * Removes the current branch from the list
@@ -160,21 +158,21 @@ export default function Merge() {
     AnalyticsUtil.logEvent("GS_MERGE_CHANGES_BUTTON_CLICK", {
       source: "GIT_MERGE_MODAL",
     });
-    if (currentBranch && selectedBranchOption.value) {
+    if (currentBranch && selectedBranchOption?.value) {
       dispatch(
         mergeBranchInit({
           payload: {
             sourceBranch: currentBranch,
-            destinationBranch: selectedBranchOption.value,
+            destinationBranch: selectedBranchOption?.value,
           },
           onSuccessCallback: handleMergeSuccess,
         }),
       );
     }
-  }, [currentBranch, selectedBranchOption.value, dispatch]);
+  }, [currentBranch, selectedBranchOption?.value, dispatch]);
 
   useEffect(() => {
-    dispatch(fetchGitStatusInit());
+    dispatch(fetchGitStatusInit({ compareRemote: false }));
     dispatch(fetchBranchesInit());
     return () => {
       dispatch(resetMergeStatus());
@@ -183,25 +181,18 @@ export default function Merge() {
 
   useEffect(() => {
     // when user selects a branch to merge
-    if (
-      selectedBranchOption.value !== DEFAULT_OPTION &&
-      currentBranch &&
-      selectedBranchOption.value
-    ) {
+    if (currentBranch && selectedBranchOption?.value) {
       dispatch(
         fetchMergeStatusInit({
           sourceBranch: currentBranch,
-          destinationBranch: selectedBranchOption.value,
+          destinationBranch: selectedBranchOption?.value,
         }),
       );
       setShowMergeSuccessIndicator(false);
     }
-  }, [currentBranch, selectedBranchOption.value, dispatch]);
+  }, [currentBranch, selectedBranchOption?.value, dispatch]);
 
-  const mergeBtnDisabled =
-    DEFAULT_OPTION === selectedBranchOption.value ||
-    isFetchingMergeStatus ||
-    !isMergeAble;
+  const mergeBtnDisabled = isFetchingMergeStatus || !isMergeAble;
 
   let status = MERGE_STATUS_STATE.NONE;
   if (isFetchingGitStatus) {
@@ -229,7 +220,9 @@ export default function Merge() {
   return (
     <>
       <ModalBody>
-        <Container style={{ overflow: "unset", paddingBottom: "4px" }}>
+        <Container
+          style={{ minHeight: 360, overflow: "unset", paddingBottom: "4px" }}
+        >
           <Text color={"var(--ads-v2-color-fg-emphasis)"} kind="heading-s">
             {createMessage(SELECT_BRANCH_TO_MERGE)}
           </Text>
@@ -297,7 +290,7 @@ export default function Merge() {
           ) : null}
         </Container>
       </ModalBody>
-      <ModalFooter>
+      <ModalFooter style={{ minHeight: 52 }}>
         {!showMergeSuccessIndicator && showMergeButton ? (
           <Button
             className="t--git-merge-button"

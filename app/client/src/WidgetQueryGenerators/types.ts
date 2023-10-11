@@ -1,3 +1,15 @@
+import type { AlertMessage } from "components/editorComponents/WidgetQueryGeneratorForm/types";
+
+type Column = {
+  name: string;
+  type: string;
+  isSelected: boolean;
+};
+
+type GsheetConfig = {
+  sheetName?: string;
+  tableHeaderIndex?: number;
+};
 export type WidgetQueryGenerationFormConfig = {
   tableName: string;
   datasourceId: string;
@@ -7,26 +19,30 @@ export type WidgetQueryGenerationFormConfig = {
   }[];
   widgetId: string;
   searchableColumn: string;
-  columns: string[];
+  columns: Column[];
   primaryColumn: string;
-};
+  connectionMode: string;
+  otherFields?: Record<string, unknown>;
+  alertMessage?: AlertMessage;
+  dataIdentifier?: string;
+} & GsheetConfig;
 
 export type WidgetQueryGenerationConfig = {
   select?: {
-    limit: string;
-    offset: string;
-    where: string;
-    orderBy: string;
-    sortOrder: string;
+    limit?: string;
+    offset?: string;
+    where?: string;
+    orderBy?: string;
+    sortOrder?: string;
   };
   create?: {
     value: string;
   };
   update?: {
     value: string;
-    where: string;
+    where?: string;
   };
-  totalRecord: boolean;
+  totalRecord?: boolean;
 };
 
 export enum QUERY_TYPE {
@@ -56,6 +72,20 @@ export type ActionConfigurationMongoDB = {
   formData: MongoDBFormData;
 };
 
-export type ActionConfigurationPostgreSQL = {
+export type ActionConfigurationSQL = {
   pluginSpecifiedTemplates: Array<object>;
+};
+
+export type GSheetsFormData = {
+  entityType: object;
+  tableHeaderIndex: object;
+  projection: object;
+  queryFormat: object;
+  range: object;
+  where: object;
+  pagination: object;
+  smartSubstitution: object;
+};
+export type ActionConfigurationGSheets = {
+  formData: GSheetsFormData;
 };

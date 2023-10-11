@@ -6,8 +6,8 @@ import {
   ReduxActionTypes,
   WidgetReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import WidgetFactory from "utils/WidgetFactory";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import WidgetFactory from "WidgetProvider/factory";
+import { ENTITY_TYPE_VALUE } from "entities/DataTree/dataTreeFactory";
 import { toggleShowDeviationDialog } from "actions/onboardingActions";
 import { inGuidedTour } from "selectors/onboardingSelectors";
 import type { TreeDropdownOption } from "pages/Editor/Explorer/ContextMenu";
@@ -64,7 +64,7 @@ export function WidgetContextMenu(props: {
       payload: {
         entityId: widgetId,
         entityName: widgetName,
-        entityType: ENTITY_TYPE.WIDGET,
+        entityType: ENTITY_TYPE_VALUE.WIDGET,
         show: true,
       },
     });

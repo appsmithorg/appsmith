@@ -18,5 +18,4 @@ public class InvisibleActionFields {
 
     Boolean unpublishedUserSetOnLoad;
     Boolean publishedUserSetOnLoad;
-
 }

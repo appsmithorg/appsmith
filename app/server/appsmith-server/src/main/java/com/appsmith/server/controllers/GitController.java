@@ -15,5 +15,4 @@ public class GitController extends GitControllerCE {
     public GitController(GitService service) {
         super(service);
     }
-
 }

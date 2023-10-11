@@ -18,5 +18,4 @@ public class CustomAccessTokenResponseClient extends WebClientReactiveAuthorizat
         setWebClient(webClient);
         return super.getTokenResponse(grantRequest);
     }
-
 }

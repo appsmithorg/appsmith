@@ -33,6 +33,10 @@ export const JsonWrapper = styled.div`
     }
   }
 
+  .pretty-json-container {
+    font-family: ${(props) => props.theme.fonts.code};
+  }
+
   // collapse icon color change and alignment
   .icon-container {
     width: 10px !important;

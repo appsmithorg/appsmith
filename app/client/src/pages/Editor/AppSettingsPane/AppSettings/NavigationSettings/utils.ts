@@ -65,8 +65,8 @@ export const logoImageValidation = (
   // case 1: no file selected
   if (!file) return false;
 
-  // case 2: file size > 2mb
-  if (file.size > 2 * 1024 * 1024) {
+  // case 2: file size > 1mb
+  if (file.size > 1 * 1024 * 1024) {
     toast.show(createMessage(APP_NAVIGATION_SETTING.logoUploadSizeError), {
       kind: "error",
     });

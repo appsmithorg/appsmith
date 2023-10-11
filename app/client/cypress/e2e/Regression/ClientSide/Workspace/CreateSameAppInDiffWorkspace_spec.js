@@ -2,6 +2,8 @@
 import homePage from "../../../../locators/HomePage";
 import { REPO, CURRENT_REPO } from "../../../../fixtures/REPO";
 const application = require("../../../../locators/Applications.json");
+import * as _ from "../../../../support/Objects/ObjectsCore";
+import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
 describe("Create app same name in different workspace", function () {
   let workspaceId;
@@ -9,7 +11,7 @@ describe("Create app same name in different workspace", function () {
   let newWorkspaceName;
   before(() => {
     //create app within a new workspace
-    cy.NavigateToHome();
+    _.homePage.NavigateToHome();
     cy.generateUUID().then((uid) => {
       workspaceId = uid;
       appid = uid;
@@ -17,9 +19,9 @@ describe("Create app same name in different workspace", function () {
       cy.createWorkspace();
       cy.wait("@createWorkspace").then((interception) => {
         newWorkspaceName = interception.response.body.data.name;
-        cy.renameWorkspace(newWorkspaceName, workspaceId);
+        _.homePage.RenameWorkspace(newWorkspaceName, workspaceId);
         cy.CreateAppForWorkspace(workspaceId, appid);
-        cy.NavigateToHome();
+        _.homePage.NavigateToHome();
         cy.LogOut();
       });
     });
@@ -31,6 +33,8 @@ describe("Create app same name in different workspace", function () {
       "response.body.responseMeta.status",
       200,
     );
+    featureFlagIntercept({ license_gac_enabled: true });
+    cy.wait(2000);
     const newWSName = workspaceId + "1";
     //Automated as part of Bug19506
     cy.get(".t--applications-container")
@@ -47,12 +51,12 @@ describe("Create app same name in different workspace", function () {
       cy.xpath(application.placeholderTxtEE).should("be.visible");
     }
     cy.get(application.closeModalPopup).click({ force: true });
-    cy.NavigateToHome();
+    _.homePage.NavigateToHome();
     cy.createWorkspace();
     cy.wait("@createWorkspace").then((interception) => {
       console.log("createWorkspace response: ", interception);
       newWorkspaceName = interception.response.body.data.name;
-      cy.renameWorkspace(newWorkspaceName, newWSName);
+      _.homePage.RenameWorkspace(newWorkspaceName, newWSName);
       cy.CreateAppForWorkspace(newWSName, appid);
     });
   });
