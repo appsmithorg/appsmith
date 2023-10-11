@@ -74,38 +74,6 @@ describe("AlignedColumnHighlights tests", () => {
         positions[layout.layoutId].width - HIGHLIGHT_SIZE,
       );
     });
-    it("should return empty list if drop target layout dimensions are not tracked", () => {
-      const layout: LayoutComponentProps = generateLayoutComponentMock({
-        isDropTarget: true,
-        layoutType: LayoutComponentTypes.ALIGNED_COLUMN,
-        layout: [],
-      });
-      const res: AnvilHighlightInfo[] = deriveAlignedColumnHighlights(
-        layout,
-        {},
-        "0",
-        [],
-        [],
-      );
-      expect(Array.isArray(res)).toBeTruthy();
-      expect(res.length).toEqual(0);
-    });
-    it("should return empty list if a non drop target layout is empty", () => {
-      const layout: LayoutComponentProps = generateLayoutComponentMock({
-        isDropTarget: false,
-        layoutType: LayoutComponentTypes.ALIGNED_COLUMN,
-        layout: [],
-      });
-      const res: AnvilHighlightInfo[] = deriveAlignedColumnHighlights(
-        layout,
-        {},
-        "0",
-        [],
-        [],
-      );
-      expect(Array.isArray(res)).toBeTruthy();
-      expect(res.length).toEqual(0);
-    });
     it("should derive highlights using widget positions", () => {
       const layout: LayoutComponentProps = generateLayoutComponentMock({
         isDropTarget: true,

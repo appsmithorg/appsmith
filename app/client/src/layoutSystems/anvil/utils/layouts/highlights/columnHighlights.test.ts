@@ -13,29 +13,13 @@ import {
   FlexLayerAlignment,
   ResponsiveBehavior,
 } from "layoutSystems/common/utils/constants";
-import {
-  deriveColumnHighlights,
-  getHighlightsForWidgetsColumn,
-  getInitialHighlight,
-} from "./columnHighlights";
+import { deriveColumnHighlights } from "./columnHighlights";
 
 describe("columnHighlights", () => {
-  const baseHighlight: AnvilHighlightInfo = {
-    alignment: FlexLayerAlignment.Start,
-    canvasId: "0",
-    dropZone: {},
-    height: HIGHLIGHT_SIZE,
-    isVertical: false,
-    layoutOrder: [],
-    posX: HIGHLIGHT_SIZE / 2,
-    posY: HIGHLIGHT_SIZE / 2,
-    rowIndex: 0,
-    width: 0,
-  };
   beforeAll(() => {
     registerLayoutComponents();
   });
-  describe("getHighlightsForWidgetsColumn", () => {
+  describe("widget highlights", () => {
     const draggedWidgets: DraggedWidget[] = [
       {
         widgetId: "1",
@@ -54,11 +38,12 @@ describe("columnHighlights", () => {
         [buttonId]: { height: 40, left: 10, top: 10, width: 120 },
         [inputId]: { height: 70, left: 10, top: 60, width: 290 },
       };
-      const res: AnvilHighlightInfo[] = getHighlightsForWidgetsColumn(
+      const res: AnvilHighlightInfo[] = deriveColumnHighlights(
         layout,
         positions,
-        baseHighlight,
+        "0",
         draggedWidgets,
+        [],
       );
       expect(res.length).toEqual(3);
       // highlights should be horizontal.
@@ -90,10 +75,10 @@ describe("columnHighlights", () => {
         [buttonId]: { height: 40, left: 10, top: 10, width: 120 },
         [inputId]: { height: 70, left: 10, top: 60, width: 290 },
       };
-      const res: AnvilHighlightInfo[] = getHighlightsForWidgetsColumn(
+      const res: AnvilHighlightInfo[] = deriveColumnHighlights(
         layout,
         positions,
-        baseHighlight,
+        "0",
         [
           ...draggedWidgets,
           {
@@ -102,6 +87,7 @@ describe("columnHighlights", () => {
             responsiveBehavior: ResponsiveBehavior.Hug,
           },
         ],
+        [],
       );
 
       // One highlight is discounted on account of child button widget being dragged.
@@ -126,11 +112,12 @@ describe("columnHighlights", () => {
         [buttonId]: { height: 40, left: 10, top: 10, width: 120 },
         [inputId]: { height: 70, left: 10, top: 60, width: 290 },
       };
-      const res: AnvilHighlightInfo[] = getHighlightsForWidgetsColumn(
+      const res: AnvilHighlightInfo[] = deriveColumnHighlights(
         layout,
         positions,
-        baseHighlight,
+        "0",
         draggedWidgets,
+        [],
       );
 
       /**
@@ -168,7 +155,7 @@ describe("columnHighlights", () => {
       );
     });
   });
-  describe("getInitialHighlight", () => {
+  describe("initial highlights", () => {
     it("should return a highlight with the correct dimensions", () => {
       const layout: LayoutComponentProps = generateLayoutComponentMock({
         isDropTarget: true,
@@ -178,17 +165,19 @@ describe("columnHighlights", () => {
       const positions: WidgetPositions = {
         [layout.layoutId]: { height: 400, left: 0, top: 0, width: 300 },
       };
-      const res: AnvilHighlightInfo | undefined = getInitialHighlight(
+      const res: AnvilHighlightInfo[] = deriveColumnHighlights(
         layout,
         positions,
-        baseHighlight,
+        "0",
+        [],
+        [],
       );
-      expect(res).toBeDefined();
-      expect(res?.width).toEqual(
+
+      expect(res[0].width).toEqual(
         positions[layout.layoutId].width - HIGHLIGHT_SIZE,
       );
-      expect(res?.alignment).toEqual(FlexLayerAlignment.Start);
-      expect(res?.posY).toEqual(HIGHLIGHT_SIZE / 2);
+      expect(res[0].alignment).toEqual(FlexLayerAlignment.Start);
+      expect(res[0].posY).toEqual(HIGHLIGHT_SIZE / 2);
     });
     it("should return a highlight with the correct dimensions for a center aligned empty drop target column", () => {
       const layout: LayoutComponentProps = generateLayoutComponentMock({
@@ -202,16 +191,18 @@ describe("columnHighlights", () => {
       const positions: WidgetPositions = {
         [layout.layoutId]: { height: 400, left: 0, top: 0, width: 300 },
       };
-      const res: AnvilHighlightInfo | undefined = getInitialHighlight(
+      const res: AnvilHighlightInfo[] = deriveColumnHighlights(
         layout,
         positions,
-        baseHighlight,
+        "0",
+        [],
+        [],
       );
       expect(res).toBeDefined();
-      expect(res?.width).toEqual(
+      expect(res[0].width).toEqual(
         positions[layout.layoutId].width - HIGHLIGHT_SIZE,
       );
-      expect(res?.posY).toEqual(
+      expect(res[0].posY).toEqual(
         (positions[layout.layoutId].height - HIGHLIGHT_SIZE) / 2,
       );
     });
@@ -227,21 +218,23 @@ describe("columnHighlights", () => {
       const positions: WidgetPositions = {
         [layout.layoutId]: { height: 400, left: 0, top: 0, width: 300 },
       };
-      const res: AnvilHighlightInfo | undefined = getInitialHighlight(
+      const res: AnvilHighlightInfo[] = deriveColumnHighlights(
         layout,
         positions,
-        baseHighlight,
+        "0",
+        [],
+        [],
       );
-      expect(res).toBeDefined();
-      expect(res?.width).toEqual(
+
+      expect(res[0].width).toEqual(
         positions[layout.layoutId].width - HIGHLIGHT_SIZE,
       );
-      expect(res?.posY).toEqual(
+      expect(res[0].posY).toEqual(
         positions[layout.layoutId].height - HIGHLIGHT_SIZE / 2,
       );
     });
   });
-  describe("deriveColumnHighlights", () => {
+  describe("layout highlights", () => {
     it("1. should combine highlights of child layouts in the final output", () => {
       /**
        * Create 2 rows with two widgets in each of them.

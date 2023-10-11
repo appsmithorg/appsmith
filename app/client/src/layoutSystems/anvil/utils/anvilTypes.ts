@@ -107,3 +107,42 @@ export interface DraggedWidget {
   type: WidgetType;
   responsiveBehavior: ResponsiveBehavior;
 }
+
+export type GenerateHighlights = (
+  baseHighlight: AnvilHighlightInfo,
+  layoutDimension: PositionData,
+  currentDimension: PositionData,
+  prevDimension: PositionData | undefined,
+  nextDimension: PositionData | undefined,
+  rowIndex: number,
+  isLastHighlight: boolean,
+  hasFillWidget?: boolean,
+) => AnvilHighlightInfo[];
+
+export type GetInitialHighlights = (
+  layoutProps: LayoutProps,
+  widgetPositions: WidgetPositions,
+  baseHighlight: AnvilHighlightInfo,
+  generateHighlights: GenerateHighlights,
+  hasFillWidget?: boolean,
+) => AnvilHighlightInfo[];
+
+export type GetWidgetHighlights = (
+  layoutProps: LayoutProps,
+  widgetPositions: WidgetPositions,
+  baseHighlight: AnvilHighlightInfo,
+  draggedWidgets: DraggedWidget[],
+  generateHighlights: GenerateHighlights,
+  hasFillWidget?: boolean,
+) => AnvilHighlightInfo[];
+
+export type GetLayoutHighlights = (
+  layoutProps: LayoutProps,
+  widgetPositions: WidgetPositions,
+  baseHighlight: AnvilHighlightInfo,
+  draggedWidgets: DraggedWidget[],
+  canvasId: string,
+  layoutOrder: string[],
+  generateHighlights: GenerateHighlights,
+  hasFillWidget?: boolean,
+) => AnvilHighlightInfo[];

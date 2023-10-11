@@ -15,6 +15,7 @@ import {
   getFinalHorizontalDropZone,
   getHorizontalDropZone,
 } from "./dropZoneUtils";
+import { getStartPosition } from "./highlightUtils";
 
 export interface RowMetaInformation {
   metaData: RowMetaData[][];
@@ -259,20 +260,6 @@ export function extractMetaInformation(
 
 export function checkIntersection(a: number[], b: number[]): boolean {
   return a[0] < b[1] && b[0] < a[1];
-}
-
-export function getStartPosition(
-  alignment: FlexLayerAlignment,
-  width: number,
-): number {
-  switch (alignment) {
-    case FlexLayerAlignment.Center:
-      return (width - HIGHLIGHT_SIZE) / 2;
-    case FlexLayerAlignment.End:
-      return width - HIGHLIGHT_SIZE / 2;
-    default:
-      return HIGHLIGHT_SIZE / 2;
-  }
 }
 
 /**
