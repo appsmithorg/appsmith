@@ -297,7 +297,6 @@ export class DataSources {
     `${this._dsPageTabContainerTableName(tableName)} .t--template-menu-trigger`;
   _gSheetQueryPlaceholder = ".CodeMirror-placeholder";
 
-
   public AssertDSEditViewMode(mode: "Edit" | "View") {
     if (mode == "Edit") this.agHelper.AssertElementAbsence(this._editButton);
     else if (mode == "View") this.agHelper.AssertElementExist(this._editButton);
