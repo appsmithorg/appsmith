@@ -140,13 +140,13 @@ function PageTabContainer({
   return <div ref={tabContainerRef}>{children}</div>;
 }
 
-type Props = {
+interface Props {
   appPages: Page[];
   currentApplicationDetails?: ApplicationPayload;
   measuredTabsRef: (ref: HTMLElement | null) => void;
   tabsScrollable: boolean;
   setShowScrollArrows: () => void;
-};
+}
 
 export function PageTabs(props: Props) {
   const { appPages, currentApplicationDetails } = props;

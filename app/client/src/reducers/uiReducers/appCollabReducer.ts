@@ -62,14 +62,14 @@ const appCollabReducer = createReducer(initialState, {
   }),
 });
 
-type PointerDataType = {
+interface PointerDataType {
   [s: string]: any;
-};
+}
 
-export type AppCollabReducerState = {
+export interface AppCollabReducerState {
   editors: User[];
   pointerData: PointerDataType;
   pageEditors: User[];
-};
+}
 
 export default appCollabReducer;

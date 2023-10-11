@@ -41,7 +41,7 @@ const renderComponent = (
   );
 };
 
-export type FormTextFieldProps = {
+export interface FormTextFieldProps {
   name: string;
   placeholder: string;
   description?: string;
@@ -52,7 +52,7 @@ export type FormTextFieldProps = {
   autoFocus?: boolean;
   hideErrorMessage?: boolean;
   isRequired?: boolean;
-};
+}
 
 function ReduxFormTextField(props: FormTextFieldProps) {
   return <Field component={renderComponent} {...props} asyncControl />;

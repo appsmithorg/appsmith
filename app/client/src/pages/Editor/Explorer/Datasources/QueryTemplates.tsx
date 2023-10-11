@@ -32,13 +32,13 @@ import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
 import { SUGGESTED_TAG, createMessage } from "@appsmith/constants/messages";
 import { transformTextToSentenceCase } from "pages/Editor/utils";
 
-type QueryTemplatesProps = {
+interface QueryTemplatesProps {
   templates: QueryTemplate[];
   datasourceId: string;
   onSelect: () => void;
   context: DatasourceStructureContext;
   currentActionId: string;
-};
+}
 
 enum QueryTemplatesEvent {
   EXPLORER_TEMPLATE = "explorer-template",

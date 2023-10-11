@@ -48,7 +48,7 @@ const JSObjectNameWrapper = styled.div<{ page?: string }>`
       : null}
 `;
 
-type JSObjectNameEditorProps = {
+interface JSObjectNameEditorProps {
   /*
     This prop checks if page is API Pane or Query Pane or Curl Pane
     So, that we can toggle between ads editable-text component and existing editable-text component
@@ -57,7 +57,7 @@ type JSObjectNameEditorProps = {
   */
   page?: string;
   disabled?: boolean;
-};
+}
 
 const IconContainer = styled.div`
   height: 34px;

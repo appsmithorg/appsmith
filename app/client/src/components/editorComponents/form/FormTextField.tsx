@@ -21,7 +21,7 @@ const renderComponent = (
   );
 };
 
-type FormTextFieldProps = {
+interface FormTextFieldProps {
   name: string;
   placeholder: string;
   type?: InputType;
@@ -29,7 +29,7 @@ type FormTextFieldProps = {
   intent?: Intent;
   disabled?: boolean;
   autoFocus?: boolean;
-};
+}
 
 // trigger tests
 function FormTextField(props: FormTextFieldProps) {

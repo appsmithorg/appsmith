@@ -14,14 +14,14 @@ import type {
 } from "@appsmith/constants/ReduxActionConstants";
 import { isNil } from "lodash";
 
-export type URLBuilderParams = {
+export interface URLBuilderParams {
   suffix?: string;
   branch?: string;
   hash?: string;
   params?: Record<string, any>;
   pageId: string;
   persistExistingParams?: boolean;
-};
+}
 
 export const fillPathname = (
   pathname: string,

@@ -24,19 +24,19 @@ export type FieldRef = Ref<HTMLDivElement>;
 const _Field = (props: FieldProps, ref: FieldRef) => {
   const {
     children,
+    contextualHelp,
+    description,
+    descriptionProps,
     elementType,
     errorMessage,
     errorMessageProps = {},
+    fieldType = "field",
     isDisabled = false,
     label,
     labelProps,
     validationState,
     wrapperClassName,
-    description,
-    descriptionProps,
     wrapperProps = {},
-    contextualHelp,
-    fieldType = "field",
   } = props;
   const hasHelpText =
     Boolean(description) ||
