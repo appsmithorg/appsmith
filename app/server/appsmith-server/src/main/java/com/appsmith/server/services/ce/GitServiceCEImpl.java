@@ -60,6 +60,7 @@ import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.ImportExportApplicationService;
+import com.appsmith.server.solutions.WorkspacePermission;
 import io.micrometer.observation.ObservationRegistry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -142,6 +143,7 @@ public class GitServiceCEImpl implements GitServiceCE {
     private final PluginService pluginService;
     private final DatasourcePermission datasourcePermission;
     private final ApplicationPermission applicationPermission;
+    private final WorkspacePermission workspacePermission;
     private final WorkspaceService workspaceService;
     private final RedisUtils redisUtils;
     private final ObservationRegistry observationRegistry;
@@ -742,7 +744,14 @@ public class GitServiceCEImpl implements GitServiceCE {
                 GitUtils.isRepoPrivate(browserSupportedUrl).cache();
 
         Mono<Application> connectApplicationMono = profileMono
-                .then(getApplicationById(defaultApplicationId).zipWith(isPrivateRepoMono))
+                .then(getApplicationById(defaultApplicationId))
+                .flatMap(application ->
+                        // Check if the user has permission to create app on the workspace, if yes then proceed
+                        getWorkspaceById(
+                                        application.getWorkspaceId(),
+                                        workspacePermission.getApplicationCreatePermission())
+                                .thenReturn(application))
+                .zipWith(isPrivateRepoMono)
                 .flatMap(tuple -> {
                     Application application = tuple.getT1();
                     boolean isRepoPrivate = tuple.getT2();
@@ -1159,6 +1168,9 @@ public class GitServiceCEImpl implements GitServiceCE {
     public Mono<Application> detachRemote(String defaultApplicationId) {
 
         Mono<Application> disconnectMono = getApplicationById(defaultApplicationId)
+                .flatMap(application -> getWorkspaceById(
+                                application.getWorkspaceId(), workspacePermission.getApplicationCreatePermission())
+                        .thenReturn(application))
                 .flatMap(defaultApplication -> {
                     if (Optional.ofNullable(defaultApplication.getGitApplicationMetadata())
                                     .isEmpty()
@@ -1578,6 +1590,14 @@ public class GitServiceCEImpl implements GitServiceCE {
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, applicationId)));
     }
+
+    protected Mono<Workspace> getWorkspaceById(String workspaceId, AclPermission aclPermission) {
+        return workspaceService
+                .findById(workspaceId, aclPermission)
+                .switchIfEmpty(Mono.error(
+                        new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE_ID, workspaceId)));
+    }
+
     /**
      * Method to pull application json files from remote repo, make a commit with the changes present in local DB and
      * make a system commit to remote repo
