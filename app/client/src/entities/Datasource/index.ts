@@ -54,6 +54,7 @@ export interface DatasourceAuthentication {
   authenticationType?: string;
   secretExists?: Record<string, boolean>;
   isAuthorized?: boolean;
+  scopeString?: string;
 }
 
 export interface DatasourceColumns {

@@ -30,7 +30,7 @@ export type CreateWorkspaceFormValues = {
   name: string;
 };
 
-export const createWorkspaceSubmitHandler = (
+export const createWorkspaceSubmitHandler = async (
   values: CreateWorkspaceFormValues,
   dispatch: any,
 ): Promise<any> => {
@@ -48,7 +48,7 @@ export const createWorkspaceSubmitHandler = (
   });
 };
 
-export const inviteUsersToWorkspaceSubmitHandler = (
+export const inviteUsersToWorkspaceSubmitHandler = async (
   values: InviteUsersToWorkspaceFormValues,
   dispatch: any,
 ): Promise<any> => {
@@ -70,7 +70,7 @@ export const inviteUsersToWorkspaceSubmitHandler = (
   });
 };
 
-export const inviteUsersToWorkspace = (
+export const inviteUsersToWorkspace = async (
   values: any,
   dispatch: any,
 ): Promise<any> => {

@@ -9,7 +9,7 @@ import AutoToolTipComponent from "./AutoToolTipComponent";
 import { importSvg } from "design-system-old";
 
 const EditIcon = importSvg(
-  () => import("assets/icons/control/edit-variant1.svg"),
+  async () => import("assets/icons/control/edit-variant1.svg"),
 );
 
 const Wrapper = styled.div<{

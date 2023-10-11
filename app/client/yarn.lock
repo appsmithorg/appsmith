@@ -2321,7 +2321,6 @@ __metadata:
     postcss-at-rules-variables: "*"
     postcss-conditionals: "*"
     postcss-each: "*"
-    postcss-for: "*"
     postcss-import: "*"
     postcss-loader: "*"
     postcss-modules-values: "*"
@@ -10406,7 +10405,6 @@ __metadata:
     postcss-at-rules-variables: ^0.3.0
     postcss-conditionals: ^2.1.0
     postcss-each: ^1.1.0
-    postcss-for: ^2.1.1
     postcss-import: ^15.1.0
     postcss-modules-values: ^4.0.0
     postcss-nesting: ^12.0.1
@@ -23986,16 +23984,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"postcss-for@npm:*, postcss-for@npm:^2.1.1":
-  version: 2.1.1
-  resolution: "postcss-for@npm:2.1.1"
-  dependencies:
-    postcss: ^5.0.0
-    postcss-simple-vars: ^2.0.0
-  checksum: aee8da42f7fdd8f15a835fb1d817a5c833d58149c7a76efcee31de2f727bcd615bd03627b96822cd6d6e5171fde2e798ef23b2cafb36047eb097fefcda661e61
-  languageName: node
-  linkType: hard
-
 "postcss-gap-properties@npm:^3.0.3":
   version: 3.0.3
   resolution: "postcss-gap-properties@npm:3.0.3"
@@ -24779,15 +24767,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"postcss-simple-vars@npm:^2.0.0":
-  version: 2.0.0
-  resolution: "postcss-simple-vars@npm:2.0.0"
-  dependencies:
-    postcss: ^5.0.21
-  checksum: 9d70600d7fc0b810453761ff6136ab1b66bbb03e807eb1b129dd1b1366f595766c358b66afb3c35bc1f574d9e5c5d21a10c18f5e569cc85489b4ce053c2b1dbe
-  languageName: node
-  linkType: hard
-
 "postcss-simple-vars@npm:^6.0.0":
   version: 6.0.3
   resolution: "postcss-simple-vars@npm:6.0.3"
@@ -24875,7 +24854,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"postcss@npm:^5.0.0, postcss@npm:^5.0.21, postcss@npm:^5.0.4":
+"postcss@npm:^5.0.4":
   version: 5.2.18
   resolution: "postcss@npm:5.2.18"
   dependencies:
