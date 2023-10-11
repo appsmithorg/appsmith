@@ -65,7 +65,7 @@ jobs:
     needs: [ build-docker-image ]
     # Only run if the build step is successful
     if: success()
-    name: perf-test
+    name: perf-test-v2
     uses: ./.github/workflows/perf-test-v2.yml
     secrets: inherit
     with:
