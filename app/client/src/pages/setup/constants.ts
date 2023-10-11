@@ -49,15 +49,40 @@ export const useCaseOptions: OptionType[] = [
   },
 ];
 
-export const proficiencyOptions = [
+type OptionTypeWithSubtext = OptionType & {
+  subtext?: string;
+};
+
+export const proficiencyOptions: OptionTypeWithSubtext[] = [
   {
-    label: "Just dipping my toes 🌱 (Brand new to this)",
-    value: "Beginner",
+    label: "Brand New",
+    subtext: "Just dipping my toes 🌱 (Brand new to this)",
+    value: "Brand New",
   },
-  { label: "Novice (Limited to no experience)", value: "Novice" },
-  { label: "Intermediate (Some coding adventures)", value: "Intermediate" },
   {
-    label: "Advanced (Comfortable with programming quests)",
+    label: "Novice",
+    subtext: "Novice (Limited to no experience)",
+    value: "Novice",
+  },
+  {
+    label: "Intermediate",
+    subtext: "Intermediate (Some coding adventures)",
+    value: "Intermediate",
+  },
+  {
+    label: "Advanced",
+    subtext: "Advanced (Comfortable with programming quests)",
     value: "Advanced",
+  },
+];
+
+export const useCaseOptionsForNonSuperUser: OptionTypeWithSubtext[] = [
+  {
+    label: "Work Project",
+    value: "work project",
+  },
+  {
+    label: "Personal Project",
+    value: "personal project",
   },
 ];

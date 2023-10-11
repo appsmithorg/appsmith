@@ -1,7 +1,7 @@
 import { ObjectsRegistry } from "../Objects/Registry";
 import { REPO, CURRENT_REPO } from "../../fixtures/REPO";
 import HomePageLocators from "../../locators/HomePage";
-import SignupPageLocators from "../../locators/SignupPage";
+import SignupPageLocators from "../../locators/SignupPage.json";
 export class HomePage {
   private agHelper = ObjectsRegistry.AggregateHelper;
   private locator = ObjectsRegistry.CommonLocators;
@@ -115,10 +115,6 @@ export class HomePage {
   _modeSwitchToggle = ".t--comment-mode-switch-toggle";
   _importFromGitBtn = "div.t--import-json-card + div";
   private signupUsername = "input[name='email']";
-  private roleDropdown = ".setup-dropdown:first";
-  private useCaseDropdown = ".setup-dropdown:last";
-  private dropdownOption = ".rc-select-item-option:first";
-  private roleUsecaseSubmit = ".t--get-started-button";
   _multipleSelectedApplication = ".t--application-card-selected";
   private _applicationEditedText = (applicationName: string) =>
     this._appCard(applicationName) +
@@ -365,11 +361,26 @@ export class HomePage {
     this.agHelper.GetNClick(this._submitBtn);
     this.agHelper.Sleep(1000);
     cy.get("body").then(($body) => {
-      if ($body.find(SignupPageLocators.proficiencyGroupButton).length > 0) {
+      if ($body.find(SignupPageLocators.roleDropdown).length > 0) {
+        this.agHelper.GetNClick(SignupPageLocators.roleDropdown);
+        this.agHelper.GetNClick(SignupPageLocators.dropdownOption);
+        this.agHelper.GetNClick(SignupPageLocators.useCaseDropdown);
+        this.agHelper.GetNClick(SignupPageLocators.dropdownOption);
+        this.agHelper.GetNClick(
+          SignupPageLocators.getStartedSubmit,
+          undefined,
+          true,
+        );
+      } else if (
+        $body.find(SignupPageLocators.proficiencyGroupButton).length > 0
+      ) {
         this.agHelper.GetNClick(SignupPageLocators.proficiencyGroupButton);
-        this.agHelper.GetNClick(this.useCaseDropdown);
-        this.agHelper.GetNClick(this.dropdownOption);
-        this.agHelper.GetNClick(this.roleUsecaseSubmit, undefined, true);
+        this.agHelper.GetNClick(SignupPageLocators.useCaseGroupButton);
+        this.agHelper.GetNClick(
+          SignupPageLocators.getStartedSubmit,
+          undefined,
+          true,
+        );
       }
     });
     this.assertHelper.AssertNetworkStatus("@getMe");
