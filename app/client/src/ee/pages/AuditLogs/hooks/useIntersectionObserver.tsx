@@ -22,9 +22,9 @@ export default function useIntersectionObserver(
   const callback = (entries: IntersectionObserverEntry[]) =>
     entries.forEach((value) => {
       const {
-        isIntersecting,
-        intersectionRatio,
         boundingClientRect = { y: 0 },
+        intersectionRatio,
+        isIntersecting,
       } = value;
       const currentY = boundingClientRect?.y;
       const intersecting =

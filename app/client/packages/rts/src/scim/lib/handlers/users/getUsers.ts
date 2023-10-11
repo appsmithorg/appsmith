@@ -11,14 +11,14 @@ import {
   validateResponse,
 } from "@scim/lib/plugin-scim";
 
-type getResponse = {
+interface getResponse {
   Resources: {
     id?: string;
     userName?: string;
     active?: boolean;
   }[];
   totalResults: number | null;
-};
+}
 
 export async function getUsers(
   baseEntity: string,

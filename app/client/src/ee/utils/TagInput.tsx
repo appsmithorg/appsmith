@@ -116,7 +116,7 @@ const Suggestion = styled.div`
   }
 `;
 
-type TagInputProps = {
+interface TagInputProps {
   autofocus?: boolean;
   /** TagInput Placeholder */
   placeholder: string;
@@ -133,7 +133,7 @@ type TagInputProps = {
   customError?: (error: any, values?: any) => void;
   suggestions?: { id: string; name: string; icon?: string }[];
   suggestionLeftIcon?: ReactElement;
-};
+}
 
 function getValues(inputValues: any, suggestions: any[]) {
   const values =
@@ -280,8 +280,8 @@ function TagInputComponent(props: TagInputProps) {
       if (props?.suggestions) {
         const results =
           suggestions &&
-          suggestions.filter((s) =>
-            s.name?.toLowerCase().includes(e.target.value.toLowerCase()),
+          suggestions.filter(
+            (s) => s.name?.toLowerCase().includes(e.target.value.toLowerCase()),
           );
         setSuggestions(results);
       }
@@ -373,7 +373,7 @@ const renderComponent = (
   return <TagInputComponent {...componentProps} />;
 };
 
-type TagListFieldProps = {
+interface TagListFieldProps {
   autofocus?: boolean;
   name: string;
   placeholder: string;
@@ -383,7 +383,7 @@ type TagListFieldProps = {
   customError: (err: string, values?: string[]) => void;
   suggestions?: { id: string; name: string; icon?: string }[];
   suggestionLeftIcon?: ReactElement;
-};
+}
 
 function TagListField(props: TagListFieldProps) {
   return <Field component={renderComponent} {...props} />;

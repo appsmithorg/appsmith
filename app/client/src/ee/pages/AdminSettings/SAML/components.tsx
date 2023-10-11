@@ -60,7 +60,8 @@ export const RaisedCard = styled(SettingsFormWrapper)`
   height: 86px;
   margin-top: 24px;
   padding: 0 32px;
-  box-shadow: 0 12px 16px -4px rgba(16, 24, 40, 0.1),
+  box-shadow:
+    0 12px 16px -4px rgba(16, 24, 40, 0.1),
     0 4px 6px -2px rgba(16, 24, 40, 0.05);
   h3,
   a {
@@ -120,7 +121,7 @@ const AdvancedSettingsWrapper = styled.div`
   }
 `;
 
-export type InputProps = {
+export interface InputProps {
   className?: string;
   placeholder?: string;
   label: string;
@@ -129,7 +130,7 @@ export type InputProps = {
   hint?: string;
   type?: "Area" | "Text" | "KeyValueFieldArray";
   isRequired?: boolean;
-};
+}
 
 export function Input(props: InputProps) {
   const { isRequired, name, placeholder, type = "Text" } = props;

@@ -18,7 +18,7 @@ const CheckboxWrapper = styled.div`
   gap: 16px;
 `;
 
-type CheckboxProps = {
+interface CheckboxProps {
   label?: React.ReactNode;
   id?: string;
   isDisabled?: boolean;
@@ -26,7 +26,7 @@ type CheckboxProps = {
   text: string;
   labelSuffix?: React.ReactElement;
   isPropertyDisabled?: boolean;
-};
+}
 
 function FieldCheckboxWithCheckboxText(props: CheckboxProps) {
   return function FieldCheckbox(

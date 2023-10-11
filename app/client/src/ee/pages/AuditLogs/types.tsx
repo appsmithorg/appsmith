@@ -1,74 +1,74 @@
 import type { SelectOptionProps } from "design-system";
 
-export type UserLogType = {
+export interface UserLogType {
   id: string;
   email: string;
   name: string;
-};
+}
 
 /**
  * @property {string} id It is the resourceId.
  */
-export type ResourceType = {
+export interface ResourceType {
   id: string;
   type: string;
   name: string;
-};
+}
 
-export type AppGitType = {
+export interface AppGitType {
   branch: string;
   default: string;
-};
+}
 
-export type ApplicationType = {
+export interface ApplicationType {
   id: string;
   name: string;
   git?: AppGitType;
-};
+}
 
-export type WorkspaceType = {
+export interface WorkspaceType {
   id: string;
   name: string;
   destination?: WorkspaceType;
-};
+}
 
-export type MetadataType = {
+export interface MetadataType {
   ipAddress?: string;
   appsmithVersion: string;
   createdAt?: string;
-};
+}
 
-export type PageType = {
+export interface PageType {
   id: string;
   name: string;
-};
+}
 
-export type AuthenticationType = {
+export interface AuthenticationType {
   mode: string;
   action: string;
-};
+}
 
-export type UserGroupType = {
+export interface UserGroupType {
   invitedUsers?: string[];
   removedUsers?: string[];
-};
+}
 
-export type PermissionGroupType = {
+export interface PermissionGroupType {
   assignedUsers?: string[];
   unAssignedUsers?: string[];
   assignedUserGroups?: string[];
   unAssignedUserGroups?: string[];
-};
+}
 
-export type EnvironmentType = {
+export interface EnvironmentType {
   id: string;
   name: string;
-};
+}
 
-export type DatasourceType = {
+export interface DatasourceType {
   id: string;
   name: string;
-};
+}
 
 /**
  * @property {string} id The id of the log in the database, aka "cursor".
@@ -90,7 +90,7 @@ export type DatasourceType = {
  * @property {DatasourceType} datasource contains the datasource information
  *
  */
-export type AuditLogType = {
+export interface AuditLogType {
   id: string;
   event: string;
   timestamp: string;
@@ -109,7 +109,7 @@ export type AuditLogType = {
   permissionGroup?: PermissionGroupType;
   environment?: EnvironmentType;
   datasource?: DatasourceType;
-};
+}
 
 /**
  * @param {string} action examples: "created", "updated", "viewed"...
@@ -126,7 +126,7 @@ export type AuditLogType = {
  * @param {string} environment The current environment the log was generated i.e. log.envionment.name
  *
  */
-export type DescriptionDataType = {
+export interface DescriptionDataType {
   action: string;
   application: string;
   resource: string;
@@ -135,6 +135,6 @@ export type DescriptionDataType = {
   userName: string;
   userEmail: string;
   environment: string;
-};
+}
 
 export type DropdownOptionProps = Partial<SelectOptionProps>;

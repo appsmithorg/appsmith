@@ -184,11 +184,14 @@ export const getCurrentPageDescription = createSelector(
 );
 
 export const selectPageSlugToIdMap = createSelector(getPageList, (pages) =>
-  pages.reduce((acc, page: Page) => {
-    // Comeback
-    acc[page.pageId] = page.slug || "";
-    return acc;
-  }, {} as Record<string, string>),
+  pages.reduce(
+    (acc, page: Page) => {
+      // Comeback
+      acc[page.pageId] = page.slug || "";
+      return acc;
+    },
+    {} as Record<string, string>,
+  ),
 );
 
 export const getCurrentApplication = (state: AppState) =>

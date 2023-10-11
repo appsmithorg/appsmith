@@ -13,14 +13,14 @@ import {
 
 const validScimAttr = [];
 
-type createResponse = {
+interface createResponse {
   id?: string;
   userName?: string;
   active?: boolean;
   email?: string;
   meta?: any;
   displayName?: string;
-};
+}
 
 export async function createUser(
   baseEntity: string,

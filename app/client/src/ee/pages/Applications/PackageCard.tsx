@@ -13,18 +13,18 @@ import { generateEditedByText } from "pages/Applications/helpers";
 import { BASE_PACKAGE_EDITOR_URL } from "@appsmith/constants/routes/packageRoutes";
 import type { Package } from "@appsmith/constants/PackageConstants";
 
-type PackageCardProps = {
+interface PackageCardProps {
   isFetchingPackages: boolean;
   isMobile?: boolean;
   pkg: Package; // package is a restricted keyword, so used pkg instead
   workspaceId: string;
-};
+}
 
-type ContextMenuProps = {
+interface ContextMenuProps {
   handleMenuOnClose: (open: boolean) => void;
   isMenuOpen: boolean;
   packageName: string;
-};
+}
 
 const DEFAULT_BACKGROUND_COLOR = "#9747FF1A";
 const DEFAULT_ICON = "book";

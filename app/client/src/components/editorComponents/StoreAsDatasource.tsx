@@ -15,7 +15,7 @@ import {
 } from "@appsmith/constants/messages";
 import { Button } from "design-system";
 
-type storeDataSourceProps = {
+interface storeDataSourceProps {
   datasourceId?: string;
   enable: boolean;
   shouldSave: boolean;
@@ -23,7 +23,7 @@ type storeDataSourceProps = {
     datasourceId: string;
     viewMode: boolean;
   }) => void;
-};
+}
 
 interface ReduxDispatchProps {
   setDatasourceViewMode: (payload: {

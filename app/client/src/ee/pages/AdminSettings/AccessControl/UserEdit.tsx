@@ -281,13 +281,19 @@ export function UserEdit(props: UserEditProps) {
       setSearchValue(search);
       groupResults =
         selectedUser.groups &&
-        selectedUser.groups.filter((group) =>
-          group.name?.toLocaleUpperCase().includes(search.toLocaleUpperCase()),
+        selectedUser.groups.filter(
+          (group) =>
+            group.name
+              ?.toLocaleUpperCase()
+              .includes(search.toLocaleUpperCase()),
         );
       allGroupResults =
         selectedUser.allGroups &&
-        selectedUser.allGroups.filter((group) =>
-          group.name?.toLocaleUpperCase().includes(search.toLocaleUpperCase()),
+        selectedUser.allGroups.filter(
+          (group) =>
+            group.name
+              ?.toLocaleUpperCase()
+              .includes(search.toLocaleUpperCase()),
         );
       setUserGroups({
         groups: groupResults,
@@ -295,17 +301,19 @@ export function UserEdit(props: UserEditProps) {
       });
       permissionResults =
         selectedUser.roles &&
-        selectedUser.roles.filter((permission) =>
-          permission.name
-            ?.toLocaleUpperCase()
-            .includes(search.toLocaleUpperCase()),
+        selectedUser.roles.filter(
+          (permission) =>
+            permission.name
+              ?.toLocaleUpperCase()
+              .includes(search.toLocaleUpperCase()),
         );
       allPermissionResults =
         selectedUser.allRoles &&
-        selectedUser.allRoles.filter((permission) =>
-          permission.name
-            ?.toLocaleUpperCase()
-            .includes(search.toLocaleUpperCase()),
+        selectedUser.allRoles.filter(
+          (permission) =>
+            permission.name
+              ?.toLocaleUpperCase()
+              .includes(search.toLocaleUpperCase()),
         );
       setPermissionGroups({
         roles: permissionResults,

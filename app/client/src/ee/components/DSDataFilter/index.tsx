@@ -65,7 +65,7 @@ interface ReduxStateProps {
   isTesting: boolean;
 }
 
-type DSDataFilterProps = {
+interface DSDataFilterProps {
   updateFilter: (
     id: string,
     name: string,
@@ -78,7 +78,7 @@ type DSDataFilterProps = {
   isTesting: boolean;
   viewMode: boolean;
   filterId: string; // id of the selected environment, used to keep the parent and child in sync
-};
+}
 
 const DSDataFilter = ({
   filterId,

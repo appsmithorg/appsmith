@@ -1,28 +1,30 @@
 import type { ButtonProps, IconProps, Text } from "design-system";
 import type { ReactComponentElement, ReactNode } from "react";
 
-export type Header = {
+export interface Header {
   title: string;
   subtitle?: string;
-};
+}
 
-export type BillingDashboardCard = {
+export interface BillingDashboardCard {
   title: ReactComponentElement<typeof Text>;
   subtitle?: ReactComponentElement<typeof Text>;
   content?: ReactNode;
   icon: string;
   action?: ReactNode;
   name: string;
-};
+}
 
-export type CTAButtonType = {
+export interface CTAButtonType {
   action?: string;
   text: string;
   icon?: IconProps;
-};
+}
 
 export type HeaderProps = Header;
-export type BillingDashboardProps = { cards: BillingDashboardCard[] };
+export interface BillingDashboardProps {
+  cards: BillingDashboardCard[];
+}
 // TODO (tanvi): we need to expose all component types from the system (and replace button props here)
 export type CTAButtonProps = CTAButtonType & ButtonProps;
 

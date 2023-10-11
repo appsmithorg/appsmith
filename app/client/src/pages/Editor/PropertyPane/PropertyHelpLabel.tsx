@@ -12,7 +12,7 @@ const Label = styled.label`
   user-select: none;
 `;
 
-type Props = {
+interface Props {
   className?: string;
   tooltip?: string;
   label: string;
@@ -20,7 +20,7 @@ type Props = {
   maxWidth?: string;
   lineHeight?: string;
   onClick?: () => void;
-};
+}
 
 function PropertyHelpLabel(props: Props) {
   const toolTipDefined = props.tooltip !== undefined;

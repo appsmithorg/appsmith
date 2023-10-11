@@ -83,14 +83,14 @@ Cypress.Commands.add("validateLicense", () => {
 Cypress.Commands.add(
   "interceptLicenseApi",
   ({
-    expiry = (new Date().getTime() + 30 * 24 * 60 * 60 * 1000) / 1000, //30 days from now
+    active = true, //30 days from now
+    expiry = (new Date().getTime() + 30 * 24 * 60 * 60 * 1000) / 1000,
+    licenseKey,
+    licenseOrigin,
     licenseStatus,
     licenseType,
-    licenseKey,
-    active = true,
-    licenseOrigin,
-    url = "/api/v1/tenants/current",
     method = "GET",
+    url = "/api/v1/tenants/current",
   }) => {
     cy.intercept(method, url, (req) => {
       req.continue((res) => {

@@ -42,7 +42,7 @@ const StyledTabs = styled(Tabs)`
   }
 `;
 
-export type MenuItemsProps = {
+export interface MenuItemsProps {
   id: string;
   key: MENU_ITEM;
   title: string;
@@ -50,7 +50,7 @@ export type MenuItemsProps = {
   callout?: string;
   inputs: InputProps[];
   advanced?: InputProps[];
-};
+}
 
 export enum MENU_ITEM {
   METADATA_URL = "METADATA_URL",
@@ -158,21 +158,21 @@ export const MENU_ITEMS_MAP: MenuItemsProps[] = [
   },
 ];
 
-export type MetadataFormValuesType = {
+export interface MetadataFormValuesType {
   metadataPubCert?: string;
   metadataEmail?: string;
   metadataSsoUrl?: string;
   metadataUrl?: string;
   metadataXml?: string;
-};
+}
 
 const allSAMLSetupOptions = Object.values(MENU_ITEMS_MAP);
 
-type FormProps = {
+interface FormProps {
   settings: Record<string, any>;
   settingsConfig: Record<string, any>;
   isSaving: boolean;
-};
+}
 
 function MetadataForm(
   props: InjectedFormProps &

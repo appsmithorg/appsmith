@@ -56,10 +56,10 @@ import { APP_MODE } from "entities/App";
 function* selectWidgetSaga(action: ReduxAction<WidgetSelectionRequestPayload>) {
   try {
     const {
-      payload = [],
-      selectionRequestType,
       invokedBy,
       pageId,
+      payload = [],
+      selectionRequestType,
     } = action.payload;
 
     if (payload.some(isInvalidSelectionRequest)) {

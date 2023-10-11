@@ -46,15 +46,15 @@ const StyledIcon = styled(Icon)`
   margin-right: 8px;
 `;
 
-type Props = {
+interface Props {
   viewMode?: boolean;
-};
+}
 
-type EnvironmentType = {
+interface EnvironmentType {
   id: string;
   name: string;
   selected: boolean;
-};
+}
 
 const environmentList: Array<EnvironmentType> = [
   {

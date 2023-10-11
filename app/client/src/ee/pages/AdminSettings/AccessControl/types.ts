@@ -2,7 +2,10 @@ import type { IconNames } from "design-system";
 import type { DebouncedFunc } from "lodash";
 import type { ReactNode } from "react";
 
-export type BaseAclProps = { id: string; name: string };
+export interface BaseAclProps {
+  id: string;
+  name: string;
+}
 
 export type RoleProps = BaseAclProps & {
   autoCreated?: boolean;
@@ -14,16 +17,16 @@ export type RoleProps = BaseAclProps & {
   isNew?: boolean;
 };
 
-export type RoleEditProps = {
+export interface RoleEditProps {
   selected: RoleProps;
   onDelete: any;
-};
+}
 
-export type RoleTableResponse = {
+export interface RoleTableResponse {
   data: RoleTable[];
   permissions: string[];
   name: string;
-};
+}
 
 export type RoleTable = BaseAclProps & {
   permissions: number[];
@@ -32,7 +35,7 @@ export type RoleTable = BaseAclProps & {
   type?: string;
 };
 
-export type RoleTreeProps = {
+export interface RoleTreeProps {
   tabData: any;
   expanded?: any;
   searchValue?: string;
@@ -42,7 +45,7 @@ export type RoleTreeProps = {
   selected: RoleProps;
   showSaveModal: boolean;
   setShowSaveModal: (val: boolean) => void;
-};
+}
 
 export type BaseGroupRoleProps = BaseAclProps & {
   autoCreated?: boolean;
@@ -50,7 +53,7 @@ export type BaseGroupRoleProps = BaseAclProps & {
   isProvisioned?: boolean;
 };
 
-export type ActiveAllGroupsProps = {
+export interface ActiveAllGroupsProps {
   activeGroups: Array<BaseGroupRoleProps>;
   allGroups?: Array<BaseGroupRoleProps>;
   activeOnly?: boolean;
@@ -61,13 +64,13 @@ export type ActiveAllGroupsProps = {
   onAddGroup?: (group: BaseGroupRoleProps) => void;
   onRemoveGroup: (group: BaseGroupRoleProps) => void;
   entityName: string;
-};
+}
 
-export type UsersInGroup = {
+export interface UsersInGroup {
   id: string;
   username: string;
   isProvisioned?: boolean;
-};
+}
 
 export type GroupProps = BaseAclProps & {
   users: UsersInGroup[];
@@ -79,18 +82,18 @@ export type GroupProps = BaseAclProps & {
   isProvisioned?: boolean;
 };
 
-export type GroupEditProps = {
+export interface GroupEditProps {
   selected: GroupProps;
   onDelete: any;
   isLoading: boolean;
-};
+}
 
-export type Permissions = {
+export interface Permissions {
   roles: BaseGroupRoleProps[];
   allRoles: BaseGroupRoleProps[];
-};
+}
 
-export type ListingProps = {
+export interface ListingProps {
   data: any[];
   columns: any[];
   listMenuItems: any[];
@@ -98,9 +101,9 @@ export type ListingProps = {
   isLoading: boolean;
   emptyState?: JSX.Element;
   listingType: string;
-};
+}
 
-export type PageHeaderProps = {
+export interface PageHeaderProps {
   buttonText?: string;
   searchPlaceholder: string;
   onButtonClick?: () => void;
@@ -115,17 +118,17 @@ export type PageHeaderProps = {
   searchValue: string;
   disableButton?: boolean;
   description?: string;
-};
+}
 
-export type GroupsForUser = {
+export interface GroupsForUser {
   groups: BaseGroupRoleProps[];
   allGroups: BaseGroupRoleProps[];
-};
+}
 
-export type PermissionsForUser = {
+export interface PermissionsForUser {
   roles: BaseGroupRoleProps[];
   allRoles: BaseGroupRoleProps[];
-};
+}
 
 export type UserProps = BaseAclProps & {
   groups: BaseGroupRoleProps[];
@@ -138,35 +141,35 @@ export type UserProps = BaseAclProps & {
   isProvisioned?: boolean;
 };
 
-export type UserEditProps = {
+export interface UserEditProps {
   selectedUser: UserProps;
   onDelete: (id: string) => void;
   searchPlaceholder: string;
   isLoading: boolean;
-};
+}
 
-export type UpdateRoleData = {
+export interface UpdateRoleData {
   type: string;
   id: string;
   name: string;
   permissions: number[];
-};
+}
 
-export type TabProps = {
+export interface TabProps {
   key: string;
   title: string;
   count?: number;
   panelComponent?: JSX.Element;
-};
+}
 
-export type MenuItemProps = {
+export interface MenuItemProps {
   icon?: IconNames;
   className?: string;
   onSelect?: (e: React.MouseEvent, ...rest: any) => void;
   text: string;
   label?: ReactNode;
   href?: string;
-};
+}
 
 export enum ListingType {
   ROLES = "permissionGroups",

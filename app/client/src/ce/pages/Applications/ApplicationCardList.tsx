@@ -18,7 +18,7 @@ const NoAppsFoundIcon = importSvg(
   async () => import("assets/svg/no-apps-icon.svg"),
 );
 
-type ApplicationCardListProps = {
+interface ApplicationCardListProps {
   applications: ApplicationPayload[];
   canInviteToWorkspace: boolean;
   enableImportExport: boolean;
@@ -32,7 +32,7 @@ type ApplicationCardListProps = {
     id: string,
     data: UpdateApplicationPayload,
   ) => void;
-};
+}
 
 function ApplicationCardList({
   applications,

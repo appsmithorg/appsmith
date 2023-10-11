@@ -69,9 +69,8 @@ const FeedbackCallout = ({
 
   useEffect(() => {
     (async () => {
-      const appKBStateInDB: Record<string, any> | null = await getAppKbState(
-        applicationId,
-      );
+      const appKBStateInDB: Record<string, any> | null =
+        await getAppKbState(applicationId);
 
       setAppKBState(appKBStateInDB);
     })();

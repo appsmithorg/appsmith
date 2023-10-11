@@ -22,9 +22,9 @@ type FieldProps<TValue> = React.PropsWithChildren<
   } & FieldLabelProps
 >;
 
-type StyledWrapperProps = {
+interface StyledWrapperProps {
   direction: "row" | "column";
-};
+}
 
 const StyledWrapper = styled.div<StyledWrapperProps>`
   margin-bottom: ${FIELD_MARGIN_BOTTOM}px;

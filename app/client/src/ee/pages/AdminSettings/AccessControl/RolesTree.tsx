@@ -271,8 +271,11 @@ function Table({
   useEffect(() => {
     if (searchValue !== "") {
       updateTabCount?.(
-        flatRows.filter((item: any) =>
-          item.values?.name?.toLowerCase().includes(searchValue?.toLowerCase()),
+        flatRows.filter(
+          (item: any) =>
+            item.values?.name
+              ?.toLowerCase()
+              .includes(searchValue?.toLowerCase()),
         ).length,
       );
       toggleAllRowsExpanded(true);

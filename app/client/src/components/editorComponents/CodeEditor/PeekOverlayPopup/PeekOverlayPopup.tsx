@@ -13,12 +13,12 @@ import { getConfigTree, getDataTree } from "selectors/dataTreeSelectors";
 import { filterInternalProperties } from "utils/FilterInternalProperties";
 import { getJSCollections } from "@appsmith/selectors/entitiesSelector";
 
-export type PeekOverlayStateProps = {
+export interface PeekOverlayStateProps {
   objectName: string;
   propertyPath: string[];
   position: DOMRect;
   textWidth: number;
-};
+}
 
 /*
  * using `componentWillAppendToBody` to work with variable height for peek overlay

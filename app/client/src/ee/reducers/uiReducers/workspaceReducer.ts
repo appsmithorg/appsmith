@@ -42,7 +42,10 @@ type LoadingStates = CE_WorkspaceReduxState["loadingStates"] & {
 
 type FilteredCE_WorkspaceRedux = Omit<CE_WorkspaceReduxState, "loadingStates">;
 
-export type GroupSuggestions = { id: string; name: string };
+export interface GroupSuggestions {
+  id: string;
+  name: string;
+}
 export interface WorkspaceReduxState extends FilteredCE_WorkspaceRedux {
   groupSuggestions: GroupSuggestions[];
   loadingStates: LoadingStates;

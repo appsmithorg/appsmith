@@ -306,9 +306,9 @@ export const submitCreateWorkspaceForm = async (data: any, dispatch: any) => {
   return result;
 };
 
-export type LeftPaneProps = {
+export interface LeftPaneProps {
   isBannerVisible?: boolean;
-};
+}
 
 export function LeftPane(props: LeftPaneProps) {
   const { isBannerVisible = false } = props;

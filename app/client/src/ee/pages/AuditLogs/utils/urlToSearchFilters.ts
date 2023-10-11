@@ -1,14 +1,14 @@
 import { sanitiseSearchParamString } from "./sanitiseSearchParamString";
 import type { DATE_SORT_ORDER } from "@appsmith/reducers/auditLogsReducer";
 
-export type SearchFilters = {
+export interface SearchFilters {
   emails?: string[];
   events?: string[];
   resourceId?: string[];
   sort?: DATE_SORT_ORDER[];
   startDate?: number[];
   endDate?: number[];
-};
+}
 
 /**
  * urlToSearchFilters takes search params of an url to build searchFilters for AuditLogs

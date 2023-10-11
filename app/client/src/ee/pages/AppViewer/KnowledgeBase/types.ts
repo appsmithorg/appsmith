@@ -3,7 +3,7 @@ export enum EKBProcessingStatus {
   IDLE = "IDLE",
 }
 
-export type TPageKB = {
+export interface TPageKB {
   processingStatus?: EKBProcessingStatus;
   pageSlug: string;
   intro: string;
@@ -13,9 +13,9 @@ export type TPageKB = {
     description: string;
     steps: string[];
   }[];
-};
+}
 
-export type TApplicationKB = {
+export interface TApplicationKB {
   processingStatus: EKBProcessingStatus;
   applicationId: string;
   draftKb: {
@@ -24,22 +24,22 @@ export type TApplicationKB = {
   publishedKB: {
     [key: string]: TPageKB;
   };
-};
+}
 
-export type BuilderKBViewProps = {
+export interface BuilderKBViewProps {
   appKb: TApplicationKB | null;
   isLoading: boolean;
-};
+}
 
-export type KBPreviewProps = {
+export interface KBPreviewProps {
   appKb: TApplicationKB;
   isKBGenerationPending: boolean;
   onPageSelect: (pageSlug: string) => void;
   selectedPage: string;
   showSuccessCallout: boolean;
-};
+}
 
-export type TKBResponse = {
+export interface TKBResponse {
   applicationId: string;
   draftKb: {
     [key: string]: TPageKB;
@@ -47,18 +47,18 @@ export type TKBResponse = {
   publishedKB: {
     [key: string]: TPageKB;
   };
-};
+}
 
-export type KBDrawerBodyProps = {
+export interface KBDrawerBodyProps {
   appKb: TApplicationKB | null;
   isUserAppBuilder: boolean;
   onGenerateKB: () => void;
   currentPageSlug?: string;
   isLoading: boolean;
   showSuccessCallout: boolean;
-};
+}
 
-export type KBDrawerProps = {
+export interface KBDrawerProps {
   currentPageSlug?: string;
   onClose: () => void;
   applicationKB: TApplicationKB | null;
@@ -66,4 +66,4 @@ export type KBDrawerProps = {
   onGenerateKB: () => void;
   isLoading: boolean;
   hasRead: boolean;
-};
+}

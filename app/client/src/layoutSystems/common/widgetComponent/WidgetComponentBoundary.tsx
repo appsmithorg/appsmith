@@ -5,7 +5,10 @@ import styled from "styled-components";
 import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
 import { WIDGET_COMPONENT_BOUNDARY_CLASS } from "constants/componentClassNameConstants";
 
-type Props = { children: ReactNode; widgetType: string };
+interface Props {
+  children: ReactNode;
+  widgetType: string;
+}
 
 const WidgetComponentBoundaryWrapper = styled.div`
   height: 100%;

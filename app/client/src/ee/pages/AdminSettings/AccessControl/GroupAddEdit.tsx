@@ -210,16 +210,18 @@ export function GroupAddEdit(props: GroupEditProps) {
       setSearchValue(search);
       userResults =
         selected.users &&
-        selected.users.filter((user) =>
-          user.username?.toLocaleUpperCase().includes(search),
+        selected.users.filter(
+          (user) => user.username?.toLocaleUpperCase().includes(search),
         );
       setUsers(userResults);
       permissionResults = permissions && {
-        roles: selected.roles.filter((permission: BaseAclProps) =>
-          permission.name?.toLocaleUpperCase().includes(search),
+        roles: selected.roles.filter(
+          (permission: BaseAclProps) =>
+            permission.name?.toLocaleUpperCase().includes(search),
         ),
-        allRoles: selected.allRoles.filter((permission: BaseAclProps) =>
-          permission.name?.toLocaleUpperCase().includes(search),
+        allRoles: selected.allRoles.filter(
+          (permission: BaseAclProps) =>
+            permission.name?.toLocaleUpperCase().includes(search),
         ),
       };
       setPermissions({ ...permissionResults });

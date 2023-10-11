@@ -42,12 +42,12 @@ const Wrapper = styled.div`
   }
 `;
 
-export type SwitchEnvironmentProps = {
+export interface SwitchEnvironmentProps {
   defaultEnvironment?: EnvironmentType;
   environmentList: Array<EnvironmentType>;
   viewMode?: boolean;
   setCurrentEnvDetails: (currentEnvDetails: CurrentEnvironmentDetails) => void;
-};
+}
 
 const SwitchEnvironment = ({
   defaultEnvironment,

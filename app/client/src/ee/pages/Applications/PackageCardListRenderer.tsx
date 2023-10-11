@@ -19,14 +19,14 @@ import {
 } from "@appsmith/constants/messages";
 import type { Package } from "@appsmith/constants/PackageConstants";
 
-export type PackageCardListRendererProps = {
+export interface PackageCardListRendererProps {
   createPackage: () => void;
   isCreatingPackage?: boolean;
   isFetchingPackages?: boolean;
   isMobile: boolean;
   packages?: Package[];
   workspaceId: string;
-};
+}
 
 const NotFoundIcon = styled(Icon)`
   && {
@@ -42,11 +42,11 @@ const NotFoundIcon = styled(Icon)`
 
 function PackageCardListRenderer({
   createPackage,
-  isMobile,
-  workspaceId,
-  packages = [],
-  isFetchingPackages = false,
   isCreatingPackage = false,
+  isFetchingPackages = false,
+  isMobile,
+  packages = [],
+  workspaceId,
 }: PackageCardListRendererProps) {
   return (
     <CardListContainer isMobile={isMobile}>

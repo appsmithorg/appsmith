@@ -40,7 +40,9 @@ export interface WithMeta {
   ) => void;
 }
 
-type WidgetMetaProps = { metaState: Record<string, unknown> };
+interface WidgetMetaProps {
+  metaState: Record<string, unknown>;
+}
 type metaHOCProps = WidgetProps & WidgetMetaProps;
 
 function withMeta(WrappedWidget: typeof BaseWidget) {
