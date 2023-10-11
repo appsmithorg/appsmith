@@ -26,7 +26,7 @@ RUN apt-get update \
 # Install MongoDB v5.0.14, Redis, PostgreSQL v13
 RUN curl --silent --show-error --location https://www.mongodb.org/static/pgp/server-5.0.asc | apt-key add - \
   && echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/5.0 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-5.0.list \
-  && echo "deb http://apt.postgresql.org/pub/repos/apt $(cat /etc/lsb-release | grep CODENAME | cut -d= -f2)-pgdg main" | tee /etc/apt/sources.list.d/pgdg.list \
+  && echo "deb http://apt.postgresql.org/pub/repos/apt $(grep CODENAME /etc/lsb-release | cut -d= -f2)-pgdg main" | tee /etc/apt/sources.list.d/pgdg.list \
   && curl --silent --show-error --location https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - \
   && apt update \
   && apt-get install --no-install-recommends --yes mongodb-org redis postgresql-13 \
