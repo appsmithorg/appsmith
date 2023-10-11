@@ -1,12 +1,10 @@
 import type {
-  DataTreeEntity,
   DataTreeEntityConfig,
-} from "entities/DataTree/dataTreeFactory";
-import type {
   JSActionEntityConfig,
   JSActionEntity as TJSActionEntity,
-} from "entities/DataTree/types";
-import { EvaluationSubstitutionType } from "entities/DataTree/types";
+} from "@appsmith/entities/DataTree/types";
+import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
+import { EvaluationSubstitutionType } from "@appsmith/entities/DataTree/types";
 import type { TParsedJSProperty } from "@shared/ast";
 import { isJSFunctionProperty } from "@shared/ast";
 import { parseJSObject } from "@shared/ast";
@@ -32,15 +30,15 @@ type TParsedJSEntity = Record<string, string> & {
 
 type TParsedJSEntityConfig = Record<string, TParsedJSProperty>;
 
-export type ParsedJSCache = {
+export interface ParsedJSCache {
   parsedEntity: ParsedEntity<TJSActionEntity>;
   parsedEntityConfig: TParsedJSEntityConfig;
-};
+}
 
-export type ParsedEntity<T> = {
+export interface ParsedEntity<T> {
   parsedEntity: Partial<T>;
   parsedEntityConfig: Record<string, unknown>;
-};
+}
 
 export class DefaultEntityParser implements EntityParser {
   parse<T extends DataTreeEntity>(entity: T) {

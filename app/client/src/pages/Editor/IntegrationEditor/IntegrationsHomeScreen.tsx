@@ -28,7 +28,6 @@ import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { integrationEditorURL } from "RouteBuilder";
 import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
 
-import { hasCreateDatasourcePermission } from "@appsmith/utils/permissionHelpers";
 import { Tab, TabPanel, Tabs, TabsList } from "design-system";
 import Debugger, {
   ResizerContentContainer,
@@ -38,6 +37,9 @@ import { showDebuggerFlag } from "selectors/debuggerSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
+import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
+import { isGACEnabled } from "@appsmith/utils/planHelpers";
+import { getHasCreateDatasourcePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 
 const HeaderFlex = styled.div`
   font-size: 20px;
@@ -97,7 +99,7 @@ const NewIntegrationsContainer = styled.div`
   }
 `;
 
-type IntegrationsHomeScreenProps = {
+interface IntegrationsHomeScreenProps {
   pageId: string;
   selectedTab: string;
   location: {
@@ -114,14 +116,14 @@ type IntegrationsHomeScreenProps = {
   applicationId: string;
   canCreateDatasource?: boolean;
   showDebugger: boolean;
-};
+}
 
-type IntegrationsHomeScreenState = {
+interface IntegrationsHomeScreenState {
   page: number;
   activePrimaryMenuId: string;
   activeSecondaryMenuId: number;
   unsupportedPluginDialogVisible: boolean;
-};
+}
 
 type Props = IntegrationsHomeScreenProps &
   InjectedFormProps<{ category: string }, IntegrationsHomeScreenProps>;
@@ -591,7 +593,11 @@ const mapStateToProps = (state: AppState) => {
   const userWorkspacePermissions =
     getCurrentAppWorkspace(state).userPermissions ?? [];
 
-  const canCreateDatasource = hasCreateDatasourcePermission(
+  const featureFlags = selectFeatureFlags(state);
+  const isFeatureEnabled = isGACEnabled(featureFlags);
+
+  const canCreateDatasource = getHasCreateDatasourcePermission(
+    isFeatureEnabled,
     userWorkspacePermissions,
   );
   return {

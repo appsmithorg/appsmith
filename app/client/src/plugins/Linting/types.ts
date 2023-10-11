@@ -2,7 +2,7 @@ import type {
   ConfigTree,
   DataTree,
   DataTreeEntity,
-} from "entities/DataTree/dataTreeFactory";
+} from "entities/DataTree/dataTreeTypes";
 import type { LintErrorsStore } from "reducers/lintingReducers/lintErrorsReducers";
 import type {
   createEvaluationContext,
@@ -29,16 +29,16 @@ export interface LintTreeRequestPayload {
   forceLinting?: boolean;
 }
 
-export type LintRequest = {
+export interface LintRequest {
   data: any;
   method: LINT_WORKER_ACTIONS;
-};
+}
 
-export type LintTreeSagaRequestData = {
+export interface LintTreeSagaRequestData {
   unevalTree: DataTree;
   configTree: ConfigTree;
   forceLinting?: boolean;
-};
+}
 export interface lintTriggerPathProps {
   userScript: string;
   entity: DataTreeEntity;

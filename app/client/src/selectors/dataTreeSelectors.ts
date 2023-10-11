@@ -5,8 +5,10 @@ import {
   getPluginDependencyConfig,
   getPluginEditorConfigs,
   getCurrentJSCollections,
+  getInputsForModule,
 } from "@appsmith/selectors/entitiesSelector";
-import type { DataTree, WidgetEntity } from "entities/DataTree/dataTreeFactory";
+import type { WidgetEntity } from "@appsmith/entities/DataTree/types";
+import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { DataTreeFactory } from "entities/DataTree/dataTreeFactory";
 import {
   getMetaWidgets,
@@ -23,7 +25,7 @@ import type { EvaluationError } from "utils/DynamicBindingUtils";
 import { getEvalErrorPath } from "utils/DynamicBindingUtils";
 import ConfigTreeActions from "utils/configTree";
 import { DATATREE_INTERNAL_KEYWORDS } from "constants/WidgetValidation";
-import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import { LayoutSystemTypes } from "layoutSystems/types";
 
 export const getLoadingEntities = (state: AppState) =>
   state.evaluations.loadingEntities;
@@ -36,17 +38,27 @@ export const getLoadingEntities = (state: AppState) =>
 const getLayoutSystemPayload = (state: AppState) => ({
   // appPositioning?.type instead of appPositioning.type is for legacy applications that may not have the appPositioning object.
   // All new applications will have appPositioning.type
-  appPositioningType:
-    AppPositioningTypes[
+  layoutSystemType:
+    LayoutSystemTypes[
       state.ui.applications.currentApplication?.applicationDetail
-        ?.appPositioning?.type || AppPositioningTypes.FIXED
+        ?.appPositioning?.type || LayoutSystemTypes.FIXED
     ],
   isMobile: state.ui.mainCanvas.isMobile,
 });
 
-export const getUnevaluatedDataTree = createSelector(
+const getCurrentActionEntities = createSelector(
   getCurrentActions,
   getCurrentJSCollections,
+  (actions, jsActions) => {
+    return {
+      actions: actions,
+      jsActions: jsActions,
+    };
+  },
+);
+
+export const getUnevaluatedDataTree = createSelector(
+  getCurrentActionEntities,
   getWidgetsForEval,
   getWidgetsMeta,
   getPageList,
@@ -55,11 +67,11 @@ export const getUnevaluatedDataTree = createSelector(
   getPluginDependencyConfig,
   getSelectedAppThemeProperties,
   getMetaWidgets,
+  getInputsForModule,
   getLayoutSystemPayload,
   getLoadingEntities,
   (
-    actions,
-    jsActions,
+    currentActionEntities,
     widgets,
     widgetsMeta,
     pageListPayload,
@@ -68,13 +80,13 @@ export const getUnevaluatedDataTree = createSelector(
     pluginDependencyConfig,
     selectedAppThemeProperty,
     metaWidgets,
+    moduleInputs,
     layoutSystemPayload,
     loadingEntities,
   ) => {
     const pageList = pageListPayload || [];
     return DataTreeFactory.create({
-      actions,
-      jsActions,
+      ...currentActionEntities,
       widgets,
       widgetsMeta,
       pageList,
@@ -83,6 +95,7 @@ export const getUnevaluatedDataTree = createSelector(
       pluginDependencyConfig,
       theme: selectedAppThemeProperty,
       metaWidgets,
+      moduleInputs,
       loadingEntities,
       ...layoutSystemPayload,
     });

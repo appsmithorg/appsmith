@@ -1,5 +1,6 @@
 import type CodeMirror from "codemirror";
-import type { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import type { ENTITY_TYPE } from "@appsmith/entities/DataTree/types";
+import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import type { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { EntityNavigationData } from "selectors/navigationSelectors";
 import type { ExpectedValueExample } from "utils/validation/common";
@@ -36,7 +37,7 @@ export enum EditorSize {
   COMPACT_RETAIN_FORMATTING = "COMPACT_RETAIN_FORMATTING",
 }
 
-export type EditorConfig = {
+export interface EditorConfig {
   theme: EditorTheme;
   mode: TEditorModes;
   tabBehaviour: TabBehaviour;
@@ -44,14 +45,14 @@ export type EditorConfig = {
   hinting?: Array<HintHelper>;
   marking?: Array<MarkHelper>;
   folding?: boolean;
-};
+}
 
 export const EditorThemes: Record<EditorTheme, string> = {
   [EditorTheme.LIGHT]: "duotone-light",
   [EditorTheme.DARK]: "duotone-dark",
 };
 
-export type FieldEntityInformation = {
+export interface FieldEntityInformation {
   entityName?: string;
   expectedType?: AutocompleteDataType;
   entityType?: ENTITY_TYPE;
@@ -62,13 +63,13 @@ export type FieldEntityInformation = {
   mode?: TEditorModes;
   token?: CodeMirror.Token;
   widgetType?: WidgetType;
-};
+}
 
 export type HintHelper = (
   editor: CodeMirror.Editor,
   entitiesForNavigation: EntityNavigationData,
 ) => Hinter;
-export type Hinter = {
+export interface Hinter {
   showHint: (
     editor: CodeMirror.Editor,
     entityInformation: FieldEntityInformation,
@@ -76,7 +77,7 @@ export type Hinter = {
   ) => boolean;
   update?: (data: DataTree) => void;
   fireOnFocus?: boolean;
-};
+}
 
 export type MarkHelper = (
   editor: CodeMirror.Editor,

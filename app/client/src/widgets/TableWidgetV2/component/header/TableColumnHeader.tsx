@@ -8,7 +8,7 @@ import { renderHeaderCheckBoxCell } from "../cellComponents/SelectionCheckboxCel
 import { renderEmptyRows } from "../cellComponents/EmptyCell";
 import styled from "styled-components";
 
-export type TableColumnHeaderProps = {
+export interface TableColumnHeaderProps {
   enableDrag: () => void;
   disableDrag: () => void;
   multiRowSelection?: boolean;
@@ -32,7 +32,7 @@ export type TableColumnHeaderProps = {
   headerWidth?: number;
   rowSelectionState: 0 | 1 | 2 | null;
   widgetId: string;
-};
+}
 
 const StyledHeaderGroup = styled.div<{
   headerWidth: number;

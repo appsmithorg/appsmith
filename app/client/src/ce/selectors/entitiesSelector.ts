@@ -44,6 +44,7 @@ import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evalu
 import { getFormValues } from "redux-form";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import { MAX_DATASOURCE_SUGGESTIONS } from "pages/Editor/Explorer/hooks";
+import type { ModuleInput } from "@appsmith/entities/DataTree/types";
 
 export const getEntities = (state: AppState): AppState["entities"] =>
   state.entities;
@@ -75,6 +76,21 @@ export const getDatasourceStructureById = (
 ): DatasourceStructure => {
   return state.entities.datasources.structure[id];
 };
+
+/**
+ * Selector to indicate if the widget name should be shown/drawn on canvas
+ */
+export const getShouldShowWidgetName = createSelector(
+  (state: AppState) => state.ui.widgetDragResize.isResizing,
+  (state: AppState) => state.ui.widgetDragResize.isDragging,
+  (state: AppState) => state.ui.editor.isPreviewMode,
+  (state: AppState) => state.ui.widgetDragResize.isAutoCanvasResizing,
+  (isResizing, isDragging, isPreviewMode, isAutoCanvasResizing) => {
+    return (
+      !isResizing && !isDragging && !isPreviewMode && !isAutoCanvasResizing
+    );
+  },
+);
 
 export const getDatasourceTableColumns =
   (datasourceId: string, tableName: string) => (state: AppState) => {
@@ -844,10 +860,13 @@ export const getPageActions = (pageId = "") => {
 export const selectDatasourceIdToNameMap = createSelector(
   getDatasources,
   (datasources) => {
-    return datasources.reduce((acc, datasource) => {
-      acc[datasource.id] = datasource.name;
-      return acc;
-    }, {} as Record<string, string>);
+    return datasources.reduce(
+      (acc, datasource) => {
+        acc[datasource.id] = datasource.name;
+        return acc;
+      },
+      {} as Record<string, string>,
+    );
   },
 );
 
@@ -1169,9 +1188,8 @@ export const getDatasourceScopeValue = (
   const options = formConfig[0]?.children?.find(
     (child: any) => child?.configProperty === configProperty,
   )?.options;
-  const label = options?.find(
-    (option: any) => option.value === scopeValue,
-  )?.label;
+  const label = options?.find((option: any) => option.value === scopeValue)
+    ?.label;
   return label;
 };
 
@@ -1232,3 +1250,7 @@ export const getEntityExplorerDatasources = (state: AppState): Datasource[] => {
     MAX_DATASOURCE_SUGGESTIONS - datasourcesUsedInApplication.length,
   );
 };
+
+export function getInputsForModule(): Record<string, ModuleInput> {
+  return {};
+}

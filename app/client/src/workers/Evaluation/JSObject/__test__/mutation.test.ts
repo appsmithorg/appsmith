@@ -1,5 +1,5 @@
-import type { DataTree } from "entities/DataTree/dataTreeFactory";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import type { DataTree } from "entities/DataTree/dataTreeTypes";
+import { ENTITY_TYPE_VALUE } from "entities/DataTree/dataTreeFactory";
 import { createEvaluationContext } from "workers/Evaluation/evaluate";
 import JSObjectCollection from "../Collection";
 import ExecutionMetaData from "workers/Evaluation/fns/utils/ExecutionMetaData";
@@ -69,7 +69,7 @@ describe("Mutation", () => {
         var: {},
         var2: new Set([1, 2]),
         variables: ["var", "var2"],
-        ENTITY_TYPE: ENTITY_TYPE.JSACTION,
+        ENTITY_TYPE: ENTITY_TYPE_VALUE.JSACTION,
       },
     };
 

@@ -1,7 +1,7 @@
-export type OptionType = {
+export interface OptionType {
   label?: string;
   value?: string;
-};
+}
 
 export const roleOptions: OptionType[] = [
   {
@@ -46,5 +46,18 @@ export const useCaseOptions: OptionType[] = [
   {
     label: "Other",
     value: "other",
+  },
+];
+
+export const proficiencyOptions = [
+  {
+    label: "Just dipping my toes 🌱 (Brand new to this)",
+    value: "Beginner",
+  },
+  { label: "Novice (Limited to no experience)", value: "Novice" },
+  { label: "Intermediate (Some coding adventures)", value: "Intermediate" },
+  {
+    label: "Advanced (Comfortable with programming quests)",
+    value: "Advanced",
   },
 ];

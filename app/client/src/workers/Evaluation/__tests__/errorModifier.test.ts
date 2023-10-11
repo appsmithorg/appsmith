@@ -1,4 +1,4 @@
-import type { DataTree } from "entities/DataTree/dataTreeFactory";
+import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { errorModifier } from "../errorModifier";
 import DependencyMap from "entities/DependencyMap";
 import { APP_MODE } from "entities/App";

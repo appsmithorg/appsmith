@@ -3,6 +3,7 @@
   "password": "input[name='password']",
   "submitBtn": "button[type='submit']",
   "roleDropdown": ".setup-dropdown:first",
+  "proficiencyGroupButton": ".radio_group__button_container button",
   "useCaseDropdown": ".setup-dropdown:last",
   "dropdownOption": ".rc-select-item-option:first",
   "roleUsecaseSubmit": ".t--get-started-button"

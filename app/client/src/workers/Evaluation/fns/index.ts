@@ -46,7 +46,8 @@ import {
   isAction,
   isAppsmithEntity,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
-import type { DataTreeEntity } from "entities/DataTree/dataTreeFactory";
+import type { ActionEntity } from "@appsmith/entities/DataTree/types";
+import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
 import type {
   TGetGeoLocationActionType,
   TGetGeoLocationDescription,
@@ -61,7 +62,6 @@ import {
   watchGeoLocation,
 } from "./geolocationFns";
 import { getFnWithGuards, isAsyncGuard } from "./utils/fnGuard";
-import type { ActionEntity } from "entities/DataTree/types";
 
 // cloudHosting -> to use in EE
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

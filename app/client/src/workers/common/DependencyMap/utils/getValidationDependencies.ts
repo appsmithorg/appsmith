@@ -1,9 +1,9 @@
 import { isWidget } from "@appsmith/workers/Evaluation/evaluationUtils";
 import type {
-  DataTreeEntity,
   DataTreeEntityConfig,
   WidgetEntityConfig,
-} from "entities/DataTree/dataTreeFactory";
+} from "@appsmith/entities/DataTree/types";
+import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
 import type { DependencyMap } from "utils/DynamicBindingUtils";
 
 const DATA_DERIVED_PROPERTY_PLACEHOLDER = "*";

@@ -7,35 +7,35 @@ export enum CursorPositionOrigin {
   LastFocus = "LastFocus",
 }
 
-export type CursorPosition = {
+export interface CursorPosition {
   line: number;
   ch: number;
   origin: CursorPositionOrigin;
-};
+}
 
-export type EvaluatedPopupState = {
+export interface EvaluatedPopupState {
   type: boolean;
   example: boolean;
   value: boolean;
-};
+}
 
-export type CodeEditorContext = {
+export interface CodeEditorContext {
   cursorPosition?: CursorPosition;
   evalPopupState?: EvaluatedPopupState;
-};
+}
 
-export type PropertyPanelContext = {
+export interface PropertyPanelContext {
   propertySectionState: Record<string, boolean>;
   selectedPropertyTabIndex: number;
-};
+}
 
-export type PropertyPanelState = {
+export interface PropertyPanelState {
   [key: string]: PropertyPanelContext;
-};
+}
 
 export type CodeEditorHistory = Record<string, CodeEditorContext>;
 
-export type EditorContextState = {
+export interface EditorContextState {
   entityCollapsibleFields: Record<string, boolean>;
   subEntityCollapsibleFields: Record<string, boolean>;
   explorerSwitchIndex: number;
@@ -44,7 +44,7 @@ export type EditorContextState = {
   propertySectionState: Record<string, boolean>;
   selectedPropertyTabIndex: number;
   propertyPanelState: PropertyPanelState;
-};
+}
 
 export const initialState: EditorContextState = {
   codeEditorHistory: {},

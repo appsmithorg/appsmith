@@ -313,7 +313,7 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
     }
 
     private CommunityTemplateUploadDTO createCommunityTemplateUploadDTO(
-            String sourceApplicaionId, ApplicationJson appJson, CommunityTemplateDTO templateDetails) {
+            String sourceApplicationId, ApplicationJson appJson, CommunityTemplateDTO templateDetails) {
         ApplicationTemplate applicationTemplate = new ApplicationTemplate();
         applicationTemplate.setTitle(templateDetails.getTitle());
         applicationTemplate.setExcerpt(templateDetails.getHeadline());
@@ -325,7 +325,7 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
         communityTemplate.setAppJson(appJson);
         communityTemplate.setApplicationTemplate(applicationTemplate);
         communityTemplate.getApplicationTemplate().setAppUrl(templateDetails.getAppUrl());
-        communityTemplate.setSourceApplicaitonId(sourceApplicaionId);
+        communityTemplate.setSourceApplicationId(sourceApplicationId);
         return communityTemplate;
     }
 

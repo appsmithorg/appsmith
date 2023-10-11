@@ -10,10 +10,10 @@ import React, { useCallback, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 
-type Props = {
+interface Props {
   onPublishClick: () => void;
   setShowHostModal: (showModal: boolean) => void;
-};
+}
 const CommunityTemplatesPublishInfo = ({
   onPublishClick,
   setShowHostModal,
@@ -40,7 +40,7 @@ const CommunityTemplatesPublishInfo = ({
 };
 
 export default CommunityTemplatesPublishInfo;
-const COMMUNITY_PORTAL_BASE_URL = "https://community.appsmith.com/";
+const COMMUNITY_PORTAL_BASE_URL = "https://community.appsmith.com";
 
 const PublishedAppInstructions = () => {
   const currentApplication = useSelector(getCurrentApplication);

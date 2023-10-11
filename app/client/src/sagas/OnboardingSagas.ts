@@ -77,7 +77,7 @@ import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { hideIndicator } from "pages/Editor/GuidedTour/utils";
 import { updateWidgetName } from "actions/propertyPaneActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import type { DataTree } from "entities/DataTree/dataTreeFactory";
+import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { User } from "constants/userConstants";
 import { builderURL, queryEditorIdURL } from "RouteBuilder";
@@ -186,9 +186,8 @@ function* setCurrentStepSaga(action: ReduxAction<number>) {
 function* setUpTourAppSaga() {
   yield put(setPreviewModeAction(false));
   // Delete the container widget
-  const widgets: { [widgetId: string]: FlattenedWidgetProps } = yield select(
-    getWidgets,
-  );
+  const widgets: { [widgetId: string]: FlattenedWidgetProps } =
+    yield select(getWidgets);
   const containerWidget = Object.values(widgets).find(
     (widget) => widget.type === "CONTAINER_WIDGET",
   );
@@ -281,9 +280,8 @@ function* addOnboardingWidget(action: ReduxAction<Partial<WidgetProps>>) {
     // Wait for widget names to be updated
     // Updating widget names here as widget blueprints don't take widget names
     yield take(ReduxActionTypes.SAVE_PAGE_SUCCESS);
-    const widgets: { [widgetId: string]: FlattenedWidgetProps } = yield select(
-      getWidgets,
-    );
+    const widgets: { [widgetId: string]: FlattenedWidgetProps } =
+      yield select(getWidgets);
 
     const nameInput = Object.values(widgets).find(
       (widget) => widget.widgetName === "Input1",
@@ -331,9 +329,8 @@ function* addOnboardingWidget(action: ReduxAction<Partial<WidgetProps>>) {
 
 // Update button widget text
 function* updateWidgetTextSaga() {
-  const widgets: { [widgetId: string]: FlattenedWidgetProps } = yield select(
-    getWidgets,
-  );
+  const widgets: { [widgetId: string]: FlattenedWidgetProps } =
+    yield select(getWidgets);
   const buttonWidget = Object.values(widgets).find(
     (widget) => widget.type === "BUTTON_WIDGET",
   );
@@ -373,9 +370,8 @@ function* endGuidedTourSaga(action: ReduxAction<boolean>) {
 function* selectWidgetSaga(
   action: ReduxAction<{ widgetName: string; propertyName?: string }>,
 ) {
-  const widgets: { [widgetId: string]: FlattenedWidgetProps } = yield select(
-    getWidgets,
-  );
+  const widgets: { [widgetId: string]: FlattenedWidgetProps } =
+    yield select(getWidgets);
   const widget = Object.values(widgets).find((widget) => {
     return widget.widgetName === action.payload.widgetName;
   });

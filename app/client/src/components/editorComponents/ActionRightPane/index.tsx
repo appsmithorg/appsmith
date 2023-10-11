@@ -28,7 +28,6 @@ import {
   getPagePermissions,
 } from "selectors/editorSelectors";
 import { builderURL } from "RouteBuilder";
-import { hasManagePagePermission } from "@appsmith/utils/permissionHelpers";
 import DatasourceStructureHeader from "pages/Editor/Explorer/Datasources/DatasourceStructureHeader";
 import {
   DatasourceStructureContainer as DataStructureList,
@@ -59,6 +58,9 @@ import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelecto
 import history from "utils/history";
 import { SignpostingWalkthroughConfig } from "pages/Editor/FirstTimeUserOnboarding/Utils";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { getHasManagePagePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 
 const SCHEMA_GUIDE_GIF = `${ASSETS_CDN_URL}/schema.gif`;
 
@@ -183,7 +185,7 @@ const CollapsibleSection = styled.div<{ height: string; marginTop?: number }>`
   }
 `;
 
-type CollapsibleProps = {
+interface CollapsibleProps {
   expand?: boolean;
   children: ReactNode;
   label: string;
@@ -191,12 +193,12 @@ type CollapsibleProps = {
   isDisabled?: boolean;
   datasourceId?: string;
   containerRef?: MutableRefObject<HTMLDivElement | null>;
-};
+}
 
-type DisabledCollapsibleProps = {
+interface DisabledCollapsibleProps {
   label: string;
   tooltipLabel?: string;
-};
+}
 
 export function Collapsible({
   children,
@@ -421,7 +423,12 @@ function ActionSidebar({
 
   const pagePermissions = useSelector(getPagePermissions);
 
-  const canEditPage = hasManagePagePermission(pagePermissions);
+  const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+
+  const canEditPage = getHasManagePagePermission(
+    isFeatureEnabled,
+    pagePermissions,
+  );
 
   const showSuggestedWidgets =
     canEditPage && hasResponse && suggestedWidgets && !!suggestedWidgets.length;

@@ -20,9 +20,9 @@ import { builderURL, viewerURL } from "RouteBuilder";
 import { get } from "lodash";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
-type NavigationLogoProps = {
+interface NavigationLogoProps {
   logoConfiguration: NavigationSetting["logoConfiguration"];
-};
+}
 
 const StyledImage = styled.img`
   max-width: 10rem;

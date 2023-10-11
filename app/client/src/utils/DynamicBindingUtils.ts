@@ -10,10 +10,8 @@ import {
   isTrueObject,
   isWidget,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
-import type {
-  DataTreeEntity,
-  DataTreeEntityConfig,
-} from "entities/DataTree/dataTreeFactory";
+import type { DataTreeEntityConfig } from "@appsmith/entities/DataTree/types";
+import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
 import { getType, Types } from "./TypeHelpers";
 import { ViewTypes } from "components/formControls/utils";
 
@@ -148,11 +146,11 @@ export enum EvalErrorTypes {
   SERIALIZATION_ERROR = "SERIALIZATION_ERROR",
 }
 
-export type EvalError = {
+export interface EvalError {
   type: EvalErrorTypes;
   message: string;
   context?: Record<string, any>;
-};
+}
 
 export interface DynamicPath {
   key: string;
