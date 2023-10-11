@@ -28,20 +28,20 @@ export const TabsWrapper = styled.div`
   }
 `;
 
-type TabProp = {
+interface TabProp {
   key: string;
   title: string;
   count?: number;
   panelComponent?: JSX.Element;
-};
+}
 
-export type WorkspaceSettingsTabsProps = {
+export interface WorkspaceSettingsTabsProps {
   currentTab: string | undefined;
   isMemberofTheWorkspace: boolean;
   searchValue: string;
   setTabArrLen: (tabArrLen: number) => void;
   addTabComponent?: () => TabProp;
-};
+}
 
 export const WorkspaceSettingsTabs = ({
   addTabComponent,
