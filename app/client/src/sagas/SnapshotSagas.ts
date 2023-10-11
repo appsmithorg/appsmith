@@ -84,9 +84,8 @@ function* restoreApplicationFromSnapshotSaga() {
       applicationId,
     });
 
-    const currentLayoutSystemType: LayoutSystemTypes = yield select(
-      getLayoutSystemType,
-    );
+    const currentLayoutSystemType: LayoutSystemTypes =
+      yield select(getLayoutSystemType);
 
     const isValidResponse: boolean = yield validateResponse(
       response,
@@ -170,9 +169,8 @@ export function* deleteApplicationSnapshotSaga() {
 //Saga to update snapshot details by fetching info from backend
 function* updateSnapshotDetailsSaga() {
   try {
-    const snapShotDetails: { updatedTime: Date } | undefined = yield call(
-      fetchSnapshotSaga,
-    );
+    const snapShotDetails: { updatedTime: Date } | undefined =
+      yield call(fetchSnapshotSaga);
     yield put(
       updateSnapshotDetails(
         snapShotDetails && snapShotDetails.updatedTime

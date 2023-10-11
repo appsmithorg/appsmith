@@ -50,10 +50,10 @@ const Content = styled.div`
   justify-content: space-between;
 `;
 
-type DatabaseFieldProps = {
+interface DatabaseFieldProps {
   field: DatasourceColumns | DatasourceKeys;
   step: number;
-};
+}
 
 export function DatabaseColumns(props: DatabaseFieldProps) {
   const field = props.field;

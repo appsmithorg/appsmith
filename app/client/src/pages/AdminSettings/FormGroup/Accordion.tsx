@@ -39,13 +39,13 @@ const Line = styled.hr`
 }
 `;
 
-type AccordionProps = {
+interface AccordionProps {
   label?: React.ReactNode;
   settings?: Setting[];
   isHidden?: boolean;
   category?: string;
   subCategory?: string;
-};
+}
 
 export default function Accordion({
   category,

@@ -10,10 +10,10 @@ import {
 } from "widgets/WidgetUtils";
 import AutoHeightContainer from "./AutoHeightContainer";
 
-export type AutoHeightWrapperProps = {
+export interface AutoHeightWrapperProps {
   widgetProps: WidgetProps;
   children: ReactNode;
-};
+}
 
 export function AutoHeightContainerWrapper(props: WidgetProps) {
   const isCanvas = useWidgetConfig(props.type, "isCanvas");

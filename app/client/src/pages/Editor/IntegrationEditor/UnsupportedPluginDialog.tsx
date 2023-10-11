@@ -15,11 +15,11 @@ import {
   UNSUPPORTED_PLUGIN_DIALOG_SUBTITLE,
 } from "@appsmith/constants/messages";
 
-type Props = {
+interface Props {
   isModalOpen: boolean;
   onClose: () => void;
   onContinue: () => void;
-};
+}
 
 // Unsupported Plugin for gen CRUD page
 function UnsupportedPluginDialog(props: Props) {

@@ -3,7 +3,7 @@ import styled from "styled-components";
 import Button from "components/editorComponents/Button";
 import Divider from "components/editorComponents/Divider";
 
-type FormFooterProps = {
+interface FormFooterProps {
   onCancel?: () => void;
   onSubmit?: () => void;
   divider?: boolean;
@@ -13,7 +13,7 @@ type FormFooterProps = {
   submitOnEnter?: boolean;
   canSubmit?: boolean;
   size?: "large" | "small";
-};
+}
 
 const FooterActions = styled.div`
   margin: 1em;
