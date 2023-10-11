@@ -1,5 +1,9 @@
+import type { WidgetType } from "WidgetProvider/factory";
 import type { RenderMode } from "constants/WidgetConstants";
-import type { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
+import type {
+  FlexLayerAlignment,
+  ResponsiveBehavior,
+} from "layoutSystems/common/utils/constants";
 import type { DropZone } from "layoutSystems/common/utils/types";
 import type { WidgetProps } from "widgets/BaseWidget";
 
@@ -53,7 +57,13 @@ export interface LayoutComponent extends React.FC<LayoutComponentProps> {
   // get template of layout component to wrap new widgets in.
   getChildTemplate: (props: LayoutProps) => LayoutProps | undefined;
   // Get a list of highlights to demarcate the drop positions within the layout.
-  deriveHighlights: (canvasId: string) => AnvilHighlightInfo[];
+  deriveHighlights: (
+    layoutProps: LayoutProps,
+    widgetPositions: WidgetPositions,
+    canvasId: string,
+    draggedWidgets: DraggedWidget[],
+    layoutOrder?: string[],
+  ) => AnvilHighlightInfo[];
   // Get a list of child widgetIds rendered by the layout.
   extractChildWidgetIds: (props: LayoutProps) => string[];
   // Remove a child widget / layout from the layout component.
@@ -73,6 +83,7 @@ export interface AnvilHighlightInfo {
   canvasId: string; // WidgetId of the canvas widget to which the highlight (/ layout) belongs.
   dropZone: DropZone; // size of the drop zone of this highlight.
   height: number; // height of the highlight.
+  isVertical: boolean; // Whether the highlight is vertical or horizontal.
   layoutOrder: string[]; // (Top - down) Hierarchy list of layouts to which the highlight belongs. The last entry in the array is the immediate parent layout.
   posX: number; // x position of the highlight.
   posY: number; // y position of the highlight.
@@ -89,4 +100,10 @@ export interface PositionData {
 
 export interface WidgetPositions {
   [id: string]: PositionData;
+}
+
+export interface DraggedWidget {
+  widgetId: string;
+  type: WidgetType;
+  responsiveBehavior: ResponsiveBehavior;
 }
