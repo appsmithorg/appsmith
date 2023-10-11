@@ -1,4 +1,10 @@
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import React, { createContext, useMemo } from "react";
+
+type SaveActionNameParams = {
+  id: string;
+  name: string;
+};
 
 type QueryEditorContextContextProps = {
   moreActionsMenu?: React.ReactNode;
@@ -6,6 +12,9 @@ type QueryEditorContextContextProps = {
   onEntityNotFoundBackClick?: () => void;
   changeQueryPage?: (queryId: string) => void;
   showActionRightPaneBackLink?: boolean;
+  saveActionName?: (
+    params: SaveActionNameParams,
+  ) => ReduxAction<SaveActionNameParams>;
 };
 
 type QueryEditorContextProviderProps =
@@ -21,19 +30,22 @@ export function QueryEditorContextProvider({
   moreActionsMenu,
   onCreateDatasourceClick,
   onEntityNotFoundBackClick,
+  saveActionName,
 }: QueryEditorContextProviderProps) {
   const value = useMemo(
     () => ({
+      changeQueryPage,
       moreActionsMenu,
       onCreateDatasourceClick,
       onEntityNotFoundBackClick,
-      changeQueryPage,
+      saveActionName,
     }),
     [
+      changeQueryPage,
       moreActionsMenu,
       onCreateDatasourceClick,
       onEntityNotFoundBackClick,
-      changeQueryPage,
+      saveActionName,
     ],
   );
 

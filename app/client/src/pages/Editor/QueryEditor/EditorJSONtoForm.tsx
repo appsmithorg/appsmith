@@ -1,3 +1,4 @@
+import { useContext } from "react";
 import type { RefObject } from "react";
 import React, { useCallback, useRef, useState } from "react";
 import type { InjectedFormProps } from "redux-form";
@@ -138,6 +139,7 @@ import {
 } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { QueryEditorContext } from "./QueryEditorContext";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -403,6 +405,8 @@ export function EditorJSONtoForm(props: Props) {
     uiComponent,
     updateActionResponseDisplayFormat,
   } = props;
+
+  const { saveActionName } = useContext(QueryEditorContext);
 
   let error = runErrorMessage;
   let output: Record<string, any>[] | null = null;
@@ -918,7 +922,10 @@ export function EditorJSONtoForm(props: Props) {
       <QueryFormContainer onSubmit={handleSubmit(noop)}>
         <StyledFormRow>
           <NameWrapper>
-            <ActionNameEditor disabled={!isChangePermitted} />
+            <ActionNameEditor
+              disabled={!isChangePermitted}
+              saveActionName={saveActionName}
+            />
           </NameWrapper>
           <ActionsWrapper>
             <MoreActionsMenu

@@ -14,7 +14,10 @@ import {
 } from "selectors/editorSelectors";
 import { changeQuery } from "actions/queryPaneActions";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
-import { getAction } from "@appsmith/selectors/entitiesSelector";
+import {
+  getAction,
+  getPluginSettingConfigs,
+} from "@appsmith/selectors/entitiesSelector";
 import { integrationEditorURL } from "RouteBuilder";
 import { QueryEditorContextProvider } from "./QueryEditorContext";
 import type { QueryEditorRouteParams } from "constants/routes";
@@ -32,10 +35,14 @@ function QueryEditorWrapper(props: QueryEditorWrapperProps) {
   const actionId = queryId || apiId;
   const dispatch = useDispatch();
   const action = useSelector((state) => getAction(state, actionId || ""));
+  const pluginId = action?.pluginId || "";
   const isEditorInitialized = useSelector(getIsEditorInitialized);
   const applicationId: string = useSelector(getCurrentApplicationId);
   const pageId: string = useSelector(getCurrentPageId);
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+  const settingsConfig = useSelector((state) =>
+    getPluginSettingConfigs(state, pluginId),
+  );
 
   const isDeletePermitted = getHasDeleteActionPermission(
     isFeatureEnabled,
@@ -112,6 +119,7 @@ function QueryEditorWrapper(props: QueryEditorWrapperProps) {
         {...props}
         changeQueryPage={changeQueryPage}
         isEditorInitialized={isEditorInitialized}
+        settingsConfig={settingsConfig}
       />
     </QueryEditorContextProvider>
   );

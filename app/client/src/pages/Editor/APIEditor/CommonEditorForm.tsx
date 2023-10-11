@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   API_EDITOR_TABS,
@@ -18,8 +18,6 @@ import type { AppState } from "@appsmith/reducers";
 import ActionNameEditor from "components/editorComponents/ActionNameEditor";
 import ActionSettings from "pages/Editor/ActionSettings";
 import RequestDropdownField from "components/editorComponents/form/fields/RequestDropdownField";
-import type { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers";
-import MoreActionsMenu from "../Explorer/Actions/MoreActionsMenu";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import { Classes } from "design-system-old";
 import {
@@ -57,10 +55,10 @@ import { DEFAULT_DATASOURCE_NAME } from "constants/ApiEditorConstants/ApiEditorC
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import {
-  getHasDeleteActionPermission,
   getHasExecuteActionPermission,
   getHasManageActionPermission,
 } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import { ApiEditorContext } from "./ApiEditorContext";
 
 const Form = styled.form`
   position: relative;
@@ -498,6 +496,7 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
     const index = Object.values(API_EDITOR_TABS).indexOf(value);
     dispatch(setApiPaneConfigSelectedTabIndex(index));
   };
+  const { moreActionsMenu, saveActionName } = useContext(ApiEditorContext);
 
   const {
     actionConfigurationHeaders,
@@ -532,17 +531,12 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
   const currentActionConfig: Action | undefined = actions.find(
     (action) => action.id === params.apiId || action.id === params.queryId,
   );
-  const { pageId } = useParams<ExplorerURLParams>();
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
   const isChangePermitted = getHasManageActionPermission(
     isFeatureEnabled,
     currentActionConfig?.userPermissions,
   );
   const isExecutePermitted = getHasExecuteActionPermission(
-    isFeatureEnabled,
-    currentActionConfig?.userPermissions,
-  );
-  const isDeletePermitted = getHasDeleteActionPermission(
     isFeatureEnabled,
     currentActionConfig?.userPermissions,
   );
@@ -582,17 +576,14 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
         <MainConfiguration>
           <FormRow className="form-row-header">
             <NameWrapper className="t--nameOfApi">
-              <ActionNameEditor disabled={!isChangePermitted} page="API_PANE" />
+              <ActionNameEditor
+                disabled={!isChangePermitted}
+                page="API_PANE"
+                saveActionName={saveActionName}
+              />
             </NameWrapper>
             <ActionButtons className="t--formActionButtons">
-              <MoreActionsMenu
-                className="t--more-action-menu"
-                id={currentActionConfig ? currentActionConfig.id : ""}
-                isChangePermitted={isChangePermitted}
-                isDeletePermitted={isDeletePermitted}
-                name={currentActionConfig ? currentActionConfig.name : ""}
-                pageId={pageId}
-              />
+              {moreActionsMenu}
               <Button
                 className="t--apiFormRunBtn"
                 isDisabled={blockExecution}

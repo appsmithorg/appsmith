@@ -87,7 +87,6 @@ type ReduxStateProps = {
   responses: any;
   isCreating: boolean;
   editorConfig: any;
-  settingConfig: any;
   uiComponent: UIComponentTypes;
   applicationId: string;
   actionId: string;
@@ -99,14 +98,12 @@ type ReduxStateProps = {
 };
 
 type StateAndRouteProps = RouteComponentProps<QueryEditorRouteParams>;
-type OwnProps = {
+type OwnProps = StateAndRouteProps & {
   isEditorInitialized: boolean;
   changeQueryPage: (queryId: string) => void;
+  settingsConfig: any;
 };
-type Props = StateAndRouteProps &
-  ReduxDispatchProps &
-  ReduxStateProps &
-  OwnProps;
+type Props = ReduxDispatchProps & ReduxStateProps & OwnProps;
 
 class QueryEditor extends React.Component<Props> {
   static contextType = QueryEditorContext;
@@ -119,7 +116,7 @@ class QueryEditor extends React.Component<Props> {
     if (this.props.match.params.queryId) {
       this.props.initFormEvaluation(
         this.props.editorConfig,
-        this.props.settingConfig,
+        this.props.settingsConfig,
         this.props.match.params.queryId,
       );
     }
@@ -206,7 +203,6 @@ class QueryEditor extends React.Component<Props> {
       pluginIds,
       responses,
       runErrorMessage,
-      settingConfig,
       uiComponent,
       updateActionResponseDisplayFormat,
     } = this.props;
@@ -246,7 +242,7 @@ class QueryEditor extends React.Component<Props> {
         onRunClick={this.handleRunClick}
         pluginId={this.props.pluginId}
         runErrorMessage={runErrorMessage[actionId]}
-        settingConfig={settingConfig}
+        settingConfig={this.props.settingsConfig}
         uiComponent={uiComponent}
         updateActionResponseDisplayFormat={updateActionResponseDisplayFormat}
       />
@@ -254,13 +250,13 @@ class QueryEditor extends React.Component<Props> {
   }
 }
 
-const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
+const mapStateToProps = (state: AppState, props: OwnProps): ReduxStateProps => {
   const { apiId, queryId } = props.match.params;
-  const actionId = queryId || apiId;
+  const actionId = queryId || apiId || "";
   const { runErrorMessage } = state.ui.queryPane;
   const { plugins } = state.entities;
 
-  const { editorConfigs, settingConfigs } = plugins;
+  const { editorConfigs } = plugins;
 
   const action = getAction(state, actionId) as QueryAction | SaaSAction;
   const formData = getFormValues(QUERY_EDITOR_FORM_NAME)(state) as
@@ -277,20 +273,14 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     editorConfig = editorConfigs[pluginId];
   }
 
-  let settingConfig: any;
-
-  if (settingConfigs && pluginId) {
-    settingConfig = settingConfigs[pluginId];
-  }
-
   const initialValues = {};
 
   if (editorConfig) {
     merge(initialValues, getConfigInitialValues(editorConfig));
   }
 
-  if (settingConfig) {
-    merge(initialValues, getConfigInitialValues(settingConfig));
+  if (props.settingsConfig) {
+    merge(initialValues, getConfigInitialValues(props.settingsConfig));
   }
 
   // initialValues contains merge of action, editorConfig, settingsConfig and will be passed to redux form
@@ -325,7 +315,6 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     isSaas: !!apiId,
     formData,
     editorConfig,
-    settingConfig,
     isCreating: state.ui.apiPane.isCreating,
     uiComponent,
     applicationId: getCurrentApplicationId(state),
