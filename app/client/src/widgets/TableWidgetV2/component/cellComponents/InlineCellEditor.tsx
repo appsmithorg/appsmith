@@ -99,7 +99,7 @@ const Wrapper = styled.div<{
   }
 `;
 
-type InlineEditorPropsType = {
+interface InlineEditorPropsType {
   accentColor: string;
   compactMode: string;
   inputType: InputTypes.TEXT | InputTypes.NUMBER;
@@ -116,7 +116,7 @@ type InlineEditorPropsType = {
   widgetId: string;
   paddedInput: boolean;
   autoFocus: boolean;
-};
+}
 
 export function InlineCellEditor({
   accentColor,

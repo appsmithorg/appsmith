@@ -10,9 +10,9 @@ import type { JSCollection } from "entities/JSCollection";
 import type { CreateJSCollectionRequest } from "api/JSActionAPI";
 import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
 
-export type FetchJSCollectionsPayload = {
+export interface FetchJSCollectionsPayload {
   applicationId: string;
-};
+}
 
 export const fetchJSCollections = ({
   applicationId,

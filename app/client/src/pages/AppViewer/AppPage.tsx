@@ -17,13 +17,13 @@ import { useLocation } from "react-router";
 import { renderAppsmithCanvas } from "layoutSystems/CanvasFactory";
 import type { WidgetProps } from "widgets/BaseWidget";
 
-type AppPageProps = {
+interface AppPageProps {
   appName?: string;
   canvasWidth: number;
   pageId?: string;
   pageName?: string;
   widgetsStructure: CanvasWidgetStructure;
-};
+}
 
 export function AppPage(props: AppPageProps) {
   const currentApplicationDetails = useSelector(getCurrentApplication);

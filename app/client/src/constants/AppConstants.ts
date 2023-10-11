@@ -78,7 +78,7 @@ export const NAVIGATION_SETTINGS = {
   },
 };
 
-export type NavigationSetting = {
+export interface NavigationSetting {
   showNavbar: boolean;
   showSignIn: boolean;
   orientation: (typeof NAVIGATION_SETTINGS.ORIENTATION)[keyof typeof NAVIGATION_SETTINGS.ORIENTATION];
@@ -88,7 +88,7 @@ export type NavigationSetting = {
   colorStyle: (typeof NAVIGATION_SETTINGS.COLOR_STYLE)[keyof typeof NAVIGATION_SETTINGS.COLOR_STYLE];
   logoAssetId: string;
   logoConfiguration: (typeof NAVIGATION_SETTINGS.LOGO_CONFIGURATION)[keyof typeof NAVIGATION_SETTINGS.LOGO_CONFIGURATION];
-};
+}
 
 export type StringsFromNavigationSetting = Omit<
   NavigationSetting,

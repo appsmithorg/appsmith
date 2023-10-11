@@ -4,12 +4,12 @@ import type { ReactNode } from "react";
 import { memo } from "react";
 import React from "react";
 
-type DropTargetComponentWrapperProps = {
+interface DropTargetComponentWrapperProps {
   dropTargetProps: DropTargetComponentProps;
   dropDisabled: boolean;
   children: ReactNode;
   snapColumnSpace: number;
-};
+}
 
 /**
  * This component is a wrapper for the DropTargetComponent.

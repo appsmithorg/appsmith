@@ -40,19 +40,19 @@ export type FormProps<TValues = any> = PropsWithChildren<{
   updateFormData: (values: TValues, skipConversion?: boolean) => void;
 }>;
 
-type StyledFormProps = {
+interface StyledFormProps {
   fixedFooter: boolean;
   scrollContents: boolean;
-};
+}
 
-type StyledFormBodyProps = {
+interface StyledFormBodyProps {
   stretchBodyVertically: boolean;
-};
+}
 
-type StyledFooterProps = {
+interface StyledFooterProps {
   fixedFooter: boolean;
   backgroundColor?: string;
-};
+}
 
 const BUTTON_WIDTH = 110;
 const FOOTER_BUTTON_GAP = 10;

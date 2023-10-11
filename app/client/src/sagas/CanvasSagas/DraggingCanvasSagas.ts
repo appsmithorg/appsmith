@@ -43,7 +43,7 @@ import { toast } from "design-system";
 import type { WidgetDraggingUpdateParams } from "layoutSystems/common/canvasArenas/ArenaTypes";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 
-export type WidgetMoveParams = {
+export interface WidgetMoveParams {
   widgetId: string;
   leftColumn: number;
   topRow: number;
@@ -59,7 +59,7 @@ export type WidgetMoveParams = {
   allWidgets: CanvasWidgetsReduxState;
   position?: number;
   useAutoLayout?: boolean;
-};
+}
 
 export function* getCanvasSizeAfterWidgetMove(
   canvasWidgetId: string,

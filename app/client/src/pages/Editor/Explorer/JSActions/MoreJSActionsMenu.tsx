@@ -34,14 +34,14 @@ import {
   Text,
 } from "design-system";
 
-type EntityContextMenuProps = {
+interface EntityContextMenuProps {
   id: string;
   name: string;
   className?: string;
   pageId: string;
   isChangePermitted?: boolean;
   isDeletePermitted?: boolean;
-};
+}
 
 const prettifyCodeKeyboardShortCut = getAutoIndentShortcutKeyText();
 

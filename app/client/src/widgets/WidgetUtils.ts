@@ -39,9 +39,9 @@ import { WIDGET_COMPONENT_BOUNDARY_CLASS } from "constants/componentClassNameCon
 import punycode from "punycode";
 import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 
-type SanitizeOptions = {
+interface SanitizeOptions {
   existingKeys?: string[];
-};
+}
 
 const REACT_ELEMENT_PROPS = "__reactProps$";
 

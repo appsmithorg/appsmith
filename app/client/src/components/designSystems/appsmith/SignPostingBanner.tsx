@@ -3,10 +3,10 @@ import type { ReactNode } from "react";
 import styled from "styled-components";
 import { Icon } from "design-system";
 
-export type SignPostingBannerProps = {
+export interface SignPostingBannerProps {
   iconName: string;
   content: ReactNode;
-};
+}
 
 export const Container = styled.div`
   background-color: var(--ads-v2-color-blue-100);

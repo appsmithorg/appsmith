@@ -18,14 +18,14 @@ const StyledButton = styled(BaseButton)<{
     compactMode === "SHORT" ? "24px" : "28px"};
 `;
 
-type ButtonProps = {
+interface ButtonProps {
   isCellVisible: boolean;
   isSelected: boolean;
   isDisabled?: boolean;
   action: ButtonColumnActions;
   compactMode?: string;
   onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
-};
+}
 
 export function Button(props: ButtonProps) {
   const [loading, setLoading] = useState(false);

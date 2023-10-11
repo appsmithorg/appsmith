@@ -1663,6 +1663,10 @@ export class AggregateHelper extends ReusableHelper {
     this.GetElement(selector).should("have.class", className);
   }
 
+  public VerifySnapshot(selector: string, identifier: string) {
+    this.GetElement(selector).matchImageSnapshot(identifier);
+  }
+
   //Not used:
   // private xPathToCss(xpath: string) {
   //     return xpath

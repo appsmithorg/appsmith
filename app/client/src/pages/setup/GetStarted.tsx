@@ -32,14 +32,14 @@ const StyledButton = styled(Button)`
   margin-top: ${(props) => props.theme.spaces[3]}px;
 `;
 
-type UserFormProps = {
+interface UserFormProps {
   onGetStarted?: (proficiency?: string, useCase?: string) => void;
-};
+}
 
-type NonSuperUserFormData = {
+interface NonSuperUserFormData {
   proficiency?: string;
   useCase?: string;
-};
+}
 
 export function SuperUserForm() {
   return (

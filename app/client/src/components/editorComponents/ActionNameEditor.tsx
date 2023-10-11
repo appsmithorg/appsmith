@@ -58,7 +58,7 @@ const ApiIconBox = styled.div`
   margin-right: 8px;
   flex-shrink: 0;
 `;
-type ActionNameEditorProps = {
+interface ActionNameEditorProps {
   /*
     This prop checks if page is API Pane or Query Pane or Curl Pane
     So, that we can toggle between ads editable-text component and existing editable-text component
@@ -67,7 +67,7 @@ type ActionNameEditorProps = {
   */
   page?: string;
   disabled?: boolean;
-};
+}
 
 function ActionNameEditor(props: ActionNameEditorProps) {
   const params = useParams<{ apiId?: string; queryId?: string }>();

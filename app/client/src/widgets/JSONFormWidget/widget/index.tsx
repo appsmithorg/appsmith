@@ -104,11 +104,11 @@ export type MetaInternalFieldState = FieldState<{
   filterText?: string;
 }>;
 
-export type JSONFormWidgetState = {
+export interface JSONFormWidgetState {
   resetObserverCallback: () => void;
   isSubmitting: boolean;
   metaInternalFieldState: MetaInternalFieldState;
-};
+}
 
 export type Action = ExecuteTriggerPayload & {
   updateDependencyType?: ActionUpdateDependency;

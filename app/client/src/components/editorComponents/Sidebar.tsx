@@ -50,9 +50,9 @@ const StyledResizer = styled.div<{ resizing: boolean }>`
   }
 `;
 
-type Props = {
+interface Props {
   children: React.ReactNode;
-};
+}
 
 export const EntityExplorerSidebar = memo(({ children }: Props) => {
   let tooltipTimeout: ReturnType<typeof setTimeout>;
