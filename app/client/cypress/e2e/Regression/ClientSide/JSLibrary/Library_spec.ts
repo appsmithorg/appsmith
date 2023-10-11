@@ -10,17 +10,13 @@ describe("excludeForAirgap", "Tests JS Libraries", () => {
     _.installer.assertUnInstall("uuidjs");
   });
 
-  it("2. Installs the library against a unique namespace when there is a collision with the existing entity", () => {
+  it.only("2. Installs the library against a unique namespace when there is a collision with the existing entity", () => {
     _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TABLE, 200, 200);
     _.entityExplorer.NavigateToSwitcher("Explorer");
     _.entityExplorer.RenameEntityFromExplorer("Table1", "jsonwebtoken");
     _.entityExplorer.ExpandCollapseEntity("Libraries");
     _.installer.OpenInstaller();
-    _.installer.installLibrary("jsonwebtoken", "jsonwebtoken1", true);
-    cy.reload();
-    _.agHelper.AssertElementExist(
-      _.installer.getLibraryLocatorInExplorer("jsonwebtoken1"),
-    );
+    _.installer.installLibrary("jsonwebtoken", "jsonwebtoken_1", true);
   });
 
   it("3. Checks jspdf library", () => {

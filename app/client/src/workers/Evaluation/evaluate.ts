@@ -3,7 +3,7 @@ import type {
   ConfigTree,
   DataTree,
   DataTreeEntity,
-} from "@appsmith/entities/DataTree/types";
+} from "entities/DataTree/dataTreeTypes";
 import type { EvaluationError } from "utils/DynamicBindingUtils";
 import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
 import unescapeJS from "unescape-js";
