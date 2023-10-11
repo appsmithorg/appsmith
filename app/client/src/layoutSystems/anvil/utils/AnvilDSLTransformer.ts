@@ -28,13 +28,6 @@ export function anvilDSLTransformer() {
           },
         },
       ];
-      delete _dsl.rightColumn;
-      delete _dsl.snapColumns;
-      delete _dsl.topRow;
-      delete _dsl.bottomRow;
-      delete _dsl.minHeight;
-      delete _dsl.parentColumnSpace;
-      delete _dsl.parentRowSpace;
     }
     return _dsl;
   };

@@ -426,16 +426,11 @@ export interface WidgetBaseProps {
   widgetSize?: { [key: string]: Record<string, string> };
 }
 
-// Changing leftColumn, etc to be optional is for Anvil Layout System
-// Unfortunately, today the WidgetProps is tightly coupled with the whole system
-// So there is no quick fix here, and we will need to refactor the whole system
-// Going forward, it is likely that Anvil will be our only layout system
-// So this choice makes sense while we're experimenting.
 export interface WidgetRowCols {
-  leftColumn?: number;
-  rightColumn?: number;
-  topRow?: number;
-  bottomRow?: number;
+  leftColumn: number;
+  rightColumn: number;
+  topRow: number;
+  bottomRow: number;
   minHeight?: number; // Required to reduce the size of CanvasWidgets.
   mobileLeftColumn?: number;
   mobileRightColumn?: number;
@@ -445,8 +440,8 @@ export interface WidgetRowCols {
 }
 
 export interface WidgetPositionProps extends WidgetRowCols {
-  parentColumnSpace?: number;
-  parentRowSpace?: number;
+  parentColumnSpace: number;
+  parentRowSpace: number;
   // The detachFromLayout flag tells use about the following properties when enabled
   // 1) Widget does not drag/resize
   // 2) Widget CAN (but not neccessarily) be a dropTarget
