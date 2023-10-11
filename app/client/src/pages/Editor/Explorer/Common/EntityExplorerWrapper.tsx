@@ -7,7 +7,11 @@ const Wrapper = styled.div`
   -ms-overflow-style: none;
 `;
 
-export const EntityExplorerWrapper = (props: any) => {
+export const EntityExplorerWrapper = (props: {
+  children: React.ReactNode;
+  explorerRef: React.RefObject<HTMLDivElement>;
+  isActive: boolean;
+}) => {
   return (
     <Wrapper
       className={`t--entity-explorer-wrapper relative overflow-y-auto ${
