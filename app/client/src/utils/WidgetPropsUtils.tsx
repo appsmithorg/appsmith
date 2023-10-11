@@ -26,11 +26,11 @@ import type {
   XYCord,
 } from "layoutSystems/common/canvasArenas/ArenaTypes";
 
-export type WidgetOperationParams = {
+export interface WidgetOperationParams {
   operation: WidgetOperation;
   widgetId: string;
   payload: any;
-};
+}
 
 const defaultDSL = defaultTemplate;
 

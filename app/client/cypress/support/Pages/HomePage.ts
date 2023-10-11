@@ -634,6 +634,17 @@ export class HomePage {
     this.agHelper.WaitUntilToastDisappear("Deleting application...");
   }
 
+  public DeleteAppviaAPI(appId: any) {
+    cy.request({
+      method: "DELETE",
+      url: "api/v1/applications/" + appId,
+      failOnStatusCode: false,
+      headers: {
+        "X-Requested-By": "Appsmith",
+      },
+    });
+  }
+
   //Maps to leaveworkspace in command.js
   public LeaveWorkspace(workspaceName: string) {
     this.OpenWorkspaceOptions(workspaceName);

@@ -100,9 +100,9 @@ const ElementImage2 = styled.img`
   transform: translateY(-100%);
 `;
 
-type LandingPageProps = {
+interface LandingPageProps {
   onGetStarted?: (proficiency?: string, useCase?: string) => void;
-};
+}
 
 export default memo(function NonSuperUserWelcome(props: LandingPageProps) {
   return (

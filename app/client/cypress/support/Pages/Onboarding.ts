@@ -123,7 +123,7 @@ export class Onboarding {
   skipSignposting() {
     cy.get("body").then(($body) => {
       if ($body.find(OnboardingLocator.introModalCloseBtn).length) {
-        cy.wrap(null).then(() => {
+        cy.wrap(null).then(async () => {
           localForage.config({
             name: "Appsmith",
           });

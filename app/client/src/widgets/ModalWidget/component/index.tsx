@@ -37,7 +37,7 @@ const Wrapper = styled.div<{
   border-radius: ${({ $borderRadius }) => $borderRadius};
 `;
 
-export type ModalComponentProps = {
+export interface ModalComponentProps {
   isOpen: boolean;
   onClose: (e: any) => void;
   onModalClose?: () => void;
@@ -55,7 +55,7 @@ export type ModalComponentProps = {
   positioning?: Positioning;
   spacing?: Spacing;
   alignment?: Alignment;
-};
+}
 
 /* eslint-disable react/display-name */
 export default function ModalComponent(props: ModalComponentProps) {

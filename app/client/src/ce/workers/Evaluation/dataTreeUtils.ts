@@ -1,4 +1,4 @@
-import type { DataTree } from "@appsmith/entities/DataTree/types";
+import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { get, isObject, set, unset } from "lodash";
 import { klona } from "klona/json";
 import type { EvalProps } from "workers/common/DataTreeEvaluator";

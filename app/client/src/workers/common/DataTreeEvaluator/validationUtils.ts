@@ -1,11 +1,10 @@
 import type { ValidationConfig } from "constants/PropertyControlConstants";
 import { Severity } from "entities/AppsmithConsole";
 import type {
-  ConfigTree,
-  DataTree,
   WidgetEntity,
   WidgetEntityConfig,
 } from "@appsmith/entities/DataTree/types";
+import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeTypes";
 import { get, isObject, isUndefined, set } from "lodash";
 import type { EvaluationError } from "utils/DynamicBindingUtils";
 import {

@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { Text, Button } from "design-system";
 import type { WrappedFieldMetaProps, WrappedFieldInputProps } from "redux-form";
 
-type RadioButtonGroupProps = {
+interface RadioButtonGroupProps {
   options: RadioButtonProps[];
   label: string;
   initialValue: string;
@@ -13,11 +13,11 @@ type RadioButtonGroupProps = {
   testid: string;
 };
 
-type RadioButtonProps = {
+interface RadioButtonProps {
   label: string;
   subtext?: string;
   value: string;
-};
+}
 
 const StyledButton = styled(Button)`
   width: 160px;

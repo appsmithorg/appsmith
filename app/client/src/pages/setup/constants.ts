@@ -1,7 +1,7 @@
-export type OptionType = {
+export interface OptionType {
   label?: string;
   value?: string;
-};
+}
 
 export const roleOptions: OptionType[] = [
   {

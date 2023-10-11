@@ -17,7 +17,7 @@ export interface FlexLayer {
   children: LayerChild[];
 }
 
-export type FlexComponentProps = {
+export interface FlexComponentProps {
   alignment: FlexVerticalAlignment;
   children: ReactNode;
   componentHeight: number;
@@ -34,20 +34,20 @@ export type FlexComponentProps = {
   flexVerticalAlignment: FlexVerticalAlignment;
   isMobile: boolean;
   renderMode: RenderMode;
-};
+}
 
 export type AlignmentColumnInfo = {
   [key in FlexLayerAlignment]: number;
 };
 
-export type FlexBoxAlignmentColumnInfo = {
+export interface FlexBoxAlignmentColumnInfo {
   [key: number]: AlignmentColumnInfo;
-};
+}
 
-export type AlignmentColumnData = {
+export interface AlignmentColumnData {
   alignment: FlexLayerAlignment;
   columns: number;
-};
+}
 
 /**
  * Start: Position utils types
