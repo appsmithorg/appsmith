@@ -320,4 +320,5 @@ export class CommonLocators {
   _treeSelectedContent = ".rc-tree-select-selection-item-content";
   _switcherIcon = ".switcher-icon";
   _root = "#root";
+  _menuItem = ".bp3-menu-item";
 }
