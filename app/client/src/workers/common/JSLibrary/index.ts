@@ -1,7 +1,10 @@
 import lodashPackageJson from "lodash/package.json";
 import momentPackageJson from "moment-timezone/package.json";
 
-export type TLibAccessor = { original: string; modified: string };
+export interface TLibAccessor {
+  original: string;
+  modified: string;
+}
 
 export interface TJSLibrary {
   version?: string;
