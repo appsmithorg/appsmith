@@ -70,11 +70,11 @@ export const saveCopiedWidgets = async (widgetJSON: string) => {
   }
 };
 
-const getStoredUsersBetaFlags = (email: any) => {
+const getStoredUsersBetaFlags = async (email: any) => {
   return store.getItem(email);
 };
 
-const setStoredUsersBetaFlags = (email: any, userBetaFlagsObj: any) => {
+const setStoredUsersBetaFlags = async (email: any, userBetaFlagsObj: any) => {
   return store.setItem(email, userBetaFlagsObj);
 };
 
@@ -716,15 +716,15 @@ export const initAppKbState = async (
 
     const appKbState = {
       checksum,
-      pageSlugs: pageSlugs.reduce((acc, pageSlug) => {
-        acc[pageSlug] = {
-          hasReacted: false,
-        };
-        return acc;
-      }, {} as Record<string, { hasReacted: boolean }>) as Record<
-        string,
-        { hasReacted: boolean }
-      >,
+      pageSlugs: pageSlugs.reduce(
+        (acc, pageSlug) => {
+          acc[pageSlug] = {
+            hasReacted: false,
+          };
+          return acc;
+        },
+        {} as Record<string, { hasReacted: boolean }>,
+      ) as Record<string, { hasReacted: boolean }>,
     };
 
     aiKBApplicationMap[appId] = appKbState;

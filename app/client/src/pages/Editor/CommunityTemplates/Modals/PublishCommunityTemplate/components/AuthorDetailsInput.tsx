@@ -8,14 +8,14 @@ import { emailValidator } from "design-system-old";
 import React, { useMemo } from "react";
 import styled from "styled-components";
 
-type Props = {
+interface Props {
   authorEmail: string;
   authorName: string;
   disableEmail: boolean;
   disableName: boolean;
   setAuthorEmail: React.Dispatch<string>;
   setAuthorName: React.Dispatch<string>;
-};
+}
 const AuthorDetailsInput = ({
   authorEmail,
   authorName,

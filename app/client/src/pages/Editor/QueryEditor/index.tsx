@@ -28,9 +28,9 @@ import {
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 
-type QueryEditorWrapperProps = RouteComponentProps<QueryEditorRouteParams>;
+type QueryEditorProps = RouteComponentProps<QueryEditorRouteParams>;
 
-function QueryEditorWrapper(props: QueryEditorWrapperProps) {
+function QueryEditor(props: QueryEditorProps) {
   const { apiId, queryId } = props.match.params;
   const actionId = queryId || apiId;
   const dispatch = useDispatch();
@@ -125,4 +125,4 @@ function QueryEditorWrapper(props: QueryEditorWrapperProps) {
   );
 }
 
-export default QueryEditorWrapper;
+export default QueryEditor;

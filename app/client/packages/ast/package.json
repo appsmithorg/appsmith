@@ -3,23 +3,14 @@
   "private": true,
   "version": "1.0.0",
   "description": "",
+  "main": "./index.ts",
   "scripts": {
     "test:unit": "jest -b --colors --no-cache --silent --coverage --collectCoverage=true --coverageDirectory='./' --coverageReporters='json-summary'",
     "test:jest": "jest --watch",
     "lint": "yarn g:lint",
     "prettier": "yarn g:prettier",
-    "build": "rollup -c",
     "start": "rollup -c",
-    "postinstall": "yarn build"
-  },
-  "main": "build/index.js",
-  "module": "build/index.es.js",
-  "types": "build/index.d.ts",
-  "files": [
-    "build"
-  ],
-  "publishConfig": {
-    "directory": "build"
+    "build": "rollup -c"
   },
   "dependencies": {
     "@babel/runtime": "^7.21.0",
@@ -47,7 +38,5 @@
     "@typescript-eslint/parser": "^5.25.0",
     "jest": "29.0.3",
     "ts-jest": "29.0.1"
-  },
-  "author": "",
-  "license": "ISC"
+  }
 }

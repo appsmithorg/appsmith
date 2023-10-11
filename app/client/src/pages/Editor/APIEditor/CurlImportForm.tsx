@@ -92,7 +92,7 @@ const MainContainer = styled.div`
   }
 `;
 
-type OwnProps = {
+interface OwnProps {
   isImportingCurl: boolean;
   showDebugger: boolean;
   curlImportSubmitHandler: (
@@ -100,7 +100,7 @@ type OwnProps = {
     dispatch: any,
   ) => void;
   initialValues: Record<string, unknown>;
-};
+}
 
 type Props = OwnProps & InjectedFormProps<curlImportFormValues, OwnProps>;
 

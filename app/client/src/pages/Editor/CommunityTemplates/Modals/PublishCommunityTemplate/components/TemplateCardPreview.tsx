@@ -13,11 +13,11 @@ import {
   TemplatePreviewProfileContainer,
 } from "../StyledComponents";
 
-type Props = {
+interface Props {
   excerpt: string;
   templateName: string;
   useCases: string[];
-};
+}
 
 const TemplateCardPreview = ({ excerpt, templateName, useCases }: Props) => {
   return (

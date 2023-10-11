@@ -2,7 +2,7 @@ import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { Action } from "entities/Action";
 
-export type ChangeQueryPayload = {
+export interface ChangeQueryPayload {
   id: string;
   packageId?: string;
   applicationId?: string;
@@ -10,7 +10,7 @@ export type ChangeQueryPayload = {
   moduleId?: string;
   newQuery?: boolean;
   action?: Action;
-};
+}
 
 export const changeQuery = (payload: ChangeQueryPayload) => {
   return {

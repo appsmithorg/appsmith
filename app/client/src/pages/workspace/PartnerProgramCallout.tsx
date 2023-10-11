@@ -7,10 +7,10 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 
-type PartnerProgramCalloutProps = {
+interface PartnerProgramCalloutProps {
   email: string;
   onClose: () => void;
-};
+}
 
 export default function PartnerProgramCallout(
   props: PartnerProgramCalloutProps,

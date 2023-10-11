@@ -9,9 +9,9 @@ import { useLocation } from "react-router-dom";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { isElementVisible } from "./utils";
 
-const WalkthroughRenderer = lazy(() => {
+const WalkthroughRenderer = lazy(async () => {
   return retryPromise(
-    () =>
+    async () =>
       import(
         /* webpackChunkName: "walkthrough-renderer" */ "./walkthroughRenderer"
       ),

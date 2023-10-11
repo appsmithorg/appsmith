@@ -40,12 +40,12 @@ const Wrapper = styled.div`
   }
 `;
 
-type SubMenuProps = {
+interface SubMenuProps {
   className: string;
   openMenu: boolean;
   onMenuClose: () => void;
   createPageCallback: () => void;
-};
+}
 
 function AddPageContextMenu({
   className,

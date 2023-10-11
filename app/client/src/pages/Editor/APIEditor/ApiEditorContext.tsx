@@ -2,12 +2,12 @@ import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import type { PaginationField } from "api/ActionAPI";
 import React, { createContext, useMemo } from "react";
 
-type SaveActionNameParams = {
+interface SaveActionNameParams {
   id: string;
   name: string;
-};
+}
 
-type ApiEditorContextContextProps = {
+interface ApiEditorContextContextProps {
   moreActionsMenu?: React.ReactNode;
   handleDeleteClick: () => void;
   handleRunClick: (paginationField?: PaginationField) => void;
@@ -16,7 +16,7 @@ type ApiEditorContextContextProps = {
   saveActionName?: (
     params: SaveActionNameParams,
   ) => ReduxAction<SaveActionNameParams>;
-};
+}
 
 type ApiEditorContextProviderProps =
   React.PropsWithChildren<ApiEditorContextContextProps>;

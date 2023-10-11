@@ -12,7 +12,7 @@ import { getErrorCount } from "layoutSystems/common/widgetName/utils";
 import type { WidgetPositions } from "./types";
 import type { WidgetProps } from "widgets/BaseWidget";
 import type { WidgetNameData } from "./WidgetNamesCanvas/WidgetNameTypes";
-import type { DataTree } from "@appsmith/entities/DataTree/types";
+import type { DataTree } from "entities/DataTree/dataTreeTypes";
 
 export const getWidgetPositions = (state: AppState) =>
   state.entities.widgetPositions;

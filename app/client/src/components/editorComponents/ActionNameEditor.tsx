@@ -60,11 +60,11 @@ const ApiIconBox = styled.div`
   flex-shrink: 0;
 `;
 
-type SaveActionNameParams = {
+interface SaveActionNameParams {
   id: string;
   name: string;
-};
-type ActionNameEditorProps = {
+}
+interface ActionNameEditorProps {
   /*
     This prop checks if page is API Pane or Query Pane or Curl Pane
     So, that we can toggle between ads editable-text component and existing editable-text component
@@ -76,7 +76,7 @@ type ActionNameEditorProps = {
   saveActionName?: (
     params: SaveActionNameParams,
   ) => ReduxAction<SaveActionNameParams>;
-};
+}
 
 function ActionNameEditor(props: ActionNameEditorProps) {
   const params = useParams<{ apiId?: string; queryId?: string }>();

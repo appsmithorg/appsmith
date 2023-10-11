@@ -21,7 +21,7 @@ import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { importSvg } from "design-system-old";
 
 const DragHandleIcon = importSvg(
-  () => import("assets/icons/ads/app-icons/draghandler.svg"),
+  async () => import("assets/icons/ads/app-icons/draghandler.svg"),
 );
 
 const DragBlock = styled.div`

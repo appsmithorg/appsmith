@@ -426,7 +426,7 @@ export interface WidgetBaseProps {
   widgetSize?: { [key: string]: Record<string, string> };
 }
 
-export type WidgetRowCols = {
+export interface WidgetRowCols {
   leftColumn: number;
   rightColumn: number;
   topRow: number;
@@ -437,7 +437,7 @@ export type WidgetRowCols = {
   mobileTopRow?: number;
   mobileBottomRow?: number;
   height?: number;
-};
+}
 
 export interface WidgetPositionProps extends WidgetRowCols {
   parentColumnSpace: number;

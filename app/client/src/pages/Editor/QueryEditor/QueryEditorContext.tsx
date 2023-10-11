@@ -1,12 +1,12 @@
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import React, { createContext, useMemo } from "react";
 
-type SaveActionNameParams = {
+interface SaveActionNameParams {
   id: string;
   name: string;
-};
+}
 
-type QueryEditorContextContextProps = {
+interface QueryEditorContextContextProps {
   moreActionsMenu?: React.ReactNode;
   onCreateDatasourceClick?: () => void;
   onEntityNotFoundBackClick?: () => void;
@@ -15,7 +15,7 @@ type QueryEditorContextContextProps = {
   saveActionName?: (
     params: SaveActionNameParams,
   ) => ReduxAction<SaveActionNameParams>;
-};
+}
 
 type QueryEditorContextProviderProps =
   React.PropsWithChildren<QueryEditorContextContextProps>;

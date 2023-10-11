@@ -9,7 +9,7 @@ const DashboardThumbnail = (props: PreviewsProps) => {
   const { shades } = props;
 
   const UserIcon = importRemixIcon(
-    () => import("remixicon-react/User3FillIcon"),
+    async () => import("remixicon-react/User3FillIcon"),
   );
 
   return (

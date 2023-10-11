@@ -4,7 +4,7 @@ import { useApisQueriesAndJsActionOptions } from "../../helpers";
 import type { TActionBlock } from "../../types";
 import { actionToCode, codeToAction } from "../../utils";
 
-type TRootActionProps = {
+interface TRootActionProps {
   code: string;
   id: string;
   onChange: (code: string) => void;
@@ -13,7 +13,7 @@ type TRootActionProps = {
   widgetName: string;
   widgetType: string;
   dataTreePath: string | undefined;
-};
+}
 
 export default function Action(props: TRootActionProps) {
   const { code, id, onChange } = props;

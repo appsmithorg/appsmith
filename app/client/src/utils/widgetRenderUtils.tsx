@@ -3,11 +3,10 @@ import type {
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import type {
-  ConfigTree,
-  DataTree,
   WidgetEntity,
   WidgetEntityConfig,
 } from "@appsmith/entities/DataTree/types";
+import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeTypes";
 import { ENTITY_TYPE_VALUE } from "entities/DataTree/dataTreeFactory";
 import { pick } from "lodash";
 import {
