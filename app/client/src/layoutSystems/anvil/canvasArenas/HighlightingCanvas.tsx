@@ -4,29 +4,24 @@ import { getNearestParentCanvas } from "utils/generators";
 import { useCanvasDragging } from "./hooks/useCanvasDragging";
 import { StickyCanvasArena } from "layoutSystems/common/canvasArenas/StickyCanvasArena";
 import React from "react";
+import type { AnvilHighlightInfo } from "../utils/anvilTypes";
 
 export interface HighlightingCanvasProps {
-  canvasId: string;
-  layoutId: string;
-  renderOnMouseMove: (e: MouseEvent) => HighlightInfo | undefined;
-  onDrop: (renderedBlock: HighlightInfo) => void;
-}
-type AdditionDataToPassOnDrop = Record<string, any>;
-export interface HighlightInfo extends AdditionDataToPassOnDrop {
-  posX: number;
-  posY: number;
-  dropZone: {
-    top: number;
-    bottom: number;
-    left: number;
-    right: number;
+  anvilDragStates: {
+    isChildOfCanvas: boolean;
+    isCurrentDraggedCanvas: boolean;
+    isDragging: boolean;
+    isNewWidget: boolean;
+    isNewWidgetInitialTargetCanvas: boolean;
+    isResizing: boolean;
   };
-  width: number;
-  height: number;
+  layoutId: string;
+  renderOnMouseMove: (e: MouseEvent) => AnvilHighlightInfo | undefined;
+  onDrop: (renderedBlock: AnvilHighlightInfo) => void;
 }
 
 export function HighlightingCanvas({
-  canvasId,
+  anvilDragStates,
   layoutId,
   onDrop,
   renderOnMouseMove,
@@ -38,7 +33,7 @@ export function HighlightingCanvas({
     slidingArenaRef,
     stickyCanvasRef,
     {
-      canvasId,
+      anvilDragStates,
       layoutId,
       onDrop,
       renderOnMouseMove,

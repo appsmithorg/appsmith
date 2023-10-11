@@ -1,9 +1,11 @@
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import type { AppState } from "@appsmith/reducers";
-import { getDragDetails, getWidgetByID } from "sagas/selectors";
+import { getDragDetails, getWidgetByID, getWidgets } from "sagas/selectors";
 import { useSelector } from "react-redux";
 import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
 import { useEffect, useRef } from "react";
+import { getSelectedWidgets } from "selectors/ui";
+import type { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 
 export const useAnvilDnDStates = ({
   canvasId,
@@ -13,7 +15,8 @@ export const useAnvilDnDStates = ({
   layoutId: string;
 }) => {
   const lastDraggedCanvas = useRef<string | undefined>(undefined);
-
+  const selectedWidgets = useSelector(getSelectedWidgets);
+  const allWidgets = useSelector(getWidgets);
   // dragDetails contains of info needed for a container jump:
   // which parent the dragging widget belongs,
   // which canvas is active(being dragged on),
@@ -48,8 +51,31 @@ export const useAnvilDnDStates = ({
   const isCurrentDraggedCanvas = dragDetails.draggedOn === layoutId;
   const isNewWidgetInitialTargetCanvas =
     isNewWidget && layoutId === MAIN_CONTAINER_WIDGET_ID;
+  const getDraggedBlocks = (): {
+    widgetId?: string;
+    type: string;
+    responsiveBehavior?: ResponsiveBehavior;
+  }[] => {
+    if (isNewWidget) {
+      const { newWidget } = dragDetails;
 
+      return [
+        {
+          type: newWidget.type,
+          responsiveBehavior: newWidget.responsiveBehavior,
+        },
+      ];
+    } else {
+      return selectedWidgets.map((eachWidgetId) => ({
+        type: allWidgets[eachWidgetId].type,
+        widgetId: eachWidgetId,
+        responsiveBehavior: allWidgets[eachWidgetId].responsiveBehavior,
+      }));
+    }
+  };
   return {
+    draggedBlocks: getDraggedBlocks(),
+    dragDetails,
     isChildOfCanvas,
     isCurrentDraggedCanvas,
     isDragging,

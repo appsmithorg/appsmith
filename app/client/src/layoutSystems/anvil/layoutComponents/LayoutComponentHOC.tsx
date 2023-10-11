@@ -24,51 +24,14 @@ export function LayoutComponentHOC(Component: LayoutComponent) {
         );
       }
     };
-
+    Component.deriveHighlights;
     // TODO: Remove hardcoded props by creating new dragging arena for anvil.
     return (
       <Component {...props}>
         {isDropTarget && renderMode === RenderModes.CANVAS && (
           <AnvilCanvasDraggingArena
             canvasId="0"
-            deriveAllHighlightsFn={() => [
-              {
-                posX: 10,
-                posY: 10,
-                dropZone: {
-                  top: 20,
-                  bottom: 20,
-                  left: 30,
-                  right: 30,
-                },
-                width: 10,
-                height: 100,
-              },
-              {
-                posX: 50,
-                posY: 10,
-                dropZone: {
-                  top: 20,
-                  bottom: 20,
-                  left: 30,
-                  right: 30,
-                },
-                width: 10,
-                height: 100,
-              },
-              {
-                posX: 100,
-                posY: 10,
-                dropZone: {
-                  top: 20,
-                  bottom: 20,
-                  left: 30,
-                  right: 30,
-                },
-                width: 10,
-                height: 100,
-              },
-            ]}
+            deriveAllHighlightsFn={Component.deriveHighlights}
             layoutId="0"
           />
         )}

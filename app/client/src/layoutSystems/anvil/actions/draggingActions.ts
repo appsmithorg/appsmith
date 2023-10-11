@@ -1,12 +1,16 @@
-import type { WidgetAddChild } from "actions/pageActions";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { AnvilHighlightInfo } from "../utils/anvilTypes";
 
 /**
  * Add new anvil widget to canvas.
  */
-export const addNewWidgetAction = (
-  newWidget: WidgetAddChild,
+export const addNewAnvilWidgetAction = (
+  newWidget: {
+    width: number;
+    height: number;
+    widgetId: string;
+    type: string;
+  },
   highlight: AnvilHighlightInfo,
 ) => {
   return {

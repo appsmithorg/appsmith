@@ -1,5 +1,8 @@
 import type { RenderMode } from "constants/WidgetConstants";
-import type { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
+import type {
+  FlexLayerAlignment,
+  ResponsiveBehavior,
+} from "layoutSystems/common/utils/constants";
 import type { DropZone } from "layoutSystems/common/utils/types";
 import type { WidgetProps } from "widgets/BaseWidget";
 
@@ -53,7 +56,13 @@ export interface LayoutComponent extends React.FC<LayoutComponentProps> {
   // get template of layout component to wrap new widgets in.
   getChildTemplate: (props: LayoutProps) => LayoutProps | undefined;
   // Get a list of highlights to demarcate the drop positions within the layout.
-  deriveHighlights: (canvasId: string) => AnvilHighlightInfo[];
+  deriveHighlights: (
+    draggingWidgets: {
+      widgetId?: string; // widgetId is optional coz it doesn't exist for new widgets that are about to be dropped
+      type: string;
+      responsiveBehavior?: ResponsiveBehavior;
+    }[],
+  ) => AnvilHighlightInfo[];
   // Get a list of child widgetIds rendered by the layout.
   extractChildWidgetIds: (props: LayoutProps) => string[];
   // Remove a child widget / layout from the layout component.
@@ -78,4 +87,5 @@ export interface AnvilHighlightInfo {
   posY: number; // y position of the highlight.
   rowIndex: number; // Index with in the layout array to insert the child at.
   width: number; // width of the highlight.
+  isVertical?: boolean;
 }

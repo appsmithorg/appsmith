@@ -3,18 +3,20 @@ import type React from "react";
 import { useEffect } from "react";
 import { getNearestParentCanvas } from "utils/generators";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
-import type {
-  HighlightingCanvasProps,
-  HighlightInfo,
-} from "../HighlightingCanvas";
+import type { HighlightingCanvasProps } from "../HighlightingCanvas";
 import { useCanvasDragToScroll } from "layoutSystems/common/canvasArenas/useCanvasDragToScroll";
 import { Colors } from "constants/Colors";
-import { useAnvilDnDStates } from "./useAnvilDnDStates";
+import type { AnvilHighlightInfo } from "layoutSystems/anvil/utils/anvilTypes";
 
 export const useCanvasDragging = (
   slidingArenaRef: React.RefObject<HTMLDivElement>,
   stickyCanvasRef: React.RefObject<HTMLCanvasElement>,
-  { canvasId, layoutId, onDrop, renderOnMouseMove }: HighlightingCanvasProps,
+  {
+    anvilDragStates,
+    layoutId,
+    onDrop,
+    renderOnMouseMove,
+  }: HighlightingCanvasProps,
 ) => {
   const {
     isChildOfCanvas,
@@ -23,10 +25,7 @@ export const useCanvasDragging = (
     isNewWidget,
     isNewWidgetInitialTargetCanvas,
     isResizing,
-  } = useAnvilDnDStates({
-    canvasId,
-    layoutId,
-  });
+  } = anvilDragStates;
 
   const { setDraggingCanvas, setDraggingNewWidget, setDraggingState } =
     useWidgetDragResize();
@@ -39,7 +38,7 @@ export const useCanvasDragging = (
 
   const renderBlocksOnCanvas = (
     stickyCanvas: HTMLCanvasElement,
-    blockToRender: HighlightInfo,
+    blockToRender: AnvilHighlightInfo,
   ) => {
     const canvasCtx = stickyCanvas.getContext("2d") as CanvasRenderingContext2D;
     canvasCtx.clearRect(0, 0, stickyCanvas.width, stickyCanvas.height);
@@ -64,7 +63,7 @@ export const useCanvasDragging = (
       );
 
       let canvasIsDragging = false;
-      let currentRectanglesToDraw: HighlightInfo;
+      let currentRectanglesToDraw: AnvilHighlightInfo;
       const scrollObj: any = {};
       const resetCanvasState = () => {
         if (stickyCanvasRef.current && slidingArenaRef.current) {

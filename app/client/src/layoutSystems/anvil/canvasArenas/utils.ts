@@ -1,9 +1,9 @@
 import type { XYCord } from "layoutSystems/common/canvasArenas/ArenaTypes";
-import type { HighlightInfo } from "./HighlightingCanvas";
+import type { AnvilHighlightInfo } from "../utils/anvilTypes";
 
 export const getClosestHighlight = (
   e: MouseEvent,
-  highlights: HighlightInfo[],
+  highlights: AnvilHighlightInfo[],
 ) => {
   if (!highlights || !highlights.length) return;
 
@@ -15,7 +15,7 @@ export const getClosestHighlight = (
   /**
    * Filter highlights that  span the current mouse position.
    */
-  let filteredHighlights: HighlightInfo[] = [];
+  let filteredHighlights: AnvilHighlightInfo[] = [];
   filteredHighlights = getViableDropPositions(highlights, pos);
   if (!filteredHighlights || !filteredHighlights?.length) return;
 
@@ -31,19 +31,19 @@ export const getClosestHighlight = (
 };
 
 function getViableDropPositions(
-  arr: HighlightInfo[],
+  arr: AnvilHighlightInfo[],
   pos: XYCord,
-): HighlightInfo[] {
+): AnvilHighlightInfo[] {
   if (!arr) return arr || [];
   const DEFAULT_DROP_RANGE = 10;
   const verticalHighlights = arr.filter(
-    (highlight: HighlightInfo) => highlight.isVertical,
+    (highlight: AnvilHighlightInfo) => highlight.isVertical,
   );
   const horizontalHighlights = arr.filter(
-    (highlight: HighlightInfo) => !highlight.isVertical,
+    (highlight: AnvilHighlightInfo) => !highlight.isVertical,
   );
-  const selection: HighlightInfo[] = [];
-  verticalHighlights.forEach((highlight: HighlightInfo) => {
+  const selection: AnvilHighlightInfo[] = [];
+  verticalHighlights.forEach((highlight: AnvilHighlightInfo) => {
     if (pos.y >= highlight.posY && pos.y <= highlight.posY + highlight.height)
       if (
         (pos.x >= highlight.posX &&
@@ -57,7 +57,7 @@ function getViableDropPositions(
         selection.push(highlight);
   });
   const hasVerticalSelection = selection.length > 0;
-  horizontalHighlights.forEach((highlight: HighlightInfo) => {
+  horizontalHighlights.forEach((highlight: AnvilHighlightInfo) => {
     if (pos.x >= highlight.posX && pos.x <= highlight.posX + highlight.width)
       if (
         (pos.y >= highlight.posY &&
@@ -78,7 +78,7 @@ function getViableDropPositions(
   return selection;
 }
 
-function calculateDistance(a: HighlightInfo, b: XYCord): number {
+function calculateDistance(a: AnvilHighlightInfo, b: XYCord): number {
   let distX = 0,
     distY = 0;
   if (a.isVertical) {

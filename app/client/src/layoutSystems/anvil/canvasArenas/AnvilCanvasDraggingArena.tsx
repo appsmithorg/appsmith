@@ -1,35 +1,33 @@
+import type { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import React, { useCallback } from "react";
-import type { HighlightInfo } from "./HighlightingCanvas";
+import type { AnvilHighlightInfo } from "../utils/anvilTypes";
 import { HighlightingCanvas } from "./HighlightingCanvas";
+import { useAnvilDnDStates } from "./hooks/useAnvilDnDStates";
+import { useAnvilWidgetDrop } from "./hooks/useAnvilWidgetDrop";
 import { getClosestHighlight } from "./utils";
 
 type AnvilCanvasDraggingArenaProps = {
   canvasId: string;
   layoutId: string;
-  deriveAllHighlightsFn: () => HighlightInfo[];
+  deriveAllHighlightsFn: (
+    draggingWidgets: {
+      widgetId?: string;
+      type: string;
+      responsiveBehavior?: ResponsiveBehavior;
+    }[],
+  ) => AnvilHighlightInfo[];
 };
 
 export const AnvilCanvasDraggingArena = (
   props: AnvilCanvasDraggingArenaProps,
 ) => {
   const { canvasId, deriveAllHighlightsFn, layoutId } = props;
-  const allHighLights = deriveAllHighlightsFn();
-
-  const onDrop = (renderedBlock: HighlightInfo) => {
-    return renderedBlock;
-    // dispatch appropriate action to update the widgets
-    // if (isNewWidget) addNewWidgetToAnvilLayout(dropPayload, drawingBlocks);
-    // else
-    //   dispatch({
-    //     type: ReduxActionTypes.ANVILLAYOUT_REORDER_WIDGETS,
-    //     payload: {
-    //       dropPayload,
-    //       movedWidgets: selectedWidgets,
-    //       parentId: widgetId,
-    //       direction,
-    //     },
-    //   });
-  };
+  const anvilDragStates = useAnvilDnDStates({
+    canvasId,
+    layoutId,
+  });
+  const allHighLights = deriveAllHighlightsFn(anvilDragStates.draggedBlocks);
+  const onDrop = useAnvilWidgetDrop(anvilDragStates);
   const renderOnMouseMove = useCallback(
     (e: MouseEvent) => {
       return getClosestHighlight(e, allHighLights);
@@ -38,7 +36,7 @@ export const AnvilCanvasDraggingArena = (
   );
   return (
     <HighlightingCanvas
-      canvasId={canvasId}
+      anvilDragStates={anvilDragStates}
       layoutId={layoutId}
       onDrop={onDrop}
       renderOnMouseMove={renderOnMouseMove}

@@ -4,7 +4,7 @@ import {
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import { BlueprintOperationTypes } from "WidgetProvider/constants";
-import { updateAndSaveLayout, type WidgetAddChild } from "actions/pageActions";
+import { updateAndSaveLayout } from "actions/pageActions";
 import log from "loglevel";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
@@ -18,7 +18,12 @@ import { moveWidgets } from "../utils/layouts/update/moveUtils";
 function* addWidgetsSaga(
   actionPayload: ReduxAction<{
     highlight: AnvilHighlightInfo;
-    newWidget: WidgetAddChild;
+    newWidget: {
+      width: number;
+      height: number;
+      widgetId: string;
+      type: string;
+    };
   }>,
 ) {
   try {
@@ -33,12 +38,12 @@ function* addWidgetsSaga(
       BlueprintOperationTypes.UPDATE_CREATE_PARAMS_BEFORE_ADD,
       {
         parentId: canvasId,
-        widgetId: newWidget.newWidgetId,
+        widgetId: newWidget.widgetId,
         widgets: allWidgets,
         widgetType: newWidget.type,
       },
     );
-    const updatedParams: WidgetAddChild = { ...newWidget, ...newParams };
+    const updatedParams: any = { ...newWidget, ...newParams };
 
     // Create and add widget.
     const updatedWidgetsOnAddition: CanvasWidgetsReduxState = yield call(
