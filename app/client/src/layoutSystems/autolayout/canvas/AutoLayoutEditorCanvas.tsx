@@ -7,7 +7,7 @@ import { getSnappedGrid } from "sagas/WidgetOperationUtils";
 import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import ContainerComponent from "widgets/ContainerWidget/component";
-import { AutoCanvasDraggingArena } from "../editor/AutoLayoutcanvasArenas/AutoCanvasDraggingArena";
+import { AutoCanvasDraggingArena } from "../editor/AutoLayoutCanvasArenas/AutoCanvasDraggingArena";
 import { AutoLayoutCanvasView } from "./AutoLayoutCanvasView";
 import { getDirection } from "./utils";
 

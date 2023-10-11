@@ -38,7 +38,7 @@ import {
   useLayoutSystemFeatures,
 } from "../../../layoutSystems/common/useLayoutSystemFeatures";
 import { CANVAS_VIEWPORT } from "constants/componentClassNameConstants";
-import { MainContainerResizer } from "layoutSystems/common/mainContainerResizer/mainContainerResizer";
+import { MainContainerResizer } from "layoutSystems/common/mainContainerResizer/MainContainerResizer";
 
 type MainCanvasWrapperProps = {
   isPreviewMode: boolean;
@@ -141,7 +141,7 @@ function MainContainerWrapper(props: MainCanvasWrapperProps) {
   const isWDSV2Enabled = useFeatureFlag("ab_wds_enabled");
 
   const checkLayoutSystemFeatures = useLayoutSystemFeatures();
-  const [enablemainContainerResizer] = checkLayoutSystemFeatures([
+  const [enableMainContainerResizer] = checkLayoutSystemFeatures([
     LayoutSystemFeatures.ENABLE_MAIN_CONTAINER_RESIZER,
   ]);
 
@@ -171,7 +171,7 @@ function MainContainerWrapper(props: MainCanvasWrapperProps) {
     node = (
       <Canvas
         canvasWidth={canvasWidth}
-        enableMainCanvasResizer={enablemainContainerResizer}
+        enableMainCanvasResizer={enableMainContainerResizer}
         pageId={params.pageId}
         widgetsStructure={widgetsStructure}
       />
@@ -203,7 +203,7 @@ function MainContainerWrapper(props: MainCanvasWrapperProps) {
   return (
     <>
       <Wrapper
-        $enableMainCanvasResizer={enablemainContainerResizer}
+        $enableMainCanvasResizer={enableMainContainerResizer}
         background={
           isPreviewMode || isAppSettingsPaneWithNavigationTabOpen
             ? isWDSV2Enabled
@@ -253,7 +253,7 @@ function MainContainerWrapper(props: MainCanvasWrapperProps) {
       </Wrapper>
       <MainContainerResizer
         currentPageId={currentPageId}
-        enableMainCanvasResizer={enablemainContainerResizer}
+        enableMainCanvasResizer={enableMainContainerResizer}
         heightWithTopMargin={heightWithTopMargin}
         isPageInitiated={!isPageInitializing && !!widgetsStructure}
         isPreviewMode={isPreviewMode}

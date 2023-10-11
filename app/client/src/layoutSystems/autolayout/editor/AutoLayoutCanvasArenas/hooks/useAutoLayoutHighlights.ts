@@ -9,7 +9,6 @@ import type { WidgetDraggingBlock } from "layoutSystems/common/canvasArenas/Aren
 import { deriveHighlightsFromLayers } from "layoutSystems/autolayout/utils/highlightUtils";
 import type { Point } from "layoutSystems/autolayout/utils/highlightSelectionUtils";
 import { getHighlightPayload } from "layoutSystems/autolayout/utils/highlightSelectionUtils";
-import { getHighlightPayload } from "layoutSystems/autolayout/utils/highlightSelectionUtils";
 
 export interface AutoLayoutHighlightProps {
   blocksToDraw: WidgetDraggingBlock[];
