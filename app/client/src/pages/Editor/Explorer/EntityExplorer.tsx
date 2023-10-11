@@ -25,7 +25,7 @@ import { importSvg } from "design-system-old";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const NoEntityFoundSvg = importSvg(
-  () => import("assets/svg/no_entities_found.svg"),
+  async () => import("assets/svg/no_entities_found.svg"),
 );
 
 const Wrapper = styled.div`

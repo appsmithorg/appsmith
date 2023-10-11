@@ -30,14 +30,14 @@ import { getCurrentPageId } from "selectors/editorSelectors";
 import ContextMenu from "pages/Editor/Explorer/ContextMenu";
 import type { TreeDropdownOption } from "pages/Editor/Explorer/ContextMenu";
 
-type EntityContextMenuProps = {
+interface EntityContextMenuProps {
   id: string;
   name: string;
   className?: string;
   pageId: string;
   canManageAction?: boolean;
   canDeleteAction?: boolean;
-};
+}
 export function ActionEntityContextMenu(props: EntityContextMenuProps) {
   const { canDeleteAction = false, canManageAction = false } = props;
   const nextEntityName = useNewActionName();

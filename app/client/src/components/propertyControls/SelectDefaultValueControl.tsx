@@ -48,7 +48,7 @@ export const JSToString = (js: string): string => {
     .join("");
 };
 
-type InputTextProp = {
+interface InputTextProp {
   label: string;
   value: string;
   onChange: (event: React.ChangeEvent<HTMLTextAreaElement> | string) => void;
@@ -57,7 +57,7 @@ type InputTextProp = {
   placeholder?: string;
   dataTreePath?: string;
   theme: EditorTheme;
-};
+}
 
 function InputText(props: InputTextProp) {
   const {

@@ -135,10 +135,10 @@ const CollapseComponentWrapper = styled.div`
   width: fit-content;
 `;
 
-type DatasourceCardProps = {
+interface DatasourceCardProps {
   datasource: Datasource;
   plugin: Plugin;
-};
+}
 
 function DatasourceCard(props: DatasourceCardProps) {
   const dispatch = useDispatch();

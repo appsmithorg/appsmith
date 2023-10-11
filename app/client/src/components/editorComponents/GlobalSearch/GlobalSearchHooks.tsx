@@ -38,7 +38,7 @@ import {
   getHasCreateDatasourcePermission,
 } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 const AddLineIcon = importRemixIcon(
-  () => import("remixicon-react/AddLineIcon"),
+  async () => import("remixicon-react/AddLineIcon"),
 );
 
 export const useFilteredFileOperations = (query = "") => {

@@ -306,9 +306,9 @@ export const submitCreateWorkspaceForm = async (data: any, dispatch: any) => {
   return result;
 };
 
-export type LeftPaneProps = {
+export interface LeftPaneProps {
   isBannerVisible?: boolean;
-};
+}
 
 export function LeftPane(props: LeftPaneProps) {
   const { isBannerVisible = false } = props;
@@ -349,7 +349,7 @@ export function LeftPane(props: LeftPaneProps) {
               color="var(--ads-v2-color-fg-emphasis)"
               data-testid="t--workspace-new-workspace-auto-create"
               icon="plus"
-              onSelect={() =>
+              onSelect={async () =>
                 submitCreateWorkspaceForm(
                   {
                     name: getNextEntityName(

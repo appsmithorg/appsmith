@@ -26,12 +26,14 @@ import { MenuDivider } from "@design-system/widgets-old";
 import { importRemixIcon, importSvg } from "@design-system/widgets-old";
 import { CANVAS_ART_BOARD } from "constants/componentClassNameConstants";
 
-const Check = importRemixIcon(() => import("remixicon-react/CheckFillIcon"));
+const Check = importRemixIcon(
+  async () => import("remixicon-react/CheckFillIcon"),
+);
 const ArrowDownIcon = importRemixIcon(
-  () => import("remixicon-react/ArrowDownSLineIcon"),
+  async () => import("remixicon-react/ArrowDownSLineIcon"),
 );
 const EditIcon = importSvg(
-  () => import("assets/icons/control/edit-variant1.svg"),
+  async () => import("assets/icons/control/edit-variant1.svg"),
 );
 
 const AscendingIcon = styled(ControlIcons.SORT_CONTROL)`
@@ -83,11 +85,11 @@ const TitleWrapper = styled.div`
   }
 `;
 
-type TitleProps = {
+interface TitleProps {
   children: React.ReactNode;
   tableWidth?: number;
   width?: number;
-};
+}
 
 function Title(props: TitleProps) {
   const ref = createRef<HTMLDivElement>();
@@ -125,7 +127,7 @@ function Title(props: TitleProps) {
 
 const ICON_SIZE = 16;
 
-type HeaderProps = {
+interface HeaderProps {
   canFreezeColumn?: boolean;
   columnName: string;
   columnIndex: number;
@@ -156,7 +158,7 @@ type HeaderProps = {
     e: React.DragEvent<HTMLDivElement>,
     destinationIndex: number,
   ) => void;
-};
+}
 
 const HeaderCellComponent = (props: HeaderProps) => {
   const { column, editMode, isSortable } = props;

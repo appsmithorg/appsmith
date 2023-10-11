@@ -666,7 +666,7 @@ function* handleCreateNewApiActionSaga(
   }>,
 ) {
   const workspaceId: string = yield select(getCurrentWorkspaceId);
-  const { pageId, apiType = PluginPackageName.REST_API } = action.payload;
+  const { apiType = PluginPackageName.REST_API, pageId } = action.payload;
   const pluginId: string = yield select(getPluginIdOfPackageName, apiType);
   // Default Config is Rest Api Plugin Config
   let defaultConfig = DEFAULT_CREATE_API_CONFIG;

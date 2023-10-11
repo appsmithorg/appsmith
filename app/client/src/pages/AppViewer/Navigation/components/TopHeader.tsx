@@ -24,7 +24,7 @@ import TopInline from "../TopInline";
 import NavigationLogo from "@appsmith/pages/AppViewer/NavigationLogo";
 import BackToAppsButton from "./BackToAppsButton";
 
-type TopHeaderProps = {
+interface TopHeaderProps {
   currentApplicationDetails?: ApplicationPayload;
   pages: Page[];
   currentWorkspaceId: string;
@@ -32,7 +32,7 @@ type TopHeaderProps = {
   isMenuOpen: boolean;
   setMenuOpen: (isMenuOpen: boolean) => void;
   showUserSettings: boolean;
-};
+}
 
 const TopHeader = (props: TopHeaderProps) => {
   const {

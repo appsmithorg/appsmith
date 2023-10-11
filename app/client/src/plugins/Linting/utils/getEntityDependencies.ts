@@ -18,7 +18,7 @@ import type {
   JSEntity,
   WidgetEntity,
 } from "../lib/entity";
-import type { DataTreeEntity } from "@appsmith/entities/DataTree/types";
+import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
 
 export function getEntityDependencies(
   entity: IEntity,

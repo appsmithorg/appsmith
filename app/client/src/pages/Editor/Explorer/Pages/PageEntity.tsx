@@ -2,11 +2,11 @@ import React from "react";
 import ExplorerWidgetGroup from "../Widgets/WidgetGroup";
 import Files from "../Files";
 
-type ExplorerPageEntityProps = {
+interface ExplorerPageEntityProps {
   step: number;
   searchKeyword?: string;
   showWidgetsSidebar: () => void;
-};
+}
 
 export function ExplorerPageEntity(props: ExplorerPageEntityProps) {
   return (

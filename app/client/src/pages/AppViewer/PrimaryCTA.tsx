@@ -35,14 +35,14 @@ import { setPreviewModeInitAction } from "actions/editorActions";
  * TYPES
  * ---------------------------------------------------------------------------------------------------
  */
-type Props = {
+interface Props {
   url?: string;
   className?: string;
   primaryColor: string;
   navColorStyle: NavigationSetting["colorStyle"];
   insideSidebar?: boolean;
   isMinimal?: boolean;
-};
+}
 
 /**
  * ---------------------------------------------------------------------------------------------------

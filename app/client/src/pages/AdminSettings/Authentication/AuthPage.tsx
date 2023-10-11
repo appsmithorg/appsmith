@@ -79,12 +79,12 @@ const MethodTitle = styled(Text)`
 
 const MethodDets = styled(Text)``;
 
-export type banner = {
+export interface banner {
   actionLabel: string;
   title: string;
-};
+}
 
-export type AuthMethodType = {
+export interface AuthMethodType {
   id: string;
   category?: string;
   label: string;
@@ -94,7 +94,7 @@ export type AuthMethodType = {
   calloutBanner?: banner;
   icon?: string;
   isFeatureEnabled: boolean;
-};
+}
 
 const ButtonWrapper = styled.div`
   min-width: 100px;

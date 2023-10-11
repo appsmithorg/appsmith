@@ -15,12 +15,12 @@ import MenuText from "./MenuText";
 import classNames from "classnames";
 import { StyledMenuItem } from "./MenuItem.styled";
 
-type MenuItemProps = {
+interface MenuItemProps {
   page: Page;
   query: string;
   navigationSetting?: NavigationSetting;
   isMinimal?: boolean;
-};
+}
 
 const MenuItem = ({
   isMinimal,

@@ -14,14 +14,14 @@ import { generatePath } from "react-router";
 import { getQueryStringfromObject } from "@appsmith/RouteBuilder";
 import getQueryParamsObject from "utils/getQueryParamsObject";
 
-export type URLBuilderParams = {
+export interface URLBuilderParams {
   suffix?: string;
   branch?: string;
   hash?: string;
   params?: Record<string, any>;
   pageId?: string | null;
   persistExistingParams?: boolean;
-};
+}
 
 export enum URL_TYPE {
   DEFAULT,
@@ -44,17 +44,17 @@ export const baseURLRegistry = {
   },
 };
 
-export type ApplicationURLParams = {
+export interface ApplicationURLParams {
   applicationId?: string;
   applicationSlug?: string;
   applicationVersion?: ApplicationVersion;
-};
+}
 
-export type PageURLParams = {
+export interface PageURLParams {
   pageId: string;
   pageSlug: string;
   customSlug?: string;
-};
+}
 
 const fetchQueryParamsToPersist = (persistExistingParams: boolean) => {
   const existingParams = getQueryParamsObject() || {};
@@ -157,10 +157,13 @@ export class URLBuilder {
         appParams.applicationVersion || this.appParams.applicationVersion;
     }
     if (pageParams) {
-      const params = pageParams.reduce((acc, page) => {
-        acc[page.pageId] = page;
-        return acc;
-      }, {} as Record<string, PageURLParams>);
+      const params = pageParams.reduce(
+        (acc, page) => {
+          acc[page.pageId] = page;
+          return acc;
+        },
+        {} as Record<string, PageURLParams>,
+      );
       Object.assign(this.pageParams, params);
     }
   }
@@ -244,11 +247,11 @@ export class URLBuilder {
    */
   build(builderParams: URLBuilderParams, mode: APP_MODE = APP_MODE.EDIT) {
     const {
+      branch,
       hash = "",
       params = {},
       persistExistingParams = false,
       suffix,
-      branch,
     } = builderParams;
 
     const { entityId, entityType } = this.resolveEntityId(builderParams);

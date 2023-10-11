@@ -31,9 +31,9 @@ const StyledHelpBar = styled.div`
   }
 `;
 
-type Props = {
+interface Props {
   toggleShowModal: () => void;
-};
+}
 
 function HelpBar({ toggleShowModal }: Props) {
   return (

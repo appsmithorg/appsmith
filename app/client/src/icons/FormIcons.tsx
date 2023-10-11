@@ -6,12 +6,18 @@ import type { IconProps } from "constants/IconConstants";
 import { IconWrapper } from "constants/IconConstants";
 import { importRemixIcon, importSvg } from "design-system-old";
 
-const InfoIcon = importSvg(() => import("assets/icons/form/info-outline.svg"));
-const HelpIcon = importSvg(() => import("assets/icons/form/help-outline.svg"));
-const AddNewIcon = importSvg(() => import("assets/icons/form/add-new.svg"));
-const LockIcon = importSvg(() => import("assets/icons/form/lock.svg"));
+const InfoIcon = importSvg(
+  async () => import("assets/icons/form/info-outline.svg"),
+);
+const HelpIcon = importSvg(
+  async () => import("assets/icons/form/help-outline.svg"),
+);
+const AddNewIcon = importSvg(
+  async () => import("assets/icons/form/add-new.svg"),
+);
+const LockIcon = importSvg(async () => import("assets/icons/form/lock.svg"));
 const DeleteIcon = importRemixIcon(
-  () => import("remixicon-react/DeleteBinLineIcon"),
+  async () => import("remixicon-react/DeleteBinLineIcon"),
 );
 
 /* eslint-disable react/display-name */

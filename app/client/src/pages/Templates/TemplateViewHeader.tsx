@@ -27,9 +27,9 @@ const Title = styled(Text)`
   color: var(--ads-v2-color-fg-emphasis-plus);
 `;
 
-type Props = {
+interface Props {
   templateId: string;
-};
+}
 const SHOW_FORK_MODAL_PARAM = "showForkTemplateModal";
 
 function TemplateViewHeader({ templateId }: Props) {

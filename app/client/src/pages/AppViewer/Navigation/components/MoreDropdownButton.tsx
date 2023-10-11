@@ -18,10 +18,10 @@ import { APP_MODE } from "entities/App";
 import { builderURL, viewerURL } from "@appsmith/RouteBuilder";
 import { trimQueryString } from "utils/helpers";
 
-type MoreDropdownButtonProps = {
+interface MoreDropdownButtonProps {
   navigationSetting?: NavigationSetting;
   pages: Page[];
-};
+}
 
 const MoreDropdownButton = ({
   navigationSetting,

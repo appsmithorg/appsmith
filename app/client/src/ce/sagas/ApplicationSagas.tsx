@@ -260,10 +260,13 @@ export function* fetchAppAndPagesSaga(
     const isValidResponse: boolean = yield call(validateResponse, response);
     if (isValidResponse) {
       const prevPagesState: Page[] = yield select(getPageList);
-      const pagePermissionsMap = prevPagesState.reduce((acc, page) => {
-        acc[page.pageId] = page.userPermissions ?? [];
-        return acc;
-      }, {} as Record<string, string[]>);
+      const pagePermissionsMap = prevPagesState.reduce(
+        (acc, page) => {
+          acc[page.pageId] = page.userPermissions ?? [];
+          return acc;
+        },
+        {} as Record<string, string[]>,
+      );
       yield put({
         type: ReduxActionTypes.FETCH_APPLICATION_SUCCESS,
         payload: { ...response.data.application, pages: response.data.pages },
@@ -921,9 +924,8 @@ export function* initializeDatasourceWithDefaultValues(datasource: Datasource) {
       datasource.datasourceStorages[currentEnvironment],
     );
     payload.isConfigured = false; // imported datasource as not configured yet
-    const response: ApiResponse = yield DatasourcesApi.updateDatasourceStorage(
-      payload,
-    );
+    const response: ApiResponse =
+      yield DatasourcesApi.updateDatasourceStorage(payload);
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put({

@@ -26,11 +26,11 @@ const Container = styled.div`
 export const actionsExist = (state: AppState): boolean =>
   !!state.entities.actions.length;
 
-type ConnectDataCTAProps = {
+interface ConnectDataCTAProps {
   widgetTitle: string;
   widgetId?: string;
   widgetType?: WidgetType;
-};
+}
 
 function ConnectDataCTA(props: ConnectDataCTAProps) {
   const pageId: string = useSelector(getCurrentPageId);

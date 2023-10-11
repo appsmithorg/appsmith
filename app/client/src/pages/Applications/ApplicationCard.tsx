@@ -63,7 +63,7 @@ import {
 
 const { cloudHosting } = getAppsmithConfigs();
 
-type ApplicationCardProps = {
+interface ApplicationCardProps {
   application: ApplicationPayload;
   share?: (applicationId: string) => void;
   delete?: (applicationId: string) => void;
@@ -77,7 +77,7 @@ type ApplicationCardProps = {
     canInviteToWorkspace?: boolean;
   };
   workspaceId: string;
-};
+}
 
 const IconScrollWrapper = styled.div`
   position: relative;

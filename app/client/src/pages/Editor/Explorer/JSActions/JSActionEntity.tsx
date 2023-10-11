@@ -20,13 +20,13 @@ import {
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
-type ExplorerJSCollectionEntityProps = {
+interface ExplorerJSCollectionEntityProps {
   step: number;
   searchKeyword?: string;
   id: string;
   isActive: boolean;
   type: PluginType;
-};
+}
 
 const getUpdateJSObjectName = (id: string, name: string) => {
   return saveJSObjectName({ id, name });

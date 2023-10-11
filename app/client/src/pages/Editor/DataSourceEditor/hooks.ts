@@ -3,21 +3,21 @@ import type { QueryTemplate } from "entities/Datasource";
 import { useState, useCallback } from "react";
 import { useDispatch } from "react-redux";
 
-type FetchPreviewData = {
+interface FetchPreviewData {
   datasourceId: string;
   template: QueryTemplate;
-};
+}
 
-type UseDatasourceQueryReturn = {
+interface UseDatasourceQueryReturn {
   fetchPreviewData: (data: FetchPreviewData) => void;
   isLoading: boolean;
   failedFetchingPreviewData: boolean;
-};
+}
 
-type UseDatasourceQueryParams = {
+interface UseDatasourceQueryParams {
   setPreviewData: (data: any) => void;
   setPreviewDataError: (string: any) => void;
-};
+}
 
 export const useDatasourceQuery = ({
   setPreviewData,

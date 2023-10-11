@@ -67,20 +67,20 @@ const Content = styled.div`
   padding-left: ${(props) => props.theme.spaces[7]}px;
 `;
 
-type routeId = {
+interface routeId {
   applicationSlug: string;
   pageId: string;
   pageSlug: string;
-};
+}
 
 const goToGenPageForm = ({ pageId }: routeId): void => {
   AnalyticsUtil.logEvent("GEN_CRUD_PAGE_ACTION_CARD_CLICK");
   history.push(generateTemplateFormURL({ pageId }));
 };
 
-type EmptyCanvasPromptsProps = {
+interface EmptyCanvasPromptsProps {
   isPreviewMode: boolean;
-};
+}
 
 /**
  * OldName: CanvasTopSection

@@ -38,13 +38,13 @@ import NavigationLogo from "@appsmith/pages/AppViewer/NavigationLogo";
 import MenuItemContainer from "./components/MenuItemContainer";
 import BackToAppsButton from "./components/BackToAppsButton";
 
-type SidebarProps = {
+interface SidebarProps {
   currentApplicationDetails?: ApplicationPayload;
   pages: Page[];
   currentWorkspaceId: string;
   currentUser: User | undefined;
   showUserSettings: boolean;
-};
+}
 
 export function Sidebar(props: SidebarProps) {
   const selectedTheme = useSelector(getSelectedAppTheme);

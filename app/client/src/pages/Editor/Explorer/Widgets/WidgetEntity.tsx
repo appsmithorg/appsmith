@@ -60,7 +60,7 @@ const useWidget = (
   };
 };
 
-export type WidgetEntityProps = {
+export interface WidgetEntityProps {
   widgetId: string;
   widgetName: string;
   widgetType: WidgetType;
@@ -71,7 +71,7 @@ export type WidgetEntityProps = {
   searchKeyword?: string;
   isDefaultExpanded?: boolean;
   widgetsInStep: string[];
-};
+}
 
 export const WidgetEntity = memo((props: WidgetEntityProps) => {
   const widgetsToExpand = useSelector(getEntityExplorerWidgetsToExpand);

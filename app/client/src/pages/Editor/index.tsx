@@ -45,7 +45,7 @@ import { widgetInitialisationSuccess } from "../../actions/widgetActions";
 import { EnvDeployInfoModal } from "@appsmith/components/EnvDeployInfoModal";
 import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
 
-type EditorProps = {
+interface EditorProps {
   currentApplicationId?: string;
   currentApplicationName?: string;
   initEditor: (payload: InitializeEditorPayload) => void;
@@ -65,7 +65,7 @@ type EditorProps = {
   pageLevelSocketRoomId: string;
   isMultiPane: boolean;
   widgetConfigBuildSuccess: () => void;
-};
+}
 
 type Props = EditorProps & RouteComponentProps<BuilderRouteParams>;
 

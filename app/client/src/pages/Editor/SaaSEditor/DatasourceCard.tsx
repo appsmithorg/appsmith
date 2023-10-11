@@ -81,10 +81,10 @@ const ButtonsWrapper = styled.div`
   gap: 10px;
 `;
 
-type DatasourceCardProps = {
+interface DatasourceCardProps {
   datasource: Datasource;
   onCreate: (datasource: Datasource) => void;
-};
+}
 
 // TODO: This is largely a quick copy pasta and edit of QueryEditor/DatasourceCard.tsx
 // When we move Google Sheets over to regular oauth2 integrations, we will need to refactor this.

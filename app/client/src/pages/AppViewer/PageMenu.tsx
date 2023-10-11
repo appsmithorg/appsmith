@@ -25,14 +25,14 @@ import { StyledCtaContainer } from "./Navigation/Sidebar.styled";
 import ShareButton from "./Navigation/components/ShareButton";
 import BackToAppsButton from "./Navigation/components/BackToAppsButton";
 
-type NavigationProps = {
+interface NavigationProps {
   isOpen?: boolean;
   application?: ApplicationPayload;
   pages: Page[];
   url?: string;
   setMenuOpen?: (shouldOpen: boolean) => void;
   headerRef?: React.RefObject<HTMLDivElement>;
-};
+}
 
 export function PageMenu(props: NavigationProps) {
   const { application, headerRef, isOpen, pages, setMenuOpen } = props;

@@ -6,13 +6,13 @@ import FormContext from "../FormContext";
 import type { SchemaItem } from "../constants";
 import { FIELD_MAP } from "../constants";
 
-type FieldRendererProps = {
+interface FieldRendererProps {
   fieldName: ControllerRenderProps["name"];
   options?: Record<string, any>;
   passedDefaultValue?: unknown;
   propertyPath: string;
   schemaItem: SchemaItem;
-};
+}
 
 function FieldRenderer({
   fieldName,
