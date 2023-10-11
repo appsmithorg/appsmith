@@ -45,11 +45,11 @@ import type { ActionDescription } from "@appsmith/workers/Evaluation/fns";
 import { getActionById } from "selectors/editorSelectors";
 import type { AppState } from "@appsmith/reducers";
 
-export type TriggerMeta = {
+export interface TriggerMeta {
   source?: TriggerSource;
   triggerPropertyName?: string;
   triggerKind?: TriggerKind;
-};
+}
 
 /**
  * The controller saga that routes different trigger effects to its executor sagas

@@ -29,14 +29,17 @@ export enum ComparisonOperationsEnum {
 
 export type HiddenType = boolean | Condition | ConditionObject;
 
-export type ConditionObject = { conditionType: string; conditions: Conditions };
+export interface ConditionObject {
+  conditionType: string;
+  conditions: Conditions;
+}
 
-export type Condition = {
+export interface Condition {
   path: string;
   comparison: ComparisonOperations;
   value: any;
   flagValue: FeatureFlag;
-};
+}
 
 export type Conditions = Array<Condition> | ConditionObject;
 export interface ControlBuilder<T extends ControlProps> {

@@ -4,7 +4,7 @@ import type { WidgetOperationParams } from "utils/WidgetPropsUtils";
 
 //WidgetDraggingBlock contains information related to a dragging widget,
 //that is used in computing logic to enable drag and drop of the particular widget
-export type WidgetDraggingBlock = {
+export interface WidgetDraggingBlock {
   left: number;
   top: number;
   width: number;
@@ -16,7 +16,7 @@ export type WidgetDraggingBlock = {
   detachFromLayout?: boolean;
   fixedHeight?: number;
   type: string;
-};
+}
 
 //WidgetDraggingUpdateParams is an extension of WidgetDraggingBlock,
 // with updateWidgetParams information required to dispatch action for updating DSL

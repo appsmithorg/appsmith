@@ -18,7 +18,7 @@ const allTokens = new TokensAccessor({
 }).getAllTokens();
 
 const ATTENTION_MESSAGE =
-  "//THIS FILE IS CREATED AUTOMATICALLY. PLEASE DON'T EDIT IT.";
+  "/* THIS FILE IS CREATED AUTOMATICALLY. PLEASE DON'T EDIT IT. */";
 const cssStyles = `:root {--root-unit: ${getFluidRootUnit(fluid)}; ${cssRule(
   allTokens,
 )}}`;

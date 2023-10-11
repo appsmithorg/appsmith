@@ -46,10 +46,8 @@ import {
   isAction,
   isAppsmithEntity,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
-import type {
-  DataTreeEntity,
-  ActionEntity,
-} from "@appsmith/entities/DataTree/types";
+import type { ActionEntity } from "@appsmith/entities/DataTree/types";
+import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
 import type {
   TGetGeoLocationActionType,
   TGetGeoLocationDescription,

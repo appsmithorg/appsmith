@@ -319,4 +319,5 @@ export class CommonLocators {
   _richText_line = "#tinymce p span";
   _treeSelectedContent = ".rc-tree-select-selection-item-content";
   _switcherIcon = ".switcher-icon";
+  _root = "#root";
 }

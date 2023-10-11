@@ -9,9 +9,9 @@ import { IconWrapper } from "constants/IconConstants";
 import { Text } from "design-system";
 import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
 
-type CardProps = {
+interface CardProps {
   details: WidgetCardProps;
-};
+}
 
 export const Wrapper = styled.div`
   border-radius: var(--ads-v2-border-radius);

@@ -225,10 +225,10 @@ export interface TextComponentProps extends ComponentProps {
   minHeight?: number;
 }
 
-type State = {
+interface State {
   isTruncated: boolean;
   showModal: boolean;
-};
+}
 
 type TextRef = React.Ref<Text> | undefined;
 

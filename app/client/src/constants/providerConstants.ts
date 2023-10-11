@@ -27,7 +27,7 @@ export type ProviderTemplates = ApiResponse & {
   templateId: string;
 };
 
-export type ApiTemplates = {
+export interface ApiTemplates {
   id: string;
   deleted: boolean;
   name: string;
@@ -52,7 +52,7 @@ export type ApiTemplates = {
   datasourceConfiguration: {
     url: string;
   };
-};
+}
 
 export type ProviderTemplateArray = ApiResponse & {
   templateData: {
@@ -86,13 +86,13 @@ export type ProviderTemplateArray = ApiResponse & {
   addToPageLoading: boolean;
 };
 
-export type SearchResultsProviders = {
+export interface SearchResultsProviders {
   id: string;
   name: string;
   description: string;
   imageUrl: string;
   url: string;
   documentationUrl: string;
-};
+}
 
 export const DEFAULT_TEMPLATE_TYPE = "TEMPLATE";

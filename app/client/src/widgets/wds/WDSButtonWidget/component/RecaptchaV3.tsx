@@ -17,10 +17,10 @@ export function RecaptchaV3(props: RecaptchaV3Props) {
   };
 
   const {
-    recaptchaKey,
     onPress: onClickProp,
-    onRecaptchaSubmitSuccess,
     onRecaptchaSubmitError = noop,
+    onRecaptchaSubmitSuccess,
+    recaptchaKey,
   } = props;
 
   const onClick: ButtonComponentProps["onPress"] = () => {

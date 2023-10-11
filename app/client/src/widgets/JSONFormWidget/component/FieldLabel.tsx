@@ -14,20 +14,20 @@ const HelpIcon = importSvg(async () => import("assets/icons/control/help.svg"));
 
 type AlignField = AlignWidget;
 
-type StyledLabelTextProps = {
+interface StyledLabelTextProps {
   color: string;
   fontSize: string;
   fontStyle: string;
   fontWeight: string;
   isRequiredField: boolean;
   textDecoration: string;
-};
+}
 
-export type LabelStyles = {
+export interface LabelStyles {
   labelStyle?: string;
   labelTextColor?: string;
   labelTextSize?: string;
-};
+}
 
 export type FieldLabelProps = PropsWithChildren<
   LabelStyles & {
@@ -39,13 +39,13 @@ export type FieldLabelProps = PropsWithChildren<
   }
 >;
 
-type StyledLabelTextWrapperProps = {
+interface StyledLabelTextWrapperProps {
   direction: FieldLabelProps["direction"];
-};
+}
 
-type StyledLabelProps = {
+interface StyledLabelProps {
   direction?: FieldLabelProps["direction"];
-};
+}
 
 const LABEL_TEXT_WRAPPER_MARGIN_BOTTOM = 4;
 const LABEL_TEXT_MARGIN_RIGHT_WITH_REQUIRED = 2;
