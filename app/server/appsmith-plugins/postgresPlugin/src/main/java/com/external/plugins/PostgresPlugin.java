@@ -1,5 +1,6 @@
 package com.external.plugins;
 
+import com.appsmith.external.connectionpoolconfig.configurations.ConnectionPoolConfig;
 import com.appsmith.external.constants.DataType;
 import com.appsmith.external.datatypes.AppsmithType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
@@ -182,9 +183,11 @@ public class PostgresPlugin extends BasePlugin {
         private static final int PREPARED_STATEMENT_INDEX = 0;
 
         private final SharedConfig sharedConfig;
+        private final ConnectionPoolConfig connectionPoolConfig;
 
-        public PostgresPluginExecutor(SharedConfig sharedConfig) {
+        public PostgresPluginExecutor(SharedConfig sharedConfig, ConnectionPoolConfig connectionPoolConfig) {
             this.sharedConfig = sharedConfig;
+            this.connectionPoolConfig = connectionPoolConfig;
             MAX_SIZE_SUPPORTED = sharedConfig.getMaxResponseSize();
         }
 
@@ -609,9 +612,13 @@ public class PostgresPlugin extends BasePlugin {
                         e.getMessage()));
             }
 
-            return Mono.fromCallable(() -> {
-                        log.debug("Connecting to Postgres db");
-                        return createConnectionPool(datasourceConfiguration);
+            return connectionPoolConfig
+                    .getMaxConnectionPoolSize()
+                    .flatMap(maxPoolSize -> {
+                        return Mono.fromCallable(() -> {
+                            log.debug("Connecting to Postgres db");
+                            return createConnectionPool(datasourceConfiguration, maxPoolSize);
+                        });
                     })
                     .subscribeOn(scheduler);
         }
@@ -1070,7 +1077,8 @@ public class PostgresPlugin extends BasePlugin {
      * @param datasourceConfiguration
      * @return connection pool
      */
-    private static HikariDataSource createConnectionPool(DatasourceConfiguration datasourceConfiguration)
+    private static HikariDataSource createConnectionPool(
+            DatasourceConfiguration datasourceConfiguration, Integer maximumConfigurablePoolSize)
             throws AppsmithPluginException {
         HikariConfig config = new HikariConfig();
 
@@ -1079,7 +1087,13 @@ public class PostgresPlugin extends BasePlugin {
         // Set SSL property
         com.appsmith.external.models.Connection configurationConnection = datasourceConfiguration.getConnection();
         config.setMinimumIdle(MINIMUM_POOL_SIZE);
-        config.setMaximumPoolSize(MAXIMUM_POOL_SIZE);
+
+        int maxPoolSize = MAXIMUM_POOL_SIZE;
+        if (maximumConfigurablePoolSize != null && maximumConfigurablePoolSize >= maxPoolSize) {
+            maxPoolSize = maximumConfigurablePoolSize;
+        }
+
+        config.setMaximumPoolSize(maxPoolSize);
 
         // Set authentication properties
         DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();

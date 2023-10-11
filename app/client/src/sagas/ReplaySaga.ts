@@ -81,9 +81,9 @@ import type { Plugin } from "api/PluginApi";
 import { UIComponentTypes } from "api/PluginApi";
 import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelectors";
 
-export type UndoRedoPayload = {
+export interface UndoRedoPayload {
   operation: ReplayReduxActionTypes;
-};
+}
 
 export default function* undoRedoListenerSaga() {
   yield all([

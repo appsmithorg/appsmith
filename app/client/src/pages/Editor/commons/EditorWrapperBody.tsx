@@ -1,9 +1,9 @@
 import React from "react";
 
-type EditorWrapperBodyProps = {
+interface EditorWrapperBodyProps {
   children: React.ReactNode;
   id: string;
-};
+}
 
 function EditorWrapperBody({ children, id }: EditorWrapperBodyProps) {
   return (

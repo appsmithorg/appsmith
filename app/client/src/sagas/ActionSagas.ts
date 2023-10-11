@@ -301,9 +301,8 @@ export function* fetchActionsSaga(
     { mode: "EDITOR", appId: applicationId },
   );
   try {
-    const response: ApiResponse<Action[]> = yield ActionAPI.fetchActions(
-      applicationId,
-    );
+    const response: ApiResponse<Action[]> =
+      yield ActionAPI.fetchActions(applicationId);
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put({
@@ -727,9 +726,8 @@ export function* refactorActionName(
       newName: newName,
     });
 
-    const isRefactorSuccessful: boolean = yield validateResponse(
-      refactorResponse,
-    );
+    const isRefactorSuccessful: boolean =
+      yield validateResponse(refactorResponse);
 
     const currentPageId: string = yield select(getCurrentPageId);
 

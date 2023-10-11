@@ -20,7 +20,7 @@ export type AIEditorContext = Partial<{
   mode: string;
 }>;
 
-export type TAIWrapperProps = {
+export interface TAIWrapperProps {
   children?: React.ReactNode;
   isOpen: boolean;
   currentValue: string;
@@ -33,7 +33,7 @@ export type TAIWrapperProps = {
   entity: FieldEntityInformation;
   entitiesForNavigation: EntityNavigationData;
   editor: CodeMirror.Editor;
-};
+}
 
 export function AIWindow(props: TAIWrapperProps) {
   const { children } = props;

@@ -1,11 +1,11 @@
 import { throttle } from "lodash";
 import { useLayoutEffect, useRef } from "react";
 
-type UseFixedFooterProps = {
+interface UseFixedFooterProps {
   fixedFooter: boolean;
   activeClassName: string;
   ref: React.MutableRefObject<HTMLDivElement | null>;
-};
+}
 
 const ERROR_MARGIN = 2;
 

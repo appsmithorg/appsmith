@@ -60,10 +60,10 @@ const FilterCategoryWrapper = styled.div`
   padding-bottom: ${(props) => props.theme.spaces[13] - 11}px;
 `;
 
-export type Filter = {
+export interface Filter {
   label: string;
   value?: string;
-};
+}
 
 interface FilterItemProps {
   item: Filter;

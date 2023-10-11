@@ -31,10 +31,8 @@ import _, { debounce, isEqual } from "lodash";
 import scrollIntoView from "scroll-into-view-if-needed";
 
 import { ENTITY_TYPE_VALUE } from "entities/DataTree/dataTreeFactory";
-import type {
-  DataTree,
-  EvaluationSubstitutionType,
-} from "@appsmith/entities/DataTree/types";
+import type { EvaluationSubstitutionType } from "@appsmith/entities/DataTree/types";
+import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { Skin } from "constants/DefaultTheme";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import "components/editorComponents/CodeEditor/sql/customMimes";
@@ -167,14 +165,14 @@ import { getJSFunctionStartLineFromCode } from "pages/Editor/JSEditor/utils";
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
 
-export type CodeEditorExpected = {
+export interface CodeEditorExpected {
   type: string;
   example: ExpectedValueExample;
   autocompleteDataType: AutocompleteDataType;
   openExampleTextByDefault?: boolean;
-};
+}
 
-export type EditorStyleProps = {
+export interface EditorStyleProps {
   placeholder?: string;
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
@@ -198,7 +196,7 @@ export type EditorStyleProps = {
   popperPlacement?: Placement;
   popperZIndex?: Indices;
   blockCompletions?: FieldEntityInformation["blockCompletions"];
-};
+}
 /**
  *  line => Line to which the gutter is added
  *
@@ -206,18 +204,18 @@ export type EditorStyleProps = {
  *
  * isFocusedAction => function called when focused
  */
-export type GutterConfig = {
+export interface GutterConfig {
   line: number;
   element: HTMLElement;
   isFocusedAction: () => void;
-};
+}
 
-export type CodeEditorGutter = {
+export interface CodeEditorGutter {
   getGutterConfig:
     | ((editorValue: string, cursorLineNumber: number) => GutterConfig | null)
     | null;
   gutterId: string;
-};
+}
 
 export type EditorProps = EditorStyleProps &
   EditorConfig & {
@@ -253,7 +251,7 @@ export type EditorProps = EditorStyleProps &
 
 interface Props extends ReduxStateProps, EditorProps, ReduxDispatchProps {}
 
-type State = {
+interface State {
   isFocused: boolean;
   isOpened: boolean;
   autoCompleteVisible: boolean;
@@ -268,7 +266,7 @@ type State = {
     | undefined;
   isDynamic: boolean;
   showAIWindow: boolean;
-};
+}
 
 const getEditorIdentifier = (props: EditorProps): string => {
   return props.dataTreePath || props.focusElementName || "";

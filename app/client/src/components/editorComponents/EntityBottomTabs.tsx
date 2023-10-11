@@ -23,7 +23,7 @@ const TabsListWrapper = styled(TabsList)`
     var(--ads-v2-spaces-1);
 `;
 
-type EntityBottomTabsProps = {
+interface EntityBottomTabsProps {
   className?: string;
   tabs: any;
   onSelect?: (tab: any) => void;
@@ -33,7 +33,7 @@ type EntityBottomTabsProps = {
   containerRef?: RefObject<HTMLElement>;
   // height of container when expanded
   expandedHeight?: string;
-};
+}
 
 type CollapsibleEntityBottomTabsProps = EntityBottomTabsProps &
   CollapsibleTabProps;
