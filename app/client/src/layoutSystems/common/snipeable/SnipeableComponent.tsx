@@ -30,11 +30,11 @@ const SnipeableWrapper = styled.div<{ isFocused: boolean }>`
   }
 `;
 
-type SnipeableComponentProps = {
+interface SnipeableComponentProps {
   widgetId: string;
   type: string;
   children: ReactNode;
-};
+}
 
 /**
  * SnipeableComponent

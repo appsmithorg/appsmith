@@ -10,7 +10,7 @@ import {
 } from "@appsmith/selectors/applicationSelectors";
 import { ContentBox } from "pages/AdminSettings/components";
 
-type ImageInputProps = {
+interface ImageInputProps {
   value?: any;
   onChange?(value?: any): void;
   validate?(
@@ -19,7 +19,7 @@ type ImageInputProps = {
   ): void;
   className?: string;
   defaultValue?: string;
-};
+}
 
 const StyledImg = styled.img`
   object-fit: contain;

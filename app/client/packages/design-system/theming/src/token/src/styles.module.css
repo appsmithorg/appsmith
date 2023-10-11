@@ -1,4 +1,4 @@
-//THIS FILE IS CREATED AUTOMATICALLY. PLEASE DON'T EDIT IT.
+/* THIS FILE IS CREATED AUTOMATICALLY. PLEASE DON'T EDIT IT. */
 :root {
   --root-unit: clamp(4px, calc(0.06vw + 3.77px), 5px);
   --spacing-0: 0;
@@ -159,7 +159,7 @@
   --color-fg-on-warning: rgb(21.953% 9.0775% 0%);
   --color-bd: rgb(72.54% 73.727% 82.602%);
   --color-bd-accent: rgb(33.333% 23.922% 91.373%);
-  --color-bd-focus: rgb(78.161% 34.431% 0%);
+  --color-bd-focus: rgb(33.333% 23.922% 91.373%);
   --color-bd-neutral: rgb(37.869% 38.922% 47.553%);
   --color-bd-neutral-hover: rgb(49.162% 50.308% 59.345%);
   --color-bd-positive: rgb(6.7435% 63.436% 18.481%);

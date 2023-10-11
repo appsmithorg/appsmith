@@ -49,7 +49,7 @@ const SpaceFiller = styled.div`
   height: 100px;
 `;
 
-export type DetailsFormValues = {
+export interface DetailsFormValues {
   firstName?: string;
   lastName?: string;
   email?: string;
@@ -58,7 +58,7 @@ export type DetailsFormValues = {
   proficiency?: string;
   useCase?: string;
   custom_useCase?: string;
-};
+}
 
 export const firstpageValues = [
   "firstName",

@@ -103,10 +103,10 @@ const SelectListWrapper = styled.div`
   }
 `;
 
-type Props = {
+interface Props {
   datasourceId: string;
   pluginId?: string;
-};
+}
 
 const MAX_SHEET_ROWS_LENGTH = 12;
 

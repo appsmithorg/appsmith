@@ -14,7 +14,9 @@ import reactor.core.publisher.Mono;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static com.appsmith.server.constants.FeatureMigrationType.DISABLE;
@@ -136,6 +138,9 @@ public class FeatureFlagMigrationHelperCEImpl implements FeatureFlagMigrationHel
                 } catch (Exception e) {
                     // Ignore IllegalArgumentException as all the feature flags are not added on
                     // server side
+                    if (!(e instanceof IllegalArgumentException)) {
+                        log.error("Error while parsing the feature flag {} with value {}", key, value, e);
+                    }
                 }
             }
         });
@@ -157,13 +162,13 @@ public class FeatureFlagMigrationHelperCEImpl implements FeatureFlagMigrationHel
         // featuresWithPendingMigrationDB       => {feature1 : enable, feature2 : disable}
         // latestFeatureDiffsWithMigrationType  => {feature1 : enable, feature2 : enable, feature3 : disable}
         // updatedFlagsForMigrations            => {feature1 : enable, feature3 : disable}
-
+        List<FeatureFlagEnum> featureFlagsToBeRemoved = new ArrayList<>();
         updatedFlagsForMigrations.forEach((featureFlagEnum, featureMigrationType) -> {
             if (latestFeatureDiffsWithMigrationType.containsKey(featureFlagEnum)
                     && !featureMigrationType.equals(latestFeatureDiffsWithMigrationType.get(featureFlagEnum))) {
                 /*
                 Scenario when the migrations will be blocked on user input and may end up in a case where we just have
-                to remove the entry as migration it's no longer needed:
+                to remove the entry as migration is no longer needed:
                     Step 1: Feature gets enabled by adding a valid licence and enable migration gets registered
                     Step 2: License expires which results in feature getting disabled so migration entry gets registered
                             with disable type (This will happen via cron to check the license status)
@@ -172,9 +177,15 @@ public class FeatureFlagMigrationHelperCEImpl implements FeatureFlagMigrationHel
                     Step 4: User adds the valid key or renews the subscription again which results in enabling the
                             feature and ends up in nullifying the effect for step 2
                  */
-                updatedFlagsForMigrations.remove(featureFlagEnum);
-                latestFeatureDiffsWithMigrationType.remove(featureFlagEnum);
+                featureFlagsToBeRemoved.add(featureFlagEnum);
             }
+        });
+
+        // Added a separate loop to remove the flags as we cannot remove the entry while iterating over the map to
+        // avoid the ConcurrentModificationException
+        featureFlagsToBeRemoved.forEach(featureFlagEnum -> {
+            updatedFlagsForMigrations.remove(featureFlagEnum);
+            latestFeatureDiffsWithMigrationType.remove(featureFlagEnum);
         });
         // Add the latest flags which were not part of earlier check.
         updatedFlagsForMigrations.putAll(latestFeatureDiffsWithMigrationType);

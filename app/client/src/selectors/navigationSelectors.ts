@@ -25,7 +25,7 @@ import { PluginType } from "entities/Action";
 import type { StoredDatasource } from "entities/Action";
 import type { Datasource } from "entities/Datasource";
 
-export type NavigationData = {
+export interface NavigationData {
   name: string;
   id: string;
   type: ENTITY_TYPE;
@@ -41,7 +41,7 @@ export type NavigationData = {
   actionType?: string;
   widgetType?: string;
   value?: boolean | string;
-};
+}
 export type EntityNavigationData = Record<string, NavigationData>;
 
 export const getEntitiesForNavigation = createSelector(
