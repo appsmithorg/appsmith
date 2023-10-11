@@ -22,6 +22,17 @@ jobs:
             PR: ${{ github.event.client_payload.pull_request.number }}.
             recreate: ${{ github.event.client_payload.slash_command.args.named.recreate }}.
 
+      - name: Git checkout code
+        uses: actions/checkout@v3
+
+      - name: Fail dp incase of merge conflicts
+        run: |
+          status="$(gh pr view ${{ github.event.client_payload.pull_request.number }} --json mergeable --jq .mergeable)";
+          if [ $status = "CONFLICTING" ]; then
+             echo "Fail building dp as there are merge conflicts"
+             exit
+          fi
+
   server-build:
     name: server-build
     if: github.event.client_payload.slash_command.args.named.env != 'release'
@@ -254,12 +265,6 @@ jobs:
           echo "environment variables set to deploy the image" $IMAGE_HASH
           /bin/bash ./scripts/deploy_preview.sh
 
-  notify-url:
-    needs: [build-deploy-preview]
-    runs-on: ubuntu-latest
-    if: success()
-    steps:
-      # This step creates a comment on the PR with a link to this workflow run.
       - name: Add a comment on the PR with link to Deploy-Preview
         uses: peter-evans/create-or-update-comment@v2
         with:
