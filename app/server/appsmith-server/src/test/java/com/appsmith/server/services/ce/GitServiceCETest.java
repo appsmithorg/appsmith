@@ -4143,8 +4143,7 @@ public class GitServiceCETest {
                 gitService.connectApplicationToGit(application.getId(), gitConnectDTO, "baseUrl");
 
         StepVerifier.create(applicationMono)
-                .expectErrorMessage(AppsmithError.NO_RESOURCE_FOUND.getMessage(
-                        FieldName.WORKSPACE_ID, application.getWorkspaceId()))
+                .expectErrorMessage(AppsmithError.ACTION_IS_NOT_AUTHORIZED.getMessage("Connect to Git"))
                 .verify();
     }
 
@@ -4155,8 +4154,7 @@ public class GitServiceCETest {
         Mono<Application> applicationMono = gitService.detachRemote(application.getId());
 
         StepVerifier.create(applicationMono)
-                .expectErrorMessage(AppsmithError.NO_RESOURCE_FOUND.getMessage(
-                        FieldName.WORKSPACE_ID, application.getWorkspaceId()))
+                .expectErrorMessage(AppsmithError.ACTION_IS_NOT_AUTHORIZED.getMessage("Disconnect from Git"))
                 .verify();
     }
 }

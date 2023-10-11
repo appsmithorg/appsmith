@@ -747,9 +747,10 @@ public class GitServiceCEImpl implements GitServiceCE {
                 .then(getApplicationById(defaultApplicationId))
                 .flatMap(application ->
                         // Check if the user has permission to create app on the workspace, if yes then proceed
-                        getWorkspaceById(
+                        checkPermissionOnWorkspace(
                                         application.getWorkspaceId(),
-                                        workspacePermission.getApplicationCreatePermission())
+                                        workspacePermission.getApplicationCreatePermission(),
+                                        "Connect to Git")
                                 .thenReturn(application))
                 .zipWith(isPrivateRepoMono)
                 .flatMap(tuple -> {
@@ -1168,8 +1169,10 @@ public class GitServiceCEImpl implements GitServiceCE {
     public Mono<Application> detachRemote(String defaultApplicationId) {
 
         Mono<Application> disconnectMono = getApplicationById(defaultApplicationId)
-                .flatMap(application -> getWorkspaceById(
-                                application.getWorkspaceId(), workspacePermission.getApplicationCreatePermission())
+                .flatMap(application -> checkPermissionOnWorkspace(
+                                application.getWorkspaceId(),
+                                workspacePermission.getApplicationCreatePermission(),
+                                "Disconnect from Git")
                         .thenReturn(application))
                 .flatMap(defaultApplication -> {
                     if (Optional.ofNullable(defaultApplication.getGitApplicationMetadata())
@@ -1591,11 +1594,12 @@ public class GitServiceCEImpl implements GitServiceCE {
                         AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, applicationId)));
     }
 
-    protected Mono<Workspace> getWorkspaceById(String workspaceId, AclPermission aclPermission) {
+    protected Mono<Workspace> checkPermissionOnWorkspace(
+            String workspaceId, AclPermission aclPermission, String operationName) {
         return workspaceService
                 .findById(workspaceId, aclPermission)
-                .switchIfEmpty(Mono.error(
-                        new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE_ID, workspaceId)));
+                .switchIfEmpty(
+                        Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, operationName)));
     }
 
     /**
