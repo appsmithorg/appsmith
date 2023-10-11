@@ -192,8 +192,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         AtomicReference<Boolean> exportWithConfiguration = new AtomicReference<>(false);
 
         // If Git-sync, then use MANAGE_APPLICATIONS, else use EXPORT_APPLICATION permission to fetch application
-        AclPermission permission =
-                isGitSync ? applicationPermission.getEditPermission() : applicationPermission.getExportPermission();
+        AclPermission permission = applicationPermission.getExportPermission(isGitSync, exportWithConfiguration.get());
 
         Mono<User> currentUserMono = sessionUserService.getCurrentUser().cache();
 
