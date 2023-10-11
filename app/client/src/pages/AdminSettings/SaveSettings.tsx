@@ -30,7 +30,7 @@ const SettingsButtonWrapper = styled.div`
   align-items: center;
 `;
 
-type SaveAdminSettingsProps = {
+interface SaveAdminSettingsProps {
   isOnlyTenantConfig?: boolean;
   isSaving?: boolean;
   needsRefresh?: boolean;
@@ -39,7 +39,7 @@ type SaveAdminSettingsProps = {
   settings: Record<string, string>;
   valid: boolean;
   updatedTenantSettings?: string[];
-};
+}
 
 const saveAdminSettings = (props: SaveAdminSettingsProps) => {
   const {

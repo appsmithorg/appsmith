@@ -37,4 +37,6 @@ export interface TokenSource {
   spacing?: TokenObj;
 }
 
-export type TokenObj = { [key: string]: string | number };
+export interface TokenObj {
+  [key: string]: string | number;
+}

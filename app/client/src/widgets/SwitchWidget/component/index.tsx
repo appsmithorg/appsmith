@@ -112,6 +112,7 @@ function SwitchComponent({
   inputRef,
   isDisabled,
   isDynamicHeightEnabled,
+  isLabelInline,
   isLoading,
   isSwitchedOn,
   label,
@@ -119,9 +120,8 @@ function SwitchComponent({
   labelStyle,
   labelTextColor,
   labelTextSize,
-  onChange,
   minHeight,
-  isLabelInline,
+  onChange,
 }: SwitchComponentProps): JSX.Element {
   const switchAlignClass =
     labelPosition === LabelPosition.Right ? "left" : "right";

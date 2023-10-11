@@ -26,7 +26,7 @@ const DraggableWrapper = styled.div`
   cursor: grab;
 `;
 
-type DraggableComponentProps = {
+interface DraggableComponentProps {
   widgetId: string;
   parentId?: string;
   isFlexChild?: boolean;
@@ -40,7 +40,7 @@ type DraggableComponentProps = {
   parentColumnSpace: number;
   children: ReactNode;
   dragDisabled?: boolean;
-};
+}
 
 // Widget Boundaries which is shown to indicate the boundaries of the widget
 const WidgetBoundaries = styled.div`

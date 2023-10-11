@@ -6,11 +6,10 @@ import {
 import ButtonWidget from "widgets/ButtonWidget";
 import SelectWidget from "widgets/SelectWidget";
 import type {
-  DataTree,
-  ConfigTree,
   WidgetEntity,
   DataTreeEntityConfig,
 } from "@appsmith/entities/DataTree/types";
+import type { DataTree, ConfigTree } from "entities/DataTree/dataTreeTypes";
 import {
   unEvalTreeWidgetSelectWidgetConfig,
   configTree,

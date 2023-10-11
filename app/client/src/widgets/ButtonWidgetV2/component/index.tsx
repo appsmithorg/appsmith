@@ -8,7 +8,7 @@ import type { UseRecaptchaProps } from "./useRecaptcha";
 import { Button, Tooltip } from "@design-system/widgets";
 import type { ButtonProps } from "@design-system/widgets";
 
-export type ButtonComponentProps = {
+export interface ButtonComponentProps {
   text?: string;
   tooltip?: string;
   minWidth?: number;
@@ -23,7 +23,7 @@ export type ButtonComponentProps = {
   type: ButtonProps["type"];
   onPress?: ButtonProps["onPress"];
   iconPosition?: ButtonProps["iconPosition"];
-};
+}
 
 function ButtonComponent(props: ButtonComponentProps & UseRecaptchaProps) {
   const { iconName, maxWidth, minHeight, minWidth, text, tooltip, ...rest } =

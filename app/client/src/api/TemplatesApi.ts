@@ -42,7 +42,7 @@ export interface TemplateFiltersResponse extends ApiResponse {
   };
 }
 
-export type PublishCommunityTemplateRequest = {
+export interface PublishCommunityTemplateRequest {
   applicationId: string;
   workspaceId: string;
   branchName: string;
@@ -51,7 +51,7 @@ export type PublishCommunityTemplateRequest = {
   description: string;
   useCases: string[];
   authorEmail: string;
-};
+}
 
 export type PublishCommunityTemplateResponse = ApiResponse<{
   isPublic: boolean;

@@ -45,11 +45,11 @@ const DropdownContainer = styled.div`
   }
 `;
 
-type OptionSelectorProps = {
+interface OptionSelectorProps {
   options: DropdownOption[];
   selected: DropdownOption;
   onSelect?: (value?: string, dropdownOption?: any) => void;
-};
+}
 
 function OptionSelector({ onSelect, options, selected }: OptionSelectorProps) {
   return (

@@ -109,9 +109,8 @@ export function* createModalSaga(action: ReduxAction<{ modalName: string }>) {
 export function* showModalByNameSaga(
   action: ReduxAction<{ modalName: string }>,
 ) {
-  const widgets: { [widgetId: string]: FlattenedWidgetProps } = yield select(
-    getWidgets,
-  );
+  const widgets: { [widgetId: string]: FlattenedWidgetProps } =
+    yield select(getWidgets);
   const modal: FlattenedWidgetProps | undefined = Object.values(widgets).find(
     (widget: FlattenedWidgetProps) =>
       widget.widgetName === action.payload.modalName,

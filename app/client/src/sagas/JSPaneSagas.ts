@@ -568,9 +568,8 @@ function* handleRefactorJSActionNameSaga(
       const refactorResponse: ApiResponse =
         yield JSActionAPI.updateJSCollectionActionRefactor(requestData);
 
-      const isRefactorSuccessful: boolean = yield validateResponse(
-        refactorResponse,
-      );
+      const isRefactorSuccessful: boolean =
+        yield validateResponse(refactorResponse);
 
       const currentPageId: string | undefined = yield select(getCurrentPageId);
 

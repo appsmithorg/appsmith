@@ -4,44 +4,44 @@ import type { ApiResponse } from "./ApiResponses";
 import type { GitConfig } from "entities/GitSync";
 import ApplicationApi from "@appsmith/api/ApplicationApi";
 
-export type CommitPayload = {
+export interface CommitPayload {
   applicationId: string;
   commitMessage: string;
   doPush: boolean;
   branch: string;
-};
+}
 
-export type MergeBranchPayload = {
+export interface MergeBranchPayload {
   applicationId: string;
   sourceBranch: string;
   destinationBranch: string;
-};
+}
 
-export type MergeStatusPayload = {
+export interface MergeStatusPayload {
   applicationId: string;
   sourceBranch: string;
   destinationBranch: string;
-};
+}
 
-export type ConnectToGitPayload = {
+export interface ConnectToGitPayload {
   remoteUrl: string;
   gitProfile?: {
     authorName: string;
     authorEmail: string;
   };
   isDefaultProfile?: boolean;
-};
+}
 
-type GitStatusParam = {
+interface GitStatusParam {
   applicationId: string;
   branch: string;
   compareRemote: "true" | "false";
-};
+}
 
-type GitRemoteStatusParam = {
+interface GitRemoteStatusParam {
   applicationId: string;
   branch: string;
-};
+}
 
 class GitSyncAPI extends Api {
   static baseURL = `/v1/git`;

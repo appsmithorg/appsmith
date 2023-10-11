@@ -9,20 +9,21 @@ import type {
   ActionEntityConfig,
   JSActionEntity,
   JSActionEntityConfig,
-  DataTreeEntity,
   DataTreeEntityConfig,
   WidgetEntity,
   WidgetEntityConfig,
 } from "@appsmith/entities/DataTree/types";
+import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
 import { find, get, union } from "lodash";
 import {
   getDynamicBindings,
   getEntityDynamicBindingPathList,
 } from "utils/DynamicBindingUtils";
 import { isWidgetActionOrJsObject } from "@appsmith/entities/DataTree/utils";
+import type { DataTreeEntityObject } from "@appsmith/entities/DataTree/types";
 
 export function getEntityDependencies(
-  entity: DataTreeEntity,
+  entity: DataTreeEntityObject,
   entityConfig: DataTreeEntityConfig,
   allKeys: Record<string, true>,
 ): Record<string, string[]> {
@@ -30,13 +31,13 @@ export function getEntityDependencies(
   switch (entity.ENTITY_TYPE) {
     case ENTITY_TYPE_VALUE.ACTION:
       return getActionDependencies(
-        entity,
+        entity as ActionEntity,
         entityConfig as ActionEntityConfig,
         allKeys,
       );
     case ENTITY_TYPE_VALUE.JSACTION:
       return getJSDependencies(
-        entity,
+        entity as JSActionEntity,
         entityConfig as JSActionEntityConfig,
         allKeys,
       );
@@ -159,21 +160,21 @@ export function getEntityPathDependencies(
   switch (entity.ENTITY_TYPE) {
     case ENTITY_TYPE_VALUE.ACTION:
       return getActionPropertyPathDependencies(
-        entity,
+        entity as ActionEntity,
         entityConfig as ActionEntityConfig,
         fullPropertyPath,
         allKeys,
       );
     case ENTITY_TYPE_VALUE.JSACTION:
       return getJSPropertyPathDependencies(
-        entity,
+        entity as JSActionEntity,
         entityConfig as JSActionEntityConfig,
         fullPropertyPath,
         allKeys,
       );
     case ENTITY_TYPE_VALUE.WIDGET:
       return getWidgetPropertyPathDependencies(
-        entity,
+        entity as WidgetEntity,
         entityConfig as WidgetEntityConfig,
         fullPropertyPath,
       );
