@@ -7,7 +7,7 @@ import {
 } from "ce/AppRouter";
 import React, { Suspense, useEffect } from "react";
 import history from "utils/history";
-import AppHeader from "pages/common/AppHeader";
+import AppHeader from "@appsmith/pages/common/AppHeader";
 import { Router, Switch } from "react-router-dom";
 import ErrorPage from "pages/common/ErrorPage";
 import PageLoadingBar from "pages/common/PageLoadingBar";
