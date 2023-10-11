@@ -256,7 +256,7 @@ export class DataSources {
   private _datasourceSchemaRefreshBtn = ".datasourceStructure-refresh";
   private _datasourceStructureHeader = ".datasourceStructure-header";
   private _datasourceColumnSchemaInQueryEditor = ".t--datasource-column";
-  private _datasourceStructureSearchInput = ".datasourceStructure-search input";
+  _datasourceStructureSearchInput = ".datasourceStructure-search input";
   _jsModeSortingControl = ".t--actionConfiguration\\.formData\\.sortBy\\.data";
   public _queryEditorCollapsibleIcon = ".collapsible-icon";
   _globalSearchTrigger = ".t--global-search-modal-trigger";
@@ -289,7 +289,14 @@ export class DataSources {
   private _dsVirtuosoList = `[data-test-id="virtuoso-item-list"]`;
   private _dsVirtuosoElementTable = (targetTableName: string) =>
     `.t--entity-item[data-testid='t--entity-item-${targetTableName}']`;
+  private _dsPageTabListItem = (buttonText: string) =>
+    `//div[contains(@class, 't--datasource-tab-list')]/button/span[text()='${buttonText}']`;
+  _dsPageTabContainerTableName = (tableName: string) =>
+    `.t--datasource-tab-container ${this._entityExplorerID(tableName)}`;
+  _dsPageTableTriggermenuTarget = (tableName: string) =>
+    `${this._dsPageTabContainerTableName(tableName)} .t--template-menu-trigger`;
   _gSheetQueryPlaceholder = ".CodeMirror-placeholder";
+
 
   public AssertDSEditViewMode(mode: "Edit" | "View") {
     if (mode == "Edit") this.agHelper.AssertElementAbsence(this._editButton);
@@ -1499,7 +1506,7 @@ export class DataSources {
   ) {
     this.agHelper.Sleep(2500); //for query editor to load
     this.agHelper.TypeText(this._datasourceStructureSearchInput, search);
-    this.agHelper.Sleep(); //for search result to load
+    this.agHelper.Sleep(1000); //for search result to load
     this.VerifyTableSchemaOnQueryEditor(expectedTableName);
   }
 
@@ -1980,5 +1987,9 @@ export class DataSources {
           expect(indexOfTable).to.equal(-1);
         }
       });
+  }
+
+  public selectTabOnDatasourcePage(tab: "View data" | "Configurations") {
+    this.agHelper.GetNClick(this._dsPageTabListItem(tab));
   }
 }

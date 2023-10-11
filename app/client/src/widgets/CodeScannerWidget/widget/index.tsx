@@ -13,7 +13,10 @@ import IconSVG from "../icon.svg";
 
 import { ButtonPlacementTypes } from "components/constants";
 import { ScannerLayout } from "../constants";
-import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
+import {
+  FlexVerticalAlignment,
+  ResponsiveBehavior,
+} from "layoutSystems/common/utils/constants";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 class CodeScannerWidget extends BaseWidget<
   CodeScannerWidgetProps,
@@ -50,6 +53,7 @@ class CodeScannerWidget extends BaseWidget<
       animateLoading: true,
       placement: ButtonPlacementTypes.CENTER,
       responsiveBehavior: ResponsiveBehavior.Fill,
+      flexVerticalAlignment: FlexVerticalAlignment.Top,
     };
   }
 

@@ -317,4 +317,6 @@ export class CommonLocators {
   _richText_Text_Color = '[title="Text color"] .tox-split-button__chevron';
   _richText_color = (value: string) => `[title='${value}']`;
   _richText_line = "#tinymce p span";
+  _treeSelectedContent = ".rc-tree-select-selection-item-content";
+  _switcherIcon = ".switcher-icon";
 }

@@ -15,8 +15,10 @@ export interface RadioGroupProps extends HeadlessRadioGroupProps {
 
 const _RadioGroup = (props: RadioGroupProps, ref: HeadlessRadioGroupRef) => {
   const { errorMessage, label, ...rest } = props;
-  const wrappedErrorMessage = errorMessage && <Text>{errorMessage}</Text>;
-  const wrappedLabel = label && <Text>{label}</Text>;
+  const wrappedErrorMessage = Boolean(errorMessage) && (
+    <Text>{errorMessage}</Text>
+  );
+  const wrappedLabel = Boolean(label) && <Text>{label}</Text>;
 
   return (
     <HeadlessRadioGroup

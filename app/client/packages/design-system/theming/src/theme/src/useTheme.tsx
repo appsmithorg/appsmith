@@ -56,7 +56,7 @@ export function useTheme(props: UseThemeProps = {}) {
   }, [colorMode]);
 
   useEffect(() => {
-    if (borderRadius) {
+    if (borderRadius != null) {
       tokensAccessor.updateBorderRadius({
         1: borderRadius,
       });
@@ -71,7 +71,7 @@ export function useTheme(props: UseThemeProps = {}) {
   }, [borderRadius]);
 
   useEffect(() => {
-    if (seedColor) {
+    if (seedColor != null) {
       let color;
 
       try {
@@ -107,7 +107,7 @@ export function useTheme(props: UseThemeProps = {}) {
   }, [fontFamily]);
 
   useEffect(() => {
-    if (rootUnitRatioProp) {
+    if (rootUnitRatioProp != null) {
       setRootUnitRatio(rootUnitRatioProp);
     }
   }, [rootUnitRatioProp]);

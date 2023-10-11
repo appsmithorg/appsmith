@@ -21,13 +21,11 @@ export function Icon(props: IconProps) {
     ...otherProps
   } = props;
 
-  const ariaHidden = !ariaHiddenProp ? undefined : ariaHiddenProp;
-
   return React.cloneElement(children, {
     ...filterDOMProps(otherProps),
     focusable: "false",
     "aria-label": ariaLabel,
-    "aria-hidden": ariaLabel ? ariaHidden || undefined : true,
+    "aria-hidden": Boolean(ariaLabel) ? ariaHiddenProp ?? undefined : true,
     role,
     "data-icon": "",
     className,

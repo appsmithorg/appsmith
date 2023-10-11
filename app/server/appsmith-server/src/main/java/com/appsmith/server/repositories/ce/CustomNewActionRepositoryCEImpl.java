@@ -375,9 +375,8 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
                         fieldName(QNewAction.newAction.publishedAction) + ".datasource._id")
                 .is(new ObjectId(datasourceId));
 
-        Criteria datasourceCriteria = where(FieldName.DELETED_AT)
-                .is(null)
-                .orOperator(unpublishedDatasourceCriteria, publishedDatasourceCriteria);
+        Criteria datasourceCriteria =
+                notDeleted().orOperator(unpublishedDatasourceCriteria, publishedDatasourceCriteria);
 
         Query query = new Query();
         query.addCriteria(datasourceCriteria);
