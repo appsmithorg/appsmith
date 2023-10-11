@@ -136,7 +136,7 @@ export function* installLibrarySaga(lib: Partial<TJSLibrary>) {
     stringifiedDefs = JSON.stringify(defs);
   } catch (e) {
     stringifiedDefs = JSON.stringify({
-      "!name": `LIB/${accessor[accessor.length - 1]}`,
+      "!name": `LIB/${accessor[accessor.length - 1].modified}`,
     });
   }
 
@@ -280,7 +280,9 @@ function* uninstallLibrarySaga(action: ReduxAction<TJSLibrary>) {
     }
 
     try {
-      CodemirrorTernService.removeDef(`LIB/${accessor[accessor.length - 1]}`);
+      CodemirrorTernService.removeDef(
+        `LIB/${accessor[accessor.length - 1].modified}`,
+      );
     } catch (e) {
       log.debug(`Failed to remove definitions for ${name}`, e);
     }
