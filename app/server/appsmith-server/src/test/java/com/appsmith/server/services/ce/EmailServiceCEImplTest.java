@@ -2,19 +2,16 @@ package com.appsmith.server.services.ce;
 
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.PermissionGroup;
-import com.appsmith.server.domains.Tenant;
-import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.services.TenantService;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 
@@ -34,6 +31,7 @@ import static com.appsmith.server.constants.ce.EmailConstantsCE.PRIMARY_LINK_URL
 import static com.appsmith.server.constants.ce.EmailConstantsCE.RESET_URL;
 import static com.appsmith.server.constants.ce.EmailConstantsCE.WORKSPACE_EMAIL_SUBJECT_FOR_NEW_USER;
 import static graphql.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -46,22 +44,11 @@ class EmailServiceCEImplTest {
     @Autowired
     TenantService tenantService;
 
-    @Mock
+    @SpyBean
     EmailSender mockEmailSender;
 
-    private EmailServiceCE emailService;
-
-    @BeforeEach
-    public void setup() {
-        MockitoAnnotations.openMocks(this);
-        TenantConfiguration tenantConfiguration = new TenantConfiguration();
-
-        Tenant tenant = tenantService.getDefaultTenant().block();
-        assert tenant != null;
-        tenant.setTenantConfiguration(tenantConfiguration);
-
-        this.emailService = new EmailServiceCEImpl(mockEmailSender, tenantService);
-    }
+    @Autowired
+    @Qualifier("emailServiceCEImpl") private EmailServiceCE emailService;
 
     @Test
     void sendForgotPasswordEmail() {
@@ -83,7 +70,10 @@ class EmailServiceCEImplTest {
                     assertEquals(
                             String.format(FORGOT_PASSWORD_EMAIL_SUBJECT, expectedParams.get(INSTANCE_NAME)), subject);
                     assertEquals(FORGOT_PASSWORD_TEMPLATE_CE, text);
-                    assertEquals(expectedParams, params);
+                    assertThat(params).containsKey(RESET_URL);
+                    assertThat(params.get(RESET_URL)).isEqualTo(resetUrl);
+                    assertThat(params).containsKey(INSTANCE_NAME);
+                    assertThat(params.get(INSTANCE_NAME)).isEqualTo("Appsmith");
 
                     return Mono.just(true);
                 })

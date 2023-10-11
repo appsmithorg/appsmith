@@ -2,7 +2,7 @@ import type {
   ConfigTree,
   DataTree,
   DataTreeEntity,
-} from "@appsmith/entities/DataTree/types";
+} from "entities/DataTree/dataTreeTypes";
 import type { IEntity } from ".";
 import type { Diff } from "deep-diff";
 import EntityFactory from ".";
