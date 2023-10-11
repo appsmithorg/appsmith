@@ -31,13 +31,13 @@ const getUpdateActionNameReduxAction = (id: string, name: string) => {
   return saveActionName({ id, name });
 };
 
-type ExplorerActionEntityProps = {
+interface ExplorerActionEntityProps {
   step: number;
   searchKeyword?: string;
   id: string;
   type: PluginType;
   isActive: boolean;
-};
+}
 
 export const ExplorerActionEntity = memo((props: ExplorerActionEntityProps) => {
   const pageId = useSelector(getCurrentPageId);

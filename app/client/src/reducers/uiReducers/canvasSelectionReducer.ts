@@ -57,11 +57,11 @@ export const canvasSelectionReducer = createImmerReducer(initialState, {
   },
 });
 
-export type CanvasSelectionState = {
+export interface CanvasSelectionState {
   isDraggingForSelection: boolean;
   widgetId?: string;
   outOfCanvasStartPositions?: XYCord;
   recentlyAddedWidget: Record<string, string>;
-};
+}
 
 export default canvasSelectionReducer;

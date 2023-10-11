@@ -1043,8 +1043,8 @@ export class AggregateHelper extends ReusableHelper {
 
   public ActionContextMenuWithInPane({
     action = "Delete",
-    subAction = "",
     entityType = EntityItems.JSObject,
+    subAction = "",
     toastToValidate = "",
   }: DeleteParams) {
     cy.get(this.locator._contextMenuInPane).click();
@@ -1661,6 +1661,10 @@ export class AggregateHelper extends ReusableHelper {
 
   public AssertClassExists(selector: string, className: string) {
     this.GetElement(selector).should("have.class", className);
+  }
+
+  public VerifySnapshot(selector: string, identifier: string) {
+    this.GetElement(selector).matchImageSnapshot(identifier);
   }
 
   //Not used:

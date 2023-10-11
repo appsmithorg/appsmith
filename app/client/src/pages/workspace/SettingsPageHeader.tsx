@@ -15,7 +15,7 @@ import { SettingsHeader } from "components/utils/helperComponents";
 import { ARE_YOU_SURE, createMessage } from "@appsmith/constants/messages";
 import { useMediaQuery } from "react-responsive";
 
-type PageHeaderProps = {
+interface PageHeaderProps {
   buttonText?: string;
   searchPlaceholder: string;
   onButtonClick?: () => void;
@@ -24,7 +24,7 @@ type PageHeaderProps = {
   title?: string;
   showMoreOptions?: boolean;
   showSearchNButton?: boolean;
-};
+}
 
 const Container = styled.div<{ isMobile?: boolean }>`
   display: flex;

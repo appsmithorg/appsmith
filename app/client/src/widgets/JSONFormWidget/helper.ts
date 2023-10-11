@@ -6,6 +6,7 @@ import {
   getDynamicBindings,
   combineDynamicBindings,
 } from "utils/DynamicBindingUtils";
+import type { Column } from "../../WidgetQueryGenerators/types";
 import type { FieldThemeStylesheet, Schema, SchemaItem } from "./constants";
 import {
   ARRAY_ITEM_KEY,
@@ -16,12 +17,12 @@ import {
 import moment from "moment";
 import { ISO_DATE_FORMAT } from "constants/WidgetValidation";
 
-type ConvertFormDataOptions = {
+interface ConvertFormDataOptions {
   fromId: keyof SchemaItem | (keyof SchemaItem)[];
   toId: keyof SchemaItem;
   useSourceData?: boolean;
   sourceData?: unknown;
-};
+}
 
 /**
  * This function finds the value from the object by using the id provided. The id
@@ -363,9 +364,7 @@ export const isEmpty = (value?: string | null): value is null | undefined => {
   return value === "" || isNil(value);
 };
 
-export const generateSchemaWithDefaultValues = (
-  columns: Array<Record<string, unknown>>,
-) => {
+export const generateSchemaWithDefaultValues = (columns: Column[]) => {
   const typeMappings: Record<string, unknown> = {
     number: 0,
     string: "",

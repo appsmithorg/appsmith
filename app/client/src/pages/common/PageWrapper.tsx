@@ -57,12 +57,12 @@ export const PageBody = styled.div<{ isSavable?: boolean }>`
   }
 `;
 
-export type PageWrapperProps = {
+export interface PageWrapperProps {
   children?: ReactNode;
   displayName?: string;
   isFixed?: boolean;
   isSavable?: boolean;
-};
+}
 
 export function PageWrapper(props: PageWrapperProps) {
   const { isFixed = false, isSavable = false } = props;

@@ -52,11 +52,11 @@ const DisabledContainer = styled.div<{
 
 const DefaultCenter = { ...DEFAULT_CENTER, long: DEFAULT_CENTER.lng };
 
-type Center = {
+interface Center {
   lat: number;
   long: number;
   [x: string]: any;
-};
+}
 
 class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
   static defaultProps = {};

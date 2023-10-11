@@ -61,11 +61,11 @@ const TemplateDescriptionWrapper = styled.div`
   padding-bottom: 52px;
 `;
 
-type TemplateDetailedViewProps = {
+interface TemplateDetailedViewProps {
   templateId: string;
   onBackPress: () => void;
   onClose: () => void;
-};
+}
 
 function TemplateDetailedView(props: TemplateDetailedViewProps) {
   const [currentTemplateId, setCurrentTemplateId] = useState(props.templateId);

@@ -31,11 +31,11 @@ export const FocusStoreHierarchy: Partial<Record<FocusEntity, FocusEntity>> = {
   [FocusEntity.PROPERTY_PANE]: FocusEntity.CANVAS,
 };
 
-export type FocusEntityInfo = {
+export interface FocusEntityInfo {
   entity: FocusEntity;
   id: string;
   pageId?: string;
-};
+}
 
 /**
  * Method to indicate if the URL is of type API, Query etc.,

@@ -11,11 +11,11 @@ export enum PatchType {
   "GET" = "GET",
 }
 
-export type Patch = {
+export interface Patch {
   path: string;
   method: PatchType;
   value?: unknown;
-};
+}
 
 export type UpdatedPathsMap = Record<string, Patch>;
 

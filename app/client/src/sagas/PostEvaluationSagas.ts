@@ -222,9 +222,8 @@ export function* evalErrorHandler(
   removedPaths?: Array<{ entityId: string; fullpath: string }>,
 ) {
   if (dataTree && evaluationOrder && configTree && reValidatedPaths) {
-    const currentDebuggerErrors: Record<string, Log> = yield select(
-      getDebuggerErrors,
-    );
+    const currentDebuggerErrors: Record<string, Log> =
+      yield select(getDebuggerErrors);
 
     const evalAndValidationOrder = new Set([
       ...reValidatedPaths,

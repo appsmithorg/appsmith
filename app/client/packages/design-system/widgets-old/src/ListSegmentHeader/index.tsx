@@ -22,11 +22,11 @@ const StyledHr = styled.div`
   margin-left: var(--ads-spaces-3);
 `;
 
-export type SegmentHeaderProps = {
+export interface SegmentHeaderProps {
   title: string;
   style?: CSSProperties;
   hideStyledHr?: boolean;
-};
+}
 
 export default function SegmentHeader(props: SegmentHeaderProps) {
   return (

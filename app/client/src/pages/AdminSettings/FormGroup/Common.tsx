@@ -4,12 +4,12 @@ import styled from "styled-components";
 import { Icon, Tooltip, Text } from "design-system";
 import type { Setting } from "@appsmith/pages/AdminSettings/config/types";
 
-type FieldHelperProps = {
+interface FieldHelperProps {
   setting: Setting;
   children: React.ReactNode;
   className?: string;
   isToggle?: boolean;
-};
+}
 
 export const StyledFormGroup = styled.div`
   width: 40rem;
@@ -87,6 +87,6 @@ export function FormGroup({ children, className, setting }: FieldHelperProps) {
   );
 }
 
-export type SettingComponentProps = {
+export interface SettingComponentProps {
   setting: Setting;
-};
+}

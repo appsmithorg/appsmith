@@ -38,7 +38,7 @@ const TabsWrapper = styled.div<{ shouldOverflow?: boolean }>`
   }
 `;
 
-type TabbedViewComponentType = {
+interface TabbedViewComponentType {
   tabs: Array<{
     key: string;
     title: string;
@@ -47,7 +47,7 @@ type TabbedViewComponentType = {
   selectedIndex?: number;
   setSelectedIndex?: (selectedIndex: number) => void;
   overflow?: boolean;
-};
+}
 
 export function BaseTabbedView(props: TabbedViewComponentType) {
   return (

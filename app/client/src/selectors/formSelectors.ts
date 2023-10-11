@@ -15,11 +15,11 @@ import type { EvaluationError } from "utils/DynamicBindingUtils";
 import { getActionIdFromURL } from "@appsmith/pages/Editor/Explorer/helpers";
 import { extractConditionalOutput } from "components/formControls/utils";
 
-export type GetFormData = {
+export interface GetFormData {
   initialValues: Record<string, unknown>;
   values: any;
   valid: boolean;
-};
+}
 
 export const getFormData = (state: AppState, formName: string): GetFormData => {
   const initialValues = getFormInitialValues(formName)(state);
@@ -68,7 +68,10 @@ export const getDynamicTriggers = (
   return !isEmpty(triggersAllowedToFetch) ? triggersAllowedToFetch : undefined;
 };
 
-type ConfigErrorProps = { configProperty: string; formName: string };
+interface ConfigErrorProps {
+  configProperty: string;
+  formName: string;
+}
 
 export const getConfigErrors = createSelector(
   getDataTree,
