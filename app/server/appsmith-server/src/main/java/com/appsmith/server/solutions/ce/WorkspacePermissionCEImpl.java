@@ -14,6 +14,11 @@ public class WorkspacePermissionCEImpl implements WorkspacePermissionCE, DomainP
     }
 
     @Override
+    public AclPermission getExportPermission(boolean isGitSync, boolean exportWithConfiguration) {
+        return null;
+    }
+
+    @Override
     public AclPermission getDeletePermission() {
         return AclPermission.MANAGE_WORKSPACES;
     }
