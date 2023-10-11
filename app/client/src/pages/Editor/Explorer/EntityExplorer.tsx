@@ -115,7 +115,7 @@ function EntityExplorer({ isActive }: { isActive: boolean }) {
       });
       closeWalkthrough();
     },
-    [pageId],
+    [pageId, closeWalkthrough],
   );
 
   const listDatasource = useCallback(() => {
@@ -153,7 +153,7 @@ function EntityExplorer({ isActive }: { isActive: boolean }) {
       <Datasources
         addDatasource={addDatasource}
         entityId={pageId}
-        isDatasourcesOpen={isDatasourcesOpen || false}
+        isDatasourcesOpen={isDatasourcesOpen}
         listDatasource={listDatasource}
         onDatasourcesToggle={onDatasourcesToggle}
       />

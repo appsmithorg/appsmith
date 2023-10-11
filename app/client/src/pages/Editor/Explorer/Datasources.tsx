@@ -32,7 +32,7 @@ import type { Datasource } from "entities/Datasource";
 import ExplorerDatasourceEntity from "./Datasources/DatasourceEntity";
 
 type DatasourcesProps = {
-  isDatasourcesOpen: boolean;
+  isDatasourcesOpen: boolean | null;
   addDatasource: (source: string) => void;
   onDatasourcesToggle: (isOpen: boolean) => void;
   listDatasource: () => void;
