@@ -52,6 +52,10 @@ export const initialState: ApplicationsReduxState = {
   isUploadingNavigationLogo: false,
   isDeletingNavigationLogo: false,
   deletingMultipleApps: {},
+  loadingStates: {
+    isFetchingAllRoles: false,
+    isFetchingAllUsers: false,
+  },
 };
 
 export const handlers = {
@@ -850,6 +854,10 @@ export interface ApplicationsReduxState {
   isUploadingNavigationLogo: boolean;
   isDeletingNavigationLogo: boolean;
   deletingMultipleApps: DeletingMultipleApps;
+  loadingStates: {
+    isFetchingAllRoles: boolean;
+    isFetchingAllUsers: boolean;
+  };
 }
 
 export interface Application {

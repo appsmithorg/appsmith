@@ -1,6 +1,7 @@
 import { addPlatformFunctionsToEvalContext } from "@appsmith/workers/Evaluation/Actions";
 import { PluginType } from "entities/Action";
-import type { DataTree, ActionEntity } from "@appsmith/entities/DataTree/types";
+import type { ActionEntity } from "@appsmith/entities/DataTree/types";
+import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { createEvaluationContext } from "workers/Evaluation/evaluate";
 import initLocalStorage from "../overrides/localStorage";
 import { ENTITY_TYPE } from "pages/common/SearchSnippets";

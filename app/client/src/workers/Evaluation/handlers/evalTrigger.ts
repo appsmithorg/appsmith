@@ -24,17 +24,16 @@ export default async function (request: EvalWorkerASyncRequest) {
       unEvalTree.configTree,
     );
 
-  dataTreeEvaluator.evalAndValidateSubTree(
+  const { contextTree } = dataTreeEvaluator.evalAndValidateSubTree(
     evalOrder,
     nonDynamicFieldValidationOrder,
     unEvalTree.configTree,
     unEvalUpdates,
   );
-  const evalTree = dataTreeEvaluator.evalTree;
 
   return dataTreeEvaluator.evaluateTriggers(
     dynamicTrigger,
-    evalTree,
+    contextTree,
     unEvalTree.configTree,
     callbackData,
     {

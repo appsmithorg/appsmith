@@ -226,7 +226,7 @@ const isErrorResponse = (response: ActionExecutionResponse) => {
  */
 function* readBlob(blobUrl: string): any {
   const [url, fileType] = parseBlobUrl(blobUrl);
-  const file = yield fetch(url).then((r) => r.blob());
+  const file = yield fetch(url).then(async (r) => r.blob());
 
   return yield new Promise((resolve) => {
     const reader = new FileReader();
