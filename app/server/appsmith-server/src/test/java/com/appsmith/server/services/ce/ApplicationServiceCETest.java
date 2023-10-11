@@ -163,7 +163,7 @@ public class ApplicationServiceCETest {
     @Autowired
     ApplicationService applicationService;
 
-    @Qualifier("applicationPageServiceImpl") @Autowired
+    @Qualifier("applicationPageServiceCEImpl") @Autowired
     ApplicationPageServiceCE applicationPageService;
 
     @Autowired
