@@ -124,11 +124,11 @@ const DummyField = () => {
   );
 };
 
-export type AuthorInfo = {
+export interface AuthorInfo {
   authorName: string;
   authorEmail: string;
   useGlobalProfile: boolean;
-};
+}
 
 const GitUserSettings = () => {
   const dispatch = useDispatch();

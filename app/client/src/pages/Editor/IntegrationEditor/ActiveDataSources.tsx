@@ -40,7 +40,7 @@ const EmptyActiveDatasource = styled.div`
   gap: 1rem;
 `;
 
-type ActiveDataSourcesProps = {
+interface ActiveDataSourcesProps {
   dataSources: Datasource[];
   pageId: string;
   location: {
@@ -51,7 +51,7 @@ type ActiveDataSourcesProps = {
     push: (data: string) => void;
   };
   onCreateNew: () => void;
-};
+}
 
 function ActiveDataSources(props: ActiveDataSourcesProps) {
   const { dataSources } = props;

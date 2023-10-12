@@ -226,4 +226,50 @@ class FeatureFlagMigrationHelperTest {
                 })
                 .verifyComplete();
     }
+
+    @Test
+    void
+            getUpdatedFlagsWithPendingMigration_diffForExistingAndLatestFlag_sameFlagIsFlippedAsPerDBState_flagGetsRemovedFromPendingMigrationList() {
+
+        // Mock DB state to have the feature flag in pending migration list with DISABLE status which means the feature
+        // flag flipped from true to false
+        Tenant defaultTenant = new Tenant();
+        defaultTenant.setId(UUID.randomUUID().toString());
+        TenantConfiguration tenantConfiguration = new TenantConfiguration();
+        tenantConfiguration.setFeaturesWithPendingMigration(Map.of(TENANT_TEST_FEATURE, DISABLE));
+        defaultTenant.setTenantConfiguration(tenantConfiguration);
+
+        // Mock CS calls to fetch the feature flags to have the feature flag in pending migration list with ENABLE
+        // status
+        // This means the feature flag flipped from false to true again with latest check
+        CachedFeatures existingCachedFeatures = new CachedFeatures();
+        Map<String, Boolean> featureMap = new HashMap<>();
+        featureMap.put(TENANT_TEST_FEATURE.name(), false);
+        existingCachedFeatures.setFeatures(featureMap);
+        existingCachedFeatures.setRefreshedAt(Instant.now().minus(1, ChronoUnit.DAYS));
+
+        CachedFeatures latestCachedFeatures = new CachedFeatures();
+        Map<String, Boolean> latestFeatureMap = new HashMap<>();
+        latestFeatureMap.put(TENANT_TEST_FEATURE.name(), true);
+        latestCachedFeatures.setFeatures(latestFeatureMap);
+        latestCachedFeatures.setRefreshedAt(Instant.now());
+
+        Mockito.when(cacheableFeatureFlagHelper.fetchCachedTenantFeatures(any()))
+                .thenReturn(Mono.just(existingCachedFeatures))
+                .thenReturn(Mono.just(latestCachedFeatures));
+
+        Mockito.when(cacheableFeatureFlagHelper.evictCachedTenantFeatures(any()))
+                .thenReturn(Mono.empty());
+
+        Mono<Map<FeatureFlagEnum, FeatureMigrationType>> getUpdatedFlagsWithPendingMigration =
+                featureFlagMigrationHelper.getUpdatedFlagsWithPendingMigration(defaultTenant);
+
+        StepVerifier.create(getUpdatedFlagsWithPendingMigration)
+                .assertNext(featureFlagEnumFeatureMigrationTypeMap -> {
+                    // As the feature flag is flipped back to true, the feature flag should be removed from the pending
+                    // migration entries as the migration is no longer required
+                    assertThat(featureFlagEnumFeatureMigrationTypeMap).isEmpty();
+                })
+                .verifyComplete();
+    }
 }

@@ -22,7 +22,7 @@ import {
 
 import { DROPDOWN_VARIANT } from "./CommonControls/DatasourceDropdown/types";
 
-type WidgetQueryGeneratorFormContextType = {
+interface WidgetQueryGeneratorFormContextType {
   widgetId: string;
   propertyValue: string;
   propertyName: string;
@@ -56,7 +56,7 @@ type WidgetQueryGeneratorFormContextType = {
   datasourceDropdownVariant: DROPDOWN_VARIANT;
   alertMessage?: AlertMessage | null;
   showEditFieldsModal?: boolean;
-};
+}
 
 const DEFAULT_CONFIG_VALUE = {
   datasource: "",
@@ -96,7 +96,7 @@ export const WidgetQueryGeneratorFormContext =
     DEFAULT_CONTEXT_VALUE,
   );
 
-type Props = {
+interface Props {
   propertyPath: string;
   propertyValue: string;
   onUpdate: (snippet?: string, makeDynamicPropertyPath?: boolean) => void;
@@ -113,7 +113,7 @@ type Props = {
   datasourceDropdownVariant: DROPDOWN_VARIANT;
   actionButtonCtaText?: string;
   alertMessage?: AlertMessage;
-};
+}
 
 function WidgetQueryGeneratorForm(props: Props) {
   const dispatch = useDispatch();
@@ -121,22 +121,22 @@ function WidgetQueryGeneratorForm(props: Props) {
   const [pristine, setPristine] = useState(true);
 
   const {
-    aliases,
-    alertMessage,
-    showEditFieldsModal = false,
     actionButtonCtaText = createMessage(CONNECT_BUTTON_TEXT),
+    alertMessage,
+    aliases,
+    datasourceDropdownVariant,
     errorMsg,
     excludePrimaryColumnFromQueryGeneration,
     expectedType,
+    isConnectableToWidget,
     onUpdate,
+    otherFields = [],
     propertyPath,
     propertyValue,
     sampleData,
     searchableColumn,
+    showEditFieldsModal = false,
     widgetId,
-    otherFields = [],
-    isConnectableToWidget,
-    datasourceDropdownVariant,
   } = props;
 
   const isSourceOpen = useSelector(getIsOneClickBindingOptionsVisibility);

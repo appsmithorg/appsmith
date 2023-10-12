@@ -9,29 +9,29 @@ import apiActionDependencyConfig from "constants/AppsmithActionConstants/formCon
 import apiActionDatasourceFormButtonConfig from "constants/AppsmithActionConstants/formConfig/ApiDatasourceFormsButtonConfig";
 import type { ENTITY_TYPE } from "@appsmith/entities/DataTree/types";
 
-export type ExecuteActionPayloadEvent = {
+export interface ExecuteActionPayloadEvent {
   type: EventType;
   callback?: (result: ExecutionResult) => void;
-};
+}
 
-export type ExecutionResult = {
+export interface ExecutionResult {
   success: boolean;
-};
+}
 
-export type TriggerSource = {
+export interface TriggerSource {
   id: string;
   name: string;
   entityType?: ENTITY_TYPE;
   collectionId?: string;
   isJSAction?: boolean;
   actionId?: string;
-};
+}
 export enum TriggerKind {
   EVENT_EXECUTION = "EVENT_EXECUTION", // Eg. Button onClick
   JS_FUNCTION_EXECUTION = "JS_FUNCTION_EXECUTION", // Executing js function from jsObject page
 }
 
-export type ExecuteTriggerPayload = {
+export interface ExecuteTriggerPayload {
   dynamicString: string;
   event: ExecuteActionPayloadEvent;
   callbackData?: Array<any>;
@@ -39,7 +39,7 @@ export type ExecuteTriggerPayload = {
   source?: TriggerSource;
   widgetId?: string;
   globalContext?: Record<string, unknown>;
-};
+}
 
 export type ContentType =
   | "application/json"

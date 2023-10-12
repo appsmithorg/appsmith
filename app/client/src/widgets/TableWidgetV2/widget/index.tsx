@@ -602,7 +602,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
   createTablePrimaryColumns = ():
     | Record<string, ColumnProperties>
     | undefined => {
-    const { tableData = [], primaryColumns = {} } = this.props;
+    const { primaryColumns = {}, tableData = [] } = this.props;
 
     if (!_.isArray(tableData) || tableData.length === 0) {
       return;
@@ -1176,15 +1176,15 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
   getWidgetView() {
     const {
-      totalRecordsCount,
       delimiter,
-      pageSize,
       filteredTableData = [],
       isVisibleDownload,
       isVisibleFilters,
       isVisiblePagination,
       isVisibleSearch,
+      pageSize,
       primaryColumns,
+      totalRecordsCount,
     } = this.props;
 
     const tableColumns = this.getTableColumns() || emptyArr;
@@ -1508,13 +1508,13 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
    * This function just pushes the meta update
    */
   pushOnColumnEvent = ({
-    rowIndex,
     action,
-    onComplete = noop,
-    triggerPropertyName,
-    eventType,
-    row,
     additionalData = {},
+    eventType,
+    onComplete = noop,
+    row,
+    rowIndex,
+    triggerPropertyName,
   }: OnColumnEventArgs) => {
     const { filteredTableData = [], pushBatchMetaUpdates } = this.props;
 
@@ -1537,13 +1537,13 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
    * Function to handle customColumn button type click interactions
    */
   onColumnEvent = ({
-    rowIndex,
     action,
-    onComplete = noop,
-    triggerPropertyName,
-    eventType,
-    row,
     additionalData = {},
+    eventType,
+    onComplete = noop,
+    row,
+    rowIndex,
+    triggerPropertyName,
   }: OnColumnEventArgs) => {
     if (action) {
       const { commitBatchMetaUpdates } = this.props;
@@ -1876,11 +1876,11 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
     const isHidden = !column.isVisible;
     const {
+      compactMode = CompactModeTypes.DEFAULT,
       filteredTableData = [],
       multiRowSelection,
       selectedRowIndex,
       selectedRowIndices,
-      compactMode = CompactModeTypes.DEFAULT,
     } = this.props;
     let row;
     let originalIndex: number;

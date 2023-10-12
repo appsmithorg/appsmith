@@ -13,11 +13,11 @@ import React from "react";
 import CommunityTemplateForm from "./CommunityTemplateForm";
 import { PublishPageHeaderContainer } from "./StyledComponents";
 
-type Props = {
+interface Props {
   onPublishSuccess: () => void;
   setShowModal: (showModal: boolean) => void;
   showModal: boolean;
-};
+}
 
 const PublishCommunityTemplateModal = ({
   onPublishSuccess,

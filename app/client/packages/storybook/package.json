@@ -31,7 +31,6 @@
     "postcss-at-rules-variables": "*",
     "postcss-conditionals": "*",
     "postcss-each": "*",
-    "postcss-for": "*",
     "postcss-import": "*",
     "postcss-loader": "*",
     "postcss-modules-values": "*",

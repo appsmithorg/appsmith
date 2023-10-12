@@ -56,10 +56,10 @@ const getOriginalColumn = (
   return column;
 };
 
-type State = {
+interface State {
   focusedIndex: number | null;
   duplicateColumnIds: string[];
-};
+}
 
 class PrimaryColumnsControl extends BaseControl<ControlProps, State> {
   constructor(props: ControlProps) {

@@ -19,11 +19,11 @@ export enum DSEventTypes {
   KEYPRESS = "KEYPRESS",
 }
 
-export type DSEventDetail = {
+export interface DSEventDetail {
   component: string;
   event: DSEventTypes;
   meta: Record<string, unknown>;
-};
+}
 
 export function createDSEvent(detail: DSEventDetail) {
   return new CustomEvent(DS_EVENT, {

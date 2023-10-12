@@ -22,7 +22,7 @@ import { createNewJSCollection } from "actions/jsPaneActions";
 import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
 import { getQueryParams } from "utils/URLUtils";
 import history from "utils/history";
-import { curlImportPageURL } from "RouteBuilder";
+import { curlImportPageURL } from "@appsmith/RouteBuilder";
 import { isMacOrIOS, modText, shiftText } from "utils/helpers";
 import { FocusEntity } from "navigation/FocusEntity";
 
@@ -32,11 +32,11 @@ export type SelectEvent =
   | KeyboardEvent
   | null;
 
-export type RecentEntity = {
+export interface RecentEntity {
   type: FocusEntity;
   id: string;
   pageId: string;
-};
+}
 
 export enum SEARCH_CATEGORY_ID {
   NAVIGATION = "Navigate",
@@ -66,15 +66,15 @@ export const comboHelpText = {
   ),
 };
 
-export type Snippet = {
+export interface Snippet {
   entities?: [string];
   fields?: [string];
   dataType?: string;
   language: string;
   body: SnippetBody;
-};
+}
 
-export type SnippetBody = {
+export interface SnippetBody {
   title: string;
   snippet: string;
   isTrigger?: boolean;
@@ -83,7 +83,7 @@ export type SnippetBody = {
   template: string;
   snippetMeta?: string;
   shortTitle?: string;
-};
+}
 
 export type FilterEntity = WidgetType | ENTITY_TYPE;
 
@@ -102,20 +102,20 @@ export const getSnippetFilterLabel = (state: AppState, label: string) => {
   );
 };
 
-export type SnippetArgument = {
+export interface SnippetArgument {
   identifier: string;
   name: string;
   type: ValidationTypes;
   placeholder?: boolean;
-};
+}
 
-export type SearchCategory = {
+export interface SearchCategory {
   id: SEARCH_CATEGORY_ID;
   kind?: SEARCH_ITEM_TYPES;
   title?: string;
   desc?: string;
   show?: () => boolean;
-};
+}
 
 export function getOptionalFilters(optionalFilterMeta: any) {
   return Object.entries(optionalFilterMeta || {}).reduce(
@@ -247,7 +247,7 @@ export const getEntityId = (entity: {
   }
 };
 
-export type ActionOperation = {
+export interface ActionOperation {
   title: string;
   desc: string;
   icon?: any;
@@ -255,7 +255,7 @@ export type ActionOperation = {
   action?: (pageId: string, location: EventLocation) => any;
   redirect?: (pageId: string, from: EventLocation) => any;
   pluginId?: string;
-};
+}
 
 export const actionOperations: ActionOperation[] = [
   {

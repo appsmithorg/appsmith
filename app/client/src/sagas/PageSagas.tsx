@@ -126,7 +126,7 @@ import {
 
 import WidgetFactory from "WidgetProvider/factory";
 import { toggleShowDeviationDialog } from "actions/onboardingActions";
-import { builderURL } from "RouteBuilder";
+import { builderURL } from "@appsmith/RouteBuilder";
 import { failFastApiCalls, waitForWidgetConfigBuild } from "./InitSagas";
 import { resizePublishedMainCanvasToLowestWidget } from "./WidgetOperationUtils";
 import { checkAndLogErrorsIfCyclicDependency } from "./helper";
@@ -171,10 +171,13 @@ export function* fetchPageListSaga(
     const response: FetchPageListResponse = yield call(apiCall, applicationId);
     const isValidResponse: boolean = yield validateResponse(response);
     const prevPagesState: Page[] = yield select(getPageList);
-    const pagePermissionsMap = prevPagesState.reduce((acc, page) => {
-      acc[page.pageId] = page.userPermissions ?? [];
-      return acc;
-    }, {} as Record<string, string[]>);
+    const pagePermissionsMap = prevPagesState.reduce(
+      (acc, page) => {
+        acc[page.pageId] = page.userPermissions ?? [];
+        return acc;
+      },
+      {} as Record<string, string[]>,
+    );
     if (isValidResponse) {
       const workspaceId = response.data.workspaceId;
       const pages: Page[] = response.data.pages.map((page) => ({
@@ -292,9 +295,8 @@ export function* handleFetchedPage({
   isFirstLoad?: boolean;
 }) {
   const isAutoLayout: boolean = yield select(getIsAutoLayout);
-  const mainCanvasProps: MainCanvasReduxState = yield select(
-    getMainCanvasProps,
-  );
+  const mainCanvasProps: MainCanvasReduxState =
+    yield select(getMainCanvasProps);
   const isValidResponse: boolean = yield validateResponse(fetchPageResponse);
   const willPageBeMigrated = checkIfMigrationIsNeeded(fetchPageResponse);
   const lastUpdatedTime = getLastUpdateTime(fetchPageResponse);
@@ -705,9 +707,8 @@ export function* createNewPageFromEntity(
 ) {
   try {
     const isAutoLayout: boolean = yield select(getIsAutoLayout);
-    const mainCanvasProps: MainCanvasReduxState = yield select(
-      getMainCanvasProps,
-    );
+    const mainCanvasProps: MainCanvasReduxState =
+      yield select(getMainCanvasProps);
     // Default layout is extracted by adding dynamically computed properties like min-height.
     const defaultPageLayouts = [
       {
@@ -748,9 +749,8 @@ export function* createPageSaga(
   try {
     const guidedTourEnabled: boolean = yield select(inGuidedTour);
     const isAutoLayout: boolean = yield select(getIsAutoLayout);
-    const mainCanvasProps: MainCanvasReduxState = yield select(
-      getMainCanvasProps,
-    );
+    const mainCanvasProps: MainCanvasReduxState =
+      yield select(getMainCanvasProps);
 
     // Prevent user from creating a new page during the guided tour
     if (guidedTourEnabled) {
@@ -1130,9 +1130,8 @@ export function* setDataUrl() {
 export function* fetchPageDSLSaga(pageId: string) {
   try {
     const isAutoLayout: boolean = yield select(getIsAutoLayout);
-    const mainCanvasProps: MainCanvasReduxState = yield select(
-      getMainCanvasProps,
-    );
+    const mainCanvasProps: MainCanvasReduxState =
+      yield select(getMainCanvasProps);
     const fetchPageResponse: FetchPageResponse = yield call(PageApi.fetchPage, {
       id: pageId,
     });
