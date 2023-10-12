@@ -36,6 +36,38 @@ self.__WB_DISABLE_DEV_DEBUG_LOGS = false;
 skipWaiting();
 clientsClaim();
 
+registerRoute(
+  ({ request }) => {
+    return request.url.indexOf("/windowProxy/") !== -1;
+  },
+  async function (event) {
+    return event.request.json().then(async (reqJSON) => {
+      return new Promise(function (resolve, reject) {
+        var channel = new MessageChannel();
+        channel.port1.onmessage = function (event) {
+          if (event.data.error) {
+            reject(event.data.error);
+          } else {
+            resolve(new Response(JSON.stringify(event.data)));
+          }
+          channel.port1.close();
+          channel.port2.close();
+        };
+        self.clients
+          .matchAll({
+            type: "window",
+          })
+          .then((clients) => {
+            if (clients && clients.length) {
+              clients[0].postMessage(reqJSON, [channel.port2]);
+            }
+          });
+      });
+    });
+  },
+  "POST",
+);
+
 // This route's caching seems too aggressive.
 // TODO(abhinav): Figure out if this is really necessary.
 // Maybe add the assets locally?

@@ -3,6 +3,7 @@ import setupDOM from "../SetupDOM";
 import type { EvalWorkerSyncRequest } from "../types";
 import { addPlatformFunctionsToEvalContext } from "@appsmith/workers/Evaluation/Actions";
 import { overrideWebAPIs } from "../fns/overrides";
+import { initWindowProxy } from "../fns/overrides/windowProxy";
 
 export default function (request: EvalWorkerSyncRequest) {
   self.$isDataField = false;
@@ -18,6 +19,7 @@ export default function (request: EvalWorkerSyncRequest) {
     enumerable: false,
   });
   addPlatformFunctionsToEvalContext(self);
+  initWindowProxy();
   return true;
 }
 

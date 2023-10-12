@@ -117,6 +117,49 @@ export function* reportSWStatus() {
         mode,
         timeTaken: result.success.timeTaken,
       });
+      const referenceMap = new Map();
+      const inverseRefMap = new Map();
+
+      navigator.serviceWorker &&
+        navigator.serviceWorker.addEventListener("message", (event) => {
+          const { data } = event;
+          const port = event.ports[0];
+          let result = null;
+          if (data) {
+            const source = referenceMap.get(data["_referenceId"]) || window;
+            if (data.action === "APPLY") {
+              try {
+                const ctx = referenceMap.get(data["_ctxReferenceId"]) || window;
+                const args = data.args.map((arg: any) => {
+                  if (typeof arg === "object" && arg["_referenceId"]) {
+                    return referenceMap.get(arg["_referenceId"]);
+                  }
+                  return arg;
+                });
+                result = source.apply(ctx, args);
+              } catch (e) {
+                result = null;
+              }
+            } else if (data.action === "GET") {
+              result = source[data.property];
+            } else if (data.action === "SET") {
+              source[data.property] = data.args[0];
+              result = source[data.property];
+            }
+            try {
+              port.postMessage({ data: result });
+            } catch (e) {
+              const _referenceType = typeof result;
+              let _referenceId = inverseRefMap.get(result);
+              if (!_referenceId) {
+                _referenceId = window.crypto.randomUUID();
+                referenceMap.set(_referenceId, result);
+                inverseRefMap.set(result, _referenceId);
+              }
+              port.postMessage({ data: { _referenceId, _referenceType } });
+            }
+          }
+        });
     } else {
       AnalyticsUtil.logEvent("SW_REGISTRATION_FAILED", {
         message: "Service worker is not active in 20s",
