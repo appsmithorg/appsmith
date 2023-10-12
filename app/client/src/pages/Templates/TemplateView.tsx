@@ -22,7 +22,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import ReconnectDatasourceModal from "pages/Editor/gitSync/ReconnectDatasourceModal";
 import TemplateDescription from "./Template/TemplateDescription";
 import SimilarTemplates from "./Template/SimilarTemplates";
-import { templateIdUrl } from "RouteBuilder";
+import { templateIdUrl } from "@appsmith/RouteBuilder";
 import TemplateViewHeader from "./TemplateViewHeader";
 
 const breakpointColumnsObject = {

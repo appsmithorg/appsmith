@@ -155,7 +155,7 @@ import { reflow } from "reflow";
 import { getBottomMostRow } from "reflow/reflowUtils";
 import { flashElementsById } from "utils/helpers";
 import { getSlidingArenaName } from "constants/componentClassNameConstants";
-import { builderURL } from "RouteBuilder";
+import { builderURL } from "@appsmith/RouteBuilder";
 import history from "utils/history";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import {
