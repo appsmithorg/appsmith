@@ -103,9 +103,8 @@ function* deleteTabChildSaga(
           tabsObj: updatedObj,
         },
       };
-      const layoutSystemType: LayoutSystemTypes = yield select(
-        getLayoutSystemType,
-      );
+      const layoutSystemType: LayoutSystemTypes =
+        yield select(getLayoutSystemType);
       let finalData: CanvasWidgetsReduxState = parentUpdatedWidgets;
       if (layoutSystemType === LayoutSystemTypes.AUTO) {
         // Update flex layers of a canvas upon deletion of a widget.
@@ -245,9 +244,8 @@ function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
 
       if (updatedObj) {
         const { finalWidgets, otherWidgetsToDelete, widgetName } = updatedObj;
-        const layoutSystemType: LayoutSystemTypes = yield select(
-          getLayoutSystemType,
-        );
+        const layoutSystemType: LayoutSystemTypes =
+          yield select(getLayoutSystemType);
         let finalData: CanvasWidgetsReduxState = finalWidgets;
         if (layoutSystemType === LayoutSystemTypes.AUTO) {
           const isMobile: boolean = yield select(
@@ -342,9 +340,8 @@ function* deleteAllSelectedWidgetsSaga(
     // assuming only widgets with same parent can be selected
     const parentId = widgets[selectedWidgets[0]].parentId;
     if (parentId) {
-      const layoutSystemType: LayoutSystemTypes = yield select(
-        getLayoutSystemType,
-      );
+      const layoutSystemType: LayoutSystemTypes =
+        yield select(getLayoutSystemType);
       if (layoutSystemType === LayoutSystemTypes.AUTO) {
         const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
         const mainCanvasWidth: number = yield select(getCanvasWidth);
