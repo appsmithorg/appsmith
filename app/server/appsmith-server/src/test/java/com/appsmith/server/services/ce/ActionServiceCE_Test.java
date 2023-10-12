@@ -195,7 +195,6 @@ public class ActionServiceCE_Test {
     String branchName;
 
     @BeforeEach
-    //    @WithUserDetails(value = "api_user")
     public void setup() {
 
         User apiUser = userService.findByEmail("api_user").block();
@@ -203,7 +202,6 @@ public class ActionServiceCE_Test {
         Workspace toCreate = new Workspace();
         toCreate.setName("ActionServiceCE_Test");
 
-        //        if (workspaceId == null) {
         Workspace workspace =
                 workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
         workspaceId = workspace.getId();
@@ -211,9 +209,7 @@ public class ActionServiceCE_Test {
         defaultEnvironmentId = workspaceService
                 .getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission())
                 .block();
-        //        }
 
-        //        if (testApp == null && testPage == null) {
         // Create application and page which will be used by the tests to create actions for.
         Application application = new Application();
         application.setName(UUID.randomUUID().toString());
@@ -245,9 +241,7 @@ public class ActionServiceCE_Test {
 
         layout.setDsl(dsl);
         layout.setPublishedDsl(dsl);
-        //        }
 
-        //        if (gitConnectedApp == null) {
         Application newApp = new Application();
         newApp.setName(UUID.randomUUID().toString());
         GitApplicationMetadata gitData = new GitApplicationMetadata();
@@ -272,7 +266,6 @@ public class ActionServiceCE_Test {
                 .block();
 
         branchName = gitConnectedApp.getGitApplicationMetadata().getBranchName();
-        //        }
 
         datasource = new Datasource();
         datasource.setName("Default Database");
