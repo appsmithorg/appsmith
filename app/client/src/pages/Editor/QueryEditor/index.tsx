@@ -18,7 +18,7 @@ import {
   getAction,
   getPluginSettingConfigs,
 } from "@appsmith/selectors/entitiesSelector";
-import { integrationEditorURL } from "RouteBuilder";
+import { integrationEditorURL } from "@appsmith/RouteBuilder";
 import { QueryEditorContextProvider } from "./QueryEditorContext";
 import type { QueryEditorRouteParams } from "constants/routes";
 import {
