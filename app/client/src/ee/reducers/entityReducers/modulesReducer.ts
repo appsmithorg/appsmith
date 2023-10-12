@@ -20,7 +20,6 @@ const modulesReducer = createImmerReducer(INITIAL_STATE, {
     modules.forEach((module) => {
       draftState[module.id] = module;
     });
-
     return draftState;
   },
 });

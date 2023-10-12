@@ -19,4 +19,6 @@ export interface Module {
    * for Actions/Queries as public, value would depend on plugin's settings
    */
   whitelistedPublicEntitySettingsForModuleInstance: string[];
+  type: string;
+  userPermissions: string[];
 }

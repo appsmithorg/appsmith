@@ -294,4 +294,9 @@ export const EMPTY_PACKAGE_LIST = () => "No packages found";
 export const FETCH_PACKAGES_ERROR = () => "Failed to fetch Packages";
 export const FETCH_PACKAGE_ERROR = () => "Failed to fetch Package";
 export const CREATE_PACKAGE_ERROR = () => "Failed to create package";
+export const QUERY_MODULES_TITLE = () => "Query Modules";
+export const ADD_QUERY_MODULE_TOOLTIP = () => "Add a new query module";
+export const CREATE_NEW_QUERY_MODULE = () => "New query";
+export const EMPTY_QUERY_MODULES_MSG = () => "No queries to show here.";
+export const NEW_QUERY_BUTTON = () => "New query";
 // Modules end

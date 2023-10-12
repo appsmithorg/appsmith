@@ -159,6 +159,53 @@ export function* fetchPackageSaga(payload: FetchPackagePayload) {
     );
     const isValidResponse: boolean = yield validateResponse(response);
 
+    response.data.modules = [
+      {
+        id: "module-1",
+        name: "Module 1",
+        packageId: "package-1",
+        type: "QUERY",
+        userPermissions: [],
+        inputs: {},
+        whitelistedPublicEntitySettingsForModule: [],
+        whitelistedPublicEntitySettingsForModuleInstance: [],
+        publicEntityId: "package-1",
+      },
+      {
+        id: "module-2",
+        name: "Module 2",
+        packageId: "package-1",
+        type: "QUERY",
+        userPermissions: [],
+        inputs: {},
+        whitelistedPublicEntitySettingsForModule: [],
+        whitelistedPublicEntitySettingsForModuleInstance: [],
+        publicEntityId: "package-1",
+      },
+      {
+        id: "module-3",
+        name: "Module 3",
+        packageId: "package-1",
+        type: "QUERY",
+        userPermissions: [],
+        inputs: {},
+        whitelistedPublicEntitySettingsForModule: [],
+        whitelistedPublicEntitySettingsForModuleInstance: [],
+        publicEntityId: "package-1",
+      },
+      {
+        id: "module-4",
+        name: "Module 4",
+        packageId: "package-1",
+        type: "QUERY",
+        userPermissions: [],
+        inputs: {},
+        whitelistedPublicEntitySettingsForModule: [],
+        whitelistedPublicEntitySettingsForModuleInstance: [],
+        publicEntityId: "package-1",
+      },
+    ];
+
     if (isValidResponse) {
       yield put({
         type: ReduxActionTypes.FETCH_PACKAGE_SUCCESS,
