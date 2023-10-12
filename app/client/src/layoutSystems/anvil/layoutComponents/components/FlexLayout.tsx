@@ -62,7 +62,7 @@ export const FlexLayout = (props: FlexLayoutProps) => {
       height: props.height || "auto",
       maxHeight: props.maxHeight || "none",
       maxWidth: props.maxWidth || "none",
-      minHeight: props.minHeight || "unset",
+      minHeight: props.minHeight || "inherit",
       minWidth: props.minWidth || "unset",
       width: props.width || "auto",
       padding: props.padding || "0px",

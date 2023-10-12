@@ -3,7 +3,6 @@ import {
   LayoutComponentTypes,
   type LayoutComponentProps,
   type AnvilHighlightInfo,
-  type WidgetPositions,
   type WidgetLayoutProps,
 } from "../../anvilTypes";
 import { deriveAlignedColumnHighlights } from "./alignedColumnHighlights";
@@ -12,6 +11,7 @@ import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import LayoutFactory from "layoutSystems/anvil/layoutComponents/LayoutFactory";
 import AlignedColumn from "layoutSystems/anvil/layoutComponents/components/AlignedColumn";
 import Row from "layoutSystems/anvil/layoutComponents/components/Row";
+import type { WidgetPositions } from "layoutSystems/common/types";
 
 describe("AlignedColumnHighlights tests", () => {
   beforeAll(() => {
