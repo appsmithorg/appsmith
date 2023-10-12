@@ -18,6 +18,7 @@ import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.OAuth2;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.constants.ApplicationConstants;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.ResourceModes;
 import com.appsmith.server.constants.SerialiseApplicationObjective;
@@ -1718,6 +1719,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
             customJSLibs = new ArrayList<>();
         }
 
+        ensureXmlParserPresenceInCustomJsLibList(customJSLibs);
+
         return Flux.fromIterable(customJSLibs)
                 .flatMap(customJSLib -> {
                     customJSLib.setId(null);
@@ -1735,6 +1738,23 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     log.error("Error importing custom jslibs", e);
                     return Mono.error(e);
                 });
+    }
+
+    public void ensureXmlParserPresenceInCustomJsLibList(List<CustomJSLib> customJSLibList) {
+        boolean isXmlParserLibFound = false;
+        for (CustomJSLib customJSLib : customJSLibList) {
+            if (!customJSLib.getUidString().equals(ApplicationConstants.XML_PARSER_LIBRARY_UID)) {
+                continue;
+            }
+
+            isXmlParserLibFound = true;
+            break;
+        }
+
+        if (!isXmlParserLibFound) {
+            CustomJSLib xmlParserJsLib = ApplicationConstants.getDefaultParserCustomJsLibCompatibilityDTO();
+            customJSLibList.add(xmlParserJsLib);
+        }
     }
 
     private Mono<List<Datasource>> getExistingDatasourceMono(String applicationId, Flux<Datasource> datasourceFlux) {
