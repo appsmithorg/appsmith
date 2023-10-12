@@ -30,6 +30,7 @@ export function mockAnvilHighlightInfo(
     canvasId: "",
     dropZone: {},
     height: 40,
+    isVertical: true,
     layoutOrder: [],
     rowIndex: 0,
     posX: 0,
