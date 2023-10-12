@@ -31,6 +31,7 @@ import { updateAppSettingsPaneSelectedTabAction } from "actions/appSettingsPaneA
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Divider } from "design-system";
 import { ImportAppSettings } from "./ImportAppSettings";
+import { getIsAppSidebarEnabled } from "selectors/ideSelectors";
 
 export enum AppSettingsTabs {
   General,
@@ -46,8 +47,9 @@ export interface SelectedTab {
   page?: Page;
 }
 
-const Wrapper = styled.div`
-  height: calc(100% - 48px);
+const Wrapper = styled.div<{ isAppSidebarEnabled: boolean }>`
+  height: ${(props) =>
+    props.isAppSidebarEnabled ? "100%" : "calc(100% - 48px"};
 `;
 
 const SectionContent = styled.div`
@@ -79,6 +81,7 @@ const ThemeContentWrapper = styled.div`
 function AppSettings() {
   const { context } = useSelector(getAppSettingsPane);
   const pages: Page[] = useSelector(selectAllPages);
+  const isAppSidebarEnabled = useSelector(getIsAppSidebarEnabled);
   const dispatch = useDispatch();
 
   const [selectedTab, setSelectedTab] = useState<SelectedTab>({
@@ -180,7 +183,10 @@ function AppSettings() {
   ];
 
   return (
-    <Wrapper className="flex flex-row">
+    <Wrapper
+      className="flex flex-row"
+      isAppSidebarEnabled={isAppSidebarEnabled}
+    >
       <div className="w-1/2">
         {SectionHeadersConfig.map((config) => (
           <SectionHeader key={config.name} {...config} />
