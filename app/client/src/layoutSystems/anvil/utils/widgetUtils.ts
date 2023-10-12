@@ -1,3 +1,4 @@
+import type { SetDraggingStateActionPayload } from "utils/hooks/dragResizeHooks";
 import { MOBILE_BREAKPOINT } from "./constants";
 
 /**
@@ -21,10 +22,24 @@ export const getResponsiveMinWidth = (
   return {
     ...config,
     base: "100%",
-    [`${MOBILE_BREAKPOINT}px`]: config[`${MOBILE_BREAKPOINT}px`] || minWidth,
+    [`${MOBILE_BREAKPOINT}px`]: config[`${MOBILE_BREAKPOINT}px`] ?? minWidth,
   };
 };
 
 export const validateResponsiveProp = (
   data: Record<string, string | number> | undefined,
 ) => data && Object.keys(data)?.length;
+
+export const generateDragStateForAnvilLayout = ({
+  canvasId,
+  layoutId,
+}: {
+  canvasId: string;
+  layoutId: string;
+}): SetDraggingStateActionPayload => {
+  return {
+    isDragging: true,
+    dragGroupActualParent: canvasId || "",
+    draggedOn: layoutId,
+  };
+};

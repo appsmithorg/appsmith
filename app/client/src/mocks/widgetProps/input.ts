@@ -1,8 +1,9 @@
+import { generateReactKey } from "utils/generators";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 
-export const inputProps: BaseWidgetProps = {
+export const mockInputProps = (): BaseWidgetProps => ({
   type: "INPUT_WIDGET_V2",
-  widgetId: "1",
+  widgetId: generateReactKey(),
   widgetName: "Input1",
   renderMode: "CANVAS",
   version: 1,
@@ -13,7 +14,7 @@ export const inputProps: BaseWidgetProps = {
   rightColumn: 10,
   topRow: 0,
   bottomRow: 7,
-};
+});
 
 export const mainContainerProps: BaseWidgetProps = {
   type: "CANVAS_WIDGET",

@@ -5,72 +5,91 @@ import type {
   FlexProps,
   FlexWrap,
   JustifyContent,
+  Responsive,
+  SizingDimension,
+  SpacingDimension,
 } from "@design-system/widgets";
+import { MOBILE_ROW_GAP, ROW_GAP } from "layoutSystems/common/utils/constants";
+import { generateLayoutId } from "layoutSystems/anvil/utils/layouts/layoutUtils";
+import { addPixelToSize } from "layoutSystems/common/utils/commonUtils";
+import React, { useMemo } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import { MOBILE_BREAKPOINT } from "layoutSystems/anvil/utils/constants";
 import type {
   OverflowValues,
   PositionValues,
 } from "layoutSystems/anvil/utils/types";
-import { addPixelToSize } from "layoutSystems/common/utils/commonUtils";
-import { MOBILE_ROW_GAP, ROW_GAP } from "layoutSystems/common/utils/constants";
-import React, { useMemo } from "react";
-import type { ReactNode } from "react";
 
-interface FlexLayoutProps
+export interface FlexLayoutProps
   extends AlignSelf,
+    JustifyContent,
     FlexDirection,
-    FlexWrap,
-    JustifyContent {
+    FlexWrap {
   canvasId: string;
   children: ReactNode;
   isDropTarget?: boolean;
   layoutId: string;
 
   border?: string;
-  columnGap?: string;
-  flexBasis?: string;
-  flexGrow?: number;
-  flexShrink?: number;
-  height?: string;
-  maxHeight?: string;
-  maxWidth?: string;
-  minWidth?: string;
-  minHeight?: string;
+  columnGap?: Responsive<SpacingDimension>;
+  flexBasis?: Responsive<SizingDimension>;
+  flexGrow?: Responsive<number>;
+  flexShrink?: Responsive<number>;
+  height?: Responsive<SizingDimension>;
+  maxHeight?: Responsive<SizingDimension>;
+  maxWidth?: Responsive<SizingDimension>;
+  minWidth?: Responsive<SizingDimension>;
+  minHeight?: Responsive<SizingDimension>;
   overflowX?: OverflowValues;
-  overflow?: OverflowValues;
+  overflowY?: OverflowValues;
   position?: PositionValues;
-  rowGap?: string;
-  padding?: string;
-  width?: string;
+  rowGap?: Responsive<SpacingDimension>;
+  padding?: Responsive<SpacingDimension>;
+  width?: Responsive<SizingDimension>;
 }
 
 export const FlexLayout = (props: FlexLayoutProps) => {
-  const layoutStyle: FlexProps = useMemo(() => {
+  const flexProps: FlexProps = useMemo(() => {
     return {
       alignSelf: props.alignSelf || "flex-start",
       columnGap: props.columnGap || "0px",
-      flexDirection: props.direction || "column",
+      direction: props.direction || "column",
       flexGrow: props.flexGrow || 0,
       flexShrink: props.flexShrink || 0,
       flexBasis: props.flexBasis || "auto",
-      flexWrap: props.wrap || "nowrap",
       justifyContent: props.justifyContent || "start",
-      overflowX: props.overflowX || "hidden",
-      overflowY: props.overflow || "hidden",
       height: props.height || "auto",
       maxHeight: props.maxHeight || "none",
-      minWidth: props.minWidth || "none",
-      minHeight: props.minHeight || "none",
-      position: props.position || "relative",
+      maxWidth: props.maxWidth || "none",
+      minHeight: props.minHeight || "unset",
+      minWidth: props.minWidth || "unset",
       width: props.width || "auto",
-      border: props.border || "none",
-      padding: props.padding || "none",
+      padding: props.padding || "0px",
       rowGap: props.rowGap || {
         base: addPixelToSize(MOBILE_ROW_GAP),
         [addPixelToSize(MOBILE_BREAKPOINT)]: addPixelToSize(ROW_GAP),
       },
+      wrap: props.wrap || "nowrap",
     };
   }, [props]);
 
-  return <Flex {...layoutStyle}>{props.children}</Flex>;
+  // The following properties aren't included in type FlexProps but can be passed as style.
+  const styleProps: CSSProperties = useMemo(() => {
+    return {
+      border: props.border || "none",
+      overflowX: props.overflowX || "hidden",
+      overflowY: props.overflowY || "hidden",
+      position: props.position || "relative",
+    };
+  }, [props.border, props.overflowX, props.overflowY, props.position]);
+
+  return (
+    <Flex
+      {...flexProps}
+      id={generateLayoutId(props.canvasId, props.layoutId)}
+      style={styleProps}
+    >
+      {props.children}
+    </Flex>
+  );
 };

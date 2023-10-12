@@ -1,10 +1,11 @@
-import React from "react";
+import React, { useCallback } from "react";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import { AnvilFlexComponent } from "../common/AnvilFlexComponent";
 import SnipeableComponent from "layoutSystems/common/snipeable/SnipeableComponent";
 import { AnvilWidgetComponent } from "../common/widgetComponent/AnvilWidgetComponent";
 import DraggableComponent from "layoutSystems/common/draggable/DraggableComponent";
 import { AnvilResizableLayer } from "../common/resizer/AnvilResizableLayer";
+import { generateDragStateForAnvilLayout } from "../utils/widgetUtils";
 
 /**
  * AnvilEditorWidgetOnion
@@ -22,6 +23,15 @@ import { AnvilResizableLayer } from "../common/resizer/AnvilResizableLayer";
  * @returns Enhanced Widget
  */
 export const AnvilEditorWidgetOnion = (props: BaseWidgetProps) => {
+  const { layoutId, parentId } = props;
+  // if layoutId is not present on widget props then we need a selector to fetch layout id of a widget.
+  // const layoutId = useSelector(getLayoutIdByWidgetId(props.widgetId));
+  const generateDragState = useCallback(() => {
+    return generateDragStateForAnvilLayout({
+      canvasId: parentId || "",
+      layoutId: layoutId,
+    });
+  }, [layoutId, parentId]);
   return (
     <AnvilFlexComponent
       componentHeight={props.componentHeight}
@@ -37,15 +47,11 @@ export const AnvilEditorWidgetOnion = (props: BaseWidgetProps) => {
     >
       <SnipeableComponent type={props.type} widgetId={props.widgetId}>
         <DraggableComponent
-          bottomRow={props.bottomRow}
+          dragDisabled={!!props.dragDisabled}
+          generateDragState={generateDragState}
           isFlexChild
-          leftColumn={props.leftColumn}
-          parentColumnSpace={props.parentColumnSpace}
           parentId={props.parentId}
-          parentRowSpace={props.parentRowSpace}
           resizeDisabled={props.resizeDisabled}
-          rightColumn={props.rightColumn}
-          topRow={props.topRow}
           type={props.type}
           widgetId={props.widgetId}
         >
