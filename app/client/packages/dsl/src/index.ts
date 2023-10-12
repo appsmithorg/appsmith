@@ -8,4 +8,6 @@ export type {
   FlattenedDSLEntities,
 } from "./dsl-transform";
 
-export { transformDSL } from "./migrate";
+export { transformDSL, LATEST_DSL_VERSION } from "./migrate";
+
+export type { DSLWidget } from "./migrate/types";
