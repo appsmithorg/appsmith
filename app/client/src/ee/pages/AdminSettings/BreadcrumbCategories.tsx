@@ -1,7 +1,7 @@
 export * from "ce/pages/AdminSettings/BreadcrumbCategories";
 import { BreadcrumbCategories as CE_BreadcrumbCategories } from "ce/pages/AdminSettings/BreadcrumbCategories";
 import { SettingCategories } from "./config/types";
-import { adminSettingsCategoryUrl } from "RouteBuilder";
+import { adminSettingsCategoryUrl } from "@appsmith/RouteBuilder";
 
 const EE_BreadcrumbCategories = {
   [SettingCategories.SAML_AUTH]: {

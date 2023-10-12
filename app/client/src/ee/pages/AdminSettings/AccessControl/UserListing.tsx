@@ -19,7 +19,7 @@ import {
   INVITE_USERS_TAB_ID,
 } from "./components";
 import InviteUsersForm from "@appsmith/pages/workspace/InviteUsersForm";
-import { adminSettingsCategoryUrl } from "RouteBuilder";
+import { adminSettingsCategoryUrl } from "@appsmith/RouteBuilder";
 import { SettingCategories } from "@appsmith/pages/AdminSettings/config/types";
 import {
   deleteAclUser,

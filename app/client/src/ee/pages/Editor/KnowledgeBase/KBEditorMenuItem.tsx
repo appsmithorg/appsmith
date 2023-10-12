@@ -2,7 +2,7 @@ export * from "ce/pages/Editor/KnowledgeBase/KBEditorMenuItem";
 
 import React from "react";
 import { MenuItem } from "design-system";
-import { viewerURL } from "RouteBuilder";
+import { viewerURL } from "@appsmith/RouteBuilder";
 import { useSelector } from "react-redux";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { useHref } from "pages/Editor/utils";

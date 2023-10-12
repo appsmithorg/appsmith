@@ -17,7 +17,7 @@ import {
   EmptySearchResult,
   MoreInfoPill,
 } from "./components";
-import { adminSettingsCategoryUrl } from "RouteBuilder";
+import { adminSettingsCategoryUrl } from "@appsmith/RouteBuilder";
 import { SettingCategories } from "@appsmith/pages/AdminSettings/config/types";
 import { RoleAddEdit } from "./RoleAddEdit";
 import { useDispatch, useSelector } from "react-redux";

@@ -45,7 +45,7 @@ import {
   getIsFormLoginEnabled,
   getThirdPartyAuths,
 } from "@appsmith/selectors/tenantSelectors";
-import { adminSettingsCategoryUrl } from "RouteBuilder";
+import { adminSettingsCategoryUrl } from "@appsmith/RouteBuilder";
 import history from "utils/history";
 
 interface FormProps {
