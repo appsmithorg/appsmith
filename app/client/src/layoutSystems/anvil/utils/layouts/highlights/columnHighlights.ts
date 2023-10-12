@@ -1,10 +1,12 @@
+import type {
+  WidgetPosition,
+  WidgetPositions,
+} from "layoutSystems/common/types";
 import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
 import type {
   AnvilHighlightInfo,
   DraggedWidget,
   LayoutProps,
-  PositionData,
-  WidgetPositions,
 } from "../../anvilTypes";
 import { HIGHLIGHT_SIZE } from "../../constants";
 import {
@@ -70,10 +72,10 @@ export function deriveColumnHighlights(
 
 function generateHighlights(
   baseHighlight: AnvilHighlightInfo,
-  layoutDimension: PositionData,
-  currentDimension: PositionData,
-  prevDimension: PositionData | undefined,
-  nextDimension: PositionData | undefined,
+  layoutDimension: WidgetPosition,
+  currentDimension: WidgetPosition,
+  prevDimension: WidgetPosition | undefined,
+  nextDimension: WidgetPosition | undefined,
   rowIndex: number,
   isLastHighlight: boolean,
 ): AnvilHighlightInfo[] {

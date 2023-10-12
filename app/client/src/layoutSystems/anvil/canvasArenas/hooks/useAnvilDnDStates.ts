@@ -3,7 +3,7 @@ import type { AppState } from "@appsmith/reducers";
 import { getDragDetails, getWidgetByID, getWidgets } from "sagas/selectors";
 import { useSelector } from "react-redux";
 import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { getSelectedWidgets } from "selectors/ui";
 import { getWidgetPositions } from "layoutSystems/common/selectors";
 import type {
@@ -64,7 +64,7 @@ export const useAnvilDnDStates = ({
   const isChildOfCanvas = dragParent === canvasId;
   const isCurrentDraggedCanvas = dragDetails.draggedOn === layoutId;
   const isNewWidgetInitialTargetCanvas =
-    isNewWidget && layoutId === MAIN_CONTAINER_WIDGET_ID;
+    isNewWidget && canvasId === MAIN_CONTAINER_WIDGET_ID;
   const getDraggedBlocks = (): DraggedWidget[] => {
     if (isNewWidget) {
       const { newWidget } = dragDetails;
@@ -100,10 +100,14 @@ export const useAnvilDnDStates = ({
   const allowToDrop = isDragging && checkIfWidgetTypeDraggedIsAllowedToDrop();
   const draggedBlocks = getDraggedBlocks();
   const memoizedDeriveHighlights = useCallback(
-    () => deriveAllHighlightsFn(widgetPositions, draggedBlocks),
-    [widgetPositions, draggedBlocks],
+    () =>
+      deriveAllHighlightsFn(widgetPositions, isNewWidget ? [] : draggedBlocks),
+    [widgetPositions, draggedBlocks, isNewWidget],
   );
-  const allHighLights = isDragging ? memoizedDeriveHighlights() : [];
+  const allHighLights = useMemo(
+    () => (isDragging ? memoizedDeriveHighlights() : []),
+    [isDragging],
+  );
   return {
     allHighLights,
     allowToDrop,
