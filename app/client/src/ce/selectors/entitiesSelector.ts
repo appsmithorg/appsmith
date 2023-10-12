@@ -39,7 +39,7 @@ import {
 
 import { InstallState } from "reducers/uiReducers/libraryReducer";
 import recommendedLibraries from "pages/Editor/Explorer/Libraries/recommendedLibraries";
-import type { TJSLibrary } from "workers/common/JSLibrary";
+import type { IJSLibrary } from "workers/common/JSLibrary";
 import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { getFormValues } from "redux-form";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
@@ -1099,7 +1099,7 @@ export const selectLibrariesForExplorer = createSelector(
           version: recommendedLibrary?.version || "",
           url: recommendedLibrary?.url || url,
           accessor: [],
-        } as TJSLibrary;
+        } as IJSLibrary;
       });
     return [...queuedInstalls, ...libs];
   },
