@@ -26,7 +26,9 @@ import {
 import { generateReactKey } from "utils/generators";
 import { importRemixIcon } from "design-system-old";
 
-const AddIcon = importRemixIcon(() => import("remixicon-react/AddLineIcon"));
+const AddIcon = importRemixIcon(
+  async () => import("remixicon-react/AddLineIcon"),
+);
 
 const TableFilterOuterWrapper = styled.div<{
   borderRadius?: string;

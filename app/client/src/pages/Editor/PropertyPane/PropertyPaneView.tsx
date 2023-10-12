@@ -45,6 +45,8 @@ import {
 } from "@appsmith/constants/messages";
 import { getWidgets } from "sagas/selectors";
 import { getCurrentUser } from "selectors/usersSelectors";
+import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 
 // TODO(abhinav): The widget should add a flag in their configuration if they donot subscribe to data
 // Widgets where we do not want to show the CTA
@@ -89,6 +91,7 @@ function PropertyPaneView(
   const { searchText, setSearchText } = useSearchText("");
   const { pushFeature } = useContext(WalkthroughContext) || {};
   const widgets = useSelector(getWidgets);
+  const { selectWidget } = useWidgetSelection();
 
   const showWalkthroughIfWidgetIdSet = async () => {
     const widgetId: string | null = await localStorage.getItem(
@@ -136,6 +139,11 @@ function PropertyPaneView(
             `#${PROPERTY_PANE_ID}`,
           ],
           delay: 5000,
+          runBeforeWalkthrough: () => {
+            try {
+              selectWidget(SelectionRequestType.One, [widgetId]);
+            } catch {}
+          },
         });
       }
     } else {

@@ -538,7 +538,7 @@ class FilePickerWidget extends BaseWidget<
 
     if (location.protocol === "https:") {
       uppy.use(Webcam, {
-        onBeforeSnapshot: () => Promise.resolve(),
+        onBeforeSnapshot: async () => Promise.resolve(),
         countdown: false,
         mirror: true,
         facingMode: "user",

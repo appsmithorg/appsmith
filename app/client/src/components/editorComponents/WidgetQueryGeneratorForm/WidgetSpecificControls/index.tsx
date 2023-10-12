@@ -5,11 +5,11 @@ import type { Alias, OtherField } from "../types";
 import { OtherFieldComponent } from "./OtherFields";
 import { useFormConfig } from "../common/useFormConfig";
 
-type Props = {
+interface Props {
   hasSearchableColumn?: boolean;
   aliases?: Alias[];
   otherFields?: OtherField[];
-};
+}
 
 export default function WidgetSpecificControls(props: Props) {
   let searchableColumn = null;

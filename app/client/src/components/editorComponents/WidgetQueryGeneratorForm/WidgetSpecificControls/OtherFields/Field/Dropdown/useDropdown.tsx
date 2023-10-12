@@ -26,7 +26,7 @@ import type { AppState } from "@appsmith/reducers";
 import { getWidget } from "sagas/selectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
-export type OneClickDropdownFieldProps = {
+export interface OneClickDropdownFieldProps {
   label: string;
   name: string;
   options: DropdownOptionType[];
@@ -35,7 +35,7 @@ export type OneClickDropdownFieldProps = {
   defaultValue?: string;
   isDataIdentifier?: boolean;
   allowClear?: boolean;
-};
+}
 
 /* useDropdown hook - this hook is specific to one click binding control and handles all the logic for the dropdown
  * This hook is used to get the options for the dropdown based on the optionType provided by the widget's control config

@@ -18,7 +18,7 @@ import ActionItem from "../ActionItem";
 import { importSvg } from "design-system-old";
 
 const FilterIcon = importSvg(
-  () => import("assets/icons/control/filter-icon.svg"),
+  async () => import("assets/icons/control/filter-icon.svg"),
 );
 
 export interface DropdownOption {

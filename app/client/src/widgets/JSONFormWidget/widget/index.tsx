@@ -42,7 +42,10 @@ import { BlueprintOperationTypes } from "WidgetProvider/constants";
 import { ButtonVariantTypes } from "components/constants";
 import { Colors } from "constants/Colors";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
+import {
+  FlexVerticalAlignment,
+  ResponsiveBehavior,
+} from "layoutSystems/common/utils/constants";
 import { DynamicHeight } from "utils/WidgetFeatures";
 
 import IconSVG from "../icon.svg";
@@ -101,11 +104,11 @@ export type MetaInternalFieldState = FieldState<{
   filterText?: string;
 }>;
 
-export type JSONFormWidgetState = {
+export interface JSONFormWidgetState {
   resetObserverCallback: () => void;
   isSubmitting: boolean;
   metaInternalFieldState: MetaInternalFieldState;
-};
+}
 
 export type Action = ExecuteTriggerPayload & {
   updateDependencyType?: ActionUpdateDependency;
@@ -165,6 +168,7 @@ class JSONFormWidget extends BaseWidget<
 
   static getDefaults() {
     return {
+      flexVerticalAlignment: FlexVerticalAlignment.Top,
       responsiveBehavior: ResponsiveBehavior.Fill,
       minWidth: FILL_WIDGET_MIN_WIDTH,
       useSourceData: false,
@@ -266,9 +270,10 @@ class JSONFormWidget extends BaseWidget<
             (column) => `${column.name}`,
           );
           modify = {
-            sourceData: `{{_.pick(${
-              formConfig?.otherFields?.defaultValues
-            },${selectedColumnNames.map((name) => `'${name}'`).join(",")})}}`,
+            sourceData: `{{_.pick(${formConfig?.otherFields
+              ?.defaultValues},${selectedColumnNames
+              .map((name) => `'${name}'`)
+              .join(",")})}}`,
             title: `Update Row ${primaryKey} {{${formConfig?.otherFields?.defaultValues}.${primaryKey}}}`,
             onSubmit: queryConfig?.update.run,
           };

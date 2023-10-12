@@ -8,7 +8,7 @@ export default class LibraryApi extends Api {
   static getUpdateLibraryBaseURL = (applicationId: string) =>
     `${LibraryApi.base_url}/${applicationId}`;
 
-  static addLibrary(
+  static async addLibrary(
     applicationId: string,
     library: Partial<TJSLibrary> & { defs: string },
   ) {
@@ -16,12 +16,15 @@ export default class LibraryApi extends Api {
     return Api.patch(url, library);
   }
 
-  static removeLibrary(applicationId: string, library: Partial<TJSLibrary>) {
+  static async removeLibrary(
+    applicationId: string,
+    library: Partial<TJSLibrary>,
+  ) {
     const url = LibraryApi.getUpdateLibraryBaseURL(applicationId) + "/remove";
     return Api.patch(url, library);
   }
 
-  static getLibraries(applicationId: string, mode: APP_MODE) {
+  static async getLibraries(applicationId: string, mode: APP_MODE) {
     const url = `${LibraryApi.getUpdateLibraryBaseURL(applicationId)}${
       mode === APP_MODE.PUBLISHED ? "/view" : ""
     }`;

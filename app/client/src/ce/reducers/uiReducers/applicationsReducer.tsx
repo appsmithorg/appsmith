@@ -52,6 +52,10 @@ export const initialState: ApplicationsReduxState = {
   isUploadingNavigationLogo: false,
   isDeletingNavigationLogo: false,
   deletingMultipleApps: {},
+  loadingStates: {
+    isFetchingAllRoles: false,
+    isFetchingAllUsers: false,
+  },
 };
 
 export const handlers = {
@@ -818,10 +822,10 @@ const applicationsReducer = createReducer(initialState, handlers);
 
 export type creatingApplicationMap = Record<string, boolean>;
 
-export type DeletingMultipleApps = {
+export interface DeletingMultipleApps {
   list?: string[];
   isDeleting?: boolean;
-};
+}
 
 export interface ApplicationsReduxState {
   applicationList: ApplicationPayload[];
@@ -850,6 +854,10 @@ export interface ApplicationsReduxState {
   isUploadingNavigationLogo: boolean;
   isDeletingNavigationLogo: boolean;
   deletingMultipleApps: DeletingMultipleApps;
+  loadingStates: {
+    isFetchingAllRoles: boolean;
+    isFetchingAllUsers: boolean;
+  };
 }
 
 export interface Application {

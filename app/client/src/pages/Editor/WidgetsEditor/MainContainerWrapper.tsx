@@ -40,13 +40,13 @@ import {
 import { CANVAS_VIEWPORT } from "constants/componentClassNameConstants";
 import { MainContainerResizer } from "layoutSystems/common/mainContainerResizer/MainContainerResizer";
 
-type MainCanvasWrapperProps = {
+interface MainCanvasWrapperProps {
   isPreviewMode: boolean;
   shouldShowSnapShotBanner: boolean;
   navigationHeight?: number;
   isAppSettingsPaneWithNavigationTabOpen?: boolean;
   currentPageId: string;
-};
+}
 
 const Wrapper = styled.section<{
   $enableMainCanvasResizer: boolean;

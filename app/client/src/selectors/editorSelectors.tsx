@@ -25,11 +25,10 @@ import {
 } from "constants/WidgetConstants";
 import { APP_MODE } from "entities/App";
 import type {
-  DataTree,
-  ConfigTree,
   WidgetEntity,
   WidgetEntityConfig,
 } from "@appsmith/entities/DataTree/types";
+import type { DataTree, ConfigTree } from "entities/DataTree/dataTreeTypes";
 import { find, sortBy } from "lodash";
 import {
   getDataTree,
@@ -185,11 +184,14 @@ export const getCurrentPageDescription = createSelector(
 );
 
 export const selectPageSlugToIdMap = createSelector(getPageList, (pages) =>
-  pages.reduce((acc, page: Page) => {
-    // Comeback
-    acc[page.pageId] = page.slug || "";
-    return acc;
-  }, {} as Record<string, string>),
+  pages.reduce(
+    (acc, page: Page) => {
+      // Comeback
+      acc[page.pageId] = page.slug || "";
+      return acc;
+    },
+    {} as Record<string, string>,
+  ),
 );
 
 export const getCurrentApplication = (state: AppState) =>

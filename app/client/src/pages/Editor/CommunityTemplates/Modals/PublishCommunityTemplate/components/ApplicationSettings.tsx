@@ -6,12 +6,12 @@ import { Switch, Text } from "design-system";
 import React from "react";
 import styled from "styled-components";
 
-type Props = {
+interface Props {
   isForkable: boolean;
   isPublic: boolean;
   setIsForkable: (isForkable: boolean) => void;
   setIsPublic: (isForkable: boolean) => void;
-};
+}
 
 const ApplicationSettings = ({
   isForkable,

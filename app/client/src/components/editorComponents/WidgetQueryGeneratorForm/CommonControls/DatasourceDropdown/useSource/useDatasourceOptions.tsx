@@ -33,6 +33,7 @@ import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { WidgetQueryGeneratorFormContext } from "components/editorComponents/WidgetQueryGeneratorForm/index";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { getDatasourceConnectionMode } from "components/editorComponents/WidgetQueryGeneratorForm/utils";
 
 interface DatasourceOptionsProps {
   widget: WidgetProps;
@@ -83,10 +84,10 @@ function useDatasourceOptions(props: DatasourceOptionsProps) {
             isValid: isEnvironmentValid(datasource, currentEnvironment),
             pluginPackageName: pluginsPackageNamesMap[datasource.pluginId],
             isSample: false,
-            connectionMode: getEnvironmentConfiguration(
-              datasource,
-              currentEnvironment,
-            )?.connection?.mode,
+            connectionMode: getDatasourceConnectionMode(
+              pluginsPackageNamesMap[datasource.pluginId],
+              getEnvironmentConfiguration(datasource, currentEnvironment),
+            ),
           },
           icon: (
             <ImageWrapper>

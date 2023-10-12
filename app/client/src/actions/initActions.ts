@@ -8,12 +8,12 @@ export const initCurrentPage = () => {
   };
 };
 
-export type InitializeEditorPayload = {
+export interface InitializeEditorPayload {
   applicationId?: string;
   pageId?: string;
   branch?: string;
   mode: APP_MODE;
-};
+}
 
 export const initEditor = (
   payload: InitializeEditorPayload,
@@ -22,12 +22,12 @@ export const initEditor = (
   payload,
 });
 
-export type InitAppViewerPayload = {
+export interface InitAppViewerPayload {
   branch: string;
   applicationId?: string;
   pageId: string;
   mode: APP_MODE;
-};
+}
 
 export const initAppViewer = ({
   applicationId,

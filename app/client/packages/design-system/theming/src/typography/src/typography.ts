@@ -15,10 +15,11 @@ export const getTypographyClassName = (
 };
 
 export const createTypographyStringMap = (
-  typography: Typography,
-  containerCLassName: string,
+  typography?: Typography,
   fontFamily?: FontFamily,
 ) => {
+  if (typography == null) return;
+
   return Object.keys(typography).reduce((prev, current) => {
     const { capHeight, lineGap } = typography[current as keyof Typography];
     return (
@@ -27,7 +28,6 @@ export const createTypographyStringMap = (
         capHeight,
         lineGap,
         current as keyof typeof TYPOGRAPHY_VARIANTS,
-        containerCLassName,
         fontFamily,
       )}`
     );
@@ -38,29 +38,22 @@ export const createTypographyString = (
   capHeight: number,
   lineGap: number,
   typographyVariant: keyof typeof TYPOGRAPHY_VARIANTS,
-  containerCLassName: string,
   fontFamily?: FontFamily,
 ) => {
   // if there is no font family, use the default font stack
   if (!fontFamily || fontFamily === "System Default") {
-    return createStyleString(
-      `${containerCLassName} .${getTypographyClassName(typographyVariant)}`,
-      {
-        capHeight,
-        lineGap,
-        fontMetrics: appleSystem,
-      },
-    );
-  }
-
-  return createStyleString(
-    `${containerCLassName} .${getTypographyClassName(typographyVariant)}`,
-    {
+    return createStyleString(getTypographyClassName(typographyVariant), {
       capHeight,
       lineGap,
-      fontMetrics: FONT_METRICS[fontFamily],
-    },
-  );
+      fontMetrics: appleSystem,
+    });
+  }
+
+  return createStyleString(getTypographyClassName(typographyVariant), {
+    capHeight,
+    lineGap,
+    fontMetrics: FONT_METRICS[fontFamily],
+  });
 };
 
 export const createGlobalFontStack = () => {

@@ -44,7 +44,7 @@ import { editorInitializer } from "../../utils/editor/EditorUtils";
 import { widgetInitialisationSuccess } from "../../actions/widgetActions";
 import { EnvDeployInfoModal } from "@appsmith/components/EnvDeployInfoModal";
 
-type EditorProps = {
+interface EditorProps {
   currentApplicationId?: string;
   currentApplicationName?: string;
   initEditor: (payload: InitializeEditorPayload) => void;
@@ -64,7 +64,7 @@ type EditorProps = {
   pageLevelSocketRoomId: string;
   isMultiPane: boolean;
   widgetConfigBuildSuccess: () => void;
-};
+}
 
 type Props = EditorProps & RouteComponentProps<BuilderRouteParams>;
 
@@ -155,7 +155,7 @@ class Editor extends Component<Props> {
           <Helmet>
             <meta charSet="utf-8" />
             <title>
-              {`${this.props.currentApplicationName} |`} Editor | Appsmith
+              {`${this.props.currentApplicationName} | Editor | Appsmith`}
             </title>
           </Helmet>
           <GlobalHotKeys>

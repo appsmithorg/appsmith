@@ -6,7 +6,7 @@ import type {
 import type { EntityNavigationData } from "selectors/navigationSelectors";
 import React from "react";
 
-export type TAIWrapperProps = {
+export interface TAIWrapperProps {
   children?: React.ReactNode;
   isOpen?: boolean;
   currentValue: string;
@@ -18,7 +18,7 @@ export type TAIWrapperProps = {
   mode: TEditorModes;
   entity: FieldEntityInformation;
   entitiesForNavigation: EntityNavigationData;
-};
+}
 
 export function AIWindow(props: TAIWrapperProps) {
   const { children } = props;
