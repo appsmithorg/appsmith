@@ -37,15 +37,15 @@ export const getAnvilDimensionsConfig = (
  *
  */
 const getAnvilSystemPropsEnhancer = (props: BaseWidgetProps) => {
-  const { autoDimension, widgetSize } = getAnvilDimensionsConfig(props);
+  const { widgetSize } = getAnvilDimensionsConfig(props);
   const { componentHeight, componentWidth } =
     getAnvilComponentDimensions(props);
   return {
     ...props,
     componentHeight,
     componentWidth,
-    hasAutoHeight: !!(autoDimension as AutoDimensionValues)?.height,
-    hasAutoWidth: !!(autoDimension as AutoDimensionValues)?.width,
+    hasAutoHeight: true,
+    hasAutoWidth: true,
     widgetSize,
   };
 };

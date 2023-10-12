@@ -21,5 +21,6 @@ export function isFillWidgetType(type: WidgetType): boolean {
  */
 export function isFillWidgetPresentInList(children: WidgetProps[]): boolean {
   if (!children || !children?.length) return false;
+  console.log("#####", children);
   return children.some((child) => isFillWidgetType(child.type));
 }

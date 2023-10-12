@@ -18,6 +18,9 @@ export function anvilDSLTransformer(dsl: DSLWidget) {
         layoutId: generateReactKey(),
         layoutType: "ALIGNED_COLUMN",
         layout: [],
+        layoutStyle: {
+          minHeight: "calc(90vh - 140px)",
+        },
         isDropTarget: true,
         isPermanent: true,
         childTemplate: {

@@ -29,6 +29,7 @@ import type { WidgetProps } from "widgets/BaseWidget";
 import type { WidgetConfigProps } from "WidgetProvider/constants";
 import { usePositionObserver } from "layoutSystems/common/utils/WidgetPositionsObserver/usePositionObserver";
 import { getAnvilWidgetId } from "layoutSystems/common/utils/WidgetPositionsObserver/utils";
+import { Colors } from "constants/Colors";
 
 /**
  * Adds following functionalities to the widget:
@@ -150,14 +151,30 @@ export function AnvilFlexComponent(props: AnvilFlexComponentProps) {
     verticalAlignment,
   ]);
 
+  let borderColor = "transparent";
+  if (isFocused) {
+    borderColor = Colors.WATUSI;
+  }
+  if (isSelected) {
+    borderColor = "#F86A2B";
+  }
+
   const styleProps: CSSProperties = useMemo(() => {
     return {
       position: "relative",
       "&:hover": {
         zIndex: onHoverZIndex,
       },
+      borderWidth: "1px",
+      borderStyle: "solid",
+      borderColor: borderColor,
+      outlineColor: isFocused || isSelected ? Colors.GREY_1 : "transparent",
+      outlineWidth: "1px",
+      outlineStyle: "solid",
+      borderRadius: "4px 0px 4px 4px",
+      boxShadow: `0px 0px 0px 1px ${borderColor}`,
     };
-  }, [onHoverZIndex]);
+  }, [onHoverZIndex, borderColor]);
 
   return (
     <Flex

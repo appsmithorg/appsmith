@@ -13,15 +13,8 @@ export const AnvilCanvas = (props: BaseWidgetProps) => {
     map[child.widgetId] = child;
   });
   console.log("###", { props });
-  const style = {
-    minHeight: props.minHeight + "px",
-  };
   return (
-    <div
-      className="anvil-canvas"
-      id={getCanvasId(props.widgetId)}
-      style={style}
-    >
+    <div className="anvil-canvas" id={getCanvasId(props.widgetId)}>
       {renderLayouts(
         props.layout,
         map,

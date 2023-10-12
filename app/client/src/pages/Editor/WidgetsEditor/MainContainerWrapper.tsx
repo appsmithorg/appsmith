@@ -39,6 +39,7 @@ import {
 } from "../../../layoutSystems/common/useLayoutSystemFeatures";
 import { CANVAS_VIEWPORT } from "constants/componentClassNameConstants";
 import { MainContainerResizer } from "layoutSystems/common/mainContainerResizer/MainContainerResizer";
+import OverlayCanvasContainer from "layoutSystems/common/WidgetNamesCanvas";
 
 interface MainCanvasWrapperProps {
   isPreviewMode: boolean;
@@ -46,6 +47,7 @@ interface MainCanvasWrapperProps {
   navigationHeight?: number;
   isAppSettingsPaneWithNavigationTabOpen?: boolean;
   currentPageId: string;
+  parentRef: React.RefObject<HTMLDivElement>;
 }
 
 const Wrapper = styled.section<{
@@ -121,6 +123,8 @@ function MainContainerWrapper(props: MainCanvasWrapperProps) {
   const { isAppSettingsPaneWithNavigationTabOpen, navigationHeight } = props;
   const dispatch = useDispatch();
   const { currentPageId, isPreviewMode, shouldShowSnapShotBanner } = props;
+
+  const ref = React.useRef<HTMLDivElement>(null);
 
   const isFetchingPage = useSelector(getIsFetchingPage);
   const canvasWidth = useSelector(getCanvasWidth);
@@ -232,6 +236,7 @@ function MainContainerWrapper(props: MainCanvasWrapperProps) {
         isPreviewingNavigation={isPreviewingNavigation}
         key={currentPageId}
         navigationHeight={navigationHeight}
+        ref={ref}
         style={{
           height: shouldHaveTopMargin ? heightWithTopMargin : "100vh",
           fontFamily: fontFamily,
@@ -251,6 +256,11 @@ function MainContainerWrapper(props: MainCanvasWrapperProps) {
         )}
         {node}
       </Wrapper>
+      <OverlayCanvasContainer
+        canvasWidth={canvasWidth}
+        containerRef={props.parentRef}
+        parentRef={ref}
+      />
       <MainContainerResizer
         currentPageId={currentPageId}
         enableMainCanvasResizer={enableMainContainerResizer}

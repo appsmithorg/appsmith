@@ -107,7 +107,7 @@ export const useCanvasDragging = (
 
         const resetDragging = () => {
           setTimeout(() => {
-            if (isCurrentDraggedCanvas) {
+            if (isCurrentDraggedCanvas || isNewWidgetInitialTargetCanvas) {
               if (isNewWidget) {
                 setDraggingNewWidget(false, undefined);
               } else {

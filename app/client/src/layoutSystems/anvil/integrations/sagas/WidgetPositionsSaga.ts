@@ -24,23 +24,13 @@ function* readAndUpdateWidgetPositions(
     widgetsProcessQueue: {
       [widgetId: string]: boolean;
     };
-    layersProcessQueue: { [canvasId: string]: number };
     layoutsProcessQueue: { [key: string]: boolean };
   }>,
 ) {
-  const widgets: CanvasWidgetsReduxState = yield select(getCanvasWidgets);
-
-  const { layersProcessQueue, layoutsProcessQueue, widgetsProcessQueue } =
-    action.payload;
-
-  //get additional widgets from affected layers
-  const affectedWidgetsFromLayers: {
-    [widgetDOMId: string]: boolean;
-  } = getAffectedWidgetsFromLayers(layersProcessQueue, widgets);
+  const { layoutsProcessQueue, widgetsProcessQueue } = action.payload;
 
   const widgetsToProcess = {
     ...widgetsProcessQueue,
-    ...affectedWidgetsFromLayers,
   };
 
   const widgetDimensions: WidgetPositions = {};

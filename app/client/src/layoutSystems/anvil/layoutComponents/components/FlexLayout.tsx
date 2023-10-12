@@ -62,7 +62,7 @@ export const FlexLayout = (props: FlexLayoutProps) => {
       height: props.height || "auto",
       maxHeight: props.maxHeight || "none",
       maxWidth: props.maxWidth || "none",
-      minHeight: props.minHeight || "inherit",
+      minHeight: props.minHeight || "unset",
       minWidth: props.minWidth || "unset",
       width: props.width || "auto",
       padding: props.padding || "0px",
@@ -85,7 +85,6 @@ export const FlexLayout = (props: FlexLayoutProps) => {
   const styleProps: CSSProperties = useMemo(() => {
     return {
       zIndex: -1,
-      minHeight: "40px",
       border: props.border || "none",
       overflowX: props.overflowX || "hidden",
       overflowY: props.overflowY || "hidden",

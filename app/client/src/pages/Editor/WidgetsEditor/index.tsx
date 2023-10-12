@@ -78,6 +78,8 @@ function WidgetsEditor() {
   const shouldShowSnapShotBanner =
     !!readableSnapShotDetails && !isPreviewingNavigation;
 
+  const ref = React.useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     if (navigationPreviewRef?.current) {
       const { offsetHeight } = navigationPreviewRef.current;
@@ -205,6 +207,7 @@ function WidgetsEditor() {
               }
               isPreviewMode={isPreviewMode}
               isPublished={isPublished}
+              ref={ref}
               sidebarWidth={isPreviewingNavigation ? sidebarWidth : 0}
             >
               {shouldShowSnapShotBanner && (
@@ -219,6 +222,7 @@ function WidgetsEditor() {
                 }
                 isPreviewMode={isPreviewMode}
                 navigationHeight={navigationHeight}
+                parentRef={ref}
                 shouldShowSnapShotBanner={shouldShowSnapShotBanner}
               />
             </PageViewWrapper>
