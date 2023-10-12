@@ -7,21 +7,13 @@ import {
   TEMPLATES_PATH,
 } from "constants/routes";
 import { APP_MODE } from "entities/App";
-import urlBuilder from "entities/URLRedirect/URLAssembly";
+import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
+import type { URLBuilderParams } from "@appsmith/entities/URLRedirect/URLAssembly";
 import type {
   ApplicationPayload,
   Page,
 } from "@appsmith/constants/ReduxActionConstants";
 import { isNil } from "lodash";
-
-export interface URLBuilderParams {
-  suffix?: string;
-  branch?: string;
-  hash?: string;
-  params?: Record<string, any>;
-  pageId: string;
-  persistExistingParams?: boolean;
-}
 
 export const fillPathname = (
   pathname: string,
