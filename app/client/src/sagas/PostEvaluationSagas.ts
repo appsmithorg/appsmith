@@ -4,7 +4,6 @@ import {
   PLATFORM_ERROR,
   Severity,
 } from "entities/AppsmithConsole";
-import type { WidgetEntityConfig } from "@appsmith/entities/DataTree/types";
 import type {
   ActionEntity,
   JSActionEntity,
