@@ -96,7 +96,7 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
         try {
             return ff4j.check(featureName, new FlippingExecutionContext(Map.of(FieldName.USER, user)));
         } catch (Exception e) {
-            // We configure FF4J not to auto-generate a flag if it's not present in init-flags.xml
+            // FF4J is configured not to auto-generate a flag if it's not present in init-flags.xml
             // (see FeatureFlagConfig.java).
             // Consequently, we anticipate that the flag may not exist in the FF4J context and need to handle any
             // related exceptions silently.
