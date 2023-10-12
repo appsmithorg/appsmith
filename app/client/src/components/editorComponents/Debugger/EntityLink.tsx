@@ -9,7 +9,7 @@ import { getAction, getDatasource } from "@appsmith/selectors/entitiesSelector";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import history from "utils/history";
 import { getQueryParams } from "utils/URLUtils";
-import { datasourcesEditorIdURL } from "RouteBuilder";
+import { datasourcesEditorIdURL } from "@appsmith/RouteBuilder";
 import type LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { Link } from "design-system";
 import type { Plugin } from "api/PluginApi";

@@ -16,7 +16,7 @@ import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
 import Datasources from "./Datasources";
 import Files from "./Files";
 import ExplorerWidgetGroup from "./Widgets/WidgetGroup";
-import { builderURL } from "RouteBuilder";
+import { builderURL } from "@appsmith/RouteBuilder";
 import history from "utils/history";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { fetchWorkspace } from "@appsmith/actions/workspaceActions";
@@ -30,7 +30,7 @@ import {
   getExplorerStatus,
   saveExplorerStatus,
 } from "@appsmith/pages/Editor/Explorer/helpers";
-import { integrationEditorURL } from "RouteBuilder";
+import { integrationEditorURL } from "@appsmith/RouteBuilder";
 import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
 
 const NoEntityFoundSvg = importSvg(

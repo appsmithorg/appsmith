@@ -11,7 +11,7 @@ import {
 import { getWidgets } from "sagas/selectors";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
-import { jsCollectionIdURL, widgetURL } from "RouteBuilder";
+import { jsCollectionIdURL, widgetURL } from "@appsmith/RouteBuilder";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { createNavData } from "utils/NavigationSelector/common";
 import { getWidgetChildrenNavData } from "utils/NavigationSelector/WidgetChildren";
