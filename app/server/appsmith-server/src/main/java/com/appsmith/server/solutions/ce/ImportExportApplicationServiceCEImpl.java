@@ -54,7 +54,6 @@ import com.appsmith.server.migrations.JsonSchemaMigration;
 import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.repositories.ActionCollectionRepository;
-import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
@@ -126,7 +125,6 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
     private final DatasourceService datasourceService;
     private final SessionUserService sessionUserService;
     private final NewActionRepository newActionRepository;
-    private final DatasourceRepository datasourceRepository;
     private final PluginRepository pluginRepository;
     private final WorkspaceService workspaceService;
     private final ApplicationService applicationService;
@@ -175,6 +173,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         ApplicationJson applicationJson = new ApplicationJson();
         Map<String, String> pluginMap = new HashMap<>();
         Map<String, String> datasourceIdToNameMap = new HashMap<>();
+        Map<String, Instant> datasourceNameToUpdatedAtMap = new HashMap<>();
         Map<String, String> pageIdToNameMap = new HashMap<>();
         Map<String, String> actionIdToNameMap = new HashMap<>();
         Map<String, String> collectionIdToNameMap = new HashMap<>();
@@ -193,8 +192,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         AtomicReference<Boolean> exportWithConfiguration = new AtomicReference<>(false);
 
         // If Git-sync, then use MANAGE_APPLICATIONS, else use EXPORT_APPLICATION permission to fetch application
-        AclPermission permission =
-                isGitSync ? applicationPermission.getEditPermission() : applicationPermission.getExportPermission();
+        AclPermission permission = applicationPermission.getExportPermission(isGitSync, exportWithConfiguration.get());
 
         Mono<User> currentUserMono = sessionUserService.getCurrentUser().cache();
 
@@ -203,7 +201,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                 applicationService
                         .findById(applicationId, permission)
                         // Find the application without permissions if it is a template application
-                        .switchIfEmpty(applicationService.findByIdAndExportWithConfiguration(applicationId, TRUE))
+                        .switchIfEmpty(Mono.defer(
+                                () -> applicationService.findByIdAndExportWithConfiguration(applicationId, TRUE)))
                         .switchIfEmpty(Mono.error(new AppsmithException(
                                 AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, applicationId)))
                         .map(application -> {
@@ -314,11 +313,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     applicationJson.setExportedApplication(application);
                     Set<String> dbNamesUsedInActions = new HashSet<>();
 
-                    Optional<AclPermission> optionalPermission = isGitSync
-                            ? Optional.empty()
-                            : TRUE.equals(exportWithConfiguration.get())
-                                    ? Optional.of(pagePermission.getReadPermission())
-                                    : Optional.of(pagePermission.getEditPermission());
+                    Optional<AclPermission> optionalPermission = Optional.ofNullable(
+                            pagePermission.getExportPermission(isGitSync, exportWithConfiguration.get()));
                     Flux<NewPage> pageFlux = newPageRepository.findByApplicationId(applicationId, optionalPermission);
 
                     List<String> unPublishedPages = application.getPages().stream()
@@ -384,11 +380,9 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                     }
                                 });
 
-                                Optional<AclPermission> optionalPermission3 = isGitSync
-                                        ? Optional.empty()
-                                        : TRUE.equals(exportWithConfiguration.get())
-                                                ? Optional.of(datasourcePermission.getReadPermission())
-                                                : Optional.of(datasourcePermission.getEditPermission());
+                                Optional<AclPermission> optionalPermission3 =
+                                        Optional.ofNullable(datasourcePermission.getExportPermission(
+                                                isGitSync, exportWithConfiguration.get()));
 
                                 Flux<Datasource> datasourceFlux = datasourceService.getAllByWorkspaceIdWithStorages(
                                         workspaceId, optionalPermission3);
@@ -397,8 +391,11 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                             .flatMapMany(tuple2 -> {
                                 List<Datasource> datasourceList = tuple2.getT1();
                                 String environmentId = tuple2.getT2();
-                                datasourceList.forEach(datasource ->
-                                        datasourceIdToNameMap.put(datasource.getId(), datasource.getName()));
+                                datasourceList.forEach(datasource -> {
+                                    datasourceIdToNameMap.put(datasource.getId(), datasource.getName());
+                                    datasourceNameToUpdatedAtMap.put(datasource.getName(), datasource.getUpdatedAt());
+                                });
+
                                 List<DatasourceStorage> storageList = datasourceList.stream()
                                         .map(datasource -> {
                                             DatasourceStorage storage =
@@ -419,11 +416,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                         .collect(Collectors.toList());
                                 applicationJson.setDatasourceList(storageList);
 
-                                Optional<AclPermission> optionalPermission1 = isGitSync
-                                        ? Optional.empty()
-                                        : TRUE.equals(exportWithConfiguration.get())
-                                                ? Optional.of(actionPermission.getReadPermission())
-                                                : Optional.of(actionPermission.getEditPermission());
+                                Optional<AclPermission> optionalPermission1 = Optional.ofNullable(
+                                        actionPermission.getExportPermission(isGitSync, exportWithConfiguration.get()));
                                 Flux<ActionCollection> actionCollectionFlux =
                                         actionCollectionRepository.findByListOfPageIds(
                                                 unPublishedPages, optionalPermission1);
@@ -506,11 +500,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                         .getUpdatedResources()
                                         .put(FieldName.ACTION_COLLECTION_LIST, updatedActionCollectionSet);
 
-                                Optional<AclPermission> optionalPermission2 = isGitSync
-                                        ? Optional.empty()
-                                        : TRUE.equals(exportWithConfiguration.get())
-                                                ? Optional.of(actionPermission.getReadPermission())
-                                                : Optional.of(actionPermission.getEditPermission());
+                                Optional<AclPermission> optionalPermission2 = Optional.ofNullable(
+                                        actionPermission.getExportPermission(isGitSync, exportWithConfiguration.get()));
 
                                 Flux<NewAction> actionFlux =
                                         newActionRepository.findByListOfPageIds(unPublishedPages, optionalPermission2);
@@ -578,6 +569,10 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                             : null;
                                     // TODO: check whether resource updated after last commit - move to a function
                                     String pageName = actionDTO.getPageId();
+                                    // we've replaced the datasource id with datasource name in previous step
+                                    boolean isDatasourceUpdated = ImportExportUtils.isDatasourceUpdatedSinceLastCommit(
+                                            datasourceNameToUpdatedAtMap, actionDTO, applicationLastCommittedAt);
+
                                     boolean isPageUpdated =
                                             ImportExportUtils.isPageNameInUpdatedList(applicationJson, pageName);
                                     Instant newActionUpdatedAt = newAction.getUpdatedAt();
@@ -585,6 +580,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                             || isServerSchemaMigrated
                                             || applicationLastCommittedAt == null
                                             || isPageUpdated
+                                            || isDatasourceUpdated
                                             || newActionUpdatedAt == null
                                             || applicationLastCommittedAt.isBefore(newActionUpdatedAt);
                                     if (isNewActionUpdated && newActionName != null) {
@@ -2294,8 +2290,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
      * This will check if the datasource is already present in the workspace and create a new one if unable to find one
      *
      * @param existingDatasources already present datasource in the workspace
-     * @param datasourceStorage      which will be checked against existing datasources
-     * @param workspace              workspace where duplicate datasource should be checked
+     * @param datasourceStorage   which will be checked against existing datasources
+     * @param workspace           workspace where duplicate datasource should be checked
      * @return already present or brand new datasource depending upon the equality check
      */
     private Mono<Datasource> createUniqueDatasourceIfNotPresent(

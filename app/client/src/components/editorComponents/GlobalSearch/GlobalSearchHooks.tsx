@@ -23,7 +23,7 @@ import {
   SEARCH_ITEM_TYPES,
 } from "./utils";
 import { PluginType } from "entities/Action";
-import { integrationEditorURL } from "RouteBuilder";
+import { integrationEditorURL } from "@appsmith/RouteBuilder";
 import { EntityIcon } from "pages/Editor/Explorer/ExplorerIcons";
 import { createNewQueryAction } from "actions/apiPaneActions";
 import type { AppState } from "@appsmith/reducers";
@@ -38,7 +38,7 @@ import {
   getHasCreateDatasourcePermission,
 } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 const AddLineIcon = importRemixIcon(
-  () => import("remixicon-react/AddLineIcon"),
+  async () => import("remixicon-react/AddLineIcon"),
 );
 
 export const useFilteredFileOperations = (query = "") => {

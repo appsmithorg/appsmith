@@ -18,7 +18,7 @@ import type { ColumnTypes } from "../constants";
 import type { TimePrecision } from "widgets/DatePickerWidget2/constants";
 import { generateReactKey } from "widgets/WidgetUtils";
 
-export type TableSizes = {
+export interface TableSizes {
   COLUMN_HEADER_HEIGHT: number;
   TABLE_HEADER_HEIGHT: number;
   ROW_HEIGHT: number;
@@ -28,7 +28,7 @@ export type TableSizes = {
   ROW_VIRTUAL_OFFSET: number;
   VERTICAL_EDITOR_PADDING: number;
   EDITABLE_CELL_HEIGHT: number;
-};
+}
 
 export enum CompactModeTypes {
   SHORT = "SHORT",
@@ -493,7 +493,7 @@ export enum IMAGE_VERTICAL_ALIGN {
   BOTTOM = "flex-end",
 }
 
-export type BaseCellComponentProps = {
+export interface BaseCellComponentProps {
   compactMode: string;
   isHidden: boolean;
   allowCellWrapping?: boolean;
@@ -505,7 +505,7 @@ export type BaseCellComponentProps = {
   textColor?: string;
   textSize?: string;
   isCellDisabled?: boolean;
-};
+}
 
 export enum CheckboxState {
   UNCHECKED = 0,

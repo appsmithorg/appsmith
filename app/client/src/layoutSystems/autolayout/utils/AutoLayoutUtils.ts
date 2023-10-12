@@ -12,7 +12,7 @@ import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
-import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import { LayoutSystemTypes } from "layoutSystems/types";
 import {
   updatePositionsOfParentAndSiblings,
   updateWidgetPositions,
@@ -34,11 +34,11 @@ import type {
 } from "layoutSystems/autolayout/utils/types";
 import type { FlexLayer, LayerChild } from "./types";
 
-export type ReadableSnapShotDetails = {
+export interface ReadableSnapShotDetails {
   timeSince: string;
   timeTillExpiration: string;
   readableDate: string;
-};
+}
 
 /**
  * Update flex layers of parent canvas upon deleting a child widget.
@@ -67,8 +67,8 @@ export function updateFlexLayersOnDelete(
 ): CanvasWidgetsReduxState {
   const widgets = { ...allWidgets };
   if (
-    widgets[MAIN_CONTAINER_WIDGET_ID].appPositioningType ===
-      AppPositioningTypes.FIXED ||
+    widgets[MAIN_CONTAINER_WIDGET_ID].layoutSystemType ===
+      LayoutSystemTypes.FIXED ||
     widgets[MAIN_CONTAINER_WIDGET_ID].positioning === Positioning.Fixed
   )
     return widgets;

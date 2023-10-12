@@ -24,13 +24,13 @@ import { checkIsDSLAutoLayout } from "../layoutSystems/autolayout/utils/AutoLayo
 import type {
   WidgetDraggingBlock,
   XYCord,
-} from "layoutSystems/common/CanvasArenas/ArenaTypes";
+} from "layoutSystems/common/canvasArenas/ArenaTypes";
 
-export type WidgetOperationParams = {
+export interface WidgetOperationParams {
   operation: WidgetOperation;
   widgetId: string;
   payload: any;
-};
+}
 
 const defaultDSL = defaultTemplate;
 

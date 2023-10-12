@@ -27,7 +27,7 @@ import {
   getCurrentPageId,
   getPagePermissions,
 } from "selectors/editorSelectors";
-import { builderURL } from "RouteBuilder";
+import { builderURL } from "@appsmith/RouteBuilder";
 import DatasourceStructureHeader from "pages/Editor/Explorer/Datasources/DatasourceStructureHeader";
 import {
   DatasourceStructureContainer as DataStructureList,
@@ -185,7 +185,7 @@ const CollapsibleSection = styled.div<{ height: string; marginTop?: number }>`
   }
 `;
 
-type CollapsibleProps = {
+interface CollapsibleProps {
   expand?: boolean;
   children: ReactNode;
   label: string;
@@ -193,12 +193,12 @@ type CollapsibleProps = {
   isDisabled?: boolean;
   datasourceId?: string;
   containerRef?: MutableRefObject<HTMLDivElement | null>;
-};
+}
 
-type DisabledCollapsibleProps = {
+interface DisabledCollapsibleProps {
   label: string;
   tooltipLabel?: string;
-};
+}
 
 export function Collapsible({
   children,

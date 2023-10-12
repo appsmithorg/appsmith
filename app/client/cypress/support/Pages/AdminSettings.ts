@@ -4,6 +4,7 @@ export class AdminSettings {
   public agHelper = ObjectsRegistry.AggregateHelper;
   public locator = ObjectsRegistry.CommonLocators;
   public homePage = ObjectsRegistry.HomePage;
+  public assertHelper = ObjectsRegistry.AssertHelper;
 
   public _adminSettingsBtn = '[data-testid="t--admin-settings-menu-option"]';
   private _settingsList = ".t--settings-category-list";
@@ -11,13 +12,13 @@ export class AdminSettings {
   public _roles = (user: string) =>
     "//span[contains(text(), '" +
     user +
-    "')]/parent::div/parent::a/parent::td/following-sibling::td[1]";
-  public _instanceName =
-    "//label[text()='Instance name']/following-sibling::div//input";
+    "')]/parent::div/parent::span/parent::a/parent::td/following-sibling::td[1]";
+  public _instanceName = '[name="instanceName"]';
 
   public NavigateToAdminSettings() {
     this.homePage.NavigateToHome();
     this.agHelper.GetNClick(this._adminSettingsBtn);
+    this.assertHelper.AssertNetworkStatus("getEnvVariables");
     this.agHelper.AssertElementVisibility(this._settingsList);
   }
 }

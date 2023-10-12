@@ -1650,6 +1650,7 @@ export const EMPTY_QUERY_JS_MAIN_TEXT = () => "No query/JS to display";
 export const EMPTY_QUERY_JS_BUTTON_TEXT = () => "New query/JS";
 export const EMPTY_DATASOURCE_MAIN_TEXT = () => "No datasource to display";
 export const EMPTY_DATASOURCE_BUTTON_TEXT = () => "New datasource";
+export const SEARCH_DATASOURCES = () => "Search datasources";
 
 // Templates
 export const MORE = () => "More";
@@ -1722,11 +1723,11 @@ export const CLEAN_URL_UPDATE = {
 export const MEMBERS_TAB_TITLE = (
   length: number,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  cloudHosting?: boolean,
+  isFreeInstance?: boolean,
 ) => `Users (${length})`;
 export const SEARCH_USERS = (
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  cloudHosting?: boolean,
+  isFreeInstance?: boolean,
 ) => `Search for users`;
 
 export const CREATE_PAGE = () => "New blank page";
@@ -2042,6 +2043,37 @@ export const BACK_CAMERA_LABEL = () => "Back (Rear)";
 
 // Color picker
 export const FULL_COLOR_PICKER_LABEL = () => "Full color picker";
+
+// Column selector modal
+export const EDIT_FIELDS = () => "Edit fields";
+export const FIELDS_CONFIGURATION = () => "Fields Configuration";
+export const SAVE_CHANGES = () => "Save changes";
+export const COLUMN_TYPE = () => "Column type";
+export const COLUMN_NAME = () => "Column name";
+export const EDIT_FIELDS_DISABLED_TOOLTIP_TEXT = () =>
+  "Select a table to edit fields";
+
+export const SAVE_CHANGES_DISABLED_TOOLTIP_TEXT = () =>
+  "You have to select at least 1 field to save";
+
+export const NO_CONNECTABLE_WIDGET_FOUND = () =>
+  "Add a table or list widget with data to get the values from";
+
+export const CONNECT_BUTTON_TEXT = () => "Connect data";
+
+export const NO_FIELDS_ADDED = () => "No fields added";
+
+// One click binding control
+export const DATASOURCE_DROPDOWN_OPTIONS = {
+  CONNECT_TO_QUERY: () => "Connect to query",
+  CONNECT_TO: () => "Connect to",
+  CHOOSE_DATASOURCE_TO_CONNECT: () => "Choose datasource to connect",
+  CREATE_OR_EDIT_RECORDS: () => "Create or Edit records",
+  WRITE_JSON_SCHEMA: () => "Write JSON schema",
+  SELECT_A_DATASOURCE: () => "Select a datasource",
+  CONNECT_DATA: () => "Connect data",
+  OTHER_ACTIONS: () => "Other actions",
+};
 
 export const COMMUNITY_TEMPLATES = {
   publish: () => "Publish",

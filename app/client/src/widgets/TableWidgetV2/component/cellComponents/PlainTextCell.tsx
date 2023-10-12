@@ -72,11 +72,11 @@ export type RenderCurrencyPropsType = {
   thousandSeparator?: boolean;
 };
 
-type editPropertyType = {
+interface editPropertyType {
   alias: string;
   onSubmitString: string;
   rowIndex: number;
-};
+}
 
 export function getCellText(
   value: unknown,

@@ -142,7 +142,7 @@ function convertToNumber(inputValue: string) {
   }
 }
 
-type InlineEditorPropsType = {
+interface InlineEditorPropsType {
   accentColor: string;
   compactMode: string;
   inputType: InputTypes;
@@ -161,11 +161,12 @@ type InlineEditorPropsType = {
   paddedInput: boolean;
   autoFocus: boolean;
   additionalProps: Record<string, unknown>;
-};
+}
 
 export function InlineCellEditor({
   accentColor,
   additionalProps = {},
+  allowCellWrapping,
   autoFocus,
   compactMode,
   inputHTMLType,
@@ -176,10 +177,9 @@ export function InlineCellEditor({
   onDiscard,
   onSave,
   textSize,
-  value,
-  allowCellWrapping,
-  verticalAlignment,
   validationErrorMessage,
+  value,
+  verticalAlignment,
   widgetId,
 }: InlineEditorPropsType) {
   const inputRef = useRef<HTMLTextAreaElement | HTMLInputElement>(null);

@@ -4,13 +4,13 @@ import { Menu, Button } from "@blueprintjs/core";
 import type { SideNavItemProps } from "./SideNavItem";
 import SideNavItem from "./SideNavItem";
 import LetterIcon from "components/editorComponents/LetterIcon";
-type SideNavProps = {
+interface SideNavProps {
   items?: SideNavItemProps[];
   active?: string;
   headeroffset?: number;
   open: boolean;
   toggleCollapse: (open: boolean) => void;
-};
+}
 
 /* eslint-disable no-unexpected-multiline */
 

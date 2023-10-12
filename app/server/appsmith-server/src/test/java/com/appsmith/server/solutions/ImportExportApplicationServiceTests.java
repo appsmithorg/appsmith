@@ -198,8 +198,11 @@ public class ImportExportApplicationServiceTests {
     @Autowired
     EnvironmentPermission environmentPermission;
 
-    PagePermission pagePermission = new PagePermissionImpl();
-    ApplicationPermission applicationPermission = new ApplicationPermissionImpl();
+    @Autowired
+    PagePermission pagePermission;
+
+    @Autowired
+    ApplicationPermission applicationPermission;
 
     @BeforeEach
     public void setup() {
@@ -4861,6 +4864,91 @@ public class ImportExportApplicationServiceTests {
                     assertThat(updatedActionCollectionNames.size()).isEqualTo(1);
                     assertThat(updatedActionCollectionNames)
                             .contains("TestJsObject" + NAME_SEPARATOR + renamedPageName);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void exportApplicationByWhen_WhenGitConnectedAndDatasourceRenamed_QueriesAreInUpdatedResources() {
+        // create an application
+        Application testApplication = new Application();
+        final String appName = UUID.randomUUID().toString();
+        testApplication.setName(appName);
+        testApplication.setWorkspaceId(workspaceId);
+        testApplication.setUpdatedAt(Instant.now());
+        testApplication.setLastDeployedAt(Instant.now());
+        testApplication.setClientSchemaVersion(JsonSchemaVersions.clientVersion);
+        testApplication.setServerSchemaVersion(JsonSchemaVersions.serverVersion);
+
+        Mono<ApplicationJson> applicationJsonMono = applicationPageService
+                .createApplication(testApplication, workspaceId)
+                .flatMap(application -> {
+                    // add a datasource to the workspace
+                    Datasource ds1 = new Datasource();
+                    ds1.setName("DS_FOR_RENAME_TEST");
+                    ds1.setWorkspaceId(workspaceId);
+                    ds1.setPluginId(installedPlugin.getId());
+                    final DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+                    datasourceConfiguration.setUrl("http://example.org/get");
+                    datasourceConfiguration.setHeaders(List.of(new Property("X-Answer", "42")));
+
+                    HashMap<String, DatasourceStorageDTO> storages1 = new HashMap<>();
+                    storages1.put(
+                            defaultEnvironmentId,
+                            new DatasourceStorageDTO(null, defaultEnvironmentId, datasourceConfiguration));
+                    ds1.setDatasourceStorages(storages1);
+                    return datasourceService.create(ds1).zipWith(Mono.just(application));
+                })
+                .flatMap(objects -> {
+                    Datasource datasource = objects.getT1();
+                    Application application = objects.getT2();
+
+                    // create an action with the datasource
+                    ActionDTO action = new ActionDTO();
+                    ActionConfiguration actionConfiguration = new ActionConfiguration();
+                    actionConfiguration.setHttpMethod(HttpMethod.GET);
+                    action.setActionConfiguration(actionConfiguration);
+                    action.setDatasource(datasource);
+                    action.setName("MyAction");
+                    action.setPageId(application.getPages().get(0).getId());
+                    return layoutActionService.createAction(action).thenReturn(objects);
+                })
+                .flatMap(objects -> {
+                    Application application = objects.getT2();
+                    // set git meta data for the application and set a last commit date
+                    GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
+                    // add buffer of 5 seconds so that the last commit date is definitely after the last updated date
+                    gitApplicationMetadata.setLastCommittedAt(Instant.now());
+                    application.setGitApplicationMetadata(gitApplicationMetadata);
+                    return applicationRepository.save(application).thenReturn(objects);
+                })
+                .delayElement(Duration.ofMillis(
+                        100)) // to make sure the last commit date is definitely after the last updated date
+                .flatMap(objects -> {
+                    // rename the datasource
+                    Datasource datasource = objects.getT1();
+                    Application application = objects.getT2();
+                    datasource.setName("DS_FOR_RENAME_TEST_RENAMED");
+                    return datasourceService
+                            .save(datasource)
+                            .then(importExportApplicationService.exportApplicationById(
+                                    application.getId(), SerialiseApplicationObjective.VERSION_CONTROL));
+                });
+
+        // verify that the exported json has the updated page name, and the queries are in the updated resources
+        StepVerifier.create(applicationJsonMono)
+                .assertNext(applicationJson -> {
+                    Map<String, Set<String>> updatedResources = applicationJson.getUpdatedResources();
+                    assertThat(updatedResources).isNotNull();
+                    Set<String> updatedActionNames = updatedResources.get(FieldName.ACTION_LIST);
+                    assertThat(updatedActionNames).isNotNull();
+
+                    // action should be present in the updated resources although action not updated but datasource is
+                    assertThat(updatedActionNames.size()).isEqualTo(1);
+                    updatedActionNames.forEach(actionName -> {
+                        assertThat(actionName).contains("MyAction");
+                    });
                 })
                 .verifyComplete();
     }
