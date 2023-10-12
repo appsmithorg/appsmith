@@ -125,6 +125,8 @@ export const SIDEBAR_WIDTH = {
   MINIMAL: 66,
 };
 
+export const APP_SIDEBAR_WIDTH = 50;
+
 export const APPLICATION_TITLE_MAX_WIDTH = 192;
 export const APPLICATION_TITLE_MAX_WIDTH_MOBILE = 150;
 //all values are in milliseconds
