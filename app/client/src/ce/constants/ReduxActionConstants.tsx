@@ -1205,10 +1205,10 @@ export interface ApplicationPayload {
   publishedAppToCommunityTemplate?: boolean;
 }
 
-export type WorkspaceDetails = {
+export interface WorkspaceDetails {
   workspace: Workspace;
   applications: any[];
-};
+}
 
 export interface LoadWidgetEditorPayload {
   widgets: WidgetProps[];

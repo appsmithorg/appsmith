@@ -68,12 +68,12 @@ const ActionsRow = styled.div`
   margin-bottom: 8px;
 `;
 
-type HelpItem = {
+interface HelpItem {
   label: string;
   link?: string;
   id?: string;
   icon: string;
-};
+}
 
 const HELP_MENU_ITEMS: HelpItem[] = [
   {

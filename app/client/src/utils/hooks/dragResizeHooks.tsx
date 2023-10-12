@@ -117,11 +117,11 @@ export const useWidgetDragResize = () => {
     ),
     setDraggingState: useCallback(
       ({
-        isDragging,
-        dragGroupActualParent = "",
-        draggingGroupCenter = {},
-        startPoints,
         draggedOn,
+        draggingGroupCenter = {},
+        dragGroupActualParent = "",
+        isDragging,
+        startPoints,
       }: SetDraggingStateActionPayload) => {
         if (isDragging) {
           document.body.classList.add("dragging");

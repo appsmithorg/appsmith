@@ -6,6 +6,9 @@ import {
   dataSources,
   agHelper,
   entityExplorer,
+  assertHelper,
+  table,
+  appSettings,
 } from "../../support/Objects/ObjectsCore";
 
 describe("GSheet-Functional Tests With Read Access", function () {
@@ -26,8 +29,7 @@ describe("GSheet-Functional Tests With Read Access", function () {
 
     //Adding query to insert a new spreadsheet
     homePage.NavigateToHome();
-    homePage.CreateAppInWorkspace(workspaceName);
-    homePage.RenameApplication(appName);
+    homePage.CreateAppInWorkspace(workspaceName, appName);
     gsheetHelper.AddNewSpreadsheetQuery(
       dataSourceName.allAccess,
       spreadSheetName,
@@ -278,8 +280,47 @@ describe("GSheet-Functional Tests With Read Access", function () {
     });
   });
 
+  it("8. Import an app with read only access sheet", function () {
+    homePage.NavigateToHome();
+    homePage.ImportApp("ImportAppReadAccess.json", workspaceName);
+    assertHelper.WaitForNetworkCall("importNewApplication").then(() => {
+      agHelper.Sleep();
+      //Validate table is not empty!
+      table.WaitUntilTableLoad(0, 0, "v2");
+    });
+    // Assert table data
+    table.ReadTableRowColumnData(0, 0, "v2").then((cellData) => {
+      expect(cellData).to.eq("eac7efa5dbd3d667f26eb3d3ab504464");
+    });
+    homePage.NavigateToHome();
+    homePage.DeleteApplication("ImportAppReadAccess");
+  });
+
+  it("9. App level import of app with read only access gsheet", function () {
+    homePage.CreateAppInWorkspace(
+      workspaceName,
+      "AppLevelImportReadOnlyAccess",
+    );
+    appSettings.OpenAppSettings();
+    appSettings.GoToImport();
+    agHelper.ClickButton("Import");
+    homePage.ImportApp("ImportAppReadAccess.json", "", true);
+    cy.wait("@importNewApplication").then(() => {
+      agHelper.Sleep();
+      agHelper.RefreshPage();
+      table.WaitUntilTableLoad(0, 0, "v2");
+    });
+    // Assert table data
+    table.ReadTableRowColumnData(0, 0, "v2").then((cellData) => {
+      expect(cellData).to.eq("eac7efa5dbd3d667f26eb3d3ab504464");
+    });
+    homePage.NavigateToHome();
+    homePage.DeleteApplication("AppLevelImportReadOnlyAccess");
+  });
+
   after("Delete spreadsheet and app", function () {
     // Delete spreadsheet and app
+    homePage.SearchAndOpenApp(appName);
     gsheetHelper.DeleteSpreadsheetQuery(
       dataSourceName.allAccess,
       spreadSheetName,

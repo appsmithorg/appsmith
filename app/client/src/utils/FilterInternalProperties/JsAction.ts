@@ -1,7 +1,5 @@
-import type {
-  DataTree,
-  JSActionEntity,
-} from "@appsmith/entities/DataTree/types";
+import type { JSActionEntity } from "@appsmith/entities/DataTree/types";
+import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import type { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 
 export const getJsActionPeekData = (

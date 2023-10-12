@@ -54,13 +54,13 @@ import { updateAnvilParentPostWidgetDeletion } from "layoutSystems/anvil/utils/l
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
-type WidgetDeleteTabChild = {
+interface WidgetDeleteTabChild {
   id: string;
   index: number;
   isVisible: boolean;
   label: string;
   widgetId: string;
-};
+}
 
 function* deleteTabChildSaga(
   deleteChildTabAction: ReduxAction<WidgetDeleteTabChild>,
@@ -103,9 +103,8 @@ function* deleteTabChildSaga(
           tabsObj: updatedObj,
         },
       };
-      const layoutSystemType: LayoutSystemTypes = yield select(
-        getLayoutSystemType,
-      );
+      const layoutSystemType: LayoutSystemTypes =
+        yield select(getLayoutSystemType);
       let finalData: CanvasWidgetsReduxState = parentUpdatedWidgets;
       if (layoutSystemType === LayoutSystemTypes.AUTO) {
         // Update flex layers of a canvas upon deletion of a widget.
@@ -136,9 +135,8 @@ function* deleteTabChildSaga(
 
 function* deleteSagaInit(deleteAction: ReduxAction<WidgetDelete>) {
   const { widgetId } = deleteAction.payload;
-  const selectedWidget: FlattenedWidgetProps | undefined = yield select(
-    getSelectedWidget,
-  );
+  const selectedWidget: FlattenedWidgetProps | undefined =
+    yield select(getSelectedWidget);
   const selectedWidgets: string[] = yield select(getSelectedWidgets);
   const guidedTourEnabled: boolean = yield select(inGuidedTour);
   const isExploring: boolean = yield select(isExploringSelector);
@@ -223,9 +221,8 @@ function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
     const { disallowUndo, isShortcut } = deleteAction.payload;
 
     if (!widgetId) {
-      const selectedWidget: FlattenedWidgetProps | undefined = yield select(
-        getSelectedWidget,
-      );
+      const selectedWidget: FlattenedWidgetProps | undefined =
+        yield select(getSelectedWidget);
       if (!selectedWidget) return;
 
       // if widget is not deletable, don't do anything
@@ -247,9 +244,8 @@ function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
 
       if (updatedObj) {
         const { finalWidgets, otherWidgetsToDelete, widgetName } = updatedObj;
-        const layoutSystemType: LayoutSystemTypes = yield select(
-          getLayoutSystemType,
-        );
+        const layoutSystemType: LayoutSystemTypes =
+          yield select(getLayoutSystemType);
         let finalData: CanvasWidgetsReduxState = finalWidgets;
         if (layoutSystemType === LayoutSystemTypes.AUTO) {
           const isMobile: boolean = yield select(
@@ -344,9 +340,8 @@ function* deleteAllSelectedWidgetsSaga(
     // assuming only widgets with same parent can be selected
     const parentId = widgets[selectedWidgets[0]].parentId;
     if (parentId) {
-      const layoutSystemType: LayoutSystemTypes = yield select(
-        getLayoutSystemType,
-      );
+      const layoutSystemType: LayoutSystemTypes =
+        yield select(getLayoutSystemType);
       if (layoutSystemType === LayoutSystemTypes.AUTO) {
         const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
         const mainCanvasWidth: number = yield select(getCanvasWidth);

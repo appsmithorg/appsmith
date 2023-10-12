@@ -19,13 +19,13 @@ export enum ValidationTypes {
   UNION = "UNION",
 }
 
-export type ValidationResponse = {
+export interface ValidationResponse {
   isValid: boolean;
   parsed: any;
   messages?: Array<Error>;
   transformed?: any;
   isParsedValueTheSame?: boolean;
-};
+}
 
 export type Validator = (
   config: ValidationConfig,

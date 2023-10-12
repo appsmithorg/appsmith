@@ -19,7 +19,7 @@ import { assistiveBindingHinter } from "components/editorComponents/CodeEditor/a
 import { bindingHintHelper } from "components/editorComponents/CodeEditor/hintHelpers";
 import { slashCommandHintHelper } from "components/editorComponents/CodeEditor/commandsHelper";
 
-type InputTextProp = {
+interface InputTextProp {
   label: string;
   value: string;
   onChange: (event: React.ChangeEvent<HTMLTextAreaElement> | string) => void;
@@ -29,7 +29,7 @@ type InputTextProp = {
   dataTreePath?: string;
   additionalDynamicData?: AdditionalDynamicDataTree;
   theme: EditorTheme;
-};
+}
 
 function InputText(props: InputTextProp) {
   const {

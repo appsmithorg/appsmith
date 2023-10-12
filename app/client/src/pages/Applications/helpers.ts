@@ -5,21 +5,21 @@ import { SubmissionError } from "redux-form";
 
 import { truncateString, howMuchTimeBeforeText } from "utils/helpers";
 
-export type CreateApplicationFormValues = {
+export interface CreateApplicationFormValues {
   applicationName: string;
   workspaceId: string;
   colorCode?: AppColorCode;
   appName?: AppIconName;
-};
+}
 
-export type EditedByTextProps = {
+export interface EditedByTextProps {
   modifiedAt?: string;
   modifiedBy?: string;
-};
+}
 
 export const CREATE_APPLICATION_FORM_NAME_FIELD = "applicationName";
 
-export const createApplicationFormSubmitHandler = (
+export const createApplicationFormSubmitHandler = async (
   values: CreateApplicationFormValues,
   dispatch: any,
 ): Promise<any> => {

@@ -11,9 +11,13 @@ import { Icon } from "design-system";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { importSvg } from "design-system-old";
 
-const ApiIcon = importSvg(() => import("assets/icons/menu/api-colored.svg"));
-const CurlIcon = importSvg(() => import("assets/images/Curl-logo.svg"));
-const GraphqlIcon = importSvg(() => import("assets/images/Graphql-logo.svg"));
+const ApiIcon = importSvg(
+  async () => import("assets/icons/menu/api-colored.svg"),
+);
+const CurlIcon = importSvg(async () => import("assets/images/Curl-logo.svg"));
+const GraphqlIcon = importSvg(
+  async () => import("assets/images/Graphql-logo.svg"),
+);
 
 export const ENTITY_ICON_SIZE = 16;
 
@@ -150,11 +154,11 @@ export const SortFileIcon = (
  * Entity Icon components
  */
 
-type EntityTextIconProps = {
+interface EntityTextIconProps {
   children: React.ReactNode;
   textColor?: string;
   fontSize?: number;
-};
+}
 
 const EntityTextIconWrapper = styled.div<{ fontSize?: number; color?: string }>`
   color: ${({ color }) => (color ? color : "var(--ads-v2-color-fg)")};
@@ -209,7 +213,7 @@ const EntityIconWrapper = styled.div<{
   }
 `;
 
-type EntityIconType = {
+interface EntityIconType {
   children: React.ReactNode;
   borderColor?: string;
   width?: string;
@@ -217,7 +221,7 @@ type EntityIconType = {
   noBorder?: boolean;
   noBackground?: boolean;
   bgColor?: string;
-};
+}
 
 function EntityIcon(props: EntityIconType): JSX.Element {
   return (

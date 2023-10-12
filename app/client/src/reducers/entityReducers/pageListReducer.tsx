@@ -59,10 +59,13 @@ export const pageListReducer = createReducer(initialState, {
       Array<{ pageId: string; dsl: DSL; userPermissions: string[] }>
     >,
   ) => {
-    const pagePermissionsMap = action.payload.reduce((acc, page) => {
-      acc[page.pageId] = page.userPermissions;
-      return acc;
-    }, {} as Record<string, string[]>);
+    const pagePermissionsMap = action.payload.reduce(
+      (acc, page) => {
+        acc[page.pageId] = page.userPermissions;
+        return acc;
+      },
+      {} as Record<string, string[]>,
+    );
 
     return {
       ...state,

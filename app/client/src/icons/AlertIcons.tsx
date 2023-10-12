@@ -4,10 +4,14 @@ import type { IconProps } from "constants/IconConstants";
 import { IconWrapper } from "constants/IconConstants";
 import { importSvg } from "design-system-old";
 
-const InfoIcon = importSvg(() => import("assets/icons/alert/info.svg"));
-const SuccessIcon = importSvg(() => import("assets/icons/alert/success.svg"));
-const ErrorIcon = importSvg(() => import("assets/icons/alert/error.svg"));
-const WarningIcon = importSvg(() => import("assets/icons/alert/warning.svg"));
+const InfoIcon = importSvg(async () => import("assets/icons/alert/info.svg"));
+const SuccessIcon = importSvg(
+  async () => import("assets/icons/alert/success.svg"),
+);
+const ErrorIcon = importSvg(async () => import("assets/icons/alert/error.svg"));
+const WarningIcon = importSvg(
+  async () => import("assets/icons/alert/warning.svg"),
+);
 
 /* eslint-disable react/display-name */
 

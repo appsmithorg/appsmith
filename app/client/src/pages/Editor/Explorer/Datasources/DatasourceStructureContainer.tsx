@@ -25,7 +25,7 @@ import { setFeatureWalkthroughShown } from "utils/storage";
 import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
 import { SCHEMA_SECTION_ID } from "entities/Action";
 
-type Props = {
+interface Props {
   datasourceId: string;
   datasourceStructure?: DatasourceStructureType;
   step: number;
@@ -35,7 +35,7 @@ type Props = {
   onEntityTableClick?: (table: string) => void;
   tableName?: string;
   customEditDatasourceFn?: () => void;
-};
+}
 
 // leaving out DynamoDB and Firestore because they have a schema but not templates
 export const SCHEMALESS_PLUGINS: Array<string> = [
@@ -178,7 +178,11 @@ const Container = (props: Props) => {
               currentActionId={props.currentActionId || ""}
               datasourceId={props.datasourceId}
               forceExpand={hasSearchedOccured}
+              // If set, then it doesn't set the context menu to generate query from templates
+              onEntityTableClick={props.onEntityTableClick}
               step={props.step + 1}
+              // Selected table name for the view mode datasource preview data page
+              tableName={props.tableName}
               tables={datasourceStructure.tables}
             />
           )}

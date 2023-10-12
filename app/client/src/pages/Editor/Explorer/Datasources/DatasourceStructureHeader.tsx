@@ -6,10 +6,10 @@ import { refreshDatasourceStructure } from "actions/datasourceActions";
 import { SCHEMA_LABEL, createMessage } from "@appsmith/constants/messages";
 import { DatasourceStructureContext } from "./DatasourceStructure";
 
-type Props = {
+interface Props {
   datasourceId: string;
   onRefreshCallback?: () => void;
-};
+}
 
 const HeaderWrapper = styled.div`
   display: flex;
