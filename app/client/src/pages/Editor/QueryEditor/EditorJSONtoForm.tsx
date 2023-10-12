@@ -335,7 +335,7 @@ export const SegmentedControlContainer = styled.div`
   overflow-x: scroll;
 `;
 
-type QueryFormProps = {
+interface QueryFormProps {
   onDeleteClick: () => void;
   onRunClick: () => void;
   onCreateDatasourceClick: () => void;
@@ -368,15 +368,15 @@ type QueryFormProps = {
     value,
   }: UpdateActionPropertyActionPayload) => void;
   datasourceId: string;
-};
+}
 
-type ReduxProps = {
+interface ReduxProps {
   actionName: string;
   plugin?: Plugin;
   pluginId: string;
   documentationLink: string | undefined;
   formEvaluationState: FormEvalOutput;
-};
+}
 
 export type EditorJSONtoFormProps = QueryFormProps & ReduxProps;
 
@@ -849,11 +849,11 @@ export function EditorJSONtoForm(props: Props) {
 
   const pluginImages = useSelector(getPluginImages);
 
-  type DATASOURCES_OPTIONS_TYPE = {
+  interface DATASOURCES_OPTIONS_TYPE {
     label: string;
     value: string;
     image: string;
-  };
+  }
 
   // Filtering the datasources for listing the similar datasources only rather than having all the active datasources in the list, which on switching resulted in error.
   const DATASOURCES_OPTIONS: Array<DATASOURCES_OPTIONS_TYPE> =

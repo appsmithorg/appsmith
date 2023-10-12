@@ -6,10 +6,10 @@ import type { MenuItemData } from "./NavigationMenuItem";
 import { MenuContent } from "design-system";
 import { NavigationMenuItem } from "./NavigationMenuItem";
 
-type NavigationMenuProps = {
+interface NavigationMenuProps {
   menuItems: MenuItemData[] | undefined;
   setIsPopoverOpen: typeof noop;
-};
+}
 
 export function NavigationMenu(props: NavigationMenuProps) {
   const { menuItems, setIsPopoverOpen } = props;

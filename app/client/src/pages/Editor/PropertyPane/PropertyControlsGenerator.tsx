@@ -20,7 +20,7 @@ import type { EnhancementFns } from "selectors/widgetEnhancementSelectors";
 import { getWidgetEnhancementSelector } from "selectors/widgetEnhancementSelectors";
 import equal from "fast-deep-equal/es6";
 
-export type PropertyControlsGeneratorProps = {
+export interface PropertyControlsGeneratorProps {
   id: string;
   config: readonly PropertyPaneConfig[];
   type: WidgetType;
@@ -29,7 +29,7 @@ export type PropertyControlsGeneratorProps = {
   isPanelProperty?: boolean;
   theme: EditorTheme;
   searchQuery?: string;
-};
+}
 
 const generatePropertyControl = (
   propertyPaneConfig: readonly PropertyPaneConfig[],

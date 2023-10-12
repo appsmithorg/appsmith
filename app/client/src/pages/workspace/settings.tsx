@@ -18,7 +18,7 @@ import { getAllApplications } from "@appsmith/actions/applicationActions";
 import { useMediaQuery } from "react-responsive";
 import { BackButton, StickyHeader } from "components/utils/helperComponents";
 import { debounce } from "lodash";
-import WorkspaceInviteUsersForm from "@appsmith/pages/workspace/WorkspaceInviteUsersForm";
+import WorkspaceInviteUsersForm from "pages/workspace/WorkspaceInviteUsersForm";
 import { SettingsPageHeader } from "./SettingsPageHeader";
 import { navigateToTab } from "@appsmith/pages/workspace/helpers";
 import {
@@ -30,20 +30,19 @@ import {
   INVITE_USERS_PLACEHOLDER,
   SEARCH_USERS,
 } from "@appsmith/constants/messages";
-import { getAppsmithConfigs } from "@appsmith/configs";
 import { APPLICATIONS_URL } from "constants/routes";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
-
-const { cloudHosting } = getAppsmithConfigs();
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
-type TabProp = {
+interface TabProp {
   key: string;
   title: string;
   count?: number;
   panelComponent?: JSX.Element;
-};
+}
 
 const SettingsWrapper = styled.div<{
   isMobile?: boolean;
@@ -112,6 +111,8 @@ export default function Settings() {
   const [pageTitle, setPageTitle] = useState<string>("");
 
   const history = useHistory();
+
+  const isGACEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
 
   const currentTab = location.pathname.split("/").pop();
   // const [selectedTab, setSelectedTab] = useState(currentTab);
@@ -223,7 +224,7 @@ export default function Settings() {
             onButtonClick={onButtonClick}
             onSearch={onSearch}
             pageMenuItems={pageMenuItems}
-            searchPlaceholder={createMessage(SEARCH_USERS, cloudHosting)}
+            searchPlaceholder={createMessage(SEARCH_USERS, !isGACEnabled)}
             showMoreOptions={false}
             showSearchNButton={isMembersPage}
             title={pageTitle}
@@ -269,7 +270,7 @@ export default function Settings() {
           hideDefaultTrigger
           isOpen={showModal}
           onClose={() => setShowModal(false)}
-          placeholder={createMessage(INVITE_USERS_PLACEHOLDER, cloudHosting)}
+          placeholder={createMessage(INVITE_USERS_PLACEHOLDER, !isGACEnabled)}
           workspace={currentWorkspace}
         />
       )}

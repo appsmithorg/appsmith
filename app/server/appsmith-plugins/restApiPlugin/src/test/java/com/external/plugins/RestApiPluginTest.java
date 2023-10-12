@@ -3,6 +3,7 @@ package com.external.plugins;
 import com.appsmith.external.datatypes.ClientDataType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.dtos.ParamProperty;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.helpers.PluginUtils;
 import com.appsmith.external.helpers.restApiUtils.connections.APIConnection;
 import com.appsmith.external.helpers.restApiUtils.helpers.HintMessageUtils;
@@ -1916,6 +1917,180 @@ public class RestApiPluginTest {
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
                     assertNull(result.getRequest().getBody());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testRedirectionSuccessWithLocationHeaderHavingPath() {
+        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+
+        String baseUrl = String.format("http://%s:%s", mockEndpoint.getHostName(), mockEndpoint.getPort());
+        dsConfig.setUrl(baseUrl);
+
+        String initialPath = "/start";
+        String redirectPath = "/redirection";
+        String responseBody = "this is a successful response";
+
+        MockResponse initialResponse =
+                new MockResponse().setResponseCode(302).addHeader(HttpHeaders.LOCATION, redirectPath);
+        MockResponse redirectedResponse =
+                new MockResponse().setResponseCode(200).setBody(responseBody);
+
+        mockEndpoint.enqueue(initialResponse);
+        mockEndpoint.enqueue(redirectedResponse);
+
+        ActionConfiguration actionConfig = new ActionConfiguration();
+        actionConfig.setHttpMethod(HttpMethod.GET);
+        actionConfig.setPath(initialPath);
+
+        Mono<ActionExecutionResult> resultMono =
+                pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    final RecordedRequest initialRequest;
+                    try {
+                        initialRequest = mockEndpoint.takeRequest(30, TimeUnit.SECONDS);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                    assert initialRequest != null;
+                    assertEquals(initialRequest.getPath(), initialPath);
+
+                    // redirected Request
+                    final RecordedRequest redirectedRequest;
+                    try {
+                        redirectedRequest = mockEndpoint.takeRequest(30, TimeUnit.SECONDS);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                    assert redirectedRequest != null;
+                    assertEquals(redirectedRequest.getPath(), redirectPath);
+
+                    final ActionExecutionRequest request = result.getRequest();
+                    assertEquals(baseUrl + redirectPath, request.getUrl());
+                    assertEquals(HttpMethod.GET, request.getHttpMethod());
+                    assertEquals(result.getBody(), responseBody);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testRedirectionSuccessWithAddingFullUrlExecution() {
+        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+
+        String baseUrl = String.format("http://%s:%s", mockEndpoint.getHostName(), mockEndpoint.getPort());
+        dsConfig.setUrl(baseUrl);
+
+        String initialPath = "/start";
+        String redirectPath = "/redirection";
+        String responseBody = "this is a successful response";
+
+        MockResponse initialResponse =
+                new MockResponse().setResponseCode(302).addHeader(HttpHeaders.LOCATION, baseUrl + redirectPath);
+        MockResponse redirectedResponse =
+                new MockResponse().setResponseCode(200).setBody(responseBody);
+
+        mockEndpoint.enqueue(initialResponse);
+        mockEndpoint.enqueue(redirectedResponse);
+
+        ActionConfiguration actionConfig = new ActionConfiguration();
+        actionConfig.setHttpMethod(HttpMethod.GET);
+        actionConfig.setPath(initialPath);
+
+        Mono<ActionExecutionResult> resultMono =
+                pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    final RecordedRequest initialRequest;
+                    try {
+                        initialRequest = mockEndpoint.takeRequest(30, TimeUnit.SECONDS);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                    assert initialRequest != null;
+                    assertEquals(initialRequest.getPath(), initialPath);
+
+                    // redirected Request
+                    final RecordedRequest redirectedRequest;
+                    try {
+                        redirectedRequest = mockEndpoint.takeRequest(30, TimeUnit.SECONDS);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                    assert redirectedRequest != null;
+                    assertEquals(redirectedRequest.getPath(), redirectPath);
+
+                    final ActionExecutionRequest request = result.getRequest();
+                    assertEquals(baseUrl + redirectPath, request.getUrl());
+                    assertEquals(HttpMethod.GET, request.getHttpMethod());
+                    assertEquals(result.getBody(), responseBody);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testExecutionSuccessWhenRedirectionEndsWithoutALocationHeader() {
+        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+
+        String baseUrl = String.format("http://%s:%s", mockEndpoint.getHostName(), mockEndpoint.getPort());
+        dsConfig.setUrl(baseUrl);
+
+        String path = "/start";
+        String responseBody = "this is a successful response, even when it ends with a redirection";
+
+        MockResponse initialResponse = new MockResponse().setResponseCode(302).setBody(responseBody);
+
+        mockEndpoint.enqueue(initialResponse);
+
+        ActionConfiguration actionConfig = new ActionConfiguration();
+        actionConfig.setHttpMethod(HttpMethod.GET);
+        actionConfig.setPath(path);
+
+        Mono<ActionExecutionResult> resultMono =
+                pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    final RecordedRequest finalRequest;
+                    try {
+                        finalRequest = mockEndpoint.takeRequest(30, TimeUnit.SECONDS);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                    assert finalRequest != null;
+                    assertEquals(finalRequest.getPath(), path);
+                    final ActionExecutionRequest request = result.getRequest();
+                    assertEquals(baseUrl + path, request.getUrl());
+                    assertEquals(HttpMethod.GET, request.getHttpMethod());
+                    assertEquals(result.getBody(), responseBody);
+                    assertTrue(result.getIsExecutionSuccess());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testEmptyHostErrorMessage() {
+        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+        dsConfig.setUrl("  ");
+        String path = "/start";
+        ActionConfiguration actionConfig = new ActionConfiguration();
+        actionConfig.setHttpMethod(HttpMethod.GET);
+        actionConfig.setPath(path);
+
+        Mono<ActionExecutionResult> resultMono =
+                pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
+        StepVerifier.create(resultMono)
+                .assertNext(actionExecutionResult -> {
+                    assertFalse(actionExecutionResult.getIsExecutionSuccess());
+                    assertEquals(
+                            actionExecutionResult.getStatusCode(),
+                            AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR.getAppErrorCode());
                 })
                 .verifyComplete();
     }

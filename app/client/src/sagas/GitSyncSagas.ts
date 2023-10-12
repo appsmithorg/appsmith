@@ -1072,9 +1072,8 @@ function* watchGitRequests() {
   );
 
   while (true) {
-    const { type, ...args }: ReduxAction<unknown> = yield take(
-      gitActionChannel,
-    );
+    const { type, ...args }: ReduxAction<unknown> =
+      yield take(gitActionChannel);
     yield call(gitRequestActions[type], { type, ...args });
   }
 }

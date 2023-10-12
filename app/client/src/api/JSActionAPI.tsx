@@ -34,11 +34,11 @@ export interface CreateJSCollectionRequest {
   pluginType: PluginType;
 }
 
-export type SetFunctionPropertyPayload = {
+export interface SetFunctionPropertyPayload {
   action: JSAction;
   propertyName: string;
   value: any;
-};
+}
 export interface RefactorAction {
   pageId: string;
   actionId: string;
@@ -57,58 +57,58 @@ export interface UpdateCollectionActionNameRequest {
 class JSActionAPI extends API {
   static url = "v1/collections/actions";
 
-  static fetchJSCollections(
+  static async fetchJSCollections(
     applicationId: string,
-  ): AxiosPromise<ApiResponse<JSCollection[]>> {
+  ): Promise<AxiosPromise<ApiResponse<JSCollection[]>>> {
     return API.get(JSActionAPI.url, { applicationId });
   }
 
-  static createJSCollection(
+  static async createJSCollection(
     jsConfig: CreateJSCollectionRequest,
-  ): AxiosPromise<JSCollectionCreateUpdateResponse> {
+  ): Promise<AxiosPromise<JSCollectionCreateUpdateResponse>> {
     return API.post(JSActionAPI.url, jsConfig);
   }
 
-  static copyJSCollection(
+  static async copyJSCollection(
     jsConfig: Partial<JSCollection>,
-  ): AxiosPromise<JSCollectionCreateUpdateResponse> {
+  ): Promise<AxiosPromise<JSCollectionCreateUpdateResponse>> {
     return API.post(JSActionAPI.url, jsConfig);
   }
 
-  static updateJSCollection(
+  static async updateJSCollection(
     jsConfig: JSCollection,
-  ): AxiosPromise<JSCollectionCreateUpdateResponse> {
+  ): Promise<AxiosPromise<JSCollectionCreateUpdateResponse>> {
     const jsAction = Object.assign({}, jsConfig);
     return API.put(`${JSActionAPI.url}/${jsAction.id}`, jsAction);
   }
 
-  static deleteJSCollection(id: string) {
+  static async deleteJSCollection(id: string) {
     return API.delete(`${JSActionAPI.url}/${id}`);
   }
 
-  static moveJSCollection(moveRequest: MoveJSCollectionRequest) {
+  static async moveJSCollection(moveRequest: MoveJSCollectionRequest) {
     return API.put(JSActionAPI.url + "/move", moveRequest);
   }
 
-  static fetchJSCollectionsByPageId(
+  static async fetchJSCollectionsByPageId(
     pageId: string,
-  ): AxiosPromise<ApiResponse<JSCollection[]>> {
+  ): Promise<AxiosPromise<ApiResponse<JSCollection[]>>> {
     return API.get(JSActionAPI.url, { pageId });
   }
 
-  static fetchJSCollectionsForViewMode(
+  static async fetchJSCollectionsForViewMode(
     applicationId: string,
-  ): AxiosPromise<ApiResponse<JSCollection[]>> {
+  ): Promise<AxiosPromise<ApiResponse<JSCollection[]>>> {
     return API.get(`${JSActionAPI.url}/view`, { applicationId });
   }
 
-  static updateJSCollectionOrActionName(
+  static async updateJSCollectionOrActionName(
     updateJSObjectNameRequest: UpdateJSObjectNameRequest,
   ) {
     return API.put(JSActionAPI.url + "/refactor", updateJSObjectNameRequest);
   }
 
-  static updateJSCollectionActionRefactor(
+  static async updateJSCollectionActionRefactor(
     updateJSCollectionActionName: UpdateCollectionActionNameRequest,
   ) {
     return API.put(

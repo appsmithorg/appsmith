@@ -13,7 +13,7 @@ export interface AnvilFlexComponentProps {
   selected?: boolean;
   widgetId: string;
   widgetName: string;
-  widgetSize?: { [key: string]: Record<string, string | number> };
+  widgetSize?: { [key: string]: Record<string, string> };
   widgetType: WidgetType;
 }
 

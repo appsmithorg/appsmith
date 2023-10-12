@@ -1,5 +1,6 @@
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import {
+  FlexVerticalAlignment,
   LayoutDirection,
   Positioning,
 } from "layoutSystems/common/utils/constants";
@@ -84,6 +85,7 @@ class TabsWidget extends BaseWidget<
 
   static getDefaults() {
     return {
+      flexVerticalAlignment: FlexVerticalAlignment.Stretch,
       responsiveBehavior: ResponsiveBehavior.Fill,
       minWidth: FILL_WIDGET_MIN_WIDTH,
       rows: WidgetHeightLimits.MIN_CANVAS_HEIGHT_IN_ROWS + 5,
@@ -595,8 +597,8 @@ class TabsWidget extends BaseWidget<
     let selectedTabWidgetId = this.props.selectedTabWidgetId;
     if (this.props.children) {
       selectedTabWidgetId =
-        this.props.children.find((tab) =>
-          this.props.selectedWidgetAncestry?.includes(tab.widgetId),
+        this.props.children.find(
+          (tab) => this.props.selectedWidgetAncestry?.includes(tab.widgetId),
         )?.widgetId ?? this.props.selectedTabWidgetId;
     }
     return selectedTabWidgetId;

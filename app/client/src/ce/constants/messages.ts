@@ -1650,6 +1650,7 @@ export const EMPTY_QUERY_JS_MAIN_TEXT = () => "No query/JS to display";
 export const EMPTY_QUERY_JS_BUTTON_TEXT = () => "New query/JS";
 export const EMPTY_DATASOURCE_MAIN_TEXT = () => "No datasource to display";
 export const EMPTY_DATASOURCE_BUTTON_TEXT = () => "New datasource";
+export const SEARCH_DATASOURCES = () => "Search datasources";
 
 // Templates
 export const MORE = () => "More";
@@ -1722,11 +1723,11 @@ export const CLEAN_URL_UPDATE = {
 export const MEMBERS_TAB_TITLE = (
   length: number,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  cloudHosting?: boolean,
+  isFreeInstance?: boolean,
 ) => `Users (${length})`;
 export const SEARCH_USERS = (
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  cloudHosting?: boolean,
+  isFreeInstance?: boolean,
 ) => `Search for users`;
 
 export const CREATE_PAGE = () => "New blank page";
