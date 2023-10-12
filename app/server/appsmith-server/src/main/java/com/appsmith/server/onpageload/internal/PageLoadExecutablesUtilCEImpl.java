@@ -989,10 +989,9 @@ public class PageLoadExecutablesUtilCEImpl implements PageLoadExecutablesUtilCE 
         Set<String> allBindings = new HashSet<>();
         executableBindingsMap.values().stream().forEach(bindings -> allBindings.addAll(bindings));
 
-        // TODO : Throw an error on executable save when bindings from dynamic binding path list do not match the json
-        // path
-        //   keys and get the client to recompute the dynamic binding path list and try again.
-        if (!allBindings.containsAll(executable.getJsonPathKeys())) {
+        // TODO : Throw an error on executable save when bindings from dynamic binding path list do not match the
+        //  jsonpath keys and get the client to recompute the dynamic binding path list and try again.
+        if (executable.getJsonPathKeys() != null && !allBindings.containsAll(executable.getJsonPathKeys())) {
             Set<String> invalidBindings = new HashSet<>(executable.getJsonPathKeys());
             invalidBindings.removeAll(allBindings);
             log.error(
