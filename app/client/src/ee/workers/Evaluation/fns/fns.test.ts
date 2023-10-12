@@ -1,20 +1,31 @@
+import * as planHelpers from "@appsmith/utils/planHelpers";
 import { getActionTriggerFunctionNames, getPlatformFunctions } from ".";
 
 describe("fns", () => {
-  it("getActionTriggerFunctionNames should filter EE functions", () => {
-    const result = getActionTriggerFunctionNames(true);
+  it("getActionTriggerFunctionNames not include EE functions", () => {
+    jest
+      .spyOn(planHelpers, "isWindowMessageListenerEnabled")
+      .mockImplementation(() => false);
+    const result = getActionTriggerFunctionNames();
     expect(result["WINDOW_MESSAGE_LISTENER"]).toBeUndefined();
     expect(result["UNLISTEN_WINDOW_MESSAGE"]).toBeUndefined();
   });
 
   it("getActionTriggerFunctionNames should include EE functions", () => {
-    const result = getActionTriggerFunctionNames(false);
+    jest
+      .spyOn(planHelpers, "isWindowMessageListenerEnabled")
+      .mockImplementation(() => true);
+
+    const result = getActionTriggerFunctionNames();
     expect(result["WINDOW_MESSAGE_LISTENER"]).toBeDefined();
     expect(result["UNLISTEN_WINDOW_MESSAGE"]).toBeDefined();
   });
 
   it("getPlatformFunctions should filter EE functions", () => {
-    const result = getPlatformFunctions(true);
+    jest
+      .spyOn(planHelpers, "isWindowMessageListenerEnabled")
+      .mockImplementation(() => false);
+    const result = getPlatformFunctions();
     expect(
       result.find((d: { name: string }) => d.name === "windowMessageListener"),
     ).toBeUndefined();
@@ -24,7 +35,11 @@ describe("fns", () => {
   });
 
   it("getPlatformFunctions should include EE functions", () => {
-    const result = getPlatformFunctions(false);
+    jest
+      .spyOn(planHelpers, "isWindowMessageListenerEnabled")
+      .mockImplementation(() => true);
+    const result = getPlatformFunctions();
+
     expect(
       result.find((d: { name: string }) => d.name === "windowMessageListener"),
     ).toBeDefined();

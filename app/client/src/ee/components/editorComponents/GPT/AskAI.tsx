@@ -195,7 +195,7 @@ export function AskAI(props: TAskAIProps) {
 
   useEffect(() => {
     //Get and set all the suggested bindings
-    const platformFunctions = getPlatformFunctions(self.$cloudHosting);
+    const platformFunctions = getPlatformFunctions();
 
     const bestBindings = getAllPossibleBindingsForSuggestions(
       props.entity,
@@ -509,7 +509,7 @@ export function AskAI(props: TAskAIProps) {
 
   return (
     <div
-      className="flex flex-col justify-between h-full w-full overflow-hidden"
+      className="flex flex-col justify-between w-full h-full overflow-hidden"
       ref={ref}
     >
       <div className="flex flex-col flex-shrink-0 p-4">
@@ -547,7 +547,7 @@ export function AskAI(props: TAskAIProps) {
               },
             )}
           >
-            <div className="relative flex h-auto items-center w-full">
+            <div className="relative flex items-center w-full h-auto">
               <textarea
                 className="min-h-[28px] w-full max-h-40 z-2 overflow-auto"
                 disabled={isLoading}
@@ -600,7 +600,7 @@ export function AskAI(props: TAskAIProps) {
             </Text>
             {recentQueries.map((query, index) => (
               <div
-                className="flex justify-between items-center py-1 cursor-pointer"
+                className="flex items-center justify-between py-1 cursor-pointer"
                 key={index}
                 onClick={() =>
                   onClickRecentQuery(query, index, PromptTriggers.RECENT)
@@ -620,7 +620,7 @@ export function AskAI(props: TAskAIProps) {
             </Text>
             {suggestedBindings.map((query, index) => (
               <div
-                className="flex justify-between items-center py-1 cursor-pointer"
+                className="flex items-center justify-between py-1 cursor-pointer"
                 key={index}
                 onClick={() =>
                   onClickRecentQuery(query, index, PromptTriggers.SUGGESTED)
@@ -651,7 +651,7 @@ export function AskAI(props: TAskAIProps) {
             >
               {response.content.previewCode}
             </pre>
-            <div className="flex justify-between items-center pt-2">
+            <div className="flex items-center justify-between pt-2">
               <Button
                 kind="secondary"
                 onClick={() => rejectResponse()}

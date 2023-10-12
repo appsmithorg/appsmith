@@ -24,6 +24,10 @@ export const isProgramaticAccessControlEnabled = (
   return featureFlags?.license_pac_enabled;
 };
 
+export const isWindowMessageListenerEnabled = (featureFlags: FeatureFlags) => {
+  return featureFlags?.license_message_listener_enabled;
+};
+
 export const isAskAIEnabled = (featureFlags: FeatureFlags) => {
   return featureFlags?.ask_ai;
 };

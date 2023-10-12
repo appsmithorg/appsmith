@@ -1,6 +1,5 @@
 export * from "ce/sagas/ActionExecution/ActionExecutionSagas";
 
-import { getAppsmithConfigs } from "@appsmith/configs";
 import type { ActionDescription } from "@appsmith/workers/Evaluation/fns/index";
 import type { TriggerMeta } from "ce/sagas/ActionExecution/ActionExecutionSagas";
 import { executeActionTriggers as CE_executeActionTriggers } from "ce/sagas/ActionExecution/ActionExecutionSagas";
@@ -11,14 +10,22 @@ import {
   unListenWindowMessage,
 } from "../WindowMessageListener/WindowMessageListenerSagas";
 
-const { cloudHosting } = getAppsmithConfigs();
+import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
+import { isWindowMessageListenerEnabled } from "@appsmith/utils/planHelpers";
+import store from "store";
 
 export function* executeActionTriggers(
   trigger: ActionDescription,
   eventType: EventType,
   triggerMeta: TriggerMeta,
 ): any {
-  if (!cloudHosting) {
+  let isWindowListenerEnabled = true;
+  if (store) {
+    const featureFlags = selectFeatureFlags(store?.getState());
+    isWindowListenerEnabled = isWindowMessageListenerEnabled(featureFlags);
+  }
+
+  if (isWindowListenerEnabled) {
     switch (trigger.type) {
       case "WINDOW_MESSAGE_LISTENER":
         yield call(windowMessageListener);

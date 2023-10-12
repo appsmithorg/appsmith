@@ -11,6 +11,7 @@ const EE_FEATURE_FLAG = {
   release_knowledge_base_enabled: "release_knowledge_base_enabled",
   license_session_limit_enabled: "license_session_limit_enabled",
   license_pac_enabled: "license_pac_enabled",
+  license_message_listener_enabled: "license_message_listener_enabled",
   ab_ai_button_sql_enabled: "ab_ai_button_sql_enabled",
   release_query_module_enabled: "release_query_module_enabled",
 } as const;
@@ -22,6 +23,7 @@ export const EE_DEFAULT_FEATURE_FLAG_VALUE: EE_FeatureFlags = {
   release_knowledge_base_enabled: false,
   license_session_limit_enabled: false,
   license_pac_enabled: false,
+  license_message_listener_enabled: false,
   release_query_module_enabled: false,
   ab_ai_button_sql_enabled: false,
 };
