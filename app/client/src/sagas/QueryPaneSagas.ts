@@ -24,10 +24,7 @@ import {
 } from "@appsmith/constants/forms";
 import history from "utils/history";
 import { APPLICATIONS_URL, INTEGRATION_TABS } from "constants/routes";
-import {
-  // getCurrentApplicationId,
-  getCurrentPageId,
-} from "selectors/editorSelectors";
+import { getCurrentPageId } from "selectors/editorSelectors";
 import { autofill, change, initialize, reset } from "redux-form";
 import {
   getAction,
@@ -93,10 +90,8 @@ function* changeQuerySaga(actionPayload: ReduxAction<ChangeQueryPayload>) {
   const { applicationId, id, moduleId, packageId, pageId } =
     actionPayload.payload;
   let configInitialValues = {};
-  // const applicationId: string = yield select(getCurrentApplicationId);
-  // const pageId: string = yield select(getCurrentPageId);
+
   if (!(packageId && moduleId) && !(applicationId && pageId)) {
-    // if (!applicationId || !pageId || !packageId || !moduleId) {
     history.push(APPLICATIONS_URL);
     return;
   }
