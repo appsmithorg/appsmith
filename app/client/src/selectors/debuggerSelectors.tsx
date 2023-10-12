@@ -46,22 +46,24 @@ export const getFilteredErrors = createSelector(
         // filter error - when widget or parent widget is hidden
         // parent widgets e.g. modal, tab, container
         if (entity && isWidget(entity)) {
-          if (shouldSuppressDebuggerError(entity)) {
+          const WidgetEntity = entity as WidgetEntity;
+          if (shouldSuppressDebuggerError(WidgetEntity)) {
             return false;
           }
-          if (!hasParentWidget(entity)) {
-            return entity.isVisible
+          if (!hasParentWidget(WidgetEntity)) {
+            return WidgetEntity.isVisible
               ? true
-              : alwaysShowEntities[entity.widgetId];
+              : alwaysShowEntities[WidgetEntity.widgetId];
           } else {
             const isParentWidgetVisible = isParentVisible(
-              entity,
+              WidgetEntity,
               canvasWidgets,
               dataTree,
             );
-            return entity.isVisible
+            return WidgetEntity.isVisible
               ? isParentWidgetVisible
-              : isParentWidgetVisible && alwaysShowEntities[entity.widgetId];
+              : isParentWidgetVisible &&
+                  alwaysShowEntities[WidgetEntity.widgetId];
           }
         }
         return true;

@@ -4,7 +4,12 @@ import {
   PLATFORM_ERROR,
   Severity,
 } from "entities/AppsmithConsole";
-import type { WidgetEntityConfig } from "@appsmith/entities/DataTree/types";
+import type {
+  ActionEntity,
+  JSActionEntity,
+  WidgetEntity,
+  WidgetEntityConfig,
+} from "@appsmith/entities/DataTree/types";
 import type {
   ConfigTree,
   DataTree,
@@ -75,7 +80,10 @@ function logLatestEvalPropertyErrors(
   for (const evaluatedPath of evalAndValidationOrder) {
     const { entityName, propertyPath } =
       getEntityNameAndPropertyPath(evaluatedPath);
-    const entity = dataTree[entityName];
+    const entity = dataTree[entityName] as
+      | WidgetEntity
+      | ActionEntity
+      | JSActionEntity;
     const entityConfig = configTree[entityName] as any;
 
     if (isWidget(entity) || isAction(entity) || isJSAction(entity)) {
@@ -491,7 +499,10 @@ export function* updateTernDefinitions(
       );
       const entity = dataTree[entityName];
       if (!entity || !isWidget(entity)) return false;
-      return isWidgetPropertyNamePath(entity, update.payload.propertyPath);
+      return isWidgetPropertyNamePath(
+        entity as WidgetEntity,
+        update.payload.propertyPath,
+      );
     });
 
   if (!shouldUpdate) return;

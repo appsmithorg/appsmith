@@ -64,6 +64,10 @@ import {
   isWidget,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { getCurrentEnvironmentDetails } from "@appsmith/selectors/environmentSelectors";
+import type {
+  ActionEntity,
+  WidgetEntity,
+} from "@appsmith/entities/DataTree/types";
 
 // Saga to format action request values to be shown in the debugger
 function* formatActionRequestSaga(
@@ -179,23 +183,25 @@ function getLogsFromDependencyChain(
     };
 
     if (isAction(entity)) {
+      const actionEntity = entity as ActionEntity;
       log = {
         ...log,
         text: createMessage(ACTION_CONFIGURATION_UPDATED),
         source: {
           type: ENTITY_TYPE.ACTION,
           name: entityInfo.entityName,
-          id: entity.actionId,
+          id: actionEntity.actionId,
         },
       };
     } else if (isWidget(entity)) {
+      const widgetEntity = entity as WidgetEntity;
       log = {
         ...log,
         text: createMessage(WIDGET_PROPERTIES_UPDATED),
         source: {
           type: ENTITY_TYPE.WIDGET,
           name: entityInfo.entityName,
-          id: entity.widgetId,
+          id: widgetEntity.widgetId,
         },
       };
     }

@@ -1047,8 +1047,6 @@ export default class DataTreeEvaluator {
 
         const entityType = entityConfig.ENTITY_TYPE;
 
-        if (!propertyPath) continue;
-
         switch (entityType) {
           case ENTITY_TYPE_VALUE.WIDGET: {
             if (isATriggerPath) continue;
@@ -1278,7 +1276,7 @@ export default class DataTreeEvaluator {
       const node = result.cyclicNode;
       let entityType = "UNKNOWN";
       const entityName = node.split(".")[0];
-      const entity = get(this.oldUnEvalTree, entityName);
+      const entity = get(this.oldUnEvalTree, entityName) as DataTreeEntity;
       const entityConfig = get(this.oldConfigTree, entityName);
       if (entity && isWidget(entity)) {
         entityType = entity.type;
