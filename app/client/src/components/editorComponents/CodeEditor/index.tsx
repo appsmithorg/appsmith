@@ -143,10 +143,7 @@ import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 import { AIWindow } from "@appsmith/components/editorComponents/GPT";
 import { AskAIButton } from "@appsmith/components/editorComponents/GPT/AskAIButton";
 import classNames from "classnames";
-import {
-  APPSMITH_AI,
-  isAIEnabled,
-} from "@appsmith/components/editorComponents/GPT/trigger";
+import { isAIEnabled } from "@appsmith/components/editorComponents/GPT/trigger";
 import {
   getAllDatasourceTableKeys,
   selectInstalledLibraries,
@@ -505,11 +502,7 @@ class CodeEditor extends Component<Props, State> {
     }
   }
 
-  handleSlashCommandSelection = (...args: any) => {
-    const [command] = args;
-    if (command === APPSMITH_AI) {
-      this.setState({ showAIWindow: true });
-    }
+  handleSlashCommandSelection = () => {
     this.handleAutocompleteVisibility(this.editor);
   };
 
@@ -1661,9 +1654,6 @@ class CodeEditor extends Component<Props, State> {
           useValidationMessage={useValidationMessage}
         >
           <AIWindow
-            close={() => {
-              this.setState({ showAIWindow: false });
-            }}
             currentValue={this.props.input.value}
             dataTreePath={dataTreePath}
             editor={this.editor}
@@ -1672,6 +1662,9 @@ class CodeEditor extends Component<Props, State> {
             entity={entityInformation}
             isOpen={this.state.showAIWindow}
             mode={this.props.mode}
+            onOpenChanged={(showAIWindow: boolean) => {
+              this.setState({ showAIWindow });
+            }}
             triggerContext={this.props.expected}
             update={this.updateValueWithAIResponse}
           >

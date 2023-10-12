@@ -49,13 +49,13 @@ export const bindingHintHelper: HintHelper = (editor: CodeMirror.Editor) => {
       let shouldShow = false;
 
       if (entityType === ENTITY_TYPE_VALUE.JSACTION) {
-        shouldShow = true;
+        if (additionalData?.enableAIAssistance) {
+          shouldShow = !isAISlashCommand(editor);
+        } else {
+          shouldShow = true;
+        }
       } else {
         shouldShow = checkIfCursorInsideBinding(editor);
-      }
-
-      if (additionalData?.enableAIAssistance) {
-        shouldShow = !isAISlashCommand(editor);
       }
 
       if (shouldShow) {

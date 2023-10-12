@@ -24,7 +24,6 @@ export interface TAIWrapperProps {
   children?: React.ReactNode;
   isOpen: boolean;
   currentValue: string;
-  close: () => void;
   update?: (...args: any) => void;
   triggerContext?: CodeEditorExpected;
   enableAIAssistance: boolean;
@@ -33,6 +32,7 @@ export interface TAIWrapperProps {
   entity: FieldEntityInformation;
   entitiesForNavigation: EntityNavigationData;
   editor: CodeMirror.Editor;
+  onOpenChanged: (isOpen: boolean) => void;
 }
 
 export function AIWindow(props: TAIWrapperProps) {
