@@ -1,6 +1,5 @@
 package com.appsmith.server.migrations.db.ce;
 
-import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.QApplication;
 import com.appsmith.server.dtos.CustomJSLibApplicationDTO;
@@ -10,15 +9,14 @@ import io.mongock.api.annotations.ChangeUnit;
 import io.mongock.api.annotations.Execution;
 import io.mongock.api.annotations.RollbackExecution;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 
 import java.util.HashSet;
 import java.util.Set;
 
 import static com.appsmith.server.constants.ApplicationConstants.XML_PARSER_LIBRARY_UID;
+import static com.appsmith.server.migrations.MigrationHelperMethods.notDeleted;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
-import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @ChangeUnit(order = "029", id = "add-xmlparser-to-application-jslibs", author = " ")
 public class Migration029AddingXmlParserToApplicationLibraries {
@@ -65,20 +63,5 @@ public class Migration029AddingXmlParserToApplicationLibraries {
 
         librarySet.add(xmlParserApplicationDTO);
         return librarySet;
-    }
-
-    public static Criteria notDeleted() {
-        return new Criteria()
-                .andOperator(
-                        // Older check for deleted
-                        new Criteria()
-                                .orOperator(
-                                        where(FieldName.DELETED).exists(false),
-                                        where(FieldName.DELETED).is(false)),
-                        // New check for deleted
-                        new Criteria()
-                                .orOperator(
-                                        where(FieldName.DELETED_AT).exists(false),
-                                        where(FieldName.DELETED_AT).is(null)));
     }
 }

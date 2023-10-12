@@ -1,8 +1,8 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.server.domains.CustomJSLib;
-import com.appsmith.server.domains.CustomJSLibCompatibilityDTO;
 import com.appsmith.server.dtos.CustomJSLibApplicationDTO;
+import com.appsmith.server.dtos.CustomJSLibCompatibilityDTO;
 import com.appsmith.server.services.CrudService;
 import jakarta.validation.constraints.NotNull;
 import reactor.core.publisher.Mono;

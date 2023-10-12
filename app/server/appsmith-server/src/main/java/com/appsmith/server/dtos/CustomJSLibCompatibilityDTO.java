@@ -1,7 +1,8 @@
-package com.appsmith.server.domains;
+package com.appsmith.server.dtos;
 
 import com.appsmith.external.models.BranchAwareDomain;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.CustomJSLib;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
@@ -16,6 +17,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * This class holds the schema to which DB used to save the documents in customJSLib collection,
+ * In order to remove default support for xmlParser, there was a requirement to change the schema to what customJSLib
+ * class currently holds. This poses a problem as we try to import older applications. To mitigate,
+ * the ApplicationJson class would now have this class as an attribute type of customJSLibList instead of customJSLib
+ * for compatibility.
+ */
 @Getter
 @Setter
 @ToString
@@ -69,7 +77,7 @@ public class CustomJSLibCompatibilityDTO extends BranchAwareDomain {
 
     public CustomJSLibCompatibilityDTO(CustomJSLib customJSLib) {
         this.setId(customJSLib.getId());
-        this.setAccessor(transformAccessor(customJSLib.getAccessor(), FieldName.MODIFIED_ACCESSOR_KEY));
+        this.setAccessor(transformAccessorToSetOfStrings(customJSLib.getAccessor(), FieldName.MODIFIED_ACCESSOR_KEY));
         this.setName(customJSLib.getName());
         this.setUidString(customJSLib.getUidString());
         this.setUrl(customJSLib.getUrl());
@@ -88,7 +96,8 @@ public class CustomJSLibCompatibilityDTO extends BranchAwareDomain {
      * @param accessorKey : the key which is used to extract value from the map
      * @return  Set of Maps of String, String
      */
-    public static Set<String> transformAccessor(Set<Map<String, String>> accessorMapSet, String accessorKey) {
+    public static Set<String> transformAccessorToSetOfStrings(
+            Set<Map<String, String>> accessorMapSet, String accessorKey) {
         Set<String> transformedAccessor = new HashSet<>();
         for (Map<String, String> accessorMap : accessorMapSet) {
             transformedAccessor.add(accessorMap.get(accessorKey));

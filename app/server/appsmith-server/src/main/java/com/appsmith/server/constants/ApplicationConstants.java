@@ -1,6 +1,6 @@
 package com.appsmith.server.constants;
 
-import com.appsmith.server.domains.CustomJSLibCompatibilityDTO;
+import com.appsmith.server.dtos.CustomJSLibCompatibilityDTO;
 
 import java.util.Set;
 

@@ -2,8 +2,8 @@ package com.appsmith.server.services.ce;
 
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.CustomJSLib;
-import com.appsmith.server.domains.CustomJSLibCompatibilityDTO;
 import com.appsmith.server.dtos.CustomJSLibApplicationDTO;
+import com.appsmith.server.dtos.CustomJSLibCompatibilityDTO;
 import com.appsmith.server.repositories.CustomJSLibRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationService;

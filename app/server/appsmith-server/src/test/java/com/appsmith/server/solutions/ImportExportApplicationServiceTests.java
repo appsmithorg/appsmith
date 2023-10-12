@@ -25,7 +25,6 @@ import com.appsmith.server.domains.ApplicationDetail;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.CustomJSLib;
-import com.appsmith.server.domains.CustomJSLibCompatibilityDTO;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
@@ -39,6 +38,7 @@ import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
+import com.appsmith.server.dtos.CustomJSLibCompatibilityDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.PageNameIdDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -4639,7 +4639,7 @@ public class ImportExportApplicationServiceTests {
                             exportedAppJson.getCustomJSLibList().get(0);
                     assertEquals(jsLib.getName(), exportedJSLib.getName());
                     assertEquals(
-                            CustomJSLibCompatibilityDTO.transformAccessor(
+                            CustomJSLibCompatibilityDTO.transformAccessorToSetOfStrings(
                                     jsLib.getAccessor(), FieldName.MODIFIED_ACCESSOR_KEY),
                             exportedJSLib.getAccessor());
                     assertEquals(jsLib.getUrl(), exportedJSLib.getUrl());

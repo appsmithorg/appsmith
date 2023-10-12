@@ -2,7 +2,7 @@ package com.appsmith.server.migrations.db.ce;
 
 import com.appsmith.server.constants.ApplicationConstants;
 import com.appsmith.server.domains.CustomJSLib;
-import com.appsmith.server.domains.CustomJSLibCompatibilityDTO;
+import com.appsmith.server.dtos.CustomJSLibCompatibilityDTO;
 import io.mongock.api.annotations.ChangeUnit;
 import io.mongock.api.annotations.Execution;
 import io.mongock.api.annotations.RollbackExecution;

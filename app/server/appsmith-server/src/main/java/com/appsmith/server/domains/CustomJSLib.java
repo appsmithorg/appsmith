@@ -1,7 +1,7 @@
 package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BranchAwareDomain;
-import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.dtos.CustomJSLibCompatibilityDTO;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -18,6 +18,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import static com.appsmith.server.constants.ce.FieldNameCE.MODIFIED_ACCESSOR_KEY;
+import static com.appsmith.server.constants.ce.FieldNameCE.ORIGINAL_ACCESSOR_KEY;
+import static com.appsmith.server.constants.ce.FieldNameCE.PARSER;
+import static com.appsmith.server.constants.ce.FieldNameCE.XML_PARSER;
+import static com.appsmith.server.dtos.CustomJSLibCompatibilityDTO.transformAccessorToSetOfStrings;
 
 @Getter
 @Setter
@@ -73,7 +79,7 @@ public class CustomJSLib extends BranchAwareDomain {
     public CustomJSLib(CustomJSLibCompatibilityDTO customJSLibCompatibilityDTO) {
         this.setId(customJSLibCompatibilityDTO.getId());
 
-        this.setAccessor(transformAccessor(customJSLibCompatibilityDTO.getAccessor()));
+        this.setAccessor(transformAccessorToSetOfMaps(customJSLibCompatibilityDTO.getAccessor()));
         this.setName(customJSLibCompatibilityDTO.getName());
         this.setUrl(customJSLibCompatibilityDTO.getUrl());
         this.setVersion(customJSLibCompatibilityDTO.getVersion());
@@ -91,12 +97,12 @@ public class CustomJSLib extends BranchAwareDomain {
         this.setUidString();
     }
 
-    public Set<Map<String, String>> transformAccessor(Set<String> accessorSet) {
+    public Set<Map<String, String>> transformAccessorToSetOfMaps(Set<String> accessorSet) {
         Set<Map<String, String>> transformedAccessor = new HashSet<>();
         for (String accessorValue : accessorSet) {
             Map<String, String> accessorMap = new HashMap<>();
-            accessorMap.put(FieldName.ORIGINAL_ACCESSOR_KEY, accessorValue);
-            accessorMap.put(FieldName.MODIFIED_ACCESSOR_KEY, accessorValue);
+            accessorMap.put(ORIGINAL_ACCESSOR_KEY, accessorValue);
+            accessorMap.put(MODIFIED_ACCESSOR_KEY, accessorValue);
             transformedAccessor.add(accessorMap);
         }
 
@@ -104,7 +110,8 @@ public class CustomJSLib extends BranchAwareDomain {
     }
 
     /**
-     *
+     * This method changes the value associated with <String>modified</String> key of map to <String>xmlParser</String>,
+     * if the <String>original</String> key is named as <String>parser</String>
      */
     public void modifyAccessorValueForXMLParser() {
         if (CollectionUtils.isNullOrEmpty(this.getAccessor())) {
@@ -112,17 +119,17 @@ public class CustomJSLib extends BranchAwareDomain {
         }
 
         for (Map<String, String> accessorMap : this.accessor) {
-            if (!accessorMap.get(FieldName.ORIGINAL_ACCESSOR_KEY).equals(FieldName.PARSER)) {
+            if (!accessorMap.get(ORIGINAL_ACCESSOR_KEY).equals(PARSER)) {
                 continue;
             }
 
-            accessorMap.put(FieldName.MODIFIED_ACCESSOR_KEY, FieldName.XML_PARSER);
+            accessorMap.put(MODIFIED_ACCESSOR_KEY, XML_PARSER);
         }
     }
 
     public void setUidString() {
-        List<String> accessorList = new ArrayList(
-                CustomJSLibCompatibilityDTO.transformAccessor(this.accessor, FieldName.MODIFIED_ACCESSOR_KEY));
+        List<String> accessorList =
+                new ArrayList(transformAccessorToSetOfStrings(this.accessor, MODIFIED_ACCESSOR_KEY));
         Collections.sort(accessorList);
         this.uidString = String.join("_", accessorList) + "_" + this.url;
     }
