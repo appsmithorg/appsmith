@@ -1,23 +1,20 @@
-import type { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
+import type { WidgetPositions } from "layoutSystems/common/types";
 import React, { useCallback } from "react";
-import type { AnvilHighlightInfo } from "../utils/anvilTypes";
+import type { AnvilHighlightInfo, DraggedWidget } from "../utils/anvilTypes";
 import { HighlightingCanvas } from "./HighlightingCanvas";
 import { useAnvilDnDStates } from "./hooks/useAnvilDnDStates";
 import { useAnvilWidgetDrop } from "./hooks/useAnvilWidgetDrop";
 import { getClosestHighlight } from "./utils";
 
-type AnvilCanvasDraggingArenaProps = {
+interface AnvilCanvasDraggingArenaProps {
   canvasId: string;
   layoutId: string;
   allowedWidgetTypes: string[];
   deriveAllHighlightsFn: (
-    draggingWidgets: {
-      widgetId?: string;
-      type: string;
-      responsiveBehavior?: ResponsiveBehavior;
-    }[],
+    widgetPositions: WidgetPositions,
+    draggedWidgets: DraggedWidget[],
   ) => AnvilHighlightInfo[];
-};
+}
 
 export const AnvilCanvasDraggingArena = (
   props: AnvilCanvasDraggingArenaProps,
@@ -26,16 +23,17 @@ export const AnvilCanvasDraggingArena = (
     props;
   const anvilDragStates = useAnvilDnDStates({
     allowedWidgetTypes,
+    deriveAllHighlightsFn,
     canvasId,
     layoutId,
   });
-  const allHighLights = deriveAllHighlightsFn(anvilDragStates.draggedBlocks);
+
   const onDrop = useAnvilWidgetDrop(canvasId, anvilDragStates);
   const renderOnMouseMove = useCallback(
     (e: MouseEvent) => {
-      return getClosestHighlight(e, allHighLights);
+      return getClosestHighlight(e, anvilDragStates.allHighLights);
     },
-    [allHighLights],
+    [anvilDragStates.allHighLights],
   );
   return (
     <HighlightingCanvas

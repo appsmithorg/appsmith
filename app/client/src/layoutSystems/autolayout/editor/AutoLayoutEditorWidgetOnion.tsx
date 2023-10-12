@@ -76,6 +76,7 @@ export const AutoLayoutEditorWidgetOnion = (props: BaseWidgetProps) => {
     >
       <SnipeableComponent type={props.type} widgetId={props.widgetId}>
         <DraggableComponent
+          dragDisabled={!!props.dragDisabled}
           generateDragState={generateDragState}
           isFlexChild
           parentId={props.parentId}

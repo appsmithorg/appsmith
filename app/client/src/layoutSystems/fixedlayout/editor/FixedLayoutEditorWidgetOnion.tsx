@@ -60,6 +60,7 @@ export const FixedLayoutEditorWidgetOnion = (props: BaseWidgetProps) => {
       <PositionedComponentLayer {...props}>
         <SnipeableComponent type={props.type} widgetId={props.widgetId}>
           <DraggableComponent
+            dragDisabled={!!props.dragDisabled}
             generateDragState={generateDragState}
             isFlexChild
             parentId={props.parentId}

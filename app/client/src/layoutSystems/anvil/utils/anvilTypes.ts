@@ -6,6 +6,10 @@ import type {
 } from "layoutSystems/common/utils/constants";
 import type { DropZone } from "layoutSystems/common/utils/types";
 import type { WidgetProps } from "widgets/BaseWidget";
+import type {
+  WidgetPosition,
+  WidgetPositions,
+} from "layoutSystems/common/types";
 
 export type LayoutComponentType =
   | "ALIGNED_COLUMN"
@@ -89,32 +93,20 @@ export interface AnvilHighlightInfo {
   posY: number; // y position of the highlight.
   rowIndex: number; // Index with in the layout array to insert the child at.
   width: number; // width of the highlight.
-  isVertical?: boolean;
-}
-
-export interface PositionData {
-  height: number;
-  left: number;
-  top: number;
-  width: number;
-}
-
-export interface WidgetPositions {
-  [id: string]: PositionData;
 }
 
 export interface DraggedWidget {
   widgetId: string;
   type: WidgetType;
-  responsiveBehavior: ResponsiveBehavior;
+  responsiveBehavior?: ResponsiveBehavior;
 }
 
 export type GenerateHighlights = (
   baseHighlight: AnvilHighlightInfo,
-  layoutDimension: PositionData,
-  currentDimension: PositionData,
-  prevDimension: PositionData | undefined,
-  nextDimension: PositionData | undefined,
+  layoutDimension: WidgetPosition,
+  currentDimension: WidgetPosition,
+  prevDimension: WidgetPosition | undefined,
+  nextDimension: WidgetPosition | undefined,
   rowIndex: number,
   isLastHighlight: boolean,
   hasFillWidget?: boolean,

@@ -1,5 +1,6 @@
 import React from "react";
 import type {
+  DraggedWidget,
   LayoutComponent,
   LayoutComponentProps,
   LayoutProps,
@@ -7,11 +8,11 @@ import type {
 import { renderLayouts } from "../utils/layouts/renderUtils";
 import { RenderModes } from "constants/WidgetConstants";
 import { AnvilCanvasDraggingArena } from "../canvasArenas/AnvilCanvasDraggingArena";
-import { mockAnvilHighlightInfo } from "mocks/mockHighlightInfo";
+import type { WidgetPositions } from "layoutSystems/common/types";
 
 export function LayoutComponentHOC(Component: LayoutComponent) {
   const enhancedLayoutComponent = (props: LayoutComponentProps) => {
-    const { canvasId, isDropTarget, renderMode } = props;
+    const { canvasId, isDropTarget, layoutId, renderMode } = props;
 
     const renderChildren = () => {
       if (Component.rendersWidgets(props)) {
@@ -25,74 +26,16 @@ export function LayoutComponentHOC(Component: LayoutComponent) {
         );
       }
     };
-    const mockFn = () => {
-      return [
-        mockAnvilHighlightInfo({
-          posX: 0,
-          posY: 10,
-          canvasId: "0",
-          layoutOrder: [props.layoutId],
-          dropZone: {
-            top: 20,
-            bottom: 20,
-            left: 30,
-            right: 50,
-          },
-          // isVertical: true,
-        }),
-        mockAnvilHighlightInfo({
-          posX: 50,
-          posY: 10,
-          canvasId: "0",
-          layoutOrder: [props.layoutId],
-          dropZone: {
-            top: 20,
-            bottom: 20,
-            left: 30,
-            right: 30,
-          },
-          // isVertical: true,
-        }),
-        mockAnvilHighlightInfo({
-          posX: 150,
-          posY: 10,
-          canvasId: "0",
-          layoutOrder: [props.layoutId],
-          dropZone: {
-            top: 20,
-            bottom: 20,
-            left: 30,
-            right: 30,
-          },
-          // isVertical: true,
-        }),
-        mockAnvilHighlightInfo({
-          posX: 250,
-          posY: 10,
-          canvasId: "0",
-          layoutOrder: [props.layoutId],
-          dropZone: {
-            top: 20,
-            bottom: 20,
-            left: 30,
-            right: 30,
-          },
-          isVertical: true,
-        }),
-        mockAnvilHighlightInfo({
-          posX: 350,
-          posY: 10,
-          canvasId: "0",
-          layoutOrder: [props.layoutId],
-          dropZone: {
-            top: 20,
-            bottom: 20,
-            left: 30,
-            right: 30,
-          },
-          isVertical: true,
-        }),
-      ];
+    const deriveAllHighlightsFn = (
+      widgetPositions: WidgetPositions,
+      draggedWidgets: DraggedWidget[],
+    ) => {
+      return Component.deriveHighlights(
+        props,
+        widgetPositions,
+        canvasId,
+        draggedWidgets,
+      );
     };
     // TODO: Remove hardcoded props by creating new dragging arena for anvil.
     return (
@@ -100,9 +43,9 @@ export function LayoutComponentHOC(Component: LayoutComponent) {
         {isDropTarget && renderMode === RenderModes.CANVAS && (
           <AnvilCanvasDraggingArena
             allowedWidgetTypes={props.allowedWidgetTypes || []}
-            canvasId="0"
-            deriveAllHighlightsFn={mockFn}
-            layoutId="0"
+            canvasId={canvasId}
+            deriveAllHighlightsFn={deriveAllHighlightsFn}
+            layoutId={layoutId}
           />
         )}
         {renderChildren()}

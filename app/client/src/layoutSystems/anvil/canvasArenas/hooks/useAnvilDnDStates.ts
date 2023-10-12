@@ -3,20 +3,31 @@ import type { AppState } from "@appsmith/reducers";
 import { getDragDetails, getWidgetByID, getWidgets } from "sagas/selectors";
 import { useSelector } from "react-redux";
 import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { getSelectedWidgets } from "selectors/ui";
-import type { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
+import { getWidgetPositions } from "layoutSystems/common/selectors";
+import type {
+  AnvilHighlightInfo,
+  DraggedWidget,
+} from "layoutSystems/anvil/utils/anvilTypes";
+import type { WidgetPositions } from "layoutSystems/common/types";
 
 export const useAnvilDnDStates = ({
   allowedWidgetTypes,
   canvasId,
+  deriveAllHighlightsFn,
   layoutId,
 }: {
   allowedWidgetTypes: string[];
   canvasId: string;
   layoutId: string;
+  deriveAllHighlightsFn: (
+    widgetPositions: WidgetPositions,
+    draggedWidgets: DraggedWidget[],
+  ) => AnvilHighlightInfo[];
 }) => {
   const lastDraggedCanvas = useRef<string | undefined>(undefined);
+  const widgetPositions = useSelector(getWidgetPositions);
   const allWidgets = useSelector(getWidgets);
   const selectedWidgets = useSelector(getSelectedWidgets);
   const filteredSelectedWidgets = selectedWidgets.filter(
@@ -54,16 +65,13 @@ export const useAnvilDnDStates = ({
   const isCurrentDraggedCanvas = dragDetails.draggedOn === layoutId;
   const isNewWidgetInitialTargetCanvas =
     isNewWidget && layoutId === MAIN_CONTAINER_WIDGET_ID;
-  const getDraggedBlocks = (): {
-    widgetId?: string;
-    type: string;
-    responsiveBehavior?: ResponsiveBehavior;
-  }[] => {
+  const getDraggedBlocks = (): DraggedWidget[] => {
     if (isNewWidget) {
       const { newWidget } = dragDetails;
 
       return [
         {
+          widgetId: newWidget.widgetId,
           type: newWidget.type,
           responsiveBehavior: newWidget.responsiveBehavior,
         },
@@ -90,9 +98,16 @@ export const useAnvilDnDStates = ({
     }
   };
   const allowToDrop = isDragging && checkIfWidgetTypeDraggedIsAllowedToDrop();
+  const draggedBlocks = getDraggedBlocks();
+  const memoizedDeriveHighlights = useCallback(
+    () => deriveAllHighlightsFn(widgetPositions, draggedBlocks),
+    [widgetPositions, draggedBlocks],
+  );
+  const allHighLights = isDragging ? memoizedDeriveHighlights() : [];
   return {
+    allHighLights,
     allowToDrop,
-    draggedBlocks: getDraggedBlocks(),
+    draggedBlocks,
     dragDetails,
     isChildOfCanvas,
     isCurrentDraggedCanvas,
@@ -100,5 +115,6 @@ export const useAnvilDnDStates = ({
     isNewWidget,
     isNewWidgetInitialTargetCanvas,
     isResizing,
+    widgetPositions,
   };
 };
