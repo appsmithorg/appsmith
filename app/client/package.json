@@ -50,7 +50,6 @@
     "@blueprintjs/icons": "3.22.0",
     "@blueprintjs/popover2": "^0.5.0",
     "@blueprintjs/select": "^3.10.0",
-    "@codemirror/autocomplete": "^6.9.2",
     "@design-system/storybook": "workspace:^",
     "@design-system/theming": "workspace:^",
     "@design-system/widgets": "workspace:^",

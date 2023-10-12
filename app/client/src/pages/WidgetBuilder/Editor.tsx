@@ -2,7 +2,6 @@ import type { EditorConfiguration } from "codemirror";
 import React, { createRef, useEffect } from "react";
 // eslint-disable-next-line @typescript-eslint/no-restricted-imports
 import CodeMirror from "codemirror";
-import "@codemirror/autocomplete";
 import "codemirror/mode/htmlmixed/htmlmixed";
 import "codemirror/mode/css/css";
 import { debounce } from "lodash";
