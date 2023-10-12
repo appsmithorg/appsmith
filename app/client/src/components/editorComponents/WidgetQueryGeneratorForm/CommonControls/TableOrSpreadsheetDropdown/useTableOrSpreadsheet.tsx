@@ -18,7 +18,6 @@ import {
 } from "selectors/datasourceSelectors";
 import { isGoogleSheetPluginDS } from "utils/editorContextUtils";
 import type { AppState } from "@appsmith/reducers";
-import { Icon } from "design-system";
 import { DropdownOption as Option } from "../DatasourceDropdown/DropdownOption";
 import type { DropdownOptionType } from "../../types";
 import { getisOneClickBindingConnectingForWidget } from "selectors/oneClickBindingSelectors";
@@ -76,13 +75,6 @@ export function useTableOrSpreadsheet() {
         data: {
           tableName: value,
         },
-        icon: (
-          <Icon
-            color="var(--ads-v2-color-fg)"
-            name="layout-left-2-line"
-            size="md"
-          />
-        ),
       }));
     } else if (datasourceStructure) {
       return (datasourceStructure.tables || []).map(({ name }) => ({
@@ -92,13 +84,6 @@ export function useTableOrSpreadsheet() {
         data: {
           tableName: name,
         },
-        icon: (
-          <Icon
-            color="var(--ads-v2-color-fg)"
-            name="layout-left-2-line"
-            size="md"
-          />
-        ),
       }));
     } else {
       return [];
@@ -148,7 +133,7 @@ export function useTableOrSpreadsheet() {
       );
 
       return {
-        label: <Option label={option?.label} leftIcon={option?.icon} />,
+        label: <Option label={option?.label} />,
         key: option?.id,
       };
     }
