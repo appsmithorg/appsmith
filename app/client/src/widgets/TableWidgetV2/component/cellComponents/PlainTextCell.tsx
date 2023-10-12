@@ -65,12 +65,12 @@ export type RenderDefaultPropsType = BaseCellComponentProps & {
   isNewRow: boolean;
 };
 
-export type RenderCurrencyPropsType = {
+export interface RenderCurrencyPropsType {
   currencyCode?: string;
   decimals?: number;
   notation?: Intl.NumberFormatOptions["notation"];
   thousandSeparator?: boolean;
-};
+}
 
 interface editPropertyType {
   alias: string;
