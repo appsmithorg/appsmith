@@ -4,11 +4,14 @@ import com.appsmith.server.dtos.DisconnectProvisioningDto;
 import com.appsmith.server.dtos.ProvisionStatusDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 @Service
+@AllArgsConstructor
 public class ProvisionServiceCECompatibleImpl implements ProvisionServiceCECompatible {
+
     @Override
     public Mono<String> generateProvisionToken() {
         return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
