@@ -157,7 +157,6 @@ import { CodeEditorSignPosting } from "@appsmith/components/editorComponents/Cod
 import { getFocusablePropertyPaneField } from "selectors/propertyPaneSelectors";
 import resizeObserver from "utils/resizeObserver";
 import { EMPTY_BINDING } from "../ActionCreator/constants";
-import { getJSFunctionStartLineFromCode } from "pages/Editor/JSEditor/utils";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
@@ -1036,8 +1035,6 @@ class CodeEditor extends Component<Props, State> {
   };
 
   handleCursorMovement = (cm: CodeMirror.Editor) => {
-    this.showAIPlaceholder();
-
     const line = cm.getCursor().line;
     this.handleCustomGutter(line, true);
     // ignore if disabled
@@ -1184,52 +1181,6 @@ class CodeEditor extends Component<Props, State> {
     }
   };
 
-  showAIPlaceholder = () => {
-    const { mode } = this.props;
-    if (!this.AIEnabled) {
-      return;
-    }
-
-    if (mode !== EditorModes.JAVASCRIPT) {
-      return;
-    }
-
-    const editorInstance = this.editor;
-    const currentCursorPos = editorInstance.getCursor();
-    const { actionName: functionName } =
-      getJSFunctionStartLineFromCode(
-        editorInstance.getValue(),
-        currentCursorPos.line,
-      ) || {};
-
-    const prevPlaceholders = document.getElementsByClassName(
-      "CodeMirror-ai-placeholder",
-    );
-
-    if (prevPlaceholders.length) {
-      for (const placeholder of prevPlaceholders) {
-        placeholder.remove();
-      }
-    }
-
-    if (functionName) {
-      const cursor = editorInstance.getCursor();
-
-      const line = editorInstance.getLine(cursor.line);
-      if (line.trim() === "") {
-        const pos = { line: cursor.line, ch: cursor.ch };
-        const placeholderElem = document.createElement("span");
-        placeholderElem.className = "CodeMirror-ai-placeholder";
-        placeholderElem.textContent = "Type /ai to generate code using AI";
-        placeholderElem.style.marginTop = "-21px";
-        placeholderElem.style.marginLeft = "3px";
-        placeholderElem.style.color = "var(--ads-v2-color-gray-400)";
-
-        editorInstance.addWidget(pos, placeholderElem, false);
-      }
-    }
-  };
-
   handleChange = (
     instance?: CodeMirror.Editor,
     changeObj?: CodeMirror.EditorChangeLinkedList,
@@ -1300,7 +1251,6 @@ class CodeEditor extends Component<Props, State> {
     }
     this.hidePeekOverlay();
     this.handleDebouncedChange(instance, changeObj);
-    this.showAIPlaceholder();
   };
 
   getEntityInformation = (): FieldEntityInformation => {
