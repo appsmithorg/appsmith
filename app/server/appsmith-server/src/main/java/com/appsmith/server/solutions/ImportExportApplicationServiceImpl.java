@@ -4,7 +4,6 @@ import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.datasourcestorages.base.DatasourceStorageService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.repositories.ActionCollectionRepository;
-import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
@@ -36,7 +35,6 @@ public class ImportExportApplicationServiceImpl extends ImportExportApplicationS
             DatasourceService datasourceService,
             SessionUserService sessionUserService,
             NewActionRepository newActionRepository,
-            DatasourceRepository datasourceRepository,
             PluginRepository pluginRepository,
             WorkspaceService workspaceService,
             ApplicationService applicationService,
@@ -64,7 +62,6 @@ public class ImportExportApplicationServiceImpl extends ImportExportApplicationS
                 datasourceService,
                 sessionUserService,
                 newActionRepository,
-                datasourceRepository,
                 pluginRepository,
                 workspaceService,
                 applicationService,

@@ -45,7 +45,7 @@ import { getUIComponent } from "./helpers";
 import type { Diff } from "deep-diff";
 import { diff } from "deep-diff";
 import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
-import { integrationEditorURL } from "RouteBuilder";
+import { integrationEditorURL } from "@appsmith/RouteBuilder";
 import { getConfigInitialValues } from "components/formControls/utils";
 import { merge } from "lodash";
 import { getPathAndValueFromActionDiffObject } from "../../../utils/getPathAndValueFromActionDiffObject";
@@ -62,7 +62,7 @@ const LoadingContainer = styled(CenteredWrapper)`
   height: 50%;
 `;
 
-type ReduxDispatchProps = {
+interface ReduxDispatchProps {
   runAction: (actionId: string) => void;
   deleteAction: (id: string, name: string) => void;
   changeQueryPage: (queryId: string) => void;
@@ -81,9 +81,9 @@ type ReduxDispatchProps = {
     propertyName: string,
     value: string,
   ) => void;
-};
+}
 
-type ReduxStateProps = {
+interface ReduxStateProps {
   plugins: Plugin[];
   dataSources: Datasource[];
   isRunning: boolean;
@@ -105,7 +105,7 @@ type ReduxStateProps = {
   datasourceId?: string;
   currentEnvironmentId: string;
   currentEnvironmentName: string;
-};
+}
 
 type StateAndRouteProps = RouteComponentProps<QueryEditorRouteParams>;
 

@@ -12,11 +12,11 @@ export type UpdateTenantConfigResponse = ApiResponse<{
   tenantConfiguration: Record<string, string>;
 }>;
 
-export type UpdateTenantConfigRequest = {
+export interface UpdateTenantConfigRequest {
   tenantConfiguration: Record<string, string>;
   needsRefresh?: boolean;
   isOnlyTenantSettings?: boolean;
-};
+}
 
 export class TenantApi extends Api {
   static tenantsUrl = "v1/tenants";

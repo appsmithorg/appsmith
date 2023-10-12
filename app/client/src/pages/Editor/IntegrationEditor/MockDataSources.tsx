@@ -87,10 +87,10 @@ const DatasourceNameWrapper = styled.div`
   flex-direction: column;
 `;
 
-type MockDatasourceCardProps = {
+interface MockDatasourceCardProps {
   datasource: MockDatasource;
   workspaceId: string;
-};
+}
 
 function MockDatasourceCard(props: MockDatasourceCardProps) {
   const { datasource, workspaceId } = props;

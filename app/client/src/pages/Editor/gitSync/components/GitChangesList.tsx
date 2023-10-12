@@ -62,11 +62,11 @@ export enum Kind {
   SETTINGS = "SETTINGS",
 }
 
-type GitStatusProps = {
+interface GitStatusProps {
   iconName: string;
   message: string;
   hasValue: boolean;
-};
+}
 
 type GitStatusMap = {
   [key in Kind]: (status: Partial<GitStatusData>) => GitStatusProps;

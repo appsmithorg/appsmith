@@ -30,7 +30,7 @@ import { Button, toast } from "design-system";
 import type { ApiDatasourceForm } from "entities/Datasource/RestAPIForm";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import { INTEGRATION_TABS, SHOW_FILE_PICKER_KEY } from "constants/routes";
-import { integrationEditorURL } from "RouteBuilder";
+import { integrationEditorURL } from "@appsmith/RouteBuilder";
 import { getQueryParams } from "utils/URLUtils";
 import type { AppsmithLocationState } from "utils/history";
 import type { PluginType } from "entities/Action";
@@ -134,20 +134,20 @@ function DatasourceAuth({
   ],
   formData,
   getSanitizedFormData,
+  isFormDirty,
+  isInsideReconnectModal,
   isInvalid,
-  pageId: pageIdProp = "",
-  pluginType,
-  pluginName,
-  pluginPackageName,
   isSaving,
   isTesting,
-  viewMode,
+  onCancel,
+  pageId: pageIdProp = "",
+  pluginName,
+  pluginPackageName,
+  pluginType,
+  scopeValue,
   shouldDisplayAuthMessage = true,
   triggerSave,
-  isFormDirty,
-  scopeValue,
-  isInsideReconnectModal,
-  onCancel,
+  viewMode,
 }: Props) {
   const shouldRender = !viewMode || isInsideReconnectModal;
   const authType =

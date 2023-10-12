@@ -16,6 +16,6 @@ export enum NavigationMethod {
   ContextSwitching = "ContextSwitching",
 }
 
-export type AppsmithLocationState = {
+export interface AppsmithLocationState {
   invokedBy?: NavigationMethod;
-};
+}

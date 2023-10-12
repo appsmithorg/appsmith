@@ -28,7 +28,7 @@ import {
   getIsFetchingPage,
   snipingModeSelector,
 } from "selectors/editorSelectors";
-import { builderURL, widgetURL } from "RouteBuilder";
+import { builderURL, widgetURL } from "@appsmith/RouteBuilder";
 import {
   getAppMode,
   getCanvasWidgets,
@@ -56,10 +56,10 @@ import { APP_MODE } from "entities/App";
 function* selectWidgetSaga(action: ReduxAction<WidgetSelectionRequestPayload>) {
   try {
     const {
-      payload = [],
-      selectionRequestType,
       invokedBy,
       pageId,
+      payload = [],
+      selectionRequestType,
     } = action.payload;
 
     if (payload.some(isInvalidSelectionRequest)) {

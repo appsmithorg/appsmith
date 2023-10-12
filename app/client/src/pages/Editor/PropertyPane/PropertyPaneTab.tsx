@@ -7,12 +7,12 @@ import { getSelectedPropertyTabIndex } from "selectors/editorContextSelectors";
 import { setSelectedPropertyTabIndex } from "actions/editorContextActions";
 import type { AppState } from "@appsmith/reducers";
 
-type PropertyPaneTabProps = {
+interface PropertyPaneTabProps {
   styleComponent: JSX.Element | null;
   contentComponent: JSX.Element | null;
   isPanelProperty?: boolean;
   panelPropertyPath?: string;
-};
+}
 
 const tabs = ["content", "style"];
 

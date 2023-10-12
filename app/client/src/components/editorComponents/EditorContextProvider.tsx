@@ -49,7 +49,7 @@ import {
 } from "actions/autoLayoutActions";
 import { updateOneClickBindingOptionsVisibility } from "actions/oneClickBindingActions";
 
-export type EditorContextType<TCache = unknown> = {
+export interface EditorContextType<TCache = unknown> {
   executeAction?: (triggerPayload: ExecuteTriggerPayload) => void;
   updateWidget?: (
     operation: WidgetOperation,
@@ -99,7 +99,7 @@ export type EditorContextType<TCache = unknown> = {
   selectWidgetRequest?: WidgetSelectionRequest;
   updatePositionsOnTabChange?: (widgetId: string, selectedTab: string) => void;
   updateOneClickBindingOptionsVisibility?: (visibility: boolean) => void;
-};
+}
 export const EditorContext: Context<EditorContextType> = createContext({});
 
 type EditorContextProviderProps = EditorContextType & {
@@ -152,12 +152,15 @@ function extractFromObj<T, K extends keyof T>(
   keys: K[],
 ): [Pick<T, K>, T[K][]] {
   const deps = [] as T[K][];
-  const newObj = keys.reduce((newObj, curr) => {
-    newObj[curr] = obj[curr];
-    deps.push(obj[curr]);
+  const newObj = keys.reduce(
+    (newObj, curr) => {
+      newObj[curr] = obj[curr];
+      deps.push(obj[curr]);
 
-    return newObj;
-  }, {} as Pick<T, K>);
+      return newObj;
+    },
+    {} as Pick<T, K>,
+  );
 
   return [newObj, deps];
 }

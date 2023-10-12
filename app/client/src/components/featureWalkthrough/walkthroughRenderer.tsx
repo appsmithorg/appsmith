@@ -70,7 +70,7 @@ const InstructionsHeaderWrapper = styled.div`
   }
 `;
 
-type RefRectParams = {
+interface RefRectParams {
   // body params
   bh: number;
   bw: number;
@@ -79,7 +79,7 @@ type RefRectParams = {
   tw: number;
   tx: number;
   ty: number;
-};
+}
 
 /*
  * Clip Path Polygon for single target with bounding rect :
@@ -122,12 +122,12 @@ type BoundingRectTargets = Record<string, RefRectParams>;
 
 const WalkthroughRenderer = ({
   details,
-  offset,
-  targetId,
+  dismissOnOverlayClick,
   eventParams = {},
   multipleHighlights,
+  offset,
   overlayColor,
-  dismissOnOverlayClick,
+  targetId,
 }: FeatureParams) => {
   const [boundingRects, setBoundingRects] =
     useState<BoundingRectTargets | null>(null);
