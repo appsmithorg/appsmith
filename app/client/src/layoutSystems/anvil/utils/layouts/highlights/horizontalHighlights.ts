@@ -9,7 +9,6 @@ import type {
   WidgetLayoutProps,
   WidgetPositions,
 } from "../../anvilTypes";
-import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
 import { getStartPosition } from "./highlightUtils";
 import { HIGHLIGHT_SIZE } from "../../constants";
 
@@ -218,23 +217,19 @@ export function getInitialHighlights(
   generateHighlights: GenerateHighlights,
   hasFillWidget = false,
 ): AnvilHighlightInfo[] {
-  const { layoutId, layoutStyle } = layoutProps;
-  const layoutAlignment: FlexLayerAlignment =
-    layoutStyle && layoutStyle["justifyContent"]
-      ? (layoutStyle["justifyContent"] as FlexLayerAlignment)
-      : FlexLayerAlignment.Start;
+  const { layoutId } = layoutProps;
   const layoutDimension: PositionData = widgetPositions[layoutId];
 
   // Get start position of the highlight along the y axis based on layoutAlignment.
   const posY: number = getStartPosition(
-    layoutAlignment,
+    baseHighlight.alignment,
     layoutDimension.height,
   );
 
   return generateHighlights(
     baseHighlight,
     layoutDimension,
-    { ...layoutDimension, height: posY - HIGHLIGHT_SIZE / 2, top: 0 },
+    { ...layoutDimension, height: HIGHLIGHT_SIZE, top: posY },
     undefined,
     undefined,
     0,

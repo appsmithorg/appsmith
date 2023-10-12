@@ -10,7 +10,11 @@ import type {
   WidgetPositions,
 } from "../../anvilTypes";
 import { HIGHLIGHT_SIZE } from "../../constants";
-import { getFinalVerticalDropZone, getVerticalDropZone } from "./dropZoneUtils";
+import {
+  getFinalVerticalDropZone,
+  getInitialVerticalDropZone,
+  getVerticalDropZone,
+} from "./dropZoneUtils";
 import {
   getHighlightsForLayouts,
   getHighlightsForWidgets,
@@ -35,8 +39,13 @@ export function deriveAlignedColumnHighlights(
 ): AnvilHighlightInfo[] {
   if (!layoutProps || !widgetPositions) return [];
 
+  const { layoutStyle } = layoutProps;
+
   const baseHighlight: AnvilHighlightInfo = {
-    alignment: FlexLayerAlignment.Start,
+    alignment:
+      layoutStyle && layoutStyle["justifyContent"]
+        ? (layoutStyle["justifyContent"] as FlexLayerAlignment)
+        : FlexLayerAlignment.Start,
     canvasId,
     dropZone: {},
     height: HIGHLIGHT_SIZE,
@@ -68,7 +77,7 @@ export function deriveAlignedColumnHighlights(
   );
 }
 
-export function generateHighlights(
+function generateHighlights(
   baseHighlight: AnvilHighlightInfo,
   layoutDimension: PositionData,
   currentDimension: PositionData,
@@ -94,18 +103,23 @@ export function generateHighlights(
    * For hug widget => 3 highlights, one for each alignment. width / 3.
    */
   const width: number = (layoutDimension.width - HIGHLIGHT_SIZE) / arr.length;
+  const isInitialHighlight: boolean = rowIndex === 0;
   return arr.map((alignment: FlexLayerAlignment, index: number) => ({
     ...baseHighlight,
     alignment,
     dropZone: isLastHighlight
-      ? getFinalVerticalDropZone(currentDimension, layoutDimension)
+      ? isInitialHighlight
+        ? getInitialVerticalDropZone(currentDimension, layoutDimension)
+        : getFinalVerticalDropZone(currentDimension, layoutDimension)
       : getVerticalDropZone(currentDimension, prevDimension, nextDimension),
     posX: width * index,
     posY: isLastHighlight
-      ? Math.min(
-          currentDimension.top + currentDimension.height + HIGHLIGHT_SIZE / 2,
-          layoutDimension.height - HIGHLIGHT_SIZE / 2,
-        )
+      ? isInitialHighlight
+        ? currentDimension.top
+        : Math.min(
+            currentDimension.top + currentDimension.height + HIGHLIGHT_SIZE / 2,
+            layoutDimension.height - HIGHLIGHT_SIZE / 2,
+          )
       : Math.max(currentDimension.top - HIGHLIGHT_SIZE / 2, HIGHLIGHT_SIZE / 2),
     rowIndex: rowIndex,
     width,

@@ -14,7 +14,6 @@ import {
   deriveRowHighlights,
   extractMetaInformation,
   getHighlightsForRow,
-  getInitialHighlight,
   type RowMetaInformation,
 } from "./rowHighlights";
 import {
@@ -324,19 +323,7 @@ describe("rowHighlights tests", () => {
       expect(highlights[4].posY).toBeLessThan(highlights[0].posY);
     });
   });
-  describe("getInitialHighlight", () => {
-    const baseHighlight: AnvilHighlightInfo = {
-      alignment: FlexLayerAlignment.Start,
-      canvasId: "0",
-      dropZone: {},
-      height: 0,
-      isVertical: true,
-      layoutOrder: [],
-      posX: HIGHLIGHT_SIZE / 2,
-      posY: 0,
-      rowIndex: 0,
-      width: HIGHLIGHT_SIZE,
-    };
+  describe("initial highlights", () => {
     it("should derive highlights for empty drop target layouts", () => {
       const layout: LayoutComponentProps = generateLayoutComponentMock({
         isDropTarget: true,
@@ -345,18 +332,20 @@ describe("rowHighlights tests", () => {
       const positions: WidgetPositions = {
         [layout.layoutId]: { height: 100, left: 10, top: 10, width: 500 },
       };
-      const res: AnvilHighlightInfo | undefined = getInitialHighlight(
+      const res: AnvilHighlightInfo[] = deriveRowHighlights(
         layout,
         positions,
-        baseHighlight,
+        "0",
+        [],
+        [],
       );
-      expect(res).toBeDefined();
-      expect(res?.posY).toEqual(positions[layout.layoutId].top);
-      expect(res?.alignment).toEqual(FlexLayerAlignment.Start);
-      expect(res?.posX).toEqual(HIGHLIGHT_SIZE / 2);
-      expect(res?.height).toEqual(positions[layout.layoutId].height);
-      expect(res?.width).toEqual(HIGHLIGHT_SIZE);
-      expect(res?.dropZone?.right).toEqual(
+
+      expect(res[0].posY).toEqual(positions[layout.layoutId].top);
+      expect(res[0].alignment).toEqual(FlexLayerAlignment.Start);
+      expect(res[0].posX).toEqual(HIGHLIGHT_SIZE / 2);
+      expect(res[0].height).toEqual(positions[layout.layoutId].height);
+      expect(res[0].width).toEqual(HIGHLIGHT_SIZE);
+      expect(res[0].dropZone?.right).toEqual(
         positions[layout.layoutId].width - HIGHLIGHT_SIZE / 2,
       );
     });
@@ -371,20 +360,23 @@ describe("rowHighlights tests", () => {
       const positions: WidgetPositions = {
         [layout.layoutId]: { height: 100, left: 10, top: 10, width: 500 },
       };
-      const res: AnvilHighlightInfo | undefined = getInitialHighlight(
+      const res: AnvilHighlightInfo[] = deriveRowHighlights(
         layout,
         positions,
-        baseHighlight,
+        "0",
+        [],
+        [],
       );
+
       const posX: number =
         (positions[layout.layoutId].width - HIGHLIGHT_SIZE) / 2;
-      expect(res).toBeDefined();
-      expect(res?.posY).toEqual(positions[layout.layoutId].top);
-      expect(res?.alignment).toEqual(FlexLayerAlignment.Center);
-      expect(res?.posX).toEqual(posX);
-      expect(res?.height).toEqual(positions[layout.layoutId].height);
-      expect(res?.width).toEqual(HIGHLIGHT_SIZE);
-      expect(res?.dropZone?.right).toEqual(
+
+      expect(res[0].posY).toEqual(positions[layout.layoutId].top);
+      expect(res[0].alignment).toEqual(FlexLayerAlignment.Center);
+      expect(res[0].posX).toEqual(posX);
+      expect(res[0].height).toEqual(positions[layout.layoutId].height);
+      expect(res[0].width).toEqual(HIGHLIGHT_SIZE);
+      expect(res[0].dropZone?.right).toEqual(
         positions[layout.layoutId].width - posX,
       );
     });
@@ -399,23 +391,25 @@ describe("rowHighlights tests", () => {
       const positions: WidgetPositions = {
         [layout.layoutId]: { height: 100, left: 10, top: 10, width: 500 },
       };
-      const res: AnvilHighlightInfo | undefined = getInitialHighlight(
+      const res: AnvilHighlightInfo[] = deriveRowHighlights(
         layout,
         positions,
-        baseHighlight,
+        "0",
+        [],
+        [],
       );
       const posX: number =
         positions[layout.layoutId].width - HIGHLIGHT_SIZE / 2;
       expect(res).toBeDefined();
-      expect(res?.posY).toEqual(positions[layout.layoutId].top);
-      expect(res?.alignment).toEqual(FlexLayerAlignment.End);
-      expect(res?.posX).toEqual(posX);
-      expect(res?.height).toEqual(positions[layout.layoutId].height);
-      expect(res?.width).toEqual(HIGHLIGHT_SIZE);
-      expect(res?.dropZone?.right).toEqual(
+      expect(res[0].posY).toEqual(positions[layout.layoutId].top);
+      expect(res[0].alignment).toEqual(FlexLayerAlignment.End);
+      expect(res[0].posX).toEqual(posX);
+      expect(res[0].height).toEqual(positions[layout.layoutId].height);
+      expect(res[0].width).toEqual(HIGHLIGHT_SIZE);
+      expect(res[0].dropZone?.right).toEqual(
         positions[layout.layoutId].width - posX,
       );
-      expect(res?.dropZone?.left).toEqual(posX);
+      expect(res[0].dropZone?.left).toEqual(posX);
     });
   });
   describe("getHighlightsForLayoutRow", () => {
@@ -484,6 +478,7 @@ describe("rowHighlights tests", () => {
         [],
         [],
       );
+
       /**
        * Algorithm with calculate highlights for each child Row layout and combine them together.
        * Each row has 2 widgets => 3 highlights each.
@@ -512,7 +507,7 @@ describe("rowHighlights tests", () => {
       const positions: WidgetPositions = {
         [layout.layoutId]: { height: 100, left: 10, top: 10, width: 500 },
         [button1]: { height: 40, left: 10, top: 10, width: 100 },
-        [input1]: { height: 100, left: 120, top: 10, width: 470 },
+        [input1]: { height: 100, left: 120, top: 10, width: 370 },
       };
 
       /**
@@ -540,8 +535,8 @@ describe("rowHighlights tests", () => {
         positions[button1].left + positions[button1].width,
       );
       // Second highlight should be placed after input widget
-      expect(res[1].posX).toBeGreaterThan(
-        positions[input1].left + positions[input1].width,
+      expect(res[1].posX).toEqual(
+        positions[input1].left + positions[input1].width + HIGHLIGHT_SIZE / 2,
       );
     });
   });

@@ -37,8 +37,8 @@ export function getVerticalDropZone(
  * 1. Drop zone above the horizontal highlight (top) spans half the space between the highlight and the previous one.
  * 2. Drop zone below the horizontal highlight (bottom) spans half the space between current child entity the parent layout's bottom.
  * @param currentDimensions | PositionData
- * @param prevDimensions | PositionData | undefined
- * @param nextDimensions | PositionData | undefined
+ * @param layoutDimensions | PositionData
+ * @param rowIndex | number : index of child in this position
  * @returns DropZone
  */
 export function getFinalVerticalDropZone(
@@ -49,6 +49,22 @@ export function getFinalVerticalDropZone(
   return {
     top: (height + HIGHLIGHT_SIZE / 2) * VERTICAL_DROP_ZONE_MULTIPLIER,
     bottom: layoutDimensions.height - (top + height),
+  };
+}
+
+/**
+ * Drop zone for an initial highlight in an empty layout.
+ * @param currentDimensions | PositionData
+ * @param layoutDimensions | PositionData
+ * @returns DropZone
+ */
+export function getInitialVerticalDropZone(
+  currentDimensions: PositionData,
+  layoutDimensions: PositionData,
+): DropZone {
+  return {
+    top: currentDimensions.top,
+    bottom: layoutDimensions.height - currentDimensions.top,
   };
 }
 
@@ -88,8 +104,7 @@ export function getHorizontalDropZone(
  * 1. Drop zone before the vertical highlight (left) spans half the space between the highlight and the previous one.
  * 2. Drop zone after the vertical highlight (right) spans half the space between current child entity the parent layout's right edge.
  * @param currentDimensions | PositionData
- * @param prevDimensions | PositionData | undefined
- * @param nextDimensions | PositionData | undefined
+ * @param layoutDimensions | PositionData
  * @returns DropZone
  */
 export function getFinalHorizontalDropZone(
@@ -100,5 +115,20 @@ export function getFinalHorizontalDropZone(
   return {
     left: (width + HIGHLIGHT_SIZE / 2) * HORIZONTAL_DROP_ZONE_MULTIPLIER,
     right: layoutDimensions.width - (left + width),
+  };
+}
+
+/**
+ * @param currentDimensions | PositionData
+ * @param layoutDimensions | PositionData
+ * @returns DropZone
+ */
+export function getInitialHorizontalDropZone(
+  currentDimensions: PositionData,
+  layoutDimensions: PositionData,
+): DropZone {
+  return {
+    left: currentDimensions.left,
+    right: layoutDimensions.width - currentDimensions.left,
   };
 }
