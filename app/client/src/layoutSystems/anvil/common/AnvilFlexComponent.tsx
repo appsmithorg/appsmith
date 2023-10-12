@@ -27,6 +27,7 @@ import {
 import WidgetFactory from "WidgetProvider/factory";
 import type { WidgetProps } from "widgets/BaseWidget";
 import type { WidgetConfigProps } from "WidgetProvider/constants";
+import { usePositionObserver } from "layoutSystems/common/utils/WidgetPositionsObserver/usePositionObserver";
 
 /**
  * Adds following functionalities to the widget:
@@ -41,13 +42,17 @@ import type { WidgetConfigProps } from "WidgetProvider/constants";
  * @returns Widget
  */
 
-export const AnvilFlexComponent = (props: AnvilFlexComponentProps) => {
+export function AnvilFlexComponent(props: AnvilFlexComponentProps) {
   const isDropTarget = checkIsDropTarget(props.widgetType);
   const isFocused = useSelector(isCurrentWidgetFocused(props.widgetId));
   const isResizing = useSelector(getIsResizing);
   const isSelected = useSelector(isWidgetSelected(props.widgetId));
   const isSnipingMode = useSelector(snipingModeSelector);
   const isCurrentWidgetResizing = isResizing && isSelected;
+
+  // Add observer to Flex component
+  const ref = React.useRef<HTMLDivElement>(null);
+  usePositionObserver("widget", { widgetId: props.widgetId }, ref);
 
   const [isFillWidget, setIsFillWidget] = useState<boolean>(false);
   const [verticalAlignment, setVerticalAlignment] =
@@ -154,7 +159,7 @@ export const AnvilFlexComponent = (props: AnvilFlexComponentProps) => {
   }, [onHoverZIndex]);
 
   return (
-    <Flex {...flexProps} className={className} style={styleProps}>
+    <Flex {...flexProps} className={className} ref={ref} style={styleProps}>
       <div
         className="w-full h-full"
         onClick={stopEventPropagation}
@@ -164,4 +169,4 @@ export const AnvilFlexComponent = (props: AnvilFlexComponentProps) => {
       </div>
     </Flex>
   );
-};
+}
