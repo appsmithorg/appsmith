@@ -1,4 +1,5 @@
 import type { DSLWidget } from "WidgetProvider/constants";
+import { generateReactKey } from "utils/generators";
 
 /**
  * This function transforms a page's DSL to become compatible with the Anvil Layout system
@@ -14,7 +15,7 @@ export function anvilDSLTransformer(dsl: DSLWidget) {
   if (!dsl.hasOwnProperty("layout")) {
     _dsl.layout = [
       {
-        layoutId: "",
+        layoutId: generateReactKey(),
         layoutType: "ALIGNED_COLUMN",
         layout: [],
         isDropTarget: true,
