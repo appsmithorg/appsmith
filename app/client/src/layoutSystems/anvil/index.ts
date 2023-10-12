@@ -21,7 +21,7 @@ export const getAnvilDimensionsConfig = (
   props: BaseWidgetProps,
 ): {
   autoDimension: AutoDimensionOptions | undefined;
-  widgetSize: { [key: string]: Record<string, string | number> };
+  widgetSize: { [key: string]: Record<string, string> };
 } => {
   const config: AutoLayoutConfig = getAutoLayoutWidgetConfig(props);
   return {
