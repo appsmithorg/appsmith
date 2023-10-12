@@ -17,7 +17,7 @@ import { PluginPackageName, PluginType } from "entities/Action";
 import { getQueryParams } from "utils/URLUtils";
 import { getGenerateCRUDEnabledPluginMap } from "@appsmith/selectors/entitiesSelector";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
-import { curlImportPageURL } from "RouteBuilder";
+import { curlImportPageURL } from "@appsmith/RouteBuilder";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { Spinner } from "design-system";
 
