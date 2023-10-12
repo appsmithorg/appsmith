@@ -11,14 +11,13 @@ import {
   getCurrentApplicationId,
   getCurrentPageId,
 } from "selectors/editorSelectors";
-import Entity, { EntityClassNames } from "../Entity";
+import { EntityClassNames } from "../Entity";
 import history, { NavigationMethod } from "utils/history";
 import { createNewPageFromEntities, updatePage } from "actions/pageActions";
 import { defaultPageIcon, pageIcon } from "../ExplorerIcons";
 import { ADD_PAGE_TOOLTIP, createMessage } from "@appsmith/constants/messages";
 import type { Page } from "@appsmith/constants/ReduxActionConstants";
 import { getNextEntityName } from "utils/AppsmithUtils";
-import styled from "styled-components";
 import PageContextMenu from "./PageContextMenu";
 import { resolveAsSpaceChar } from "utils/helpers";
 import { getExplorerPinned } from "selectors/explorerSelector";
@@ -29,9 +28,6 @@ import {
   getExplorerStatus,
   saveExplorerStatus,
 } from "@appsmith/pages/Editor/Explorer/helpers";
-import { tailwindLayers } from "constants/Layers";
-import type { CallbackResponseType } from "utils/hooks/useResize";
-import useResize, { DIRECTION } from "utils/hooks/useResize";
 import AddPageContextMenu from "./AddPageContextMenu";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useLocation } from "react-router";
@@ -45,45 +41,12 @@ import {
   getHasCreatePagePermission,
   getHasManagePagePermission,
 } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
-
-const ENTITY_HEIGHT = 36;
-const MIN_PAGES_HEIGHT = 60;
-
-const StyledEntity = styled(Entity)<{ pagesSize?: number }>`
-  &.pages {
-    & > div:not(.t--entity-item) > div > div {
-      max-height: 40vh;
-      min-height: ${(props) =>
-        props.pagesSize && props.pagesSize > MIN_PAGES_HEIGHT
-          ? MIN_PAGES_HEIGHT
-          : props.pagesSize}px;
-      height: ${(props) =>
-        props.pagesSize && props.pagesSize > 128 ? 128 : props.pagesSize}px;
-      overflow-y: auto;
-    }
-  }
-
-  &.page .${EntityClassNames.PRE_RIGHT_ICON} {
-    width: 20px;
-    right: 0;
-  }
-
-  &.page:hover {
-    & .${EntityClassNames.PRE_RIGHT_ICON} {
-      display: none;
-    }
-  }
-`;
-
-const RelativeContainer = styled.div`
-  position: relative;
-`;
-
-const ResizeHandler = styled.div`
-  &:hover {
-    background-color: var(--ads-v2-color-border);
-  }
-`;
+import {
+  ENTITY_HEIGHT,
+  RelativeContainer,
+  StyledEntity,
+} from "../Common/components";
+import { EntityExplorerResizeHandler } from "../Common/EntityExplorerResizeHandler";
 
 function Pages() {
   const applicationId = useSelector(getCurrentApplicationId);
@@ -96,16 +59,6 @@ function Pages() {
   const storedHeightKey = "pagesContainerHeight_" + applicationId;
   const storedHeight = localStorage.getItem(storedHeightKey);
   const location = useLocation();
-
-  const resizeAfterCallback = (data: CallbackResponseType) => {
-    localStorage.setItem(storedHeightKey, data.height.toString());
-  };
-
-  const { mouseDown, setMouseDown } = useResize(
-    pageResizeRef,
-    DIRECTION.vertical,
-    resizeAfterCallback,
-  );
 
   useEffect(() => {
     if ((isPagesOpen === null ? true : isPagesOpen) && pageResizeRef.current) {
@@ -229,11 +182,11 @@ function Pages() {
   );
 
   return (
-    <RelativeContainer>
+    <RelativeContainer className="border-b pb-1">
       <StyledEntity
         addButtonHelptext={createMessage(ADD_PAGE_TOOLTIP)}
         alwaysShowRightIcon
-        className="p-3 pb-0 group pages"
+        className="pb-0 group pages"
         collapseRef={pageResizeRef}
         customAddButton={
           <AddPageContextMenu
@@ -244,6 +197,7 @@ function Pages() {
           />
         }
         entityId="Pages"
+        entitySize={ENTITY_HEIGHT * pages.length}
         icon={""}
         isDefaultExpanded={
           isPagesOpen === null || isPagesOpen === undefined ? true : isPagesOpen
@@ -251,23 +205,16 @@ function Pages() {
         name="Pages"
         onClickPreRightIcon={onPin}
         onToggle={onPageToggle}
-        pagesSize={ENTITY_HEIGHT * pages.length}
         searchKeyword={""}
         showAddButton={canCreatePages}
         step={0}
       >
         {pageElements}
       </StyledEntity>
-      <div
-        className={`absolute -bottom-2 left-0 w-full h-2 group cursor-ns-resize ${tailwindLayers.resizer}`}
-        onMouseDown={() => setMouseDown(true)}
-      >
-        <ResizeHandler
-          className={`w-full h-1 bg-transparent hover:bg-transparent transform transition
-          ${mouseDown ? "" : ""}
-          `}
-        />
-      </div>
+      <EntityExplorerResizeHandler
+        resizeRef={pageResizeRef}
+        storedHeightKey={storedHeightKey}
+      />
     </RelativeContainer>
   );
 }
