@@ -184,4 +184,4 @@ class WidgetPositionsObserver {
   }
 }
 
-export const widgetPositionsObserver = new WidgetPositionsObserver();
+export const positionObserver = new WidgetPositionsObserver();
