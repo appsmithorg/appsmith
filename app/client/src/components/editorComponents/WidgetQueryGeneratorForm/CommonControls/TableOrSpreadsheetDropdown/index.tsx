@@ -51,6 +51,7 @@ function TableOrSpreadsheetDropdown() {
               onSelect(value, option);
             }
           }}
+          showSearch
           value={selected}
           virtual={false}
         >
