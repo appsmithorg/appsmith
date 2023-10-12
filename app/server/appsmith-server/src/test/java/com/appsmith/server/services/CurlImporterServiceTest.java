@@ -17,6 +17,8 @@ import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.solutions.ApplicationPermission;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -77,6 +79,9 @@ public class CurlImporterServiceTest {
 
     @Autowired
     ApplicationPermission applicationPermission;
+
+    @Autowired
+    SessionUserService sessionUserService;
 
     String workspaceId;
 
@@ -176,7 +181,13 @@ public class CurlImporterServiceTest {
         assertThat(action.getActionConfiguration().getBodyFormData()).containsExactly(params);
     }
 
+    @BeforeEach
     public void setup() {
+        User currentUser = sessionUserService.getCurrentUser().block();
+        if (null == currentUser) {
+            // Not doing any setup for tests, where the user context is missing.
+            return;
+        }
         Mockito.when(this.pluginManager.getExtensions(Mockito.any(), Mockito.anyString()))
                 .thenReturn(List.of(this.pluginExecutor));
 
@@ -190,7 +201,13 @@ public class CurlImporterServiceTest {
         workspaceId = workspace.getId();
     }
 
+    @AfterEach
     public void cleanup() {
+        User currentUser = sessionUserService.getCurrentUser().block();
+        if (null == currentUser) {
+            // Since, no setup was done if the user context is missing. Hence, no cleanup required.
+            return;
+        }
         List<Application> deletedApplications = applicationService
                 .findByWorkspaceId(workspaceId, applicationPermission.getDeletePermission())
                 .flatMap(remainingApplication -> applicationPageService.deleteApplication(remainingApplication.getId()))
@@ -296,7 +313,6 @@ public class CurlImporterServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testImportActionOnInvalidInput() {
-        setup();
         // Set up the application & page for which this import curl action would be added
         Application app = new Application();
         app.setName("curlTest Incorrect Command");
@@ -315,13 +331,11 @@ public class CurlImporterServiceTest {
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
                         && throwable.getMessage().equals(AppsmithError.INVALID_CURL_COMMAND.getMessage()))
                 .verify();
-        cleanup();
     }
 
     @Test
     @WithUserDetails(value = "api_user")
     public void testImportActionOnNullInput() {
-        setup();
         // Set up the application & page for which this import curl action would be added
         Application app = new Application();
         app.setName("curlTest Incorrect Command");
@@ -340,13 +354,11 @@ public class CurlImporterServiceTest {
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
                         && throwable.getMessage().equals(AppsmithError.EMPTY_CURL_INPUT_STATEMENT.getMessage()))
                 .verify();
-        cleanup();
     }
 
     @Test
     @WithUserDetails(value = "api_user")
     public void testImportActionOnEmptyInput() {
-        setup();
         // Set up the application & page for which this import curl action would be added
         Application app = new Application();
         app.setName("curlTest Incorrect Command");
@@ -365,13 +377,11 @@ public class CurlImporterServiceTest {
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
                         && throwable.getMessage().equals(AppsmithError.EMPTY_CURL_INPUT_STATEMENT.getMessage()))
                 .verify();
-        cleanup();
     }
 
     @Test
     @WithUserDetails(value = "api_user")
     public void importValidCurlCommand() {
-        setup();
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
         Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
@@ -507,7 +517,6 @@ public class CurlImporterServiceTest {
                             .isEqualTo(newPage.getDefaultResources().getApplicationId());
                 })
                 .verifyComplete();
-        cleanup();
     }
 
     @Test
