@@ -120,6 +120,7 @@ function Files() {
       className={`group files`}
       customAddButton={
         <ExplorerSubMenu
+          canCreateActions={canCreateActions}
           className={`${EntityClassNames.ADD_BUTTON} group files`}
           onMenuClose={onMenuClose}
           openMenu={isMenuOpen}

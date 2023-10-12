@@ -126,7 +126,7 @@ import {
 
 import WidgetFactory from "WidgetProvider/factory";
 import { toggleShowDeviationDialog } from "actions/onboardingActions";
-import { builderURL } from "RouteBuilder";
+import { builderURL } from "@appsmith/RouteBuilder";
 import { failFastApiCalls, waitForWidgetConfigBuild } from "./InitSagas";
 import { resizePublishedMainCanvasToLowestWidget } from "./WidgetOperationUtils";
 import { checkAndLogErrorsIfCyclicDependency } from "./helper";
