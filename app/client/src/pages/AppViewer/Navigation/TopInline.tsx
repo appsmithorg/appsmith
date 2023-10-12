@@ -21,10 +21,10 @@ import { throttle } from "lodash";
 // TODO - @Dhruvik - ImprovedAppNav
 // Replace with NavigationProps if nothing changes
 // appsmith/app/client/src/pages/AppViewer/Navigation/constants.ts
-type TopInlineProps = {
+interface TopInlineProps {
   currentApplicationDetails?: ApplicationPayload;
   pages: Page[];
-};
+}
 
 export function TopInline(props: TopInlineProps) {
   const { currentApplicationDetails, pages } = props;

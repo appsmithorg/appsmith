@@ -24,6 +24,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.reactive.ClientHttpRequest;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.reactive.function.BodyInserter;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
@@ -36,7 +37,6 @@ import reactor.netty.resources.ConnectionProvider;
 import javax.crypto.SecretKey;
 import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
@@ -96,7 +96,12 @@ public class RestAPIActivateUtils {
                             actionExecutionRequest, isBodySentWithApiRequest));
 
                     result.setStatusCode(statusCode.toString());
-                    result.setIsExecutionSuccess(statusCode.is2xxSuccessful());
+
+                    // if something has moved permanently should we mark it as an execution failure?
+                    // here marking a redirection as an execution success if the url has moved permanently without a
+                    // forwarding Location
+                    boolean isExecutionSuccess = statusCode.is2xxSuccessful() || statusCode.is3xxRedirection();
+                    result.setIsExecutionSuccess(isExecutionSuccess);
 
                     // Convert the headers into json tree to store in the results
                     String headerInJsonString;
@@ -191,19 +196,18 @@ public class RestAPIActivateUtils {
                 .exchange()
                 .flatMap(response -> {
                     if (response.statusCode().is3xxRedirection()) {
+                        // if there is no redirect location then we should just return the response
+                        if (CollectionUtils.isEmpty(response.headers().header(HttpHeaders.LOCATION))) {
+                            return Mono.just(response);
+                        }
+
                         String redirectUrl =
                                 response.headers().header("Location").get(0);
-                        /**
-                         * TODO
-                         * In case the redirected URL is not absolute (complete), create the new URL using the relative path
-                         * This particular scenario is seen in the URL : https://rickandmortyapi.com/api/character
-                         * It redirects to partial URI : /api/character/
-                         * In this scenario we should convert the partial URI to complete URI
-                         */
+
                         final URI redirectUri;
                         try {
-                            redirectUri = new URI(redirectUrl);
-                        } catch (URISyntaxException e) {
+                            redirectUri = createRedirectUrl(redirectUrl, uri);
+                        } catch (IllegalArgumentException e) {
                             return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e));
                         }
 
@@ -211,6 +215,10 @@ public class RestAPIActivateUtils {
                     }
                     return Mono.just(response);
                 });
+    }
+
+    public URI createRedirectUrl(String redirectUrl, URI originalUrl) {
+        return originalUrl.resolve(redirectUrl);
     }
 
     public WebClient getWebClient(

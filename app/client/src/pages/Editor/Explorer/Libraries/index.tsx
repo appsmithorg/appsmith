@@ -46,10 +46,13 @@ import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { getHasCreateActionPermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 
-const docsURLMap = recommendedLibraries.reduce((acc, lib) => {
-  acc[lib.url] = lib.docsURL;
-  return acc;
-}, {} as Record<string, string>);
+const docsURLMap = recommendedLibraries.reduce(
+  (acc, lib) => {
+    acc[lib.url] = lib.docsURL;
+    return acc;
+  },
+  {} as Record<string, string>,
+);
 
 const Library = styled.li`
   list-style: none;

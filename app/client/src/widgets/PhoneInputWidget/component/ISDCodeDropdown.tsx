@@ -10,10 +10,10 @@ import { Classes } from "@blueprintjs/core";
 import { lightenColor } from "widgets/WidgetUtils";
 import { CANVAS_ART_BOARD } from "constants/componentClassNameConstants";
 
-type DropdownTriggerIconWrapperProp = {
+interface DropdownTriggerIconWrapperProp {
   allowDialCodeChange: boolean;
   disabled?: boolean;
-};
+}
 
 const DropdownTriggerIconWrapper = styled.button<DropdownTriggerIconWrapperProp>`
   height: 100%;
@@ -124,8 +124,8 @@ export const PopoverStyles = createGlobalStyle<{
     }
 
     .${props.portalClassName}  .${Classes.INPUT}:focus, .${
-    props.portalClassName
-  }  .${Classes.INPUT}:active {
+      props.portalClassName
+    }  .${Classes.INPUT}:active {
       box-shadow: 0px 0px 0px 2px ${lightenColor(props.accentColor)} !important;
       border: 1px solid ${props.accentColor} !important;
     }

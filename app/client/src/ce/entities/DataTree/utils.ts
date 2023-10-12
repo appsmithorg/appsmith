@@ -15,13 +15,13 @@ import {
   isWidget,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
 
-type SetOverridingPropertyParams = {
+interface SetOverridingPropertyParams {
   key: string;
   value: string;
   propertyOverrideDependency: PropertyOverrideDependency;
   overridingPropertyPaths: OverridingPropertyPaths;
   type: OverridingPropertyType;
-};
+}
 
 export const setOverridingProperty = ({
   key: propertyName,

@@ -1,4 +1,4 @@
-export type AdditionalFixedLayoutProperties = {
+export interface AdditionalFixedLayoutProperties {
   parentRowSpace: number;
   parentColumnSpace: number;
-};
+}
