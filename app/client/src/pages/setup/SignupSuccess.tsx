@@ -52,8 +52,6 @@ export function SignupSuccess() {
     redirectUsingQueryParam();
   }, []);
 
-  const isCypressEnv = !!(window as any).Cypress;
-
   /*
    *  Proceed with redirection,
    *    For a super user, since we already collected role and useCase during signup
@@ -63,7 +61,6 @@ export function SignupSuccess() {
    */
   //TODO(Balaji): Factor in case, where user had closed the tab, while filling the form.And logs back in again.
   if (
-    !isCypressEnv ||
     user?.isSuperUser ||
     (user?.role && user?.useCase) ||
     shouldEnableFirstTimeUserOnboarding !== "true"
