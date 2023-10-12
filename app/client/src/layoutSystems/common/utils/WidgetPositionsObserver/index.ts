@@ -1,6 +1,6 @@
 import { debounce } from "lodash";
 import type { RefObject } from "react";
-import { ANVIL_LAYER, ANVIL_WIDGET, LAYOUT } from "./utils";
+import { ANVIL_LAYER, ANVIL_WIDGET, LAYOUT, getLayoutId } from "./utils";
 import store from "store";
 import { readWidgetPositions } from "layoutSystems/anvil/integrations/actions";
 
@@ -108,12 +108,15 @@ class WidgetPositionsObserver {
   //Method to register layouts for resize observer changes
   public observeLayout(
     layoutId: string,
-    ref: RefObject<HTMLDivElement>,
     canvasId: string,
-    id: string,
+    ref: RefObject<HTMLDivElement>,
   ) {
     if (ref?.current) {
-      this.registeredLayouts[layoutId] = { ref, canvasId, layoutId: id };
+      this.registeredLayouts[getLayoutId(canvasId, layoutId)] = {
+        ref,
+        canvasId,
+        layoutId,
+      };
       this.resizeObserver.observe(ref.current);
     }
   }
@@ -156,10 +159,9 @@ class WidgetPositionsObserver {
   }
 
   //This method is triggered from the resize observer to add layout to queue
-  private addLayoutToProcess(layoutId: string) {
-    if (this.registeredLayouts[layoutId]) {
-      const id = this.registeredLayouts[layoutId].layoutId;
-      this.layoutsProcessQueue[id] = true;
+  private addLayoutToProcess(layoutDOMId: string) {
+    if (this.registeredLayouts[layoutDOMId]) {
+      this.layoutsProcessQueue[layoutDOMId] = true;
       this.debouncedProcessBatch();
     }
   }

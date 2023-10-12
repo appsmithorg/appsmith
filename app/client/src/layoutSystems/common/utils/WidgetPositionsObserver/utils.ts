@@ -26,6 +26,10 @@ export const getAnvilLayerId = (canvasId: string, layerIndex: number) => {
  * @param layoutId
  * @returns
  */
-export const getLayoutId = (layoutId: string) => {
-  return LAYOUT + "_" + layoutId;
+export const getLayoutId = (canvasId: string, layoutId: string) => {
+  return LAYOUT + "_" + canvasId + "_" + layoutId;
+};
+
+export const extractLayoutIdFromLayoutDOMId = (layoutDOMId: string) => {
+  return layoutDOMId.split("_")[2];
 };

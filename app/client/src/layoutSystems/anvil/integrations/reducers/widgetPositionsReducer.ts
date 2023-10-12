@@ -17,11 +17,20 @@ const widgetPositionsReducer = createImmerReducer(initialState, {
     action: AnvilReduxAction<WidgetPositions>,
   ) => {
     const widgetPositions = action.payload;
+    console.log("#### WidgetPositionsReducerPayload", { widgetPositions });
 
     const widgetIds = Object.keys(widgetPositions);
 
     for (const widgetId of widgetIds) {
       const newPosition = widgetPositions[widgetId];
+      if (WidgetPositionState[widgetId] === undefined) {
+        WidgetPositionState[widgetId] = {
+          height: 0,
+          width: 0,
+          left: 0,
+          top: 0,
+        };
+      }
       WidgetPositionState[widgetId].height = newPosition.height;
       WidgetPositionState[widgetId].width = newPosition.width;
       WidgetPositionState[widgetId].left = newPosition.left;

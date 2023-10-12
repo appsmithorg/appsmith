@@ -6,8 +6,6 @@ import type {
   AnvilHighlightInfo,
   DraggedWidget,
   LayoutProps,
-  PositionData,
-  WidgetPositions,
 } from "../../anvilTypes";
 import { HIGHLIGHT_SIZE } from "../../constants";
 import {
@@ -21,6 +19,10 @@ import {
   getInitialHighlights,
 } from "./horizontalHighlights";
 import { deriveHighlights } from "./highlightUtils";
+import type {
+  WidgetPosition,
+  WidgetPositions,
+} from "layoutSystems/common/types";
 
 /**
  * @param layoutProps | LayoutProps
@@ -79,10 +81,10 @@ export function deriveAlignedColumnHighlights(
 
 function generateHighlights(
   baseHighlight: AnvilHighlightInfo,
-  layoutDimension: PositionData,
-  currentDimension: PositionData,
-  prevDimension: PositionData | undefined,
-  nextDimension: PositionData | undefined,
+  layoutDimension: WidgetPosition,
+  currentDimension: WidgetPosition,
+  prevDimension: WidgetPosition | undefined,
+  nextDimension: WidgetPosition | undefined,
   rowIndex: number,
   isLastHighlight: boolean,
   hasFillWidget = false,

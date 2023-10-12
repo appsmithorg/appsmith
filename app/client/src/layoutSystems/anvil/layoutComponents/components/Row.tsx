@@ -4,7 +4,6 @@ import {
   type LayoutComponentProps,
   type LayoutProps,
   type WidgetLayoutProps,
-  type WidgetPositions,
   type DraggedWidget,
 } from "layoutSystems/anvil/utils/anvilTypes";
 import React from "react";
@@ -18,6 +17,7 @@ import {
   removeChildFromLayout,
 } from "layoutSystems/anvil/utils/layouts/layoutUtils";
 import { deriveRowHighlights } from "layoutSystems/anvil/utils/layouts/highlights/rowHighlights";
+import type { WidgetPositions } from "layoutSystems/common/types";
 
 const Row = (props: LayoutComponentProps) => {
   const { canvasId, children, layoutId, layoutStyle } = props;

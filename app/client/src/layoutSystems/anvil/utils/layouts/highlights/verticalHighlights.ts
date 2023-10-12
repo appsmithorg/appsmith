@@ -2,11 +2,13 @@ import type {
   AnvilHighlightInfo,
   GenerateHighlights,
   LayoutProps,
-  PositionData,
-  WidgetPositions,
 } from "../../anvilTypes";
 import { getStartPosition } from "./highlightUtils";
 import { HIGHLIGHT_SIZE } from "../../constants";
+import type {
+  WidgetPosition,
+  WidgetPositions,
+} from "layoutSystems/common/types";
 
 /**
  * @param layoutProps | LayoutProps : properties of parent layout.
@@ -25,7 +27,7 @@ export function getInitialHighlights(
 ): AnvilHighlightInfo[] {
   const { layoutId } = layoutProps;
 
-  const layoutDimension: PositionData = widgetPositions[layoutId];
+  const layoutDimension: WidgetPosition = widgetPositions[layoutId];
 
   const posX: number = getStartPosition(
     baseHighlight.alignment,

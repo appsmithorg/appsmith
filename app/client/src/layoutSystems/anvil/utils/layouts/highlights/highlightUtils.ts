@@ -8,10 +8,10 @@ import type {
   GetWidgetHighlights,
   LayoutComponent,
   LayoutProps,
-  WidgetPositions,
 } from "../../anvilTypes";
 import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
 import { HIGHLIGHT_SIZE } from "../../constants";
+import type { WidgetPositions } from "layoutSystems/common/types";
 
 /**
  * @param layoutProps | LayoutProps : properties of parent layout.

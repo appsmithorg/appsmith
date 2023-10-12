@@ -37,6 +37,8 @@ export function LayoutComponentHOC(Component: LayoutComponent) {
         draggedWidgets,
       );
     };
+
+    console.log("###", { isDropTarget, renderMode });
     // TODO: Remove hardcoded props by creating new dragging arena for anvil.
     return (
       <Component {...props}>

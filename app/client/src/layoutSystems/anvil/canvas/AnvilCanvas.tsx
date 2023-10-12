@@ -12,6 +12,7 @@ export const AnvilCanvas = (props: BaseWidgetProps) => {
   props.children.forEach((child: WidgetProps) => {
     map[child.widgetId] = child;
   });
+  console.log("###", { props });
   const style = {
     minHeight: props.minHeight + "px",
   };

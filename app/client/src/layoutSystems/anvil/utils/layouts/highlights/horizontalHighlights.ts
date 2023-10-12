@@ -5,12 +5,14 @@ import type {
   GenerateHighlights,
   LayoutComponent,
   LayoutProps,
-  PositionData,
   WidgetLayoutProps,
-  WidgetPositions,
 } from "../../anvilTypes";
 import { getStartPosition } from "./highlightUtils";
 import { HIGHLIGHT_SIZE } from "../../constants";
+import type {
+  WidgetPosition,
+  WidgetPositions,
+} from "layoutSystems/common/types";
 
 /**
  *
@@ -36,7 +38,8 @@ export function getHighlightsForWidgets(
   const layout: WidgetLayoutProps[] = layoutProps.layout as WidgetLayoutProps[];
 
   // Parent layout dimensions
-  const layoutDimensions: PositionData = widgetPositions[layoutProps.layoutId];
+  const layoutDimensions: WidgetPosition =
+    widgetPositions[layoutProps.layoutId];
 
   let index = 0;
   let draggedChildCount = 0;
@@ -51,14 +54,14 @@ export function getHighlightsForWidgets(
     );
 
     // Dimensions of current child widget.
-    const currentWidgetDimension: PositionData = widgetPositions[widgetId];
+    const currentWidgetDimension: WidgetPosition = widgetPositions[widgetId];
 
     // Dimensions of neighboring widgets
-    const nextWidgetDimension: PositionData | undefined =
+    const nextWidgetDimension: WidgetPosition | undefined =
       index === layout.length - 1
         ? undefined
         : widgetPositions[layout[index + 1]?.widgetId];
-    const previousWidgetDimension: PositionData | undefined =
+    const previousWidgetDimension: WidgetPosition | undefined =
       index === 0 ? undefined : widgetPositions[layout[index - 1]?.widgetId];
 
     // If the widget is dragged, don't add a highlight for it.
@@ -126,7 +129,7 @@ export function getHighlightsForLayouts(
   // Extract list of child layouts.
   const layouts: LayoutProps[] = layoutProps.layout as LayoutProps[];
   // Dimensions of parent layout.
-  const layoutDimension: PositionData = widgetPositions[layoutProps.layoutId];
+  const layoutDimension: WidgetPosition = widgetPositions[layoutProps.layoutId];
 
   let index = 0;
 
@@ -136,12 +139,12 @@ export function getHighlightsForLayouts(
     const { isDropTarget, layoutId, layoutType } = layouts[index];
 
     // Dimensions of current child layout.
-    const currentDimension: PositionData = widgetPositions[layoutId];
+    const currentDimension: WidgetPosition = widgetPositions[layoutId];
 
     // Dimensions of neighboring layouts
-    const prevLayoutDimensions: PositionData | undefined =
+    const prevLayoutDimensions: WidgetPosition | undefined =
       index === 0 ? undefined : widgetPositions[layouts[index - 1]?.layoutId];
-    const nextLayoutDimensions: PositionData | undefined =
+    const nextLayoutDimensions: WidgetPosition | undefined =
       index === layouts.length - 1
         ? undefined
         : widgetPositions[layouts[index + 1]?.layoutId];
@@ -218,7 +221,7 @@ export function getInitialHighlights(
   hasFillWidget = false,
 ): AnvilHighlightInfo[] {
   const { layoutId } = layoutProps;
-  const layoutDimension: PositionData = widgetPositions[layoutId];
+  const layoutDimension: WidgetPosition = widgetPositions[layoutId];
 
   // Get start position of the highlight along the y axis based on layoutAlignment.
   const posY: number = getStartPosition(

@@ -28,6 +28,7 @@ import WidgetFactory from "WidgetProvider/factory";
 import type { WidgetProps } from "widgets/BaseWidget";
 import type { WidgetConfigProps } from "WidgetProvider/constants";
 import { usePositionObserver } from "layoutSystems/common/utils/WidgetPositionsObserver/usePositionObserver";
+import { getAnvilWidgetId } from "layoutSystems/common/utils/WidgetPositionsObserver/utils";
 
 /**
  * Adds following functionalities to the widget:
@@ -159,7 +160,13 @@ export function AnvilFlexComponent(props: AnvilFlexComponentProps) {
   }, [onHoverZIndex]);
 
   return (
-    <Flex {...flexProps} className={className} ref={ref} style={styleProps}>
+    <Flex
+      {...flexProps}
+      className={className}
+      id={getAnvilWidgetId(props.widgetId)}
+      ref={ref}
+      style={styleProps}
+    >
       <div
         className="w-full h-full"
         onClick={stopEventPropagation}

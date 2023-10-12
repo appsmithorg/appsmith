@@ -8,21 +8,21 @@ import type {
 import {
   addChildToLayout,
   extractWidgetIdsFromLayoutProps,
-  generateLayoutId,
   removeChildFromLayout,
 } from "./layoutUtils";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import { mockAnvilHighlightInfo } from "mocks/mockHighlightInfo";
 import { mockButtonProps } from "mocks/widgetProps/button";
 import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
+import { getLayoutId } from "layoutSystems/common/utils/WidgetPositionsObserver/utils";
 
 describe("layoutUtils tests", () => {
-  describe("generateLayoutId", () => {
+  describe("getLayoutId", () => {
     it("should generate layout identifier using canvasId and layoutId", () => {
       const canvasId = "canvasId";
       const layoutId = "layoutId";
-      const expectedLayoutId = `layout-${canvasId}-${layoutId}`;
-      expect(generateLayoutId(canvasId, layoutId)).toBe(expectedLayoutId);
+      const expectedLayoutId = `LAYOUT_${canvasId}_${layoutId}`;
+      expect(getLayoutId(canvasId, layoutId)).toBe(expectedLayoutId);
     });
   });
   describe("addChildToLayout", () => {

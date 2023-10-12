@@ -44,7 +44,11 @@ export function usePositionObserver(
           );
           break;
         case "layout":
-          // TODO: Implement layout observer
+          if (ids.layoutId === undefined)
+            throw Error("Failed to observe layout: layoutId is undefined");
+          if (ids.canvasId === undefined)
+            throw Error("Failed to observe layout: canvasId is undefined");
+          positionObserver.observeLayout(ids.layoutId, ids.canvasId, ref);
           break;
       }
     }

@@ -17,10 +17,6 @@ export function registerLayoutComponents() {
   LayoutFactory.initialize(layoutComponents);
 }
 
-export function generateLayoutId(canvasId: string, layoutId: string): string {
-  return `layout-${canvasId}-${layoutId}`;
-}
-
 /**
  * Update a layout component by adding supplied list of widgets / layouts to it.
  * @param props | LayoutProps - Parent Layout.
