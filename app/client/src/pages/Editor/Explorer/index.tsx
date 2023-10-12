@@ -5,7 +5,7 @@ import { SegmentedControl } from "design-system";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router";
 import type { AppState } from "@appsmith/reducers";
-import { builderURL } from "RouteBuilder";
+import { builderURL } from "@appsmith/RouteBuilder";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";

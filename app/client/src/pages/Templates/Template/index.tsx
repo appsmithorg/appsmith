@@ -10,7 +10,7 @@ import {
   createMessage,
   FORK_THIS_TEMPLATE,
 } from "@appsmith/constants/messages";
-import { templateIdUrl } from "RouteBuilder";
+import { templateIdUrl } from "@appsmith/RouteBuilder";
 import { Position } from "@blueprintjs/core";
 
 const TemplateWrapper = styled.div`
