@@ -8,6 +8,7 @@ import { evalTreeWithChanges } from "./evalTreeWithChanges";
 import { dataTreeEvaluator } from "./handlers/evalTree";
 import { get, set } from "lodash";
 import { validate } from "./validations";
+import type { DataTreeEntityConfig } from "@appsmith/entities/DataTree/types";
 import type {
   DataTreeEntityConfig,
   WidgetEntity,

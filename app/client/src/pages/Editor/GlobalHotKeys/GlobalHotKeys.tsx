@@ -50,7 +50,7 @@ import { showDebuggerFlag } from "selectors/debuggerSelectors";
 import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
 import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
 
-type Props = {
+interface Props {
   copySelectedWidget: () => void;
   pasteCopiedWidget: (mouseLocation: { x: number; y: number }) => void;
   deleteSelectedWidget: () => void;
@@ -79,7 +79,7 @@ type Props = {
   showCommitModal: () => void;
   getMousePosition: () => { x: number; y: number };
   hideInstaller: () => void;
-};
+}
 
 @HotkeysTarget
 class GlobalHotKeys extends React.Component<Props> {

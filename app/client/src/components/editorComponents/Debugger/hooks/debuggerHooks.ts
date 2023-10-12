@@ -21,7 +21,7 @@ import {
   isWidget,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
 import history, { NavigationMethod } from "utils/history";
-import { jsCollectionIdURL } from "RouteBuilder";
+import { jsCollectionIdURL } from "@appsmith/RouteBuilder";
 import store from "store";
 import { PluginType } from "entities/Action";
 import type { WidgetEntity } from "@appsmith/entities/DataTree/types";

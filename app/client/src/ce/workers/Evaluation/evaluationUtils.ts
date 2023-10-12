@@ -47,13 +47,13 @@ export enum DataTreeDiffEvent {
   NOOP = "NOOP", // No Operation (don’t do anything)
 }
 
-export type DataTreeDiff = {
+export interface DataTreeDiff {
   payload: {
     propertyPath: string;
     value?: string;
   };
   event: DataTreeDiffEvent;
-};
+}
 
 export class CrashingError extends Error {}
 

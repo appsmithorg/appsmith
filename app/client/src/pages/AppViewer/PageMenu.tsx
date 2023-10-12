@@ -14,7 +14,7 @@ import { getAppViewHeaderHeight } from "selectors/appViewSelectors";
 import { useOnClickOutside } from "utils/hooks/useOnClickOutside";
 import { useHref } from "pages/Editor/utils";
 import { APP_MODE } from "entities/App";
-import { builderURL, viewerURL } from "RouteBuilder";
+import { builderURL, viewerURL } from "@appsmith/RouteBuilder";
 import { trimQueryString } from "utils/helpers";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import type { NavigationSetting } from "constants/AppConstants";
@@ -25,14 +25,14 @@ import { StyledCtaContainer } from "./Navigation/Sidebar.styled";
 import ShareButton from "./Navigation/components/ShareButton";
 import BackToAppsButton from "./Navigation/components/BackToAppsButton";
 
-type NavigationProps = {
+interface NavigationProps {
   isOpen?: boolean;
   application?: ApplicationPayload;
   pages: Page[];
   url?: string;
   setMenuOpen?: (shouldOpen: boolean) => void;
   headerRef?: React.RefObject<HTMLDivElement>;
-};
+}
 
 export function PageMenu(props: NavigationProps) {
   const { application, headerRef, isOpen, pages, setMenuOpen } = props;

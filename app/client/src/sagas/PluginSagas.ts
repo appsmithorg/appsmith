@@ -214,7 +214,10 @@ export function* checkAndGetPluginFormConfigsSaga(pluginId: string) {
   }
 }
 
-type GetPluginFormConfigParams = { id: string; type: string };
+interface GetPluginFormConfigParams {
+  id: string;
+  type: string;
+}
 
 function* getPluginFormConfig({ id }: GetPluginFormConfigParams) {
   yield call(checkAndGetPluginFormConfigsSaga, id);

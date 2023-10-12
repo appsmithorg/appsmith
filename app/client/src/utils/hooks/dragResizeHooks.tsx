@@ -109,11 +109,11 @@ export const useWidgetDragResize = () => {
     ),
     setDraggingState: useCallback(
       ({
-        isDragging,
-        dragGroupActualParent = "",
-        draggingGroupCenter = {},
-        startPoints,
         draggedOn,
+        draggingGroupCenter = {},
+        dragGroupActualParent = "",
+        isDragging,
+        startPoints,
       }: {
         isDragging: boolean;
         dragGroupActualParent?: string;

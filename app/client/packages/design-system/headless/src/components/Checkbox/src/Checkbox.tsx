@@ -15,9 +15,9 @@ import { SubtractIcon } from "./icons/SubtractIcon";
 import { Icon as HeadlessIcon } from "../../Icon";
 import type { CheckboxGroupContextType } from "./context";
 
-export type InlineLabelProps = {
+export interface InlineLabelProps {
   labelPosition?: "left" | "right";
-};
+}
 
 export interface CheckboxProps
   extends Omit<SpectrumCheckboxProps, keyof StyleProps>,
@@ -36,8 +36,8 @@ const _Checkbox = (props: CheckboxProps, ref: CheckboxRef) => {
     icon: Icon = CheckIcon,
     isDisabled: isDisabledProp = false,
     isIndeterminate = false,
-    validationState,
     labelPosition = "right",
+    validationState,
   } = props;
   const state = useToggleState(props);
   const inputRef = useRef<HTMLInputElement>(null);

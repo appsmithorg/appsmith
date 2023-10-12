@@ -4,7 +4,6 @@ import postcssNesting from "postcss-nesting";
 import postcssImport from "postcss-import";
 import postcssAtRulesVariables from "postcss-at-rules-variables";
 import postcssConditionals from "postcss-conditionals";
-import postcssFor from "postcss-for";
 import postcssEach from "postcss-each";
 import postcssModulesValues from "postcss-modules-values";
 import * as glob from "glob";
@@ -34,7 +33,6 @@ module.exports = {
             postcssImport,
             postcssAtRulesVariables,
             postcssConditionals,
-            postcssFor,
             postcssEach,
             postcssModulesValues,
           ],

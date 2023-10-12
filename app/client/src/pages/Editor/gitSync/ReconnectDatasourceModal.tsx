@@ -52,7 +52,7 @@ import {
   getOAuthAccessToken,
   loadFilePickerAction,
 } from "actions/datasourceActions";
-import { builderURL } from "RouteBuilder";
+import { builderURL } from "@appsmith/RouteBuilder";
 import localStorage from "utils/localStorage";
 import {
   Modal,

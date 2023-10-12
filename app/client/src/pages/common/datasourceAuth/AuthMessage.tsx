@@ -30,7 +30,7 @@ const StyledAuthMessage = styled.div<{ isInViewMode: boolean }>`
     `margin-top: var(--ads-v2-spaces-5);margin-bottom: var(--ads-v2-spaces-4);`}
 `;
 
-type AuthMessageProps = {
+interface AuthMessageProps {
   // We can handle for other action types as well eg. save, delete etc.
   actionType?: string;
   datasource: Datasource;
@@ -39,7 +39,7 @@ type AuthMessageProps = {
   style?: any;
   calloutType?: CalloutKind;
   isInViewMode?: boolean;
-};
+}
 
 export default function AuthMessage(props: AuthMessageProps) {
   const {
@@ -47,9 +47,9 @@ export default function AuthMessage(props: AuthMessageProps) {
     calloutType = "error",
     datasource,
     description,
+    isInViewMode = false,
     pageId,
     style = {},
-    isInViewMode = false,
   } = props;
   const dispatch = useDispatch();
   const pluginType = useSelector((state: AppState) =>

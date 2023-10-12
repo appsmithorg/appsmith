@@ -13,7 +13,7 @@ import {
   generateTemplateFormURL,
   saasEditorApiIdURL,
   saasEditorDatasourceIdURL,
-} from "RouteBuilder";
+} from "@appsmith/RouteBuilder";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import type { CreateDatasourceSuccessAction } from "actions/datasourceActions";
 import { getQueryParams } from "utils/URLUtils";

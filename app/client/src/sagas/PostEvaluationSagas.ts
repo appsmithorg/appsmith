@@ -4,6 +4,7 @@ import {
   PLATFORM_ERROR,
   Severity,
 } from "entities/AppsmithConsole";
+import type { WidgetEntityConfig } from "@appsmith/entities/DataTree/types";
 import type {
   ActionEntity,
   JSActionEntity,
@@ -230,9 +231,8 @@ export function* evalErrorHandler(
   removedPaths?: Array<{ entityId: string; fullpath: string }>,
 ) {
   if (dataTree && evaluationOrder && configTree && reValidatedPaths) {
-    const currentDebuggerErrors: Record<string, Log> = yield select(
-      getDebuggerErrors,
-    );
+    const currentDebuggerErrors: Record<string, Log> =
+      yield select(getDebuggerErrors);
 
     const evalAndValidationOrder = new Set([
       ...reValidatedPaths,
