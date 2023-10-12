@@ -8,7 +8,7 @@ import {
 } from "selectors/editorSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import history from "utils/history";
-import { generateTemplateFormURL } from "RouteBuilder";
+import { generateTemplateFormURL } from "@appsmith/RouteBuilder";
 import { useParams } from "react-router";
 import type { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers";
 import { showTemplatesModal as showTemplatesModalAction } from "actions/templateActions";

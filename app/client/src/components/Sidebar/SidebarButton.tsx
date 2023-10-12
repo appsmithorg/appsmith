@@ -14,10 +14,6 @@ const Container = styled.div`
   flex-direction: column;
   height: 64px;
   width: 50px;
-  svg {
-    width: 24px;
-    height: 24px;
-  }
   text-align: center;
   align-items: center;
   gap: 5px;
@@ -36,7 +32,7 @@ function SidebarButton(props: Props) {
   return (
     <Container>
       <IconContainer selected={props.selected}>
-        <Icon name={props.icon} size="md" />
+        <Icon name={props.icon} size="lg" />
       </IconContainer>
       <Text kind="body-s">{props.title}</Text>
     </Container>

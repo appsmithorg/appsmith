@@ -13,7 +13,7 @@ import MenuItem from "./components/MenuItem";
 import ShareButton from "./components/ShareButton";
 import PrimaryCTA from "../PrimaryCTA";
 import { useHref } from "pages/Editor/utils";
-import { builderURL } from "RouteBuilder";
+import { builderURL } from "@appsmith/RouteBuilder";
 import {
   getCurrentPageId,
   previewModeSelector,
