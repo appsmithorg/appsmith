@@ -16,8 +16,7 @@ public class ApplicationConstants {
         customJSLib.setVersion("3.17.5");
         customJSLib.setAccessor(Set.of("xmlParser"));
         customJSLib.setUrl("https://cdnjs.cloudflare.com/ajax/libs/fast-xml-parser/3.17.5/parser.min.js");
-        customJSLib.setDefs(
-                "{\"!name\":\"LIB/xmlParser\",\"xmlParser\":{\"parse\":{\"!doc\":\"convertsxmlstringtojsonobject\",\"!type\":\"fn(xml:string,options?:object,validationOption?:object)->object\"},\"validate\":{\"!doc\":\"validatexmldata\",\"!type\":\"fn(xml:string)->bool\"},\"convertToJson\":{\"!type\":\"fn(node:?,options:object)->?\"},\"convertToJsonString\":{\"!type\":\"fn(node:?,options:object)->string\"},\"convertTonimn\":{\"!type\":\"fn(node:?,e_schema:?,options:object)->?\"},\"getTraversalObj\":{\"!type\":\"fn(xmlData:?,options:object)->?\"},\"j2xParser\":{\"!type\":\"fn(options:object)->object\",\"prototype\":{\"parse\":{\"!type\":\"fn(jObj:?)\"},\"j2x\":{\"!type\":\"fn(jObj:?,level:?)\"}}},\"parseToNimn\":{\"!type\":\"fn(xmlData:?,schema:?,options:?)->?\"}}}");
+        customJSLib.setDefs("{\"!name\":\"LIB/xmlParser\",\"xmlParser\":{\"parse\":{\"!type\":\"fn()\",\"prototype\":{}},\"convertTonimn\":{\"!type\":\"fn()\",\"prototype\":{}},\"getTraversalObj\":{\"!type\":\"fn()\",\"prototype\":{}},\"convertToJson\":{\"!type\":\"fn()\",\"prototype\":{}},\"convertToJsonString\":{\"!type\":\"fn()\",\"prototype\":{}},\"validate\":{\"!type\":\"fn()\",\"prototype\":{}},\"j2xParser\":{\"!type\":\"fn()\",\"prototype\":{\"parse\":{\"!type\":\"fn()\",\"prototype\":{}},\"j2x\":{\"!type\":\"fn()\",\"prototype\":{}}}},\"parseToNimn\":{\"!type\":\"fn()\",\"prototype\":{}}}}");
         customJSLib.setUidString(XML_PARSER_LIBRARY_UID);
         return customJSLib;
     }
