@@ -17,8 +17,11 @@ import {
   TemplateLayoutRowItemDescription,
 } from "./StyledComponents";
 import { importSvg } from "design-system-old";
+import { useDispatch } from "react-redux";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 
 function CanvasStarterTemplatesLayout() {
+  const dispatch = useDispatch();
   const [layoutActive, setLayoutActive] = useState<boolean>(true); // manage "or" text and "Drag and Drop Widgets" text
   const [templateSreenshot, setTemplateScreenshot] = useState<string | null>(
     null,
@@ -26,6 +29,23 @@ function CanvasStarterTemplatesLayout() {
 
   const handleItemHover = (index: number) => {
     setTemplateScreenshot(layoutItems[index].screenshot);
+  };
+
+  const onClick = (
+    templateId: string,
+    templateName: string,
+    templatePageName: string,
+  ) => {
+    if (!templateId || !templateName || !templatePageName) return;
+
+    dispatch({
+      type: ReduxActionTypes.IMPORT_STARTER_TEMPLATE_TO_APPLICATION_INIT,
+      payload: {
+        templateId,
+        templateName,
+        pageNames: [templatePageName],
+      },
+    });
   };
 
   return (
@@ -42,6 +62,13 @@ function CanvasStarterTemplatesLayout() {
           {layoutItems.map((item, index) => (
             <TemplateLayoutContentItem
               key={item.id}
+              onClick={() =>
+                onClick(
+                  item.templateId || "",
+                  item.templateName || "",
+                  item.templatePageName || "",
+                )
+              }
               onMouseEnter={() => handleItemHover(index)}
               onMouseLeave={() => setTemplateScreenshot(null)}
             >
@@ -94,7 +121,16 @@ const Form = importSvg(
     import("../../../../assets/icons/templates/starter-template-form.svg"),
 );
 
-const layoutItems = [
+const layoutItems: {
+  id: number;
+  title: string;
+  description: string;
+  icon: unknown;
+  screenshot: string;
+  templateId?: string;
+  templateName?: string;
+  templatePageName?: string;
+}[] = [
   {
     id: 1,
     title: createMessage(STARTER_TEMPLATE_PAGE_LAYOUTS.layouts.recordEdit.name),
@@ -104,6 +140,9 @@ const layoutItems = [
     icon: <RecordEdit />,
     screenshot:
       "https://s3.us-east-2.amazonaws.com/template.appsmith.com/canvas-starter-page-layout-record-edit.png",
+    templateId: "6222224900c64549b31b9467",
+    templateName: "Starter template",
+    templatePageName: "Investors",
   },
   {
     id: 2,
