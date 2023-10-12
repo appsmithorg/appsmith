@@ -16,7 +16,7 @@ import type {
   EntityNavigationData,
   NavigationData,
 } from "selectors/navigationSelectors";
-import { getAIContext } from "pages/Editor/JSEditor/utils";
+import { getAIContext } from "@appsmith/components/editorComponents/GPT/trigger";
 
 export const slashCommandHintHelper: HintHelper = (
   _,
@@ -64,7 +64,7 @@ export const slashCommandHintHelper: HintHelper = (
 
       if (!shouldShowBinding) return false;
 
-      const { aiContext, shouldShowSlashMenu } = getAIContext({
+      const aiContext = getAIContext({
         currentLineValue,
         cursorPosition,
         editor,
@@ -72,7 +72,7 @@ export const slashCommandHintHelper: HintHelper = (
         entityType,
       });
 
-      if (!shouldShowSlashMenu) return false;
+      if (!aiContext) return false;
 
       const list = generateQuickCommands(
         filteredEntitiesForSuggestions,

@@ -6,7 +6,6 @@ import type { HintHelper } from "components/editorComponents/CodeEditor/EditorCo
 import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
 import {
   checkIfCursorInsideBinding,
-  isAISlashCommand,
   isCursorOnEmptyToken,
 } from "components/editorComponents/CodeEditor/codeEditorUtils";
 import { ENTITY_TYPE_VALUE } from "entities/DataTree/dataTreeFactory";
@@ -16,6 +15,7 @@ import {
   filterCompletions,
   getHintDetailsFromClassName,
 } from "./utils/sqlHint";
+import { isAISlashCommand } from "@appsmith/components/editorComponents/GPT/trigger";
 
 export const bindingHintHelper: HintHelper = (editor: CodeMirror.Editor) => {
   editor.setOption("extraKeys", {

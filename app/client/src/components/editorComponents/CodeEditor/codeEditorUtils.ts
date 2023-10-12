@@ -137,16 +137,3 @@ export function isCursorOnEmptyToken(editor: CodeMirror.Editor) {
 
   return isEmptyString;
 }
-
-export const isAISlashCommand = (editor: CodeMirror.Editor) => {
-  const toPos = editor.getCursor();
-  const fromPos = { line: toPos.line, ch: 0 }; // Start of the current line
-  const lineContentTillCurrentCursor = editor.getRange(fromPos, toPos);
-  const hasAiCommand = /\/(ai?)?$/.test(lineContentTillCurrentCursor);
-
-  if (hasAiCommand) {
-    return true;
-  }
-
-  return false;
-};
