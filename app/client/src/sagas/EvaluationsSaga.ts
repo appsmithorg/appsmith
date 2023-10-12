@@ -246,10 +246,12 @@ export function* evaluateTreeSaga(
   > = yield select(getAllActionValidationConfig);
   const unevalTree = unEvalAndConfigTree.unEvalTree;
   const widgets: ReturnType<typeof getWidgets> = yield select(getWidgets);
-  const metaWidgets: ReturnType<typeof getMetaWidgets> =
-    yield select(getMetaWidgets);
-  const theme: ReturnType<typeof getSelectedAppTheme> =
-    yield select(getSelectedAppTheme);
+  const metaWidgets: ReturnType<typeof getMetaWidgets> = yield select(
+    getMetaWidgets,
+  );
+  const theme: ReturnType<typeof getSelectedAppTheme> = yield select(
+    getSelectedAppTheme,
+  );
   const toPrintConfigTree = unEvalAndConfigTree.configTree;
   log.debug({ unevalTree, configTree: toPrintConfigTree });
   PerformanceTracker.startAsyncTracking(
@@ -612,8 +614,9 @@ function* evaluationChangeListenerSaga(): any {
     evalQueueBuffer(),
   );
   while (true) {
-    const action: EvaluationReduxAction<unknown | unknown[]> =
-      yield take(evtActionChannel);
+    const action: EvaluationReduxAction<unknown | unknown[]> = yield take(
+      evtActionChannel,
+    );
 
     yield call(evalAndLintingHandler, true, action, {
       shouldReplay: get(action, "payload.shouldReplay"),
