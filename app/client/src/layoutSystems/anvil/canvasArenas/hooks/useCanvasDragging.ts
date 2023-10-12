@@ -269,7 +269,7 @@ export const useCanvasDragging = (
         resetCanvasState();
       }
     }
-  }, [isDragging, isResizing, anvilDragStates.allowToDrop]);
+  }, [isDragging, isResizing]);
   return {
     showCanvas: isDragging && !isResizing,
   };

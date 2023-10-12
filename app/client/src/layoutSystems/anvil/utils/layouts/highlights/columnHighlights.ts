@@ -1,3 +1,7 @@
+import type {
+  WidgetPosition,
+  WidgetPositions,
+} from "layoutSystems/common/types";
 import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
 import type {
   AnvilHighlightInfo,

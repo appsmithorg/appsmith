@@ -85,10 +85,10 @@ export function moveWidgets(
   const movedChildren: string[] = movedWidgets.filter((each: string) =>
     (parent?.children || []).includes(each),
   );
-
+  let updatedParentLayout = [...parent.layout];
   movedChildren.forEach((each: string) => {
     // Remove each moved child from the layout
-    parent.layout = deleteWidgetFromPreset(parent.layout, each);
+    updatedParentLayout = deleteWidgetFromPreset(updatedParentLayout, each);
   });
 
   /**
@@ -112,7 +112,7 @@ export function moveWidgets(
         ),
         ...movedWidgets,
       ],
-      layout: addWidgetsToPreset(parent.layout, highlight, newChildren),
+      layout: addWidgetsToPreset(updatedParentLayout, highlight, newChildren),
     },
   };
 }
