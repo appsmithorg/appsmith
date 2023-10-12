@@ -13,8 +13,8 @@ import capitalize from "lodash/capitalize";
 import { createMessage, UPGRADE } from "@appsmith/constants/messages";
 import { useRouteMatch } from "react-router";
 import PageBannerMessage from "@appsmith/pages/common/PageWrapperBanner";
-import styled from "styled-components";
 import { Link } from "design-system";
+import styled from "styled-components";
 
 export const getLicenseKey = () => {
   const state = store.getState();
