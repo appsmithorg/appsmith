@@ -5,7 +5,9 @@ import type { PreviewsProps } from ".";
 import PreviewBox from "./PreviewBox";
 import { importRemixIcon } from "design-system-old";
 
-const AppsIcon = importRemixIcon(() => import("remixicon-react/AppsLineIcon"));
+const AppsIcon = importRemixIcon(
+  async () => import("remixicon-react/AppsLineIcon"),
+);
 
 const AppPreview = (props: PreviewsProps) => {
   const { logo, shades } = props;

@@ -1,13 +1,13 @@
 import lodashPackageJson from "lodash/package.json";
 import momentPackageJson from "moment-timezone/package.json";
 
-export type TJSLibrary = {
+export interface TJSLibrary {
   version?: string;
   docsURL: string;
   name: string;
   accessor: string[];
   url?: string;
-};
+}
 
 export const defaultLibraries: TJSLibrary[] = [
   {

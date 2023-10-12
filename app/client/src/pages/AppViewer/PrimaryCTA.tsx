@@ -21,7 +21,7 @@ import {
 import { getCurrentUser } from "selectors/usersSelectors";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import ForkApplicationModal from "pages/Applications/ForkApplicationModal";
-import { viewerURL } from "RouteBuilder";
+import { viewerURL } from "@appsmith/RouteBuilder";
 import { useHistory, useLocation } from "react-router";
 import { useHref } from "pages/Editor/utils";
 import type { NavigationSetting } from "constants/AppConstants";
@@ -35,14 +35,14 @@ import { setPreviewModeInitAction } from "actions/editorActions";
  * TYPES
  * ---------------------------------------------------------------------------------------------------
  */
-type Props = {
+interface Props {
   url?: string;
   className?: string;
   primaryColor: string;
   navColorStyle: NavigationSetting["colorStyle"];
   insideSidebar?: boolean;
   isMinimal?: boolean;
-};
+}
 
 /**
  * ---------------------------------------------------------------------------------------------------

@@ -17,14 +17,14 @@ import { Tooltip } from "design-system";
 import { importRemixIcon } from "design-system-old";
 
 const AppsLineIcon = importRemixIcon(
-  () => import("remixicon-react/AppsLineIcon"),
+  async () => import("remixicon-react/AppsLineIcon"),
 );
 
-type BackToAppsButtonProps = {
+interface BackToAppsButtonProps {
   currentApplicationDetails?: ApplicationPayload;
   insideSidebar?: boolean;
   isMinimal?: boolean;
-};
+}
 
 const StyledAppIcon = styled(AppsLineIcon)<{
   primaryColor: string;

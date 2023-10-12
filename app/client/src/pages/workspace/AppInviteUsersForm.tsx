@@ -8,10 +8,10 @@ import {
   isPermitted,
   PERMISSION_TYPE,
 } from "@appsmith/utils/permissionHelpers";
-import WorkspaceInviteUsersForm from "@appsmith/pages/workspace/WorkspaceInviteUsersForm";
+import WorkspaceInviteUsersForm from "pages/workspace/WorkspaceInviteUsersForm";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
-import { viewerURL } from "RouteBuilder";
+import { viewerURL } from "@appsmith/RouteBuilder";
 import { fetchWorkspace } from "@appsmith/actions/workspaceActions";
 import {
   createMessage,
@@ -112,7 +112,7 @@ function AppInviteUsersForm(props: any) {
       {canInviteToApplication && (
         <WorkspaceInviteUsersForm
           applicationId={applicationId}
-          isApplicationInvite
+          isApplicationPage
           placeholder={createMessage(INVITE_USERS_PLACEHOLDER, !isGACEnabled)}
           workspaceId={props.workspaceId}
         />

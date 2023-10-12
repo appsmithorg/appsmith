@@ -131,11 +131,14 @@ import type {
 } from "WidgetQueryGenerators/types";
 import type { DynamicPath } from "utils/DynamicBindingUtils";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
+import {
+  FlexVerticalAlignment,
+  ResponsiveBehavior,
+} from "layoutSystems/common/utils/constants";
 import IconSVG from "../icon.svg";
 
-const ReactTableComponent = lazy(() =>
-  retryPromise(() => import("../component")),
+const ReactTableComponent = lazy(async () =>
+  retryPromise(async () => import("../component")),
 );
 
 const emptyArr: any = [];
@@ -176,6 +179,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
   static getDefaults() {
     return {
+      flexVerticalAlignment: FlexVerticalAlignment.Top,
       responsiveBehavior: ResponsiveBehavior.Fill,
       minWidth: FILL_WIDGET_MIN_WIDTH,
       rows: 28,
@@ -590,7 +594,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
   createTablePrimaryColumns = ():
     | Record<string, ColumnProperties>
     | undefined => {
-    const { tableData = [], primaryColumns = {} } = this.props;
+    const { primaryColumns = {}, tableData = [] } = this.props;
 
     if (!_.isArray(tableData) || tableData.length === 0) {
       return;
@@ -1164,15 +1168,15 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
   getWidgetView() {
     const {
-      totalRecordsCount,
       delimiter,
-      pageSize,
       filteredTableData = [],
       isVisibleDownload,
       isVisibleFilters,
       isVisiblePagination,
       isVisibleSearch,
+      pageSize,
       primaryColumns,
+      totalRecordsCount,
     } = this.props;
 
     const tableColumns = this.getTableColumns() || emptyArr;
@@ -1496,13 +1500,13 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
    * This function just pushes the meta update
    */
   pushOnColumnEvent = ({
-    rowIndex,
     action,
-    onComplete = noop,
-    triggerPropertyName,
-    eventType,
-    row,
     additionalData = {},
+    eventType,
+    onComplete = noop,
+    row,
+    rowIndex,
+    triggerPropertyName,
   }: OnColumnEventArgs) => {
     const { filteredTableData = [], pushBatchMetaUpdates } = this.props;
 
@@ -1525,13 +1529,13 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
    * Function to handle customColumn button type click interactions
    */
   onColumnEvent = ({
-    rowIndex,
     action,
-    onComplete = noop,
-    triggerPropertyName,
-    eventType,
-    row,
     additionalData = {},
+    eventType,
+    onComplete = noop,
+    row,
+    rowIndex,
+    triggerPropertyName,
   }: OnColumnEventArgs) => {
     if (action) {
       const { commitBatchMetaUpdates } = this.props;
@@ -1864,11 +1868,11 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
     const isHidden = !column.isVisible;
     const {
+      compactMode = CompactModeTypes.DEFAULT,
       filteredTableData = [],
       multiRowSelection,
       selectedRowIndex,
       selectedRowIndices,
-      compactMode = CompactModeTypes.DEFAULT,
     } = this.props;
     let row;
     let originalIndex: number;

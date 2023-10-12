@@ -395,11 +395,11 @@ const SearchItemByType = {
   [SEARCH_ITEM_TYPES.actionOperation]: ActionOperationItem,
 };
 
-type ItemProps = {
+interface ItemProps {
   item: IHit | SearchItem;
   index: number;
   query: string;
-};
+}
 
 function SearchItemComponent(props: ItemProps) {
   const { index, item, query } = props;

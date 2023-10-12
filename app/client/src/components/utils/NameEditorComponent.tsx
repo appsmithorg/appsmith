@@ -19,14 +19,14 @@ import {
 } from "@appsmith/constants/messages";
 import { PluginType } from "entities/Action";
 
-type NameEditorProps = {
+interface NameEditorProps {
   checkForGuidedTour?: boolean;
   children: (params: any) => JSX.Element;
   currentActionConfig: { id: string; name: string } | undefined;
   dispatchAction: (a: any) => any;
   suffixErrorMessage?: (params?: any) => string;
   pluginType?: PluginType;
-};
+}
 
 /**
  * It is wrapper component using render props method.

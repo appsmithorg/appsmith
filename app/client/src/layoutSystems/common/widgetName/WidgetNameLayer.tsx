@@ -2,7 +2,7 @@ import WidgetNameComponent from "layoutSystems/common/widgetName";
 import React from "react";
 import { getErrorCount } from "./utils";
 
-type WidgetNameLayerProps = {
+interface WidgetNameLayerProps {
   disablePropertyPane?: boolean;
   children: any;
   parentId?: string;
@@ -14,7 +14,7 @@ type WidgetNameLayerProps = {
   componentWidth: number;
   evalErrorsObj: Record<any, any>;
   showControls?: boolean;
-};
+}
 
 export const WidgetNameLayer = (props: WidgetNameLayerProps) => {
   return !props.disablePropertyPane ? (

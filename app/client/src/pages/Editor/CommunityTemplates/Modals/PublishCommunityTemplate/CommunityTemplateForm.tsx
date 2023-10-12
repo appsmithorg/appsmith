@@ -20,12 +20,12 @@ import AuthorDetailsInput from "./components/AuthorDetailsInput";
 import PublishedInfo from "./components/PublishedInfo";
 import TemplateCardPreview from "./components/TemplateCardPreview";
 import TemplateInfoForm from "./components/TemplateInfoForm";
-import { viewerURL } from "RouteBuilder";
+import { viewerURL } from "@appsmith/RouteBuilder";
 import { getCurrentPageId } from "@appsmith/selectors/entitiesSelector";
 
-type Props = {
+interface Props {
   onPublishSuccess: () => void;
-};
+}
 
 const CommunityTemplateForm = ({ onPublishSuccess }: Props) => {
   const currentUser = useSelector(getCurrentUser);

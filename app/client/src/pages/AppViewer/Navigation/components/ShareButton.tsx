@@ -18,12 +18,12 @@ import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
-type ShareButtonProps = {
+interface ShareButtonProps {
   currentApplicationDetails?: ApplicationPayload;
   currentWorkspaceId: string;
   insideSidebar?: boolean;
   isMinimal?: boolean;
-};
+}
 
 const ShareButton = (props: ShareButtonProps) => {
   const [showModal, setShowModal] = useState(false);

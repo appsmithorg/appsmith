@@ -1,6 +1,6 @@
 import { APPLICATIONS_URL } from "constants/routes";
 import { SettingCategories } from "@appsmith/pages/AdminSettings/config/types";
-import { adminSettingsCategoryUrl } from "RouteBuilder";
+import { adminSettingsCategoryUrl } from "@appsmith/RouteBuilder";
 
 export const BreadcrumbCategories = {
   HOMEPAGE: {
@@ -15,9 +15,11 @@ export const BreadcrumbCategories = {
     href: adminSettingsCategoryUrl({ category: SettingCategories.EMAIL }),
     text: "Email",
   },
-  [SettingCategories.GOOGLE_MAPS]: {
-    href: adminSettingsCategoryUrl({ category: SettingCategories.GOOGLE_MAPS }),
-    text: "Google Maps",
+  [SettingCategories.DEVELOPER_SETTINGS]: {
+    href: adminSettingsCategoryUrl({
+      category: SettingCategories.DEVELOPER_SETTINGS,
+    }),
+    text: "Developer settings",
   },
   [SettingCategories.VERSION]: {
     href: adminSettingsCategoryUrl({ category: SettingCategories.VERSION }),

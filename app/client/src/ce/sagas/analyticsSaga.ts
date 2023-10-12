@@ -44,12 +44,10 @@ export function* getUserAndAppDetails() {
     getCurrentApplication,
   );
   const user: ReturnType<typeof getCurrentUser> = yield select(getCurrentUser);
-  const instanceId: ReturnType<typeof getInstanceId> = yield select(
-    getInstanceId,
-  );
-  const pageId: ReturnType<typeof getCurrentPageId> = yield select(
-    getCurrentPageId,
-  );
+  const instanceId: ReturnType<typeof getInstanceId> =
+    yield select(getInstanceId);
+  const pageId: ReturnType<typeof getCurrentPageId> =
+    yield select(getCurrentPageId);
   const userAndAppDetails: UserAndAppDetails = {
     pageId,
     appId: currentApp?.id || "",
