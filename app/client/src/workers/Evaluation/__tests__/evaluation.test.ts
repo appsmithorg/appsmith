@@ -560,8 +560,14 @@ describe("DataTreeEvaluator", () => {
   };
 
   const evaluator = new DataTreeEvaluator(WIDGET_CONFIG_MAP);
-  evaluator.setupFirstTree(unEvalTree, configTree);
-  evaluator.evalAndValidateFirstTree();
+
+  it("Checks the number of clone operations in first tree flow", () => {
+    evaluator.setupFirstTree(unEvalTree, configTree);
+    evaluator.evalAndValidateFirstTree();
+    // Hard check to not regress on the number of clone operations. Try to improve this number.
+    expect(klonaFullSpy).toBeCalledTimes(41);
+  });
+
   it("Evaluates a binding in first run", () => {
     const evaluation = evaluator.evalTree;
     const dependencies = evaluator.dependencies;
@@ -1033,7 +1039,7 @@ describe("DataTreeEvaluator", () => {
     expect(dataTree).toHaveProperty("TextX.text", 123);
     expect(dataTree).toHaveProperty("Text1.text", "Label");
   });
-  it("Checks the number of clone operations performed", () => {
+  it("Checks the number of clone operations performed in update tree flow", () => {
     const { configEntity, unEvalEntity } = generateDataTreeWidget(
       {
         ...BASE_WIDGET_CONFIG,
@@ -1064,6 +1070,7 @@ describe("DataTreeEvaluator", () => {
       updatedConfigTree,
       unEvalUpdates,
     );
+    // Hard check to not regress on the number of clone operations. Try to improve this number.
     expect(klonaFullSpy).toBeCalledTimes(7);
   });
 });
