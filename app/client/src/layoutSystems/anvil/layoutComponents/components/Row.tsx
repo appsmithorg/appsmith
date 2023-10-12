@@ -4,6 +4,8 @@ import {
   type LayoutComponentProps,
   type LayoutProps,
   type WidgetLayoutProps,
+  type WidgetPositions,
+  type DraggedWidget,
 } from "layoutSystems/anvil/utils/anvilTypes";
 import React from "react";
 import { FlexLayout } from "./FlexLayout";
@@ -15,6 +17,7 @@ import {
   extractWidgetIdsFromLayoutProps,
   removeChildFromLayout,
 } from "layoutSystems/anvil/utils/layouts/layoutUtils";
+import { deriveRowHighlights } from "layoutSystems/anvil/utils/layouts/highlights/rowHighlights";
 
 const Row = (props: LayoutComponentProps) => {
   const { canvasId, children, layoutId, layoutStyle } = props;
@@ -50,8 +53,20 @@ Row.getChildTemplate = (props: LayoutProps): LayoutProps | undefined => {
   return;
 };
 
-Row.deriveHighlights = () => {
-  return [];
+Row.deriveHighlights = (
+  layoutProps: LayoutProps,
+  widgetPositions: WidgetPositions,
+  canvasId: string,
+  draggedWidgets: DraggedWidget[],
+  layoutOrder?: string[],
+) => {
+  return deriveRowHighlights(
+    layoutProps,
+    widgetPositions,
+    canvasId,
+    draggedWidgets,
+    layoutOrder || [],
+  );
 };
 
 Row.extractChildWidgetIds = (props: LayoutProps): string[] => {

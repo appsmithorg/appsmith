@@ -6,6 +6,8 @@ import {
   type LayoutComponentProps,
   type LayoutProps,
   type WidgetLayoutProps,
+  type DraggedWidget,
+  type WidgetPositions,
 } from "layoutSystems/anvil/utils/anvilTypes";
 import { doesLayoutRenderWidgets } from "layoutSystems/anvil/utils/layouts/typeUtils";
 import { renderWidgets } from "layoutSystems/anvil/utils/layouts/renderUtils";
@@ -15,6 +17,7 @@ import {
   extractWidgetIdsFromLayoutProps,
   removeChildFromLayout,
 } from "layoutSystems/anvil/utils/layouts/layoutUtils";
+import { deriveAlignedColumnHighlights } from "layoutSystems/anvil/utils/layouts/highlights/alignedColumnHighlights";
 
 const AlignedColumn = (props: LayoutComponentProps) => {
   const { canvasId, children, layoutId, layoutStyle } = props;
@@ -55,8 +58,20 @@ AlignedColumn.getChildTemplate = (
   };
 };
 
-AlignedColumn.deriveHighlights = () => {
-  return [];
+AlignedColumn.deriveHighlights = (
+  layoutProps: LayoutProps,
+  widgetPositions: WidgetPositions,
+  canvasId: string,
+  draggedWidgets: DraggedWidget[],
+  layoutOrder?: string[],
+): AnvilHighlightInfo[] => {
+  return deriveAlignedColumnHighlights(
+    layoutProps,
+    widgetPositions,
+    canvasId,
+    draggedWidgets,
+    layoutOrder || [],
+  );
 };
 
 AlignedColumn.extractChildWidgetIds = (props: LayoutProps): string[] => {

@@ -1,3 +1,4 @@
+import type { WidgetType } from "WidgetProvider/factory";
 import type { RenderMode } from "constants/WidgetConstants";
 import type {
   FlexLayerAlignment,
@@ -57,11 +58,11 @@ export interface LayoutComponent extends React.FC<LayoutComponentProps> {
   getChildTemplate: (props: LayoutProps) => LayoutProps | undefined;
   // Get a list of highlights to demarcate the drop positions within the layout.
   deriveHighlights: (
-    draggingWidgets: {
-      widgetId?: string; // widgetId is optional coz it doesn't exist for new widgets that are about to be dropped
-      type: string;
-      responsiveBehavior?: ResponsiveBehavior;
-    }[],
+    layoutProps: LayoutProps,
+    widgetPositions: WidgetPositions,
+    canvasId: string,
+    draggedWidgets: DraggedWidget[],
+    layoutOrder?: string[],
   ) => AnvilHighlightInfo[];
   // Get a list of child widgetIds rendered by the layout.
   extractChildWidgetIds: (props: LayoutProps) => string[];
@@ -82,6 +83,7 @@ export interface AnvilHighlightInfo {
   canvasId: string; // WidgetId of the canvas widget to which the highlight (/ layout) belongs.
   dropZone: DropZone; // size of the drop zone of this highlight.
   height: number; // height of the highlight.
+  isVertical: boolean; // Whether the highlight is vertical or horizontal.
   layoutOrder: string[]; // (Top - down) Hierarchy list of layouts to which the highlight belongs. The last entry in the array is the immediate parent layout.
   posX: number; // x position of the highlight.
   posY: number; // y position of the highlight.
@@ -89,3 +91,59 @@ export interface AnvilHighlightInfo {
   width: number; // width of the highlight.
   isVertical?: boolean;
 }
+
+export interface PositionData {
+  height: number;
+  left: number;
+  top: number;
+  width: number;
+}
+
+export interface WidgetPositions {
+  [id: string]: PositionData;
+}
+
+export interface DraggedWidget {
+  widgetId: string;
+  type: WidgetType;
+  responsiveBehavior: ResponsiveBehavior;
+}
+
+export type GenerateHighlights = (
+  baseHighlight: AnvilHighlightInfo,
+  layoutDimension: PositionData,
+  currentDimension: PositionData,
+  prevDimension: PositionData | undefined,
+  nextDimension: PositionData | undefined,
+  rowIndex: number,
+  isLastHighlight: boolean,
+  hasFillWidget?: boolean,
+) => AnvilHighlightInfo[];
+
+export type GetInitialHighlights = (
+  layoutProps: LayoutProps,
+  widgetPositions: WidgetPositions,
+  baseHighlight: AnvilHighlightInfo,
+  generateHighlights: GenerateHighlights,
+  hasFillWidget?: boolean,
+) => AnvilHighlightInfo[];
+
+export type GetWidgetHighlights = (
+  layoutProps: LayoutProps,
+  widgetPositions: WidgetPositions,
+  baseHighlight: AnvilHighlightInfo,
+  draggedWidgets: DraggedWidget[],
+  generateHighlights: GenerateHighlights,
+  hasFillWidget?: boolean,
+) => AnvilHighlightInfo[];
+
+export type GetLayoutHighlights = (
+  layoutProps: LayoutProps,
+  widgetPositions: WidgetPositions,
+  baseHighlight: AnvilHighlightInfo,
+  draggedWidgets: DraggedWidget[],
+  canvasId: string,
+  layoutOrder: string[],
+  generateHighlights: GenerateHighlights,
+  hasFillWidget?: boolean,
+) => AnvilHighlightInfo[];
