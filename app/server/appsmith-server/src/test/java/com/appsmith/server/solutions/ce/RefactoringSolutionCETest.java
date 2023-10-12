@@ -34,6 +34,7 @@ import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.LayoutCollectionService;
 import com.appsmith.server.services.NewPageService;
+import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ApplicationPermission;
@@ -124,6 +125,9 @@ class RefactoringSolutionCETest {
     @Autowired
     ApplicationPermission applicationPermission;
 
+    @Autowired
+    SessionUserService sessionUserService;
+
     Application testApp = null;
 
     PageDTO testPage = null;
@@ -143,12 +147,12 @@ class RefactoringSolutionCETest {
     @BeforeEach
     public void setup() {
         newPageService.deleteAll();
-        User apiUser = userService.findByEmail("api_user").block();
+        User currentUser = sessionUserService.getCurrentUser().block();
         Workspace toCreate = new Workspace();
         toCreate.setName("LayoutActionServiceTest");
 
         Workspace workspace =
-                workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
+                workspaceService.create(toCreate, currentUser, Boolean.FALSE).block();
         workspaceId = workspace.getId();
 
         // Create application and page which will be used by the tests to create actions for.
