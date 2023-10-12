@@ -12,7 +12,7 @@ import {
   AUTHENTICATION_METHOD_ENABLED,
 } from "@appsmith/constants/messages";
 import { Button, Callout, Divider, Icon, Text, Tooltip } from "design-system";
-import { adminSettingsCategoryUrl } from "RouteBuilder";
+import { adminSettingsCategoryUrl } from "@appsmith/RouteBuilder";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import useOnUpgrade from "utils/hooks/useOnUpgrade";
 import BusinessTag from "components/BusinessTag";

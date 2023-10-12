@@ -7,7 +7,7 @@ import { get } from "lodash";
 import { useHref } from "pages/Editor/utils";
 import React from "react";
 import { useSelector } from "react-redux";
-import { builderURL } from "RouteBuilder";
+import { builderURL } from "@appsmith/RouteBuilder";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import MobileNavToggle from "./MobileNavToggle";

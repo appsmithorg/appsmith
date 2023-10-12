@@ -47,7 +47,7 @@ import type { Datasource } from "entities/Datasource";
 import type { ActionDataState } from "@appsmith/reducers/entityReducers/actionsReducer";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { SIGNPOSTING_STEP, SignpostingWalkthroughConfig } from "./Utils";
-import { builderURL, integrationEditorURL } from "RouteBuilder";
+import { builderURL, integrationEditorURL } from "@appsmith/RouteBuilder";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
 import classNames from "classnames";
 import lazyLottie from "utils/lazyLottie";
