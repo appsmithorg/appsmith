@@ -2326,7 +2326,6 @@ __metadata:
     colorjs.io: ^0.4.3
     postcss: "*"
     postcss-at-rules-variables: "*"
-    postcss-conditionals: "*"
     postcss-each: "*"
     postcss-import: "*"
     postcss-loader: "*"
@@ -10563,7 +10562,6 @@ __metadata:
     popper.js: ^1.15.0
     postcss: ^8.4.31
     postcss-at-rules-variables: ^0.3.0
-    postcss-conditionals: ^2.1.0
     postcss-each: ^1.1.0
     postcss-import: ^15.1.0
     postcss-modules-values: ^4.0.0
@@ -12887,13 +12885,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"color-convert@npm:^0.5.2":
-  version: 0.5.3
-  resolution: "color-convert@npm:0.5.3"
-  checksum: 1074989a2c216d0171a397b870a0d698ef802ab3f9ece72b35bd92c4d20aeab31f222ea525dd5d3fad175a3f256a750eadd14ab882caed0089efc1cb7ba74086
-  languageName: node
-  linkType: hard
-
 "color-convert@npm:^1.9.0":
   version: 1.9.3
   resolution: "color-convert@npm:1.9.3"
@@ -12919,7 +12910,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"color-name@npm:^1.0.0, color-name@npm:^1.1.4, color-name@npm:~1.1.4":
+"color-name@npm:^1.1.4, color-name@npm:~1.1.4":
   version: 1.1.4
   resolution: "color-name@npm:1.1.4"
   checksum: b0445859521eb4021cd0fb0cc1a75cecf67fceecae89b63f62b201cca8d345baf8b952c966862a9d9a2632987d4f6581f0ec8d957dfacece86f0a7919316f610
@@ -13586,16 +13577,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"css-color-converter@npm:^1.0.2":
-  version: 1.1.1
-  resolution: "css-color-converter@npm:1.1.1"
-  dependencies:
-    color-convert: ^0.5.2
-    color-name: ^1.0.0
-  checksum: c859befcee0c93a2361e0ef45478b7cb87849c333e2821bc98a7c9e1ccefcc30bd03d8c9dd962bd91f8fcc81545c1f07a11ffec7bc533917d5a10de06871ced5
-  languageName: node
-  linkType: hard
-
 "css-color-keywords@npm:^1.0.0":
   version: 1.0.0
   resolution: "css-color-keywords@npm:1.0.0"
@@ -13754,13 +13735,6 @@ __metadata:
     mdn-data: 2.0.28
     source-map-js: ^1.0.1
   checksum: b94aa8cc2f09e6f66c91548411fcf74badcbad3e150345074715012d16333ce573596ff5dfca03c2a87edf1924716db765120f94247e919d72753628ba3aba27
-  languageName: node
-  linkType: hard
-
-"css-unit-converter@npm:^1.0.0":
-  version: 1.1.2
-  resolution: "css-unit-converter@npm:1.1.2"
-  checksum: 07888033346a5128f34dbe2f72884c966d24e9f29db24416dcde92860242490617ef9a178ac193a92f730834bbeea026cdc7027701d92ba9bbbe59db7a37eb2a
   languageName: node
   linkType: hard
 
@@ -17992,13 +17966,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"has-flag@npm:^1.0.0":
-  version: 1.0.0
-  resolution: "has-flag@npm:1.0.0"
-  checksum: ce3f8ae978e70f16e4bbe17d3f0f6d6c0a3dd3b62a23f97c91d0fda9ed8e305e13baf95cc5bee4463b9f25ac9f5255de113165c5fb285e01b8065b2ac079b301
-  languageName: node
-  linkType: hard
-
 "has-flag@npm:^3.0.0":
   version: 3.0.0
   resolution: "has-flag@npm:3.0.0"
@@ -20762,13 +20729,6 @@ __metadata:
     "@sideway/formula": ^3.0.1
     "@sideway/pinpoint": ^2.0.0
   checksum: 8c3709849293411c524e5a679dba7b42598a29a663478941767b8d5b06288611dece58803c468a2c7320cc2429a3e71e3d94337fe47aefcf6c22174dbd90b601
-  languageName: node
-  linkType: hard
-
-"js-base64@npm:^2.1.9":
-  version: 2.6.4
-  resolution: "js-base64@npm:2.6.4"
-  checksum: 5f4084078d6c46f8529741d110df84b14fac3276b903760c21fa8cc8521370d607325dfe1c1a9fbbeaae1ff8e602665aaeef1362427d8fef704f9e3659472ce8
   languageName: node
   linkType: hard
 
@@ -24085,17 +24045,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"postcss-conditionals@npm:*, postcss-conditionals@npm:^2.1.0":
-  version: 2.1.0
-  resolution: "postcss-conditionals@npm:2.1.0"
-  dependencies:
-    css-color-converter: ^1.0.2
-    css-unit-converter: ^1.0.0
-    postcss: ^5.0.4
-  checksum: 7cb613e3868731a80b4a8cc6ef9fbac45be8e6a3c1e9ffa3fd6d65501b493a6f0f89789afdc9064fcb80472ed9dd956e73e5476c53b16cff12591c208be2c3b7
-  languageName: node
-  linkType: hard
-
 "postcss-convert-values@npm:^5.1.1":
   version: 5.1.1
   resolution: "postcss-convert-values@npm:5.1.1"
@@ -25175,18 +25124,6 @@ __metadata:
     picocolors: ^1.0.0
     source-map-js: ^1.0.2
   checksum: 1d8611341b073143ad90486fcdfeab49edd243377b1f51834dc4f6d028e82ce5190e4f11bb2633276864503654fb7cab28e67abdc0fbf9d1f88cad4a0ff0beea
-  languageName: node
-  linkType: hard
-
-"postcss@npm:^5.0.4":
-  version: 5.2.18
-  resolution: "postcss@npm:5.2.18"
-  dependencies:
-    chalk: ^1.1.3
-    js-base64: ^2.1.9
-    source-map: ^0.5.6
-    supports-color: ^3.2.3
-  checksum: 0cb88e7c887b9b55d0362159846ec9fbf330892c5853b0e346929e723d215295ffae48d9a0f219f64f74767f9114802dc1b5cd21c327184f958b7efaa93dd629
   languageName: node
   linkType: hard
 
@@ -28827,7 +28764,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"source-map@npm:^0.5.6, source-map@npm:^0.5.7, source-map@npm:~0.5.3":
+"source-map@npm:^0.5.7, source-map@npm:~0.5.3":
   version: 0.5.7
   resolution: "source-map@npm:0.5.7"
   checksum: 5dc2043b93d2f194142c7f38f74a24670cd7a0063acdaf4bf01d2964b402257ae843c2a8fa822ad5b71013b5fcafa55af7421383da919752f22ff488bc553f4d
@@ -29560,15 +29497,6 @@ __metadata:
   version: 2.0.0
   resolution: "supports-color@npm:2.0.0"
   checksum: 602538c5812b9006404370b5a4b885d3e2a1f6567d314f8b4a41974ffe7d08e525bf92ae0f9c7030e3b4c78e4e34ace55d6a67a74f1571bc205959f5972f88f0
-  languageName: node
-  linkType: hard
-
-"supports-color@npm:^3.2.3":
-  version: 3.2.3
-  resolution: "supports-color@npm:3.2.3"
-  dependencies:
-    has-flag: ^1.0.0
-  checksum: 56afc05fa87d00100d90148c4d0a6e20a0af0d56dca5c54d4d40b2553ee737dab0ca4e8b53c4471afc035227b5b44dfa4824747a7f01ad733173536f7da6fbbb
   languageName: node
   linkType: hard
 

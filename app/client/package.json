@@ -332,7 +332,6 @@
     "plop": "^3.1.1",
     "postcss": "^8.4.31",
     "postcss-at-rules-variables": "^0.3.0",
-    "postcss-conditionals": "^2.1.0",
     "postcss-each": "^1.1.0",
     "postcss-import": "^15.1.0",
     "postcss-modules-values": "^4.0.0",
