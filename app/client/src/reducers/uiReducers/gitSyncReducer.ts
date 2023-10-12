@@ -565,7 +565,7 @@ const gitSyncReducer = createReducer(initialState, {
   }),
 });
 
-export type GitStatusData = {
+export interface GitStatusData {
   aheadCount: number;
   behindCount: number;
   conflicting: Array<string>;
@@ -579,36 +579,36 @@ export type GitStatusData = {
   modifiedJSLibs: number;
   discardDocUrl?: string;
   migrationMessage?: string;
-};
+}
 
-export type GitRemoteStatusData = {
+export interface GitRemoteStatusData {
   aheadCount: number;
   behindCount: number;
   remoteTrackingBranch: string;
-};
+}
 
-type GitErrorPayloadType = {
+interface GitErrorPayloadType {
   code: number | string;
   errorType?: string;
   message: string;
   referenceDoc?: string;
-};
+}
 
-export type GitErrorType = {
+export interface GitErrorType {
   error: GitErrorPayloadType;
   show?: boolean;
   crash?: boolean;
   logToSentry?: boolean;
-};
+}
 
-export type GitBranchDeleteState = {
+export interface GitBranchDeleteState {
   deleteBranch?: any;
   deleteBranchError?: any;
   deleteBranchWarning?: any;
   deletingBranch?: boolean;
-};
+}
 
-export type GitDiscardResponse = {
+export interface GitDiscardResponse {
   id: string;
   modifiedBy: string;
   userPermissions: string[];
@@ -640,7 +640,7 @@ export type GitDiscardResponse = {
   };
   new: boolean;
   modifiedAt: string;
-};
+}
 
 export type GitSyncReducerState = GitBranchDeleteState & {
   isGitSyncModalOpen: boolean;

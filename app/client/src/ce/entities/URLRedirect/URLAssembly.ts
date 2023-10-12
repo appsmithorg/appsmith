@@ -11,17 +11,25 @@ import {
 } from "constants/routes";
 import { APP_MODE } from "entities/App";
 import { generatePath } from "react-router";
-import type { URLBuilderParams } from "RouteBuilder";
-import { getQueryStringfromObject } from "RouteBuilder";
+import { getQueryStringfromObject } from "@appsmith/RouteBuilder";
 import getQueryParamsObject from "utils/getQueryParamsObject";
 
-enum URL_TYPE {
+export interface URLBuilderParams {
+  suffix?: string;
+  branch?: string;
+  hash?: string;
+  params?: Record<string, any>;
+  pageId?: string | null;
+  persistExistingParams?: boolean;
+}
+
+export enum URL_TYPE {
   DEFAULT,
   SLUG,
   CUSTOM_SLUG,
 }
 
-const baseURLRegistry = {
+export const baseURLRegistry = {
   [URL_TYPE.DEFAULT]: {
     [APP_MODE.EDIT]: BUILDER_PATH_DEPRECATED,
     [APP_MODE.PUBLISHED]: VIEWER_PATH_DEPRECATED,
@@ -36,17 +44,17 @@ const baseURLRegistry = {
   },
 };
 
-export type ApplicationURLParams = {
+export interface ApplicationURLParams {
   applicationId?: string;
   applicationSlug?: string;
   applicationVersion?: ApplicationVersion;
-};
+}
 
-export type PageURLParams = {
+export interface PageURLParams {
   pageId: string;
   pageSlug: string;
   customSlug?: string;
-};
+}
 
 const fetchQueryParamsToPersist = (persistExistingParams: boolean) => {
   const existingParams = getQueryParamsObject() || {};
@@ -65,18 +73,34 @@ const fetchQueryParamsToPersist = (persistExistingParams: boolean) => {
   return params;
 };
 
+/**
+ * NOTE TO ENGINEERS:
+ * This class has extended features in EE; please do check the EE implementation
+ * of it before modifying any functionality here.
+ *
+ * This class is inherited in EE and basePath generation is modified based on the type
+ * of editor the user is currently on. This is done to remove the dependency of current
+ * page as a required param to build any route. However if a pageId is provided while
+ * building a route, it will override the cache and use the passed pageId value.
+ *
+ * However the current implementation can be improved and a holistic solution can be
+ * devised to support all different types of routing pattern. The current solution acts as a stop-gap
+ * solution to help Package Editor feature in EE.
+ */
 export class URLBuilder {
   appParams: ApplicationURLParams;
   pageParams: Record<string, PageURLParams>;
+  currentPageId?: string | null;
 
   static _instance: URLBuilder;
 
-  private constructor() {
+  constructor() {
     this.appParams = {
       applicationId: "",
       applicationSlug: PLACEHOLDER_APP_SLUG,
     };
     this.pageParams = {};
+    this.currentPageId;
   }
 
   static getInstance() {
@@ -116,6 +140,10 @@ export class URLBuilder {
     return { ...currentAppParams, ...currentPageParams };
   }
 
+  setCurrentPageId(pageId?: string | null) {
+    this.currentPageId = pageId;
+  }
+
   public updateURLParams(
     appParams: ApplicationURLParams | null,
     pageParams?: PageURLParams[],
@@ -129,14 +157,18 @@ export class URLBuilder {
         appParams.applicationVersion || this.appParams.applicationVersion;
     }
     if (pageParams) {
-      const params = pageParams.reduce((acc, page) => {
-        acc[page.pageId] = page;
-        return acc;
-      }, {} as Record<string, PageURLParams>);
+      const params = pageParams.reduce(
+        (acc, page) => {
+          acc[page.pageId] = page;
+          return acc;
+        },
+        {} as Record<string, PageURLParams>,
+      );
       Object.assign(this.pageParams, params);
     }
   }
 
+  // Currently only used in pages/Applications page on mount
   resetURLParams() {
     this.appParams = {
       applicationId: "",
@@ -145,11 +177,12 @@ export class URLBuilder {
     this.pageParams = {};
   }
 
+  // Current only used in src/pages/slug.test.tsx
   getURLParams(pageId: string) {
     return { ...this.appParams, ...this.pageParams[pageId] };
   }
 
-  generateBasePath(pageId: string, mode: APP_MODE) {
+  generateBasePathForApp(pageId: string, mode: APP_MODE) {
     const { applicationVersion } = this.appParams;
 
     const customSlug = this.pageParams[pageId]?.customSlug || "";
@@ -163,6 +196,10 @@ export class URLBuilder {
     const basePath = generatePath(urlPattern, formattedParams);
 
     return basePath;
+  }
+
+  generateBasePath(pageId: string, mode: APP_MODE) {
+    return this.generateBasePathForApp(pageId, mode);
   }
 
   getCustomSlugPathPreview(pageId: string, customSlug: string) {
@@ -188,6 +225,20 @@ export class URLBuilder {
     return generatePath(urlPattern, formattedParams).toLowerCase();
   }
 
+  resolveEntityIdForApp(builderParams: URLBuilderParams) {
+    return {
+      entityId: builderParams.pageId || this.currentPageId,
+      entityType: "pageId",
+    };
+  }
+
+  resolveEntityId(builderParams: URLBuilderParams): {
+    entityId?: string | null;
+    entityType: string;
+  } {
+    return this.resolveEntityIdForApp(builderParams);
+  }
+
   /**
    * @throws {URIError}
    * @param builderParams
@@ -196,21 +247,22 @@ export class URLBuilder {
    */
   build(builderParams: URLBuilderParams, mode: APP_MODE = APP_MODE.EDIT) {
     const {
+      branch,
       hash = "",
       params = {},
       persistExistingParams = false,
       suffix,
-      pageId,
-      branch,
     } = builderParams;
 
-    if (!pageId) {
+    const { entityId, entityType } = this.resolveEntityId(builderParams);
+
+    if (!entityId) {
       throw new URIError(
-        "Missing pageId. If you are trying to set href inside a react component use the 'useHref' hook.",
+        `Missing ${entityType}. If you are trying to set href inside a react component use the 'useHref' hook.`,
       );
     }
 
-    const basePath = this.generateBasePath(pageId, mode);
+    const basePath = this.generateBasePath(entityId, mode);
 
     const queryParamsToPersist = fetchQueryParamsToPersist(
       persistExistingParams,

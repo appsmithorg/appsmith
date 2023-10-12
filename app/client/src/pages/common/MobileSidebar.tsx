@@ -25,12 +25,12 @@ import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { getAdminSettingsPath } from "@appsmith/utils/BusinessFeatures/adminSettingsHelpers";
 
-type MobileSideBarProps = {
+interface MobileSideBarProps {
   name: string;
   isOpen: boolean;
   userName?: string;
   photoId?: string;
-};
+}
 
 const MainContainer = styled.div<{ isOpen: boolean }>`
   position: absolute;

@@ -105,7 +105,7 @@ export interface ForkApplicationRequest {
 
 export type GetAllApplicationResponse = ApiResponse<ApplicationPagePayload[]>;
 
-export type UpdateApplicationPayload = {
+export interface UpdateApplicationPayload {
   icon?: string;
   color?: string;
   name?: string;
@@ -118,7 +118,7 @@ export type UpdateApplicationPayload = {
     appPositioning?: LayoutSystemTypeConfig;
   };
   forkingEnabled?: boolean;
-};
+}
 
 export type UpdateApplicationRequest = UpdateApplicationPayload & {
   id: string;

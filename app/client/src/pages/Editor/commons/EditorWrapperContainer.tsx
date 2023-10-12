@@ -1,9 +1,9 @@
 import React from "react";
 import styled from "styled-components";
 
-type EditorWrapperContainerProps = {
+interface EditorWrapperContainerProps {
   children: React.ReactNode;
-};
+}
 
 const Wrapper = styled.div`
   display: flex;

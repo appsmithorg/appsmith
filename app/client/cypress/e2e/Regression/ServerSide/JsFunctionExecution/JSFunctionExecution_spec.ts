@@ -366,13 +366,13 @@ describe("JS Function Execution", function () {
             : i === functionsLength - 1
             ? `
             ${functionName}: ${
-                isMarkedAsync ? "async" : ""
-              } ()=>"${functionName}",
+              isMarkedAsync ? "async" : ""
+            } ()=>"${functionName}",
           }`
             : `
             ${functionName}: ${
-                isMarkedAsync ? "async" : ""
-              } ()=> "${functionName}",`;
+              isMarkedAsync ? "async" : ""
+            } ()=> "${functionName}",`;
       }
       return JS_OBJECT_BODY;
     };

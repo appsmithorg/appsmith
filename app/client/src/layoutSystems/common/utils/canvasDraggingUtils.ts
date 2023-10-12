@@ -101,14 +101,14 @@ export function getReflowedSpaces(
   return draggingSpace;
 }
 
-type NewWidgetBlock = {
+interface NewWidgetBlock {
   columns: number;
   rows: number;
   widgetId: string;
   detachFromLayout: boolean;
   isDynamicHeight: boolean;
   type: WidgetType;
-};
+}
 
 /**
  * This method returns blocks and dragging spaces of the widgets being dragged on canvas..

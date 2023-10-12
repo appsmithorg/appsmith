@@ -77,7 +77,7 @@ export class PeekOverlayExpressionIdentifier {
   }
 }
 
-export type PeekOverlayExpressionIdentifierOptions = {
+export interface PeekOverlayExpressionIdentifierOptions {
   sourceType: SourceType;
   thisExpressionReplacement?: string;
-};
+}
