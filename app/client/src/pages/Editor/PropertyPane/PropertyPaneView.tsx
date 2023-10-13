@@ -138,7 +138,7 @@ function PropertyPaneView(
             `#${CSS.escape(widgetId)}`,
             `#${PROPERTY_PANE_ID}`,
           ],
-          delay: 5000,
+          delay: 2500,
           runBeforeWalkthrough: () => {
             try {
               selectWidget(SelectionRequestType.One, [widgetId]);
