@@ -292,7 +292,7 @@
     "compression-webpack-plugin": "^10.0.0",
     "cra-bundle-analyzer": "^0.1.0",
     "cy-verify-downloads": "^0.0.5",
-    "cypress": "13.2.0",
+    "cypress": "13.3.1",
     "cypress-file-upload": "^4.1.1",
     "cypress-image-snapshot": "^4.0.1",
     "cypress-mochawesome-reporter": "^3.5.1",
@@ -329,7 +329,7 @@
     "msw": "^0.28.0",
     "pg": "^8.11.3",
     "plop": "^3.1.1",
-    "postcss": "^8.4.31",
+    "postcss": "8.4.31",
     "postcss-at-rules-variables": "^0.3.0",
     "postcss-each": "^1.1.0",
     "postcss-import": "^15.1.0",
@@ -376,6 +376,7 @@
     "@blueprintjs/core@^3.33.0": "patch:@blueprintjs/core@npm%3A3.47.0#./.yarn/patches/@blueprintjs-core-npm-3.47.0-a5bc1ea927.patch",
     "@blueprintjs/core@^3.47.0": "patch:@blueprintjs/core@npm%3A3.47.0#./.yarn/patches/@blueprintjs-core-npm-3.47.0-a5bc1ea927.patch",
     "@blueprintjs/icons": "3.22.0",
-    "@types/react": "^17.0.2"
+    "@types/react": "^17.0.2",
+    "postcss": "8.4.31"
   }
 }

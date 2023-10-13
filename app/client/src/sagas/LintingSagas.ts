@@ -22,6 +22,7 @@ import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evalu
 import { Linter } from "plugins/Linting/Linter";
 import log from "loglevel";
 import { getFixedTimeDifference } from "workers/common/DataTreeEvaluator/utils";
+import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 
 const APPSMITH_CONFIGS = getAppsmithConfigs();
 
@@ -124,4 +125,10 @@ export function* initiateLinting(
 
 export default function* lintTreeSagaWatcher() {
   yield takeEvery(ReduxActionTypes.UPDATE_LINT_GLOBALS, updateLintGlobals);
+  yield takeEvery(ReduxActionTypes.START_EVALUATION, setupSaga);
+}
+
+export function* setupSaga(): any {
+  const featureFlags = yield select(selectFeatureFlags);
+  yield call(lintWorker.setup, featureFlags);
 }
