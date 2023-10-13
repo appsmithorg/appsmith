@@ -11,8 +11,8 @@ import {
 } from "constants/routes";
 import { APP_MODE } from "entities/App";
 import { generatePath } from "react-router";
-import { getQueryStringfromObject } from "@appsmith/RouteBuilder";
 import getQueryParamsObject from "utils/getQueryParamsObject";
+import { isNil } from "lodash";
 
 export interface URLBuilderParams {
   suffix?: string;
@@ -54,6 +54,24 @@ export interface PageURLParams {
   pageId: string;
   pageSlug: string;
   customSlug?: string;
+}
+
+export function getQueryStringfromObject(
+  params: Record<string, string> = {},
+): string {
+  const paramKeys = Object.keys(params);
+  const queryParams: string[] = [];
+  if (paramKeys) {
+    paramKeys.forEach((paramKey: string) => {
+      if (!isNil(params[paramKey])) {
+        const value = encodeURIComponent(params[paramKey]);
+        if (paramKey && value) {
+          queryParams.push(`${paramKey}=${value}`);
+        }
+      }
+    });
+  }
+  return queryParams.length ? "?" + queryParams.join("&") : "";
 }
 
 const fetchQueryParamsToPersist = (persistExistingParams: boolean) => {
