@@ -18,7 +18,7 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { ExecutionResult } from "constants/AppsmithActionConstants/ActionConstants";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 
-class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
+class WDSButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
   constructor(props: ButtonWidgetProps) {
     super(props);
 
@@ -27,7 +27,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
     };
   }
 
-  static type = "BUTTON_WIDGET_V2";
+  static type = "WDS_BUTTON_WIDGET";
 
   static getConfig() {
     return {
@@ -232,4 +232,4 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
   }
 }
 
-export { ButtonWidget };
+export { WDSButtonWidget };

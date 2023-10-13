@@ -75,29 +75,6 @@ export const propertyPaneContentConfig = [
     children: [],
   },
   {
-    sectionName: "General",
-    children: [
-      {
-        propertyName: "shouldAllowAutofill",
-        label: "Allow autofill",
-        helpText: "Allow users to autofill values from browser",
-        controlType: "SWITCH",
-        isJSConvertible: true,
-        isBindProperty: true,
-        isTriggerProperty: false,
-        validation: { type: ValidationTypes.BOOLEAN },
-        hidden: (props: InputWidgetProps) => {
-          //should be shown for only inputWidgetV2 and for email or password input types
-          return !(
-            isInputTypeEmailOrPassword(props?.inputType) &&
-            props.type === "INPUT_WIDGET_V3"
-          );
-        },
-        dependencies: ["inputType"],
-      },
-    ],
-  },
-  {
     sectionName: "Validation",
     children: [
       {
@@ -187,6 +164,29 @@ export const propertyPaneContentConfig = [
         validation: { type: ValidationTypes.BOOLEAN },
         hidden: (props: InputWidgetProps) => {
           return !isInputTypeSingleLineOrMultiLine(props.inputType);
+        },
+        dependencies: ["inputType"],
+      },
+    ],
+  },
+  {
+    sectionName: "General",
+    children: [
+      {
+        propertyName: "shouldAllowAutofill",
+        label: "Allow autofill",
+        helpText: "Allow users to autofill values from browser",
+        controlType: "SWITCH",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.BOOLEAN },
+        hidden: (props: InputWidgetProps) => {
+          //should be shown for only inputWidgetV2 and for email or password input types
+          return !(
+            isInputTypeEmailOrPassword(props?.inputType) &&
+            props.type === "INPUT_WIDGET_V3"
+          );
         },
         dependencies: ["inputType"],
       },
