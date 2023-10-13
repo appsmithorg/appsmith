@@ -11,7 +11,7 @@ interface QueryEditorContextContextProps {
   onCreateDatasourceClick?: () => void;
   onEntityNotFoundBackClick?: () => void;
   changeQueryPage?: (queryId: string) => void;
-  showActionRightPaneBackLink?: boolean;
+  actionRightPaneBackLink?: React.ReactNode;
   saveActionName?: (
     params: SaveActionNameParams,
   ) => ReduxAction<SaveActionNameParams>;
@@ -25,6 +25,7 @@ export const QueryEditorContext = createContext<QueryEditorContextContextProps>(
 );
 
 export function QueryEditorContextProvider({
+  actionRightPaneBackLink,
   changeQueryPage,
   children,
   moreActionsMenu,
@@ -39,6 +40,7 @@ export function QueryEditorContextProvider({
       onCreateDatasourceClick,
       onEntityNotFoundBackClick,
       saveActionName,
+      actionRightPaneBackLink,
     }),
     [
       changeQueryPage,
@@ -46,6 +48,7 @@ export function QueryEditorContextProvider({
       onCreateDatasourceClick,
       onEntityNotFoundBackClick,
       saveActionName,
+      actionRightPaneBackLink,
     ],
   );
 

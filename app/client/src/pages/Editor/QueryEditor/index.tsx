@@ -6,6 +6,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import Editor from "./Editor";
 import history from "utils/history";
 import MoreActionsMenu from "../Explorer/Actions/MoreActionsMenu";
+import BackToCanvas from "components/common/BackToCanvas";
 import { INTEGRATION_TABS } from "constants/routes";
 import {
   getCurrentApplicationId,
@@ -68,6 +69,10 @@ function QueryEditor(props: QueryEditorProps) {
     [action?.id, action?.name, isChangePermitted, isDeletePermitted, pageId],
   );
 
+  const actionRightPaneBackLink = useMemo(() => {
+    return <BackToCanvas pageId={pageId} />;
+  }, [pageId]);
+
   const changeQueryPage = useCallback(
     (queryId: string) => {
       dispatch(changeQuery({ id: queryId, pageId, applicationId }));
@@ -109,11 +114,11 @@ function QueryEditor(props: QueryEditorProps) {
 
   return (
     <QueryEditorContextProvider
+      actionRightPaneBackLink={actionRightPaneBackLink}
       changeQueryPage={changeQueryPage}
       moreActionsMenu={moreActionsMenu}
       onCreateDatasourceClick={onCreateDatasourceClick}
       onEntityNotFoundBackClick={onEntityNotFoundBackClick}
-      showActionRightPaneBackLink
     >
       <Editor
         {...props}

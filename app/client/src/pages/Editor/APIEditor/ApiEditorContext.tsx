@@ -11,7 +11,7 @@ interface ApiEditorContextContextProps {
   moreActionsMenu?: React.ReactNode;
   handleDeleteClick: () => void;
   handleRunClick: (paginationField?: PaginationField) => void;
-  showActionRightPaneBackLink?: boolean;
+  actionRightPaneBackLink?: React.ReactNode;
   settingsConfig: any;
   saveActionName?: (
     params: SaveActionNameParams,
@@ -26,6 +26,7 @@ export const ApiEditorContext = createContext<ApiEditorContextContextProps>(
 );
 
 export function ApiEditorContextProvider({
+  actionRightPaneBackLink,
   children,
   handleDeleteClick,
   handleRunClick,
@@ -40,6 +41,7 @@ export function ApiEditorContextProvider({
       moreActionsMenu,
       settingsConfig,
       saveActionName,
+      actionRightPaneBackLink,
     }),
     [
       handleDeleteClick,
@@ -47,6 +49,7 @@ export function ApiEditorContextProvider({
       moreActionsMenu,
       settingsConfig,
       saveActionName,
+      actionRightPaneBackLink,
     ],
   );
 

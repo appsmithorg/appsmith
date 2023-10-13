@@ -10,6 +10,7 @@ import {
 import { deleteAction, runAction } from "actions/pluginActionActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import Editor from "./Editor";
+import BackToCanvas from "components/common/BackToCanvas";
 import MoreActionsMenu from "../Explorer/Actions/MoreActionsMenu";
 import { getIsEditorInitialized } from "selectors/editorSelectors";
 import { getAction } from "@appsmith/selectors/entitiesSelector";
@@ -95,6 +96,10 @@ function ApiEditorWrapper(props: ApiEditorWrapperProps) {
     [apiId, apiName, pageName, getPageName, plugins, pluginId, datasourceId],
   );
 
+  const actionRightPaneBackLink = useMemo(() => {
+    return <BackToCanvas pageId={pageId} />;
+  }, [pageId]);
+
   const handleDeleteClick = useCallback(() => {
     AnalyticsUtil.logEvent("DELETE_API_CLICK", {
       apiName,
@@ -106,11 +111,11 @@ function ApiEditorWrapper(props: ApiEditorWrapperProps) {
 
   return (
     <ApiEditorContextProvider
+      actionRightPaneBackLink={actionRightPaneBackLink}
       handleDeleteClick={handleDeleteClick}
       handleRunClick={handleRunClick}
       moreActionsMenu={moreActionsMenu}
       settingsConfig={settingsConfig}
-      showActionRightPaneBackLink
     >
       <Editor {...props} isEditorInitialized={isEditorInitialized} />
     </ApiEditorContextProvider>

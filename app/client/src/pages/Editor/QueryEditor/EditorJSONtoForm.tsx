@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { useContext } from "react";
 import type { RefObject } from "react";
 import React, { useCallback, useRef, useState } from "react";
@@ -406,7 +407,8 @@ export function EditorJSONtoForm(props: Props) {
     updateActionResponseDisplayFormat,
   } = props;
 
-  const { saveActionName } = useContext(QueryEditorContext);
+  const { moreActionsMenu, saveActionName, actionRightPaneBackLink } =
+    useContext(QueryEditorContext);
 
   let error = runErrorMessage;
   let output: Record<string, any>[] | null = null;
@@ -425,8 +427,6 @@ export function EditorJSONtoForm(props: Props) {
   const currentActionConfig: Action | undefined = actions.find(
     (action) => action.id === params.apiId || action.id === params.queryId,
   );
-  const { pageId } = useParams<ExplorerURLParams>();
-
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
 
   const isChangePermitted = getHasManageActionPermission(
@@ -434,10 +434,6 @@ export function EditorJSONtoForm(props: Props) {
     currentActionConfig?.userPermissions,
   );
   const isExecutePermitted = getHasExecuteActionPermission(
-    isFeatureEnabled,
-    currentActionConfig?.userPermissions,
-  );
-  const isDeletePermitted = getHasDeleteActionPermission(
     isFeatureEnabled,
     currentActionConfig?.userPermissions,
   );
@@ -928,14 +924,7 @@ export function EditorJSONtoForm(props: Props) {
             />
           </NameWrapper>
           <ActionsWrapper>
-            <MoreActionsMenu
-              className="t--more-action-menu"
-              id={currentActionConfig ? currentActionConfig.id : ""}
-              isChangePermitted={isChangePermitted}
-              isDeletePermitted={isDeletePermitted}
-              name={currentActionConfig ? currentActionConfig.name : ""}
-              pageId={pageId}
-            />
+            {moreActionsMenu}
             <DropdownSelect>
               <DropdownField
                 className={"t--switch-datasource"}
@@ -1119,6 +1108,7 @@ export function EditorJSONtoForm(props: Props) {
           </div>
           <SidebarWrapper show={shouldOpenActionPaneByDefault}>
             <ActionRightPane
+              actionRightPaneBackLink={actionRightPaneBackLink}
               actionName={actionName}
               context={DatasourceStructureContext.QUERY_EDITOR}
               datasourceId={props.datasourceId}

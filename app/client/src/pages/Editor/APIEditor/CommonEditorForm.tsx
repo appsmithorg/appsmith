@@ -496,7 +496,8 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
     const index = Object.values(API_EDITOR_TABS).indexOf(value);
     dispatch(setApiPaneConfigSelectedTabIndex(index));
   };
-  const { moreActionsMenu, saveActionName } = useContext(ApiEditorContext);
+  const { actionRightPaneBackLink, moreActionsMenu, saveActionName } =
+    useContext(ApiEditorContext);
 
   const {
     actionConfigurationHeaders,
@@ -733,6 +734,7 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
           </SecondaryWrapper>
           <DataSourceList
             actionName={actionName}
+            actionRightPaneBackLink={actionRightPaneBackLink}
             applicationId={props.applicationId}
             currentActionDatasourceId={currentActionDatasourceId}
             currentPageId={props.currentPageId}
