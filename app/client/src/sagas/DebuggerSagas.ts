@@ -453,9 +453,8 @@ function* logDebuggerErrorAnalyticsSaga(
 
 function* addDebuggerErrorLogsSaga(action: ReduxAction<Log[]>) {
   const errorLogs = action.payload;
-  const currentDebuggerErrors: Record<string, Log> = yield select(
-    getDebuggerErrors,
-  );
+  const currentDebuggerErrors: Record<string, Log> =
+    yield select(getDebuggerErrors);
   const appMode: ReturnType<typeof getAppMode> = yield select(getAppMode);
   yield put(debuggerLogInit(errorLogs));
   const validErrorLogs = errorLogs.filter((log) => log.source && log.id);
@@ -585,9 +584,8 @@ function* deleteDebuggerErrorLogsSaga(
   action: ReduxAction<{ id: string; analytics: Log["analytics"] }[]>,
 ) {
   const { payload } = action;
-  const currentDebuggerErrors: Record<string, Log> = yield select(
-    getDebuggerErrors,
-  );
+  const currentDebuggerErrors: Record<string, Log> =
+    yield select(getDebuggerErrors);
   const appMode: ReturnType<typeof getAppMode> = yield select(getAppMode);
   const existingErrorPayloads = payload.filter((item) =>
     currentDebuggerErrors.hasOwnProperty(item.id),

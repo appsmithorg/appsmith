@@ -12,9 +12,9 @@ import {
 } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { getDataTree } from "./dataTreeSelectors";
 
-type ErrorObejct = {
+interface ErrorObejct {
   [k: string]: Log;
-};
+}
 
 export const getDebuggerErrors = (state: AppState) => state.ui.debugger.errors;
 export const hideErrors = (state: AppState) => state.ui.debugger.hideErrors;

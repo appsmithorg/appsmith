@@ -98,7 +98,7 @@ import { getCurrentWorkspace } from "@appsmith/selectors/workspaceSelectors";
 import type { Workspace } from "@appsmith/constants/workspaceConstants";
 import { log } from "loglevel";
 import GIT_ERROR_CODES from "constants/GitErrorCodes";
-import { builderURL } from "RouteBuilder";
+import { builderURL } from "@appsmith/RouteBuilder";
 import { APP_MODE } from "entities/App";
 import type { GitDiscardResponse } from "reducers/uiReducers/gitSyncReducer";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
@@ -1072,9 +1072,8 @@ function* watchGitRequests() {
   );
 
   while (true) {
-    const { type, ...args }: ReduxAction<unknown> = yield take(
-      gitActionChannel,
-    );
+    const { type, ...args }: ReduxAction<unknown> =
+      yield take(gitActionChannel);
     yield call(gitRequestActions[type], { type, ...args });
   }
 }

@@ -141,4 +141,6 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
     Mono<List<BulkWriteResult>> publishActions(String applicationId, AclPermission permission);
 
     Flux<PluginTypeAndCountDTO> countActionsByPluginType(String applicationId);
+
+    Flux<NewAction> findByListOfPageIds(List<String> unpublishedPages, Optional<AclPermission> optionalPermission);
 }

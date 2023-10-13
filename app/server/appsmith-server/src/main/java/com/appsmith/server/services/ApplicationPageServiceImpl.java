@@ -1,9 +1,11 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.acl.PolicyGenerator;
+import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.newactions.base.NewActionService;
+import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.DatasourceRepository;
@@ -16,6 +18,7 @@ import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.WorkspacePermission;
+import com.appsmith.server.themes.base.ThemeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.reactive.TransactionalOperator;

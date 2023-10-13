@@ -16,7 +16,7 @@ import {
 } from "navigation/FocusEntity";
 import { FocusElementsConfig } from "navigation/FocusElements";
 import { setFocusHistory } from "actions/focusHistoryActions";
-import { builderURL } from "RouteBuilder";
+import { builderURL } from "@appsmith/RouteBuilder";
 import type { AppsmithLocationState } from "utils/history";
 import history, { NavigationMethod } from "utils/history";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
