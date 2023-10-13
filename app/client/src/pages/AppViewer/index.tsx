@@ -56,6 +56,7 @@ import { RAMP_NAME } from "utils/ProductRamps/RampsControlList";
 import { showProductRamps } from "@appsmith/selectors/rampSelectors";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { KBViewerFloatingButton } from "@appsmith/pages/AppViewer/KnowledgeBase/KBViewerFloatingButton";
+import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
 
 const AppViewerBody = styled.section<{
   hasPages: boolean;
@@ -179,6 +180,14 @@ function AppViewer(props: Props) {
       }
     }
   }, [branch, pageId, applicationId, pathname]);
+
+  useEffect(() => {
+    urlBuilder.setCurrentPageId(pageId);
+
+    return () => {
+      urlBuilder.setCurrentPageId(null);
+    };
+  }, [pageId]);
 
   useEffect(() => {
     const header = document.querySelector(".js-appviewer-header");

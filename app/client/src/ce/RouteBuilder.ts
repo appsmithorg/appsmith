@@ -7,21 +7,12 @@ import {
   TEMPLATES_PATH,
 } from "constants/routes";
 import { APP_MODE } from "entities/App";
-import urlBuilder from "entities/URLRedirect/URLAssembly";
+import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
+import type { URLBuilderParams } from "@appsmith/entities/URLRedirect/URLAssembly";
 import type {
   ApplicationPayload,
   Page,
 } from "@appsmith/constants/ReduxActionConstants";
-import { isNil } from "lodash";
-
-export interface URLBuilderParams {
-  suffix?: string;
-  branch?: string;
-  hash?: string;
-  params?: Record<string, any>;
-  pageId: string;
-  persistExistingParams?: boolean;
-}
 
 export const fillPathname = (
   pathname: string,
@@ -37,24 +28,6 @@ export const fillPathname = (
     replaceValue,
   );
 };
-
-export function getQueryStringfromObject(
-  params: Record<string, string> = {},
-): string {
-  const paramKeys = Object.keys(params);
-  const queryParams: string[] = [];
-  if (paramKeys) {
-    paramKeys.forEach((paramKey: string) => {
-      if (!isNil(params[paramKey])) {
-        const value = encodeURIComponent(params[paramKey]);
-        if (paramKey && value) {
-          queryParams.push(`${paramKey}=${value}`);
-        }
-      }
-    });
-  }
-  return queryParams.length ? "?" + queryParams.join("&") : "";
-}
 
 export const datasourcesEditorURL = (props: URLBuilderParams): string =>
   urlBuilder.build({
