@@ -34,8 +34,10 @@ import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.LayoutCollectionService;
 import com.appsmith.server.services.NewPageService;
+import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
+import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.ImportExportApplicationService;
 import com.appsmith.server.solutions.RefactoringSolution;
 import lombok.extern.slf4j.Slf4j;
@@ -120,6 +122,12 @@ class RefactoringSolutionCETest {
     @Autowired
     ImportExportApplicationService importExportApplicationService;
 
+    @Autowired
+    ApplicationPermission applicationPermission;
+
+    @Autowired
+    SessionUserService sessionUserService;
+
     Application testApp = null;
 
     PageDTO testPage = null;
@@ -137,89 +145,83 @@ class RefactoringSolutionCETest {
     Datasource jsDatasource;
 
     @BeforeEach
-    @WithUserDetails(value = "api_user")
     public void setup() {
         newPageService.deleteAll();
-        User apiUser = userService.findByEmail("api_user").block();
+        User currentUser = sessionUserService.getCurrentUser().block();
         Workspace toCreate = new Workspace();
         toCreate.setName("LayoutActionServiceTest");
 
         Workspace workspace =
-                workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
+                workspaceService.create(toCreate, currentUser, Boolean.FALSE).block();
         workspaceId = workspace.getId();
 
-        if (testApp == null && testPage == null) {
-            // Create application and page which will be used by the tests to create actions for.
-            Application application = new Application();
-            application.setName(UUID.randomUUID().toString());
-            testApp = applicationPageService
-                    .createApplication(application, workspace.getId())
-                    .block();
+        // Create application and page which will be used by the tests to create actions for.
+        Application application = new Application();
+        application.setName(UUID.randomUUID().toString());
+        testApp = applicationPageService
+                .createApplication(application, workspace.getId())
+                .block();
 
-            final String pageId = testApp.getPages().get(0).getId();
+        final String pageId = testApp.getPages().get(0).getId();
 
-            testPage = newPageService.findPageById(pageId, READ_PAGES, false).block();
+        testPage = newPageService.findPageById(pageId, READ_PAGES, false).block();
 
-            Layout layout = testPage.getLayouts().get(0);
-            JSONObject dsl = new JSONObject();
-            dsl.put("widgetName", "firstWidget");
-            JSONArray temp = new JSONArray();
-            temp.addAll(
-                    List.of(new JSONObject(Map.of("key", "testField")), new JSONObject(Map.of("key", "testField2"))));
-            dsl.put("dynamicBindingPathList", temp);
-            dsl.put("testField", "{{ query1.data }}");
-            dsl.put("testField2", "{{jsObject.jsFunction.data}}");
+        Layout layout = testPage.getLayouts().get(0);
+        JSONObject dsl = new JSONObject();
+        dsl.put("widgetName", "firstWidget");
+        JSONArray temp = new JSONArray();
+        temp.addAll(List.of(new JSONObject(Map.of("key", "testField")), new JSONObject(Map.of("key", "testField2"))));
+        dsl.put("dynamicBindingPathList", temp);
+        dsl.put("testField", "{{ query1.data }}");
+        dsl.put("testField2", "{{jsObject.jsFunction.data}}");
 
-            JSONObject dsl2 = new JSONObject();
-            dsl2.put("widgetName", "Table1");
-            dsl2.put("type", "TABLE_WIDGET");
-            Map<String, Object> primaryColumns = new HashMap<>();
-            JSONObject jsonObject = new JSONObject(Map.of("key", "value"));
-            primaryColumns.put("_id", "{{ query1.data }}");
-            primaryColumns.put("_class", jsonObject);
-            dsl2.put("primaryColumns", primaryColumns);
-            final ArrayList<Object> objects = new ArrayList<>();
-            JSONArray temp2 = new JSONArray();
-            temp2.add(new JSONObject(Map.of("key", "primaryColumns._id")));
-            dsl2.put("dynamicBindingPathList", temp2);
-            objects.add(dsl2);
-            dsl.put("children", objects);
+        JSONObject dsl2 = new JSONObject();
+        dsl2.put("widgetName", "Table1");
+        dsl2.put("type", "TABLE_WIDGET");
+        Map<String, Object> primaryColumns = new HashMap<>();
+        JSONObject jsonObject = new JSONObject(Map.of("key", "value"));
+        primaryColumns.put("_id", "{{ query1.data }}");
+        primaryColumns.put("_class", jsonObject);
+        dsl2.put("primaryColumns", primaryColumns);
+        final ArrayList<Object> objects = new ArrayList<>();
+        JSONArray temp2 = new JSONArray();
+        temp2.add(new JSONObject(Map.of("key", "primaryColumns._id")));
+        dsl2.put("dynamicBindingPathList", temp2);
+        objects.add(dsl2);
+        dsl.put("children", objects);
 
-            layout.setDsl(dsl);
-            layout.setPublishedDsl(dsl);
-            layoutActionService
-                    .updateLayout(pageId, testApp.getId(), layout.getId(), layout)
-                    .block();
+        layout.setDsl(dsl);
+        layout.setPublishedDsl(dsl);
+        layoutActionService
+                .updateLayout(pageId, testApp.getId(), layout.getId(), layout)
+                .block();
 
-            testPage = newPageService.findPageById(pageId, READ_PAGES, false).block();
-        }
+        testPage = newPageService.findPageById(pageId, READ_PAGES, false).block();
 
-        if (gitConnectedApp == null) {
-            Application newApp = new Application();
-            newApp.setName(UUID.randomUUID().toString());
-            GitApplicationMetadata gitData = new GitApplicationMetadata();
-            gitData.setBranchName("actionServiceTest");
-            newApp.setGitApplicationMetadata(gitData);
-            gitConnectedApp = applicationPageService
-                    .createApplication(newApp, workspaceId)
-                    .flatMap(application -> {
-                        application.getGitApplicationMetadata().setDefaultApplicationId(application.getId());
-                        return applicationService
-                                .save(application)
-                                .zipWhen(application1 -> importExportApplicationService.exportApplicationById(
-                                        application1.getId(), gitData.getBranchName()));
-                    })
-                    // Assign the branchName to all the resources connected to the application
-                    .flatMap(tuple -> importExportApplicationService.importApplicationInWorkspaceFromGit(
-                            workspaceId, tuple.getT2(), tuple.getT1().getId(), gitData.getBranchName()))
-                    .block();
+        Application newApp = new Application();
+        newApp.setName(UUID.randomUUID().toString());
+        GitApplicationMetadata gitData = new GitApplicationMetadata();
+        gitData.setBranchName("actionServiceTest");
+        newApp.setGitApplicationMetadata(gitData);
+        gitConnectedApp = applicationPageService
+                .createApplication(newApp, workspaceId)
+                .flatMap(application1 -> {
+                    application1.getGitApplicationMetadata().setDefaultApplicationId(application1.getId());
+                    return applicationService
+                            .save(application1)
+                            .zipWhen(application11 -> importExportApplicationService.exportApplicationById(
+                                    application11.getId(), gitData.getBranchName()));
+                })
+                // Assign the branchName to all the resources connected to the application
+                .flatMap(tuple -> importExportApplicationService.importApplicationInWorkspaceFromGit(
+                        workspaceId, tuple.getT2(), tuple.getT1().getId(), gitData.getBranchName()))
+                .block();
 
-            gitConnectedPage = newPageService
-                    .findPageById(gitConnectedApp.getPages().get(0).getId(), READ_PAGES, false)
-                    .block();
+        gitConnectedPage = newPageService
+                .findPageById(gitConnectedApp.getPages().get(0).getId(), READ_PAGES, false)
+                .block();
 
-            branchName = gitConnectedApp.getGitApplicationMetadata().getBranchName();
-        }
+        branchName = gitConnectedApp.getGitApplicationMetadata().getBranchName();
 
         workspaceId = workspace.getId();
         datasource = new Datasource();
@@ -239,11 +241,13 @@ class RefactoringSolutionCETest {
     }
 
     @AfterEach
-    @WithUserDetails(value = "api_user")
     public void cleanup() {
-        applicationPageService.deleteApplication(testApp.getId()).block();
-        testApp = null;
-        testPage = null;
+        List<Application> deletedApplications = applicationService
+                .findByWorkspaceId(workspaceId, applicationPermission.getDeletePermission())
+                .flatMap(remainingApplication -> applicationPageService.deleteApplication(remainingApplication.getId()))
+                .collectList()
+                .block();
+        Workspace deletedWorkspace = workspaceService.archiveById(workspaceId).block();
     }
 
     @Test
