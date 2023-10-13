@@ -1,8 +1,8 @@
 import { debounce } from "lodash";
 import type { RefObject } from "react";
-import { ANVIL_LAYER, ANVIL_WIDGET, LAYOUT } from "./utils";
+import { ANVIL_WIDGET, LAYOUT, getAnvilLayoutDOMId } from "./utils";
 import store from "store";
-import { readWidgetPositions } from "layoutSystems/anvil/integrations/actions";
+import { readLayoutElementPositions } from "layoutSystems/anvil/integrations/actions";
 
 /**
  * This Class's main function is to batch all the registered widgets, Flex layers and layout components
@@ -10,7 +10,7 @@ import { readWidgetPositions } from "layoutSystems/anvil/integrations/actions";
  *
  * This inturn acts as an observer to find out update widgets positions whenever the widget position changes
  */
-class WidgetPositionsObserver {
+class LayoutElementPositionObserver {
   // Objects to store registered elements
   private registeredWidgets: {
     [widgetDOMId: string]: { ref: RefObject<HTMLDivElement>; id: string };
@@ -34,7 +34,6 @@ class WidgetPositionsObserver {
   private widgetsProcessQueue: {
     [widgetId: string]: boolean;
   } = {};
-  private layersProcessQueue: { [canvasId: string]: number } = {};
   private layoutsProcessQueue: { [key: string]: boolean } = {};
 
   private debouncedProcessBatch = debounce(this.processWidgetBatch, 200);
@@ -49,8 +48,6 @@ class WidgetPositionsObserver {
           const DOMId = entry?.target?.id;
           if (DOMId.indexOf(ANVIL_WIDGET) > -1) {
             this.addWidgetToProcess(DOMId);
-          } else if (DOMId.indexOf(ANVIL_LAYER) > -1) {
-            this.addLayerToProcess(DOMId);
           } else if (DOMId.indexOf(LAYOUT) > -1) {
             this.addLayoutToProcess(DOMId);
           }
@@ -82,38 +79,21 @@ class WidgetPositionsObserver {
     delete this.registeredWidgets[widgetDOMId];
   }
 
-  //Method to register layers for resize observer changes
-  public observeLayer(
-    layerId: string,
-    canvasId: string,
-    layerIndex: number,
-    ref: RefObject<HTMLDivElement>,
-  ) {
-    if (ref?.current) {
-      this.registeredLayers[layerId] = { ref, canvasId, layerIndex };
-      this.resizeObserver.observe(ref.current);
-    }
-  }
-
-  //Method to de register layers for resize observer changes
-  public unObserveLayer(layerId: string) {
-    const element = this.registeredLayers[layerId]?.ref?.current;
-    if (element) {
-      this.resizeObserver.unobserve(element);
-    }
-
-    delete this.registeredLayers[layerId];
-  }
-
   //Method to register layouts for resize observer changes
   public observeLayout(
     layoutId: string,
-    ref: RefObject<HTMLDivElement>,
     canvasId: string,
-    id: string,
+    layoutIndex: number,
+    ref: RefObject<HTMLDivElement>,
   ) {
     if (ref?.current) {
-      this.registeredLayouts[layoutId] = { ref, canvasId, layoutId: id };
+      this.registeredLayouts[layoutId] = this.registeredLayouts[
+        getAnvilLayoutDOMId(canvasId, layoutId, layoutIndex)
+      ] = {
+        ref,
+        canvasId,
+        layoutId,
+      };
       this.resizeObserver.observe(ref.current);
     }
   }
@@ -137,29 +117,10 @@ class WidgetPositionsObserver {
     }
   }
 
-  //This method is triggered from the resize observer to add layer to queue
-  private addLayerToProcess(LayerId: string) {
-    if (this.registeredLayers[LayerId]) {
-      const { canvasId, layerIndex } = this.registeredLayers[LayerId];
-
-      //If the layer in canvas already exist
-      //and if the current layer is further higher than the previous one
-      //add this layer to queue
-      if (
-        this.layersProcessQueue[canvasId] === undefined ||
-        this.layersProcessQueue[canvasId] > layerIndex
-      ) {
-        this.layersProcessQueue[canvasId] = layerIndex;
-      }
-      this.debouncedProcessBatch();
-    }
-  }
-
   //This method is triggered from the resize observer to add layout to queue
-  private addLayoutToProcess(layoutId: string) {
-    if (this.registeredLayouts[layoutId]) {
-      const id = this.registeredLayouts[layoutId].layoutId;
-      this.layoutsProcessQueue[id] = true;
+  private addLayoutToProcess(layoutDOMId: string) {
+    if (this.registeredLayouts[layoutDOMId]) {
+      this.layoutsProcessQueue[layoutDOMId] = true;
       this.debouncedProcessBatch();
     }
   }
@@ -167,16 +128,14 @@ class WidgetPositionsObserver {
   //Clear all process queues
   private clearProcessQueue() {
     this.widgetsProcessQueue = {};
-    this.layersProcessQueue = {};
     this.layoutsProcessQueue = {};
   }
 
   //Dispatch all the changed elements to saga for further processing to update widget positions
   private processWidgetBatch() {
     store.dispatch(
-      readWidgetPositions(
+      readLayoutElementPositions(
         { ...this.widgetsProcessQueue },
-        { ...this.layersProcessQueue },
         { ...this.layoutsProcessQueue },
       ),
     );
@@ -184,4 +143,4 @@ class WidgetPositionsObserver {
   }
 }
 
-export const positionObserver = new WidgetPositionsObserver();
+export const positionObserver = new LayoutElementPositionObserver();

@@ -1,11 +1,11 @@
 import { AnvilReduxActionTypes } from "layoutSystems/anvil/integrations/actions/actionTypes";
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import type { WidgetPositions } from "layoutSystems/common/types";
-import { all, put, select, takeEvery } from "redux-saga/effects";
-import { getAnvilWidgetId } from "layoutSystems/common/utils/WidgetPositionsObserver/utils";
-import { getAffectedWidgetsFromLayers } from "layoutSystems/anvil/integrations/utils";
-import { getCanvasWidgets } from "@appsmith/selectors/entitiesSelector";
+import type { LayoutElementPositions } from "layoutSystems/common/types";
+import { all, put, takeEvery } from "redux-saga/effects";
+import {
+  extractLayoutIdFromLayoutDOMId,
+  getAnvilWidgetDOMId,
+} from "layoutSystems/common/utils/WidgetPositionsObserver/utils";
 import { CANVAS_ART_BOARD } from "constants/componentClassNameConstants";
 
 /**
@@ -16,44 +16,45 @@ import { CANVAS_ART_BOARD } from "constants/componentClassNameConstants";
  * Layouts: When triggered by the ResizeObserver wrapping the layout (Layout Components)
  * @param action All the widgets, layers and layouts that have changed and currently in queue to be processed
  */
-function* readAndUpdateWidgetPositions(
+function* readAndUpdateLayoutElementPositions(
   action: ReduxAction<{
     widgetsProcessQueue: {
       [widgetId: string]: boolean;
     };
-    layersProcessQueue: { [canvasId: string]: number };
     layoutsProcessQueue: { [key: string]: boolean };
   }>,
 ) {
-  const widgets: CanvasWidgetsReduxState = yield select(getCanvasWidgets);
-
-  const { layersProcessQueue, widgetsProcessQueue } = action.payload;
-
-  //get additional widgets from affected layers
-  const affectedWidgetsFromLayers: {
-    [widgetDOMId: string]: boolean;
-  } = getAffectedWidgetsFromLayers(layersProcessQueue, widgets);
-
-  const widgetsToProcess = {
-    ...widgetsProcessQueue,
-    ...affectedWidgetsFromLayers,
-  };
-
-  const widgetDimensions: WidgetPositions = {};
-
+  const { widgetsProcessQueue } = action.payload;
+  const positions: LayoutElementPositions = {};
   const mainContainerDOMNode = document.getElementById(CANVAS_ART_BOARD);
-
   const mainContainerDOMRect = mainContainerDOMNode?.getBoundingClientRect();
-
   const { left = 0, top = 0 } = mainContainerDOMRect || {};
 
   //for every affected widget get the bounding client Rect
   // If they do, we don't have to update the positions here.
-  for (const widgetId of Object.keys(widgetsToProcess)) {
-    const element = document.getElementById(getAnvilWidgetId(widgetId));
+  for (const widgetId of Object.keys(widgetsProcessQueue)) {
+    const element = document.getElementById(getAnvilWidgetDOMId(widgetId));
     if (element) {
       const rect = element.getBoundingClientRect();
-      widgetDimensions[widgetId] = {
+      positions[widgetId] = {
+        left: rect.left - left,
+        top: rect.top - top,
+        height: rect.height,
+        width: rect.width,
+      };
+    }
+  }
+
+  for (const layoutDOMId of Object.keys(action.payload.layoutsProcessQueue)) {
+    const element: HTMLElement | null = document.getElementById(layoutDOMId);
+    if (element) {
+      const layoutId: string = extractLayoutIdFromLayoutDOMId(layoutDOMId);
+      // TODO: Fix in issue #28038
+      // const layoutIndex: number =
+      //   extractLayoutIndexFromLayoutDOMId(layoutDOMId);
+      // const effectedLayouts = getEffectedLayouts(layoutId, layoutIndex);
+      const rect = element.getBoundingClientRect();
+      positions[layoutId] = {
         left: rect.left - left,
         top: rect.top - top,
         height: rect.height,
@@ -63,16 +64,16 @@ function* readAndUpdateWidgetPositions(
   }
 
   yield put({
-    type: AnvilReduxActionTypes.UPDATE_WIDGET_POSITIONS,
-    payload: widgetDimensions,
+    type: AnvilReduxActionTypes.UPDATE_LAYOUT_ELEMENT_POSITIONS,
+    payload: positions,
   });
 }
 
-export default function* WidgetPositionSaga() {
+export default function* LayoutElementPositionsSaga() {
   yield all([
     takeEvery(
-      AnvilReduxActionTypes.READ_WIDGET_POSITIONS,
-      readAndUpdateWidgetPositions,
+      AnvilReduxActionTypes.READ_LAYOUT_ELEMENT_POSITIONS,
+      readAndUpdateLayoutElementPositions,
     ),
   ]);
 }

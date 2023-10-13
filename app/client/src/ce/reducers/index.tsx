@@ -78,7 +78,7 @@ import type { OneClickBindingState } from "reducers/uiReducers/oneClickBindingRe
 
 /* Reducers which are integrated into the core system when registering a pluggable module
     or done so by a module that is designed to be eventually pluggable */
-import type { WidgetPositionsReduxState } from "layoutSystems/anvil/integrations/reducers/widgetPositionsReducer";
+import type { LayoutElementPositionsReduxState } from "layoutSystems/anvil/integrations/reducers/layoutElementPositionsReducer";
 
 export const reducerObject = {
   entities: entityReducer,
@@ -156,7 +156,7 @@ export interface AppState {
     jsActions: JSCollectionDataState;
     autoHeightLayoutTree: AutoHeightLayoutTreeReduxState;
     canvasLevels: CanvasLevelsReduxState;
-    widgetPositions: WidgetPositionsReduxState;
+    layoutElementPositions: LayoutElementPositionsReduxState;
   };
   evaluations: {
     tree: EvaluatedTreeState;
