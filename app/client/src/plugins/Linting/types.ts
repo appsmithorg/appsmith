@@ -15,6 +15,7 @@ import type { TJSLibrary } from "workers/common/JSLibrary";
 export enum LINT_WORKER_ACTIONS {
   LINT_TREE = "LINT_TREE",
   UPDATE_LINT_GLOBALS = "UPDATE_LINT_GLOBALS",
+  SETUP = "SETUP",
 }
 export interface LintTreeResponse {
   errors: LintErrorsStore;

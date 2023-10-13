@@ -696,8 +696,10 @@ export function* forkApplicationSaga(
           workspaceId: action.payload.workspaceId,
         },
       });
+
       const pageURL = builderURL({
         pageId: application.defaultPageId as string,
+        params: { branch: null },
       });
 
       if (action.payload.editMode) {

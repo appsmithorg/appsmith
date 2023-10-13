@@ -13,7 +13,6 @@ import type {
   ApplicationPayload,
   Page,
 } from "@appsmith/constants/ReduxActionConstants";
-import { isNil } from "lodash";
 
 export const fillPathname = (
   pathname: string,
@@ -29,24 +28,6 @@ export const fillPathname = (
     replaceValue,
   );
 };
-
-export function getQueryStringfromObject(
-  params: Record<string, string> = {},
-): string {
-  const paramKeys = Object.keys(params);
-  const queryParams: string[] = [];
-  if (paramKeys) {
-    paramKeys.forEach((paramKey: string) => {
-      if (!isNil(params[paramKey])) {
-        const value = encodeURIComponent(params[paramKey]);
-        if (paramKey && value) {
-          queryParams.push(`${paramKey}=${value}`);
-        }
-      }
-    });
-  }
-  return queryParams.length ? "?" + queryParams.join("&") : "";
-}
 
 export const datasourcesEditorURL = (props: URLBuilderParams): string =>
   urlBuilder.build({
