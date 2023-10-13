@@ -116,7 +116,10 @@ export const slashCommandHintHelper: HintHelper = (
                 editor.replaceRange(completion, cursor);
               };
               selected.action(callback);
-            } else {
+            }
+
+            // Focus on the editor if the selected command has text
+            if (selected.text) {
               focusEditor(cursorPosition.line, 2);
             }
 
