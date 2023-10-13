@@ -63,6 +63,7 @@ public enum FeatureFlagEnum {
     ask_ai,
     ask_ai_sql,
     ask_ai_js,
+    ab_ai_js_function_completion_enabled,
     license_session_limit_enabled,
     /**
      * feature flag for scim provisioning

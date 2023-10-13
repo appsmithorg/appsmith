@@ -5,6 +5,10 @@ import {
 } from "ce/entities/FeatureFlag";
 
 const EE_FEATURE_FLAG = {
+  ask_ai: "ask_ai",
+  ask_ai_js: "ask_ai_js",
+  ask_ai_sql: "ask_ai_sql",
+  ab_ai_js_function_completion_enabled: "ab_ai_js_function_completion_enabled",
   TEST_EE_FLAG: "TEST_EE_FLAG",
   license_audit_logs_enabled: "license_audit_logs_enabled",
   license_connection_pool_size_enabled: "license_connection_pool_size_enabled",
@@ -18,6 +22,10 @@ const EE_FEATURE_FLAG = {
 } as const;
 
 export const EE_DEFAULT_FEATURE_FLAG_VALUE: EE_FeatureFlags = {
+  ask_ai: false,
+  ask_ai_js: false,
+  ask_ai_sql: false,
+  ab_ai_js_function_completion_enabled: false,
   TEST_EE_FLAG: true,
   license_audit_logs_enabled: false,
   license_connection_pool_size_enabled: false,

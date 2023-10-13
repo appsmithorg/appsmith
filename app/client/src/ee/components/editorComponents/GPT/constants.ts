@@ -26,3 +26,6 @@ export enum PromptTriggers {
   RECENT = "RECENT",
   SUGGESTED = "SUGGESTED",
 }
+
+export const AI_PLACEHOLDER_CLASSNAME = "CodeMirror-ai-placeholder";
+export const AI_PLACEHOLDER_TEXT = "Type /ai to generate code using AI";

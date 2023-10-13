@@ -84,3 +84,9 @@ export const isWindowMessageListenerEnabled = (featureFlags: FeatureFlags) => {
 export const isAskAIEnabled = (featureFlags: FeatureFlags) => {
   return featureFlags?.ask_ai;
 };
+
+export const isAskAIFunctionCompletionEnabled = (
+  featureFlags: FeatureFlags,
+) => {
+  return featureFlags?.ab_ai_js_function_completion_enabled;
+};
