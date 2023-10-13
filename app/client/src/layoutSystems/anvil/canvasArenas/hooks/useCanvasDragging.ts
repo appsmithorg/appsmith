@@ -7,6 +7,7 @@ import type { HighlightingCanvasProps } from "../HighlightingCanvas";
 import { useCanvasDragToScroll } from "layoutSystems/common/canvasArenas/useCanvasDragToScroll";
 import { Colors } from "constants/Colors";
 import type { AnvilHighlightInfo } from "layoutSystems/anvil/utils/anvilTypes";
+import { getAbsolutePixels } from "utils/helpers";
 
 export const useCanvasDragging = (
   slidingArenaRef: React.RefObject<HTMLDivElement>,
@@ -40,6 +41,8 @@ export const useCanvasDragging = (
     stickyCanvas: HTMLCanvasElement,
     blockToRender: AnvilHighlightInfo,
   ) => {
+    const topOffset = getAbsolutePixels(stickyCanvas.style.top);
+    const leftOffset = getAbsolutePixels(stickyCanvas.style.left);
     const canvasCtx = stickyCanvas.getContext("2d") as CanvasRenderingContext2D;
     canvasCtx.clearRect(0, 0, stickyCanvas.width, stickyCanvas.height);
     canvasCtx.stroke();
@@ -50,8 +53,15 @@ export const useCanvasDragging = (
     canvasCtx.setLineDash([]);
     const { height, posX, posY, width } = blockToRender;
     // roundRect is not currently supported in firefox.
-    if (canvasCtx.roundRect) canvasCtx.roundRect(posX, posY, width, height, 4);
-    else canvasCtx.rect(posX, posY, width, height);
+    if (canvasCtx.roundRect)
+      canvasCtx.roundRect(
+        posX - leftOffset,
+        posY - topOffset,
+        width,
+        height,
+        4,
+      );
+    else canvasCtx.rect(posX - leftOffset, posY - topOffset, width, height);
     canvasCtx.fill();
     canvasCtx.stroke();
   };
@@ -269,7 +279,7 @@ export const useCanvasDragging = (
         resetCanvasState();
       }
     }
-  }, [isDragging, isResizing]);
+  }, [isDragging, isResizing, anvilDragStates]);
   return {
     showCanvas: isDragging && !isResizing,
   };
