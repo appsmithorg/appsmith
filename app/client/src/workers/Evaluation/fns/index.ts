@@ -63,9 +63,7 @@ import {
 } from "./geolocationFns";
 import { getFnWithGuards, isAsyncGuard } from "./utils/fnGuard";
 
-// cloudHosting -> to use in EE
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const getPlatformFunctions = (cloudHosting: boolean) => {
+export const getPlatformFunctions = () => {
   return platformFns;
 };
 
@@ -188,11 +186,7 @@ export type ActionTriggerKeys =
   | TWatchGeoLocationActionType
   | TStopWatchGeoLocationActionType;
 
-export const getActionTriggerFunctionNames = (
-  // cloudHosting -> to use in ee
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  cloudHosting: boolean,
-): Record<string, string> => {
+export const getActionTriggerFunctionNames = (): Record<string, string> => {
   return ActionTriggerFunctionNames;
 };
 
