@@ -62,8 +62,10 @@ export const ThemingPopup: React.FC<PanelProps> = ({ leftShift, onClose }) => {
         setSeedColor={(value) => updateGlobal("seedColor", value)}
         fontFamily={globals.fontFamily}
         setFontFamily={(value) => updateGlobal("fontFamily", value)}
-        rootUnitRatio={globals.rootUnitRatio}
-        setRootUnitRatio={(value) => updateGlobal("rootUnitRatio", value)}
+        densityRatio={globals.densityRatio}
+        sizingRatio={globals.sizingRatio}
+        setDensityRatio={(value) => updateGlobal("densityRatio", value)}
+        setSizingRatio={(value) => updateGlobal("sizingRatio", value)}
       />
     </Wrapper>
   );

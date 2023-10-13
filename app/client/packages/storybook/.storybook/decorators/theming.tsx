@@ -1,5 +1,6 @@
 import * as React from "react";
 import styled from "styled-components";
+// @ts-ignore
 import isChromatic from "chromatic/isChromatic";
 import { ThemeProvider, useTheme } from "@design-system/theming";
 
@@ -20,7 +21,8 @@ export const theming = (Story, args) => {
     colorMode: args.parameters.colorMode || args.globals.colorMode,
     borderRadius: args.globals.borderRadius,
     fontFamily: args.globals.fontFamily,
-    rootUnitRatio: args.globals.rootUnitRatio,
+    densityRatio: args.globals.densityRatio,
+    sizingRatio: args.globals.sizingRatio,
   });
 
   return (

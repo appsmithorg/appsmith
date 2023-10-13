@@ -32,23 +32,27 @@ interface ThemeSettingsProps {
   setBorderRadius?: (value: string) => void;
   fontFamily?: string;
   setFontFamily?: (value: string) => void;
-  rootUnitRatio?: number;
-  setRootUnitRatio?: (value: number) => void;
+  densityRatio?: number;
+  sizingRatio?: number;
+  setDensityRatio?: (value: number) => void;
+  setSizingRatio?: (value: number) => void;
   direction?: "column" | "row";
 }
 
 export const ThemeSettings = ({
   borderRadius,
+  densityRatio = 1,
   direction = "column",
   fontFamily,
   isDarkMode,
-  rootUnitRatio,
   seedColor,
   setBorderRadius,
   setDarkMode,
+  setDensityRatio,
   setFontFamily,
-  setRootUnitRatio,
   setSeedColor,
+  setSizingRatio,
+  sizingRatio = 1,
 }: ThemeSettingsProps) => {
   const colorChange = (value: string) => setSeedColor && setSeedColor(value);
   const debouncedSeedColorChange = useCallback(debounce(colorChange, 300), []);
@@ -64,7 +68,7 @@ export const ThemeSettings = ({
             gap="4px"
             marginBottom="-8px"
           >
-            <Text variant="caption">Dark mode</Text>
+            <Text>Dark mode</Text>
             <BooleanControl
               name="color-scheme"
               onChange={setDarkMode}
@@ -75,7 +79,7 @@ export const ThemeSettings = ({
 
         {setSeedColor && (
           <Flex direction="column" gap="4px">
-            <Text variant="caption">Seed</Text>
+            <Text>Seed</Text>
             <ColorControl
               defaultValue={seedColor}
               name="seed-color"
@@ -87,7 +91,7 @@ export const ThemeSettings = ({
 
         {setBorderRadius && (
           <Flex direction="column" gap="4px">
-            <Text variant="caption">Border Radius</Text>
+            <Text>Border Radius</Text>
             <StyledSelect
               defaultValue={borderRadius}
               id="border-radius"
@@ -104,7 +108,7 @@ export const ThemeSettings = ({
 
         {setFontFamily && (
           <Flex direction="column" gap="4px">
-            <Text>Font Family</Text>
+            <Text variant="footnote">Font Family</Text>
             <StyledSelect
               defaultValue={fontFamily}
               id="font-family"
@@ -132,16 +136,34 @@ export const ThemeSettings = ({
           </Flex>
         )}
 
-        {setRootUnitRatio && (
-          <Flex direction="column" gap="spacing-4">
+        {setDensityRatio && (
+          <Flex direction="column" gap="4px">
             <Text>Density</Text>
             <RangeControl
-              max={1.2}
-              min={0.8}
+              max={120}
+              min={80}
               name="root-unit-ratio"
-              onChange={(value) => setRootUnitRatio(value ?? 1)}
-              step={0.01}
-              value={rootUnitRatio ?? 1}
+              onChange={(value) =>
+                setDensityRatio(value != null ? value / 100 : 1)
+              }
+              step={10}
+              value={densityRatio * 100}
+            />
+          </Flex>
+        )}
+
+        {setSizingRatio && (
+          <Flex direction="column" gap="4px">
+            <Text>Sizing</Text>
+            <RangeControl
+              max={120}
+              min={80}
+              name="root-unit-ratio"
+              onChange={(value) =>
+                setSizingRatio(value != null ? value / 100 : 1)
+              }
+              step={10}
+              value={sizingRatio * 100}
             />
           </Flex>
         )}

@@ -3,7 +3,7 @@
   "fluid": {
     "minVw": 360,
     "maxVw": 1920,
-    "rootUnit": {
+    "sizing": {
       "minV": 4,
       "maxV": 5,
       "minR": 1,

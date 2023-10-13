@@ -1,6 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
 import debounce from "lodash/debounce";
-import { getFluidRootUnit } from "./getFluidRootUnit";
 import { getFluidSizing } from "./getFluidSizing";
 import { getFluidSpacing } from "./getFluidSpacing";
 import { getFluidTypography } from "./getFluidTypography";
@@ -9,22 +8,26 @@ import type { FluidConfig } from "./types";
 
 const RESIZE_DEBOUNCE_TIME = 300;
 
-export const useFluidTokens = (fluidConfig: FluidConfig, rootUnitRatio = 1) => {
+export const useFluidTokens = (
+  fluidConfig: FluidConfig,
+  densityRatio = 1,
+  sizingRatio = 1,
+) => {
   const [typography, setTypography] = useState(
-    getFluidTypography(fluidConfig, rootUnitRatio, window.innerWidth),
+    getFluidTypography(fluidConfig, sizingRatio, window.innerWidth),
   );
 
-  const [rootUnit, setRootUnit] = useState(
-    getFluidRootUnit(fluidConfig, rootUnitRatio),
+  const [sizing, setSizing] = useState(
+    getFluidSizing(fluidConfig, sizingRatio),
   );
 
   const [spacing, setSpacing] = useState(
-    getFluidSpacing(fluidConfig, rootUnitRatio),
+    getFluidSpacing(fluidConfig, densityRatio),
   );
 
   const onResize = () => {
     setTypography(
-      getFluidTypography(fluidConfig, rootUnitRatio, window.innerWidth),
+      getFluidTypography(fluidConfig, sizingRatio, window.innerWidth),
     );
   };
 
@@ -34,12 +37,15 @@ export const useFluidTokens = (fluidConfig: FluidConfig, rootUnitRatio = 1) => {
   );
 
   useEffect(() => {
+    setSpacing(getFluidSpacing(fluidConfig, densityRatio));
+  }, [densityRatio]);
+
+  useEffect(() => {
     setTypography(
-      getFluidTypography(fluidConfig, rootUnitRatio, window.innerWidth),
+      getFluidTypography(fluidConfig, sizingRatio, window.innerWidth),
     );
-    setRootUnit(getFluidRootUnit(fluidConfig, rootUnitRatio));
-    setSpacing(getFluidSpacing(fluidConfig, rootUnitRatio));
-  }, [rootUnitRatio]);
+    setSizing(getFluidSizing(fluidConfig, sizingRatio));
+  }, [sizingRatio]);
 
   useEffect(() => {
     window.addEventListener("resize", debouncedResize);
@@ -50,8 +56,7 @@ export const useFluidTokens = (fluidConfig: FluidConfig, rootUnitRatio = 1) => {
 
   return {
     typography,
-    rootUnit,
     spacing,
-    sizing: getFluidSizing(),
+    sizing,
   };
 };

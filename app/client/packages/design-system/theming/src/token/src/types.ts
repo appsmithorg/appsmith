@@ -20,10 +20,7 @@ export interface Token {
   type: TokenType;
 }
 
-export type RootUnit = number | string;
-
 export interface TokenSource {
-  rootUnit?: RootUnit;
   typography?: Typography;
   seedColor?: ColorTypes;
   colorMode?: ColorMode;

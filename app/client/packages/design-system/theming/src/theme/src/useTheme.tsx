@@ -19,22 +19,21 @@ export function useTheme(props: UseThemeProps = {}) {
   const {
     borderRadius,
     colorMode = "light",
+    densityRatio = 1,
     fontFamily,
-    rootUnitRatio: rootUnitRatioProp,
     seedColor,
+    sizingRatio = 1,
   } = props;
 
-  const [rootUnitRatio, setRootUnitRatio] = useState(1);
-
-  const { rootUnit, sizing, spacing, typography } = useFluidTokens(
+  const { sizing, spacing, typography } = useFluidTokens(
     fluid,
-    rootUnitRatio,
+    densityRatio,
+    sizingRatio,
   );
 
   const [theme, setTheme] = useState(tokensAccessor.getAllTokens());
 
   useEffect(() => {
-    tokensAccessor.updateRootUnit(rootUnit);
     tokensAccessor.updateSpacing(spacing);
     tokensAccessor.updateSizing(sizing);
     tokensAccessor.updateTypography(typography);
@@ -107,23 +106,26 @@ export function useTheme(props: UseThemeProps = {}) {
   }, [fontFamily]);
 
   useEffect(() => {
-    if (rootUnitRatioProp != null) {
-      setRootUnitRatio(rootUnitRatioProp);
-    }
-  }, [rootUnitRatioProp]);
+    tokensAccessor.updateSizing(sizing);
+
+    setTheme((prevState) => {
+      return {
+        ...prevState,
+        ...tokensAccessor.getSizing(),
+      };
+    });
+  }, [sizing]);
 
   useEffect(() => {
-    tokensAccessor.updateRootUnit(rootUnit);
     tokensAccessor.updateSpacing(spacing);
 
     setTheme((prevState) => {
       return {
         ...prevState,
-        rootUnit: tokensAccessor.getRootUnit(),
         ...tokensAccessor.getSpacing(),
       };
     });
-  }, [rootUnit, spacing]);
+  }, [spacing]);
 
   useEffect(() => {
     tokensAccessor.updateTypography(typography);

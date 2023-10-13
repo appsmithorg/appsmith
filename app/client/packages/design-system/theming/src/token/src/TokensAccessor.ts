@@ -3,19 +3,12 @@ import { DarkModeTheme, LightModeTheme } from "../../color";
 
 import type { ColorMode, ColorTypes } from "../../color";
 import type { FontFamily, Typography } from "../../typography";
-import type {
-  RootUnit,
-  ThemeToken,
-  TokenObj,
-  TokenSource,
-  TokenType,
-} from "./types";
+import type { ThemeToken, TokenObj, TokenSource, TokenType } from "./types";
 
 export class TokensAccessor {
   private seedColor?: ColorTypes;
   private colorMode?: ColorMode;
   private borderRadius?: TokenObj;
-  private rootUnit?: RootUnit;
   private boxShadow?: TokenObj;
   private borderWidth?: TokenObj;
   private opacity?: TokenObj;
@@ -32,7 +25,6 @@ export class TokensAccessor {
     colorMode,
     fontFamily,
     opacity,
-    rootUnit,
     seedColor,
     sizing,
     spacing,
@@ -41,7 +33,6 @@ export class TokensAccessor {
   }: TokenSource) {
     this.seedColor = seedColor;
     this.colorMode = colorMode;
-    this.rootUnit = rootUnit;
     this.borderRadius = borderRadius;
     this.boxShadow = boxShadow;
     this.borderWidth = borderWidth;
@@ -52,10 +43,6 @@ export class TokensAccessor {
     this.typography = typography;
     this.zIndex = zIndex;
   }
-
-  updateRootUnit = (rootUnit: RootUnit) => {
-    this.rootUnit = rootUnit;
-  };
 
   updateFontFamily = (fontFamily?: FontFamily) => {
     this.fontFamily = fontFamily;
@@ -103,7 +90,6 @@ export class TokensAccessor {
 
   getAllTokens = () => {
     return {
-      rootUnit: this.getRootUnit(),
       typography: this.getTypography(),
       fontFamily: this.getFontFamily(),
       ...this.getSpacing(),
@@ -116,10 +102,6 @@ export class TokensAccessor {
       ...this.getOpacity(),
       ...this.getZIndex(),
     };
-  };
-
-  getRootUnit = () => {
-    return this.rootUnit;
   };
 
   getTypography = () => {
