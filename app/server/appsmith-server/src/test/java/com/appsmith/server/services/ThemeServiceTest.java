@@ -16,8 +16,11 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.ThemeRepository;
+import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.UserAndAccessManagementService;
 import com.appsmith.server.themes.base.ThemeService;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -80,8 +83,16 @@ public class ThemeServiceTest {
     @Autowired
     private UserAndAccessManagementService userAndAccessManagementService;
 
+    @Autowired
+    ApplicationPermission applicationPermission;
+
+    @Autowired
+    UserRepository userRepository;
+
+    @Autowired
+    PermissionGroupService permissionGroupService;
+
     @BeforeEach
-    @WithUserDetails(value = "api_user")
     public void setup() {
         Workspace workspace = new Workspace();
         workspace.setName("Theme Service Test workspace");
@@ -89,12 +100,18 @@ public class ThemeServiceTest {
         this.workspace = workspaceService.create(workspace).block();
     }
 
+    @AfterEach
+    public void cleanup() {
+        List<Application> deletedApplications = applicationService
+                .findByWorkspaceId(workspace.getId(), applicationPermission.getDeletePermission())
+                .flatMap(remainingApplication -> applicationPageService.deleteApplication(remainingApplication.getId()))
+                .collectList()
+                .block();
+        Workspace deletedWorkspace =
+                workspaceService.archiveById(workspace.getId()).block();
+    }
+
     private Application createApplication() {
-
-        if (this.workspace == null) {
-            setup();
-        }
-
         Application application = new Application();
         application.setName("ThemeTest_" + UUID.randomUUID());
         application.setWorkspaceId(this.workspace.getId());
@@ -126,6 +143,25 @@ public class ThemeServiceTest {
         updatePermissionGroupDTO.setUsername("api_user");
         userWorkspaceService
                 .updatePermissionGroupForMember(workspace.getId(), updatePermissionGroupDTO, origin)
+                .block();
+    }
+
+    public void addApiUserToTheWorkspaceAsAdmin() {
+        String origin = "http://random-origin.test";
+        PermissionGroup adminPermissionGroup = permissionGroupRepository
+                .findAllById(workspace.getDefaultPermissionGroups())
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
+                .collectList()
+                .block()
+                .get(0);
+
+        // add api_user back to the workspace
+        User apiUser = userRepository.findByEmail("api_user").block();
+        adminPermissionGroup.getAssignedToUserIds().add(apiUser.getId());
+        permissionGroupRepository
+                .save(adminPermissionGroup)
+                .flatMap(
+                        savedRole -> permissionGroupService.cleanPermissionGroupCacheForUsers(List.of(apiUser.getId())))
                 .block();
     }
 
@@ -195,6 +231,8 @@ public class ThemeServiceTest {
                 .expectErrorMessage(
                         AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.APPLICATION, savedApplication.getId()))
                 .verify();
+
+        addApiUserToTheWorkspaceAsAdmin();
     }
 
     @WithUserDetails("api_user")
@@ -282,6 +320,8 @@ public class ThemeServiceTest {
         StepVerifier.create(changeCurrentThemeMono)
                 .expectError(AppsmithException.class)
                 .verify();
+
+        addApiUserToTheWorkspaceAsAdmin();
     }
 
     @WithUserDetails("api_user")

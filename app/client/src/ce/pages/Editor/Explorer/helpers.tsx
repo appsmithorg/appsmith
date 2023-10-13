@@ -159,13 +159,14 @@ export interface ExplorerStateType {
   widgets: boolean;
   queriesAndJs: boolean;
   datasource: boolean;
+  packages: boolean;
 }
 
 export const getExplorerStatus = (
-  appId: string,
+  resourceId: string,
   entityName: keyof ExplorerStateType,
 ): boolean | null => {
-  const storageItemName = EXPLORER_STORAGE_PREFIX + appId;
+  const storageItemName = EXPLORER_STORAGE_PREFIX + resourceId;
   const data = localStorage.getItem(storageItemName);
   if (data === null) return null;
   const parsedData: ExplorerStateType = JSON.parse(data);

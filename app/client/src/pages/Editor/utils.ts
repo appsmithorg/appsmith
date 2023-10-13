@@ -14,7 +14,7 @@ import {
   createMessage,
   WIDGET_DEPRECATION_MESSAGE,
 } from "@appsmith/constants/messages";
-import type { URLBuilderParams } from "RouteBuilder";
+import type { URLBuilderParams } from "@appsmith/entities/URLRedirect/URLAssembly";
 import { useSelector } from "react-redux";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import type { WidgetCardProps } from "widgets/BaseWidget";

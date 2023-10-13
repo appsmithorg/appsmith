@@ -32,6 +32,7 @@ import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
+import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.RefactoringSolution;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
@@ -121,6 +122,12 @@ public class ActionCollectionServiceTest {
     @Autowired
     PermissionGroupRepository permissionGroupRepository;
 
+    @Autowired
+    ApplicationPermission applicationPermission;
+
+    @Autowired
+    ApplicationService applicationService;
+
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
 
@@ -143,48 +150,44 @@ public class ActionCollectionServiceTest {
         Workspace toCreate = new Workspace();
         toCreate.setName("ActionCollectionServiceTest");
 
-        if (workspaceId == null) {
-            Workspace workspace =
-                    workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
-            workspaceId = workspace.getId();
-        }
+        Workspace workspace =
+                workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
+        workspaceId = workspace.getId();
 
-        if (testApp == null && testPage == null) {
-            // Create application and page which will be used by the tests to create actions for.
-            Application application = new Application();
-            application.setName(UUID.randomUUID().toString());
+        // Create application and page which will be used by the tests to create actions for.
+        Application application = new Application();
+        application.setName(UUID.randomUUID().toString());
 
-            testApp = applicationPageService
-                    .createApplication(application, workspaceId)
-                    .block();
+        testApp = applicationPageService
+                .createApplication(application, workspaceId)
+                .block();
 
-            assert testApp != null;
-            final String pageId = testApp.getPages().get(0).getId();
+        assert testApp != null;
+        final String pageId = testApp.getPages().get(0).getId();
 
-            testPage = newPageService.findPageById(pageId, READ_PAGES, false).block();
+        testPage = newPageService.findPageById(pageId, READ_PAGES, false).block();
 
-            assert testPage != null;
-            Layout layout = testPage.getLayouts().get(0);
-            JSONObject dsl = new JSONObject(Map.of("text", "{{ query1.data }}"));
+        assert testPage != null;
+        Layout layout = testPage.getLayouts().get(0);
+        JSONObject dsl = new JSONObject(Map.of("text", "{{ query1.data }}"));
 
-            JSONObject dsl2 = new JSONObject();
-            dsl2.put("widgetName", "Table1");
-            dsl2.put("type", "TABLE_WIDGET");
-            Map<String, Object> primaryColumns = new HashMap<>();
-            JSONObject jsonObject = new JSONObject(Map.of("key", "value"));
-            primaryColumns.put("_id", "{{ query1.data }}");
-            primaryColumns.put("_class", jsonObject);
-            dsl2.put("primaryColumns", primaryColumns);
-            final ArrayList<Object> objects = new ArrayList<>();
-            JSONArray temp2 = new JSONArray();
-            temp2.add(new JSONObject(Map.of("key", "primaryColumns._id")));
-            dsl2.put("dynamicBindingPathList", temp2);
-            objects.add(dsl2);
-            dsl.put("children", objects);
+        JSONObject dsl2 = new JSONObject();
+        dsl2.put("widgetName", "Table1");
+        dsl2.put("type", "TABLE_WIDGET");
+        Map<String, Object> primaryColumns = new HashMap<>();
+        JSONObject jsonObject = new JSONObject(Map.of("key", "value"));
+        primaryColumns.put("_id", "{{ query1.data }}");
+        primaryColumns.put("_class", jsonObject);
+        dsl2.put("primaryColumns", primaryColumns);
+        final ArrayList<Object> objects = new ArrayList<>();
+        JSONArray temp2 = new JSONArray();
+        temp2.add(new JSONObject(Map.of("key", "primaryColumns._id")));
+        dsl2.put("dynamicBindingPathList", temp2);
+        objects.add(dsl2);
+        dsl.put("children", objects);
 
-            layout.setDsl(dsl);
-            layout.setPublishedDsl(dsl);
-        }
+        layout.setDsl(dsl);
+        layout.setPublishedDsl(dsl);
 
         Plugin installedJsPlugin =
                 pluginRepository.findByPackageName("installed-js-plugin").block();
@@ -202,9 +205,12 @@ public class ActionCollectionServiceTest {
     @AfterEach
     @WithUserDetails(value = "api_user")
     public void cleanup() {
-        applicationPageService.deleteApplication(testApp.getId()).block();
-        testApp = null;
-        testPage = null;
+        List<Application> deletedApplications = applicationService
+                .findByWorkspaceId(workspaceId, applicationPermission.getDeletePermission())
+                .flatMap(remainingApplication -> applicationPageService.deleteApplication(remainingApplication.getId()))
+                .collectList()
+                .block();
+        Workspace deletedWorkspace = workspaceService.archiveById(workspaceId).block();
     }
 
     @Test

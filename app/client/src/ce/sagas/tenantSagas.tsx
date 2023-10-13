@@ -22,12 +22,22 @@ export function* fetchCurrentTenantConfigSaga() {
     );
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
-      const data: any = response.data;
+      const payload: any = response.data;
       yield put({
         type: ReduxActionTypes.FETCH_CURRENT_TENANT_CONFIG_SUCCESS,
-        payload: data,
+        payload: {
+          ...payload,
+          tenantConfiguration: {
+            ...CE_defaultBrandingConfig,
+            ...payload.tenantConfiguration,
+            brandColors: {
+              ...CE_defaultBrandingConfig.brandColors,
+              ...payload.tenantConfiguration.brandColors,
+            },
+          },
+        },
       });
-      AnalyticsUtil.initInstanceId(data.instanceId);
+      AnalyticsUtil.initInstanceId(payload.instanceId);
     }
   } catch (error) {
     yield put({

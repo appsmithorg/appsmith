@@ -1,5 +1,7 @@
 package com.appsmith.util;
 
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import io.netty.resolver.AddressResolver;
 import io.netty.resolver.AddressResolverGroup;
 import io.netty.resolver.InetNameResolver;
@@ -9,6 +11,7 @@ import io.netty.util.concurrent.Promise;
 import io.netty.util.internal.SocketUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
+import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
@@ -29,10 +32,15 @@ public class WebClientUtils {
 
     public static final String HOST_NOT_ALLOWED = "Host not allowed.";
 
-    public static final ExchangeFilterFunction IP_CHECK_FILTER = ExchangeFilterFunction.ofRequestProcessor(
-            request -> DISALLOWED_HOSTS.contains(request.url().getHost())
-                    ? Mono.error(new UnknownHostException(HOST_NOT_ALLOWED))
-                    : Mono.just(request));
+    public static final ExchangeFilterFunction IP_CHECK_FILTER = ExchangeFilterFunction.ofRequestProcessor(request -> {
+        if (!StringUtils.hasText(request.url().getHost())) {
+            return Mono.error(new AppsmithPluginException(
+                    AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR, "Requested url host is null or empty"));
+        }
+        return DISALLOWED_HOSTS.contains(request.url().getHost())
+                ? Mono.error(new UnknownHostException(HOST_NOT_ALLOWED))
+                : Mono.just(request);
+    });
 
     private WebClientUtils() {}
 

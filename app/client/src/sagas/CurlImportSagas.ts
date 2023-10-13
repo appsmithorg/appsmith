@@ -13,7 +13,7 @@ import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import transformCurlImport from "transformers/CurlImportTransformer";
 import history from "utils/history";
 import { CURL } from "constants/AppsmithActionConstants/ActionConstants";
-import { apiEditorIdURL } from "RouteBuilder";
+import { apiEditorIdURL } from "@appsmith/RouteBuilder";
 
 export function* curlImportSaga(action: ReduxAction<CurlImportRequest>) {
   const { name, pageId, type } = action.payload;

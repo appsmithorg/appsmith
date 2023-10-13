@@ -14,7 +14,7 @@ import { getAppViewHeaderHeight } from "selectors/appViewSelectors";
 import { useOnClickOutside } from "utils/hooks/useOnClickOutside";
 import { useHref } from "pages/Editor/utils";
 import { APP_MODE } from "entities/App";
-import { builderURL, viewerURL } from "RouteBuilder";
+import { builderURL, viewerURL } from "@appsmith/RouteBuilder";
 import { trimQueryString } from "utils/helpers";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import type { NavigationSetting } from "constants/AppConstants";
