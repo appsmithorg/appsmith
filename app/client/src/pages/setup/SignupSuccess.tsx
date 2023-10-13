@@ -14,6 +14,7 @@ import { Spinner } from "design-system";
 import { isValidLicense } from "@appsmith/selectors/tenantSelectors";
 import { redirectUserAfterSignup } from "@appsmith/utils/signupHelpers";
 import { setUserSignedUpFlag } from "utils/storage";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 export function SignupSuccess() {
   const dispatch = useDispatch();
@@ -48,6 +49,10 @@ export function SignupSuccess() {
         proficiency,
         useCase,
       },
+    });
+    AnalyticsUtil.logEvent("GET_STARTED_CLICKED", {
+      proficiency,
+      goal: useCase,
     });
     redirectUsingQueryParam();
   }, []);

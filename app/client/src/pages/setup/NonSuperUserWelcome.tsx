@@ -1,9 +1,10 @@
-import React, { memo } from "react";
+import React, { memo, useEffect } from "react";
 import styled from "styled-components";
 import { createMessage, WELCOME_HEADER } from "@appsmith/constants/messages";
 import NonSuperUserForm from "./GetStarted";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const LandingPageWrapper = styled.div`
   width: 100%;
@@ -105,6 +106,12 @@ interface LandingPageProps {
 }
 
 export default memo(function NonSuperUserWelcome(props: LandingPageProps) {
+  useEffect(() => {
+    AnalyticsUtil.logEvent("PAGE_VIEW", {
+      pageType: "profilingQuestions",
+    });
+  }, []);
+
   return (
     <LandingPageWrapper data-testid={"welcome-page"}>
       <LandingPageContent>
