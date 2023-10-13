@@ -19,7 +19,6 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.ProvisionUtils;
-import com.appsmith.server.helpers.TenantUtils;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.repositories.UserGroupRepository;
 import com.appsmith.server.repositories.UserRepository;
@@ -58,7 +57,6 @@ import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.f
 public class ProvisionServiceImpl extends ProvisionServiceCECompatibleImpl implements ProvisionService {
     private final AnalyticsService analyticsService;
     private final ApiKeyService apiKeyService;
-    private final TenantUtils tenantUtils;
     private final TenantService tenantService;
     private final UserRepository userRepository;
     private final UserGroupRepository userGroupRepository;
@@ -75,9 +73,7 @@ public class ProvisionServiceImpl extends ProvisionServiceCECompatibleImpl imple
 
         // Archive all existing provisioning token.
         // Then generate new provisioning token.
-        return tenantUtils
-                .enterpriseUpgradeRequired()
-                .then(archiveProvisionToken())
+        return archiveProvisionToken()
                 .then(apiKeyService.generateApiKey(apiKeyRequestDto))
                 .flatMap(apiKey -> provisionUtils.updateStatus(INACTIVE, true).thenReturn(apiKey));
     }
