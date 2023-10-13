@@ -188,7 +188,9 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         //      : Normal apps => Export permission
         //      : Sample apps where datasource config needs to be shared => Read permission
 
-        boolean isGitSync = SerialiseApplicationObjective.VERSION_CONTROL.equals(serialiseFor);
+        boolean isGitSync = SerialiseApplicationObjective.VERSION_CONTROL.equals(serialiseFor)
+            || SerialiseApplicationObjective.KNOWLEDGE_BASE_GENERATION.equals(serialiseFor);
+
         AtomicReference<Boolean> exportWithConfiguration = new AtomicReference<>(false);
 
         // If Git-sync, then use MANAGE_APPLICATIONS, else use EXPORT_APPLICATION permission to fetch application
