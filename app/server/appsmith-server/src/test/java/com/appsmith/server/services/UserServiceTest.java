@@ -358,6 +358,10 @@ public class UserServiceTest {
                     assertTrue(passwordEncoder.matches("123456", user.getPassword()));
                 })
                 .verifyComplete();
+
+        Workspace deletedWorkspace = workspaceMono
+                .flatMap(workspace1 -> workspaceService.archiveById(workspace1.getId()))
+                .block();
     }
 
     @Test
