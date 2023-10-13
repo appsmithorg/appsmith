@@ -55,8 +55,9 @@ public class DatasourceExportableServiceCEImpl implements ExportableServiceCE<Da
             Mono<Application> applicationMono,
             ApplicationJson applicationJson) {
 
-        Mono<String> defaultEnvironmentIdMono =
-                workspaceService.getDefaultEnvironmentId(exportingMetaDTO.getApplicationId(), null);
+        Mono<String> defaultEnvironmentIdMono = applicationMono
+                .map(Application::getWorkspaceId)
+                .flatMap(workspaceId -> workspaceService.getDefaultEnvironmentId(workspaceId, null));
 
         Optional<AclPermission> optionalPermission = Optional.ofNullable(datasourcePermission.getExportPermission(
                 exportingMetaDTO.getIsGitSync(), exportingMetaDTO.getExportWithConfiguration()));
