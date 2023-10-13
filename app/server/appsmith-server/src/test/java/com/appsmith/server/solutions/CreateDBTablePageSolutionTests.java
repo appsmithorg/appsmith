@@ -39,6 +39,7 @@ import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.WorkspaceService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -74,7 +75,7 @@ public class CreateDBTablePageSolutionTests {
     // Regex to break string in separate words
     static final String specialCharactersRegex = "[^a-zA-Z0-9,;(){}*_]+";
     private static final String DATA = "data";
-    private static final Datasource testDatasource = new Datasource();
+    private static Datasource testDatasource = new Datasource();
     private static final DatasourceStorageStructure testDatasourceStructure = new DatasourceStorageStructure();
     private static Workspace testWorkspace;
     private static String testDefaultEnvironmentId;
@@ -157,6 +158,9 @@ public class CreateDBTablePageSolutionTests {
     @Autowired
     EnvironmentPermission environmentPermission;
 
+    @Autowired
+    ApplicationPermission applicationPermission;
+
     DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
 
     @MockBean
@@ -167,7 +171,6 @@ public class CreateDBTablePageSolutionTests {
     private final CRUDPageResourceDTO resource = new CRUDPageResourceDTO();
 
     @BeforeEach
-    @WithUserDetails(value = "api_user")
     public void setup() {
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(any())).thenReturn(Mono.just(spyMockPluginExecutor));
@@ -175,66 +178,71 @@ public class CreateDBTablePageSolutionTests {
                 .thenReturn(Mono.just(spyMockPluginExecutor))
                 .thenReturn(Mono.just(spyMockPluginExecutor));
 
-        if (testWorkspace == null) {
-            Workspace workspace = new Workspace();
-            workspace.setName("Create-DB-Table-Page-Org");
-            testWorkspace = workspaceService.create(workspace).block();
-            testDefaultEnvironmentId = workspaceService
-                    .getDefaultEnvironmentId(testWorkspace.getId(), environmentPermission.getExecutePermission())
-                    .block();
-        }
+        Workspace workspace = new Workspace();
+        workspace.setName("Create-DB-Table-Page-Org");
+        testWorkspace = workspaceService.create(workspace).block();
+        testDefaultEnvironmentId = workspaceService
+                .getDefaultEnvironmentId(testWorkspace.getId(), environmentPermission.getExecutePermission())
+                .block();
 
-        if (testApp == null) {
-            Application testApplication = new Application();
-            testApplication.setName("DB-Table-Page-Test-Application");
-            testApplication.setWorkspaceId(testWorkspace.getId());
-            testApp = applicationPageService
-                    .createApplication(testApplication, testWorkspace.getId())
-                    .block();
-        }
+        Application testApplication = new Application();
+        testApplication.setName("DB-Table-Page-Test-Application");
+        testApplication.setWorkspaceId(testWorkspace.getId());
+        testApp = applicationPageService
+                .createApplication(testApplication, testWorkspace.getId())
+                .block();
 
-        if (StringUtils.isEmpty(testDatasource.getId())) {
-            postgreSQLPlugin = pluginRepository.findByName("PostgreSQL").block();
-            // This datasource structure includes only 1 table with 2 columns. This is to test the scenario where
-            // template table
-            // have more number of columns than the user provided table which leads to deleting the column names from
-            // action configuration
+        postgreSQLPlugin = pluginRepository.findByName("PostgreSQL").block();
+        // This datasource structure includes only 1 table with 2 columns. This is to test the scenario where
+        // template table
+        // have more number of columns than the user provided table which leads to deleting the column names from
+        // action configuration
 
-            List<Column> limitedColumns = List.of(
-                    new Column("id", "type1", null, true), new Column("field1.something", "VARCHAR(23)", null, false));
-            List<Key> keys = List.of(new DatasourceStructure.PrimaryKey("pKey", List.of("id")));
-            List<Column> columns = List.of(
-                    new Column("id", "type1", null, true),
-                    new Column("field1.something", "VARCHAR(23)", null, false),
-                    new Column("field2", "type3", null, false),
-                    new Column("field3", "type4", null, false),
-                    new Column("field4", "type5", null, false));
-            List<Table> tables = List.of(
-                    new Table(TableType.TABLE, "", "sampleTable", columns, keys, new ArrayList<>()),
-                    new Table(TableType.TABLE, "", "limitedColumnTable", limitedColumns, keys, new ArrayList<>()));
-            structure.setTables(tables);
-            testDatasource.setPluginId(postgreSQLPlugin.getId());
-            testDatasource.setWorkspaceId(testWorkspace.getId());
-            testDatasource.setName("CRUD-Page-Table-DS");
+        List<Column> limitedColumns = List.of(
+                new Column("id", "type1", null, true), new Column("field1.something", "VARCHAR(23)", null, false));
+        List<Key> keys = List.of(new DatasourceStructure.PrimaryKey("pKey", List.of("id")));
+        List<Column> columns = List.of(
+                new Column("id", "type1", null, true),
+                new Column("field1.something", "VARCHAR(23)", null, false),
+                new Column("field2", "type3", null, false),
+                new Column("field3", "type4", null, false),
+                new Column("field4", "type5", null, false));
+        List<Table> tables = List.of(
+                new Table(TableType.TABLE, "", "sampleTable", columns, keys, new ArrayList<>()),
+                new Table(TableType.TABLE, "", "limitedColumnTable", limitedColumns, keys, new ArrayList<>()));
+        structure.setTables(tables);
+        Datasource datasource = new Datasource();
+        datasource.setPluginId(postgreSQLPlugin.getId());
+        datasource.setWorkspaceId(testWorkspace.getId());
+        datasource.setName("CRUD-Page-Table-DS");
 
-            datasourceConfiguration.setUrl("http://test.com");
+        datasourceConfiguration.setUrl("http://test.com");
 
-            HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-            storages.put(
-                    testDefaultEnvironmentId,
-                    new DatasourceStorageDTO(
-                            testDatasource.getId(), testDefaultEnvironmentId, datasourceConfiguration));
-            testDatasource.setDatasourceStorages(storages);
+        HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
+        storages.put(
+                testDefaultEnvironmentId,
+                new DatasourceStorageDTO(datasource.getId(), testDefaultEnvironmentId, datasourceConfiguration));
+        datasource.setDatasourceStorages(storages);
 
-            Datasource datasource = datasourceService.create(testDatasource).block();
+        testDatasource = datasourceService.create(datasource).block();
 
-            testDatasourceStructure.setDatasourceId(datasource.getId());
-            testDatasourceStructure.setEnvironmentId(testDefaultEnvironmentId);
-            testDatasourceStructure.setStructure(structure);
-            datasourceStructureService.save(testDatasourceStructure).block();
-        }
+        testDatasourceStructure.setDatasourceId(testDatasource.getId());
+        testDatasourceStructure.setEnvironmentId(testDefaultEnvironmentId);
+        testDatasourceStructure.setStructure(structure);
+        datasourceStructureService.save(testDatasourceStructure).block();
         resource.setTableName(structure.getTables().get(0).getName());
         resource.setDatasourceId(testDatasource.getId());
+    }
+
+    @AfterEach
+    public void cleanup() {
+        List<Application> deletedApplications = applicationService
+                .findByWorkspaceId(testWorkspace.getId(), applicationPermission.getDeletePermission())
+                .flatMap(remainingApplication -> applicationPageService.deleteApplication(remainingApplication.getId()))
+                .collectList()
+                .block();
+        Workspace deletedWorkspace =
+                workspaceService.archiveById(testWorkspace.getId()).block();
     }
 
     Mono<List<NewAction>> getActions(String pageId) {
