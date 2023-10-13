@@ -28,6 +28,8 @@ import type { FlattenedWidgetProps } from "WidgetProvider/constants";
 import IconSVG from "../icon.svg";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import type { FlexLayer } from "layoutSystems/autolayout/utils/types";
+import type {  LayoutProps } from "layoutSystems/anvil/utils/anvilTypes";
+import { formPreset } from "layoutSystems/anvil/layoutComponents/presets/FormPreset";
 
 class FormWidget extends ContainerWidget {
   static type = "FORM_WIDGET";
@@ -218,6 +220,12 @@ class FormWidget extends ContainerWidget {
                 },
               ];
 
+              const layout: LayoutProps[] = formPreset(
+                textWidget.widgetId,
+                buttonWidget1.widgetId,
+                buttonWidget2.widgetId,
+              );
+
               //create properties to be updated
               return getWidgetBluePrintUpdates({
                 [widget.widgetId]: {
@@ -231,6 +239,7 @@ class FormWidget extends ContainerWidget {
                   positioning: Positioning.Vertical,
                   bottomRow: 100,
                   mobileBottomRow: 100,
+                  layout,
                 },
                 [textWidget.widgetId]: {
                   responsiveBehavior: ResponsiveBehavior.Fill,

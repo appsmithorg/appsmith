@@ -25,7 +25,6 @@ import {
   generateHighlights,
   getHighlightsForWidgetsRow,
 } from "./rowHighlights";
-import { getInitialHighlights as getHighlightsForEmptyAlignment } from "./verticalHighlights";
 
 export function deriveAlignedRowHighlights(
   layoutProps: LayoutProps,
@@ -273,3 +272,35 @@ export function getHighlightsForWidgets(
   }
   return [];
 }
+
+/**
+ * Default Preset:
+ *
+ * ALIGNED_COLUMN
+ *  ALIGNED_ROW
+ *   W1 W2
+ *  ALIGNED_ROW <- AFFECTED LAYOUT
+ *   W3 W5 <-
+ *  ALIGNED_ROW <-
+ *   W4 <-
+ */
+
+/**
+ * MODAL Preset:
+ *
+ * COLUMN
+ *  ROW (HEADER)
+ *    TITLE_ROW
+ *     W1
+ *    ICON_ROW
+ *     W2
+ *  ALIGNED_COLUMN (MAIN)
+ *    ALIGNED_ROW
+ *      W3 W4
+ *    ALIGNED_ROW <- AFFECTED LAYOUT (C)
+ *      W5 W6 (C)
+ *    ALIGNED_ROW (C)
+ *      W7 W8 (C)
+ *  ALIGNED_ROW (FOOTER) (C)
+ *    W9 W10 (C)
+ */
