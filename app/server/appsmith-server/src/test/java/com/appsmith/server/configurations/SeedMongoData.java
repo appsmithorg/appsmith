@@ -223,6 +223,7 @@ public class SeedMongoData {
                 .map(array -> {
                     log.debug("Creating the plugins");
                     Plugin plugin = new Plugin();
+                    plugin.setDefaultInstall(true);
                     plugin.setName((String) array[0]);
                     plugin.setType((PluginType) array[1]);
                     plugin.setPackageName((String) array[2]);

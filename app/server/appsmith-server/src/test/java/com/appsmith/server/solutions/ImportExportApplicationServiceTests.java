@@ -52,6 +52,7 @@ import com.appsmith.server.migrations.JsonSchemaMigration;
 import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
+import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.PluginRepository;
@@ -79,6 +80,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
@@ -205,6 +207,9 @@ public class ImportExportApplicationServiceTests {
     @Autowired
     ApplicationPermission applicationPermission;
 
+    @SpyBean
+    PluginService pluginService;
+
     @BeforeEach
     public void setup() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
@@ -274,6 +279,9 @@ public class ImportExportApplicationServiceTests {
         datasourceMap.put("DS1", ds1);
         datasourceMap.put("DS2", ds2);
         isSetupDone = true;
+
+        Mockito.when(pluginService.findAllByIdsWithoutPermission(Mockito.any(), Mockito.anyList()))
+                .thenReturn(Flux.fromIterable(List.of(installedPlugin, installedJsPlugin)));
     }
 
     private Flux<ActionDTO> getActionsInApplication(Application application) {
