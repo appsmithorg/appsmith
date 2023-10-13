@@ -15,16 +15,16 @@ import { previewModeSelector } from "selectors/editorSelectors";
 import WidgetsEditor from "./WidgetsEditor";
 import EditorsRouter from "./routes";
 import EditorWrapperBody from "./commons/EditorWrapperBody";
-import WidgetsEditorEntityExplorer from "./WidgetsEditorEntityExplorer";
 import EditorWrapperContainer from "./commons/EditorWrapperContainer";
 import Sidebar from "components/Sidebar";
+import IDESidePane from "./IDESidePane";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
 /**
  * OldName: MainContainer
  */
-function WidgetsEditorWrapper() {
+function AppsmithIDE() {
   const { path } = useRouteMatch();
   const isPreviewMode = useSelector(previewModeSelector);
 
@@ -32,7 +32,7 @@ function WidgetsEditorWrapper() {
     <>
       <EditorWrapperContainer>
         <Sidebar />
-        <WidgetsEditorEntityExplorer />
+        <IDESidePane />
         <EditorWrapperBody id="app-body">
           <Switch key={BUILDER_PATH}>
             <SentryRoute
@@ -65,6 +65,6 @@ function WidgetsEditorWrapper() {
   );
 }
 
-WidgetsEditorWrapper.displayName = "WidgetsEditorWrapper";
+AppsmithIDE.displayName = "AppsmithIDE";
 
-export default WidgetsEditorWrapper;
+export default AppsmithIDE;
