@@ -269,6 +269,8 @@ export const WORKSPACES_HEADING = () => `Workspaces`;
 export const WELCOME_TOUR = () => `Welcome tour`;
 export const NO_APPS_FOUND = () =>
   `Whale! Whale! This name doesn't ring a bell!`;
+export const APPLICATION_CARD_LIST_ZERO_STATE = () =>
+  `There are no apps in this workspace.`;
 
 // Lightning menu
 export const LIGHTNING_MENU_DATA_API = () => `Use data from an API`;

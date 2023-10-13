@@ -12,7 +12,7 @@ import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import type { WidgetBaseConfiguration } from "WidgetProvider/constants";
 
-class BaseInputWidget<
+class WDSBaseInputWidget<
   T extends BaseInputWidgetProps,
   K extends WidgetState,
 > extends BaseWidget<T, K> {
@@ -146,8 +146,8 @@ class BaseInputWidget<
   }
 
   static getWidgetType(): WidgetType {
-    return "BASE_INPUT_WIDGET_V2";
+    return "WDS_BASE_INPUT_WIDGET";
   }
 }
 
-export { BaseInputWidget };
+export { WDSBaseInputWidget };
