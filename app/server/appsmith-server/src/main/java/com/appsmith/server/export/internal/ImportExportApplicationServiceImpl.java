@@ -7,6 +7,7 @@ import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
+import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.export.exportable.ExportableService;
 import com.appsmith.server.export.exportable.ExportableServiceCE;
@@ -44,6 +45,7 @@ public class ImportExportApplicationServiceImpl extends ImportExportApplicationS
             ExportableService<Datasource> datasourceExportableService,
             SessionUserService sessionUserService,
             PluginRepository pluginRepository,
+            ExportableService<Plugin> pluginExportableService,
             WorkspaceService workspaceService,
             ApplicationService applicationService,
             NewPageService newPageService,
@@ -72,6 +74,7 @@ public class ImportExportApplicationServiceImpl extends ImportExportApplicationS
                 datasourceExportableService,
                 sessionUserService,
                 pluginRepository,
+                pluginExportableService,
                 workspaceService,
                 applicationService,
                 newPageService,
