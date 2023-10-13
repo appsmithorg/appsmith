@@ -1,5 +1,5 @@
-import { BaseInputWidget } from "./widget";
+import { WDSBaseInputWidget } from "./widget";
 
-export { BaseInputWidget };
+export { WDSBaseInputWidget };
 export type { BaseInputWidgetProps } from "./widget/types";
 export type { BaseInputComponentProps } from "./component/types";
