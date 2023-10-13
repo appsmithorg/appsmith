@@ -1,5 +1,4 @@
 import type { DropZone } from "layoutSystems/common/utils/types";
-
 import {
   HIGHLIGHT_SIZE,
   HORIZONTAL_DROP_ZONE_MULTIPLIER,

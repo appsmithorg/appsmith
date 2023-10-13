@@ -23,9 +23,11 @@ export function renderWidgets(
   childrenMap: LayoutComponentProps["childrenMap"] = {},
   renderMode: RenderMode = RenderModes.CANVAS,
 ) {
-  return widgets.map((widgetId) => {
-    return WidgetFactory.createWidget(childrenMap[widgetId], renderMode);
-  });
+  return widgets
+    .filter((each: string) => !!childrenMap[each])
+    .map((widgetId) => {
+      return WidgetFactory.createWidget(childrenMap[widgetId], renderMode);
+    });
 }
 
 /**

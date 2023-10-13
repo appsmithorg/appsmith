@@ -174,7 +174,7 @@ export function getHighlightsForRow(
     const prevWidgetDimensions: WidgetPosition | undefined =
       index === 0 ? undefined : row[index - 1];
     const nextWidgetDimensions: WidgetPosition | undefined =
-      index === 0 ? undefined : row[index - 1];
+      index === row.length - 1 ? undefined : row[index + 1];
 
     // Don't add highlights for widget if it is being dragged.
     if (!isDraggedWidget) {
@@ -361,7 +361,7 @@ export function getHighlightsForLayoutRow(
   return highlights;
 }
 
-function generateHighlights(
+export function generateHighlights(
   baseHighlight: AnvilHighlightInfo,
   layoutDimension: WidgetPosition,
   currentDimension: WidgetPosition,
@@ -372,6 +372,15 @@ function generateHighlights(
 ): AnvilHighlightInfo[] {
   const isInitialHighlight: boolean = rowIndex === 0;
   // TODO: simplify this function.
+  if (isLastHighlight) {
+    console.log("!!!!", {
+      layoutDimension,
+      currentDimension,
+      prevDimension,
+      nextDimension,
+      rowIndex,
+    });
+  }
   return [
     {
       ...baseHighlight,

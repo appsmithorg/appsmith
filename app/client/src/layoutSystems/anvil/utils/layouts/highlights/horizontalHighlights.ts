@@ -132,7 +132,7 @@ export function getHighlightsForLayouts(
   const layoutDimension: WidgetPosition = widgetPositions[layoutProps.layoutId];
 
   let index = 0;
-
+  console.log("!!!!", { layouts });
   // Loop over all child layouts.
   while (index < layouts.length) {
     // Extract information on current child layout.
@@ -201,7 +201,7 @@ export function getHighlightsForLayouts(
       );
     }
   }
-
+  console.log("!!!!", { highlights });
   return highlights;
 }
 
