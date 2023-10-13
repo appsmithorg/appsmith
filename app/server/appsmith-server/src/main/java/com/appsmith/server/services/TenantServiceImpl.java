@@ -236,7 +236,7 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
                             ? Mono.just(Boolean.TRUE)
                             : licenseAPIManager.downgradeTenantToFreePlan(tenant);
 
-            return downgradeToFreePlanOnCS.flatMap(isSuccessful -> {
+            Mono<Tenant> downgradeTenantAndRemoveLicenseMono = downgradeToFreePlanOnCS.flatMap(isSuccessful -> {
                 if (Boolean.TRUE.equals(isSuccessful)) {
                     License updatedLicense = new License();
                     updatedLicense.setPlan(LicensePlan.FREE);
@@ -252,6 +252,15 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
                 }
                 return Mono.error(new AppsmithException(AppsmithError.TENANT_DOWNGRADE_EXCEPTION));
             });
+
+            // To ensures that even though the client may have cancelled the flow, the removal of license should proceed
+            // uninterrupted and whenever the user refreshes the page, user should be presented with the synced state
+            // with CS.
+            // To achieve this, we use a synchronous sink which does not take subscription cancellations into account.
+            // This means that even if the subscriber has cancelled its subscription, the create method still generates
+            // its event.
+            return Mono.create(sink -> downgradeTenantAndRemoveLicenseMono.subscribe(
+                    sink::success, sink::error, null, sink.currentContext()));
         });
     }
 

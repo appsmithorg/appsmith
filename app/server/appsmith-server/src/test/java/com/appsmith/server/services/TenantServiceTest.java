@@ -789,6 +789,53 @@ public class TenantServiceTest {
 
     @Test
     @WithUserDetails("api_user")
+    public void removeTenantLicenseKey_removeExistingLicense_clientCancelsSubscriptionMidway_licenseKeyRemoved() {
+
+        License license = new License();
+        license.setKey(UUID.randomUUID().toString());
+        license.setActive(true);
+
+        tenant.getTenantConfiguration().setLicense(license);
+        Mockito.when(licenseAPIManager.downgradeTenantToFreePlan(any()))
+                .thenReturn(Mono.just(true).delaySubscription(Duration.ofMillis(100)));
+
+        // Add the dummy license
+        StepVerifier.create(tenantService.save(tenant))
+                .assertNext(tenant1 -> {
+                    assertThat(tenant1.getTenantConfiguration().getLicense()).isNotNull();
+                })
+                .verifyComplete();
+
+        License freeLicense = new License();
+        freeLicense.setActive(Boolean.FALSE);
+        freeLicense.setPreviousPlan(LicensePlan.FREE);
+        freeLicense.setPlan(LicensePlan.FREE);
+
+        // Create the scenario where the client cancels the subscription midway
+        tenantService.removeLicenseKey().timeout(Duration.ofMillis(10)).subscribe();
+
+        // Wait for license removal to complete
+        Mono<Tenant> resultMono = Mono.just(tenant).flatMap(originalApp -> {
+            try {
+                // Before fetching the updated tenant, sleep for 2 seconds to ensure that the license removal is
+                // completed
+                Thread.sleep(3000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            return tenantService.retrieveById(tenant.getId());
+        });
+
+        // Check if the license field is null after the license is removed as a part of downgrade to community flow
+        StepVerifier.create(resultMono)
+                .assertNext(tenant1 -> {
+                    assertThat(tenant1.getTenantConfiguration().getLicense()).isEqualTo(freeLicense);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
     public void test_updateDefaultTenantConfiguration_updateBrandLogo() {
         Tenant defaultTenant = tenantService.getTenantConfiguration().block();
         TenantConfiguration defaultTenantConfiguration = defaultTenant.getTenantConfiguration();
