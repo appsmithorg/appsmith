@@ -4,9 +4,7 @@ import type {
   DraggedWidget,
   LayoutComponent,
   LayoutProps,
-  PositionData,
   WidgetLayoutProps,
-  WidgetPositions,
 } from "../../anvilTypes";
 import { HIGHLIGHT_SIZE } from "../../constants";
 import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
@@ -17,13 +15,17 @@ import {
   getInitialHorizontalDropZone,
 } from "./dropZoneUtils";
 import { getInitialHighlights } from "./verticalHighlights";
+import type {
+  WidgetPosition,
+  WidgetPositions,
+} from "layoutSystems/common/types";
 
 export interface RowMetaInformation {
   metaData: RowMetaData[][];
   tallestWidgets: WidgetLayoutProps[];
 }
 
-interface RowMetaData extends WidgetLayoutProps, PositionData {}
+interface RowMetaData extends WidgetLayoutProps, WidgetPosition {}
 
 /**
  * @param layoutProps | LayoutProps
@@ -161,16 +163,17 @@ export function getHighlightsForRow(
   let draggedWidgetCount = 0;
   const { height, top } = widgetPositions[tallestWidget.widgetId];
 
-  const layoutDimensions: PositionData = widgetPositions[layoutProps.layoutId];
+  const layoutDimensions: WidgetPosition =
+    widgetPositions[layoutProps.layoutId];
   while (index < row.length) {
     const { widgetId } = row[index];
     const isDraggedWidget: boolean = draggedWidgets.some(
       (widget: DraggedWidget) => widget.widgetId === widgetId,
     );
 
-    const prevWidgetDimensions: PositionData | undefined =
+    const prevWidgetDimensions: WidgetPosition | undefined =
       index === 0 ? undefined : row[index - 1];
-    const nextWidgetDimensions: PositionData | undefined =
+    const nextWidgetDimensions: WidgetPosition | undefined =
       index === 0 ? undefined : row[index - 1];
 
     // Don't add highlights for widget if it is being dragged.
@@ -220,7 +223,7 @@ export function extractMetaInformation(
   let currentTallestWidget: WidgetLayoutProps = layout[0];
   let maxHeight = 0;
   for (const each of layout) {
-    const dimensions: PositionData = widgetPositions[each.widgetId];
+    const dimensions: WidgetPosition = widgetPositions[each.widgetId];
     if (!dimensions) continue;
     const { height, top } = dimensions;
     // If current row is empty, add the widget to it.
@@ -298,9 +301,9 @@ export function getHighlightsForLayoutRow(
     const { isDropTarget, layoutId, layoutType } = layout[index];
 
     // Dimensions of neighboring layouts
-    const prevLayoutDimensions: PositionData | undefined =
+    const prevLayoutDimensions: WidgetPosition | undefined =
       index === 0 ? undefined : widgetPositions[layout[index - 1]?.layoutId];
-    const nextLayoutDimensions: PositionData | undefined =
+    const nextLayoutDimensions: WidgetPosition | undefined =
       index === layout.length - 1
         ? undefined
         : widgetPositions[layout[index + 1]?.layoutId];
@@ -360,10 +363,10 @@ export function getHighlightsForLayoutRow(
 
 function generateHighlights(
   baseHighlight: AnvilHighlightInfo,
-  layoutDimension: PositionData,
-  currentDimension: PositionData,
-  prevDimension: PositionData | undefined,
-  nextDimension: PositionData | undefined,
+  layoutDimension: WidgetPosition,
+  currentDimension: WidgetPosition,
+  prevDimension: WidgetPosition | undefined,
+  nextDimension: WidgetPosition | undefined,
   rowIndex: number,
   isLastHighlight: boolean,
 ): AnvilHighlightInfo[] {

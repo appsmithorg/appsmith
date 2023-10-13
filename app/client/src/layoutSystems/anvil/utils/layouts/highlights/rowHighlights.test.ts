@@ -7,7 +7,6 @@ import type {
   LayoutComponentProps,
   LayoutProps,
   WidgetLayoutProps,
-  WidgetPositions,
 } from "../../anvilTypes";
 import {
   checkIntersection,
@@ -23,6 +22,7 @@ import {
 import { generateLayoutComponentMock } from "mocks/layoutComponents/layoutComponentMock";
 import Row from "layoutSystems/anvil/layoutComponents/components/Row";
 import LayoutFactory from "layoutSystems/anvil/layoutComponents/LayoutFactory";
+import type { WidgetPositions } from "layoutSystems/common/types";
 
 describe("rowHighlights tests", () => {
   const baseProps: LayoutProps = {

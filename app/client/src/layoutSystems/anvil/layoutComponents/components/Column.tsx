@@ -6,7 +6,6 @@ import {
   type LayoutComponentProps,
   type LayoutProps,
   type WidgetLayoutProps,
-  type WidgetPositions,
   type DraggedWidget,
 } from "layoutSystems/anvil/utils/anvilTypes";
 import { doesLayoutRenderWidgets } from "layoutSystems/anvil/utils/layouts/typeUtils";
@@ -18,6 +17,7 @@ import {
   removeChildFromLayout,
 } from "layoutSystems/anvil/utils/layouts/layoutUtils";
 import { deriveColumnHighlights } from "layoutSystems/anvil/utils/layouts/highlights/columnHighlights";
+import type { WidgetPositions } from "layoutSystems/common/types";
 
 const Column = (props: LayoutComponentProps) => {
   const { canvasId, children, layoutId, layoutStyle } = props;

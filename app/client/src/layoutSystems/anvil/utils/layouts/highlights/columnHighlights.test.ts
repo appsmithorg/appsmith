@@ -4,7 +4,6 @@ import {
   type AnvilHighlightInfo,
   type LayoutComponentProps,
   type WidgetLayoutProps,
-  type WidgetPositions,
   type DraggedWidget,
 } from "../../anvilTypes";
 import { HIGHLIGHT_SIZE, VERTICAL_DROP_ZONE_MULTIPLIER } from "../../constants";
@@ -14,6 +13,7 @@ import {
   ResponsiveBehavior,
 } from "layoutSystems/common/utils/constants";
 import { deriveColumnHighlights } from "./columnHighlights";
+import type { WidgetPositions } from "layoutSystems/common/types";
 
 describe("columnHighlights", () => {
   beforeAll(() => {
