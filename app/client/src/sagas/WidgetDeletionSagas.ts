@@ -360,7 +360,7 @@ function* deleteAllSelectedWidgetsSaga(
       } else if (layoutSystemType === LayoutSystemTypes.ANVIL) {
         for (const widgetId of selectedWidgets) {
           finalData = updateAnvilParentPostWidgetDeletion(
-            finalWidgets,
+            finalData,
             parentId,
             widgetId,
           );
