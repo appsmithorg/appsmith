@@ -98,7 +98,6 @@ class WDSIconButtonWidget extends BaseWidget<
         onPress={onPress}
         tooltip={this.props.tooltip}
         variant={this.props.buttonVariant}
-        visuallyDisabled={this.props.isVisible}
       />
     );
   }

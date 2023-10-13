@@ -11,13 +11,11 @@ function IconButtonComponent(props: IconButtonComponentProps) {
       return <BIcon icon={iconName} />;
     });
 
-  const renderIconButton = <IconButton icon={icon} {...rest} />;
-
-  if (tooltip) {
-    return <Tooltip tooltip={tooltip}>{renderIconButton}</Tooltip>;
-  }
-
-  return renderIconButton;
+  return (
+    <Tooltip tooltip={tooltip}>
+      <IconButton icon={icon} {...rest} />
+    </Tooltip>
+  );
 }
 
 export default IconButtonComponent;
