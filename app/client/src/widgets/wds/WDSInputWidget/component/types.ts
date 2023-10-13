@@ -1,4 +1,4 @@
-import type { BaseInputComponentProps } from "widgets/BaseInputWidgetV2";
+import type { BaseInputComponentProps } from "../../WDSBaseInputWidget";
 
 import type { INPUT_TYPES } from "../constants";
 import type { IconName } from "@blueprintjs/icons";
