@@ -23,7 +23,7 @@ import reactor.core.publisher.Mono;
 
 @Service
 @Slf4j
-public class DatasourceStorageServiceImpl extends DatasourceStorageServiceCEImpl implements DatasourceStorageService {
+public class DatasourceStorageServiceImpl extends DatasourceStorageServiceCECompatibleImpl implements DatasourceStorageService {
     private final VariableReplacementService variableReplacementService;
     private final EnvironmentService environmentService;
 
