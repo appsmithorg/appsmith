@@ -20,6 +20,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.newactions.base.NewActionService;
+import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.fasterxml.jackson.core.JsonProcessingException;
