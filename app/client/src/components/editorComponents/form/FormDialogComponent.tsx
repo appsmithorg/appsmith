@@ -7,7 +7,7 @@ import {
   ModalHeader,
 } from "design-system";
 
-type FormDialogComponentProps = {
+interface FormDialogComponentProps {
   isOpen?: boolean;
   workspace?: any;
   title?: string;
@@ -17,7 +17,7 @@ type FormDialogComponentProps = {
   applicationId?: string;
   placeholder?: string;
   hideDefaultTrigger?: boolean;
-};
+}
 
 export function FormDialogComponent(props: FormDialogComponentProps) {
   const [isModalOpen, setIsModalOpenState] = useState(!!props.isOpen);

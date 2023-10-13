@@ -1,11 +1,11 @@
 import { PluginType, PaginationType } from "entities/Action";
 import type {
-  DataTree,
   WidgetEntity,
   WidgetEntityConfig,
   ActionEntityConfig,
   ActionEntity,
 } from "@appsmith/entities/DataTree/types";
+import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import {
   EvaluationSubstitutionType,
   ENTITY_TYPE_VALUE,

@@ -269,6 +269,8 @@ export const WORKSPACES_HEADING = () => `Workspaces`;
 export const WELCOME_TOUR = () => `Welcome tour`;
 export const NO_APPS_FOUND = () =>
   `Whale! Whale! This name doesn't ring a bell!`;
+export const APPLICATION_CARD_LIST_ZERO_STATE = () =>
+  `There are no apps in this workspace.`;
 
 // Lightning menu
 export const LIGHTNING_MENU_DATA_API = () => `Use data from an API`;
@@ -1650,6 +1652,7 @@ export const EMPTY_QUERY_JS_MAIN_TEXT = () => "No query/JS to display";
 export const EMPTY_QUERY_JS_BUTTON_TEXT = () => "New query/JS";
 export const EMPTY_DATASOURCE_MAIN_TEXT = () => "No datasource to display";
 export const EMPTY_DATASOURCE_BUTTON_TEXT = () => "New datasource";
+export const SEARCH_DATASOURCES = () => "Search datasources";
 
 // Templates
 export const MORE = () => "More";

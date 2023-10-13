@@ -83,12 +83,12 @@ const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
   }
 };
 
-type SearchBoxProps = {
+interface SearchBoxProps {
   query: string;
   setQuery: (query: string) => void;
   category: SearchCategory;
   setCategory: (category: any) => void;
-};
+}
 
 const useListenToChange = (modalOpen: boolean) => {
   const [listenToChange, setListenToChange] = useState(false);

@@ -23,7 +23,7 @@ import {
   datasourcesEditorIdURL,
   generateTemplateFormURL,
   saasEditorDatasourceIdURL,
-} from "RouteBuilder";
+} from "@appsmith/RouteBuilder";
 import {
   CONTEXT_DELETE,
   CONFIRM_CONTEXT_DELETE,
@@ -135,10 +135,10 @@ const CollapseComponentWrapper = styled.div`
   width: fit-content;
 `;
 
-type DatasourceCardProps = {
+interface DatasourceCardProps {
   datasource: Datasource;
   plugin: Plugin;
-};
+}
 
 function DatasourceCard(props: DatasourceCardProps) {
   const dispatch = useDispatch();
