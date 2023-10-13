@@ -5,7 +5,7 @@ import {
 } from "actions/datasourceActions";
 import { connect, useDispatch, useSelector } from "react-redux";
 import history from "utils/history";
-import { datasourcesEditorIdURL } from "RouteBuilder";
+import { datasourcesEditorIdURL } from "@appsmith/RouteBuilder";
 import { getQueryParams } from "utils/URLUtils";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import {

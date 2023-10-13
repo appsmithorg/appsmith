@@ -24,7 +24,7 @@ import {
   CONTEXT_SHOW_BINDING,
   createMessage,
 } from "@appsmith/constants/messages";
-import { builderURL } from "RouteBuilder";
+import { builderURL } from "@appsmith/RouteBuilder";
 import { getCurrentPageId } from "selectors/editorSelectors";
 
 import ContextMenu from "pages/Editor/Explorer/ContextMenu";

@@ -4,6 +4,7 @@
   /* using auto instead of 100% so that text doesnot push everything to the edge */
   width: auto;
   color: inherit;
+  overflow-wrap: anywhere;
 
   @each $color in colors {
     &[data-color="$(color)"] {
@@ -16,5 +17,4 @@
   display: -webkit-box;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  overflow-wrap: break-word;
 }

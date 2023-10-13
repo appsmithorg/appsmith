@@ -16,6 +16,7 @@ import type {
   EntityNavigationData,
   NavigationData,
 } from "selectors/navigationSelectors";
+import { getAIContext } from "@appsmith/components/editorComponents/GPT/trigger";
 
 export const slashCommandHintHelper: HintHelper = (
   _,
@@ -33,18 +34,18 @@ export const slashCommandHintHelper: HintHelper = (
         enableAIAssistance,
         executeCommand,
         featureFlags,
+        focusEditor,
         pluginIdToImageLocation,
         recentEntities,
-        update,
       }: {
         datasources: Datasource[];
         executeCommand: (payload: SlashCommandPayload) => void;
         pluginIdToImageLocation: Record<string, string>;
         recentEntities: string[];
-        update: (value: string) => void;
         entityId: string;
         featureFlags: FeatureFlags;
         enableAIAssistance: boolean;
+        focusEditor: (focusOnLine?: number, chOffset?: number) => void;
       },
     ): boolean => {
       // @ts-expect-error: Types are not available
@@ -57,16 +58,30 @@ export const slashCommandHintHelper: HintHelper = (
         },
       );
       const cursorBetweenBinding = checkIfCursorInsideBinding(editor);
-      const value = editor.getValue();
-      const slashIndex = value.lastIndexOf("/");
+      const cursorPosition = editor.getCursor();
+      const currentLineValue = editor.getLine(cursorPosition.line);
+      const slashIndex = currentLineValue.lastIndexOf("/");
       const shouldShowBinding = !cursorBetweenBinding && slashIndex > -1;
+      const searchText = currentLineValue.substring(slashIndex + 1);
+
       if (!shouldShowBinding) return false;
-      const searchText = value.substring(slashIndex + 1);
+
+      const aiContext = getAIContext({
+        currentLineValue,
+        cursorPosition,
+        editor,
+        slashIndex,
+        entityType,
+      });
+
+      if (!aiContext) return false;
+
       const list = generateQuickCommands(
         filteredEntitiesForSuggestions,
         currentEntityType,
         searchText,
         {
+          aiContext,
           datasources,
           executeCommand,
           pluginIdToImageLocation,
@@ -96,20 +111,18 @@ export const slashCommandHintHelper: HintHelper = (
             currentSelection = selected;
           }
           function handlePick(selected: CommandsCompletion) {
-            update(value.slice(0, slashIndex) + selected.text);
-            setTimeout(() => {
-              editor.focus();
-              editor.setCursor({
-                line: editor.lineCount() - 1,
-                ch: editor.getLine(editor.lineCount() - 1).length - 2,
-              });
-              if (selected.action && typeof selected.action === "function") {
-                selected.action();
-              } else {
-                selected.triggerCompletionsPostPick &&
-                  CodeMirror.signal(editor, "postPick", selected.displayText);
-              }
-            });
+            focusEditor(cursorPosition.line, 2);
+
+            if (selected.action && typeof selected.action === "function") {
+              const callback = (completion: string) => {
+                editor.replaceRange(completion, cursor);
+              };
+              selected.action(callback);
+            }
+
+            selected.triggerCompletionsPostPick &&
+              CodeMirror.signal(editor, "postPick", selected.displayText);
+
             try {
               // eslint-disable-next-line @typescript-eslint/no-unused-vars
               const { data, render, ...rest } = selected;

@@ -7,10 +7,7 @@ import {
   SEARCH_ITEM_TYPES,
 } from "components/editorComponents/GlobalSearch/utils";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  getCurrentPageId,
-  getPagePermissions,
-} from "selectors/editorSelectors";
+import { getCurrentPageId } from "selectors/editorSelectors";
 import EntityAddButton from "../Entity/AddButton";
 import keyBy from "lodash/keyBy";
 import type { AppState } from "@appsmith/reducers";
@@ -32,9 +29,6 @@ import {
   Text,
 } from "design-system";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
-import { getHasCreateActionPermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 const SubMenuContainer = styled.div`
   width: 250px;
@@ -47,12 +41,14 @@ const SubMenuContainer = styled.div`
 `;
 
 interface SubMenuProps {
+  canCreateActions: boolean;
   className: string;
   openMenu: boolean;
   onMenuClose: () => void;
 }
 
 export default function ExplorerSubMenu({
+  canCreateActions,
   className,
   onMenuClose,
   openMenu,
@@ -72,15 +68,6 @@ export default function ExplorerSubMenu({
   const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);
   useEffect(() => handleOpenChange(openMenu), [openMenu]);
   useCloseMenuOnScroll(SIDEBAR_ID, show, () => handleOpenChange(false));
-
-  const pagePermissions = useSelector(getPagePermissions);
-
-  const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
-
-  const canCreateActions = getHasCreateActionPermission(
-    isFeatureEnabled,
-    pagePermissions,
-  );
 
   useEffect(() => {
     setQuery("");

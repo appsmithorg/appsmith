@@ -1,5 +1,6 @@
 package com.appsmith.server.transactions;
 
+import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.NewAction;
@@ -8,15 +9,14 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.export.internal.ImportExportApplicationService;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.migrations.JsonSchemaMigration;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.NewActionRepository;
-import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.WorkspaceService;
-import com.appsmith.server.solutions.ImportExportApplicationService;
 import com.google.gson.Gson;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

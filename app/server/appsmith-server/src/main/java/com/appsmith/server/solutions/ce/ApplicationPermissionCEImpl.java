@@ -16,6 +16,17 @@ public class ApplicationPermissionCEImpl implements ApplicationPermissionCE, Dom
     }
 
     @Override
+    public AclPermission getExportPermission(boolean isGitSync, boolean exportWithConfiguration) {
+        // Check permissions depending upon the serialization objective:
+        // Git-sync => Edit permission
+        // Share application
+        //      : Normal apps => Export permission
+        //      : Sample apps where datasource config needs to be shared => Read permission
+        // If Git-sync, then use edit permissions, else use EXPORT_APPLICATION permission to fetch application
+        return isGitSync ? getEditPermission() : getExportPermission();
+    }
+
+    @Override
     public AclPermission getExportPermission() {
         return AclPermission.EXPORT_APPLICATIONS;
     }
