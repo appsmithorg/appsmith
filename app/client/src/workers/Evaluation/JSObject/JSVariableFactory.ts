@@ -12,8 +12,7 @@ class JSFactory {
 
     const variables = Object.entries(varState);
 
-    for (const [varName, varValue] of variables) {
-      let variable = varValue;
+    for (const [varName] of variables) {
       Object.defineProperty(newJSObject, varName, {
         enumerable: true,
         configurable: true,
@@ -22,7 +21,7 @@ class JSFactory {
             path: `${jsObjectName}.${varName}`,
             method: PatchType.GET,
           });
-          return variable;
+          return varState[varName];
         },
         set(value) {
           TriggerEmitter.emit(BatchKey.process_js_variable_updates, {
@@ -30,20 +29,14 @@ class JSFactory {
             method: PatchType.SET,
             value,
           });
-          variable = value;
+          varState[varName] = value;
         },
       });
-
-      ExecutionMetaData.setExecutionMetaData({
-        enableJSVarUpdateTracking: false,
-      });
-
-      newJSObject[varName] = varValue;
-
-      ExecutionMetaData.setExecutionMetaData({
-        enableJSVarUpdateTracking: true,
-      });
     }
+
+    ExecutionMetaData.setExecutionMetaData({
+      enableJSVarUpdateTracking: true,
+    });
 
     return newJSObject;
   }
