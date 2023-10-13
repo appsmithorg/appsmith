@@ -15,11 +15,12 @@ import {
 import { dynamicallyUpdateContainersSaga } from "./containers";
 import { generateTreeForAutoHeightComputations } from "./layoutTree";
 import { updateWidgetAutoHeightSaga } from "./widgets";
-import { getIsAutoLayout } from "selectors/editorSelectors";
+import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
+import { LayoutSystemTypes } from "layoutSystems/types";
 
 function* shouldCallAutoHeight(saga: any, action: ReduxAction<unknown>) {
-  const isAutoLayout: boolean = yield select(getIsAutoLayout);
-  if (!isAutoLayout) {
+  const layoutSystemType: LayoutSystemTypes = yield select(getLayoutSystemType);
+  if (layoutSystemType === LayoutSystemTypes.FIXED) {
     yield call(saga, action);
   }
 }

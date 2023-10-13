@@ -19,7 +19,7 @@ export function anvilDSLTransformer(dsl: DSLWidget) {
         layoutType: "ALIGNED_COLUMN",
         layout: [],
         layoutStyle: {
-          minHeight: "calc(90vh - 140px)",
+          minHeight: "100%",
         },
         isDropTarget: true,
         isPermanent: true,

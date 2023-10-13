@@ -254,6 +254,7 @@ export function* undoRedoSaga(action: ReduxAction<UndoRedoPayload>) {
 function* replayThemeSaga(replayEntity: Canvas, replay: any) {
   const applicationId: string = yield select(getCurrentApplicationId);
 
+  console.log("### In themes");
   // if theme is changed, open the theme selector
   if (replay.themeChanged) {
     yield put(

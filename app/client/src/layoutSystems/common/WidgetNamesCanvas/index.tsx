@@ -30,6 +30,8 @@ import { getShouldAllowDrag } from "selectors/widgetDragSelectors";
 import type { Stage as CanvasStageType } from "konva/lib/Stage";
 import type { Layer as KonvaLayer } from "konva/lib/Layer";
 import { getWidgetNameComponent } from "./utils";
+import type { KonvaEventListener } from "konva/lib/Node";
+import type { Group } from "konva/lib/Group";
 
 /**
  * This Component contains logic to draw widget name on canvas
@@ -45,7 +47,7 @@ const OverlayCanvasContainer = (props: {
   parentRef: React.RefObject<HTMLDivElement>;
 }) => {
   //widget name data of widgets
-  const selectedWidgetNameData: WidgetNameData | undefined = useSelector(
+  const selectedWidgetNameData: WidgetNameData[] | undefined = useSelector(
     getSelectedWidgetNameData,
   );
   const focusedWidgetNameData: WidgetNameData | undefined = useSelector(
@@ -144,10 +146,17 @@ const OverlayCanvasContainer = (props: {
         yDiff: canvasTopOffset,
       };
 
-      //Make widget name clickable
-      widgetNameComponent.on("click", () => {
+      const eventHandler: KonvaEventListener<Group, MouseEvent> = (
+        konvaEvent,
+      ) => {
+        console.log("### handling clicked", konvaEvent);
         selectWidget(SelectionRequestType.One, [widgetId]);
-      });
+        konvaEvent.cancelBubble = true;
+        konvaEvent.evt.stopPropagation();
+      };
+
+      //Make widget name clickable
+      widgetNameComponent.on("click", eventHandler);
 
       //Add widget name to canvas
       layer.add(widgetNameComponent);
@@ -159,7 +168,7 @@ const OverlayCanvasContainer = (props: {
    * i.e, widget position is changed, canvas resized, selected widget changes
    * @param widgetPosition
    */
-  const updateSelectedWidgetPositions = (widgetPosition?: WidgetPosition) => {
+  const updateSelectedWidgetPositions = () => {
     if (!stageRef?.current) return;
 
     const stage = stageRef.current;
@@ -168,17 +177,12 @@ const OverlayCanvasContainer = (props: {
     layer.destroyChildren();
 
     //Check and draw selected Widget
-    if (selectedWidgetNameData) {
-      const { position: selectedWidgetPosition } = selectedWidgetNameData;
-
-      const position = widgetPosition || selectedWidgetPosition;
-
-      addWidgetNameToCanvas(
-        layer,
-        selectedWidgetNameData,
-        position,
-        "selected",
-      );
+    if (selectedWidgetNameData && selectedWidgetNameData.length > 0) {
+      for (const widgetNameData of selectedWidgetNameData) {
+        const { position } = widgetNameData;
+        console.log("### adding widget name to canvas", widgetNameData);
+        addWidgetNameToCanvas(layer, widgetNameData, position, "selected");
+      }
     }
 
     //Check and draw focused Widget
@@ -334,7 +338,10 @@ const OverlayCanvasContainer = (props: {
 
   //Used when the position of selected or focused widget changes
   useEffect(() => {
-    if (!selectedWidgetNameData && !focusedWidgetNameData) {
+    if (
+      (!selectedWidgetNameData || selectedWidgetNameData.length === 0) &&
+      !focusedWidgetNameData
+    ) {
       resetCanvas();
     } else {
       updateSelectedWidgetPositions();

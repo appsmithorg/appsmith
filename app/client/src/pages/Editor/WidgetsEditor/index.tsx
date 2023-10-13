@@ -114,22 +114,41 @@ function WidgetsEditor() {
   const allowDragToSelect = useAllowEditorDragToSelect();
   const { isAutoHeightWithLimitsChanging } = useAutoHeightUIState();
 
-  const handleWrapperClick = useCallback(() => {
-    // Making sure that we don't deselect the widget
-    // after we are done dragging the limits in auto height with limits
-    if (allowDragToSelect && !isAutoHeightWithLimitsChanging) {
-      focusWidget && focusWidget();
-      deselectAll && deselectAll();
-      dispatch(closePropertyPane());
-      dispatch(closeTableFilterPane());
-      dispatch(setCanvasSelectionFromEditor(false));
-    }
-  }, [
-    allowDragToSelect,
-    focusWidget,
-    deselectAll,
-    isAutoHeightWithLimitsChanging,
-  ]);
+  const handleWrapperClick = useCallback(
+    (e: any) => {
+      // This is a hack for widget name component clicks on Canvas.
+      // For some reason the stopPropagation in the konva event listener isn't working
+      const isCanvasWrapperClicked = e.target?.nodeName === "CANVAS";
+
+      console.log(
+        "####",
+        e,
+        allowDragToSelect,
+        isAutoHeightWithLimitsChanging,
+        isCanvasWrapperClicked,
+      );
+      // Making sure that we don't deselect the widget
+      // after we are done dragging the limits in auto height with limits
+      if (
+        allowDragToSelect &&
+        !isAutoHeightWithLimitsChanging &&
+        !isCanvasWrapperClicked
+      ) {
+        console.log("### clicked wrapper");
+        focusWidget && focusWidget();
+        deselectAll && deselectAll();
+        dispatch(closePropertyPane());
+        dispatch(closeTableFilterPane());
+        dispatch(setCanvasSelectionFromEditor(false));
+      }
+    },
+    [
+      allowDragToSelect,
+      focusWidget,
+      deselectAll,
+      isAutoHeightWithLimitsChanging,
+    ],
+  );
 
   /**
    *  drag event handler for selection drawing
