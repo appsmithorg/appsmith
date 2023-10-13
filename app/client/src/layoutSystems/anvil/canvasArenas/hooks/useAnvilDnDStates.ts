@@ -11,6 +11,7 @@ import type {
   DraggedWidget,
 } from "layoutSystems/anvil/utils/anvilTypes";
 import type { WidgetPositions } from "layoutSystems/common/types";
+import WidgetFactory from "WidgetProvider/factory";
 
 export const useAnvilDnDStates = ({
   allowedWidgetTypes,
@@ -73,7 +74,9 @@ export const useAnvilDnDStates = ({
         {
           widgetId: newWidget.widgetId,
           type: newWidget.type,
-          responsiveBehavior: newWidget.responsiveBehavior,
+          responsiveBehavior:
+            newWidget.responsiveBehavior ??
+            WidgetFactory.getConfig(newWidget.type)?.responsiveBehavior,
         },
       ];
     } else {
@@ -100,14 +103,14 @@ export const useAnvilDnDStates = ({
   const allowToDrop = isDragging && checkIfWidgetTypeDraggedIsAllowedToDrop();
   const draggedBlocks = getDraggedBlocks();
   const memoizedDeriveHighlights = useCallback(
-    () =>
-      deriveAllHighlightsFn(widgetPositions, isNewWidget ? [] : draggedBlocks),
+    () => deriveAllHighlightsFn(widgetPositions, draggedBlocks),
     [widgetPositions, draggedBlocks, isNewWidget],
   );
   const allHighLights = useMemo(
     () => (isDragging ? memoizedDeriveHighlights() : []),
     [isDragging],
   );
+  console.log("!!!!", { allHighLights, draggedBlocks });
   return {
     allHighLights,
     allowToDrop,
