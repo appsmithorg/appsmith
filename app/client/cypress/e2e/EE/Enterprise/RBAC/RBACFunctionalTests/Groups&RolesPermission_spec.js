@@ -47,6 +47,8 @@ describe("Groups&Roles tab Tests", function () {
       cy.AddIntercepts();
       cy.LogOut();
       cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+      featureFlagIntercept({ license_gac_enabled: true });
+      cy.wait(2000);
       agHelper.VisitNAssert("settings/roles", "fetchRoles");
       homePage.NavigateToHome();
       cy.generateUUID().then((uid) => {
@@ -69,7 +71,7 @@ describe("Groups&Roles tab Tests", function () {
           workspaceName,
         );
         cy.CreatePermissionAppLevel(PermissionAppLevel, workspaceName, appName);
-
+        featureFlagIntercept({ license_gac_enabled: true });
         agHelper.VisitNAssert("settings/roles", "fetchRoles");
         // create user group
         cy.createGroupAndAddUser(
@@ -469,6 +471,8 @@ describe("Groups&Roles tab Tests", function () {
   after(() => {
     cy.LogOut();
     cy.LogintoAppTestUser(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+    featureFlagIntercept({ license_gac_enabled: true });
+    cy.wait(2000);
     agHelper.VisitNAssert("settings/roles", "fetchRoles");
     cy.DeleteRole(PermissionWorkspaceLevel);
     cy.DeleteRole(EditPermissionWorkspaceLevel);

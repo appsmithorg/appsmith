@@ -13,6 +13,7 @@ const EE_FEATURE_FLAG = {
   license_pac_enabled: "license_pac_enabled",
   license_message_listener_enabled: "license_message_listener_enabled",
   ab_ai_button_sql_enabled: "ab_ai_button_sql_enabled",
+  license_scim_enabled: "license_scim_enabled",
   release_query_module_enabled: "release_query_module_enabled",
 } as const;
 
@@ -26,6 +27,7 @@ export const EE_DEFAULT_FEATURE_FLAG_VALUE: EE_FeatureFlags = {
   license_message_listener_enabled: false,
   release_query_module_enabled: false,
   ab_ai_button_sql_enabled: false,
+  license_scim_enabled: false,
 };
 
 export type EE_FeatureFlag = keyof typeof EE_FEATURE_FLAG;

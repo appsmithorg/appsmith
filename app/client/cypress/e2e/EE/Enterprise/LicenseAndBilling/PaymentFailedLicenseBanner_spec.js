@@ -30,7 +30,7 @@ describe("excludeForAirgap", "Payment Failed License Banner", function () {
       "background-color",
       "rgb(255, 242, 242)",
     );
-    cy.get(LicenseLocators.warninngBannerContinueText).should(
+    cy.get(LicenseLocators.warningBannerContinueText).should(
       "have.text",
       "your payment methods to continue using Appsmith, else all your instances will shut down in 2 days.",
     );

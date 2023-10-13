@@ -10,6 +10,7 @@ import {
 } from "../../../../../support/ee/ObjectsCore_EE";
 
 import homepagelocators from "../../../../../locators/HomePage";
+import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
 
 describe("User deploying an app with and without edit permission for a page", function () {
   let workspaceName: string, appName: string;
@@ -42,6 +43,10 @@ describe("User deploying an app with and without edit permission for a page", fu
         entityExplorer.RenameEntityFromExplorer(newPage, pageName, true);
       });
       adminSettings.NavigateToAdminSettings();
+      featureFlagIntercept({
+        license_gac_enabled: true,
+      });
+      cy.wait(2000);
       rbacHelper.CreatePermissionPageLevel(
         permissionAtPageLevel,
         workspaceName,
@@ -74,6 +79,10 @@ describe("User deploying an app with and without edit permission for a page", fu
       Cypress.env("TESTPASSWORD1"),
       "App Viewer",
     );
+    featureFlagIntercept({
+      license_gac_enabled: true,
+    });
+    cy.wait(2000);
     homePage.SearchAndOpenApp(appName);
     agHelper.ClickButton("Deploy");
     agHelper.GetText(locators._toastMsg).then((text) => {
@@ -91,6 +100,10 @@ describe("User deploying an app with and without edit permission for a page", fu
    */
   it("2. User with 2 roles - Dev and export, user should be able to deploy", function () {
     homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+    featureFlagIntercept({
+      license_gac_enabled: true,
+    });
+    cy.wait(2000);
     adminSettings.NavigateToAdminSettings();
     rbacHelper.AddDefaultRole(
       Cypress.env("TESTUSERNAME1"),
@@ -113,6 +126,10 @@ describe("User deploying an app with and without edit permission for a page", fu
    */
   it("3. Test user with export permission is able to export the app", function () {
     homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+    featureFlagIntercept({
+      license_gac_enabled: true,
+    });
+    cy.wait(2000);
     adminSettings.NavigateToAdminSettings();
     rbacHelper.ModifyPermissionsNSave(
       permissionAtPageLevel,

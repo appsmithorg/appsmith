@@ -95,6 +95,10 @@ describe("Delete Permission flow ", function () {
           cy.Createpage("page2");
           cy.wait(2000);
           cy.visit("settings/general");
+          featureFlagIntercept({
+            license_gac_enabled: true,
+          });
+          cy.wait(2000);
           cy.DeletePermissionWorkspaceLevel(
             PermissionWorkspaceLevel,
             workspaceName,
@@ -320,6 +324,10 @@ describe("Delete Permission flow ", function () {
   after(() => {
     cy.LogOut();
     cy.LogintoAppTestUser(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+    featureFlagIntercept({
+      license_gac_enabled: true,
+    });
+    cy.wait(2000);
     cy.visit("/settings/roles");
     cy.DeleteRole(PermissionWorkspaceLevel);
     cy.DeleteRole(PermissionAppLevel);

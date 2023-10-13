@@ -89,8 +89,13 @@ Cypress.Commands.add(
     licenseOrigin,
     licenseStatus,
     licenseType,
-    method = "GET",
+    licenseKey,
+    active = true,
+    licenseOrigin,
+    plan,
+    productEdition,
     url = "/api/v1/tenants/current",
+    method = "GET",
   }) => {
     cy.intercept(method, url, (req) => {
       req.continue((res) => {
@@ -108,6 +113,8 @@ Cypress.Commands.add(
                   ...(licenseStatus && { status: licenseStatus }),
                   ...(licenseType && { type: licenseType }),
                   ...(licenseOrigin && { origin: licenseOrigin }),
+                  ...(plan && { plan: plan }),
+                  ...(productEdition && { productEdition: productEdition }),
                   expiry,
                   active,
                 },

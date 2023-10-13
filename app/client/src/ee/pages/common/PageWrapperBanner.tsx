@@ -27,9 +27,7 @@ import {
 } from "@appsmith/constants/messages";
 import { Callout, Link, Text } from "design-system";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
-import { getAppsmithConfigs } from "@appsmith/configs";
-
-const appsmithConfigs = getAppsmithConfigs();
+import { CUSTOMER_PORTAL_PLANS_URL } from "@appsmith/constants/BillingConstants";
 
 const StyledText = styled(Text)<{ color: string }>`
   color: ${(props) => props.color ?? "var(--ads-v2-color-fg)"};
@@ -153,7 +151,7 @@ export function PageBannerMessage(): any {
                 <Link
                   className="upgrade-link"
                   data-testid="t--trial-expiry-upgrade-btn"
-                  to={`${appsmithConfigs.customerPortalUrl}/plans`}
+                  to={CUSTOMER_PORTAL_PLANS_URL}
                 >
                   {createMessage(isTrial ? UPGRADE : UPDATE)}
                 </Link>

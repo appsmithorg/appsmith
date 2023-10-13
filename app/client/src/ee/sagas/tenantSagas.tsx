@@ -30,6 +30,7 @@ import {
   BUILDER_PATH,
   BUILDER_PATH_DEPRECATED,
   LICENSE_CHECK_PATH,
+  MIGRATIONS_URL,
   PAGE_NOT_FOUND_URL,
   SETUP,
   USER_AUTH_URL,
@@ -41,11 +42,20 @@ import { SettingCategories } from "@appsmith/pages/AdminSettings/config/types";
 import { toast } from "design-system";
 import {
   createMessage,
+  LICENSE_REFRESHED_SUCCESSFULLY,
   LICENSE_UPDATED_SUCCESSFULLY,
 } from "@appsmith/constants/messages";
-import { setBEBanner, showLicenseModal } from "@appsmith/actions/tenantActions";
+import {
+  setBEBanner,
+  showLicenseModal,
+  showRemoveLicenseModal,
+  showDowngradeLicenseModal,
+} from "@appsmith/actions/tenantActions";
 import { firstTimeUserOnboardingInit } from "actions/onboardingActions";
-import { LICENSE_TYPE } from "@appsmith/pages/Billing/types";
+import {
+  LICENSE_MODIFICATION,
+  LICENSE_TYPE,
+} from "@appsmith/pages/Billing/Types/types";
 import { getIsSafeRedirectURL } from "utils/helpers";
 import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -160,7 +170,7 @@ export function* validateLicenseSaga(
   const adminSettingsPath = `${ADMIN_SETTINGS_PATH}/${SettingCategories.BILLING}`;
   const shouldRedirectOnUpdate = urlObject?.pathname !== adminSettingsPath;
   try {
-    const response: ApiResponse<TenantReduxState<License>> = yield call(
+    const response = yield call(
       action?.payload?.isUserOnboarding
         ? TenantApi.validateLicenseForOnboarding
         : TenantApi.validateLicense,
@@ -221,9 +231,17 @@ export function* validateLicenseSaga(
           kind: "success",
         });
         yield put(showLicenseModal(false));
-        setTimeout(() => {
-          window.location.reload();
-        }, 1000);
+        yield put(showDowngradeLicenseModal(false));
+
+        if (
+          response?.data?.tenantConfiguration?.migrationStatus !== "COMPLETED"
+        ) {
+          history.replace(MIGRATIONS_URL);
+        } else {
+          setTimeout(() => {
+            window.location.reload();
+          }, 1000);
+        }
       }
     } else {
       yield put({
@@ -279,11 +297,9 @@ export function* forceLicenseCheckSaga() {
         type: ReduxActionTypes.FORCE_LICENSE_CHECK_SUCCESS,
         payload: response.data,
       });
-      if (response.data?.tenantConfiguration?.license?.type === "PAID") {
-        toast.show(createMessage(LICENSE_UPDATED_SUCCESSFULLY), {
-          kind: "success",
-        });
-      }
+      toast.show(createMessage(LICENSE_REFRESHED_SUCCESSFULLY), {
+        kind: "success",
+      });
     } else {
       yield put({
         type: ReduxActionErrorTypes.FORCE_LICENSE_CHECK_ERROR,
@@ -295,6 +311,86 @@ export function* forceLicenseCheckSaga() {
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.FORCE_LICENSE_CHECK_ERROR,
+      payload: {
+        error,
+      },
+    });
+  }
+}
+
+export function* removeLicenseSaga() {
+  try {
+    const response: ApiResponse<TenantReduxState<License>> = yield call(
+      TenantApi.removeLicense,
+    );
+    const isValidResponse: boolean = yield validateResponse(response);
+    if (isValidResponse) {
+      history.replace(MIGRATIONS_URL);
+      yield put({
+        type: ReduxActionTypes.REMOVE_LICENSE_SUCCESS,
+        payload: response.data,
+      });
+      yield put(showRemoveLicenseModal(false));
+    } else {
+      yield put({
+        type: ReduxActionErrorTypes.REMOVE_LICENSE_ERROR,
+        payload: {
+          error: response.responseMeta.error,
+        },
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.REMOVE_LICENSE_ERROR,
+      payload: {
+        error,
+      },
+    });
+  }
+}
+
+export function* validateLicenseDryRunSaga(
+  action: ReduxAction<{
+    key: string;
+  }>,
+) {
+  try {
+    const response: ApiResponse<TenantReduxState<License>> = yield call(
+      TenantApi.validateLicenseDryRun,
+      action.payload.key,
+    );
+    const isValidResponse: boolean = yield validateResponse(response);
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.VALIDATE_LICENSE_KEY_DRY_RUN_SUCCESS,
+        payload: response.data,
+      });
+      if (
+        response.data?.tenantConfiguration?.license?.changeType ===
+        LICENSE_MODIFICATION.DOWNGRADE
+      ) {
+        yield put(showLicenseModal(false));
+        yield put(showDowngradeLicenseModal(true));
+      } else {
+        yield put({
+          type: ReduxActionTypes.VALIDATE_LICENSE_KEY,
+          payload: {
+            key: action.payload.key,
+            isUserOnboarding: false,
+          },
+        });
+      }
+    } else {
+      yield put({
+        type: ReduxActionErrorTypes.VALIDATE_LICENSE_KEY_DRY_RUN_ERROR,
+        payload: {
+          error: response.responseMeta.error,
+        },
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.VALIDATE_LICENSE_KEY_DRY_RUN_ERROR,
       payload: {
         error,
       },
@@ -321,6 +417,11 @@ export default function* tenantSagas() {
     takeLatest(
       ReduxActionTypes.FORCE_LICENSE_CHECK_INIT,
       forceLicenseCheckSaga,
+    ),
+    takeLatest(ReduxActionTypes.REMOVE_LICENSE_INIT, removeLicenseSaga),
+    takeLatest(
+      ReduxActionTypes.VALIDATE_LICENSE_KEY_DRY_RUN_INIT,
+      validateLicenseDryRunSaga,
     ),
   ]);
 }

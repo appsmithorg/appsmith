@@ -2,13 +2,13 @@ import React, { useEffect, useState } from "react";
 import {
   showLicenseModal,
   validateLicense,
+  validateLicenseDryRun,
 } from "@appsmith/actions/tenantActions";
 import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 import {
   REQUIRED_LICENSE_KEY,
   ADD_KEY,
-  ACTIVATE_INSTANCE,
   createMessage,
   SUBMIT_BUTTON,
   CANCEL,
@@ -17,17 +17,18 @@ import {
 import {
   hasInvalidLicenseKeyError,
   isLicenseValidating,
+  isTenantActivated,
 } from "@appsmith/selectors/tenantSelectors";
 import { isEmptyString } from "utils/formhelpers";
 import { StyledForm, StyledInput, InputWrapper } from "./styles";
 import { Button, Text, toast } from "design-system";
-import { getFirstTimeUserOnboardingTelemetryCalloutIsAlreadyShown } from "utils/storage";
 
 export interface LicenseFormProps {
   label?: string;
   placeholder?: string;
-  actionBtnText?: string;
+  isUpdate?: boolean;
   isModal?: boolean;
+  onUpgradeDowngradeClick?: (key: string) => void;
 }
 
 export const LicenseForm = (props: LicenseFormProps) => {
@@ -36,7 +37,7 @@ export const LicenseForm = (props: LicenseFormProps) => {
   if (myParam) {
     toast.show(myParam, { kind: "error" });
   }
-  const { actionBtnText, isModal, label, placeholder } = props;
+  const { isUpdate, label, placeholder } = props;
   const dispatch = useDispatch();
   const isInvalid = useSelector(hasInvalidLicenseKeyError);
   const licenseValidating = useSelector(isLicenseValidating);
@@ -51,7 +52,8 @@ export const LicenseForm = (props: LicenseFormProps) => {
 
   const isFieldTouched = getFieldState("licenseKey").isTouched;
   const [isFieldEmpty, setIsFieldEmpty] = useState(true);
-  const [isUserOnboarding, setUserOnboarding] = useState(false);
+
+  const isUpdatingLicense = useSelector(isTenantActivated);
 
   useEffect(() => {
     const values = getValues();
@@ -68,20 +70,6 @@ export const LicenseForm = (props: LicenseFormProps) => {
     }
   }, [isInvalid, isFieldTouched, errors, licenseValidating]);
 
-  useEffect(() => {
-    const isOnboardingCompleted = async () => {
-      const isFirstTimeUserOnboarding =
-        await getFirstTimeUserOnboardingTelemetryCalloutIsAlreadyShown();
-      //false if the user is onboarding
-      //true if the user is not onboarding
-      //undefined if the user is using a different browser
-      if (isFirstTimeUserOnboarding === false) {
-        setUserOnboarding(true);
-      }
-    };
-    isOnboardingCompleted();
-  }, []);
-
   const checkLicenseStatus = (formValues: any) => {
     const { licenseKey } = formValues;
 
@@ -93,7 +81,12 @@ export const LicenseForm = (props: LicenseFormProps) => {
     }
 
     if (licenseKey) {
-      dispatch(validateLicense(licenseKey, isUserOnboarding));
+      if (!isUpdate) dispatch(validateLicense(licenseKey, !isUpdatingLicense));
+      else {
+        if (props.onUpgradeDowngradeClick)
+          props.onUpgradeDowngradeClick(licenseKey);
+        dispatch(validateLicenseDryRun(licenseKey));
+      }
     }
   };
 
@@ -108,7 +101,7 @@ export const LicenseForm = (props: LicenseFormProps) => {
   const formError = errors?.licenseKey?.type ? true : false;
   return (
     <StyledForm
-      className={`license-form`}
+      className={`license-form ${isUpdate ? "flex-col" : "flex-row gap-4"}`}
       onSubmit={handleSubmit(checkLicenseStatus)}
       showError={formError}
     >
@@ -116,7 +109,7 @@ export const LicenseForm = (props: LicenseFormProps) => {
         <StyledInput
           className={`license-input`}
           data-testid="t--license-input"
-          description={isModal ? createMessage(LICENSE_FORM_DESCIPTION) : ""}
+          description={isUpdate ? createMessage(LICENSE_FORM_DESCIPTION) : ""}
           label={label}
           placeholder={placeholder ?? createMessage(ADD_KEY)}
           {...register("licenseKey")}
@@ -133,7 +126,7 @@ export const LicenseForm = (props: LicenseFormProps) => {
           </Text>
         )}
       </InputWrapper>
-      {isModal ? (
+      {isUpdate ? (
         <div className="flex justify-end gap-2">
           <Button
             data-testid="t--activate-instance-cancel-btn "
@@ -158,12 +151,12 @@ export const LicenseForm = (props: LicenseFormProps) => {
         <Button
           data-testid="t--activate-instance-btn"
           isDisabled={isFieldEmpty}
+          isIconButton
           isLoading={licenseValidating}
           size="md"
+          startIcon="arrow-right-line"
           type="submit"
-        >
-          {actionBtnText ?? createMessage(ACTIVATE_INSTANCE)}
-        </Button>
+        />
       )}
     </StyledForm>
   );

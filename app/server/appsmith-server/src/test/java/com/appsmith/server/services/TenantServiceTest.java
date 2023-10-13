@@ -16,6 +16,7 @@ import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserGroup;
+import com.appsmith.server.dtos.ProductEdition;
 import com.appsmith.server.dtos.UpdateLicenseKeyDTO;
 import com.appsmith.server.dtos.UserGroupDTO;
 import com.appsmith.server.dtos.UserProfileDTO;
@@ -173,7 +174,8 @@ public class TenantServiceTest {
         license.setStatus(LicenseStatus.valueOf("ACTIVE"));
         license.setExpiry(Instant.now().plus(Duration.ofHours(1)));
         license.setOrigin(LicenseOrigin.SELF_SERVE);
-        license.setPlan(LicensePlan.SELF_SERVE);
+        license.setPlan(LicensePlan.BUSINESS);
+        license.setProductEdition(ProductEdition.COMMERCIAL);
 
         // Mock CS response to get valid license
         Mockito.when(licenseAPIManager.licenseCheck(any())).thenReturn(Mono.just(license));
@@ -188,7 +190,8 @@ public class TenantServiceTest {
                     assertThat(savedLicense.getType()).isEqualTo(LicenseType.PAID);
                     assertThat(savedLicense.getExpiry()).isAfter(Instant.now());
                     assertThat(savedLicense.getOrigin()).isEqualTo(LicenseOrigin.SELF_SERVE);
-                    assertThat(savedLicense.getPlan()).isEqualTo(LicensePlan.SELF_SERVE);
+                    assertThat(savedLicense.getPlan()).isEqualTo(LicensePlan.BUSINESS);
+                    assertThat(savedLicense.getProductEdition()).isEqualTo(ProductEdition.COMMERCIAL);
                     assertThat(savedLicense.getStatus()).isEqualTo(LicenseStatus.ACTIVE);
                     assertThat(tenantConfiguration.getLicense()).isEqualTo(savedLicense);
                     assertTrue(tenantConfiguration.getIsActivated());
@@ -205,7 +208,8 @@ public class TenantServiceTest {
                     assertThat(savedLicense.getType()).isEqualTo(LicenseType.PAID);
                     assertThat(savedLicense.getExpiry()).isAfter(Instant.now());
                     assertThat(savedLicense.getOrigin()).isEqualTo(LicenseOrigin.SELF_SERVE);
-                    assertThat(savedLicense.getPlan()).isEqualTo(LicensePlan.SELF_SERVE);
+                    assertThat(savedLicense.getPlan()).isEqualTo(LicensePlan.BUSINESS);
+                    assertThat(savedLicense.getProductEdition()).isEqualTo(ProductEdition.COMMERCIAL);
                     assertThat(tenantConfiguration.getLicense()).isEqualTo(savedLicense);
                 })
                 .verifyComplete();
@@ -222,7 +226,8 @@ public class TenantServiceTest {
         license.setStatus(LicenseStatus.valueOf("IN_GRACE_PERIOD"));
         license.setExpiry(Instant.now().plus(Duration.ofHours(1)));
         license.setOrigin(LicenseOrigin.SELF_SERVE);
-        license.setPlan(LicensePlan.SELF_SERVE);
+        license.setPlan(LicensePlan.BUSINESS);
+        license.setProductEdition(ProductEdition.COMMERCIAL);
 
         // Mock CS response to get valid license
         Mockito.when(licenseAPIManager.licenseCheck(any())).thenReturn(Mono.just(license));
@@ -237,7 +242,7 @@ public class TenantServiceTest {
                     assertThat(savedLicense.getType()).isEqualTo(LicenseType.PAID);
                     assertThat(savedLicense.getExpiry()).isAfter(Instant.now());
                     assertThat(savedLicense.getOrigin()).isEqualTo(LicenseOrigin.SELF_SERVE);
-                    assertThat(savedLicense.getPlan()).isEqualTo(LicensePlan.SELF_SERVE);
+                    assertThat(savedLicense.getPlan()).isEqualTo(LicensePlan.BUSINESS);
                     assertThat(savedLicense.getStatus()).isEqualTo(LicenseStatus.IN_GRACE_PERIOD);
                     assertThat(tenantConfiguration.getLicense()).isEqualTo(savedLicense);
                     assertTrue(tenantConfiguration.getIsActivated());
@@ -254,7 +259,8 @@ public class TenantServiceTest {
                     assertThat(savedLicense.getType()).isEqualTo(LicenseType.PAID);
                     assertThat(savedLicense.getExpiry()).isAfter(Instant.now());
                     assertThat(savedLicense.getOrigin()).isEqualTo(LicenseOrigin.SELF_SERVE);
-                    assertThat(savedLicense.getPlan()).isEqualTo(LicensePlan.SELF_SERVE);
+                    assertThat(savedLicense.getPlan()).isEqualTo(LicensePlan.BUSINESS);
+                    assertThat(savedLicense.getProductEdition()).isEqualTo(ProductEdition.COMMERCIAL);
                     assertThat(savedLicense.getStatus()).isEqualTo(LicenseStatus.IN_GRACE_PERIOD);
                     assertThat(tenantConfiguration.getLicense()).isEqualTo(savedLicense);
                 })
@@ -348,7 +354,8 @@ public class TenantServiceTest {
         license.setStatus(LicenseStatus.valueOf("EXPIRED"));
         license.setExpiry(Instant.now().minus(Duration.ofHours(1)));
         license.setOrigin(LicenseOrigin.SELF_SERVE);
-        license.setPlan(LicensePlan.SELF_SERVE);
+        license.setPlan(LicensePlan.BUSINESS);
+        license.setProductEdition(ProductEdition.COMMERCIAL);
 
         // Mock CS response to get valid license
         Mockito.when(licenseAPIManager.licenseCheck(any())).thenReturn(Mono.just(license));
@@ -363,6 +370,7 @@ public class TenantServiceTest {
                     License expiredLicense = tenant.getTenantConfiguration().getLicense();
                     assertThat(expiredLicense.getPlan()).isEqualTo(license.getPlan());
                     assertThat(expiredLicense.getStatus()).isEqualTo(license.getStatus());
+                    assertThat(expiredLicense.getProductEdition()).isEqualTo(license.getProductEdition());
                 })
                 .verifyComplete();
     }
@@ -803,7 +811,7 @@ public class TenantServiceTest {
         license.setKey(UUID.randomUUID().toString());
         license.setActive(true);
         license.setPlan(LicensePlan.ENTERPRISE);
-        license.setPreviousPlan(LicensePlan.SELF_SERVE);
+        license.setPreviousPlan(LicensePlan.BUSINESS);
 
         tenant.getTenantConfiguration().setLicense(license);
 
@@ -980,7 +988,7 @@ public class TenantServiceTest {
         license.setStatus(LicenseStatus.valueOf("ACTIVE"));
         license.setExpiry(Instant.now().plus(Duration.ofHours(1)));
         license.setOrigin(LicenseOrigin.SELF_SERVE);
-        license.setPlan(LicensePlan.SELF_SERVE);
+        license.setPlan(LicensePlan.BUSINESS);
 
         // Mock CS response to get valid license
         Mockito.when(licenseAPIManager.licenseCheck(any())).thenReturn(Mono.just(license));
@@ -995,7 +1003,7 @@ public class TenantServiceTest {
                     assertThat(savedLicense.getType()).isEqualTo(LicenseType.PAID);
                     assertThat(savedLicense.getExpiry()).isAfter(Instant.now());
                     assertThat(savedLicense.getOrigin()).isEqualTo(LicenseOrigin.SELF_SERVE);
-                    assertThat(savedLicense.getPlan()).isEqualTo(LicensePlan.SELF_SERVE);
+                    assertThat(savedLicense.getPlan()).isEqualTo(LicensePlan.BUSINESS);
                     assertThat(savedLicense.getStatus()).isEqualTo(LicenseStatus.ACTIVE);
                     assertThat(tenantConfiguration.getLicense()).isEqualTo(savedLicense);
                 })
@@ -1037,7 +1045,7 @@ public class TenantServiceTest {
         license.setStatus(LicenseStatus.valueOf("ACTIVE"));
         license.setExpiry(Instant.now().plus(Duration.ofHours(1)));
         license.setOrigin(LicenseOrigin.SELF_SERVE);
-        license.setPlan(LicensePlan.SELF_SERVE);
+        license.setPlan(LicensePlan.BUSINESS);
 
         // Mock CS response to get valid license
         Mockito.when(licenseAPIManager.licenseCheck(any())).thenReturn(Mono.just(license));

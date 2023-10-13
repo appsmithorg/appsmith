@@ -5,6 +5,7 @@ import com.appsmith.external.services.EncryptionService;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.LicenseOrigin;
+import com.appsmith.server.constants.LicensePlan;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.License;
 import com.appsmith.server.domains.PermissionGroup;
@@ -15,6 +16,7 @@ import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.DisconnectProvisioningDto;
 import com.appsmith.server.dtos.InviteUsersDTO;
+import com.appsmith.server.dtos.ProductEdition;
 import com.appsmith.server.dtos.ProvisionResourceDto;
 import com.appsmith.server.dtos.ProvisionStatusDTO;
 import com.appsmith.server.enums.ProvisionStatus;
@@ -146,6 +148,8 @@ class ProvisionServiceImplTest {
         License mockLicense = new License();
         mockLicense.setActive(Boolean.TRUE);
         mockLicense.setOrigin(LicenseOrigin.SELF_SERVE);
+        mockLicense.setPlan(LicensePlan.BUSINESS);
+        mockLicense.setProductEdition(ProductEdition.COMMERCIAL);
         Tenant tenant = tenantService.getDefaultTenant().block();
         tenant.getTenantConfiguration().setLicense(mockLicense);
         tenantService.save(tenant).block();
@@ -154,7 +158,9 @@ class ProvisionServiceImplTest {
     private void setTenantLicenseAsEnterprise() {
         License mockLicense = new License();
         mockLicense.setActive(Boolean.TRUE);
-        mockLicense.setOrigin(LicenseOrigin.ENTERPRISE);
+        mockLicense.setOrigin(LicenseOrigin.SALES);
+        mockLicense.setPlan(LicensePlan.ENTERPRISE);
+        mockLicense.setProductEdition(ProductEdition.COMMERCIAL);
         Tenant tenant = tenantService.getDefaultTenant().block();
         tenant.getTenantConfiguration().setLicense(mockLicense);
         tenantService.save(tenant).block();
@@ -163,7 +169,9 @@ class ProvisionServiceImplTest {
     private void setTenantLicenseAsAirGapped() {
         License mockLicense = new License();
         mockLicense.setActive(Boolean.TRUE);
-        mockLicense.setOrigin(LicenseOrigin.AIR_GAP);
+        mockLicense.setOrigin(LicenseOrigin.SALES);
+        mockLicense.setPlan(LicensePlan.ENTERPRISE);
+        mockLicense.setProductEdition(ProductEdition.AIR_GAP);
         Tenant tenant = tenantService.getDefaultTenant().block();
         tenant.getTenantConfiguration().setLicense(mockLicense);
         tenantService.save(tenant).block();

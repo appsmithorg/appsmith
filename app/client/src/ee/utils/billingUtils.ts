@@ -1,13 +1,13 @@
 import { getAppsmithConfigs } from "@appsmith/configs";
+import { CUSTOMER_PORTAL_PLANS_URL } from "@appsmith/constants/BillingConstants";
 import { createMessage, NOT_AVAILABLE } from "@appsmith/constants/messages";
-import { openInNewTab } from "@appsmith/utils";
 import isNil from "lodash/isNil";
 
-const appsmithConfigs = getAppsmithConfigs();
-
 export const goToCustomerPortal = () => {
-  openInNewTab(`${appsmithConfigs.customerPortalUrl}/plans`);
+  window.open(CUSTOMER_PORTAL_PLANS_URL, "_blank");
 };
+
+const appsmithConfigs = getAppsmithConfigs();
 
 export const customerPortalPlansUrl = `${appsmithConfigs.customerPortalUrl}/plans`;
 

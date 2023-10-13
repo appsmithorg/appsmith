@@ -3,6 +3,7 @@ import React from "react";
 import { useSelector } from "react-redux";
 import {
   isAdminUser,
+  isFreePlan,
   isTrialLicense,
   shouldShowLicenseBanner,
 } from "@appsmith/selectors/tenantSelectors";
@@ -22,8 +23,6 @@ export const getLicenseKey = () => {
   return licenseKey || "";
 };
 
-export const pricingPageUrlSource = "BE";
-
 const StyledLink = styled(Link)`
   align-items: center;
   height: 38px;
@@ -31,11 +30,14 @@ const StyledLink = styled(Link)`
   padding: 14px;
 `;
 
+export const pricingPageUrlSource = "BE";
+
 export const ShowUpgradeMenuItem = () => {
   const isTrial = useSelector(isTrialLicense);
   const isAdmin = useSelector(isAdminUser);
+  const isFree = useSelector(isFreePlan);
   const isAirgappedInstance = isAirgapped();
-  return isTrial && isAdmin && !isAirgappedInstance ? (
+  return (isTrial || isFree) && isAdmin && !isAirgappedInstance ? (
     <StyledLink
       className="business-plan-menu-option"
       data-testid="t--upgrade-to-business"

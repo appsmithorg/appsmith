@@ -2,11 +2,13 @@ package com.appsmith.server.solutions;
 
 import com.appsmith.server.configurations.LicenseConfig;
 import com.appsmith.server.constants.LicenseOrigin;
+import com.appsmith.server.constants.LicensePlan;
 import com.appsmith.server.constants.LicenseStatus;
 import com.appsmith.server.constants.LicenseType;
 import com.appsmith.server.domains.License;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.TenantConfiguration;
+import com.appsmith.server.dtos.ProductEdition;
 import com.appsmith.server.services.ConfigService;
 import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
@@ -136,7 +138,9 @@ public class OfflineLicenseValidatorTests {
         StepVerifier.create(verifiedLicenseMono)
                 .assertNext(verifiedLicense -> {
                     Assertions.assertNotNull(verifiedLicense);
-                    Assertions.assertEquals(verifiedLicense.getOrigin(), LicenseOrigin.AIR_GAP);
+                    Assertions.assertEquals(verifiedLicense.getOrigin(), LicenseOrigin.SALES);
+                    Assertions.assertEquals(verifiedLicense.getPlan(), LicensePlan.ENTERPRISE);
+                    Assertions.assertEquals(verifiedLicense.getProductEdition(), ProductEdition.AIR_GAP);
                     Assertions.assertEquals(verifiedLicense.getExpiry(), Instant.parse("2099-05-30T00:00:00Z"));
                     Assertions.assertTrue(license.getActive());
                     Assertions.assertEquals(license.getKey(), activeLicenseKey);
@@ -171,7 +175,9 @@ public class OfflineLicenseValidatorTests {
         StepVerifier.create(verifiedLicenseMono)
                 .assertNext(verifiedLicense -> {
                     Assertions.assertNotNull(verifiedLicense);
-                    Assertions.assertEquals(verifiedLicense.getOrigin(), LicenseOrigin.AIR_GAP);
+                    Assertions.assertEquals(verifiedLicense.getOrigin(), LicenseOrigin.SALES);
+                    Assertions.assertEquals(verifiedLicense.getPlan(), LicensePlan.ENTERPRISE);
+                    Assertions.assertEquals(verifiedLicense.getProductEdition(), ProductEdition.AIR_GAP);
                     Assertions.assertEquals(verifiedLicense.getExpiry(), Instant.parse("2021-05-30T00:00:00Z"));
                     Assertions.assertFalse(license.getActive());
                     Assertions.assertEquals(license.getKey(), expiredLicenseKey);
@@ -193,7 +199,9 @@ public class OfflineLicenseValidatorTests {
         StepVerifier.create(verifiedLicenseMono)
                 .assertNext(verifiedLicense -> {
                     Assertions.assertNotNull(verifiedLicense);
-                    Assertions.assertEquals(verifiedLicense.getOrigin(), LicenseOrigin.AIR_GAP);
+                    Assertions.assertEquals(verifiedLicense.getOrigin(), LicenseOrigin.SALES);
+                    Assertions.assertEquals(verifiedLicense.getPlan(), LicensePlan.ENTERPRISE);
+                    Assertions.assertEquals(verifiedLicense.getProductEdition(), ProductEdition.AIR_GAP);
                     Assertions.assertEquals(verifiedLicense.getExpiry(), Instant.parse("2099-05-30T00:00:00Z"));
                     Assertions.assertTrue(license.getActive());
                     Assertions.assertEquals(license.getKey(), activeTenantFeaturesLicenseKey);

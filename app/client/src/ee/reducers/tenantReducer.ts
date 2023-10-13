@@ -14,9 +14,11 @@ import {
   cachedTenantConfigParsed,
   createBrandColorsFromPrimaryColor,
 } from "utils/BrandingUtils";
-import { LICENSE_TYPE } from "@appsmith/pages/Billing/types";
+import type { LICENSE_MODIFICATION } from "@appsmith/pages/Billing/Types/types";
+import { LICENSE_TYPE } from "@appsmith/pages/Billing/Types/types";
 
 export interface License {
+  changeType: LICENSE_MODIFICATION;
   active: boolean;
   key: string;
   type: string;
@@ -28,6 +30,12 @@ export interface License {
   validatingLicense: boolean;
   origin?: string;
   showLicenseModal: boolean;
+  showRemoveLicenseModal: boolean;
+  removingLicense: boolean;
+  showDowngradeLicenseModal: boolean;
+  updatingLicense: boolean;
+  refreshingLicense: boolean;
+  isFree?: boolean;
 }
 
 const INITIAL_BRAND_COLOR = "#000";
@@ -76,6 +84,7 @@ export const handlers = {
   }),
   [ReduxActionTypes.VALIDATE_LICENSE_KEY]: (
     state: TenantReduxState<License>,
+    action: ReduxAction<{ key: string; isUserOnboarding: boolean }>,
   ) => ({
     ...state,
     tenantConfiguration: {
@@ -83,6 +92,7 @@ export const handlers = {
       license: {
         ...state.tenantConfiguration.license,
         validatingLicense: true,
+        isFree: action.payload?.key === "",
       },
     },
   }),
@@ -158,7 +168,7 @@ export const handlers = {
       ...state.tenantConfiguration,
       license: {
         ...state.tenantConfiguration.license,
-        validatingLicense: true,
+        refreshingLicense: true,
       },
     },
   }),
@@ -172,7 +182,7 @@ export const handlers = {
       license: {
         ...state.tenantConfiguration.license,
         ...action.payload.tenantConfiguration?.license,
-        validatingLicense: false,
+        refreshingLicense: false,
       },
     },
   }),
@@ -184,7 +194,107 @@ export const handlers = {
       ...state.tenantConfiguration,
       license: {
         ...state.tenantConfiguration.license,
+        refreshingLicense: false,
+      },
+    },
+  }),
+  [ReduxActionTypes.SHOW_REMOVE_LICENSE_MODAL]: (
+    state: TenantReduxState<License>,
+    action: ReduxAction<boolean>,
+  ) => ({
+    ...state,
+    tenantConfiguration: {
+      ...state.tenantConfiguration,
+      license: {
+        ...state.tenantConfiguration.license,
+        showRemoveLicenseModal: action.payload,
+      },
+    },
+  }),
+  [ReduxActionTypes.REMOVE_LICENSE_INIT]: (
+    state: TenantReduxState<License>,
+  ) => ({
+    ...state,
+    tenantConfiguration: {
+      ...state.tenantConfiguration,
+      license: {
+        ...state.tenantConfiguration.license,
+        removingLicense: true,
+      },
+    },
+  }),
+  [ReduxActionTypes.REMOVE_LICENSE_SUCCESS]: (
+    state: TenantReduxState<License>,
+    action: ReduxAction<TenantReduxState<License>>,
+  ) => ({
+    ...state,
+    tenantConfiguration: {
+      ...state.tenantConfiguration,
+      license: {
+        ...state.tenantConfiguration.license,
+        ...action.payload.tenantConfiguration?.license,
+        removingLicense: false,
+      },
+    },
+  }),
+  [ReduxActionErrorTypes.REMOVE_LICENSE_ERROR]: (
+    state: TenantReduxState<License>,
+  ) => ({
+    ...state,
+    tenantConfiguration: {
+      ...state.tenantConfiguration,
+      license: {
+        ...state.tenantConfiguration.license,
+        removingLicense: false,
+      },
+    },
+  }),
+  [ReduxActionTypes.VALIDATE_LICENSE_KEY_DRY_RUN_INIT]: (
+    state: TenantReduxState<License>,
+  ) => ({
+    ...state,
+    tenantConfiguration: {
+      ...state.tenantConfiguration,
+      license: {
+        ...state.tenantConfiguration.license,
+        validatingLicense: true,
+      },
+    },
+  }),
+  [ReduxActionTypes.VALIDATE_LICENSE_KEY_DRY_RUN_SUCCESS]: (
+    state: TenantReduxState<License>,
+  ) => ({
+    ...state,
+    tenantConfiguration: {
+      ...state.tenantConfiguration,
+      license: {
+        ...state.tenantConfiguration?.license,
         validatingLicense: false,
+      },
+    },
+  }),
+  [ReduxActionErrorTypes.VALIDATE_LICENSE_KEY_DRY_RUN_ERROR]: (
+    state: TenantReduxState<License>,
+  ) => ({
+    ...state,
+    tenantConfiguration: {
+      ...state.tenantConfiguration,
+      license: {
+        ...state.tenantConfiguration.license,
+        validatingLicense: false,
+      },
+    },
+  }),
+  [ReduxActionTypes.SHOW_DOWNGRADE_LICENSE_MODAL]: (
+    state: TenantReduxState<License>,
+    action: ReduxAction<boolean>,
+  ) => ({
+    ...state,
+    tenantConfiguration: {
+      ...state.tenantConfiguration,
+      license: {
+        ...state.tenantConfiguration.license,
+        showDowngradeLicenseModal: action.payload,
       },
     },
   }),

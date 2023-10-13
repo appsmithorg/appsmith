@@ -138,6 +138,10 @@ describe("Edit Permission flow ", function () {
             },
           );
           cy.visit("settings/general");
+          featureFlagIntercept({
+            license_gac_enabled: true,
+          });
+          cy.wait(2000);
           cy.EditPermissionWorkspaceLevel(
             PermissionWorkspaceLevel,
             workspaceName,
@@ -359,6 +363,10 @@ describe("Edit Permission flow ", function () {
   after(() => {
     cy.LogOut();
     cy.LogintoAppTestUser(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+    featureFlagIntercept({
+      license_gac_enabled: true,
+    });
+    cy.wait(2000);
     cy.visit("/settings/roles");
     cy.DeleteRole(PermissionWorkspaceLevel);
     cy.DeleteRole(PermissionAppLevel);

@@ -18,7 +18,7 @@ const EE_SettingCategories = {
   ROLES_LISTING: "roles",
   AUDIT_LOGS: "audit-logs",
   AUDIT_LOGS_SETTINGS: "audit-logs-settings",
-  BILLING: "billing",
+  BILLING: "license",
   PROVISIONING: "provisioning",
   SCIM_PROVISIONING: "scim",
 };

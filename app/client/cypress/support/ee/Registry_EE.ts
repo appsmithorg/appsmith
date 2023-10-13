@@ -4,6 +4,7 @@ import { ObjectsRegistry as CE_ObjectsRegistry } from "../Objects/Registry";
 import { MultipleEnvironments } from "../Pages/MultipleEnvironments";
 import { RBACHelper } from "../RBACHelper";
 import { Provisioning } from "../Pages/ProvisioningHelper";
+import { License } from "../Pages/LicenseHelper";
 
 export class ObjectsRegistry extends CE_ObjectsRegistry {
   private static multipleEnv__: MultipleEnvironments;
@@ -28,5 +29,13 @@ export class ObjectsRegistry extends CE_ObjectsRegistry {
       ObjectsRegistry.provisioning__ = new Provisioning();
     }
     return ObjectsRegistry.provisioning__;
+  }
+
+  private static license__: License;
+  static get License(): License {
+    if (ObjectsRegistry.license__ === undefined) {
+      ObjectsRegistry.license__ = new License();
+    }
+    return ObjectsRegistry.license__;
   }
 }

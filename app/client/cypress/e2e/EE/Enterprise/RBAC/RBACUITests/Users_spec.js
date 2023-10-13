@@ -1,6 +1,6 @@
 const RBAC = require("../../../../../locators/RBAClocators.json");
 import { agHelper } from "../../../../../support/Objects/ObjectsCore";
-
+import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
 describe("users tab Tests", function () {
   const GroupName = "Invite User Group" + `${Math.floor(Math.random() * 1000)}`;
   const RoleName = "Invite User Role" + `${Math.floor(Math.random() * 1000)}`;
@@ -11,12 +11,16 @@ describe("users tab Tests", function () {
     cy.AddIntercepts();
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     cy.visit("/settings/general");
+    featureFlagIntercept({ license_gac_enabled: true });
+    cy.wait(2000);
     cy.CreateRole(RoleName);
     cy.CreateGroup(GroupName);
   });
 
   it("1.Verify functionality of Users tab", function () {
     agHelper.VisitNAssert("/settings/general");
+    featureFlagIntercept({ license_gac_enabled: true });
+    cy.wait(2000);
     agHelper.AssertElementVisibility(RBAC.usersTab);
     agHelper.GetNClick(RBAC.usersTab);
     cy.get(RBAC.searchBar).clear().type(Cypress.env("USERNAME"));
@@ -26,6 +30,8 @@ describe("users tab Tests", function () {
 
   it("2.Verify functionality of Users tab - Invite user via Roles", function () {
     cy.visit("/settings/general");
+    featureFlagIntercept({ license_gac_enabled: true });
+    cy.wait(2000);
     cy.get(RBAC.usersTab).click();
     cy.AssignRoleToUser(RoleName, Cypress.env("TESTUSERNAME1"));
     cy.get(RBAC.usersTab).click();
@@ -38,6 +44,8 @@ describe("users tab Tests", function () {
 
   it("3.Verify functionality of Users tab - Invite user via Groups", function () {
     cy.visit("/settings/general");
+    featureFlagIntercept({ license_gac_enabled: true });
+    cy.wait(2000);
     cy.get(RBAC.usersTab).click();
     cy.AssignGroupToUser(GroupName, Cypress.env("TESTUSERNAME2"));
     cy.get(RBAC.searchBar).clear().type(Cypress.env("TESTUSERNAME2"));

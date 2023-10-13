@@ -13,6 +13,7 @@ import {
   draggableWidgets,
   apiPage,
 } from "../../../../../support/ee/ObjectsCore_EE";
+import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
 
 describe(
   "excludeForAirgap",
@@ -78,6 +79,11 @@ describe(
 
         // Create custom roles with create, edit, view permissions to all the pages in the app except customer data & application upload pages
         adminSettings.NavigateToAdminSettings();
+
+        featureFlagIntercept({
+          license_gac_enabled: true,
+        });
+        cy.wait(2000);
         rbacHelper.CreatePermissionAppLevel(roleName, workspaceName, appName);
         rbacHelper.ModifyPermissionsNSave(
           roleName,
@@ -188,6 +194,10 @@ describe(
 
       //Validate if roles are unchecked for customer data & application tracker pages (Pages without access)
       adminSettings.NavigateToAdminSettings();
+      featureFlagIntercept({
+        license_gac_enabled: true,
+      });
+      cy.wait(2000);
       agHelper.GetNClick(RBAC.rolesTab);
       assertHelper.AssertNetworkStatus("@fetchRoles", 200);
       agHelper.ClearTextField(RBAC.searchBar);

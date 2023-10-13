@@ -1,3 +1,4 @@
+import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
 import {
   agHelper,
   adminSettings,
@@ -42,6 +43,10 @@ describe("Validate RBAC with GIT bug #19236", function () {
 
       // Create custom roles with create, edit, view permissions to the app
       adminSettings.NavigateToAdminSettings();
+
+      featureFlagIntercept({ license_gac_enabled: true });
+      cy.wait(2000);
+
       rbacHelper.CreatePermissionAppLevel(roleName, workspaceName, appName);
 
       // Assign custom role to testuser1

@@ -5,7 +5,6 @@ import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.helpers.DataTypeStringUtils;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.constants.LicenseOrigin;
 import com.appsmith.server.constants.LicensePlan;
 import com.appsmith.server.constants.LicenseStatus;
 import com.appsmith.server.constants.MigrationStatus;
@@ -46,7 +45,6 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_TENANT;
 import static com.appsmith.server.constants.CommonConstants.COLUMN;
@@ -449,8 +447,7 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
     public Mono<Boolean> isEnterprisePlan(String tenantId) {
         Mono<License> licenseMono = getTenantLicense(tenantId);
         return licenseMono
-                .map(license ->
-                        license.getActive() && getEnterpriseLicenseOrigins().contains(license.getOrigin()))
+                .map(license -> license.getActive() && LicensePlan.ENTERPRISE.equals(license.getPlan()))
                 .switchIfEmpty(Mono.just(Boolean.FALSE));
     }
 
@@ -523,14 +520,6 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
                 .flatMap(sessionLimiterService::updateTenantConfiguration)
                 .flatMap(updatedTenantConfiguration ->
                         super.updateTenantConfiguration(tenantId, updatedTenantConfiguration));
-    }
-
-    /**
-     * Currently {@link License}.{@link LicenseOrigin} is set to ENTERPRISE & AIR_GAP for Enterprise and AirGapped respectively.
-     * Hence we use a set of ENTERPRISE & AIR_GAP as EnterPrise License Origins
-     */
-    private Set<LicenseOrigin> getEnterpriseLicenseOrigins() {
-        return Set.of(LicenseOrigin.ENTERPRISE, LicenseOrigin.AIR_GAP);
     }
 
     private Mono<Tenant> checkAndUpdateLicenseExpiryWithinInstance(Tenant tenant) {

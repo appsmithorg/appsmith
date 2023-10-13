@@ -1,4 +1,4 @@
-import type { ButtonProps, IconProps, Text } from "design-system";
+import type { IconProps, Text } from "design-system";
 import type { ReactComponentElement, ReactNode } from "react";
 
 export interface Header {
@@ -15,32 +15,47 @@ export interface BillingDashboardCard {
   name: string;
 }
 
-export interface CTAButtonType {
+export interface CustomerPortalLink {
   action?: string;
   text: string;
   icon?: IconProps;
+  label?: string;
 }
 
 export type HeaderProps = Header;
 export interface BillingDashboardProps {
   cards: BillingDashboardCard[];
 }
-// TODO (tanvi): we need to expose all component types from the system (and replace button props here)
-export type CTAButtonProps = CTAButtonType & ButtonProps;
-
-export enum LICENSE_ORIGIN {
-  SELF_SERVE = "SELF_SERVE",
-  ENTERPRISE = "ENTERPRISE",
-  AIRGAPPED = "AIR_GAP",
-}
 
 export enum LICENSE_TYPE {
   TRIAL = "TRIAL",
   PAID = "PAID",
   PAYMENT_FAILED = "IN_GRACE_PERIOD",
+  EXPIRED = "EXPIRED",
+}
+
+export interface BillingField {
+  label: string;
+  value: string;
+  selector: string;
 }
 
 export enum LICENSE_PLANS {
   FREE = "FREE",
   PAID = "PAID",
+}
+
+export enum LICENSE_MODIFICATION {
+  UPGRADE = "UPGRADE",
+  DOWNGRADE = "DOWNGRADE",
+}
+
+export enum PRODUCT_EDITION {
+  COMMERCIAL = "COMMERCIAL",
+  AIR_GAP = "AIR_GAP",
+}
+
+export enum LICENSE_PLAN {
+  BUSINESS = "BUSINESS",
+  ENTERPRISE = "ENTERPRISE",
 }

@@ -128,3 +128,12 @@ export const StyledForm = styled.form<{ showError?: boolean }>`
     color: var(--ads-v2-color-fg-error);
   }
 `;
+
+export const InputWrapper = styled.div`
+  display: flex;
+  margin-top: 2rem;
+`;
+
+export const StyledInputBox = styled(Input)`
+  width: 40%;
+`;

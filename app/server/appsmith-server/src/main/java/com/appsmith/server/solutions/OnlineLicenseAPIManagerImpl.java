@@ -71,7 +71,7 @@ public class OnlineLicenseAPIManagerImpl extends BaseLicenseAPIManagerImpl imple
         return this.populateLicenseValidationRequest(tenant)
                 .flatMap(requestDTO -> {
                     Mono<ResponseEntity<ResponseDTO<LicenseValidationResponseDTO>>> responseEntityMono =
-                            WebClientUtils.create(baseUrl + "/api/v1/license/validate")
+                            WebClientUtils.create(baseUrl + "/api/v2/license/validate")
                                     .post()
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .accept(MediaType.APPLICATION_JSON)

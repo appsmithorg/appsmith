@@ -28,6 +28,19 @@ const handlers = {
     ...state,
     isSaving: false,
   }),
+  [ReduxActionTypes.RESTART_SERVER_POLL_LICENSE_MIGRATION]: (
+    state: SettingsReduxState,
+  ) => ({
+    ...state,
+    isRestarting: true,
+  }),
+  [ReduxActionTypes.RETRY_SERVER_POLL_LICENSE_MIGRATION]: (
+    state: SettingsReduxState,
+  ) => ({
+    ...state,
+    isRestarting: true,
+    isRestartFailed: false,
+  }),
 };
 
 export default createReducer(initialState, handlers);

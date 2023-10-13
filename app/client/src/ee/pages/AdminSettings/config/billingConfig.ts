@@ -6,16 +6,16 @@ import {
 } from "@appsmith/pages/AdminSettings/config/types";
 import { Billing } from "@appsmith/pages/Billing";
 import {
-  ADMIN_BILLING_SETTINGS_TITLE,
+  ADMIN_BILLING_SETTINGS_TITLE_PAID,
   createMessage,
 } from "@appsmith/constants/messages";
 
 export const config: AdminConfigType = {
-  icon: "money-dollar-circle-line",
+  icon: "key-2-line",
   type: SettingCategories.BILLING,
-  categoryType: CategoryType.OTHER,
+  categoryType: CategoryType.GENERAL,
   controlType: SettingTypes.PAGE,
   component: Billing,
-  title: createMessage(ADMIN_BILLING_SETTINGS_TITLE),
+  title: createMessage(ADMIN_BILLING_SETTINGS_TITLE_PAID),
   canSave: false,
 } as AdminConfigType;

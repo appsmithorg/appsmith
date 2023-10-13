@@ -3,6 +3,7 @@ import {
   adminSettings,
   provisioning,
   deployMode,
+  license,
 } from "../../../../support/ee/ObjectsCore_EE";
 import RBAC from "../../../../locators/RBAClocators.json";
 import {
@@ -10,6 +11,7 @@ import {
   UserAttributes,
 } from "../../../../support/Pages/ProvisioningHelper";
 import adminsSettings from "../../../../locators/AdminsSettings";
+import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
 describe("SCIM Provisioning", function () {
   let scimEndpointUrl: any, apiKey: any;
@@ -48,17 +50,46 @@ describe("SCIM Provisioning", function () {
     "excludeForAirgap",
     "1. Go to admin settings and check provisioning should show upgrade page for business edition",
     function () {
-      provisioning.UpdateLicenseKey("business");
+      license.UpdateLicenseKey("business");
       agHelper.Sleep(4000);
       agHelper.VisitNAssert("/settings/general", "getEnvVariables");
       // click provisioning tab
       agHelper.GetNClick(adminsSettings.provisioning);
       agHelper.AssertURL("/settings/provisioning");
       cy.get(adminsSettings.provisioning).within(() => {
-        cy.get(adminsSettings.businessTag)
+        cy.get(adminsSettings.enterpriseTag)
           .should("exist")
           .should("contain", "Enterprise");
       });
+      deployMode.StubWindowNAssert(
+        adminsSettings.upgrade,
+        "https://www.appsmith.com/pricing?source=BE",
+        "getEnvVariables",
+      );
+      cy.wait(2000);
+    },
+  );
+  it(
+    "excludeForAirgap",
+    "1. Go to admin settings and check provisioning should show upgrade page for free plan",
+    function () {
+      agHelper.VisitNAssert("/settings/general", "getEnvVariables");
+
+      featureFlagIntercept({ license_scim_enabled: false });
+
+      // click provisioning tab
+      agHelper.GetNClick(adminsSettings.provisioning);
+      agHelper.AssertURL("/settings/provisioning");
+      cy.get(adminsSettings.provisioning).within(() => {
+        cy.get(adminsSettings.enterpriseTag)
+          .should("exist")
+          .should("contain", "Enterprise");
+      });
+
+      cy.get(provisioning.locators.upgradeContainer).should("be.visible");
+      cy.get(provisioning.locators.upgradeButton)
+        .should("be.visible")
+        .should("have.text", "Upgrade");
       deployMode.StubWindowNAssert(
         adminsSettings.upgrade,
         "https://www.appsmith.com/pricing?source=BE",
@@ -71,6 +102,8 @@ describe("SCIM Provisioning", function () {
   // Configuring SCIM to test Remove resources flow
   it("2. Go to admin settings and configure SCIM", function () {
     agHelper.VisitNAssert("/settings/general", "getEnvVariables");
+    featureFlagIntercept({ license_scim_enabled: true });
+    cy.wait(2000);
     // click provisioning tab
     agHelper.GetNClick(provisioning.locators.provisioningCategory);
     agHelper.AssertURL("/settings/provisioning");
@@ -111,6 +144,8 @@ describe("SCIM Provisioning", function () {
 
   it("3. SCIM provisioning should be configured but inactive", function () {
     adminSettings.NavigateToAdminSettings();
+    featureFlagIntercept({ license_scim_enabled: true });
+    cy.wait(2000);
     // click provisioning tab
     agHelper.GetNClick(provisioning.locators.provisioningCategory);
     agHelper.AssertURL("/settings/provisioning");
@@ -168,6 +203,8 @@ describe("SCIM Provisioning", function () {
 
   // All API tests for SCIM
   it("4. Fetch all users and groups via SCIM", function () {
+    featureFlagIntercept({ license_scim_enabled: true });
+    cy.wait(2000);
     provisioning.GetUsers(apiKey).then((response) => {
       const body = response.body;
       expect(response.status).equal(200);
@@ -210,6 +247,12 @@ describe("SCIM Provisioning", function () {
       userName: email,
       displayName: "Test User",
     };
+
+    featureFlagIntercept({
+      license_scim_enabled: true,
+      license_gac_enabled: true,
+    });
+    cy.wait(2000);
 
     provisioning.CreateUser(apiKey, userObj).then((response) => {
       const body = response.body;
@@ -270,6 +313,11 @@ describe("SCIM Provisioning", function () {
   });
 
   it("6. Create a group via SCIM", function () {
+    featureFlagIntercept({
+      license_scim_enabled: true,
+      license_gac_enabled: true,
+    });
+    cy.wait(2000);
     const groupObj: any = {
       displayName: groupName,
       description: "Test Group Description",
@@ -329,6 +377,11 @@ describe("SCIM Provisioning", function () {
   });
 
   it("7. Fetch user by id and filter via SCIM", function () {
+    featureFlagIntercept({
+      license_scim_enabled: true,
+      license_gac_enabled: true,
+    });
+    cy.wait(2000);
     provisioning.GetUsers(apiKey, userId).then((response) => {
       const body = response.body;
       expect(response.status).equal(200);
@@ -370,6 +423,11 @@ describe("SCIM Provisioning", function () {
   });
 
   it("8. Fetch group by id and filter via SCIM", function () {
+    featureFlagIntercept({
+      license_scim_enabled: true,
+      license_gac_enabled: true,
+    });
+    cy.wait(2000);
     provisioning.GetGroups(apiKey, groupId).then((response) => {
       const body = response.body;
       expect(response.status).equal(200);
@@ -408,6 +466,11 @@ describe("SCIM Provisioning", function () {
   });
 
   it("9. Update a user via SCIM", function () {
+    featureFlagIntercept({
+      license_scim_enabled: true,
+      license_gac_enabled: true,
+    });
+    cy.wait(2000);
     const userObj: any = {
       displayName: "Test User Renamed",
     };
@@ -456,6 +519,11 @@ describe("SCIM Provisioning", function () {
   });
 
   it("10. Update a group's data via SCIM (Replicating Okta)", function () {
+    featureFlagIntercept({
+      license_scim_enabled: true,
+      license_gac_enabled: true,
+    });
+    cy.wait(2000);
     const groupObj: any = {
       displayName: "Test Group 2",
       description: "Test Group Description Renamed",
@@ -508,6 +576,11 @@ describe("SCIM Provisioning", function () {
   });
 
   it("11. Update a group's data via SCIM (Replicating Azure)", function () {
+    featureFlagIntercept({
+      license_scim_enabled: true,
+      license_gac_enabled: true,
+    });
+    cy.wait(2000);
     const groupObj: any = {
       Operations: [
         {
@@ -561,6 +634,11 @@ describe("SCIM Provisioning", function () {
   });
 
   it("12. Update a group's members using PATCH update by adding a user via SCIM", function () {
+    featureFlagIntercept({
+      license_scim_enabled: true,
+      license_gac_enabled: true,
+    });
+    cy.wait(2000);
     const groupObj: any = {
       members: [{ operation: "add", value: userId, type: "User" }],
     };
@@ -608,6 +686,11 @@ describe("SCIM Provisioning", function () {
   });
 
   it("13. Update a group's members using PATCH update by removing the user via SCIM", function () {
+    featureFlagIntercept({
+      license_scim_enabled: true,
+      license_gac_enabled: true,
+    });
+    cy.wait(2000);
     const groupObj: any = {
       members: [{ operation: "delete", value: userId2, type: "User" }],
     };
@@ -655,6 +738,11 @@ describe("SCIM Provisioning", function () {
   });
 
   it("14. Delete a user via SCIM", function () {
+    featureFlagIntercept({
+      license_scim_enabled: true,
+      license_gac_enabled: true,
+    });
+    cy.wait(2000);
     provisioning.DeleteUser(apiKey, userId).then((response) => {
       expect(response.status).equal(204);
 
@@ -678,6 +766,11 @@ describe("SCIM Provisioning", function () {
   });
 
   it("15. Delete a group via SCIM", function () {
+    featureFlagIntercept({
+      license_scim_enabled: true,
+      license_gac_enabled: true,
+    });
+    cy.wait(2000);
     provisioning.DeleteGroup(apiKey, groupId).then((response) => {
       expect(response.status).equal(204);
 
@@ -704,6 +797,13 @@ describe("SCIM Provisioning", function () {
 
   it("16. Disable SCIM provisioning", function () {
     adminSettings.NavigateToAdminSettings();
+
+    featureFlagIntercept({
+      license_scim_enabled: true,
+      license_gac_enabled: true,
+    });
+    cy.wait(2000);
+
     // click provisioning tab
     agHelper.GetNClick(provisioning.locators.provisioningCategory);
     agHelper.AssertURL("/settings/provisioning");
@@ -755,6 +855,12 @@ describe("SCIM Provisioning", function () {
   // Re-configuring SCIM to no resources synced flow
   it("17. Go to admin settings and configure SCIM", function () {
     agHelper.VisitNAssert("/settings/general", "getEnvVariables");
+
+    featureFlagIntercept({
+      license_scim_enabled: true,
+      license_gac_enabled: true,
+    });
+    cy.wait(2000);
     // click provisioning tab
     agHelper.GetNClick(provisioning.locators.provisioningCategory);
     agHelper.AssertURL("/settings/provisioning");
@@ -795,6 +901,12 @@ describe("SCIM Provisioning", function () {
 
   it("18. Disable SCIM provisioning", function () {
     adminSettings.NavigateToAdminSettings();
+
+    featureFlagIntercept({
+      license_scim_enabled: true,
+      license_gac_enabled: true,
+    });
+    cy.wait(2000);
     // click provisioning tab
     agHelper.GetNClick(provisioning.locators.provisioningCategory);
     agHelper.AssertURL("/settings/provisioning");
@@ -828,6 +940,12 @@ describe("SCIM Provisioning", function () {
   // Re-configuring SCIM to test Keep resources flow
   it("19. Go to admin settings and configure SCIM", function () {
     agHelper.VisitNAssert("/settings/general", "getEnvVariables");
+
+    featureFlagIntercept({
+      license_scim_enabled: true,
+      license_gac_enabled: true,
+    });
+    cy.wait(2000);
     // click provisioning tab
     agHelper.GetNClick(provisioning.locators.provisioningCategory);
     agHelper.AssertURL("/settings/provisioning");
@@ -871,6 +989,12 @@ describe("SCIM Provisioning", function () {
       userName: email,
       displayName: "Test User",
     };
+
+    featureFlagIntercept({
+      license_scim_enabled: true,
+      license_gac_enabled: true,
+    });
+    cy.wait(2000);
 
     provisioning.CreateUser(apiKey, userObj).then((response) => {
       const body = response.body;
@@ -925,7 +1049,11 @@ describe("SCIM Provisioning", function () {
       description: "Test Group Description",
       members: [{ value: userId, type: "User" }],
     };
-
+    featureFlagIntercept({
+      license_scim_enabled: true,
+      license_gac_enabled: true,
+    });
+    cy.wait(2000);
     provisioning.CreateGroup(apiKey, groupObj).then((response) => {
       const body = response.body;
       expect(response.status).equal(201);
@@ -969,6 +1097,12 @@ describe("SCIM Provisioning", function () {
 
   it("22. Disable SCIM provisioning", function () {
     adminSettings.NavigateToAdminSettings();
+
+    featureFlagIntercept({
+      license_scim_enabled: true,
+      license_gac_enabled: true,
+    });
+    cy.wait(2000);
     // click provisioning tab
     agHelper.GetNClick(provisioning.locators.provisioningCategory);
     agHelper.AssertURL("/settings/provisioning");
@@ -1051,6 +1185,11 @@ describe("SCIM Provisioning", function () {
 
   // Tests deletion of SCIM user and group after resources are retained while disabling SCIM provisioning
   after(() => {
+    featureFlagIntercept({
+      license_scim_enabled: true,
+      license_gac_enabled: true,
+    });
+    cy.wait(2000);
     agHelper.VisitNAssert(`/settings/users/${userId}`, "getEnvVariables");
     agHelper.WaitUntilEleAppear(RBAC.searchBar);
     agHelper.GetNClick(RBAC.userContextMenu);

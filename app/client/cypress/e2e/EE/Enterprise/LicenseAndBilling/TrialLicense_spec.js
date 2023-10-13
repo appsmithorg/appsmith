@@ -27,19 +27,21 @@ describe("excludeForAirgap", "Trial License", function () {
     cy.LogOut();
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     cy.wait(2000);
-    cy.get(LicenseLocators.welcomeBanner).should("not.exist");
-    cy.get(LicenseLocators.upgradeLeftPane).should("be.visible");
-    cy.get(LicenseLocators.warningBanner).should("be.visible");
+    _.agHelper.AssertElementAbsence(LicenseLocators.welcomeBanner);
+    _.agHelper.AssertElementVisibility(LicenseLocators.upgradeLeftPane, true);
+    _.agHelper.AssertElementVisibility(LicenseLocators.warningBanner, true);
   });
   it("2. should have 30 days left in the trial", () => {
     cy.interceptLicenseApi({ licenseStatus: "ACTIVE", licenseType: "TRIAL" });
-    cy.get(LicenseLocators.warningBannerMainText).should(
-      "have.text",
+    _.agHelper.GetNAssertElementText(
+      LicenseLocators.warningBannerMainText,
       "Your trial will expire in 30 days. ",
+      "have.text",
     );
+
     // should have yellow background
-    cy.get(LicenseLocators.warningBanner).should(
-      "have.css",
+    _.agHelper.AssertCSS(
+      LicenseLocators.warningBanner,
       "background-color",
       "rgb(255, 251, 235)",
     );
@@ -51,16 +53,19 @@ describe("excludeForAirgap", "Trial License", function () {
       expiry: (new Date().getTime() + 2 * 24 * 60 * 60 * 1000) / 1000,
     });
     cy.reload();
-    cy.get(LicenseLocators.warningBannerMainText).should(
-      "have.text",
+    _.agHelper.GetNAssertElementText(
+      LicenseLocators.warningBannerMainText,
       "Your trial will expire in 2 days. ",
+      "have.text",
     );
+
     // should have red background
-    cy.get(LicenseLocators.warningBanner).should(
-      "have.css",
+    _.agHelper.AssertCSS(
+      LicenseLocators.warningBanner,
       "background-color",
       "rgb(255, 242, 242)",
     );
+
     // should take the user to customer portal on clicking upgrade CTA
     cy.get(LicenseLocators.warningBanner).within(() => {
       cy.get(LicenseLocators.warningBannerUpgradeBtn).should(
@@ -77,9 +82,10 @@ describe("excludeForAirgap", "Trial License", function () {
       expiry: (new Date().getTime() + 8 * 60 * 60 * 1000 + 60 * 1000) / 1000,
     });
     cy.reload();
-    cy.get(LicenseLocators.warningBannerMainText).should(
-      "have.text",
+    _.agHelper.GetNAssertElementText(
+      LicenseLocators.warningBannerMainText,
       "Your trial will expire in 8 hours. ",
+      "have.text",
     );
   });
   it("5. should not have banner in paid license", () => {
@@ -93,44 +99,48 @@ describe("excludeForAirgap", "Trial License", function () {
       licenseType: "TRIAL",
     });
     cy.reload();
-    cy.get(LicenseLocators.warningBannerMainText).should(
-      "have.text",
+    _.agHelper.GetNAssertElementText(
+      LicenseLocators.warningBannerMainText,
       "Your trial will expire in 30 days. ",
+      "have.text",
     );
     cy.interceptLicenseApi({
       licenseStatus: "ACTIVE",
       licenseType: "PAID",
       url: "/api/v1/tenants/license",
     });
-    cy.get(LicenseLocators.licenseRefreshBtn).click();
+    _.agHelper.GetNClick(LicenseLocators.licenseRefreshBtn);
     cy.wait(1000);
     cy.get(commonlocators.toastMsg).contains(
-      "Your license has been updated successfully",
+      "Your license has been refreshed successfully",
     );
-    cy.get(LicenseLocators.warningBanner).should("not.exist");
+    _.agHelper.AssertElementAbsence(LicenseLocators.warningBanner);
   });
   it("7. should have Enterprise text in banner for Enterprise", () => {
     cy.interceptLicenseApi({
       licenseStatus: "ACTIVE",
       licenseType: "TRIAL",
-      licenseOrigin: "ENTERPRISE",
+      plan: "ENTERPRISE",
+      productEdition: "COMMERCIAL",
     });
     cy.reload();
-    cy.get(LicenseLocators.warninngBannerContinueText).should(
-      "contain.text",
+    _.agHelper.GetNAssertElementText(
+      LicenseLocators.warningBannerContinueText,
       "Appsmith Enterprise",
+      "contain.text",
     );
   });
   it("8. should have Business text in banner for Business", () => {
     cy.interceptLicenseApi({
       licenseStatus: "ACTIVE",
       licenseType: "TRIAL",
-      licenseOrigin: "SELF_SERVE",
+      plan: "BUSINESS",
     });
     cy.reload();
-    cy.get(LicenseLocators.warninngBannerContinueText).should(
-      "contain.text",
+    _.agHelper.GetNAssertElementText(
+      LicenseLocators.warningBannerContinueText,
       "Appsmith Business",
+      "contain.text",
     );
   });
 });

@@ -15,8 +15,9 @@ public class LicenseValidationResponseDTO {
     private String instanceId;
     private LicenseType licenseType;
     private LicenseStatus licenseStatus;
-    private LicenseOrigin origin;
+    private LicenseOrigin licenseOrigin;
     private LicensePlan licensePlan;
+    private ProductEdition productEdition;
     private Instant expiry;
     private boolean isValid;
     private SubscriptionDetails subscriptionDetails;

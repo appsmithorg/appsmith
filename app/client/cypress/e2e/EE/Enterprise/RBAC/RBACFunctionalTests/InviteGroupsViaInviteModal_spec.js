@@ -17,6 +17,8 @@ describe("Create new workspace and invite group & validate all roles", () => {
     agHelper.VisitNAssert("/applications", "getReleaseItems");
     cy.get(locators.AdminSettingsEntryLink).should("be.visible");
     cy.get(locators.AdminSettingsEntryLink).click();
+    featureFlagIntercept({ license_gac_enabled: true });
+    cy.wait(2000);
     cy.createGroupAndAddUser(
       GroupName,
       Cypress.env("TESTUSERNAME1"),
@@ -231,6 +233,8 @@ describe("Create new workspace and invite group & validate all roles", () => {
 
   after(() => {
     homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+    featureFlagIntercept({ license_gac_enabled: true });
+    cy.wait(2000);
     agHelper.VisitNAssert("settings/groups", "fetchGroups");
     cy.DeleteGroup(GroupName);
   });

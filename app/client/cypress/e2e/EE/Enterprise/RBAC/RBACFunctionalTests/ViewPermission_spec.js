@@ -12,6 +12,7 @@ import {
   dataSources,
   deployMode,
 } from "../../../../../support/Objects/ObjectsCore";
+import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
 let currentUrl;
 
 describe("View Permission flow ", function () {
@@ -39,6 +40,8 @@ describe("View Permission flow ", function () {
   before(() => {
     cy.AddIntercepts();
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+    featureFlagIntercept({ license_gac_enabled: true });
+    cy.wait(2000);
     homePage.NavigateToHome();
     cy.generateUUID().then((uid) => {
       workspaceName = uid;
@@ -101,6 +104,7 @@ describe("View Permission flow ", function () {
           });
           cy.wait(2000);
           cy.visit("settings/general");
+
           cy.ViewPermissionWorkspaceLevel(
             PermissionWorkspaceLevel,
             workspaceName,
@@ -262,6 +266,8 @@ describe("View Permission flow ", function () {
   after(() => {
     cy.LogOut();
     cy.LogintoAppTestUser(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+    featureFlagIntercept({ license_gac_enabled: true });
+    cy.wait(2000);
     cy.visit("/settings/roles");
     cy.DeleteRole(PermissionWorkspaceLevel);
     cy.DeleteRole(PermissionAppLevel);
