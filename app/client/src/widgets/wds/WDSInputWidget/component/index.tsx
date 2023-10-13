@@ -104,6 +104,7 @@ function InputComponent(props: InputComponentProps) {
       startIcon={startIcon}
       type={type}
       validationState={props.validationStatus}
+      value={props.value}
     />
   );
 }

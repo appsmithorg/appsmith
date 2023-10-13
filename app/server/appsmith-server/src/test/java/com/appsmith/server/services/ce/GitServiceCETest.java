@@ -58,6 +58,7 @@ import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.ThemeService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
+import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.EnvironmentPermission;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -71,6 +72,7 @@ import org.eclipse.jgit.api.errors.EmptyCommitException;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.eclipse.jgit.lib.BranchTrackingStatus;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -201,40 +203,43 @@ public class GitServiceCETest {
     @Autowired
     EnvironmentPermission environmentPermission;
 
+    @Autowired
+    ApplicationPermission applicationPermission;
+
     @BeforeEach
     public void setup() throws IOException, GitAPIException {
 
-        if (StringUtils.isEmpty(workspaceId)) {
+        User apiUser = userService.findByEmail("api_user").block();
+        Workspace toCreate = new Workspace();
+        toCreate.setName("Git Service Test");
 
-            User apiUser = userService.findByEmail("api_user").block();
-            Workspace toCreate = new Workspace();
-            toCreate.setName("Git Service Test");
-
-            if (!org.springframework.util.StringUtils.hasLength(workspaceId)) {
-                Workspace workspace = workspaceService
-                        .create(toCreate, apiUser, Boolean.FALSE)
-                        .block();
-                workspaceId = workspace.getId();
-                defaultEnvironmentId = workspaceService
-                        .getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission())
-                        .block();
-            }
-        }
+        Workspace workspace =
+                workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
+        workspaceId = workspace.getId();
+        defaultEnvironmentId = workspaceService
+                .getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission())
+                .block();
 
         Mockito.when(gitCloudServicesUtils.getPrivateRepoLimitForOrg(eq(workspaceId), Mockito.anyBoolean()))
                 .thenReturn(Mono.just(-1));
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
-        if (TRUE.equals(isSetupDone)) {
-            return;
-        }
-
         gitConnectedApplication = createApplicationConnectedToGit("gitConnectedApplication", DEFAULT_BRANCH);
         // applicationPermission = new ApplicationPermissionImpl();
         testUserProfile.setAuthorEmail("test@email.com");
         testUserProfile.setAuthorName("testUser");
-        isSetupDone = true;
+    }
+
+    @AfterEach
+    public void cleanup() {
+        Mockito.when(gitFileUtils.deleteLocalRepo(any(Path.class))).thenReturn(Mono.just(true));
+        List<Application> deletedApplications = applicationService
+                .findByWorkspaceId(workspaceId, applicationPermission.getDeletePermission())
+                .flatMap(remainingApplication -> applicationPageService.deleteApplication(remainingApplication.getId()))
+                .collectList()
+                .block();
+        Workspace deletedWorkspace = workspaceService.archiveById(workspaceId).block();
     }
 
     private Mono<ApplicationJson> createAppJson(String filePath) {

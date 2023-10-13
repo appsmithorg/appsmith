@@ -64,6 +64,7 @@ import com.appsmith.server.services.ThemeService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ApplicationFetcher;
+import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.EnvironmentPermission;
 import com.appsmith.server.solutions.ImportExportApplicationService;
@@ -76,6 +77,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -161,7 +163,7 @@ public class ApplicationServiceCETest {
     @Autowired
     ApplicationService applicationService;
 
-    @Qualifier("applicationPageServiceImpl") @Autowired
+    @Qualifier("applicationPageServiceCEImpl") @Autowired
     ApplicationPageServiceCE applicationPageService;
 
     @Autowired
@@ -248,6 +250,9 @@ public class ApplicationServiceCETest {
     @Autowired
     DatasourceRepository datasourceRepository;
 
+    @Autowired
+    ApplicationPermission applicationPermission;
+
     String workspaceId;
     String defaultEnvironmentId;
 
@@ -255,7 +260,6 @@ public class ApplicationServiceCETest {
     private AssetRepository assetRepository;
 
     @BeforeEach
-    @WithUserDetails(value = "api_user")
     public void setup() {
 
         User currentUser = sessionUserService.getCurrentUser().block();
@@ -267,82 +271,88 @@ public class ApplicationServiceCETest {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
                 .thenReturn(Mono.just(new MockPluginExecutor()));
         User apiUser = userService.findByEmail("api_user").block();
-        if (workspaceId == null) {
 
-            Workspace toCreate = new Workspace();
-            toCreate.setName("ApplicationServiceTest");
+        Workspace toCreate = new Workspace();
+        toCreate.setName("ApplicationServiceTest");
 
-            Workspace workspace =
-                    workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
-            workspaceId = workspace.getId();
+        Workspace workspace =
+                workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
+        workspaceId = workspace.getId();
 
-            defaultEnvironmentId = workspaceService
-                    .getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission())
-                    .block();
+        defaultEnvironmentId = workspaceService
+                .getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission())
+                .block();
 
-            if (StringUtils.hasLength(gitConnectedApp.getId())) {
-                applicationPageService
-                        .deleteApplication(gitConnectedApp.getId())
-                        .block();
-            }
+        gitConnectedApp = new Application();
+        gitConnectedApp.setWorkspaceId(workspaceId);
+        GitApplicationMetadata gitData = new GitApplicationMetadata();
+        gitData.setBranchName("testBranch");
+        gitData.setDefaultBranchName("testBranch");
+        gitData.setRepoName("testRepo");
+        gitData.setRemoteUrl("git@test.com:user/testRepo.git");
+        gitData.setRepoName("testRepo");
+        gitConnectedApp.setGitApplicationMetadata(gitData);
+        // This will be altered in update app by branch test
+        gitConnectedApp.setName("gitConnectedApp");
+        gitConnectedApp = applicationPageService
+                .createApplication(gitConnectedApp)
+                .flatMap(application -> {
+                    application.getGitApplicationMetadata().setDefaultApplicationId(application.getId());
+                    return applicationService.save(application);
+                })
+                // Assign the branchName to all the resources connected to the application
+                .flatMap(application -> importExportApplicationService.exportApplicationById(
+                        application.getId(), gitData.getBranchName()))
+                .flatMap(applicationJson -> importExportApplicationService.importApplicationInWorkspaceFromGit(
+                        workspaceId, applicationJson, gitConnectedApp.getId(), gitData.getBranchName()))
+                .block();
 
-            gitConnectedApp = new Application();
-            gitConnectedApp.setWorkspaceId(workspaceId);
-            GitApplicationMetadata gitData = new GitApplicationMetadata();
-            gitData.setBranchName("testBranch");
-            gitData.setDefaultBranchName("testBranch");
-            gitData.setRepoName("testRepo");
-            gitData.setRemoteUrl("git@test.com:user/testRepo.git");
-            gitData.setRepoName("testRepo");
-            gitConnectedApp.setGitApplicationMetadata(gitData);
-            // This will be altered in update app by branch test
-            gitConnectedApp.setName("gitConnectedApp");
-            gitConnectedApp = applicationPageService
-                    .createApplication(gitConnectedApp)
-                    .flatMap(application -> {
-                        application.getGitApplicationMetadata().setDefaultApplicationId(application.getId());
-                        return applicationService.save(application);
-                    })
-                    // Assign the branchName to all the resources connected to the application
-                    .flatMap(application -> importExportApplicationService.exportApplicationById(
-                            application.getId(), gitData.getBranchName()))
-                    .flatMap(applicationJson -> importExportApplicationService.importApplicationInWorkspaceFromGit(
-                            workspaceId, applicationJson, gitConnectedApp.getId(), gitData.getBranchName()))
-                    .block();
+        testPlugin = pluginService.findByPackageName("restapi-plugin").block();
 
-            testPlugin = pluginService.findByPackageName("restapi-plugin").block();
+        Datasource datasource = new Datasource();
+        datasource.setName("Clone App with action Test");
+        datasource.setPluginId(testPlugin.getId());
+        datasource.setWorkspaceId(workspaceId);
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        datasourceConfiguration.setUrl("http://test.com");
 
-            Datasource datasource = new Datasource();
-            datasource.setName("Clone App with action Test");
-            datasource.setPluginId(testPlugin.getId());
-            datasource.setWorkspaceId(workspaceId);
-            DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
-            datasourceConfiguration.setUrl("http://test.com");
+        HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
+        storages.put(
+                defaultEnvironmentId, new DatasourceStorageDTO(null, defaultEnvironmentId, datasourceConfiguration));
+        datasource.setDatasourceStorages(storages);
+        testDatasource = datasourceService.create(datasource).block();
 
-            HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-            storages.put(
-                    defaultEnvironmentId,
-                    new DatasourceStorageDTO(null, defaultEnvironmentId, datasourceConfiguration));
-            datasource.setDatasourceStorages(storages);
-            testDatasource = datasourceService.create(datasource).block();
+        String environmentId = workspaceService
+                .getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission())
+                .block();
 
-            String environmentId = workspaceService
-                    .getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission())
-                    .block();
+        Datasource datasource1 = new Datasource();
+        datasource1.setName("Clone App with action Test1");
+        datasource1.setPluginId(testPlugin.getId());
+        DatasourceConfiguration datasourceConfiguration1 = new DatasourceConfiguration();
+        datasourceConfiguration1.setUrl("http://test.com");
+        datasource1.setWorkspaceId(workspaceId);
 
-            Datasource datasource1 = new Datasource();
-            datasource1.setName("Clone App with action Test1");
-            datasource1.setPluginId(testPlugin.getId());
-            DatasourceConfiguration datasourceConfiguration1 = new DatasourceConfiguration();
-            datasourceConfiguration1.setUrl("http://test.com");
-            datasource1.setWorkspaceId(workspaceId);
+        HashMap<String, DatasourceStorageDTO> storages1 = new HashMap<>();
+        storages1.put(environmentId, new DatasourceStorageDTO(null, environmentId, datasourceConfiguration1));
+        datasource1.setDatasourceStorages(storages1);
 
-            HashMap<String, DatasourceStorageDTO> storages1 = new HashMap<>();
-            storages1.put(environmentId, new DatasourceStorageDTO(null, environmentId, datasourceConfiguration1));
-            datasource1.setDatasourceStorages(storages1);
+        testDatasource1 = datasourceService.create(datasource1).block();
+    }
 
-            testDatasource1 = datasourceService.create(datasource1).block();
+    @AfterEach
+    public void cleanup() {
+        User currentUser = sessionUserService.getCurrentUser().block();
+        if (!currentUser.getEmail().equals("api_user")) {
+            // Since no setup was done, hence no cleanup needs to happen
+            return;
         }
+        List<Application> deletedApplications = applicationService
+                .findByWorkspaceId(workspaceId, applicationPermission.getDeletePermission())
+                .flatMap(remainingApplication -> applicationPageService.deleteApplication(remainingApplication.getId()))
+                .collectList()
+                .block();
+        Workspace deletedWorkspace = workspaceService.archiveById(workspaceId).block();
     }
 
     private Mono<? extends BaseDomain> getArchivedResource(String id, Class<? extends BaseDomain> domainClass) {
