@@ -1,6 +1,7 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.helpers.ResponseUtils;
+import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.services.ce.PostmanImporterServiceCEImpl;
 import com.appsmith.server.solutions.PagePermission;
 import lombok.extern.slf4j.Slf4j;
