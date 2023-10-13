@@ -66,7 +66,7 @@ import static org.mockito.ArgumentMatchers.eq;
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
 @DirtiesContext
-class FeatureFlagMigrationHelperTest {
+class FeatureFlagMigrationHelperEETest {
 
     @Autowired
     FeatureFlagMigrationHelper featureFlagMigrationHelper;
