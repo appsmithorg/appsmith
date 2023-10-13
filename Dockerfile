@@ -55,8 +55,10 @@ RUN rm -rf \
   /var/lib/apt/lists/* \
   /tmp/*
 
-RUN mkdir -pv /opt/caddy \
-  && curl --location 'https://github.com/caddyserver/caddy/releases/download/v2.7.4/caddy_2.7.4_linux_arm64.tar.gz' \
+RUN set -o xtrace \
+  && mkdir -p /opt/caddy \
+  && version="$(curl --write-out '%{redirect_url}' 'https://github.com/caddyserver/caddy/releases/latest' | sed 's,.*/v,,')" \
+  && curl --location "https://github.com/caddyserver/caddy/releases/download/v$version/caddy_${version}_linux_$(uname -m | sed 's/x86_64/amd64/; s/aarch64/arm64/').tar.gz" \
   | tar -xzf - -C /opt/caddy
 
 # Define volumes - Service Layer
@@ -93,11 +95,9 @@ COPY ./app/client/packages/rts/dist rts/
 ENV PATH /opt/appsmith/utils/node_modules/.bin:/opt/java/bin:/opt/node/bin:$PATH
 
 RUN cd ./utils && npm install --only=prod && npm install --only=prod -g . && cd - \
-  && chmod 0644 /etc/cron.d/* \
   && chmod +x entrypoint.sh renew-certificate.sh healthcheck.sh templates/nginx-app.conf.sh /watchtower-hooks/*.sh \
   # Disable setuid/setgid bits for the files inside container.
-  && find / \( -path /proc -prune \) -o \( \( -perm -2000 -o -perm -4000 \) -print -exec chmod -s '{}' + \) || true \
-  && node prepare-image.mjs
+  && find / \( -path /proc -prune \) -o \( \( -perm -2000 -o -perm -4000 \) -print -exec chmod -s '{}' + \) || true
 
 LABEL com.centurylinklabs.watchtower.lifecycle.pre-check=/watchtower-hooks/pre-check.sh
 LABEL com.centurylinklabs.watchtower.lifecycle.pre-update=/watchtower-hooks/pre-update.sh
