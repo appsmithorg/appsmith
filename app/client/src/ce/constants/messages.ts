@@ -2078,7 +2078,7 @@ export const DATASOURCE_DROPDOWN_OPTIONS = {
 };
 
 export const COMMUNITY_TEMPLATES = {
-  publish: () => "Publish",
+  tabTitle: () => "Showcase",
   cancel: () => "Cancel",
   publishSuccessPage: {
     title: () => "Live on Appsmith community",
