@@ -149,14 +149,16 @@ export function EditorName(props: EditorNameProps) {
           setIsPopoverOpen={setIsPopoverOpen}
         />
       </Menu>
-      <ForkApplicationModal
-        applicationId={props.applicationId || currentAppId}
-        handleClose={() => {
-          setForkApplicationModalOpen(false);
-        }}
-        isInEditMode
-        isModalOpen={isForkApplicationModalopen}
-      />
+      {props.applicationId || currentAppId ? (
+        <ForkApplicationModal
+          applicationId={props.applicationId || currentAppId}
+          handleClose={() => {
+            setForkApplicationModalOpen(false);
+          }}
+          isInEditMode
+          isModalOpen={isForkApplicationModalopen}
+        />
+      ) : null}
     </>
   ) : null;
 }

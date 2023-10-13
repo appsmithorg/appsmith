@@ -6,7 +6,9 @@ import {
   getApplicationLastDeployedAt,
   getCurrentApplicationId,
   getCurrentPageId,
+  getIsPageSaving,
   getIsPublishingApplication,
+  getPageSavingError,
   previewModeSelector,
 } from "selectors/editorSelectors";
 import {
@@ -112,6 +114,8 @@ export function EditorHeader() {
   const isPublishing = useSelector(getIsPublishingApplication);
   const pageId = useSelector(getCurrentPageId) as string;
   const featureFlags = useSelector(selectFeatureFlags);
+  const isSaving = useSelector(getIsPageSaving);
+  const pageSaveError = useSelector(getPageSavingError);
 
   const deployLink = useHref(viewerURL, { pageId });
   const isAppSettingsPaneWithNavigationTabOpen = useSelector(
@@ -293,7 +297,7 @@ export function EditorHeader() {
               />
             </div>
           </Tooltip>
-          <EditorSaveIndicator />
+          <EditorSaveIndicator isSaving={isSaving} saveError={pageSaveError} />
         </HeaderSection>
 
         <HelperBarInHeader />
