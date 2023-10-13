@@ -1046,7 +1046,7 @@ export default class DataTreeEvaluator {
         );
 
         const entityType = entityConfig.ENTITY_TYPE;
-
+        if (!propertyPath) continue;
         switch (entityType) {
           case ENTITY_TYPE_VALUE.WIDGET: {
             if (isATriggerPath) continue;
