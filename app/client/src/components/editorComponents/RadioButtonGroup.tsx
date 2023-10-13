@@ -3,18 +3,18 @@ import styled from "styled-components";
 import { Text, Button } from "design-system";
 import type { WrappedFieldMetaProps, WrappedFieldInputProps } from "redux-form";
 
-type RadioButtonGroupProps = {
+interface RadioButtonGroupProps {
   options: RadioButtonProps[];
   label: string;
   initialValue: string;
   meta?: Partial<WrappedFieldMetaProps>;
   input?: Partial<WrappedFieldInputProps>;
-};
+}
 
-type RadioButtonProps = {
+interface RadioButtonProps {
   label: string;
   value: string;
-};
+}
 
 const StyledButton = styled(Button)`
   &[aria-checked="true"] {

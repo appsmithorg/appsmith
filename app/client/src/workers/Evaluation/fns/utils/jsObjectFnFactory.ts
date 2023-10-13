@@ -11,12 +11,12 @@ declare global {
     ) => any;
   }
 }
-export type PostProcessorArg = {
+export interface PostProcessorArg {
   executionMetaData: ReturnType<typeof ExecutionMetaData.getExecutionMetaData>;
   jsFnFullName: string;
   executionResponse: unknown;
   isSuccess: boolean;
-};
+}
 
 export type PostProcessor = (args: PostProcessorArg) => void;
 export interface JSExecutionData {

@@ -16,25 +16,33 @@ RUN set -o xtrace \
   && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends --yes \
     supervisor curl nfs-common gnupg wget netcat openssh-client \
     gettext \
-    python3-pip git ca-certificates-java \
-  && wget -O - https://packages.adoptium.net/artifactory/api/gpg/key/public | apt-key add - \
-  && echo "deb https://packages.adoptium.net/artifactory/deb $(awk -F= '/^VERSION_CODENAME/{print$2}' /etc/os-release) main" | tee /etc/apt/sources.list.d/adoptium.list \
-  && apt-get update && apt-get install --no-install-recommends --yes temurin-17-jdk \
+    python3-pip git ca-certificates \
   && pip install --no-cache-dir git+https://github.com/coderanger/supervisor-stdout@973ba19967cdaf46d9c1634d1675fc65b9574f6e \
   && apt-get remove --yes git python3-pip \
   && apt-get autoremove --yes
 
-# Install MongoDB v5.0.14, Redis, NodeJS - Service Layer, PostgreSQL v13
+# Install MongoDB v5.0.14, Redis, PostgreSQL v13
 RUN curl --silent --show-error --location https://www.mongodb.org/static/pgp/server-5.0.asc | apt-key add - \
   && echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/5.0 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-5.0.list \
-  && curl --silent --show-error --location https://deb.nodesource.com/setup_18.x | bash - \
-  && echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" | tee /etc/apt/sources.list.d/pgdg.list \
+  && echo "deb http://apt.postgresql.org/pub/repos/apt $(grep CODENAME /etc/lsb-release | cut -d= -f2)-pgdg main" | tee /etc/apt/sources.list.d/pgdg.list \
   && curl --silent --show-error --location https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - \
   && apt update \
-  && apt-get install --no-install-recommends --yes mongodb-org nodejs redis build-essential postgresql-13 \
-  && apt-get clean \
-  # This is to get semver 7.5.2, for a CVE fix, might be able to remove it with later versions on NodeJS.
-  && npm install -g npm@9.7.2
+  && apt-get install --no-install-recommends --yes mongodb-org redis postgresql-13 \
+  && apt-get clean
+
+# Install Java
+RUN set -o xtrace \
+  && mkdir -p /opt/java \
+  # Assets from https://github.com/adoptium/temurin17-binaries/releases
+  && version="$(curl --write-out '%{redirect_url}' 'https://github.com/adoptium/temurin17-binaries/releases/latest' | sed 's,.*jdk-,,')" \
+  && curl --location --output /tmp/java.tar.gz "https://github.com/adoptium/temurin17-binaries/releases/download/jdk-$version/OpenJDK17U-jdk_$(uname -m | sed s/x86_64/x64/)_linux_hotspot_$(echo $version | tr + _).tar.gz" \
+  && tar -xzf /tmp/java.tar.gz -C /opt/java --strip-components 1
+
+# Install NodeJS
+RUN set -o xtrace \
+  && mkdir -p /opt/node \
+  && file="$(curl -sS 'https://nodejs.org/dist/latest-v18.x/' | awk -F\" '$2 ~ /linux-'"$(uname -m | sed 's/x86_64/x64/; s/aarch64/arm64/')"'.tar.gz/ {print $2}')" \
+  && curl "https://nodejs.org/dist/latest-v18.x/$file" | tar -xz -C /opt/node --strip-components 1
 
 # Clean up cache file - Service layer
 RUN rm -rf \
@@ -80,7 +88,9 @@ COPY ${PLUGIN_JARS} backend/plugins/
 COPY ./app/client/build editor/
 
 # Add RTS - Application Layer
-COPY ./app/client/packages/rts/package.json ./app/client/packages/rts/dist rts/
+COPY ./app/client/packages/rts/dist rts/
+
+ENV PATH /opt/appsmith/utils/node_modules/.bin:/opt/java/bin:/opt/node/bin:$PATH
 
 RUN cd ./utils && npm install --only=prod && npm install --only=prod -g . && cd - \
   && chmod 0644 /etc/cron.d/* \
@@ -89,8 +99,6 @@ RUN cd ./utils && npm install --only=prod && npm install --only=prod -g . && cd 
   && find / \( -path /proc -prune \) -o \( \( -perm -2000 -o -perm -4000 \) -print -exec chmod -s '{}' + \) || true \
   && node prepare-image.mjs
 
-# Update path to load appsmith utils tool as default
-ENV PATH /opt/appsmith/utils/node_modules/.bin:$PATH
 LABEL com.centurylinklabs.watchtower.lifecycle.pre-check=/watchtower-hooks/pre-check.sh
 LABEL com.centurylinklabs.watchtower.lifecycle.pre-update=/watchtower-hooks/pre-update.sh
 

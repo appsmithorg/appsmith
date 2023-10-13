@@ -22,7 +22,7 @@ import {
   getDropZoneOffsets,
   noCollision,
 } from "utils/WidgetPropsUtils";
-import type { WidgetDraggingBlock, XYCord } from "../CanvasArenas/ArenaTypes";
+import type { WidgetDraggingBlock, XYCord } from "../canvasArenas/ArenaTypes";
 
 /**
  * Method to get the Direction appropriate to closest edge of the canvas
@@ -101,14 +101,14 @@ export function getReflowedSpaces(
   return draggingSpace;
 }
 
-type NewWidgetBlock = {
+interface NewWidgetBlock {
   columns: number;
   rows: number;
   widgetId: string;
   detachFromLayout: boolean;
   isDynamicHeight: boolean;
   type: WidgetType;
-};
+}
 
 /**
  * This method returns blocks and dragging spaces of the widgets being dragged on canvas..

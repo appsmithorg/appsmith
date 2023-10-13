@@ -2,7 +2,7 @@ const history = jest.fn();
 const dispatch = jest.fn();
 
 import { bindDataOnCanvas } from "actions/pluginActionActions";
-import { builderURL, integrationEditorURL } from "RouteBuilder";
+import { builderURL, integrationEditorURL } from "@appsmith/RouteBuilder";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { INTEGRATION_TABS } from "constants/routes";
 import React from "react";
@@ -10,7 +10,7 @@ import { Provider } from "react-redux";
 import { fireEvent, render, screen } from "test/testUtils";
 import OnboardingChecklist from "./Checklist";
 import { getStore, initialState } from "./testUtils";
-import urlBuilder from "entities/URLRedirect/URLAssembly";
+import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
 import "@testing-library/jest-dom";
 import * as onboardingSelectors from "selectors/onboardingSelectors";
 

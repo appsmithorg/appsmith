@@ -160,30 +160,30 @@ type Props = DatasourceSaaSEditorProps &
   unblock: on blocking routes using history.block, it returns a function which can be used to unblock the routes
   navigation: function that navigates to path that we want to transition to, after discard action on datasource discard dialog popup
 */
-type State = {
+interface State {
   showDialog: boolean;
   routesBlocked: boolean;
   readUrlParams: boolean;
   filterParams: DatasourceFilterState;
   unblock(): void;
   navigation(): void;
-};
+}
 
 type SaasEditorWrappperProps = RouteProps & {
   hiddenHeader?: boolean; // for reconnect modal
   isInsideReconnectModal?: boolean; // for reconnect modal
   currentEnvironment: string;
 };
-type RouteProps = {
+interface RouteProps {
   datasourceId: string;
   pageId: string;
   pluginPackageName: string;
-};
+}
 
-type SaasEditorWrappperState = {
+interface SaasEditorWrappperState {
   requiredFields: Record<string, ControlProps>;
   configDetails: Record<string, string>;
-};
+}
 class SaasEditorWrapper extends React.Component<
   SaasEditorWrappperProps,
   SaasEditorWrappperState

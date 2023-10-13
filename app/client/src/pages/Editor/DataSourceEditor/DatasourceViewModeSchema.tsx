@@ -88,11 +88,11 @@ const ButtonContainer = styled.div`
   justify-content: flex-end;
 `;
 
-type Props = {
+interface Props {
   datasourceId: string;
   datasource: Datasource;
   setDatasourceViewModeFlag: (viewMode: boolean) => void;
-};
+}
 
 const DatasourceViewModeSchema = (props: Props) => {
   const dispatch = useDispatch();

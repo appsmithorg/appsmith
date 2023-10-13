@@ -40,10 +40,10 @@ export const ListWrapper = styled.div`
   padding-bottom: 37px;
 `;
 
-type Props = {
+interface Props {
   searchQuery: string;
   hasShortCut?: boolean;
-};
+}
 
 const LOGS_FILTER_OPTIONS = (theme: DefaultTheme) => [
   {

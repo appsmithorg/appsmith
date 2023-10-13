@@ -15,13 +15,13 @@ import type { IconName } from "@blueprintjs/icons";
 import type { ButtonVariant } from "components/constants";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
-export type EditableCell = {
+export interface EditableCell {
   column: string;
   index: number;
   value: string | number | null;
   initialValue: string;
   inputValue: string;
-};
+}
 
 export enum PaginationDirection {
   INITIAL = "INITIAL",
@@ -181,12 +181,12 @@ export const DEFAULT_MENU_VARIANT = "PRIMARY";
 
 export const DEFAULT_MENU_BUTTON_LABEL = "Open menu";
 
-export type TransientDataPayload = {
+export interface TransientDataPayload {
   [key: string]: string | number | boolean;
   __originalIndex__: number;
-};
+}
 
-export type OnColumnEventArgs = {
+export interface OnColumnEventArgs {
   rowIndex: number;
   action: string;
   onComplete?: () => void;
@@ -194,7 +194,7 @@ export type OnColumnEventArgs = {
   eventType: EventType;
   row?: Record<string, unknown>;
   additionalData?: Record<string, unknown>;
-};
+}
 
 export const ICON_NAMES = Object.keys(IconNames).map(
   (name: string) => IconNames[name as keyof typeof IconNames],
