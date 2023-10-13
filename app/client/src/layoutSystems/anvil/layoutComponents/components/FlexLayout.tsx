@@ -77,7 +77,6 @@ export const FlexLayout = (props: FlexLayoutProps) => {
   const styleProps: CSSProperties = useMemo(() => {
     return {
       zIndex: -1,
-      minHeight: "40px",
       border: props.border || "none",
       overflowX: props.overflowX || "hidden",
       overflowY: props.overflowY || "hidden",
