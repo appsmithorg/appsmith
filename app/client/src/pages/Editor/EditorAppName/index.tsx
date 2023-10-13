@@ -1,19 +1,19 @@
 import React, { useState, useCallback } from "react";
 
-import styled, { useTheme } from "styled-components";
-import { Classes } from "@blueprintjs/core";
+import { useTheme } from "styled-components";
 import type { noop } from "lodash";
 import type {
   CommonComponentProps,
   EditInteractionKind,
 } from "design-system-old";
-import { getTypographyByKey, SavingState } from "design-system-old";
+import { SavingState } from "design-system-old";
 import EditableAppName from "./EditableAppName";
 import { GetNavigationMenuData } from "./NavigationMenuData";
 import { NavigationMenu } from "./NavigationMenu";
 import type { Theme } from "constants/DefaultTheme";
-import { Icon, Menu, toast, MenuTrigger } from "design-system";
+import { Menu, toast, MenuTrigger } from "design-system";
 import ForkApplicationModal from "pages/Applications/ForkApplicationModal";
+import { Container, StyledIcon } from "./components";
 
 type EditorAppNameProps = CommonComponentProps & {
   applicationId: string | undefined;
@@ -31,39 +31,6 @@ type EditorAppNameProps = CommonComponentProps & {
   isPopoverOpen: boolean;
   setIsPopoverOpen: typeof noop;
 };
-
-const Container = styled.div`
-  display: flex;
-  cursor: pointer;
-  &:hover {
-    background-color: var(--ads-v2-color-bg-subtle);
-  }
-  & .${Classes.EDITABLE_TEXT} {
-    height: ${(props) => props.theme.smallHeaderHeight} !important;
-    display: block;
-    cursor: pointer;
-  }
-  &&&& .${Classes.EDITABLE_TEXT}, &&&& .${Classes.EDITABLE_TEXT_EDITING} {
-    padding: 0;
-    width: 100%;
-  }
-  &&&& .${Classes.EDITABLE_TEXT_CONTENT}, &&&& .${Classes.EDITABLE_TEXT_INPUT} {
-    display: block;
-    ${getTypographyByKey("h5")};
-    line-height: ${(props) => props.theme.smallHeaderHeight} !important;
-    padding: 0 ${(props) => props.theme.spaces[2]}px;
-    height: ${(props) => props.theme.smallHeaderHeight} !important;
-  }
-  &&&& .${Classes.EDITABLE_TEXT_INPUT} {
-    margin-right: 20px;
-  }
-`;
-
-const StyledIcon = styled(Icon)`
-  height: 100%;
-  padding-right: ${(props) => props.theme.spaces[2]}px;
-  align-self: center;
-`;
 
 export function EditorAppName(props: EditorAppNameProps) {
   const {
