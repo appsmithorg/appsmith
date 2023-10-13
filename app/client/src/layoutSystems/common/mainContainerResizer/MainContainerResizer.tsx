@@ -36,7 +36,6 @@ const AutoLayoutCanvasResizer = styled.div`
   }
   &:hover,
   &:active {
-    width: 3px;
     transition: width 300ms ease;
     background: #ff9b4e;
     transition: background 300ms ease;

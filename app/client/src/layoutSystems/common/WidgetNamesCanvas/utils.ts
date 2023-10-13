@@ -65,7 +65,7 @@ export const getWidgetNameComponent = (
     left: widgetLeft,
     top: widgetTop,
   } = getPositionsForBoundary(parentDOM, htmlCanvasDOM, position, scrollTop);
-  const left: number = widgetLeft + position.width - componentWidth + 0.5;
+  const left: number = widgetLeft + position.width - componentWidth;
   const top: number = widgetTop - WIDGET_NAME_HEIGHT;
 
   //Store the widget name positions for future use

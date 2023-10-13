@@ -18,7 +18,6 @@ import type {
 } from "./WidgetNameTypes";
 import {
   DEFAULT_WIDGET_NAME_CANVAS_HEIGHT,
-  WIDGET_NAME_CANVAS_PADDING,
   widgetNameWrapperStyle,
   WIDGET_NAME_CANVAS,
 } from "./WidgetNameConstants";
@@ -99,7 +98,7 @@ const OverlayCanvasContainer = (props: {
         height: wrapperRect.height,
         left: rect.left,
         top: rect.top,
-        width: rect.width,
+        width: wrapperRect.width,
       };
     }
   }, [wrapperRef?.current, props.canvasWidth]);
@@ -371,7 +370,7 @@ const OverlayCanvasContainer = (props: {
           canvasPositions?.current.height || DEFAULT_WIDGET_NAME_CANVAS_HEIGHT
         }
         ref={stageRef}
-        width={props.canvasWidth + WIDGET_NAME_CANVAS_PADDING}
+        width={canvasPositions?.current.width || 0}
       >
         <Layer />
       </Stage>
