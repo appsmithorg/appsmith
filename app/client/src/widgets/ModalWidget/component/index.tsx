@@ -17,6 +17,7 @@ import type {
   Spacing,
 } from "layoutSystems/common/utils/constants";
 import { renderAppsmithCanvas } from "layoutSystems/CanvasFactory";
+import { modalPreset } from "layoutSystems/anvil/layoutComponents/presets/ModalPreset";
 
 const Content = styled.div<{ $scroll: boolean }>`
   overflow-x: hidden;
@@ -113,6 +114,14 @@ export default function ModalComponent(props: ModalComponentProps) {
     childData.positioning = props.positioning;
     childData.alignment = props.alignment;
     childData.spacing = props.spacing;
+    childData.layout =
+      childData.layout ??
+      modalPreset(
+        childData.children[1]?.widgetId,
+        childData.children[0]?.widgetId,
+        childData.children[3]?.widgetId,
+        childData.children[2]?.widgetId,
+      );
     return renderAppsmithCanvas(childData as WidgetProps);
   };
   const getChildren = (): ReactNode => {

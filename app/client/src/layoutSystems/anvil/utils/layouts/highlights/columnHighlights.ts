@@ -36,7 +36,13 @@ export function deriveColumnHighlights(
   draggedWidgets: DraggedWidget[],
   layoutOrder: string[],
 ): AnvilHighlightInfo[] {
-  if (!layoutProps || !widgetPositions || !draggedWidgets.length) return [];
+  if (
+    !layoutProps ||
+    !widgetPositions ||
+    !widgetPositions[layoutProps.layoutId] ||
+    !draggedWidgets.length
+  )
+    return [];
 
   const { layoutStyle } = layoutProps;
 

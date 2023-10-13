@@ -10,7 +10,6 @@ import {
 } from "layoutSystems/anvil/utils/anvilTypes";
 import { doesLayoutRenderWidgets } from "layoutSystems/anvil/utils/layouts/typeUtils";
 import { renderWidgets } from "layoutSystems/anvil/utils/layouts/renderUtils";
-import { RenderModes } from "constants/WidgetConstants";
 import {
   addChildToLayout,
   extractWidgetIdsFromLayoutProps,
@@ -86,11 +85,7 @@ Column.removeChild = (
 };
 
 Column.renderChildWidgets = (props: LayoutComponentProps): React.ReactNode => {
-  return renderWidgets(
-    Column.extractChildWidgetIds(props),
-    props.childrenMap,
-    props.renderMode || RenderModes.CANVAS,
-  );
+  return renderWidgets(props);
 };
 
 Column.rendersWidgets = (props: LayoutProps): boolean => {

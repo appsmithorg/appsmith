@@ -37,6 +37,7 @@ import type { WidgetProps } from "widgets/BaseWidget";
 import { BlueprintOperationTypes } from "WidgetProvider/constants";
 import IconSVG from "../icon.svg";
 import { renderAppsmithCanvas } from "layoutSystems/CanvasFactory";
+import { generateDefaultLayoutPreset } from "layoutSystems/anvil/layoutComponents/presets/DefaultLayoutPreset";
 
 export function selectedTabValidation(
   value: unknown,
@@ -590,6 +591,8 @@ class TabsWidget extends BaseWidget<
         : LayoutDirection.Horizontal;
     childWidgetData.alignment = selectedTabProps?.alignment;
     childWidgetData.spacing = selectedTabProps?.spacing;
+    childWidgetData.layout =
+      childWidgetData.layout ?? generateDefaultLayoutPreset();
     return renderAppsmithCanvas(childWidgetData as WidgetProps);
   };
 

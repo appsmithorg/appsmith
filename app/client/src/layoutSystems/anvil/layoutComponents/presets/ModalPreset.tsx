@@ -5,8 +5,9 @@ import {
 import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
 import { generateReactKey } from "utils/generators";
 
-export const formPreset = (
+export const modalPreset = (
   title: string,
+  icon: string,
   button1: string,
   button2: string,
 ): LayoutProps[] => {
@@ -17,18 +18,46 @@ export const formPreset = (
       layoutType: LayoutComponentTypes.COLUMN,
       layout: [
         {
-          isDropTarget: true,
           isPermanent: true,
           layoutId: generateReactKey(),
           layoutType: LayoutComponentTypes.ROW,
           layout: [
             {
-              widgetId: title,
-              alignment: FlexLayerAlignment.Start,
+              isDropTarget: true,
+              isPermanent: true,
+              layoutId: generateReactKey(),
+              layoutType: LayoutComponentTypes.ROW,
+              layout: [
+                {
+                  widgetId: title,
+                  alignment: FlexLayerAlignment.Start,
+                },
+              ],
+              layoutStyle: {
+                border: "1px dashed #979797",
+                flexGrow: 1,
+                minHeight: "40px",
+              },
+            },
+            {
+              isDropTarget: true,
+              isPermanent: true,
+              layoutId: generateReactKey(),
+              layoutType: LayoutComponentTypes.ROW,
+              layout: [
+                {
+                  widgetId: icon,
+                  alignment: FlexLayerAlignment.Start,
+                },
+              ],
+              layoutStyle: {
+                border: "1px dashed #979797",
+                minWidth: "30px",
+                minHeight: "40px",
+              },
             },
           ],
           layoutStyle: {
-            border: "1px dashed #979797",
             minHeight: "40px",
           },
         },

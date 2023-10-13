@@ -34,7 +34,8 @@ export function deriveAlignedRowHighlights(
   draggedWidgets: DraggedWidget[],
   layoutOrder: string[],
 ): AnvilHighlightInfo[] {
-  if (!draggedWidgets.length) return [];
+  if (!draggedWidgets.length || !widgetPositions[layoutProps.layoutId])
+    return [];
   const { layout, layoutId, layoutType } = layoutProps;
   /**
    * Step 1: Construct a base highlight.

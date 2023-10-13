@@ -6,7 +6,6 @@ import type {
   LayoutProps,
   WidgetLayoutProps,
 } from "../anvilTypes";
-import WidgetFactory from "WidgetProvider/factory";
 import { type RenderMode, RenderModes } from "constants/WidgetConstants";
 import { isFillWidgetPresentInList } from "./widgetUtils";
 import { MOBILE_BREAKPOINT } from "../constants";
@@ -14,20 +13,19 @@ import {
   FlexLayout,
   type FlexLayoutProps,
 } from "layoutSystems/anvil/layoutComponents/components/FlexLayout";
-import { extractWidgetIdsFromLayoutProps } from "./layoutUtils";
 import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
 import { isWidgetLayoutProps } from "./typeUtils";
+import { renderChildren } from "layoutSystems/common/utils/canvasUtils";
 
-export function renderWidgets(
-  widgets: string[],
-  childrenMap: LayoutComponentProps["childrenMap"] = {},
-  renderMode: RenderMode = RenderModes.CANVAS,
-) {
-  return widgets
-    .filter((each: string) => !!childrenMap[each])
-    .map((widgetId) => {
-      return WidgetFactory.createWidget(childrenMap[widgetId], renderMode);
-    });
+export function renderWidgets(props: LayoutComponentProps) {
+  const { canvasId, childrenMap, parentDropTarget, renderMode } = props;
+  return renderChildren(
+    Object.values(childrenMap).filter((each) => !!each),
+    canvasId,
+    renderMode as RenderModes,
+    {},
+    { layoutId: parentDropTarget },
+  );
 }
 
 /**
@@ -40,6 +38,7 @@ export function renderLayouts(
   layouts: LayoutProps[],
   childrenMap: LayoutComponentProps["childrenMap"],
   canvasId: string,
+  parentDropTarget: string,
   renderMode: RenderMode = RenderModes.CANVAS,
 ): JSX.Element[] {
   return layouts.map((layout) => {
@@ -50,6 +49,9 @@ export function renderLayouts(
         canvasId={canvasId}
         childrenMap={getChildrenMap(layout, childrenMap)}
         key={layout.layoutId}
+        parentDropTarget={
+          layout.isDropTarget ? layout.layoutId : parentDropTarget
+        }
         renderMode={renderMode}
       />
     );
@@ -113,26 +115,21 @@ export function getChildrenMap(
 export function renderWidgetsInAlignedRow(
   props: LayoutComponentProps,
 ): React.ReactNode {
-  const { canvasId, childrenMap, layoutId, renderMode } = props;
+  const { canvasId, childrenMap, layoutId } = props;
   // check if layout renders a Fill widget.
   const hasFillWidget: boolean = isFillWidgetPresentInList(
     Object.values(childrenMap || {}),
   );
-  const mode: RenderMode = renderMode || RenderModes.CANVAS;
+
   // If a Fill widget exists, then render the child widgets together.
   if (hasFillWidget) {
-    return renderWidgets(
-      extractWidgetIdsFromLayoutProps(props),
-      childrenMap,
-      mode,
-    );
+    return renderWidgets(props);
   }
 
   /**
    * else render the child widgets separately
    * in their respective alignments.
    */
-  const layout: WidgetLayoutProps[] = props.layout as WidgetLayoutProps[];
   const commonProps: Omit<FlexLayoutProps, "children" | "layoutId"> = {
     alignSelf: "stretch",
     canvasId,
@@ -154,11 +151,13 @@ export function renderWidgetsInAlignedRow(
       key={`${layoutId}-0`}
       layoutId={`${layoutId}-0`}
     >
-      {renderWidgets(
-        extractWidgetsForAlignment(layout, FlexLayerAlignment.Start),
-        childrenMap,
-        mode,
-      )}
+      {renderWidgets({
+        ...props,
+        childrenMap: getChildrenMapForAlignment(
+          props,
+          FlexLayerAlignment.Start,
+        ),
+      })}
     </FlexLayout>,
     <FlexLayout
       {...commonProps}
@@ -166,11 +165,13 @@ export function renderWidgetsInAlignedRow(
       key={`${layoutId}-1`}
       layoutId={`${layoutId}-1`}
     >
-      {renderWidgets(
-        extractWidgetsForAlignment(layout, FlexLayerAlignment.Center),
-        childrenMap,
-        mode,
-      )}
+      {renderWidgets({
+        ...props,
+        childrenMap: getChildrenMapForAlignment(
+          props,
+          FlexLayerAlignment.Center,
+        ),
+      })}
     </FlexLayout>,
     <FlexLayout
       {...commonProps}
@@ -178,11 +179,10 @@ export function renderWidgetsInAlignedRow(
       key={`${layoutId}-2`}
       layoutId={`${layoutId}-2`}
     >
-      {renderWidgets(
-        extractWidgetsForAlignment(layout, FlexLayerAlignment.End),
-        childrenMap,
-        mode,
-      )}
+      {renderWidgets({
+        ...props,
+        childrenMap: getChildrenMapForAlignment(props, FlexLayerAlignment.End),
+      })}
     </FlexLayout>,
   ];
 }
@@ -201,4 +201,20 @@ function extractWidgetsForAlignment(
   return layout
     .filter((each: WidgetLayoutProps) => each.alignment === alignment)
     .map((each: WidgetLayoutProps) => each.widgetId);
+}
+
+function getChildrenMapForAlignment(
+  props: LayoutComponentProps,
+  alignment: FlexLayerAlignment,
+): LayoutComponentProps["childrenMap"] {
+  const { childrenMap } = props;
+  const layout: WidgetLayoutProps[] = props.layout as WidgetLayoutProps[];
+  const widgets: string[] = extractWidgetsForAlignment(layout, alignment);
+
+  return widgets.reduce(
+    (acc: LayoutComponentProps["childrenMap"], curr: string) => {
+      return { ...acc, [curr]: childrenMap[curr] };
+    },
+    {},
+  );
 }
