@@ -151,7 +151,6 @@ function WorkspaceMenu({
             Import
           </MenuItem>
         )}
-        <ManageEnvironmentsMenu workspaceId={workspace.id} />
         {hasManageWorkspacePermissions && canInviteToWorkspace && (
           <MenuItem
             onSelect={() =>
@@ -164,6 +163,7 @@ function WorkspaceMenu({
             Members
           </MenuItem>
         )}
+        <ManageEnvironmentsMenu workspaceId={workspace.id} />
         {canInviteToWorkspace && (
           <MenuItem
             className="error-menuitem"
