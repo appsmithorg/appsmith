@@ -1,10 +1,9 @@
 import type { WidgetPositions } from "layoutSystems/common/types";
-import React, { useCallback } from "react";
+import React from "react";
 import type { AnvilHighlightInfo, DraggedWidget } from "../utils/anvilTypes";
-import { HighlightingCanvas } from "./HighlightingCanvas";
+import { AnvilHighlightingCanvas } from "./AnvilHighlightingCanvas";
 import { useAnvilDnDStates } from "./hooks/useAnvilDnDStates";
-import { useAnvilWidgetDrop } from "./hooks/useAnvilWidgetDrop";
-import { getClosestHighlight } from "./utils";
+import { useAnvilDnDUtils } from "./hooks/useAnvilDnDUtils";
 
 interface AnvilCanvasDraggingArenaProps {
   canvasId: string;
@@ -21,6 +20,7 @@ export const AnvilCanvasDraggingArena = (
 ) => {
   const { allowedWidgetTypes, canvasId, deriveAllHighlightsFn, layoutId } =
     props;
+  // useAnvilDnDStates to fetch all states used in Anvil DnD
   const anvilDragStates = useAnvilDnDStates({
     allowedWidgetTypes,
     deriveAllHighlightsFn,
@@ -28,15 +28,14 @@ export const AnvilCanvasDraggingArena = (
     layoutId,
   });
 
-  const onDrop = useAnvilWidgetDrop(canvasId, anvilDragStates);
-  const renderOnMouseMove = useCallback(
-    (e: MouseEvent) => {
-      return getClosestHighlight(e, anvilDragStates.allHighLights);
-    },
-    [anvilDragStates.allHighLights],
+  //useAnvilDnDUtils to fetch onDrop and onMove utilities
+  const { onDrop, renderOnMouseMove } = useAnvilDnDUtils(
+    canvasId,
+    anvilDragStates,
   );
+
   return (
-    <HighlightingCanvas
+    <AnvilHighlightingCanvas
       anvilDragStates={anvilDragStates}
       layoutId={layoutId}
       onDrop={onDrop}

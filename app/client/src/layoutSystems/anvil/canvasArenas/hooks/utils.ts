@@ -1,5 +1,5 @@
 import type { XYCord } from "layoutSystems/common/canvasArenas/ArenaTypes";
-import type { AnvilHighlightInfo } from "../utils/anvilTypes";
+import type { AnvilHighlightInfo } from "../../utils/anvilTypes";
 
 export const getClosestHighlight = (
   e: MouseEvent,

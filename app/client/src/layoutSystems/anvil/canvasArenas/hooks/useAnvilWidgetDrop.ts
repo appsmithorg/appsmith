@@ -4,24 +4,14 @@ import {
 } from "layoutSystems/anvil/actions/draggingActions";
 import type { AnvilHighlightInfo } from "layoutSystems/anvil/utils/anvilTypes";
 import { useCallback } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
-import { getSelectedWidgets } from "selectors/ui";
+import { useDispatch } from "react-redux";
+import type { AnvilDnDStates } from "./useAnvilDnDStates";
 
 export const useAnvilWidgetDrop = (
   canvasId: string,
-  anvilDragStates: {
-    dragDetails: DragDetails;
-    isChildOfCanvas: boolean;
-    isCurrentDraggedCanvas: boolean;
-    isDragging: boolean;
-    isNewWidget: boolean;
-    isNewWidgetInitialTargetCanvas: boolean;
-    isResizing: boolean;
-  },
+  anvilDragStates: AnvilDnDStates,
 ) => {
   const dispatch = useDispatch();
-  const selectedWidgets = useSelector(getSelectedWidgets);
   const { dragDetails, isNewWidget } = anvilDragStates;
   const generateNewWidgetBlock = useCallback(() => {
     const { newWidget } = dragDetails;
@@ -38,7 +28,12 @@ export const useAnvilWidgetDrop = (
       const newWidgetBlock = generateNewWidgetBlock();
       dispatch(addNewAnvilWidgetAction(newWidgetBlock, renderedBlock));
     } else {
-      dispatch(moveAnvilWidgets(renderedBlock, selectedWidgets));
+      dispatch(
+        moveAnvilWidgets(
+          renderedBlock,
+          anvilDragStates.filteredSelectedWidgets,
+        ),
+      );
     }
   };
 };
