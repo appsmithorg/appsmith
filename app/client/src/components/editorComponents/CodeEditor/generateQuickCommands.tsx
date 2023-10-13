@@ -201,10 +201,11 @@ export const generateQuickCommands = (
       displayText: `${action.name}`,
       className: "CodeMirror-commands",
       data: action,
-      action: () =>
+      action: (callback?: (completion: string) => void) =>
         executeCommand({
           actionType: SlashCommand.NEW_QUERY,
           args: { datasource: action },
+          callback,
         }),
       render: (element: HTMLElement, self: any, data: CommandsCompletion) => {
         const completionData = data.data as Datasource;

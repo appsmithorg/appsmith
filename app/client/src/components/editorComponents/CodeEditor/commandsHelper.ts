@@ -34,6 +34,7 @@ export const slashCommandHintHelper: HintHelper = (
         enableAIAssistance,
         executeCommand,
         featureFlags,
+        focusEditor,
         pluginIdToImageLocation,
         recentEntities,
       }: {
@@ -44,6 +45,7 @@ export const slashCommandHintHelper: HintHelper = (
         entityId: string;
         featureFlags: FeatureFlags;
         enableAIAssistance: boolean;
+        focusEditor: (focusOnLine?: number, chOffset?: number) => void;
       },
     ): boolean => {
       // @ts-expect-error: Types are not available
@@ -109,14 +111,13 @@ export const slashCommandHintHelper: HintHelper = (
             currentSelection = selected;
           }
           function handlePick(selected: CommandsCompletion) {
-            editor.focus();
-            editor.setCursor({
-              line: editor.lineCount() - 1,
-              ch: editor.getLine(editor.lineCount() - 1).length - 2,
-            });
+            focusEditor(cursorPosition.line, 2);
 
             if (selected.action && typeof selected.action === "function") {
-              selected.action();
+              const callback = (completion: string) => {
+                editor.replaceRange(completion, cursor);
+              };
+              selected.action(callback);
             }
 
             selected.triggerCompletionsPostPick &&

@@ -27,7 +27,7 @@ import "codemirror/addon/hint/sql-hint";
 import { getDataTreeForAutocomplete } from "selectors/dataTreeSelectors";
 import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
 import type { WrappedFieldInputProps } from "redux-form";
-import _, { debounce, isEqual } from "lodash";
+import _, { debounce, isEqual, isNumber } from "lodash";
 import scrollIntoView from "scroll-into-view-if-needed";
 
 import { ENTITY_TYPE_VALUE } from "entities/DataTree/dataTreeFactory";
@@ -302,6 +302,7 @@ class CodeEditor extends Component<Props, State> {
       showAIWindow: false,
     };
     this.updatePropertyValue = this.updatePropertyValue.bind(this);
+    this.focusEditor = this.focusEditor.bind(this);
     this.peekOverlayExpressionIdentifier = new PeekOverlayExpressionIdentifier(
       props.isJSObject
         ? {
@@ -1307,16 +1308,8 @@ class CodeEditor extends Component<Props, State> {
         recentEntities: this.props.recentEntities,
         featureFlags: this.props.featureFlags,
         enableAIAssistance: this.AIEnabled,
-        update: this.props.input.onChange?.bind(this),
-        executeCommand: (payload: any) => {
-          this.props.executeCommand({
-            ...payload,
-            callback: (binding: string) => {
-              const value = this.editor.getValue() + binding;
-              this.updatePropertyValue(value, value.length);
-            },
-          });
-        },
+        focusEditor: this.focusEditor,
+        executeCommand: this.props.executeCommand,
       });
       if (hinterOpen) break;
     }
@@ -1419,15 +1412,26 @@ class CodeEditor extends Component<Props, State> {
     marking.forEach((helper) => helper(editor, entityNavigationData, from, to));
   };
 
-  updatePropertyValue(value: string, cursor?: number) {
+  focusEditor(focusOnline?: number, chOffset = 0) {
+    const lineToFocus = isNumber(focusOnline)
+      ? focusOnline
+      : this.editor.lineCount() - 1;
+    const focusedLineContent = this.editor.getLine(lineToFocus);
+
+    this.editor.setCursor({
+      line: lineToFocus,
+      ch: focusedLineContent.length - chOffset,
+    });
+  }
+
+  updatePropertyValue(value: string, focusOnline?: number, chOffset = 0) {
     this.editor.focus();
     if (value) {
       this.editor.setValue(value);
     }
-    this.editor.setCursor({
-      line: cursor || this.editor.lineCount() - 1,
-      ch: this.editor.getLine(this.editor.lineCount() - 1).length - 2,
-    });
+
+    this.focusEditor(focusOnline, chOffset);
+
     this.setState({ isFocused: true }, () => {
       this.handleAutocompleteVisibility(this.editor);
     });
@@ -1567,7 +1571,7 @@ class CodeEditor extends Component<Props, State> {
                 typeof this.props.input.value === "string"
                   ? this.props.input.value + "/"
                   : "/";
-              this.updatePropertyValue(newValue, newValue.length);
+              this.updatePropertyValue(newValue);
             }}
             size="sm"
             tabIndex={-1}
