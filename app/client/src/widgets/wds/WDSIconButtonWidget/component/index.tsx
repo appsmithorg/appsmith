@@ -3,7 +3,7 @@ import { Icon as BIcon } from "@blueprintjs/core";
 import { IconButton, Tooltip } from "@design-system/widgets";
 import type { IconButtonComponentProps } from "./types";
 
-function IconButtonComponent(props: IconButtonComponentProps) {
+export const IconButtonComponent = (props: IconButtonComponentProps) => {
   const { iconName, tooltip, ...rest } = props;
   const icon =
     iconName &&
@@ -16,6 +16,4 @@ function IconButtonComponent(props: IconButtonComponentProps) {
       <IconButton icon={icon} {...rest} />
     </Tooltip>
   );
-}
-
-export default IconButtonComponent;
+};
