@@ -31,7 +31,7 @@ import {
 import type { ApiResponse } from "api/ApiResponses";
 import PluginApi from "api/PluginApi";
 import log from "loglevel";
-import { PluginType } from "entities/Action";
+import { getGraphQLPlugin, PluginType } from "entities/Action";
 import type {
   FormEditorConfigs,
   FormSettingsConfigs,
@@ -80,14 +80,14 @@ function* fetchPluginFormConfigsSaga() {
     // Add the api plugin id by default as API, JS, Graphql can exists without datasource
     const apiPlugin = plugins.find((plugin) => plugin.type === PluginType.API);
     const jsPlugin = plugins.find((plugin) => plugin.type === PluginType.JS);
-    // const graphqlPlugin = getGraphQLPlugin(plugins);
+    const graphqlPlugin = getGraphQLPlugin(plugins);
     if (apiPlugin) {
       pluginIdFormsToFetch.add(apiPlugin.id);
     }
 
-    // if (graphqlPlugin) {
-    //   pluginIdFormsToFetch.add(graphqlPlugin.id);
-    // }
+    if (graphqlPlugin) {
+      pluginIdFormsToFetch.add(graphqlPlugin.id);
+    }
 
     const actions: ActionDataState = yield select(getActions);
     const actionPluginIds = actions.map((action) => action.config.pluginId);
@@ -101,13 +101,16 @@ function* fetchPluginFormConfigsSaga() {
     //     call(PluginsApi.fetchFormConfig, id),
     //   ),
     // );
-    const pluginFormResponse: ApiResponse<PluginFormPayload> =
+    const pluginFormResponse1: ApiResponse<PluginFormPayload> =
       yield PluginApi.fetchFormConfig([...pluginIdFormsToFetch][0]);
+    const pluginFormResponse2: ApiResponse<PluginFormPayload> =
+      yield PluginApi.fetchFormConfig([...pluginIdFormsToFetch][1]);
     // for (const response of pluginFormResponses) {
     //   yield validateResponse(response);
     //   pluginFormData.push(response.data);
     // }
-    pluginFormData.push(pluginFormResponse.data);
+    pluginFormData.push(pluginFormResponse1.data);
+    pluginFormData.push(pluginFormResponse2.data);
 
     if (jsPlugin) {
       pluginIdFormsToFetch.add(jsPlugin.id);
