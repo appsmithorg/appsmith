@@ -1,16 +1,14 @@
 import { closeAppSettingsPaneAction } from "actions/appSettingsPaneActions";
 import React, { useRef } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { useOnClickOutside } from "utils/hooks/useOnClickOutside";
 import AppSettings from "./AppSettings";
 import PaneHeader from "./PaneHeader";
-import { getIsAppSidebarEnabled } from "selectors/ideSelectors";
 
 function AppSettingsPane() {
   const dispatch = useDispatch();
   const paneRef = useRef(null);
   const portalRef = useRef(null);
-  const isAppSidebarEnabled = useSelector(getIsAppSidebarEnabled);
 
   // Close app settings pane when clicked outside
   useOnClickOutside([paneRef, portalRef], (event) => {
@@ -62,7 +60,7 @@ function AppSettingsPane() {
         id="app-settings-portal"
         ref={portalRef}
       />
-      {!isAppSidebarEnabled && <PaneHeader />}
+      <PaneHeader />
       <AppSettings />
     </div>
   );
