@@ -1,15 +1,16 @@
-import type { FluidConfig } from "./types";
+import type { ScaleConfig } from "./types";
 import { calculateScales } from "./calculateScales";
 import type { Typography } from "../../../typography";
 import { TYPOGRAPHY_VARIANTS } from "../../../typography";
 import { calculateFluidScales } from "./calculateFluidScales";
 
 export const getFluidTypography = (
-  scaleConfig: FluidConfig,
+  maxVw: number,
+  minVw: number,
+  typography: ScaleConfig,
   sizingRatio = 1,
   vw: number,
 ) => {
-  const { maxVw, minVw, typography } = scaleConfig;
   const { maxV, minV, ...rest } = typography;
   const scales = calculateFluidScales(
     calculateScales(

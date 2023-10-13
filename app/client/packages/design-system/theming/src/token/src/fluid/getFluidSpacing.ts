@@ -1,8 +1,12 @@
 import { calculateScales } from "./calculateScales";
-import type { FluidConfig } from "./types";
+import type { ScaleConfig } from "./types";
 
-export const getFluidSpacing = (scaleConfig: FluidConfig, densityRatio = 1) => {
-  const { maxVw, minVw, spacing } = scaleConfig;
+export const getFluidSpacing = (
+  maxVw: number,
+  minVw: number,
+  spacing: ScaleConfig,
+  densityRatio = 1,
+) => {
   const { maxV, minV, ...rest } = spacing;
 
   const scales = calculateScales(

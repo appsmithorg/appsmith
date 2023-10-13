@@ -3,6 +3,7 @@ export interface FluidConfig {
   maxVw: number;
   sizing: ScaleConfig;
   spacing: ScaleConfig;
+  innerSpacing: ScaleConfig;
   typography: ScaleConfig;
 }
 

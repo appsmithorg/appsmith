@@ -4,6 +4,8 @@ import { getFluidSizing } from "./getFluidSizing";
 import { getFluidSpacing } from "./getFluidSpacing";
 import { getFluidTypography } from "./getFluidTypography";
 
+import type { Typography } from "../../../typography";
+import type { TokenObj } from "../types";
 import type { FluidConfig } from "./types";
 
 const RESIZE_DEBOUNCE_TIME = 300;
@@ -13,21 +15,21 @@ export const useFluidTokens = (
   densityRatio = 1,
   sizingRatio = 1,
 ) => {
-  const [typography, setTypography] = useState(
-    getFluidTypography(fluidConfig, sizingRatio, window.innerWidth),
-  );
-
-  const [sizing, setSizing] = useState(
-    getFluidSizing(fluidConfig, sizingRatio),
-  );
-
-  const [spacing, setSpacing] = useState(
-    getFluidSpacing(fluidConfig, densityRatio),
-  );
+  const { maxVw, minVw } = fluidConfig;
+  const [typography, setTypography] = useState<Typography>();
+  const [sizing, setSizing] = useState<TokenObj>();
+  const [spacing, setSpacing] = useState<TokenObj>();
+  const [innerSpacing, setInnerSpacing] = useState<TokenObj>();
 
   const onResize = () => {
     setTypography(
-      getFluidTypography(fluidConfig, sizingRatio, window.innerWidth),
+      getFluidTypography(
+        maxVw,
+        minVw,
+        fluidConfig.typography,
+        sizingRatio,
+        window.innerWidth,
+      ),
     );
   };
 
@@ -37,14 +39,25 @@ export const useFluidTokens = (
   );
 
   useEffect(() => {
-    setSpacing(getFluidSpacing(fluidConfig, densityRatio));
+    setSpacing(
+      getFluidSpacing(maxVw, minVw, fluidConfig.spacing, densityRatio),
+    );
+    setInnerSpacing(
+      getFluidSpacing(maxVw, minVw, fluidConfig.innerSpacing, densityRatio),
+    );
   }, [densityRatio]);
 
   useEffect(() => {
     setTypography(
-      getFluidTypography(fluidConfig, sizingRatio, window.innerWidth),
+      getFluidTypography(
+        maxVw,
+        minVw,
+        fluidConfig.typography,
+        sizingRatio,
+        window.innerWidth,
+      ),
     );
-    setSizing(getFluidSizing(fluidConfig, sizingRatio));
+    setSizing(getFluidSizing(maxVw, minVw, fluidConfig.sizing, sizingRatio));
   }, [sizingRatio]);
 
   useEffect(() => {
@@ -57,6 +70,7 @@ export const useFluidTokens = (
   return {
     typography,
     spacing,
+    innerSpacing,
     sizing,
   };
 };

@@ -9,6 +9,7 @@ export type TokenType =
   | "sizing"
   | "color"
   | "spacing"
+  | "innerSpacing"
   | "borderRadius"
   | "boxShadow"
   | "borderWidth"
@@ -32,6 +33,7 @@ export interface TokenSource {
   zIndex?: TokenObj;
   sizing?: TokenObj;
   spacing?: TokenObj;
+  innerSpacing?: TokenObj;
 }
 
 export interface TokenObj {

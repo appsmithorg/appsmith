@@ -16,6 +16,7 @@ import {
   IconButton,
   TextArea,
 } from "@design-system/widgets";
+// This component is used only for testing purpose and is not used in the prod
 // eslint-disable-next-line @typescript-eslint/no-restricted-imports
 import EmotionHappyLineIcon from "remixicon-react/EmotionHappyLineIcon";
 // eslint-disable-next-line @typescript-eslint/no-restricted-imports
@@ -23,12 +24,12 @@ import EmotionUnhappyLineIcon from "remixicon-react/EmotionUnhappyLineIcon";
 
 export const ComplexForm = () => {
   return (
-    <Flex direction="column" gap="spacing-7">
+    <Flex direction="column" gap="spacing-6">
       <Text variant="heading">Your order</Text>
 
       <Text>Choose your favorite dishes and place an order.</Text>
 
-      <Flex direction="column" gap="spacing-6">
+      <Flex direction="column" gap="spacing-5">
         <ButtonGroup>
           <Button>Fast food</Button>
           <Button>Salads</Button>
@@ -55,18 +56,18 @@ export const ComplexForm = () => {
           <Radio value="L">L</Radio>
           <Radio value="XL">XL</Radio>
         </RadioGroup>
-      </Flex>
 
-      <Flex direction="column" gap="spacing-4">
-        <Text variant="caption">Feedback is important to us</Text>
-        <Flex gap="spacing-1">
-          <IconButton icon={EmotionHappyLineIcon} variant="ghost" />
-          <IconButton icon={EmotionUnhappyLineIcon} variant="ghost" />
+        <Flex direction="column" gap="spacing-2">
+          <Text isBold>Feedback is important to us</Text>
+          <Flex gap="spacing-1">
+            <IconButton icon={EmotionHappyLineIcon} variant="ghost" />
+            <IconButton icon={EmotionUnhappyLineIcon} variant="ghost" />
+          </Flex>
+          <TextArea label="Your comment" />
         </Flex>
-        <TextArea label="Your comment" />
       </Flex>
 
-      <Flex gap="spacing-3">
+      <Flex gap="spacing-2">
         <TooltipRoot>
           <TooltipTrigger>
             <Button variant="outlined">Cancel</Button>

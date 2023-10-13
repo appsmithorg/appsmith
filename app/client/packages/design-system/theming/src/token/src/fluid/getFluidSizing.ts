@@ -1,9 +1,13 @@
 import { calculateScales } from "./calculateScales";
 
-import type { FluidConfig } from "./types";
+import type { ScaleConfig } from "./types";
 
-const getFluidValue = (scaleConfig: FluidConfig, sizingRatio = 1) => {
-  const { maxVw, minVw, sizing } = scaleConfig;
+const getFluidValue = (
+  maxVw: number,
+  minVw: number,
+  sizing: ScaleConfig,
+  sizingRatio = 1,
+) => {
   const { maxV, minV, ...rest } = sizing;
   const { maxSize, minSize, r, v } = calculateScales(
     {
@@ -19,11 +23,13 @@ const getFluidValue = (scaleConfig: FluidConfig, sizingRatio = 1) => {
 };
 
 export const getFluidSizing = (
-  scaleConfig: FluidConfig,
+  maxVw: number,
+  minVw: number,
+  sizing: ScaleConfig,
   sizingRatio = 1,
   count = 100,
 ) => {
-  const fluidValue = getFluidValue(scaleConfig, sizingRatio);
+  const fluidValue = getFluidValue(maxVw, minVw, sizing, sizingRatio);
 
   return [...Array(count)].reduce(
     (acc, value, index) => {
