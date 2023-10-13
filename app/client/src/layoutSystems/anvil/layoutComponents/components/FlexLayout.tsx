@@ -77,7 +77,10 @@ export const FlexLayout = (props: FlexLayoutProps) => {
   const ref = React.useRef<HTMLDivElement>(null);
   usePositionObserver(
     "layout",
-    { layoutId: props.layoutId, canvasId: props.canvasId },
+    {
+      layoutId: props.layoutId,
+      canvasId: props.canvasId,
+    },
     ref,
   );
 

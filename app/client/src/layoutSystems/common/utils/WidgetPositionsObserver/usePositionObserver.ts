@@ -8,10 +8,9 @@ export function usePositionObserver(
   type: ObservableElementType,
   ids: {
     widgetId?: string;
-    layerIndex?: number;
+    layoutIndex?: number;
     layoutId?: string;
     canvasId?: string;
-    layerId?: string;
   },
   ref: RefObject<HTMLDivElement>,
 ) {
@@ -26,20 +25,6 @@ export function usePositionObserver(
           positionObserver.observeWidget(
             ids.widgetId,
             getAnvilWidgetId(ids.widgetId),
-            ref,
-          );
-          break;
-        case "layer":
-          if (ids.layerIndex === undefined)
-            throw Error("Failed to observe layer: layerIndex is undefined");
-          if (ids.layerId === undefined)
-            throw Error("Failed to observe layer: layerId is undefined");
-          if (ids.canvasId === undefined)
-            throw Error("Failed to observe layer: canvasId is undefined");
-          positionObserver.observeLayer(
-            ids.layerId,
-            ids.canvasId,
-            ids.layerIndex,
             ref,
           );
           break;
@@ -61,13 +46,11 @@ export function usePositionObserver(
             throw Error("Failed to unobserve widget: widgetId is undefined");
           positionObserver.unObserveWidget(getAnvilWidgetId(ids.widgetId));
           break;
-        case "layer":
-          if (ids.layerId === undefined)
-            throw Error("Failed to unobserve layer: layerId is undefined");
-          positionObserver.unObserveLayer(ids.layerId);
-          break;
+
         case "layout":
-          // TODO: Implement layout observer
+          if (ids.layoutId === undefined)
+            throw Error("Failed to unobserve widget: widgetId is undefined");
+          positionObserver.unObserveLayout(ids.layoutId);
           break;
       }
     };
