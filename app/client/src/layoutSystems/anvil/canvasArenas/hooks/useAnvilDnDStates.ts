@@ -1,9 +1,9 @@
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import type { AppState } from "@appsmith/reducers";
-import { getDragDetails, getWidgetByID, getWidgets } from "sagas/selectors";
+import { getDragDetails, getWidgets } from "sagas/selectors";
 import { useSelector } from "react-redux";
 import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useMemo } from "react";
 import { getSelectedWidgets } from "selectors/ui";
 import { getWidgetPositions } from "layoutSystems/common/selectors";
 import type {
@@ -11,6 +11,7 @@ import type {
   DraggedWidget,
 } from "layoutSystems/anvil/utils/anvilTypes";
 import type { WidgetPositions } from "layoutSystems/common/types";
+import { getDropTargetLayoutId } from "layoutSystems/anvil/integrations/selectors";
 
 interface AnvilDnDStatesProps {
   allowedWidgetTypes: string[];
@@ -35,6 +36,7 @@ export interface AnvilDnDStates {
   isNewWidgetInitialTargetCanvas: boolean;
   isResizing: boolean;
   widgetPositions: WidgetPositions;
+  mainCanvasLayoutId: string;
 }
 
 export const useAnvilDnDStates = ({
@@ -43,7 +45,9 @@ export const useAnvilDnDStates = ({
   deriveAllHighlightsFn,
   layoutId,
 }: AnvilDnDStatesProps): AnvilDnDStates => {
-  const lastDraggedCanvas = useRef<string | undefined>(undefined);
+  const mainCanvasLayoutId: string = useSelector((state) =>
+    getDropTargetLayoutId(state, MAIN_CONTAINER_WIDGET_ID),
+  );
   const widgetPositions = useSelector(getWidgetPositions);
   const allWidgets = useSelector(getWidgets);
   const selectedWidgets = useSelector(getSelectedWidgets);
@@ -56,22 +60,9 @@ export const useAnvilDnDStates = ({
   // which widget is grabbed while dragging started,
   // relative position of mouse pointer wrt to the last grabbed widget.
   const dragDetails: DragDetails = useSelector(getDragDetails);
-  const draggingCanvas = useSelector(
-    getWidgetByID(dragDetails.draggedOn || ""),
-  );
   const isDragging = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isDragging,
   );
-  useEffect(() => {
-    if (
-      dragDetails.draggedOn &&
-      draggingCanvas &&
-      draggingCanvas.parentId &&
-      ![canvasId, MAIN_CONTAINER_WIDGET_ID].includes(dragDetails.draggedOn)
-    ) {
-      lastDraggedCanvas.current = draggingCanvas.parentId;
-    }
-  }, [dragDetails.draggedOn]);
 
   const { dragGroupActualParent: dragParent, newWidget } = dragDetails;
   const isResizing = useSelector(
@@ -81,7 +72,7 @@ export const useAnvilDnDStates = ({
   const isChildOfCanvas = dragParent === canvasId;
   const isCurrentDraggedCanvas = dragDetails.draggedOn === layoutId;
   const isNewWidgetInitialTargetCanvas =
-    isNewWidget && canvasId === MAIN_CONTAINER_WIDGET_ID;
+    isNewWidget && layoutId === mainCanvasLayoutId;
   const getDraggedBlocks = (): DraggedWidget[] => {
     if (isNewWidget) {
       const { newWidget } = dragDetails;
@@ -137,6 +128,7 @@ export const useAnvilDnDStates = ({
     isNewWidget,
     isNewWidgetInitialTargetCanvas,
     isResizing,
+    mainCanvasLayoutId,
     widgetPositions,
   };
 };
