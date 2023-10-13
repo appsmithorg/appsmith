@@ -12,12 +12,7 @@ import type {
 } from "layoutSystems/anvil/utils/anvilTypes";
 import type { WidgetPositions } from "layoutSystems/common/types";
 
-export const useAnvilDnDStates = ({
-  allowedWidgetTypes,
-  canvasId,
-  deriveAllHighlightsFn,
-  layoutId,
-}: {
+interface AnvilDnDStatesProps {
   allowedWidgetTypes: string[];
   canvasId: string;
   layoutId: string;
@@ -25,7 +20,29 @@ export const useAnvilDnDStates = ({
     widgetPositions: WidgetPositions,
     draggedWidgets: DraggedWidget[],
   ) => AnvilHighlightInfo[];
-}) => {
+}
+
+export interface AnvilDnDStates {
+  allHighLights: AnvilHighlightInfo[];
+  allowToDrop: boolean;
+  draggedBlocks: DraggedWidget[];
+  dragDetails: DragDetails;
+  filteredSelectedWidgets: string[];
+  isChildOfCanvas: boolean;
+  isCurrentDraggedCanvas: boolean;
+  isDragging: boolean;
+  isNewWidget: boolean;
+  isNewWidgetInitialTargetCanvas: boolean;
+  isResizing: boolean;
+  widgetPositions: WidgetPositions;
+}
+
+export const useAnvilDnDStates = ({
+  allowedWidgetTypes,
+  canvasId,
+  deriveAllHighlightsFn,
+  layoutId,
+}: AnvilDnDStatesProps): AnvilDnDStates => {
   const lastDraggedCanvas = useRef<string | undefined>(undefined);
   const widgetPositions = useSelector(getWidgetPositions);
   const allWidgets = useSelector(getWidgets);
@@ -113,6 +130,7 @@ export const useAnvilDnDStates = ({
     allowToDrop,
     draggedBlocks,
     dragDetails,
+    filteredSelectedWidgets,
     isChildOfCanvas,
     isCurrentDraggedCanvas,
     isDragging,

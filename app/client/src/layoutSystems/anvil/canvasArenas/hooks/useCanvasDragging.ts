@@ -3,12 +3,60 @@ import type React from "react";
 import { useEffect } from "react";
 import { getNearestParentCanvas } from "utils/generators";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
-import type { HighlightingCanvasProps } from "../HighlightingCanvas";
+import type { AnvilHighlightingCanvasProps } from "../AnvilHighlightingCanvas";
 import { useCanvasDragToScroll } from "layoutSystems/common/canvasArenas/useCanvasDragToScroll";
 import { Colors } from "constants/Colors";
 import type { AnvilHighlightInfo } from "layoutSystems/anvil/utils/anvilTypes";
 import { getAbsolutePixels } from "utils/helpers";
 
+/**
+ * function to render UX to denote that the widget type cannot be dropped in the layout
+ */
+
+const renderDisallowOnCanvas = (slidingArena: HTMLDivElement) => {
+  slidingArena.style.backgroundColor = "red";
+  slidingArena.style.color = "white";
+  slidingArena.innerText = "This Layout Doesn't support the widget";
+};
+
+/**
+ * function to stroke a rectangle on the canvas that looks like a highlight/drop area.
+ */
+
+const renderBlocksOnCanvas = (
+  stickyCanvas: HTMLCanvasElement,
+  blockToRender: AnvilHighlightInfo,
+) => {
+  const topOffset = getAbsolutePixels(stickyCanvas.style.top);
+  const leftOffset = getAbsolutePixels(stickyCanvas.style.left);
+  const canvasCtx = stickyCanvas.getContext("2d") as CanvasRenderingContext2D;
+  canvasCtx.clearRect(0, 0, stickyCanvas.width, stickyCanvas.height);
+  canvasCtx.stroke();
+  canvasCtx.beginPath();
+  canvasCtx.fillStyle = Colors.HIGHLIGHT_FILL;
+  canvasCtx.lineWidth = 1;
+  canvasCtx.strokeStyle = Colors.HIGHLIGHT_OUTLINE;
+  canvasCtx.setLineDash([]);
+  const { height, posX, posY, width } = blockToRender;
+  // roundRect is not currently supported in firefox.
+  if (canvasCtx.roundRect)
+    canvasCtx.roundRect(posX - leftOffset, posY - topOffset, width, height, 4);
+  else canvasCtx.rect(posX - leftOffset, posY - topOffset, width, height);
+  canvasCtx.fill();
+  canvasCtx.stroke();
+};
+
+/**
+ *
+ *  This hook is written to accumulate all logic that is needed to
+ *  - initialize event listeners for canvas
+ *  - adjust z-index of canvas
+ *  - track mouse position on canvas
+ *  - render highlights on the canvas
+ *  - render warning to denote that a particular widget type is not allowed to drop on canvas
+ *  - auto scroll canvas when needed.
+ *  - invoke onDrop callback as per the anvilDragStates
+ */
 export const useCanvasDragging = (
   slidingArenaRef: React.RefObject<HTMLDivElement>,
   stickyCanvasRef: React.RefObject<HTMLCanvasElement>,
@@ -17,7 +65,7 @@ export const useCanvasDragging = (
     layoutId,
     onDrop,
     renderOnMouseMove,
-  }: HighlightingCanvasProps,
+  }: AnvilHighlightingCanvasProps,
 ) => {
   const {
     isChildOfCanvas,
@@ -36,41 +84,6 @@ export const useCanvasDragging = (
     isCurrentDraggedCanvas,
     isDragging,
   );
-
-  const renderBlocksOnCanvas = (
-    stickyCanvas: HTMLCanvasElement,
-    blockToRender: AnvilHighlightInfo,
-  ) => {
-    const topOffset = getAbsolutePixels(stickyCanvas.style.top);
-    const leftOffset = getAbsolutePixels(stickyCanvas.style.left);
-    const canvasCtx = stickyCanvas.getContext("2d") as CanvasRenderingContext2D;
-    canvasCtx.clearRect(0, 0, stickyCanvas.width, stickyCanvas.height);
-    canvasCtx.stroke();
-    canvasCtx.beginPath();
-    canvasCtx.fillStyle = Colors.HIGHLIGHT_FILL;
-    canvasCtx.lineWidth = 1;
-    canvasCtx.strokeStyle = Colors.HIGHLIGHT_OUTLINE;
-    canvasCtx.setLineDash([]);
-    const { height, posX, posY, width } = blockToRender;
-    // roundRect is not currently supported in firefox.
-    if (canvasCtx.roundRect)
-      canvasCtx.roundRect(
-        posX - leftOffset,
-        posY - topOffset,
-        width,
-        height,
-        4,
-      );
-    else canvasCtx.rect(posX - leftOffset, posY - topOffset, width, height);
-    canvasCtx.fill();
-    canvasCtx.stroke();
-  };
-
-  const renderDisallowOnCanvas = (slidingArena: HTMLDivElement) => {
-    slidingArena.style.backgroundColor = "red";
-    slidingArena.style.color = "white";
-    slidingArena.innerText = "This Layout Doesn't support the widget";
-  };
 
   useEffect(() => {
     if (slidingArenaRef.current && !isResizing && isDragging) {
