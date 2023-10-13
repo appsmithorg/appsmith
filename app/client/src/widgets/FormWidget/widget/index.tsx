@@ -28,7 +28,7 @@ import type { FlattenedWidgetProps } from "WidgetProvider/constants";
 import IconSVG from "../icon.svg";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import type { FlexLayer } from "layoutSystems/autolayout/utils/types";
-import type {  LayoutProps } from "layoutSystems/anvil/utils/anvilTypes";
+import type { LayoutProps } from "layoutSystems/anvil/utils/anvilTypes";
 import { formPreset } from "layoutSystems/anvil/layoutComponents/presets/FormPreset";
 
 class FormWidget extends ContainerWidget {

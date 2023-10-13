@@ -1,14 +1,15 @@
-import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
 import {
-  LayoutComponentTypes,
-  type AnvilHighlightInfo,
-  type DraggedWidget,
-  type LayoutComponent,
-  type LayoutProps,
-  type WidgetLayoutProps,
+  FlexLayerAlignment,
+  ResponsiveBehavior,
+} from "layoutSystems/common/utils/constants";
+import type {
+  AnvilHighlightInfo,
+  DraggedWidget,
+  LayoutComponent,
+  LayoutProps,
+  WidgetLayoutProps,
 } from "../../anvilTypes";
 import {
-  AlignmentIndexMap,
   HIGHLIGHT_SIZE,
   HORIZONTAL_DROP_ZONE_MULTIPLIER,
 } from "../../constants";
@@ -19,12 +20,12 @@ import type {
 } from "layoutSystems/common/types";
 import { getStartPosition } from "./highlightUtils";
 import {
+  RowMetaData,
   RowMetaInformation,
-  checkIntersection,
   extractMetaInformation,
-  generateHighlights,
   getHighlightsForWidgetsRow,
 } from "./rowHighlights";
+import { getAlignmentLayoutId } from "../layoutUtils";
 
 export function deriveAlignedRowHighlights(
   layoutProps: LayoutProps,
@@ -33,8 +34,8 @@ export function deriveAlignedRowHighlights(
   draggedWidgets: DraggedWidget[],
   layoutOrder: string[],
 ): AnvilHighlightInfo[] {
+  if (!draggedWidgets.length) return [];
   const { layout, layoutId, layoutType } = layoutProps;
-  console.log("!!!!", { layout });
   /**
    * Step 1: Construct a base highlight.
    */
@@ -55,7 +56,12 @@ export function deriveAlignedRowHighlights(
    * Step 2: Check if layout is empty and appropriately return initial set of highlights.
    */
   if (!layout || !layout.length) {
-    return getInitialHighlights(layoutProps, widgetPositions, baseHighlight);
+    return getInitialHighlights(
+      layoutProps,
+      widgetPositions,
+      baseHighlight,
+      draggedWidgets,
+    );
   }
 
   /**
@@ -93,31 +99,38 @@ function getInitialHighlights(
   layoutProps: LayoutProps,
   widgetPositions: WidgetPositions,
   baseHighlight: AnvilHighlightInfo,
+  draggedWidgets: DraggedWidget[],
 ): AnvilHighlightInfo[] {
-  const highlights: AnvilHighlightInfo[] = [];
-  // TODO: Do we need to consider fill widget here?
-  [
-    FlexLayerAlignment.Start,
-    FlexLayerAlignment.Center,
-    FlexLayerAlignment.End,
-  ].forEach((alignment: FlexLayerAlignment, index: number) => {
+  let highlights: AnvilHighlightInfo[] = [];
+
+  const hasFillWidget: boolean = draggedWidgets.some(
+    (widget: DraggedWidget) =>
+      widget.responsiveBehavior === ResponsiveBehavior.Fill,
+  );
+
+  const arr = hasFillWidget
+    ? [FlexLayerAlignment.Start]
+    : [
+        FlexLayerAlignment.Start,
+        FlexLayerAlignment.Center,
+        FlexLayerAlignment.End,
+      ];
+
+  arr.forEach((alignment: FlexLayerAlignment, index: number) => {
     const alignmentDimension: WidgetPosition =
       widgetPositions[`${layoutProps.layoutId}-${index}`];
-    const { height, left, top, width } = alignmentDimension;
-    const posX: number = left + getStartPosition(alignment, width);
-    highlights.push({
-      ...baseHighlight,
+    highlights = updateHighlights(
+      highlights,
+      baseHighlight,
+      index,
       alignment,
-      dropZone: {
-        left: posX - left,
-        right: left + width - posX,
-      },
-      height: height,
-      posX: Math.max(posX - HIGHLIGHT_SIZE / 2, HIGHLIGHT_SIZE / 2),
-      posY: top,
-    });
+      alignmentDimension,
+      undefined,
+      undefined,
+      true,
+    );
   });
-  console.log("!!!!", { highlights });
+
   return highlights;
 }
 
@@ -142,6 +155,10 @@ export function getHighlightsForWidgets(
     `${layoutProps.layoutId}-0`,
   );
 
+  /**
+   * If AlignedRow has a fill widget,
+   * then it renders all widgets directly without using alignments.
+   */
   if (hasFillWidget) {
     const highlights: AnvilHighlightInfo[] = getHighlightsForWidgetsRow(
       layoutProps,
@@ -153,154 +170,231 @@ export function getHighlightsForWidgets(
   }
 
   /**
-   * Render highlights for AlignedRow with no fill widget.
-   * 1. Check how alignments have been wrapped.
+   * Collect all information on alignments
    */
-  const layoutDimension: WidgetPosition = widgetPositions[layoutProps.layoutId];
-  const startDimension: WidgetPosition =
-    widgetPositions[
-      `${layoutProps.layoutId}-${AlignmentIndexMap[FlexLayerAlignment.Start]}`
-    ];
-  const isLayoutWrapped: boolean = [
-    FlexLayerAlignment.Center,
-    FlexLayerAlignment.End,
-  ].reduce((acc: boolean, curr: FlexLayerAlignment) => {
-    const dimension: WidgetPosition =
-      widgetPositions[`${layoutProps.layoutId}-${AlignmentIndexMap[curr]}`];
-    return (
-      acc ||
-      !checkIntersection(
-        [startDimension.top, startDimension.top + startDimension.height],
-        [dimension.top, dimension.top + dimension.height],
-      )
-    );
-  }, false);
+  const alignmentInfo: AlignmentInfo = extractAlignmentInfo(
+    layoutProps.layoutId,
+    layout,
+    widgetPositions,
+  );
 
-  /**
-   * If layout is not wrapped.
-   */
-  if (!isLayoutWrapped) {
+  let highlights: AnvilHighlightInfo[] = [];
+  let childCount = 0;
+  Object.keys(alignmentInfo).forEach((alignment: string) => {
+    const { dimension, meta, widgets } = alignmentInfo[alignment];
+
     /**
-     * If center alignment is empty and not in the middle anymore,
-     * then don't insert highlights for it.
+     * If the alignment doesn't render any widgets, then derive initial highlights for the alignment.
      */
-    const map: { [key: string]: WidgetLayoutProps[] } = {
-      [FlexLayerAlignment.Start]: [],
-      [FlexLayerAlignment.Center]: [],
-      [FlexLayerAlignment.End]: [],
-    };
-    layout.forEach((widget: WidgetLayoutProps) => {
-      const { alignment } = widget;
-      if (alignment === FlexLayerAlignment.Center)
-        map[FlexLayerAlignment.Center].push(widget);
-      else if (alignment === FlexLayerAlignment.End)
-        map[FlexLayerAlignment.End].push(widget);
-      else map[FlexLayerAlignment.Start].push(widget);
-    });
+    if (!widgets.length) {
+      /**
+       * If it is an empty Center alignment,
+       * which is no longer in the center position due to the size of its siblings,
+       * then don't add any highlights for it.
+       */
+      if (
+        alignment === FlexLayerAlignment.Center &&
+        alignmentInfo[FlexLayerAlignment.Start].dimension.width +
+          alignmentInfo[FlexLayerAlignment.Start].dimension.width >
+          dimension.width * 0.66
+      )
+        return;
 
-    const startDimension: WidgetPosition =
-      widgetPositions[`${layoutProps.layoutId}-0`];
-    const centerDimension: WidgetPosition =
-      widgetPositions[`${layoutProps.layoutId}-1`];
-    const endDimension: WidgetPosition =
-      widgetPositions[`${layoutProps.layoutId}-2`];
+      highlights = updateHighlights(
+        highlights,
+        baseHighlight,
+        childCount,
+        alignment as FlexLayerAlignment,
+        dimension,
+        undefined,
+        undefined,
+        true,
+      );
+    } else {
+      const { metaData, tallestWidgets } = meta;
+      let rIndex = 0;
+      while (rIndex < metaData.length) {
+        const row: RowMetaData[] = metaData[rIndex];
+        const tallestWidget = tallestWidgets[rIndex];
 
-    const avoidCenterAlignment: boolean =
-      !map[FlexLayerAlignment.Center].length &&
-      startDimension.width + endDimension.width > layoutDimension.width * 0.66;
-
-    const highlights: AnvilHighlightInfo[] = [];
-
-    const baseAlignmentLayout = (
-      alignment: FlexLayerAlignment,
-    ): LayoutProps => ({
-      layoutId: `${layoutProps.layoutId}-${AlignmentIndexMap[alignment]}`,
-      layoutType: LayoutComponentTypes.ROW,
-      layout: map[alignment],
-    });
-
-    // Extract meta information about row.
-    const startMeta: RowMetaInformation = extractMetaInformation(
-      map[FlexLayerAlignment.Start],
-      widgetPositions,
-    );
-    const centerMeta: RowMetaInformation = extractMetaInformation(
-      map[FlexLayerAlignment.Center],
-      widgetPositions,
-    );
-    const endMeta: RowMetaInformation = extractMetaInformation(
-      map[FlexLayerAlignment.End],
-      widgetPositions,
-    );
-
-    let childCount = 0;
-    [startMeta, centerMeta, endMeta].forEach(
-      (meta: RowMetaInformation, index: number) => {
-        const { metaData, tallestWidgets } = meta;
-        const layoutDimension: WidgetPosition =
-          widgetPositions[`${layoutProps.layoutId}-${index}`];
-        const alignment =
-          index === 0
-            ? FlexLayerAlignment.Start
-            : index === 1
-            ? FlexLayerAlignment.Center
-            : FlexLayerAlignment.End;
-        if (!metaData.length) {
-          const startPos: number = getStartPosition(
-            alignment,
-            layoutDimension.width,
+        let temp: AnvilHighlightInfo[] = [];
+        row.forEach((each: RowMetaData, index: number) => {
+          /**
+           * Add a highlight before the widget
+           */
+          temp = updateHighlights(
+            temp,
+            baseHighlight,
+            childCount,
+            alignment as FlexLayerAlignment,
+            dimension,
+            widgetPositions[each.widgetId],
+            widgetPositions[tallestWidget.widgetId],
+            false,
           );
-          highlights.push({
-            ...baseHighlight,
-            alignment,
-            dropZone: {
-              left: startPos,
-              right: layoutDimension.width - startPos,
-            },
-            height: layoutDimension.height,
-            posX: layoutDimension.left + startPos,
-            posY: layoutDimension.top,
-            rowIndex: childCount,
-          });
-        } else {
-          // Parse rows to add highlights.
-        }
-      },
-    );
+          childCount += 1;
 
-    return highlights;
-  }
-  return [];
+          if (index === row.length - 1) {
+            /**
+             * Add a highlight after the last widget in the row.
+             */
+            temp = updateHighlights(
+              temp,
+              baseHighlight,
+              childCount,
+              alignment as FlexLayerAlignment,
+              dimension,
+              widgetPositions[each.widgetId],
+              widgetPositions[tallestWidget.widgetId],
+              true,
+            );
+            highlights.push(...temp);
+            temp = [];
+          }
+        });
+        rIndex += 1;
+      }
+    }
+  });
+
+  return highlights;
 }
 
-/**
- * Default Preset:
- *
- * ALIGNED_COLUMN
- *  ALIGNED_ROW
- *   W1 W2
- *  ALIGNED_ROW <- AFFECTED LAYOUT
- *   W3 W5 <-
- *  ALIGNED_ROW <-
- *   W4 <-
- */
+function generateHighlight(
+  baseHighlight: AnvilHighlightInfo,
+  childCount: number,
+  alignment: FlexLayerAlignment,
+  layoutDimension: WidgetPosition,
+  currDimension: WidgetPosition | undefined,
+  tallestWidget: WidgetPosition | undefined,
+  prevHighlight: AnvilHighlightInfo | undefined,
+  isFinalHighlight: boolean,
+): AnvilHighlightInfo {
+  let posX: number = 0;
+  if (!currDimension) {
+    posX =
+      layoutDimension.left + getStartPosition(alignment, layoutDimension.width);
+  } else if (isFinalHighlight) {
+    posX = Math.min(
+      currDimension.left + currDimension.width + HIGHLIGHT_SIZE / 2,
+      layoutDimension.left + layoutDimension.width - HIGHLIGHT_SIZE / 2,
+    );
+  } else {
+    posX = Math.max(
+      currDimension.left - HIGHLIGHT_SIZE / 2,
+      layoutDimension.left + HIGHLIGHT_SIZE / 2,
+    );
+  }
 
-/**
- * MODAL Preset:
- *
- * COLUMN
- *  ROW (HEADER)
- *    TITLE_ROW
- *     W1
- *    ICON_ROW
- *     W2
- *  ALIGNED_COLUMN (MAIN)
- *    ALIGNED_ROW
- *      W3 W4
- *    ALIGNED_ROW <- AFFECTED LAYOUT (C)
- *      W5 W6 (C)
- *    ALIGNED_ROW (C)
- *      W7 W8 (C)
- *  ALIGNED_ROW (FOOTER) (C)
- *    W9 W10 (C)
- */
+  return {
+    ...baseHighlight,
+    alignment,
+    dropZone: {
+      left: prevHighlight
+        ? (posX - prevHighlight.posX) * HORIZONTAL_DROP_ZONE_MULTIPLIER
+        : (posX - layoutDimension.left) *
+          (alignment === FlexLayerAlignment.Start
+            ? 1
+            : HORIZONTAL_DROP_ZONE_MULTIPLIER),
+      right: isFinalHighlight
+        ? (layoutDimension.left + layoutDimension.width - posX) *
+          (alignment === FlexLayerAlignment.End
+            ? 1
+            : HORIZONTAL_DROP_ZONE_MULTIPLIER)
+        : 0,
+    },
+    height: tallestWidget?.height ?? layoutDimension.height,
+    posX,
+    posY: tallestWidget?.top ?? layoutDimension.top,
+    rowIndex: childCount,
+  };
+}
+
+function updateHighlights(
+  arr: AnvilHighlightInfo[],
+  baseHighlight: AnvilHighlightInfo,
+  childCount: number,
+  alignment: FlexLayerAlignment,
+  layoutDimension: WidgetPosition,
+  currDimension: WidgetPosition | undefined,
+  tallestWidget: WidgetPosition | undefined,
+  isFinalHighlight: boolean,
+): AnvilHighlightInfo[] {
+  const prevHighlight: AnvilHighlightInfo | undefined = arr.length
+    ? arr[arr.length - 1]
+    : undefined;
+  const curr: AnvilHighlightInfo = generateHighlight(
+    baseHighlight,
+    childCount,
+    alignment as FlexLayerAlignment,
+    layoutDimension,
+    currDimension,
+    tallestWidget,
+    prevHighlight,
+    isFinalHighlight,
+  );
+  if (prevHighlight) {
+    arr[arr.length - 1] = {
+      ...prevHighlight,
+      dropZone: { ...prevHighlight.dropZone, right: curr.dropZone.left },
+    };
+  }
+  arr.push(curr);
+  return arr;
+}
+
+interface AlignmentInfo {
+  [key: string]: {
+    dimension: WidgetPosition;
+    meta: RowMetaInformation;
+    widgets: WidgetLayoutProps[];
+  };
+}
+
+function extractAlignmentInfo(
+  layoutId: string,
+  layout: WidgetLayoutProps[],
+  widgetPositions: WidgetPositions,
+): AlignmentInfo {
+  const map: { [key: string]: any } = {
+    [FlexLayerAlignment.Start]: {
+      dimension:
+        widgetPositions[
+          getAlignmentLayoutId(layoutId, FlexLayerAlignment.Start)
+        ],
+      meta: [],
+      widgets: [],
+    },
+    [FlexLayerAlignment.Center]: {
+      dimension:
+        widgetPositions[
+          getAlignmentLayoutId(layoutId, FlexLayerAlignment.Center)
+        ],
+      meta: [],
+      widgets: [],
+    },
+    [FlexLayerAlignment.End]: {
+      dimension:
+        widgetPositions[getAlignmentLayoutId(layoutId, FlexLayerAlignment.End)],
+      meta: [],
+      widgets: [],
+    },
+  };
+
+  // Extract widgets based on alignments
+  layout.forEach((each: WidgetLayoutProps) => {
+    map[each.alignment].widgets.push(each);
+  });
+
+  // Extract meta information on rows occupied by each alignment.
+  Object.keys(map).forEach((alignment: string) => {
+    const { widgets } = map[alignment];
+    const meta: RowMetaInformation = extractMetaInformation(
+      widgets,
+      widgetPositions,
+    );
+    map[alignment].meta = meta;
+  });
+
+  return map;
+}

@@ -25,7 +25,7 @@ export interface RowMetaInformation {
   tallestWidgets: WidgetLayoutProps[];
 }
 
-interface RowMetaData extends WidgetLayoutProps, WidgetPosition {}
+export interface RowMetaData extends WidgetLayoutProps, WidgetPosition {}
 
 /**
  * @param layoutProps | LayoutProps
@@ -42,7 +42,7 @@ export function deriveRowHighlights(
   draggedWidgets: DraggedWidget[],
   layoutOrder: string[],
 ): AnvilHighlightInfo[] {
-  if (!layoutProps || !widgetPositions) return [];
+  if (!layoutProps || !widgetPositions || !draggedWidgets.length) return [];
 
   const { layoutStyle } = layoutProps;
 

@@ -29,7 +29,7 @@ export const formPreset = (
           ],
           layoutStyle: {
             minHeight: "40px",
-          }
+          },
         },
         {
           isPermanent: true,
@@ -57,7 +57,7 @@ export const formPreset = (
           ],
           layoutStyle: {
             minHeight: "40px",
-          }
+          },
         },
       ],
     },

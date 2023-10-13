@@ -86,11 +86,9 @@ export const FlexLayout = (props: FlexLayoutProps) => {
     return {
       zIndex: -1,
       border: props.border || "none",
-      overflowX: props.overflowX || "hidden",
-      overflowY: props.overflowY || "hidden",
       position: props.position || "relative",
     };
-  }, [props.border, props.overflowX, props.overflowY, props.position]);
+  }, [props.border, props.position]);
 
   return (
     <Flex
