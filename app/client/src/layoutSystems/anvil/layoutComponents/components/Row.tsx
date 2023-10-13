@@ -83,11 +83,7 @@ Row.removeChild = (
 };
 
 Row.renderChildWidgets = (props: LayoutComponentProps): React.ReactNode => {
-  return renderWidgets(
-    Row.extractChildWidgetIds(props),
-    props.childrenMap,
-    props.renderMode || RenderModes.CANVAS,
-  );
+  return renderWidgets(props);
 };
 
 Row.rendersWidgets = (props: LayoutProps): boolean => {

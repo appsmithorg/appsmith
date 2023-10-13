@@ -90,11 +90,7 @@ AlignedColumn.removeChild = (
 AlignedColumn.renderChildWidgets = (
   props: LayoutComponentProps,
 ): React.ReactNode => {
-  return renderWidgets(
-    AlignedColumn.extractChildWidgetIds(props),
-    props.childrenMap,
-    props.renderMode || RenderModes.CANVAS,
-  );
+  return renderWidgets(props);
 };
 
 AlignedColumn.rendersWidgets = (props: LayoutProps): boolean => {

@@ -86,11 +86,7 @@ Column.removeChild = (
 };
 
 Column.renderChildWidgets = (props: LayoutComponentProps): React.ReactNode => {
-  return renderWidgets(
-    Column.extractChildWidgetIds(props),
-    props.childrenMap,
-    props.renderMode || RenderModes.CANVAS,
-  );
+  return renderWidgets(props);
 };
 
 Column.rendersWidgets = (props: LayoutProps): boolean => {

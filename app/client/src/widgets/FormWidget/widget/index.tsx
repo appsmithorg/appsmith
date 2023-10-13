@@ -30,6 +30,7 @@ import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import type { FlexLayer } from "layoutSystems/autolayout/utils/types";
 import type { LayoutProps } from "layoutSystems/anvil/utils/anvilTypes";
 import { formPreset } from "layoutSystems/anvil/layoutComponents/presets/FormPreset";
+import { renderAppsmithCanvas } from "layoutSystems/CanvasFactory";
 
 class FormWidget extends ContainerWidget {
   static type = "FORM_WIDGET";
@@ -393,7 +394,12 @@ class FormWidget extends ContainerWidget {
       );
     }
 
-    return super.renderChildWidget(childContainer);
+    childContainer.layout = formPreset(
+      childContainer.children[0]?.widgetId,
+      childContainer.children[1]?.widgetId,
+      childContainer.children[2]?.widgetId,
+    );
+    return renderAppsmithCanvas(childContainer as WidgetProps);
   }
 
   static getStylsheetConfig() {

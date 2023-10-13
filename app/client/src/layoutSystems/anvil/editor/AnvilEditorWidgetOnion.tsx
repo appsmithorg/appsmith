@@ -6,8 +6,6 @@ import { AnvilWidgetComponent } from "../common/widgetComponent/AnvilWidgetCompo
 import DraggableComponent from "layoutSystems/common/draggable/DraggableComponent";
 import { AnvilResizableLayer } from "../common/resizer/AnvilResizableLayer";
 import { generateDragStateForAnvilLayout } from "../utils/widgetUtils";
-import { useSelector } from "react-redux";
-import { getDropTargetLayoutId } from "../integrations/selectors";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 
 /**
@@ -26,11 +24,8 @@ import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
  * @returns Enhanced Widget
  */
 export const AnvilEditorWidgetOnion = (props: BaseWidgetProps) => {
-  const { parentId = MAIN_CONTAINER_WIDGET_ID } = props;
-  // if layoutId is not present on widget props then we need a selector to fetch layout id of a widget.
-  const layoutId: string = useSelector((state) =>
-    getDropTargetLayoutId(state, parentId),
-  );
+  const { layoutId, parentId = MAIN_CONTAINER_WIDGET_ID } = props;
+
   const generateDragState = useCallback(() => {
     return generateDragStateForAnvilLayout({
       canvasId: parentId || "",
