@@ -20,8 +20,8 @@ import type {
 } from "layoutSystems/common/types";
 import { getStartPosition } from "./highlightUtils";
 import {
-  RowMetaData,
-  RowMetaInformation,
+  type RowMetaData,
+  type RowMetaInformation,
   extractMetaInformation,
   getHighlightsForWidgetsRow,
 } from "./rowHighlights";
@@ -149,6 +149,7 @@ export function getHighlightsForWidgets(
   baseHighlight: AnvilHighlightInfo,
 ): AnvilHighlightInfo[] {
   const layout: WidgetLayoutProps[] = layoutProps.layout as WidgetLayoutProps[];
+  const layoutDimension: WidgetPosition = widgetPositions[layoutProps.layoutId];
 
   // If widgetPositions of alignment aren't tracked => this layout has a fill widget.
   const hasFillWidget: boolean = !widgetPositions.hasOwnProperty(
@@ -196,7 +197,7 @@ export function getHighlightsForWidgets(
         alignment === FlexLayerAlignment.Center &&
         alignmentInfo[FlexLayerAlignment.Start].dimension.width +
           alignmentInfo[FlexLayerAlignment.Start].dimension.width >
-          dimension.width * 0.66
+          (layoutDimension.width * 2) / 3
       )
         return;
 
