@@ -273,9 +273,8 @@ export function* createWorkspaceSaga(
     );
     const isValidResponse: boolean = yield validateResponse(response);
     if (!isValidResponse) {
-      const errorMessage: string | undefined = yield getResponseErrorMessage(
-        response,
-      );
+      const errorMessage: string | undefined =
+        yield getResponseErrorMessage(response);
       yield call(reject, { _error: errorMessage });
     } else {
       yield put({

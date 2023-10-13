@@ -1,4 +1,5 @@
-import type { DataTree, ENTITY_TYPE } from "@appsmith/entities/DataTree/types";
+import type { ENTITY_TYPE } from "@appsmith/entities/DataTree/types";
+import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { ENTITY_TYPE_VALUE } from "entities/DataTree/dataTreeFactory";
 import { createSelector } from "reselect";
 import {
@@ -10,7 +11,7 @@ import {
 import { getWidgets } from "sagas/selectors";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
-import { jsCollectionIdURL, widgetURL } from "RouteBuilder";
+import { jsCollectionIdURL, widgetURL } from "@appsmith/RouteBuilder";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { createNavData } from "utils/NavigationSelector/common";
 import { getWidgetChildrenNavData } from "utils/NavigationSelector/WidgetChildren";
@@ -24,7 +25,7 @@ import { PluginType } from "entities/Action";
 import type { StoredDatasource } from "entities/Action";
 import type { Datasource } from "entities/Datasource";
 
-export type NavigationData = {
+export interface NavigationData {
   name: string;
   id: string;
   type: ENTITY_TYPE;
@@ -40,7 +41,7 @@ export type NavigationData = {
   actionType?: string;
   widgetType?: string;
   value?: boolean | string;
-};
+}
 export type EntityNavigationData = Record<string, NavigationData>;
 
 export const getEntitiesForNavigation = createSelector(

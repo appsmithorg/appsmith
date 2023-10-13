@@ -21,10 +21,10 @@ export interface InputWidgetProps extends BaseInputWidgetProps {
   iconAlign?: "left" | "right";
 }
 
-export type Validation = {
+export interface Validation {
   errorMessage?: string;
   validationStatus?: InputComponentProps["validationStatus"];
-};
+}
 
 export type KeyDownEvent = React.KeyboardEvent<
   HTMLTextAreaElement | HTMLInputElement

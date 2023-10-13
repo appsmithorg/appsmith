@@ -25,7 +25,7 @@ import UnsupportedPluginDialog from "./UnsupportedPluginDialog";
 import { getQueryParams } from "utils/URLUtils";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
-import { integrationEditorURL } from "RouteBuilder";
+import { integrationEditorURL } from "@appsmith/RouteBuilder";
 import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
 
 import { Tab, TabPanel, Tabs, TabsList } from "design-system";
@@ -99,7 +99,7 @@ const NewIntegrationsContainer = styled.div`
   }
 `;
 
-type IntegrationsHomeScreenProps = {
+interface IntegrationsHomeScreenProps {
   pageId: string;
   selectedTab: string;
   location: {
@@ -116,14 +116,14 @@ type IntegrationsHomeScreenProps = {
   applicationId: string;
   canCreateDatasource?: boolean;
   showDebugger: boolean;
-};
+}
 
-type IntegrationsHomeScreenState = {
+interface IntegrationsHomeScreenState {
   page: number;
   activePrimaryMenuId: string;
   activeSecondaryMenuId: number;
   unsupportedPluginDialogVisible: boolean;
-};
+}
 
 type Props = IntegrationsHomeScreenProps &
   InjectedFormProps<{ category: string }, IntegrationsHomeScreenProps>;

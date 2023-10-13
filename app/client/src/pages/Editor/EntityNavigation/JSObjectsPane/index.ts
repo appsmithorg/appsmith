@@ -6,7 +6,7 @@ import PaneNavigation from "../PaneNavigation";
 import type { JSCollection } from "entities/JSCollection";
 import { call, delay, put, select } from "redux-saga/effects";
 import history from "utils/history";
-import { jsCollectionIdURL } from "RouteBuilder";
+import { jsCollectionIdURL } from "@appsmith/RouteBuilder";
 import type { EntityInfo, IJSPaneNavigationConfig } from "../types";
 import { setJsPaneConfigSelectedTab } from "actions/jsPaneActions";
 import { JSEditorTab } from "reducers/uiReducers/jsPaneReducer";

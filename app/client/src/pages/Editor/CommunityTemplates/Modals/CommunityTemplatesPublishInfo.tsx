@@ -10,10 +10,10 @@ import React, { useCallback, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 
-type Props = {
+interface Props {
   onPublishClick: () => void;
   setShowHostModal: (showModal: boolean) => void;
-};
+}
 const CommunityTemplatesPublishInfo = ({
   onPublishClick,
   setShowHostModal,

@@ -16,7 +16,7 @@ import {
   getDatasource,
   getPlugin,
 } from "@appsmith/selectors/entitiesSelector";
-import { integrationEditorURL } from "RouteBuilder";
+import { integrationEditorURL } from "@appsmith/RouteBuilder";
 import { MenuItem, Tag } from "design-system";
 import type { Plugin } from "api/PluginApi";
 import { DatasourceStructureContext } from "./DatasourceStructure";
@@ -32,13 +32,13 @@ import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
 import { SUGGESTED_TAG, createMessage } from "@appsmith/constants/messages";
 import { transformTextToSentenceCase } from "pages/Editor/utils";
 
-type QueryTemplatesProps = {
+interface QueryTemplatesProps {
   templates: QueryTemplate[];
   datasourceId: string;
   onSelect: () => void;
   context: DatasourceStructureContext;
   currentActionId: string;
-};
+}
 
 enum QueryTemplatesEvent {
   EXPLORER_TEMPLATE = "explorer-template",

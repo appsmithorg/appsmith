@@ -68,7 +68,7 @@ import {
   generateTemplateFormURL,
   integrationEditorURL,
   queryEditorIdURL,
-} from "RouteBuilder";
+} from "@appsmith/RouteBuilder";
 import type { GenerateCRUDEnabledPluginMap, Plugin } from "api/PluginApi";
 import { UIComponentTypes } from "api/PluginApi";
 import { getUIComponent } from "pages/Editor/QueryEditor/helpers";
@@ -342,9 +342,8 @@ function* handleQueryCreatedSaga(actionPayload: ReduxAction<QueryAction>) {
     actionPayload.payload;
   const pageId: string = yield select(getCurrentPageId);
   if (pluginType !== PluginType.DB && pluginType !== PluginType.REMOTE) return;
-  const pluginTemplates: Record<string, unknown> = yield select(
-    getPluginTemplates,
-  );
+  const pluginTemplates: Record<string, unknown> =
+    yield select(getPluginTemplates);
   const queryTemplate = pluginTemplates[pluginId];
   // Do not show template view if the query has body(code) or if there are no templates or if the plugin is MongoDB
   const showTemplate = !(
