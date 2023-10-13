@@ -1,15 +1,15 @@
 import { AnvilReduxActionTypes } from "layoutSystems/anvil/integrations/actions/actionTypes";
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { WidgetPositions } from "layoutSystems/common/types";
-import { all, put, select, takeEvery } from "redux-saga/effects";
+import { all, put, takeEvery } from "redux-saga/effects";
 import {
   extractLayoutIdFromLayoutDOMId,
+  extractWidgetId,
   getAnvilWidgetId,
+  getLayoutId,
 } from "layoutSystems/common/utils/WidgetPositionsObserver/utils";
-import { getAffectedWidgetsFromLayers } from "layoutSystems/anvil/integrations/utils";
-import { getCanvasWidgets } from "@appsmith/selectors/entitiesSelector";
 import { CANVAS_ART_BOARD } from "constants/componentClassNameConstants";
+import { positionObserver } from "layoutSystems/common/utils/WidgetPositionsObserver";
 
 /**
  * This saga is used to read and update widget position from the the list of widgets,
@@ -28,6 +28,8 @@ function* readAndUpdateWidgetPositions(
   }>,
 ) {
   const { layoutsProcessQueue, widgetsProcessQueue } = action.payload;
+  console.log("### layoutsProcessQueue", layoutsProcessQueue);
+  console.log("### widgetsProcessQueue", widgetsProcessQueue);
 
   const widgetsToProcess = {
     ...widgetsProcessQueue,
@@ -41,12 +43,30 @@ function* readAndUpdateWidgetPositions(
 
   const { left = 0, top = 0 } = mainContainerDOMRect || {};
 
-  for (const layoutDOMId of Object.keys(layoutsProcessQueue)) {
-    const element: HTMLElement | null = document.getElementById(layoutDOMId);
+  const registeredLayouts = positionObserver.getRegisteredLayouts();
+  const registeredWidgets = positionObserver.getRegisteredWidgets();
+
+  console.log("### registeredLayouts", registeredLayouts);
+  console.log("### registeredWidgets", registeredWidgets);
+  for (const layoutId of Object.keys(registeredLayouts)) {
+    const element: HTMLElement | null = document.getElementById(layoutId);
+    const _layoutId = extractLayoutIdFromLayoutDOMId(layoutId);
     if (element) {
-      const layoutId: string = extractLayoutIdFromLayoutDOMId(layoutDOMId);
       const rect = element.getBoundingClientRect();
-      widgetDimensions[layoutId] = {
+      widgetDimensions[_layoutId] = {
+        left: rect.left - left,
+        top: rect.top - top,
+        height: rect.height,
+        width: rect.width,
+      };
+    }
+  }
+  for (const widgetId of Object.keys(registeredWidgets)) {
+    const element = document.getElementById(widgetId);
+    const _widgetId = extractWidgetId(widgetId);
+    if (element) {
+      const rect = element.getBoundingClientRect();
+      widgetDimensions[_widgetId] = {
         left: rect.left - left,
         top: rect.top - top,
         height: rect.height,
@@ -55,20 +75,50 @@ function* readAndUpdateWidgetPositions(
     }
   }
 
-  //for every affected widget get the bounding client Rect
-  // If they do, we don't have to update the positions here.
-  for (const widgetId of Object.keys(widgetsToProcess)) {
-    const element = document.getElementById(getAnvilWidgetId(widgetId));
-    if (element) {
-      const rect = element.getBoundingClientRect();
-      widgetDimensions[widgetId] = {
-        left: rect.left - left,
-        top: rect.top - top,
-        height: rect.height,
-        width: rect.width,
-      };
-    }
-  }
+  // if (Object.keys(layoutsProcessQueue).length > 0) {
+
+  //   for (const layoutId of Object.keys(registeredLayouts)) {
+  //     const element: HTMLElement | null = document.getElementById(
+  //       getLayoutId(registeredLayouts[layoutId].canvasId, layoutId),
+  //     );
+  //     if (element) {
+  //       const rect = element.getBoundingClientRect();
+  //       widgetDimensions[layoutId] = {
+  //         left: rect.left - left,
+  //         top: rect.top - top,
+  //         height: rect.height,
+  //         width: rect.width,
+  //       };
+  //     }
+  //   }
+  //   for (const widgetId of Object.keys(registeredWidgets)) {
+  //     const element = document.getElementById(getAnvilWidgetId(widgetId));
+  //     if (element) {
+  //       const rect = element.getBoundingClientRect();
+  //       widgetDimensions[widgetId] = {
+  //         left: rect.left - left,
+  //         top: rect.top - top,
+  //         height: rect.height,
+  //         width: rect.width,
+  //       };
+  //     }
+  //   }
+  // } else if (Object.keys(widgetsToProcess).length > 0) {
+  //   //for every affected widget get the bounding client Rect
+  //   // If they do, we don't have to update the positions here.
+  //   for (const widgetId of Object.keys(widgetsToProcess)) {
+  //     const element = document.getElementById(getAnvilWidgetId(widgetId));
+  //     if (element) {
+  //       const rect = element.getBoundingClientRect();
+  //       widgetDimensions[widgetId] = {
+  //         left: rect.left - left,
+  //         top: rect.top - top,
+  //         height: rect.height,
+  //         width: rect.width,
+  //       };
+  //     }
+  //   }
+  // }
 
   yield put({
     type: AnvilReduxActionTypes.UPDATE_WIDGET_POSITIONS,

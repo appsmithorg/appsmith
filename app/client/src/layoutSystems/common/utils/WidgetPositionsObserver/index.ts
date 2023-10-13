@@ -133,6 +133,7 @@ class WidgetPositionsObserver {
 
   //This method is triggered from the resize observer to add widgets to queue
   private addWidgetToProcess(widgetDOMId: string) {
+    console.log("###addWidgetToProcess", widgetDOMId);
     if (this.registeredWidgets[widgetDOMId]) {
       const widgetId = this.registeredWidgets[widgetDOMId].id;
       this.widgetsProcessQueue[widgetId] = true;
@@ -183,6 +184,14 @@ class WidgetPositionsObserver {
       ),
     );
     this.clearProcessQueue();
+  }
+
+  public getRegisteredLayouts() {
+    return this.registeredLayouts;
+  }
+
+  public getRegisteredWidgets() {
+    return this.registeredWidgets;
   }
 }
 

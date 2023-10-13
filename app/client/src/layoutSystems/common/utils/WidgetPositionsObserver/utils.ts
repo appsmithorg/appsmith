@@ -33,3 +33,7 @@ export const getLayoutId = (canvasId: string, layoutId: string) => {
 export const extractLayoutIdFromLayoutDOMId = (layoutDOMId: string) => {
   return layoutDOMId.split("_")[2];
 };
+
+export const extractWidgetId = (widgetDOMId: string) => {
+  return widgetDOMId.split("_")[2];
+};
