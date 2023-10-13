@@ -303,9 +303,6 @@ configure_supervisord() {
       cp "$supervisord_conf_source/redis.conf" "$SUPERVISORD_CONF_TARGET"
       mkdir -p "$stacks_path/data/redis"
     fi
-    if ! [[ -e "/appsmith-stacks/ssl/fullchain.pem" ]] || ! [[ -e "/appsmith-stacks/ssl/privkey.pem" ]]; then
-      cp "$supervisord_conf_source/cron.conf" "$SUPERVISORD_CONF_TARGET"
-    fi
     if [[ $runEmbeddedPostgres -eq 1 ]]; then
       cp "$supervisord_conf_source/postgres.conf" "$SUPERVISORD_CONF_TARGET"
       # Update hosts lookup to resolve to embedded postgres
@@ -392,23 +389,7 @@ init_postgres || runEmbeddedPostgres=0
 }
 
 init_loading_pages(){
-  local starting_page="/opt/appsmith/templates/appsmith_starting.html"
-  local initializing_page="/opt/appsmith/templates/appsmith_initializing.html"
-  local editor_load_page="$NGINX_WWW_PATH/loading.html"
-  cp "$initializing_page" "$NGINX_WWW_PATH/index.html"
-  # TODO: Also listen on 443, if HTTP certs are available.
-  cat <<EOF > "$TMP/nginx-app.conf"
-    server {
-      listen ${PORT:-80} default_server;
-      location / {
-        try_files \$uri \$uri/ /index.html =404;
-      }
-    }
-EOF
-  # Start nginx page to display the Appsmith is Initializing page
-  nginx
-  # Update editor nginx page for starting page
-  cp "$starting_page" "$editor_load_page"
+  /opt/caddy/caddy start
 }
 
 # Main Section
@@ -443,10 +424,7 @@ configure_supervisord
 mkdir -p /appsmith-stacks/data/{backup,restore}
 
 # Create sub-directory to store services log in the container mounting folder
-mkdir -p /appsmith-stacks/logs/{supervisor,backend,cron,editor,rts,mongodb,redis,postgres,appsmithctl}
-
-# Stop nginx gracefully
-nginx -s quit
+mkdir -p /appsmith-stacks/logs/{supervisor,backend,editor,rts,mongodb,redis,postgres,appsmithctl}
 
 # Handle CMD command
 exec "$@"

@@ -53,5 +53,5 @@ mkdir -p "$XDG_DATA_HOME" "$XDG_CONFIG_HOME"
 
 # todo: use caddy storage export and import as part of backup/restore.
 
-#exec nginx -g "daemon off;error_log stderr info;"
+/opt/caddy/caddy stop
 exec /opt/caddy/caddy run

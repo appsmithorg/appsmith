@@ -1,5 +1,5 @@
 {
-  admin off
+  admin 127.0.0.1:2019
 	servers {
 		trusted_proxies static 0.0.0.0/0
 	}

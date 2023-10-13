@@ -10,20 +10,18 @@ ENV LANG C.UTF-8
 ENV LC_ALL C.UTF-8
 
 # Update APT packages - Base Layer
-RUN apt-get update \
+RUN set -o xtrace \
+  && apt-get update \
   && apt-get upgrade --yes \
   && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends --yes \
-    supervisor curl cron nfs-common nginx nginx-extras gnupg wget netcat openssh-client \
+    supervisor curl nfs-common gnupg wget netcat openssh-client \
     gettext \
-    python3-pip python3-venv git ca-certificates-java \
+    python3-pip git ca-certificates-java \
   && wget -O - https://packages.adoptium.net/artifactory/api/gpg/key/public | apt-key add - \
   && echo "deb https://packages.adoptium.net/artifactory/deb $(awk -F= '/^VERSION_CODENAME/{print$2}' /etc/os-release) main" | tee /etc/apt/sources.list.d/adoptium.list \
   && apt-get update && apt-get install --no-install-recommends --yes temurin-17-jdk \
   && pip install --no-cache-dir git+https://github.com/coderanger/supervisor-stdout@973ba19967cdaf46d9c1634d1675fc65b9574f6e \
-  && python3 -m venv --prompt certbot /opt/certbot/venv \
-  && /opt/certbot/venv/bin/pip install --upgrade certbot setuptools pip \
-  && ln -s /opt/certbot/venv/bin/certbot /usr/local/bin \
-  && apt-get remove --yes git python3-pip python3-venv \
+  && apt-get remove --yes git python3-pip \
   && apt-get autoremove --yes
 
 # Install MongoDB v5.0.14, Redis, NodeJS - Service Layer, PostgreSQL v13
