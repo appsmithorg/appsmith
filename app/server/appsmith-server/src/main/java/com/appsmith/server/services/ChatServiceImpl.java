@@ -12,6 +12,7 @@ import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.enums.ChatGenerationType;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.solutions.DatasourceStructureSolution;
 import com.appsmith.server.solutions.LicenseAPIManager;
 import com.appsmith.util.WebClientUtils;

@@ -11,10 +11,10 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.repositories.DatasourceStorageRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.EnvironmentService;
-import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.VariableReplacementService;
 import com.appsmith.server.solutions.DatasourcePermission;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +23,8 @@ import reactor.core.publisher.Mono;
 
 @Service
 @Slf4j
-public class DatasourceStorageServiceImpl extends DatasourceStorageServiceCEImpl implements DatasourceStorageService {
+public class DatasourceStorageServiceImpl extends DatasourceStorageServiceCECompatibleImpl
+        implements DatasourceStorageService {
     private final VariableReplacementService variableReplacementService;
     private final EnvironmentService environmentService;
 
