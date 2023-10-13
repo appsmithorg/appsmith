@@ -6,6 +6,7 @@ import { getUserApplicationsWorkspacesList } from "@appsmith/selectors/applicati
 import { AvatarGroup } from "design-system";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 import { USER_PHOTO_ASSET_URL } from "constants/userConstants";
+import { uniqBy } from "lodash";
 
 const UserImageContainer = styled.div<{ isMobile?: boolean }>`
   display: flex;
@@ -45,9 +46,11 @@ export default function SharedUserList(props: any) {
     });
 
     const { users } = workspace;
-    const newUsers = users?.filter((user: any) => user.userId) || [];
-    return convertUsersToAvatar(newUsers);
+    // The uniqBy filter handles the case where same user is added multiple times
+    const uniqueUsers = uniqBy(users || [], "username");
+    return convertUsersToAvatar(uniqueUsers);
   }, [userWorkspaces]);
+
   return (
     <UserImageContainer isMobile={isMobile}>
       <AvatarGroup avatars={allUsers} size="sm" />
