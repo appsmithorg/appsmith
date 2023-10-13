@@ -25,7 +25,7 @@ import {
   getIsErroredSavingAppName,
   getCurrentApplication,
 } from "@appsmith/selectors/applicationSelectors";
-import EditorAppName from "./EditorAppName";
+import EditorName from "./EditorName";
 import { EditInteractionKind, SavingState } from "design-system-old";
 import {
   Button,
@@ -90,6 +90,7 @@ import { Omnibar } from "./commons/Omnibar";
 import { EditorShareButton } from "./EditorShareButton";
 import { HelperBarInHeader } from "./HelpBarInHeader";
 import { AppsmithLink } from "./AppsmithLink";
+import { GetNavigationMenuData } from "./EditorName/NavigationMenuData";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -265,7 +266,7 @@ export function EditorHeader() {
             placement="bottom"
           >
             <div>
-              <EditorAppName
+              <EditorName
                 applicationId={applicationId}
                 className="t--application-name editable-application-name max-w-48"
                 defaultSavingState={
@@ -273,9 +274,11 @@ export function EditorHeader() {
                 }
                 defaultValue={currentApplication?.name || ""}
                 editInteractionKind={EditInteractionKind.SINGLE}
+                editorName="Application"
                 fill
+                getNavigationMenu={GetNavigationMenuData}
                 isError={isErroredSavingName}
-                isNewApp={
+                isNewEditor={
                   applicationList.filter((el) => el.id === applicationId)
                     .length > 0
                 }

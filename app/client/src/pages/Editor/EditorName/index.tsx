@@ -7,16 +7,19 @@ import type {
   EditInteractionKind,
 } from "design-system-old";
 import { SavingState } from "design-system-old";
-import EditableAppName from "./EditableAppName";
-import { GetNavigationMenuData } from "./NavigationMenuData";
+import EditableName from "./EditableName";
 import { NavigationMenu } from "./NavigationMenu";
 import type { Theme } from "constants/DefaultTheme";
 import { Menu, toast, MenuTrigger } from "design-system";
 import ForkApplicationModal from "pages/Applications/ForkApplicationModal";
 import { Container, StyledIcon } from "./components";
+import { useSelector } from "react-redux";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
+import type { MenuItemData } from "./NavigationMenuItem";
+import type { NavigationMenuDataProps } from "./NavigationMenuData";
 
-type EditorAppNameProps = CommonComponentProps & {
-  applicationId: string | undefined;
+type EditorNameProps = CommonComponentProps & {
+  applicationId?: string | undefined;
   defaultValue: string;
   placeholder?: string;
   editInteractionKind: EditInteractionKind;
@@ -27,23 +30,30 @@ type EditorAppNameProps = CommonComponentProps & {
   hideEditIcon?: boolean;
   fill?: boolean;
   isError?: boolean;
-  isNewApp: boolean;
+  isNewEditor: boolean;
   isPopoverOpen: boolean;
   setIsPopoverOpen: typeof noop;
+  editorName: string;
+  getNavigationMenu: ({
+    editMode,
+    setForkApplicationModalOpen,
+  }: NavigationMenuDataProps) => MenuItemData[];
 };
 
-export function EditorAppName(props: EditorAppNameProps) {
+export function EditorName(props: EditorNameProps) {
   const {
     defaultSavingState,
     defaultValue,
-    isNewApp,
+    editorName,
+    getNavigationMenu,
+    isNewEditor,
     isPopoverOpen,
     setIsPopoverOpen,
   } = props;
 
   const theme = useTheme() as Theme;
 
-  const [isEditingDefault, setIsEditingDefault] = useState(isNewApp);
+  const [isEditingDefault, setIsEditingDefault] = useState(isNewEditor);
   const [isEditing, setIsEditing] = useState(!!isEditingDefault);
   const [isInvalid, setIsInvalid] = useState<string | boolean>(false);
   const [savingState, setSavingState] = useState<SavingState>(
@@ -51,6 +61,7 @@ export function EditorAppName(props: EditorAppNameProps) {
   );
   const [isForkApplicationModalopen, setForkApplicationModalOpen] =
     useState(false);
+  const currentAppId = useSelector(getCurrentApplicationId);
 
   const onBlur = (value: string) => {
     if (props.onBlur) props.onBlur(value);
@@ -59,7 +70,7 @@ export function EditorAppName(props: EditorAppNameProps) {
 
   const inputValidation = (value: string) => {
     if (value.trim() === "") {
-      toast.show("Application name can't be empty", {
+      toast.show(`${editorName} name can't be empty`, {
         kind: "error",
       });
     }
@@ -77,7 +88,7 @@ export function EditorAppName(props: EditorAppNameProps) {
     [inputValidation, defaultValue],
   );
 
-  const handleAppNameClick = useCallback(() => {
+  const handleNameClick = useCallback(() => {
     if (!isEditing) {
       setIsPopoverOpen((isOpen: boolean) => {
         return !isOpen;
@@ -91,7 +102,7 @@ export function EditorAppName(props: EditorAppNameProps) {
     }
   }, []);
 
-  const NavigationMenuData = GetNavigationMenuData({
+  const NavigationMenuData = getNavigationMenu({
     editMode,
     theme,
     setForkApplicationModalOpen,
@@ -100,16 +111,13 @@ export function EditorAppName(props: EditorAppNameProps) {
   return defaultValue !== "" ? (
     <>
       <Menu
-        className="t--application-edit-menu"
+        className="t--editor-menu"
         onOpenChange={handleOnInteraction}
         open={isPopoverOpen}
       >
         <MenuTrigger disabled={isEditing}>
-          <Container
-            data-testid="t--application-edit-menu-cta"
-            onClick={handleAppNameClick}
-          >
-            <EditableAppName
+          <Container data-testid="t--editor-menu-cta" onClick={handleNameClick}>
+            <EditableName
               className={props.className}
               defaultSavingState={defaultSavingState}
               defaultValue={defaultValue}
@@ -142,7 +150,7 @@ export function EditorAppName(props: EditorAppNameProps) {
         />
       </Menu>
       <ForkApplicationModal
-        applicationId={props.applicationId || ""}
+        applicationId={props.applicationId || currentAppId}
         handleClose={() => {
           setForkApplicationModalOpen(false);
         }}
@@ -153,4 +161,4 @@ export function EditorAppName(props: EditorAppNameProps) {
   ) : null;
 }
 
-export default EditorAppName;
+export default EditorName;
