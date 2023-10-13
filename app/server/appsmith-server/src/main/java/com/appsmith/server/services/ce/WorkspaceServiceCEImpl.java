@@ -388,8 +388,8 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                 .cleanPermissionGroupCacheForUsers(List.of(user.getId()))
                 .thenReturn(TRUE);
 
-        return Mono.zip(savedPermissionGroupsMono, cleanPermissionGroupCacheForCurrentUser)
-                .map(tuple -> tuple.getT1());
+        return savedPermissionGroupsMono.flatMap(
+                savedPermissionGroups -> cleanPermissionGroupCacheForCurrentUser.thenReturn(savedPermissionGroups));
     }
 
     protected Mono<Set<PermissionGroup>> generateDefaultPermissionGroups(Workspace workspace, User user) {

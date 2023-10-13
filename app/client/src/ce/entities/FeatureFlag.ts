@@ -3,15 +3,14 @@ export const FEATURE_FLAG = {
   TEST_FLAG: "TEST_FLAG",
   release_datasource_environments_enabled:
     "release_datasource_environments_enabled",
-  ask_ai: "ask_ai",
   release_appnavigationlogoupload_enabled:
     "release_appnavigationlogoupload_enabled",
-  ask_ai_sql: "ask_ai_sql",
-  ask_ai_js: "ask_ai_js",
   release_embed_hide_share_settings_enabled:
     "release_embed_hide_share_settings_enabled",
   ab_gsheet_schema_enabled: "ab_gsheet_schema_enabled",
   ab_wds_enabled: "ab_wds_enabled",
+  release_table_serverside_filtering_enabled:
+    "release_table_serverside_filtering_enabled",
   release_custom_echarts_enabled: "release_custom_echarts_enabled",
   license_branding_enabled: "license_branding_enabled",
   ab_gif_signposting_enabled: "ab_gif_signposting_enabled",
@@ -36,13 +35,11 @@ export type FeatureFlags = Record<FeatureFlag, boolean>;
 export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   TEST_FLAG: true,
   release_datasource_environments_enabled: false,
-  ask_ai: false,
   release_appnavigationlogoupload_enabled: false,
-  ask_ai_js: false,
-  ask_ai_sql: false,
   release_embed_hide_share_settings_enabled: false,
   ab_gsheet_schema_enabled: false,
   ab_wds_enabled: false,
+  release_table_serverside_filtering_enabled: false,
   release_custom_echarts_enabled: false,
   license_branding_enabled: false,
   ab_gif_signposting_enabled: false,

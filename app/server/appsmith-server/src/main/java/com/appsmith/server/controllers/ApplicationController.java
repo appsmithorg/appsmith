@@ -2,13 +2,13 @@ package com.appsmith.server.controllers;
 
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.controllers.ce.ApplicationControllerCE;
+import com.appsmith.server.export.internal.ImportExportApplicationService;
 import com.appsmith.server.fork.internal.ApplicationForkingService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.ApplicationSnapshotService;
-import com.appsmith.server.services.ThemeService;
 import com.appsmith.server.solutions.ApplicationFetcher;
-import com.appsmith.server.solutions.ImportExportApplicationService;
+import com.appsmith.server.themes.base.ThemeService;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 

@@ -376,7 +376,7 @@ function ActionSidebar({
         eventParams: {
           [FEATURE_WALKTHROUGH_KEYS.ds_schema]: true,
         },
-        delay: 5000,
+        delay: 2500,
       });
   };
 

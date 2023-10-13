@@ -19,6 +19,8 @@ import {
   SourceType,
 } from "@shared/ast";
 import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
+import log from "loglevel";
+import type CodeMirror from "codemirror";
 
 export interface JSActionDropdownOption extends DropdownOption {
   data: JSAction | null;
@@ -44,6 +46,49 @@ export const isCursorWithinNode = (
 
 const getNameFromPropertyNode = (node: PropertyNode): string =>
   isLiteralNode(node.key) ? String(node.key.value) : node.key.name;
+
+export const getJSFunctionLocationFromCursor = (
+  code: string,
+  currentCursor: CodeMirror.Position,
+): {
+  cursorLineNumber: number;
+  functionString: string;
+  functionName: string;
+} => {
+  let functionString = "";
+  let cursorLineNumber = 0;
+  let functionName = "";
+
+  try {
+    const ast = getAST(code, SourceType.module);
+
+    ancestor(ast, {
+      Property(node, ancestors: Node[]) {
+        // We are only interested in identifiers at this depth (exported object keys)
+        const depth = ancestors.length - 3;
+        if (
+          isPropertyNode(node) &&
+          (node.value.type === NodeTypes.ArrowFunctionExpression ||
+            node.value.type === NodeTypes.FunctionExpression) &&
+          node.loc &&
+          isCursorWithinNode(node.loc, currentCursor.line + 1) &&
+          ancestors[depth] &&
+          ancestors[depth].type === NodeTypes.ExportDefaultDeclaration
+        ) {
+          functionString = code.slice(node.start, node.end);
+          // +1 for adjusting the 0 based and 1 based line numbers
+          // +1 for counting the function name line, therefor we need to add +2
+          cursorLineNumber = currentCursor.line - node.loc.start.line + 2;
+          functionName = getNameFromPropertyNode(node);
+        }
+      },
+    });
+  } catch (e) {
+    log.error(e);
+  }
+
+  return { cursorLineNumber, functionName, functionString };
+};
 
 // Function to get start line of js function from code, returns null if function not found
 export const getJSFunctionStartLineFromCode = (
