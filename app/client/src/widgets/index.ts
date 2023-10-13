@@ -60,10 +60,7 @@ import ListWidgetV2 from "./ListWidgetV2";
 import { WDSButtonWidget } from "./wds/WDSButtonWidget";
 import { WDSInputWidget } from "./wds/WDSInputWidget";
 import { WDSCheckboxWidget } from "./wds/WDSCheckboxWidget";
-<<<<<<< HEAD
 import { WDSIconButtonWidget } from "./wds/WDSIconButtonWidget";
-=======
->>>>>>> origin/release
 import type BaseWidget from "./BaseWidget";
 
 const Widgets = [
