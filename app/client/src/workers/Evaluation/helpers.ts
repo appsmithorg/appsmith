@@ -51,7 +51,7 @@ export const countOccurrences = (
   let n = 0, // count of occurrences
     pos = 0; // current position of the pointer
   const step = allowOverlapping ? 1 : subString.length;
-
+//
   while (true) {
     pos = string.indexOf(subString, pos);
     if (pos >= 0) {
