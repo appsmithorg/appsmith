@@ -97,6 +97,13 @@ export async function installLibrary(
   try {
     const envKeysBeforeInstallation = Object.keys(self);
 
+    /** Holds keys of uninstalled libraries that cannot be removed from worker global.
+     * Certain libraries are added to the global scope with { configurable: false }
+     */
+    const unsetLibraryKeys = envKeysBeforeInstallation.filter(
+      (k) => self[k] === undefined,
+    );
+
     const accessors: string[] = [];
 
     let module = null;
@@ -115,6 +122,8 @@ export async function installLibrary(
           return libStore[k] !== self[k];
         }),
       );
+
+      accessors.push(...unsetLibraryKeys.filter((k) => self[k] !== undefined));
 
       for (let i = 0; i < accessors.length; i++) {
         if (
@@ -154,7 +163,6 @@ export async function installLibrary(
       throw new Error("Unable to determine a unique accessor");
     }
 
-    //Reserves accessor names.
     const name = accessors[accessors.length - 1];
 
     defs["!name"] = `LIB/${name}`;
