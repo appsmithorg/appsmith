@@ -20,20 +20,20 @@ export function usePositionObserver(
       // We also make sure to throw an error if the required ids are not provided
       switch (type) {
         case "widget":
-          if (ids.widgetId === undefined)
+          if (ids?.widgetId === undefined)
             throw Error("Failed to observe widget: widgetId is undefined");
           positionObserver.observeWidget(
-            ids.widgetId,
-            getAnvilWidgetId(ids.widgetId),
+            ids?.widgetId,
+            getAnvilWidgetId(ids?.widgetId),
             ref,
           );
           break;
         case "layout":
-          if (ids.layoutId === undefined)
+          if (ids?.layoutId === undefined)
             throw Error("Failed to observe layout: layoutId is undefined");
-          if (ids.canvasId === undefined)
+          if (ids?.canvasId === undefined)
             throw Error("Failed to observe layout: canvasId is undefined");
-          positionObserver.observeLayout(ids.layoutId, ids.canvasId, ref);
+          positionObserver.observeLayout(ids?.layoutId, ids?.canvasId, ref);
           break;
       }
     }
@@ -42,15 +42,15 @@ export function usePositionObserver(
     return () => {
       switch (type) {
         case "widget":
-          if (ids.widgetId === undefined)
+          if (ids?.widgetId === undefined)
             throw Error("Failed to unobserve widget: widgetId is undefined");
-          positionObserver.unObserveWidget(getAnvilWidgetId(ids.widgetId));
+          positionObserver.unObserveWidget(getAnvilWidgetId(ids?.widgetId));
           break;
 
         case "layout":
-          if (ids.layoutId === undefined)
+          if (ids?.layoutId === undefined)
             throw Error("Failed to unobserve widget: widgetId is undefined");
-          positionObserver.unObserveLayout(ids.layoutId);
+          positionObserver.unObserveLayout(ids?.layoutId);
           break;
       }
     };

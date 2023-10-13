@@ -12,7 +12,8 @@ import type { WidgetPositions } from "layoutSystems/common/types";
 
 export function LayoutComponentHOC(Component: LayoutComponent) {
   const enhancedLayoutComponent = (props: LayoutComponentProps) => {
-    const { canvasId, isDropTarget, layoutId, parentDropTarget, renderMode } = props;
+    const { canvasId, isDropTarget, layoutId, parentDropTarget, renderMode } =
+      props;
 
     const renderChildren = () => {
       if (Component.rendersWidgets(props)) {

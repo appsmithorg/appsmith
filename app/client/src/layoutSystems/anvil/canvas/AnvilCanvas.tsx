@@ -9,10 +9,9 @@ import { RenderModes } from "constants/WidgetConstants";
 
 export const AnvilCanvas = (props: BaseWidgetProps) => {
   const map: LayoutComponentProps["childrenMap"] = {};
-  props.children.forEach((child: WidgetProps) => {
+  props.children?.forEach((child: WidgetProps) => {
     map[child.widgetId] = child;
   });
-  console.log("###", { props });
   return (
     <div className="anvil-canvas" id={getCanvasId(props.widgetId)}>
       {renderLayouts(

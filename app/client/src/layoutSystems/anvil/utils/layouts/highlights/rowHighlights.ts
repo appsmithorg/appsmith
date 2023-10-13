@@ -42,7 +42,13 @@ export function deriveRowHighlights(
   draggedWidgets: DraggedWidget[],
   layoutOrder: string[],
 ): AnvilHighlightInfo[] {
-  if (!layoutProps || !widgetPositions || !draggedWidgets.length) return [];
+  if (
+    !layoutProps ||
+    !widgetPositions ||
+    !widgetPositions[layoutProps.layoutId] ||
+    !draggedWidgets.length
+  )
+    return [];
 
   const { layoutStyle } = layoutProps;
 
@@ -371,16 +377,6 @@ export function generateHighlights(
   isLastHighlight: boolean,
 ): AnvilHighlightInfo[] {
   const isInitialHighlight: boolean = rowIndex === 0;
-  // TODO: simplify this function.
-  if (isLastHighlight) {
-    console.log("!!!!", {
-      layoutDimension,
-      currentDimension,
-      prevDimension,
-      nextDimension,
-      rowIndex,
-    });
-  }
   return [
     {
       ...baseHighlight,

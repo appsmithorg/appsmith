@@ -394,11 +394,13 @@ class FormWidget extends ContainerWidget {
       );
     }
 
-    childContainer.layout = formPreset(
-      childContainer.children[0]?.widgetId,
-      childContainer.children[1]?.widgetId,
-      childContainer.children[2]?.widgetId,
-    );
+    childContainer.layout =
+      childContainer.layout ??
+      formPreset(
+        childContainer.children[0]?.widgetId,
+        childContainer.children[1]?.widgetId,
+        childContainer.children[2]?.widgetId,
+      );
     return renderAppsmithCanvas(childContainer as WidgetProps);
   }
 
