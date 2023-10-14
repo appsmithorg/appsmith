@@ -111,13 +111,16 @@ export const slashCommandHintHelper: HintHelper = (
             currentSelection = selected;
           }
           function handlePick(selected: CommandsCompletion) {
-            focusEditor(cursorPosition.line, 2);
-
             if (selected.action && typeof selected.action === "function") {
               const callback = (completion: string) => {
                 editor.replaceRange(completion, cursor);
               };
               selected.action(callback);
+            }
+
+            // Focus on the editor if the selected command has text
+            if (selected.text) {
+              focusEditor(cursorPosition.line, 2);
             }
 
             selected.triggerCompletionsPostPick &&

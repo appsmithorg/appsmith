@@ -437,7 +437,6 @@ class CodeEditor extends Component<Props, State> {
         editor.on("focus", this.handleEditorFocus);
         editor.on("cursorActivity", this.handleCursorMovement);
         editor.on("blur", this.handleEditorBlur);
-        editor.on("postPick", this.handleSlashCommandSelection);
         editor.on("mousedown", this.handleClick);
         editor.on("scrollCursorIntoView", this.handleScrollCursorIntoView);
         CodeMirror.on(
@@ -501,10 +500,6 @@ class CodeEditor extends Component<Props, State> {
       });
     }
   }
-
-  handleSlashCommandSelection = () => {
-    this.handleAutocompleteVisibility(this.editor);
-  };
 
   shouldComponentUpdate(nextProps: Props, nextState: State) {
     if (this.props.dynamicData !== nextProps.dynamicData) {
@@ -878,7 +873,6 @@ class CodeEditor extends Component<Props, State> {
     this.editor.off("focus", this.handleEditorFocus);
     this.editor.off("cursorActivity", this.handleCursorMovement);
     this.editor.off("blur", this.handleEditorBlur);
-    this.editor.off("postPick", this.handleSlashCommandSelection);
     CodeMirror.off(
       this.editor.getWrapperElement(),
       "mousemove",
@@ -1422,6 +1416,10 @@ class CodeEditor extends Component<Props, State> {
       line: lineToFocus,
       ch: focusedLineContent.length - chOffset,
     });
+
+    this.setState({ isFocused: true }, () => {
+      this.handleAutocompleteVisibility(this.editor);
+    });
   }
 
   updatePropertyValue(value: string, focusOnline?: number, chOffset = 0) {
@@ -1431,10 +1429,6 @@ class CodeEditor extends Component<Props, State> {
     }
 
     this.focusEditor(focusOnline, chOffset);
-
-    this.setState({ isFocused: true }, () => {
-      this.handleAutocompleteVisibility(this.editor);
-    });
   }
 
   getErrors(dynamicData: DataTree, dataTreePath: string) {
