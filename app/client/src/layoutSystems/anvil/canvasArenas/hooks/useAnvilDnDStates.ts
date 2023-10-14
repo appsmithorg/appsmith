@@ -3,13 +3,10 @@ import type { AppState } from "@appsmith/reducers";
 import { getDragDetails, getWidgets } from "sagas/selectors";
 import { useSelector } from "react-redux";
 import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
-import { useCallback, useMemo, useRef } from "react";
+import { useMemo } from "react";
 import { getSelectedWidgets } from "selectors/ui";
 import { getWidgetPositions } from "layoutSystems/common/selectors";
-import type {
-  AnvilHighlightInfo,
-  DraggedWidget,
-} from "layoutSystems/anvil/utils/anvilTypes";
+import type { DraggedWidget } from "layoutSystems/anvil/utils/anvilTypes";
 import type { WidgetPositions } from "layoutSystems/common/types";
 import { getDropTargetLayoutId } from "layoutSystems/anvil/integrations/selectors";
 
@@ -17,14 +14,9 @@ interface AnvilDnDStatesProps {
   allowedWidgetTypes: string[];
   canvasId: string;
   layoutId: string;
-  deriveAllHighlightsFn: (
-    widgetPositions: WidgetPositions,
-    draggedWidgets: DraggedWidget[],
-  ) => AnvilHighlightInfo[];
 }
 
 export interface AnvilDnDStates {
-  allHighLights: AnvilHighlightInfo[];
   allowToDrop: boolean;
   draggedBlocks: DraggedWidget[];
   dragDetails: DragDetails;
@@ -42,7 +34,6 @@ export interface AnvilDnDStates {
 export const useAnvilDnDStates = ({
   allowedWidgetTypes,
   canvasId,
-  deriveAllHighlightsFn,
   layoutId,
 }: AnvilDnDStatesProps): AnvilDnDStates => {
   const mainCanvasLayoutId: string = useSelector((state) =>
@@ -52,7 +43,8 @@ export const useAnvilDnDStates = ({
   const allWidgets = useSelector(getWidgets);
   const selectedWidgets = useSelector(getSelectedWidgets);
   const filteredSelectedWidgets = selectedWidgets.filter(
-    (eachWidgetId) => !!allWidgets[eachWidgetId],
+    (eachWidgetId) =>
+      !!allWidgets[eachWidgetId] && !!widgetPositions[eachWidgetId],
   );
   // dragDetails contains of info needed for a container jump:
   // which parent the dragging widget belongs,
@@ -107,22 +99,13 @@ export const useAnvilDnDStates = ({
   };
   const allowToDrop = isDragging && checkIfWidgetTypeDraggedIsAllowedToDrop();
   // process drag blocks only once and per first render
-  // this is by taking advantage of the fact that isNewWidget, dragDetails and  filteredSelectedWidgets are all unchanged states during the dragging action.
-  // however filteredSelectedWidgets is changed right before onDrop function is completed and is not needed for a recalculation.
-  const draggedBlocks = useMemo(getDraggedBlocks, [isDragging]);
-  const memoizedDeriveHighlights = useCallback(
-    () =>
-      deriveAllHighlightsFn(widgetPositions, isNewWidget ? [] : draggedBlocks),
-    [widgetPositions, draggedBlocks, isNewWidget],
+  // this is by taking advantage of the fact that isNewWidget and dragDetails are unchanged states during the dragging action.
+  const draggedBlocks = useMemo(
+    () => (isDragging ? getDraggedBlocks() : []),
+    [isDragging, filteredSelectedWidgets],
   );
-  const allHighlightsRef = useRef([] as AnvilHighlightInfo[]);
 
-  allHighlightsRef.current = useMemo(
-    () => (isCurrentDraggedCanvas ? memoizedDeriveHighlights() : []),
-    [isCurrentDraggedCanvas],
-  );
   return {
-    allHighLights: allHighlightsRef.current,
     allowToDrop,
     draggedBlocks,
     dragDetails,

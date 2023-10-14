@@ -76,7 +76,6 @@ export const FlexLayout = (props: FlexLayoutProps) => {
   // The following properties aren't included in type FlexProps but can be passed as style.
   const styleProps: CSSProperties = useMemo(() => {
     return {
-      zIndex: -1,
       border: props.border || "none",
       overflowX: props.overflowX || "hidden",
       overflowY: props.overflowY || "hidden",

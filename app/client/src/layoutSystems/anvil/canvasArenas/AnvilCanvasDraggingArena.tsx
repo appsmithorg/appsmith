@@ -23,7 +23,6 @@ export const AnvilCanvasDraggingArena = (
   // useAnvilDnDStates to fetch all states used in Anvil DnD
   const anvilDragStates = useAnvilDnDStates({
     allowedWidgetTypes,
-    deriveAllHighlightsFn,
     canvasId,
     layoutId,
   });
@@ -37,6 +36,7 @@ export const AnvilCanvasDraggingArena = (
   return (
     <AnvilHighlightingCanvas
       anvilDragStates={anvilDragStates}
+      deriveAllHighlightsFn={deriveAllHighlightsFn}
       layoutId={layoutId}
       onDrop={onDrop}
       renderOnMouseMove={renderOnMouseMove}
