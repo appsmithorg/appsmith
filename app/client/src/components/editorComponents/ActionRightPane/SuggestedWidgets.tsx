@@ -152,14 +152,14 @@ const SuggestedWidgetContainer = styled.div`
   overflow: hidden;
 `;
 
-type WidgetBindingInfo = {
+interface WidgetBindingInfo {
   label: string;
   propertyName: string;
   widgetName: string;
   image?: string;
   icon?: string;
   existingImage?: string;
-};
+}
 
 export const WIDGET_DATA_FIELD_MAP: Record<string, WidgetBindingInfo> = {
   LIST_WIDGET: {
@@ -305,11 +305,11 @@ function getWidgetProps(
   }
 }
 
-type SuggestedWidgetProps = {
+interface SuggestedWidgetProps {
   actionName: string;
   suggestedWidgets: SuggestedWidget[];
   hasWidgets: boolean;
-};
+}
 
 function renderHeading(heading: string, subHeading: string) {
   return (
@@ -491,7 +491,7 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
         eventParams: {
           [FEATURE_WALKTHROUGH_KEYS.ds_binding]: true,
         },
-        delay: 5000,
+        delay: 2500,
       });
   };
 

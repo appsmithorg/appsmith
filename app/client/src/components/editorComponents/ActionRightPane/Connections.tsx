@@ -85,13 +85,13 @@ function Dependencies(props: any) {
   );
 }
 
-type ConnectionsProps = {
+interface ConnectionsProps {
   actionName: string;
   entityDependencies: {
     inverseDependencies: string[];
     directDependencies: string[];
   } | null;
-};
+}
 
 function Connections(props: ConnectionsProps) {
   return (

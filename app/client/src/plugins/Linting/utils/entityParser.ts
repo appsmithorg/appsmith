@@ -30,15 +30,15 @@ type TParsedJSEntity = Record<string, string> & {
 
 type TParsedJSEntityConfig = Record<string, TParsedJSProperty>;
 
-export type ParsedJSCache = {
+export interface ParsedJSCache {
   parsedEntity: ParsedEntity<TJSActionEntity>;
   parsedEntityConfig: TParsedJSEntityConfig;
-};
+}
 
-export type ParsedEntity<T> = {
+export interface ParsedEntity<T> {
   parsedEntity: Partial<T>;
   parsedEntityConfig: Record<string, unknown>;
-};
+}
 
 export class DefaultEntityParser implements EntityParser {
   parse<T extends DataTreeEntity>(entity: T) {

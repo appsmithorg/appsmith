@@ -34,10 +34,10 @@ const WrappedDragLayer = styled.div<{
     ${GridDefaults.DEFAULT_GRID_ROW_HEIGHT}px;
 `;
 
-type DragLayerProps = {
+interface DragLayerProps {
   parentColumnWidth: number;
   noPad: boolean;
-};
+}
 
 function DragLayerComponent(props: DragLayerProps) {
   return (

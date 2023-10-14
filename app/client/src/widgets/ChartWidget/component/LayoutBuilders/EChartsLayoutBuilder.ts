@@ -9,7 +9,7 @@ import { EChartElementVisibilityCalculator } from "./EChartsElementVisibilityCal
 import { EChartsXAxisLayoutBuilder } from "./EChartsXAxisLayoutBuilder";
 import { EChartsYAxisLayoutBuilder } from "./EChartsYAxisLayoutBuilder";
 
-type LayoutProps = {
+interface LayoutProps {
   allowScroll: boolean;
   widgetHeight: number;
   widgetWidth: number;
@@ -19,7 +19,7 @@ type LayoutProps = {
   seriesConfigs: AllChartData;
   font: string;
   longestLabels: LongestLabelParams;
-};
+}
 
 export class EChartsLayoutBuilder {
   gridMinimumHeight = 80;

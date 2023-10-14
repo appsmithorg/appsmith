@@ -24,7 +24,7 @@ export function getEvaluationContext(
   });
 
   const platformFnNamesMap = Object.values(
-    getActionTriggerFunctionNames(cloudHosting),
+    getActionTriggerFunctionNames(),
   ).reduce(
     (acc, name) => ({ ...acc, [name]: true }),
     {} as { [x: string]: boolean },

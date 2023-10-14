@@ -1,15 +1,15 @@
 import type { AlertMessage } from "components/editorComponents/WidgetQueryGeneratorForm/types";
 
-type Column = {
+export interface Column {
   name: string;
   type: string;
   isSelected: boolean;
-};
+}
 
-type GsheetConfig = {
+interface GsheetConfig {
   sheetName?: string;
   tableHeaderIndex?: number;
-};
+}
 export type WidgetQueryGenerationFormConfig = {
   tableName: string;
   datasourceId: string;
@@ -27,7 +27,7 @@ export type WidgetQueryGenerationFormConfig = {
   dataIdentifier?: string;
 } & GsheetConfig;
 
-export type WidgetQueryGenerationConfig = {
+export interface WidgetQueryGenerationConfig {
   select?: {
     limit?: string;
     offset?: string;
@@ -43,7 +43,7 @@ export type WidgetQueryGenerationConfig = {
     where?: string;
   };
   totalRecord?: boolean;
-};
+}
 
 export enum QUERY_TYPE {
   SELECT = "select",
@@ -60,23 +60,23 @@ export type WidgetQueryConfig = Record<
   }
 >;
 
-export type MongoDBFormData = {
+export interface MongoDBFormData {
   aggregate: object;
   smartSubstitution: object;
   find: object;
   updateMany: object;
   insert: object;
   count: object;
-};
-export type ActionConfigurationMongoDB = {
+}
+export interface ActionConfigurationMongoDB {
   formData: MongoDBFormData;
-};
+}
 
-export type ActionConfigurationSQL = {
+export interface ActionConfigurationSQL {
   pluginSpecifiedTemplates: Array<object>;
-};
+}
 
-export type GSheetsFormData = {
+export interface GSheetsFormData {
   entityType: object;
   tableHeaderIndex: object;
   projection: object;
@@ -85,7 +85,7 @@ export type GSheetsFormData = {
   where: object;
   pagination: object;
   smartSubstitution: object;
-};
-export type ActionConfigurationGSheets = {
+}
+export interface ActionConfigurationGSheets {
   formData: GSheetsFormData;
-};
+}

@@ -8,18 +8,18 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { DatasourceEditEntryPoints } from "constants/Datasource";
 import history from "utils/history";
 import { getQueryParams } from "utils/URLUtils";
-import { datasourcesEditorIdURL } from "RouteBuilder";
+import { datasourcesEditorIdURL } from "@appsmith/RouteBuilder";
 import { omit } from "lodash";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { DatasourceStructureContext } from "./DatasourceStructure";
 
-export type Props = {
+export interface Props {
   error: APIResponseError | { message: string } | undefined;
   datasourceId: string;
   pluginName?: string;
   customEditDatasourceFn?: () => void;
   context: DatasourceStructureContext;
-};
+}
 
 const NotFoundContainer = styled.div`
   display: flex;

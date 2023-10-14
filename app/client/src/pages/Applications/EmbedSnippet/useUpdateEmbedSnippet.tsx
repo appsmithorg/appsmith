@@ -7,7 +7,7 @@ import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors"
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import debounce from "lodash/debounce";
 import { updateApplication } from "@appsmith/actions/applicationActions";
-import { viewerURL } from "RouteBuilder";
+import { viewerURL } from "@appsmith/RouteBuilder";
 import {
   createMessage,
   IN_APP_EMBED_SETTING,

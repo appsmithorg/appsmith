@@ -41,7 +41,7 @@ import {
   getPluginSettingConfigs,
 } from "@appsmith/selectors/entitiesSelector";
 import history from "utils/history";
-import { saasEditorApiIdURL } from "RouteBuilder";
+import { saasEditorApiIdURL } from "@appsmith/RouteBuilder";
 import GraphQLEditorForm from "./GraphQL/GraphQLEditorForm";
 
 const LoadingContainer = styled(CenteredWrapper)`
