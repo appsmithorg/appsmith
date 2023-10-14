@@ -1,6 +1,10 @@
 import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { klona } from "klona/full";
 import { get, set } from "lodash";
+import TriggerEmitter, { BatchKey } from "../fns/utils/TriggerEmitter";
+import { PatchType } from "./JSVariableUpdates";
+import ExecutionMetaData from "../fns/utils/ExecutionMetaData";
+import type { JSActionEntity } from "@appsmith/entities/DataTree/types";
 
 export type VariableState = Record<string, Record<string, any>>;
 
@@ -75,6 +79,47 @@ export default class JSObjectCollection {
     const jsObject = this.variableState[entityName];
     if (jsObject && jsObject[propertyPath] !== undefined)
       delete jsObject[propertyPath];
+  }
+
+  static cachedJSVariablesByEntityName: Record<string, JSActionEntity> = {};
+  static getVariablesForEvaluationContext(entityName: string) {
+    if (JSObjectCollection.cachedJSVariablesByEntityName[entityName])
+      return JSObjectCollection.cachedJSVariablesByEntityName[entityName];
+    const varState = JSObjectCollection.getVariableState(entityName);
+    const variables = Object.entries(varState);
+    const newJSObject = {} as JSActionEntity;
+
+    for (const [varName, varValue] of variables) {
+      let variable = varValue;
+      Object.defineProperty(newJSObject, varName, {
+        enumerable: true,
+        configurable: true,
+        get() {
+          TriggerEmitter.emit(BatchKey.process_js_variable_updates, {
+            path: `${entityName}.${varName}`,
+            method: PatchType.GET,
+          });
+          return variable;
+        },
+        set(value) {
+          TriggerEmitter.emit(BatchKey.process_js_variable_updates, {
+            path: `${entityName}.${varName}`,
+            method: PatchType.SET,
+            value,
+          });
+          variable = value;
+        },
+      });
+    }
+    ExecutionMetaData.setExecutionMetaData({
+      enableJSVarUpdateTracking: true,
+    });
+    JSObjectCollection.cachedJSVariablesByEntityName[entityName] = newJSObject;
+    return JSObjectCollection.cachedJSVariablesByEntityName[entityName];
+  }
+
+  static clearCachedVariables(entityName: string) {
+    delete JSObjectCollection.cachedJSVariablesByEntityName[entityName];
   }
 
   static clear() {

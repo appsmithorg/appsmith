@@ -92,6 +92,7 @@ export function saveResolvedFunctionsAndJSUpdates(
     try {
       JSObjectCollection.deleteResolvedFunction(entityName);
       JSObjectCollection.deleteUnEvalState(entityName);
+      JSObjectCollection.clearCachedVariables(entityName);
 
       const parseStartTime = performance.now();
       const { parsedObject, success } = parseJSObject(entity.body);
