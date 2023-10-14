@@ -5,7 +5,22 @@ const parts = []
 const APPSMITH_CUSTOM_DOMAIN = process.env.APPSMITH_CUSTOM_DOMAIN
 const listenTarget = APPSMITH_CUSTOM_DOMAIN && !process.env.DYNO ? APPSMITH_CUSTOM_DOMAIN : ":80"
 
-parts.push(`
+let tlsConfig = ""
+try {
+  fs.accessSync("/appsmith-stacks/ssl/fullchain.pem", fs.constants.R_OK)
+  tlsConfig = "tls /appsmith-stacks/ssl/fullchain.pem /appsmith-stacks/ssl/privkey.pem"
+} catch (_) {
+  // no custom certs, see if old certbot certs are there.
+  try {
+    let certFile = `/etc/letsencrypt/live/${APPSMITH_CUSTOM_DOMAIN}/fullchain.pem`
+    fs.accessSync(certFile, fs.constants.R_OK)
+    tlsConfig = `tls ${certFile} /etc/letsencrypt/live/${APPSMITH_CUSTOM_DOMAIN}/privkey.pem`
+  } catch (_) {
+    // no certs there either, ignore.
+  }
+}
+
+const content = `
 {
   admin 127.0.0.1:2019
   persist_config off
@@ -75,20 +90,10 @@ handle_path /supervisor/* {
 handle_errors {
   respond "{err.status_code} {err.status_text}" {err.status_code}
 }
-`)
 
-try {
-  fs.accessSync("/appsmith-stacks/ssl/fullchain.pem", fs.constants.R_OK)
-  parts.push("tls /appsmith-stacks/ssl/fullchain.pem /appsmith-stacks/ssl/privkey.pem")
-} catch (_) {
-  // no custom certs, see if old certbot certs are there.
-  try {
-    let certFile = `/etc/letsencrypt/live/${APPSMITH_CUSTOM_DOMAIN}/fullchain.pem`
-    fs.accessSync(certFile, fs.constants.R_OK)
-    parts.push(`tls ${certFile} /etc/letsencrypt/live/${APPSMITH_CUSTOM_DOMAIN}/privkey.pem`)
-  } catch (_) {
-    // no certs there either, ignore.
-  }
-}
+${tlsConfig}
+`
+  // This is formatting changes, otherwise Caddy will complain that the Caddyfile is not formatted right.
+  .replaceAll(/^( {2})+/gm, (m) => "\t".repeat(m.length / 2)).trim() + "\n"
 
-fs.writeFileSync(process.env.TMP + "/Caddyfile", parts.join("\n"))
+fs.writeFileSync(process.env.TMP + "/Caddyfile", fmt(parts.join("\n")))
