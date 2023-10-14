@@ -2,9 +2,19 @@ import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evalu
 import { klona } from "klona/full";
 import { get, set } from "lodash";
 import TriggerEmitter, { BatchKey } from "../fns/utils/TriggerEmitter";
-import { PatchType } from "./JSVariableUpdates";
 import ExecutionMetaData from "../fns/utils/ExecutionMetaData";
 import type { JSActionEntity } from "@appsmith/entities/DataTree/types";
+
+export enum PatchType {
+  "SET" = "SET",
+  "GET" = "GET",
+}
+
+export interface Patch {
+  path: string;
+  method: PatchType;
+  value?: unknown;
+}
 
 export type VariableState = Record<string, Record<string, any>>;
 
@@ -65,6 +75,7 @@ export default class JSObjectCollection {
     const newVarState = { ...this.variableState[entityName] };
     newVarState[propertyPath] = variableValue;
     this.variableState[entityName] = newVarState;
+    JSObjectCollection.clearCachedVariablesForEvaluationContext(entityName);
   }
 
   static getVariableState(
@@ -81,7 +92,13 @@ export default class JSObjectCollection {
       delete jsObject[propertyPath];
   }
 
+  /**Map<JSObjectName, Map<variableName, variableValue> */
   static cachedJSVariablesByEntityName: Record<string, JSActionEntity> = {};
+
+  /**Computes  Map<JSObjectName, Map<variableName, variableValue> with getters & setters to track JS mutations
+   * We cache and reuse this map. We recreate only when the JSObject's content changes or when any of the variables
+   * gets evaluated
+   */
   static getVariablesForEvaluationContext(entityName: string) {
     if (JSObjectCollection.cachedJSVariablesByEntityName[entityName])
       return JSObjectCollection.cachedJSVariablesByEntityName[entityName];
@@ -118,7 +135,7 @@ export default class JSObjectCollection {
     return JSObjectCollection.cachedJSVariablesByEntityName[entityName];
   }
 
-  static clearCachedVariables(entityName: string) {
+  static clearCachedVariablesForEvaluationContext(entityName: string) {
     delete JSObjectCollection.cachedJSVariablesByEntityName[entityName];
   }
 
