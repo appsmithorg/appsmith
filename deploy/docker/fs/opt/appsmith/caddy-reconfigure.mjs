@@ -2,11 +2,13 @@ import * as fs from "fs"
 
 const parts = []
 
-const listenTarget = process.env.APPSMITH_CUSTOM_DOMAIN && !process.env.DYNO ? process.env.APPSMITH_CUSTOM_DOMAIN : ":80"
+const APPSMITH_CUSTOM_DOMAIN = process.env.APPSMITH_CUSTOM_DOMAIN
+const listenTarget = APPSMITH_CUSTOM_DOMAIN && !process.env.DYNO ? APPSMITH_CUSTOM_DOMAIN : ":80"
 
 parts.push(`
 {
   admin 127.0.0.1:2019
+  persist_config off
   servers {
     trusted_proxies static 0.0.0.0/0
   }
@@ -79,9 +81,14 @@ try {
   fs.accessSync("/appsmith-stacks/ssl/fullchain.pem", fs.constants.R_OK)
   parts.push("tls /appsmith-stacks/ssl/fullchain.pem /appsmith-stacks/ssl/privkey.pem")
 } catch (_) {
-  // no custom certs, ignore.
+  // no custom certs, see if old certbot certs are there.
+  try {
+    let certFile = `/etc/letsencrypt/live/${APPSMITH_CUSTOM_DOMAIN}/fullchain.pem`
+    fs.accessSync(certFile, fs.constants.R_OK)
+    parts.push(`tls ${certFile} /etc/letsencrypt/live/${APPSMITH_CUSTOM_DOMAIN}/privkey.pem`)
+  } catch (_) {
+    // no certs there either, ignore.
+  }
 }
-
-// todo: check if past certbot certs are there, if yes, configure Caddy to use them.
 
 fs.writeFileSync(process.env.TMP + "/Caddyfile", parts.join("\n"))

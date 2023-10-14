@@ -95,7 +95,7 @@ COPY ./app/client/packages/rts/dist rts/
 ENV PATH /opt/appsmith/utils/node_modules/.bin:/opt/java/bin:/opt/node/bin:$PATH
 
 RUN cd ./utils && npm install --only=prod && npm install --only=prod -g . && cd - \
-  && chmod +x entrypoint.sh renew-certificate.sh healthcheck.sh templates/nginx-app.conf.sh /watchtower-hooks/*.sh \
+  && chmod +x entrypoint.sh renew-certificate.sh healthcheck.sh /watchtower-hooks/*.sh \
   # Disable setuid/setgid bits for the files inside container.
   && find / \( -path /proc -prune \) -o \( \( -perm -2000 -o -perm -4000 \) -print -exec chmod -s '{}' + \) || true
 
