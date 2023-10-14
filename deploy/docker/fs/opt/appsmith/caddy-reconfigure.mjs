@@ -33,6 +33,10 @@ header -Server
 header Content-Security-Policy "frame-ancestors {$APPSMITH_ALLOWED_FRAME_ANCESTORS:'self' *}"
 header X-Content-Type-Options "nosniff"
 
+request_body {
+  max_size 150MB
+}
+
 root * /opt/appsmith/editor
 
 @file_exists file
