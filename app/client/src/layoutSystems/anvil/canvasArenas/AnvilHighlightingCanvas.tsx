@@ -2,18 +2,27 @@ import { getNearestParentCanvas } from "utils/generators";
 import { useCanvasDragging } from "./hooks/useCanvasDragging";
 import { StickyCanvasArena } from "layoutSystems/common/canvasArenas/StickyCanvasArena";
 import React from "react";
-import type { AnvilHighlightInfo } from "../utils/anvilTypes";
+import type { AnvilHighlightInfo, DraggedWidget } from "../utils/anvilTypes";
 import type { AnvilDnDStates } from "./hooks/useAnvilDnDStates";
+import type { WidgetPositions } from "layoutSystems/common/types";
 
 export interface AnvilHighlightingCanvasProps {
   anvilDragStates: AnvilDnDStates;
   layoutId: string;
-  renderOnMouseMove: (e: MouseEvent) => AnvilHighlightInfo | undefined;
+  deriveAllHighlightsFn: (
+    widgetPositions: WidgetPositions,
+    draggedWidgets: DraggedWidget[],
+  ) => AnvilHighlightInfo[];
+  renderOnMouseMove: (
+    e: MouseEvent,
+    allHighlights: AnvilHighlightInfo[],
+  ) => AnvilHighlightInfo | undefined;
   onDrop: (renderedBlock: AnvilHighlightInfo) => void;
 }
 
 export function AnvilHighlightingCanvas({
   anvilDragStates,
+  deriveAllHighlightsFn,
   layoutId,
   onDrop,
   renderOnMouseMove,
@@ -26,6 +35,7 @@ export function AnvilHighlightingCanvas({
     stickyCanvasRef,
     {
       anvilDragStates,
+      deriveAllHighlightsFn,
       layoutId,
       onDrop,
       renderOnMouseMove,

@@ -1,5 +1,5 @@
 import type React from "react";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { getNearestParentCanvas } from "utils/generators";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 import type { AnvilHighlightingCanvasProps } from "../AnvilHighlightingCanvas";
@@ -61,18 +61,21 @@ export const useCanvasDragging = (
   stickyCanvasRef: React.RefObject<HTMLCanvasElement>,
   {
     anvilDragStates,
+    deriveAllHighlightsFn,
     layoutId,
     onDrop,
     renderOnMouseMove,
   }: AnvilHighlightingCanvasProps,
 ) => {
   const {
+    draggedBlocks,
     isChildOfCanvas,
     isCurrentDraggedCanvas,
     isDragging,
     isNewWidget,
     isNewWidgetInitialTargetCanvas,
     isResizing,
+    widgetPositions,
   } = anvilDragStates;
 
   const { setDraggingCanvas, setDraggingNewWidget, setDraggingState } =
@@ -83,6 +86,13 @@ export const useCanvasDragging = (
     isCurrentDraggedCanvas,
     isDragging,
   );
+  const allHighlightsRef = useRef([] as AnvilHighlightInfo[]);
+  const calculateHighlights = () => {
+    allHighlightsRef.current = deriveAllHighlightsFn(
+      widgetPositions,
+      draggedBlocks,
+    );
+  };
 
   useEffect(() => {
     if (slidingArenaRef.current && !isResizing && isDragging) {
@@ -153,6 +163,8 @@ export const useCanvasDragging = (
               // we can just use canvasIsDragging but this is needed to render the relative DragLayerComponent
               setDraggingCanvas(layoutId);
             }
+            // calculate highlights when mouse enters the canvas
+            calculateHighlights();
             canvasIsDragging = true;
             slidingArenaRef.current.style.zIndex = "2";
             onMouseMove(e);
@@ -170,7 +182,10 @@ export const useCanvasDragging = (
               renderDisallowOnCanvas(slidingArenaRef.current);
               return;
             }
-            const processedHighlight = renderOnMouseMove(e);
+            const processedHighlight = renderOnMouseMove(
+              e,
+              allHighlightsRef.current,
+            );
             if (processedHighlight) {
               currentRectanglesToDraw = processedHighlight;
               renderBlocksOnCanvas(
