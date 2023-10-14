@@ -24,6 +24,7 @@ import Row from "layoutSystems/anvil/layoutComponents/components/Row";
 import LayoutFactory from "layoutSystems/anvil/layoutComponents/LayoutFactory";
 import type { WidgetPositions } from "layoutSystems/common/types";
 
+
 describe("rowHighlights tests", () => {
   const baseProps: LayoutProps = {
     layoutId: "layoutID",
@@ -199,7 +200,13 @@ describe("rowHighlights tests", () => {
         { ...baseProps, layout: data },
         dimensions,
         "0",
-        [],
+        [
+          {
+            widgetId: "10",
+            type: "BUTTON_WIDGET",
+            responsiveBehavior: ResponsiveBehavior.Hug,
+          },
+        ],
         [],
       );
 
@@ -243,7 +250,13 @@ describe("rowHighlights tests", () => {
         { ...baseProps, layout: data },
         dimensions,
         "0",
-        [],
+        [
+          {
+            widgetId: "10",
+            type: "BUTTON_WIDGET",
+            responsiveBehavior: ResponsiveBehavior.Hug,
+          },
+        ],
         [],
       );
 
@@ -290,7 +303,13 @@ describe("rowHighlights tests", () => {
         { ...baseProps, layout: data },
         dimensions,
         "0",
-        [],
+        [
+          {
+            widgetId: "10",
+            type: "BUTTON_WIDGET",
+            responsiveBehavior: ResponsiveBehavior.Hug,
+          },
+        ],
         [],
       );
 
@@ -336,10 +355,15 @@ describe("rowHighlights tests", () => {
         layout,
         positions,
         "0",
-        [],
+        [
+          {
+            widgetId: "1",
+            type: "BUTTON_WIDGET",
+            responsiveBehavior: ResponsiveBehavior.Hug,
+          },
+        ],
         [],
       );
-
       expect(res[0].posY).toEqual(positions[layout.layoutId].top);
       expect(res[0].alignment).toEqual(FlexLayerAlignment.Start);
       expect(res[0].posX).toEqual(HIGHLIGHT_SIZE / 2);
@@ -364,7 +388,13 @@ describe("rowHighlights tests", () => {
         layout,
         positions,
         "0",
-        [],
+        [
+          {
+            widgetId: "1",
+            type: "BUTTON_WIDGET",
+            responsiveBehavior: ResponsiveBehavior.Hug,
+          },
+        ],
         [],
       );
 
@@ -395,11 +425,17 @@ describe("rowHighlights tests", () => {
         layout,
         positions,
         "0",
-        [],
+        [
+          {
+            widgetId: "1",
+            type: "BUTTON_WIDGET",
+            responsiveBehavior: ResponsiveBehavior.Hug,
+          },
+        ],
         [],
       );
       const posX: number =
-        positions[layout.layoutId].width - HIGHLIGHT_SIZE / 2;
+        positions[layout.layoutId].width - HIGHLIGHT_SIZE;
       expect(res).toBeDefined();
       expect(res[0].posY).toEqual(positions[layout.layoutId].top);
       expect(res[0].alignment).toEqual(FlexLayerAlignment.End);
@@ -475,7 +511,13 @@ describe("rowHighlights tests", () => {
         layout,
         positions,
         "0",
-        [],
+        [
+          {
+            widgetId: "1",
+            type: "BUTTON_WIDGET",
+            responsiveBehavior: ResponsiveBehavior.Hug,
+          },
+        ],
         [],
       );
 

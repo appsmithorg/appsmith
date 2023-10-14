@@ -1,3 +1,4 @@
+import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import { generateReactKey } from "utils/generators";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 
@@ -14,6 +15,7 @@ export const mockInputProps = (): BaseWidgetProps => ({
   rightColumn: 10,
   topRow: 0,
   bottomRow: 7,
+  responsiveBehavior: ResponsiveBehavior.Fill,
 });
 
 export const mainContainerProps: BaseWidgetProps = {

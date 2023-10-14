@@ -279,7 +279,7 @@ function generateHighlight(
   } else if (isFinalHighlight) {
     posX = Math.min(
       currDimension.left + currDimension.width + HIGHLIGHT_SIZE / 2,
-      layoutDimension.left + layoutDimension.width - HIGHLIGHT_SIZE / 2,
+      layoutDimension.left + layoutDimension.width - HIGHLIGHT_SIZE,
     );
   } else {
     posX = Math.max(

@@ -3,6 +3,7 @@ import type { RefObject } from "react";
 import { ANVIL_LAYER, ANVIL_WIDGET, LAYOUT, getLayoutId } from "./utils";
 import store from "store";
 import { readWidgetPositions } from "layoutSystems/anvil/integrations/actions";
+import ResizeObserver from "resize-observer-polyfill";
 
 /**
  * This Class's main function is to batch all the registered widgets, Flex layers and layout components

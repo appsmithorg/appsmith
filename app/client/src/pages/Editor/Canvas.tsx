@@ -35,6 +35,7 @@ const Wrapper = styled.section<{
   width: ${({ $enableMainCanvasResizer, width }) =>
     $enableMainCanvasResizer ? `100%` : `${width}px`};
   min-height: 100%;
+  height: 100%;
 `;
 const Canvas = (props: CanvasProps) => {
   const { canvasWidth } = props;

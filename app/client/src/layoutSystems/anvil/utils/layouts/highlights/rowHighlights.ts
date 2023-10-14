@@ -127,6 +127,7 @@ export function getHighlightsForWidgetsRow(
     layout,
     widgetPositions,
   );
+
   // add a highlight before every widget and after the last one.
   const highlights: AnvilHighlightInfo[] = [];
   meta.metaData.forEach((row: RowMetaData[], index: number) => {
