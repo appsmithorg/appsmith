@@ -48,3 +48,6 @@ export const getIsFormLoginEnabled = (state: AppState): boolean =>
 
 export const getInstanceId = (state: AppState): string =>
   state.tenant?.instanceId;
+
+export const getHideWatermark = (state: AppState): boolean =>
+  state.tenant?.tenantConfiguration?.hideWatermark;
