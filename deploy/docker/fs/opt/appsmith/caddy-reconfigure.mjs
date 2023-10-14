@@ -1,7 +1,5 @@
 import * as fs from "fs"
 
-const parts = []
-
 const APPSMITH_CUSTOM_DOMAIN = process.env.APPSMITH_CUSTOM_DOMAIN
 const listenTarget = APPSMITH_CUSTOM_DOMAIN && !process.env.DYNO ? APPSMITH_CUSTOM_DOMAIN : ":80"
 
@@ -96,4 +94,4 @@ ${tlsConfig}
   // This is formatting changes, otherwise Caddy will complain that the Caddyfile is not formatted right.
   .replaceAll(/^( {2})+/gm, (m) => "\t".repeat(m.length / 2)).trim() + "\n"
 
-fs.writeFileSync(process.env.TMP + "/Caddyfile", fmt(parts.join("\n")))
+fs.writeFileSync(process.env.TMP + "/Caddyfile", fmt(content))
