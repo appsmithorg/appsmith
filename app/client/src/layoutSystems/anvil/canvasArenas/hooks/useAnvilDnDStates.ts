@@ -3,7 +3,7 @@ import type { AppState } from "@appsmith/reducers";
 import { getDragDetails, getWidgets } from "sagas/selectors";
 import { useSelector } from "react-redux";
 import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useRef } from "react";
 import { getSelectedWidgets } from "selectors/ui";
 import { getWidgetPositions } from "layoutSystems/common/selectors";
 import type {
@@ -109,17 +109,22 @@ export const useAnvilDnDStates = ({
     }
   };
   const allowToDrop = isDragging && checkIfWidgetTypeDraggedIsAllowedToDrop();
-  const draggedBlocks = getDraggedBlocks();
+  // process drag blocks only once and per first render
+  // this is by taking advantage of the fact that isNewWidget, dragDetails and  filteredSelectedWidgets are all unchanged states during the dragging action.
+  // however filteredSelectedWidgets is changed right before onDrop function is completed and is not needed for a recalculation.
+  const draggedBlocks = useMemo(getDraggedBlocks, [isDragging]);
   const memoizedDeriveHighlights = useCallback(
     () => deriveAllHighlightsFn(widgetPositions, draggedBlocks),
     [widgetPositions, draggedBlocks, isNewWidget],
   );
-  const allHighLights = useMemo(
-    () => (isDragging ? memoizedDeriveHighlights() : []),
-    [isDragging],
+  const allHighlightsRef = useRef([] as AnvilHighlightInfo[]);
+
+  allHighlightsRef.current = useMemo(
+    () => (isCurrentDraggedCanvas ? memoizedDeriveHighlights() : []),
+    [isCurrentDraggedCanvas],
   );
   return {
-    allHighLights,
+    allHighLights: allHighlightsRef.current,
     allowToDrop,
     draggedBlocks,
     dragDetails,
