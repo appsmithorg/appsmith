@@ -4,7 +4,9 @@ import {
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import { BlueprintOperationTypes } from "WidgetProvider/constants";
+import type { DSLWidget, FlattenedWidgetProps } from "WidgetProvider/constants";
 import { updateAndSaveLayout } from "actions/pageActions";
+import type { WidgetAddChild } from "actions/pageActions";
 import log from "loglevel";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
@@ -15,6 +17,54 @@ import type { AnvilHighlightInfo } from "../utils/anvilTypes";
 import { addWidgetsToPreset } from "../utils/layouts/update/additionUtils";
 import { moveWidgets } from "../utils/layouts/update/moveUtils";
 import { generateDefaultLayoutPreset } from "../layoutComponents/presets/DefaultLayoutPreset";
+import { omit } from "lodash";
+import WidgetFactory from "WidgetProvider/factory";
+import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
+import { GridDefaults, RenderModes } from "constants/WidgetConstants";
+
+export function* getAnvilChildDimensionProps(
+  parent: FlattenedWidgetProps,
+  params: WidgetAddChild,
+  widgetName: string,
+) {
+  const { newWidgetId, props, type } = params;
+  const restDefaultConfig = omit(WidgetFactory.widgetConfigMap.get(type), [
+    "blueprint",
+  ]);
+  let { columns } = restDefaultConfig.columns;
+  const themeDefaultConfig =
+    WidgetFactory.getWidgetStylesheetConfigMap(type) || {};
+  const isFillWidget =
+    restDefaultConfig?.responsiveBehavior === ResponsiveBehavior.Fill;
+  if (isFillWidget) {
+    columns = 64;
+  }
+  const widgetProps: any = {
+    ...restDefaultConfig,
+    ...props,
+    width: columns * (GridDefaults.DEFAULT_GRID_COLUMNS / 100),
+    height: restDefaultConfig.rows * GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+    widgetId: newWidgetId,
+    ...themeDefaultConfig,
+  };
+  if (type === "CANVAS_WIDGET") {
+    // add default layout
+    if (!widgetProps.layout) {
+      widgetProps["layout"] = generateDefaultLayoutPreset();
+    }
+  }
+
+  return {
+    isVisible: "MODAL_WIDGET" === type ? undefined : true,
+    ...widgetProps,
+    type,
+    widgetName,
+    isLoading: false,
+    parentId: parent.widgetId,
+    renderMode: RenderModes.CANVAS,
+    version: restDefaultConfig.version,
+  } as DSLWidget;
+}
 
 function* addWidgetsSaga(
   actionPayload: ReduxAction<{

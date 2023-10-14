@@ -12,7 +12,7 @@ import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
-import type { WidgetBlueprint } from "WidgetProvider/constants";
+import type { DSLWidget, WidgetBlueprint } from "WidgetProvider/constants";
 import { all, call, put, select, takeEvery } from "redux-saga/effects";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { getNextEntityName } from "utils/AppsmithUtils";
@@ -49,6 +49,9 @@ import {
 } from "selectors/editorSelectors";
 import { getWidgetMinMaxDimensionsInPixel } from "layoutSystems/autolayout/utils/flexWidgetUtils";
 import { isFunction } from "lodash";
+import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
+import { LayoutSystemTypes } from "layoutSystems/types";
+import { getAnvilChildDimensionProps } from "layoutSystems/anvil/sagas/draggingSagas";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -67,32 +70,22 @@ function* getEntityNames() {
   return Object.keys(evalTree);
 }
 
-function* getChildWidgetProps(
+function* getLegacyChildDimensionProps(
   parent: FlattenedWidgetProps,
   params: WidgetAddChild,
-  widgets: { [widgetId: string]: FlattenedWidgetProps },
+  widgetName: string,
 ) {
+  const widgets: CanvasWidgetsReduxState = yield select(getWidgets);
   const { leftColumn, newWidgetId, topRow, type } = params;
-  let { columns, parentColumnSpace, parentRowSpace, props, rows, widgetName } =
-    params;
+  let { columns, parentColumnSpace, parentRowSpace, props, rows } = params;
   let minHeight = undefined;
   const restDefaultConfig = omit(WidgetFactory.widgetConfigMap.get(type), [
     "blueprint",
   ]);
-  const themeDefaultConfig =
-    WidgetFactory.getWidgetStylesheetConfigMap(type) || {};
   const mainCanvasWidth: number = yield select(getCanvasWidth);
   const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
-
-  if (!widgetName) {
-    const widgetNames = Object.keys(widgets).map((w) => widgets[w].widgetName);
-    const entityNames: string[] = yield call(getEntityNames);
-
-    widgetName = getNextEntityName(restDefaultConfig.widgetName, [
-      ...widgetNames,
-      ...entityNames,
-    ]);
-  }
+  const themeDefaultConfig =
+    WidgetFactory.getWidgetStylesheetConfigMap(type) || {};
   if (type === "CANVAS_WIDGET") {
     columns =
       (parent.rightColumn - parent.leftColumn) * parent.parentColumnSpace;
@@ -115,7 +108,6 @@ function* getChildWidgetProps(
   const isFillWidget =
     restDefaultConfig?.responsiveBehavior === ResponsiveBehavior.Fill;
   if (isAutoLayout && isFillWidget) columns = 64;
-
   const widgetProps = {
     ...restDefaultConfig,
     ...props,
@@ -166,8 +158,55 @@ function* getChildWidgetProps(
       }
     }
   }
+  return widget;
+}
 
-  widget.widgetId = newWidgetId;
+function* getWidgetNameToCreate(
+  widgets: CanvasWidgetsReduxState,
+  type: string,
+  widgetName?: string,
+) {
+  if (widgetName && widgetName !== "") {
+    return widgetName;
+  }
+  const restDefaultConfig = omit(WidgetFactory.widgetConfigMap.get(type), [
+    "blueprint",
+  ]);
+  const widgetNames = Object.keys(widgets).map((w) => widgets[w].widgetName);
+  const entityNames: string[] = yield call(getEntityNames);
+
+  return getNextEntityName(restDefaultConfig.widgetName, [
+    ...widgetNames,
+    ...entityNames,
+  ]);
+}
+
+function* getChildWidgetProps(
+  parent: FlattenedWidgetProps,
+  params: WidgetAddChild,
+  widgets: { [widgetId: string]: FlattenedWidgetProps },
+) {
+  const { type, widgetName } = params;
+
+  const themeDefaultConfig =
+    WidgetFactory.getWidgetStylesheetConfigMap(type) || {};
+  const finalWidgetName: string = yield call(
+    getWidgetNameToCreate,
+    widgets,
+    type,
+    widgetName,
+  );
+  const layoutSystemType: LayoutSystemTypes = yield select(getLayoutSystemType);
+  const getChildDimensionProps =
+    layoutSystemType === LayoutSystemTypes.ANVIL
+      ? getAnvilChildDimensionProps
+      : getLegacyChildDimensionProps;
+  const updatedWidget: DSLWidget = yield call(
+    getChildDimensionProps,
+    parent,
+    params,
+    finalWidgetName,
+  );
   /**
    * un-evaluated childStylesheet used by widgets; so they are to be excluded
    * from the dynamicBindingPathList and they are not included as a part of
@@ -189,7 +228,7 @@ function* getChildWidgetProps(
    */
   const { dynamicBindingPathList } = yield call(
     getPropertiesToUpdate,
-    widget,
+    updatedWidget,
     themeConfigWithoutChildStylesheet,
   );
 
@@ -198,12 +237,12 @@ function* getChildWidgetProps(
       ...dynamicBindingPathList,
       ...params.dynamicBindingPathList,
     ];
-    widget.dynamicBindingPathList = mergedDynamicBindingPathLists;
+    updatedWidget.dynamicBindingPathList = mergedDynamicBindingPathLists;
   } else {
-    widget.dynamicBindingPathList = clone(dynamicBindingPathList);
+    updatedWidget.dynamicBindingPathList = clone(dynamicBindingPathList);
   }
 
-  return widget;
+  return updatedWidget;
 }
 
 export function* generateChildWidgets(

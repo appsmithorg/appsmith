@@ -7,11 +7,14 @@ import { get } from "lodash";
 import WidgetFactory from "WidgetProvider/factory";
 
 import type { WidgetType } from "constants/WidgetConstants";
+import { GridDefaults } from "constants/WidgetConstants";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { BlueprintOperationTypes } from "WidgetProvider/constants";
 import * as log from "loglevel";
 import { toast } from "design-system";
 import { getIsAutoLayout } from "selectors/canvasSelectors";
+import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
+import { LayoutSystemTypes } from "layoutSystems/types";
 
 function buildView(view: WidgetBlueprint["view"], widgetId: string) {
   const children = [];
@@ -38,12 +41,42 @@ function buildView(view: WidgetBlueprint["view"], widgetId: string) {
   return children;
 }
 
+function buildAnvilView(view: WidgetBlueprint["view"], widgetId: string) {
+  const children = [];
+  if (view) {
+    for (const template of view) {
+      //TODO(abhinav): Can we keep rows and size mandatory?
+      try {
+        children.push({
+          widgetId,
+          type: template.type,
+          height:
+            template.size &&
+            template.size.rows * GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+          width:
+            template.size &&
+            template.size.cols * (GridDefaults.DEFAULT_GRID_COLUMNS / 100),
+          newWidgetId: generateReactKey(),
+          props: template.props,
+        });
+      } catch (e) {
+        log.error(e);
+      }
+    }
+  }
+
+  return children;
+}
+
 export function* buildWidgetBlueprint(
   blueprint: WidgetBlueprint,
   widgetId: string,
 ) {
+  const layoutSystemType: LayoutSystemTypes = yield select(getLayoutSystemType);
+  const viewBuilder =
+    layoutSystemType === LayoutSystemTypes.ANVIL ? buildAnvilView : buildView;
   const widgetProps: Record<string, unknown> = yield call(
-    buildView,
+    viewBuilder,
     blueprint.view,
     widgetId,
   );
