@@ -94,4 +94,4 @@ ${tlsConfig}
   // This is formatting changes, otherwise Caddy will complain that the Caddyfile is not formatted right.
   .replaceAll(/^( {2})+/gm, (m) => "\t".repeat(m.length / 2)).trim() + "\n"
 
-fs.writeFileSync(process.env.TMP + "/Caddyfile", fmt(content))
+fs.writeFileSync(process.env.TMP + "/Caddyfile", content)
