@@ -1,15 +1,20 @@
 import { showDowngradeLicenseModal } from "@appsmith/actions/tenantActions";
+import { DOWNGRADE_DOC } from "@appsmith/constants/BillingConstants";
 import {
-  DOWNGRADE_CALLOUT_SUBTEXT_1,
   DOWNGRADE_CALLOUT_SUBTEXT_2,
   CONFIRM,
   CANCEL,
   createMessage,
-  LEARN_MORE,
   DOWNGRADE_CALLOUT_TEXT,
   DOWNGRADE,
+  DOWNGRADE_CALLOUT_SUBTEXT_1_EXPIRED,
+  DOWNGRADE_CALLOUT_SUBTEXT_1_ACTIVE,
+  VISIT_DOCS,
 } from "@appsmith/constants/messages";
-import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
+import {
+  getIsFormLoginEnabled,
+  isLicenseValidating,
+} from "@appsmith/selectors/tenantSelectors";
 import {
   Modal,
   ModalContent,
@@ -21,7 +26,7 @@ import {
   Text,
 } from "design-system";
 import React from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 export interface DowngradeModalProps {
   isOpen?: boolean;
@@ -31,6 +36,8 @@ export interface DowngradeModalProps {
 
 export default function DowngradeModal(props: DowngradeModalProps) {
   const dispatch = useDispatch();
+  const isValidating = useSelector(isLicenseValidating);
+  const isFormLoginEnabled = useSelector(getIsFormLoginEnabled);
 
   return (
     <Modal
@@ -56,22 +63,24 @@ export default function DowngradeModal(props: DowngradeModalProps) {
                 data-testid="t--downgrade-main-text"
                 kind="body-m"
               >
-                {createMessage(DOWNGRADE_CALLOUT_SUBTEXT_1)}
+                {props.isExpired
+                  ? createMessage(DOWNGRADE_CALLOUT_SUBTEXT_1_EXPIRED)
+                  : createMessage(DOWNGRADE_CALLOUT_SUBTEXT_1_ACTIVE)}
+                <Link className="!inline-flex ml-1" to={DOWNGRADE_DOC}>
+                  {createMessage(VISIT_DOCS)}
+                </Link>
               </Text>
             </div>
-            <div>
-              <Text
-                color="var(--ads-v2-color-bg-brand-secondary)"
-                kind="body-m"
-              >
-                {createMessage(DOWNGRADE_CALLOUT_SUBTEXT_2)}
-              </Text>
-            </div>
-            <div>
-              <Link endIcon="share-2" to={DOCS_BASE_URL}>
-                {createMessage(LEARN_MORE)}
-              </Link>
-            </div>
+            {!isFormLoginEnabled && (
+              <div>
+                <Text
+                  color="var(--ads-v2-color-bg-brand-secondary)"
+                  kind="body-m"
+                >
+                  {createMessage(DOWNGRADE_CALLOUT_SUBTEXT_2)}
+                </Text>
+              </div>
+            )}
             <div className="flex justify-end gap-2">
               <Button
                 className="downgrade-license-btn-cancel"
@@ -83,6 +92,7 @@ export default function DowngradeModal(props: DowngradeModalProps) {
               </Button>
               <Button
                 className="downgrade-license-btn-confirm"
+                isLoading={isValidating}
                 kind="error"
                 onClick={() => {
                   if (props.onUpdateLicenseClick) props.onUpdateLicenseClick();

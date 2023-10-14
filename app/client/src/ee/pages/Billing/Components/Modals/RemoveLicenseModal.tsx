@@ -2,6 +2,7 @@ import {
   removeLicense,
   showRemoveLicenseModal,
 } from "@appsmith/actions/tenantActions";
+import { DOWNGRADE_DOC } from "@appsmith/constants/BillingConstants";
 import {
   REMOVE_LICENSE_KEY,
   REMOVE_LICENSE_KEY_MODAL_TEXT,
@@ -9,10 +10,12 @@ import {
   CANCEL,
   CONFIRM,
   createMessage,
-  LEARN_MORE,
+  VISIT_DOCS,
 } from "@appsmith/constants/messages";
-import { isRemovingLicense } from "@appsmith/selectors/tenantSelectors";
-import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
+import {
+  getIsFormLoginEnabled,
+  isRemovingLicense,
+} from "@appsmith/selectors/tenantSelectors";
 import {
   Modal,
   ModalContent,
@@ -33,6 +36,7 @@ export default function RemoveLicenseModal(props: RemoveLicenseModalProps) {
   const dispatch = useDispatch();
 
   const removingLicense = useSelector(isRemovingLicense);
+  const isFormLoginEnabled = useSelector(getIsFormLoginEnabled);
 
   function removeLicenseClick(): void {
     dispatch(removeLicense());
@@ -52,21 +56,21 @@ export default function RemoveLicenseModal(props: RemoveLicenseModalProps) {
                 kind="body-m"
               >
                 {createMessage(REMOVE_LICENSE_KEY_MODAL_TEXT)}
+                <Link className="!inline-flex ml-1" to={DOWNGRADE_DOC}>
+                  {createMessage(VISIT_DOCS)}
+                </Link>
               </Text>
             </div>
-            <div>
-              <Text
-                color="var(--ads-v2-color-bg-brand-secondary)"
-                kind="body-m"
-              >
-                {createMessage(REMOVE_LICENSE_KEY_MODAL_SUBTEXT)}
-              </Text>
-            </div>
-            <div>
-              <Link endIcon="share-2" to={DOCS_BASE_URL}>
-                {createMessage(LEARN_MORE)}
-              </Link>
-            </div>
+            {!isFormLoginEnabled && (
+              <div>
+                <Text
+                  color="var(--ads-v2-color-bg-brand-secondary)"
+                  kind="body-m"
+                >
+                  {createMessage(REMOVE_LICENSE_KEY_MODAL_SUBTEXT)}
+                </Text>
+              </div>
+            )}
             <div className="flex justify-end gap-2">
               <Button
                 className="update-license-btn"

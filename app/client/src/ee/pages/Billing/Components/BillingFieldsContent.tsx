@@ -8,7 +8,7 @@ export function BillingFieldsContent(props: { billingFields: BillingField[] }) {
     return (
       item.value && (
         <div className="flex gap-8 mt-4" key={item.label}>
-          <div className="w-24">
+          <div className="w-40">
             <Text color="var(--ads-v2-color-fg)" kind="heading-xs">
               {item.label}:{" "}
             </Text>

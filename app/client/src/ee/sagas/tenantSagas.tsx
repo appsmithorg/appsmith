@@ -43,7 +43,6 @@ import { toast } from "design-system";
 import {
   createMessage,
   LICENSE_REFRESHED_SUCCESSFULLY,
-  LICENSE_UPDATED_SUCCESSFULLY,
 } from "@appsmith/constants/messages";
 import {
   setBEBanner,
@@ -227,20 +226,12 @@ export function* validateLicenseSaga(
         payload: response.data,
       });
       if (!shouldRedirectOnUpdate) {
-        toast.show(createMessage(LICENSE_UPDATED_SUCCESSFULLY), {
-          kind: "success",
-        });
-        yield put(showLicenseModal(false));
-        yield put(showDowngradeLicenseModal(false));
-
         if (
           response?.data?.tenantConfiguration?.migrationStatus !== "COMPLETED"
         ) {
           history.replace(MIGRATIONS_URL);
         } else {
-          setTimeout(() => {
-            window.location.reload();
-          }, 1000);
+          window.location.reload();
         }
       }
     } else {

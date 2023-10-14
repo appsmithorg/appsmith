@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import {
   createMessage,
   NO_ACTIVE_SUBSCRIPTION,
-  COMMUNITY,
   PAID,
   ADD_LICENSE,
   ADD_KEY,
@@ -13,6 +12,7 @@ import {
   CONTACT_US,
   LICENSE_PAID_EXPIRED_CONTINUE,
   NEED_NEW_LICENSE,
+  FREE,
 } from "@appsmith/constants/messages";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -106,7 +106,7 @@ export default function LicenseCheckPageExpiredPaid() {
                 src={LICENSE_CARD_FREE}
               />
               <Text kind="heading-m" renderAs="p">
-                {createMessage(COMMUNITY)}
+                {createMessage(FREE)}
               </Text>
               <Text kind="body-m" renderAs="p">
                 {createMessage(LICENSE_TRIAL_EXPIRED_COMMMUNITY_DOWNGRADE)}

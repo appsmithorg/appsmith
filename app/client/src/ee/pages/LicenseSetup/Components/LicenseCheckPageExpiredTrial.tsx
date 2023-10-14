@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import {
   createMessage,
   NO_ACTIVE_SUBSCRIPTION,
-  COMMUNITY,
+  FREE,
   PAID,
   ADD_LICENSE,
   ADD_KEY,
@@ -108,7 +108,7 @@ export default function LicenseCheckPageExpiredTrial() {
                 src={LICENSE_CARD_FREE}
               />
               <Text kind="heading-m" renderAs="p">
-                {createMessage(COMMUNITY)}
+                {createMessage(FREE)}
               </Text>
               <Text kind="body-m" renderAs="p">
                 {createMessage(LICENSE_TRIAL_EXPIRED_COMMMUNITY_DOWNGRADE)}

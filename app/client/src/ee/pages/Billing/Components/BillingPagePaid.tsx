@@ -5,7 +5,6 @@ import {
   validateLicense,
 } from "@appsmith/actions/tenantActions";
 import {
-  Name,
   START_DATE,
   END_DATE,
   EMAIL,
@@ -14,7 +13,7 @@ import {
   PLAN,
   LICENSE,
   UPDATE,
-  ADMIN_BILLING_SETTINGS_TITLE_PAID,
+  ADMIN_BILLING_SETTINGS_TITLE,
   SELF_SERVE,
   ENTERPRISE,
   AIRGAPPED,
@@ -23,6 +22,7 @@ import {
   FREE,
   KEY,
   REFRESH,
+  CURRENT_PLAN,
 } from "@appsmith/constants/messages";
 import {
   getLicenseKey,
@@ -55,7 +55,7 @@ import RemoveLicenseModal from "./Modals/RemoveLicenseModal";
 import DowngradeModal from "./Modals/DowngradeModal";
 
 const headerProps = {
-  title: createMessage(ADMIN_BILLING_SETTINGS_TITLE_PAID),
+  title: createMessage(ADMIN_BILLING_SETTINGS_TITLE),
 };
 
 const getLicenseOriginText = (licensePlan: string, productEdition: string) => {
@@ -95,7 +95,7 @@ export function BillingPagePaid() {
 
   const billingFields: BillingField[] = [
     {
-      label: createMessage(Name),
+      label: createMessage(CURRENT_PLAN),
       value: `${createMessage(
         getLicenseOriginText(licensePlan, productEdition),
       )}${isTrial ? " • Trial" : ""}`,
@@ -152,7 +152,7 @@ export function BillingPagePaid() {
         <BillingFieldsContent billingFields={billingFields} />
 
         <div className="flex gap-8 mt-4">
-          <div className="w-24">
+          <div className="w-40">
             <Text color="var(--ads-v2-color-fg)" kind="heading-xs">
               {customerPortalLink.label}:{" "}
             </Text>
@@ -186,7 +186,7 @@ export function BillingPagePaid() {
             </Text>
           </div>
           <div className="flex items-center mt-4">
-            <div className="w-24">
+            <div className="w-40">
               <Text color="var(--ads-v2-color-fg)" kind="heading-xs">
                 {createMessage(KEY)}:{" "}
               </Text>
@@ -209,7 +209,7 @@ export function BillingPagePaid() {
               </Button>
             </div>
           </div>
-          <div className="flex gap-2 mt-4 ml-32">
+          <div className="flex gap-2 mt-4 ml-48">
             <Button
               className="update-license-btn"
               kind="secondary"

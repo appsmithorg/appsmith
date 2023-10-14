@@ -146,7 +146,7 @@ describe("License and Billing dashboard", function () {
       );
       agHelper.GetNAssertElementText(
         LicenseLocators.downgradeMainText,
-        "If you choose to downgrade, you will lose access to the existing configurations for all paid features.",
+        "If you decide to downgrade, you will lose access to the features that are exclusive to your current plan. To learn more about how this will impact your instance, refer to our documentation.Visit docs",
       );
     });
 
@@ -226,7 +226,10 @@ describe("License and Billing dashboard", function () {
     agHelper.AssertURL("/settings/license");
     agHelper.Sleep(2000);
     cy.get(LicenseLocators.billingHeader).within(() => {
-      agHelper.GetNAssertElementText(LicenseLocators.headerText, "License");
+      agHelper.GetNAssertElementText(
+        LicenseLocators.headerText,
+        "License & plans",
+      );
     });
 
     agHelper.AssertElementExist(LicenseLocators.freeLicenseSection);

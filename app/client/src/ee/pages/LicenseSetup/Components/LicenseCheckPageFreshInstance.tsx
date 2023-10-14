@@ -7,8 +7,8 @@ import {
   VISIT_CUSTOMER_PORTAL,
   LICENSE_GET_STARTED_HEADING,
   LICENSE_GET_STARTED_MESSAGE_NEXT,
-  COMMUNITY,
-  COMMUNITY_SUBTEXT,
+  FREE,
+  FREE_SUBTEXT,
   GET_STARTED,
   PAID_SUBTEXT,
   PAID,
@@ -102,10 +102,10 @@ export default function LicenseCheckPageFreshInstance() {
                 src={LICENSE_CARD_FREE}
               />
               <Text kind="heading-m" renderAs="p">
-                {createMessage(COMMUNITY)}
+                {createMessage(FREE)}
               </Text>
               <Text kind="body-m" renderAs="p">
-                {createMessage(COMMUNITY_SUBTEXT)}
+                {createMessage(FREE_SUBTEXT)}
               </Text>
               <div>
                 <Button

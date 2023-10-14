@@ -6,7 +6,7 @@ import {
 } from "@appsmith/pages/AdminSettings/config/types";
 import { Billing } from "@appsmith/pages/Billing";
 import {
-  ADMIN_BILLING_SETTINGS_TITLE_PAID,
+  ADMIN_BILLING_SETTINGS_TITLE,
   createMessage,
 } from "@appsmith/constants/messages";
 
@@ -16,6 +16,6 @@ export const config: AdminConfigType = {
   categoryType: CategoryType.GENERAL,
   controlType: SettingTypes.PAGE,
   component: Billing,
-  title: createMessage(ADMIN_BILLING_SETTINGS_TITLE_PAID),
+  title: createMessage(ADMIN_BILLING_SETTINGS_TITLE),
   canSave: false,
 } as AdminConfigType;

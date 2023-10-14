@@ -2,7 +2,7 @@ import styled from "styled-components";
 import { Text, Input } from "design-system";
 
 export const BillingPageWrapper = styled.div`
-  padding: 30px 0 0 24px;
+  padding: 30px 30px;
   width: 100%;
   overflow: auto;
 `;

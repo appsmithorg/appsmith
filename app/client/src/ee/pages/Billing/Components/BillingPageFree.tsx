@@ -1,7 +1,7 @@
 import {
   ACTIVATE,
   ADD_KEY,
-  ADMIN_BILLING_SETTINGS_TITLE_FREE,
+  ADMIN_BILLING_SETTINGS_TITLE,
   DONT_HAVE_LICENSE,
   GET_ONE_NOW,
   PASTE_LICENSE,
@@ -18,7 +18,7 @@ import { isLicenseValidating } from "@appsmith/selectors/tenantSelectors";
 import { CUSTOMER_PORTAL_PLANS_URL } from "@appsmith/constants/BillingConstants";
 
 const headerProps = {
-  title: createMessage(ADMIN_BILLING_SETTINGS_TITLE_FREE),
+  title: createMessage(ADMIN_BILLING_SETTINGS_TITLE),
 };
 const customerPortalLink = {
   action: `${CUSTOMER_PORTAL_PLANS_URL}`,

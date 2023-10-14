@@ -84,7 +84,6 @@ export const InputWrapper = styled.div`
   display: flex;
   flex-direction: column;
   width: 100%;
-  margin-bottom: 20px;
 `;
 
 export const StyledInput = styled(Input)``;
@@ -97,6 +96,7 @@ export const StyledLinkWrapper = styled.div`
   align-items: center;
   justify-content: center;
   gap: 10px;
+  margin-top: 10px;
 `;
 
 export const StyledNonAdminPageWrapper = styled.div`
