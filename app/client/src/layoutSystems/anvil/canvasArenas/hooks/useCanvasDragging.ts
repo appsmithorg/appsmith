@@ -1,4 +1,3 @@
-import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import type React from "react";
 import { useEffect } from "react";
 import { getNearestParentCanvas } from "utils/generators";
@@ -110,7 +109,7 @@ export const useCanvasDragging = (
           canvasIsDragging = false;
         }
         if (isDragging) {
-          setDraggingCanvas(MAIN_CONTAINER_WIDGET_ID);
+          setDraggingCanvas(anvilDragStates.mainCanvasLayoutId);
         }
       };
 
