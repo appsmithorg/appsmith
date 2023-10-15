@@ -57,7 +57,6 @@ public class DatasourceServiceImpl extends DatasourceServiceCEImpl implements Da
                 datasourceStorageService,
                 environmentPermission,
                 rateLimitService,
-                redisUtils,
                 featureFlagService);
     }
 }
