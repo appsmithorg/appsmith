@@ -2,6 +2,7 @@ package com.appsmith.server.services.ce_compatible;
 
 import com.appsmith.external.dtos.EnvironmentDTO;
 import com.appsmith.external.models.Environment;
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.services.CrudService;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -15,4 +16,11 @@ public interface EnvironmentServiceCECompatible extends CrudService<Environment,
     Flux<EnvironmentDTO> getEnvironmentDTOByWorkspaceId(String workspaceId);
 
     Mono<EnvironmentDTO> setEnvironmentToDefault(Map<String, String> defaultEnvironmentMap);
+
+    Flux<Environment> getDefaultEnvironment(String workspaceId);
+
+    Mono<String> getDefaultEnvironmentId(String workspaceId, AclPermission aclPermission);
+
+    Mono<String> verifyEnvironmentIdByWorkspaceId(
+            String workspaceId, String environmentId, AclPermission aclPermission);
 }

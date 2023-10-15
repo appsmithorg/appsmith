@@ -2,6 +2,8 @@ package com.appsmith.server.services.ce_compatible;
 
 import com.appsmith.external.dtos.EnvironmentDTO;
 import com.appsmith.external.models.Environment;
+import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.EnvironmentRepository;
@@ -72,5 +74,37 @@ public class EnvironmentServiceCECompatibleImpl extends BaseService<EnvironmentR
     @Override
     public Mono<EnvironmentDTO> setEnvironmentToDefault(Map<String, String> defaultEnvironmentMap) {
         return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
+    }
+
+    @Override
+    public Flux<Environment> getDefaultEnvironment(String workspaceId) {
+        return repository.findByWorkspaceId(workspaceId, null).filter(Environment::getIsDefault);
+    }
+
+    @Override
+    public Mono<String> getDefaultEnvironmentId(String workspaceId, AclPermission aclPermission) {
+        return repository
+                .findByWorkspaceId(workspaceId, aclPermission)
+                .filter(Environment::getIsDefault)
+                .next()
+                .map(Environment::getId);
+    }
+
+    @Override
+    public Mono<String> verifyEnvironmentIdByWorkspaceId(
+            String workspaceId, String environmentId, AclPermission aclPermission) {
+        // check if resource is present
+        Mono<String> environmentNameMono = getDefaultEnvironment(workspaceId)
+                .filter(environment -> environment.getId().equals(environmentId))
+                .next()
+                .map(Environment::getName)
+                .switchIfEmpty(Mono.error(new AppsmithException(
+                        AppsmithError.ACL_NO_ACCESS_ERROR, FieldName.ENVIRONMENT, FieldName.WORKSPACE)));
+
+        // return the default environmentId if that is what has been requested otherwise error out
+        return getDefaultEnvironmentId(workspaceId, aclPermission)
+                .filter(dbEnvironmentId -> dbEnvironmentId.equals(environmentId))
+                .switchIfEmpty(Mono.defer(() -> environmentNameMono.flatMap(name -> Mono.error(
+                        new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.ENVIRONMENT, name)))));
     }
 }

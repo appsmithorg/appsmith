@@ -8,7 +8,7 @@ import reactor.core.publisher.Mono;
 
 public interface DatasourceStructureSolutionCE {
 
-    Mono<DatasourceStructure> getStructure(String datasourceId, boolean ignoreCache, String environmentName);
+    Mono<DatasourceStructure> getStructure(String datasourceId, boolean ignoreCache, String environmentId);
 
     Mono<DatasourceStructure> getStructure(DatasourceStorage datasourceStorage, boolean ignoreCache);
 

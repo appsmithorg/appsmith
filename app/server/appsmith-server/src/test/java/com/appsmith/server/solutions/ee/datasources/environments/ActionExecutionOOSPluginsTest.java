@@ -19,6 +19,7 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithErrorCode;
 import com.appsmith.server.export.internal.ImportExportApplicationService;
+import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.newpages.base.NewPageService;
@@ -30,6 +31,7 @@ import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.AstService;
 import com.appsmith.server.services.EnvironmentService;
+import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.LayoutService;
 import com.appsmith.server.services.MockDataService;
@@ -82,6 +84,7 @@ import java.util.UUID;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -152,6 +155,9 @@ public class ActionExecutionOOSPluginsTest {
 
     @Autowired
     EnvironmentService environmentService;
+
+    @SpyBean
+    FeatureFlagService featureFlagService;
 
     Application testApp = null;
 
@@ -338,6 +344,9 @@ public class ActionExecutionOOSPluginsTest {
     public void executeActionWithOOSPlugin_inStagingEnv_runsWithDefaultEnv() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(any())).thenReturn(Mono.just(new MockPluginExecutor()));
         Mockito.when(pluginService.getEditorConfigLabelMap(Mockito.anyString())).thenReturn(Mono.just(new HashMap<>()));
+        doReturn(Mono.just(Boolean.TRUE))
+                .when(featureFlagService)
+                .check(Mockito.eq(FeatureFlagEnum.release_datasource_environments_enabled));
 
         Datasource externalDatasource = new Datasource();
         externalDatasource.setName("Default Database");
@@ -381,6 +390,9 @@ public class ActionExecutionOOSPluginsTest {
     public void executeActionWithInScopePlugin_inStagingEnv_runsWithStagingEnv() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(any())).thenReturn(Mono.just(new MockPluginExecutor()));
         Mockito.when(pluginService.getEditorConfigLabelMap(Mockito.anyString())).thenReturn(Mono.just(new HashMap<>()));
+        doReturn(Mono.just(Boolean.TRUE))
+                .when(featureFlagService)
+                .check(Mockito.eq(FeatureFlagEnum.release_datasource_environments_enabled));
 
         Datasource externalDatasource = new Datasource();
         externalDatasource.setName("Default Database");

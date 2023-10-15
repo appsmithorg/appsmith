@@ -6,10 +6,12 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.Environment;
+import com.appsmith.server.annotations.FeatureFlagged;
 import com.appsmith.server.constants.AnalyticsConstants;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.repositories.DatasourceStorageRepository;
@@ -19,6 +21,7 @@ import com.appsmith.server.services.VariableReplacementService;
 import com.appsmith.server.solutions.DatasourcePermission;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Service
@@ -36,7 +39,13 @@ public class DatasourceStorageServiceImpl extends DatasourceStorageServiceCEComp
             AnalyticsService analyticsService,
             VariableReplacementService variableReplacementService,
             EnvironmentService environmentService) {
-        super(repository, datasourcePermission, pluginService, pluginExecutorHelper, analyticsService);
+        super(
+                repository,
+                datasourcePermission,
+                pluginService,
+                pluginExecutorHelper,
+                analyticsService,
+                environmentService);
         this.variableReplacementService = variableReplacementService;
         this.environmentService = environmentService;
     }
@@ -96,5 +105,14 @@ public class DatasourceStorageServiceImpl extends DatasourceStorageServiceCEComp
 
         return environmentMono.flatMap(environment -> Mono.error(new AppsmithException(
                 AppsmithError.UNCONFIGURED_DATASOURCE_STORAGE, datasource.getName(), environment.getName())));
+    }
+
+    @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_datasource_environments_enabled)
+    public Flux<DatasourceStorage> findByDatasource(Datasource datasource) {
+        return this.findByDatasourceId(datasource.getId()).map(datasourceStorage -> {
+            datasourceStorage.prepareTransientFields(datasource);
+            return datasourceStorage;
+        });
     }
 }

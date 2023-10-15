@@ -2,11 +2,8 @@ package com.appsmith.server.services;
 
 import com.appsmith.external.models.Environment;
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
-import com.appsmith.server.exceptions.AppsmithError;
-import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.helpers.WorkspaceServiceHelper;
 import com.appsmith.server.repositories.ApplicationRepository;
@@ -89,35 +86,18 @@ public class WorkspaceServiceImpl extends WorkspaceServiceCEImpl implements Work
 
     @Override
     public Mono<String> getDefaultEnvironmentId(String workspaceId, AclPermission aclPermission) {
-        return environmentService
-                .findByWorkspaceId(workspaceId, aclPermission)
-                .filter(Environment::getIsDefault)
-                .next()
-                .map(Environment::getId);
+        return environmentService.getDefaultEnvironmentId(workspaceId, aclPermission);
     }
 
     @Override
     public Mono<String> verifyEnvironmentIdByWorkspaceId(
             String workspaceId, String environmentId, AclPermission aclPermission) {
-
-        Mono<String> environmentNameMono = environmentService
-                .findById(environmentId)
-                .map(Environment::getName)
-                .switchIfEmpty(Mono.error(new AppsmithException(
-                        AppsmithError.ACL_NO_ACCESS_ERROR, FieldName.ENVIRONMENT, FieldName.WORKSPACE)));
-
-        return environmentService
-                .findByWorkspaceId(workspaceId, aclPermission)
-                .filter(environment -> environment.getId().equals(environmentId))
-                .next()
-                .map(Environment::getId)
-                .switchIfEmpty(Mono.defer(() -> environmentNameMono.flatMap(name -> Mono.error(
-                        new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.ENVIRONMENT, name)))));
+        return environmentService.verifyEnvironmentIdByWorkspaceId(workspaceId, environmentId, aclPermission);
     }
 
     @Override
     public Flux<Environment> getDefaultEnvironment(String workspaceId) {
-        return environmentService.findByWorkspaceId(workspaceId, null).filter(Environment::getIsDefault);
+        return environmentService.getDefaultEnvironment(workspaceId);
     }
 
     @Override
