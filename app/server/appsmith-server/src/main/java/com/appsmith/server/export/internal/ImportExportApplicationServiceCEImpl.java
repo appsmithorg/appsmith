@@ -174,7 +174,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         }
 
         boolean isGitSync = SerialiseApplicationObjective.VERSION_CONTROL.equals(serialiseFor)
-            || SerialiseApplicationObjective.KNOWLEDGE_BASE_GENERATION.equals(serialiseFor);
+                || SerialiseApplicationObjective.KNOWLEDGE_BASE_GENERATION.equals(serialiseFor);
 
         exportingMetaDTO.setIsGitSync(isGitSync);
         exportingMetaDTO.setExportWithConfiguration(false);
