@@ -11,6 +11,14 @@ import type { RenderMode } from "constants/WidgetConstants";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { previewModeSelector } from "selectors/editorSelectors";
 
+// Container component
+function IframeComponentContainer(props: IframeComponentProps) {
+  if (!props.isVisible) {
+    return null;
+  }
+  return <IframeComponent {...props} />;
+}
+
 interface IframeContainerProps {
   borderColor?: string;
   borderOpacity?: number;
@@ -179,4 +187,5 @@ function IframeComponent(props: IframeComponentProps) {
   );
 }
 
-export default IframeComponent;
+// export default IframeComponent;
+export default IframeComponentContainer;
