@@ -45,16 +45,12 @@ import {
   LICENSE_REFRESHED_SUCCESSFULLY,
 } from "@appsmith/constants/messages";
 import {
-  setBEBanner,
   showLicenseModal,
   showRemoveLicenseModal,
   showDowngradeLicenseModal,
 } from "@appsmith/actions/tenantActions";
 import { firstTimeUserOnboardingInit } from "actions/onboardingActions";
-import {
-  LICENSE_MODIFICATION,
-  LICENSE_TYPE,
-} from "@appsmith/pages/Billing/Types/types";
+import { LICENSE_MODIFICATION } from "@appsmith/pages/Billing/Types/types";
 import { getIsSafeRedirectURL } from "utils/helpers";
 import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -182,13 +178,6 @@ export function* validateLicenseSaga(
         location.href = location.origin + response?.data;
       }
       if (license?.active) {
-        if (license?.type === LICENSE_TYPE.TRIAL) {
-          localStorage.setItem("showLicenseBanner", JSON.stringify(true));
-          yield put(setBEBanner(true));
-        } else {
-          localStorage.removeItem("showLicenseBanner");
-          yield put(setBEBanner(false));
-        }
         if (shouldEnableFirstTimeUserOnboarding) {
           let urlObj;
           try {

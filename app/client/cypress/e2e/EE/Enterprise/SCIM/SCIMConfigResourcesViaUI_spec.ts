@@ -63,7 +63,7 @@ describe("SCIM Provisioning", function () {
       });
       deployMode.StubWindowNAssert(
         adminsSettings.upgrade,
-        "https://www.appsmith.com/pricing?source=BE",
+        "https://login.customer.appsmith.com",
         "getEnvVariables",
       );
       cy.wait(2000);
@@ -92,7 +92,7 @@ describe("SCIM Provisioning", function () {
         .should("have.text", "Upgrade");
       deployMode.StubWindowNAssert(
         adminsSettings.upgrade,
-        "https://www.appsmith.com/pricing?source=BE",
+        "https://login.customer.appsmith.com",
         "getEnvVariables",
       );
       cy.wait(2000);

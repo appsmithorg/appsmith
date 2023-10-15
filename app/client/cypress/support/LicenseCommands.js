@@ -158,10 +158,3 @@ Cypress.Commands.add("getDateString", (timestamp) => {
     return createMessage(NOT_AVAILABLE);
   }
 });
-
-Cypress.Commands.add("closeWelcomeBanner", () => {
-  cy.get(LicenseLocators.welcomeBanner).should("be.visible");
-  cy.get(LicenseLocators.welcomeBanner).within(() => {
-    cy.get(".close-button").click();
-  });
-});

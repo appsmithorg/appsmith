@@ -120,13 +120,7 @@ export const isLicensePaymentFailed = (state: AppState) =>
   state.tenant?.tenantConfiguration?.license?.status ===
   LICENSE_TYPE.PAYMENT_FAILED;
 
-export const isBEBannerVisible = (state: AppState) => {
-  const value = state.tenant?.tenantConfiguration?.license?.showBEBanner;
-  return value;
-};
-
 export const shouldShowLicenseBanner = (state: AppState) => {
-  if (isBEBannerVisible(state)) return false;
   if (
     isTrialActiveLicense(state) ||
     (isAdminUser(state) &&

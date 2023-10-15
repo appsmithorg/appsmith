@@ -2,14 +2,9 @@ export * from "ce/pages/Applications";
 import * as CE_Applications from "ce/pages/Applications";
 import { Applications as CE_AppClass } from "ce/pages/Applications";
 import React from "react";
-import styled from "styled-components";
 import { connect } from "react-redux";
 import MediaQuery from "react-responsive";
-import { BEBanner } from "./BEBanner";
-import {
-  isBEBannerVisible,
-  shouldShowLicenseBanner,
-} from "@appsmith/selectors/tenantSelectors";
+import { shouldShowLicenseBanner } from "@appsmith/selectors/tenantSelectors";
 import {
   createMessage,
   SEARCH_APPS,
@@ -25,16 +20,11 @@ import { getShowQueryModule } from "@appsmith/selectors/moduleFeatureSelectors";
 
 export interface EE_ApplicationProps extends CE_Applications.ApplicationProps {
   fetchAllPackages: () => void;
-  showBanner: boolean;
   showWarningBanner: boolean;
   showQueryModule: boolean;
 }
 
 export type EE_ApplicationState = CE_Applications.ApplicationState;
-
-const UpgradeBannerWrapper = styled.div`
-  margin: 0 0 var(--ads-v2-spaces-7);
-`;
 
 export class Applications extends CE_AppClass<
   EE_ApplicationProps,
@@ -68,11 +58,6 @@ export class Applications extends CE_AppClass<
         <MediaQuery maxWidth={MOBILE_MAX_WIDTH}>
           {(matches: boolean) => (
             <CE_Applications.ApplicationsWrapper isMobile={matches}>
-              {this.props.showBanner && (
-                <UpgradeBannerWrapper>
-                  <BEBanner isMobile={matches} />
-                </UpgradeBannerWrapper>
-              )}
               <SubHeader
                 isBannerVisible={this.props.showWarningBanner}
                 search={{
@@ -97,7 +82,6 @@ const mapStateToProps = (state: AppState) => {
   const CE_mapStateToProps = CE_Applications.mapStateToProps(state);
   return {
     ...CE_mapStateToProps,
-    showBanner: isBEBannerVisible(state),
     showWarningBanner: shouldShowLicenseBanner(state),
     showQueryModule: getShowQueryModule(state),
   };

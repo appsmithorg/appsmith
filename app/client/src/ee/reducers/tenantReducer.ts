@@ -15,7 +15,6 @@ import {
   createBrandColorsFromPrimaryColor,
 } from "utils/BrandingUtils";
 import type { LICENSE_MODIFICATION } from "@appsmith/pages/Billing/Types/types";
-import { LICENSE_TYPE } from "@appsmith/pages/Billing/Types/types";
 
 export interface License {
   changeType: LICENSE_MODIFICATION;
@@ -25,7 +24,6 @@ export interface License {
   id: string;
   status: string;
   expiry: number;
-  showBEBanner: boolean;
   invalidLicenseKeyError: boolean;
   validatingLicense: boolean;
   origin?: string;
@@ -40,9 +38,6 @@ export interface License {
 
 const INITIAL_BRAND_COLOR = "#000";
 
-const showLicenseBanner = localStorage.getItem("showLicenseBanner");
-const parsed = showLicenseBanner !== null && JSON.parse(showLicenseBanner);
-
 export const initialState: TenantReduxState<any> = {
   ...CE_InitialState,
   tenantConfiguration: {
@@ -52,7 +47,6 @@ export const initialState: TenantReduxState<any> = {
     },
     ...cachedTenantConfigParsed,
     license: {
-      showBEBanner: parsed,
       validatingLicense: false,
     },
   },
@@ -72,11 +66,6 @@ export const handlers = {
       license: {
         ...state.tenantConfiguration?.license,
         ...action.payload.tenantConfiguration?.license,
-        showBEBanner:
-          action.payload.tenantConfiguration?.license?.type ===
-          LICENSE_TYPE.TRIAL
-            ? parsed
-            : false,
       },
     },
     isLoading: false,
@@ -131,19 +120,6 @@ export const handlers = {
     tenantConfiguration: {
       ...state.tenantConfiguration,
       license: initialState.tenantConfiguration.license,
-    },
-  }),
-  [ReduxActionTypes.SET_SHOW_BILLING_BANNER]: (
-    state: TenantReduxState<License>,
-    action: ReduxAction<boolean>,
-  ) => ({
-    ...state,
-    tenantConfiguration: {
-      ...state.tenantConfiguration,
-      license: {
-        ...state.tenantConfiguration.license,
-        showBEBanner: action.payload,
-      },
     },
   }),
   [ReduxActionTypes.SHOW_LICENSE_MODAL]: (
