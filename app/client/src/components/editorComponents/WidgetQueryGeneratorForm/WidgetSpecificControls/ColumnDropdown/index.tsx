@@ -5,13 +5,13 @@ import { DropdownOption } from "../../CommonControls/DatasourceDropdown/Dropdown
 import { ErrorMessage, Label, SelectWrapper } from "../../styles";
 import { useColumns } from "./useColumns";
 
-type Props = {
+interface Props {
   id: string;
   alias: string;
   label: string;
   onSelect: () => void;
   isSearcheable: boolean;
-};
+}
 
 function ColumnDropdown(props: Props) {
   const { alias, isSearcheable } = props;

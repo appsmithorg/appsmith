@@ -30,10 +30,10 @@ import isEmpty from "lodash/isEmpty";
 import type { UnEvalTree } from "entities/DataTree/dataTreeTypes";
 import { sortJSExecutionDataByCollectionId } from "workers/Evaluation/JSObject/utils";
 import type { LintTreeSagaRequestData } from "plugins/Linting/types";
-export type UpdateDataTreeMessageData = {
+export interface UpdateDataTreeMessageData {
   workerResponse: EvalTreeResponseData;
   unevalTree: UnEvalTree;
-};
+}
 
 export function* handleEvalWorkerRequestSaga(listenerChannel: Channel<any>) {
   while (true) {

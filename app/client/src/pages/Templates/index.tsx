@@ -147,13 +147,13 @@ function TemplateRoutes() {
   );
 }
 
-type TemplatesContentProps = {
+interface TemplatesContentProps {
   onTemplateClick?: (id: string) => void;
   onForkTemplateClick?: (template: Template) => void;
   stickySearchBar?: boolean;
   isForkingEnabled: boolean;
   filterWithAllowPageImport?: boolean;
-};
+}
 const INPUT_DEBOUNCE_TIMER = 500;
 export function TemplatesContent(props: TemplatesContentProps) {
   const templateSearchQuery = useSelector(getTemplateSearchQuery);

@@ -11,7 +11,7 @@ import {
 import WorkspaceInviteUsersForm from "pages/workspace/WorkspaceInviteUsersForm";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
-import { viewerURL } from "RouteBuilder";
+import { viewerURL } from "@appsmith/RouteBuilder";
 import { fetchWorkspace } from "@appsmith/actions/workspaceActions";
 import {
   createMessage,

@@ -51,13 +51,13 @@ import { updateFlexLayersOnDelete } from "../layoutSystems/autolayout/utils/Auto
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
-type WidgetDeleteTabChild = {
+interface WidgetDeleteTabChild {
   id: string;
   index: number;
   isVisible: boolean;
   label: string;
   widgetId: string;
-};
+}
 
 function* deleteTabChildSaga(
   deleteChildTabAction: ReduxAction<WidgetDeleteTabChild>,
@@ -122,9 +122,8 @@ function* deleteTabChildSaga(
 
 function* deleteSagaInit(deleteAction: ReduxAction<WidgetDelete>) {
   const { widgetId } = deleteAction.payload;
-  const selectedWidget: FlattenedWidgetProps | undefined = yield select(
-    getSelectedWidget,
-  );
+  const selectedWidget: FlattenedWidgetProps | undefined =
+    yield select(getSelectedWidget);
   const selectedWidgets: string[] = yield select(getSelectedWidgets);
   const guidedTourEnabled: boolean = yield select(inGuidedTour);
   const isExploring: boolean = yield select(isExploringSelector);
@@ -209,9 +208,8 @@ function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
     const { disallowUndo, isShortcut } = deleteAction.payload;
 
     if (!widgetId) {
-      const selectedWidget: FlattenedWidgetProps | undefined = yield select(
-        getSelectedWidget,
-      );
+      const selectedWidget: FlattenedWidgetProps | undefined =
+        yield select(getSelectedWidget);
       if (!selectedWidget) return;
 
       // if widget is not deletable, don't do anything

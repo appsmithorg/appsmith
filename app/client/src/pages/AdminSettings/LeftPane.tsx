@@ -5,7 +5,7 @@ import {
   CategoryType,
   type Category,
 } from "@appsmith/pages/AdminSettings/config/types";
-import { adminSettingsCategoryUrl } from "RouteBuilder";
+import { adminSettingsCategoryUrl } from "@appsmith/RouteBuilder";
 import { useParams } from "react-router";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Link, Text } from "design-system";
