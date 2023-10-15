@@ -16,6 +16,7 @@ import com.querydsl.core.types.Path;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -677,5 +678,21 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
         }
 
         return mongoOperations.query(this.genericDomain).matching(query).all().map(obj -> obj);
+    }
+
+    public Mono<T> updateAndReturn(String id, Update updateObj, Optional<AclPermission> permission) {
+        Query query = new Query(Criteria.where("id").is(id));
+
+        FindAndModifyOptions findAndModifyOptions =
+                FindAndModifyOptions.options().returnNew(Boolean.TRUE);
+
+        if (permission.isEmpty()) {
+            return mongoOperations.findAndModify(query, updateObj, findAndModifyOptions, this.genericDomain);
+        }
+
+        return getCurrentUserPermissionGroupsIfRequired(permission).flatMap(permissionGroups -> {
+            query.addCriteria(new Criteria().andOperator(notDeleted(), userAcl(permissionGroups, permission.get())));
+            return mongoOperations.findAndModify(query, updateObj, findAndModifyOptions, this.genericDomain);
+        });
     }
 }
