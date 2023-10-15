@@ -91,13 +91,13 @@ export enum FocusElement {
   InputField = "InputField",
 }
 
-type Config = {
+interface Config {
   name: FocusElement;
   selector: (state: AppState) => unknown;
   setter: (payload: any) => ReduxAction<any>;
   defaultValue?: unknown;
   subTypes?: Record<string, { defaultValue: unknown }>;
-};
+}
 
 export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
   [FocusEntity.NONE]: [],

@@ -230,7 +230,7 @@ jobs:
           fi
 
       - name: Run the cypress test
-        uses: cypress-io/github-action@v5
+        uses: cypress-io/github-action@v6
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CYPRESS_USERNAME: ${{ secrets.CYPRESS_USERNAME }}
@@ -310,6 +310,13 @@ jobs:
         with:
           name: results-${{github.run_attempt}}
           path: ~/results
+
+      - name: Upload cypress snapshots
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: snapshots
+          path: ${{ github.workspace }}/app/client/cypress/snapshots
 
       # Set status = failedtest
       - name: Set fail if there are test failures

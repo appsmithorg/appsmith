@@ -20,13 +20,13 @@ export type Replayable =
 
 type ReplayEditorDiff = Diff<Replayable, Replayable>;
 
-export type ReplayEditorUpdate = {
+export interface ReplayEditorUpdate {
   modifiedProperty: string;
   index?: number;
   update: Replayable | ReplayEditorDiff;
   kind: "N" | "D" | "E" | "A";
   isUndo?: boolean;
-};
+}
 export default class ReplayEditor extends ReplayEntity<Replayable> {
   constructor(entity: Replayable, entityType: ENTITY_TYPE) {
     super(entity, entityType);

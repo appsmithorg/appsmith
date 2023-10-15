@@ -66,9 +66,9 @@ interface ChooseGitProviderProps {
 }
 
 function ChooseGitProvider({
+  isImport = false,
   onChange = noop,
   value = {},
-  isImport = false,
 }: ChooseGitProviderProps) {
   const workspace = useSelector(getCurrentAppWorkspace);
   const isMobile = useIsMobileDevice();

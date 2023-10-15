@@ -15,6 +15,7 @@ import type { TJSLibrary } from "workers/common/JSLibrary";
 export enum LINT_WORKER_ACTIONS {
   LINT_TREE = "LINT_TREE",
   UPDATE_LINT_GLOBALS = "UPDATE_LINT_GLOBALS",
+  SETUP = "SETUP",
 }
 export interface LintTreeResponse {
   errors: LintErrorsStore;
@@ -29,16 +30,16 @@ export interface LintTreeRequestPayload {
   forceLinting?: boolean;
 }
 
-export type LintRequest = {
+export interface LintRequest {
   data: any;
   method: LINT_WORKER_ACTIONS;
-};
+}
 
-export type LintTreeSagaRequestData = {
+export interface LintTreeSagaRequestData {
   unevalTree: DataTree;
   configTree: ConfigTree;
   forceLinting?: boolean;
-};
+}
 export interface lintTriggerPathProps {
   userScript: string;
   entity: DataTreeEntity;

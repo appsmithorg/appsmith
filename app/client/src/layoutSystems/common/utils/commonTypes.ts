@@ -7,7 +7,7 @@ import type {
 } from "layoutSystems/common/utils/constants";
 import type { ReactNode } from "react";
 
-export type AutoLayoutProps = {
+export interface AutoLayoutProps {
   alignment: FlexLayerAlignment;
   children: ReactNode;
   componentHeight: number;
@@ -24,4 +24,4 @@ export type AutoLayoutProps = {
   flexVerticalAlignment: FlexVerticalAlignment;
   isMobile: boolean;
   renderMode: RenderMode;
-};
+}

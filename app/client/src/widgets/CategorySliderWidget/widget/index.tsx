@@ -17,10 +17,10 @@ import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import IconSVG from "../icon.svg";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 
-export type SliderOption = {
+export interface SliderOption {
   label: string;
   value: string;
-};
+}
 
 export interface CategorySliderWidgetProps
   extends WidgetProps,

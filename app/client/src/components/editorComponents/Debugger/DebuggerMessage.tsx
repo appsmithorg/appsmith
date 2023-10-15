@@ -12,10 +12,10 @@ const Container = styled.div`
   color: ${(props) => props.theme.colors.debugger.messageTextColor};
 `;
 
-type DebuggerMessageProps = {
+interface DebuggerMessageProps {
   onClick: () => void;
   secondHalfText: string;
-};
+}
 
 function DebuggerMessage(props: DebuggerMessageProps) {
   return (

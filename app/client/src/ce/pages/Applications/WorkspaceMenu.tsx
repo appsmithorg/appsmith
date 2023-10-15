@@ -19,7 +19,7 @@ import {
   getOnSelectAction,
 } from "pages/common/CustomizedDropdown/dropdownHelpers";
 
-type WorkspaceMenuProps = {
+interface WorkspaceMenuProps {
   canDeleteWorkspace: boolean;
   canInviteToWorkspace: boolean;
   enableImportExport: boolean;
@@ -40,7 +40,7 @@ type WorkspaceMenuProps = {
   workspace: Workspace;
   workspaceNameChange: (newName: string, workspaceId: string) => void;
   workspaceToOpenMenu: string | null;
-};
+}
 
 const WorkspaceRename = styled(EditableText)`
   padding: 0 2px;

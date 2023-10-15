@@ -9,7 +9,7 @@ import ActionRightPane, {
   useEntityDependencies,
 } from "components/editorComponents/ActionRightPane";
 import { sortedDatasourcesHandler } from "./helpers";
-import { datasourcesEditorIdURL } from "RouteBuilder";
+import { datasourcesEditorIdURL } from "@appsmith/RouteBuilder";
 import { setApiRightPaneSelectedTab } from "actions/apiPaneActions";
 import { useDispatch, useSelector } from "react-redux";
 import { getApiRightPaneSelectedTab } from "selectors/apiPaneSelectors";

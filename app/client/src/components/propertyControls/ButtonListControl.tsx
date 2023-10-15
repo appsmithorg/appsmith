@@ -11,9 +11,9 @@ import { ButtonPlacementTypes } from "components/constants";
 import { DraggableListControl } from "pages/Editor/PropertyPane/DraggableListControl";
 import { DraggableListCard } from "components/propertyControls/DraggableListCard";
 
-type State = {
+interface State {
   focusedIndex: number | null;
-};
+}
 
 class ButtonListControl extends BaseControl<ControlProps, State> {
   constructor(props: ControlProps) {
