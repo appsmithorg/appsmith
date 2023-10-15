@@ -16,7 +16,7 @@ import {
   getDatasource,
   getPlugin,
 } from "@appsmith/selectors/entitiesSelector";
-import { integrationEditorURL } from "RouteBuilder";
+import { integrationEditorURL } from "@appsmith/RouteBuilder";
 import { MenuItem, Tag } from "design-system";
 import type { Plugin } from "api/PluginApi";
 import { DatasourceStructureContext } from "./DatasourceStructure";
