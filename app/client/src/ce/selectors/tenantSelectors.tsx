@@ -51,3 +51,6 @@ export const getInstanceId = (state: AppState): string =>
 
 // eslint-disable-next-line
 export const shouldShowLicenseBanner = (state: AppState) => false;
+
+export const getHideWatermark = (state: AppState): boolean =>
+  state.tenant?.tenantConfiguration?.hideWatermark;
