@@ -24,12 +24,12 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.plugins.base.PluginService;
-import com.appsmith.server.helpers.RedisUtils;
 import com.appsmith.server.ratelimiting.RateLimitService;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.DatasourceContextService;
+import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.SequenceService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.WorkspaceService;
@@ -88,7 +88,6 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
     private final AnalyticsService analyticsService;
     private final EnvironmentPermission environmentPermission;
     private final RateLimitService rateLimitService;
-    private final RedisUtils redisUtils;
     private final FeatureFlagService featureFlagService;
 
     // Defines blocking duration for test as well as connection created for query execution
@@ -113,7 +112,6 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
             DatasourceStorageService datasourceStorageService,
             EnvironmentPermission environmentPermission,
             RateLimitService rateLimitService,
-            RedisUtils redisUtils,
             FeatureFlagService featureFlagService) {
 
         this.workspaceService = workspaceService;
@@ -131,7 +129,6 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
         this.repository = repository;
         this.environmentPermission = environmentPermission;
         this.rateLimitService = rateLimitService;
-        this.redisUtils = redisUtils;
         this.featureFlagService = featureFlagService;
     }
 
