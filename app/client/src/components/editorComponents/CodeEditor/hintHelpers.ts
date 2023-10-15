@@ -15,8 +15,9 @@ import {
   filterCompletions,
   getHintDetailsFromClassName,
 } from "./utils/sqlHint";
+import { isAISlashCommand } from "@appsmith/components/editorComponents/GPT/trigger";
 
-export const bindingHintHelper: HintHelper = (editor) => {
+export const bindingHintHelper: HintHelper = (editor: CodeMirror.Editor) => {
   editor.setOption("extraKeys", {
     // @ts-expect-error: Types are not available
     ...editor.options.extraKeys,
@@ -46,11 +47,17 @@ export const bindingHintHelper: HintHelper = (editor) => {
 
       const entityType = entityInformation?.entityType;
       let shouldShow = false;
+
       if (entityType === ENTITY_TYPE_VALUE.JSACTION) {
-        shouldShow = true;
+        if (additionalData?.enableAIAssistance) {
+          shouldShow = !isAISlashCommand(editor);
+        } else {
+          shouldShow = true;
+        }
       } else {
         shouldShow = checkIfCursorInsideBinding(editor);
       }
+
       if (shouldShow) {
         CodemirrorTernService.complete(editor);
 

@@ -27,7 +27,7 @@ import {
   getCurrentPageId,
   getPagePermissions,
 } from "selectors/editorSelectors";
-import { builderURL } from "RouteBuilder";
+import { builderURL } from "@appsmith/RouteBuilder";
 import DatasourceStructureHeader from "pages/Editor/Explorer/Datasources/DatasourceStructureHeader";
 import {
   DatasourceStructureContainer as DataStructureList,
@@ -391,7 +391,7 @@ function ActionSidebar({
         eventParams: {
           [FEATURE_WALKTHROUGH_KEYS.ds_schema]: true,
         },
-        delay: 5000,
+        delay: 2500,
       });
   };
 

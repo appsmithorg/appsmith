@@ -45,7 +45,7 @@ import {
   getPagePermissions,
   selectURLSlugs,
 } from "selectors/editorSelectors";
-import { saasEditorDatasourceIdURL } from "RouteBuilder";
+import { saasEditorDatasourceIdURL } from "@appsmith/RouteBuilder";
 import {
   createMessage,
   REST_API_AUTHORIZATION_APPSMITH_ERROR,

@@ -17,6 +17,7 @@ import EditorsRouter from "./routes";
 import EditorWrapperBody from "./commons/EditorWrapperBody";
 import WidgetsEditorEntityExplorer from "./WidgetsEditorEntityExplorer";
 import EditorWrapperContainer from "./commons/EditorWrapperContainer";
+import Sidebar from "components/Sidebar";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -30,6 +31,7 @@ function WidgetsEditorWrapper() {
   return (
     <>
       <EditorWrapperContainer>
+        <Sidebar />
         <WidgetsEditorEntityExplorer />
         <EditorWrapperBody id="app-body">
           <Switch key={BUILDER_PATH}>

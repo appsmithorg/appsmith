@@ -38,7 +38,7 @@ export function* FetchAdminSettingsSaga() {
   const isValidResponse: boolean = yield validateResponse(response);
 
   if (isValidResponse) {
-    const { appVersion, cloudHosting } = getAppsmithConfigs();
+    const { appVersion } = getAppsmithConfigs();
     const settings = {
       //@ts-expect-error: response is of type unknown
       ...response.data,
@@ -46,7 +46,6 @@ export function* FetchAdminSettingsSaga() {
         APPSMITH_DISPLAY_VERSION,
         appVersion.edition,
         appVersion.id,
-        cloudHosting,
       ),
     };
 
