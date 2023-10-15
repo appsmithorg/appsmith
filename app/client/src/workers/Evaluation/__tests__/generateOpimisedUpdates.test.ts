@@ -110,7 +110,7 @@ describe("generateOptimisedUpdates", () => {
         },
       ]);
     });
-    describe("ignore invalid moment updates", ()=>{
+    describe("ignore invalid moment updates", () => {
       test("should generate a null update when it sees an invalid moment object", () => {
         const newState = produce(oldState, (draft) => {
           draft.Table1.pageSize = moment("invalid value") as any;
@@ -137,14 +137,19 @@ describe("generateOptimisedUpdates", () => {
         });
         const newState = produce(oldState, (draft) => {
           draft.Table1.pageSize = moment("invalid value") as any;
-          draft.Table1.triggerRowSelection = moment("invalid value") as any;;
+          draft.Table1.triggerRowSelection = moment("invalid value") as any;
         });
         const updates = generateOptimisedUpdates(prevState, newState);
         expect(updates).toEqual([
-          { kind: "E", path: ["Table1", "triggerRowSelection"], lhs: undefined, rhs: null },
+          {
+            kind: "E",
+            path: ["Table1", "triggerRowSelection"],
+            lhs: undefined,
+            rhs: null,
+          },
         ]);
       });
-    })
+    });
   });
 
   describe("diffs with identicalEvalPathsPatches", () => {
