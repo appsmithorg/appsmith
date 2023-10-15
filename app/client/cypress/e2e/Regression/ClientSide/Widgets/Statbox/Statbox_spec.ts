@@ -19,16 +19,39 @@ describe("Statbox spec", () => {
   });
 
   it("1. Validate all the respective properties are present on the Content and Style sections in the property pane", () => {
-    agHelper.AssertContains("Visible", "exist", "label");
-    agHelper.AssertContains("Animate loading", "exist", "label");
-    agHelper.AssertContains("Height", "exist", "label");
+    const generalProperties = ["visible", "animateloading", "height"];
+
+    generalProperties.forEach((generalSectionProperty) => {
+      agHelper.AssertElementVisibility(
+        propPane._propertyPanePropertyControl(
+          "general",
+          `${generalSectionProperty}`,
+        ),
+      );
+    });
+
     // Switch to the Style Tab
     propPane.MoveToTab("Style");
-    agHelper.AssertContains("Background color", "exist", "label");
-    agHelper.AssertContains("Border color", "exist", "label");
-    agHelper.AssertContains("Border width", "exist", "label");
-    agHelper.AssertContains("Border radius", "exist", "label");
-    agHelper.AssertContains("Box shadow", "exist", "label");
+
+    const colorProperties = ["backgroundcolor", "bordercolor"];
+    colorProperties.forEach((labelStyleSectionProperty) => {
+      agHelper.AssertElementVisibility(
+        propPane._propertyPanePropertyControl(
+          "color",
+          `${labelStyleSectionProperty}`,
+        ),
+      );
+    });
+
+    const borderShadows = ["borderwidth", "borderradius", "boxshadow"];
+    borderShadows.forEach((borderShadowSectionProperty) => {
+      agHelper.AssertElementVisibility(
+        propPane._propertyPanePropertyControl(
+          "borderandshadow",
+          `${borderShadowSectionProperty}`,
+        ),
+      );
+    });
   });
   it("2. Validate if the default widgets are present inside the statbox", () => {
     entityExplorer.NavigateToSwitcher("Explorer");
