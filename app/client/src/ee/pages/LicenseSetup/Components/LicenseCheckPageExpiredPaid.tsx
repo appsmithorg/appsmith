@@ -5,7 +5,6 @@ import {
   PAID,
   ADD_LICENSE,
   ADD_KEY,
-  DOWNGRADE_CALLOUT_TEXT_PAID,
   LICENSE_TRIAL_EXPIRED_COMMMUNITY_DOWNGRADE,
   CONTINUE,
   LICENSE_EXPIRED_HEADING_PAID,
@@ -27,7 +26,7 @@ import {
 } from "../styles";
 import PageHeader from "pages/common/PageHeader";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
-import { Button, Callout, Text } from "design-system";
+import { Button, Text } from "design-system";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { LicenseForm } from "../LicenseForm";
 import {
@@ -72,19 +71,6 @@ export default function LicenseCheckPageExpiredPaid() {
       <PageHeader hideEditProfileLink />
       <StyledPageWrapper>
         <StyledBannerWrapper>
-          <Callout
-            data-testid="t--expired-paid-callout"
-            kind="error"
-            links={[
-              {
-                children: createMessage(CONTACT_US),
-                to: MAIL_TO_SUPPORT,
-              },
-            ]}
-          >
-            {createMessage(DOWNGRADE_CALLOUT_TEXT_PAID)}
-          </Callout>
-
           <Text
             data-testid="t--no-active-subscription-text"
             kind="heading-xl"

@@ -24,8 +24,8 @@ describe("License expired", function () {
       );
 
       agHelper.GetNAssertElementText(
-        LicenseLocators.expiredPaidCallout,
-        "Your license key is no longer valid. Contact us to continue using all the features.",
+        LicenseLocators.billingBanner,
+        "Your license key is no longer valid. Get a new license to continue using all the features.",
         "contain.text",
       );
 
@@ -63,8 +63,8 @@ describe("License expired", function () {
       );
 
       agHelper.GetNAssertElementText(
-        LicenseLocators.expiredPaidCallout,
-        "Your license key is no longer valid. Contact us to continue using all the features.",
+        LicenseLocators.billingBanner,
+        "Your license key is no longer valid. Get a new license to continue using all the features.",
         "contain.text",
       );
 

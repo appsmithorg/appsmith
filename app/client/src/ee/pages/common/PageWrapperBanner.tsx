@@ -1,203 +1,98 @@
 import styled from "styled-components";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import React from "react";
-import { forceLicenseCheck } from "@appsmith/actions/tenantActions";
-
 import {
   getRemainingDays,
-  isTrialLicense,
   isAdminUser,
-  isLicenseValidating,
   isLicensePaymentFailed,
-  isEnterprise,
+  isTrialExpiredLicense,
+  isTrialActiveLicense,
+  isPaidExpiredLicense,
 } from "@appsmith/selectors/tenantSelectors";
 import {
   CONTINUE_USING_FEATURES,
   createMessage,
   TRIAL_EXPIRY_WARNING,
-  UPGRADE,
   NON_ADMIN_USER_TRIAL_EXPIRTY_WARNING,
-  ALREADY_UPGRADED,
-  REFRESH,
-  UPDATE,
-  PAYMENT_FAILED_UPDATE,
-  PAYMENT_FAILED,
-  CONTINUE_USING_FEATURES_ENTERPRISE,
-  NON_ADMIN_USER_TRIAL_EXPIRTY_WARNING_ENTERPRISE,
+  VISIT_PORTAL_CTA,
+  TRIAL_EXPIRED_TEXT,
+  PAID_EXPIRED_TEXT,
+  PAYMENT_FAILED_TEXT,
+  CONTACT_US,
 } from "@appsmith/constants/messages";
-import { Callout, Link, Text } from "design-system";
+import { Banner } from "design-system";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import { CUSTOMER_PORTAL_PLANS_URL } from "@appsmith/constants/BillingConstants";
+import { getAppsmithConfigs } from "@appsmith/configs";
 
-const StyledText = styled(Text)<{ color: string }>`
-  color: ${(props) => props.color ?? "var(--ads-v2-color-fg)"};
-  white-space: nowrap;
-`;
+const appsmithConfigs = getAppsmithConfigs();
+const MAIL_TO_SUPPORT = `mailto:${appsmithConfigs.appsmithSupportEmail}`;
 
-const FlexWrapper = styled.span<{
-  color?: string;
-  justify?: string;
-}>`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: ${(props) => props.justify ?? "space-between"};
-  .upgrade-link {
-    margin: 0 4px 0 4px;
-    text-decoration: underline !important;
-    color: ${(props) => props.color} !important;
-    display: inline;
-  }
-  .main-text {
-    white-space: nowrap;
-  }
-  p {
-    color: ${(props) => props.color ?? "var(--ads-v2-color-fg)"};
-  }
-`;
-
-const ContentWrapper = styled.span`
-  display: inline;
-  margin-right: 2px;
-`;
-
-const FlexContentWrapper = styled.span`
-  display: inline;
-`;
-
-const StyledBanner = styled(Callout)`
+const StyledBanner = styled(Banner)`
   position: fixed;
   z-index: 2;
   width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-
-  > div:nth-child(2) {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-
-    > div {
-      margin: 0;
-    }
-  }
+  top: 0;
 `;
-
-const enum Suffix {
-  DAYS = "days",
-  DAY = "day",
-  HOURS = "hours",
-  HOUR = "hour",
-}
 
 export function PageBannerMessage(): any {
   const isAdmin = useSelector(isAdminUser);
-  const dispatch = useDispatch();
-  const isTrial = useSelector(isTrialLicense);
+  const isTrialExpired = useSelector(isTrialExpiredLicense);
+  const isTrialActive = useSelector(isTrialActiveLicense);
+  const isPaidExpired = useSelector(isPaidExpiredLicense);
   const isPaymentFailed = useSelector(isLicensePaymentFailed);
   const { days: gracePeriod, suffix } = useSelector(getRemainingDays);
-  const isCheckingLicense = useSelector(isLicenseValidating);
-  const lessThanThreeDays =
-    (gracePeriod <= 3 && (suffix === Suffix.DAYS || suffix === Suffix.DAY)) ||
-    suffix === Suffix.HOURS ||
-    suffix === Suffix.HOUR;
   const isAirgappedInstance = isAirgapped();
-  const isEnterpriseLicense = useSelector(isEnterprise);
 
-  const color = lessThanThreeDays
-    ? "var(--ads-v2-color-fg-error)"
-    : "var(--ads-v2-color-fg)";
+  const getBannerLink = () => {
+    if (isAirgappedInstance) return {};
+    if (isAdmin) {
+      if (isPaidExpired) {
+        return {
+          children: createMessage(CONTACT_US),
+          to: MAIL_TO_SUPPORT,
+        };
+      }
+      return {
+        children: createMessage(VISIT_PORTAL_CTA),
+        to: CUSTOMER_PORTAL_PLANS_URL,
+      };
+    }
+    return {};
+  };
 
-  if ((isPaymentFailed && isAdmin) || isTrial) {
+  function getBannerMessage() {
+    if (isTrialActive) {
+      const messageSuffix = isAdmin
+        ? `${createMessage(CONTINUE_USING_FEATURES)}`
+        : createMessage(NON_ADMIN_USER_TRIAL_EXPIRTY_WARNING);
+      return `${createMessage(() =>
+        TRIAL_EXPIRY_WARNING(gracePeriod, suffix),
+      )} ${messageSuffix}`;
+    }
+    if (isAdmin) {
+      if (isTrialExpired) {
+        return createMessage(TRIAL_EXPIRED_TEXT);
+      } else if (isPaidExpired) {
+        return createMessage(PAID_EXPIRED_TEXT);
+      } else if (isPaymentFailed) {
+        return createMessage(() => PAYMENT_FAILED_TEXT(gracePeriod, suffix));
+      }
+    }
+    return null;
+  }
+
+  if (!!getBannerMessage()) {
     return (
       <StyledBanner
-        className="trial-warning-banner"
-        kind={lessThanThreeDays ? "error" : "warning"}
-        {...(isAdmin && !isAirgappedInstance
-          ? {
-              links: [
-                {
-                  children: createMessage(REFRESH),
-                  onClick: () =>
-                    !isCheckingLicense && dispatch(forceLicenseCheck()),
-                  startIcon: "refresh",
-                  className: "refresh-link",
-                },
-              ],
-            }
-          : {})}
+        data-testid="t--billing-banner"
+        kind={isPaymentFailed ? "error" : "warning"}
+        link={{ ...getBannerLink() }}
       >
-        <FlexWrapper
-          className="wrapper-banner"
-          color={color}
-          justify={isAdmin && !isAirgappedInstance ? "space-between" : "center"}
-        >
-          {isAdmin && <span> </span>}
-          <FlexContentWrapper>
-            <span
-              className="main-text"
-              dangerouslySetInnerHTML={{
-                __html: isTrial
-                  ? createMessage(() =>
-                      TRIAL_EXPIRY_WARNING(gracePeriod, suffix),
-                    )
-                  : createMessage(PAYMENT_FAILED),
-              }}
-              data-testid="t--trial-expiry-warning"
-            />
-            {isAdmin && !isAirgappedInstance ? (
-              <ContentWrapper className="wrapper-content">
-                <Link
-                  className="upgrade-link"
-                  data-testid="t--trial-expiry-upgrade-btn"
-                  to={CUSTOMER_PORTAL_PLANS_URL}
-                >
-                  {createMessage(isTrial ? UPGRADE : UPDATE)}
-                </Link>
-                <span
-                  dangerouslySetInnerHTML={{
-                    __html: isTrial
-                      ? isEnterpriseLicense
-                        ? createMessage(CONTINUE_USING_FEATURES_ENTERPRISE)
-                        : createMessage(CONTINUE_USING_FEATURES)
-                      : createMessage(() =>
-                          PAYMENT_FAILED_UPDATE(gracePeriod, suffix),
-                        ),
-                  }}
-                  data-testid="t--trial-expiry-continue-using-features"
-                />
-              </ContentWrapper>
-            ) : (
-              !isAirgappedInstance && (
-                <StyledText
-                  color={
-                    gracePeriod > 3
-                      ? "var(--ads-v2-color-fg)"
-                      : "var(--ads-v2-color-fg-error)"
-                  }
-                  data-testid="t--non-admin-trial-expiry-warning"
-                  renderAs="span"
-                >
-                  {isEnterpriseLicense
-                    ? createMessage(
-                        NON_ADMIN_USER_TRIAL_EXPIRTY_WARNING_ENTERPRISE,
-                      )
-                    : createMessage(NON_ADMIN_USER_TRIAL_EXPIRTY_WARNING)}
-                </StyledText>
-              )
-            )}
-            {isAdmin && (
-              <StyledText
-                color={color}
-                data-testid="t--already-upgraded"
-                renderAs="span"
-              >
-                {createMessage(ALREADY_UPGRADED)}
-              </StyledText>
-            )}
-          </FlexContentWrapper>
-        </FlexWrapper>
+        {getBannerMessage()}
       </StyledBanner>
     );
   }

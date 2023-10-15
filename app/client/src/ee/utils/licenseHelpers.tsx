@@ -54,5 +54,8 @@ export const ShowUpgradeMenuItem = () => {
 export const Banner = () => {
   const showBanner = useSelector(shouldShowLicenseBanner);
   const isHomePage = useRouteMatch("/applications")?.isExact;
-  return showBanner && isHomePage ? <PageBannerMessage /> : null;
+  const isLicensePage = useRouteMatch("/license")?.isExact;
+  return showBanner && (isHomePage || isLicensePage) ? (
+    <PageBannerMessage />
+  ) : null;
 };

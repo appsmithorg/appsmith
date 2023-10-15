@@ -41,6 +41,7 @@
   "freeLicenseInput":"[data-testid=t--license-input-free]",
   "freeLicenseCustomerPortalLink":"[data-testid=t--customer-portal-link-free]",
   "expiredPaidCallout":"[data-testid=t--expired-paid-callout]",
+  "billingBanner":"[data-testid=t--billing-banner]",
   "licenseFreeCard":"[data-testid=t--license-check-card-wrapper-free]",
   "licensePaidCard":"[data-testid=t--license-check-card-wrapper-paid]",
   "planCard":"[data-testid=t--plan-content]",

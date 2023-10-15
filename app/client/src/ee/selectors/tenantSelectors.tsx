@@ -86,6 +86,36 @@ export const getRemainingDays = createSelector(getExpiry, (expiry) => {
 export const isTrialLicense = (state: AppState) =>
   state.tenant?.tenantConfiguration?.license?.type === LICENSE_TYPE.TRIAL;
 
+export const isTrialExpiredLicense = (state: AppState) => {
+  const { license } = state.tenant?.tenantConfiguration;
+  if (license) {
+    return (
+      license.type === LICENSE_TYPE.TRIAL &&
+      license.status === LICENSE_TYPE.EXPIRED
+    );
+  }
+};
+
+export const isTrialActiveLicense = (state: AppState) => {
+  const { license } = state.tenant?.tenantConfiguration;
+  if (license) {
+    return (
+      license.type === LICENSE_TYPE.TRIAL &&
+      license.status !== LICENSE_TYPE.EXPIRED
+    );
+  }
+};
+
+export const isPaidExpiredLicense = (state: AppState) => {
+  const { license } = state.tenant?.tenantConfiguration;
+  if (license) {
+    return (
+      license.type === LICENSE_TYPE.PAID &&
+      license.status === LICENSE_TYPE.EXPIRED
+    );
+  }
+};
+
 export const isLicensePaymentFailed = (state: AppState) =>
   state.tenant?.tenantConfiguration?.license?.status ===
   LICENSE_TYPE.PAYMENT_FAILED;
@@ -96,11 +126,17 @@ export const isBEBannerVisible = (state: AppState) => {
 };
 
 export const shouldShowLicenseBanner = (state: AppState) => {
-  const isTrialLicenseOrFailed =
-    isTrialLicense(state) ||
-    (isLicensePaymentFailed(state) && isAdminUser(state));
-  const isBEBanner = isBEBannerVisible(state);
-  return !isBEBanner && isTrialLicenseOrFailed;
+  if (isBEBannerVisible(state)) return false;
+  if (
+    isTrialActiveLicense(state) ||
+    (isAdminUser(state) &&
+      (isTrialExpiredLicense(state) ||
+        isPaidExpiredLicense(state) ||
+        isLicensePaymentFailed(state)))
+  ) {
+    return true;
+  }
+  return false;
 };
 
 export const hasInvalidLicenseKeyError = (state: AppState) => {

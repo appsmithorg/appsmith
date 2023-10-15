@@ -6,8 +6,6 @@ import {
   PAID,
   ADD_LICENSE,
   ADD_KEY,
-  DOWNGRADE_CALLOUT_TEXT_TRIAL,
-  VISIT_PORTAL,
   LICENSE_EXPIRED_HEADING_TRIAL,
   LICENSE_TRIAL_EXPIRED_COMMMUNITY_DOWNGRADE,
   LICENSE_TRIAL_EXPIRED_CONTINUE,
@@ -27,7 +25,7 @@ import {
 } from "../styles";
 import PageHeader from "pages/common/PageHeader";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
-import { Button, Callout, Text } from "design-system";
+import { Button, Text } from "design-system";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { LicenseForm } from "../LicenseForm";
 import {
@@ -41,7 +39,6 @@ import {
   removeLicense,
   showDowngradeLicenseModal,
 } from "@appsmith/actions/tenantActions";
-import { CUSTOMER_PORTAL_PLANS_URL } from "@appsmith/constants/BillingConstants";
 import DowngradeModal from "@appsmith/pages/Billing/Components/Modals/DowngradeModal";
 
 const LICENSE_CARD_FREE = getAssetUrl(
@@ -74,19 +71,6 @@ export default function LicenseCheckPageExpiredTrial() {
       <PageHeader hideEditProfileLink />
       <StyledPageWrapper>
         <StyledBannerWrapper>
-          <Callout
-            kind="warning"
-            links={[
-              {
-                children: createMessage(VISIT_PORTAL),
-                to: CUSTOMER_PORTAL_PLANS_URL,
-                endIcon: "share-2",
-              },
-            ]}
-          >
-            {createMessage(DOWNGRADE_CALLOUT_TEXT_TRIAL)}
-          </Callout>
-
           <Text
             data-testid="t--no-active-subscription-text"
             kind="heading-xl"

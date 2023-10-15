@@ -148,15 +148,11 @@ export const LICENSE_KEY_FORM_INPUT_LABEL = () =>
 export const LICENSE_KEY_MODAL_INPUT_LABEL = () => "Enter license key";
 export const LICENSE_KEY_CTA_LABEL = () => "Don’t have a license key?";
 export const TRIAL_EXPIRY_WARNING = (gracePeriod: number, suffix: string) =>
-  `Your trial will expire in <span>${gracePeriod}</span> ${suffix}. `;
+  `Your trial will expire in ${gracePeriod} ${suffix}.`;
 export const CONTINUE_USING_FEATURES = () =>
-  `to continue using Appsmith Business Edition. `;
-export const CONTINUE_USING_FEATURES_ENTERPRISE = () =>
-  `to continue using Appsmith Enterprise Edition. `;
+  `Upgrade to continue using all the features.`;
 export const NON_ADMIN_USER_TRIAL_EXPIRTY_WARNING = () =>
-  `Please contact your administrator to upgrade and continue using Appsmith Business Edition. `;
-export const NON_ADMIN_USER_TRIAL_EXPIRTY_WARNING_ENTERPRISE = () =>
-  `Please contact your administrator to upgrade and continue using Appsmith Enterprise Edition. `;
+  `Contact your administrator to upgrade and continue using Appsmith.`;
 export const TOTAL_USERS_MESSAGE = () => `Total users`;
 export const NUMBER_OF_SELF_HOSTED_USERS = () =>
   ` Number of users on the self-hosted instance`;
@@ -200,13 +196,14 @@ export const TRIAL = () => `Trial`;
 export const CUSTOMER_PORTAL = () => `Customer Portal`;
 export const LICENSE_KEY = () => `License key`;
 export const ALREADY_UPGRADED = () => `Already upgraded?`;
-export const PAYMENT_FAILED = () => `Your last payment has failed.`;
-export const PAYMENT_FAILED_UPDATE = (count: number, suffix: string) =>
-  `your payment methods to continue using Appsmith, else all your instances will shut down in ${count} ${suffix}.`;
+export const PAYMENT_FAILED = () => `Your most recent payment has failed.`;
+export const PAYMENT_FAILED_TEXT = (count: number, suffix: string) =>
+  `Your most recent payment has failed. Update your payment methods or your instances will stop working in ${count} ${suffix}.`;
 export const ENTERPRISE = () => `Enterprise`;
 export const SELF_SERVE = () => `Business`;
 export const AIRGAPPED = () => `Airgapped`;
 export const FREE = () => `Free`;
+export const VISIT_PORTAL_CTA = () => `Visit portal`;
 export const SUBMIT_BUTTON = () => "Submit";
 export const LICENSE_FORM_DESCIPTION = () =>
   "Your previous license will be invalid";
@@ -235,6 +232,10 @@ export const DONT_HAVE_LICENSE = () => "Don't have a license?";
 export const GET_ONE_NOW = () => "Get one now.";
 export const DOWNGRADE_CALLOUT_TEXT_PAID = () =>
   "Your license key is no longer valid. Contact us to continue using all the features.";
+export const TRIAL_EXPIRED_TEXT = () =>
+  "Your trial has expired. Upgrade to continue using all the features.";
+export const PAID_EXPIRED_TEXT = () =>
+  "Your license key is no longer valid. Get a new license to continue using all the features.";
 export const DOWNGRADE_CALLOUT_TEXT_TRIAL = () =>
   "Your trial license has expired. Upgrade to continue using all the features.";
 export const DOWNGRADE_CALLOUT_SUBTEXT_1_ACTIVE = () =>
