@@ -751,9 +751,8 @@ function* activeFieldDebuggerErrorHandler(
   };
   yield take(ReduxActionTypes.RESET_ACTIVE_EDITOR_FIELD);
 
-  const latestDebuggerErrors: Record<string, Log> = yield select(
-    getDebuggerErrors,
-  );
+  const latestDebuggerErrors: Record<string, Log> =
+    yield select(getDebuggerErrors);
   const latestSourceDebuggerError: Log = latestDebuggerErrors[logId];
   blockedSource = null;
 
