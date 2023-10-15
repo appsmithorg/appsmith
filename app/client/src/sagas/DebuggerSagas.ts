@@ -393,6 +393,8 @@ function* logDebuggerErrorAnalyticsSaga(
     const activeEditorField: ReturnType<typeof getActiveEditorField> =
       yield select(getActiveEditorField);
     const sourceFullPath = source.name + "." + source.propertyPath || "";
+    // To prevent redundant logs for active editor fields
+    // We dispatch log events only after the onBlur event of the editor field is fired
     if (sourceFullPath === activeEditorField) {
       if (!blockedSource) {
         blockedSource = sourceFullPath;
@@ -726,7 +728,8 @@ export function* updateTriggerMeta(
     triggerMeta["triggerPropertyName"] = name;
   }
 }
-
+// This function handles logging of debugger error events for active editor fields
+// Error logs are fired only after the editor gets blur
 function* activeFieldDebuggerErrorHandler(
   analyticsPayload: LogDebuggerErrorAnalyticsPayload,
   currentDebuggerErrors: Record<string, Log>,
