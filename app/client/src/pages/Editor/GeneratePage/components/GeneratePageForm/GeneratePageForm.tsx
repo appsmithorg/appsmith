@@ -23,7 +23,7 @@ import DataSourceOption, {
   CONNECT_NEW_DATASOURCE_OPTION_ID,
   DatasourceImage,
 } from "../DataSourceOption";
-import { getQueryStringfromObject } from "@appsmith/RouteBuilder";
+import { getQueryStringfromObject } from "@appsmith/entities/URLRedirect/URLAssembly";
 import type { DropdownOption } from "design-system-old";
 import { Button, Icon, Text, Select, Option, Tooltip } from "design-system";
 import GoogleSheetForm from "./GoogleSheetForm";
