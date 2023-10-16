@@ -34,6 +34,7 @@ export interface License {
   updatingLicense: boolean;
   refreshingLicense: boolean;
   isFree?: boolean;
+  plan?: string;
 }
 
 const INITIAL_BRAND_COLOR = "#000";

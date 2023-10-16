@@ -50,7 +50,10 @@ import {
   showDowngradeLicenseModal,
 } from "@appsmith/actions/tenantActions";
 import { firstTimeUserOnboardingInit } from "actions/onboardingActions";
-import { LICENSE_MODIFICATION } from "@appsmith/pages/Billing/Types/types";
+import {
+  LICENSE_MODIFICATION,
+  LICENSE_PLANS,
+} from "@appsmith/pages/Billing/Types/types";
 import { getIsSafeRedirectURL } from "utils/helpers";
 import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -119,7 +122,14 @@ export function* startLicenseStatusCheckSaga() {
           payload: response.data,
         });
       }
-      if (!response.data?.tenantConfiguration?.license?.active) {
+
+      const isLicenseActive =
+        response.data?.tenantConfiguration?.license?.active;
+      const isLicenseFree =
+        response.data?.tenantConfiguration?.license?.plan ===
+        LICENSE_PLANS.FREE;
+
+      if (!isLicenseActive && !isLicenseFree) {
         yield put({ type: ReduxActionTypes.STOP_LICENSE_STATUS_CHECK });
         if (redirectUrl) {
           history.replace(
