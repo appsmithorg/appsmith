@@ -561,7 +561,7 @@ export function* handleJSFunctionExecutionErrorLog(
             }),
             source: {
               id: action.collectionId ? action.collectionId : action.id,
-              name: `${collectionName}.${action.name}`,
+              name: collectionName,
               type: ENTITY_TYPE.JSACTION,
               propertyPath: `${action.name}`,
             },

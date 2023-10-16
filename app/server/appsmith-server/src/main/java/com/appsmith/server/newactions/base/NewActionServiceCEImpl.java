@@ -40,15 +40,15 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.helpers.ce.ImportApplicationPermissionProvider;
+import com.appsmith.server.newpages.base.NewPageService;
+import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.MarketplaceService;
-import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.PermissionGroupService;
-import com.appsmith.server.services.PluginService;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
@@ -1688,12 +1688,12 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
      * - update default resource ids along with branch-name if the application is connected to git
      * - update the map of imported collectionIds to the actionIds in saved in DB
      *
-     * @param importedNewActionList                 action list extracted from the imported JSON file
-     * @param application                           imported and saved application in DB
-     * @param branchName                            branch to which the actions needs to be saved if the application is connected to git
-     * @param pageNameMap                           map of page name to saved page in DB
-     * @param pluginMap                             map of plugin name to saved plugin id in DB
-     * @param datasourceMap                         map of plugin name to saved datasource id in DB
+     * @param importedNewActionList action list extracted from the imported JSON file
+     * @param application           imported and saved application in DB
+     * @param branchName            branch to which the actions needs to be saved if the application is connected to git
+     * @param pageNameMap           map of page name to saved page in DB
+     * @param pluginMap             map of plugin name to saved plugin id in DB
+     * @param datasourceMap         map of plugin name to saved datasource id in DB
      * @return A DTO class with several information
      */
     @Override
@@ -1986,5 +1986,11 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     @Override
     public Flux<PluginTypeAndCountDTO> countActionsByPluginType(String applicationId) {
         return repository.countActionsByPluginType(applicationId);
+    }
+
+    @Override
+    public Flux<NewAction> findByListOfPageIds(
+            List<String> unpublishedPages, Optional<AclPermission> optionalPermission) {
+        return repository.findByListOfPageIds(unpublishedPages, optionalPermission);
     }
 }
