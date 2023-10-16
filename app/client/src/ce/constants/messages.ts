@@ -1239,8 +1239,7 @@ export const SNIPPET_TOOLTIP = () => "Search code snippets";
 
 //Welcome page
 export const WELCOME_HEADER = () => "Almost there";
-export const WELCOME_BODY = () =>
-  "Help us provide you with a customized experience.";
+export const WELCOME_BODY = () => "Let's setup your account first";
 export const WELCOME_ACTION = () => "Get started";
 
 // API Editor
@@ -1435,6 +1434,7 @@ export const WELCOME_FORM_NON_SUPER_USER_USE_CASE = () =>
 export const WELCOME_FORM_NON_SUPER_USER_PROFICIENCY_LEVEL = () =>
   "How would you rate your development proficiency?";
 
+export const WELCOME_FORM_ROLE_ERROR_MESSAGE = () => "Please enter a role";
 export const WELCOME_FORM_PROFICIENCY_ERROR_MESSAGE = () =>
   "Please select a proficiency level";
 export const WELCOME_FORM_USE_CASE_ERROR_MESSAGE = () =>
