@@ -64,7 +64,7 @@ import {
 import Boxed from "./GuidedTour/Boxed";
 import EndTour from "./GuidedTour/EndTour";
 import { GUIDED_TOUR_STEPS } from "./GuidedTour/constants";
-import { viewerURL } from "RouteBuilder";
+import { viewerURL } from "@appsmith/RouteBuilder";
 import { useHref } from "./utils";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
@@ -330,7 +330,7 @@ export function EditorHeader() {
                       {featureFlags.release_show_publish_app_to_community_enabled &&
                         cloudHosting && (
                           <Tab data-testid="t--tab-PUBLISH" value="publish">
-                            {createMessage(COMMUNITY_TEMPLATES.publish)}
+                            {createMessage(COMMUNITY_TEMPLATES.tabTitle)}
                           </Tab>
                         )}
                     </TabsList>

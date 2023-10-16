@@ -80,7 +80,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { User } from "constants/userConstants";
-import { builderURL, queryEditorIdURL } from "RouteBuilder";
+import { builderURL, queryEditorIdURL } from "@appsmith/RouteBuilder";
 import { GuidedTourEntityNames } from "pages/Editor/GuidedTour/constants";
 import type { GuidedTourState } from "reducers/uiReducers/guidedTourReducer";
 import { sessionStorage } from "utils/localStorage";
