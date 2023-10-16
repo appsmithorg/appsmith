@@ -1,27 +1,52 @@
 import React from "react";
 import WidgetsEditorEntityExplorer from "../WidgetsEditorEntityExplorer";
-import { getCurrentAppState } from "entities/IDE/utils";
 import { useSelector } from "react-redux";
 import { getIsAppSidebarEnabled } from "selectors/ideSelectors";
-import { AppState } from "entities/IDE/constants";
 import styled from "styled-components";
+import { Switch, useRouteMatch } from "react-router";
+import { SentryRoute } from "@appsmith/AppRouter";
+import {
+  APP_LIBRARIES_EDITOR_PATH,
+  APP_SETTINGS_EDITOR_PATH,
+  DATA_SOURCES_EDITOR_ID_PATH,
+  DATA_SOURCES_EDITOR_LIST_PATH,
+} from "constants/routes";
 
 const SidePaneContainer = styled.div`
   height: 100%;
-  width: 250px;
+  width: 256px;
   border-right: 1px solid var(--ads-v2-color-border);
 `;
 
 const IDESidePane = () => {
   const isAppSidebarEnabled = useSelector(getIsAppSidebarEnabled);
-  const appState = getCurrentAppState(window.location.pathname);
+  const { path } = useRouteMatch();
   if (!isAppSidebarEnabled) {
     return <WidgetsEditorEntityExplorer />;
   }
-  if (appState === AppState.PAGES) {
-    return <WidgetsEditorEntityExplorer />;
-  }
-  return <SidePaneContainer />;
+  return (
+    <Switch>
+      <SentryRoute
+        component={SidePaneContainer}
+        exact
+        path={[
+          `${path}${DATA_SOURCES_EDITOR_LIST_PATH}`,
+          `${path}${DATA_SOURCES_EDITOR_ID_PATH}`,
+        ]}
+      />
+      <SentryRoute
+        component={SidePaneContainer}
+        exact
+        path={`${path}${APP_LIBRARIES_EDITOR_PATH}`}
+      />
+      <SentryRoute
+        component={SidePaneContainer}
+        exact
+        path={`${path}${APP_SETTINGS_EDITOR_PATH}`}
+      />
+      <SentryRoute component={WidgetsEditorEntityExplorer} />
+    </Switch>
+  );
 };
 
 export default IDESidePane;

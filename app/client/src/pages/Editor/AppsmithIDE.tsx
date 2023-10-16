@@ -5,6 +5,8 @@ import { Route, Switch, useRouteMatch } from "react-router";
 
 import BottomBar from "components/BottomBar";
 import {
+  APP_LIBRARIES_EDITOR_PATH,
+  APP_SETTINGS_EDITOR_PATH,
   BUILDER_CUSTOM_PATH,
   BUILDER_PATH,
   BUILDER_PATH_DEPRECATED,
@@ -55,6 +57,16 @@ function AppsmithIDE() {
               component={WidgetsEditor}
               exact
               path={`${path}${WIDGETS_EDITOR_ID_PATH}`}
+            />
+            <SentryRoute
+              component={WidgetsEditor}
+              exact
+              path={`${path}${APP_LIBRARIES_EDITOR_PATH}`}
+            />
+            <SentryRoute
+              component={WidgetsEditor}
+              exact
+              path={`${path}${APP_SETTINGS_EDITOR_PATH}`}
             />
             <SentryRoute component={EditorsRouter} />
           </Switch>
