@@ -174,7 +174,7 @@ export async function installLibrary(
       for (const acc of accessors) {
         self[acc] = undefined;
       }
-      log.debug(e, `terDefinitions failed for ${url}`);
+      log.debug(e, `ternDefinitions failed for ${url}`);
       throw new TernDefinitionError(
         `Failed to generate autocomplete definitions: ${name}`,
       );
@@ -234,9 +234,21 @@ export async function loadLibraries(
         self.importScripts(url);
         const keysAfter = Object.keys(self);
         const defaultAccessors = difference(keysAfter, keysBefore);
+
+        /**
+         * Installing 2 different version of lodash tries to add the same accessor on the self object. Let take version a & b for example.
+         * Installation of version a, will add _ to the self object and can be detected by looking at the differences in the previous step.
+         * Now when version b is installed, differences will be [], since _ already exists in the self object.
+         * We add all the installations to the libStore and see if the reference it points to in the self object changes.
+         * If the references changes it means that it a valid accessor.
+         */
         defaultAccessors.push(
           ...Object.keys(libStore).filter((k) => libStore[k] !== self[k]),
         );
+
+        /** Sort the accessor list from backend and installed accessor list using the same rule to apply all modifications.
+         * This is required only for UMD builds, since we always generate unique names for ESM.
+         */
         accessors.sort();
         defaultAccessors.sort();
 
