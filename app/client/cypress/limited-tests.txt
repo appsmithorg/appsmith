@@ -1,6 +1,10 @@
 # To run only limited tests - give the spec names in below format:
-cypress/e2e/Regression/ClientSide/Templates/Fork_Template_spec.js
-
+cypress/e2e/Regression/ClientSide/Refactoring/Refactoring_spec.ts
+cypress/e2e/Regression/ClientSide/Widgets/Form/FormWidget_spec.js
+cypress/e2e/Regression/ClientSide/Widgets/Multiselect/MultiSelect_label_value.ts
+cypress/e2e/Regression/ClientSide/Widgets/Switch/SwitchGroup2_spec.js
+cypress/e2e/Regression/ClientSide/Widgets/TableV1/Table_PropertyPane_IconName_spec.js
+cypress/e2e/Regression/ClientSide/Widgets/TableV2/Inline_editing_3_spec.js
 
 # For running all specs - uncomment below:
 #cypress/e2e/**/**/*
