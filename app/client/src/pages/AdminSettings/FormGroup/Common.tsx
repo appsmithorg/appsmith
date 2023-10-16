@@ -3,6 +3,8 @@ import React from "react";
 import styled from "styled-components";
 import { Icon, Tooltip, Text } from "design-system";
 import type { Setting } from "@appsmith/pages/AdminSettings/config/types";
+import EnterpriseTag from "components/EnterpriseTag";
+import BusinessTag from "components/BusinessTag";
 
 interface FieldHelperProps {
   setting: Setting;
@@ -28,6 +30,8 @@ export const StyledFormGroup = styled.div`
 
 export const StyledLabel = styled.div`
   margin-bottom: 4px;
+  display: flex;
+  align-items: center;
 `;
 
 export const StyledSubtext = styled(Text)`
@@ -73,6 +77,14 @@ export function FormGroup({ children, className, setting }: FieldHelperProps) {
             />
           </Tooltip>
         )}
+        <div className="ml-2">
+          {setting.isFeatureEnabled === false &&
+            (setting.isEnterprise === true ? (
+              <EnterpriseTag />
+            ) : (
+              <BusinessTag />
+            ))}
+        </div>
       </StyledLabel>
       {children}
       {setting.subText && (
