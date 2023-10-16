@@ -96,7 +96,7 @@ export function NavigationMenuItem({
     case MenuTypes.MENU:
       return (
         <MenuItem
-          data-testid={`t--application-edit-menu-${kebabCase(text)}`}
+          data-testid={`t--editor-menu-${kebabCase(text)}`}
           onClick={(e) => handleClick(e, menuItemData)}
         >
           {menuItemData.text}
@@ -104,7 +104,7 @@ export function NavigationMenuItem({
       );
     case MenuTypes.PARENT:
       return (
-        <MenuSub data-testid={`t--application-edit-menu-${kebabCase(text)}`}>
+        <MenuSub data-testid={`t--editor-menu-${kebabCase(text)}`}>
           <MenuSubTrigger>{menuItemData.text}</MenuSubTrigger>
           <MenuSubContent width="214px">
             {menuItemData?.children?.map((subitem, idx) => (
@@ -126,7 +126,7 @@ export function NavigationMenuItem({
       return (
         <ReconfirmMenuItem
           className="error-menuitem"
-          data-testid={`t--application-edit-menu-${kebabCase(text)}`}
+          data-testid={`t--editor-menu-${kebabCase(text)}`}
           onClick={(e) => handleReconfirmClick(e, menuItemData)}
         >
           {confirm.text}
