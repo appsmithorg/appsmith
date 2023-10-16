@@ -36,6 +36,8 @@ import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidg
 import { getWidgetBluePrintUpdates } from "utils/WidgetBlueprintUtils";
 import { DynamicHeight } from "utils/WidgetFeatures";
 import type { FlexLayer } from "layoutSystems/autolayout/utils/types";
+import type { LayoutProps } from "layoutSystems/anvil/utils/anvilTypes";
+import { modalPreset } from "layoutSystems/anvil/layoutComponents/presets/ModalPreset";
 
 export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
   static type = "MODAL_WIDGET";
@@ -219,7 +221,6 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
               parent: FlattenedWidgetProps,
               isAutoLayout: boolean,
             ) => {
-              if (!isAutoLayout) return [];
 
               //get Canvas Widget
               const canvasWidget: FlattenedWidgetProps = get(
@@ -277,6 +278,13 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
                 },
               ];
 
+              const layout: LayoutProps[] = modalPreset(
+                textWidget.widgetId,
+                iconWidget.widgetId,
+                buttonWidget2.widgetId,
+                buttonWidget1.widgetId,
+              )
+
               //Add widget specific property Defaults, for autoLayout widget
               const { disabledPropsDefaults } =
                 WidgetFactory.getWidgetAutoLayoutConfig("MODAL_WIDGET") || {};
@@ -293,6 +301,7 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
                   useAutoLayout: true,
                   positioning: Positioning.Vertical,
                   bottomRow: 100,
+                  layout,
                 },
                 [textWidget.widgetId]: {
                   responsiveBehavior: ResponsiveBehavior.Fill,

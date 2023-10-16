@@ -104,6 +104,7 @@ export class ContainerWidget extends BaseWidget<
               canExtend: false,
               detachFromLayout: true,
               children: [],
+              layout: generateDefaultLayoutPreset(),
             },
           },
         ],
@@ -311,7 +312,6 @@ export class ContainerWidget extends BaseWidget<
     childWidget.useAutoLayout = this.props.positioning
       ? this.props.positioning === Positioning.Vertical
       : false;
-    childWidget.layout = childWidget.layout ?? generateDefaultLayoutPreset();
 
     return renderAppsmithCanvas(childWidget as WidgetProps);
   }
