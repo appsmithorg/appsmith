@@ -11,3 +11,7 @@ trim_trailing_whitespace = true
 
 [{*.java,pom.xml,*.py}]
 indent_size = 4
+
+[Caddyfile]
+indent_style = tab
+indent_size = 4

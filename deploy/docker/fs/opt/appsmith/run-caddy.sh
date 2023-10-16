@@ -5,6 +5,8 @@ set -o nounset
 set -o pipefail
 set -o xtrace
 
+mkdir -p "$TMP/caddy"
+
 if [[ -z "${APPSMITH_ALLOWED_FRAME_ANCESTORS-}" ]]; then
   # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors
   export APPSMITH_ALLOWED_FRAME_ANCESTORS="'self'"
@@ -39,11 +41,15 @@ apply-env-vars /opt/appsmith/editor/index.html "$NGINX_WWW_PATH/index.html"
 
 # todo: use caddy storage export and import as part of backup/restore.
 
-node caddy-reconfigure.mjs
+if [[ -e "/appsmith-stacks/ssl/fullchain.pem" ]] && [[ -e "/appsmith-stacks/ssl/privkey.pem" ]]; then
+  echo 'tls /appsmith-stacks/ssl/fullchain.pem /appsmith-stacks/ssl/privkey.pem' > "$TMP/caddy/tls"
+elif [[ -n ${APPSMITH_CUSTOM_DOMAIN-} && -f "/etc/letsencrypt/live/${APPSMITH_CUSTOM_DOMAIN-}/fullchain.pem" ]]; then
+  echo "tls /etc/letsencrypt/live/$APPSMITH_CUSTOM_DOMAIN/fullchain.pem /etc/letsencrypt/live/$APPSMITH_CUSTOM_DOMAIN/privkey.pem" > "$TMP/caddy/tls"
+fi
 
 if pgrep caddy >/dev/null; then
-  # Caddy may already be ruuning for the loading page.
+  # Caddy may already be running for the loading page.
   /opt/caddy/caddy stop
 fi
 
-exec /opt/caddy/caddy run --config "$TMP/Caddyfile"
+exec /opt/caddy/caddy run

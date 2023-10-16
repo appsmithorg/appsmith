@@ -432,9 +432,8 @@ init_loading_pages(){
   export XDG_DATA_HOME=/appsmith-stacks/data
   export XDG_CONFIG_HOME=/appsmith-stacks/configuration
   mkdir -p "$XDG_DATA_HOME" "$XDG_CONFIG_HOME"
-  node caddy-reconfigure.mjs
   cp templates/loading.html "$NGINX_WWW_PATH"
-  /opt/caddy/caddy start --config "$TMP/Caddyfile"
+  /opt/caddy/caddy start
 }
 
 # Main Section
