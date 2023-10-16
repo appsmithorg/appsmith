@@ -8,7 +8,10 @@ import { evalTreeWithChanges } from "./evalTreeWithChanges";
 import { dataTreeEvaluator } from "./handlers/evalTree";
 import { get, set } from "lodash";
 import { validate } from "./validations";
-import type { DataTreeEntityConfig } from "@appsmith/entities/DataTree/types";
+import type {
+  DataTreeEntityConfig,
+  WidgetEntity,
+} from "@appsmith/entities/DataTree/types";
 import type {
   ConfigTree,
   DataTree,
@@ -89,7 +92,7 @@ class Setters {
 
     if (isWidget(entity)) {
       overrideWidgetProperties({
-        entity,
+        entity: entity as WidgetEntity,
         propertyPath,
         value: parsedValue,
         currentTree: evalTree,

@@ -1,9 +1,6 @@
 import React from "react";
-
-import { useSelector } from "react-redux";
 import styled from "styled-components";
 import { TextType, Text } from "design-system-old";
-import { getIsPageSaving, getPageSavingError } from "selectors/editorSelectors";
 import { Colors } from "constants/Colors";
 import { createMessage, EDITOR_HEADER } from "@appsmith/constants/messages";
 import { Icon, Spinner } from "design-system";
@@ -13,17 +10,20 @@ const SaveStatusContainer = styled.div`
   display: flex;
 `;
 
-export function EditorSaveIndicator() {
-  const isSaving = useSelector(getIsPageSaving);
-  const pageSaveError = useSelector(getPageSavingError);
-
+export function EditorSaveIndicator({
+  isSaving,
+  saveError,
+}: {
+  isSaving: boolean;
+  saveError: boolean;
+}) {
   let saveStatusIcon: React.ReactNode;
   let saveStatusText = "";
   if (isSaving) {
     saveStatusIcon = <Spinner className="t--save-status-is-saving" />;
     saveStatusText = createMessage(EDITOR_HEADER.saving);
   } else {
-    if (pageSaveError) {
+    if (saveError) {
       saveStatusIcon = (
         <Icon className={"t--save-status-error"} name="cloud-off-line" />
       );
@@ -31,7 +31,7 @@ export function EditorSaveIndicator() {
     }
   }
 
-  if (!pageSaveError && !isSaving) return null;
+  if (!saveError && !isSaving) return null;
 
   return (
     <SaveStatusContainer className={"t--save-status-container gap-x-1"}>

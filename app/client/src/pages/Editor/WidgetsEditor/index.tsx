@@ -31,9 +31,13 @@ import MainContainerWrapper from "./MainContainerWrapper";
 import EmptyCanvasPrompts from "./EmptyCanvasPrompts";
 import { useAutoHeightUIState } from "utils/hooks/autoHeightUIHooks";
 import { PageViewWrapper } from "pages/AppViewer/AppPage.styled";
-import { NAVIGATION_SETTINGS } from "constants/AppConstants";
+import {
+  APP_SETTINGS_PANE_WIDTH,
+  NAVIGATION_SETTINGS,
+} from "constants/AppConstants";
 import {
   getAppSettingsPaneContext,
+  getIsAppSettingsPaneOpen,
   getIsAppSettingsPaneWithNavigationTabOpen,
 } from "selectors/appSettingsPaneSelectors";
 import { AppSettingsTabs } from "../AppSettingsPane/AppSettings";
@@ -46,6 +50,8 @@ import classNames from "classnames";
 import { getSnapshotUpdatedTime } from "selectors/autoLayoutSelectors";
 import { getReadableSnapShotDetails } from "layoutSystems/autolayout/utils/AutoLayoutUtils";
 import AnonymousDataPopup from "../FirstTimeUserOnboarding/AnonymousDataPopup";
+import AppSettingsPane from "../AppSettingsPane";
+import { getIsAppSidebarEnabled } from "selectors/ideSelectors";
 
 function WidgetsEditor() {
   const { deselectAll, focusWidget } = useWidgetSelection();
@@ -74,6 +80,9 @@ function WidgetsEditor() {
   const isMobile = useIsMobileDevice();
   const isPreviewingNavigation =
     isPreviewMode || isAppSettingsPaneWithNavigationTabOpen;
+
+  const isAppSettingsPaneOpen = useSelector(getIsAppSettingsPaneOpen);
+  const isAppSidebarEnabled = useSelector(getIsAppSidebarEnabled);
 
   const shouldShowSnapShotBanner =
     !!readableSnapShotDetails && !isPreviewingNavigation;
@@ -165,6 +174,13 @@ function WidgetsEditor() {
     <EditorContextProvider renderMode="CANVAS">
       {guidedTourEnabled && <Guide />}
       <div className="relative flex flex-row w-full overflow-hidden">
+        {isAppSettingsPaneOpen && isAppSidebarEnabled && (
+          <div className="h-full flex">
+            <div style={{ width: APP_SETTINGS_PANE_WIDTH }}>
+              <AppSettingsPane />
+            </div>
+          </div>
+        )}
         <div
           className={classNames({
             "relative flex flex-col w-full overflow-hidden": true,
@@ -227,7 +243,9 @@ function WidgetsEditor() {
           </div>
           <Debugger />
         </div>
-        <PropertyPaneWrapper />
+        {!(isAppSettingsPaneOpen && isAppSidebarEnabled) && (
+          <PropertyPaneWrapper />
+        )}
       </div>
     </EditorContextProvider>
   );
