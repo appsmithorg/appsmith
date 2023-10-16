@@ -958,7 +958,8 @@ public class ImportExportApplicationServiceTests {
                     final List<ActionCollection> actionCollectionList = tuple.getT5();
                     final List<CustomJSLib> importedJSLibList = tuple.getT6();
 
-                    // although the imported list had only one jsLib entry, the other entry comes from ensuring an xml parser entry
+                    // although the imported list had only one jsLib entry, the other entry comes from ensuring an xml
+                    // parser entry
                     // for backward compatibility
                     assertEquals(2, importedJSLibList.size());
                     CustomJSLib importedJSLib = (CustomJSLib) importedJSLibList.toArray()[0];
@@ -970,7 +971,8 @@ public class ImportExportApplicationServiceTests {
                     assertEquals(expectedJSLib.getDocsUrl(), importedJSLib.getDocsUrl());
                     assertEquals(expectedJSLib.getVersion(), importedJSLib.getVersion());
                     assertEquals(expectedJSLib.getDefs(), importedJSLib.getDefs());
-                    // although the imported list had only one jsLib entry, the other entry comes from ensuring an xml parser entry
+                    // although the imported list had only one jsLib entry, the other entry comes from ensuring an xml
+                    // parser entry
                     // for backward compatibility
                     assertEquals(2, application.getUnpublishedCustomJSLibs().size());
 
