@@ -94,7 +94,7 @@ function* fetchPluginFormConfigsSaga() {
     for (const pluginId of actionPluginIds) {
       pluginIdFormsToFetch.add(pluginId);
     }
-    log.error("pluginIdFormsToFetch acquired");
+    log.error("pluginIdFormsToFetch acquired", pluginIdFormsToFetch);
 
     const pluginFormData: PluginFormPayload[] = [];
     const pluginFormResponses: ApiResponse<PluginFormPayload>[] = yield all(
@@ -102,12 +102,14 @@ function* fetchPluginFormConfigsSaga() {
         call(PluginsApi.fetchFormConfig, id),
       ),
     );
+
+    log.error("pluginIdFormsToFetch API completion", pluginFormResponses);
     for (const response of pluginFormResponses) {
       yield validateResponse(response);
       pluginFormData.push(response.data);
     }
 
-    log.error("pluginIdFormsToFetch API completion");
+    log.error("pluginIdFormsToFetch Responses validated");
 
     if (jsPlugin) {
       pluginIdFormsToFetch.add(jsPlugin.id);
