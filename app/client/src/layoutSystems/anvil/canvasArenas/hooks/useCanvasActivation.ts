@@ -72,11 +72,13 @@ export const useCanvasActivation = (layoutId: string) => {
           }
         },
       );
-      if (hoveredCanvas) {
-        outOfMainCanvas.current = false;
-        setDraggingCanvas(hoveredCanvas);
-      } else {
-        mouseOutOfCanvasArtBoard();
+      if (dragDetails.draggedOn !== hoveredCanvas) {
+        if (hoveredCanvas) {
+          outOfMainCanvas.current = false;
+          setDraggingCanvas(hoveredCanvas);
+        } else {
+          mouseOutOfCanvasArtBoard();
+        }
       }
     }
   };
@@ -93,7 +95,7 @@ export const useCanvasActivation = (layoutId: string) => {
   };
   useEffect(() => {
     if (isDragging && layoutId === mainCanvasLayoutId) {
-      mainContainerDOMNode?.addEventListener("mousemove", onMouseMove);
+      document?.addEventListener("mousemove", onMouseMove);
       mainContainerDOMNode?.addEventListener("mouseover", onMouseMove, false);
       mainContainerDOMNode?.addEventListener(
         "mouseout",
@@ -106,7 +108,7 @@ export const useCanvasActivation = (layoutId: string) => {
         false,
       );
       return () => {
-        mainContainerDOMNode?.removeEventListener("mousemove", onMouseMove);
+        document?.removeEventListener("mousemove", onMouseMove);
         mainContainerDOMNode?.removeEventListener(
           "mouseover",
           onMouseMove,
