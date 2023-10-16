@@ -17,6 +17,15 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import WidgetFactory from "WidgetProvider/factory";
 import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
 import { sortObjectWithArray } from "../../../utils/treeUtils";
+import klona from "klona";
+
+const klonaFullSpy = jest.fn();
+jest.mock("klona/full", () => ({
+  klona: (arg: any) => {
+    klonaFullSpy(arg);
+    return klona.klona(arg);
+  },
+}));
 
 const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
   CONTAINER_WIDGET: {
@@ -334,6 +343,9 @@ const initialdependencies = {
 };
 
 describe("DataTreeEvaluator", () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
   metaMock.mockImplementation((type) => {
     return WIDGET_CONFIG_MAP[type].metaProperties;
   });
@@ -548,8 +560,14 @@ describe("DataTreeEvaluator", () => {
   };
 
   const evaluator = new DataTreeEvaluator(WIDGET_CONFIG_MAP);
-  evaluator.setupFirstTree(unEvalTree, configTree);
-  evaluator.evalAndValidateFirstTree();
+
+  it("Checks the number of clone operations in first tree flow", () => {
+    evaluator.setupFirstTree(unEvalTree, configTree);
+    evaluator.evalAndValidateFirstTree();
+    // Hard check to not regress on the number of clone operations. Try to improve this number.
+    expect(klonaFullSpy).toBeCalledTimes(41);
+  });
+
   it("Evaluates a binding in first run", () => {
     const evaluation = evaluator.evalTree;
     const dependencies = evaluator.dependencies;
@@ -1020,5 +1038,39 @@ describe("DataTreeEvaluator", () => {
     const dataTree = evaluator.evalTree;
     expect(dataTree).toHaveProperty("TextX.text", 123);
     expect(dataTree).toHaveProperty("Text1.text", "Label");
+  });
+  it("Checks the number of clone operations performed in update tree flow", () => {
+    const { configEntity, unEvalEntity } = generateDataTreeWidget(
+      {
+        ...BASE_WIDGET_CONFIG,
+        ...BASE_WIDGET,
+        widgetName: "TextY",
+        text: "{{Text1.text = 123}}",
+        dynamicBindingPathList: [{ key: "text" }],
+        type: "TEXT_WIDGET",
+      },
+      {},
+      new Set(),
+    );
+    const updatedUnEvalTree = {
+      ...unEvalTree,
+      TextY: unEvalEntity,
+    };
+    const updatedConfigTree = {
+      ...configTree,
+      TextY: configEntity,
+    };
+    const { evalOrder, nonDynamicFieldValidationOrder, unEvalUpdates } =
+      evaluator.setupUpdateTree(updatedUnEvalTree, updatedConfigTree);
+    expect(evalOrder).toContain("TextY.text");
+    expect(evalOrder.length).toBe(2);
+    evaluator.evalAndValidateSubTree(
+      evalOrder,
+      nonDynamicFieldValidationOrder,
+      updatedConfigTree,
+      unEvalUpdates,
+    );
+    // Hard check to not regress on the number of clone operations. Try to improve this number.
+    expect(klonaFullSpy).toBeCalledTimes(7);
   });
 });

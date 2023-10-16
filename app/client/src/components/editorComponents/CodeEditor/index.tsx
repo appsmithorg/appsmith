@@ -157,6 +157,10 @@ import { CodeEditorSignPosting } from "@appsmith/components/editorComponents/Cod
 import { getFocusablePropertyPaneField } from "selectors/propertyPaneSelectors";
 import resizeObserver from "utils/resizeObserver";
 import { EMPTY_BINDING } from "../ActionCreator/constants";
+import {
+  resetActiveEditorField,
+  setActiveEditorField,
+} from "actions/activeFieldActions";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
@@ -1063,6 +1067,7 @@ class CodeEditor extends Component<Props, State> {
   };
 
   handleEditorFocus = (cm: CodeMirror.Editor) => {
+    this.props.setActiveField(this.props.dataTreePath || "");
     this.setState({ isFocused: true });
     const { sticky } = cm.getCursor();
     const isUserFocus = sticky !== null;
@@ -1118,6 +1123,7 @@ class CodeEditor extends Component<Props, State> {
         return;
       }
     }
+    this.props.resetActiveField();
     this.handleChange();
     this.setState({ isFocused: false });
     this.editor.setOption("matchBrackets", false);
@@ -1724,6 +1730,8 @@ const mapDispatchToProps = (dispatch: any) => ({
   startingEntityUpdate: () => dispatch(startingEntityUpdate()),
   setCodeEditorLastFocus: (payload: CodeEditorFocusState) =>
     dispatch(setEditorFieldFocusAction(payload)),
+  setActiveField: (path: string) => dispatch(setActiveEditorField(path)),
+  resetActiveField: () => dispatch(resetActiveEditorField()),
 });
 
 export default Sentry.withProfiler(

@@ -174,7 +174,9 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.APPLICATION_ID));
         }
 
-        boolean isGitSync = SerialiseApplicationObjective.VERSION_CONTROL.equals(serialiseFor);
+        boolean isGitSync = SerialiseApplicationObjective.VERSION_CONTROL.equals(serialiseFor)
+                || SerialiseApplicationObjective.KNOWLEDGE_BASE_GENERATION.equals(serialiseFor);
+
         exportingMetaDTO.setIsGitSync(isGitSync);
         exportingMetaDTO.setExportWithConfiguration(false);
 
