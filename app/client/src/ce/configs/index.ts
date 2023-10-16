@@ -40,7 +40,6 @@ export interface INJECTED_CONFIGS {
   cloudServicesBaseUrl: string;
   googleRecaptchaSiteKey: string;
   supportEmail: string;
-  hideWatermark: boolean;
   disableIframeWidgetSandbox: boolean;
   pricingUrl: string;
   customerPortalUrl: string;
@@ -107,9 +106,7 @@ export const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
     googleRecaptchaSiteKey:
       process.env.REACT_APP_GOOGLE_RECAPTCHA_SITE_KEY || "",
     supportEmail: process.env.APPSMITH_SUPPORT_EMAIL || "support@appsmith.com",
-    hideWatermark: process.env.APPSMITH_HIDE_WATERMARK
-      ? process.env.APPSMITH_HIDE_WATERMARK.length > 0
-      : false,
+
     disableIframeWidgetSandbox: process.env
       .APPSMITH_DISABLE_IFRAME_WIDGET_SANDBOX
       ? process.env.APPSMITH_DISABLE_IFRAME_WIDGET_SANDBOX.length > 0
@@ -261,10 +258,6 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
       APPSMITH_FEATURE_CONFIGS?.cloudServicesBaseUrl ||
       "",
     appsmithSupportEmail: ENV_CONFIG.supportEmail,
-    hideWatermark:
-      ENV_CONFIG.hideWatermark ||
-      APPSMITH_FEATURE_CONFIGS?.hideWatermark ||
-      false,
     disableIframeWidgetSandbox:
       ENV_CONFIG.disableIframeWidgetSandbox ||
       APPSMITH_FEATURE_CONFIGS?.disableIframeWidgetSandbox ||
