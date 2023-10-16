@@ -1,15 +1,15 @@
 import { AnvilReduxActionTypes } from "layoutSystems/anvil/integrations/actions/actionTypes";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import type { WidgetPositions } from "layoutSystems/common/types";
-import { all, put, takeEvery } from "redux-saga/effects";
+import { all, call, put, select, take, takeEvery } from "redux-saga/effects";
 import {
   extractLayoutIdFromLayoutDOMId,
   extractWidgetId,
-  getAnvilWidgetId,
-  getLayoutId,
 } from "layoutSystems/common/utils/WidgetPositionsObserver/utils";
 import { CANVAS_ART_BOARD } from "constants/componentClassNameConstants";
 import { positionObserver } from "layoutSystems/common/utils/WidgetPositionsObserver";
+import type { AppState } from "@appsmith/reducers";
 
 /**
  * This saga is used to read and update widget position from the the list of widgets,
@@ -19,15 +19,8 @@ import { positionObserver } from "layoutSystems/common/utils/WidgetPositionsObse
  * Layouts: When triggered by the ResizeObserver wrapping the layout (Layout Components)
  * @param action All the widgets, layers and layouts that have changed and currently in queue to be processed
  */
-function* readAndUpdateWidgetPositions(
-  action: ReduxAction<{
-    widgetsProcessQueue: {
-      [widgetId: string]: DOMRect | boolean;
-    };
-    layoutsProcessQueue: { [key: string]: DOMRect | boolean };
-  }>,
-) {
-  const { layoutsProcessQueue, widgetsProcessQueue } = action.payload;
+function* readAndUpdateWidgetPositions() {
+  // const { layoutsProcessQueue, widgetsProcessQueue } = action.payload;
 
   // const everythingToProcess = {
   //   ...layoutsProcessQueue,
@@ -67,8 +60,8 @@ function* readAndUpdateWidgetPositions(
 
   const registeredLayouts = positionObserver.getRegisteredLayouts();
   const registeredWidgets = positionObserver.getRegisteredWidgets();
-  console.log("### registeredLayouts", registeredLayouts);
-  console.log("### registeredWidgets", registeredWidgets);
+  // console.log("### registeredLayouts", registeredLayouts);
+  // console.log("### registeredWidgets", registeredWidgets);
   for (const layoutId of Object.keys(registeredLayouts)) {
     const element: HTMLElement | null = document.getElementById(layoutId);
     const _layoutId = extractLayoutIdFromLayoutDOMId(layoutId);
@@ -147,10 +140,28 @@ function* readAndUpdateWidgetPositions(
   });
 }
 
+function* shouldReadPositions(saga: any, action: ReduxAction<unknown>) {
+  const isCanvasResizing: boolean = yield select(
+    (state: AppState) => state.ui.widgetDragResize.isAutoCanvasResizing,
+  );
+  if (!isCanvasResizing) {
+    yield call(saga, action);
+  } else {
+    yield take(
+      (canvasResizingAction: any) =>
+        canvasResizingAction.type ===
+          ReduxActionTypes.SET_AUTO_CANVAS_RESIZING &&
+        canvasResizingAction.payload === true,
+    );
+    yield call(saga, action);
+  }
+}
+
 export default function* WidgetPositionSaga() {
   yield all([
     takeEvery(
       AnvilReduxActionTypes.READ_WIDGET_POSITIONS,
+      shouldReadPositions,
       readAndUpdateWidgetPositions,
     ),
   ]);

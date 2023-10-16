@@ -72,16 +72,18 @@ export const useCanvasActivation = (layoutId: string) => {
           }
         },
       );
-      if (hoveredCanvas) {
-        outOfMainCanvas.current = false;
-        setDraggingCanvas(hoveredCanvas);
-      } else {
-        mouseOutOfCanvasArtBoard();
+      if (dragDetails.draggedOn !== hoveredCanvas) {
+        if (hoveredCanvas) {
+          outOfMainCanvas.current = false;
+          setDraggingCanvas(hoveredCanvas);
+        } else {
+          mouseOutOfCanvasArtBoard();
+        }
       }
     }
   };
   const onMouseUp = () => {
-    if (outOfMainCanvas.current) {
+    if (isDragging) {
       if (isNewWidget) {
         setDraggingNewWidget(false, undefined);
       } else {
@@ -93,37 +95,13 @@ export const useCanvasActivation = (layoutId: string) => {
   };
   useEffect(() => {
     if (isDragging && layoutId === mainCanvasLayoutId) {
-      mainContainerDOMNode?.addEventListener("mousemove", onMouseMove);
-      mainContainerDOMNode?.addEventListener("mouseover", onMouseMove, false);
-      mainContainerDOMNode?.addEventListener(
-        "mouseout",
-        mouseOutOfCanvasArtBoard,
-        false,
-      );
-      mainContainerDOMNode?.addEventListener(
-        "mouseleave",
-        mouseOutOfCanvasArtBoard,
-        false,
-      );
+      document?.addEventListener("mousemove", onMouseMove);
+      document.body.addEventListener("mouseup", onMouseUp, false);
+      window.addEventListener("mouseup", onMouseUp, false);
       return () => {
-        mainContainerDOMNode?.removeEventListener("mousemove", onMouseMove);
-        mainContainerDOMNode?.removeEventListener(
-          "mouseover",
-          onMouseMove,
-          false,
-        );
-        mainContainerDOMNode?.removeEventListener(
-          "mouseout",
-          mouseOutOfCanvasArtBoard,
-          false,
-        );
-        mainContainerDOMNode?.removeEventListener(
-          "mouseleave",
-          mouseOutOfCanvasArtBoard,
-          false,
-        );
-        document.body.addEventListener("mouseup", onMouseUp, false);
-        window.addEventListener("mouseup", onMouseUp, false);
+        document?.removeEventListener("mousemove", onMouseMove);
+        document.body.removeEventListener("mouseup", onMouseUp);
+        window.removeEventListener("mouseup", onMouseUp);
       };
     }
   }, [isDragging, onMouseMove, onMouseUp, mouseOutOfCanvasArtBoard]);
