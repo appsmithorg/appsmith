@@ -122,7 +122,6 @@ function QueryEditor(props: QueryEditorProps) {
     >
       <Editor
         {...props}
-        changeQueryPage={changeQueryPage}
         isEditorInitialized={isEditorInitialized}
         settingsConfig={settingsConfig}
       />

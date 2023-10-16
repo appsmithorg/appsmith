@@ -100,7 +100,6 @@ interface ReduxStateProps {
 type StateAndRouteProps = RouteComponentProps<QueryEditorRouteParams>;
 type OwnProps = StateAndRouteProps & {
   isEditorInitialized: boolean;
-  changeQueryPage: (queryId: string) => void;
   settingsConfig: any;
 };
 type Props = ReduxDispatchProps & ReduxStateProps & OwnProps;
@@ -186,7 +185,7 @@ class QueryEditor extends React.Component<Props> {
       prevProps.actionId !== this.props.actionId ||
       prevProps.pluginId !== this.props.pluginId
     ) {
-      this.props.changeQueryPage(this.props.actionId);
+      this.context?.changeQueryPage?.(this.props.actionId);
     }
   }
 
