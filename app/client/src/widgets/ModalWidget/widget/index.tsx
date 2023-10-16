@@ -221,7 +221,6 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
               parent: FlattenedWidgetProps,
               isAutoLayout: boolean,
             ) => {
-
               //get Canvas Widget
               const canvasWidget: FlattenedWidgetProps = get(
                 widget,
@@ -283,7 +282,7 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
                 iconWidget.widgetId,
                 buttonWidget2.widgetId,
                 buttonWidget1.widgetId,
-              )
+              );
 
               //Add widget specific property Defaults, for autoLayout widget
               const { disabledPropsDefaults } =

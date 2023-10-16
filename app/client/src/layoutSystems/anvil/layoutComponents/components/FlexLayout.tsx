@@ -65,7 +65,7 @@ export const FlexLayout = (props: FlexLayoutProps) => {
       minHeight: props.minHeight || "unset",
       minWidth: props.minWidth || "unset",
       width: props.width || "auto",
-      padding: props.padding || "0px",
+      padding: props.padding || (props.isDropTarget ? "4px" : "0px"),
       rowGap: props.rowGap || {
         base: addPixelToSize(MOBILE_ROW_GAP),
         [addPixelToSize(MOBILE_BREAKPOINT)]: addPixelToSize(ROW_GAP),

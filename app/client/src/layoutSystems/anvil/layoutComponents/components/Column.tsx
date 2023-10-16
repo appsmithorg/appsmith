@@ -61,7 +61,8 @@ Column.deriveHighlights = (
   widgetPositions: WidgetPositions,
   canvasId: string,
   draggedWidgets: DraggedWidget[],
-  layoutOrder?: string[],
+  layoutOrder: string[],
+  parentDropTarget: string,
 ): AnvilHighlightInfo[] => {
   return deriveColumnHighlights(
     layoutProps,
@@ -69,6 +70,7 @@ Column.deriveHighlights = (
     canvasId,
     draggedWidgets,
     layoutOrder || [],
+    parentDropTarget,
   );
 };
 

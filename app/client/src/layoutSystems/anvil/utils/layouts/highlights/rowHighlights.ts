@@ -19,6 +19,7 @@ import type {
   WidgetPosition,
   WidgetPositions,
 } from "layoutSystems/common/types";
+import { getRelativeDimensions } from "./dimensionUtils";
 
 export interface RowMetaInformation {
   metaData: RowMetaData[][];
@@ -33,6 +34,7 @@ export interface RowMetaData extends WidgetLayoutProps, WidgetPosition {}
  * @param canvasId | string
  * @param draggedWidgets | DraggedWidget[] : List of widgets that are being dragged
  * @param layoutOrder | string[] : Top - down hierarchy of layout IDs.
+ * @param parentDropTarget | string : id of immediate drop target ancestor.
  * @returns AnvilHighlightInfo[] : List of highlights for the layout.
  */
 export function deriveRowHighlights(
@@ -41,6 +43,7 @@ export function deriveRowHighlights(
   canvasId: string,
   draggedWidgets: DraggedWidget[],
   layoutOrder: string[],
+  parentDropTarget: string,
 ): AnvilHighlightInfo[] {
   if (
     !layoutProps ||
@@ -50,7 +53,9 @@ export function deriveRowHighlights(
   )
     return [];
 
-  const { layoutStyle } = layoutProps;
+  const { isDropTarget, layoutId, layoutStyle } = layoutProps;
+
+  let parentDropTargetId: string = isDropTarget ? layoutId : parentDropTarget;
 
   const baseHighlight: AnvilHighlightInfo = {
     alignment:
@@ -74,6 +79,7 @@ export function deriveRowHighlights(
       layoutProps,
       widgetPositions,
       baseHighlight,
+      parentDropTargetId,
       generateHighlights,
     );
   }
@@ -90,6 +96,7 @@ export function deriveRowHighlights(
       canvasId,
       draggedWidgets,
       layoutOrder,
+      parentDropTargetId,
     );
   }
 
@@ -98,6 +105,7 @@ export function deriveRowHighlights(
     widgetPositions,
     baseHighlight,
     draggedWidgets,
+    parentDropTargetId,
   );
 }
 
@@ -111,6 +119,7 @@ export function deriveRowHighlights(
  * @param widgetPositions | WidgetPositions
  * @param baseHighlight | AnvilHighlightInfo
  * @param draggedWidgets | DraggedWidget[] : List of dragged widgets.
+ * @param parentDropTargetId | string : Id of immediate drop target ancestor.
  * @returns AnvilHighlightInfo[] : List of highlights.
  */
 export function getHighlightsForWidgetsRow(
@@ -118,6 +127,7 @@ export function getHighlightsForWidgetsRow(
   widgetPositions: WidgetPositions,
   baseHighlight: AnvilHighlightInfo,
   draggedWidgets: DraggedWidget[],
+  parentDropTargetId: string,
 ): AnvilHighlightInfo[] {
   // Get widget data
   const layout: WidgetLayoutProps[] = layoutProps.layout as WidgetLayoutProps[];
@@ -126,6 +136,7 @@ export function getHighlightsForWidgetsRow(
   const meta: RowMetaInformation = extractMetaInformation(
     layout,
     widgetPositions,
+    parentDropTargetId,
   );
 
   // add a highlight before every widget and after the last one.
@@ -139,6 +150,7 @@ export function getHighlightsForWidgetsRow(
         widgetPositions,
         baseHighlight,
         draggedWidgets,
+        parentDropTargetId,
         highlights.length ? highlights[highlights.length - 1].rowIndex : 0, // Start subsequent wrapped row with the same index as the last index of the previous row.
       ),
     );
@@ -163,15 +175,24 @@ export function getHighlightsForRow(
   widgetPositions: WidgetPositions,
   baseHighlight: AnvilHighlightInfo,
   draggedWidgets: DraggedWidget[],
+  parentDropTargetId: string,
   startingIndex = 0,
 ): AnvilHighlightInfo[] {
   const highlights: AnvilHighlightInfo[] = [];
   let index = 0;
   let draggedWidgetCount = 0;
-  const { height, top } = widgetPositions[tallestWidget.widgetId];
+  const { height, top } = getRelativeDimensions(
+    tallestWidget.widgetId,
+    parentDropTargetId,
+    widgetPositions,
+  );
 
-  const layoutDimensions: WidgetPosition =
-    widgetPositions[layoutProps.layoutId];
+  const layoutDimensions: WidgetPosition = getRelativeDimensions(
+    layoutProps.layoutId,
+    parentDropTargetId,
+    widgetPositions,
+  );
+
   while (index < row.length) {
     const { widgetId } = row[index];
     const isDraggedWidget: boolean = draggedWidgets.some(
@@ -223,6 +244,7 @@ export function getHighlightsForRow(
 export function extractMetaInformation(
   layout: WidgetLayoutProps[],
   widgetPositions: WidgetPositions,
+  parentDropTargetId: string,
 ): RowMetaInformation {
   const data: RowMetaData[][] = [];
   const tallestWidgets: WidgetLayoutProps[] = [];
@@ -230,7 +252,11 @@ export function extractMetaInformation(
   let currentTallestWidget: WidgetLayoutProps = layout[0];
   let maxHeight = 0;
   for (const each of layout) {
-    const dimensions: WidgetPosition = widgetPositions[each.widgetId];
+    const dimensions: WidgetPosition = getRelativeDimensions(
+      each.widgetId,
+      parentDropTargetId,
+      widgetPositions,
+    );
     if (!dimensions) continue;
     const { height, top } = dimensions;
     // If current row is empty, add the widget to it.
@@ -287,6 +313,7 @@ export function checkIntersection(a: number[], b: number[]): boolean {
  * @param baseHighlight | AnvilHighlightInfo
  * @param canvasId | string
  * @param layoutOrder |string[] : Top - down hierarchy of parent layouts.
+ * @param parentDropTargetId | string : Id of immediate drop target ancestor.
  * @returns AnvilHighlightInfo[] : List of highlights
  */
 export function getHighlightsForLayoutRow(
@@ -296,6 +323,7 @@ export function getHighlightsForLayoutRow(
   canvasId: string,
   draggedWidgets: DraggedWidget[],
   layoutOrder: string[],
+  parentDropTargetId: string,
 ): AnvilHighlightInfo[] {
   const highlights: AnvilHighlightInfo[] = [];
   const layout: LayoutProps[] = layoutProps.layout as LayoutProps[];
@@ -309,18 +337,40 @@ export function getHighlightsForLayoutRow(
 
     // Dimensions of neighboring layouts
     const prevLayoutDimensions: WidgetPosition | undefined =
-      index === 0 ? undefined : widgetPositions[layout[index - 1]?.layoutId];
+      index === 0
+        ? undefined
+        : getRelativeDimensions(
+            layout[index - 1]?.layoutId,
+            parentDropTargetId,
+            widgetPositions,
+          );
     const nextLayoutDimensions: WidgetPosition | undefined =
       index === layout.length - 1
         ? undefined
-        : widgetPositions[layout[index + 1]?.layoutId];
+        : getRelativeDimensions(
+            layout[index + 1]?.layoutId,
+            parentDropTargetId,
+            widgetPositions,
+          );
+
+    const layoutDimension: WidgetPosition = getRelativeDimensions(
+      layoutProps.layoutId,
+      parentDropTargetId,
+      widgetPositions,
+    );
+
+    const currentDimension: WidgetPosition = getRelativeDimensions(
+      layoutId,
+      parentDropTargetId,
+      widgetPositions,
+    );
 
     // Add a highlight before the child layout
     highlights.push(
       ...generateHighlights(
         baseHighlight,
-        widgetPositions[layoutProps.layoutId],
-        widgetPositions[layoutId],
+        layoutDimension,
+        currentDimension,
         prevLayoutDimensions,
         nextLayoutDimensions,
         index,
@@ -343,6 +393,7 @@ export function getHighlightsForLayoutRow(
         canvasId,
         draggedWidgets,
         updatedOrder,
+        parentDropTargetId,
       );
 
       highlights.push(...layoutHighlights);
@@ -355,8 +406,8 @@ export function getHighlightsForLayoutRow(
       highlights.push(
         ...generateHighlights(
           baseHighlight,
-          widgetPositions[layoutProps.layoutId],
-          widgetPositions[layoutId],
+          layoutDimension,
+          currentDimension,
           prevLayoutDimensions,
           nextLayoutDimensions,
           index,
@@ -394,12 +445,9 @@ export function generateHighlights(
               currentDimension.left +
                 currentDimension.width +
                 HIGHLIGHT_SIZE / 2,
-              layoutDimension.width - HIGHLIGHT_SIZE / 2,
+              layoutDimension.left + layoutDimension.width - HIGHLIGHT_SIZE,
             )
-        : Math.max(
-            currentDimension.left - HIGHLIGHT_SIZE / 2,
-            HIGHLIGHT_SIZE / 2,
-          ),
+        : Math.max(currentDimension.left - HIGHLIGHT_SIZE, HIGHLIGHT_SIZE / 2),
       posY: currentDimension.top,
       rowIndex,
     },

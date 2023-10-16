@@ -59,7 +59,8 @@ AlignedRow.deriveHighlights = (
   widgetPositions: WidgetPositions,
   canvasId: string,
   draggedWidgets: DraggedWidget[],
-  layoutOrder?: string[],
+  layoutOrder: string[],
+  parentDropTarget: string,
 ): AnvilHighlightInfo[] => {
   return deriveAlignedRowHighlights(
     layoutProps,
@@ -67,6 +68,7 @@ AlignedRow.deriveHighlights = (
     canvasId,
     draggedWidgets,
     layoutOrder || [],
+    parentDropTarget,
   );
 };
 

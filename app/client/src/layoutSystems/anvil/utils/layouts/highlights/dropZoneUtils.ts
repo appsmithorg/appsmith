@@ -114,7 +114,10 @@ export function getFinalHorizontalDropZone(
   const { left, width } = currentDimensions;
   return {
     left: (width + HIGHLIGHT_SIZE / 2) * HORIZONTAL_DROP_ZONE_MULTIPLIER,
-    right: layoutDimensions.width - (left + width),
+    right: Math.max(
+      layoutDimensions.left + layoutDimensions.width - (left + width),
+      0,
+    ),
   };
 }
 

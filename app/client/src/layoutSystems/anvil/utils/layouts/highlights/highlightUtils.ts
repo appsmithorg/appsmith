@@ -20,6 +20,7 @@ import type { WidgetPositions } from "layoutSystems/common/types";
  * @param draggedWidgets | string[] : list of widgets that are being dragged.
  * @param layoutOrder | string[] : Hierarchy (Top - down) of layouts.
  * @param baseHighlight | AnvilHighlightInfo : base highlight object.
+ * @param parentDropTargetId | string : id of immediate drop target ancestor.
  * @param generateHighlights | GenerateHighlights : method to generate highlights for the parent layout.
  * @param getInitialHighlights | GetInitialHighlights : method to generate initial highlights for an empty layout.
  * @param getHighlightsForLayouts | GetLayoutHighlights : method to generate highlights for child layouts.
@@ -34,6 +35,7 @@ export function deriveHighlights(
   draggedWidgets: DraggedWidget[],
   layoutOrder: string[],
   baseHighlight: AnvilHighlightInfo,
+  parentDropTargetId: string,
   generateHighlights: GenerateHighlights,
   getInitialHighlights: GetInitialHighlights,
   getHighlightsForLayouts: GetLayoutHighlights,
@@ -46,6 +48,7 @@ export function deriveHighlights(
       layoutProps,
       widgetPositions,
       baseHighlight,
+      parentDropTargetId,
       generateHighlights,
       hasFillWidget,
     );
@@ -67,6 +70,7 @@ export function deriveHighlights(
       draggedWidgets,
       canvasId,
       layoutOrder,
+      parentDropTargetId,
       generateHighlights,
       hasFillWidget,
     );
@@ -77,6 +81,7 @@ export function deriveHighlights(
     widgetPositions,
     baseHighlight,
     draggedWidgets,
+    parentDropTargetId,
     generateHighlights,
     hasFillWidget,
   );

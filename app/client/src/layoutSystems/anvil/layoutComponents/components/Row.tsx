@@ -58,7 +58,8 @@ Row.deriveHighlights = (
   widgetPositions: WidgetPositions,
   canvasId: string,
   draggedWidgets: DraggedWidget[],
-  layoutOrder?: string[],
+  layoutOrder: string[],
+  parentDropTarget: string,
 ) => {
   return deriveRowHighlights(
     layoutProps,
@@ -66,6 +67,7 @@ Row.deriveHighlights = (
     canvasId,
     draggedWidgets,
     layoutOrder || [],
+    parentDropTarget,
   );
 };
 

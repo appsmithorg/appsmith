@@ -30,6 +30,7 @@ import type {
  * @param canvasId | string
  * @param draggedWidgets | DraggedWidget[] : List of widgets that are being dragged
  * @param layoutOrder | string[] : Top - down hierarchy of layout IDs.
+ * @param parentDropTarget | string : id of immediate drop target ancestor.
  * @returns AnvilHighlightInfo[] : List of highlights for the layout.
  */
 export function deriveAlignedColumnHighlights(
@@ -38,6 +39,7 @@ export function deriveAlignedColumnHighlights(
   canvasId: string,
   draggedWidgets: DraggedWidget[],
   layoutOrder: string[],
+  parentDropTarget: string,
 ): AnvilHighlightInfo[] {
   if (
     !layoutProps ||
@@ -47,7 +49,9 @@ export function deriveAlignedColumnHighlights(
   )
     return [];
 
-  const { layoutStyle } = layoutProps;
+  const { isDropTarget, layoutId, layoutStyle } = layoutProps;
+
+  let parentId: string = isDropTarget ? layoutId : parentDropTarget;
 
   const baseHighlight: AnvilHighlightInfo = {
     alignment:
@@ -77,6 +81,7 @@ export function deriveAlignedColumnHighlights(
     draggedWidgets,
     layoutOrder,
     baseHighlight,
+    parentId,
     generateHighlights,
     getInitialHighlights,
     getHighlightsForLayouts,
@@ -112,6 +117,7 @@ function generateHighlights(
    */
   const width: number = (layoutDimension.width - HIGHLIGHT_SIZE) / arr.length;
   const isInitialHighlight: boolean = rowIndex === 0;
+
   return arr.map((alignment: FlexLayerAlignment, index: number) => ({
     ...baseHighlight,
     alignment,
@@ -123,12 +129,22 @@ function generateHighlights(
     posX: width * index,
     posY: isLastHighlight
       ? isInitialHighlight
-        ? currentDimension.top
-        : Math.min(
-            currentDimension.top + currentDimension.height + HIGHLIGHT_SIZE / 2,
-            layoutDimension.height - HIGHLIGHT_SIZE / 2,
+        ? // Position values are relative to the MainCanvas. Hence it is important to deduct parent's position from widget's to get a position that is relative to the parent widget.
+          Math.max(
+            currentDimension.top - layoutDimension.top - HIGHLIGHT_SIZE,
+            0,
           )
-      : Math.max(currentDimension.top - HIGHLIGHT_SIZE / 2, HIGHLIGHT_SIZE / 2),
+        : Math.min(
+            currentDimension.top -
+              layoutDimension.top +
+              currentDimension.height +
+              HIGHLIGHT_SIZE / 2,
+            layoutDimension.height - HIGHLIGHT_SIZE,
+          )
+      : Math.max(
+          currentDimension.top - layoutDimension.top - HIGHLIGHT_SIZE,
+          HIGHLIGHT_SIZE / 2,
+        ),
     rowIndex: rowIndex,
     width,
   }));

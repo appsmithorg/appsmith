@@ -63,11 +63,12 @@ export interface LayoutComponent extends React.FC<LayoutComponentProps> {
   getChildTemplate: (props: LayoutProps) => LayoutProps | undefined;
   // Get a list of highlights to demarcate the drop positions within the layout.
   deriveHighlights: (
-    layoutProps: LayoutProps,
-    widgetPositions: WidgetPositions,
-    canvasId: string,
-    draggedWidgets: DraggedWidget[],
-    layoutOrder?: string[],
+    layoutProps: LayoutProps, // Properties of layout for which highlights have to be derived.
+    widgetPositions: WidgetPositions, // Positions and dimensions of all widgets and layouts.
+    canvasId: string, // widget Id of the parent canvas widget.
+    draggedWidgets: DraggedWidget[], // List of dragged widgets/
+    layoutOrder: string[], // Top - down hierarchy of layoutIds.
+    parentDropTarget: string, // layoutId of immediate drop target ancestor.
   ) => AnvilHighlightInfo[];
   // Get a list of child widgetIds rendered by the layout.
   extractChildWidgetIds: (props: LayoutProps) => string[];
@@ -117,6 +118,7 @@ export type GetInitialHighlights = (
   layoutProps: LayoutProps,
   widgetPositions: WidgetPositions,
   baseHighlight: AnvilHighlightInfo,
+  parentDropTargetId: string,
   generateHighlights: GenerateHighlights,
   hasFillWidget?: boolean,
 ) => AnvilHighlightInfo[];
@@ -126,6 +128,7 @@ export type GetWidgetHighlights = (
   widgetPositions: WidgetPositions,
   baseHighlight: AnvilHighlightInfo,
   draggedWidgets: DraggedWidget[],
+  parentDropTargetId: string,
   generateHighlights: GenerateHighlights,
   hasFillWidget?: boolean,
 ) => AnvilHighlightInfo[];
@@ -137,6 +140,7 @@ export type GetLayoutHighlights = (
   draggedWidgets: DraggedWidget[],
   canvasId: string,
   layoutOrder: string[],
+  parentDropTargetId: string,
   generateHighlights: GenerateHighlights,
   hasFillWidget?: boolean,
 ) => AnvilHighlightInfo[];
