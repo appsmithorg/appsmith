@@ -4,7 +4,6 @@ import type {
 } from "@appsmith/entities/DataTree/types";
 import { ENTITY_TYPE_VALUE } from "entities/DataTree/dataTreeFactory";
 import JSObjectCollection from "./JSObject/Collection";
-import JSFactory from "./JSObject/JSVariableFactory";
 import { jsObjectFunctionFactory } from "./fns/utils/jsObjectFnFactory";
 import { isObject } from "lodash";
 
@@ -55,7 +54,8 @@ export function getEntityForEvalContext(
           return Object.assign({}, jsObject, fns);
         }
 
-        jsObjectForEval = JSFactory.create(entityName, jsObjectForEval);
+        jsObjectForEval =
+          JSObjectCollection.getVariablesForEvaluationContext(entityName);
         return Object.assign(jsObjectForEval, fns);
       }
     }
