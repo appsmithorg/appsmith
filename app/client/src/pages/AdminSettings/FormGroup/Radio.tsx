@@ -87,6 +87,16 @@ const PopoverStyles = createGlobalStyle`
   }
 `;
 
+const StyledFormGroup = styled(FormGroup)`
+  .styled-label {
+    padding: 0 0 0.5rem;
+  }
+
+  .admin-settings-form-group-label {
+    font-weight: var(--ads-v2-h5-font-weight);
+  }
+`;
+
 type RadioGroupProps = SettingComponentProps;
 
 function RadioFieldWrapper(
@@ -201,7 +211,7 @@ export default function RadioField({ setting }: RadioGroupProps) {
   const controlTypeProps = setting.controlTypeProps as RadioOptionProps;
 
   return (
-    <FormGroup
+    <StyledFormGroup
       className={`t--admin-settings-radio t--admin-settings-${
         setting.name || setting.id
       }`}
@@ -214,6 +224,6 @@ export default function RadioField({ setting }: RadioGroupProps) {
         name={setting.name}
         parse={setting.parse}
       />
-    </FormGroup>
+    </StyledFormGroup>
   );
 }

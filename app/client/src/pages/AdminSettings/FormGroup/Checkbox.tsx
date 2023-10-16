@@ -64,8 +64,6 @@ function FieldCheckboxWithCheckboxText(props: CheckboxProps) {
 }
 
 const StyledFieldCheckboxGroup = styled.div`
-  margin-bottom: 8px;
-
   .styled-label {
     padding: 0 0 0.5rem;
   }

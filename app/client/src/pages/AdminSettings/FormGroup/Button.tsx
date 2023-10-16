@@ -8,7 +8,6 @@ import { FormGroup, type SettingComponentProps } from "./Common";
 
 const ButtonWrapper = styled.div`
   width: 357px;
-  margin-bottom: 8px;
 
   .styled-label {
     padding: 0 0 0.5rem;
