@@ -27,7 +27,7 @@ import { roleOptions, useCaseOptions } from "./constants";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import { setFirstTimeUserOnboardingTelemetryCalloutVisibility } from "utils/storage";
 
-export type DetailsFormValues = {
+export interface DetailsFormValues {
   firstName?: string;
   lastName?: string;
   email?: string;
@@ -37,7 +37,7 @@ export type DetailsFormValues = {
   useCase?: string;
   custom_useCase?: string;
   role_name?: string;
-};
+}
 
 export type SetupFormProps = DetailsFormValues & {
   formSyncErrors?: FormErrors<string, string>;
