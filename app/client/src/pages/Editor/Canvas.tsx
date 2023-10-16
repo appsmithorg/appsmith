@@ -1,4 +1,5 @@
 import log from "loglevel";
+import type { CSSProperties } from "react";
 import React from "react";
 import styled from "styled-components";
 import * as Sentry from "@sentry/react";
@@ -28,15 +29,23 @@ interface CanvasProps {
 
 const Wrapper = styled.section<{
   background: string;
-  width: number;
+
   $enableMainCanvasResizer: boolean;
 }>`
   background: ${({ background }) => background};
-  width: ${({ $enableMainCanvasResizer, width }) =>
-    $enableMainCanvasResizer ? `100%` : `${width}px`};
+  width: 100%;
   min-height: 100%;
   height: 100%;
 `;
+
+const intersectionRootStyle: CSSProperties = {
+  position: "fixed",
+  left: "-1px",
+  top: "-1px",
+  width: "2px",
+  height: "2px",
+};
+
 const Canvas = (props: CanvasProps) => {
   const { canvasWidth } = props;
   const isPreviewMode = useSelector(previewModeSelector);
@@ -89,11 +98,11 @@ const Canvas = (props: CanvasProps) => {
           data-testid={"t--canvas-artboard"}
           id={CANVAS_ART_BOARD}
           ref={focusRef}
-          width={canvasWidth}
         >
           {props.widgetsStructure.widgetId &&
             renderAppsmithCanvas(props.widgetsStructure as WidgetProps)}
         </Wrapper>
+        <div id="intersection-root" style={intersectionRootStyle} />
       </WDSThemeProvider>
     );
   } catch (error) {

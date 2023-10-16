@@ -11,7 +11,7 @@ export const useAnvilDnDUtils = (
   const onDrop = useAnvilWidgetDrop(canvasId, anvilDragStates);
   const renderOnMouseMove = useCallback(
     (e: MouseEvent, allHighLights: AnvilHighlightInfo[]) => {
-      console.log({ canvasId, allHighLights });
+      // console.log("####", { canvasId, allHighLights });
       return getClosestHighlight(e, allHighLights);
     },
     [],

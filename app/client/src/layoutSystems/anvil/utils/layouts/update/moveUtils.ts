@@ -99,6 +99,20 @@ export function moveWidgets(
     alignment: highlight.alignment,
   }));
 
+  const newLayout = addWidgetsToPreset(
+    updatedParentLayout,
+    highlight,
+    newChildren,
+  );
+
+  console.log("###", {
+    widgets,
+    parent,
+    movedWidgets,
+    updatedParentLayout,
+    newChildren,
+    newLayout,
+  });
   /**
    * Step 4: Add all moved widgets to new parent and update its layout in the drop position specified by the highlight.
    */
@@ -112,7 +126,7 @@ export function moveWidgets(
         ),
         ...movedWidgets,
       ],
-      layout: addWidgetsToPreset(updatedParentLayout, highlight, newChildren),
+      layout: newLayout,
     },
   };
 }

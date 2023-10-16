@@ -145,6 +145,13 @@ export const useCanvasDragging = (
 
       if (isDragging) {
         const onMouseUp = () => {
+          console.log("### mouse up", {
+            isDragging,
+            canvasIsDragging,
+            currentRectanglesToDraw,
+            anvilDragStates,
+          });
+
           if (
             isDragging &&
             canvasIsDragging &&

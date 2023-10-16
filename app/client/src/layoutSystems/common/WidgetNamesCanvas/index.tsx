@@ -149,7 +149,6 @@ const OverlayCanvasContainer = (props: {
       const eventHandler: KonvaEventListener<Group, MouseEvent> = (
         konvaEvent,
       ) => {
-        console.log("### handling clicked", konvaEvent);
         selectWidget(SelectionRequestType.One, [widgetId]);
         konvaEvent.cancelBubble = true;
         konvaEvent.evt.stopPropagation();
@@ -180,7 +179,6 @@ const OverlayCanvasContainer = (props: {
     if (selectedWidgetNameData && selectedWidgetNameData.length > 0) {
       for (const widgetNameData of selectedWidgetNameData) {
         const { position } = widgetNameData;
-        console.log("### adding widget name to canvas", widgetNameData);
         addWidgetNameToCanvas(layer, widgetNameData, position, "selected");
       }
     }

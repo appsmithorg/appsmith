@@ -22,18 +22,17 @@ import { positionObserver } from "layoutSystems/common/utils/WidgetPositionsObse
 function* readAndUpdateWidgetPositions(
   action: ReduxAction<{
     widgetsProcessQueue: {
-      [widgetId: string]: boolean;
+      [widgetId: string]: DOMRect | boolean;
     };
-    layoutsProcessQueue: { [key: string]: boolean };
+    layoutsProcessQueue: { [key: string]: DOMRect | boolean };
   }>,
 ) {
   const { layoutsProcessQueue, widgetsProcessQueue } = action.payload;
-  console.log("### layoutsProcessQueue", layoutsProcessQueue);
-  console.log("### widgetsProcessQueue", widgetsProcessQueue);
 
-  const widgetsToProcess = {
-    ...widgetsProcessQueue,
-  };
+  // const everythingToProcess = {
+  //   ...layoutsProcessQueue,
+  //   ...widgetsProcessQueue,
+  // };
 
   const widgetDimensions: WidgetPositions = {};
 
@@ -43,9 +42,31 @@ function* readAndUpdateWidgetPositions(
 
   const { left = 0, top = 0 } = mainContainerDOMRect || {};
 
+  // for (const elementDOMId of Object.keys(everythingToProcess)) {
+  //   const rect: DOMRect | boolean = everythingToProcess[elementDOMId];
+  //   if (typeof rect === "object") {
+  //     widgetDimensions[elementDOMId] = {
+  //       left: rect.left - left,
+  //       top: rect.top - top,
+  //       height: rect.height,
+  //       width: rect.width,
+  //     };
+  //   } else {
+  //     const element: HTMLElement | null = document.getElementById(elementDOMId);
+  //     if (element) {
+  //       const rect = element.getBoundingClientRect();
+  //       widgetDimensions[elementDOMId] = {
+  //         left: rect.left - left,
+  //         top: rect.top - top,
+  //         height: rect.height,
+  //         width: rect.width,
+  //       };
+  //     }
+  //   }
+  // }
+
   const registeredLayouts = positionObserver.getRegisteredLayouts();
   const registeredWidgets = positionObserver.getRegisteredWidgets();
-
   console.log("### registeredLayouts", registeredLayouts);
   console.log("### registeredWidgets", registeredWidgets);
   for (const layoutId of Object.keys(registeredLayouts)) {

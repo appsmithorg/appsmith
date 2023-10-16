@@ -119,14 +119,6 @@ function WidgetsEditor() {
       // This is a hack for widget name component clicks on Canvas.
       // For some reason the stopPropagation in the konva event listener isn't working
       const isCanvasWrapperClicked = e.target?.nodeName === "CANVAS";
-
-      console.log(
-        "####",
-        e,
-        allowDragToSelect,
-        isAutoHeightWithLimitsChanging,
-        isCanvasWrapperClicked,
-      );
       // Making sure that we don't deselect the widget
       // after we are done dragging the limits in auto height with limits
       if (
@@ -134,7 +126,6 @@ function WidgetsEditor() {
         !isAutoHeightWithLimitsChanging &&
         !isCanvasWrapperClicked
       ) {
-        console.log("### clicked wrapper");
         focusWidget && focusWidget();
         deselectAll && deselectAll();
         dispatch(closePropertyPane());

@@ -15,6 +15,7 @@ import type { AnvilHighlightInfo } from "../utils/anvilTypes";
 import { addWidgetsToPreset } from "../utils/layouts/update/additionUtils";
 import { moveWidgets } from "../utils/layouts/update/moveUtils";
 import { generateDefaultLayoutPreset } from "../layoutComponents/presets/DefaultLayoutPreset";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 
 function* addWidgetsSaga(
   actionPayload: ReduxAction<{
@@ -32,6 +33,12 @@ function* addWidgetsSaga(
     const { highlight, newWidget } = actionPayload.payload;
     const { alignment, canvasId } = highlight;
     const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+
+    const parentCanvasWidget = allWidgets[canvasId];
+    const layoutId = parentCanvasWidget.layout[0].layoutId;
+    if (!highlight.layoutOrder.includes(layoutId)) {
+      highlight.layoutOrder.unshift(layoutId);
+    }
 
     // Execute Blueprint operation to update widget props before creation.
     const newParams: { [key: string]: any } = yield call(
@@ -59,6 +66,21 @@ function* addWidgetsSaga(
     const canvasLayout = canvasWidget.layout
       ? canvasWidget.layout
       : generateDefaultLayoutPreset();
+    const newLayout = addWidgetsToPreset(canvasLayout, highlight, [
+      {
+        widgetId: newWidget.newWidgetId,
+        alignment,
+      },
+    ]);
+
+    console.log("##### This is triggered", {
+      canvasId,
+      newWidget,
+      newLayout,
+      updatedParams,
+      highlight,
+    });
+
     /**
      * Add new widget to the children of parent canvas.
      * Also add it to parent canvas' layout.
@@ -67,12 +89,7 @@ function* addWidgetsSaga(
       ...updatedWidgetsOnAddition,
       [canvasWidget.widgetId]: {
         ...canvasWidget,
-        layout: addWidgetsToPreset(canvasLayout, highlight, [
-          {
-            widgetId: newWidget.newWidgetId,
-            alignment,
-          },
-        ]),
+        layout: newLayout,
       },
     };
     yield put(updateAndSaveLayout(updatedWidgets));

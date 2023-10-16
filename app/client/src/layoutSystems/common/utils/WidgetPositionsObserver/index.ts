@@ -1,6 +1,12 @@
 import { debounce } from "lodash";
 import type { RefObject } from "react";
-import { ANVIL_LAYER, ANVIL_WIDGET, LAYOUT, getLayoutId } from "./utils";
+import {
+  ANVIL_LAYER,
+  ANVIL_WIDGET,
+  LAYOUT,
+  extractLayoutIdFromLayoutDOMId,
+  getLayoutId,
+} from "./utils";
 import store from "store";
 import { readWidgetPositions } from "layoutSystems/anvil/integrations/actions";
 import ResizeObserver from "resize-observer-polyfill";
@@ -34,10 +40,10 @@ class WidgetPositionsObserver {
 
   //Queues to process the registered elements that changed
   private widgetsProcessQueue: {
-    [widgetId: string]: boolean;
+    [widgetId: string]: DOMRect | boolean;
   } = {};
   private layersProcessQueue: { [canvasId: string]: number } = {};
-  private layoutsProcessQueue: { [key: string]: boolean } = {};
+  private layoutsProcessQueue: { [key: string]: DOMRect | boolean } = {};
 
   private debouncedProcessBatch = debounce(this.processWidgetBatch, 200);
 
@@ -51,13 +57,28 @@ class WidgetPositionsObserver {
           const DOMId = entry?.target?.id;
           if (DOMId.indexOf(ANVIL_WIDGET) > -1) {
             this.addWidgetToProcess(DOMId);
-          } else if (DOMId.indexOf(ANVIL_LAYER) > -1) {
-            this.addLayerToProcess(DOMId);
           } else if (DOMId.indexOf(LAYOUT) > -1) {
             this.addLayoutToProcess(DOMId);
           }
         }
       }
+    },
+  );
+
+  private intersectionObserver: IntersectionObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        const DOMId = entry?.target?.id;
+        if (DOMId.indexOf(ANVIL_WIDGET) > -1) {
+          this.addWidgetToProcess(DOMId, entry.boundingClientRect);
+        } else if (DOMId.indexOf(LAYOUT) > -1) {
+          this.addLayoutToProcess(DOMId, entry.boundingClientRect);
+        }
+      });
+    },
+    {
+      threshold: 0,
+      root: document.getElementById("intersection-root"),
     },
   );
 
@@ -70,6 +91,7 @@ class WidgetPositionsObserver {
     if (ref.current) {
       this.registeredWidgets[widgetDOMId] = { ref, id: widgetId };
       this.resizeObserver.observe(ref.current);
+      this.intersectionObserver.observe(ref.current);
       this.addWidgetToProcess(widgetDOMId);
     }
   }
@@ -79,32 +101,10 @@ class WidgetPositionsObserver {
     const element = this.registeredWidgets[widgetDOMId]?.ref?.current;
     if (element) {
       this.resizeObserver.unobserve(element);
+      this.intersectionObserver.disconnect();
     }
 
     delete this.registeredWidgets[widgetDOMId];
-  }
-
-  //Method to register layers for resize observer changes
-  public observeLayer(
-    layerId: string,
-    canvasId: string,
-    layerIndex: number,
-    ref: RefObject<HTMLDivElement>,
-  ) {
-    if (ref?.current) {
-      this.registeredLayers[layerId] = { ref, canvasId, layerIndex };
-      this.resizeObserver.observe(ref.current);
-    }
-  }
-
-  //Method to de register layers for resize observer changes
-  public unObserveLayer(layerId: string) {
-    const element = this.registeredLayers[layerId]?.ref?.current;
-    if (element) {
-      this.resizeObserver.unobserve(element);
-    }
-
-    delete this.registeredLayers[layerId];
   }
 
   //Method to register layouts for resize observer changes
@@ -121,6 +121,7 @@ class WidgetPositionsObserver {
         layoutId,
         isDropTarget,
       };
+      this.intersectionObserver.observe(ref.current);
       this.resizeObserver.observe(ref.current);
     }
   }
@@ -132,42 +133,25 @@ class WidgetPositionsObserver {
     if (element) {
       this.resizeObserver.unobserve(element);
     }
+    this.intersectionObserver.disconnect();
 
     delete this.registeredLayouts[domId];
   }
 
   //This method is triggered from the resize observer to add widgets to queue
-  private addWidgetToProcess(widgetDOMId: string) {
-    console.log("###addWidgetToProcess", widgetDOMId);
+  private addWidgetToProcess(widgetDOMId: string, rect?: DOMRect) {
     if (this.registeredWidgets[widgetDOMId]) {
       const widgetId = this.registeredWidgets[widgetDOMId].id;
-      this.widgetsProcessQueue[widgetId] = true;
-      this.debouncedProcessBatch();
-    }
-  }
-
-  //This method is triggered from the resize observer to add layer to queue
-  private addLayerToProcess(LayerId: string) {
-    if (this.registeredLayers[LayerId]) {
-      const { canvasId, layerIndex } = this.registeredLayers[LayerId];
-
-      //If the layer in canvas already exist
-      //and if the current layer is further higher than the previous one
-      //add this layer to queue
-      if (
-        this.layersProcessQueue[canvasId] === undefined ||
-        this.layersProcessQueue[canvasId] > layerIndex
-      ) {
-        this.layersProcessQueue[canvasId] = layerIndex;
-      }
+      this.widgetsProcessQueue[widgetId] = rect || true;
       this.debouncedProcessBatch();
     }
   }
 
   //This method is triggered from the resize observer to add layout to queue
-  private addLayoutToProcess(layoutDOMId: string) {
+  private addLayoutToProcess(layoutDOMId: string, rect?: DOMRect) {
     if (this.registeredLayouts[layoutDOMId]) {
-      this.layoutsProcessQueue[layoutDOMId] = true;
+      const layoutId = extractLayoutIdFromLayoutDOMId(layoutDOMId);
+      this.layoutsProcessQueue[layoutId] = rect || true;
       this.debouncedProcessBatch();
     }
   }
@@ -175,7 +159,6 @@ class WidgetPositionsObserver {
   //Clear all process queues
   private clearProcessQueue() {
     this.widgetsProcessQueue = {};
-    this.layersProcessQueue = {};
     this.layoutsProcessQueue = {};
   }
 
@@ -184,7 +167,6 @@ class WidgetPositionsObserver {
     store.dispatch(
       readWidgetPositions(
         { ...this.widgetsProcessQueue },
-        { ...this.layersProcessQueue },
         { ...this.layoutsProcessQueue },
       ),
     );

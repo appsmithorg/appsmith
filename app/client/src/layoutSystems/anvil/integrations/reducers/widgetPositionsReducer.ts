@@ -17,7 +17,6 @@ const widgetPositionsReducer = createImmerReducer(initialState, {
     action: AnvilReduxAction<WidgetPositions>,
   ) => {
     const widgetPositions = action.payload;
-    console.log("#### WidgetPositionsReducerPayload", { widgetPositions });
 
     const widgetIds = Object.keys(widgetPositions);
 

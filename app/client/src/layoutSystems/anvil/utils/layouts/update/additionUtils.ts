@@ -31,6 +31,8 @@ export function addWidgetsToPreset(
     ...layoutOrder,
   ]);
 
+  console.log("###", { affectedLayout, layouts, layoutOrder, widgets });
+
   if (!affectedLayout) return layouts;
 
   const Comp: LayoutComponent = LayoutFactory.get(affectedLayout.layoutType);
@@ -67,9 +69,10 @@ export function getAffectedLayout(
   order: string[],
 ): LayoutProps | undefined {
   if (!layouts || !order || !order.length) return;
-
+  console.log("### checking", { layouts, order });
   for (const each of layouts) {
     if (each.layoutId === order[0]) {
+      console.log("### found", { each, order });
       if (order.length === 1) return each;
       else
         return getAffectedLayout(each.layout as LayoutProps[], order.slice(1));

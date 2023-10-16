@@ -1,4 +1,5 @@
 .anvil-canvas {
   container-type: inline-size;
-  min-height: calc(100% - 1rem);
+  height: calc(100% - 1rem);
+  overflow: auto;
 }
