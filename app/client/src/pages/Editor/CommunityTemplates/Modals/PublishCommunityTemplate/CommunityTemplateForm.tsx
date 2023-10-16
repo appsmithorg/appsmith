@@ -18,7 +18,6 @@ import {
 import ApplicationSettings from "./components/ApplicationSettings";
 import AuthorDetailsInput from "./components/AuthorDetailsInput";
 import PublishedInfo from "./components/PublishedInfo";
-import TemplateCardPreview from "./components/TemplateCardPreview";
 import TemplateInfoForm from "./components/TemplateInfoForm";
 import { viewerURL } from "@appsmith/RouteBuilder";
 import { getCurrentPageId } from "@appsmith/selectors/entitiesSelector";
@@ -110,11 +109,11 @@ const CommunityTemplateForm = ({ onPublishSuccess }: Props) => {
   return (
     <>
       <PublishPageBodyContainer>
-        <TemplateCardPreview
+        {/*<TemplateCardPreview
           excerpt={templateExcerpt}
           templateName={templateName}
           useCases={templateUseCases}
-        />
+  />*/}
         <PublishPageTemplateDetailsInputContainer>
           <TemplateInfoForm
             setTemplateDescription={setTemplateDescription}
