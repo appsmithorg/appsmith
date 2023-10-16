@@ -28,6 +28,7 @@ import {
 } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import CloseEditor from "components/editorComponents/CloseEditor";
 
 type QueryEditorProps = RouteComponentProps<QueryEditorRouteParams>;
 
@@ -112,10 +113,13 @@ function QueryEditor(props: QueryEditorProps) {
     [pageId, history, integrationEditorURL],
   );
 
+  const closeEditorLink = useMemo(() => <CloseEditor />, []);
+
   return (
     <QueryEditorContextProvider
       actionRightPaneBackLink={actionRightPaneBackLink}
       changeQueryPage={changeQueryPage}
+      closeEditorLink={closeEditorLink}
       moreActionsMenu={moreActionsMenu}
       onCreateDatasourceClick={onCreateDatasourceClick}
       onEntityNotFoundBackClick={onEntityNotFoundBackClick}

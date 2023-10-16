@@ -27,6 +27,7 @@ import { get } from "lodash";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
+import CloseEditor from "components/editorComponents/CloseEditor";
 
 type ApiEditorWrapperProps = RouteComponentProps<APIEditorRouteParams>;
 
@@ -109,9 +110,12 @@ function ApiEditorWrapper(props: ApiEditorWrapperProps) {
     dispatch(deleteAction({ id: apiId, name: apiName }));
   }, [getPageName, pages, pageId, apiName]);
 
+  const closeEditorLink = useMemo(() => <CloseEditor />, []);
+
   return (
     <ApiEditorContextProvider
       actionRightPaneBackLink={actionRightPaneBackLink}
+      closeEditorLink={closeEditorLink}
       handleDeleteClick={handleDeleteClick}
       handleRunClick={handleRunClick}
       moreActionsMenu={moreActionsMenu}

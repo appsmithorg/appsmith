@@ -6,7 +6,6 @@ import { CURL_IMPORT_FORM } from "@appsmith/constants/forms";
 import type { curlImportFormValues } from "./helpers";
 import { curlImportSubmitHandler } from "./helpers";
 import CurlLogo from "assets/images/Curl-logo.svg";
-import CloseEditor from "components/editorComponents/CloseEditor";
 import { Button } from "design-system";
 import FormRow from "components/editorComponents/FormRow";
 import Debugger, {
@@ -100,17 +99,19 @@ interface OwnProps {
     dispatch: any,
   ) => void;
   initialValues: Record<string, unknown>;
+  closeEditorLink?: React.ReactNode;
 }
 
 type Props = OwnProps & InjectedFormProps<curlImportFormValues, OwnProps>;
 
 class CurlImportForm extends React.Component<Props> {
   render() {
-    const { handleSubmit, isImportingCurl, showDebugger } = this.props;
+    const { closeEditorLink, handleSubmit, isImportingCurl, showDebugger } =
+      this.props;
 
     return (
       <MainContainer>
-        <CloseEditor />
+        {closeEditorLink}
         <MainConfiguration>
           <FormRow className="form-row-header">
             <div

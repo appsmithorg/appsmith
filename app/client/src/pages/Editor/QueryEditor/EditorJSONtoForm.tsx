@@ -371,6 +371,7 @@ interface QueryFormProps {
     value,
   }: UpdateActionPropertyActionPayload) => void;
   datasourceId: string;
+  showCloseEditor: boolean;
 }
 
 interface ReduxProps {
@@ -405,9 +406,10 @@ export function EditorJSONtoForm(props: Props) {
     settingConfig,
     uiComponent,
     updateActionResponseDisplayFormat,
+    showCloseEditor,
   } = props;
 
-  const { moreActionsMenu, saveActionName, actionRightPaneBackLink } =
+  const { moreActionsMenu, saveActionName, actionRightPaneBackLink, closeEditorLink } =
     useContext(QueryEditorContext);
 
   let error = runErrorMessage;
@@ -913,7 +915,7 @@ export function EditorJSONtoForm(props: Props) {
 
   return (
     <>
-      {!guidedTourEnabled && <CloseEditor />}
+      {!guidedTourEnabled && closeEditorLink}
       {guidedTourEnabled && <Guide className="query-page" />}
       <QueryFormContainer onSubmit={handleSubmit(noop)}>
         <StyledFormRow>

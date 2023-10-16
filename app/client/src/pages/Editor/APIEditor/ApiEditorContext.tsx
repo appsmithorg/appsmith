@@ -16,6 +16,7 @@ interface ApiEditorContextContextProps {
   saveActionName?: (
     params: SaveActionNameParams,
   ) => ReduxAction<SaveActionNameParams>;
+  closeEditorLink?: React.ReactNode;
 }
 
 type ApiEditorContextProviderProps =
@@ -28,6 +29,7 @@ export const ApiEditorContext = createContext<ApiEditorContextContextProps>(
 export function ApiEditorContextProvider({
   actionRightPaneBackLink,
   children,
+  closeEditorLink,
   handleDeleteClick,
   handleRunClick,
   moreActionsMenu,
@@ -36,20 +38,22 @@ export function ApiEditorContextProvider({
 }: ApiEditorContextProviderProps) {
   const value = useMemo(
     () => ({
+      actionRightPaneBackLink,
+      closeEditorLink,
       handleDeleteClick,
       handleRunClick,
       moreActionsMenu,
-      settingsConfig,
       saveActionName,
-      actionRightPaneBackLink,
+      settingsConfig,
     }),
     [
+      actionRightPaneBackLink,
+      closeEditorLink,
       handleDeleteClick,
       handleRunClick,
       moreActionsMenu,
-      settingsConfig,
       saveActionName,
-      actionRightPaneBackLink,
+      settingsConfig,
     ],
   );
 
