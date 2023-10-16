@@ -62,24 +62,24 @@ public class Migration029PopulateDefaultDomainIdInUserManagementRoles {
                     });
                 });
 
-        Criteria criteriaUserManagementRolesWithMigrationFlag022Set = Criteria.where(
+        Criteria criteriaUserManagementRolesWithMigrationFlag028Set = Criteria.where(
                         Migration028TagUserManagementRolesWithoutDefaultDomainTypeAndId
                                 .MIGRATION_FLAG_028_TAG_USER_MANAGEMENT_ROLE_WITHOUT_DEFAULT_DOMAIN_TYPE_AND_ID)
                 .exists(Boolean.TRUE);
-        Query queryUserManagementRolesWithWithMigrationFlag022Set =
-                new Query(criteriaUserManagementRolesWithMigrationFlag022Set);
+        Query queryUserManagementRolesWithWithMigrationFlag028Set =
+                new Query(criteriaUserManagementRolesWithMigrationFlag028Set);
 
-        queryUserManagementRolesWithWithMigrationFlag022Set
+        queryUserManagementRolesWithWithMigrationFlag028Set
                 .fields()
                 .include(fieldName(QPermissionGroup.permissionGroup.id));
-        long countOfUserManagementRolesWithMigrationFlag022Set =
-                mongoTemplate.count(queryUserManagementRolesWithWithMigrationFlag022Set, PermissionGroup.class);
+        long countOfUserManagementRolesWithMigrationFlag028Set =
+                mongoTemplate.count(queryUserManagementRolesWithWithMigrationFlag028Set, PermissionGroup.class);
         int attempt = 0;
 
-        while (countOfUserManagementRolesWithMigrationFlag022Set > 0 && attempt < migrationRetries) {
-            List<PermissionGroup> userManagementRolesWithMigrationFlag022Set =
-                    mongoTemplate.find(queryUserManagementRolesWithWithMigrationFlag022Set, PermissionGroup.class);
-            userManagementRolesWithMigrationFlag022Set.parallelStream().forEach(userManagementRole -> {
+        while (countOfUserManagementRolesWithMigrationFlag028Set > 0 && attempt < migrationRetries) {
+            List<PermissionGroup> userManagementRolesWithMigrationFlag028Set =
+                    mongoTemplate.find(queryUserManagementRolesWithWithMigrationFlag028Set, PermissionGroup.class);
+            userManagementRolesWithMigrationFlag028Set.parallelStream().forEach(userManagementRole -> {
                 if (userManagementRoleIdToUserIdMap.containsKey(userManagementRole.getId())
                         && StringUtils.isNotEmpty(userManagementRoleIdToUserIdMap.get(userManagementRole.getId()))) {
                     Criteria criteriaUserManagementRoleById = Criteria.where(
@@ -104,12 +104,12 @@ public class Migration029PopulateDefaultDomainIdInUserManagementRoles {
                             PermissionGroup.class);
                 }
             });
-            countOfUserManagementRolesWithMigrationFlag022Set =
-                    mongoTemplate.count(queryUserManagementRolesWithWithMigrationFlag022Set, PermissionGroup.class);
+            countOfUserManagementRolesWithMigrationFlag028Set =
+                    mongoTemplate.count(queryUserManagementRolesWithWithMigrationFlag028Set, PermissionGroup.class);
             attempt += 1;
         }
 
-        if (countOfUserManagementRolesWithMigrationFlag022Set != 0) {
+        if (countOfUserManagementRolesWithMigrationFlag028Set != 0) {
             String reasonForFailure = "All user management roles were not tagged.";
             throw new AppsmithException(AppsmithError.MIGRATION_FAILED, migrationId, reasonForFailure, migrationNote);
         }

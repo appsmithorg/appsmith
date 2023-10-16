@@ -38,31 +38,31 @@ public class Migration031CreateUserManagementRolesForUsersTaggedIn030 {
     private static final int migrationRetries = 5;
     private static final String migrationNote = "This will not have any adverse effects on the Data. Restarting the "
             + "server will begin the migration from where it left.";
-    private static final String migrationId = "create-user-management-roles-for-users-tagged-in-migration-024";
+    private static final String migrationId = "create-user-management-roles-for-users-tagged-in-migration-030";
 
     @RollbackExecution
     public void rollbackExecution() {}
 
     @Execution
-    public void createUserManagementRolesForUsersTaggedInMigration024() {
-        Criteria criteriaUsersTaggedInMigration024 = Criteria.where(
+    public void createUserManagementRolesForUsersTaggedInMigration030() {
+        Criteria criteriaUsersTaggedInMigration030 = Criteria.where(
                         Migration030TagUsersWithNoUserManagementRoles
                                 .MIGRATION_FLAG_030_TAG_USER_WITHOUT_USER_MANAGEMENT_ROLE)
                 .is(TRUE);
 
-        Query queryUsersTaggedInMigration024 = new Query(criteriaUsersTaggedInMigration024);
-        queryUsersTaggedInMigration024.fields().include(fieldName(QUser.user.id));
-        queryUsersTaggedInMigration024.fields().include(fieldName(QUser.user.policies));
-        queryUsersTaggedInMigration024.fields().include(fieldName(QUser.user.email));
+        Query queryUsersTaggedInMigration030 = new Query(criteriaUsersTaggedInMigration030);
+        queryUsersTaggedInMigration030.fields().include(fieldName(QUser.user.id));
+        queryUsersTaggedInMigration030.fields().include(fieldName(QUser.user.policies));
+        queryUsersTaggedInMigration030.fields().include(fieldName(QUser.user.email));
 
-        Query optimisedQueryUsersTaggedInMigration024 = CompatibilityUtils.optimizeQueryForNoCursorTimeout(
-                mongoTemplate, queryUsersTaggedInMigration024, User.class);
+        Query optimisedQueryUsersTaggedInMigration030 = CompatibilityUtils.optimizeQueryForNoCursorTimeout(
+                mongoTemplate, queryUsersTaggedInMigration030, User.class);
 
         int attempt = 0;
-        long countUsersTaggedInMigration024 = mongoTemplate.count(optimisedQueryUsersTaggedInMigration024, User.class);
+        long countUsersTaggedInMigration030 = mongoTemplate.count(optimisedQueryUsersTaggedInMigration030, User.class);
 
-        while (attempt < migrationRetries && countUsersTaggedInMigration024 > 0) {
-            mongoTemplate.stream(optimisedQueryUsersTaggedInMigration024, User.class)
+        while (attempt < migrationRetries && countUsersTaggedInMigration030 > 0) {
+            mongoTemplate.stream(optimisedQueryUsersTaggedInMigration030, User.class)
                     .forEach(user -> {
                         User userWithUpdatedPolicies = createUserManagementRoleAndGetUserWithUpdatedPolicies(user);
                         Update updateMigrationFlagAndPoliciesForUser = new Update();
@@ -77,10 +77,10 @@ public class Migration031CreateUserManagementRolesForUsersTaggedIn030 {
                         mongoTemplate.updateFirst(queryUserId, updateMigrationFlagAndPoliciesForUser, User.class);
                     });
             attempt += 1;
-            countUsersTaggedInMigration024 = mongoTemplate.count(optimisedQueryUsersTaggedInMigration024, User.class);
+            countUsersTaggedInMigration030 = mongoTemplate.count(optimisedQueryUsersTaggedInMigration030, User.class);
         }
 
-        if (countUsersTaggedInMigration024 > 0) {
+        if (countUsersTaggedInMigration030 > 0) {
             String reasonForFailure = "All user management roles were not created.";
             throw new AppsmithException(AppsmithError.MIGRATION_FAILED, migrationId, reasonForFailure, migrationNote);
         }
