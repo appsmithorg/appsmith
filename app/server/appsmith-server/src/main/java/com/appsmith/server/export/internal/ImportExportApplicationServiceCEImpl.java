@@ -1338,6 +1338,15 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                 });
     }
 
+    /**
+     * This method takes customJSLibList from application JSON, checks if an entry for XML parser exists,
+     * otherwise adds the entry.
+     * This has been done to add the xmlParser entry in imported application as appsmith is stopping native support
+     * for xml parser.
+     * Read More: https://github.com/appsmithorg/appsmith/pull/28012
+     *
+     * @param customJSLibList
+     */
     public void ensureXmlParserPresenceInCustomJsLibList(List<CustomJSLib> customJSLibList) {
         boolean isXmlParserLibFound = false;
         for (CustomJSLib customJSLib : customJSLibList) {

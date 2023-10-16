@@ -22,9 +22,17 @@ import static com.appsmith.server.constants.ApplicationConstants.XML_PARSER_LIBR
 import static com.appsmith.server.migrations.MigrationHelperMethods.notDeleted;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 
+/**
+ *  Appsmith provides xmlParser v 3.17.5 and few other customJSLibraries by default, xmlParser has been
+ *  flagged because it has some vulnerabilities. Appsmith is stopping natively providing support for xmlParser.
+ *  This however, would break existing applications which are using xmlParser. In order to prevent this,
+ *  applications require to have xmlParser as added library.
+ *
+ *  This migration takes care of that by adding a document in customJsLib for xml-parser and adding its UID in all DTOs
+ */
 @Slf4j
-@ChangeUnit(order = "029", id = "add-xmlparser-to-application-jslibs", author = " ")
-public class Migration029AddingXmlParserToApplicationLibraries {
+@ChangeUnit(order = "028", id = "add-xmlparser-to-application-jslibs", author = " ")
+public class Migration028AddingXmlParserToApplicationLibraries {
 
     private final MongoTemplate mongoTemplate;
     private static final String UNPUBLISHED_CUSTOM_JS_LIBS =
@@ -32,7 +40,7 @@ public class Migration029AddingXmlParserToApplicationLibraries {
 
     private static final String PUBLISHED_CUSTOM_JS_LIBS = fieldName(QApplication.application.publishedCustomJSLibs);
 
-    public Migration029AddingXmlParserToApplicationLibraries(MongoTemplate mongoTemplate) {
+    public Migration028AddingXmlParserToApplicationLibraries(MongoTemplate mongoTemplate) {
         this.mongoTemplate = mongoTemplate;
     }
 
