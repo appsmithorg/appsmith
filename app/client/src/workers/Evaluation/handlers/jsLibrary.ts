@@ -9,7 +9,7 @@ import {
   JSLibraries,
   libraryReservedIdentifiers,
 } from "../../common/JSLibrary";
-import type { IJSLibrary } from "../../common/JSLibrary";
+import type { JSLibrary } from "../../common/JSLibrary";
 import { resetJSLibraries } from "../../common/JSLibrary/resetJSLibraries";
 import { makeTernDefs } from "../../common/JSLibrary/ternDefinitionGenerator";
 import type { EvalWorkerASyncRequest, EvalWorkerSyncRequest } from "../types";
@@ -217,7 +217,7 @@ export function uninstallLibrary(
 }
 
 export async function loadLibraries(
-  request: EvalWorkerASyncRequest<IJSLibrary[]>,
+  request: EvalWorkerASyncRequest<JSLibrary[]>,
 ) {
   resetJSLibraries();
   const { data: libs } = request;

@@ -39,7 +39,7 @@ import {
 
 import { InstallState } from "reducers/uiReducers/libraryReducer";
 import recommendedLibraries from "pages/Editor/Explorer/Libraries/recommendedLibraries";
-import type { IJSLibrary } from "workers/common/JSLibrary";
+import type { JSLibrary } from "workers/common/JSLibrary";
 import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { getFormValues } from "redux-form";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
@@ -860,13 +860,10 @@ export const getPageActions = (pageId = "") => {
 export const selectDatasourceIdToNameMap = createSelector(
   getDatasources,
   (datasources) => {
-    return datasources.reduce(
-      (acc, datasource) => {
-        acc[datasource.id] = datasource.name;
-        return acc;
-      },
-      {} as Record<string, string>,
-    );
+    return datasources.reduce((acc, datasource) => {
+      acc[datasource.id] = datasource.name;
+      return acc;
+    }, {} as Record<string, string>);
   },
 );
 
@@ -1099,7 +1096,7 @@ export const selectLibrariesForExplorer = createSelector(
           version: recommendedLibrary?.version || "",
           url: recommendedLibrary?.url || url,
           accessor: [],
-        } as IJSLibrary;
+        } as JSLibrary;
       });
     return [...queuedInstalls, ...libs];
   },
@@ -1188,8 +1185,9 @@ export const getDatasourceScopeValue = (
   const options = formConfig[0]?.children?.find(
     (child: any) => child?.configProperty === configProperty,
   )?.options;
-  const label = options?.find((option: any) => option.value === scopeValue)
-    ?.label;
+  const label = options?.find(
+    (option: any) => option.value === scopeValue,
+  )?.label;
   return label;
 };
 

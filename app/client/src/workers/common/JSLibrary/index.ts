@@ -1,7 +1,7 @@
 import lodashPackageJson from "lodash/package.json";
 import momentPackageJson from "moment-timezone/package.json";
 
-export interface IJSLibrary {
+export interface JSLibrary {
   version?: string;
   docsURL: string;
   name: string;
@@ -9,7 +9,7 @@ export interface IJSLibrary {
   url?: string;
 }
 
-export const defaultLibraries: IJSLibrary[] = [
+export const defaultLibraries: JSLibrary[] = [
   {
     accessor: ["_"],
     version: lodashPackageJson.version,
