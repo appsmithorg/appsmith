@@ -75,7 +75,7 @@ import PageApi from "api/PageApi";
 import { updateCanvasWithDSL } from "sagas/PageSagas";
 import { set } from "lodash";
 import { updateReplayEntity } from "actions/pageActions";
-import { jsCollectionIdURL } from "RouteBuilder";
+import { jsCollectionIdURL } from "@appsmith/RouteBuilder";
 import type { ApiResponse } from "api/ApiResponses";
 import { shouldBeDefined } from "utils/helpers";
 import { ModalType } from "reducers/uiReducers/modalActionReducer";
@@ -568,9 +568,8 @@ function* handleRefactorJSActionNameSaga(
       const refactorResponse: ApiResponse =
         yield JSActionAPI.updateJSCollectionActionRefactor(requestData);
 
-      const isRefactorSuccessful: boolean = yield validateResponse(
-        refactorResponse,
-      );
+      const isRefactorSuccessful: boolean =
+        yield validateResponse(refactorResponse);
 
       const currentPageId: string | undefined = yield select(getCurrentPageId);
 

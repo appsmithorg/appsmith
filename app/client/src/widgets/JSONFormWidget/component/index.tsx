@@ -22,11 +22,11 @@ import {
 } from "../constants/messages";
 import { createMessage } from "@appsmith/constants/messages";
 
-type StyledContainerProps = {
+interface StyledContainerProps {
   backgroundColor?: string;
-};
+}
 
-export type JSONFormComponentProps<TValues = any> = {
+export interface JSONFormComponentProps<TValues = any> {
   backgroundColor?: string;
   borderColor?: Color;
   borderRadius?: number;
@@ -63,7 +63,7 @@ export type JSONFormComponentProps<TValues = any> = {
   updateWidgetProperty: (propertyName: string, propertyValue: any) => void;
   widgetId: string;
   showConnectDataOverlay?: boolean;
-};
+}
 
 const StyledContainer = styled(WidgetStyleContainer)<StyledContainerProps>`
   background: ${({ backgroundColor }) => backgroundColor || "#fff"};

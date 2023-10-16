@@ -29,12 +29,12 @@ type CardProps = PropsWithChildren<{
   isSelected?: boolean;
 }>;
 
-type NameWrapperProps = {
+interface NameWrapperProps {
   hasReadPermission: boolean;
   showOverlay: boolean;
   isContextMenuOpen: boolean;
   testId: string;
-};
+}
 
 type ModifiedMenuItemProps = MenuItemProps & {
   key?: string;

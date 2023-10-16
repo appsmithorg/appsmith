@@ -8,8 +8,8 @@ import type { UpdatePageResponse } from "api/PageApi";
 import type {
   ApplicationURLParams,
   PageURLParams,
-} from "entities/URLRedirect/URLAssembly";
-import urlBuilder from "entities/URLRedirect/URLAssembly";
+} from "@appsmith/entities/URLRedirect/URLAssembly";
+import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
 import type { Middleware } from "redux";
 
 const routeParamsMiddleware: Middleware =

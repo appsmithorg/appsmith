@@ -27,9 +27,13 @@ const SnapshotContainer = styled.div`
   border-radius: var(--ads-v2-border-radius);
 `;
 
-type ButtonInfo = { text: string; closeModal?: boolean; onClick: () => void };
+interface ButtonInfo {
+  text: string;
+  closeModal?: boolean;
+  onClick: () => void;
+}
 
-export type ConversionProps = {
+export interface ConversionProps {
   bannerMessageDetails?: {
     message: string;
     kind: CalloutKind;
@@ -57,7 +61,7 @@ export type ConversionProps = {
     icon: string;
     text: string;
   };
-};
+}
 
 export function ConversionForm(
   props: ConversionProps & { closeModal: () => void },

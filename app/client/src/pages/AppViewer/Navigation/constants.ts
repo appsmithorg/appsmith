@@ -3,7 +3,7 @@ import type {
   Page,
 } from "@appsmith/constants/ReduxActionConstants";
 
-export type NavigationProps = {
+export interface NavigationProps {
   pages: Page[];
   currentApplicationDetails?: ApplicationPayload;
-};
+}

@@ -45,7 +45,7 @@ import {
   getPagePermissions,
   selectURLSlugs,
 } from "selectors/editorSelectors";
-import { saasEditorDatasourceIdURL } from "RouteBuilder";
+import { saasEditorDatasourceIdURL } from "@appsmith/RouteBuilder";
 import {
   createMessage,
   REST_API_AUTHORIZATION_APPSMITH_ERROR,
@@ -175,11 +175,11 @@ export const CalloutContainer = styled.div<{
   margin-left: ${(props) => (!props.viewMode ? "24px" : "0px")};
 `;
 
-export type DatasourceFilterState = {
+export interface DatasourceFilterState {
   id: string;
   name: string;
   userPermissions: string[];
-};
+}
 
 /*
   **** State Variables Description ****
@@ -192,7 +192,7 @@ export type DatasourceFilterState = {
   unblock: on blocking routes using history.block, it returns a function which can be used to unblock the routes
   navigation: function that navigates to path that we want to transition to, after discard action on datasource discard dialog popup
 */
-type State = {
+interface State {
   showDialog: boolean;
   routesBlocked: boolean;
   switchFilterBlocked: boolean;
@@ -203,7 +203,7 @@ type State = {
 
   unblock(): void;
   navigation(): void;
-};
+}
 
 export interface DatasourcePaneFunctions {
   switchDatasource: (id: string) => void;

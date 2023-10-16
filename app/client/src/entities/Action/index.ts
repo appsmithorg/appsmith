@@ -62,10 +62,10 @@ export interface KeyValuePair {
   value?: unknown;
 }
 
-export type LimitOffset = {
+export interface LimitOffset {
   limit: Record<string, unknown>;
   offset: Record<string, unknown>;
-};
+}
 export interface SelfReferencingData {
   limitBased?: LimitOffset;
   curserBased?: {
@@ -196,14 +196,14 @@ export interface QueryAction extends BaseAction {
   datasource: StoredDatasource;
 }
 
-export type ActionViewMode = {
+export interface ActionViewMode {
   id: string;
   name: string;
   pageId: string;
   jsonPathKeys: string[];
   confirmBeforeExecute?: boolean;
   timeoutInMillisecond?: number;
-};
+}
 
 export type Action = ApiAction | QueryAction | SaaSAction | RemoteAction;
 
@@ -214,11 +214,11 @@ export enum SlashCommand {
   ASK_AI,
 }
 
-export type SlashCommandPayload = {
+export interface SlashCommandPayload {
   actionType: SlashCommand;
   callback?: (binding: string) => void;
   args: any;
-};
+}
 
 export function isAPIAction(action: Action): action is ApiAction {
   return action.pluginType === PluginType.API;

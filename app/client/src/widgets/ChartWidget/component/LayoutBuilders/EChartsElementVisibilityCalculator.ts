@@ -3,20 +3,20 @@ export type EChartElementLayoutParams = Omit<
   "height"
 >;
 
-export type EChartVisibleElementConfig = {
+export interface EChartVisibleElementConfig {
   elementName: string;
   height: number;
   minHeight: number;
   maxHeight: number;
   position: "top" | "bottom";
-};
+}
 
-export type EChartElementVisibilityProps = {
+export interface EChartElementVisibilityProps {
   height: number;
   padding: number;
   gridMinimumHeight: number;
   layoutConfigs: EChartElementLayoutParams[];
-};
+}
 
 export class EChartElementVisibilityCalculator {
   props: EChartElementVisibilityProps;

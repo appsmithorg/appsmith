@@ -7,13 +7,13 @@ import {
   inGuidedTour,
 } from "selectors/onboardingSelectors";
 
-type BoxedProps = {
+interface BoxedProps {
   alternative?: JSX.Element;
   children: ReactNode;
   step: number;
   // under which condition do you want to show an alternative or nothing(meaning hide)
   show: boolean;
-};
+}
 
 // Boxed(or hidden).
 function Boxed(props: BoxedProps): JSX.Element | null {

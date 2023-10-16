@@ -64,9 +64,9 @@ import ActionExecutionInProgressView from "./ActionExecutionInProgressView";
 import { CloseDebugger } from "./Debugger/DebuggerTabs";
 import { EMPTY_RESPONSE } from "./emptyResponse";
 
-type TextStyleProps = {
+interface TextStyleProps {
   accent: "primary" | "secondary" | "error";
-};
+}
 export const BaseText = styled(BlueprintText)<TextStyleProps>``;
 
 const ResponseContainer = styled.div`

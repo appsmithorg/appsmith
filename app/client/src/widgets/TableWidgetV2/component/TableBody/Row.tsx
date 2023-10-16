@@ -7,12 +7,12 @@ import { renderEmptyRows } from "../cellComponents/EmptyCell";
 import { renderBodyCheckBoxCell } from "../cellComponents/SelectionCheckboxCell";
 import { MULTISELECT_CHECKBOX_WIDTH, StickyType } from "../Constants";
 
-type RowType = {
+interface RowType {
   className?: string;
   index: number;
   row: ReactTableRowType<Record<string, unknown>>;
   style?: ListChildComponentProps["style"];
-};
+}
 
 export function Row(props: RowType) {
   const {

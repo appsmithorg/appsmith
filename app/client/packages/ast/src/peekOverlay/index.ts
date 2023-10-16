@@ -37,7 +37,7 @@ export class PeekOverlayExpressionIdentifier {
     this.parsedScript = undefined;
   }
 
-  extractExpressionAtPosition(pos: number): Promise<string> {
+  async extractExpressionAtPosition(pos: number): Promise<string> {
     return new Promise((resolve, reject) => {
       if (!this.parsedScript) {
         throw "PeekOverlayExpressionIdentifier - No valid script found";
@@ -77,7 +77,7 @@ export class PeekOverlayExpressionIdentifier {
   }
 }
 
-export type PeekOverlayExpressionIdentifierOptions = {
+export interface PeekOverlayExpressionIdentifierOptions {
   sourceType: SourceType;
   thisExpressionReplacement?: string;
-};
+}

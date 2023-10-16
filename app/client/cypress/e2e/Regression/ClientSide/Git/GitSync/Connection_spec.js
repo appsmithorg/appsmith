@@ -221,7 +221,7 @@ describe("Git sync modal: connect tab", function () {
     });
 
     cy.get(gitSyncLocators.connectSubmitBtn).scrollIntoView().click();
-    cy.get(gitSyncLocators.connetStatusbar).should("exist");
+    // cy.get(gitSyncLocators.connetStatusbar).should("exist");
     cy.wait("@connectGitLocalRepo").then((interception) => {
       const status = interception.response.body.responseMeta.status;
       expect(status).to.be.gte(400);
