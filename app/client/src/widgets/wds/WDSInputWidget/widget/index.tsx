@@ -113,7 +113,7 @@ class WDSInputWidget extends WDSBaseInputWidget<InputWidgetProps, WidgetState> {
       "!doc":
         "An input text field is used to capture a users textual input such as their names, numbers, emails etc. Inputs are used in forms and can have custom validations.",
       "!url": "https://docs.appsmith.com/widget-reference/input",
-      text: {
+      parsedText: {
         "!type": "string",
         "!doc": "The text value of the input",
         "!url": "https://docs.appsmith.com/widget-reference/input",
@@ -178,7 +178,7 @@ class WDSInputWidget extends WDSBaseInputWidget<InputWidgetProps, WidgetState> {
         setValue: {
           path: "defaultText",
           type: "string",
-          accessor: "text",
+          accessor: "parsedText",
         },
       },
     };
@@ -224,6 +224,8 @@ class WDSInputWidget extends WDSBaseInputWidget<InputWidgetProps, WidgetState> {
           e.key === "Enter" ||
           e.key === "ArrowUp" ||
           e.key === "ArrowDown" ||
+          e.key === "ArrowLeft" ||
+          e.key === "ArrowRight" ||
           e.key === "Delete" ||
           e.ctrlKey ||
           e.metaKey ||

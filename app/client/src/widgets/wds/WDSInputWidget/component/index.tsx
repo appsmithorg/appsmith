@@ -64,7 +64,11 @@ function InputComponent(props: InputComponentProps) {
       props.inputType === INPUT_TYPES.TEXT ||
       props.inputType === INPUT_TYPES.MULTI_LINE_TEXT
     ) {
-      return !isNil(props.maxChars) ? props.maxChars : undefined;
+      // Note: this check is required to bypass when maxChars is 0
+      // TODO: check with fe-coders why empty maxChars is getting converted to 0
+      if (props.maxChars) {
+        return !isNil(props.maxChars) ? props.maxChars : undefined;
+      }
     }
   })();
 

@@ -16,6 +16,7 @@
     font-family: inherit;
     flex-grow: 1;
     color: var(--color-fg);
+    text-overflow: ellipsis;
 
     &:autofill,
     &:autofill:hover,
