@@ -40,6 +40,7 @@ import java.util.Map;
 
 import static com.appsmith.server.constants.ProcessingStatus.IDLE;
 import static com.appsmith.server.constants.ProcessingStatus.IN_PROGRESS;
+import static com.appsmith.server.constants.SerialiseApplicationObjective.KNOWLEDGE_BASE_GENERATION;
 
 @Slf4j
 @Service
@@ -334,8 +335,10 @@ public class KnowledgeStoreServiceImpl extends KnowledgeStoreServiceCECompatible
 
     @Override
     public Mono<String> getApplicationJsonStringForApplicationId(String applicationId) {
-        return importExportApplicationService
-                .exportApplicationById(applicationId, "")
+        return applicationService
+                .findBranchedApplicationId("", applicationId, applicationPermission.getEditPermission())
+                .flatMap(branchedAppId ->
+                        importExportApplicationService.exportApplicationById(branchedAppId, KNOWLEDGE_BASE_GENERATION))
                 .map(gson::toJson);
     }
 
