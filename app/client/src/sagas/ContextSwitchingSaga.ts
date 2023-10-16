@@ -26,13 +26,26 @@ import type { Plugin } from "api/PluginApi";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import { has } from "lodash";
 
+/**
+ * Context switching works by restoring the states of ui elements to as they were
+ * the last time the user was on a particular URL.
+ *
+ * To do this, there are two simple steps
+ *  1. When leaving an url, store the ui states
+ *  2. When entering an url, restore existing ui states, or defaults
+ *
+ * @param currentPath
+ * @param previousPath
+ * @param state
+ */
 export function* contextSwitchingSaga(
   currentPath: string,
   previousPath: string,
   state: AppsmithLocationState,
 ) {
   if (previousPath) {
-    // store current state
+    /* STORE THE UI STATE OF PREVIOUS URL */
+    // First get all the entities
     const storePaths: Array<{
       key: string;
       entityInfo: FocusEntityInfo;
@@ -46,6 +59,7 @@ export function* contextSwitchingSaga(
       );
     }
   }
+  /* RESTORE THE UI STATE OF THE NEW URL */
   yield call(waitForPathLoad, currentPath, previousPath);
   const setPaths: Array<{
     key: string;
