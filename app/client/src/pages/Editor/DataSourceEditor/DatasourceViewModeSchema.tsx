@@ -17,7 +17,7 @@ import {
   GSHEETS_ERR_FETCHING_PREVIEW_DATA,
   EMPTY_TABLE_TITLE_TEXT,
   EMPTY_TABLE_MESSAGE_TEXT,
-  createMessage,
+  createMessage, EMPTY_TABLE_SVG_ALT_TEXT,
 } from "@appsmith/constants/messages";
 import Table from "pages/Editor/QueryEditor/Table";
 import { generateTemplateToUpdatePage } from "actions/pageActions";
@@ -119,7 +119,7 @@ const renderEmptyTablePage = () => {
     <SchemaDisplayEmptyOrErrorOrLoadingStateWrapper>
       {/* Render empty table image */}
       <img
-        alt="Table is empty"
+        alt={createMessage(EMPTY_TABLE_SVG_ALT_TEXT)}
         src={EmptyTableSVG}
         style={{ paddingBottom: "10%", paddingTop: "50%" }}
       />
