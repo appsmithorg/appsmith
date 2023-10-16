@@ -57,8 +57,9 @@ import RangeSliderWidget from "./RangeSliderWidget";
 import CategorySliderWidget from "./CategorySliderWidget";
 import CodeScannerWidget from "./CodeScannerWidget";
 import ListWidgetV2 from "./ListWidgetV2";
-import { ButtonWidget as ButtonWidgetV2 } from "./ButtonWidgetV2";
-import { InputWidget as InputWidgetV3 } from "./InputWidgetV3";
+import { WDSButtonWidget } from "./wds/WDSButtonWidget";
+import { WDSInputWidget } from "./wds/WDSInputWidget";
+import { WDSCheckboxWidget } from "./wds/WDSCheckboxWidget";
 import type BaseWidget from "./BaseWidget";
 
 const Widgets = [
@@ -111,8 +112,9 @@ const Widgets = [
   CategorySliderWidget,
   CodeScannerWidget,
   ListWidgetV2,
-  ButtonWidgetV2,
-  InputWidgetV3,
+  WDSButtonWidget,
+  WDSInputWidget,
+  WDSCheckboxWidget,
 
   //Deprecated Widgets
   InputWidget,
