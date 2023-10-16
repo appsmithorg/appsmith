@@ -42,6 +42,9 @@ public class BrandingServiceImpl extends BrandingServiceCECompatibleImpl impleme
                 ? tenantConfiguration.getInstanceName()
                 : BRANDING_DISABLED_INSTANCE_NAME;
         tenantConfiguration.setInstanceName(instanceName);
+        if (tenantConfiguration.getHideWatermark() == null) {
+            tenantConfiguration.setHideWatermark(false);
+        }
 
         return Mono.just(tenantConfiguration);
     }

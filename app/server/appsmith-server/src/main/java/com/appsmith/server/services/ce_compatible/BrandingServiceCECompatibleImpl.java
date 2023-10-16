@@ -31,6 +31,7 @@ public class BrandingServiceCECompatibleImpl implements BrandingServiceCECompati
         brandColors.setBackground(TenantConfiguration.DEFAULT_BACKGROUND_COLOR);
 
         tenantConfiguration.setBrandColors(brandColors);
+        tenantConfiguration.setHideWatermark(false);
 
         return getDefaultLogoPath().map(logoPath -> {
             tenantConfiguration.setWhiteLabelLogo(logoPath);

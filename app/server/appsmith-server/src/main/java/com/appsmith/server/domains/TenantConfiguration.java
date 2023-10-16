@@ -49,6 +49,9 @@ public class TenantConfiguration extends TenantConfigurationCE {
 
     Integer connectionMaxPoolSize;
 
+    // Setting to hide the Appsmith watermark
+    Boolean hideWatermark;
+
     public static final String ASSET_PREFIX = "asset:";
 
     // The user journey begins with the choice between the community and business versions, as we now offer both options
@@ -94,6 +97,7 @@ public class TenantConfiguration extends TenantConfigurationCE {
         this.singleSessionPerUserEnabled = tenantConfiguration.getSingleSessionPerUserEnabled();
         this.isActivated = ObjectUtils.defaultIfNull(tenantConfiguration.getIsActivated(), false);
         this.connectionMaxPoolSize = tenantConfiguration.connectionMaxPoolSize;
+        this.hideWatermark = tenantConfiguration.getHideWatermark();
 
         boolean isLicenseExist = null != tenantConfiguration.getLicense()
                 && !StringUtils.isEmpty(tenantConfiguration.getLicense().getKey());

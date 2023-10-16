@@ -17,6 +17,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -56,6 +57,7 @@ class BrandingServiceCECompatibleImplTest {
                     assertEquals(TenantConfiguration.DEFAULT_BACKGROUND_COLOR, brandColors.getBackground());
                     assertEquals(TenantConfiguration.DEFAULT_PRIMARY_COLOR, brandColors.getPrimary());
                     assertEquals(TenantConfiguration.DEFAULT_FONT_COLOR, brandColors.getFont());
+                    assertFalse(updatedTenantConfiguration.getHideWatermark());
                 })
                 .verifyComplete();
     }

@@ -15,6 +15,8 @@ import reactor.test.StepVerifier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
@@ -85,6 +87,39 @@ class BrandingServiceImplTest {
                     assertEquals("#F1F5F9", brandColors.getBackground());
                     assertEquals("#E15615", brandColors.getPrimary());
                     assertEquals(TenantConfiguration.DEFAULT_FONT_COLOR, brandColors.getFont());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    void getTenantConfiguration_hideWatermark_revertAsIsBasedOnTenantConfig() {
+
+        // Test when hideWatermark is null, it should be false
+        TenantConfiguration tenantConfiguration = new TenantConfiguration();
+        Mono<TenantConfiguration> tenantConfigurationMono = brandingService.getTenantConfiguration(tenantConfiguration);
+
+        StepVerifier.create(tenantConfigurationMono)
+                .assertNext(tenantConfiguration1 -> {
+                    assertFalse(tenantConfiguration1.getHideWatermark());
+                })
+                .verifyComplete();
+
+        // Test when hideWatermark is true, it should be true
+        tenantConfiguration.setHideWatermark(true);
+        tenantConfigurationMono = brandingService.getTenantConfiguration(tenantConfiguration);
+
+        StepVerifier.create(tenantConfigurationMono)
+                .assertNext(tenantConfiguration1 -> {
+                    assertTrue(tenantConfiguration1.getHideWatermark());
+                })
+                .verifyComplete();
+
+        // Test when hideWatermark is false, it should be false
+        tenantConfiguration.setHideWatermark(false);
+        tenantConfigurationMono = brandingService.getTenantConfiguration(tenantConfiguration);
+        StepVerifier.create(tenantConfigurationMono)
+                .assertNext(tenantConfiguration1 -> {
+                    assertFalse(tenantConfiguration1.getHideWatermark());
                 })
                 .verifyComplete();
     }

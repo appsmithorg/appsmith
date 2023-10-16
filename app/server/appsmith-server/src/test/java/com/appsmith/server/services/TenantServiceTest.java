@@ -554,6 +554,7 @@ public class TenantServiceTest {
                 true,
                 true,
                 true,
+                true,
                 true);
     }
 
@@ -613,7 +614,7 @@ public class TenantServiceTest {
         assertThat(newBrandColors1.getDisabled()).isEqualTo(disabled1);
         assertThat(newBrandColors1.getHover()).isEqualTo(hover1);
         assertTenantConfigurations(
-                newTenantConfiguration1, defaultTenantConfiguration, true, true, true, true, true, false, true);
+                newTenantConfiguration1, defaultTenantConfiguration, true, true, true, true, true, false, true, true);
 
         Mono<String> update2_brandColors = Mono.just(
                 "{\"brandColors\": {\"primary\":\"" + primary2 + "\",\"background\":\"" + background2 + "\",\"font\":\""
@@ -632,7 +633,7 @@ public class TenantServiceTest {
         assertThat(newBrandColors2.getDisabled()).isEqualTo(disabled2);
         assertThat(newBrandColors2.getHover()).isEqualTo(hover1);
         assertTenantConfigurations(
-                newTenantConfiguration2, defaultTenantConfiguration, true, true, true, true, true, false, true);
+                newTenantConfiguration2, defaultTenantConfiguration, true, true, true, true, true, false, true, true);
     }
 
     @Test
@@ -847,7 +848,7 @@ public class TenantServiceTest {
         TenantConfiguration newTenantConfiguration1 = defaultTenantPostUpdate1.getTenantConfiguration();
         assertThat(newTenantConfiguration1.getBrandLogoUrl()).startsWith(Url.ASSET_URL);
         assertTenantConfigurations(
-                newTenantConfiguration1, defaultTenantConfiguration, true, false, true, true, true, true, true);
+                newTenantConfiguration1, defaultTenantConfiguration, true, false, true, true, true, true, true, true);
     }
 
     @Test
@@ -900,7 +901,7 @@ public class TenantServiceTest {
         TenantConfiguration newTenantConfiguration1 = defaultTenantPostUpdate1.getTenantConfiguration();
         assertThat(newTenantConfiguration1.getBrandFaviconUrl()).startsWith(Url.ASSET_URL);
         assertTenantConfigurations(
-                newTenantConfiguration1, defaultTenantConfiguration, true, true, false, true, true, true, true);
+                newTenantConfiguration1, defaultTenantConfiguration, true, true, false, true, true, true, true, true);
     }
 
     @Test
@@ -916,7 +917,7 @@ public class TenantServiceTest {
         TenantConfiguration newTenantConfiguration1 = defaultTenantPostUpdate1.getTenantConfiguration();
         assertThat(newTenantConfiguration1.getShowRolesAndGroups()).isTrue();
         assertTenantConfigurations(
-                newTenantConfiguration1, defaultTenantConfiguration, true, true, true, false, true, true, true);
+                newTenantConfiguration1, defaultTenantConfiguration, true, true, true, false, true, true, true, true);
 
         Mono<String> update2_showRolesAndGroups = Mono.just("{\"showRolesAndGroups\": false}");
 
@@ -926,7 +927,7 @@ public class TenantServiceTest {
         TenantConfiguration newTenantConfiguration2 = defaultTenantPostUpdate2.getTenantConfiguration();
         assertThat(newTenantConfiguration2.getShowRolesAndGroups()).isFalse();
         assertTenantConfigurations(
-                newTenantConfiguration2, defaultTenantConfiguration, true, true, true, false, true, true, true);
+                newTenantConfiguration2, defaultTenantConfiguration, true, true, true, false, true, true, true, true);
     }
 
     @Test
@@ -942,7 +943,7 @@ public class TenantServiceTest {
         TenantConfiguration newTenantConfiguration1 = defaultTenantPostUpdate1.getTenantConfiguration();
         assertThat(newTenantConfiguration1.getSingleSessionPerUserEnabled()).isTrue();
         assertTenantConfigurations(
-                newTenantConfiguration1, defaultTenantConfiguration, true, true, true, true, false, true, true);
+                newTenantConfiguration1, defaultTenantConfiguration, true, true, true, true, false, true, true, true);
 
         Mono<String> update2_singleSessionPerUserEnabled = Mono.just("{\"singleSessionPerUserEnabled\": false}");
 
@@ -952,7 +953,7 @@ public class TenantServiceTest {
         TenantConfiguration newTenantConfiguration2 = defaultTenantPostUpdate2.getTenantConfiguration();
         assertThat(newTenantConfiguration2.getSingleSessionPerUserEnabled()).isFalse();
         assertTenantConfigurations(
-                newTenantConfiguration2, defaultTenantConfiguration, true, true, true, true, false, true, true);
+                newTenantConfiguration2, defaultTenantConfiguration, true, true, true, true, false, true, true, true);
     }
 
     private FilePart createMockFilePart(int fileSizeKB) {
@@ -976,7 +977,8 @@ public class TenantServiceTest {
             boolean assertShowRolesAndGroups,
             boolean assertSingleSessionPerUserEnabled,
             boolean assertBrandColors,
-            boolean assertFirstTimeInteraction) {
+            boolean assertFirstTimeInteraction,
+            boolean assertHideWatermark) {
         if (assertWhiteLabelEnable) {
             assertThat(actualTenantConfiguration.isWhitelabelEnabled())
                     .isEqualTo(expectedTenantConfiguration.isWhitelabelEnabled());
@@ -1021,6 +1023,15 @@ public class TenantServiceTest {
         if (assertFirstTimeInteraction) {
             assertThat(actualTenantConfiguration.getIsActivated())
                     .isEqualTo(expectedTenantConfiguration.getIsActivated());
+        }
+
+        if (assertHideWatermark) {
+            if (actualTenantConfiguration.getHideWatermark() == null) {
+                assertFalse(expectedTenantConfiguration.getHideWatermark());
+            } else {
+                assertThat(actualTenantConfiguration.getHideWatermark())
+                        .isEqualTo(expectedTenantConfiguration.getHideWatermark());
+            }
         }
     }
 
@@ -1123,7 +1134,7 @@ public class TenantServiceTest {
         TenantConfiguration newTenantConfiguration1 = defaultTenantPostUpdate1.getTenantConfiguration();
         assertThat(newTenantConfiguration1.getIsActivated()).isFalse();
         assertTenantConfigurations(
-                newTenantConfiguration1, defaultTenantConfiguration, true, true, true, true, true, true, false);
+                newTenantConfiguration1, defaultTenantConfiguration, true, true, true, true, true, true, false, true);
     }
 
     @Test
@@ -1191,7 +1202,33 @@ public class TenantServiceTest {
             TenantConfiguration tenantConfiguration = dbTenant.getTenantConfiguration();
             assertThat(tenantConfiguration.getConnectionMaxPoolSize()).isEqualTo(20);
             assertTenantConfigurations(
-                    tenantConfiguration, defaultTenantConfiguration, true, true, true, true, true, true, false);
+                    tenantConfiguration, defaultTenantConfiguration, true, true, true, true, true, true, false, true);
         });
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void updateDefaultTenantConfiguration_updateHideWatermark_success() {
+        Tenant defaultTenant = tenantService.getTenantConfiguration().block();
+        TenantConfiguration defaultTenantConfiguration = defaultTenant.getTenantConfiguration();
+        Mono<String> update1_hideWatermarkEnabled = Mono.just("{\"hideWatermark\": true}");
+
+        Tenant defaultTenantPostUpdate1 = tenantService
+                .updateDefaultTenantConfiguration(update1_hideWatermarkEnabled, Mono.empty(), Mono.empty())
+                .block();
+        TenantConfiguration newTenantConfiguration1 = defaultTenantPostUpdate1.getTenantConfiguration();
+        assertThat(newTenantConfiguration1.getHideWatermark()).isTrue();
+        assertTenantConfigurations(
+                newTenantConfiguration1, defaultTenantConfiguration, true, true, true, true, false, true, true, false);
+
+        Mono<String> update2_hideWatermarkDisabled = Mono.just("{\"hideWatermark\": false}");
+
+        Tenant defaultTenantPostUpdate2 = tenantService
+                .updateDefaultTenantConfiguration(update2_hideWatermarkDisabled, Mono.empty(), Mono.empty())
+                .block();
+        TenantConfiguration newTenantConfiguration2 = defaultTenantPostUpdate2.getTenantConfiguration();
+        assertThat(newTenantConfiguration2.getHideWatermark()).isFalse();
+        assertTenantConfigurations(
+                newTenantConfiguration2, defaultTenantConfiguration, true, true, true, true, false, true, true, false);
     }
 }
