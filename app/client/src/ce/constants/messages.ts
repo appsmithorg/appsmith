@@ -2155,3 +2155,6 @@ export const COMMUNITY_TEMPLATES = {
     },
   },
 };
+
+export const EMPTY_TABLE_TITLE_TEXT = () => "Empty table";
+export const EMPTY_TABLE_MESSAGE_TEXT = () => "There are no data records to show";
