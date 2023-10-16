@@ -27,6 +27,7 @@ import * as Sentry from "@sentry/react";
 import { SaaSEditorRoutes } from "./SaaSEditor/routes";
 import OnboardingChecklist from "./FirstTimeUserOnboarding/Checklist";
 import { DatasourceEditorRoutes } from "pages/routes";
+import AdditionalEditorRoutes from "@appsmith/pages/Editor/AdditionalEditorRoutes";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -121,6 +122,7 @@ function EditorsRouter() {
           exact
           path={`${path}${GENERATE_TEMPLATE_FORM_PATH}`}
         />
+        <AdditionalEditorRoutes path={path} />
       </Switch>
     </Wrapper>
   );

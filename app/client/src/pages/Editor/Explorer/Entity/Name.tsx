@@ -11,6 +11,8 @@ import { TOOLTIP_HOVER_ON_DELAY_IN_S } from "constants/AppConstants";
 import NameEditorComponent from "components/utils/NameEditorComponent";
 import { ENTITY_EXPLORER_ACTION_NAME_CONFLICT_ERROR } from "@appsmith/constants/messages";
 import { Tooltip } from "design-system";
+import { useSelector } from "react-redux";
+import { getSavingStatusForActionName } from "selectors/actionSelectors";
 
 export const searchHighlightSpanClassName = "token";
 export const searchTokenizationDelimiter = "!!";
@@ -123,6 +125,10 @@ export const EntityName = React.memo(
       return updatedName;
     }, [searchKeyword, updatedName]);
 
+    const saveStatus = useSelector((state) =>
+      getSavingStatusForActionName(state, props.entityId || ""),
+    );
+
     if (!props.isEditing)
       return (
         <Container ref={ref}>
@@ -149,8 +155,11 @@ export const EntityName = React.memo(
 
     return (
       <NameEditorComponent
-        currentActionConfig={{ id: props.entityId, name: updatedName }}
         dispatchAction={handleUpdateName}
+        id={props.entityId}
+        idUndefinedErrorMessage="Invalid entity id provided"
+        name={updatedName}
+        saveStatus={saveStatus}
         suffixErrorMessage={ENTITY_EXPLORER_ACTION_NAME_CONFLICT_ERROR}
       >
         {({
