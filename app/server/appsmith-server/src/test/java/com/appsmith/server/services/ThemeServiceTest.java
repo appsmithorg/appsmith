@@ -19,6 +19,7 @@ import com.appsmith.server.repositories.ThemeRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.UserAndAccessManagementService;
+import com.appsmith.server.themes.base.ThemeService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

@@ -990,9 +990,8 @@ function* executeCommandSaga(actionPayload: ReduxAction<SlashCommandPayload>) {
       }
 
       yield put({
-        type: ReduxActionTypes.TOGGLE_AI_WINDOW,
+        type: ReduxActionTypes.UPDATE_AI_CONTEXT,
         payload: {
-          show: true,
           context,
         },
       });

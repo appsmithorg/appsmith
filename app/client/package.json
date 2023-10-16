@@ -330,7 +330,7 @@
     "msw": "^0.28.0",
     "pg": "^8.11.3",
     "plop": "^3.1.1",
-    "postcss": "^8.4.31",
+    "postcss": "8.4.31",
     "postcss-at-rules-variables": "^0.3.0",
     "postcss-each": "^1.1.0",
     "postcss-import": "^15.1.0",
@@ -377,6 +377,7 @@
     "@blueprintjs/core@^3.33.0": "patch:@blueprintjs/core@npm%3A3.47.0#./.yarn/patches/@blueprintjs-core-npm-3.47.0-a5bc1ea927.patch",
     "@blueprintjs/core@^3.47.0": "patch:@blueprintjs/core@npm%3A3.47.0#./.yarn/patches/@blueprintjs-core-npm-3.47.0-a5bc1ea927.patch",
     "@blueprintjs/icons": "3.22.0",
-    "@types/react": "^17.0.2"
+    "@types/react": "^17.0.2",
+    "postcss": "8.4.31"
   }
 }
