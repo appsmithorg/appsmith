@@ -42,6 +42,7 @@ import {
   getHasCreateDatasourceActionPermission,
   getHasCreatePagePermission,
 } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import EmptyTableSVG from "assets/images/empty-table-in-display-preview.svg";
 
 const ViewModeSchemaContainer = styled.div`
   height: 100%;
@@ -80,6 +81,31 @@ const DatasourceListContainer = styled.div`
   .t--schema-virtuoso-container {
     height: 100%;
   }
+`;
+
+export const ImageWrapper = styled.div`
+  width: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  left: 20%;
+`;
+
+// export const TitleWrapper1 = styled.div`
+//   display: flex;
+//   align-items: center;
+//   justify-content: center;
+//
+// `;
+
+export const MessageWrapper1 = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  left: 10%;
 `;
 
 const ButtonContainer = styled.div`
@@ -311,9 +337,24 @@ const DatasourceViewModeSchema = (props: Props) => {
             !failedFetchingPreviewData &&
             !previewDataError &&
             previewData?.length < 1 && (
-              <MessageWrapper>
-                <Text>{createMessage(DATASOURCE_NO_RECORDS_TO_SHOW)}</Text>
-              </MessageWrapper>
+              <ImageWrapper>
+                <img
+                  alt="table-is-empty"
+                  src={EmptyTableSVG}
+                  style={{ paddingBottom: "10%", paddingTop: "50%" }}
+                />
+                <MessageWrapper1>
+                  <Text style={{ fontWeight: "bold" }}>
+                    {createMessage(() => "Empty table")}
+                  </Text>
+                  <Text>
+                    {createMessage(() => "There are no data records to show")}
+                  </Text>
+                </MessageWrapper1>
+              </ImageWrapper>
+              // <MessageWrapper>
+              //   <Text>{createMessage(DATASOURCE_NO_RECORDS_TO_SHOW)}</Text>
+              // </MessageWrapper>
             )}
           {/* leaving this here in case we decide to show errors from server */}
           {/* {!isLoading && !failedFetchingPreviewData && previewDataError && (
