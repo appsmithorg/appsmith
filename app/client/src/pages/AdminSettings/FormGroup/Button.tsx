@@ -10,8 +10,11 @@ const ButtonWrapper = styled.div`
   width: 357px;
   margin-bottom: 8px;
 
-  .admin-settings-form-group-label {
+  .styled-label {
     padding: 0 0 0.5rem;
+  }
+
+  .admin-settings-form-group-label {
     font-weight: var(--ads-v2-h5-font-weight);
   }
 `;

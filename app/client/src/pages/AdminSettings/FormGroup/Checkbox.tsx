@@ -66,8 +66,11 @@ function FieldCheckboxWithCheckboxText(props: CheckboxProps) {
 const StyledFieldCheckboxGroup = styled.div`
   margin-bottom: 8px;
 
-  .admin-settings-form-group-label {
+  .styled-label {
     padding: 0 0 0.5rem;
+  }
+
+  .admin-settings-form-group-label {
     font-weight: var(--ads-v2-h5-font-weight);
   }
 `;

@@ -52,7 +52,7 @@ export function FormGroup({ children, className, setting }: FieldHelperProps) {
       className={`${className}`}
       data-testid="admin-settings-form-group"
     >
-      <StyledLabel>
+      <StyledLabel className="styled-label">
         {setting.label && (
           <Text
             className="admin-settings-form-group-label"
