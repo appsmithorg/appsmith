@@ -10,11 +10,10 @@ import {
   getIsErroredSavingAppName,
   getCurrentApplication,
 } from "@appsmith/selectors/applicationSelectors";
-import EditorAppName from "pages/Editor/EditorAppName";
+import EditorName from "pages/Editor/EditorName";
 import { EditInteractionKind, SavingState } from "design-system-old";
 import { Tooltip } from "design-system";
 import { getTheme, ThemeMode } from "selectors/themeSelectors";
-import { EditorSaveIndicator } from "pages/Editor/EditorSaveIndicator";
 import { fetchUsersForWorkspace } from "@appsmith/actions/workspaceActions";
 
 import {
@@ -30,6 +29,7 @@ import { LockEntityExplorer } from "pages/Editor/commons/LockEntityExplorer";
 import { Omnibar } from "pages/Editor/commons/Omnibar";
 import { HelperBarInHeader } from "pages/Editor/HelpBarInHeader";
 import { AppsmithLink } from "pages/Editor/AppsmithLink";
+import { GetNavigationMenuData } from "pages/Editor/EditorName/NavigationMenuData";
 
 const theme = getTheme(ThemeMode.LIGHT);
 
@@ -76,7 +76,7 @@ export function PackageEditorHeader() {
             placement="bottom"
           >
             <div>
-              <EditorAppName
+              <EditorName
                 applicationId={packageId}
                 className="t--application-name editable-application-name max-w-48"
                 defaultSavingState={
@@ -84,9 +84,11 @@ export function PackageEditorHeader() {
                 }
                 defaultValue={currentApplication?.name || ""}
                 editInteractionKind={EditInteractionKind.SINGLE}
+                editorName="Package"
                 fill
+                getNavigationMenu={GetNavigationMenuData}
                 isError={isErroredSavingName}
-                isNewApp={
+                isNewEditor={
                   applicationList.filter((el) => el.id === packageId).length > 0
                 }
                 isPopoverOpen={isPopoverOpen}
@@ -100,8 +102,6 @@ export function PackageEditorHeader() {
               />
             </div>
           </Tooltip>
-
-          <EditorSaveIndicator />
         </HeaderSection>
 
         <HelperBarInHeader isPreviewMode={isPreviewMode} />
