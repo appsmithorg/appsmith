@@ -1054,14 +1054,6 @@ public enum AppsmithError {
             "Unexpected server variable type",
             ErrorType.INTERNAL_ERROR,
             null),
-    MIGRATION_FAILED(
-            500,
-            AppsmithErrorCode.MIGRATION_FAILED.getCode(),
-            "Migration {0} failed. Reason: {1}. Note: {2}",
-            AppsmithErrorAction.DEFAULT,
-            "Migration failed",
-            ErrorType.INTERNAL_ERROR,
-            null),
     APPSMITH_AI_ERROR(
             500,
             AppsmithErrorCode.APPSMITH_AI_ERROR.getCode(),
