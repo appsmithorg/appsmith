@@ -19,7 +19,7 @@ import { deriveRowHighlights } from "layoutSystems/anvil/utils/layouts/highlight
 import type { WidgetPositions } from "layoutSystems/common/types";
 
 const Row = (props: LayoutComponentProps) => {
-  const { canvasId, children, layoutId, layoutStyle } = props;
+  const { canvasId, children, isDropTarget, layoutId, layoutStyle } = props;
 
   return (
     <FlexLayout
@@ -27,6 +27,7 @@ const Row = (props: LayoutComponentProps) => {
       canvasId={canvasId}
       columnGap="4px"
       direction="row"
+      isDropTarget={!!isDropTarget}
       layoutId={layoutId}
       {...(layoutStyle || {})}
     >

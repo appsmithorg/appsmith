@@ -28,6 +28,7 @@ class WidgetPositionsObserver {
       ref: RefObject<HTMLDivElement>;
       layoutId: string;
       canvasId: string;
+      isDropTarget: boolean;
     };
   } = {};
 
@@ -110,6 +111,7 @@ class WidgetPositionsObserver {
   public observeLayout(
     layoutId: string,
     canvasId: string,
+    isDropTarget: boolean,
     ref: RefObject<HTMLDivElement>,
   ) {
     if (ref?.current) {
@@ -117,19 +119,21 @@ class WidgetPositionsObserver {
         ref,
         canvasId,
         layoutId,
+        isDropTarget,
       };
       this.resizeObserver.observe(ref.current);
     }
   }
 
   //Method to de register layouts for resize observer changes
-  public unObserveLayout(layoutId: string) {
-    const element = this.registeredLayouts[layoutId]?.ref?.current;
+  public unObserveLayout(layoutId: string, canvasId: string) {
+    const domId = getLayoutId(canvasId, layoutId);
+    const element = this.registeredLayouts[domId]?.ref?.current;
     if (element) {
       this.resizeObserver.unobserve(element);
     }
 
-    delete this.registeredLayouts[layoutId];
+    delete this.registeredLayouts[domId];
   }
 
   //This method is triggered from the resize observer to add widgets to queue

@@ -11,6 +11,7 @@ export function usePositionObserver(
     layoutIndex?: number;
     layoutId?: string;
     canvasId?: string;
+    isDropTarget?: boolean;
   },
   ref: RefObject<HTMLDivElement>,
 ) {
@@ -33,7 +34,12 @@ export function usePositionObserver(
             throw Error("Failed to observe layout: layoutId is undefined");
           if (ids?.canvasId === undefined)
             throw Error("Failed to observe layout: canvasId is undefined");
-          positionObserver.observeLayout(ids?.layoutId, ids?.canvasId, ref);
+          positionObserver.observeLayout(
+            ids?.layoutId,
+            ids?.canvasId,
+            !!ids?.isDropTarget,
+            ref,
+          );
           break;
       }
     }
@@ -50,7 +56,9 @@ export function usePositionObserver(
         case "layout":
           if (ids?.layoutId === undefined)
             throw Error("Failed to unobserve widget: widgetId is undefined");
-          positionObserver.unObserveLayout(ids?.layoutId);
+          if (ids?.canvasId === undefined)
+            throw Error("Failed to observe layout: canvasId is undefined");
+          positionObserver.unObserveLayout(ids?.layoutId, ids?.canvasId);
           break;
       }
     };

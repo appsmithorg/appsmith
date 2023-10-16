@@ -4,7 +4,7 @@ import {
   type LayoutComponentProps,
   type LayoutProps,
   type WidgetLayoutProps,
-  DraggedWidget,
+  type DraggedWidget,
 } from "layoutSystems/anvil/utils/anvilTypes";
 import React from "react";
 import { FlexLayout } from "./FlexLayout";
@@ -19,7 +19,7 @@ import { deriveAlignedRowHighlights } from "layoutSystems/anvil/utils/layouts/hi
 import type { WidgetPositions } from "layoutSystems/common/types";
 
 const AlignedRow = (props: LayoutComponentProps) => {
-  const { canvasId, children, layoutId, layoutStyle } = props;
+  const { canvasId, children, isDropTarget, layoutId, layoutStyle } = props;
 
   return (
     <FlexLayout
@@ -27,6 +27,7 @@ const AlignedRow = (props: LayoutComponentProps) => {
       canvasId={canvasId}
       columnGap="4px"
       direction="row"
+      isDropTarget={!!isDropTarget}
       layoutId={layoutId}
       wrap="wrap"
       {...(layoutStyle || {})}

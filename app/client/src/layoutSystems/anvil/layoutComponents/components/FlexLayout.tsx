@@ -80,6 +80,7 @@ export const FlexLayout = (props: FlexLayoutProps) => {
     {
       layoutId: props.layoutId,
       canvasId: props.canvasId,
+      isDropTarget: !!props.isDropTarget,
     },
     ref,
   );
