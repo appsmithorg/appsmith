@@ -5,6 +5,8 @@ import {
   propPane,
 } from "../../../../../support/Objects/ObjectsCore";
 
+import testdata from "../../../../../fixtures/testdata.json";
+
 describe("Iframe widget Tests", function () {
   before(() => {
     entityExplorer.DragDropWidgetNVerify("iframewidget", 550, 100);
@@ -32,13 +34,10 @@ describe("Iframe widget Tests", function () {
   };
 
   it("1. Verify content and user interaction", function () {
-    propPane.UpdatePropertyFieldValue(
-      "URL",
-      "https://elfsight.com/social-feed-widget/iframe/",
-    );
+    propPane.UpdatePropertyFieldValue("URL", testdata.iframeUrl);
     getIframeBody()
       .find(".header-logo")
-      .should("have.attr", "href", "https://elfsight.com/");
+      .should("have.attr", "href", testdata.iframeUrlSubstring);
 
     // Title
     propPane.UpdatePropertyFieldValue("Title", "Test Title");
@@ -110,7 +109,7 @@ describe("Iframe widget Tests", function () {
     );
     agHelper.GetNClick(propPane._actionSelectorPopupClose);
 
-    propPane.UpdatePropertyFieldValue("URL", "https://www.google.com");
+    propPane.UpdatePropertyFieldValue("URL", testdata.iframeRandomUrl);
     agHelper.ValidateToastMessage("URL Changed");
   });
 
