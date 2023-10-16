@@ -737,7 +737,9 @@ const getDataTreeWithoutSuppressedAutoComplete = (
 ): DataTree => {
   const entityIds = Object.keys(dataTree).filter((entityName) => {
     const entity = dataTree[entityName];
-    return isWidget(entity) && shouldSuppressAutoComplete(entity);
+    return (
+      isWidget(entity) && shouldSuppressAutoComplete(entity as WidgetEntity)
+    );
   });
 
   return _.omit(dataTree, entityIds);

@@ -5,7 +5,9 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
+  getIsPageSaving,
   getIsPublishingApplication,
+  getPageSavingError,
   previewModeSelector,
 } from "selectors/editorSelectors";
 import {
@@ -24,7 +26,7 @@ import {
   getIsErroredSavingAppName,
   getCurrentApplication,
 } from "@appsmith/selectors/applicationSelectors";
-import EditorAppName from "./EditorAppName";
+import EditorName from "./EditorName";
 import { EditInteractionKind, SavingState } from "design-system-old";
 import {
   Button,
@@ -79,6 +81,7 @@ import { EditorShareButton } from "./EditorShareButton";
 import { HelperBarInHeader } from "./HelpBarInHeader";
 import { AppsmithLink } from "./AppsmithLink";
 import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
+import { GetNavigationMenuData } from "./EditorName/NavigationMenuData";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -100,6 +103,8 @@ export function EditorHeader() {
   const isPublishing = useSelector(getIsPublishingApplication);
   const pageId = useSelector(getCurrentPageId) as string;
   const featureFlags = useSelector(selectFeatureFlags);
+  const isSaving = useSelector(getIsPageSaving);
+  const pageSaveError = useSelector(getPageSavingError);
 
   const deployLink = useHref(viewerURL, { pageId });
   const isAppSettingsPaneWithNavigationTabOpen = useSelector(
@@ -216,7 +221,7 @@ export function EditorHeader() {
             placement="bottom"
           >
             <div>
-              <EditorAppName
+              <EditorName
                 applicationId={applicationId}
                 className="t--application-name editable-application-name max-w-48"
                 defaultSavingState={
@@ -224,9 +229,11 @@ export function EditorHeader() {
                 }
                 defaultValue={currentApplication?.name || ""}
                 editInteractionKind={EditInteractionKind.SINGLE}
+                editorName="Application"
                 fill
+                getNavigationMenu={GetNavigationMenuData}
                 isError={isErroredSavingName}
-                isNewApp={
+                isNewEditor={
                   applicationList.filter((el) => el.id === applicationId)
                     .length > 0
                 }
@@ -241,7 +248,7 @@ export function EditorHeader() {
               />
             </div>
           </Tooltip>
-          <EditorSaveIndicator />
+          <EditorSaveIndicator isSaving={isSaving} saveError={pageSaveError} />
         </HeaderSection>
 
         <HelperBarInHeader />

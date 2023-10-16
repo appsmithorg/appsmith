@@ -97,10 +97,10 @@ const IconScrollWrapper = styled.div`
   }
 `;
 
-type ModifiedMenuItemProps = MenuItemProps & {
+export interface ModifiedMenuItemProps extends MenuItemProps {
   key?: string;
   "data-testid"?: string;
-};
+}
 
 const ContextMenuTrigger = styled(Button)<{ isHidden?: boolean }>`
   ${(props) => props.isHidden && "opacity: 0; visibility: hidden;"}
