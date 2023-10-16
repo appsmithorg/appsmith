@@ -1,4 +1,3 @@
-/* eslint-disable */
 import { useContext } from "react";
 import type { RefObject } from "react";
 import React, { useCallback, useRef, useState } from "react";
@@ -44,7 +43,6 @@ import Resizable, {
   ResizerCSS,
 } from "components/editorComponents/Debugger/Resizer";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import CloseEditor from "components/editorComponents/CloseEditor";
 import EntityDeps from "components/editorComponents/Debugger/EntityDependecies";
 import {
   checkIfSectionCanRender,
@@ -69,8 +67,6 @@ import {
 } from "@appsmith/constants/messages";
 import { useParams } from "react-router";
 import type { AppState } from "@appsmith/reducers";
-import type { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers";
-import MoreActionsMenu from "../Explorer/Actions/MoreActionsMenu";
 import { thinScrollbar } from "constants/DefaultTheme";
 import ActionRightPane, {
   useEntityDependencies,
@@ -134,7 +130,6 @@ import { DatasourceStructureContext } from "../Explorer/Datasources/DatasourceSt
 import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 import {
   getHasCreateDatasourcePermission,
-  getHasDeleteActionPermission,
   getHasExecuteActionPermission,
   getHasManageActionPermission,
 } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
@@ -406,11 +401,14 @@ export function EditorJSONtoForm(props: Props) {
     settingConfig,
     uiComponent,
     updateActionResponseDisplayFormat,
-    showCloseEditor,
   } = props;
 
-  const { moreActionsMenu, saveActionName, actionRightPaneBackLink, closeEditorLink } =
-    useContext(QueryEditorContext);
+  const {
+    actionRightPaneBackLink,
+    closeEditorLink,
+    moreActionsMenu,
+    saveActionName,
+  } = useContext(QueryEditorContext);
 
   let error = runErrorMessage;
   let output: Record<string, any>[] | null = null;
@@ -1110,8 +1108,8 @@ export function EditorJSONtoForm(props: Props) {
           </div>
           <SidebarWrapper show={shouldOpenActionPaneByDefault}>
             <ActionRightPane
-              actionRightPaneBackLink={actionRightPaneBackLink}
               actionName={actionName}
+              actionRightPaneBackLink={actionRightPaneBackLink}
               context={DatasourceStructureContext.QUERY_EDITOR}
               datasourceId={props.datasourceId}
               hasConnections={hasDependencies}
