@@ -40,7 +40,7 @@ export function deriveAlignedRowHighlights(
     return [];
   const { isDropTarget, layout, layoutId, layoutType } = layoutProps;
 
-  let parentDropTargetId: string = isDropTarget ? layoutId : parentDropTarget;
+  const parentDropTargetId: string = isDropTarget ? layoutId : parentDropTarget;
 
   /**
    * Step 1: Construct a base highlight.
@@ -51,7 +51,7 @@ export function deriveAlignedRowHighlights(
     dropZone: {},
     height: 0,
     isVertical: true,
-    layoutOrder: [...layoutOrder, layoutId],
+    layoutOrder,
     posX: HIGHLIGHT_SIZE / 2,
     posY: HIGHLIGHT_SIZE / 2,
     rowIndex: 0,

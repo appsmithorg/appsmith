@@ -44,6 +44,7 @@ describe("columnHighlights", () => {
         "0",
         draggedWidgets,
         [],
+        layout.layoutId,
       );
       expect(res.length).toEqual(3);
       // highlights should be horizontal.
@@ -88,6 +89,7 @@ describe("columnHighlights", () => {
           },
         ],
         [],
+        layout.layoutId,
       );
 
       // One highlight is discounted on account of child button widget being dragged.
@@ -118,6 +120,7 @@ describe("columnHighlights", () => {
         "0",
         draggedWidgets,
         [],
+        layout.layoutId,
       );
 
       /**
@@ -171,6 +174,7 @@ describe("columnHighlights", () => {
         "0",
         [],
         [],
+        layout.layoutId,
       );
 
       expect(res[0].width).toEqual(
@@ -197,6 +201,7 @@ describe("columnHighlights", () => {
         "0",
         [],
         [],
+        layout.layoutId,
       );
       expect(res).toBeDefined();
       expect(res[0].width).toEqual(
@@ -224,6 +229,7 @@ describe("columnHighlights", () => {
         "0",
         [],
         [],
+        layout.layoutId,
       );
 
       expect(res[0].width).toEqual(
@@ -280,6 +286,7 @@ describe("columnHighlights", () => {
         "0",
         [],
         [],
+        column.layoutId,
       );
 
       /**

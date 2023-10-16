@@ -40,6 +40,7 @@ export function renderLayouts(
   canvasId: string,
   parentDropTarget: string,
   renderMode: RenderMode = RenderModes.CANVAS,
+  layoutOrder: string[],
 ): JSX.Element[] {
   return layouts.map((layout) => {
     const Component: LayoutComponent = LayoutFactory.get(layout.layoutType);
@@ -49,6 +50,7 @@ export function renderLayouts(
         canvasId={canvasId}
         childrenMap={getChildrenMap(layout, childrenMap)}
         key={layout.layoutId}
+        layoutOrder={layoutOrder}
         parentDropTarget={
           layout.isDropTarget ? layout.layoutId : parentDropTarget
         }

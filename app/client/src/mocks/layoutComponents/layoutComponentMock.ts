@@ -57,6 +57,7 @@ export function generateLayoutComponentMock(
     isPermanent: false,
 
     childrenMap,
+    layoutOrder: [],
     parentDropTarget: "",
     renderMode: RenderModes.CANVAS,
     ...data,
@@ -107,6 +108,7 @@ export function generateAlignedRowMock(
     isPermanent: false,
 
     childrenMap,
+    layoutOrder: [],
     parentDropTarget: "",
     renderMode: RenderModes.CANVAS,
     ...data,

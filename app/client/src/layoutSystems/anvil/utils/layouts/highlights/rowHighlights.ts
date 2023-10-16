@@ -55,7 +55,7 @@ export function deriveRowHighlights(
 
   const { isDropTarget, layoutId, layoutStyle } = layoutProps;
 
-  let parentDropTargetId: string = isDropTarget ? layoutId : parentDropTarget;
+  const parentDropTargetId: string = isDropTarget ? layoutId : parentDropTarget;
 
   const baseHighlight: AnvilHighlightInfo = {
     alignment:
@@ -66,7 +66,7 @@ export function deriveRowHighlights(
     dropZone: {},
     height: 0,
     isVertical: true,
-    layoutOrder: [...layoutOrder, layoutProps.layoutId],
+    layoutOrder,
     posX: HIGHLIGHT_SIZE / 2,
     posY: HIGHLIGHT_SIZE / 2,
     rowIndex: 0,
@@ -327,7 +327,6 @@ export function getHighlightsForLayoutRow(
 ): AnvilHighlightInfo[] {
   const highlights: AnvilHighlightInfo[] = [];
   const layout: LayoutProps[] = layoutProps.layout as LayoutProps[];
-  const updatedOrder: string[] = [...layoutOrder, layoutProps.layoutId];
 
   let index = 0;
   // Loop over each child layout
@@ -392,7 +391,7 @@ export function getHighlightsForLayoutRow(
         widgetPositions,
         canvasId,
         draggedWidgets,
-        updatedOrder,
+        [...layoutOrder, layout[index].layoutId],
         parentDropTargetId,
       );
 

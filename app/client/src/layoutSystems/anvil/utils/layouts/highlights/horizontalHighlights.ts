@@ -146,8 +146,6 @@ export function getHighlightsForLayouts(
   hasFillWidget = false,
 ): AnvilHighlightInfo[] {
   const highlights: AnvilHighlightInfo[] = [];
-  // Add parent layoutId to layoutOrder.
-  const updatedOrder: string[] = [...layoutOrder, layoutProps.layoutId];
   // Extract list of child layouts.
   const layouts: LayoutProps[] = layoutProps.layout as LayoutProps[];
   // Dimensions of parent layout.
@@ -217,7 +215,7 @@ export function getHighlightsForLayouts(
         widgetPositions,
         canvasId,
         draggedWidgets,
-        updatedOrder,
+        [...layoutOrder, layouts[index].layoutId],
         parentDropTargetId,
       );
 

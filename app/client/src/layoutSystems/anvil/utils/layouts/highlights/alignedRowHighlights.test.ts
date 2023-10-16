@@ -69,6 +69,7 @@ describe("AlignedRow highlights", () => {
           },
         ],
         [],
+        layout.layoutId,
       );
 
       expect(res.length).toEqual(3);
@@ -136,6 +137,7 @@ describe("AlignedRow highlights", () => {
           },
         ],
         [],
+        layout.layoutId,
       );
 
       expect(res.length).toEqual(3);

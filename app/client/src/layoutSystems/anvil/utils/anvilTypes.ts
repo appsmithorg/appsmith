@@ -46,6 +46,7 @@ export interface LayoutComponentProps extends LayoutProps {
   canvasId: string; // Parent canvas of the layout.
   children?: React.ReactNode; // The children of the layout component
   childrenMap: Record<string, WidgetProps>; // Map of child widget ids to their props.
+  layoutOrder: string[]; // Top - down hierarchy of layoutIds.
   parentDropTarget: string; // layoutId of the immediate drop target parent. Could be self as well.
   renderMode: RenderMode;
 }

@@ -48,7 +48,7 @@ export function deriveColumnHighlights(
 
   const { isDropTarget, layoutId, layoutStyle } = layoutProps;
 
-  let parentDropTargetId: string = isDropTarget ? layoutId : parentDropTarget;
+  const parentDropTargetId: string = isDropTarget ? layoutId : parentDropTarget;
 
   const baseHighlight: AnvilHighlightInfo = {
     alignment:
@@ -59,7 +59,7 @@ export function deriveColumnHighlights(
     dropZone: {},
     height: HIGHLIGHT_SIZE,
     isVertical: false,
-    layoutOrder: [...layoutOrder, layoutProps.layoutId],
+    layoutOrder,
     posX: HIGHLIGHT_SIZE / 2,
     posY: HIGHLIGHT_SIZE / 2,
     rowIndex: 0,

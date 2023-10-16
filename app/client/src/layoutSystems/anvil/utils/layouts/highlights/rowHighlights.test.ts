@@ -24,7 +24,6 @@ import Row from "layoutSystems/anvil/layoutComponents/components/Row";
 import LayoutFactory from "layoutSystems/anvil/layoutComponents/LayoutFactory";
 import type { WidgetPositions } from "layoutSystems/common/types";
 
-
 describe("rowHighlights tests", () => {
   const baseProps: LayoutProps = {
     layoutId: "layoutID",
@@ -59,11 +58,16 @@ describe("rowHighlights tests", () => {
         { widgetId: "3", alignment: FlexLayerAlignment.Start },
       ];
       const dimensions: WidgetPositions = {
+        "0": { top: 0, left: 0, width: 200, height: 200 },
         "1": { top: 0, left: 4, width: 100, height: 40 },
         "2": { top: 0, left: 110, width: 100, height: 60 },
         "3": { top: 30, left: 220, width: 100, height: 30 },
       };
-      const res: RowMetaInformation = extractMetaInformation(data, dimensions);
+      const res: RowMetaInformation = extractMetaInformation(
+        data,
+        dimensions,
+        "0",
+      );
       // There should be 1 row.
       expect(res.metaData.length).toEqual(1);
       // All three widgets should be in the same row.
@@ -81,12 +85,17 @@ describe("rowHighlights tests", () => {
         { widgetId: "4", alignment: FlexLayerAlignment.Start },
       ];
       const dimensions: WidgetPositions = {
+        "0": { top: 0, left: 0, width: 300, height: 200 },
         "1": { top: 0, left: 4, width: 100, height: 40 },
         "2": { top: 0, left: 110, width: 100, height: 60 },
         "3": { top: 70, left: 10, width: 100, height: 30 },
         "4": { top: 70, left: 110, width: 100, height: 80 },
       };
-      const res: RowMetaInformation = extractMetaInformation(data, dimensions);
+      const res: RowMetaInformation = extractMetaInformation(
+        data,
+        dimensions,
+        "0",
+      );
       // There should be 2 rows.
       expect(res.metaData.length).toEqual(2);
       // There should two widgets in each row.
@@ -106,12 +115,17 @@ describe("rowHighlights tests", () => {
         { widgetId: "4", alignment: FlexLayerAlignment.Start },
       ];
       const dimensions: WidgetPositions = {
+        "0": { top: 0, left: 0, width: 200, height: 200 },
         "1": { top: 70, left: 4, width: 100, height: 40 },
         "2": { top: 70, left: 110, width: 100, height: 60 },
         "3": { top: 0, left: 10, width: 100, height: 30 },
         "4": { top: 0, left: 110, width: 100, height: 80 },
       };
-      const res: RowMetaInformation = extractMetaInformation(data, dimensions);
+      const res: RowMetaInformation = extractMetaInformation(
+        data,
+        dimensions,
+        "0",
+      );
       // There should be 2 rows.
       expect(res.metaData.length).toEqual(2);
       // There should two widgets in each row.
@@ -149,7 +163,11 @@ describe("rowHighlights tests", () => {
         "2": { top: 0, left: 110, width: 100, height: 60 },
         "3": { top: 30, left: 220, width: 100, height: 30 },
       };
-      const res: RowMetaInformation = extractMetaInformation(data, dimensions);
+      const res: RowMetaInformation = extractMetaInformation(
+        data,
+        dimensions,
+        "layoutID",
+      );
       const highlights = getHighlightsForRow(
         res.metaData[0],
         res.tallestWidgets[0],
@@ -157,6 +175,7 @@ describe("rowHighlights tests", () => {
         dimensions,
         baseHighlight,
         [],
+        "layoutID",
       );
 
       expect(highlights.length).toEqual(data.length + 1);
@@ -195,7 +214,11 @@ describe("rowHighlights tests", () => {
         "2": { top: 0, left: 110, width: 100, height: 60 },
         "3": { top: 30, left: 220, width: 100, height: 30 },
       };
-      const res: RowMetaInformation = extractMetaInformation(data, dimensions);
+      const res: RowMetaInformation = extractMetaInformation(
+        data,
+        dimensions,
+        "layoutID",
+      );
       const highlights = deriveRowHighlights(
         { ...baseProps, layout: data },
         dimensions,
@@ -208,6 +231,7 @@ describe("rowHighlights tests", () => {
           },
         ],
         [],
+        "layoutID",
       );
 
       expect(highlights.length).toEqual(data.length + 1);
@@ -245,7 +269,7 @@ describe("rowHighlights tests", () => {
         "2": { top: 0, left: 110, width: 100, height: 60 },
         "3": { top: 70, left: 10, width: 100, height: 30 },
       };
-      const res: RowMetaInformation = extractMetaInformation(data, dimensions);
+      const res: RowMetaInformation = extractMetaInformation(data, dimensions, "layoutID");
       const highlights = deriveRowHighlights(
         { ...baseProps, layout: data },
         dimensions,
@@ -258,6 +282,7 @@ describe("rowHighlights tests", () => {
           },
         ],
         [],
+        "layoutID",
       );
 
       /**
@@ -298,7 +323,7 @@ describe("rowHighlights tests", () => {
         "2": { top: 40, left: 110, width: 100, height: 60 },
         "3": { top: 0, left: 10, width: 100, height: 30 },
       };
-      const res: RowMetaInformation = extractMetaInformation(data, dimensions);
+      const res: RowMetaInformation = extractMetaInformation(data, dimensions, "layoutID");
       const highlights = deriveRowHighlights(
         { ...baseProps, layout: data },
         dimensions,
@@ -311,6 +336,7 @@ describe("rowHighlights tests", () => {
           },
         ],
         [],
+        "layoutID"
       );
 
       /**
@@ -363,6 +389,7 @@ describe("rowHighlights tests", () => {
           },
         ],
         [],
+        layout.layoutId,
       );
       expect(res[0].posY).toEqual(positions[layout.layoutId].top);
       expect(res[0].alignment).toEqual(FlexLayerAlignment.Start);
@@ -396,6 +423,7 @@ describe("rowHighlights tests", () => {
           },
         ],
         [],
+        layout.layoutId,
       );
 
       const posX: number =
@@ -433,9 +461,9 @@ describe("rowHighlights tests", () => {
           },
         ],
         [],
+        layout.layoutId,
       );
-      const posX: number =
-        positions[layout.layoutId].width - HIGHLIGHT_SIZE;
+      const posX: number = positions[layout.layoutId].width - HIGHLIGHT_SIZE;
       expect(res).toBeDefined();
       expect(res[0].posY).toEqual(positions[layout.layoutId].top);
       expect(res[0].alignment).toEqual(FlexLayerAlignment.End);
@@ -519,6 +547,7 @@ describe("rowHighlights tests", () => {
           },
         ],
         [],
+        layout.layoutId,
       );
 
       /**
@@ -567,6 +596,7 @@ describe("rowHighlights tests", () => {
           },
         ],
         [],
+        layout.layoutId,
       );
 
       // highlights for the dragged widget should be discounted.

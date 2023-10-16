@@ -12,8 +12,10 @@ import type { WidgetPositions } from "layoutSystems/common/types";
 
 export function LayoutComponentHOC(Component: LayoutComponent) {
   const enhancedLayoutComponent = (props: LayoutComponentProps) => {
-    const { canvasId, isDropTarget, layoutId, parentDropTarget, renderMode } =
+    const { canvasId, isDropTarget, layoutId, layoutOrder, parentDropTarget, renderMode } =
       props;
+
+    const updatedOrder: string[] = [...layoutOrder, layoutId];
 
     const renderChildren = () => {
       if (Component.rendersWidgets(props)) {
@@ -25,6 +27,7 @@ export function LayoutComponentHOC(Component: LayoutComponent) {
           canvasId,
           parentDropTarget,
           renderMode,
+          updatedOrder,
         );
       }
     };
@@ -37,6 +40,8 @@ export function LayoutComponentHOC(Component: LayoutComponent) {
         widgetPositions,
         canvasId,
         draggedWidgets,
+        updatedOrder,
+        parentDropTarget,
       );
     };
 
