@@ -8,15 +8,10 @@ export function createMessage(
 }
 
 /*
-  For self hosted, it displays the string "Appsmith Community v1.10.0" or "Appsmith Business v1.10.0".
-  For cloud hosting, it displays "Appsmith v1.10.0".
-  This is because Appsmith Cloud doesn't support business features yet.
+  For self hosted CE, it displays the string "Appsmith Community v1.10.0".
  */
-export const APPSMITH_DISPLAY_VERSION = (
-  edition: string,
-  version: string,
-  cloudHosting: boolean,
-) => `Appsmith ${!cloudHosting ? edition : ""} ${version}`;
+export const APPSMITH_DISPLAY_VERSION = (edition: string, version: string) =>
+  `Appsmith ${edition} ${version}`;
 export const INTERCOM_CONSENT_MESSAGE = () =>
   `Can we have your email for better support?`;
 export const YES = () => `Yes`;
@@ -2078,7 +2073,7 @@ export const DATASOURCE_DROPDOWN_OPTIONS = {
 };
 
 export const COMMUNITY_TEMPLATES = {
-  publish: () => "Publish",
+  tabTitle: () => "Showcase",
   cancel: () => "Cancel",
   publishSuccessPage: {
     title: () => "Live on Appsmith community",

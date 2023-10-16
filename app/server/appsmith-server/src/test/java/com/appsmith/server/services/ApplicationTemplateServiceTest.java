@@ -54,14 +54,10 @@ public class ApplicationTemplateServiceTest {
         mockCloudServices.shutdown();
     }
 
-    private Application setUpTestApplication() {
-        Workspace workspace = new Workspace();
-        workspace.setName("Import-Export-Test-Workspace");
-        Workspace savedWorkspace = workspaceService.create(workspace).block();
-
+    private Application setUpTestApplicationForWorkspace(String workspaceId) {
         Application testApplication = new Application();
         testApplication.setName("Export-Application-Test-Application");
-        testApplication.setWorkspaceId(savedWorkspace.getId());
+        testApplication.setWorkspaceId(workspaceId);
         testApplication.setUpdatedAt(Instant.now());
         testApplication.setLastDeployedAt(Instant.now());
         testApplication.setModifiedBy("some-user");
@@ -72,14 +68,19 @@ public class ApplicationTemplateServiceTest {
                 new MockResponse().setBody("{\"status\": 1}").addHeader("Content-Type", "application/json"));
 
         return applicationPageService
-                .createApplication(testApplication, savedWorkspace.getId())
+                .createApplication(testApplication, workspaceId)
                 .block();
     }
 
     @Test
     @WithUserDetails(value = "api_user")
     public void test_application_published_as_community_template() {
-        Application testApp = setUpTestApplication();
+        // Create Workspace
+        Workspace workspace = new Workspace();
+        workspace.setName("Import-Export-Test-Workspace");
+        Workspace savedWorkspace = workspaceService.create(workspace).block();
+
+        Application testApp = setUpTestApplicationForWorkspace(savedWorkspace.getId());
         CommunityTemplateDTO communityTemplateDTO = new CommunityTemplateDTO();
         communityTemplateDTO.setApplicationId(testApp.getId());
         communityTemplateDTO.setWorkspaceId(testApp.getWorkspaceId());
@@ -96,5 +97,9 @@ public class ApplicationTemplateServiceTest {
                     assertThat(updatedApplication.getIsPublic()).isTrue();
                 })
                 .verifyComplete();
+
+        // Test cleanup
+        applicationPageService.deleteApplication(testApp.getId()).block();
+        workspaceService.archiveById(savedWorkspace.getId()).block();
     }
 }

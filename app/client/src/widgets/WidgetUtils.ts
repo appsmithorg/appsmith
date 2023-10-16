@@ -921,7 +921,7 @@ const findReactInstanceProps = (domElement: any) => {
 
 export function isCompactMode(componentHeight: number) {
   return (
-    componentHeight <
+    componentHeight <=
     COMPACT_MODE_MIN_ROWS * GridDefaults.DEFAULT_GRID_ROW_HEIGHT
   );
 }

@@ -38,7 +38,7 @@ export interface Completion extends Hint {
 export interface CommandsCompletion
   extends Omit<Completion, "type" | "origin" | "data"> {
   data: unknown;
-  action?: () => void;
+  action?: (callback?: (completion: string) => void) => void;
   shortcut?: string;
   triggerCompletionsPostPick?: boolean;
 }
