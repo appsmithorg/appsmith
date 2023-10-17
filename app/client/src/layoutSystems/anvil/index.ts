@@ -2,32 +2,8 @@ import { RenderModes } from "constants/WidgetConstants";
 import { AnvilEditorWrapper } from "./editor/AnvilEditorWrapper";
 import { AnvilViewerWrapper } from "./viewer/AnvilViewerWrapper";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
-import {
-  getAutoDimensionsConfig,
-  getAutoLayoutWidgetConfig,
-  restructureWidgetSizeConfig,
-} from "layoutSystems/common/utils/commonUtils";
-import type {
-  AutoDimensionOptions,
-  AutoLayoutConfig,
-} from "WidgetProvider/constants";
-import { getAnvilComponentDimensions } from "layoutSystems/common/utils/ComponentSizeUtils";
 import type { LayoutSystem } from "layoutSystems/types";
 import { AnvilCanvas } from "./canvas/AnvilCanvas";
-import { generateDefaultLayoutPreset } from "./layoutComponents/presets/DefaultLayoutPreset";
-
-export const getAnvilDimensionsConfig = (
-  props: BaseWidgetProps,
-): {
-  autoDimension: AutoDimensionOptions | undefined;
-  widgetSize: { [key: string]: Record<string, string> };
-} => {
-  const config: AutoLayoutConfig = getAutoLayoutWidgetConfig(props);
-  return {
-    autoDimension: getAutoDimensionsConfig(config, props),
-    widgetSize: restructureWidgetSizeConfig(config.widgetSize, props),
-  };
-};
 
 /**
  * getAnvilSystemPropsEnhancer
@@ -36,17 +12,7 @@ export const getAnvilDimensionsConfig = (
  *
  */
 const getAnvilSystemPropsEnhancer = (props: BaseWidgetProps) => {
-  const { widgetSize } = getAnvilDimensionsConfig(props);
-  const { componentHeight, componentWidth } =
-    getAnvilComponentDimensions(props);
-  return {
-    ...props,
-    componentHeight,
-    componentWidth,
-    hasAutoHeight: true,
-    hasAutoWidth: true,
-    widgetSize,
-  };
+  return props;
 };
 
 const getAnvilSystemWrapper = (renderMode: RenderModes) => {
@@ -74,10 +40,7 @@ const getAnvilCanvasWrapper = () => {
  * @returns current render mode specific wrapper.
  */
 const getAnvilCanvasPropsEnhancer = (props: BaseWidgetProps) => {
-  return {
-    ...props,
-    layout: props?.layout,
-  };
+  return props;
 };
 
 export function getAnvilLayoutSystem(renderMode: RenderModes): LayoutSystem {

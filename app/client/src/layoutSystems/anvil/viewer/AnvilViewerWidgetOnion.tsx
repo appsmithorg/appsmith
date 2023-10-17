@@ -2,6 +2,8 @@ import React from "react";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import { AnvilFlexComponent } from "../common/AnvilFlexComponent";
 import { AnvilWidgetComponent } from "../common/widgetComponent/AnvilWidgetComponent";
+import { useWidgetSizeConfiguration } from "../common/hooks/useWidgetSizeConfiguration";
+import type { SizeConfig } from "WidgetProvider/constants";
 
 /**
  * AnvilViewerWidgetOnion
@@ -16,17 +18,14 @@ import { AnvilWidgetComponent } from "../common/widgetComponent/AnvilWidgetCompo
  * @returns Enhanced Widget
  */
 export const AnvilViewerWidgetOnion = (props: BaseWidgetProps) => {
+  const widgetSize: SizeConfig = useWidgetSizeConfiguration(props.type, props);
   return (
     <AnvilFlexComponent
-      componentHeight={props.componentHeight}
-      componentWidth={props.componentWidth}
-      hasAutoHeight={!!props.hasAutoHeight}
-      hasAutoWidth={!!props.hasAutoWidth}
       isResizeDisabled={props.resizeDisabled}
       parentId={props.parentId}
       widgetId={props.widgetId}
       widgetName={props.widgetName}
-      widgetSize={props.widgetSize}
+      widgetSize={widgetSize}
       widgetType={props.type}
     >
       <AnvilWidgetComponent {...props}>{props.children}</AnvilWidgetComponent>

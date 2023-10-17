@@ -3,6 +3,7 @@ import type { WidgetProps } from "widgets/BaseWidget";
 import type { RenderMode } from "constants/WidgetConstants";
 import * as log from "loglevel";
 import type {
+  AnvilConfig,
   AutocompletionDefinitions,
   AutoLayoutConfig,
   CanvasWidgetStructure,
@@ -29,6 +30,7 @@ import type { RegisteredWidgetFeatures } from "../../utils/WidgetFeatures";
 // import { WIDGETS_COUNT } from "widgets";
 import type { SetterConfig } from "entities/AppTheming";
 import { freeze, memoize } from "./decorators";
+import { defaultSizeConfig } from "layoutSystems/anvil/common/hooks/useWidgetSizeConfiguration";
 
 type WidgetDerivedPropertyType = any;
 export type DerivedPropertiesMap = Record<string, string>;
@@ -78,6 +80,7 @@ class WidgetFactory {
       WidgetFactory.getWidgetPropertyPaneStyleConfig(widget.type);
       WidgetFactory.getWidgetPropertyPaneSearchConfig(widget.type);
       WidgetFactory.getWidgetAutoLayoutConfig(widget.type);
+      WidgetFactory.getWidgetAnvilConfig(widget.type);
     }
   }
 
@@ -401,6 +404,22 @@ class WidgetFactory {
         disabledPropsDefaults: {},
       };
     }
+  }
+
+  @memoize
+  @freeze
+  static getWidgetAnvilConfig(type: WidgetType): AnvilConfig {
+    const widget = WidgetFactory.widgetsMap.get(type);
+    const baseAnvilConfig: AnvilConfig | null | undefined =
+      widget?.getAnvilConfig();
+
+    if (!baseAnvilConfig) {
+      log.error(`Anvil config is not defined for widget type: ${type}`);
+      return {
+        widgetSize: defaultSizeConfig,
+      };
+    }
+    return baseAnvilConfig;
   }
 
   @memoize
