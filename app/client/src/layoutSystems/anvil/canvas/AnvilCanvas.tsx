@@ -16,12 +16,13 @@ export const AnvilCanvas = (props: BaseWidgetProps) => {
   props.children?.forEach((child: WidgetProps) => {
     map[child.widgetId] = child;
   });
-  props;
+
+  const gapClass = props.renderMode === RenderModes.CANVAS ? "gap" : "";
   return (
     <div
       className={`anvil-canvas ${
         props.widgetId === MAIN_CONTAINER_WIDGET_ID
-          ? `${getCanvasClassName()} overflowY`
+          ? `${getCanvasClassName()} overflowY ${gapClass}`
           : ""
       }`}
       id={getAnvilCanvasId(props.widgetId)}
