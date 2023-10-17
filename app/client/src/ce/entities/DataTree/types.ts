@@ -26,6 +26,8 @@ export enum ENTITY_TYPE {
   APPSMITH = "APPSMITH",
   JSACTION = "JSACTION",
 }
+export const JSACTION_TYPE = ENTITY_TYPE.JSACTION;
+export const ACTION_TYPE = ENTITY_TYPE.ACTION;
 
 export enum EvaluationSubstitutionType {
   TEMPLATE = "TEMPLATE",
