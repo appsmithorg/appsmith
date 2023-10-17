@@ -7,16 +7,23 @@ import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.Environment;
 import com.appsmith.external.models.Property;
 import com.appsmith.server.datasourcestorages.base.DatasourceStorageService;
+import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.DatasourceStorageRepository;
 import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.services.ApplicationPageService;
+import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.EnvironmentService;
+import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.VariableReplacementService;
 import com.appsmith.server.services.WorkspaceService;
+import com.appsmith.server.solutions.ApplicationPermission;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -57,6 +64,51 @@ public class DatasourceStorageServiceTest {
 
     @Autowired
     EnvironmentService environmentService;
+
+    @Autowired
+    SessionUserService sessionUserService;
+
+    @Autowired
+    ApplicationService applicationService;
+
+    @Autowired
+    ApplicationPermission applicationPermission;
+
+    @Autowired
+    ApplicationPageService applicationPageService;
+
+    private Workspace workspace;
+
+    @BeforeEach
+    public void setup() {
+        User currentUser = sessionUserService.getCurrentUser().block();
+        if (null == currentUser) {
+            // Currently since we only have setup where context is present, hence we don't do any setup, if the
+            // current user is null.
+            return;
+        }
+        workspace = workspaceService
+                .createDefault(new Workspace(), currentUser)
+                .switchIfEmpty(Mono.error(new Exception("createDefault is returning empty!!")))
+                .block();
+    }
+
+    @AfterEach
+    public void cleanup() {
+        User currentUser = sessionUserService.getCurrentUser().block();
+        if (null == currentUser) {
+            // Currently since no setup is being done, if the user context is not available, hence no cleanup should
+            // happen
+            return;
+        }
+        List<Application> deletedApplications = applicationService
+                .findByWorkspaceId(workspace.getId(), applicationPermission.getDeletePermission())
+                .flatMap(remainingApplication -> applicationPageService.deleteApplication(remainingApplication.getId()))
+                .collectList()
+                .block();
+        Workspace deletedWorkspace =
+                workspaceService.archiveById(workspace.getId()).block();
+    }
 
     @Test
     public void testServerSideVariableReplacement() {

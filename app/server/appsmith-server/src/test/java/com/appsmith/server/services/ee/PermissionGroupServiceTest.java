@@ -36,7 +36,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.security.test.context.support.WithUserDetails;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -45,11 +44,11 @@ import reactor.util.function.Tuple2;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.ASSIGN_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.DELETE_PERMISSION_GROUPS;
+import static com.appsmith.server.acl.AclPermission.DELETE_USER_GROUPS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.READ_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.READ_PERMISSION_GROUP_MEMBERS;
@@ -66,7 +65,7 @@ import static org.mockito.ArgumentMatchers.eq;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @Slf4j
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
+// @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 public class PermissionGroupServiceTest {
     @Autowired
     PermissionGroupService permissionGroupService;
@@ -99,9 +98,6 @@ public class PermissionGroupServiceTest {
     FeatureFlagService featureFlagService;
 
     User api_user = null;
-
-    Set<String> superAdminIds;
-
     String superAdminPermissionGroupId = null;
 
     @BeforeEach
@@ -115,13 +111,6 @@ public class PermissionGroupServiceTest {
         if (api_user == null) {
             api_user = userRepository.findByEmail("api_user").block();
         }
-        // Create a new user
-        User newUser = new User();
-        newUser.setEmail(UUID.randomUUID().toString() + "@email.com");
-        newUser.setPassword("password");
-        User anotherAdminUser = userService.create(newUser).block();
-
-        superAdminIds = Set.of(api_user.getId(), anotherAdminUser.getId());
 
         // Make api_user instance administrator before starting the test
         userUtils.makeSuperUser(List.of(api_user)).block();
@@ -146,7 +135,8 @@ public class PermissionGroupServiceTest {
                 .create(permissionGroup)
                 // Assert that the created role is also editable by the user who created it
                 .flatMap(permissionGroup1 ->
-                        permissionGroupService.findById(permissionGroup1.getId(), MANAGE_PERMISSION_GROUPS));
+                        permissionGroupService.findById(permissionGroup1.getId(), MANAGE_PERMISSION_GROUPS))
+                .cache();
 
         StepVerifier.create(createPermissionGroupMono)
                 .assertNext(permissionGroup1 -> {
@@ -190,6 +180,11 @@ public class PermissionGroupServiceTest {
                                     UNASSIGN_PERMISSION_GROUPS.getValue());
                 })
                 .verifyComplete();
+
+        // Cleanup
+        PermissionGroup deletedPermissionGroup = createPermissionGroupMono
+                .flatMap(role -> permissionGroupService.archiveById(role.getId()))
+                .block();
     }
 
     @Test
@@ -215,16 +210,81 @@ public class PermissionGroupServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void listRolesTestAsSuperAdminTest() {
+        List<PermissionGroup> allRolesInRepo =
+                permissionGroupRepository.findAll().collectList().block();
+        String instanceAdminRoleId =
+                userUtils.getSuperAdminPermissionGroup().block().getId();
+        long countAllRolesWhichCanBeReadByInstanceAdmin = allRolesInRepo.stream()
+                .filter(role -> !role.isDeleted())
+                .filter(role -> {
+                    Optional<Policy> optionalReadRolePolicy = role.getPolicies().stream()
+                            .filter(policy -> READ_PERMISSION_GROUPS.getValue().equals(policy.getPermission()))
+                            .findFirst();
+                    return optionalReadRolePolicy.isPresent()
+                            && optionalReadRolePolicy
+                                    .get()
+                                    .getPermissionGroups()
+                                    .contains(instanceAdminRoleId);
+                })
+                .count();
 
-        // Create default workspaces for api_user
-        workspaceService.createDefault(new Workspace(), api_user).block();
+        int countAllAdminWorkspaceRolesWhichCanBeReadByInstanceAdmin = (int) allRolesInRepo.stream()
+                .filter(role -> !role.isDeleted())
+                .filter(role -> Workspace.class.getSimpleName().equals(role.getDefaultDomainType()))
+                .filter(role -> {
+                    boolean isAdminWorkspaceRole = role.getName().startsWith(ADMINISTRATOR);
+                    Optional<Policy> optionalReadRolePolicy = role.getPolicies().stream()
+                            .filter(policy -> READ_PERMISSION_GROUPS.getValue().equals(policy.getPermission()))
+                            .findFirst();
+                    return isAdminWorkspaceRole
+                            && optionalReadRolePolicy.isPresent()
+                            && optionalReadRolePolicy
+                                    .get()
+                                    .getPermissionGroups()
+                                    .contains(instanceAdminRoleId);
+                })
+                .count();
+
+        int countAllDevWorkspaceRolesWhichCanBeReadByInstanceAdmin = (int) allRolesInRepo.stream()
+                .filter(role -> !role.isDeleted())
+                .filter(role -> Workspace.class.getSimpleName().equals(role.getDefaultDomainType()))
+                .filter(role -> {
+                    boolean isAdminWorkspaceRole = role.getName().startsWith(DEVELOPER);
+                    Optional<Policy> optionalReadRolePolicy = role.getPolicies().stream()
+                            .filter(policy -> READ_PERMISSION_GROUPS.getValue().equals(policy.getPermission()))
+                            .findFirst();
+                    return isAdminWorkspaceRole
+                            && optionalReadRolePolicy.isPresent()
+                            && optionalReadRolePolicy
+                                    .get()
+                                    .getPermissionGroups()
+                                    .contains(instanceAdminRoleId);
+                })
+                .count();
+
+        int countAllViewWorkspaceRolesWhichCanBeReadByInstanceAdmin = (int) allRolesInRepo.stream()
+                .filter(role -> !role.isDeleted())
+                .filter(role -> Workspace.class.getSimpleName().equals(role.getDefaultDomainType()))
+                .filter(role -> {
+                    boolean isAdminWorkspaceRole = role.getName().startsWith(VIEWER);
+                    Optional<Policy> optionalReadRolePolicy = role.getPolicies().stream()
+                            .filter(policy -> READ_PERMISSION_GROUPS.getValue().equals(policy.getPermission()))
+                            .findFirst();
+                    return isAdminWorkspaceRole
+                            && optionalReadRolePolicy.isPresent()
+                            && optionalReadRolePolicy
+                                    .get()
+                                    .getPermissionGroups()
+                                    .contains(instanceAdminRoleId);
+                })
+                .count();
 
         Mono<List<PermissionGroupInfoDTO>> listMono = permissionGroupService.getAll();
 
         StepVerifier.create(listMono)
                 .assertNext(list -> {
                     // 3 default roles per user (user@test, api_user created in setup) + 1 super admin role
-                    assertThat(list.size()).isEqualTo(8);
+                    assertThat(list.size()).isEqualTo(countAllRolesWhichCanBeReadByInstanceAdmin);
 
                     // Assert that instance admin roles are returned
                     Optional<PermissionGroupInfoDTO> pgiDTO = list.stream()
@@ -239,7 +299,7 @@ public class PermissionGroupServiceTest {
                             .filter(permissionGroupInfoDTO ->
                                     permissionGroupInfoDTO.getName().startsWith(ADMINISTRATOR))
                             .collect(Collectors.toSet());
-                    assertThat(administratorPgiDTOs).hasSize(2);
+                    assertThat(administratorPgiDTOs).hasSize(countAllAdminWorkspaceRolesWhichCanBeReadByInstanceAdmin);
                     administratorPgiDTOs.forEach(
                             pgiDTO1 -> assertThat(pgiDTO1.isAutoCreated()).isTrue());
 
@@ -247,7 +307,7 @@ public class PermissionGroupServiceTest {
                             .filter(permissionGroupInfoDTO ->
                                     permissionGroupInfoDTO.getName().startsWith(DEVELOPER))
                             .collect(Collectors.toSet());
-                    assertThat(developerPgiDTOs).hasSize(2);
+                    assertThat(developerPgiDTOs).hasSize(countAllDevWorkspaceRolesWhichCanBeReadByInstanceAdmin);
                     developerPgiDTOs.forEach(
                             pgiDTO1 -> assertThat(pgiDTO1.isAutoCreated()).isTrue());
 
@@ -255,7 +315,7 @@ public class PermissionGroupServiceTest {
                             .filter(permissionGroupInfoDTO ->
                                     permissionGroupInfoDTO.getName().startsWith(VIEWER))
                             .collect(Collectors.toSet());
-                    assertThat(viewersPgiDTOs).hasSize(2);
+                    assertThat(viewersPgiDTOs).hasSize(countAllViewWorkspaceRolesWhichCanBeReadByInstanceAdmin);
                     viewersPgiDTOs.forEach(
                             pgiDTO1 -> assertThat(pgiDTO1.isAutoCreated()).isTrue());
 
@@ -345,6 +405,10 @@ public class PermissionGroupServiceTest {
                     assertThat(permissionGroup.getId()).isEqualTo(defaultPermissionGroupId);
                 })
                 .verifyComplete();
+
+        // Cleanup
+        Workspace deleteCreatedWorkspace =
+                workspaceService.archiveById(createdWorkspace.getId()).block();
     }
 
     @Test
@@ -378,11 +442,15 @@ public class PermissionGroupServiceTest {
                     assertThat(roleViewDTO.getUserPermissions()).isEqualTo(createdPermissionGroup.getUserPermissions());
                 })
                 .verifyComplete();
+
+        // cleanup
+        PermissionGroup deleteCreatedPermissionGroup = permissionGroupService
+                .archiveById(createdPermissionGroup.getId())
+                .block();
     }
 
     @Test
     @WithUserDetails(value = "api_user")
-    @DirtiesContext
     public void testAssignNonExistentUsers() {
         String name = "testBulkAssignMultipleUsersToMultipleRoles Test Role 1";
         PermissionGroup mockPermissionGroup = new PermissionGroup();
@@ -417,11 +485,14 @@ public class PermissionGroupServiceTest {
                     assertThat(user.getEmail()).isEqualTo(usernameNonExistentUser);
                 })
                 .verifyComplete();
+        // Cleanup
+        PermissionGroup deleteCreatedPermissionGroup = permissionGroupService
+                .archiveById(createdPermissionGroup.getId())
+                .block();
     }
 
     @Test
     @WithUserDetails(value = "api_user")
-    @DirtiesContext
     public void testBulkAssignMultipleUsersToMultipleRoles() {
         String name = "testBulkAssignMultipleUsersToMultipleRoles Test Role 1";
         PermissionGroup mockPermissionGroup = new PermissionGroup();
@@ -485,11 +556,18 @@ public class PermissionGroupServiceTest {
                     assertThat(permissionGroup1.getAssignedToUserIds()).contains(api_user.getId());
                 })
                 .verifyComplete();
+
+        // Cleanup
+        PermissionGroup deleteCreatedPermissionGroup1 = permissionGroupService
+                .archiveById(createdPermissionGroup1.getId())
+                .block();
+        PermissionGroup deleteCreatedPermissionGroup2 = permissionGroupService
+                .archiveById(createdPermissionGroup2.getId())
+                .block();
     }
 
     @Test
     @WithUserDetails(value = "api_user")
-    @DirtiesContext
     public void testBulkAssignMultipleGroupsToMultipleRoles() {
         String name = "testBulkAssignMultipleGroupsToMultipleRoles Test Role 1";
         PermissionGroup mockPermissionGroup = new PermissionGroup();
@@ -515,7 +593,10 @@ public class PermissionGroupServiceTest {
         userGroup.setName(name);
         userGroup.setDescription(description);
 
-        UserGroup createdGroup1 = userGroupService.create(userGroup).block();
+        UserGroup createdGroup1 = userGroupService
+                .createGroup(userGroup)
+                .flatMap(userGroupDTO -> userGroupService.findById(userGroupDTO.getId(), DELETE_USER_GROUPS))
+                .block();
 
         userGroup = new UserGroup();
         name = "Test Group 2 : testBulkAssignMultipleGroupsToMultipleRoles";
@@ -523,7 +604,10 @@ public class PermissionGroupServiceTest {
         userGroup.setName(name);
         userGroup.setDescription(description);
 
-        UserGroup createdGroup2 = userGroupService.create(userGroup).block();
+        UserGroup createdGroup2 = userGroupService
+                .createGroup(userGroup)
+                .flatMap(userGroupDTO -> userGroupService.findById(userGroupDTO.getId(), DELETE_USER_GROUPS))
+                .block();
 
         UpdateRoleAssociationDTO updateRoleAssociationDTO = new UpdateRoleAssociationDTO();
 
@@ -568,11 +652,22 @@ public class PermissionGroupServiceTest {
                     assertThat(permissionGroup1.getAssignedToGroupIds()).contains(createdGroup2.getId());
                 })
                 .verifyComplete();
+
+        // Cleanup
+        PermissionGroup deleteCreatedPermissionGroup1 = permissionGroupService
+                .archiveById(createdPermissionGroup1.getId())
+                .block();
+        PermissionGroup deleteCreatedPermissionGroup2 = permissionGroupService
+                .archiveById(createdPermissionGroup2.getId())
+                .block();
+        UserGroup deleteCreatedUserGroup1 =
+                userGroupService.archiveById(createdGroup1.getId()).block();
+        UserGroup deleteCreatedUserGroup2 =
+                userGroupService.archiveById(createdGroup2.getId()).block();
     }
 
     @Test
     @WithUserDetails(value = "api_user")
-    @DirtiesContext
     public void testBulkAssignUnAssignMultipleGroupsToMultipleRoles() {
 
         // Create a workspace and then leave the workspace. We shall later associate the default created roles and check
@@ -602,48 +697,48 @@ public class PermissionGroupServiceTest {
                 .block();
         assertThat(shouldBeNullWorkspace).isNull();
 
-        String name = "testBulkAssignUnAssignMultipleGroupsToMultipleRoles Test Role 1";
-        PermissionGroup mockPermissionGroup = new PermissionGroup();
-        mockPermissionGroup.setName(name);
+        String roleName1 = "testBulkAssignUnAssignMultipleGroupsToMultipleRoles Test Role 1";
+        PermissionGroup mockPermissionGroup1 = new PermissionGroup();
+        mockPermissionGroup1.setName(roleName1);
         PermissionGroup createdPermissionGroup1 = permissionGroupService
-                .create(mockPermissionGroup)
+                .create(mockPermissionGroup1)
                 .flatMap(permissionGroup ->
                         permissionGroupService.findById(permissionGroup.getId(), READ_PERMISSION_GROUPS))
                 .block();
 
-        name = "testBulkAssignUnAssignMultipleGroupsToMultipleRoles Test Role 1";
-        mockPermissionGroup = new PermissionGroup();
-        mockPermissionGroup.setName(name);
+        String roleName2 = "testBulkAssignUnAssignMultipleGroupsToMultipleRoles Test Role 2";
+        PermissionGroup mockPermissionGroup2 = new PermissionGroup();
+        mockPermissionGroup2.setName(roleName2);
         PermissionGroup createdPermissionGroup2 = permissionGroupService
-                .create(mockPermissionGroup)
+                .create(mockPermissionGroup2)
                 .flatMap(permissionGroup ->
                         permissionGroupService.findById(permissionGroup.getId(), READ_PERMISSION_GROUPS))
                 .block();
 
-        name = "testBulkAssignUnAssignMultipleGroupsToMultipleRoles Test Role 3";
-        mockPermissionGroup = new PermissionGroup();
-        mockPermissionGroup.setName(name);
+        String roleName3 = "testBulkAssignUnAssignMultipleGroupsToMultipleRoles Test Role 3";
+        PermissionGroup mockPermissionGroup3 = new PermissionGroup();
+        mockPermissionGroup3.setName(roleName3);
         PermissionGroup createdPermissionGroup3 = permissionGroupService
-                .create(mockPermissionGroup)
+                .create(mockPermissionGroup3)
                 .flatMap(permissionGroup ->
                         permissionGroupService.findById(permissionGroup.getId(), READ_PERMISSION_GROUPS))
                 .block();
 
-        UserGroup userGroup = new UserGroup();
-        name = "Test Group 1 : testBulkAssignMultipleGroupsToMultipleRoles";
-        String description = "testBulkAssignMultipleGroupsToMultipleRoles Test Group 1";
-        userGroup.setName(name);
-        userGroup.setDescription(description);
+        UserGroup userGroup1 = new UserGroup();
+        String userGroupName1 = "Test Group 1 : testBulkAssignMultipleGroupsToMultipleRoles";
+        String description1 = "testBulkAssignMultipleGroupsToMultipleRoles Test Group 1";
+        userGroup1.setName(userGroupName1);
+        userGroup1.setDescription(description1);
 
-        UserGroupDTO createdGroup1 = userGroupService.createGroup(userGroup).block();
+        UserGroupDTO createdGroup1 = userGroupService.createGroup(userGroup1).block();
 
-        userGroup = new UserGroup();
-        name = "Test Group 2 : testBulkAssignMultipleGroupsToMultipleRoles";
-        description = "testBulkAssignMultipleGroupsToMultipleRoles Test Group 2";
-        userGroup.setName(name);
-        userGroup.setDescription(description);
+        UserGroup userGroup2 = new UserGroup();
+        String userGroupName2 = "Test Group 2 : testBulkAssignMultipleGroupsToMultipleRoles";
+        String description2 = "testBulkAssignMultipleGroupsToMultipleRoles Test Group 2";
+        userGroup2.setName(userGroupName2);
+        userGroup2.setDescription(description2);
 
-        UserGroupDTO createdGroup2 = userGroupService.createGroup(userGroup).block();
+        UserGroupDTO createdGroup2 = userGroupService.createGroup(userGroup2).block();
 
         // Add user api_user to group2
         userGroupService
@@ -744,6 +839,21 @@ public class PermissionGroupServiceTest {
                     assertThat(permissionGroup1.getAssignedToGroupIds()).contains(createdGroup2.getId());
                 })
                 .verifyComplete();
+
+        // Cleanup
+        PermissionGroup deleteCreatedPermissionGroup1 = permissionGroupService
+                .archiveById(createdPermissionGroup1.getId())
+                .block();
+        PermissionGroup deleteCreatedPermissionGroup2 = permissionGroupService
+                .archiveById(createdPermissionGroup2.getId())
+                .block();
+        PermissionGroup deleteCreatedPermissionGroup3 = permissionGroupService
+                .archiveById(createdPermissionGroup3.getId())
+                .block();
+        UserGroup deleteCreatedUserGroup1 =
+                userGroupService.archiveById(createdGroup1.getId()).block();
+        UserGroup deleteCreatedUserGroup2 =
+                userGroupService.archiveById(createdGroup2.getId()).block();
     }
 
     @Test
@@ -778,10 +888,15 @@ public class PermissionGroupServiceTest {
                             .isEqualTo(permissionGroupUpdate.getDescription());
                 })
                 .verifyComplete();
+
+        // Cleanup
+        PermissionGroup deleteCreatedPermissionGroup = permissionGroupService
+                .archiveById(createdPermissionGroup.getId())
+                .block();
     }
 
     @Test
-    @WithUserDetails("usertest@usertest.com")
+    @WithUserDetails("api_user")
     public void updatePermissionGroupAsNonAdminUser() {
         String mockName = "mock-permission-group-name-1";
         String mockDescription = "mock-permission-group-description-1";
@@ -790,7 +905,10 @@ public class PermissionGroupServiceTest {
         permissionGroup.setDescription(mockDescription);
 
         PermissionGroup createdPermissionGroup =
-                permissionGroupRepository.save(permissionGroup).block();
+                permissionGroupService.create(permissionGroup).block();
+
+        // remove super user permissions from api_user
+        userUtils.removeSuperUser(List.of(api_user)).block();
 
         String updatedName = "mock-permission-group-name-2";
         String updatedDescription = "mock-permission-group-description-2";
@@ -807,6 +925,14 @@ public class PermissionGroupServiceTest {
                                 .getMessage()
                                 .contains(AppsmithError.ACTION_IS_NOT_AUTHORIZED.getMessage("update role")))
                 .verify();
+
+        // make api_user super admin once again.
+        userUtils.makeSuperUser(List.of(api_user)).block();
+
+        // Cleanup
+        PermissionGroup deleteCreatedPermissionGroup = permissionGroupService
+                .archiveById(createdPermissionGroup.getId())
+                .block();
     }
 
     @Test

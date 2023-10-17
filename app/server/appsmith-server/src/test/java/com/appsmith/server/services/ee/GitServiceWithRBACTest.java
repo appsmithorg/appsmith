@@ -1,4 +1,4 @@
-package com.appsmith.server.services;
+package com.appsmith.server.services.ee;
 
 import com.appsmith.external.dtos.GitBranchDTO;
 import com.appsmith.external.dtos.GitStatusDTO;
@@ -53,6 +53,17 @@ import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.ThemeRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
+import com.appsmith.server.services.ApplicationPageService;
+import com.appsmith.server.services.ApplicationService;
+import com.appsmith.server.services.FeatureFlagService;
+import com.appsmith.server.services.GitService;
+import com.appsmith.server.services.LayoutActionService;
+import com.appsmith.server.services.LayoutCollectionService;
+import com.appsmith.server.services.PermissionGroupService;
+import com.appsmith.server.services.UserDataService;
+import com.appsmith.server.services.UserService;
+import com.appsmith.server.services.WorkspaceService;
+import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.themes.base.ThemeService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -64,6 +75,7 @@ import net.minidev.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
 import org.assertj.core.api.Assertions;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -187,10 +199,12 @@ public class GitServiceWithRBACTest {
     @SpyBean
     FeatureFlagService featureFlagService;
 
+    @Autowired
+    ApplicationPermission applicationPermission;
+
     private static String workspaceId;
     // private static Application gitConnectedApplication = new Application();
     private static final String DEFAULT_BRANCH = "defaultBranchName";
-    private static Boolean isSetupDone = false;
     private static GitProfile testUserProfile = new GitProfile();
     private static String filePath =
             "test_assets/ImportExportServiceTest/valid-application-without-action-collection.json";
@@ -213,29 +227,19 @@ public class GitServiceWithRBACTest {
         cachedFeatures.setFeatures(Map.of(FeatureFlagEnum.license_gac_enabled.name(), Boolean.TRUE));
         Mockito.when(featureFlagService.getCachedTenantFeatureFlags()).thenReturn(cachedFeatures);
 
-        if (StringUtils.isEmpty(workspaceId)) {
+        User apiUser = userService.findByEmail("api_user").block();
+        Workspace toCreate = new Workspace();
+        toCreate.setName("Git Service Test");
 
-            User apiUser = userService.findByEmail("api_user").block();
-            Workspace toCreate = new Workspace();
-            toCreate.setName("Git Service Test");
-
-            if (!org.springframework.util.StringUtils.hasLength(workspaceId)) {
-                Workspace workspace = workspaceService
-                        .create(toCreate, apiUser, Boolean.FALSE)
-                        .block();
-                workspaceId = workspace.getId();
-            }
-        }
+        Workspace workspace =
+                workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
+        workspaceId = workspace.getId();
 
         Mockito.when(gitCloudServicesUtils.getPrivateRepoLimitForOrg(eq(workspaceId), Mockito.anyBoolean()))
                 .thenReturn(Mono.just(-1));
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
                 .thenReturn(Mono.just(new MockPluginExecutor()));
-
-        if (Boolean.TRUE.equals(isSetupDone)) {
-            return;
-        }
 
         gitConnectedApplication = createApplicationConnectedToGit("gitConnectedApplication", DEFAULT_BRANCH);
 
@@ -248,8 +252,17 @@ public class GitServiceWithRBACTest {
 
         // Make api_user instance administrator before starting the test
         userUtils.makeSuperUser(List.of(api_user)).block();
+    }
 
-        isSetupDone = true;
+    @AfterEach
+    public void cleanup() {
+        Mockito.when(gitFileUtils.deleteLocalRepo(Mockito.any(Path.class))).thenReturn(Mono.just(true));
+        List<Application> deletedApplications = applicationService
+                .findByWorkspaceId(workspaceId, applicationPermission.getDeletePermission())
+                .flatMap(remainingApplication -> applicationPageService.deleteApplication(remainingApplication.getId()))
+                .collectList()
+                .block();
+        Workspace deletedWorkspace = workspaceService.archiveById(workspaceId).block();
     }
 
     private Mono<ApplicationJson> createAppJson(String filePath) {

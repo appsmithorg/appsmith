@@ -6,6 +6,7 @@ import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.Environment;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.datasources.base.DatasourceService;
+import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
@@ -17,14 +18,17 @@ import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.ApplicationPageService;
+import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.EnvironmentService;
 import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.WorkspaceService;
+import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.roles.constants.RoleTab;
 import com.appsmith.server.solutions.roles.dtos.RoleViewDTO;
 import com.appsmith.server.solutions.roles.dtos.UpdateRoleConfigDTO;
 import com.appsmith.server.solutions.roles.dtos.UpdateRoleEntityDTO;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -33,7 +37,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithUserDetails;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -53,7 +56,6 @@ import static org.mockito.ArgumentMatchers.eq;
 
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 public class EnvironmentResourcesTest {
 
     @Autowired
@@ -88,6 +90,12 @@ public class EnvironmentResourcesTest {
 
     @Autowired
     PermissionGroupService permissionGroupService;
+
+    @Autowired
+    ApplicationService applicationService;
+
+    @Autowired
+    ApplicationPermission applicationPermission;
 
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
@@ -125,17 +133,23 @@ public class EnvironmentResourcesTest {
         createdWorkspace = workspaceService.create(workspace).block();
     }
 
+    @AfterEach
+    public void cleanup() {
+        List<Application> deletedApplications = applicationService
+                .findByWorkspaceId(createdWorkspace.getId(), applicationPermission.getDeletePermission())
+                .flatMap(remainingApplication -> applicationPageService.deleteApplication(remainingApplication.getId()))
+                .collectList()
+                .block();
+        Workspace deletedWorkspace =
+                workspaceService.archiveById(createdWorkspace.getId()).block();
+    }
+
     @Test
     @WithUserDetails(value = "api_user")
-    @DirtiesContext
     public void
             testSaveRoleConfigurationChangesForDatasourceResourcesTab_givenExecuteOnWorkspace_assertExecuteOnEnvironments() {
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(any())).thenReturn(Mono.just(new MockPluginExecutor()));
-
-        Workspace workspace = new Workspace();
-        workspace.setName("givenExecuteOnWorkspace_assertExecuteOnEnvironments workspace");
-        Workspace createdWorkspace = workspaceService.create(workspace).block();
 
         PermissionGroup permissionGroup = new PermissionGroup();
         permissionGroup.setName("New role for editing : givenExecuteOnWorkspace_assertExecuteOnEnvironments");
@@ -215,19 +229,18 @@ public class EnvironmentResourcesTest {
                     });
                 })
                 .verifyComplete();
+
+        PermissionGroup deleteCreatedPermissionGroup = permissionGroupService
+                .archiveById(createdPermissionGroup.getId())
+                .block();
     }
 
     @Test
     @WithUserDetails(value = "api_user")
-    @DirtiesContext
     public void
             testSaveRoleConfigurationChangesForDatasourceResourcesTab_givenExecuteOnDatasource_assertNoExecuteOnEnvironments() {
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(any())).thenReturn(Mono.just(new MockPluginExecutor()));
-
-        Workspace workspace = new Workspace();
-        workspace.setName("givenExecuteOnDatasource_assertExecuteOnEnvironments workspace");
-        Workspace createdWorkspace = workspaceService.create(workspace).block();
 
         Environment environment =
                 workspaceService.getDefaultEnvironment(createdWorkspace.getId()).blockFirst();
@@ -318,5 +331,8 @@ public class EnvironmentResourcesTest {
                     });
                 })
                 .verifyComplete();
+        PermissionGroup deleteCreatedPermissionGroup = permissionGroupService
+                .archiveById(createdPermissionGroup.getId())
+                .block();
     }
 }

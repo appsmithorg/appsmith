@@ -48,6 +48,7 @@ import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.UserWorkspaceService;
 import com.appsmith.server.services.WorkspaceService;
+import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.EnvironmentPermission;
 import com.appsmith.server.solutions.PagePermission;
@@ -58,6 +59,7 @@ import com.appsmith.server.solutions.roles.dtos.UpdateRoleConfigDTO;
 import com.appsmith.server.solutions.roles.dtos.UpdateRoleEntityDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -175,6 +177,9 @@ public class ApplicationServiceTest {
     @Autowired
     DatasourcePermission datasourcePermission;
 
+    @Autowired
+    ApplicationPermission applicationPermission;
+
     String workspaceId;
 
     Workspace workspace;
@@ -186,7 +191,6 @@ public class ApplicationServiceTest {
     static Application gitConnectedApp = new Application();
 
     @BeforeEach
-    @WithUserDetails(value = "api_user")
     public void setup() {
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
@@ -205,80 +209,86 @@ public class ApplicationServiceTest {
         Workspace toCreate = new Workspace();
         toCreate.setName("ApplicationServiceTest");
 
-        if (workspaceId == null || workspace == null) {
+        workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
+        workspaceId = workspace.getId();
 
-            workspace = workspaceService.create(toCreate, apiUser, FALSE).block();
-            workspaceId = workspace.getId();
+        testPlugin = pluginService.findByPackageName("restapi-plugin").block();
 
-            testPlugin = pluginService.findByPackageName("restapi-plugin").block();
+        Datasource datasource = new Datasource();
+        datasource.setName("ApplicationServiceTest Datasource");
+        datasource.setPluginId(testPlugin.getId());
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        datasourceConfiguration.setUrl("http://test.com");
+        datasource.setWorkspaceId(workspaceId);
+        String environmentId = workspaceService
+                .getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission())
+                .block();
 
-            Datasource datasource = new Datasource();
-            datasource.setName("ApplicationServiceTest Datasource");
-            datasource.setPluginId(testPlugin.getId());
-            DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
-            datasourceConfiguration.setUrl("http://test.com");
-            datasource.setWorkspaceId(workspaceId);
-            String environmentId = workspaceService
-                    .getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission())
-                    .block();
+        HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
+        storages.put(environmentId, new DatasourceStorageDTO(null, environmentId, datasourceConfiguration));
+        datasource.setDatasourceStorages(storages);
+        testDatasource = datasourceService.create(datasource).block();
 
-            HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-            storages.put(environmentId, new DatasourceStorageDTO(null, environmentId, datasourceConfiguration));
-            datasource.setDatasourceStorages(storages);
-            testDatasource = datasourceService.create(datasource).block();
+        gitConnectedApp = new Application();
+        gitConnectedApp.setWorkspaceId(workspaceId);
+        GitApplicationMetadata gitData = new GitApplicationMetadata();
+        gitData.setBranchName("testBranch");
+        gitData.setDefaultBranchName("testBranch");
+        gitData.setRepoName("testRepo");
+        gitData.setRemoteUrl("git@test.com:user/testRepo.git");
+        gitData.setRepoName("testRepo");
+        gitConnectedApp.setGitApplicationMetadata(gitData);
+        // This will be altered in update app by branch test
+        gitConnectedApp.setName("gitConnectedApp");
+        gitConnectedApp = applicationPageService
+                .createApplication(gitConnectedApp)
+                .flatMap(application -> {
+                    application.getGitApplicationMetadata().setDefaultApplicationId(application.getId());
+                    return applicationService.save(application);
+                })
+                // Assign the branchName to all the resources connected to the application
+                .flatMap(application -> importExportApplicationService.exportApplicationById(
+                        application.getId(), gitData.getBranchName()))
+                .flatMap(applicationJson -> importExportApplicationService.importApplicationInWorkspaceFromGit(
+                        workspaceId, applicationJson, gitConnectedApp.getId(), gitData.getBranchName()))
+                .block();
 
-            gitConnectedApp = new Application();
-            gitConnectedApp.setWorkspaceId(workspaceId);
-            GitApplicationMetadata gitData = new GitApplicationMetadata();
-            gitData.setBranchName("testBranch");
-            gitData.setDefaultBranchName("testBranch");
-            gitData.setRepoName("testRepo");
-            gitData.setRemoteUrl("git@test.com:user/testRepo.git");
-            gitData.setRepoName("testRepo");
-            gitConnectedApp.setGitApplicationMetadata(gitData);
-            // This will be altered in update app by branch test
-            gitConnectedApp.setName("gitConnectedApp");
-            gitConnectedApp = applicationPageService
-                    .createApplication(gitConnectedApp)
-                    .flatMap(application -> {
-                        application.getGitApplicationMetadata().setDefaultApplicationId(application.getId());
-                        return applicationService.save(application);
-                    })
-                    // Assign the branchName to all the resources connected to the application
-                    .flatMap(application -> importExportApplicationService.exportApplicationById(
-                            application.getId(), gitData.getBranchName()))
-                    .flatMap(applicationJson -> importExportApplicationService.importApplicationInWorkspaceFromGit(
-                            workspaceId, applicationJson, gitConnectedApp.getId(), gitData.getBranchName()))
-                    .block();
+        DefaultResources defaultResources = new DefaultResources();
+        defaultResources.setApplicationId(gitConnectedApp.getId());
+        PageDTO extraPage = new PageDTO();
+        extraPage.setName("extra page - gitConnectedApp");
+        extraPage.setApplicationId(gitConnectedApp.getId());
+        extraPage.setDefaultResources(defaultResources);
+        applicationPageService
+                .createPageWithBranchName(extraPage, gitData.getBranchName())
+                .block();
 
-            DefaultResources defaultResources = new DefaultResources();
-            defaultResources.setApplicationId(gitConnectedApp.getId());
-            PageDTO extraPage = new PageDTO();
-            extraPage.setName("extra page - gitConnectedApp");
-            extraPage.setApplicationId(gitConnectedApp.getId());
-            extraPage.setDefaultResources(defaultResources);
-            applicationPageService
-                    .createPageWithBranchName(extraPage, gitData.getBranchName())
-                    .block();
+        Datasource datasource1 = new Datasource();
+        datasource1.setName("Clone App with action Test");
+        datasource1.setPluginId(testPlugin.getId());
+        DatasourceConfiguration datasourceConfiguration1 = new DatasourceConfiguration();
+        datasourceConfiguration1.setUrl("http://test.com");
+        datasource1.setWorkspaceId(workspaceId);
 
-            Datasource datasource1 = new Datasource();
-            datasource1.setName("Clone App with action Test");
-            datasource1.setPluginId(testPlugin.getId());
-            DatasourceConfiguration datasourceConfiguration1 = new DatasourceConfiguration();
-            datasourceConfiguration1.setUrl("http://test.com");
-            datasource1.setWorkspaceId(workspaceId);
+        HashMap<String, DatasourceStorageDTO> storages1 = new HashMap<>();
+        storages1.put(environmentId, new DatasourceStorageDTO(null, environmentId, datasourceConfiguration1));
+        datasource1.setDatasourceStorages(storages1);
 
-            HashMap<String, DatasourceStorageDTO> storages1 = new HashMap<>();
-            storages1.put(environmentId, new DatasourceStorageDTO(null, environmentId, datasourceConfiguration1));
-            datasource1.setDatasourceStorages(storages1);
-
-            testDatasource1 = datasourceService.create(datasource1).block();
-            gitConnectedApp =
-                    applicationService.findById(gitConnectedApp.getId()).block();
-        }
+        testDatasource1 = datasourceService.create(datasource1).block();
+        gitConnectedApp = applicationService.findById(gitConnectedApp.getId()).block();
 
         // Make the api_user super admin
         userUtils.makeSuperUser(List.of(apiUser)).block();
+    }
+
+    @AfterEach
+    public void cleanup() {
+        List<Application> deletedApplications = applicationService
+                .findByWorkspaceId(workspaceId, applicationPermission.getDeletePermission())
+                .flatMap(remainingApplication -> applicationPageService.deleteApplication(remainingApplication.getId()))
+                .collectList()
+                .block();
+        Workspace deletedWorkspace = workspaceService.archiveById(workspaceId).block();
     }
 
     private void leaveWorkspaceToLoseAccess() {
@@ -304,6 +314,23 @@ public class ApplicationServiceTest {
 
         // Now leave the workspace
         userWorkspaceService.leaveWorkspace(workspace.getId()).block();
+    }
+
+    private void gainAccessToWorkspaceAsAdminWithoutPermission() {
+        List<PermissionGroup> permissionGroups = permissionGroupRepository
+                .findAllById(workspace.getDefaultPermissionGroups())
+                .collectList()
+                .block();
+
+        PermissionGroup adminPermissionGroup = permissionGroups.stream()
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
+                .findFirst()
+                .get();
+
+        User sessionUser = sessionUserService.getCurrentUser().block();
+        Boolean assignmentComplete = permissionGroupService
+                .bulkAssignToUsersWithoutPermission(adminPermissionGroup, List.of(sessionUser))
+                .block();
     }
 
     private void getReadWriteMakePublicAccessToApp(String applicationId, String pageId, String actionId) {
@@ -477,6 +504,10 @@ public class ApplicationServiceTest {
                     assertThat(permissionGroup.getAssignedToUserIds()).containsAll(Set.of(anonymousUser.getId()));
                 })
                 .verifyComplete();
+
+        // Join workspace again as an admin.
+        // This will be done without permissions.
+        gainAccessToWorkspaceAsAdminWithoutPermission();
     }
 
     @Test
@@ -584,6 +615,10 @@ public class ApplicationServiceTest {
                                     assertThat(policy.getPermissionGroups()).doesNotContain(permissionGroup.getId()));
                 })
                 .verifyComplete();
+
+        // Join workspace again as an admin.
+        // This will be done without permissions.
+        gainAccessToWorkspaceAsAdminWithoutPermission();
     }
 
     @Test

@@ -28,6 +28,7 @@ import com.appsmith.server.solutions.roles.constants.RoleTab;
 import com.appsmith.server.solutions.roles.dtos.RoleViewDTO;
 import com.appsmith.server.solutions.roles.dtos.UpdateRoleConfigDTO;
 import com.appsmith.server.solutions.roles.dtos.UpdateRoleEntityDTO;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -127,17 +128,18 @@ public class EnvironmentResourceCECompatibleTest {
         createdWorkspace = workspaceService.create(workspace).block();
     }
 
+    @AfterEach
+    public void cleanup() {
+        Workspace deleteCreatedWorkspace =
+                workspaceService.archiveById(createdWorkspace.getId()).block();
+    }
+
     @Test
     @WithUserDetails(value = "api_user")
-    @DirtiesContext
     public void
             testSaveRoleConfigurationChangesForDatasourceResourcesTab_givenExecuteOnDatasource_assertExecuteOnEnvironments() {
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(any())).thenReturn(Mono.just(new MockPluginExecutor()));
-
-        Workspace workspace = new Workspace();
-        workspace.setName("givenExecuteOnDatasource_assertExecuteOnEnvironments workspace");
-        Workspace createdWorkspace = workspaceService.create(workspace).block();
 
         Environment environment =
                 workspaceService.getDefaultEnvironment(createdWorkspace.getId()).blockFirst();
@@ -227,5 +229,10 @@ public class EnvironmentResourceCECompatibleTest {
                     });
                 })
                 .verifyComplete();
+
+        // Cleanup
+        PermissionGroup deleteCreatedPermissionGroup = permissionGroupService
+                .archiveById(createdPermissionGroup.getId())
+                .block();
     }
 }
