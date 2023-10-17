@@ -334,7 +334,7 @@ export async function evaluateAsync(
     try {
       result = await indirectEval(script);
     } catch (error: any) {
-      const { errorCategory, errorMessage, rootcause } = errorModifier.runAsync(
+      const { errorMessage } = errorModifier.runAsync(
         error,
         error.userScript || userScript,
         error.source,
@@ -345,10 +345,6 @@ export async function evaluateAsync(
         raw: script,
         errorType: PropertyEvaluationErrorType.PARSE,
         originalBinding: userScript,
-        kind: {
-          category: errorCategory,
-          rootcause,
-        },
       });
     } finally {
       return {

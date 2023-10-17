@@ -132,7 +132,7 @@ describe("Test error modifier", () => {
     const error = new Error();
     error.name = "TypeError";
     error.message = "Api2.run is not a function";
-    const { errorMessage: result } = errorModifier.run(error);
+    const { errorMessage: result } = errorModifier.runSync(error, "");
     expect(result).toEqual({
       name: "ValidationError",
       message:
@@ -144,7 +144,7 @@ describe("Test error modifier", () => {
     const error = new Error();
     error.name = "TypeError";
     error.message = "Api1.run is not a function";
-    const { errorMessage: result } = errorModifier.run(error);
+    const { errorMessage: result } = errorModifier.runSync(error, "");
     expect(result).toEqual({
       name: "TypeError",
       message: "Api1.run is not a function",
@@ -155,7 +155,7 @@ describe("Test error modifier", () => {
     const error = new Error();
     error.name = "ReferenceError";
     error.message = "storeValue is not defined";
-    const { errorMessage: result } = errorModifier.run(error);
+    const { errorMessage: result } = errorModifier.runSync(error, "");
     expect(result).toEqual({
       name: "ValidationError",
       message:
@@ -167,7 +167,7 @@ describe("Test error modifier", () => {
     const error = new Error();
     error.name = "ReferenceError";
     error.message = "storeValue2 is not defined";
-    const { errorMessage: result } = errorModifier.run(error);
+    const { errorMessage: result } = errorModifier.runSync(error, "");
     expect(result).toEqual({
       name: error.name,
       message: error.message,
