@@ -50,11 +50,11 @@ export function* buildWidgetBlueprint(
   return widgetProps;
 }
 
-export type UpdatePropertyArgs = {
+export interface UpdatePropertyArgs {
   widgetId: string;
   propertyName: string;
   propertyValue: any;
-};
+}
 export type BlueprintOperationAddActionFn = () => void;
 export type BlueprintOperationModifyPropsFn = (
   widget: WidgetProps & { children?: WidgetProps[] },
@@ -93,10 +93,10 @@ export type BlueprintOperationFunction =
 
 export type BlueprintOperationType = keyof typeof BlueprintOperationTypes;
 
-export type BlueprintOperation = {
+export interface BlueprintOperation {
   type: BlueprintOperationType;
   fn: BlueprintOperationFunction;
-};
+}
 
 export function* executeWidgetBlueprintOperations(
   operations: BlueprintOperation[],
@@ -243,12 +243,12 @@ export function* traverseTreeAndExecuteBlueprintChildOperations(
   return widgets;
 }
 
-type ExecuteWidgetBlueprintBeforeOperationsParams = {
+interface ExecuteWidgetBlueprintBeforeOperationsParams {
   parentId: string;
   widgetId: string;
   widgets: { [widgetId: string]: FlattenedWidgetProps };
   widgetType: WidgetType;
-};
+}
 
 export function* executeWidgetBlueprintBeforeOperations(
   blueprintOperation: Extract<

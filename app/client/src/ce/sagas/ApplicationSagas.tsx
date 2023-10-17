@@ -103,7 +103,7 @@ import {
 import { failFastApiCalls } from "sagas/InitSagas";
 import type { Datasource } from "entities/Datasource";
 import { GUIDED_TOUR_STEPS } from "pages/Editor/GuidedTour/constants";
-import { builderURL, viewerURL } from "RouteBuilder";
+import { builderURL, viewerURL } from "@appsmith/RouteBuilder";
 import { getDefaultPageId as selectDefaultPageId } from "sagas/selectors";
 import PageApi from "api/PageApi";
 import { identity, isEmpty, merge, pickBy } from "lodash";
@@ -260,10 +260,13 @@ export function* fetchAppAndPagesSaga(
     const isValidResponse: boolean = yield call(validateResponse, response);
     if (isValidResponse) {
       const prevPagesState: Page[] = yield select(getPageList);
-      const pagePermissionsMap = prevPagesState.reduce((acc, page) => {
-        acc[page.pageId] = page.userPermissions ?? [];
-        return acc;
-      }, {} as Record<string, string[]>);
+      const pagePermissionsMap = prevPagesState.reduce(
+        (acc, page) => {
+          acc[page.pageId] = page.userPermissions ?? [];
+          return acc;
+        },
+        {} as Record<string, string[]>,
+      );
       yield put({
         type: ReduxActionTypes.FETCH_APPLICATION_SUCCESS,
         payload: { ...response.data.application, pages: response.data.pages },
@@ -693,8 +696,10 @@ export function* forkApplicationSaga(
           workspaceId: action.payload.workspaceId,
         },
       });
+
       const pageURL = builderURL({
         pageId: application.defaultPageId as string,
+        params: { branch: null },
       });
 
       if (action.payload.editMode) {
@@ -921,9 +926,8 @@ export function* initializeDatasourceWithDefaultValues(datasource: Datasource) {
       datasource.datasourceStorages[currentEnvironment],
     );
     payload.isConfigured = false; // imported datasource as not configured yet
-    const response: ApiResponse = yield DatasourcesApi.updateDatasourceStorage(
-      payload,
-    );
+    const response: ApiResponse =
+      yield DatasourcesApi.updateDatasourceStorage(payload);
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put({

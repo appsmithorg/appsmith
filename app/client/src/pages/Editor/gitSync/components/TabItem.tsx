@@ -5,11 +5,11 @@ import type { TabProp } from "design-system-old";
 import { getTypographyByKey } from "design-system-old";
 import { Colors } from "constants/Colors";
 
-type WrapperProps = {
+interface WrapperProps {
   selected: boolean;
   vertical: boolean;
   theme: Theme;
-};
+}
 
 const getSelectedStyles = (props: WrapperProps) =>
   props.selected

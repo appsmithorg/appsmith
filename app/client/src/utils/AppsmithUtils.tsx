@@ -97,12 +97,12 @@ export const mapToPropList = (map: Record<string, string>): Property[] => {
 
 export const INTERACTION_ANALYTICS_EVENT = "INTERACTION_ANALYTICS_EVENT";
 
-export type InteractionAnalyticsEventDetail = {
+export interface InteractionAnalyticsEventDetail {
   key?: string;
   propertyName?: string;
   propertyType?: string;
   widgetType?: string;
-};
+}
 
 export const interactionAnalyticsEvent = (
   detail: InteractionAnalyticsEventDetail = {},
@@ -125,11 +125,11 @@ export enum DSEventTypes {
   KEYPRESS = "KEYPRESS",
 }
 
-export type DSEventDetail = {
+export interface DSEventDetail {
   component: string;
   event: DSEventTypes;
   meta: Record<string, unknown>;
-};
+}
 
 export function createDSEvent(detail: DSEventDetail) {
   return new CustomEvent(DS_EVENT, {

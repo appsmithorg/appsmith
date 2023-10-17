@@ -21,6 +21,7 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 
 const ApiNameWrapper = styled.div<{ page?: string }>`
   min-width: 50%;
@@ -58,7 +59,12 @@ const ApiIconBox = styled.div`
   margin-right: 8px;
   flex-shrink: 0;
 `;
-type ActionNameEditorProps = {
+
+interface SaveActionNameParams {
+  id: string;
+  name: string;
+}
+interface ActionNameEditorProps {
   /*
     This prop checks if page is API Pane or Query Pane or Curl Pane
     So, that we can toggle between ads editable-text component and existing editable-text component
@@ -67,7 +73,10 @@ type ActionNameEditorProps = {
   */
   page?: string;
   disabled?: boolean;
-};
+  saveActionName?: (
+    params: SaveActionNameParams,
+  ) => ReduxAction<SaveActionNameParams>;
+}
 
 function ActionNameEditor(props: ActionNameEditorProps) {
   const params = useParams<{ apiId?: string; queryId?: string }>();
@@ -84,7 +93,13 @@ function ActionNameEditor(props: ActionNameEditorProps) {
     <NameEditorComponent
       checkForGuidedTour
       currentActionConfig={currentActionConfig}
-      dispatchAction={saveActionName}
+      /**
+       * This component is used by module editor in EE which uses a different
+       * action to save the name of an action. The current callers of this component
+       * pass the existing saveAction action but as fallback the saveActionName is used here
+       * as a guard.
+       */
+      dispatchAction={props.saveActionName || saveActionName}
     >
       {({
         forceUpdate,

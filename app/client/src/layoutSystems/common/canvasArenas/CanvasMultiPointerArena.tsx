@@ -72,9 +72,9 @@ const drawMousePointer = (
 };
 
 // This maps the `socketId` to pointerEventData for all concurrent users.
-type PointerDataType = {
+interface PointerDataType {
   [s: string]: any;
-};
+}
 
 function CanvasMultiPointerArena({ pageId }: { pageId: string }) {
   const dispatch = useDispatch();

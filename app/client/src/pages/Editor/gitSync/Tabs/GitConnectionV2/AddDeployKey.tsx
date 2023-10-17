@@ -147,11 +147,11 @@ interface AddDeployKeyProps {
 }
 
 function AddDeployKey({
+  connectLoading = false,
+  errorData,
+  isImport = false,
   onChange = noop,
   value = {},
-  isImport = false,
-  errorData,
-  connectLoading = false,
 }: AddDeployKeyProps) {
   const isModalOpen = useSelector(getIsGitSyncModalOpen);
   const [fetched, setFetched] = useState(false);
