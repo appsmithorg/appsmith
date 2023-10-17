@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import styled from "styled-components";
 import { connect } from "react-redux";
+import type { DetailsFormValues, SetupFormProps } from "./DetailsForm";
 import DetailsForm from "./DetailsForm";
 import {
   WELCOME_FORM_USECASE_FIELD_NAME,
@@ -10,9 +11,10 @@ import {
   WELCOME_FORM_PASSWORD_FIELD_NAME,
   WELCOME_FORM_VERIFY_PASSWORD_FIELD_NAME,
   WELCOME_FORM_CUSTOM_USECASE_FIELD_NAME,
-  WELCOME_FORM_PROFICIENCY_LEVEL,
+  WELCOME_FORM_ROLE_FIELD_NAME,
+  WELCOME_FORM_ROLE_NAME_FIELD_NAME,
 } from "@appsmith/constants/forms";
-import type { FormErrors, InjectedFormProps } from "redux-form";
+import type { FormErrors } from "redux-form";
 import { formValueSelector, getFormSyncErrors, reduxForm } from "redux-form";
 import { isEmail, isStrongPassword } from "utils/formhelpers";
 import type { AppState } from "@appsmith/reducers";
@@ -21,13 +23,13 @@ import { useState } from "react";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import {
   WELCOME_FORM_CUSTOM_USE_CASE_ERROR_MESSAGE,
-  WELCOME_FORM_PROFICIENCY_ERROR_MESSAGE,
   WELCOME_FORM_USE_CASE_ERROR_MESSAGE,
   WELCOME_FORM_EMAIL_ERROR_MESSAGE,
   createMessage,
   WELCOME_FORM_STRONG_PASSWORD_ERROR_MESSAGE,
   WELCOME_FORM_GENERIC_ERROR_MESSAGE,
   WELCOME_FORM_PASSWORDS_NOT_MATCHING_ERROR_MESSAGE,
+  WELCOME_FORM_ROLE_ERROR_MESSAGE,
 } from "@appsmith/constants/messages";
 
 const PageWrapper = styled.div`
@@ -49,17 +51,6 @@ const SpaceFiller = styled.div`
   height: 100px;
 `;
 
-export interface DetailsFormValues {
-  firstName?: string;
-  lastName?: string;
-  email?: string;
-  password?: string;
-  verifyPassword?: string;
-  proficiency?: string;
-  useCase?: string;
-  custom_useCase?: string;
-}
-
 export const firstpageValues = [
   "firstName",
   "lastName",
@@ -68,7 +59,12 @@ export const firstpageValues = [
   "verifyPassword",
 ];
 
-export const secondPageValues = ["proficiency", "useCase", "custom_useCase"];
+export const secondPageValues = [
+  "role",
+  "useCase",
+  "custom_useCase",
+  "role_name",
+];
 
 const validate = (values: DetailsFormValues) => {
   const errors: DetailsFormValues = {};
@@ -90,8 +86,12 @@ const validate = (values: DetailsFormValues) => {
     );
   }
 
-  if (!values.proficiency) {
-    errors.proficiency = createMessage(WELCOME_FORM_PROFICIENCY_ERROR_MESSAGE);
+  if (!values.role) {
+    errors.role_name = createMessage(WELCOME_FORM_ROLE_ERROR_MESSAGE);
+  }
+
+  if (values.role == "other" && !values.role_name) {
+    errors.role_name = createMessage(WELCOME_FORM_ROLE_ERROR_MESSAGE);
   }
 
   if (!values.useCase) {
@@ -105,15 +105,6 @@ const validate = (values: DetailsFormValues) => {
 
   return errors;
 };
-
-export type SetupFormProps = DetailsFormValues & {
-  formSyncErrors?: FormErrors<string, string>;
-} & InjectedFormProps<
-    DetailsFormValues,
-    {
-      formSyncErrors?: FormErrors<string, string>;
-    }
-  >;
 
 function SetupForm(props: SetupFormProps) {
   const signupURL = `/api/v1/${SUPER_USER_SUBMIT_PATH}`;
@@ -146,12 +137,16 @@ function SetupForm(props: SetupFormProps) {
       form.appendChild(fullName);
     }
 
-    const proficiencyInput = document.createElement("input");
-    proficiencyInput.type = "text";
-    proficiencyInput.name = "proficiency";
-    proficiencyInput.style.display = "none";
-    proficiencyInput.value = props.proficiency as string;
-    form.appendChild(proficiencyInput);
+    const roleInput = document.createElement("input");
+    roleInput.type = "text";
+    roleInput.name = "role";
+    roleInput.style.display = "none";
+    if (props.role !== "other") {
+      roleInput.value = props.role as string;
+    } else {
+      roleInput.value = props.role_name as string;
+    }
+    form.appendChild(roleInput);
 
     const useCaseInput = document.createElement("input");
     useCaseInput.type = "text";
@@ -252,7 +247,8 @@ export default connect((state: AppState) => {
     email: selector(state, WELCOME_FORM_EMAIL_FIELD_NAME),
     password: selector(state, WELCOME_FORM_PASSWORD_FIELD_NAME),
     verify_password: selector(state, WELCOME_FORM_VERIFY_PASSWORD_FIELD_NAME),
-    proficiency: selector(state, WELCOME_FORM_PROFICIENCY_LEVEL),
+    role: selector(state, WELCOME_FORM_ROLE_FIELD_NAME),
+    role_name: selector(state, WELCOME_FORM_ROLE_NAME_FIELD_NAME),
     useCase: selector(state, WELCOME_FORM_USECASE_FIELD_NAME),
     custom_useCase: selector(state, WELCOME_FORM_CUSTOM_USECASE_FIELD_NAME),
     formSyncErrors: getFormSyncErrors(WELCOME_FORM_NAME)(state),

@@ -71,7 +71,7 @@ describe("Admin settings page", function () {
 
   it(
     "airgap",
-    "4. Should test that settings page tab redirects and google maps doesn't exist - airgap",
+    "4. Should test that settings page tab redirects and developer settings doesn't exist - airgap",
     () => {
       cy.visit("/applications", { timeout: 60000 });
       if (!Cypress.env("AIRGAPPED")) {
