@@ -431,8 +431,13 @@ export class HomePage {
     this.assertHelper.AssertNetworkStatus("getPagesForViewApp");
   }
 
-  public EditAppFromAppHover() {
-    cy.get(this._applicationCard).first().trigger("mouseover");
+  public EditAppFromAppHover(appName = "") {
+    if (appName)
+      this.agHelper
+        .GetElement(this._appCard(appName))
+        .first()
+        .trigger("mouseover");
+    else this.agHelper.GetElement(this._applicationCard).trigger("mouseover");
     this.agHelper.GetNClick(this._appHoverIcon("edit"));
     this.agHelper.AssertElementAbsence(this.locator._loading);
     this.assertHelper.AssertNetworkStatus("getWorkspace");
