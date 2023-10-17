@@ -11,6 +11,7 @@ public interface PluginConstants {
         String AMAZON_S3_PLUGIN = "amazons3-plugin";
         String GOOGLE_SHEETS_PLUGIN = "google-sheets-plugin";
         String REST_API_PLUGIN = "restapi-plugin";
+        String GRAPH_QL_PLUGIN = "graphql-plugin";
     }
 
     public static final String DEFAULT_REST_DATASOURCE = "DEFAULT_REST_DATASOURCE";
