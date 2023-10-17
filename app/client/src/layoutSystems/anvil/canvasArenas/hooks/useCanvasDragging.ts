@@ -62,18 +62,15 @@ export const useCanvasDragging = (
   {
     anvilDragStates,
     deriveAllHighlightsFn,
-    layoutId,
     onDrop,
     renderOnMouseMove,
   }: AnvilHighlightingCanvasProps,
 ) => {
   const {
     draggedBlocks,
-    isChildOfCanvas,
     isCurrentDraggedCanvas,
     isDragging,
     isNewWidget,
-    isNewWidgetInitialTargetCanvas,
     isResizing,
     widgetPositions,
   } = anvilDragStates;
@@ -93,6 +90,26 @@ export const useCanvasDragging = (
       draggedBlocks,
     );
   };
+
+  useEffect(() => {
+    if (stickyCanvasRef.current && slidingArenaRef.current) {
+      if (!isCurrentDraggedCanvas) {
+        const canvasCtx: any = stickyCanvasRef.current.getContext("2d");
+        canvasCtx.clearRect(
+          0,
+          0,
+          stickyCanvasRef.current.width,
+          stickyCanvasRef.current.height,
+        );
+        slidingArenaRef.current.style.zIndex = "";
+        slidingArenaRef.current.style.backgroundColor = "unset";
+        slidingArenaRef.current.style.color = "unset";
+        slidingArenaRef.current.innerText = "";
+      } else {
+        slidingArenaRef.current.style.zIndex = "2";
+      }
+    }
+  }, [anvilDragStates.isCurrentDraggedCanvas]);
 
   useEffect(() => {
     if (slidingArenaRef.current && !isResizing && isDragging) {
@@ -118,9 +135,9 @@ export const useCanvasDragging = (
           slidingArenaRef.current.innerText = "";
           canvasIsDragging = false;
         }
-        if (isDragging) {
-          setDraggingCanvas(anvilDragStates.mainCanvasLayoutId);
-        }
+        // if (isDragging) {
+        //   setDraggingCanvas(anvilDragStates.mainCanvasLayoutId);
+        // }
       };
 
       if (isDragging) {
@@ -161,12 +178,11 @@ export const useCanvasDragging = (
           ) {
             if (!isCurrentDraggedCanvas) {
               // we can just use canvasIsDragging but this is needed to render the relative DragLayerComponent
-              setDraggingCanvas(layoutId);
+              // setDraggingCanvas(layoutId);
             }
             // calculate highlights when mouse enters the canvas
             calculateHighlights();
             canvasIsDragging = true;
-            slidingArenaRef.current.style.zIndex = "2";
             onMouseMove(e);
           }
         };
@@ -245,21 +261,21 @@ export const useCanvasDragging = (
           );
           scrollParent?.addEventListener("scroll", onScroll, false);
 
-          slidingArenaRef.current?.addEventListener(
-            "mouseover",
-            onMouseOver,
-            false,
-          );
-          slidingArenaRef.current?.addEventListener(
-            "mouseout",
-            resetCanvasState,
-            false,
-          );
-          slidingArenaRef.current?.addEventListener(
-            "mouseleave",
-            resetCanvasState,
-            false,
-          );
+          // slidingArenaRef.current?.addEventListener(
+          //   "mouseover",
+          //   onMouseOver,
+          //   false,
+          // );
+          // slidingArenaRef.current?.addEventListener(
+          //   "mouseout",
+          //   resetCanvasState,
+          //   false,
+          // );
+          // slidingArenaRef.current?.addEventListener(
+          //   "mouseleave",
+          //   resetCanvasState,
+          //   false,
+          // );
           document.body.addEventListener("mouseup", onMouseUp, false);
           window.addEventListener("mouseup", onMouseUp, false);
         };
@@ -270,12 +286,12 @@ export const useCanvasDragging = (
             scrollParent
           ) {
             initializeListeners();
-            if (
-              (isChildOfCanvas || isNewWidgetInitialTargetCanvas) &&
-              slidingArenaRef.current
-            ) {
-              slidingArenaRef.current.style.zIndex = "2";
-            }
+            // if (
+            //   (isChildOfCanvas || isNewWidgetInitialTargetCanvas) &&
+            //   slidingArenaRef.current
+            // ) {
+            //   slidingArenaRef.current.style.zIndex = "2";
+            // }
           }
         };
         startDragging();

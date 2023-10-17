@@ -20,12 +20,13 @@ import { deriveColumnHighlights } from "layoutSystems/anvil/utils/layouts/highli
 import type { WidgetPositions } from "layoutSystems/common/types";
 
 const Column = (props: LayoutComponentProps) => {
-  const { canvasId, children, layoutId, layoutStyle } = props;
+  const { canvasId, children, isDropTarget, layoutId, layoutStyle } = props;
 
   return (
     <FlexLayout
       canvasId={canvasId}
       direction="column"
+      isDropTarget={!!isDropTarget}
       layoutId={layoutId}
       {...(layoutStyle || {})}
     >

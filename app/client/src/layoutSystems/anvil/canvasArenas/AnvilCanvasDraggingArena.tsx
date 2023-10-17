@@ -4,6 +4,7 @@ import type { AnvilHighlightInfo, DraggedWidget } from "../utils/anvilTypes";
 import { AnvilHighlightingCanvas } from "./AnvilHighlightingCanvas";
 import { useAnvilDnDStates } from "./hooks/useAnvilDnDStates";
 import { useAnvilDnDUtils } from "./hooks/useAnvilDnDUtils";
+import { useCanvasActivation } from "./hooks/useCanvasActivation";
 
 interface AnvilCanvasDraggingArenaProps {
   canvasId: string;
@@ -26,6 +27,7 @@ export const AnvilCanvasDraggingArena = (
     canvasId,
     layoutId,
   });
+  useCanvasActivation(layoutId);
 
   //useAnvilDnDUtils to fetch onDrop and onMove utilities
   const { onDrop, renderOnMouseMove } = useAnvilDnDUtils(
