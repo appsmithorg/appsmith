@@ -404,9 +404,8 @@ function* startInstallationRequestChannel() {
     ReduxActionTypes.INSTALL_LIBRARY_INIT,
   ]);
   while (true) {
-    const action: ReduxAction<Partial<JSLibrary>> = yield take(
-      queueInstallChannel,
-    );
+    const action: ReduxAction<Partial<JSLibrary>> =
+      yield take(queueInstallChannel);
     yield put({
       type: ReduxActionTypes.INSTALL_LIBRARY_START,
       payload: action.payload.url,
