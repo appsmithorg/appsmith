@@ -71,9 +71,6 @@ function* shouldReadPositions(saga: any, action: ReduxAction<unknown>) {
   );
   if (!isCanvasResizing) {
     yield call(saga, action);
-  } else {
-    yield take(ReduxActionTypes.SET_AUTO_CANVAS_RESIZING);
-    yield call(saga, action);
   }
 }
 
@@ -82,6 +79,10 @@ export default function* WidgetPositionSaga() {
     takeEvery(
       AnvilReduxActionTypes.READ_WIDGET_POSITIONS,
       shouldReadPositions,
+      readAndUpdateWidgetPositions,
+    ),
+    takeEvery(
+      ReduxActionTypes.SET_AUTO_CANVAS_RESIZING,
       readAndUpdateWidgetPositions,
     ),
   ]);

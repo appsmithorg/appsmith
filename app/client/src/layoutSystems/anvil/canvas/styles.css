@@ -6,3 +6,7 @@
 .overflowY {
   overflow-y: auto;
 }
+
+.gap {
+  padding-block-end: 5rem;
+}
