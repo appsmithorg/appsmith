@@ -21,4 +21,5 @@ public class LicenseValidationResponseDTO {
     private Instant expiry;
     private boolean isValid;
     private SubscriptionDetails subscriptionDetails;
+    private String licenseId;
 }
