@@ -113,7 +113,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     public static final PluginType JS_PLUGIN_TYPE = PluginType.JS;
     public static final String JS_PLUGIN_PACKAGE_NAME = "js-plugin";
 
-    private final NewActionRepository repository;
+    protected final NewActionRepository repository;
     private final DatasourceService datasourceService;
     private final PluginService pluginService;
     private final PluginExecutorHelper pluginExecutorHelper;
