@@ -6,7 +6,6 @@ import IntegrationEditor from "./IntegrationEditor";
 import QueryEditor from "./QueryEditor";
 import JSEditor from "./JSEditor";
 import GeneratePage from "./GeneratePage";
-import CurlImportForm from "./APIEditor/CurlImportForm";
 import ProviderTemplates from "./APIEditor/ProviderTemplates";
 import {
   API_EDITOR_ID_PATH,
@@ -27,6 +26,7 @@ import * as Sentry from "@sentry/react";
 import { SaaSEditorRoutes } from "./SaaSEditor/routes";
 import OnboardingChecklist from "./FirstTimeUserOnboarding/Checklist";
 import { DatasourceEditorRoutes } from "pages/routes";
+import CurlImportEditor from "./APIEditor/CurlImportEditor";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -91,7 +91,7 @@ function EditorsRouter() {
         />
 
         <SentryRoute
-          component={CurlImportForm}
+          component={CurlImportEditor}
           exact
           path={`${path}${CURL_IMPORT_PAGE_PATH}`}
         />
