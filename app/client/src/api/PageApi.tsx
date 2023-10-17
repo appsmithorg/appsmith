@@ -13,31 +13,31 @@ import type {
 } from "actions/pageActions";
 import type { FetchApplicationResponse } from "@appsmith/api/ApplicationApi";
 
-export type FetchPageRequest = {
+export interface FetchPageRequest {
   id: string;
   isFirstLoad?: boolean;
   handleResponseLater?: boolean;
-};
+}
 
-export type FetchPublishedPageRequest = {
+export interface FetchPublishedPageRequest {
   pageId: string;
   bustCache?: boolean;
-};
+}
 
-export type SavePageRequest = {
+export interface SavePageRequest {
   dsl: DSLWidget;
   layoutId: string;
   pageId: string;
   applicationId: string;
-};
+}
 
-export type PageLayout = {
+export interface PageLayout {
   id: string;
   dsl: Partial<DSLWidget>;
   layoutOnLoadActions: PageAction[][];
   layoutActions: PageAction[];
   layoutOnLoadActionErrors?: LayoutOnLoadActionErrors[];
-};
+}
 
 export interface PageLayoutsRequest {
   layoutId: string;
@@ -47,7 +47,7 @@ export interface PageLayoutsRequest {
   };
 }
 
-export type FetchPageResponseData = {
+export interface FetchPageResponseData {
   id: string;
   name: string;
   slug: string;
@@ -57,11 +57,11 @@ export type FetchPageResponseData = {
   customSlug?: string;
   userPermissions?: string[];
   layoutOnLoadActionErrors?: LayoutOnLoadActionErrors[];
-};
+}
 
 export type FetchPublishedPageResponseData = FetchPageResponseData;
 
-export type SavePageResponseData = {
+export interface SavePageResponseData {
   id: string;
   layoutOnLoadActions: PageAction[][];
   dsl: Partial<DSLWidget>;
@@ -73,21 +73,21 @@ export type SavePageResponseData = {
     collectionId?: string;
   }>;
   layoutOnLoadActionErrors?: Array<LayoutOnLoadActionErrors>;
-};
+}
 
 export type CreatePageRequest = Omit<
   CreatePageActionPayload,
   "blockNavigation"
 >;
 
-export type UpdatePageRequest = {
+export interface UpdatePageRequest {
   id: string;
   name?: string;
   isHidden?: boolean;
   customSlug?: string;
-};
+}
 
-export type UpdatePageResponse = {
+export interface UpdatePageResponse {
   id: string;
   name: string;
   slug: string;
@@ -97,17 +97,17 @@ export type UpdatePageResponse = {
   isHidden: boolean;
   lastUpdatedTime: number;
   defaultResources: unknown[];
-};
+}
 
-export type SetPageOrderRequest = {
+export interface SetPageOrderRequest {
   order: number;
   pageId: string;
   applicationId: string;
-};
+}
 
 export type CreatePageResponse = ApiResponse;
 
-export type FetchPageListResponseData = {
+export interface FetchPageListResponseData {
   pages: Array<{
     id: string;
     name: string;
@@ -119,7 +119,7 @@ export type FetchPageListResponseData = {
     description?: string;
   }>;
   workspaceId: string;
-};
+}
 
 export interface DeletePageRequest {
   id: string;
@@ -145,12 +145,12 @@ export interface GenerateTemplatePageRequest {
   pluginSpecificParams?: Record<any, any>;
 }
 
-export type GenerateTemplatePageResponseData = {
+export interface GenerateTemplatePageResponseData {
   id: string;
   name: string;
   applicationId: string;
   layouts: Array<PageLayout>;
-};
+}
 
 export type SavePageResponse = ApiResponse<SavePageResponseData>;
 

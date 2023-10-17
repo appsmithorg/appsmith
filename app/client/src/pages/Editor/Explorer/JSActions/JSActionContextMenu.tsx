@@ -25,14 +25,14 @@ import { getPageListAsOptions } from "@appsmith/selectors/entitiesSelector";
 import ContextMenu from "pages/Editor/Explorer/ContextMenu";
 import type { TreeDropdownOption } from "pages/Editor/Explorer/ContextMenu";
 
-type EntityContextMenuProps = {
+interface EntityContextMenuProps {
   id: string;
   name: string;
   className?: string;
   pageId: string;
   canManage?: boolean;
   canDelete?: boolean;
-};
+}
 export function JSCollectionEntityContextMenu(props: EntityContextMenuProps) {
   const { canDelete = false, canManage = false } = props;
   const [confirmDelete, setConfirmDelete] = useState(false);

@@ -34,11 +34,11 @@ import type {
 } from "layoutSystems/autolayout/utils/types";
 import type { FlexLayer, LayerChild } from "./types";
 
-export type ReadableSnapShotDetails = {
+export interface ReadableSnapShotDetails {
   timeSince: string;
   timeTillExpiration: string;
   readableDate: string;
-};
+}
 
 /**
  * Update flex layers of parent canvas upon deleting a child widget.

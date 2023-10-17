@@ -716,15 +716,15 @@ export const initAppKbState = async (
 
     const appKbState = {
       checksum,
-      pageSlugs: pageSlugs.reduce((acc, pageSlug) => {
-        acc[pageSlug] = {
-          hasReacted: false,
-        };
-        return acc;
-      }, {} as Record<string, { hasReacted: boolean }>) as Record<
-        string,
-        { hasReacted: boolean }
-      >,
+      pageSlugs: pageSlugs.reduce(
+        (acc, pageSlug) => {
+          acc[pageSlug] = {
+            hasReacted: false,
+          };
+          return acc;
+        },
+        {} as Record<string, { hasReacted: boolean }>,
+      ) as Record<string, { hasReacted: boolean }>,
     };
 
     aiKBApplicationMap[appId] = appKbState;

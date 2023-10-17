@@ -860,10 +860,13 @@ export const getPageActions = (pageId = "") => {
 export const selectDatasourceIdToNameMap = createSelector(
   getDatasources,
   (datasources) => {
-    return datasources.reduce((acc, datasource) => {
-      acc[datasource.id] = datasource.name;
-      return acc;
-    }, {} as Record<string, string>);
+    return datasources.reduce(
+      (acc, datasource) => {
+        acc[datasource.id] = datasource.name;
+        return acc;
+      },
+      {} as Record<string, string>,
+    );
   },
 );
 
@@ -1185,9 +1188,8 @@ export const getDatasourceScopeValue = (
   const options = formConfig[0]?.children?.find(
     (child: any) => child?.configProperty === configProperty,
   )?.options;
-  const label = options?.find(
-    (option: any) => option.value === scopeValue,
-  )?.label;
+  const label = options?.find((option: any) => option.value === scopeValue)
+    ?.label;
   return label;
 };
 

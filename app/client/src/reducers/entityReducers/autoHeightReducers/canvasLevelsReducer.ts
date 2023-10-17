@@ -5,9 +5,9 @@ import type { AutoHeightLayoutTreePayload } from "./autoHeightLayoutTreeReducer"
 
 export type CanvasLevelsPayload = Record<string, number>;
 
-export type CanvasLevelsReduxState = {
+export interface CanvasLevelsReduxState {
   [widgetId: string]: number;
-};
+}
 
 const initialState: CanvasLevelsReduxState = {};
 

@@ -77,9 +77,9 @@ interface StepsProps {
 }
 
 function Steps({
-  steps = [],
   activeKey,
   onActiveKeyChange = noop,
+  steps = [],
 }: StepsProps) {
   const activeIndex = steps.findIndex((s) => s.key === activeKey);
 

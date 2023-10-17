@@ -104,11 +104,11 @@ export type MetaInternalFieldState = FieldState<{
   filterText?: string;
 }>;
 
-export type JSONFormWidgetState = {
+export interface JSONFormWidgetState {
   resetObserverCallback: () => void;
   isSubmitting: boolean;
   metaInternalFieldState: MetaInternalFieldState;
-};
+}
 
 export type Action = ExecuteTriggerPayload & {
   updateDependencyType?: ActionUpdateDependency;
@@ -270,9 +270,10 @@ class JSONFormWidget extends BaseWidget<
             (column) => `${column.name}`,
           );
           modify = {
-            sourceData: `{{_.pick(${
-              formConfig?.otherFields?.defaultValues
-            },${selectedColumnNames.map((name) => `'${name}'`).join(",")})}}`,
+            sourceData: `{{_.pick(${formConfig?.otherFields
+              ?.defaultValues},${selectedColumnNames
+              .map((name) => `'${name}'`)
+              .join(",")})}}`,
             title: `Update Row ${primaryKey} {{${formConfig?.otherFields?.defaultValues}.${primaryKey}}}`,
             onSubmit: queryConfig?.update.run,
           };

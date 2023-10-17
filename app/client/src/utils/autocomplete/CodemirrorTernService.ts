@@ -38,28 +38,28 @@ export interface Completion extends Hint {
 export interface CommandsCompletion
   extends Omit<Completion, "type" | "origin" | "data"> {
   data: unknown;
-  action?: () => void;
+  action?: (callback?: (completion: string) => void) => void;
   shortcut?: string;
   triggerCompletionsPostPick?: boolean;
 }
 
 type TernDocs = Record<string, TernDoc>;
 
-type TernDoc = {
+interface TernDoc {
   doc: CodeMirror.Doc;
   name: string;
   changed: { to: number; from: number } | null;
-};
+}
 
-type ArgHints = {
+interface ArgHints {
   start: CodeMirror.Position;
   type: { args: any[]; rettype: null | string };
   name: string;
   guess: boolean;
   doc: CodeMirror.Doc;
-};
+}
 
-type RequestQuery = {
+interface RequestQuery {
   type: string;
   types?: boolean;
   docs?: boolean;
@@ -78,12 +78,12 @@ type RequestQuery = {
   depth?: number;
   sort?: boolean;
   expandWordForward?: boolean;
-};
+}
 
-export type DataTreeDefEntityInformation = {
+export interface DataTreeDefEntityInformation {
   type: ENTITY_TYPE;
   subType: string;
-};
+}
 
 /** Tern hard coded some keywords which return `isKeyword` true.
  * There is however no provision to add more keywords to the list. Therefore,
