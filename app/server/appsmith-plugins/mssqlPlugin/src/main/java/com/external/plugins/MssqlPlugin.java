@@ -34,6 +34,7 @@ import com.zaxxer.hikari.pool.HikariPool;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.ObjectUtils;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
 import org.springframework.util.StringUtils;
@@ -78,6 +79,7 @@ import static com.external.plugins.utils.MssqlDatasourceUtils.logHikariCPStatus;
 import static com.external.plugins.utils.MssqlExecuteUtils.closeConnectionPostExecution;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
 @Slf4j
@@ -511,6 +513,23 @@ public class MssqlPlugin extends BasePlugin {
             }
 
             return Mono.empty();
+        }
+
+        @Override
+        public Mono<String> getEndpointIdentifierForRateLimit(DatasourceConfiguration datasourceConfiguration) {
+            List<Endpoint> endpoints = datasourceConfiguration.getEndpoints();
+            String identifier = "";
+            // When hostname and port both are available, both will be used as identifier
+            // When port is not present, default port along with hostname will be used
+            // This ensures rate limiting will only be applied if hostname is present
+            if (endpoints.size() > 0) {
+                String hostName = endpoints.get(0).getHost();
+                Long port = endpoints.get(0).getPort();
+                if (!isBlank(hostName)) {
+                    identifier = hostName + "_" + ObjectUtils.defaultIfNull(port, MS_SQL_DEFAULT_PORT);
+                }
+            }
+            return Mono.just(identifier);
         }
     }
 

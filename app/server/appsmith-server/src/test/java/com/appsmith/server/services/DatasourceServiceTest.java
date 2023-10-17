@@ -737,6 +737,7 @@ public class DatasourceServiceTest {
         Mono<DatasourceTestResult> testResultMono = datasourceMono.flatMap(datasource1 -> {
             DatasourceStorageDTO datasourceStorageDTO =
                     datasource1.getDatasourceStorages().get(defaultEnvironmentId);
+            datasourceStorageDTO.setPluginId(datasource.getPluginId());
             return datasourceService.testDatasource(datasourceStorageDTO, defaultEnvironmentId);
         });
 
@@ -805,6 +806,7 @@ public class DatasourceServiceTest {
             DatasourceStorageDTO datasourceStorageDTO =
                     datasource1.getDatasourceStorages().get(defaultEnvironmentId);
             ((DBAuth) datasourceStorageDTO.getDatasourceConfiguration().getAuthentication()).setPassword(null);
+            datasourceStorageDTO.setPluginId(datasource.getPluginId());
             return datasourceService.testDatasource(datasourceStorageDTO, defaultEnvironmentId);
         });
 
@@ -1490,6 +1492,7 @@ public class DatasourceServiceTest {
         Mono<DatasourceTestResult> testResultMono = datasourceMono.flatMap(datasource1 -> {
             DatasourceStorageDTO datasourceStorageDTO =
                     datasource1.getDatasourceStorages().get(defaultEnvironmentId);
+            datasourceStorageDTO.setPluginId(datasource.getPluginId());
             return datasourceService.testDatasource(datasourceStorageDTO, defaultEnvironmentId);
         });
 
