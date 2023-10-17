@@ -12,11 +12,12 @@ import DatasourceStructureHeader from "../Explorer/Datasources/DatasourceStructu
 import { MessageWrapper, TableWrapper } from "../SaaSEditor/GoogleSheetSchema";
 import { Spinner, Text, Button } from "design-system";
 import {
-  DATASOURCE_NO_RECORDS_TO_SHOW,
-  GSHEETS_ERR_FETCHING_PREVIEW_DATA,
   GSHEETS_FETCHING_PREVIEW_DATA,
   GSHEETS_GENERATE_PAGE_BUTTON,
-  createMessage,
+  GSHEETS_ERR_FETCHING_PREVIEW_DATA,
+  EMPTY_TABLE_TITLE_TEXT,
+  EMPTY_TABLE_MESSAGE_TEXT,
+  createMessage, EMPTY_TABLE_SVG_ALT_TEXT,
 } from "@appsmith/constants/messages";
 import Table from "pages/Editor/QueryEditor/Table";
 import { generateTemplateToUpdatePage } from "actions/pageActions";
@@ -42,6 +43,7 @@ import {
   getHasCreateDatasourceActionPermission,
   getHasCreatePagePermission,
 } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import EmptyTableSVG from "assets/images/empty-table-in-display-preview.svg";
 
 const ViewModeSchemaContainer = styled.div`
   height: 100%;
@@ -82,6 +84,24 @@ const DatasourceListContainer = styled.div`
   }
 `;
 
+export const SchemaDisplayEmptyOrErrorOrLoadingStateWrapper = styled.div`
+  width: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  left: 20%;
+`;
+
+export const SchemaDisplayEmptyOrErrorOrLoadingMessageWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  left: 10%;
+`;
+
 const ButtonContainer = styled.div`
   margin-bottom: 1rem;
   display: flex;
@@ -93,6 +113,28 @@ interface Props {
   datasource: Datasource;
   setDatasourceViewModeFlag: (viewMode: boolean) => void;
 }
+
+const renderEmptyTablePage = () => {
+  return (
+    <SchemaDisplayEmptyOrErrorOrLoadingStateWrapper>
+      {/* Render empty table image */}
+      <img
+        alt={createMessage(EMPTY_TABLE_SVG_ALT_TEXT)}
+        src={EmptyTableSVG}
+        style={{ paddingBottom: "10%", paddingTop: "50%" }}
+      />
+      {/* Show description below the image */}
+      <SchemaDisplayEmptyOrErrorOrLoadingMessageWrapper>
+        {/* Show title */}
+        <Text style={{ fontWeight: "bold" }}>
+          {createMessage(EMPTY_TABLE_TITLE_TEXT)}
+        </Text>
+        {/* Show description */}
+        <Text>{createMessage(EMPTY_TABLE_MESSAGE_TEXT)}</Text>
+      </SchemaDisplayEmptyOrErrorOrLoadingMessageWrapper>
+    </SchemaDisplayEmptyOrErrorOrLoadingStateWrapper>
+  );
+};
 
 const DatasourceViewModeSchema = (props: Props) => {
   const dispatch = useDispatch();
@@ -310,11 +352,8 @@ const DatasourceViewModeSchema = (props: Props) => {
           {!isLoading &&
             !failedFetchingPreviewData &&
             !previewDataError &&
-            previewData?.length < 1 && (
-              <MessageWrapper>
-                <Text>{createMessage(DATASOURCE_NO_RECORDS_TO_SHOW)}</Text>
-              </MessageWrapper>
-            )}
+            previewData?.length < 1 &&
+            renderEmptyTablePage()}
           {/* leaving this here in case we decide to show errors from server */}
           {/* {!isLoading && !failedFetchingPreviewData && previewDataError && (
             <MessageWrapper>
