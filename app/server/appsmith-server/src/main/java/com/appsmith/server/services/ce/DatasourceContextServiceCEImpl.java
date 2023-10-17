@@ -298,8 +298,9 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
     public Mono<DatasourceContext<?>> getDatasourceContext(DatasourceStorage datasourceStorage, Plugin plugin) {
         if (plugin.isRemotePlugin()) {
             return this.getRemoteDatasourceContext(plugin, datasourceStorage);
-        } else if(PluginConstants.PackageName.REST_API_PLUGIN.equals(plugin.getPackageName())) {
-            DatasourceContextIdentifier datasourceContextIdentifier = initializeDatasourceContextIdentifier(datasourceStorage);
+        } else if (PluginConstants.PackageName.REST_API_PLUGIN.equals(plugin.getPackageName())) {
+            DatasourceContextIdentifier datasourceContextIdentifier =
+                    initializeDatasourceContextIdentifier(datasourceStorage);
             datasourceContextMap.remove(datasourceContextIdentifier);
             datasourceContextMonoMap.remove(datasourceContextIdentifier);
             return createNewDatasourceContext(datasourceStorage, datasourceContextIdentifier);
