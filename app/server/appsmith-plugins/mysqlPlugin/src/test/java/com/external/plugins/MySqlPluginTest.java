@@ -836,8 +836,7 @@ public class MySqlPluginTest {
         String query_create_table_json_data_type = "create table test_json_type (id INTEGER, c_json JSON);";
         String query_insert_json_data_type_1 =
                 "insert into test_json_type values (1, '{\"key1\": \"value1\", \"key2\": " + "\"value2\"}');";
-        String query_insert_json_data_type_2 =
-            "insert into test_json_type values (2, NULL);";
+        String query_insert_json_data_type_2 = "insert into test_json_type values (2, NULL);";
 
         String query_create_table_geometry_types =
                 "create table test_geometry_types (c_geometry GEOMETRY, c_point " + "POINT);";
@@ -863,7 +862,8 @@ public class MySqlPluginTest {
                 + "\"c_blob\":\"dGVzdA==\",\"c_mediumblob\":\"dGVzdA==\",\"c_longblob\":\"dGVzdA==\",\"c_tinytext\":\"test\","
                 + "\"c_text\":\"test\",\"c_mediumtext\":\"test\",\"c_longtext\":\"test\",\"c_enum\":\"ONE\",\"c_set\":\"a\"}]";
 
-        String expected_json_result_1 = "[{\"c_json\":\"{\\\"key1\\\": \\\"value1\\\", \\\"key2\\\": \\\"value2\\\"}\"}]";
+        String expected_json_result_1 =
+                "[{\"c_json\":\"{\\\"key1\\\": \\\"value1\\\", \\\"key2\\\": \\\"value2\\\"}\"}]";
         String expected_json_result_2 = "[{\"c_json\":null}]";
 
         String expected_geometry_types_result = "[{\"c_geometry\":\"AAAAAAEBAAAAAAAAAAAA8D8AAAAAAADwPw==\","
