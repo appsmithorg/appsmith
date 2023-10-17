@@ -5,11 +5,12 @@ import com.appsmith.git.service.GitExecutorImpl;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.datasources.base.DatasourceService;
-import com.appsmith.server.export.internal.ImportExportApplicationService;
+import com.appsmith.server.exports.internal.ExportApplicationService;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.GitPrivateRepoHelper;
 import com.appsmith.server.helpers.RedisUtils;
 import com.appsmith.server.helpers.ResponseUtils;
+import com.appsmith.server.imports.internal.ImportApplicationService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
@@ -26,6 +27,7 @@ import org.springframework.stereotype.Service;
 @Service
 @Import({GitExecutorImpl.class})
 public class GitServiceImpl extends GitServiceCEImpl implements GitService {
+
     public GitServiceImpl(
             UserService userService,
             UserDataService userDataService,
@@ -36,7 +38,8 @@ public class GitServiceImpl extends GitServiceCEImpl implements GitService {
             NewActionService newActionService,
             ActionCollectionService actionCollectionService,
             GitFileUtils fileUtils,
-            ImportExportApplicationService importExportApplicationService,
+            ImportApplicationService importApplicationService,
+            ExportApplicationService exportApplicationService,
             GitExecutor gitExecutor,
             ResponseUtils responseUtils,
             EmailConfig emailConfig,
@@ -50,7 +53,6 @@ public class GitServiceImpl extends GitServiceCEImpl implements GitService {
             RedisUtils redisUtils,
             ObservationRegistry observationRegistry,
             GitPrivateRepoHelper gitPrivateRepoHelper) {
-
         super(
                 userService,
                 userDataService,
@@ -61,7 +63,8 @@ public class GitServiceImpl extends GitServiceCEImpl implements GitService {
                 newActionService,
                 actionCollectionService,
                 fileUtils,
-                importExportApplicationService,
+                importApplicationService,
+                exportApplicationService,
                 gitExecutor,
                 responseUtils,
                 emailConfig,

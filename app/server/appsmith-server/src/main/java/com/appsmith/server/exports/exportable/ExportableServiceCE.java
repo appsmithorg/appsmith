@@ -1,4 +1,4 @@
-package com.appsmith.server.export.exportable;
+package com.appsmith.server.exports.exportable;
 
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.constants.SerialiseApplicationObjective;

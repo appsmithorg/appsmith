@@ -5,10 +5,10 @@ import com.appsmith.server.configurations.SecurityTestConfig;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.exceptions.AppsmithErrorCode;
-import com.appsmith.server.export.internal.ImportExportApplicationService;
 import com.appsmith.server.fork.internal.ApplicationForkingService;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.RedisUtils;
+import com.appsmith.server.imports.internal.ImportApplicationService;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
@@ -52,7 +52,7 @@ public class ApplicationControllerTest {
     ApplicationForkingService applicationForkingService;
 
     @MockBean
-    ImportExportApplicationService importExportApplicationService;
+    ImportApplicationService importApplicationService;
 
     @MockBean
     ApplicationSnapshotService applicationSnapshotService;
@@ -102,7 +102,7 @@ public class ApplicationControllerTest {
     @WithMockUser
     public void whenFileUploadedWithLongHeader_thenVerifyErrorStatus() throws IOException {
 
-        Mockito.when(importExportApplicationService.extractFileAndSaveApplication(Mockito.any(), Mockito.any()))
+        Mockito.when(importApplicationService.extractFileAndSaveApplication(Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.just(new ApplicationImportDTO()));
 
         final String fileName = getFileName(130 * 1024);
@@ -133,7 +133,7 @@ public class ApplicationControllerTest {
     @WithMockUser
     public void whenFileUploadedWithShortHeader_thenVerifySuccessStatus() throws IOException {
 
-        Mockito.when(importExportApplicationService.extractFileAndSaveApplication(
+        Mockito.when(importApplicationService.extractFileAndSaveApplication(
                         Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.just(new ApplicationImportDTO()));
 

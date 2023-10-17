@@ -1,4 +1,4 @@
-package com.appsmith.server.export.internal;
+package com.appsmith.server.imports.internal;
 
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.helpers.Stopwatch;
@@ -15,36 +15,26 @@ import com.appsmith.external.models.DecryptedSensitiveFields;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.OAuth2;
 import com.appsmith.external.models.Policy;
-import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.ResourceModes;
-import com.appsmith.server.constants.SerialiseApplicationObjective;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.CustomJSLib;
-import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
-import com.appsmith.server.domains.Plugin;
-import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.CustomJSLibApplicationDTO;
-import com.appsmith.server.dtos.ExportFileDTO;
-import com.appsmith.server.dtos.ExportingMetaDTO;
-import com.appsmith.server.dtos.MappedExportableResourcesDTO;
 import com.appsmith.server.dtos.ce.ImportActionCollectionResultDTO;
 import com.appsmith.server.dtos.ce.ImportActionResultDTO;
 import com.appsmith.server.dtos.ce.ImportedActionAndCollectionMapsDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.export.exportable.ExportableService;
-import com.appsmith.server.export.exportable.ExportableServiceCE;
 import com.appsmith.server.helpers.DefaultResourcesUtils;
 import com.appsmith.server.helpers.ImportExportUtils;
 import com.appsmith.server.helpers.TextUtils;
@@ -52,7 +42,6 @@ import com.appsmith.server.helpers.ce.ImportApplicationPermissionProvider;
 import com.appsmith.server.jslibs.base.CustomJSLibService;
 import com.appsmith.server.migrations.ApplicationVersion;
 import com.appsmith.server.migrations.JsonSchemaMigration;
-import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.repositories.PermissionGroupRepository;
@@ -78,8 +67,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
 import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.dao.DuplicateKeyException;
-import org.springframework.http.ContentDisposition;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.transaction.reactive.TransactionalOperator;
@@ -89,7 +76,6 @@ import reactor.util.function.Tuple2;
 import reactor.util.function.Tuples;
 
 import java.lang.reflect.Type;
-import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -106,31 +92,23 @@ import static com.appsmith.server.constants.ResourceModes.EDIT;
 import static com.appsmith.server.constants.ResourceModes.VIEW;
 import static com.appsmith.server.helpers.ImportExportUtils.setPropertiesToExistingApplication;
 import static com.appsmith.server.helpers.ImportExportUtils.setPublishedApplicationProperties;
-import static java.lang.Boolean.TRUE;
 
 @Slf4j
 @RequiredArgsConstructor
-public class ImportExportApplicationServiceCEImpl implements ImportExportApplicationServiceCE {
+public class ImportApplicationServiceCEImpl implements ImportApplicationServiceCE {
 
     private final DatasourceService datasourceService;
-    private final ExportableService<Datasource> datasourceExportableService;
     private final SessionUserService sessionUserService;
     private final PluginRepository pluginRepository;
-    private final ExportableService<Plugin> pluginExportableService;
     private final WorkspaceService workspaceService;
     private final ApplicationService applicationService;
     private final NewPageService newPageService;
     private final ApplicationPageService applicationPageService;
-    private final ExportableService<NewPage> newPageExportableService;
     private final NewActionService newActionService;
     private final SequenceService sequenceService;
-    private final ExportableService<NewAction> newActionExportableService;
-    private final ExportableService<ActionCollection> actionCollectionExportableService;
     private final ActionCollectionService actionCollectionService;
-    private final ExportableServiceCE<Theme> themeExportableService;
     private final ThemeService themeService;
     private final AnalyticsService analyticsService;
-    private final ExportableService<CustomJSLib> customJSLibExportableService;
     private final CustomJSLibService customJSLibService;
     private final DatasourcePermission datasourcePermission;
     private final WorkspacePermission workspacePermission;
@@ -144,168 +122,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
     private static final Set<MediaType> ALLOWED_CONTENT_TYPES = Set.of(MediaType.APPLICATION_JSON);
     private static final String INVALID_JSON_FILE = "invalid json file";
 
-    /**
-     * This function will give the application resource to rebuild the application in import application flow
-     *
-     * @param applicationId which needs to be exported
-     * @return application reference from which entire application can be rehydrated
-     */
-    public Mono<ApplicationJson> exportApplicationById(
-            String applicationId, SerialiseApplicationObjective serialiseFor) {
-
-        // Start the stopwatch to log the execution time
-        Stopwatch stopwatch = new Stopwatch(AnalyticsEvents.EXPORT.getEventName());
-        /*
-           1. Fetch application by id
-           2. Fetch pages from the application
-           3. Fetch datasources from workspace
-           4. Fetch actions from the application
-           5. Filter out relevant datasources using actions reference
-           6. Fetch action collections from the application
-        */
-        ApplicationJson applicationJson = new ApplicationJson();
-        final MappedExportableResourcesDTO mappedResourcesDTO = new MappedExportableResourcesDTO();
-        final ExportingMetaDTO exportingMetaDTO = new ExportingMetaDTO();
-        exportingMetaDTO.setApplicationId(applicationId);
-        exportingMetaDTO.setBranchName(null);
-
-        if (applicationId == null || applicationId.isEmpty()) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.APPLICATION_ID));
-        }
-
-        boolean isGitSync = SerialiseApplicationObjective.VERSION_CONTROL.equals(serialiseFor)
-                || SerialiseApplicationObjective.KNOWLEDGE_BASE_GENERATION.equals(serialiseFor);
-
-        exportingMetaDTO.setIsGitSync(isGitSync);
-        exportingMetaDTO.setExportWithConfiguration(false);
-
-        AclPermission permission =
-                applicationPermission.getExportPermission(isGitSync, exportingMetaDTO.getExportWithConfiguration());
-
-        Mono<Application> applicationMono =
-                // Find the application with appropriate permission
-                applicationService
-                        .findById(applicationId, permission)
-                        // Find the application without permissions if it is a template application
-                        .switchIfEmpty(Mono.defer(
-                                () -> applicationService.findByIdAndExportWithConfiguration(applicationId, TRUE)))
-                        .switchIfEmpty(Mono.error(new AppsmithException(
-                                AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, applicationId)))
-                        .map(application -> {
-                            if (!TRUE.equals(application.getExportWithConfiguration())) {
-                                // Explicitly setting the boolean to avoid NPE for future checks
-                                application.setExportWithConfiguration(false);
-                            }
-                            exportingMetaDTO.setExportWithConfiguration(application.getExportWithConfiguration());
-                            return application;
-                        })
-                        .cache();
-
-        // Set json schema version which will be used to check the compatibility while importing the JSON
-        applicationJson.setServerSchemaVersion(JsonSchemaVersions.serverVersion);
-        applicationJson.setClientSchemaVersion(JsonSchemaVersions.clientVersion);
-
-        return applicationMono
-                .flatMap(application -> {
-                    // Refactor application to remove the ids
-                    GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
-                    Instant applicationLastCommittedAt =
-                            gitApplicationMetadata != null ? gitApplicationMetadata.getLastCommittedAt() : null;
-                    boolean isClientSchemaMigrated =
-                            !JsonSchemaVersions.clientVersion.equals(application.getClientSchemaVersion());
-                    boolean isServerSchemaMigrated =
-                            !JsonSchemaVersions.serverVersion.equals(application.getServerSchemaVersion());
-                    exportingMetaDTO.setApplicationLastCommittedAt(applicationLastCommittedAt);
-                    exportingMetaDTO.setClientSchemaMigrated(isClientSchemaMigrated);
-                    exportingMetaDTO.setServerSchemaMigrated(isServerSchemaMigrated);
-                    applicationJson.setExportedApplication(application);
-
-                    List<String> unpublishedPages = application.getPages().stream()
-                            .map(ApplicationPage::getId)
-                            .collect(Collectors.toList());
-
-                    exportingMetaDTO.setUnpublishedPages(unpublishedPages);
-
-                    return pluginExportableService
-                            .getExportableEntities(
-                                    exportingMetaDTO, mappedResourcesDTO, applicationMono, applicationJson)
-                            .then(themeExportableService.getExportableEntities(
-                                    exportingMetaDTO, mappedResourcesDTO, applicationMono, applicationJson))
-                            .then(newPageExportableService.getExportableEntities(
-                                    exportingMetaDTO, mappedResourcesDTO, applicationMono, applicationJson))
-                            .then(datasourceExportableService.getExportableEntities(
-                                    exportingMetaDTO, mappedResourcesDTO, applicationMono, applicationJson))
-                            .then(actionCollectionExportableService.getExportableEntities(
-                                    exportingMetaDTO, mappedResourcesDTO, applicationMono, applicationJson))
-                            .then(newActionExportableService.getExportableEntities(
-                                    exportingMetaDTO, mappedResourcesDTO, applicationMono, applicationJson))
-                            .then(customJSLibExportableService.getExportableEntities(
-                                    exportingMetaDTO, mappedResourcesDTO, applicationMono, applicationJson))
-                            .map(newActions -> {
-                                datasourceExportableService.sanitizeEntities(
-                                        exportingMetaDTO, mappedResourcesDTO, applicationJson, serialiseFor);
-
-                                newPageExportableService.sanitizeEntities(
-                                        exportingMetaDTO, mappedResourcesDTO, applicationJson, serialiseFor);
-
-                                application.makePristine();
-                                application.sanitiseToExportDBObject();
-                                // Disable exporting the application with datasource config once imported in destination
-                                // instance
-                                application.setExportWithConfiguration(null);
-                                return applicationJson;
-                            });
-                })
-                .then(sessionUserService.getCurrentUser())
-                .map(user -> {
-                    stopwatch.stopTimer();
-                    final Map<String, Object> data = Map.of(
-                            FieldName.APPLICATION_ID,
-                            applicationId,
-                            "pageCount",
-                            applicationJson.getPageList().size(),
-                            "actionCount",
-                            applicationJson.getActionList().size(),
-                            "JSObjectCount",
-                            applicationJson.getActionCollectionList().size(),
-                            FieldName.FLOW_NAME,
-                            stopwatch.getFlow(),
-                            "executionTime",
-                            stopwatch.getExecutionTime());
-                    analyticsService.sendEvent(
-                            AnalyticsEvents.UNIT_EXECUTION_TIME.getEventName(), user.getUsername(), data);
-                    return applicationJson;
-                })
-                // TODO : Why are we sending two sets of events here? -- Ask Git team
-                .then(sendImportExportApplicationAnalyticsEvent(applicationId, AnalyticsEvents.EXPORT))
-                .thenReturn(applicationJson);
-    }
-
-    public Mono<ApplicationJson> exportApplicationById(String applicationId, String branchName) {
-        return applicationService
-                .findBranchedApplicationId(branchName, applicationId, applicationPermission.getExportPermission())
-                .flatMap(branchedAppId -> exportApplicationById(branchedAppId, SerialiseApplicationObjective.SHARE));
-    }
-
-    public Mono<ExportFileDTO> getApplicationFile(String applicationId, String branchName) {
-        return this.exportApplicationById(applicationId, branchName).map(applicationJson -> {
-            String stringifiedFile = gson.toJson(applicationJson);
-            String applicationName = applicationJson.getExportedApplication().getName();
-            Object jsonObject = gson.fromJson(stringifiedFile, Object.class);
-            HttpHeaders responseHeaders = new HttpHeaders();
-            ContentDisposition contentDisposition = ContentDisposition.builder("attachment")
-                    .filename(applicationName + ".json", StandardCharsets.UTF_8)
-                    .build();
-            responseHeaders.setContentDisposition(contentDisposition);
-            responseHeaders.setContentType(MediaType.APPLICATION_JSON);
-
-            ExportFileDTO exportFileDTO = new ExportFileDTO();
-            exportFileDTO.setApplicationResource(jsonObject);
-            exportFileDTO.setHttpHeaders(responseHeaders);
-            return exportFileDTO;
-        });
-    }
-
+    @Override
     public Mono<ApplicationImportDTO> extractFileAndSaveApplication(String workspaceId, Part filePart) {
         return extractFileAndSaveApplication(workspaceId, filePart, null);
     }
@@ -579,7 +396,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     Map<String, String> pluginMap = objects.getT3();
                     List<DatasourceStorage> importedDatasourceList = importedDoc.getDatasourceList();
                     if (CollectionUtils.isEmpty(importedDatasourceList)) {
-                        return Mono.empty();
+                        return Flux.empty();
                     }
                     Map<String, Datasource> savedDatasourcesGitIdToDatasourceMap = new HashMap<>();
                     Map<String, Datasource> savedDatasourcesNameDatasourceMap = new HashMap<>();
@@ -598,7 +415,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                     "Unable to find the plugin: {}, available plugins are: {}",
                                     datasource.getPluginId(),
                                     pluginMap.keySet());
-                            return Mono.error(new AppsmithException(
+                            return Flux.error(new AppsmithException(
                                     AppsmithError.UNKNOWN_PLUGIN_REFERENCE, datasource.getPluginId()));
                         }
                     }
