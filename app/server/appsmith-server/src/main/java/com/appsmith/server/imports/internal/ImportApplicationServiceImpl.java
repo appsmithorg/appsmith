@@ -1,16 +1,7 @@
-package com.appsmith.server.export.internal;
+package com.appsmith.server.imports.internal;
 
-import com.appsmith.external.models.Datasource;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.datasources.base.DatasourceService;
-import com.appsmith.server.domains.ActionCollection;
-import com.appsmith.server.domains.CustomJSLib;
-import com.appsmith.server.domains.NewAction;
-import com.appsmith.server.domains.NewPage;
-import com.appsmith.server.domains.Plugin;
-import com.appsmith.server.domains.Theme;
-import com.appsmith.server.export.exportable.ExportableService;
-import com.appsmith.server.export.exportable.ExportableServiceCE;
 import com.appsmith.server.jslibs.base.CustomJSLibService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
@@ -37,29 +28,21 @@ import org.springframework.transaction.reactive.TransactionalOperator;
 @Slf4j
 @Component
 @Primary
-public class ImportExportApplicationServiceImpl extends ImportExportApplicationServiceCEImpl
-        implements ImportExportApplicationService {
+public class ImportApplicationServiceImpl extends ImportApplicationServiceCEImpl implements ImportApplicationService {
 
-    public ImportExportApplicationServiceImpl(
+    public ImportApplicationServiceImpl(
             DatasourceService datasourceService,
-            ExportableService<Datasource> datasourceExportableService,
             SessionUserService sessionUserService,
             PluginRepository pluginRepository,
-            ExportableService<Plugin> pluginExportableService,
             WorkspaceService workspaceService,
             ApplicationService applicationService,
             NewPageService newPageService,
             ApplicationPageService applicationPageService,
-            ExportableService<NewPage> newPageExportableService,
             NewActionService newActionService,
             SequenceService sequenceService,
-            ExportableService<NewAction> newActionExportableService,
-            ExportableService<ActionCollection> actionCollectionExportableService,
             ActionCollectionService actionCollectionService,
-            ExportableServiceCE<Theme> themeExportableService,
             ThemeService themeService,
             AnalyticsService analyticsService,
-            ExportableService<CustomJSLib> customJSLibExportableService,
             CustomJSLibService customJSLibService,
             DatasourcePermission datasourcePermission,
             WorkspacePermission workspacePermission,
@@ -71,24 +54,17 @@ public class ImportExportApplicationServiceImpl extends ImportExportApplicationS
             PermissionGroupRepository permissionGroupRepository) {
         super(
                 datasourceService,
-                datasourceExportableService,
                 sessionUserService,
                 pluginRepository,
-                pluginExportableService,
                 workspaceService,
                 applicationService,
                 newPageService,
                 applicationPageService,
-                newPageExportableService,
                 newActionService,
                 sequenceService,
-                newActionExportableService,
-                actionCollectionExportableService,
                 actionCollectionService,
-                themeExportableService,
                 themeService,
                 analyticsService,
-                customJSLibExportableService,
                 customJSLibService,
                 datasourcePermission,
                 workspacePermission,

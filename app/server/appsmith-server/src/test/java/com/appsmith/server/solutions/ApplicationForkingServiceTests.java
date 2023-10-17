@@ -40,10 +40,10 @@ import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.export.internal.ImportExportApplicationService;
 import com.appsmith.server.fork.internal.ApplicationForkingService;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.imports.internal.ImportApplicationService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.repositories.ApplicationRepository;
@@ -181,7 +181,7 @@ public class ApplicationForkingServiceTests {
     private UserAndAccessManagementService userAndAccessManagementService;
 
     @Autowired
-    private ImportExportApplicationService importExportApplicationService;
+    private ImportApplicationService importApplicationService;
 
     @Autowired
     private EnvironmentPermission environmentPermission;
@@ -337,7 +337,7 @@ public class ApplicationForkingServiceTests {
                 .map(Workspace::getId)
                 .flatMap(targetWorkspaceId -> applicationForkingService
                         .forkApplicationToWorkspaceWithEnvironment(sourceAppId, targetWorkspaceId, sourceEnvironmentId)
-                        .flatMap(application -> importExportApplicationService.getApplicationImportDTO(
+                        .flatMap(application -> importApplicationService.getApplicationImportDTO(
                                 application.getId(), application.getWorkspaceId(), application)));
 
         StepVerifier.create(resultMono.zipWhen(applicationImportDTO -> Mono.zip(
@@ -470,7 +470,7 @@ public class ApplicationForkingServiceTests {
 
         final Mono<ApplicationImportDTO> resultMono = applicationForkingService
                 .forkApplicationToWorkspaceWithEnvironment(sourceAppId, testUserWorkspaceId, sourceEnvironmentId)
-                .flatMap(application -> importExportApplicationService.getApplicationImportDTO(
+                .flatMap(application -> importApplicationService.getApplicationImportDTO(
                         application.getId(), application.getWorkspaceId(), application));
 
         StepVerifier.create(resultMono)
@@ -1229,7 +1229,7 @@ public class ApplicationForkingServiceTests {
 
         Mono<ApplicationImportDTO> resultMono = applicationForkingService
                 .forkApplicationToWorkspaceWithEnvironment(srcApp.getId(), targetWorkspaceId, srcDefaultEnvironmentId)
-                .flatMap(application -> importExportApplicationService.getApplicationImportDTO(
+                .flatMap(application -> importApplicationService.getApplicationImportDTO(
                         application.getId(), application.getWorkspaceId(), application));
 
         StepVerifier.create(resultMono)
@@ -1258,7 +1258,7 @@ public class ApplicationForkingServiceTests {
 
         Mono<ApplicationImportDTO> resultMono = applicationForkingService
                 .forkApplicationToWorkspaceWithEnvironment(srcApp.getId(), targetWorkspaceId, srcDefaultEnvironmentId)
-                .flatMap(application -> importExportApplicationService.getApplicationImportDTO(
+                .flatMap(application -> importApplicationService.getApplicationImportDTO(
                         application.getId(), application.getWorkspaceId(), application));
 
         StepVerifier.create(resultMono)
@@ -1287,7 +1287,7 @@ public class ApplicationForkingServiceTests {
 
         Mono<ApplicationImportDTO> resultMono = applicationForkingService
                 .forkApplicationToWorkspaceWithEnvironment(srcApp.getId(), targetWorkspaceId, srcDefaultEnvironmentId)
-                .flatMap(application -> importExportApplicationService.getApplicationImportDTO(
+                .flatMap(application -> importApplicationService.getApplicationImportDTO(
                         application.getId(), application.getWorkspaceId(), application));
 
         StepVerifier.create(resultMono)
