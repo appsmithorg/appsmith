@@ -20,7 +20,6 @@ import { PluginType } from "entities/Action";
 import { klona } from "klona/full";
 import { warn as logWarn } from "loglevel";
 import type { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
-import { isObject } from "lodash";
 import type {
   JSActionEntityConfig,
   PrivateWidgets,
@@ -30,7 +29,6 @@ import type {
   WidgetEntity,
   DataTreeEntityConfig,
   WidgetEntityConfig,
-  DataTreeEntityObject,
 } from "@appsmith/entities/DataTree/types";
 import type { EvalProps } from "workers/common/DataTreeEvaluator";
 import { validateWidgetProperty } from "workers/common/DataTreeEvaluator/validationUtils";
@@ -866,15 +864,6 @@ export const overrideWidgetProperties = (params: {
     }
   }
 };
-
-export function isValidEntity(
-  entity: DataTreeEntity,
-): entity is DataTreeEntityObject {
-  if (!isObject(entity)) {
-    return false;
-  }
-  return true;
-}
 
 export const isATriggerPath = (
   entityConfig: DataTreeEntityConfig,

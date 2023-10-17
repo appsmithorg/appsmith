@@ -975,7 +975,7 @@ export default class DataTreeEvaluator {
           getEntityNameAndPropertyPath(fullPropertyPath);
         const entity = contextTree[entityName];
         const entityConfig = oldConfigTree[entityName];
-        if (!isWidgetActionOrJsObject(entity, entityConfig)) continue;
+        if (!isWidgetActionOrJsObject(entity)) continue;
 
         let unEvalPropertyValue = get(contextTree as any, fullPropertyPath);
 
@@ -1002,8 +1002,7 @@ export default class DataTreeEvaluator {
 
         if (requiresEval) {
           const evaluationSubstitutionType =
-            (!isEmpty(entityConfig.reactivePaths) &&
-              entityConfig.reactivePaths[propertyPath]) ||
+            entityConfig.reactivePaths[propertyPath] ||
             EvaluationSubstitutionType.TEMPLATE;
 
           const contextData: EvaluateContext = {};
@@ -1045,7 +1044,7 @@ export default class DataTreeEvaluator {
           fullPropertyPath,
         );
 
-        const entityType = entityConfig.ENTITY_TYPE;
+        const entityType = entity.ENTITY_TYPE;
         if (!propertyPath) continue;
         switch (entityType) {
           case ENTITY_TYPE_VALUE.WIDGET: {
