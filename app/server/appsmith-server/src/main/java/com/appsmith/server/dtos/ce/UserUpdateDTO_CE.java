@@ -9,6 +9,8 @@ import lombok.Data;
 public class UserUpdateDTO_CE {
     private String name;
 
+    private String role;
+
     private String proficiency;
 
     private String useCase;
@@ -20,6 +22,6 @@ public class UserUpdateDTO_CE {
     }
 
     public boolean hasUserDataUpdates() {
-        return proficiency != null || useCase != null || isIntercomConsentGiven;
+        return role != null || proficiency != null || useCase != null || isIntercomConsentGiven;
     }
 }
