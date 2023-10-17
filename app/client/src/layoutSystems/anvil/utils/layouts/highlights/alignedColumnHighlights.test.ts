@@ -3,7 +3,6 @@ import {
   LayoutComponentTypes,
   type LayoutComponentProps,
   type AnvilHighlightInfo,
-  type WidgetPositions,
   type WidgetLayoutProps,
 } from "../../anvilTypes";
 import { deriveAlignedColumnHighlights } from "./alignedColumnHighlights";
@@ -12,9 +11,19 @@ import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import LayoutFactory from "layoutSystems/anvil/layoutComponents/LayoutFactory";
 import AlignedColumn from "layoutSystems/anvil/layoutComponents/components/AlignedColumn";
 import Row from "layoutSystems/anvil/layoutComponents/components/Row";
+import type { WidgetPositions } from "layoutSystems/common/types";
 
 describe("AlignedColumnHighlights tests", () => {
   beforeAll(() => {
+    window.IntersectionObserver = jest
+      .fn()
+      .mockImplementation((fn: (entry: any) => any) => {
+        return {
+          observe: jest.fn(),
+          unobserve: jest.fn(),
+          disconnect: jest.fn(),
+        };
+      });
     LayoutFactory.initialize([AlignedColumn, Row]);
   });
   describe("deriveAlignedColumnHighlights", () => {
@@ -31,8 +40,15 @@ describe("AlignedColumnHighlights tests", () => {
         layout,
         positions,
         "0",
+        [
+          {
+            widgetId: "random",
+            type: "BUTTON_WIDGET",
+            responsiveBehavior: ResponsiveBehavior.Hug,
+          },
+        ],
         [],
-        [],
+        layout.layoutId,
       );
       const highlightWidth: number =
         (positions[layout.layoutId].width - HIGHLIGHT_SIZE) / 3;
@@ -67,6 +83,7 @@ describe("AlignedColumnHighlights tests", () => {
           },
         ],
         [],
+        layout.layoutId,
       );
 
       expect(res.length).toEqual(1);
@@ -98,6 +115,7 @@ describe("AlignedColumnHighlights tests", () => {
           },
         ],
         [],
+        layout.layoutId,
       );
 
       expect(res.length).toEqual(9);
@@ -142,6 +160,7 @@ describe("AlignedColumnHighlights tests", () => {
           },
         ],
         [],
+        layout.layoutId,
       );
 
       // Top of first set of highlights should span the empty space above the first widget.
@@ -189,6 +208,7 @@ describe("AlignedColumnHighlights tests", () => {
           },
         ],
         [],
+        layout.layoutId,
       );
 
       expect(res.length).toEqual(3);
@@ -228,6 +248,7 @@ describe("AlignedColumnHighlights tests", () => {
           },
         ],
         [],
+        layout.layoutId,
       );
 
       // Highlight for the dragged widget's position should be discounted.
@@ -268,6 +289,7 @@ describe("AlignedColumnHighlights tests", () => {
           },
         ],
         [],
+        layout.layoutId,
       );
 
       // Highlight for the dragged widget's position should be discounted.
@@ -332,6 +354,7 @@ describe("AlignedColumnHighlights tests", () => {
           },
         ],
         [],
+        column.layoutId,
       );
 
       /**
@@ -418,6 +441,7 @@ describe("AlignedColumnHighlights tests", () => {
           },
         ],
         [],
+        column.layoutId,
       );
 
       /**

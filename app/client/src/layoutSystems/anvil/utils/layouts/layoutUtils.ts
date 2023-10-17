@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import type {
   AnvilHighlightInfo,
   LayoutProps,
@@ -10,15 +9,13 @@ import Column from "layoutSystems/anvil/layoutComponents/components/Column";
 import Row from "layoutSystems/anvil/layoutComponents/components/Row";
 import LayoutFactory from "layoutSystems/anvil/layoutComponents/LayoutFactory";
 import { isWidgetLayoutProps } from "./typeUtils";
+import type { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
+import { AlignmentIndexMap } from "../constants";
 
 const layoutComponents = [AlignedColumn, AlignedRow, Column, Row];
 
 export function registerLayoutComponents() {
   LayoutFactory.initialize(layoutComponents);
-}
-
-export function generateLayoutId(canvasId: string, layoutId: string): string {
-  return `layout-${canvasId}-${layoutId}`;
 }
 
 /**
@@ -83,4 +80,11 @@ export function extractWidgetIdsFromLayoutProps(props: LayoutProps): string[] {
   return (props.layout as WidgetLayoutProps[]).map(
     (each: WidgetLayoutProps) => each.widgetId,
   );
+}
+
+export function getAlignmentLayoutId(
+  layoutId: string,
+  alignment: FlexLayerAlignment,
+): string {
+  return `${layoutId}-${AlignmentIndexMap[alignment]}`;
 }

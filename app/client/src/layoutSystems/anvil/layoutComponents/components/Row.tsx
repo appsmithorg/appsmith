@@ -4,23 +4,22 @@ import {
   type LayoutComponentProps,
   type LayoutProps,
   type WidgetLayoutProps,
-  type WidgetPositions,
   type DraggedWidget,
 } from "layoutSystems/anvil/utils/anvilTypes";
 import React from "react";
 import { FlexLayout } from "./FlexLayout";
 import { doesLayoutRenderWidgets } from "layoutSystems/anvil/utils/layouts/typeUtils";
 import { renderWidgets } from "layoutSystems/anvil/utils/layouts/renderUtils";
-import { RenderModes } from "constants/WidgetConstants";
 import {
   addChildToLayout,
   extractWidgetIdsFromLayoutProps,
   removeChildFromLayout,
 } from "layoutSystems/anvil/utils/layouts/layoutUtils";
 import { deriveRowHighlights } from "layoutSystems/anvil/utils/layouts/highlights/rowHighlights";
+import type { WidgetPositions } from "layoutSystems/common/types";
 
 const Row = (props: LayoutComponentProps) => {
-  const { canvasId, children, layoutId, layoutStyle } = props;
+  const { canvasId, children, isDropTarget, layoutId, layoutStyle } = props;
 
   return (
     <FlexLayout
@@ -28,6 +27,7 @@ const Row = (props: LayoutComponentProps) => {
       canvasId={canvasId}
       columnGap="4px"
       direction="row"
+      isDropTarget={!!isDropTarget}
       layoutId={layoutId}
       {...(layoutStyle || {})}
     >
@@ -58,7 +58,8 @@ Row.deriveHighlights = (
   widgetPositions: WidgetPositions,
   canvasId: string,
   draggedWidgets: DraggedWidget[],
-  layoutOrder?: string[],
+  layoutOrder: string[],
+  parentDropTarget: string,
 ) => {
   return deriveRowHighlights(
     layoutProps,
@@ -66,6 +67,7 @@ Row.deriveHighlights = (
     canvasId,
     draggedWidgets,
     layoutOrder || [],
+    parentDropTarget,
   );
 };
 
@@ -83,11 +85,7 @@ Row.removeChild = (
 };
 
 Row.renderChildWidgets = (props: LayoutComponentProps): React.ReactNode => {
-  return renderWidgets(
-    Row.extractChildWidgetIds(props),
-    props.childrenMap,
-    props.renderMode || RenderModes.CANVAS,
-  );
+  return renderWidgets(props);
 };
 
 Row.rendersWidgets = (props: LayoutProps): boolean => {

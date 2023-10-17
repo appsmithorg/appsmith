@@ -4,6 +4,7 @@ import {
   type LayoutComponentProps,
   type LayoutProps,
   type WidgetLayoutProps,
+  type DraggedWidget,
 } from "layoutSystems/anvil/utils/anvilTypes";
 import React from "react";
 import { FlexLayout } from "./FlexLayout";
@@ -14,9 +15,11 @@ import {
   removeChildFromLayout,
 } from "layoutSystems/anvil/utils/layouts/layoutUtils";
 import { renderWidgetsInAlignedRow } from "layoutSystems/anvil/utils/layouts/renderUtils";
+import { deriveAlignedRowHighlights } from "layoutSystems/anvil/utils/layouts/highlights/alignedRowHighlights";
+import type { WidgetPositions } from "layoutSystems/common/types";
 
 const AlignedRow = (props: LayoutComponentProps) => {
-  const { canvasId, children, layoutId, layoutStyle } = props;
+  const { canvasId, children, isDropTarget, layoutId, layoutStyle } = props;
 
   return (
     <FlexLayout
@@ -24,6 +27,7 @@ const AlignedRow = (props: LayoutComponentProps) => {
       canvasId={canvasId}
       columnGap="4px"
       direction="row"
+      isDropTarget={!!isDropTarget}
       layoutId={layoutId}
       wrap="wrap"
       {...(layoutStyle || {})}
@@ -50,8 +54,22 @@ AlignedRow.getChildTemplate = (props: LayoutProps): LayoutProps | undefined => {
   return;
 };
 
-AlignedRow.deriveHighlights = () => {
-  return [];
+AlignedRow.deriveHighlights = (
+  layoutProps: LayoutProps,
+  widgetPositions: WidgetPositions,
+  canvasId: string,
+  draggedWidgets: DraggedWidget[],
+  layoutOrder: string[],
+  parentDropTarget: string,
+): AnvilHighlightInfo[] => {
+  return deriveAlignedRowHighlights(
+    layoutProps,
+    widgetPositions,
+    canvasId,
+    draggedWidgets,
+    layoutOrder || [],
+    parentDropTarget,
+  );
 };
 
 AlignedRow.extractChildWidgetIds = (props: LayoutProps): string[] => {

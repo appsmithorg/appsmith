@@ -3,15 +3,17 @@ import type {
   AnvilHighlightInfo,
   DraggedWidget,
   GenerateHighlights,
+  GetDimensions,
   GetInitialHighlights,
   GetLayoutHighlights,
   GetWidgetHighlights,
   LayoutComponent,
   LayoutProps,
-  WidgetPositions,
 } from "../../anvilTypes";
 import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
 import { HIGHLIGHT_SIZE } from "../../constants";
+import type { WidgetPositions } from "layoutSystems/common/types";
+import { getRelativeDimensions } from "./dimensionUtils";
 
 /**
  * @param layoutProps | LayoutProps : properties of parent layout.
@@ -20,6 +22,7 @@ import { HIGHLIGHT_SIZE } from "../../constants";
  * @param draggedWidgets | string[] : list of widgets that are being dragged.
  * @param layoutOrder | string[] : Hierarchy (Top - down) of layouts.
  * @param baseHighlight | AnvilHighlightInfo : base highlight object.
+ * @param parentDropTargetId | string : id of immediate drop target ancestor.
  * @param generateHighlights | GenerateHighlights : method to generate highlights for the parent layout.
  * @param getInitialHighlights | GetInitialHighlights : method to generate initial highlights for an empty layout.
  * @param getHighlightsForLayouts | GetLayoutHighlights : method to generate highlights for child layouts.
@@ -34,20 +37,24 @@ export function deriveHighlights(
   draggedWidgets: DraggedWidget[],
   layoutOrder: string[],
   baseHighlight: AnvilHighlightInfo,
+  parentDropTargetId: string,
   generateHighlights: GenerateHighlights,
   getInitialHighlights: GetInitialHighlights,
   getHighlightsForLayouts: GetLayoutHighlights,
   getHighlightsForWidgets: GetWidgetHighlights,
   hasFillWidget?: boolean,
 ): AnvilHighlightInfo[] {
+  const getDimensions: GetDimensions = getRelativeDimensions(
+    layoutProps.isDropTarget ? layoutProps.layoutId : parentDropTargetId,
+    widgetPositions,
+  );
   // If layout is empty, return an initial set of highlights to demarcate the starting position.
   if (!layoutProps.layout?.length) {
     return getInitialHighlights(
       layoutProps,
-      widgetPositions,
       baseHighlight,
       generateHighlights,
-      hasFillWidget,
+      getDimensions,
     );
   }
 
@@ -67,17 +74,19 @@ export function deriveHighlights(
       draggedWidgets,
       canvasId,
       layoutOrder,
+      parentDropTargetId,
       generateHighlights,
+      getDimensions,
       hasFillWidget,
     );
   }
   // Calculate highlights for child widgets.
   return getHighlightsForWidgets(
     layoutProps,
-    widgetPositions,
     baseHighlight,
     draggedWidgets,
     generateHighlights,
+    getDimensions,
     hasFillWidget,
   );
 }
@@ -95,7 +104,7 @@ export function getStartPosition(
     case FlexLayerAlignment.Center:
       return (size - HIGHLIGHT_SIZE) / 2;
     case FlexLayerAlignment.End:
-      return size - HIGHLIGHT_SIZE / 2;
+      return size - HIGHLIGHT_SIZE;
     default:
       return HIGHLIGHT_SIZE / 2;
   }

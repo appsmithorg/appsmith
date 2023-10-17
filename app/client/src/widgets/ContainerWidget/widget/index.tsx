@@ -34,6 +34,7 @@ import {
   ResponsiveBehavior,
 } from "layoutSystems/common/utils/constants";
 import { renderAppsmithCanvas } from "layoutSystems/CanvasFactory";
+import { generateDefaultLayoutPreset } from "layoutSystems/anvil/layoutComponents/presets/DefaultLayoutPreset";
 
 export class ContainerWidget extends BaseWidget<
   ContainerWidgetProps<WidgetProps>,
@@ -103,6 +104,7 @@ export class ContainerWidget extends BaseWidget<
               canExtend: false,
               detachFromLayout: true,
               children: [],
+              layout: generateDefaultLayoutPreset(),
             },
           },
         ],
@@ -310,6 +312,7 @@ export class ContainerWidget extends BaseWidget<
     childWidget.useAutoLayout = this.props.positioning
       ? this.props.positioning === Positioning.Vertical
       : false;
+
     return renderAppsmithCanvas(childWidget as WidgetProps);
   }
 

@@ -10,7 +10,6 @@ import type {
   SpacingDimension,
 } from "@design-system/widgets";
 import { MOBILE_ROW_GAP, ROW_GAP } from "layoutSystems/common/utils/constants";
-import { generateLayoutId } from "layoutSystems/anvil/utils/layouts/layoutUtils";
 import { addPixelToSize } from "layoutSystems/common/utils/commonUtils";
 import React, { useMemo } from "react";
 import type { CSSProperties, ReactNode } from "react";
@@ -19,6 +18,8 @@ import type {
   OverflowValues,
   PositionValues,
 } from "layoutSystems/anvil/utils/types";
+import { getLayoutId } from "layoutSystems/common/utils/WidgetPositionsObserver/utils";
+import { usePositionObserver } from "layoutSystems/common/utils/WidgetPositionsObserver/usePositionObserver";
 
 export interface FlexLayoutProps
   extends AlignSelf,
@@ -64,7 +65,7 @@ export const FlexLayout = (props: FlexLayoutProps) => {
       minHeight: props.minHeight || "unset",
       minWidth: props.minWidth || "unset",
       width: props.width || "auto",
-      padding: props.padding || "0px",
+      padding: props.padding || (props.isDropTarget ? "4px" : "0px"),
       rowGap: props.rowGap || {
         base: addPixelToSize(MOBILE_ROW_GAP),
         [addPixelToSize(MOBILE_BREAKPOINT)]: addPixelToSize(ROW_GAP),
@@ -73,20 +74,31 @@ export const FlexLayout = (props: FlexLayoutProps) => {
     };
   }, [props]);
 
+  const ref = React.useRef<HTMLDivElement>(null);
+  usePositionObserver(
+    "layout",
+    {
+      layoutId: props.layoutId,
+      canvasId: props.canvasId,
+      isDropTarget: !!props.isDropTarget,
+    },
+    ref,
+  );
+
   // The following properties aren't included in type FlexProps but can be passed as style.
   const styleProps: CSSProperties = useMemo(() => {
     return {
-      border: props.border || "none",
-      overflowX: props.overflowX || "hidden",
-      overflowY: props.overflowY || "hidden",
+      border:
+        props.border || (props.isDropTarget ? "1px dashed #979797" : "none"),
       position: props.position || "relative",
     };
-  }, [props.border, props.overflowX, props.overflowY, props.position]);
+  }, [props.border, props.isDropTarget, props.position]);
 
   return (
     <Flex
       {...flexProps}
-      id={generateLayoutId(props.canvasId, props.layoutId)}
+      id={getLayoutId(props.canvasId, props.layoutId)}
+      ref={ref}
       style={styleProps}
     >
       {props.children}

@@ -25,6 +25,8 @@ import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidg
 import { DynamicHeight } from "utils/WidgetFeatures";
 import { getWidgetBluePrintUpdates } from "utils/WidgetBlueprintUtils";
 import type { FlexLayer } from "layoutSystems/autolayout/utils/types";
+import type { LayoutProps } from "layoutSystems/anvil/utils/anvilTypes";
+import { statBoxPreset } from "layoutSystems/anvil/layoutComponents/presets/StatboxPreset";
 
 class StatboxWidget extends ContainerWidget {
   static type = "STATBOX_WIDGET";
@@ -168,11 +170,7 @@ class StatboxWidget extends ContainerWidget {
             fn: (
               widget: FlattenedWidgetProps,
               widgets: CanvasWidgetsReduxState,
-              parent: FlattenedWidgetProps,
-              isAutoLayout: boolean,
             ) => {
-              if (!isAutoLayout) return [];
-
               //get Canvas Widget
               const canvasWidget: FlattenedWidgetProps = get(
                 widget,
@@ -229,6 +227,13 @@ class StatboxWidget extends ContainerWidget {
                 },
               ];
 
+              const layout: LayoutProps[] = statBoxPreset(
+                textWidgets[0].widgetId,
+                textWidgets[1].widgetId,
+                textWidgets[2].widgetId,
+                iconWidget.widgetId,
+              );
+
               //create properties to be updated
               return getWidgetBluePrintUpdates({
                 [widget.widgetId]: {
@@ -238,6 +243,7 @@ class StatboxWidget extends ContainerWidget {
                   flexLayers,
                   useAutoLayout: true,
                   positioning: Positioning.Vertical,
+                  layout,
                 },
                 [textWidgets[0].widgetId]: {
                   responsiveBehavior: ResponsiveBehavior.Fill,

@@ -85,10 +85,10 @@ export function moveWidgets(
   const movedChildren: string[] = movedWidgets.filter((each: string) =>
     (parent?.children || []).includes(each),
   );
-
+  let updatedParentLayout = [...parent.layout];
   movedChildren.forEach((each: string) => {
     // Remove each moved child from the layout
-    parent.layout = deleteWidgetFromPreset(parent.layout, each);
+    updatedParentLayout = deleteWidgetFromPreset(updatedParentLayout, each);
   });
 
   /**
@@ -99,6 +99,20 @@ export function moveWidgets(
     alignment: highlight.alignment,
   }));
 
+  const newLayout = addWidgetsToPreset(
+    updatedParentLayout,
+    highlight,
+    newChildren,
+  );
+
+  console.log("###", {
+    widgets,
+    parent,
+    movedWidgets,
+    updatedParentLayout,
+    newChildren,
+    newLayout,
+  });
   /**
    * Step 4: Add all moved widgets to new parent and update its layout in the drop position specified by the highlight.
    */
@@ -112,7 +126,7 @@ export function moveWidgets(
         ),
         ...movedWidgets,
       ],
-      layout: addWidgetsToPreset(parent.layout, highlight, newChildren),
+      layout: newLayout,
     },
   };
 }

@@ -67,7 +67,6 @@ export function getAffectedLayout(
   order: string[],
 ): LayoutProps | undefined {
   if (!layouts || !order || !order.length) return;
-
   for (const each of layouts) {
     if (each.layoutId === order[0]) {
       if (order.length === 1) return each;

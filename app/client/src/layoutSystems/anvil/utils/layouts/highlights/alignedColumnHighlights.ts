@@ -6,8 +6,6 @@ import type {
   AnvilHighlightInfo,
   DraggedWidget,
   LayoutProps,
-  PositionData,
-  WidgetPositions,
 } from "../../anvilTypes";
 import { HIGHLIGHT_SIZE } from "../../constants";
 import {
@@ -21,6 +19,10 @@ import {
   getInitialHighlights,
 } from "./horizontalHighlights";
 import { deriveHighlights } from "./highlightUtils";
+import type {
+  WidgetPosition,
+  WidgetPositions,
+} from "layoutSystems/common/types";
 
 /**
  * @param layoutProps | LayoutProps
@@ -28,6 +30,7 @@ import { deriveHighlights } from "./highlightUtils";
  * @param canvasId | string
  * @param draggedWidgets | DraggedWidget[] : List of widgets that are being dragged
  * @param layoutOrder | string[] : Top - down hierarchy of layout IDs.
+ * @param parentDropTarget | string : id of immediate drop target ancestor.
  * @returns AnvilHighlightInfo[] : List of highlights for the layout.
  */
 export function deriveAlignedColumnHighlights(
@@ -36,8 +39,15 @@ export function deriveAlignedColumnHighlights(
   canvasId: string,
   draggedWidgets: DraggedWidget[],
   layoutOrder: string[],
+  parentDropTarget: string,
 ): AnvilHighlightInfo[] {
-  if (!layoutProps || !widgetPositions) return [];
+  if (
+    !layoutProps ||
+    !widgetPositions ||
+    !widgetPositions[layoutProps.layoutId] ||
+    !draggedWidgets.length
+  )
+    return [];
 
   const { layoutStyle } = layoutProps;
 
@@ -50,7 +60,7 @@ export function deriveAlignedColumnHighlights(
     dropZone: {},
     height: HIGHLIGHT_SIZE,
     isVertical: false,
-    layoutOrder: [...layoutOrder, layoutProps.layoutId],
+    layoutOrder,
     posX: HIGHLIGHT_SIZE / 2,
     posY: HIGHLIGHT_SIZE / 2,
     rowIndex: 0,
@@ -69,6 +79,7 @@ export function deriveAlignedColumnHighlights(
     draggedWidgets,
     layoutOrder,
     baseHighlight,
+    parentDropTarget,
     generateHighlights,
     getInitialHighlights,
     getHighlightsForLayouts,
@@ -79,10 +90,10 @@ export function deriveAlignedColumnHighlights(
 
 function generateHighlights(
   baseHighlight: AnvilHighlightInfo,
-  layoutDimension: PositionData,
-  currentDimension: PositionData,
-  prevDimension: PositionData | undefined,
-  nextDimension: PositionData | undefined,
+  layoutDimension: WidgetPosition,
+  currentDimension: WidgetPosition,
+  prevDimension: WidgetPosition | undefined,
+  nextDimension: WidgetPosition | undefined,
   rowIndex: number,
   isLastHighlight: boolean,
   hasFillWidget = false,
@@ -104,6 +115,7 @@ function generateHighlights(
    */
   const width: number = (layoutDimension.width - HIGHLIGHT_SIZE) / arr.length;
   const isInitialHighlight: boolean = rowIndex === 0;
+
   return arr.map((alignment: FlexLayerAlignment, index: number) => ({
     ...baseHighlight,
     alignment,
@@ -115,12 +127,22 @@ function generateHighlights(
     posX: width * index,
     posY: isLastHighlight
       ? isInitialHighlight
-        ? currentDimension.top
-        : Math.min(
-            currentDimension.top + currentDimension.height + HIGHLIGHT_SIZE / 2,
-            layoutDimension.height - HIGHLIGHT_SIZE / 2,
+        ? // Position values are relative to the MainCanvas. Hence it is important to deduct parent's position from widget's to get a position that is relative to the parent widget.
+          Math.max(
+            currentDimension.top - layoutDimension.top - HIGHLIGHT_SIZE,
+            0,
           )
-      : Math.max(currentDimension.top - HIGHLIGHT_SIZE / 2, HIGHLIGHT_SIZE / 2),
+        : Math.min(
+            currentDimension.top -
+              layoutDimension.top +
+              currentDimension.height +
+              HIGHLIGHT_SIZE / 2,
+            layoutDimension.height - HIGHLIGHT_SIZE,
+          )
+      : Math.max(
+          currentDimension.top - layoutDimension.top - HIGHLIGHT_SIZE,
+          HIGHLIGHT_SIZE / 2,
+        ),
     rowIndex: rowIndex,
     width,
   }));
