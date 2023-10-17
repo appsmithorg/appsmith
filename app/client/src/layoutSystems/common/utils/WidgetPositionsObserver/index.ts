@@ -65,23 +65,6 @@ class WidgetPositionsObserver {
     },
   );
 
-  private intersectionObserver: IntersectionObserver = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        const DOMId = entry?.target?.id;
-        if (DOMId.indexOf(ANVIL_WIDGET) > -1) {
-          this.addWidgetToProcess(DOMId, entry.boundingClientRect);
-        } else if (DOMId.indexOf(LAYOUT) > -1) {
-          this.addLayoutToProcess(DOMId, entry.boundingClientRect);
-        }
-      });
-    },
-    {
-      threshold: 0,
-      root: document.getElementById("intersection-root"),
-    },
-  );
-
   //Method to register widgets for resize observer changes
   public observeWidget(
     widgetId: string,
@@ -91,7 +74,6 @@ class WidgetPositionsObserver {
     if (ref.current) {
       this.registeredWidgets[widgetDOMId] = { ref, id: widgetId };
       this.resizeObserver.observe(ref.current);
-      this.intersectionObserver.observe(ref.current);
       this.addWidgetToProcess(widgetDOMId);
     }
   }
@@ -101,7 +83,6 @@ class WidgetPositionsObserver {
     const element = this.registeredWidgets[widgetDOMId]?.ref?.current;
     if (element) {
       this.resizeObserver.unobserve(element);
-      this.intersectionObserver.disconnect();
     }
 
     delete this.registeredWidgets[widgetDOMId];
@@ -121,7 +102,6 @@ class WidgetPositionsObserver {
         layoutId,
         isDropTarget,
       };
-      this.intersectionObserver.observe(ref.current);
       this.resizeObserver.observe(ref.current);
     }
   }
@@ -133,7 +113,6 @@ class WidgetPositionsObserver {
     if (element) {
       this.resizeObserver.unobserve(element);
     }
-    this.intersectionObserver.disconnect();
 
     delete this.registeredLayouts[domId];
   }
@@ -141,8 +120,7 @@ class WidgetPositionsObserver {
   //This method is triggered from the resize observer to add widgets to queue
   private addWidgetToProcess(widgetDOMId: string, rect?: DOMRect) {
     if (this.registeredWidgets[widgetDOMId]) {
-      const widgetId = this.registeredWidgets[widgetDOMId].id;
-      this.widgetsProcessQueue[widgetId] = rect || true;
+      this.widgetsProcessQueue[widgetDOMId] = rect || true;
       this.debouncedProcessBatch();
     }
   }
@@ -150,8 +128,7 @@ class WidgetPositionsObserver {
   //This method is triggered from the resize observer to add layout to queue
   private addLayoutToProcess(layoutDOMId: string, rect?: DOMRect) {
     if (this.registeredLayouts[layoutDOMId]) {
-      const layoutId = extractLayoutIdFromLayoutDOMId(layoutDOMId);
-      this.layoutsProcessQueue[layoutId] = rect || true;
+      this.layoutsProcessQueue[layoutDOMId] = rect || true;
       this.debouncedProcessBatch();
     }
   }
@@ -164,13 +141,15 @@ class WidgetPositionsObserver {
 
   //Dispatch all the changed elements to saga for further processing to update widget positions
   private processWidgetBatch() {
-    store.dispatch(
-      readWidgetPositions(
-        { ...this.widgetsProcessQueue },
-        { ...this.layoutsProcessQueue },
-      ),
-    );
-    this.clearProcessQueue();
+    window.requestIdleCallback(() => {
+      store.dispatch(
+        readWidgetPositions(
+          { ...this.widgetsProcessQueue },
+          { ...this.layoutsProcessQueue },
+        ),
+      );
+      this.clearProcessQueue();
+    });
   }
 
   public getRegisteredLayouts() {

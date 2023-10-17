@@ -20,13 +20,6 @@ import type { AppState } from "@appsmith/reducers";
  * @param action All the widgets, layers and layouts that have changed and currently in queue to be processed
  */
 function* readAndUpdateWidgetPositions() {
-  // const { layoutsProcessQueue, widgetsProcessQueue } = action.payload;
-
-  // const everythingToProcess = {
-  //   ...layoutsProcessQueue,
-  //   ...widgetsProcessQueue,
-  // };
-
   const widgetDimensions: WidgetPositions = {};
 
   const mainContainerDOMNode = document.getElementById(CANVAS_ART_BOARD);
@@ -35,33 +28,9 @@ function* readAndUpdateWidgetPositions() {
 
   const { left = 0, top = 0 } = mainContainerDOMRect || {};
 
-  // for (const elementDOMId of Object.keys(everythingToProcess)) {
-  //   const rect: DOMRect | boolean = everythingToProcess[elementDOMId];
-  //   if (typeof rect === "object") {
-  //     widgetDimensions[elementDOMId] = {
-  //       left: rect.left - left,
-  //       top: rect.top - top,
-  //       height: rect.height,
-  //       width: rect.width,
-  //     };
-  //   } else {
-  //     const element: HTMLElement | null = document.getElementById(elementDOMId);
-  //     if (element) {
-  //       const rect = element.getBoundingClientRect();
-  //       widgetDimensions[elementDOMId] = {
-  //         left: rect.left - left,
-  //         top: rect.top - top,
-  //         height: rect.height,
-  //         width: rect.width,
-  //       };
-  //     }
-  //   }
-  // }
-
+  const start = performance.now();
   const registeredLayouts = positionObserver.getRegisteredLayouts();
   const registeredWidgets = positionObserver.getRegisteredWidgets();
-  // console.log("### registeredLayouts", registeredLayouts);
-  // console.log("### registeredWidgets", registeredWidgets);
   for (const layoutId of Object.keys(registeredLayouts)) {
     const element: HTMLElement | null = document.getElementById(layoutId);
     const _layoutId = extractLayoutIdFromLayoutDOMId(layoutId);
@@ -88,52 +57,8 @@ function* readAndUpdateWidgetPositions() {
       };
     }
   }
-
-  // if (Object.keys(layoutsProcessQueue).length > 0) {
-
-  //   for (const layoutId of Object.keys(registeredLayouts)) {
-  //     const element: HTMLElement | null = document.getElementById(
-  //       getLayoutId(registeredLayouts[layoutId].canvasId, layoutId),
-  //     );
-  //     if (element) {
-  //       const rect = element.getBoundingClientRect();
-  //       widgetDimensions[layoutId] = {
-  //         left: rect.left - left,
-  //         top: rect.top - top,
-  //         height: rect.height,
-  //         width: rect.width,
-  //       };
-  //     }
-  //   }
-  //   for (const widgetId of Object.keys(registeredWidgets)) {
-  //     const element = document.getElementById(getAnvilWidgetId(widgetId));
-  //     if (element) {
-  //       const rect = element.getBoundingClientRect();
-  //       widgetDimensions[widgetId] = {
-  //         left: rect.left - left,
-  //         top: rect.top - top,
-  //         height: rect.height,
-  //         width: rect.width,
-  //       };
-  //     }
-  //   }
-  // } else if (Object.keys(widgetsToProcess).length > 0) {
-  //   //for every affected widget get the bounding client Rect
-  //   // If they do, we don't have to update the positions here.
-  //   for (const widgetId of Object.keys(widgetsToProcess)) {
-  //     const element = document.getElementById(getAnvilWidgetId(widgetId));
-  //     if (element) {
-  //       const rect = element.getBoundingClientRect();
-  //       widgetDimensions[widgetId] = {
-  //         left: rect.left - left,
-  //         top: rect.top - top,
-  //         height: rect.height,
-  //         width: rect.width,
-  //       };
-  //     }
-  //   }
-  // }
-
+  const end = performance.now();
+  console.log("### Time taken to read widget positions", end - start, "ms");
   yield put({
     type: AnvilReduxActionTypes.UPDATE_WIDGET_POSITIONS,
     payload: widgetDimensions,
@@ -147,12 +72,7 @@ function* shouldReadPositions(saga: any, action: ReduxAction<unknown>) {
   if (!isCanvasResizing) {
     yield call(saga, action);
   } else {
-    yield take(
-      (canvasResizingAction: any) =>
-        canvasResizingAction.type ===
-          ReduxActionTypes.SET_AUTO_CANVAS_RESIZING &&
-        canvasResizingAction.payload === true,
-    );
+    yield take(ReduxActionTypes.SET_AUTO_CANVAS_RESIZING);
     yield call(saga, action);
   }
 }
