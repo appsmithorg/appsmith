@@ -4,6 +4,7 @@ import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { getDropTargetLayoutId } from "layoutSystems/anvil/integrations/selectors";
 import { getWidgetPositions } from "layoutSystems/common/selectors";
 // import { positionObserver } from "layoutSystems/common/utils/WidgetPositionsObserver";
+import { getLayoutId } from "layoutSystems/common/utils/WidgetPositionsObserver/utils";
 import { useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
 import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
@@ -21,6 +22,9 @@ export const useCanvasActivation = (layoutId: string) => {
   const isDragging = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isDragging,
   );
+
+  const activateOverlayWidgetDrop =
+    isNewWidget && newWidget.type === "MODAL_WIDGET";
   const mainContainerDOMNode = document.getElementById(CANVAS_ART_BOARD);
   const { setDraggingCanvas, setDraggingNewWidget, setDraggingState } =
     useWidgetDragResize();
@@ -33,7 +37,16 @@ export const useCanvasActivation = (layoutId: string) => {
   // layoutId === mainCanvasLayoutId && isDragging
   //   ? positionObserver.getRegisteredLayouts()
   //   : {};
-  const allDroppableLayoutIds = Object.keys(allLayouts)
+  //   const allDroppableLayoutIds = Object.keys(allLayouts)
+  const allLayoutIds = Object.keys(allLayouts);
+  const mainCanvasLayoutDomId = getLayoutId(
+    MAIN_CONTAINER_WIDGET_ID,
+    // mainCanvasLayoutId,
+  );
+  const filteredLayoutIds = activateOverlayWidgetDrop
+    ? allLayoutIds.filter((each) => each === mainCanvasLayoutDomId)
+    : allLayoutIds;
+  const allDroppableLayoutIds = filteredLayoutIds
     .filter((each) => {
       const layoutInfo = allLayouts[each];
       const currentPositions = widgetPositions[layoutInfo.layoutId];
