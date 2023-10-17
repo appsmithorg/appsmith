@@ -181,6 +181,8 @@ init_mongodb() {
       openssl rand -base64 756 > "$MONGO_DB_KEY"
     fi
     use-mongodb-key "$MONGO_DB_KEY"
+
+    ./mongodb-fixer.sh &
   fi
 }
 
