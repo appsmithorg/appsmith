@@ -4,6 +4,7 @@ import {
 } from "layoutSystems/common/utils/constants";
 import type {
   AnvilHighlightInfo,
+  GetDimensions,
   LayoutComponentProps,
   LayoutProps,
   WidgetLayoutProps,
@@ -23,6 +24,7 @@ import { generateLayoutComponentMock } from "mocks/layoutComponents/layoutCompon
 import Row from "layoutSystems/anvil/layoutComponents/components/Row";
 import LayoutFactory from "layoutSystems/anvil/layoutComponents/LayoutFactory";
 import type { WidgetPositions } from "layoutSystems/common/types";
+import { getRelativeDimensions } from "./dimensionUtils";
 
 describe("rowHighlights tests", () => {
   const baseProps: LayoutProps = {
@@ -63,10 +65,13 @@ describe("rowHighlights tests", () => {
         "2": { top: 0, left: 110, width: 100, height: 60 },
         "3": { top: 30, left: 220, width: 100, height: 30 },
       };
+      const getDimensions: GetDimensions = getRelativeDimensions(
+        "0",
+        dimensions,
+      );
       const res: RowMetaInformation = extractMetaInformation(
         data,
-        dimensions,
-        "0",
+        getDimensions,
       );
       // There should be 1 row.
       expect(res.metaData.length).toEqual(1);
@@ -91,10 +96,13 @@ describe("rowHighlights tests", () => {
         "3": { top: 70, left: 10, width: 100, height: 30 },
         "4": { top: 70, left: 110, width: 100, height: 80 },
       };
+      const getDimensions: GetDimensions = getRelativeDimensions(
+        "0",
+        dimensions,
+      );
       const res: RowMetaInformation = extractMetaInformation(
         data,
-        dimensions,
-        "0",
+        getDimensions,
       );
       // There should be 2 rows.
       expect(res.metaData.length).toEqual(2);
@@ -121,10 +129,13 @@ describe("rowHighlights tests", () => {
         "3": { top: 0, left: 10, width: 100, height: 30 },
         "4": { top: 0, left: 110, width: 100, height: 80 },
       };
+      const getDimensions: GetDimensions = getRelativeDimensions(
+        "0",
+        dimensions,
+      );
       const res: RowMetaInformation = extractMetaInformation(
         data,
-        dimensions,
-        "0",
+        getDimensions,
       );
       // There should be 2 rows.
       expect(res.metaData.length).toEqual(2);
@@ -163,19 +174,21 @@ describe("rowHighlights tests", () => {
         "2": { top: 0, left: 110, width: 100, height: 60 },
         "3": { top: 30, left: 220, width: 100, height: 30 },
       };
+      const getDimensions: GetDimensions = getRelativeDimensions(
+        "layoutID",
+        dimensions,
+      );
       const res: RowMetaInformation = extractMetaInformation(
         data,
-        dimensions,
-        "layoutID",
+        getDimensions,
       );
       const highlights = getHighlightsForRow(
         res.metaData[0],
         res.tallestWidgets[0],
         { ...baseProps, layout: data },
-        dimensions,
         baseHighlight,
         [],
-        "layoutID",
+        getDimensions,
       );
 
       expect(highlights.length).toEqual(data.length + 1);
@@ -214,10 +227,13 @@ describe("rowHighlights tests", () => {
         "2": { top: 0, left: 110, width: 100, height: 60 },
         "3": { top: 30, left: 220, width: 100, height: 30 },
       };
+      const getDimensions: GetDimensions = getRelativeDimensions(
+        "layoutID",
+        dimensions,
+      );
       const res: RowMetaInformation = extractMetaInformation(
         data,
-        dimensions,
-        "layoutID",
+        getDimensions,
       );
       const highlights = deriveRowHighlights(
         { ...baseProps, layout: data },
@@ -269,7 +285,14 @@ describe("rowHighlights tests", () => {
         "2": { top: 0, left: 110, width: 100, height: 60 },
         "3": { top: 70, left: 10, width: 100, height: 30 },
       };
-      const res: RowMetaInformation = extractMetaInformation(data, dimensions, "layoutID");
+      const getDimensions: GetDimensions = getRelativeDimensions(
+        "layoutID",
+        dimensions,
+      );
+      const res: RowMetaInformation = extractMetaInformation(
+        data,
+        getDimensions,
+      );
       const highlights = deriveRowHighlights(
         { ...baseProps, layout: data },
         dimensions,
@@ -323,7 +346,14 @@ describe("rowHighlights tests", () => {
         "2": { top: 40, left: 110, width: 100, height: 60 },
         "3": { top: 0, left: 10, width: 100, height: 30 },
       };
-      const res: RowMetaInformation = extractMetaInformation(data, dimensions, "layoutID");
+      const getDimensions: GetDimensions = getRelativeDimensions(
+        "layoutID",
+        dimensions,
+      );
+      const res: RowMetaInformation = extractMetaInformation(
+        data,
+        getDimensions,
+      );
       const highlights = deriveRowHighlights(
         { ...baseProps, layout: data },
         dimensions,
@@ -336,7 +366,7 @@ describe("rowHighlights tests", () => {
           },
         ],
         [],
-        "layoutID"
+        "layoutID",
       );
 
       /**
