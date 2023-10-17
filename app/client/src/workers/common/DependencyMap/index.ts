@@ -163,7 +163,7 @@ export const updateDependencyMap = ({
 
           if (didUpdateDep) didUpdateDependencyMap = true;
 
-          if (isWidgetActionOrJsObject(entity, entityConfig)) {
+          if (isWidgetActionOrJsObject(entity)) {
             if (!isDynamicLeaf(unEvalDataTree, fullPropertyPath, configTree)) {
               const entityDependencyMap = getEntityDependencies(
                 entity,
@@ -255,7 +255,7 @@ export const updateDependencyMap = ({
 
           if (didUpdateDeps) didUpdateDependencyMap = true;
 
-          if (isWidgetActionOrJsObject(entity, entityConfig)) {
+          if (isWidgetActionOrJsObject(entity)) {
             const entityId = getEntityId(entity);
             for (const deletedPath of Object.keys(allDeletedPaths)) {
               removedPaths.push({
@@ -267,10 +267,7 @@ export const updateDependencyMap = ({
           break;
         }
         case DataTreeDiffEvent.EDIT: {
-          if (
-            isWidgetActionOrJsObject(entity, entityConfig) &&
-            typeof value === "string"
-          ) {
+          if (isWidgetActionOrJsObject(entity) && typeof value === "string") {
             const entity: ActionEntity | WidgetEntity | JSActionEntity =
               unEvalDataTree[entityName] as
                 | ActionEntity
