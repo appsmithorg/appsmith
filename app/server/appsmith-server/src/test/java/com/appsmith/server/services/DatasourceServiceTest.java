@@ -31,6 +31,7 @@ import com.appsmith.server.exceptions.AppsmithErrorCode;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
@@ -736,6 +737,7 @@ public class DatasourceServiceTest {
         Mono<DatasourceTestResult> testResultMono = datasourceMono.flatMap(datasource1 -> {
             DatasourceStorageDTO datasourceStorageDTO =
                     datasource1.getDatasourceStorages().get(defaultEnvironmentId);
+            datasourceStorageDTO.setPluginId(datasource.getPluginId());
             return datasourceService.testDatasource(datasourceStorageDTO, defaultEnvironmentId);
         });
 
@@ -804,6 +806,7 @@ public class DatasourceServiceTest {
             DatasourceStorageDTO datasourceStorageDTO =
                     datasource1.getDatasourceStorages().get(defaultEnvironmentId);
             ((DBAuth) datasourceStorageDTO.getDatasourceConfiguration().getAuthentication()).setPassword(null);
+            datasourceStorageDTO.setPluginId(datasource.getPluginId());
             return datasourceService.testDatasource(datasourceStorageDTO, defaultEnvironmentId);
         });
 
@@ -1489,6 +1492,7 @@ public class DatasourceServiceTest {
         Mono<DatasourceTestResult> testResultMono = datasourceMono.flatMap(datasource1 -> {
             DatasourceStorageDTO datasourceStorageDTO =
                     datasource1.getDatasourceStorages().get(defaultEnvironmentId);
+            datasourceStorageDTO.setPluginId(datasource.getPluginId());
             return datasourceService.testDatasource(datasourceStorageDTO, defaultEnvironmentId);
         });
 

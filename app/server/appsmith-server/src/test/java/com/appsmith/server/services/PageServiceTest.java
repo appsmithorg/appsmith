@@ -9,6 +9,7 @@ import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
@@ -28,14 +29,16 @@ import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.PageNameIdDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.exports.internal.ExportApplicationService;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.TextUtils;
+import com.appsmith.server.imports.internal.ImportApplicationService;
 import com.appsmith.server.newactions.base.NewActionService;
+import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.solutions.ApplicationPermission;
-import com.appsmith.server.solutions.ImportExportApplicationService;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
@@ -123,7 +126,10 @@ public class PageServiceTest {
     LayoutCollectionService layoutCollectionService;
 
     @Autowired
-    ImportExportApplicationService importExportApplicationService;
+    ImportApplicationService importApplicationService;
+
+    @Autowired
+    ExportApplicationService exportApplicationService;
 
     @Autowired
     PermissionGroupRepository permissionGroupRepository;
@@ -173,11 +179,11 @@ public class PageServiceTest {
                     application.getGitApplicationMetadata().setDefaultApplicationId(application.getId());
                     return applicationService
                             .save(application)
-                            .zipWhen(application1 -> importExportApplicationService.exportApplicationById(
+                            .zipWhen(application1 -> exportApplicationService.exportApplicationById(
                                     application1.getId(), gitData.getBranchName()));
                 })
                 // Assign the branchName to all the resources connected to the application
-                .flatMap(tuple -> importExportApplicationService.importApplicationInWorkspaceFromGit(
+                .flatMap(tuple -> importApplicationService.importApplicationInWorkspaceFromGit(
                         workspaceId, tuple.getT2(), tuple.getT1().getId(), gitData.getBranchName()))
                 .block();
     }

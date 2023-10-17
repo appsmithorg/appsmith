@@ -167,6 +167,8 @@ init_mongodb() {
       openssl rand -base64 756 > "$MONGO_DB_KEY"
     fi
     use-mongodb-key "$MONGO_DB_KEY"
+
+    ./mongodb-fixer.sh &
   fi
 }
 
@@ -387,10 +389,10 @@ init_postgres() {
         chown -R postgres:postgres "$POSTGRES_DB_PATH"
     else
       echo "Initializing local postgresql database"
-      mkdir -p "$POSTGRES_DB_PATH" "$TMP/postgres-stats"
+      mkdir -p "$POSTGRES_DB_PATH"
 
       # Postgres does not allow it's server to be run with super user access, we use user postgres and the file system owner also needs to be the same user postgres
-      chown postgres:postgres "$POSTGRES_DB_PATH" "$TMP/postgres-stats"
+      chown postgres:postgres "$POSTGRES_DB_PATH"
 
       # Initialize the postgres db file system
       su postgres -c "/usr/lib/postgresql/13/bin/initdb -D $POSTGRES_DB_PATH"

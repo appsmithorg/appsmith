@@ -35,6 +35,9 @@ public class RateLimitConfig {
     static {
         apiConfigurationMap.put(
                 RateLimitConstants.BUCKET_KEY_FOR_LOGIN_API, createBucketConfiguration(Duration.ofDays(1), 5));
+        apiConfigurationMap.put(
+                RateLimitConstants.BUCKET_KEY_FOR_TEST_DATASOURCE_API,
+                createBucketConfiguration(Duration.ofSeconds(5), 3));
         // Add more API configurations as needed
     }
 

@@ -6,6 +6,7 @@ import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Property;
+import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
@@ -23,22 +24,22 @@ import com.appsmith.server.dtos.RefactorActionNameInCollectionDTO;
 import com.appsmith.server.dtos.RefactorNameDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.exports.internal.ExportApplicationService;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.imports.internal.ImportApplicationService;
 import com.appsmith.server.newactions.base.NewActionService;
+import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.PluginRepository;
-import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.LayoutCollectionService;
-import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ApplicationPermission;
-import com.appsmith.server.solutions.ImportExportApplicationService;
 import com.appsmith.server.solutions.RefactoringSolution;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
@@ -120,7 +121,10 @@ class RefactoringSolutionCETest {
     ApplicationService applicationService;
 
     @Autowired
-    ImportExportApplicationService importExportApplicationService;
+    ImportApplicationService importApplicationService;
+
+    @Autowired
+    ExportApplicationService exportApplicationService;
 
     @Autowired
     ApplicationPermission applicationPermission;
@@ -209,11 +213,11 @@ class RefactoringSolutionCETest {
                     application1.getGitApplicationMetadata().setDefaultApplicationId(application1.getId());
                     return applicationService
                             .save(application1)
-                            .zipWhen(application11 -> importExportApplicationService.exportApplicationById(
+                            .zipWhen(application11 -> exportApplicationService.exportApplicationById(
                                     application11.getId(), gitData.getBranchName()));
                 })
                 // Assign the branchName to all the resources connected to the application
-                .flatMap(tuple -> importExportApplicationService.importApplicationInWorkspaceFromGit(
+                .flatMap(tuple -> importApplicationService.importApplicationInWorkspaceFromGit(
                         workspaceId, tuple.getT2(), tuple.getT1().getId(), gitData.getBranchName()))
                 .block();
 

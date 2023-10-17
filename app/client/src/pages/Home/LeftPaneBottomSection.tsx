@@ -62,7 +62,7 @@ function LeftPaneBottomSection() {
   const dispatch = useDispatch();
   const onboardingWorkspaces = useSelector(getOnboardingWorkspaces);
   const isFetchingApplications = useSelector(getIsFetchingApplications);
-  const { appVersion, cloudHosting } = getAppsmithConfigs();
+  const { appVersion } = getAppsmithConfigs();
   const howMuchTimeBefore = howMuchTimeBeforeText(appVersion.releaseDate);
   const user = useSelector(getCurrentUser);
   const tenantPermissions = useSelector(getTenantPermissions);
@@ -141,7 +141,6 @@ function LeftPaneBottomSection() {
               APPSMITH_DISPLAY_VERSION,
               appVersion.edition,
               appVersion.id,
-              cloudHosting,
             )}
           </span>
           {howMuchTimeBefore !== "" && (

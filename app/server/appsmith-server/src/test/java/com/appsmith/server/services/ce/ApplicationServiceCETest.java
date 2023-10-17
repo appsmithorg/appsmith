@@ -12,6 +12,7 @@ import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.ActionCollection;
@@ -39,11 +40,16 @@ import com.appsmith.server.dtos.UserHomepageDTO;
 import com.appsmith.server.dtos.WorkspaceApplicationsDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.exports.internal.ExportApplicationService;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.TextUtils;
+import com.appsmith.server.imports.internal.ImportApplicationService;
+import com.appsmith.server.jslibs.base.CustomJSLibService;
 import com.appsmith.server.migrations.ApplicationVersion;
 import com.appsmith.server.newactions.base.NewActionService;
+import com.appsmith.server.newpages.base.NewPageService;
+import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.AssetRepository;
 import com.appsmith.server.repositories.DatasourceRepository;
@@ -51,25 +57,20 @@ import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.UserRepository;
-import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.ApplicationService;
-import com.appsmith.server.services.CustomJSLibService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.LayoutCollectionService;
-import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.PermissionGroupService;
-import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.SessionUserService;
-import com.appsmith.server.services.ThemeService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ApplicationFetcher;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.EnvironmentPermission;
-import com.appsmith.server.solutions.ImportExportApplicationService;
 import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.ReleaseNotesService;
+import com.appsmith.server.themes.base.ThemeService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -212,7 +213,10 @@ public class ApplicationServiceCETest {
     PluginRepository pluginRepository;
 
     @Autowired
-    ImportExportApplicationService importExportApplicationService;
+    ImportApplicationService importApplicationService;
+
+    @Autowired
+    ExportApplicationService exportApplicationService;
 
     @Autowired
     ThemeService themeService;
@@ -301,9 +305,9 @@ public class ApplicationServiceCETest {
                     return applicationService.save(application);
                 })
                 // Assign the branchName to all the resources connected to the application
-                .flatMap(application -> importExportApplicationService.exportApplicationById(
-                        application.getId(), gitData.getBranchName()))
-                .flatMap(applicationJson -> importExportApplicationService.importApplicationInWorkspaceFromGit(
+                .flatMap(application ->
+                        exportApplicationService.exportApplicationById(application.getId(), gitData.getBranchName()))
+                .flatMap(applicationJson -> importApplicationService.importApplicationInWorkspaceFromGit(
                         workspaceId, applicationJson, gitConnectedApp.getId(), gitData.getBranchName()))
                 .block();
 
@@ -3962,9 +3966,9 @@ public class ApplicationServiceCETest {
         testApplication.setGitApplicationMetadata(gitData);
         Application application = applicationPageService
                 .createApplication(testApplication)
-                .flatMap(application1 -> importExportApplicationService
+                .flatMap(application1 -> exportApplicationService
                         .exportApplicationById(gitConnectedApp.getId(), gitData.getBranchName())
-                        .flatMap(applicationJson -> importExportApplicationService.importApplicationInWorkspaceFromGit(
+                        .flatMap(applicationJson -> importApplicationService.importApplicationInWorkspaceFromGit(
                                 workspaceId, applicationJson, application1.getId(), gitData.getBranchName())))
                 .block();
 

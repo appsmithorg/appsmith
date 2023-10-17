@@ -311,6 +311,7 @@ function ApiRightPane(props: any) {
             <SomeWrapper>
               <ActionRightPane
                 actionName={props.actionName}
+                actionRightPaneBackLink={props.actionRightPaneBackLink}
                 context={DatasourceStructureContext.API_EDITOR}
                 datasourceId={props.datasourceId}
                 hasConnections={hasDependencies}

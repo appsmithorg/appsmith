@@ -29,9 +29,13 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.MockDataSource;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exports.internal.ExportApplicationService;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.WidgetSuggestionHelper;
+import com.appsmith.server.imports.internal.ImportApplicationService;
+import com.appsmith.server.newpages.base.NewPageService;
+import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.PluginRepository;
@@ -41,15 +45,12 @@ import com.appsmith.server.services.AstService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.LayoutService;
 import com.appsmith.server.services.MockDataService;
-import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.PermissionGroupService;
-import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ActionExecutionSolution;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.EnvironmentPermission;
-import com.appsmith.server.solutions.ImportExportApplicationService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -124,7 +125,10 @@ public class ActionExecutionSolutionCETest {
     DatasourceService datasourceService;
 
     @Autowired
-    ImportExportApplicationService importExportApplicationService;
+    ImportApplicationService importApplicationService;
+
+    @Autowired
+    ExportApplicationService exportApplicationService;
 
     @SpyBean
     PluginService pluginService;
@@ -232,11 +236,11 @@ public class ActionExecutionSolutionCETest {
                     application1.getGitApplicationMetadata().setDefaultApplicationId(application1.getId());
                     return applicationService
                             .save(application1)
-                            .zipWhen(application11 -> importExportApplicationService.exportApplicationById(
+                            .zipWhen(application11 -> exportApplicationService.exportApplicationById(
                                     application11.getId(), gitData.getBranchName()));
                 })
                 // Assign the branchName to all the resources connected to the application
-                .flatMap(tuple -> importExportApplicationService.importApplicationInWorkspaceFromGit(
+                .flatMap(tuple -> importApplicationService.importApplicationInWorkspaceFromGit(
                         workspaceId, tuple.getT2(), tuple.getT1().getId(), gitData.getBranchName()))
                 .block();
 
