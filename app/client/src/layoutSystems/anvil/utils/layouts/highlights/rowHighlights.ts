@@ -2,6 +2,7 @@ import Row from "layoutSystems/anvil/layoutComponents/components/Row";
 import type {
   AnvilHighlightInfo,
   DraggedWidget,
+  GetDimensions,
   LayoutComponent,
   LayoutProps,
   WidgetLayoutProps,
@@ -57,6 +58,11 @@ export function deriveRowHighlights(
 
   const parentDropTargetId: string = isDropTarget ? layoutId : parentDropTarget;
 
+  const getDimensions: (id: string) => WidgetPosition = getRelativeDimensions(
+    parentDropTargetId,
+    widgetPositions,
+  );
+
   const baseHighlight: AnvilHighlightInfo = {
     alignment:
       layoutStyle && layoutStyle["justifyContent"]
@@ -77,10 +83,11 @@ export function deriveRowHighlights(
   if (!layoutProps.layout?.length) {
     return getInitialHighlights(
       layoutProps,
-      widgetPositions,
       baseHighlight,
-      parentDropTargetId,
       generateHighlights,
+      getDimensions,
+      false,
+      !!layoutProps.isDropTarget,
     );
   }
 
@@ -97,15 +104,15 @@ export function deriveRowHighlights(
       draggedWidgets,
       layoutOrder,
       parentDropTargetId,
+      getDimensions,
     );
   }
 
   return getHighlightsForWidgetsRow(
     layoutProps,
-    widgetPositions,
     baseHighlight,
     draggedWidgets,
-    parentDropTargetId,
+    getDimensions,
   );
 }
 
@@ -116,18 +123,16 @@ export function deriveRowHighlights(
  *  b. If yes, then how the widgets are positioned into multiple rows.
  * 2. Calculate highlights for each row of widgets.
  * @param layoutProps | LayoutProps
- * @param widgetPositions | WidgetPositions
  * @param baseHighlight | AnvilHighlightInfo
  * @param draggedWidgets | DraggedWidget[] : List of dragged widgets.
- * @param parentDropTargetId | string : Id of immediate drop target ancestor.
+ * @param getDimensions | GetDimensions : method to get relative dimensions of an entity.
  * @returns AnvilHighlightInfo[] : List of highlights.
  */
 export function getHighlightsForWidgetsRow(
   layoutProps: LayoutProps,
-  widgetPositions: WidgetPositions,
   baseHighlight: AnvilHighlightInfo,
   draggedWidgets: DraggedWidget[],
-  parentDropTargetId: string,
+  getDimensions: GetDimensions,
 ): AnvilHighlightInfo[] {
   // Get widget data
   const layout: WidgetLayoutProps[] = layoutProps.layout as WidgetLayoutProps[];
@@ -135,8 +140,7 @@ export function getHighlightsForWidgetsRow(
   // Extract meta information about row.
   const meta: RowMetaInformation = extractMetaInformation(
     layout,
-    widgetPositions,
-    parentDropTargetId,
+    getDimensions,
   );
 
   // add a highlight before every widget and after the last one.
@@ -147,10 +151,9 @@ export function getHighlightsForWidgetsRow(
         row,
         meta.tallestWidgets[index],
         layoutProps,
-        widgetPositions,
         baseHighlight,
         draggedWidgets,
-        parentDropTargetId,
+        getDimensions,
         highlights.length ? highlights[highlights.length - 1].rowIndex : 0, // Start subsequent wrapped row with the same index as the last index of the previous row.
       ),
     );
@@ -163,8 +166,9 @@ export function getHighlightsForWidgetsRow(
  * @param row | RowMetaData[] : Meta data on all widgets in the current row.
  * @param tallestWidget | WidgetLayoutProps : tallest widget in the current row.
  * @param layoutProps | LayoutProps : Properties of parent layout.
- * @param widgetPositions | WidgetPositions : Position data of all widgets.
  * @param baseHighlight | AnvilHighlightInfo : Default highlight.
+ * @param draggedWidgets | string[] : List of dragged widgets.
+ * @param getDimensions | GetDimensions : method to get relative dimensions of an entity.
  * @param startingIndex | number : Starting index for the first highlight.
  * @returns AnvilHighlightInfo[]
  */
@@ -172,26 +176,17 @@ export function getHighlightsForRow(
   row: RowMetaData[],
   tallestWidget: WidgetLayoutProps,
   layoutProps: LayoutProps,
-  widgetPositions: WidgetPositions,
   baseHighlight: AnvilHighlightInfo,
   draggedWidgets: DraggedWidget[],
-  parentDropTargetId: string,
+  getDimensions: GetDimensions,
   startingIndex = 0,
 ): AnvilHighlightInfo[] {
   const highlights: AnvilHighlightInfo[] = [];
   let index = 0;
   let draggedWidgetCount = 0;
-  const { height, top } = getRelativeDimensions(
-    tallestWidget.widgetId,
-    parentDropTargetId,
-    widgetPositions,
-  );
+  const { height, top } = getDimensions(tallestWidget.widgetId);
 
-  const layoutDimensions: WidgetPosition = getRelativeDimensions(
-    layoutProps.layoutId,
-    parentDropTargetId,
-    widgetPositions,
-  );
+  const layoutDimensions: WidgetPosition = getDimensions(layoutProps.layoutId);
 
   while (index < row.length) {
     const { widgetId } = row[index];
@@ -216,6 +211,7 @@ export function getHighlightsForRow(
           nextWidgetDimensions,
           index + startingIndex - draggedWidgetCount,
           false,
+          !!layoutProps.isDropTarget,
         ),
       );
     } else draggedWidgetCount += 1;
@@ -233,6 +229,7 @@ export function getHighlightsForRow(
           nextWidgetDimensions,
           index + startingIndex - draggedWidgetCount,
           true,
+          !!layoutProps.isDropTarget,
         ),
       );
       break;
@@ -241,10 +238,17 @@ export function getHighlightsForRow(
   return highlights;
 }
 
+/**
+ * Extract meta information about a row of widgets.
+ * If row is flex wrapped, then find out which widgets are placed in each subsequent row.
+ * Also, identify the tallest widget in each row.
+ * @param layout | WidgetLayoutProps[] : list of widget ids
+ * @param getDimensions | GetDimensions : function to get relative dimensions of a widget.
+ * @returns RowMetaInformation
+ */
 export function extractMetaInformation(
   layout: WidgetLayoutProps[],
-  widgetPositions: WidgetPositions,
-  parentDropTargetId: string,
+  getDimensions: GetDimensions,
 ): RowMetaInformation {
   const data: RowMetaData[][] = [];
   const tallestWidgets: WidgetLayoutProps[] = [];
@@ -252,11 +256,7 @@ export function extractMetaInformation(
   let currentTallestWidget: WidgetLayoutProps = layout[0];
   let maxHeight = 0;
   for (const each of layout) {
-    const dimensions: WidgetPosition = getRelativeDimensions(
-      each.widgetId,
-      parentDropTargetId,
-      widgetPositions,
-    );
+    const dimensions: WidgetPosition = getDimensions(each.widgetId);
     if (!dimensions) continue;
     const { height, top } = dimensions;
     // If current row is empty, add the widget to it.
@@ -314,6 +314,7 @@ export function checkIntersection(a: number[], b: number[]): boolean {
  * @param canvasId | string
  * @param layoutOrder |string[] : Top - down hierarchy of parent layouts.
  * @param parentDropTargetId | string : Id of immediate drop target ancestor.
+ * @param getDimensions | GetDimensions : method to get relative dimensions of an entity.
  * @returns AnvilHighlightInfo[] : List of highlights
  */
 export function getHighlightsForLayoutRow(
@@ -324,6 +325,7 @@ export function getHighlightsForLayoutRow(
   draggedWidgets: DraggedWidget[],
   layoutOrder: string[],
   parentDropTargetId: string,
+  getDimensions: GetDimensions,
 ): AnvilHighlightInfo[] {
   const highlights: AnvilHighlightInfo[] = [];
   const layout: LayoutProps[] = layoutProps.layout as LayoutProps[];
@@ -336,33 +338,15 @@ export function getHighlightsForLayoutRow(
 
     // Dimensions of neighboring layouts
     const prevLayoutDimensions: WidgetPosition | undefined =
-      index === 0
-        ? undefined
-        : getRelativeDimensions(
-            layout[index - 1]?.layoutId,
-            parentDropTargetId,
-            widgetPositions,
-          );
+      index === 0 ? undefined : getDimensions(layout[index - 1]?.layoutId);
     const nextLayoutDimensions: WidgetPosition | undefined =
       index === layout.length - 1
         ? undefined
-        : getRelativeDimensions(
-            layout[index + 1]?.layoutId,
-            parentDropTargetId,
-            widgetPositions,
-          );
+        : getDimensions(layout[index + 1]?.layoutId);
 
-    const layoutDimension: WidgetPosition = getRelativeDimensions(
-      layoutProps.layoutId,
-      parentDropTargetId,
-      widgetPositions,
-    );
+    const layoutDimension: WidgetPosition = getDimensions(layoutProps.layoutId);
 
-    const currentDimension: WidgetPosition = getRelativeDimensions(
-      layoutId,
-      parentDropTargetId,
-      widgetPositions,
-    );
+    const currentDimension: WidgetPosition = getDimensions(layoutId);
 
     // Add a highlight before the child layout
     highlights.push(
@@ -374,6 +358,7 @@ export function getHighlightsForLayoutRow(
         nextLayoutDimensions,
         index,
         false,
+        !!layoutProps.isDropTarget,
       ),
     );
 
@@ -411,6 +396,7 @@ export function getHighlightsForLayoutRow(
           nextLayoutDimensions,
           index,
           true,
+          !!layoutProps.isDropTarget,
         ),
       );
     }
@@ -426,6 +412,7 @@ export function generateHighlights(
   nextDimension: WidgetPosition | undefined,
   rowIndex: number,
   isLastHighlight: boolean,
+  isDropTarget?: boolean,
 ): AnvilHighlightInfo[] {
   const isInitialHighlight: boolean = rowIndex === 0;
   return [
@@ -434,8 +421,17 @@ export function generateHighlights(
       dropZone: isLastHighlight
         ? isInitialHighlight
           ? getInitialHorizontalDropZone(currentDimension, layoutDimension)
-          : getFinalHorizontalDropZone(currentDimension, layoutDimension)
-        : getHorizontalDropZone(currentDimension, prevDimension, nextDimension),
+          : getFinalHorizontalDropZone(
+              currentDimension,
+              layoutDimension,
+              !!isDropTarget,
+            )
+        : getHorizontalDropZone(
+            currentDimension,
+            prevDimension,
+            nextDimension,
+            !!isDropTarget,
+          ),
       height: currentDimension.height,
       posX: isLastHighlight
         ? isInitialHighlight

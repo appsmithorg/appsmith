@@ -3,6 +3,7 @@ import type {
   AnvilHighlightInfo,
   DraggedWidget,
   GenerateHighlights,
+  GetDimensions,
   LayoutComponent,
   LayoutProps,
   WidgetLayoutProps,
@@ -13,26 +14,23 @@ import type {
   WidgetPosition,
   WidgetPositions,
 } from "layoutSystems/common/types";
-import { getRelativeDimensions } from "./dimensionUtils";
 
 /**
  *
  * @param layoutProps | LayoutProps : properties of parent layout.
- * @param widgetPositions | WidgetPositions : positions and dimensions of widgets and layouts.
  * @param baseHighlight | AnvilHighlightInfo : base highlight object.
  * @param draggedWidgets | string[] : list of widgets that are being dragged.
- * @param parentDropTargetId | string : id of immediate drop target ancestor.
  * @param generateHighlights | GenerateHighlights : method of generate highlights for the parent layout.
+ * @param getDimensions | GetDimensions : method of getting dimensions of a widget.
  * @param hasFillWidget | boolean | undefined : whether the list of dragged widgets includes a Fill widget.
  * @returns AnvilHighlightInfo[] : List of highlights.
  */
 export function getHighlightsForWidgets(
   layoutProps: LayoutProps,
-  widgetPositions: WidgetPositions,
   baseHighlight: AnvilHighlightInfo,
   draggedWidgets: DraggedWidget[],
-  parentDropTargetId: string,
   generateHighlights: GenerateHighlights,
+  getDimensions: GetDimensions,
   hasFillWidget = false,
 ): AnvilHighlightInfo[] {
   const highlights: AnvilHighlightInfo[] = [];
@@ -41,11 +39,7 @@ export function getHighlightsForWidgets(
   const layout: WidgetLayoutProps[] = layoutProps.layout as WidgetLayoutProps[];
 
   // Parent layout dimensions
-  const layoutDimensions: WidgetPosition = getRelativeDimensions(
-    layoutProps.layoutId,
-    parentDropTargetId,
-    widgetPositions,
-  );
+  const layoutDimensions: WidgetPosition = getDimensions(layoutProps.layoutId);
 
   let index = 0;
   let draggedChildCount = 0;
@@ -60,29 +54,15 @@ export function getHighlightsForWidgets(
     );
 
     // Dimensions of current child widget.
-    const currentWidgetDimension: WidgetPosition = getRelativeDimensions(
-      widgetId,
-      parentDropTargetId,
-      widgetPositions,
-    );
+    const currentWidgetDimension: WidgetPosition = getDimensions(widgetId);
 
     // Dimensions of neighboring widgets
     const nextWidgetDimension: WidgetPosition | undefined =
       index === layout.length - 1
         ? undefined
-        : getRelativeDimensions(
-            layout[index + 1]?.widgetId,
-            parentDropTargetId,
-            widgetPositions,
-          );
+        : getDimensions(layout[index + 1]?.widgetId);
     const previousWidgetDimension: WidgetPosition | undefined =
-      index === 0
-        ? undefined
-        : getRelativeDimensions(
-            layout[index - 1]?.widgetId,
-            parentDropTargetId,
-            widgetPositions,
-          );
+      index === 0 ? undefined : getDimensions(layout[index - 1]?.widgetId);
 
     // If the widget is dragged, don't add a highlight for it.
     if (!isDraggedWidget) {
@@ -131,6 +111,7 @@ export function getHighlightsForWidgets(
  * @param layoutOrder | string[] : Hierarchy (Top - down) of layouts.
  * @param parentDropTargetId | string : id of immediate drop target ancestor.
  * @param generateHighlights | GenerateHighlights : method to generate highlights for the parent layout.
+ * @param getDimensions | GetDimensions : method to get dimensions of a widget.
  * @param hasFillWidget | boolean | undefined : whether the list of dragged widgets includes a Fill widget.
  * @returns AnvilHighlightInfo[] : list of highlights.
  */
@@ -143,17 +124,14 @@ export function getHighlightsForLayouts(
   layoutOrder: string[],
   parentDropTargetId: string,
   generateHighlights: GenerateHighlights,
+  getDimensions: GetDimensions,
   hasFillWidget = false,
 ): AnvilHighlightInfo[] {
   const highlights: AnvilHighlightInfo[] = [];
   // Extract list of child layouts.
   const layouts: LayoutProps[] = layoutProps.layout as LayoutProps[];
   // Dimensions of parent layout.
-  const layoutDimension: WidgetPosition = getRelativeDimensions(
-    layoutProps.layoutId,
-    parentDropTargetId,
-    widgetPositions,
-  );
+  const layoutDimension: WidgetPosition = getDimensions(layoutProps.layoutId);
 
   let index = 0;
 
@@ -163,29 +141,15 @@ export function getHighlightsForLayouts(
     const { isDropTarget, layoutId, layoutType } = layouts[index];
 
     // Dimensions of current child layout.
-    const currentDimension: WidgetPosition = getRelativeDimensions(
-      layoutId,
-      parentDropTargetId,
-      widgetPositions,
-    );
+    const currentDimension: WidgetPosition = getDimensions(layoutId);
 
     // Dimensions of neighboring layouts
     const prevLayoutDimensions: WidgetPosition | undefined =
-      index === 0
-        ? undefined
-        : getRelativeDimensions(
-            layouts[index - 1]?.layoutId,
-            parentDropTargetId,
-            widgetPositions,
-          );
+      index === 0 ? undefined : getDimensions(layouts[index - 1]?.layoutId);
     const nextLayoutDimensions: WidgetPosition | undefined =
       index === layouts.length - 1
         ? undefined
-        : getRelativeDimensions(
-            layouts[index + 1]?.layoutId,
-            parentDropTargetId,
-            widgetPositions,
-          );
+        : getDimensions(layouts[index + 1]?.layoutId);
 
     // Add a highlight for the drop zone above the child layout.
     highlights.push(
@@ -246,27 +210,21 @@ export function getHighlightsForLayouts(
 
 /**
  * @param layoutProps | LayoutProps : properties of parent layout.
- * @param widgetPositions | WidgetPositions : positions and dimensions of widgets and layouts.
  * @param baseHighlight | AnvilHighlightInfo : base highlight object.
- * @param parentDropTargetId | string : id of immediate drop target ancestor.
  * @param generateHighlights | GenerateHighlights : method to generate highlights for the parent layout.
+ * @param getDimensions | GetDimensions : method of getting dimensions of a widget.
  * @param hasFillWidget | boolean | undefined : whether the list of dragged widgets includes a Fill widget.
  * @returns AnvilHighlightInfo[] : list of highlights.
  */
 export function getInitialHighlights(
   layoutProps: LayoutProps,
-  widgetPositions: WidgetPositions,
   baseHighlight: AnvilHighlightInfo,
-  parentDropTargetId: string,
   generateHighlights: GenerateHighlights,
+  getDimensions: GetDimensions,
   hasFillWidget = false,
 ): AnvilHighlightInfo[] {
   const { layoutId } = layoutProps;
-  const layoutDimension: WidgetPosition = getRelativeDimensions(
-    layoutId,
-    parentDropTargetId,
-    widgetPositions,
-  );
+  const layoutDimension: WidgetPosition = getDimensions(layoutId);
 
   // Get start position of the highlight along the y axis based on layoutAlignment.
   const posY: number =

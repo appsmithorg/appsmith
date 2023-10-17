@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import "./styles.css";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import type { LayoutComponentProps } from "../utils/anvilTypes";
@@ -12,10 +12,17 @@ import {
 import { getCanvasClassName } from "utils/generators";
 
 export const AnvilCanvas = (props: BaseWidgetProps) => {
-  const map: LayoutComponentProps["childrenMap"] = {};
-  props.children?.forEach((child: WidgetProps) => {
-    map[child.widgetId] = child;
-  });
+  const [childrenMap, setChildrenMap] = useState<
+    LayoutComponentProps["childrenMap"]
+  >({});
+
+  useEffect(() => {
+    const map: LayoutComponentProps["childrenMap"] = {};
+    props.children?.forEach((child: WidgetProps) => {
+      map[child.widgetId] = child;
+    });
+    setChildrenMap(map);
+  }, [props.children]);
 
   const gapClass = props.renderMode === RenderModes.CANVAS ? "gap" : "";
   return (
@@ -29,7 +36,7 @@ export const AnvilCanvas = (props: BaseWidgetProps) => {
     >
       {renderLayouts(
         props.layout,
-        map,
+        childrenMap,
         props.widgetId,
         "",
         props.renderMode || RenderModes.CANVAS,

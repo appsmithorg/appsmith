@@ -2,7 +2,7 @@ import type { AppState } from "@appsmith/reducers";
 import { getColorWithOpacity } from "constants/DefaultTheme";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import type { CSSProperties, DragEventHandler, ReactNode } from "react";
-import React, { useMemo, useRef } from "react";
+import React, { useCallback, useMemo, useRef } from "react";
 import styled from "styled-components";
 import { useSelector } from "react-redux";
 import {
@@ -96,20 +96,32 @@ function DraggableComponent(props: DraggableComponentProps) {
     !props.isFlexChild && (isCurrentWidgetDragging || isDraggingSibling);
 
   // When mouse is over this draggable
-  const handleMouseOver = (e: any) => {
-    focusWidget &&
-      !isResizingOrDragging &&
-      !isFocused &&
-      !props.resizeDisabled &&
-      !isPreviewMode &&
-      focusWidget(props.widgetId);
-    e.stopPropagation();
-  };
+  const handleMouseOver = useCallback(
+    (e: any) => {
+      focusWidget &&
+        !isResizingOrDragging &&
+        !isFocused &&
+        !isPreviewMode &&
+        !props.resizeDisabled &&
+        focusWidget(props.widgetId);
+      e.stopPropagation();
+    },
+    [
+      isFocused,
+      isPreviewMode,
+      isResizingOrDragging,
+      props.resizeDisabled,
+      props.widgetId,
+    ],
+  );
 
   // Display this draggable based on the current drag state
-  const dragWrapperStyle: CSSProperties = {
-    display: !props.isFlexChild && isCurrentWidgetDragging ? "none" : "block",
-  };
+  const dragWrapperStyle: CSSProperties = useMemo(
+    () => ({
+      display: !props.isFlexChild && isCurrentWidgetDragging ? "none" : "block",
+    }),
+    [isCurrentWidgetDragging, props.isFlexChild],
+  );
   const dragBoundariesStyle: React.CSSProperties = useMemo(() => {
     return {
       opacity: !isResizingOrDragging || isCurrentWidgetResizing ? 0 : 1,
@@ -124,22 +136,25 @@ function DraggableComponent(props: DraggableComponentProps) {
   const allowDrag = !props.dragDisabled && shouldAllowDrag;
   const className = `${classNameForTesting}`;
   const draggableRef = useRef<HTMLDivElement>(null);
-  const onDragStart: DragEventHandler = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    // allowDrag check is added as react jest test simulation is not respecting default behaviour
-    // of draggable=false and triggering onDragStart. allowDrag condition check is purely for the test cases.
-    if (allowDrag && draggableRef.current && !(e.metaKey || e.ctrlKey)) {
-      if (!isFocused) return;
+  const onDragStart: DragEventHandler = useCallback(
+    (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      // allowDrag check is added as react jest test simulation is not respecting default behaviour
+      // of draggable=false and triggering onDragStart. allowDrag condition check is purely for the test cases.
+      if (allowDrag && draggableRef.current && !(e.metaKey || e.ctrlKey)) {
+        if (!isFocused) return;
 
-      if (!isSelected) {
-        selectWidget(SelectionRequestType.One, [props.widgetId]);
+        if (!isSelected) {
+          selectWidget(SelectionRequestType.One, [props.widgetId]);
+        }
+        showTableFilterPane();
+        const draggingState = props.generateDragState(e, draggableRef.current);
+        setDraggingState(draggingState);
       }
-      showTableFilterPane();
-      const draggingState = props.generateDragState(e, draggableRef.current);
-      setDraggingState(draggingState);
-    }
-  };
+    },
+    [allowDrag, draggableRef.current, isSelected, props.widgetId],
+  );
 
   return (
     <DraggableWrapper

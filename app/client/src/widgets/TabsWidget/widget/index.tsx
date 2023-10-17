@@ -134,6 +134,7 @@ class TabsWidget extends BaseWidget<
               children: [],
               version: 1,
               bottomRow: WidgetHeightLimits.MIN_CANVAS_HEIGHT_IN_ROWS,
+              layout: generateDefaultLayoutPreset(),
             },
           },
           {
@@ -150,6 +151,7 @@ class TabsWidget extends BaseWidget<
               children: [],
               version: 1,
               bottomRow: WidgetHeightLimits.MIN_CANVAS_HEIGHT_IN_ROWS,
+              layout: generateDefaultLayoutPreset(),
             },
           },
         ],
@@ -591,8 +593,7 @@ class TabsWidget extends BaseWidget<
         : LayoutDirection.Horizontal;
     childWidgetData.alignment = selectedTabProps?.alignment;
     childWidgetData.spacing = selectedTabProps?.spacing;
-    childWidgetData.layout =
-      childWidgetData.layout ?? generateDefaultLayoutPreset();
+
     return renderAppsmithCanvas(childWidgetData as WidgetProps);
   };
 

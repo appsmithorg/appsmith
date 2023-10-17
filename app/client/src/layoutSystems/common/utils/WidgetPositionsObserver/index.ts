@@ -1,12 +1,6 @@
 import { debounce } from "lodash";
 import type { RefObject } from "react";
-import {
-  ANVIL_LAYER,
-  ANVIL_WIDGET,
-  LAYOUT,
-  extractLayoutIdFromLayoutDOMId,
-  getLayoutId,
-} from "./utils";
+import { ANVIL_WIDGET, LAYOUT, getLayoutId } from "./utils";
 import store from "store";
 import { readWidgetPositions } from "layoutSystems/anvil/integrations/actions";
 import ResizeObserver from "resize-observer-polyfill";

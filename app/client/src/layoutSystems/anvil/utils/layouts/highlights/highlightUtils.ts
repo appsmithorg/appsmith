@@ -3,6 +3,7 @@ import type {
   AnvilHighlightInfo,
   DraggedWidget,
   GenerateHighlights,
+  GetDimensions,
   GetInitialHighlights,
   GetLayoutHighlights,
   GetWidgetHighlights,
@@ -12,6 +13,7 @@ import type {
 import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
 import { HIGHLIGHT_SIZE } from "../../constants";
 import type { WidgetPositions } from "layoutSystems/common/types";
+import { getRelativeDimensions } from "./dimensionUtils";
 
 /**
  * @param layoutProps | LayoutProps : properties of parent layout.
@@ -42,15 +44,17 @@ export function deriveHighlights(
   getHighlightsForWidgets: GetWidgetHighlights,
   hasFillWidget?: boolean,
 ): AnvilHighlightInfo[] {
+  const getDimensions: GetDimensions = getRelativeDimensions(
+    layoutProps.isDropTarget ? layoutProps.layoutId : parentDropTargetId,
+    widgetPositions,
+  );
   // If layout is empty, return an initial set of highlights to demarcate the starting position.
   if (!layoutProps.layout?.length) {
     return getInitialHighlights(
       layoutProps,
-      widgetPositions,
       baseHighlight,
-      parentDropTargetId,
       generateHighlights,
-      hasFillWidget,
+      getDimensions,
     );
   }
 
@@ -72,17 +76,17 @@ export function deriveHighlights(
       layoutOrder,
       parentDropTargetId,
       generateHighlights,
+      getDimensions,
       hasFillWidget,
     );
   }
   // Calculate highlights for child widgets.
   return getHighlightsForWidgets(
     layoutProps,
-    widgetPositions,
     baseHighlight,
     draggedWidgets,
-    parentDropTargetId,
     generateHighlights,
+    getDimensions,
     hasFillWidget,
   );
 }

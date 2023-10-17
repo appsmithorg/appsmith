@@ -76,26 +76,25 @@ export function getInitialVerticalDropZone(
  * @param currentDimensions | WidgetPosition
  * @param prevDimensions | WidgetPosition | undefined
  * @param nextDimensions | WidgetPosition | undefined
+ * @param isDropTarget | boolean
  * @returns DropZone
  */
 export function getHorizontalDropZone(
   currentDimensions: WidgetPosition,
   prevDimensions: WidgetPosition | undefined,
   nextDimensions: WidgetPosition | undefined,
+  isDropTarget: boolean,
 ): DropZone {
   const { left, width } = currentDimensions;
+  const multiplier = isDropTarget ? 1 : HORIZONTAL_DROP_ZONE_MULTIPLIER;
   return {
     /**
      * Drop zone on either side of the highlight
      * should extend up to 35% of the gap
      * between itself and it's neighbor in that direction.
      */
-    left: prevDimensions
-      ? (left - prevDimensions.left) * HORIZONTAL_DROP_ZONE_MULTIPLIER
-      : left,
-    right:
-      (nextDimensions ? nextDimensions.left - left : width) *
-      HORIZONTAL_DROP_ZONE_MULTIPLIER,
+    left: prevDimensions ? (left - prevDimensions.left) * multiplier : left,
+    right: (nextDimensions ? nextDimensions.left - left : width) * multiplier,
   };
 }
 
@@ -105,15 +104,18 @@ export function getHorizontalDropZone(
  * 2. Drop zone after the vertical highlight (right) spans half the space between current child entity the parent layout's right edge.
  * @param currentDimensions | WidgetPosition
  * @param layoutDimensions | WidgetPosition
+ * @param isDropTarget | boolean
  * @returns DropZone
  */
 export function getFinalHorizontalDropZone(
   currentDimensions: WidgetPosition,
   layoutDimensions: WidgetPosition,
+  isDropTarget: boolean,
 ): DropZone {
   const { left, width } = currentDimensions;
+  const multiplier = isDropTarget ? 1 : HORIZONTAL_DROP_ZONE_MULTIPLIER;
   return {
-    left: (width + HIGHLIGHT_SIZE / 2) * HORIZONTAL_DROP_ZONE_MULTIPLIER,
+    left: (width + HIGHLIGHT_SIZE / 2) * multiplier,
     right: Math.max(
       layoutDimensions.left + layoutDimensions.width - (left + width),
       0,

@@ -113,24 +113,23 @@ export type GenerateHighlights = (
   rowIndex: number,
   isLastHighlight: boolean,
   hasFillWidget?: boolean,
+  isDropTarget?: boolean,
 ) => AnvilHighlightInfo[];
 
 export type GetInitialHighlights = (
   layoutProps: LayoutProps,
-  widgetPositions: WidgetPositions,
   baseHighlight: AnvilHighlightInfo,
-  parentDropTargetId: string,
   generateHighlights: GenerateHighlights,
+  getDimensions: GetDimensions,
   hasFillWidget?: boolean,
 ) => AnvilHighlightInfo[];
 
 export type GetWidgetHighlights = (
   layoutProps: LayoutProps,
-  widgetPositions: WidgetPositions,
   baseHighlight: AnvilHighlightInfo,
   draggedWidgets: DraggedWidget[],
-  parentDropTargetId: string,
   generateHighlights: GenerateHighlights,
+  getDimensions: GetDimensions,
   hasFillWidget?: boolean,
 ) => AnvilHighlightInfo[];
 
@@ -143,5 +142,8 @@ export type GetLayoutHighlights = (
   layoutOrder: string[],
   parentDropTargetId: string,
   generateHighlights: GenerateHighlights,
+  getDimensions: GetDimensions,
   hasFillWidget?: boolean,
 ) => AnvilHighlightInfo[];
+
+export type GetDimensions = (id: string) => WidgetPosition;

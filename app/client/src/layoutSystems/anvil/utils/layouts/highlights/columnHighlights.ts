@@ -46,9 +46,7 @@ export function deriveColumnHighlights(
   )
     return [];
 
-  const { isDropTarget, layoutId, layoutStyle } = layoutProps;
-
-  const parentDropTargetId: string = isDropTarget ? layoutId : parentDropTarget;
+  const { layoutStyle } = layoutProps;
 
   const baseHighlight: AnvilHighlightInfo = {
     alignment:
@@ -73,7 +71,7 @@ export function deriveColumnHighlights(
     draggedWidgets,
     layoutOrder,
     baseHighlight,
-    parentDropTargetId,
+    parentDropTarget,
     generateHighlights,
     getInitialHighlights,
     getHighlightsForLayouts,

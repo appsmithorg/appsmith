@@ -51,7 +51,6 @@ export function LayoutComponentHOC(Component: LayoutComponent) {
       );
     };
 
-    // TODO: Remove hardcoded props by creating new dragging arena for anvil.
     return (
       <Component {...props}>
         {isDropTarget && renderMode === RenderModes.CANVAS && (

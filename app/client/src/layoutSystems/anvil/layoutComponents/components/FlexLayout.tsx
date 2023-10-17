@@ -105,3 +105,7 @@ export const FlexLayout = (props: FlexLayoutProps) => {
     </Flex>
   );
 };
+
+FlexLayout.whyDidYouRender = {
+  logOnDifferentValues: true,
+};
