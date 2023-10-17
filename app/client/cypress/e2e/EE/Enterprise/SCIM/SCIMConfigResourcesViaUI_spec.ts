@@ -46,7 +46,7 @@ describe("SCIM Provisioning", function () {
   });
 
   // Upgrade page for Business edition
-  it.skip(
+  it(
     "excludeForAirgap",
     "1. Go to admin settings and check provisioning should show upgrade page for business edition",
     function () {
