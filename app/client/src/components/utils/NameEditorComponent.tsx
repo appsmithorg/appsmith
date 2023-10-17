@@ -68,7 +68,7 @@ function NameEditor(props: NameEditorProps) {
       }
       return false;
     },
-    [hasActionNameConflict],
+    [hasActionNameConflict, entityName],
   );
 
   const handleNameChange = useCallback(
