@@ -16,12 +16,10 @@ import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Primary;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 @Slf4j
-@Component
-@Primary
+@Service
 public class ExportApplicationServiceImpl extends ExportApplicationServiceCEImpl implements ExportApplicationService {
 
     public ExportApplicationServiceImpl(
