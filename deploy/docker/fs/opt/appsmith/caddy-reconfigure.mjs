@@ -81,11 +81,11 @@ parts.push(`
   }
 
   handle_errors {
-    # todo: use 404.html for the 404 error
     respond "{err.status_code} {err.status_text}" {err.status_code}
   }
 }
 `)
+// todo: use 404.html for the 404 error
 
 if (APPSMITH_CUSTOM_DOMAIN != null) {
   let certLocation = null
