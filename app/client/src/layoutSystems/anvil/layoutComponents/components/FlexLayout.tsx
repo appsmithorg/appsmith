@@ -51,38 +51,81 @@ export interface FlexLayoutProps
   width?: Responsive<SizingDimension>;
 }
 
-export const FlexLayout = (props: FlexLayoutProps) => {
+export const FlexLayout = React.memo((props: FlexLayoutProps) => {
+  const {
+    alignSelf,
+    border,
+    canvasId,
+    children,
+    columnGap,
+    direction,
+    flexBasis,
+    flexGrow,
+    flexShrink,
+    height,
+    isDropTarget,
+    justifyContent,
+    layoutId,
+    maxHeight,
+    maxWidth,
+    minHeight,
+    minWidth,
+    padding,
+    position,
+    renderMode,
+    rowGap,
+    width,
+    wrap,
+  } = props;
   const flexProps: FlexProps = useMemo(() => {
     return {
-      alignSelf: props.alignSelf || "flex-start",
-      columnGap: props.columnGap || "0px",
-      direction: props.direction || "column",
-      flexGrow: props.flexGrow || 0,
-      flexShrink: props.flexShrink || 0,
-      flexBasis: props.flexBasis || "auto",
-      justifyContent: props.justifyContent || "start",
-      height: props.height || "auto",
-      maxHeight: props.maxHeight || "none",
-      maxWidth: props.maxWidth || "none",
-      minHeight: props.minHeight || "unset",
-      minWidth: props.minWidth || "unset",
-      width: props.width || "auto",
-      padding: props.padding || (props.isDropTarget ? "4px" : "0px"),
-      rowGap: props.rowGap || {
+      alignSelf: alignSelf || "flex-start",
+      columnGap: columnGap || "0px",
+      direction: direction || "column",
+      flexBasis: flexBasis || "auto",
+      flexGrow: flexGrow || 0,
+      flexShrink: flexShrink || 0,
+      height: height || "auto",
+      justifyContent: justifyContent || "start",
+      maxHeight: maxHeight || "none",
+      maxWidth: maxWidth || "none",
+      minHeight: minHeight || "unset",
+      minWidth: minWidth || "unset",
+      padding: padding || (isDropTarget ? "4px" : "0px"),
+      rowGap: rowGap || {
         base: addPixelToSize(MOBILE_ROW_GAP),
         [addPixelToSize(MOBILE_BREAKPOINT)]: addPixelToSize(ROW_GAP),
       },
-      wrap: props.wrap || "nowrap",
+      width: width || "auto",
+      wrap: wrap || "nowrap",
     };
-  }, [props]);
+  }, [
+    alignSelf,
+    columnGap,
+    direction,
+    flexBasis,
+    flexGrow,
+    flexShrink,
+    justifyContent,
+    height,
+    isDropTarget,
+    maxHeight,
+    maxWidth,
+    minHeight,
+    minWidth,
+    padding,
+    rowGap,
+    width,
+    wrap,
+  ]);
 
   const ref = React.useRef<HTMLDivElement>(null);
   usePositionObserver(
     "layout",
     {
-      layoutId: props.layoutId,
-      canvasId: props.canvasId,
-      isDropTarget: !!props.isDropTarget,
+      layoutId: layoutId,
+      canvasId: canvasId,
+      isDropTarget: !!isDropTarget,
     },
     ref,
   );
@@ -91,26 +134,22 @@ export const FlexLayout = (props: FlexLayoutProps) => {
   const styleProps: CSSProperties = useMemo(() => {
     return {
       border:
-        props.border ||
-        (props.isDropTarget && props.renderMode === RenderModes.CANVAS
+        border ||
+        (isDropTarget && renderMode === RenderModes.CANVAS
           ? "1px dashed #979797"
           : "none"),
-      position: props.position || "relative",
+      position: position || "relative",
     };
-  }, [props.border, props.isDropTarget, props.position, props.renderMode]);
+  }, [border, isDropTarget, position, renderMode]);
 
   return (
     <Flex
       {...flexProps}
-      id={getLayoutId(props.canvasId, props.layoutId)}
+      id={getLayoutId(canvasId, layoutId)}
       ref={ref}
       style={styleProps}
     >
-      {props.children}
+      {children}
     </Flex>
   );
-};
-
-FlexLayout.whyDidYouRender = {
-  logOnDifferentValues: true,
-};
+});
