@@ -41,7 +41,7 @@ describe("Test API execution with dynamic binding in URL - Bug #24218", () => {
       dataManager.dsValues[dataManager.defaultEnviorment].mockApiUrl.replace(
         "?records=10",
         "",
-      ),
+      ), //removing query param here due to open bug with DI team
     );
     apiPage.RunAPI();
     apiPage.ResponseStatusCheck("200 OK");
