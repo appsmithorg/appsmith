@@ -6,7 +6,7 @@ import type { DataTreeEntityObject } from "@appsmith/entities/DataTree/types";
 import {
   getDependencies,
   getPathDependencies,
-} from "@appsmith/workers/common/DependencyMap/utils/getEntityDepenciesByType";
+} from "@appsmith/workers/common/DependencyMap/utils/getEntityDependenciesByType";
 import type { DataTreeEntityConfig } from "@appsmith/entities/DataTree/types";
 
 export function getEntityDependencies(
