@@ -110,4 +110,14 @@ public class FieldName extends FieldNameCE {
     public static final String PACKAGE_ID = "packageId";
     public static final String MODULE_ID = "moduleId";
     public static final String ENTITY = "entity";
+    public static final String LICENSE_PLAN = "licensePlan";
+    public static final String LICENSE_ORIGIN = "licenseOrigin";
+    public static final String PREVIOUS_PLAN = "previousPlan";
+    public static final String PREVIOUS_STATUS = "previousStatus";
+    public static final String PREVIOUS_ORIGIN = "previousOrigin";
+    public static final String PREVIOUS_TYPE = "previousType";
+    public static final String IP_ADDRESS = "ipAddress";
+    public static final String LICENSE_ID = "licenseId";
+    public static final String PAST_LICENSE_ID = "pastLicenseId";
+    public static final String TENANT_ID = "tenantId";
 }

@@ -24,6 +24,7 @@ public class License extends LicenseCE {
     LicenseStatus status;
     LicenseOrigin origin;
     ProductEdition productEdition;
+    String licenseId;
 
     @Transient
     Map<String, Boolean> tenantFeatures;
@@ -76,6 +77,7 @@ public class License extends LicenseCE {
             }
             this.setSubscriptionDetails(validationResponse.getSubscriptionDetails());
             this.setProductEdition(validationResponse.getProductEdition());
+            this.setLicenseId(validationResponse.getLicenseId());
         } else {
             this.setStatus(LicenseStatus.EXPIRED);
             this.setSubscriptionDetails(null);
