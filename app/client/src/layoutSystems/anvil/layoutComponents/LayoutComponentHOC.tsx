@@ -12,8 +12,14 @@ import type { WidgetPositions } from "layoutSystems/common/types";
 
 export function LayoutComponentHOC(Component: LayoutComponent) {
   const enhancedLayoutComponent = (props: LayoutComponentProps) => {
-    const { canvasId, isDropTarget, layoutId, layoutOrder, parentDropTarget, renderMode } =
-      props;
+    const {
+      canvasId,
+      isDropTarget,
+      layoutId,
+      layoutOrder,
+      parentDropTarget,
+      renderMode,
+    } = props;
 
     const updatedOrder: string[] = [...layoutOrder, layoutId];
 
