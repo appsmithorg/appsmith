@@ -1,11 +1,13 @@
 import type React from "react";
 import { useEffect, useRef } from "react";
-import { getNearestParentCanvas } from "utils/generators";
 import type { AnvilHighlightingCanvasProps } from "../AnvilHighlightingCanvas";
 import { useCanvasDragToScroll } from "layoutSystems/common/canvasArenas/useCanvasDragToScroll";
 import { Colors } from "constants/Colors";
 import type { AnvilHighlightInfo } from "layoutSystems/anvil/utils/anvilTypes";
 import { getAbsolutePixels } from "utils/helpers";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
+import { getNearestParentCanvas } from "utils/generators";
 
 /**
  * function to render UX to denote that the widget type cannot be dropped in the layout
@@ -17,6 +19,13 @@ const renderDisallowOnCanvas = (slidingArena: HTMLDivElement) => {
   slidingArena.innerText = "This Layout Doesn't support the widget";
 };
 
+const renderOverlayWidgetDropLayer = (slidingArena: HTMLDivElement) => {
+  slidingArena.style.backgroundColor = "blue";
+  slidingArena.style.opacity = "50%";
+  slidingArena.style.color = "white";
+  slidingArena.innerText = "Drop The Modal widget anywhere on the canvas";
+};
+
 /**
  * function to stroke a rectangle on the canvas that looks like a highlight/drop area.
  */
@@ -24,8 +33,9 @@ const renderDisallowOnCanvas = (slidingArena: HTMLDivElement) => {
 const renderBlocksOnCanvas = (
   stickyCanvas: HTMLCanvasElement,
   blockToRender: AnvilHighlightInfo,
+  topOffset: number,
 ) => {
-  const topOffset = getAbsolutePixels(stickyCanvas.style.top);
+  // const topOffset = getAbsolutePixels(stickyCanvas.style.top);
   const leftOffset = getAbsolutePixels(stickyCanvas.style.left);
   const canvasCtx = stickyCanvas.getContext("2d") as CanvasRenderingContext2D;
   canvasCtx.clearRect(0, 0, stickyCanvas.width, stickyCanvas.height);
@@ -37,11 +47,25 @@ const renderBlocksOnCanvas = (
   canvasCtx.setLineDash([]);
   const { height, posX, posY, width } = blockToRender;
   // roundRect is not currently supported in firefox.
-  if (canvasCtx.roundRect)
+  if (canvasCtx.roundRect) {
     canvasCtx.roundRect(posX - leftOffset, posY - topOffset, width, height, 4);
-  else canvasCtx.rect(posX - leftOffset, posY - topOffset, width, height);
+  } else {
+    canvasCtx.rect(posX - leftOffset, posY - topOffset, width, height);
+  }
   canvasCtx.fill();
   canvasCtx.stroke();
+};
+const modalWidgetHighlight: AnvilHighlightInfo = {
+  alignment: FlexLayerAlignment.Center,
+  canvasId: MAIN_CONTAINER_WIDGET_ID,
+  dropZone: {},
+  height: 0,
+  isVertical: false,
+  layoutOrder: [],
+  posX: 0,
+  posY: 0,
+  rowIndex: 0,
+  width: 0,
 };
 
 /**
@@ -60,27 +84,41 @@ export const useCanvasDragging = (
   stickyCanvasRef: React.RefObject<HTMLCanvasElement>,
   props: AnvilHighlightingCanvasProps,
 ) => {
-  const { anvilDragStates, deriveAllHighlightsFn, onDrop, renderOnMouseMove } =
-    props;
   const {
+    anvilDragStates,
+    deriveAllHighlightsFn,
+    layoutId,
+    onDrop,
+    renderOnMouseMove,
+  } = props;
+  const {
+    dragDetails,
     draggedBlocks,
     isCurrentDraggedCanvas,
     isDragging,
+    isNewWidget,
     isResizing,
+    mainCanvasLayoutId,
     widgetPositions,
   } = anvilDragStates;
-
+  const { newWidget } = dragDetails;
+  const activateOverlayWidgetDrop =
+    isNewWidget && newWidget.type === "MODAL_WIDGET";
   const canScroll = useCanvasDragToScroll(
     slidingArenaRef,
-    isCurrentDraggedCanvas,
+    isCurrentDraggedCanvas && !activateOverlayWidgetDrop,
     isDragging,
   );
   const allHighlightsRef = useRef([] as AnvilHighlightInfo[]);
   const calculateHighlights = () => {
-    allHighlightsRef.current = deriveAllHighlightsFn(
-      widgetPositions,
-      draggedBlocks,
-    );
+    if (activateOverlayWidgetDrop) {
+      allHighlightsRef.current = [];
+    } else {
+      allHighlightsRef.current = deriveAllHighlightsFn(
+        widgetPositions,
+        draggedBlocks,
+      );
+    }
   };
 
   useEffect(() => {
@@ -98,7 +136,9 @@ export const useCanvasDragging = (
         slidingArenaRef.current.style.color = "unset";
         slidingArenaRef.current.innerText = "";
       } else {
-        slidingArenaRef.current.style.zIndex = "2";
+        // z-index was set to 2 but now changed to 10 coz
+        // ConnectDataOverlay which wraps widgets like Table for some reasons is absolutely positioned and z-index 9
+        slidingArenaRef.current.style.zIndex = "10";
       }
     }
   }, [anvilDragStates.isCurrentDraggedCanvas]);
@@ -134,10 +174,14 @@ export const useCanvasDragging = (
           if (
             isDragging &&
             canvasIsDragging &&
-            currentRectanglesToDraw &&
+            (currentRectanglesToDraw || activateOverlayWidgetDrop) &&
             anvilDragStates.allowToDrop
           ) {
-            onDrop(currentRectanglesToDraw);
+            onDrop(
+              activateOverlayWidgetDrop
+                ? { ...modalWidgetHighlight, layoutOrder: [mainCanvasLayoutId] }
+                : currentRectanglesToDraw,
+            );
           }
           resetCanvasState();
         };
@@ -167,15 +211,43 @@ export const useCanvasDragging = (
               renderDisallowOnCanvas(slidingArenaRef.current);
               return;
             }
+            if (activateOverlayWidgetDrop) {
+              renderOverlayWidgetDropLayer(slidingArenaRef.current);
+              return;
+            }
             const processedHighlight = renderOnMouseMove(
               e,
               allHighlightsRef.current,
             );
             if (processedHighlight) {
               currentRectanglesToDraw = processedHighlight;
+              const isWidgetScrolling =
+                scrollParent?.className.includes("appsmith_widget_");
+              const isMainContainer = layoutId === mainCanvasLayoutId;
+              let val =
+                isMainContainer || isWidgetScrolling
+                  ? scrollParent?.scrollTop || 0
+                  : 0;
+              const mainCanvas = getNearestParentCanvas(
+                slidingArenaRef.current,
+              );
+              const totalScrollTop = mainCanvas?.scrollTop || 0;
+              const topOffset = getAbsolutePixels(
+                stickyCanvasRef.current.style.top,
+              );
+
+              if (
+                !isMainContainer &&
+                totalScrollTop &&
+                topOffset &&
+                totalScrollTop > topOffset
+              ) {
+                val += totalScrollTop - topOffset;
+              }
               renderBlocksOnCanvas(
                 stickyCanvasRef.current,
                 currentRectanglesToDraw,
+                val,
               );
               scrollObj.lastMouseMoveEvent = {
                 offsetX: e.offsetX,
