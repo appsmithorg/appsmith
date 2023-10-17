@@ -100,8 +100,7 @@ public class InstanceConfigHelperCEImpl implements InstanceConfigHelperCE {
                             .flatMap(config -> {
                                 // if instance isn't already marked registered
                                 if (config.getConfig() != null
-                                        && !Boolean.parseBoolean(
-                                                (String) config.getConfig().get("value"))) {
+                                        && !(Boolean) config.getConfig().get("value")) {
                                     sendServerSetupEvent(instanceId);
                                 }
                                 return configService.save(Appsmith.APPSMITH_REGISTERED, Map.of("value", true));
