@@ -14,6 +14,7 @@ import com.appsmith.server.dtos.LicenseValidationRequestDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.export.internal.ImportExportApplicationService;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.repositories.KnowledgeStoreRepository;
 import com.appsmith.server.services.AnalyticsService;
@@ -21,7 +22,6 @@ import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.TenantService;
 import com.appsmith.server.solutions.ApplicationPermission;
-import com.appsmith.server.solutions.ImportExportApplicationService;
 import com.appsmith.server.solutions.LicenseAPIManager;
 import com.appsmith.util.WebClientUtils;
 import com.google.gson.Gson;
@@ -40,6 +40,7 @@ import java.util.Map;
 
 import static com.appsmith.server.constants.ProcessingStatus.IDLE;
 import static com.appsmith.server.constants.ProcessingStatus.IN_PROGRESS;
+import static com.appsmith.server.constants.SerialiseApplicationObjective.KNOWLEDGE_BASE_GENERATION;
 
 @Slf4j
 @Service
@@ -334,8 +335,10 @@ public class KnowledgeStoreServiceImpl extends KnowledgeStoreServiceCECompatible
 
     @Override
     public Mono<String> getApplicationJsonStringForApplicationId(String applicationId) {
-        return importExportApplicationService
-                .exportApplicationById(applicationId, "")
+        return applicationService
+                .findBranchedApplicationId("", applicationId, applicationPermission.getEditPermission())
+                .flatMap(branchedAppId ->
+                        importExportApplicationService.exportApplicationById(branchedAppId, KNOWLEDGE_BASE_GENERATION))
                 .map(gson::toJson);
     }
 

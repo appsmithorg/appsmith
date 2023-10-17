@@ -7,6 +7,7 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.acl.PolicyGenerator;
+import com.appsmith.server.annotations.FeatureFlagged;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
@@ -23,12 +24,14 @@ import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.dtos.UpdateApplicationRoleDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.featureflags.FeatureFlagEnum;
+import com.appsmith.server.helpers.ApplicationServiceHelper;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.UserGroupRepository;
-import com.appsmith.server.services.ce.ApplicationServiceCEImpl;
+import com.appsmith.server.services.ce_compatible.ApplicationServiceCECompatibleImpl;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PermissionGroupPermission;
@@ -54,7 +57,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -75,7 +77,7 @@ import static com.appsmith.server.helpers.TextUtils.generateDefaultRoleNameForRe
 
 @Slf4j
 @Service
-public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements ApplicationService {
+public class ApplicationServiceImpl extends ApplicationServiceCECompatibleImpl implements ApplicationService {
 
     private final PermissionGroupService permissionGroupService;
     private final PolicySolution policySolution;
@@ -89,6 +91,8 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
     private final SessionUserService sessionUserService;
     private final EmailService emailService;
     private final ConfigService configService;
+
+    private final ApplicationServiceHelper applicationServiceHelper;
 
     public ApplicationServiceImpl(
             Scheduler scheduler,
@@ -112,7 +116,8 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
             UserService userService,
             UserGroupRepository userGroupRepository,
             SessionUserService sessionUserService,
-            EmailService emailService) {
+            EmailService emailService,
+            ApplicationServiceHelper applicationServiceHelper) {
 
         super(
                 scheduler,
@@ -141,6 +146,7 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
         this.sessionUserService = sessionUserService;
         this.emailService = emailService;
         this.configService = configService;
+        this.applicationServiceHelper = applicationServiceHelper;
     }
 
     /**
@@ -153,6 +159,7 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
      * @param application {@link Application}
      * @param roleType    {@link String}
      * @return {@link Mono}<{@link PermissionGroup}>
+     * @implNote The method is used internally and doesn't need to be feature flagged.
      */
     @Override
     public Mono<PermissionGroup> createDefaultRole(Application application, String roleType) {
@@ -533,6 +540,7 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
      *
      * @param application Application for which the default role is being deleted.
      * @param role        Role which is being deleted.
+     * @implNote The method is used internally and doesn't need to be feature flagged.
      */
     @Override
     public Mono<Void> deleteDefaultRole(Application application, PermissionGroup role) {
@@ -558,6 +566,7 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
      * @return {@link Mono}<{@link List}<{@link PermissionGroupInfoDTO}>>
      */
     @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
     public Mono<List<PermissionGroupInfoDTO>> fetchAllDefaultRoles(String applicationId) {
         Mono<Application> applicationMono = getById(applicationId).cache();
 
@@ -665,50 +674,17 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
      * @param applicationId ID of the application to be updated.
      * @param application   Resources to update.
      * @param branchName    updates application in a particular branch.
+     * @implNote Not annotating the method with feature flag, because we need the DB in the sane state.
+     * Take the following flow: BE -> Create Application -> App Share -> Downgrade to CE
+     * Application default roles will exist for this application, and whenever the application name is updated, these
+     * role names should update as well.
      * @return
      */
     @Override
     public Mono<Application> update(String applicationId, Application application, String branchName) {
         Mono<Application> updateApplicationMono = super.update(applicationId, application, branchName);
-        if (StringUtils.isEmpty(application.getName())) {
-            return updateApplicationMono;
-        }
-        String newApplicationName = application.getName();
-        return updateApplicationMono.flatMap(application1 -> {
-            /*
-             * Here we check if the application which has been updated is the application from default branch, or not.
-             * If the application is from any other branch other than the default branch, we don't update
-             * the names of default application role.
-             */
-            if (!isDefaultBranchApplication(application1)) {
-                return Mono.just(application1);
-            }
-            Flux<PermissionGroup> defaultApplicationRoles =
-                    permissionGroupService.getAllDefaultRolesForApplication(application1, Optional.empty());
-            Flux<PermissionGroup> updateDefaultApplicationRoles = defaultApplicationRoles.flatMap(role -> {
-                role.setName(generateNewDefaultName(role.getName(), newApplicationName));
-                return permissionGroupService.save(role);
-            });
-            return updateDefaultApplicationRoles.then(Mono.just(application1));
-        });
-    }
-
-    private String generateNewDefaultName(String oldName, String applicationName) {
-        if (oldName.startsWith(APPLICATION_DEVELOPER)) {
-            return generateDefaultRoleNameForResource(APPLICATION_DEVELOPER, applicationName);
-        } else if (oldName.startsWith(APPLICATION_VIEWER)) {
-            return generateDefaultRoleNameForResource(APPLICATION_VIEWER, applicationName);
-        }
-        // If this is not a default group i.e. does not start with the expected prefix, don't update it.
-        return oldName;
-    }
-
-    private boolean isDefaultBranchApplication(Application application) {
-        return Objects.isNull(application.getGitApplicationMetadata())
-                || application
-                        .getGitApplicationMetadata()
-                        .getDefaultApplicationId()
-                        .equals(application.getId());
+        return applicationServiceHelper.updateApplicationDefaultRolesWhenApplicationUpdated(
+                application, updateApplicationMono);
     }
 
     /**
@@ -727,6 +703,7 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
      * user groups who have been invited.
      */
     @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
     public Mono<List<MemberInfoDTO>> inviteToApplication(
             InviteUsersToApplicationDTO inviteToApplicationDTO, String originHeader) {
         Set<String> usernames = inviteToApplicationDTO.getUsernames();
@@ -918,6 +895,7 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
      * @return {@link Mono}<{@link MemberInfoDTO}> updated member info
      */
     @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
     public Mono<MemberInfoDTO> updateRoleForMember(
             String applicationId, UpdateApplicationRoleDTO updateApplicationRoleDTO) {
         String username = updateApplicationRoleDTO.getUsername();
@@ -968,6 +946,7 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
      * @return
      */
     @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
     public Mono<List<PermissionGroupInfoDTO>> fetchAllDefaultRolesWithoutPermissions() {
         List<PermissionGroupInfoDTO> roleDescriptionDTOS = new ArrayList<>();
 

@@ -2,9 +2,9 @@ import type { AxiosPromise } from "axios";
 import Api from "api/Api";
 import type { ApiResponse } from "api/ApiResponses";
 
-export type DisconnectProvisioningRequest = {
+export interface DisconnectProvisioningRequest {
   keepAllProvisionedResources: boolean;
-};
+}
 
 export class ProvisioningApi extends Api {
   static provision = "/v1/provision";

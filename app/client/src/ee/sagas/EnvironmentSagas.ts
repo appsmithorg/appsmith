@@ -198,9 +198,8 @@ function* fetchWorkspaceIdandInitSaga(
 }
 
 export function* waitForFetchEnvironments() {
-  const environments: EnvironmentType[] | undefined = yield select(
-    getEnvironments,
-  );
+  const environments: EnvironmentType[] | undefined =
+    yield select(getEnvironments);
   if (environments?.length === 0) {
     yield race([
       take(ReduxActionTypes.FETCH_ENVIRONMENT_SUCCESS),

@@ -1,11 +1,5 @@
 package com.appsmith.server.repositories;
 
-import com.appsmith.server.domains.User;
-import com.appsmith.server.repositories.ce.CacheableRepositoryHelperCE;
-import reactor.core.publisher.Mono;
+import com.appsmith.server.repositories.ce_compatible.CacheableRepositoryHelperCECompatible;
 
-public interface CacheableRepositoryHelper extends CacheableRepositoryHelperCE {
-    Mono<Long> getAllReadablePermissionGroupsForUser(User user);
-
-    Mono<Void> evictGetAllReadablePermissionGroupsForUser(String email, String tenantId);
-}
+public interface CacheableRepositoryHelper extends CacheableRepositoryHelperCECompatible {}

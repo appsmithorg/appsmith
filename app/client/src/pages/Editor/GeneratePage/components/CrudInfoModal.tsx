@@ -28,10 +28,10 @@ import {
 import SuccessTick from "pages/common/SuccessTick";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
-type Props = {
+interface Props {
   crudInfoModalOpen: boolean;
   generateCRUDSuccessInfo: GenerateCRUDSuccessInfoData | null;
-};
+}
 
 const Content = styled.div`
   display: flex;

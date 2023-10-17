@@ -17,6 +17,8 @@ import {
   unlistenWindowMessage,
   windowMessageListener,
 } from "./messageListenerFns/index";
+import { isWindowMessageListenerEnabled } from "@appsmith/utils/planHelpers";
+import { WorkerEnv } from "workers/Evaluation/handlers/workerEnv";
 
 type EE_ActionTriggerKeys =
   | TWindowMessageListenerType
@@ -30,21 +32,27 @@ type EE_ActionDescription =
 
 export type ActionDescription = CE_ActionDescription | EE_ActionDescription;
 
-export const getActionTriggerFunctionNames = (
-  cloudHosting: boolean,
-): Record<string, string> => {
-  return {
-    ...CE_getActionTriggerFunctionNames(cloudHosting),
-    ...(!cloudHosting && {
-      WINDOW_MESSAGE_LISTENER: "windowMessageListener",
-      UNLISTEN_WINDOW_MESSAGE: "unlistenWindowMessage",
-    }),
-  };
+export const getActionTriggerFunctionNames = (): Record<string, string> => {
+  const triggerFunctions = CE_getActionTriggerFunctionNames();
+  const featureFlags = WorkerEnv.getFeatureFlags();
+  const isMessageListenerEnabled = isWindowMessageListenerEnabled(featureFlags);
+  return isMessageListenerEnabled
+    ? {
+        ...triggerFunctions,
+        ...{
+          WINDOW_MESSAGE_LISTENER: "windowMessageListener",
+          UNLISTEN_WINDOW_MESSAGE: "unlistenWindowMessage",
+        },
+      }
+    : triggerFunctions;
 };
 
-export const getPlatformFunctions = (cloudHosting: boolean) => {
-  const platformFns = CE_getPlatformFunctions(cloudHosting);
-  return !cloudHosting
+export const getPlatformFunctions = () => {
+  const platformFns = CE_getPlatformFunctions();
+  const featureFlags = WorkerEnv.getFeatureFlags();
+  const isMessageListenerEnabled = isWindowMessageListenerEnabled(featureFlags);
+
+  return isMessageListenerEnabled
     ? [
         ...platformFns,
         {

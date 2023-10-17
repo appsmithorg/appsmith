@@ -7,12 +7,12 @@ import { Text } from "design-system";
 import { capitalizeFirstLetter } from "utils/helpers";
 import { renderDatasourceSection } from "pages/Editor/DataSourceEditor/DatasourceSection";
 
-type Props = {
+interface Props {
   currentEnv: string;
   config: any;
   datasource: Datasource;
   viewMode: boolean | undefined;
-};
+}
 
 export function EnvConfigSection({
   config,

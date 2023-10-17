@@ -10,27 +10,35 @@ import com.appsmith.server.dtos.UpdateRoleAssociationDTO;
 import com.appsmith.server.dtos.UserGroupCompactDTO;
 import com.appsmith.server.dtos.UserGroupDTO;
 import com.appsmith.server.dtos.UsersForGroupDTO;
+import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.UserGroupService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.UserAndAccessManagementService;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Set;
 
 import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.eq;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -63,9 +71,30 @@ public class CacheableRepositoryEETest {
     @Autowired
     UserService userService;
 
+    @SpyBean
+    FeatureFlagService featureFlagService;
+
+    @BeforeEach
+    public void setFeatureFlagsBeforeTests() {
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_audit_logs_enabled)))
+                .thenReturn(Mono.just(Boolean.FALSE));
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_gac_enabled)))
+                .thenReturn(Mono.just(Boolean.TRUE));
+    }
+
+    @AfterEach
+    public void resetFeatureFlagAfterTests() {
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_gac_enabled)))
+                .thenReturn(Mono.just(Boolean.FALSE));
+    }
+
     @Test
     @WithUserDetails(value = "api_user")
     public void getUserPermissionsTest_withUserGroup_onPermissionGroupDelete_valid() {
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_gac_enabled)))
+                .thenReturn(Mono.just(Boolean.TRUE));
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_audit_logs_enabled)))
+                .thenReturn(Mono.just(Boolean.FALSE));
 
         User api_user = userRepository.findByEmail("api_user").block();
 
@@ -148,6 +177,8 @@ public class CacheableRepositoryEETest {
 
         // Cleanup
         userGroupService.archiveById(createdGroup.getId()).block();
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_gac_enabled)))
+                .thenReturn(Mono.just(Boolean.FALSE));
     }
 
     @Test
@@ -202,6 +233,10 @@ public class CacheableRepositoryEETest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testEvictAllPermissionUserGroupAssociatedToAdminPermission() {
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_gac_enabled)))
+                .thenReturn(Mono.just(Boolean.TRUE));
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_audit_logs_enabled)))
+                .thenReturn(Mono.just(Boolean.FALSE));
         User apiUser = userRepository.findByEmail("api_user").block();
         userUtils.makeSuperUser(List.of(apiUser)).block();
         User user = new User();
@@ -258,5 +293,8 @@ public class CacheableRepositoryEETest {
                 permissionGroupRepository.countAllReadablePermissionGroups().block();
         assertThat(readablePermissionApiUserAfterPgDeletion).isEqualTo(countReadablePermissionsForApiUser);
         assertThat(readablePermissionCreatedUserAfterPgDeletion).isEqualTo(countReadablePermissionsForApiUser);
+
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_gac_enabled)))
+                .thenReturn(Mono.just(Boolean.FALSE));
     }
 }

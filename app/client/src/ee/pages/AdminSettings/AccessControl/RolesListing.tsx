@@ -17,7 +17,7 @@ import {
   EmptySearchResult,
   MoreInfoPill,
 } from "./components";
-import { adminSettingsCategoryUrl } from "RouteBuilder";
+import { adminSettingsCategoryUrl } from "@appsmith/RouteBuilder";
 import { SettingCategories } from "@appsmith/pages/AdminSettings/config/types";
 import { RoleAddEdit } from "./RoleAddEdit";
 import { useDispatch, useSelector } from "react-redux";
@@ -228,8 +228,8 @@ export function RolesListing() {
       setSearchValue(search);
       const results =
         filteredRoles &&
-        filteredRoles.filter((role) =>
-          role.name?.toLocaleUpperCase().includes(search),
+        filteredRoles.filter(
+          (role) => role.name?.toLocaleUpperCase().includes(search),
         );
       setData(results);
     } else {

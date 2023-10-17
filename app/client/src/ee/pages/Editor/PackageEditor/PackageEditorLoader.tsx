@@ -12,9 +12,9 @@ type PackageEditorLoaderProps = RouteComponentProps<{
 }> & {
   initEditor: (payload: InitPackageEditorPayload) => void;
 };
-type PackageEditorLoaderState = {
+interface PackageEditorLoaderState {
   Editor: React.JSXElementConstructor<any> | null;
-};
+}
 
 class PackageEditorLoader extends React.Component<
   PackageEditorLoaderProps,

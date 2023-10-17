@@ -16,6 +16,7 @@ import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserGroup;
+import com.appsmith.server.dtos.ProductEdition;
 import com.appsmith.server.dtos.UpdateLicenseKeyDTO;
 import com.appsmith.server.dtos.UserGroupDTO;
 import com.appsmith.server.dtos.UserProfileDTO;
@@ -24,7 +25,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.featureflags.CachedFeatures;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
-import com.appsmith.server.helpers.PermissionGroupUtils;
+import com.appsmith.server.helpers.PermissionGroupHelper;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.TenantRepository;
@@ -71,6 +72,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
@@ -111,6 +113,9 @@ public class TenantServiceTest {
     UserGroupRepository userGroupRepository;
 
     @Autowired
+    PermissionGroupHelper permissionGroupHelper;
+
+    @Autowired
     BrandingService brandingService;
 
     @SpyBean
@@ -123,6 +128,7 @@ public class TenantServiceTest {
 
     @BeforeEach
     public void setup() {
+        when(featureFlagService.check(any())).thenReturn(Mono.just(true));
         TenantConfiguration tenantConfiguration = new TenantConfiguration();
         tenantConfiguration.setWhiteLabelEnable("true");
         tenantConfiguration.setWhiteLabelLogo("https://custom.random.url");
@@ -168,7 +174,8 @@ public class TenantServiceTest {
         license.setStatus(LicenseStatus.valueOf("ACTIVE"));
         license.setExpiry(Instant.now().plus(Duration.ofHours(1)));
         license.setOrigin(LicenseOrigin.SELF_SERVE);
-        license.setPlan(LicensePlan.SELF_SERVE);
+        license.setPlan(LicensePlan.BUSINESS);
+        license.setProductEdition(ProductEdition.COMMERCIAL);
 
         // Mock CS response to get valid license
         Mockito.when(licenseAPIManager.licenseCheck(any())).thenReturn(Mono.just(license));
@@ -183,7 +190,8 @@ public class TenantServiceTest {
                     assertThat(savedLicense.getType()).isEqualTo(LicenseType.PAID);
                     assertThat(savedLicense.getExpiry()).isAfter(Instant.now());
                     assertThat(savedLicense.getOrigin()).isEqualTo(LicenseOrigin.SELF_SERVE);
-                    assertThat(savedLicense.getPlan()).isEqualTo(LicensePlan.SELF_SERVE);
+                    assertThat(savedLicense.getPlan()).isEqualTo(LicensePlan.BUSINESS);
+                    assertThat(savedLicense.getProductEdition()).isEqualTo(ProductEdition.COMMERCIAL);
                     assertThat(savedLicense.getStatus()).isEqualTo(LicenseStatus.ACTIVE);
                     assertThat(tenantConfiguration.getLicense()).isEqualTo(savedLicense);
                     assertTrue(tenantConfiguration.getIsActivated());
@@ -200,7 +208,8 @@ public class TenantServiceTest {
                     assertThat(savedLicense.getType()).isEqualTo(LicenseType.PAID);
                     assertThat(savedLicense.getExpiry()).isAfter(Instant.now());
                     assertThat(savedLicense.getOrigin()).isEqualTo(LicenseOrigin.SELF_SERVE);
-                    assertThat(savedLicense.getPlan()).isEqualTo(LicensePlan.SELF_SERVE);
+                    assertThat(savedLicense.getPlan()).isEqualTo(LicensePlan.BUSINESS);
+                    assertThat(savedLicense.getProductEdition()).isEqualTo(ProductEdition.COMMERCIAL);
                     assertThat(tenantConfiguration.getLicense()).isEqualTo(savedLicense);
                 })
                 .verifyComplete();
@@ -217,7 +226,8 @@ public class TenantServiceTest {
         license.setStatus(LicenseStatus.valueOf("IN_GRACE_PERIOD"));
         license.setExpiry(Instant.now().plus(Duration.ofHours(1)));
         license.setOrigin(LicenseOrigin.SELF_SERVE);
-        license.setPlan(LicensePlan.SELF_SERVE);
+        license.setPlan(LicensePlan.BUSINESS);
+        license.setProductEdition(ProductEdition.COMMERCIAL);
 
         // Mock CS response to get valid license
         Mockito.when(licenseAPIManager.licenseCheck(any())).thenReturn(Mono.just(license));
@@ -232,7 +242,7 @@ public class TenantServiceTest {
                     assertThat(savedLicense.getType()).isEqualTo(LicenseType.PAID);
                     assertThat(savedLicense.getExpiry()).isAfter(Instant.now());
                     assertThat(savedLicense.getOrigin()).isEqualTo(LicenseOrigin.SELF_SERVE);
-                    assertThat(savedLicense.getPlan()).isEqualTo(LicensePlan.SELF_SERVE);
+                    assertThat(savedLicense.getPlan()).isEqualTo(LicensePlan.BUSINESS);
                     assertThat(savedLicense.getStatus()).isEqualTo(LicenseStatus.IN_GRACE_PERIOD);
                     assertThat(tenantConfiguration.getLicense()).isEqualTo(savedLicense);
                     assertTrue(tenantConfiguration.getIsActivated());
@@ -249,7 +259,8 @@ public class TenantServiceTest {
                     assertThat(savedLicense.getType()).isEqualTo(LicenseType.PAID);
                     assertThat(savedLicense.getExpiry()).isAfter(Instant.now());
                     assertThat(savedLicense.getOrigin()).isEqualTo(LicenseOrigin.SELF_SERVE);
-                    assertThat(savedLicense.getPlan()).isEqualTo(LicensePlan.SELF_SERVE);
+                    assertThat(savedLicense.getPlan()).isEqualTo(LicensePlan.BUSINESS);
+                    assertThat(savedLicense.getProductEdition()).isEqualTo(ProductEdition.COMMERCIAL);
                     assertThat(savedLicense.getStatus()).isEqualTo(LicenseStatus.IN_GRACE_PERIOD);
                     assertThat(tenantConfiguration.getLicense()).isEqualTo(savedLicense);
                 })
@@ -343,7 +354,8 @@ public class TenantServiceTest {
         license.setStatus(LicenseStatus.valueOf("EXPIRED"));
         license.setExpiry(Instant.now().minus(Duration.ofHours(1)));
         license.setOrigin(LicenseOrigin.SELF_SERVE);
-        license.setPlan(LicensePlan.SELF_SERVE);
+        license.setPlan(LicensePlan.BUSINESS);
+        license.setProductEdition(ProductEdition.COMMERCIAL);
 
         // Mock CS response to get valid license
         Mockito.when(licenseAPIManager.licenseCheck(any())).thenReturn(Mono.just(license));
@@ -358,6 +370,7 @@ public class TenantServiceTest {
                     License expiredLicense = tenant.getTenantConfiguration().getLicense();
                     assertThat(expiredLicense.getPlan()).isEqualTo(license.getPlan());
                     assertThat(expiredLicense.getStatus()).isEqualTo(license.getStatus());
+                    assertThat(expiredLicense.getProductEdition()).isEqualTo(license.getProductEdition());
                 })
                 .verifyComplete();
     }
@@ -365,6 +378,8 @@ public class TenantServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void test_setShowRolesAndGroupInTenant_checkRolesAndGroupsExistInUserProfile() {
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_gac_enabled)))
+                .thenReturn(Mono.just(Boolean.TRUE));
         String testName = "test_setShowRolesAndGroupInTenant_checkRolesAndGroupsExistInUserProfile";
         User apiUser = userRepository.findByEmail("api_user").block();
 
@@ -376,7 +391,7 @@ public class TenantServiceTest {
 
         List<String> assignedToRoles = permissionGroupRepository
                 .findByAssignedToUserIdsIn(apiUser.getId())
-                .filter(role -> !PermissionGroupUtils.isUserManagementRole(role))
+                .filter(role -> !permissionGroupHelper.isUserManagementRole(role))
                 .map(PermissionGroup::getName)
                 .collectList()
                 .block();
@@ -441,6 +456,8 @@ public class TenantServiceTest {
         assertEquals(
                 List.of(AccessControlConstants.ENABLE_PROGRAMMATIC_ACCESS_CONTROL_IN_ADMIN_SETTINGS),
                 userProfileDTO_shouldNotContainRolesAndGroupInfo.getGroups());
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_gac_enabled)))
+                .thenReturn(Mono.just(Boolean.FALSE));
     }
 
     @Test
@@ -459,7 +476,7 @@ public class TenantServiceTest {
 
         List<String> assignedToRoles = permissionGroupRepository
                 .findByAssignedToUserIdsIn(apiUser.getId())
-                .filter(role -> !PermissionGroupUtils.isUserManagementRole(role))
+                .filter(role -> !permissionGroupHelper.isUserManagementRole(role))
                 .map(PermissionGroup::getName)
                 .collectList()
                 .block();
@@ -537,6 +554,7 @@ public class TenantServiceTest {
                 true,
                 true,
                 true,
+                true,
                 true);
     }
 
@@ -596,7 +614,7 @@ public class TenantServiceTest {
         assertThat(newBrandColors1.getDisabled()).isEqualTo(disabled1);
         assertThat(newBrandColors1.getHover()).isEqualTo(hover1);
         assertTenantConfigurations(
-                newTenantConfiguration1, defaultTenantConfiguration, true, true, true, true, true, false, true);
+                newTenantConfiguration1, defaultTenantConfiguration, true, true, true, true, true, false, true, true);
 
         Mono<String> update2_brandColors = Mono.just(
                 "{\"brandColors\": {\"primary\":\"" + primary2 + "\",\"background\":\"" + background2 + "\",\"font\":\""
@@ -615,7 +633,7 @@ public class TenantServiceTest {
         assertThat(newBrandColors2.getDisabled()).isEqualTo(disabled2);
         assertThat(newBrandColors2.getHover()).isEqualTo(hover1);
         assertTenantConfigurations(
-                newTenantConfiguration2, defaultTenantConfiguration, true, true, true, true, true, false, true);
+                newTenantConfiguration2, defaultTenantConfiguration, true, true, true, true, true, false, true, true);
     }
 
     @Test
@@ -772,6 +790,53 @@ public class TenantServiceTest {
 
     @Test
     @WithUserDetails("api_user")
+    public void removeTenantLicenseKey_removeExistingLicense_clientCancelsSubscriptionMidway_licenseKeyRemoved() {
+
+        License license = new License();
+        license.setKey(UUID.randomUUID().toString());
+        license.setActive(true);
+
+        tenant.getTenantConfiguration().setLicense(license);
+        Mockito.when(licenseAPIManager.downgradeTenantToFreePlan(any()))
+                .thenReturn(Mono.just(true).delaySubscription(Duration.ofMillis(100)));
+
+        // Add the dummy license
+        StepVerifier.create(tenantService.save(tenant))
+                .assertNext(tenant1 -> {
+                    assertThat(tenant1.getTenantConfiguration().getLicense()).isNotNull();
+                })
+                .verifyComplete();
+
+        License freeLicense = new License();
+        freeLicense.setActive(Boolean.FALSE);
+        freeLicense.setPreviousPlan(LicensePlan.FREE);
+        freeLicense.setPlan(LicensePlan.FREE);
+
+        // Create the scenario where the client cancels the subscription midway
+        tenantService.removeLicenseKey().timeout(Duration.ofMillis(10)).subscribe();
+
+        // Wait for license removal to complete
+        Mono<Tenant> resultMono = Mono.just(tenant).flatMap(originalApp -> {
+            try {
+                // Before fetching the updated tenant, sleep for 2 seconds to ensure that the license removal is
+                // completed
+                Thread.sleep(3000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            return tenantService.retrieveById(tenant.getId());
+        });
+
+        // Check if the license field is null after the license is removed as a part of downgrade to community flow
+        StepVerifier.create(resultMono)
+                .assertNext(tenant1 -> {
+                    assertThat(tenant1.getTenantConfiguration().getLicense()).isEqualTo(freeLicense);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
     public void test_updateDefaultTenantConfiguration_updateBrandLogo() {
         Tenant defaultTenant = tenantService.getTenantConfiguration().block();
         TenantConfiguration defaultTenantConfiguration = defaultTenant.getTenantConfiguration();
@@ -783,7 +848,7 @@ public class TenantServiceTest {
         TenantConfiguration newTenantConfiguration1 = defaultTenantPostUpdate1.getTenantConfiguration();
         assertThat(newTenantConfiguration1.getBrandLogoUrl()).startsWith(Url.ASSET_URL);
         assertTenantConfigurations(
-                newTenantConfiguration1, defaultTenantConfiguration, true, false, true, true, true, true, true);
+                newTenantConfiguration1, defaultTenantConfiguration, true, false, true, true, true, true, true, true);
     }
 
     @Test
@@ -794,7 +859,7 @@ public class TenantServiceTest {
         license.setKey(UUID.randomUUID().toString());
         license.setActive(true);
         license.setPlan(LicensePlan.ENTERPRISE);
-        license.setPreviousPlan(LicensePlan.SELF_SERVE);
+        license.setPreviousPlan(LicensePlan.BUSINESS);
 
         tenant.getTenantConfiguration().setLicense(license);
 
@@ -836,7 +901,7 @@ public class TenantServiceTest {
         TenantConfiguration newTenantConfiguration1 = defaultTenantPostUpdate1.getTenantConfiguration();
         assertThat(newTenantConfiguration1.getBrandFaviconUrl()).startsWith(Url.ASSET_URL);
         assertTenantConfigurations(
-                newTenantConfiguration1, defaultTenantConfiguration, true, true, false, true, true, true, true);
+                newTenantConfiguration1, defaultTenantConfiguration, true, true, false, true, true, true, true, true);
     }
 
     @Test
@@ -852,7 +917,7 @@ public class TenantServiceTest {
         TenantConfiguration newTenantConfiguration1 = defaultTenantPostUpdate1.getTenantConfiguration();
         assertThat(newTenantConfiguration1.getShowRolesAndGroups()).isTrue();
         assertTenantConfigurations(
-                newTenantConfiguration1, defaultTenantConfiguration, true, true, true, false, true, true, true);
+                newTenantConfiguration1, defaultTenantConfiguration, true, true, true, false, true, true, true, true);
 
         Mono<String> update2_showRolesAndGroups = Mono.just("{\"showRolesAndGroups\": false}");
 
@@ -862,7 +927,7 @@ public class TenantServiceTest {
         TenantConfiguration newTenantConfiguration2 = defaultTenantPostUpdate2.getTenantConfiguration();
         assertThat(newTenantConfiguration2.getShowRolesAndGroups()).isFalse();
         assertTenantConfigurations(
-                newTenantConfiguration2, defaultTenantConfiguration, true, true, true, false, true, true, true);
+                newTenantConfiguration2, defaultTenantConfiguration, true, true, true, false, true, true, true, true);
     }
 
     @Test
@@ -878,7 +943,7 @@ public class TenantServiceTest {
         TenantConfiguration newTenantConfiguration1 = defaultTenantPostUpdate1.getTenantConfiguration();
         assertThat(newTenantConfiguration1.getSingleSessionPerUserEnabled()).isTrue();
         assertTenantConfigurations(
-                newTenantConfiguration1, defaultTenantConfiguration, true, true, true, true, false, true, true);
+                newTenantConfiguration1, defaultTenantConfiguration, true, true, true, true, false, true, true, true);
 
         Mono<String> update2_singleSessionPerUserEnabled = Mono.just("{\"singleSessionPerUserEnabled\": false}");
 
@@ -888,7 +953,7 @@ public class TenantServiceTest {
         TenantConfiguration newTenantConfiguration2 = defaultTenantPostUpdate2.getTenantConfiguration();
         assertThat(newTenantConfiguration2.getSingleSessionPerUserEnabled()).isFalse();
         assertTenantConfigurations(
-                newTenantConfiguration2, defaultTenantConfiguration, true, true, true, true, false, true, true);
+                newTenantConfiguration2, defaultTenantConfiguration, true, true, true, true, false, true, true, true);
     }
 
     private FilePart createMockFilePart(int fileSizeKB) {
@@ -912,7 +977,8 @@ public class TenantServiceTest {
             boolean assertShowRolesAndGroups,
             boolean assertSingleSessionPerUserEnabled,
             boolean assertBrandColors,
-            boolean assertFirstTimeInteraction) {
+            boolean assertFirstTimeInteraction,
+            boolean assertHideWatermark) {
         if (assertWhiteLabelEnable) {
             assertThat(actualTenantConfiguration.isWhitelabelEnabled())
                     .isEqualTo(expectedTenantConfiguration.isWhitelabelEnabled());
@@ -958,6 +1024,15 @@ public class TenantServiceTest {
             assertThat(actualTenantConfiguration.getIsActivated())
                     .isEqualTo(expectedTenantConfiguration.getIsActivated());
         }
+
+        if (assertHideWatermark) {
+            if (actualTenantConfiguration.getHideWatermark() == null) {
+                assertFalse(expectedTenantConfiguration.getHideWatermark());
+            } else {
+                assertThat(actualTenantConfiguration.getHideWatermark())
+                        .isEqualTo(expectedTenantConfiguration.getHideWatermark());
+            }
+        }
     }
 
     @Test
@@ -971,7 +1046,7 @@ public class TenantServiceTest {
         license.setStatus(LicenseStatus.valueOf("ACTIVE"));
         license.setExpiry(Instant.now().plus(Duration.ofHours(1)));
         license.setOrigin(LicenseOrigin.SELF_SERVE);
-        license.setPlan(LicensePlan.SELF_SERVE);
+        license.setPlan(LicensePlan.BUSINESS);
 
         // Mock CS response to get valid license
         Mockito.when(licenseAPIManager.licenseCheck(any())).thenReturn(Mono.just(license));
@@ -986,7 +1061,7 @@ public class TenantServiceTest {
                     assertThat(savedLicense.getType()).isEqualTo(LicenseType.PAID);
                     assertThat(savedLicense.getExpiry()).isAfter(Instant.now());
                     assertThat(savedLicense.getOrigin()).isEqualTo(LicenseOrigin.SELF_SERVE);
-                    assertThat(savedLicense.getPlan()).isEqualTo(LicensePlan.SELF_SERVE);
+                    assertThat(savedLicense.getPlan()).isEqualTo(LicensePlan.BUSINESS);
                     assertThat(savedLicense.getStatus()).isEqualTo(LicenseStatus.ACTIVE);
                     assertThat(tenantConfiguration.getLicense()).isEqualTo(savedLicense);
                 })
@@ -1028,7 +1103,7 @@ public class TenantServiceTest {
         license.setStatus(LicenseStatus.valueOf("ACTIVE"));
         license.setExpiry(Instant.now().plus(Duration.ofHours(1)));
         license.setOrigin(LicenseOrigin.SELF_SERVE);
-        license.setPlan(LicensePlan.SELF_SERVE);
+        license.setPlan(LicensePlan.BUSINESS);
 
         // Mock CS response to get valid license
         Mockito.when(licenseAPIManager.licenseCheck(any())).thenReturn(Mono.just(license));
@@ -1059,7 +1134,7 @@ public class TenantServiceTest {
         TenantConfiguration newTenantConfiguration1 = defaultTenantPostUpdate1.getTenantConfiguration();
         assertThat(newTenantConfiguration1.getIsActivated()).isFalse();
         assertTenantConfigurations(
-                newTenantConfiguration1, defaultTenantConfiguration, true, true, true, true, true, true, false);
+                newTenantConfiguration1, defaultTenantConfiguration, true, true, true, true, true, true, false, true);
     }
 
     @Test
@@ -1110,5 +1185,50 @@ public class TenantServiceTest {
         assertEquals(subscriptionDetails.getSessions(), defaultSubscriptionDetails.getSessions());
         // remove api_user superuser permissions
         userUtils.removeSuperUser(List.of(api_user)).block();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void updateDefaultTenantConfigurationWithConnectionPoolConfig() {
+        Tenant defaultTenant = tenantService.getTenantConfiguration().block();
+        TenantConfiguration defaultTenantConfiguration = defaultTenant.getTenantConfiguration();
+
+        Mono<String> update1_updateFirstTimeInteraction = Mono.just("{\"connectionMaxPoolSize\": 20}");
+
+        Mono<Tenant> defaultTenantPostUpdateMono = tenantService.updateDefaultTenantConfiguration(
+                update1_updateFirstTimeInteraction, Mono.empty(), Mono.empty());
+
+        StepVerifier.create(defaultTenantPostUpdateMono).assertNext(dbTenant -> {
+            TenantConfiguration tenantConfiguration = dbTenant.getTenantConfiguration();
+            assertThat(tenantConfiguration.getConnectionMaxPoolSize()).isEqualTo(20);
+            assertTenantConfigurations(
+                    tenantConfiguration, defaultTenantConfiguration, true, true, true, true, true, true, false, true);
+        });
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void updateDefaultTenantConfiguration_updateHideWatermark_success() {
+        Tenant defaultTenant = tenantService.getTenantConfiguration().block();
+        TenantConfiguration defaultTenantConfiguration = defaultTenant.getTenantConfiguration();
+        Mono<String> update1_hideWatermarkEnabled = Mono.just("{\"hideWatermark\": true}");
+
+        Tenant defaultTenantPostUpdate1 = tenantService
+                .updateDefaultTenantConfiguration(update1_hideWatermarkEnabled, Mono.empty(), Mono.empty())
+                .block();
+        TenantConfiguration newTenantConfiguration1 = defaultTenantPostUpdate1.getTenantConfiguration();
+        assertThat(newTenantConfiguration1.getHideWatermark()).isTrue();
+        assertTenantConfigurations(
+                newTenantConfiguration1, defaultTenantConfiguration, true, true, true, true, false, true, true, false);
+
+        Mono<String> update2_hideWatermarkDisabled = Mono.just("{\"hideWatermark\": false}");
+
+        Tenant defaultTenantPostUpdate2 = tenantService
+                .updateDefaultTenantConfiguration(update2_hideWatermarkDisabled, Mono.empty(), Mono.empty())
+                .block();
+        TenantConfiguration newTenantConfiguration2 = defaultTenantPostUpdate2.getTenantConfiguration();
+        assertThat(newTenantConfiguration2.getHideWatermark()).isFalse();
+        assertTenantConfigurations(
+                newTenantConfiguration2, defaultTenantConfiguration, true, true, true, true, false, true, true, false);
     }
 }

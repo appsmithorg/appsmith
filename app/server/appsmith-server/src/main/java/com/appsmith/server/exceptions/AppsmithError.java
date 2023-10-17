@@ -977,6 +977,14 @@ public enum AppsmithError {
             "Invalid usage for custom annotation",
             ErrorType.CONFIGURATION_ERROR,
             null),
+    MIGRATION_FAILED(
+            500,
+            AppsmithErrorCode.MIGRATION_FAILED.getCode(),
+            "Migration {0} failed. Reason: {1}. Note: {2}",
+            AppsmithErrorAction.DEFAULT,
+            "Migration failed",
+            ErrorType.INTERNAL_ERROR,
+            null),
 
     FeatureFlagMigrationFailure(
             500,
@@ -1044,14 +1052,6 @@ public enum AppsmithError {
             "Unexpected state. Server side variable type is unknown. Please contact Appsmith support to report this issue.",
             AppsmithErrorAction.LOG_EXTERNALLY,
             "Unexpected server variable type",
-            ErrorType.INTERNAL_ERROR,
-            null),
-    MIGRATION_FAILED(
-            500,
-            AppsmithErrorCode.MIGRATION_FAILED.getCode(),
-            "Migration {0} failed. Reason: {1}. Note: {2}",
-            AppsmithErrorAction.DEFAULT,
-            "Migration failed",
             ErrorType.INTERNAL_ERROR,
             null),
     APPSMITH_AI_ERROR(
@@ -1133,6 +1133,14 @@ public enum AppsmithError {
             AppsmithErrorAction.DEFAULT,
             "No implementation error",
             ErrorType.INTERNAL_ERROR,
+            null),
+    MODULE_HAS_INSTANCES(
+            409,
+            AppsmithErrorCode.MODULE_HAS_INSTANCES.getCode(),
+            "Module cannot be deleted since it has {0} module instance(s) using it.",
+            AppsmithErrorAction.DEFAULT,
+            "Module cannot be deleted",
+            ErrorType.BAD_REQUEST,
             null),
     ;
 

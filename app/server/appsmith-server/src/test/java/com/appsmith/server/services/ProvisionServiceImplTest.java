@@ -4,7 +4,6 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.external.services.EncryptionService;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.constants.LicenseOrigin;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.License;
 import com.appsmith.server.domains.PermissionGroup;
@@ -36,7 +35,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
@@ -113,23 +112,25 @@ class ProvisionServiceImplTest {
     @Autowired
     EncryptionService encryptionService;
 
-    @MockBean
+    @SpyBean
     FeatureFlagService featureFlagService;
 
     private License defaultLicense;
 
     @BeforeEach
     public void beforeSetup() {
-        User apiUser = userRepository.findByEmail("api_user").block();
-        userUtils.makeSuperUser(List.of(apiUser)).block();
-        Tenant tenant = tenantService.getDefaultTenant().block();
-        defaultLicense = tenant.getTenantConfiguration().getLicense();
         Mockito.when(featureFlagService.check(Mockito.eq(FeatureFlagEnum.license_scim_enabled)))
+                .thenReturn(Mono.just(Boolean.TRUE));
+        Mockito.when(featureFlagService.check(Mockito.eq(FeatureFlagEnum.license_gac_enabled)))
                 .thenReturn(Mono.just(Boolean.TRUE));
         Mockito.when(featureFlagService.check(Mockito.eq(FeatureFlagEnum.release_datasource_environments_enabled)))
                 .thenReturn(Mono.just(Boolean.FALSE));
         Mockito.when(featureFlagService.check(Mockito.eq(FeatureFlagEnum.license_audit_logs_enabled)))
                 .thenReturn(Mono.just(Boolean.FALSE));
+        User apiUser = userRepository.findByEmail("api_user").block();
+        userUtils.makeSuperUser(List.of(apiUser)).block();
+        Tenant tenant = tenantService.getDefaultTenant().block();
+        defaultLicense = tenant.getTenantConfiguration().getLicense();
     }
 
     @AfterEach
@@ -140,39 +141,6 @@ class ProvisionServiceImplTest {
         Mockito.when(featureFlagService.check(Mockito.any())).thenReturn(Mono.just(Boolean.FALSE));
     }
 
-    private void setTenantLicenseAsSelfServe() {
-        License mockLicense = new License();
-        mockLicense.setActive(Boolean.TRUE);
-        mockLicense.setOrigin(LicenseOrigin.SELF_SERVE);
-        Tenant tenant = tenantService.getDefaultTenant().block();
-        tenant.getTenantConfiguration().setLicense(mockLicense);
-        tenantService.save(tenant).block();
-    }
-
-    private void setTenantLicenseAsEnterprise() {
-        License mockLicense = new License();
-        mockLicense.setActive(Boolean.TRUE);
-        mockLicense.setOrigin(LicenseOrigin.ENTERPRISE);
-        Tenant tenant = tenantService.getDefaultTenant().block();
-        tenant.getTenantConfiguration().setLicense(mockLicense);
-        tenantService.save(tenant).block();
-    }
-
-    private void setTenantLicenseAsAirGapped() {
-        License mockLicense = new License();
-        mockLicense.setActive(Boolean.TRUE);
-        mockLicense.setOrigin(LicenseOrigin.AIR_GAP);
-        Tenant tenant = tenantService.getDefaultTenant().block();
-        tenant.getTenantConfiguration().setLicense(mockLicense);
-        tenantService.save(tenant).block();
-    }
-
-    private void setTenantLicenseAsNull() {
-        Tenant tenant = tenantService.getDefaultTenant().block();
-        tenant.getTenantConfiguration().setLicense(null);
-        tenantService.save(tenant).block();
-    }
-
     private void mockFeatureFlag(FeatureFlagEnum featureFlagEnum, boolean value) {
         Mockito.when(featureFlagService.check(Mockito.eq(featureFlagEnum))).thenReturn(Mono.just(value));
     }
@@ -181,7 +149,6 @@ class ProvisionServiceImplTest {
     @WithUserDetails(value = "api_user")
     void testDisconnectProvisioning_keepProvisionedUsersAndGroups_checkProvisioningStatusAtEveryStep() {
         String testName = "testDisconnectProvisioning_keepProvisionedUsersAndGroups_checkProvisioningStatusAtEveryStep";
-        setTenantLicenseAsEnterprise();
         PermissionGroup instanceAdminRole =
                 userUtils.getSuperAdminPermissionGroup().block();
         PermissionGroup provisioningRole = userUtils.getProvisioningRole().block();
@@ -460,7 +427,6 @@ class ProvisionServiceImplTest {
     @WithUserDetails(value = "api_user")
     void testDisconnectProvisioning_checkProvisioningStatusAtEveryStep_AfterReprovisionKey() {
         String testName = "testDisconnectProvisioning_checkProvisioningStatusAtEveryStep_AfterReprovisionKey";
-        setTenantLicenseAsEnterprise();
         provisionService.generateProvisionToken().block();
 
         ProvisionStatusDTO provisionStatusAfterGeneratingProvisionToken =
@@ -526,7 +492,6 @@ class ProvisionServiceImplTest {
     @WithUserDetails(value = "api_user")
     void testDisconnectProvisioning_deleteProvisionedUsersAndGroups_checkProvisioningStatusAtEveryStep() {
         String testName = "testDisconnectProvisioning_keepProvisionedUsersAndGroups_checkProvisioningStatusAtEveryStep";
-        setTenantLicenseAsEnterprise();
         String generatedProvisionToken =
                 provisionService.generateProvisionToken().block();
         String provisioningUserId = Arrays.stream(encryptionService
@@ -713,7 +678,6 @@ class ProvisionServiceImplTest {
     @Test
     @WithUserDetails(value = "usertest@usertest.com")
     public void testDisconnectProvisioningWithRegularUser_shouldThrowActionIsNotAuthorised() {
-        setTenantLicenseAsEnterprise();
         // Add usertest as a superuser along with api_user to perform Admin Actions.
         User apiUser = userRepository.findByEmail("api_user").block();
         User userTest = userRepository.findByEmail("usertest@usertest.com").block();
@@ -772,19 +736,7 @@ class ProvisionServiceImplTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void testGenerateToken_shouldThrowErrorForNonEnterpriseInstance() {
-        setTenantLicenseAsSelfServe();
-        AppsmithException enterpriseFeatureException = assertThrows(
-                AppsmithException.class,
-                () -> provisionService.generateProvisionToken().block());
-        assertThat(enterpriseFeatureException.getMessage())
-                .isEqualTo(AppsmithError.LICENSE_UPGRADE_REQUIRED.getMessage(LicenseOrigin.ENTERPRISE.name()));
-    }
-
-    @Test
-    @WithUserDetails(value = "api_user")
     public void getProvisionStatus_provisionTokenGenerated_inactiveStatus() {
-        setTenantLicenseAsEnterprise();
         String provisionToken = provisionService.generateProvisionToken().block();
         assertThat(provisionToken).isNotNull();
 
@@ -807,7 +759,6 @@ class ProvisionServiceImplTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void getProvisionStatus_makeGetProvisionedUsersCall_activeStatus() {
-        setTenantLicenseAsEnterprise();
         String provisionToken = provisionService.generateProvisionToken().block();
         assertThat(provisionToken).isNotNull();
 
@@ -838,28 +789,8 @@ class ProvisionServiceImplTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void testGenerateToken_shouldThrowErrorLicenseNull() {
-        setTenantLicenseAsNull();
-        AppsmithException enterpriseFeatureException = assertThrows(
-                AppsmithException.class,
-                () -> provisionService.generateProvisionToken().block());
-        assertThat(enterpriseFeatureException.getMessage())
-                .isEqualTo(AppsmithError.LICENSE_UPGRADE_REQUIRED.getMessage(LicenseOrigin.ENTERPRISE.name()));
-    }
-
-    @Test
-    @WithUserDetails(value = "api_user")
-    public void testGenerateToken_shouldCreateTokenEnterpriseInstance() {
-        setTenantLicenseAsEnterprise();
-        String provisionToken = provisionService.generateProvisionToken().block();
-        assertThat(provisionToken).isNotBlank();
-    }
-
-    @Test
-    @WithUserDetails(value = "api_user")
     public void getProvisionStatus_makeCreateProvisionedUserCall_activeStatus_countUsers1() {
         String testName = "getProvisionStatus_makeCreateProvisionedUserCall_activeStatus_countUsers1";
-        setTenantLicenseAsEnterprise();
         String provisionToken = provisionService.generateProvisionToken().block();
         assertThat(provisionToken).isNotNull();
 
@@ -896,7 +827,6 @@ class ProvisionServiceImplTest {
     @WithUserDetails(value = "api_user")
     public void getProvisionStatus_makeCreateProvisionedGroupCall_activeStatus_countGroup1() {
         String testName = "getProvisionStatus_makeCreateProvisionedGroupCall_activeStatus_countGroup1";
-        setTenantLicenseAsEnterprise();
         String provisionToken = provisionService.generateProvisionToken().block();
         assertThat(provisionToken).isNotNull();
 
@@ -932,7 +862,6 @@ class ProvisionServiceImplTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testProvisioningStatus_disconnectProvisioning_statusShouldBecomeInactive() {
-        setTenantLicenseAsEnterprise();
         String provisionToken = provisionService.generateProvisionToken().block();
         assertThat(provisionToken).isNotNull();
 
@@ -986,19 +915,10 @@ class ProvisionServiceImplTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void testGenerateToken_shouldCreateTokenAirGapInstance() {
-        setTenantLicenseAsAirGapped();
-        String provisionToken = provisionService.generateProvisionToken().block();
-        assertThat(provisionToken).isNotBlank();
-    }
-
-    @Test
-    @WithUserDetails(value = "api_user")
     public void
             createProvisionUser_assignWorkspaceRoles_deleteProvisioningUser_workspaceRolesShouldNotContainProvisionedUser() {
         String testName =
                 "createProvisionUser_assignWorkspaceRoles_deleteProvisioningUser_workspaceRolesShouldNotContainProvisionedUser";
-        setTenantLicenseAsEnterprise();
         String provisionToken = provisionService.generateProvisionToken().block();
         assertThat(provisionToken).isNotNull();
 
@@ -1073,7 +993,6 @@ class ProvisionServiceImplTest {
             testDisconnectProvisioning_keepUsersAndGroups_cancelMidway_disconnectHappensAndUsersGroupsAreInCorrectState() {
         String testName =
                 "testDisconnectProvisioning_keepUsersAndGroups_cancelMidway_disconnectHappensAndUsersGroupsAreInCorrectState";
-        setTenantLicenseAsEnterprise();
         PermissionGroup instanceAdminRole =
                 userUtils.getSuperAdminPermissionGroup().block();
         PermissionGroup provisioningRole = userUtils.getProvisioningRole().block();
@@ -1360,7 +1279,6 @@ class ProvisionServiceImplTest {
     void testDisconnectProvisioning_deleteUsersAndGroups_cancelMidway_disconnectHappensAndUsersGroupsAreDeleted() {
         String testName =
                 "testDisconnectProvisioning_deleteUsersAndGroups_cancelMidway_disconnectHappensAndUsersGroupsAreDeleted";
-        setTenantLicenseAsEnterprise();
         String generatedProvisionToken =
                 provisionService.generateProvisionToken().block();
         String provisioningUserId = Arrays.stream(encryptionService

@@ -39,6 +39,10 @@ class UserServiceCECompatibleTest {
     public void beforeSetup() {
         Mockito.when(featureFlagService.check(Mockito.eq(FeatureFlagEnum.license_scim_enabled)))
                 .thenReturn(Mono.just(Boolean.FALSE));
+        Mockito.when(featureFlagService.check(Mockito.eq(FeatureFlagEnum.license_gac_enabled)))
+                .thenReturn(Mono.just(Boolean.FALSE));
+        Mockito.when(featureFlagService.check(Mockito.eq(FeatureFlagEnum.license_audit_logs_enabled)))
+                .thenReturn(Mono.just(Boolean.FALSE));
     }
 
     @Test

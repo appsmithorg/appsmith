@@ -1,9 +1,11 @@
 package com.appsmith.server.services.ce_compatible;
 
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.dtos.ProvisionResourceDto;
+import com.appsmith.server.dtos.UpdateGroupMembershipDTO;
 import com.appsmith.server.dtos.UserGroupUpdateDTO;
 import com.appsmith.server.dtos.UsersForGroupDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -51,6 +53,7 @@ class UserGroupServiceCECompatibleTest {
 
     @BeforeEach
     public void setFeatureFlags() {
+        mockFeatureFlag(FeatureFlagEnum.license_gac_enabled, true);
         mockFeatureFlag(FeatureFlagEnum.license_audit_logs_enabled, false);
     }
 
@@ -172,7 +175,9 @@ class UserGroupServiceCECompatibleTest {
     void testRemoveUsersFromProvisionGroup() {
         // Test setup started
         mockFeatureFlag(FeatureFlagEnum.license_scim_enabled, true);
+        mockFeatureFlag(FeatureFlagEnum.license_gac_enabled, true);
         mockFeatureFlag(FeatureFlagEnum.license_branding_enabled, true);
+
         String testName = "testRemoveUsersFromProvisionGroup";
         User user1 = new User();
         user1.setEmail(testName + "_provisioned_user1@appsmith.com");
@@ -213,6 +218,7 @@ class UserGroupServiceCECompatibleTest {
                 .archiveProvisionGroupById(provisionedUserGroup.getResource().getId())
                 .block();
         mockFeatureFlag(FeatureFlagEnum.license_scim_enabled, false);
+        mockFeatureFlag(FeatureFlagEnum.license_gac_enabled, false);
         // Test cleanup finished
     }
 
@@ -221,6 +227,7 @@ class UserGroupServiceCECompatibleTest {
     void testAddUsersToProvisionGroup() {
         // Test setup started
         mockFeatureFlag(FeatureFlagEnum.license_scim_enabled, true);
+        mockFeatureFlag(FeatureFlagEnum.license_gac_enabled, true);
         String testName = "testAddUsersToProvisionGroup";
         User user1 = new User();
         user1.setEmail(testName + "_provisioned_user1@appsmith.com");
@@ -256,6 +263,7 @@ class UserGroupServiceCECompatibleTest {
                 .archiveProvisionGroupById(provisionedUserGroup.getResource().getId())
                 .block();
         mockFeatureFlag(FeatureFlagEnum.license_scim_enabled, false);
+        mockFeatureFlag(FeatureFlagEnum.license_gac_enabled, false);
         // Test cleanup finished
     }
 
@@ -270,6 +278,154 @@ class UserGroupServiceCECompatibleTest {
         AppsmithException unsupportedException = assertThrows(
                 AppsmithException.class,
                 () -> userGroupService.archiveProvisionGroupById("random-id").block());
+        assertThat(unsupportedException.getMessage()).isEqualTo(AppsmithError.UNSUPPORTED_OPERATION.getMessage());
+        // Feature assertion finished
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testCreateGroupCECompatible() {
+        mockFeatureFlag(FeatureFlagEnum.license_gac_enabled, false);
+        String testName = "testCreateGroupCECompatible";
+        UserGroup userGroup = new UserGroup();
+        userGroup.setName(testName);
+        // Feature assertion started
+        AppsmithException unsupportedException = assertThrows(
+                AppsmithException.class,
+                () -> userGroupService.createGroup(userGroup).block());
+        assertThat(unsupportedException.getMessage()).isEqualTo(AppsmithError.UNSUPPORTED_OPERATION.getMessage());
+        // Feature assertion finished
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testRemoveUsersCECompatible() {
+        mockFeatureFlag(FeatureFlagEnum.license_gac_enabled, false);
+        UsersForGroupDTO removeUsersFromGroupDTO = new UsersForGroupDTO();
+        removeUsersFromGroupDTO.setUsernames(Set.of("random_user_name"));
+        removeUsersFromGroupDTO.setGroupIds(Set.of("random_group_id"));
+        // Feature assertion started
+        AppsmithException unsupportedException = assertThrows(
+                AppsmithException.class,
+                () -> userGroupService.removeUsers(removeUsersFromGroupDTO).block());
+        assertThat(unsupportedException.getMessage()).isEqualTo(AppsmithError.UNSUPPORTED_OPERATION.getMessage());
+        // Feature assertion finished
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testFindByIdCECompatible() {
+        mockFeatureFlag(FeatureFlagEnum.license_gac_enabled, false);
+        // Feature assertion started
+        AppsmithException unsupportedException = assertThrows(AppsmithException.class, () -> userGroupService
+                .findById("random-id", AclPermission.READ_USER_GROUPS)
+                .block());
+        assertThat(unsupportedException.getMessage()).isEqualTo(AppsmithError.UNSUPPORTED_OPERATION.getMessage());
+        // Feature assertion finished
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testUpdateGroupCECompatible() {
+        mockFeatureFlag(FeatureFlagEnum.license_gac_enabled, false);
+        String testName = "testUpdateGroupCECompatible";
+        UserGroup userGroup = new UserGroup();
+        userGroup.setName(testName);
+        // Feature assertion started
+        AppsmithException unsupportedException = assertThrows(
+                AppsmithException.class,
+                () -> userGroupService.updateGroup("random-id", userGroup).block());
+        assertThat(unsupportedException.getMessage()).isEqualTo(AppsmithError.UNSUPPORTED_OPERATION.getMessage());
+        // Feature assertion finished
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testGetGroupByIdCECompatible() {
+        mockFeatureFlag(FeatureFlagEnum.license_gac_enabled, false);
+        String testName = "testGetGroupByIdCECompatible";
+        UserGroup userGroup = new UserGroup();
+        userGroup.setName(testName);
+        // Feature assertion started
+        AppsmithException unsupportedException = assertThrows(
+                AppsmithException.class,
+                () -> userGroupService.getGroupById("random-id").block());
+        assertThat(unsupportedException.getMessage()).isEqualTo(AppsmithError.UNSUPPORTED_OPERATION.getMessage());
+        // Feature assertion finished
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testInviteUsersCECompatible() {
+        mockFeatureFlag(FeatureFlagEnum.license_gac_enabled, false);
+        UsersForGroupDTO inviteUsersToGroupDTO = new UsersForGroupDTO();
+        inviteUsersToGroupDTO.setUsernames(Set.of("random-user-name"));
+        inviteUsersToGroupDTO.setGroupIds(Set.of("random-group-id"));
+        // Feature assertion started
+        AppsmithException unsupportedException = assertThrows(AppsmithException.class, () -> userGroupService
+                .inviteUsers(inviteUsersToGroupDTO, "test")
+                .block());
+        assertThat(unsupportedException.getMessage()).isEqualTo(AppsmithError.UNSUPPORTED_OPERATION.getMessage());
+        // Feature assertion finished
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testGetAllWithAddUserPermissionCECompatible() {
+        mockFeatureFlag(FeatureFlagEnum.license_gac_enabled, false);
+        // Feature assertion started
+        AppsmithException unsupportedException = assertThrows(
+                AppsmithException.class,
+                () -> userGroupService.getAllWithAddUserPermission().block());
+        assertThat(unsupportedException.getMessage()).isEqualTo(AppsmithError.UNSUPPORTED_OPERATION.getMessage());
+        // Feature assertion finished
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testGetAllReadableGroupsCECompatible() {
+        mockFeatureFlag(FeatureFlagEnum.license_gac_enabled, false);
+        // Feature assertion started
+        AppsmithException unsupportedException = assertThrows(
+                AppsmithException.class,
+                () -> userGroupService.getAllReadableGroups().block());
+        assertThat(unsupportedException.getMessage()).isEqualTo(AppsmithError.UNSUPPORTED_OPERATION.getMessage());
+        // Feature assertion finished
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testChangeGroupsForUserCECompatible() {
+        mockFeatureFlag(FeatureFlagEnum.license_gac_enabled, false);
+        UpdateGroupMembershipDTO updateGroupMembershipDTO = new UpdateGroupMembershipDTO();
+        // Feature assertion started
+        AppsmithException unsupportedException = assertThrows(AppsmithException.class, () -> userGroupService
+                .changeGroupsForUser(updateGroupMembershipDTO, "test")
+                .block());
+        assertThat(unsupportedException.getMessage()).isEqualTo(AppsmithError.UNSUPPORTED_OPERATION.getMessage());
+        // Feature assertion finished
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testFindAllGroupsForUser() {
+        mockFeatureFlag(FeatureFlagEnum.license_gac_enabled, false);
+        // Feature assertion started
+        AppsmithException unsupportedException = assertThrows(
+                AppsmithException.class,
+                () -> userGroupService.findAllGroupsForUser("random-user-id").blockFirst());
+        assertThat(unsupportedException.getMessage()).isEqualTo(AppsmithError.UNSUPPORTED_OPERATION.getMessage());
+        // Feature assertion finished
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testBulkRemoveUserFromGroupsWithoutPermission() {
+        mockFeatureFlag(FeatureFlagEnum.license_gac_enabled, false);
+        // Feature assertion started
+        AppsmithException unsupportedException = assertThrows(AppsmithException.class, () -> userGroupService
+                .bulkRemoveUserFromGroupsWithoutPermission(new User(), Set.of())
+                .block());
         assertThat(unsupportedException.getMessage()).isEqualTo(AppsmithError.UNSUPPORTED_OPERATION.getMessage());
         // Feature assertion finished
     }

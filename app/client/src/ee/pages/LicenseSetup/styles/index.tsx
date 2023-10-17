@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { Input, Link, Text } from "design-system";
+import { Divider, Input, Link, Text } from "design-system";
 
 export const StyledPageWrapper = styled.div`
   display: flex;
@@ -15,9 +15,10 @@ export const StyledCardWrapper = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: start;
   gap: 10px;
   flex-wrap: wrap;
+  min-width: 700px;
 `;
 
 export const StyledCard = styled.div<{ noField?: boolean }>`
@@ -35,7 +36,6 @@ export const StyledCard = styled.div<{ noField?: boolean }>`
 
 export const StyledForm = styled.form<{ showError?: boolean }>`
   display: flex;
-  flex-direction: column;
   border-radius: var(--ads-v2-border-radius);
   .ur--has-border {
     width: 100%;
@@ -66,7 +66,6 @@ export const IconBadge = styled.div`
 `;
 
 export const StyledContent = styled(Text)`
-  width: 50%;
   text-align: center;
   .license-input {
     width: 100%;
@@ -85,16 +84,35 @@ export const InputWrapper = styled.div`
   display: flex;
   flex-direction: column;
   width: 100%;
-  margin-bottom: 20px;
 `;
 
 export const StyledInput = styled(Input)``;
-
-export const StyledLink = styled(Link)`
-  width: 50%;
-`;
+export const StyledLink = styled(Link)``;
 
 export const StyledLinkWrapper = styled.div`
   width: 100%;
   display: flex;
+  text-align: center;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 10px;
+`;
+
+export const StyledNonAdminPageWrapper = styled.div`
+  top: 23%;
+  position: absolute;
+  width: 100%;
+`;
+
+export const StyledCardContent = styled.div`
+  gap: 10px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  width: 60%;
+`;
+
+export const StyledDivider = styled(Divider)`
+  height: inherit;
 `;

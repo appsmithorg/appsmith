@@ -172,7 +172,10 @@ export const KBViewerFloatingButton = React.memo(() => {
     try {
       const response = await getApplicationKBApi(applicationId);
       setApplicationKB(response);
-      computeApplicationKBReadStatus(response);
+      const isPublishedKBPresent = getIsPublishedKBPresent(response);
+      if (isPublishedKBPresent) {
+        computeApplicationKBReadStatus(response);
+      }
 
       const isKBGenerationPending = getIsKbGenerationPending(response);
       if (isKBGenerationPending) {

@@ -17,9 +17,10 @@ import {
   GoogleOAuthURL,
   GithubOAuthURL,
 } from "@appsmith/constants/ApiConstants";
-import type {
-  AdminConfigType,
-  Category,
+import {
+  SettingCategories,
+  type AdminConfigType,
+  type Category,
 } from "@appsmith/pages/AdminSettings/config/types";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 
@@ -100,7 +101,10 @@ export const getFilteredGeneralCategories = (categories: Category[]) => {
   const isAirgappedInstance = isAirgapped();
   return categories
     ?.map((category: Category) => {
-      if (isAirgappedInstance && category.slug === "google-maps") {
+      if (
+        isAirgappedInstance &&
+        category.slug === SettingCategories.DEVELOPER_SETTINGS
+      ) {
         return null;
       }
       return category;

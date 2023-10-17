@@ -5,10 +5,10 @@ import { useSelector } from "react-redux";
 import AISignPosting from "./AiSignPosting";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 
-export type Props = {
+export interface Props {
   isAIEnabled: boolean;
   mode: TEditorModes;
-};
+}
 
 export function EditorFormSignPosting(props: Props) {
   const noOfTimesAITriggered = useSelector(

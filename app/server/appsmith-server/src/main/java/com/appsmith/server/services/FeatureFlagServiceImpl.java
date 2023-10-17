@@ -5,15 +5,12 @@ import com.appsmith.server.constants.MigrationStatus;
 import com.appsmith.server.domains.License;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.TenantConfiguration;
-import com.appsmith.server.domains.User;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.FeatureFlagMigrationHelper;
 import com.appsmith.server.services.ce.FeatureFlagServiceCEImpl;
 import org.ff4j.FF4j;
 import org.springframework.stereotype.Component;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.util.function.Tuple2;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -23,8 +20,6 @@ import static java.lang.Boolean.TRUE;
 @Component
 public class FeatureFlagServiceImpl extends FeatureFlagServiceCEImpl implements FeatureFlagService {
 
-    private final SessionUserService sessionUserService;
-    private final FF4j ff4j;
     private final AirgapInstanceConfig airgapInstanceConfig;
     private final TenantService tenantService;
 
@@ -43,9 +38,6 @@ public class FeatureFlagServiceImpl extends FeatureFlagServiceCEImpl implements 
                 userIdentifierService,
                 cacheableFeatureFlagHelper,
                 featureFlagMigrationHelper);
-
-        this.sessionUserService = sessionUserService;
-        this.ff4j = ff4j;
         this.airgapInstanceConfig = airgapInstanceConfig;
         this.tenantService = tenantService;
     }
@@ -55,25 +47,9 @@ public class FeatureFlagServiceImpl extends FeatureFlagServiceCEImpl implements 
         if (!airgapInstanceConfig.isAirgapEnabled()) {
             return super.getAllFeatureFlagsForUser();
         }
-
-        Mono<User> currentUser = sessionUserService.getCurrentUser();
-        Flux<Tuple2<String, User>> featureUserTuple = Flux.fromIterable(
-                        ff4j.getFeatures().keySet())
-                .flatMap(featureName -> Mono.just(featureName).zipWith(currentUser));
-
-        Mono<Map<String, Boolean>> localFlagsForUser = featureUserTuple
-                .filter(objects -> !objects.getT2().isAnonymous())
-                .collectMap(Tuple2::getT1, tuple -> check(tuple.getT1(), tuple.getT2()));
-
-        Mono<Map<String, Boolean>> tenantFeaturesFlags = getTenantFeatures().switchIfEmpty(Mono.just(new HashMap<>()));
-
-        // Combine local flags, remote flags, and tenant features, and merge them into a single map
-        return localFlagsForUser.zipWith(tenantFeaturesFlags).map(localAndTenantFlags -> {
-            Map<String, Boolean> combinedFlags = new HashMap<>(localAndTenantFlags.getT1());
-            // Overwrite the flags with the remote flags
-            combinedFlags.putAll(localAndTenantFlags.getT2());
-            return combinedFlags;
-        });
+        // For airgap, we need to fetch the feature flags for the tenant only as user level flags needs third party call
+        // to CS, but tenant flags are embedded into the license key itself
+        return getTenantFeatures().switchIfEmpty(Mono.just(new HashMap<>()));
     }
 
     /**

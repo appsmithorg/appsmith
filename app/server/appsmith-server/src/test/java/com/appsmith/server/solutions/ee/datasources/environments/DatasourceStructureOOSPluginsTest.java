@@ -14,12 +14,14 @@ import com.appsmith.server.datasourcestorages.base.DatasourceStorageService;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.services.DatasourceContextService;
 import com.appsmith.server.services.DatasourceStructureService;
 import com.appsmith.server.services.EnvironmentService;
-import com.appsmith.server.services.PluginService;
+import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.DatasourcePermission;
@@ -46,6 +48,7 @@ import static com.appsmith.external.models.DatasourceStructure.TableType.TABLE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doReturn;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -87,6 +90,9 @@ public class DatasourceStructureOOSPluginsTest {
 
     @Autowired
     EnvironmentService environmentService;
+
+    @SpyBean
+    FeatureFlagService featureFlagService;
 
     String workspaceId;
 
@@ -199,6 +205,10 @@ public class DatasourceStructureOOSPluginsTest {
                 })
                 .when(datasourceContextService)
                 .retryOnce(any(), any());
+
+        doReturn(Mono.just(Boolean.TRUE))
+                .when(featureFlagService)
+                .check(Mockito.eq(FeatureFlagEnum.release_datasource_environments_enabled));
 
         Mono<DatasourceStructure> datasourceStructureMono =
                 datasourceStructureSolution.getStructure(datasourceId, Boolean.FALSE, stagingEnvironmentId);

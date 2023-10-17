@@ -1,9 +1,6 @@
 import { get, isEmpty, merge, set } from "lodash";
-import type {
-  ConfigTree,
-  DataTree,
-  JSActionEntity,
-} from "@appsmith/entities/DataTree/types";
+import type { JSActionEntity } from "@appsmith/entities/DataTree/types";
+import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeTypes";
 import { EvalErrorTypes, getEvalValuePath } from "utils/DynamicBindingUtils";
 import type { JSUpdate, ParsedJSSubAction } from "utils/JSPaneUtils";
 import { parseJSObject, isJSFunctionProperty } from "@shared/ast";

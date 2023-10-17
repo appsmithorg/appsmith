@@ -6,6 +6,7 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.annotations.FeatureFlagged;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -205,5 +206,22 @@ public class EnvironmentServiceImpl extends EnvironmentServiceCECompatibleImpl i
                 .findById(workspaceId, AclPermission.MANAGE_WORKSPACES)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS)))
                 .then(environmentDTOMono);
+    }
+
+    @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_datasource_environments_enabled)
+    public Mono<String> verifyEnvironmentIdByWorkspaceId(
+            String workspaceId, String environmentId, AclPermission aclPermission) {
+        Mono<String> environmentNameMono = findById(environmentId)
+                .map(Environment::getName)
+                .switchIfEmpty(Mono.error(new AppsmithException(
+                        AppsmithError.ACL_NO_ACCESS_ERROR, FieldName.ENVIRONMENT, FieldName.WORKSPACE)));
+
+        return findByWorkspaceId(workspaceId, aclPermission)
+                .filter(environment -> environment.getId().equals(environmentId))
+                .next()
+                .map(Environment::getId)
+                .switchIfEmpty(Mono.defer(() -> environmentNameMono.flatMap(name -> Mono.error(
+                        new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.ENVIRONMENT, name)))));
     }
 }

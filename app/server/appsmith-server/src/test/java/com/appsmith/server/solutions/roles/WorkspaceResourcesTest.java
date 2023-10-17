@@ -24,9 +24,11 @@ import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.UserUtils;
+import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
@@ -40,9 +42,7 @@ import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.LayoutCollectionService;
 import com.appsmith.server.services.PermissionGroupService;
-import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.TenantService;
-import com.appsmith.server.services.ThemeService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.EnvironmentPermission;
 import com.appsmith.server.solutions.roles.constants.PermissionViewableName;
@@ -56,6 +56,7 @@ import com.appsmith.server.solutions.roles.dtos.RoleTabDTO;
 import com.appsmith.server.solutions.roles.dtos.RoleViewDTO;
 import com.appsmith.server.solutions.roles.dtos.UpdateRoleConfigDTO;
 import com.appsmith.server.solutions.roles.dtos.UpdateRoleEntityDTO;
+import com.appsmith.server.themes.base.ThemeService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -96,10 +97,11 @@ import static com.appsmith.server.constants.FieldName.DEVELOPER;
 import static com.appsmith.server.constants.FieldName.TENANT_GROUP;
 import static com.appsmith.server.constants.FieldName.TENANT_ROLE;
 import static com.appsmith.server.constants.FieldName.VIEWER;
+import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
@@ -193,7 +195,12 @@ public class WorkspaceResourcesTest {
     public void setup() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
                 .thenReturn(Mono.just(new MockPluginExecutor()));
-        Mockito.when(featureFlagService.check(any())).thenReturn(Mono.just(TRUE));
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_audit_logs_enabled)))
+                .thenReturn(Mono.just(FALSE));
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_gac_enabled)))
+                .thenReturn(Mono.just(TRUE));
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.release_datasource_environments_enabled)))
+                .thenReturn(Mono.just(FALSE));
 
         if (api_user == null) {
             api_user = userRepository.findByEmail("api_user").block();
@@ -643,6 +650,8 @@ public class WorkspaceResourcesTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testDatasourceResourcesTab_testHoverMap() {
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.release_datasource_environments_enabled)))
+                .thenReturn(Mono.just(TRUE));
         Workspace workspace = new Workspace();
         workspace.setName("testApplicationResourcesTab_testHoverMap workspace");
         Workspace createdWorkspace1 = workspaceService.create(workspace).block();
@@ -758,6 +767,8 @@ public class WorkspaceResourcesTest {
                 .contains(Map.entry(
                         createdDatasourceView,
                         Set.of(new IdPermissionDTO(createdDatasource1.getId(), PermissionViewableName.EXECUTE))));
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.release_datasource_environments_enabled)))
+                .thenReturn(Mono.just(FALSE));
     }
 
     @Test
@@ -969,6 +980,8 @@ public class WorkspaceResourcesTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testDatasourceResourcesTabWithSuperAdminPermissionGroupId() {
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.release_datasource_environments_enabled)))
+                .thenReturn(Mono.just(TRUE));
         if (superAdminPermissionGroupId == null) {
             superAdminPermissionGroupId =
                     userUtils.getSuperAdminPermissionGroup().block().getId();
@@ -1050,11 +1063,15 @@ public class WorkspaceResourcesTest {
                     assertThat(createdDatasourceView.getChildren()).isNull();
                 })
                 .verifyComplete();
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.release_datasource_environments_enabled)))
+                .thenReturn(Mono.just(FALSE));
     }
 
     @Test
     @WithUserDetails(value = "api_user")
     public void testDatasourceResourcesTabWithWorkspaceAdminPermissionGroupId() {
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.release_datasource_environments_enabled)))
+                .thenReturn(Mono.just(TRUE));
         Set<String> defaultPermissionGroupIds = createdWorkspace.getDefaultPermissionGroups();
         Set<PermissionGroup> permissionGroups = permissionGroupRepository
                 .findAllById(defaultPermissionGroupIds)
@@ -1139,6 +1156,8 @@ public class WorkspaceResourcesTest {
                     assertThat(createdDatasourceView.getChildren()).isNull();
                 })
                 .verifyComplete();
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.release_datasource_environments_enabled)))
+                .thenReturn(Mono.just(FALSE));
     }
 
     @Test

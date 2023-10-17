@@ -5,7 +5,6 @@ import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.helpers.DataTypeStringUtils;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.constants.LicenseOrigin;
 import com.appsmith.server.constants.LicensePlan;
 import com.appsmith.server.constants.LicenseStatus;
 import com.appsmith.server.constants.MigrationStatus;
@@ -18,6 +17,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.FeatureFlagMigrationHelper;
+import com.appsmith.server.helpers.NetworkUtils;
 import com.appsmith.server.helpers.RedirectHelper;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
@@ -43,11 +43,12 @@ import reactor.core.scheduler.Scheduler;
 import reactor.util.function.Tuple2;
 
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 
+import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
 import static com.appsmith.server.acl.AclPermission.MANAGE_TENANT;
 import static com.appsmith.server.constants.CommonConstants.COLUMN;
 import static com.appsmith.server.constants.CommonConstants.DEFAULT;
@@ -78,7 +79,8 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
 
     private final Scheduler scheduler;
     private final UserUtils userUtils;
-
+    private final NetworkUtils networkUtils;
+    private final ConfigService configService;
     // Based on information provided on the Branding page.
     private static final int MAX_LOGO_SIZE_KB = 2048;
     private static final int MAX_FAVICON_SIZE_KB = 1024;
@@ -107,7 +109,8 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
             OidcConfigurationService oidcConfigurationService,
             @Lazy SamlConfigurationService samlConfigurationService,
             UserUtils userUtils,
-            PACConfigurationService pacConfigurationService) {
+            PACConfigurationService pacConfigurationService,
+            NetworkUtils networkUtils) {
 
         super(
                 scheduler,
@@ -135,6 +138,8 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
         this.samlConfigurationService = samlConfigurationService;
         this.pacConfigurationService = pacConfigurationService;
         this.userUtils = userUtils;
+        this.networkUtils = networkUtils;
+        this.configService = configService;
     }
 
     @Override
@@ -193,6 +198,16 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
 
         return licenseMono
                 .then(updateTenantMono)
+                .flatMap(tenant -> {
+                    if (updateLicenseKeyDTO == null || StringUtils.isNullOrEmpty(updateLicenseKeyDTO.getKey())) {
+                        sendFreeInstanceSetupEvent(tenant);
+                    } else if (tenant.getTenantConfiguration() != null
+                            && tenant.getTenantConfiguration().getLicense() != null
+                            && tenant.getTenantConfiguration().getLicense().getActive()) {
+                        sendAddLicenseToInstanceEvent(tenant);
+                    }
+                    return Mono.empty();
+                })
                 .then(sessionUserService
                         .getCurrentUser()
                         .flatMap(user -> workspaceRepository
@@ -228,6 +243,9 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
             if (tenantConfiguration == null || tenantConfiguration.getLicense() == null) {
                 return Mono.just(tenant);
             }
+            License pastLicense = new License();
+            AppsmithBeanUtils.copyNestedNonNullProperties(tenantConfiguration.getLicense(), pastLicense);
+
             License license = tenant.getTenantConfiguration().getLicense();
             final LicensePlan previousPlan = license.getPlan();
             license.setPlan(LicensePlan.FREE);
@@ -238,22 +256,36 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
                             ? Mono.just(Boolean.TRUE)
                             : licenseAPIManager.downgradeTenantToFreePlan(tenant);
 
-            return downgradeToFreePlanOnCS.flatMap(isSuccessful -> {
-                if (Boolean.TRUE.equals(isSuccessful)) {
-                    License updatedLicense = new License();
-                    updatedLicense.setPlan(LicensePlan.FREE);
-                    updatedLicense.setPreviousPlan(previousPlan);
-                    updatedLicense.setActive(false);
-                    tenant.getTenantConfiguration().setLicense(updatedLicense);
-                    return this.save(tenant)
-                            // Fetch the tenant again from DB to make sure the downstream chain is consuming the latest
-                            // DB object and not the modified one because of the client pertinent changes
-                            .then(repository.retrieveById(tenant.getId()))
-                            .flatMap(this::forceUpdateTenantFeaturesAndUpdateFeaturesWithPendingMigrations)
-                            .then(syncLicensePlansAndRunFeatureBasedMigrations());
-                }
-                return Mono.error(new AppsmithException(AppsmithError.TENANT_DOWNGRADE_EXCEPTION));
-            });
+            Mono<Tenant> downgradeTenantAndRemoveLicenseMono = downgradeToFreePlanOnCS
+                    .flatMap(isSuccessful -> {
+                        if (Boolean.TRUE.equals(isSuccessful)) {
+                            License updatedLicense = new License();
+                            updatedLicense.setPlan(LicensePlan.FREE);
+                            updatedLicense.setPreviousPlan(previousPlan);
+                            updatedLicense.setActive(false);
+                            tenant.getTenantConfiguration().setLicense(updatedLicense);
+                            return this.save(tenant)
+                                    // Fetch the tenant again from DB to make sure the downstream chain is consuming the
+                                    // latest
+                                    // DB object and not the modified one because of the client pertinent changes
+                                    .then(repository.retrieveById(tenant.getId()))
+                                    .flatMap(this::forceUpdateTenantFeaturesAndUpdateFeaturesWithPendingMigrations)
+                                    .then(syncLicensePlansAndRunFeatureBasedMigrations());
+                        }
+                        return Mono.error(new AppsmithException(AppsmithError.TENANT_DOWNGRADE_EXCEPTION));
+                    })
+                    .map(updatedTenant -> {
+                        sendLicenseRemovedFromInstanceEvent(updatedTenant, pastLicense);
+                        return updatedTenant;
+                    });
+            // To ensures that even though the client may have cancelled the flow, the removal of license should proceed
+            // uninterrupted and whenever the user refreshes the page, user should be presented with the synced state
+            // with CS.
+            // To achieve this, we use a synchronous sink which does not take subscription cancellations into account.
+            // This means that even if the subscriber has cancelled its subscription, the create method still generates
+            // its event.
+            return Mono.create(sink -> downgradeTenantAndRemoveLicenseMono.subscribe(
+                    sink::success, sink::error, null, sink.currentContext()));
         });
     }
 
@@ -284,7 +316,10 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
                 .flatMap(savedTenant -> repository.retrieveById(savedTenant.getId()))
                 .map(tenantWithUpdatedMigration -> {
                     // Run the migrations in a separate thread, as we expect the migrations can run for few seconds
-                    this.checkAndExecuteMigrationsForTenantFeatureFlags(tenantWithUpdatedMigration)
+                    // Generate the deep copy for the tenant to avoid any unintended updates while running the migration
+                    Tenant tenantDeepCopy = new Tenant();
+                    copyNestedNonNullProperties(tenantWithUpdatedMigration, tenantDeepCopy);
+                    this.checkAndExecuteMigrationsForTenantFeatureFlags(tenantDeepCopy)
                             .then(this.restartTenant())
                             .subscribeOn(scheduler)
                             .subscribe();
@@ -300,7 +335,21 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
      */
     public Mono<Tenant> updateTenantLicenseKey(UpdateLicenseKeyDTO updateLicenseKeyDTO) {
         return saveTenantLicenseKey(updateLicenseKeyDTO.getKey(), updateLicenseKeyDTO.getIsDryRun())
-                .flatMap(tuple -> getClientPertinentTenant(tuple.getT1(), null));
+                .flatMap(tuple -> {
+                    try {
+                        // Create a deep copy of the tenant before generating the client pertinent tenant to avoid any
+                        // unintentional updates to DB
+                        Tenant updatedTenant =
+                                objectMapper.readValue(objectMapper.writeValueAsString(tuple.getT1()), Tenant.class);
+                        return getClientPertinentTenant(updatedTenant, null);
+                    } catch (JsonProcessingException e) {
+                        log.error(
+                                "JsonProcessingException for Tenant {}",
+                                tuple.getT1().getId(),
+                                e);
+                        return Mono.error(new AppsmithException(AppsmithError.JSON_PROCESSING_ERROR, e.getMessage()));
+                    }
+                });
     }
 
     /**
@@ -334,16 +383,25 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
                     boolean isActivateInstance = tenantConfiguration.getLicense() == null
                             || StringUtils.isNullOrEmpty(
                                     tenantConfiguration.getLicense().getKey());
+                    License existingLicense = tenantConfiguration.getLicense();
+                    if (existingLicense == null) {
+                        existingLicense = new License();
+                    }
 
-                    AppsmithBeanUtils.copyNestedNonNullProperties(tenantConfiguration.getLicense(), license);
+                    copyNestedNonNullProperties(tenantConfiguration.getLicense(), license);
                     license.setKey(licenseKey);
                     tenantConfiguration.setLicense(license);
                     tenant.setTenantConfiguration(tenantConfiguration);
-                    return checkTenantLicense(tenant).zipWith(Mono.just(isActivateInstance));
+                    license.setIsDryRun(isDryRun);
+
+                    return checkTenantLicense(tenant)
+                            .zipWith(Mono.just(isActivateInstance))
+                            .zipWith(Mono.just(existingLicense));
                 })
                 .flatMap(tuple -> {
-                    Tenant tenant = tuple.getT1();
-                    boolean isActivateInstance = tuple.getT2();
+                    Tenant tenant = tuple.getT1().getT1();
+                    boolean isActivateInstance = tuple.getT1().getT2();
+                    License existingLicense = tuple.getT2();
                     License license1 = tenant.getTenantConfiguration().getLicense();
                     AnalyticsEvents analyticsEvent = isActivateInstance
                             ? AnalyticsEvents.ACTIVATE_NEW_INSTANCE
@@ -375,6 +433,10 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
                                 // latest
                                 // DB object and not the modified one because of the client pertinent changes
                                 .then(repository.retrieveById(tenant.getId()))
+                                .map(updatedTenant -> {
+                                    sendLicenseUpdatedOnInstanceEvent(updatedTenant, existingLicense);
+                                    return updatedTenant;
+                                })
                                 .flatMap(this::forceUpdateTenantFeaturesAndUpdateFeaturesWithPendingMigrations)
                                 .then(syncLicensePlansAndRunFeatureBasedMigrations());
                     }
@@ -389,11 +451,23 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
      */
     public Mono<Tenant> refreshAndGetCurrentLicense() {
         // TODO: Update to getCurrentTenant when multi tenancy is introduced
-        return repository
+        Mono<Tenant> defaultTenant = repository
                 .findBySlug(FieldName.DEFAULT, MANAGE_TENANT)
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.TENANT, FieldName.DEFAULT)))
+                .cache();
+        return defaultTenant
                 .flatMap(this::checkTenantLicense)
+                .zipWith(defaultTenant)
+                .map(tuple -> {
+                    Tenant updatedTenant = tuple.getT1();
+                    Tenant tenantBeforeRefresh = tuple.getT2();
+                    sendLicenseRefreshedEvent(
+                            updatedTenant,
+                            tenantBeforeRefresh.getTenantConfiguration().getLicense(),
+                            updatedTenant.getTenantConfiguration().getLicense());
+                    return updatedTenant;
+                })
                 .flatMap(this::save)
                 .flatMap(tenant -> getClientPertinentTenant(tenant, null));
     }
@@ -449,8 +523,7 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
     public Mono<Boolean> isEnterprisePlan(String tenantId) {
         Mono<License> licenseMono = getTenantLicense(tenantId);
         return licenseMono
-                .map(license ->
-                        license.getActive() && getEnterpriseLicenseOrigins().contains(license.getOrigin()))
+                .map(license -> license.getActive() && LicensePlan.ENTERPRISE.equals(license.getPlan()))
                 .switchIfEmpty(Mono.just(Boolean.FALSE));
     }
 
@@ -512,7 +585,7 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
                     updateForTenantConfig.setIsActivated(null);
                     return updateTenantConfiguration(defaultTenant.getId(), updateForTenantConfig);
                 })
-                .flatMap(updatedTenant -> getTenantConfiguration());
+                .flatMap(updatedTenant -> this.getTenantConfiguration());
     }
 
     @Override
@@ -523,14 +596,6 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
                 .flatMap(sessionLimiterService::updateTenantConfiguration)
                 .flatMap(updatedTenantConfiguration ->
                         super.updateTenantConfiguration(tenantId, updatedTenantConfiguration));
-    }
-
-    /**
-     * Currently {@link License}.{@link LicenseOrigin} is set to ENTERPRISE & AIR_GAP for Enterprise and AirGapped respectively.
-     * Hence we use a set of ENTERPRISE & AIR_GAP as EnterPrise License Origins
-     */
-    private Set<LicenseOrigin> getEnterpriseLicenseOrigins() {
-        return Set.of(LicenseOrigin.ENTERPRISE, LicenseOrigin.AIR_GAP);
     }
 
     private Mono<Tenant> checkAndUpdateLicenseExpiryWithinInstance(Tenant tenant) {
@@ -548,7 +613,7 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
             license.setStatus(LicenseStatus.EXPIRED);
             tenantConfiguration.setLicense(license);
             tenant.setTenantConfiguration(tenantConfiguration);
-            return this.save(tenant);
+            return this.save(tenant).then(repository.retrieveById(tenant.getId()));
         }
         return Mono.just(tenant);
     }
@@ -558,7 +623,7 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
         if (Objects.isNull(currentBrandColors)) {
             return newBrandColors;
         }
-        AppsmithBeanUtils.copyNestedNonNullProperties(newBrandColors, currentBrandColors);
+        copyNestedNonNullProperties(newBrandColors, currentBrandColors);
         return currentBrandColors;
     }
 
@@ -633,5 +698,106 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
                             .switchIfEmpty(Mono.just(updatedDbTenant));
                 })
                 .flatMap(updatedDbTenant -> super.getClientPertinentTenant(updatedDbTenant, clientTenant));
+    }
+
+    private void sendFreeInstanceSetupEvent(Tenant tenant) {
+        if (tenant == null) {
+            return;
+        }
+        Map<String, Object> analyticsProperties = new HashMap<>();
+        analyticsProperties.put(FieldName.LICENSE_PLAN, LicensePlan.FREE);
+        analyticsProperties.put(FieldName.TENANT_ID, tenant.getId());
+
+        sendAnalyticsEvent(AnalyticsEvents.FREE_PLAN, analyticsProperties);
+    }
+
+    private void sendAddLicenseToInstanceEvent(Tenant tenant) {
+        if (tenant == null) {
+            return;
+        }
+        Map<String, Object> analyticsProperties = new HashMap<>();
+        License license = tenant.getTenantConfiguration().getLicense();
+
+        updateCurrentLicenseProperties(license, analyticsProperties);
+        analyticsProperties.put(FieldName.TENANT_ID, tenant.getId());
+
+        sendAnalyticsEvent(AnalyticsEvents.ADD_LICENSE, analyticsProperties);
+    }
+
+    private void sendLicenseRemovedFromInstanceEvent(Tenant tenant, License pastLicense) {
+        if (tenant == null) {
+            return;
+        }
+        Map<String, Object> analyticsProperties = new HashMap<>();
+        License license = tenant.getTenantConfiguration().getLicense();
+
+        analyticsProperties.put(FieldName.TENANT_ID, tenant.getId());
+        updatePastLicenseProperties(pastLicense, analyticsProperties);
+        updateCurrentLicenseProperties(license, analyticsProperties);
+
+        sendAnalyticsEvent(AnalyticsEvents.REMOVE_LICENSE, analyticsProperties);
+    }
+
+    private void sendLicenseRefreshedEvent(Tenant tenant, License pastLicense, License currentLicense) {
+        if (tenant == null) {
+            return;
+        }
+        Map<String, Object> analyticsProperties = new HashMap<>();
+
+        updatePastLicenseProperties(pastLicense, analyticsProperties);
+        updateCurrentLicenseProperties(currentLicense, analyticsProperties);
+        analyticsProperties.put(FieldName.TENANT_ID, tenant.getId());
+
+        sendAnalyticsEvent(AnalyticsEvents.REFRESH_LICENSE, analyticsProperties);
+    }
+
+    private void sendLicenseUpdatedOnInstanceEvent(Tenant tenant, License existingLicense) {
+        if (tenant == null || existingLicense == null || StringUtils.isNullOrEmpty(existingLicense.getKey())) {
+            return;
+        }
+
+        Map<String, Object> analyticsProperties = new HashMap<>();
+        License license = tenant.getTenantConfiguration().getLicense();
+        String instanceId = tenant.getInstanceId();
+
+        updatePastLicenseProperties(existingLicense, analyticsProperties);
+        updateCurrentLicenseProperties(license, analyticsProperties);
+        analyticsProperties.put(FieldName.TENANT_ID, tenant.getId());
+
+        sendAnalyticsEvent(AnalyticsEvents.UPDATE_LICENSE, analyticsProperties);
+    }
+
+    private void sendAnalyticsEvent(AnalyticsEvents event, Map<String, Object> analyticsProperties) {
+        configService
+                .getInstanceId()
+                .flatMap(instanceId -> networkUtils.getExternalAddress().flatMap(ipAddress -> {
+                    analyticsProperties.put(FieldName.IP_ADDRESS, ipAddress);
+                    analyticsProperties.put(FieldName.INSTANCE_ID, instanceId);
+                    return analyticsService.sendEvent(event.getEventName(), instanceId, analyticsProperties);
+                }))
+                .subscribeOn(scheduler)
+                .subscribe();
+    }
+
+    private void updateCurrentLicenseProperties(License license, Map<String, Object> analyticsProperties) {
+        if (license == null) {
+            return;
+        }
+        analyticsProperties.put(FieldName.LICENSE_ID, license.getLicenseId());
+        analyticsProperties.put(FieldName.LICENSE_PLAN, license.getPlan());
+        analyticsProperties.put(FieldName.LICENSE_ORIGIN, license.getOrigin());
+        analyticsProperties.put(FieldName.LICENSE_TYPE, license.getType());
+        analyticsProperties.put(FieldName.LICENSE_STATUS, license.getStatus());
+    }
+
+    private void updatePastLicenseProperties(License pastLicense, Map<String, Object> analyticsProperties) {
+        if (pastLicense == null) {
+            return;
+        }
+        analyticsProperties.put(FieldName.PREVIOUS_PLAN, pastLicense.getPlan());
+        analyticsProperties.put(FieldName.PREVIOUS_ORIGIN, pastLicense.getOrigin());
+        analyticsProperties.put(FieldName.PREVIOUS_TYPE, pastLicense.getType());
+        analyticsProperties.put(FieldName.PREVIOUS_STATUS, pastLicense.getStatus());
+        analyticsProperties.put(FieldName.PAST_LICENSE_ID, pastLicense.getLicenseId());
     }
 }

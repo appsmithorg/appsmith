@@ -19,7 +19,7 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import { useHistory } from "react-router";
-import { adminSettingsCategoryUrl } from "RouteBuilder";
+import { adminSettingsCategoryUrl } from "@appsmith/RouteBuilder";
 import { SettingCategories } from "../config/types";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchProvisioningStatus } from "@appsmith/actions/provisioningActions";

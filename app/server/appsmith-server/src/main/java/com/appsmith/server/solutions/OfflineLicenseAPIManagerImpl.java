@@ -3,10 +3,12 @@ package com.appsmith.server.solutions;
 import com.appsmith.server.configurations.LicenseConfig;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.LicenseOrigin;
+import com.appsmith.server.constants.LicensePlan;
 import com.appsmith.server.constants.LicenseStatus;
 import com.appsmith.server.domains.License;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.dtos.OfflineLicenseDataset;
+import com.appsmith.server.dtos.ProductEdition;
 import com.appsmith.server.services.ConfigService;
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
@@ -96,7 +98,9 @@ public class OfflineLicenseAPIManagerImpl extends BaseLicenseAPIManagerImpl impl
                     log.debug("Provided license key is valid!");
                     license.setExpiry(licenseDataset.getExpiry());
                     license.setActive(Instant.now().isBefore(license.getExpiry()));
-                    license.setOrigin(LicenseOrigin.AIR_GAP);
+                    license.setOrigin(LicenseOrigin.SALES);
+                    license.setProductEdition(ProductEdition.AIR_GAP);
+                    license.setPlan(LicensePlan.ENTERPRISE);
                     license.setKey(licenseKey);
                     license.setType(licenseDataset.getType());
                     if (Boolean.TRUE.equals(license.getActive())) {

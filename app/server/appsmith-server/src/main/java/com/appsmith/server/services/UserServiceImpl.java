@@ -22,6 +22,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.ProvisionUtils;
+import com.appsmith.server.helpers.UserServiceHelper;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.ratelimiting.RateLimitService;
@@ -57,7 +58,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.DELETE_USERS;
@@ -91,6 +91,7 @@ public class UserServiceImpl extends UserServiceCECompatibleImpl implements User
     private final ProvisionUtils provisionUtils;
     private final SessionUserService sessionUserService;
     private final PACConfigurationService pacConfigurationService;
+    private final UserServiceHelper userServiceHelper;
 
     public UserServiceImpl(
             Scheduler scheduler,
@@ -121,7 +122,8 @@ public class UserServiceImpl extends UserServiceCECompatibleImpl implements User
             ProvisionUtils provisionUtils,
             EmailService emailService,
             RateLimitService rateLimitService,
-            PACConfigurationService pacConfigurationService) {
+            PACConfigurationService pacConfigurationService,
+            UserServiceHelper userServiceHelper) {
         super(
                 scheduler,
                 validator,
@@ -133,21 +135,17 @@ public class UserServiceImpl extends UserServiceCECompatibleImpl implements User
                 sessionUserService,
                 passwordResetTokenRepository,
                 passwordEncoder,
-                emailSender,
-                applicationRepository,
-                policySolution,
                 commonConfig,
-                emailConfig,
                 userChangedHandler,
                 encryptionService,
                 userDataService,
                 tenantService,
-                permissionGroupService,
                 userUtils,
                 emailVerificationTokenRepository,
                 emailService,
                 rateLimitService,
-                pacConfigurationService);
+                pacConfigurationService,
+                userServiceHelper);
 
         this.userDataService = userDataService;
         this.tenantService = tenantService;
@@ -161,9 +159,11 @@ public class UserServiceImpl extends UserServiceCECompatibleImpl implements User
         this.provisionUtils = provisionUtils;
         this.sessionUserService = sessionUserService;
         this.pacConfigurationService = pacConfigurationService;
+        this.userServiceHelper = userServiceHelper;
     }
 
     @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
     public Mono<UserProfileDTO> buildUserProfileDTO(User user) {
         Mono<Tenant> tenantWithConfigurationMono =
                 tenantService.getTenantConfiguration().cache();
@@ -422,39 +422,12 @@ public class UserServiceImpl extends UserServiceCECompatibleImpl implements User
     public Mono<User> userCreate(User user, boolean isAdminUser) {
         Mono<User> userCreateAndDefaultRoleAssignmentMono = super.userCreate(user, isAdminUser)
                 // After creating the user, assign the default role to the newly created user.
-                .flatMap(createdUser -> userUtils
-                        .getDefaultUserPermissionGroup()
-                        .flatMap(permissionGroup -> {
-                            log.debug(
-                                    "Assigning default user role to newly created user {}", createdUser.getUsername());
-                            return permissionGroupService.bulkAssignToUsersWithoutPermission(
-                                    permissionGroup, List.of(createdUser));
-                        })
-                        .then(Mono.just(createdUser)));
+                .flatMap(createdUser -> userServiceHelper.assignDefaultRoleToUser(user));
 
         //  Use a synchronous sink which does not take subscription cancellations into account. This that even if the
         //  subscriber has cancelled its subscription, the user create method will still generate its event.
         return Mono.create(sink -> userCreateAndDefaultRoleAssignmentMono.subscribe(
                 sink::success, sink::error, null, sink.currentContext()));
-    }
-
-    /**
-     * The overridden method updates policy for the user resource, where the User resource will inherit permissions
-     * from the Tenant.
-     */
-    @Override
-    protected Mono<User> addUserPolicies(User savedUser) {
-        return super.addUserPolicies(savedUser)
-                .zipWith(tenantService.getDefaultTenant())
-                .map(pair -> {
-                    User user = pair.getT1();
-                    Tenant tenant = pair.getT2();
-                    Map<String, Policy> userPoliciesMapWithNewPermissions =
-                            policyGenerator.getAllChildPolicies(tenant.getPolicies(), Tenant.class, User.class).stream()
-                                    .collect(Collectors.toMap(Policy::getPermission, Function.identity()));
-                    policySolution.addPoliciesToExistingObject(userPoliciesMapWithNewPermissions, user);
-                    return user;
-                });
     }
 
     @Override

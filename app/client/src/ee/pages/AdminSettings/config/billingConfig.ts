@@ -11,9 +11,9 @@ import {
 } from "@appsmith/constants/messages";
 
 export const config: AdminConfigType = {
-  icon: "money-dollar-circle-line",
+  icon: "key-2-line",
   type: SettingCategories.BILLING,
-  categoryType: CategoryType.OTHER,
+  categoryType: CategoryType.GENERAL,
   controlType: SettingTypes.PAGE,
   component: Billing,
   title: createMessage(ADMIN_BILLING_SETTINGS_TITLE),

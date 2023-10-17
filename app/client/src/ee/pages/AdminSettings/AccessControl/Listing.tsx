@@ -101,8 +101,8 @@ export function Listing(props: ListingProps) {
     emptyState,
     isLoading,
     keyAccessor,
-    listMenuItems,
     listingType = "",
+    listMenuItems,
   } = props;
 
   const updatedColumns = [

@@ -9,4 +9,12 @@ import java.util.List;
 
 public interface CrudModuleService extends BaseModuleService, CrudModuleServiceCECompatible {
     Mono<List<ModuleDTO>> getAllModules(String packageId, ResourceModes resourceMode);
+
+    Mono<ModuleDTO> createModule(ModuleDTO moduleDTO);
+
+    Mono<ModuleDTO> getModule(String moduleId);
+
+    Mono<ModuleDTO> updateModule(ModuleDTO moduleResource, String moduleId);
+
+    Mono<ModuleDTO> deleteModule(String moduleId);
 }

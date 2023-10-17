@@ -14,14 +14,14 @@ const StyledInputGroup = styled(InputGroup)`
 
 export type InputType = "text" | "password" | "number" | "email" | "tel";
 
-type InputComponentProps = {
+interface InputComponentProps {
   placeholder: string;
   input: Partial<WrappedFieldInputProps>;
   type?: InputType;
   intent?: Intent;
   disabled?: boolean;
   autoFocus?: boolean;
-};
+}
 
 function InputComponent(props: InputComponentProps) {
   return (

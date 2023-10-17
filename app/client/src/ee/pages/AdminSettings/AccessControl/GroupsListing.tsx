@@ -14,7 +14,7 @@ import {
 } from "pages/AdminSettings/components";
 import { GroupAddEdit } from "./GroupAddEdit";
 import { AclWrapper, EmptyDataState, EmptySearchResult } from "./components";
-import { adminSettingsCategoryUrl } from "RouteBuilder";
+import { adminSettingsCategoryUrl } from "@appsmith/RouteBuilder";
 import { SettingCategories } from "@appsmith/pages/AdminSettings/config/types";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import {
@@ -193,8 +193,8 @@ export function GroupListing() {
       setSearchValue(search);
       const results =
         userGroups &&
-        userGroups.filter((userGroup) =>
-          userGroup.name?.toLocaleUpperCase().includes(search),
+        userGroups.filter(
+          (userGroup) => userGroup.name?.toLocaleUpperCase().includes(search),
         );
       setData(results);
     } else {

@@ -7,7 +7,7 @@ import {
 } from "ce/AppRouter";
 import React, { Suspense, useEffect } from "react";
 import history from "utils/history";
-import AppHeader from "pages/common/AppHeader";
+import AppHeader from "@appsmith/pages/common/AppHeader";
 import { Router, Switch } from "react-router-dom";
 import ErrorPage from "pages/common/ErrorPage";
 import PageLoadingBar from "pages/common/PageLoadingBar";
@@ -27,13 +27,14 @@ import {
   isValidLicense,
 } from "@appsmith/selectors/tenantSelectors";
 import LicenseCheckPage from "./pages/LicenseSetup/LicenseCheckPage";
-import { LICENSE_CHECK_PATH } from "constants/routes";
+import { LICENSE_CHECK_PATH, MIGRATIONS_URL } from "constants/routes";
 import { requiresLicenseCheck } from "./requiresLicenseCheck";
 import ProductAlertBanner from "components/editorComponents/ProductAlertBanner";
 import Walkthrough from "components/featureWalkthrough";
 import PackageEditorLoader from "./pages/Editor/PackageEditor/PackageEditorLoader";
 import { PACKAGE_EDITOR_URL } from "@appsmith/constants/routes/packageRoutes";
 import { getShowQueryModule } from "@appsmith/selectors/moduleFeatureSelectors";
+import { Migrations } from "./pages/Billing/Migrations";
 
 const loadingIndicator = <PageLoadingBar />;
 
@@ -120,6 +121,7 @@ function AppRouter(props: {
                     path={PACKAGE_EDITOR_URL}
                   />
                 )}
+                <SentryRoute component={Migrations} path={MIGRATIONS_URL} />
                 <EE_Routes />
               </Switch>
             </Walkthrough>

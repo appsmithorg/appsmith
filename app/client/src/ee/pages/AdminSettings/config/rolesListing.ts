@@ -7,7 +7,7 @@ import {
 import { RolesListing } from "../AccessControl/RolesListing";
 
 export const config: AdminConfigType = {
-  icon: "key-2-line",
+  icon: "user-settings-line",
   type: SettingCategories.ROLES_LISTING,
   categoryType: CategoryType.ACL,
   controlType: SettingTypes.PAGE,

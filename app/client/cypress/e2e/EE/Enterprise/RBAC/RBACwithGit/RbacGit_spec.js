@@ -49,6 +49,8 @@ describe("RBAC for git connected apps tests", function () {
       });
 
       cy.visit("settings/general");
+      featureFlagIntercept({ license_gac_enabled: true });
+      cy.wait(2000);
       cy.CreatePermissionWorkspaceLevel(
         PermissionWorkspaceLevel,
         workspaceName,
@@ -111,6 +113,8 @@ describe("RBAC for git connected apps tests", function () {
 
   it("4. Login as admin, edit the existing role: update from create to edit permission", function () {
     cy.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+    featureFlagIntercept({ license_gac_enabled: true });
+    cy.wait(2000);
     cy.visit("/settings/roles");
     cy.get(RBAC.searchBar).clear().wait(2000).type(PermissionWorkspaceLevel);
     cy.wait(2000);

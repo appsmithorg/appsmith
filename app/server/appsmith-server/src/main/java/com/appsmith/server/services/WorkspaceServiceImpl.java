@@ -2,14 +2,10 @@ package com.appsmith.server.services;
 
 import com.appsmith.external.models.Environment;
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.PermissionGroup;
-import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
-import com.appsmith.server.exceptions.AppsmithError;
-import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.UserUtils;
+import com.appsmith.server.helpers.WorkspaceServiceHelper;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.AssetRepository;
 import com.appsmith.server.repositories.PluginRepository;
@@ -27,12 +23,6 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
-
-import java.util.concurrent.atomic.AtomicReference;
-
-import static com.appsmith.server.acl.AclPermission.CREATE_WORKSPACES;
-import static java.lang.Boolean.FALSE;
-import static java.lang.Boolean.TRUE;
 
 @Slf4j
 @Service
@@ -60,6 +50,7 @@ public class WorkspaceServiceImpl extends WorkspaceServiceCEImpl implements Work
             ModelMapper modelMapper,
             WorkspacePermission workspacePermission,
             PermissionGroupPermission permissionGroupPermission,
+            WorkspaceServiceHelper workspaceServiceHelper,
             TenantService tenantService,
             UserUtils userUtils,
             EnvironmentService environmentService) {
@@ -80,7 +71,8 @@ public class WorkspaceServiceImpl extends WorkspaceServiceCEImpl implements Work
                 policySolution,
                 modelMapper,
                 workspacePermission,
-                permissionGroupPermission);
+                permissionGroupPermission,
+                workspaceServiceHelper);
 
         this.tenantService = tenantService;
         this.userUtils = userUtils;
@@ -93,83 +85,19 @@ public class WorkspaceServiceImpl extends WorkspaceServiceCEImpl implements Work
     }
 
     @Override
-    public Mono<Boolean> isCreateWorkspaceAllowed(Boolean isDefaultWorkspace) {
-
-        if (!isDefaultWorkspace) {
-            return tenantService
-                    .getDefaultTenant(CREATE_WORKSPACES)
-                    .map(tenant -> TRUE)
-                    .switchIfEmpty(Mono.just(FALSE));
-        }
-
-        // If this is a default workspace being created, then this user is not yet logged in. We should check if
-        // this user would be allowed to create a workspace if they were logged in.
-        return tenantService
-                .getDefaultTenant()
-                .zipWith(userUtils.getDefaultUserPermissionGroup())
-                .map(tuple -> {
-                    Tenant tenant = tuple.getT1();
-                    PermissionGroup defaultUserRole = tuple.getT2();
-                    String permissionGroupId = defaultUserRole.getId();
-
-                    // Check if the default user role has permission to create workspaces. This means that once the
-                    // user has signed up, the user would also get create workspace permission via this role
-
-                    AtomicReference<Boolean> isAllowed = new AtomicReference<>(FALSE);
-
-                    tenant.getPolicies().stream()
-                            .filter(policy -> policy.getPermission().equals(CREATE_WORKSPACES.getValue()))
-                            .filter(policy -> policy.getPermissionGroups().contains(permissionGroupId))
-                            .findFirst()
-                            .ifPresentOrElse(
-                                    policy -> {
-                                        // If the default user role has permission to create workspaces, then
-                                        // this user is allowed to create a workspace
-                                        policy.getPermissionGroups().stream()
-                                                .filter(id -> id.equals(permissionGroupId))
-                                                .findFirst()
-                                                .ifPresent(id -> isAllowed.set(TRUE));
-                                    },
-                                    () -> {
-                                        // Since this policy itself doesn't exist, the user is not allowed to
-                                        isAllowed.set(FALSE);
-                                    });
-
-                    return isAllowed.get();
-                });
-    }
-
-    @Override
     public Mono<String> getDefaultEnvironmentId(String workspaceId, AclPermission aclPermission) {
-        return environmentService
-                .findByWorkspaceId(workspaceId, aclPermission)
-                .filter(Environment::getIsDefault)
-                .next()
-                .map(Environment::getId);
+        return environmentService.getDefaultEnvironmentId(workspaceId, aclPermission);
     }
 
     @Override
     public Mono<String> verifyEnvironmentIdByWorkspaceId(
             String workspaceId, String environmentId, AclPermission aclPermission) {
-
-        Mono<String> environmentNameMono = environmentService
-                .findById(environmentId)
-                .map(Environment::getName)
-                .switchIfEmpty(Mono.error(new AppsmithException(
-                        AppsmithError.ACL_NO_ACCESS_ERROR, FieldName.ENVIRONMENT, FieldName.WORKSPACE)));
-
-        return environmentService
-                .findByWorkspaceId(workspaceId, aclPermission)
-                .filter(environment -> environment.getId().equals(environmentId))
-                .next()
-                .map(Environment::getId)
-                .switchIfEmpty(Mono.defer(() -> environmentNameMono.flatMap(name -> Mono.error(
-                        new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.ENVIRONMENT, name)))));
+        return environmentService.verifyEnvironmentIdByWorkspaceId(workspaceId, environmentId, aclPermission);
     }
 
     @Override
     public Flux<Environment> getDefaultEnvironment(String workspaceId) {
-        return environmentService.findByWorkspaceId(workspaceId, null).filter(Environment::getIsDefault);
+        return environmentService.getDefaultEnvironment(workspaceId);
     }
 
     @Override

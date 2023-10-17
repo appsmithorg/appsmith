@@ -27,6 +27,7 @@ public abstract class BaseLicenseAPIManagerImpl implements LicenseAPIManager {
         requestDTO.setLicenseKey(license.getKey());
         requestDTO.setTenantId(tenant.getId());
         requestDTO.setAppsmithVersion(releaseNotesService.getRunningVersion());
+        requestDTO.setIsDryRun(license.getIsDryRun());
 
         return instanceIdMono.map(instanceId -> {
             requestDTO.setInstanceId(instanceId);

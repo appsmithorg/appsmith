@@ -12,6 +12,12 @@ import {
   INVITE_USER_SUBMIT_SUCCESS as CE_INVITE_USER_SUBMIT_SUCCESS,
 } from "ce/constants/messages";
 
+/*
+  For self hosted CE, it displays the string "Appsmith Community v1.10.0".
+ */
+export const APPSMITH_DISPLAY_VERSION = (edition: string, version: string) =>
+  `Appsmith ${version}`;
+
 // GAC begin
 export const SHOW_LESS_GROUPS = () => `show less`;
 export const SHOW_MORE_GROUPS = (count: number) => `show ${count} more`;
@@ -127,26 +133,26 @@ export const ADMIN_BRANDING_SETTINGS_SUBTITLE = () =>
   "Set your organization's logo and brand colors.";
 
 // Billing
-export const ADMIN_BILLING_SETTINGS_TITLE = () => "License & billing";
+export const ADMIN_BILLING_SETTINGS_TITLE = () => "License & plans";
 export const ADMIN_BILLING_SETTINGS_SUBTITLE = () =>
   "View customer portal to view usage and billing related information, and to manage your subscription.";
 export const NO_ACTIVE_SUBSCRIPTION = () => "No active subscription";
+export const LICENSE_GET_STARTED_HEADING = () =>
+  "How do you want to get started?";
 export const LICENSE_GET_STARTED_MESSAGE = () =>
-  "We need a license key to start or verify a subscription.";
+  "Our free plan is great for solo developers and small teams.";
+export const LICENSE_GET_STARTED_MESSAGE_NEXT = () =>
+  "If you are trialing one of our paid plans and have a license key, choose Paid.";
 export const LICENSE_KEY_FORM_INPUT_LABEL = () =>
   "If you already have a license, please enter the key to continue";
 export const LICENSE_KEY_MODAL_INPUT_LABEL = () => "Enter license key";
 export const LICENSE_KEY_CTA_LABEL = () => "Don’t have a license key?";
 export const TRIAL_EXPIRY_WARNING = (gracePeriod: number, suffix: string) =>
-  `Your trial will expire in <span>${gracePeriod}</span> ${suffix}. `;
+  `Your trial will expire in ${gracePeriod} ${suffix}.`;
 export const CONTINUE_USING_FEATURES = () =>
-  `to continue using Appsmith Business Edition. `;
-export const CONTINUE_USING_FEATURES_ENTERPRISE = () =>
-  `to continue using Appsmith Enterprise Edition. `;
+  `Upgrade to continue using all the features.`;
 export const NON_ADMIN_USER_TRIAL_EXPIRTY_WARNING = () =>
-  `Please contact your administrator to upgrade and continue using Appsmith Business Edition. `;
-export const NON_ADMIN_USER_TRIAL_EXPIRTY_WARNING_ENTERPRISE = () =>
-  `Please contact your administrator to upgrade and continue using Appsmith Enterprise Edition. `;
+  `Contact your administrator to upgrade and continue using Appsmith.`;
 export const TOTAL_USERS_MESSAGE = () => `Total users`;
 export const NUMBER_OF_SELF_HOSTED_USERS = () =>
   ` Number of users on the self-hosted instance`;
@@ -178,25 +184,88 @@ export const UPDATE = () => "Update";
 
 export const LICENSE_ERROR_TITLE = () => `No active subscription`;
 export const LICENSE_ERROR_DESCRIPTION = () =>
-  `You currently do not have an active subscription. Please contact your instance administrator to activate the instance.`;
-export const VISIT_CUSTOMER_PORTAL = () => `Visit customer portal`;
-export const LICENSE_UPDATED_SUCCESSFULLY = () =>
-  `Your license has been updated successfully`;
+  `Your instance is currently inactive. Please contact your instance administrator to reactivate the instance.`;
+export const VISIT_CUSTOMER_PORTAL = () => `Get it now`;
+export const VISIT_PORTAL = () => `Visit portal`;
+
+export const LICENSE_REFRESHED_SUCCESSFULLY = () =>
+  `Your license has been refreshed successfully`;
 export const NOT_AVAILABLE = () => `Not available`;
 export const ACTIVE = () => `Active`;
 export const TRIAL = () => `Trial`;
-export const PORTAL = () => `Portal`;
+export const CUSTOMER_PORTAL = () => `Customer Portal`;
 export const LICENSE_KEY = () => `License key`;
 export const ALREADY_UPGRADED = () => `Already upgraded?`;
-export const PAYMENT_FAILED = () => `Your last payment has failed.`;
-export const PAYMENT_FAILED_UPDATE = (count: number, suffix: string) =>
-  `your payment methods to continue using Appsmith, else all your instances will shut down in ${count} ${suffix}.`;
+export const PAYMENT_FAILED = () => `Your most recent payment has failed.`;
+export const PAYMENT_FAILED_TEXT = (count: number, suffix: string) =>
+  `Your most recent payment has failed. Update your payment methods or your instances will stop working in ${count} ${suffix}.`;
 export const ENTERPRISE = () => `Enterprise`;
 export const SELF_SERVE = () => `Business`;
 export const AIRGAPPED = () => `Airgapped`;
+export const FREE = () => `Free`;
+export const VISIT_PORTAL_CTA = () => `Visit portal`;
 export const SUBMIT_BUTTON = () => "Submit";
 export const LICENSE_FORM_DESCIPTION = () =>
   "Your previous license will be invalid";
+export const GET_STARTED = () => `Get started`;
+export const FREE_SUBTEXT = () => "Self-host our free plan";
+export const PAID = () => `Paid`;
+export const PAID_SUBTEXT = () => "Self-host our paid plans";
+export const ADD_LICENSE = () => "Add license";
+export const PLAN = () => "Plan";
+export const LICENSE = () => "License";
+export const REMOVE_LICENSE_KEY = () => `Remove license key`;
+export const REMOVE = () => `Remove`;
+export const REMOVE_LICENSE_KEY_MODAL_TEXT = () =>
+  "If you remove your license key, you will lose access to all paid features. To learn more about how this will impact your instance, refer to our documentation.";
+export const REMOVE_LICENSE_KEY_MODAL_SUBTEXT = () =>
+  `We will enable form login by default for all users and we strongly recommend enabling email verification for enhanced security measures.`;
+export const LEARN_MORE = () => "Learn more";
+export const CONFIRM = () => "Confirm";
+export const Name = () => "Name";
+export const START_DATE = () => "Subscription start date";
+export const END_DATE = () => "Subscription end date";
+export const EMAIL = () => "Registered email ID";
+export const MANAGE = () => "Manage plans";
+export const PASTE_LICENSE = () => "Paste your license key here to activate.";
+export const DONT_HAVE_LICENSE = () => "Don't have a license?";
+export const GET_ONE_NOW = () => "Get one now.";
+export const DOWNGRADE_CALLOUT_TEXT_PAID = () =>
+  "Your license key is no longer valid. Contact us to continue using all the features.";
+export const TRIAL_EXPIRED_TEXT = () =>
+  "Your trial has expired. Upgrade to continue using all the features.";
+export const PAID_EXPIRED_TEXT = () =>
+  "Your license key is no longer valid. Get a new license to continue using all the features.";
+export const DOWNGRADE_CALLOUT_TEXT_TRIAL = () =>
+  "Your trial license has expired. Upgrade to continue using all the features.";
+export const DOWNGRADE_CALLOUT_SUBTEXT_1_ACTIVE = () =>
+  "If you decide to downgrade, you will lose access to the features that are exclusive to your current plan. To learn more about how this will impact your instance, refer to our documentation.";
+export const DOWNGRADE_CALLOUT_SUBTEXT_1_EXPIRED = () =>
+  "If you decide to downgrade, you will lose access to all paid features. To learn more about how this will impact your instance, refer to our documentation.";
+export const DOWNGRADE_CALLOUT_SUBTEXT_2 = () =>
+  "Additionally, we will enable form login by default for all users and we strongly recommend enabling email verification for enhanced security measures.";
+export const DOWNGRADE_CALLOUT_TEXT = () =>
+  "Your license key is valid. However, please note that your new key corresponds to a lower tier plan than your current plan.";
+export const LICENSE_EXPIRED_HEADING_TRIAL = () => "Continue using Appsmith";
+export const LICENSE_TRIAL_EXPIRED_COMMMUNITY_DOWNGRADE = () =>
+  "Downgrade to our free plan";
+export const LICENSE_TRIAL_EXPIRED_CONTINUE = () =>
+  "Continue with our paid plan";
+export const LICENSE_PAID_EXPIRED_CONTINUE = () =>
+  "Start again with our paid plan";
+export const LICENSE_EXPIRED_HEADING_PAID = () => "Restart with Appsmith";
+export const CONTACT_US = () => "Contact us";
+export const NEED_NEW_LICENSE = () => "Need a new license?";
+export const KEY = () => `Key`;
+export const MIGRATIONS = () => `Migrations`;
+export const MIGRATIONS_TEXT = () =>
+  `We are updating your instance. Please allow us some time to complete the migration.`;
+export const MIGRATIONS_ERROR_TEXT = () =>
+  `Updating your instance failed. Please restart the server again for the license changes to take place.`;
+export const DOWNGRADE = () => `Downgrade`;
+export const CURRENT_PLAN = () => `Current plan`;
+export const VISIT_DOCS = () => `Visit docs`;
+
 // Welcome form EE
 export const WELCOME_FORM_SUBMIT_LABEL = () => "Next";
 
@@ -290,8 +359,14 @@ export const SEARCH_APPS_AND_PACKAGES = () => "Search for apps or packages";
 export const WORKSPACE_ACTION_BUTTON = () => "Create new";
 export const NEW_PACKAGE = () => "New package";
 export const NEW_APP = () => "New app";
-export const EMPTY_PACKAGE_LIST = () => "No packages found";
+export const EMPTY_PACKAGE_LIST = () =>
+  "There are no packages in this workspace.";
 export const FETCH_PACKAGES_ERROR = () => "Failed to fetch Packages";
 export const FETCH_PACKAGE_ERROR = () => "Failed to fetch Package";
 export const CREATE_PACKAGE_ERROR = () => "Failed to create package";
+export const QUERY_MODULES_TITLE = () => "Query Modules";
+export const ADD_QUERY_MODULE_TOOLTIP = () => "Add a new query module";
+export const CREATE_NEW_QUERY_MODULE = () => "New query";
+export const EMPTY_QUERY_MODULES_MSG = () => "No queries to show here.";
+export const NEW_QUERY_BUTTON = () => "New query";
 // Modules end

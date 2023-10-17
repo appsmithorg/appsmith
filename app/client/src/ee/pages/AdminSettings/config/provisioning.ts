@@ -10,6 +10,8 @@ import Provisioning from "../Provisioning";
 import { ScimProvisioning } from "../Provisioning/ScimProvisioning";
 import { enableEEOnlyFeatures } from "@appsmith/selectors/tenantSelectors";
 import store from "store";
+import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
+import { isSCIMEnabled } from "@appsmith/utils/planHelpers";
 
 const ScimProvisioningConfig: AdminConfigType = {
   type: SettingCategories.SCIM_PROVISIONING,
@@ -21,9 +23,14 @@ const ScimProvisioningConfig: AdminConfigType = {
   component: ScimProvisioning,
 };
 
+const featureFlags = selectFeatureFlags(store.getState());
+
+const isFeatureEnabled = isSCIMEnabled(featureFlags);
+
+//todo Dipyaman: Remove the isEnterprise checks once the enabled/disabled comes from the /features API correctly
 export const config: AdminConfigType = {
   ...CE_config,
-  ...(enableEEOnlyFeatures(store.getState())
+  ...(enableEEOnlyFeatures(store.getState()) && isFeatureEnabled
     ? {
         component: Provisioning,
         title: "Provisioning",

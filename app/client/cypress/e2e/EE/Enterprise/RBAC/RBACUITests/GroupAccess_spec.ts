@@ -58,6 +58,10 @@ describe("Create group, check if users in group has group roles accessess", func
       );
       dataSources.RunQuery();
       adminSettings.NavigateToAdminSettings();
+      featureFlagIntercept({
+        license_gac_enabled: true,
+      });
+      cy.wait(2000);
       rbacHelper.CreatePermissionPageLevel(
         permissionAtPageLevel,
         workspaceName,
@@ -116,6 +120,8 @@ describe("Create group, check if users in group has group roles accessess", func
    */
   it("2. group with 2 roles - Dev and custom page view", function () {
     homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+    featureFlagIntercept({ license_gac_enabled: true });
+    cy.wait(2000);
     rbacHelper.AddDefaultRoleGroup(groupName, "Developer", workspaceName);
     homePage.LogintoApp(
       Cypress.env("TESTUSERNAME1"),

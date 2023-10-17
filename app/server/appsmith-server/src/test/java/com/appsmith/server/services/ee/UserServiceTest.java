@@ -16,7 +16,6 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.UserUtils;
-import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.UserGroupRepository;
 import com.appsmith.server.repositories.UserRepository;
@@ -55,8 +54,11 @@ import static com.appsmith.server.acl.AclPermission.READ_USER_GROUPS;
 import static com.appsmith.server.acl.AclPermission.RESET_PASSWORD_USERS;
 import static com.appsmith.server.constants.AccessControlConstants.ENABLE_PROGRAMMATIC_ACCESS_CONTROL_IN_ADMIN_SETTINGS;
 import static com.appsmith.server.constants.ce.AccessControlConstantsCE.UPGRADE_TO_BUSINESS_EDITION_TO_ACCESS_ROLES_AND_GROUPS_FOR_CONDITIONAL_BUSINESS_LOGIC;
+import static java.lang.Boolean.FALSE;
+import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.eq;
 
 @Slf4j
 @ExtendWith(SpringExtension.class)
@@ -91,9 +93,6 @@ public class UserServiceTest {
     UserAndAccessManagementService userAndAccessManagementService;
 
     @Autowired
-    CacheableRepositoryHelper cacheableRepositoryHelper;
-
-    @Autowired
     TenantService tenantService;
 
     @SpyBean
@@ -115,6 +114,7 @@ public class UserServiceTest {
     @BeforeEach
     public void setup() {
         mockFeatureFlag(FeatureFlagEnum.license_audit_logs_enabled, false);
+        mockFeatureFlag(FeatureFlagEnum.license_gac_enabled, true);
         mockFeatureFlag(FeatureFlagEnum.license_branding_enabled, true);
         mockFeatureFlag(FeatureFlagEnum.license_pac_enabled, true);
 
@@ -138,7 +138,7 @@ public class UserServiceTest {
     }
 
     private void mockFeatureFlag(FeatureFlagEnum featureFlagEnum, boolean value) {
-        Mockito.when(featureFlagService.check(Mockito.eq(featureFlagEnum))).thenReturn(Mono.just(value));
+        Mockito.when(featureFlagService.check(eq(featureFlagEnum))).thenReturn(Mono.just(value));
     }
 
     @Test
@@ -219,7 +219,8 @@ public class UserServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testNonAdminReturnAdminInProfile_givenReadGroup() {
-
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_gac_enabled)))
+                .thenReturn(Mono.just(TRUE));
         UserGroup userGroup = new UserGroup();
         String name = "Test Group testNonAdminReturnAdminInProfile_givenReadGroup";
         String description = "Test Group Description testNonAdminReturnAdminInProfile_givenReadGroup";
@@ -263,11 +264,15 @@ public class UserServiceTest {
                     assertThat(userProfileDTO.isAdminSettingsVisible()).isTrue();
                 })
                 .verifyComplete();
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_gac_enabled)))
+                .thenReturn(Mono.just(Boolean.FALSE));
     }
 
     @Test
     @WithUserDetails(value = "anonymousUser")
     public void validUserCreate_defaultRoleAssigned_cancelledMidway() {
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_gac_enabled)))
+                .thenReturn(Mono.just(TRUE));
         User user = new User();
         String email = UUID.randomUUID() + "@email.com";
         user.setEmail(email);
@@ -297,6 +302,8 @@ public class UserServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testCreateUserInstanceAdminRoleHasDeleteUserPermission() {
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_gac_enabled)))
+                .thenReturn(Mono.just(TRUE));
         String testName = "testCreateUserInstanceAdminRoleHasDeleteUserPermission";
         User user = new User();
         user.setEmail(testName + "@test.com");
@@ -331,6 +338,8 @@ public class UserServiceTest {
     @Test
     @WithMockAppsmithUser
     public void createNewUserValid() {
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_gac_enabled)))
+                .thenReturn(Mono.just(TRUE));
         User newUser = new User();
         newUser.setEmail("createnewuservalid-new-user-email@email.com");
         newUser.setPassword("new-user-test-password");
@@ -351,13 +360,20 @@ public class UserServiceTest {
         });
         Mono<PermissionGroup> instanceAdminRoleMono = userUtils.getSuperAdminPermissionGroup();
         Mono<PermissionGroup> provisionRoleMono = userUtils.getProvisioningRole();
+        Mono<PermissionGroup> defaultUserRoleMono = userCreateMono.then(userUtils.getDefaultUserPermissionGroup());
 
-        StepVerifier.create(Mono.zip(userCreateMono, permissionGroupMono, instanceAdminRoleMono, provisionRoleMono))
+        StepVerifier.create(Mono.zip(
+                        userCreateMono,
+                        permissionGroupMono,
+                        instanceAdminRoleMono,
+                        provisionRoleMono,
+                        defaultUserRoleMono))
                 .assertNext(tuple -> {
                     User user = tuple.getT1();
                     PermissionGroup permissionGroup = tuple.getT2();
                     PermissionGroup instanceAdminRole = tuple.getT3();
                     PermissionGroup provisionRole = tuple.getT4();
+                    PermissionGroup defaultUserRole = tuple.getT5();
 
                     assertThat(user).isNotNull();
                     assertThat(user.getId()).isNotNull();
@@ -392,6 +408,9 @@ public class UserServiceTest {
                             .containsAll(
                                     Set.of(manageUserPolicy, readUserPolicy, resetPasswordPolicy, deleteUserPolicy));
                     assertThat(permissionGroup.getAssignedToUserIds()).containsAll(Set.of(user.getId()));
+
+                    // Assert that the default user role has been assigned to the newly created user
+                    assertThat(defaultUserRole.getAssignedToUserIds()).contains(user.getId());
                 })
                 .verifyComplete();
     }
@@ -399,7 +418,9 @@ public class UserServiceTest {
     @Test
     @WithUserDetails(value = "provisioningUser")
     public void createProvisionedUser_checkUserPermissions() {
-        mockFeatureFlag(FeatureFlagEnum.license_scim_enabled, Boolean.TRUE);
+        mockFeatureFlag(FeatureFlagEnum.license_scim_enabled, TRUE);
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_gac_enabled)))
+                .thenReturn(Mono.just(TRUE));
         String testName = "createProvisionedUser_checkUserPermissions";
         String instanceAdminRoleId = userUtils
                 .getSuperAdminPermissionGroup()
@@ -456,6 +477,7 @@ public class UserServiceTest {
     @Test
     @WithUserDetails("api_user")
     public void deleteRegularUserAsInstanceAdmin_userShouldGetDeleted() {
+        mockFeatureFlag(FeatureFlagEnum.license_gac_enabled, TRUE);
         String testName = "deleteRegularUserAsInstanceAdmin_userShouldGetDeleted";
 
         User user = new User();
@@ -466,12 +488,15 @@ public class UserServiceTest {
 
         User deletedUser = userRepository.findById(createdUser.getId()).block();
         assertThat(deletedUser).isNull();
+        mockFeatureFlag(FeatureFlagEnum.license_gac_enabled, Boolean.FALSE);
     }
 
     @Test
     @WithUserDetails("api_user")
     public void deleteProvisionedUserAsInstanceAdmin_throwUnauthorisedError() {
-        mockFeatureFlag(FeatureFlagEnum.license_scim_enabled, Boolean.TRUE);
+        mockFeatureFlag(FeatureFlagEnum.license_scim_enabled, TRUE);
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_gac_enabled)))
+                .thenReturn(Mono.just(TRUE));
         String testName = "deleteProvisionedUserAsInstanceAdmin_throwUnauthorisedError";
 
         User user = new User();
@@ -492,7 +517,9 @@ public class UserServiceTest {
     @Test
     @WithUserDetails("api_user")
     public void createRegularUser_convertToProvisionUser_deleteUser_throwUnauthorisedError() {
-        mockFeatureFlag(FeatureFlagEnum.license_scim_enabled, Boolean.TRUE);
+        mockFeatureFlag(FeatureFlagEnum.license_scim_enabled, TRUE);
+        mockFeatureFlag(FeatureFlagEnum.license_gac_enabled, TRUE);
+        mockFeatureFlag(FeatureFlagEnum.license_audit_logs_enabled, TRUE);
         String testName = "createRegularUser_convertToProvisionUser_deleteUser_throwUnauthorisedError";
         PermissionGroup instanceAdminRole =
                 userUtils.getSuperAdminPermissionGroup().block();
@@ -501,9 +528,10 @@ public class UserServiceTest {
         // Associate api_user with Provisioning Role. (api_user becomes Provisioning User & Instance Admin)
         provisioningRole.getAssignedToUserIds().add(api_user.getId());
         permissionGroupRepository.save(provisioningRole).block();
-        cacheableRepositoryHelper
-                .evictPermissionGroupsUser("api_user", tenantId)
+        permissionGroupRepository
+                .evictAllPermissionGroupCachesForUser("api_user", tenantId)
                 .block();
+
         // Associate api_user with Provisioning Role.(api_user becomes Provisioning User & Instance Admin)
 
         User user = new User();
@@ -558,8 +586,8 @@ public class UserServiceTest {
         // Disassociate api_user with Provisioning Role. (api_user becomes Instance Admin only)
         provisioningRole.getAssignedToUserIds().remove(api_user.getId());
         permissionGroupRepository.save(provisioningRole).block();
-        cacheableRepositoryHelper
-                .evictPermissionGroupsUser("api_user", tenantId)
+        permissionGroupRepository
+                .evictAllPermissionGroupCachesForUser("api_user", tenantId)
                 .block();
         // Disassociate api_user with Provisioning Role. (api_user becomes Instance Admin only)
 
@@ -577,7 +605,8 @@ public class UserServiceTest {
     @Test
     @WithUserDetails("provisioningUser")
     public void createRegularUser_convertToProvisionUser_deleteUserWithProvisioningRole_deleteUserSuccessfully() {
-        mockFeatureFlag(FeatureFlagEnum.license_scim_enabled, Boolean.TRUE);
+        mockFeatureFlag(FeatureFlagEnum.license_scim_enabled, TRUE);
+        mockFeatureFlag(FeatureFlagEnum.license_gac_enabled, TRUE);
         String testName =
                 "createRegularUser_convertToProvisionUser_deleteUserWithProvisioningRole_deleteUserSuccessfully";
         PermissionGroup instanceAdminRole =
@@ -639,12 +668,14 @@ public class UserServiceTest {
         User deletedUser = userRepository.findById(createdUser.getId()).block();
         assertThat(deletedUser).isNull();
         mockFeatureFlag(FeatureFlagEnum.license_scim_enabled, Boolean.FALSE);
+        mockFeatureFlag(FeatureFlagEnum.license_gac_enabled, Boolean.FALSE);
     }
 
     @Test
     @WithUserDetails(value = "api_user")
     public void createProvisionedUser_RegularUser_getAllUsersShouldReturnBoth_toApiUser() {
-        mockFeatureFlag(FeatureFlagEnum.license_scim_enabled, Boolean.TRUE);
+        mockFeatureFlag(FeatureFlagEnum.license_gac_enabled, TRUE);
+        mockFeatureFlag(FeatureFlagEnum.license_scim_enabled, TRUE);
         String testName = "createProvisionedUser_RegularUser_getAllUsersShouldReturnBoth_toApiUser";
         User user1 = new User();
         user1.setEmail(testName + "_Regular@appsmith.com");
@@ -667,12 +698,14 @@ public class UserServiceTest {
                 .findAny();
         assertThat(provisionUserFetched.isPresent()).isTrue();
         mockFeatureFlag(FeatureFlagEnum.license_scim_enabled, Boolean.FALSE);
+        mockFeatureFlag(FeatureFlagEnum.license_gac_enabled, Boolean.FALSE);
     }
 
     @Test
     @WithUserDetails(value = "provisioningUser")
     public void createProvisionedUser_RegularUser_getAllUsersShouldReturnBoth_toProvisioningUser() {
-        mockFeatureFlag(FeatureFlagEnum.license_scim_enabled, Boolean.TRUE);
+        mockFeatureFlag(FeatureFlagEnum.license_scim_enabled, TRUE);
+        mockFeatureFlag(FeatureFlagEnum.license_gac_enabled, TRUE);
         String testName = "createProvisionedUser_RegularUser_getAllUsersShouldReturnBoth_toProvisioningUser";
         User user1 = new User();
         user1.setEmail(testName + "_Regular@appsmith.com");
@@ -695,12 +728,15 @@ public class UserServiceTest {
                 .findAny();
         assertThat(provisionUserFetched.isPresent()).isTrue();
         mockFeatureFlag(FeatureFlagEnum.license_scim_enabled, Boolean.FALSE);
+        mockFeatureFlag(FeatureFlagEnum.license_gac_enabled, Boolean.FALSE);
     }
 
     @Test
     @WithUserDetails(value = "provisioningUser")
     public void createProvisionedUser_updateEmail_shouldHaveSameUserId_nameShouldNotGetUpdated() {
-        mockFeatureFlag(FeatureFlagEnum.license_scim_enabled, Boolean.TRUE);
+        mockFeatureFlag(FeatureFlagEnum.license_scim_enabled, TRUE);
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_gac_enabled)))
+                .thenReturn(Mono.just(TRUE));
         String testName = "createProvisionedUser_updateEmail_shouldHaveSameUserId";
         User user = new User();
         user.setEmail(testName + "_Provisioned@appsmith.com");
@@ -730,7 +766,9 @@ public class UserServiceTest {
     @Test
     @WithUserDetails(value = "provisioningUser")
     public void createProvisionedUser_updateName_shouldHaveSameUserId_nameShouldGetUpdated() {
-        mockFeatureFlag(FeatureFlagEnum.license_scim_enabled, Boolean.TRUE);
+        mockFeatureFlag(FeatureFlagEnum.license_scim_enabled, TRUE);
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_gac_enabled)))
+                .thenReturn(Mono.just(TRUE));
         String testName = "createProvisionedUser_updateName_shouldHaveSameUserId_nameShouldGetUpdated";
         User user = new User();
         user.setEmail(testName + "_Provisioned@appsmith.com");
@@ -754,5 +792,85 @@ public class UserServiceTest {
         assertThat(((User) updatedProvisionUser.getResource()).getEmail())
                 .isEqualToIgnoringCase(testName + "_Provisioned@appsmith.com");
         mockFeatureFlag(FeatureFlagEnum.license_scim_enabled, Boolean.FALSE);
+    }
+
+    @Test
+    @WithMockAppsmithUser
+    public void createNewUserValid_gacFeatureTurnedOff() {
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_gac_enabled)))
+                .thenReturn(Mono.just(FALSE));
+        User newUser = new User();
+        newUser.setEmail("createnewuservalid-new-user-email-gac-turned-off@email.com");
+        newUser.setPassword("new-user-test-password");
+
+        Mono<User> userCreateMono = userService.create(newUser).cache();
+
+        Mono<PermissionGroup> permissionGroupMono = userCreateMono.flatMap(user -> {
+            Set<Policy> userPolicies = user.getPolicies();
+            assertThat(userPolicies.size()).isNotZero();
+            Policy policy = userPolicies.stream()
+                    .filter(policy1 -> policy1.getPermission().equals(RESET_PASSWORD_USERS.getValue()))
+                    .findFirst()
+                    .get();
+            String permissionGroupId =
+                    policy.getPermissionGroups().stream().findFirst().get();
+
+            return permissionGroupRepository.findById(permissionGroupId);
+        });
+        Mono<PermissionGroup> instanceAdminRoleMono = userUtils.getSuperAdminPermissionGroup();
+        Mono<PermissionGroup> provisionRoleMono = userUtils.getProvisioningRole();
+        Mono<PermissionGroup> defaultUserRoleMono = userCreateMono.then(userUtils.getDefaultUserPermissionGroup());
+
+        StepVerifier.create(Mono.zip(
+                        userCreateMono,
+                        permissionGroupMono,
+                        instanceAdminRoleMono,
+                        provisionRoleMono,
+                        defaultUserRoleMono))
+                .assertNext(tuple -> {
+                    User user = tuple.getT1();
+                    PermissionGroup permissionGroup = tuple.getT2();
+                    PermissionGroup instanceAdminRole = tuple.getT3();
+                    PermissionGroup provisionRole = tuple.getT4();
+                    PermissionGroup defaultUserRole = tuple.getT5();
+
+                    assertThat(user).isNotNull();
+                    assertThat(user.getId()).isNotNull();
+                    assertThat(user.getEmail()).isEqualTo("createnewuservalid-new-user-email-gac-turned-off@email.com");
+                    assertThat(user.getName()).isNullOrEmpty();
+                    assertThat(user.getTenantId()).isNotNull();
+
+                    Set<Policy> userPolicies = user.getPolicies();
+                    assertThat(userPolicies).isNotEmpty();
+                    Policy manageUserPolicy = Policy.builder()
+                            .permission(MANAGE_USERS.getValue())
+                            .permissionGroups(Set.of(permissionGroup.getId()))
+                            .build();
+
+                    Policy readUserPolicy = Policy.builder()
+                            .permission(READ_USERS.getValue())
+                            .permissionGroups(
+                                    Set.of(permissionGroup.getId(), instanceAdminRole.getId(), provisionRole.getId()))
+                            .build();
+
+                    Policy resetPasswordPolicy = Policy.builder()
+                            .permission(RESET_PASSWORD_USERS.getValue())
+                            .permissionGroups(Set.of(permissionGroup.getId()))
+                            .build();
+
+                    Policy deleteUserPolicy = Policy.builder()
+                            .permission(DELETE_USERS.getValue())
+                            .permissionGroups(Set.of(instanceAdminRole.getId()))
+                            .build();
+
+                    assertThat(userPolicies)
+                            .containsAll(
+                                    Set.of(manageUserPolicy, readUserPolicy, resetPasswordPolicy, deleteUserPolicy));
+                    assertThat(permissionGroup.getAssignedToUserIds()).containsAll(Set.of(user.getId()));
+
+                    // Assert that the default user role has been assigned to the newly created user
+                    assertThat(defaultUserRole.getAssignedToUserIds()).contains(user.getId());
+                })
+                .verifyComplete();
     }
 }

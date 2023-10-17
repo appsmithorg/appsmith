@@ -323,10 +323,10 @@ function GuideStepsContent(props: {
   );
 }
 
-type CompletionContentProps = {
+interface CompletionContentProps {
   step: number;
   showInfoMessage: boolean;
-};
+}
 
 function CompletionContent(props: CompletionContentProps) {
   const [showSuccess, setShowSuccess] = useState(!props.showInfoMessage);
@@ -421,11 +421,11 @@ function CompletionContent(props: CompletionContentProps) {
   }
 }
 
-export type GuideBody = {
+export interface GuideBody {
   exploring: boolean;
   step: number;
   showInfoMessage: boolean;
-};
+}
 
 function GuideBody(props: GuideBody) {
   const successMessage = useSelector(showSuccessMessage);
@@ -449,9 +449,9 @@ function GuideBody(props: GuideBody) {
   }
 }
 
-type GuideProps = {
+interface GuideProps {
   className?: string;
-};
+}
 // Guided tour steps
 function Guide(props: GuideProps) {
   const exploring = useSelector(isExploringSelector);

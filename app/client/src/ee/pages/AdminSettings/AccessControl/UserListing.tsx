@@ -19,7 +19,7 @@ import {
   INVITE_USERS_TAB_ID,
 } from "./components";
 import InviteUsersForm from "@appsmith/pages/workspace/InviteUsersForm";
-import { adminSettingsCategoryUrl } from "RouteBuilder";
+import { adminSettingsCategoryUrl } from "@appsmith/RouteBuilder";
 import { SettingCategories } from "@appsmith/pages/AdminSettings/config/types";
 import {
   deleteAclUser,
@@ -502,8 +502,9 @@ export function UserListing() {
       setSearchValue(search);
       const results =
         aclUsers &&
-        aclUsers.filter((user: UserProps) =>
-          user.username?.toLocaleUpperCase().includes(search),
+        aclUsers.filter(
+          (user: UserProps) =>
+            user.username?.toLocaleUpperCase().includes(search),
         );
       setData(results);
     } else {

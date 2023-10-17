@@ -13,27 +13,27 @@ import { invited } from "./invited";
 import { getGroupandRoleActionDescription } from "./groupAndRoleInvite";
 import camelCase from "lodash/camelCase";
 
-export type MainDescriptionType = {
+export interface MainDescriptionType {
   environmentDescription?: string;
   resourceType: string;
   actionType: string;
-};
+}
 
-export type MultilineDescription = {
+export interface MultilineDescription {
   mainDescription: MainDescriptionType;
   subDescription: string;
-};
+}
 
-export type IconisedDescription = {
+export interface IconisedDescription {
   hasDescriptiveIcon: boolean;
   icon: IconInfo;
   description: MultilineDescription;
-};
+}
 
-export type ActionMapType = {
+export interface ActionMapType {
   action: string;
   preposition: string;
-};
+}
 
 export enum CRUD_ACTIONS {
   CREATED = "created",

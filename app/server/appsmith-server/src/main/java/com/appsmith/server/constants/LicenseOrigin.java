@@ -2,6 +2,10 @@ package com.appsmith.server.constants;
 
 public enum LicenseOrigin {
     SELF_SERVE,
+    @Deprecated
     ENTERPRISE,
-    AIR_GAP
+    @Deprecated
+    AIR_GAP,
+    SALES,
+    PARTNERSHIP
 }

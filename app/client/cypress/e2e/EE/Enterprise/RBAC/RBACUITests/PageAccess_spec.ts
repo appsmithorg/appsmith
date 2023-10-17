@@ -56,6 +56,8 @@ describe("User performing actions on page with access and without access Tests",
       );
       dataSources.RunQuery();
       adminSettings.NavigateToAdminSettings();
+      featureFlagIntercept({ license_gac_enabled: true });
+      cy.wait(2000);
       rbacHelper.CreatePermissionPageLevel(
         permissionAtPageLevel,
         workspaceName,
@@ -86,6 +88,8 @@ describe("User performing actions on page with access and without access Tests",
       Cypress.env("TESTUSERNAME1"),
     );
     adminSettings.NavigateToAdminSettings();
+    featureFlagIntercept({ license_gac_enabled: true });
+    cy.wait(2000);
   });
 
   /**
@@ -122,6 +126,8 @@ describe("User performing actions on page with access and without access Tests",
   it("2. User with 2 roles - Dev and custom page view", function () {
     homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     adminSettings.NavigateToAdminSettings();
+    featureFlagIntercept({ license_gac_enabled: true });
+    cy.wait(2000);
     rbacHelper.AddDefaultRole(
       Cypress.env("TESTUSERNAME1"),
       "Developer",
@@ -178,6 +184,8 @@ describe("User performing actions on page with access and without access Tests",
    */
   it("4. Verify query delete permission for test user", function () {
     homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+    featureFlagIntercept({ license_gac_enabled: true });
+    cy.wait(2000);
     adminSettings.NavigateToAdminSettings();
     rbacHelper.AssignRoleToUser(
       permissionAtPageLevel,
@@ -203,6 +211,9 @@ describe("User performing actions on page with access and without access Tests",
 
   after(() => {
     homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+    featureFlagIntercept({ license_gac_enabled: true });
+    cy.wait(2000);
+
     agHelper.VisitNAssert("settings/roles", "fetchRoles");
     rbacHelper.DeleteRole(permissionAtPageLevel);
     homePage.NavigateToHome();

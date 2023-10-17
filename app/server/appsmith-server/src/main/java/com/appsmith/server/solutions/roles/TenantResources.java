@@ -9,7 +9,8 @@ import com.appsmith.server.domains.QUserGroup;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.domains.Workspace;
-import com.appsmith.server.helpers.PermissionGroupUtils;
+import com.appsmith.server.helpers.PermissionGroupHelper;
+import com.appsmith.server.helpers.PermissionGroupHelperImpl;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.TenantRepository;
 import com.appsmith.server.repositories.UserGroupRepository;
@@ -69,7 +70,7 @@ public class TenantResources {
     private final UserGroupRepository userGroupRepository;
     private final PermissionGroupRepository permissionGroupRepository;
     private final PolicyGenerator policyGenerator;
-    private final PermissionGroupUtils permissionGroupUtils;
+    private final PermissionGroupHelper permissionGroupHelper;
 
     Set<AclPermission> tenantGroupPermissions = Set.of(
             CREATE_USER_GROUPS,
@@ -95,13 +96,13 @@ public class TenantResources {
             UserGroupRepository userGroupRepository,
             PermissionGroupRepository permissionGroupRepository,
             PolicyGenerator policyGenerator,
-            PermissionGroupUtils permissionGroupUtils) {
+            PermissionGroupHelperImpl permissionGroupHelper) {
 
         this.tenantRepository = tenantRepository;
         this.userGroupRepository = userGroupRepository;
         this.permissionGroupRepository = permissionGroupRepository;
         this.policyGenerator = policyGenerator;
-        this.permissionGroupUtils = permissionGroupUtils;
+        this.permissionGroupHelper = permissionGroupHelper;
     }
 
     public Mono<RoleTabDTO> createOthersTab(
@@ -673,7 +674,7 @@ public class TenantResources {
      */
     private Mono<Tuple2<BaseView, Boolean>> updateEnabledForPermissionGroup(
             BaseView permissionGroupDto, PermissionGroup permissionGroup) {
-        return permissionGroupUtils.isAutoCreated(permissionGroup).map(autoCreated -> {
+        return permissionGroupHelper.isAutoCreated(permissionGroup).map(autoCreated -> {
             if (autoCreated) {
                 List<PermissionViewableName> viewablePermissions = RoleTab.GROUPS_ROLES.getViewablePermissions();
                 int indexOfEditPermission = viewablePermissions.indexOf(PermissionViewableName.EDIT);
@@ -695,7 +696,7 @@ public class TenantResources {
      */
     private Mono<Boolean> updateHoverMapPermissionsForPermissionGroup(
             Map<String, Set<IdPermissionDTO>> hoverMap, PermissionGroup permissionGroup) {
-        return permissionGroupUtils.isAutoCreated(permissionGroup).map(autoCreated -> {
+        return permissionGroupHelper.isAutoCreated(permissionGroup).map(autoCreated -> {
             if (autoCreated) {
                 String deletePermissionKey = permissionGroup.getId() + "_" + PermissionViewableName.DELETE.getName();
                 String editPermissionKey = permissionGroup.getId() + "_" + PermissionViewableName.EDIT.getName();

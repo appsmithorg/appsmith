@@ -95,6 +95,8 @@ describe("Create Permission flow ", function () {
           );
           cy.ClickGotIt();
           adminSettings.NavigateToAdminSettings();
+          featureFlagIntercept({ license_gac_enabled: true });
+          cy.wait(2000);
           cy.CreatePermissionWorkspaceLevel(
             PermissionWorkspaceLevel,
             workspaceName,
@@ -441,6 +443,8 @@ describe("Create Permission flow ", function () {
   after(() => {
     cy.LogOut();
     cy.LogintoAppTestUser(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+    featureFlagIntercept({ license_gac_enabled: true });
+    cy.wait(2000);
     agHelper.VisitNAssert("settings/roles", "fetchRoles");
     cy.DeleteRole(PermissionWorkspaceLevel);
     cy.DeleteRole(PermissionAppLevel);

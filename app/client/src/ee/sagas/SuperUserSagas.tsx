@@ -16,9 +16,22 @@ import {
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import type { User } from "constants/userConstants";
-import { takeLatest, all, call, put } from "redux-saga/effects";
+import { takeLatest, all, call, put, delay } from "redux-saga/effects";
 import { validateResponse } from "sagas/ErrorSagas";
 import type { ApiResponse } from "api/ApiResponses";
+import {
+  MIGRATION_STATUS,
+  RESTART_POLL_INTERVAL,
+  RESTART_POLL_TIMEOUT,
+} from "@appsmith/constants/tenantConstants";
+import {
+  TenantApi,
+  type FetchCurrentTenantConfigResponse,
+} from "@appsmith/api/TenantApi";
+import {
+  APPLICATIONS_URL,
+  WORKSPACE_SETTINGS_LICENSE_PAGE_URL,
+} from "constants/routes";
 
 export function* FetchSamlMetadataSaga(
   action: ReduxAction<FetchSamlMetadataPayload>,
@@ -59,6 +72,34 @@ export function* FetchSamlMetadataSaga(
   }
 }
 
+export function* RestartServerPollMigration(payload: {
+  shouldRedirectToBilling: boolean;
+  type: string;
+}) {
+  let pollCount = 0;
+  const maxPollCount = RESTART_POLL_TIMEOUT / RESTART_POLL_INTERVAL;
+  while (pollCount < maxPollCount) {
+    pollCount++;
+    yield delay(RESTART_POLL_INTERVAL);
+    try {
+      const response: FetchCurrentTenantConfigResponse = yield call(
+        TenantApi.fetchCurrentTenantConfig,
+      );
+      if (
+        response.responseMeta.status === 200 &&
+        response.data?.tenantConfiguration?.migrationStatus ===
+          MIGRATION_STATUS.COMPLETED
+      ) {
+        if (!payload.shouldRedirectToBilling) location.href = APPLICATIONS_URL;
+        else location.href = WORKSPACE_SETTINGS_LICENSE_PAGE_URL;
+      }
+    } catch (e) {}
+  }
+  yield put({
+    type: ReduxActionErrorTypes.RESTART_SERVER_ERROR,
+  });
+}
+
 export function* InitSuperUserSaga(action: ReduxAction<User>) {
   const user = action.payload;
   if (user.isSuperUser) {
@@ -76,6 +117,14 @@ export function* InitSuperUserSaga(action: ReduxAction<User>) {
         RestryRestartServerPoll,
       ),
       takeLatest(ReduxActionTypes.SEND_TEST_EMAIL, SendTestEmail),
+      takeLatest(
+        ReduxActionTypes.RESTART_SERVER_POLL_LICENSE_MIGRATION,
+        RestartServerPollMigration,
+      ),
+      takeLatest(
+        ReduxActionTypes.RETRY_SERVER_POLL_LICENSE_MIGRATION,
+        RestartServerPollMigration,
+      ),
     ]);
   }
 }

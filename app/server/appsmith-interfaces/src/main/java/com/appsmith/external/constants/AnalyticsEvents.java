@@ -86,12 +86,17 @@ public enum AnalyticsEvents {
     DS_TEST_EVENT_FAILED("Test_Datasource_Failed"),
 
     GIT_STALE_FILE_LOCK_DELETED,
+    SERVER_SETUP_COMPLETE("server_setup_complete"),
     SCIM_DISABLED("scim_disabled"),
     SCIM_LINKED("scim_linked"),
 
     AI_KB_GENERATE_SUCCESS,
     AI_KB_GENERATE_FAILURE,
-    ;
+    ADD_LICENSE("add_license_instance"),
+    FREE_PLAN("free_plan_instance"),
+    REMOVE_LICENSE("remove_license_instance"),
+    UPDATE_LICENSE("update_license_instance"),
+    REFRESH_LICENSE("refresh_license_instance");
 
     private final String eventName;
 

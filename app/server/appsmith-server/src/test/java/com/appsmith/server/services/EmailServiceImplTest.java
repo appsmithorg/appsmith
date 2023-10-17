@@ -2,17 +2,17 @@ package com.appsmith.server.services;
 
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.Tenant;
-import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.featureflags.CachedFeatures;
+import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.notifications.EmailSender;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 
@@ -49,21 +49,23 @@ class EmailServiceImplTest {
     @Autowired
     TenantService tenantService;
 
-    @Mock
+    @SpyBean
     EmailSender mockEmailSender;
 
+    @SpyBean
+    FeatureFlagService featureFlagService;
+
+    @Autowired
     private EmailService emailService;
 
     @BeforeEach
     public void setup() {
-        MockitoAnnotations.openMocks(this);
-        TenantConfiguration tenantConfiguration = new TenantConfiguration();
+        CachedFeatures cachedFeatures = new CachedFeatures();
+        cachedFeatures.setFeatures(Map.of(FeatureFlagEnum.license_gac_enabled.name(), Boolean.TRUE));
 
-        Tenant tenant = tenantService.getDefaultTenant().block();
-        assert tenant != null;
-        tenant.setTenantConfiguration(tenantConfiguration);
-
-        this.emailService = new EmailServiceImpl(mockEmailSender, tenantService);
+        Mockito.when(featureFlagService.getCachedTenantFeatureFlags()).thenReturn(cachedFeatures);
+        Mockito.when(featureFlagService.check(Mockito.eq(FeatureFlagEnum.license_gac_enabled)))
+                .thenReturn(Mono.just(Boolean.TRUE));
     }
 
     @Test

@@ -29,7 +29,7 @@ import {
   getThirdPartyAuths,
 } from "@appsmith/selectors/tenantSelectors";
 import history from "utils/history";
-import { adminSettingsCategoryUrl } from "RouteBuilder";
+import { adminSettingsCategoryUrl } from "@appsmith/RouteBuilder";
 import { SettingCategories } from "../config/types";
 
 export function getSettingLabel(name = "") {

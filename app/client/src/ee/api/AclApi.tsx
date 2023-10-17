@@ -45,30 +45,30 @@ export type GroupResponsePayload = BaseAclProps & {
 
 export type GroupResponse = ApiResponse<GroupResponsePayload>;
 
-export type UpdateGroupsInUserRequestPayload = {
+export interface UpdateGroupsInUserRequestPayload {
   userId: string;
   usernames: string[];
   groupsAdded: BaseAclProps[];
   groupsRemoved: BaseAclProps[];
-};
+}
 
-export type UpdateRolesInUserRequestPayload = {
+export interface UpdateRolesInUserRequestPayload {
   users: { id: string; username: string }[];
   rolesAdded: BaseAclProps[];
   rolesRemoved: BaseAclProps[];
-};
+}
 
-export type UpdateRolesInGroupRequestPayload = {
+export interface UpdateRolesInGroupRequestPayload {
   groups: BaseAclProps[];
   rolesAdded: BaseAclProps[];
   rolesRemoved: BaseAclProps[];
-};
+}
 
-export type UpdateRoleRequestPayload = {
+export interface UpdateRoleRequestPayload {
   tabName: string;
   entitiesChanged: UpdateRoleData;
   roleId: string;
-};
+}
 
 export class AclApi extends Api {
   static users = "/v1/users";

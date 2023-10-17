@@ -34,4 +34,9 @@ public class PackagePermissionImpl implements PackagePermission {
     public AclPermission getReadPermission() {
         return AclPermission.READ_PACKAGES;
     }
+
+    @Override
+    public AclPermission getExportPermission(boolean isGitSync, boolean exportWithConfiguration) {
+        return null;
+    }
 }

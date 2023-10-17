@@ -40,6 +40,11 @@ describe("Others tab permission Tests", function () {
       });
       cy.CreateAppForWorkspace(workspaceName, appName);
       agHelper.VisitNAssert("/settings/general", "getEnvVariables");
+      featureFlagIntercept({
+        license_gac_enabled: true,
+        license_audit_logs_enabled: true,
+      });
+      cy.wait(3000);
       cy.ViewAuditLogsRole(ViewAuditlogsRole);
       cy.CreateWorkspaceRole(CreateWorkspaceRole);
       cy.EditWorkspaceRole(EditWorkspaceRole, workspaceName);
@@ -87,7 +92,12 @@ describe("Others tab permission Tests", function () {
     cy.get(locators.AdminSettingsEntryLink).should("be.visible");
     cy.get(locators.AdminSettingsEntryLink).click();
 
+    featureFlagIntercept({
+      license_gac_enabled: true,
+      license_audit_logs_enabled: true,
+    });
     cy.wait(2000);
+
     // cy.url().should("contain", "/settings/general");
     cy.get(locators.LeftPaneAuditLogsLink).should("be.visible");
     cy.get(locators.LeftPaneAuditLogsLink).click();
@@ -257,6 +267,11 @@ describe("Others tab permission Tests", function () {
 
   after(() => {
     cy.LogintoAppTestUser(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+    featureFlagIntercept({
+      license_gac_enabled: true,
+      license_audit_logs_enabled: true,
+    });
+    cy.wait(3000);
     agHelper.VisitNAssert("settings/roles", "fetchRoles");
     cy.DeleteRole(ViewAuditlogsRole);
     cy.DeleteRole(CreateWorkspaceRole);

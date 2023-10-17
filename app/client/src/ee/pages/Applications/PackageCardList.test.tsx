@@ -82,7 +82,7 @@ const DEFAULT_USER_WORKSPACES: Workspaces[] = [
     workspace: {
       id: DEFAULT_WORKSPACE_ID,
       name: "Test Workspace",
-      userPermissions: [PERMISSION_TYPE.MANAGE_PACKAGES],
+      userPermissions: [PERMISSION_TYPE.MANAGE_WORKSPACE_PACKAGES],
     },
     applications: [],
     users: [],

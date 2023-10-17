@@ -24,7 +24,8 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.AppsmithComparators;
-import com.appsmith.server.helpers.PermissionGroupUtils;
+import com.appsmith.server.helpers.PermissionGroupHelper;
+import com.appsmith.server.helpers.PermissionGroupHelperImpl;
 import com.appsmith.server.helpers.UserPermissionUtils;
 import com.appsmith.server.repositories.ConfigRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
@@ -97,7 +98,7 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
     private final AnalyticsService analyticsService;
     private final UserDataRepository userDataRepository;
     private final PermissionGroupPermission permissionGroupPermission;
-    private final PermissionGroupUtils permissionGroupUtils;
+    private final PermissionGroupHelper permissionGroupHelper;
     private final EnvManager envManager;
     private final ConfigRepository configRepository;
     private final SessionUserService sessionUserService;
@@ -120,7 +121,7 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
             UserGroupRepository userGroupRepository,
             PermissionGroupPermission permissionGroupPermission,
             UserDataRepository userDataRepository,
-            PermissionGroupUtils permissionGroupUtils,
+            PermissionGroupHelperImpl permissionGroupHelper,
             EnvManager envManager,
             ConfigRepository configRepository,
             ConfigService configService,
@@ -149,7 +150,7 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
         this.analyticsService = analyticsService;
         this.userDataRepository = userDataRepository;
         this.permissionGroupPermission = permissionGroupPermission;
-        this.permissionGroupUtils = permissionGroupUtils;
+        this.permissionGroupHelper = permissionGroupHelper;
         this.envManager = envManager;
         this.configRepository = configRepository;
         this.sessionUserService = sessionUserService;
@@ -160,6 +161,7 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
     }
 
     @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
     public Mono<List<UserForManagementDTO>> getAllUsers(MultiValueMap<String, String> queryParams) {
         return tenantService
                 .getDefaultTenantId()
@@ -206,6 +208,7 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
     }
 
     @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
     public Mono<UserForManagementDTO> getUserById(String userId) {
         return tenantService
                 .getDefaultTenantId()
@@ -227,7 +230,7 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
     }
 
     private Mono<UserForManagementDTO> addGroupsAndRolesForUser(User user) {
-        Flux<PermissionGroupInfoDTO> rolesAssignedToUserFlux = permissionGroupUtils.mapToPermissionGroupInfoDto(
+        Flux<PermissionGroupInfoDTO> rolesAssignedToUserFlux = permissionGroupHelper.mapToPermissionGroupInfoDto(
                 permissionGroupService.findAllByAssignedToUsersIn(Set.of(user.getId())));
         Flux<UserGroupCompactDTO> groupsForUser = userGroupService.findAllGroupsForUser(user.getId());
 
@@ -246,6 +249,7 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
     }
 
     @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
     public Mono<Boolean> deleteUser(String userId) {
 
         return userRepository
@@ -290,6 +294,7 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
     }
 
     @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
     public Mono<Boolean> changeRoleAssociations(
             UpdateRoleAssociationDTO updateRoleAssociationDTO, String originHeader) {
         Set<UserCompactDTO> userDTOs = updateRoleAssociationDTO.getUsers();
@@ -444,6 +449,7 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
     }
 
     @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
     public Mono<Boolean> unAssignUsersAndGroupsFromAllAssociatedRoles(List<User> users, List<UserGroup> groups) {
         Set<String> userIds = users.stream().map(User::getId).collect(Collectors.toSet());
         Set<String> groupIds = groups.stream().map(UserGroup::getId).collect(Collectors.toSet());
@@ -564,6 +570,7 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
     }
 
     @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
     public Mono<List<User>> inviteUsers(InviteUsersDTO inviteUsersDTO, String originHeader) {
 
         Mono<List<User>> inviteIndividualUsersMono = Mono.just(List.of());

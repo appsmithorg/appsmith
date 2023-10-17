@@ -22,7 +22,6 @@ import com.appsmith.server.dtos.UserUpdateDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
-import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.repositories.EmailVerificationTokenRepository;
 import com.appsmith.server.repositories.PasswordResetTokenRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
@@ -119,9 +118,6 @@ public class UserServiceTest {
     @Autowired
     PermissionGroupRepository permissionGroupRepository;
 
-    @Autowired
-    UserUtils userUtils;
-
     @SpyBean
     CommonConfig commonConfig;
 
@@ -196,13 +192,10 @@ public class UserServiceTest {
             return permissionGroupRepository.findById(permissionGroupId);
         });
 
-        Mono<PermissionGroup> defaultUserRoleMono = userCreateMono.then(userUtils.getDefaultUserPermissionGroup());
-
-        StepVerifier.create(Mono.zip(userCreateMono, permissionGroupMono, defaultUserRoleMono))
+        StepVerifier.create(Mono.zip(userCreateMono, permissionGroupMono))
                 .assertNext(tuple -> {
                     User user = tuple.getT1();
                     PermissionGroup permissionGroup = tuple.getT2();
-                    PermissionGroup defaultUserRole = tuple.getT3();
 
                     assertThat(user).isNotNull();
                     assertThat(user.getId()).isNotNull();
@@ -224,9 +217,6 @@ public class UserServiceTest {
                     assertThat(optionalViewUserPolicy.get().getPermissionGroups())
                             .contains(permissionGroup.getId());
                     assertThat(permissionGroup.getAssignedToUserIds()).containsAll(Set.of(user.getId()));
-
-                    // Assert that the default user role has been assigned to the newly created user
-                    assertThat(defaultUserRole.getAssignedToUserIds()).contains(user.getId());
                 })
                 .verifyComplete();
     }
@@ -378,6 +368,10 @@ public class UserServiceTest {
                     assertTrue(passwordEncoder.matches("123456", user.getPassword()));
                 })
                 .verifyComplete();
+
+        Workspace deletedWorkspace = workspaceMono
+                .flatMap(workspace1 -> workspaceService.archiveById(workspace1.getId()))
+                .block();
     }
 
     @Test

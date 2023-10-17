@@ -16,6 +16,7 @@ import com.appsmith.server.dtos.PackageDetailsDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
+import com.appsmith.server.helpers.ObjectUtils;
 import com.appsmith.server.helpers.ValidationUtils;
 import com.appsmith.server.modules.services.crud.CrudModuleService;
 import com.appsmith.server.repositories.PackageRepository;
@@ -194,17 +195,11 @@ public class CrudPackageServiceImpl extends CrudPackageServiceCECompatibleImpl i
         String namePath = fieldName(QPackage.package$.unpublishedPackage) + "."
                 + fieldName(QPackage.package$.unpublishedPackage.name);
 
-        setIfNotEmpty(updateObj, iconPath, packageResource.getIcon());
-        setIfNotEmpty(updateObj, colorPath, packageResource.getColor());
-        setIfNotEmpty(updateObj, namePath, packageResource.getName());
+        ObjectUtils.setIfNotEmpty(updateObj, iconPath, packageResource.getIcon());
+        ObjectUtils.setIfNotEmpty(updateObj, colorPath, packageResource.getColor());
+        ObjectUtils.setIfNotEmpty(updateObj, namePath, packageResource.getName());
 
         return updateObj;
-    }
-
-    private void setIfNotEmpty(Update updateObj, String fieldPath, String value) {
-        if (!ValidationUtils.isEmptyParam(value)) {
-            updateObj.set(fieldPath, value);
-        }
     }
 
     private Mono<PackageDTO> setTransientFieldsFromPackageToPackageDTO(Package aPackage, PackageDTO packageDTO) {

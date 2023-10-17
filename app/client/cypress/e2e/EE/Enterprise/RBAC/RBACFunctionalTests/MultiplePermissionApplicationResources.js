@@ -5,6 +5,8 @@ const datasources = require("../../../../../locators/DatasourcesEditor.json");
 const explorer = require("../../../../../locators/explorerlocators.json");
 const apiwidget = require("../../../../../locators/apiWidgetslocator.json");
 const jsEditorLocators = require("../../../../../locators/JSEditor.json");
+import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
+
 import {
   homePage,
   onboarding,
@@ -95,6 +97,10 @@ describe("Multiple Permission flow ", function () {
           cy.ResponseStatusCheck("200");
           cy.createJSObject('return "Success";');
           cy.visit("settings/general");
+          featureFlagIntercept({
+            license_gac_enabled: true,
+          });
+          cy.wait(2000);
           cy.CreatePermissionWorkspaceLevel(CreatePermission, workspaceName);
           // Add create datasource at workspace level role
           cy.get(RBAC.roleRow).first().click();
@@ -233,6 +239,10 @@ describe("Multiple Permission flow ", function () {
   after(() => {
     cy.LogOut();
     cy.LogintoAppTestUser(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+    featureFlagIntercept({
+      license_gac_enabled: true,
+    });
+    cy.wait(2000);
     cy.visit("/settings/roles");
     cy.DeleteRole(CreatePermission);
     cy.DeleteRole(EditPermission);

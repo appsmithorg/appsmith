@@ -29,6 +29,8 @@ describe("tests for user with remove user permission", function () {
   before(() => {
     rbacHelper.RoleIntercepts();
     adminSettings.NavigateToAdminSettings();
+    featureFlagIntercept({ license_gac_enabled: true });
+    cy.wait(2000);
     rbacHelper.CreateGroup(groupName2);
     rbacHelper.CreateGroup(groupName1);
     rbacHelper.AddUserToGroup(groupName1, Cypress.env("TESTUSERNAME1"));

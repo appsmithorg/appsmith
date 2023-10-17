@@ -7,6 +7,7 @@ import {
 } from "../../../../../support/ee/ObjectsCore_EE";
 
 import rbac from "../../../../../locators/RBAClocators.json";
+import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
 
 describe("rbac miscellaneous cases ", function () {
   const instanceAdminRole = "Instance Administrator Role";
@@ -26,6 +27,10 @@ describe("rbac miscellaneous cases ", function () {
       "instance admin successfull",
     function () {
       adminSettings.NavigateToAdminSettings();
+      featureFlagIntercept({
+        license_gac_enabled: true,
+      });
+      cy.wait(2000);
       rbacHelper.AddDefaultRole(
         Cypress.env("TESTUSERNAME1"),
         instanceAdminRole,
@@ -36,6 +41,10 @@ describe("rbac miscellaneous cases ", function () {
         "App Viewer",
       );
       adminSettings.NavigateToAdminSettings();
+      featureFlagIntercept({
+        license_gac_enabled: true,
+      });
+      cy.wait(2000);
       rbacHelper.RemoveRole(Cypress.env("TESTUSERNAME1"), instanceAdminRole);
       agHelper.AssertElementAbsence(adminSettings._adminSettingsBtn);
     },
@@ -44,6 +53,10 @@ describe("rbac miscellaneous cases ", function () {
   it("2. Verify clear button is working as expected", function () {
     homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     adminSettings.NavigateToAdminSettings();
+    featureFlagIntercept({
+      license_gac_enabled: true,
+    });
+    cy.wait(2000);
     agHelper.GetNClick(rbac.usersTab);
     assertHelper.AssertNetworkStatus("@fetchUsers", 200);
     agHelper.TypeText(rbac.searchBar, Cypress.env("TESTUSERNAME1"));
@@ -61,6 +74,10 @@ describe("rbac miscellaneous cases ", function () {
 
   it("3. Default Role for All users in not removable", function () {
     adminSettings.NavigateToAdminSettings();
+    featureFlagIntercept({
+      license_gac_enabled: true,
+    });
+    cy.wait(2000);
     agHelper.GetNClick(rbac.usersTab);
     assertHelper.AssertNetworkStatus("@fetchUsers", 200);
     agHelper.TypeText(rbac.searchBar, Cypress.env("TESTUSERNAME1"));

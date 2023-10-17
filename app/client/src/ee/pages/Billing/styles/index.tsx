@@ -2,7 +2,7 @@ import styled from "styled-components";
 import { Text, Input } from "design-system";
 
 export const BillingPageWrapper = styled.div`
-  padding: 30px 0 0 24px;
+  padding: 30px 30px;
   width: 100%;
   overflow: auto;
 `;
@@ -127,4 +127,13 @@ export const StyledForm = styled.form<{ showError?: boolean }>`
     margin-top: 4px;
     color: var(--ads-v2-color-fg-error);
   }
+`;
+
+export const InputWrapper = styled.div`
+  display: flex;
+  margin-top: 2rem;
+`;
+
+export const StyledInputBox = styled(Input)`
+  width: 40%;
 `;

@@ -106,6 +106,7 @@ public class UserGroupServiceTest {
     @BeforeEach
     public void setup() {
         mockFeatureFlag(FeatureFlagEnum.license_audit_logs_enabled, false);
+        mockFeatureFlag(FeatureFlagEnum.license_gac_enabled, true);
         mockFeatureFlag(FeatureFlagEnum.license_branding_enabled, true);
 
         api_user = userRepository.findByEmail("api_user").block();
@@ -1090,6 +1091,7 @@ public class UserGroupServiceTest {
     @WithUserDetails("provisioningUser")
     public void removeDeletedUserFromUserGroup_shouldReturnEmptyList_shouldNotUpdateUserGroup() {
         mockFeatureFlag(FeatureFlagEnum.license_scim_enabled, Boolean.TRUE);
+        mockFeatureFlag(FeatureFlagEnum.license_gac_enabled, Boolean.TRUE);
         String testName = "removeDeletedUserFromUserGroup_shouldReturnEmptyList_shouldNotUpdateUserGroup";
         User user1 = new User();
         user1.setEmail(testName + "_provisioned_user1@appsmith.com");
@@ -1173,6 +1175,7 @@ public class UserGroupServiceTest {
         assertThat(provisionedUserGroupResourcePostRemovingExistingUser.getUsers())
                 .isEmpty();
         mockFeatureFlag(FeatureFlagEnum.license_scim_enabled, Boolean.FALSE);
+        mockFeatureFlag(FeatureFlagEnum.license_gac_enabled, Boolean.FALSE);
     }
 
     @Test

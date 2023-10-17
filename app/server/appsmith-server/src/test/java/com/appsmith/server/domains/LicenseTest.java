@@ -4,6 +4,7 @@ import com.appsmith.server.constants.LicenseOrigin;
 import com.appsmith.server.constants.LicensePlan;
 import com.appsmith.server.constants.LicenseStatus;
 import com.appsmith.server.dtos.LicenseValidationResponseDTO;
+import com.appsmith.server.dtos.ProductEdition;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
@@ -22,15 +23,17 @@ class LicenseTest {
         License license = new License();
         license.setKey(key);
         license.setOrigin(LicenseOrigin.SELF_SERVE);
-        license.setPlan(LicensePlan.SELF_SERVE);
+        license.setProductEdition(ProductEdition.COMMERCIAL);
+        license.setPlan(LicensePlan.BUSINESS);
         return license;
     }
 
     private License getEnterpriseLicense(String key) {
         License license = new License();
         license.setKey(key);
-        license.setOrigin(LicenseOrigin.ENTERPRISE);
+        license.setOrigin(LicenseOrigin.SALES);
         license.setPlan(LicensePlan.ENTERPRISE);
+        license.setProductEdition(ProductEdition.COMMERCIAL);
         return license;
     }
 
@@ -46,7 +49,8 @@ class LicenseTest {
         license.updateLicenseFromValidationResponse(responseDTO);
 
         assertEquals(license.getKey(), licenseKey);
-        assertEquals(license.getPlan(), LicensePlan.SELF_SERVE);
+        assertEquals(license.getPlan(), LicensePlan.BUSINESS);
+        assertEquals(license.getProductEdition(), ProductEdition.COMMERCIAL);
         assertNull(license.getPreviousPlan());
         assertFalse(license.getActive());
         assertEquals(license.getOrigin(), LicenseOrigin.SELF_SERVE);
@@ -63,16 +67,18 @@ class LicenseTest {
         responseDTO.setExpiry(Instant.now().plus(1, ChronoUnit.DAYS));
         responseDTO.setLicensePlan(LicensePlan.ENTERPRISE);
         responseDTO.setValid(true);
-        responseDTO.setOrigin(LicenseOrigin.ENTERPRISE);
+        responseDTO.setLicenseOrigin(LicenseOrigin.SALES);
+        responseDTO.setProductEdition(ProductEdition.COMMERCIAL);
         String licenseKey = UUID.randomUUID().toString();
         License license = getBusinessLicense(licenseKey);
         license.updateLicenseFromValidationResponse(responseDTO);
 
         assertEquals(license.getKey(), licenseKey);
         assertEquals(license.getPlan(), LicensePlan.ENTERPRISE);
-        assertEquals(license.getPreviousPlan(), LicensePlan.SELF_SERVE);
+        assertEquals(license.getPreviousPlan(), LicensePlan.BUSINESS);
+        assertEquals(license.getProductEdition(), ProductEdition.COMMERCIAL);
         assertTrue(license.getActive());
-        assertEquals(license.getOrigin(), LicenseOrigin.ENTERPRISE);
+        assertEquals(license.getOrigin(), LicenseOrigin.SALES);
         assertEquals(license.getChangeType(), License.ChangeType.UPGRADE);
     }
 
@@ -80,17 +86,19 @@ class LicenseTest {
     void updateLicenseFromValidationResponse_samePlan() {
         LicenseValidationResponseDTO responseDTO = new LicenseValidationResponseDTO();
         responseDTO.setExpiry(Instant.now().plus(1, ChronoUnit.DAYS));
-        responseDTO.setLicensePlan(LicensePlan.SELF_SERVE);
+        responseDTO.setLicensePlan(LicensePlan.BUSINESS);
         responseDTO.setValid(true);
-        responseDTO.setOrigin(LicenseOrigin.SELF_SERVE);
+        responseDTO.setLicenseOrigin(LicenseOrigin.SELF_SERVE);
+        responseDTO.setProductEdition(ProductEdition.COMMERCIAL);
         String licenseKey = UUID.randomUUID().toString();
         License license = getBusinessLicense(licenseKey);
-        license.setPreviousPlan(LicensePlan.SELF_SERVE);
+        license.setPreviousPlan(LicensePlan.BUSINESS);
         license.updateLicenseFromValidationResponse(responseDTO);
 
         assertEquals(license.getKey(), licenseKey);
-        assertEquals(license.getPlan(), LicensePlan.SELF_SERVE);
-        assertEquals(license.getPreviousPlan(), LicensePlan.SELF_SERVE);
+        assertEquals(license.getPlan(), LicensePlan.BUSINESS);
+        assertEquals(license.getPreviousPlan(), LicensePlan.BUSINESS);
+        assertEquals(license.getProductEdition(), ProductEdition.COMMERCIAL);
         assertTrue(license.getActive());
         assertEquals(license.getOrigin(), LicenseOrigin.SELF_SERVE);
         assertEquals(license.getChangeType(), License.ChangeType.NO_CHANGE);
@@ -100,16 +108,18 @@ class LicenseTest {
     void updateLicenseFromValidationResponse_downgradedPlan() {
         LicenseValidationResponseDTO responseDTO = new LicenseValidationResponseDTO();
         responseDTO.setExpiry(Instant.now().plus(1, ChronoUnit.DAYS));
-        responseDTO.setLicensePlan(LicensePlan.SELF_SERVE);
+        responseDTO.setLicensePlan(LicensePlan.BUSINESS);
+        responseDTO.setProductEdition(ProductEdition.COMMERCIAL);
         responseDTO.setValid(true);
-        responseDTO.setOrigin(LicenseOrigin.SELF_SERVE);
+        responseDTO.setLicenseOrigin(LicenseOrigin.SELF_SERVE);
         String licenseKey = UUID.randomUUID().toString();
         License license = getEnterpriseLicense(licenseKey);
         license.updateLicenseFromValidationResponse(responseDTO);
 
         assertEquals(license.getKey(), licenseKey);
-        assertEquals(license.getPlan(), LicensePlan.SELF_SERVE);
+        assertEquals(license.getPlan(), LicensePlan.BUSINESS);
         assertEquals(license.getPreviousPlan(), LicensePlan.ENTERPRISE);
+        assertEquals(license.getProductEdition(), ProductEdition.COMMERCIAL);
         assertTrue(license.getActive());
         assertEquals(license.getOrigin(), LicenseOrigin.SELF_SERVE);
         assertEquals(license.getChangeType(), License.ChangeType.DOWNGRADE);

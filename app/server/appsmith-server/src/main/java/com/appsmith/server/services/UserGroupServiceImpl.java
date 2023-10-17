@@ -27,7 +27,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.AppsmithComparators;
-import com.appsmith.server.helpers.PermissionGroupUtils;
+import com.appsmith.server.helpers.PermissionGroupHelper;
 import com.appsmith.server.helpers.ProvisionUtils;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.repositories.UserDataRepository;
@@ -100,7 +100,7 @@ public class UserGroupServiceImpl extends UserGroupServiceCECompatibleImpl imple
     private final UserService userService;
 
     private final ModelMapper modelMapper;
-    private final PermissionGroupUtils permissionGroupUtils;
+    private final PermissionGroupHelper permissionGroupHelper;
     private final UserDataRepository userDataRepository;
     private final UserUtils userUtils;
     private final PolicySolution policySolution;
@@ -122,7 +122,7 @@ public class UserGroupServiceImpl extends UserGroupServiceCECompatibleImpl imple
             PermissionGroupService permissionGroupService,
             UserService userService,
             ModelMapper modelMapper,
-            PermissionGroupUtils permissionGroupUtils,
+            PermissionGroupHelper permissionGroupHelper,
             UserDataRepository userDataRepository,
             UserUtils userUtils,
             PolicySolution policySolution,
@@ -137,7 +137,7 @@ public class UserGroupServiceImpl extends UserGroupServiceCECompatibleImpl imple
         this.permissionGroupService = permissionGroupService;
         this.userService = userService;
         this.modelMapper = modelMapper;
-        this.permissionGroupUtils = permissionGroupUtils;
+        this.permissionGroupHelper = permissionGroupHelper;
         this.userDataRepository = userDataRepository;
         this.userUtils = userUtils;
         this.policySolution = policySolution;
@@ -148,6 +148,7 @@ public class UserGroupServiceImpl extends UserGroupServiceCECompatibleImpl imple
     }
 
     @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
     public Flux<UserGroup> get(MultiValueMap<String, String> params) {
         return this.getAll(READ_USER_GROUPS, params).sort(AppsmithComparators.userGroupComparator());
     }
@@ -160,6 +161,7 @@ public class UserGroupServiceImpl extends UserGroupServiceCECompatibleImpl imple
     }
 
     @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
     public Mono<List<UserGroupCompactDTO>> getAllWithAddUserPermission() {
         return this.getAll(ADD_USERS_TO_USER_GROUPS, new LinkedMultiValueMap<>())
                 .map(this::generateUserGroupCompactDTO)
@@ -167,6 +169,7 @@ public class UserGroupServiceImpl extends UserGroupServiceCECompatibleImpl imple
     }
 
     @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
     public Mono<List<UserGroupCompactDTO>> getAllReadableGroups() {
         return this.getAll(READ_USER_GROUPS, new LinkedMultiValueMap<>())
                 .map(this::generateUserGroupCompactDTO)
@@ -174,11 +177,13 @@ public class UserGroupServiceImpl extends UserGroupServiceCECompatibleImpl imple
     }
 
     @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
     public Mono<UserGroupDTO> createGroup(UserGroup userGroup) {
         return createUserGroup(userGroup).flatMap(savedUserGroup -> getGroupById(savedUserGroup.getId()));
     }
 
     @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
     public Mono<UserGroupDTO> updateGroup(String id, UserGroup resource) {
         return repository
                 .findById(id, MANAGE_USER_GROUPS)
@@ -195,11 +200,13 @@ public class UserGroupServiceImpl extends UserGroupServiceCECompatibleImpl imple
     }
 
     @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
     public Mono<UserGroup> getById(String id) {
         return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
     }
 
     @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
     public Mono<UserGroupDTO> getGroupById(String id) {
 
         if (id == null) {
@@ -259,12 +266,13 @@ public class UserGroupServiceImpl extends UserGroupServiceCECompatibleImpl imple
     }
 
     private Mono<List<PermissionGroupInfoDTO>> getRoleDTOsForTheGroup(String userGroupId) {
-        return permissionGroupUtils
+        return permissionGroupHelper
                 .mapToPermissionGroupInfoDto(permissionGroupService.findAllByAssignedToGroupIdsIn(Set.of(userGroupId)))
                 .collectList();
     }
 
     @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
     public Mono<List<UserGroupDTO>> inviteUsers(UsersForGroupDTO inviteUsersToGroupDTO, String originHeader) {
 
         Set<String> ids = inviteUsersToGroupDTO.getGroupIds();
@@ -337,7 +345,7 @@ public class UserGroupServiceImpl extends UserGroupServiceCECompatibleImpl imple
                             })
                             .thenReturn(TRUE);
 
-                    Mono<List<PermissionGroupInfoDTO>> rolesInfoMono = permissionGroupUtils
+                    Mono<List<PermissionGroupInfoDTO>> rolesInfoMono = permissionGroupHelper
                             .mapToPermissionGroupInfoDto(userGroupRolesFlux)
                             .collectList()
                             // In case there are no roles associated with the group, then return an empty list.
@@ -375,6 +383,7 @@ public class UserGroupServiceImpl extends UserGroupServiceCECompatibleImpl imple
     }
 
     @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
     public Mono<List<UserGroupDTO>> removeUsers(UsersForGroupDTO removeUsersFromGroupDTO) {
 
         Set<String> ids = removeUsersFromGroupDTO.getGroupIds();
@@ -442,7 +451,7 @@ public class UserGroupServiceImpl extends UserGroupServiceCECompatibleImpl imple
                             })
                             .thenReturn(TRUE);
 
-                    Mono<List<PermissionGroupInfoDTO>> rolesInfoMono = permissionGroupUtils
+                    Mono<List<PermissionGroupInfoDTO>> rolesInfoMono = permissionGroupHelper
                             .mapToPermissionGroupInfoDto(userGroupRolesFlux)
                             .collectList()
                             // In case there are no roles associated with the group, then return an empty list.
@@ -468,6 +477,7 @@ public class UserGroupServiceImpl extends UserGroupServiceCECompatibleImpl imple
     }
 
     @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
     public Mono<UserGroup> archiveById(String id) {
         Mono<UserGroup> userGroupMono = repository
                 .findById(id, DELETE_USER_GROUPS)
@@ -511,11 +521,13 @@ public class UserGroupServiceImpl extends UserGroupServiceCECompatibleImpl imple
     }
 
     @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
     public Mono<UserGroup> findById(String id, AclPermission permission) {
         return repository.findById(id, permission);
     }
 
     @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
     public Mono<List<UserGroupDTO>> changeGroupsForUser(
             UpdateGroupMembershipDTO updateGroupMembershipDTO, String originHeader) {
 
@@ -545,6 +557,7 @@ public class UserGroupServiceImpl extends UserGroupServiceCECompatibleImpl imple
     }
 
     @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
     public Flux<UserGroupCompactDTO> findAllGroupsForUser(String userId) {
         return repository
                 .findAllByUsersIn(Set.of(userId), READ_USER_GROUPS)
@@ -566,6 +579,7 @@ public class UserGroupServiceImpl extends UserGroupServiceCECompatibleImpl imple
     }
 
     @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
     public Mono<Boolean> bulkRemoveUserFromGroupsWithoutPermission(User user, Set<String> groupIds) {
         return repository
                 .findAllById(groupIds)

@@ -3,12 +3,15 @@ import {
   adminSettings,
   agHelper,
 } from "../../../../../support/Objects/ObjectsCore";
+import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
 
 describe("Groups tab Tests", function () {
   let groups;
   before(() => {
     cy.AddIntercepts();
     adminSettings.NavigateToAdminSettings();
+    featureFlagIntercept({ license_gac_enabled: true });
+    cy.wait(2000);
   });
 
   it("1. Verify functionality of groups tab ", function () {

@@ -20,23 +20,9 @@ export class Provisioning {
     radioButtons: ".ads-v2-radio",
     confirmButton: "[data-testid='t--confirm-reconfigure-api-key']",
     cancelButton: "[data-testid='t--cancel-reconfigure-api-key']",
+    upgradeContainer: "[data-testid='t--upgrade-page-container']",
+    upgradeButton: "[data-testid='t--button-upgrade']",
   };
-
-  public UpdateLicenseKey(type?: "business" | "enterprise") {
-    cy.request({
-      method: "PUT",
-      url: "/api/v1/tenants/license",
-      body: {
-        key:
-          type === "business"
-            ? "BUSINESS-PAID-LICENSE-KEY"
-            : "VALID-LICENSE-KEY",
-      },
-      failOnStatusCode: false,
-    })
-      .its("status")
-      .should("equal", 200);
-  }
 
   public GetApiKey() {
     return cy

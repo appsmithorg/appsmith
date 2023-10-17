@@ -6,7 +6,7 @@ import {
   IconBadge,
   StyledCard,
 } from "./styles";
-import type { BillingDashboardCard } from "./types";
+import type { BillingDashboardCard } from "./Types/types";
 import { Icon } from "design-system";
 
 export function DashboardCard(props: BillingDashboardCard) {

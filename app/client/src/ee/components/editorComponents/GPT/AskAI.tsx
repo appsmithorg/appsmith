@@ -19,7 +19,7 @@ import { Button, Callout, Text } from "design-system";
 import { usePrevious } from "@mantine/hooks";
 import { APPSMITH_AI_LINK } from "./constants";
 import type { TAIWrapperProps } from "@appsmith/components/editorComponents/GPT";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import {
   getAISuggestedPromptShownForType,
@@ -33,6 +33,9 @@ import { getEntityInCurrentPath } from "sagas/RecentEntitiesSagas";
 import { useLocation } from "react-router";
 
 import { PromptTriggers } from "./constants";
+import { getJSCollectionFromName } from "ce/selectors/entitiesSelector";
+import { autoIndentCode } from "components/editorComponents/CodeEditor/utils/autoIndentUtils";
+import { updateJSCollectionBody } from "actions/jsPaneActions";
 
 const QueryForm = styled.form`
   > div {
@@ -78,9 +81,16 @@ const resizeTextArea = (el: React.RefObject<HTMLTextAreaElement>) => {
 
 const CHARACTER_LIMIT = 500;
 
-type TAskAIProps = Omit<TAIWrapperProps, "enableAIAssistance" | "children">;
+type TAskAIProps = Omit<
+  TAIWrapperProps,
+  "enableAIAssistance" | "children" | "onOpenChanged"
+> & {
+  isOpen: boolean;
+  close: () => void;
+};
 
 export function AskAI(props: TAskAIProps) {
+  const dispatch = useDispatch();
   const { close, currentValue, dataTreePath } = props;
   const ref = useRef<HTMLDivElement>(null);
   const contextGenerator = useGPTContextGenerator(
@@ -89,6 +99,13 @@ export function AskAI(props: TAskAIProps) {
   );
   const task = useGPTTask();
   const applicationId = useSelector(getCurrentApplicationId);
+  const configTree = useSelector(getConfigTree);
+  const [suggestedBindings, setSuggestedBindings] = useState<string[]>([]);
+  const dataTree = useSelector(getDataTree);
+  const aiContext = useSelector((state) => state.ai.context);
+  const jsCollection = useSelector((state) =>
+    getJSCollectionFromName(state, props.entity.entityName || ""),
+  );
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string>("");
@@ -135,6 +152,32 @@ export function AskAI(props: TAskAIProps) {
   const [promptTriggerSource, setPromptTriggerSource] = useState(
     PromptTriggers.USER,
   );
+
+  const updateJSAction = useCallback(
+    (generatedCode: string) => {
+      const currentBody = jsCollection?.config.body;
+      const lines = currentBody?.split("\n") || [];
+      const insertIndex = aiContext.cursorPosition?.line || 0;
+      const generatedCodeLines = generatedCode.split("\n");
+      const updatedLines = [
+        ...lines.slice(0, insertIndex),
+        ...generatedCodeLines,
+        ...lines.slice(insertIndex + 1),
+      ];
+
+      if (jsCollection?.config.id) {
+        props.update?.(updatedLines.join("\n"));
+        autoIndentCode(props.editor);
+        dispatch(
+          updateJSCollectionBody(
+            props.editor.getValue(),
+            jsCollection.config.id,
+          ),
+        );
+      }
+    },
+    [jsCollection, aiContext.cursorPosition, dispatch],
+  );
   /**
    * When this is invoked the field should already be updated.
    * Logs analytics and closes the popover.
@@ -161,13 +204,27 @@ export function AskAI(props: TAskAIProps) {
         });
 
         // Update the editor state to reflect the accepted response
-        props.update?.(response.content.editorCode);
+
+        if (task.id !== GPTTask.JS_FUNCTION) {
+          props.update?.(response.content.editorCode);
+        } else {
+          updateJSAction(response.content.editorCode);
+        }
       }
       defaultValue.current = currentValue;
       setResponse(null);
       close();
     },
-    [currentValue, close, response, query, task, dataTreePath, setResponse],
+    [
+      currentValue,
+      close,
+      response,
+      query,
+      task,
+      dataTreePath,
+      setResponse,
+      updateJSAction,
+    ],
   );
 
   const fetchRecentQueries = useCallback(async () => {
@@ -189,13 +246,9 @@ export function AskAI(props: TAskAIProps) {
     acceptResponseRef.current = acceptResponse;
   }, [acceptResponse]);
 
-  const dataTree = useSelector(getDataTree);
-  const configTree = useSelector(getConfigTree);
-  const [suggestedBindings, setSuggestedBindings] = useState<string[]>([]);
-
   useEffect(() => {
     //Get and set all the suggested bindings
-    const platformFunctions = getPlatformFunctions(self.$cloudHosting);
+    const platformFunctions = getPlatformFunctions();
 
     const bestBindings = getAllPossibleBindingsForSuggestions(
       props.entity,
@@ -233,6 +286,10 @@ export function AskAI(props: TAskAIProps) {
 
   useEffect(() => {
     return () => {
+      if (task.id === GPTTask.JS_FUNCTION) {
+        return;
+      }
+
       acceptResponseRef.current?.(true);
     };
   }, []);
@@ -246,7 +303,8 @@ export function AskAI(props: TAskAIProps) {
       !response &&
       !isLoading &&
       suggestedBindings.length > 0 &&
-      pageType !== "queryEditor"
+      pageType !== "queryEditor" &&
+      pageType !== "jsEditor"
     );
   }, [
     noOfTimesSuggestedPromptsShownForType,
@@ -292,7 +350,9 @@ export function AskAI(props: TAskAIProps) {
       entityName: props.entity.entityName,
     });
     setResponse(null);
-    props.update?.(defaultValue.current || "");
+    if (task.id !== GPTTask.JS_FUNCTION) {
+      props.update?.(defaultValue.current || "");
+    }
   };
 
   const fireQuery = useCallback(
@@ -308,20 +368,18 @@ export function AskAI(props: TAskAIProps) {
       setIsLoading(true);
 
       const taskId = task.id;
-      const message: TChatGPTPrompt = {
+      const userPropmpt: TChatGPTPrompt = {
         role: "user",
         content: inputQuery.slice(0, CHARACTER_LIMIT),
         taskId,
       };
-      const [context, additionalQuery, wrapWithBinding] =
-        contextGenerator(message);
-      const formattedQuery = message.content;
-      const enhancedQuery = `${formattedQuery}. ${additionalQuery}`;
+      const [context, enhancedQuery, wrapWithBinding] =
+        contextGenerator(userPropmpt);
 
       AnalyticsUtil.logEvent("AI_QUERY_SENT", {
         requestedOutputType: taskId,
-        characterCount: formattedQuery.length,
-        userQuery: formattedQuery,
+        characterCount: enhancedQuery.length,
+        userQuery: enhancedQuery,
         enhancedQuery,
         context,
         property: props.entity.propertyPath,
@@ -366,7 +424,7 @@ export function AskAI(props: TAskAIProps) {
           wrapWithBinding,
         );
 
-        const message: TChatGPTPrompt = {
+        const assistantResponse: TChatGPTPrompt = {
           role: "assistant",
           content: {
             editorCode,
@@ -374,15 +432,15 @@ export function AskAI(props: TAskAIProps) {
           },
           messageId,
           taskId,
-          query: formattedQuery,
+          query: userPropmpt.content,
         };
 
         AnalyticsUtil.logEvent("AI_RESPONSE_GENERATED", {
           success: true,
           requestedOutputType: taskId,
-          responseId: message.messageId,
+          responseId: assistantResponse.messageId,
           generatedCode: previewCode,
-          userQuery: formattedQuery,
+          userQuery: userPropmpt.content,
           context,
           timeTaken: performance.now() - start,
           property: props.entity.propertyPath,
@@ -393,10 +451,10 @@ export function AskAI(props: TAskAIProps) {
           entityId: props.entity.entityId,
           entityName: props.entity.entityName,
         });
-        updateResponse(message);
+        updateResponse(assistantResponse);
 
         // Add the query to recent queries
-        await setAIRecentQuery(applicationId, formattedQuery, task.id);
+        await setAIRecentQuery(applicationId, userPropmpt.content, task.id);
         await fetchRecentQueries();
       } catch (e: any) {
         const errorMessage = getErrorMessage(e);
@@ -405,7 +463,7 @@ export function AskAI(props: TAskAIProps) {
           success: false,
           requestedOutputType: taskId,
           timeTaken: performance.now() - start,
-          userQuery: formattedQuery,
+          userQuery: userPropmpt.content,
           context,
           property: props.entity.propertyPath,
           widgetName: props.entity.entityName,
@@ -509,7 +567,7 @@ export function AskAI(props: TAskAIProps) {
 
   return (
     <div
-      className="flex flex-col justify-between h-full w-full overflow-hidden"
+      className="flex flex-col justify-between w-full h-full overflow-hidden"
       ref={ref}
     >
       <div className="flex flex-col flex-shrink-0 p-4">
@@ -547,7 +605,7 @@ export function AskAI(props: TAskAIProps) {
               },
             )}
           >
-            <div className="relative flex h-auto items-center w-full">
+            <div className="relative flex items-center w-full h-auto">
               <textarea
                 className="min-h-[28px] w-full max-h-40 z-2 overflow-auto"
                 disabled={isLoading}
@@ -600,7 +658,7 @@ export function AskAI(props: TAskAIProps) {
             </Text>
             {recentQueries.map((query, index) => (
               <div
-                className="flex justify-between items-center py-1 cursor-pointer"
+                className="flex items-center justify-between py-1 cursor-pointer"
                 key={index}
                 onClick={() =>
                   onClickRecentQuery(query, index, PromptTriggers.RECENT)
@@ -620,7 +678,7 @@ export function AskAI(props: TAskAIProps) {
             </Text>
             {suggestedBindings.map((query, index) => (
               <div
-                className="flex justify-between items-center py-1 cursor-pointer"
+                className="flex items-center justify-between py-1 cursor-pointer"
                 key={index}
                 onClick={() =>
                   onClickRecentQuery(query, index, PromptTriggers.SUGGESTED)
@@ -651,7 +709,7 @@ export function AskAI(props: TAskAIProps) {
             >
               {response.content.previewCode}
             </pre>
-            <div className="flex justify-between items-center pt-2">
+            <div className="flex items-center justify-between pt-2">
               <Button
                 kind="secondary"
                 onClick={() => rejectResponse()}
@@ -661,7 +719,7 @@ export function AskAI(props: TAskAIProps) {
                 Incorrect response
               </Button>
               <Button kind="primary" onClick={() => acceptResponse()} size="md">
-                Use this
+                {task.buttonLabel}
               </Button>
             </div>
           </div>

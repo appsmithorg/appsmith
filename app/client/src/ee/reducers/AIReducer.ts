@@ -6,33 +6,20 @@ import { isAssistantPrompt } from "@appsmith/components/editorComponents/GPT/uti
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
-import type { ENTITY_TYPE } from "@appsmith/entities/DataTree/types";
 import { createImmerReducer } from "utils/ReducerUtils";
-import type { ExpectedValueExample } from "utils/validation/common";
-
-export type GPTTriggerContext = Partial<{
-  expectedType: string;
-  entityType: ENTITY_TYPE;
-  propertyPath: string;
-  entityId: string;
-  example: ExpectedValueExample;
-  noOfTimesAITriggered: number;
-  noOfTimesAITriggeredForQuery: number;
-}>;
+import type { AIEditorContext } from "@appsmith/components/editorComponents/GPT";
 
 export interface AIReduxState {
-  isAIWindowOpen: boolean;
   evaluationResults: Record<string, any>;
   messages: TChatGPTPrompt[];
   showExamplePrompt: boolean;
   isLoading: boolean;
-  context: GPTTriggerContext;
+  context: AIEditorContext;
   noOfTimesAITriggered: number;
   noOfTimesAITriggeredForQuery: number;
 }
 
 const initialGPTState: AIReduxState = {
-  isAIWindowOpen: false,
   evaluationResults: {},
   messages: [],
   showExamplePrompt: false,
@@ -41,13 +28,14 @@ const initialGPTState: AIReduxState = {
   noOfTimesAITriggered: 0,
   noOfTimesAITriggeredForQuery: 0,
 };
-
 const handlers = {
-  [ReduxActionTypes.TOGGLE_AI_WINDOW]: (
+  [ReduxActionTypes.UPDATE_AI_CONTEXT]: (
     state: AIReduxState,
-    action: ReduxAction<{ show: boolean; context: any }>,
+    action: ReduxAction<{
+      show: boolean;
+      context: AIEditorContext;
+    }>,
   ) => {
-    state.isAIWindowOpen = action.payload.show;
     state.context = action.payload.context || {};
     state.showExamplePrompt = Boolean(!state.messages.length);
   },
