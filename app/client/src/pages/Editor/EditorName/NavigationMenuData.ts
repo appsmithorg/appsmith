@@ -6,8 +6,7 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { APPLICATIONS_URL } from "constants/routes";
 
 import type { MenuItemData } from "./NavigationMenuItem";
-import { MenuTypes } from "./NavigationMenuItem";
-import { useCallback } from "react";
+import { MenuTypes } from "./types";
 import { getExportAppAPIRoute } from "@appsmith/constants/ApiConstants";
 
 import {
@@ -25,10 +24,10 @@ import { toast } from "design-system";
 import type { ThemeProp } from "WidgetProvider/constants";
 import { DISCORD_URL, DOCS_BASE_URL } from "constants/ThirdPartyConstants";
 
-type NavigationMenuDataProps = ThemeProp & {
+export interface NavigationMenuDataProps extends ThemeProp {
   editMode: typeof noop;
   setForkApplicationModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
-};
+}
 
 export const GetNavigationMenuData = ({
   editMode,
@@ -50,11 +49,11 @@ export const GetNavigationMenuData = ({
     currentApplication?.userPermissions ?? [],
     PERMISSION_TYPE.MANAGE_APPLICATION,
   );
-  const openExternalLink = useCallback((link: string) => {
+  const openExternalLink = (link: string) => {
     if (link) {
       window.open(link, "_blank");
     }
-  }, []);
+  };
 
   const exportAppAsJSON = () => {
     const id = `t--export-app-link`;

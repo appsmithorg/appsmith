@@ -14,7 +14,7 @@ import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.repositories.GitDeployKeysRepository;
-import com.appsmith.server.services.ce.GitServiceCEImpl;
+import com.appsmith.server.services.ce_compatible.GitServiceCECompatibleImpl;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import io.micrometer.observation.ObservationRegistry;
@@ -25,7 +25,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 @Import({GitExecutorImpl.class})
-public class GitServiceImpl extends GitServiceCEImpl implements GitService {
+public class GitServiceImpl extends GitServiceCECompatibleImpl implements GitService {
     public GitServiceImpl(
             UserService userService,
             UserDataService userDataService,

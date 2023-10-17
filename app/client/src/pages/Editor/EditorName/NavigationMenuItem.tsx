@@ -12,14 +12,7 @@ import type { noop } from "lodash";
 
 import type { CommonComponentProps } from "design-system-old";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import styled from "styled-components";
-
-export enum MenuTypes {
-  MENU = "menu",
-  PARENT = "parent",
-  RECONFIRM = "re-confirm",
-  MENU_DIVIDER = "menu divider",
-}
+import { MenuTypes } from "./types";
 
 export interface MenuItemData {
   text: string;
@@ -34,12 +27,6 @@ export interface MenuItemData {
   isOpensNewWindow?: boolean | undefined;
   style?: React.CSSProperties;
 }
-
-const ReconfirmMenuItem = styled(MenuItem)`
-  .ads-v2-text {
-    color: var(--ads-v2-color-fg-error);
-  }
-`;
 
 type NavigationMenuItemProps = CommonComponentProps & {
   menuItemData: MenuItemData;
@@ -96,7 +83,7 @@ export function NavigationMenuItem({
     case MenuTypes.MENU:
       return (
         <MenuItem
-          data-testid={`t--application-edit-menu-${kebabCase(text)}`}
+          data-testid={`t--editor-menu-${kebabCase(text)}`}
           onClick={(e) => handleClick(e, menuItemData)}
         >
           {menuItemData.text}
@@ -104,7 +91,7 @@ export function NavigationMenuItem({
       );
     case MenuTypes.PARENT:
       return (
-        <MenuSub data-testid={`t--application-edit-menu-${kebabCase(text)}`}>
+        <MenuSub data-testid={`t--editor-menu-${kebabCase(text)}`}>
           <MenuSubTrigger>{menuItemData.text}</MenuSubTrigger>
           <MenuSubContent width="214px">
             {menuItemData?.children?.map((subitem, idx) => (
@@ -124,13 +111,13 @@ export function NavigationMenuItem({
       );
     case MenuTypes.RECONFIRM:
       return (
-        <ReconfirmMenuItem
+        <MenuItem
           className="error-menuitem"
-          data-testid={`t--application-edit-menu-${kebabCase(text)}`}
+          data-testid={`t--editor-menu-${kebabCase(text)}`}
           onClick={(e) => handleReconfirmClick(e, menuItemData)}
         >
           {confirm.text}
-        </ReconfirmMenuItem>
+        </MenuItem>
       );
     case MenuTypes.MENU_DIVIDER:
       return <MenuSeparator />;
