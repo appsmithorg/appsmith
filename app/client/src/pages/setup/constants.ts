@@ -56,22 +56,22 @@ type OptionTypeWithSubtext = OptionType & {
 export const proficiencyOptions: OptionTypeWithSubtext[] = [
   {
     label: "Brand New",
-    subtext: "Just dipping my toes 🌱 (Brand new to this)",
+    subtext: "I've never written code before.",
     value: "Brand New",
   },
   {
     label: "Novice",
-    subtext: "Novice (Limited to no experience)",
+    subtext: "Learning the ropes. Basic understanding of coding concepts.",
     value: "Novice",
   },
   {
     label: "Intermediate",
-    subtext: "Intermediate (Some coding adventures)",
+    subtext: "Can tackle moderately complex projects.",
     value: "Intermediate",
   },
   {
     label: "Advanced",
-    subtext: "Advanced (Comfortable with programming quests)",
+    subtext: "Mastery in development. Experienced with complex coding tasks.",
     value: "Advanced",
   },
 ];
