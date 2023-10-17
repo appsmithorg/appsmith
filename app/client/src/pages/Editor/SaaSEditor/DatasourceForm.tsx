@@ -65,7 +65,9 @@ import {
 } from "@appsmith/constants/messages";
 import { getDatasourceErrorMessage } from "./errorUtils";
 import GoogleSheetFilePicker from "./GoogleSheetFilePicker";
-import DatasourceInformation from "./../DataSourceEditor/DatasourceSection";
+import DatasourceInformation, {
+  ViewModeWrapper,
+} from "./../DataSourceEditor/DatasourceSection";
 import type { ControlProps } from "components/formControls/BaseControl";
 import { DSFormHeader } from "../DataSourceEditor/DSFormHeader";
 import Debugger, {
@@ -73,12 +75,11 @@ import Debugger, {
   ResizerMainContainer,
 } from "../DataSourceEditor/Debugger";
 import { showDebuggerFlag } from "selectors/debuggerSelectors";
-import { Form, ViewModeWrapper } from "../DataSourceEditor/DBForm";
+import { Form } from "../DataSourceEditor/DBForm";
 import DSDataFilter from "@appsmith/components/DSDataFilter";
 import { DSEditorWrapper } from "../DataSourceEditor";
 import type { DatasourceFilterState } from "../DataSourceEditor";
 import { getQueryParams } from "utils/URLUtils";
-import GoogleSheetSchema from "./GoogleSheetSchema";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getDefaultEnvironmentId } from "@appsmith/selectors/environmentSelectors";
 import { DEFAULT_ENV_ID } from "@appsmith/api/ApiUtils";
@@ -89,6 +90,7 @@ import {
 } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import GoogleSheetSchema from "../DatasourceInfo/GoogleSheetSchema";
 
 const ViewModeContainer = styled.div`
   display: flex;
@@ -465,6 +467,17 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
     }
   }
 
+  renderDatasourceInfo = () => {
+    const { datasource, formConfig, viewMode } = this.props;
+    return (
+      <DatasourceInformation
+        config={formConfig[0]}
+        datasource={datasource}
+        viewMode={viewMode}
+      />
+    );
+  };
+
   renderDataSourceConfigForm = (sections: any) => {
     const {
       canCreateDatasourceActions,
@@ -542,7 +555,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
           />
         )}
         <ResizerMainContainer>
-          <ResizerContentContainer className="db-form-resizer-content">
+          <ResizerContentContainer className="saas-form-resizer-content">
             <DSEditorWrapper>
               <DSDataFilter
                 filterId={this.state.filterParams.id}
@@ -605,15 +618,11 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
                         ) : null}
                         {!isNil(formConfig) &&
                         !isNil(datasource) &&
-                        !hideDatasourceSection ? (
-                          <DatasourceInformation
-                            config={formConfig[0]}
-                            datasource={datasource}
-                            viewMode={viewMode}
-                          />
-                        ) : undefined}
+                        !hideDatasourceSection
+                          ? this.renderDatasourceInfo()
+                          : undefined}
                       </ViewModeWrapper>
-                      {isGoogleSheetSchemaAvailable && (
+                      {isGoogleSheetSchemaAvailable && datasource && (
                         <GoogleSheetSchema
                           datasourceId={datasourceId}
                           key={datasourceId}

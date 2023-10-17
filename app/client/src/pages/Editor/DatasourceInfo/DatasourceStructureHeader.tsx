@@ -4,7 +4,7 @@ import { Icon, Text } from "design-system";
 import styled from "styled-components";
 import { refreshDatasourceStructure } from "actions/datasourceActions";
 import { SCHEMA_LABEL, createMessage } from "@appsmith/constants/messages";
-import { DatasourceStructureContext } from "./DatasourceStructure";
+import { DatasourceStructureContext } from "entities/Datasource";
 
 interface Props {
   datasourceId: string;
@@ -16,6 +16,7 @@ const HeaderWrapper = styled.div`
   align-items: center;
   justify-content: space-between;
   width: 100%;
+  padding-bottom: var(--ads-v2-spaces-4);
 `;
 
 export default function DatasourceStructureHeader(props: Props) {

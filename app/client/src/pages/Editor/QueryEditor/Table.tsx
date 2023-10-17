@@ -89,7 +89,6 @@ export const TableWrapper = styled.div`
     .td {
       margin: 0;
       padding: 9px 10px;
-      border-bottom: 1px solid var(--ads-v2-color-border);
       border-right: 1px solid var(--ads-v2-color-border);
       position: relative;
       font-size: ${TABLE_SIZES.ROW_FONT_SIZE}px;
@@ -120,7 +119,7 @@ export const TableWrapper = styled.div`
       background: var(--ads-v2-color-gray-50);
     }
     .td {
-      height: ${TABLE_SIZES.ROW_HEIGHT}px;
+      height: auto;
       line-height: ${TABLE_SIZES.ROW_HEIGHT}px;
       padding: 0 10px;
     }
@@ -128,6 +127,7 @@ export const TableWrapper = styled.div`
   .draggable-header,
   .hidden-header {
     width: 100%;
+    height: 100%;
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
