@@ -17,7 +17,10 @@ import type { WidgetProps, WidgetState } from "../../BaseWidget";
 import BaseWidget from "../../BaseWidget";
 
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
-import type { AutocompletionDefinitions } from "WidgetProvider/constants";
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
+} from "WidgetProvider/constants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import {
   FlexVerticalAlignment,
@@ -109,6 +112,22 @@ class RichTextEditorWidget extends BaseWidget<
   }
 
   static getAutoLayoutConfig() {
+    return {
+      widgetSize: [
+        {
+          viewportMinWidth: 0,
+          configuration: () => {
+            return {
+              minWidth: "280px",
+              minHeight: "300px",
+            };
+          },
+        },
+      ],
+    };
+  }
+
+  static getAnvilConfig(): AnvilConfig | null {
     return {
       widgetSize: [
         {

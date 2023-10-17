@@ -17,6 +17,7 @@ import {
   isAutoHeightEnabledForWidgetWithLimits,
 } from "widgets/WidgetUtils";
 import type {
+  AnvilConfig,
   AutocompletionDefinitions,
   AutoLayoutConfig,
   WidgetBaseConfiguration,
@@ -133,6 +134,22 @@ export class ContainerWidget extends BaseWidget<
         // Disables vertical resize handles for all container widgets except for the List item container
         vertical: !props.isListItemContainer,
       }),
+    };
+  }
+
+  static getAnvilConfig(): AnvilConfig | null {
+    return {
+      widgetSize: [
+        {
+          viewportMinWidth: 0,
+          configuration: () => {
+            return {
+              minWidth: "280px",
+              minHeight: "50px",
+            };
+          },
+        },
+      ],
     };
   }
 

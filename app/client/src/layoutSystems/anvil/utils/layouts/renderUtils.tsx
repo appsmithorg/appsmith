@@ -42,6 +42,7 @@ export function renderLayouts(
   renderMode: RenderMode = RenderModes.CANVAS,
   layoutOrder: string[],
 ): JSX.Element[] {
+  console.log("!!!!", { layouts, canvasId });
   return layouts.map((layout) => {
     const Component: LayoutComponent = LayoutFactory.get(layout.layoutType);
     return (

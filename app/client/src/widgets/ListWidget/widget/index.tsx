@@ -57,6 +57,7 @@ import {
   PropertyPaneStyleConfig,
 } from "./propertyConfig";
 import type {
+  AnvilConfig,
   AutocompletionDefinitions,
   PropertyUpdates,
   SnipingModeProperty,
@@ -501,6 +502,22 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   }
 
   static getAutoLayoutConfig() {
+    return {
+      widgetSize: [
+        {
+          viewportMinWidth: 0,
+          configuration: () => {
+            return {
+              minWidth: "280px",
+              minHeight: "300px",
+            };
+          },
+        },
+      ],
+    };
+  }
+
+  static getAnvilConfig(): AnvilConfig | null {
     return {
       widgetSize: [
         {

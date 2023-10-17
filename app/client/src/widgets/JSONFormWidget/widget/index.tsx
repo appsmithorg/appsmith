@@ -34,6 +34,7 @@ import type { BatchPropertyUpdatePayload } from "actions/controlActions";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import type {
+  AnvilConfig,
   AutocompletionDefinitions,
   PropertyUpdates,
   SnipingModeProperty,
@@ -303,6 +304,22 @@ class JSONFormWidget extends BaseWidget<
   }
 
   static getAutoLayoutConfig() {
+    return {
+      widgetSize: [
+        {
+          viewportMinWidth: 0,
+          configuration: () => {
+            return {
+              minWidth: "280px",
+              minHeight: "300px",
+            };
+          },
+        },
+      ],
+    };
+  }
+
+  static getAnvilConfig(): AnvilConfig | null {
     return {
       widgetSize: [
         {

@@ -19,6 +19,7 @@ import type { GeneratorOptions, HookOptions } from "../MetaWidgetGenerator";
 import MetaWidgetGenerator from "../MetaWidgetGenerator";
 import type { BatchPropertyUpdatePayload } from "actions/controlActions";
 import type {
+  AnvilConfig,
   AutocompletionDefinitions,
   CanvasWidgetStructure,
   FlattenedWidgetProps,
@@ -189,6 +190,22 @@ class ListWidget extends BaseWidget<
   }
 
   static getAutoLayoutConfig() {
+    return {
+      widgetSize: [
+        {
+          viewportMinWidth: 0,
+          configuration: () => {
+            return {
+              minWidth: "280px",
+              minHeight: "300px",
+            };
+          },
+        },
+      ],
+    };
+  }
+
+  static getAnvilConfig(): AnvilConfig | null {
     return {
       widgetSize: [
         {

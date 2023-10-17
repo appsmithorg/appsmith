@@ -13,7 +13,10 @@ import {
   DefaultAutocompleteDefinitions,
 } from "widgets/WidgetUtils";
 import { isAutoLayout } from "layoutSystems/autolayout/utils/flexWidgetUtils";
-import type { AutocompletionDefinitions } from "WidgetProvider/constants";
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
+} from "WidgetProvider/constants";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import type {
   SnipingModeProperty,
@@ -95,6 +98,22 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
       disableResizeHandles: {
         vertical: true,
       },
+    };
+  }
+
+  static getAnvilConfig(): AnvilConfig | null {
+    return {
+      widgetSize: [
+        {
+          viewportMinWidth: 0,
+          configuration: () => {
+            return {
+              minWidth: "120px",
+              minHeight: "40px",
+            };
+          },
+        },
+      ],
     };
   }
 

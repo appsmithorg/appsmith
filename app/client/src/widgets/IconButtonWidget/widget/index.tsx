@@ -12,7 +12,10 @@ import { ButtonVariantTypes } from "components/constants";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import IconButtonComponent from "../component";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
-import type { AutocompletionDefinitions } from "WidgetProvider/constants";
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
+} from "WidgetProvider/constants";
 import { ICON_BUTTON_MIN_WIDTH } from "constants/minWidthConstants";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import IconSVG from "../icon.svg";
@@ -88,6 +91,22 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
         horizontal: true,
         vertical: true,
       },
+    };
+  }
+
+  static getAnvilConfig(): AnvilConfig | null {
+    return {
+      widgetSize: [
+        {
+          viewportMinWidth: 0,
+          configuration: () => {
+            return {
+              minWidth: "40px",
+              minHeight: "40px",
+            };
+          },
+        },
+      ],
     };
   }
 

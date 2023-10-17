@@ -28,7 +28,10 @@ import {
   getDefaultValueExpressionSuffix,
 } from "../constants";
 import derivedProperties from "./parseDerivedProperties";
-import type { AutocompletionDefinitions } from "WidgetProvider/constants";
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
+} from "WidgetProvider/constants";
 import {
   defaultOptionValueValidation,
   labelKeyValidation,
@@ -179,6 +182,21 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
       disableResizeHandles: {
         vertical: true,
       },
+    };
+  }
+
+  static getAnvilConfig(): AnvilConfig | null {
+    return {
+      widgetSize: [
+        {
+          viewportMinWidth: 0,
+          configuration: () => {
+            return {
+              minWidth: "120px",
+            };
+          },
+        },
+      ],
     };
   }
 

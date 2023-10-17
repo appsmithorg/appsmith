@@ -10,7 +10,10 @@ import type { SliderComponentProps } from "../../NumberSliderWidget/component/Sl
 import SliderComponent from "../../NumberSliderWidget/component/Slider";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
-import type { AutocompletionDefinitions } from "WidgetProvider/constants";
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
+} from "WidgetProvider/constants";
 import { Alignment } from "@blueprintjs/core";
 import { LabelPosition } from "components/constants";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
@@ -116,6 +119,23 @@ class CategorySliderWidget extends BaseWidget<
       },
     };
   }
+
+  static getAnvilConfig(): AnvilConfig | null {
+    return {
+      widgetSize: [
+        {
+          viewportMinWidth: 0,
+          configuration: () => {
+            return {
+              minWidth: "180px",
+              minHeight: "70px",
+            };
+          },
+        },
+      ],
+    };
+  }
+
   static getPropertyPaneContentConfig() {
     return contentConfig;
   }

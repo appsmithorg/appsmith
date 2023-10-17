@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useMemo } from "react";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import { AnvilFlexComponent } from "../common/AnvilFlexComponent";
 import SnipeableComponent from "layoutSystems/common/snipeable/SnipeableComponent";
@@ -7,6 +7,11 @@ import DraggableComponent from "layoutSystems/common/draggable/DraggableComponen
 import { AnvilResizableLayer } from "../common/resizer/AnvilResizableLayer";
 import { generateDragStateForAnvilLayout } from "../utils/widgetUtils";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import {
+  useWidgetSizeConfiguration,
+  type SizeConfig,
+  defaultSizeConfig,
+} from "../common/hooks/useWidgetSizeConfiguration";
 
 /**
  * AnvilEditorWidgetOnion
@@ -26,6 +31,11 @@ import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 export const AnvilEditorWidgetOnion = (props: BaseWidgetProps) => {
   const { layoutId, parentId = MAIN_CONTAINER_WIDGET_ID } = props;
 
+  const widgetSize: SizeConfig | null = useMemo(
+    () => useWidgetSizeConfiguration(props.type, props),
+    [props.type],
+  );
+
   const generateDragState = useCallback(() => {
     return generateDragStateForAnvilLayout({
       canvasId: parentId || "",
@@ -34,15 +44,11 @@ export const AnvilEditorWidgetOnion = (props: BaseWidgetProps) => {
   }, [layoutId, parentId]);
   return (
     <AnvilFlexComponent
-      componentHeight={props.componentHeight}
-      componentWidth={props.componentWidth}
-      hasAutoHeight={!!props.hasAutoHeight}
-      hasAutoWidth={!!props.hasAutoWidth}
       isResizeDisabled={props.resizeDisabled}
       parentId={props.parentId}
       widgetId={props.widgetId}
       widgetName={props.widgetName}
-      widgetSize={props.widgetSize}
+      widgetSize={widgetSize || defaultSizeConfig}
       widgetType={props.type}
     >
       <SnipeableComponent type={props.type} widgetId={props.widgetId}>

@@ -7,7 +7,10 @@ import { retryPromise } from "utils/AppsmithUtils";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { WidgetProps, WidgetState } from "../../BaseWidget";
 import BaseWidget from "../../BaseWidget";
-import type { AutocompletionDefinitions } from "WidgetProvider/constants";
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
+} from "WidgetProvider/constants";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import type { SetterConfig } from "entities/AppTheming";
@@ -72,6 +75,23 @@ class AudioWidget extends BaseWidget<AudioWidgetProps, WidgetState> {
       },
     };
   }
+
+  static getAnvilConfig(): AnvilConfig | null {
+    return {
+      widgetSize: [
+        {
+          viewportMinWidth: 0,
+          configuration: () => {
+            return {
+              minWidth: "180px",
+              minHeight: "40px",
+            };
+          },
+        },
+      ],
+    };
+  }
+
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
     return {
       "!doc":

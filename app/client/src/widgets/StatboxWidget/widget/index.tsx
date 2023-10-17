@@ -8,7 +8,10 @@ import {
 } from "layoutSystems/common/utils/constants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
-import type { AutocompletionDefinitions } from "WidgetProvider/constants";
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
+} from "WidgetProvider/constants";
 import { ButtonVariantTypes } from "components/constants";
 import { Colors } from "constants/Colors";
 import {
@@ -294,6 +297,23 @@ class StatboxWidget extends ContainerWidget {
       },
     };
   }
+
+  static getAnvilConfig(): AnvilConfig | null {
+    return {
+      widgetSize: [
+        {
+          viewportMinWidth: 0,
+          configuration: () => {
+            return {
+              minWidth: "280px",
+              minHeight: "50px",
+            };
+          },
+        },
+      ],
+    };
+  }
+
   static getPropertyPaneContentConfig() {
     return [
       {

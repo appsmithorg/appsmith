@@ -12,7 +12,10 @@ import { MenuItemsSource } from "../constants";
 import contentConfig from "./propertyConfig/contentConfig";
 import styleConfig from "./propertyConfig/styleConfig";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
-import type { AutocompletionDefinitions } from "WidgetProvider/constants";
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
+} from "WidgetProvider/constants";
 import IconSVG from "../icon.svg";
 import { ButtonPlacementTypes, ButtonVariantTypes } from "components/constants";
 import { WIDGET_TAGS, layoutConfigurations } from "constants/WidgetConstants";
@@ -96,6 +99,23 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
         vertical: true,
         horizontal: true,
       },
+    };
+  }
+
+  static getAnvilConfig(): AnvilConfig | null {
+    return {
+      widgetSize: [
+        {
+          viewportMinWidth: 0,
+          configuration: () => {
+            return {
+              minWidth: "120px",
+              maxWidth: "360px",
+              minHeight: "40px",
+            };
+          },
+        },
+      ],
     };
   }
 

@@ -14,7 +14,10 @@ import {
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
-import type { AutocompletionDefinitions } from "WidgetProvider/constants";
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
+} from "WidgetProvider/constants";
 import type { SetterConfig } from "entities/AppTheming";
 import { ButtonVariantTypes, RecaptchaTypes } from "components/constants";
 import { Colors } from "constants/Colors";
@@ -169,8 +172,6 @@ class FormWidget extends ContainerWidget {
             fn: (
               widget: FlattenedWidgetProps,
               widgets: CanvasWidgetsReduxState,
-              parent: FlattenedWidgetProps,
-              isAutoLayout: boolean,
             ) => {
               //get Canvas Widget
               const canvasWidget: FlattenedWidgetProps = get(
@@ -291,6 +292,22 @@ class FormWidget extends ContainerWidget {
       disableResizeHandles: {
         vertical: true,
       },
+    };
+  }
+
+  static getAnvilConfig(): AnvilConfig | null {
+    return {
+      widgetSize: [
+        {
+          viewportMinWidth: 0,
+          configuration: () => {
+            return {
+              minWidth: "280px",
+              minHeight: "100px",
+            };
+          },
+        },
+      ],
     };
   }
 

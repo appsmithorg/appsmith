@@ -30,7 +30,10 @@ import {
   DefaultAutocompleteDefinitions,
   isCompactMode,
 } from "widgets/WidgetUtils";
-import type { AutocompletionDefinitions } from "WidgetProvider/constants";
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
+} from "WidgetProvider/constants";
 import { LabelPosition } from "components/constants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
@@ -143,6 +146,22 @@ class PhoneInputWidget extends BaseInputWidget<
       },
     };
   }
+
+  static getAnvilConfig(): AnvilConfig | null {
+    return {
+      widgetSize: [
+        {
+          viewportMinWidth: 0,
+          configuration: () => {
+            return {
+              minWidth: "160px",
+            };
+          },
+        },
+      ],
+    };
+  }
+
   static getPropertyPaneContentConfig() {
     return mergeWidgetConfig(
       [

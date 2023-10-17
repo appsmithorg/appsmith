@@ -20,6 +20,7 @@ import { Colors } from "constants/Colors";
 import type { Stylesheet } from "entities/AppTheming";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type {
+  AnvilConfig,
   AutocompletionDefinitions,
   WidgetCallout,
 } from "WidgetProvider/constants";
@@ -110,6 +111,22 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
   }
 
   static getAutoLayoutConfig() {
+    return {
+      widgetSize: [
+        {
+          viewportMinWidth: 0,
+          configuration: () => {
+            return {
+              minWidth: "280px",
+              minHeight: "300px",
+            };
+          },
+        },
+      ],
+    };
+  }
+
+  static getAnvilConfig(): AnvilConfig | null {
     return {
       widgetSize: [
         {

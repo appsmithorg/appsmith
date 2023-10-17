@@ -3,11 +3,13 @@ import type { WidgetProps } from "widgets/BaseWidget";
 import type { RenderMode } from "constants/WidgetConstants";
 import * as log from "loglevel";
 import type {
+  AnvilConfig,
   AutocompletionDefinitions,
   AutoLayoutConfig,
   CanvasWidgetStructure,
   WidgetConfigProps,
   WidgetMethods,
+  WidgetSizeConfig,
 } from "WidgetProvider/constants";
 import {
   addPropertyConfigIds,
@@ -78,6 +80,7 @@ class WidgetFactory {
       WidgetFactory.getWidgetPropertyPaneStyleConfig(widget.type);
       WidgetFactory.getWidgetPropertyPaneSearchConfig(widget.type);
       WidgetFactory.getWidgetAutoLayoutConfig(widget.type);
+      WidgetFactory.getWidgetAnvilConfig(widget.type);
     }
   }
 
@@ -399,6 +402,37 @@ class WidgetFactory {
         widgetSize: [],
         disableResizeHandles: {},
         disabledPropsDefaults: {},
+      };
+    }
+  }
+
+  static getWidgetAnvilConfig(type: WidgetType): AnvilConfig {
+    const widget = WidgetFactory.widgetsMap.get(type);
+    const baseAnvilConfig = widget?.getAnvilConfig();
+
+    if (baseAnvilConfig) {
+      return {
+        ...baseAnvilConfig,
+        widgetSize:
+          baseAnvilConfig.widgetSize?.map((sizeConfig: WidgetSizeConfig) => ({
+            ...sizeConfig,
+            configuration: (props: WidgetProps) => {
+              if (!props)
+                return {
+                  minWidth:
+                    WidgetFactory.widgetConfigMap.get(type)?.minWidth ||
+                    FILL_WIDGET_MIN_WIDTH,
+                  minHeight:
+                    WidgetFactory.widgetConfigMap.get(type)?.minHeight || 80,
+                };
+              return sizeConfig.configuration(props);
+            },
+          })) || [],
+      };
+    } else {
+      log.error(`Anvil config is not defined for widget type: ${type}`);
+      return {
+        widgetSize: [],
       };
     }
   }

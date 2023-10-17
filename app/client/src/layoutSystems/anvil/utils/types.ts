@@ -1,19 +1,16 @@
 import type { ReactNode } from "react";
 import type { WidgetType } from "WidgetProvider/factory";
+import type { SizeConfig } from "../common/hooks/useWidgetSizeConfiguration";
 
 export interface AnvilFlexComponentProps {
   children: ReactNode;
-  componentHeight: number;
-  componentWidth: number;
-  hasAutoHeight: boolean;
-  hasAutoWidth: boolean;
   isResizeDisabled?: boolean;
   focused?: boolean;
   parentId?: string;
   selected?: boolean;
   widgetId: string;
   widgetName: string;
-  widgetSize?: { [key: string]: Record<string, string> };
+  widgetSize?: SizeConfig;
   widgetType: WidgetType;
 }
 

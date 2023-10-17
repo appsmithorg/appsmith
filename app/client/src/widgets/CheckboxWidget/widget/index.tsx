@@ -13,7 +13,10 @@ import {
 import type { WidgetProps, WidgetState } from "../../BaseWidget";
 import BaseWidget from "../../BaseWidget";
 import CheckboxComponent from "../component";
-import type { AutocompletionDefinitions } from "WidgetProvider/constants";
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
+} from "WidgetProvider/constants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import type {
@@ -99,6 +102,22 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
       disableResizeHandles: {
         vertical: true,
       },
+    };
+  }
+
+  static getAnvilConfig(): AnvilConfig | null {
+    return {
+      widgetSize: [
+        {
+          viewportMinWidth: 0,
+          configuration: () => {
+            return {
+              minWidth: "120px",
+              minHeight: "40px",
+            };
+          },
+        },
+      ],
     };
   }
 

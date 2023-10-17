@@ -5,7 +5,10 @@ import DividerComponent from "../component";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import { isAutoLayout } from "layoutSystems/autolayout/utils/flexWidgetUtils";
-import type { AutocompletionDefinitions } from "WidgetProvider/constants";
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
+} from "WidgetProvider/constants";
 import type { SetterConfig } from "entities/AppTheming";
 import { Colors } from "constants/Colors";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
@@ -61,6 +64,22 @@ class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
       disableResizeHandles: {
         vertical: true,
       },
+    };
+  }
+
+  static getAnvilConfig(): AnvilConfig | null {
+    return {
+      widgetSize: [
+        {
+          viewportMinWidth: 0,
+          configuration: () => {
+            return {
+              minWidth: "280px",
+              minHeight: "40px",
+            };
+          },
+        },
+      ],
     };
   }
 

@@ -56,6 +56,11 @@ export interface AutoLayoutConfig {
   disabledPropsDefaults?: Partial<WidgetProps>;
 }
 
+export interface AnvilConfig {
+  // min/max sizes for the widget
+  widgetSize?: Array<WidgetSizeConfig>;
+}
+
 export interface WidgetBaseConfiguration {
   name: string;
   iconSVG?: string;

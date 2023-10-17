@@ -9,7 +9,10 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
-import type { AutocompletionDefinitions } from "WidgetProvider/constants";
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
+} from "WidgetProvider/constants";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import IconSVG from "../icon.svg";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
@@ -51,6 +54,22 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
   }
 
   static getAutoLayoutConfig() {
+    return {
+      widgetSize: [
+        {
+          viewportMinWidth: 0,
+          configuration: () => {
+            return {
+              minWidth: "280px",
+              minHeight: "40px",
+            };
+          },
+        },
+      ],
+    };
+  }
+
+  static getAnvilConfig(): AnvilConfig | null {
     return {
       widgetSize: [
         {

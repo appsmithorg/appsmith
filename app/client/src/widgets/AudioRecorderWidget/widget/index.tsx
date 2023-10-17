@@ -10,7 +10,10 @@ import BaseWidget from "widgets/BaseWidget";
 import { FileDataTypes } from "WidgetProvider/constants";
 import AudioRecorderComponent from "../component";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
-import type { AutocompletionDefinitions } from "WidgetProvider/constants";
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
+} from "WidgetProvider/constants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import IconSVG from "../icon.svg";
@@ -76,6 +79,22 @@ class AudioRecorderWidget extends BaseWidget<
       disableResizeHandles: {
         vertical: true,
       },
+    };
+  }
+
+  static getAnvilConfig(): AnvilConfig | null {
+    return {
+      widgetSize: [
+        {
+          viewportMinWidth: 0,
+          configuration: () => {
+            return {
+              minWidth: "280px",
+              minHeight: "70px",
+            };
+          },
+        },
+      ],
     };
   }
 

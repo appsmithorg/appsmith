@@ -24,7 +24,10 @@ import {
   MapTypes,
 } from "../constants";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
-import type { AutocompletionDefinitions } from "WidgetProvider/constants";
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
+} from "WidgetProvider/constants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import {
   FlexVerticalAlignment,
@@ -130,6 +133,23 @@ class MapChartWidget extends BaseWidget<MapChartWidgetProps, WidgetState> {
       ],
     };
   }
+
+  static getAnvilConfig(): AnvilConfig | null {
+    return {
+      widgetSize: [
+        {
+          viewportMinWidth: 0,
+          configuration: () => {
+            return {
+              minWidth: "280px",
+              minHeight: "300px",
+            };
+          },
+        },
+      ],
+    };
+  }
+
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
     return {
       "!doc":

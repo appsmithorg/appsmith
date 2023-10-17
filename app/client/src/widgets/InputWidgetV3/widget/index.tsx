@@ -7,6 +7,7 @@ import {
 } from "./propertyPaneConfig";
 import IconSVG from "../icon.svg";
 import type {
+  AnvilConfig,
   AutocompletionDefinitions,
   PropertyUpdates,
   SnipingModeProperty,
@@ -105,6 +106,21 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
       disableResizeHandles: (props: BaseInputWidgetProps) => ({
         vertical: props.inputType !== "MULTI_LINE_TEXT",
       }),
+    };
+  }
+
+  static getAnvilConfig(): AnvilConfig | null {
+    return {
+      widgetSize: [
+        {
+          viewportMinWidth: 0,
+          configuration: () => {
+            return {
+              minWidth: "120px",
+            };
+          },
+        },
+      ],
     };
   }
 

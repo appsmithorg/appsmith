@@ -21,7 +21,10 @@ import {
 } from "widgets/WidgetUtils";
 import MultiSelectComponent from "../component";
 import derivedProperties from "./parseDerivedProperties";
-import type { AutocompletionDefinitions } from "WidgetProvider/constants";
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
+} from "WidgetProvider/constants";
 import {
   defaultValueExpressionPrefix,
   getDefaultValueExpressionSuffix,
@@ -126,6 +129,21 @@ class MultiSelectWidget extends BaseWidget<
       disableResizeHandles: {
         vertical: true,
       },
+    };
+  }
+
+  static getAnvilConfig(): AnvilConfig | null {
+    return {
+      widgetSize: [
+        {
+          viewportMinWidth: 0,
+          configuration: () => {
+            return {
+              minWidth: "160px",
+            };
+          },
+        },
+      ],
     };
   }
 
