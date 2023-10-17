@@ -1,5 +1,6 @@
 package com.appsmith.server.services.ce;
 
+import com.appsmith.external.constants.PluginConstants;
 import com.appsmith.external.dtos.ExecutePluginDTO;
 import com.appsmith.external.dtos.RemoteDatasourceDTO;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
@@ -297,6 +298,11 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
     public Mono<DatasourceContext<?>> getDatasourceContext(DatasourceStorage datasourceStorage, Plugin plugin) {
         if (plugin.isRemotePlugin()) {
             return this.getRemoteDatasourceContext(plugin, datasourceStorage);
+        } else if(PluginConstants.PackageName.REST_API_PLUGIN.equals(plugin.getPackageName())) {
+            DatasourceContextIdentifier datasourceContextIdentifier = initializeDatasourceContextIdentifier(datasourceStorage);
+            datasourceContextMap.remove(datasourceContextIdentifier);
+            datasourceContextMonoMap.remove(datasourceContextIdentifier);
+            return createNewDatasourceContext(datasourceStorage, datasourceContextIdentifier);
         }
         return this.getDatasourceContext(datasourceStorage);
     }
