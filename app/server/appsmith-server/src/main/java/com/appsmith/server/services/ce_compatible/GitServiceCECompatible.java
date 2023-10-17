@@ -1,3 +1,5 @@
 package com.appsmith.server.services.ce_compatible;
 
-public interface GitServiceCECompatible extends GitSegirviceCE {}
+import com.appsmith.server.services.ce.GitServiceCE;
+
+public interface GitServiceCECompatible extends GitServiceCE {}
