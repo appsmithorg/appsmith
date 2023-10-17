@@ -163,6 +163,13 @@ public class CustomUserGroupRepositoryImpl extends BaseAppsmithRepositoryImpl<Us
                 .thenReturn(Boolean.TRUE);
     }
 
+    @Override
+    public Flux<UserGroup> findAllByUsersIn(
+            Set<String> userIds, Optional<AclPermission> aclPermission, Optional<List<String>> includeFields) {
+        Criteria criteria = where(fieldName(QUserGroup.userGroup.users)).in(userIds);
+        return queryAll(List.of(criteria), includeFields, aclPermission, Optional.empty());
+    }
+
     private List<Criteria> getCriteriaListFromFilters(MultiValueMap<String, String> filters) {
         List<Criteria> criteriaList = new ArrayList<>();
         if (StringUtils.isNotEmpty(filters.getFirst(PROVISIONED_FILTER))) {

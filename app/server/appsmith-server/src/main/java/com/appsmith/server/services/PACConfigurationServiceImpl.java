@@ -67,7 +67,7 @@ public class PACConfigurationServiceImpl extends PACConfigurationServiceCECompat
 
             if (StringUtils.isNotEmpty(user.getId())) {
                 rolesUserHasBeenAssignedMono = permissionGroupService
-                        .getRoleNamesAssignedToUserIds(Set.of(user.getId()))
+                        .getRoleNamesAssignedDirectlyOrIndirectlyToUserIds(Set.of(user.getId()))
                         .collectList();
                 groupsUsersIsPartOfMono = userGroupRepository
                         .getAllByUsersIn(
