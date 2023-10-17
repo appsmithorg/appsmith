@@ -88,10 +88,11 @@ export const FlexLayout = (props: FlexLayoutProps) => {
   // The following properties aren't included in type FlexProps but can be passed as style.
   const styleProps: CSSProperties = useMemo(() => {
     return {
-      border: props.border || "none",
+      border:
+        props.border || (props.isDropTarget ? "1px dashed #979797" : "none"),
       position: props.position || "relative",
     };
-  }, [props.border, props.position]);
+  }, [props.border, props.isDropTarget, props.position]);
 
   return (
     <Flex

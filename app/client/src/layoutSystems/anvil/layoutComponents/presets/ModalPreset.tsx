@@ -34,7 +34,6 @@ export const modalPreset = (
                 },
               ],
               layoutStyle: {
-                border: "1px dashed #979797",
                 flexGrow: 1,
                 minHeight: "40px",
               },
@@ -51,7 +50,6 @@ export const modalPreset = (
                 },
               ],
               layoutStyle: {
-                border: "1px dashed #979797",
                 minWidth: "30px",
                 minHeight: "40px",
               },
@@ -68,7 +66,6 @@ export const modalPreset = (
           layoutType: LayoutComponentTypes.ALIGNED_COLUMN,
           layout: [],
           layoutStyle: {
-            border: "1px dashed #979797",
             minHeight: "40px",
             width: "100%",
           },
@@ -89,7 +86,6 @@ export const modalPreset = (
             },
           ],
           layoutStyle: {
-            border: "1px dashed #979797",
             minHeight: "40px",
           },
         },

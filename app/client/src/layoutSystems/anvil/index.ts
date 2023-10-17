@@ -9,7 +9,6 @@ import {
 } from "layoutSystems/common/utils/commonUtils";
 import type {
   AutoDimensionOptions,
-  AutoDimensionValues,
   AutoLayoutConfig,
 } from "WidgetProvider/constants";
 import { getAnvilComponentDimensions } from "layoutSystems/common/utils/ComponentSizeUtils";

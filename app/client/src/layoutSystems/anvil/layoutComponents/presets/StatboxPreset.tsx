@@ -5,7 +5,7 @@ import {
 import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
 import { generateReactKey } from "utils/generators";
 
-const statBoxPreset = (
+export const statBoxPreset = (
   text1: string,
   text2: string,
   text3: string,
@@ -14,7 +14,7 @@ const statBoxPreset = (
   {
     layoutId: generateReactKey(),
     layoutStyle: {
-      flexWrap: "wrap-reverse",
+      wrap: "wrap-reverse",
     },
     layoutType: LayoutComponentTypes.ROW,
     layout: [
@@ -24,8 +24,6 @@ const statBoxPreset = (
         layoutId: generateReactKey(),
         layoutStyle: {
           flexGrow: 1,
-          border: "1px dashed #979797",
-          padding: 4,
         },
         layoutType: LayoutComponentTypes.COLUMN,
         layout: [
@@ -75,8 +73,7 @@ const statBoxPreset = (
         isPermanent: true,
         layoutId: generateReactKey(),
         layoutStyle: {
-          border: "1px dashed #979797",
-          padding: 4,
+          alignSelf: "flex-end",
         },
         layoutType: LayoutComponentTypes.COLUMN,
         layout: [

@@ -28,7 +28,6 @@ export const formPreset = (
             },
           ],
           layoutStyle: {
-            border: "1px dashed #979797",
             minHeight: "40px",
           },
         },
@@ -39,7 +38,6 @@ export const formPreset = (
           layoutType: LayoutComponentTypes.ALIGNED_COLUMN,
           layout: [],
           layoutStyle: {
-            border: "1px dashed #979797",
             minHeight: "40px",
             width: "100%",
           },
@@ -60,7 +58,6 @@ export const formPreset = (
             },
           ],
           layoutStyle: {
-            border: "1px dashed #979797",
             minHeight: "40px",
           },
         },
