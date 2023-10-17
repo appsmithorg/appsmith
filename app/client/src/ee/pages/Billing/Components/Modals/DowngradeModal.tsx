@@ -50,13 +50,14 @@ export default function DowngradeModal(props: DowngradeModalProps) {
         <ModalHeader>{createMessage(DOWNGRADE)}</ModalHeader>
         <ModalBody>
           <div className="flex flex-col gap-4">
-            <div>
-              {!props.isExpired && (
+            {!props.isExpired && (
+              <div>
                 <Callout data-testid="t--downgrade-callout" kind="info">
                   {createMessage(DOWNGRADE_CALLOUT_TEXT)}
                 </Callout>
-              )}
-            </div>
+              </div>
+            )}
+
             <div>
               <Text
                 color="var(--ads-v2-color-bg-brand-secondary)"
