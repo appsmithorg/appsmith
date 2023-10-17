@@ -11,10 +11,12 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.plugins.base.PluginService;
+import com.appsmith.server.ratelimiting.RateLimitService;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.DatasourceContextService;
+import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.SequenceService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.WorkspaceService;
@@ -57,6 +59,8 @@ public class DatasourceServiceImpl extends DatasourceServiceCEImpl implements Da
             WorkspacePermission workspacePermission,
             DatasourceStorageService datasourceStorageService,
             EnvironmentPermission environmentPermission,
+            RateLimitService rateLimitService,
+            FeatureFlagService featureFlagService,
             ObservationRegistry observationRegistry) {
 
         super(
@@ -73,7 +77,9 @@ public class DatasourceServiceImpl extends DatasourceServiceCEImpl implements Da
                 datasourcePermission,
                 workspacePermission,
                 datasourceStorageService,
-                environmentPermission);
+                environmentPermission,
+                rateLimitService,
+                featureFlagService);
 
         this.workspaceService = workspaceService;
         this.observationRegistry = observationRegistry;

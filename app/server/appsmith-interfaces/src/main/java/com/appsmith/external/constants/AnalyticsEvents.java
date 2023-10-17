@@ -86,6 +86,7 @@ public enum AnalyticsEvents {
     DS_TEST_EVENT_FAILED("Test_Datasource_Failed"),
 
     GIT_STALE_FILE_LOCK_DELETED,
+    SERVER_SETUP_COMPLETE("server_setup_complete"),
     SCIM_DISABLED("scim_disabled"),
     SCIM_LINKED("scim_linked"),
 
