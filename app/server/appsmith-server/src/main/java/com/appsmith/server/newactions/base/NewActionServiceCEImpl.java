@@ -113,7 +113,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     public static final PluginType JS_PLUGIN_TYPE = PluginType.JS;
     public static final String JS_PLUGIN_PACKAGE_NAME = "js-plugin";
 
-    private final NewActionRepository repository;
+    protected final NewActionRepository repository;
     private final DatasourceService datasourceService;
     private final PluginService pluginService;
     private final PluginExecutorHelper pluginExecutorHelper;
@@ -552,28 +552,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     @Override
     public Mono<ActionDTO> updateUnpublishedAction(String id, ActionDTO action) {
 
-        if (id == null) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
-        }
-
-        // The client does not know about this field. Hence the default value takes over. Set this to null to ensure
-        // the update doesn't lead to resetting of this field.
-        action.setUserSetOnLoad(null);
-
-        Mono<NewAction> updatedActionMono = repository
-                .findById(id, actionPermission.getEditPermission())
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, id)))
-                .map(dbAction -> {
-                    final ActionDTO unpublishedAction = dbAction.getUnpublishedAction();
-                    copyNewFieldValuesIntoOldObject(action, unpublishedAction);
-                    return dbAction;
-                })
-                .flatMap(this::extractAndSetNativeQueryFromFormData)
-                .cache();
-
-        return updatedActionMono
-                .flatMap(savedNewAction ->
-                        this.validateAndSaveActionToRepository(savedNewAction).zipWith(Mono.just(savedNewAction)))
+        return updateUnpublishedActionWithoutAnalytics(id, action, Optional.of(actionPermission.getEditPermission()))
                 .zipWith(Mono.defer(() -> {
                     if (action.getDatasource() != null && action.getDatasource().getId() != null) {
                         return datasourceService.findById(action.getDatasource().getId());
@@ -601,6 +580,47 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
                     return analyticsService.sendUpdateEvent(newAction1, data).thenReturn(savedActionDTO);
                 });
+    }
+
+    /**
+     * Updates an unpublished action in the database without sending an analytics event.
+     *
+     * This method performs an update of an unpublished action in the database without triggering an analytics event.
+     *
+     * @param id The unique identifier of the unpublished action to be updated.
+     * @param action The updated action object.
+     * @param permission An optional permission parameter for access control.
+     * @return A Mono emitting a Tuple containing the updated ActionDTO and NewAction after modification.
+     *
+     * @throws AppsmithException if the provided ID is invalid or if the action is not found.
+     *
+     * @implNote
+     * This method is used by {#updateUnpublishedAction(String, ActionDTO)}, but it does not send an analytics event. If analytics event tracking is not required for the update, this method can be used to improve performance and reduce overhead.
+     */
+    @Override
+    public Mono<Tuple2<ActionDTO, NewAction>> updateUnpublishedActionWithoutAnalytics(
+            String id, ActionDTO action, Optional<AclPermission> permission) {
+        if (id == null) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
+        }
+
+        // The client does not know about this field. Hence, the default value takes over. Set this to null to ensure
+        // the update doesn't lead to resetting of this field.
+        action.setUserSetOnLoad(null);
+
+        Mono<NewAction> updatedActionMono = repository
+                .findById(id, permission)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, id)))
+                .map(dbAction -> {
+                    final ActionDTO unpublishedAction = dbAction.getUnpublishedAction();
+                    copyNewFieldValuesIntoOldObject(action, unpublishedAction);
+                    return dbAction;
+                })
+                .flatMap(this::extractAndSetNativeQueryFromFormData)
+                .cache();
+
+        return updatedActionMono.flatMap(savedNewAction ->
+                this.validateAndSaveActionToRepository(savedNewAction).zipWith(Mono.just(savedNewAction)));
     }
 
     private Mono<NewAction> extractAndSetNativeQueryFromFormData(NewAction action) {
