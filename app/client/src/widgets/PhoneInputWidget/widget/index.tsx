@@ -149,16 +149,12 @@ class PhoneInputWidget extends BaseInputWidget<
 
   static getAnvilConfig(): AnvilConfig | null {
     return {
-      widgetSize: [
-        {
-          viewportMinWidth: 0,
-          configuration: () => {
-            return {
-              minWidth: "160px",
-            };
-          },
-        },
-      ],
+      widgetSize: {
+        maxHeight: {},
+        maxWidth: {},
+        minHeight: {},
+        minWidth: { base: "160px" },
+      },
     };
   }
 

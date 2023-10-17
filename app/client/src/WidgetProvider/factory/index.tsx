@@ -9,7 +9,6 @@ import type {
   CanvasWidgetStructure,
   WidgetConfigProps,
   WidgetMethods,
-  WidgetSizeConfig,
 } from "WidgetProvider/constants";
 import {
   addPropertyConfigIds,
@@ -31,6 +30,7 @@ import type { RegisteredWidgetFeatures } from "../../utils/WidgetFeatures";
 // import { WIDGETS_COUNT } from "widgets";
 import type { SetterConfig } from "entities/AppTheming";
 import { freeze, memoize } from "./decorators";
+import { defaultSizeConfig } from "layoutSystems/anvil/common/hooks/useWidgetSizeConfiguration";
 
 type WidgetDerivedPropertyType = any;
 export type DerivedPropertiesMap = Record<string, string>;
@@ -406,35 +406,20 @@ class WidgetFactory {
     }
   }
 
+  @memoize
+  @freeze
   static getWidgetAnvilConfig(type: WidgetType): AnvilConfig {
     const widget = WidgetFactory.widgetsMap.get(type);
-    const baseAnvilConfig = widget?.getAnvilConfig();
+    const baseAnvilConfig: AnvilConfig | null | undefined =
+      widget?.getAnvilConfig();
 
-    if (baseAnvilConfig) {
-      return {
-        ...baseAnvilConfig,
-        widgetSize:
-          baseAnvilConfig.widgetSize?.map((sizeConfig: WidgetSizeConfig) => ({
-            ...sizeConfig,
-            configuration: (props: WidgetProps) => {
-              if (!props)
-                return {
-                  minWidth:
-                    WidgetFactory.widgetConfigMap.get(type)?.minWidth ||
-                    FILL_WIDGET_MIN_WIDTH,
-                  minHeight:
-                    WidgetFactory.widgetConfigMap.get(type)?.minHeight || 80,
-                };
-              return sizeConfig.configuration(props);
-            },
-          })) || [],
-      };
-    } else {
+    if (!baseAnvilConfig) {
       log.error(`Anvil config is not defined for widget type: ${type}`);
       return {
-        widgetSize: [],
+        widgetSize: defaultSizeConfig,
       };
     }
+    return baseAnvilConfig;
   }
 
   @memoize

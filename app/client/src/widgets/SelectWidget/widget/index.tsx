@@ -187,16 +187,12 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
 
   static getAnvilConfig(): AnvilConfig | null {
     return {
-      widgetSize: [
-        {
-          viewportMinWidth: 0,
-          configuration: () => {
-            return {
-              minWidth: "120px",
-            };
-          },
-        },
-      ],
+      widgetSize: {
+        maxHeight: {},
+        maxWidth: {},
+        minHeight: {},
+        minWidth: { base: "120px" },
+      },
     };
   }
 

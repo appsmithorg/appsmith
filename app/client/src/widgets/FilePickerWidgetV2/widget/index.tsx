@@ -116,18 +116,12 @@ class FilePickerWidget extends BaseWidget<
 
   static getAnvilConfig(): AnvilConfig | null {
     return {
-      widgetSize: [
-        {
-          viewportMinWidth: 0,
-          configuration: () => {
-            return {
-              minWidth: "120px",
-              maxWidth: "360px",
-              minHeight: "40px",
-            };
-          },
-        },
-      ],
+      widgetSize: {
+        maxHeight: {},
+        maxWidth: { base: "360px" },
+        minHeight: { base: "40px" },
+        minWidth: { base: "120px" },
+      },
     };
   }
 

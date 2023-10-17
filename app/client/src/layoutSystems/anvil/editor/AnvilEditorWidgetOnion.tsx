@@ -7,11 +7,8 @@ import DraggableComponent from "layoutSystems/common/draggable/DraggableComponen
 import { AnvilResizableLayer } from "../common/resizer/AnvilResizableLayer";
 import { generateDragStateForAnvilLayout } from "../utils/widgetUtils";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import {
-  useWidgetSizeConfiguration,
-  type SizeConfig,
-  defaultSizeConfig,
-} from "../common/hooks/useWidgetSizeConfiguration";
+import { useWidgetSizeConfiguration } from "../common/hooks/useWidgetSizeConfiguration";
+import type { SizeConfig } from "WidgetProvider/constants";
 
 /**
  * AnvilEditorWidgetOnion
@@ -31,7 +28,7 @@ import {
 export const AnvilEditorWidgetOnion = (props: BaseWidgetProps) => {
   const { layoutId, parentId = MAIN_CONTAINER_WIDGET_ID } = props;
 
-  const widgetSize: SizeConfig | null = useMemo(
+  const widgetSize: SizeConfig = useMemo(
     () => useWidgetSizeConfiguration(props.type, props),
     [props.type],
   );
@@ -48,7 +45,7 @@ export const AnvilEditorWidgetOnion = (props: BaseWidgetProps) => {
       parentId={props.parentId}
       widgetId={props.widgetId}
       widgetName={props.widgetName}
-      widgetSize={widgetSize || defaultSizeConfig}
+      widgetSize={widgetSize}
       widgetType={props.type}
     >
       <SnipeableComponent type={props.type} widgetId={props.widgetId}>

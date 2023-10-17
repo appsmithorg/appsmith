@@ -40,10 +40,7 @@ const getAnvilCanvasWrapper = () => {
  * @returns current render mode specific wrapper.
  */
 const getAnvilCanvasPropsEnhancer = (props: BaseWidgetProps) => {
-  return {
-    ...props,
-    layout: props?.layout,
-  };
+  return props;
 };
 
 export function getAnvilLayoutSystem(renderMode: RenderModes): LayoutSystem {

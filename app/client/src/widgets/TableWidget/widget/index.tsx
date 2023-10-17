@@ -321,16 +321,12 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
   static getAnvilConfig(): AnvilConfig | null {
     return {
-      widgetSize: [
-        {
-          viewportMinWidth: 0,
-          configuration: () => {
-            return {
-              minWidth: "280px",
-            };
-          },
-        },
-      ],
+      widgetSize: {
+        maxHeight: {},
+        maxWidth: {},
+        minHeight: {},
+        minWidth: { base: "280px" },
+      },
     };
   }
 

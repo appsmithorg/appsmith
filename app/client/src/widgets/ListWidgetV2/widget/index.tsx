@@ -207,17 +207,12 @@ class ListWidget extends BaseWidget<
 
   static getAnvilConfig(): AnvilConfig | null {
     return {
-      widgetSize: [
-        {
-          viewportMinWidth: 0,
-          configuration: () => {
-            return {
-              minWidth: "280px",
-              minHeight: "300px",
-            };
-          },
-        },
-      ],
+      widgetSize: {
+        maxHeight: {},
+        maxWidth: {},
+        minHeight: { base: "300px" },
+        minWidth: { base: "280px" },
+      },
     };
   }
 

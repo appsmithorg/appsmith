@@ -178,21 +178,18 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
 
   static getAnvilConfig(): AnvilConfig | null {
     return {
-      widgetSize: [
-        {
-          viewportMinWidth: 0,
-          configuration: (props: RateWidgetProps) => {
-            let maxCount = props.maxCount;
-            if (typeof maxCount !== "number")
-              maxCount = parseInt(props.maxCount as any, 10);
-            return {
-              // 21 is the size of a star, 5 is the margin between stars
-              minWidth: `${maxCount * 21 + (maxCount + 1) * 5}px`,
-              minHeight: "40px",
-            };
-          },
-        },
-      ],
+      widgetSize: (props: RateWidgetProps) => {
+        let maxCount = props.maxCount;
+        if (typeof maxCount !== "number")
+          maxCount = parseInt(props.maxCount as any, 10);
+
+        return {
+          maxHeight: {},
+          maxWidth: {},
+          minHeight: { base: "40px" },
+          minWidth: { base: `${maxCount * 21 + (maxCount + 1) * 5}px` },
+        };
+      },
     };
   }
 

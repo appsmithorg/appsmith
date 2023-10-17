@@ -55,10 +55,16 @@ export interface AutoLayoutConfig {
   // default values for the properties that are hidden/disabled in auto-layout
   disabledPropsDefaults?: Partial<WidgetProps>;
 }
+export interface SizeConfig {
+  maxHeight: Record<string, string>;
+  maxWidth: Record<string, string>;
+  minHeight: Record<string, string>;
+  minWidth: Record<string, string>;
+}
 
 export interface AnvilConfig {
   // min/max sizes for the widget
-  widgetSize?: Array<WidgetSizeConfig>;
+  widgetSize?: SizeConfig | ((props: any) => SizeConfig);
 }
 
 export interface WidgetBaseConfiguration {

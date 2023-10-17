@@ -109,17 +109,12 @@ class SwitchGroupWidget extends BaseWidget<
 
   static getAnvilConfig(): AnvilConfig | null {
     return {
-      widgetSize: [
-        {
-          viewportMinWidth: 0,
-          configuration: () => {
-            return {
-              minWidth: "240px",
-              minHeight: "70px",
-            };
-          },
-        },
-      ],
+      widgetSize: {
+        maxHeight: {},
+        maxWidth: {},
+        minHeight: { base: "70px" },
+        minWidth: { base: "240px" },
+      },
     };
   }
 

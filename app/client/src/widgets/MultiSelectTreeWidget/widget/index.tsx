@@ -158,16 +158,12 @@ class MultiSelectTreeWidget extends BaseWidget<
 
   static getAnvilConfig(): AnvilConfig | null {
     return {
-      widgetSize: [
-        {
-          viewportMinWidth: 0,
-          configuration: () => {
-            return {
-              minWidth: "160px",
-            };
-          },
-        },
-      ],
+      widgetSize: {
+        maxHeight: {},
+        maxWidth: {},
+        minHeight: {},
+        minWidth: { base: "160px" },
+      },
     };
   }
 

@@ -201,23 +201,20 @@ class ButtonGroupWidget extends BaseWidget<
 
   static getAnvilConfig(): AnvilConfig | null {
     return {
-      widgetSize: [
-        {
-          viewportMinWidth: 0,
-          configuration: (props: ButtonGroupWidgetProps) => {
-            let minWidth = 120;
-            const buttonLength = Object.keys(props.groupButtons).length;
-            if (props.orientation === "horizontal") {
-              // 120 is the width of the button, 8 is widget padding, 1 is the gap between buttons
-              minWidth = 120 * buttonLength + 8 + (buttonLength - 1) * 1;
-            }
-            return {
-              minWidth: `${minWidth}px`,
-              minHeight: "40px",
-            };
-          },
-        },
-      ],
+      widgetSize: (props: ButtonGroupWidgetProps) => {
+        let minWidth = 120;
+        const buttonLength = Object.keys(props.groupButtons).length;
+        if (props.orientation === "horizontal") {
+          // 120 is the width of the button, 8 is widget padding, 1 is the gap between buttons
+          minWidth = 120 * buttonLength + 8 + (buttonLength - 1) * 1;
+        }
+        return {
+          maxHeight: {},
+          maxWidth: {},
+          minHeight: { base: "40px" },
+          minWidth: { base: `${minWidth}px` },
+        };
+      },
     };
   }
 

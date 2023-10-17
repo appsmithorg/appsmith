@@ -96,17 +96,12 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
 
   static getAnvilConfig(): AnvilConfig | null {
     return {
-      widgetSize: [
-        {
-          viewportMinWidth: 0,
-          configuration: () => {
-            return {
-              minWidth: "40px",
-              minHeight: "40px",
-            };
-          },
-        },
-      ],
+      widgetSize: {
+        maxHeight: {},
+        maxWidth: {},
+        minHeight: { base: "40px" },
+        minWidth: { base: "40px" },
+      },
     };
   }
 

@@ -297,17 +297,12 @@ class FormWidget extends ContainerWidget {
 
   static getAnvilConfig(): AnvilConfig | null {
     return {
-      widgetSize: [
-        {
-          viewportMinWidth: 0,
-          configuration: () => {
-            return {
-              minWidth: "280px",
-              minHeight: "100px",
-            };
-          },
-        },
-      ],
+      widgetSize: {
+        maxHeight: {},
+        maxWidth: {},
+        minHeight: { base: "100px" },
+        minWidth: { base: "280px" },
+      },
     };
   }
 
