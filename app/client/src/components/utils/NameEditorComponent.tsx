@@ -73,7 +73,7 @@ function NameEditor(props: NameEditorProps) {
 
   const handleNameChange = useCallback(
     (name: string) => {
-      if (!isInvalidNameForEntity(name)) {
+      if (name !== entityName && !isInvalidNameForEntity(name)) {
         if (checkForGuidedTour && guidedTourEnabled) {
           dispatch(toggleShowDeviationDialog(true));
           return;
@@ -82,7 +82,7 @@ function NameEditor(props: NameEditorProps) {
         dispatch(dispatchAction({ id: entityId, name }));
       }
     },
-    [dispatch, isInvalidNameForEntity, guidedTourEnabled, entityId],
+    [dispatch, isInvalidNameForEntity, guidedTourEnabled, entityId, entityName],
   );
 
   useEffect(() => {
