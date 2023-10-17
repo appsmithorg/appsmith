@@ -1,7 +1,6 @@
 import type React from "react";
 import { useEffect, useRef } from "react";
 import { getNearestParentCanvas } from "utils/generators";
-import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 import type { AnvilHighlightingCanvasProps } from "../AnvilHighlightingCanvas";
 import { useCanvasDragToScroll } from "layoutSystems/common/canvasArenas/useCanvasDragToScroll";
 import { Colors } from "constants/Colors";
@@ -59,24 +58,17 @@ const renderBlocksOnCanvas = (
 export const useCanvasDragging = (
   slidingArenaRef: React.RefObject<HTMLDivElement>,
   stickyCanvasRef: React.RefObject<HTMLCanvasElement>,
-  {
-    anvilDragStates,
-    deriveAllHighlightsFn,
-    onDrop,
-    renderOnMouseMove,
-  }: AnvilHighlightingCanvasProps,
+  props: AnvilHighlightingCanvasProps,
 ) => {
+  const { anvilDragStates, deriveAllHighlightsFn, onDrop, renderOnMouseMove } =
+    props;
   const {
     draggedBlocks,
     isCurrentDraggedCanvas,
     isDragging,
-    isNewWidget,
     isResizing,
     widgetPositions,
   } = anvilDragStates;
-
-  const { setDraggingCanvas, setDraggingNewWidget, setDraggingState } =
-    useWidgetDragResize();
 
   const canScroll = useCanvasDragToScroll(
     slidingArenaRef,
@@ -93,7 +85,7 @@ export const useCanvasDragging = (
 
   useEffect(() => {
     if (stickyCanvasRef.current && slidingArenaRef.current) {
-      if (!isCurrentDraggedCanvas) {
+      if (!anvilDragStates.isCurrentDraggedCanvas) {
         const canvasCtx: any = stickyCanvasRef.current.getContext("2d");
         canvasCtx.clearRect(
           0,
@@ -135,9 +127,6 @@ export const useCanvasDragging = (
           slidingArenaRef.current.innerText = "";
           canvasIsDragging = false;
         }
-        // if (isDragging) {
-        //   setDraggingCanvas(anvilDragStates.mainCanvasLayoutId);
-        // }
       };
 
       if (isDragging) {
@@ -151,22 +140,6 @@ export const useCanvasDragging = (
             onDrop(currentRectanglesToDraw);
           }
           resetCanvasState();
-          resetDragging();
-        };
-
-        const resetDragging = () => {
-          setTimeout(() => {
-            if (isCurrentDraggedCanvas) {
-              if (isNewWidget) {
-                setDraggingNewWidget(false, undefined);
-              } else {
-                setDraggingState({
-                  isDragging: false,
-                });
-              }
-              setDraggingCanvas();
-            }
-          }, 0);
         };
 
         const onFirstMoveOnCanvas = (e: MouseEvent) => {
@@ -176,10 +149,6 @@ export const useCanvasDragging = (
             !canvasIsDragging &&
             slidingArenaRef.current
           ) {
-            if (!isCurrentDraggedCanvas) {
-              // we can just use canvasIsDragging but this is needed to render the relative DragLayerComponent
-              // setDraggingCanvas(layoutId);
-            }
             // calculate highlights when mouse enters the canvas
             calculateHighlights();
             canvasIsDragging = true;
@@ -243,9 +212,6 @@ export const useCanvasDragging = (
               });
             }
           }, 0);
-        const onMouseOver = (e: any) => {
-          onFirstMoveOnCanvas(e);
-        };
 
         //Initialize Listeners
         const initializeListeners = () => {
@@ -260,24 +226,6 @@ export const useCanvasDragging = (
             false,
           );
           scrollParent?.addEventListener("scroll", onScroll, false);
-
-          // slidingArenaRef.current?.addEventListener(
-          //   "mouseover",
-          //   onMouseOver,
-          //   false,
-          // );
-          // slidingArenaRef.current?.addEventListener(
-          //   "mouseout",
-          //   resetCanvasState,
-          //   false,
-          // );
-          // slidingArenaRef.current?.addEventListener(
-          //   "mouseleave",
-          //   resetCanvasState,
-          //   false,
-          // );
-          document.body.addEventListener("mouseup", onMouseUp, false);
-          window.addEventListener("mouseup", onMouseUp, false);
         };
         const startDragging = () => {
           if (
@@ -286,12 +234,6 @@ export const useCanvasDragging = (
             scrollParent
           ) {
             initializeListeners();
-            // if (
-            //   (isChildOfCanvas || isNewWidgetInitialTargetCanvas) &&
-            //   slidingArenaRef.current
-            // ) {
-            //   slidingArenaRef.current.style.zIndex = "2";
-            // }
           }
         };
         startDragging();
@@ -303,20 +245,6 @@ export const useCanvasDragging = (
           );
           slidingArenaRef.current?.removeEventListener("mouseup", onMouseUp);
           scrollParent?.removeEventListener("scroll", onScroll);
-          slidingArenaRef.current?.removeEventListener(
-            "mouseover",
-            onMouseOver,
-          );
-          slidingArenaRef.current?.removeEventListener(
-            "mouseout",
-            resetCanvasState,
-          );
-          slidingArenaRef.current?.removeEventListener(
-            "mouseleave",
-            resetCanvasState,
-          );
-          document.body.removeEventListener("mouseup", onMouseUp);
-          window.removeEventListener("mouseup", onMouseUp);
         };
       } else {
         resetCanvasState();

@@ -1,12 +1,14 @@
 import { AnvilReduxActionTypes } from "layoutSystems/anvil/integrations/actions/actionTypes";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { WidgetPositions } from "layoutSystems/common/types";
-import { all, put, select, takeEvery } from "redux-saga/effects";
+import { all, call, put, select, take, takeEvery } from "redux-saga/effects";
 import { getAnvilWidgetId } from "layoutSystems/common/utils/WidgetPositionsObserver/utils";
 import { getAffectedWidgetsFromLayers } from "layoutSystems/anvil/integrations/utils";
 import { getCanvasWidgets } from "@appsmith/selectors/entitiesSelector";
 import { CANVAS_ART_BOARD } from "constants/componentClassNameConstants";
+import type { AppState } from "@appsmith/reducers";
 
 /**
  * This saga is used to read and update widget position from the the list of widgets,
@@ -68,10 +70,28 @@ function* readAndUpdateWidgetPositions(
   });
 }
 
+function* shouldReadPositions(saga: any, action: ReduxAction<unknown>) {
+  const isCanvasResizing: boolean = yield select(
+    (state: AppState) => state.ui.widgetDragResize.isAutoCanvasResizing,
+  );
+  if (!isCanvasResizing) {
+    yield call(saga, action);
+  } else {
+    yield take(
+      (canvasResizingAction: any) =>
+        canvasResizingAction.type ===
+          ReduxActionTypes.SET_AUTO_CANVAS_RESIZING &&
+        canvasResizingAction.payload === true,
+    );
+    yield call(saga, action);
+  }
+}
+
 export default function* WidgetPositionSaga() {
   yield all([
     takeEvery(
       AnvilReduxActionTypes.READ_WIDGET_POSITIONS,
+      shouldReadPositions,
       readAndUpdateWidgetPositions,
     ),
   ]);
