@@ -16,10 +16,13 @@ export const AnvilCanvas = (props: BaseWidgetProps) => {
   props.children?.forEach((child: WidgetProps) => {
     map[child.widgetId] = child;
   });
+  props;
   return (
     <div
-      className={`anvil-canvas ${getCanvasClassName()} ${
-        props.widgetId === MAIN_CONTAINER_WIDGET_ID ? "overflowY" : ""
+      className={`anvil-canvas ${
+        props.widgetId === MAIN_CONTAINER_WIDGET_ID
+          ? `${getCanvasClassName()} overflowY`
+          : ""
       }`}
       id={getAnvilCanvasId(props.widgetId)}
     >
