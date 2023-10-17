@@ -51,7 +51,7 @@ public class OnlineLicenseAPIManagerImpl extends BaseLicenseAPIManagerImpl imple
      * @return License
      */
     public Mono<License> licenseCheck(Tenant tenant) {
-        log.debug("Initiating online license check");
+        log.debug("Initiating online license check for tenant {}", tenant.getId());
         final String baseUrl = cloudServicesConfig.getBaseUrlWithSignatureVerification();
         if (StringUtils.isEmpty(baseUrl)) {
             log.error("Unable to find cloud services base URL. Shutting down.");

@@ -36,6 +36,10 @@ public class License extends LicenseCE {
 
     SubscriptionDetails subscriptionDetails;
 
+    // Field to detect if the license check with CS is a dry run
+    @Transient
+    Boolean isDryRun;
+
     // Hierarchy of license plan
     private static final List<LicensePlan> licensePlansHierarchy =
             List.of(LicensePlan.FREE, LicensePlan.BUSINESS, LicensePlan.ENTERPRISE);

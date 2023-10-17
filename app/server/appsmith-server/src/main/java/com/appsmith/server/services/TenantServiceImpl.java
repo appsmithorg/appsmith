@@ -1,7 +1,6 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.constants.AnalyticsEvents;
-import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.helpers.DataTypeStringUtils;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
@@ -46,6 +45,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
 import static com.appsmith.server.acl.AclPermission.MANAGE_TENANT;
 import static com.appsmith.server.constants.CommonConstants.COLUMN;
 import static com.appsmith.server.constants.CommonConstants.DEFAULT;
@@ -291,7 +291,10 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
                 .flatMap(savedTenant -> repository.retrieveById(savedTenant.getId()))
                 .map(tenantWithUpdatedMigration -> {
                     // Run the migrations in a separate thread, as we expect the migrations can run for few seconds
-                    this.checkAndExecuteMigrationsForTenantFeatureFlags(tenantWithUpdatedMigration)
+                    // Generate the deep copy for the tenant to avoid any unintended updates while running the migration
+                    Tenant tenantDeepCopy = new Tenant();
+                    copyNestedNonNullProperties(tenantWithUpdatedMigration, tenantDeepCopy);
+                    this.checkAndExecuteMigrationsForTenantFeatureFlags(tenantDeepCopy)
                             .then(this.restartTenant())
                             .subscribeOn(scheduler)
                             .subscribe();
@@ -307,7 +310,21 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
      */
     public Mono<Tenant> updateTenantLicenseKey(UpdateLicenseKeyDTO updateLicenseKeyDTO) {
         return saveTenantLicenseKey(updateLicenseKeyDTO.getKey(), updateLicenseKeyDTO.getIsDryRun())
-                .flatMap(tuple -> getClientPertinentTenant(tuple.getT1(), null));
+                .flatMap(tuple -> {
+                    try {
+                        // Create a deep copy of the tenant before generating the client pertinent tenant to avoid any
+                        // unintentional updates to DB
+                        Tenant updatedTenant =
+                                objectMapper.readValue(objectMapper.writeValueAsString(tuple.getT1()), Tenant.class);
+                        return getClientPertinentTenant(updatedTenant, null);
+                    } catch (JsonProcessingException e) {
+                        log.error(
+                                "JsonProcessingException for Tenant {}",
+                                tuple.getT1().getId(),
+                                e);
+                        return Mono.error(new AppsmithException(AppsmithError.JSON_PROCESSING_ERROR, e.getMessage()));
+                    }
+                });
     }
 
     /**
@@ -342,10 +359,11 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
                             || StringUtils.isNullOrEmpty(
                                     tenantConfiguration.getLicense().getKey());
 
-                    AppsmithBeanUtils.copyNestedNonNullProperties(tenantConfiguration.getLicense(), license);
+                    copyNestedNonNullProperties(tenantConfiguration.getLicense(), license);
                     license.setKey(licenseKey);
                     tenantConfiguration.setLicense(license);
                     tenant.setTenantConfiguration(tenantConfiguration);
+                    license.setIsDryRun(isDryRun);
                     return checkTenantLicense(tenant).zipWith(Mono.just(isActivateInstance));
                 })
                 .flatMap(tuple -> {
@@ -518,7 +536,7 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
                     updateForTenantConfig.setIsActivated(null);
                     return updateTenantConfiguration(defaultTenant.getId(), updateForTenantConfig);
                 })
-                .flatMap(updatedTenant -> getTenantConfiguration());
+                .flatMap(updatedTenant -> this.getTenantConfiguration());
     }
 
     @Override
@@ -546,7 +564,7 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
             license.setStatus(LicenseStatus.EXPIRED);
             tenantConfiguration.setLicense(license);
             tenant.setTenantConfiguration(tenantConfiguration);
-            return this.save(tenant);
+            return this.save(tenant).then(repository.retrieveById(tenant.getId()));
         }
         return Mono.just(tenant);
     }
@@ -556,7 +574,7 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
         if (Objects.isNull(currentBrandColors)) {
             return newBrandColors;
         }
-        AppsmithBeanUtils.copyNestedNonNullProperties(newBrandColors, currentBrandColors);
+        copyNestedNonNullProperties(newBrandColors, currentBrandColors);
         return currentBrandColors;
     }
 
