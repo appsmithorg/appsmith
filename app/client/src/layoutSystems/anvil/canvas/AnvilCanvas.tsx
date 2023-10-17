@@ -4,7 +4,7 @@ import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import type { LayoutComponentProps } from "../utils/anvilTypes";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { renderLayouts } from "../utils/layouts/renderUtils";
-import { getCanvasId } from "./utils";
+import { getAnvilCanvasId } from "./utils";
 import {
   MAIN_CONTAINER_WIDGET_ID,
   RenderModes,
@@ -20,7 +20,7 @@ export const AnvilCanvas = (props: BaseWidgetProps) => {
       className={`anvil-canvas ${
         props.widgetId === MAIN_CONTAINER_WIDGET_ID ? "overflowY" : ""
       }`}
-      id={getCanvasId(props.widgetId)}
+      id={getAnvilCanvasId(props.widgetId)}
     >
       {renderLayouts(
         props.layout,
