@@ -190,4 +190,7 @@ public class FieldNameCE {
     public static final String FILE_LOCK_DURATION = "fileLockDuration";
 
     public static final String REMOTE_PLUGINS = "remotePlugins";
+    public static final String INSTANCE_ID = "instanceId";
+    public static final String IP_ADDRESS = "ipAddress";
+    public static final String VERSION = "version";
 }
