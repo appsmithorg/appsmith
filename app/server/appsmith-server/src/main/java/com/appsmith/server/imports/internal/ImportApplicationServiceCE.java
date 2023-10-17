@@ -1,29 +1,15 @@
-package com.appsmith.server.export.internal;
+package com.appsmith.server.imports.internal;
 
 import com.appsmith.external.models.Datasource;
-import com.appsmith.server.constants.SerialiseApplicationObjective;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.ApplicationJson;
-import com.appsmith.server.dtos.ExportFileDTO;
 import org.springframework.http.codec.multipart.Part;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
 
-public interface ImportExportApplicationServiceCE {
-
-    /**
-     * This function will give the application resource to rebuild the application in import application flow
-     *
-     * @param applicationId which needs to be exported
-     * @return application reference from which entire application can be rehydrated
-     */
-    Mono<ApplicationJson> exportApplicationById(String applicationId, SerialiseApplicationObjective serialiseFor);
-
-    Mono<ApplicationJson> exportApplicationById(String applicationId, String branchName);
-
-    Mono<ExportFileDTO> getApplicationFile(String applicationId, String branchName);
+public interface ImportApplicationServiceCE {
 
     /**
      * This function will take the Json filepart and saves the application in workspace.
