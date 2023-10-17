@@ -6,3 +6,5 @@ export const CUSTOMER_PORTAL_PLANS_URL = `${appsmithConfigs.customerPortalUrl}/p
 
 export const DOWNGRADE_DOC =
   "https://docs.appsmith.com/getting-started/setup/manage-plans/downgrade-plan";
+
+export const SALES_TEAM_EMAIL = `sales@appsmith.com`;

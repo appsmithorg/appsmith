@@ -22,11 +22,12 @@ import {
 } from "@appsmith/constants/messages";
 import { Banner } from "design-system";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
-import { CUSTOMER_PORTAL_PLANS_URL } from "@appsmith/constants/BillingConstants";
-import { getAppsmithConfigs } from "@appsmith/configs";
+import {
+  CUSTOMER_PORTAL_PLANS_URL,
+  SALES_TEAM_EMAIL,
+} from "@appsmith/constants/BillingConstants";
 
-const appsmithConfigs = getAppsmithConfigs();
-const MAIL_TO_SUPPORT = `mailto:${appsmithConfigs.appsmithSupportEmail}`;
+const MAIL_TO_SALES = `mailto:${SALES_TEAM_EMAIL}`;
 
 const StyledBanner = styled(Banner)`
   position: fixed;
@@ -53,7 +54,7 @@ export function PageBannerMessage(): any {
       if (isPaidExpired) {
         return {
           children: createMessage(CONTACT_US),
-          to: MAIL_TO_SUPPORT,
+          to: MAIL_TO_SALES,
         };
       }
       return {
