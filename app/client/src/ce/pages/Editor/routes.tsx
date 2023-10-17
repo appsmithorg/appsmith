@@ -1,12 +1,11 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Route, Switch } from "react-router-dom";
-import { useRouteMatch } from "react-router";
+import { useLocation, useRouteMatch } from "react-router";
 import ApiEditor from "pages/Editor/APIEditor";
 import IntegrationEditor from "pages/Editor/IntegrationEditor";
 import QueryEditor from "pages/Editor/QueryEditor";
 import JSEditor from "pages/Editor/JSEditor";
 import GeneratePage from "pages/Editor/GeneratePage";
-import CurlImportForm from "pages/Editor/APIEditor/CurlImportForm";
 import ProviderTemplates from "pages/Editor/APIEditor/ProviderTemplates";
 import {
   API_EDITOR_ID_PATH,
@@ -19,15 +18,29 @@ import {
   PROVIDER_TEMPLATE_PATH,
   QUERIES_EDITOR_ID_PATH,
 } from "constants/routes";
+import PerformanceTracker, {
+  PerformanceTransactionName,
+} from "utils/PerformanceTracker";
 import * as Sentry from "@sentry/react";
 import { SaaSEditorRoutes } from "pages/Editor/SaaSEditor/routes";
 import OnboardingChecklist from "pages/Editor/FirstTimeUserOnboarding/Checklist";
 import { DatasourceEditorRoutes } from "pages/routes";
+import CurlImportEditor from "pages/Editor/APIEditor/CurlImportEditor";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
-function EditorsRouter() {
+function EditorRoutes() {
   const { path } = useRouteMatch();
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    return () => {
+      PerformanceTracker.startTracking(
+        PerformanceTransactionName.CLOSE_SIDE_PANE,
+        { path: pathname },
+      );
+    };
+  });
 
   return (
     <Switch key={path}>
@@ -63,7 +76,7 @@ function EditorsRouter() {
       />
 
       <SentryRoute
-        component={CurlImportForm}
+        component={CurlImportEditor}
         exact
         path={`${path}${CURL_IMPORT_PAGE_PATH}`}
       />
@@ -97,4 +110,4 @@ function EditorsRouter() {
   );
 }
 
-export default EditorsRouter;
+export default EditorRoutes;

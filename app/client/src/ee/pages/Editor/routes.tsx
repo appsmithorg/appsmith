@@ -1,10 +1,6 @@
-import React, { useEffect } from "react";
-import { Switch } from "react-router-dom";
-import { useLocation, useRouteMatch } from "react-router";
+import React from "react";
+import { Switch, useRouteMatch } from "react-router-dom";
 import styled from "styled-components";
-import PerformanceTracker, {
-  PerformanceTransactionName,
-} from "utils/PerformanceTracker";
 import CE_EditorRoutes from "ce/pages/Editor/routes";
 
 const Wrapper = styled.div<{ isVisible: boolean }>`
@@ -22,17 +18,6 @@ const Wrapper = styled.div<{ isVisible: boolean }>`
 
 function EditorsRouter() {
   const { path } = useRouteMatch();
-  const { pathname } = useLocation();
-
-  useEffect(() => {
-    return () => {
-      PerformanceTracker.startTracking(
-        PerformanceTransactionName.CLOSE_SIDE_PANE,
-        { path: pathname },
-      );
-    };
-  });
-
   return (
     <Wrapper isVisible>
       <Switch key={path}>
