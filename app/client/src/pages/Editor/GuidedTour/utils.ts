@@ -243,6 +243,7 @@ export function showIndicator(
 
   primaryReference = document.querySelector(selector);
   indicatorHelperInstance.show(primaryReference, position, offset);
+  //test
 }
 
 export function hideIndicator() {
