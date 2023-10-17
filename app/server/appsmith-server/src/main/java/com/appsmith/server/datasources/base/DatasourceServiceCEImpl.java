@@ -507,7 +507,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                                             copyNestedNonNullProperties(datasourceStorage, dbDatasourceStorage);
                                             return dbDatasourceStorage;
                                         })
-                                .switchIfEmpty(Mono.just(datasourceStorage));
+                                        .switchIfEmpty(Mono.just(datasourceStorage));
                             })
                             .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS)));
                 }
