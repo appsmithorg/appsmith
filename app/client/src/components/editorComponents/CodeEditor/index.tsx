@@ -157,6 +157,10 @@ import { CodeEditorSignPosting } from "@appsmith/components/editorComponents/Cod
 import { getFocusablePropertyPaneField } from "selectors/propertyPaneSelectors";
 import resizeObserver from "utils/resizeObserver";
 import { EMPTY_BINDING } from "../ActionCreator/constants";
+import {
+  resetActiveEditorField,
+  setActiveEditorField,
+} from "actions/activeFieldActions";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
@@ -437,7 +441,6 @@ class CodeEditor extends Component<Props, State> {
         editor.on("focus", this.handleEditorFocus);
         editor.on("cursorActivity", this.handleCursorMovement);
         editor.on("blur", this.handleEditorBlur);
-        editor.on("postPick", this.handleSlashCommandSelection);
         editor.on("mousedown", this.handleClick);
         editor.on("scrollCursorIntoView", this.handleScrollCursorIntoView);
         CodeMirror.on(
@@ -501,10 +504,6 @@ class CodeEditor extends Component<Props, State> {
       });
     }
   }
-
-  handleSlashCommandSelection = () => {
-    this.handleAutocompleteVisibility(this.editor);
-  };
 
   shouldComponentUpdate(nextProps: Props, nextState: State) {
     if (this.props.dynamicData !== nextProps.dynamicData) {
@@ -878,7 +877,6 @@ class CodeEditor extends Component<Props, State> {
     this.editor.off("focus", this.handleEditorFocus);
     this.editor.off("cursorActivity", this.handleCursorMovement);
     this.editor.off("blur", this.handleEditorBlur);
-    this.editor.off("postPick", this.handleSlashCommandSelection);
     CodeMirror.off(
       this.editor.getWrapperElement(),
       "mousemove",
@@ -1069,6 +1067,7 @@ class CodeEditor extends Component<Props, State> {
   };
 
   handleEditorFocus = (cm: CodeMirror.Editor) => {
+    this.props.setActiveField(this.props.dataTreePath || "");
     this.setState({ isFocused: true });
     const { sticky } = cm.getCursor();
     const isUserFocus = sticky !== null;
@@ -1124,6 +1123,7 @@ class CodeEditor extends Component<Props, State> {
         return;
       }
     }
+    this.props.resetActiveField();
     this.handleChange();
     this.setState({ isFocused: false });
     this.editor.setOption("matchBrackets", false);
@@ -1422,6 +1422,10 @@ class CodeEditor extends Component<Props, State> {
       line: lineToFocus,
       ch: focusedLineContent.length - chOffset,
     });
+
+    this.setState({ isFocused: true }, () => {
+      this.handleAutocompleteVisibility(this.editor);
+    });
   }
 
   updatePropertyValue(value: string, focusOnline?: number, chOffset = 0) {
@@ -1431,10 +1435,6 @@ class CodeEditor extends Component<Props, State> {
     }
 
     this.focusEditor(focusOnline, chOffset);
-
-    this.setState({ isFocused: true }, () => {
-      this.handleAutocompleteVisibility(this.editor);
-    });
   }
 
   getErrors(dynamicData: DataTree, dataTreePath: string) {
@@ -1730,6 +1730,8 @@ const mapDispatchToProps = (dispatch: any) => ({
   startingEntityUpdate: () => dispatch(startingEntityUpdate()),
   setCodeEditorLastFocus: (payload: CodeEditorFocusState) =>
     dispatch(setEditorFieldFocusAction(payload)),
+  setActiveField: (path: string) => dispatch(setActiveEditorField(path)),
+  resetActiveField: () => dispatch(resetActiveEditorField()),
 });
 
 export default Sentry.withProfiler(

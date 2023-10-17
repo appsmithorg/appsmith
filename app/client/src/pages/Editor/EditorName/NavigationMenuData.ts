@@ -25,10 +25,10 @@ import { toast } from "design-system";
 import type { ThemeProp } from "WidgetProvider/constants";
 import { DISCORD_URL, DOCS_BASE_URL } from "constants/ThirdPartyConstants";
 
-type NavigationMenuDataProps = ThemeProp & {
+export interface NavigationMenuDataProps extends ThemeProp {
   editMode: typeof noop;
   setForkApplicationModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
-};
+}
 
 export const GetNavigationMenuData = ({
   editMode,
