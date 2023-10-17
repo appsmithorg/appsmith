@@ -24,9 +24,10 @@ import com.appsmith.server.dtos.RefactorActionNameDTO;
 import com.appsmith.server.dtos.ce.UpdateMultiplePageLayoutDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.export.internal.ImportExportApplicationService;
+import com.appsmith.server.exports.internal.ExportApplicationService;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.imports.internal.ImportApplicationService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.repositories.NewActionRepository;
@@ -123,7 +124,10 @@ public class LayoutActionServiceTest {
     ApplicationService applicationService;
 
     @Autowired
-    ImportExportApplicationService importExportApplicationService;
+    ImportApplicationService importApplicationService;
+
+    @Autowired
+    ExportApplicationService exportApplicationService;
 
     @Autowired
     ApplicationPermission applicationPermission;
@@ -215,11 +219,11 @@ public class LayoutActionServiceTest {
                     application1.getGitApplicationMetadata().setDefaultApplicationId(application1.getId());
                     return applicationService
                             .save(application1)
-                            .zipWhen(application11 -> importExportApplicationService.exportApplicationById(
+                            .zipWhen(application11 -> exportApplicationService.exportApplicationById(
                                     application11.getId(), gitData.getBranchName()));
                 })
                 // Assign the branchName to all the resources connected to the application
-                .flatMap(tuple -> importExportApplicationService.importApplicationInWorkspaceFromGit(
+                .flatMap(tuple -> importApplicationService.importApplicationInWorkspaceFromGit(
                         workspaceId, tuple.getT2(), tuple.getT1().getId(), gitData.getBranchName()))
                 .block();
 
