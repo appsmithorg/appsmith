@@ -28,7 +28,6 @@ import {
   DatasourceStructureContainer as DataStructureList,
   SCHEMALESS_PLUGINS,
 } from "pages/Editor/DatasourceInfo/DatasourceStructureContainer";
-import { adaptiveSignpostingEnabled } from "@appsmith/selectors/featureFlagsSelectors";
 import {
   getDatasourceStructureById,
   getIsFetchingDatasourceStructure,
@@ -48,8 +47,6 @@ import { getCurrentUser } from "selectors/usersSelectors";
 import { Tooltip } from "design-system";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
-import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
-import { SignpostingWalkthroughConfig } from "pages/Editor/FirstTimeUserOnboarding/Utils";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
@@ -379,22 +376,6 @@ function ActionSidebar({
         delay: 2500,
       });
   };
-
-  const signpostingEnabled = useSelector(getIsFirstTimeUserOnboardingEnabled);
-  const adaptiveSignposting = useSelector(adaptiveSignpostingEnabled);
-  const checkAndShowBackToCanvasWalkthrough = async () => {
-    const isFeatureWalkthroughShown = await getFeatureWalkthroughShown(
-      FEATURE_WALKTHROUGH_KEYS.back_to_canvas,
-    );
-    !isFeatureWalkthroughShown &&
-      pushFeature &&
-      pushFeature(SignpostingWalkthroughConfig.BACK_TO_CANVAS);
-  };
-  useEffect(() => {
-    if (!hasWidgets && adaptiveSignposting && signpostingEnabled) {
-      checkAndShowBackToCanvasWalkthrough();
-    }
-  }, [hasWidgets, adaptiveSignposting, signpostingEnabled]);
 
   const showSchema =
     pluginDatasourceForm !== DatasourceComponentTypes.RestAPIDatasourceForm &&
