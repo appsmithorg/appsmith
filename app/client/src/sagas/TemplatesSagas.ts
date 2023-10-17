@@ -1,7 +1,3 @@
-import {
-  fetchApplication,
-  showReconnectDatasourceModal,
-} from "@appsmith/actions/applicationActions";
 import type {
   ApplicationPayload,
   ReduxAction,
@@ -10,43 +6,28 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import { getDefaultPageId } from "@appsmith/sagas/ApplicationSagas";
-import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
-import { isAirgapped } from "@appsmith/utils/airgapHelpers";
-import { builderURL } from "RouteBuilder";
-import { fetchDatasources } from "actions/datasourceActions";
-import { fetchJSCollections } from "actions/jsActionActions";
-import { fetchAllPageEntityCompletion, saveLayout } from "actions/pageActions";
 import {
-  executePageLoadActions,
-  fetchActions,
-} from "actions/pluginActionActions";
-import { fetchPluginFormConfigs } from "actions/pluginActions";
+  all,
+  put,
+  takeEvery,
+  call,
+  select,
+  take,
+  fork,
+} from "redux-saga/effects";
+import type {
+  ImportTemplateResponse,
+  FetchTemplateResponse,
+  TemplateFiltersResponse,
+} from "api/TemplatesApi";
+import TemplatesAPI from "api/TemplatesApi";
+import history from "utils/history";
+import { getDefaultPageId } from "@appsmith/sagas/ApplicationSagas";
 import {
   getAllTemplates,
   setTemplateNotificationSeenAction,
   showTemplatesModal,
 } from "actions/templateActions";
-import type {
-  FetchTemplateResponse,
-  ImportTemplateResponse,
-  TemplateFiltersResponse,
-} from "api/TemplatesApi";
-import TemplatesAPI from "api/TemplatesApi";
-import { toast } from "design-system";
-import { APP_MODE } from "entities/App";
-import {
-  all,
-  call,
-  fork,
-  put,
-  select,
-  take,
-  takeEvery,
-} from "redux-saga/effects";
-import { fetchPageDSLSaga } from "sagas/PageSagas";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
-import history from "utils/history";
 import {
   getTemplateNotificationSeen,
   setTemplateNotificationSeen,
@@ -66,7 +47,13 @@ import {
 } from "actions/pluginActionActions";
 import { fetchJSCollections } from "actions/jsActionActions";
 import { failFastApiCalls } from "./InitSagas";
+import { fetchDatasources } from "actions/datasourceActions";
+import { fetchPluginFormConfigs } from "actions/pluginActions";
+import { fetchAllPageEntityCompletion, saveLayout } from "actions/pageActions";
 import { getAllPageIds } from "./selectors";
+import { fetchPageDSLSaga } from "sagas/PageSagas";
+import { toast } from "design-system";
+import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 
 const isAirgappedInstance = isAirgapped();
 
