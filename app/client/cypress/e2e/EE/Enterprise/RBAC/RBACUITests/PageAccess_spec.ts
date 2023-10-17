@@ -164,7 +164,7 @@ describe("User performing actions on page with access and without access Tests",
       "App Viewer",
     );
     featureFlagIntercept({ license_gac_enabled: true });
-    cy.wait(2000);
+    cy.wait(5000);
     homePage.SearchAndOpenApp(appName);
     entityExplorer.SelectEntityByName(pageName, "Pages");
     entityExplorer.SelectEntityByName(queryName, "Queries/JS");

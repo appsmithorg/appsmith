@@ -15,7 +15,10 @@ import ErrorPageHeader from "pages/common/ErrorPageHeader";
 import type { AppState } from "@appsmith/reducers";
 import { connect, useSelector } from "react-redux";
 
-import { getCurrentUserLoading } from "selectors/usersSelectors";
+import {
+  getCurrentUserLoading,
+  getFeatureFlagsFetching,
+} from "selectors/usersSelectors";
 import type { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import useBrandingTheme from "utils/hooks/useBrandingTheme";
 import RouteChangeListener from "RouteChangeListener";
@@ -58,6 +61,7 @@ function AppRouter(props: {
   const tenantIsLoading = useSelector(isTenantLoading);
   const currentUserIsLoading = useSelector(getCurrentUserLoading);
   const showQueryModule = useSelector(getShowQueryModule);
+  const featuresIsLoading = useSelector(getFeatureFlagsFetching);
 
   useEffect(() => {
     getCurrentUser();
@@ -71,7 +75,11 @@ function AppRouter(props: {
 
   // hide the top loader once the tenant is loaded
   useEffect(() => {
-    if (tenantIsLoading === false && currentUserIsLoading === false) {
+    if (
+      tenantIsLoading === false &&
+      currentUserIsLoading === false &&
+      featuresIsLoading === false
+    ) {
       const loader = document.getElementById("loader") as HTMLDivElement;
 
       if (loader) {
@@ -82,9 +90,9 @@ function AppRouter(props: {
         });
       }
     }
-  }, [tenantIsLoading, currentUserIsLoading]);
+  }, [tenantIsLoading, currentUserIsLoading, featuresIsLoading]);
 
-  if (tenantIsLoading || currentUserIsLoading) return null;
+  if (tenantIsLoading || currentUserIsLoading || featuresIsLoading) return null;
 
   return (
     <Router history={history}>
