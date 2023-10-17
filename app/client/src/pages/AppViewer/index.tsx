@@ -34,7 +34,6 @@ import { getIsBranchUpdated } from "../utils";
 import { APP_MODE } from "entities/App";
 import { initAppViewer } from "actions/initActions";
 import { WidgetGlobaStyles } from "globalStyles/WidgetGlobalStyles";
-import { getAppsmithConfigs } from "@appsmith/configs";
 import useWidgetFocus from "utils/hooks/useWidgetFocus/useWidgetFocus";
 import HtmlTitle from "./AppViewerHtmlTitle";
 import BottomBar from "components/BottomBar";
@@ -54,6 +53,7 @@ import { showProductRamps } from "@appsmith/selectors/rampSelectors";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { KBViewerFloatingButton } from "@appsmith/pages/AppViewer/KnowledgeBase/KBViewerFloatingButton";
 import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
+import { getHideWatermark } from "@appsmith/selectors/tenantSelectors";
 
 const AppViewerBody = styled.section<{
   hasPages: boolean;
@@ -103,7 +103,7 @@ function AppViewer(props: Props) {
   const headerHeight = useSelector(getAppViewHeaderHeight);
   const branch = getSearchQuery(search, GIT_BRANCH_QUERY_KEY);
   const prevValues = usePrevious({ branch, location: props.location, pageId });
-  const { hideWatermark } = getAppsmithConfigs();
+  const hideWatermark = useSelector(getHideWatermark);
   const pageDescription = useSelector(getCurrentPageDescription);
   const currentApplicationDetails: ApplicationPayload | undefined = useSelector(
     getCurrentApplication,

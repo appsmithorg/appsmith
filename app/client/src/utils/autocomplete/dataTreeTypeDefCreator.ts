@@ -1,6 +1,7 @@
 import type {
   WidgetEntityConfig,
   JSActionEntityConfig,
+  WidgetEntity,
 } from "@appsmith/entities/DataTree/types";
 import type {
   ConfigTree,
@@ -57,7 +58,7 @@ export const dataTreeTypeDefCreator = (
 
         if (isFunction(autocompleteDefinitions)) {
           def[entityName] = autocompleteDefinitions(
-            entity,
+            entity as WidgetEntity,
             extraDefsToDefine,
             entityConfig,
           );
