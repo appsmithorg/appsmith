@@ -20,6 +20,7 @@ import type {
 } from "layoutSystems/anvil/utils/types";
 import { getLayoutId } from "layoutSystems/common/utils/WidgetPositionsObserver/utils";
 import { usePositionObserver } from "layoutSystems/common/utils/WidgetPositionsObserver/usePositionObserver";
+import { RenderModes, type RenderMode } from "constants/WidgetConstants";
 
 export interface FlexLayoutProps
   extends AlignSelf,
@@ -30,6 +31,7 @@ export interface FlexLayoutProps
   children: ReactNode;
   isDropTarget?: boolean;
   layoutId: string;
+  renderMode: RenderMode;
 
   border?: string;
   columnGap?: Responsive<SpacingDimension>;
@@ -89,10 +91,13 @@ export const FlexLayout = (props: FlexLayoutProps) => {
   const styleProps: CSSProperties = useMemo(() => {
     return {
       border:
-        props.border || (props.isDropTarget ? "1px dashed #979797" : "none"),
+        props.border ||
+        (props.isDropTarget && props.renderMode === RenderModes.CANVAS
+          ? "1px dashed #979797"
+          : "none"),
       position: props.position || "relative",
     };
-  }, [props.border, props.isDropTarget, props.position]);
+  }, [props.border, props.isDropTarget, props.position, props.renderMode]);
 
   return (
     <Flex

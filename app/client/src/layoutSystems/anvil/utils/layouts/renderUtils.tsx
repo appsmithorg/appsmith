@@ -42,7 +42,6 @@ export function renderLayouts(
   renderMode: RenderMode = RenderModes.CANVAS,
   layoutOrder: string[],
 ): JSX.Element[] {
-  console.log("!!!!", { layouts, canvasId });
   return layouts.map((layout) => {
     const Component: LayoutComponent = LayoutFactory.get(layout.layoutType);
     return (
@@ -118,7 +117,7 @@ export function getChildrenMap(
 export function renderWidgetsInAlignedRow(
   props: LayoutComponentProps,
 ): React.ReactNode {
-  const { canvasId, childrenMap, layoutId } = props;
+  const { canvasId, childrenMap, layoutId, renderMode } = props;
   // check if layout renders a Fill widget.
   const hasFillWidget: boolean = isFillWidgetPresentInList(
     Object.values(childrenMap || {}),
@@ -141,6 +140,7 @@ export function renderWidgetsInAlignedRow(
     flexBasis: { base: "auto", [`${MOBILE_BREAKPOINT}px`]: "0%" },
     flexGrow: 1,
     flexShrink: 1,
+    renderMode,
     wrap: { base: "wrap", [`${MOBILE_BREAKPOINT}px`]: "nowrap" },
   };
 

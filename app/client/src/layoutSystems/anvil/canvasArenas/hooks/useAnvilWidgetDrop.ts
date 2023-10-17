@@ -1,7 +1,7 @@
 import {
   addNewAnvilWidgetAction,
   moveAnvilWidgets,
-} from "layoutSystems/anvil/actions/draggingActions";
+} from "layoutSystems/anvil/integrations/actions/draggingActions";
 import type { AnvilHighlightInfo } from "layoutSystems/anvil/utils/anvilTypes";
 import { useCallback } from "react";
 import { useDispatch } from "react-redux";

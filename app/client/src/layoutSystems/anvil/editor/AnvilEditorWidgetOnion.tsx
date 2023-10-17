@@ -7,7 +7,7 @@ import DraggableComponent from "layoutSystems/common/draggable/DraggableComponen
 import { AnvilResizableLayer } from "../common/resizer/AnvilResizableLayer";
 import { generateDragStateForAnvilLayout } from "../utils/widgetUtils";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import { useWidgetSizeConfiguration } from "../common/hooks/useWidgetSizeConfiguration";
+import { getWidgetSizeConfiguration } from "../common/hooks/useWidgetSizeConfiguration";
 import type { SizeConfig } from "WidgetProvider/constants";
 
 /**
@@ -26,11 +26,11 @@ import type { SizeConfig } from "WidgetProvider/constants";
  * @returns Enhanced Widget
  */
 export const AnvilEditorWidgetOnion = (props: BaseWidgetProps) => {
-  const { layoutId, parentId = MAIN_CONTAINER_WIDGET_ID } = props;
+  const { layoutId, parentId = MAIN_CONTAINER_WIDGET_ID, type } = props;
 
   const widgetSize: SizeConfig = useMemo(
-    () => useWidgetSizeConfiguration(props.type, props),
-    [props.type],
+    () => getWidgetSizeConfiguration(props.type, props),
+    [type],
   );
 
   const generateDragState = useCallback(() => {

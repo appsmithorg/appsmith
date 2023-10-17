@@ -1,8 +1,8 @@
-import React from "react";
+import React, { useMemo } from "react";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import { AnvilFlexComponent } from "../common/AnvilFlexComponent";
 import { AnvilWidgetComponent } from "../common/widgetComponent/AnvilWidgetComponent";
-import { useWidgetSizeConfiguration } from "../common/hooks/useWidgetSizeConfiguration";
+import { getWidgetSizeConfiguration } from "../common/hooks/useWidgetSizeConfiguration";
 import type { SizeConfig } from "WidgetProvider/constants";
 
 /**
@@ -18,7 +18,10 @@ import type { SizeConfig } from "WidgetProvider/constants";
  * @returns Enhanced Widget
  */
 export const AnvilViewerWidgetOnion = (props: BaseWidgetProps) => {
-  const widgetSize: SizeConfig = useWidgetSizeConfiguration(props.type, props);
+  const widgetSize: SizeConfig = useMemo(
+    () => getWidgetSizeConfiguration(props.type, props),
+    [props.type],
+  );
   return (
     <AnvilFlexComponent
       isResizeDisabled={props.resizeDisabled}

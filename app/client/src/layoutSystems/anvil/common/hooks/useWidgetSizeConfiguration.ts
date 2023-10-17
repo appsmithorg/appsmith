@@ -11,7 +11,7 @@ export const defaultSizeConfig: SizeConfig = {
   minWidth: {},
 };
 
-export const useWidgetSizeConfiguration = (
+export const getWidgetSizeConfiguration = (
   type: string,
   props: BaseWidgetProps,
 ): SizeConfig => {

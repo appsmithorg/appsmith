@@ -51,7 +51,7 @@ import widgetOperationSagas from "sagas/WidgetOperationSagas";
 import oneClickBindingSaga from "sagas/OneClickBindingSaga";
 import entityNavigationSaga from "sagas/NavigationSagas";
 import communityTemplateSagas from "sagas/CommunityTemplatesSagas";
-import anvilDraggingSagas from "layoutSystems/anvil/sagas/draggingSagas";
+import anvilDraggingSagas from "layoutSystems/anvil/integrations/sagas/draggingSagas";
 
 /* Sagas that are registered by a module that is designed to be independent of the core platform */
 import WidgetPositionSaga from "layoutSystems/anvil/integrations/sagas/WidgetPositionsSaga";

@@ -19,7 +19,14 @@ import { deriveAlignedColumnHighlights } from "layoutSystems/anvil/utils/layouts
 import type { WidgetPositions } from "layoutSystems/common/types";
 
 const AlignedColumn = (props: LayoutComponentProps) => {
-  const { canvasId, children, isDropTarget, layoutId, layoutStyle } = props;
+  const {
+    canvasId,
+    children,
+    isDropTarget,
+    layoutId,
+    layoutStyle,
+    renderMode,
+  } = props;
 
   return (
     <FlexLayout
@@ -27,6 +34,7 @@ const AlignedColumn = (props: LayoutComponentProps) => {
       direction="column"
       isDropTarget={!!isDropTarget}
       layoutId={layoutId}
+      renderMode={renderMode}
       {...(layoutStyle || {})}
     >
       {children}
