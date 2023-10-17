@@ -122,6 +122,9 @@ const OverlayCanvasContainer = (props: {
 
     const { id: widgetId, widgetName } = widgetNameData;
 
+    const parentRef: HTMLElement | null =
+      document.getElementById("anvil-canvas-0");
+
     //Get Widget Name
     if (widgetName) {
       const {
@@ -133,7 +136,7 @@ const OverlayCanvasContainer = (props: {
         position,
         widgetName,
         widgetNameData,
-        props?.parentRef?.current,
+        parentRef as HTMLDivElement,
         stageRef?.current?.content,
         scrollTop.current,
       );
@@ -260,50 +263,49 @@ const OverlayCanvasContainer = (props: {
    * so that the widget name remains accurately placed even when the canvas is scrolled
    */
   const handleScroll = () => {
-    if (!props.parentRef?.current) return;
+    const parentRef = document.getElementById("anvil-canvas-0");
+    if (!parentRef) return;
 
-    const currentScrollTop: number = props.parentRef?.current?.scrollTop;
-
-    if (!isScrolling.current) {
+    if (isScrolling.current === 0) {
+      console.log("### resetting canvas");
+      isScrolling.current = 1;
       resetCanvas();
     }
 
-    clearTimeout(isScrolling.current);
-    isScrolling.current = setTimeout(() => {
-      scrollTop.current = currentScrollTop;
-      //while scrolling update the widget name position
-      updateSelectedWidgetPositions();
-      isScrolling.current = 0;
-      if (
-        (props.parentRef?.current?.scrollHeight || 0) >
-        (props.parentRef?.current?.clientHeight || 0)
-      )
+    window.requestAnimationFrame(() => {
+      scrollTop.current = parentRef.scrollTop as number;
+      if ((parentRef.scrollHeight || 0) > (parentRef.clientHeight || 0))
         hasScroll.current = true;
-    }, 100);
+    });
+  };
+
+  const handleScrollEnd = () => {
+    console.log("### updating canvas!");
+    isScrolling.current = 0;
+    if (hasScroll.current) {
+      updateSelectedWidgetPositions();
+    }
   };
 
   //Add event listeners
   useEffect(() => {
-    if (
-      !props.containerRef?.current ||
-      !props.parentRef?.current ||
-      !wrapperRef?.current
-    )
-      return;
+    const parentRef = document.getElementById("anvil-canvas-0");
+    if (!parentRef) return;
+    if (!props.containerRef?.current || !wrapperRef?.current) return;
 
     const container: HTMLDivElement = props.containerRef
       ?.current as HTMLDivElement;
-    const parent: HTMLDivElement = props.parentRef?.current as HTMLDivElement;
 
     container.addEventListener("mousemove", handleMouseMove);
-    parent.addEventListener("scroll", handleScroll);
+    parentRef.addEventListener("scroll", handleScroll);
+    parentRef.addEventListener("scrollend", handleScrollEnd);
     return () => {
       container.removeEventListener("mousemove", handleMouseMove);
-      parent.removeEventListener("scroll", handleScroll);
+      parentRef.removeEventListener("scroll", handleScroll);
+      parentRef.removeEventListener("scrollend", handleScrollEnd);
     };
   }, [
     props.containerRef?.current,
-    props.parentRef?.current,
     wrapperRef?.current,
     widgetNamePositions.current,
     canvasPositions.current,

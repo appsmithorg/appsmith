@@ -153,6 +153,7 @@ import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import { LayoutSystemTypes } from "layoutSystems/types";
 import { getLayoutSystemDSLTransformer } from "layoutSystems/common/utils/LayoutSystemDSLTransformer";
 import type { DSLWidget } from "WidgetProvider/constants";
+import { focusWidget } from "actions/widgetActions";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -1375,6 +1376,7 @@ function* setPreviewModeInitSaga(action: ReduxAction<boolean>) {
   if (action.payload) {
     // we animate out elements and then move to the canvas
     yield put(setPreviewModeAction(action.payload));
+    yield put(focusWidget());
     history.push(
       builderURL({
         pageId: currentPageId,

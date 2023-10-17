@@ -30,7 +30,7 @@ import type { WidgetConfigProps } from "WidgetProvider/constants";
 import { usePositionObserver } from "layoutSystems/common/utils/WidgetPositionsObserver/usePositionObserver";
 import { getAnvilWidgetId } from "layoutSystems/common/utils/WidgetPositionsObserver/utils";
 import { Colors } from "constants/Colors";
-import type { AppState } from "ce/reducers";
+import type { AppState } from "@appsmith/reducers";
 
 /**
  * Adds following functionalities to the widget:
@@ -53,6 +53,9 @@ export function AnvilFlexComponent(props: AnvilFlexComponentProps) {
   const isSnipingMode = useSelector(snipingModeSelector);
   const isDragging = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isDragging,
+  );
+  const isCanvasResizing: boolean = useSelector(
+    (state: AppState) => state.ui.widgetDragResize.isAutoCanvasResizing,
   );
   const isCurrentWidgetResizing = isResizing && isSelected;
 
@@ -169,14 +172,18 @@ export function AnvilFlexComponent(props: AnvilFlexComponentProps) {
       "&:hover": {
         zIndex: onHoverZIndex,
       },
-      border: `1px solid ${isDragging ? "transparent" : borderColor}`,
+      border: `1px solid ${
+        isDragging || isCanvasResizing ? "transparent" : borderColor
+      }`,
       outline: `1px solid ${
         !isDragging && (isFocused || isSelected) ? Colors.GREY_1 : "transparent"
       }`,
       borderRadius: "4px 0px 4px 4px",
-      boxShadow: `0px 0px 0px 1px ${isDragging ? "transparent" : borderColor}`,
+      boxShadow: `0px 0px 0px 1px ${
+        isDragging || isCanvasResizing ? "transparent" : borderColor
+      }`,
     };
-  }, [borderColor, isDragging, onHoverZIndex]);
+  }, [borderColor, isDragging, onHoverZIndex, isCanvasResizing]);
 
   return (
     <Flex

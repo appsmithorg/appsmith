@@ -72,6 +72,13 @@ function* shouldRunSaga(saga: any, action: ReduxAction<unknown>) {
   }
 }
 
+function* preventForAnvil(saga: any, action: ReduxAction<unknown>) {
+  const layoutSystemType: LayoutSystemTypes = yield select(getLayoutSystemType);
+  if (layoutSystemType !== LayoutSystemTypes.ANVIL) {
+    yield call(shouldRunSaga, saga, action);
+  }
+}
+
 export function* updateLayoutForMobileCheckpoint(
   actionPayload: ReduxAction<{
     parentId: string;
@@ -162,7 +169,7 @@ export function* updateLayoutSystemTypeSaga(
       const nestedDSL = nestDSL(allWidgets);
 
       const autoDSL = convertDSLtoAuto(nestedDSL);
-      log.debug("autoDSL", autoDSL);
+      log.debug("### autoDSL", autoDSL);
 
       const flattenedDSL = flattenDSL(autoDSL);
       yield put(updateAndSaveLayout(flattenedDSL));
@@ -492,6 +499,7 @@ export default function* layoutUpdateSagas() {
   yield all([
     takeLatest(
       ReduxActionTypes.RECALCULATE_COLUMNS,
+      preventForAnvil,
       updateLayoutForMobileCheckpoint,
     ),
     takeLatest(
@@ -500,21 +508,23 @@ export default function* layoutUpdateSagas() {
     ),
     takeLatest(
       ReduxActionTypes.UPDATE_WIDGET_DIMENSIONS,
+      preventForAnvil,
       updateWidgetDimensionsSaga,
     ),
     debounce(
       50,
       ReduxActionTypes.PROCESS_AUTO_LAYOUT_DIMENSION_UPDATES,
+      preventForAnvil,
       processAutoLayoutDimensionUpdatesSaga,
     ),
     takeLatest(
       ReduxActionTypes.UPDATE_POSITIONS_ON_TAB_CHANGE,
-      shouldRunSaga,
+      preventForAnvil,
       updatePositionsOnTabChangeSaga,
     ),
     takeLatest(
       ReduxActionTypes.CHECK_CONTAINERS_FOR_AUTO_HEIGHT,
-      shouldRunSaga,
+      preventForAnvil,
       updatePositionsSaga,
     ),
   ]);
