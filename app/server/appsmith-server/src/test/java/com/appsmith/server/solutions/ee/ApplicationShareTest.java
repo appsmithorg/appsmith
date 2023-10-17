@@ -26,12 +26,13 @@ import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.dtos.UpdateApplicationRoleDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.export.internal.ImportExportApplicationService;
+import com.appsmith.server.exports.internal.ExportApplicationService;
 import com.appsmith.server.featureflags.CachedFeatures;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.UserUtils;
+import com.appsmith.server.imports.internal.ImportApplicationService;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.ApplicationRepository;
@@ -146,7 +147,10 @@ public class ApplicationShareTest {
     DatasourceService datasourceService;
 
     @Autowired
-    ImportExportApplicationService importExportApplicationService;
+    ImportApplicationService importApplicationService;
+
+    @Autowired
+    ExportApplicationService exportApplicationService;
 
     @Autowired
     LayoutActionService layoutActionService;
@@ -1726,9 +1730,9 @@ public class ApplicationShareTest {
                 })
                 .block();
 
-        Application branchedApplication = importExportApplicationService
+        Application branchedApplication = exportApplicationService
                 .exportApplicationById(createdApplication.getId(), gitData.getBranchName())
-                .flatMap(applicationJson -> importExportApplicationService.importApplicationInWorkspaceFromGit(
+                .flatMap(applicationJson -> importApplicationService.importApplicationInWorkspaceFromGit(
                         workspace.getId(), applicationJson, null, gitData.getBranchName()))
                 .flatMap(application1 -> {
                     GitApplicationMetadata gitData1 = new GitApplicationMetadata();
@@ -1821,9 +1825,9 @@ public class ApplicationShareTest {
                 })
                 .block();
 
-        Application branchedApplication = importExportApplicationService
+        Application branchedApplication = exportApplicationService
                 .exportApplicationById(createdApplication.getId(), gitData.getBranchName())
-                .flatMap(applicationJson -> importExportApplicationService.importApplicationInWorkspaceFromGit(
+                .flatMap(applicationJson -> importApplicationService.importApplicationInWorkspaceFromGit(
                         workspace.getId(), applicationJson, null, gitData.getBranchName()))
                 .flatMap(application1 -> {
                     GitApplicationMetadata gitData1 = new GitApplicationMetadata();

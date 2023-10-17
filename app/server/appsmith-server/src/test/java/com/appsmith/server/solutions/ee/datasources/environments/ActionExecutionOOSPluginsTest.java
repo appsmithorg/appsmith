@@ -18,10 +18,11 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithErrorCode;
-import com.appsmith.server.export.internal.ImportExportApplicationService;
+import com.appsmith.server.exports.internal.ExportApplicationService;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.imports.internal.ImportApplicationService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.repositories.DatasourceRepository;
@@ -127,7 +128,10 @@ public class ActionExecutionOOSPluginsTest {
     DatasourceService datasourceService;
 
     @Autowired
-    ImportExportApplicationService importExportApplicationService;
+    ImportApplicationService importApplicationService;
+
+    @Autowired
+    ExportApplicationService exportApplicationService;
 
     @SpyBean
     PluginService pluginService;
@@ -248,11 +252,11 @@ public class ActionExecutionOOSPluginsTest {
                         application.getGitApplicationMetadata().setDefaultApplicationId(application.getId());
                         return applicationService
                                 .save(application)
-                                .zipWhen(application1 -> importExportApplicationService.exportApplicationById(
+                                .zipWhen(application1 -> exportApplicationService.exportApplicationById(
                                         application1.getId(), gitData.getBranchName()));
                     })
                     // Assign the branchName to all the resources connected to the application
-                    .flatMap(tuple -> importExportApplicationService.importApplicationInWorkspaceFromGit(
+                    .flatMap(tuple -> importApplicationService.importApplicationInWorkspaceFromGit(
                             workspaceId, tuple.getT2(), tuple.getT1().getId(), gitData.getBranchName()))
                     .block();
 
@@ -322,12 +326,12 @@ public class ActionExecutionOOSPluginsTest {
 
         String usualOrderOfParts =
                 """
-                        --boundary\r
-                        Content-Disposition: form-data; name="executeActionDTO"\r
-                        \r
-                        {"actionId":"%s","viewMode":false}\r
-                        --boundary--\r
-                        """
+                --boundary\r
+                Content-Disposition: form-data; name="executeActionDTO"\r
+                \r
+                {"actionId":"%s","viewMode":false}\r
+                --boundary--\r
+                """
                         .formatted(savedAction.getId());
 
         MockServerHttpRequest mock = MockServerHttpRequest.method(HttpMethod.POST, URI.create("https://example.com"))
