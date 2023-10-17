@@ -1,7 +1,6 @@
-package com.appsmith.server.services;
+package com.appsmith.server.services.ce_compatible;
 
 import com.appsmith.external.git.GitExecutor;
-import com.appsmith.git.service.GitExecutorImpl;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.datasources.base.DatasourceService;
@@ -15,19 +14,23 @@ import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.repositories.GitDeployKeysRepository;
-import com.appsmith.server.services.ce_compatible.GitServiceCECompatibleImpl;
+import com.appsmith.server.services.AnalyticsService;
+import com.appsmith.server.services.ApplicationPageService;
+import com.appsmith.server.services.ApplicationService;
+import com.appsmith.server.services.SessionUserService;
+import com.appsmith.server.services.UserDataService;
+import com.appsmith.server.services.UserService;
+import com.appsmith.server.services.WorkspaceService;
+import com.appsmith.server.services.ce.GitServiceCEImpl;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import io.micrometer.observation.ObservationRegistry;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Service;
 
-@Slf4j
 @Service
-@Import({GitExecutorImpl.class})
-public class GitServiceImpl extends GitServiceCECompatibleImpl implements GitService {
-    public GitServiceImpl(
+public class GitServiceCECompatibleImpl extends GitServiceCEImpl implements GitServiceCECompatible {
+
+    public GitServiceCECompatibleImpl(
             UserService userService,
             UserDataService userDataService,
             SessionUserService sessionUserService,
