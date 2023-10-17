@@ -395,8 +395,8 @@ function InviteUsersForm(props: any) {
         const groupsArray = usersAsStringsArray.filter(
           (user: string) => !isEmail(user),
         );
-        const usersStr = usersArray.join(",");
-        const groupsStr = groupsArray.join(",");
+        const usersStr = [...new Set(usersArray)].join(",");
+        const groupsStr = [...new Set(groupsArray)].join(",");
         const groupsData = [];
         for (const gId of groupsArray) {
           const data = groupSuggestions.find((g) => g.id === gId);
