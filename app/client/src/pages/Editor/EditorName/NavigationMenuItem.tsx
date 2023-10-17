@@ -12,14 +12,7 @@ import type { noop } from "lodash";
 
 import type { CommonComponentProps } from "design-system-old";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import styled from "styled-components";
-
-export enum MenuTypes {
-  MENU = "menu",
-  PARENT = "parent",
-  RECONFIRM = "re-confirm",
-  MENU_DIVIDER = "menu divider",
-}
+import { MenuTypes } from "./types";
 
 export interface MenuItemData {
   text: string;
@@ -34,12 +27,6 @@ export interface MenuItemData {
   isOpensNewWindow?: boolean | undefined;
   style?: React.CSSProperties;
 }
-
-const ReconfirmMenuItem = styled(MenuItem)`
-  .ads-v2-text {
-    color: var(--ads-v2-color-fg-error);
-  }
-`;
 
 type NavigationMenuItemProps = CommonComponentProps & {
   menuItemData: MenuItemData;
@@ -124,13 +111,13 @@ export function NavigationMenuItem({
       );
     case MenuTypes.RECONFIRM:
       return (
-        <ReconfirmMenuItem
+        <MenuItem
           className="error-menuitem"
           data-testid={`t--editor-menu-${kebabCase(text)}`}
           onClick={(e) => handleReconfirmClick(e, menuItemData)}
         >
           {confirm.text}
-        </ReconfirmMenuItem>
+        </MenuItem>
       );
     case MenuTypes.MENU_DIVIDER:
       return <MenuSeparator />;
