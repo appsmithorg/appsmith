@@ -103,10 +103,17 @@ function* fetchPluginFormConfigsSaga() {
       ),
     );
 
-    log.error("pluginIdFormsToFetch API completion", pluginFormResponses);
     for (const response of pluginFormResponses) {
+      log.error(
+        "Validating response: ",
+        response?.code,
+        response?.responseMeta?.success,
+        response?.responseMeta?.status,
+        response?.data?.form,
+      );
       yield validateResponse(response);
       pluginFormData.push(response.data);
+      log.error("Response pushed");
     }
 
     log.error("pluginIdFormsToFetch Responses validated");
