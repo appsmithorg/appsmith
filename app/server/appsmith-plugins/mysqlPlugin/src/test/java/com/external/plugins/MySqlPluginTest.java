@@ -833,9 +833,11 @@ public class MySqlPluginTest {
         String query_insert_data_types = "insert into test_data_types values ('test', 'test', 'a\\0\\t', 'a\\0\\t', "
                 + "'test', 'test', 'test', 'test',  'test', 'test', 'test', 'test', 'ONE', 'a');";
 
-        String query_create_table_json_data_type = "create table test_json_type (c_json JSON);";
-        String query_insert_json_data_type =
-                "insert into test_json_type values ('{\"key1\": \"value1\", \"key2\": " + "\"value2\"}');";
+        String query_create_table_json_data_type = "create table test_json_type (id INTEGER, c_json JSON);";
+        String query_insert_json_data_type_1 =
+                "insert into test_json_type values (1, '{\"key1\": \"value1\", \"key2\": " + "\"value2\"}');";
+        String query_insert_json_data_type_2 =
+            "insert into test_json_type values (2, NULL);";
 
         String query_create_table_geometry_types =
                 "create table test_geometry_types (c_geometry GEOMETRY, c_point " + "POINT);";
@@ -844,7 +846,8 @@ public class MySqlPluginTest {
 
         String query_select_from_test_numeric_types = "select * from test_numeric_types;";
         String query_select_from_test_date_time_types = "select * from test_date_time_types;";
-        String query_select_from_test_json_data_type = "select * from test_json_type;";
+        String query_select_from_test_json_data_type_1 = "select c_json from test_json_type where id=1;";
+        String query_select_from_test_json_data_type_2 = "select c_json from test_json_type where id=2;";
         String query_select_from_test_data_types = "select * from test_data_types;";
         String query_select_from_test_geometry_types = "select * from test_geometry_types;";
 
@@ -860,7 +863,8 @@ public class MySqlPluginTest {
                 + "\"c_blob\":\"dGVzdA==\",\"c_mediumblob\":\"dGVzdA==\",\"c_longblob\":\"dGVzdA==\",\"c_tinytext\":\"test\","
                 + "\"c_text\":\"test\",\"c_mediumtext\":\"test\",\"c_longtext\":\"test\",\"c_enum\":\"ONE\",\"c_set\":\"a\"}]";
 
-        String expected_json_result = "[{\"c_json\":\"{\\\"key1\\\": \\\"value1\\\", \\\"key2\\\": \\\"value2\\\"}\"}]";
+        String expected_json_result_1 = "[{\"c_json\":\"{\\\"key1\\\": \\\"value1\\\", \\\"key2\\\": \\\"value2\\\"}\"}]";
+        String expected_json_result_2 = "[{\"c_json\":null}]";
 
         String expected_geometry_types_result = "[{\"c_geometry\":\"AAAAAAEBAAAAAAAAAAAA8D8AAAAAAADwPw==\","
                 + "\"c_point\":\"AAAAAAEBAAAAAAAAAAAA8D8AAAAAAABZQA==\"}]";
@@ -874,7 +878,8 @@ public class MySqlPluginTest {
                             .add(query_create_table_date_time_types)
                             .add(query_insert_into_table_date_time_types)
                             .add(query_create_table_json_data_type)
-                            .add(query_insert_json_data_type)
+                            .add(query_insert_json_data_type_1)
+                            .add(query_insert_json_data_type_2)
                             .add(query_create_table_data_types)
                             .add(query_insert_data_types)
                             .add(query_create_table_geometry_types)
@@ -890,7 +895,8 @@ public class MySqlPluginTest {
         /* Test data types */
         testExecute(query_select_from_test_data_types, expected_data_types_result);
         /* Test json type */
-        testExecute(query_select_from_test_json_data_type, expected_json_result);
+        testExecute(query_select_from_test_json_data_type_1, expected_json_result_1);
+        testExecute(query_select_from_test_json_data_type_2, expected_json_result_2);
         /* Test geometry types */
         testExecute(query_select_from_test_geometry_types, expected_geometry_types_result);
 
