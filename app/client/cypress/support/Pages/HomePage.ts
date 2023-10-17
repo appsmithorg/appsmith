@@ -328,13 +328,25 @@ export class HomePage {
     });
   }
 
+  public InvokeDispatchOnStore() {
+    cy.window().then((win: any) => {
+      if (win && win.store) {
+        cy.window()
+          .its("store")
+          .invoke("dispatch", { type: "LOGOUT_USER_INIT" });
+      } else {
+        // Handle the case where "store" is not present, or simply ignore and continue.
+      }
+    });
+  }
+
   public LogintoApp(
     uname: string,
     pswd: string,
     role: "App Viewer" | "Developer" | "Administrator" = "Administrator",
   ) {
     this.agHelper.Sleep(); //waiting for window to load
-    cy.window().its("store").invoke("dispatch", { type: "LOGOUT_USER_INIT" });
+    this.InvokeDispatchOnStore();
     cy.wait("@postLogout");
     this.agHelper.VisitNAssert("/user/login", "signUpLogin");
     this.agHelper.AssertElementVisibility(this._username);
