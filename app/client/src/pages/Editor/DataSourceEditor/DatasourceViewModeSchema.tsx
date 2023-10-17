@@ -17,7 +17,8 @@ import {
   GSHEETS_ERR_FETCHING_PREVIEW_DATA,
   EMPTY_TABLE_TITLE_TEXT,
   EMPTY_TABLE_MESSAGE_TEXT,
-  createMessage, EMPTY_TABLE_SVG_ALT_TEXT,
+  createMessage,
+  EMPTY_TABLE_SVG_ALT_TEXT,
 } from "@appsmith/constants/messages";
 import Table from "pages/Editor/QueryEditor/Table";
 import { generateTemplateToUpdatePage } from "actions/pageActions";
