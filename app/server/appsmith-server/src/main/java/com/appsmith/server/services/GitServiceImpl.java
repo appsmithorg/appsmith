@@ -12,12 +12,13 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.export.internal.ImportExportApplicationService;
+import com.appsmith.server.exports.internal.ExportApplicationService;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.GitPrivateRepoHelper;
 import com.appsmith.server.helpers.RedisUtils;
 import com.appsmith.server.helpers.ResponseUtils;
+import com.appsmith.server.imports.internal.ImportApplicationService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
@@ -53,7 +54,8 @@ public class GitServiceImpl extends GitServiceCECompatibleImpl implements GitSer
             NewActionService newActionService,
             ActionCollectionService actionCollectionService,
             GitFileUtils fileUtils,
-            ImportExportApplicationService importExportApplicationService,
+            ImportApplicationService importApplicationService,
+            ExportApplicationService exportApplicationService,
             GitExecutor gitExecutor,
             ResponseUtils responseUtils,
             EmailConfig emailConfig,
@@ -67,7 +69,6 @@ public class GitServiceImpl extends GitServiceCECompatibleImpl implements GitSer
             RedisUtils redisUtils,
             ObservationRegistry observationRegistry,
             GitPrivateRepoHelper gitPrivateRepoHelper) {
-
         super(
                 userService,
                 userDataService,
@@ -78,7 +79,8 @@ public class GitServiceImpl extends GitServiceCECompatibleImpl implements GitSer
                 newActionService,
                 actionCollectionService,
                 fileUtils,
-                importExportApplicationService,
+                importApplicationService,
+                exportApplicationService,
                 gitExecutor,
                 responseUtils,
                 emailConfig,

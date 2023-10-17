@@ -1,7 +1,7 @@
 package com.appsmith.server.jslibs.export;
 
 import com.appsmith.server.domains.CustomJSLib;
-import com.appsmith.server.export.exportable.ExportableService;
+import com.appsmith.server.exports.exportable.ExportableService;
 import com.appsmith.server.jslibs.base.CustomJSLibService;
 import org.springframework.stereotype.Service;
 

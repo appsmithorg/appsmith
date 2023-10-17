@@ -25,12 +25,13 @@ import com.appsmith.server.dtos.UpdateRoleAssociationDTO;
 import com.appsmith.server.dtos.UserCompactDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.export.internal.ImportExportApplicationService;
+import com.appsmith.server.exports.internal.ExportApplicationService;
 import com.appsmith.server.featureflags.CachedFeatures;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.UserUtils;
+import com.appsmith.server.imports.internal.ImportApplicationService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
@@ -160,7 +161,10 @@ public class ApplicationServiceTest {
     NewPageRepository newPageRepository;
 
     @Autowired
-    ImportExportApplicationService importExportApplicationService;
+    ImportApplicationService importApplicationService;
+
+    @Autowired
+    ExportApplicationService exportApplicationService;
 
     @Autowired
     EnvironmentPermission environmentPermission;
@@ -247,9 +251,9 @@ public class ApplicationServiceTest {
                     return applicationService.save(application);
                 })
                 // Assign the branchName to all the resources connected to the application
-                .flatMap(application -> importExportApplicationService.exportApplicationById(
-                        application.getId(), gitData.getBranchName()))
-                .flatMap(applicationJson -> importExportApplicationService.importApplicationInWorkspaceFromGit(
+                .flatMap(application ->
+                        exportApplicationService.exportApplicationById(application.getId(), gitData.getBranchName()))
+                .flatMap(applicationJson -> importApplicationService.importApplicationInWorkspaceFromGit(
                         workspaceId, applicationJson, gitConnectedApp.getId(), gitData.getBranchName()))
                 .block();
 

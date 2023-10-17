@@ -72,13 +72,14 @@ import com.appsmith.server.dtos.UserGroupCompactDTO;
 import com.appsmith.server.dtos.UserGroupDTO;
 import com.appsmith.server.dtos.UserGroupUpdateDTO;
 import com.appsmith.server.dtos.UsersForGroupDTO;
-import com.appsmith.server.export.internal.ImportExportApplicationService;
+import com.appsmith.server.exports.internal.ExportApplicationService;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.fork.internal.ApplicationForkingService;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.helpers.WidgetSuggestionHelper;
+import com.appsmith.server.imports.internal.ImportApplicationService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.repositories.AuditLogRepository;
@@ -202,7 +203,10 @@ public class AuditLogServiceTest {
     ApplicationService applicationService;
 
     @Autowired
-    ImportExportApplicationService importExportApplicationService;
+    ImportApplicationService importApplicationService;
+
+    @Autowired
+    ExportApplicationService exportApplicationService;
 
     @Autowired
     NewPageService newPageService;
@@ -1118,7 +1122,7 @@ public class AuditLogServiceTest {
         String resourceType = auditLogService.getResourceType(new Application());
 
         FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/valid-application.json");
-        ApplicationImportDTO applicationImportDTO = importExportApplicationService
+        ApplicationImportDTO applicationImportDTO = importApplicationService
                 .extractFileAndSaveApplication(createdWorkspace.getId(), filePart)
                 .block();
         Application createdApplication = applicationImportDTO.getApplication();
@@ -1183,7 +1187,7 @@ public class AuditLogServiceTest {
                 .block();
         String resourceType = auditLogService.getResourceType(application);
 
-        ApplicationJson applicationJSon = importExportApplicationService
+        ApplicationJson applicationJSon = exportApplicationService
                 .exportApplicationById(createdApplication.getId(), "")
                 .block();
 
@@ -1400,7 +1404,7 @@ public class AuditLogServiceTest {
         ApplicationImportDTO forkedApplication = applicationForkingService
                 .forkApplicationToWorkspaceWithEnvironment(
                         createdApplication.getId(), createdWorkspace.getId(), environmentId)
-                .flatMap(application1 -> importExportApplicationService.getApplicationImportDTO(
+                .flatMap(application1 -> importApplicationService.getApplicationImportDTO(
                         application1.getId(), application1.getWorkspaceId(), application1))
                 .block();
 

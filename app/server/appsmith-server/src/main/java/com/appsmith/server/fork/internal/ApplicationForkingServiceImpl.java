@@ -3,9 +3,9 @@ package com.appsmith.server.fork.internal;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.export.internal.ImportExportApplicationService;
 import com.appsmith.server.fork.forkable.ForkableService;
 import com.appsmith.server.helpers.ResponseUtils;
+import com.appsmith.server.imports.internal.ImportApplicationService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.NewActionRepository;
@@ -43,7 +43,7 @@ public class ApplicationForkingServiceImpl extends ApplicationForkingServiceCEIm
             WorkspacePermission workspacePermission,
             ApplicationPermission applicationPermission,
             NewPageRepository newPageRepository,
-            ImportExportApplicationService importExportApplicationService,
+            ImportApplicationService importApplicationService,
             ApplicationPageService applicationPageService,
             NewActionService newActionService,
             LayoutActionService layoutActionService,
@@ -65,7 +65,7 @@ public class ApplicationForkingServiceImpl extends ApplicationForkingServiceCEIm
                 responseUtils,
                 workspacePermission,
                 applicationPermission,
-                importExportApplicationService,
+                importApplicationService,
                 applicationPageService,
                 newPageRepository,
                 newActionService,

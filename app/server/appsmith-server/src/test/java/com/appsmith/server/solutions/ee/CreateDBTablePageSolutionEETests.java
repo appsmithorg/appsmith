@@ -22,7 +22,6 @@ import com.appsmith.server.dtos.UpdateRoleAssociationDTO;
 import com.appsmith.server.dtos.UserCompactDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.export.internal.ImportExportApplicationService;
 import com.appsmith.server.featureflags.CachedFeatures;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.MockPluginExecutor;
@@ -109,9 +108,6 @@ public class CreateDBTablePageSolutionEETests {
 
     @Autowired
     PluginRepository pluginRepository;
-
-    @Autowired
-    ImportExportApplicationService importExportApplicationService;
 
     @Autowired
     ApplicationService applicationService;
