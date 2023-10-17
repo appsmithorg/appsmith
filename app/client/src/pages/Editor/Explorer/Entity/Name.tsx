@@ -157,7 +157,7 @@ export const EntityName = React.memo(
       <NameEditorComponent
         dispatchAction={handleUpdateName}
         id={props.entityId}
-        idUndefinedErrorMessage="Invalid entity id provided"
+        idUndefinedErrorMessage="No correct API id or Query id found in the url."
         name={updatedName}
         saveStatus={saveStatus}
         suffixErrorMessage={ENTITY_EXPLORER_ACTION_NAME_CONFLICT_ERROR}

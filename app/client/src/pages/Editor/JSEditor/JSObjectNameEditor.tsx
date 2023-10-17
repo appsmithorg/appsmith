@@ -91,7 +91,7 @@ export function JSObjectNameEditor(props: JSObjectNameEditorProps) {
     <NameEditorComponent
       dispatchAction={saveJSObjectName}
       id={currentJSObjectConfig?.id}
-      idUndefinedErrorMessage="Invalid JSObject id provided"
+      idUndefinedErrorMessage="No correct JSObject id found in the url."
       name={currentJSObjectConfig?.name}
       saveStatus={saveStatus}
     >
