@@ -9,6 +9,7 @@ import {
   MAIN_CONTAINER_WIDGET_ID,
   RenderModes,
 } from "constants/WidgetConstants";
+import { getCanvasClassName } from "utils/generators";
 
 export const AnvilCanvas = (props: BaseWidgetProps) => {
   const map: LayoutComponentProps["childrenMap"] = {};
@@ -17,7 +18,7 @@ export const AnvilCanvas = (props: BaseWidgetProps) => {
   });
   return (
     <div
-      className={`anvil-canvas ${
+      className={`anvil-canvas ${getCanvasClassName()} ${
         props.widgetId === MAIN_CONTAINER_WIDGET_ID ? "overflowY" : ""
       }`}
       id={getAnvilCanvasId(props.widgetId)}
