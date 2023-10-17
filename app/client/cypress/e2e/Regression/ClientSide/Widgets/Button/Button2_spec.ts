@@ -160,6 +160,7 @@ describe("Button widget testcases", () => {
     entityExplorer.SelectEntityByName("Button1");
     propPane.TogglePropertyState("Reset form on success", "Off");
     deployMode.DeployApp();
+    agHelper.Sleep();
     // set the email
     agHelper.ClearNType(clocators.inputField, Cypress.env("USERNAME"));
     agHelper.ClickButton("Submit");
