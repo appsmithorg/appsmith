@@ -1,6 +1,7 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.constants.AnalyticsEvents;
+import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.helpers.DataTypeStringUtils;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
@@ -242,12 +243,13 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
             if (tenantConfiguration == null || tenantConfiguration.getLicense() == null) {
                 return Mono.just(tenant);
             }
-            License pastLicense = tenant.getTenantConfiguration().getLicense();
-            License license = new License();
+            License pastLicense = new License();
+            AppsmithBeanUtils.copyNestedNonNullProperties(tenantConfiguration.getLicense(), pastLicense);
+
+            License license = tenant.getTenantConfiguration().getLicense();
             final LicensePlan previousPlan = license.getPlan();
             license.setPlan(LicensePlan.FREE);
             license.setPreviousPlan(previousPlan);
-            tenant.getTenantConfiguration().setLicense(license);
 
             Mono<Boolean> downgradeToFreePlanOnCS =
                     StringUtils.isNullOrEmpty(tenantConfiguration.getLicense().getKey())
