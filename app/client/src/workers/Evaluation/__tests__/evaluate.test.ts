@@ -81,7 +81,7 @@ describe("evaluateSync", () => {
           raw: `
   function $$closedFn () {
     const $$result = wrongJS
-    return $$result 
+    return $$result
   }
   $$closedFn.call(THIS_CONTEXT)
   `,
