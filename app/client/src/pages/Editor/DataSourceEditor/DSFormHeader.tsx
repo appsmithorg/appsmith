@@ -84,7 +84,6 @@ interface DSFormHeaderProps {
     viewMode: boolean;
   }) => void;
   viewMode: boolean;
-  isNewQuerySecondaryButton?: boolean;
   noBottomBorder?: boolean;
 }
 
@@ -97,7 +96,6 @@ export const DSFormHeader = (props: DSFormHeaderProps) => {
     datasourceId,
     isDeleting,
     isNewDatasource,
-    isNewQuerySecondaryButton,
     isPluginAuthorized,
     noBottomBorder,
     pluginImage,
@@ -200,7 +198,6 @@ export const DSFormHeader = (props: DSFormHeaderProps) => {
             datasource={datasource as Datasource}
             disabled={!canCreateDatasourceActions || !isPluginAuthorized}
             eventFrom="datasource-pane"
-            isNewQuerySecondaryButton={isNewQuerySecondaryButton}
             pluginType={pluginType}
           />
         </ActionWrapper>

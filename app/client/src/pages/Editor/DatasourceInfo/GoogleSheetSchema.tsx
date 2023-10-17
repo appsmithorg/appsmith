@@ -374,7 +374,7 @@ function GoogleSheetSchema(props: Props) {
             className="t--datasource-generate-page"
             isDisabled={!currentSheetData || currentSheetData?.length == 0}
             key="datasource-generate-page"
-            kind="primary"
+            kind="secondary"
             onClick={onGsheetGeneratePage}
             size="md"
           >

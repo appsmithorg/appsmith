@@ -318,7 +318,7 @@ const DatasourceViewModeSchema = (props: Props) => {
           <Button
             className="t--datasource-generate-page"
             key="datasource-generate-page"
-            kind="primary"
+            kind="secondary"
             onClick={generatePageAction}
             size="md"
           >
