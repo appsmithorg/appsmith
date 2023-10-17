@@ -99,6 +99,13 @@ public class DatasourceExportableServiceCEImpl implements ExportableServiceCE<Da
         });
     }
 
+    private void resetSensitiveFields(DatasourceStorage datasourceStorage) {
+        datasourceStorage.getDatasourceConfiguration().setAuthentication(null);
+        datasourceStorage.getDatasourceConfiguration().setSshProxy(null);
+        datasourceStorage.getDatasourceConfiguration().setSshProxyEnabled(null);
+        datasourceStorage.getDatasourceConfiguration().setProperties(null);
+    }
+
     @Override
     public void sanitizeEntities(
             ExportingMetaDTO exportingMetaDTO,
@@ -118,9 +125,9 @@ public class DatasourceExportableServiceCEImpl implements ExportableServiceCE<Da
             applicationJson.setDecryptedFields(decryptedFields);
         } else {
             applicationJson.getDatasourceList().forEach(datasourceStorage -> {
-                // Remove the datasourceConfiguration object as user will configure it once
+                // Remove the sensitive fields from the datasourceConfiguration object as user will configure it once
                 // imported to other instance
-                datasourceStorage.setDatasourceConfiguration(null);
+                resetSensitiveFields(datasourceStorage);
                 datasourceStorage.sanitiseToExportResource(mappedExportableResourcesDTO.getPluginMap());
             });
         }
