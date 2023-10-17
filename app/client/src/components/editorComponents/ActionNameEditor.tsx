@@ -15,6 +15,7 @@ import { Classes } from "@blueprintjs/core";
 import { getAction, getPlugin } from "@appsmith/selectors/entitiesSelector";
 import NameEditorComponent from "components/utils/NameEditorComponent";
 import {
+  ACTION_ID_NOT_FOUND_IN_URL,
   ACTION_NAME_PLACEHOLDER,
   createMessage,
 } from "@appsmith/constants/messages";
@@ -103,7 +104,7 @@ function ActionNameEditor(props: ActionNameEditorProps) {
        */
       dispatchAction={props.saveActionName || saveActionName}
       id={currentActionConfig?.id}
-      idUndefinedErrorMessage="Invalid Action id provided"
+      idUndefinedErrorMessage={ACTION_ID_NOT_FOUND_IN_URL}
       name={currentActionConfig?.name}
       saveStatus={saveStatus}
     >

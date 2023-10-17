@@ -9,7 +9,10 @@ import { isEllipsisActive, removeSpecialChars } from "utils/helpers";
 
 import { TOOLTIP_HOVER_ON_DELAY_IN_S } from "constants/AppConstants";
 import NameEditorComponent from "components/utils/NameEditorComponent";
-import { ENTITY_EXPLORER_ACTION_NAME_CONFLICT_ERROR } from "@appsmith/constants/messages";
+import {
+  ACTION_ID_NOT_FOUND_IN_URL,
+  ENTITY_EXPLORER_ACTION_NAME_CONFLICT_ERROR,
+} from "@appsmith/constants/messages";
 import { Tooltip } from "design-system";
 import { useSelector } from "react-redux";
 import { getSavingStatusForActionName } from "selectors/actionSelectors";
@@ -157,7 +160,7 @@ export const EntityName = React.memo(
       <NameEditorComponent
         dispatchAction={handleUpdateName}
         id={props.entityId}
-        idUndefinedErrorMessage="No correct API id or Query id found in the url."
+        idUndefinedErrorMessage={ACTION_ID_NOT_FOUND_IN_URL}
         name={updatedName}
         saveStatus={saveStatus}
         suffixErrorMessage={ENTITY_EXPLORER_ACTION_NAME_CONFLICT_ERROR}

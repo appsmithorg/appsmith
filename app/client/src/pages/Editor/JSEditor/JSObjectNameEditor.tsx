@@ -13,6 +13,7 @@ import {
 } from "@appsmith/selectors/entitiesSelector";
 import {
   ACTION_NAME_PLACEHOLDER,
+  JSOBJECT_ID_NOT_FOUND_IN_URL,
   createMessage,
 } from "@appsmith/constants/messages";
 import EditableText, {
@@ -91,7 +92,7 @@ export function JSObjectNameEditor(props: JSObjectNameEditorProps) {
     <NameEditorComponent
       dispatchAction={saveJSObjectName}
       id={currentJSObjectConfig?.id}
-      idUndefinedErrorMessage="No correct JSObject id found in the url."
+      idUndefinedErrorMessage={JSOBJECT_ID_NOT_FOUND_IN_URL}
       name={currentJSObjectConfig?.name}
       saveStatus={saveStatus}
     >
