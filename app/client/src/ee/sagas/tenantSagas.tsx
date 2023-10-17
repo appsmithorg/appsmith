@@ -117,9 +117,21 @@ export function* startLicenseStatusCheckSaga() {
       );
       const isValidResponse: boolean = yield validateResponse(response);
       if (isValidResponse) {
+        const data = response.data as any;
+
         yield put({
           type: ReduxActionTypes.FETCH_CURRENT_TENANT_CONFIG_SUCCESS,
-          payload: response.data,
+          payload: {
+            ...data,
+            tenantConfiguration: {
+              ...CE_defaultBrandingConfig,
+              ...data.tenantConfiguration,
+              brandColors: {
+                ...CE_defaultBrandingConfig.brandColors,
+                ...data.tenantConfiguration.brandColors,
+              },
+            },
+          },
         });
       }
 
