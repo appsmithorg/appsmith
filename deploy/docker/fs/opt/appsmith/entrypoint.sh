@@ -143,6 +143,12 @@ unset_unused_variables() {
     unset APPSMITH_RECAPTCHA_SECRET_KEY
     unset APPSMITH_RECAPTCHA_ENABLED
   fi
+
+  export APPSMITH_SUPERVISOR_USER="${APPSMITH_SUPERVISOR_USER:-appsmith}"
+  if [[ -z "${APPSMITH_SUPERVISOR_PASSWORD-}" ]]; then
+    APPSMITH_SUPERVISOR_PASSWORD="$(tr -dc A-Za-z0-9 </dev/urandom | head -c 13)"
+    export APPSMITH_SUPERVISOR_PASSWORD
+  fi
 }
 
 check_mongodb_uri() {
