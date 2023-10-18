@@ -530,7 +530,7 @@ function PopoverContent(props: PopoverContentProps) {
       {hasError && error && (
         <ErrorText>
           <span className="t--evaluatedPopup-error">
-            {/* errorMssage could be an empty string */}
+            {/* errorMessage could be an empty string */}
             {getErrorMessage(error.errorMessage)}
           </span>
 
