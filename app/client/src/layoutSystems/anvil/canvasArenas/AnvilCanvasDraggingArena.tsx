@@ -3,7 +3,7 @@ import React from "react";
 import type { AnvilHighlightInfo, DraggedWidget } from "../utils/anvilTypes";
 import { AnvilHighlightingCanvas } from "./AnvilHighlightingCanvas";
 import { useAnvilDnDStates } from "./hooks/useAnvilDnDStates";
-import { useAnvilDnDUtils } from "./hooks/useAnvilDnDUtils";
+import { useAnvilWidgetDrop } from "./hooks/useAnvilWidgetDrop";
 import { useCanvasActivation } from "./hooks/useCanvasActivation";
 
 interface AnvilCanvasDraggingArenaProps {
@@ -28,12 +28,7 @@ export const AnvilCanvasDraggingArena = (
     layoutId,
   });
   useCanvasActivation(layoutId);
-
-  //useAnvilDnDUtils to fetch onDrop and onMove utilities
-  const { onDrop, renderOnMouseMove } = useAnvilDnDUtils(
-    canvasId,
-    anvilDragStates,
-  );
+  const onDrop = useAnvilWidgetDrop(canvasId, anvilDragStates);
 
   return (
     <AnvilHighlightingCanvas
@@ -41,7 +36,6 @@ export const AnvilCanvasDraggingArena = (
       deriveAllHighlightsFn={deriveAllHighlightsFn}
       layoutId={layoutId}
       onDrop={onDrop}
-      renderOnMouseMove={renderOnMouseMove}
     />
   );
 };
