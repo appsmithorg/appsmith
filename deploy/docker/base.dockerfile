@@ -16,6 +16,7 @@ RUN apt-get update \
     supervisor curl cron nfs-common nginx nginx-extras gnupg wget netcat openssh-client \
     gettext \
     python3-pip python3-venv git ca-certificates \
+    gawk \
   && pip install --no-cache-dir git+https://github.com/coderanger/supervisor-stdout@973ba19967cdaf46d9c1634d1675fc65b9574f6e \
   && python3 -m venv --prompt certbot /opt/certbot/venv \
   && /opt/certbot/venv/bin/pip install --upgrade certbot setuptools pip \
@@ -45,6 +46,12 @@ RUN set -o xtrace \
   && mkdir -p /opt/node \
   && file="$(curl -sS 'https://nodejs.org/dist/latest-v18.x/' | awk -F\" '$2 ~ /linux-'"$(uname -m | sed 's/x86_64/x64/; s/aarch64/arm64/')"'.tar.gz/ {print $2}')" \
   && curl "https://nodejs.org/dist/latest-v18.x/$file" | tar -xz -C /opt/node --strip-components 1
+
+# Untar & install keycloak - Service Layer
+RUN mkdir -p /opt/keycloak/data \
+  && curl --location --output /tmp/keycloak.tar.gz https://github.com/keycloak/keycloak/releases/download/22.0.4/keycloak-22.0.4.tar.gz \
+  && tar -C /opt/keycloak -zxvf /tmp/keycloak.tar.gz --strip-components 1 \
+  && curl --location --output "/opt/h2-2.1.214.jar" 'https://search.maven.org/remotecontent?filepath=com/h2database/h2/2.1.214/h2-2.1.214.jar'
 
 # Clean up cache file - Service layer
 RUN rm -rf \
