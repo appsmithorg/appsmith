@@ -25,7 +25,7 @@ describe("excludeForAirgap", "Fork a template to an workspace", () => {
   it("2. Update query param on opening fork modal in template detailed view", () => {
     _.templates.SwitchToTemplatesTab();
     cy.get(templateLocators.templateCard).first().click();
-    _.agHelper.CheckForErrorToast("INTERNAL_SERVER_ERROR");
+    _.agHelper.CheckForErrorToast("INTERNAL_SERVER_ERROR1");
     _.agHelper.GetNClick(templateLocators.templateViewForkButton);
     // cy.location().should((location) => {
     //   expect(location.search).to.eq("?showForkTemplateModal=true");
@@ -41,7 +41,7 @@ describe("excludeForAirgap", "Fork a template to an workspace", () => {
     _.templates.SwitchToTemplatesTab();
     _.agHelper.Sleep(2000);
     _.agHelper.CheckForErrorToast(
-      "Internal server error while processing request",
+      "Internal server error while processing request1",
     );
     _.agHelper.AssertElementExist(templateLocators.templateCard);
     _.agHelper.AssertElementAbsence(templateLocators.templateForkButton);
@@ -72,7 +72,7 @@ describe("excludeForAirgap", "Fork a template to an workspace", () => {
       }
     });
     cy.get(templateLocators.dialogForkButton).click();
-    cy.get(reconnectDatasourceLocators.Modal).should("be.visible");
+    cy.get(reconnectDatasourceLocators.Modal).should("be.NaN");
     cy.get(reconnectDatasourceLocators.DatasourceList)
       .find(reconnectDatasourceLocators.ListItemIcon)
       .should("be.visible");

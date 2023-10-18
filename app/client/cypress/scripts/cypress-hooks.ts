@@ -65,6 +65,7 @@ export async function cypressHooks(
       const client = await dbClient.connect();
       try {
         if (!specData.name.includes("no_spec.ts")) {
+          console.log(results.error);
           await client.query(
             'UPDATE public.specs SET "testCount" = $1, "passes" = $2, "failed" = $3, "skipped" = $4, "pending" = $5, "status" = $6, "duration" = $7 WHERE id = $8',
             [
