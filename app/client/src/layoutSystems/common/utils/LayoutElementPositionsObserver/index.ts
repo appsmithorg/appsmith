@@ -13,7 +13,7 @@ import { readLayoutElementPositions } from "layoutSystems/anvil/integrations/act
  * A singleton class that registers all the widgets and layouts that are present on the canvas
  * This class uses a ResizeObserver to observe all the registered elements
  * Whenever any of the registered elements changes size, the ResizeObserver triggers
- * This class then adds the changed elements to a queue to batch process them
+ * This class then triggers a process call which is debounced.
  */
 class LayoutElementPositionObserver {
   // Objects to store registered elements
@@ -35,12 +35,6 @@ class LayoutElementPositionObserver {
       isDropTarget: boolean;
     };
   } = {};
-
-  //Queues to process the registered elements that changed
-  private widgetsProcessQueue: {
-    [widgetId: string]: boolean;
-  } = {};
-  private layoutsProcessQueue: { [key: string]: boolean } = {};
 
   private debouncedProcessBatch = debounce(this.processWidgetBatch, 200);
 
@@ -68,7 +62,6 @@ class LayoutElementPositionObserver {
       const widgetDOMId = getAnvilWidgetDOMId(widgetId);
       this.registeredWidgets[widgetDOMId] = { ref, id: widgetId };
       this.resizeObserver.observe(ref.current);
-      this.addWidgetToProcess(widgetDOMId);
     }
   }
 
@@ -115,8 +108,6 @@ class LayoutElementPositionObserver {
   //This method is triggered from the resize observer to add widgets to queue
   private addWidgetToProcess(widgetDOMId: string) {
     if (this.registeredWidgets[widgetDOMId]) {
-      const widgetId = this.registeredWidgets[widgetDOMId].id;
-      this.widgetsProcessQueue[widgetId] = true;
       this.debouncedProcessBatch();
     }
   }
@@ -124,26 +115,22 @@ class LayoutElementPositionObserver {
   //This method is triggered from the resize observer to add layout to queue
   private addLayoutToProcess(layoutDOMId: string) {
     if (this.registeredLayouts[layoutDOMId]) {
-      this.layoutsProcessQueue[layoutDOMId] = true;
       this.debouncedProcessBatch();
     }
   }
 
-  //Clear all process queues
-  private clearProcessQueue() {
-    this.widgetsProcessQueue = {};
-    this.layoutsProcessQueue = {};
-  }
-
   //Dispatch all the changed elements to saga for further processing to update widget positions
+  // We do this when the system is idle, because this is a heavy operation and could block the UI thread
+  // Note: Watch out for idle callback timeout
   private processWidgetBatch() {
-    store.dispatch(
-      readLayoutElementPositions(
-        { ...this.widgetsProcessQueue },
-        { ...this.layoutsProcessQueue },
-      ),
+    window.requestIdleCallback(
+      () => {
+        store.dispatch(readLayoutElementPositions());
+      },
+      { timeout: 2000 },
+      // We assume 2 seconds is enough for the idle callback to trigger,
+      // if not, it is best to compute, so that users don't see incorrect positions
     );
-    this.clearProcessQueue();
   }
 
   // Getters for registered elements
