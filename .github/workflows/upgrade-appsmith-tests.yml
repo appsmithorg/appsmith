@@ -13,7 +13,7 @@ jobs:
     if: always()
     runs-on: ubuntu-latest
     steps:
-      - name: calculate ci usage cost for pr-cost
+      - name: calculate ci usage cost for pr
         if: always()
         uses: actions/github-script@v6
         env:
