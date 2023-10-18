@@ -388,7 +388,7 @@ function InviteUsersForm(props: any) {
         const validEmails = usersAsStringsArray.filter((user: string) =>
           isEmail(user),
         );
-        const validEmailsString = validEmails.join(",");
+        const validEmailsString = [...new Set(validEmails)].join(",");
         invitedEmails.current = validEmails;
 
         AnalyticsUtil.logEvent("INVITE_USER", {

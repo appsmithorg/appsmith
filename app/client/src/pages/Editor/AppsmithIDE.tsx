@@ -5,6 +5,8 @@ import { Route, Switch, useRouteMatch } from "react-router";
 
 import BottomBar from "components/BottomBar";
 import {
+  APP_LIBRARIES_EDITOR_PATH,
+  APP_SETTINGS_EDITOR_PATH,
   BUILDER_CUSTOM_PATH,
   BUILDER_PATH,
   BUILDER_PATH_DEPRECATED,
@@ -15,30 +17,24 @@ import { previewModeSelector } from "selectors/editorSelectors";
 import WidgetsEditor from "./WidgetsEditor";
 import EditorsRouter from "@appsmith/pages/Editor/routes";
 import EditorWrapperBody from "./commons/EditorWrapperBody";
-import WidgetsEditorEntityExplorer from "./WidgetsEditorEntityExplorer";
 import EditorWrapperContainer from "./commons/EditorWrapperContainer";
 import Sidebar from "components/Sidebar";
-import { getIsAppSidebarEnabled } from "selectors/ideSelectors";
-import { getIsAppSettingsPaneOpen } from "selectors/appSettingsPaneSelectors";
+import IDESidePane from "./IDESidePane";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
 /**
  * OldName: MainContainer
  */
-function WidgetsEditorWrapper() {
+function AppsmithIDE() {
   const { path } = useRouteMatch();
   const isPreviewMode = useSelector(previewModeSelector);
-  const isAppSidebarEnabled = useSelector(getIsAppSidebarEnabled);
-  const isAppSettingsPaneOpen = useSelector(getIsAppSettingsPaneOpen);
 
   return (
     <>
       <EditorWrapperContainer>
         <Sidebar />
-        {!(isAppSidebarEnabled && isAppSettingsPaneOpen) && (
-          <WidgetsEditorEntityExplorer />
-        )}
+        <IDESidePane />
         <EditorWrapperBody id="app-body">
           <Switch key={BUILDER_PATH}>
             <SentryRoute
@@ -62,6 +58,16 @@ function WidgetsEditorWrapper() {
               exact
               path={`${path}${WIDGETS_EDITOR_ID_PATH}`}
             />
+            <SentryRoute
+              component={WidgetsEditor}
+              exact
+              path={`${path}${APP_LIBRARIES_EDITOR_PATH}`}
+            />
+            <SentryRoute
+              component={WidgetsEditor}
+              exact
+              path={`${path}${APP_SETTINGS_EDITOR_PATH}`}
+            />
             <SentryRoute component={EditorsRouter} />
           </Switch>
         </EditorWrapperBody>
@@ -71,6 +77,6 @@ function WidgetsEditorWrapper() {
   );
 }
 
-WidgetsEditorWrapper.displayName = "WidgetsEditorWrapper";
+AppsmithIDE.displayName = "AppsmithIDE";
 
-export default WidgetsEditorWrapper;
+export default AppsmithIDE;
