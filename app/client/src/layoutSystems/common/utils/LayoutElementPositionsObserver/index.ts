@@ -8,7 +8,9 @@ import {
 } from "./utils";
 import store from "store";
 import { readLayoutElementPositions } from "layoutSystems/anvil/integrations/actions";
-
+import ResizeObserver from "resize-observer-polyfill";
+// Note: We have a singleton observer in `utils/resizeObserver.ts`. I noticed this too late and the API is not easy to adapt in this file.
+// Adding this to the list of things to fix in the future.
 /**
  * A singleton class that registers all the widgets and layouts that are present on the canvas
  * This class uses a ResizeObserver to observe all the registered elements
