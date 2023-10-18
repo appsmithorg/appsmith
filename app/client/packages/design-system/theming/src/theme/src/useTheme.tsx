@@ -25,26 +25,13 @@ export function useTheme(props: UseThemeProps = {}) {
     sizingRatio = 1,
   } = props;
 
-  const { innerSpacing, sizing, spacing, typography } = useFluidTokens(
+  const { innerSpacing, outerSpacing, sizing, typography } = useFluidTokens(
     fluid,
     densityRatio,
     sizingRatio,
   );
 
   const [theme, setTheme] = useState(tokensAccessor.getAllTokens());
-
-  useEffect(() => {
-    if (spacing) {
-      tokensAccessor.updateSpacing(spacing);
-    }
-    if (sizing) {
-      tokensAccessor.updateSizing(sizing);
-    }
-    if (typography) {
-      tokensAccessor.updateTypography(typography);
-    }
-    setTheme(tokensAccessor.getAllTokens());
-  }, []);
 
   useEffect(() => {
     if (colorMode) {
@@ -124,17 +111,17 @@ export function useTheme(props: UseThemeProps = {}) {
   }, [sizing]);
 
   useEffect(() => {
-    if (spacing) {
-      tokensAccessor.updateSpacing(spacing);
+    if (outerSpacing) {
+      tokensAccessor.updateOuterSpacing(outerSpacing);
 
       setTheme((prevState) => {
         return {
           ...prevState,
-          ...tokensAccessor.getSpacing(),
+          ...tokensAccessor.getOuterSpacing(),
         };
       });
     }
-  }, [spacing]);
+  }, [outerSpacing]);
 
   useEffect(() => {
     if (innerSpacing) {

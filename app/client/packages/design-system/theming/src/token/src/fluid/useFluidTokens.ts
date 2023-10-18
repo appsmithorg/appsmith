@@ -18,7 +18,7 @@ export const useFluidTokens = (
   const { maxVw, minVw } = fluidConfig;
   const [typography, setTypography] = useState<Typography>();
   const [sizing, setSizing] = useState<TokenObj>();
-  const [spacing, setSpacing] = useState<TokenObj>();
+  const [outerSpacing, setOuterSpacing] = useState<TokenObj>();
   const [innerSpacing, setInnerSpacing] = useState<TokenObj>();
 
   const onResize = () => {
@@ -39,8 +39,8 @@ export const useFluidTokens = (
   );
 
   useEffect(() => {
-    setSpacing(
-      getFluidSpacing(maxVw, minVw, fluidConfig.spacing, densityRatio),
+    setOuterSpacing(
+      getFluidSpacing(maxVw, minVw, fluidConfig.outerSpacing, densityRatio),
     );
     setInnerSpacing(
       getFluidSpacing(maxVw, minVw, fluidConfig.innerSpacing, densityRatio),
@@ -69,7 +69,7 @@ export const useFluidTokens = (
 
   return {
     typography,
-    spacing,
+    outerSpacing,
     innerSpacing,
     sizing,
   };

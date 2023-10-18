@@ -14,7 +14,7 @@ export class TokensAccessor {
   private opacity?: TokenObj;
   private typography?: Typography;
   private fontFamily?: FontFamily;
-  private spacing?: TokenObj;
+  private outerSpacing?: TokenObj;
   private innerSpacing?: TokenObj;
   private sizing?: TokenObj;
   private zIndex?: TokenObj;
@@ -27,9 +27,9 @@ export class TokensAccessor {
     fontFamily,
     innerSpacing,
     opacity,
+    outerSpacing,
     seedColor,
     sizing,
-    spacing,
     typography,
     zIndex,
   }: TokenSource) {
@@ -41,7 +41,7 @@ export class TokensAccessor {
     this.opacity = opacity;
     this.fontFamily = fontFamily;
     this.sizing = sizing;
-    this.spacing = spacing;
+    this.outerSpacing = outerSpacing;
     this.innerSpacing = innerSpacing;
     this.typography = typography;
     this.zIndex = zIndex;
@@ -83,8 +83,8 @@ export class TokensAccessor {
     this.zIndex = zIndex;
   };
 
-  updateSpacing = (spacing: TokenObj) => {
-    this.spacing = spacing;
+  updateOuterSpacing = (outerSpacing: TokenObj) => {
+    this.outerSpacing = outerSpacing;
   };
 
   updateInnerSpacing = (innerSpacing: TokenObj) => {
@@ -99,7 +99,7 @@ export class TokensAccessor {
     return {
       typography: this.getTypography(),
       fontFamily: this.getFontFamily(),
-      ...this.getSpacing(),
+      ...this.getOuterSpacing(),
       ...this.getInnerSpacing(),
       ...this.getSizing(),
       ...this.getColors(),
@@ -141,10 +141,10 @@ export class TokensAccessor {
     }
   };
 
-  getSpacing = () => {
-    if (this.spacing == null) return {} as ThemeToken;
+  getOuterSpacing = () => {
+    if (this.outerSpacing == null) return {} as ThemeToken;
 
-    return this.createTokenObject(this.spacing, "spacing");
+    return this.createTokenObject(this.outerSpacing, "outerSpacing");
   };
 
   getInnerSpacing = () => {

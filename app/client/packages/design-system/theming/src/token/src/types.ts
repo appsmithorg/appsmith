@@ -8,7 +8,7 @@ export type ThemeToken = {
 export type TokenType =
   | "sizing"
   | "color"
-  | "spacing"
+  | "outerSpacing"
   | "innerSpacing"
   | "borderRadius"
   | "boxShadow"
@@ -32,7 +32,7 @@ export interface TokenSource {
   fontFamily?: FontFamily;
   zIndex?: TokenObj;
   sizing?: TokenObj;
-  spacing?: TokenObj;
+  outerSpacing?: TokenObj;
   innerSpacing?: TokenObj;
 }
 

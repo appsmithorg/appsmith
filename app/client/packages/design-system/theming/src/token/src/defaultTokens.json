@@ -13,7 +13,7 @@
       "stepsUp": 1,
       "stepsDown": 0
     },
-    "spacing": {
+    "outerSpacing": {
       "minV": 4,
       "maxV": 6,
       "minR": 2,

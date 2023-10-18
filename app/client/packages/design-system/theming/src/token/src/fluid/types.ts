@@ -2,7 +2,7 @@ export interface FluidConfig {
   minVw: number;
   maxVw: number;
   sizing: ScaleConfig;
-  spacing: ScaleConfig;
+  outerSpacing: ScaleConfig;
   innerSpacing: ScaleConfig;
   typography: ScaleConfig;
 }
