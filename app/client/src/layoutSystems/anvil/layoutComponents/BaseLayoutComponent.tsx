@@ -15,7 +15,6 @@ import {
   removeChildFromLayout,
 } from "../utils/layouts/layoutUtils";
 import { RenderModes } from "constants/WidgetConstants";
-import { AnvilCanvasDraggingArena } from "../canvasArenas/AnvilCanvasDraggingArena";
 import LayoutFactory from "./LayoutFactory";
 
 abstract class BaseLayoutComponent extends PureComponent<
@@ -67,28 +66,31 @@ abstract class BaseLayoutComponent extends PureComponent<
   }
 
   renderDraggingArea(): React.ReactNode | null {
-    const {
-      canvasId,
-      isDropTarget,
-      layoutId,
-      layoutType,
-      parentDropTarget,
-      renderMode,
-    } = this.props;
-    if (!isDropTarget || renderMode !== RenderModes.CANVAS) return null;
-    return (
-      <AnvilCanvasDraggingArena
-        allowedWidgetTypes={this.props.allowedWidgetTypes || []}
-        canvasId={canvasId}
-        deriveAllHighlightsFn={LayoutFactory.getDeriveHighlightsFn(layoutType)(
-          this.props,
-          canvasId,
-          this.state.order,
-          parentDropTarget,
-        )}
-        layoutId={layoutId}
-      />
-    );
+    return null;
+
+    // TODO: uncomment this after merging in Ashok's PR.
+    // const {
+    //   canvasId,
+    //   isDropTarget,
+    //   layoutId,
+    //   layoutType,
+    //   parentDropTarget,
+    //   renderMode,
+    // } = this.props;
+    // if (!isDropTarget || renderMode !== RenderModes.CANVAS) return null;
+    // return (
+    //   <AnvilCanvasDraggingArena
+    //     allowedWidgetTypes={this.props.allowedWidgetTypes || []}
+    //     canvasId={canvasId}
+    //     deriveAllHighlightsFn={LayoutFactory.getDeriveHighlightsFn(layoutType)(
+    //       this.props,
+    //       canvasId,
+    //       this.state.order,
+    //       parentDropTarget,
+    //     )}
+    //     layoutId={layoutId}
+    //   />
+    // );
   }
 
   static rendersWidgets: boolean = false;

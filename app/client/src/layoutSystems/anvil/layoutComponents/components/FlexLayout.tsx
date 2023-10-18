@@ -20,7 +20,7 @@ import type {
 } from "layoutSystems/anvil/utils/types";
 import { usePositionObserver } from "layoutSystems/common/utils/LayoutElementPositionsObserver/usePositionObserver";
 import { getAnvilLayoutDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
-import { RenderModes } from "constants/WidgetConstants";
+import { RenderMode, RenderModes } from "constants/WidgetConstants";
 
 export interface FlexLayoutProps
   extends AlignSelf,
@@ -31,7 +31,7 @@ export interface FlexLayoutProps
   children: ReactNode;
   isDropTarget?: boolean;
   layoutId: string;
-  renderMode: RenderModes;
+  renderMode: RenderMode;
 
   border?: string;
   columnGap?: Responsive<SpacingDimension>;
