@@ -67,6 +67,7 @@ export const validateInput = (props: InputWidgetProps): Validation => {
     parsedText,
     rawText,
   } = props;
+
   if (isDirty && isRequired && !isNil(parsedText) && parsedText.length === 0) {
     return {
       validationStatus: "invalid",
@@ -83,28 +84,37 @@ export const validateInput = (props: InputWidgetProps): Validation => {
     }
   }
 
-  if (inputType === "NUMBER" && rawText !== "" && isNumber(parsedText)) {
-    // check the default text is neither greater than max nor less than min value.
-    if (!isNil(minNum) && minNum > parsedText) {
+  if (inputType === "NUMBER") {
+    if (isDirty && isRequired && rawText === "") {
       return {
         validationStatus: "invalid",
-        errorMessage: createMessage(INPUT_DEFAULT_TEXT_MIN_NUM_ERROR),
+        errorMessage: createMessage(FIELD_REQUIRED_ERROR),
       };
     }
 
-    if (!isNil(maxNum) && maxNum < parsedText) {
+    if (rawText !== "" && isNumber(parsedText)) {
+      // check the default text is neither greater than max nor less than min value.
+      if (!isNil(minNum) && minNum > parsedText) {
+        return {
+          validationStatus: "invalid",
+          errorMessage: createMessage(INPUT_DEFAULT_TEXT_MIN_NUM_ERROR),
+        };
+      }
+
+      if (!isNil(maxNum) && maxNum < parsedText) {
+        return {
+          validationStatus: "invalid",
+          errorMessage: createMessage(INPUT_DEFAULT_TEXT_MAX_NUM_ERROR),
+        };
+      }
+    }
+
+    if (rawText !== "" && isNaN(Number(rawText))) {
       return {
         validationStatus: "invalid",
-        errorMessage: createMessage(INPUT_DEFAULT_TEXT_MAX_NUM_ERROR),
+        errorMessage: createMessage(INPUT_INVALID_TYPE_ERROR),
       };
     }
-  }
-
-  if (inputType === "NUMBER" && rawText !== "" && !isNumber(parsedText)) {
-    return {
-      validationStatus: "invalid",
-      errorMessage: createMessage(INPUT_INVALID_TYPE_ERROR),
-    };
   }
 
   if (isDirty && "isValid" in props) {
