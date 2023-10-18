@@ -49,9 +49,21 @@ Cypress.on("uncaught:exception", (error) => {
   return false; // returning false here prevents Cypress from failing the test
 });
 
-Cypress.on("fail", (error) => {
-  cy.log(error.message);
-  throw error; // throw error to have test still fail
+let testFailed = false; //used to track test status, resetting
+
+// Cypress.on("fail", (error) => {
+//   testFailed = true;
+//   cy.log(error.message);
+//   throw error; // throw error to have test still fail
+// });
+
+beforeEach(() => {
+  testFailed = false;
+  Cypress.on("fail", (error) => {
+    testFailed = true;
+    cy.log(error.message);
+    throw error; // throw error to have test fail
+  });
 });
 
 Cypress.env("MESSAGES", MESSAGES);
@@ -179,6 +191,12 @@ beforeEach(function () {
   cy.intercept("api/v1/admin/env", (req) => {
     req.headers["origin"] = Cypress.config("baseUrl");
   });
+});
+
+afterEach(function () {
+  if (testFailed) {
+    Cypress.runner.stop(); // This stops the Cypress run.
+  }
 });
 
 after(function () {
