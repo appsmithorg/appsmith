@@ -13,10 +13,6 @@ export interface AnvilHighlightingCanvasProps {
     widgetPositions: WidgetPositions,
     draggedWidgets: DraggedWidget[],
   ) => AnvilHighlightInfo[];
-  renderOnMouseMove: (
-    e: MouseEvent,
-    allHighlights: AnvilHighlightInfo[],
-  ) => AnvilHighlightInfo | undefined;
   onDrop: (renderedBlock: AnvilHighlightInfo) => void;
 }
 
@@ -25,7 +21,6 @@ export function AnvilHighlightingCanvas({
   deriveAllHighlightsFn,
   layoutId,
   onDrop,
-  renderOnMouseMove,
 }: AnvilHighlightingCanvasProps) {
   const slidingArenaRef = React.useRef<HTMLDivElement>(null);
   const stickyCanvasRef = React.useRef<HTMLCanvasElement>(null);
@@ -38,7 +33,6 @@ export function AnvilHighlightingCanvas({
       deriveAllHighlightsFn,
       layoutId,
       onDrop,
-      renderOnMouseMove,
     },
   );
   const canvasRef = React.useRef({
