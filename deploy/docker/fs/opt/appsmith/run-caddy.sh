@@ -3,7 +3,6 @@
 set -o errexit
 set -o nounset
 set -o pipefail
-set -o xtrace
 
 if [[ -z "${APPSMITH_DISABLE_IFRAME_WIDGET_SANDBOX-}" ]]; then
   # For backwards compatibility, if this is not set to anything, we default to no sandbox for iframe widgets.
@@ -32,9 +31,7 @@ apply-env-vars /opt/appsmith/editor/index.html "$NGINX_WWW_PATH/index.html"
 
 node caddy-reconfigure.mjs
 
-if pgrep caddy >/dev/null; then
-  # Caddy may already be running for the loading page.
-  /opt/caddy/caddy stop
-fi
+# Caddy may already be running for the loading page.
+/opt/caddy/caddy stop || true
 
 exec /opt/caddy/caddy run --config "$TMP/Caddyfile"
