@@ -36,7 +36,7 @@ class WidgetColumn extends BaseLayoutComponent {
         renderMode={renderMode}
         {...(layoutStyle || {})}
       >
-        {this.renderDraggingArea()}
+        {this.renderDraggingArena()}
         {this.renderChildWidgets()}
       </FlexLayout>
     );

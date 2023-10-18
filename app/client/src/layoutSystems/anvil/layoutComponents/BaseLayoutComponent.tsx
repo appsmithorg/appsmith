@@ -65,7 +65,7 @@ abstract class BaseLayoutComponent extends PureComponent<
     return renderWidgets(this.props);
   }
 
-  renderDraggingArea(): React.ReactNode | null {
+  renderDraggingArena(): React.ReactNode | null {
     return null;
 
     // TODO: uncomment this after merging in Ashok's PR.
