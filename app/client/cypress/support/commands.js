@@ -1006,28 +1006,31 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.intercept("POST", "/api/v1/logout").as("postLogout");
 
   cy.intercept("GET", "/api/v1/datasources?workspaceId=*").as("getDataSources");
-  cy.intercept(
-    {
-      method: "GET",
-      url: "/api/v1/pages?*mode=EDIT",
-    },
-    (req) => {
-      req.reply((res) => {
-        if (res) {
-          if (res.statusCode === 200) {
-            //do nothing if   getPagesForCreateApp call responds by itself;
-          } else {
-            res.send({
-              responseMeta: {
-                status: 200,
-                success: true,
-              },
-            });
-          }
-        }
-      });
-    },
-  ).as("getPagesForCreateApp");
+  // cy.intercept(
+  //   {
+  //     method: "GET",
+  //     url: "/api/v1/pages?*mode=EDIT",
+  //   },
+  //   (req) => {
+  //     req.reply((res) => {
+  //       if (res) {
+  //         if (res.statusCode !== 200) {
+  //           res.send({
+  //             responseMeta: {
+  //               status: 200,
+  //               success: true,
+  //             },
+  //           });
+  //         }
+  //       }
+  //     });
+  //   },
+  // ).as("getPagesForCreateApp");
+
+  cy.intercept("GET", "/api/v1/pages?*mode=EDIT", { statusCode: 200 }).as(
+    "getPagesForCreateApp",
+  );
+
   cy.intercept("GET", "/api/v1/pages?*mode=PUBLISHED").as("getPagesForViewApp");
   cy.intercept("GET", "/api/v1/applications/releaseItems").as(
     "getReleaseItems",
