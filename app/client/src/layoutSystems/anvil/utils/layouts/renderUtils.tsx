@@ -1,7 +1,6 @@
 import React from "react";
 import LayoutFactory from "layoutSystems/anvil/layoutComponents/LayoutFactory";
 import type {
-  LayoutComponent,
   LayoutComponentProps,
   LayoutProps,
   WidgetLayoutProps,
@@ -143,6 +142,7 @@ export function renderWidgetsInAlignedRow(
     flexBasis: { base: "auto", [`${MOBILE_BREAKPOINT}px`]: "0%" },
     flexGrow: 1,
     flexShrink: 1,
+    renderMode: props.renderMode,
     wrap: { base: "wrap", [`${MOBILE_BREAKPOINT}px`]: "nowrap" },
   };
 

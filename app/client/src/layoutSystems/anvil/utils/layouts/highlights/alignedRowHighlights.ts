@@ -13,7 +13,6 @@ import {
   HIGHLIGHT_SIZE,
   HORIZONTAL_DROP_ZONE_MULTIPLIER,
 } from "../../constants";
-import LayoutFactory from "layoutSystems/anvil/layoutComponents/LayoutFactory";
 import { getStartPosition } from "./highlightUtils";
 import {
   type RowMetaData,
@@ -23,7 +22,6 @@ import {
 } from "./rowHighlights";
 import { getAlignmentLayoutId } from "../layoutUtils";
 import { getRelativeDimensions } from "./dimensionUtils";
-import type BaseLayoutComponent from "layoutSystems/anvil/layoutComponents/BaseLayoutComponent";
 import type {
   LayoutElementPosition,
   LayoutElementPositions,
@@ -40,9 +38,8 @@ export const deriveAlignedRowHighlights =
     positions: LayoutElementPositions,
     draggedWidgets: DraggedWidget[],
   ): AnvilHighlightInfo[] => {
-    if (!draggedWidgets.length || !positions[layoutProps.layoutId])
-      return [];
-    const { isDropTarget, layout, layoutId, layoutType } = layoutProps;
+    if (!draggedWidgets.length || !positions[layoutProps.layoutId]) return [];
+    const { isDropTarget, layout, layoutId } = layoutProps;
 
     const parentDropTargetId: string = isDropTarget
       ? layoutId
@@ -80,18 +77,7 @@ export const deriveAlignedRowHighlights =
     }
 
     /**
-     * Step 3: Check if layout renders widgets.
-     */
-    const Comp: typeof BaseLayoutComponent = LayoutFactory.get(layoutType);
-
-    /**
-     * Step 4: If layout renders layouts, derive highlights for widgets.
-     */
-    // AlignedRows are currently not expected to render layouts. This can be added later.
-    if (!Comp.rendersWidgets) return [];
-
-    /**
-     * Step 5: Derive highlights for widgets.
+     * Step 3: Derive highlights for widgets.
      */
     return getHighlightsForWidgets(
       layoutProps,

@@ -40,12 +40,10 @@ describe("columnHighlights", () => {
       };
       const res: AnvilHighlightInfo[] = deriveColumnHighlights(
         layout,
-        positions,
         "0",
-        draggedWidgets,
         [],
         layout.layoutId,
-      );
+      )(positions, draggedWidgets);
       expect(res.length).toEqual(3);
       // highlights should be horizontal.
       expect(res[0].width).toBeGreaterThan(res[0].height);
@@ -78,19 +76,17 @@ describe("columnHighlights", () => {
       };
       const res: AnvilHighlightInfo[] = deriveColumnHighlights(
         layout,
-        positions,
         "0",
-        [
-          ...draggedWidgets,
-          {
-            widgetId: buttonId,
-            type: "BUTTON_WIDGET",
-            responsiveBehavior: ResponsiveBehavior.Hug,
-          },
-        ],
         [],
         layout.layoutId,
-      );
+      )(positions, [
+        ...draggedWidgets,
+        {
+          widgetId: buttonId,
+          type: "BUTTON_WIDGET",
+          responsiveBehavior: ResponsiveBehavior.Hug,
+        },
+      ]);
 
       // One highlight is discounted on account of child button widget being dragged.
       expect(res.length).toEqual(2);
@@ -116,12 +112,10 @@ describe("columnHighlights", () => {
       };
       const res: AnvilHighlightInfo[] = deriveColumnHighlights(
         layout,
-        positions,
         "0",
-        draggedWidgets,
         [],
         layout.layoutId,
-      );
+      )(positions, draggedWidgets);
 
       /**
        * Horizontal highlights have top and bottom drop zones,
@@ -170,12 +164,10 @@ describe("columnHighlights", () => {
       };
       const res: AnvilHighlightInfo[] = deriveColumnHighlights(
         layout,
-        positions,
         "0",
         [],
-        [],
         layout.layoutId,
-      );
+      )(positions, []);
 
       expect(res[0].width).toEqual(
         positions[layout.layoutId].width - HIGHLIGHT_SIZE,
@@ -197,12 +189,10 @@ describe("columnHighlights", () => {
       };
       const res: AnvilHighlightInfo[] = deriveColumnHighlights(
         layout,
-        positions,
         "0",
         [],
-        [],
         layout.layoutId,
-      );
+      )(positions, []);
       expect(res).toBeDefined();
       expect(res[0].width).toEqual(
         positions[layout.layoutId].width - HIGHLIGHT_SIZE,
@@ -225,12 +215,10 @@ describe("columnHighlights", () => {
       };
       const res: AnvilHighlightInfo[] = deriveColumnHighlights(
         layout,
-        positions,
         "0",
         [],
-        [],
         layout.layoutId,
-      );
+      )(positions, []);
 
       expect(res[0].width).toEqual(
         positions[layout.layoutId].width - HIGHLIGHT_SIZE,
@@ -282,12 +270,10 @@ describe("columnHighlights", () => {
        */
       const res: AnvilHighlightInfo[] = deriveColumnHighlights(
         column,
-        dimensions,
         "0",
         [],
-        [],
         column.layoutId,
-      );
+      )(dimensions, []);
 
       /**
        * # of highlights:

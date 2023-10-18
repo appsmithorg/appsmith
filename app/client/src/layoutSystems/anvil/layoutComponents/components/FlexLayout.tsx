@@ -20,7 +20,7 @@ import type {
 } from "layoutSystems/anvil/utils/types";
 import { usePositionObserver } from "layoutSystems/common/utils/LayoutElementPositionsObserver/usePositionObserver";
 import { getAnvilLayoutDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
-import { RenderMode, RenderModes } from "constants/WidgetConstants";
+import { type RenderMode, RenderModes } from "constants/WidgetConstants";
 
 export interface FlexLayoutProps
   extends AlignSelf,

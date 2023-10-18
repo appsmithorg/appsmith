@@ -1,8 +1,6 @@
 import type {
   DeriveHighlightsFn,
-  LayoutComponent,
   LayoutComponentTypes,
-  LayoutProps,
 } from "../utils/anvilTypes";
 import type BaseLayoutComponent from "./BaseLayoutComponent";
 
@@ -35,9 +33,7 @@ class LayoutFactory {
     }
   }
 
-  static getDeriveHighlightsFn(
-    type: LayoutComponentTypes,
-  ): DeriveHighlightsFn {
+  static getDeriveHighlightsFn(type: LayoutComponentTypes): DeriveHighlightsFn {
     const Comp: typeof BaseLayoutComponent = LayoutFactory.get(type);
     if (!Comp) throw Error(`LayoutComponent with the type "${type}" not found`);
 

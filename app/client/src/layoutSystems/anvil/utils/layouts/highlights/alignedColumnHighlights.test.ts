@@ -9,9 +9,11 @@ import { deriveAlignedColumnHighlights } from "./alignedColumnHighlights";
 import { HIGHLIGHT_SIZE, VERTICAL_DROP_ZONE_MULTIPLIER } from "../../constants";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import LayoutFactory from "layoutSystems/anvil/layoutComponents/LayoutFactory";
-import AlignedColumn from "layoutSystems/anvil/layoutComponents/components/AlignedColumn";
-import Row from "layoutSystems/anvil/layoutComponents/components/Row";
 import type { LayoutElementPositions } from "layoutSystems/common/types";
+import AlignedLayoutColumn from "layoutSystems/anvil/layoutComponents/components/AlignedLayoutColumn";
+import WidgetRow from "layoutSystems/anvil/layoutComponents/components/WidgetRow";
+import LayoutRow from "layoutSystems/anvil/layoutComponents/components/LayoutRow";
+import AlignedWidgetRow from "layoutSystems/anvil/layoutComponents/components/AlignedWidgetRow";
 
 describe("AlignedColumnHighlights tests", () => {
   beforeAll(() => {
@@ -24,7 +26,12 @@ describe("AlignedColumnHighlights tests", () => {
           disconnect: jest.fn(),
         };
       });
-    LayoutFactory.initialize([AlignedColumn, Row]);
+    LayoutFactory.initialize([
+      AlignedLayoutColumn,
+      AlignedWidgetRow,
+      LayoutRow,
+      WidgetRow,
+    ]);
   });
   describe("deriveAlignedColumnHighlights", () => {
     it("should return three highlights for an empty layout", () => {
@@ -38,18 +45,16 @@ describe("AlignedColumnHighlights tests", () => {
       };
       const res: AnvilHighlightInfo[] = deriveAlignedColumnHighlights(
         layout,
-        positions,
         "0",
-        [
-          {
-            widgetId: "random",
-            type: "BUTTON_WIDGET",
-            responsiveBehavior: ResponsiveBehavior.Hug,
-          },
-        ],
         [],
         layout.layoutId,
-      );
+      )(positions, [
+        {
+          widgetId: "random",
+          type: "BUTTON_WIDGET",
+          responsiveBehavior: ResponsiveBehavior.Hug,
+        },
+      ]);
       const highlightWidth: number =
         (positions[layout.layoutId].width - HIGHLIGHT_SIZE) / 3;
       expect(res.length).toEqual(3);
@@ -73,18 +78,16 @@ describe("AlignedColumnHighlights tests", () => {
       };
       const res: AnvilHighlightInfo[] = deriveAlignedColumnHighlights(
         layout,
-        positions,
         "0",
-        [
-          {
-            widgetId: "1",
-            type: "INPUT_WIDGET",
-            responsiveBehavior: ResponsiveBehavior.Fill,
-          },
-        ],
         [],
         layout.layoutId,
-      );
+      )(positions, [
+        {
+          widgetId: "1",
+          type: "INPUT_WIDGET",
+          responsiveBehavior: ResponsiveBehavior.Fill,
+        },
+      ]);
 
       expect(res.length).toEqual(1);
       expect(res[0].width).toEqual(
@@ -105,18 +108,16 @@ describe("AlignedColumnHighlights tests", () => {
       };
       const res: AnvilHighlightInfo[] = deriveAlignedColumnHighlights(
         layout,
-        positions,
         "0",
-        [
-          {
-            widgetId: "1",
-            type: "BUTTON_WIDGET",
-            responsiveBehavior: ResponsiveBehavior.Hug,
-          },
-        ],
         [],
         layout.layoutId,
-      );
+      )(positions, [
+        {
+          widgetId: "1",
+          type: "BUTTON_WIDGET",
+          responsiveBehavior: ResponsiveBehavior.Hug,
+        },
+      ]);
 
       expect(res.length).toEqual(9);
 
@@ -150,18 +151,16 @@ describe("AlignedColumnHighlights tests", () => {
       };
       const res: AnvilHighlightInfo[] = deriveAlignedColumnHighlights(
         layout,
-        positions,
         "0",
-        [
-          {
-            widgetId: "1",
-            type: "BUTTON_WIDGET",
-            responsiveBehavior: ResponsiveBehavior.Hug,
-          },
-        ],
         [],
         layout.layoutId,
-      );
+      )(positions, [
+        {
+          widgetId: "1",
+          type: "BUTTON_WIDGET",
+          responsiveBehavior: ResponsiveBehavior.Hug,
+        },
+      ]);
 
       // Top of first set of highlights should span the empty space above the first widget.
       expect(res[0].dropZone.top).toEqual(positions[button].top);
@@ -198,18 +197,16 @@ describe("AlignedColumnHighlights tests", () => {
       };
       const res: AnvilHighlightInfo[] = deriveAlignedColumnHighlights(
         layout,
-        positions,
         "0",
-        [
-          {
-            widgetId: "1",
-            type: "INPUT_WIDGET",
-            responsiveBehavior: ResponsiveBehavior.Fill,
-          },
-        ],
         [],
         layout.layoutId,
-      );
+      )(positions, [
+        {
+          widgetId: "1",
+          type: "INPUT_WIDGET",
+          responsiveBehavior: ResponsiveBehavior.Fill,
+        },
+      ]);
 
       expect(res.length).toEqual(3);
       // First highlight before the first widget.
@@ -238,18 +235,16 @@ describe("AlignedColumnHighlights tests", () => {
        */
       const res: AnvilHighlightInfo[] = deriveAlignedColumnHighlights(
         layout,
-        positions,
         "0",
-        [
-          {
-            widgetId: input,
-            type: "INPUT_WIDGET",
-            responsiveBehavior: ResponsiveBehavior.Fill,
-          },
-        ],
         [],
         layout.layoutId,
-      );
+      )(positions, [
+        {
+          widgetId: input,
+          type: "INPUT_WIDGET",
+          responsiveBehavior: ResponsiveBehavior.Fill,
+        },
+      ]);
 
       // Highlight for the dragged widget's position should be discounted.
       expect(res.length).toEqual(2);
@@ -279,18 +274,16 @@ describe("AlignedColumnHighlights tests", () => {
        */
       const res: AnvilHighlightInfo[] = deriveAlignedColumnHighlights(
         layout,
-        positions,
         "0",
-        [
-          {
-            widgetId: button,
-            type: "BUTTON_WIDGET",
-            responsiveBehavior: ResponsiveBehavior.Hug,
-          },
-        ],
         [],
         layout.layoutId,
-      );
+      )(positions, [
+        {
+          widgetId: button,
+          type: "BUTTON_WIDGET",
+          responsiveBehavior: ResponsiveBehavior.Hug,
+        },
+      ]);
 
       // Highlight for the dragged widget's position should be discounted.
       expect(res.length).toEqual(6);
@@ -344,18 +337,16 @@ describe("AlignedColumnHighlights tests", () => {
        */
       const res: AnvilHighlightInfo[] = deriveAlignedColumnHighlights(
         column,
-        dimensions,
         "0",
-        [
-          {
-            widgetId: "1",
-            type: "INPUT_WIDGET",
-            responsiveBehavior: ResponsiveBehavior.Fill,
-          },
-        ],
         [],
         column.layoutId,
-      );
+      )(dimensions, [
+        {
+          widgetId: "1",
+          type: "INPUT_WIDGET",
+          responsiveBehavior: ResponsiveBehavior.Fill,
+        },
+      ]);
 
       /**
        * # of highlights:
@@ -431,18 +422,16 @@ describe("AlignedColumnHighlights tests", () => {
        */
       const res: AnvilHighlightInfo[] = deriveAlignedColumnHighlights(
         column,
-        dimensions,
         "0",
-        [
-          {
-            widgetId: "1",
-            type: "INPUT_WIDGET",
-            responsiveBehavior: ResponsiveBehavior.Fill,
-          },
-        ],
         [],
         column.layoutId,
-      );
+      )(dimensions, [
+        {
+          widgetId: "1",
+          type: "INPUT_WIDGET",
+          responsiveBehavior: ResponsiveBehavior.Fill,
+        },
+      ]);
 
       /**
        * # of highlights:

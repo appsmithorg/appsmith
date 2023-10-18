@@ -2,8 +2,8 @@ import React from "react";
 
 import BaseLayoutComponent from "../BaseLayoutComponent";
 import {
-  DeriveHighlightsFn,
-  LayoutComponentProps,
+  type DeriveHighlightsFn,
+  type LayoutComponentProps,
   LayoutComponentTypes,
 } from "layoutSystems/anvil/utils/anvilTypes";
 import { FlexLayout } from "./FlexLayout";
