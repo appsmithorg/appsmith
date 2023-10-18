@@ -107,7 +107,7 @@ jobs:
 
       - name: install pg
         if: needs.ci-test.result != 'success'
-        run : npm install pg
+        run: npm install pg
 
       - name: Fetch the failed specs
         if: needs.ci-test.result != 'success'
@@ -135,12 +135,12 @@ jobs:
             }).connect();
 
             const result = await client.query(
-              `SELECT DISTINCT name FROM public."specs" 
-                WHERE "matrixId" IN 
-                (SELECT id FROM public."matrix" 
+              `SELECT DISTINCT name FROM public."specs"
+                WHERE "matrixId" IN
+                (SELECT id FROM public."matrix"
                 WHERE "attemptId" = (
                   SELECT id FROM public."attempt" WHERE "workflowId" = $1 and "attempt" = $2
-                  ) 
+                  )
                 ) AND status = 'fail'`,
               [RUN_ID, ATTEMPT_NUMBER],
             );
@@ -195,7 +195,7 @@ jobs:
           body: |
             Workflow run: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>.
             Commit: `${{ github.event.client_payload.slash_command.args.named.sha }}`.
-            Cypress dashboard: <a href="https://internal.appsmith.com/app/cypressdashboard/rundetails-64ec3df0c632e24c00764938?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}" target="_blank"> Click here!</a>
+            Cypress dashboard: <a href="https://internal.appsmith.com/app/cypressdashboard/rundetails-64ec3df0c632e24c00764938?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}&selectiontype=test&testsstatus=failed&specsstatus=fail" target="_blank"> Click here!</a>
             The following are new failures, please fix them before merging the PR: ${{env.new_failed_spec_env}}
             To know the list of identified flaky tests - <a href="https://app.appsmith.com/applications/613868bedd7786286ddd4a6a/pages/63ec710e8e503f763651791a" target="_blank">Refer here</a>
 
