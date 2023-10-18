@@ -3,16 +3,27 @@ import type {
   LayoutProps,
   WidgetLayoutProps,
 } from "../anvilTypes";
-import AlignedColumn from "layoutSystems/anvil/layoutComponents/components/AlignedColumn";
-import AlignedRow from "layoutSystems/anvil/layoutComponents/components/AlignedRow";
-import Column from "layoutSystems/anvil/layoutComponents/components/Column";
-import Row from "layoutSystems/anvil/layoutComponents/components/Row";
 import LayoutFactory from "layoutSystems/anvil/layoutComponents/LayoutFactory";
 import { isWidgetLayoutProps } from "./typeUtils";
 import type { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
 import { AlignmentIndexMap } from "../constants";
+import AlignedLayoutColumn from "layoutSystems/anvil/layoutComponents/components/AlignedLayoutColumn";
+import AlignedWidgetColumn from "layoutSystems/anvil/layoutComponents/components/AlignedWidgetColumn";
+import AlignedWidgetRow from "layoutSystems/anvil/layoutComponents/components/AlignedWidgetRow";
+import LayoutColumn from "layoutSystems/anvil/layoutComponents/components/LayoutColumn";
+import LayoutRow from "layoutSystems/anvil/layoutComponents/components/LayoutRow";
+import WidgetColumn from "layoutSystems/anvil/layoutComponents/components/WidgetColumn";
+import WidgetRow from "layoutSystems/anvil/layoutComponents/components/WidgetRow";
 
-const layoutComponents = [AlignedColumn, AlignedRow, Column, Row];
+const layoutComponents = [
+  AlignedLayoutColumn,
+  AlignedWidgetColumn,
+  AlignedWidgetRow,
+  LayoutColumn,
+  LayoutRow,
+  WidgetColumn,
+  WidgetRow,
+];
 
 export function registerLayoutComponents() {
   LayoutFactory.initialize(layoutComponents);

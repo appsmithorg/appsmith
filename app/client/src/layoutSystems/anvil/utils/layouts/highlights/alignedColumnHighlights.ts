@@ -33,60 +33,63 @@ import type {
  * @param parentDropTarget | string : id of immediate drop target ancestor.
  * @returns AnvilHighlightInfo[] : List of highlights for the layout.
  */
-export function deriveAlignedColumnHighlights(
-  layoutProps: LayoutProps,
-  widgetPositions: WidgetPositions,
-  canvasId: string,
-  draggedWidgets: DraggedWidget[],
-  layoutOrder: string[],
-  parentDropTarget: string,
-): AnvilHighlightInfo[] {
-  if (
-    !layoutProps ||
-    !widgetPositions ||
-    !widgetPositions[layoutProps.layoutId] ||
-    !draggedWidgets.length
-  )
-    return [];
+export const deriveAlignedColumnHighlights =
+  (
+    layoutProps: LayoutProps,
+    canvasId: string,
+    layoutOrder: string[],
+    parentDropTarget: string,
+  ) =>
+  (
+    widgetPositions: WidgetPositions,
+    draggedWidgets: DraggedWidget[],
+  ): AnvilHighlightInfo[] => {
+    if (
+      !layoutProps ||
+      !widgetPositions ||
+      !widgetPositions[layoutProps.layoutId] ||
+      !draggedWidgets.length
+    )
+      return [];
 
-  const { layoutStyle } = layoutProps;
+    const { layoutStyle } = layoutProps;
 
-  const baseHighlight: AnvilHighlightInfo = {
-    alignment:
-      layoutStyle && layoutStyle["justifyContent"]
-        ? (layoutStyle["justifyContent"] as FlexLayerAlignment)
-        : FlexLayerAlignment.Start,
-    canvasId,
-    dropZone: {},
-    height: HIGHLIGHT_SIZE,
-    isVertical: false,
-    layoutOrder,
-    posX: HIGHLIGHT_SIZE / 2,
-    posY: HIGHLIGHT_SIZE / 2,
-    rowIndex: 0,
-    width: 0,
+    const baseHighlight: AnvilHighlightInfo = {
+      alignment:
+        layoutStyle && layoutStyle["justifyContent"]
+          ? (layoutStyle["justifyContent"] as FlexLayerAlignment)
+          : FlexLayerAlignment.Start,
+      canvasId,
+      dropZone: {},
+      height: HIGHLIGHT_SIZE,
+      isVertical: false,
+      layoutOrder,
+      posX: HIGHLIGHT_SIZE / 2,
+      posY: HIGHLIGHT_SIZE / 2,
+      rowIndex: 0,
+      width: 0,
+    };
+
+    const hasFillWidget: boolean = draggedWidgets.some(
+      (widget: DraggedWidget) =>
+        widget.responsiveBehavior === ResponsiveBehavior.Fill,
+    );
+
+    return deriveHighlights(
+      layoutProps,
+      widgetPositions,
+      canvasId,
+      draggedWidgets,
+      layoutOrder,
+      baseHighlight,
+      parentDropTarget,
+      generateHighlights,
+      getInitialHighlights,
+      getHighlightsForLayouts,
+      getHighlightsForWidgets,
+      hasFillWidget,
+    );
   };
-
-  const hasFillWidget: boolean = draggedWidgets.some(
-    (widget: DraggedWidget) =>
-      widget.responsiveBehavior === ResponsiveBehavior.Fill,
-  );
-
-  return deriveHighlights(
-    layoutProps,
-    widgetPositions,
-    canvasId,
-    draggedWidgets,
-    layoutOrder,
-    baseHighlight,
-    parentDropTarget,
-    generateHighlights,
-    getInitialHighlights,
-    getHighlightsForLayouts,
-    getHighlightsForWidgets,
-    hasFillWidget,
-  );
-}
 
 function generateHighlights(
   baseHighlight: AnvilHighlightInfo,
@@ -114,6 +117,7 @@ function generateHighlights(
    * For hug widget => 3 highlights, one for each alignment. width / 3.
    */
   const width: number = (layoutDimension.width - HIGHLIGHT_SIZE) / arr.length;
+
   const isInitialHighlight: boolean = rowIndex === 0;
 
   return arr.map((alignment: FlexLayerAlignment, index: number) => ({

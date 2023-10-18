@@ -7,13 +7,13 @@ import type {
   GetInitialHighlights,
   GetLayoutHighlights,
   GetWidgetHighlights,
-  LayoutComponent,
   LayoutProps,
 } from "../../anvilTypes";
 import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
 import { HIGHLIGHT_SIZE } from "../../constants";
 import type { WidgetPositions } from "layoutSystems/common/types";
 import { getRelativeDimensions } from "./dimensionUtils";
+import type BaseLayoutComponent from "layoutSystems/anvil/layoutComponents/BaseLayoutComponent";
 
 /**
  * @param layoutProps | LayoutProps : properties of parent layout.
@@ -55,12 +55,16 @@ export function deriveHighlights(
       baseHighlight,
       generateHighlights,
       getDimensions,
+      !!layoutProps.isDropTarget,
+      hasFillWidget,
     );
   }
 
   // Check if layout renders widgets or layouts.
-  const Comp: LayoutComponent = LayoutFactory.get(layoutProps.layoutType);
-  const rendersWidgets: boolean = Comp.rendersWidgets(layoutProps);
+  const Comp: typeof BaseLayoutComponent = LayoutFactory.get(
+    layoutProps.layoutType,
+  );
+  const rendersWidgets: boolean = Comp.rendersWidgets;
 
   // It renders other layouts.
   if (!rendersWidgets) {

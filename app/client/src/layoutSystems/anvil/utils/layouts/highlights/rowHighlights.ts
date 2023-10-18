@@ -1,9 +1,7 @@
-import Row from "layoutSystems/anvil/layoutComponents/components/Row";
 import type {
   AnvilHighlightInfo,
   DraggedWidget,
   GetDimensions,
-  LayoutComponent,
   LayoutProps,
   WidgetLayoutProps,
 } from "../../anvilTypes";
@@ -21,6 +19,7 @@ import type {
   WidgetPositions,
 } from "layoutSystems/common/types";
 import { getRelativeDimensions } from "./dimensionUtils";
+import type BaseLayoutComponent from "layoutSystems/anvil/layoutComponents/BaseLayoutComponent";
 
 export interface RowMetaInformation {
   metaData: RowMetaData[][];
@@ -38,83 +37,91 @@ export interface RowMetaData extends WidgetLayoutProps, WidgetPosition {}
  * @param parentDropTarget | string : id of immediate drop target ancestor.
  * @returns AnvilHighlightInfo[] : List of highlights for the layout.
  */
-export function deriveRowHighlights(
-  layoutProps: LayoutProps,
-  widgetPositions: WidgetPositions,
-  canvasId: string,
-  draggedWidgets: DraggedWidget[],
-  layoutOrder: string[],
-  parentDropTarget: string,
-): AnvilHighlightInfo[] {
-  if (
-    !layoutProps ||
-    !widgetPositions ||
-    !widgetPositions[layoutProps.layoutId] ||
-    !draggedWidgets.length
-  )
-    return [];
+export const deriveRowHighlights =
+  (
+    layoutProps: LayoutProps,
+    canvasId: string,
+    layoutOrder: string[],
+    parentDropTarget: string,
+  ) =>
+  (
+    widgetPositions: WidgetPositions,
+    draggedWidgets: DraggedWidget[],
+  ): AnvilHighlightInfo[] => {
+    if (
+      !layoutProps ||
+      !widgetPositions ||
+      !widgetPositions[layoutProps.layoutId] ||
+      !draggedWidgets.length
+    )
+      return [];
 
-  const { isDropTarget, layoutId, layoutStyle } = layoutProps;
+    const { isDropTarget, layoutId, layoutStyle } = layoutProps;
 
-  const parentDropTargetId: string = isDropTarget ? layoutId : parentDropTarget;
+    const parentDropTargetId: string = isDropTarget
+      ? layoutId
+      : parentDropTarget;
 
-  const getDimensions: (id: string) => WidgetPosition = getRelativeDimensions(
-    parentDropTargetId,
-    widgetPositions,
-  );
-
-  const baseHighlight: AnvilHighlightInfo = {
-    alignment:
-      layoutStyle && layoutStyle["justifyContent"]
-        ? (layoutStyle["justifyContent"] as FlexLayerAlignment)
-        : FlexLayerAlignment.Start,
-    canvasId,
-    dropZone: {},
-    height: 0,
-    isVertical: true,
-    layoutOrder,
-    posX: HIGHLIGHT_SIZE / 2,
-    posY: HIGHLIGHT_SIZE / 2,
-    rowIndex: 0,
-    width: HIGHLIGHT_SIZE,
-  };
-
-  // If layout is empty, add an initial highlight.
-  if (!layoutProps.layout?.length) {
-    return getInitialHighlights(
-      layoutProps,
-      baseHighlight,
-      generateHighlights,
-      getDimensions,
-      false,
-      !!layoutProps.isDropTarget,
-    );
-  }
-
-  // Check if layout renders widgets or layouts.
-  const rendersWidgets: boolean = Row.rendersWidgets(layoutProps);
-
-  // It renders other layouts.
-  if (!rendersWidgets) {
-    return getHighlightsForLayoutRow(
-      layoutProps,
-      widgetPositions,
-      baseHighlight,
-      canvasId,
-      draggedWidgets,
-      layoutOrder,
+    const getDimensions: (id: string) => WidgetPosition = getRelativeDimensions(
       parentDropTargetId,
+      widgetPositions,
+    );
+
+    const baseHighlight: AnvilHighlightInfo = {
+      alignment:
+        layoutStyle && layoutStyle["justifyContent"]
+          ? (layoutStyle["justifyContent"] as FlexLayerAlignment)
+          : FlexLayerAlignment.Start,
+      canvasId,
+      dropZone: {},
+      height: 0,
+      isVertical: true,
+      layoutOrder,
+      posX: HIGHLIGHT_SIZE / 2,
+      posY: HIGHLIGHT_SIZE / 2,
+      rowIndex: 0,
+      width: HIGHLIGHT_SIZE,
+    };
+
+    // If layout is empty, add an initial highlight.
+    if (!layoutProps.layout?.length) {
+      return getInitialHighlights(
+        layoutProps,
+        baseHighlight,
+        generateHighlights,
+        getDimensions,
+        false,
+        !!layoutProps.isDropTarget,
+      );
+    }
+
+    // Check if layout renders widgets or layouts.
+    const Comp: typeof BaseLayoutComponent = LayoutFactory.get(
+      layoutProps.layoutType,
+    );
+    const rendersWidgets: boolean = Comp.rendersWidgets;
+
+    // It renders other layouts.
+    if (!rendersWidgets) {
+      return getHighlightsForLayoutRow(
+        layoutProps,
+        widgetPositions,
+        baseHighlight,
+        canvasId,
+        draggedWidgets,
+        layoutOrder,
+        parentDropTargetId,
+        getDimensions,
+      );
+    }
+
+    return getHighlightsForWidgetsRow(
+      layoutProps,
+      baseHighlight,
+      draggedWidgets,
       getDimensions,
     );
-  }
-
-  return getHighlightsForWidgetsRow(
-    layoutProps,
-    baseHighlight,
-    draggedWidgets,
-    getDimensions,
-  );
-}
+  };
 
 /**
  * Derive highlights for a row of widgets.
@@ -368,17 +375,15 @@ export function getHighlightsForLayoutRow(
      */
     if (!isDropTarget) {
       // Get current child layout component,
-      const Comp: LayoutComponent = LayoutFactory.get(layoutType);
+      const Comp: typeof BaseLayoutComponent = LayoutFactory.get(layoutType);
       if (!Comp) continue;
       // Calculate highlights for the layout component.
       const layoutHighlights: AnvilHighlightInfo[] = Comp.deriveHighlights(
         layout[index],
-        widgetPositions,
         canvasId,
-        draggedWidgets,
         [...layoutOrder, layout[index].layoutId],
         parentDropTargetId,
-      );
+      )(widgetPositions, draggedWidgets);
 
       highlights.push(...layoutHighlights);
     }

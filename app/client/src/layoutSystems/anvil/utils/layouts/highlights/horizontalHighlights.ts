@@ -4,7 +4,6 @@ import type {
   DraggedWidget,
   GenerateHighlights,
   GetDimensions,
-  LayoutComponent,
   LayoutProps,
   WidgetLayoutProps,
 } from "../../anvilTypes";
@@ -14,6 +13,7 @@ import type {
   WidgetPosition,
   WidgetPositions,
 } from "layoutSystems/common/types";
+import type BaseLayoutComponent from "layoutSystems/anvil/layoutComponents/BaseLayoutComponent";
 
 /**
  *
@@ -171,17 +171,15 @@ export function getHighlightsForLayouts(
      */
     if (!isDropTarget) {
       // Get current child layout component,
-      const Comp: LayoutComponent = LayoutFactory.get(layoutType);
+      const Comp: typeof BaseLayoutComponent = LayoutFactory.get(layoutType);
       if (!Comp) continue;
       // Calculate highlights for the layout component.
       const layoutHighlights: AnvilHighlightInfo[] = Comp.deriveHighlights(
         layouts[index],
-        widgetPositions,
         canvasId,
-        draggedWidgets,
         [...layoutOrder, layouts[index].layoutId],
         parentDropTargetId,
-      );
+      )(widgetPositions, draggedWidgets);
 
       highlights.push(...layoutHighlights);
     }
@@ -221,6 +219,7 @@ export function getInitialHighlights(
   baseHighlight: AnvilHighlightInfo,
   generateHighlights: GenerateHighlights,
   getDimensions: GetDimensions,
+  isDropTarget: boolean,
   hasFillWidget = false,
 ): AnvilHighlightInfo[] {
   const { layoutId } = layoutProps;
@@ -238,7 +237,7 @@ export function getInitialHighlights(
     undefined,
     undefined,
     0,
-    true,
     hasFillWidget,
+    isDropTarget,
   );
 }

@@ -15,18 +15,18 @@ export const modalPreset = (
     {
       isPermanent: true,
       layoutId: generateReactKey(),
-      layoutType: LayoutComponentTypes.COLUMN,
+      layoutType: LayoutComponentTypes.LAYOUT_COLUMN,
       layout: [
         {
           isPermanent: true,
           layoutId: generateReactKey(),
-          layoutType: LayoutComponentTypes.ROW,
+          layoutType: LayoutComponentTypes.LAYOUT_ROW,
           layout: [
             {
               isDropTarget: true,
               isPermanent: true,
               layoutId: generateReactKey(),
-              layoutType: LayoutComponentTypes.ROW,
+              layoutType: LayoutComponentTypes.WIDGET_ROW,
               layout: [
                 {
                   widgetId: title,
@@ -42,7 +42,7 @@ export const modalPreset = (
               isDropTarget: true,
               isPermanent: true,
               layoutId: generateReactKey(),
-              layoutType: LayoutComponentTypes.ROW,
+              layoutType: LayoutComponentTypes.WIDGET_ROW,
               layout: [
                 {
                   widgetId: icon,
@@ -63,7 +63,7 @@ export const modalPreset = (
           isDropTarget: true,
           isPermanent: true,
           layoutId: generateReactKey(),
-          layoutType: LayoutComponentTypes.ALIGNED_COLUMN,
+          layoutType: LayoutComponentTypes.ALIGNED_LAYOUT_COLUMN,
           layout: [],
           layoutStyle: {
             minHeight: "40px",
@@ -74,7 +74,7 @@ export const modalPreset = (
           isDropTarget: true,
           isPermanent: true,
           layoutId: generateReactKey(),
-          layoutType: LayoutComponentTypes.ALIGNED_ROW,
+          layoutType: LayoutComponentTypes.ALIGNED_WIDGET_ROW,
           layout: [
             {
               widgetId: button2,

@@ -1,20 +1,25 @@
-import type { LayoutComponent, LayoutComponentType } from "../utils/anvilTypes";
-import { LayoutComponentHOC } from "./LayoutComponentHOC";
+import type {
+  DeriveHighlightsFn,
+  LayoutComponent,
+  LayoutComponentTypes,
+  LayoutProps,
+} from "../utils/anvilTypes";
+import type BaseLayoutComponent from "./BaseLayoutComponent";
 
 class LayoutFactory {
-  static layoutsMap: Map<LayoutComponentType, LayoutComponent> = new Map();
+  static layoutsMap: Map<LayoutComponentTypes, typeof BaseLayoutComponent> =
+    new Map();
 
-  static initialize(layoutComponents: LayoutComponent[]) {
-    layoutComponents.forEach((layoutComponent) => {
-      const WrappedLayoutComponent = LayoutComponentHOC(layoutComponent);
+  static initialize(layoutComponents: (typeof BaseLayoutComponent)[]) {
+    layoutComponents.forEach((layoutComponent: typeof BaseLayoutComponent) => {
       this.layoutsMap.set(
         layoutComponent.type,
-        WrappedLayoutComponent as LayoutComponent,
+        layoutComponent as typeof BaseLayoutComponent,
       );
     });
   }
 
-  static get(type: LayoutComponentType) {
+  static get(type: LayoutComponentTypes) {
     if (LayoutFactory.layoutsMap.size === 0) {
       throw new Error(
         "LayoutFactory is not initialized. Call LayoutFactory.initialize() before using it",
@@ -28,6 +33,15 @@ class LayoutFactory {
     } else {
       throw new Error(`LayoutComponent with the type "${type}" is not defined`);
     }
+  }
+
+  static getDeriveHighlightsFn(
+    type: LayoutComponentTypes,
+  ): DeriveHighlightsFn {
+    const Comp: typeof BaseLayoutComponent = LayoutFactory.get(type);
+    if (!Comp) throw Error(`LayoutComponent with the type "${type}" not found`);
+
+    return Comp.deriveHighlights;
   }
 }
 
