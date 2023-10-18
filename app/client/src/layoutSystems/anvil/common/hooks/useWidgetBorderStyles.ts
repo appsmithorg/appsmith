@@ -1,6 +1,7 @@
 import type { AppState } from "@appsmith/reducers";
 import { Colors } from "constants/Colors";
 import { useSelector } from "react-redux";
+import { previewModeSelector } from "selectors/editorSelectors";
 import {
   isCurrentWidgetFocused,
   isWidgetSelected,
@@ -15,6 +16,11 @@ export function useWidgetBorderStyles(widgetId: string) {
   const isCanvasResizing: boolean = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isAutoCanvasResizing,
   );
+
+  const isPreviewMode = useSelector(previewModeSelector);
+  if (isPreviewMode) {
+    return {};
+  }
 
   let borderColor = "transparent";
   if (isFocused) {
