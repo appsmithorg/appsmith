@@ -1430,7 +1430,7 @@ Cypress.Commands.add("createSuperUser", () => {
       expect(interception.request.body).contains("signupForNewsletter=true");
     });
   }
-  cy.wait("@getWorkspace");
+  if (CURRENT_REPO === REPO.CE) cy.wait("@getWorkspace");
 
   cy.LogOut();
   cy.wait(2000);
