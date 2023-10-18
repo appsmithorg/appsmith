@@ -22,6 +22,7 @@ import {
 import { useDispatch } from "react-redux";
 import { getDragDetails } from "sagas/selectors";
 import {
+  getIsMobileCanvasLayout,
   getOccupiedSpacesSelectorForContainer,
   previewModeSelector,
 } from "selectors/editorSelectors";
@@ -64,10 +65,8 @@ const StyledDropTarget = styled.div`
 `;
 
 function Onboarding() {
-  const applayout = useSelector(
-    (state: AppState) => state.ui.applications.currentApplication?.appLayout,
-  );
-  const shouldShowStarterTemplates = applayout?.type !== "MOBILE";
+  const isMobileCanvas = useSelector(getIsMobileCanvasLayout);
+  const shouldShowStarterTemplates = !isMobileCanvas;
   return shouldShowStarterTemplates ? (
     <CanvasStarterTemplatesLayout />
   ) : (
