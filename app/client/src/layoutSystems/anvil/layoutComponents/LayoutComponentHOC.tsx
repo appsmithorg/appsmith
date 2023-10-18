@@ -8,13 +8,14 @@ import type {
 import { renderLayouts } from "../utils/layouts/renderUtils";
 import { RenderModes } from "constants/WidgetConstants";
 import { AnvilCanvasDraggingArena } from "../canvasArenas/AnvilCanvasDraggingArena";
-import type { WidgetPositions } from "layoutSystems/common/types";
+import type { LayoutElementPositions } from "layoutSystems/common/types";
 
 export function LayoutComponentHOC(Component: LayoutComponent) {
   const enhancedLayoutComponent = (props: LayoutComponentProps) => {
     const {
       canvasId,
       isDropTarget,
+      layoutId,
       layoutOrder,
       parentDropTarget,
       renderMode,
@@ -35,14 +36,16 @@ export function LayoutComponentHOC(Component: LayoutComponent) {
       }
     };
     const deriveAllHighlightsFn = (
-      widgetPositions: WidgetPositions,
+      layoutElementPositions: LayoutElementPositions,
       draggedWidgets: DraggedWidget[],
     ) => {
       return Component.deriveHighlights(
         props,
-        widgetPositions,
+        layoutElementPositions,
         canvasId,
         draggedWidgets,
+        layoutOrder,
+        parentDropTarget,
       );
     };
     // TODO: Remove hardcoded props by creating new dragging arena for anvil.

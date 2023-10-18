@@ -5,12 +5,12 @@ import { useSelector } from "react-redux";
 import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
 import { useMemo } from "react";
 import { getSelectedWidgets } from "selectors/ui";
-import { getWidgetPositions } from "layoutSystems/common/selectors";
 import type { DraggedWidget } from "layoutSystems/anvil/utils/anvilTypes";
-import type { WidgetPositions } from "layoutSystems/common/types";
 import { getDropTargetLayoutId } from "layoutSystems/anvil/integrations/selectors";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import WidgetFactory from "WidgetProvider/factory";
+import { getLayoutElementPositions } from "layoutSystems/common/selectors";
+import type { LayoutElementPositions } from "layoutSystems/common/types";
 
 interface AnvilDnDStatesProps {
   allowedWidgetTypes: string[];
@@ -30,7 +30,7 @@ export interface AnvilDnDStates {
   isNewWidget: boolean;
   isNewWidgetInitialTargetCanvas: boolean;
   isResizing: boolean;
-  widgetPositions: WidgetPositions;
+  layoutElementPositions: LayoutElementPositions;
   mainCanvasLayoutId: string;
 }
 
@@ -100,7 +100,7 @@ export const useAnvilDnDStates = ({
   const mainCanvasLayoutId: string = useSelector((state) =>
     getDropTargetLayoutId(state, MAIN_CONTAINER_WIDGET_ID),
   );
-  const widgetPositions = useSelector(getWidgetPositions);
+  const layoutElementPositions = useSelector(getLayoutElementPositions);
   const allWidgets = useSelector(getWidgets);
   const selectedWidgets = useSelector(getSelectedWidgets);
   // dragDetails contains of info needed for a container jump:
@@ -179,6 +179,6 @@ export const useAnvilDnDStates = ({
     isNewWidgetInitialTargetCanvas,
     isResizing,
     mainCanvasLayoutId,
-    widgetPositions,
+    layoutElementPositions,
   };
 };

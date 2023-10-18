@@ -1,4 +1,3 @@
-import type { WidgetPosition } from "layoutSystems/common/types";
 import type { DropZone } from "layoutSystems/common/utils/types";
 import {
   HIGHLIGHT_SIZE,

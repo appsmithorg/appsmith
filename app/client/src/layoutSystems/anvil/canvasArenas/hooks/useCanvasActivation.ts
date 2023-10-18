@@ -1,8 +1,8 @@
 import { CANVAS_ART_BOARD } from "constants/componentClassNameConstants";
 import { Indices } from "constants/Layers";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-// import { positionObserver } from "layoutSystems/common/utils/WidgetPositionsObserver";
-import { getLayoutId } from "layoutSystems/common/utils/WidgetPositionsObserver/utils";
+import { positionObserver } from "layoutSystems/common/utils/LayoutElementPositionsObserver";
+import { getAnvilLayoutDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
 import { useEffect, useRef } from "react";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 import type { AnvilDnDStates } from "./useAnvilDnDStates";
@@ -20,8 +20,8 @@ export const useCanvasActivation = (
     dragDetails,
     isDragging,
     isNewWidget,
+    layoutElementPositions,
     mainCanvasLayoutId,
-    widgetPositions,
   } = anvilDragStates;
   const mainContainerDOMNode = document.getElementById(CANVAS_ART_BOARD);
   const { setDraggingCanvas, setDraggingNewWidget, setDraggingState } =
@@ -39,10 +39,10 @@ export const useCanvasActivation = (
   /**
    * all layouts registered on the position observer.
    */
-  const allLayouts: any = {};
-  // layoutId === mainCanvasLayoutId && isDragging
-  //   ? positionObserver.getRegisteredLayouts()
-  //   : {};
+  const allLayouts: any =
+    layoutId === mainCanvasLayoutId && isDragging
+      ? positionObserver.getRegisteredLayouts()
+      : {};
 
   /**
    * all domIds of layouts on the page.
@@ -51,9 +51,9 @@ export const useCanvasActivation = (
   /**
    * domId of main canvas layout
    */
-  const mainCanvasLayoutDomId = getLayoutId(
+  const mainCanvasLayoutDomId = getAnvilLayoutDOMId(
     MAIN_CONTAINER_WIDGET_ID,
-    // mainCanvasLayoutId,
+    mainCanvasLayoutId,
   );
   /**
    * layoutIds that are supported to drop while dragging.
@@ -68,7 +68,7 @@ export const useCanvasActivation = (
   const allDroppableLayoutIds = filteredLayoutIds
     .filter((each) => {
       const layoutInfo = allLayouts[each];
-      const currentPositions = widgetPositions[layoutInfo.layoutId];
+      const currentPositions = layoutElementPositions[layoutInfo.layoutId];
       return currentPositions && !!layoutInfo.isDropTarget;
     })
     .map((each) => allLayouts[each].layoutId);
@@ -78,8 +78,8 @@ export const useCanvasActivation = (
    */
   const smallToLargeSortedDroppableLayoutIds = allDroppableLayoutIds.sort(
     (droppableLayout1Id: string, droppableLayout2Id: string) => {
-      const droppableLayout1 = widgetPositions[droppableLayout1Id];
-      const droppableLayout2 = widgetPositions[droppableLayout2Id];
+      const droppableLayout1 = layoutElementPositions[droppableLayout1Id];
+      const droppableLayout2 = layoutElementPositions[droppableLayout2Id];
       return (
         droppableLayout1.height * droppableLayout1.width -
         droppableLayout2.height * droppableLayout2.width
@@ -103,7 +103,7 @@ export const useCanvasActivation = (
       const mainCanvasRect = mainContainerDOMNode.getBoundingClientRect();
       const hoveredCanvas = smallToLargeSortedDroppableLayoutIds.find(
         (each) => {
-          const currentCanvasPositions = widgetPositions[each];
+          const currentCanvasPositions = layoutElementPositions[each];
           if (currentCanvasPositions) {
             return (
               currentCanvasPositions.left <= e.clientX - mainCanvasRect.left &&

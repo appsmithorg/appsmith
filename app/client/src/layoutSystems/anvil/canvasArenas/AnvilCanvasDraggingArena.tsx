@@ -1,4 +1,4 @@
-import type { WidgetPositions } from "layoutSystems/common/types";
+import type { LayoutElementPositions } from "layoutSystems/common/types";
 import React from "react";
 import type { AnvilHighlightInfo, DraggedWidget } from "../utils/anvilTypes";
 import { AnvilHighlightingCanvas } from "./AnvilHighlightingCanvas";
@@ -11,7 +11,7 @@ interface AnvilCanvasDraggingArenaProps {
   layoutId: string;
   allowedWidgetTypes: string[];
   deriveAllHighlightsFn: (
-    widgetPositions: WidgetPositions,
+    layoutElementPositions: LayoutElementPositions,
     draggedWidgets: DraggedWidget[],
   ) => AnvilHighlightInfo[];
 }

@@ -101,8 +101,8 @@ export const useCanvasDragging = (
     isCurrentDraggedCanvas,
     isDragging,
     isResizing,
+    layoutElementPositions,
     mainCanvasLayoutId,
-    widgetPositions,
   } = anvilDragStates;
   /**
    * provides auto scroll functionality
@@ -125,7 +125,7 @@ export const useCanvasDragging = (
       allHighlightsRef.current = [];
     } else {
       allHighlightsRef.current = deriveAllHighlightsFn(
-        widgetPositions,
+        layoutElementPositions,
         draggedBlocks,
       );
     }

@@ -4,13 +4,13 @@ import { StickyCanvasArena } from "layoutSystems/common/canvasArenas/StickyCanva
 import React from "react";
 import type { AnvilHighlightInfo, DraggedWidget } from "../utils/anvilTypes";
 import type { AnvilDnDStates } from "./hooks/useAnvilDnDStates";
-import type { WidgetPositions } from "layoutSystems/common/types";
+import type { LayoutElementPositions } from "layoutSystems/common/types";
 
 export interface AnvilHighlightingCanvasProps {
   anvilDragStates: AnvilDnDStates;
   layoutId: string;
   deriveAllHighlightsFn: (
-    widgetPositions: WidgetPositions,
+    layoutElementPositions: LayoutElementPositions,
     draggedWidgets: DraggedWidget[],
   ) => AnvilHighlightInfo[];
   onDrop: (renderedBlock: AnvilHighlightInfo) => void;
