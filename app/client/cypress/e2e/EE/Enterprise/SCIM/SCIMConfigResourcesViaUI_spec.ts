@@ -101,6 +101,8 @@ describe("SCIM Provisioning", function () {
 
   // Configuring SCIM to test Remove resources flow
   it("2. Go to admin settings and configure SCIM", function () {
+    license.UpdateLicenseKey();
+    agHelper.Sleep(4000);
     agHelper.VisitNAssert("/settings/general", "getEnvVariables");
     featureFlagIntercept({ license_scim_enabled: true });
     cy.wait(2000);
@@ -1027,7 +1029,8 @@ describe("SCIM Provisioning", function () {
 
       cy.visit("/settings/users");
       agHelper.WaitUntilEleAppear(RBAC.searchBar);
-      agHelper.TypeText(RBAC.searchBar, email);
+      agHelper.Sleep(2000);
+      agHelper.TypeText(RBAC.searchBar, email, { delay: 100 });
       agHelper.GetElementsNAssertTextPresence(RBAC.searchHighlight, email);
       cy.get(RBAC.searchHighlight)
         .siblings(RBAC.provisionedIcon)
