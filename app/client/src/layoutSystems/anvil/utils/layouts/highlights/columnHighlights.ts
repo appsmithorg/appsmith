@@ -92,6 +92,10 @@ function generateHighlights(
   isLastHighlight: boolean,
 ): AnvilHighlightInfo[] {
   const isInitialHighlight: boolean = rowIndex === 0;
+  console.log(layoutDimension);
+  console.log(currentDimension);
+  console.log(isInitialHighlight);
+  console.log(isLastHighlight);
   return [
     {
       ...baseHighlight,
@@ -102,10 +106,7 @@ function generateHighlights(
         : getVerticalDropZone(currentDimension, prevDimension, nextDimension),
       posY: isLastHighlight
         ? isInitialHighlight
-          ? Math.max(
-              currentDimension.top - layoutDimension.top - HIGHLIGHT_SIZE,
-              0,
-            )
+          ? Math.max(currentDimension.top - layoutDimension.top, 0)
           : Math.min(
               currentDimension.top +
                 currentDimension.height +
