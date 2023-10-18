@@ -27,7 +27,7 @@ export const AnvilCanvasDraggingArena = (
     canvasId,
     layoutId,
   });
-  useCanvasActivation(layoutId);
+  useCanvasActivation(anvilDragStates, layoutId);
   const onDrop = useAnvilWidgetDrop(canvasId, anvilDragStates);
 
   return (
