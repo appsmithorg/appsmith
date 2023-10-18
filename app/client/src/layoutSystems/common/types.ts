@@ -1,13 +1,13 @@
 /*
-  Hols the position of a widget in pixels from the top left of the MainContainer
+  Holds the position of a layout system elements (widgets, layers, layouts, etc) in pixels from the top left of the MainContainer
 */
-export interface WidgetPosition {
+export interface LayoutElementPosition {
   left: number;
   top: number;
   height: number;
   width: number;
 }
 
-export interface WidgetPositions {
-  [widgetId: string]: WidgetPosition;
+export interface LayoutElementPositions {
+  [widgetId: string]: LayoutElementPosition;
 }
