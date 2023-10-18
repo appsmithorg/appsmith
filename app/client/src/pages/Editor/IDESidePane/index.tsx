@@ -11,24 +11,13 @@ import {
   DATA_SOURCES_EDITOR_ID_PATH,
   DATA_SOURCES_EDITOR_LIST_PATH,
 } from "constants/routes";
-import { APP_SETTINGS_PANE_WIDTH } from "constants/AppConstants";
-import AppSettingsPane from "../AppSettingsPane";
+import SettingsPane from "./AppSettings";
 
 const SidePaneContainer = styled.div`
   height: 100%;
   width: 256px;
   border-right: 1px solid var(--ads-v2-color-border);
 `;
-
-const SettingsPane = () => {
-  return (
-    <div className="h-full flex">
-      <div style={{ width: APP_SETTINGS_PANE_WIDTH }}>
-        <AppSettingsPane />
-      </div>
-    </div>
-  );
-};
 
 const IDESidePane = () => {
   const isAppSidebarEnabled = useSelector(getIsAppSidebarEnabled);

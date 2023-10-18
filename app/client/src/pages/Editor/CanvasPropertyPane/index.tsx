@@ -1,7 +1,7 @@
 import * as Sentry from "@sentry/react";
 
 import React from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 import { Button, Tooltip } from "design-system";
 
@@ -14,6 +14,7 @@ import {
   useLayoutSystemFeatures,
 } from "../../../layoutSystems/common/useLayoutSystemFeatures";
 import { MainContainerWidthToggles } from "../MainContainerWidthToggles";
+import { getIsAppSidebarEnabled } from "selectors/ideSelectors";
 
 const Title = styled.p`
   color: var(--ads-v2-color-fg);
@@ -23,6 +24,7 @@ const MainHeading = styled.h3`
 `;
 export function CanvasPropertyPane() {
   const dispatch = useDispatch();
+  const isAppSidebarEnabled = useSelector(getIsAppSidebarEnabled);
 
   const openAppSettingsPane = () => {
     AnalyticsUtil.logEvent("APP_SETTINGS_BUTTON_CLICK");
@@ -49,25 +51,28 @@ export function CanvasPropertyPane() {
             </>
           )}
           <ConversionButton />
-          <Tooltip
-            content={
-              <>
-                <p className="text-center">Update your app theme, URL</p>
-                <p className="text-center">and other settings</p>
-              </>
-            }
-            placement="bottom"
-          >
-            <Button
-              UNSAFE_width="100%"
-              className="t--app-settings-cta"
-              kind="secondary"
-              onClick={openAppSettingsPane}
-              size="md"
+
+          {!isAppSidebarEnabled && (
+            <Tooltip
+              content={
+                <>
+                  <p className="text-center">Update your app theme, URL</p>
+                  <p className="text-center">and other settings</p>
+                </>
+              }
+              placement="bottom"
             >
-              App settings
-            </Button>
-          </Tooltip>
+              <Button
+                UNSAFE_width="100%"
+                className="t--app-settings-cta"
+                kind="secondary"
+                onClick={openAppSettingsPane}
+                size="md"
+              >
+                App settings
+              </Button>
+            </Tooltip>
+          )}
         </div>
       </div>
     </div>
