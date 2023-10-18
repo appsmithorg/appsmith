@@ -94,7 +94,7 @@ jobs:
 
                 const promises = prs.map(async (pr) => {
                     return getBillableTimeForPr(pr).then((bill) => {
-                        const cost = { UBUNTU: 0.008, UBUNTU_8_CORE: 0.032, UBUNTU_4_CORE: 0.016 };
+                        const cost = { UBUNTU: 0.008, UBUNTU_4_CORE: 0.016, UBUNTU_8_CORE: 0.032 };
                         console.log(bill);
                         for (const key of Object.keys(bill)) {
                             totalCost[key] = Math.ceil(bill[key] / 60000) * cost[key];
@@ -107,7 +107,7 @@ jobs:
                     console.log(totalCost);
                     github.rest.issues.createComment({
                       ...context.repo,
-                      issue_number: pr,
+                      issue_number: 28178,
                       body: totalCost
                     })
                 } catch (error) {
