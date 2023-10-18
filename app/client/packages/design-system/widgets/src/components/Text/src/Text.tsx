@@ -19,6 +19,7 @@ const _Text = (props: TextProps, ref: Ref<HTMLParagraphElement>) => {
     isItalic = false,
     lineClamp,
     textAlign = "left",
+    title,
     variant = "body",
     ...rest
   } = props;
@@ -47,6 +48,7 @@ const _Text = (props: TextProps, ref: Ref<HTMLParagraphElement>) => {
       <span
         className={styles.clampedText}
         style={{ WebkitLineClamp: lineClamp }}
+        title={title}
       >
         {children}
       </span>
