@@ -348,6 +348,9 @@ describe("Radio Widget test cases", function () {
     entityExplorer.SelectEntityByName("Text1", "Widgets");
     propPane.UpdatePropertyFieldValue("Text", "false");
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TEXT));
+    agHelper.WaitUntilEleAppear(
+      locators._widgetInDeployed(draggableWidgets.RADIO_GROUP),
+    );
     agHelper.AssertElementEnabledDisabled(
       locators._widgetInDeployed(draggableWidgets.RADIO_GROUP),
       0,
@@ -357,7 +360,7 @@ describe("Radio Widget test cases", function () {
       .GetWidgetCSSHeight(
         locators._widgetInDeployed(draggableWidgets.RADIO_GROUP),
       )
-      .then((currentHeight) => {
+      .then((currentHeight: any) => {
         const updatedHeight = parseInt(currentHeight?.split("px")[0]);
         expect(updatedHeight).to.be.greaterThan(270);
       });
