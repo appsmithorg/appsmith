@@ -105,7 +105,7 @@ jobs:
                 try {
                     await Promise.all(promises);
                     console.log(totalCost);
-                    github.rest.issues.createComment({
+                    await github.rest.issues.createComment({
                       ...context.repo,
                       issue_number: 28178,
                       body: totalCost
