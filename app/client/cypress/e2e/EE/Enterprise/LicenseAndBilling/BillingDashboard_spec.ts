@@ -3,10 +3,8 @@ import AppNavigation from "../../../../locators/AppNavigation.json";
 import { agHelper } from "../../../../support/Objects/ObjectsCore";
 import { license } from "../../../../support/ee/ObjectsCore_EE";
 
-describe("License and Billing dashboard", function () {
+describe("excludeForAirgap", "License and Billing dashboard", function () {
   it("1. Admin Settings - Enterprise Plan", function () {
-    license.UpdateLicenseKey("enterprise");
-    agHelper.Sleep(5000);
     cy.LogOut();
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     agHelper.AssertElementVisibility(
@@ -262,5 +260,58 @@ describe("License and Billing dashboard", function () {
       "contain.text",
       "BUSINESS",
     );
+  });
+
+  it("4. Bug 1409, Cancelling after Dry Run should not cause Remove License to Fail", function () {
+    license.UpdateLicenseKey("enterprise");
+    agHelper.Sleep(5000);
+    cy.LogOut();
+    cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+
+    agHelper.GetNClick(LicenseLocators.adminSettingsEntryLink);
+    agHelper.AssertURL("/settings/general");
+    // click license and billing tab
+    agHelper.GetNClick(LicenseLocators.billingDashboardTab);
+    agHelper.AssertURL("/settings/license");
+    agHelper.Sleep(2000);
+
+    agHelper.GetNClick(LicenseLocators.updateLicenseBtn);
+    agHelper.Sleep(2000);
+
+    agHelper.AssertElementVisibility(AppNavigation.modal);
+
+    cy.get(AppNavigation.modal).within(() => {
+      agHelper.TypeText(
+        LicenseLocators.licenseFormInput,
+        "BUSINESS-PAID-LICENSE-KEY",
+      );
+    });
+
+    agHelper.GetNClick(LicenseLocators.activeInstanceModalBtn);
+    agHelper.Sleep(4000);
+    agHelper.AssertElementExist(AppNavigation.modal);
+
+    agHelper.GetNClick(LicenseLocators.downgradeCancelButton);
+    agHelper.Sleep(2000);
+
+    agHelper.GetNAssertElementText(
+      LicenseLocators.planCardName,
+      "Enterprise",
+      "contain.text",
+    );
+
+    license.RemoveLicenseKey();
+    agHelper.Sleep(4000);
+    cy.LogOut();
+    cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+
+    agHelper.GetNClick(LicenseLocators.adminSettingsEntryLink);
+    agHelper.AssertURL("/settings/general");
+    // click license and billing tab
+    agHelper.GetNClick(LicenseLocators.billingDashboardTab);
+    agHelper.AssertURL("/settings/license");
+    agHelper.Sleep(2000);
+
+    agHelper.AssertElementExist(LicenseLocators.freeLicenseSection);
   });
 });
