@@ -8,6 +8,7 @@ import { getAbsolutePixels } from "utils/helpers";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
 import { getNearestParentCanvas } from "utils/generators";
+import { getClosestHighlight } from "./utils";
 
 /**
  * function to render UX to denote that the widget type cannot be dropped in the layout
@@ -84,13 +85,7 @@ export const useCanvasDragging = (
   stickyCanvasRef: React.RefObject<HTMLCanvasElement>,
   props: AnvilHighlightingCanvasProps,
 ) => {
-  const {
-    anvilDragStates,
-    deriveAllHighlightsFn,
-    layoutId,
-    onDrop,
-    renderOnMouseMove,
-  } = props;
+  const { anvilDragStates, deriveAllHighlightsFn, layoutId, onDrop } = props;
   const {
     dragDetails,
     draggedBlocks,
@@ -215,7 +210,7 @@ export const useCanvasDragging = (
               renderOverlayWidgetDropLayer(slidingArenaRef.current);
               return;
             }
-            const processedHighlight = renderOnMouseMove(
+            const processedHighlight = getClosestHighlight(
               e,
               allHighlightsRef.current,
             );
