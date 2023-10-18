@@ -15,30 +15,30 @@ import React, {
 import { useSelector } from "react-redux";
 import styled from "styled-components";
 
-import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
-import { calculateDropTargetRows } from "./DropTargetUtils";
-import { useDispatch } from "react-redux";
-import { useShowPropertyPane } from "utils/hooks/dragResizeHooks";
-import {
-  getOccupiedSpacesSelectorForContainer,
-  previewModeSelector,
-} from "selectors/editorSelectors";
-import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
-import { getDragDetails } from "sagas/selectors";
-import { useAutoHeightUIState } from "utils/hooks/autoHeightUIHooks";
 import {
   checkContainersForAutoHeightAction,
   updateDOMDirectlyBasedOnAutoHeightAction,
 } from "actions/autoHeightActions";
+import { useDispatch } from "react-redux";
+import { getDragDetails } from "sagas/selectors";
+import {
+  getOccupiedSpacesSelectorForContainer,
+  previewModeSelector,
+} from "selectors/editorSelectors";
+import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
+import { useAutoHeightUIState } from "utils/hooks/autoHeightUIHooks";
+import { useShowPropertyPane } from "utils/hooks/dragResizeHooks";
+import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
+import { calculateDropTargetRows } from "./DropTargetUtils";
 
+import { LayoutSystemTypes } from "layoutSystems/types";
+import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
+import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import {
   isAutoHeightEnabledForWidget,
   isAutoHeightEnabledForWidgetWithLimits,
 } from "widgets/WidgetUtils";
-import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 import DragLayerComponent from "./DragLayerComponent";
-import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
-import { LayoutSystemTypes } from "layoutSystems/types";
 import CanvasStarterTemplatesLayout from "./canvasStarterTemplatesLayout";
 
 export type DropTargetComponentProps = PropsWithChildren<{
@@ -64,13 +64,16 @@ const StyledDropTarget = styled.div`
 `;
 
 function Onboarding() {
-  return (
-    <>
-      <CanvasStarterTemplatesLayout />
-      {/* <h2 className="absolute top-0 left-0 right-0 flex items-end h-108 justify-center text-2xl font-bold text-gray-300">
-        Drag and drop a widget here
-      </h2> */}
-    </>
+  const applayout = useSelector(
+    (state: AppState) => state.ui.applications.currentApplication?.appLayout,
+  );
+  const shouldShowStarterTemplates = applayout?.type !== "MOBILE";
+  return shouldShowStarterTemplates ? (
+    <CanvasStarterTemplatesLayout />
+  ) : (
+    <h2 className="absolute top-0 left-0 right-0 flex items-end h-108 justify-center text-2xl font-bold text-gray-300">
+      Drag and drop a widget here
+    </h2>
   );
 }
 

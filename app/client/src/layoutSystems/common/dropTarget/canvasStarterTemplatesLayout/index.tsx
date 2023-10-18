@@ -1,24 +1,24 @@
 import React, { useState } from "react";
 
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import {
   STARTER_TEMPLATE_PAGE_LAYOUTS,
   createMessage,
 } from "@appsmith/constants/messages";
+import { importSvg } from "design-system-old";
+import { useDispatch } from "react-redux";
 import {
-  TemplateLayoutFrame,
   TemplateLayoutContainer,
-  TemplateLayoutHeaderText,
   TemplateLayoutContentGrid,
   TemplateLayoutContentItem,
   TemplateLayoutContentItemContent,
-  TemplateLayoutRowItemTitle,
   TemplateLayoutDragAndDropText,
+  TemplateLayoutFrame,
+  TemplateLayoutHeaderText,
   TemplateLayoutOrText,
   TemplateLayoutRowItemDescription,
+  TemplateLayoutRowItemTitle,
 } from "./StyledComponents";
-import { importSvg } from "design-system-old";
-import { useDispatch } from "react-redux";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 
 function CanvasStarterTemplatesLayout() {
   const dispatch = useDispatch();
