@@ -5,7 +5,6 @@ import type {
   WidgetEntity,
   ActionEntity,
   JSActionEntity,
-  DataTreeEntityConfig,
 } from "@appsmith/entities/DataTree/types";
 import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
 import { OverridingPropertyType } from "@appsmith/entities/DataTree/types";
@@ -69,7 +68,7 @@ export const setOverridingProperty = ({
 
 export const generateDataTreeModuleInputs = (
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  moduleInput: ModuleInput,
+  moduleInputs: Record<string, ModuleInput>,
 ) => {
   return {
     unEvalEntity: null,
@@ -79,8 +78,6 @@ export const generateDataTreeModuleInputs = (
 
 export function isWidgetActionOrJsObject(
   entity: DataTreeEntity,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  entityConfig: DataTreeEntityConfig,
 ): entity is ActionEntity | WidgetEntity | JSActionEntity {
   return isWidget(entity) || isAction(entity) || isJSAction(entity);
 }
