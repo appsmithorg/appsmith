@@ -1,11 +1,11 @@
 import LayoutFactory from "layoutSystems/anvil/layoutComponents/LayoutFactory";
 import type {
   AnvilHighlightInfo,
-  LayoutComponent,
   LayoutProps,
   WidgetLayoutProps,
 } from "../../anvilTypes";
 import { generateReactKey } from "utils/generators";
+import type BaseLayoutComponent from "layoutSystems/anvil/layoutComponents/BaseLayoutComponent";
 
 /**
  * Update a layout preset by adding a list of widgets in correct position.
@@ -33,7 +33,9 @@ export function addWidgetsToPreset(
 
   if (!affectedLayout) return layouts;
 
-  const Comp: LayoutComponent = LayoutFactory.get(affectedLayout.layoutType);
+  const Comp: typeof BaseLayoutComponent = LayoutFactory.get(
+    affectedLayout.layoutType,
+  );
 
   /**
    * STEP 2: Prepare the widgets to be added.
@@ -118,7 +120,7 @@ export function updateAffectedLayout(
  * @returns string[] | LayoutProps[]
  */
 export function prepareWidgetsForAddition(
-  Comp: LayoutComponent,
+  Comp: typeof BaseLayoutComponent,
   layoutProps: LayoutProps,
   highlight: AnvilHighlightInfo,
   widgets: WidgetLayoutProps[],

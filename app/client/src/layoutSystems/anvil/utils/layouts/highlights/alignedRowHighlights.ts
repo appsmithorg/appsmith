@@ -6,7 +6,6 @@ import type {
   AnvilHighlightInfo,
   DraggedWidget,
   GetDimensions,
-  LayoutComponent,
   LayoutProps,
   WidgetLayoutProps,
 } from "../../anvilTypes";
@@ -24,79 +23,84 @@ import {
 } from "./rowHighlights";
 import { getAlignmentLayoutId } from "../layoutUtils";
 import { getRelativeDimensions } from "./dimensionUtils";
+import type BaseLayoutComponent from "layoutSystems/anvil/layoutComponents/BaseLayoutComponent";
 import type {
   LayoutElementPosition,
   LayoutElementPositions,
 } from "layoutSystems/common/types";
 
-export function deriveAlignedRowHighlights(
-  layoutProps: LayoutProps,
-  widgetPositions: LayoutElementPositions,
-  canvasId: string,
-  draggedWidgets: DraggedWidget[],
-  layoutOrder: string[],
-  parentDropTarget: string,
-): AnvilHighlightInfo[] {
-  if (!draggedWidgets.length || !widgetPositions[layoutProps.layoutId])
-    return [];
-  const { isDropTarget, layout, layoutId, layoutType } = layoutProps;
+export const deriveAlignedRowHighlights =
+  (
+    layoutProps: LayoutProps,
+    canvasId: string,
+    layoutOrder: string[],
+    parentDropTarget: string,
+  ) =>
+  (
+    positions: LayoutElementPositions,
+    draggedWidgets: DraggedWidget[],
+  ): AnvilHighlightInfo[] => {
+    if (!draggedWidgets.length || !positions[layoutProps.layoutId])
+      return [];
+    const { isDropTarget, layout, layoutId, layoutType } = layoutProps;
 
-  const parentDropTargetId: string = isDropTarget ? layoutId : parentDropTarget;
+    const parentDropTargetId: string = isDropTarget
+      ? layoutId
+      : parentDropTarget;
 
-  const getDimensions: (id: string) => LayoutElementPosition =
-    getRelativeDimensions(parentDropTargetId, widgetPositions);
+    const getDimensions: (id: string) => LayoutElementPosition =
+      getRelativeDimensions(parentDropTargetId, positions);
 
-  /**
-   * Step 1: Construct a base highlight.
-   */
-  const baseHighlight: AnvilHighlightInfo = {
-    alignment: FlexLayerAlignment.Start,
-    canvasId,
-    dropZone: {},
-    height: 0,
-    isVertical: true,
-    layoutOrder,
-    posX: HIGHLIGHT_SIZE / 2,
-    posY: HIGHLIGHT_SIZE / 2,
-    rowIndex: 0,
-    width: HIGHLIGHT_SIZE,
-  };
+    /**
+     * Step 1: Construct a base highlight.
+     */
+    const baseHighlight: AnvilHighlightInfo = {
+      alignment: FlexLayerAlignment.Start,
+      canvasId,
+      dropZone: {},
+      height: 0,
+      isVertical: true,
+      layoutOrder,
+      posX: HIGHLIGHT_SIZE / 2,
+      posY: HIGHLIGHT_SIZE / 2,
+      rowIndex: 0,
+      width: HIGHLIGHT_SIZE,
+    };
 
-  /**
-   * Step 2: Check if layout is empty and appropriately return initial set of highlights.
-   */
-  if (!layout || !layout.length) {
-    return getInitialHighlights(
+    /**
+     * Step 2: Check if layout is empty and appropriately return initial set of highlights.
+     */
+    if (!layout || !layout.length) {
+      return getInitialHighlights(
+        layoutProps,
+        baseHighlight,
+        draggedWidgets,
+        getDimensions,
+      );
+    }
+
+    /**
+     * Step 3: Check if layout renders widgets.
+     */
+    const Comp: typeof BaseLayoutComponent = LayoutFactory.get(layoutType);
+
+    /**
+     * Step 4: If layout renders layouts, derive highlights for widgets.
+     */
+    // AlignedRows are currently not expected to render layouts. This can be added later.
+    if (!Comp.rendersWidgets) return [];
+
+    /**
+     * Step 5: Derive highlights for widgets.
+     */
+    return getHighlightsForWidgets(
       layoutProps,
-      baseHighlight,
+      positions,
       draggedWidgets,
+      baseHighlight,
       getDimensions,
     );
-  }
-
-  /**
-   * Step 3: Check if layout renders widgets.
-   */
-  const Comp: LayoutComponent = LayoutFactory.get(layoutType);
-  const rendersWidgets: boolean = Comp.rendersWidgets(layoutProps);
-
-  /**
-   * Step 4: If layout renders layouts, derive highlights for widgets.
-   */
-  // AlignedRows are currently not expected to render layouts. This can be added later.
-  if (!rendersWidgets) return [];
-
-  /**
-   * Step 5: Derive highlights for widgets.
-   */
-  return getHighlightsForWidgets(
-    layoutProps,
-    widgetPositions,
-    draggedWidgets,
-    baseHighlight,
-    getDimensions,
-  );
-}
+  };
 
 /**
  *
@@ -156,7 +160,7 @@ function getInitialHighlights(
 /**
  *
  * @param layoutProps | LayoutProps
- * @param widgetPositions | WidgetPositions
+ * @param positions | WidgetPositions
  * @param draggedWidgets | string[]
  * @param baseHighlight | AnvilHighlightInfo
  * @param getDimensions | GetDimensions
@@ -164,7 +168,7 @@ function getInitialHighlights(
  */
 export function getHighlightsForWidgets(
   layoutProps: LayoutProps,
-  widgetPositions: LayoutElementPositions,
+  positions: LayoutElementPositions,
   draggedWidgets: DraggedWidget[],
   baseHighlight: AnvilHighlightInfo,
   getDimensions: GetDimensions,
@@ -174,8 +178,8 @@ export function getHighlightsForWidgets(
     layoutProps.layoutId,
   );
 
-  // If widgetPositions of alignment aren't tracked => this layout has a fill widget.
-  const hasFillWidget: boolean = !widgetPositions.hasOwnProperty(
+  // If positions of alignment aren't tracked => this layout has a fill widget.
+  const hasFillWidget: boolean = !positions.hasOwnProperty(
     `${layoutProps.layoutId}-0`,
   );
 

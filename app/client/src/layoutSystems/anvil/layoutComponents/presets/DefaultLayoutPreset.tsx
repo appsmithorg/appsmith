@@ -17,7 +17,7 @@ export function generateDefaultLayoutPreset(
         minHeight: "40px",
         height: "100%",
       },
-      layoutType: LayoutComponentTypes.ALIGNED_COLUMN,
+      layoutType: LayoutComponentTypes.ALIGNED_LAYOUT_COLUMN,
       ...data,
     },
   ];

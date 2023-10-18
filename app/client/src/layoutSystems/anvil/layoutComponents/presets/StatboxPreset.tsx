@@ -16,7 +16,7 @@ export const statBoxPreset = (
     layoutStyle: {
       wrap: "wrap-reverse",
     },
-    layoutType: LayoutComponentTypes.ROW,
+    layoutType: LayoutComponentTypes.LAYOUT_ROW,
     layout: [
       {
         isDropTarget: true,
@@ -25,14 +25,14 @@ export const statBoxPreset = (
         layoutStyle: {
           flexGrow: 1,
         },
-        layoutType: LayoutComponentTypes.COLUMN,
+        layoutType: LayoutComponentTypes.LAYOUT_COLUMN,
         layout: [
           {
             layoutId: generateReactKey(),
             layoutStyle: {
               alignSelf: "stretch",
             },
-            layoutType: LayoutComponentTypes.ROW,
+            layoutType: LayoutComponentTypes.WIDGET_ROW,
             layout: [
               {
                 widgetId: text1,
@@ -45,7 +45,7 @@ export const statBoxPreset = (
             layoutStyle: {
               alignSelf: "stretch",
             },
-            layoutType: LayoutComponentTypes.ROW,
+            layoutType: LayoutComponentTypes.WIDGET_ROW,
             layout: [
               {
                 widgetId: text2,
@@ -58,7 +58,7 @@ export const statBoxPreset = (
             layoutStyle: {
               alignSelf: "stretch",
             },
-            layoutType: LayoutComponentTypes.ROW,
+            layoutType: LayoutComponentTypes.WIDGET_ROW,
             layout: [
               {
                 widgetId: text3,
@@ -75,7 +75,7 @@ export const statBoxPreset = (
         layoutStyle: {
           alignSelf: "flex-end",
         },
-        layoutType: LayoutComponentTypes.COLUMN,
+        layoutType: LayoutComponentTypes.WIDGET_COLUMN,
         layout: [
           {
             widgetId: image,
