@@ -619,7 +619,7 @@ describe("isFunctionPresent", () => {
 
     const result = isFunctionPresent(code, 2);
 
-    expect(result).toStrictEqual(true);
+    expect(result).toBe(true);
   });
 
   it("should return true if arrow function is present", () => {
