@@ -17,13 +17,12 @@ import {
   HIGHLIGHT_SIZE,
   HORIZONTAL_DROP_ZONE_MULTIPLIER,
 } from "../../constants";
-import { registerLayoutComponents } from "../layoutUtils";
 import LayoutFactory from "layoutSystems/anvil/layoutComponents/LayoutFactory";
-import AlignedRow from "layoutSystems/anvil/layoutComponents/components/AlignedRow";
+import AlignedWidgetRow from "layoutSystems/anvil/layoutComponents/components/AlignedWidgetRow";
 
 describe("AlignedRow highlights", () => {
   beforeAll(() => {
-    LayoutFactory.initialize([AlignedRow]);
+    LayoutFactory.initialize([AlignedWidgetRow]);
   });
   describe("initial highlights", () => {
     it("should return three initial highlights if layout is empty", () => {
@@ -59,18 +58,16 @@ describe("AlignedRow highlights", () => {
 
       const res: AnvilHighlightInfo[] = deriveAlignedRowHighlights(
         layout,
-        dimensions,
         "0",
-        [
-          {
-            widgetId: "10",
-            type: "BUTTON_WIDGET",
-            responsiveBehavior: ResponsiveBehavior.Hug,
-          },
-        ],
         [],
         layout.layoutId,
-      );
+      )(dimensions, [
+        {
+          widgetId: "10",
+          type: "BUTTON_WIDGET",
+          responsiveBehavior: ResponsiveBehavior.Hug,
+        },
+      ]);
 
       expect(res.length).toEqual(3);
 
@@ -127,18 +124,16 @@ describe("AlignedRow highlights", () => {
 
       const res: AnvilHighlightInfo[] = deriveAlignedRowHighlights(
         layout,
-        dimensions,
         "0",
-        [
-          {
-            widgetId: "10",
-            type: "BUTTON_WIDGET",
-            responsiveBehavior: ResponsiveBehavior.Hug,
-          },
-        ],
         [],
         layout.layoutId,
-      );
+      )(dimensions, [
+        {
+          widgetId: "10",
+          type: "BUTTON_WIDGET",
+          responsiveBehavior: ResponsiveBehavior.Hug,
+        },
+      ]);
 
       expect(res.length).toEqual(3);
 

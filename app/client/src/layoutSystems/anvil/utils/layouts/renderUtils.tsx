@@ -1,7 +1,6 @@
 import React from "react";
 import LayoutFactory from "layoutSystems/anvil/layoutComponents/LayoutFactory";
 import type {
-  LayoutComponent,
   LayoutComponentProps,
   LayoutProps,
   WidgetLayoutProps,
@@ -16,6 +15,7 @@ import {
 import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
 import { isWidgetLayoutProps } from "./typeUtils";
 import { renderChildren } from "layoutSystems/common/utils/canvasUtils";
+import type BaseLayoutComponent from "layoutSystems/anvil/layoutComponents/BaseLayoutComponent";
 
 export function renderWidgets(props: LayoutComponentProps) {
   const { canvasId, childrenMap, parentDropTarget, renderMode } = props;
@@ -43,7 +43,9 @@ export function renderLayouts(
   layoutOrder: string[],
 ): JSX.Element[] {
   return layouts.map((layout) => {
-    const Component: LayoutComponent = LayoutFactory.get(layout.layoutType);
+    const Component: typeof BaseLayoutComponent = LayoutFactory.get(
+      layout.layoutType,
+    );
     return (
       <Component
         {...layout}
@@ -140,6 +142,7 @@ export function renderWidgetsInAlignedRow(
     flexBasis: { base: "auto", [`${MOBILE_BREAKPOINT}px`]: "0%" },
     flexGrow: 1,
     flexShrink: 1,
+    renderMode: props.renderMode,
     wrap: { base: "wrap", [`${MOBILE_BREAKPOINT}px`]: "nowrap" },
   };
 

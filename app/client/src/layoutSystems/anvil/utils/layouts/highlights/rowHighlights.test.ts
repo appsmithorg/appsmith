@@ -2,12 +2,13 @@ import {
   FlexLayerAlignment,
   ResponsiveBehavior,
 } from "layoutSystems/common/utils/constants";
-import type {
-  AnvilHighlightInfo,
-  GetDimensions,
-  LayoutComponentProps,
-  LayoutProps,
-  WidgetLayoutProps,
+import {
+  LayoutComponentTypes,
+  type AnvilHighlightInfo,
+  type GetDimensions,
+  type LayoutComponentProps,
+  type LayoutProps,
+  type WidgetLayoutProps,
 } from "../../anvilTypes";
 import {
   checkIntersection,
@@ -21,16 +22,17 @@ import {
   HORIZONTAL_DROP_ZONE_MULTIPLIER,
 } from "../../constants";
 import { generateLayoutComponentMock } from "mocks/layoutComponents/layoutComponentMock";
-import Row from "layoutSystems/anvil/layoutComponents/components/Row";
 import LayoutFactory from "layoutSystems/anvil/layoutComponents/LayoutFactory";
 import type { LayoutElementPositions } from "layoutSystems/common/types";
 import { getRelativeDimensions } from "./dimensionUtils";
+import LayoutRow from "layoutSystems/anvil/layoutComponents/components/LayoutRow";
+import WidgetRow from "layoutSystems/anvil/layoutComponents/components/WidgetRow";
 
 describe("rowHighlights tests", () => {
   const baseProps: LayoutProps = {
     layoutId: "layoutID",
     layout: [],
-    layoutType: "ROW",
+    layoutType: LayoutComponentTypes.WIDGET_ROW,
   };
   describe("checkIntersection", () => {
     it("returns true if the lines intersect the same space", () => {
@@ -237,18 +239,16 @@ describe("rowHighlights tests", () => {
       );
       const highlights = deriveRowHighlights(
         { ...baseProps, layout: data },
-        dimensions,
         "0",
-        [
-          {
-            widgetId: "10",
-            type: "BUTTON_WIDGET",
-            responsiveBehavior: ResponsiveBehavior.Hug,
-          },
-        ],
         [],
         "layoutID",
-      );
+      )(dimensions, [
+        {
+          widgetId: "10",
+          type: "BUTTON_WIDGET",
+          responsiveBehavior: ResponsiveBehavior.Hug,
+        },
+      ]);
 
       expect(highlights.length).toEqual(data.length + 1);
       // Height of all highlights in the row should be equal to the tallest widget.
@@ -295,18 +295,16 @@ describe("rowHighlights tests", () => {
       );
       const highlights = deriveRowHighlights(
         { ...baseProps, layout: data },
-        dimensions,
         "0",
-        [
-          {
-            widgetId: "10",
-            type: "BUTTON_WIDGET",
-            responsiveBehavior: ResponsiveBehavior.Hug,
-          },
-        ],
         [],
         "layoutID",
-      );
+      )(dimensions, [
+        {
+          widgetId: "10",
+          type: "BUTTON_WIDGET",
+          responsiveBehavior: ResponsiveBehavior.Hug,
+        },
+      ]);
 
       /**
        * As the layout is wrapped into two rows.
@@ -356,18 +354,16 @@ describe("rowHighlights tests", () => {
       );
       const highlights = deriveRowHighlights(
         { ...baseProps, layout: data },
-        dimensions,
         "0",
-        [
-          {
-            widgetId: "10",
-            type: "BUTTON_WIDGET",
-            responsiveBehavior: ResponsiveBehavior.Hug,
-          },
-        ],
         [],
         "layoutID",
-      );
+      )(dimensions, [
+        {
+          widgetId: "10",
+          type: "BUTTON_WIDGET",
+          responsiveBehavior: ResponsiveBehavior.Hug,
+        },
+      ]);
 
       /**
        * As the layout is wrapped into two rows.
@@ -409,18 +405,16 @@ describe("rowHighlights tests", () => {
       };
       const res: AnvilHighlightInfo[] = deriveRowHighlights(
         layout,
-        positions,
         "0",
-        [
-          {
-            widgetId: "1",
-            type: "BUTTON_WIDGET",
-            responsiveBehavior: ResponsiveBehavior.Hug,
-          },
-        ],
         [],
         layout.layoutId,
-      );
+      )(positions, [
+        {
+          widgetId: "1",
+          type: "BUTTON_WIDGET",
+          responsiveBehavior: ResponsiveBehavior.Hug,
+        },
+      ]);
       expect(res[0].posY).toEqual(positions[layout.layoutId].top);
       expect(res[0].alignment).toEqual(FlexLayerAlignment.Start);
       expect(res[0].posX).toEqual(HIGHLIGHT_SIZE / 2);
@@ -443,18 +437,16 @@ describe("rowHighlights tests", () => {
       };
       const res: AnvilHighlightInfo[] = deriveRowHighlights(
         layout,
-        positions,
         "0",
-        [
-          {
-            widgetId: "1",
-            type: "BUTTON_WIDGET",
-            responsiveBehavior: ResponsiveBehavior.Hug,
-          },
-        ],
         [],
         layout.layoutId,
-      );
+      )(positions, [
+        {
+          widgetId: "1",
+          type: "BUTTON_WIDGET",
+          responsiveBehavior: ResponsiveBehavior.Hug,
+        },
+      ]);
 
       const posX: number =
         (positions[layout.layoutId].width - HIGHLIGHT_SIZE) / 2;
@@ -481,18 +473,16 @@ describe("rowHighlights tests", () => {
       };
       const res: AnvilHighlightInfo[] = deriveRowHighlights(
         layout,
-        positions,
         "0",
-        [
-          {
-            widgetId: "1",
-            type: "BUTTON_WIDGET",
-            responsiveBehavior: ResponsiveBehavior.Hug,
-          },
-        ],
         [],
         layout.layoutId,
-      );
+      )(positions, [
+        {
+          widgetId: "1",
+          type: "BUTTON_WIDGET",
+          responsiveBehavior: ResponsiveBehavior.Hug,
+        },
+      ]);
       const posX: number = positions[layout.layoutId].width - HIGHLIGHT_SIZE;
       expect(res).toBeDefined();
       expect(res[0].posY).toEqual(positions[layout.layoutId].top);
@@ -508,7 +498,7 @@ describe("rowHighlights tests", () => {
   });
   describe("getHighlightsForLayoutRow", () => {
     beforeAll(() => {
-      LayoutFactory.initialize([Row]);
+      LayoutFactory.initialize([LayoutRow, WidgetRow]);
     });
     it("should derive and collate highlights for child layouts", () => {
       /**
@@ -567,18 +557,16 @@ describe("rowHighlights tests", () => {
       };
       const res: AnvilHighlightInfo[] = deriveRowHighlights(
         layout,
-        positions,
         "0",
-        [
-          {
-            widgetId: "1",
-            type: "BUTTON_WIDGET",
-            responsiveBehavior: ResponsiveBehavior.Hug,
-          },
-        ],
         [],
         layout.layoutId,
-      );
+      )(positions, [
+        {
+          widgetId: "1",
+          type: "BUTTON_WIDGET",
+          responsiveBehavior: ResponsiveBehavior.Hug,
+        },
+      ]);
 
       /**
        * Algorithm with calculate highlights for each child Row layout and combine them together.
@@ -616,18 +604,16 @@ describe("rowHighlights tests", () => {
        */
       const res: AnvilHighlightInfo[] = deriveRowHighlights(
         layout,
-        positions,
         "0",
-        [
-          {
-            widgetId: button1,
-            type: "BUTTON_WIDGET",
-            responsiveBehavior: ResponsiveBehavior.Hug,
-          },
-        ],
         [],
         layout.layoutId,
-      );
+      )(positions, [
+        {
+          widgetId: "1",
+          type: "BUTTON_WIDGET",
+          responsiveBehavior: ResponsiveBehavior.Hug,
+        },
+      ]);
 
       // highlights for the dragged widget should be discounted.
       expect(res.length).toEqual(2);

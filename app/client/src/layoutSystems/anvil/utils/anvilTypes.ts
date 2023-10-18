@@ -19,9 +19,16 @@ export type LayoutComponentType =
 
 export enum LayoutComponentTypes {
   ALIGNED_COLUMN = "ALIGNED_COLUMN",
+  ALIGNED_LAYOUT_COLUMN = "ALIGNED_LAYOUT_COLUMN",
+  ALIGNED_WIDGET_COLUMN = "ALIGNED_WIDGET_COLUMN",
+  ALIGNED_WIDGET_ROW = "ALIGNED_WIDGET_ROW",
   ALIGNED_ROW = "ALIGNED_ROW",
   COLUMN = "COLUMN",
+  LAYOUT_COLUMN = "LAYOUT_COLUMN",
+  LAYOUT_ROW = "LAYOUT_ROW",
   ROW = "ROW",
+  WIDGET_COLUMN = "WIDGET_COLUMN",
+  WIDGET_ROW = "WIDGET_ROW",
 }
 
 export interface WidgetLayoutProps {
@@ -33,7 +40,7 @@ export interface LayoutProps {
   layout: LayoutProps[] | WidgetLayoutProps[]; // Array of layout components or widgets to render.
   layoutId: string; // Identifier of layout
   layoutStyle?: { [key: string]: any }; // React.CSSProperties for overriding default layout style.
-  layoutType: LayoutComponentType; // Used to identify the correct layout component to render.
+  layoutType: LayoutComponentTypes; // Used to identify the correct layout component to render.
 
   allowedWidgetTypes?: string[]; // Array of widget types that can be dropped on the layout component.
   childTemplate?: LayoutProps; // The template of child layout components to wrap new widgets in.
@@ -49,6 +56,10 @@ export interface LayoutComponentProps extends LayoutProps {
   layoutOrder: string[]; // Top - down hierarchy of layoutIds.
   parentDropTarget: string; // layoutId of the immediate drop target parent. Could be self as well.
   renderMode: RenderMode;
+}
+
+export interface LayoutComponentState {
+  order: string[]; // Top - down hierarchy of layoutIds.
 }
 
 export interface LayoutComponent extends React.FC<LayoutComponentProps> {
@@ -121,6 +132,7 @@ export type GetInitialHighlights = (
   baseHighlight: AnvilHighlightInfo,
   generateHighlights: GenerateHighlights,
   getDimensions: GetDimensions,
+  isDropTarget: boolean,
   hasFillWidget?: boolean,
 ) => AnvilHighlightInfo[];
 
@@ -147,3 +159,15 @@ export type GetLayoutHighlights = (
 ) => AnvilHighlightInfo[];
 
 export type GetDimensions = (id: string) => LayoutElementPosition;
+
+export type DeriveHighlightsFn = (
+  props: LayoutProps,
+  canvasId: string,
+  layoutOrder: string[],
+  parentDropTarget: string,
+) => GetHighlights;
+
+export type GetHighlights = (
+  widgetPositions: LayoutElementPositions,
+  draggedWidgets: DraggedWidget[],
+) => AnvilHighlightInfo[];

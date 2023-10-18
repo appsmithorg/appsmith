@@ -13,8 +13,8 @@ import type { LayoutElementPosition } from "layoutSystems/common/types";
  * @param baseHighlight | AnvilHighlightInfo : base highlight object.
  * @param generateHighlights | GenerateHighlights : method of generate highlights for the parent layout.
  * @param getDimensions | GetDimensions : method of getting dimensions of a widget.
- * @param hasFillWidget | boolean | undefined : whether the list of dragged widgets includes a Fill widget.
  * @param isDropTarget | boolean
+ * @param hasFillWidget | boolean | undefined : whether the list of dragged widgets includes a Fill widget.
  * @returns AnvilHighlightInfo[]
  */
 export function getInitialHighlights(
@@ -22,8 +22,8 @@ export function getInitialHighlights(
   baseHighlight: AnvilHighlightInfo,
   generateHighlights: GenerateHighlights,
   getDimensions: GetDimensions,
-  hasFillWidget = false,
   isDropTarget: boolean,
+  hasFillWidget = false,
 ): AnvilHighlightInfo[] {
   const { layoutId } = layoutProps;
 

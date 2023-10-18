@@ -14,13 +14,13 @@ export const formPreset = (
     {
       isPermanent: true,
       layoutId: generateReactKey(),
-      layoutType: LayoutComponentTypes.COLUMN,
+      layoutType: LayoutComponentTypes.LAYOUT_COLUMN,
       layout: [
         {
           isDropTarget: true,
           isPermanent: true,
           layoutId: generateReactKey(),
-          layoutType: LayoutComponentTypes.ROW,
+          layoutType: LayoutComponentTypes.WIDGET_ROW,
           layout: [
             {
               widgetId: title,
@@ -35,7 +35,7 @@ export const formPreset = (
           isDropTarget: true,
           isPermanent: true,
           layoutId: generateReactKey(),
-          layoutType: LayoutComponentTypes.ALIGNED_COLUMN,
+          layoutType: LayoutComponentTypes.ALIGNED_LAYOUT_COLUMN,
           layout: [],
           layoutStyle: {
             minHeight: "40px",
@@ -46,7 +46,7 @@ export const formPreset = (
           isDropTarget: true,
           isPermanent: true,
           layoutId: generateReactKey(),
-          layoutType: LayoutComponentTypes.ALIGNED_ROW,
+          layoutType: LayoutComponentTypes.ALIGNED_WIDGET_ROW,
           layout: [
             {
               widgetId: button2,
