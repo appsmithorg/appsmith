@@ -34,7 +34,10 @@ import {
 } from "utils/storage";
 import { validateResponse } from "./ErrorSagas";
 import { builderURL } from "@appsmith/RouteBuilder";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
+import {
+  getCurrentApplicationId,
+  getCurrentPageName,
+} from "selectors/editorSelectors";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import {
   fetchApplication,
@@ -231,6 +234,9 @@ function* forkStarterTemplateToApplicationSaga(
     templateName: string;
   }>,
 ) {
+  // Get page name where the starter template was clicked
+  const activePageName: string = yield select(getCurrentPageName);
+
   const {
     applicationId,
     isValid,
@@ -253,12 +259,11 @@ function* forkStarterTemplateToApplicationSaga(
   }
 
   function* renameStarterTemplatePageToDefault(pageId: string) {
-    const defaultPageName = "Page1";
     yield put({
       type: ReduxActionTypes.UPDATE_PAGE_INIT,
       payload: {
         id: pageId,
-        name: defaultPageName,
+        name: activePageName,
         isHidden: false,
       },
     });

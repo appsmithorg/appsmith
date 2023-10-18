@@ -22,10 +22,10 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 
 function CanvasStarterTemplatesLayout() {
   const dispatch = useDispatch();
-  const [layoutActive, setLayoutActive] = useState<boolean>(true); // manage "or" text and "Drag and Drop Widgets" text
+  const [layoutActive, setLayoutActive] = useState<boolean>(false); // manage "or" text and "Drag and Drop Widgets" text
   const [templateSreenshot, setTemplateScreenshot] = useState<string | null>(
     null,
-  ); // manage template background screenshot immage
+  ); // manage template background screenshot image
 
   const handleItemHover = (index: number) => {
     setTemplateScreenshot(layoutItems[index].screenshot);
