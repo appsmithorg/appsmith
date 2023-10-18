@@ -41,11 +41,7 @@ describe("Bind a button and Api usecase", function () {
   it("2. Button-Name updation & API datasource binding with button name validation", function () {
     _.entityExplorer.SelectEntityByName("Button1");
     //changing the Button Name
-    cy.widgetText(
-      testdata.buttonName,
-      widgetsPage.buttonWidget,
-      widgetsPage.widgetNameSpan,
-    );
+    _.propPane.RenameWidget("Button1", testdata.buttonName);
 
     //API datasource binding with button name validation
     _.entityExplorer.SelectEntityByName("Api1", "Queries/JS");

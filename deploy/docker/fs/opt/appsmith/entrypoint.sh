@@ -144,6 +144,12 @@ unset_unused_variables() {
     unset APPSMITH_RECAPTCHA_SECRET_KEY
     unset APPSMITH_RECAPTCHA_ENABLED
   fi
+
+  export APPSMITH_SUPERVISOR_USER="${APPSMITH_SUPERVISOR_USER:-appsmith}"
+  if [[ -z "${APPSMITH_SUPERVISOR_PASSWORD-}" ]]; then
+    APPSMITH_SUPERVISOR_PASSWORD="$(tr -dc A-Za-z0-9 </dev/urandom | head -c 13)"
+    export APPSMITH_SUPERVISOR_PASSWORD
+  fi
 }
 
 check_mongodb_uri() {
@@ -387,10 +393,10 @@ init_postgres() {
         chown -R postgres:postgres "$POSTGRES_DB_PATH"
     else
       echo "Initializing local postgresql database"
-      mkdir -p "$POSTGRES_DB_PATH" "$TMP/postgres-stats"
+      mkdir -p "$POSTGRES_DB_PATH"
 
       # Postgres does not allow it's server to be run with super user access, we use user postgres and the file system owner also needs to be the same user postgres
-      chown postgres:postgres "$POSTGRES_DB_PATH" "$TMP/postgres-stats"
+      chown postgres:postgres "$POSTGRES_DB_PATH"
 
       # Initialize the postgres db file system
       su postgres -c "/usr/lib/postgresql/13/bin/initdb -D $POSTGRES_DB_PATH"

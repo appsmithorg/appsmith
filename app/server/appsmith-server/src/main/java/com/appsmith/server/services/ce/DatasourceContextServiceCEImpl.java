@@ -1,5 +1,6 @@
 package com.appsmith.server.services.ce;
 
+import com.appsmith.external.constants.PluginConstants;
 import com.appsmith.external.dtos.ExecutePluginDTO;
 import com.appsmith.external.dtos.RemoteDatasourceDTO;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
@@ -70,6 +71,7 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
      * value instead of creating a new connection for each subscription of the source publisher.
      *
      * @param datasourceStorage           - datasource storage for which a new datasource context / connection needs to be created
+     * @param plugin
      * @param pluginExecutor              - plugin executor associated with the datasource's plugin
      * @param monitor                     - unique monitor object per datasource id. Lock is acquired on this monitor object.
      * @param datasourceContextIdentifier - key for the datasourceContextMaps.
@@ -78,6 +80,7 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
      */
     public Mono<? extends DatasourceContext<?>> getCachedDatasourceContextMono(
             DatasourceStorage datasourceStorage,
+            Plugin plugin,
             PluginExecutor<Object> pluginExecutor,
             Object monitor,
             DatasourceContextIdentifier datasourceContextIdentifier) {
@@ -114,7 +117,7 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
 
             /* Create a fresh datasource context */
             DatasourceContext<Object> datasourceContext = new DatasourceContext<>();
-            if (datasourceContextIdentifier.isKeyValid()) {
+            if (datasourceContextIdentifier.isKeyValid() && shouldCacheContextForThisPlugin(plugin)) {
                 /* For this datasource, either the context doesn't exist, or the context is stale. Replace (or add) with
                 the new connection in the context map. */
                 datasourceContextMap.put(datasourceContextIdentifier, datasourceContext);
@@ -138,11 +141,23 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
                             datasourceContext)
                     .cache(); /* Cache the value so that further evaluations don't result in new connections */
 
-            if (datasourceContextIdentifier.isKeyValid()) {
+            if (datasourceContextIdentifier.isKeyValid() && shouldCacheContextForThisPlugin(plugin)) {
                 datasourceContextMonoMap.put(datasourceContextIdentifier, datasourceContextMonoCache);
             }
             return datasourceContextMonoCache;
         }
+    }
+
+    /**
+     * determines whether we should cache context for given plugin
+     * it gives false if plugin is rest-api or graph-ql
+     * @param plugin
+     * @return
+     */
+    public boolean shouldCacheContextForThisPlugin(Plugin plugin) {
+        // !(a || b) => (!a) & (!b)
+        return !PluginConstants.PackageName.REST_API_PLUGIN.equals(plugin.getPackageName())
+                && !PluginConstants.PackageName.GRAPH_QL_PLUGIN.equals(plugin.getPackageName());
     }
 
     public Mono<Object> updateDatasourceAndSetAuthentication(Object connection, DatasourceStorage datasourceStorage) {
@@ -162,33 +177,38 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
     protected Mono<DatasourceContext<?>> createNewDatasourceContext(
             DatasourceStorage datasourceStorage, DatasourceContextIdentifier datasourceContextIdentifier) {
         log.debug("Datasource context doesn't exist. Creating connection.");
-        Mono<Plugin> pluginMono = pluginService.findById(datasourceStorage.getPluginId());
+        Mono<Plugin> pluginMono =
+                pluginService.findById(datasourceStorage.getPluginId()).cache();
 
-        return pluginExecutorHelper.getPluginExecutor(pluginMono).flatMap(pluginExecutor -> {
+        return pluginMono
+                .zipWith(pluginExecutorHelper.getPluginExecutor(pluginMono))
+                .flatMap(tuple2 -> {
+                    Plugin plugin = tuple2.getT1();
+                    PluginExecutor<Object> pluginExecutor = tuple2.getT2();
 
-            /**
-             * Keep one monitor object against each datasource id. The synchronized method
-             * `getCachedDatasourceContextMono` would then acquire lock on the monitor object which is unique
-             * for each datasourceId hence ensuring that if competing threads want to create datasource context
-             * on different datasource id then they are not blocked on each other and can run concurrently.
-             * Only threads that want to create a new datasource context on the same datasource id would be
-             * synchronized.
-             */
-            Object monitor = new Object();
-            if (datasourceContextIdentifier.isKeyValid()) {
-                if (datasourceContextSynchronizationMonitorMap.get(datasourceContextIdentifier) == null) {
-                    synchronized (this) {
-                        datasourceContextSynchronizationMonitorMap.computeIfAbsent(
-                                datasourceContextIdentifier, k -> new Object());
+                    /**
+                     * Keep one monitor object against each datasource id. The synchronized method
+                     * `getCachedDatasourceContextMono` would then acquire lock on the monitor object which is unique
+                     * for each datasourceId hence ensuring that if competing threads want to create datasource context
+                     * on different datasource id then they are not blocked on each other and can run concurrently.
+                     * Only threads that want to create a new datasource context on the same datasource id would be
+                     * synchronized.
+                     */
+                    Object monitor = new Object();
+                    if (datasourceContextIdentifier.isKeyValid()) {
+                        if (datasourceContextSynchronizationMonitorMap.get(datasourceContextIdentifier) == null) {
+                            synchronized (this) {
+                                datasourceContextSynchronizationMonitorMap.computeIfAbsent(
+                                        datasourceContextIdentifier, k -> new Object());
+                            }
+                        }
+
+                        monitor = datasourceContextSynchronizationMonitorMap.get(datasourceContextIdentifier);
                     }
-                }
 
-                monitor = datasourceContextSynchronizationMonitorMap.get(datasourceContextIdentifier);
-            }
-
-            return getCachedDatasourceContextMono(
-                    datasourceStorage, pluginExecutor, monitor, datasourceContextIdentifier);
-        });
+                    return getCachedDatasourceContextMono(
+                            datasourceStorage, plugin, pluginExecutor, monitor, datasourceContextIdentifier);
+                });
     }
 
     public boolean getIsStale(

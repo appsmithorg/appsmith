@@ -38,7 +38,7 @@ import com.appsmith.server.dtos.GitMergeDTO;
 import com.appsmith.server.dtos.GitPullDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.export.internal.ImportExportApplicationService;
+import com.appsmith.server.exports.internal.ExportApplicationService;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.GitDeployKeyGenerator;
 import com.appsmith.server.helpers.GitFileUtils;
@@ -46,6 +46,7 @@ import com.appsmith.server.helpers.GitPrivateRepoHelper;
 import com.appsmith.server.helpers.GitUtils;
 import com.appsmith.server.helpers.RedisUtils;
 import com.appsmith.server.helpers.ResponseUtils;
+import com.appsmith.server.imports.internal.ImportApplicationService;
 import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
@@ -132,7 +133,8 @@ public class GitServiceCEImpl implements GitServiceCE {
     private final NewActionService newActionService;
     private final ActionCollectionService actionCollectionService;
     private final GitFileUtils fileUtils;
-    private final ImportExportApplicationService importExportApplicationService;
+    private final ImportApplicationService importApplicationService;
+    private final ExportApplicationService exportApplicationService;
     private final GitExecutor gitExecutor;
     private final ResponseUtils responseUtils;
     private final EmailConfig emailConfig;
@@ -500,7 +502,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 AppsmithError.INVALID_GIT_CONFIGURATION, "Unable to find " + errorEntity));
                     }
                     return Mono.zip(
-                            importExportApplicationService.exportApplicationById(
+                            exportApplicationService.exportApplicationById(
                                     branchedApplication.getId(), SerialiseApplicationObjective.VERSION_CONTROL),
                             Mono.just(branchedApplication));
                 })
@@ -859,19 +861,15 @@ public class GitServiceCEImpl implements GitServiceCE {
                                         gitApplicationMetadata.setLastCommittedAt(Instant.now());
 
                                         // Set branchName for each application resource
-                                        return importExportApplicationService
+                                        return exportApplicationService
                                                 .exportApplicationById(
                                                         applicationId, SerialiseApplicationObjective.VERSION_CONTROL)
                                                 .flatMap(applicationJson -> {
                                                     applicationJson
                                                             .getExportedApplication()
                                                             .setGitApplicationMetadata(gitApplicationMetadata);
-                                                    return importExportApplicationService
-                                                            .importApplicationInWorkspaceFromGit(
-                                                                    workspaceId,
-                                                                    applicationJson,
-                                                                    applicationId,
-                                                                    defaultBranch);
+                                                    return importApplicationService.importApplicationInWorkspaceFromGit(
+                                                            workspaceId, applicationJson, applicationId, defaultBranch);
                                                 });
                                     }
                                 })
@@ -1117,7 +1115,8 @@ public class GitServiceCEImpl implements GitServiceCE {
      * Since the users will be in a bad state where the changes are committed locally, but they are
      * not able to push them changes or revert the changes either.
      * 1. Push rejected due to branch protection rules on remote, reset hard prev commit
-     * @param pushResult status of git push operation
+     *
+     * @param pushResult  status of git push operation
      * @param application application data to be used for analytics
      * @return status of the git push flow
      */
@@ -1355,7 +1354,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 srcApplication.setGitApplicationMetadata(srcBranchGitData);
                                 return Mono.zip(
                                         applicationService.save(srcApplication),
-                                        importExportApplicationService.exportApplicationById(
+                                        exportApplicationService.exportApplicationById(
                                                 srcApplicationId, SerialiseApplicationObjective.VERSION_CONTROL));
                             })
                             .onErrorResume(error -> Mono.error(new AppsmithException(
@@ -1363,7 +1362,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                 })
                 .flatMap(tuple -> {
                     Application savedApplication = tuple.getT1();
-                    return importExportApplicationService
+                    return importApplicationService
                             .importApplicationInWorkspaceFromGit(
                                     savedApplication.getWorkspaceId(),
                                     tuple.getT2(),
@@ -1544,7 +1543,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                     // Get the latest application mono with all the changes
                     ApplicationJson applicationJson = tuple.getT1();
                     Application application = tuple.getT2();
-                    return importExportApplicationService
+                    return importApplicationService
                             .importApplicationInWorkspaceFromGit(
                                     application.getWorkspaceId(), applicationJson, application.getId(), branchName)
                             .flatMap(application1 -> addAnalyticsForGitOperation(
@@ -1578,6 +1577,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, applicationId)));
     }
+
     /**
      * Method to pull application json files from remote repo, make a commit with the changes present in local DB and
      * make a system commit to remote repo
@@ -1832,9 +1832,8 @@ public class GitServiceCEImpl implements GitServiceCE {
                                     fetchRemoteMono = Mono.just("ignored");
                                 }
 
-                                Mono<ApplicationJson> exportAppMono =
-                                        importExportApplicationService.exportApplicationById(
-                                                application.getId(), SerialiseApplicationObjective.VERSION_CONTROL);
+                                Mono<ApplicationJson> exportAppMono = exportApplicationService.exportApplicationById(
+                                        application.getId(), SerialiseApplicationObjective.VERSION_CONTROL);
 
                                 return Mono.zip(exportAppMono, fetchRemoteMono) // zip will run them in parallel
                                         .map(Tuple2::getT1);
@@ -1950,8 +1949,8 @@ public class GitServiceCEImpl implements GitServiceCE {
      * 2. Run a git fetch command to fetch the latest changes from the remote
      *
      * @param defaultApplicationId Default application id
-     * @param branchName name of the branch to compare with remote
-     * @param isFileLock whether to add file lock or not
+     * @param branchName           name of the branch to compare with remote
+     * @param isFileLock           whether to add file lock or not
      * @return Mono of {@link BranchTrackingStatus}
      */
     @Override
@@ -2162,7 +2161,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                     mergeStatusDTO.setMergeAble(Boolean.TRUE);
 
                     // 4. Get the latest application mono with all the changes
-                    return importExportApplicationService
+                    return importApplicationService
                             .importApplicationInWorkspaceFromGit(
                                     destApplication.getWorkspaceId(),
                                     applicationJson,
@@ -2368,7 +2367,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                         applicationService
                                 .findByBranchNameAndDefaultApplicationId(
                                         branchName, defaultApplicationId, applicationPermission.getEditPermission())
-                                .zipWhen(application -> importExportApplicationService.exportApplicationById(
+                                .zipWhen(application -> exportApplicationService.exportApplicationById(
                                         application.getId(), SerialiseApplicationObjective.VERSION_CONTROL)))
                 .flatMap(tuple -> {
                     GitApplicationMetadata defaultApplicationMetadata = tuple.getT1();
@@ -2594,7 +2593,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 applicationJson
                                         .getExportedApplication()
                                         .setGitApplicationMetadata(gitApplicationMetadata);
-                                return importExportApplicationService
+                                return importApplicationService
                                         .importApplicationInWorkspaceFromGit(
                                                 workspaceId, applicationJson, application.getId(), defaultBranch)
                                         .onErrorResume(throwable -> deleteApplicationCreatedFromGitImport(
@@ -2606,7 +2605,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                             });
                 })
                 // Add un-configured datasource to the list to response
-                .flatMap(application -> importExportApplicationService.getApplicationImportDTO(
+                .flatMap(application -> importApplicationService.getApplicationImportDTO(
                         application.getId(), application.getWorkspaceId(), application))
                 // Add analytics event
                 .flatMap(applicationImportDTO -> {
@@ -2832,12 +2831,11 @@ public class GitServiceCEImpl implements GitServiceCE {
                                                 "discard changes",
                                                 "Please create a new branch and resolve the conflicts on remote repository before proceeding ahead."));
                             })
-                            .flatMap(applicationJson ->
-                                    importExportApplicationService.importApplicationInWorkspaceFromGit(
-                                            branchedApplication.getWorkspaceId(),
-                                            applicationJson,
-                                            branchedApplication.getId(),
-                                            branchName))
+                            .flatMap(applicationJson -> importApplicationService.importApplicationInWorkspaceFromGit(
+                                    branchedApplication.getWorkspaceId(),
+                                    applicationJson,
+                                    branchedApplication.getId(),
+                                    branchName))
                             // Update the last deployed status after the rebase
                             .flatMap(application -> publishAndOrGetApplication(application.getId(), true));
                 })
@@ -3172,7 +3170,7 @@ public class GitServiceCEImpl implements GitServiceCE {
 
                     // Get the latest application with all the changes
                     // Commit and push changes to sync with remote
-                    return importExportApplicationService
+                    return importApplicationService
                             .importApplicationInWorkspaceFromGit(
                                     branchedApplication.getWorkspaceId(),
                                     applicationJson,
