@@ -105,10 +105,15 @@ jobs:
                 try {
                     await Promise.all(promises);
                     console.log(totalCost);
+                    const totalCost = totalCost.TOTAL.toFixed(2);
+                    const breakdown = Object.entries(totalCost)
+                      .filter(([key, value]) => key !== 'TOTAL')
+                      .map(([key, value]) => `${key}: $${value.toFixed(2)}`)
+                      .join(', ');
                     await github.rest.issues.createComment({
                       ...context.repo,
                       issue_number: 28178,
-                      body: totalCost
+                      body: `The total cost of **PR** is **$${totalCost}**.\n**Breakdown:**\n${breakdown}`
                     })
                 } catch (error) {
                     console.error("Error:", error);
