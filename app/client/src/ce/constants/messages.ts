@@ -335,6 +335,11 @@ export const ACTION_NAME_CONFLICT_ERROR = (name: string) =>
 export const ENTITY_EXPLORER_ACTION_NAME_CONFLICT_ERROR = (name: string) =>
   `${name} is already being used.`;
 
+export const ACTION_ID_NOT_FOUND_IN_URL =
+  "No correct API id or Query id found in the url.";
+export const JSOBJECT_ID_NOT_FOUND_IN_URL =
+  "No correct JSObject id found in the url.";
+
 export const DATASOURCE_CREATE = (dsName: string) =>
   `${dsName} datasource created`;
 export const DATASOURCE_DELETE = (dsName: string) =>
@@ -2150,3 +2155,8 @@ export const COMMUNITY_TEMPLATES = {
     },
   },
 };
+
+export const EMPTY_TABLE_TITLE_TEXT = () => "Empty table";
+export const EMPTY_TABLE_MESSAGE_TEXT = () =>
+  "There are no data records to show";
+export const EMPTY_TABLE_SVG_ALT_TEXT = () => "Empty table image";
