@@ -61,7 +61,7 @@ jobs:
             async function getBillableTimeForPr(prNumber) {
                 try {
                     const runIds = await getWorkflowRuns(prNumber);
-
+                    console.log(runIds)
                     const billableTimePromises = runIds.map(async (run_id) => {
                         const usageRes = await github.rest.actions.getWorkflowRunUsage({
                             ...context.repo,
@@ -81,7 +81,7 @@ jobs:
                             }
                         });
                     });
-
+                    console.log(totalBillableTime);
                     return totalBillableTime;
                 } catch (error) {
                     console.error("Error:", error);
@@ -95,7 +95,7 @@ jobs:
                 const promises = prs.map(async (pr) => {
                     return getBillableTimeForPr(pr).then((bill) => {
                         const cost = { UBUNTU: 0.008, UBUNTU_8_CORE: 0.032, UBUNTU_4_CORE: 0.016 };
-
+                        console.log(bill);
                         for (const key of Object.keys(bill)) {
                             totalCost[key] = Math.ceil(bill[key] / 60000) * cost[key];
                             totalCost["TOTAL"] += totalCost[key];
@@ -104,6 +104,7 @@ jobs:
                 });
                 try {
                     await Promise.all(promises);
+                    console.log(totalCost);
                     github.rest.issues.createComment({
                       ...context.repo,
                       issue_number: pr,
