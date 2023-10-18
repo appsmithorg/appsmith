@@ -13,7 +13,7 @@ import {
 } from "constants/routes";
 import { previewModeSelector } from "selectors/editorSelectors";
 import WidgetsEditor from "./WidgetsEditor";
-import EditorsRouter from "./routes";
+import EditorsRouter from "@appsmith/pages/Editor/routes";
 import EditorWrapperBody from "./commons/EditorWrapperBody";
 import WidgetsEditorEntityExplorer from "./WidgetsEditorEntityExplorer";
 import EditorWrapperContainer from "./commons/EditorWrapperContainer";
