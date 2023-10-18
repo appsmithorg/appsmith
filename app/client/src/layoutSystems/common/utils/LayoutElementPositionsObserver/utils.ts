@@ -2,6 +2,10 @@ export const ANVIL_LAYER = "anvil_layer";
 export const ANVIL_WIDGET = "anvil_widget";
 export const LAYOUT = "layout";
 
+// The following functions are too simple for a unit test to be useful
+// The only reason why this would break is if we change how the following
+// functions work
+
 /**
  * Method to return Id of widget with widgetId
  * @param widgetId
@@ -18,12 +22,8 @@ export const getAnvilWidgetDOMId = (widgetId: string) => {
  * @param layoutIndex
  * @returns The ID to be used in the DOM
  */
-export const getAnvilLayoutDOMId = (
-  canvasId: string,
-  layoutId: string,
-  layoutIndex: number,
-) => {
-  return LAYOUT + "_" + canvasId + "_" + layoutId + "_" + layoutIndex;
+export const getAnvilLayoutDOMId = (canvasId: string, layoutId: string) => {
+  return LAYOUT + "_" + canvasId + "_" + layoutId;
 };
 
 /**
@@ -36,10 +36,10 @@ export const extractLayoutIdFromLayoutDOMId = (layoutDOMId: string) => {
 };
 
 /**
- * Extracts the layoutIndex from the layout DOM Id
- * @param layoutDOMId The id from the DOM nnode
- * @returns layoutIndex
+ * Extracts the widgetId from the anvil set widget DOM id
+ * @param anvilWidgetDOMId The id attribute from the DOM
+ * @returns string The widgetId
  */
-export const extractLayoutIndexFromLayoutDOMId = (layoutDOMId: string) => {
-  return parseInt(layoutDOMId.split("_")[3], 10);
-};
+export function extractWidgetIdFromAnvilWidgetDOMId(anvilWidgetDOMId: string) {
+  return anvilWidgetDOMId.split("_")[1];
+}

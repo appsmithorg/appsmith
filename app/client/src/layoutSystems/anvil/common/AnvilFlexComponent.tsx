@@ -27,7 +27,7 @@ import {
 import WidgetFactory from "WidgetProvider/factory";
 import type { WidgetProps } from "widgets/BaseWidget";
 import type { WidgetConfigProps } from "WidgetProvider/constants";
-import { usePositionObserver } from "layoutSystems/common/utils/WidgetPositionsObserver/usePositionObserver";
+import { usePositionObserver } from "layoutSystems/common/utils/LayoutElementPositionsObserver/usePositionObserver";
 
 /**
  * Adds following functionalities to the widget:
@@ -50,9 +50,12 @@ export function AnvilFlexComponent(props: AnvilFlexComponentProps) {
   const isSnipingMode = useSelector(snipingModeSelector);
   const isCurrentWidgetResizing = isResizing && isSelected;
 
-  // Add observer to Flex component
+  /** POSITIONS OBSERVER LOGIC */
+  // Create a ref so that this DOM node can be
+  // observed by the observer for changes in size
   const ref = React.useRef<HTMLDivElement>(null);
   usePositionObserver("widget", { widgetId: props.widgetId }, ref);
+  /** EO POSITIONS OBSERVER LOGIC */
 
   const [isFillWidget, setIsFillWidget] = useState<boolean>(false);
   const [verticalAlignment, setVerticalAlignment] =

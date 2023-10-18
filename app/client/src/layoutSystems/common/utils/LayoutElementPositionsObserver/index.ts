@@ -1,14 +1,19 @@
 import { debounce } from "lodash";
 import type { RefObject } from "react";
-import { ANVIL_WIDGET, LAYOUT, getAnvilLayoutDOMId } from "./utils";
+import {
+  ANVIL_WIDGET,
+  LAYOUT,
+  getAnvilLayoutDOMId,
+  getAnvilWidgetDOMId,
+} from "./utils";
 import store from "store";
 import { readLayoutElementPositions } from "layoutSystems/anvil/integrations/actions";
 
 /**
- * This Class's main function is to batch all the registered widgets, Flex layers and layout components
- * and dispatch an action to process all the affected widgets to determine all the widgets' positions
- *
- * This inturn acts as an observer to find out update widgets positions whenever the widget position changes
+ * A singleton class that registers all the widgets and layouts that are present on the canvas
+ * This class uses a ResizeObserver to observe all the registered elements
+ * Whenever any of the registered elements changes size, the ResizeObserver triggers
+ * This class then adds the changed elements to a queue to batch process them
  */
 class LayoutElementPositionObserver {
   // Objects to store registered elements
@@ -23,10 +28,11 @@ class LayoutElementPositionObserver {
     };
   } = {};
   private registeredLayouts: {
-    [layoutId: string]: {
+    [layoutDOMId: string]: {
       ref: RefObject<HTMLDivElement>;
       layoutId: string;
       canvasId: string;
+      isDropTarget: boolean;
     };
   } = {};
 
@@ -57,12 +63,9 @@ class LayoutElementPositionObserver {
   );
 
   //Method to register widgets for resize observer changes
-  public observeWidget(
-    widgetId: string,
-    widgetDOMId: string,
-    ref: RefObject<HTMLDivElement>,
-  ) {
+  public observeWidget(widgetId: string, ref: RefObject<HTMLDivElement>) {
     if (ref.current) {
+      const widgetDOMId = getAnvilWidgetDOMId(widgetId);
       this.registeredWidgets[widgetDOMId] = { ref, id: widgetId };
       this.resizeObserver.observe(ref.current);
       this.addWidgetToProcess(widgetDOMId);
@@ -83,29 +86,30 @@ class LayoutElementPositionObserver {
   public observeLayout(
     layoutId: string,
     canvasId: string,
-    layoutIndex: number,
+    isDropTarget: boolean,
     ref: RefObject<HTMLDivElement>,
   ) {
     if (ref?.current) {
       this.registeredLayouts[layoutId] = this.registeredLayouts[
-        getAnvilLayoutDOMId(canvasId, layoutId, layoutIndex)
+        getAnvilLayoutDOMId(canvasId, layoutId)
       ] = {
         ref,
         canvasId,
         layoutId,
+        isDropTarget,
       };
       this.resizeObserver.observe(ref.current);
     }
   }
 
   //Method to de register layouts for resize observer changes
-  public unObserveLayout(layoutId: string) {
-    const element = this.registeredLayouts[layoutId]?.ref?.current;
+  public unObserveLayout(layoutDOMId: string) {
+    const element = this.registeredLayouts[layoutDOMId]?.ref?.current;
     if (element) {
       this.resizeObserver.unobserve(element);
     }
 
-    delete this.registeredLayouts[layoutId];
+    delete this.registeredLayouts[layoutDOMId];
   }
 
   //This method is triggered from the resize observer to add widgets to queue
@@ -140,6 +144,16 @@ class LayoutElementPositionObserver {
       ),
     );
     this.clearProcessQueue();
+  }
+
+  // Getters for registered elements
+  public getRegisteredWidgets() {
+    return this.registeredWidgets;
+  }
+
+  // Getters for registered elements
+  public getRegisteredLayouts() {
+    return this.registeredLayouts;
   }
 }
 
