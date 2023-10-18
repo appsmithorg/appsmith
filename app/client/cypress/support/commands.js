@@ -1178,7 +1178,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   }).as("postTenant");
   cy.intercept("PUT", "/api/v1/git/discard/app/*").as("discardChanges");
   cy.intercept("GET", "/api/v1/libraries/*").as("getLibraries");
-  featureFlagIntercept({}, false);
+  // featureFlagIntercept({}, false);
   cy.intercept(
     {
       method: "GET",

@@ -10,8 +10,8 @@ export const featureFlagIntercept = (
     data: flags,
     errorDisplay: "",
   };
-  cy.intercept("GET", "/api/v1/users/features", response);
-  if (reload) {
-    cy.reload();
-  }
+  // cy.intercept("GET", "/api/v1/users/features", response);
+  // if (reload) {
+  //   cy.reload();
+  // }
 };
