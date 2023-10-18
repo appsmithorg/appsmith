@@ -27,6 +27,7 @@ import { BASE_PACKAGE_EDITOR_URL } from "@appsmith/constants/routes/packageRoute
 import type { ApiResponse } from "api/ApiResponses";
 import type {
   CreatePackageFromWorkspacePayload,
+  DeletePackagePayload,
   FetchPackagePayload,
 } from "@appsmith/actions/packageActions";
 import type {
@@ -165,7 +166,7 @@ export function* fetchPackageSaga(payload: FetchPackagePayload) {
         name: "Module 1",
         packageId: "package-1",
         type: "QUERY",
-        userPermissions: [],
+        userPermissions: ["manage:modules", "delete:modules"],
         inputs: {},
         whitelistedPublicEntitySettingsForModule: [],
         whitelistedPublicEntitySettingsForModuleInstance: [],
@@ -176,7 +177,7 @@ export function* fetchPackageSaga(payload: FetchPackagePayload) {
         name: "Module 2",
         packageId: "package-1",
         type: "QUERY",
-        userPermissions: [],
+        userPermissions: ["manage:modules", "delete:modules"],
         inputs: {},
         whitelistedPublicEntitySettingsForModule: [],
         whitelistedPublicEntitySettingsForModuleInstance: [],
@@ -187,7 +188,7 @@ export function* fetchPackageSaga(payload: FetchPackagePayload) {
         name: "Module 3",
         packageId: "package-1",
         type: "QUERY",
-        userPermissions: [],
+        userPermissions: ["manage:modules", "delete:modules"],
         inputs: {},
         whitelistedPublicEntitySettingsForModule: [],
         whitelistedPublicEntitySettingsForModuleInstance: [],
@@ -198,7 +199,7 @@ export function* fetchPackageSaga(payload: FetchPackagePayload) {
         name: "Module 4",
         packageId: "package-1",
         type: "QUERY",
-        userPermissions: [],
+        userPermissions: ["manage:modules", "delete:modules"],
         inputs: {},
         whitelistedPublicEntitySettingsForModule: [],
         whitelistedPublicEntitySettingsForModuleInstance: [],
@@ -226,6 +227,58 @@ export function* fetchPackageSaga(payload: FetchPackagePayload) {
   }
 }
 
+export function* updatePackageNameSaga(action: ReduxAction<Package>) {
+  try {
+    const response: ApiResponse<Package> = yield call(
+      PackageApi.updatePackage,
+      action.payload,
+    );
+    const isValidResponse: boolean = yield validateResponse(response);
+
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.UPDATE_PACKAGE_NAME_SUCCESS,
+        payload: response.data,
+      });
+
+      return response.data;
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.UPDATE_PACKAGE_NAME_ERROR,
+      payload: {
+        error,
+      },
+    });
+  }
+}
+
+export function* deletePackageSaga(action: ReduxAction<DeletePackagePayload>) {
+  try {
+    const response: ApiResponse<Package> = yield call(
+      PackageApi.deletePackage,
+      action.payload,
+    );
+    const isValidResponse: boolean = yield validateResponse(response);
+
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.DELETE_PACKAGE_SUCCESS,
+        payload: action.payload,
+      });
+
+      return response.data;
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.DELETE_PACKAGE_ERROR,
+      payload: {
+        error,
+      },
+    });
+  }
+}
+
 export default function* packagesSaga() {
   yield all([
     takeLatest(ReduxActionTypes.FETCH_ALL_PACKAGES_INIT, fetchAllPackagesSaga),
@@ -233,5 +286,10 @@ export default function* packagesSaga() {
       ReduxActionTypes.CREATE_PACKAGE_FROM_WORKSPACE_INIT,
       createPackageFromWorkspaceSaga,
     ),
+    takeLatest(
+      ReduxActionTypes.UPDATE_PACKAGE_NAME_INIT,
+      updatePackageNameSaga,
+    ),
+    takeLatest(ReduxActionTypes.DELETE_PACKAGE_INIT, deletePackageSaga),
   ]);
 }

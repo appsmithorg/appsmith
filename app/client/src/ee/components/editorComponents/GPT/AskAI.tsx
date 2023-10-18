@@ -33,7 +33,7 @@ import { getEntityInCurrentPath } from "sagas/RecentEntitiesSagas";
 import { useLocation } from "react-router";
 
 import { PromptTriggers } from "./constants";
-import { getJSCollectionFromName } from "ce/selectors/entitiesSelector";
+import { getJSCollectionFromName } from "@appsmith/selectors/entitiesSelector";
 import { autoIndentCode } from "components/editorComponents/CodeEditor/utils/autoIndentUtils";
 import { updateJSCollectionBody } from "actions/jsPaneActions";
 

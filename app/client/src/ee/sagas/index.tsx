@@ -11,6 +11,7 @@ import AISagas from "./aiSagas";
 import ProvisioningSagas from "./ProvisioningSagas";
 import PackagesSaga from "./packagesSaga";
 import PackageInitSagas from "./packageInitSagas";
+import ModulesSaga from "./modulesSaga";
 
 const sagasArr = [
   ...CE_Sagas,
@@ -21,6 +22,7 @@ const sagasArr = [
   ProvisioningSagas,
   PackagesSaga,
   PackageInitSagas,
+  ModulesSaga,
 ];
 
 export function* rootSaga(sagasToRun = sagasArr): any {

@@ -12,7 +12,7 @@ const package1 = {
 
 const package2 = {
   id: "package-2",
-  name: "Pacakge 2",
+  name: "Package 2",
 } as Package;
 
 const defaultModules = [
@@ -70,7 +70,8 @@ describe("packageReducer", () => {
       }),
     ).toEqual(expectedState);
   });
-  it("FETCH_PACKAGE_SUCCESS - is should not alter  the existing packages", () => {
+
+  it("FETCH_PACKAGE_SUCCESS - it should not alter the existing packages", () => {
     const initialState = klona(DEFAULT_STATE);
     initialState[package1.id] = package1;
 
@@ -83,6 +84,30 @@ describe("packageReducer", () => {
         payload: {
           packageData: package2,
           modules: defaultModules,
+        },
+      }),
+    ).toEqual(expectedState);
+  });
+
+  it("UPDATE_PACKAGE_NAME_SUCCESS - should update the respective package name for the specific package id in the state", () => {
+    const initialState = klona(DEFAULT_STATE);
+    initialState[package1.id] = package1;
+    initialState[package2.id] = package2;
+
+    const updatedName = "Package 1 Updated";
+    const expectedState = klona(DEFAULT_STATE);
+    expectedState[package2.id] = package2;
+    expectedState[package1.id] = {
+      ...package1,
+      name: updatedName,
+    };
+
+    expect(
+      reducer(initialState, {
+        type: ReduxActionTypes.UPDATE_PACKAGE_NAME_SUCCESS,
+        payload: {
+          ...package1,
+          name: updatedName,
         },
       }),
     ).toEqual(expectedState);

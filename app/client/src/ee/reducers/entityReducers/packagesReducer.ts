@@ -31,6 +31,16 @@ const packageReducer = createImmerReducer(INITIAL_STATE, {
 
     return draftState;
   },
+
+  [ReduxActionTypes.UPDATE_PACKAGE_NAME_SUCCESS]: (
+    draftState: PackagesReducerState,
+    action: ReduxAction<Package>,
+  ) => {
+    const packageData = action.payload;
+    draftState[packageData.id] = packageData;
+
+    return draftState;
+  },
 });
 
 export default packageReducer;

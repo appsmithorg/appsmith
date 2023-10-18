@@ -7,6 +7,16 @@ import {
   ReduxActionErrorTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 
+const package1 = {
+  id: "pkg-1",
+  name: "Package 1",
+};
+
+const package2 = {
+  id: "pkg-2",
+  name: "Package 2",
+};
+
 const DEFAULT_STATE: WorkspaceReduxState = {
   loadingStates: {
     fetchingRoles: false,
@@ -24,6 +34,8 @@ const DEFAULT_STATE: WorkspaceReduxState = {
   },
   packagesList: [],
   groupSuggestions: [],
+  isSavingPkgName: false,
+  isErrorSavingPkgName: false,
 };
 
 describe("workspaceReducer", () => {
@@ -188,6 +200,44 @@ describe("workspaceReducer", () => {
         payload: {
           workspaceId: workspaceId2,
         },
+      }),
+    ).toEqual(expectedState);
+  });
+
+  it("DELETE_PACKAGE_SUCCESS - should delete the respective package from the package list", () => {
+    const payload = [package1, package2];
+    const initialState = klona(DEFAULT_STATE);
+    initialState.packagesList = payload as any;
+
+    const expectedState = klona(DEFAULT_STATE);
+    expectedState.packagesList = [package1] as any;
+
+    expect(
+      reducer(initialState, {
+        type: ReduxActionTypes.DELETE_PACKAGE_SUCCESS,
+        payload: {
+          id: "pkg-2",
+        },
+      }),
+    ).toEqual(expectedState);
+  });
+
+  it("UPDATE_PACKAGE_NAME_SUCCESS - should update the name of the respective package from the package list", () => {
+    const payload = [package1, package2];
+    const updatedPkg = {
+      ...package2,
+      name: "test2 updated",
+    };
+    const initialState = klona(DEFAULT_STATE);
+    initialState.packagesList = payload as any;
+
+    const expectedState = klona(DEFAULT_STATE);
+    expectedState.packagesList = [package1, updatedPkg] as any;
+
+    expect(
+      reducer(initialState, {
+        type: ReduxActionTypes.UPDATE_PACKAGE_NAME_SUCCESS,
+        payload: updatedPkg,
       }),
     ).toEqual(expectedState);
   });

@@ -49,7 +49,7 @@ import type {
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { AIEditorContext } from "@appsmith/components/editorComponents/GPT";
-import type { ActionData } from "ce/reducers/entityReducers/actionsReducer";
+import type { ActionData } from "@appsmith/reducers/entityReducers/actionsReducer";
 import type { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 import type { Plugin } from "api/PluginApi";
 import type {

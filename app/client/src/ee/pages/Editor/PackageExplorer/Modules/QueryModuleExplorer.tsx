@@ -1,11 +1,6 @@
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
+  ADD_QUERY_BUTTON,
   ADD_QUERY_MODULE_TOOLTIP,
   EMPTY_QUERY_MODULES_MSG,
   NEW_QUERY_BUTTON,
@@ -19,7 +14,7 @@ import {
 import {
   ENTITY_HEIGHT,
   RelativeContainer,
-  StyledEntity as ModuleEntity,
+  StyledEntity as Entity,
 } from "pages/Editor/Explorer/Common/components";
 import { EntityExplorerResizeHandler } from "pages/Editor/Explorer/Common/EntityExplorerResizeHandler";
 import { useDispatch, useSelector } from "react-redux";
@@ -29,30 +24,25 @@ import {
   getExplorerStatus,
   saveExplorerStatus,
 } from "@appsmith/pages/Editor/Explorer/helpers";
-import { resolveAsSpaceChar } from "utils/helpers";
 import type { Module } from "@appsmith/constants/ModuleConstants";
 import {
   getAllModules,
   getCurrentModuleId,
 } from "@appsmith/selectors/modulesSelector";
 import { Icon } from "design-system";
-import {
-  hasCreateModulePermission,
-  hasManageModulePermission,
-} from "@appsmith/utils/permissionHelpers";
+import { hasCreateModulePermission } from "@appsmith/utils/permissionHelpers";
 import type { AppState } from "@appsmith/reducers";
 import { EntityClassNames } from "pages/Editor/Explorer/Entity";
-import { saveModuleName } from "@appsmith/actions/moduleActions";
-import { EmptyComponent } from "pages/Editor/Explorer/common";
+import { AddEntity, EmptyComponent } from "pages/Editor/Explorer/common";
 import ExplorerSubMenu from "pages/Editor/Explorer/Files/Submenu";
-import history, { NavigationMethod } from "utils/history";
 import {
   convertModulesToArray,
   selectAllQueryModules,
 } from "@appsmith/utils/Packages/moduleHelpers";
 import type { ModulesReducerState } from "@appsmith/reducers/entityReducers/modulesReducer";
+import QueryModuleEntity from "./QueryModules/QueryModuleEntity";
 
-const QueryModuleEntities = () => {
+const QueryModuleExplorer = () => {
   const packageId = useSelector(getCurrentPackageId) || "";
   const allModules: ModulesReducerState = useSelector(getAllModules);
   const modules: Module[] = convertModulesToArray(allModules);
@@ -96,68 +86,27 @@ const QueryModuleEntities = () => {
     openMenu(true);
   }, [dispatch, openMenu]);
 
-  const switchQModule = useCallback(
-    (module: Module) => {
-      const navigateToUrl = `pkg/${packageId}/module/${module.id}`;
-      history.push(navigateToUrl, {
-        invokedBy: NavigationMethod.EntityExplorer,
-      });
-    },
-    [packageId, module.id],
-  );
-
   const userPackagePermissions = useSelector(
     (state: AppState) => getCurrentPackage(state)?.userPermissions ?? [],
   );
 
   const canCreateModules = hasCreateModulePermission(userPackagePermissions);
 
-  const moduleElements = useMemo(
-    () =>
-      queryModules.map((module) => {
-        const icon = <Icon name="module" size={20} />;
-        const isCurrentModule = currentModuleId === module.id;
-        const modulePermissions = module.userPermissions;
-        const canManageModules = hasManageModulePermission(modulePermissions);
-        /*const contextMenu = (
-          <ModuleContextMenu
-            className={EntityClassNames.CONTEXT_MENU}
-            isDefaultPage={module.isDefault}
-            key={module.id + "_context-menu"}
-            moduleId={module.id}
-            name={module.name}
-            packageId={packageId as string}
-          />
-        );*/
-        const contextMenu = null;
-
-        return (
-          <ModuleEntity
-            action={() => switchQModule(module)}
-            active={isCurrentModule}
-            canEditEntityName={canManageModules}
-            className={`query-module ${isCurrentModule && "activeModule"}`}
-            contextMenu={contextMenu}
-            entityId={module.id}
-            icon={icon}
-            isDefaultExpanded={isCurrentModule}
-            key={module.id}
-            name={module.name}
-            onNameEdit={resolveAsSpaceChar}
-            searchKeyword={""}
-            step={1}
-            updateEntityName={(id, name) =>
-              saveModuleName({ id, newName: name, publicEntityId: "" })
-            }
-          />
-        );
-      }),
-    [currentModuleId],
-  );
+  const moduleElements = queryModules.map((module) => (
+    <QueryModuleEntity
+      currentModuleId={currentModuleId}
+      key={module.id}
+      module={module}
+      packageId={packageId}
+    />
+  ));
 
   return (
-    <RelativeContainer className="border-b pb-1">
-      <ModuleEntity
+    <RelativeContainer
+      className="border-b pb-1"
+      data-testid="t--query-module-explorer"
+    >
+      <Entity
         addButtonHelptext={createMessage(ADD_QUERY_MODULE_TOOLTIP)}
         alwaysShowRightIcon
         className="pb-0 group query-modules"
@@ -174,7 +123,7 @@ const QueryModuleEntities = () => {
         entitySize={
           queryModules.length > 0 ? ENTITY_HEIGHT * queryModules.length : 156
         }
-        icon={""}
+        icon={""} // ankita: update later
         isDefaultExpanded={
           isModulesOpen === null || isModulesOpen === undefined
             ? true
@@ -198,7 +147,16 @@ const QueryModuleEntities = () => {
             })}
           />
         )}
-      </ModuleEntity>
+        {moduleElements.length > 0 && canCreateModules && (
+          <AddEntity
+            action={onCreate}
+            entityId={packageId + "_queries_js_add_new_datasource"}
+            icon={<Icon name="plus" />}
+            name={createMessage(ADD_QUERY_BUTTON)}
+            step={1}
+          />
+        )}
+      </Entity>
       <EntityExplorerResizeHandler
         resizeRef={moduleResizeRef}
         storedHeightKey={storedHeightKey}
@@ -207,4 +165,4 @@ const QueryModuleEntities = () => {
   );
 };
 
-export default QueryModuleEntities;
+export default QueryModuleExplorer;

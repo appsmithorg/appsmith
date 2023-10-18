@@ -369,4 +369,8 @@ export const ADD_QUERY_MODULE_TOOLTIP = () => "Add a new query module";
 export const CREATE_NEW_QUERY_MODULE = () => "New query";
 export const EMPTY_QUERY_MODULES_MSG = () => "No queries to show here.";
 export const NEW_QUERY_BUTTON = () => "New query";
+export const RENAME_PACKAGE_TOOLTIP = () => "Rename package";
+export const ADD_QUERY_BUTTON = () => "Add query";
+export const PACKAGE_NAME_CANT_BE_EMPTY = () => "Package name can't be empty";
+export const ERROR_DELETING_PACKAGE = () => "Error while deleting Package";
 // Modules end
