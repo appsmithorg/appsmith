@@ -1,7 +1,7 @@
 package com.appsmith.server.newactions.export;
 
 import com.appsmith.server.domains.NewAction;
-import com.appsmith.server.export.exportable.ExportableService;
+import com.appsmith.server.exports.exportable.ExportableService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.solutions.ActionPermission;
 import org.springframework.stereotype.Service;

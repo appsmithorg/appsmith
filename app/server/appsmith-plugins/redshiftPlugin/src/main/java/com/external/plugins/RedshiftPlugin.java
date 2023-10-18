@@ -53,12 +53,14 @@ import static com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorM
 import static com.appsmith.external.helpers.PluginUtils.getColumnsListForJdbcPlugin;
 import static com.appsmith.external.helpers.PluginUtils.getIdenticalColumns;
 import static com.external.utils.RedshiftDatasourceUtils.createConnectionPool;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Slf4j
 public class RedshiftPlugin extends BasePlugin {
     public static final String JDBC_DRIVER = "com.amazon.redshift.jdbc.Driver";
     private static final String DATE_COLUMN_TYPE_NAME = "date";
     public static RedshiftDatasourceUtils redshiftDatasourceUtils = new RedshiftDatasourceUtils();
+    public static final Long REDSHIFT_DEFAULT_PORT = 5439L;
 
     public RedshiftPlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -423,6 +425,23 @@ public class RedshiftPlugin extends BasePlugin {
             }
 
             return invalids;
+        }
+
+        @Override
+        public Mono<String> getEndpointIdentifierForRateLimit(DatasourceConfiguration datasourceConfiguration) {
+            List<Endpoint> endpoints = datasourceConfiguration.getEndpoints();
+            String identifier = "";
+            // When hostname and port both are available, both will be used as identifier
+            // When port is not present, default port along with hostname will be used
+            // This ensures rate limiting will only be applied if hostname is present
+            if (endpoints.size() > 0) {
+                String hostName = endpoints.get(0).getHost();
+                Long port = endpoints.get(0).getPort();
+                if (!isBlank(hostName)) {
+                    identifier = hostName + "_" + ObjectUtils.defaultIfNull(port, REDSHIFT_DEFAULT_PORT);
+                }
+            }
+            return Mono.just(identifier);
         }
 
         private void getTablesInfo(ResultSet columnsResultSet, Map<String, DatasourceStructure.Table> tablesByName)

@@ -7,7 +7,7 @@ import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ExportingMetaDTO;
 import com.appsmith.server.dtos.MappedExportableResourcesDTO;
-import com.appsmith.server.export.exportable.ExportableServiceCE;
+import com.appsmith.server.exports.exportable.ExportableServiceCE;
 import com.appsmith.server.jslibs.base.CustomJSLibService;
 import reactor.core.publisher.Mono;
 

@@ -16,7 +16,7 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ExportingMetaDTO;
 import com.appsmith.server.dtos.MappedExportableResourcesDTO;
-import com.appsmith.server.export.exportable.ExportableServiceCE;
+import com.appsmith.server.exports.exportable.ExportableServiceCE;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.DatasourcePermission;
 import reactor.core.publisher.Flux;

@@ -1,7 +1,7 @@
 package com.appsmith.server.newpages.export;
 
 import com.appsmith.server.domains.NewPage;
-import com.appsmith.server.export.exportable.ExportableService;
+import com.appsmith.server.exports.exportable.ExportableService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.solutions.PagePermission;
 import org.springframework.stereotype.Service;
