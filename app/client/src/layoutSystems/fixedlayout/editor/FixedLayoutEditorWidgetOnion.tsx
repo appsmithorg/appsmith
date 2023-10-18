@@ -62,7 +62,6 @@ export const FixedLayoutEditorWidgetOnion = (props: BaseWidgetProps) => {
           <DraggableComponent
             dragDisabled={!!props.dragDisabled}
             generateDragState={generateDragState}
-            isFlexChild
             parentId={props.parentId}
             resizeDisabled={props.resizeDisabled}
             type={props.type}
