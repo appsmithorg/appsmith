@@ -5,11 +5,21 @@ import type {
   ButtonGroupItemComponentProps,
 } from "./types";
 import { Icon as BIcon } from "@blueprintjs/core";
+import { sortBy } from "lodash";
 
 export const ButtonGroupComponent = (props: ButtonGroupComponentProps) => {
   const [loadingButtonIds, setLoadingButtonIds] = useState<
     Array<ButtonGroupItemComponentProps["id"]>
   >([]);
+
+  const sortedButtons = sortBy(
+    Object.keys(props.buttonsList)
+      .map((key) => props.buttonsList[key])
+      .filter((button) => {
+        return button.isVisible === true;
+      }),
+    ["index"],
+  );
 
   return (
     <ButtonGroup
@@ -17,9 +27,7 @@ export const ButtonGroupComponent = (props: ButtonGroupComponentProps) => {
       orientation={props.orientation}
       variant={props.variant}
     >
-      {Object.keys(props.buttonsList).map((key) => {
-        const button: ButtonGroupItemComponentProps = props.buttonsList[key];
-
+      {sortedButtons.map((button: ButtonGroupItemComponentProps) => {
         const icon =
           button.iconName &&
           (() => {
