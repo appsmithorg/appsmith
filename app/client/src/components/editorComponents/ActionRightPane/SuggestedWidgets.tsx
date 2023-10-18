@@ -491,7 +491,7 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
         eventParams: {
           [FEATURE_WALKTHROUGH_KEYS.ds_binding]: true,
         },
-        delay: 5000,
+        delay: 2500,
       });
   };
 

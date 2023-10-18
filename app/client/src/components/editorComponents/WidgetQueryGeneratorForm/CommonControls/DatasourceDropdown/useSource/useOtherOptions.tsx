@@ -1,7 +1,7 @@
 import React, { useContext, useMemo } from "react";
 import { Icon } from "design-system";
 import history from "utils/history";
-import { integrationEditorURL } from "RouteBuilder";
+import { integrationEditorURL } from "@appsmith/RouteBuilder";
 import { INTEGRATION_TABS } from "constants/routes";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";

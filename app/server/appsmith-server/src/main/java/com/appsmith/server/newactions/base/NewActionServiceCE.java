@@ -20,6 +20,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuple2;
 
 import java.util.List;
 import java.util.Map;
@@ -41,6 +42,9 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
     NewAction extractAndSetJsonPathKeys(NewAction newAction);
 
     Mono<ActionDTO> updateUnpublishedAction(String id, ActionDTO action);
+
+    Mono<Tuple2<ActionDTO, NewAction>> updateUnpublishedActionWithoutAnalytics(
+            String id, ActionDTO action, Optional<AclPermission> permission);
 
     Mono<ActionDTO> findByUnpublishedNameAndPageId(String name, String pageId, AclPermission permission);
 
@@ -141,4 +145,6 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
     Mono<List<BulkWriteResult>> publishActions(String applicationId, AclPermission permission);
 
     Flux<PluginTypeAndCountDTO> countActionsByPluginType(String applicationId);
+
+    Flux<NewAction> findByListOfPageIds(List<String> unpublishedPages, Optional<AclPermission> optionalPermission);
 }

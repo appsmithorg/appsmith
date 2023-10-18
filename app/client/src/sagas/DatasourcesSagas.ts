@@ -135,7 +135,7 @@ import {
   generateTemplateFormURL,
   integrationEditorURL,
   saasEditorDatasourceIdURL,
-} from "RouteBuilder";
+} from "@appsmith/RouteBuilder";
 import {
   DATASOURCE_NAME_DEFAULT_PREFIX,
   GOOGLE_SHEET_FILE_PICKER_OVERLAY_CLASS,

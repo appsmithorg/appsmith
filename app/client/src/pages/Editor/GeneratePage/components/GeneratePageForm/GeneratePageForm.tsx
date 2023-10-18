@@ -23,7 +23,7 @@ import DataSourceOption, {
   CONNECT_NEW_DATASOURCE_OPTION_ID,
   DatasourceImage,
 } from "../DataSourceOption";
-import { getQueryStringfromObject } from "RouteBuilder";
+import { getQueryStringfromObject } from "@appsmith/entities/URLRedirect/URLAssembly";
 import type { DropdownOption } from "design-system-old";
 import { Button, Icon, Text, Select, Option, Tooltip } from "design-system";
 import GoogleSheetForm from "./GoogleSheetForm";
@@ -56,7 +56,10 @@ import { Bold, Label, SelectWrapper } from "./styles";
 import type { GeneratePagePayload } from "./types";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 
-import { datasourcesEditorIdURL, integrationEditorURL } from "RouteBuilder";
+import {
+  datasourcesEditorIdURL,
+  integrationEditorURL,
+} from "@appsmith/RouteBuilder";
 import { PluginPackageName } from "entities/Action";
 import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
 import { getPluginImages } from "@appsmith/selectors/entitiesSelector";

@@ -40,11 +40,15 @@ export class AggregateHelper extends ReusableHelper {
   public _modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
   private assertHelper = ObjectsRegistry.AssertHelper;
 
-  public isMac = Cypress.platform === "darwin";
+  public get isMac() {
+    return Cypress.platform === "darwin";
+  }
   private selectLine = `${
     this.isMac ? "{cmd}{shift}{leftArrow}" : "{shift}{home}"
   }`;
-  private removeLine = "{backspace}";
+  public get removeLine() {
+    return "{backspace}";
+  }
   private selectAll = `${this.isMac ? "{cmd}{a}" : "{ctrl}{a}"}`;
   private lazyCodeEditorFallback = ".t--lazyCodeEditor-fallback";
   private lazyCodeEditorRendered = ".t--lazyCodeEditor-editor";

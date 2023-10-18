@@ -53,7 +53,6 @@ const UpgradeBanner = () => {
             data-testid="t--branding-upgrade-button"
             onClick={onUpgrade}
             size="md"
-            startIcon="star-line"
           >
             Upgrade
           </Button>
