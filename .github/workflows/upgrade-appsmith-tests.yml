@@ -17,7 +17,6 @@ jobs:
         if: always()
         uses: actions/github-script@v6
         env:
-          owner: ${{}}
           pr: ${{inputs.pr}}
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
