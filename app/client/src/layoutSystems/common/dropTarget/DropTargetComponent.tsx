@@ -77,9 +77,9 @@ function Onboarding() {
     [isMobileCanvas, isNewUser],
   );
   useEffect(() => {
-    async () => {
-      setIsNewUser(!!user && !!(await isUserSignedUpFlagSet(user.email)));
-    };
+    (async () => {
+      setIsNewUser(!!user && (await isUserSignedUpFlagSet(user.email)));
+    })();
   }, []);
 
   return shouldShowStarterTemplates ? (

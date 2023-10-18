@@ -643,6 +643,7 @@ export const isUserSignedUpFlagSet = async (email: string) => {
   } catch (error) {
     log.error("An error occurred while reading USER_SIGN_UP");
     log.error(error);
+    return false;
   }
 };
 
