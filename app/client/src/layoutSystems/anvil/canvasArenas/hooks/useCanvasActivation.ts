@@ -1,4 +1,5 @@
 import { CANVAS_ART_BOARD } from "constants/componentClassNameConstants";
+import { Indices } from "constants/Layers";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { positionObserver } from "layoutSystems/common/utils/WidgetPositionsObserver";
 import { getLayoutId } from "layoutSystems/common/utils/WidgetPositionsObserver/utils";
@@ -6,25 +7,22 @@ import { useEffect, useRef } from "react";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 import type { AnvilDnDStates } from "./useAnvilDnDStates";
 
-const AnvilOverlayWidgetTypes = ["MODAL_WIDGET"];
+export const AnvilCanvasZIndex = {
+  activated: Indices.Layer10.toString(),
+  deactivated: "",
+};
 export const useCanvasActivation = (
   anvilDragStates: AnvilDnDStates,
   layoutId: string,
 ) => {
   const {
+    activateOverlayWidgetDrop,
     dragDetails,
     isDragging,
     isNewWidget,
     mainCanvasLayoutId,
     widgetPositions,
   } = anvilDragStates;
-  const { newWidget } = dragDetails;
-
-  /**
-   * boolean that indicates if the widget being dragged in an overlay widget like the Modal widget.
-   */
-  const activateOverlayWidgetDrop =
-    isNewWidget && AnvilOverlayWidgetTypes.includes(newWidget.type);
   const mainContainerDOMNode = document.getElementById(CANVAS_ART_BOARD);
   const { setDraggingCanvas, setDraggingNewWidget, setDraggingState } =
     useWidgetDragResize();
