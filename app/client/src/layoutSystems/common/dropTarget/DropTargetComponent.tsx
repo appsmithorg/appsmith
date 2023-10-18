@@ -11,6 +11,7 @@ import React, {
   useEffect,
   useMemo,
   useRef,
+  useState,
 } from "react";
 import { useSelector } from "react-redux";
 import styled from "styled-components";
@@ -41,6 +42,8 @@ import {
 } from "widgets/WidgetUtils";
 import DragLayerComponent from "./DragLayerComponent";
 import CanvasStarterTemplatesLayout from "./canvasStarterTemplatesLayout";
+import { getCurrentUser } from "selectors/usersSelectors";
+import { isUserSignedUpFlagSet } from "utils/storage";
 
 export type DropTargetComponentProps = PropsWithChildren<{
   snapColumnSpace: number;
@@ -65,8 +68,20 @@ const StyledDropTarget = styled.div`
 `;
 
 function Onboarding() {
+  const [isNewUser, setIsNewUser] = useState(false);
   const isMobileCanvas = useSelector(getIsMobileCanvasLayout);
-  const shouldShowStarterTemplates = !isMobileCanvas;
+  const user = useSelector(getCurrentUser);
+
+  const shouldShowStarterTemplates = useMemo(
+    () => !isMobileCanvas && isNewUser,
+    [isMobileCanvas, isNewUser],
+  );
+  useEffect(() => {
+    async () => {
+      setIsNewUser(!!user && !!(await isUserSignedUpFlagSet(user.email)));
+    };
+  }, []);
+
   return shouldShowStarterTemplates ? (
     <CanvasStarterTemplatesLayout />
   ) : (
