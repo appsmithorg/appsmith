@@ -421,7 +421,7 @@ export class HomePage {
   public SearchAndOpenApp(appName: string) {
     this.agHelper.TypeText(this._searchInput, appName);
     this.agHelper.Sleep(2000);
-    this.EditAppFromAppHover();
+    this.EditAppFromAppHover(appName);
   }
 
   //Maps to launchApp in command.js
@@ -437,7 +437,11 @@ export class HomePage {
         .GetElement(this._appCard(appName))
         .first()
         .trigger("mouseover");
-    else this.agHelper.GetElement(this._applicationCard).trigger("mouseover");
+    else
+      this.agHelper
+        .GetElement(this._applicationCard)
+        .first()
+        .trigger("mouseover");
     this.agHelper.GetNClick(this._appHoverIcon("edit"));
     this.agHelper.AssertElementAbsence(this.locator._loading);
     this.assertHelper.AssertNetworkStatus("getWorkspace");
