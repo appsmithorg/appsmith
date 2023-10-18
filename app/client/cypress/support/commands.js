@@ -1022,8 +1022,6 @@ Cypress.Commands.add("startServerAndRoutes", () => {
                 status: 200,
                 success: true,
               },
-              data: {},
-              errorDisplay: "",
             });
           }
         }
