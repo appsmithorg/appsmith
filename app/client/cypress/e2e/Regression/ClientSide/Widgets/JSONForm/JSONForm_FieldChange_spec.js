@@ -42,7 +42,7 @@ describe("JSON Form Widget Field Change", () => {
     entityExplorer.SelectEntityByName("JSONForm1");
     cy.get(`${fieldPrefix}-name`).find("button").should("have.length", 2);
     cy.openPropertyPane("jsonformwidget");
-    cy.openFieldConfiguration("name");
+    cy.openFieldConfiguration("name1");
     cy.selectDropdownValue(commonlocators.jsonFormFieldType, /^Text Input/);
   });
 
