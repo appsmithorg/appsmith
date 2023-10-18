@@ -31,6 +31,7 @@ import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
@@ -148,7 +149,7 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
                 .findById(moduleDTO.getPackageId(), packagePermission.getModuleCreatePermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PACKAGE_ID, moduleDTO.getPackageId())))
-                .flatMap(aPackage -> isValidName(moduleDTO.getName(), aPackage.getId())
+                .flatMap(aPackage -> isValidName(moduleDTO.getName(), aPackage.getId(), null)
                         .flatMap(valid -> {
                             if (!valid) {
                                 return Mono.error(new AppsmithException(
@@ -209,10 +210,14 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
         return moduleAction;
     }
 
-    private Mono<Boolean> isValidName(String name, String packageId) {
+    private Mono<Boolean> isValidName(String name, String packageId, String currentModuleId) {
 
         Mono<List<String>> allModuleNamesMono = moduleRepository
                 .getAllModulesByPackageId(packageId, modulePermission.getReadPermission())
+                .filter(module -> {
+                    // Check if currentModuleId is null or if module.getId() does not match currentModuleId
+                    return currentModuleId == null || !module.getId().equals(currentModuleId);
+                })
                 .map(module -> module.getUnpublishedModule().getName())
                 .collectList();
 
@@ -230,35 +235,53 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
         if (ValidationUtils.isEmptyParam(moduleDTO.getName())) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.NAME));
         }
+
         if (!newActionService.validateActionName(moduleDTO.getName())) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_ACTION_NAME));
         }
 
-        Mono<Module> moduleMono = moduleRepository
+        return moduleRepository
                 .findById(moduleId, modulePermission.getEditPermission())
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.MODULE_ID, moduleId)))
-                .cache();
+                .cache()
+                .flatMap(module -> isValidName(moduleDTO.getName(), module.getPackageId(), moduleId)
+                        .flatMap(valid -> {
+                            if (!valid) {
+                                return Mono.error(new AppsmithException(
+                                        AppsmithError.DUPLICATE_KEY_USER_ERROR, moduleDTO.getName(), FieldName.NAME));
+                            }
 
-        return moduleMono.flatMap(module -> {
-            Update updateObj = prepareUpdatableFieldsForModule(moduleDTO);
+                            Update updateObj = prepareUpdatableFieldsForModule(moduleDTO);
 
-            if (updateObj.getUpdateObject().isEmpty()) {
-                return setTransientFieldsFromModuleToModuleDTO(module, module.getUnpublishedModule());
-            }
+                            if (updateObj.getUpdateObject().isEmpty()) {
+                                return setTransientFieldsFromModuleToModuleDTO(module, module.getUnpublishedModule());
+                            }
 
-            return moduleRepository
-                    .update(moduleId, updateObj, modulePermission.getEditPermission())
-                    .then(moduleRepository.findById(moduleId))
-                    .flatMap(moduleRepository::setUserPermissionsInObject)
-                    .flatMap(updatedModule -> {
-                        ModuleDTO unpublishedModule = updatedModule.getUnpublishedModule();
-                        return setTransientFieldsFromModuleToModuleDTO(updatedModule, unpublishedModule);
-                    });
-        });
+                            return newActionService
+                                    .findById(module.getUnpublishedModule().getPublicEntityId())
+                                    .flatMap(newAction -> {
+                                        ActionDTO updateActionDTO = new ActionDTO();
+                                        updateActionDTO.setContext(ActionDTO.ActionContext.MODULE);
+                                        updateActionDTO.setName(moduleDTO.getName());
+                                        return newActionService.updateUnpublishedActionWithoutAnalytics(
+                                                newAction.getId(), updateActionDTO, Optional.empty());
+                                    })
+                                    .then(moduleRepository
+                                            .updateAndReturn(
+                                                    moduleId,
+                                                    updateObj,
+                                                    Optional.of(modulePermission.getEditPermission()))
+                                            .flatMap(updatedModule -> {
+                                                ModuleDTO unpublishedModule = updatedModule.getUnpublishedModule();
+                                                return setTransientFieldsFromModuleToModuleDTO(
+                                                        updatedModule, unpublishedModule);
+                                            }));
+                        }));
     }
 
     @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_query_module_enabled)
     public Mono<ModuleDTO> deleteModule(String moduleId) {
         Mono<Module> moduleMono = moduleRepository
                 .findById(moduleId, modulePermission.getDeletePermission())

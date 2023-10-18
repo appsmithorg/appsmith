@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 
 import java.util.List;
+import java.util.Optional;
 
 import static com.appsmith.server.constants.Constraint.NO_RECORD_LIMIT;
 
@@ -48,5 +49,13 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
         Criteria actionCollectionCriteria =
                 Criteria.where(actionCollectionCriteriaQueryString).in(collectionIds);
         return queryAll(List.of(actionCollectionCriteria), includeFields, null, null);
+    }
+
+    @Override
+    public Flux<NewAction> findAllByModuleId(String moduleId) {
+        String moduleIdPath = fieldName(QNewAction.newAction.unpublishedAction) + "."
+                + fieldName(QNewAction.newAction.unpublishedAction.moduleId);
+        Criteria moduleIdCriteria = Criteria.where(moduleIdPath).is(moduleId);
+        return queryAll(List.of(moduleIdCriteria), Optional.empty());
     }
 }

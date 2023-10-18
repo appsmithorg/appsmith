@@ -283,4 +283,15 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
             super.setGitSyncIdInNewAction(newAction);
         }
     }
+
+    @Override
+    public Mono<List<ActionDTO>> getAllUnpublishedModuleActions(String moduleId) {
+
+        return repository
+                .findAllByModuleId(moduleId)
+                .collectList()
+                .flatMapMany(this::addMissingPluginDetailsIntoAllActions)
+                .flatMap(newAction -> generateActionByViewMode(newAction, false))
+                .collectList();
+    }
 }
