@@ -1,11 +1,11 @@
-import React, { useContext, useEffect } from "react";
+import React, { useEffect } from "react";
 import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
 import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
 import { SegmentedControl } from "design-system";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router";
 import type { AppState } from "@appsmith/reducers";
-import { builderURL } from "RouteBuilder";
+import { builderURL } from "@appsmith/RouteBuilder";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -14,16 +14,7 @@ import history from "utils/history";
 import EntityExplorer from "./EntityExplorer";
 import { getExplorerSwitchIndex } from "selectors/editorContextSelectors";
 import { setExplorerSwitchIndex } from "actions/editorContextActions";
-import { adaptiveSignpostingEnabled } from "@appsmith/selectors/featureFlagsSelectors";
 import WidgetSidebarWithTags from "../WidgetSidebarWithTags";
-import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
-import { getFeatureWalkthroughShown } from "utils/storage";
-import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
-import {
-  actionsExistInCurrentPage,
-  widgetsExistCurrentPage,
-} from "@appsmith/selectors/entitiesSelector";
-import { SignpostingWalkthroughConfig } from "../FirstTimeUserOnboarding/Utils";
 import { ExplorerWrapper } from "./Common/ExplorerWrapper";
 
 const selectForceOpenWidgetPanel = (state: AppState) =>
@@ -81,52 +72,8 @@ function ExplorerContent() {
         dispatch(toggleInOnboardingWidgetSelection(true));
       }
     }
-
-    handleCloseWalkthrough();
   };
   const { value: activeOption } = options[activeSwitchIndex];
-
-  const {
-    isOpened: isWalkthroughOpened,
-    popFeature,
-    pushFeature,
-  } = useContext(WalkthroughContext) || {};
-
-  const handleCloseWalkthrough = () => {
-    if (isWalkthroughOpened && popFeature) {
-      popFeature();
-    }
-  };
-  const signpostingEnabled = useSelector(getIsFirstTimeUserOnboardingEnabled);
-  const adaptiveSignposting = useSelector(adaptiveSignpostingEnabled);
-  const hasWidgets = useSelector(widgetsExistCurrentPage);
-  const actionsExist = useSelector(actionsExistInCurrentPage);
-  const checkAndShowSwitchWidgetWalkthrough = async () => {
-    const isFeatureWalkthroughShown = await getFeatureWalkthroughShown(
-      FEATURE_WALKTHROUGH_KEYS.switch_to_widget,
-    );
-    !isFeatureWalkthroughShown &&
-      pushFeature &&
-      pushFeature(SignpostingWalkthroughConfig.EXPLORER_WIDGET_TAB);
-  };
-
-  useEffect(() => {
-    if (
-      activeSwitchIndex === 0 &&
-      signpostingEnabled &&
-      !hasWidgets &&
-      adaptiveSignposting &&
-      actionsExist
-    ) {
-      checkAndShowSwitchWidgetWalkthrough();
-    }
-  }, [
-    activeSwitchIndex,
-    signpostingEnabled,
-    hasWidgets,
-    adaptiveSignposting,
-    actionsExist,
-  ]);
 
   return (
     <ExplorerWrapper>

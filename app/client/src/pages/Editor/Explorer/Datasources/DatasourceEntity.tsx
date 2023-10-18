@@ -24,7 +24,7 @@ import {
 import {
   datasourcesEditorIdURL,
   saasEditorDatasourceIdURL,
-} from "RouteBuilder";
+} from "@appsmith/RouteBuilder";
 import { inGuidedTour } from "selectors/onboardingSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useLocation } from "react-router";

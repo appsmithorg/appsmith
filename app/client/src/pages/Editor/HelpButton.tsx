@@ -299,7 +299,6 @@ function HelpButton() {
                       APPSMITH_DISPLAY_VERSION,
                       appVersion.edition,
                       appVersion.id,
-                      cloudHosting,
                     )}
                   </span>
                   <span>

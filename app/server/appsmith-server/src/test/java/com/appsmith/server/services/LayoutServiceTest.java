@@ -20,7 +20,9 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.newactions.base.NewActionService;
+import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.repositories.PluginRepository;
+import com.appsmith.server.solutions.ApplicationPermission;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -86,6 +88,12 @@ public class LayoutServiceTest {
     @Autowired
     NewPageService newPageService;
 
+    @Autowired
+    ApplicationService applicationService;
+
+    @Autowired
+    ApplicationPermission applicationPermission;
+
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
 
@@ -99,7 +107,6 @@ public class LayoutServiceTest {
     AstService astService;
 
     @BeforeEach
-    @WithUserDetails(value = "api_user")
     public void setup() {
         purgeAllPages();
         User apiUser = userService.findByEmail("api_user").block();
@@ -118,6 +125,16 @@ public class LayoutServiceTest {
         installedJsPlugin =
                 pluginRepository.findByPackageName("installed-js-plugin").block();
         datasource.setPluginId(installedPlugin.getId());
+    }
+
+    @AfterEach
+    public void cleanup() {
+        List<Application> deletedApplications = applicationService
+                .findByWorkspaceId(workspaceId, applicationPermission.getDeletePermission())
+                .flatMap(remainingApplication -> applicationPageService.deleteApplication(remainingApplication.getId()))
+                .collectList()
+                .block();
+        Workspace deletedWorkspace = workspaceService.archiveById(workspaceId).block();
     }
 
     private void purgeAllPages() {

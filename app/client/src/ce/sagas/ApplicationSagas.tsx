@@ -103,7 +103,7 @@ import {
 import { failFastApiCalls } from "sagas/InitSagas";
 import type { Datasource } from "entities/Datasource";
 import { GUIDED_TOUR_STEPS } from "pages/Editor/GuidedTour/constants";
-import { builderURL, viewerURL } from "RouteBuilder";
+import { builderURL, viewerURL } from "@appsmith/RouteBuilder";
 import { getDefaultPageId as selectDefaultPageId } from "sagas/selectors";
 import PageApi from "api/PageApi";
 import { identity, isEmpty, merge, pickBy } from "lodash";
@@ -714,8 +714,10 @@ export function* forkApplicationSaga(
           workspaceId: action.payload.workspaceId,
         },
       });
+
       const pageURL = builderURL({
         pageId: application.defaultPageId as string,
+        params: { branch: null },
       });
 
       if (action.payload.editMode) {
