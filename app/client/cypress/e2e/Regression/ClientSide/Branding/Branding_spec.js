@@ -36,7 +36,7 @@ describe("Branding", () => {
   let favicon;
   let shades = {};
 
-  it("check if localStorage is populated with tenantConfig values", () => {
+  it("1. check if localStorage is populated with tenantConfig values", () => {
     if (CURRENT_REPO === REPO.CE) {
       const tenantConfig = localStorage.getItem("tenantConfig");
 
@@ -50,7 +50,7 @@ describe("Branding", () => {
     }
   });
 
-  it("1. Super user can access branding page", () => {
+  it("2. Super user can access branding page", () => {
     cy.LogOut();
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     cy.get(locators.AdminSettingsEntryLink).should("be.visible");
@@ -61,7 +61,7 @@ describe("Branding", () => {
     cy.wait(2000);
   });
 
-  it("2. Should test that changing logo,favicon and color changes the preview", () => {
+  it("3. Should test that changing logo,favicon and color changes the preview", () => {
     // branding color
     cy.get(locators.AdminSettingsColorInput).focus().clear().type("red");
 
@@ -123,7 +123,7 @@ describe("Branding", () => {
     );
   });
 
-  it("3. Check if localStorage is populated with tenantConfig values & form cannot be submitted", () => {
+  it("4. Check if localStorage is populated with tenantConfig values & form cannot be submitted", () => {
     if (CURRENT_REPO === REPO.CE) {
       const tenantConfig = localStorage.getItem("tenantConfig");
       expect(tenantConfig).to.be.null;
@@ -291,12 +291,11 @@ describe("Branding", () => {
     },
   );
 
-  it("checks branding colors on login page", () => {
+  it("5.checks branding colors on login page", () => {
     if (CURRENT_REPO === REPO.EE) {
       // logout user
-      cy.window().its("store").invoke("dispatch", { type: "LOGOUT_USER_INIT" });
+      _.homePage.InvokeDispatchOnStore();
       cy.wait("@postLogout");
-
       cy.wait(2000);
 
       cy.get(locators.loginContainer).should(
@@ -315,7 +314,7 @@ describe("Branding", () => {
     }
   });
 
-  it("Super user sees upgrade option in branding page in free plan", () => {
+  it("6. Super user sees upgrade option in branding page in free plan", () => {
     cy.LogOut();
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     cy.get(locators.AdminSettingsEntryLink).should("be.visible");

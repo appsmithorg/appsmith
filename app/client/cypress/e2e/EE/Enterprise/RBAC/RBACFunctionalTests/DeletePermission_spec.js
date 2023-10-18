@@ -3,6 +3,7 @@ import {
   entityExplorer,
   entityItems,
   homePage,
+  agHelper,
 } from "../../../../../support/Objects/ObjectsCore";
 const generatePage = require("../../../../../locators/GeneratePage.json");
 const RBAC = require("../../../../../locators/RBAClocators.json");
@@ -94,7 +95,7 @@ describe("Delete Permission flow ", function () {
           cy.CheckAndUnfoldEntityItem("Pages");
           cy.Createpage("page2");
           cy.wait(2000);
-          cy.visit("settings/general");
+          agHelper.VisitNAssert("/settings/general", "getEnvVariables");
           featureFlagIntercept({
             license_gac_enabled: true,
           });
@@ -328,7 +329,7 @@ describe("Delete Permission flow ", function () {
       license_gac_enabled: true,
     });
     cy.wait(2000);
-    cy.visit("/settings/roles");
+    agHelper.VisitNAssert("settings/roles", "fetchRoles");
     cy.DeleteRole(PermissionWorkspaceLevel);
     cy.DeleteRole(PermissionAppLevel);
     cy.DeleteRole(PermissionPageLevel);
