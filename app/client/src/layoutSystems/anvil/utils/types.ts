@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import type { SizeConfig } from "WidgetProvider/constants";
 import type { WidgetType } from "WidgetProvider/factory";
 
 export interface AnvilFlexComponentProps {
@@ -13,7 +14,7 @@ export interface AnvilFlexComponentProps {
   selected?: boolean;
   widgetId: string;
   widgetName: string;
-  widgetSize?: { [key: string]: Record<string, string> };
+  widgetSize?: SizeConfig;
   widgetType: WidgetType;
 }
 

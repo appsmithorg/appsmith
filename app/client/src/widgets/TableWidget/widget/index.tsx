@@ -65,7 +65,10 @@ import {
 } from "widgets/WidgetUtils";
 import { ButtonVariantTypes } from "components/constants";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
-import type { AutocompletionDefinitions } from "WidgetProvider/constants";
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
+} from "WidgetProvider/constants";
 import { cloneDeep, set } from "lodash";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import { combineDynamicBindings } from "utils/DynamicBindingUtils";
@@ -313,6 +316,17 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           },
         },
       ],
+    };
+  }
+
+  static getAnvilConfig(): AnvilConfig | null {
+    return {
+      widgetSize: {
+        maxHeight: {},
+        maxWidth: {},
+        minHeight: {},
+        minWidth: { base: "280px" },
+      },
     };
   }
 

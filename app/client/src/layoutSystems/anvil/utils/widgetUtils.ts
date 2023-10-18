@@ -1,4 +1,9 @@
+import type { SizeConfig } from "WidgetProvider/constants";
 import { MOBILE_BREAKPOINT } from "./constants";
+import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
+import WidgetFactory from "WidgetProvider/factory";
+import { isFunction } from "lodash";
+import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 
 /**
  * Updates minWidth style for the widget based on its responsiveBehavior:
@@ -28,3 +33,44 @@ export const getResponsiveMinWidth = (
 export const validateResponsiveProp = (
   data: Record<string, string | number> | undefined,
 ) => data && Object.keys(data)?.length;
+
+export const defaultSizeConfig: SizeConfig = {
+  maxHeight: {},
+  maxWidth: {},
+  minHeight: {},
+  minWidth: {},
+};
+
+export const getWidgetSizeConfiguration = (
+  type: string,
+  props: BaseWidgetProps,
+): SizeConfig => {
+  let res: SizeConfig = defaultSizeConfig;
+
+  const { widgetSize } = WidgetFactory.getWidgetAnvilConfig(type);
+
+  if (!widgetSize) return res;
+
+  if (isFunction(widgetSize)) {
+    res = widgetSize(props);
+  } else if (Object.keys(widgetSize).length) {
+    res = widgetSize;
+  }
+
+  return {
+    ...res,
+    minHeight: Object.keys(res.minHeight).length
+      ? res.minHeight
+      : {
+          base: `${WidgetFactory.widgetConfigMap.get(type)?.minHeight || 80}px`,
+        },
+    minWidth: Object.keys(res.minWidth).length
+      ? res.minWidth
+      : {
+          base: `${
+            WidgetFactory.widgetConfigMap.get(type)?.minWidth ||
+            FILL_WIDGET_MIN_WIDTH
+          }px`,
+        },
+  };
+};
