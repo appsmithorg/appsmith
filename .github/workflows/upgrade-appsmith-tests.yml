@@ -97,7 +97,11 @@ jobs:
                         const cost = { UBUNTU: 0.008, UBUNTU_4_CORE: 0.016, UBUNTU_8_CORE: 0.032 };
                         console.log(bill);
                         for (const key of Object.keys(bill)) {
-                            totalCost[key] = Math.ceil(bill[key] / 60000) * cost[key];
+                            if (!totalCost.hasOwnProperty(key)) {
+                              totalCost[key] = Math.ceil(bill[key] / 60000) * cost[key];
+                            } else {
+                              totalCost[key] += Math.ceil(bill[key] / 60000) * cost[key];
+                            }
                             totalCost["TOTAL"] += totalCost[key];
                         }
                     });
