@@ -8,15 +8,25 @@ export const getFluidTypography = (
   maxVw: number,
   minVw: number,
   typography: ScaleConfig,
-  sizingRatio = 1,
+  userDensity = 1,
+  userSizing = 1,
   vw: number,
 ) => {
-  const { maxV, minV, ...rest } = typography;
+  const {
+    maxV,
+    minV,
+    userDensityRatio = 1,
+    userSizingRatio = 1,
+    ...rest
+  } = typography;
+
+  const ratio = userDensity * userDensityRatio + userSizing * userSizingRatio;
+
   const scales = calculateFluidScales(
     calculateScales(
       {
-        minV: minV * sizingRatio,
-        maxV: maxV * sizingRatio,
+        minV: minV * ratio,
+        maxV: maxV * ratio,
         ...rest,
       },
       minVw,

@@ -12,8 +12,8 @@ const RESIZE_DEBOUNCE_TIME = 300;
 
 export const useFluidTokens = (
   fluidConfig: FluidConfig,
-  densityRatio = 1,
-  sizingRatio = 1,
+  userDensity = 1,
+  userSizing = 1,
 ) => {
   const { maxVw, minVw } = fluidConfig;
   const [typography, setTypography] = useState<Typography>();
@@ -27,7 +27,8 @@ export const useFluidTokens = (
         maxVw,
         minVw,
         fluidConfig.typography,
-        sizingRatio,
+        userDensity,
+        userSizing,
         window.innerWidth,
       ),
     );
@@ -40,12 +41,24 @@ export const useFluidTokens = (
 
   useEffect(() => {
     setOuterSpacing(
-      getFluidSpacing(maxVw, minVw, fluidConfig.outerSpacing, densityRatio),
+      getFluidSpacing(
+        maxVw,
+        minVw,
+        fluidConfig.outerSpacing,
+        userDensity,
+        userSizing,
+      ),
     );
     setInnerSpacing(
-      getFluidSpacing(maxVw, minVw, fluidConfig.innerSpacing, densityRatio),
+      getFluidSpacing(
+        maxVw,
+        minVw,
+        fluidConfig.innerSpacing,
+        userDensity,
+        userSizing,
+      ),
     );
-  }, [densityRatio]);
+  }, [userDensity, userSizing]);
 
   useEffect(() => {
     setTypography(
@@ -53,12 +66,15 @@ export const useFluidTokens = (
         maxVw,
         minVw,
         fluidConfig.typography,
-        sizingRatio,
+        userDensity,
+        userSizing,
         window.innerWidth,
       ),
     );
-    setSizing(getFluidSizing(maxVw, minVw, fluidConfig.sizing, sizingRatio));
-  }, [sizingRatio]);
+    setSizing(
+      getFluidSizing(maxVw, minVw, fluidConfig.sizing, userDensity, userSizing),
+    );
+  }, [userDensity, userSizing]);
 
   useEffect(() => {
     window.addEventListener("resize", debouncedResize);

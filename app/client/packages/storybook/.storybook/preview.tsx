@@ -58,8 +58,8 @@ const preview = {
     borderRadius: {},
     seedColor: {},
     fontFamily: {},
-    densityRatio: {},
-    sizingRatio: {},
+    userDensity: {},
+    userSizing: {},
   },
   parameters: {
     viewport: { viewports: customViewports },

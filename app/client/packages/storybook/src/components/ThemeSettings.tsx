@@ -32,27 +32,27 @@ interface ThemeSettingsProps {
   setBorderRadius?: (value: string) => void;
   fontFamily?: string;
   setFontFamily?: (value: string) => void;
-  densityRatio?: number;
-  sizingRatio?: number;
-  setDensityRatio?: (value: number) => void;
-  setSizingRatio?: (value: number) => void;
+  userDensity?: number;
+  userSizing?: number;
+  setUserDensity?: (value: number) => void;
+  setUserSizing?: (value: number) => void;
   direction?: "column" | "row";
 }
 
 export const ThemeSettings = ({
   borderRadius,
-  densityRatio = 1,
   direction = "column",
   fontFamily,
   isDarkMode,
   seedColor,
   setBorderRadius,
   setDarkMode,
-  setDensityRatio,
   setFontFamily,
   setSeedColor,
-  setSizingRatio,
-  sizingRatio = 1,
+  setUserDensity,
+  setUserSizing,
+  userDensity = 1,
+  userSizing = 1,
 }: ThemeSettingsProps) => {
   const colorChange = (value: string) => setSeedColor && setSeedColor(value);
   const debouncedSeedColorChange = useCallback(debounce(colorChange, 300), []);
@@ -136,7 +136,7 @@ export const ThemeSettings = ({
           </Flex>
         )}
 
-        {setDensityRatio && (
+        {setUserDensity && (
           <Flex direction="column" gap="4px">
             <Text>Density</Text>
             <RangeControl
@@ -144,15 +144,15 @@ export const ThemeSettings = ({
               min={80}
               name="root-unit-ratio"
               onChange={(value) =>
-                setDensityRatio(value != null ? value / 100 : 1)
+                setUserDensity(value != null ? value / 100 : 1)
               }
               step={10}
-              value={densityRatio * 100}
+              value={userDensity * 100}
             />
           </Flex>
         )}
 
-        {setSizingRatio && (
+        {setUserSizing && (
           <Flex direction="column" gap="4px">
             <Text>Sizing</Text>
             <RangeControl
@@ -160,10 +160,10 @@ export const ThemeSettings = ({
               min={80}
               name="root-unit-ratio"
               onChange={(value) =>
-                setSizingRatio(value != null ? value / 100 : 1)
+                setUserSizing(value != null ? value / 100 : 1)
               }
               step={10}
-              value={sizingRatio * 100}
+              value={userSizing * 100}
             />
           </Flex>
         )}

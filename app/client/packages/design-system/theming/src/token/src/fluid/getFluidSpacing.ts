@@ -5,14 +5,23 @@ export const getFluidSpacing = (
   maxVw: number,
   minVw: number,
   spacing: ScaleConfig,
-  densityRatio = 1,
+  userDensity = 1,
+  userSizing = 1,
 ) => {
-  const { maxV, minV, ...rest } = spacing;
+  const {
+    maxV,
+    minV,
+    userDensityRatio = 1,
+    userSizingRatio = 1,
+    ...rest
+  } = spacing;
+
+  const ratio = userDensity * userDensityRatio + userSizing * userSizingRatio;
 
   const scales = calculateScales(
     {
-      minV: minV * densityRatio,
-      maxV: maxV * densityRatio,
+      minV: minV * ratio,
+      maxV: maxV * ratio,
       ...rest,
     },
     minVw,

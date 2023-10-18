@@ -6,13 +6,23 @@ const getFluidValue = (
   maxVw: number,
   minVw: number,
   sizing: ScaleConfig,
-  sizingRatio = 1,
+  userDensity = 1,
+  userSizing = 1,
 ) => {
-  const { maxV, minV, ...rest } = sizing;
+  const {
+    maxV,
+    minV,
+    userDensityRatio = 1,
+    userSizingRatio = 1,
+    ...rest
+  } = sizing;
+
+  const ratio = userDensity * userDensityRatio + userSizing * userSizingRatio;
+
   const { maxSize, minSize, r, v } = calculateScales(
     {
-      minV: minV * sizingRatio,
-      maxV: maxV * sizingRatio,
+      minV: minV * ratio,
+      maxV: maxV * ratio,
       ...rest,
     },
     minVw,
@@ -26,10 +36,17 @@ export const getFluidSizing = (
   maxVw: number,
   minVw: number,
   sizing: ScaleConfig,
-  sizingRatio = 1,
+  userDensity = 1,
+  userSizing = 1,
   count = 100,
 ) => {
-  const fluidValue = getFluidValue(maxVw, minVw, sizing, sizingRatio);
+  const fluidValue = getFluidValue(
+    maxVw,
+    minVw,
+    sizing,
+    userDensity,
+    userSizing,
+  );
 
   return [...Array(count)].reduce(
     (acc, value, index) => {

@@ -21,8 +21,8 @@ export const theming = (Story, args) => {
     colorMode: args.parameters.colorMode || args.globals.colorMode,
     borderRadius: args.globals.borderRadius,
     fontFamily: args.globals.fontFamily,
-    densityRatio: args.globals.densityRatio,
-    sizingRatio: args.globals.sizingRatio,
+    userDensity: args.globals.userDensity,
+    userSizing: args.globals.userSizing,
   });
 
   return (

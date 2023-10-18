@@ -22,6 +22,6 @@ export interface UseThemeProps {
   colorMode?: ColorMode;
   borderRadius?: string;
   fontFamily?: FontFamily;
-  densityRatio?: number;
-  sizingRatio?: number;
+  userDensity?: number;
+  userSizing?: number;
 }

@@ -16,6 +16,8 @@ export interface ScaleConfig {
   maxN: number;
   stepsUp: number;
   stepsDown: number;
+  userSizingRatio?: number;
+  userDensityRatio?: number;
 }
 
 export interface Scale {

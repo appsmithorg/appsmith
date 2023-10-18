@@ -9,11 +9,11 @@ import type { TokenSource } from "../token";
 import { cssRule } from "./cssRule";
 
 const { fluid, ...restDefaultTokens } = defaultTokens;
-const { innerSpacing, maxVw, minVw, sizing, spacing } = fluid;
+const { innerSpacing, maxVw, minVw, outerSpacing, sizing } = fluid;
 
 const allTokens = new TokensAccessor({
   ...(restDefaultTokens as TokenSource),
-  spacing: getFluidSpacing(maxVw, minVw, spacing),
+  outerSpacing: getFluidSpacing(maxVw, minVw, outerSpacing),
   innerSpacing: getFluidSpacing(maxVw, minVw, innerSpacing),
   sizing: getFluidSizing(maxVw, minVw, sizing),
 }).getAllTokens();
