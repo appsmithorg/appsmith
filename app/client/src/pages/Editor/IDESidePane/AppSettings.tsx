@@ -16,8 +16,8 @@ const SettingsPageWrapper = styled.div`
 `;
 
 const SettingsPaneHeader = styled.div`
-  padding: 10px;
-  padding-left: 16px;
+  padding: var(--ads-v2-spaces-4);
+  padding-left: var(--ads-v2-spaces-5);
   border-bottom: 1px solid var(--ads-v2-color-border);
 `;
 

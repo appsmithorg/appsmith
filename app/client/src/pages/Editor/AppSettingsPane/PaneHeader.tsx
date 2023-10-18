@@ -6,10 +6,8 @@ import {
   APP_SETTINGS_PANE_HEADER,
 } from "@appsmith/constants/messages";
 import { Tooltip } from "design-system";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { Button } from "design-system";
-import { getIsAppSidebarEnabled } from "selectors/ideSelectors";
-import classNames from "classnames";
 
 const StyledHeader = styled.div`
   height: 48px;
@@ -25,16 +23,9 @@ const StyledText = styled.div`
 
 function PaneHeader() {
   const dispatch = useDispatch();
-  const isAppSidebarEnabled = useSelector(getIsAppSidebarEnabled);
 
   return (
-    <StyledHeader
-      className={classNames({
-        "flex justify-start items-center py-2.5": !isAppSidebarEnabled,
-        "flex justify-between	flex-row-reverse items-center py-2.5 pl-4":
-          isAppSidebarEnabled,
-      })}
-    >
+    <StyledHeader className={"flex justify-start items-center py-2.5"}>
       <Tooltip content={APP_SETTINGS_CLOSE_TOOLTIP()} placement="bottom">
         <Button
           className="ml-2 pr-2"
@@ -43,9 +34,7 @@ function PaneHeader() {
           kind="tertiary"
           onClick={() => dispatch(closeAppSettingsPaneAction())}
           size="md"
-          startIcon={
-            isAppSidebarEnabled ? "close-control" : "double-arrow-right"
-          }
+          startIcon={"double-arrow-right"}
         />
       </Tooltip>
       <StyledText>{APP_SETTINGS_PANE_HEADER()}</StyledText>
