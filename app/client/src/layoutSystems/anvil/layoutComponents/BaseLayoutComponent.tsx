@@ -16,6 +16,7 @@ import {
 } from "../utils/layouts/layoutUtils";
 import { RenderModes } from "constants/WidgetConstants";
 import LayoutFactory from "./LayoutFactory";
+import { AnvilCanvasDraggingArena } from "../canvasArenas/AnvilCanvasDraggingArena";
 
 abstract class BaseLayoutComponent extends PureComponent<
   LayoutComponentProps,
@@ -32,7 +33,7 @@ abstract class BaseLayoutComponent extends PureComponent<
   }
 
   static getChildTemplate(props: LayoutProps): LayoutProps | undefined {
-    return;
+    return props;
   }
 
   static deriveHighlights: DeriveHighlightsFn = () => () => [];
@@ -66,31 +67,28 @@ abstract class BaseLayoutComponent extends PureComponent<
   }
 
   renderDraggingArea(): React.ReactNode | null {
-    return null;
-
-    // TODO: uncomment this after merging in Ashok's PR.
-    // const {
-    //   canvasId,
-    //   isDropTarget,
-    //   layoutId,
-    //   layoutType,
-    //   parentDropTarget,
-    //   renderMode,
-    // } = this.props;
-    // if (!isDropTarget || renderMode !== RenderModes.CANVAS) return null;
-    // return (
-    //   <AnvilCanvasDraggingArena
-    //     allowedWidgetTypes={this.props.allowedWidgetTypes || []}
-    //     canvasId={canvasId}
-    //     deriveAllHighlightsFn={LayoutFactory.getDeriveHighlightsFn(layoutType)(
-    //       this.props,
-    //       canvasId,
-    //       this.state.order,
-    //       parentDropTarget,
-    //     )}
-    //     layoutId={layoutId}
-    //   />
-    // );
+    const {
+      canvasId,
+      isDropTarget,
+      layoutId,
+      layoutType,
+      parentDropTarget,
+      renderMode,
+    } = this.props;
+    if (!isDropTarget || renderMode !== RenderModes.CANVAS) return null;
+    return (
+      <AnvilCanvasDraggingArena
+        allowedWidgetTypes={this.props.allowedWidgetTypes || []}
+        canvasId={canvasId}
+        deriveAllHighlightsFn={LayoutFactory.getDeriveHighlightsFn(layoutType)(
+          this.props,
+          canvasId,
+          this.state.order,
+          parentDropTarget,
+        )}
+        layoutId={layoutId}
+      />
+    );
   }
 
   static rendersWidgets: boolean = false;
