@@ -125,6 +125,7 @@ describe("Button widget testcases", () => {
     agHelper.ValidateToastMessage("@example");
     // assert after deploy
     deployMode.DeployApp();
+    agHelper.Sleep();
     agHelper.ClickButton("Submit");
     agHelper.ValidateToastMessage("@example");
     deployMode.NavigateBacktoEditor();
@@ -160,6 +161,7 @@ describe("Button widget testcases", () => {
     entityExplorer.SelectEntityByName("Button1");
     propPane.TogglePropertyState("Reset form on success", "Off");
     deployMode.DeployApp();
+    agHelper.Sleep();
     // set the email
     agHelper.ClearNType(clocators.inputField, Cypress.env("USERNAME"));
     agHelper.ClickButton("Submit");

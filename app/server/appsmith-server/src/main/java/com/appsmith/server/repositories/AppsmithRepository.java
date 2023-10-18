@@ -3,6 +3,7 @@ package com.appsmith.server.repositories;
 import com.appsmith.server.acl.AclPermission;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Update;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -29,4 +30,6 @@ public interface AppsmithRepository<T> {
     Mono<T> setUserPermissionsInObject(T obj, Set<String> permissionGroups);
 
     Mono<T> setUserPermissionsInObject(T obj);
+
+    Mono<T> updateAndReturn(String id, Update updateObj, Optional<AclPermission> permission);
 }
