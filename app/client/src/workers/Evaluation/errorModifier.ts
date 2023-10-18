@@ -10,12 +10,10 @@ import {
 import { jsPropertiesState } from "./JSObject/jsPropertiesState";
 import { get, isEmpty, toPath } from "lodash";
 import { APP_MODE } from "entities/App";
-import {
-  convertPathToString,
-  isAction,
-} from "@appsmith/workers/Evaluation/evaluationUtils";
+import { isAction } from "@appsmith/workers/Evaluation/evaluationUtils";
 import log from "loglevel";
 import * as Sentry from "@sentry/react";
+import { getMemberExpressionObjectFromProperty } from "@shared/ast";
 
 const FOUND_ACTION_IN_DATA_FIELD_EVAL_MESSAGE =
   "Found an action invocation during evaluation. Data fields cannot execute actions.";
@@ -243,8 +241,6 @@ function isActionInvokedInDataField(error: EvaluationError) {
 }
 const UNDEFINED_TYPE_ERROR_REGEX =
   /Cannot read properties of undefined \(reading '([^\s]+)'/;
-const MEMBER_EXPRESSION_REGEX = (prop: string) =>
-  new RegExp(`([^\\s]+).${prop}\\b`, "g");
 
 function modifierUndefinedTypeErrorMessage(
   error: Error,
@@ -259,15 +255,17 @@ function modifierUndefinedTypeErrorMessage(
       errorMessage,
     };
   const undefinedProperty = matchedString[1];
-  const reg = MEMBER_EXPRESSION_REGEX(undefinedProperty);
-  const allMemberExpressions = userScript.match(reg);
-  if (!allMemberExpressions)
+  const allMemberExpressionObjects = getMemberExpressionObjectFromProperty(
+    undefinedProperty,
+    userScript,
+  );
+  if (isEmpty(allMemberExpressionObjects))
     return {
       errorMessage,
     };
   const possibleCauses = new Set<string>();
-  for (const memberExpression of allMemberExpressions) {
-    const paths = toPath(memberExpression);
+  for (const objectString of allMemberExpressionObjects) {
+    const paths = toPath(objectString);
     const topLevelEntity = tree[paths[0]];
     if (
       paths.at(1) === "data" &&
@@ -277,12 +275,12 @@ function modifierUndefinedTypeErrorMessage(
       errorMessage.message = `Cannot read data from ${paths[0]}. Please re-run your query.`;
       return {
         errorMessage,
-        rootcause: source || `${paths[0]}`,
+        rootcause: `${paths[0]}`,
       };
     }
-    const undefinedPath = convertPathToString(paths.slice(0, -1));
-    if (!get(self, undefinedPath, undefined)) {
-      possibleCauses.add(`"${undefinedPath}"`);
+
+    if (!get(self, objectString, undefined)) {
+      possibleCauses.add(`"${objectString}"`);
     }
   }
   if (possibleCauses.size === 1) {
