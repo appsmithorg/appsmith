@@ -550,7 +550,7 @@ return "yes";`;
     agHelper.AssertContains("No signs of trouble here!", "not.exist");
     // Assert presence of typeError in response tab
     agHelper.AssertContains(
-      "Cannot read properties of undefined (reading 'id')",
+      '"Table1.unknown" is undefined. Please fix the binding.',
       "exist",
     );
     agHelper.AssertContains("TypeError", "exist");
