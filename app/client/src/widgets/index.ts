@@ -60,6 +60,7 @@ import ListWidgetV2 from "./ListWidgetV2";
 import { WDSButtonWidget } from "./wds/WDSButtonWidget";
 import { WDSInputWidget } from "./wds/WDSInputWidget";
 import { WDSCheckboxWidget } from "./wds/WDSCheckboxWidget";
+import { WDSTextWidget } from "./wds/WDSTextWidget";
 import type BaseWidget from "./BaseWidget";
 
 const Widgets = [
@@ -115,6 +116,7 @@ const Widgets = [
   WDSButtonWidget,
   WDSInputWidget,
   WDSCheckboxWidget,
+  WDSTextWidget,
 
   //Deprecated Widgets
   InputWidget,
