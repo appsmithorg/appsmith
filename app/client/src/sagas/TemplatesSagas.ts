@@ -23,6 +23,7 @@ import type {
 import TemplatesAPI from "api/TemplatesApi";
 import history from "utils/history";
 import { getDefaultPageId } from "@appsmith/sagas/ApplicationSagas";
+import { getDefaultPageId as selectDefaultPageId } from "sagas/selectors";
 import {
   getAllTemplates,
   setTemplateNotificationSeenAction,
@@ -239,6 +240,8 @@ function* forkStarterTemplateToApplicationSaga(
     // Get page name and id where the starter template was clicked
     const activePageName: string = yield select(getCurrentPageName);
     const activePageId: string = yield select(getCurrentPageId);
+    // Get current default page id
+    const defaultPageId: string = yield select(selectDefaultPageId);
 
     const {
       applicationId,
@@ -271,20 +274,27 @@ function* forkStarterTemplateToApplicationSaga(
       });
     }
     if (isValid) {
-      // 1. Set the template page as home page
-      yield put({
-        type: ReduxActionTypes.SET_DEFAULT_APPLICATION_PAGE_INIT,
-        payload: {
-          id: templatePageIds[0],
-          applicationId,
-        },
-      });
-      yield take(ReduxActionTypes.SET_DEFAULT_APPLICATION_PAGE_SUCCESS);
+      // If the page where the starter template was clicked is the default page
+      if (activePageId === defaultPageId) {
+        // 1. Set the template page as home page
+        yield put({
+          type: ReduxActionTypes.SET_DEFAULT_APPLICATION_PAGE_INIT,
+          payload: {
+            id: templatePageIds[0],
+            applicationId,
+          },
+        });
+        yield take(ReduxActionTypes.SET_DEFAULT_APPLICATION_PAGE_SUCCESS);
+      }
+
       // 2. Delete the existing page
       yield fork(deleteExistingEmptyPageInApp, activePageId);
-      // 3. Rename the template page to default page
+      // 3. Rename the template page to clicked from page
       yield fork(renameStarterTemplatePageToDefault, templatePageIds[0]);
-      // 4. Complete the page addition flow
+      // 4. Wait for page update and delete to complete
+      yield take(ReduxActionTypes.UPDATE_PAGE_SUCCESS);
+      yield take(ReduxActionTypes.DELETE_PAGE_SUCCESS);
+      // 5. Complete the page addition flow
       yield put({
         type: ReduxActionTypes.IMPORT_STARTER_TEMPLATE_TO_APPLICATION_SUCCESS,
       });
