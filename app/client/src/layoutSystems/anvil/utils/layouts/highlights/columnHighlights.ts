@@ -17,8 +17,8 @@ import {
   getInitialHighlights,
 } from "./horizontalHighlights";
 import type {
-  WidgetPosition,
-  WidgetPositions,
+  LayoutElementPosition,
+  LayoutElementPositions,
 } from "layoutSystems/common/types";
 
 /**
@@ -32,7 +32,7 @@ import type {
  */
 export function deriveColumnHighlights(
   layoutProps: LayoutProps,
-  widgetPositions: WidgetPositions,
+  widgetPositions: LayoutElementPositions,
   canvasId: string,
   draggedWidgets: DraggedWidget[],
   layoutOrder: string[],
@@ -81,10 +81,10 @@ export function deriveColumnHighlights(
 
 function generateHighlights(
   baseHighlight: AnvilHighlightInfo,
-  layoutDimension: WidgetPosition,
-  currentDimension: WidgetPosition,
-  prevDimension: WidgetPosition | undefined,
-  nextDimension: WidgetPosition | undefined,
+  layoutDimension: LayoutElementPosition,
+  currentDimension: LayoutElementPosition,
+  prevDimension: LayoutElementPosition | undefined,
+  nextDimension: LayoutElementPosition | undefined,
   rowIndex: number,
   isLastHighlight: boolean,
 ): AnvilHighlightInfo[] {

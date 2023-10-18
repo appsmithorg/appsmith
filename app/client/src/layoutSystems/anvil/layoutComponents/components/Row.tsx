@@ -16,7 +16,7 @@ import {
   removeChildFromLayout,
 } from "layoutSystems/anvil/utils/layouts/layoutUtils";
 import { deriveRowHighlights } from "layoutSystems/anvil/utils/layouts/highlights/rowHighlights";
-import type { WidgetPositions } from "layoutSystems/common/types";
+import type { LayoutElementPositions } from "layoutSystems/common/types";
 
 const Row = (props: LayoutComponentProps) => {
   const { canvasId, children, isDropTarget, layoutId, layoutStyle } = props;
@@ -55,7 +55,7 @@ Row.getChildTemplate = (props: LayoutProps): LayoutProps | undefined => {
 
 Row.deriveHighlights = (
   layoutProps: LayoutProps,
-  widgetPositions: WidgetPositions,
+  widgetPositions: LayoutElementPositions,
   canvasId: string,
   draggedWidgets: DraggedWidget[],
   layoutOrder: string[],

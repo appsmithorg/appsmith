@@ -169,8 +169,6 @@ class FormWidget extends ContainerWidget {
             fn: (
               widget: FlattenedWidgetProps,
               widgets: CanvasWidgetsReduxState,
-              parent: FlattenedWidgetProps,
-              isAutoLayout: boolean,
             ) => {
               //get Canvas Widget
               const canvasWidget: FlattenedWidgetProps = get(

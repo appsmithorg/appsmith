@@ -30,7 +30,6 @@ export interface FlexLayoutProps
   children: ReactNode;
   isDropTarget?: boolean;
   layoutId: string;
-  layoutIndex: number;
 
   border?: string;
   columnGap?: Responsive<SpacingDimension>;

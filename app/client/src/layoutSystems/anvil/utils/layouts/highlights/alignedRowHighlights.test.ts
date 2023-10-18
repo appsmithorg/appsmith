@@ -5,8 +5,8 @@ import type {
   WidgetLayoutProps,
 } from "../../anvilTypes";
 import type {
-  WidgetPosition,
-  WidgetPositions,
+  LayoutElementPosition,
+  LayoutElementPositions,
 } from "layoutSystems/common/types";
 import { deriveAlignedRowHighlights } from "./alignedRowHighlights";
 import {
@@ -32,25 +32,25 @@ describe("AlignedRow highlights", () => {
       });
       const { layoutId } = layout;
 
-      const startPosition: WidgetPosition = {
+      const startPosition: LayoutElementPosition = {
         height: 40,
         left: 0,
         top: 0,
         width: 400,
       };
-      const centerPosition: WidgetPosition = {
+      const centerPosition: LayoutElementPosition = {
         height: 40,
         left: 404,
         top: 0,
         width: 400,
       };
-      const endPosition: WidgetPosition = {
+      const endPosition: LayoutElementPosition = {
         height: 40,
         left: 808,
         top: 0,
         width: 400,
       };
-      const dimensions: WidgetPositions = {
+      const dimensions: LayoutElementPositions = {
         [layoutId]: { height: 40, left: 0, top: 0, width: 1208 },
         [`${layoutId}-0`]: startPosition,
         [`${layoutId}-1`]: centerPosition,
@@ -112,14 +112,14 @@ describe("AlignedRow highlights", () => {
       const button: string = (layout.layout[0] as WidgetLayoutProps).widgetId;
       const input: string = (layout.layout[1] as WidgetLayoutProps).widgetId;
 
-      const layoutPosition: WidgetPosition = {
+      const layoutPosition: LayoutElementPosition = {
         height: 78,
         left: 0,
         top: 0,
         width: 1208,
       };
 
-      const dimensions: WidgetPositions = {
+      const dimensions: LayoutElementPositions = {
         [layoutId]: layoutPosition,
         [button]: { height: 40, left: 10, top: 4, width: 120 },
         [input]: { height: 70, left: 140, top: 4, width: 1058 },

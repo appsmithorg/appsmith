@@ -15,10 +15,6 @@ import {
   HORIZONTAL_DROP_ZONE_MULTIPLIER,
 } from "../../constants";
 import LayoutFactory from "layoutSystems/anvil/layoutComponents/LayoutFactory";
-import type {
-  WidgetPosition,
-  WidgetPositions,
-} from "layoutSystems/common/types";
 import { getStartPosition } from "./highlightUtils";
 import {
   type RowMetaData,
@@ -28,10 +24,14 @@ import {
 } from "./rowHighlights";
 import { getAlignmentLayoutId } from "../layoutUtils";
 import { getRelativeDimensions } from "./dimensionUtils";
+import type {
+  LayoutElementPosition,
+  LayoutElementPositions,
+} from "layoutSystems/common/types";
 
 export function deriveAlignedRowHighlights(
   layoutProps: LayoutProps,
-  widgetPositions: WidgetPositions,
+  widgetPositions: LayoutElementPositions,
   canvasId: string,
   draggedWidgets: DraggedWidget[],
   layoutOrder: string[],
@@ -43,10 +43,8 @@ export function deriveAlignedRowHighlights(
 
   const parentDropTargetId: string = isDropTarget ? layoutId : parentDropTarget;
 
-  const getDimensions: (id: string) => WidgetPosition = getRelativeDimensions(
-    parentDropTargetId,
-    widgetPositions,
-  );
+  const getDimensions: (id: string) => LayoutElementPosition =
+    getRelativeDimensions(parentDropTargetId, widgetPositions);
 
   /**
    * Step 1: Construct a base highlight.
@@ -136,7 +134,7 @@ function getInitialHighlights(
       ];
 
   arr.forEach((alignment: FlexLayerAlignment, index: number) => {
-    const alignmentDimension: WidgetPosition = getDimensions(
+    const alignmentDimension: LayoutElementPosition = getDimensions(
       `${layoutProps.layoutId}-${index}`,
     );
     highlights = updateHighlights(
@@ -166,13 +164,15 @@ function getInitialHighlights(
  */
 export function getHighlightsForWidgets(
   layoutProps: LayoutProps,
-  widgetPositions: WidgetPositions,
+  widgetPositions: LayoutElementPositions,
   draggedWidgets: DraggedWidget[],
   baseHighlight: AnvilHighlightInfo,
   getDimensions: GetDimensions,
 ): AnvilHighlightInfo[] {
   const layout: WidgetLayoutProps[] = layoutProps.layout as WidgetLayoutProps[];
-  const layoutDimension: WidgetPosition = getDimensions(layoutProps.layoutId);
+  const layoutDimension: LayoutElementPosition = getDimensions(
+    layoutProps.layoutId,
+  );
 
   // If widgetPositions of alignment aren't tracked => this layout has a fill widget.
   const hasFillWidget: boolean = !widgetPositions.hasOwnProperty(
@@ -244,8 +244,10 @@ export function getHighlightsForWidgets(
 
         let temp: AnvilHighlightInfo[] = [];
         row.forEach((each: RowMetaData, index: number) => {
-          const currentDimension: WidgetPosition = getDimensions(each.widgetId);
-          const tallestDimension: WidgetPosition = getDimensions(
+          const currentDimension: LayoutElementPosition = getDimensions(
+            each.widgetId,
+          );
+          const tallestDimension: LayoutElementPosition = getDimensions(
             tallestWidget.widgetId,
           );
           /**
@@ -295,9 +297,9 @@ function generateHighlight(
   baseHighlight: AnvilHighlightInfo,
   childCount: number,
   alignment: FlexLayerAlignment,
-  layoutDimension: WidgetPosition,
-  currDimension: WidgetPosition | undefined,
-  tallestWidget: WidgetPosition | undefined,
+  layoutDimension: LayoutElementPosition,
+  currDimension: LayoutElementPosition | undefined,
+  tallestWidget: LayoutElementPosition | undefined,
   prevHighlight: AnvilHighlightInfo | undefined,
   isFinalHighlight: boolean,
   isDropTarget: boolean,
@@ -344,9 +346,9 @@ function updateHighlights(
   baseHighlight: AnvilHighlightInfo,
   childCount: number,
   alignment: FlexLayerAlignment,
-  layoutDimension: WidgetPosition,
-  currDimension: WidgetPosition | undefined,
-  tallestWidget: WidgetPosition | undefined,
+  layoutDimension: LayoutElementPosition,
+  currDimension: LayoutElementPosition | undefined,
+  tallestWidget: LayoutElementPosition | undefined,
   isFinalHighlight: boolean,
   isDropTarget: boolean,
 ): AnvilHighlightInfo[] {
@@ -376,7 +378,7 @@ function updateHighlights(
 
 interface AlignmentInfo {
   [key: string]: {
-    dimension: WidgetPosition; // Size and position of the alignment.
+    dimension: LayoutElementPosition; // Size and position of the alignment.
     meta: RowMetaInformation; // If alignment is wrapped, then get information about each row. Widgets per row and tallest widget in every row.
     widgets: WidgetLayoutProps[]; // Widgets belonging to the alignment.
   };

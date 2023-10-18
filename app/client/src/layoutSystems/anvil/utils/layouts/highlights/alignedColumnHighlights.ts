@@ -20,8 +20,8 @@ import {
 } from "./horizontalHighlights";
 import { deriveHighlights } from "./highlightUtils";
 import type {
-  WidgetPosition,
-  WidgetPositions,
+  LayoutElementPosition,
+  LayoutElementPositions,
 } from "layoutSystems/common/types";
 
 /**
@@ -35,7 +35,7 @@ import type {
  */
 export function deriveAlignedColumnHighlights(
   layoutProps: LayoutProps,
-  widgetPositions: WidgetPositions,
+  widgetPositions: LayoutElementPositions,
   canvasId: string,
   draggedWidgets: DraggedWidget[],
   layoutOrder: string[],
@@ -90,10 +90,10 @@ export function deriveAlignedColumnHighlights(
 
 function generateHighlights(
   baseHighlight: AnvilHighlightInfo,
-  layoutDimension: WidgetPosition,
-  currentDimension: WidgetPosition,
-  prevDimension: WidgetPosition | undefined,
-  nextDimension: WidgetPosition | undefined,
+  layoutDimension: LayoutElementPosition,
+  currentDimension: LayoutElementPosition,
+  prevDimension: LayoutElementPosition | undefined,
+  nextDimension: LayoutElementPosition | undefined,
   rowIndex: number,
   isLastHighlight: boolean,
   hasFillWidget = false,

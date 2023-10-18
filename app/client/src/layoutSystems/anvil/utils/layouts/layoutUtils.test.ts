@@ -14,7 +14,7 @@ import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import { mockAnvilHighlightInfo } from "mocks/mockHighlightInfo";
 import { mockButtonProps } from "mocks/widgetProps/button";
 import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
-import { getLayoutId } from "layoutSystems/common/utils/WidgetPositionsObserver/utils";
+import { getAnvilLayoutDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
 
 describe("layoutUtils tests", () => {
   describe("getLayoutId", () => {
@@ -22,7 +22,7 @@ describe("layoutUtils tests", () => {
       const canvasId = "canvasId";
       const layoutId = "layoutId";
       const expectedLayoutId = `LAYOUT_${canvasId}_${layoutId}`;
-      expect(getLayoutId(canvasId, layoutId)).toBe(expectedLayoutId);
+      expect(getAnvilLayoutDOMId(canvasId, layoutId)).toBe(expectedLayoutId);
     });
   });
   describe("addChildToLayout", () => {

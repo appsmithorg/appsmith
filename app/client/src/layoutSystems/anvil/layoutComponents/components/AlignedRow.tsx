@@ -16,7 +16,7 @@ import {
 } from "layoutSystems/anvil/utils/layouts/layoutUtils";
 import { renderWidgetsInAlignedRow } from "layoutSystems/anvil/utils/layouts/renderUtils";
 import { deriveAlignedRowHighlights } from "layoutSystems/anvil/utils/layouts/highlights/alignedRowHighlights";
-import type { WidgetPositions } from "layoutSystems/common/types";
+import type { LayoutElementPositions } from "layoutSystems/common/types";
 
 const AlignedRow = (props: LayoutComponentProps) => {
   const { canvasId, children, isDropTarget, layoutId, layoutStyle } = props;
@@ -56,7 +56,7 @@ AlignedRow.getChildTemplate = (props: LayoutProps): LayoutProps | undefined => {
 
 AlignedRow.deriveHighlights = (
   layoutProps: LayoutProps,
-  widgetPositions: WidgetPositions,
+  widgetPositions: LayoutElementPositions,
   canvasId: string,
   draggedWidgets: DraggedWidget[],
   layoutOrder: string[],

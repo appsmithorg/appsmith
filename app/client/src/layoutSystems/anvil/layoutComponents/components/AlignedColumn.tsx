@@ -16,7 +16,7 @@ import {
   removeChildFromLayout,
 } from "layoutSystems/anvil/utils/layouts/layoutUtils";
 import { deriveAlignedColumnHighlights } from "layoutSystems/anvil/utils/layouts/highlights/alignedColumnHighlights";
-import type { WidgetPositions } from "layoutSystems/common/types";
+import type { LayoutElementPositions } from "layoutSystems/common/types";
 
 const AlignedColumn = (props: LayoutComponentProps) => {
   const { canvasId, children, isDropTarget, layoutId, layoutStyle } = props;
@@ -60,7 +60,7 @@ AlignedColumn.getChildTemplate = (
 
 AlignedColumn.deriveHighlights = (
   layoutProps: LayoutProps,
-  widgetPositions: WidgetPositions,
+  widgetPositions: LayoutElementPositions,
   canvasId: string,
   draggedWidgets: DraggedWidget[],
   layoutOrder: string[],

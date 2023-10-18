@@ -7,8 +7,8 @@ import type {
 import type { DropZone } from "layoutSystems/common/utils/types";
 import type { WidgetProps } from "widgets/BaseWidget";
 import type {
-  WidgetPosition,
-  WidgetPositions,
+  LayoutElementPosition,
+  LayoutElementPositions,
 } from "layoutSystems/common/types";
 
 export type LayoutComponentType =
@@ -65,7 +65,7 @@ export interface LayoutComponent extends React.FC<LayoutComponentProps> {
   // Get a list of highlights to demarcate the drop positions within the layout.
   deriveHighlights: (
     layoutProps: LayoutProps, // Properties of layout for which highlights have to be derived.
-    widgetPositions: WidgetPositions, // Positions and dimensions of all widgets and layouts.
+    widgetPositions: LayoutElementPositions, // Positions and dimensions of all widgets and layouts.
     canvasId: string, // widget Id of the parent canvas widget.
     draggedWidgets: DraggedWidget[], // List of dragged widgets/
     layoutOrder: string[], // Top - down hierarchy of layoutIds.
@@ -106,10 +106,10 @@ export interface DraggedWidget {
 
 export type GenerateHighlights = (
   baseHighlight: AnvilHighlightInfo,
-  layoutDimension: WidgetPosition,
-  currentDimension: WidgetPosition,
-  prevDimension: WidgetPosition | undefined,
-  nextDimension: WidgetPosition | undefined,
+  layoutDimension: LayoutElementPosition,
+  currentDimension: LayoutElementPosition,
+  prevDimension: LayoutElementPosition | undefined,
+  nextDimension: LayoutElementPosition | undefined,
   rowIndex: number,
   isLastHighlight: boolean,
   hasFillWidget?: boolean,
@@ -135,7 +135,7 @@ export type GetWidgetHighlights = (
 
 export type GetLayoutHighlights = (
   layoutProps: LayoutProps,
-  widgetPositions: WidgetPositions,
+  widgetPositions: LayoutElementPositions,
   baseHighlight: AnvilHighlightInfo,
   draggedWidgets: DraggedWidget[],
   canvasId: string,
@@ -146,4 +146,4 @@ export type GetLayoutHighlights = (
   hasFillWidget?: boolean,
 ) => AnvilHighlightInfo[];
 
-export type GetDimensions = (id: string) => WidgetPosition;
+export type GetDimensions = (id: string) => LayoutElementPosition;

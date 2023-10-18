@@ -23,7 +23,7 @@ import {
 import { generateLayoutComponentMock } from "mocks/layoutComponents/layoutComponentMock";
 import Row from "layoutSystems/anvil/layoutComponents/components/Row";
 import LayoutFactory from "layoutSystems/anvil/layoutComponents/LayoutFactory";
-import type { WidgetPositions } from "layoutSystems/common/types";
+import type { LayoutElementPositions } from "layoutSystems/common/types";
 import { getRelativeDimensions } from "./dimensionUtils";
 
 describe("rowHighlights tests", () => {
@@ -59,7 +59,7 @@ describe("rowHighlights tests", () => {
         { widgetId: "2", alignment: FlexLayerAlignment.Start },
         { widgetId: "3", alignment: FlexLayerAlignment.Start },
       ];
-      const dimensions: WidgetPositions = {
+      const dimensions: LayoutElementPositions = {
         "0": { top: 0, left: 0, width: 200, height: 200 },
         "1": { top: 0, left: 4, width: 100, height: 40 },
         "2": { top: 0, left: 110, width: 100, height: 60 },
@@ -89,7 +89,7 @@ describe("rowHighlights tests", () => {
         { widgetId: "3", alignment: FlexLayerAlignment.Start },
         { widgetId: "4", alignment: FlexLayerAlignment.Start },
       ];
-      const dimensions: WidgetPositions = {
+      const dimensions: LayoutElementPositions = {
         "0": { top: 0, left: 0, width: 300, height: 200 },
         "1": { top: 0, left: 4, width: 100, height: 40 },
         "2": { top: 0, left: 110, width: 100, height: 60 },
@@ -122,7 +122,7 @@ describe("rowHighlights tests", () => {
         { widgetId: "3", alignment: FlexLayerAlignment.Start },
         { widgetId: "4", alignment: FlexLayerAlignment.Start },
       ];
-      const dimensions: WidgetPositions = {
+      const dimensions: LayoutElementPositions = {
         "0": { top: 0, left: 0, width: 200, height: 200 },
         "1": { top: 70, left: 4, width: 100, height: 40 },
         "2": { top: 70, left: 110, width: 100, height: 60 },
@@ -168,7 +168,7 @@ describe("rowHighlights tests", () => {
         { widgetId: "2", alignment: FlexLayerAlignment.Start },
         { widgetId: "3", alignment: FlexLayerAlignment.Start },
       ];
-      const dimensions: WidgetPositions = {
+      const dimensions: LayoutElementPositions = {
         layoutID: { top: 0, left: 0, width: 230, height: 100 },
         "1": { top: 0, left: 4, width: 100, height: 40 },
         "2": { top: 0, left: 110, width: 100, height: 60 },
@@ -221,7 +221,7 @@ describe("rowHighlights tests", () => {
         { widgetId: "2", alignment: FlexLayerAlignment.Start },
         { widgetId: "3", alignment: FlexLayerAlignment.Start },
       ];
-      const dimensions: WidgetPositions = {
+      const dimensions: LayoutElementPositions = {
         layoutID: { top: 0, left: 0, width: 230, height: 100 },
         "1": { top: 0, left: 4, width: 100, height: 40 },
         "2": { top: 0, left: 110, width: 100, height: 60 },
@@ -279,7 +279,7 @@ describe("rowHighlights tests", () => {
         { widgetId: "2", alignment: FlexLayerAlignment.Start },
         { widgetId: "3", alignment: FlexLayerAlignment.Start },
       ];
-      const dimensions: WidgetPositions = {
+      const dimensions: LayoutElementPositions = {
         layoutID: { top: 0, left: 0, width: 230, height: 100 },
         "1": { top: 0, left: 4, width: 100, height: 40 },
         "2": { top: 0, left: 110, width: 100, height: 60 },
@@ -340,7 +340,7 @@ describe("rowHighlights tests", () => {
         { widgetId: "2", alignment: FlexLayerAlignment.Start },
         { widgetId: "3", alignment: FlexLayerAlignment.Start },
       ];
-      const dimensions: WidgetPositions = {
+      const dimensions: LayoutElementPositions = {
         layoutID: { top: 0, left: 0, width: 230, height: 100 },
         "1": { top: 40, left: 4, width: 100, height: 40 },
         "2": { top: 40, left: 110, width: 100, height: 60 },
@@ -404,7 +404,7 @@ describe("rowHighlights tests", () => {
         isDropTarget: true,
         layout: [],
       });
-      const positions: WidgetPositions = {
+      const positions: LayoutElementPositions = {
         [layout.layoutId]: { height: 100, left: 10, top: 10, width: 500 },
       };
       const res: AnvilHighlightInfo[] = deriveRowHighlights(
@@ -438,7 +438,7 @@ describe("rowHighlights tests", () => {
           justifyContent: "center",
         },
       });
-      const positions: WidgetPositions = {
+      const positions: LayoutElementPositions = {
         [layout.layoutId]: { height: 100, left: 10, top: 10, width: 500 },
       };
       const res: AnvilHighlightInfo[] = deriveRowHighlights(
@@ -476,7 +476,7 @@ describe("rowHighlights tests", () => {
           justifyContent: "end",
         },
       });
-      const positions: WidgetPositions = {
+      const positions: LayoutElementPositions = {
         [layout.layoutId]: { height: 100, left: 10, top: 10, width: 500 },
       };
       const res: AnvilHighlightInfo[] = deriveRowHighlights(
@@ -556,7 +556,7 @@ describe("rowHighlights tests", () => {
       /**
        * Create a map of widget positions.
        */
-      const positions: WidgetPositions = {
+      const positions: LayoutElementPositions = {
         [layoutOne.layoutId]: { height: 100, left: 10, top: 10, width: 500 },
         [button1]: { height: 40, left: 10, top: 10, width: 100 },
         [input1]: { height: 100, left: 60, top: 10, width: 430 },
@@ -605,7 +605,7 @@ describe("rowHighlights tests", () => {
       /**
        * Create a map of widget positions.
        */
-      const positions: WidgetPositions = {
+      const positions: LayoutElementPositions = {
         [layout.layoutId]: { height: 100, left: 10, top: 10, width: 500 },
         [button1]: { height: 40, left: 10, top: 10, width: 100 },
         [input1]: { height: 100, left: 120, top: 10, width: 370 },

@@ -10,7 +10,13 @@ import { RenderModes } from "constants/WidgetConstants";
 
 export function LayoutComponentHOC(Component: LayoutComponent) {
   const enhancedLayoutComponent = (props: LayoutComponentProps) => {
-    const { canvasId, isDropTarget, renderMode } = props;
+    const {
+      canvasId,
+      isDropTarget,
+      layoutOrder,
+      parentDropTarget,
+      renderMode,
+    } = props;
 
     const renderChildren = () => {
       if (Component.rendersWidgets(props)) {
@@ -20,7 +26,9 @@ export function LayoutComponentHOC(Component: LayoutComponent) {
           props.layout as LayoutProps[],
           props.childrenMap,
           canvasId,
+          parentDropTarget,
           renderMode,
+          layoutOrder,
         );
       }
     };

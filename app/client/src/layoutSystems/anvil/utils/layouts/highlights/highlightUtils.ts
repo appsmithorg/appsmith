@@ -12,12 +12,12 @@ import type {
 } from "../../anvilTypes";
 import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
 import { HIGHLIGHT_SIZE } from "../../constants";
-import type { WidgetPositions } from "layoutSystems/common/types";
+import type { LayoutElementPositions } from "layoutSystems/common/types";
 import { getRelativeDimensions } from "./dimensionUtils";
 
 /**
  * @param layoutProps | LayoutProps : properties of parent layout.
- * @param widgetPositions | WidgetPositions : positions and dimensions of widgets and layouts.
+ * @param widgetPositions | LayoutElementPositions : positions and dimensions of widgets and layouts.
  * @param canvasId @param canvasId | string : widgetId of parent canvas widget.
  * @param draggedWidgets | string[] : list of widgets that are being dragged.
  * @param layoutOrder | string[] : Hierarchy (Top - down) of layouts.
@@ -32,7 +32,7 @@ import { getRelativeDimensions } from "./dimensionUtils";
  */
 export function deriveHighlights(
   layoutProps: LayoutProps,
-  widgetPositions: WidgetPositions,
+  widgetPositions: LayoutElementPositions,
   canvasId: string,
   draggedWidgets: DraggedWidget[],
   layoutOrder: string[],

@@ -19,7 +19,6 @@ export const getAnvilWidgetDOMId = (widgetId: string) => {
  * Method to return Id of layout with layoutId
  * @param layoutId
  * @param canvasId
- * @param layoutIndex
  * @returns The ID to be used in the DOM
  */
 export const getAnvilLayoutDOMId = (canvasId: string, layoutId: string) => {
