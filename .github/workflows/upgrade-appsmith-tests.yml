@@ -20,6 +20,7 @@ jobs:
           pr: ${{inputs.pr}}
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
+          debug: true
           script: |
             async function getWorkflowRuns(prNumber) {
               let runIds = [];
@@ -113,3 +114,4 @@ jobs:
                     console.error("Error:", error);
                 }
             }
+            getPrCost();
