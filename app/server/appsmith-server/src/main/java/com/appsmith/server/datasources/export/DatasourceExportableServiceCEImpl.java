@@ -125,9 +125,16 @@ public class DatasourceExportableServiceCEImpl implements ExportableServiceCE<Da
             applicationJson.setDecryptedFields(decryptedFields);
         } else {
             applicationJson.getDatasourceList().forEach(datasourceStorage -> {
+                // For git sync, Set the entire datasourceConfiguration object to null as we don't want to
+                // set it in the git repo
+                if (Boolean.TRUE.equals(exportingMetaDTO.getIsGitSync())) {
+                    datasourceStorage.setDatasourceConfiguration(null);
+                }
                 // Remove the sensitive fields from the datasourceConfiguration object as user will configure it once
                 // imported to other instance
-                resetSensitiveFields(datasourceStorage);
+                else {
+                    resetSensitiveFields(datasourceStorage);
+                }
                 datasourceStorage.sanitiseToExportResource(mappedExportableResourcesDTO.getPluginMap());
             });
         }
