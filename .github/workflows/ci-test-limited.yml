@@ -236,17 +236,6 @@ jobs:
       - name: Setting up the cypress tests
         if: steps.run_result.outputs.run_result != 'success'
         shell: bash
-        env:
-          APPSMITH_SSL_CERTIFICATE: ${{ secrets.APPSMITH_SSL_CERTIFICATE }}
-          APPSMITH_SSL_KEY: ${{ secrets.APPSMITH_SSL_KEY }}
-          CYPRESS_USERNAME: ${{ secrets.CYPRESS_USERNAME }}
-          CYPRESS_PASSWORD: ${{ secrets.CYPRESS_PASSWORD }}
-          CYPRESS_EXCLUDE_TAGS: "airgap"
-          CYPRESS_AIRGAPPED: false
-          APPSMITH_DISABLE_TELEMETRY: true
-          APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
-          POSTGRES_PASSWORD: postgres
-          CYPRESS_VERIFY_TIMEOUT: 100000
         run: |
           cd app/client
           chmod a+x ./cypress/setup-test-ci.sh
