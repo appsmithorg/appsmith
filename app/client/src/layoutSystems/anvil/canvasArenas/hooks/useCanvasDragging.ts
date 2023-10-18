@@ -9,6 +9,7 @@ import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
 import { getNearestParentCanvas } from "utils/generators";
 import { getClosestHighlight } from "./utils";
+import { AnvilCanvasZIndex } from "./useCanvasActivation";
 
 /**
  * function to render UX to denote that the widget type cannot be dropped in the layout
@@ -17,14 +18,18 @@ import { getClosestHighlight } from "./utils";
 const renderDisallowOnCanvas = (slidingArena: HTMLDivElement) => {
   slidingArena.style.backgroundColor = "red";
   slidingArena.style.color = "white";
-  slidingArena.innerText = "This Layout Doesn't support the widget";
+  slidingArena.innerText = "This Layout doesn't support the widget";
 };
 
+/**
+ * function to render UX to denote that the widget can only be dropped on the main canvas
+ * and also there would be no highlights for AnvilOverlayWidgetTypes widgets
+ */
 const renderOverlayWidgetDropLayer = (slidingArena: HTMLDivElement) => {
   slidingArena.style.backgroundColor = "blue";
   slidingArena.style.opacity = "50%";
   slidingArena.style.color = "white";
-  slidingArena.innerText = "Drop The Modal widget anywhere on the canvas";
+  slidingArena.innerText = "Pls drop the widget anywhere on the canvas";
 };
 
 /**
@@ -56,7 +61,11 @@ const renderBlocksOnCanvas = (
   canvasCtx.fill();
   canvasCtx.stroke();
 };
-const modalWidgetHighlight: AnvilHighlightInfo = {
+
+/**
+ * Default highlight passed for AnvilOverlayWidgetTypes widgets
+ */
+const overlayWidgetHighlight: AnvilHighlightInfo = {
   alignment: FlexLayerAlignment.Center,
   canvasId: MAIN_CONTAINER_WIDGET_ID,
   dropZone: {},
@@ -87,24 +96,30 @@ export const useCanvasDragging = (
 ) => {
   const { anvilDragStates, deriveAllHighlightsFn, layoutId, onDrop } = props;
   const {
-    dragDetails,
+    activateOverlayWidgetDrop,
     draggedBlocks,
     isCurrentDraggedCanvas,
     isDragging,
-    isNewWidget,
     isResizing,
     mainCanvasLayoutId,
     widgetPositions,
   } = anvilDragStates;
-  const { newWidget } = dragDetails;
-  const activateOverlayWidgetDrop =
-    isNewWidget && newWidget.type === "MODAL_WIDGET";
+  /**
+   * provides auto scroll functionality
+   */
   const canScroll = useCanvasDragToScroll(
     slidingArenaRef,
     isCurrentDraggedCanvas && !activateOverlayWidgetDrop,
     isDragging,
   );
+  /**
+   * ref to store highlights derived in real time once dragging starts
+   */
   const allHighlightsRef = useRef([] as AnvilHighlightInfo[]);
+
+  /**
+   * function to calculate and store highlights
+   */
   const calculateHighlights = () => {
     if (activateOverlayWidgetDrop) {
       allHighlightsRef.current = [];
@@ -119,21 +134,23 @@ export const useCanvasDragging = (
   useEffect(() => {
     if (stickyCanvasRef.current && slidingArenaRef.current) {
       if (!anvilDragStates.isCurrentDraggedCanvas) {
-        const canvasCtx: any = stickyCanvasRef.current.getContext("2d");
+        const canvasCtx = stickyCanvasRef.current.getContext(
+          "2d",
+        ) as CanvasRenderingContext2D;
         canvasCtx.clearRect(
           0,
           0,
           stickyCanvasRef.current.width,
           stickyCanvasRef.current.height,
         );
-        slidingArenaRef.current.style.zIndex = "";
+        slidingArenaRef.current.style.zIndex = AnvilCanvasZIndex.deactivated;
         slidingArenaRef.current.style.backgroundColor = "unset";
         slidingArenaRef.current.style.color = "unset";
         slidingArenaRef.current.innerText = "";
       } else {
         // z-index was set to 2 but now changed to 10 coz
         // ConnectDataOverlay which wraps widgets like Table for some reasons is absolutely positioned and z-index 9
-        slidingArenaRef.current.style.zIndex = "10";
+        slidingArenaRef.current.style.zIndex = AnvilCanvasZIndex.activated;
       }
     }
   }, [anvilDragStates.isCurrentDraggedCanvas]);
@@ -149,14 +166,16 @@ export const useCanvasDragging = (
       const scrollObj: any = {};
       const resetCanvasState = () => {
         if (stickyCanvasRef.current && slidingArenaRef.current) {
-          const canvasCtx: any = stickyCanvasRef.current.getContext("2d");
+          const canvasCtx = stickyCanvasRef.current.getContext(
+            "2d",
+          ) as CanvasRenderingContext2D;
           canvasCtx.clearRect(
             0,
             0,
             stickyCanvasRef.current.width,
             stickyCanvasRef.current.height,
           );
-          slidingArenaRef.current.style.zIndex = "";
+          slidingArenaRef.current.style.zIndex = AnvilCanvasZIndex.deactivated;
           slidingArenaRef.current.style.backgroundColor = "unset";
           slidingArenaRef.current.style.color = "unset";
           slidingArenaRef.current.innerText = "";
@@ -174,7 +193,10 @@ export const useCanvasDragging = (
           ) {
             onDrop(
               activateOverlayWidgetDrop
-                ? { ...modalWidgetHighlight, layoutOrder: [mainCanvasLayoutId] }
+                ? {
+                    ...overlayWidgetHighlight,
+                    layoutOrder: [mainCanvasLayoutId],
+                  }
                 : currentRectanglesToDraw,
             );
           }
@@ -193,6 +215,30 @@ export const useCanvasDragging = (
             canvasIsDragging = true;
             onMouseMove(e);
           }
+        };
+
+        const calculateTopOffset = () => {
+          if (stickyCanvasRef.current) {
+            const isWidgetScrolling =
+              scrollParent?.className.includes("appsmith_widget_");
+            const isMainContainer = layoutId === mainCanvasLayoutId;
+            const totalScrollTop = scrollParent?.scrollTop || 0;
+            let val = isMainContainer || isWidgetScrolling ? totalScrollTop : 0;
+            const topOffset = getAbsolutePixels(
+              stickyCanvasRef.current.style.top,
+            );
+
+            if (
+              !isMainContainer &&
+              totalScrollTop &&
+              topOffset &&
+              totalScrollTop > topOffset
+            ) {
+              val += totalScrollTop - topOffset;
+            }
+            return val;
+          }
+          return 0;
         };
 
         const onMouseMove = (e: any) => {
@@ -216,33 +262,11 @@ export const useCanvasDragging = (
             );
             if (processedHighlight) {
               currentRectanglesToDraw = processedHighlight;
-              const isWidgetScrolling =
-                scrollParent?.className.includes("appsmith_widget_");
-              const isMainContainer = layoutId === mainCanvasLayoutId;
-              let val =
-                isMainContainer || isWidgetScrolling
-                  ? scrollParent?.scrollTop || 0
-                  : 0;
-              const mainCanvas = getNearestParentCanvas(
-                slidingArenaRef.current,
-              );
-              const totalScrollTop = mainCanvas?.scrollTop || 0;
-              const topOffset = getAbsolutePixels(
-                stickyCanvasRef.current.style.top,
-              );
-
-              if (
-                !isMainContainer &&
-                totalScrollTop &&
-                topOffset &&
-                totalScrollTop > topOffset
-              ) {
-                val += totalScrollTop - topOffset;
-              }
+              const topOffset = calculateTopOffset();
               renderBlocksOnCanvas(
                 stickyCanvasRef.current,
                 currentRectanglesToDraw,
-                val,
+                topOffset,
               );
               scrollObj.lastMouseMoveEvent = {
                 offsetX: e.offsetX,
@@ -280,8 +304,12 @@ export const useCanvasDragging = (
             }
           }, 0);
 
-        //Initialize Listeners
-        const initializeListeners = () => {
+        if (
+          slidingArenaRef.current &&
+          stickyCanvasRef.current &&
+          scrollParent
+        ) {
+          //Initialize Listeners
           slidingArenaRef.current?.addEventListener(
             "mousemove",
             onMouseMove,
@@ -293,17 +321,7 @@ export const useCanvasDragging = (
             false,
           );
           scrollParent?.addEventListener("scroll", onScroll, false);
-        };
-        const startDragging = () => {
-          if (
-            slidingArenaRef.current &&
-            stickyCanvasRef.current &&
-            scrollParent
-          ) {
-            initializeListeners();
-          }
-        };
-        startDragging();
+        }
 
         return () => {
           slidingArenaRef.current?.removeEventListener(

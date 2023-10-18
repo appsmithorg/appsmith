@@ -19,6 +19,7 @@ interface AnvilDnDStatesProps {
 }
 
 export interface AnvilDnDStates {
+  activateOverlayWidgetDrop: boolean;
   allowToDrop: boolean;
   draggedBlocks: DraggedWidget[];
   dragDetails: DragDetails;
@@ -32,6 +33,8 @@ export interface AnvilDnDStates {
   widgetPositions: WidgetPositions;
   mainCanvasLayoutId: string;
 }
+
+const AnvilOverlayWidgetTypes = ["MODAL_WIDGET"];
 
 /**
  * getDraggedBlocks function returns an array of DraggedWidget.
@@ -158,8 +161,13 @@ export const useAnvilDnDStates = ({
         : [],
     [isDragging, selectedWidgets],
   );
-
+  /**
+   * boolean that indicates if the widget being dragged in an overlay widget like the Modal widget.
+   */
+  const activateOverlayWidgetDrop =
+    isNewWidget && AnvilOverlayWidgetTypes.includes(newWidget.type);
   return {
+    activateOverlayWidgetDrop,
     allowToDrop,
     draggedBlocks,
     dragDetails,
