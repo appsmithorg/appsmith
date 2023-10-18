@@ -103,8 +103,6 @@ module.exports = {
       },
       intercomAppID: "APP_ID",
       mailEnabled: parseConfig("__APPSMITH_MAIL_ENABLED__"),
-
-      hideWatermark: parseConfig("__APPSMITH_HIDE_WATERMARK__"),
       disableIframeWidgetSandbox: parseConfig(
         "__APPSMITH_DISABLE_IFRAME_WIDGET_SANDBOX__",
       ),

@@ -125,6 +125,7 @@ describe("Button widget testcases", () => {
     agHelper.ValidateToastMessage("@example");
     // assert after deploy
     deployMode.DeployApp();
+    agHelper.Sleep();
     agHelper.ClickButton("Submit");
     agHelper.ValidateToastMessage("@example");
     deployMode.NavigateBacktoEditor();
