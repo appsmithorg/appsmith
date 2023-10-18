@@ -45,7 +45,7 @@ import {
  */
 const OverlayCanvasContainer = (props: {
   canvasWidth: number;
-  containerRef: React.RefObject<HTMLDivElement>;
+  containerRef: React.RefObject<HTMLDivElement | null>;
 }) => {
   //widget name data of widgets
   const selectedWidgetNameData: WidgetNameData[] | undefined = useSelector(
