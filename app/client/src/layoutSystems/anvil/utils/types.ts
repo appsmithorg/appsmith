@@ -4,10 +4,6 @@ import type { WidgetType } from "WidgetProvider/factory";
 
 export interface AnvilFlexComponentProps {
   children: ReactNode;
-  componentHeight: number;
-  componentWidth: number;
-  hasAutoHeight: boolean;
-  hasAutoWidth: boolean;
   isResizeDisabled?: boolean;
   focused?: boolean;
   parentId?: string;

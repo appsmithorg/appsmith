@@ -24,10 +24,6 @@ export const AnvilViewerWidgetOnion = (props: BaseWidgetProps) => {
   );
   return (
     <AnvilFlexComponent
-      componentHeight={props.componentHeight}
-      componentWidth={props.componentWidth}
-      hasAutoHeight={!!props.hasAutoHeight}
-      hasAutoWidth={!!props.hasAutoWidth}
       isResizeDisabled={props.resizeDisabled}
       parentId={props.parentId}
       widgetId={props.widgetId}
