@@ -90,8 +90,8 @@ export const deriveRowHighlights =
         baseHighlight,
         generateHighlights,
         getDimensions,
-        false,
         !!layoutProps.isDropTarget,
+        false,
       );
     }
 

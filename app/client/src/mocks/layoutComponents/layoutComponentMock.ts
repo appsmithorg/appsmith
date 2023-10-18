@@ -15,10 +15,11 @@ export function generateLayoutComponentMock(
   data: Partial<LayoutComponentProps> = {},
   rendersWidgets = true,
 ): LayoutComponentProps {
-  if (data?.layoutType === LayoutComponentTypes.ALIGNED_ROW)
+  if (data?.layoutType === LayoutComponentTypes.ALIGNED_WIDGET_ROW)
     return generateAlignedRowMock(data, rendersWidgets);
   const layout: WidgetLayoutProps[] | LayoutComponentProps[] = [],
     childrenMap: { [key: string]: WidgetProps } = {};
+  let type = LayoutComponentTypes.WIDGET_ROW;
   if (rendersWidgets) {
     /**
      * This generates a Row with button and input widgets in it.
@@ -39,6 +40,7 @@ export function generateLayoutComponentMock(
     childrenMap[buttonWidget.widgetId] = buttonWidget;
     childrenMap[inputWidget.widgetId] = inputWidget;
   } else {
+    type = LayoutComponentTypes.LAYOUT_ROW;
     (layout as LayoutComponentProps[]).push(generateLayoutComponentMock());
     (layout as LayoutComponentProps[]).push(generateLayoutComponentMock());
   }
@@ -46,7 +48,7 @@ export function generateLayoutComponentMock(
     layout,
     layoutId: generateReactKey(),
     layoutStyle: {},
-    layoutType: LayoutComponentTypes.ROW,
+    layoutType: type,
 
     allowedWidgetTypes: [],
     canvasId: "",
@@ -97,7 +99,7 @@ export function generateAlignedRowMock(
     layout,
     layoutId: "",
     layoutStyle: {},
-    layoutType: LayoutComponentTypes.ALIGNED_ROW,
+    layoutType: LayoutComponentTypes.ALIGNED_WIDGET_ROW,
 
     allowedWidgetTypes: [],
     canvasId: "",
