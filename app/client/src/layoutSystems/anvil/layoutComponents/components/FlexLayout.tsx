@@ -18,8 +18,8 @@ import type {
   OverflowValues,
   PositionValues,
 } from "layoutSystems/anvil/utils/types";
-import { getLayoutId } from "layoutSystems/common/utils/WidgetPositionsObserver/utils";
-import { usePositionObserver } from "layoutSystems/common/utils/WidgetPositionsObserver/usePositionObserver";
+import { usePositionObserver } from "layoutSystems/common/utils/LayoutElementPositionsObserver/usePositionObserver";
+import { getAnvilLayoutDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
 
 export interface FlexLayoutProps
   extends AlignSelf,
@@ -30,6 +30,7 @@ export interface FlexLayoutProps
   children: ReactNode;
   isDropTarget?: boolean;
   layoutId: string;
+  layoutIndex: number;
 
   border?: string;
   columnGap?: Responsive<SpacingDimension>;
@@ -50,6 +51,21 @@ export interface FlexLayoutProps
 }
 
 export const FlexLayout = (props: FlexLayoutProps) => {
+  /** POSITIONS OBSERVER LOGIC */
+  // Create a ref so that this DOM node can be
+  // observed by the observer for changes in size
+  const ref = React.useRef<HTMLDivElement>(null);
+  usePositionObserver(
+    "layout",
+    {
+      layoutId: props.layoutId,
+      canvasId: props.canvasId,
+      isDropTarget: props.isDropTarget,
+    },
+    ref,
+  );
+  /** EO POSITIONS OBSERVER LOGIC */
+
   const flexProps: FlexProps = useMemo(() => {
     return {
       alignSelf: props.alignSelf || "flex-start",
@@ -74,17 +90,6 @@ export const FlexLayout = (props: FlexLayoutProps) => {
     };
   }, [props]);
 
-  const ref = React.useRef<HTMLDivElement>(null);
-  usePositionObserver(
-    "layout",
-    {
-      layoutId: props.layoutId,
-      canvasId: props.canvasId,
-      isDropTarget: !!props.isDropTarget,
-    },
-    ref,
-  );
-
   // The following properties aren't included in type FlexProps but can be passed as style.
   const styleProps: CSSProperties = useMemo(() => {
     return {
@@ -97,7 +102,7 @@ export const FlexLayout = (props: FlexLayoutProps) => {
   return (
     <Flex
       {...flexProps}
-      id={getLayoutId(props.canvasId, props.layoutId)}
+      id={getAnvilLayoutDOMId(props.canvasId, props.layoutId)}
       ref={ref}
       style={styleProps}
     >

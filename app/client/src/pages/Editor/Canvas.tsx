@@ -71,6 +71,7 @@ const Canvas = (props: CanvasProps) => {
   }
 
   const focusRef = useWidgetFocus();
+  const isWDSEnabled = useFeatureFlag("ab_wds_enabled");
 
   const marginHorizontalClass = props.enableMainCanvasResizer
     ? `mx-0`
@@ -87,7 +88,7 @@ const Canvas = (props: CanvasProps) => {
           )}`}
           data-testid={"t--canvas-artboard"}
           id={CANVAS_ART_BOARD}
-          ref={focusRef}
+          ref={isWDSEnabled ? undefined : focusRef}
           width={canvasWidth}
         >
           {props.widgetsStructure.widgetId &&

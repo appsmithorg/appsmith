@@ -27,10 +27,10 @@ import {
 import WidgetFactory from "WidgetProvider/factory";
 import type { WidgetProps } from "widgets/BaseWidget";
 import type { WidgetConfigProps } from "WidgetProvider/constants";
-import { usePositionObserver } from "layoutSystems/common/utils/WidgetPositionsObserver/usePositionObserver";
-import { getAnvilWidgetId } from "layoutSystems/common/utils/WidgetPositionsObserver/utils";
+import { usePositionObserver } from "layoutSystems/common/utils/LayoutElementPositionsObserver/usePositionObserver";
 import { Colors } from "constants/Colors";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ce/reducers";
+import { getAnvilWidgetDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
 
 /**
  * Adds following functionalities to the widget:
@@ -59,9 +59,12 @@ export function AnvilFlexComponent(props: AnvilFlexComponentProps) {
   );
   const isCurrentWidgetResizing = isResizing && isSelected;
 
-  // Add observer to Flex component
+  /** POSITIONS OBSERVER LOGIC */
+  // Create a ref so that this DOM node can be
+  // observed by the observer for changes in size
   const ref = React.useRef<HTMLDivElement>(null);
   usePositionObserver("widget", { widgetId: props.widgetId }, ref);
+  /** EO POSITIONS OBSERVER LOGIC */
 
   const [isFillWidget, setIsFillWidget] = useState<boolean>(false);
   const [verticalAlignment, setVerticalAlignment] =
@@ -189,7 +192,7 @@ export function AnvilFlexComponent(props: AnvilFlexComponentProps) {
     <Flex
       {...flexProps}
       className={className}
-      id={getAnvilWidgetId(props.widgetId)}
+      id={getAnvilWidgetDOMId(props.widgetId)}
       ref={ref}
       style={styleProps}
     >
