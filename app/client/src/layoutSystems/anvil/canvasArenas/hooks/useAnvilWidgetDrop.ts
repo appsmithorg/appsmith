@@ -29,10 +29,7 @@ export const useAnvilWidgetDrop = (
       dispatch(addNewAnvilWidgetAction(newWidgetBlock, renderedBlock));
     } else {
       dispatch(
-        moveAnvilWidgets(
-          renderedBlock,
-          anvilDragStates.filteredSelectedWidgets,
-        ),
+        moveAnvilWidgets(renderedBlock, anvilDragStates.selectedWidgets),
       );
     }
   };

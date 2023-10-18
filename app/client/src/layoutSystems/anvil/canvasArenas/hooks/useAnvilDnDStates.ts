@@ -9,6 +9,8 @@ import { getWidgetPositions } from "layoutSystems/common/selectors";
 import type { DraggedWidget } from "layoutSystems/anvil/utils/anvilTypes";
 import type { WidgetPositions } from "layoutSystems/common/types";
 import { getDropTargetLayoutId } from "layoutSystems/anvil/integrations/selectors";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import WidgetFactory from "WidgetProvider/factory";
 
 interface AnvilDnDStatesProps {
   allowedWidgetTypes: string[];
@@ -20,7 +22,7 @@ export interface AnvilDnDStates {
   allowToDrop: boolean;
   draggedBlocks: DraggedWidget[];
   dragDetails: DragDetails;
-  filteredSelectedWidgets: string[];
+  selectedWidgets: string[];
   isChildOfCanvas: boolean;
   isCurrentDraggedCanvas: boolean;
   isDragging: boolean;
@@ -30,6 +32,62 @@ export interface AnvilDnDStates {
   widgetPositions: WidgetPositions;
   mainCanvasLayoutId: string;
 }
+
+/**
+ * getDraggedBlocks function returns an array of DraggedWidget.
+ * If the dragged widget is a new widget pulled out of the widget cards,
+ * specific info like type, widgetId and responsiveBehavior are filled using dragDetails
+ */
+
+const getDraggedBlocks = (
+  isNewWidget: boolean,
+  dragDetails: DragDetails,
+  selectedWidgets: string[],
+  allWidgets: CanvasWidgetsReduxState,
+): DraggedWidget[] => {
+  if (isNewWidget) {
+    const { newWidget } = dragDetails;
+    return [
+      {
+        widgetId: newWidget.widgetId,
+        type: newWidget.type,
+        responsiveBehavior:
+          newWidget.responsiveBehavior ??
+          WidgetFactory.getConfig(newWidget.type)?.responsiveBehavior,
+      },
+    ];
+  } else {
+    return selectedWidgets.map((eachWidgetId) => ({
+      type: allWidgets[eachWidgetId].type,
+      widgetId: eachWidgetId,
+      responsiveBehavior: allWidgets[eachWidgetId].responsiveBehavior,
+    }));
+  }
+};
+
+/**
+ * function to validate if the widget(s) being dragged is supported by the canvas.
+ * ex: In a From widget the header will not accept widgets like Table/List.
+ */
+const checkIfWidgetTypeDraggedIsAllowedToDrop = (
+  allowedWidgetTypes: string[],
+  isNewWidget: boolean,
+  dragDetails: DragDetails,
+  selectedWidgets: string[],
+  allWidgets: CanvasWidgetsReduxState,
+) => {
+  if (allowedWidgetTypes.length === 0) {
+    return true;
+  }
+  if (isNewWidget) {
+    const { newWidget } = dragDetails;
+    return allowedWidgetTypes.includes(newWidget.type);
+  } else {
+    return selectedWidgets.every((eachWidgetId) => {
+      return allowedWidgetTypes.includes(allWidgets[eachWidgetId].type);
+    });
+  }
+};
 
 export const useAnvilDnDStates = ({
   allowedWidgetTypes,
@@ -42,10 +100,6 @@ export const useAnvilDnDStates = ({
   const widgetPositions = useSelector(getWidgetPositions);
   const allWidgets = useSelector(getWidgets);
   const selectedWidgets = useSelector(getSelectedWidgets);
-  const filteredSelectedWidgets = selectedWidgets.filter(
-    (eachWidgetId) =>
-      !!allWidgets[eachWidgetId] && !!widgetPositions[eachWidgetId],
-  );
   // dragDetails contains of info needed for a container jump:
   // which parent the dragging widget belongs,
   // which canvas is active(being dragged on),
@@ -60,56 +114,56 @@ export const useAnvilDnDStates = ({
   const isResizing = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isResizing,
   );
+  /**
+   * boolean to indicate if the widget being dragged is a new widget
+   */
   const isNewWidget = !!newWidget && !dragParent;
+  /**
+   * boolean to indicate if the widget being dragged is this particular canvas's child.
+   */
   const isChildOfCanvas = dragParent === canvasId;
+  /**
+   * boolean to indicate if the widget is being dragged on this particular canvas.
+   */
   const isCurrentDraggedCanvas = dragDetails.draggedOn === layoutId;
+  /**
+   * boolean to indicate if this canvas is the initial target canvas(Main Canvas) to activate when a new widget is dragged.
+   */
   const isNewWidgetInitialTargetCanvas =
     isNewWidget && layoutId === mainCanvasLayoutId;
-  const getDraggedBlocks = (): DraggedWidget[] => {
-    if (isNewWidget) {
-      const { newWidget } = dragDetails;
-
-      return [
-        {
-          widgetId: newWidget.widgetId,
-          type: newWidget.type,
-          responsiveBehavior: newWidget.responsiveBehavior,
-        },
-      ];
-    } else {
-      return filteredSelectedWidgets.map((eachWidgetId) => ({
-        type: allWidgets[eachWidgetId].type,
-        widgetId: eachWidgetId,
-        responsiveBehavior: allWidgets[eachWidgetId].responsiveBehavior,
-      }));
-    }
-  };
-  const checkIfWidgetTypeDraggedIsAllowedToDrop = () => {
-    if (allowedWidgetTypes.length === 0) {
-      return true;
-    }
-    if (isNewWidget) {
-      const { newWidget } = dragDetails;
-      return allowedWidgetTypes.includes(newWidget.type);
-    } else {
-      return filteredSelectedWidgets.every((eachWidgetId) => {
-        return allowedWidgetTypes.includes(allWidgets[eachWidgetId].type);
-      });
-    }
-  };
-  const allowToDrop = isDragging && checkIfWidgetTypeDraggedIsAllowedToDrop();
+  /**
+   * boolean to indicate if the widgets being dragged are all allowed to drop in this particular canvas.
+   * ex: In a From widget the header will not accept widgets like Table/List.
+   */
+  const allowToDrop =
+    isDragging &&
+    checkIfWidgetTypeDraggedIsAllowedToDrop(
+      allowedWidgetTypes,
+      isNewWidget,
+      dragDetails,
+      selectedWidgets,
+      allWidgets,
+    );
   // process drag blocks only once and per first render
   // this is by taking advantage of the fact that isNewWidget and dragDetails are unchanged states during the dragging action.
   const draggedBlocks = useMemo(
-    () => (isDragging ? getDraggedBlocks() : []),
-    [isDragging, filteredSelectedWidgets],
+    () =>
+      isDragging
+        ? getDraggedBlocks(
+            isNewWidget,
+            dragDetails,
+            selectedWidgets,
+            allWidgets,
+          )
+        : [],
+    [isDragging, selectedWidgets],
   );
 
   return {
     allowToDrop,
     draggedBlocks,
     dragDetails,
-    filteredSelectedWidgets,
+    selectedWidgets,
     isChildOfCanvas,
     isCurrentDraggedCanvas,
     isDragging,
