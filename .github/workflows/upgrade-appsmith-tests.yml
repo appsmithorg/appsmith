@@ -109,11 +109,11 @@ jobs:
                     const breakdown = Object.entries(totalCost)
                       .filter(([key, value]) => key !== 'TOTAL')
                       .map(([key, value]) => `${key}: $${value.toFixed(2)}`)
-                      .join(', ');
+                      .join('\n');
                     await github.rest.issues.createComment({
                       ...context.repo,
                       issue_number: 28178,
-                      body: `The total cost of **PR** is **$${total}**.\n**Breakdown:**\n${breakdown}`
+                      body: `The total cost for this **PR** is **$${total}**.\n**Breakdown:**\n${breakdown}`
                     })
                 } catch (error) {
                     console.error("Error:", error);
