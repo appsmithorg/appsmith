@@ -39,6 +39,13 @@ class LayoutFactory {
 
     return Comp.deriveHighlights;
   }
+
+  static doesLayoutRenderWidgets(type: LayoutComponentTypes): boolean {
+    const Comp: typeof BaseLayoutComponent = LayoutFactory.get(type);
+    if (!Comp) throw Error(`LayoutComponent with the type "${type}" not found`);
+
+    return Comp.rendersWidgets;
+  }
 }
 
 export default LayoutFactory;

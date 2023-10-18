@@ -16,20 +16,20 @@ import { deriveColumnHighlights } from "./columnHighlights";
 import type { LayoutElementPositions } from "layoutSystems/common/types";
 
 describe("columnHighlights", () => {
+  const draggedWidgets: DraggedWidget[] = [
+    {
+      widgetId: "1",
+      type: "BUTTON_WIDGET",
+      responsiveBehavior: ResponsiveBehavior.Hug,
+    },
+  ];
   beforeAll(() => {
     registerLayoutComponents();
   });
   describe("widget highlights", () => {
-    const draggedWidgets: DraggedWidget[] = [
-      {
-        widgetId: "1",
-        type: "BUTTON_WIDGET",
-        responsiveBehavior: ResponsiveBehavior.Hug,
-      },
-    ];
     it("should derive highlights for a column", () => {
       const layout: LayoutComponentProps = generateLayoutComponentMock({
-        layoutType: LayoutComponentTypes.COLUMN,
+        layoutType: LayoutComponentTypes.WIDGET_COLUMN,
       });
       const buttonId: string = (layout.layout[0] as WidgetLayoutProps).widgetId;
       const inputId: string = (layout.layout[1] as WidgetLayoutProps).widgetId;
@@ -65,7 +65,7 @@ describe("columnHighlights", () => {
     });
     it("should discount dragged child widgets from highlight calculation", () => {
       const layout: LayoutComponentProps = generateLayoutComponentMock({
-        layoutType: LayoutComponentTypes.COLUMN,
+        layoutType: LayoutComponentTypes.WIDGET_COLUMN,
       });
       const buttonId: string = (layout.layout[0] as WidgetLayoutProps).widgetId;
       const inputId: string = (layout.layout[1] as WidgetLayoutProps).widgetId;
@@ -101,7 +101,7 @@ describe("columnHighlights", () => {
     });
     it("should calculate drop zones properly", () => {
       const layout: LayoutComponentProps = generateLayoutComponentMock({
-        layoutType: LayoutComponentTypes.COLUMN,
+        layoutType: LayoutComponentTypes.WIDGET_COLUMN,
       });
       const buttonId: string = (layout.layout[0] as WidgetLayoutProps).widgetId;
       const inputId: string = (layout.layout[1] as WidgetLayoutProps).widgetId;
@@ -156,7 +156,7 @@ describe("columnHighlights", () => {
     it("should return a highlight with the correct dimensions", () => {
       const layout: LayoutComponentProps = generateLayoutComponentMock({
         isDropTarget: true,
-        layoutType: LayoutComponentTypes.COLUMN,
+        layoutType: LayoutComponentTypes.WIDGET_COLUMN,
         layout: [],
       });
       const positions: LayoutElementPositions = {
@@ -167,7 +167,7 @@ describe("columnHighlights", () => {
         "0",
         [],
         layout.layoutId,
-      )(positions, []);
+      )(positions, draggedWidgets);
 
       expect(res[0].width).toEqual(
         positions[layout.layoutId].width - HIGHLIGHT_SIZE,
@@ -178,7 +178,7 @@ describe("columnHighlights", () => {
     it("should return a highlight with the correct dimensions for a center aligned empty drop target column", () => {
       const layout: LayoutComponentProps = generateLayoutComponentMock({
         isDropTarget: true,
-        layoutType: LayoutComponentTypes.COLUMN,
+        layoutType: LayoutComponentTypes.WIDGET_COLUMN,
         layout: [],
         layoutStyle: {
           justifyContent: "center",
@@ -192,7 +192,7 @@ describe("columnHighlights", () => {
         "0",
         [],
         layout.layoutId,
-      )(positions, []);
+      )(positions, draggedWidgets);
       expect(res).toBeDefined();
       expect(res[0].width).toEqual(
         positions[layout.layoutId].width - HIGHLIGHT_SIZE,
@@ -204,7 +204,7 @@ describe("columnHighlights", () => {
     it("should return a highlight with the correct dimensions for a end aligned empty drop target column", () => {
       const layout: LayoutComponentProps = generateLayoutComponentMock({
         isDropTarget: true,
-        layoutType: LayoutComponentTypes.COLUMN,
+        layoutType: LayoutComponentTypes.WIDGET_COLUMN,
         layout: [],
         layoutStyle: {
           justifyContent: "end",
@@ -218,13 +218,13 @@ describe("columnHighlights", () => {
         "0",
         [],
         layout.layoutId,
-      )(positions, []);
+      )(positions, draggedWidgets);
 
       expect(res[0].width).toEqual(
         positions[layout.layoutId].width - HIGHLIGHT_SIZE,
       );
       expect(res[0].posY).toEqual(
-        positions[layout.layoutId].height - HIGHLIGHT_SIZE / 2,
+        positions[layout.layoutId].height - HIGHLIGHT_SIZE,
       );
     });
   });
@@ -247,7 +247,7 @@ describe("columnHighlights", () => {
       const column: LayoutComponentProps = generateLayoutComponentMock(
         {
           layout: [row1, row2],
-          layoutType: LayoutComponentTypes.COLUMN,
+          layoutType: LayoutComponentTypes.LAYOUT_COLUMN,
         },
         false,
       );
@@ -273,7 +273,7 @@ describe("columnHighlights", () => {
         "0",
         [],
         column.layoutId,
-      )(dimensions, []);
+      )(dimensions, draggedWidgets);
 
       /**
        * # of highlights:
@@ -290,13 +290,13 @@ describe("columnHighlights", () => {
       expect(res[3].isVertical).toBeTruthy();
 
       expect(res[0].posY).toEqual(
-        dimensions[row1.layoutId].top - HIGHLIGHT_SIZE / 2,
+        dimensions[row1.layoutId].top - HIGHLIGHT_SIZE,
       );
       expect(res[0].dropZone.top).toEqual(dimensions[row1.layoutId].top);
 
       expect(res[4].isVertical).toBeFalsy();
       expect(res[4].posY).toEqual(
-        dimensions[row2.layoutId].top - HIGHLIGHT_SIZE / 2,
+        dimensions[row2.layoutId].top - HIGHLIGHT_SIZE,
       );
       expect(res[4].dropZone.top).toEqual(
         (dimensions[row2.layoutId].top - dimensions[row1.layoutId].top) *
