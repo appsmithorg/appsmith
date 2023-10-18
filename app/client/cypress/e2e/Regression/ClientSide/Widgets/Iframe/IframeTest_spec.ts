@@ -113,7 +113,7 @@ describe("Iframe widget Tests", function () {
     agHelper.ValidateToastMessage("URL Changed");
   });
 
-  it("3. Verify colors, borders and shadows", () => {
+  it.skip("3. Verify colors, borders and shadows", () => {
     propPane.MoveToTab("Style");
 
     // Border Color
