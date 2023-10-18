@@ -104,7 +104,6 @@ describe("Table Widget V2 property pane feature validation", function () {
     cy.moveToStyleTab();
     cy.wait(1000);
     propPane.EnterJSContext("Cell Background", testdata.bindingTextColor);
-    cy.wait("@updateLayout");
     cy.readTableV2dataValidateCSS(
       "0",
       "0",

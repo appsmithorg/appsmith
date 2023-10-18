@@ -13,10 +13,13 @@ import {
 } from "constants/routes";
 import { previewModeSelector } from "selectors/editorSelectors";
 import WidgetsEditor from "./WidgetsEditor";
-import EditorsRouter from "./routes";
+import EditorsRouter from "@appsmith/pages/Editor/routes";
 import EditorWrapperBody from "./commons/EditorWrapperBody";
 import WidgetsEditorEntityExplorer from "./WidgetsEditorEntityExplorer";
 import EditorWrapperContainer from "./commons/EditorWrapperContainer";
+import Sidebar from "components/Sidebar";
+import { getIsAppSidebarEnabled } from "selectors/ideSelectors";
+import { getIsAppSettingsPaneOpen } from "selectors/appSettingsPaneSelectors";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -26,11 +29,16 @@ const SentryRoute = Sentry.withSentryRouting(Route);
 function WidgetsEditorWrapper() {
   const { path } = useRouteMatch();
   const isPreviewMode = useSelector(previewModeSelector);
+  const isAppSidebarEnabled = useSelector(getIsAppSidebarEnabled);
+  const isAppSettingsPaneOpen = useSelector(getIsAppSettingsPaneOpen);
 
   return (
     <>
       <EditorWrapperContainer>
-        <WidgetsEditorEntityExplorer />
+        <Sidebar />
+        {!(isAppSidebarEnabled && isAppSettingsPaneOpen) && (
+          <WidgetsEditorEntityExplorer />
+        )}
         <EditorWrapperBody id="app-body">
           <Switch key={BUILDER_PATH}>
             <SentryRoute

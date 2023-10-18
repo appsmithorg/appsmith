@@ -33,6 +33,7 @@ export const assistiveBindingHinter: HintHelper = (
         enableAIAssistance,
         executeCommand,
         featureFlags,
+        focusEditor,
         pluginIdToImageLocation,
         recentEntities,
       }: {
@@ -44,6 +45,7 @@ export const assistiveBindingHinter: HintHelper = (
         entityId: string;
         featureFlags: FeatureFlags;
         enableAIAssistance: boolean;
+        focusEditor: (focusOnLine?: number, chOffset?: number) => void;
       },
     ): boolean => {
       // @ts-expect-error: Types are not available
@@ -135,15 +137,7 @@ export const assistiveBindingHinter: HintHelper = (
             }
             const cursor = editor.getCursor();
             const currentLine = cursor.line;
-            const currentCursorPosition = cursor.ch;
-            const newCursorPosition = currentCursorPosition - 2; //offset cursor before the ending moustache braces '}}'
-            setTimeout(() => {
-              editor.focus();
-              editor.setCursor({
-                line: currentLine,
-                ch: newCursorPosition,
-              });
-            });
+            focusEditor(currentLine, 2);
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
             const { data } = selected;
             const { name, type } = data as NavigationData;
