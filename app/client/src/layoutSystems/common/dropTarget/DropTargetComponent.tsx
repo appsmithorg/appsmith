@@ -80,7 +80,7 @@ function Onboarding() {
     (async () => {
       setIsNewUser(!!user && (await isUserSignedUpFlagSet(user.email)));
     })();
-  }, []);
+  }, [user]);
 
   return shouldShowStarterTemplates ? (
     <CanvasStarterTemplatesLayout />
