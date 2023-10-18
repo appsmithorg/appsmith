@@ -28,6 +28,9 @@ import type { FlattenedWidgetProps } from "WidgetProvider/constants";
 import IconSVG from "../icon.svg";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import type { FlexLayer } from "layoutSystems/autolayout/utils/types";
+import type { LayoutProps } from "layoutSystems/anvil/utils/anvilTypes";
+import { formPreset } from "layoutSystems/anvil/layoutComponents/presets/FormPreset";
+import { renderAppsmithCanvas } from "layoutSystems/CanvasFactory";
 
 class FormWidget extends ContainerWidget {
   static type = "FORM_WIDGET";
@@ -166,11 +169,7 @@ class FormWidget extends ContainerWidget {
             fn: (
               widget: FlattenedWidgetProps,
               widgets: CanvasWidgetsReduxState,
-              parent: FlattenedWidgetProps,
-              isAutoLayout: boolean,
             ) => {
-              if (!isAutoLayout) return [];
-
               //get Canvas Widget
               const canvasWidget: FlattenedWidgetProps = get(
                 widget,
@@ -218,6 +217,12 @@ class FormWidget extends ContainerWidget {
                 },
               ];
 
+              const layout: LayoutProps[] = formPreset(
+                textWidget.widgetId,
+                buttonWidget1.widgetId,
+                buttonWidget2.widgetId,
+              );
+
               //create properties to be updated
               return getWidgetBluePrintUpdates({
                 [widget.widgetId]: {
@@ -231,6 +236,7 @@ class FormWidget extends ContainerWidget {
                   positioning: Positioning.Vertical,
                   bottomRow: 100,
                   mobileBottomRow: 100,
+                  layout,
                 },
                 [textWidget.widgetId]: {
                   responsiveBehavior: ResponsiveBehavior.Fill,
@@ -384,7 +390,14 @@ class FormWidget extends ContainerWidget {
       );
     }
 
-    return super.renderChildWidget(childContainer);
+    // childContainer.layout =
+    //   childContainer.layout ??
+    //   formPreset(
+    //     childContainer.children[0]?.widgetId,
+    //     childContainer.children[1]?.widgetId,
+    //     childContainer.children[2]?.widgetId,
+    //   );
+    return renderAppsmithCanvas(childContainer as WidgetProps);
   }
 
   static getStylsheetConfig() {

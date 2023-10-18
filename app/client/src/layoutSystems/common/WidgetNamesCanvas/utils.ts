@@ -1,5 +1,5 @@
 import Konva from "konva";
-import type { WidgetPosition } from "layoutSystems/common/types";
+import type { LayoutElementPosition } from "layoutSystems/common/types";
 import type { WidgetNameData, WidgetNamePositionData } from "./WidgetNameTypes";
 import {
   warningSVGPath,
@@ -26,7 +26,7 @@ import {
  *          widgetName Group on Konva, position of widgetName on canvas and canvas offsets
  */
 export const getWidgetNameComponent = (
-  position: WidgetPosition,
+  position: LayoutElementPosition,
   widgetName: string,
   widgetNameData: WidgetNameData,
   parentDOM: HTMLDivElement | null,
@@ -129,7 +129,7 @@ export const getWidgetNameComponent = (
 const getPositionsForBoundary = (
   parentDOM: HTMLDivElement | null,
   htmlCanvasDOM: HTMLDivElement | undefined,
-  position: WidgetPosition,
+  position: LayoutElementPosition,
   scrollTop: number,
 ) => {
   const { left: parentLeft = 0, top: parentTop = 0 } =

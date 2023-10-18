@@ -10,14 +10,13 @@ import React from "react";
 import { FlexLayout } from "./FlexLayout";
 import { doesLayoutRenderWidgets } from "layoutSystems/anvil/utils/layouts/typeUtils";
 import { renderWidgets } from "layoutSystems/anvil/utils/layouts/renderUtils";
-import { RenderModes } from "constants/WidgetConstants";
 import {
   addChildToLayout,
   extractWidgetIdsFromLayoutProps,
   removeChildFromLayout,
 } from "layoutSystems/anvil/utils/layouts/layoutUtils";
 import { deriveRowHighlights } from "layoutSystems/anvil/utils/layouts/highlights/rowHighlights";
-import type { WidgetPositions } from "layoutSystems/common/types";
+import type { LayoutElementPositions } from "layoutSystems/common/types";
 
 const Row = (props: LayoutComponentProps) => {
   const { canvasId, children, isDropTarget, layoutId, layoutStyle } = props;
@@ -56,10 +55,11 @@ Row.getChildTemplate = (props: LayoutProps): LayoutProps | undefined => {
 
 Row.deriveHighlights = (
   layoutProps: LayoutProps,
-  widgetPositions: WidgetPositions,
+  widgetPositions: LayoutElementPositions,
   canvasId: string,
   draggedWidgets: DraggedWidget[],
-  layoutOrder?: string[],
+  layoutOrder: string[],
+  parentDropTarget: string,
 ) => {
   return deriveRowHighlights(
     layoutProps,
@@ -67,6 +67,7 @@ Row.deriveHighlights = (
     canvasId,
     draggedWidgets,
     layoutOrder || [],
+    parentDropTarget,
   );
 };
 
@@ -84,11 +85,7 @@ Row.removeChild = (
 };
 
 Row.renderChildWidgets = (props: LayoutComponentProps): React.ReactNode => {
-  return renderWidgets(
-    Row.extractChildWidgetIds(props),
-    props.childrenMap,
-    props.renderMode || RenderModes.CANVAS,
-  );
+  return renderWidgets(props);
 };
 
 Row.rendersWidgets = (props: LayoutProps): boolean => {

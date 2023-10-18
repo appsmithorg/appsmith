@@ -10,14 +10,13 @@ import {
 } from "layoutSystems/anvil/utils/anvilTypes";
 import { doesLayoutRenderWidgets } from "layoutSystems/anvil/utils/layouts/typeUtils";
 import { renderWidgets } from "layoutSystems/anvil/utils/layouts/renderUtils";
-import { RenderModes } from "constants/WidgetConstants";
 import {
   addChildToLayout,
   extractWidgetIdsFromLayoutProps,
   removeChildFromLayout,
 } from "layoutSystems/anvil/utils/layouts/layoutUtils";
 import { deriveAlignedColumnHighlights } from "layoutSystems/anvil/utils/layouts/highlights/alignedColumnHighlights";
-import type { WidgetPositions } from "layoutSystems/common/types";
+import type { LayoutElementPositions } from "layoutSystems/common/types";
 
 const AlignedColumn = (props: LayoutComponentProps) => {
   const { canvasId, children, isDropTarget, layoutId, layoutStyle } = props;
@@ -61,10 +60,11 @@ AlignedColumn.getChildTemplate = (
 
 AlignedColumn.deriveHighlights = (
   layoutProps: LayoutProps,
-  widgetPositions: WidgetPositions,
+  widgetPositions: LayoutElementPositions,
   canvasId: string,
   draggedWidgets: DraggedWidget[],
-  layoutOrder?: string[],
+  layoutOrder: string[],
+  parentDropTarget: string,
 ): AnvilHighlightInfo[] => {
   return deriveAlignedColumnHighlights(
     layoutProps,
@@ -72,6 +72,7 @@ AlignedColumn.deriveHighlights = (
     canvasId,
     draggedWidgets,
     layoutOrder || [],
+    parentDropTarget,
   );
 };
 
@@ -91,11 +92,7 @@ AlignedColumn.removeChild = (
 AlignedColumn.renderChildWidgets = (
   props: LayoutComponentProps,
 ): React.ReactNode => {
-  return renderWidgets(
-    AlignedColumn.extractChildWidgetIds(props),
-    props.childrenMap,
-    props.renderMode || RenderModes.CANVAS,
-  );
+  return renderWidgets(props);
 };
 
 AlignedColumn.rendersWidgets = (props: LayoutProps): boolean => {

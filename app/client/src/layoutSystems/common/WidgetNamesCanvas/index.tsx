@@ -25,7 +25,7 @@ import {
   getFocusedWidgetNameData,
   getSelectedWidgetNameData,
 } from "../selectors";
-import type { WidgetPosition } from "layoutSystems/common/types";
+import type { LayoutElementPosition } from "layoutSystems/common/types";
 import { getShouldAllowDrag } from "selectors/widgetDragSelectors";
 import type { Stage as CanvasStageType } from "konva/lib/Stage";
 import type { Layer as KonvaLayer } from "konva/lib/Layer";
@@ -113,7 +113,7 @@ const OverlayCanvasContainer = (props: {
   const addWidgetNameToCanvas = (
     layer: KonvaLayer,
     widgetNameData: WidgetNameData,
-    position: WidgetPosition,
+    position: LayoutElementPosition,
     type: WIDGET_NAME_TYPE,
   ) => {
     if (!position) return;
@@ -159,7 +159,9 @@ const OverlayCanvasContainer = (props: {
    * i.e, widget position is changed, canvas resized, selected widget changes
    * @param widgetPosition
    */
-  const updateSelectedWidgetPositions = (widgetPosition?: WidgetPosition) => {
+  const updateSelectedWidgetPositions = (
+    widgetPosition?: LayoutElementPosition,
+  ) => {
     if (!stageRef?.current) return;
 
     const stage = stageRef.current;

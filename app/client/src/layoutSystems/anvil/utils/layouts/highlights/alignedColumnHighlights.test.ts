@@ -6,15 +6,27 @@ import {
   type WidgetLayoutProps,
 } from "../../anvilTypes";
 import { deriveAlignedColumnHighlights } from "./alignedColumnHighlights";
-import { HIGHLIGHT_SIZE, VERTICAL_DROP_ZONE_MULTIPLIER } from "../../constants";
+import {
+  HIGHLIGHT_SIZE,
+  VERTICAL_DROP_ZONE_MULTIPLIER,
+} from "layoutSystems/anvil/utils/constants";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import LayoutFactory from "layoutSystems/anvil/layoutComponents/LayoutFactory";
 import AlignedColumn from "layoutSystems/anvil/layoutComponents/components/AlignedColumn";
 import Row from "layoutSystems/anvil/layoutComponents/components/Row";
-import type { WidgetPositions } from "layoutSystems/common/types";
+import type { LayoutElementPositions } from "layoutSystems/common/types";
 
 describe("AlignedColumnHighlights tests", () => {
   beforeAll(() => {
+    window.IntersectionObserver = jest
+      .fn()
+      .mockImplementation((fn: (entry: any) => any) => {
+        return {
+          observe: jest.fn(),
+          unobserve: jest.fn(),
+          disconnect: jest.fn(),
+        };
+      });
     LayoutFactory.initialize([AlignedColumn, Row]);
   });
   describe("deriveAlignedColumnHighlights", () => {
@@ -24,15 +36,22 @@ describe("AlignedColumnHighlights tests", () => {
         layoutType: LayoutComponentTypes.ALIGNED_COLUMN,
         layout: [],
       });
-      const positions: WidgetPositions = {
+      const positions: LayoutElementPositions = {
         [layout.layoutId]: { height: 400, left: 0, top: 0, width: 300 },
       };
       const res: AnvilHighlightInfo[] = deriveAlignedColumnHighlights(
         layout,
         positions,
         "0",
+        [
+          {
+            widgetId: "random",
+            type: "BUTTON_WIDGET",
+            responsiveBehavior: ResponsiveBehavior.Hug,
+          },
+        ],
         [],
-        [],
+        layout.layoutId,
       );
       const highlightWidth: number =
         (positions[layout.layoutId].width - HIGHLIGHT_SIZE) / 3;
@@ -52,7 +71,7 @@ describe("AlignedColumnHighlights tests", () => {
         layoutType: LayoutComponentTypes.ALIGNED_COLUMN,
         layout: [],
       });
-      const positions: WidgetPositions = {
+      const positions: LayoutElementPositions = {
         [layout.layoutId]: { height: 400, left: 0, top: 0, width: 300 },
       };
       const res: AnvilHighlightInfo[] = deriveAlignedColumnHighlights(
@@ -67,6 +86,7 @@ describe("AlignedColumnHighlights tests", () => {
           },
         ],
         [],
+        layout.layoutId,
       );
 
       expect(res.length).toEqual(1);
@@ -81,7 +101,7 @@ describe("AlignedColumnHighlights tests", () => {
       });
       const button: string = (layout.layout[0] as WidgetLayoutProps).widgetId;
       const input: string = (layout.layout[1] as WidgetLayoutProps).widgetId;
-      const positions: WidgetPositions = {
+      const positions: LayoutElementPositions = {
         [layout.layoutId]: { height: 400, left: 0, top: 0, width: 300 },
         [button]: { height: 40, left: 10, top: 10, width: 120 },
         [input]: { height: 70, left: 10, top: 60, width: 290 },
@@ -98,6 +118,7 @@ describe("AlignedColumnHighlights tests", () => {
           },
         ],
         [],
+        layout.layoutId,
       );
 
       expect(res.length).toEqual(9);
@@ -125,7 +146,7 @@ describe("AlignedColumnHighlights tests", () => {
       });
       const button: string = (layout.layout[0] as WidgetLayoutProps).widgetId;
       const input: string = (layout.layout[1] as WidgetLayoutProps).widgetId;
-      const positions: WidgetPositions = {
+      const positions: LayoutElementPositions = {
         [layout.layoutId]: { height: 400, left: 0, top: 0, width: 300 },
         [button]: { height: 40, left: 10, top: 10, width: 120 },
         [input]: { height: 70, left: 10, top: 60, width: 290 },
@@ -142,6 +163,7 @@ describe("AlignedColumnHighlights tests", () => {
           },
         ],
         [],
+        layout.layoutId,
       );
 
       // Top of first set of highlights should span the empty space above the first widget.
@@ -172,7 +194,7 @@ describe("AlignedColumnHighlights tests", () => {
       });
       const button: string = (layout.layout[0] as WidgetLayoutProps).widgetId;
       const input: string = (layout.layout[1] as WidgetLayoutProps).widgetId;
-      const positions: WidgetPositions = {
+      const positions: LayoutElementPositions = {
         [layout.layoutId]: { height: 400, left: 0, top: 0, width: 300 },
         [button]: { height: 40, left: 10, top: 10, width: 120 },
         [input]: { height: 70, left: 10, top: 60, width: 290 },
@@ -189,6 +211,7 @@ describe("AlignedColumnHighlights tests", () => {
           },
         ],
         [],
+        layout.layoutId,
       );
 
       expect(res.length).toEqual(3);
@@ -208,7 +231,7 @@ describe("AlignedColumnHighlights tests", () => {
       });
       const button: string = (layout.layout[0] as WidgetLayoutProps).widgetId;
       const input: string = (layout.layout[1] as WidgetLayoutProps).widgetId;
-      const positions: WidgetPositions = {
+      const positions: LayoutElementPositions = {
         [layout.layoutId]: { height: 400, left: 0, top: 0, width: 300 },
         [button]: { height: 40, left: 10, top: 10, width: 120 },
         [input]: { height: 70, left: 10, top: 60, width: 290 },
@@ -228,6 +251,7 @@ describe("AlignedColumnHighlights tests", () => {
           },
         ],
         [],
+        layout.layoutId,
       );
 
       // Highlight for the dragged widget's position should be discounted.
@@ -248,7 +272,7 @@ describe("AlignedColumnHighlights tests", () => {
       });
       const button: string = (layout.layout[0] as WidgetLayoutProps).widgetId;
       const input: string = (layout.layout[1] as WidgetLayoutProps).widgetId;
-      const positions: WidgetPositions = {
+      const positions: LayoutElementPositions = {
         [layout.layoutId]: { height: 400, left: 0, top: 0, width: 300 },
         [button]: { height: 40, left: 10, top: 10, width: 120 },
         [input]: { height: 70, left: 10, top: 60, width: 290 },
@@ -268,6 +292,7 @@ describe("AlignedColumnHighlights tests", () => {
           },
         ],
         [],
+        layout.layoutId,
       );
 
       // Highlight for the dragged widget's position should be discounted.
@@ -307,7 +332,7 @@ describe("AlignedColumnHighlights tests", () => {
       /**
        * Create dimensions data
        */
-      const dimensions: WidgetPositions = {
+      const dimensions: LayoutElementPositions = {
         [row1.layoutId]: { height: 80, left: 10, top: 10, width: 300 },
         [button1]: { height: 40, left: 10, top: 10, width: 100 },
         [input1]: { height: 70, left: 120, top: 10, width: 170 },
@@ -332,6 +357,7 @@ describe("AlignedColumnHighlights tests", () => {
           },
         ],
         [],
+        column.layoutId,
       );
 
       /**
@@ -393,7 +419,7 @@ describe("AlignedColumnHighlights tests", () => {
       /**
        * Create dimensions data
        */
-      const dimensions: WidgetPositions = {
+      const dimensions: LayoutElementPositions = {
         [row1.layoutId]: { height: 80, left: 10, top: 10, width: 300 },
         [button1]: { height: 40, left: 10, top: 10, width: 100 },
         [input1]: { height: 70, left: 120, top: 10, width: 170 },
@@ -418,6 +444,7 @@ describe("AlignedColumnHighlights tests", () => {
           },
         ],
         [],
+        column.layoutId,
       );
 
       /**

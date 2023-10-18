@@ -20,6 +20,10 @@ import {
   getHighlightsForWidgets,
   getInitialHighlights,
 } from "./horizontalHighlights";
+import type {
+  LayoutElementPosition,
+  LayoutElementPositions,
+} from "layoutSystems/common/types";
 
 /**
  * @param layoutProps | LayoutProps
@@ -27,16 +31,24 @@ import {
  * @param canvasId | string
  * @param draggedWidgets | DraggedWidget[] : List of widgets that are being dragged
  * @param layoutOrder | string[] : Top - down hierarchy of layout IDs.
+ * @param parentDropTarget | string : id of immediate drop target ancestor.
  * @returns AnvilHighlightInfo[] : List of highlights for the layout.
  */
 export function deriveColumnHighlights(
   layoutProps: LayoutProps,
-  widgetPositions: WidgetPositions,
+  widgetPositions: LayoutElementPositions,
   canvasId: string,
   draggedWidgets: DraggedWidget[],
   layoutOrder: string[],
+  parentDropTarget: string,
 ): AnvilHighlightInfo[] {
-  if (!layoutProps || !widgetPositions) return [];
+  if (
+    !layoutProps ||
+    !widgetPositions ||
+    !widgetPositions[layoutProps.layoutId] ||
+    !draggedWidgets.length
+  )
+    return [];
 
   const { layoutStyle } = layoutProps;
 
@@ -49,7 +61,7 @@ export function deriveColumnHighlights(
     dropZone: {},
     height: HIGHLIGHT_SIZE,
     isVertical: false,
-    layoutOrder: [...layoutOrder, layoutProps.layoutId],
+    layoutOrder,
     posX: HIGHLIGHT_SIZE / 2,
     posY: HIGHLIGHT_SIZE / 2,
     rowIndex: 0,
@@ -63,6 +75,7 @@ export function deriveColumnHighlights(
     draggedWidgets,
     layoutOrder,
     baseHighlight,
+    parentDropTarget,
     generateHighlights,
     getInitialHighlights,
     getHighlightsForLayouts,
@@ -72,10 +85,10 @@ export function deriveColumnHighlights(
 
 function generateHighlights(
   baseHighlight: AnvilHighlightInfo,
-  layoutDimension: WidgetPosition,
-  currentDimension: WidgetPosition,
-  prevDimension: WidgetPosition | undefined,
-  nextDimension: WidgetPosition | undefined,
+  layoutDimension: LayoutElementPosition,
+  currentDimension: LayoutElementPosition,
+  prevDimension: LayoutElementPosition | undefined,
+  nextDimension: LayoutElementPosition | undefined,
   rowIndex: number,
   isLastHighlight: boolean,
 ): AnvilHighlightInfo[] {
@@ -90,15 +103,19 @@ function generateHighlights(
         : getVerticalDropZone(currentDimension, prevDimension, nextDimension),
       posY: isLastHighlight
         ? isInitialHighlight
-          ? currentDimension.top
+          ? Math.max(
+              currentDimension.top - layoutDimension.top - HIGHLIGHT_SIZE,
+              0,
+            )
           : Math.min(
               currentDimension.top +
                 currentDimension.height +
-                HIGHLIGHT_SIZE / 2,
-              layoutDimension.height - HIGHLIGHT_SIZE / 2,
+                HIGHLIGHT_SIZE / 2 -
+                layoutDimension.top,
+              layoutDimension.height - HIGHLIGHT_SIZE,
             )
         : Math.max(
-            currentDimension.top - HIGHLIGHT_SIZE / 2,
+            currentDimension.top - layoutDimension.top - HIGHLIGHT_SIZE,
             HIGHLIGHT_SIZE / 2,
           ),
       rowIndex: rowIndex,

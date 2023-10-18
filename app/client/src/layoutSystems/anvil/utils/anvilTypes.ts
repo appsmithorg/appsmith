@@ -7,8 +7,8 @@ import type {
 import type { DropZone } from "layoutSystems/common/utils/types";
 import type { WidgetProps } from "widgets/BaseWidget";
 import type {
-  WidgetPosition,
-  WidgetPositions,
+  LayoutElementPosition,
+  LayoutElementPositions,
 } from "layoutSystems/common/types";
 
 export type LayoutComponentType =
@@ -45,8 +45,10 @@ export interface LayoutProps {
 export interface LayoutComponentProps extends LayoutProps {
   canvasId: string; // Parent canvas of the layout.
   children?: React.ReactNode; // The children of the layout component
-  childrenMap?: Record<string, WidgetProps>; // Map of child widget ids to their props.
-  renderMode?: RenderMode;
+  childrenMap: Record<string, WidgetProps>; // Map of child widget ids to their props.
+  layoutOrder: string[]; // Top - down hierarchy of layoutIds.
+  parentDropTarget: string; // layoutId of the immediate drop target parent. Could be self as well.
+  renderMode: RenderMode;
 }
 
 export interface LayoutComponent extends React.FC<LayoutComponentProps> {
@@ -62,11 +64,12 @@ export interface LayoutComponent extends React.FC<LayoutComponentProps> {
   getChildTemplate: (props: LayoutProps) => LayoutProps | undefined;
   // Get a list of highlights to demarcate the drop positions within the layout.
   deriveHighlights: (
-    layoutProps: LayoutProps,
-    widgetPositions: WidgetPositions,
-    canvasId: string,
-    draggedWidgets: DraggedWidget[],
-    layoutOrder?: string[],
+    layoutProps: LayoutProps, // Properties of layout for which highlights have to be derived.
+    widgetPositions: LayoutElementPositions, // Positions and dimensions of all widgets and layouts.
+    canvasId: string, // widget Id of the parent canvas widget.
+    draggedWidgets: DraggedWidget[], // List of dragged widgets/
+    layoutOrder: string[], // Top - down hierarchy of layoutIds.
+    parentDropTarget: string, // layoutId of immediate drop target ancestor.
   ) => AnvilHighlightInfo[];
   // Get a list of child widgetIds rendered by the layout.
   extractChildWidgetIds: (props: LayoutProps) => string[];
@@ -103,39 +106,44 @@ export interface DraggedWidget {
 
 export type GenerateHighlights = (
   baseHighlight: AnvilHighlightInfo,
-  layoutDimension: WidgetPosition,
-  currentDimension: WidgetPosition,
-  prevDimension: WidgetPosition | undefined,
-  nextDimension: WidgetPosition | undefined,
+  layoutDimension: LayoutElementPosition,
+  currentDimension: LayoutElementPosition,
+  prevDimension: LayoutElementPosition | undefined,
+  nextDimension: LayoutElementPosition | undefined,
   rowIndex: number,
   isLastHighlight: boolean,
   hasFillWidget?: boolean,
+  isDropTarget?: boolean,
 ) => AnvilHighlightInfo[];
 
 export type GetInitialHighlights = (
   layoutProps: LayoutProps,
-  widgetPositions: WidgetPositions,
   baseHighlight: AnvilHighlightInfo,
   generateHighlights: GenerateHighlights,
+  getDimensions: GetDimensions,
   hasFillWidget?: boolean,
 ) => AnvilHighlightInfo[];
 
 export type GetWidgetHighlights = (
   layoutProps: LayoutProps,
-  widgetPositions: WidgetPositions,
   baseHighlight: AnvilHighlightInfo,
   draggedWidgets: DraggedWidget[],
   generateHighlights: GenerateHighlights,
+  getDimensions: GetDimensions,
   hasFillWidget?: boolean,
 ) => AnvilHighlightInfo[];
 
 export type GetLayoutHighlights = (
   layoutProps: LayoutProps,
-  widgetPositions: WidgetPositions,
+  widgetPositions: LayoutElementPositions,
   baseHighlight: AnvilHighlightInfo,
   draggedWidgets: DraggedWidget[],
   canvasId: string,
   layoutOrder: string[],
+  parentDropTargetId: string,
   generateHighlights: GenerateHighlights,
+  getDimensions: GetDimensions,
   hasFillWidget?: boolean,
 ) => AnvilHighlightInfo[];
+
+export type GetDimensions = (id: string) => LayoutElementPosition;

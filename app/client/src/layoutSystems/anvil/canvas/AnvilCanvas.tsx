@@ -30,7 +30,9 @@ export const AnvilCanvas = (props: BaseWidgetProps) => {
         props.layout,
         map,
         props.widgetId,
+        "",
         props.renderMode || RenderModes.CANVAS,
+        [],
       )}
     </div>
   );

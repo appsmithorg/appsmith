@@ -13,7 +13,7 @@ import {
   ResponsiveBehavior,
 } from "layoutSystems/common/utils/constants";
 import { deriveColumnHighlights } from "./columnHighlights";
-import type { WidgetPositions } from "layoutSystems/common/types";
+import type { LayoutElementPositions } from "layoutSystems/common/types";
 
 describe("columnHighlights", () => {
   beforeAll(() => {
@@ -33,7 +33,7 @@ describe("columnHighlights", () => {
       });
       const buttonId: string = (layout.layout[0] as WidgetLayoutProps).widgetId;
       const inputId: string = (layout.layout[1] as WidgetLayoutProps).widgetId;
-      const positions: WidgetPositions = {
+      const positions: LayoutElementPositions = {
         [layout.layoutId]: { height: 500, left: 0, top: 0, width: 300 },
         [buttonId]: { height: 40, left: 10, top: 10, width: 120 },
         [inputId]: { height: 70, left: 10, top: 60, width: 290 },
@@ -44,6 +44,7 @@ describe("columnHighlights", () => {
         "0",
         draggedWidgets,
         [],
+        layout.layoutId,
       );
       expect(res.length).toEqual(3);
       // highlights should be horizontal.
@@ -70,7 +71,7 @@ describe("columnHighlights", () => {
       });
       const buttonId: string = (layout.layout[0] as WidgetLayoutProps).widgetId;
       const inputId: string = (layout.layout[1] as WidgetLayoutProps).widgetId;
-      const positions: WidgetPositions = {
+      const positions: LayoutElementPositions = {
         [layout.layoutId]: { height: 500, left: 0, top: 0, width: 300 },
         [buttonId]: { height: 40, left: 10, top: 10, width: 120 },
         [inputId]: { height: 70, left: 10, top: 60, width: 290 },
@@ -88,6 +89,7 @@ describe("columnHighlights", () => {
           },
         ],
         [],
+        layout.layoutId,
       );
 
       // One highlight is discounted on account of child button widget being dragged.
@@ -107,7 +109,7 @@ describe("columnHighlights", () => {
       });
       const buttonId: string = (layout.layout[0] as WidgetLayoutProps).widgetId;
       const inputId: string = (layout.layout[1] as WidgetLayoutProps).widgetId;
-      const positions: WidgetPositions = {
+      const positions: LayoutElementPositions = {
         [layout.layoutId]: { height: 500, left: 0, top: 0, width: 300 },
         [buttonId]: { height: 40, left: 10, top: 10, width: 120 },
         [inputId]: { height: 70, left: 10, top: 60, width: 290 },
@@ -118,6 +120,7 @@ describe("columnHighlights", () => {
         "0",
         draggedWidgets,
         [],
+        layout.layoutId,
       );
 
       /**
@@ -162,7 +165,7 @@ describe("columnHighlights", () => {
         layoutType: LayoutComponentTypes.COLUMN,
         layout: [],
       });
-      const positions: WidgetPositions = {
+      const positions: LayoutElementPositions = {
         [layout.layoutId]: { height: 400, left: 0, top: 0, width: 300 },
       };
       const res: AnvilHighlightInfo[] = deriveColumnHighlights(
@@ -171,6 +174,7 @@ describe("columnHighlights", () => {
         "0",
         [],
         [],
+        layout.layoutId,
       );
 
       expect(res[0].width).toEqual(
@@ -188,7 +192,7 @@ describe("columnHighlights", () => {
           justifyContent: "center",
         },
       });
-      const positions: WidgetPositions = {
+      const positions: LayoutElementPositions = {
         [layout.layoutId]: { height: 400, left: 0, top: 0, width: 300 },
       };
       const res: AnvilHighlightInfo[] = deriveColumnHighlights(
@@ -197,6 +201,7 @@ describe("columnHighlights", () => {
         "0",
         [],
         [],
+        layout.layoutId,
       );
       expect(res).toBeDefined();
       expect(res[0].width).toEqual(
@@ -215,7 +220,7 @@ describe("columnHighlights", () => {
           justifyContent: "end",
         },
       });
-      const positions: WidgetPositions = {
+      const positions: LayoutElementPositions = {
         [layout.layoutId]: { height: 400, left: 0, top: 0, width: 300 },
       };
       const res: AnvilHighlightInfo[] = deriveColumnHighlights(
@@ -224,6 +229,7 @@ describe("columnHighlights", () => {
         "0",
         [],
         [],
+        layout.layoutId,
       );
 
       expect(res[0].width).toEqual(
@@ -261,7 +267,7 @@ describe("columnHighlights", () => {
       /**
        * Create dimensions data
        */
-      const dimensions: WidgetPositions = {
+      const dimensions: LayoutElementPositions = {
         [row1.layoutId]: { height: 80, left: 10, top: 10, width: 300 },
         [button1]: { height: 40, left: 10, top: 10, width: 100 },
         [input1]: { height: 70, left: 120, top: 10, width: 170 },
@@ -280,6 +286,7 @@ describe("columnHighlights", () => {
         "0",
         [],
         [],
+        column.layoutId,
       );
 
       /**
