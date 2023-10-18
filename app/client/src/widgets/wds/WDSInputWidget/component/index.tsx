@@ -38,8 +38,6 @@ function InputComponent(props: InputComponentProps) {
         return "password";
       case INPUT_TYPES.EMAIL:
         return "email";
-      case INPUT_TYPES.NUMBER:
-        return "number";
       default:
         return "text";
     }
@@ -64,9 +62,13 @@ function InputComponent(props: InputComponentProps) {
   const maxLength = (() => {
     if (
       props.inputType === INPUT_TYPES.TEXT ||
-      props.inputType === INPUT_TYPES.EMAIL
+      props.inputType === INPUT_TYPES.MULTI_LINE_TEXT
     ) {
-      return !isNil(props.maxChars) ? props.maxChars : undefined;
+      // Note: this check is required to bypass when maxChars is 0
+      // TODO: check with fe-coders why empty maxChars is getting converted to 0
+      if (props.maxChars) {
+        return !isNil(props.maxChars) ? props.maxChars : undefined;
+      }
     }
   })();
 
@@ -92,6 +94,8 @@ function InputComponent(props: InputComponentProps) {
       defaultValue={props.defaultValue}
       endIcon={endIcon}
       errorMessage={props.errorMessage}
+      isDisabled={props.isDisabled}
+      isRequired={props.isRequired}
       label={props.label}
       max={max}
       maxLength={maxLength}
