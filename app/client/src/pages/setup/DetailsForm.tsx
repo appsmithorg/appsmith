@@ -9,23 +9,44 @@ import {
   WELCOME_FORM_LAST_NAME,
   WELCOME_FORM_CREATE_PASSWORD,
   WELCOME_FORM_VERIFY_PASSWORD,
+  WELCOME_FORM_ROLE_DROPDOWN,
+  WELCOME_FORM_ROLE,
+  WELCOME_FORM_USE_CASE,
   WELCOME_FORM_CUSTOM_USE_CASE,
+  WELCOME_FORM_ROLE_DROPDOWN_PLACEHOLDER,
   WELCOME_FORM_USE_CASE_PLACEHOLDER,
   CONTINUE,
   ONBOARDING_STATUS_GET_STARTED,
-  WELCOME_FORM_NON_SUPER_USER_PROFICIENCY_LEVEL,
-  WELCOME_FORM_NON_SUPER_USER_USE_CASE,
 } from "@appsmith/constants/messages";
 import FormTextField from "components/utils/ReduxFormTextField";
-import type { SetupFormProps } from "./SetupForm";
+import type { FormErrors, InjectedFormProps } from "redux-form";
 import { ButtonWrapper } from "pages/Applications/ForkModalStyles";
 import { FormGroup } from "design-system-old";
 import { Button, Checkbox } from "design-system";
-import { proficiencyOptions, useCaseOptions } from "./constants";
+import { roleOptions, useCaseOptions } from "./constants";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import { setFirstTimeUserOnboardingTelemetryCalloutVisibility } from "utils/storage";
-import RadioButtonGroup from "components/editorComponents/RadioButtonGroup";
-import { Space } from "./GetStarted";
+
+export interface DetailsFormValues {
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  password?: string;
+  verifyPassword?: string;
+  role?: string;
+  useCase?: string;
+  custom_useCase?: string;
+  role_name?: string;
+}
+
+export type SetupFormProps = DetailsFormValues & {
+  formSyncErrors?: FormErrors<string, string>;
+} & InjectedFormProps<
+    DetailsFormValues,
+    {
+      formSyncErrors?: FormErrors<string, string>;
+    }
+  >;
 
 const DetailsFormWrapper = styled.div`
   width: 100%;
@@ -132,18 +153,35 @@ export default function DetailsForm(
 
         {!props.isFirstPage && (
           <div>
-            <Field
-              component={RadioButtonGroup}
-              label={createMessage(
-                WELCOME_FORM_NON_SUPER_USER_PROFICIENCY_LEVEL,
-              )}
-              name="proficiency"
-              options={proficiencyOptions}
-            />
-            <Space />
+            <DropdownWrapper
+              className="t--welcome-form-role-dropdown"
+              label={createMessage(WELCOME_FORM_ROLE_DROPDOWN)}
+            >
+              <Field
+                asyncControl
+                component={withDropdown(roleOptions)}
+                data-testid="role"
+                name="role"
+                placeholder={createMessage(
+                  WELCOME_FORM_ROLE_DROPDOWN_PLACEHOLDER,
+                )}
+                size="md"
+                type="text"
+              />
+            </DropdownWrapper>
+            {props.role == "other" && (
+              <StyledFormGroup className="t--welcome-form-role-input">
+                <FormTextField
+                  label={createMessage(WELCOME_FORM_ROLE)}
+                  name="role_name"
+                  placeholder=""
+                  type="text"
+                />
+              </StyledFormGroup>
+            )}
             <DropdownWrapper
               className="t--welcome-form-role-usecase"
-              label={createMessage(WELCOME_FORM_NON_SUPER_USER_USE_CASE)}
+              label={createMessage(WELCOME_FORM_USE_CASE)}
             >
               <Field
                 asyncControl

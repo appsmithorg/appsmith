@@ -36,3 +36,14 @@ export const PRICING_PAGE_URL = (
   `${URL}?source=${source}${instanceId ? `&instance=${instanceId}` : ``}${
     feature ? `&feature=${feature}` : ""
   }${section ? `&section=${section}` : ""}`;
+
+export const CUSTOMER_PORTAL_URL_WITH_PARAMS = (
+  URL: string,
+  source: string,
+  instanceId: string,
+  feature?: string,
+  section?: string,
+) =>
+  `${URL}?source=${source}${instanceId ? `&instance=${instanceId}` : ``}${
+    feature ? `&feature=${feature}` : ""
+  }${section ? `&section=${section}` : ""}`;

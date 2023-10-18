@@ -14,6 +14,7 @@ import { DatasourceCreateEntryPoints } from "constants/Datasource";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import BetaCard from "../BetaCard";
 import type { NavigationData } from "selectors/navigationSelectors";
+import type { AIEditorContext } from "@appsmith/components/editorComponents/GPT";
 import type { ENTITY_TYPE } from "@appsmith/entities/DataTree/types";
 
 export enum Shortcuts {
@@ -118,11 +119,13 @@ export const generateQuickCommands = (
   currentEntityType: ENTITY_TYPE,
   searchText: string,
   {
+    aiContext,
     datasources,
     enableAIAssistance,
     executeCommand,
     pluginIdToImageLocation,
   }: {
+    aiContext: AIEditorContext;
     datasources: Datasource[];
     executeCommand: (payload: SlashCommandPayload) => void;
     pluginIdToImageLocation: Record<string, string>;
@@ -198,10 +201,11 @@ export const generateQuickCommands = (
       displayText: `${action.name}`,
       className: "CodeMirror-commands",
       data: action,
-      action: () =>
+      action: (callback?: (completion: string) => void) =>
         executeCommand({
           actionType: SlashCommand.NEW_QUERY,
           args: { datasource: action },
+          callback,
         }),
       render: (element: HTMLElement, self: any, data: CommandsCompletion) => {
         const completionData = data.data as Datasource;
@@ -221,12 +225,9 @@ export const generateQuickCommands = (
       },
     };
   });
-  const suggestionsMatchingSearchText = matchingCommands(
-    suggestions,
-    searchText,
-    5,
-  );
-  const actionCommands = [newBinding];
+
+  const filteredCommands: CommandsCompletion[] = [];
+  const commonCommands: CommandsCompletion[] = [];
 
   if (enableAIAssistance) {
     const askGPT: CommandsCompletion = generateCreateNewCommand({
@@ -236,36 +237,72 @@ export const generateQuickCommands = (
       triggerCompletionsPostPick: true,
       description: "Generate code using AI",
       isBeta: true,
+      action: () => {
+        executeCommand({
+          actionType: SlashCommand.ASK_AI,
+          args: aiContext,
+        });
+      },
     });
-    actionCommands.unshift(askGPT);
+    commonCommands.unshift(askGPT);
   }
-  const createNewCommands: CommandsCompletion[] = [];
 
-  if (currentEntityType === ENTITY_TYPE_VALUE.WIDGET)
-    createNewCommands.push(...datasourceCommands);
+  if (currentEntityType !== ENTITY_TYPE_VALUE.JSACTION) {
+    // New binding command is not applicable in JS Objects
+    commonCommands.push(newBinding);
+  }
 
-  const createNewCommandsMatchingSearchText = matchingCommands(
-    createNewCommands,
-    searchText,
-    3,
-  );
-  const actionCommandsMatchingSearchText = matchingCommands(
-    actionCommands,
+  // Filter common commands based on search text
+  const commonCommandsMatchingSearchText = matchingCommands(
+    commonCommands,
     searchText,
   );
-  if (currentEntityType === ENTITY_TYPE_VALUE.WIDGET) {
-    createNewCommandsMatchingSearchText.push(
-      ...matchingCommands([newIntegration], searchText),
+
+  filteredCommands.push(...commonCommandsMatchingSearchText);
+
+  if (currentEntityType !== ENTITY_TYPE_VALUE.JSACTION) {
+    // Binding suggestions and create query commands are not applicable in JS Objects
+
+    // Get top 5 matching suggestions
+    const suggestionsMatchingSearchText = matchingCommands(
+      suggestions,
+      searchText,
+      5,
     );
+
+    if (suggestionsMatchingSearchText.length) {
+      // Add header only if there are suggestions
+      filteredCommands.push(
+        commandsHeader("Bind data", "", filteredCommands.length > 0),
+      );
+      filteredCommands.push(...suggestionsMatchingSearchText);
+    }
+
+    if (currentEntityType === ENTITY_TYPE_VALUE.WIDGET) {
+      const createNewCommands: CommandsCompletion[] = [];
+      createNewCommands.push(...datasourceCommands);
+
+      // Get top 3 matching create new commands
+      const createNewCommandsMatchingSearchText = matchingCommands(
+        createNewCommands,
+        searchText,
+        3,
+      );
+
+      // Check if new integration command matches search text
+      createNewCommandsMatchingSearchText.push(
+        ...matchingCommands([newIntegration], searchText),
+      );
+
+      if (createNewCommandsMatchingSearchText.length) {
+        // Add header only if there are create new commands
+        filteredCommands.push(
+          commandsHeader("Create a query", "", filteredCommands.length > 0),
+        );
+        filteredCommands.push(...createNewCommandsMatchingSearchText);
+      }
+    }
   }
-  const list: CommandsCompletion[] = actionCommandsMatchingSearchText;
-  if (suggestionsMatchingSearchText.length) {
-    list.push(commandsHeader("Bind data", "", list.length > 0));
-  }
-  list.push(...suggestionsMatchingSearchText);
-  if (createNewCommandsMatchingSearchText.length) {
-    list.push(commandsHeader("Create a query", "", list.length > 0));
-  }
-  list.push(...createNewCommandsMatchingSearchText);
-  return list;
+
+  return filteredCommands;
 };

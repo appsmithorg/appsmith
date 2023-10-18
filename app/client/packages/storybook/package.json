@@ -29,7 +29,6 @@
     "chromatic": "^6.20.0",
     "postcss": "*",
     "postcss-at-rules-variables": "*",
-    "postcss-conditionals": "*",
     "postcss-each": "*",
     "postcss-import": "*",
     "postcss-loader": "*",
