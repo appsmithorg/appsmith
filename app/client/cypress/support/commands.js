@@ -1027,9 +1027,16 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   //   },
   // ).as("getPagesForCreateApp");
 
-  cy.intercept("GET", "/api/v1/pages?*mode=EDIT", { statusCode: 200 }).as(
-    "getPagesForCreateApp",
-  );
+  // cy.intercept("GET", "/api/v1/pages?*mode=EDIT", { statusCode: 200 }).as(
+  //   "getPagesForCreateApp",
+  // );
+
+  cy.intercept("GET", "/api/v1/pages?*mode=EDIT", (req) => {
+    // Intercept the request and modify only the status code
+    req.reply({
+      statusCode: 200,
+    });
+  }).as("getPagesForCreateApp");
 
   cy.intercept("GET", "/api/v1/pages?*mode=PUBLISHED").as("getPagesForViewApp");
   cy.intercept("GET", "/api/v1/applications/releaseItems").as(
