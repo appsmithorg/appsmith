@@ -147,13 +147,11 @@ describe("Autocomplete using slash command and mustache tests", function () {
   );
 
   it("Bug 9003: Autocomplete not working for Appsmith specific JS APIs", function () {
+    _.
     cy.openPropertyPane("buttonwidget");
-    cy.get(".t--property-control-onclick")
-      .find(".t--js-toggle")
-      .click({ force: true });
     cy.EnableAllCodeEditors();
     cy.get(".CodeMirror textarea")
-      .last()
+      .first()
       .focus()
       .clear()
       .type("{{re")
@@ -169,7 +167,7 @@ describe("Autocomplete using slash command and mustache tests", function () {
       });
     cy.EnableAllCodeEditors();
     cy.get(".CodeMirror textarea")
-      .last()
+      .first()
       .focus()
       // clearing the onClick field
       .type("{ctrl}{shift}{uparrow}", { parseSpecialCharSequences: true })
@@ -189,7 +187,7 @@ describe("Autocomplete using slash command and mustache tests", function () {
       });
     cy.EnableAllCodeEditors();
     cy.get(".CodeMirror textarea")
-      .last()
+      .first()
       .focus()
       // clearing the onClick field
       .type("{ctrl}{shift}{uparrow}", { parseSpecialCharSequences: true })

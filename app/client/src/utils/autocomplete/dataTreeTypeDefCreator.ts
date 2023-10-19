@@ -27,6 +27,7 @@ export type ExtraDef = Record<string, Def | string>;
 import type { Variable } from "entities/JSCollection";
 import WidgetFactory from "WidgetProvider/factory";
 import { shouldAddSetter } from "workers/Evaluation/evaluate";
+import { getTernDocType } from "workers/common/JSLibrary/ternDefinitionGenerator";
 
 // Def names are encoded with information about the entity
 // This so that we have more info about them
@@ -248,12 +249,12 @@ export function addSettersToDefinitions(
 
     setters.forEach((setterName: string) => {
       const setter = entityConfig.__setters?.[setterName];
-      const setterType = entityConfig.__setters?.[setterName].type;
+      const setterType = getTernDocType(
+        entityConfig.__setters?.[setterName].type,
+      );
 
       if (shouldAddSetter(setter, entity)) {
-        definitions[
-          setterName
-        ] = `fn(value:${setterType}) -> +Promise[:t=[!0.<i>.:t]]`;
+        definitions[setterName] = `fn(value:${setterType}) -> +Promise`;
       }
     });
   }
