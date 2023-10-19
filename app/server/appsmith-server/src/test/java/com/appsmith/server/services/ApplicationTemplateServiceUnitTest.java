@@ -4,8 +4,9 @@ import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.dtos.ApplicationTemplate;
 import com.appsmith.server.dtos.PageNameIdDTO;
-import com.appsmith.server.export.internal.ImportExportApplicationService;
+import com.appsmith.server.exports.internal.ExportApplicationService;
 import com.appsmith.server.helpers.ResponseUtils;
+import com.appsmith.server.imports.internal.ImportApplicationService;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.ReleaseNotesService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -53,7 +54,10 @@ public class ApplicationTemplateServiceUnitTest {
     private ReleaseNotesService releaseNotesService;
 
     @MockBean
-    private ImportExportApplicationService importExportApplicationService;
+    private ImportApplicationService importApplicationService;
+
+    @MockBean
+    private ExportApplicationService exportApplicationService;
 
     @MockBean
     private AnalyticsService analyticsService;
@@ -85,7 +89,8 @@ public class ApplicationTemplateServiceUnitTest {
         applicationTemplateService = new ApplicationTemplateServiceImpl(
                 cloudServicesConfig,
                 releaseNotesService,
-                importExportApplicationService,
+                importApplicationService,
+                exportApplicationService,
                 analyticsService,
                 userDataService,
                 applicationService,

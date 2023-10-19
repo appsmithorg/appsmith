@@ -17,8 +17,9 @@ import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.dtos.UserHomepageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.export.internal.ImportExportApplicationService;
+import com.appsmith.server.exports.internal.ExportApplicationService;
 import com.appsmith.server.fork.internal.ApplicationForkingService;
+import com.appsmith.server.imports.internal.ImportApplicationService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.ApplicationSnapshotService;
@@ -58,7 +59,8 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
     private final ApplicationPageService applicationPageService;
     private final ApplicationFetcher applicationFetcher;
     private final ApplicationForkingService applicationForkingService;
-    private final ImportExportApplicationService importExportApplicationService;
+    private final ImportApplicationService importApplicationService;
+    private final ExportApplicationService exportApplicationService;
     private final ThemeService themeService;
     private final ApplicationSnapshotService applicationSnapshotService;
 
@@ -68,14 +70,16 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
             ApplicationPageService applicationPageService,
             ApplicationFetcher applicationFetcher,
             ApplicationForkingService applicationForkingService,
-            ImportExportApplicationService importExportApplicationService,
+            ImportApplicationService importApplicationService,
+            ExportApplicationService exportApplicationService,
             ThemeService themeService,
             ApplicationSnapshotService applicationSnapshotService) {
         super(service);
         this.applicationPageService = applicationPageService;
         this.applicationFetcher = applicationFetcher;
         this.applicationForkingService = applicationForkingService;
-        this.importExportApplicationService = importExportApplicationService;
+        this.importApplicationService = importApplicationService;
+        this.exportApplicationService = exportApplicationService;
         this.themeService = themeService;
         this.applicationSnapshotService = applicationSnapshotService;
     }
@@ -215,7 +219,7 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
             @PathVariable String id, @RequestParam(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         log.debug("Going to export application with id: {}, branch: {}", id, branchName);
 
-        return importExportApplicationService.getApplicationFile(id, branchName).map(fetchedResource -> {
+        return exportApplicationService.getApplicationFile(id, branchName).map(fetchedResource -> {
             HttpHeaders responseHeaders = fetchedResource.getHttpHeaders();
             Object applicationResource = fetchedResource.getApplicationResource();
             return new ResponseEntity<>(applicationResource, responseHeaders, HttpStatus.OK);
@@ -277,7 +281,7 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
             @RequestParam(name = FieldName.APPLICATION_ID, required = false) String applicationId) {
         log.debug("Going to import application in workspace with id: {}", workspaceId);
         return fileMono.flatMap(file ->
-                        importExportApplicationService.extractFileAndSaveApplication(workspaceId, file, applicationId))
+                        importApplicationService.extractFileAndSaveApplication(workspaceId, file, applicationId))
                 .map(fetchedResource -> new ResponseDTO<>(HttpStatus.OK.value(), fetchedResource, null));
     }
 
@@ -323,7 +327,7 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
     @GetMapping("/import/{workspaceId}/datasources")
     public Mono<ResponseDTO<List<Datasource>>> getUnConfiguredDatasource(
             @PathVariable String workspaceId, @RequestParam String defaultApplicationId) {
-        return importExportApplicationService
+        return importApplicationService
                 .findDatasourceByApplicationId(defaultApplicationId, workspaceId)
                 .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
     }

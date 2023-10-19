@@ -34,6 +34,7 @@ import { PageViewWrapper } from "pages/AppViewer/AppPage.styled";
 import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 import {
   getAppSettingsPaneContext,
+  getIsAppSettingsPaneOpen,
   getIsAppSettingsPaneWithNavigationTabOpen,
 } from "selectors/appSettingsPaneSelectors";
 import { AppSettingsTabs } from "../AppSettingsPane/AppSettings";
@@ -46,6 +47,7 @@ import classNames from "classnames";
 import { getSnapshotUpdatedTime } from "selectors/autoLayoutSelectors";
 import { getReadableSnapShotDetails } from "layoutSystems/autolayout/utils/AutoLayoutUtils";
 import AnonymousDataPopup from "../FirstTimeUserOnboarding/AnonymousDataPopup";
+import { getIsAppSidebarEnabled } from "selectors/ideSelectors";
 
 function WidgetsEditor() {
   const { deselectAll, focusWidget } = useWidgetSelection();
@@ -74,6 +76,9 @@ function WidgetsEditor() {
   const isMobile = useIsMobileDevice();
   const isPreviewingNavigation =
     isPreviewMode || isAppSettingsPaneWithNavigationTabOpen;
+
+  const isAppSettingsPaneOpen = useSelector(getIsAppSettingsPaneOpen);
+  const isAppSidebarEnabled = useSelector(getIsAppSidebarEnabled);
 
   const shouldShowSnapShotBanner =
     !!readableSnapShotDetails && !isPreviewingNavigation;
@@ -227,7 +232,9 @@ function WidgetsEditor() {
           </div>
           <Debugger />
         </div>
-        <PropertyPaneWrapper />
+        {!(isAppSettingsPaneOpen && isAppSidebarEnabled) && (
+          <PropertyPaneWrapper />
+        )}
       </div>
     </EditorContextProvider>
   );

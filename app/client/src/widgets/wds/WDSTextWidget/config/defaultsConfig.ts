@@ -1,24 +1,21 @@
-import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
-import { DEFAULT_FONT_SIZE } from "constants/WidgetConstants";
-import { OverflowTypes } from "widgets/TextWidget/constants";
-import { BlueprintOperationTypes } from "WidgetProvider/constants";
-import type { WidgetProps } from "widgets/BaseWidget";
-import type { DynamicPath } from "utils/DynamicBindingUtils";
-import { isDynamicValue } from "utils/DynamicBindingUtils";
 import { get } from "lodash";
+import type { WidgetProps } from "widgets/BaseWidget";
+import { isDynamicValue } from "utils/DynamicBindingUtils";
+import type { DynamicPath } from "utils/DynamicBindingUtils";
+import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
+import { BlueprintOperationTypes } from "WidgetProvider/constants";
+import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 
 export const defaultsConfig = {
   text: "Hello {{appsmith.user.name || appsmith.user.email}}",
-  fontSize: DEFAULT_FONT_SIZE,
-  fontStyle: "BOLD",
-  textAlign: "LEFT",
-  textColor: "#231F20",
+  fontSize: "body",
+  fontStyle: "bold",
+  textAlign: "left",
+  textColor: "neutral",
   rows: 4,
   columns: 16,
   widgetName: "Text",
   shouldTruncate: false,
-  overflow: OverflowTypes.NONE,
   version: 1,
   animateLoading: true,
   responsiveBehavior: ResponsiveBehavior.Fill,

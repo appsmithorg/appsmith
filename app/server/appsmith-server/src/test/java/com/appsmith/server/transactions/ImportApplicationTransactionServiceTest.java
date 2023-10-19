@@ -9,9 +9,9 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.export.internal.ImportExportApplicationService;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.imports.internal.ImportApplicationService;
 import com.appsmith.server.migrations.JsonSchemaMigration;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.repositories.ActionCollectionRepository;
@@ -56,7 +56,7 @@ import static org.mockito.ArgumentMatchers.any;
 public class ImportApplicationTransactionServiceTest {
 
     @Autowired
-    ImportExportApplicationService importExportApplicationService;
+    ImportApplicationService importApplicationService;
 
     @Autowired
     WorkspaceService workspaceService;
@@ -136,7 +136,7 @@ public class ImportApplicationTransactionServiceTest {
 
         Workspace createdWorkspace = workspaceService.create(newWorkspace).block();
 
-        Mono<Application> resultMono = importExportApplicationService.importNewApplicationInWorkspaceFromJson(
+        Mono<Application> resultMono = importApplicationService.importNewApplicationInWorkspaceFromJson(
                 createdWorkspace.getId(), applicationJson);
 
         // Check  if expected exception is thrown
@@ -168,7 +168,7 @@ public class ImportApplicationTransactionServiceTest {
 
         Workspace createdWorkspace = workspaceService.create(newWorkspace).block();
 
-        Mono<Application> resultMono = importExportApplicationService.importNewApplicationInWorkspaceFromJson(
+        Mono<Application> resultMono = importApplicationService.importNewApplicationInWorkspaceFromJson(
                 createdWorkspace.getId(), applicationJson);
 
         // Check  if expected exception is thrown

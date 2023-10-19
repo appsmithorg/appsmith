@@ -3,9 +3,9 @@ import { isNil, isNumber } from "lodash";
 import {
   createMessage,
   FIELD_REQUIRED_ERROR,
-  INPUT_DEFAULT_TEXT_MAX_CHAR_ERROR,
   INPUT_DEFAULT_TEXT_MAX_NUM_ERROR,
   INPUT_DEFAULT_TEXT_MIN_NUM_ERROR,
+  INPUT_INVALID_TYPE_ERROR,
   INPUT_TEXT_MAX_CHAR_ERROR,
 } from "@appsmith/constants/messages";
 import { InputTypes } from "components/constants";
@@ -56,9 +56,7 @@ export function isInputTypeEmailOrPassword(inputType?: InputType) {
 
 export const validateInput = (props: InputWidgetProps): Validation => {
   const {
-    defaultText,
     errorMessage,
-    inputText,
     inputType,
     isDirty,
     isRequired,
@@ -66,10 +64,11 @@ export const validateInput = (props: InputWidgetProps): Validation => {
     maxChars,
     maxNum,
     minNum,
+    parsedText,
+    rawText,
   } = props;
-  const value = inputText ?? "";
 
-  if (isDirty && isRequired && value.length === 0) {
+  if (isDirty && isRequired && !isNil(parsedText) && parsedText.length === 0) {
     return {
       validationStatus: "invalid",
       errorMessage: createMessage(FIELD_REQUIRED_ERROR),
@@ -77,17 +76,7 @@ export const validateInput = (props: InputWidgetProps): Validation => {
   }
 
   if (isInputTypeSingleLineOrMultiLine(inputType) && maxChars) {
-    if (defaultText && defaultText.toString().length > maxChars) {
-      return {
-        validationStatus: "invalid",
-        errorMessage: createMessage(
-          INPUT_DEFAULT_TEXT_MAX_CHAR_ERROR,
-          maxChars,
-        ),
-      };
-    }
-
-    if (value && value.length > maxChars) {
+    if (parsedText && parsedText.toString().length > maxChars) {
       return {
         validationStatus: "invalid",
         errorMessage: createMessage(INPUT_TEXT_MAX_CHAR_ERROR, maxChars),
@@ -95,19 +84,35 @@ export const validateInput = (props: InputWidgetProps): Validation => {
     }
   }
 
-  if (inputType === "NUMBER" && isNumber(defaultText)) {
-    // check the default text is neither greater than max nor less than min value.
-    if (!isNil(minNum) && minNum > Number(defaultText)) {
+  if (inputType === "NUMBER") {
+    if (isDirty && isRequired && rawText === "") {
       return {
         validationStatus: "invalid",
-        errorMessage: createMessage(INPUT_DEFAULT_TEXT_MIN_NUM_ERROR),
+        errorMessage: createMessage(FIELD_REQUIRED_ERROR),
       };
     }
 
-    if (!isNil(maxNum) && maxNum < Number(defaultText)) {
+    if (rawText !== "" && isNumber(parsedText)) {
+      // check the default text is neither greater than max nor less than min value.
+      if (!isNil(minNum) && minNum > parsedText) {
+        return {
+          validationStatus: "invalid",
+          errorMessage: createMessage(INPUT_DEFAULT_TEXT_MIN_NUM_ERROR),
+        };
+      }
+
+      if (!isNil(maxNum) && maxNum < parsedText) {
+        return {
+          validationStatus: "invalid",
+          errorMessage: createMessage(INPUT_DEFAULT_TEXT_MAX_NUM_ERROR),
+        };
+      }
+    }
+
+    if (rawText !== "" && isNaN(Number(rawText))) {
       return {
         validationStatus: "invalid",
-        errorMessage: createMessage(INPUT_DEFAULT_TEXT_MAX_NUM_ERROR),
+        errorMessage: createMessage(INPUT_INVALID_TYPE_ERROR),
       };
     }
   }

@@ -1,4 +1,4 @@
-import type { WidgetPosition } from "layoutSystems/common/types";
+import type { LayoutElementPosition } from "layoutSystems/common/types";
 import type { WidgetNameState } from "./WidgetNameConstants";
 
 export type WIDGET_NAME_TYPE = "selected" | "focused";
@@ -6,7 +6,7 @@ export type WIDGET_NAME_TYPE = "selected" | "focused";
 //Contains the data of widget which are required to draw widget names on canvas
 export interface WidgetNameData {
   id: string;
-  position: WidgetPosition;
+  position: LayoutElementPosition;
   widgetName: string;
   parentId: string;
   nameState: WidgetNameState;

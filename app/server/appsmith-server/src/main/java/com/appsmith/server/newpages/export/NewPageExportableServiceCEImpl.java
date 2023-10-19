@@ -10,7 +10,7 @@ import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ExportingMetaDTO;
 import com.appsmith.server.dtos.MappedExportableResourcesDTO;
 import com.appsmith.server.dtos.PageDTO;
-import com.appsmith.server.export.exportable.ExportableServiceCE;
+import com.appsmith.server.exports.exportable.ExportableServiceCE;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.solutions.PagePermission;
 import org.apache.commons.collections.CollectionUtils;
