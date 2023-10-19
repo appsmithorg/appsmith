@@ -257,7 +257,7 @@ export const CodemirrorHintStyles = createGlobalStyle<{
     font-size: 12px;
     &&& {
       z-index: 20 !important;
-      background-color: var(--ads-v2-color-bg-subtle);
+      background-color: var(--ads-v2-color-bg);
       box-shadow: 0px 0px 10px #0000001A;
       border-radius: var(--ads-v2-border-radius);
       border: none;
