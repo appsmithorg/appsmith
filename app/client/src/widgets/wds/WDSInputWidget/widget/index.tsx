@@ -1,5 +1,5 @@
 import React from "react";
-import { merge, toString } from "lodash";
+import { isNumber, merge, toString } from "lodash";
 
 import {
   propertyPaneContentConfig,
@@ -113,7 +113,7 @@ class WDSInputWidget extends WDSBaseInputWidget<InputWidgetProps, WidgetState> {
       "!doc":
         "An input text field is used to capture a users textual input such as their names, numbers, emails etc. Inputs are used in forms and can have custom validations.",
       "!url": "https://docs.appsmith.com/widget-reference/input",
-      text: {
+      parsedText: {
         "!type": "string",
         "!doc": "The text value of the input",
         "!url": "https://docs.appsmith.com/widget-reference/input",
@@ -148,15 +148,15 @@ class WDSInputWidget extends WDSBaseInputWidget<InputWidgetProps, WidgetState> {
 
   static getMetaPropertiesMap(): Record<string, any> {
     return merge(super.getMetaPropertiesMap(), {
-      inputText: "",
-      text: "",
+      rawText: "",
+      parsedText: "",
     });
   }
 
   static getDefaultPropertiesMap(): Record<string, string> {
     return {
-      inputText: "defaultText",
-      text: "defaultText",
+      rawText: "defaultText",
+      parsedText: "defaultText",
     };
   }
 
@@ -178,7 +178,7 @@ class WDSInputWidget extends WDSBaseInputWidget<InputWidgetProps, WidgetState> {
         setValue: {
           path: "defaultText",
           type: "string",
-          accessor: "text",
+          accessor: "parsedText",
         },
       },
     };
@@ -213,24 +213,59 @@ class WDSInputWidget extends WDSBaseInputWidget<InputWidgetProps, WidgetState> {
   };
 
   onKeyDown = (e: KeyDownEvent) => {
+    if (this.props.inputType === INPUT_TYPES.NUMBER) {
+      // don't allow entering anything other than numbers. but allow backspace, arrows delete, tab, enter
+      if (
+        !(
+          (e.key >= "0" && e.key <= "9") ||
+          (e.key >= "0" && e.key <= "9" && e.code.includes("Numpad")) ||
+          e.key === "Backspace" ||
+          e.key === "Tab" ||
+          e.key === "Enter" ||
+          e.key === "ArrowUp" ||
+          e.key === "ArrowDown" ||
+          e.key === "ArrowLeft" ||
+          e.key === "ArrowRight" ||
+          e.key === "Delete" ||
+          e.ctrlKey ||
+          e.metaKey ||
+          e.altKey
+        )
+      ) {
+        e.preventDefault();
+      }
+
+      // increment or decrement the value by 1 on arrow up/down
+      // Note: we are doing this manually because we are using input="text" for inputType = NUMBER
+      if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+        const currentValue = Number(this.props.rawText);
+        const newValue =
+          e.key === "ArrowDown" ? currentValue - 1 : currentValue + 1;
+
+        if (isNumber(newValue) && !isNaN(newValue)) {
+          this.onValueChange(newValue.toString());
+        }
+      }
+    }
+
     super.onKeyDown(e, this.props.inputType === INPUT_TYPES.MULTI_LINE_TEXT);
   };
 
   componentDidUpdate = (prevProps: InputWidgetProps) => {
     if (
-      prevProps.inputText !== this.props.inputText &&
-      this.props.inputText !== toString(this.props.text)
+      prevProps.rawText !== this.props.rawText &&
+      this.props.rawText !== toString(this.props.parsedText)
     ) {
       this.props.updateWidgetMetaProperty(
-        "text",
-        parseText(this.props.inputText, this.props.inputType),
+        "parsedText",
+        parseText(this.props.rawText, this.props.inputType),
       );
     }
 
     if (prevProps.inputType !== this.props.inputType) {
       this.props.updateWidgetMetaProperty(
-        "text",
-        parseText(this.props.inputText, this.props.inputType),
+        "parsedText",
+        parseText(this.props.rawText, this.props.inputType),
       );
     }
     // If defaultText property has changed, reset isDirty to false
@@ -248,11 +283,11 @@ class WDSInputWidget extends WDSBaseInputWidget<InputWidgetProps, WidgetState> {
     // TODO(Balaji): Once we refactor the List widget, need to conver
     // text to a derived property.
     this.props.updateWidgetMetaProperty(
-      "text",
+      "parsedText",
       parseText(value, this.props.inputType),
     );
 
-    this.props.updateWidgetMetaProperty("inputText", value, {
+    this.props.updateWidgetMetaProperty("rawText", value, {
       triggerPropertyName: "onTextChanged",
       dynamicString: this.props.onTextChanged,
       event: {
@@ -266,17 +301,17 @@ class WDSInputWidget extends WDSBaseInputWidget<InputWidgetProps, WidgetState> {
   };
 
   resetWidgetText = () => {
-    this.props.updateWidgetMetaProperty("inputText", "");
+    this.props.updateWidgetMetaProperty("rawText", "");
     this.props.updateWidgetMetaProperty(
-      "text",
+      "parsedText",
       parseText("", this.props.inputType),
     );
   };
 
   getWidgetView() {
-    const { inputText, inputType } = this.props;
+    const { inputType, rawText } = this.props;
 
-    const value = inputText ?? "";
+    const value = rawText ?? "";
     const { errorMessage, validationStatus } = validateInput(this.props);
 
     return (
@@ -290,6 +325,7 @@ class WDSInputWidget extends WDSBaseInputWidget<InputWidgetProps, WidgetState> {
         inputType={inputType}
         isDisabled={this.props.isDisabled}
         isLoading={this.props.isLoading}
+        isRequired={this.props.isRequired}
         label={this.props.label}
         maxChars={this.props.maxChars}
         maxNum={this.props.maxNum}

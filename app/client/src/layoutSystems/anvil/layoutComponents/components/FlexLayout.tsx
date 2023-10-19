@@ -11,6 +11,7 @@ import type {
   OverflowValues,
   PositionValues,
 } from "layoutSystems/anvil/utils/types";
+import { usePositionObserver } from "layoutSystems/common/utils/LayoutElementPositionsObserver/usePositionObserver";
 import { addPixelToSize } from "layoutSystems/common/utils/commonUtils";
 import { MOBILE_ROW_GAP, ROW_GAP } from "layoutSystems/common/utils/constants";
 import React, { useMemo } from "react";
@@ -25,6 +26,7 @@ interface FlexLayoutProps
   children: ReactNode;
   isDropTarget?: boolean;
   layoutId: string;
+  layoutIndex: number;
 
   border?: string;
   columnGap?: string;
@@ -45,6 +47,21 @@ interface FlexLayoutProps
 }
 
 export const FlexLayout = (props: FlexLayoutProps) => {
+  /** POSITIONS OBSERVER LOGIC */
+  // Create a ref so that this DOM node can be
+  // observed by the observer for changes in size
+  const ref = React.useRef<HTMLDivElement>(null);
+  usePositionObserver(
+    "layout",
+    {
+      layoutId: props.layoutId,
+      canvasId: props.canvasId,
+      isDropTarget: props.isDropTarget,
+    },
+    ref,
+  );
+  /** EO POSITIONS OBSERVER LOGIC */
+
   const layoutStyle: FlexProps = useMemo(() => {
     return {
       alignSelf: props.alignSelf || "flex-start",
@@ -72,5 +89,9 @@ export const FlexLayout = (props: FlexLayoutProps) => {
     };
   }, [props]);
 
-  return <Flex {...layoutStyle}>{props.children}</Flex>;
+  return (
+    <Flex ref={ref} {...layoutStyle}>
+      {props.children}
+    </Flex>
+  );
 };
