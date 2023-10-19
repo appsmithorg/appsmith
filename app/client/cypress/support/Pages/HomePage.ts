@@ -328,13 +328,25 @@ export class HomePage {
     });
   }
 
+  public InvokeDispatchOnStore() {
+    cy.window().then((win: any) => {
+      if (win && win.store) {
+        cy.window()
+          .its("store")
+          .invoke("dispatch", { type: "LOGOUT_USER_INIT" });
+      } else {
+        // Handle the case where "store" is not present, or simply ignore and continue.
+      }
+    });
+  }
+
   public LogintoApp(
     uname: string,
     pswd: string,
     role: "App Viewer" | "Developer" | "Administrator" = "Administrator",
   ) {
     this.agHelper.Sleep(); //waiting for window to load
-    cy.window().its("store").invoke("dispatch", { type: "LOGOUT_USER_INIT" });
+    this.InvokeDispatchOnStore();
     cy.wait("@postLogout");
     this.agHelper.VisitNAssert("/user/login", "signUpLogin");
     this.agHelper.AssertElementVisibility(this._username);
@@ -419,8 +431,13 @@ export class HomePage {
     this.assertHelper.AssertNetworkStatus("getPagesForViewApp");
   }
 
-  public EditAppFromAppHover() {
-    cy.get(this._applicationCard).first().trigger("mouseover");
+  public EditAppFromAppHover(appName = "") {
+    if (appName)
+      this.agHelper
+        .GetElement(this._appCard(appName))
+        .first()
+        .trigger("mouseover");
+    else this.agHelper.GetElement(this._applicationCard).trigger("mouseover");
     this.agHelper.GetNClick(this._appHoverIcon("edit"));
     this.agHelper.AssertElementAbsence(this.locator._loading);
     this.assertHelper.AssertNetworkStatus("getWorkspace");

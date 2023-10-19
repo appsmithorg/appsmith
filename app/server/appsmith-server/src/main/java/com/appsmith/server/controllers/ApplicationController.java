@@ -2,8 +2,9 @@ package com.appsmith.server.controllers;
 
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.controllers.ce.ApplicationControllerCE;
-import com.appsmith.server.export.internal.ImportExportApplicationService;
+import com.appsmith.server.exports.internal.ExportApplicationService;
 import com.appsmith.server.fork.internal.ApplicationForkingService;
+import com.appsmith.server.imports.internal.ImportApplicationService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.ApplicationSnapshotService;
@@ -21,16 +22,17 @@ public class ApplicationController extends ApplicationControllerCE {
             ApplicationPageService applicationPageService,
             ApplicationFetcher applicationFetcher,
             ApplicationForkingService applicationForkingService,
-            ImportExportApplicationService importExportApplicationService,
+            ImportApplicationService importApplicationService,
+            ExportApplicationService exportApplicationService,
             ThemeService themeService,
             ApplicationSnapshotService applicationSnapshotService) {
-
         super(
                 service,
                 applicationPageService,
                 applicationFetcher,
                 applicationForkingService,
-                importExportApplicationService,
+                importApplicationService,
+                exportApplicationService,
                 themeService,
                 applicationSnapshotService);
     }

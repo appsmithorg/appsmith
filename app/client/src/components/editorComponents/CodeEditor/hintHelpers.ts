@@ -76,7 +76,7 @@ type HandleCompletions = (
   | { showHints: false; completions: null }
   | { showHints: true; completions: Hints };
 
-class SqlHintHelper {
+export class SqlHintHelper {
   datasourceTableKeys: NonNullable<
     ReturnType<typeof getAllDatasourceTableKeys>
   > = {};
@@ -88,6 +88,7 @@ class SqlHintHelper {
     this.addCustomAttributesToCompletions =
       this.addCustomAttributesToCompletions.bind(this);
     this.generateTables = this.generateTables.bind(this);
+    this.getCompletions = this.getCompletions.bind(this);
   }
 
   setDatasourceTableKeys(
@@ -155,13 +156,18 @@ class SqlHintHelper {
     return completions;
   }
 
+  getCompletions(editor: CodeMirror.Editor) {
+    // @ts-expect-error: No types available
+    const completions: Hints = CodeMirror.hint.sql(editor, {
+      tables: this.tables,
+    });
+    return completions;
+  }
+
   handleCompletions(editor: CodeMirror.Editor): ReturnType<HandleCompletions> {
     const noHints = { showHints: false, completions: null } as const;
     if (isCursorOnEmptyToken(editor) || !this.isSqlMode(editor)) return noHints;
-    // @ts-expect-error: No types available
-    let completions: Hints = CodeMirror.hint.sql(editor, {
-      tables: this.tables,
-    });
+    let completions: Hints = this.getCompletions(editor);
     if (isEmpty(completions.list)) return noHints;
     completions = filterCompletions(completions);
     return {
