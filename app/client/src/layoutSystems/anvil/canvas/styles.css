@@ -6,7 +6,3 @@
   height: calc(100% - 1rem);
   overflow-y: auto;
 }
-
-.bottom-gap {
-  padding-block-end: 5rem;
-}
