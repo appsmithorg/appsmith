@@ -230,7 +230,7 @@ describe("storeValue Action test", () => {
 
     debuggerHelper.ClickDebuggerIcon();
     debuggerHelper.ClickLogsTab();
-    debuggerHelper.changeLogsGroup("System Logs");
+    debuggerHelper.changeLogsGroup("System logs");
     debuggerHelper.DoesConsoleLogExist("storeValue('xyz', '123', true)");
     debuggerHelper.DoesConsoleLogExist("removeValue('xyz')");
     debuggerHelper.DoesConsoleLogExist("clearStore()");
