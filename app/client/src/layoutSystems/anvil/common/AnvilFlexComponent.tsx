@@ -148,12 +148,13 @@ export function AnvilFlexComponent(props: AnvilFlexComponentProps) {
   const styleProps: CSSProperties = useMemo(() => {
     return {
       position: "relative",
+      opacity: isDragging && isSelected ? 0.5 : 1,
       "&:hover": {
         zIndex: onHoverZIndex,
       },
       ...borderStyles,
     };
-  }, [borderStyles, isDragging, onHoverZIndex, isCanvasResizing]);
+  }, [borderStyles, isDragging, isSelected, onHoverZIndex, isCanvasResizing]);
 
   return (
     <Flex

@@ -234,27 +234,33 @@ export function getHighlightsForWidgets(
 
         let temp: AnvilHighlightInfo[] = [];
         row.forEach((each: RowMetaData, index: number) => {
+          const isDraggedWidget: boolean = draggedWidgets.some(
+            (widget: DraggedWidget) => widget.widgetId === each.widgetId,
+          );
           const currentDimension: LayoutElementPosition = getDimensions(
             each.widgetId,
           );
           const tallestDimension: LayoutElementPosition = getDimensions(
             tallestWidget.widgetId,
           );
+
           /**
            * Add a highlight before the widget
            */
-          temp = updateHighlights(
-            temp,
-            baseHighlight,
-            childCount,
-            alignment as FlexLayerAlignment,
-            dimension,
-            currentDimension,
-            tallestDimension,
-            false,
-            !!layoutProps.isDropTarget,
-          );
-          childCount += 1;
+          if (!isDraggedWidget) {
+            temp = updateHighlights(
+              temp,
+              baseHighlight,
+              childCount,
+              alignment as FlexLayerAlignment,
+              dimension,
+              currentDimension,
+              tallestDimension,
+              false,
+              !!layoutProps.isDropTarget,
+            );
+            childCount += 1;
+          }
 
           if (index === row.length - 1) {
             /**
