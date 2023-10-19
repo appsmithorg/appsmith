@@ -1,4 +1,4 @@
-package com.appsmith.plugins;
+package com.external.plugins;
 
 import com.appsmith.external.helpers.restApiUtils.connections.APIConnection;
 import com.appsmith.external.models.ActionConfiguration;
@@ -9,6 +9,8 @@ import com.appsmith.external.plugins.BaseRestApiPluginExecutor;
 import com.appsmith.external.services.SharedConfig;
 import org.pf4j.PluginWrapper;
 import reactor.core.publisher.Mono;
+
+import java.util.Set;
 
 public class ChatGptPlugin extends BasePlugin {
 
@@ -25,27 +27,34 @@ public class ChatGptPlugin extends BasePlugin {
         }
 
         public static ChatGptPluginExecutor getInstance(SharedConfig sharedConfig) {
-            if(instance == null) {
+            if (instance == null) {
                 instance = new ChatGptPluginExecutor(sharedConfig);
             }
             return instance;
         }
 
         @Override
-        public Mono<ActionExecutionResult> execute(APIConnection connection, DatasourceConfiguration datasourceConfiguration, ActionConfiguration actionConfiguration) {
+        public Mono<ActionExecutionResult> execute(
+                APIConnection connection,
+                DatasourceConfiguration datasourceConfiguration,
+                ActionConfiguration actionConfiguration) {
 
             // Get prompt from action configuration
-            String prompt = actionConfiguration.getPrompt();
+            String prompt = actionConfiguration.getBody();
 
             // Make API call to ChatGPT
-            String response = makeApiCall(prompt, datasourceConfiguration.getApiKey());
+            String response = makeApiCall(
+                    prompt,
+                    datasourceConfiguration
+                            .getAuthentication()
+                            .getAuthenticationResponse()
+                            .getToken());
 
             // Build execution result
             ActionExecutionResult result = new ActionExecutionResult();
             result.setBody(response);
 
             return Mono.just(result);
-
         }
 
         private String makeApiCall(String prompt, String apiKey) {
@@ -63,5 +72,4 @@ public class ChatGptPlugin extends BasePlugin {
         // Other methods implemented by calling super class
 
     }
-
 }
