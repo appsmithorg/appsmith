@@ -2,7 +2,12 @@ import { isPromise } from "workers/Evaluation/JSObject/utils";
 import { postJSFunctionExecutionLog } from "@appsmith/workers/Evaluation/JSObject/postJSFunctionExecution";
 import TriggerEmitter, { BatchKey } from "./TriggerEmitter";
 import ExecutionMetaData from "./ExecutionMetaData";
-
+function addMetaDataToError(e: any, fnName: string, fnString: string) {
+  // To account for cascaded errors, if error has a source, retain it
+  e.source = e.source || fnName;
+  e.userScript = e.userScript || fnString;
+  return e;
+}
 declare global {
   interface Window {
     structuredClone: (
@@ -49,8 +54,7 @@ export function jsObjectFunctionFactory<P extends ReadonlyArray<unknown>>(
         result = fn.call(this, ...args);
         return result;
       } catch (e: any) {
-        e.source = name;
-        e.userScript = fn.toString();
+        e = addMetaDataToError(e, name, fn.toString());
         throw e;
       }
     }
@@ -70,8 +74,7 @@ export function jsObjectFunctionFactory<P extends ReadonlyArray<unknown>>(
           return res;
         });
         result.catch((e) => {
-          e.source = name;
-          e.userScript = fn.toString();
+          e = addMetaDataToError(e, name, fn.toString());
           postProcessors.forEach((p) =>
             p({
               executionMetaData,
@@ -94,8 +97,7 @@ export function jsObjectFunctionFactory<P extends ReadonlyArray<unknown>>(
       }
       return result;
     } catch (e: any) {
-      e.source = name;
-      e.userScript = fn.toString();
+      e = addMetaDataToError(e, name, fn.toString());
       postProcessors.forEach((postProcessor) => {
         postProcessor({
           executionMetaData,
