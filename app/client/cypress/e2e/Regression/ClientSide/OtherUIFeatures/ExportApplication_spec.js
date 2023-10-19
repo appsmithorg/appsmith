@@ -11,14 +11,11 @@ describe("Export application as a JSON file", function () {
   });
 
   it("1. User with admin access,should be able to export the app", function () {
-    cy.LogOut();
+    //cy.LogOut();
     if (CURRENT_REPO === REPO.CE) {
-      homePage.Signout(false);
-      homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-      homePage.NavigateToHome();
       agHelper.GenerateUUID();
       cy.get("@guid").then((uid) => {
-        homePage.CreateNewWorkspace("exportApp" + uid);
+        homePage.CreateNewWorkspace("exportApp" + uid, true);
         homePage.CreateAppInWorkspace("exportApp" + uid, "App" + uid);
         appid = "App" + uid;
         //cy.get("h2").contains("Drag and drop a widget here");
