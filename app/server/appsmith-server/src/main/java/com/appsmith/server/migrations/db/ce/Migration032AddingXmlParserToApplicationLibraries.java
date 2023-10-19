@@ -5,7 +5,6 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.QApplication;
 import com.appsmith.server.dtos.CustomJSLibApplicationDTO;
-import com.appsmith.server.migrations.MigrationHelperMethods;
 import io.mongock.api.annotations.ChangeUnit;
 import io.mongock.api.annotations.Execution;
 import io.mongock.api.annotations.RollbackExecution;
@@ -17,6 +16,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 
 import static com.appsmith.server.constants.ApplicationConstants.XML_PARSER_LIBRARY_UID;
+import static com.appsmith.server.migrations.MigrationHelperMethods.notDeleted;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 
 /**
@@ -79,6 +79,6 @@ public class Migration032AddingXmlParserToApplicationLibraries {
     }
 
     private static Criteria getMigrationCriteria() {
-        return MigrationHelperMethods.notDeleted();
+        return notDeleted();
     }
 }
