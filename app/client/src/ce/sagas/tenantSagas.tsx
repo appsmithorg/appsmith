@@ -10,7 +10,6 @@ import { TenantApi } from "@appsmith/api/TenantApi";
 import { validateResponse } from "sagas/ErrorSagas";
 import { safeCrashAppRequest } from "actions/errorActions";
 import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
-import { defaultBrandingConfig as CE_defaultBrandingConfig } from "@appsmith/reducers/tenantReducer";
 import { toast } from "design-system";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
@@ -22,22 +21,12 @@ export function* fetchCurrentTenantConfigSaga() {
     );
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
-      const payload: any = response.data;
+      const data: any = response.data;
       yield put({
         type: ReduxActionTypes.FETCH_CURRENT_TENANT_CONFIG_SUCCESS,
-        payload: {
-          ...payload,
-          tenantConfiguration: {
-            ...CE_defaultBrandingConfig,
-            ...payload.tenantConfiguration,
-            brandColors: {
-              ...CE_defaultBrandingConfig.brandColors,
-              ...payload.tenantConfiguration.brandColors,
-            },
-          },
-        },
+        payload: data,
       });
-      AnalyticsUtil.initInstanceId(payload.instanceId);
+      AnalyticsUtil.initInstanceId(data.instanceId);
     }
   } catch (error) {
     yield put({
@@ -99,13 +88,7 @@ export function* updateTenantConfigSaga(
       // If the tenant config is not present, we need to set the default config
       yield put({
         type: ReduxActionTypes.UPDATE_TENANT_CONFIG_SUCCESS,
-        payload: {
-          ...payload,
-          tenantConfiguration: {
-            ...CE_defaultBrandingConfig,
-            ...payload.tenantConfiguration,
-          },
-        },
+        payload: payload,
       });
 
       if (action.payload.isOnlyTenantSettings) {
