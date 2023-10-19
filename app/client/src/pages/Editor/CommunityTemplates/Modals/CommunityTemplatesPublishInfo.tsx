@@ -94,7 +94,14 @@ const UnPublishedAppInstructions = ({
         </Text>
       </InfoContainer>
       <InfoFooter>
-        <Button endIcon="link" kind="tertiary" size="md">
+        <Button
+          endIcon="link"
+          href="https://community.appsmith.com/library"
+          kind="tertiary"
+          renderAs="a"
+          size="md"
+          target="_blank"
+        >
           {createMessage(LEARN_MORE)}
         </Button>
         <Button
