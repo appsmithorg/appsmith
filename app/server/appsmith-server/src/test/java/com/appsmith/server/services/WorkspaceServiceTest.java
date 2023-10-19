@@ -1840,4 +1840,32 @@ public class WorkspaceServiceTest {
                 mongoTemplate.count(queryWorkspaceWithAdditionalField, Workspace.class);
         assertThat(countWorkspaceWithAdditionalFieldAfterUpdate).isEqualTo(1);
     }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    void testInviteDuplicateUsers_shouldReturnUniqueUsers() {
+        String testName = "test";
+        List<String> duplicateUsernames = List.of(testName + "user@test.com", testName + "user@test.com");
+        Workspace createdWorkspace = workspaceService.create(workspace).block();
+        assertThat(createdWorkspace).isNotNull();
+        assertThat(createdWorkspace.getDefaultPermissionGroups()).isNotEmpty();
+        List<PermissionGroup> defaultWorkspaceRoles = permissionGroupRepository
+                .findAllById(createdWorkspace.getDefaultPermissionGroups())
+                .collectList()
+                .block();
+        assertThat(defaultWorkspaceRoles)
+                .hasSize(createdWorkspace.getDefaultPermissionGroups().size());
+
+        InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
+        inviteUsersDTO.setUsernames(duplicateUsernames);
+        inviteUsersDTO.setPermissionGroupId(defaultWorkspaceRoles.get(0).getId());
+
+        // Invited users list contains duplicate users.
+        List<User> userList = userAndAccessManagementService
+                .inviteUsers(inviteUsersDTO, "test")
+                .block();
+        assertThat(userList).hasSize(1);
+        User invitedUser = userList.get(0);
+        assertThat(invitedUser.getUsername()).isEqualTo(testName + "user@test.com");
+    }
 }

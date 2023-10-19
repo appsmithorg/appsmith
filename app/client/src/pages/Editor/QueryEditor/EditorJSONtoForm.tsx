@@ -1,3 +1,4 @@
+import { useContext } from "react";
 import type { RefObject } from "react";
 import React, { useCallback, useRef, useState } from "react";
 import type { InjectedFormProps } from "redux-form";
@@ -42,7 +43,6 @@ import Resizable, {
   ResizerCSS,
 } from "components/editorComponents/Debugger/Resizer";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import CloseEditor from "components/editorComponents/CloseEditor";
 import EntityDeps from "components/editorComponents/Debugger/EntityDependecies";
 import {
   checkIfSectionCanRender,
@@ -67,8 +67,6 @@ import {
 } from "@appsmith/constants/messages";
 import { useParams } from "react-router";
 import type { AppState } from "@appsmith/reducers";
-import type { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers";
-import MoreActionsMenu from "../Explorer/Actions/MoreActionsMenu";
 import { thinScrollbar } from "constants/DefaultTheme";
 import ActionRightPane, {
   useEntityDependencies,
@@ -132,12 +130,12 @@ import { DatasourceStructureContext } from "../Explorer/Datasources/DatasourceSt
 import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 import {
   getHasCreateDatasourcePermission,
-  getHasDeleteActionPermission,
   getHasExecuteActionPermission,
   getHasManageActionPermission,
 } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { QueryEditorContext } from "./QueryEditorContext";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -369,6 +367,7 @@ interface QueryFormProps {
     value,
   }: UpdateActionPropertyActionPayload) => void;
   datasourceId: string;
+  showCloseEditor: boolean;
 }
 
 interface ReduxProps {
@@ -405,6 +404,13 @@ export function EditorJSONtoForm(props: Props) {
     updateActionResponseDisplayFormat,
   } = props;
 
+  const {
+    actionRightPaneBackLink,
+    closeEditorLink,
+    moreActionsMenu,
+    saveActionName,
+  } = useContext(QueryEditorContext);
+
   let error = runErrorMessage;
   let output: Record<string, any>[] | null = null;
   let hintMessages: Array<string> = [];
@@ -422,8 +428,6 @@ export function EditorJSONtoForm(props: Props) {
   const currentActionConfig: Action | undefined = actions.find(
     (action) => action.id === params.apiId || action.id === params.queryId,
   );
-  const { pageId } = useParams<ExplorerURLParams>();
-
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
 
   const isChangePermitted = getHasManageActionPermission(
@@ -431,10 +435,6 @@ export function EditorJSONtoForm(props: Props) {
     currentActionConfig?.userPermissions,
   );
   const isExecutePermitted = getHasExecuteActionPermission(
-    isFeatureEnabled,
-    currentActionConfig?.userPermissions,
-  );
-  const isDeletePermitted = getHasDeleteActionPermission(
     isFeatureEnabled,
     currentActionConfig?.userPermissions,
   );
@@ -914,22 +914,18 @@ export function EditorJSONtoForm(props: Props) {
 
   return (
     <>
-      {!guidedTourEnabled && <CloseEditor />}
+      {!guidedTourEnabled && closeEditorLink}
       {guidedTourEnabled && <Guide className="query-page" />}
       <QueryFormContainer onSubmit={handleSubmit(noop)}>
         <StyledFormRow>
           <NameWrapper>
-            <ActionNameEditor disabled={!isChangePermitted} />
+            <ActionNameEditor
+              disabled={!isChangePermitted}
+              saveActionName={saveActionName}
+            />
           </NameWrapper>
           <ActionsWrapper>
-            <MoreActionsMenu
-              className="t--more-action-menu"
-              id={currentActionConfig ? currentActionConfig.id : ""}
-              isChangePermitted={isChangePermitted}
-              isDeletePermitted={isDeletePermitted}
-              name={currentActionConfig ? currentActionConfig.name : ""}
-              pageId={pageId}
-            />
+            {moreActionsMenu}
             <DropdownSelect>
               <DropdownField
                 className={"t--switch-datasource"}
@@ -1114,6 +1110,7 @@ export function EditorJSONtoForm(props: Props) {
           <SidebarWrapper show={shouldOpenActionPaneByDefault}>
             <ActionRightPane
               actionName={actionName}
+              actionRightPaneBackLink={actionRightPaneBackLink}
               context={DatasourceStructureContext.QUERY_EDITOR}
               datasourceId={props.datasourceId}
               hasConnections={hasDependencies}

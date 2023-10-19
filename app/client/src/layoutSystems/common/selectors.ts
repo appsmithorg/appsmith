@@ -9,13 +9,13 @@ import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { EVAL_ERROR_PATH } from "utils/DynamicBindingUtils";
 import get from "lodash/get";
 import { getErrorCount } from "layoutSystems/common/widgetName/utils";
-import type { WidgetPositions } from "./types";
+import type { LayoutElementPositions } from "./types";
 import type { WidgetProps } from "widgets/BaseWidget";
 import type { WidgetNameData } from "./WidgetNamesCanvas/WidgetNameTypes";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 
-export const getWidgetPositions = (state: AppState) =>
-  state.entities.widgetPositions;
+export const getLayoutElementPositions = (state: AppState) =>
+  state.entities.layoutElementPositions;
 
 /**
  * method to get the widget data required to draw widget name component on canvas
@@ -28,7 +28,7 @@ export const getWidgetPositions = (state: AppState) =>
 const getWidgetNameState = (
   widget: WidgetProps,
   dataTree: DataTree,
-  positions: WidgetPositions,
+  positions: LayoutElementPositions,
   isFocused = false,
 ): WidgetNameData => {
   let nameState = isFocused
@@ -66,7 +66,7 @@ const getWidgetNameState = (
  * selector to get information regarding the selected widget to draw it's widget name on canvas
  */
 export const getSelectedWidgetNameData = createSelector(
-  getWidgetPositions,
+  getLayoutElementPositions,
   getSelectedWidgets,
   getWidgets,
   getDataTree,
@@ -99,7 +99,7 @@ export const getSelectedWidgetNameData = createSelector(
  * selector to get information regarding the focused widget to draw it's widget name on canvas
  */
 export const getFocusedWidgetNameData = createSelector(
-  getWidgetPositions,
+  getLayoutElementPositions,
   getFocusedWidget,
   getSelectedWidgets,
   getWidgets,

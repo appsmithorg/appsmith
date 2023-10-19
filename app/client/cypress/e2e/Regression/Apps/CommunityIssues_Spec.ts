@@ -36,7 +36,10 @@ describe("AForce - Community Issues page validations", function () {
         const { isPartialImport } = interception.response.body.data;
         if (isPartialImport) {
           // should reconnect modal
-          dataSources.ReconnectSingleDSNAssert("AForceDB", "PostgreSQL");
+          dataSources.ReconnectSingleDSNAssert(
+            String.raw`AForceDB`,
+            "PostgreSQL",
+          );
           homePage.AssertNCloseImport();
         } else {
           homePage.AssertImportToast();

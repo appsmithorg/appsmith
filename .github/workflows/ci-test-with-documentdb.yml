@@ -24,7 +24,69 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        job: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]
+        job:
+          [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23,
+            24,
+            25,
+            26,
+            27,
+            28,
+            29,
+            30,
+            31,
+            32,
+            33,
+            34,
+            35,
+            36,
+            37,
+            38,
+            39,
+            40,
+            41,
+            42,
+            43,
+            44,
+            45,
+            46,
+            47,
+            48,
+            49,
+            50,
+            51,
+            52,
+            53,
+            54,
+            55,
+            56,
+            57,
+            58,
+            59,
+          ]
 
     # Service containers to run with this job. Required for running tests
     services:
@@ -171,7 +233,7 @@ jobs:
 
       - name: Setup SSH tunnel to AWS DocumentDB instance
         run: |
-          chmod 400 ssh_key.pem 
+          chmod 400 ssh_key.pem
           ssh -4 -o StrictHostKeyChecking=no -o ServerAliveInterval=180 -o ServerAliveCountMax=5 -i "ssh_key.pem" -L 0.0.0.0:27010:docdb-ansible-test-cluster.cluster-cz8diybf9wdj.ap-south-1.docdb.amazonaws.com:27017 ubuntu@65.1.106.35 -N -f
 
       - name: Run Appsmith, CS & TED docker image
@@ -181,13 +243,13 @@ jobs:
           APPSMITH_MONGODB_URI: ${{ secrets.INTERNAL_CI_DOC_DB_URI }}
 
         run: |
-          timestamp=$(date +%Y%m%d%H%M%S) 
+          timestamp=$(date +%Y%m%d%H%M%S)
           hash=$(hostname)
           random=$(shuf -i 1000-9999 -n 1)
           DB_NAME="${timestamp}-${hash}-${random}"
           echo "DB_NAME: ${DB_NAME}"
           MONGO_CREDS=$(echo $APPSMITH_MONGODB_URI | sed 's/@.*//')
-          URI="${MONGO_CREDS}@localhost:27010/${DB_NAME}?retryWrites=false&replicaSet=rs0&directConnection=true" 
+          URI="${MONGO_CREDS}@localhost:27010/${DB_NAME}?retryWrites=false&replicaSet=rs0&directConnection=true"
           mongorestore --uri="${URI}" --archive=data.gz --gzip --drop --nsInclude "doc-db-base.*" --nsFrom "doc-db-base.*" --nsTo "${DB_NAME}.*"
           sudo /etc/init.d/ssh stop ;
           mkdir -p ~/git-server/keys
@@ -264,53 +326,6 @@ jobs:
       - name: Setting up the cypress tests
         if: steps.run_result.outputs.run_result != 'success'
         shell: bash
-        env:
-          APPSMITH_SSL_CERTIFICATE: ${{ secrets.APPSMITH_SSL_CERTIFICATE }}
-          APPSMITH_SSL_KEY: ${{ secrets.APPSMITH_SSL_KEY }}
-          CYPRESS_USERNAME: ${{ secrets.CYPRESS_USERNAME }}
-          CYPRESS_PASSWORD: ${{ secrets.CYPRESS_PASSWORD }}
-          CYPRESS_TESTUSERNAME1: ${{ secrets.CYPRESS_TESTUSERNAME1 }}
-          CYPRESS_TESTPASSWORD1: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
-          CYPRESS_TESTUSERNAME2: ${{ secrets.CYPRESS_TESTUSERNAME2 }}
-          CYPRESS_TESTPASSWORD2: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
-          CYPRESS_TESTUSERNAME3: ${{ secrets.CYPRESS_TESTUSERNAME3 }}
-          CYPRESS_TESTPASSWORD3: ${{ secrets.CYPRESS_TESTPASSWORD3 }}
-          CYPRESS_TESTUSERNAME4: ${{ secrets.CYPRESS_TESTUSERNAME4 }}
-          CYPRESS_TESTPASSWORD4: ${{ secrets.CYPRESS_TESTPASSWORD4 }}
-          CYPRESS_S3_ACCESS_KEY: ${{ secrets.CYPRESS_S3_ACCESS_KEY }}
-          CYPRESS_S3_SECRET_KEY: ${{ secrets.CYPRESS_S3_SECRET_KEY }}
-          CYPRESS_GITEA_TOKEN: ${{ secrets.GITEA_TOKEN }}
-          CYPRESS_AIRTABLE_BEARER: ${{ secrets.AIRTABLE_BEARER }}
-          CYPRESS_FIRESTORE_PRIVATE_KEY: ${{ secrets.FIRESTORE_PRIVATE_KEY }}
-          CYPRESS_ORACLE_HOST: ${{ secrets.ORACLE_HOST }}
-          CYPRESS_ORACLE_SERVICE: ${{ secrets.ORACLE_SERVICE }}
-          CYPRESS_ORACLE_USERNAME: ${{ secrets.ORACLE_USERNAME }}
-          CYPRESS_ORACLE_PASSWORD: ${{ secrets.ORACLE_PASSWORD }}
-          CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN: ${{ secrets.CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN }}
-          CYPRESS_TEST_GITHUB_USER_NAME: ${{ secrets.CYPRESS_TEST_GITHUB_USER_NAME }}
-          CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_ID: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_ID }}
-          CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET }}
-          CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_ID: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_ID }}
-          CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET }}
-          CYPRESS_OAUTH_SAML_EMAIL: ${{ secrets.CYPRESS_OAUTH_SAML_EMAIL }}
-          CYPRESS_OAUTH_SAML_ENTITY_ID: ${{ secrets.CYPRESS_OAUTH_SAML_ENTITY_ID }}
-          CYPRESS_OAUTH_SAML_METADATA_URL: ${{ secrets.CYPRESS_OAUTH_SAML_METADATA_URL }}
-          CYPRESS_OAUTH_SAML_METADATA_XML: ${{ secrets.CYPRESS_OAUTH_SAML_METADATA_XML }}
-          CYPRESS_OAUTH_SAML_PUB_CERT: ${{ secrets.CYPRESS_OAUTH_SAML_PUB_CERT }}
-          CYPRESS_OAUTH_SAML_SSO_URL: ${{ secrets.CYPRESS_OAUTH_SAML_SSO_URL }}
-          CYPRESS_OAUTH_SAML_REDIRECT_URL: ${{ secrets.CYPRESS_OAUTH_SAML_REDIRECT_URL }}
-          CYPRESS_APPSMITH_OAUTH2_OIDC_CLIENT_ID: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_CLIENT_ID }}
-          CYPRESS_APPSMITH_OAUTH2_OIDC_CLIENT_SECRET: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_CLIENT_SECRET }}
-          CYPRESS_APPSMITH_OAUTH2_OIDC_AUTH_URL: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_AUTH_URL }}
-          CYPRESS_APPSMITH_OAUTH2_OIDC_TOKEN_URL: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_TOKEN_URL }}
-          CYPRESS_APPSMITH_OAUTH2_OIDC_USER_INFO: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_USER_INFO }}
-          CYPRESS_APPSMITH_OAUTH2_OIDC_JWKS_URL: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_JWKS_URL }}
-          CYPRESS_EXCLUDE_TAGS: "airgap"
-          CYPRESS_AIRGAPPED: false
-          APPSMITH_DISABLE_TELEMETRY: true
-          APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
-          POSTGRES_PASSWORD: postgres
-          CYPRESS_VERIFY_TIMEOUT: 100000
         run: |
           cd app/client
           chmod a+x ./cypress/setup-test-ci.sh
@@ -355,7 +370,7 @@ jobs:
           if [[ ${{ inputs.pr }} -ne 0 ]]; then
             echo "COMMIT_INFO_MESSAGE=${{ env.COMMIT_INFO_MESSAGE }}" >> $GITHUB_ENV
           else
-            if [[ '${{env.EVENT_COMMITS}}' == 'null' ]]; then 
+            if [[ '${{env.EVENT_COMMITS}}' == 'null' ]]; then
               echo "COMMIT_INFO_MESSAGE=${{ github.event_name }} by ${{ env.COMMIT_INFO_AUTHOR }}" >> $GITHUB_ENV
             else
               echo "COMMIT_INFO_MESSAGE=$(echo \"${{ env.EVENT_COMMITS }}\" | awk -F '\\\\n' '{print $1}' | sed 's/^\"//')" >> $GITHUB_ENV
@@ -406,6 +421,8 @@ jobs:
           CYPRESS_APPSMITH_OAUTH2_OIDC_TOKEN_URL: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_TOKEN_URL }}
           CYPRESS_APPSMITH_OAUTH2_OIDC_USER_INFO: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_USER_INFO }}
           CYPRESS_APPSMITH_OAUTH2_OIDC_JWKS_URL: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_JWKS_URL }}
+          CYPRESS_APPSMITH_OAUTH2_OIDC_OKTA_PASSWORD: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_OKTA_PASSWORD }}
+          CYPRESS_APPSMITH_OAUTH2_OIDC_DIRECT_URL: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_DIRECT_URL }}
           CYPRESS_EXCLUDE_TAGS: "airgap"
           CYPRESS_AIRGAPPED: false
           APPSMITH_DISABLE_TELEMETRY: true
@@ -481,6 +498,8 @@ jobs:
           CYPRESS_APPSMITH_OAUTH2_OIDC_TOKEN_URL: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_TOKEN_URL }}
           CYPRESS_APPSMITH_OAUTH2_OIDC_USER_INFO: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_USER_INFO }}
           CYPRESS_APPSMITH_OAUTH2_OIDC_JWKS_URL: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_JWKS_URL }}
+          CYPRESS_APPSMITH_OAUTH2_OIDC_OKTA_PASSWORD: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_OKTA_PASSWORD }}
+          CYPRESS_APPSMITH_OAUTH2_OIDC_DIRECT_URL: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_DIRECT_URL }}
           CYPRESS_EXCLUDE_TAGS: "airgap"
           CYPRESS_AIRGAPPED: false
           APPSMITH_DISABLE_TELEMETRY: true

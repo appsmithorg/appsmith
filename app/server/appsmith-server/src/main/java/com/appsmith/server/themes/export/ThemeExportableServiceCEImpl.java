@@ -5,7 +5,7 @@ import com.appsmith.server.domains.Theme;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ExportingMetaDTO;
 import com.appsmith.server.dtos.MappedExportableResourcesDTO;
-import com.appsmith.server.export.exportable.ExportableServiceCE;
+import com.appsmith.server.exports.exportable.ExportableServiceCE;
 import com.appsmith.server.themes.base.ThemeService;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;

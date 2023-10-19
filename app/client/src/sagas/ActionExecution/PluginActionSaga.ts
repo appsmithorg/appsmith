@@ -90,6 +90,7 @@ import {
   RESP_HEADER_DATATYPE,
 } from "constants/AppsmithActionConstants/ActionConstants";
 import {
+  getCurrentApplicationId,
   getCurrentPageId,
   getIsSavingEntity,
   getLayoutOnLoadActions,
@@ -1546,6 +1547,7 @@ function* clearTriggerActionResponse() {
 function* softRefreshActionsSaga() {
   //get current pageId
   const pageId: string = yield select(getCurrentPageId);
+  const applicationId: string = yield select(getCurrentApplicationId);
   // Fetch the page data before refreshing the actions.
   yield put(fetchPage(pageId));
   //wait for the page to be fetched.
@@ -1569,10 +1571,17 @@ function* softRefreshActionsSaga() {
     yield put(softRefreshDatasourceStructure());
   } catch (error) {}
   //This will refresh the query editor with the latest datasource structure.
+  // TODO: fix typing of matchQueryBuilderPath, it always returns "any" which can lead to bugs
   const isQueryPane = matchQueryBuilderPath(window.location.pathname);
   //This is reuired only when the query editor is open.
   if (isQueryPane) {
-    yield put(changeQuery(isQueryPane.params.queryId));
+    yield put(
+      changeQuery({
+        id: isQueryPane.params.queryId,
+        pageId,
+        applicationId,
+      }),
+    );
   }
   const currentEnvName: string = yield select(getCurrentEnvironmentName);
   toast.show(createMessage(SWITCH_ENVIRONMENT_SUCCESS, currentEnvName), {

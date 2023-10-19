@@ -351,10 +351,11 @@ export function* inviteUsers(
 ) {
   const { data, reject, resolve } = action.payload;
   try {
-    const response: ApiResponse = yield callAPI(UserApi.inviteUser, {
-      usernames: data.usernames,
-      permissionGroupId: data.permissionGroupId,
-    });
+    const response: ApiResponse<{ id: string; username: string }[]> =
+      yield callAPI(UserApi.inviteUser, {
+        usernames: data.usernames,
+        permissionGroupId: data.permissionGroupId,
+      });
     const isValidResponse: boolean = yield validateResponse(response, false);
     if (!isValidResponse) {
       let errorMessage = `${data.usernames}:  `;
@@ -367,12 +368,14 @@ export function* inviteUsers(
         workspaceId: data.workspaceId,
       },
     });
+    const { data: responseData } = response;
     yield put({
       type: ReduxActionTypes.INVITED_USERS_TO_WORKSPACE,
       payload: {
         workspaceId: data.workspaceId,
-        users: data.usernames.map((name: string) => ({
-          username: name,
+        users: responseData.map((user: { id: string; username: string }) => ({
+          userId: user.id,
+          username: user.username,
           permissionGroupId: data.permissionGroupId,
         })),
       },
@@ -386,13 +389,14 @@ export function* inviteUsers(
 
 export function* updateUserDetailsSaga(action: ReduxAction<UpdateUserRequest>) {
   try {
-    const { email, intercomConsentGiven, name, proficiency, useCase } =
+    const { email, intercomConsentGiven, name, proficiency, role, useCase } =
       action.payload;
 
     const response: ApiResponse = yield callAPI(UserApi.updateUser, {
       email,
       name,
       proficiency,
+      role,
       useCase,
       intercomConsentGiven,
     });

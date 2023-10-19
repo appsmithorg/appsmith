@@ -5,25 +5,24 @@ import { useParams } from "react-router-dom";
 import styled from "styled-components";
 import { removeSpecialChars } from "utils/helpers";
 import type { AppState } from "@appsmith/reducers";
-import type { JSCollection } from "entities/JSCollection";
 import { Classes } from "@blueprintjs/core";
 import { saveJSObjectName } from "actions/jsActionActions";
 import {
   getJSCollection,
   getPlugin,
 } from "@appsmith/selectors/entitiesSelector";
-import NameEditorComponent from "components/utils/NameEditorComponent";
 import {
   ACTION_NAME_PLACEHOLDER,
+  JSOBJECT_ID_NOT_FOUND_IN_URL,
   createMessage,
 } from "@appsmith/constants/messages";
-import { PluginType } from "entities/Action";
-import type { Plugin } from "api/PluginApi";
 import EditableText, {
   EditInteractionKind,
 } from "components/editorComponents/EditableText";
 import { Spinner } from "design-system";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import NameEditorComponent from "components/utils/NameEditorComponent";
+import { getSavingStatusForJSObjectName } from "selectors/actionSelectors";
 
 const JSObjectNameWrapper = styled.div<{ page?: string }>`
   min-width: 50%;
@@ -77,19 +76,25 @@ const JSIcon = styled.img`
 export function JSObjectNameEditor(props: JSObjectNameEditorProps) {
   const params = useParams<{ collectionId?: string; queryId?: string }>();
 
-  const currentJSObjectConfig: JSCollection | undefined = useSelector(
-    (state: AppState) => getJSCollection(state, params.collectionId || ""),
+  const currentJSObjectConfig = useSelector((state: AppState) =>
+    getJSCollection(state, params.collectionId || ""),
   );
 
-  const currentPlugin: Plugin | undefined = useSelector((state: AppState) =>
+  const currentPlugin = useSelector((state: AppState) =>
     getPlugin(state, currentJSObjectConfig?.pluginId || ""),
+  );
+
+  const saveStatus = useSelector((state) =>
+    getSavingStatusForJSObjectName(state, currentJSObjectConfig?.id || ""),
   );
 
   return (
     <NameEditorComponent
-      currentActionConfig={currentJSObjectConfig}
       dispatchAction={saveJSObjectName}
-      pluginType={PluginType.JS}
+      id={currentJSObjectConfig?.id}
+      idUndefinedErrorMessage={JSOBJECT_ID_NOT_FOUND_IN_URL}
+      name={currentJSObjectConfig?.name}
+      saveStatus={saveStatus}
     >
       {({
         forceUpdate,
