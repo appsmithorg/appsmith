@@ -5,7 +5,7 @@ import {
   type DeriveHighlightsFn,
   type LayoutComponentProps,
   LayoutComponentTypes,
-  LayoutProps,
+  type LayoutProps,
 } from "layoutSystems/anvil/utils/anvilTypes";
 import { FlexLayout } from "./FlexLayout";
 import { deriveColumnHighlights } from "layoutSystems/anvil/utils/layouts/highlights/columnHighlights";
@@ -18,8 +18,9 @@ class WidgetColumn extends BaseLayoutComponent {
     };
   }
 
-  static getChildTemplate(props: LayoutProps): LayoutProps | undefined {
-    if (props.childTemplate) return props.childTemplate;
+  static getChildTemplate(props: LayoutProps): LayoutProps | null {
+    if (props.childTemplate || props.childTemplate === null)
+      return props.childTemplate;
     return {
       insertChild: true,
       layoutId: "",

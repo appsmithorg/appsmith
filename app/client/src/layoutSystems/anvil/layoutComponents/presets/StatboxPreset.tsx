@@ -69,6 +69,7 @@ export const statBoxPreset = (
         ],
       },
       {
+        childTemplate: null,
         isDropTarget: true,
         isPermanent: true,
         layoutId: generateReactKey(),
