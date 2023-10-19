@@ -161,7 +161,6 @@ import {
   resetActiveEditorField,
   setActiveEditorField,
 } from "actions/activeFieldActions";
-import CodeMirrorTernService from "utils/autocomplete/CodemirrorTernService";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
@@ -441,9 +440,6 @@ class CodeEditor extends Component<Props, State> {
         editor.on("keydown", this.handleAutocompleteKeydown);
         editor.on("focus", this.handleEditorFocus);
         editor.on("cursorActivity", this.handleCursorMovement);
-        editor.on("cursorActivity", (instance: CodeMirror.Editor) =>
-          CodeMirrorTernService.updateArgHints(instance),
-        );
         editor.on("blur", this.handleEditorBlur);
         editor.on("mousedown", this.handleClick);
         editor.on("scrollCursorIntoView", this.handleScrollCursorIntoView);
