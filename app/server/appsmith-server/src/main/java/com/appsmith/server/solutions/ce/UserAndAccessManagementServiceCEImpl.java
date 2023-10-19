@@ -25,10 +25,11 @@ import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
 import reactor.util.function.Tuples;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static java.lang.Boolean.TRUE;
@@ -97,7 +98,7 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ROLE));
         }
 
-        List<String> usernames = new ArrayList<>();
+        Set<String> usernames = new HashSet<>();
         for (String username : originalUsernames) {
             usernames.add(username.toLowerCase());
         }

@@ -66,13 +66,11 @@ export class DataTreeFactory {
     const startWidgets = performance.now();
 
     if (!isEmpty(moduleInputs)) {
-      for (const [key, value] of Object.entries(moduleInputs)) {
-        const { configEntity, unEvalEntity } =
-          generateDataTreeModuleInputs(value);
-        if (!!configEntity && !!unEvalEntity) {
-          dataTree[key] = unEvalEntity;
-          configTree[key] = configEntity;
-        }
+      const { configEntity, unEvalEntity } =
+        generateDataTreeModuleInputs(moduleInputs);
+      if (!!configEntity && !!unEvalEntity) {
+        dataTree.inputs = unEvalEntity;
+        configTree.inputs = configEntity;
       }
     }
 

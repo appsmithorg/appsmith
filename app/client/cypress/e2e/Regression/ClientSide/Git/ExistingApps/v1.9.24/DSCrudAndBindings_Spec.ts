@@ -145,6 +145,7 @@ describe("Import and validate older app (app created in older versions of Appsmi
     deployMode.EnterJSONInputValue("Statusname", "Active", 0, true);
     agHelper.Sleep(500);
     agHelper.ClickButton("Update");
+    agHelper.Sleep(2000); //for CI update to be successful
 
     //Validate updated values in table
     table.ReadTableRowColumnData(0, 3).then(($cellData) => {

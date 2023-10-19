@@ -1,6 +1,6 @@
 import { APPLICATIONS_URL } from "constants/routes";
 import { SettingCategories } from "@appsmith/pages/AdminSettings/config/types";
-import { adminSettingsCategoryUrl } from "RouteBuilder";
+import { adminSettingsCategoryUrl } from "@appsmith/RouteBuilder";
 
 export const BreadcrumbCategories = {
   HOMEPAGE: {

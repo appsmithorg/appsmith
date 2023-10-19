@@ -8,15 +8,10 @@ export function createMessage(
 }
 
 /*
-  For self hosted, it displays the string "Appsmith Community v1.10.0" or "Appsmith Business v1.10.0".
-  For cloud hosting, it displays "Appsmith v1.10.0".
-  This is because Appsmith Cloud doesn't support business features yet.
+  For self hosted CE, it displays the string "Appsmith Community v1.10.0".
  */
-export const APPSMITH_DISPLAY_VERSION = (
-  edition: string,
-  version: string,
-  cloudHosting: boolean,
-) => `Appsmith ${!cloudHosting ? edition : ""} ${version}`;
+export const APPSMITH_DISPLAY_VERSION = (edition: string, version: string) =>
+  `Appsmith ${edition} ${version}`;
 export const INTERCOM_CONSENT_MESSAGE = () =>
   `Can we have your email for better support?`;
 export const YES = () => `Yes`;
@@ -39,6 +34,8 @@ export const INPUT_DEFAULT_TEXT_MAX_NUM_ERROR = () =>
   `Default Text value must be less than Max number allowed`;
 export const INPUT_DEFAULT_TEXT_MIN_NUM_ERROR = () =>
   `Default Text value must be greater than Min number allowed`;
+export const INPUT_INVALID_TYPE_ERROR = () =>
+  `Type Mismatch. Please enter a valid value`;
 export const VALID_FUNCTION_NAME_ERROR = () =>
   `Must be a valid variable name (camelCase)`;
 export const UNIQUE_NAME_ERROR = () => `Name must be unique`;
@@ -269,6 +266,8 @@ export const WORKSPACES_HEADING = () => `Workspaces`;
 export const WELCOME_TOUR = () => `Welcome tour`;
 export const NO_APPS_FOUND = () =>
   `Whale! Whale! This name doesn't ring a bell!`;
+export const APPLICATION_CARD_LIST_ZERO_STATE = () =>
+  `There are no apps in this workspace.`;
 
 // Lightning menu
 export const LIGHTNING_MENU_DATA_API = () => `Use data from an API`;
@@ -337,6 +336,11 @@ export const ACTION_NAME_CONFLICT_ERROR = (name: string) =>
   `${name} is already being used or is a restricted keyword.`;
 export const ENTITY_EXPLORER_ACTION_NAME_CONFLICT_ERROR = (name: string) =>
   `${name} is already being used.`;
+
+export const ACTION_ID_NOT_FOUND_IN_URL =
+  "No correct API id or Query id found in the url.";
+export const JSOBJECT_ID_NOT_FOUND_IN_URL =
+  "No correct JSObject id found in the url.";
 
 export const DATASOURCE_CREATE = (dsName: string) =>
   `${dsName} datasource created`;
@@ -1243,8 +1247,7 @@ export const SNIPPET_TOOLTIP = () => "Search code snippets";
 
 //Welcome page
 export const WELCOME_HEADER = () => "Almost there";
-export const WELCOME_BODY = () =>
-  "Help us provide you with a customized experience.";
+export const WELCOME_BODY = () => "Let's setup your account first";
 export const WELCOME_ACTION = () => "Get started";
 
 // API Editor
@@ -1439,6 +1442,7 @@ export const WELCOME_FORM_NON_SUPER_USER_USE_CASE = () =>
 export const WELCOME_FORM_NON_SUPER_USER_PROFICIENCY_LEVEL = () =>
   "How would you rate your development proficiency?";
 
+export const WELCOME_FORM_ROLE_ERROR_MESSAGE = () => "Please enter a role";
 export const WELCOME_FORM_PROFICIENCY_ERROR_MESSAGE = () =>
   "Please select a proficiency level";
 export const WELCOME_FORM_USE_CASE_ERROR_MESSAGE = () =>
@@ -1651,6 +1655,7 @@ export const EMPTY_QUERY_JS_MAIN_TEXT = () => "No query/JS to display";
 export const EMPTY_QUERY_JS_BUTTON_TEXT = () => "New query/JS";
 export const EMPTY_DATASOURCE_MAIN_TEXT = () => "No datasource to display";
 export const EMPTY_DATASOURCE_BUTTON_TEXT = () => "New datasource";
+export const SEARCH_DATASOURCES = () => "Search datasources";
 
 // Templates
 export const MORE = () => "More";
@@ -2076,7 +2081,7 @@ export const DATASOURCE_DROPDOWN_OPTIONS = {
 };
 
 export const COMMUNITY_TEMPLATES = {
-  publish: () => "Publish",
+  tabTitle: () => "Showcase",
   cancel: () => "Cancel",
   publishSuccessPage: {
     title: () => "Live on Appsmith community",
@@ -2153,3 +2158,8 @@ export const COMMUNITY_TEMPLATES = {
     },
   },
 };
+
+export const EMPTY_TABLE_TITLE_TEXT = () => "Empty table";
+export const EMPTY_TABLE_MESSAGE_TEXT = () =>
+  "There are no data records to show";
+export const EMPTY_TABLE_SVG_ALT_TEXT = () => "Empty table image";

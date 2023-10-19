@@ -373,6 +373,7 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
                     <TabPanel value={JSEditorTab.CODE}>
                       <div className="js-editor-tab">
                         <LazyCodeEditor
+                          AIAssisted
                           blockCompletions={blockCompletions}
                           border={CodeEditorBorder.NONE}
                           borderLess

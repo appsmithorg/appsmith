@@ -15,7 +15,6 @@ describe("Table Widget property pane feature validation", function () {
     //cy.movetoStyleTab();
     _.agHelper.Sleep();
     _.propPane.EnterJSContext("Text align", testdata.bindingAlign);
-    cy.wait("@updateLayout");
     cy.readTabledataValidateCSS("0", "0", "justify-content", "flex-start");
     cy.readTabledataValidateCSS("1", "0", "justify-content", "flex-end");
   });
@@ -36,7 +35,6 @@ describe("Table Widget property pane feature validation", function () {
       "Vertical alignment",
       testdata.bindingVerticalAlig,
     );
-    cy.wait("@updateLayout");
     cy.readTabledataValidateCSS("0", "0", "align-items", "flex-start");
     cy.readTabledataValidateCSS("1", "0", "align-items", "flex-end");
   });
@@ -46,7 +44,6 @@ describe("Table Widget property pane feature validation", function () {
     _.agHelper.Sleep();
     _.propPane.EnterJSContext("Text size", testdata.bindingSize);
     cy.wait(2000);
-    cy.wait("@updateLayout");
     cy.readTabledataValidateCSS("0", "0", "font-size", "14px");
     cy.readTabledataValidateCSS("1", "0", "font-size", "24px");
   });
@@ -55,7 +52,6 @@ describe("Table Widget property pane feature validation", function () {
     //cy.movetoStyleTab();
     _.agHelper.Sleep();
     _.propPane.EnterJSContext("Font Style", testdata.bindingStyle);
-    cy.wait("@updateLayout");
     cy.readTabledataValidateCSS("0", "0", "font-style", "normal");
     cy.readTabledataValidateCSS("1", "0", "font-style", "italic");
   });
@@ -64,7 +60,6 @@ describe("Table Widget property pane feature validation", function () {
     //cy.movetoStyleTab();
     _.agHelper.Sleep();
     _.propPane.EnterJSContext("Text color", testdata.bindingTextColor);
-    cy.wait("@updateLayout");
     cy.readTabledataValidateCSS("0", "0", "color", "rgb(0, 128, 0)");
     cy.readTabledataValidateCSS("1", "0", "color", "rgb(255, 0, 0)");
   });
@@ -73,7 +68,6 @@ describe("Table Widget property pane feature validation", function () {
     //cy.movetoStyleTab();
     _.agHelper.Sleep();
     _.propPane.EnterJSContext("Cell Background", testdata.bindingTextColor);
-    cy.wait("@updateLayout");
     cy.readTabledataValidateCSS(
       "0",
       "0",
