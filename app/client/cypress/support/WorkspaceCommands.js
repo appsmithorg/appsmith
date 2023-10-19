@@ -287,10 +287,11 @@ Cypress.Commands.add("CreateAppInFirstListedWorkspace", (appname) => {
   assertHelper.AssertNetworkStatus("@getPlugins");
 
   cy.get("#sidebar").should("be.visible");
-  cy.wait("@getPluginForm") //replacing this since flaky in CI - to monitor
+  cy.wait("@getPluginForm") //replacing from updateLayout to getPluginForm, since updateLayout is more flaky in CI - to monitor
     .its("response.body.responseMeta.status")
     .should("eq", 200);
 
+  assertHelper.AssertNetworkResponseData("@getPluginForm");
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(2000);
 
