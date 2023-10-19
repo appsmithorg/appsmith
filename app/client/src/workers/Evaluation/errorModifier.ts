@@ -15,19 +15,37 @@ import log from "loglevel";
 import * as Sentry from "@sentry/react";
 import { getMemberExpressionObjectFromProperty } from "@shared/ast";
 
+interface ErrorMetaData {
+  userScript: string;
+  source: string;
+}
+
+interface ExtraData {
+  tree: DataTree;
+  asynFns: Record<string, true>;
+  isViewMode: boolean;
+}
+type Modifier = (
+  error: any,
+  metaData: ErrorMetaData & ExtraData,
+) => Partial<{
+  errorMessage: ReturnType<typeof getErrorMessage>;
+  errorCategory: PropertyEvaluationErrorCategory;
+  rootcause: string;
+}>;
+
 const FOUND_ACTION_IN_DATA_FIELD_EVAL_MESSAGE =
   "Found an action invocation during evaluation. Data fields cannot execute actions.";
 const UNDEFINED_ACTION_IN_SYNC_EVAL_ERROR =
   "Please remove any direct/indirect references to {{actionName}} and try again. Data fields cannot execute framework actions.";
 class ErrorModifier {
-  private errorNamesToScan = ["ReferenceError", "TypeError"];
   private asyncFunctionsNameMap: Record<string, true> = {};
   private asyncJSFunctionsNames: string[] = [];
-  private isDisabled = true;
+  private isViewMode = true;
   private dataTree: DataTree = {};
 
   init(appMode?: APP_MODE) {
-    this.isDisabled = appMode !== APP_MODE.EDIT;
+    this.isViewMode = appMode !== APP_MODE.EDIT;
   }
 
   updateAsyncFunctions(
@@ -35,7 +53,7 @@ class ErrorModifier {
     configTree: ConfigTree,
     dependencyMap: DependencyMap,
   ) {
-    if (this.isDisabled) return;
+    if (this.isViewMode) return;
     const allAsyncEntityFunctions = getAllAsyncFunctions(dataTree, configTree);
     const allAsyncJSFunctions = getAllAsyncJSFunctions(
       dataTree,
@@ -47,106 +65,41 @@ class ErrorModifier {
     this.asyncJSFunctionsNames = allAsyncJSFunctions;
     this.dataTree = dataTree;
   }
-
-  runSync(
-    error: Error,
-    userScript: string,
-    source?: string,
-  ): {
-    errorMessage: ReturnType<typeof getErrorMessage>;
-    errorCategory?: PropertyEvaluationErrorCategory;
-    rootcause?: string;
-  } {
-    const errorMessage = getErrorMessage(error);
-    if (this.isDisabled) return { errorMessage };
-    if (
-      error instanceof FoundPromiseInSyncEvalError ||
-      error instanceof ActionCalledInSyncFieldError
-    ) {
-      return {
-        errorMessage,
-        errorCategory:
-          PropertyEvaluationErrorCategory.ACTION_INVOCATION_IN_DATA_FIELD,
-      };
-    }
-
-    if (!this.errorNamesToScan.includes(error.name)) return { errorMessage };
-
-    if (
-      error.name === "TypeError" &&
-      errorMessage.message.startsWith(
-        "Cannot read properties of undefined (reading",
-      )
-    ) {
-      return modifierUndefinedTypeErrorMessage(
-        error,
-        userScript,
-        this.dataTree,
-        source,
-      );
-    }
-
-    for (const asyncFunctionFullPath of Object.keys(
-      this.asyncFunctionsNameMap,
-    )) {
-      const functionNameWithWhiteSpace = " " + asyncFunctionFullPath + " ";
-      if (getErrorMessageWithType(error).match(functionNameWithWhiteSpace)) {
-        return {
-          errorMessage: {
-            name: "ValidationError",
-            message: UNDEFINED_ACTION_IN_SYNC_EVAL_ERROR.replaceAll(
-              "{{actionName}}",
-              asyncFunctionFullPath + "()",
-            ),
-          },
-          errorCategory:
-            PropertyEvaluationErrorCategory.ACTION_INVOCATION_IN_DATA_FIELD,
-        };
-      }
-    }
-
-    return { errorMessage };
-  }
-  runAsync(
+  run(
     error: any,
-    userScript: string,
-    source?: string,
+    metaData: ErrorMetaData,
+    modifiers: Modifier[],
   ): {
     errorMessage: ReturnType<typeof getErrorMessage>;
     errorCategory?: PropertyEvaluationErrorCategory;
     rootcause?: string;
   } {
-    let errorMessage;
-    if (error instanceof Error) {
-      errorMessage = getErrorMessage(error);
-    } else {
-      // this covers cases where any primitive value is thrown
-      // for eg., throw "error";
-      // These types of errors might have a name/message but are not an instance of Error class
-      const message = convertAllDataTypesToString(error);
-      errorMessage = {
-        name: error?.name || "Error",
-        message: error?.message || message,
-      };
-    }
-    if (this.isDisabled) return { errorMessage };
+    const { source, userScript } = metaData;
+    const result: {
+      errorMessage: ReturnType<typeof getErrorMessage>;
+      errorCategory?: PropertyEvaluationErrorCategory;
+      rootcause?: string;
+    } = {
+      errorMessage: getErrorMessage(error),
+      errorCategory: undefined,
+      rootcause: undefined,
+    };
 
-    if (
-      error.name === "TypeError" &&
-      errorMessage.message.startsWith(
-        "Cannot read properties of undefined (reading",
-      )
-    ) {
-      return modifierUndefinedTypeErrorMessage(
-        error,
-        userScript,
-        this.dataTree,
+    for (const errorModifier of modifiers) {
+      const { errorCategory, errorMessage, rootcause } = errorModifier(error, {
+        tree: this.dataTree,
+        asynFns: this.asyncFunctionsNameMap,
         source,
-      );
+        userScript,
+        isViewMode: this.isViewMode,
+      });
+      result.errorMessage = errorMessage || result.errorMessage;
+      result.errorCategory = errorCategory || result.errorCategory;
+      result.rootcause = rootcause || result.rootcause;
     }
-
-    return { errorMessage };
+    return result;
   }
+
   setAsyncInvocationErrorsRootcause(
     errors: EvaluationError[],
     asyncFunc: string,
@@ -169,7 +122,7 @@ class ErrorModifier {
     errors: EvaluationError[],
     dependencyMap: DependencyMap,
   ) {
-    if (this.isDisabled) return errors;
+    if (this.isViewMode) return errors;
     let updatedErrors = errors;
     if (isDataField(fullPropertyPath, configTree)) {
       const reachableAsyncJSFunctions = dependencyMap.getAllReachableNodes(
@@ -242,64 +195,6 @@ function isActionInvokedInDataField(error: EvaluationError) {
 const UNDEFINED_TYPE_ERROR_REGEX =
   /Cannot read properties of undefined \(reading '([^\s]+)'/;
 
-function modifierUndefinedTypeErrorMessage(
-  error: Error,
-  userScript: string,
-  tree: DataTree,
-  source?: string,
-) {
-  const errorMessage = getErrorMessage(error);
-  const matchedString = errorMessage.message.match(UNDEFINED_TYPE_ERROR_REGEX);
-  if (!matchedString)
-    return {
-      errorMessage,
-    };
-  const undefinedProperty = matchedString[1];
-  const allMemberExpressionObjects = getMemberExpressionObjectFromProperty(
-    undefinedProperty,
-    userScript,
-  );
-  if (isEmpty(allMemberExpressionObjects))
-    return {
-      errorMessage,
-    };
-  const possibleCauses = new Set<string>();
-  for (const objectString of allMemberExpressionObjects) {
-    const paths = toPath(objectString);
-    const topLevelEntity = tree[paths[0]];
-    if (
-      paths.at(1) === "data" &&
-      isAction(topLevelEntity) &&
-      !get(self, `${paths[0]}.data`, undefined)
-    ) {
-      errorMessage.message = `Cannot read data from ${paths[0]}. Please re-run your query.`;
-      return {
-        errorMessage,
-        rootcause: `${paths[0]}`,
-      };
-    }
-
-    if (!get(self, objectString, undefined)) {
-      possibleCauses.add(`"${objectString}"`);
-    }
-  }
-  if (possibleCauses.size === 1) {
-    const [possibleCause] = possibleCauses;
-    errorMessage.message = `${possibleCause} is undefined. Please fix ${
-      source || "the binding"
-    }`;
-  } else if (!isEmpty(possibleCauses)) {
-    errorMessage.message = `${Array.from(possibleCauses).join(
-      ", ",
-    )} could be undefined. Please fix ${source || "the binding"}`;
-  }
-
-  return {
-    errorMessage,
-    rootcause: source,
-  };
-}
-
 export function convertAllDataTypesToString(e: any) {
   // Functions do not get converted properly with JSON.stringify
   // So using String fot functions
@@ -316,3 +211,115 @@ export function convertAllDataTypesToString(e: any) {
     }
   }
 }
+
+export const ActionInDataFieldErrorModifier: Modifier = (
+  error,
+  { asynFns, isViewMode },
+) => {
+  if (isViewMode) return {};
+  const errorMessage = getErrorMessage(error);
+  if (
+    error instanceof FoundPromiseInSyncEvalError ||
+    error instanceof ActionCalledInSyncFieldError
+  ) {
+    return {
+      errorMessage,
+      errorCategory:
+        PropertyEvaluationErrorCategory.ACTION_INVOCATION_IN_DATA_FIELD,
+    };
+  }
+  if (!["ReferenceError", "TypeError"].includes(error.name)) return {};
+
+  for (const asyncFunctionFullPath of Object.keys(asynFns)) {
+    const functionNameWithWhiteSpace = " " + asyncFunctionFullPath + " ";
+    if (getErrorMessageWithType(error).match(functionNameWithWhiteSpace)) {
+      return {
+        errorMessage: {
+          name: "ValidationError",
+          message: UNDEFINED_ACTION_IN_SYNC_EVAL_ERROR.replaceAll(
+            "{{actionName}}",
+            asyncFunctionFullPath + "()",
+          ),
+        },
+        errorCategory:
+          PropertyEvaluationErrorCategory.ACTION_INVOCATION_IN_DATA_FIELD,
+      };
+    }
+  }
+  return {};
+};
+
+export const TypeErrorModifier: Modifier = (
+  error,
+  { isViewMode, source, tree, userScript },
+) => {
+  if (isViewMode) return {};
+  const errorMessage = getErrorMessage(error);
+  if (
+    error.name === "TypeError" &&
+    errorMessage.message.startsWith(
+      "Cannot read properties of undefined (reading",
+    )
+  ) {
+    const matchedString = errorMessage.message.match(
+      UNDEFINED_TYPE_ERROR_REGEX,
+    );
+    if (!matchedString) return {};
+    const undefinedProperty = matchedString[1];
+    const allMemberExpressionObjects = getMemberExpressionObjectFromProperty(
+      undefinedProperty,
+      userScript,
+    );
+    if (isEmpty(allMemberExpressionObjects)) return {};
+    const possibleCauses = new Set<string>();
+    for (const objectString of allMemberExpressionObjects) {
+      const paths = toPath(objectString);
+      const topLevelEntity = tree[paths[0]];
+      if (
+        paths.at(1) === "data" &&
+        isAction(topLevelEntity) &&
+        !get(self, `${paths[0]}.data`, undefined)
+      ) {
+        errorMessage.message = `Cannot read data from ${paths[0]}. Please re-run your query.`;
+        return {
+          errorMessage,
+          rootcause: `${paths[0]}`,
+        };
+      }
+
+      if (!get(self, objectString, undefined)) {
+        possibleCauses.add(`"${objectString}"`);
+      }
+    }
+    if (isEmpty(possibleCauses)) return {};
+    const possibleCausesArr = Array.from(possibleCauses);
+    errorMessage.message = `${
+      possibleCausesArr.length === 1
+        ? `${possibleCausesArr[0]} is undefined`
+        : `${Array.from(possibleCauses).join(", ")} `
+    } . Please fix ${source || "the binding"}`;
+
+    return {
+      errorMessage,
+      rootcause: source,
+    };
+  }
+  return {};
+};
+
+export const PrimitiveErrorModifier: Modifier = (error) => {
+  if (error instanceof Error) {
+    const errorMessage = getErrorMessage(error);
+    return { errorMessage };
+  } else {
+    // this covers cases where any primitive value is thrown
+    // for eg., throw "error";
+    // These types of errors might have a name/message but are not an instance of Error class
+    const message = convertAllDataTypesToString(error);
+    const errorMessage = {
+      name: error?.name || "Error",
+      message: error?.message || message,
+    };
+    return { errorMessage };
+  }
+};

@@ -13,7 +13,13 @@ import type { TriggerMeta } from "@appsmith/sagas/ActionExecution/ActionExecutio
 import indirectEval from "./indirectEval";
 import DOM_APIS from "./domApis";
 import { JSLibraries, libraryReservedIdentifiers } from "../common/JSLibrary";
-import { errorModifier, FoundPromiseInSyncEvalError } from "./errorModifier";
+import {
+  ActionInDataFieldErrorModifier,
+  errorModifier,
+  FoundPromiseInSyncEvalError,
+  PrimitiveErrorModifier,
+  TypeErrorModifier,
+} from "./errorModifier";
 import { addDataTreeToContext } from "@appsmith/workers/Evaluation/Actions";
 
 export interface EvalResult {
@@ -285,10 +291,10 @@ export default function evaluateSync(
         throw new FoundPromiseInSyncEvalError();
       }
     } catch (error: any) {
-      const { errorCategory, errorMessage, rootcause } = errorModifier.runSync(
+      const { errorCategory, errorMessage, rootcause } = errorModifier.run(
         error,
-        error.userScript || userScript,
-        error.source,
+        { userScript: error.userScript || userScript, source: error.source },
+        [ActionInDataFieldErrorModifier, TypeErrorModifier],
       );
       errors.push({
         errorMessage,
@@ -334,10 +340,10 @@ export async function evaluateAsync(
     try {
       result = await indirectEval(script);
     } catch (error: any) {
-      const { errorMessage } = errorModifier.runAsync(
+      const { errorMessage } = errorModifier.run(
         error,
-        error.userScript || userScript,
-        error.source,
+        { userScript: error.userScript || userScript, source: error.source },
+        [PrimitiveErrorModifier, TypeErrorModifier],
       );
       errors.push({
         errorMessage: errorMessage,
