@@ -99,7 +99,7 @@ public class DatasourceExportableServiceCEImpl implements ExportableServiceCE<Da
         });
     }
 
-    private void resetSensitiveFields(DatasourceStorage datasourceStorage) {
+    private void removeSensitiveFields(DatasourceStorage datasourceStorage) {
         datasourceStorage.getDatasourceConfiguration().setAuthentication(null);
         datasourceStorage.getDatasourceConfiguration().setSshProxy(null);
         datasourceStorage.getDatasourceConfiguration().setSshProxyEnabled(null);
@@ -133,7 +133,7 @@ public class DatasourceExportableServiceCEImpl implements ExportableServiceCE<Da
                 // Remove the sensitive fields from the datasourceConfiguration object as user will configure it once
                 // imported to other instance
                 else {
-                    resetSensitiveFields(datasourceStorage);
+                    removeSensitiveFields(datasourceStorage);
                 }
                 datasourceStorage.sanitiseToExportResource(mappedExportableResourcesDTO.getPluginMap());
             });
