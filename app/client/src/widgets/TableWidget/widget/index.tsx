@@ -41,8 +41,8 @@ import { OperatorTypes } from "../component/Constants";
 import type { TableWidgetProps } from "../constants";
 import derivedProperties from "./parseDerivedProperties";
 import { selectRowIndex, selectRowIndices } from "./utilities";
-import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
-import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
+import type { ExtraDef } from "utils/autocomplete/defCreatorUtils";
+import { generateTypeDef } from "utils/autocomplete/defCreatorUtils";
 
 import type {
   ColumnProperties,

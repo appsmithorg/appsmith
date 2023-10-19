@@ -12,7 +12,7 @@ import moment from "moment";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import type { WidgetFeatures } from "utils/WidgetFeatures";
 import type { WidgetProps } from "../widgets/BaseWidget";
-import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
+import type { ExtraDef } from "utils/autocomplete/defCreatorUtils";
 import type { WidgetEntityConfig } from "@appsmith/entities/DataTree/types";
 import type {
   WidgetQueryConfig,
