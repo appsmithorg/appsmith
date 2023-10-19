@@ -93,7 +93,7 @@ export class AssertHelper extends ReusableHelper {
   public AssertNetworkResponseData(aliasName: string) {
     this.WaitForNetworkCall(aliasName);
     cy.get(this.GetAliasName(aliasName))
-      .its("response.body.responseMeta.data")
+      .its("response.body.data")
       .should("not.be.empty");
   }
 

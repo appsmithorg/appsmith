@@ -287,11 +287,10 @@ Cypress.Commands.add("CreateAppInFirstListedWorkspace", (appname) => {
   assertHelper.AssertNetworkStatus("@getPlugins");
 
   cy.get("#sidebar").should("be.visible");
-  cy.wait("@getPluginForm") //replacing from updateLayout to getPluginForm, since updateLayout is more flaky in CI - to monitor
-    .its("response.body.responseMeta.status")
-    .should("eq", 200);
+  assertHelper.AssertNetworkStatus("@getPluginForm"); ////replacing from updateLayout to getPluginForm, since updateLayout is more flaky in CI - to monitor
 
-  assertHelper.AssertNetworkResponseData("@getPluginForm");
+  assertHelper.AssertNetworkResponseData("@getPluginForm"); //for auth rest api
+  assertHelper.AssertNetworkResponseData("@getPluginForm"); //for graphql
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(2000);
 
@@ -300,11 +299,7 @@ Cypress.Commands.add("CreateAppInFirstListedWorkspace", (appname) => {
 
   cy.AppSetupForRename();
   cy.get(homePage.applicationName).type(appname + "{enter}");
-  cy.wait("@updateApplication").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
+  assertHelper.AssertNetworkStatus("@updateApplication");
   // Remove tooltip on the Application Name
   agHelper.RemoveTooltip("Rename application");
 
