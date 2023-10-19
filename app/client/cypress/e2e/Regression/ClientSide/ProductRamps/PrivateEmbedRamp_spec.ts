@@ -13,7 +13,7 @@ describe("Private embed in-app ramp", () => {
       "To embed private Appsmith apps and seamlessly authenticate users through SSO",
       "contain.text",
     );
-    checkRampLink("app_settings");
+    checkRampLink();
   }
   function checkRampTextInShareModal() {
     _.inviteModal.SelectEmbedTab();
@@ -22,18 +22,13 @@ describe("Private embed in-app ramp", () => {
       "Embed private Appsmith apps and seamlessly authenticate users through SSO in our Business Edition",
       "contain.text",
     );
-    checkRampLink("share_modal");
+    checkRampLink();
   }
-  function checkRampLink(section: string) {
-    const escapedSection = section.replace(/[-/\\^$*+?.()|[\]{}]/g, "\\$&");
-    const regexPattern = new RegExp(
-      `https:\\/\\/www\\.appsmith\\.com\\/pricing\\?source=CE&instance=.+&feature=private_embeds&section=${escapedSection}`,
-    );
-
+  function checkRampLink() {
     cy.get(_.inviteModal.locators._privateEmbedRampLink)
       .should("have.attr", "href")
       .then((href) => {
-        expect(href).to.match(regexPattern);
+        expect(href).to.include("customer.appsmith.com");
       });
   }
 

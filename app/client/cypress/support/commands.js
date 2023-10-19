@@ -41,6 +41,7 @@ const apiPage = ObjectsRegistry.ApiPage;
 const deployMode = ObjectsRegistry.DeployMode;
 const entityExplorer = ObjectsRegistry.EntityExplorer;
 const assertHelper = ObjectsRegistry.AssertHelper;
+const homePageTS = ObjectsRegistry.HomePage;
 
 let pageidcopy = " ";
 const chainStart = Symbol();
@@ -262,7 +263,7 @@ Cypress.Commands.add("GetUrlQueryParams", () => {
 
 Cypress.Commands.add("LogOutUser", () => {
   cy.wait(1000); //waiting for window to load
-  cy.window().its("store").invoke("dispatch", { type: "LOGOUT_USER_INIT" });
+  homePageTS.InvokeDispatchOnStore();
   assertHelper.AssertNetworkStatus("@postLogout", 200);
 });
 
@@ -297,7 +298,7 @@ Cypress.Commands.add("LogintoAppTestUser", (uname, pword) => {
 });
 
 Cypress.Commands.add("Signup", (uname, pword) => {
-  cy.window().its("store").invoke("dispatch", { type: "LOGOUT_USER_INIT" });
+  homePageTS.InvokeDispatchOnStore();
   cy.wait("@postLogout");
 
   cy.visit("/user/signup", { timeout: 60000 });
@@ -1429,7 +1430,7 @@ Cypress.Commands.add("createSuperUser", () => {
       expect(interception.request.body).contains("signupForNewsletter=true");
     });
   }
-  cy.wait("@getWorkspace");
+  if (CURRENT_REPO === REPO.CE) cy.wait("@getWorkspace");
 
   cy.LogOut();
   cy.wait(2000);

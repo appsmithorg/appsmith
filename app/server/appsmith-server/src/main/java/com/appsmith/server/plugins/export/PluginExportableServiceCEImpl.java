@@ -7,7 +7,7 @@ import com.appsmith.server.domains.WorkspacePlugin;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ExportingMetaDTO;
 import com.appsmith.server.dtos.MappedExportableResourcesDTO;
-import com.appsmith.server.export.exportable.ExportableServiceCE;
+import com.appsmith.server.exports.exportable.ExportableServiceCE;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.services.WorkspaceService;
 import reactor.core.publisher.Mono;

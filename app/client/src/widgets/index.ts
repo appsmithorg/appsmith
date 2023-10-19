@@ -62,6 +62,7 @@ import { WDSInputWidget } from "./wds/WDSInputWidget";
 import { WDSCheckboxWidget } from "./wds/WDSCheckboxWidget";
 import { WDSIconButtonWidget } from "./wds/WDSIconButtonWidget";
 import type BaseWidget from "./BaseWidget";
+import { WDSTableWidget } from "./wds/WDSTableWidget";
 
 const Widgets = [
   CanvasWidget,
@@ -117,6 +118,7 @@ const Widgets = [
   WDSInputWidget,
   WDSCheckboxWidget,
   WDSIconButtonWidget,
+  WDSTableWidget,
 
   //Deprecated Widgets
   InputWidget,

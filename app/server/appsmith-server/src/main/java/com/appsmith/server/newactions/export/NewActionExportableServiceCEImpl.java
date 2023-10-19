@@ -8,7 +8,7 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ExportingMetaDTO;
 import com.appsmith.server.dtos.MappedExportableResourcesDTO;
-import com.appsmith.server.export.exportable.ExportableServiceCE;
+import com.appsmith.server.exports.exportable.ExportableServiceCE;
 import com.appsmith.server.helpers.ImportExportUtils;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.solutions.ActionPermission;
