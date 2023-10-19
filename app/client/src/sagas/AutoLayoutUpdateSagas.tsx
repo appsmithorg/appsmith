@@ -65,6 +65,17 @@ import type { AppState } from "@appsmith/reducers";
 import { nestDSL, flattenDSL } from "@shared/dsl";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 
+// Saga check : if layout system is not anvil, then run the saga
+// An alternative implementation would be to re-use shouldRunSaga,
+// however we will still have to check for individula action types.
+// This seems cleaner
+function* preventForAnvil(saga: any, action: ReduxAction<unknown>) {
+  const layoutSystemType: LayoutSystemTypes = yield select(getLayoutSystemType);
+  if (layoutSystemType !== LayoutSystemTypes.ANVIL) {
+    yield call(shouldRunSaga, saga, action);
+  }
+}
+
 function* shouldRunSaga(saga: any, action: ReduxAction<unknown>) {
   const isAutoLayout: boolean = yield select(getIsAutoLayout);
   if (isAutoLayout) {
@@ -492,19 +503,23 @@ export default function* layoutUpdateSagas() {
   yield all([
     takeLatest(
       ReduxActionTypes.RECALCULATE_COLUMNS,
+      preventForAnvil,
       updateLayoutForMobileCheckpoint,
     ),
     takeLatest(
       ReduxActionTypes.UPDATE_LAYOUT_SYSTEM_TYPE,
+      preventForAnvil,
       updateLayoutSystemTypeSaga,
     ),
     takeLatest(
       ReduxActionTypes.UPDATE_WIDGET_DIMENSIONS,
+      preventForAnvil,
       updateWidgetDimensionsSaga,
     ),
     debounce(
       50,
       ReduxActionTypes.PROCESS_AUTO_LAYOUT_DIMENSION_UPDATES,
+      preventForAnvil,
       processAutoLayoutDimensionUpdatesSaga,
     ),
     takeLatest(
