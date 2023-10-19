@@ -23,9 +23,11 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static java.lang.Boolean.TRUE;
@@ -95,7 +97,7 @@ public class DatasourceExportableServiceCEImpl implements ExportableServiceCE<Da
     }
 
     @Override
-    public void mapNameToIdForExportableEntities(
+    public Set<String> mapNameToIdForExportableEntities(
             MappedExportableResourcesDTO mappedExportableResourcesDTO, List<Datasource> datasourceList) {
         datasourceList.forEach(datasource -> {
             mappedExportableResourcesDTO.getDatasourceIdToNameMap().put(datasource.getId(), datasource.getName());
@@ -103,6 +105,7 @@ public class DatasourceExportableServiceCEImpl implements ExportableServiceCE<Da
                     .getDatasourceNameToUpdatedAtMap()
                     .put(datasource.getName(), datasource.getUpdatedAt());
         });
+        return new HashSet<>();
     }
 
     @Override

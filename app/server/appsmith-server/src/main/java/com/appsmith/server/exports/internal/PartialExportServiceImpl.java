@@ -3,13 +3,9 @@ package com.appsmith.server.exports.internal;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.domains.ActionCollection;
-import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.NewAction;
-import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Plugin;
-import com.appsmith.server.domains.Theme;
 import com.appsmith.server.exports.exportable.ExportableService;
-import com.appsmith.server.exports.exportable.ExportableServiceCE;
 import com.appsmith.server.jslibs.base.CustomJSLibService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
@@ -31,11 +27,8 @@ public class PartialExportServiceImpl extends PartialExportServiceCEImpl impleme
             NewPageService newPageService,
             ExportableService<Datasource> datasourceExportableService,
             ExportableService<Plugin> pluginExportableService,
-            ExportableService<NewPage> newPageExportableService,
             ExportableService<NewAction> newActionExportableService,
             ExportableService<ActionCollection> actionCollectionExportableService,
-            ExportableServiceCE<Theme> themeExportableService,
-            ExportableService<CustomJSLib> customJSLibExportableService,
             Gson gson) {
         super(
                 applicationService,
@@ -46,11 +39,8 @@ public class PartialExportServiceImpl extends PartialExportServiceCEImpl impleme
                 newPageService,
                 datasourceExportableService,
                 pluginExportableService,
-                newPageExportableService,
                 newActionExportableService,
                 actionCollectionExportableService,
-                themeExportableService,
-                customJSLibExportableService,
                 gson);
     }
 }

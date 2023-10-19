@@ -1,16 +1,16 @@
 package com.appsmith.server.exports.internal;
 
 import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.constants.SerialiseApplicationObjective;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.NewAction;
-import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Plugin;
-import com.appsmith.server.domains.Theme;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ExportFileDTO;
 import com.appsmith.server.dtos.ExportingMetaDTO;
@@ -18,7 +18,6 @@ import com.appsmith.server.dtos.MappedExportableResourcesDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.exports.exportable.ExportableService;
-import com.appsmith.server.exports.exportable.ExportableServiceCE;
 import com.appsmith.server.jslibs.base.CustomJSLibService;
 import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.newactions.base.NewActionService;
@@ -35,8 +34,13 @@ import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Mono;
 
 import java.nio.charset.StandardCharsets;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+
+import static com.appsmith.server.constants.ResourceModes.EDIT;
+import static com.appsmith.server.constants.ResourceModes.VIEW;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -50,11 +54,8 @@ public class PartialExportServiceCEImpl implements PartialExportServiceCE {
     private final NewPageService newPageService;
     private final ExportableService<Datasource> datasourceExportableService;
     private final ExportableService<Plugin> pluginExportableService;
-    private final ExportableService<NewPage> newPageExportableService;
     private final ExportableService<NewAction> newActionExportableService;
     private final ExportableService<ActionCollection> actionCollectionExportableService;
-    private final ExportableServiceCE<Theme> themeExportableService;
-    private final ExportableService<CustomJSLib> customJSLibExportableService;
     private final Gson gson;
 
     @Override
@@ -64,10 +65,6 @@ public class PartialExportServiceCEImpl implements PartialExportServiceCE {
          * Params has ids for actions, customJsLibs and datasource
          * Export the resources based on the value of these entities
          */
-
-        /*if (params.containsKey(FieldName.DATASOURCE_ID)) {
-            // export datasource
-        }*/
 
         ApplicationJson applicationJson = new ApplicationJson();
         final MappedExportableResourcesDTO mappedResourcesDTO = new MappedExportableResourcesDTO();
@@ -108,30 +105,42 @@ public class PartialExportServiceCEImpl implements PartialExportServiceCE {
                                         applicationId,
                                         Set.copyOf(params.get(FieldName.CUSTOM_JS_LIB_LIST)),
                                         applicationJson)
-                                .zipWith(branchedPageIdMono);
+                                .then(branchedPageIdMono);
                     }
-                    return Mono.just(applicationJson).zipWith(branchedPageIdMono);
+                    return branchedPageIdMono;
                 })
-                .flatMap(tuple -> {
-                    String branchedPageId1 = tuple.getT2();
+                // update page name in meta and exportable DTO for resource to name mapping
+                .flatMap(branchedPageId -> updatePageNameInResourceMapDTO(applicationId, mappedResourcesDTO))
+                // export actions
+                .flatMap(branchedPageId -> {
                     if (params.containsKey(FieldName.ACTION_ID)
                             || params.containsKey(FieldName.ACTION_COLLECTION_LIST)) {
-                        // export actions
                         return exportActions(
-                                        branchedPageId1, Set.copyOf(params.get(FieldName.ACTION_ID)), applicationJson)
-                                .zipWith(Mono.just(branchedPageId1));
+                                        branchedPageId,
+                                        Set.copyOf(params.get(FieldName.ACTION_ID)),
+                                        applicationJson,
+                                        mappedResourcesDTO)
+                                .then(Mono.just(branchedPageId));
                     }
-                    return Mono.just(applicationJson).zipWith(Mono.just(branchedPageId1));
+                    return Mono.just(branchedPageId);
                 })
-                .flatMap(tuple -> {
-                    String branchedPageId1 = tuple.getT2();
+                // export js objects
+                .flatMap(branchedPageId -> {
                     if (params.containsKey(FieldName.ACTION_COLLECTION_LIST)) {
-                        // export js objects
                         return exportActionCollections(
-                                branchedPageId1,
+                                branchedPageId,
                                 Set.copyOf(params.get(FieldName.ACTION_COLLECTION_LIST)),
-                                applicationJson);
+                                applicationJson,
+                                mappedResourcesDTO);
                     }
+                    return Mono.just(applicationJson);
+                })
+                .flatMap(appJson -> {
+                    // Remove the datasources not in use
+                    exportDatasource(Set.copyOf(params.get(FieldName.DATASOURCE_ID)), applicationJson);
+                    // Sanitise the datasource
+                    datasourceExportableService.sanitizeEntities(
+                            exportingMetaDTO, mappedResourcesDTO, applicationJson, SerialiseApplicationObjective.SHARE);
                     return Mono.just(applicationJson);
                 })
                 .map(exportedJson -> {
@@ -152,6 +161,13 @@ public class PartialExportServiceCEImpl implements PartialExportServiceCE {
                 });
     }
 
+    private void exportDatasource(Set<String> validDatasource, ApplicationJson applicationJson) {
+        List<DatasourceStorage> datasourceList = applicationJson.getDatasourceList().stream()
+                .filter(datasourceStorage -> validDatasource.contains(datasourceStorage.getId()))
+                .toList();
+        applicationJson.setDatasourceList(datasourceList);
+    }
+
     private Mono<ApplicationJson> exportFilteredCustomJSLib(
             String applicationId, Set<String> customJSLibSet, ApplicationJson applicationJson) {
         return customJSLibService
@@ -166,27 +182,58 @@ public class PartialExportServiceCEImpl implements PartialExportServiceCE {
     }
 
     private Mono<ApplicationJson> exportActions(
-            String pageId, Set<String> validActions, ApplicationJson applicationJson) {
+            String pageId,
+            Set<String> validActions,
+            ApplicationJson applicationJson,
+            MappedExportableResourcesDTO mappedResourcesDTO) {
         // Get the correctPageId by using the branchName
+        Set<String> dbNameDatasourceToActionMap = new HashSet<>();
         return newActionService.findByPageId(pageId).collectList().flatMap(actions -> {
             List<NewAction> updatedActionList = actions.stream()
                     .filter(action -> validActions.contains(action.getId()))
-                    // .peek(NewAction::sanitiseToExportDBObject)
                     .toList();
+            // Map name to id for exportable entities
+            newActionExportableService.mapNameToIdForExportableEntities(mappedResourcesDTO, updatedActionList);
             // Make it exportable by removing the ids
+            updatedActionList = updatedActionList.stream()
+                    .peek(NewAction::sanitiseToExportDBObject)
+                    .collect(Collectors.toList());
             applicationJson.setActionList(updatedActionList);
             return Mono.just(applicationJson);
         });
     }
 
     private Mono<ApplicationJson> exportActionCollections(
-            String pageId, Set<String> validActions, ApplicationJson applicationJson) {
+            String pageId,
+            Set<String> validActions,
+            ApplicationJson applicationJson,
+            MappedExportableResourcesDTO mappedResourcesDTO) {
         return actionCollectionService.findByPageId(pageId).collectList().flatMap(actionCollections -> {
             List<ActionCollection> updatedActionCollectionList = actionCollections.stream()
                     .filter(actionCollection -> validActions.contains(actionCollection.getId()))
                     .toList();
+            // Map name to id for exportable entities
+            actionCollectionExportableService.mapNameToIdForExportableEntities(
+                    mappedResourcesDTO, updatedActionCollectionList);
+            // Make it exportable by removing the ids
+            updatedActionCollectionList = updatedActionCollectionList.stream()
+                    .peek(ActionCollection::sanitiseToExportDBObject)
+                    .collect(Collectors.toList());
             applicationJson.setActionCollectionList(updatedActionCollectionList);
             return Mono.just(applicationJson);
+        });
+    }
+
+    private Mono<String> updatePageNameInResourceMapDTO(
+            String pageId, MappedExportableResourcesDTO mappedResourcesDTO) {
+        return newPageService.findById(pageId, AclPermission.READ_PAGES).flatMap(newPage -> {
+            mappedResourcesDTO
+                    .getPageIdToNameMap()
+                    .put(pageId + EDIT, newPage.getUnpublishedPage().getName());
+            mappedResourcesDTO
+                    .getPageIdToNameMap()
+                    .put(pageId + VIEW, newPage.getUnpublishedPage().getName());
+            return Mono.just(pageId);
         });
     }
 }
