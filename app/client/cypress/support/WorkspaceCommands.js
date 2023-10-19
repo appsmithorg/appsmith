@@ -259,7 +259,7 @@ Cypress.Commands.add("CreateAppForWorkspace", (workspaceName, appname) => {
 
 Cypress.Commands.add("CreateAppInFirstListedWorkspace", (appname) => {
   let applicationId, appName;
-  homePageTS.CreateNewWorkspace();
+  homePageTS.CreateNewWorkspace(); //Creating a new workspace for every test, since we are deleting the workspace in the end of the test
   cy.get(homePage.createNew).last().click({ force: true });
   cy.wait("@createNewApplication").then((xhr) => {
     const response = xhr.response;

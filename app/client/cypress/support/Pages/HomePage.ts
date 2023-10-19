@@ -130,6 +130,10 @@ export class HomePage {
     this.agHelper.GetNClick(this._newWorkSpaceLink);
     this.assertHelper.AssertNetworkStatus("createWorkspace", 201);
     this.agHelper.Sleep(2000);
+    cy.get("@createWorkspace").then((interception: any) => {
+      localStorage.setItem("workspaceId", interception.response.body.data.id);
+    });
+
     workspaceNewName &&
       cy
         .xpath(this._lastWorkspaceInHomePage)
