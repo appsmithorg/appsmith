@@ -29,7 +29,7 @@ import type { WidgetConfigProps } from "WidgetProvider/constants";
 import { usePositionObserver } from "layoutSystems/common/utils/LayoutElementPositionsObserver/usePositionObserver";
 import { useWidgetBorderStyles } from "./hooks/useWidgetBorderStyles";
 import { getAnvilWidgetDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
-import type { AppState } from "ce/reducers";
+import type { AppState } from "@appsmith/reducers";
 
 /**
  * Adds following functionalities to the widget:
@@ -153,7 +153,7 @@ export function AnvilFlexComponent(props: AnvilFlexComponentProps) {
       },
       ...borderStyles,
     };
-  }, [isDragging, onHoverZIndex, isCanvasResizing]);
+  }, [borderStyles, isDragging, onHoverZIndex, isCanvasResizing]);
 
   return (
     <Flex

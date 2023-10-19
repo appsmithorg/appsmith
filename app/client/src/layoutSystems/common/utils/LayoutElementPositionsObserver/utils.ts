@@ -40,5 +40,5 @@ export const extractLayoutIdFromLayoutDOMId = (layoutDOMId: string) => {
  * @returns string The widgetId
  */
 export function extractWidgetIdFromAnvilWidgetDOMId(anvilWidgetDOMId: string) {
-  return anvilWidgetDOMId.split("_")[1];
+  return anvilWidgetDOMId.split("_")[2];
 }
