@@ -6,7 +6,10 @@ import {
   type WidgetLayoutProps,
 } from "../../anvilTypes";
 import { deriveAlignedColumnHighlights } from "./alignedColumnHighlights";
-import { HIGHLIGHT_SIZE, VERTICAL_DROP_ZONE_MULTIPLIER } from "../../constants";
+import {
+  HIGHLIGHT_SIZE,
+  VERTICAL_DROP_ZONE_MULTIPLIER,
+} from "layoutSystems/anvil/utils/constants";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import type { LayoutElementPositions } from "layoutSystems/common/types";
 import { registerLayoutComponents } from "../layoutUtils";

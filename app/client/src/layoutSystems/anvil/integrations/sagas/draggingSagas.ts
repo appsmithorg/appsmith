@@ -3,7 +3,7 @@ import {
   ReduxActionErrorTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import { BlueprintOperationTypes } from "WidgetProvider/constants";
-import { updateAndSaveLayout, type WidgetAddChild } from "actions/pageActions";
+import { updateAndSaveLayout } from "actions/pageActions";
 import log from "loglevel";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
@@ -14,11 +14,17 @@ import type { AnvilHighlightInfo } from "../../utils/anvilTypes";
 import { addWidgetsToPreset } from "../../utils/layouts/update/additionUtils";
 import { moveWidgets } from "../../utils/layouts/update/moveUtils";
 import { AnvilReduxActionTypes } from "../actions/actionTypes";
+import { generateDefaultLayoutPreset } from "layoutSystems/anvil/layoutComponents/presets/DefaultLayoutPreset";
 
 function* addWidgetsSaga(
   actionPayload: ReduxAction<{
     highlight: AnvilHighlightInfo;
-    newWidget: WidgetAddChild;
+    newWidget: {
+      width: number;
+      height: number;
+      newWidgetId: string;
+      type: string;
+    };
   }>,
 ) {
   try {
@@ -38,7 +44,7 @@ function* addWidgetsSaga(
         widgetType: newWidget.type,
       },
     );
-    const updatedParams: WidgetAddChild = { ...newWidget, ...newParams };
+    const updatedParams: any = { ...newWidget, ...newParams };
 
     // Create and add widget.
     const updatedWidgetsOnAddition: CanvasWidgetsReduxState = yield call(
@@ -50,7 +56,9 @@ function* addWidgetsSaga(
     );
 
     const canvasWidget = updatedWidgetsOnAddition[canvasId];
-
+    const canvasLayout = canvasWidget.layout
+      ? canvasWidget.layout
+      : generateDefaultLayoutPreset();
     /**
      * Add new widget to the children of parent canvas.
      * Also add it to parent canvas' layout.
@@ -59,10 +67,9 @@ function* addWidgetsSaga(
       ...updatedWidgetsOnAddition,
       [canvasWidget.widgetId]: {
         ...canvasWidget,
-        children: [...(canvasWidget.children || []), newWidget.widgetId],
-        layout: addWidgetsToPreset([canvasWidget.layout], highlight, [
+        layout: addWidgetsToPreset(canvasLayout, highlight, [
           {
-            widgetId: newWidget.widgetId,
+            widgetId: newWidget.newWidgetId,
             alignment,
           },
         ]),

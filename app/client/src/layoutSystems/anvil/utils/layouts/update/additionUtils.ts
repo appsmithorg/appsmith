@@ -127,8 +127,7 @@ export function prepareWidgetsForAddition(
 ): WidgetLayoutProps[] | LayoutProps[] {
   if (!widgets || !widgets.length) return [];
 
-  const childTemplate: LayoutProps | null =
-    Comp.getChildTemplate(layoutProps);
+  const childTemplate: LayoutProps | null = Comp.getChildTemplate(layoutProps);
 
   /**
    * If childTemplate is undefined,
