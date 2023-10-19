@@ -1,10 +1,10 @@
 import React from "react";
 
-type StoryGrid = {
+interface StoryGrid {
   cols?: number | string;
   children: React.ReactNode;
   gap?: string;
-};
+}
 
 export function StoryGrid(props: StoryGrid) {
   const { cols = 5, gap = "10px" } = props;
