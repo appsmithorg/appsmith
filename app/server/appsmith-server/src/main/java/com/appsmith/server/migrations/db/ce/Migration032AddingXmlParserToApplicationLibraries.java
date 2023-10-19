@@ -5,6 +5,8 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.QApplication;
 import com.appsmith.server.dtos.CustomJSLibApplicationDTO;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
 import io.mongock.api.annotations.ChangeUnit;
 import io.mongock.api.annotations.Execution;
 import io.mongock.api.annotations.RollbackExecution;
@@ -55,7 +57,11 @@ public class Migration032AddingXmlParserToApplicationLibraries {
             log.debug(
                     "Addition of xmlParser object in customJSLib failed, because object with similar UID already exists");
         } catch (Exception exception) {
-            log.debug("Addition of xmlParser object in customJSLib failed");
+            throw new AppsmithException(
+                    AppsmithError.MIGRATION_FAILED,
+                    "Migration032AddingXmlParserToApplicationLibraries",
+                    exception.getMessage(),
+                    "Unable to insert xml parser library in CustomJSLib collection");
         }
 
         // add uid entry in all these custom js libs
