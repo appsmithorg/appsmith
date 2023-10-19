@@ -27,9 +27,9 @@ import WidgetFactory from "WidgetProvider/factory";
 import type { WidgetProps } from "widgets/BaseWidget";
 import type { WidgetConfigProps } from "WidgetProvider/constants";
 import { usePositionObserver } from "layoutSystems/common/utils/LayoutElementPositionsObserver/usePositionObserver";
-import { Colors } from "constants/Colors";
-import type { AppState } from "@appsmith/reducers";
+import { useWidgetBorderStyles } from "./hooks/useWidgetBorderStyles";
 import { getAnvilWidgetDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
+import type { AppState } from "ce/reducers";
 
 /**
  * Adds following functionalities to the widget:
@@ -143,13 +143,7 @@ export function AnvilFlexComponent(props: AnvilFlexComponentProps) {
     return data;
   }, [isFillWidget, props.widgetSize, verticalAlignment]);
 
-  let borderColor = "transparent";
-  if (isFocused) {
-    borderColor = Colors.WATUSI;
-  }
-  if (isSelected) {
-    borderColor = "#F86A2B";
-  }
+  const borderStyles = useWidgetBorderStyles(props.widgetId);
 
   const styleProps: CSSProperties = useMemo(() => {
     return {
@@ -157,18 +151,9 @@ export function AnvilFlexComponent(props: AnvilFlexComponentProps) {
       "&:hover": {
         zIndex: onHoverZIndex,
       },
-      border: `1px solid ${
-        isDragging || isCanvasResizing ? "transparent" : borderColor
-      }`,
-      outline: `1px solid ${
-        !isDragging && (isFocused || isSelected) ? Colors.GREY_1 : "transparent"
-      }`,
-      borderRadius: "4px 0px 4px 4px",
-      boxShadow: `0px 0px 0px 1px ${
-        isDragging || isCanvasResizing ? "transparent" : borderColor
-      }`,
+      ...borderStyles,
     };
-  }, [borderColor, isDragging, onHoverZIndex, isCanvasResizing]);
+  }, [isDragging, onHoverZIndex, isCanvasResizing]);
 
   return (
     <Flex

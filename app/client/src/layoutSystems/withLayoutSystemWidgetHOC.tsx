@@ -13,7 +13,7 @@ import { getAnvilLayoutSystem } from "./anvil";
 /**
  *
  * @param renderMode - render mode specifies whether the application is in edit/deploy mode.
- * @param appPositioningType - layout system of the application.
+ * @param layoutSystemType - layout system of the application.
  * @returns
  *   @property — widgetSystem - widget specific wrappers and enhancers of a layout system
  *   @property — canvasSystem - canvas specific implementation and enhancers of a layout system

@@ -1,3 +1,4 @@
+import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import { generateReactKey } from "utils/generators";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 
@@ -14,4 +15,5 @@ export const mockButtonProps = (): BaseWidgetProps => ({
   rightColumn: 10,
   topRow: 0,
   bottomRow: 4,
+  responsiveBehavior: ResponsiveBehavior.Hug,
 });
