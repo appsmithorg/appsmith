@@ -18,7 +18,7 @@ import { getMemberExpressionObjectFromProperty } from "@shared/ast";
 const FOUND_ACTION_IN_DATA_FIELD_EVAL_MESSAGE =
   "Found an action invocation during evaluation. Data fields cannot execute actions.";
 const UNDEFINED_ACTION_IN_SYNC_EVAL_ERROR =
-  "Found a reference to {{actionName}} during evaluation. Data fields cannot execute framework actions. Please remove any direct/indirect references to {{actionName}} and try again.";
+  "Please remove any direct/indirect references to {{actionName}} and try again. Data fields cannot execute framework actions.";
 class ErrorModifier {
   private errorNamesToScan = ["ReferenceError", "TypeError"];
   private asyncFunctionsNameMap: Record<string, true> = {};
@@ -285,11 +285,13 @@ function modifierUndefinedTypeErrorMessage(
   }
   if (possibleCauses.size === 1) {
     const [possibleCause] = possibleCauses;
-    errorMessage.message = `${possibleCause} is undefined. Please fix the binding.`;
+    errorMessage.message = `${possibleCause} is undefined. Please fix ${
+      source || "the binding"
+    }`;
   } else if (!isEmpty(possibleCauses)) {
     errorMessage.message = `${Array.from(possibleCauses).join(
       ", ",
-    )} could be undefined`;
+    )} could be undefined. Please fix ${source || "the binding"}`;
   }
 
   return {
