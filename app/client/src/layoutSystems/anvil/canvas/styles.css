@@ -1,10 +1,9 @@
 .anvil-canvas {
   container-type: inline-size;
-  height: calc(100% - 1rem);
-  overflow-y: auto;
 }
 
 .main-anvil-canvas {
   height: calc(100% - 1rem);
   overflow-y: auto;
+  padding-block-end: 5rem;
 }

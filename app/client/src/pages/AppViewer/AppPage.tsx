@@ -16,6 +16,8 @@ import { APP_MODE } from "entities/App";
 import { useLocation } from "react-router";
 import { renderAppsmithCanvas } from "layoutSystems/CanvasFactory";
 import type { WidgetProps } from "widgets/BaseWidget";
+import { LayoutSystemTypes } from "layoutSystems/types";
+import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 
 interface AppPageProps {
   appName?: string;
@@ -37,6 +39,7 @@ export function AppPage(props: AppPageProps) {
   const isEmbed = queryParams.get("embed");
   const isNavbarVisibleInEmbeddedApp = queryParams.get("navbar");
   const isEmbeddedAppWithNavVisible = isEmbed && isNavbarVisibleInEmbeddedApp;
+  const layoutSystemType: LayoutSystemTypes = useSelector(getLayoutSystemType);
 
   useDynamicAppLayout();
 
@@ -65,7 +68,10 @@ export function AppPage(props: AppPageProps) {
         {props.widgetsStructure.widgetId &&
           renderAppsmithCanvas({
             ...props.widgetsStructure,
-            classList: ["main-anvil-canvas"],
+            classList:
+              layoutSystemType === LayoutSystemTypes.ANVIL
+                ? ["main-anvil-canvas"]
+                : [],
           } as WidgetProps)}
       </PageView>
     </PageViewWrapper>
