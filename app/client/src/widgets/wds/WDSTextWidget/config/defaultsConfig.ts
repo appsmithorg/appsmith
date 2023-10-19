@@ -9,7 +9,6 @@ import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 export const defaultsConfig = {
   text: "Hello {{appsmith.user.name || appsmith.user.email}}",
   fontSize: "body",
-  fontStyle: "bold",
   textAlign: "left",
   textColor: "neutral",
   rows: 4,
