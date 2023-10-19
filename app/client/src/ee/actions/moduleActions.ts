@@ -10,6 +10,10 @@ export interface DeleteModulePayload {
   onSuccess?: () => void;
 }
 
+export interface FetchModuleActionsPayload {
+  moduleId: string;
+}
+
 export const saveModuleName = (payload: SaveModulePayload) => {
   return {
     type: ReduxActionTypes.SAVE_MODULE_NAME_INIT,
@@ -23,3 +27,8 @@ export const deleteModule = (payload: DeleteModulePayload) => {
     payload,
   };
 };
+
+export const fetchModuleActions = (payload: FetchModuleActionsPayload) => ({
+  type: ReduxActionTypes.FETCH_MODULE_ACTIONS_INIT,
+  payload,
+});

@@ -39,6 +39,7 @@ import type {
   Package,
   PackageMetadata,
 } from "@appsmith/constants/PackageConstants";
+import { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
 
 interface CreatePackageSagaProps {
   workspaceId: string;
@@ -165,7 +166,7 @@ export function* fetchPackageSaga(payload: FetchPackagePayload) {
         id: "module-1",
         name: "Module 1",
         packageId: "package-1",
-        type: "QUERY",
+        type: MODULE_TYPE.QUERY,
         userPermissions: ["manage:modules", "delete:modules"],
         inputs: {},
         whitelistedPublicEntitySettingsForModule: [],
@@ -176,7 +177,7 @@ export function* fetchPackageSaga(payload: FetchPackagePayload) {
         id: "module-2",
         name: "Module 2",
         packageId: "package-1",
-        type: "QUERY",
+        type: MODULE_TYPE.QUERY,
         userPermissions: ["manage:modules", "delete:modules"],
         inputs: {},
         whitelistedPublicEntitySettingsForModule: [],
@@ -187,7 +188,7 @@ export function* fetchPackageSaga(payload: FetchPackagePayload) {
         id: "module-3",
         name: "Module 3",
         packageId: "package-1",
-        type: "QUERY",
+        type: MODULE_TYPE.QUERY,
         userPermissions: ["manage:modules", "delete:modules"],
         inputs: {},
         whitelistedPublicEntitySettingsForModule: [],
@@ -198,7 +199,7 @@ export function* fetchPackageSaga(payload: FetchPackagePayload) {
         id: "module-4",
         name: "Module 4",
         packageId: "package-1",
-        type: "QUERY",
+        type: MODULE_TYPE.QUERY,
         userPermissions: ["manage:modules", "delete:modules"],
         inputs: {},
         whitelistedPublicEntitySettingsForModule: [],

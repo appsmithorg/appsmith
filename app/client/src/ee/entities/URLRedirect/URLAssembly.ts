@@ -2,7 +2,7 @@ export * from "ce/entities/URLRedirect/URLAssembly";
 import type { URLBuilderParams as CE_URLBuilderParams } from "ce/entities/URLRedirect/URLAssembly";
 import { URLBuilder as CE_URLBuilderClass } from "ce/entities/URLRedirect/URLAssembly";
 import { generatePath, matchPath } from "react-router";
-import { MODULE_EDITOR_BASE_PATH } from "@appsmith/constants/routes/packageRoutes";
+import { MODULE_EDITOR_PATH } from "@appsmith/constants/routes/packageRoutes";
 import type { APP_MODE } from "entities/App";
 
 export enum EDITOR_TYPE {
@@ -22,16 +22,16 @@ interface MatchProps {
 }
 
 export class URLBuilder extends CE_URLBuilderClass {
-  static _instance: URLBuilder;
+  static _ee_instance: URLBuilder;
 
   constructor() {
     super();
   }
 
   static getInstance() {
-    if (URLBuilder._instance) return URLBuilder._instance;
-    URLBuilder._instance = new URLBuilder();
-    return URLBuilder._instance;
+    if (URLBuilder._ee_instance) return URLBuilder._ee_instance;
+    URLBuilder._ee_instance = new URLBuilder();
+    return URLBuilder._ee_instance;
   }
 
   getDefaultEditorType() {
@@ -66,10 +66,7 @@ export class URLBuilder extends CE_URLBuilderClass {
    * @returns string
    */
   generateBasePathForPkg(moduleId?: string) {
-    const match = matchPath<MatchProps>(
-      location.pathname,
-      MODULE_EDITOR_BASE_PATH,
-    );
+    const match = matchPath<MatchProps>(location.pathname, MODULE_EDITOR_PATH);
 
     if (!match) return "";
 
@@ -80,7 +77,7 @@ export class URLBuilder extends CE_URLBuilderClass {
       moduleSlug: match.params.moduleSlug,
     };
 
-    return generatePath(MODULE_EDITOR_BASE_PATH, formattedParams);
+    return generatePath(MODULE_EDITOR_PATH, formattedParams);
   }
 
   resolveEntityId(builderParams: URLBuilderParams) {
@@ -94,15 +91,16 @@ export class URLBuilder extends CE_URLBuilderClass {
   }
 
   resolveEntityIdForPkg(builderParams: URLBuilderParams) {
-    const match = matchPath<MatchProps>(
-      location.pathname,
-      MODULE_EDITOR_BASE_PATH,
-    );
+    const match = matchPath<MatchProps>(location.pathname, MODULE_EDITOR_PATH);
 
     return {
       entityId: builderParams.moduleId || match?.params.moduleId || "",
       entityType: "moduleId",
     };
+  }
+
+  build(builderParams: URLBuilderParams, mode?: APP_MODE) {
+    return super.build(builderParams, mode);
   }
 }
 

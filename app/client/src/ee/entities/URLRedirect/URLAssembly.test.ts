@@ -1,9 +1,7 @@
 import { APP_MODE } from "entities/App";
-import { URLBuilder, EDITOR_TYPE } from "./URLAssembly";
+import urlBuilder, { EDITOR_TYPE } from "./URLAssembly";
 import type { URLBuilderParams } from "./URLAssembly";
 import { PLACEHOLDER_APP_SLUG, PLACEHOLDER_PAGE_SLUG } from "constants/routes";
-
-const urlBuilder = new URLBuilder();
 
 describe("URLBuilder", () => {
   let originalLocation: typeof window.location;
@@ -51,59 +49,59 @@ describe("URLBuilder", () => {
   });
 
   it("should generate the base path for PKG editor type", () => {
-    mockPathname("/pkg/package-id/module-id");
+    mockPathname("/pkg/package-id/module-id/edit");
 
     const entityId = "someEntityId";
     const mode = APP_MODE.EDIT;
 
     const basePath = urlBuilder.generateBasePath(entityId, mode);
-    // Perform assertions
-    expect(basePath).toBe(`/pkg/package-id/${entityId}`);
+
+    expect(basePath).toBe(`/pkg/package-id/${entityId}/edit`);
   });
 
   it("should generate the base path for APP editor type", () => {
-    mockPathname("/app/app-id/page-id");
+    mockPathname("/app/app-id/page-id/edit");
 
     const entityId = "someEntityId";
     const mode = APP_MODE.EDIT;
     const basePath = urlBuilder.generateBasePath(entityId, mode);
-    // Perform assertions
+
     expect(basePath).toBe(
       `/app/${PLACEHOLDER_APP_SLUG}/${PLACEHOLDER_PAGE_SLUG}-${entityId}/edit`,
     );
   });
 
   it("should resolve entity ID for PKG editor type", () => {
-    mockPathname("/pkg/package-id/module-id");
+    mockPathname("/pkg/package-id/module-id/edit");
 
     const builderParams: URLBuilderParams = { moduleId: "someModuleId" };
     const entityIdInfo = urlBuilder.resolveEntityId(builderParams);
-    // Perform assertions
+
     expect(entityIdInfo.entityId).toBe("someModuleId");
     expect(entityIdInfo.entityType).toBe("moduleId");
   });
 
   it("should resolve entity ID for APP editor type", () => {
-    mockPathname("/app/app-id/page-id");
+    mockPathname("/app/app-id/page-id/edit");
 
     const builderParams: URLBuilderParams = { pageId: "somePageId" };
     const entityIdInfo = urlBuilder.resolveEntityId(builderParams);
-    // Perform assertions
+
     expect(entityIdInfo.entityId).toBe("somePageId");
     expect(entityIdInfo.entityType).toBe("pageId");
   });
 
   it("should build a URL by checking the location", () => {
-    mockPathname("/pkg/package-id/module-id");
+    mockPathname("/pkg/package-id/module-id/edit");
 
     const mode = APP_MODE.EDIT;
     const url = urlBuilder.build({}, mode);
-    // Perform assertions
-    expect(url).toBe("/pkg/package-id/module-id");
+
+    expect(url).toBe("/pkg/package-id/module-id/edit");
   });
 
   it("should build a URL by using the moduleId passed as builderParams", () => {
-    mockPathname("/pkg/package-id/module-id");
+    mockPathname("/pkg/package-id/module-id/edit");
 
     const builderParams: URLBuilderParams = {
       moduleId: "someModuleId",
@@ -111,7 +109,7 @@ describe("URLBuilder", () => {
 
     const mode = APP_MODE.EDIT;
     const url = urlBuilder.build(builderParams, mode);
-    // Perform assertions
-    expect(url).toBe("/pkg/package-id/someModuleId");
+
+    expect(url).toBe("/pkg/package-id/someModuleId/edit");
   });
 });

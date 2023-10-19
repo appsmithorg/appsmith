@@ -1,10 +1,11 @@
+import { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
 import { convertModulesToArray, selectAllQueryModules } from "./moduleHelpers"; // Import the functions to be tested
 
 // Mock data for testing
 const modules = {
   1: {
     id: "mod-1",
-    type: "QUERY",
+    type: MODULE_TYPE.QUERY,
     name: "module 1",
     publicEntityId: "",
     packageId: "pkg-1",
@@ -15,7 +16,7 @@ const modules = {
   },
   2: {
     id: "mod-2",
-    type: "UI",
+    type: MODULE_TYPE.UI,
     name: "module 2",
     publicEntityId: "",
     packageId: "pkg-1",
@@ -26,7 +27,7 @@ const modules = {
   },
   3: {
     id: "mod-3",
-    type: "QUERY",
+    type: MODULE_TYPE.QUERY,
     name: "module 3",
     publicEntityId: "",
     packageId: "pkg-1",
@@ -49,12 +50,12 @@ describe("convertModulesToArray", () => {
 });
 
 describe("selectAllQueryModules", () => {
-  it('should select only modules of type "QUERY"', () => {
+  it("should select only modules of type MODULE_TYPE.QUERY", () => {
     const queryModules = selectAllQueryModules(moduleArray);
 
     // Perform assertions using @testing-library/react
-    expect(queryModules).toHaveLength(2); // There are two "QUERY" modules
-    expect(queryModules[0]).toHaveProperty("type", "QUERY");
-    expect(queryModules[1]).toHaveProperty("type", "QUERY");
+    expect(queryModules).toHaveLength(2); // There are two MODULE_TYPE.QUERY modules
+    expect(queryModules[0]).toHaveProperty("type", MODULE_TYPE.QUERY);
+    expect(queryModules[1]).toHaveProperty("type", MODULE_TYPE.QUERY);
   });
 });

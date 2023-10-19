@@ -11,6 +11,7 @@ import history, { NavigationMethod } from "utils/history";
 import type { Module } from "@appsmith/constants/ModuleConstants";
 import { EntityClassNames } from "pages/Editor/Explorer/Entity";
 import QueryModuleContextMenu from "./QueryModuleContextMenu";
+import { moduleEditorURL } from "@appsmith/RouteBuilder";
 
 const QueryModuleEntity = ({
   currentModuleId,
@@ -42,11 +43,11 @@ const QueryModuleEntity = ({
   );
 
   const switchModule = useCallback(() => {
-    const navigateToUrl = `pkg/${packageId}/module/${module.id}`;
+    const navigateToUrl = moduleEditorURL({ moduleId: module.id });
     history.push(navigateToUrl, {
       invokedBy: NavigationMethod.EntityExplorer,
     });
-  }, [packageId, module.id]);
+  }, [module.id]);
 
   return (
     <Entity
