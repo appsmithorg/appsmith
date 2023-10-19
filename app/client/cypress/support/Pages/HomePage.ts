@@ -124,22 +124,21 @@ export class HomePage {
     this.agHelper.GetNClick(this._homeTab);
   }
 
-  public CreateNewWorkspace(
-    workspaceNewName: string,
-    toNavigateToHome = false,
-  ) {
+  public CreateNewWorkspace(workspaceNewName = "", toNavigateToHome = false) {
     if (toNavigateToHome) this.NavigateToHome();
     let oldName = "";
     this.agHelper.GetNClick(this._newWorkSpaceLink);
     this.assertHelper.AssertNetworkStatus("createWorkspace", 201);
     this.agHelper.Sleep(2000);
-    cy.xpath(this._lastWorkspaceInHomePage)
-      .first()
-      .then(($ele) => {
-        oldName = $ele.text();
-        cy.log("oldName is : " + oldName);
-        this.RenameWorkspace(oldName, workspaceNewName);
-      });
+    workspaceNewName &&
+      cy
+        .xpath(this._lastWorkspaceInHomePage)
+        .first()
+        .then(($ele) => {
+          oldName = $ele.text();
+          cy.log("oldName is : " + oldName);
+          this.RenameWorkspace(oldName, workspaceNewName);
+        });
   }
 
   public OpenWorkspaceOptions(workspaceName: string) {

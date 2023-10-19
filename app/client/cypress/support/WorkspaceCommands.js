@@ -259,7 +259,8 @@ Cypress.Commands.add("CreateAppForWorkspace", (workspaceName, appname) => {
 
 Cypress.Commands.add("CreateAppInFirstListedWorkspace", (appname) => {
   let applicationId, appName;
-  cy.get(homePage.createNew).first().click({ force: true });
+  homePageTS.CreateNewWorkspace();
+  cy.get(homePage.createNew).last().click({ force: true });
   cy.wait("@createNewApplication").then((xhr) => {
     const response = xhr.response;
     expect(response.body.responseMeta.status).to.eq(201);

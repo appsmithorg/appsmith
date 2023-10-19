@@ -174,19 +174,23 @@ export class DeployMode {
         "Internal server error while processing request",
       ),
     );
-    // cy.window().then((win) => {
-    //   win.location.reload();
-    // });
-    cy.url().then((url) => {
-      cy.window().then((window) => {
-        window.location.href = url;
-      }); // //only reloading edit page to load elements
-    });
-    this.assertHelper.AssertDocumentReady();
-    this.agHelper.Sleep(2000); //wait for getWorkspace to go thru!
     this.assertHelper.AssertNetworkResponseData("@getPluginForm"); //for auth rest api
     this.assertHelper.AssertNetworkResponseData("@getPluginForm"); //for graphql
     this.assertHelper.AssertNetworkStatus("@getWorkspace");
+
+    // cy.window().then((win) => {
+    //   win.location.reload();
+    // });
+    // cy.url().then((url) => {//also not working consistently!
+    //   cy.window().then((window) => {
+    //     window.location.href = url;
+    //   }); // //only reloading edit page to load elements
+    // });
+    this.assertHelper.AssertDocumentReady();
+    this.agHelper.Sleep(2000); //wait for getWorkspace to go thru!
+    // this.assertHelper.AssertNetworkResponseData("@getPluginForm"); //for auth rest api
+    // this.assertHelper.AssertNetworkResponseData("@getPluginForm"); //for graphql
+    // this.assertHelper.AssertNetworkStatus("@getWorkspace");
     this.agHelper.AssertElementVisibility(this.locator._editPage); //Assert if canvas is visible after Navigating back!
   }
 
