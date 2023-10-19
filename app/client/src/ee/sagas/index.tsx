@@ -11,6 +11,7 @@ import AISagas from "./aiSagas";
 import ProvisioningSagas from "./ProvisioningSagas";
 import PackagesSaga from "./packagesSaga";
 import PackageInitSagas from "./packageInitSagas";
+import ModuleInstanceSaga from "./ModuleInstanceSaga";
 import ModuleSagas from "./moduleSagas";
 
 const sagasArr = [
@@ -22,6 +23,7 @@ const sagasArr = [
   ProvisioningSagas,
   PackagesSaga,
   PackageInitSagas,
+  ModuleInstanceSaga,
   ModuleSagas,
 ];
 

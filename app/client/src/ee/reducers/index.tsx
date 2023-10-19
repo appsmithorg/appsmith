@@ -13,6 +13,8 @@ import AIReducer from "./AIReducer";
 import ProvisioningReducer from "./ProvisioningReducer";
 import type { PackagesReducerState } from "./entityReducers/packagesReducer";
 import type { ModulesReducerState } from "./entityReducers/modulesReducer";
+import type { ModuleInstanceReducerState } from "./entityReducers/moduleInstancesReducer";
+import type { ModuleInstancePaneState } from "./uiReducers/moduleInstancePaneReducer";
 
 const appReducer = combineReducers({
   ...CE_AppReducer,
@@ -32,6 +34,10 @@ export interface AppState extends CE_AppState {
   entities: CE_AppState["entities"] & {
     packages: PackagesReducerState;
     modules: ModulesReducerState;
+    moduleInstances: ModuleInstanceReducerState;
+  };
+  ui: CE_AppState["ui"] & {
+    moduleInstancePane: ModuleInstancePaneState;
   };
 }
 
