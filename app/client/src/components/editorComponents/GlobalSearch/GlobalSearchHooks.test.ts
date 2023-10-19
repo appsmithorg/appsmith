@@ -1,7 +1,6 @@
 import { useFilteredAndSortedFileOperations } from "./GlobalSearchHooks";
 import type { Datasource } from "entities/Datasource";
 import { SEARCH_ITEM_TYPES } from "./utils";
-import { PERMISSION_TYPE } from "@appsmith/utils/permissionHelpers";
 
 describe("getFilteredAndSortedFileOperations", () => {
   it("works without any datasources", () => {
@@ -41,7 +40,6 @@ describe("getFilteredAndSortedFileOperations", () => {
     const actionOperationsWithoutCreate = useFilteredAndSortedFileOperations(
       "",
       [],
-      [],
       {},
       false,
     );
@@ -49,7 +47,7 @@ describe("getFilteredAndSortedFileOperations", () => {
     expect(actionOperationsWithoutCreate.length).toEqual(0);
 
     const actionOperationsWithoutDatasourcePermission =
-      useFilteredAndSortedFileOperations("", [], [], {}, true, false);
+      useFilteredAndSortedFileOperations("", [], {}, true, false);
 
     expect(actionOperationsWithoutDatasourcePermission.length).toEqual(4);
   });
@@ -91,15 +89,10 @@ describe("getFilteredAndSortedFileOperations", () => {
 
     const fileOptions = useFilteredAndSortedFileOperations(
       "",
-      [appDatasource],
-      [otherDatasource],
+      [appDatasource, otherDatasource],
       {},
       true,
       true,
-      [
-        PERMISSION_TYPE.CREATE_ACTIONS,
-        PERMISSION_TYPE.CREATE_DATASOURCE_ACTIONS,
-      ],
     );
 
     expect(fileOptions[0]).toEqual(
@@ -165,15 +158,10 @@ describe("getFilteredAndSortedFileOperations", () => {
 
     const fileOptions = useFilteredAndSortedFileOperations(
       "",
-      [appDatasource],
-      [otherDatasource],
+      [appDatasource, otherDatasource],
       { abc: 1, "123": 3 },
       true,
       true,
-      [
-        PERMISSION_TYPE.CREATE_ACTIONS,
-        PERMISSION_TYPE.CREATE_DATASOURCE_ACTIONS,
-      ],
     );
 
     expect(fileOptions[0]).toEqual(
@@ -239,15 +227,10 @@ describe("getFilteredAndSortedFileOperations", () => {
 
     const fileOptions = useFilteredAndSortedFileOperations(
       "App",
-      [appDatasource],
-      [otherDatasource],
+      [appDatasource, otherDatasource],
       {},
       true,
       true,
-      [
-        PERMISSION_TYPE.CREATE_ACTIONS,
-        PERMISSION_TYPE.CREATE_DATASOURCE_ACTIONS,
-      ],
     );
 
     expect(fileOptions[0]).toEqual(
@@ -294,8 +277,7 @@ describe("getFilteredAndSortedFileOperations", () => {
 
     const fileOptions = useFilteredAndSortedFileOperations(
       "zzzz",
-      [appDatasource],
-      [otherDatasource],
+      [appDatasource, otherDatasource],
       {},
       true,
       true,

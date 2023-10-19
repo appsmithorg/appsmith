@@ -63,28 +63,31 @@ export const useFilteredFileOperations = (query = "") => {
     userWorkspacePermissions,
   );
 
+  // get all datasources, app ds listed first
+  const allDatasources = [...appWideDS, ...otherDS].filter((ds) =>
+    hasCreateDSActionPermissionInApp(
+      isFeatureEnabled,
+      ds.userPermissions ?? [],
+      pagePermissions,
+    ),
+  );
+
   return useFilteredAndSortedFileOperations(
     query,
-    appWideDS,
-    otherDS,
+    allDatasources,
     recentlyUsedOrderMap,
     canCreateActions,
     canCreateDatasource,
-    pagePermissions,
-    isFeatureEnabled,
     plugins,
   );
 };
 
 export const useFilteredAndSortedFileOperations = (
   query: string,
-  appWideDS: Datasource[] = [],
-  otherDS: Datasource[] = [],
+  allDatasources: Datasource[] = [],
   recentlyUsedOrderMap: Record<string, number> = {},
   canCreateActions = true,
   canCreateDatasource = true,
-  pagePermissions: string[] = [],
-  isFeatureEnabled = false,
   plugins: Plugin[] = [],
 ) => {
   const fileOperations: ActionOperation[] = [];
@@ -98,15 +101,6 @@ export const useFilteredAndSortedFileOperations = (
 
   // Add JS Object operation
   fileOperations.push(actionOps[2]);
-
-  // get all datasources, app ds listed first
-  const allDatasources = [...appWideDS, ...otherDS].filter((ds) =>
-    hasCreateDSActionPermissionInApp(
-      isFeatureEnabled,
-      ds.userPermissions ?? [],
-      pagePermissions,
-    ),
-  );
 
   // Add app datasources
   if (allDatasources.length > 0) {
