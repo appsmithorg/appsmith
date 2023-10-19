@@ -184,6 +184,8 @@ export class DeployMode {
     });
     this.assertHelper.AssertDocumentReady();
     this.agHelper.Sleep(2000); //wait for getWorkspace to go thru!
+    this.assertHelper.AssertNetworkResponseData("@getPluginForm"); //for auth rest api
+    this.assertHelper.AssertNetworkResponseData("@getPluginForm"); //for graphql
     this.assertHelper.AssertNetworkStatus("@getWorkspace");
     this.agHelper.AssertElementVisibility(this.locator._editPage); //Assert if canvas is visible after Navigating back!
   }
