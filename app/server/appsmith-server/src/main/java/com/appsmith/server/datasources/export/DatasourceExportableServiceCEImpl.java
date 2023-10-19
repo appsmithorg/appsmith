@@ -100,10 +100,12 @@ public class DatasourceExportableServiceCEImpl implements ExportableServiceCE<Da
     }
 
     private void removeSensitiveFields(DatasourceStorage datasourceStorage) {
-        datasourceStorage.getDatasourceConfiguration().setAuthentication(null);
-        datasourceStorage.getDatasourceConfiguration().setSshProxy(null);
-        datasourceStorage.getDatasourceConfiguration().setSshProxyEnabled(null);
-        datasourceStorage.getDatasourceConfiguration().setProperties(null);
+        if (datasourceStorage.getDatasourceConfiguration() != null) {
+            datasourceStorage.getDatasourceConfiguration().setAuthentication(null);
+            datasourceStorage.getDatasourceConfiguration().setSshProxy(null);
+            datasourceStorage.getDatasourceConfiguration().setSshProxyEnabled(null);
+            datasourceStorage.getDatasourceConfiguration().setProperties(null);
+        }
     }
 
     @Override
