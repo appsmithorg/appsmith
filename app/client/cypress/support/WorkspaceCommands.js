@@ -298,11 +298,12 @@ Cypress.Commands.add("CreateAppInFirstListedWorkspace", (appname) => {
   // If the into modal is open close it
   cy.skipSignposting();
 
-  cy.AppSetupForRename();
-  cy.get(homePage.applicationName).type(appname + "{enter}");
-  assertHelper.AssertNetworkStatus("@updateApplication");
-  // Remove tooltip on the Application Name
-  agHelper.RemoveTooltip("Rename application");
+  //Removing renaming of app from all tests, since its also verified in other separate tests
+  // cy.AppSetupForRename();
+  // cy.get(homePage.applicationName).type(appname + "{enter}");
+  // assertHelper.AssertNetworkStatus("@updateApplication");
+  // // Remove tooltip on the Application Name
+  // agHelper.RemoveTooltip("Rename application");
 
   /* The server created app always has an old dsl so the layout will migrate
    * To avoid race conditions between that update layout and this one
