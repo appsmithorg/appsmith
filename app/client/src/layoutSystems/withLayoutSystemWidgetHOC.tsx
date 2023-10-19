@@ -8,6 +8,7 @@ import { getAutoLayoutSystem } from "./autolayout";
 import { getFixedLayoutSystem } from "./fixedlayout";
 import type { LayoutSystem } from "./types";
 import { LayoutSystemTypes } from "./types";
+import { getAnvilLayoutSystem } from "./anvil";
 
 /**
  *
@@ -23,10 +24,8 @@ export const getLayoutSystem = (
   layoutSystemType: LayoutSystemTypes,
 ): LayoutSystem => {
   switch (layoutSystemType) {
-    // Removing Anvil system until canvas system of Anvil is Implemented.
-    // when re-introducing pls make sure to uncomment anvil based test cases in withLayoutSystemWidgetHOC.test
-    // case LayoutSystemTypes.ANVIL:
-    //   return getAnvilLayoutSystem(renderMode);
+    case LayoutSystemTypes.ANVIL:
+      return getAnvilLayoutSystem(renderMode);
     case LayoutSystemTypes.AUTO:
       return getAutoLayoutSystem(renderMode);
     default:
