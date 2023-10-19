@@ -170,7 +170,7 @@ describe("AlignedRow highlights", () => {
       const button2: BaseWidgetProps = mockButtonProps();
 
       // Create AlignedWidgetRow layout with two buttons at start and center alignments.
-      let layout: LayoutComponentProps = generateAlignedRowMock({
+      const layout: LayoutComponentProps = generateAlignedRowMock({
         layout: [
           { widgetId: button1.widgetId, alignment: FlexLayerAlignment.Start },
           { widgetId: button2.widgetId, alignment: FlexLayerAlignment.Center },
