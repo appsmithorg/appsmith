@@ -5,18 +5,17 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.QApplication;
 import com.appsmith.server.dtos.CustomJSLibApplicationDTO;
-import com.appsmith.server.helpers.CollectionUtils;
-import com.appsmith.server.migrations.utils.CompatibilityUtils;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
 import io.mongock.api.annotations.ChangeUnit;
 import io.mongock.api.annotations.Execution;
 import io.mongock.api.annotations.RollbackExecution;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
-
-import java.util.HashSet;
-import java.util.Set;
+import org.springframework.data.mongodb.core.query.Update;
 
 import static com.appsmith.server.constants.ApplicationConstants.XML_PARSER_LIBRARY_UID;
 import static com.appsmith.server.migrations.MigrationHelperMethods.notDeleted;
@@ -28,19 +27,20 @@ import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.f
  *  This however, would break existing applications which are using xmlParser. In order to prevent this,
  *  applications require to have xmlParser as added library.
  *
- *  This migration takes care of that by adding a document in customJsLib for xml-parser and adding its UID in all DTOs
+ *  This migration takes care of adding a document in customJsLib for xml-parser and adding corresponding entry
+ *  in application collection
+ *
  */
 @Slf4j
-@ChangeUnit(order = "028", id = "add-xmlparser-to-application-jslibs", author = " ")
-public class Migration028AddingXmlParserToApplicationLibraries {
+@ChangeUnit(order = "032", id = "add-xml-parser-to-application-jslibs", author = " ")
+public class Migration032AddingXmlParserToApplicationLibraries {
 
     private final MongoTemplate mongoTemplate;
     private static final String UNPUBLISHED_CUSTOM_JS_LIBS =
             fieldName(QApplication.application.unpublishedCustomJSLibs);
-
     private static final String PUBLISHED_CUSTOM_JS_LIBS = fieldName(QApplication.application.publishedCustomJSLibs);
 
-    public Migration028AddingXmlParserToApplicationLibraries(MongoTemplate mongoTemplate) {
+    public Migration032AddingXmlParserToApplicationLibraries(MongoTemplate mongoTemplate) {
         this.mongoTemplate = mongoTemplate;
     }
 
@@ -49,7 +49,6 @@ public class Migration028AddingXmlParserToApplicationLibraries {
 
     @Execution
     public void addXmlParserEntryToEachApplication() {
-
         // add the xml-parser to customJSLib if it's not already present
         CustomJSLib customJSLib = generateXmlParserJSLibObject();
         try {
@@ -58,39 +57,34 @@ public class Migration028AddingXmlParserToApplicationLibraries {
             log.debug(
                     "Addition of xmlParser object in customJSLib failed, because object with similar UID already exists");
         } catch (Exception exception) {
-            log.debug("Addition of xmlParser object in customJSLib failed");
+            throw new AppsmithException(
+                    AppsmithError.MIGRATION_FAILED,
+                    "Migration032AddingXmlParserToApplicationLibraries",
+                    exception.getMessage(),
+                    "Unable to insert xml parser library in CustomJSLib collection");
         }
 
-        Query applicationQuery = new Query().cursorBatchSize(1024).addCriteria(notDeleted());
+        // add uid entry in all these custom js libs
+        Update pushXmlParserUpdate = new Update()
+                .addToSet(PUBLISHED_CUSTOM_JS_LIBS, getXmlParserCustomJSLibApplicationDTO())
+                .addToSet(UNPUBLISHED_CUSTOM_JS_LIBS, getXmlParserCustomJSLibApplicationDTO());
 
-        final Query performanceOptimizedApplicationQuery =
-                CompatibilityUtils.optimizeQueryForNoCursorTimeout(mongoTemplate, applicationQuery, Application.class);
-
-        mongoTemplate.stream(performanceOptimizedApplicationQuery, Application.class)
-                .forEach(dbApplication -> {
-                    dbApplication.setPublishedCustomJSLibs(
-                            addXmlParserToJSLibrarySet(dbApplication.getPublishedCustomJSLibs()));
-                    dbApplication.setUnpublishedCustomJSLibs(
-                            addXmlParserToJSLibrarySet(dbApplication.getUnpublishedCustomJSLibs()));
-
-                    // saves the application back to db with xmlParser UIDs
-                    mongoTemplate.save(dbApplication);
-                });
+        log.debug("Going to add Xml Parser uid in all application DTOs");
+        mongoTemplate.updateMulti(
+                new Query().addCriteria(getMigrationCriteria()), pushXmlParserUpdate, Application.class);
     }
 
-    private Set<CustomJSLibApplicationDTO> addXmlParserToJSLibrarySet(Set<CustomJSLibApplicationDTO> librarySet) {
+    private CustomJSLibApplicationDTO getXmlParserCustomJSLibApplicationDTO() {
         CustomJSLibApplicationDTO xmlParserApplicationDTO = new CustomJSLibApplicationDTO();
         xmlParserApplicationDTO.setUidString(XML_PARSER_LIBRARY_UID);
-
-        if (CollectionUtils.isNullOrEmpty(librarySet)) {
-            librarySet = new HashSet<>();
-        }
-
-        librarySet.add(xmlParserApplicationDTO);
-        return librarySet;
+        return xmlParserApplicationDTO;
     }
 
     private static CustomJSLib generateXmlParserJSLibObject() {
         return ApplicationConstants.getDefaultParserCustomJsLibCompatibilityDTO();
+    }
+
+    private static Criteria getMigrationCriteria() {
+        return notDeleted();
     }
 }
