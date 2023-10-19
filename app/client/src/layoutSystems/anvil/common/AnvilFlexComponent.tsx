@@ -28,6 +28,7 @@ import WidgetFactory from "WidgetProvider/factory";
 import type { WidgetProps } from "widgets/BaseWidget";
 import type { WidgetConfigProps } from "WidgetProvider/constants";
 import { usePositionObserver } from "layoutSystems/common/utils/LayoutElementPositionsObserver/usePositionObserver";
+import { useWidgetBorderStyles } from "./hooks/useWidgetBorderStyles";
 
 /**
  * Adds following functionalities to the widget:
@@ -152,12 +153,15 @@ export function AnvilFlexComponent(props: AnvilFlexComponentProps) {
     verticalAlignment,
   ]);
 
+  const borderStyles = useWidgetBorderStyles(props.widgetId);
+
   const styleProps: CSSProperties = useMemo(() => {
     return {
       position: "relative",
       "&:hover": {
         zIndex: onHoverZIndex,
       },
+      ...borderStyles,
     };
   }, [onHoverZIndex]);
 
