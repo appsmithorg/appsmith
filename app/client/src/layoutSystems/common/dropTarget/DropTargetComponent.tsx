@@ -36,17 +36,17 @@ import { calculateDropTargetRows } from "./DropTargetUtils";
 import { LayoutSystemTypes } from "layoutSystems/types";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
+import { getCurrentUser } from "selectors/usersSelectors";
+import {
+  getEnableStartSignposting,
+  isUserSignedUpFlagSet,
+} from "utils/storage";
 import {
   isAutoHeightEnabledForWidget,
   isAutoHeightEnabledForWidgetWithLimits,
 } from "widgets/WidgetUtils";
 import DragLayerComponent from "./DragLayerComponent";
 import CanvasStarterTemplatesLayout from "./canvasStarterTemplatesLayout";
-import { getCurrentUser } from "selectors/usersSelectors";
-import {
-  getEnableStartSignposting,
-  isUserSignedUpFlagSet,
-} from "utils/storage";
 
 export type DropTargetComponentProps = PropsWithChildren<{
   snapColumnSpace: number;
@@ -83,7 +83,7 @@ function Onboarding() {
     (async () => {
       const isNew = !!user && (await isUserSignedUpFlagSet(user.email));
       const signPostingEnabled = await getEnableStartSignposting();
-      setIsUsersFirstApp(isNew && signPostingEnabled === "true");
+      setIsUsersFirstApp(isNew && !!signPostingEnabled);
     })();
   }, [user]);
 
