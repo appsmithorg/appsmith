@@ -24,6 +24,7 @@ abstract class BaseLayoutComponent extends PureComponent<
 > {
   static type: LayoutComponentTypes;
 
+  // Add a child widget / layout to the parent layout component.
   static addChild(
     props: LayoutProps,
     children: WidgetLayoutProps[] | LayoutProps[],
@@ -32,16 +33,21 @@ abstract class BaseLayoutComponent extends PureComponent<
     return addChildToLayout(props, children, highlight);
   }
 
-  static getChildTemplate(props: LayoutProps): LayoutProps | undefined {
-    return props;
+  // get template of layout component to wrap new widgets in.
+  static getChildTemplate(_props: LayoutProps): LayoutProps | undefined {
+    return;
   }
 
+  // Get a list of highlights to demarcate the drop positions within the layout.
   static deriveHighlights: DeriveHighlightsFn = () => () => [];
 
+  // Get a list of child widgetIds rendered by the layout.
   static extractChildWidgetIds(props: LayoutProps): string[] {
     return this.rendersWidgets ? extractWidgetIdsFromLayoutProps(props) : [];
   }
 
+  // Remove a child widget / layout from the layout component.
+  // return undefined if layout is not permanent and is empty after deletion.
   static removeChild(
     props: LayoutProps,
     child: WidgetLayoutProps | LayoutProps,
@@ -62,6 +68,7 @@ abstract class BaseLayoutComponent extends PureComponent<
     );
   }
 
+  // Render child widgets using the layout property.
   renderChildWidgets(): React.ReactNode {
     return renderWidgets(this.props);
   }
@@ -91,6 +98,7 @@ abstract class BaseLayoutComponent extends PureComponent<
     );
   }
 
+  // Check if the layout component renders widgets or layouts.
   static rendersWidgets: boolean = false;
 
   render(): JSX.Element | null {

@@ -38,7 +38,7 @@ class WidgetRow extends BaseLayoutComponent {
         renderMode={renderMode}
         {...(layoutStyle || {})}
       >
-        {this.renderDraggingArea()}
+        {this.renderDraggingArena()}
         {this.renderChildWidgets()}
       </FlexLayout>
     );

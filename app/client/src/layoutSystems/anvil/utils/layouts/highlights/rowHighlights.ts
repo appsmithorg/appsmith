@@ -1,5 +1,6 @@
 import type {
   AnvilHighlightInfo,
+  DeriveHighlightsFn,
   DraggedWidget,
   GetDimensions,
   LayoutProps,
@@ -19,7 +20,6 @@ import type {
   LayoutElementPositions,
 } from "layoutSystems/common/types";
 import { getRelativeDimensions } from "./dimensionUtils";
-import type BaseLayoutComponent from "layoutSystems/anvil/layoutComponents/BaseLayoutComponent";
 
 export interface RowMetaInformation {
   metaData: RowMetaData[][];
@@ -94,10 +94,9 @@ export const deriveRowHighlights =
     }
 
     // Check if layout renders widgets or layouts.
-    const Comp: typeof BaseLayoutComponent = LayoutFactory.get(
+    const rendersWidgets: boolean = LayoutFactory.doesLayoutRenderWidgets(
       layoutProps.layoutType,
     );
-    const rendersWidgets: boolean = Comp.rendersWidgets;
 
     // It renders other layouts.
     if (!rendersWidgets) {
@@ -376,11 +375,11 @@ export function getHighlightsForLayoutRow(
      * because if it is, then it can handle its own drag behavior.
      */
     if (!isDropTarget) {
-      // Get current child layout component,
-      const Comp: typeof BaseLayoutComponent = LayoutFactory.get(layoutType);
-      if (!Comp) continue;
+      // Get the deriveHighlights function for the child layout.
+      const deriveHighlightsFn: DeriveHighlightsFn =
+        LayoutFactory.getDeriveHighlightsFn(layoutType);
       // Calculate highlights for the layout component.
-      const layoutHighlights: AnvilHighlightInfo[] = Comp.deriveHighlights(
+      const layoutHighlights: AnvilHighlightInfo[] = deriveHighlightsFn(
         layout[index],
         canvasId,
         [...layoutOrder, layout[index].layoutId],

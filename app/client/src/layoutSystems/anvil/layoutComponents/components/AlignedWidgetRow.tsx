@@ -44,7 +44,7 @@ class AlignedWidgetRow extends BaseLayoutComponent {
         wrap="wrap"
         {...(layoutStyle || {})}
       >
-        {this.renderDraggingArea()}
+        {this.renderDraggingArena()}
         {this.renderChildWidgets()}
       </FlexLayout>
     );

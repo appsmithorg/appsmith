@@ -1,13 +1,14 @@
 import React from "react";
 
-import BaseLayoutComponent from "../BaseLayoutComponent";
 import {
   type DeriveHighlightsFn,
   type LayoutComponentProps,
   LayoutComponentTypes,
+  type LayoutProps,
 } from "layoutSystems/anvil/utils/anvilTypes";
 import { FlexLayout } from "./FlexLayout";
 import { deriveAlignedColumnHighlights } from "layoutSystems/anvil/utils/layouts/highlights/alignedColumnHighlights";
+import BaseLayoutComponent from "../BaseLayoutComponent";
 
 class AlignedWidgetColumn extends BaseLayoutComponent {
   constructor(props: LayoutComponentProps) {
@@ -21,6 +22,16 @@ class AlignedWidgetColumn extends BaseLayoutComponent {
     LayoutComponentTypes.ALIGNED_WIDGET_COLUMN;
 
   static deriveHighlights: DeriveHighlightsFn = deriveAlignedColumnHighlights;
+
+  static getChildTemplate(props: LayoutProps): LayoutProps | undefined {
+    if (props.childTemplate) return props.childTemplate;
+    return {
+      insertChild: true,
+      layoutId: "",
+      layoutType: LayoutComponentTypes.ALIGNED_WIDGET_ROW,
+      layout: [],
+    };
+  }
 
   static rendersWidgets: boolean = true;
 
@@ -37,8 +48,8 @@ class AlignedWidgetColumn extends BaseLayoutComponent {
         renderMode={renderMode}
         {...(layoutStyle || {})}
       >
-        {this.renderDraggingArea()}
-        {this.renderChildWidgets()}
+        {this.renderDraggingArena()}
+        {this.renderChildLayouts()}
       </FlexLayout>
     );
   }
