@@ -144,11 +144,11 @@ export class DeployMode {
     //   win.location.reload();
     // });
     this.agHelper.Sleep(4000); //Waiting a bit for new url to settle loading
-    cy.url().then((url) => {
-      cy.window().then((window) => {
-        window.location.href = url;
-      }); //only reload page to get new url
-    });
+    // cy.url().then((url) => {
+    //   cy.window().then((window) => {
+    //     window.location.href = url;
+    //   }); //only reload page to get new url
+    // });
     cy.get("@windowStub").should("be.calledOnce");
     cy.url().should("contain", expectedUrl);
     this.agHelper.Sleep(2000); //stay in the page a bit before navigating back
@@ -156,7 +156,7 @@ export class DeployMode {
     cy.window({ timeout: 60000 }).then((win) => {
       win.history.back();
     });
-    this.assertHelper.AssertNetworkStatus("@" + networkCall);
+    this.assertHelper.AssertNetworkResponseData("@" + networkCall);
     this.assertHelper.AssertDocumentReady();
   }
 
