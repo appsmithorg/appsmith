@@ -234,9 +234,6 @@ export const CodemirrorHintStyles = createGlobalStyle<{
     .CodeMirror-Tern-completion-keyword[keyword]:after {
       content: attr(keyword);
     }
-    .CodeMirror-Tern-tooltip {
-      z-index: 20 !important;
-    }
     li.CodeMirror-hint-active {
       background-color: var(--ads-v2-color-bg-muted);
       border-radius: var(--ads-v2-border-radius);
@@ -250,6 +247,30 @@ export const CodemirrorHintStyles = createGlobalStyle<{
         &:after {
           color: var(--ads-v2-color-fg);
         }
+      }
+    }
+  }
+
+  .CodeMirror-Tern-tooltip {
+    font-family: ${(props) => props.theme.fonts.code};
+    line-height: 16px;
+    font-size: 12px;
+    &&& {
+      z-index: 20 !important;
+      background-color: var(--ads-v2-color-bg-subtle);
+      box-shadow: 0px 0px 10px #0000001A;
+      border-radius: var(--ads-v2-border-radius);
+      border: none;
+      .CodeMirror-Tern-fname {
+
+      }
+      .CodeMirror-Tern-farg {
+        color: hsl(288, 44%, 44%);
+        &.CodeMirror-Tern-farg-current {
+
+        }
+      }
+      .CodeMirror-Tern-type {
       }
     }
   }
