@@ -99,7 +99,7 @@ const Canvas = (props: CanvasProps) => {
               ...props.widgetsStructure,
               classList:
                 layoutSystemType === LayoutSystemTypes.ANVIL
-                  ? ["main-anvil-canvas"]
+                  ? ["main-anvil-canvas", "bottom-gap"]
                   : [],
             } as WidgetProps)}
         </Wrapper>
