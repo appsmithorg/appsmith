@@ -10,6 +10,7 @@ import { TenantApi } from "@appsmith/api/TenantApi";
 import { validateResponse } from "sagas/ErrorSagas";
 import { safeCrashAppRequest } from "actions/errorActions";
 import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
+import { defaultBrandingConfig as CE_defaultBrandingConfig } from "@appsmith/reducers/tenantReducer";
 import { toast } from "design-system";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
@@ -88,7 +89,13 @@ export function* updateTenantConfigSaga(
       // If the tenant config is not present, we need to set the default config
       yield put({
         type: ReduxActionTypes.UPDATE_TENANT_CONFIG_SUCCESS,
-        payload: payload,
+        payload: {
+          ...payload,
+          tenantConfiguration: {
+            ...CE_defaultBrandingConfig,
+            ...payload.tenantConfiguration,
+          },
+        },
       });
 
       if (action.payload.isOnlyTenantSettings) {

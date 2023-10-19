@@ -76,13 +76,8 @@ export const handlers = {
     ...state,
     ...action.payload,
     tenantConfiguration: {
-      ...defaultBrandingConfig,
       ...state.tenantConfiguration,
       ...action.payload.tenantConfiguration,
-      brandColors: {
-        ...defaultBrandingConfig.brandColors,
-        ...action.payload.tenantConfiguration.brandColors,
-      },
     },
     isLoading: false,
   }),
