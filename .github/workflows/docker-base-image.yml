@@ -4,6 +4,12 @@ on:
   workflow_dispatch:
   schedule:
     - cron: "0 5 * * MON"
+  push:
+    branches:
+      - release
+      - master
+    paths:
+      - "deploy/docker/base.dockerfile"
 
 jobs:
   build-docker:
