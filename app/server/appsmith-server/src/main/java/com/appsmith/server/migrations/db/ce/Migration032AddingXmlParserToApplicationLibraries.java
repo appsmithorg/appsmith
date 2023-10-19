@@ -66,8 +66,8 @@ public class Migration032AddingXmlParserToApplicationLibraries {
 
         // add uid entry in all these custom js libs
         Update pushXmlParserUpdate = new Update()
-                .push(PUBLISHED_CUSTOM_JS_LIBS, getXmlParserCustomJSLibApplicationDTO())
-                .push(UNPUBLISHED_CUSTOM_JS_LIBS, getXmlParserCustomJSLibApplicationDTO());
+                .addToSet(PUBLISHED_CUSTOM_JS_LIBS, getXmlParserCustomJSLibApplicationDTO())
+                .addToSet(UNPUBLISHED_CUSTOM_JS_LIBS, getXmlParserCustomJSLibApplicationDTO());
 
         log.debug("Going to add Xml Parser uid in all application DTOs");
         mongoTemplate.updateMulti(
