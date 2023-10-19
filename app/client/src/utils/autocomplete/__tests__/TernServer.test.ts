@@ -1,15 +1,15 @@
 import type {
   Completion,
   DataTreeDefEntityInformation,
-} from "./CodemirrorTernService";
+} from "../CodemirrorTernService";
 import CodemirrorTernService, {
   createCompletionHeader,
-} from "./CodemirrorTernService";
-import { AutocompleteDataType } from "./AutocompleteDataType";
-import { MockCodemirrorEditor } from "../../../test/__mocks__/CodeMirrorEditorMock";
+} from "../CodemirrorTernService";
+import { AutocompleteDataType } from "../AutocompleteDataType";
+import { MockCodemirrorEditor } from "../../../../test/__mocks__/CodeMirrorEditorMock";
 import { ENTITY_TYPE_VALUE } from "entities/DataTree/dataTreeFactory";
 import _ from "lodash";
-import { AutocompleteSorter, ScoredCompletion } from "./AutocompleteSortRules";
+import { AutocompleteSorter, ScoredCompletion } from "../AutocompleteSortRules";
 
 describe("Tern server", () => {
   it("Check whether the correct value is being sent to tern", () => {

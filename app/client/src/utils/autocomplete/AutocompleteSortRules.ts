@@ -86,7 +86,7 @@ class HideInternalDefsRule implements AutocompleteRule {
  * Max score - 0
  * Min score - -Infinity
  */
-class BlockSuggestionsRule implements AutocompleteRule {
+class RemoveBlackListedCompletionRule implements AutocompleteRule {
   static threshold = -Infinity;
 
   computeScore(completion: Completion): number {
@@ -98,7 +98,7 @@ class BlockSuggestionsRule implements AutocompleteRule {
       for (let index = 0; index < blockCompletions.length; index++) {
         const { subPath } = blockCompletions[index];
         if (completion.text === subPath && completion.origin !== "DATA_TREE") {
-          score = BlockSuggestionsRule.threshold;
+          score = RemoveBlackListedCompletionRule.threshold;
           break;
         }
       }
@@ -262,6 +262,25 @@ class ScopeMatchRule implements AutocompleteRule {
   }
 }
 
+class BlockAsyncFnsInDataFieldRule implements AutocompleteRule {
+  static threshold = -Infinity;
+  computeScore(
+    completion: Completion,
+    entityInfo?: FieldEntityInformation | undefined,
+  ): number {
+    const score = 0;
+    if (entityInfo?.isTriggerPath) return score;
+    if (completion.origin === "DATA_TREE.APPSMITH.FUNCTIONS")
+      return BlockAsyncFnsInDataFieldRule.threshold;
+    if (
+      completion.origin === "DATA_TREE" &&
+      (completion.text.endsWith("run()") || completion.text.endsWith("clear()"))
+    )
+      return BlockAsyncFnsInDataFieldRule.threshold;
+    return score;
+  }
+}
+
 export class AutocompleteSorter {
   static entityDefInfo: DataTreeDefEntityInformation | undefined;
   static currentFieldInfo: FieldEntityInformation;
@@ -311,6 +330,7 @@ export class AutocompleteSorter {
 export class ScoredCompletion {
   score = 0;
   static rules = [
+    new BlockAsyncFnsInDataFieldRule(),
     new NoDeepNestedSuggestionsRule(),
     new NoSelfReferenceRule(),
     new ScopeMatchRule(),
@@ -320,7 +340,7 @@ export class ScoredCompletion {
     new DataTreeFunctionRule(),
     new JSLibraryRule(),
     new GlobalJSRule(),
-    new BlockSuggestionsRule(),
+    new RemoveBlackListedCompletionRule(),
     new HideInternalDefsRule(),
     new NestedPropertyInsideLiteralRule(),
   ];

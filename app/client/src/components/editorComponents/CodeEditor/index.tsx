@@ -1290,7 +1290,7 @@ class CodeEditor extends Component<Props, State> {
           entityInformation.entityId = entity.widgetId;
           if (isTriggerPath)
             entityInformation.expectedType = AutocompleteDataType.FUNCTION;
-
+          entityInformation.isTriggerPath = isTriggerPath;
           entityInformation.widgetType = entity.type;
         }
       }
