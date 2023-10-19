@@ -85,11 +85,6 @@ jobs:
         run: |
           set -o xtrace
           declare -a args
-          if [[ "${{ inputs.pr }}" != 0 ]]; then
-            cache_image="${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-${{ vars.EDITION }}:release"
-            args+=(--cache-from "$cache_image")
-            docker pull "$cache_image"
-          fi
           if [[ "${{ inputs.pr }}" != 0 || "${{ github.ref_name }}" != master ]]; then
             args+=(--build-arg "APPSMITH_CLOUD_SERVICES_BASE_URL=https://release-cs.appsmith.com")
             base_tag=release
