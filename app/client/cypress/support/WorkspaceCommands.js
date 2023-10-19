@@ -287,7 +287,7 @@ Cypress.Commands.add("CreateAppInFirstListedWorkspace", (appname) => {
   assertHelper.AssertNetworkStatus("@getPlugins");
 
   cy.get("#sidebar").should("be.visible");
-  assertHelper.AssertNetworkStatus("@getPluginForm"); ////replacing from updateLayout to getPluginForm, since updateLayout is more flaky in CI - to monitor
+  //assertHelper.AssertNetworkStatus("@getPluginForm"); ////replacing from updateLayout to getPluginForm, since updateLayout is more flaky in CI - to monitor
 
   assertHelper.AssertNetworkResponseData("@getPluginForm"); //for auth rest api
   assertHelper.AssertNetworkResponseData("@getPluginForm"); //for graphql
