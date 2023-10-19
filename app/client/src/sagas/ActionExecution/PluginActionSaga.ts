@@ -15,6 +15,7 @@ import {
   executePluginActionSuccess,
   runAction,
   updateAction,
+  updateActionData,
 } from "actions/pluginActionActions";
 import { makeUpdateJSCollection } from "sagas/JSPaneSagas";
 
@@ -89,6 +90,7 @@ import {
   RESP_HEADER_DATATYPE,
 } from "constants/AppsmithActionConstants/ActionConstants";
 import {
+  getCurrentApplicationId,
   getCurrentPageId,
   getIsSavingEntity,
   getLayoutOnLoadActions,
@@ -101,7 +103,7 @@ import * as log from "loglevel";
 import { EMPTY_RESPONSE } from "components/editorComponents/emptyResponse";
 import type { AppState } from "@appsmith/reducers";
 import { DEFAULT_EXECUTE_ACTION_TIMEOUT_MS } from "@appsmith/constants/ApiConstants";
-import { evaluateActionBindings } from "sagas/EvaluationsSaga";
+import { evalWorker, evaluateActionBindings } from "sagas/EvaluationsSaga";
 import { isBlobUrl, parseBlobUrl } from "utils/AppsmithUtils";
 import { getType, Types } from "utils/TypeHelpers";
 import { matchPath } from "react-router";
@@ -158,17 +160,18 @@ import {
   getCurrentEnvironmentDetails,
   getCurrentEnvironmentName,
 } from "@appsmith/selectors/environmentSelectors";
+import { EVAL_WORKER_ACTIONS } from "@appsmith/workers/Evaluation/evalWorkerActions";
 
 enum ActionResponseDataTypes {
   BINARY = "BINARY",
 }
 
-type FilePickerInstumentationObject = {
+interface FilePickerInstumentationObject {
   numberOfFiles: number;
   totalSize: number;
   fileTypes: Array<string>;
   fileSizes: Array<number>;
-};
+}
 
 export const getActionTimeout = (
   state: AppState,
@@ -224,7 +227,7 @@ const isErrorResponse = (response: ActionExecutionResponse) => {
  */
 function* readBlob(blobUrl: string): any {
   const [url, fileType] = parseBlobUrl(blobUrl);
-  const file = yield fetch(url).then((r) => r.blob());
+  const file = yield fetch(url).then(async (r) => r.blob());
 
   return yield new Promise((resolve) => {
     const reader = new FileReader();
@@ -724,11 +727,11 @@ function* runActionShortcutSaga() {
   }
 }
 
-type RunActionError = {
+interface RunActionError {
   name: string;
   message: string;
   clientDefinedError?: boolean;
-};
+}
 
 function* runActionSaga(
   reduxAction: ReduxAction<{
@@ -1171,6 +1174,13 @@ function* executePageLoadAction(pageAction: PageAction) {
           data: payload,
         }),
       );
+      yield put(
+        updateActionData({
+          entityName: action.name,
+          dataPath: "data",
+          data: payload.body,
+        }),
+      );
       PerformanceTracker.stopAsyncTracking(
         PerformanceTransactionName.EXECUTE_ACTION,
         {
@@ -1226,6 +1236,13 @@ function* executePageLoadAction(pageAction: PageAction) {
           isPageLoad: true,
         }),
       );
+      yield put(
+        updateActionData({
+          entityName: action.name,
+          dataPath: "data",
+          data: payload.body,
+        }),
+      );
       yield take(ReduxActionTypes.SET_EVALUATED_TREE);
     }
   }
@@ -1268,10 +1285,10 @@ function* executePageLoadActionsSaga() {
   }
 }
 
-type ExecutePluginActionResponse = {
+interface ExecutePluginActionResponse {
   payload: ActionResponse;
   isError: boolean;
-};
+}
 /*
  * This saga handles the complete plugin action execution flow. It will respond with a
  * payload and isError property which indicates if the response is of an error type.
@@ -1379,6 +1396,14 @@ function* executePluginActionSaga(
         response: payload,
       }),
     );
+
+    yield put(
+      updateActionData({
+        entityName: pluginAction.name,
+        dataPath: "data",
+        data: payload.body,
+      }),
+    );
     // TODO: Plugins are not always fetched before on page load actions are executed.
     try {
       let plugin: Plugin | undefined;
@@ -1430,6 +1455,13 @@ function* executePluginActionSaga(
       executePluginActionSuccess({
         id: actionId,
         response: EMPTY_RESPONSE,
+      }),
+    );
+    yield put(
+      updateActionData({
+        entityName: pluginAction.name,
+        dataPath: "data",
+        data: EMPTY_RESPONSE.body,
       }),
     );
     if (e instanceof UserCancelledActionExecutionError) {
@@ -1500,6 +1532,13 @@ function* clearTriggerActionResponse() {
     // Clear the action response if the action has data and is not executeOnLoad.
     if (action.data && !action.config.executeOnLoad) {
       yield put(clearActionResponse(action.config.id));
+      yield put(
+        updateActionData({
+          entityName: action.config.name,
+          dataPath: "data",
+          data: undefined,
+        }),
+      );
     }
   }
 }
@@ -1508,6 +1547,7 @@ function* clearTriggerActionResponse() {
 function* softRefreshActionsSaga() {
   //get current pageId
   const pageId: string = yield select(getCurrentPageId);
+  const applicationId: string = yield select(getCurrentApplicationId);
   // Fetch the page data before refreshing the actions.
   yield put(fetchPage(pageId));
   //wait for the page to be fetched.
@@ -1531,15 +1571,39 @@ function* softRefreshActionsSaga() {
     yield put(softRefreshDatasourceStructure());
   } catch (error) {}
   //This will refresh the query editor with the latest datasource structure.
+  // TODO: fix typing of matchQueryBuilderPath, it always returns "any" which can lead to bugs
   const isQueryPane = matchQueryBuilderPath(window.location.pathname);
   //This is reuired only when the query editor is open.
   if (isQueryPane) {
-    yield put(changeQuery(isQueryPane.params.queryId));
+    yield put(
+      changeQuery({
+        id: isQueryPane.params.queryId,
+        pageId,
+        applicationId,
+      }),
+    );
   }
   const currentEnvName: string = yield select(getCurrentEnvironmentName);
   toast.show(createMessage(SWITCH_ENVIRONMENT_SUCCESS, currentEnvName), {
     kind: "success",
   });
+}
+
+function* handleUpdateActionData(
+  action: ReduxAction<{
+    entityName: string;
+    dataPath: string;
+    data: unknown;
+  }>,
+) {
+  const { data, dataPath, entityName } = action.payload;
+  yield call(evalWorker.request, EVAL_WORKER_ACTIONS.UPDATE_ACTION_DATA, [
+    {
+      entityName,
+      dataPath,
+      data,
+    },
+  ]);
 }
 
 export function* watchPluginActionExecutionSagas() {
@@ -1555,5 +1619,6 @@ export function* watchPluginActionExecutionSagas() {
     ),
     takeLatest(ReduxActionTypes.PLUGIN_SOFT_REFRESH, softRefreshActionsSaga),
     takeEvery(ReduxActionTypes.EXECUTE_JS_UPDATES, makeUpdateJSCollection),
+    takeEvery(ReduxActionTypes.UPDATE_ACTION_DATA, handleUpdateActionData),
   ]);
 }

@@ -1,6 +1,6 @@
 import { isEditorPath } from "@appsmith/pages/Editor/Explorer/helpers";
 import { APP_MODE } from "entities/App";
-import { isNil, noop } from "lodash";
+import { isNil } from "lodash";
 import nanoid from "nanoid";
 import { getAppMode } from "@appsmith/selectors/entitiesSelector";
 import store from "store";
@@ -34,7 +34,7 @@ export const fetchWithRetry = (config: {
           retries: config.retries - 1,
           retryTimeout: config.retryTimeout,
         });
-      } else throw noop;
+      }
     });
 };
 

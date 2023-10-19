@@ -27,20 +27,13 @@ describe("Binary Datatype tests", function () {
     dataSources.CreateQueryAfterDSSaved(query, "createTable");
     dataSources.RunQuery();
 
-    entityExplorer.ExpandCollapseEntity("Datasources");
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: dsName,
-      action: "Refresh",
-    });
-    agHelper.AssertElementVisibility(
-      entityExplorer._entityNameInExplorer("public.binarytype"),
-    );
+    dataSources.AssertTableInVirtuosoList(dsName, "public.binarytype");
 
     //Creating SELECT query - binarytype + Bug 14493
     query = `SELECT binarytype.serialid, binarytype.imagename, encode(binarytype.existingimage, 'escape') as "OldImage", encode(binarytype.newimage, 'escape') as "NewImage" from public."binarytype";`;
     entityExplorer.ActionTemplateMenuByEntityName(
       "public.binarytype",
-      "SELECT",
+      "Select",
     );
     dataSources.RunQuery();
     agHelper
@@ -79,35 +72,36 @@ describe("Binary Datatype tests", function () {
     table.WaitForTableEmpty(); //asserting table is empty before inserting!
   });
 
-  it.skip("3. Inserting record - binarytype", () => {
-    imageNameToUpload = "Datatypes/Bridge.jpg";
-    // entityExplorer.SelectEntityByName("Page1");
-    // deployMode.DeployApp();
-    // table.WaitForTableEmpty(); //asserting table is empty before inserting!
-    agHelper.ClickButton("Run InsertQuery");
-    agHelper.AssertElementVisibility(locators._modal);
+  //Timing out a lot in CI, hence skipped, Insert verified also in next case
+  // it.skip("3. Inserting record - binarytype", () => {
+  //   imageNameToUpload = "Datatypes/Bridge.jpg";
+  //   // entityExplorer.SelectEntityByName("Page1");
+  //   // deployMode.DeployApp();
+  //   // table.WaitForTableEmpty(); //asserting table is empty before inserting!
+  //   agHelper.ClickButton("Run InsertQuery");
+  //   agHelper.AssertElementVisibility(locators._modal);
 
-    agHelper.ClickButton("Select New Image");
-    agHelper.UploadFile(imageNameToUpload);
+  //   agHelper.ClickButton("Select New Image");
+  //   agHelper.UploadFile(imageNameToUpload);
 
-    agHelper.ClickButton("Insert");
-    agHelper.AssertElementAbsence(locators._toastMsg); //Assert that Insert did not fail
-    agHelper.AssertElementVisibility(locators._buttonByText("Run InsertQuery"));
-    agHelper.AssertElementAbsence(locators._btnSpinner, 10000); //for the update row to appear at last
-    table.WaitUntilTableLoad();
-    agHelper.Sleep(3000); //some more time for all rows with images to be populated
-    table.ReadTableRowColumnData(0, 0).then(($cellData) => {
-      expect($cellData).to.eq("1"); //asserting serial column is inserting fine in sequence
-    });
-    table.ReadTableRowColumnData(0, 1, "v1", 200).then(($cellData) => {
-      expect($cellData).to.eq("Bridge.jpg");
-    });
-    table.AssertTableRowImageColumnIsLoaded(0, 2).then(($oldimage) => {
-      table.AssertTableRowImageColumnIsLoaded(0, 3).then(($newimage) => {
-        expect($oldimage).to.eq($newimage);
-      });
-    });
-  });
+  //   agHelper.ClickButton("Insert");
+  //   agHelper.AssertElementAbsence(locators._toastMsg); //Assert that Insert did not fail
+  //   agHelper.AssertElementVisibility(locators._buttonByText("Run InsertQuery"));
+  //   agHelper.AssertElementAbsence(locators._btnSpinner, 10000); //for the update row to appear at last
+  //   table.WaitUntilTableLoad();
+  //   agHelper.Sleep(3000); //some more time for all rows with images to be populated
+  //   table.ReadTableRowColumnData(0, 0).then(($cellData) => {
+  //     expect($cellData).to.eq("1"); //asserting serial column is inserting fine in sequence
+  //   });
+  //   table.ReadTableRowColumnData(0, 1, "v1", 200).then(($cellData) => {
+  //     expect($cellData).to.eq("Bridge.jpg");
+  //   });
+  //   table.AssertTableRowImageColumnIsLoaded(0, 2).then(($oldimage) => {
+  //     table.AssertTableRowImageColumnIsLoaded(0, 3).then(($newimage) => {
+  //       expect($oldimage).to.eq($newimage);
+  //     });
+  //   });
+  // });
 
   it("4. Inserting another record - binarytype", () => {
     imageNameToUpload = "Datatypes/Georgia.jpeg";
@@ -404,7 +398,7 @@ describe("Binary Datatype tests", function () {
   //     entityExplorer.ExpandCollapseEntity("Datasources", false);
 
   //     //Delete all queries
-  //     dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Since all queries exists
+  //     dataSources.DeleteDatasourceFromWithinDS(dsName, 409); //Since all queries exists
   //     entityExplorer.ExpandCollapseEntity("Queries/JS");
   //      entityExplorer.DeleteAllQueriesForDB(dsName);
 
@@ -412,7 +406,7 @@ describe("Binary Datatype tests", function () {
   //     deployMode.DeployApp();
   //     deployMode.NavigateBacktoEditor();
   //     entityExplorer.ExpandCollapseEntity("Queries/JS");
-  //     dataSources.DeleteDatasouceFromWinthinDS(dsName, 200);
+  //     dataSources.DeleteDatasourceFromWithinDS(dsName, 200);
   //   },
   // );
 });

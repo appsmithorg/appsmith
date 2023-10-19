@@ -57,7 +57,10 @@ import { RenderModes } from "constants/WidgetConstants";
 import log from "loglevel";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { getWidgets } from "./selectors";
-import { clearActionResponse } from "actions/pluginActionActions";
+import {
+  clearActionResponse,
+  updateActionData,
+} from "actions/pluginActionActions";
 import {
   importApplication,
   updateApplicationLayout,
@@ -74,10 +77,10 @@ import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { hideIndicator } from "pages/Editor/GuidedTour/utils";
 import { updateWidgetName } from "actions/propertyPaneActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import type { DataTree } from "entities/DataTree/dataTreeFactory";
+import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { User } from "constants/userConstants";
-import { builderURL, queryEditorIdURL } from "RouteBuilder";
+import { builderURL, queryEditorIdURL } from "@appsmith/RouteBuilder";
 import { GuidedTourEntityNames } from "pages/Editor/GuidedTour/constants";
 import type { GuidedTourState } from "reducers/uiReducers/guidedTourReducer";
 import { sessionStorage } from "utils/localStorage";
@@ -183,9 +186,8 @@ function* setCurrentStepSaga(action: ReduxAction<number>) {
 function* setUpTourAppSaga() {
   yield put(setPreviewModeAction(false));
   // Delete the container widget
-  const widgets: { [widgetId: string]: FlattenedWidgetProps } = yield select(
-    getWidgets,
-  );
+  const widgets: { [widgetId: string]: FlattenedWidgetProps } =
+    yield select(getWidgets);
   const containerWidget = Object.values(widgets).find(
     (widget) => widget.type === "CONTAINER_WIDGET",
   );
@@ -216,6 +218,13 @@ function* setUpTourAppSaga() {
   // Update getCustomers query body
   const query: ActionData | undefined = yield select(getQueryAction);
   yield put(clearActionResponse(query?.config.id ?? ""));
+  yield put(
+    updateActionData({
+      entityName: query?.config.name || "",
+      dataPath: "data",
+      data: undefined,
+    }),
+  );
   const applicationId: string = yield select(getCurrentApplicationId);
   yield put(
     updateApplicationLayout(applicationId || "", {
@@ -271,9 +280,8 @@ function* addOnboardingWidget(action: ReduxAction<Partial<WidgetProps>>) {
     // Wait for widget names to be updated
     // Updating widget names here as widget blueprints don't take widget names
     yield take(ReduxActionTypes.SAVE_PAGE_SUCCESS);
-    const widgets: { [widgetId: string]: FlattenedWidgetProps } = yield select(
-      getWidgets,
-    );
+    const widgets: { [widgetId: string]: FlattenedWidgetProps } =
+      yield select(getWidgets);
 
     const nameInput = Object.values(widgets).find(
       (widget) => widget.widgetName === "Input1",
@@ -321,9 +329,8 @@ function* addOnboardingWidget(action: ReduxAction<Partial<WidgetProps>>) {
 
 // Update button widget text
 function* updateWidgetTextSaga() {
-  const widgets: { [widgetId: string]: FlattenedWidgetProps } = yield select(
-    getWidgets,
-  );
+  const widgets: { [widgetId: string]: FlattenedWidgetProps } =
+    yield select(getWidgets);
   const buttonWidget = Object.values(widgets).find(
     (widget) => widget.type === "BUTTON_WIDGET",
   );
@@ -363,9 +370,8 @@ function* endGuidedTourSaga(action: ReduxAction<boolean>) {
 function* selectWidgetSaga(
   action: ReduxAction<{ widgetName: string; propertyName?: string }>,
 ) {
-  const widgets: { [widgetId: string]: FlattenedWidgetProps } = yield select(
-    getWidgets,
-  );
+  const widgets: { [widgetId: string]: FlattenedWidgetProps } =
+    yield select(getWidgets);
   const widget = Object.values(widgets).find((widget) => {
     return widget.widgetName === action.payload.widgetName;
   });

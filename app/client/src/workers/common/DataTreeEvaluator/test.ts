@@ -1,7 +1,7 @@
 import DataTreeEvaluator from ".";
 import { unEvalTree } from "./mockData/mockUnEvalTree";
 import { configTree } from "./mockData/mockConfigTree";
-import type { DataTree, ConfigTree } from "entities/DataTree/dataTreeFactory";
+import type { DataTree, ConfigTree } from "entities/DataTree/dataTreeTypes";
 import type { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
 import {
   arrayAccessorCyclicDependency,
@@ -16,6 +16,7 @@ import { replaceThisDotParams } from "./utils";
 import { isDataField } from "./utils";
 import widgets from "widgets";
 import type { WidgetConfiguration } from "WidgetProvider/constants";
+import type { WidgetEntity } from "@appsmith/entities/DataTree/types";
 
 const widgetConfigMap: Record<
   string,
@@ -179,10 +180,11 @@ describe("DataTreeEvaluator", () => {
           event: "EDIT",
         },
       ];
+      const button2 = dataTreeEvaluator.oldUnEvalTree.Button2 as WidgetEntity;
       const newUnevalTree = {
         ...dataTreeEvaluator.oldUnEvalTree,
         Button2: {
-          ...dataTreeEvaluator.oldUnEvalTree.Button2,
+          ...button2,
           text: '{{""}}',
         },
       };
@@ -210,10 +212,11 @@ describe("DataTreeEvaluator", () => {
           event: "EDIT",
         },
       ];
+      const button2 = dataTreeEvaluator.oldUnEvalTree.Button2 as WidgetEntity;
       const newUnevalTree = {
         ...dataTreeEvaluator.oldUnEvalTree,
         Button2: {
-          ...dataTreeEvaluator.oldUnEvalTree.Button2,
+          ...button2,
           text: "abc",
         },
       };

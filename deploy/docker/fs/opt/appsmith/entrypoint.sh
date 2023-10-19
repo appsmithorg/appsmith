@@ -7,7 +7,7 @@ stacks_path=/appsmith-stacks
 export SUPERVISORD_CONF_TARGET="$TMP/supervisor-conf.d/"  # export for use in supervisord.conf
 export MONGODB_TMP_KEY_PATH="$TMP/mongodb-key"  # export for use in supervisor process mongodb.conf
 
-mkdir -pv "$SUPERVISORD_CONF_TARGET"
+mkdir -pv "$SUPERVISORD_CONF_TARGET" "$NGINX_WWW_PATH"
 
 # ip is a reserved keyword for tracking events in Mixpanel. Instead of showing the ip as is Mixpanel provides derived properties.
 # As we want derived props alongwith the ip address we are sharing the ip address in separate keys
@@ -143,6 +143,12 @@ unset_unused_variables() {
     unset APPSMITH_RECAPTCHA_SECRET_KEY
     unset APPSMITH_RECAPTCHA_ENABLED
   fi
+
+  export APPSMITH_SUPERVISOR_USER="${APPSMITH_SUPERVISOR_USER:-appsmith}"
+  if [[ -z "${APPSMITH_SUPERVISOR_PASSWORD-}" ]]; then
+    APPSMITH_SUPERVISOR_PASSWORD="$(tr -dc A-Za-z0-9 </dev/urandom | head -c 13)"
+    export APPSMITH_SUPERVISOR_PASSWORD
+  fi
 }
 
 check_mongodb_uri() {
@@ -167,6 +173,8 @@ init_mongodb() {
       openssl rand -base64 756 > "$MONGO_DB_KEY"
     fi
     use-mongodb-key "$MONGO_DB_KEY"
+
+    ./mongodb-fixer.sh &
   fi
 }
 
@@ -255,6 +263,7 @@ is_empty_directory() {
 }
 
 check_setup_custom_ca_certificates() {
+  # old, deprecated, should be removed.
   local stacks_ca_certs_path
   stacks_ca_certs_path="$stacks_path/ca-certs"
 
@@ -279,12 +288,44 @@ check_setup_custom_ca_certificates() {
 
   fi
 
-  if [[ -n "$(ls "$stacks_ca_certs_path"/*.pem 2>/dev/null)" ]]; then
-    echo "Looks like you have some '.pem' files in your 'ca-certs' folder. Please rename them to '.crt' to be picked up autatically.".
-  fi
-
   update-ca-certificates --fresh
 }
+
+setup-custom-ca-certificates() (
+  local stacks_ca_certs_path="$stacks_path/ca-certs"
+  local store="$TMP/cacerts"
+  local opts_file="$TMP/java-cacerts-opts"
+
+  rm -f "$store" "$opts_file"
+
+  if [[ -n "$(ls "$stacks_ca_certs_path"/*.pem 2>/dev/null)" ]]; then
+    echo "Looks like you have some '.pem' files in your 'ca-certs' folder. Please rename them to '.crt' to be picked up automatically.".
+  fi
+
+  if ! [[ -d "$stacks_ca_certs_path" && "$(find "$stacks_ca_certs_path" -maxdepth 1 -type f -name '*.crt' | wc -l)" -gt 0 ]]; then
+    echo "No custom CA certificates found."
+    return
+  fi
+
+  # Import the system CA certificates into the store.
+  keytool -importkeystore \
+    -srckeystore /opt/java/lib/security/cacerts \
+    -destkeystore "$store" \
+    -srcstorepass changeit \
+    -deststorepass changeit
+
+  # Add the custom CA certificates to the store.
+  find "$stacks_ca_certs_path" -maxdepth 1 -type f -name '*.crt' \
+    -exec keytool -import -noprompt -keystore "$store" -file '{}' -storepass changeit ';'
+
+  {
+    echo "-Djavax.net.ssl.trustStore=$store"
+    echo "-Djavax.net.ssl.trustStorePassword=changeit"
+  } > "$opts_file"
+
+  # Get certbot to use the combined trusted CA certs file.
+  export REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
+)
 
 configure_supervisord() {
   local supervisord_conf_source="/opt/appsmith/templates/supervisord"
@@ -315,21 +356,28 @@ configure_supervisord() {
 
 }
 
-# This is a workaround to get Redis working on diffent memory pagesize
+# This is a workaround to get Redis working on different memory pagesize
 # https://github.com/appsmithorg/appsmith/issues/11773
 check_redis_compatible_page_size() {
   local page_size
   page_size="$(getconf PAGE_SIZE)"
   if [[ $page_size -gt 4096 ]]; then
+    curl \
+      --silent \
+      --user "$APPSMITH_SEGMENT_CE_KEY:" \
+      --header 'Content-Type: application/json' \
+      --data '{ "userId": "'"$HOSTNAME"'", "event":"RedisCompile" }' \
+      https://api.segment.io/v1/track \
+      || true
     echo "Compile Redis stable with page size of $page_size"
-    echo "Downloading Redis source..."
-    curl https://download.redis.io/redis-stable.tar.gz -L | tar xvz
-    cd redis-stable/
-    echo "Compiling Redis from source..."
-    make && make install
-    echo "Cleaning up Redis source..."
-    cd ..
-    rm -rf redis-stable/
+    apt-get update
+    apt-get install --yes build-essential
+    curl --location https://download.redis.io/redis-stable.tar.gz | tar -xz -C /tmp
+    pushd /tmp/redis-stable
+    make
+    make install
+    popd
+    rm -rf /tmp/redis-stable
   else
     echo "Redis is compatible with page size of $page_size"
   fi
@@ -392,15 +440,19 @@ init_postgres || runEmbeddedPostgres=0
 }
 
 init_loading_pages(){
-  # The default NGINX configuration includes an IPv6 listen directive. But not all
-  # servers support it, and we don't need it. So we remove it here before starting
-  # NGINX.
-  sed -i '/\[::\]:80 default_server;/d' /etc/nginx/sites-available/default
   local starting_page="/opt/appsmith/templates/appsmith_starting.html"
   local initializing_page="/opt/appsmith/templates/appsmith_initializing.html"
-  local editor_load_page="/opt/appsmith/editor/loading.html"
-  # Update default nginx page for initializing page
-  cp "$initializing_page" /var/www/html/index.nginx-debian.html
+  local editor_load_page="$NGINX_WWW_PATH/loading.html"
+  cp "$initializing_page" "$NGINX_WWW_PATH/index.html"
+  # TODO: Also listen on 443, if HTTP certs are available.
+  cat <<EOF > "$TMP/nginx-app.conf"
+    server {
+      listen ${PORT:-80} default_server;
+      location / {
+        try_files \$uri \$uri/ /index.html =404;
+      }
+    }
+EOF
   # Start nginx page to display the Appsmith is Initializing page
   nginx
   # Update editor nginx page for starting page
@@ -427,6 +479,8 @@ else
 fi
 
 check_setup_custom_ca_certificates
+setup-custom-ca-certificates
+
 mount_letsencrypt_directory
 
 check_redis_compatible_page_size

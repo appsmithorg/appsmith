@@ -1,10 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  DatasourceStructureContainer as DatasourceStructureList,
-  DatasourceStructureContext,
-} from "../Explorer/Datasources/DatasourceStructureContainer";
+import { DatasourceStructureContext } from "../Explorer/Datasources/DatasourceStructure";
+import { DatasourceStructureContainer as DatasourceStructureList } from "../Explorer/Datasources/DatasourceStructureContainer";
 import {
   getDatasourceStructureById,
   getIsFetchingDatasourceStructure,
@@ -14,11 +12,13 @@ import DatasourceStructureHeader from "../Explorer/Datasources/DatasourceStructu
 import { MessageWrapper, TableWrapper } from "../SaaSEditor/GoogleSheetSchema";
 import { Spinner, Text, Button } from "design-system";
 import {
-  DATASOURCE_NO_RECORDS_TO_SHOW,
-  GSHEETS_ERR_FETCHING_PREVIEW_DATA,
   GSHEETS_FETCHING_PREVIEW_DATA,
   GSHEETS_GENERATE_PAGE_BUTTON,
+  GSHEETS_ERR_FETCHING_PREVIEW_DATA,
+  EMPTY_TABLE_TITLE_TEXT,
+  EMPTY_TABLE_MESSAGE_TEXT,
   createMessage,
+  EMPTY_TABLE_SVG_ALT_TEXT,
 } from "@appsmith/constants/messages";
 import Table from "pages/Editor/QueryEditor/Table";
 import { generateTemplateToUpdatePage } from "actions/pageActions";
@@ -36,12 +36,15 @@ import type {
   QueryTemplate,
 } from "entities/Datasource";
 import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
-import {
-  hasCreateDatasourceActionPermission,
-  hasCreatePagePermission,
-} from "@appsmith/utils/permissionHelpers";
 import type { AppState } from "@appsmith/reducers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import {
+  getHasCreateDatasourceActionPermission,
+  getHasCreatePagePermission,
+} from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import EmptyTableSVG from "assets/images/empty-table-in-display-preview.svg";
 
 const ViewModeSchemaContainer = styled.div`
   height: 100%;
@@ -56,7 +59,7 @@ const StructureContainer = styled.div`
   width: 25%;
   display: flex;
   flex-direction: column;
-  overflow: scroll;
+  overflow: hidden;
 `;
 
 const DatasourceDataContainer = styled.div`
@@ -69,6 +72,35 @@ const DatasourceDataContainer = styled.div`
 const DatasourceListContainer = styled.div`
   height: 100%;
   margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  div {
+    flex-shrink: 0;
+  }
+  div ~ div {
+    flex-grow: 1;
+  }
+  .t--schema-virtuoso-container {
+    height: 100%;
+  }
+`;
+
+export const SchemaDisplayEmptyOrErrorOrLoadingStateWrapper = styled.div`
+  width: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  left: 20%;
+`;
+
+export const SchemaDisplayEmptyOrErrorOrLoadingMessageWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  left: 10%;
 `;
 
 const ButtonContainer = styled.div`
@@ -77,10 +109,32 @@ const ButtonContainer = styled.div`
   justify-content: flex-end;
 `;
 
-type Props = {
+interface Props {
   datasourceId: string;
   datasource: Datasource;
   setDatasourceViewModeFlag: (viewMode: boolean) => void;
+}
+
+const renderEmptyTablePage = () => {
+  return (
+    <SchemaDisplayEmptyOrErrorOrLoadingStateWrapper>
+      {/* Render empty table image */}
+      <img
+        alt={createMessage(EMPTY_TABLE_SVG_ALT_TEXT)}
+        src={EmptyTableSVG}
+        style={{ paddingBottom: "10%", paddingTop: "50%" }}
+      />
+      {/* Show description below the image */}
+      <SchemaDisplayEmptyOrErrorOrLoadingMessageWrapper>
+        {/* Show title */}
+        <Text style={{ fontWeight: "bold" }}>
+          {createMessage(EMPTY_TABLE_TITLE_TEXT)}
+        </Text>
+        {/* Show description */}
+        <Text>{createMessage(EMPTY_TABLE_MESSAGE_TEXT)}</Text>
+      </SchemaDisplayEmptyOrErrorOrLoadingMessageWrapper>
+    </SchemaDisplayEmptyOrErrorOrLoadingStateWrapper>
+  );
 };
 
 const DatasourceViewModeSchema = (props: Props) => {
@@ -100,12 +154,18 @@ const DatasourceViewModeSchema = (props: Props) => {
   const userAppPermissions = useSelector(
     (state: AppState) => getCurrentApplication(state)?.userPermissions ?? [],
   );
-  const canCreatePages = hasCreatePagePermission(userAppPermissions);
 
-  const canCreateDatasourceActions = hasCreateDatasourceActionPermission([
-    ...datasourcePermissions,
-    ...pagePermissions,
-  ]);
+  const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+
+  const canCreatePages = getHasCreatePagePermission(
+    isFeatureEnabled,
+    userAppPermissions,
+  );
+
+  const canCreateDatasourceActions = getHasCreateDatasourceActionPermission(
+    isFeatureEnabled,
+    [...datasourcePermissions, ...pagePermissions],
+  );
 
   const applicationId: string = useSelector(getCurrentApplicationId);
   const { pageId: currentPageId } = useParams<ExplorerURLParams>();
@@ -293,11 +353,8 @@ const DatasourceViewModeSchema = (props: Props) => {
           {!isLoading &&
             !failedFetchingPreviewData &&
             !previewDataError &&
-            previewData?.length < 1 && (
-              <MessageWrapper>
-                <Text>{createMessage(DATASOURCE_NO_RECORDS_TO_SHOW)}</Text>
-              </MessageWrapper>
-            )}
+            previewData?.length < 1 &&
+            renderEmptyTablePage()}
           {/* leaving this here in case we decide to show errors from server */}
           {/* {!isLoading && !failedFetchingPreviewData && previewDataError && (
             <MessageWrapper>

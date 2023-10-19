@@ -19,13 +19,14 @@ const _Text = (props: TextProps, ref: Ref<HTMLParagraphElement>) => {
     isItalic = false,
     lineClamp,
     textAlign = "left",
+    title,
     variant = "body",
     ...rest
   } = props;
 
   const getFontWeight = (
     fontWeight?: keyof typeof TYPOGRAPHY_FONT_WEIGHTS,
-    isBold?: boolean,
+    isBold = false,
   ) => {
     if (fontWeight) return fontWeight;
 
@@ -47,6 +48,7 @@ const _Text = (props: TextProps, ref: Ref<HTMLParagraphElement>) => {
       <span
         className={styles.clampedText}
         style={{ WebkitLineClamp: lineClamp }}
+        title={title}
       >
         {children}
       </span>

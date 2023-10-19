@@ -16,7 +16,7 @@ import {
   WIDGET_PADDING,
 } from "constants/WidgetConstants";
 import { all, call } from "redux-saga/effects";
-import type { DataTree } from "entities/DataTree/dataTreeFactory";
+import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { select } from "redux-saga/effects";
 import { getCopiedWidgets } from "utils/storage";
 import type { WidgetProps } from "widgets/BaseWidget";
@@ -56,12 +56,12 @@ import {
 import { getContainerWidgetSpacesSelector } from "selectors/editorSelectors";
 import { reflow } from "reflow";
 import { getBottomRowAfterReflow } from "utils/reflowHookUtils";
-import type { WidgetEntity } from "entities/DataTree/dataTreeFactory";
+import type { WidgetEntity } from "@appsmith/entities/DataTree/types";
 import { isWidget } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import type { MetaState } from "reducers/entityReducers/metaReducer";
-import { Positioning } from "layoutSystems/autolayout/utils/constants";
-import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import { LayoutSystemTypes } from "layoutSystems/types";
+import { Positioning } from "layoutSystems/common/utils/constants";
 
 export interface CopiedWidgetGroup {
   widgetId: string;
@@ -69,13 +69,13 @@ export interface CopiedWidgetGroup {
   list: WidgetProps[];
 }
 
-export type NewPastePositionVariables = {
+export interface NewPastePositionVariables {
   bottomMostRow?: number;
   gridProps?: GridProps;
   newPastingPositionMap?: SpaceMap;
   reflowedMovementMap?: ReflowedSpaceMap;
   canvasId?: string;
-};
+}
 
 export const WIDGET_PASTE_PADDING = 1;
 
@@ -345,11 +345,11 @@ function sortWidgetsMetaByParent(widgetsMeta: MetaState, parentId: string) {
   );
 }
 
-export type DescendantWidgetMap = {
+export interface DescendantWidgetMap {
   id: string;
   // To accomodate metaWidgets which might not be present on the evalTree, evaluatedWidget might be undefined
   evaluatedWidget: WidgetEntity | undefined;
-};
+}
 
 /**
  * As part of widget's descendant, we add both children and metaWidgets.
@@ -401,7 +401,7 @@ export function getWidgetDescendantToReset(
           if (isWidget(childWidget)) {
             descendantList.push({
               id: childWidgetId,
-              evaluatedWidget: childWidget,
+              evaluatedWidget: childWidget as WidgetEntity,
             });
             const grandChildren = getWidgetDescendantToReset(
               canvasWidgets,
@@ -671,13 +671,11 @@ export const getSelectedWidgetWhenPasting = function* () {
   const { widgets: copiedWidgetGroups }: { widgets: CopiedWidgetGroup[] } =
     yield getCopiedWidgets();
 
-  let selectedWidget: FlattenedWidgetProps | undefined = yield select(
-    getSelectedWidget,
-  );
+  let selectedWidget: FlattenedWidgetProps | undefined =
+    yield select(getSelectedWidget);
 
-  const focusedWidget: FlattenedWidgetProps | undefined = yield select(
-    getFocusedWidget,
-  );
+  const focusedWidget: FlattenedWidgetProps | undefined =
+    yield select(getFocusedWidget);
 
   selectedWidget = getSelectedWidgetIfPastingIntoListWidget(
     canvasWidgets,
@@ -747,7 +745,7 @@ export function getMousePositions(
 export function getSnappedGrid(LayoutWidget: WidgetProps, canvasWidth: number) {
   // For all widgets inside a container, we remove both container padding as well as widget padding from component width
   let padding =
-    ((LayoutWidget?.appPositioningType === AppPositioningTypes.AUTO
+    ((LayoutWidget?.layoutSystemType === LayoutSystemTypes.AUTO
       ? AUTO_LAYOUT_CONTAINER_PADDING
       : CONTAINER_GRID_PADDING) +
       WIDGET_PADDING) *
@@ -1490,9 +1488,8 @@ export function getNextWidgetName(
  * @returns
  */
 export function* createWidgetCopy(widget: FlattenedWidgetProps) {
-  const allWidgets: { [widgetId: string]: FlattenedWidgetProps } = yield select(
-    getWidgets,
-  );
+  const allWidgets: { [widgetId: string]: FlattenedWidgetProps } =
+    yield select(getWidgets);
   const widgetsToStore = getAllWidgetsInTree(widget.widgetId, allWidgets);
   return {
     widgetId: widget.widgetId,

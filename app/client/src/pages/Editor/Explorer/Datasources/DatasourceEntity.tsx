@@ -13,10 +13,8 @@ import {
 } from "actions/datasourceActions";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
-import {
-  DatasourceStructureContainer,
-  DatasourceStructureContext,
-} from "./DatasourceStructureContainer";
+import { DatasourceStructureContainer } from "./DatasourceStructureContainer";
+import { DatasourceStructureContext } from "./DatasourceStructure";
 import { isStoredDatasource, PluginType } from "entities/Action";
 import {
   getAction,
@@ -26,37 +24,48 @@ import {
 import {
   datasourcesEditorIdURL,
   saasEditorDatasourceIdURL,
-} from "RouteBuilder";
+} from "@appsmith/RouteBuilder";
 import { inGuidedTour } from "selectors/onboardingSelectors";
-import { getCurrentPageId } from "selectors/editorSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useLocation } from "react-router";
 import omit from "lodash/omit";
 import { getQueryParams } from "utils/URLUtils";
 import { debounce } from "lodash";
+import styled from "styled-components";
 
-type ExplorerDatasourceEntityProps = {
+interface ExplorerDatasourceEntityProps {
   plugin: Plugin;
   datasource: Datasource;
   step: number;
   searchKeyword?: string;
-  pageId: string;
+  entityId: string;
   isActive: boolean;
   canManageDatasource?: boolean;
-};
+}
+
+const MAX_HEIGHT_LIST_WRAPPER = 300;
+
+const DataStructureListWrapper = styled.div<{ height: number }>`
+  overflow-y: auto;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  max-height: ${MAX_HEIGHT_LIST_WRAPPER}px;
+  ${(props) => `min-height: ${props.height}px;`}
+`;
 
 const ExplorerDatasourceEntity = React.memo(
   (props: ExplorerDatasourceEntityProps) => {
+    const { entityId } = props;
     const guidedTourEnabled = useSelector(inGuidedTour);
     const dispatch = useDispatch();
-    const pageId = useSelector(getCurrentPageId);
     const icon = getPluginIcon(props.plugin);
     const location = useLocation();
     const switchDatasource = useCallback(() => {
       let url;
       if (props.plugin && props.plugin.type === PluginType.SAAS) {
         url = saasEditorDatasourceIdURL({
-          pageId,
+          pageId: entityId,
           pluginPackageName: props.plugin.packageName,
           datasourceId: props.datasource.id,
           params: {
@@ -65,7 +74,7 @@ const ExplorerDatasourceEntity = React.memo(
         });
       } else {
         url = datasourcesEditorIdURL({
-          pageId,
+          pageId: entityId,
           datasourceId: props.datasource.id,
           params: omit(getQueryParams(), "viewMode"),
         });
@@ -78,7 +87,12 @@ const ExplorerDatasourceEntity = React.memo(
         name: props.datasource.name,
       });
       history.push(url, { invokedBy: NavigationMethod.EntityExplorer });
-    }, [props.datasource.id, props.datasource.name, location.pathname, pageId]);
+    }, [
+      props.datasource.id,
+      props.datasource.name,
+      location.pathname,
+      entityId,
+    ]);
 
     const queryId = getQueryIdFromURL();
     const queryAction = useSelector((state: AppState) =>
@@ -167,12 +181,19 @@ const ExplorerDatasourceEntity = React.memo(
         step={props.step}
         updateEntityName={updateDatasourceNameCall}
       >
-        <DatasourceStructureContainer
-          context={DatasourceStructureContext.EXPLORER}
-          datasourceId={props.datasource.id}
-          datasourceStructure={datasourceStructure}
-          step={props.step}
-        />
+        <DataStructureListWrapper
+          height={Math.min(
+            (datasourceStructure?.tables?.length || 0) * 50,
+            MAX_HEIGHT_LIST_WRAPPER,
+          )}
+        >
+          <DatasourceStructureContainer
+            context={DatasourceStructureContext.EXPLORER}
+            datasourceId={props.datasource.id}
+            datasourceStructure={datasourceStructure}
+            step={props.step}
+          />
+        </DataStructureListWrapper>
       </Entity>
     );
   },

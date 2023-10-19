@@ -9,8 +9,7 @@ export type SpacingDimension =
   | "spacing-7"
   | "spacing-8"
   // eslint-disable-next-line @typescript-eslint/ban-types
-  | (string & {})
-  | number;
+  | (string & {});
 
 export type SizingDimension =
   | "sizing-0"
@@ -115,5 +114,4 @@ export type SizingDimension =
   | "sizing-99"
   | "sizing-100"
   // eslint-disable-next-line @typescript-eslint/ban-types
-  | (string & {})
-  | number;
+  | (string & {});

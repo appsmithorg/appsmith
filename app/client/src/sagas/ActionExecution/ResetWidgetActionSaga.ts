@@ -14,10 +14,10 @@ import type { FlattenedWidgetProps } from "WidgetProvider/constants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { getDataTree, getConfigTree } from "selectors/dataTreeSelectors";
 import type {
-  DataTree,
-  ConfigTree,
+  WidgetEntity,
   WidgetEntityConfig,
-} from "entities/DataTree/dataTreeFactory";
+} from "@appsmith/entities/DataTree/types";
+import type { DataTree, ConfigTree } from "entities/DataTree/dataTreeTypes";
 import { isWidget } from "@appsmith/workers/Evaluation/evaluationUtils";
 import type { TResetWidgetDescription } from "workers/Evaluation/fns/resetWidget";
 
@@ -50,7 +50,7 @@ export default function* resetWidgetActionSaga(
     yield put(
       resetWidgetMetaProperty(
         widget.widgetId,
-        evaluatedEntity,
+        evaluatedEntity as WidgetEntity,
         evaluatedEntityConfig as WidgetEntityConfig,
       ),
     );

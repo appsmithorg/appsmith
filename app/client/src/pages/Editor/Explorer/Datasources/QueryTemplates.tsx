@@ -16,10 +16,10 @@ import {
   getDatasource,
   getPlugin,
 } from "@appsmith/selectors/entitiesSelector";
-import { integrationEditorURL } from "RouteBuilder";
-import { MenuItem } from "design-system";
+import { integrationEditorURL } from "@appsmith/RouteBuilder";
+import { MenuItem, Tag } from "design-system";
 import type { Plugin } from "api/PluginApi";
-import { DatasourceStructureContext } from "./DatasourceStructureContainer";
+import { DatasourceStructureContext } from "./DatasourceStructure";
 import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
 import { setFeatureWalkthroughShown } from "utils/storage";
 import styled from "styled-components";
@@ -29,14 +29,16 @@ import { diff } from "deep-diff";
 import { UndoRedoToastContext, showUndoRedoToast } from "utils/replayHelpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
+import { SUGGESTED_TAG, createMessage } from "@appsmith/constants/messages";
+import { transformTextToSentenceCase } from "pages/Editor/utils";
 
-type QueryTemplatesProps = {
+interface QueryTemplatesProps {
   templates: QueryTemplate[];
   datasourceId: string;
   onSelect: () => void;
   context: DatasourceStructureContext;
   currentActionId: string;
-};
+}
 
 enum QueryTemplatesEvent {
   EXPLORER_TEMPLATE = "explorer-template",
@@ -44,12 +46,14 @@ enum QueryTemplatesEvent {
 }
 
 const TemplateMenuItem = styled(MenuItem)`
-  & > span {
-    text-transform: lowercase;
+  & span {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
   }
 
-  & > span:first-letter {
-    text-transform: capitalize;
+  & .suggested_template {
+    width: 30%;
   }
 `;
 
@@ -207,7 +211,12 @@ export function QueryTemplates(props: QueryTemplatesProps) {
               props.onSelect();
             }}
           >
-            {template.title}
+            {transformTextToSentenceCase(template.title)}
+            {template?.suggested && (
+              <Tag className="suggested_template" isClosable={false} size="md">
+                {createMessage(SUGGESTED_TAG)}
+              </Tag>
+            )}
           </TemplateMenuItem>
         );
       })}

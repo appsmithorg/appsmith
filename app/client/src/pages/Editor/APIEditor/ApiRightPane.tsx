@@ -9,13 +9,13 @@ import ActionRightPane, {
   useEntityDependencies,
 } from "components/editorComponents/ActionRightPane";
 import { sortedDatasourcesHandler } from "./helpers";
-import { datasourcesEditorIdURL } from "RouteBuilder";
+import { datasourcesEditorIdURL } from "@appsmith/RouteBuilder";
 import { setApiRightPaneSelectedTab } from "actions/apiPaneActions";
 import { useDispatch, useSelector } from "react-redux";
 import { getApiRightPaneSelectedTab } from "selectors/apiPaneSelectors";
 import isUndefined from "lodash/isUndefined";
 import { Button, Tab, TabPanel, Tabs, TabsList, Tag } from "design-system";
-import { DatasourceStructureContext } from "../Explorer/Datasources/DatasourceStructureContainer";
+import { DatasourceStructureContext } from "../Explorer/Datasources/DatasourceStructure";
 import type { Datasource } from "entities/Datasource";
 import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelectors";
 
@@ -310,6 +310,7 @@ function ApiRightPane(props: any) {
             <SomeWrapper>
               <ActionRightPane
                 actionName={props.actionName}
+                actionRightPaneBackLink={props.actionRightPaneBackLink}
                 context={DatasourceStructureContext.API_EDITOR}
                 datasourceId={props.datasourceId}
                 hasConnections={hasDependencies}

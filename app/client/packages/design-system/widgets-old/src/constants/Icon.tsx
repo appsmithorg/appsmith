@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-export type IconProps = {
+export interface IconProps {
   width?: number;
   height?: number;
   color?: string;
@@ -10,7 +10,7 @@ export type IconProps = {
   keepColors?: boolean;
   disabled?: boolean;
   cursor?: "move" | "grab" | "default";
-};
+}
 
 export const IconWrapper = styled.div<IconProps>`
   &:focus {

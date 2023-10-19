@@ -1,6 +1,6 @@
 import { useSelector } from "react-redux";
-import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
-import { getCurrentAppPositioningType } from "selectors/editorSelectors";
+import { LayoutSystemTypes } from "layoutSystems/types";
+import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 
 export enum LayoutSystemFeatures {
   ENABLE_MAIN_CONTAINER_RESIZER = "ENABLE_MAIN_CONTAINER_RESIZER", //enable main canvas resizer
@@ -8,14 +8,23 @@ export enum LayoutSystemFeatures {
   ENABLE_CANVAS_LAYOUT_CONTROL = "ENABLE_CANVAS_LAYOUT_CONTROL", //enables layout control option in property pane
 }
 
-const FIXED_LAYOUT_FEATURES = {
+const FIXED_LAYOUT_FEATURES: Record<LayoutSystemFeatures, boolean> = {
   [LayoutSystemFeatures.ENABLE_FORKING_FROM_TEMPLATES]: true,
   [LayoutSystemFeatures.ENABLE_CANVAS_LAYOUT_CONTROL]: true,
-} as Record<LayoutSystemFeatures, boolean>;
+  [LayoutSystemFeatures.ENABLE_MAIN_CONTAINER_RESIZER]: false,
+};
 
-const AUTO_LAYOUT_FEATURES = {
+const AUTO_LAYOUT_FEATURES: Record<LayoutSystemFeatures, boolean> = {
+  [LayoutSystemFeatures.ENABLE_FORKING_FROM_TEMPLATES]: false,
+  [LayoutSystemFeatures.ENABLE_CANVAS_LAYOUT_CONTROL]: false,
   [LayoutSystemFeatures.ENABLE_MAIN_CONTAINER_RESIZER]: true,
-} as Record<LayoutSystemFeatures, boolean>;
+};
+
+const ANVIL_FEATURES: Record<LayoutSystemFeatures, boolean> = {
+  [LayoutSystemFeatures.ENABLE_FORKING_FROM_TEMPLATES]: false,
+  [LayoutSystemFeatures.ENABLE_CANVAS_LAYOUT_CONTROL]: false,
+  [LayoutSystemFeatures.ENABLE_MAIN_CONTAINER_RESIZER]: true,
+};
 
 /**
  * This Hook is mainly written to be used as a central control to enable
@@ -26,16 +35,19 @@ const AUTO_LAYOUT_FEATURES = {
  * The boolean will indicate if the feature is enabled for the current layout
  */
 export const useLayoutSystemFeatures = () => {
-  const appPositioningType = useSelector(getCurrentAppPositioningType);
+  const layoutSystemType = useSelector(getLayoutSystemType);
 
   let currentFeatureSet = {} as Record<LayoutSystemFeatures, boolean>;
 
-  switch (appPositioningType) {
-    case AppPositioningTypes.FIXED:
+  switch (layoutSystemType) {
+    case LayoutSystemTypes.FIXED:
       currentFeatureSet = FIXED_LAYOUT_FEATURES;
       break;
-    case AppPositioningTypes.AUTO:
+    case LayoutSystemTypes.AUTO:
       currentFeatureSet = AUTO_LAYOUT_FEATURES;
+      break;
+    case LayoutSystemTypes.ANVIL:
+      currentFeatureSet = ANVIL_FEATURES;
       break;
   }
 

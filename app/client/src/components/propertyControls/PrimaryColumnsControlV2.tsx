@@ -18,7 +18,7 @@ import {
   isColumnTypeEditable,
   reorderColumns,
 } from "widgets/TableWidgetV2/widget/utilities";
-import type { DataTree } from "entities/DataTree/dataTreeFactory";
+import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import {
   getDataTreeForAutocomplete,
   getPathEvalErrors,
@@ -81,11 +81,11 @@ const getOriginalColumn = (
   return column;
 };
 
-type State = {
+interface State {
   focusedIndex: number | null;
   duplicateColumnIds: string[];
   hasScrollableList: boolean;
-};
+}
 
 const LIST_CLASSNAME = "tablewidgetv2-primarycolumn-list";
 class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {

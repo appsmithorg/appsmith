@@ -10,21 +10,20 @@ import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.newactions.base.NewActionServiceCEImpl;
+import com.appsmith.server.newpages.base.NewPageService;
+import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.MarketplaceService;
-import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.PermissionGroupService;
-import com.appsmith.server.services.PluginService;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ActionPermissionImpl;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.PolicySolution;
-import com.mongodb.client.result.UpdateResult;
 import io.micrometer.observation.ObservationRegistry;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
@@ -39,6 +38,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.test.StepVerifier;
+
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -200,9 +201,8 @@ public class NewActionServiceUnitTest {
     @Test
     public void testPublishActionArchivesAndPublishesActions() {
         String applicationId = "dummy-application-id";
-        UpdateResult updateResult = Mockito.mock(UpdateResult.class);
-        Mockito.when(updateResult.getModifiedCount()).thenReturn(10L);
-        Mockito.when(updateResult.getMatchedCount()).thenReturn(5L);
+        List updateResult = Mockito.mock(List.class);
+        Mockito.when(updateResult.size()).thenReturn(10);
 
         Mockito.when(newActionRepository.archiveDeletedUnpublishedActions(
                         applicationId, actionPermission.getEditPermission()))
@@ -213,8 +213,7 @@ public class NewActionServiceUnitTest {
 
         StepVerifier.create(newActionService.publishActions(applicationId, actionPermission.getEditPermission()))
                 .assertNext(updateResult1 -> {
-                    assertEquals(10L, updateResult1.getModifiedCount());
-                    assertEquals(5L, updateResult1.getMatchedCount());
+                    assertEquals(10, updateResult1.size());
                 })
                 .verifyComplete();
     }

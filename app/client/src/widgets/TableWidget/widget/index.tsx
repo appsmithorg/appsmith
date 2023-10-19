@@ -67,7 +67,7 @@ import { ButtonVariantTypes } from "components/constants";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import type { AutocompletionDefinitions } from "WidgetProvider/constants";
 import { cloneDeep, set } from "lodash";
-import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
+import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import { combineDynamicBindings } from "utils/DynamicBindingUtils";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { BlueprintOperationTypes } from "WidgetProvider/constants";
@@ -77,8 +77,8 @@ import type {
 } from "WidgetProvider/constants";
 import IconSVG from "../icon.svg";
 
-const ReactTableComponent = lazy(() =>
-  retryPromise(() => import("../component")),
+const ReactTableComponent = lazy(async () =>
+  retryPromise(async () => import("../component")),
 );
 const defaultFilter = [
   {
@@ -802,13 +802,13 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     | Record<string, ColumnProperties>
     | undefined => {
     const {
-      sanitizedTableData = [],
-      primaryColumns = {},
       columnNameMap = {},
       columnTypeMap = {},
       derivedColumns = {},
       hiddenColumns = [],
       migrated,
+      primaryColumns = {},
+      sanitizedTableData = [],
     } = this.props;
     // Bail out if the data doesn't exist.
     // This is a temporary measure,
@@ -885,7 +885,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   updateColumnProperties = (
     tableColumns?: Record<string, ColumnProperties>,
   ) => {
-    const { primaryColumns = {}, derivedColumns = {} } = this.props;
+    const { derivedColumns = {}, primaryColumns = {} } = this.props;
     const { columnOrder, migrated } = this.props;
     if (tableColumns) {
       const previousColumnIds = Object.keys(primaryColumns);
@@ -1148,14 +1148,14 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
   getWidgetView() {
     const {
-      totalRecordsCount,
       delimiter,
-      pageSize,
       filteredTableData = [],
       isVisibleDownload,
       isVisibleFilters,
       isVisiblePagination,
       isVisibleSearch,
+      pageSize,
+      totalRecordsCount,
     } = this.props;
     const tableColumns = this.getTableColumns() || [];
     const transformedData = this.transformData(filteredTableData, tableColumns);

@@ -25,10 +25,9 @@ import UnsupportedPluginDialog from "./UnsupportedPluginDialog";
 import { getQueryParams } from "utils/URLUtils";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
-import { integrationEditorURL } from "RouteBuilder";
+import { integrationEditorURL } from "@appsmith/RouteBuilder";
 import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
 
-import { hasCreateDatasourcePermission } from "@appsmith/utils/permissionHelpers";
 import { Tab, TabPanel, Tabs, TabsList } from "design-system";
 import Debugger, {
   ResizerContentContainer,
@@ -37,6 +36,10 @@ import Debugger, {
 import { showDebuggerFlag } from "selectors/debuggerSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
+import { isAirgapped } from "@appsmith/utils/airgapHelpers";
+import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
+import { isGACEnabled } from "@appsmith/utils/planHelpers";
+import { getHasCreateDatasourcePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 
 const HeaderFlex = styled.div`
   font-size: 20px;
@@ -96,7 +99,7 @@ const NewIntegrationsContainer = styled.div`
   }
 `;
 
-type IntegrationsHomeScreenProps = {
+interface IntegrationsHomeScreenProps {
   pageId: string;
   selectedTab: string;
   location: {
@@ -113,14 +116,14 @@ type IntegrationsHomeScreenProps = {
   applicationId: string;
   canCreateDatasource?: boolean;
   showDebugger: boolean;
-};
+}
 
-type IntegrationsHomeScreenState = {
+interface IntegrationsHomeScreenState {
   page: number;
   activePrimaryMenuId: string;
   activeSecondaryMenuId: number;
   unsupportedPluginDialogVisible: boolean;
-};
+}
 
 type Props = IntegrationsHomeScreenProps &
   InjectedFormProps<{ category: string }, IntegrationsHomeScreenProps>;
@@ -219,6 +222,7 @@ function CreateNewSaasIntegration({
 }: any) {
   const newSaasAPIRef = useRef<HTMLDivElement>(null);
   const isMounted = useRef(false);
+  const isAirgappedInstance = isAirgapped();
 
   useEffect(() => {
     if (active && newSaasAPIRef.current) {
@@ -233,7 +237,7 @@ function CreateNewSaasIntegration({
       isMounted.current = true;
     }
   }, [active]);
-  return (
+  return !isAirgappedInstance ? (
     <div id="new-saas-api" ref={newSaasAPIRef}>
       <Text type={TextType.H2}>Saas Integrations</Text>
       <NewApiScreen
@@ -245,7 +249,7 @@ function CreateNewSaasIntegration({
         showUnsupportedPluginDialog={showUnsupportedPluginDialog}
       />
     </div>
-  );
+  ) : null;
 }
 
 function CreateNewDatasource({
@@ -589,7 +593,11 @@ const mapStateToProps = (state: AppState) => {
   const userWorkspacePermissions =
     getCurrentAppWorkspace(state).userPermissions ?? [];
 
-  const canCreateDatasource = hasCreateDatasourcePermission(
+  const featureFlags = selectFeatureFlags(state);
+  const isFeatureEnabled = isGACEnabled(featureFlags);
+
+  const canCreateDatasource = getHasCreateDatasourcePermission(
+    isFeatureEnabled,
     userWorkspacePermissions,
   );
   return {

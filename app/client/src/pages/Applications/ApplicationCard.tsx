@@ -47,9 +47,9 @@ import {
 } from "@appsmith/selectors/applicationSelectors";
 import ForkApplicationModal from "./ForkApplicationModal";
 import { getExportAppAPIRoute } from "@appsmith/constants/ApiConstants";
-import { builderURL, viewerURL } from "RouteBuilder";
+import { builderURL, viewerURL } from "@appsmith/RouteBuilder";
 import history from "utils/history";
-import urlBuilder from "entities/URLRedirect/URLAssembly";
+import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
 import { toast } from "design-system";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { addItemsInContextMenu } from "@appsmith/utils";
@@ -63,7 +63,7 @@ import {
 
 const { cloudHosting } = getAppsmithConfigs();
 
-type ApplicationCardProps = {
+interface ApplicationCardProps {
   application: ApplicationPayload;
   share?: (applicationId: string) => void;
   delete?: (applicationId: string) => void;
@@ -77,7 +77,7 @@ type ApplicationCardProps = {
     canInviteToWorkspace?: boolean;
   };
   workspaceId: string;
-};
+}
 
 const IconScrollWrapper = styled.div`
   position: relative;
@@ -97,10 +97,10 @@ const IconScrollWrapper = styled.div`
   }
 `;
 
-type ModifiedMenuItemProps = MenuItemProps & {
+export interface ModifiedMenuItemProps extends MenuItemProps {
   key?: string;
   "data-testid"?: string;
-};
+}
 
 const ContextMenuTrigger = styled(Button)<{ isHidden?: boolean }>`
   ${(props) => props.isHidden && "opacity: 0; visibility: hidden;"}
@@ -411,8 +411,10 @@ export function ApplicationCard(props: ApplicationCardProps) {
       </Menu>
       <ForkApplicationModal
         applicationId={applicationId}
+        handleClose={() => {
+          setForkApplicationModalOpen(false);
+        }}
         isModalOpen={isForkApplicationModalopen}
-        setModalClose={setForkApplicationModalOpen}
       />
     </>
   );

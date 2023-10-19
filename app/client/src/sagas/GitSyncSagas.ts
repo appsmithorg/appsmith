@@ -98,7 +98,7 @@ import { getCurrentWorkspace } from "@appsmith/selectors/workspaceSelectors";
 import type { Workspace } from "@appsmith/constants/workspaceConstants";
 import { log } from "loglevel";
 import GIT_ERROR_CODES from "constants/GitErrorCodes";
-import { builderURL } from "RouteBuilder";
+import { builderURL } from "@appsmith/RouteBuilder";
 import { APP_MODE } from "entities/App";
 import type { GitDiscardResponse } from "reducers/uiReducers/gitSyncReducer";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
@@ -235,7 +235,7 @@ function* connectToGitSaga(action: ConnectToGitReduxAction) {
       }
       /* commit effect END */
     }
-  } catch (error) {
+  } catch (error: any) {
     if (action.onErrorCallback) {
       action.onErrorCallback(error as Error, response);
     }
@@ -248,11 +248,14 @@ function* connectToGitSaga(action: ConnectToGitReduxAction) {
 
     // Api error
     // Display on the UI
-    if (response && !response?.responseMeta?.success) {
+
+    const errorResponse = response || error?.response?.data;
+
+    if (errorResponse && !errorResponse?.responseMeta?.success) {
       yield put({
         type: ReduxActionErrorTypes.CONNECT_TO_GIT_ERROR,
         payload: {
-          error: response?.responseMeta.error,
+          error: errorResponse?.responseMeta.error,
           show: false,
         },
       });
@@ -1069,9 +1072,8 @@ function* watchGitRequests() {
   );
 
   while (true) {
-    const { type, ...args }: ReduxAction<unknown> = yield take(
-      gitActionChannel,
-    );
+    const { type, ...args }: ReduxAction<unknown> =
+      yield take(gitActionChannel);
     yield call(gitRequestActions[type], { type, ...args });
   }
 }

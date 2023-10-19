@@ -3,7 +3,9 @@
   "password": "input[name='password']",
   "submitBtn": "button[type='submit']",
   "roleDropdown": ".setup-dropdown:first",
+  "proficiencyGroupButton": "[data-testid='t--user-proficiency'] button",
+  "useCaseGroupButton": "[data-testid='t--user-use-case'] button",
   "useCaseDropdown": ".setup-dropdown:last",
   "dropdownOption": ".rc-select-item-option:first",
-  "roleUsecaseSubmit": ".t--get-started-button"
+  "getStartedSubmit": ".t--get-started-button"
 }

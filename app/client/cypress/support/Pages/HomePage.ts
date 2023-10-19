@@ -1,6 +1,7 @@
 import { ObjectsRegistry } from "../Objects/Registry";
 import { REPO, CURRENT_REPO } from "../../fixtures/REPO";
 import HomePageLocators from "../../locators/HomePage";
+import SignupPageLocators from "../../locators/SignupPage.json";
 export class HomePage {
   private agHelper = ObjectsRegistry.AggregateHelper;
   private locator = ObjectsRegistry.CommonLocators;
@@ -114,10 +115,6 @@ export class HomePage {
   _modeSwitchToggle = ".t--comment-mode-switch-toggle";
   _importFromGitBtn = "div.t--import-json-card + div";
   private signupUsername = "input[name='email']";
-  private roleDropdown = ".setup-dropdown:first";
-  private useCaseDropdown = ".setup-dropdown:last";
-  private dropdownOption = ".rc-select-item-option:first";
-  private roleUsecaseSubmit = ".t--get-started-button";
   _multipleSelectedApplication = ".t--application-card-selected";
   private _applicationEditedText = (applicationName: string) =>
     this._appCard(applicationName) +
@@ -331,13 +328,25 @@ export class HomePage {
     });
   }
 
+  public InvokeDispatchOnStore() {
+    cy.window().then((win: any) => {
+      if (win && win.store) {
+        cy.window()
+          .its("store")
+          .invoke("dispatch", { type: "LOGOUT_USER_INIT" });
+      } else {
+        // Handle the case where "store" is not present, or simply ignore and continue.
+      }
+    });
+  }
+
   public LogintoApp(
     uname: string,
     pswd: string,
     role: "App Viewer" | "Developer" | "Administrator" = "Administrator",
   ) {
     this.agHelper.Sleep(); //waiting for window to load
-    cy.window().its("store").invoke("dispatch", { type: "LOGOUT_USER_INIT" });
+    this.InvokeDispatchOnStore();
     cy.wait("@postLogout");
     this.agHelper.VisitNAssert("/user/login", "signUpLogin");
     this.agHelper.AssertElementVisibility(this._username);
@@ -364,12 +373,26 @@ export class HomePage {
     this.agHelper.GetNClick(this._submitBtn);
     this.agHelper.Sleep(1000);
     cy.get("body").then(($body) => {
-      if ($body.find(this.roleDropdown).length > 0) {
-        this.agHelper.GetNClick(this.roleDropdown);
-        this.agHelper.GetNClick(this.dropdownOption);
-        this.agHelper.GetNClick(this.useCaseDropdown);
-        this.agHelper.GetNClick(this.dropdownOption);
-        this.agHelper.GetNClick(this.roleUsecaseSubmit, undefined, true);
+      if ($body.find(SignupPageLocators.roleDropdown).length > 0) {
+        this.agHelper.GetNClick(SignupPageLocators.roleDropdown);
+        this.agHelper.GetNClick(SignupPageLocators.dropdownOption);
+        this.agHelper.GetNClick(SignupPageLocators.useCaseDropdown);
+        this.agHelper.GetNClick(SignupPageLocators.dropdownOption);
+        this.agHelper.GetNClick(
+          SignupPageLocators.getStartedSubmit,
+          undefined,
+          true,
+        );
+      } else if (
+        $body.find(SignupPageLocators.proficiencyGroupButton).length > 0
+      ) {
+        this.agHelper.GetNClick(SignupPageLocators.proficiencyGroupButton);
+        this.agHelper.GetNClick(SignupPageLocators.useCaseGroupButton);
+        this.agHelper.GetNClick(
+          SignupPageLocators.getStartedSubmit,
+          undefined,
+          true,
+        );
       }
     });
     this.assertHelper.AssertNetworkStatus("@getMe");
@@ -408,8 +431,13 @@ export class HomePage {
     this.assertHelper.AssertNetworkStatus("getPagesForViewApp");
   }
 
-  public EditAppFromAppHover() {
-    cy.get(this._applicationCard).first().trigger("mouseover");
+  public EditAppFromAppHover(appName = "") {
+    if (appName)
+      this.agHelper
+        .GetElement(this._appCard(appName))
+        .first()
+        .trigger("mouseover");
+    else this.agHelper.GetElement(this._applicationCard).trigger("mouseover");
     this.agHelper.GetNClick(this._appHoverIcon("edit"));
     this.agHelper.AssertElementAbsence(this.locator._loading);
     this.assertHelper.AssertNetworkStatus("getWorkspace");
@@ -491,13 +519,21 @@ export class HomePage {
     this.NavigateToHome();
   }
 
-  public ImportApp(fixtureJson: string, intoWorkspaceName = "") {
-    cy.get(this._homeIcon).click({ force: true });
-    if (intoWorkspaceName)
-      this.agHelper.GetNClick(this._optionsIconInWorkspace(intoWorkspaceName));
-    else this.agHelper.GetNClick(this._optionsIcon);
-    this.agHelper.GetNClick(this._workspaceImport, 0, true);
-    this.agHelper.AssertElementVisibility(this._workspaceImportAppModal);
+  public ImportApp(
+    fixtureJson: string,
+    intoWorkspaceName = "",
+    onlyImport = false,
+  ) {
+    if (onlyImport === false) {
+      cy.get(this._homeIcon).click({ force: true });
+      if (intoWorkspaceName)
+        this.agHelper.GetNClick(
+          this._optionsIconInWorkspace(intoWorkspaceName),
+        );
+      else this.agHelper.GetNClick(this._optionsIcon);
+      this.agHelper.GetNClick(this._workspaceImport, 0, true);
+      this.agHelper.AssertElementVisibility(this._workspaceImportAppModal);
+    }
     cy.xpath(this._uploadFile).selectFile("cypress/fixtures/" + fixtureJson, {
       force: true,
     });
@@ -613,6 +649,17 @@ export class HomePage {
     this.agHelper.GetNClick(this._deleteApp);
     this.agHelper.GetNClick(this._deleteAppConfirm);
     this.agHelper.WaitUntilToastDisappear("Deleting application...");
+  }
+
+  public DeleteAppviaAPI(appId: any) {
+    cy.request({
+      method: "DELETE",
+      url: "api/v1/applications/" + appId,
+      failOnStatusCode: false,
+      headers: {
+        "X-Requested-By": "Appsmith",
+      },
+    });
   }
 
   //Maps to leaveworkspace in command.js

@@ -1,10 +1,14 @@
 import type {
+  WidgetEntityConfig,
+  JSActionEntityConfig,
+  WidgetEntity,
+} from "@appsmith/entities/DataTree/types";
+import type {
   ConfigTree,
   DataTree,
   DataTreeEntity,
-  WidgetEntityConfig,
-} from "entities/DataTree/dataTreeFactory";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+} from "entities/DataTree/dataTreeTypes";
+import { ENTITY_TYPE_VALUE } from "entities/DataTree/dataTreeFactory";
 import { uniqueId, isFunction, isObject } from "lodash";
 import { entityDefinitions } from "@appsmith/utils/autocomplete/EntityDefinitions";
 import { getType, Types } from "utils/TypeHelpers";
@@ -20,7 +24,6 @@ import type { DataTreeDefEntityInformation } from "utils/autocomplete/Codemirror
 
 export type ExtraDef = Record<string, Def | string>;
 
-import type { JSActionEntityConfig } from "entities/DataTree/types";
 import type { Variable } from "entities/JSCollection";
 import WidgetFactory from "WidgetProvider/factory";
 import { shouldAddSetter } from "workers/Evaluation/evaluate";
@@ -55,7 +58,7 @@ export const dataTreeTypeDefCreator = (
 
         if (isFunction(autocompleteDefinitions)) {
           def[entityName] = autocompleteDefinitions(
-            entity,
+            entity as WidgetEntity,
             extraDefsToDefine,
             entityConfig,
           );
@@ -68,7 +71,7 @@ export const dataTreeTypeDefCreator = (
         flattenDef(def, entityName);
 
         entityMap.set(entityName, {
-          type: ENTITY_TYPE.WIDGET,
+          type: ENTITY_TYPE_VALUE.WIDGET,
           subType: widgetType,
         });
       }
@@ -76,14 +79,14 @@ export const dataTreeTypeDefCreator = (
       def[entityName] = entityDefinitions.ACTION(entity, extraDefsToDefine);
       flattenDef(def, entityName);
       entityMap.set(entityName, {
-        type: ENTITY_TYPE.ACTION,
+        type: ENTITY_TYPE_VALUE.ACTION,
         subType: "ACTION",
       });
     } else if (isAppsmithEntity(entity)) {
       def.appsmith = entityDefinitions.APPSMITH(entity, extraDefsToDefine);
       entityMap.set("appsmith", {
-        type: ENTITY_TYPE.APPSMITH,
-        subType: ENTITY_TYPE.APPSMITH,
+        type: ENTITY_TYPE_VALUE.APPSMITH,
+        subType: ENTITY_TYPE_VALUE.APPSMITH,
       });
     } else if (isJSAction(entity)) {
       const entityConfig = configTree[entityName] as JSActionEntityConfig;
@@ -109,7 +112,7 @@ export const dataTreeTypeDefCreator = (
 
       def[entityName] = jsPropertiesDef;
       entityMap.set(entityName, {
-        type: ENTITY_TYPE.JSACTION,
+        type: ENTITY_TYPE_VALUE.JSACTION,
         subType: "JSACTION",
       });
     }

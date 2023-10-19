@@ -2,16 +2,15 @@ import {
   createMessage,
   DATASOURCE_STRUCTURE_INPUT_PLACEHOLDER_TEXT,
   SCHEMA_NOT_AVAILABLE,
-  TABLE_OR_COLUMN_NOT_FOUND,
+  TABLE_NOT_FOUND,
 } from "@appsmith/constants/messages";
-import type {
-  DatasourceStructure as DatasourceStructureType,
-  DatasourceTable,
-} from "entities/Datasource";
+import type { DatasourceStructure as DatasourceStructureType } from "entities/Datasource";
 import type { ReactElement } from "react";
 import React, { memo, useEffect, useState, useContext, useMemo } from "react";
 import EntityPlaceholder from "../Entity/Placeholder";
-import DatasourceStructure from "./DatasourceStructure";
+import DatasourceStructure, {
+  DatasourceStructureContext,
+} from "./DatasourceStructure";
 import { SearchInput, Text } from "design-system";
 import styled from "styled-components";
 import { getIsFetchingDatasourceStructure } from "@appsmith/selectors/entitiesSelector";
@@ -26,7 +25,7 @@ import { setFeatureWalkthroughShown } from "utils/storage";
 import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
 import { SCHEMA_SECTION_ID } from "entities/Action";
 
-type Props = {
+interface Props {
   datasourceId: string;
   datasourceStructure?: DatasourceStructureType;
   step: number;
@@ -36,14 +35,6 @@ type Props = {
   onEntityTableClick?: (table: string) => void;
   tableName?: string;
   customEditDatasourceFn?: () => void;
-};
-
-export enum DatasourceStructureContext {
-  EXPLORER = "entity-explorer",
-  QUERY_EDITOR = "query-editor",
-  DATASOURCE_VIEW_MODE = "datasource-view-mode",
-  // this does not exist yet, but in case it does in the future.
-  API_EDITOR = "api-editor",
 }
 
 // leaving out DynamoDB and Firestore because they have a schema but not templates
@@ -181,26 +172,24 @@ const Container = (props: Props) => {
               />
             </DatasourceStructureSearchContainer>
           )}
-          {!!datasourceStructure?.tables?.length &&
-            datasourceStructure.tables.map((structure: DatasourceTable) => {
-              return (
-                <DatasourceStructure
-                  context={props.context}
-                  currentActionId={props.currentActionId || ""}
-                  datasourceId={props.datasourceId}
-                  dbStructure={structure}
-                  forceExpand={hasSearchedOccured}
-                  key={`${props.datasourceId}${structure.name}-${props.context}`}
-                  onEntityTableClick={props.onEntityTableClick}
-                  step={props.step + 1}
-                  tableName={props?.tableName}
-                />
-              );
-            })}
+          {!!datasourceStructure?.tables?.length && (
+            <DatasourceStructure
+              context={props.context}
+              currentActionId={props.currentActionId || ""}
+              datasourceId={props.datasourceId}
+              forceExpand={hasSearchedOccured}
+              // If set, then it doesn't set the context menu to generate query from templates
+              onEntityTableClick={props.onEntityTableClick}
+              step={props.step + 1}
+              // Selected table name for the view mode datasource preview data page
+              tableName={props.tableName}
+              tables={datasourceStructure.tables}
+            />
+          )}
 
           {!datasourceStructure?.tables?.length && (
             <Text kind="body-s" renderAs="p">
-              {createMessage(TABLE_OR_COLUMN_NOT_FOUND)}
+              {createMessage(TABLE_NOT_FOUND)}
             </Text>
           )}
         </>

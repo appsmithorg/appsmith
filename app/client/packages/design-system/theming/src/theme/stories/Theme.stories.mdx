@@ -22,7 +22,7 @@ export const Template = () => <ThemeProvider theme={{}} />;
 
 ## useFluidTokens
 
-A hook that creates typography, rootUnit, spacing, sizing fluid tokens based
+A hook that creates typography, spacing, sizing fluid tokens based
 on the passed parameters. To create tokens, we use a calculation values
 based on a musical scale. This allows us to create a harmonious set of
 tokens. Tokens also depend on user's viewport.
@@ -73,7 +73,7 @@ import {
 
 export const theming = (Story, args) => {
   const { fluid, ...restDefaultTokens } = defaultTokens;
-  const { typography, rootUnit, spacing, sizing } = useFluidTokens(fluid);
+  const { typography, spacing, sizing } = useFluidTokens(fluid);
   const tokensAccessor = new TokensAccessor({
     ...restDefaultTokens,
     rootUnit,

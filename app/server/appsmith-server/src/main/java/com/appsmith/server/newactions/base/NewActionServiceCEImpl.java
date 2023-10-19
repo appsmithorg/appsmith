@@ -40,21 +40,21 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.helpers.ce.ImportApplicationPermissionProvider;
+import com.appsmith.server.newpages.base.NewPageService;
+import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.MarketplaceService;
-import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.PermissionGroupService;
-import com.appsmith.server.services.PluginService;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.PolicySolution;
-import com.mongodb.client.result.UpdateResult;
+import com.mongodb.bulk.BulkWriteResult;
 import io.micrometer.observation.ObservationRegistry;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
@@ -113,7 +113,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     public static final PluginType JS_PLUGIN_TYPE = PluginType.JS;
     public static final String JS_PLUGIN_PACKAGE_NAME = "js-plugin";
 
-    private final NewActionRepository repository;
+    protected final NewActionRepository repository;
     private final DatasourceService datasourceService;
     private final PluginService pluginService;
     private final PluginExecutorHelper pluginExecutorHelper;
@@ -269,9 +269,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     @Override
     public Mono<ActionDTO> validateAndSaveActionToRepository(NewAction newAction) {
 
-        if (newAction.getGitSyncId() == null) {
-            newAction.setGitSyncId(newAction.getApplicationId() + "_" + new ObjectId());
-        }
+        this.setGitSyncIdInNewAction(newAction);
 
         ActionDTO action = newAction.getUnpublishedAction();
 
@@ -295,9 +293,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.NAME));
         }
 
-        if (action.getPageId() == null || action.getPageId().isBlank()) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID));
-        }
+        this.validateCreatorId(action);
 
         if (!validateActionName(action.getName())) {
             action.setIsValid(false);
@@ -429,6 +425,19 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 .flatMap(this::setTransientFieldsInUnpublishedAction);
     }
 
+    protected Mono<ActionDTO> validateCreatorId(ActionDTO action) {
+        if (action.getPageId() == null || action.getPageId().isBlank()) {
+            throw new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID);
+        }
+        return Mono.just(action);
+    }
+
+    protected void setGitSyncIdInNewAction(NewAction newAction) {
+        if (newAction.getGitSyncId() == null) {
+            newAction.setGitSyncId(newAction.getApplicationId() + "_" + new ObjectId());
+        }
+    }
+
     /**
      * This function extracts all the mustache template keys (as per the regex) and returns them to the calling fxn
      * This set of keys is stored separately in the field `jsonPathKeys` in the action object. The client
@@ -543,28 +552,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     @Override
     public Mono<ActionDTO> updateUnpublishedAction(String id, ActionDTO action) {
 
-        if (id == null) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
-        }
-
-        // The client does not know about this field. Hence the default value takes over. Set this to null to ensure
-        // the update doesn't lead to resetting of this field.
-        action.setUserSetOnLoad(null);
-
-        Mono<NewAction> updatedActionMono = repository
-                .findById(id, actionPermission.getEditPermission())
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, id)))
-                .map(dbAction -> {
-                    final ActionDTO unpublishedAction = dbAction.getUnpublishedAction();
-                    copyNewFieldValuesIntoOldObject(action, unpublishedAction);
-                    return dbAction;
-                })
-                .flatMap(this::extractAndSetNativeQueryFromFormData)
-                .cache();
-
-        return updatedActionMono
-                .flatMap(savedNewAction ->
-                        this.validateAndSaveActionToRepository(savedNewAction).zipWith(Mono.just(savedNewAction)))
+        return updateUnpublishedActionWithoutAnalytics(id, action, Optional.of(actionPermission.getEditPermission()))
                 .zipWith(Mono.defer(() -> {
                     if (action.getDatasource() != null && action.getDatasource().getId() != null) {
                         return datasourceService.findById(action.getDatasource().getId());
@@ -592,6 +580,47 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
                     return analyticsService.sendUpdateEvent(newAction1, data).thenReturn(savedActionDTO);
                 });
+    }
+
+    /**
+     * Updates an unpublished action in the database without sending an analytics event.
+     *
+     * This method performs an update of an unpublished action in the database without triggering an analytics event.
+     *
+     * @param id The unique identifier of the unpublished action to be updated.
+     * @param action The updated action object.
+     * @param permission An optional permission parameter for access control.
+     * @return A Mono emitting a Tuple containing the updated ActionDTO and NewAction after modification.
+     *
+     * @throws AppsmithException if the provided ID is invalid or if the action is not found.
+     *
+     * @implNote
+     * This method is used by {#updateUnpublishedAction(String, ActionDTO)}, but it does not send an analytics event. If analytics event tracking is not required for the update, this method can be used to improve performance and reduce overhead.
+     */
+    @Override
+    public Mono<Tuple2<ActionDTO, NewAction>> updateUnpublishedActionWithoutAnalytics(
+            String id, ActionDTO action, Optional<AclPermission> permission) {
+        if (id == null) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
+        }
+
+        // The client does not know about this field. Hence, the default value takes over. Set this to null to ensure
+        // the update doesn't lead to resetting of this field.
+        action.setUserSetOnLoad(null);
+
+        Mono<NewAction> updatedActionMono = repository
+                .findById(id, permission)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, id)))
+                .map(dbAction -> {
+                    final ActionDTO unpublishedAction = dbAction.getUnpublishedAction();
+                    copyNewFieldValuesIntoOldObject(action, unpublishedAction);
+                    return dbAction;
+                })
+                .flatMap(this::extractAndSetNativeQueryFromFormData)
+                .cache();
+
+        return updatedActionMono.flatMap(savedNewAction ->
+                this.validateAndSaveActionToRepository(savedNewAction).zipWith(Mono.just(savedNewAction)));
     }
 
     private Mono<NewAction> extractAndSetNativeQueryFromFormData(NewAction action) {
@@ -664,7 +693,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
     @Override
     public Flux<NewAction> findAllById(Iterable<String> id) {
-        return repository.findAllById(id).flatMap(this::sanitizeAction);
+        return repository.findAllByIdIn(id).flatMap(this::sanitizeAction);
     }
 
     @Override
@@ -1679,12 +1708,12 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
      * - update default resource ids along with branch-name if the application is connected to git
      * - update the map of imported collectionIds to the actionIds in saved in DB
      *
-     * @param importedNewActionList                 action list extracted from the imported JSON file
-     * @param application                           imported and saved application in DB
-     * @param branchName                            branch to which the actions needs to be saved if the application is connected to git
-     * @param pageNameMap                           map of page name to saved page in DB
-     * @param pluginMap                             map of plugin name to saved plugin id in DB
-     * @param datasourceMap                         map of plugin name to saved datasource id in DB
+     * @param importedNewActionList action list extracted from the imported JSON file
+     * @param application           imported and saved application in DB
+     * @param branchName            branch to which the actions needs to be saved if the application is connected to git
+     * @param pageNameMap           map of page name to saved page in DB
+     * @param pluginMap             map of plugin name to saved plugin id in DB
+     * @param datasourceMap         map of plugin name to saved datasource id in DB
      * @return A DTO class with several information
      */
     @Override
@@ -1908,7 +1937,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         }
 
         return repository
-                .findAllById(actionIds)
+                .findAllByIdIn(actionIds)
                 .map(newAction -> {
                     // Update collectionId and defaultCollectionIds in actionDTOs
                     ActionDTO unpublishedAction = newAction.getUnpublishedAction();
@@ -1960,12 +1989,13 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
      * This method is used to publish actions of an application. It does two things:
      * 1. it deletes actions which are deleted from the edit mode.
      * 2. It updates actions in bulk by setting publishedAction=unpublishedAction
+     *
      * @param applicationId
      * @param permission
      * @return
      */
     @Override
-    public Mono<UpdateResult> publishActions(String applicationId, AclPermission permission) {
+    public Mono<List<BulkWriteResult>> publishActions(String applicationId, AclPermission permission) {
         // delete the actions that were deleted in edit mode
         return repository
                 .archiveDeletedUnpublishedActions(applicationId, permission)
@@ -1976,5 +2006,11 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     @Override
     public Flux<PluginTypeAndCountDTO> countActionsByPluginType(String applicationId) {
         return repository.countActionsByPluginType(applicationId);
+    }
+
+    @Override
+    public Flux<NewAction> findByListOfPageIds(
+            List<String> unpublishedPages, Optional<AclPermission> optionalPermission) {
+        return repository.findByListOfPageIds(unpublishedPages, optionalPermission);
     }
 }

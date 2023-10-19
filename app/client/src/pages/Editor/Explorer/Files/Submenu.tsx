@@ -7,10 +7,7 @@ import {
   SEARCH_ITEM_TYPES,
 } from "components/editorComponents/GlobalSearch/utils";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  getCurrentPageId,
-  getPagePermissions,
-} from "selectors/editorSelectors";
+import { getCurrentPageId } from "selectors/editorSelectors";
 import EntityAddButton from "../Entity/AddButton";
 import keyBy from "lodash/keyBy";
 import type { AppState } from "@appsmith/reducers";
@@ -22,7 +19,6 @@ import {
 } from "@appsmith/constants/messages";
 import { useCloseMenuOnScroll } from "../hooks";
 import { SIDEBAR_ID } from "constants/Explorer";
-import { hasCreateActionPermission } from "@appsmith/utils/permissionHelpers";
 import {
   Menu,
   MenuContent,
@@ -44,13 +40,15 @@ const SubMenuContainer = styled.div`
   }
 `;
 
-type SubMenuProps = {
+interface SubMenuProps {
+  canCreateActions: boolean;
   className: string;
   openMenu: boolean;
   onMenuClose: () => void;
-};
+}
 
 export default function ExplorerSubMenu({
+  canCreateActions,
   className,
   onMenuClose,
   openMenu,
@@ -70,10 +68,6 @@ export default function ExplorerSubMenu({
   const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);
   useEffect(() => handleOpenChange(openMenu), [openMenu]);
   useCloseMenuOnScroll(SIDEBAR_ID, show, () => handleOpenChange(false));
-
-  const pagePermissions = useSelector(getPagePermissions);
-
-  const canCreateActions = hasCreateActionPermission(pagePermissions);
 
   useEffect(() => {
     setQuery("");
@@ -173,7 +167,7 @@ export default function ExplorerSubMenu({
                   key={`file-op-${idx}`}
                   onClick={() => handleClick(item)}
                 >
-                  <div className="flex gap-2 items-center">
+                  <div className="flex items-center gap-2">
                     {icon && <span className="flex-shrink-0">{icon}</span>}
                     <span className="overflow-hidden whitespace-nowrap overflow-ellipsis">
                       {item.shortTitle || item.title}

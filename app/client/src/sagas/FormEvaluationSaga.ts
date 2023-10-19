@@ -22,7 +22,7 @@ import { getDataTree } from "selectors/dataTreeSelectors";
 import { getDynamicBindings, isDynamicValue } from "utils/DynamicBindingUtils";
 import get from "lodash/get";
 import { klona } from "klona/lite";
-import type { DataTree } from "entities/DataTree/dataTreeFactory";
+import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import {
   extractFetchDynamicValueFormConfigs,
   extractQueueOfValuesToBeFetched,
@@ -30,7 +30,7 @@ import {
 import type { DatasourceConfiguration } from "entities/Datasource";
 import { buffers } from "redux-saga";
 
-export type FormEvalActionPayload = {
+export interface FormEvalActionPayload {
   formId: string;
   datasourceId?: string;
   pluginId?: string;
@@ -40,7 +40,7 @@ export type FormEvalActionPayload = {
   actionDiffPath?: string;
   hasRouteChanged?: boolean;
   datasourceConfiguration?: DatasourceConfiguration;
-};
+}
 
 // This value holds an array of values that needs to be dynamically fetched
 // when we run form evaluations we store dynamic values to be fetched in this array
@@ -270,9 +270,8 @@ function* formEvaluationChangeListenerSaga() {
         type: ReduxActionTypes.FORM_EVALUATION_EMPTY_BUFFER,
       });
     }
-    const action: ReduxAction<FormEvalActionPayload> = yield take(
-      formEvalChannel,
-    );
+    const action: ReduxAction<FormEvalActionPayload> =
+      yield take(formEvalChannel);
     yield call(setFormEvaluationSagaAsync, action);
   }
 }

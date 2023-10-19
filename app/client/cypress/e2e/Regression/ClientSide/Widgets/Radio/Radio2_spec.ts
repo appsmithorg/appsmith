@@ -310,7 +310,7 @@ describe("Radio Widget test cases", function () {
       .GetWidgetCSSHeight(
         locators._widgetInDeployed(draggableWidgets.RADIO_GROUP),
       )
-      .then((currentHeight) => {
+      .then((currentHeight: any) => {
         const updatedHeight = parseInt(currentHeight?.split("px")[0]);
         expect(updatedHeight).to.be.greaterThan(130);
       });
@@ -319,6 +319,9 @@ describe("Radio Widget test cases", function () {
     agHelper.GetElement("@eleWidth").then((currentWidth) => {
       expect(currentWidth).to.be.greaterThan(420);
     });
+  });
+
+  it("6. Validate general section in radio group - Part2", function () {
     //Disable - should throw error for non boolean values
     deployMode.NavigateBacktoEditor();
     entityExplorer.SelectEntityByName("RadioGroup1", "Widgets");
@@ -345,6 +348,9 @@ describe("Radio Widget test cases", function () {
     entityExplorer.SelectEntityByName("Text1", "Widgets");
     propPane.UpdatePropertyFieldValue("Text", "false");
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TEXT));
+    agHelper.WaitUntilEleAppear(
+      locators._widgetInDeployed(draggableWidgets.RADIO_GROUP),
+    );
     agHelper.AssertElementEnabledDisabled(
       locators._widgetInDeployed(draggableWidgets.RADIO_GROUP),
       0,
@@ -354,7 +360,7 @@ describe("Radio Widget test cases", function () {
       .GetWidgetCSSHeight(
         locators._widgetInDeployed(draggableWidgets.RADIO_GROUP),
       )
-      .then((currentHeight) => {
+      .then((currentHeight: any) => {
         const updatedHeight = parseInt(currentHeight?.split("px")[0]);
         expect(updatedHeight).to.be.greaterThan(270);
       });
@@ -365,7 +371,7 @@ describe("Radio Widget test cases", function () {
     });
   });
 
-  it("6. Validate set property methods for Radio group", () => {
+  it("7. Validate set property methods for Radio group", () => {
     deployMode.NavigateBacktoEditor();
     //JS Object
     jsEditor.CreateJSObject(
@@ -373,7 +379,7 @@ describe("Radio Widget test cases", function () {
         myVar1: [{
           label:'test',
           value:'test'}],
-        myFun1 () { 
+        myFun1 () {
           RadioGroup1.setData(this.myVar1);
           RadioGroup1.isVisible? RadioGroup1.setDisabled(true):RadioGroup1.setVisibility(false)
         }

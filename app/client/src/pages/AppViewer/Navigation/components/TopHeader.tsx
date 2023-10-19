@@ -7,7 +7,7 @@ import { get } from "lodash";
 import { useHref } from "pages/Editor/utils";
 import React from "react";
 import { useSelector } from "react-redux";
-import { builderURL } from "RouteBuilder";
+import { builderURL } from "@appsmith/RouteBuilder";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import MobileNavToggle from "./MobileNavToggle";
@@ -23,9 +23,8 @@ import { HeaderRow, StyledNav } from "./TopHeader.styled";
 import TopInline from "../TopInline";
 import NavigationLogo from "@appsmith/pages/AppViewer/NavigationLogo";
 import BackToAppsButton from "./BackToAppsButton";
-import { KBViewerNavButton } from "@appsmith/pages/AppViewer/KnowledgeBase/KBViewerNavButton";
 
-type TopHeaderProps = {
+interface TopHeaderProps {
   currentApplicationDetails?: ApplicationPayload;
   pages: Page[];
   currentWorkspaceId: string;
@@ -33,7 +32,7 @@ type TopHeaderProps = {
   isMenuOpen: boolean;
   setMenuOpen: (isMenuOpen: boolean) => void;
   showUserSettings: boolean;
-};
+}
 
 const TopHeader = (props: TopHeaderProps) => {
   const {
@@ -114,7 +113,6 @@ const TopHeader = (props: TopHeaderProps) => {
           <section className="relative flex items-center space-x-3 z-1 ml-auto py-3">
             {currentApplicationDetails && currentApplicationDetails?.id && (
               <div className="hidden space-x-1 md:flex">
-                <KBViewerNavButton />
                 <ShareButton
                   currentApplicationDetails={currentApplicationDetails}
                   currentWorkspaceId={currentWorkspaceId}

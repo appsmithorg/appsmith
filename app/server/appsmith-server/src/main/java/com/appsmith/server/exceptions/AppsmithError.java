@@ -969,6 +969,14 @@ public enum AppsmithError {
             "Invalid usage for custom annotation",
             ErrorType.CONFIGURATION_ERROR,
             null),
+    MIGRATION_FAILED(
+            500,
+            AppsmithErrorCode.MIGRATION_FAILED.getCode(),
+            "Migration {0} failed. Reason: {1}. Note: {2}",
+            AppsmithErrorAction.DEFAULT,
+            "Migration failed",
+            ErrorType.INTERNAL_ERROR,
+            null),
 
     FeatureFlagMigrationFailure(
             500,
@@ -976,6 +984,39 @@ public enum AppsmithError {
             "Migration failed for feature flag {0}, error: {1}",
             AppsmithErrorAction.DEFAULT,
             "Migration failed",
+            ErrorType.INTERNAL_ERROR,
+            null),
+    UNABLE_TO_DEPLOY_MISSING_PERMISSION(
+            403,
+            AppsmithErrorCode.UNABLE_TO_DEPLOY_MISSING_PERMISSION.getCode(),
+            "Unable to deploy the Application. You don''t have required permissions for {0}: {1}",
+            AppsmithErrorAction.DEFAULT,
+            "Unable to deploy",
+            ErrorType.INTERNAL_ERROR,
+            null),
+    APPLICATION_NOT_CLONED_MISSING_PERMISSIONS(
+            403,
+            AppsmithErrorCode.APPLICATION_NOT_CLONED_MISSING_PERMISSIONS.getCode(),
+            "Unable to clone application. You don''t have required permissions for {0}: {1}",
+            AppsmithErrorAction.DEFAULT,
+            "Cloning application failed",
+            ErrorType.INTERNAL_ERROR,
+            null),
+
+    APPLICATION_NOT_FORKED_MISSING_PERMISSIONS(
+            403,
+            AppsmithErrorCode.APPLICATION_NOT_FORKED_MISSING_PERMISSIONS.getCode(),
+            "Unable to fork application. You don''t have required permissions for {0}: {1}",
+            AppsmithErrorAction.DEFAULT,
+            "Forking application failed",
+            ErrorType.INTERNAL_ERROR,
+            null),
+    TOO_MANY_FAILED_DATASOURCE_CONNECTION_REQUESTS(
+            429,
+            AppsmithErrorCode.TOO_MANY_FAILED_DATASOURCE_CONNECTION_REQUESTS.getCode(),
+            "Too many failed requests received. Please try again after 5 minutes",
+            AppsmithErrorAction.DEFAULT,
+            "Too many requests",
             ErrorType.INTERNAL_ERROR,
             null),
     ;

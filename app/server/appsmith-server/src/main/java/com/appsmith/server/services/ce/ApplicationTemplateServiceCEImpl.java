@@ -10,12 +10,13 @@ import com.appsmith.server.domains.UserData;
 import com.appsmith.server.dtos.*;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.exports.internal.ExportApplicationService;
 import com.appsmith.server.helpers.ResponseUtils;
+import com.appsmith.server.imports.internal.ImportApplicationService;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.solutions.ApplicationPermission;
-import com.appsmith.server.solutions.ImportExportApplicationService;
 import com.appsmith.server.solutions.ReleaseNotesService;
 import com.appsmith.util.WebClientUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -47,7 +48,8 @@ import java.util.Map;
 public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServiceCE {
     private final CloudServicesConfig cloudServicesConfig;
     private final ReleaseNotesService releaseNotesService;
-    private final ImportExportApplicationService importExportApplicationService;
+    private final ImportApplicationService importApplicationService;
+    private final ExportApplicationService exportApplicationService;
     private final AnalyticsService analyticsService;
     private final UserDataService userDataService;
     private final ApplicationService applicationService;
@@ -57,7 +59,8 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
     public ApplicationTemplateServiceCEImpl(
             CloudServicesConfig cloudServicesConfig,
             ReleaseNotesService releaseNotesService,
-            ImportExportApplicationService importExportApplicationService,
+            ImportApplicationService importApplicationService,
+            ExportApplicationService exportApplicationService,
             AnalyticsService analyticsService,
             UserDataService userDataService,
             ApplicationService applicationService,
@@ -65,7 +68,8 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
             ApplicationPermission applicationPermission) {
         this.cloudServicesConfig = cloudServicesConfig;
         this.releaseNotesService = releaseNotesService;
-        this.importExportApplicationService = importExportApplicationService;
+        this.importApplicationService = importApplicationService;
+        this.exportApplicationService = exportApplicationService;
         this.analyticsService = analyticsService;
         this.userDataService = userDataService;
         this.applicationService = applicationService;
@@ -195,9 +199,9 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
     @Override
     public Mono<ApplicationImportDTO> importApplicationFromTemplate(String templateId, String workspaceId) {
         return getApplicationJsonFromTemplate(templateId)
-                .flatMap(applicationJson -> importExportApplicationService.importNewApplicationInWorkspaceFromJson(
-                        workspaceId, applicationJson))
-                .flatMap(application -> importExportApplicationService.getApplicationImportDTO(
+                .flatMap(applicationJson ->
+                        importApplicationService.importNewApplicationInWorkspaceFromJson(workspaceId, applicationJson))
+                .flatMap(application -> importApplicationService.getApplicationImportDTO(
                         application.getId(), application.getWorkspaceId(), application))
                 .flatMap(applicationImportDTO -> {
                     Application application = applicationImportDTO.getApplication();
@@ -276,18 +280,17 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
                         return applicationService
                                 .findByBranchNameAndDefaultApplicationId(
                                         branchName, applicationId, applicationPermission.getEditPermission())
-                                .flatMap(application ->
-                                        importExportApplicationService.mergeApplicationJsonWithApplication(
-                                                organizationId,
-                                                application.getId(),
-                                                branchName,
-                                                applicationJson,
-                                                pagesToImport));
+                                .flatMap(application -> importApplicationService.mergeApplicationJsonWithApplication(
+                                        organizationId,
+                                        application.getId(),
+                                        branchName,
+                                        applicationJson,
+                                        pagesToImport));
                     }
-                    return importExportApplicationService.mergeApplicationJsonWithApplication(
+                    return importApplicationService.mergeApplicationJsonWithApplication(
                             organizationId, applicationId, branchName, applicationJson, pagesToImport);
                 })
-                .flatMap(application -> importExportApplicationService.getApplicationImportDTO(
+                .flatMap(application -> importApplicationService.getApplicationImportDTO(
                         application.getId(), application.getWorkspaceId(), application))
                 .flatMap(applicationImportDTO -> {
                     responseUtils.updateApplicationWithDefaultResources(applicationImportDTO.getApplication());
@@ -313,7 +316,7 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
     }
 
     private CommunityTemplateUploadDTO createCommunityTemplateUploadDTO(
-            ApplicationJson appJson, CommunityTemplateDTO templateDetails) {
+            String sourceApplicationId, ApplicationJson appJson, CommunityTemplateDTO templateDetails) {
         ApplicationTemplate applicationTemplate = new ApplicationTemplate();
         applicationTemplate.setTitle(templateDetails.getTitle());
         applicationTemplate.setExcerpt(templateDetails.getHeadline());
@@ -325,6 +328,7 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
         communityTemplate.setAppJson(appJson);
         communityTemplate.setApplicationTemplate(applicationTemplate);
         communityTemplate.getApplicationTemplate().setAppUrl(templateDetails.getAppUrl());
+        communityTemplate.setSourceApplicationId(sourceApplicationId);
         return communityTemplate;
     }
 
@@ -363,9 +367,10 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
 
     @Override
     public Mono<Application> publishAsCommunityTemplate(CommunityTemplateDTO resource) {
-        return importExportApplicationService
+        return exportApplicationService
                 .exportApplicationById(resource.getApplicationId(), resource.getBranchName())
-                .flatMap(appJson -> uploadCommunityTemplateToCS(createCommunityTemplateUploadDTO(appJson, resource)))
+                .flatMap(appJson -> uploadCommunityTemplateToCS(
+                        createCommunityTemplateUploadDTO(resource.getApplicationId(), appJson, resource)))
                 .then(updateApplicationFlags(resource.getApplicationId(), resource.getBranchName()))
                 .flatMap(application -> {
                     ApplicationAccessDTO applicationAccessDTO = new ApplicationAccessDTO();

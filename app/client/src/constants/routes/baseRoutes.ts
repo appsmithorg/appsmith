@@ -7,6 +7,7 @@ export const PAGE_NOT_FOUND_URL = "/404";
 export const SERVER_ERROR_URL = "/500";
 export const APPLICATIONS_URL = `/applications`;
 export const LICENSE_CHECK_PATH = "/license";
+export const MIGRATIONS_URL = "/migrations";
 
 export const TEMPLATES_PATH = "/templates";
 export const TEMPLATES_ID_PATH = "/templates/:templateId";
@@ -27,6 +28,7 @@ export const WORKSPACE_INVITE_USERS_PAGE_URL = `${WORKSPACE_URL}/invite`;
 export const WORKSPACE_SETTINGS_PAGE_URL = `${WORKSPACE_URL}/settings`;
 export const WORKSPACE_SETTINGS_GENERAL_PAGE_URL = `${WORKSPACE_URL}/settings/general`;
 export const WORKSPACE_SETTINGS_MEMBERS_PAGE_URL = `${WORKSPACE_URL}/settings/members`;
+export const WORKSPACE_SETTINGS_LICENSE_PAGE_URL = `/settings/license`;
 
 export const matchApplicationPath = match(APPLICATIONS_URL);
 export const matchTemplatesPath = match(TEMPLATES_PATH);

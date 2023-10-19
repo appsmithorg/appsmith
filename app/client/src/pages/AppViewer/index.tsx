@@ -34,7 +34,6 @@ import { getIsBranchUpdated } from "../utils";
 import { APP_MODE } from "entities/App";
 import { initAppViewer } from "actions/initActions";
 import { WidgetGlobaStyles } from "globalStyles/WidgetGlobalStyles";
-import { getAppsmithConfigs } from "@appsmith/configs";
 import useWidgetFocus from "utils/hooks/useWidgetFocus/useWidgetFocus";
 import HtmlTitle from "./AppViewerHtmlTitle";
 import BottomBar from "components/BottomBar";
@@ -43,7 +42,6 @@ import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors"
 import { editorInitializer } from "../../utils/editor/EditorUtils";
 import { widgetInitialisationSuccess } from "../../actions/widgetActions";
 import { areEnvironmentsFetched } from "@appsmith/selectors/environmentSelectors";
-import { datasourceEnvEnabled } from "@appsmith/selectors/featureFlagsSelectors";
 import type { FontFamily } from "@design-system/theming";
 import {
   ThemeProvider as WDSThemeProvider,
@@ -52,6 +50,10 @@ import {
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { RAMP_NAME } from "utils/ProductRamps/RampsControlList";
 import { showProductRamps } from "@appsmith/selectors/rampSelectors";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { KBViewerFloatingButton } from "@appsmith/pages/AppViewer/KnowledgeBase/KBViewerFloatingButton";
+import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
+import { getHideWatermark } from "@appsmith/selectors/tenantSelectors";
 
 const AppViewerBody = styled.section<{
   hasPages: boolean;
@@ -101,7 +103,7 @@ function AppViewer(props: Props) {
   const headerHeight = useSelector(getAppViewHeaderHeight);
   const branch = getSearchQuery(search, GIT_BRANCH_QUERY_KEY);
   const prevValues = usePrevious({ branch, location: props.location, pageId });
-  const { hideWatermark } = getAppsmithConfigs();
+  const hideWatermark = useSelector(getHideWatermark);
   const pageDescription = useSelector(getCurrentPageDescription);
   const currentApplicationDetails: ApplicationPayload | undefined = useSelector(
     getCurrentApplication,
@@ -117,10 +119,13 @@ function AppViewer(props: Props) {
   const canShowRamp = useSelector(showRampSelector);
 
   const workspaceId = currentApplicationDetails?.workspaceId || "";
+  const isMultipleEnvEnabled = useFeatureFlag(
+    FEATURE_FLAG.release_datasource_environments_enabled,
+  );
   const showBottomBar = useSelector((state: AppState) => {
     return (
       areEnvironmentsFetched(state, workspaceId) &&
-      (datasourceEnvEnabled(state) || canShowRamp)
+      (isMultipleEnvEnabled || canShowRamp)
     );
   });
 
@@ -166,6 +171,14 @@ function AppViewer(props: Props) {
       }
     }
   }, [branch, pageId, applicationId, pathname]);
+
+  useEffect(() => {
+    urlBuilder.setCurrentPageId(pageId);
+
+    return () => {
+      urlBuilder.setCurrentPageId(null);
+    };
+  }, [pageId]);
 
   useEffect(() => {
     const header = document.querySelector(".js-appviewer-header");
@@ -223,18 +236,23 @@ function AppViewer(props: Props) {
               {isInitialized && <AppViewerPageContainer />}
             </AppViewerBody>
             {showBottomBar && <BottomBar viewMode />}
-            {!hideWatermark && (
-              <a
-                className={`fixed hidden right-8 ${
-                  showBottomBar ? "bottom-12" : "bottom-4"
-                } z-3 hover:no-underline md:flex`}
-                href="https://appsmith.com"
-                rel="noreferrer"
-                target="_blank"
-              >
-                <BrandingBadge />
-              </a>
-            )}
+            <div
+              className={`fixed hidden right-8 z-3 md:flex ${
+                showBottomBar ? "bottom-12" : "bottom-4"
+              }`}
+            >
+              {!hideWatermark && (
+                <a
+                  className="hover:no-underline"
+                  href="https://appsmith.com"
+                  rel="noreferrer"
+                  target="_blank"
+                >
+                  <BrandingBadge />
+                </a>
+              )}
+              <KBViewerFloatingButton />
+            </div>
           </AppViewerBodyContainer>
         </EditorContextProvider>
       </ThemeProvider>
