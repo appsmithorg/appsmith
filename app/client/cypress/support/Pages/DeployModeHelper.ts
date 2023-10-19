@@ -47,7 +47,7 @@ export class DeployMode {
     //cy.intercept("POST", "/api/v1/applications/publish/*").as("publishAppli");
 
     // Wait before publish
-    this.agHelper.Sleep(3000); //wait for elements settle!
+    this.agHelper.Sleep(); //wait for elements settle!
     toValidateSavedState && this.agHelper.AssertAutoSave();
     // Stubbing window.open to open in the same tab
     this.assertHelper.AssertDocumentReady();
@@ -187,10 +187,7 @@ export class DeployMode {
     //   }); // //only reloading edit page to load elements
     // });
     this.assertHelper.AssertDocumentReady();
-    this.agHelper.Sleep(2000); //wait for getWorkspace to go thru!
-    // this.assertHelper.AssertNetworkResponseData("@getPluginForm"); //for auth rest api
-    // this.assertHelper.AssertNetworkResponseData("@getPluginForm"); //for graphql
-    // this.assertHelper.AssertNetworkStatus("@getWorkspace");
+    //this.agHelper.Sleep(2000);
     this.agHelper.AssertElementVisibility(this.locator._editPage); //Assert if canvas is visible after Navigating back!
   }
 
