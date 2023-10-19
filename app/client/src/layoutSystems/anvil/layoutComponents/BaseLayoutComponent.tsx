@@ -73,7 +73,7 @@ abstract class BaseLayoutComponent extends PureComponent<
     return renderWidgets(this.props);
   }
 
-  renderDraggingArea(): React.ReactNode | null {
+  renderDraggingArena(): React.ReactNode | null {
     const {
       canvasId,
       isDropTarget,
