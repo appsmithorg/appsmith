@@ -1,32 +1,34 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import "./styles.css";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import type { LayoutComponentProps } from "../utils/anvilTypes";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { renderLayouts } from "../utils/layouts/renderUtils";
-import { getCanvasId } from "./utils";
-import { RenderModes } from "constants/WidgetConstants";
+import { getAnvilCanvasId } from "./utils";
+import {
+  MAIN_CONTAINER_WIDGET_ID,
+  RenderModes,
+} from "constants/WidgetConstants";
+import { getCanvasClassName } from "utils/generators";
 
 export const AnvilCanvas = (props: BaseWidgetProps) => {
-  const [childrenMap, setChildrenMap] = useState<
-    LayoutComponentProps["childrenMap"]
-  >({});
-
-  useEffect(() => {
-    if (props.children && props.children?.length) {
-      const map: LayoutComponentProps["childrenMap"] = {};
-      props.children.forEach((child: WidgetProps) => {
-        map[child.widgetId] = child;
-      });
-      setChildrenMap(map);
-    }
-  }, [props.children]);
-
+  const map: LayoutComponentProps["childrenMap"] = {};
+  props.children.forEach((child: WidgetProps) => {
+    map[child.widgetId] = child;
+  });
+  props;
   return (
-    <div className="anvil-canvas" id={getCanvasId(props.widgetId)}>
+    <div
+      className={`anvil-canvas ${
+        props.widgetId === MAIN_CONTAINER_WIDGET_ID
+          ? `${getCanvasClassName()} overflowY`
+          : ""
+      }`}
+      id={getAnvilCanvasId(props.widgetId)}
+    >
       {renderLayouts(
         props.layout,
-        childrenMap,
+        map,
         props.widgetId,
         "",
         props.renderMode || RenderModes.CANVAS,

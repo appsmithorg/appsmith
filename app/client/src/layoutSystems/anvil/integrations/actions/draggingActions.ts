@@ -1,18 +1,24 @@
-import type { WidgetAddChild } from "actions/pageActions";
 import type { AnvilHighlightInfo } from "../../utils/anvilTypes";
 import { AnvilReduxActionTypes } from "./actionTypes";
 
 /**
  * Add new anvil widget to canvas.
  */
-export const addNewWidgetAction = (
-  newWidget: WidgetAddChild,
+export const addNewAnvilWidgetAction = (
+  newWidget: {
+    width: number;
+    height: number;
+    newWidgetId: string;
+    type: string;
+  },
   highlight: AnvilHighlightInfo,
 ) => {
   return {
     type: AnvilReduxActionTypes.ANVIL_ADD_NEW_WIDGET,
-    highlight,
-    newWidget,
+    payload: {
+      highlight,
+      newWidget,
+    },
   };
 };
 
@@ -25,7 +31,9 @@ export const moveAnvilWidgets = (
 ) => {
   return {
     type: AnvilReduxActionTypes.ANVIL_MOVE_WIDGET,
-    highlight,
-    movedWidgets,
+    payload: {
+      highlight,
+      movedWidgets,
+    },
   };
 };

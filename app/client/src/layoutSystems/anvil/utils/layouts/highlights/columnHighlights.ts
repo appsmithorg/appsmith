@@ -92,7 +92,6 @@ function generateHighlights(
   isLastHighlight: boolean,
 ): AnvilHighlightInfo[] {
   const isInitialHighlight: boolean = rowIndex === 0;
-
   return [
     {
       ...baseHighlight,

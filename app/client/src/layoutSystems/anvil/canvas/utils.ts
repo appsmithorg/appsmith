@@ -1,3 +1,3 @@
-export function getCanvasId(widgetId: string): string {
+export function getAnvilCanvasId(widgetId: string): string {
   return `anvil-canvas-${widgetId}`;
 }

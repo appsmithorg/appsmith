@@ -14,6 +14,9 @@ import {
   extractWidgetIdsFromLayoutProps,
   removeChildFromLayout,
 } from "../utils/layouts/layoutUtils";
+import { RenderModes } from "constants/WidgetConstants";
+import LayoutFactory from "./LayoutFactory";
+import { AnvilCanvasDraggingArena } from "../canvasArenas/AnvilCanvasDraggingArena";
 
 abstract class BaseLayoutComponent extends PureComponent<
   LayoutComponentProps,
@@ -32,7 +35,7 @@ abstract class BaseLayoutComponent extends PureComponent<
 
   // get template of layout component to wrap new widgets in.
   static getChildTemplate(_props: LayoutProps): LayoutProps | null {
-    return null;
+    return null && _props;
   }
 
   // Get a list of highlights to demarcate the drop positions within the layout.
@@ -71,31 +74,28 @@ abstract class BaseLayoutComponent extends PureComponent<
   }
 
   renderDraggingArena(): React.ReactNode | null {
-    return null;
-
-    // TODO: uncomment this after merging in Ashok's PR.
-    // const {
-    //   canvasId,
-    //   isDropTarget,
-    //   layoutId,
-    //   layoutType,
-    //   parentDropTarget,
-    //   renderMode,
-    // } = this.props;
-    // if (!isDropTarget || renderMode !== RenderModes.CANVAS) return null;
-    // return (
-    //   <AnvilCanvasDraggingArena
-    //     allowedWidgetTypes={this.props.allowedWidgetTypes || []}
-    //     canvasId={canvasId}
-    //     deriveAllHighlightsFn={LayoutFactory.getDeriveHighlightsFn(layoutType)(
-    //       this.props,
-    //       canvasId,
-    //       this.state.order,
-    //       parentDropTarget,
-    //     )}
-    //     layoutId={layoutId}
-    //   />
-    // );
+    const {
+      canvasId,
+      isDropTarget,
+      layoutId,
+      layoutType,
+      parentDropTarget,
+      renderMode,
+    } = this.props;
+    if (!isDropTarget || renderMode !== RenderModes.CANVAS) return null;
+    return (
+      <AnvilCanvasDraggingArena
+        allowedWidgetTypes={this.props.allowedWidgetTypes || []}
+        canvasId={canvasId}
+        deriveAllHighlightsFn={LayoutFactory.getDeriveHighlightsFn(layoutType)(
+          this.props,
+          canvasId,
+          this.state.order,
+          parentDropTarget,
+        )}
+        layoutId={layoutId}
+      />
+    );
   }
 
   // Check if the layout component renders widgets or layouts.
