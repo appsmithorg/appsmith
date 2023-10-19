@@ -83,10 +83,12 @@ function* fetchPluginFormConfigsSaga() {
     const graphqlPlugin = getGraphQLPlugin(plugins);
     if (apiPlugin) {
       pluginIdFormsToFetch.add(apiPlugin.id);
+      log.error("API plugin Id added: ", JSON.stringify(apiPlugin.id));
     }
 
     if (graphqlPlugin) {
       pluginIdFormsToFetch.add(graphqlPlugin.id);
+      log.error("GraphQL plugin Id added: ", JSON.stringify(graphqlPlugin.id));
     }
 
     const actions: ActionDataState = yield select(getActions);
@@ -108,18 +110,14 @@ function* fetchPluginFormConfigsSaga() {
 
     for (let i = 0; i < pluginFormResponses.length; i++) {
       const response = pluginFormResponses[i];
-      // if (!response) {
       log.error(
         "Validating response: ",
         JSON.stringify(response)?.length,
         JSON.stringify(response),
         JSON.stringify([...pluginIdFormsToFetch][i]),
       );
-      // }
-      // if (!!response) {
       yield validateResponse(response);
       pluginFormData.push(response.data);
-      // }
       log.error("Response pushed");
     }
 
