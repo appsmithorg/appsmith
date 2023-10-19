@@ -21,7 +21,7 @@ describe("layoutUtils tests", () => {
     it("should generate layout identifier using canvasId and layoutId", () => {
       const canvasId = "canvasId";
       const layoutId = "layoutId";
-      const expectedLayoutId = `LAYOUT_${canvasId}_${layoutId}`;
+      const expectedLayoutId = `layout_${canvasId}_${layoutId}`;
       expect(getAnvilLayoutDOMId(canvasId, layoutId)).toBe(expectedLayoutId);
     });
   });

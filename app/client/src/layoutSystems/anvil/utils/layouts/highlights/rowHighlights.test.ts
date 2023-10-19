@@ -22,13 +22,14 @@ import {
   HORIZONTAL_DROP_ZONE_MULTIPLIER,
 } from "../../constants";
 import { generateLayoutComponentMock } from "mocks/layoutComponents/layoutComponentMock";
-import LayoutFactory from "layoutSystems/anvil/layoutComponents/LayoutFactory";
 import type { LayoutElementPositions } from "layoutSystems/common/types";
 import { getRelativeDimensions } from "./dimensionUtils";
-import LayoutRow from "layoutSystems/anvil/layoutComponents/components/LayoutRow";
-import WidgetRow from "layoutSystems/anvil/layoutComponents/components/WidgetRow";
+import { registerLayoutComponents } from "../layoutUtils";
 
 describe("rowHighlights tests", () => {
+  beforeAll(() => {
+    registerLayoutComponents();
+  });
   const baseProps: LayoutProps = {
     layoutId: "layoutID",
     layout: [],
@@ -171,7 +172,7 @@ describe("rowHighlights tests", () => {
         { widgetId: "3", alignment: FlexLayerAlignment.Start },
       ];
       const dimensions: LayoutElementPositions = {
-        layoutID: { top: 0, left: 0, width: 230, height: 100 },
+        layoutID: { top: 0, left: 0, width: 340, height: 100 },
         "1": { top: 0, left: 4, width: 100, height: 40 },
         "2": { top: 0, left: 110, width: 100, height: 60 },
         "3": { top: 30, left: 220, width: 100, height: 30 },
@@ -224,7 +225,7 @@ describe("rowHighlights tests", () => {
         { widgetId: "3", alignment: FlexLayerAlignment.Start },
       ];
       const dimensions: LayoutElementPositions = {
-        layoutID: { top: 0, left: 0, width: 230, height: 100 },
+        layoutID: { top: 0, left: 0, width: 340, height: 100 },
         "1": { top: 0, left: 4, width: 100, height: 40 },
         "2": { top: 0, left: 110, width: 100, height: 60 },
         "3": { top: 30, left: 220, width: 100, height: 30 },
@@ -415,7 +416,7 @@ describe("rowHighlights tests", () => {
           responsiveBehavior: ResponsiveBehavior.Hug,
         },
       ]);
-      expect(res[0].posY).toEqual(positions[layout.layoutId].top);
+      expect(res[0].posY).toEqual(0);
       expect(res[0].alignment).toEqual(FlexLayerAlignment.Start);
       expect(res[0].posX).toEqual(HIGHLIGHT_SIZE / 2);
       expect(res[0].height).toEqual(positions[layout.layoutId].height);
@@ -451,7 +452,7 @@ describe("rowHighlights tests", () => {
       const posX: number =
         (positions[layout.layoutId].width - HIGHLIGHT_SIZE) / 2;
 
-      expect(res[0].posY).toEqual(positions[layout.layoutId].top);
+      expect(res[0].posY).toEqual(0);
       expect(res[0].alignment).toEqual(FlexLayerAlignment.Center);
       expect(res[0].posX).toEqual(posX);
       expect(res[0].height).toEqual(positions[layout.layoutId].height);
@@ -485,7 +486,7 @@ describe("rowHighlights tests", () => {
       ]);
       const posX: number = positions[layout.layoutId].width - HIGHLIGHT_SIZE;
       expect(res).toBeDefined();
-      expect(res[0].posY).toEqual(positions[layout.layoutId].top);
+      expect(res[0].posY).toEqual(0);
       expect(res[0].alignment).toEqual(FlexLayerAlignment.End);
       expect(res[0].posX).toEqual(posX);
       expect(res[0].height).toEqual(positions[layout.layoutId].height);
@@ -497,9 +498,6 @@ describe("rowHighlights tests", () => {
     });
   });
   describe("getHighlightsForLayoutRow", () => {
-    beforeAll(() => {
-      LayoutFactory.initialize([LayoutRow, WidgetRow]);
-    });
     it("should derive and collate highlights for child layouts", () => {
       /**
        * Create a drop target (DT) layout with two child widgets.
@@ -574,8 +572,8 @@ describe("rowHighlights tests", () => {
        */
       expect(res).toBeDefined();
       expect(res.length).toBe(9);
-      expect(res[1].layoutOrder[1]).toEqual(layoutOne.layoutId);
-      expect(res[5].layoutOrder[1]).toEqual(layoutTwo.layoutId);
+      expect(res[1].layoutOrder[0]).toEqual(layoutOne.layoutId);
+      expect(res[5].layoutOrder[0]).toEqual(layoutTwo.layoutId);
     });
     it("should discount dragged child widgets in highlights calculation", () => {
       /**
@@ -594,7 +592,7 @@ describe("rowHighlights tests", () => {
        * Create a map of widget positions.
        */
       const positions: LayoutElementPositions = {
-        [layout.layoutId]: { height: 100, left: 10, top: 10, width: 500 },
+        [layout.layoutId]: { height: 100, left: 0, top: 10, width: 500 },
         [button1]: { height: 40, left: 10, top: 10, width: 100 },
         [input1]: { height: 100, left: 120, top: 10, width: 370 },
       };
@@ -609,7 +607,7 @@ describe("rowHighlights tests", () => {
         layout.layoutId,
       )(positions, [
         {
-          widgetId: "1",
+          widgetId: button1,
           type: "BUTTON_WIDGET",
           responsiveBehavior: ResponsiveBehavior.Hug,
         },
