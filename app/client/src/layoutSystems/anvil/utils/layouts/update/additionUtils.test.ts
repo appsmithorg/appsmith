@@ -186,7 +186,7 @@ describe("Layouts - additionUtils tests", () => {
       const layout: LayoutComponentProps = generateLayoutComponentMock();
       const res: WidgetLayoutProps[] | LayoutProps[] =
         prepareWidgetsForAddition(
-          { getChildTemplate: () => undefined } as any,
+          { getChildTemplate: () => null } as any,
           layout,
           mockAnvilHighlightInfo(),
           [{ widgetId: "1", alignment: FlexLayerAlignment.Start }],

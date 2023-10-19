@@ -18,8 +18,9 @@ class WidgetColumn extends BaseLayoutComponent {
     };
   }
 
-  static getChildTemplate(props: LayoutProps): LayoutProps | undefined {
-    if (props.childTemplate) return props.childTemplate;
+  static getChildTemplate(props: LayoutProps): LayoutProps | null {
+    if (props.childTemplate || props.childTemplate === null)
+      return props.childTemplate;
     return {
       insertChild: true,
       layoutId: "",

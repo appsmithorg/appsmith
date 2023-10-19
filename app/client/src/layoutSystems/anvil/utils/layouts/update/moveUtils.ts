@@ -105,14 +105,6 @@ export function moveWidgets(
     newChildren,
   );
 
-  console.log("###", {
-    widgets,
-    parent,
-    movedWidgets,
-    updatedParentLayout,
-    newChildren,
-    newLayout,
-  });
   /**
    * Step 4: Add all moved widgets to new parent and update its layout in the drop position specified by the highlight.
    */

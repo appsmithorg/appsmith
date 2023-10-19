@@ -34,8 +34,8 @@ abstract class BaseLayoutComponent extends PureComponent<
   }
 
   // get template of layout component to wrap new widgets in.
-  static getChildTemplate(props: LayoutProps): LayoutProps | undefined {
-    return props;
+  static getChildTemplate(_props: LayoutProps): LayoutProps | null {
+    return null;
   }
 
   // Get a list of highlights to demarcate the drop positions within the layout.
