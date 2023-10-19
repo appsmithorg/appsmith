@@ -16,15 +16,6 @@ import { registerLayoutComponents } from "../layoutUtils";
 
 describe("AlignedColumnHighlights tests", () => {
   beforeAll(() => {
-    window.IntersectionObserver = jest
-      .fn()
-      .mockImplementation((fn: (entry: any) => any) => {
-        return {
-          observe: jest.fn(),
-          unobserve: jest.fn(),
-          disconnect: jest.fn(),
-        };
-      });
     registerLayoutComponents();
   });
   describe("deriveAlignedColumnHighlights", () => {
