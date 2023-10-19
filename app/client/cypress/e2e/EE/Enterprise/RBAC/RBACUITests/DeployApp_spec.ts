@@ -60,6 +60,7 @@ describe("User deploying an app with and without edit permission for a page", fu
       "Edit",
       false,
     );
+
     rbacHelper.AssignRoleToUser(
       permissionAtPageLevel,
       Cypress.env("TESTUSERNAME1"),
@@ -83,7 +84,7 @@ describe("User deploying an app with and without edit permission for a page", fu
       license_gac_enabled: true,
     });
     cy.wait(2000);
-    homePage.SearchAndOpenApp(appName);
+    homePage.EditAppFromAppHover(appName);
     agHelper.ClickButton("Deploy");
     agHelper.GetText(locators._toastMsg).then((text) => {
       expect(text).to.contain(
