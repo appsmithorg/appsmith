@@ -1,5 +1,9 @@
 import type { FieldEntityInformation } from "components/editorComponents/CodeEditor/EditorConfig";
-import { DataTreeFunctionSortOrder, PriorityOrder } from "./dataTypeSortRules";
+import {
+  DataTreeFunctionSortOrder,
+  PriorityOrder,
+  blockedCompletions,
+} from "./dataTypeSortRules";
 import type {
   Completion,
   DataTreeDefEntityInformation,
@@ -24,6 +28,7 @@ enum RuleWeight {
   DataTreeFunction,
   DataTreeMatch,
   TypeMatch,
+  DataTreeEntityNameMatch,
   PriorityMatch,
   ScopeMatch,
 }
@@ -94,6 +99,11 @@ class RemoveBlackListedCompletionRule implements AutocompleteRule {
     let score = 0;
     const { currentFieldInfo } = AutocompleteSorter;
     const { blockCompletions } = currentFieldInfo;
+
+    if (blockedCompletions.includes(completion.text)) {
+      score = BlockSuggestionsRule.threshold;
+      return score;
+    }
 
     if (blockCompletions) {
       for (let index = 0; index < blockCompletions.length; index++) {
@@ -227,8 +237,26 @@ class TypeMatchRule implements AutocompleteRule {
 }
 
 /**
- * Set's threshold value for completions that resides in PriorityOrder, eg. selectedRow for Table1.
+ * Set's threshold value for completions that belong to the dataTree and are entity names
  * Max score - 1000000 - binary
+ * Min score - 0
+ */
+class DataTreeEntityRule implements AutocompleteRule {
+  static threshold = 1 << RuleWeight.DataTreeEntityNameMatch;
+  computeScore(completion: Completion): number {
+    let score = 0;
+    if (
+      completion.origin === "DATA_TREE" &&
+      completion.text.split(".").length === 1
+    )
+      score += DataTreeEntityRule.threshold;
+    return score;
+  }
+}
+
+/**
+ * Set's threshold value for completions that resides in PriorityOrder, eg. selectedRow for Table1.
+ * Max score - 10000000 - binary
  * Min score - 0
  */
 class PriorityMatchRule implements AutocompleteRule {
@@ -249,8 +277,8 @@ class PriorityMatchRule implements AutocompleteRule {
 }
 
 /**
- * Sets threshold value.to completions from the same scop.
- * Max score - 10000000 - binary
+ * Sets threshold value.to completions from the same scope.
+ * Max score - 100000000 - binary
  * Min score - 0
  */
 class ScopeMatchRule implements AutocompleteRule {
@@ -341,6 +369,7 @@ export class ScoredCompletion {
     new NoSelfReferenceRule(),
     new ScopeMatchRule(),
     new PriorityMatchRule(),
+    new DataTreeEntityRule(),
     new TypeMatchRule(),
     new DataTreeRule(),
     new DataTreeFunctionRule(),
