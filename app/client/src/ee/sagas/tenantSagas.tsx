@@ -261,14 +261,18 @@ export function* validateLicenseSaga(
 }
 
 /**
- * saves the tenant config in local storage
- *
+ * This saga is used to cache the branding related config in the local storage
  * @param action
  */
-export function cacheTenentConfigSaga(action: ReduxAction<any>) {
+export function cacheTenantConfigSaga(action: ReduxAction<any>) {
+  //We cache only branding related information in the local storage
   localStorage.setItem(
     "tenantConfig",
-    JSON.stringify(action.payload.tenantConfiguration),
+    JSON.stringify({
+      brandColors: action.payload.tenantConfiguration.brandColors,
+      brandFaviconUrl: action.payload.tenantConfiguration.brandFaviconUrl,
+      brandLogoUrl: action.payload.tenantConfiguration.brandLogoUrl,
+    }),
   );
 }
 
@@ -414,7 +418,7 @@ export default function* tenantSagas() {
     ),
     takeLatest(
       ReduxActionTypes.FETCH_CURRENT_TENANT_CONFIG_SUCCESS,
-      cacheTenentConfigSaga,
+      cacheTenantConfigSaga,
     ),
     takeLatest(
       ReduxActionTypes.FORCE_LICENSE_CHECK_INIT,

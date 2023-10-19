@@ -47,9 +47,6 @@ export const initialState: TenantReduxState<any> = {
       ...createBrandColorsFromPrimaryColor(INITIAL_BRAND_COLOR),
     },
     ...cachedTenantConfigParsed,
-    license: {
-      validatingLicense: false,
-    },
   },
 };
 
