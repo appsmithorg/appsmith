@@ -53,7 +53,7 @@ import entityNavigationSaga from "sagas/NavigationSagas";
 import communityTemplateSagas from "sagas/CommunityTemplatesSagas";
 
 /* Sagas that are registered by a module that is designed to be independent of the core platform */
-import WidgetPositionSaga from "layoutSystems/anvil/integrations/sagas/WidgetPositionsSaga";
+import LayoutElementPositionsSaga from "layoutSystems/anvil/integrations/sagas/LayoutElementPositionsSaga";
 
 export const sagas = [
   initSagas,
@@ -108,6 +108,6 @@ export const sagas = [
   snapshotSagas,
   oneClickBindingSaga,
   entityNavigationSaga,
-  WidgetPositionSaga,
+  LayoutElementPositionsSaga,
   communityTemplateSagas,
 ];

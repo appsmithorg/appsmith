@@ -24,6 +24,7 @@ export const FEATURE_FLAG = {
   release_show_publish_app_to_community_enabled:
     "release_show_publish_app_to_community_enabled",
   license_gac_enabled: "license_gac_enabled",
+  release_anvil_enabled: "release_anvil_enabled",
   release_app_sidebar_enabled: "release_app_sidebar_enabled",
 } as const;
 
@@ -50,6 +51,7 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   license_private_embeds_enabled: false,
   release_show_publish_app_to_community_enabled: false,
   license_gac_enabled: false,
+  release_anvil_enabled: false,
   release_app_sidebar_enabled: false,
 };
 
