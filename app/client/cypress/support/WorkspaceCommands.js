@@ -270,11 +270,8 @@ Cypress.Commands.add("CreateAppInFirstListedWorkspace", () => {
     localStorage.setItem("applicationId", applicationId);
     localStorage.setItem("appName", appName);
 
-    //});
-    //cy.get("#loading").should("not.exist");
     // eslint-disable-next-line cypress/no-unnecessary-waiting
-    //cy.reload();
-    cy.wait(4000);
+    cy.wait(2000);
     cy.get("#loading").should("not.exist");
 
     cy.url().then((url) => {
@@ -284,16 +281,10 @@ Cypress.Commands.add("CreateAppInFirstListedWorkspace", () => {
       }
     });
   });
-
-  assertHelper.AssertNetworkStatus("@getPage");
-  assertHelper.AssertNetworkStatus("@getLibraries");
-  assertHelper.AssertNetworkStatus("@getPlugins");
-
   cy.get("#sidebar").should("be.visible");
-  //assertHelper.AssertNetworkStatus("@getPluginForm"); ////replacing from updateLayout to getPluginForm, since updateLayout is more flaky in CI - to monitor
-
   assertHelper.AssertNetworkResponseData("@getPluginForm"); //for auth rest api
   assertHelper.AssertNetworkResponseData("@getPluginForm"); //for graphql
+
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(2000);
 

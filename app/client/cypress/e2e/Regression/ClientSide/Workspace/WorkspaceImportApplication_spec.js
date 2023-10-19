@@ -20,6 +20,8 @@ describe("Workspace Import Application", function () {
     cy.wait(2000);
     cy.get(homePageLocators.appMoreIcon).first().click({ force: true });
     cy.get(homePageLocators.exportAppFromMenu).click({ force: true });
+    agHelper.ValidateToastMessage("Successfully exported");
+    // fetching the exported app file manually to be verified.
     cy.get(homePageLocators.searchInput).clear();
     cy.get(`a[id=t--export-app-link]`).then((anchor) => {
       const url = anchor.prop("href");
