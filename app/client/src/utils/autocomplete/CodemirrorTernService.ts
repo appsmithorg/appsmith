@@ -35,6 +35,7 @@ export interface Completion<
   data: T;
   render?: any;
   isHeader?: boolean;
+  isRecentEntity?: boolean;
 }
 
 export interface CommandsCompletion
@@ -140,6 +141,7 @@ class CodeMirrorTernService {
     DataTreeDefEntityInformation
   >();
   options: { async: boolean };
+  recentEntities: string[] = [];
 
   constructor(options: { async: boolean }) {
     this.options = options;
@@ -257,12 +259,17 @@ class CodeMirrorTernService {
       const isCustomKeyword = isCustomKeywordType(completion.name);
       const className = typeToIcon(completion.type as string, isCustomKeyword);
       const dataType = getDataType(completion.type as string);
+      const isCompletionARecentEntity =
+        completion.origin === "DATA_TREE"
+          ? this.recentEntities.includes(completion.name?.split(".")[0])
+          : false;
       let completionText = completion.name + after;
       if (dataType === "FUNCTION" && !completion.origin?.startsWith("LIB/")) {
         if (token.type !== "string" && token.string !== "[") {
           completionText = completionText + "()";
         }
       }
+
       const codeMirrorCompletion: Completion<TernCompletionResult> = {
         text: completionText,
         displayText: completion.name,
@@ -271,6 +278,7 @@ class CodeMirrorTernService {
         origin: completion.origin as string,
         type: dataType,
         isHeader: false,
+        isRecentEntity: isCompletionARecentEntity,
       };
 
       if (isCustomKeyword) {
@@ -931,6 +939,9 @@ class CodeMirrorTernService {
     const query = splitBySpace[splitBySpace.length - 1];
 
     return query;
+  }
+  updateRecentEntities(recentEntities: string[]) {
+    this.recentEntities = recentEntities;
   }
 }
 

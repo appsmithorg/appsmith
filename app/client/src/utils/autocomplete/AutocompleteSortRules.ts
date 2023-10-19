@@ -27,6 +27,7 @@ enum RuleWeight {
   JSLibrary,
   DataTreeFunction,
   DataTreeMatch,
+  RecentEntityMatch,
   TypeMatch,
   DataTreeEntityNameMatch,
   PriorityMatch,
@@ -221,8 +222,24 @@ class DataTreeRule implements AutocompleteRule {
 }
 
 /**
- * Set's threshold value for completions that match the expectedValue of the current field.
+ * Sets threshold value for completions that are recent entities
  * Max score - 100000 - binary
+ * Min score - 0
+ */
+class RecentEntityRule implements AutocompleteRule {
+  static threshold = 1 << RuleWeight.RecentEntityMatch;
+  computeScore(completion: Completion): number {
+    let score = 0;
+    if (completion.isRecentEntity) {
+      score += RecentEntityRule.threshold;
+    }
+    return score;
+  }
+}
+
+/**
+ * Set's threshold value for completions that match the expectedValue of the current field.
+ * Max score - 1000000 - binary
  * Min score - 0
  */
 class TypeMatchRule implements AutocompleteRule {
@@ -238,7 +255,7 @@ class TypeMatchRule implements AutocompleteRule {
 
 /**
  * Set's threshold value for completions that belong to the dataTree and are entity names
- * Max score - 1000000 - binary
+ * Max score - 10000000 - binary
  * Min score - 0
  */
 class DataTreeEntityRule implements AutocompleteRule {
@@ -256,7 +273,7 @@ class DataTreeEntityRule implements AutocompleteRule {
 
 /**
  * Set's threshold value for completions that resides in PriorityOrder, eg. selectedRow for Table1.
- * Max score - 10000000 - binary
+ * Max score - 100000000 - binary
  * Min score - 0
  */
 class PriorityMatchRule implements AutocompleteRule {
@@ -278,7 +295,7 @@ class PriorityMatchRule implements AutocompleteRule {
 
 /**
  * Sets threshold value.to completions from the same scope.
- * Max score - 100000000 - binary
+ * Max score - 1000000000 - binary
  * Min score - 0
  */
 class ScopeMatchRule implements AutocompleteRule {
@@ -372,6 +389,7 @@ export class ScoredCompletion {
     new DataTreeEntityRule(),
     new TypeMatchRule(),
     new DataTreeRule(),
+    new RecentEntityRule(),
     new DataTreeFunctionRule(),
     new JSLibraryRule(),
     new GlobalJSRule(),
