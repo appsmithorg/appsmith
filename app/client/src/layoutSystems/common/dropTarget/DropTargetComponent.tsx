@@ -43,7 +43,10 @@ import {
 import DragLayerComponent from "./DragLayerComponent";
 import CanvasStarterTemplatesLayout from "./canvasStarterTemplatesLayout";
 import { getCurrentUser } from "selectors/usersSelectors";
-import { isUserSignedUpFlagSet } from "utils/storage";
+import {
+  getEnableStartSignposting,
+  isUserSignedUpFlagSet,
+} from "utils/storage";
 
 export type DropTargetComponentProps = PropsWithChildren<{
   snapColumnSpace: number;
@@ -68,17 +71,19 @@ const StyledDropTarget = styled.div`
 `;
 
 function Onboarding() {
-  const [isNewUser, setIsNewUser] = useState(false);
+  const [isUsersFirstApp, setIsUsersFirstApp] = useState(false);
   const isMobileCanvas = useSelector(getIsMobileCanvasLayout);
   const user = useSelector(getCurrentUser);
 
   const shouldShowStarterTemplates = useMemo(
-    () => !isMobileCanvas && isNewUser,
-    [isMobileCanvas, isNewUser],
+    () => !isMobileCanvas && isUsersFirstApp,
+    [isMobileCanvas, isUsersFirstApp],
   );
   useEffect(() => {
     (async () => {
-      setIsNewUser(!!user && (await isUserSignedUpFlagSet(user.email)));
+      const isNew = !!user && (await isUserSignedUpFlagSet(user.email));
+      const signPostingEnabled = await getEnableStartSignposting();
+      setIsUsersFirstApp(isNew && signPostingEnabled === "true");
     })();
   }, [user]);
 
