@@ -23,6 +23,7 @@ export const modalPreset = (
           layoutType: LayoutComponentTypes.LAYOUT_ROW,
           layout: [
             {
+              allowedWidgetTypes: ["TEXT_WIDGET"],
               isDropTarget: true,
               isPermanent: true,
               layoutId: generateReactKey(),
@@ -39,6 +40,7 @@ export const modalPreset = (
               },
             },
             {
+              allowedWidgetTypes: ["ICON_BUTTON_WIDGET"],
               isDropTarget: true,
               isPermanent: true,
               layoutId: generateReactKey(),

@@ -17,6 +17,7 @@ export const formPreset = (
       layoutType: LayoutComponentTypes.LAYOUT_COLUMN,
       layout: [
         {
+          allowedWidgetTypes: ["TEXT_WIDGET"],
           isDropTarget: true,
           isPermanent: true,
           layoutId: generateReactKey(),
