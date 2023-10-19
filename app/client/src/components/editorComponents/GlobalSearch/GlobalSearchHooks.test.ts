@@ -1,11 +1,11 @@
-import { getFilteredAndSortedFileOperations } from "./GlobalSearchHooks";
+import { useFilteredAndSortedFileOperations } from "./GlobalSearchHooks";
 import type { Datasource } from "entities/Datasource";
 import { SEARCH_ITEM_TYPES } from "./utils";
 import { PERMISSION_TYPE } from "@appsmith/utils/permissionHelpers";
 
 describe("getFilteredAndSortedFileOperations", () => {
   it("works without any datasources", () => {
-    const fileOptions = getFilteredAndSortedFileOperations("");
+    const fileOptions = useFilteredAndSortedFileOperations("");
 
     expect(fileOptions[0]).toEqual(
       expect.objectContaining({
@@ -38,7 +38,7 @@ describe("getFilteredAndSortedFileOperations", () => {
     );
   });
   it("works without permissions", () => {
-    const actionOperationsWithoutCreate = getFilteredAndSortedFileOperations(
+    const actionOperationsWithoutCreate = useFilteredAndSortedFileOperations(
       "",
       [],
       [],
@@ -49,7 +49,7 @@ describe("getFilteredAndSortedFileOperations", () => {
     expect(actionOperationsWithoutCreate.length).toEqual(0);
 
     const actionOperationsWithoutDatasourcePermission =
-      getFilteredAndSortedFileOperations("", [], [], {}, true, false);
+      useFilteredAndSortedFileOperations("", [], [], {}, true, false);
 
     expect(actionOperationsWithoutDatasourcePermission.length).toEqual(4);
   });
@@ -89,7 +89,7 @@ describe("getFilteredAndSortedFileOperations", () => {
       name: "Other datasource",
     };
 
-    const fileOptions = getFilteredAndSortedFileOperations(
+    const fileOptions = useFilteredAndSortedFileOperations(
       "",
       [appDatasource],
       [otherDatasource],
@@ -163,7 +163,7 @@ describe("getFilteredAndSortedFileOperations", () => {
       name: "Other datasource",
     };
 
-    const fileOptions = getFilteredAndSortedFileOperations(
+    const fileOptions = useFilteredAndSortedFileOperations(
       "",
       [appDatasource],
       [otherDatasource],
@@ -237,7 +237,7 @@ describe("getFilteredAndSortedFileOperations", () => {
       name: "Other datasource",
     };
 
-    const fileOptions = getFilteredAndSortedFileOperations(
+    const fileOptions = useFilteredAndSortedFileOperations(
       "App",
       [appDatasource],
       [otherDatasource],
@@ -292,7 +292,7 @@ describe("getFilteredAndSortedFileOperations", () => {
       name: "Other datasource",
     };
 
-    const fileOptions = getFilteredAndSortedFileOperations(
+    const fileOptions = useFilteredAndSortedFileOperations(
       "zzzz",
       [appDatasource],
       [otherDatasource],
