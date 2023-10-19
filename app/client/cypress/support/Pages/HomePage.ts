@@ -132,6 +132,10 @@ export class HomePage {
     this.agHelper.Sleep(2000);
     cy.get("@createWorkspace").then((interception: any) => {
       localStorage.setItem("workspaceId", interception.response.body.data.id);
+      localStorage.setItem(
+        "workspaceName",
+        interception.response.body.data.name,
+      );
     });
 
     workspaceNewName &&
@@ -259,6 +263,9 @@ export class HomePage {
       this.onboarding.skipSignposting();
     }
     this.assertHelper.AssertNetworkStatus("getWorkspace");
+    cy.get("@createNewApplication").then((interception: any) => {
+      localStorage.setItem("appName", interception.response.body.data.name);
+    });
   }
 
   //Maps to CreateAppForWorkspace in command.js

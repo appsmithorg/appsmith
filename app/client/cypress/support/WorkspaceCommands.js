@@ -257,7 +257,7 @@ Cypress.Commands.add("CreateAppForWorkspace", (workspaceName, appname) => {
   agHelper.RemoveTooltip("Rename application");
 });
 
-Cypress.Commands.add("CreateAppInFirstListedWorkspace", (appname) => {
+Cypress.Commands.add("CreateAppInFirstListedWorkspace", () => {
   let applicationId, appName;
   homePageTS.CreateNewWorkspace(); //Creating a new workspace for every test, since we are deleting the workspace in the end of the test
   cy.get(homePage.createNew).last().click({ force: true });
@@ -268,6 +268,8 @@ Cypress.Commands.add("CreateAppInFirstListedWorkspace", (appname) => {
     appName = response.body.data.name;
     cy.log("appName", appName);
     localStorage.setItem("applicationId", applicationId);
+    localStorage.setItem("appName", appName);
+
     //});
     //cy.get("#loading").should("not.exist");
     // eslint-disable-next-line cypress/no-unnecessary-waiting

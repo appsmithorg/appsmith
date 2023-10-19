@@ -133,11 +133,7 @@ before(function () {
   cy.get(".t--applications-container .createnew")
     .should("be.visible")
     .should("be.enabled");
-  cy.generateUUID().then((id) => {
-    cy.CreateAppInFirstListedWorkspace(id);
-    localStorage.setItem("AppName", id);
-  });
-
+  cy.CreateAppInFirstListedWorkspace(); //Creating new workspace and app
   cy.fixture("TestDataSet1").then(function (data) {
     this.dataSet = data;
   });
