@@ -63,7 +63,10 @@ export function AppPage(props: AppPageProps) {
     >
       <PageView className="t--app-viewer-page" width={props.canvasWidth}>
         {props.widgetsStructure.widgetId &&
-          renderAppsmithCanvas(props.widgetsStructure as WidgetProps)}
+          renderAppsmithCanvas({
+            ...props.widgetsStructure,
+            classList: ["main-anvil-canvas"],
+          } as WidgetProps)}
       </PageView>
     </PageViewWrapper>
   );
