@@ -30,7 +30,7 @@ import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import type { FlexLayer } from "layoutSystems/autolayout/utils/types";
 import type { LayoutProps } from "layoutSystems/anvil/utils/anvilTypes";
 import { formPreset } from "layoutSystems/anvil/layoutComponents/presets/FormPreset";
-import { renderAppsmithCanvas } from "layoutSystems/CanvasFactory";
+import { LayoutSystemTypes } from "layoutSystems/types";
 
 class FormWidget extends ContainerWidget {
   static type = "FORM_WIDGET";
@@ -158,9 +158,9 @@ class FormWidget extends ContainerWidget {
               widgets: { [widgetId: string]: FlattenedWidgetProps },
               widgetId: string,
               parentId: string,
-              isAutoLayout: boolean,
+              layoutSystemType: LayoutSystemTypes,
             ) => {
-              if (!isAutoLayout) return {};
+              if (layoutSystemType === LayoutSystemTypes.FIXED) return {};
               return { rows: 10 };
             },
           },
@@ -169,7 +169,12 @@ class FormWidget extends ContainerWidget {
             fn: (
               widget: FlattenedWidgetProps,
               widgets: CanvasWidgetsReduxState,
+              parent: FlattenedWidgetProps,
+              layoutSystemType: LayoutSystemTypes,
             ) => {
+              if (layoutSystemType === LayoutSystemTypes.FIXED) {
+                return [];
+              }
               //get Canvas Widget
               const canvasWidget: FlattenedWidgetProps = get(
                 widget,
@@ -393,8 +398,7 @@ class FormWidget extends ContainerWidget {
     }
     childContainer.rightColumn = componentWidth;
     childContainer.bottomRow = componentHeight;
-
-    return renderAppsmithCanvas(childContainer as WidgetProps);
+    return super.renderChildWidget(childContainer);
   }
 
   static getStylsheetConfig() {
