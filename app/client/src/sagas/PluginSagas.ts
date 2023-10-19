@@ -83,10 +83,12 @@ function* fetchPluginFormConfigsSaga() {
     const graphqlPlugin = getGraphQLPlugin(plugins);
     if (apiPlugin) {
       pluginIdFormsToFetch.add(apiPlugin.id);
+      log.error("API plugin Id added: ", JSON.stringify(apiPlugin.id));
     }
 
     if (graphqlPlugin) {
       pluginIdFormsToFetch.add(graphqlPlugin.id);
+      log.error("GraphQL plugin Id added: ", JSON.stringify(graphqlPlugin.id));
     }
 
     const actions: ActionDataState = yield select(getActions);
@@ -94,7 +96,10 @@ function* fetchPluginFormConfigsSaga() {
     for (const pluginId of actionPluginIds) {
       pluginIdFormsToFetch.add(pluginId);
     }
-    log.error("pluginIdFormsToFetch acquired");
+    log.error(
+      "pluginIdFormsToFetch acquired",
+      JSON.stringify(pluginIdFormsToFetch),
+    );
 
     const pluginFormData: PluginFormPayload[] = [];
     const pluginFormResponses: ApiResponse<PluginFormPayload>[] = yield all(
@@ -102,12 +107,21 @@ function* fetchPluginFormConfigsSaga() {
         call(PluginsApi.fetchFormConfig, id),
       ),
     );
-    for (const response of pluginFormResponses) {
+
+    for (let i = 0; i < pluginFormResponses.length; i++) {
+      const response = pluginFormResponses[i];
+      log.error(
+        "Validating response: ",
+        JSON.stringify(response)?.length,
+        JSON.stringify(response),
+        JSON.stringify([...pluginIdFormsToFetch][i]),
+      );
       yield validateResponse(response);
       pluginFormData.push(response.data);
+      log.error("Response pushed");
     }
 
-    log.error("pluginIdFormsToFetch API completion");
+    log.error("pluginIdFormsToFetch Responses validated");
 
     if (jsPlugin) {
       pluginIdFormsToFetch.add(jsPlugin.id);
@@ -117,8 +131,6 @@ function* fetchPluginFormConfigsSaga() {
     const settingConfigs: FormSettingsConfigs = {};
     const dependencies: FormDependencyConfigs = {};
     const datasourceFormButtonConfigs: FormDatasourceButtonConfigs = {};
-
-    log.error("pluginIdFormsToFetch jsPlugin details added");
 
     Array.from(pluginIdFormsToFetch).forEach((pluginId, index) => {
       const plugin = plugins.find((plugin) => plugin.id === pluginId);
@@ -162,7 +174,6 @@ function* fetchPluginFormConfigsSaga() {
       }
     });
 
-    log.error("pluginIdFormsToFetch values added");
     yield put(
       fetchPluginFormConfigsSuccess({
         formConfigs,
@@ -172,7 +183,6 @@ function* fetchPluginFormConfigsSaga() {
         datasourceFormButtonConfigs,
       }),
     );
-    log.error("pluginIdFormsToFetch success handler called");
   } catch (error) {
     log.error(error);
     yield put({
