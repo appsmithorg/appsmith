@@ -164,11 +164,7 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
                       widget: WidgetProps & { children?: WidgetProps[] },
                       widgets: { [widgetId: string]: FlattenedWidgetProps },
                       parent?: WidgetProps & { children?: WidgetProps[] },
-                      layoutSystemType?: LayoutSystemTypes,
                     ) => {
-                      if (layoutSystemType === LayoutSystemTypes.FIXED) {
-                        return [];
-                      }
                       const iconChild =
                         widget.children &&
                         widget.children.find(
@@ -223,7 +219,12 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
             fn: (
               widget: FlattenedWidgetProps,
               widgets: CanvasWidgetsReduxState,
+              parent?: WidgetProps & { children?: WidgetProps[] },
+              layoutSystemType?: LayoutSystemTypes,
             ) => {
+              if (layoutSystemType === LayoutSystemTypes.FIXED) {
+                return [];
+              }
               //get Canvas Widget
               const canvasWidget: FlattenedWidgetProps = get(
                 widget,
