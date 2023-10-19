@@ -177,7 +177,7 @@ describe("AlignedRow highlights", () => {
         ],
       });
       const { layoutId } = layout;
-      // console.log(layout);
+
       const layoutPosition: LayoutElementPosition = {
         height: 48,
         left: 0,
@@ -221,7 +221,7 @@ describe("AlignedRow highlights", () => {
           responsiveBehavior: ResponsiveBehavior.Hug,
         },
       ]);
-      // console.log(res);
+
       expect(res.length).toEqual(5);
       expect(res[0].alignment).toEqual(FlexLayerAlignment.Start);
       expect(res[0].posX).toEqual(
