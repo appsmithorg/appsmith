@@ -65,8 +65,8 @@ class WDSTextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
     return (
       <Text
         color={this.props.textColor}
-        isBold={this.props.fontStyle.includes("bold")}
-        isItalic={this.props.fontStyle.includes("italic")}
+        isBold={this.props?.fontStyle?.includes("bold")}
+        isItalic={this.props?.fontStyle?.includes("italic")}
         lineClamp={this.props.lineClamp ? this.props.lineClamp : undefined}
         textAlign={this.props.textAlign}
         title={this.props.lineClamp ? this.props.text : undefined}
