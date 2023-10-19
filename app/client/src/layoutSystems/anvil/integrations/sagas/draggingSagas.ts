@@ -1,7 +1,6 @@
 import {
   type ReduxAction,
   ReduxActionErrorTypes,
-  ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import { BlueprintOperationTypes } from "WidgetProvider/constants";
 import { updateAndSaveLayout, type WidgetAddChild } from "actions/pageActions";
@@ -11,9 +10,10 @@ import { all, call, put, select, takeLatest } from "redux-saga/effects";
 import { getUpdateDslAfterCreatingChild } from "sagas/WidgetAdditionSagas";
 import { executeWidgetBlueprintBeforeOperations } from "sagas/WidgetBlueprintSagas";
 import { getWidgets } from "sagas/selectors";
-import type { AnvilHighlightInfo } from "../utils/anvilTypes";
-import { addWidgetsToPreset } from "../utils/layouts/update/additionUtils";
-import { moveWidgets } from "../utils/layouts/update/moveUtils";
+import type { AnvilHighlightInfo } from "../../utils/anvilTypes";
+import { addWidgetsToPreset } from "../../utils/layouts/update/additionUtils";
+import { moveWidgets } from "../../utils/layouts/update/moveUtils";
+import { AnvilReduxActionTypes } from "../actions/actionTypes";
 
 function* addWidgetsSaga(
   actionPayload: ReduxAction<{
@@ -74,7 +74,7 @@ function* addWidgetsSaga(
     yield put({
       type: ReduxActionErrorTypes.WIDGET_OPERATION_ERROR,
       payload: {
-        action: ReduxActionTypes.ANVIL_ADD_NEW_WIDGET,
+        action: AnvilReduxActionTypes.ANVIL_ADD_NEW_WIDGET,
         error,
       },
     });
@@ -105,7 +105,7 @@ function* moveWidgetsSaga(
     yield put({
       type: ReduxActionErrorTypes.WIDGET_OPERATION_ERROR,
       payload: {
-        action: ReduxActionTypes.ANVIL_MOVE_WIDGET,
+        action: AnvilReduxActionTypes.ANVIL_MOVE_WIDGET,
         error,
       },
     });
@@ -114,7 +114,7 @@ function* moveWidgetsSaga(
 
 export default function* anvilDraggingSagas() {
   yield all([
-    takeLatest(ReduxActionTypes.ANVIL_ADD_NEW_WIDGET, addWidgetsSaga),
-    takeLatest(ReduxActionTypes.ANVIL_MOVE_WIDGET, moveWidgetsSaga),
+    takeLatest(AnvilReduxActionTypes.ANVIL_ADD_NEW_WIDGET, addWidgetsSaga),
+    takeLatest(AnvilReduxActionTypes.ANVIL_MOVE_WIDGET, moveWidgetsSaga),
   ]);
 }
