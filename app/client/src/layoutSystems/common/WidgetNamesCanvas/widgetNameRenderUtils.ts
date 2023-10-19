@@ -12,9 +12,17 @@ import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { getWidgetNameComponent } from "./utils";
 import type { KonvaEventListener } from "konva/lib/Node";
 import type { Group } from "konva/lib/Group";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import { getAnvilCanvasId } from "layoutSystems/anvil/canvas/utils";
 
 export function getMainContainerAnvilCanvasDOMElement() {
-  return document.getElementById(`anvil-canvas-0`) as HTMLDivElement | null;
+  const mainContainerAnvilCanvasDOMId = getAnvilCanvasId(
+    MAIN_CONTAINER_WIDGET_ID,
+  );
+
+  return document.getElementById(
+    mainContainerAnvilCanvasDOMId,
+  ) as HTMLDivElement | null;
 }
 
 /**
