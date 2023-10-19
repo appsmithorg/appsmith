@@ -228,7 +228,6 @@ export function getHighlightsForWidgets(
     } else {
       const { metaData, tallestWidgets } = meta;
       let rIndex = 0;
-      console.log(metaData);
       while (rIndex < metaData.length) {
         const row: RowMetaData[] = metaData[rIndex];
         const tallestWidget = tallestWidgets[rIndex];

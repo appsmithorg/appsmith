@@ -5,7 +5,7 @@ import {
   type DeriveHighlightsFn,
   type LayoutComponentProps,
   LayoutComponentTypes,
-  LayoutProps,
+  type LayoutProps,
 } from "layoutSystems/anvil/utils/anvilTypes";
 import { FlexLayout } from "./FlexLayout";
 import { deriveColumnHighlights } from "layoutSystems/anvil/utils/layouts/highlights/columnHighlights";
@@ -47,7 +47,7 @@ class WidgetColumn extends BaseLayoutComponent {
         renderMode={renderMode}
         {...(layoutStyle || {})}
       >
-        {this.renderDraggingArena()}
+        {this.renderDraggingArea()}
         {this.renderChildWidgets()}
       </FlexLayout>
     );

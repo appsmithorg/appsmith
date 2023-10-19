@@ -60,7 +60,9 @@ export function deriveHighlights(
   }
 
   // Check if layout renders widgets or layouts.
-  const rendersWidgets: boolean = LayoutFactory.doesLayoutRenderWidgets(layoutProps.layoutType);
+  const rendersWidgets: boolean = LayoutFactory.doesLayoutRenderWidgets(
+    layoutProps.layoutType,
+  );
 
   // It renders other layouts.
   if (!rendersWidgets) {
