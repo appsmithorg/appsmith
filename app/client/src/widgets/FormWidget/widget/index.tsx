@@ -377,6 +377,8 @@ class FormWidget extends ContainerWidget {
   renderChildWidget(): React.ReactNode {
     const childContainer = this.getChildContainer();
 
+    const { componentHeight, componentWidth } = this.props;
+
     if (childContainer.children) {
       const isInvalid = this.checkInvalidChildren(childContainer.children);
       childContainer.children = childContainer.children.map(
@@ -389,14 +391,9 @@ class FormWidget extends ContainerWidget {
         },
       );
     }
+    childContainer.rightColumn = componentWidth;
+    childContainer.bottomRow = componentHeight;
 
-    // childContainer.layout =
-    //   childContainer.layout ??
-    //   formPreset(
-    //     childContainer.children[0]?.widgetId,
-    //     childContainer.children[1]?.widgetId,
-    //     childContainer.children[2]?.widgetId,
-    //   );
     return renderAppsmithCanvas(childContainer as WidgetProps);
   }
 
