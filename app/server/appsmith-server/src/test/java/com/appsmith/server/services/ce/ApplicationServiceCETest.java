@@ -34,6 +34,7 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
+import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.UserHomepageDTO;
@@ -287,28 +288,32 @@ public class ApplicationServiceCETest {
                 .getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission())
                 .block();
 
-        gitConnectedApp = new Application();
-        gitConnectedApp.setWorkspaceId(workspaceId);
+        Application gitConnectedApp1 = new Application();
+        gitConnectedApp1.setWorkspaceId(workspaceId);
         GitApplicationMetadata gitData = new GitApplicationMetadata();
         gitData.setBranchName("testBranch");
         gitData.setDefaultBranchName("testBranch");
         gitData.setRepoName("testRepo");
         gitData.setRemoteUrl("git@test.com:user/testRepo.git");
         gitData.setRepoName("testRepo");
-        gitConnectedApp.setGitApplicationMetadata(gitData);
+        gitConnectedApp1.setGitApplicationMetadata(gitData);
         // This will be altered in update app by branch test
-        gitConnectedApp.setName("gitConnectedApp");
-        gitConnectedApp = applicationPageService
-                .createApplication(gitConnectedApp)
+        gitConnectedApp1.setName("gitConnectedApp");
+        Application newGitConnectedApp = applicationPageService
+                .createApplication(gitConnectedApp1)
                 .flatMap(application -> {
                     application.getGitApplicationMetadata().setDefaultApplicationId(application.getId());
                     return applicationService.save(application);
                 })
-                // Assign the branchName to all the resources connected to the application
-                .flatMap(application ->
-                        exportApplicationService.exportApplicationById(application.getId(), gitData.getBranchName()))
-                .flatMap(applicationJson -> importApplicationService.importApplicationInWorkspaceFromGit(
-                        workspaceId, applicationJson, gitConnectedApp.getId(), gitData.getBranchName()))
+                .block();
+
+        // Assign the branchName to all the resources connected to the application
+        ApplicationJson gitConnectedApplicationJson = exportApplicationService
+                .exportApplicationById(newGitConnectedApp.getId(), gitData.getBranchName())
+                .block();
+        gitConnectedApp = importApplicationService
+                .importApplicationInWorkspaceFromGit(
+                        workspaceId, gitConnectedApplicationJson, newGitConnectedApp.getId(), gitData.getBranchName())
                 .block();
 
         testPlugin = pluginService.findByPackageName("restapi-plugin").block();
