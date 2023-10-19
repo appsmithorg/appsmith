@@ -144,16 +144,6 @@ export const propertyPaneContentConfig = [
         validation: { type: ValidationTypes.BOOLEAN },
       },
       {
-        propertyName: "isDisabled",
-        label: "Disabled",
-        controlType: "SWITCH",
-        helpText: "Disables clicks to this widget",
-        isJSConvertible: true,
-        isBindProperty: true,
-        isTriggerProperty: false,
-        validation: { type: ValidationTypes.BOOLEAN },
-      },
-      {
         propertyName: "animateLoading",
         label: "Animate loading",
         controlType: "SWITCH",

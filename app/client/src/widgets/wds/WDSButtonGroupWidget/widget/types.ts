@@ -8,7 +8,6 @@ export interface ButtonGroupWidgetProps extends WidgetProps {
   buttonColor: ButtonGroupProps["color"];
   buttonVariant: ButtonGroupProps["variant"];
   orientation: ButtonGroupProps["orientation"];
-  isDisabled: boolean;
   isVisible: boolean;
   buttonsList: ButtonsList;
 }

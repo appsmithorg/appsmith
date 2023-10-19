@@ -34,10 +34,6 @@ export const ButtonGroupComponent = (props: ButtonGroupComponentProps) => {
             return <BIcon icon={button.iconName} />;
           });
 
-        const hasOnClickAction = () => {
-          return Boolean(button.onClick && !button.isDisabled);
-        };
-
         const handleActionComplete = () => {
           const newLoadingButtonIds = [...loadingButtonIds];
           const index = newLoadingButtonIds.indexOf(button.id);
@@ -57,14 +53,6 @@ export const ButtonGroupComponent = (props: ButtonGroupComponentProps) => {
           }
         };
 
-        const onPress = (() => {
-          if (hasOnClickAction()) {
-            return onButtonClick;
-          }
-
-          return undefined;
-        })();
-
         return (
           <ButtonGroupItem
             icon={icon}
@@ -72,7 +60,7 @@ export const ButtonGroupComponent = (props: ButtonGroupComponentProps) => {
             isDisabled={button.isDisabled}
             isLoading={loadingButtonIds.includes(button.id)}
             key={button.id}
-            onPress={onPress}
+            onPress={onButtonClick}
           >
             {button.label}
           </ButtonGroupItem>
