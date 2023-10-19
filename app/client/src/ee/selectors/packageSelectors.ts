@@ -1,8 +1,12 @@
 export * from "ce/selectors/packageSelectors";
+import type { AppState } from "@appsmith/reducers";
+import { MODULE_MODE } from "@appsmith/entities/package";
 
 import { createSelector } from "reselect";
 
-import type { AppState } from "@appsmith/reducers";
+//package creator
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export const getModuleMode = (state: AppState) => MODULE_MODE.EDIT;
 
 export const getIsFetchingPackages = (state: AppState) =>
   state.ui.workspaces.loadingStates.isFetchingPackagesList;

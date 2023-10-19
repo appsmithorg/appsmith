@@ -56,6 +56,7 @@ import type {
   JSActionEntity,
   JSActionEntityConfig,
   DataTreeEntityObject,
+  WidgetEntity,
 } from "@appsmith/entities/DataTree/types";
 import { ENTITY_TYPE_VALUE } from "entities/DataTree/dataTreeFactory";
 import type { DatasourceStructure } from "entities/Datasource";
@@ -314,7 +315,9 @@ const getGPTContextGenerator = createSelector(getDataTree, (dataTree) => {
         WidgetFactory.getAutocompleteDefinitions(entity.type) || {};
       if (typeof autocompleteDefinitions === "function") {
         try {
-          autocompleteDefinitions = autocompleteDefinitions(entity);
+          autocompleteDefinitions = autocompleteDefinitions(
+            entity as WidgetEntity,
+          );
         } catch (e) {
           log.debug(e);
           autocompleteDefinitions = {};
