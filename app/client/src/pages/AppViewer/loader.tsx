@@ -3,7 +3,7 @@ import type { RouteComponentProps } from "react-router";
 import PageLoadingBar from "pages/common/PageLoadingBar";
 import { retryPromise } from "utils/AppsmithUtils";
 import type { InitAppViewerPayload } from "actions/initActions";
-import { initAppViewer } from "actions/initActions";
+import { initAppViewer } from "actions/initActions"; 
 import { APP_MODE } from "entities/App";
 import { connect } from "react-redux";
 import { getSearchQuery } from "utils/helpers";

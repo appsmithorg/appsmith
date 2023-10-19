@@ -5,11 +5,106 @@ const common = require("./craco.common.config.js");
 const WorkboxPlugin = require("workbox-webpack-plugin");
 const CompressionPlugin = require("compression-webpack-plugin");
 const { RetryChunkLoadPlugin } = require("webpack-retry-chunk-load-plugin");
+const BundleAnalyzerPlugin =
+  require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
+
 const path = require("path");
 
 const env = process.env.REACT_APP_ENVIRONMENT;
 const isAirgap = process.env.REACT_APP_AIRGAP_ENABLED;
 const plugins = [];
+
+class PrintChunksPlugin {
+  apply (compiler) {
+    console.log("compiler is ", Object.keys(compiler.hooks))
+      compiler.plugin('compilation', compilation => {
+          compilation.plugin('after-optimize-chunk-assets', chunks => {
+              console.log(chunks.map(chunk => ({
+                  id: chunk.id,
+                  name: chunk.name,
+                  modules: Array.from(chunk._modules).map(module => module.id)
+              })))
+          })
+      })
+  }
+}
+
+// PrintChunksPlugin.prototype.apply = function (compiler) {
+//   var showFull = this.options.showFull;
+//   compiler.plugin("compilation", function (compilation, params) {
+//     compilation.plugin("after-optimize-chunk-assets", function (chunks) {
+//       var items = chunks.map(function (c) {
+//         return {
+//           id: c.id,
+//           name: c.name,
+//           includes: c.modules.map(function (m) {
+//             return m.request;
+//           }),
+//         };
+//       });
+//       console.log(
+//         showFull ? util.inspect(items, { maxArrayLength: null }) : items
+//       );
+//     });
+//   });
+// };
+
+class MyExampleWebpackPlugin {
+  // Define `apply` as its prototype method which is supplied with compiler as its argument
+  apply(compiler) {
+    // Specify the event hook to attach to
+    compiler.hooks.compilation.tap(
+      'MyExampleWebpackPlugin',
+      (compilation) => {
+        // console.log('This is an example plugin!');
+        // console.log(
+        //   'Here’s the `compilation` object which represents a single build of assets:',
+        //   compilation
+        // );
+
+        // Manipulate the build using the plugin API provided by webpack
+        // compilation.addModule(/* ... */);
+
+        compilation.hooks.afterOptimizeChunkAssets.tap(
+          "MyPlugin", (module) => {
+            console.log("module is ", module)
+          }
+        )
+        // compilation.hooks.processAssets.tap(
+        //   {
+        //     name: 'MyPlugin',
+        //     stage: compilation.PROCESS_ASSETS_STAGE_ADDITIONAL, // see below for more stages
+        //   },
+        //   (assets) => {
+        //     console.log('List of assets and their sizes:');
+        //     Object.entries(assets).forEach(([pathname, source]) => {
+        //       console.log(`— ${pathname}: ${source.size()} bytes`);
+        //     });
+        //   }
+        // );
+
+        // callback();
+      }
+    );
+  }
+}
+
+// var PrintChunksPlugin = function() {};
+// PrintChunksPlugin.prototype.apply = function(compiler) {
+//     compiler.plugin('compilation', function(compilation, params) {
+//         compilation.plugin('after-optimize-chunk-assets', function(chunks) {
+//             console.log(chunks.map(function(c) {
+//                 return {
+//                     id: c.id,
+//                     name: c.name,
+//                     includes: c.modules.map(function(m) {
+//                         return m.request;
+//                     })
+//                 };
+//             }));
+//         });
+//     });
+// };
 
 plugins.push(
   new WorkboxPlugin.InjectManifest({
@@ -82,6 +177,9 @@ plugins.push(
     lastResortScript: "window.location.href='/404.html';",
   }),
 );
+
+// plugins.push(new MyExampleWebpackPlugin())
+plugins.push(new BundleAnalyzerPlugin({ analyzerMode: "server" }))
 
 module.exports = merge(common, {
   webpack: {
