@@ -69,12 +69,7 @@ public class DatasourceExportableServiceCEImpl implements ExportableServiceCE<Da
         return datasourceFlux.collectList().zipWith(defaultEnvironmentIdMono).map(tuple2 -> {
             List<Datasource> datasourceList = tuple2.getT1();
             String environmentId = tuple2.getT2();
-            datasourceList.forEach(datasource -> {
-                mappedExportableResourcesDTO.getDatasourceIdToNameMap().put(datasource.getId(), datasource.getName());
-                mappedExportableResourcesDTO
-                        .getDatasourceNameToUpdatedAtMap()
-                        .put(datasource.getName(), datasource.getUpdatedAt());
-            });
+            mapNameToIdForExportableEntities(mappedExportableResourcesDTO, datasourceList);
 
             List<DatasourceStorage> storageList = datasourceList.stream()
                     .map(datasource -> {
@@ -96,6 +91,17 @@ public class DatasourceExportableServiceCEImpl implements ExportableServiceCE<Da
             applicationJson.setDatasourceList(storageList);
 
             return datasourceList;
+        });
+    }
+
+    @Override
+    public void mapNameToIdForExportableEntities(
+            MappedExportableResourcesDTO mappedExportableResourcesDTO, List<Datasource> datasourceList) {
+        datasourceList.forEach(datasource -> {
+            mappedExportableResourcesDTO.getDatasourceIdToNameMap().put(datasource.getId(), datasource.getName());
+            mappedExportableResourcesDTO
+                    .getDatasourceNameToUpdatedAtMap()
+                    .put(datasource.getName(), datasource.getUpdatedAt());
         });
     }
 

@@ -23,4 +23,7 @@ public interface ExportableServiceCE<T extends BaseDomain> {
             MappedExportableResourcesDTO mappedExportableResourcesDTO,
             ApplicationJson applicationJson,
             SerialiseApplicationObjective serialiseFor) {}
+
+    default void mapNameToIdForExportableEntities(
+            MappedExportableResourcesDTO mappedExportableResourcesDTO, List<T> entityList) {}
 }
