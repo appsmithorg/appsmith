@@ -372,7 +372,6 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
     public Mono<ResponseEntity<Object>> exportApplicationPartially(
             @PathVariable String applicationId,
             @PathVariable String pageId,
-            @RequestParam String pageName,
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName,
             @RequestParam MultiValueMap<String, String> params) {
         // params - contains ids of jsLib, actions and datasourceIds to be exported

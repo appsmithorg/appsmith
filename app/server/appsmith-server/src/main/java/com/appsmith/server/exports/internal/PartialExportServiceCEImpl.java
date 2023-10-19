@@ -34,7 +34,6 @@ import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Mono;
 
 import java.nio.charset.StandardCharsets;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -186,8 +185,6 @@ public class PartialExportServiceCEImpl implements PartialExportServiceCE {
             Set<String> validActions,
             ApplicationJson applicationJson,
             MappedExportableResourcesDTO mappedResourcesDTO) {
-        // Get the correctPageId by using the branchName
-        Set<String> dbNameDatasourceToActionMap = new HashSet<>();
         return newActionService.findByPageId(pageId).collectList().flatMap(actions -> {
             List<NewAction> updatedActionList = actions.stream()
                     .filter(action -> validActions.contains(action.getId()))
