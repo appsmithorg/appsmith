@@ -4,9 +4,9 @@ import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 
 import * as config from "./../config";
 import BaseWidget from "widgets/BaseWidget";
+import { Text } from "@design-system/widgets";
 import type { TextWidgetProps } from "./types";
 import type { WidgetState } from "widgets/BaseWidget";
-import { Text } from "@design-system/widgets";
 
 class WDSTextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
   static type = "WDS_TEXT_WIDGET";
@@ -61,16 +61,15 @@ class WDSTextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
     return config.settersConfig;
   }
 
-  componentDidUpdate() {}
-
   getWidgetView() {
     return (
       <Text
         color={this.props.textColor}
         isBold={this.props.fontStyle.includes("bold")}
         isItalic={this.props.fontStyle.includes("italic")}
-        lineClamp={this.props.lineClamp}
+        lineClamp={this.props.lineClamp ? this.props.lineClamp : undefined}
         textAlign={this.props.textAlign}
+        title={this.props.lineClamp ? this.props.text : undefined}
         variant={this.props.fontSize}
       >
         {this.props.text}
