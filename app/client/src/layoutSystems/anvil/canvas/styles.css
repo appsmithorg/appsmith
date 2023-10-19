@@ -1,0 +1,4 @@
+.anvil-canvas {
+  container-type: inline-size;
+  height: calc(100% - 1rem);
+}

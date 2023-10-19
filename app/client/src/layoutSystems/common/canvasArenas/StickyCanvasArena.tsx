@@ -7,13 +7,14 @@ import ResizeObserver from "resize-observer-polyfill";
 interface StickyCanvasArenaProps {
   showCanvas: boolean;
   canvasId: string;
-  id: string;
+  sliderId: string;
   canvasPadding: number;
-  snapRows: number;
-  snapColSpace: number;
-  snapRowSpace: number;
   getRelativeScrollingParent: (child: HTMLDivElement) => Element | null;
-  canExtend: boolean;
+  /**
+   * The dependencies object is to make sure the parent of the StickyCanvasArena can submit custom props,
+   * those when changed the canvas re-observes to reposition or rescale it selves.
+   */
+  dependencies?: Record<string, any>;
   ref: StickyCanvasArenaRef;
   shouldObserveIntersection: boolean;
 }
@@ -39,16 +40,13 @@ const StyledCanvasSlider = styled.div<{ paddingBottom: number }>`
 export const StickyCanvasArena = forwardRef(
   (props: StickyCanvasArenaProps, ref: any) => {
     const {
-      canExtend,
       canvasId,
       canvasPadding,
+      dependencies = {},
       getRelativeScrollingParent,
-      id,
       shouldObserveIntersection,
       showCanvas,
-      snapColSpace,
-      snapRows,
-      snapRowSpace,
+      sliderId,
     } = props;
     const { slidingArenaRef, stickyCanvasRef } = ref.current;
 
@@ -118,14 +116,7 @@ export const StickyCanvasArena = forwardRef(
       if (slidingArenaRef.current) {
         observeSlider();
       }
-    }, [
-      showCanvas,
-      snapRows,
-      canExtend,
-      snapColSpace,
-      snapRowSpace,
-      shouldObserveIntersection,
-    ]);
+    }, [showCanvas, dependencies, shouldObserveIntersection]);
 
     useEffect(() => {
       let parentCanvas: Element | null;
@@ -158,8 +149,8 @@ export const StickyCanvasArena = forwardRef(
           }}
         />
         <StyledCanvasSlider
-          data-testid={id}
-          id={id}
+          data-testid={sliderId}
+          id={sliderId}
           paddingBottom={canvasPadding}
           ref={slidingArenaRef}
         />
