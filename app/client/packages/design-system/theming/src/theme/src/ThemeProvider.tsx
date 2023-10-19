@@ -23,21 +23,15 @@ const fontFamilyCss = (fontFamily?: FontFamily) => {
   return `font-family: ${fontFamilyCss}; --font-family: ${fontFamilyCss}`;
 };
 
-const providerCss = ({
-  fontFamily,
-  rootUnit,
-  typography,
-  ...theme
-}: Theme) => css`
-  --root-unit: ${rootUnit};
+const providerCss = ({ fontFamily, typography, ...theme }: Theme) => css`
   ${fontFamilyCss(fontFamily)};
   ${createTypographyStringMap(typography, fontFamily)};
   ${cssRule(theme)};
 `;
 
 export const ThemeProvider = (props: ThemeProviderProps) => {
-  const { children, className, style, theme } = props;
-
+  const { children, className, style = {}, theme } = props;
+  style.height = "100%";
   return (
     <ThemeContext.Provider value={theme}>
       <div
