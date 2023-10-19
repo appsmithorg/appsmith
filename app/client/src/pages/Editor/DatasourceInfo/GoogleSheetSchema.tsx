@@ -58,6 +58,7 @@ export const TableWrapper = styled.div`
 
   && > ${MessageWrapper} {
     width: 100%;
+    height: 100%;
   }
   && > div > div {
     border: none;

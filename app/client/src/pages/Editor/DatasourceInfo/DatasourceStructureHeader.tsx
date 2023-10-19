@@ -9,14 +9,15 @@ import { DatasourceStructureContext } from "entities/Datasource";
 interface Props {
   datasourceId: string;
   onRefreshCallback?: () => void;
+  paddingBottom?: boolean;
 }
 
-const HeaderWrapper = styled.div`
+const HeaderWrapper = styled.div<{ paddingBottom: boolean }>`
   display: flex;
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  padding-bottom: var(--ads-v2-spaces-4);
+  ${(props) => props.paddingBottom && "padding-bottom: var(--ads-v2-spaces-4);"}
 `;
 
 export default function DatasourceStructureHeader(props: Props) {
@@ -38,7 +39,10 @@ export default function DatasourceStructureHeader(props: Props) {
   );
 
   return (
-    <HeaderWrapper className="datasourceStructure-header">
+    <HeaderWrapper
+      className="datasourceStructure-header"
+      paddingBottom={!!props.paddingBottom}
+    >
       <Text kind="heading-xs" renderAs="h3">
         {createMessage(SCHEMA_LABEL)}
       </Text>

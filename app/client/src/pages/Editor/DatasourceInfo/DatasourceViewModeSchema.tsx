@@ -93,22 +93,18 @@ const DatasourceListContainer = styled.div`
   }
 `;
 
-export const SchemaDisplayEmptyOrErrorOrLoadingStateWrapper = styled.div`
+const SchemaStateMessageWrapper = styled.div`
   width: auto;
   display: flex;
   flex-direction: column;
   align-items: center;
   position: relative;
-  left: 20%;
-`;
-
-export const SchemaDisplayEmptyOrErrorOrLoadingMessageWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  left: 10%;
+  img {
+    padding-bottom: var(--ads-v2-spaces-7);
+  }
+  span:first-child {
+    padding-bottom: var(--ads-v2-spaces-2);
+  }
 `;
 
 const ButtonContainer = styled.div`
@@ -126,23 +122,17 @@ interface Props {
 
 const renderEmptyTablePage = () => {
   return (
-    <SchemaDisplayEmptyOrErrorOrLoadingStateWrapper>
+    <SchemaStateMessageWrapper>
       {/* Render empty table image */}
-      <img
-        alt={createMessage(EMPTY_TABLE_SVG_ALT_TEXT)}
-        src={EmptyTableSVG}
-        style={{ paddingBottom: "10%", paddingTop: "50%" }}
-      />
+      <img alt={createMessage(EMPTY_TABLE_SVG_ALT_TEXT)} src={EmptyTableSVG} />
       {/* Show description below the image */}
-      <SchemaDisplayEmptyOrErrorOrLoadingMessageWrapper>
-        {/* Show title */}
-        <Text style={{ fontWeight: "bold" }}>
-          {createMessage(EMPTY_TABLE_TITLE_TEXT)}
-        </Text>
-        {/* Show description */}
-        <Text>{createMessage(EMPTY_TABLE_MESSAGE_TEXT)}</Text>
-      </SchemaDisplayEmptyOrErrorOrLoadingMessageWrapper>
-    </SchemaDisplayEmptyOrErrorOrLoadingStateWrapper>
+      {/* Show title */}
+      <Text style={{ fontWeight: "bold" }}>
+        {createMessage(EMPTY_TABLE_TITLE_TEXT)}
+      </Text>
+      {/* Show description */}
+      <Text>{createMessage(EMPTY_TABLE_MESSAGE_TEXT)}</Text>
+    </SchemaStateMessageWrapper>
   );
 };
 
@@ -313,7 +303,10 @@ const DatasourceViewModeSchema = (props: Props) => {
     <ViewModeSchemaContainer>
       <DataWrapperContainer>
         <StructureContainer>
-          <DatasourceStructureHeader datasourceId={props.datasource.id} />
+          <DatasourceStructureHeader
+            datasourceId={props.datasource.id}
+            paddingBottom
+          />
           <DatasourceListContainer>
             <DatasourceStructureList
               context={DatasourceStructureContext.DATASOURCE_VIEW_MODE}
@@ -337,9 +330,11 @@ const DatasourceViewModeSchema = (props: Props) => {
               </MessageWrapper>
             )}
             {!isLoading && failedFetchingPreviewData && (
-              <Text color="var(--ads-color-red-500)">
-                {createMessage(ERR_FETCHING_DATASOURCE_PREVIEW_DATA)}
-              </Text>
+              <MessageWrapper>
+                <Text color="var(--ads-color-red-500)">
+                  {createMessage(ERR_FETCHING_DATASOURCE_PREVIEW_DATA)}
+                </Text>
+              </MessageWrapper>
             )}
             {!isLoading &&
               !failedFetchingPreviewData &&
@@ -348,8 +343,9 @@ const DatasourceViewModeSchema = (props: Props) => {
             {!isLoading &&
               !failedFetchingPreviewData &&
               !previewDataError &&
-              previewData?.length < 1 &&
-              renderEmptyTablePage()}
+              previewData?.length < 1 && (
+                <MessageWrapper>{renderEmptyTablePage()}</MessageWrapper>
+              )}
           </TableWrapper>
         </DatasourceDataContainer>
       </DataWrapperContainer>
