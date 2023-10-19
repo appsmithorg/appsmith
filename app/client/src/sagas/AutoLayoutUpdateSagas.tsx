@@ -40,8 +40,8 @@ import {
 } from "selectors/editorSelectors";
 import type { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
 import { updateLayoutForMobileBreakpointAction } from "actions/autoLayoutActions";
-import convertDSLtoAuto from "utils/DSLConversions/fixedToAutoLayout";
-import { convertNormalizedDSLToFixed } from "utils/DSLConversions/autoToFixedLayout";
+import convertDSLtoAuto from "layoutSystems/common/DSLConversions/fixedToAutoLayout";
+import { convertNormalizedDSLToFixed } from "layoutSystems/common/DSLConversions/autoToFixedLayout";
 import { updateWidgetPositions } from "layoutSystems/autolayout/utils/positionUtils";
 import { getCanvasWidth as getMainCanvasWidth } from "selectors/editorSelectors";
 import {
