@@ -106,16 +106,20 @@ function* fetchPluginFormConfigsSaga() {
       ),
     );
 
-    for (const response of pluginFormResponses) {
-      log.error(
-        "Validating response: ",
-        JSON.stringify(response)?.length,
-        JSON.stringify(response),
-      );
-      if (!!response) {
-        yield validateResponse(response);
-        pluginFormData.push(response.data);
+    for (let i = 0; i < pluginFormResponses.length; i++) {
+      const response = pluginFormResponses[i];
+      if (!response) {
+        log.error(
+          "Validating response: ",
+          JSON.stringify(response)?.length,
+          JSON.stringify(response),
+          JSON.stringify([...pluginIdFormsToFetch][i]),
+        );
       }
+      // if (!!response) {
+      yield validateResponse(response);
+      pluginFormData.push(response.data);
+      // }
       log.error("Response pushed");
     }
 
