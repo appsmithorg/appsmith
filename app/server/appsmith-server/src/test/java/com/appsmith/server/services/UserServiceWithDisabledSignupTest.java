@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.WithMockAppsmithUser;
 import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.User;
@@ -12,9 +13,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -26,8 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
 @ExtendWith(SpringExtension.class)
-@SpringBootTest(properties = {"signup.disabled = true", "admin.emails = dummy_admin@appsmith.com,dummy2@appsmith.com"})
-@DirtiesContext
+@SpringBootTest
 public class UserServiceWithDisabledSignupTest {
 
     @Autowired
@@ -48,11 +49,17 @@ public class UserServiceWithDisabledSignupTest {
     @Autowired
     PermissionGroupRepository permissionGroupRepository;
 
+    @SpyBean
+    CommonConfig commonConfig;
+
     Mono<User> userMono;
 
     @BeforeEach
     public void setup() {
         userMono = userService.findByEmail("usertest@usertest.com");
+        Mockito.when(commonConfig.isSignupDisabled()).thenReturn(Boolean.TRUE);
+        Mockito.when(commonConfig.getAdminEmails())
+                .thenReturn(Set.of("dummy_admin@appsmith.com", "dummy2@appsmith.com"));
     }
 
     @Test
