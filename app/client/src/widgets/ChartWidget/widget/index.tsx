@@ -149,7 +149,7 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
             message: messages.customFusionChartDeprecationMessage,
             links: [
               {
-                text: "Learn More",
+                text: "Learn more",
                 url: "https://docs.appsmith.com",
               },
             ],
