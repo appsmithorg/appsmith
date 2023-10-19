@@ -122,6 +122,7 @@ import { getMemoiseTransformDataWithEditableCell } from "./reactTableUtils/trans
 import type { ExtraDef } from "utils/autocomplete/defCreatorUtils";
 import { generateTypeDef } from "utils/autocomplete/defCreatorUtils";
 import type {
+  AnvilConfig,
   AutocompletionDefinitions,
   PropertyUpdates,
   SnipingModeProperty,
@@ -370,6 +371,17 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           },
         },
       ],
+    };
+  }
+
+  static getAnvilConfig(): AnvilConfig | null {
+    return {
+      widgetSize: {
+        maxHeight: {},
+        maxWidth: {},
+        minHeight: { base: "300px" },
+        minWidth: { base: "280px" },
+      },
     };
   }
 

@@ -19,7 +19,6 @@ export const getAnvilWidgetDOMId = (widgetId: string) => {
  * Method to return Id of layout with layoutId
  * @param layoutId
  * @param canvasId
- * @param layoutIndex
  * @returns The ID to be used in the DOM
  */
 export const getAnvilLayoutDOMId = (canvasId: string, layoutId: string) => {
@@ -41,5 +40,5 @@ export const extractLayoutIdFromLayoutDOMId = (layoutDOMId: string) => {
  * @returns string The widgetId
  */
 export function extractWidgetIdFromAnvilWidgetDOMId(anvilWidgetDOMId: string) {
-  return anvilWidgetDOMId.split("_")[1];
+  return anvilWidgetDOMId.split("_")[2];
 }
