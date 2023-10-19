@@ -1,10 +1,12 @@
-import React from "react";
+import React, { useMemo } from "react";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import { AnvilFlexComponent } from "../common/AnvilFlexComponent";
 import SnipeableComponent from "layoutSystems/common/snipeable/SnipeableComponent";
 import { AnvilWidgetComponent } from "../common/widgetComponent/AnvilWidgetComponent";
 import DraggableComponent from "layoutSystems/common/draggable/DraggableComponent";
 import { AnvilResizableLayer } from "../common/resizer/AnvilResizableLayer";
+import type { SizeConfig } from "WidgetProvider/constants";
+import { getWidgetSizeConfiguration } from "../utils/widgetUtils";
 
 /**
  * AnvilEditorWidgetOnion
@@ -22,17 +24,18 @@ import { AnvilResizableLayer } from "../common/resizer/AnvilResizableLayer";
  * @returns Enhanced Widget
  */
 export const AnvilEditorWidgetOnion = (props: BaseWidgetProps) => {
+  const widgetSize: SizeConfig = useMemo(
+    () => getWidgetSizeConfiguration(props.type, props),
+    [props.type],
+  );
+
   return (
     <AnvilFlexComponent
-      componentHeight={props.componentHeight}
-      componentWidth={props.componentWidth}
-      hasAutoHeight={!!props.hasAutoHeight}
-      hasAutoWidth={!!props.hasAutoWidth}
       isResizeDisabled={props.resizeDisabled}
       parentId={props.parentId}
       widgetId={props.widgetId}
       widgetName={props.widgetName}
-      widgetSize={props.widgetSize}
+      widgetSize={widgetSize}
       widgetType={props.type}
     >
       <SnipeableComponent type={props.type} widgetId={props.widgetId}>
