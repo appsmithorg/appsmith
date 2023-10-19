@@ -74,6 +74,12 @@ function Onboarding() {
   const [isUsersFirstApp, setIsUsersFirstApp] = useState(false);
   const isMobileCanvas = useSelector(getIsMobileCanvasLayout);
   const user = useSelector(getCurrentUser);
+  const firstApplicationId = useSelector(
+    (state: AppState) => state.ui.applications.firstApplicationId,
+  );
+  const currentApplicationId = useSelector(
+    (state: AppState) => state.ui.applications.currentApplication?.id,
+  );
 
   const shouldShowStarterTemplates = useMemo(
     () => !isMobileCanvas && isUsersFirstApp,
@@ -83,9 +89,10 @@ function Onboarding() {
     (async () => {
       const isNew = !!user && (await isUserSignedUpFlagSet(user.email));
       const signPostingEnabled = await getEnableStartSignposting();
-      setIsUsersFirstApp(isNew && !!signPostingEnabled);
+      const isFirstApp = firstApplicationId === currentApplicationId;
+      setIsUsersFirstApp(isNew && !!signPostingEnabled && isFirstApp);
     })();
-  }, [user]);
+  }, [user, firstApplicationId, currentApplicationId]);
 
   return shouldShowStarterTemplates ? (
     <CanvasStarterTemplatesLayout />

@@ -1,4 +1,7 @@
-import { firstTimeUserOnboardingInit } from "actions/onboardingActions";
+import {
+  firstTimeUserOnboardingInit,
+  setUsersFirstApplication,
+} from "actions/onboardingActions";
 import {
   SIGNUP_SUCCESS_URL,
   BUILDER_PATH,
@@ -46,6 +49,7 @@ export const redirectUserAfterSignup = (
           dispatch(
             firstTimeUserOnboardingInit(applicationId, pageId as string),
           );
+          applicationId && dispatch(setUsersFirstApplication(applicationId));
         }
       } else if (getIsSafeRedirectURL(redirectUrl)) {
         window.location.replace(redirectUrl);
