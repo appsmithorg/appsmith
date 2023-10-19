@@ -87,7 +87,7 @@ export function* validateResponse(
   logToSentry = false,
 ) {
   if (!response) {
-    throw Error("");
+    throw Error("Response does not exist");
   }
 
   // letting `apiFailureResponseInterceptor` handle it this case

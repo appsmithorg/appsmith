@@ -94,7 +94,10 @@ function* fetchPluginFormConfigsSaga() {
     for (const pluginId of actionPluginIds) {
       pluginIdFormsToFetch.add(pluginId);
     }
-    log.error("pluginIdFormsToFetch acquired", pluginIdFormsToFetch);
+    log.error(
+      "pluginIdFormsToFetch acquired",
+      JSON.stringify(pluginIdFormsToFetch),
+    );
 
     const pluginFormData: PluginFormPayload[] = [];
     const pluginFormResponses: ApiResponse<PluginFormPayload>[] = yield all(
@@ -106,13 +109,13 @@ function* fetchPluginFormConfigsSaga() {
     for (const response of pluginFormResponses) {
       log.error(
         "Validating response: ",
-        response?.code,
-        response?.responseMeta?.success,
-        response?.responseMeta?.status,
-        response?.data?.form,
+        JSON.stringify(response)?.length,
+        JSON.stringify(response),
       );
-      yield validateResponse(response);
-      pluginFormData.push(response.data);
+      if (!!response) {
+        yield validateResponse(response);
+        pluginFormData.push(response.data);
+      }
       log.error("Response pushed");
     }
 
