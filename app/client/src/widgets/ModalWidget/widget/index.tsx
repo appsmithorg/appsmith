@@ -38,6 +38,7 @@ import { DynamicHeight } from "utils/WidgetFeatures";
 import type { FlexLayer } from "layoutSystems/autolayout/utils/types";
 import type { LayoutProps } from "layoutSystems/anvil/utils/anvilTypes";
 import { modalPreset } from "layoutSystems/anvil/layoutComponents/presets/ModalPreset";
+import { LayoutSystemTypes } from "layoutSystems/types";
 
 export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
   static type = "MODAL_WIDGET";
@@ -218,7 +219,12 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
             fn: (
               widget: FlattenedWidgetProps,
               widgets: CanvasWidgetsReduxState,
+              parent?: WidgetProps & { children?: WidgetProps[] },
+              layoutSystemType?: LayoutSystemTypes,
             ) => {
+              if (layoutSystemType === LayoutSystemTypes.FIXED) {
+                return [];
+              }
               //get Canvas Widget
               const canvasWidget: FlattenedWidgetProps = get(
                 widget,

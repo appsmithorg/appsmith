@@ -27,6 +27,7 @@ import { getWidgetBluePrintUpdates } from "utils/WidgetBlueprintUtils";
 import type { FlexLayer } from "layoutSystems/autolayout/utils/types";
 import type { LayoutProps } from "layoutSystems/anvil/utils/anvilTypes";
 import { statBoxPreset } from "layoutSystems/anvil/layoutComponents/presets/StatboxPreset";
+import { LayoutSystemTypes } from "layoutSystems/types";
 
 class StatboxWidget extends ContainerWidget {
   static type = "STATBOX_WIDGET";
@@ -170,7 +171,12 @@ class StatboxWidget extends ContainerWidget {
             fn: (
               widget: FlattenedWidgetProps,
               widgets: CanvasWidgetsReduxState,
+              parent: FlattenedWidgetProps,
+              layoutSystemType: LayoutSystemTypes,
             ) => {
+              if (layoutSystemType === LayoutSystemTypes.FIXED) {
+                return [];
+              }
               //get Canvas Widget
               const canvasWidget: FlattenedWidgetProps = get(
                 widget,
