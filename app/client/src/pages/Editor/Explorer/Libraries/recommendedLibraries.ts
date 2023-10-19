@@ -16,7 +16,7 @@ export default [
     docsURL: "https://github.com/NaturalIntelligence/fast-xml-parser",
     url: "https://cdnjs.cloudflare.com/ajax/libs/fast-xml-parser/4.3.2/fxparser.min.js",
     version: "4.3.2",
-    icon: "",
+    icon: "https://img.jsdelivr.com/github.com/NaturalIntelligence.png",
   },
   {
     name: "jspdf",
