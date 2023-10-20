@@ -3,6 +3,7 @@ import { AutocompleteSorter } from "../AutocompleteSortRules";
 import type {
   Completion,
   DataTreeDefEntityInformation,
+  TernCompletionResult,
 } from "../CodemirrorTernService";
 import { ENTITY_TYPE_VALUE } from "entities/DataTree/dataTreeFactory";
 
@@ -177,7 +178,7 @@ describe("Autocomplete Ranking", () => {
       subType: "TABLE_WIDGET_V2",
     };
     const sortedCompletionsText = AutocompleteSorter.sort(
-      completions as Completion[],
+      completions as Completion<TernCompletionResult>[],
       currentFieldInfo as FieldEntityInformation,
       entityInfo,
       true,
