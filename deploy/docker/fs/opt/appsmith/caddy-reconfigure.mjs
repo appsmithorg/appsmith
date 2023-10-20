@@ -106,7 +106,7 @@ if (APPSMITH_CUSTOM_DOMAIN != null) {
   const tlsConfig = certLocation == null ? "" : `tls ${certLocation}/fullchain.pem ${certLocation}/privkey.pem`
 
   parts.push(`
-  localhost:80 {
+  localhost:80 127.0.0.1:80 {
     import all-config
   }
   ${APPSMITH_CUSTOM_DOMAIN} {
