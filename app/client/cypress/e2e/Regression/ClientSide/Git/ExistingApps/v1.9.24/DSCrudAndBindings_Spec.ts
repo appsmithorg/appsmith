@@ -94,7 +94,7 @@ describe("Import and validate older app (app created in older versions of Appsmi
       "listingAndReviews Data",
     );
     agHelper.AssertElementVisibility(locators._widgetByName("data_table"));
-    table.WaitUntilTableLoad(0, 0, "v2");
+    table.WaitUntilTableLoad(0, 0, "v1");
 
     //Filter & validate table data
     table.OpenNFilterTable("_id", "is exactly", "15665837");
@@ -113,7 +113,7 @@ describe("Import and validate older app (app created in older versions of Appsmi
       "countryFlags Data",
     );
     agHelper.AssertElementVisibility(locators._widgetByName("data_table"));
-    table.WaitUntilTableLoad(0, 0, "v2");
+    table.WaitUntilTableLoad(0, 0, "v1");
 
     //Filter & validate table data
     table.OpenNFilterTable("Country", "starts with", "Ba");
@@ -134,7 +134,7 @@ describe("Import and validate older app (app created in older versions of Appsmi
       "public_astronauts Data",
     );
     agHelper.AssertElementVisibility(locators._widgetByName("data_table"));
-    table.WaitUntilTableLoad(0, 0, "v2");
+    table.WaitUntilTableLoad(0, 0, "v1");
 
     //Filter & validate table data
     table.OpenNFilterTable("id", "is exactly", "196");
