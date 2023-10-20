@@ -35,7 +35,10 @@ import {
 } from "widgets/WidgetUtils";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { NumberInputStepButtonPosition } from "widgets/BaseInputWidget/constants";
-import type { AutocompletionDefinitions } from "WidgetProvider/constants";
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
+} from "WidgetProvider/constants";
 import { LabelPosition } from "components/constants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
@@ -214,6 +217,18 @@ class CurrencyInputWidget extends BaseInputWidget<
       },
     };
   }
+
+  static getAnvilConfig(): AnvilConfig | null {
+    return {
+      widgetSize: {
+        maxHeight: {},
+        maxWidth: {},
+        minHeight: { base: "70px" },
+        minWidth: { base: "120px" },
+      },
+    };
+  }
+
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
     return {
       "!doc":

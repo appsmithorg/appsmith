@@ -8,14 +8,23 @@ export enum LayoutSystemFeatures {
   ENABLE_CANVAS_LAYOUT_CONTROL = "ENABLE_CANVAS_LAYOUT_CONTROL", //enables layout control option in property pane
 }
 
-const FIXED_LAYOUT_FEATURES = {
+const FIXED_LAYOUT_FEATURES: Record<LayoutSystemFeatures, boolean> = {
   [LayoutSystemFeatures.ENABLE_FORKING_FROM_TEMPLATES]: true,
   [LayoutSystemFeatures.ENABLE_CANVAS_LAYOUT_CONTROL]: true,
-} as Record<LayoutSystemFeatures, boolean>;
+  [LayoutSystemFeatures.ENABLE_MAIN_CONTAINER_RESIZER]: false,
+};
 
-const AUTO_LAYOUT_FEATURES = {
+const AUTO_LAYOUT_FEATURES: Record<LayoutSystemFeatures, boolean> = {
+  [LayoutSystemFeatures.ENABLE_FORKING_FROM_TEMPLATES]: false,
+  [LayoutSystemFeatures.ENABLE_CANVAS_LAYOUT_CONTROL]: false,
   [LayoutSystemFeatures.ENABLE_MAIN_CONTAINER_RESIZER]: true,
-} as Record<LayoutSystemFeatures, boolean>;
+};
+
+const ANVIL_FEATURES: Record<LayoutSystemFeatures, boolean> = {
+  [LayoutSystemFeatures.ENABLE_FORKING_FROM_TEMPLATES]: false,
+  [LayoutSystemFeatures.ENABLE_CANVAS_LAYOUT_CONTROL]: false,
+  [LayoutSystemFeatures.ENABLE_MAIN_CONTAINER_RESIZER]: true,
+};
 
 /**
  * This Hook is mainly written to be used as a central control to enable
@@ -36,6 +45,9 @@ export const useLayoutSystemFeatures = () => {
       break;
     case LayoutSystemTypes.AUTO:
       currentFeatureSet = AUTO_LAYOUT_FEATURES;
+      break;
+    case LayoutSystemTypes.ANVIL:
+      currentFeatureSet = ANVIL_FEATURES;
       break;
   }
 

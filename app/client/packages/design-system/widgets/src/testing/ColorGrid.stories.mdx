@@ -1,0 +1,57 @@
+import { Meta, Canvas, Story } from "@storybook/addon-docs";
+import { ColorGrid } from "./ColorGrid";
+
+<Meta title="Design-system/Widgets testing" />
+
+export const Template = (args, { globals: { colorMode } }) => (
+  <ColorGrid {...args} colorMode={colorMode}>
+    {(color) => (
+      <>
+        {color.seed}
+        <br />
+        {color.derived}
+      </>
+    )}
+  </ColorGrid>
+);
+
+<Canvas>
+  <Story
+    name="Test Colors"
+    args={{
+      source: "oklch",
+      size: "small",
+      steps: 8,
+      colorSpace: "oklch",
+      variant: "primary",
+      isHovered: false,
+      isActive: false,
+      isFocused: false,
+      isDisabled: false,
+    }}
+    argTypes={{
+      source: {
+        options: ["oklch", "hex", "appsmith"],
+        control: { type: "radio" },
+      },
+      size: {
+        options: ["small", "big"],
+        control: { type: "radio" },
+        if: { arg: "source", neq: "appsmith" },
+      },
+      colorSpace: {
+        options: ["oklch", "hex"],
+        control: { type: "radio" },
+      },
+      steps: {
+        if: { arg: "source", neq: "appsmith" },
+      },
+      variant: {
+        options: ["primary", "secondary", "tertiary"],
+        control: { type: "radio" },
+      },
+    }}
+  >
+    {Template.bind({})}
+  </Story>
+</Canvas>

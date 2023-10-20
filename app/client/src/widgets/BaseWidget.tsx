@@ -33,6 +33,7 @@ import type {
 } from "utils/DynamicBindingUtils";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import type {
+  AnvilConfig,
   AutoLayoutConfig,
   CanvasWidgetStructure,
   FlattenedWidgetProps,
@@ -104,6 +105,10 @@ abstract class BaseWidget<
   }
 
   static getAutoLayoutConfig(): AutoLayoutConfig | null {
+    return null;
+  }
+
+  static getAnvilConfig(): AnvilConfig | null {
     return null;
   }
 

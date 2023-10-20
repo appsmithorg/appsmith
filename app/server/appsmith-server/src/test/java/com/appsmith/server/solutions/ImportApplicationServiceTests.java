@@ -680,7 +680,15 @@ public class ImportApplicationServiceTests {
                     assertThat(datasource.getWorkspaceId()).isNull();
                     assertThat(datasource.getId()).isNull();
                     assertThat(datasource.getPluginId()).isEqualTo(installedPlugin.getPackageName());
-                    assertThat(datasource.getDatasourceConfiguration()).isNull();
+                    assertThat(datasource.getDatasourceConfiguration()).isNotNull();
+                    assertThat(datasource.getDatasourceConfiguration().getAuthentication())
+                            .isNull();
+                    assertThat(datasource.getDatasourceConfiguration().getSshProxy())
+                            .isNull();
+                    assertThat(datasource.getDatasourceConfiguration().getSshProxyEnabled())
+                            .isNull();
+                    assertThat(datasource.getDatasourceConfiguration().getProperties())
+                            .isNull();
 
                     assertThat(applicationJson.getInvisibleActionFields()).isNull();
                     NewAction validAction2 = actionList.stream()
@@ -800,7 +808,6 @@ public class ImportApplicationServiceTests {
                     assertThat(datasource.getId()).isNull();
                     assertThat(datasource.getPluginId()).isEqualTo(installedPlugin.getPackageName());
                     assertThat(datasource.getDatasourceConfiguration()).isNull();
-
                     assertThat(applicationJson.getUnpublishedLayoutmongoEscapedWidgets())
                             .isNull();
                     assertThat(applicationJson.getPublishedLayoutmongoEscapedWidgets())

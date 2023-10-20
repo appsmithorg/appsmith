@@ -713,10 +713,28 @@ Cypress.Commands.add("addDsl", (dsl) => {
 Cypress.Commands.add("DeleteAppByApi", () => {
   const appId = localStorage.getItem("applicationId");
   if (appId !== null) {
-    cy.log(appId + "appId");
+    cy.log("appId to delete is:" + appId);
     cy.request({
       method: "DELETE",
       url: "api/v1/applications/" + appId,
+      failOnStatusCode: false,
+      headers: {
+        "X-Requested-By": "Appsmith",
+      },
+    }).then((response) => {
+      cy.log(response.body);
+      cy.log(response.status);
+    });
+  }
+});
+
+Cypress.Commands.add("DeleteWorkspaceByApi", () => {
+  const workspaceId = localStorage.getItem("workspaceId");
+  if (workspaceId !== null) {
+    cy.log("workspaceId to delete is:" + workspaceId);
+    cy.request({
+      method: "DELETE",
+      url: "api/v1/workspaces/" + workspaceId,
       failOnStatusCode: false,
       headers: {
         "X-Requested-By": "Appsmith",
@@ -1004,7 +1022,6 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.intercept("GET", "/api/v1/users/profile").as("getUser");
   cy.intercept("GET", "/api/v1/plugins?workspaceId=*").as("getPlugins");
   cy.intercept("POST", "/api/v1/logout").as("postLogout");
-
   cy.intercept("GET", "/api/v1/datasources?workspaceId=*").as("getDataSources");
   cy.intercept("GET", "/api/v1/pages?*mode=EDIT").as("getPagesForCreateApp");
   cy.intercept("GET", "/api/v1/pages?*mode=PUBLISHED").as("getPagesForViewApp");
@@ -1430,7 +1447,7 @@ Cypress.Commands.add("createSuperUser", () => {
       expect(interception.request.body).contains("signupForNewsletter=true");
     });
   }
-  cy.wait("@getWorkspace");
+  if (CURRENT_REPO === REPO.CE) cy.wait("@getWorkspace");
 
   cy.LogOut();
   cy.wait(2000);
