@@ -1,6 +1,6 @@
 import React from "react";
 import type { ActionsPropsType } from "./actions";
-import Actions from "./actions";
+import { Actions } from "./actions";
 import type { BannerPropType } from "./banner";
 import { Banner } from "./banner";
 

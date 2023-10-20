@@ -1,10 +1,9 @@
-import React, { useCallback } from "react";
-import { IconWrapper } from "constants/IconConstants";
-import { Colors } from "constants/Colors";
-import styled from "styled-components";
-import Tooltip from "components/editorComponents/Tooltip";
-import { TooltipContentWrapper } from "../../TableStyledWrappers";
+import React, { forwardRef } from "react";
 import { importSvg } from "design-system-old";
+import { Button, Tooltip } from "@design-system/widgets";
+
+import type { ButtonRef as HeadlessButtonRef } from "@design-system/headless";
+import type { PressEvent } from "@react-types/shared/src/events";
 
 const FilterIcon = importSvg(
   async () => import("assets/icons/control/filter-icon.svg"),
@@ -14,113 +13,47 @@ const DownloadIcon = importSvg(
 );
 const AddIcon = importSvg(async () => import("assets/icons/control/add.svg"));
 
-export const TableIconWrapper = styled.div<{
-  selected?: boolean;
-  disabled?: boolean;
-  titleColor?: string;
-  borderRadius?: string;
-}>`
-  height: calc(100% - 12px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--wds-color-bg);
-  border-radius: ${(props) => props.borderRadius || "0"};
-  opacity: ${(props) => (props.disabled ? 0.6 : 1)};
-  cursor: ${(props) => !props.disabled && "pointer"};
-  color: ${(props) => (props.selected ? Colors.CODE_GRAY : Colors.GRAY)};
-  position: relative;
-  margin-left: 8px;
-  padding: 0 6px;
-  ${(props) =>
-    !props.disabled &&
-    `&:hover {
-    background: var(--wds-color-bg-hover);
-  }`}
-
-  span {
-    font-size: 13px;
-  }
-
-  .action-title {
-    margin-left: 4px;
-    white-space: nowrap;
-    color: ${(props) => props.titleColor || Colors.GRAY};
-    margin-top: 2px;
-  }
-`;
-
 interface ActionItemProps {
-  selected?: boolean;
-  selectMenu: (selected: boolean) => void;
-  className: string;
+  onPress?: (e: PressEvent) => void;
   icon: string;
   title: string;
-  titleColor?: string;
-  width?: number;
-  borderRadius?: string;
   disabled?: boolean;
   disabledMessage?: string;
 }
 
-function ActionItem(props: ActionItemProps) {
-  const handleIconClick = useCallback(
-    (e: React.MouseEvent<HTMLElement>) => {
-      if (!props.disabled) {
-        props.selectMenu(!props.selected);
-        e.stopPropagation();
-      }
-    },
-    [props.selected, props.disabled],
-  );
+export const _ActionItem = (props: ActionItemProps, ref: HeadlessButtonRef) => {
+  const { disabled, disabledMessage, icon, onPress, title, ...rest } = props;
 
   const getIcon = () => {
-    switch (props.icon) {
+    switch (icon) {
       case "download":
         return <DownloadIcon />;
       case "filter":
         return <FilterIcon />;
       case "add":
         return <AddIcon />;
+      default:
+        return null;
     }
   };
 
   const item = (
-    <TableIconWrapper
-      borderRadius={props.borderRadius}
-      className={`${props.className} ${props.disabled && "disabled"}`}
-      disabled={props.disabled}
-      onClick={handleIconClick}
-      selected={props.selected}
-      titleColor={props.titleColor}
+    <Button
+      icon={getIcon}
+      onPress={onPress}
+      ref={ref}
+      variant="ghost"
+      {...rest}
     >
-      <IconWrapper
-        color={props.titleColor ? props.titleColor : Colors.GRAY}
-        height={20}
-        width={props.width || 20}
-      >
-        {getIcon()}
-      </IconWrapper>
-      <span className="action-title">{props.title}</span>
-    </TableIconWrapper>
+      {title}
+    </Button>
   );
 
-  if (props.disabled && props.disabledMessage) {
-    return (
-      <Tooltip
-        autoFocus={false}
-        content={
-          <TooltipContentWrapper>{props.disabledMessage}</TooltipContentWrapper>
-        }
-        hoverOpenDelay={200}
-        position="auto"
-      >
-        {item}
-      </Tooltip>
-    );
+  if (disabled && disabledMessage) {
+    return <Tooltip tooltip={disabledMessage}>{item}</Tooltip>;
   } else {
     return item;
   }
-}
+};
 
-export default React.memo(ActionItem);
+export const ActionItem = forwardRef(_ActionItem);

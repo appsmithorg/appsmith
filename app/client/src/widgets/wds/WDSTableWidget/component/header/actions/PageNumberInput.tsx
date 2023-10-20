@@ -40,7 +40,6 @@ const PageNumberInputWrapper = styled(NumericInput)<{
     box-shadow: 0 0 0 2px ${({ accentColor }) => lightenColor(accentColor)} !important;
     border-color: ${({ accentColor }) => accentColor} !important;
   }
-  margin: 0 8px;
 `;
 
 const MIN_PAGE_COUNT = 1;
