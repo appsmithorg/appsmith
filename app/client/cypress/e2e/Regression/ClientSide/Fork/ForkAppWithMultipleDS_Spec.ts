@@ -30,7 +30,7 @@ describe("Fork application with multiple datasources", function () {
 
   it("1. Bug Id: 24708  - fork and test the forked application", function () {
     // Create a new workspace and fork application
-    const appname: string = localStorage.getItem("AppName") || "randomApp";
+    const appname: string = localStorage.getItem("appName") || "randomApp";
     agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {
       workspaceId = "forkApp" + uid;

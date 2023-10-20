@@ -133,11 +133,12 @@ export class AggregateHelper extends ReusableHelper {
           }).then((dslDumpResp) => {
             //cy.log("Pages resposne is : " + dslDumpResp.body);
             expect(dslDumpResp.status).equal(200);
-            this.Sleep(3000); //for dsl to settle in layouts api & then refresh
+            //this.Sleep(3000); //for dsl to settle in layouts api & then refresh
             this.RefreshPage();
             if (elementToCheckPresenceaftDslLoad)
               this.WaitUntilEleAppear(elementToCheckPresenceaftDslLoad);
-            this.Sleep(2000); //settling time for dsl
+            //this.Sleep(2000); //settling time for dsl
+            this.assertHelper.AssertNetworkResponseData("@getPluginForm");
             this.AssertElementAbsence(this.locator._loading); //Checks the spinner is gone & dsl loaded!
             this.AssertElementAbsence(this.locator._animationSpnner, 20000); //Checks page is loaded with dsl!
           });
