@@ -92,7 +92,7 @@ public class PartialExportServiceCEImpl implements PartialExportServiceCE {
                 .getExportableEntities(exportingMetaDTO, mappedResourcesDTO, applicationMono, applicationJson)
                 .then(applicationMono)
                 .flatMap(application -> {
-                    if (params.containsKey(FieldName.DATASOURCE_ID)) {
+                    if (params.containsKey(FieldName.DATASOURCE_LIST)) {
                         return datasourceExportableService.getExportableEntities(
                                 exportingMetaDTO, mappedResourcesDTO, applicationMono, applicationJson);
                     }
@@ -112,11 +112,11 @@ public class PartialExportServiceCEImpl implements PartialExportServiceCE {
                 .flatMap(branchedPageId -> updatePageNameInResourceMapDTO(applicationId, mappedResourcesDTO))
                 // export actions
                 .flatMap(branchedPageId -> {
-                    if (params.containsKey(FieldName.ACTION_ID)
+                    if (params.containsKey(FieldName.ACTION_LIST)
                             || params.containsKey(FieldName.ACTION_COLLECTION_LIST)) {
                         return exportActions(
                                         branchedPageId,
-                                        Set.copyOf(params.get(FieldName.ACTION_ID)),
+                                        Set.copyOf(params.get(FieldName.ACTION_LIST)),
                                         applicationJson,
                                         mappedResourcesDTO)
                                 .then(Mono.just(branchedPageId));
@@ -136,7 +136,7 @@ public class PartialExportServiceCEImpl implements PartialExportServiceCE {
                 })
                 .flatMap(appJson -> {
                     // Remove the datasources not in use
-                    exportDatasource(Set.copyOf(params.get(FieldName.DATASOURCE_ID)), applicationJson);
+                    exportDatasource(Set.copyOf(params.get(FieldName.DATASOURCE_LIST)), applicationJson);
                     // Sanitise the datasource
                     datasourceExportableService.sanitizeEntities(
                             exportingMetaDTO, mappedResourcesDTO, applicationJson, SerialiseApplicationObjective.SHARE);
