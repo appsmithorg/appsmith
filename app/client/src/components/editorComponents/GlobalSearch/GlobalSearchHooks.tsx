@@ -83,12 +83,12 @@ export const useFilteredFileOperations = (query = "") => {
 };
 
 export const useFilteredAndSortedFileOperations = ({
+  query,
   allDatasources = [],
+  recentlyUsedDSMap = {},
   canCreateActions = true,
   canCreateDatasource = true,
   plugins = [],
-  query,
-  recentlyUsedDSMap = {},
 }: {
   query: string;
   allDatasources?: Datasource[];
