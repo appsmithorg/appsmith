@@ -16,9 +16,12 @@ import { AnvilCanvasZIndex } from "./useCanvasActivation";
  */
 
 const renderDisallowOnCanvas = (slidingArena: HTMLDivElement) => {
-  slidingArena.style.backgroundColor = "red";
+  slidingArena.style.backgroundColor = "#EB714D";
   slidingArena.style.color = "white";
   slidingArena.innerText = "This Layout doesn't support the widget";
+
+  slidingArena.style.textAlign = "center";
+  slidingArena.style.opacity = "0.8";
 };
 
 /**

@@ -18,6 +18,8 @@ import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettings
 import { CANVAS_ART_BOARD } from "constants/componentClassNameConstants";
 import { renderAppsmithCanvas } from "layoutSystems/CanvasFactory";
 import type { WidgetProps } from "widgets/BaseWidget";
+import { LayoutSystemTypes } from "layoutSystems/types";
+import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 
 interface CanvasProps {
   widgetsStructure: CanvasWidgetStructure;
@@ -44,6 +46,7 @@ const Canvas = (props: CanvasProps) => {
   );
   const selectedTheme = useSelector(getSelectedAppTheme);
   const isWDSV2Enabled = useFeatureFlag("ab_wds_enabled");
+  const layoutSystemType: LayoutSystemTypes = useSelector(getLayoutSystemType);
 
   const { theme } = useTheme({
     borderRadius: selectedTheme.properties.borderRadius.appBorderRadius,
@@ -92,7 +95,13 @@ const Canvas = (props: CanvasProps) => {
           width={canvasWidth}
         >
           {props.widgetsStructure.widgetId &&
-            renderAppsmithCanvas(props.widgetsStructure as WidgetProps)}
+            renderAppsmithCanvas({
+              ...props.widgetsStructure,
+              classList:
+                layoutSystemType === LayoutSystemTypes.ANVIL
+                  ? ["main-anvil-canvas"]
+                  : [],
+            } as WidgetProps)}
         </Wrapper>
       </WDSThemeProvider>
     );
