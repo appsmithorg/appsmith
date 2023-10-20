@@ -57,6 +57,7 @@ export class EChartsLayoutBuilder {
       longestLabel: this.props.longestLabels,
     });
 
+    console.log("***", "creating a new y axis layout builder")
     this.yAxisLayoutBuilder = new EChartsYAxisLayoutBuilder({
       widgetWidth: this.props.widgetWidth,
       chartType: this.props.chartType,

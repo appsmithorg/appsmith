@@ -33,6 +33,11 @@ export const createCanvasWidget = (
    *  requiresFlatWidgetChildren and hasMetaWidgets are the keys required.
    */
 
+  // console.log("***", "canvas widget is ", canvasWidget)
+  // console.log("***", "evaluated widget is ", evaluatedWidget)
+  // console.log("***", "evaluated widget config is ", evaluatedWidgetConfig)
+  // console.log("***", "specific child props is ", specificChildProps)
+  
   const widgetStaticProps = pick(canvasWidget, [
     ...Object.keys({ ...WIDGET_STATIC_PROPS, ...WIDGET_DSL_STRUCTURE_PROPS }),
     ...(canvasWidget.additionalStaticProps || []),
@@ -49,6 +54,7 @@ export const createCanvasWidget = (
     ...widgetStaticProps,
   } as any;
   widgetProps.errors = widgetErrorsFromStaticProps(evaluatedStaticProps);
+  // console.log("***", "widget props is ", widgetProps)
   return widgetProps;
 };
 

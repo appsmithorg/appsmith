@@ -261,13 +261,13 @@ describe("layout configs", () => {
       grid: {
         top: 100,
         bottom: 113,
-        left: 53,
+        left: 63,
       },
       yAxis: {
         show: true,
-        nameGap: 23,
+        nameGap: 33,
         axisLabel: {
-          width: 13,
+          width: 23,
           overflow: "truncate",
         },
       },

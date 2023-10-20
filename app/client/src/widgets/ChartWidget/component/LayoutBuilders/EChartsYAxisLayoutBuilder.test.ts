@@ -11,7 +11,7 @@ describe("EChartsYAxisLayoutBuilder", () => {
         longestLabel: { x: "x label", y: "123456" },
       });
 
-      expect(builder.maxWidthForLabels()).toEqual(16);
+      expect(builder.maxWidthForLabels()).toEqual(26);
     });
   });
 
@@ -25,8 +25,8 @@ describe("EChartsYAxisLayoutBuilder", () => {
       });
 
       expect(builder.minimumWidth).toEqual(150);
-      expect(builder.maxWidthForLabels()).toEqual(16);
-      expect(builder.widthForLabels()).toEqual(16);
+      expect(builder.maxWidthForLabels()).toEqual(26);
+      expect(builder.widthForLabels()).toEqual(26);
     });
 
     it("if available space is lesser than label width, it returns available space", () => {
@@ -38,7 +38,7 @@ describe("EChartsYAxisLayoutBuilder", () => {
       });
 
       expect(builder.minimumWidth).toEqual(150);
-      expect(builder.maxWidthForLabels()).toEqual(16);
+      expect(builder.maxWidthForLabels()).toEqual(26);
       expect(builder.widthForLabels()).toEqual(10);
     });
   });
