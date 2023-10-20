@@ -40,6 +40,8 @@ import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import TooltipContent from "./FirstTimeUserOnboarding/TooltipContent";
 import { getInstanceId } from "@appsmith/selectors/tenantSelectors";
 import { updateIntercomConsent, updateUserDetails } from "actions/userActions";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 const { appVersion, cloudHosting, intercomAppID } = getAppsmithConfigs();
 
@@ -166,16 +168,21 @@ function HelpButton() {
   const unreadSteps = useSelector(getSignpostingUnreadSteps);
   const setOverlay = useSelector(getSignpostingSetOverlay);
   const isAirgappedInstance = isAirgapped();
-  const showUnreadSteps =
-    !!unreadSteps.length &&
+
+  const showStarterTemplatesInsteadofBlankCanvas = useFeatureFlag(
+    FEATURE_FLAG.ab_show_templates_instead_of_blank_canvas_enabled,
+  );
+  const showOnboarding =
     isFirstTimeUserOnboardingEnabled &&
-    !onboardingModalOpen;
-  const menuProps = isFirstTimeUserOnboardingEnabled
+    !showStarterTemplatesInsteadofBlankCanvas;
+  const showUnreadSteps =
+    !!unreadSteps.length && showOnboarding && !onboardingModalOpen;
+  const menuProps = showOnboarding
     ? {
         open: onboardingModalOpen,
       }
     : {};
-  const tooltipProps = isFirstTimeUserOnboardingEnabled
+  const tooltipProps = showOnboarding
     ? {
         visible: showTooltip || showSignpostingTooltip,
         onVisibleChange: setShowTooltip,
@@ -190,14 +197,14 @@ function HelpButton() {
     <Menu
       onOpenChange={(open) => {
         if (open) {
-          if (isFirstTimeUserOnboardingEnabled) {
+          if (showOnboarding) {
             dispatch(showSignpostingModal(true));
             setShowTooltip(false);
           }
           setShowIntercomConsent(false);
           AnalyticsUtil.logEvent("OPEN_HELP", {
             page: "Editor",
-            signpostingActive: isFirstTimeUserOnboardingEnabled,
+            signpostingActive: showOnboarding,
           });
         }
       }}
@@ -211,13 +218,11 @@ function HelpButton() {
             }}
             content={
               <HelpButtonTooltip
-                isFirstTimeUserOnboardingEnabled={
-                  isFirstTimeUserOnboardingEnabled
-                }
+                isFirstTimeUserOnboardingEnabled={showOnboarding}
                 showSignpostingTooltip={showSignpostingTooltip}
               />
             }
-            destroyTooltipOnHide={isFirstTimeUserOnboardingEnabled}
+            destroyTooltipOnHide={showOnboarding}
             isDisabled={onboardingModalOpen}
             mouseLeaveDelay={0}
             placement="bottomRight"
@@ -235,7 +240,7 @@ function HelpButton() {
           {showUnreadSteps && <UnreadSteps className="unread" />}
         </div>
       </MenuTrigger>
-      {isFirstTimeUserOnboardingEnabled ? (
+      {showOnboarding ? (
         <SignpostingPopup
           setOverlay={setOverlay}
           setShowIntercomConsent={setShowIntercomConsent}
