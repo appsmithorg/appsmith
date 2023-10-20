@@ -1,5 +1,6 @@
 import type { DSLWidget } from "WidgetProvider/constants";
 import { generateReactKey } from "utils/generators";
+import { LayoutComponentTypes } from "./anvilTypes";
 
 /**
  * This function transforms a page's DSL to become compatible with the Anvil Layout system
@@ -16,17 +17,19 @@ export function anvilDSLTransformer(dsl: DSLWidget) {
     _dsl.layout = [
       {
         layoutId: generateReactKey(),
-        layoutType: "ALIGNED_COLUMN",
+        layoutType: LayoutComponentTypes.ALIGNED_LAYOUT_COLUMN,
         layout: [],
         layoutStyle: {
           border: "none",
-          minHeight: "100%",
+          height: "100%",
+          minHeight: "70vh",
+          paddingBlockEnd: "5rem",
         },
         isDropTarget: true,
         isPermanent: true,
         childTemplate: {
           layoutId: "",
-          layoutType: "ALIGNED_ROW",
+          layoutType: LayoutComponentTypes.ALIGNED_WIDGET_ROW,
           layout: [],
           insertChild: true,
         },

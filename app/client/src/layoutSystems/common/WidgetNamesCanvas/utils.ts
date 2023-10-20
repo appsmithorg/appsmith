@@ -70,7 +70,7 @@ export const getWidgetNameComponent = (
     scrollTop,
   );
   const left: number =
-    widgetLeft + widgetNameData.position.width - componentWidth + 0.5;
+    widgetLeft + widgetNameData.position.width - componentWidth;
   const top: number = widgetTop - WIDGET_NAME_HEIGHT;
 
   //Store the widget name positions for future use
