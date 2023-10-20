@@ -1,4 +1,4 @@
-package com.appsmith.server.newactions.export;
+package com.appsmith.server.newactions.exports;
 
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.exports.exportable.ExportableService;
