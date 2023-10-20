@@ -968,7 +968,10 @@ public class ImportApplicationServiceTests {
                     final List<ActionCollection> actionCollectionList = tuple.getT5();
                     final List<CustomJSLib> importedJSLibList = tuple.getT6();
 
-                    assertEquals(1, importedJSLibList.size());
+                    // although the imported list had only one jsLib entry, the other entry comes from ensuring an xml
+                    // parser entry
+                    // for backward compatibility
+                    assertEquals(2, importedJSLibList.size());
                     CustomJSLib importedJSLib = (CustomJSLib) importedJSLibList.toArray()[0];
                     CustomJSLib expectedJSLib = new CustomJSLib(
                             "TestLib", Set.of("accessor1"), "url", "docsUrl", "1" + ".0", "defs_string");
@@ -978,10 +981,10 @@ public class ImportApplicationServiceTests {
                     assertEquals(expectedJSLib.getDocsUrl(), importedJSLib.getDocsUrl());
                     assertEquals(expectedJSLib.getVersion(), importedJSLib.getVersion());
                     assertEquals(expectedJSLib.getDefs(), importedJSLib.getDefs());
-                    assertEquals(1, application.getUnpublishedCustomJSLibs().size());
-                    assertEquals(
-                            getDTOFromCustomJSLib(expectedJSLib),
-                            application.getUnpublishedCustomJSLibs().toArray()[0]);
+                    // although the imported list had only one jsLib entry, the other entry comes from ensuring an xml
+                    // parser entry
+                    // for backward compatibility
+                    assertEquals(2, application.getUnpublishedCustomJSLibs().size());
 
                     assertThat(application.getName()).isEqualTo("valid_application");
                     assertThat(application.getWorkspaceId()).isNotNull();
