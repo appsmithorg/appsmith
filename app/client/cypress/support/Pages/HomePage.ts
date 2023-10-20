@@ -551,10 +551,10 @@ export class HomePage {
     cy.xpath(this._uploadFile).selectFile("cypress/fixtures/" + fixtureJson, {
       force: true,
     });
+    this.agHelper.Sleep(3500);
     this.agHelper.AssertElementAbsence(
       this.locator._specificToast("Unable to import application in workspace"),
     );
-    this.agHelper.Sleep(3500);
   }
 
   public ImportGitApp(intoWorkspaceName = "") {

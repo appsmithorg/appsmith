@@ -144,7 +144,7 @@ describe("Admin settings page", function () {
   );
 
   it("6. should test that settings page is not accessible to normal users", () => {
-    cy.LogOut();
+    cy.LogOut(false);
     cy.wait(2000);
     cy.LoginFromAPI(Cypress.env("TESTUSERNAME3"), Cypress.env("TESTPASSWORD3"));
     cy.get(".admin-settings-menu-option").should("not.exist");
