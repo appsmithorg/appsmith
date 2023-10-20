@@ -1,4 +1,4 @@
-package com.appsmith.server.jslibs.export;
+package com.appsmith.server.jslibs.exports;
 
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;

@@ -1,4 +1,4 @@
-package com.appsmith.server.actioncollections.export;
+package com.appsmith.server.actioncollections.exports;
 
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;

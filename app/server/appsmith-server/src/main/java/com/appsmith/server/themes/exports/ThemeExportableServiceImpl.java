@@ -1,4 +1,4 @@
-package com.appsmith.server.themes.export;
+package com.appsmith.server.themes.exports;
 
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.exports.exportable.ExportableService;

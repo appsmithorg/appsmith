@@ -1,4 +1,4 @@
-package com.appsmith.server.newpages.export;
+package com.appsmith.server.newpages.exports;
 
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.exports.exportable.ExportableService;

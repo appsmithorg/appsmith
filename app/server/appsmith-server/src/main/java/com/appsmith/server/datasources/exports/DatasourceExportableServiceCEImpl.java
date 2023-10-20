@@ -1,4 +1,4 @@
-package com.appsmith.server.datasources.export;
+package com.appsmith.server.datasources.exports;
 
 import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.BasicAuth;
