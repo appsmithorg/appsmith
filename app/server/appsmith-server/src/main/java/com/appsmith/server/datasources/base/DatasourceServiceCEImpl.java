@@ -487,15 +487,11 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                                 }
 
                                 String trueEnvironmentId = datasourceStorage1.getEnvironmentId();
-                                // Fetch any fields that maybe encrypted from the db if the datasource being
-                                // tested does not
-                                // have those fields set.
-                                // This scenario would happen whenever an existing datasource is being
-                                // tested and no changes are
-                                // present in the
-                                // encrypted field (because encrypted fields are not sent over the network
-                                // after encryption back
-                                // to the client
+                                // Fetch any fields that maybe encrypted from the db if the datasource being tested does
+                                // not have those fields set.
+                                // This scenario would happen whenever an existing datasource is being tested and no
+                                // changes are present in the encrypted field, because encrypted fields are not sent
+                                // over the network after encryption back to the client
 
                                 if (!hasText(datasourceStorage.getId())) {
                                     return Mono.just(datasourceStorage);

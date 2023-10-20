@@ -1,4 +1,4 @@
-package com.appsmith.server.newpages.export;
+package com.appsmith.server.newpages.exports;
 
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;

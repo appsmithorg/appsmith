@@ -1,4 +1,4 @@
-package com.appsmith.server.plugins.export;
+package com.appsmith.server.plugins.exports;
 
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.exports.exportable.ExportableService;

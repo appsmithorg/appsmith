@@ -1,4 +1,4 @@
-package com.appsmith.server.newactions.export;
+package com.appsmith.server.newactions.exports;
 
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.acl.AclPermission;

@@ -4,7 +4,6 @@ import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Executable;
 import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.ActionViewDTO;
@@ -13,7 +12,6 @@ import com.appsmith.server.dtos.PluginTypeAndCountDTO;
 import com.appsmith.server.dtos.ce.ImportActionCollectionResultDTO;
 import com.appsmith.server.dtos.ce.ImportActionResultDTO;
 import com.appsmith.server.dtos.ce.ImportedActionAndCollectionMapsDTO;
-import com.appsmith.server.helpers.ce.ImportApplicationPermissionProvider;
 import com.appsmith.server.services.CrudService;
 import com.mongodb.bulk.BulkWriteResult;
 import org.springframework.data.domain.Sort;
@@ -128,15 +126,6 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
     Map<String, Object> getAnalyticsProperties(NewAction savedAction);
 
     void populateDefaultResources(NewAction newAction, NewAction branchedAction, String branchName);
-
-    Mono<ImportActionResultDTO> importActions(
-            List<NewAction> importedNewActionList,
-            Application importedApplication,
-            String branchName,
-            Map<String, NewPage> pageNameMap,
-            Map<String, String> pluginMap,
-            Map<String, String> datasourceMap,
-            ImportApplicationPermissionProvider permissionProvider);
 
     Mono<ImportedActionAndCollectionMapsDTO> updateActionsWithImportedCollectionIds(
             ImportActionCollectionResultDTO importActionCollectionResultDTO,
