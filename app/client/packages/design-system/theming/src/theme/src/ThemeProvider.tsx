@@ -30,8 +30,8 @@ const providerCss = ({ fontFamily, typography, ...theme }: Theme) => css`
 `;
 
 export const ThemeProvider = (props: ThemeProviderProps) => {
-  const { children, className, style = {}, theme } = props;
-  style.height = "100%";
+  const { children, className, style, theme } = props;
+
   return (
     <ThemeContext.Provider value={theme}>
       <div
