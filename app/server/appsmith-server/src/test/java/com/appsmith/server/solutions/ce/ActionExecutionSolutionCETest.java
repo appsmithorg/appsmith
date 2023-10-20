@@ -177,7 +177,6 @@ public class ActionExecutionSolutionCETest {
     String branchName;
 
     @BeforeEach
-    @WithUserDetails(value = "api_user")
     public void setup() {
 
         User apiUser = userService.findByEmail("api_user").block();
@@ -266,7 +265,6 @@ public class ActionExecutionSolutionCETest {
     }
 
     @AfterEach
-    @WithUserDetails(value = "api_user")
     public void cleanup() {
         List<Application> deletedApplications = applicationService
                 .findByWorkspaceId(workspaceId, applicationPermission.getDeletePermission())
