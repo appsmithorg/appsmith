@@ -14,7 +14,7 @@ import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelector
 import { isEnvironmentValid } from "@appsmith/utils/Environments";
 import type { Datasource } from "entities/Datasource";
 import { isGoogleSheetPluginDS } from "utils/editorContextUtils";
-import { getPluginNameFromId } from "@appsmith/selectors/entitiesSelector";
+import { getPluginPackageNameFromId } from "@appsmith/selectors/entitiesSelector";
 import GoogleSheetSchema from "./GoogleSheetSchema";
 
 const TabsContainer = styled(Tabs)`
@@ -55,10 +55,10 @@ const DatasourceTabs = (props: DatasourceTabProps) => {
   const setDatasourceViewModeFlagClick = (value: boolean) => {
     dispatch(setDatasourceViewModeFlag(value));
   };
-  const pluginName = useSelector((state) =>
-    getPluginNameFromId(state, props.datasource.pluginId),
+  const pluginPackageName = useSelector((state) =>
+    getPluginPackageNameFromId(state, props.datasource.pluginId),
   );
-  const isGoogleSheetPlugin = isGoogleSheetPluginDS(pluginName);
+  const isGoogleSheetPlugin = isGoogleSheetPluginDS(pluginPackageName);
   return (
     <TabsContainer
       defaultValue={

@@ -1903,6 +1903,10 @@ export const ERR_FETCHING_DATASOURCE_PREVIEW_DATA = () =>
 export const FETCHING_DATASOURCE_PREVIEW_DATA = () => "Loading data";
 export const SCHEMA_PREVIEW_NO_DATA = () =>
   "No data records to show or the table header begins with an index other than 1";
+export const GSHEET_SPREADSHEET_LABEL = () => "Spreadsheets";
+export const GSHEET_SPREADSHEET_LOADING = () => "Loading Spreadsheets";
+export const GSHEET_SHEET_LOADING = () => "Loading Sheets";
+export const GSHEET_DATA_LOADING = () => "Loading attributes";
 
 //Layout Conversion flow
 export const CONVERT = () => "Convert layout";

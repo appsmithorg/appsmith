@@ -1,24 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import type { DropdownOption } from "design-system-old";
-import { Button, Option, Select, Spinner, Text } from "design-system";
+import { Button, Spinner, Text } from "design-system";
 import {
   useSheetData,
   useSheetsList,
   useSpreadSheets,
 } from "../GeneratePage/components/GeneratePageForm/hooks";
-import type {
-  DatasourceTableDropdownOption,
-  DropdownOptions,
-} from "../GeneratePage/components/constants";
-import {
-  DEFAULT_DROPDOWN_OPTION,
-  DROPDOWN_DIMENSION,
-} from "../GeneratePage/components/constants";
-import { SelectWrapper } from "../GeneratePage/components/GeneratePageForm/styles";
+import type { DropdownOptions } from "../GeneratePage/components/constants";
+import { DEFAULT_DROPDOWN_OPTION } from "../GeneratePage/components/constants";
 import { isEmpty } from "lodash";
 import Table from "pages/Editor/QueryEditor/Table";
-import styled from "styled-components";
 import {
   getCurrentApplicationId,
   getPagePermissions,
@@ -26,10 +18,10 @@ import {
 import { generateTemplateToUpdatePage } from "actions/pageActions";
 import {
   createMessage,
-  ERR_FETCHING_DATASOURCE_PREVIEW_DATA,
-  FETCHING_DATASOURCE_PREVIEW_DATA,
   DATASOURCE_GENERATE_PAGE_BUTTON,
-  SCHEMA_PREVIEW_NO_DATA,
+  GSHEET_DATA_LOADING,
+  GSHEET_SHEET_LOADING,
+  GSHEET_SPREADSHEET_LOADING,
 } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
@@ -41,69 +33,21 @@ import {
   getHasCreateDatasourceActionPermission,
   getHasCreatePagePermission,
 } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
-
-export const MessageWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 200px;
-`;
-
-export const TableWrapper = styled.div`
-  overflow-x: auto;
-  height: 100%;
-  && > div {
-    width: 100%;
-  }
-
-  && > ${MessageWrapper} {
-    width: 100%;
-    height: 100%;
-  }
-  && > div > div {
-    border: none;
-  }
-  & .table {
-    background: none;
-  }
-  & .table div:first-of-type .tr {
-    background: var(--ads-v2-color-black-5);
-    border-right: none;
-    border-bottom: 1px solid var(--ads-v2-color-black-75);
-  }
-  && .table div.tbody .tr {
-    background: var(--ads-v2-color-white);
-    border-bottom: 1px solid var(--ads-v2-color-black-75);
-  }
-  && .table .td,
-  && .table .th {
-    border-right: none;
-    border-bottom: none;
-  }
-  button {
-    margin-right: 24px;
-  }
-`;
-
-const SelectContainer = styled.div`
-  display: flex;
-  margin-top: 16px;
-  margin-bottom: 16px;
-  .t--datasource-generate-page {
-    align-self: flex-end;
-    margin-left: auto;
-  }
-`;
-
-const SelectListWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  width: 278px;
-  margin-right: 16px;
-  & div {
-    margin-bottom: 0px;
-  }
-`;
+import RenderInterimDataState from "./RenderInterimDataState";
+import {
+  ButtonContainer,
+  DataWrapperContainer,
+  DatasourceDataContainer,
+  DatasourceListContainer,
+  MessageWrapper,
+  StructureContainer,
+  TableWrapper,
+  ViewModeSchemaContainer,
+} from "./SchemaViewModeCSS";
+import DatasourceStructureHeader from "./DatasourceStructureHeader";
+import Entity from "../Explorer/Entity";
+import DatasourceField from "./DatasourceField";
+import { setEntityCollapsibleState } from "actions/editorContextActions";
 
 interface Props {
   datasourceId: string;
@@ -112,15 +56,35 @@ interface Props {
 
 const MAX_SHEET_ROWS_LENGTH = 12;
 
+type LoadingItemType = "SPREADSHEET" | "SHEET" | "DATA";
+
+const LoadingItemIndicator = ({ type }: { type: LoadingItemType }) => {
+  return (
+    <MessageWrapper className="t--gsheet-loading-indicator">
+      <Spinner size="md" />
+      <Text style={{ marginLeft: "8px" }}>
+        {createMessage(
+          type === "SPREADSHEET"
+            ? GSHEET_SPREADSHEET_LOADING
+            : type === "SHEET"
+            ? GSHEET_SHEET_LOADING
+            : GSHEET_DATA_LOADING,
+        )}
+      </Text>
+    </MessageWrapper>
+  );
+};
+
 // ---------- GoogleSheetSchema Component -------
 
 function GoogleSheetSchema(props: Props) {
-  const [datasourceTableOptions, setSelectedDatasourceTableOptions] =
-    useState<DropdownOptions>([]);
+  const [spreadsheetOptions, setSpreadsheetOptions] = useState<DropdownOptions>(
+    [],
+  );
   const [selectedDatasourceIsInvalid, setSelectedDatasourceIsInvalid] =
     useState(false);
   const { fetchAllSpreadsheets, isFetchingSpreadsheets } = useSpreadSheets({
-    setSelectedDatasourceTableOptions,
+    setSelectedDatasourceTableOptions: setSpreadsheetOptions,
     setSelectedDatasourceIsInvalid,
   });
   const {
@@ -193,15 +157,53 @@ function GoogleSheetSchema(props: Props) {
     fetchSheetData,
   ]);
 
+  const selectSpreadsheetAndToggle = (option: DropdownOption) => {
+    if (!isEmpty(selectedSpreadsheet.value) && !isEmpty(selectedSheet.value)) {
+      dispatch(
+        setEntityCollapsibleState(
+          `${datasource?.id}-${selectedSpreadsheet.value}-${selectedSheet.value}`,
+          false,
+        ),
+      );
+    }
+    if (!isEmpty(selectedSpreadsheet.value)) {
+      dispatch(
+        setEntityCollapsibleState(
+          `${datasource?.id}-${selectedSpreadsheet.value}`,
+          false,
+        ),
+      );
+    }
+    setSelectedSpreadsheet(option);
+    dispatch(
+      setEntityCollapsibleState(`${datasource?.id}-${option.value}`, true),
+    );
+  };
+
+  const selectSheetAndToggle = (option: DropdownOption) => {
+    if (!isEmpty(selectedSpreadsheet.value) && !isEmpty(selectedSheet.value)) {
+      dispatch(
+        setEntityCollapsibleState(
+          `${datasource?.id}-${selectedSpreadsheet.value}-${selectedSheet.value}`,
+          false,
+        ),
+      );
+    }
+    setSelectedSheet(option);
+    dispatch(
+      setEntityCollapsibleState(
+        `${datasource?.id}-${selectedSpreadsheet.value}-${option.value}`,
+        true,
+      ),
+    );
+  };
+
   // Set first spreadsheet as default option in the dropdown
   useEffect(() => {
-    if (
-      datasourceTableOptions?.length > 0 &&
-      isEmpty(selectedSpreadsheet.value)
-    ) {
-      setSelectedSpreadsheet(datasourceTableOptions[0]);
+    if (spreadsheetOptions?.length > 0 && isEmpty(selectedSpreadsheet.value)) {
+      selectSpreadsheetAndToggle(spreadsheetOptions[0]);
     }
-  }, [selectedSpreadsheet, datasourceTableOptions]);
+  }, [selectedSpreadsheet, spreadsheetOptions]);
 
   // Set first sheet as default option in the dropdown
   useEffect(() => {
@@ -210,7 +212,7 @@ function GoogleSheetSchema(props: Props) {
       isEmpty(selectedSheet.value) &&
       !isFetchingSheetsList
     ) {
-      setSelectedSheet(sheetsList[0]);
+      selectSheetAndToggle(sheetsList[0]);
     }
   }, [selectedSheet, sheetsList, isFetchingSheetsList]);
 
@@ -223,19 +225,30 @@ function GoogleSheetSchema(props: Props) {
         pluginId: props.pluginId,
       });
       setCurrentSheetData(sheetData.slice(0, MAX_SHEET_ROWS_LENGTH));
+      try {
+        setTimeout(() => {
+          document
+            .querySelector(
+              CSS.escape(
+                `#${datasource?.id}-${selectedSpreadsheet.value}-${selectedSheet.value}`,
+              ),
+            )
+            ?.scrollIntoView({ behavior: "smooth" });
+        }, 1000);
+      } catch {}
     }
   }, [sheetData]);
 
   const onSelectSpreadsheet = (
     table: string | undefined,
-    tableObj: DatasourceTableDropdownOption | undefined,
+    tableObj: DropdownOption | undefined,
   ) => {
     if (table && tableObj) {
       AnalyticsUtil.logEvent("GSHEET_PREVIEW_SPREADSHEET_CHANGE", {
         datasourceId: props.datasourceId,
         pluginId: props.pluginId,
       });
-      setSelectedSpreadsheet(tableObj);
+      selectSpreadsheetAndToggle(tableObj);
     }
   };
 
@@ -248,7 +261,7 @@ function GoogleSheetSchema(props: Props) {
         datasourceId: props.datasourceId,
         pluginId: props.pluginId,
       });
-      setSelectedSheet(sheetObj);
+      selectSheetAndToggle(sheetObj);
     }
   };
 
@@ -312,65 +325,96 @@ function GoogleSheetSchema(props: Props) {
     canCreatePages;
 
   return (
-    <>
-      <SelectContainer>
-        {!!props.datasourceId ? (
-          <SelectListWrapper>
-            <Text>Spreadsheet</Text>
-            <SelectWrapper width={DROPDOWN_DIMENSION.WIDTH}>
-              <Select
-                data-testid="t--table-dropdown"
-                isLoading={isFetchingSpreadsheets}
-                onChange={(value: any) =>
-                  onSelectSpreadsheet(
-                    value,
-                    datasourceTableOptions.find(
-                      (table) => table.value === value,
-                    ) as DatasourceTableDropdownOption,
-                  )
-                }
-                value={selectedSpreadsheet}
-              >
-                {datasourceTableOptions.map((table) => {
-                  return (
-                    <Option key={table.value} value={table.value}>
-                      {table.label}
-                    </Option>
-                  );
-                })}
-              </Select>
-            </SelectWrapper>
-          </SelectListWrapper>
-        ) : null}
-        {selectedSpreadsheet.value ? (
-          <SelectListWrapper>
-            <Text>Sheet</Text>
-            <SelectWrapper width={DROPDOWN_DIMENSION.WIDTH}>
-              <Select
-                data-testid="t--sheetName-dropdown"
-                isLoading={isFetchingSheetsList}
-                onChange={(value: any) =>
-                  onSelectSheetOption(
-                    value,
-                    sheetsList.find(
-                      (sheet: DropdownOption) => sheet.value === value,
-                    ),
-                  )
-                }
-                value={selectedSheet}
-              >
-                {sheetsList.map((sheet) => {
-                  return (
-                    <Option key={sheet.label} value={sheet.label}>
-                      {sheet?.label}
-                    </Option>
-                  );
-                })}
-              </Select>
-            </SelectWrapper>
-          </SelectListWrapper>
-        ) : null}
-        {showGeneratePageBtn && (
+    <ViewModeSchemaContainer>
+      <DataWrapperContainer>
+        <StructureContainer>
+          {datasource && (
+            <DatasourceStructureHeader datasource={datasource} paddingBottom />
+          )}
+          <DatasourceListContainer className="t--gsheet-structure">
+            {isFetchingSpreadsheets ? (
+              <LoadingItemIndicator type="SPREADSHEET" />
+            ) : (
+              spreadsheetOptions.map((spreadsheet) => {
+                return (
+                  <Entity
+                    className="t--spreadsheet-structure"
+                    entityId={`${datasource?.id}-${spreadsheet.value}`}
+                    icon={null}
+                    key={`${datasource?.id}-${spreadsheet.value}`}
+                    name={spreadsheet.label as string}
+                    onToggle={(isOpen) => {
+                      isOpen &&
+                        onSelectSpreadsheet(spreadsheet.value, spreadsheet);
+                    }}
+                    step={0}
+                  >
+                    {isFetchingSheetsList ? (
+                      <LoadingItemIndicator type="SHEET" />
+                    ) : sheetsList.length > 0 ? (
+                      sheetsList.map((sheet) => (
+                        <Entity
+                          className={`t--sheet-structure ${
+                            sheet.value === selectedSheet.value
+                              ? "t--sheet-structure-active"
+                              : ""
+                          }`}
+                          entityId={`${datasource?.id}-${selectedSpreadsheet.value}-${sheet.value}`}
+                          icon={null}
+                          key={`${datasource?.id}-${selectedSpreadsheet.value}-${sheet.value}`}
+                          name={sheet.label as string}
+                          onToggle={(isOpen) => {
+                            isOpen && onSelectSheetOption(sheet.value, sheet);
+                          }}
+                          step={1}
+                        >
+                          {selectedSheet.value === sheet.value ? (
+                            isFetchingSheetData ? (
+                              <LoadingItemIndicator type="DATA" />
+                            ) : currentSheetData?.length > 0 ? (
+                              Object.keys(currentSheetData[0]).map(
+                                (fieldValue, index) => (
+                                  <DatasourceField
+                                    field={{
+                                      name: fieldValue,
+                                      type: "string",
+                                    }}
+                                    key={`${fieldValue}${index}`}
+                                    step={2}
+                                  />
+                                ),
+                              )
+                            ) : null
+                          ) : (
+                            <LoadingItemIndicator type="DATA" />
+                          )}
+                        </Entity>
+                      ))
+                    ) : (
+                      <LoadingItemIndicator type="SPREADSHEET" />
+                    )}
+                  </Entity>
+                );
+              })
+            )}
+          </DatasourceListContainer>
+        </StructureContainer>
+        <DatasourceDataContainer>
+          <TableWrapper>
+            {isLoading ? (
+              <RenderInterimDataState state="LOADING" />
+            ) : isError ? (
+              <RenderInterimDataState state="FAILED" />
+            ) : currentSheetData?.length > 0 ? (
+              <Table data={currentSheetData} />
+            ) : (
+              <RenderInterimDataState state="NODATA" />
+            )}
+          </TableWrapper>
+        </DatasourceDataContainer>
+      </DataWrapperContainer>
+      {showGeneratePageBtn && (
+        <ButtonContainer>
           <Button
             className="t--datasource-generate-page"
             isDisabled={!currentSheetData || currentSheetData?.length == 0}
@@ -381,29 +425,9 @@ function GoogleSheetSchema(props: Props) {
           >
             {createMessage(DATASOURCE_GENERATE_PAGE_BUTTON)}
           </Button>
-        )}
-      </SelectContainer>
-      <TableWrapper>
-        {isLoading ? (
-          <MessageWrapper>
-            <Spinner size="md" />
-            <Text style={{ marginLeft: "8px" }}>
-              {createMessage(FETCHING_DATASOURCE_PREVIEW_DATA)}
-            </Text>
-          </MessageWrapper>
-        ) : isError ? (
-          <Text color="var(--ads-color-red-500)">
-            {createMessage(ERR_FETCHING_DATASOURCE_PREVIEW_DATA)}
-          </Text>
-        ) : currentSheetData?.length > 0 ? (
-          <Table data={currentSheetData} />
-        ) : (
-          <MessageWrapper>
-            <Text>{createMessage(SCHEMA_PREVIEW_NO_DATA)}</Text>
-          </MessageWrapper>
-        )}
-      </TableWrapper>
-    </>
+        </ButtonContainer>
+      )}
+    </ViewModeSchemaContainer>
   );
 }
 
