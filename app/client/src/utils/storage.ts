@@ -17,6 +17,7 @@ export const STORAGE_KEYS: {
   TEMPLATES_NOTIFICATION_SEEN: "TEMPLATES_NOTIFICATION_SEEN",
   ONBOARDING_FORM_IN_PROGRESS: "ONBOARDING_FORM_IN_PROGRESS",
   ENABLE_START_SIGNPOSTING: "ENABLE_START_SIGNPOSTING",
+  USERS_FIRST_APPLICATION_ID: "USERS_FIRST_APPLICATION_ID",
   FIRST_TIME_USER_ONBOARDING_APPLICATION_IDS:
     "FIRST_TIME_USER_ONBOARDING_APPLICATION_IDS",
   FIRST_TIME_USER_ONBOARDING_INTRO_MODAL_VISIBILITY:
@@ -643,6 +644,7 @@ export const isUserSignedUpFlagSet = async (email: string) => {
   } catch (error) {
     log.error("An error occurred while reading USER_SIGN_UP");
     log.error(error);
+    return false;
   }
 };
 
@@ -831,6 +833,28 @@ export const getPartnerProgramCalloutShown = async () => {
     return flag;
   } catch (error) {
     log.error("An error occurred while fetching PARTNER_PROGRAM_CALLOUT");
+    log.error(error);
+  }
+};
+
+export const setUsersFirstApplicationId = async (appId: string) => {
+  try {
+    await store.setItem(STORAGE_KEYS.USERS_FIRST_APPLICATION_ID, appId);
+    return true;
+  } catch (error) {
+    log.error("An error occurred while setting USERS_FIRST_APPLICATION_ID");
+    log.error(error);
+  }
+};
+
+export const getUsersFirstApplicationId = async () => {
+  try {
+    const firstApplicationId: string | null = await store.getItem(
+      STORAGE_KEYS.USERS_FIRST_APPLICATION_ID,
+    );
+    return firstApplicationId;
+  } catch (error) {
+    log.error("An error occurred while fetching USERS_FIRST_APPLICATION_ID");
     log.error(error);
   }
 };

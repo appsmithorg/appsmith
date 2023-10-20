@@ -5,16 +5,16 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import {
-  TemplateLayoutFrame,
   TemplateLayoutContainer,
-  TemplateLayoutHeaderText,
   TemplateLayoutContentGrid,
   TemplateLayoutContentItem,
   TemplateLayoutContentItemContent,
-  TemplateLayoutRowItemTitle,
   TemplateLayoutDragAndDropText,
+  TemplateLayoutFrame,
+  TemplateLayoutHeaderText,
   TemplateLayoutOrText,
   TemplateLayoutRowItemDescription,
+  TemplateLayoutRowItemTitle,
 } from "./StyledComponents";
 import { importSvg } from "design-system-old";
 import { useDispatch, useSelector } from "react-redux";
