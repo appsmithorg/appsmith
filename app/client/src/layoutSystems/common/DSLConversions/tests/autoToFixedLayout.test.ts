@@ -1,6 +1,5 @@
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { convertNormalizedDSLToFixed } from "../autoToFixedLayout";
-// import { convertNormalizedDSLToFixed } from "../autoToFixedLayout";
 
 describe("test Auto to Fixed Conversion methods", () => {
   const autoLayoutWidgets = {
