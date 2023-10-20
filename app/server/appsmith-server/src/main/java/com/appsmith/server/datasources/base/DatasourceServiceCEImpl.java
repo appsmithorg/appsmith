@@ -615,7 +615,8 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
      * and will also be used for creating connections during query execution.
      * For more details: https://github.com/appsmithorg/appsmith/issues/22868
      */
-    protected Mono<String> getRateLimitIdentifier(DatasourceStorage datasourceStorage) {
+    @Override
+    public Mono<String> getRateLimitIdentifier(DatasourceStorage datasourceStorage) {
         Mono<PluginExecutor> pluginExecutorMono = pluginExecutorHelper
                 .getPluginExecutor(pluginService.findById(datasourceStorage.getPluginId()))
                 .switchIfEmpty(Mono.error(new AppsmithException(
@@ -625,7 +626,11 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                 .getEndpointIdentifierForRateLimit(datasourceStorage.getDatasourceConfiguration()));
     }
 
-    protected Mono<Boolean> isEndpointBlockedForConnectionRequest(DatasourceStorage datasourceStorage) {
+    /*
+     * This method checks if the given endpoint is blocked for connection request or not.
+     */
+    @Override
+    public Mono<Boolean> isEndpointBlockedForConnectionRequest(DatasourceStorage datasourceStorage) {
         Mono<String> rateLimitIdentifierMono = this.getRateLimitIdentifier(datasourceStorage);
         return featureFlagService
                 .check(FeatureFlagEnum.rollout_datasource_test_rate_limit_enabled)
@@ -645,7 +650,11 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                 });
     }
 
-    protected Mono<Boolean> consumeTokenIfAvailable(DatasourceStorage datasourceStorage) {
+    /*
+     * This method consumes a token from bucket if available, otherwise returns false.
+     */
+    @Override
+    public Mono<Boolean> consumeTokenIfAvailable(DatasourceStorage datasourceStorage) {
         Mono<String> rateLimitIdentifierMono = this.getRateLimitIdentifier(datasourceStorage);
         return featureFlagService
                 .check(FeatureFlagEnum.rollout_datasource_test_rate_limit_enabled)
