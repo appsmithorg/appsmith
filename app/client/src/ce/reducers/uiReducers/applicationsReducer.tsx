@@ -858,7 +858,6 @@ export interface ApplicationsReduxState {
     isFetchingAllRoles: boolean;
     isFetchingAllUsers: boolean;
   };
-  firstApplicationId?: string;
 }
 
 export interface Application {

@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import {
   STARTER_TEMPLATE_PAGE_LAYOUTS,
   createMessage,
