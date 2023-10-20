@@ -393,7 +393,8 @@ Cypress.Commands.add("DeletepageFromSideBar", () => {
 });
 
 Cypress.Commands.add("LogOut", () => {
-  if (CURRENT_REPO === REPO.CE) cy.wait("@getPluginForm");
+  if (CURRENT_REPO === REPO.CE)
+    assertHelper.AssertNetworkResponseData("@getPluginForm");
   agHelper.AssertElementAbsence(
     locators._specificToast("There was an unexpected error"),
   );
@@ -1454,7 +1455,8 @@ Cypress.Commands.add("createSuperUser", () => {
       expect(interception.request.body).contains("signupForNewsletter=true");
     });
   }
-  if (CURRENT_REPO === REPO.CE) cy.wait("@getPluginForm");
+  if (CURRENT_REPO === REPO.CE)
+    assertHelper.AssertNetworkResponseData("@getPluginForm");
 
   agHelper.AssertElementAbsence(
     locators._specificToast("There was an unexpected error"),
