@@ -9,6 +9,7 @@ import {
   dataSources,
   entityItems,
   assertHelper,
+  locators,
 } from "../../../../support/Objects/ObjectsCore";
 
 let datasourceName;
@@ -45,11 +46,7 @@ describe("Validate Mongo query commands", function () {
       "Find document(s)",
       "Raw",
     );
-    cy.get(queryLocators.templateMenu).click();
-    cy.typeValueNValidate(
-      '{"find": "listingAndReviews","limit": 10}',
-      formControls.rawBody,
-    );
+    agHelper.GetNClick(dataSources._templateMenu);
 
     // cy.get(".CodeMirror textarea")
     //   .first()
@@ -59,7 +56,9 @@ describe("Validate Mongo query commands", function () {
     //   });
     // cy.EvaluateCurrentValue(`{"find": "listingAndReviews","limit": 10}`);
 
-    cy.runQuery();
+    dataSources.EnterQuery(`{"find": "listingAndReviews","limit": 10}`);
+    agHelper.FocusElement(locators._codeMirrorTextArea);
+    dataSources.RunQuery();
     dataSources.CheckResponseRecordsCount(10);
     cy.deleteQueryUsingContext();
   });
