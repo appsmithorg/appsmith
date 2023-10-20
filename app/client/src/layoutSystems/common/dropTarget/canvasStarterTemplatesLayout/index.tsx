@@ -5,8 +5,6 @@ import {
   STARTER_TEMPLATE_PAGE_LAYOUTS,
   createMessage,
 } from "@appsmith/constants/messages";
-import { importSvg } from "design-system-old";
-import { useDispatch } from "react-redux";
 import {
   TemplateLayoutContainer,
   TemplateLayoutContentGrid,
@@ -19,13 +17,22 @@ import {
   TemplateLayoutRowItemDescription,
   TemplateLayoutRowItemTitle,
 } from "./StyledComponents";
+import { importSvg } from "design-system-old";
+import { useDispatch, useSelector } from "react-redux";
+import { importStarterTemplateIntoApplication } from "actions/templateActions";
+import LoadingScreen from "pages/Templates/TemplatesModal/LoadingScreen";
+import { isImportingStarterTemplateToAppSelector } from "selectors/templatesSelectors";
 
 function CanvasStarterTemplatesLayout() {
   const dispatch = useDispatch();
-  const [layoutActive, setLayoutActive] = useState<boolean>(true); // manage "or" text and "Drag and Drop Widgets" text
+  const [layoutActive, setLayoutActive] = useState<boolean>(false); // manage "or" text and "Drag and Drop Widgets" text
   const [templateSreenshot, setTemplateScreenshot] = useState<string | null>(
     null,
-  ); // manage template background screenshot immage
+  ); // manage template background screenshot image
+
+  const isImportingStarterTemplateToApp = useSelector(
+    isImportingStarterTemplateToAppSelector,
+  );
 
   const handleItemHover = (index: number) => {
     setTemplateScreenshot(layoutItems[index].screenshot);
@@ -38,15 +45,24 @@ function CanvasStarterTemplatesLayout() {
   ) => {
     if (!templateId || !templateName || !templatePageName) return;
 
-    dispatch({
-      type: ReduxActionTypes.IMPORT_STARTER_TEMPLATE_TO_APPLICATION_INIT,
-      payload: {
+    dispatch(
+      importStarterTemplateIntoApplication(
         templateId,
         templateName,
-        pageNames: [templatePageName],
-      },
-    });
+        templatePageName,
+      ),
+    );
   };
+
+  if (isImportingStarterTemplateToApp) {
+    return (
+      <TemplateLayoutFrame>
+        <LoadingScreen
+          text={createMessage(STARTER_TEMPLATE_PAGE_LAYOUTS.importLoadingText)}
+        />
+      </TemplateLayoutFrame>
+    );
+  }
 
   return (
     <TemplateLayoutFrame screenshot={templateSreenshot}>

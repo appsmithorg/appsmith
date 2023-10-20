@@ -65,6 +65,19 @@ export const importTemplateIntoApplication = (
   },
 });
 
+export const importStarterTemplateIntoApplication = (
+  templateId: string,
+  templateName: string,
+  templatePageName: string,
+) => ({
+  type: ReduxActionTypes.IMPORT_STARTER_TEMPLATE_TO_APPLICATION_INIT,
+  payload: {
+    templateId,
+    templateName,
+    pageNames: [templatePageName],
+  },
+});
+
 export const getTemplateFilters = () => ({
   type: ReduxActionTypes.GET_TEMPLATE_FILTERS_INIT,
 });
