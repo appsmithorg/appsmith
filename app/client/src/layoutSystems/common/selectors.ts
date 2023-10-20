@@ -77,21 +77,21 @@ export const getSelectedWidgetNameData = createSelector(
     widgets,
     dataTree,
     shouldShowWidgetName,
-  ): WidgetNameData | undefined => {
+  ): WidgetNameData[] | undefined => {
     if (
       !selectedWidgets ||
-      selectedWidgets.length !== 1 ||
+      selectedWidgets.length === 0 ||
       !shouldShowWidgetName
     )
       return;
-
-    const selectedWidgetId = selectedWidgets[0];
-
-    const selectedWidget = widgets[selectedWidgetId];
-
-    if (!selectedWidget) return;
-
-    return getWidgetNameState(selectedWidget, dataTree, positions);
+    const result: WidgetNameData[] = [];
+    for (const selectedWidgetId of selectedWidgets) {
+      const selectedWidget = widgets[selectedWidgetId];
+      if (!selectedWidget) continue;
+      result.push(getWidgetNameState(selectedWidget, dataTree, positions));
+    }
+    if (result.length > 0) return result;
+    else return;
   },
 );
 
