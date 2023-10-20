@@ -27,7 +27,7 @@ export const ADD_ROLE = () => `Add role`;
 export const SEARCH_PLACEHOLDER = () => `Search`;
 export const SEARCH_GROUPS_PLACEHOLDER = () => `Search groups`;
 export const SEARCH_ROLES_PLACEHOLDER = () => `Search roles`;
-export const SEARCH_USERS_PLACEHOLDER = () => `Search Users`;
+export const SEARCH_USERS_PLACEHOLDER = () => `Search users`;
 export const ACL_DELETED_SUCCESS = () => `Deleted successfully`;
 export const ACL_CLONED_SUCCESS = () => `Cloned successfully`;
 export const SUCCESSFULLY_SAVED = () => `Saved successfully`;
@@ -193,7 +193,7 @@ export const LICENSE_REFRESHED_SUCCESSFULLY = () =>
 export const NOT_AVAILABLE = () => `Not available`;
 export const ACTIVE = () => `Active`;
 export const TRIAL = () => `Trial`;
-export const CUSTOMER_PORTAL = () => `Customer Portal`;
+export const CUSTOMER_PORTAL = () => `Customer portal`;
 export const LICENSE_KEY = () => `License key`;
 export const ALREADY_UPGRADED = () => `Already upgraded?`;
 export const PAYMENT_FAILED = () => `Your most recent payment has failed.`;

@@ -55,10 +55,16 @@ const StyledSettingsHeader = styled(SettingsHeader)`
   cursor: pointer;
 
   > div {
-    display: block !important;
+    width: max-content !important;
+    max-width: 100%;
 
-    .bp3-editable-text {
-      display: inline-block !important;
+    > div {
+      width: max-content;
+      max-width: 100%;
+
+      .bp3-editable-text {
+        display: inline-block !important;
+      }
     }
   }
 
@@ -184,7 +190,11 @@ export function PageHeader(props: PageHeaderProps) {
                 defaultValue={title ?? pageTitle}
                 editInteractionKind={EditInteractionKind.SINGLE}
                 isEditingDefault={isEditingTitle}
-                isInvalid={(name) => !name || name.trim().length === 0}
+                isInvalid={(name) =>
+                  !name || name.trim().length === 0
+                    ? "Name cannot be empty"
+                    : ""
+                }
                 onBlur={() => {
                   setIsEditingTitle(false);
                 }}

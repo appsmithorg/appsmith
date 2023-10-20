@@ -31,7 +31,7 @@ const KBPreview = ({
     <div>
       {isKBGenerationPending && (
         <div className="mb-2 mt-4">
-          <Text kind="body-m">Current Published Knowledge base</Text>
+          <Text kind="body-m">Current published knowledge base</Text>
         </div>
       )}
 

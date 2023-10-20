@@ -24,7 +24,6 @@ import type {
   License,
 } from "@appsmith/reducers/tenantReducer";
 import localStorage from "utils/localStorage";
-import { defaultBrandingConfig as CE_defaultBrandingConfig } from "@appsmith/reducers/tenantReducer";
 import {
   ADMIN_SETTINGS_PATH,
   BUILDER_PATH,
@@ -71,17 +70,7 @@ export function* fetchCurrentTenantConfigSaga(): any {
       // If the tenant config is not present, we need to set the default config
       yield put({
         type: ReduxActionTypes.FETCH_CURRENT_TENANT_CONFIG_SUCCESS,
-        payload: {
-          ...data,
-          tenantConfiguration: {
-            ...CE_defaultBrandingConfig,
-            ...data.tenantConfiguration,
-            brandColors: {
-              ...CE_defaultBrandingConfig.brandColors,
-              ...data.tenantConfiguration.brandColors,
-            },
-          },
-        },
+        payload: data,
       });
 
       AnalyticsUtil.initInstanceId(data.instanceId);
@@ -121,17 +110,7 @@ export function* startLicenseStatusCheckSaga() {
 
         yield put({
           type: ReduxActionTypes.FETCH_CURRENT_TENANT_CONFIG_SUCCESS,
-          payload: {
-            ...data,
-            tenantConfiguration: {
-              ...CE_defaultBrandingConfig,
-              ...data.tenantConfiguration,
-              brandColors: {
-                ...CE_defaultBrandingConfig.brandColors,
-                ...data.tenantConfiguration.brandColors,
-              },
-            },
-          },
+          payload: data,
         });
       }
 

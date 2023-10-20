@@ -3,6 +3,7 @@ import type { TenantReduxState } from "ce/reducers/tenantReducer";
 import {
   handlers as CE_Handlers,
   initialState as CE_InitialState,
+  defaultBrandingConfig,
 } from "ce/reducers/tenantReducer";
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
@@ -59,8 +60,13 @@ export const handlers = {
     ...state,
     userPermissions: action.payload.userPermissions || [],
     tenantConfiguration: {
+      ...defaultBrandingConfig,
       ...state.tenantConfiguration,
       ...action.payload.tenantConfiguration,
+      brandColors: {
+        ...defaultBrandingConfig.brandColors,
+        ...action.payload.tenantConfiguration.brandColors,
+      },
       license: {
         ...state.tenantConfiguration?.license,
         ...action.payload.tenantConfiguration?.license,

@@ -1,4 +1,4 @@
-export const KB_BUTTON_TOOLTIP = "Knowledge Base";
+export const KB_BUTTON_TOOLTIP = "Knowledge base";
 
 export const AI_KB_MENU_CLICK = "AI_KB_MENU_CLICK";
 export const AI_KB_GENERATE_CLICK = "AI_KB_GENERATE_CLICK";
