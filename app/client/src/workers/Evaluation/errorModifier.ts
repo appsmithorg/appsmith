@@ -297,7 +297,7 @@ export const TypeErrorModifier: Modifier = (
       possibleCausesArr.length === 1
         ? `${possibleCausesArr[0]} is undefined`
         : `${Array.from(possibleCauses).join(", ")} `
-    } . Please fix ${source || "the binding"}`;
+    } . Please fix ${source || "the binding"}.`;
 
     return {
       errorMessage,
