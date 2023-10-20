@@ -5,13 +5,13 @@
 All submissions, including submissions by project members, require review. We use GitHub pull requests for this purpose. Consult GitHub Help for more information on using pull requests.
 Before raising a pull request, ensure you have raised a corresponding issue and discussed a possible solution with a maintainer. This gives your pull request the highest chance of getting merged quickly.
 
-### Good First Issues 
+### Good First Issues
 
 Looking for issues to contribute? [Good First Issues](https://github.com/appsmithorg/appsmith/issues?page=3&q=is%3Aopen+is%3Aissue+label%3A%22Good+First+Issue%22) is a great place to begin your contribution journey with Appsmith!
 
 ### 🍴 Git Workflow
 
-We use [Github Flow](https://guides.github.com/introduction/flow/index.html), so all code changes happen through pull requests. 
+We use [Github Flow](https://guides.github.com/introduction/flow/index.html), so all code changes happen through pull requests.
 
 1. Fork the repo and create a new branch from the `release` branch.
 2. Branches are named as `fix/fix-name` or `feature/feature-name`
@@ -36,21 +36,27 @@ We use [Github Flow](https://guides.github.com/introduction/flow/index.html), so
    1. `git secrets --list`
 4. Refer to [this repo](https://github.com/awslabs/git-secrets) for more information.
 
+Appsmith uses the [canvas](https://www.npmjs.com/package/canvas) package. This package requires some additional dependencies to be installed on your system. Please follow the instructions [here](https://www.npmjs.com/package/canvas#compiling) to install these dependencies.
+
 #### Code setup
 
 - [Running the Client](ClientSetup.md)
 - [Running the Server](ServerSetup.md)
 
-
 ### Other Contributions
+
 #### Server Code
+
 Please follow these guidelines according to the module that you wish to contribute to:
+
 - [Plugin](./ServerCodeContributionsGuidelines/PluginCodeContributionsGuidelines.md)
 
 #### Client Code
 
 Please follow the below guideline to add a new JS library to the Appsmith platform:
+
 - [Add Custom JS Library](./CustomJsLibrary.md)
 
 Please follow the below guideline for widget development
+
 - [Widget Development Guideline](./AppsmithWidgetDevelopmentGuide.md)
