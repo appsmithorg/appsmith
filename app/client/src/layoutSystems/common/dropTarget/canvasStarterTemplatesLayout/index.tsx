@@ -4,6 +4,15 @@ import {
   STARTER_TEMPLATE_PAGE_LAYOUTS,
   createMessage,
 } from "@appsmith/constants/messages";
+import { getAppMode } from "@appsmith/selectors/applicationSelectors";
+import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
+import { importSvg } from "@design-system/widgets-old/src/utils/icon-loadables";
+import { importStarterTemplateIntoApplication } from "actions/templateActions";
+import LoadingScreen from "pages/Templates/TemplatesModal/LoadingScreen";
+import { useDispatch, useSelector } from "react-redux";
+import { getCurrentApplication } from "selectors/editorSelectors";
+import { isImportingStarterTemplateToAppSelector } from "selectors/templatesSelectors";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   TemplateLayoutContainer,
   TemplateLayoutContentGrid,
@@ -16,11 +25,8 @@ import {
   TemplateLayoutRowItemDescription,
   TemplateLayoutRowItemTitle,
 } from "./StyledComponents";
-import { useDispatch, useSelector } from "react-redux";
-import { importStarterTemplateIntoApplication } from "actions/templateActions";
-import LoadingScreen from "pages/Templates/TemplatesModal/LoadingScreen";
-import { isImportingStarterTemplateToAppSelector } from "selectors/templatesSelectors";
-import { importSvg } from "@design-system/widgets-old/src/utils/icon-loadables";
+
+const STARTER_TEMPLATE_NAME = "Starter template";
 
 function CanvasStarterTemplatesLayout() {
   const dispatch = useDispatch();
@@ -28,7 +34,9 @@ function CanvasStarterTemplatesLayout() {
   const [templateSreenshot, setTemplateScreenshot] = useState<string | null>(
     null,
   ); // manage template background screenshot image
-
+  const currentApplication = useSelector(getCurrentApplication);
+  const currentWorkSpace = useSelector(getCurrentAppWorkspace);
+  const currentAppMode = useSelector(getAppMode);
   const isImportingStarterTemplateToApp = useSelector(
     isImportingStarterTemplateToAppSelector,
   );
@@ -51,6 +59,17 @@ function CanvasStarterTemplatesLayout() {
         templatePageName,
       ),
     );
+
+    AnalyticsUtil.logEvent("FORK_APLICATIONTEMPLATE", {
+      applicationId: currentApplication?.id,
+      workspaceId: currentWorkSpace.id,
+      templateAppName: STARTER_TEMPLATE_NAME,
+      source: "canvas",
+      eventData: {
+        appMode: currentAppMode,
+        application: currentApplication,
+      },
+    });
   };
 
   if (isImportingStarterTemplateToApp) {
@@ -152,7 +171,7 @@ const layoutItems: {
     screenshot:
       "https://s3.us-east-2.amazonaws.com/template.appsmith.com/canvas-starter-page-layout-record-edit.png",
     templateId: "6530e343fa63b553e4be0266",
-    templateName: "Starter template",
+    templateName: STARTER_TEMPLATE_NAME,
     templatePageName: "Record Edit",
   },
   {
@@ -167,7 +186,7 @@ const layoutItems: {
     screenshot:
       "https://s3.us-east-2.amazonaws.com/template.appsmith.com/canvas-starter-page-layout-record-detail.png",
     templateId: "6530e343fa63b553e4be0266",
-    templateName: "Starter template",
+    templateName: STARTER_TEMPLATE_NAME,
     templatePageName: "Record Details",
   },
   {
@@ -180,7 +199,7 @@ const layoutItems: {
     screenshot:
       "https://s3.us-east-2.amazonaws.com/template.appsmith.com/canvas-starter-page-layout-dashboard.png",
     templateId: "6530e343fa63b553e4be0266",
-    templateName: "Starter template",
+    templateName: STARTER_TEMPLATE_NAME,
     templatePageName: "Dashboard",
   },
 ];
