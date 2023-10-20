@@ -1207,7 +1207,7 @@ export class AggregateHelper extends ReusableHelper {
           this.Sleep(200);
         }
       });
-    this.Sleep(500); //for value set to settle
+    this.Sleep(); //for value set to settle
   }
 
   public UpdateFieldInput(selector: string, value: string) {
