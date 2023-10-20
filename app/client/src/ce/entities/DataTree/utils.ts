@@ -1,7 +1,6 @@
 import type {
   PropertyOverrideDependency,
   OverridingPropertyPaths,
-  ModuleInput,
   WidgetEntity,
   ActionEntity,
   JSActionEntity,
@@ -13,7 +12,7 @@ import {
   isJSAction,
   isWidget,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
-
+import type { ModuleInput } from "@appsmith/constants/ModuleConstants";
 interface SetOverridingPropertyParams {
   key: string;
   value: string;

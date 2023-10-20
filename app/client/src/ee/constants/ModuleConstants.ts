@@ -1,3 +1,4 @@
+export * from "ce/constants/ModuleConstants";
 import type { Action } from "entities/Action";
 
 type ID = string;
