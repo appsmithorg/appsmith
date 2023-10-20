@@ -12,8 +12,8 @@ import {
   ResponsiveBehavior,
 } from "layoutSystems/common/utils/constants";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
-import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
-import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
+import type { ExtraDef } from "utils/autocomplete/defCreatorUtils";
+import { generateTypeDef } from "utils/autocomplete/defCreatorUtils";
 import type {
   AnvilConfig,
   AutocompletionDefinitions,
