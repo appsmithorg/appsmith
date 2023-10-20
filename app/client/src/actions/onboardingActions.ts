@@ -223,10 +223,3 @@ export const loadGuidedTour = (guidedTourState: GuidedTourState) => {
     payload: guidedTourState,
   };
 };
-
-export const setUsersFirstApplication = (appId: string) => {
-  return {
-    type: ReduxActionTypes.SET_USERS_FIRST_APPLICATION,
-    payload: appId,
-  };
-};

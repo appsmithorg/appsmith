@@ -38,7 +38,7 @@ import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettings
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import { getCurrentUser } from "selectors/usersSelectors";
 import {
-  getEnableStartSignposting,
+  getUsersFirstApplicationId,
   isUserSignedUpFlagSet,
 } from "utils/storage";
 import {
@@ -74,9 +74,7 @@ function Onboarding() {
   const [isUsersFirstApp, setIsUsersFirstApp] = useState(false);
   const isMobileCanvas = useSelector(getIsMobileCanvasLayout);
   const user = useSelector(getCurrentUser);
-  const firstApplicationId = useSelector(
-    (state: AppState) => state.ui.applications.firstApplicationId,
-  );
+
   const currentApplicationId = useSelector(
     (state: AppState) => state.ui.applications.currentApplication?.id,
   );
@@ -87,12 +85,12 @@ function Onboarding() {
   );
   useEffect(() => {
     (async () => {
+      const firstApplicationId = await getUsersFirstApplicationId();
       const isNew = !!user && (await isUserSignedUpFlagSet(user.email));
-      const signPostingEnabled = await getEnableStartSignposting();
       const isFirstApp = firstApplicationId === currentApplicationId;
-      setIsUsersFirstApp(isNew && !!signPostingEnabled && isFirstApp);
+      setIsUsersFirstApp(isNew && isFirstApp);
     })();
-  }, [user, firstApplicationId, currentApplicationId]);
+  }, [user, currentApplicationId]);
 
   return shouldShowStarterTemplates ? (
     <CanvasStarterTemplatesLayout />

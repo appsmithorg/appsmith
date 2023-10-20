@@ -816,18 +816,6 @@ export const handlers = {
       },
     };
   },
-  [ReduxActionTypes.SET_USERS_FIRST_APPLICATION]: (
-    state: ApplicationsReduxState,
-    action: ReduxAction<string>,
-  ) => {
-    return {
-      ...state,
-      currentApplication: {
-        ...state.currentApplication,
-        firstApplicationId: action.payload,
-      },
-    };
-  },
 };
 
 const applicationsReducer = createReducer(initialState, handlers);
