@@ -490,6 +490,7 @@ export interface WidgetDisplayProps {
   deferRender?: boolean;
   wrapperRef?: RefObject<HTMLDivElement>;
   selectedWidgetAncestry?: string[];
+  classList?: string[];
 }
 
 export interface WidgetDataProps
