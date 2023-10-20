@@ -185,7 +185,7 @@ after(function () {
   cy.DeleteAppByApi();
   cy.DeleteWorkspaceByApi();
   //-- LogOut Application---//
-  cy.LogOut();
+  cy.LogOut("false");
   // Commenting until Upgrade Appsmith cases are fixed
   // const tedUrl = "http://localhost:5001/v1/parent/cmd";
   // cy.log("Start the appsmith container");

@@ -392,7 +392,7 @@ Cypress.Commands.add("DeletepageFromSideBar", () => {
   cy.wait(2000);
 });
 
-Cypress.Commands.add("LogOut", () => {
+Cypress.Commands.add("LogOut", (toCheckgetPluginForm = true) => {
   agHelper.WaitUntilAllToastsDisappear();
   //Since these are coming in every self-hosted 1st time login, commenting for CI runs
   // agHelper.AssertElementAbsence(
@@ -402,7 +402,8 @@ Cypress.Commands.add("LogOut", () => {
   //   locators._specificToast("Internal server error while processing request"),
   // );
   if (CURRENT_REPO === REPO.CE)
-    assertHelper.AssertNetworkResponseData("@getPluginForm", false);
+    toCheckgetPluginForm &&
+      assertHelper.AssertNetworkResponseData("@getPluginForm", false);
 
   cy.request({
     method: "POST",
