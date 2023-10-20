@@ -1,17 +1,31 @@
 import { matchPath } from "react-router";
-import { BUILDER_PATH } from "../../constants/routes";
+import {
+  APP_STATE_PATH,
+  BUILDER_CUSTOM_PATH,
+  BUILDER_PATH,
+  BUILDER_PATH_DEPRECATED,
+  SAAS_GSHEET_EDITOR_ID_PATH,
+} from "constants/routes";
 import { AppState } from "./constants";
 
 export function getCurrentAppState(currentUrl: string): AppState {
   const match = matchPath<{
     appState?: "datasource" | "settings" | "libraries";
+    datasourceId?: string;
   }>(currentUrl, {
-    path: `${BUILDER_PATH}/:appState`,
+    path: [
+      BUILDER_PATH_DEPRECATED + SAAS_GSHEET_EDITOR_ID_PATH,
+      BUILDER_PATH + SAAS_GSHEET_EDITOR_ID_PATH,
+      BUILDER_CUSTOM_PATH + SAAS_GSHEET_EDITOR_ID_PATH,
+      BUILDER_PATH_DEPRECATED + APP_STATE_PATH,
+      BUILDER_PATH + APP_STATE_PATH,
+      BUILDER_CUSTOM_PATH + APP_STATE_PATH,
+    ],
   });
 
-  if (match && match.params.appState) {
-    const { appState } = match.params;
-    if (appState === "datasource") {
+  if (match) {
+    const { appState, datasourceId } = match.params;
+    if (appState === "datasource" || datasourceId) {
       return AppState.DATA;
     } else if (appState === "settings") {
       return AppState.SETTINGS;

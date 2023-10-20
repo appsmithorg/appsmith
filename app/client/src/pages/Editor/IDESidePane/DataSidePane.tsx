@@ -1,6 +1,6 @@
 import React, { useCallback } from "react";
 import styled from "styled-components";
-import { Button, List, Text } from "design-system";
+import { List, Text } from "design-system";
 import { useSelector } from "react-redux";
 import {
   getDatasources,
@@ -11,6 +11,7 @@ import { datasourcesEditorIdURL } from "@appsmith/RouteBuilder";
 import { getSelectedDatasourceId } from "../../../navigation/FocusSelectors";
 import { groupBy, keyBy } from "lodash";
 import { PluginType } from "entities/Action";
+import CreateDatasourcePopover from "./CreateDatasourcePopover";
 
 const PaneContainer = styled.div`
   width: 300px;
@@ -72,7 +73,7 @@ const DataSidePane = () => {
     <PaneContainer>
       <PaneHeader>
         <Text kind="heading-xs">Datasources in your Workspace</Text>
-        <Button kind="tertiary" startIcon="add-line" />
+        <CreateDatasourcePopover />
       </PaneHeader>
       <PaneBody>
         {datasources.length === 0 ? (

@@ -10,6 +10,7 @@ import {
   APP_SETTINGS_EDITOR_PATH,
   DATA_SOURCES_EDITOR_ID_PATH,
   DATA_SOURCES_EDITOR_LIST_PATH,
+  SAAS_GSHEET_EDITOR_ID_PATH,
 } from "constants/routes";
 import { APP_SETTINGS_PANE_WIDTH } from "constants/AppConstants";
 import AppSettingsPane from "../AppSettingsPane";
@@ -50,6 +51,7 @@ const IDESidePane = () => {
           path={[
             `${path}${DATA_SOURCES_EDITOR_LIST_PATH}`,
             `${path}${DATA_SOURCES_EDITOR_ID_PATH}`,
+            `${path}${SAAS_GSHEET_EDITOR_ID_PATH}`,
           ]}
         />
         <SentryRoute
