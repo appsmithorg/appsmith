@@ -393,14 +393,15 @@ Cypress.Commands.add("DeletepageFromSideBar", () => {
 });
 
 Cypress.Commands.add("LogOut", () => {
-  if (CURRENT_REPO === REPO.CE)
-    assertHelper.AssertNetworkResponseData("@getPluginForm");
   agHelper.AssertElementAbsence(
     locators._specificToast("There was an unexpected error"),
   );
   agHelper.AssertElementAbsence(
     locators._specificToast("Internal server error while processing request"),
   );
+  if (CURRENT_REPO === REPO.CE)
+    assertHelper.AssertNetworkResponseData("@getPluginForm", false);
+
   cy.request({
     method: "POST",
     url: "/api/v1/logout",
@@ -1455,18 +1456,12 @@ Cypress.Commands.add("createSuperUser", () => {
       expect(interception.request.body).contains("signupForNewsletter=true");
     });
   }
+
   cy.wait(2000);
-  cy.get("#loading").should("not.exist");
-  agHelper.AssertElementAbsence(
-    locators._specificToast("There was an unexpected error"),
-  );
-  agHelper.AssertElementAbsence(
-    locators._specificToast("Internal server error while processing request"),
-  );
 
   if (CURRENT_REPO === REPO.CE) {
+    cy.get("#loading").should("not.exist");
     cy.get("#sidebar").should("be.visible");
-    assertHelper.AssertNetworkResponseData("@getPluginForm");
   }
 
   cy.LogOut();

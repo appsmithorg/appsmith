@@ -78,8 +78,12 @@ export class AssertHelper extends ReusableHelper {
     return cy.wait(this.GetAliasName(aliasName), { responseTimeout });
   }
 
-  public AssertNetworkStatus(aliasName: string, expectedStatus = 200) {
-    this.WaitForNetworkCall(aliasName);
+  public AssertNetworkStatus(
+    aliasName: string,
+    expectedStatus = 200,
+    waitForNetworkCall = true,
+  ) {
+    waitForNetworkCall && this.WaitForNetworkCall(aliasName);
     cy.get(this.GetAliasName(aliasName))
       .its("response.body.responseMeta.status")
       .should("eq", expectedStatus);
@@ -90,15 +94,22 @@ export class AssertHelper extends ReusableHelper {
     // });
   }
 
-  public AssertNetworkResponseData(aliasName: string) {
-    this.WaitForNetworkCall(aliasName, 100000);
+  public AssertNetworkResponseData(
+    aliasName: string,
+    waitForNetworkCall = true,
+  ) {
+    waitForNetworkCall && this.WaitForNetworkCall(aliasName, 100000);
     cy.get(this.GetAliasName(aliasName))
       .its("response.body.data")
       .should("not.be.empty");
   }
 
-  public AssertNetworkExecutionSuccess(aliasName: string, expectedRes = true) {
-    this.WaitForNetworkCall(aliasName);
+  public AssertNetworkExecutionSuccess(
+    aliasName: string,
+    expectedRes = true,
+    waitForNetworkCall = true,
+  ) {
+    waitForNetworkCall && this.WaitForNetworkCall(aliasName);
     cy.get(aliasName)
       .its("response.body.data.isExecutionSuccess")
       .should("eq", expectedRes);
