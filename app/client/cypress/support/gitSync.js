@@ -9,7 +9,8 @@ import { ObjectsRegistry } from "../support/Objects/Registry";
 
 let gitSync = ObjectsRegistry.GitSync,
   agHelper = ObjectsRegistry.AggregateHelper,
-  dataManager = ObjectsRegistry.DataManager;
+  dataManager = ObjectsRegistry.DataManager,
+  assertHelper = ObjectsRegistry.AssertHelper;
 
 const commonLocators = require("../locators/commonlocators.json");
 const GITHUB_API_BASE = "https://api.github.com";
@@ -407,8 +408,11 @@ Cypress.Commands.add(
 
 Cypress.Commands.add("gitDiscardChanges", () => {
   cy.get(gitSyncLocators.bottomBarCommitButton).click();
+  assertHelper.AssertContains(
+    "Unable to import application in workspace",
+    "not.exist",
+  );
   cy.get(gitSyncLocators.discardChanges).should("be.visible");
-  //cy.wait(6000);
   cy.get(gitSyncLocators.discardChanges)
     .children()
     .should("have.text", "Discard & pull");

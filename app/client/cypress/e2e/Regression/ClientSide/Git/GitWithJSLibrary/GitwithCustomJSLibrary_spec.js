@@ -32,6 +32,7 @@ describe("excludeForAirgap", "Tests JS Library with Git", () => {
     _.entityExplorer.ExpandCollapseEntity("Libraries");
     _.installer.AssertLibraryinExplorer("uuidjs");
   });
+
   it("2. Discard custom js library changes, verify changes are discarded also verify it deosnt show uncommitted changes", () => {
     _.entityExplorer.ExpandCollapseEntity("Libraries");
     _.installer.uninstallLibrary("uuidjs");

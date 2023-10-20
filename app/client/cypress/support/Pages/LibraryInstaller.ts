@@ -71,7 +71,7 @@ export class LibraryInstaller {
   }
 
   public assertUnInstall(libraryName: string) {
-    this._aggregateHelper.AssertContains(
+    this._aggregateHelper.WaitUntilToastDisappear(
       `${libraryName} is uninstalled successfully.`,
     );
     this._aggregateHelper.AssertElementAbsence(
