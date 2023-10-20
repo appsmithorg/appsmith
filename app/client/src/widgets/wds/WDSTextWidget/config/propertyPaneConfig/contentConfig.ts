@@ -27,6 +27,9 @@ export const propertyPaneContentConfig = [
         isTriggerProperty: false,
         validation: {
           type: ValidationTypes.NUMBER,
+          params: {
+            min: 1,
+          },
         },
       },
       {

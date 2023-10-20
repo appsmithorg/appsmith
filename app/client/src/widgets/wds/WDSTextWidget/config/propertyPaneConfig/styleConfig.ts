@@ -1,3 +1,5 @@
+import { COLORS } from "@design-system/widgets";
+import { TYPOGRAPHY_VARIANTS } from "@design-system/theming";
 import { ValidationTypes } from "constants/WidgetValidation";
 
 export const propertyPaneStyleConfig = [
@@ -41,6 +43,10 @@ export const propertyPaneStyleConfig = [
         isTriggerProperty: false,
         validation: {
           type: ValidationTypes.TEXT,
+          params: {
+            allowedValues: Object.values(TYPOGRAPHY_VARIANTS),
+            default: TYPOGRAPHY_VARIANTS.body,
+          },
         },
       },
     ],
@@ -85,6 +91,10 @@ export const propertyPaneStyleConfig = [
         isTriggerProperty: false,
         validation: {
           type: ValidationTypes.TEXT,
+          params: {
+            allowedValues: Object.values(COLORS),
+            default: COLORS.neutral,
+          },
         },
       },
     ],
@@ -116,7 +126,13 @@ export const propertyPaneStyleConfig = [
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: false,
-        validation: { type: ValidationTypes.TEXT },
+        validation: {
+          type: ValidationTypes.TEXT,
+          params: {
+            allowedValues: ["left", "center", "right"],
+            default: "left",
+          },
+        },
       },
       {
         propertyName: "fontStyle",
