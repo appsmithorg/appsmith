@@ -353,7 +353,7 @@ Cypress.Commands.add("LoginFromAPI", (uname, pword) => {
   // Check if cookie is present
   cy.getCookie("SESSION").then((cookie) => {
     expect(cookie).to.not.be.null;
-    cy.log(cookie.value);
+    cy.log("cookie.value is: " + cookie.value);
 
     cy.location().should((loc) => {
       expect(loc.href).to.eq(loc.origin + "/applications");
@@ -393,6 +393,13 @@ Cypress.Commands.add("DeletepageFromSideBar", () => {
 });
 
 Cypress.Commands.add("LogOut", () => {
+  if (CURRENT_REPO === REPO.CE) cy.wait("@getPluginForm");
+  agHelper.AssertElementAbsence(
+    locators._specificToast("There was an unexpected error"),
+  );
+  agHelper.AssertElementAbsence(
+    locators._specificToast("Internal server error while processing request"),
+  );
   cy.request({
     method: "POST",
     url: "/api/v1/logout",
@@ -1447,7 +1454,14 @@ Cypress.Commands.add("createSuperUser", () => {
       expect(interception.request.body).contains("signupForNewsletter=true");
     });
   }
-  if (CURRENT_REPO === REPO.CE) cy.wait("@getWorkspace");
+  if (CURRENT_REPO === REPO.CE) cy.wait("@getPluginForm");
+
+  agHelper.AssertElementAbsence(
+    locators._specificToast("There was an unexpected error"),
+  );
+  agHelper.AssertElementAbsence(
+    locators._specificToast("Internal server error while processing request"),
+  );
 
   cy.LogOut();
   cy.wait(2000);
