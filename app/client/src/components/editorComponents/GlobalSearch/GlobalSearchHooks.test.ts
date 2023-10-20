@@ -4,7 +4,7 @@ import { SEARCH_ITEM_TYPES } from "./utils";
 
 describe("getFilteredAndSortedFileOperations", () => {
   it("works without any datasources", () => {
-    const fileOptions = useFilteredAndSortedFileOperations("");
+    const fileOptions = useFilteredAndSortedFileOperations({ query: "" });
 
     expect(fileOptions[0]).toEqual(
       expect.objectContaining({
@@ -37,17 +37,23 @@ describe("getFilteredAndSortedFileOperations", () => {
     );
   });
   it("works without permissions", () => {
-    const actionOperationsWithoutCreate = useFilteredAndSortedFileOperations(
-      "",
-      [],
-      {},
-      false,
-    );
+    const actionOperationsWithoutCreate = useFilteredAndSortedFileOperations({
+      query: "",
+      allDatasources: [],
+      recentlyUsedDSMap: {},
+      canCreateActions: false,
+    });
 
     expect(actionOperationsWithoutCreate.length).toEqual(0);
 
     const actionOperationsWithoutDatasourcePermission =
-      useFilteredAndSortedFileOperations("", [], {}, true, false);
+      useFilteredAndSortedFileOperations({
+        query: "",
+        allDatasources: [],
+        recentlyUsedDSMap: {},
+        canCreateActions: true,
+        canCreateDatasource: false,
+      });
 
     expect(actionOperationsWithoutDatasourcePermission.length).toEqual(4);
   });
@@ -87,13 +93,13 @@ describe("getFilteredAndSortedFileOperations", () => {
       name: "Other datasource",
     };
 
-    const fileOptions = useFilteredAndSortedFileOperations(
-      "",
-      [appDatasource, otherDatasource],
-      {},
-      true,
-      true,
-    );
+    const fileOptions = useFilteredAndSortedFileOperations({
+      query: "",
+      allDatasources: [appDatasource, otherDatasource],
+      recentlyUsedDSMap: {},
+      canCreateActions: true,
+      canCreateDatasource: true,
+    });
 
     expect(fileOptions[0]).toEqual(
       expect.objectContaining({
@@ -156,13 +162,13 @@ describe("getFilteredAndSortedFileOperations", () => {
       name: "Other datasource",
     };
 
-    const fileOptions = useFilteredAndSortedFileOperations(
-      "",
-      [appDatasource, otherDatasource],
-      { abc: 1, "123": 3 },
-      true,
-      true,
-    );
+    const fileOptions = useFilteredAndSortedFileOperations({
+      query: "",
+      allDatasources: [appDatasource, otherDatasource],
+      recentlyUsedDSMap: { abc: 1, "123": 3 },
+      canCreateActions: true,
+      canCreateDatasource: true,
+    });
 
     expect(fileOptions[0]).toEqual(
       expect.objectContaining({
@@ -225,13 +231,13 @@ describe("getFilteredAndSortedFileOperations", () => {
       name: "Other datasource",
     };
 
-    const fileOptions = useFilteredAndSortedFileOperations(
-      "App",
-      [appDatasource, otherDatasource],
-      {},
-      true,
-      true,
-    );
+    const fileOptions = useFilteredAndSortedFileOperations({
+      query: "App",
+      allDatasources: [appDatasource, otherDatasource],
+      recentlyUsedDSMap: {},
+      canCreateActions: true,
+      canCreateDatasource: true,
+    });
 
     expect(fileOptions[0]).toEqual(
       expect.objectContaining({
@@ -275,13 +281,13 @@ describe("getFilteredAndSortedFileOperations", () => {
       name: "Other datasource",
     };
 
-    const fileOptions = useFilteredAndSortedFileOperations(
-      "zzzz",
-      [appDatasource, otherDatasource],
-      {},
-      true,
-      true,
-    );
+    const fileOptions = useFilteredAndSortedFileOperations({
+      query: "zzzz",
+      allDatasources: [appDatasource, otherDatasource],
+      recentlyUsedDSMap: {},
+      canCreateActions: true,
+      canCreateDatasource: true,
+    });
 
     expect(fileOptions[0]).toEqual(
       expect.objectContaining({

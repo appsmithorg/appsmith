@@ -18,9 +18,9 @@ import type { ActionOperation } from "./utils";
 import {
   actionOperations,
   attachKind,
-  createAQueryOperation,
-  getCreateAQueryInDSOperation,
-  getCreateNewDatasourceOperation,
+  createQueryOption,
+  generateCreateQueryForDSOption,
+  generateCreateNewDSOption,
   isMatching,
   SEARCH_ITEM_TYPES,
 } from "./utils";
@@ -43,7 +43,7 @@ export const useFilteredFileOperations = (query = "") => {
   const plugins = useSelector(getPlugins);
 
   // helper map for sorting based on recent usage
-  const recentlyUsedOrderMap = useRecentlyUsedOrderMap();
+  const recentlyUsedDSMap = useRecentlyUsedDSMap();
 
   const userWorkspacePermissions = useSelector(
     (state: AppState) => getCurrentAppWorkspace(state).userPermissions ?? [],
@@ -72,24 +72,31 @@ export const useFilteredFileOperations = (query = "") => {
     ),
   );
 
-  return useFilteredAndSortedFileOperations(
+  return useFilteredAndSortedFileOperations({
     query,
     allDatasources,
-    recentlyUsedOrderMap,
+    recentlyUsedDSMap,
     canCreateActions,
     canCreateDatasource,
     plugins,
-  );
+  });
 };
 
-export const useFilteredAndSortedFileOperations = (
-  query: string,
-  allDatasources: Datasource[] = [],
-  recentlyUsedOrderMap: Record<string, number> = {},
+export const useFilteredAndSortedFileOperations = ({
+  allDatasources = [],
   canCreateActions = true,
   canCreateDatasource = true,
-  plugins: Plugin[] = [],
-) => {
+  plugins = [],
+  query,
+  recentlyUsedDSMap = {},
+}: {
+  query: string;
+  allDatasources?: Datasource[];
+  recentlyUsedDSMap?: Record<string, number>;
+  canCreateActions?: boolean;
+  canCreateDatasource?: boolean;
+  plugins?: Plugin[];
+}) => {
   const fileOperations: ActionOperation[] = [];
   if (!canCreateActions) return fileOperations;
 
@@ -104,18 +111,15 @@ export const useFilteredAndSortedFileOperations = (
 
   // Add app datasources
   if (allDatasources.length > 0) {
-    fileOperations.push(createAQueryOperation);
+    fileOperations.push(createQueryOption);
   }
 
   // Sort datasources based on recency
-  const datasources = getSortedDatasources(
-    allDatasources,
-    recentlyUsedOrderMap,
-  );
+  const datasources = getSortedDatasources(allDatasources, recentlyUsedDSMap);
 
   // map into operations
   const dsOperations = datasources.map((ds) =>
-    getCreateAQueryInDSOperation(ds, (pageId: string, from: EventLocation) =>
+    generateCreateQueryForDSOption(ds, (pageId: string, from: EventLocation) =>
       createNewQueryAction(pageId, from, ds.id),
     ),
   );
@@ -141,7 +145,7 @@ export const useFilteredAndSortedFileOperations = (
   };
 
   if (canCreateDatasource)
-    filteredFileOperations = getCreateNewDatasourceOperation(
+    filteredFileOperations = generateCreateNewDSOption(
       filteredFileOperations,
       onRedirect,
     );
@@ -224,7 +228,7 @@ export const useFilteredPages = (query: string) => {
   }, [pages, query]);
 };
 
-export const useRecentlyUsedOrderMap = () => {
+export const useRecentlyUsedDSMap = () => {
   const recentDatasourceIds = useSelector(getRecentDatasourceIds);
   // helper map for sorting based on recent usage
   const recentlyUsedOrderMap = useMemo(
@@ -256,11 +260,11 @@ export const updateActionOperations = (
 
 export const getSortedDatasources = (
   datasources: Datasource[],
-  recentlyUsedOrderMap: Record<string, number>,
+  recentlyUsedDSMap: Record<string, number>,
 ) => {
   const sortedDS = datasources.sort((a, b) => {
-    const orderA = recentlyUsedOrderMap[a.id];
-    const orderB = recentlyUsedOrderMap[b.id];
+    const orderA = recentlyUsedDSMap[a.id];
+    const orderB = recentlyUsedDSMap[b.id];
     if (orderA !== undefined && orderB !== undefined) {
       return orderA - orderB;
     } else if (orderA !== undefined) {

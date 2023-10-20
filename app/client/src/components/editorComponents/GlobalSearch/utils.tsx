@@ -307,13 +307,13 @@ export const actionOperations: ActionOperation[] = [
   },
 ];
 
-export const createAQueryOperation = {
+export const createQueryOption = {
   desc: "",
   title: "Create a query",
   kind: SEARCH_ITEM_TYPES.sectionTitle,
 };
 
-export const getCreateAQueryInDSOperation = (
+export const generateCreateQueryForDSOption = (
   ds: Datasource,
   onClick: (id: string, from: EventLocation) => void,
 ) => {
@@ -327,7 +327,7 @@ export const getCreateAQueryInDSOperation = (
   };
 };
 
-export const getCreateNewDatasourceOperation = (
+export const generateCreateNewDSOption = (
   filteredFileOperations: ActionOperation[],
   onRedirect: (id: string) => void,
 ) => {
