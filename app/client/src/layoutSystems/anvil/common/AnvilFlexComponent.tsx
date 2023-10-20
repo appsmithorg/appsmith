@@ -63,13 +63,6 @@ export function AnvilFlexComponent(props: AnvilFlexComponentProps) {
   usePositionObserver("widget", { widgetId: props.widgetId }, ref);
   /** EO POSITIONS OBSERVER LOGIC */
 
-  /** POSITIONS OBSERVER LOGIC */
-  // Create a ref so that this DOM node can be
-  // observed by the observer for changes in size
-  const ref = React.useRef<HTMLDivElement>(null);
-  usePositionObserver("widget", { widgetId: props.widgetId }, ref);
-  /** EO POSITIONS OBSERVER LOGIC */
-
   const [isFillWidget, setIsFillWidget] = useState<boolean>(false);
   const [verticalAlignment, setVerticalAlignment] =
     useState<FlexVerticalAlignment>(FlexVerticalAlignment.Top);
