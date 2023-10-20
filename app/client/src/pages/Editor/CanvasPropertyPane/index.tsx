@@ -14,6 +14,8 @@ import {
   useLayoutSystemFeatures,
 } from "../../../layoutSystems/common/useLayoutSystemFeatures";
 import { MainContainerWidthToggles } from "../MainContainerWidthToggles";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 const Title = styled.p`
   color: var(--ads-v2-color-fg);
@@ -23,6 +25,7 @@ const MainHeading = styled.h3`
 `;
 export function CanvasPropertyPane() {
   const dispatch = useDispatch();
+  const isAnvilEnabled = useFeatureFlag(FEATURE_FLAG.release_anvil_enabled);
 
   const openAppSettingsPane = () => {
     AnalyticsUtil.logEvent("APP_SETTINGS_BUTTON_CLICK");
@@ -48,7 +51,7 @@ export function CanvasPropertyPane() {
               <MainContainerWidthToggles />
             </>
           )}
-          <ConversionButton />
+          {!isAnvilEnabled && <ConversionButton />}
           <Tooltip
             content={
               <>

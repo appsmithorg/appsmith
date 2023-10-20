@@ -23,11 +23,11 @@ describe("Import and validate older app (app created in older versions of Appsmi
     cy.get("@guid").then((uid) => {
       workspaceName = "GitImport_" + uid;
       homePage.CreateNewWorkspace(workspaceName, true);
-    });
-    //Import App From Gitea
-    gitSync.ImportAppFromGit(workspaceName, appRepoName, true);
-    cy.get("@deployKeyId").then((id) => {
-      keyId = id;
+      //Import App From Gitea
+      gitSync.ImportAppFromGit(workspaceName, appRepoName, true);
+      cy.get("@deployKeyId").then((id) => {
+        keyId = id;
+      });
     });
 
     //Reconnect datasources
@@ -42,8 +42,8 @@ describe("Import and validate older app (app created in older versions of Appsmi
     //Wait for the app to settle
     agHelper.Sleep(3000);
     homePage.RenameApplication(appName);
-
-    agHelper.AssertElementVisibility(gitSync._bottomBarCommit);
+    assertHelper.AssertNetworkResponseData("gitStatus");
+    agHelper.AssertElementExist(gitSync._bottomBarCommit, 0, 30000);
     agHelper.AssertText(gitSync._gitPullCount, "text", "4");
     agHelper.GetNClick(gitSync._bottomBarCommit);
     agHelper.AssertElementVisibility(gitSync._gitSyncModal);
@@ -94,6 +94,7 @@ describe("Import and validate older app (app created in older versions of Appsmi
       "listingAndReviews Data",
     );
     agHelper.AssertElementVisibility(locators._widgetByName("data_table"));
+    table.WaitUntilTableLoad(0, 0, "v1");
 
     //Filter & validate table data
     table.OpenNFilterTable("_id", "is exactly", "15665837");
@@ -112,6 +113,7 @@ describe("Import and validate older app (app created in older versions of Appsmi
       "countryFlags Data",
     );
     agHelper.AssertElementVisibility(locators._widgetByName("data_table"));
+    table.WaitUntilTableLoad(0, 0, "v1");
 
     //Filter & validate table data
     table.OpenNFilterTable("Country", "starts with", "Ba");
@@ -132,6 +134,7 @@ describe("Import and validate older app (app created in older versions of Appsmi
       "public_astronauts Data",
     );
     agHelper.AssertElementVisibility(locators._widgetByName("data_table"));
+    table.WaitUntilTableLoad(0, 0, "v1");
 
     //Filter & validate table data
     table.OpenNFilterTable("id", "is exactly", "196");
@@ -145,6 +148,7 @@ describe("Import and validate older app (app created in older versions of Appsmi
     deployMode.EnterJSONInputValue("Statusname", "Active", 0, true);
     agHelper.Sleep(500);
     agHelper.ClickButton("Update");
+    agHelper.Sleep(2000); //for CI update to be successful
 
     //Validate updated values in table
     table.ReadTableRowColumnData(0, 3).then(($cellData) => {
