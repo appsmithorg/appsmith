@@ -1,0 +1,34 @@
+{
+  "form": [
+    {
+      "sectionName": "Details",
+      "id": 1,
+      "children": [
+        {
+          "label": "API Key",
+          "configProperty": "datasourceConfiguration.authentication.bearerToken",
+          "controlType": "INPUT_TEXT",
+          "dataType": "PASSWORD",
+          "initialValue": "",
+          "isRequired": true,
+          "encrypted": true
+        },
+        {
+          "label": "Endpoint URL (with or without protocol and port no)",
+          "configProperty": "datasourceConfiguration.url",
+          "controlType": "INPUT_TEXT",
+          "initialValue": " https://api.openai.com",
+          "isRequired": true,
+          "hidden": true
+        },
+        {
+          "label": "Custom endpoint URL key",
+          "configProperty": "datasourceConfiguration.properties[2].key",
+          "controlType": "INPUT_TEXT",
+          "initialValue": "customRegion",
+          "hidden": true
+        }
+      ]
+    }
+  ]
+}

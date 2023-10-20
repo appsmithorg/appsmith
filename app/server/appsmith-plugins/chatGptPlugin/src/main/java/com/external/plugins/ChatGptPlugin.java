@@ -71,10 +71,10 @@ public class ChatGptPlugin extends BasePlugin {
         }
 
         public Mono<ActionExecutionResult> executeCommon(
-            APIConnection apiConnection,
-            DatasourceConfiguration datasourceConfiguration,
-            ActionConfiguration actionConfiguration,
-            List<Map.Entry<String, String>> insertedParams) {
+                APIConnection apiConnection,
+                DatasourceConfiguration datasourceConfiguration,
+                ActionConfiguration actionConfiguration,
+                List<Map.Entry<String, String>> insertedParams) {
 
             // Initializing object for error condition
             ActionExecutionResult errorResult = new ActionExecutionResult();
@@ -87,83 +87,83 @@ public class ChatGptPlugin extends BasePlugin {
             String url = initUtils.initializeRequestUrl(actionConfiguration, datasourceConfiguration);
             Boolean encodeParamsToggle = headerUtils.isEncodeParamsToggleEnabled(actionConfiguration);
 
-
             URI uri;
             try {
                 uri = uriUtils.createUriWithQueryParams(
-                    actionConfiguration, datasourceConfiguration, url, encodeParamsToggle);
+                        actionConfiguration, datasourceConfiguration, url, encodeParamsToggle);
             } catch (Exception e) {
                 ActionExecutionRequest actionExecutionRequest = RequestCaptureFilter.populateRequestFields(
-                    actionConfiguration, null, insertedParams, objectMapper);
+                        actionConfiguration, null, insertedParams, objectMapper);
                 actionExecutionRequest.setUrl(url);
-                errorResult.setErrorInfo(new AppsmithPluginException(
-                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,e.getMessage()));
+                errorResult.setErrorInfo(
+                        new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, e.getMessage()));
                 errorResult.setRequest(actionExecutionRequest);
                 return Mono.just(errorResult);
             }
 
             ActionExecutionRequest actionExecutionRequest =
-                RequestCaptureFilter.populateRequestFields(actionConfiguration, uri, insertedParams, objectMapper);
+                    RequestCaptureFilter.populateRequestFields(actionConfiguration, uri, insertedParams, objectMapper);
 
             WebClient.Builder webClientBuilder =
-                restAPIActivateUtils.getWebClientBuilder(actionConfiguration, datasourceConfiguration);
+                    restAPIActivateUtils.getWebClientBuilder(actionConfiguration, datasourceConfiguration);
             String reqContentType = headerUtils.getRequestContentType(actionConfiguration, datasourceConfiguration);
 
             /* Check for content type */
             final String contentTypeError = headerUtils.verifyContentType(actionConfiguration.getHeaders());
             if (contentTypeError != null) {
-                errorResult.setErrorInfo(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR));
+                errorResult.setErrorInfo(
+                        new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR));
                 errorResult.setRequest(actionExecutionRequest);
                 return Mono.just(errorResult);
             }
 
             HttpMethod httpMethod = actionConfiguration.getHttpMethod();
             if (httpMethod == null) {
-                errorResult.setErrorInfo(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR));
+                errorResult.setErrorInfo(
+                        new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR));
                 errorResult.setRequest(actionExecutionRequest);
                 return Mono.just(errorResult);
             }
 
             final RequestCaptureFilter requestCaptureFilter = new RequestCaptureFilter(objectMapper);
             Object requestBodyObj =
-                dataUtils.getRequestBodyObject(actionConfiguration, reqContentType, encodeParamsToggle, httpMethod);
+                    dataUtils.getRequestBodyObject(actionConfiguration, reqContentType, encodeParamsToggle, httpMethod);
             WebClient client = restAPIActivateUtils.getWebClient(
-                webClientBuilder, apiConnection, reqContentType, EXCHANGE_STRATEGIES, requestCaptureFilter);
+                    webClientBuilder, apiConnection, reqContentType, EXCHANGE_STRATEGIES, requestCaptureFilter);
 
             /* Triggering the actual REST API call */
             return restAPIActivateUtils
-                .triggerApiCall(
-                    client,
-                    httpMethod,
-                    uri,
-                    requestBodyObj,
-                    actionExecutionRequest,
-                    objectMapper,
-                    hintMessages,
-                    errorResult,
-                    requestCaptureFilter)
-                .onErrorResume(error -> {
-                    boolean isBodySentWithApiRequest = requestBodyObj == null ? false : true;
-                    errorResult.setRequest(requestCaptureFilter.populateRequestFields(
-                        actionExecutionRequest, isBodySentWithApiRequest));
-                    errorResult.setIsExecutionSuccess(false);
-                    log.debug(
-                        "An error has occurred while trying to run the API query for url: {}, path : {}",
-                        datasourceConfiguration.getUrl(),
-                        actionConfiguration.getPath());
-                    error.printStackTrace();
-                    if (!(error instanceof AppsmithPluginException)) {
-                        error = error;
-                    }
-                    errorResult.setErrorInfo(error);
-                    return Mono.just(errorResult);
-                });
+                    .triggerApiCall(
+                            client,
+                            httpMethod,
+                            uri,
+                            requestBodyObj,
+                            actionExecutionRequest,
+                            objectMapper,
+                            hintMessages,
+                            errorResult,
+                            requestCaptureFilter)
+                    .onErrorResume(error -> {
+                        boolean isBodySentWithApiRequest = requestBodyObj == null ? false : true;
+                        errorResult.setRequest(requestCaptureFilter.populateRequestFields(
+                                actionExecutionRequest, isBodySentWithApiRequest));
+                        errorResult.setIsExecutionSuccess(false);
+                        log.debug(
+                                "An error has occurred while trying to run the API query for url: {}, path : {}",
+                                datasourceConfiguration.getUrl(),
+                                actionConfiguration.getPath());
+                        error.printStackTrace();
+                        if (!(error instanceof AppsmithPluginException)) {
+                            error = error;
+                        }
+                        errorResult.setErrorInfo(error);
+                        return Mono.just(errorResult);
+                    });
         }
 
         @Override
         public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration) {
             return datasourceUtils.validateDatasource(datasourceConfiguration, false);
         }
-
     }
 }
