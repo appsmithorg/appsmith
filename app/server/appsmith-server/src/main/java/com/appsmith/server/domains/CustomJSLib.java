@@ -95,4 +95,12 @@ public class CustomJSLib extends BranchAwareDomain {
     public int hashCode() {
         return this.uidString.hashCode();
     }
+
+    @Override
+    public void sanitiseToExportDBObject() {
+        this.setId(null);
+        this.setCreatedAt(null);
+        this.setUpdatedAt(null);
+        super.sanitiseToExportDBObject();
+    }
 }
