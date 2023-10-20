@@ -8,7 +8,10 @@ import IframeComponent from "../component";
 import type { IframeWidgetProps } from "../constants";
 import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
-import type { AutocompletionDefinitions } from "WidgetProvider/constants";
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
+} from "WidgetProvider/constants";
 import IconSVG from "../icon.svg";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import type {
@@ -84,6 +87,17 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
           },
         },
       ],
+    };
+  }
+
+  static getAnvilConfig(): AnvilConfig | null {
+    return {
+      widgetSize: {
+        maxHeight: {},
+        maxWidth: {},
+        minHeight: { base: "300px" },
+        minWidth: { base: "280px" },
+      },
     };
   }
 

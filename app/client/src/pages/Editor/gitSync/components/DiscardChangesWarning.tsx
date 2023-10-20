@@ -25,7 +25,7 @@ export default function DiscardChangesWarning({
         kind="error"
         links={[
           {
-            children: "Learn More",
+            children: "Learn more",
             endIcon: "right-arrow",
             to: discardDocUrl,
             target: "_blank",
