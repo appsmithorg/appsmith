@@ -87,7 +87,6 @@ import {
   getCurrentLayoutId,
   getCurrentPageId,
   getCurrentPageName,
-  getIsAutoLayout,
   getMainCanvasProps,
   getPageById,
   previewModeSelector,
@@ -150,6 +149,10 @@ import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
 import { isGACEnabled } from "@appsmith/utils/planHelpers";
 import { getHasManagePagePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
+import { LayoutSystemTypes } from "layoutSystems/types";
+import { getLayoutSystemDSLTransformer } from "layoutSystems/common/utils/LayoutSystemDSLTransformer";
+import type { DSLWidget } from "WidgetProvider/constants";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -261,14 +264,12 @@ export function* refreshTheApp() {
 
 export const getCanvasWidgetsPayload = (
   pageResponse: FetchPageResponse,
-  isAutoLayout?: boolean,
-  mainCanvasWidth?: number,
+  dslTransformer?: (dsl: DSLWidget) => DSLWidget,
 ): UpdateCanvasPayload => {
-  const extractedDSL = extractCurrentDSL(
-    pageResponse,
-    isAutoLayout,
-    mainCanvasWidth,
-  ).dsl;
+  const extractedDSL = extractCurrentDSL({
+    dslTransformer,
+    response: pageResponse,
+  }).dsl;
   const flattenedDSL = flattenDSL(extractedDSL);
   const pageWidgetId = MAIN_CONTAINER_WIDGET_ID;
   return {
@@ -294,9 +295,13 @@ export function* handleFetchedPage({
   pageId: string;
   isFirstLoad?: boolean;
 }) {
-  const isAutoLayout: boolean = yield select(getIsAutoLayout);
+  const layoutSystemType: LayoutSystemTypes = yield select(getLayoutSystemType);
   const mainCanvasProps: MainCanvasReduxState =
     yield select(getMainCanvasProps);
+  const dslTransformer = getLayoutSystemDSLTransformer(
+    layoutSystemType,
+    mainCanvasProps.width,
+  );
   const isValidResponse: boolean = yield validateResponse(fetchPageResponse);
   const willPageBeMigrated = checkIfMigrationIsNeeded(fetchPageResponse);
   const lastUpdatedTime = getLastUpdateTime(fetchPageResponse);
@@ -313,8 +318,7 @@ export function* handleFetchedPage({
     // Get Canvas payload
     const canvasWidgetsPayload = getCanvasWidgetsPayload(
       fetchPageResponse,
-      isAutoLayout,
-      mainCanvasProps.width,
+      dslTransformer,
     );
     // Update the canvas
     yield put(initCanvasLayout(canvasWidgetsPayload));
@@ -344,7 +348,10 @@ export function* handleFetchedPage({
     // to compute dynamic height based on the new layout.
     yield put(generateAutoHeightLayoutTreeAction(true, true));
 
-    if (willPageBeMigrated) {
+    // If the type of the layoutSystem is ANVIL, then we need to save the layout
+    // This is because we have updated the DSL
+    // using the AnvilDSLTransformer when we called the getCanvasWidgetsPayload function
+    if (willPageBeMigrated || layoutSystemType === LayoutSystemTypes.ANVIL) {
       yield put(saveLayout());
     }
   }
@@ -706,14 +713,23 @@ export function* createNewPageFromEntity(
   createPageAction: ReduxAction<CreatePageActionPayload>,
 ) {
   try {
-    const isAutoLayout: boolean = yield select(getIsAutoLayout);
+    const layoutSystemType: LayoutSystemTypes =
+      yield select(getLayoutSystemType);
     const mainCanvasProps: MainCanvasReduxState =
       yield select(getMainCanvasProps);
-    // Default layout is extracted by adding dynamically computed properties like min-height.
+    const dslTransformer = getLayoutSystemDSLTransformer(
+      layoutSystemType,
+      mainCanvasProps.width,
+    );
+
+    // This saga is called when creating a new page from the entity explorer
+    // In this flow, the server doesn't have a page DSL to return
+    // So, the client premptively uses the default page DSL
+    // The default page DSL is used and modified using the layout system
+    // specific dslTransformer
     const defaultPageLayouts = [
       {
-        dsl: extractCurrentDSL(undefined, isAutoLayout, mainCanvasProps?.width)
-          .dsl,
+        dsl: extractCurrentDSL({ dslTransformer }).dsl,
         layoutOnLoadActions: [],
       },
     ];
@@ -724,6 +740,10 @@ export function* createNewPageFromEntity(
     const workspaceId: string = yield select(getCurrentWorkspaceId);
     const instanceId: string | undefined = yield select(getInstanceId);
 
+    // So far this saga has only done the prep work to create a page
+    // It generates and structures the parameters needed for creating a page
+    // At the end we call the `createPage` saga that actually calls the API to
+    // create a page
     yield put(
       createPage(
         applicationId,
@@ -748,9 +768,14 @@ export function* createPageSaga(
 ) {
   try {
     const guidedTourEnabled: boolean = yield select(inGuidedTour);
-    const isAutoLayout: boolean = yield select(getIsAutoLayout);
+    const layoutSystemType: LayoutSystemTypes =
+      yield select(getLayoutSystemType);
     const mainCanvasProps: MainCanvasReduxState =
       yield select(getMainCanvasProps);
+    const dslTransformer = getLayoutSystemDSLTransformer(
+      layoutSystemType,
+      mainCanvasProps.width,
+    );
 
     // Prevent user from creating a new page during the guided tour
     if (guidedTourEnabled) {
@@ -773,12 +798,13 @@ export function* createPageSaga(
         },
       });
       // Add this to the page DSLs for entity explorer
+      // The dslTransformer may not be necessary for the entity explorer
+      // However, we still transform for consistency.
       yield put({
         type: ReduxActionTypes.FETCH_PAGE_DSL_SUCCESS,
         payload: {
           pageId: response.data.id,
-          dsl: extractCurrentDSL(response, isAutoLayout, mainCanvasProps?.width)
-            .dsl,
+          dsl: extractCurrentDSL({ dslTransformer, response }).dsl,
           layoutId: response.data.layouts[0].id,
         },
       });
@@ -888,7 +914,10 @@ export function* clonePageSaga(
         ),
       );
       // Add this to the page DSLs for entity explorer
-      const { dsl, layoutId } = extractCurrentDSL(response);
+      // We're not sending the `dslTransformer` to the `extractCurrentDSL` function
+      // as this is a clone operation, and any layout system specific
+      // updates to the DSL would have already been performed in the original page
+      const { dsl, layoutId } = extractCurrentDSL({ response });
       yield put({
         type: ReduxActionTypes.FETCH_PAGE_DSL_SUCCESS,
         payload: {
@@ -1129,9 +1158,14 @@ export function* setDataUrl() {
 
 export function* fetchPageDSLSaga(pageId: string) {
   try {
-    const isAutoLayout: boolean = yield select(getIsAutoLayout);
+    const layoutSystemType: LayoutSystemTypes =
+      yield select(getLayoutSystemType);
     const mainCanvasProps: MainCanvasReduxState =
       yield select(getMainCanvasProps);
+    const dslTransformer = getLayoutSystemDSLTransformer(
+      layoutSystemType,
+      mainCanvasProps.width,
+    );
     const fetchPageResponse: FetchPageResponse = yield call(PageApi.fetchPage, {
       id: pageId,
     });
@@ -1139,11 +1173,17 @@ export function* fetchPageDSLSaga(pageId: string) {
     if (isValidResponse) {
       // Wait for the Widget config to be loaded before we can migrate the DSL
       yield call(waitForWidgetConfigBuild);
-      const { dsl, layoutId } = extractCurrentDSL(
-        fetchPageResponse,
-        isAutoLayout,
-        mainCanvasProps?.width,
-      );
+      // DSL migrations will now happen on the server
+      // So, it may not be necessary to run dslTransformer on the pageDSL
+      // or to run the DSL by the extractCurrentDSL function
+      // Another caveat to note is that we have conversions happening
+      // between Auto Layout and Fixed layout systems, this means that
+      // particularly for these two layout systems the dslTransformer may be necessary
+      // unless we're no longer running any conversions
+      const { dsl, layoutId } = extractCurrentDSL({
+        dslTransformer,
+        response: fetchPageResponse,
+      });
       return {
         pageId,
         dsl,

@@ -121,6 +121,7 @@ export class AppSettings {
     customSlug?: string,
     editMode = true,
   ) {
+    appName = appName.replace(/\s+/g, "-");
     this.agHelper.AssertElementAbsence(this.locators._updateStatus, 10000);
     cy.location("pathname").then((pathname) => {
       if (customSlug && customSlug.length > 0) {

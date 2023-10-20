@@ -2,8 +2,7 @@ import React from "react";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import { AnvilWidgetComponent } from "../common/widgetComponent/AnvilWidgetComponent";
 import { ModalOverlayLayer } from "layoutSystems/common/modalOverlay/ModalOverlayLayer";
-import { ClickContentToOpenPropPane } from "utils/hooks/useClickToSelectWidget";
-import { ModalResizableLayer } from "layoutSystems/common/resizer/ModalResizableLayer";
+import { Classes } from "@blueprintjs/core";
 
 /**
  * AnvilEditorModalOnion
@@ -19,19 +18,11 @@ import { ModalResizableLayer } from "layoutSystems/common/resizer/ModalResizable
  *
  * @returns Enhanced Widget
  */
-export const AnvilEditorModalOnion = (props: BaseWidgetProps) => {
+export const AnvilEditorModalOnion = (props: BaseWidgetProps): JSX.Element => {
   return (
     <AnvilWidgetComponent {...props}>
       <ModalOverlayLayer {...props} isEditMode>
-        <ModalResizableLayer
-          enableHorizontalResize
-          enableVerticalResize={false}
-          widgetProps={props}
-        >
-          <ClickContentToOpenPropPane widgetId={props.widgetId}>
-            {props.children}
-          </ClickContentToOpenPropPane>
-        </ModalResizableLayer>
+        <div className={Classes.OVERLAY_CONTENT}>{props.children}</div>
       </ModalOverlayLayer>
     </AnvilWidgetComponent>
   );
