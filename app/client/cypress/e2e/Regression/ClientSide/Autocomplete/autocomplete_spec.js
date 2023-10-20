@@ -72,7 +72,7 @@ describe("Dynamic input autocomplete", () => {
     cy.wait(1000);
 
     cy.evaluateErrorMessage(
-      "Found a reference to {{actionName}} during evaluation. Data fields cannot execute framework actions. Please remove any direct/indirect references to {{actionName}} and try again.".replaceAll(
+      "Please remove any direct/indirect references to {{actionName}} and try again. Data fields cannot execute framework actions.".replaceAll(
         "{{actionName}}",
         "storeValue()",
       ),
