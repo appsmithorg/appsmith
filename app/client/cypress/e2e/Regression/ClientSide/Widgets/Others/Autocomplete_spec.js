@@ -146,7 +146,7 @@ describe("Autocomplete using slash command and mustache tests", function () {
     },
   );
 
-  it.only("Bug 9003: Autocomplete not working for Appsmith specific JS APIs", function () {
+  it("Bug 9003: Autocomplete not working for Appsmith specific JS APIs", function () {
     _.entityExplorer.SelectEntityByName("Button1", "Widgets");
     _.propPane.ToggleJSMode("onClick", true);
     _.propPane.TypeTextIntoField("onClick", "{{storeValue", true);
@@ -174,6 +174,5 @@ describe("Autocomplete using slash command and mustache tests", function () {
     _.agHelper.AssertElementAbsence(_.locators._hints);
     _.propPane.TypeTextIntoField("Label", "{{Text1.setDisabled", true);
     _.agHelper.AssertElementAbsence(_.locators._hints);
-
   });
 });
