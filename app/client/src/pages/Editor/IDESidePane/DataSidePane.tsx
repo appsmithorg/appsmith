@@ -43,6 +43,12 @@ const EmptyStateContainer = styled.div`
   max-width: 300px;
 `;
 
+const DatasourceIcon = styled.img`
+  height: 16px;
+  width: 16px;
+  align-self: center;
+`;
+
 const DataSidePane = () => {
   const datasources = useSelector(getDatasources);
   const plugins = useSelector(getPlugins);
@@ -89,6 +95,11 @@ const DataSidePane = () => {
                 description: "",
                 descriptionType: "inline",
                 isSelected: currentSelectedDatasource === data.id,
+                startIcon: (
+                  <DatasourceIcon
+                    src={groupedPlugins[data.pluginId].iconLocation}
+                  />
+                ),
               }))}
             />
           </SubListContainer>
