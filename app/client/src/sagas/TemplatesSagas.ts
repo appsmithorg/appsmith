@@ -23,6 +23,7 @@ import type {
 import TemplatesAPI from "api/TemplatesApi";
 import history from "utils/history";
 import { getDefaultPageId } from "@appsmith/sagas/ApplicationSagas";
+import { getDefaultPageId as selectDefaultPageId } from "sagas/selectors";
 import {
   getAllTemplates,
   setTemplateNotificationSeenAction,
@@ -34,7 +35,11 @@ import {
 } from "utils/storage";
 import { validateResponse } from "./ErrorSagas";
 import { builderURL } from "@appsmith/RouteBuilder";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
+import {
+  getCurrentApplicationId,
+  getCurrentPageId,
+  getCurrentPageName,
+} from "selectors/editorSelectors";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import {
   fetchApplication,
@@ -231,52 +236,76 @@ function* forkStarterTemplateToApplicationSaga(
     templateName: string;
   }>,
 ) {
-  const {
-    applicationId,
-    isValid,
-    prevPageIds,
-    templatePageIds,
-  }: {
-    applicationId: string;
-    isValid: boolean;
-    prevPageIds: string[];
-    templatePageIds: string[];
-  } = yield call(apiCallForForkTemplateToApplicaion, action);
+  try {
+    // Get page name and id where the starter template was clicked
+    const activePageName: string = yield select(getCurrentPageName);
+    const activePageId: string = yield select(getCurrentPageId);
+    // Get current default page id
+    const defaultPageId: string = yield select(selectDefaultPageId);
 
-  function* deleteExistingEmptyPageInApp(pageId: string) {
-    yield put({
-      type: ReduxActionTypes.DELETE_PAGE_INIT,
-      payload: {
-        id: pageId,
-      },
-    });
-  }
+    const {
+      applicationId,
+      isValid,
+      templatePageIds,
+    }: {
+      applicationId: string;
+      isValid: boolean;
+      prevPageIds: string[];
+      templatePageIds: string[];
+    } = yield call(apiCallForForkTemplateToApplicaion, action);
 
-  function* renameStarterTemplatePageToDefault(pageId: string) {
-    const defaultPageName = "Page1";
+    function* deleteExistingEmptyPageInApp(pageId: string) {
+      yield put({
+        type: ReduxActionTypes.DELETE_PAGE_INIT,
+        payload: {
+          id: pageId,
+        },
+      });
+    }
+
+    function* renameStarterTemplatePageToDefault(pageId: string) {
+      yield put({
+        type: ReduxActionTypes.UPDATE_PAGE_INIT,
+        payload: {
+          id: pageId,
+          name: activePageName,
+          isHidden: false,
+        },
+      });
+    }
+    if (isValid) {
+      // If the page where the starter template was clicked is the default page
+      if (activePageId === defaultPageId) {
+        // 1. Set the template page as home page
+        yield put({
+          type: ReduxActionTypes.SET_DEFAULT_APPLICATION_PAGE_INIT,
+          payload: {
+            id: templatePageIds[0],
+            applicationId,
+          },
+        });
+        yield take(ReduxActionTypes.SET_DEFAULT_APPLICATION_PAGE_SUCCESS);
+      }
+
+      // 2. Delete the existing page
+      yield fork(deleteExistingEmptyPageInApp, activePageId);
+      // 3. Rename the template page to clicked from page
+      yield fork(renameStarterTemplatePageToDefault, templatePageIds[0]);
+      // 4. Wait for page update and delete to complete
+      yield take(ReduxActionTypes.UPDATE_PAGE_SUCCESS);
+      yield take(ReduxActionTypes.DELETE_PAGE_SUCCESS);
+      // 5. Complete the page addition flow
+      yield put({
+        type: ReduxActionTypes.IMPORT_STARTER_TEMPLATE_TO_APPLICATION_SUCCESS,
+      });
+    }
+  } catch (error) {
     yield put({
-      type: ReduxActionTypes.UPDATE_PAGE_INIT,
+      type: ReduxActionErrorTypes.IMPORT_STARTER_TEMPLATE_TO_APPLICATION_ERROR,
       payload: {
-        id: pageId,
-        name: defaultPageName,
-        isHidden: false,
+        error,
       },
     });
-  }
-  if (isValid) {
-    // 1. Set the template page as home page
-    yield put({
-      type: ReduxActionTypes.SET_DEFAULT_APPLICATION_PAGE_INIT,
-      payload: {
-        id: templatePageIds[0],
-        applicationId,
-      },
-    });
-    yield take(ReduxActionTypes.SET_DEFAULT_APPLICATION_PAGE_SUCCESS);
-    // 2. Delete the existing page
-    yield fork(deleteExistingEmptyPageInApp, prevPageIds[0]);
-    // 3. Rename the template page to default page
-    yield fork(renameStarterTemplatePageToDefault, templatePageIds[0]);
   }
 }
 

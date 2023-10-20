@@ -20,6 +20,8 @@ export const isImportingTemplateSelector = (state: AppState) =>
   state.ui.templates.isImportingTemplate;
 export const isImportingTemplateToAppSelector = (state: AppState) =>
   state.ui.templates.isImportingTemplateToApp;
+export const isImportingStarterTemplateToAppSelector = (state: AppState) =>
+  state.ui.templates.isImportingStarterTemplateToApp;
 export const showTemplateNotificationSelector = (state: AppState) =>
   state.ui.templates.templateNotificationSeen;
 

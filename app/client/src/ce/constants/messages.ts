@@ -2172,4 +2172,5 @@ export const STARTER_TEMPLATE_PAGE_LAYOUTS = {
   },
   or: () => "or",
   dragAndDrop: () => "Drag and Drop Widgets",
+  importLoadingText: () => "Importing Page Layout",
 };
