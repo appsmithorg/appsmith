@@ -47,6 +47,8 @@ import {
 } from "widgets/WidgetUtils";
 import DragLayerComponent from "./DragLayerComponent";
 import CanvasStarterTemplatesLayout from "./canvasStarterTemplatesLayout";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 export type DropTargetComponentProps = PropsWithChildren<{
   snapColumnSpace: number;
@@ -74,14 +76,20 @@ function Onboarding() {
   const [isUsersFirstApp, setIsUsersFirstApp] = useState(false);
   const isMobileCanvas = useSelector(getIsMobileCanvasLayout);
   const user = useSelector(getCurrentUser);
+  const showStarterTemplatesInsteadofBlankCanvas = useFeatureFlag(
+    FEATURE_FLAG.ab_show_templates_instead_of_blank_canvas_enabled,
+  );
 
   const currentApplicationId = useSelector(
     (state: AppState) => state.ui.applications.currentApplication?.id,
   );
 
   const shouldShowStarterTemplates = useMemo(
-    () => !isMobileCanvas && isUsersFirstApp,
-    [isMobileCanvas, isUsersFirstApp],
+    () =>
+      showStarterTemplatesInsteadofBlankCanvas &&
+      !isMobileCanvas &&
+      isUsersFirstApp,
+    [isMobileCanvas, isUsersFirstApp, showStarterTemplatesInsteadofBlankCanvas],
   );
   useEffect(() => {
     (async () => {
