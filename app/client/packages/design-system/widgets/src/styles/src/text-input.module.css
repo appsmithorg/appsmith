@@ -103,15 +103,4 @@
   &[data-disabled] label {
     cursor: not-allowed;
   }
-
-  /**
-  * ----------------------------------------------------------------------------
-  * DISABleD
-  *-----------------------------------------------------------------------------
-  */
-  &[data-disabled],
-  &[data-disabled] :is(input, textarea),
-  &[data-disabled] label {
-    cursor: not-allowed;
-  }
 }
