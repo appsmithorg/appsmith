@@ -52,8 +52,6 @@ import { getReadableSnapShotDetails } from "layoutSystems/autolayout/utils/AutoL
 import AnonymousDataPopup from "../FirstTimeUserOnboarding/AnonymousDataPopup";
 import AppSettingsPane from "../AppSettingsPane";
 import { getIsAppSidebarEnabled } from "selectors/ideSelectors";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 function WidgetsEditor() {
   const { deselectAll, focusWidget } = useWidgetSelection();
@@ -88,9 +86,6 @@ function WidgetsEditor() {
 
   const shouldShowSnapShotBanner =
     !!readableSnapShotDetails && !isPreviewingNavigation;
-  const showStarterTemplatesInsteadofBlankCanvas = useFeatureFlag(
-    FEATURE_FLAG.ab_show_templates_instead_of_blank_canvas_enabled,
-  );
 
   useEffect(() => {
     if (navigationPreviewRef?.current) {
@@ -177,9 +172,7 @@ function WidgetsEditor() {
   PerformanceTracker.stopTracking();
   return (
     <EditorContextProvider renderMode="CANVAS">
-      {!showStarterTemplatesInsteadofBlankCanvas && guidedTourEnabled && (
-        <Guide />
-      )}
+      {guidedTourEnabled && <Guide />}
       <div className="relative flex flex-row w-full overflow-hidden">
         {isAppSettingsPaneOpen && isAppSidebarEnabled && (
           <div className="h-full flex">
