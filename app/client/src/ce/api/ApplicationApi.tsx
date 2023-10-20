@@ -9,7 +9,10 @@ import type { ApplicationVersion } from "@appsmith/actions/applicationActions";
 import type { Datasource } from "entities/Datasource";
 import type { NavigationSetting } from "constants/AppConstants";
 import { getSnapShotAPIRoute } from "@appsmith/constants/ApiConstants";
-import type { LayoutSystemTypeConfig } from "layoutSystems/types";
+import type {
+  LayoutSystemTypeConfig,
+  LayoutSystemTypes,
+} from "layoutSystems/types";
 
 export type EvaluationVersion = number;
 
@@ -86,6 +89,7 @@ export interface CreateApplicationRequest {
   workspaceId: string;
   color?: AppColorCode;
   icon?: IconNames;
+  layoutSystemType: LayoutSystemTypes;
 }
 
 export interface SetDefaultPageRequest {
@@ -210,6 +214,7 @@ export interface UpdateApplicationResponse {
   embedSetting: AppEmbedSetting;
   applicationDetail?: {
     navigationSetting?: NavigationSetting;
+    appPositioning?: LayoutSystemTypeConfig;
   };
 }
 
@@ -298,7 +303,11 @@ export class ApplicationApi extends Api {
     return Api.post(
       ApplicationApi.baseURL +
         ApplicationApi.createApplicationPath(request.workspaceId),
-      { name: request.name, color: request.color, icon: request.icon },
+      {
+        name: request.name,
+        color: request.color,
+        icon: request.icon,
+      },
     );
   }
 
