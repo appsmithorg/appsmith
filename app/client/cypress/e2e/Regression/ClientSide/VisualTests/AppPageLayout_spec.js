@@ -5,7 +5,7 @@ describe("Visual regression tests", () => {
   // for any changes in UI, update the screenshot in snapshot folder, to do so:
   //  1. Delete the required screenshot which you want to update.
   //  2. Run test in headless mode with any browser
-  //      command: "npx cypress run --spec cypress/e2e/Regression_TestSuite/ClientSideTests/VisualTests/AppPageLayout_spec.js  --browser chrome"
+  //      command: "npx cypress run --spec cypress/e2e/Regression/ClientSide/VisualTests/AppPageLayout_spec.js  --browser chrome"
   //  3. New screenshot will be generated in the snapshot folder.
 
   it("1. Layout validation for app page in edit mode", () => {

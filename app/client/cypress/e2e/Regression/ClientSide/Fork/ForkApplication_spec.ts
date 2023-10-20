@@ -26,7 +26,7 @@ describe("Fork application across workspaces", function () {
   });
 
   it("1. Check if the forked application has the same dsl as the original", function () {
-    const appname = localStorage.getItem("AppName");
+    const appname = localStorage.getItem("workspaceName");
     entityExplorer.SelectEntityByName("Input1");
 
     cy.intercept("PUT", "/api/v1/layouts/*/pages/*").as("inputUpdate");

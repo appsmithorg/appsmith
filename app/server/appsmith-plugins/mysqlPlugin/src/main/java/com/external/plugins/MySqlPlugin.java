@@ -586,7 +586,7 @@ public class MySqlPlugin extends BasePlugin {
                     columnValue = DateTimeFormatter.ISO_TIME.format(row.get(columnName, LocalTime.class));
                 } else if (java.time.Year.class.toString().equalsIgnoreCase(javaTypeName) && columnValue != null) {
                     columnValue = row.get(columnName, LocalDate.class).getYear();
-                } else if (JSON_DB_TYPE.equals(sqlColumnType)) {
+                } else if (columnValue != null && JSON_DB_TYPE.equals(sqlColumnType)) {
                     /**
                      * In case of MySQL the JSON DB type is stored as a binary object in the DB. This is different from
                      * MariaDB where it is stored as a text.Since we currently use MariaDB driver for MySQL plugin as

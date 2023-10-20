@@ -163,7 +163,7 @@ describe("emptyChartData", () => {
       );
       expect(deprecationMessage.links).toEqual([
         {
-          text: "Learn More",
+          text: "Learn more",
           url: "https://docs.appsmith.com",
         },
       ]);

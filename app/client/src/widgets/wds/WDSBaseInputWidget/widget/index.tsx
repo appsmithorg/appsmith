@@ -113,14 +113,17 @@ class WDSBaseInputWidget<
     e: React.KeyboardEvent<HTMLTextAreaElement | HTMLInputElement>,
     isMultiLine = false,
   ) {
+    const isTextArea = isMultiLine;
     const { isValid, onSubmit } = this.props;
     const isEnterKey = e.key === "Enter" || e.keyCode === 13;
+    const hasOnSubmit = typeof onSubmit === "string" && onSubmit;
 
     if (
-      typeof onSubmit === "string" &&
-      onSubmit &&
-      ((isMultiLine && (e.metaKey || e.ctrlKey)) ||
-        (!isMultiLine && isEnterKey && isValid))
+      hasOnSubmit &&
+      isEnterKey &&
+      // If the user presses {enter} with command/ctrl key in a textarea, trigger the onSubmit action
+      // or If the user presses {enter} in a text input, trigger the onSubmit action if the input is valid
+      ((isTextArea && (e.metaKey || e.ctrlKey)) || (!isTextArea && isValid))
     ) {
       // Originally super.executeAction was used to trigger the ON_SUBMIT action and updateMetaProperty
       // to update the text. Since executeAction is not queued and updateMetaProperty is, the user

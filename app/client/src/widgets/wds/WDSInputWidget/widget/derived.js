@@ -5,8 +5,8 @@ export default {
     switch (props.inputType) {
       case "NUMBER":
         try {
-          isEmpty = _.isNil(props.inputText) || props.inputText === "";
-          value = isEmpty ? null : Number(props.inputText);
+          isEmpty = _.isNil(props.rawText) || props.rawText === "";
+          value = isEmpty ? null : Number(props.rawText);
           hasValidValue = Number.isFinite(value);
           break;
         } catch (e) {
@@ -16,12 +16,12 @@ export default {
       case "MULTI_LINE_TEXT":
       case "EMAIL":
       case "PASSWORD":
-        value = props.inputText;
+        value = props.rawText;
         isEmpty = !value;
         hasValidValue = !!value;
         break;
       default:
-        value = props.inputText;
+        value = props.rawText;
         isEmpty = !value;
         hasValidValue = !!value;
         break;
@@ -79,7 +79,7 @@ export default {
           return false;
         } else if (parsedRegex) {
           /* email should conform to user specified regex */
-          return parsedRegex.test(props.inputText);
+          return parsedRegex.test(props.rawText);
         } else {
           return true;
         }
@@ -87,7 +87,7 @@ export default {
       case "MULTI_LINE_TEXT":
       case "PASSWORD":
         if (parsedRegex) {
-          return parsedRegex.test(props.inputText);
+          return parsedRegex.test(props.rawText);
         } else {
           return hasValidValue;
         }
@@ -107,7 +107,7 @@ export default {
         ) {
           return false;
         } else if (parsedRegex) {
-          return parsedRegex.test(props.inputText);
+          return parsedRegex.test(props.rawText);
         } else {
           return hasValidValue;
         }

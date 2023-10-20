@@ -258,7 +258,7 @@ describe("GSheet Miscellaneous Tests", function () {
   //   homePage.ImportApp("ImportAppAllAccess.json", "", true);
   //   cy.wait("@importNewApplication").then(() => {
   //     agHelper.Sleep();
-  //     agHelper.ClickButton("Save and authorize");
+  //     agHelper.ClickButton("Save & Authorize");
   //   });
   //   cy.url().should("contain", "accounts.google.com");
   //   homePage.NavigateToHome();
