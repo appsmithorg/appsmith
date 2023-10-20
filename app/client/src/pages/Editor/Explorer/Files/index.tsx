@@ -44,6 +44,9 @@ function Files() {
   const dispatch = useDispatch();
   const isFilesOpen = getExplorerStatus(applicationId, "queriesAndJs");
   const [isMenuOpen, openMenu] = useState(false);
+  const [query, setQuery] = useState("");
+
+  const fileOperations = useFilteredFileOperations(query);
 
   const onCreate = useCallback(() => {
     openMenu(true);
@@ -137,10 +140,12 @@ function Files() {
         <ExplorerSubMenu
           canCreate={canCreateActions}
           className={`${EntityClassNames.ADD_BUTTON} group files`}
+          fileOperations={fileOperations}
           handleClick={handleClick}
           onMenuClose={onMenuClose}
           openMenu={isMenuOpen}
-          useFilteredFileOperations={useFilteredFileOperations}
+          query={query}
+          setQuery={setQuery}
         />
       }
       entityId={pageId + "_actions"}

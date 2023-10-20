@@ -83,12 +83,12 @@ export const useFilteredFileOperations = (query = "") => {
 };
 
 export const useFilteredAndSortedFileOperations = ({
-  query,
   allDatasources = [],
-  recentlyUsedDSMap = {},
   canCreateActions = true,
   canCreateDatasource = true,
   plugins = [],
+  query,
+  recentlyUsedDSMap = {},
 }: {
   query: string;
   allDatasources?: Datasource[];
@@ -117,11 +117,13 @@ export const useFilteredAndSortedFileOperations = ({
   // Sort datasources based on recency
   const datasources = getSortedDatasources(allDatasources, recentlyUsedDSMap);
 
+  const createQueryAction =
+    (dsId: string) => (pageId: string, from: EventLocation) =>
+      createNewQueryAction(pageId, from, dsId);
+
   // map into operations
   const dsOperations = datasources.map((ds) =>
-    generateCreateQueryForDSOption(ds, (pageId: string, from: EventLocation) =>
-      createNewQueryAction(pageId, from, ds.id),
-    ),
+    generateCreateQueryForDSOption(ds, createQueryAction(ds.id)),
   );
   fileOperations.push(...dsOperations);
 

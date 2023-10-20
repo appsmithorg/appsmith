@@ -44,20 +44,22 @@ interface SubMenuProps {
   handleClick: (item: any) => void;
   openMenu: boolean;
   onMenuClose: () => void;
-  useFilteredFileOperations: (query: string) => ActionOperation[] | undefined;
+  fileOperations: ActionOperation[] | undefined;
+  setQuery: (val: string) => void;
+  query: string;
 }
 
 export default function ExplorerSubMenu({
   canCreate,
   className,
+  fileOperations,
   handleClick,
   onMenuClose,
   openMenu,
-  useFilteredFileOperations,
+  query,
+  setQuery,
 }: SubMenuProps) {
-  const [query, setQuery] = useState("");
   const [show, setShow] = useState(openMenu);
-  const fileOperations = useFilteredFileOperations(query);
 
   const filteredFileOperations = fileOperations?.filter(
     (item: any) => item.kind !== SEARCH_ITEM_TYPES.sectionTitle,
