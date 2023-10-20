@@ -31,6 +31,7 @@ import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.Exceptions;
 import reactor.core.publisher.Mono;
+import reactor.netty.http.HttpProtocol;
 import reactor.netty.http.client.HttpClient;
 import reactor.netty.resources.ConnectionProvider;
 
@@ -308,6 +309,7 @@ public class RestAPIActivateUtils {
 
         HttpClient httpClient = HttpClient.create(provider)
                 .secure(SSLHelper.sslCheckForHttpClient(datasourceConfiguration))
+                .protocol(HttpProtocol.H2C, HttpProtocol.H2, HttpProtocol.HTTP11)
                 .compress(true);
 
         return httpClient;
