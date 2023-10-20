@@ -123,16 +123,11 @@ jobs:
       - name: Get specs to run
         if: steps.run_result.outputs.run_result != 'success' && steps.run_result.outputs.run_result != 'failedtest'
         run: |
-          specs_to_run=""
-          while IFS= read -r line
-          do
-            if [[ $line =~ ^#|^\/\/ ]]; then
-              continue
-            else
-              specs_to_run="$specs_to_run,$line"
-            fi
-          done < app/client/cypress/limited-tests.txt
-          specs_to_run=${specs_to_run#,}
+          specs_to_run="$(
+            grep -Ev '^(#|//)|^$' app/client/cypress/limited-tests.txt \
+              | tr '\n' , \
+              | sed 's/,$//'
+          )"
           echo "specs_to_run=$specs_to_run" >> $GITHUB_ENV
 
       # In case of run-id provided download the artifact from the previous run
