@@ -77,20 +77,21 @@ describe("excludeForAirgap", "Tests JS Libraries", () => {
   it("6. Checks installation in exported/forked app", () => {
     _.homePage.NavigateToHome();
     _.homePage.ImportApp("library_export.json");
-    _.agHelper.AssertContains("true");
+    _.homePage.AssertImportToast();
+    _.agHelper.ValidateToastMessage("true");
     _.agHelper.WaitUntilAllToastsDisappear();
 
     //Checks installation in forked app
     _.homePage.NavigateToHome();
     _.homePage.ForkApplication("Library_export");
-    _.agHelper.AssertContains("true");
+    _.agHelper.ValidateToastMessage("true");
     _.agHelper.WaitUntilAllToastsDisappear();
 
     //Deploy app and check installation
     _.deployMode.DeployApp();
     _.agHelper.WaitUntilToastDisappear("true");
     _.deployMode.NavigateBacktoEditor();
-    _.agHelper.AssertContains("true");
+    _.agHelper.ValidateToastMessage("true");
   });
 
   it("7. Tests library access and installation in public apps", () => {
