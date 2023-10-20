@@ -32,6 +32,7 @@ import {
 } from "@appsmith/pages/Editor/Explorer/helpers";
 import { integrationEditorURL } from "@appsmith/RouteBuilder";
 import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
+import DatasourceStarterLayoutPrompt from "./Datasources/DatasourceStarterLayoutPrompt";
 
 const NoEntityFoundSvg = importSvg(
   async () => import("assets/svg/no_entities_found.svg"),
@@ -150,6 +151,7 @@ function EntityExplorer({ isActive }: { isActive: boolean }) {
           title="No entities found"
         />
       )}
+      <DatasourceStarterLayoutPrompt />
       <Datasources
         addDatasource={addDatasource}
         entityId={pageId}
