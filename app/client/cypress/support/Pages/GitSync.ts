@@ -120,7 +120,8 @@ export class GitSync {
     this.agHelper.ClickButton("Generate key");
     this.agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {
-      cy.wait(`@generateKey-${repo}`).then((result: any) => {
+      this.assertHelper.AssertNetworkStatus("@generateKey-" + repo);
+      cy.get(`@generateKey-${repo}`).then((result: any) => {
         generatedKey = result.response.body.data.publicKey;
         generatedKey = generatedKey.slice(0, generatedKey.length - 1);
         // fetch the generated key and post to the github repo
