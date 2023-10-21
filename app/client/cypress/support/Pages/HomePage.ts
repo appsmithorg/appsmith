@@ -136,6 +136,7 @@ export class HomePage {
         "workspaceName",
         interception.response.body.data.name,
       );
+      cy.wrap(interception.response.body.data.name).as("workspaceName");
     });
 
     workspaceNewName &&
@@ -273,7 +274,6 @@ export class HomePage {
       .GetElement(this._existingWorkspaceCreateNewApp(workspaceName))
       .last()
       .scrollIntoView()
-      .wait(1000) ///for scroll to finish & element to come to view
       .should("be.visible")
       .click({ force: true });
     this.assertHelper.AssertNetworkStatus("@createNewApplication", 201);

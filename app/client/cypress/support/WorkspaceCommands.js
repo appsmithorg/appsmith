@@ -257,12 +257,15 @@ Cypress.Commands.add("CreateAppForWorkspace", (workspaceName, appname) => {
   agHelper.RemoveTooltip("Rename application");
 });
 
-Cypress.Commands.add("CreateAppInFirstListedWorkspace", () => {
+Cypress.Commands.add("CreateNewAppInNewWorkspace", () => {
   let applicationId, appName;
   homePageTS.CreateNewWorkspace(); //Creating a new workspace for every test, since we are deleting the workspace in the end of the test
-  agHelper.Sleep(2000); //for workspace to open
-  homePageTS.CreateAppInWorkspace(localStorage.getItem("workspaceName"));
-  cy.wait("@createNewApplication").then((xhr) => {
+  //agHelper.Sleep(2000); //for workspace to open
+  cy.get("@workspaceName").then((workspaceName) => {
+    localStorage.setItem("workspaceName", workspaceName);
+    homePageTS.CreateAppInWorkspace(localStorage.getItem("workspaceName"));
+  });
+  cy.get("@createNewApplication").then((xhr) => {
     const response = xhr.response;
     expect(response.body.responseMeta.status).to.eq(201);
     applicationId = response.body.data.id;
