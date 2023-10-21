@@ -271,7 +271,7 @@ Cypress.Commands.add("CreateAppInFirstListedWorkspace", () => {
     localStorage.setItem("appName", appName);
 
     // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(2000);
+    cy.wait(4000);
     cy.get("#loading").should("not.exist");
 
     cy.url().then((url) => {
@@ -285,10 +285,7 @@ Cypress.Commands.add("CreateAppInFirstListedWorkspace", () => {
   assertHelper.AssertNetworkResponseData("@getPluginForm"); //for auth rest api
   assertHelper.AssertNetworkResponseData("@getPluginForm"); //for graphql
 
-  // eslint-disable-next-line cypress/no-unnecessary-waiting
-  cy.wait(2000);
-
-  // If the into modal is open close it
+  // If the intro modal is open, close it
   cy.skipSignposting();
 
   //Removing renaming of app from all tests, since its also verified in other separate tests
