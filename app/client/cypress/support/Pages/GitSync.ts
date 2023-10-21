@@ -353,6 +353,12 @@ export class GitSync {
         { parseSpecialCharSeq: true },
       );
       this.agHelper.AssertElementExist(this.locator._btnSpinner);
+      this.agHelper.AssertElementAbsence(
+        this.locator._specificToast(
+          "Unable to import application in workspace",
+        ),
+        3000,
+      );
       this.agHelper.AssertElementAbsence(this.locator._btnSpinner, 70000); //Since page taking more time to laod in some cases
       this.agHelper.AssertElementVisibility(this._branchName(branch + uid));
       this.assertHelper.AssertNetworkStatus("getBranch");
@@ -439,10 +445,6 @@ export class GitSync {
     }
 
     this.CloseGitSyncModal();
-    this.agHelper.AssertElementAbsence(
-      this.locator._specificToast("Unable to import application in workspace"),
-      5000,
-    );
   }
 
   public DiscardChanges() {
