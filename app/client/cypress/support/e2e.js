@@ -130,9 +130,7 @@ before(function () {
   const password = Cypress.env("PASSWORD");
   cy.LoginFromAPI(username, password);
   cy.wait(3000);
-  cy.get(".t--applications-container .createnew")
-    .should("be.visible")
-    .should("be.enabled");
+  cy.contains("New workspace").should("be.visible").should("be.enabled");
   cy.CreateAppInFirstListedWorkspace(); //Creating new workspace and app
   cy.fixture("TestDataSet1").then(function (data) {
     this.dataSet = data;

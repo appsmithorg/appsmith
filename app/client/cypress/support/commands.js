@@ -362,13 +362,9 @@ Cypress.Commands.add("LoginFromAPI", (uname, pword) => {
     if (CURRENT_REPO === REPO.EE) {
       cy.wait(2000);
     } else {
-      cy.wait("@getMe");
-      cy.wait("@applications").should(
-        "have.nested.property",
-        "response.body.responseMeta.status",
-        200,
-      );
-      cy.wait("@getReleaseItems");
+      assertHelper.AssertNetworkStatus("getMe");
+      assertHelper.AssertNetworkStatus("applications");
+      assertHelper.AssertNetworkStatus("getReleaseItems");
     }
   });
 });

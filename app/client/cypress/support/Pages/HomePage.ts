@@ -240,8 +240,7 @@ export class HomePage {
   }
 
   public NavigateToHome() {
-    cy.get(this._homeIcon).click({ force: true });
-    this.agHelper.Sleep(2000);
+    this.agHelper.GetNClick(this._homeIcon, 0, true, 2500);
     if (!Cypress.env("AIRGAPPED")) {
       this.assertHelper.AssertNetworkStatus("@getReleaseItems");
     } else {
@@ -270,13 +269,15 @@ export class HomePage {
 
   //Maps to CreateAppForWorkspace in command.js
   public CreateAppInWorkspace(workspaceName: string, appname = "") {
-    cy.xpath(this._existingWorkspaceCreateNewApp(workspaceName))
+    this.agHelper
+      .GetElement(this._existingWorkspaceCreateNewApp(workspaceName))
       .last()
       .scrollIntoView()
+      .wait(1000) ///for scroll to finish & element to come to view
       .should("be.visible")
       .click({ force: true });
     this.assertHelper.AssertNetworkStatus("@createNewApplication", 201);
-    cy.get(this.locator._loading).should("not.exist");
+    this.agHelper.AssertElementAbsence(this.locator._loading);
     this.agHelper.Sleep(2000);
     if (appname) this.RenameApplication(appname);
     //this.assertHelper.AssertNetworkStatus("@updateApplication", 200);
