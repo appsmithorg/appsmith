@@ -875,7 +875,7 @@ export class DataSources {
 
   public DeleteDatasouceFromActiveTab(
     datasourceName: string,
-    expectedRes = 200 || 409 || [200 | 409],
+    expectedRes = 200 || 409 || [200, 409],
   ) {
     this.ClickActiveTabDSContextMenu(datasourceName);
     this.agHelper.GetNClick(this._dsOptionMenuItem("Delete"), 0, false, 200);
@@ -885,7 +885,7 @@ export class DataSources {
 
   public DeleteDatasourceFromWithinDS(
     datasourceName: string,
-    expectedRes: number | number[] = 200 || 409 || [200 | 409],
+    expectedRes: number | number[] = 200 || 409 || [200, 409],
   ) {
     this.NavigateToActiveTab();
     cy.get(this._datasourceCard)
@@ -913,7 +913,7 @@ export class DataSources {
   }
 
   public DeleteDSDirectly(
-    expectedRes: number | number[] = 200 || 409 || [200 | 409],
+    expectedRes: number | number[] = 200 || 409 || [200, 409],
     toNavigateToDSInfoPage = true,
   ) {
     toNavigateToDSInfoPage &&
@@ -943,15 +943,8 @@ export class DataSources {
       if (expectedRes == 200)
         this.agHelper.AssertContains("datasource deleted successfully");
       else this.agHelper.AssertContains("action(s) using it.");
-      this.assertHelper.AssertNetworkStatus(
-        "@deleteDatasource",
-        expectedRes as number,
-      );
-    } else {
-      cy.wait("@deleteDatasource")
-        .its("response.body.responseMeta.status")
-        .should("be.oneOf", [200, 409]);
     }
+    this.assertHelper.AssertNetworkStatus("@deleteDatasource", expectedRes);
   }
 
   public NavigateToActiveTab() {

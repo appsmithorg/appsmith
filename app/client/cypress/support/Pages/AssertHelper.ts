@@ -80,13 +80,18 @@ export class AssertHelper extends ReusableHelper {
 
   public AssertNetworkStatus(
     aliasName: string,
-    expectedStatus = 200,
+    expectedStatus: number | number[] = 200,
     waitForNetworkCall = true,
   ) {
     waitForNetworkCall && this.WaitForNetworkCall(aliasName);
     cy.get(this.GetAliasName(aliasName))
       .its("response.body.responseMeta.status")
-      .should("eq", expectedStatus);
+      .should((responseStatus: any) => {
+        const expectedStatusArray = Array.isArray(expectedStatus)
+          ? expectedStatus
+          : [expectedStatus];
+        expect(expectedStatusArray).to.include(Number(responseStatus));
+      });
 
     //To improve below:
     // cy.wait(aliasName, { timeout: timeout }).should((response: any) => {

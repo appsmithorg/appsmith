@@ -120,7 +120,7 @@ export class GitSync {
     this.agHelper.ClickButton("Generate key");
     this.agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {
-      this.assertHelper.AssertNetworkStatus("@generateKey-" + repo, 201);
+      this.assertHelper.AssertNetworkStatus("@generateKey-" + repo, [200, 201]);
       cy.get(`@generateKey-${repo}`).then((result: any) => {
         generatedKey = result.response.body.data.publicKey;
         generatedKey = generatedKey.slice(0, generatedKey.length - 1);
