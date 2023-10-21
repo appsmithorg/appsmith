@@ -114,6 +114,16 @@ before(function () {
       cy.LogOut();
     }
   });
+  cy.wait(1000);
+  cy.url().then((url) => {
+    if (url.indexOf("user/login") > -1) {
+      //Cypress.Cookies.preserveOnce("SESSION", "remember_token");
+      const username = Cypress.env("USERNAME");
+      const password = Cypress.env("PASSWORD");
+      cy.LoginFromAPI(username, password);
+      cy.wait(3000);
+    }
+  });
 
   if (!Cypress.currentTest.titlePath[0].includes(WALKTHROUGH_TEST_PAGE)) {
     // Adding key FEATURE_WALKTHROUGH (which is used to check if the walkthrough is already shown to the user or not) for non walkthrough cypress tests (to not show walkthrough)
@@ -123,17 +133,8 @@ before(function () {
       binding_widget: true,
     });
   }
-
   //console.warn = () => {};
-  //Cypress.Cookies.preserveOnce("SESSION", "remember_token");
-  cy.get("body").then(($ele) => {
-    if ($ele.find("span:contains('New workspace')").length < 0) {
-      const username = Cypress.env("USERNAME");
-      const password = Cypress.env("PASSWORD");
-      cy.LoginFromAPI(username, password);
-      cy.wait(3000);
-    }
-  });
+
   cy.CreateNewAppInNewWorkspace(); //Creating new workspace and app
   cy.fixture("TestDataSet1").then(function (data) {
     this.dataSet = data;

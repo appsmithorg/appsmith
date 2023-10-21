@@ -259,7 +259,15 @@ Cypress.Commands.add("CreateAppForWorkspace", (workspaceName, appname) => {
 
 Cypress.Commands.add("CreateNewAppInNewWorkspace", () => {
   let applicationId, appName;
-  homePageTS.CreateNewWorkspace(); //Creating a new workspace for every test, since we are deleting the workspace in the end of the test
+  let toNavigateToHome = false;
+  cy.get("body").then(($ele) => {
+    if ($ele.find("span:contains('New workspace')").length < 0) {
+      toNavigateToHome = false;
+    } else {
+      toNavigateToHome = true;
+    }
+  });
+  homePageTS.CreateNewWorkspace("", toNavigateToHome); //Creating a new workspace for every test, since we are deleting the workspace in the end of the test
   //agHelper.Sleep(2000); //for workspace to open
   cy.get("@workspaceName").then((workspaceName) => {
     localStorage.setItem("workspaceName", workspaceName);

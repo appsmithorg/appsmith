@@ -124,6 +124,18 @@ export class HomePage {
     this.agHelper.GetNClick(this._homeTab);
   }
 
+  //trying to wrap multiple values, not used
+  public WrapAndAliasMultipleValues(
+    values: Record<string, string>,
+  ): Record<string, string> {
+    const aliases: Record<string, string> = {};
+    Object.keys(values).forEach((key) => {
+      aliases[key] = values[key];
+      cy.wrap(values[key]).as(key);
+    });
+    return aliases;
+  }
+
   public CreateNewWorkspace(workspaceNewName = "", toNavigateToHome = false) {
     if (toNavigateToHome) this.NavigateToHome();
     let oldName = "";
