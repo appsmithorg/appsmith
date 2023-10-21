@@ -341,12 +341,15 @@ export class AggregateHelper extends ReusableHelper {
                 ")",
             ).length > 0
           ) {
-            this.GetElement(this.locator._appLeveltooltip(toolTipOrToasttext))
-              .parents("div.rc-tooltip")
-              .then(($tooltipElement) => {
-                $tooltipElement.remove();
-                cy.log(toolTipOrToasttext + " tooltip removed");
-              });
+            this.GetElement(
+              this.locator._toastContainer +
+                "has(:contains('" +
+                toolTipOrToasttext +
+                "'))",
+            ).then(($toastContainer) => {
+              $toastContainer.remove();
+              cy.log(toolTipOrToasttext + " toast removed");
+            });
           }
           break;
       }
