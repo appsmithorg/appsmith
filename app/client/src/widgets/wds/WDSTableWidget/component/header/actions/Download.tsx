@@ -9,26 +9,15 @@ import { ActionItem } from "./ActionItem";
 import { transformTableDataIntoCsv } from "./Utilities";
 import zipcelx from "zipcelx";
 import { importSvg } from "design-system-old";
-
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@design-system/headless";
+} from "@design-system/widgets";
 
 const DownloadIcon = importSvg(
   async () => import("assets/icons/control/download-data-icon.svg"),
 );
-
-const DropDownWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  background: white;
-  z-index: 1;
-  border-radius: 4px;
-  box-shadow: 0px 12px 28px -8px rgba(0, 0, 0, 0.1);
-  padding: 0;
-`;
 
 const OptionWrapper = styled.div`
   display: flex;
@@ -41,16 +30,12 @@ const OptionWrapper = styled.div`
   color: var(--wds-color-text);
   min-width: 200px;
   cursor: pointer;
-  background: var(--wds-color-bg);
   border-left: none;
   border-radius: unset;
   .option-title {
     font-weight: 500;
     font-size: 13px;
     line-height: 20px;
-  }
-  &:hover {
-    background: var(--wds-color-bg-hover);
   }
 `;
 
@@ -199,7 +184,7 @@ function TableDataDownload(props: TableDataDownloadProps) {
 
   return (
     <Popover onOpenChange={selectMenu} open={selected}>
-      <PopoverTrigger asChild>
+      <PopoverTrigger>
         <ActionItem
           icon="download"
           onPress={() => selectMenu(!selected)}
@@ -207,23 +192,19 @@ function TableDataDownload(props: TableDataDownloadProps) {
         />
       </PopoverTrigger>
       <PopoverContent>
-        <div>
-          <DropDownWrapper>
-            {dowloadOptions.map((item: DownloadOptionProps, index: number) => {
-              return (
-                <OptionWrapper
-                  className={`${Classes.POPOVER_DISMISS} t--table-download-data-option`}
-                  key={index}
-                  onClick={() => {
-                    downloadFile(item.value);
-                  }}
-                >
-                  {item.label}
-                </OptionWrapper>
-              );
-            })}
-          </DropDownWrapper>
-        </div>
+        {dowloadOptions.map((item: DownloadOptionProps, index: number) => {
+          return (
+            <OptionWrapper
+              className={`${Classes.POPOVER_DISMISS} t--table-download-data-option`}
+              key={index}
+              onClick={() => {
+                downloadFile(item.value);
+              }}
+            >
+              {item.label}
+            </OptionWrapper>
+          );
+        })}
       </PopoverContent>
     </Popover>
   );
