@@ -301,30 +301,54 @@ export class AggregateHelper extends ReusableHelper {
     } else this.GetNAssertContains(this.locator._toastMsg, text);
   }
 
-  public RemoveTooltip(toolTip: string) {
-    cy.get("body").then(($body) => {
-      if ($body.find(this.locator._appLeveltooltip(toolTip)).length > 0) {
-        this.GetElement(this.locator._appLeveltooltip(toolTip))
-          .parents("div.rc-tooltip")
-          .then(($tooltipElement) => {
-            $tooltipElement.remove();
-            cy.log(toolTip + " tooltip removed");
-          });
-      }
-    });
-  }
-
   public AssertTooltip(toolTipText: string) {
     this.GetNAssertContains(this.toolTipSpan, toolTipText);
   }
 
-  public RemoveEvaluatedPopUp() {
+  public RemoveUIElement(
+    elementToRemove: "EvaluatedPopUp" | "Tooltip" | "Toast",
+    toolTipOrToasttext = "",
+  ) {
     cy.get("body").then(($body) => {
-      if ($body.find(this.locator._evalPopup).length > 0) {
-        this.GetElement(this.locator._evalPopup).then(($evalPopUp) => {
-          $evalPopUp.remove();
-          cy.log("Eval pop up removed");
-        });
+      switch (elementToRemove) {
+        case "EvaluatedPopUp":
+          if ($body.find(this.locator._evalPopup).length > 0) {
+            this.GetElement(this.locator._evalPopup).then(($evalPopUp) => {
+              $evalPopUp.remove();
+              cy.log("Eval pop up removed");
+            });
+          }
+          break;
+        case "Tooltip":
+          if (
+            $body.find(this.locator._appLeveltooltip(toolTipOrToasttext))
+              .length > 0
+          ) {
+            this.GetElement(this.locator._appLeveltooltip(toolTipOrToasttext))
+              .parents("div.rc-tooltip")
+              .then(($tooltipElement) => {
+                $tooltipElement.remove();
+                cy.log(toolTipOrToasttext + " tooltip removed");
+              });
+          }
+          break;
+        case "Toast":
+          if (
+            $body.find(
+              this.locator._toastContainer +
+                " span:contains(" +
+                toolTipOrToasttext +
+                ")",
+            ).length > 0
+          ) {
+            this.GetElement(this.locator._appLeveltooltip(toolTipOrToasttext))
+              .parents("div.rc-tooltip")
+              .then(($tooltipElement) => {
+                $tooltipElement.remove();
+                cy.log(toolTipOrToasttext + " tooltip removed");
+              });
+          }
+          break;
       }
     });
   }

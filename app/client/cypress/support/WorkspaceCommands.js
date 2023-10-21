@@ -254,7 +254,7 @@ Cypress.Commands.add("CreateAppForWorkspace", (workspaceName, appname) => {
     "response.body.responseMeta.status",
     200,
   );
-  agHelper.RemoveTooltip("Rename application");
+  agHelper.RemoveUIElement("Tooltip", "Rename application");
 });
 
 Cypress.Commands.add("CreateNewAppInNewWorkspace", () => {
@@ -305,7 +305,7 @@ Cypress.Commands.add("CreateNewAppInNewWorkspace", () => {
   // cy.get(homePage.applicationName).type(appname + "{enter}");
   // assertHelper.AssertNetworkStatus("@updateApplication");
   // // Remove tooltip on the Application Name
-  // agHelper.RemoveTooltip("Rename application");
+  // agHelper.RemoveTooltip("Tooltip","Rename application");
 
   /* The server created app always has an old dsl so the layout will migrate
    * To avoid race conditions between that update layout and this one

@@ -308,7 +308,7 @@ export class HomePage {
     });
     cy.get(this._applicationName).type(appName);
     this.agHelper.PressEnter();
-    this.agHelper.RemoveTooltip("Rename application");
+    this.agHelper.RemoveUIElement("Tooltip", "Rename application");
   }
 
   public GetAppName() {

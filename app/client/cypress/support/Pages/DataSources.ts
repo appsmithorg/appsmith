@@ -449,7 +449,7 @@ export class DataSources {
       this.agHelper.GetNClick(this._addNewDataSource, 0, true);
       this.agHelper.Sleep();
     });
-    this.agHelper.RemoveTooltip("Add a new datasource");
+    this.agHelper.RemoveUIElement("Tooltip", "Add a new datasource");
     cy.get(this._newDatasourceContainer).scrollTo("bottom", {
       ensureScrollable: false,
     });
@@ -1358,7 +1358,7 @@ export class DataSources {
     queryName = "",
     sleep = 500,
   ) {
-    this.agHelper.RemoveEvaluatedPopUp(); //to close the evaluated pop-up
+    this.agHelper.RemoveUIElement("EvaluatedPopUp"); //to close the evaluated pop-up
     this.entityExplorer.CreateNewDsQuery(dsName);
     if (query) {
       this.EnterQuery(query, sleep);
