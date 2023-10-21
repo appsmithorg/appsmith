@@ -408,24 +408,22 @@ Cypress.Commands.add(
 
 Cypress.Commands.add("gitDiscardChanges", () => {
   cy.get(gitSyncLocators.bottomBarCommitButton).click();
-  assertHelper.AssertContains(
-    "Unable to import application in workspace",
-    "not.exist",
-  );
   cy.get(gitSyncLocators.discardChanges).should("be.visible");
   cy.get(gitSyncLocators.discardChanges)
     .children()
     .should("have.text", "Discard & pull");
-
   cy.get(gitSyncLocators.discardChanges).click();
   cy.contains(Cypress.env("MESSAGES").DISCARD_CHANGES_WARNING());
-
   cy.get(gitSyncLocators.discardChanges)
     .children()
     .should("have.text", "Are you sure?");
   cy.get(gitSyncLocators.discardChanges).click();
   cy.contains(Cypress.env("MESSAGES").DISCARDING_AND_PULLING_CHANGES());
   cy.wait(2000);
+  assertHelper.AssertContains(
+    "Unable to import application in workspace",
+    "not.exist",
+  );
   cy.validateToastMessage("Discarded changes successfully.");
 });
 
