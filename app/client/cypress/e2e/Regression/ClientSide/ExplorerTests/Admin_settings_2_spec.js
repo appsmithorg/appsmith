@@ -151,6 +151,6 @@ describe("Admin settings page", function () {
     cy.visit(routes.GENERAL, { timeout: 60000 });
     // non super users are redirected to home page
     cy.url().should("contain", routes.APPLICATIONS);
-    cy.LogOut();
+    cy.LogOut(false);
   });
 });
