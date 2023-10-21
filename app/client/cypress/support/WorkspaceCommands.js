@@ -260,6 +260,7 @@ Cypress.Commands.add("CreateAppForWorkspace", (workspaceName, appname) => {
 Cypress.Commands.add("CreateAppInFirstListedWorkspace", () => {
   let applicationId, appName;
   homePageTS.CreateNewWorkspace(); //Creating a new workspace for every test, since we are deleting the workspace in the end of the test
+  agHelper.Sleep(2000); //for workspace to open
   homePageTS.CreateAppInWorkspace(localStorage.getItem("workspaceName"));
   cy.wait("@createNewApplication").then((xhr) => {
     const response = xhr.response;
