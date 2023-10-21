@@ -261,7 +261,7 @@ Cypress.Commands.add("CreateNewAppInNewWorkspace", () => {
   let applicationId, appName;
   let toNavigateToHome = false;
   cy.get("body").then(($ele) => {
-    if ($ele.find("span:contains('New workspace')").length < 0) {
+    if ($ele.find(".t--appsmith-logo").length < 0) {
       toNavigateToHome = false;
     } else {
       toNavigateToHome = true;
