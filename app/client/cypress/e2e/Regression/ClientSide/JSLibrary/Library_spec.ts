@@ -5,7 +5,7 @@ describe("excludeForAirgap", "Tests JS Libraries", () => {
   it("1. Validates Library install/uninstall", () => {
     _.entityExplorer.ExpandCollapseEntity("Libraries");
     _.installer.OpenInstaller();
-    _.installer.installLibrary("uuidjs", "UUID");
+    _.installer.InstallLibrary("uuidjs", "UUID");
     _.installer.uninstallLibrary("uuidjs");
     _.installer.assertUnInstall("uuidjs");
   });
@@ -16,13 +16,13 @@ describe("excludeForAirgap", "Tests JS Libraries", () => {
     _.entityExplorer.RenameEntityFromExplorer("Table1", "jsonwebtoken");
     _.entityExplorer.ExpandCollapseEntity("Libraries");
     _.installer.OpenInstaller();
-    _.installer.installLibrary("jsonwebtoken", "jsonwebtoken_1", true);
+    _.installer.InstallLibrary("jsonwebtoken", "jsonwebtoken_1", true);
   });
 
   it("3. Checks jspdf library", () => {
     _.entityExplorer.ExpandCollapseEntity("Libraries");
     _.installer.OpenInstaller();
-    _.installer.installLibrary("jspdf", "jspdf");
+    _.installer.InstallLibrary("jspdf", "jspdf");
     _.jsEditor.CreateJSObject(
       `export default {
       myFun1: () => {
@@ -48,7 +48,7 @@ describe("excludeForAirgap", "Tests JS Libraries", () => {
   it("4. ESM build should pass installation, uninstallation and reinstallation", () => {
     _.entityExplorer.ExpandCollapseEntity("Libraries");
     _.installer.OpenInstaller();
-    _.installer.installLibraryViaURL(
+    _.installer.InstallLibraryViaURL(
       "https://cdn.jsdelivr.net/npm/fast-xml-parser@4.2.7/+esm",
       "fast_xml_parser",
     );
@@ -59,7 +59,7 @@ describe("excludeForAirgap", "Tests JS Libraries", () => {
 
     // Reinstallation should succeed with the same accessor
     _.installer.OpenInstaller();
-    _.installer.installLibraryViaURL(
+    _.installer.InstallLibraryViaURL(
       "https://cdn.jsdelivr.net/npm/fast-xml-parser@4.2.7/+esm",
       "fast_xml_parser",
     );

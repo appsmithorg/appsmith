@@ -420,13 +420,13 @@ export class GitSync {
     this.agHelper.GetNClick(this._openRepoButton);
   }
 
-  CommitAndPush(assertFailure?: true) {
+  CommitAndPush(assertSuccess = true) {
     this.agHelper.GetNClick(this.locator._publishButton);
     this.agHelper.AssertElementExist(this._bottomBarPull);
     //cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");
     this.agHelper.TypeText(this._commitCommentInput, "Initial commit");
     this.agHelper.GetNClick(this._commitButton);
-    if (!assertFailure) {
+    if (assertSuccess) {
       // check for commit success
       //adding timeout since commit is taking longer sometimes
       this.assertHelper.AssertNetworkStatus("@commit", 201);
@@ -439,6 +439,10 @@ export class GitSync {
     }
 
     this.CloseGitSyncModal();
+    this.agHelper.AssertElementAbsence(
+      this.locator._specificToast("Unable to import application in workspace"),
+      5000,
+    );
   }
 
   public DiscardChanges() {
