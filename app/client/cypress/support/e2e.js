@@ -114,7 +114,9 @@ before(function () {
       cy.LogOut();
     }
   });
-  cy.wait(1000);
+  cy.visit("/setup/welcome", { timeout: 60000 });
+  cy.wait("@getMe");
+  cy.wait(2000);
   cy.url().then((url) => {
     if (url.indexOf("user/login") > -1) {
       //Cypress.Cookies.preserveOnce("SESSION", "remember_token");
