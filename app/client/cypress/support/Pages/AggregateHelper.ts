@@ -343,7 +343,7 @@ export class AggregateHelper extends ReusableHelper {
           ) {
             this.GetElement(
               this.locator._toastContainer +
-                "has(:contains('" +
+                ":has(:contains('" +
                 toolTipOrToasttext +
                 "'))",
             ).then(($toastContainer) => {
