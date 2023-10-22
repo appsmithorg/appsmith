@@ -280,12 +280,10 @@ class BlockAsyncFnsInDataFieldRule implements AutocompleteRule {
     if (completion.type !== "FUNCTION") return score;
     if (!completion.displayText) return score;
     const isAsyncFunction = completion.data?.type?.endsWith("Promise");
-    if (!isAsyncFunction) return score;
-    if (
-      !BlockAsyncFnsInDataFieldRule.blackList.includes(completion.displayText)
-    )
-      return score;
-    return BlockAsyncFnsInDataFieldRule.threshold;
+    if (isAsyncFunction) return BlockAsyncFnsInDataFieldRule.threshold;
+    if (BlockAsyncFnsInDataFieldRule.blackList.includes(completion.displayText))
+      return BlockAsyncFnsInDataFieldRule.threshold;
+    return score;
   }
 }
 
