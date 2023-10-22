@@ -161,6 +161,7 @@ import {
   resetActiveEditorField,
   setActiveEditorField,
 } from "actions/activeFieldActions";
+import CodeMirrorTernService from "utils/autocomplete/CodemirrorTernService";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
@@ -665,6 +666,7 @@ class CodeEditor extends Component<Props, State> {
         textWidth: tokenElementPosition.width,
       },
     });
+    CodeMirrorTernService.closeArgHints();
 
     AnalyticsUtil.logEvent("PEEK_OVERLAY_OPENED", {
       property: expression,
@@ -680,6 +682,7 @@ class CodeEditor extends Component<Props, State> {
         peekOverlayProps: undefined,
       });
     }
+    CodeMirrorTernService.updateArgHints(this.editor);
   };
 
   debounceHandleMouseOver = debounce(
@@ -1035,6 +1038,7 @@ class CodeEditor extends Component<Props, State> {
 
   handleCursorMovement = (cm: CodeMirror.Editor) => {
     const line = cm.getCursor().line;
+    CodeMirrorTernService.updateArgHints(cm);
     this.handleCustomGutter(line, true);
     // ignore if disabled
     if (!this.props.input.onChange || this.props.disabled) {
@@ -1545,7 +1549,9 @@ class CodeEditor extends Component<Props, State> {
     const showEvaluatedValue =
       this.showFeatures() &&
       (this.state.isDynamic || isInvalid) &&
-      !this.state.showAIWindow;
+      !this.state.showAIWindow &&
+      !this.state.peekOverlayProps &&
+      !this.editor.state.completionActive;
 
     return (
       <DynamicAutocompleteInputWrapper
@@ -1597,7 +1603,7 @@ class CodeEditor extends Component<Props, State> {
           expected={expected}
           hasError={isInvalid}
           hideEvaluatedValue={hideEvaluatedValue}
-          isOpen={showEvaluatedValue && !this.state.peekOverlayProps}
+          isOpen={showEvaluatedValue}
           popperPlacement={this.props.popperPlacement}
           popperZIndex={this.props.popperZIndex}
           theme={theme || EditorTheme.LIGHT}
