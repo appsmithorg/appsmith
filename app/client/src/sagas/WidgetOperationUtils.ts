@@ -401,7 +401,7 @@ export function getWidgetDescendantToReset(
           if (isWidget(childWidget)) {
             descendantList.push({
               id: childWidgetId,
-              evaluatedWidget: childWidget,
+              evaluatedWidget: childWidget as WidgetEntity,
             });
             const grandChildren = getWidgetDescendantToReset(
               canvasWidgets,

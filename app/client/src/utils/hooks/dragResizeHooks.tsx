@@ -89,6 +89,14 @@ export const useCanvasSnapRowsUpdateHook = () => {
   return updateCanvasSnapRows;
 };
 
+export interface SetDraggingStateActionPayload {
+  isDragging: boolean;
+  dragGroupActualParent?: string;
+  draggingGroupCenter?: Record<string, any>;
+  startPoints?: any;
+  draggedOn?: string;
+}
+
 export const useWidgetDragResize = () => {
   const dispatch = useDispatch();
   // TODO(abhinav/Satish): Performance bottleneck
@@ -114,13 +122,7 @@ export const useWidgetDragResize = () => {
         dragGroupActualParent = "",
         isDragging,
         startPoints,
-      }: {
-        isDragging: boolean;
-        dragGroupActualParent?: string;
-        draggingGroupCenter?: Record<string, any>;
-        startPoints?: any;
-        draggedOn?: string;
-      }) => {
+      }: SetDraggingStateActionPayload) => {
         if (isDragging) {
           document.body.classList.add("dragging");
         } else {

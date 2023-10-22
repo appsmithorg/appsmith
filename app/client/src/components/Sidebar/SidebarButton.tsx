@@ -3,20 +3,21 @@ import { Icon, Text } from "design-system";
 import styled from "styled-components";
 
 interface Props {
-  title: string;
+  title?: string;
   selected: boolean;
   icon: string;
+  onClick: () => void;
 }
 
 const Container = styled.div`
   display: flex;
   justify-content: center;
   flex-direction: column;
-  height: 64px;
   width: 50px;
   text-align: center;
   align-items: center;
   gap: 5px;
+  padding: 8px 0;
 `;
 
 const IconContainer = styled.div<{ selected: boolean }>`
@@ -31,10 +32,10 @@ const IconContainer = styled.div<{ selected: boolean }>`
 function SidebarButton(props: Props) {
   return (
     <Container>
-      <IconContainer selected={props.selected}>
+      <IconContainer onClick={props.onClick} selected={props.selected}>
         <Icon name={props.icon} size="lg" />
       </IconContainer>
-      <Text kind="body-s">{props.title}</Text>
+      {props.title ? <Text kind="body-s">{props.title}</Text> : null}
     </Container>
   );
 }

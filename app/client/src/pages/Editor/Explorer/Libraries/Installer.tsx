@@ -36,7 +36,7 @@ import recommendedLibraries from "pages/Editor/Explorer/Libraries/recommendedLib
 import type { AppState } from "@appsmith/reducers";
 import { installLibraryInit } from "actions/JSLibraryActions";
 import classNames from "classnames";
-import type { TJSLibrary } from "workers/common/JSLibrary";
+import type { JSLibrary } from "workers/common/JSLibrary";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { EntityClassNames } from "pages/Editor/Explorer/Entity";
 
@@ -317,7 +317,7 @@ export function Installer() {
   }, [URL, isValid]);
 
   const installLibrary = useCallback(
-    (lib?: Partial<TJSLibrary>) => {
+    (lib?: Partial<JSLibrary>) => {
       const url = lib?.url || URL;
       const isQueued = queuedLibraries.find((libURL) => libURL === url);
       if (isQueued) return;

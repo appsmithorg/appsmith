@@ -34,8 +34,8 @@ import {
 } from "utils/DynamicBindingUtils";
 import { removeFalsyEntries } from "utils/helpers";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
-import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
-import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
+import { generateTypeDef } from "utils/autocomplete/defCreatorUtils";
+import type { ExtraDef } from "utils/autocomplete/defCreatorUtils";
 import WidgetFactory from "WidgetProvider/factory";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
@@ -57,6 +57,7 @@ import {
   PropertyPaneStyleConfig,
 } from "./propertyConfig";
 import type {
+  AnvilConfig,
   AutocompletionDefinitions,
   PropertyUpdates,
   SnipingModeProperty,
@@ -513,6 +514,17 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
           },
         },
       ],
+    };
+  }
+
+  static getAnvilConfig(): AnvilConfig | null {
+    return {
+      widgetSize: {
+        maxHeight: {},
+        maxWidth: {},
+        minHeight: { base: "300px" },
+        minWidth: { base: "280px" },
+      },
     };
   }
 

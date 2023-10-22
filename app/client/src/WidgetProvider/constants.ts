@@ -12,7 +12,7 @@ import moment from "moment";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import type { WidgetFeatures } from "utils/WidgetFeatures";
 import type { WidgetProps } from "../widgets/BaseWidget";
-import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
+import type { ExtraDef } from "utils/autocomplete/defCreatorUtils";
 import type { WidgetEntityConfig } from "@appsmith/entities/DataTree/types";
 import type {
   WidgetQueryConfig,
@@ -54,6 +54,17 @@ export interface AutoLayoutConfig {
   defaults?: Partial<WidgetConfigProps>;
   // default values for the properties that are hidden/disabled in auto-layout
   disabledPropsDefaults?: Partial<WidgetProps>;
+}
+export interface SizeConfig {
+  maxHeight: Record<string, string>;
+  maxWidth: Record<string, string>;
+  minHeight: Record<string, string>;
+  minWidth: Record<string, string>;
+}
+
+export interface AnvilConfig {
+  // min/max sizes for the widget
+  widgetSize?: SizeConfig | ((props: any) => SizeConfig);
 }
 
 export interface WidgetBaseConfiguration {
