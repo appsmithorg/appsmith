@@ -263,11 +263,20 @@ export class HomePage {
     this.agHelper.AssertElementVisibility(this._homeAppsmithImage);
   }
 
+  public AssertApplicationCreated() {
+    this.assertHelper.AssertNetworkStatus("@createNewApplication", 201);
+    cy.get("@createNewApplication").then((interception: any) => {
+      localStorage.setItem("applicationId", interception.response.body.data.id);
+      localStorage.setItem("appName", interception.response.body.data.name);
+      cy.wrap(interception.response.body.data.name).as("appName");
+      cy.wrap(interception.response.body.data.id).as("applicationId");
+    });
+    this.agHelper.AssertElementAbsence(this.locator._loading);
+  }
+
   public CreateNewApplication(skipSignposting = true) {
     cy.get(this._homePageAppCreateBtn).first().click({ force: true });
-    this.assertHelper.AssertNetworkStatus("@createNewApplication", 201);
-    cy.get(this.locator._loading).should("not.exist");
-
+    this.AssertApplicationCreated();
     if (skipSignposting) {
       this.agHelper.AssertElementVisibility(
         this.entityExplorer._entityExplorer,
@@ -275,9 +284,6 @@ export class HomePage {
       this.onboarding.skipSignposting();
     }
     this.assertHelper.AssertNetworkStatus("getWorkspace");
-    cy.get("@createNewApplication").then((interception: any) => {
-      localStorage.setItem("appName", interception.response.body.data.name);
-    });
   }
 
   //Maps to CreateAppForWorkspace in command.js
@@ -288,7 +294,7 @@ export class HomePage {
       .scrollIntoView()
       .should("be.visible")
       .click({ force: true });
-    this.assertHelper.AssertNetworkStatus("@createNewApplication", 201);
+    this.AssertApplicationCreated();
     this.agHelper.AssertElementAbsence(this.locator._loading);
     this.agHelper.Sleep(2000);
     if (appname) this.RenameApplication(appname);

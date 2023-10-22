@@ -342,7 +342,11 @@ export class GitSync {
     });
   }
 
-  CreateGitBranch(branch = "br", toUseNewGuid = false) {
+  CreateGitBranch(
+    branch = "br",
+    toUseNewGuid = false,
+    assertCreateBranch = true,
+  ) {
     if (toUseNewGuid) this.agHelper.GenerateUUID();
     this.agHelper.AssertElementExist(this._bottomBarCommit);
     this.agHelper.GetNClick(this._branchButton);
@@ -354,7 +358,8 @@ export class GitSync {
         `{selectall}` + `${branch + uid}` + `{enter}`,
         { parseSpecialCharSeq: true },
       );
-      this.assertHelper.AssertNetworkStatus("createBranch", 201);
+      assertCreateBranch &&
+        this.assertHelper.AssertNetworkStatus("createBranch", 201);
       this.agHelper.AssertElementAbsence(
         this.locator._specificToast(
           "Unable to import application in workspace",
