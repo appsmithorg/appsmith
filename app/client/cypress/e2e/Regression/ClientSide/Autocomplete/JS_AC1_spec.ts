@@ -167,7 +167,7 @@ describe("Autocomplete tests", () => {
     agHelper.GetNClick(jsEditor._lineinJsEditor(5));
     agHelper.TypeText(locators._codeMirrorTextArea, "this.");
 
-    ["myFun2()", "myVar1", "myVar2"].forEach((element, index) => {
+    ["myFun2", "myVar1", "myVar2"].forEach((element, index) => {
       agHelper.AssertContains(element);
     });
   });
