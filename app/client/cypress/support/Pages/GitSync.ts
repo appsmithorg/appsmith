@@ -157,7 +157,6 @@ export class GitSync {
         this.assertHelper.AssertNetworkStatus("@connectGitLocalRepo");
         this.agHelper.AssertElementExist(this._bottomBarCommit, 0, 30000);
         this.CloseGitSyncModal();
-        this.assertHelper.AssertNetworkStatus("@generatedKey", 201);
       } else {
         this.assertHelper.AssertContains(
           "Error while accessing the file system",
@@ -165,6 +164,8 @@ export class GitSync {
         );
         this.assertHelper.AssertNetworkStatus("@importFromGit", 201);
       }
+      !importFlow &&
+        this.assertHelper.AssertNetworkStatus("@generatedKey", 201);
     }
   }
 
