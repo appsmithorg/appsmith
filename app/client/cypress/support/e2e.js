@@ -89,6 +89,8 @@ before(function () {
   cy.visit("/setup/welcome", { timeout: 60000 });
   cy.wait("@getMe");
   cy.wait(2000);
+  const username = Cypress.env("USERNAME");
+  const password = Cypress.env("PASSWORD");
   cy.url().then((url) => {
     if (url.indexOf("setup/welcome") > -1) {
       cy.createSuperUser();
@@ -112,16 +114,9 @@ before(function () {
         Cypress.env("TESTPASSWORD4"),
       );
       cy.LogOut();
-    }
-  });
-  cy.visit("/setup/welcome", { timeout: 60000 });
-  cy.wait("@getMe");
-  cy.wait(2000);
-  cy.url().then((url) => {
-    if (url.indexOf("user/login") > -1) {
+      cy.LoginFromAPI(username, password);
+    } else if (url.indexOf("user/login") > -1) {
       //Cypress.Cookies.preserveOnce("SESSION", "remember_token");
-      const username = Cypress.env("USERNAME");
-      const password = Cypress.env("PASSWORD");
       cy.LoginFromAPI(username, password);
       cy.wait(3000);
     }
@@ -166,7 +161,7 @@ after(function () {
   cy.DeleteAppByApi();
   cy.DeleteWorkspaceByApi();
   //-- LogOut Application---//
-  cy.LogOut(false);
+  //cy.LogOut(false);
   // Commenting until Upgrade Appsmith cases are fixed
   // const tedUrl = "http://localhost:5001/v1/parent/cmd";
   // cy.log("Start the appsmith container");
