@@ -1181,9 +1181,9 @@ Cypress.Commands.add("startServerAndRoutes", () => {
     },
   ).as("connectGitLocalRepo");
 
-  cy.intercept({
-    method: "PUT",
-  }).as("sucessSave");
+  // cy.intercept({
+  //   method: "PUT",
+  // }).as("sucessSave");
 
   cy.intercept("POST", "https://api.segment.io/v1/b", (req) => {
     req.reply({
