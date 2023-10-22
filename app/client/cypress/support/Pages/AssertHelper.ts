@@ -83,28 +83,56 @@ export class AssertHelper extends ReusableHelper {
     waitForNetworkCall = true,
     timeout = 60000,
   ) {
-    waitForNetworkCall && this.WaitForNetworkCall(aliasName, timeout);
-    return cy.get(this.GetAliasName(aliasName)).then((interception: any) => {
-      const responseStatus = Number(
-        interception.response.body.responseMeta.status,
+    if (waitForNetworkCall) {
+      // If waitForNetworkCall is true, then use the interception from received call
+      return this.WaitForNetworkCall(aliasName, timeout).then(
+        (interception: any) => {
+          return this.processNetworkStatus(interception, expectedStatus);
+        },
       );
-      const expectedStatusArray = Array.isArray(expectedStatus)
-        ? expectedStatus
-        : [expectedStatus];
+    } else {
+      // If interception is not available, directly get the alias & use it
+      return cy.get(this.GetAliasName(aliasName)).then((interception: any) => {
+        return this.processNetworkStatus(interception, expectedStatus);
+      });
+    }
+  }
 
-      expect(expectedStatusArray).to.include(responseStatus);
-      return responseStatus;
-    });
+  private processNetworkStatus(
+    interception: any,
+    expectedStatus: number | number[],
+  ) {
+    const responseStatus = Number(
+      interception.response.body.responseMeta.status,
+    );
+    const expectedStatusArray = Array.isArray(expectedStatus)
+      ? expectedStatus
+      : [expectedStatus];
+
+    expect(expectedStatusArray).to.include(responseStatus);
+    return responseStatus;
   }
 
   public AssertNetworkResponseData(
     aliasName: string,
     waitForNetworkCall = true,
   ) {
-    waitForNetworkCall && this.WaitForNetworkCall(aliasName, 100000);
-    cy.get(this.GetAliasName(aliasName))
-      .its("response.body.data")
-      .should("not.be.empty");
+    if (waitForNetworkCall) {
+      // If waitForNetworkCall is true, then use the interception from received call
+      this.WaitForNetworkCall(aliasName, 100000).then((interception: any) => {
+        this.processNetworkResponseData(interception);
+      });
+    } else {
+      // If interception is not available, directly get the alias & use it
+      cy.get(this.GetAliasName(aliasName)).then((interception: any) => {
+        this.processNetworkResponseData(interception);
+      });
+    }
+  }
+
+  private processNetworkResponseData(interception: any) {
+    const responseData = interception.response.body.data;
+    expect(responseData).to.not.be.empty;
   }
 
   public AssertNetworkExecutionSuccess(
