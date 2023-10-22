@@ -195,7 +195,23 @@ export function getValidatedTree(
     for (const [propertyPath, validationConfig] of validationPathsMap) {
       const fullPropertyPath = `${entityName}.${propertyPath}`;
 
-      if (pathsValidated.includes(fullPropertyPath)) continue;
+      const { dependentPaths } = validationConfig;
+
+      // If there are no validation dependencies, then the order of validation doesn't matter.
+      // No need to revalidate in this case.
+      if (!dependentPaths?.length && pathsValidated.includes(fullPropertyPath))
+        continue;
+
+      // Consider the validation dependency { optionValue: ["sourceData"]}
+      // If optionValue lies before sourceData in the pathsValidated(evaluationOrder), it is likely to have an incorrect validation dependency
+      // We need to revalidate these paths
+      const shouldRevalidate = dependentPaths?.some(
+        (p) =>
+          pathsValidated.indexOf(`${entityName}.${p}`) >
+          pathsValidated.indexOf(fullPropertyPath),
+      );
+
+      if (!shouldRevalidate) continue;
 
       const value = get(entity, propertyPath);
       // Pass it through parse
