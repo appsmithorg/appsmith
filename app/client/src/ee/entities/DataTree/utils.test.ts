@@ -1,4 +1,4 @@
-import type { ModuleInput } from "./types";
+import type { ModuleInput } from "@appsmith/constants/ModuleConstants";
 import { ENTITY_TYPE_VALUE, EvaluationSubstitutionType } from "./types";
 import { generateDataTreeModuleInputs } from "@appsmith/entities/DataTree/utils";
 

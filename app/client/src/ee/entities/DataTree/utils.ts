@@ -2,7 +2,6 @@ export * from "ce/entities/DataTree/utils";
 import type {
   ActionEntity,
   JSActionEntity,
-  ModuleInput,
   ModuleInputsEntity,
   WidgetEntity,
 } from "@appsmith/entities/DataTree/types";
@@ -12,7 +11,7 @@ import { isModuleInput } from "@appsmith/workers/Evaluation/evaluationUtils";
 import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
-
+import type { ModuleInput } from "@appsmith/constants/ModuleConstants";
 //overriding this entire funtion
 export const generateDataTreeModuleInputs = (
   moduleInputs: Record<string, ModuleInput>,

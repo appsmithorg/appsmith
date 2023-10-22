@@ -7,23 +7,15 @@ import {
   getJSCollections,
   getCurrentPageId,
 } from "ce/selectors/entitiesSelector";
-
-import type { ModuleInput } from "@appsmith/entities/DataTree/types";
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const getCurrentModuleId = (state: AppState) => ""; //state.ui.editor.currentModuleId;
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const getCurrentPackageId = (state: AppState) => ""; //state.ui.editor.currentPackageId;
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const getModules = (state: AppState) => []; //state.entities.modules
+import type { ModuleInput } from "@appsmith/constants/ModuleConstants";
+import { getCurrentModuleId } from "@appsmith/selectors/modulesSelector";
 
 export const getInputsForModule = (
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   state: AppState,
 ): Record<string, ModuleInput> => {
-  //return state.entities.modules[getCurrentModuleId].inputs;
-  return {};
+  const moduleId = getCurrentModuleId(state);
+  const module = state.entities.modules[moduleId];
+  return module?.inputs || {};
 };
 
 export const getCurrentActions = createSelector(

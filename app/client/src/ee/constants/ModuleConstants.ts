@@ -1,12 +1,8 @@
 export * from "ce/constants/ModuleConstants";
+import type { ModuleInput } from "ce/constants/ModuleConstants";
 import type { Action } from "entities/Action";
 
 type ID = string;
-
-export interface ModuleInput {
-  name: string;
-  defaultValue?: string;
-}
 
 export enum MODULE_TYPE {
   QUERY = "QUERY",
