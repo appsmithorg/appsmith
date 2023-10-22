@@ -16,14 +16,16 @@ import { APP_MODE } from "entities/App";
 import { useLocation } from "react-router";
 import { renderAppsmithCanvas } from "layoutSystems/CanvasFactory";
 import type { WidgetProps } from "widgets/BaseWidget";
+import { LayoutSystemTypes } from "layoutSystems/types";
+import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 
-type AppPageProps = {
+interface AppPageProps {
   appName?: string;
   canvasWidth: number;
   pageId?: string;
   pageName?: string;
   widgetsStructure: CanvasWidgetStructure;
-};
+}
 
 export function AppPage(props: AppPageProps) {
   const currentApplicationDetails = useSelector(getCurrentApplication);
@@ -37,6 +39,7 @@ export function AppPage(props: AppPageProps) {
   const isEmbed = queryParams.get("embed");
   const isNavbarVisibleInEmbeddedApp = queryParams.get("navbar");
   const isEmbeddedAppWithNavVisible = isEmbed && isNavbarVisibleInEmbeddedApp;
+  const layoutSystemType: LayoutSystemTypes = useSelector(getLayoutSystemType);
 
   useDynamicAppLayout();
 
@@ -63,7 +66,13 @@ export function AppPage(props: AppPageProps) {
     >
       <PageView className="t--app-viewer-page" width={props.canvasWidth}>
         {props.widgetsStructure.widgetId &&
-          renderAppsmithCanvas(props.widgetsStructure as WidgetProps)}
+          renderAppsmithCanvas({
+            ...props.widgetsStructure,
+            classList:
+              layoutSystemType === LayoutSystemTypes.ANVIL
+                ? ["main-anvil-canvas"]
+                : [],
+          } as WidgetProps)}
       </PageView>
     </PageViewWrapper>
   );

@@ -69,13 +69,13 @@ export interface CopiedWidgetGroup {
   list: WidgetProps[];
 }
 
-export type NewPastePositionVariables = {
+export interface NewPastePositionVariables {
   bottomMostRow?: number;
   gridProps?: GridProps;
   newPastingPositionMap?: SpaceMap;
   reflowedMovementMap?: ReflowedSpaceMap;
   canvasId?: string;
-};
+}
 
 export const WIDGET_PASTE_PADDING = 1;
 
@@ -345,11 +345,11 @@ function sortWidgetsMetaByParent(widgetsMeta: MetaState, parentId: string) {
   );
 }
 
-export type DescendantWidgetMap = {
+export interface DescendantWidgetMap {
   id: string;
   // To accomodate metaWidgets which might not be present on the evalTree, evaluatedWidget might be undefined
   evaluatedWidget: WidgetEntity | undefined;
-};
+}
 
 /**
  * As part of widget's descendant, we add both children and metaWidgets.
@@ -401,7 +401,7 @@ export function getWidgetDescendantToReset(
           if (isWidget(childWidget)) {
             descendantList.push({
               id: childWidgetId,
-              evaluatedWidget: childWidget,
+              evaluatedWidget: childWidget as WidgetEntity,
             });
             const grandChildren = getWidgetDescendantToReset(
               canvasWidgets,
@@ -671,13 +671,11 @@ export const getSelectedWidgetWhenPasting = function* () {
   const { widgets: copiedWidgetGroups }: { widgets: CopiedWidgetGroup[] } =
     yield getCopiedWidgets();
 
-  let selectedWidget: FlattenedWidgetProps | undefined = yield select(
-    getSelectedWidget,
-  );
+  let selectedWidget: FlattenedWidgetProps | undefined =
+    yield select(getSelectedWidget);
 
-  const focusedWidget: FlattenedWidgetProps | undefined = yield select(
-    getFocusedWidget,
-  );
+  const focusedWidget: FlattenedWidgetProps | undefined =
+    yield select(getFocusedWidget);
 
   selectedWidget = getSelectedWidgetIfPastingIntoListWidget(
     canvasWidgets,
@@ -1490,9 +1488,8 @@ export function getNextWidgetName(
  * @returns
  */
 export function* createWidgetCopy(widget: FlattenedWidgetProps) {
-  const allWidgets: { [widgetId: string]: FlattenedWidgetProps } = yield select(
-    getWidgets,
-  );
+  const allWidgets: { [widgetId: string]: FlattenedWidgetProps } =
+    yield select(getWidgets);
   const widgetsToStore = getAllWidgetsInTree(widget.widgetId, allWidgets);
   return {
     widgetId: widget.widgetId,

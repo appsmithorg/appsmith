@@ -20,7 +20,10 @@ import BaseWidget from "widgets/BaseWidget";
 import FilePickerComponent from "../component";
 import FileDataTypes from "../constants";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
-import type { AutocompletionDefinitions } from "WidgetProvider/constants";
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
+} from "WidgetProvider/constants";
 import parseFileData from "./FileParser";
 import { FilePickerGlobalStyles } from "./index.styled";
 import { BUTTON_MIN_WIDTH } from "constants/minWidthConstants";
@@ -107,6 +110,17 @@ class FilePickerWidget extends BaseWidget<
       disableResizeHandles: {
         horizontal: true,
         vertical: true,
+      },
+    };
+  }
+
+  static getAnvilConfig(): AnvilConfig | null {
+    return {
+      widgetSize: {
+        maxHeight: {},
+        maxWidth: { base: "360px" },
+        minHeight: { base: "40px" },
+        minWidth: { base: "120px" },
       },
     };
   }

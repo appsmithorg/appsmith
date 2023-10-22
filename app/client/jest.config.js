@@ -17,7 +17,7 @@ module.exports = {
   moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json", "node", "css"],
   moduleDirectories: ["node_modules", "src", "test"],
   transformIgnorePatterns: [
-    "<rootDir>/node_modules/(?!codemirror|design-system|design-system-old|react-dnd|dnd-core|@babel|(@blueprintjs)|@github|lodash-es|@draft-js-plugins|react-documents|linkedom|assert-never)",
+    "<rootDir>/node_modules/(?!codemirror|konva|design-system|design-system-old|react-dnd|dnd-core|@babel|(@blueprintjs)|@github|lodash-es|@draft-js-plugins|react-documents|linkedom|assert-never)",
   ],
   moduleNameMapper: {
     "\\.(css|less)$": "<rootDir>/test/__mocks__/styleMock.js",
@@ -103,8 +103,6 @@ module.exports = {
       },
       intercomAppID: "APP_ID",
       mailEnabled: parseConfig("__APPSMITH_MAIL_ENABLED__"),
-
-      hideWatermark: parseConfig("__APPSMITH_HIDE_WATERMARK__"),
       disableIframeWidgetSandbox: parseConfig(
         "__APPSMITH_DISABLE_IFRAME_WIDGET_SANDBOX__",
       ),

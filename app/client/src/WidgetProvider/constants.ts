@@ -12,7 +12,7 @@ import moment from "moment";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import type { WidgetFeatures } from "utils/WidgetFeatures";
 import type { WidgetProps } from "../widgets/BaseWidget";
-import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
+import type { ExtraDef } from "utils/autocomplete/defCreatorUtils";
 import type { WidgetEntityConfig } from "@appsmith/entities/DataTree/types";
 import type {
   WidgetQueryConfig,
@@ -25,19 +25,25 @@ import type {
   ResponsiveBehavior,
 } from "layoutSystems/common/utils/constants";
 
-export type WidgetSizeConfig = {
+export interface WidgetSizeConfig {
   viewportMinWidth: number;
   configuration: (props: any) => Record<string, string | number>;
-};
+}
 
-type ResizableValues = { vertical?: boolean; horizontal?: boolean };
+interface ResizableValues {
+  vertical?: boolean;
+  horizontal?: boolean;
+}
 type ResizableOptions = ResizableValues | ((props: any) => ResizableValues);
-export type AutoDimensionValues = { width?: boolean; height?: boolean };
+export interface AutoDimensionValues {
+  width?: boolean;
+  height?: boolean;
+}
 export type AutoDimensionOptions =
   | AutoDimensionValues
   | ((props: any) => AutoDimensionValues);
 
-export type AutoLayoutConfig = {
+export interface AutoLayoutConfig {
   // Indicates if a widgets dimensions should be auto adjusted according to content inside it
   autoDimension?: AutoDimensionOptions;
   // min/max sizes for the widget
@@ -48,7 +54,18 @@ export type AutoLayoutConfig = {
   defaults?: Partial<WidgetConfigProps>;
   // default values for the properties that are hidden/disabled in auto-layout
   disabledPropsDefaults?: Partial<WidgetProps>;
-};
+}
+export interface SizeConfig {
+  maxHeight: Record<string, string>;
+  maxWidth: Record<string, string>;
+  minHeight: Record<string, string>;
+  minWidth: Record<string, string>;
+}
+
+export interface AnvilConfig {
+  // min/max sizes for the widget
+  widgetSize?: SizeConfig | ((props: any) => SizeConfig);
+}
 
 export interface WidgetBaseConfiguration {
   name: string;
@@ -85,25 +102,25 @@ export interface WidgetConfiguration extends WidgetBaseConfiguration {
   methods?: Record<string, WidgetMethods>;
 }
 
-export type PropertyUpdates = {
+export interface PropertyUpdates {
   propertyPath: string;
   propertyValue?: unknown;
   isDynamicPropertyPath?: boolean; // Toggles the property mode to JS
   shouldDeleteProperty?: boolean; // Deletes the property, propertyValue is ignored
-};
+}
 
-export type WidgetMethods = {
+export interface WidgetMethods {
   getQueryGenerationConfig?: GetQueryGenerationConfig;
   getPropertyUpdatesForQueryBinding?: GetPropertyUpdatesForQueryBinding;
   getSnipingModeUpdates?: GetSnipingModeUpdates;
   getCanvasHeightOffset?: GetCanvasHeightOffset;
   getEditorCallouts?: GetEditorCallouts;
   getOneClickBindingConnectableWidgetConfig?: GetOneClickBindingConnectableWidgetConfig;
-};
+}
 
 type GetEditorCallouts = (props: WidgetProps) => WidgetCallout[];
 
-export type WidgetCallout = {
+export interface WidgetCallout {
   message: string;
   links: [
     {
@@ -111,7 +128,7 @@ export type WidgetCallout = {
       url: string;
     },
   ];
-};
+}
 
 export type GetQueryGenerationConfig = (
   widgetProps: WidgetProps,
@@ -126,10 +143,10 @@ export type GetPropertyUpdatesForQueryBinding = (
 
 type SnipingModeSupportedKeys = "data" | "run" | "isDynamicPropertyPath";
 
-type OneClickBindingConnectableWidgetConfig = {
+interface OneClickBindingConnectableWidgetConfig {
   widgetBindPath: string;
   message: string;
-};
+}
 
 export type GetOneClickBindingConnectableWidgetConfig = (
   widgetProps: WidgetProps,
@@ -410,9 +427,9 @@ export const dateFormatOptions = [
   },
 ];
 
-export type ThemeProp = {
+export interface ThemeProp {
   theme: Theme;
-};
+}
 
 export type SnipingModeProperty = Record<
   SnipingModeSupportedKeys,
@@ -424,7 +441,7 @@ export enum DefaultMobileCameraTypes {
   BACK = "environment",
 }
 
-export type WidgetBlueprint = {
+export interface WidgetBlueprint {
   view?: Array<{
     type: string;
     size?: { rows: number; cols: number };
@@ -432,7 +449,7 @@ export type WidgetBlueprint = {
     props: Record<string, any>;
   }>;
   operations?: any;
-};
+}
 
 export interface WidgetConfigProps {
   rows: number;

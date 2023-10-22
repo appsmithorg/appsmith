@@ -28,7 +28,6 @@ import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.Group;
-import com.appsmith.server.domains.InviteUser;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
@@ -343,13 +342,6 @@ public class DatabaseChangelog1 {
                 Datasource.class,
                 createdAtIndex,
                 makeIndex("organizationId", "name").unique().named("organization_datasource_compound_index"));
-
-        ensureIndexes(
-                mongoTemplate,
-                InviteUser.class,
-                createdAtIndex,
-                makeIndex("token").unique().expire(3600, TimeUnit.SECONDS),
-                makeIndex("email").unique());
 
         ensureIndexes(
                 mongoTemplate,

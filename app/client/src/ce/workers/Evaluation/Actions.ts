@@ -113,7 +113,7 @@ export const addDataTreeToContext = (args: {
 };
 
 export const addPlatformFunctionsToEvalContext = (context: any) => {
-  for (const fnDef of getPlatformFunctions(self.$cloudHosting)) {
+  for (const fnDef of getPlatformFunctions()) {
     addFn(context, fnDef.name, fnDef.fn.bind(context));
   }
 };
@@ -174,7 +174,7 @@ export const getAllAsyncFunctions = (
   }
   const setterMethods = getAllSetterFunctions(dataTree, configTree);
   allAsyncFunctions = { ...allAsyncFunctions, ...setterMethods };
-  for (const platformFn of getPlatformFunctions(self.$cloudHosting)) {
+  for (const platformFn of getPlatformFunctions()) {
     allAsyncFunctions[platformFn.name] = true;
   }
   return allAsyncFunctions;

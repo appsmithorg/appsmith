@@ -55,7 +55,7 @@ export const TokenTable = ({
   const renderRows = (filter?: string) => {
     return Object.keys(tokens ?? {})
       .filter((key) => {
-        if (!filter) return true;
+        if (filter == null) return true;
 
         if (isExactMatch) {
           return key === filter;
@@ -86,7 +86,7 @@ export const TokenTable = ({
       <tbody>
         {isArray(filter) && filter.map((key) => renderRows(key))}
         {isString(filter) && renderRows(filter)}
-        {!filter && renderRows()}
+        {!Boolean(filter) && renderRows()}
       </tbody>
     </StyledTable>
   );

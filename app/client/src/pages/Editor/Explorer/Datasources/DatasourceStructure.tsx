@@ -19,7 +19,7 @@ import { omit } from "lodash";
 import { Virtuoso } from "react-virtuoso";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import { getHasCreateDatasourceActionPermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import { hasCreateDSActionPermissionInApp } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 
 export enum DatasourceStructureContext {
   EXPLORER = "entity-explorer",
@@ -29,7 +29,7 @@ export enum DatasourceStructureContext {
   API_EDITOR = "api-editor",
 }
 
-type DatasourceStructureItemProps = {
+interface DatasourceStructureItemProps {
   dbStructure: DatasourceTable;
   step: number;
   datasourceId: string;
@@ -39,7 +39,7 @@ type DatasourceStructureItemProps = {
   currentActionId: string;
   onEntityTableClick?: (table: string) => void;
   tableName?: string;
-};
+}
 
 const StyledMenuContent = styled(MenuContent)`
   min-width: 220px;
@@ -71,9 +71,10 @@ const DatasourceStructureItem = memo((props: DatasourceStructureItemProps) => {
   const pagePermissions = useSelector(getPagePermissions);
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
 
-  const canCreateDatasourceActions = getHasCreateDatasourceActionPermission(
+  const canCreateDatasourceActions = hasCreateDSActionPermissionInApp(
     isFeatureEnabled,
-    [...datasourcePermissions, ...pagePermissions],
+    datasourcePermissions,
+    pagePermissions,
   );
 
   const onSelect = () => {

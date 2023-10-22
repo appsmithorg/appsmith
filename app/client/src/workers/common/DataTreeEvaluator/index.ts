@@ -128,9 +128,9 @@ import DataStore from "workers/Evaluation/dataStore";
 import { updateTreeWithData } from "workers/Evaluation/dataStore/utils";
 
 type SortedDependencies = Array<string>;
-export type EvalProps = {
+export interface EvalProps {
   [entityName: string]: DataTreeEvaluationProps;
-};
+}
 
 export type EvalPathsIdenticalToState = Record<string, string>;
 export default class DataTreeEvaluator {
@@ -650,15 +650,15 @@ export default class DataTreeEvaluator {
     },
   ) {
     const {
+      configTree,
       dependenciesOfRemovedPaths = [],
+      findDifferenceTime = "0",
+      isNewWidgetAdded,
+      pathsToSkipFromEval = [],
       removedPaths = [],
       totalUpdateTreeSetupStartTime = performance.now(),
       translatedDiffs = [],
-      pathsToSkipFromEval = [],
-      findDifferenceTime = "0",
       updateDependencyMapTime = "0",
-      configTree,
-      isNewWidgetAdded,
     } = extraParams;
 
     updateEvalTreeWithJSCollectionState(this.evalTree, this.oldUnEvalTree);
@@ -975,7 +975,7 @@ export default class DataTreeEvaluator {
           getEntityNameAndPropertyPath(fullPropertyPath);
         const entity = contextTree[entityName];
         const entityConfig = oldConfigTree[entityName];
-        if (!isWidgetActionOrJsObject(entity, entityConfig)) continue;
+        if (!isWidgetActionOrJsObject(entity)) continue;
 
         let unEvalPropertyValue = get(contextTree as any, fullPropertyPath);
 
@@ -1002,8 +1002,7 @@ export default class DataTreeEvaluator {
 
         if (requiresEval) {
           const evaluationSubstitutionType =
-            (!isEmpty(entityConfig.reactivePaths) &&
-              entityConfig.reactivePaths[propertyPath]) ||
+            entityConfig.reactivePaths[propertyPath] ||
             EvaluationSubstitutionType.TEMPLATE;
 
           const contextData: EvaluateContext = {};
@@ -1045,10 +1044,8 @@ export default class DataTreeEvaluator {
           fullPropertyPath,
         );
 
-        const entityType = entityConfig.ENTITY_TYPE;
-
+        const entityType = entity.ENTITY_TYPE;
         if (!propertyPath) continue;
-
         switch (entityType) {
           case ENTITY_TYPE_VALUE.WIDGET: {
             if (isATriggerPath) continue;
@@ -1278,7 +1275,7 @@ export default class DataTreeEvaluator {
       const node = result.cyclicNode;
       let entityType = "UNKNOWN";
       const entityName = node.split(".")[0];
-      const entity = get(this.oldUnEvalTree, entityName);
+      const entity = get(this.oldUnEvalTree, entityName) as DataTreeEntity;
       const entityConfig = get(this.oldConfigTree, entityName);
       if (entity && isWidget(entity)) {
         entityType = entity.type;

@@ -33,6 +33,7 @@ import type {
 } from "utils/DynamicBindingUtils";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import type {
+  AnvilConfig,
   AutoLayoutConfig,
   CanvasWidgetStructure,
   FlattenedWidgetProps,
@@ -104,6 +105,10 @@ abstract class BaseWidget<
   }
 
   static getAutoLayoutConfig(): AutoLayoutConfig | null {
+    return null;
+  }
+
+  static getAnvilConfig(): AnvilConfig | null {
     return null;
   }
 
@@ -426,7 +431,7 @@ export interface WidgetBaseProps {
   widgetSize?: { [key: string]: Record<string, string> };
 }
 
-export type WidgetRowCols = {
+export interface WidgetRowCols {
   leftColumn: number;
   rightColumn: number;
   topRow: number;
@@ -437,7 +442,7 @@ export type WidgetRowCols = {
   mobileTopRow?: number;
   mobileBottomRow?: number;
   height?: number;
-};
+}
 
 export interface WidgetPositionProps extends WidgetRowCols {
   parentColumnSpace: number;
@@ -485,6 +490,7 @@ export interface WidgetDisplayProps {
   deferRender?: boolean;
   wrapperRef?: RefObject<HTMLDivElement>;
   selectedWidgetAncestry?: string[];
+  classList?: string[];
 }
 
 export interface WidgetDataProps

@@ -90,6 +90,7 @@ import {
   RESP_HEADER_DATATYPE,
 } from "constants/AppsmithActionConstants/ActionConstants";
 import {
+  getCurrentApplicationId,
   getCurrentPageId,
   getIsSavingEntity,
   getLayoutOnLoadActions,
@@ -165,12 +166,12 @@ enum ActionResponseDataTypes {
   BINARY = "BINARY",
 }
 
-type FilePickerInstumentationObject = {
+interface FilePickerInstumentationObject {
   numberOfFiles: number;
   totalSize: number;
   fileTypes: Array<string>;
   fileSizes: Array<number>;
-};
+}
 
 export const getActionTimeout = (
   state: AppState,
@@ -726,11 +727,11 @@ function* runActionShortcutSaga() {
   }
 }
 
-type RunActionError = {
+interface RunActionError {
   name: string;
   message: string;
   clientDefinedError?: boolean;
-};
+}
 
 function* runActionSaga(
   reduxAction: ReduxAction<{
@@ -1284,10 +1285,10 @@ function* executePageLoadActionsSaga() {
   }
 }
 
-type ExecutePluginActionResponse = {
+interface ExecutePluginActionResponse {
   payload: ActionResponse;
   isError: boolean;
-};
+}
 /*
  * This saga handles the complete plugin action execution flow. It will respond with a
  * payload and isError property which indicates if the response is of an error type.
@@ -1546,6 +1547,7 @@ function* clearTriggerActionResponse() {
 function* softRefreshActionsSaga() {
   //get current pageId
   const pageId: string = yield select(getCurrentPageId);
+  const applicationId: string = yield select(getCurrentApplicationId);
   // Fetch the page data before refreshing the actions.
   yield put(fetchPage(pageId));
   //wait for the page to be fetched.
@@ -1569,10 +1571,17 @@ function* softRefreshActionsSaga() {
     yield put(softRefreshDatasourceStructure());
   } catch (error) {}
   //This will refresh the query editor with the latest datasource structure.
+  // TODO: fix typing of matchQueryBuilderPath, it always returns "any" which can lead to bugs
   const isQueryPane = matchQueryBuilderPath(window.location.pathname);
   //This is reuired only when the query editor is open.
   if (isQueryPane) {
-    yield put(changeQuery(isQueryPane.params.queryId));
+    yield put(
+      changeQuery({
+        id: isQueryPane.params.queryId,
+        pageId,
+        applicationId,
+      }),
+    );
   }
   const currentEnvName: string = yield select(getCurrentEnvironmentName);
   toast.show(createMessage(SWITCH_ENVIRONMENT_SUCCESS, currentEnvName), {

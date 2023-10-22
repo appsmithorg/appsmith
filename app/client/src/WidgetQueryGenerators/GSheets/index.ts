@@ -15,6 +15,7 @@ enum COMMAND_TYPES {
   "FIND" = "FETCH_MANY",
   "INSERT" = "INSERT_ONE",
   "UPDATE" = "UPDATE_ONE",
+  // eslint-disable-next-line @typescript-eslint/no-duplicate-enum-values
   "COUNT" = "FETCH_MANY",
 }
 const COMMON_INITIAL_VALUE_KEYS = [
@@ -237,10 +238,13 @@ export default abstract class GSheets extends BaseQueryGenerator {
     ];
     const scrubedOutInitialValues = allowedInitialValueKeys
       .filter((key) => initialValues[key as keyof GSheetsFormData])
-      .reduce((acc, key) => {
-        acc[key] = initialValues[key as keyof GSheetsFormData];
-        return acc;
-      }, {} as Record<string, object>);
+      .reduce(
+        (acc, key) => {
+          acc[key] = initialValues[key as keyof GSheetsFormData];
+          return acc;
+        },
+        {} as Record<string, object>,
+      );
 
     const { formData, ...rest } = builtValues;
 

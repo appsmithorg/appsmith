@@ -9,6 +9,7 @@ import {
 describe("Slug URLs", () => {
   let applicationName;
   let applicationId;
+
   it("1. Checks URL redirection from legacy URLs to slug URLs", () => {
     applicationId = localStorage.getItem("applicationId");
     cy.location("pathname").then((pathname) => {
@@ -18,7 +19,10 @@ describe("Slug URLs", () => {
           cy.wait(10000);
           cy.location("pathname").then((pathname) => {
             const pageId = pathname.split("/")[3]?.split("-").pop();
-            const appName = localStorage.getItem("AppName");
+            const appName = localStorage
+              .getItem("appName")
+              .replace(/\s+/g, "-")
+              .toLowerCase();
             expect(pathname).to.be.equal(
               `/app/${appName}/page1-${pageId}/edit`,
             );

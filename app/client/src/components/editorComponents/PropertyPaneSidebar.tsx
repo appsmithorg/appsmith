@@ -39,11 +39,11 @@ const StyledResizer = styled.div<{ resizing: boolean }>`
   }
 `;
 
-type Props = {
+interface Props {
   width: number;
   onDragEnd?: () => void;
   onWidthChange: (width: number) => void;
-};
+}
 
 export const PropertyPaneSidebar = memo((props: Props) => {
   const sidebarRef = useRef<HTMLDivElement>(null);

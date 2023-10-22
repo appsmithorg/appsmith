@@ -64,7 +64,7 @@ export const PluginImage = (props: any) => {
   );
 };
 
-type DSFormHeaderProps = {
+interface DSFormHeaderProps {
   canCreateDatasourceActions: boolean;
   canDeleteDatasource: boolean;
   canManageDatasource: boolean;
@@ -82,7 +82,7 @@ type DSFormHeaderProps = {
   }) => void;
   viewMode: boolean;
   isNewQuerySecondaryButton?: boolean;
-};
+}
 
 export const DSFormHeader = (props: DSFormHeaderProps) => {
   const {

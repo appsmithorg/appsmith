@@ -41,8 +41,8 @@ import { OperatorTypes } from "../component/Constants";
 import type { TableWidgetProps } from "../constants";
 import derivedProperties from "./parseDerivedProperties";
 import { selectRowIndex, selectRowIndices } from "./utilities";
-import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
-import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
+import type { ExtraDef } from "utils/autocomplete/defCreatorUtils";
+import { generateTypeDef } from "utils/autocomplete/defCreatorUtils";
 
 import type {
   ColumnProperties,
@@ -65,7 +65,10 @@ import {
 } from "widgets/WidgetUtils";
 import { ButtonVariantTypes } from "components/constants";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
-import type { AutocompletionDefinitions } from "WidgetProvider/constants";
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
+} from "WidgetProvider/constants";
 import { cloneDeep, set } from "lodash";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import { combineDynamicBindings } from "utils/DynamicBindingUtils";
@@ -313,6 +316,17 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           },
         },
       ],
+    };
+  }
+
+  static getAnvilConfig(): AnvilConfig | null {
+    return {
+      widgetSize: {
+        maxHeight: {},
+        maxWidth: {},
+        minHeight: {},
+        minWidth: { base: "280px" },
+      },
     };
   }
 
@@ -802,13 +816,13 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     | Record<string, ColumnProperties>
     | undefined => {
     const {
-      sanitizedTableData = [],
-      primaryColumns = {},
       columnNameMap = {},
       columnTypeMap = {},
       derivedColumns = {},
       hiddenColumns = [],
       migrated,
+      primaryColumns = {},
+      sanitizedTableData = [],
     } = this.props;
     // Bail out if the data doesn't exist.
     // This is a temporary measure,
@@ -885,7 +899,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   updateColumnProperties = (
     tableColumns?: Record<string, ColumnProperties>,
   ) => {
-    const { primaryColumns = {}, derivedColumns = {} } = this.props;
+    const { derivedColumns = {}, primaryColumns = {} } = this.props;
     const { columnOrder, migrated } = this.props;
     if (tableColumns) {
       const previousColumnIds = Object.keys(primaryColumns);
@@ -1148,14 +1162,14 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
   getWidgetView() {
     const {
-      totalRecordsCount,
       delimiter,
-      pageSize,
       filteredTableData = [],
       isVisibleDownload,
       isVisibleFilters,
       isVisiblePagination,
       isVisibleSearch,
+      pageSize,
+      totalRecordsCount,
     } = this.props;
     const tableColumns = this.getTableColumns() || [];
     const transformedData = this.transformData(filteredTableData, tableColumns);

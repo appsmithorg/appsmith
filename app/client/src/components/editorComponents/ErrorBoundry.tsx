@@ -4,8 +4,12 @@ import styled from "styled-components";
 import * as Sentry from "@sentry/react";
 import * as log from "loglevel";
 
-type Props = { children: ReactNode };
-type State = { hasError: boolean };
+interface Props {
+  children: ReactNode;
+}
+interface State {
+  hasError: boolean;
+}
 
 const ErrorBoundaryContainer = styled.div`
   height: 100%;

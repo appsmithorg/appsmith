@@ -257,9 +257,10 @@ Cypress.Commands.add("CreateAppForWorkspace", (workspaceName, appname) => {
   agHelper.RemoveTooltip("Rename application");
 });
 
-Cypress.Commands.add("CreateAppInFirstListedWorkspace", (appname) => {
+Cypress.Commands.add("CreateAppInFirstListedWorkspace", () => {
   let applicationId, appName;
-  cy.get(homePage.createNew).first().click({ force: true });
+  homePageTS.CreateNewWorkspace(); //Creating a new workspace for every test, since we are deleting the workspace in the end of the test
+  cy.get(homePage.createNew).last().click({ force: true });
   cy.wait("@createNewApplication").then((xhr) => {
     const response = xhr.response;
     expect(response.body.responseMeta.status).to.eq(201);
@@ -267,11 +268,10 @@ Cypress.Commands.add("CreateAppInFirstListedWorkspace", (appname) => {
     appName = response.body.data.name;
     cy.log("appName", appName);
     localStorage.setItem("applicationId", applicationId);
-    //});
-    //cy.get("#loading").should("not.exist");
+    localStorage.setItem("appName", appName);
+
     // eslint-disable-next-line cypress/no-unnecessary-waiting
-    //cy.reload();
-    cy.wait(4000);
+    cy.wait(2000);
     cy.get("#loading").should("not.exist");
 
     cy.url().then((url) => {
@@ -281,15 +281,9 @@ Cypress.Commands.add("CreateAppInFirstListedWorkspace", (appname) => {
       }
     });
   });
-
-  assertHelper.AssertNetworkStatus("@getPage");
-  assertHelper.AssertNetworkStatus("@getLibraries");
-  assertHelper.AssertNetworkStatus("@getPlugins");
-
   cy.get("#sidebar").should("be.visible");
-  cy.wait("@getPluginForm") //replacing this since flaky in CI - to monitor
-    .its("response.body.responseMeta.status")
-    .should("eq", 200);
+  assertHelper.AssertNetworkResponseData("@getPluginForm"); //for auth rest api
+  assertHelper.AssertNetworkResponseData("@getPluginForm"); //for graphql
 
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(2000);
@@ -297,15 +291,12 @@ Cypress.Commands.add("CreateAppInFirstListedWorkspace", (appname) => {
   // If the into modal is open close it
   cy.skipSignposting();
 
-  cy.AppSetupForRename();
-  cy.get(homePage.applicationName).type(appname + "{enter}");
-  cy.wait("@updateApplication").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
-  // Remove tooltip on the Application Name
-  agHelper.RemoveTooltip("Rename application");
+  //Removing renaming of app from all tests, since its also verified in other separate tests
+  // cy.AppSetupForRename();
+  // cy.get(homePage.applicationName).type(appname + "{enter}");
+  // assertHelper.AssertNetworkStatus("@updateApplication");
+  // // Remove tooltip on the Application Name
+  // agHelper.RemoveTooltip("Rename application");
 
   /* The server created app always has an old dsl so the layout will migrate
    * To avoid race conditions between that update layout and this one

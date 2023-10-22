@@ -9,11 +9,12 @@ import { Button, Icon, Text } from "design-system";
 import React, { useCallback, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
+import { COMMUNITY_PORTAL } from "constants/TemplatesConstants";
 
-type Props = {
+interface Props {
   onPublishClick: () => void;
   setShowHostModal: (showModal: boolean) => void;
-};
+}
 const CommunityTemplatesPublishInfo = ({
   onPublishClick,
   setShowHostModal,
@@ -40,13 +41,12 @@ const CommunityTemplatesPublishInfo = ({
 };
 
 export default CommunityTemplatesPublishInfo;
-const COMMUNITY_PORTAL_BASE_URL = "https://community.appsmith.com";
 
 const PublishedAppInstructions = () => {
   const currentApplication = useSelector(getCurrentApplication);
   const onVisitTemplateClick = useCallback(() => {
     openUrlInNewPage(
-      `${COMMUNITY_PORTAL_BASE_URL}/template/${currentApplication?.id}`,
+      `${COMMUNITY_PORTAL.BASE_URL}/template/${currentApplication?.id}`,
     );
   }, [currentApplication?.id]);
 
@@ -94,7 +94,14 @@ const UnPublishedAppInstructions = ({
         </Text>
       </InfoContainer>
       <InfoFooter>
-        <Button endIcon="link" kind="tertiary" size="md">
+        <Button
+          endIcon="link"
+          href={`${COMMUNITY_PORTAL.BASE_URL}/library`}
+          kind="tertiary"
+          renderAs="a"
+          size="md"
+          target="_blank"
+        >
           {createMessage(LEARN_MORE)}
         </Button>
         <Button
@@ -124,7 +131,7 @@ const InfoContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: 4px;
-  min-height: 250px;
+  min-height: 75px;
   padding-top: var(--ads-v2-spaces-2);
 `;
 const InfoFooter = styled.footer`

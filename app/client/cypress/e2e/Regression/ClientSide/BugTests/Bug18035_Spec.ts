@@ -12,7 +12,7 @@ describe(
       dataSources.CreatePlugIn("Google Sheets");
       agHelper.GoBack();
       agHelper.AssertContains(
-        "Save and authorize",
+        "Save & Authorize",
         "exist",
         dataSources._datasourceModalSave,
       );

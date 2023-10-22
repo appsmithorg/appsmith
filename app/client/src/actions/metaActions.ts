@@ -33,11 +33,11 @@ export const updateWidgetMetaPropAndEval = (
   });
 };
 
-export type ResetWidgetMetaPayload = {
+export interface ResetWidgetMetaPayload {
   widgetId: string;
   evaluatedWidget: WidgetEntity | undefined;
   evaluatedWidgetConfig: DataTreeEntityConfig | undefined;
-};
+}
 
 export const resetWidgetMetaProperty = (
   widgetId: string,

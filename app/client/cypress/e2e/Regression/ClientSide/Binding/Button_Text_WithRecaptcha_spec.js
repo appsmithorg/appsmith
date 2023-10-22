@@ -59,7 +59,7 @@ describe(
         if (
           $ele.find(
             _.locators._specificToast(
-              "Google Re-Captcha token generation failed!",
+              "Google reCAPTCHA token generation failed!",
             ),
           ).length ||
           $ele
@@ -76,7 +76,7 @@ describe(
       _.entityExplorer.SelectEntityByName("Button1");
       _.agHelper.SelectDropdownList("Google reCAPTCHA version", "reCAPTCHA v2");
       _.agHelper.ClickButton("Submit");
-      _.agHelper.AssertContains("Google Re-Captcha token generation failed!");
+      _.agHelper.AssertContains("Google reCAPTCHA token generation failed!");
     });
 
     it("4. Validate the Button binding with Text Widget with Recaptcha Token with invalid key (after using valid key)", function () {

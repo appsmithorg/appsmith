@@ -1,7 +1,7 @@
-export type OptionType = {
+export interface OptionType {
   label?: string;
   value?: string;
-};
+}
 
 export const roleOptions: OptionType[] = [
   {
@@ -49,15 +49,40 @@ export const useCaseOptions: OptionType[] = [
   },
 ];
 
-export const proficiencyOptions = [
+type OptionTypeWithSubtext = OptionType & {
+  subtext?: string;
+};
+
+export const proficiencyOptions: OptionTypeWithSubtext[] = [
   {
-    label: "Just dipping my toes 🌱 (Brand new to this)",
-    value: "Beginner",
+    label: "Brand New",
+    subtext: "I've never written code before.",
+    value: "Brand New",
   },
-  { label: "Novice (Limited to no experience)", value: "Novice" },
-  { label: "Intermediate (Some coding adventures)", value: "Intermediate" },
   {
-    label: "Advanced (Comfortable with programming quests)",
+    label: "Novice",
+    subtext: "Learning the ropes. Basic understanding of coding concepts.",
+    value: "Novice",
+  },
+  {
+    label: "Intermediate",
+    subtext: "Can tackle moderately complex projects.",
+    value: "Intermediate",
+  },
+  {
+    label: "Advanced",
+    subtext: "Mastery in development. Experienced with complex coding tasks.",
     value: "Advanced",
+  },
+];
+
+export const useCaseOptionsForNonSuperUser: OptionTypeWithSubtext[] = [
+  {
+    label: "Work Project",
+    value: "work project",
+  },
+  {
+    label: "Personal Project",
+    value: "personal project",
   },
 ];
