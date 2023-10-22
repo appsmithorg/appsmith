@@ -265,7 +265,7 @@ class CodeMirrorTernService {
       }
       const codeMirrorCompletion: Completion<TernCompletionResult> = {
         text: completionText,
-        displayText: completionText,
+        displayText: completion.name,
         className: className,
         data: completion,
         origin: completion.origin as string,

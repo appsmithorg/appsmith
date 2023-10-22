@@ -65,13 +65,13 @@ describe("Autocomplete using slash command and mustache tests", function () {
         // validates all autocomplete functions on entering {{}} in onClick field
         cy.get(`${dynamicInputLocators.hints} li`)
           .eq(7)
-          .should("have.text", "storeValue()");
+          .should("have.text", "storeValue");
         cy.get(`${dynamicInputLocators.hints} li`)
           .eq(8)
-          .should("have.text", "showAlert()");
+          .should("have.text", "showAlert");
         cy.get(`${dynamicInputLocators.hints} li`)
           .eq(9)
-          .should("have.text", "navigateTo()");
+          .should("have.text", "navigateTo");
       });
   });
 
@@ -150,25 +150,25 @@ describe("Autocomplete using slash command and mustache tests", function () {
     _.entityExplorer.SelectEntityByName("Button1", "Widgets");
     _.propPane.ToggleJSMode("onClick", true);
     _.propPane.TypeTextIntoField("onClick", "{{storeValue", true);
-    _.agHelper.GetNAssertElementText(_.locators._hints, "storeValue()");
+    _.agHelper.GetNAssertElementText(_.locators._hints, "storeValue");
     _.propPane.TypeTextIntoField("onClick", "{{removeValue", true);
-    _.agHelper.GetNAssertElementText(_.locators._hints, "removeValue()");
+    _.agHelper.GetNAssertElementText(_.locators._hints, "removeValue");
     _.propPane.TypeTextIntoField("onClick", "{{showAlert", true);
-    _.agHelper.GetNAssertElementText(_.locators._hints, "showAlert()");
+    _.agHelper.GetNAssertElementText(_.locators._hints, "showAlert");
     _.propPane.TypeTextIntoField("onClick", "{{setInterval", true);
-    _.agHelper.GetNAssertElementText(_.locators._hints, "setInterval()");
+    _.agHelper.GetNAssertElementText(_.locators._hints, "setInterval");
     _.propPane.TypeTextIntoField("onClick", "{{setTimeout", true);
-    _.agHelper.GetNAssertElementText(_.locators._hints, "setTimeout()");
+    _.agHelper.GetNAssertElementText(_.locators._hints, "setTimeout");
     _.propPane.TypeTextIntoField("onClick", "{{resetWidget", true);
-    _.agHelper.GetNAssertElementText(_.locators._hints, "resetWidget()");
+    _.agHelper.GetNAssertElementText(_.locators._hints, "resetWidget");
     _.propPane.TypeTextIntoField("onClick", "{{showModal", true);
-    _.agHelper.GetNAssertElementText(_.locators._hints, "showModal()");
+    _.agHelper.GetNAssertElementText(_.locators._hints, "showModal");
     _.propPane.TypeTextIntoField("onClick", "{{copyToClipboard", true);
-    _.agHelper.GetNAssertElementText(_.locators._hints, "copyToClipboard()");
+    _.agHelper.GetNAssertElementText(_.locators._hints, "copyToClipboard");
     _.propPane.TypeTextIntoField("onClick", "{{closeModal", true);
-    _.agHelper.GetNAssertElementText(_.locators._hints, "closeModal()");
+    _.agHelper.GetNAssertElementText(_.locators._hints, "closeModal");
     _.propPane.TypeTextIntoField("onClick", "{{Text1.setDisabled", true);
-    _.agHelper.GetNAssertElementText(_.locators._hints, "setDisabled()");
+    _.agHelper.GetNAssertElementText(_.locators._hints, "setDisabled");
 
     _.propPane.TypeTextIntoField("Label", "{{storeValue", true);
     _.agHelper.AssertElementAbsence(_.locators._hints);

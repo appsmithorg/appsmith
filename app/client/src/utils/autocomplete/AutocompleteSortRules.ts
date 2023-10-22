@@ -265,6 +265,12 @@ class ScopeMatchRule implements AutocompleteRule {
 
 class BlockAsyncFnsInDataFieldRule implements AutocompleteRule {
   static threshold = -Infinity;
+  static blackList = [
+    "setTimeout",
+    "clearTimeout",
+    "setInterval",
+    "clearInterval",
+  ];
   computeScore(
     completion: Completion<TernCompletionResult>,
     entityInfo?: FieldEntityInformation | undefined,
@@ -272,8 +278,13 @@ class BlockAsyncFnsInDataFieldRule implements AutocompleteRule {
     const score = 0;
     if (entityInfo?.isTriggerPath) return score;
     if (completion.type !== "FUNCTION") return score;
+    if (!completion.displayText) return score;
     const isAsyncFunction = completion.data?.type?.endsWith("Promise");
     if (!isAsyncFunction) return score;
+    if (
+      !BlockAsyncFnsInDataFieldRule.blackList.includes(completion.displayText)
+    )
+      return score;
     return BlockAsyncFnsInDataFieldRule.threshold;
   }
 }
