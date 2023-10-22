@@ -164,6 +164,7 @@ export class GitSync {
         );
         this.assertHelper.AssertNetworkStatus("@importFromGit", 201);
       }
+      this.assertHelper.AssertNetworkStatus("@generatedKey", 201);
     }
   }
 
@@ -353,11 +354,11 @@ export class GitSync {
         `{selectall}` + `${branch + uid}` + `{enter}`,
         { parseSpecialCharSeq: true },
       );
+      this.assertHelper.AssertNetworkStatus("createBranch", 201);
       this.agHelper.AssertElementAbsence(
         this.locator._specificToast(
           "Unable to import application in workspace",
         ),
-        3000,
       );
       this.agHelper.AssertElementExist(this.locator._btnSpinner);
       this.agHelper.AssertElementAbsence(this.locator._btnSpinner, 70000); //Since page taking more time to laod in some cases

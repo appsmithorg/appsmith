@@ -1156,6 +1156,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.intercept("GET", "/api/v1/admin/env").as("getEnvVariables");
   cy.intercept("DELETE", "/api/v1/git/branch/app/*").as("deleteBranch");
   cy.intercept("GET", "/api/v1/git/branch/app/*").as("getBranch");
+  cy.intercept("POST", "/api/v1/git/create-branch/app/*").as("createBranch");
   cy.intercept("GET", "/api/v1/git/status/app/*").as("gitStatus");
   cy.intercept("PUT", "/api/v1/layouts/refactor").as("updateWidgetName");
   cy.intercept("GET", "/api/v1/workspaces/*/members").as("getMembers");
@@ -1167,6 +1168,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   );
   cy.intercept("PUT", "/api/v1/datasources/*").as("updateDatasource");
   cy.intercept("POST", "/api/v1/applications/ssh-keypair/*").as("generateKey");
+  cy.intercept("GET", "/api/v1/applications/ssh-keypair/*").as("generatedKey");
   cy.intercept("POST", "/api/v1/applications/snapshot/*").as("snapshotSuccess");
   cy.intercept(
     {
