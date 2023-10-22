@@ -234,6 +234,9 @@ export const CodemirrorHintStyles = createGlobalStyle<{
     .CodeMirror-Tern-completion-keyword[keyword]:after {
       content: attr(keyword);
     }
+    .CodeMirror-Tern-tooltip {
+      z-index: 20 !important;
+    }
     li.CodeMirror-hint-active {
       background-color: var(--ads-v2-color-bg-muted);
       border-radius: var(--ads-v2-border-radius);
