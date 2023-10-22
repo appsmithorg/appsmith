@@ -120,6 +120,5 @@ describe("Container Widget Functionality", function () {
       "List1",
     );
     _.deployMode.DeployApp();
-    _.deployMode.NavigateBacktoEditor();
   });
 });
