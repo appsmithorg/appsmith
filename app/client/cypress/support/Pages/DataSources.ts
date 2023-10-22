@@ -938,13 +938,15 @@ export class DataSources {
   }
 
   public ValidateDSDeletion(expectedRes: number | number[] = 200) {
-    let toValidateRes = expectedRes == 200 || expectedRes == 409 ? true : false;
-    if (toValidateRes) {
-      if (expectedRes == 200)
-        this.agHelper.AssertContains("datasource deleted successfully");
-      else this.agHelper.AssertContains("action(s) using it.");
-    }
-    this.assertHelper.AssertNetworkStatus("@deleteDatasource", expectedRes);
+    this.assertHelper
+      .AssertNetworkStatus("@deleteDatasource", expectedRes)
+      .then((responseStatus) => {
+        this.agHelper.AssertContains(
+          responseStatus === 200
+            ? "datasource deleted successfully"
+            : "action(s) using it",
+        );
+      });
   }
 
   public NavigateToActiveTab() {

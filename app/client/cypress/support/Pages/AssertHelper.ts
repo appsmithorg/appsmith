@@ -84,19 +84,17 @@ export class AssertHelper extends ReusableHelper {
     timeout = 60000,
   ) {
     waitForNetworkCall && this.WaitForNetworkCall(aliasName, timeout);
-    cy.get(this.GetAliasName(aliasName))
-      .its("response.body.responseMeta.status")
-      .should((responseStatus: any) => {
-        const expectedStatusArray = Array.isArray(expectedStatus)
-          ? expectedStatus
-          : [expectedStatus];
-        expect(expectedStatusArray).to.include(Number(responseStatus));
-      });
+    return cy.get(this.GetAliasName(aliasName)).then((interception: any) => {
+      const responseStatus = Number(
+        interception.response.body.responseMeta.status,
+      );
+      const expectedStatusArray = Array.isArray(expectedStatus)
+        ? expectedStatus
+        : [expectedStatus];
 
-    //To improve below:
-    // cy.wait(aliasName, { timeout: timeout }).should((response: any) => {
-    //   expect(response.status).to.be.oneOf([expectedStatus]);
-    // });
+      expect(expectedStatusArray).to.include(responseStatus);
+      return responseStatus;
+    });
   }
 
   public AssertNetworkResponseData(

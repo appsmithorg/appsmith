@@ -103,17 +103,11 @@ describe("Container Widget Functionality", function () {
   });
 
   it("6. Renaming the widget from Property pane and Entity explorer ", function () {
-    // Open Property pane
-    _.entityExplorer.SelectEntityByName("List1", "Widgets");
-
-    // Change the list widget name from property pane and Verify it
-    cy.widgetText(
-      "List2",
-      widgetsPage.listWidgetName,
-      widgetsPage.widgetNameSpan,
-    );
+    // Open Property pane & rename the list widget
+    _.propPane.RenameWidget("List1", "List2");
+    _.agHelper.Sleep(); //for renaming the widget
     // Change the list widget name from Entity Explorer
-    cy.renameEntity("List2", "List1");
+    _.entityExplorer.RenameEntityFromExplorer("List2", "List1", false);
     // Mouse over to list name
     _.entityExplorer.SelectEntityByName("List1");
 
