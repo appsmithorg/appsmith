@@ -159,7 +159,7 @@ export class GitSync {
         this.CloseGitSyncModal();
       } else {
         this.assertHelper.AssertContains(
-          "Error while accessing the file system. Unable to import application in workspace",
+          "Error while accessing the file system",
           "not.exist",
         );
         this.assertHelper.AssertNetworkStatus("@importFromGit", 201);
