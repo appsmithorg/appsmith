@@ -1,5 +1,5 @@
-import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
-import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
+import type { ExtraDef } from "utils/autocomplete/defCreatorUtils";
+import { generateTypeDef } from "utils/autocomplete/defCreatorUtils";
 import type { AppsmithEntity } from "@appsmith/entities/DataTree/types";
 import _ from "lodash";
 import { EVALUATION_PATH } from "utils/DynamicBindingUtils";
