@@ -304,7 +304,8 @@ Cypress.Commands.add("merge", (destinationBranch) => {
   cy.get(gitSyncLocators.mergeBranchDropdownDestination).click();
   cy.get(commonLocators.dropdownmenu).contains(destinationBranch).click();
   agHelper.AssertElementAbsence(gitSync._checkMergeability, 35000);
-  cy.wait("@mergeStatus", { timeout: 35000 }).should(
+  assertHelper.WaitForNetworkCall("mergeStatus");
+  cy.get("@mergeStatus").should(
     "have.nested.property",
     "response.body.data.isMergeAble",
     true,
@@ -312,7 +313,7 @@ Cypress.Commands.add("merge", (destinationBranch) => {
   cy.wait(2000);
   cy.contains(Cypress.env("MESSAGES").NO_MERGE_CONFLICT());
   cy.get(gitSyncLocators.mergeCTA).click();
-  assertHelper.AssertNetworkStatus("mergeBranch");
+  assertHelper.AssertNetworkStatus("mergeBranch", 200, true, 100000);
   cy.contains(Cypress.env("MESSAGES").MERGED_SUCCESSFULLY());
 });
 

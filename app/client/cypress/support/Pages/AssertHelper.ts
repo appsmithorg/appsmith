@@ -14,7 +14,6 @@ export const EntityItems = {
 export type EntityItemsType = (typeof EntityItems)[keyof typeof EntityItems];
 
 export class AssertHelper extends ReusableHelper {
-  private locator = ObjectsRegistry.CommonLocators;
   public _modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
 
   public isMac = Cypress.platform === "darwin";
@@ -82,8 +81,9 @@ export class AssertHelper extends ReusableHelper {
     aliasName: string,
     expectedStatus: number | number[] = 200,
     waitForNetworkCall = true,
+    timeout = 60000,
   ) {
-    waitForNetworkCall && this.WaitForNetworkCall(aliasName);
+    waitForNetworkCall && this.WaitForNetworkCall(aliasName, timeout);
     cy.get(this.GetAliasName(aliasName))
       .its("response.body.responseMeta.status")
       .should((responseStatus: any) => {
