@@ -16,6 +16,7 @@ import type { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator
 import {
   getMetaWidgetResetObj,
   getNextMetaStateWithUpdates,
+  setMetaValuesOnResetFromEval,
 } from "./metaReducerUtils";
 import type { WidgetEntityConfig } from "@appsmith/entities/DataTree/types";
 
@@ -26,14 +27,6 @@ export const initialState: MetaState = {};
 
 export const metaReducer = createReducer(initialState, {
   [ReduxActionTypes.UPDATE_META_STATE]: (
-    state: MetaState,
-    action: ReduxAction<{
-      evalMetaUpdates: EvalMetaUpdates;
-    }>,
-  ) => {
-    return getNextMetaStateWithUpdates(state, action);
-  },
-  [ReduxActionTypes.RESET_WIDGET_META_UPDATES]: (
     state: MetaState,
     action: ReduxAction<{
       evalMetaUpdates: EvalMetaUpdates;
@@ -131,6 +124,14 @@ export const metaReducer = createReducer(initialState, {
       };
     }
     return state;
+  },
+  [ReduxActionTypes.RESET_WIDGET_META_UPDATES]: (
+    state: MetaState,
+    action: ReduxAction<{
+      evalMetaUpdates: EvalMetaUpdates;
+    }>,
+  ) => {
+    return setMetaValuesOnResetFromEval(state, action);
   },
   [ReduxActionTypes.RESET_WIDGETS_META_STATE]: (
     state: MetaState,

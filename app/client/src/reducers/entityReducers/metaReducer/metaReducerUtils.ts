@@ -8,7 +8,7 @@ import type { MetaState, WidgetMetaState } from ".";
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import type { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
 import produce from "immer";
-import { set } from "lodash";
+import { set, unset } from "lodash";
 
 export function getMetaWidgetResetObj(
   evaluatedWidget: WidgetEntity | undefined,
@@ -33,6 +33,32 @@ export function getMetaWidgetResetObj(
     });
   }
   return resetMetaObj;
+}
+
+/**
+ * When resetWidget is called from eval, we update all the meta values and remove those meta values which are undefined
+ */
+export function setMetaValuesOnResetFromEval(
+  state: MetaState,
+  action: ReduxAction<{
+    evalMetaUpdates: EvalMetaUpdates;
+  }>,
+) {
+  const { evalMetaUpdates } = action.payload;
+
+  if (!evalMetaUpdates.length) return state;
+
+  const newMetaState = klona(state);
+
+  evalMetaUpdates.forEach(({ metaPropertyPath, value, widgetId }) => {
+    if (value === undefined) {
+      unset(newMetaState, `${widgetId}.${metaPropertyPath.join(".")}`);
+    } else {
+      set(newMetaState, [widgetId, ...metaPropertyPath], value);
+    }
+  });
+
+  return newMetaState;
 }
 
 export function getNextMetaStateWithUpdates(
