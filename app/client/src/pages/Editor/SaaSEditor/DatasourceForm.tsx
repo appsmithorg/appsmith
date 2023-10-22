@@ -83,9 +83,9 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getDefaultEnvironmentId } from "@appsmith/selectors/environmentSelectors";
 import { DEFAULT_ENV_ID } from "@appsmith/api/ApiUtils";
 import {
-  getHasCreateDatasourceActionPermission,
   getHasDeleteDatasourcePermission,
   getHasManageDatasourcePermission,
+  hasCreateDSActionPermissionInApp,
 } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
@@ -725,9 +725,10 @@ const mapStateToProps = (state: AppState, props: any) => {
   );
 
   const pagePermissions = getPagePermissions(state);
-  const canCreateDatasourceActions = getHasCreateDatasourceActionPermission(
+  const canCreateDatasourceActions = hasCreateDSActionPermissionInApp(
     isFeatureEnabled,
-    [...datasourcePermissions, ...pagePermissions],
+    datasourcePermissions,
+    pagePermissions,
   );
 
   const gsheetToken = getGsheetToken(state);
