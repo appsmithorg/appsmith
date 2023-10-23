@@ -14,7 +14,7 @@ import { getPluginPackageNameFromId } from "@appsmith/selectors/entitiesSelector
 import { isGoogleSheetPluginDS } from "utils/editorContextUtils";
 
 interface Props {
-  datasource: Datasource;
+  datasource?: Datasource;
   onRefreshCallback?: () => void;
   paddingBottom?: boolean;
 }
@@ -32,21 +32,23 @@ export default function DatasourceStructureHeader(props: Props) {
 
   const dispatchRefresh = useCallback(
     (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-      event.stopPropagation();
-      dispatch(
-        refreshDatasourceStructure(
-          props.datasource.id,
-          DatasourceStructureContext.QUERY_EDITOR,
-        ),
-      );
+      if (props.datasource?.id) {
+        event.stopPropagation();
+        dispatch(
+          refreshDatasourceStructure(
+            props.datasource?.id,
+            DatasourceStructureContext.QUERY_EDITOR,
+          ),
+        );
 
-      !!props.onRefreshCallback && props.onRefreshCallback();
+        !!props.onRefreshCallback && props.onRefreshCallback();
+      }
     },
-    [dispatch, props.datasource.id],
+    [dispatch, props.datasource?.id],
   );
 
   const pluginPackageName = useSelector((state) =>
-    getPluginPackageNameFromId(state, props.datasource.pluginId),
+    getPluginPackageNameFromId(state, props.datasource?.pluginId || ""),
   );
   const isGoogleSheetPlugin = isGoogleSheetPluginDS(pluginPackageName);
 
@@ -60,12 +62,14 @@ export default function DatasourceStructureHeader(props: Props) {
           isGoogleSheetPlugin ? GSHEET_SPREADSHEET_LABEL : SCHEMA_LABEL,
         )}
       </Text>
-      <div
-        className="datasourceStructure-refresh"
-        onClick={(event) => dispatchRefresh(event)}
-      >
-        <Icon name="refresh" size={"md"} />
-      </div>
+      {props.datasource?.id && (
+        <div
+          className="datasourceStructure-refresh"
+          onClick={(event) => dispatchRefresh(event)}
+        >
+          <Icon name="refresh" size={"md"} />
+        </div>
+      )}
     </HeaderWrapper>
   );
 }

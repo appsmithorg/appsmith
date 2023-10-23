@@ -177,7 +177,7 @@ interface CollapsibleProps {
   label: string;
   CustomLabelComponent?: (props: any) => JSX.Element;
   isDisabled?: boolean;
-  datasource: Partial<Datasource>;
+  datasource?: Partial<Datasource>;
   containerRef?: MutableRefObject<HTMLDivElement | null>;
 }
 
@@ -186,7 +186,7 @@ interface DisabledCollapsibleProps {
   tooltipLabel?: string;
 }
 
-function Collapsible({
+export function Collapsible({
   children,
   containerRef,
   CustomLabelComponent,
