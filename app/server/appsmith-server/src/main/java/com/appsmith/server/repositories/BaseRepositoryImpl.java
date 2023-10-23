@@ -1,11 +1,14 @@
 package com.appsmith.server.repositories;
 
 import com.appsmith.external.models.BaseDomain;
+import com.appsmith.server.blasphemy.DBConnection;
 import com.appsmith.server.constants.FieldName;
 import com.mongodb.client.result.UpdateResult;
 import jakarta.validation.constraints.NotNull;
 import lombok.NonNull;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
@@ -14,14 +17,18 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.data.mongodb.repository.query.MongoEntityInformation;
 import org.springframework.data.mongodb.repository.support.SimpleReactiveMongoRepository;
+import org.springframework.data.util.ParsingUtils;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.util.Assert;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.io.Serializable;
+import java.lang.reflect.Field;
+import java.sql.SQLException;
 import java.time.Instant;
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -66,12 +73,15 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable>
     protected final MongoEntityInformation<T, ID> entityInformation;
     protected final ReactiveMongoOperations mongoOperations;
 
+    protected final DBConnection dbConnection;
+
     public BaseRepositoryImpl(
-            @NonNull MongoEntityInformation<T, ID> entityInformation,
-            @NonNull ReactiveMongoOperations mongoOperations) {
+            @NonNull MongoEntityInformation<T, ID> entityInformation, @NonNull ReactiveMongoOperations mongoOperations)
+            throws SQLException {
         super(entityInformation, mongoOperations);
         this.entityInformation = entityInformation;
         this.mongoOperations = mongoOperations;
+        this.dbConnection = DBConnection.getInstance();
     }
 
     private Criteria notDeleted() {
@@ -273,5 +283,87 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable>
                             .updateMulti(query, getForArchive(), entityInformation.getJavaType())
                             .map(result -> result.getModifiedCount() > 0 ? true : false);
                 });
+    }
+
+    @SneakyThrows
+    @Override
+    public <S extends T> Mono<S> save(S entity) {
+        final String tableName = toSnakeCase(entity.getClass().getSimpleName()) + "s"; // todo: pluralize better
+        dbConnection.execute(
+                "CREATE TABLE IF NOT EXISTS %s (id SERIAL PRIMARY KEY, oid TEXT UNIQUE)".formatted(tableName));
+
+        final Map<String, Object> valueMap = new LinkedHashMap<>();
+
+        for (Field field : entity.getClass().getDeclaredFields()) {
+            final String columnName = toSnakeCase(field.getName());
+            if ("id".equals(columnName)) {
+                continue;
+            }
+            final Object value = getValue(entity, field);
+            dbConnection.execute("ALTER TABLE %s ADD COLUMN IF NOT EXISTS %s %s"
+                    .formatted(tableName, columnName, getColumnType(field)));
+            valueMap.put(columnName, value);
+        }
+
+        if (entity.getId() == null) {
+            // insert new entry
+            final String sql = """
+                INSERT INTO %s (%s)
+                VALUES (%s)
+                """
+                    .formatted(
+                            tableName,
+                            StringUtils.join(valueMap.keySet(), ", "),
+                            StringUtils.repeat("?", ", ", valueMap.size()));
+            dbConnection.execute(sql, valueMap.values());
+
+        } else {
+            // update existing entry
+
+        }
+
+        return super.save(entity);
+    }
+
+    private String toSnakeCase(String name) {
+        return ParsingUtils.reconcatenateCamelCase(name, "_").replaceFirst("^_", "");
+    }
+
+    private Object getValue(Object entity, Field field) throws IllegalAccessException {
+        field.setAccessible(true);
+        return field.get(entity);
+    }
+
+    private String getColumnType(Field field) {
+        final Class<?> type = field.getType();
+
+        if (type.isEnum()) {
+            return "TEXT";
+        }
+
+        if (Collection.class.isAssignableFrom(type)) {
+            return "JSONB";
+        }
+
+        // if (ApplicationDetail.class.equals(type)
+        // || Application.AppLayout.class.equals(type)
+        // || GitApplicationMetadata.class.equals(type)) {
+        //     return "JSONB";
+        // }
+
+        if (field.getType().getPackageName().startsWith("com.appsmith")) {
+            return "JSONB";
+        }
+
+        if (Instant.class.equals(type)) {
+            return "TIMESTAMP";
+        }
+
+        return switch (type.getSimpleName()) {
+            case "String" -> "TEXT";
+            case "Integer", "int", "long" -> "INTEGER";
+            case "Boolean", "boolean" -> "BOOLEAN";
+            default -> throw new RuntimeException("Unknown type: " + type.getSimpleName());
+        };
     }
 }
