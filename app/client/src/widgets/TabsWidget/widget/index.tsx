@@ -24,7 +24,10 @@ import {
   isAutoHeightEnabledForWidgetWithLimits,
   DefaultAutocompleteDefinitions,
 } from "widgets/WidgetUtils";
-import type { AutocompletionDefinitions } from "WidgetProvider/constants";
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
+} from "WidgetProvider/constants";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import { Colors } from "constants/Colors";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
@@ -219,6 +222,17 @@ class TabsWidget extends BaseWidget<
       ],
       disableResizeHandles: {
         vertical: true,
+      },
+    };
+  }
+
+  static getAnvilConfig(): AnvilConfig | null {
+    return {
+      widgetSize: {
+        maxHeight: {},
+        maxWidth: {},
+        minHeight: { base: "300px" },
+        minWidth: { base: "280px" },
       },
     };
   }

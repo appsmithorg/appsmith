@@ -11,7 +11,7 @@
   font-family: inherit;
   border-style: solid;
   border-width: var(--border-width-1);
-  padding-inline: var(--spacing-4);
+  padding-inline: var(--inner-spacing-4);
   block-size: var(--sizing-8);
   min-inline-size: var(--sizing-8);
   border-radius: var(--border-radius-1);
@@ -79,13 +79,13 @@
 
   &[data-icon-position="start"] {
     [data-content] *:not([data-hidden]) + *:not([data-hidden]) {
-      margin-inline-start: var(--spacing-1);
+      margin-inline-start: var(--inner-spacing-1);
     }
   }
 
   &[data-icon-position="end"] {
     [data-content] *:not([data-hidden]) + *:not([data-hidden]) {
-      margin-inline-end: var(--spacing-1);
+      margin-inline-end: var(--inner-spacing-1);
     }
   }
 
