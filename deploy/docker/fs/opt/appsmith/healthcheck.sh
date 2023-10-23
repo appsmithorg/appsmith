@@ -20,11 +20,6 @@ while read -r line
            echo 'ERROR: Server is down';
            healthy=false
         fi
-      elif [[ "$process" == "rts" ]]; then
-        if [[ $(curl -s -w "%{http_code}\n" http://localhost:8091/ -o /dev/null) -ne 302 ]]; then
-           echo 'ERROR: RTS is down';
-           healthy=false
-        fi
       elif [[ "$process" == "mongo" ]]; then
         if [[ $(mongo --eval  'db.runCommand("ping").ok') -ne 1 ]]; then
             echo 'ERROR: Mongo is down';
