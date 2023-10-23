@@ -155,6 +155,9 @@ public class UserWorkspaceServiceTest {
         assertThat(memberInfoDTO2.getUserGroupId()).isEqualTo(createdUserGroup.getId());
         assertThat(memberInfoDTO2.getRoles()).hasSize(1);
         assertThat(memberInfoDTO2.getRoles().get(0).getId()).isEqualTo(developerPermissionGroup.getId());
+
+        Workspace deleteCreatedWorkspace =
+                workspaceService.archiveById(createdWorkspace.getId()).block();
     }
 
     @Test
@@ -182,6 +185,8 @@ public class UserWorkspaceServiceTest {
                                 .contains(AppsmithError.NO_RESOURCE_FOUND.getMessage(
                                         FieldName.USER_GROUP, updatePermissionGroupDTO.getUserGroupId())))
                 .verify();
+        Workspace deleteCreatedWorkspace =
+                workspaceService.archiveById(createdWorkspace.getId()).block();
     }
 
     @Test
@@ -263,6 +268,9 @@ public class UserWorkspaceServiceTest {
         assertThat(memberInfoDTOList.get(1).getUserGroupId()).isEqualTo(createdUserGroup.getId());
         assertThat(memberInfoDTOList.get(1).getRoles()).hasSize(1);
         assertThat(memberInfoDTOList.get(1).getRoles().get(0).getId()).isEqualTo(developerPermissionGroup.getId());
+
+        Workspace deleteCreatedWorkspace =
+                workspaceService.archiveById(createdWorkspace.getId()).block();
     }
 
     @Test
@@ -296,6 +304,9 @@ public class UserWorkspaceServiceTest {
                                 .getMessage()
                                 .contains(AppsmithError.REMOVE_LAST_WORKSPACE_ADMIN_ERROR.getMessage()))
                 .verify();
+
+        Workspace deleteCreatedWorkspace =
+                workspaceService.archiveById(createdWorkspace.getId()).block();
     }
 
     @Test
@@ -351,6 +362,9 @@ public class UserWorkspaceServiceTest {
                                 .getMessage()
                                 .contains(AppsmithError.REMOVE_LAST_WORKSPACE_ADMIN_ERROR.getMessage()))
                 .verify();
+
+        UserGroup deleteCreatedUserGroup =
+                userGroupService.archiveById(createdUserGroup.getId()).block();
     }
 
     @Test
@@ -400,6 +414,12 @@ public class UserWorkspaceServiceTest {
         assertThat(memberInfoDTO.getUserGroupId()).isEqualTo(createdUserGroup.getId());
         assertThat(memberInfoDTO.getRoles()).hasSize(1);
         assertThat(memberInfoDTO.getRoles().get(0).getId()).isEqualTo(developerPermissionGroup.getId());
+
+        Workspace deleteCreatedWorkspace =
+                workspaceService.archiveById(createdWorkspace.getId()).block();
+
+        UserGroup deleteCreatedUserGroup =
+                userGroupService.archiveById(createdUserGroup.getId()).block();
     }
 
     @Test
@@ -449,6 +469,12 @@ public class UserWorkspaceServiceTest {
         assertThat(memberInfoDTO.getUsername()).isEqualTo(apiUser.getUsername());
         assertThat(memberInfoDTO.getRoles()).hasSize(1);
         assertThat(memberInfoDTO.getRoles().get(0).getId()).isEqualTo(developerPermissionGroup.getId());
+
+        Workspace deleteCreatedWorkspace =
+                workspaceService.archiveById(createdWorkspace.getId()).block();
+
+        UserGroup deleteCreatedUserGroup =
+                userGroupService.archiveById(createdUserGroup.getId()).block();
     }
 
     @Test
@@ -510,6 +536,11 @@ public class UserWorkspaceServiceTest {
         assertThat(memberInfoDTO.getUserGroupId()).isEqualTo(createdUserGroup1.getId());
         assertThat(memberInfoDTO.getRoles()).hasSize(1);
         assertThat(memberInfoDTO.getRoles().get(0).getId()).isEqualTo(developerPermissionGroup.getId());
+
+        UserGroup deleteCreatedUserGroup1 =
+                userGroupService.archiveById(createdUserGroup1.getId()).block();
+        UserGroup deleteCreatedUserGroup2 =
+                userGroupService.archiveById(createdUserGroup2.getId()).block();
     }
 
     @Test
@@ -550,6 +581,14 @@ public class UserWorkspaceServiceTest {
         assertThat(memberInfoDTO.getUsername()).isEqualTo(apiUser.getUsername());
         assertThat(memberInfoDTO.getRoles()).hasSize(1);
         assertThat(memberInfoDTO.getRoles().get(0).getId()).isEqualTo(developerPermissionGroup.getId());
+
+        // Cleanup
+        permissionGroupService
+                .bulkAssignToUsersWithoutPermission(administratorPermissionGroup, List.of(apiUser))
+                .block();
+
+        Workspace deleteCreatedWorkspace =
+                workspaceService.archiveById(createdWorkspace.getId()).block();
     }
 
     @Test
@@ -626,5 +665,8 @@ public class UserWorkspaceServiceTest {
                                 .contains(AppsmithError.ACTION_IS_NOT_AUTHORIZED.getMessage(
                                         "Workspace is not assigned to the user.")))
                 .verify();
+
+        UserGroup deleteCreatedUserGroup =
+                userGroupService.archiveById(createdUserGroup.getId()).block();
     }
 }
