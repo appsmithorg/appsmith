@@ -20,6 +20,7 @@ import {
   createMessage,
   CONTEXT_SETTINGS,
   CONTEXT_PARTIAL_EXPORT,
+  CONTEXT_PARTIAL_IMPORT,
 } from "@appsmith/constants/messages";
 import { openAppSettingsPaneAction } from "actions/appSettingsPaneActions";
 import { AppSettingsTabs } from "pages/Editor/AppSettingsPane/AppSettings";
@@ -36,6 +37,7 @@ import {
   getHasManagePagePermission,
 } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import PartiaExportModel from "components/editorComponents/PartialImportExport/PartialExportModal";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 
 const CustomLabel = styled.div`
   display: flex;
@@ -122,6 +124,11 @@ export function PageContextMenu(props: {
     );
 
   const openPartialExportModal = () => setShowPartialExportModal(true);
+  const onPartialImportClick = useCallback(async () => {
+    dispatch({
+      type: ReduxActionTypes.PARTIAL_IMPORT_INIT,
+    });
+  }, []);
 
   const pagePermissions =
     useSelector(getPageById(props.pageId))?.userPermissions || [];
@@ -187,6 +194,11 @@ export function PageContextMenu(props: {
       value: "partial-export",
       onSelect: openPartialExportModal,
       label: createMessage(CONTEXT_PARTIAL_EXPORT),
+    },
+    {
+      value: "partial-import",
+      onSelect: onPartialImportClick,
+      label: createMessage(CONTEXT_PARTIAL_IMPORT),
     },
     {
       value: "settings",

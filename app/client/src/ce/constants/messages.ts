@@ -1641,6 +1641,7 @@ export const CONTEXT_REFRESH = () => "Refresh";
 export const CONTEXT_CLONE = () => "Clone";
 export const CONTEXT_SETTINGS = () => "Settings";
 export const CONTEXT_PARTIAL_EXPORT = () => "Partial export";
+export const CONTEXT_PARTIAL_IMPORT = () => "Partial import";
 export const CONTEXT_SET_AS_HOME_PAGE = () => "Set as home page";
 export const PAGE = () => "Page";
 export const PAGES = () => "Pages";

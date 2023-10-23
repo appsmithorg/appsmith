@@ -6,6 +6,8 @@ import {
   Collapsible,
   CollapsibleHeader,
   CollapsibleContent,
+  ModalFooter,
+  Button,
 } from "design-system";
 import React from "react";
 import WidgetsExport from "./WidgetsExport";
@@ -20,42 +22,11 @@ import {
 } from "pages/Editor/Explorer/ExplorerIcons";
 import styled from "styled-components";
 
-type Props = {
+interface Props {
   handleModalClose: () => void;
   isModalOpen: boolean;
-};
+}
 const PartiaExportModel = ({ handleModalClose, isModalOpen }: Props) => {
-  const exportSections: {
-    title: string;
-    icon: JSX.Element;
-    children: JSX.Element;
-  }[] = [
-    {
-      title: "JsObjects",
-      icon: JsFileIconV2(16, 16),
-      children: <JSObjectsNQueriesExport />,
-    },
-    {
-      title: "Databases",
-      icon: datasourceIcon,
-      children: <DatasourcesExport />,
-    },
-    {
-      title: "Queries",
-      icon: dbQueryIcon,
-      children: <JSObjectsNQueriesExport />,
-    },
-    {
-      title: "Custom libraries",
-      icon: <span />,
-      children: <CustomJSLibsExport />,
-    },
-    {
-      title: "Widgets",
-      icon: <span />,
-      children: <WidgetsExport />,
-    },
-  ];
   return (
     <Modal onOpenChange={handleModalClose} open={isModalOpen}>
       <ModalContent>
@@ -67,27 +38,36 @@ const PartiaExportModel = ({ handleModalClose, isModalOpen }: Props) => {
         <Text kind="heading-m" renderAs="h2">
           {createMessage(PARTIAL_EXPORT.modalSubHeading)}
         </Text>
-        {exportSections.map(({ children, icon, title }) => (
-          <Collapsible isOpen key={title}>
-            <CollapsibleHeader>
-              <Text
-                kind="heading-s"
-                style={{ display: "flex", alignItems: "center", gap: "8px" }}
-              >
-                {icon} {title}
-              </Text>
-            </CollapsibleHeader>
-            <CollapsibleContent>
-              <Content>{children}</Content>
-            </CollapsibleContent>
-          </Collapsible>
-        ))}
+        <ScrollableSection>
+          {exportSections.map(({ children, icon, title }) => (
+            <Collapsible isOpen key={title}>
+              <CollapsibleHeader>
+                <Text
+                  kind="heading-s"
+                  style={{ display: "flex", alignItems: "center", gap: "8px" }}
+                >
+                  {icon} {title}
+                </Text>
+              </CollapsibleHeader>
+              <CollapsibleContent>
+                <Content>{children}</Content>
+              </CollapsibleContent>
+            </Collapsible>
+          ))}
+        </ScrollableSection>
+        <ModalFooter>
+          <Button size="lg">Export selected</Button>
+        </ModalFooter>
       </ModalContent>
     </Modal>
   );
 };
 
 export default PartiaExportModel;
+
+const ScrollableSection = styled.section`
+  overflow-y: auto;
+`;
 const Content = styled.div`
   display: flex;
   flex-direction: column;
@@ -96,3 +76,35 @@ const Content = styled.div`
   padding: 16px;
   background-color: var(--ads-v2-color-gray-100);
 `;
+
+const exportSections: {
+  title: string;
+  icon: JSX.Element;
+  children: JSX.Element;
+}[] = [
+  {
+    title: "JsObjects",
+    icon: JsFileIconV2(16, 16),
+    children: <JSObjectsNQueriesExport />,
+  },
+  {
+    title: "Databases",
+    icon: datasourceIcon,
+    children: <DatasourcesExport />,
+  },
+  {
+    title: "Queries",
+    icon: dbQueryIcon,
+    children: <JSObjectsNQueriesExport />,
+  },
+  {
+    title: "Custom libraries",
+    icon: <span />,
+    children: <CustomJSLibsExport />,
+  },
+  {
+    title: "Widgets",
+    icon: <span />,
+    children: <WidgetsExport />,
+  },
+];

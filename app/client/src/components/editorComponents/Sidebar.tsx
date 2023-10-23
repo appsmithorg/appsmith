@@ -200,11 +200,6 @@ export const EntityExplorerSidebar = memo(({ children }: Props) => {
     isAppSettingsPaneWithNavigationTabOpen,
   ]);
 
-  const onImportClick = useCallback(async () => {
-    dispatch({
-      type: ReduxActionTypes.PARTIAL_IMPORT_INIT,
-    });
-  }, []);
   const [hoverStartTime, setHoverStartTime] = useState(0);
 
   const handleMouseEnter = useCallback(() => {
