@@ -23,9 +23,11 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static java.lang.Boolean.TRUE;
@@ -69,12 +71,7 @@ public class DatasourceExportableServiceCEImpl implements ExportableServiceCE<Da
         return datasourceFlux.collectList().zipWith(defaultEnvironmentIdMono).map(tuple2 -> {
             List<Datasource> datasourceList = tuple2.getT1();
             String environmentId = tuple2.getT2();
-            datasourceList.forEach(datasource -> {
-                mappedExportableResourcesDTO.getDatasourceIdToNameMap().put(datasource.getId(), datasource.getName());
-                mappedExportableResourcesDTO
-                        .getDatasourceNameToUpdatedAtMap()
-                        .put(datasource.getName(), datasource.getUpdatedAt());
-            });
+            mapNameToIdForExportableEntities(mappedExportableResourcesDTO, datasourceList);
 
             List<DatasourceStorage> storageList = datasourceList.stream()
                     .map(datasource -> {
@@ -106,6 +103,18 @@ public class DatasourceExportableServiceCEImpl implements ExportableServiceCE<Da
             datasourceStorage.getDatasourceConfiguration().setSshProxyEnabled(null);
             datasourceStorage.getDatasourceConfiguration().setProperties(null);
         }
+    }
+
+    @Override
+    public Set<String> mapNameToIdForExportableEntities(
+            MappedExportableResourcesDTO mappedExportableResourcesDTO, List<Datasource> datasourceList) {
+        datasourceList.forEach(datasource -> {
+            mappedExportableResourcesDTO.getDatasourceIdToNameMap().put(datasource.getId(), datasource.getName());
+            mappedExportableResourcesDTO
+                    .getDatasourceNameToUpdatedAtMap()
+                    .put(datasource.getName(), datasource.getUpdatedAt());
+        });
+        return new HashSet<>();
     }
 
     @Override
