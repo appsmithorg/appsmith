@@ -132,7 +132,6 @@ export interface WidgetConfig extends EntityConfig {
   propertyOverrideDependency: PropertyOverrideDependency;
   overridingPropertyPaths: OverridingPropertyPaths;
   privateWidgets: PrivateWidgets;
-  dependencyMap: Record<string, string[]>;
 }
 
 export interface EntityConfig {
@@ -141,6 +140,7 @@ export interface EntityConfig {
   reactivePaths?: Record<string, EvaluationSubstitutionType>;
   validationPaths?: Record<string, ValidationConfig>;
   dynamicBindingPathList?: DynamicPath[];
+  dependencyMap?: Record<string, string[]>;
 }
 
 //data factory types
