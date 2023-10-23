@@ -41,8 +41,8 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import {
-  getHasCreateDatasourceActionPermission,
   getHasCreatePagePermission,
+  hasCreateDSActionPermissionInApp,
 } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import EmptyTableSVG from "assets/images/empty-table-in-display-preview.svg";
 
@@ -162,9 +162,10 @@ const DatasourceViewModeSchema = (props: Props) => {
     userAppPermissions,
   );
 
-  const canCreateDatasourceActions = getHasCreateDatasourceActionPermission(
+  const canCreateDatasourceActions = hasCreateDSActionPermissionInApp(
     isFeatureEnabled,
-    [...datasourcePermissions, ...pagePermissions],
+    datasourcePermissions,
+    pagePermissions,
   );
 
   const applicationId: string = useSelector(getCurrentApplicationId);
