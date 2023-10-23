@@ -132,6 +132,7 @@ export interface WidgetConfig extends EntityConfig {
   propertyOverrideDependency: PropertyOverrideDependency;
   overridingPropertyPaths: OverridingPropertyPaths;
   privateWidgets: PrivateWidgets;
+  dependencyMap: Record<string, string[]>;
 }
 
 export interface EntityConfig {
