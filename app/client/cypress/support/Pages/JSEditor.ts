@@ -132,6 +132,7 @@ export class JSEditor {
     cy.get(this.locator._createNew).last().click({ force: true });
     cy.get(this._newJSobj).eq(0).click({ force: true });
 
+    this.agHelper.RemoveTooltip("Add a new query/JS Object");
     //Checking JS object was created successfully
     this.assertHelper.AssertNetworkStatus("@jsCollections", 200);
     // Assert that the name of the JS Object is focused when newly created

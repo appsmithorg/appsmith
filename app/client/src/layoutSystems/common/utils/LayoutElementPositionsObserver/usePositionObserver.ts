@@ -19,7 +19,6 @@ export function usePositionObserver(
   type: ObservableElementType,
   ids: {
     widgetId?: string;
-    layoutIndex?: number;
     layoutId?: string;
     canvasId?: string;
     isDropTarget?: boolean;

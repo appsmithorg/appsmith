@@ -85,11 +85,11 @@ describe("JSEditor tests", function () {
         );
       });
     // move to page  2 on table widget
-    cy.get(commonlocators.tableNextPage).click();
+    agHelper.GetNClick(commonlocators.tableNextPage);
     cy.get(".t--table-widget-page-input").within(() => {
       cy.get("input.bp3-input").should("have.value", "2");
     });
-    cy.wait(3000);
+    cy.wait(1000);
 
     // hit audio play button and trigger actions
     entityExplorer.SelectEntityByName("Audio1", "Widgets");
@@ -97,19 +97,19 @@ describe("JSEditor tests", function () {
       $audio[0].play();
     });
     assertHelper.AssertNetworkStatus("@postExecute");
-    agHelper.Sleep(1000);
     // verify text is visible
     agHelper.AssertContains(
       "Step 4: Value is Green and will default to GREEN",
       "be.visible",
       ".t--draggable-textwidget span",
     );
+
     agHelper.GetNClick(commonlocators.tableNextPage);
+    agHelper.ValidateToastMessage("Success running API query");
+    agHelper.ValidateToastMessage("GREEN");
     agHelper.GetElement(".t--table-widget-page-input").within(() => {
       agHelper.ValidateFieldInputValue("input.bp3-input", "2");
     });
-    agHelper.ValidateToastMessage("Success running API query");
-    agHelper.ValidateToastMessage("GREEN");
   });
 
   it("2. Testing dynamic widgets display using consecutive storeValue calls", () => {

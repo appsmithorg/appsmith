@@ -67,10 +67,11 @@ describe("Icon Button widget Tests", function () {
   it("3. Validate icon can be selected from dropdown and icon can be searched by typing", () => {
     // Select from dropdown
     agHelper.GetNClick(`${locators._propertyControl}icon`);
-    agHelper.GetNClick(propPane._dataIcon("power"));
+    agHelper.GetElement(propPane._iconDropdown).scrollTo("top");
+    agHelper.GetNClick(propPane._dataIcon("airplane"));
     agHelper.AssertElementVisibility(
       `${locators._widgetInDeployed("iconbuttonwidget")} ${propPane._dataIcon(
-        "power",
+        "airplane",
       )}`,
     );
 
