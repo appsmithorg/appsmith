@@ -49,6 +49,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.security.test.context.support.WithUserDetails;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -63,6 +64,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static com.appsmith.server.constants.ApiConstants.CLOUD_SERVICES_SIGNATURE;
 import static com.appsmith.server.constants.ce.FieldNameCE.DEFAULT;
@@ -78,6 +80,7 @@ import static org.mockito.Mockito.when;
 
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 public class TenantServiceTest {
     @Autowired
     TenantService tenantService;
@@ -108,6 +111,9 @@ public class TenantServiceTest {
 
     @Autowired
     PermissionGroupRepository permissionGroupRepository;
+
+    @Autowired
+    PermissionGroupService permissionGroupService;
 
     @Autowired
     UserGroupRepository userGroupRepository;
@@ -148,6 +154,46 @@ public class TenantServiceTest {
         when(featureFlagService.check(FeatureFlagEnum.license_pac_enabled)).thenReturn(Mono.just(true));
     }
 
+    private void makeUserTenantAdminViaCustomUserGroup(User user) {
+        userUtils.makeSuperUser(List.of(user)).block();
+        UserGroup userGroup = new UserGroup();
+        userGroup.setName("instance_admin_user_group");
+        assert user.getId() != null;
+        userGroup.setUsers(Set.of(user.getId()));
+        UserGroupDTO userGroupDTO = userGroupService.createGroup(userGroup).block();
+        assert userGroupDTO != null;
+        userGroup = userGroupRepository.findById(userGroupDTO.getId()).block();
+
+        PermissionGroup instanceAdminPermissionGroup =
+                userUtils.getSuperAdminPermissionGroup().block();
+        assert userGroup != null;
+        permissionGroupService
+                .bulkAssignToUserGroups(instanceAdminPermissionGroup, Set.of(userGroup))
+                .block();
+        userUtils.removeSuperUser(List.of(user)).block();
+    }
+
+    private void removeUserFromTenantAdmin() {
+        User user = sessionUserService.getCurrentUser().block();
+        if (user == null) {
+            return;
+        }
+
+        userUtils.removeSuperUser(List.of(user)).block();
+        userGroupService
+                .findAllGroupsForUser(user.getId())
+                .flatMap(userGroupCompactDTO -> userGroupRepository.findById(userGroupCompactDTO.getId()))
+                .collectList()
+                .zipWith(userUtils.getSuperAdminPermissionGroup())
+                .flatMap(tuple -> {
+                    Set<String> userGroupIds =
+                            tuple.getT1().stream().map(UserGroup::getId).collect(Collectors.toSet());
+                    return permissionGroupService.bulkUnassignFromUserGroupsWithoutPermission(
+                            tuple.getT2(), userGroupIds);
+                })
+                .block();
+    }
+
     @Test
     @WithUserDetails("anonymousUser")
     public void getTenantConfig_Valid_AnonymousUser() {
@@ -166,6 +212,7 @@ public class TenantServiceTest {
     @Test
     @WithUserDetails("api_user")
     public void updateTenantLicenseKey_validLicenseKey_Success() {
+
         String licenseKey = "sample-license-key";
         License license = new License();
         license.setActive(true);
@@ -218,6 +265,7 @@ public class TenantServiceTest {
     @Test
     @WithUserDetails("api_user")
     public void updateTenantLicenseKey_licenseInGracePeriod_Success() {
+
         String licenseKey = UUID.randomUUID().toString();
         License license = new License();
         license.setActive(true);
@@ -270,6 +318,7 @@ public class TenantServiceTest {
     @Test
     @WithUserDetails("api_user")
     public void updateTenantLicenseKey_Invalid_LicenseKey() {
+
         String licenseKey = UUID.randomUUID().toString();
         License license = new License();
         license.setActive(false);
@@ -378,6 +427,7 @@ public class TenantServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void test_setShowRolesAndGroupInTenant_checkRolesAndGroupsExistInUserProfile() {
+
         Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_gac_enabled)))
                 .thenReturn(Mono.just(Boolean.TRUE));
         String testName = "test_setShowRolesAndGroupInTenant_checkRolesAndGroupsExistInUserProfile";
@@ -464,6 +514,7 @@ public class TenantServiceTest {
     @WithUserDetails(value = "api_user")
     public void
             test_setShowRolesAndGroupInTenant_checkRolesAndGroupsDoesNotExistInUserProfile_whenFeatureFlagDisabled() {
+
         String testName =
                 "test_setShowRolesAndGroupInTenant_checkRolesAndGroupsDoesNotExistInUserProfile_whenFeatureFlagDisabled";
         User apiUser = userRepository.findByEmail("api_user").block();
@@ -541,6 +592,7 @@ public class TenantServiceTest {
     @Test
     @WithUserDetails("api_user")
     public void test_updateDefaultTenantConfiguration_noUpdatesSent() {
+
         Tenant defaultTenant = tenantService.getTenantConfiguration().block();
         Tenant defaultTenantPostUpdate = tenantService
                 .updateDefaultTenantConfiguration(Mono.empty(), Mono.empty(), Mono.empty())
@@ -558,6 +610,7 @@ public class TenantServiceTest {
                 true);
     }
 
+    @Test
     public void removeTenantLicenseKey_withoutPermission_throwException() {
         StepVerifier.create(tenantService.removeLicenseKey())
                 .expectErrorMatches(error -> error instanceof AppsmithException
@@ -584,6 +637,7 @@ public class TenantServiceTest {
     @Test
     @WithUserDetails("api_user")
     public void test_updateDefaultTenantConfiguration_updateBrandColors() {
+
         Tenant defaultTenant = tenantService.getTenantConfiguration().block();
         TenantConfiguration defaultTenantConfiguration = defaultTenant.getTenantConfiguration();
         String primary1 = "#df8d67";
@@ -660,6 +714,7 @@ public class TenantServiceTest {
     @Test
     @WithUserDetails("api_user")
     public void test_tenantConfiguration_whenPACFeatureFlagEnabled() {
+
         when(featureFlagService.check(any())).thenReturn(Mono.just(true));
         TenantConfiguration tenantConfiguration = new TenantConfiguration();
         tenantConfiguration.setShowRolesAndGroups(true);
@@ -684,6 +739,7 @@ public class TenantServiceTest {
     @Test
     @WithUserDetails("api_user")
     public void test_tenantConfiguration_whenPACFeatureFlagDisabled() {
+
         when(featureFlagService.check(any())).thenReturn(Mono.just(true));
         TenantConfiguration tenantConfiguration = new TenantConfiguration();
         tenantConfiguration.setShowRolesAndGroups(false);
@@ -720,6 +776,7 @@ public class TenantServiceTest {
     @Test
     @WithUserDetails("api_user")
     public void test_updateBrandingNotAllowed_whenFeatureFlagDisabled() {
+
         TenantConfiguration defaultTenantConfiguration = new TenantConfiguration();
         defaultTenantConfiguration.setWhiteLabelEnable(Boolean.FALSE.toString());
         defaultTenantConfiguration.setWhiteLabelFavicon(TenantConfiguration.DEFAULT_APPSMITH_FEVICON);
@@ -838,6 +895,7 @@ public class TenantServiceTest {
     @Test
     @WithUserDetails("api_user")
     public void test_updateDefaultTenantConfiguration_updateBrandLogo() {
+
         Tenant defaultTenant = tenantService.getTenantConfiguration().block();
         TenantConfiguration defaultTenantConfiguration = defaultTenant.getTenantConfiguration();
         Mono<Part> update_brandLogo = Mono.just(createMockFilePart(2047));
@@ -891,6 +949,7 @@ public class TenantServiceTest {
     @Test
     @WithUserDetails("api_user")
     public void test_updateDefaultTenantConfiguration_updateBrandFavicon() {
+
         Tenant defaultTenant = tenantService.getTenantConfiguration().block();
         TenantConfiguration defaultTenantConfiguration = defaultTenant.getTenantConfiguration();
         Mono<Part> update_brandFavicon = Mono.just(createMockFilePart(1));
@@ -907,6 +966,7 @@ public class TenantServiceTest {
     @Test
     @WithUserDetails("api_user")
     public void test_updateDefaultTenantConfiguration_updateShowRolesAndGroups() {
+
         Tenant defaultTenant = tenantService.getTenantConfiguration().block();
         TenantConfiguration defaultTenantConfiguration = defaultTenant.getTenantConfiguration();
         Mono<String> update1_showRolesAndGroups = Mono.just("{\"showRolesAndGroups\": true}");
@@ -933,6 +993,7 @@ public class TenantServiceTest {
     @Test
     @WithUserDetails("api_user")
     public void test_updateDefaultTenantConfiguration_updateSingleSessionPerUserEnabled() {
+
         Tenant defaultTenant = tenantService.getTenantConfiguration().block();
         TenantConfiguration defaultTenantConfiguration = defaultTenant.getTenantConfiguration();
         Mono<String> update1_singleSessionPerUserEnabled = Mono.just("{\"singleSessionPerUserEnabled\": true}");
@@ -1038,6 +1099,7 @@ public class TenantServiceTest {
     @Test
     @WithUserDetails("api_user")
     public void updateTenantLicenseKey_validLicenseKeyWithDryRun_dbStateIsUnchanged() {
+
         String licenseKey = "sample-license-key";
         License license = new License();
         license.setActive(true);
@@ -1079,6 +1141,7 @@ public class TenantServiceTest {
     @Test
     @WithUserDetails("api_user")
     public void forceUpdateFeatures_licenseUpdate_cacheUpdateSuccess() {
+
         // Insert dummy value for tenant flags
         Map<String, Boolean> flags = new HashMap<>();
         String feature1 = UUID.randomUUID().toString();
@@ -1124,6 +1187,7 @@ public class TenantServiceTest {
     @Test
     @WithUserDetails("api_user")
     public void updateDefaultTenantConfiguration_updateActivationFromClient_updateDisabled() {
+
         Tenant defaultTenant = tenantService.getTenantConfiguration().block();
         TenantConfiguration defaultTenantConfiguration = defaultTenant.getTenantConfiguration();
         Mono<String> update1_updateFirstTimeInteraction = Mono.just("{\"isActivated\": true}");
@@ -1140,6 +1204,7 @@ public class TenantServiceTest {
     @Test
     @WithUserDetails("api_user")
     public void test_updateDefaultTenantConfiguration_subscriptionDetailsInLicense() {
+
         Tenant defaultTenant = tenantService.getTenantConfiguration().block();
         TenantConfiguration defaultTenantConfiguration = defaultTenant.getTenantConfiguration();
         defaultTenantConfiguration.setLicense(new License());
@@ -1209,6 +1274,7 @@ public class TenantServiceTest {
     @Test
     @WithUserDetails("api_user")
     public void updateDefaultTenantConfiguration_updateHideWatermark_success() {
+
         Tenant defaultTenant = tenantService.getTenantConfiguration().block();
         TenantConfiguration defaultTenantConfiguration = defaultTenant.getTenantConfiguration();
         Mono<String> update1_hideWatermarkEnabled = Mono.just("{\"hideWatermark\": true}");
@@ -1230,5 +1296,38 @@ public class TenantServiceTest {
         assertThat(newTenantConfiguration2.getHideWatermark()).isFalse();
         assertTenantConfigurations(
                 newTenantConfiguration2, defaultTenantConfiguration, true, true, true, true, false, true, true, false);
+    }
+
+    @Test
+    @WithUserDetails("usertest@usertest.com")
+    public void removeTenantLicenseKey_userWithManageTenantPermissionViaCustomGroup_success() {
+        User testAdminUser = userRepository.findByEmail("usertest@usertest.com").block();
+        makeUserTenantAdminViaCustomUserGroup(testAdminUser);
+        License license = new License();
+        license.setKey(UUID.randomUUID().toString());
+        license.setActive(true);
+
+        tenant.getTenantConfiguration().setLicense(license);
+        Mockito.when(licenseAPIManager.downgradeTenantToFreePlan(any())).thenReturn(Mono.just(true));
+
+        // Add the dummy license
+        StepVerifier.create(tenantService.save(tenant))
+                .assertNext(tenant1 -> {
+                    assertThat(tenant1.getTenantConfiguration().getLicense()).isNotNull();
+                })
+                .verifyComplete();
+
+        License freeLicense = new License();
+        freeLicense.setActive(Boolean.FALSE);
+        freeLicense.setPreviousPlan(LicensePlan.FREE);
+        freeLicense.setPlan(LicensePlan.FREE);
+        // Check if the license field is null after the license is removed as a part of downgrade to community flow
+        StepVerifier.create(tenantService.removeLicenseKey())
+                .assertNext(tenant1 -> {
+                    assertThat(tenant1.getTenantConfiguration().getLicense()).isEqualTo(freeLicense);
+                })
+                .verifyComplete();
+
+        removeUserFromTenantAdmin();
     }
 }

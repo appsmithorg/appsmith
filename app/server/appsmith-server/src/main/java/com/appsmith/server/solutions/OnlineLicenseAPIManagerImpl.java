@@ -96,7 +96,10 @@ public class OnlineLicenseAPIManagerImpl extends BaseLicenseAPIManagerImpl imple
                 })
                 .map(ResponseDTO::getData)
                 .map(licenseValidationResponse -> {
-                    log.debug("License validation completed for tenant {}", tenant.getId());
+                    log.debug(
+                            "License validation completed for tenant {} with status {}",
+                            tenant.getId(),
+                            licenseValidationResponse.isValid());
                     license.updateLicenseFromValidationResponse(licenseValidationResponse);
                     return license;
                 });
