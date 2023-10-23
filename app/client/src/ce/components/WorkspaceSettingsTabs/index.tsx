@@ -41,6 +41,7 @@ export interface WorkspaceSettingsTabsProps {
   searchValue: string;
   setTabArrLen: (tabArrLen: number) => void;
   addTabComponent?: () => TabProp;
+  workspacePermissions: string[];
 }
 
 export const WorkspaceSettingsTabs = ({

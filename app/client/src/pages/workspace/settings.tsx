@@ -168,6 +168,7 @@ export default function Settings() {
           isMemberofTheWorkspace={isMemberofTheWorkspace}
           searchValue={searchValue}
           setTabArrLen={setTabArrLen}
+          workspacePermissions={currentWorkspace?.userPermissions || []}
         />
       </SettingsWrapper>
       {currentWorkspace && (

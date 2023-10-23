@@ -163,7 +163,10 @@ function WorkspaceMenu({
             Members
           </MenuItem>
         )}
-        <ManageEnvironmentsMenu workspaceId={workspace.id} />
+        <ManageEnvironmentsMenu
+          workspaceId={workspace.id}
+          workspacePermissions={workspace.userPermissions || []}
+        />
         {canInviteToWorkspace && (
           <MenuItem
             className="error-menuitem"
