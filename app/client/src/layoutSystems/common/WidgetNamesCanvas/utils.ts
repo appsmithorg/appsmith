@@ -1,6 +1,10 @@
 import Konva from "konva";
 import type { LayoutElementPosition } from "layoutSystems/common/types";
-import type { WidgetNameData, WidgetNamePositionData } from "./WidgetNameTypes";
+import type {
+  WidgetNameData,
+  WidgetNamePositionData,
+  WidgetNamePositionType,
+} from "./WidgetNameTypes";
 import {
   warningSVGPath,
   WidgetNameState,
@@ -150,3 +154,62 @@ const getPositionsForBoundary = (
 
   return { left, top, canvasLeftOffset, canvasTopOffset };
 };
+
+/**
+ * This function is used to check if the widget name data has changed
+ * @param existing
+ * @param selected
+ * @param focused
+ * @returns
+ */
+export function hasWidgetNameDataChanged(
+  existing: WidgetNamePositionType,
+  selected?: WidgetNameData[],
+  focused?: WidgetNameData,
+) {
+  if (!focused && !selected) return false;
+
+  const existingSelectedIds = Object.keys(existing.selected);
+  const existingFocusedIds = Object.keys(existing.focused);
+
+  // If there is a different focused element or the focused element has changed size or position
+  // The widget name data has changed
+  // Note: Only one widget can be focused at a time, hence checking for one key
+  if (focused) {
+    if (
+      focused.id !== existingFocusedIds[0] ||
+      focused.position.height !==
+        existing.focused[focused.id]?.widgetNameData.position.height ||
+      focused.position.width !==
+        existing.focused[focused.id]?.widgetNameData.position.width ||
+      focused.position.left !==
+        existing.focused[focused.id]?.widgetNameData.position.left ||
+      focused.position.top !==
+        existing.focused[focused.id]?.widgetNameData.position.top
+    ) {
+      return true;
+    }
+  }
+
+  if (selected) {
+    // For each widget name data check if existing selected widget name data has changed
+    // or if the widget name data is not present in existing selected widget name data
+    for (const widgetNameData of selected) {
+      if (
+        !existingSelectedIds.includes(widgetNameData.id) ||
+        widgetNameData.position.height !==
+          existing.selected[widgetNameData.id]?.widgetNameData.position
+            .height ||
+        widgetNameData.position.width !==
+          existing.selected[widgetNameData.id]?.widgetNameData.position.width ||
+        widgetNameData.position.left !==
+          existing.selected[widgetNameData.id]?.widgetNameData.position.left ||
+        widgetNameData.position.top !==
+          existing.selected[widgetNameData.id]?.widgetNameData.position.top
+      ) {
+        return true;
+      }
+    }
+  }
+  return false;
+}

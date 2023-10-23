@@ -1,11 +1,11 @@
 import type { DragEventHandler, MutableRefObject, DragEvent } from "react";
 import type {
   CanvasPositions,
-  SetDragginStateFnType,
   WidgetNamePositionType,
 } from "./WidgetNameTypes";
 import { throttle } from "lodash";
 import { getMainContainerAnvilCanvasDOMElement } from "./widgetNameRenderUtils";
+import type { SetDraggingStateActionPayload } from "utils/hooks/dragResizeHooks";
 
 /**
  * This returns a callback for scroll event on the MainContainer
@@ -143,7 +143,7 @@ export function getMouseMoveHandler(
  */
 export function getDragStartHandler(
   showTableFilterPane: () => void,
-  setDraggingState: SetDragginStateFnType,
+  setDraggingState: (payload: SetDraggingStateActionPayload) => void,
   shouldAllowDrag: boolean,
   canvasPositions: MutableRefObject<CanvasPositions>,
   widgetNamePositions: MutableRefObject<WidgetNamePositionType>,
