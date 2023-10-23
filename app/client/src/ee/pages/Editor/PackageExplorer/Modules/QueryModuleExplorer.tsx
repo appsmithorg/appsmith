@@ -41,6 +41,7 @@ import {
 } from "@appsmith/utils/Packages/moduleHelpers";
 import type { ModulesReducerState } from "@appsmith/reducers/entityReducers/modulesReducer";
 import QueryModuleEntity from "./QueryModules/QueryModuleEntity";
+import { useFilteredFileOperations } from "components/editorComponents/GlobalSearch/GlobalSearchHooks";
 
 const QueryModuleExplorer = () => {
   const packageId = useSelector(getCurrentPackageId) || "";
@@ -54,6 +55,9 @@ const QueryModuleExplorer = () => {
   const moduleResizeRef = useRef<HTMLDivElement>(null);
   const storedHeightKey = "modulesContainerHeight_" + packageId;
   const storedHeight = localStorage.getItem(storedHeightKey);
+  const [query, setQuery] = useState("");
+
+  const fileOperations = useFilteredFileOperations(query);
 
   useEffect(() => {
     if (
@@ -101,6 +105,8 @@ const QueryModuleExplorer = () => {
     />
   ));
 
+  const handleClick = () => {};
+
   return (
     <RelativeContainer
       className="border-b pb-1"
@@ -113,10 +119,14 @@ const QueryModuleExplorer = () => {
         collapseRef={moduleResizeRef}
         customAddButton={
           <ExplorerSubMenu
-            canCreateActions={canCreateModules}
+            canCreate={canCreateModules}
             className={`${EntityClassNames.ADD_BUTTON} group files`}
+            fileOperations={fileOperations}
+            handleClick={handleClick}
             onMenuClose={onMenuClose}
             openMenu={isMenuOpen}
+            query={query}
+            setQuery={setQuery}
           />
         }
         entityId={createMessage(QUERY_MODULES_TITLE)}
