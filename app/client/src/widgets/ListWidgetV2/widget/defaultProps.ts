@@ -299,7 +299,7 @@ export default {
           const imageWidget = children.filter(
             (child) => child.type === "IMAGE_WIDGET",
           )?.[0];
-
+          //console
           //Create flex layer object based on the children
           const flexLayers: FlexLayer[] = [
             {
