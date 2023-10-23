@@ -141,6 +141,7 @@ class CodeMirrorTernService {
     DataTreeDefEntityInformation
   >();
   options: { async: boolean };
+  activeArgType: string | null = null;
 
   constructor(options: { async: boolean }) {
     this.options = options;
@@ -176,6 +177,7 @@ class CodeMirrorTernService {
 
   updateArgHints(cm: CodeMirror.Editor) {
     this.closeArgHints();
+    this.activeArgType = null;
     if (cm.somethingSelected()) return;
     const state = cm.getTokenAt(cm.getCursor()).state;
     const CodeMirror = getCodeMirrorNamespaceFromDoc(cm.getDoc());
@@ -273,6 +275,7 @@ class CodeMirrorTernService {
       if (this.activeArgHints.clear) this.activeArgHints.clear();
       this.remove(this.activeArgHints);
       this.activeArgHints = null;
+      this.activeArgType = null;
     }
   }
 
@@ -301,35 +304,20 @@ class CodeMirrorTernService {
         tip.appendChild(document.createTextNode(":\u00a0"));
         tip.appendChild(this.elt("span", cls + "type", arg.type));
       }
+      if (i == pos) {
+        this.activeArgType = arg.type;
+      }
     }
-    tip.appendChild(document.createTextNode(tp.rettype ? ") ->\u00a0" : ")"));
-    if (tp.rettype) tip.appendChild(this.elt("span", cls + "type", tp.rettype));
-    const cursor = cm.getCursor();
-    const state = cm.getTokenAt(cursor).state;
-    const CodeMirror = getCodeMirrorNamespaceFromDoc(cm.getDoc());
-    const inner = CodeMirror.innerMode(cm.getMode(), state);
-    const functionIdentifierColumn = inner.state.lexical.column - 1;
-    const fnIdentifierToken = cm.getTokenAt({
-      ch: functionIdentifierColumn,
-      line: cursor.line,
-    });
-    const place = cm.cursorCoords(
-      {
-        ch: fnIdentifierToken.start,
-        line: cursor.line,
-      },
-      "page",
-    );
+    tip.appendChild(document.createTextNode(")"));
+    // if (tp.rettype) tip.appendChild(this.elt("span", cls + "type", tp.rettype));
+    const place = cm.cursorCoords(null, "page");
 
-    const tooltip = (this.activeArgHints = this.makeTooltip(
-      place.left + 1,
-      place.bottom,
-      tip,
-      cm,
-    ));
+    const tooltip: HTMLElement & { clear?: () => void } =
+      (cm.state.ternTooltip =
+      this.activeArgHints =
+        this.makeTooltip(place.left + 1, place.bottom, tip, cm));
     setTimeout(() => {
-      //@ts-expect-error type mismatch
-      tooltip.clear = onEditorActivity(cm, () => {
+      tooltip.clear = this.onEditorActivity(cm, () => {
         if (this.activeArgHints == tooltip) this.closeArgHints();
       });
     }, 20);
@@ -470,6 +458,12 @@ class CodeMirrorTernService {
 
     const shouldComputeBestMatch =
       this.fieldEntityInformation.entityType !== ENTITY_TYPE_VALUE.JSACTION;
+
+    if (this.activeArgType) {
+      this.fieldEntityInformation.expectedType = getDataType(
+        this.activeArgType,
+      );
+    }
 
     completions = AutocompleteSorter.sort(
       completions,

@@ -257,16 +257,15 @@ export const CodemirrorHintStyles = createGlobalStyle<{
 
   .CodeMirror-Tern-tooltip {
     font-family: ${(props) => props.theme.fonts.code};
-    line-height: 16px;
-    font-size: 12px;
     &&& {
+      font-size: 11px;
       z-index: 20 !important;
       background-color: var(--ads-v2-color-bg);
       box-shadow: 0px 0px 10px #0000001A;
       border-radius: var(--ads-v2-border-radius);
       border: none;
       .CodeMirror-Tern-fname {
-
+        display: none;
       }
       .CodeMirror-Tern-farg {
         color: hsl(288, 44%, 44%);
