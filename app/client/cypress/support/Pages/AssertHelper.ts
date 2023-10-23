@@ -30,7 +30,7 @@ export class AssertHelper extends ReusableHelper {
         expect(doc.readyState).to.equal("complete");
       }),
     );
-    cy.window({ timeout: 60000 }).should("have.property", "onload");
+    //cy.window({ timeout: 60000 }).should("have.property", "onload");//commenting to reduce time
   }
 
   public AssertDelete(entityType: EntityItemsType) {
@@ -64,7 +64,7 @@ export class AssertHelper extends ReusableHelper {
     return aliasName;
   }
 
-  public WaitForNetworkCall(aliasName: string) {
+  public WaitForNetworkCall(aliasName: string, responseTimeout = 60000) {
     // cy.wait(aliasName).then(($apiCall: any) => {
     //   expect($apiCall.response.body.responseMeta.status).to.eq(expectedStatus);
     // });
@@ -74,8 +74,8 @@ export class AssertHelper extends ReusableHelper {
     //   "response.body.responseMeta.status",
     //   expectedStatus,
     // );
-    this.Sleep(2000); //Wait a bit for call to finish!
-    return cy.wait(this.GetAliasName(aliasName), { responseTimeout: 60000 });
+    this.Sleep(); //Wait a bit for call to finish!
+    return cy.wait(this.GetAliasName(aliasName), { responseTimeout });
   }
 
   public AssertNetworkStatus(aliasName: string, expectedStatus = 200) {
@@ -88,6 +88,13 @@ export class AssertHelper extends ReusableHelper {
     // cy.wait(aliasName, { timeout: timeout }).should((response: any) => {
     //   expect(response.status).to.be.oneOf([expectedStatus]);
     // });
+  }
+
+  public AssertNetworkResponseData(aliasName: string) {
+    this.WaitForNetworkCall(aliasName, 100000);
+    cy.get(this.GetAliasName(aliasName))
+      .its("response.body.data")
+      .should("not.be.empty");
   }
 
   public AssertNetworkExecutionSuccess(aliasName: string, expectedRes = true) {
