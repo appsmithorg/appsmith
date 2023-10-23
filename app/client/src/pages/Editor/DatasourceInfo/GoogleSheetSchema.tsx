@@ -37,6 +37,7 @@ import RenderInterimDataState from "./RenderInterimDataState";
 import {
   ButtonContainer,
   DataWrapperContainer,
+  DatasourceAttributesWrapper,
   DatasourceDataContainer,
   DatasourceListContainer,
   MessageWrapper,
@@ -157,6 +158,27 @@ function GoogleSheetSchema(props: Props) {
     fetchSheetData,
   ]);
 
+  const scrollIntoView = (
+    elementId: string,
+    containerId: string,
+    offset: number = 0,
+  ) => {
+    try {
+      const element = document.querySelector(elementId);
+      const container = document.querySelector(containerId);
+      if (element && container) {
+        const elementRect = element.getBoundingClientRect();
+        const containerRect = container.getBoundingClientRect();
+        const scrollTop = container.scrollTop;
+
+        const scrollAmount =
+          elementRect.top - containerRect.top + scrollTop + offset;
+
+        container.scrollTop = scrollAmount;
+      }
+    } catch {}
+  };
+
   const selectSpreadsheetAndToggle = (option: DropdownOption) => {
     if (!isEmpty(selectedSpreadsheet.value) && !isEmpty(selectedSheet.value)) {
       dispatch(
@@ -178,6 +200,10 @@ function GoogleSheetSchema(props: Props) {
     dispatch(
       setEntityCollapsibleState(`${datasource?.id}-${option.value}`, true),
     );
+    scrollIntoView(
+      `#${CSS.escape(`entity-${datasource?.id}-${option.value}`)}`,
+      ".t--gsheet-structure",
+    );
   };
 
   const selectSheetAndToggle = (option: DropdownOption) => {
@@ -196,6 +222,15 @@ function GoogleSheetSchema(props: Props) {
         true,
       ),
     );
+    setTimeout(() => {
+      scrollIntoView(
+        `#${CSS.escape(
+          `entity-${datasource?.id}-${selectedSpreadsheet.value}-${option.value}`,
+        )}`,
+        ".t--gsheet-structure",
+        -30,
+      );
+    }, 0);
   };
 
   // Set first spreadsheet as default option in the dropdown
@@ -225,17 +260,6 @@ function GoogleSheetSchema(props: Props) {
         pluginId: props.pluginId,
       });
       setCurrentSheetData(sheetData.slice(0, MAX_SHEET_ROWS_LENGTH));
-      try {
-        setTimeout(() => {
-          document
-            .querySelector(
-              CSS.escape(
-                `#${datasource?.id}-${selectedSpreadsheet.value}-${selectedSheet.value}`,
-              ),
-            )
-            ?.scrollIntoView({ behavior: "smooth" });
-        }, 1000);
-      } catch {}
     }
   }, [sheetData]);
 
@@ -373,18 +397,20 @@ function GoogleSheetSchema(props: Props) {
                             isFetchingSheetData ? (
                               <LoadingItemIndicator type="DATA" />
                             ) : currentSheetData?.length > 0 ? (
-                              Object.keys(currentSheetData[0]).map(
-                                (fieldValue, index) => (
-                                  <DatasourceField
-                                    field={{
-                                      name: fieldValue,
-                                      type: "string",
-                                    }}
-                                    key={`${fieldValue}${index}`}
-                                    step={2}
-                                  />
-                                ),
-                              )
+                              <DatasourceAttributesWrapper>
+                                {Object.keys(currentSheetData[0]).map(
+                                  (fieldValue, index) => (
+                                    <DatasourceField
+                                      field={{
+                                        name: fieldValue,
+                                        type: "string",
+                                      }}
+                                      key={`${fieldValue}${index}`}
+                                      step={2}
+                                    />
+                                  ),
+                                )}
+                              </DatasourceAttributesWrapper>
                             ) : null
                           ) : (
                             <LoadingItemIndicator type="DATA" />

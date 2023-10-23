@@ -40,12 +40,29 @@ export const DatasourceListContainer = styled.div`
     overflow-y: auto;
     .t--spreadsheet-structure > .t--entity-item {
       font-weight: var(--ads-v2-font-weight-bold);
+      height: 25px;
     }
-    .t--sheet-structure > .t--entity-item {
+    .t--spreadsheet-structure {
+      padding-right: var(--ads-spaces-3);
+    }
+    .t--sheet-structure:not(:last-of-type) {
+      padding-bottom: var(--ads-spaces-3);
+    }
+    .t--sheet-structure .t--datasource-column {
+      padding-top: var(--ads-spaces-1);
+      padding-bottom: var(--ads-spaces-1);
+    }
+    .t--sheet-structure > .t--entity-item,
+    .t--sheet-structure .t--datasource-column {
       color: var(--ads-v2-color-gray-600);
+      height: 25px;
+      padding-left: var(--ads-spaces-10);
     }
     .t--sheet-structure.t--sheet-structure-active > .t--entity-item {
       background: var(--ads-v2-color-gray-100);
+    }
+    .t--sheet-structure .t--entity-name {
+      padding: var(--ads-spaces-2) 0;
     }
   }
   div {
@@ -56,6 +73,20 @@ export const DatasourceListContainer = styled.div`
   }
   .t--schema-virtuoso-container {
     height: 100%;
+  }
+`;
+
+export const DatasourceAttributesWrapper = styled.div`
+  padding: var(--ads-spaces-1) 0 var(--ads-spaces-1) var(--ads-spaces-10);
+  .t--datasource-column:hover {
+    background: none;
+  }
+  .t--datasource-column > div > div:first-of-type {
+    padding-right: var(--ads-spaces-3);
+  }
+  .t--datasource-column > div > div:last-of-type {
+    flex-shrink: 0;
+    flex-grow: 0;
   }
 `;
 
@@ -74,7 +105,8 @@ export const MessageWrapper = styled.div`
   width: 100%;
   height: 100%;
   &.t--gsheet-loading-indicator {
-    margin-top: var(--ads-v2-spaces-3);
+    justify-content: flex-start;
+    padding: var(--ads-spaces-1) 0 var(--ads-spaces-1) var(--ads-spaces-11);
   }
 `;
 
