@@ -10,6 +10,7 @@ const initialState: TemplatesReduxState = {
   isImportingTemplate: false,
   isImportingTemplateToApp: false,
   isImportingStarterTemplateToApp: false,
+  showStarterTemplateDatasourcePrompt: false,
   loadingFilters: false,
   gettingAllTemplates: false,
   gettingTemplate: false,
@@ -233,6 +234,7 @@ export interface TemplatesReduxState {
   isImportingTemplate: boolean;
   isImportingTemplateToApp: boolean;
   isImportingStarterTemplateToApp: boolean;
+  showStarterTemplateDatasourcePrompt: boolean;
   templateNotificationSeen: boolean | null;
   showTemplatesModal: boolean;
   loadingFilters: boolean;

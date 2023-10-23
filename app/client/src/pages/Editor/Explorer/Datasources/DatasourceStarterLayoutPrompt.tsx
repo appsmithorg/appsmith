@@ -1,20 +1,33 @@
+import {
+  Popover,
+  PopoverContent,
+  PopoverHeader,
+  PopoverBody,
+  PopoverTrigger,
+} from "design-system";
 import React from "react";
-import styled from "styled-components";
-
-const Wrapper = styled.div`
-  display: flex;
-  position: absolute;
-  right: 0;
-  width: 296px;
-  background: red;
-  height: 100px;
-`;
 
 function DatasourceStarterLayoutPrompt() {
   return (
-    <Wrapper>
-      <p>test</p>
-    </Wrapper>
+    <Popover
+      onOpenChange={() => {
+        return true;
+      }}
+      open
+    >
+      <PopoverTrigger>
+        <div />
+      </PopoverTrigger>
+
+      <PopoverContent align="start" className="z-[25]" side="left" size="md">
+        <PopoverHeader className="sticky top-0" isClosable>
+          {"Bring your data in!"}
+        </PopoverHeader>
+        <PopoverBody className={"!overflow-y-clip"}>
+          <p>test</p>
+        </PopoverBody>
+      </PopoverContent>
+    </Popover>
   );
 }
 
