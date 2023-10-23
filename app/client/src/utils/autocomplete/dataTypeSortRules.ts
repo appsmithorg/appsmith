@@ -18,4 +18,4 @@ export const DataTreeFunctionSortOrder = [
   "setInterval()",
 ];
 
-export const blockedCompletions = ["Function()"];
+export const blockedCompletions = ["Function()", "MainContainer"];
