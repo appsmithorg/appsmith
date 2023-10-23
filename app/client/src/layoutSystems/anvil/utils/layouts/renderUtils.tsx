@@ -7,25 +7,34 @@ import type {
 } from "../anvilTypes";
 import { type RenderMode, RenderModes } from "constants/WidgetConstants";
 import { isFillWidgetPresentInList } from "./widgetUtils";
-import { MOBILE_BREAKPOINT } from "../constants";
+import { AlignmentIndexMap, MOBILE_BREAKPOINT } from "../constants";
 import {
   FlexLayout,
   type FlexLayoutProps,
 } from "layoutSystems/anvil/layoutComponents/components/FlexLayout";
 import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
 import { isWidgetLayoutProps } from "./typeUtils";
-import { renderChildren } from "layoutSystems/common/utils/canvasUtils";
+import { renderChildWidget } from "layoutSystems/common/utils/canvasUtils";
 import type BaseLayoutComponent from "layoutSystems/anvil/layoutComponents/BaseLayoutComponent";
+import type { WidgetProps } from "widgets/BaseWidget";
 
-export function renderWidgets(props: LayoutComponentProps) {
+export function renderWidgets(props: LayoutComponentProps, startIndex = 0) {
   const { canvasId, childrenMap, parentDropTarget, renderMode } = props;
-  return renderChildren(
-    Object.values(childrenMap).filter((each) => !!each),
-    canvasId,
-    renderMode as RenderModes,
-    {},
-    { layoutId: parentDropTarget },
-  );
+  return Object.values(childrenMap)
+    .filter((each) => !!each)
+    .map((each: WidgetProps, index: number) => {
+      return renderChildWidget({
+        childWidgetData: each,
+        defaultWidgetProps: {},
+        layoutSystemProps: {
+          layoutId: parentDropTarget,
+          rowIndex: index + startIndex,
+        },
+        noPad: false,
+        renderMode: renderMode as RenderModes,
+        widgetId: canvasId,
+      });
+    });
 }
 
 /**
@@ -42,7 +51,7 @@ export function renderLayouts(
   renderMode: RenderMode = RenderModes.CANVAS,
   layoutOrder: string[],
 ): JSX.Element[] {
-  return layouts.map((layout) => {
+  return layouts.map((layout: LayoutProps, index: number) => {
     const Component: typeof BaseLayoutComponent = LayoutFactory.get(
       layout.layoutType,
     );
@@ -52,6 +61,7 @@ export function renderLayouts(
         canvasId={canvasId}
         childrenMap={getChildrenMap(layout, childrenMap)}
         key={layout.layoutId}
+        layoutIndex={index}
         layoutOrder={layoutOrder}
         parentDropTarget={
           layout.isDropTarget ? layout.layoutId : parentDropTarget
@@ -134,7 +144,10 @@ export function renderWidgetsInAlignedRow(
    * else render the child widgets separately
    * in their respective alignments.
    */
-  const commonProps: Omit<FlexLayoutProps, "children" | "layoutId"> = {
+  const commonProps: Omit<
+    FlexLayoutProps,
+    "children" | "layoutId" | "layoutIndex"
+  > = {
     alignSelf: "stretch",
     canvasId,
     columnGap: "4px",
@@ -146,6 +159,17 @@ export function renderWidgetsInAlignedRow(
     wrap: { base: "wrap", [`${MOBILE_BREAKPOINT}px`]: "nowrap" },
   };
 
+  const startChildren: Record<string, WidgetProps> = getChildrenMapForAlignment(
+    props,
+    FlexLayerAlignment.Start,
+  );
+  const centerChildren: Record<string, WidgetProps> =
+    getChildrenMapForAlignment(props, FlexLayerAlignment.Center);
+  const endChildren: Record<string, WidgetProps> = getChildrenMapForAlignment(
+    props,
+    FlexLayerAlignment.End,
+  );
+
   // TODO: After positionObserver integration,
   // check if use of FlexLayout is causing performance or other issues.
   // WDS Flex can be used as a replacement.
@@ -153,41 +177,45 @@ export function renderWidgetsInAlignedRow(
     <FlexLayout
       {...commonProps}
       justifyContent="start"
-      key={`${layoutId}-0`}
-      layoutId={`${layoutId}-0`}
+      key={`${layoutId}-${AlignmentIndexMap[FlexLayerAlignment.Start]}`}
+      layoutId={`${layoutId}-${AlignmentIndexMap[FlexLayerAlignment.Start]}`}
+      layoutIndex={AlignmentIndexMap[FlexLayerAlignment.Start]}
     >
       {renderWidgets({
         ...props,
-        childrenMap: getChildrenMapForAlignment(
-          props,
-          FlexLayerAlignment.Start,
-        ),
+        childrenMap: startChildren,
       })}
     </FlexLayout>,
     <FlexLayout
       {...commonProps}
       justifyContent="center"
-      key={`${layoutId}-1`}
-      layoutId={`${layoutId}-1`}
+      key={`${layoutId}-${AlignmentIndexMap[FlexLayerAlignment.Center]}`}
+      layoutId={`${layoutId}-${AlignmentIndexMap[FlexLayerAlignment.Center]}`}
+      layoutIndex={AlignmentIndexMap[FlexLayerAlignment.Start]}
     >
-      {renderWidgets({
-        ...props,
-        childrenMap: getChildrenMapForAlignment(
-          props,
-          FlexLayerAlignment.Center,
-        ),
-      })}
+      {renderWidgets(
+        {
+          ...props,
+          childrenMap: centerChildren,
+        },
+        Object.keys(startChildren)?.length,
+      )}
     </FlexLayout>,
     <FlexLayout
       {...commonProps}
       justifyContent="end"
-      key={`${layoutId}-2`}
-      layoutId={`${layoutId}-2`}
+      key={`${layoutId}-${AlignmentIndexMap[FlexLayerAlignment.End]}`}
+      layoutId={`${layoutId}-${AlignmentIndexMap[FlexLayerAlignment.End]}`}
+      layoutIndex={AlignmentIndexMap[FlexLayerAlignment.End]}
     >
-      {renderWidgets({
-        ...props,
-        childrenMap: getChildrenMapForAlignment(props, FlexLayerAlignment.End),
-      })}
+      {renderWidgets(
+        {
+          ...props,
+          childrenMap: endChildren,
+        },
+        Object.keys(startChildren)?.length +
+          Object.keys(centerChildren)?.length,
+      )}
     </FlexLayout>,
   ];
 }
