@@ -1,4 +1,4 @@
-import React from "react";
+import React, { type ReactNode } from "react";
 import LayoutFactory from "layoutSystems/anvil/layoutComponents/LayoutFactory";
 import type {
   LayoutComponentProps,
@@ -18,8 +18,21 @@ import { renderChildWidget } from "layoutSystems/common/utils/canvasUtils";
 import type BaseLayoutComponent from "layoutSystems/anvil/layoutComponents/BaseLayoutComponent";
 import type { WidgetProps } from "widgets/BaseWidget";
 
-export function renderWidgets(props: LayoutComponentProps, startIndex = 0) {
+/**
+ *
+ * @param props | LayoutComponentProps : Component properties of a layout.
+ * @param startIndex | number (optional) : The index of the first child.
+ * @returns ReactNode[] | List of rendered child widgets
+ */
+export function renderWidgets(
+  props: LayoutComponentProps,
+  startIndex = 0,
+): ReactNode[] {
   const { canvasId, childrenMap, parentDropTarget, renderMode } = props;
+  /**
+   * startIndex is needed because AlignedWidgetRow uses three child Rows to render it's widgets.
+   * startIndex is used to correctly determine the index of a widget in the layout.
+   */
   return Object.values(childrenMap)
     .filter((each) => !!each)
     .map((each: WidgetProps, index: number) => {
