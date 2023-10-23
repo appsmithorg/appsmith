@@ -76,11 +76,11 @@ export class AssertHelper extends ReusableHelper {
     cy.wait(this.GetAliasName(aliasName), { timeout: responseTimeout });
     return cy
       .get(this.GetAliasName(aliasName))
-      .then((interceptions: any) => interceptions);
-
-    // interceptions.length > 0
-    //   ? interceptions[interceptions.length - 1].response
-    //   : interceptions,
+      .then((interceptions: any) =>
+        interceptions.length > 0
+          ? interceptions[interceptions.length - 1].response
+          : interceptions,
+      );
   }
 
   public AssertNetworkStatus(
