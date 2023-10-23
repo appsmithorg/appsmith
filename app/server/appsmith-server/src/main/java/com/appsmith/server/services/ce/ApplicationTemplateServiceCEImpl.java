@@ -214,6 +214,7 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
                             FieldName.APPLICATION_ID, application.getId(),
                             FieldName.WORKSPACE_ID, application.getWorkspaceId(),
                             FieldName.TEMPLATE_APPLICATION_NAME, application.getName(),
+                            FieldName.SOURCE, "Templates page",
                             FieldName.EVENT_DATA, eventData);
 
                     return analyticsService
@@ -304,6 +305,7 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
                             FieldName.APPLICATION_ID, application.getId(),
                             FieldName.WORKSPACE_ID, application.getWorkspaceId(),
                             FieldName.TEMPLATE_APPLICATION_NAME, application.getName(),
+                            FieldName.SOURCE, "Templates page",
                             FieldName.EVENT_DATA, eventData);
 
                     return analyticsService
