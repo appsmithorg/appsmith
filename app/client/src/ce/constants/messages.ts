@@ -242,8 +242,8 @@ export const DATE_WIDGET_DEFAULT_VALIDATION_ERROR = () => "Date out of range";
 export const TIMEZONE = () => `Timezone`;
 export const ENABLE_TIME = () => `Enable Time`;
 
-export const EDIT_APP = () => `Edit App`;
-export const FORK_APP = () => `Fork App`;
+export const EDIT_APP = () => `Edit app`;
+export const FORK_APP = () => `Fork app`;
 export const SIGN_IN = () => `Sign in`;
 export const SHARE_APP = () => `Share app`;
 export const ALL_APPS = () => `All apps`;
@@ -294,9 +294,9 @@ export const WIDGET_SIDEBAR_TITLE = () => `Widgets`;
 export const WIDGET_SIDEBAR_CAPTION = () =>
   `Drag a widget and drop it on the canvas`;
 export const GOOGLE_RECAPTCHA_KEY_ERROR = () =>
-  `Google Re-Captcha token generation failed! Please check the Re-captcha site key.`;
+  `Google reCAPTCHA token generation failed! Please check the reCAPTCHA site key.`;
 export const GOOGLE_RECAPTCHA_DOMAIN_ERROR = () =>
-  `Google Re-Captcha token generation failed! Please check the allowed domains.`;
+  `Google reCAPTCHA token generation failed! Please check the allowed domains.`;
 
 export const SERVER_API_TIMEOUT_ERROR = () =>
   `Appsmith server is taking too long to respond. Please try again after some time`;
@@ -340,7 +340,7 @@ export const ENTITY_EXPLORER_ACTION_NAME_CONFLICT_ERROR = (name: string) =>
 export const ACTION_ID_NOT_FOUND_IN_URL =
   "No correct API id or Query id found in the url.";
 export const JSOBJECT_ID_NOT_FOUND_IN_URL =
-  "No correct JSObject id found in the url.";
+  "No correct JS Object id found in the url.";
 
 export const DATASOURCE_CREATE = (dsName: string) =>
   `${dsName} datasource created`;
@@ -520,10 +520,10 @@ export const PRESS = () => "🎉 Press ";
 export const OPEN_THE_DEBUGGER = () => " to show/hide the debugger";
 export const DEBUGGER_QUERY_RESPONSE_SECOND_HALF = () =>
   " to see more info in the debugger";
-export const LOGS_FILTER_OPTION_ALL = () => "Show All Logs";
-export const LOGS_FILTER_OPTION_ERROR = () => "Error Logs";
-export const LOGS_FILTER_OPTION_CONSOLE = () => "Console Logs";
-export const LOGS_FILTER_OPTION_SYSTEM = () => "System Logs";
+export const LOGS_FILTER_OPTION_ALL = () => "Show all logs";
+export const LOGS_FILTER_OPTION_ERROR = () => "Error logs";
+export const LOGS_FILTER_OPTION_CONSOLE = () => "Console logs";
+export const LOGS_FILTER_OPTION_SYSTEM = () => "System logs";
 export const NO_LOGS = () => "No logs to show";
 export const NO_ERRORS = () => "No signs of trouble here!";
 export const DEBUGGER_ERRORS = () => "Errors";
@@ -583,7 +583,7 @@ export const JS_ACTION_MOVE_SUCCESS = (actionName: string, pageName: string) =>
 export const ERROR_JS_ACTION_MOVE_FAIL = (actionName: string) =>
   `Error while moving ${actionName}`;
 export const ERROR_JS_COLLECTION_RENAME_FAIL = (actionName: string) =>
-  `Unable to update js collection name to ${actionName}`;
+  `Unable to update JS collection name to ${actionName}`;
 export const PARSE_JS_FUNCTION_ERROR = (message: string) =>
   `Syntax error: ${message}`;
 
@@ -609,9 +609,9 @@ export const JS_SETTINGS_CONFIRM_EXECUTION = () =>
 export const JS_SETTINGS_CONFIRM_EXECUTION_SUBTEXT = () =>
   "Ask confirmation from the user every time before refreshing data";
 export const JS_SETTINGS_EXECUTE_TIMEOUT = () =>
-  "Function Timeout (in milliseconds)";
+  "Function timeout (in milliseconds)";
 export const FUNCTION_SETTINGS_HEADING = () => "Function settings";
-export const NO_JS_FUNCTIONS = () => "There is no function in this JSObject";
+export const NO_JS_FUNCTIONS = () => "There is no function in this JS Object";
 export const NO_JS_FUNCTION_TO_RUN = (JSObjectName: string) =>
   `${JSObjectName} has no function`;
 export const NO_JS_FUNCTION_RETURN_VALUE = (JSFunctionName: string) =>
@@ -641,7 +641,7 @@ export const RECONNECT_DATASOURCE_SUCCESS_MESSAGE1 = () =>
   "These datasources were imported successfully!";
 export const RECONNECT_DATASOURCE_SUCCESS_MESSAGE2 = () =>
   "Please fill up the missing datasources";
-export const ADD_MISSING_DATASOURCES = () => "Add missing Datasources";
+export const ADD_MISSING_DATASOURCES = () => "Add missing datasources";
 export const SKIP_TO_APPLICATION_TOOLTIP_HEADER = () =>
   "This action is irreversible.";
 export const SKIP_TO_APPLICATION_TOOLTIP_DESCRIPTION = () =>
@@ -659,9 +659,9 @@ export const DELETE_CONFIRMATION_MODAL_SUBTITLE = (
     entityType === "Application" ? "application" : "workspace"
   }`;
 export const PARSING_ERROR = () =>
-  "Syntax Error: Unable to parse code, please check error logs to debug";
+  "Syntax error: Unable to parse code, please check error logs to debug";
 export const PARSING_WARNING = () =>
-  "Linting Errors: Please resolve linting errors before using these functions";
+  "Linting errors: Please resolve linting errors before using these functions";
 export const JS_FUNCTION_CREATE_SUCCESS = () =>
   "New JS function added successfully";
 export const JS_FUNCTION_UPDATE_SUCCESS = () =>
@@ -887,13 +887,13 @@ export const AUTHENTICATION_METHOD_ENABLED = (methodName: string) => `
 `;
 
 export const REVOKE_EXISTING_REPOSITORIES = () =>
-  "Revoke Existing Repositories";
+  "Revoke existing repositories";
 export const REVOKE_EXISTING_REPOSITORIES_INFO = () =>
   "To make space for newer repositories, you can remove existing repositories.";
-export const CONTACT_SUPPORT = () => "Contact Support";
+export const CONTACT_SUPPORT = () => "Contact support";
 export const CONTACT_SALES_MESSAGE_ON_INTERCOM = (workspaceName: string) =>
   `Hey there, thanks for getting in touch! We understand that you’d like to extend the number of private repos for your ${workspaceName}. Could you tell us how many private repositories you require and why? We'll get back to you in a short while.`;
-export const REPOSITORY_LIMIT_REACHED = () => "Repository Limit Reached";
+export const REPOSITORY_LIMIT_REACHED = () => "Repository limit reached";
 export const REPOSITORY_LIMIT_REACHED_INFO = () =>
   "Adding and using upto 3 repositories is free. To add more repositories, kindly upgrade.";
 export const APPLICATION_IMPORT_SUCCESS = () =>
@@ -913,7 +913,7 @@ export const REVOKE_ACCESS = () => "Revoke Access";
 export const GIT_DISCONNECTION_SUBMENU = () => "Git Connection > Disconnect";
 export const DISCONNECT_FROM_GIT = (name: string) =>
   `Disconnect ${name} from Git`;
-export const GIT_REVOKE_ACCESS = (name: string) => `Revoke Access To ${name}`;
+export const GIT_REVOKE_ACCESS = (name: string) => `Revoke access to ${name}`;
 export const GIT_TYPE_REPO_NAME_FOR_REVOKING_ACCESS = (name: string) =>
   `Type “${name}” in the input box to revoke access.`;
 export const APPLICATION_NAME = () => "Application name";
@@ -1077,10 +1077,10 @@ export const TRIGGER_ACTION_VALIDATION_ERROR = (
   `${functionName} expected ${expectedType} for '${argumentName}' argument but received ${received}`;
 
 // Comment card tooltips
-export const MORE_OPTIONS = () => "More Options";
-export const ADD_REACTION = () => "Add Reaction";
-export const RESOLVE_THREAD = () => "Resolve Thread";
-export const RESOLVED_THREAD = () => "Resolved Thread";
+export const MORE_OPTIONS = () => "More options";
+export const ADD_REACTION = () => "Add reaction";
+export const RESOLVE_THREAD = () => "Resolve thread";
+export const RESOLVED_THREAD = () => "Resolved thread";
 export const EMOJI = () => "Emoji";
 
 // Sniping mode messages
@@ -1882,9 +1882,9 @@ export const NEW_API_BUTTON_TEXT = () => "New API";
 export const GENERATE_NEW_PAGE_BUTTON_TEXT = () => "Generate new page";
 export const RECONNECT_BUTTON_TEXT = () => "Reconnect";
 export const SAVE_BUTTON_TEXT = () => "Save";
-export const TEST_BUTTON_TEXT = () => "Test Configuration";
-export const SAVE_AND_AUTHORIZE_BUTTON_TEXT = () => "Save and authorize";
-export const SAVE_AND_RE_AUTHORIZE_BUTTON_TEXT = () => "Save and Re-Authorize";
+export const TEST_BUTTON_TEXT = () => "Test configuration";
+export const SAVE_AND_AUTHORIZE_BUTTON_TEXT = () => "Save & Authorize";
+export const SAVE_AND_RE_AUTHORIZE_BUTTON_TEXT = () => "Save & Re-Authorize";
 export const DISCARD_POPUP_DONT_SAVE_BUTTON_TEXT = () => "Don't save";
 export const GSHEET_AUTHORISED_FILE_IDS_KEY = () => "userAuthorizedSheetIds";
 export const GOOGLE_SHEETS_INFO_BANNER_MESSAGE = () =>

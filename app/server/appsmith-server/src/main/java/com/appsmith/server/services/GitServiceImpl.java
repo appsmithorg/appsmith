@@ -18,6 +18,7 @@ import com.appsmith.server.repositories.GitDeployKeysRepository;
 import com.appsmith.server.services.ce_compatible.GitServiceCECompatibleImpl;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
+import com.appsmith.server.solutions.WorkspacePermission;
 import io.micrometer.observation.ObservationRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Import;
@@ -48,6 +49,7 @@ public class GitServiceImpl extends GitServiceCECompatibleImpl implements GitSer
             PluginService pluginService,
             DatasourcePermission datasourcePermission,
             ApplicationPermission applicationPermission,
+            WorkspacePermission workspacePermission,
             WorkspaceService workspaceService,
             RedisUtils redisUtils,
             ObservationRegistry observationRegistry,
@@ -73,6 +75,7 @@ public class GitServiceImpl extends GitServiceCECompatibleImpl implements GitSer
                 pluginService,
                 datasourcePermission,
                 applicationPermission,
+                workspacePermission,
                 workspaceService,
                 redisUtils,
                 observationRegistry,
