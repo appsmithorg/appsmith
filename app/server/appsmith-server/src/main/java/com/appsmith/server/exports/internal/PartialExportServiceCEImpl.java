@@ -86,7 +86,8 @@ public class PartialExportServiceCEImpl implements PartialExportServiceCE {
         Mono<Application> applicationMono = applicationService
                 .findById(applicationId, applicationPermission.getEditPermission())
                 .switchIfEmpty(Mono.error(
-                        new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId)));
+                        new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId)))
+                .cache();
 
         return applicationMono
                 .flatMap(application -> {
@@ -182,7 +183,7 @@ public class PartialExportServiceCEImpl implements PartialExportServiceCE {
 
     private void exportDatasource(Set<String> validDatasource, ApplicationJson applicationJson) {
         List<DatasourceStorage> datasourceList = applicationJson.getDatasourceList().stream()
-                .filter(datasourceStorage -> validDatasource.contains(datasourceStorage.getId()))
+                .filter(datasourceStorage -> validDatasource.contains(datasourceStorage.getDatasourceId()))
                 .toList();
         applicationJson.setDatasourceList(datasourceList);
     }
