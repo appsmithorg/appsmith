@@ -238,6 +238,7 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
                         Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.TENANT, DEFAULT)));
 
         return tenantMono.flatMap(tenant -> {
+            log.debug("Going to remove the license key for tenant {} and execute downgrade migrations", tenant.getId());
             TenantConfiguration tenantConfiguration = tenant.getTenantConfiguration();
             if (tenantConfiguration == null || tenantConfiguration.getLicense() == null) {
                 return Mono.just(tenant);
@@ -269,9 +270,11 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
                                     // DB object and not the modified one because of the client pertinent changes
                                     .then(repository.retrieveById(tenant.getId()))
                                     .flatMap(this::forceUpdateTenantFeaturesAndUpdateFeaturesWithPendingMigrations)
-                                    .then(syncLicensePlansAndRunFeatureBasedMigrations());
+                                    .flatMap(this::syncLicensePlansAndRunFeatureBasedMigrationsWithoutPermission);
                         }
-                        return Mono.error(new AppsmithException(AppsmithError.TENANT_DOWNGRADE_EXCEPTION));
+                        return Mono.error(new AppsmithException(
+                                AppsmithError.TENANT_DOWNGRADE_EXCEPTION,
+                                "Received error from Cloud Services while downgrading the tenant to free plan"));
                     })
                     .map(updatedTenant -> {
                         sendLicenseRemovedFromInstanceEvent(updatedTenant, pastLicense);
@@ -292,26 +295,16 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
      * Method to sync current and previous license plan.
      * @return Mono of Tenant
      */
-    @Override
-    public Mono<Tenant> syncLicensePlansAndRunFeatureBasedMigrations() {
-        Mono<Tenant> tenantMono = this.getDefaultTenant(MANAGE_TENANT)
-                .switchIfEmpty(
-                        Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.TENANT, DEFAULT)));
-
-        return tenantMono
-                .flatMap(tenant -> {
-                    if (tenant.getTenantConfiguration() == null) {
-                        return Mono.just(tenant);
-                    }
-                    // Expect a null license in case the method is called from remove license flow
-                    License license = tenant.getTenantConfiguration().getLicense() == null
-                            ? new License()
-                            : tenant.getTenantConfiguration().getLicense();
-                    license.setPreviousPlan(license.getPlan());
-                    return this.save(tenant);
-                })
-                // Fetch the tenant again from DB to make sure the downstream chain is consuming the latest
-                // DB object and not the modified one because of the client pertinent changes
+    private Mono<Tenant> syncLicensePlansAndRunFeatureBasedMigrationsWithoutPermission(Tenant tenant) {
+        if (tenant.getTenantConfiguration() == null) {
+            return Mono.just(tenant);
+        }
+        log.debug("Going to sync license plans and run feature based migrations for tenant {}", tenant.getId());
+        License license = tenant.getTenantConfiguration().getLicense() == null
+                ? new License()
+                : tenant.getTenantConfiguration().getLicense();
+        license.setPreviousPlan(license.getPlan());
+        return this.save(tenant)
                 .flatMap(savedTenant -> repository.retrieveById(savedTenant.getId()))
                 .map(tenantWithUpdatedMigration -> {
                     // Run the migrations in a separate thread, as we expect the migrations can run for few seconds
@@ -324,6 +317,23 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
                             .subscribe();
                     return tenantWithUpdatedMigration;
                 });
+    }
+
+    @Override
+    public Mono<Tenant> syncLicensePlansAndRunFeatureBasedMigrations() {
+        Mono<Tenant> tenantMono = this.getDefaultTenant(MANAGE_TENANT)
+                .switchIfEmpty(
+                        Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.TENANT, DEFAULT)));
+        Mono<Tenant> syncPlansAndExecuteMigrationMono =
+                tenantMono.flatMap(this::syncLicensePlansAndRunFeatureBasedMigrationsWithoutPermission);
+
+        // To ensures that even though the client may have cancelled the flow, migration execution should proceed
+        // uninterrupted and whenever the user refreshes the page, user should be presented with the valid DB state.
+        // To achieve this, we use a synchronous sink which does not take subscription cancellations into account.
+        // This means that even if the subscriber has cancelled its subscription, the create method still generates
+        // its event.
+        return Mono.create(sink ->
+                syncPlansAndExecuteMigrationMono.subscribe(sink::success, sink::error, null, sink.currentContext()));
     }
 
     /**
@@ -446,6 +456,9 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
                 .map(tuple -> {
                     Tenant updatedTenant = tuple.getT1();
                     Tenant tenantBeforeRefresh = tuple.getT2();
+                    log.debug(
+                            "Refresh the current license status for tenant {} and return the latest status",
+                            updatedTenant.getId());
                     sendLicenseRefreshedEvent(
                             updatedTenant,
                             tenantBeforeRefresh.getTenantConfiguration().getLicense(),
@@ -592,7 +605,7 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
         License license = tenantConfiguration.getLicense() != null ? tenantConfiguration.getLicense() : new License();
 
         // TODO: Update the check from plain timestamp so that user should not be able to tamper the DB resource
-        if (license.getExpiry() == null || license.getExpiry().isBefore(Instant.now())) {
+        if (license.getExpiry() != null && license.getExpiry().isBefore(Instant.now())) {
             license.setActive(false);
             license.setStatus(LicenseStatus.EXPIRED);
             tenantConfiguration.setLicense(license);

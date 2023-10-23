@@ -1123,7 +1123,7 @@ public enum AppsmithError {
             AppsmithErrorCode.TENANT_DOWNGRADE_EXCEPTION.getCode(),
             "Unable to downgrade current tenant. Error: {0}",
             AppsmithErrorAction.DEFAULT,
-            "HMAC signature generation failed",
+            "Tenant downgrade failed",
             ErrorType.ARGUMENT_ERROR,
             null),
     KNOWLEDGE_BASE_ERROR(

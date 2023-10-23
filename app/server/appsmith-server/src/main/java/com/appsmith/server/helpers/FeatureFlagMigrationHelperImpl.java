@@ -90,7 +90,16 @@ public class FeatureFlagMigrationHelperImpl extends FeatureFlagMigrationHelperCE
             default -> {}
         }
 
-        return Flux.concat(migrationMonos).then(super.executeMigrationsBasedOnFeatureFlag(tenant, featureFlagEnum));
+        return Flux.concat(migrationMonos)
+                .then(super.executeMigrationsBasedOnFeatureFlag(tenant, featureFlagEnum))
+                .onErrorResume(error -> {
+                    log.error(
+                            "Error executing migrations for feature flag {} for tenant {}",
+                            featureFlagEnum,
+                            tenant.getId(),
+                            error);
+                    return Mono.just(false);
+                });
     }
 
     private List<Mono<?>> executeDowngradeMigrationForSSOBasedOnLoginSourceAndTenantId(
