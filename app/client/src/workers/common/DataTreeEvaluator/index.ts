@@ -714,7 +714,6 @@ export default class DataTreeEvaluator {
 
   evalAndValidateSubTree(
     evaluationOrder: string[],
-    nonDynamicFieldValidationOrder: string[],
     configTree: ConfigTree,
     unevalUpdates: DataTreeDiff[],
     metaWidgetIds: string[] = [],
