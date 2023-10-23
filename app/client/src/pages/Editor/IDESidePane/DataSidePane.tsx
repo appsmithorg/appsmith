@@ -3,16 +3,23 @@ import styled from "styled-components";
 import { List, Text } from "design-system";
 import { useSelector } from "react-redux";
 import {
+  getActions,
   getDatasources,
   getPlugins,
 } from "@appsmith/selectors/entitiesSelector";
 import history from "utils/history";
 import { datasourcesEditorIdURL } from "@appsmith/RouteBuilder";
 import { getSelectedDatasourceId } from "../../../navigation/FocusSelectors";
-import { groupBy, keyBy } from "lodash";
+import { countBy, groupBy, keyBy } from "lodash";
 import { PluginType } from "entities/Action";
 import CreateDatasourcePopover from "./CreateDatasourcePopover";
 import { useLocation } from "react-router";
+import {
+  createMessage,
+  DATA_PANE_TITLE,
+  DATASOURCE_BLANK_STATE_MESSAGE,
+  DATASOURCE_LIST_BLANK_TITLE,
+} from "@appsmith/constants/messages";
 
 const PaneContainer = styled.div`
   width: 300px;
@@ -58,6 +65,8 @@ const DataSidePane = () => {
   const datasources = useSelector(getDatasources);
   const plugins = useSelector(getPlugins);
   const groupedPlugins = keyBy(plugins, "id");
+  const actions = useSelector(getActions);
+  const actionCount = countBy(actions, "config.datasource.id");
   const groupedDatasources = groupBy(datasources, (d) => {
     const plugin = groupedPlugins[d.pluginId];
     if (plugin.type === PluginType.SAAS || plugin.type === PluginType.REMOTE) {
@@ -79,17 +88,17 @@ const DataSidePane = () => {
   return (
     <PaneContainer>
       <PaneHeader>
-        <Text kind="heading-xs">Datasources in your Workspace</Text>
+        <Text kind="heading-xs">{createMessage(DATA_PANE_TITLE)}</Text>
         <CreateDatasourcePopover />
       </PaneHeader>
       <PaneBody>
         {datasources.length === 0 ? (
           <EmptyStateContainer>
             <Text kind="heading-xs">
-              No datasources exist in your workplace.
+              {createMessage(DATASOURCE_LIST_BLANK_TITLE)}
             </Text>
             <Text kind="body-s">
-              You need a datasource connection to write your first query
+              {createMessage(DATASOURCE_BLANK_STATE_MESSAGE)}
             </Text>
           </EmptyStateContainer>
         ) : null}
@@ -100,8 +109,10 @@ const DataSidePane = () => {
               items={value.map((data) => ({
                 title: data.name,
                 onClick: () => goToDatasource(data.id),
-                description: "",
-                descriptionType: "inline",
+                description: `${
+                  actionCount[data.id] || "No"
+                } queries in this app`,
+                descriptionType: "block",
                 isSelected: currentSelectedDatasource === data.id,
                 startIcon: (
                   <DatasourceIcon

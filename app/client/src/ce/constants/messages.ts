@@ -2163,5 +2163,8 @@ export const EMPTY_TABLE_MESSAGE_TEXT = () =>
   "There are no data records to show";
 export const EMPTY_TABLE_SVG_ALT_TEXT = () => "Empty table image";
 
+export const DATA_PANE_TITLE = () => "Datasources in your Workspace";
+export const DATASOURCE_LIST_BLANK_TITLE = () =>
+  "No datasources exist in your workplace.";
 export const DATASOURCE_BLANK_STATE_MESSAGE = () =>
   "You need a datasource connection to write your first query";
