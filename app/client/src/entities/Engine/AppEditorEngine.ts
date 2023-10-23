@@ -279,11 +279,11 @@ export default class AppEditorEngine extends AppEngine {
     if (branchInStore) {
       history.replace(addBranchParam(branchInStore));
       yield put(fetchGitStatusInit({ compareRemote: false }));
+
+      yield put(fetchBranchesInit());
+      yield take(ReduxActionTypes.FETCH_BRANCHES_SUCCESS);
+      yield put(fetchGitProtectedBranches());
     }
     yield put(resetPullMergeStatus());
-
-    yield put(fetchBranchesInit());
-    yield take(ReduxActionTypes.FETCH_BRANCHES_SUCCESS);
-    yield put(fetchGitProtectedBranches());
   }
 }

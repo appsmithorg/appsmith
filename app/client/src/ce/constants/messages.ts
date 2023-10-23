@@ -801,9 +801,9 @@ export const USER_PROFILE_SETTINGS_TITLE = () => "User settings";
 export const GIT_USER_SETTINGS_TITLE = () => "Git author";
 
 export const USE_DEFAULT_CONFIGURATION = () => "Use default configuration";
-export const AUTHOR_NAME = () => "Author name";
+export const AUTHOR_NAME = () => "Name";
 export const AUTHOR_NAME_CANNOT_BE_EMPTY = () => "Author name cannot be empty";
-export const AUTHOR_EMAIL = () => "Author email";
+export const AUTHOR_EMAIL = () => "E-mail";
 export const AUTHOR_EMAIL_CANNOT_BE_EMPTY = () =>
   "Author email cannot be empty";
 
@@ -1042,7 +1042,7 @@ export const START_USING_GIT = () => "Start using git";
 export const GIT_AUTHOR = () => "Git author";
 export const DISCONNECT_GIT = () => "Disconnect git";
 export const DISCONNECT_GIT_MESSAGE = () =>
-  "Once you delete a repository, there is no going back. Please be certain.";
+  "This is irreversible. If you wish to reconnect, you will have to connect a new empty repository.";
 export const NEED_EMPTY_REPO_MESSAGE = () =>
   "You need an empty repository to connect to Git on Appsmith, please create one on your Git service provider to continue.";
 export const GIT_IMPORT_WAITING = () =>

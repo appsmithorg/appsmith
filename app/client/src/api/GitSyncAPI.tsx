@@ -28,8 +28,8 @@ export interface ConnectToGitPayload {
   gitProfile?: {
     authorName: string;
     authorEmail: string;
+    useDefaultProfile?: boolean;
   };
-  isDefaultProfile?: boolean;
 }
 
 interface GitStatusParam {

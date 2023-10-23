@@ -5,6 +5,7 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import { getGitProtectedBranches } from "@appsmith/selectors/gitSelectors";
+import { isCEMode } from "@appsmith/utils";
 import { Button, Link, Option, Select, Text } from "design-system";
 import { xor } from "lodash";
 import React, { useEffect, useMemo, useState } from "react";
@@ -40,6 +41,8 @@ const StyledSelect = styled(Select)`
 `;
 
 function GitProtectedBranches() {
+  const isCE = isCEMode();
+
   const unfilteredBranches = useSelector(getGitBranches);
   const branches = unfilteredBranches.filter(
     (b) => !b.branchName.includes("origin/"),
@@ -56,7 +59,7 @@ function GitProtectedBranches() {
     return xor(protectedBranches, selectedValues).length > 0;
   }, [protectedBranches, selectedValues]);
 
-  const updateIsDisabled = !areProtectedBranchesDifferent;
+  const updateIsDisabled = isCE && !areProtectedBranchesDifferent;
 
   return (
     <Container>
@@ -68,8 +71,9 @@ function GitProtectedBranches() {
           {createMessage(BRANCH_PROTECTION_DESC)}
         </SectionDesc>
         <SectionDesc kind="body-m" renderAs="p">
-          To change your default branch, try{" "}
+          To protect multiple branches, try{" "}
           <Link
+            kind="primary"
             style={{ display: "inline-flex" }}
             target="_blank"
             to="https://www.appsmith.com/enterprise?lead_source=git%20feat%20branch%20config"
@@ -80,6 +84,7 @@ function GitProtectedBranches() {
       </HeadContainer>
       <BodyContainer>
         <StyledSelect
+          isDisabled={isCE}
           isMultiSelect
           maxTagTextLength={8}
           onChange={(v) => setSelectedValues(v)}
