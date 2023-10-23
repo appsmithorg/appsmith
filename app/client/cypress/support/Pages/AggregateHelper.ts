@@ -463,6 +463,12 @@ export class AggregateHelper extends ReusableHelper {
     // cy.waitUntil(()) => (selector.includes("//") ? cy.xpath(selector) : cy.get(selector))).then(($ele) => { cy.wrap($ele).eq(0).should("be.visible");});
   }
 
+  public waitUntilTextVisible(text: string, timeout: number = 2000) {
+    cy.waitUntil(() =>
+      cy.contains(text, { timeout: timeout }).should("be.visible"),
+    );
+  }
+
   public AssertNetworkDataSuccess(aliasName: string, expectedRes = true) {
     cy.wait(1000).wait(aliasName); //Wait a bit for call to finish!
     cy.get(aliasName)
