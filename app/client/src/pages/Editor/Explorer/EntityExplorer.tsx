@@ -151,6 +151,7 @@ function EntityExplorer({ isActive }: { isActive: boolean }) {
           title="No entities found"
         />
       )}
+      {/* Shows first time users only */}
       <DatasourceStarterLayoutPrompt />
       <Datasources
         addDatasource={addDatasource}

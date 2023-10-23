@@ -1,20 +1,27 @@
+import React from "react";
 import {
   Popover,
   PopoverContent,
   PopoverHeader,
   PopoverBody,
   PopoverTrigger,
+  Text,
 } from "design-system";
-import React from "react";
+import { useSelector, useDispatch } from "react-redux";
+
+import { starterTemplateDatasourcePromptSelector } from "selectors/templatesSelectors";
+import { toggleStarterTemplateDatasourcePrompt } from "actions/templateActions";
 
 function DatasourceStarterLayoutPrompt() {
+  const dispatch = useDispatch();
+  const showDatasourcePrompt = useSelector(
+    starterTemplateDatasourcePromptSelector,
+  );
+
+  const togglePrompt = () => dispatch(toggleStarterTemplateDatasourcePrompt());
+
   return (
-    <Popover
-      onOpenChange={() => {
-        return true;
-      }}
-      open
-    >
+    <Popover onOpenChange={togglePrompt} open={showDatasourcePrompt}>
       <PopoverTrigger>
         <div />
       </PopoverTrigger>
@@ -24,7 +31,11 @@ function DatasourceStarterLayoutPrompt() {
           {"Bring your data in!"}
         </PopoverHeader>
         <PopoverBody className={"!overflow-y-clip"}>
-          <p>test</p>
+          <Text kind="body-m">
+            Your application is now using sample data, but with Appsmith you can
+            do much more! Click on Data, and make this application yours in a
+            blink!
+          </Text>
         </PopoverBody>
       </PopoverContent>
     </Popover>

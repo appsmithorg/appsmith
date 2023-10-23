@@ -2170,6 +2170,10 @@ export const STARTER_TEMPLATE_PAGE_LAYOUTS = {
       description: () => "View more details about a selected record",
     },
   },
+  datasourceConnectPrompt: {
+    header: () => "Bring your data in!",
+    buttonText: () => "Connect your datasource",
+  },
   or: () => "or",
   dragAndDrop: () => "Drag and Drop Widgets",
   importLoadingText: () => "Importing Page Layout",
