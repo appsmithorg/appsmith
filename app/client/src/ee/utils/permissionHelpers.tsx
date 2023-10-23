@@ -96,11 +96,7 @@ export const hasDeleteDatasourcePermission = (permissions: string[] = []) =>
 
 export const hasCreateDatasourceActionPermission = (
   permissions: string[] = [],
-) =>
-  isPermitted(permissions, [
-    PERMISSION_TYPE.CREATE_DATASOURCE_ACTIONS,
-    PERMISSION_TYPE.CREATE_ACTIONS,
-  ]);
+) => isPermitted(permissions, PERMISSION_TYPE.CREATE_DATASOURCE_ACTIONS);
 
 export const hasCreatePagePermission = (permissions: string[] = []) =>
   isPermitted(permissions, PERMISSION_TYPE.CREATE_PAGES);
