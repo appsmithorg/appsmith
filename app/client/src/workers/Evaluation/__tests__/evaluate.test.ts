@@ -1,7 +1,4 @@
-import evaluate, {
-  evaluateAsync,
-  convertAllDataTypesToString,
-} from "workers/Evaluation/evaluate";
+import evaluate, { evaluateAsync } from "workers/Evaluation/evaluate";
 import type { WidgetEntity } from "@appsmith/entities/DataTree/types";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { ENTITY_TYPE_VALUE } from "entities/DataTree/dataTreeFactory";
@@ -9,6 +6,7 @@ import { RenderModes } from "constants/WidgetConstants";
 import setupEvalEnv from "../handlers/setupEvalEnv";
 import { resetJSLibraries } from "workers/common/JSLibrary/resetJSLibraries";
 import { EVAL_WORKER_ACTIONS } from "@appsmith/workers/Evaluation/evalWorkerActions";
+import { convertAllDataTypesToString } from "../errorModifier";
 
 describe("evaluateSync", () => {
   const widget: WidgetEntity = {
@@ -79,7 +77,7 @@ describe("evaluateSync", () => {
             message: "wrongJS is not defined",
           },
           errorType: "PARSE",
-          kind: undefined,
+          kind: { category: undefined, rootcause: undefined },
           raw: `
   function $$closedFn () {
     const $$result = wrongJS
@@ -102,7 +100,10 @@ describe("evaluateSync", () => {
             message: "{}.map is not a function",
           },
           errorType: "PARSE",
-          kind: undefined,
+          kind: {
+            category: undefined,
+            rootcause: undefined,
+          },
           raw: `
   function $$closedFn () {
     const $$result = {}.map()
@@ -133,7 +134,10 @@ describe("evaluateSync", () => {
             message: "setImmediate is not defined",
           },
           errorType: "PARSE",
-          kind: undefined,
+          kind: {
+            category: undefined,
+            rootcause: undefined,
+          },
           raw: `
   function $$closedFn () {
     const $$result = setImmediate(() => {}, 100)

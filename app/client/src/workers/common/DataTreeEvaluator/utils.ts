@@ -1,7 +1,6 @@
 import {
   getEntityNameAndPropertyPath,
   isJSAction,
-  isValidEntity,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
 import {
   EXECUTION_PARAM_REFERENCE_REGEX,
@@ -11,7 +10,11 @@ import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeTypes";
 import type DependencyMap from "entities/DependencyMap";
 import type { TJSPropertiesState } from "workers/Evaluation/JSObject/jsPropertiesState";
 import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
-import type { DataTreeEntityConfig } from "@appsmith/entities/DataTree/types";
+import type {
+  DataTreeEntityConfig,
+  DataTreeEntityObject,
+} from "@appsmith/entities/DataTree/types";
+import { isObject } from "lodash";
 
 export function getFixedTimeDifference(endTime: number, startTime: number) {
   return (endTime - startTime).toFixed(2) + " ms";
@@ -56,6 +59,15 @@ export function getAllAsyncJSFunctions(
     }
   }
   return allAsyncJSFunctions;
+}
+
+export function isValidEntity(
+  entity: DataTreeEntity,
+): entity is DataTreeEntityObject {
+  if (!isObject(entity)) {
+    return false;
+  }
+  return true;
 }
 
 export function getValidEntityType(
