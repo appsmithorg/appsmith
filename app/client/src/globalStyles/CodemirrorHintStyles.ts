@@ -14,6 +14,7 @@ export const CodemirrorHintStyles = createGlobalStyle<{
       z-index: 20;
       overflow: hidden;
       list-style: none;
+      margin-top: ${(props) => props.theme.spaces[3]}px;
       padding: 0px 0px;
       font-family: monospace;
       max-height: 25em;
