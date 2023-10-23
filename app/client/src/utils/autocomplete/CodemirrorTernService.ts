@@ -36,6 +36,7 @@ export interface Completion<
   render?: any;
   isHeader?: boolean;
   isRecentEntity?: boolean;
+  isEntityName?: boolean;
 }
 
 export interface CommandsCompletion
@@ -263,6 +264,9 @@ class CodeMirrorTernService {
         completion.origin === "DATA_TREE"
           ? this.recentEntities.includes(completion.name?.split(".")[0])
           : false;
+      const isCompletionADataTreeEntityName =
+        completion.origin === "DATA_TREE" &&
+        this.defEntityInformation.has(completion.name);
       let completionText = completion.name + after;
       if (dataType === "FUNCTION" && !completion.origin?.startsWith("LIB/")) {
         if (token.type !== "string" && token.string !== "[") {
@@ -279,6 +283,7 @@ class CodeMirrorTernService {
         type: dataType,
         isHeader: false,
         isRecentEntity: isCompletionARecentEntity,
+        isEntityName: isCompletionADataTreeEntityName,
       };
 
       if (isCustomKeyword) {

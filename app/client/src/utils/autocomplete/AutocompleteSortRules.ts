@@ -258,15 +258,11 @@ class TypeMatchRule implements AutocompleteRule {
  * Max score - 10000000 - binary
  * Min score - 0
  */
-class DataTreeEntityRule implements AutocompleteRule {
+class DataTreeEntityNameRule implements AutocompleteRule {
   static threshold = 1 << RuleWeight.DataTreeEntityNameMatch;
   computeScore(completion: Completion): number {
     let score = 0;
-    if (
-      completion.origin === "DATA_TREE" &&
-      completion.text.split(".").length === 1
-    )
-      score += DataTreeEntityRule.threshold;
+    if (completion.isEntityName) score += DataTreeEntityNameRule.threshold;
     return score;
   }
 }
@@ -386,7 +382,7 @@ export class ScoredCompletion {
     new NoSelfReferenceRule(),
     new ScopeMatchRule(),
     new PriorityMatchRule(),
-    new DataTreeEntityRule(),
+    new DataTreeEntityNameRule(),
     new TypeMatchRule(),
     new DataTreeRule(),
     new RecentEntityRule(),
