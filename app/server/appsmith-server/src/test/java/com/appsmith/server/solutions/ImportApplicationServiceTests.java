@@ -4972,4 +4972,8 @@ public class ImportApplicationServiceTests {
                 })
                 .verifyComplete();
     }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void importApplication_WhenAppWithSameNameHasMultipleBranches_ImportIsSuccessful() {}
 }
