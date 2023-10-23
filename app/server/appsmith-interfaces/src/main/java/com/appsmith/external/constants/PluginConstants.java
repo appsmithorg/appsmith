@@ -12,7 +12,7 @@ public interface PluginConstants {
         String GOOGLE_SHEETS_PLUGIN = "google-sheets-plugin";
         String REST_API_PLUGIN = "restapi-plugin";
         String GRAPH_QL_PLUGIN = "graphql-plugin";
-        String CHAT_GPT_PLUGIN = "chatgpt-plugin";
+        String OPEN_AI_PLUGIN = "openai-plugin";
     }
 
     public static final String DEFAULT_REST_DATASOURCE = "DEFAULT_REST_DATASOURCE";
@@ -36,7 +36,7 @@ public interface PluginConstants {
         public static final String SMTP_PLUGIN_NAME = "Smtp";
         public static final String SNOWFLAKE_PLUGIN_NAME = "Snowflake";
 
-        public static final String CHAT_GPT_PLUGIN_NAME = "chat GPT";
+        public static final String OPEN_AI_PLUGIN_NAME = "Open AI";
     }
 
     interface HostName {

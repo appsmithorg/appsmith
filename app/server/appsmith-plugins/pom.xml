@@ -62,6 +62,8 @@
 
         <module>chatGptPlugin</module>
 
+        <module>openAiPlugin</module>
+
     </modules>
 
     <properties>

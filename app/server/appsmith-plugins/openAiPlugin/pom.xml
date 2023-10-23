@@ -9,9 +9,9 @@
     </parent>
 
     <groupId>com.external.plugins</groupId>
-    <artifactId>chatGptPlugin</artifactId>
+    <artifactId>openAiPlugin</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <name>chatGptPlugin</name>
+    <name>openAiPlugin</name>
     <url>http://maven.apache.org</url>
 
     <dependencies>

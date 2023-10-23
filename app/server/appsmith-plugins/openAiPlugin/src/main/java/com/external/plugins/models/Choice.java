@@ -12,6 +12,4 @@ public class Choice {
     ChatMessage message;
 
     String finish_reason;
-
 }
-

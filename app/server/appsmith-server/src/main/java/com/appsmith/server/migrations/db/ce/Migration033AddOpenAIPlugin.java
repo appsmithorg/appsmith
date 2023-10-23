@@ -13,12 +13,12 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import static com.appsmith.server.migrations.DatabaseChangelog1.installPluginToAllWorkspaces;
 
 @Slf4j
-@ChangeUnit(order = "033", id = "add-chat-gpt-plugin-", author = " ")
-public class Migration033AddChatGPTPlugin {
+@ChangeUnit(order = "033", id = "add-open-ai-plugin", author = " ")
+public class Migration033AddOpenAIPlugin {
 
     private final MongoTemplate mongoTemplate;
 
-    public Migration033AddChatGPTPlugin(MongoTemplate mongoTemplate) {
+    public Migration033AddOpenAIPlugin(MongoTemplate mongoTemplate) {
         this.mongoTemplate = mongoTemplate;
     }
 
@@ -28,13 +28,14 @@ public class Migration033AddChatGPTPlugin {
     @Execution
     public void addPluginToDbAndWorkspace() {
         Plugin plugin = new Plugin();
-        plugin.setName(PluginConstants.PluginName.CHAT_GPT_PLUGIN_NAME);
-        plugin.setType(PluginType.API);
-        plugin.setPackageName(PluginConstants.PackageName.CHAT_GPT_PLUGIN);
-        plugin.setUiComponent("ApiEditorForm");
-        plugin.setDatasourceComponent("RestAPIDatasourceForm");
+        plugin.setName(PluginConstants.PluginName.OPEN_AI_PLUGIN_NAME);
+        plugin.setType(PluginType.SAAS);
+        plugin.setPluginName(PluginConstants.PluginName.OPEN_AI_PLUGIN_NAME);
+        plugin.setPackageName(PluginConstants.PackageName.OPEN_AI_PLUGIN);
+        plugin.setUiComponent("UQIDbEditorForm");
+        plugin.setDatasourceComponent("DbEditorForm");
         plugin.setResponseType(Plugin.ResponseType.JSON);
-        plugin.setIconLocation("");
+        plugin.setIconLocation("https://assets.appsmith.com/logo/open-ai.svg");
         plugin.setDocumentationLink("https://docs.appsmith.com/datasource-reference/");
         plugin.setDefaultInstall(true);
         try {
