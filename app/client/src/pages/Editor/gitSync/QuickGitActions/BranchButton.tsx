@@ -1,13 +1,12 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import styled from "styled-components";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 
 import { Popover2 } from "@blueprintjs/popover2";
 import "@blueprintjs/popover2/lib/css/blueprint-popover2.css";
 
 import { getCurrentAppGitMetaData } from "@appsmith/selectors/applicationSelectors";
 import BranchList from "../components/BranchList";
-import { fetchBranchesInit } from "actions/gitSyncActions";
 import { getGitStatus } from "selectors/gitSyncSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Button, Tooltip } from "design-system";
@@ -25,14 +24,8 @@ function BranchButton() {
   const gitMetaData = useSelector(getCurrentAppGitMetaData);
   const currentBranch = gitMetaData?.branchName;
   const [isOpen, setIsOpen] = useState(false);
-  const dispatch = useDispatch();
-  const fetchBranches = () => dispatch(fetchBranchesInit());
   const labelTarget = useRef<HTMLSpanElement>(null);
   const status = useSelector(getGitStatus);
-
-  useEffect(() => {
-    fetchBranches();
-  }, []);
 
   return (
     <Popover2

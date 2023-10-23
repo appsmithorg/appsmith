@@ -7,6 +7,8 @@ import {
   fetchMockDatasources,
 } from "actions/datasourceActions";
 import {
+  fetchBranchesInit,
+  fetchGitProtectedBranches,
   fetchGitStatusInit,
   remoteUrlInputValue,
   resetPullMergeStatus,
@@ -35,7 +37,7 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import { addBranchParam } from "constants/routes";
 import type { APP_MODE } from "entities/App";
-import { call, put, select, spawn } from "redux-saga/effects";
+import { call, put, select, spawn, take } from "redux-saga/effects";
 import {
   failFastApiCalls,
   reportSWStatus,
@@ -279,5 +281,9 @@ export default class AppEditorEngine extends AppEngine {
       yield put(fetchGitStatusInit({ compareRemote: false }));
     }
     yield put(resetPullMergeStatus());
+
+    yield put(fetchBranchesInit());
+    yield take(ReduxActionTypes.FETCH_BRANCHES_SUCCESS);
+    yield put(fetchGitProtectedBranches());
   }
 }

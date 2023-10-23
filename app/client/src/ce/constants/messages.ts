@@ -1525,6 +1525,13 @@ export const ADMIN_AUTH_SETTINGS_SUBTITLE = () =>
 export const DANGER_ZONE = () => "Danger zone";
 export const DISCONNECT_AUTH_METHOD = () => "Disconnect";
 export const DISCONNECT_CONFIRMATION = () => "Are you sure?";
+export const UPDATE = () => "Update";
+export const DEFAULT_BRANCH = () => "Default branch";
+export const DEFAULT_BRANCH_DESC = () =>
+  "This is the base branch of the app. Users launching the app from the dashboard will see the deployed version from this branch.";
+export const BRANCH_PROTECTION = () => "Branch protection";
+export const BRANCH_PROTECTION_DESC = () =>
+  "Protected branches enable you to enforce Git workflows. Changes to the app are not allowed in the protected branches.";
 
 // Branding
 export const ADMIN_BRANDING_SETTINGS_TITLE_UPGRADE = () =>

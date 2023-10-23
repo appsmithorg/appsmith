@@ -109,6 +109,11 @@ import {
 import type { Action } from "entities/Action";
 import type { JSCollectionDataState } from "reducers/entityReducers/jsActionsReducer";
 import { toast } from "design-system";
+import {
+  fetchGitProtectedBranchesSaga,
+  updateGitDefaultBranchSaga,
+  updateGitProtectedBranchesSaga,
+} from "@appsmith/sagas/GitExtendedSagas";
 
 export function* handleRepoLimitReachedError(response?: ApiResponse) {
   const { responseMeta } = response || {};
@@ -1055,6 +1060,11 @@ const gitRequestActions: Record<
   [ReduxActionTypes.FETCH_SSH_KEY_PAIR_INIT]: getSSHKeyPairSaga,
   [ReduxActionTypes.DELETE_BRANCH_INIT]: deleteBranch,
   [ReduxActionTypes.GIT_DISCARD_CHANGES]: discardChanges,
+  [ReduxActionTypes.GIT_UPDATE_DEFAULT_BRANCH_INIT]: updateGitDefaultBranchSaga,
+  [ReduxActionTypes.GIT_FETCH_PROTECTED_BRANCHES_INIT]:
+    fetchGitProtectedBranchesSaga,
+  [ReduxActionTypes.GIT_UPDATE_PROTECTED_BRANCHES_INIT]:
+    updateGitProtectedBranchesSaga,
 };
 
 /**
