@@ -358,6 +358,7 @@ export class GitSync {
         `{selectall}` + `${branch + uid}` + `{enter}`,
         { parseSpecialCharSeq: true },
       );
+      this.agHelper.Sleep(3000); //for createBranch call to go through
       assertCreateBranch &&
         this.assertHelper.AssertNetworkStatus("createBranch", 201);
       this.agHelper.AssertElementAbsence(

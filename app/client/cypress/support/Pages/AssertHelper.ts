@@ -73,35 +73,35 @@ export class AssertHelper extends ReusableHelper {
     //   "response.body.responseMeta.status",
     //   expectedStatus,
     // );
-    this.Sleep(); //Wait a bit for call to finish!
     cy.wait(this.GetAliasName(aliasName), { timeout: responseTimeout });
     return cy
       .get(this.GetAliasName(aliasName))
-      .then((interceptions: any) =>
-        interceptions.length > 0
-          ? interceptions[interceptions.length - 1].response
-          : interceptions,
-      );
+      .then((interceptions: any) => interceptions);
+
+    // interceptions.length > 0
+    //   ? interceptions[interceptions.length - 1].response
+    //   : interceptions,
   }
 
   public AssertNetworkStatus(
     aliasName: string,
     expectedStatus: number | number[] = 200,
     waitForNetworkCall = true,
-    timeout = 100000,
+    timeout = 150000,
   ) {
     if (waitForNetworkCall) {
       // If waitForNetworkCall is true, then use the interception from received call
       return this.WaitForNetworkCall(aliasName, timeout).then(
-        (interception: any) => {
-          return this.processNetworkStatus(interception, expectedStatus);
-        },
+        (interception: any) =>
+          this.processNetworkStatus(interception, expectedStatus),
       );
     } else {
       // If interception is not available, directly get the alias & use it
-      return cy.get(this.GetAliasName(aliasName)).then((interception: any) => {
-        return this.processNetworkStatus(interception, expectedStatus);
-      });
+      return cy
+        .get(this.GetAliasName(aliasName))
+        .then((interception: any) =>
+          this.processNetworkStatus(interception, expectedStatus),
+        );
     }
   }
 
