@@ -3,27 +3,31 @@ import { LayoutSystemTypes } from "layoutSystems/types";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 
 export enum LayoutSystemFeatures {
-  ENABLE_MAIN_CONTAINER_RESIZER = "ENABLE_MAIN_CONTAINER_RESIZER", //enable main canvas resizer
-  ENABLE_FORKING_FROM_TEMPLATES = "ENABLE_FORKING_FROM_TEMPLATES", //enable forking pages from template directly inside apps
-  ENABLE_CANVAS_LAYOUT_CONTROL = "ENABLE_CANVAS_LAYOUT_CONTROL", //enables layout control option in property pane
+  ENABLE_MAIN_CONTAINER_RESIZER = "ENABLE_MAIN_CONTAINER_RESIZER",
+  ENABLE_FORKING_FROM_TEMPLATES = "ENABLE_FORKING_FROM_TEMPLATES",
+  ENABLE_CANVAS_LAYOUT_CONTROL = "ENABLE_CANVAS_LAYOUT_CONTROL",
+  ENABLE_CANVAS_OVERLAY_FOR_EDITOR_UI = "ENABLE_CANVAS_OVERLAY_FOR_EDITOR_UI",
 }
 
 const FIXED_LAYOUT_FEATURES: Record<LayoutSystemFeatures, boolean> = {
   [LayoutSystemFeatures.ENABLE_FORKING_FROM_TEMPLATES]: true,
   [LayoutSystemFeatures.ENABLE_CANVAS_LAYOUT_CONTROL]: true,
   [LayoutSystemFeatures.ENABLE_MAIN_CONTAINER_RESIZER]: false,
+  [LayoutSystemFeatures.ENABLE_CANVAS_OVERLAY_FOR_EDITOR_UI]: false,
 };
 
 const AUTO_LAYOUT_FEATURES: Record<LayoutSystemFeatures, boolean> = {
   [LayoutSystemFeatures.ENABLE_FORKING_FROM_TEMPLATES]: false,
   [LayoutSystemFeatures.ENABLE_CANVAS_LAYOUT_CONTROL]: false,
   [LayoutSystemFeatures.ENABLE_MAIN_CONTAINER_RESIZER]: true,
+  [LayoutSystemFeatures.ENABLE_CANVAS_OVERLAY_FOR_EDITOR_UI]: false,
 };
 
 const ANVIL_FEATURES: Record<LayoutSystemFeatures, boolean> = {
   [LayoutSystemFeatures.ENABLE_FORKING_FROM_TEMPLATES]: false,
   [LayoutSystemFeatures.ENABLE_CANVAS_LAYOUT_CONTROL]: false,
   [LayoutSystemFeatures.ENABLE_MAIN_CONTAINER_RESIZER]: true,
+  [LayoutSystemFeatures.ENABLE_CANVAS_OVERLAY_FOR_EDITOR_UI]: true,
 };
 
 /**

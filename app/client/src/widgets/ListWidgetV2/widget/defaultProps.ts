@@ -20,6 +20,7 @@ import {
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import type { FlexLayer } from "layoutSystems/autolayout/utils/types";
+import { LayoutSystemTypes } from "layoutSystems/types";
 
 const DEFAULT_LIST_DATA = [
   {
@@ -269,9 +270,11 @@ export default {
           widget: FlattenedWidgetProps,
           widgets: CanvasWidgetsReduxState,
           parent: FlattenedWidgetProps,
-          isAutoLayout: boolean,
+          layoutSystemType: LayoutSystemTypes,
         ) => {
-          if (!isAutoLayout) return [];
+          if (layoutSystemType === LayoutSystemTypes.AUTO) {
+            return [];
+          }
 
           const firstCanvas = get(widget, "children.0");
 
@@ -381,14 +384,14 @@ export default {
           widgetId: string,
           parentId: string,
           widgetPropertyMaps: { defaultPropertyMap: Record<string, string> },
-          isAutoLayout: boolean,
+          layoutSystemType: LayoutSystemTypes,
         ) => {
           if (!parentId) return { widgets };
           const widget = { ...widgets[widgetId] };
 
           widget.dynamicHeight = DynamicHeight.FIXED;
 
-          if (isAutoLayout) {
+          if (layoutSystemType === LayoutSystemTypes.AUTO) {
             widget.dynamicHeight = DynamicHeight.AUTO_HEIGHT;
           }
 
