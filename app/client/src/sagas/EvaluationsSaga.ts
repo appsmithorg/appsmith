@@ -82,12 +82,8 @@ import {
   getAllActionValidationConfig,
   getAllJSActionsData,
 } from "@appsmith/selectors/entitiesSelector";
-import type {
-  DataTree,
-  UnEvalTree,
-  WidgetEntityConfig,
-} from "@appsmith/entities/DataTree/types";
-
+import type { WidgetEntityConfig } from "@appsmith/entities/DataTree/types";
+import type { DataTree, UnEvalTree } from "entities/DataTree/dataTreeTypes";
 import { initiateLinting, lintWorker } from "./LintingSagas";
 import type {
   EvalTreeRequestData,
@@ -100,7 +96,10 @@ import { executeJSUpdates } from "actions/pluginActionActions";
 import { setEvaluatedActionSelectorField } from "actions/actionSelectorActions";
 import { waitForWidgetConfigBuild } from "./InitSagas";
 import { logDynamicTriggerExecution } from "@appsmith/sagas/analyticsSaga";
+import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
+import { fetchFeatureFlagsInit } from "actions/userActions";
 import { parseUpdatesAndDeleteUndefinedUpdates } from "./EvaluationSaga.utils";
+import { getFeatureFlagsFetched } from "selectors/usersSelectors";
 const APPSMITH_CONFIGS = getAppsmithConfigs();
 export const evalWorker = new GracefulWorkerService(
   new Worker(
@@ -134,16 +133,16 @@ export function* updateDataTreeHandler(
     errors,
     evalMetaUpdates = [],
     evaluationOrder,
-    reValidatedPaths,
     isCreateFirstTree = false,
     isNewWidgetAdded,
     jsUpdates,
+    jsVarsCreatedEvent,
     logs,
     removedPaths,
+    reValidatedPaths,
     staleMetaIds,
     undefinedEvalValuesMap,
     unEvalUpdates,
-    jsVarsCreatedEvent,
     updates,
   } = evalTreeResponse;
 
@@ -247,12 +246,10 @@ export function* evaluateTreeSaga(
   > = yield select(getAllActionValidationConfig);
   const unevalTree = unEvalAndConfigTree.unEvalTree;
   const widgets: ReturnType<typeof getWidgets> = yield select(getWidgets);
-  const metaWidgets: ReturnType<typeof getMetaWidgets> = yield select(
-    getMetaWidgets,
-  );
-  const theme: ReturnType<typeof getSelectedAppTheme> = yield select(
-    getSelectedAppTheme,
-  );
+  const metaWidgets: ReturnType<typeof getMetaWidgets> =
+    yield select(getMetaWidgets);
+  const theme: ReturnType<typeof getSelectedAppTheme> =
+    yield select(getSelectedAppTheme);
   const toPrintConfigTree = unEvalAndConfigTree.configTree;
   log.debug({ unevalTree, configTree: toPrintConfigTree });
   PerformanceTracker.startAsyncTracking(
@@ -585,8 +582,18 @@ function* evaluationChangeListenerSaga(): any {
     call(lintWorker.start),
   ]);
 
+  const isFFFetched = yield select(getFeatureFlagsFetched);
+  if (!isFFFetched) {
+    yield call(fetchFeatureFlagsInit);
+    yield take(ReduxActionTypes.FETCH_FEATURE_FLAGS_SUCCESS);
+  }
+
+  const featureFlags: Record<string, boolean> =
+    yield select(selectFeatureFlags);
+
   yield call(evalWorker.request, EVAL_WORKER_ACTIONS.SETUP, {
     cloudHosting: !!APPSMITH_CONFIGS.cloudHosting,
+    featureFlags: featureFlags,
   });
   yield spawn(handleEvalWorkerRequestSaga, evalWorkerListenerChannel);
 
@@ -604,9 +611,8 @@ function* evaluationChangeListenerSaga(): any {
     evalQueueBuffer(),
   );
   while (true) {
-    const action: EvaluationReduxAction<unknown | unknown[]> = yield take(
-      evtActionChannel,
-    );
+    const action: EvaluationReduxAction<unknown | unknown[]> =
+      yield take(evtActionChannel);
 
     yield call(evalAndLintingHandler, true, action, {
       shouldReplay: get(action, "payload.shouldReplay"),

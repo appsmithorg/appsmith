@@ -52,6 +52,10 @@ import oneClickBindingSaga from "sagas/OneClickBindingSaga";
 import entityNavigationSaga from "sagas/NavigationSagas";
 import communityTemplateSagas from "sagas/CommunityTemplatesSagas";
 
+/* Sagas that are registered by a module that is designed to be independent of the core platform */
+import LayoutElementPositionsSaga from "layoutSystems/anvil/integrations/sagas/LayoutElementPositionsSaga";
+import anvilDraggingSagas from "layoutSystems/anvil/integrations/sagas/draggingSagas";
+
 export const sagas = [
   initSagas,
   pageSagas,
@@ -105,5 +109,7 @@ export const sagas = [
   snapshotSagas,
   oneClickBindingSaga,
   entityNavigationSaga,
+  LayoutElementPositionsSaga,
   communityTemplateSagas,
+  anvilDraggingSagas,
 ];

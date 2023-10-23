@@ -39,7 +39,7 @@ class AnalyticsUtil {
     smartlookClient.init(id);
   }
 
-  static initializeSegment(key: string) {
+  static async initializeSegment(key: string) {
     const initPromise = new Promise<boolean>((resolve) => {
       (function init(window: any) {
         const analytics = (window.analytics = window.analytics || []);

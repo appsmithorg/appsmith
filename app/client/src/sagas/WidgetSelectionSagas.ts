@@ -32,7 +32,7 @@ import {
   getIsFetchingPage,
   snipingModeSelector,
 } from "selectors/editorSelectors";
-import { builderURL, widgetURL } from "RouteBuilder";
+import { builderURL, widgetURL } from "@appsmith/RouteBuilder";
 import {
   getAppMode,
   getCanvasWidgets,
@@ -64,10 +64,10 @@ import type { FlexLayer } from "layoutSystems/autolayout/utils/autoLayoutTypes";
 function* selectWidgetSaga(action: ReduxAction<WidgetSelectionRequestPayload>) {
   try {
     const {
-      payload = [],
-      selectionRequestType,
       invokedBy,
       pageId,
+      payload = [],
+      selectionRequestType,
     } = action.payload;
 
     if (payload.some(isInvalidSelectionRequest)) {
@@ -223,15 +223,22 @@ function* appendSelectedWidgetToUrlSaga(
 
 function* waitForInitialization(saga: any, action: ReduxAction<unknown>) {
   const isEditorInitialized: boolean = yield select(getIsEditorInitialized);
-  const isPageFetching: boolean = yield select(getIsFetchingPage);
   const appMode: APP_MODE = yield select(getAppMode);
-  const viewMode = appMode === APP_MODE.PUBLISHED;
-  if (!isEditorInitialized && !viewMode) {
+  const isViewMode = appMode === APP_MODE.PUBLISHED;
+
+  // Wait until the editor is initialised, and ensure we're not in the view mode
+  if (!isEditorInitialized && !isViewMode) {
     yield take(ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS);
   }
+
+  // Wait until we're done fetching the page
+  // This is so that we can reliably assume that the Editor and the Canvas have loaded
+  const isPageFetching: boolean = yield select(getIsFetchingPage);
   if (isPageFetching) {
     yield take(ReduxActionTypes.FETCH_PAGE_SUCCESS);
   }
+
+  // Continue yielding
   yield call(saga, action);
 }
 
@@ -246,17 +253,43 @@ function* handleWidgetSelectionSaga(
 function* openOrCloseModalSaga(action: ReduxAction<{ widgetIds: string[] }>) {
   if (action.payload.widgetIds.length !== 1) return;
 
-  const selectedWidget = action.payload.widgetIds[0];
+  // Let's assume that the payload widgetId is a modal widget and we need to open the modal as it is selected
+  let modalWidgetToOpen: string = action.payload.widgetIds[0];
 
+  // Get all modal widget ids
   const modalWidgetIds: string[] = yield select(
     getWidgetIdsByType,
     "MODAL_WIDGET",
   );
 
-  const widgetIsModal = modalWidgetIds.includes(selectedWidget);
+  // Get all widgets
+  const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+  // Get the ancestry of the selected widget
+  const widgetAncestry = getWidgetAncestry(modalWidgetToOpen, allWidgets);
 
-  if (widgetIsModal) {
-    yield put(showModal(selectedWidget));
+  // If the selected widget is a modal, we want to open the modal
+  const widgetIsModal =
+    // Check if the widget is a modal widget
+    modalWidgetIds.includes(modalWidgetToOpen);
+
+  // Let's assume that this is not a child of a modal widget
+  let widgetIsChildOfModal = false;
+
+  if (!widgetIsModal) {
+    // Check if the widget is a child of a modal widget
+    const indexOfParentModalWidget: number = widgetAncestry.findIndex((id) =>
+      modalWidgetIds.includes(id),
+    );
+    // If we found a modal widget in the ancestry, we want to open that modal
+    if (indexOfParentModalWidget > -1) {
+      // Set the flag to true, so that we can open the modal
+      widgetIsChildOfModal = true;
+      modalWidgetToOpen = widgetAncestry[indexOfParentModalWidget];
+    }
+  }
+
+  if (widgetIsModal || widgetIsChildOfModal) {
+    yield put(showModal(modalWidgetToOpen));
   }
 }
 

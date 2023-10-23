@@ -1,9 +1,4 @@
-import {
-  generateTypeDef,
-  dataTreeTypeDefCreator,
-  flattenDef,
-  getFunctionsArgsType,
-} from "utils/autocomplete/dataTreeTypeDefCreator";
+import { dataTreeTypeDefCreator } from "utils/autocomplete/dataTreeTypeDefCreator";
 import type {
   WidgetEntity,
   WidgetEntityConfig,
@@ -15,6 +10,11 @@ import {
 
 import InputWidget from "widgets/InputWidgetV2";
 import { registerWidgets } from "WidgetProvider/factory/registrationHelper";
+import {
+  flattenDef,
+  generateTypeDef,
+  getFunctionsArgsType,
+} from "./defCreatorUtils";
 
 describe("dataTreeTypeDefCreator", () => {
   it("creates the right def for a widget", () => {

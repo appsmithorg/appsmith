@@ -38,8 +38,8 @@ import { getDatasource } from "@appsmith/selectors/entitiesSelector";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import {
-  getHasCreateDatasourceActionPermission,
   getHasCreatePagePermission,
+  hasCreateDSActionPermissionInApp,
 } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 
 export const MessageWrapper = styled.div`
@@ -103,10 +103,10 @@ const SelectListWrapper = styled.div`
   }
 `;
 
-type Props = {
+interface Props {
   datasourceId: string;
   pluginId?: string;
-};
+}
 
 const MAX_SHEET_ROWS_LENGTH = 12;
 
@@ -297,9 +297,10 @@ function GoogleSheetSchema(props: Props) {
     userAppPermissions,
   );
 
-  const canCreateDatasourceActions = getHasCreateDatasourceActionPermission(
+  const canCreateDatasourceActions = hasCreateDSActionPermissionInApp(
     isFeatureEnabled,
-    [...datasourcePermissions, ...pagePermissions],
+    datasourcePermissions,
+    pagePermissions,
   );
 
   const showGeneratePageBtn =

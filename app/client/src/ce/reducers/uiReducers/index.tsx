@@ -48,6 +48,7 @@ import autoHeightUIReducer from "reducers/uiReducers/autoHeightReducer";
 import analyticsReducer from "reducers/uiReducers/analyticsReducer";
 import layoutConversionReducer from "reducers/uiReducers/layoutConversionReducer";
 import oneClickBindingReducer from "reducers/uiReducers/oneClickBindingReducer";
+import activeFieldReducer from "reducers/uiReducers/activeFieldEditorReducer";
 
 export const uiReducerObject = {
   analytics: analyticsReducer,
@@ -100,4 +101,5 @@ export const uiReducerObject = {
   layoutConversion: layoutConversionReducer,
   actionSelector: actionSelectorReducer,
   oneClickBinding: oneClickBindingReducer,
+  activeField: activeFieldReducer,
 };

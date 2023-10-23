@@ -7,7 +7,7 @@ is_merge_commit=$(git rev-parse -q --verify MERGE_HEAD)
 
 if [ "$is_merge_commit" ]; then
   echo "Skipping server and client checks for merge commit"
-else 
+else
   if [ "$is_server_change" -ge 1 ]; then
     echo "Running Spotless check ..."
     pushd app/server > /dev/null
@@ -23,7 +23,7 @@ else
 
   if [ "$is_client_change" -ge 1  ]; then
     echo "Running client check ..."
-    npx lint-staged --cwd app/client && git-secrets --scan --untracked && git-secrets --scan -r
+    npx lint-staged --cwd app/client
   else
     echo "Skipping client side check..."
   fi

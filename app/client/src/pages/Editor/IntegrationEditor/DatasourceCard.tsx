@@ -23,7 +23,7 @@ import {
   datasourcesEditorIdURL,
   generateTemplateFormURL,
   saasEditorDatasourceIdURL,
-} from "RouteBuilder";
+} from "@appsmith/RouteBuilder";
 import {
   CONTEXT_DELETE,
   CONFIRM_CONTEXT_DELETE,
@@ -50,10 +50,10 @@ import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelector
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import {
-  getHasCreateDatasourceActionPermission,
   getHasCreatePagePermission,
   getHasDeleteDatasourcePermission,
   getHasManageDatasourcePermission,
+  hasCreateDSActionPermissionInApp,
 } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 
 const Wrapper = styled.div`
@@ -135,10 +135,10 @@ const CollapseComponentWrapper = styled.div`
   width: fit-content;
 `;
 
-type DatasourceCardProps = {
+interface DatasourceCardProps {
   datasource: Datasource;
   plugin: Plugin;
-};
+}
 
 function DatasourceCard(props: DatasourceCardProps) {
   const dispatch = useDispatch();
@@ -177,9 +177,10 @@ function DatasourceCard(props: DatasourceCardProps) {
     userAppPermissions,
   );
 
-  const canCreateDatasourceActions = getHasCreateDatasourceActionPermission(
+  const canCreateDatasourceActions = hasCreateDSActionPermissionInApp(
     isFeatureEnabled,
-    [...datasourcePermissions, ...pagePermissions],
+    datasourcePermissions,
+    pagePermissions,
   );
 
   const canEditDatasource = getHasManageDatasourcePermission(

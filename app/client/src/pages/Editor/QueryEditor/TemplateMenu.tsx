@@ -47,9 +47,9 @@ interface TemplateMenuProps {
   pluginId: string;
 }
 
-type ReduxProps = {
+interface ReduxProps {
   allPluginTemplates: Record<string, any>;
-};
+}
 
 type Props = TemplateMenuProps & ReduxProps;
 

@@ -1,17 +1,20 @@
 import kebabCase from "lodash/kebabCase";
-import type { ThemeToken } from "../token";
+import type { Theme } from "../theme";
 
-export const cssRule = (className: string, token: ThemeToken) => {
+export const cssRule = (tokens: Theme) => {
   let styles = "";
 
-  Object.keys(token).forEach((key) => {
-    const tokenProp = token[key as keyof ThemeToken];
-    if (tokenProp) {
-      styles += `--${kebabCase(
-        tokenProp?.type as unknown as string,
-      )}-${kebabCase(key)}: ${tokenProp?.value};`;
-    }
+  Object.values(tokens).forEach((token) => {
+    if (token == null) return;
+
+    Object.keys(token).forEach((key) => {
+      //@ts-expect-error: type mismatch
+      styles += `--${kebabCase(token[key].type)}-${kebabCase(key)}: ${
+        //@ts-expect-error: type mismatch
+        token[key].value
+      };`;
+    });
   });
 
-  return `${className} {${styles}}`;
+  return styles;
 };

@@ -25,12 +25,12 @@ import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { getAdminSettingsPath } from "@appsmith/utils/BusinessFeatures/adminSettingsHelpers";
 
-type MobileSideBarProps = {
+interface MobileSideBarProps {
   name: string;
   isOpen: boolean;
   userName?: string;
   photoId?: string;
-};
+}
 
 const MainContainer = styled.div<{ isOpen: boolean }>`
   position: absolute;
@@ -86,7 +86,7 @@ const LeftPaneVersionData = styled.div`
 export default function MobileSideBar(props: MobileSideBarProps) {
   const user = useSelector(getCurrentUser);
   const tenantPermissions = useSelector(getTenantPermissions);
-  const { appVersion, cloudHosting } = getAppsmithConfigs();
+  const { appVersion } = getAppsmithConfigs();
   const howMuchTimeBefore = howMuchTimeBeforeText(appVersion.releaseDate);
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
 
@@ -156,7 +156,6 @@ export default function MobileSideBar(props: MobileSideBarProps) {
             APPSMITH_DISPLAY_VERSION,
             appVersion.edition,
             appVersion.id,
-            cloudHosting,
           )}
         </span>
         {howMuchTimeBefore !== "" && (

@@ -10,7 +10,7 @@ import { getLastSelectedWidget, getSelectedWidgets } from "selectors/ui";
 import { useNavigateToWidget } from "./useNavigateToWidget";
 import WidgetIcon from "./WidgetIcon";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { builderURL } from "RouteBuilder";
+import { builderURL } from "@appsmith/RouteBuilder";
 import { useLocation } from "react-router";
 import { getPagePermissions } from "selectors/editorSelectors";
 import { NavigationMethod } from "utils/history";
@@ -60,7 +60,7 @@ const useWidget = (
   };
 };
 
-export type WidgetEntityProps = {
+export interface WidgetEntityProps {
   widgetId: string;
   widgetName: string;
   widgetType: WidgetType;
@@ -71,7 +71,7 @@ export type WidgetEntityProps = {
   searchKeyword?: string;
   isDefaultExpanded?: boolean;
   widgetsInStep: string[];
-};
+}
 
 export const WidgetEntity = memo((props: WidgetEntityProps) => {
   const widgetsToExpand = useSelector(getEntityExplorerWidgetsToExpand);

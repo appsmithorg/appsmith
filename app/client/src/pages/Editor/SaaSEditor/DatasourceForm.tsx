@@ -83,9 +83,9 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getDefaultEnvironmentId } from "@appsmith/selectors/environmentSelectors";
 import { DEFAULT_ENV_ID } from "@appsmith/api/ApiUtils";
 import {
-  getHasCreateDatasourceActionPermission,
   getHasDeleteDatasourcePermission,
   getHasManageDatasourcePermission,
+  hasCreateDSActionPermissionInApp,
 } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
@@ -160,30 +160,30 @@ type Props = DatasourceSaaSEditorProps &
   unblock: on blocking routes using history.block, it returns a function which can be used to unblock the routes
   navigation: function that navigates to path that we want to transition to, after discard action on datasource discard dialog popup
 */
-type State = {
+interface State {
   showDialog: boolean;
   routesBlocked: boolean;
   readUrlParams: boolean;
   filterParams: DatasourceFilterState;
   unblock(): void;
   navigation(): void;
-};
+}
 
 type SaasEditorWrappperProps = RouteProps & {
   hiddenHeader?: boolean; // for reconnect modal
   isInsideReconnectModal?: boolean; // for reconnect modal
   currentEnvironment: string;
 };
-type RouteProps = {
+interface RouteProps {
   datasourceId: string;
   pageId: string;
   pluginPackageName: string;
-};
+}
 
-type SaasEditorWrappperState = {
+interface SaasEditorWrappperState {
   requiredFields: Record<string, ControlProps>;
   configDetails: Record<string, string>;
-};
+}
 class SaasEditorWrapper extends React.Component<
   SaasEditorWrappperProps,
   SaasEditorWrappperState
@@ -725,9 +725,10 @@ const mapStateToProps = (state: AppState, props: any) => {
   );
 
   const pagePermissions = getPagePermissions(state);
-  const canCreateDatasourceActions = getHasCreateDatasourceActionPermission(
+  const canCreateDatasourceActions = hasCreateDSActionPermissionInApp(
     isFeatureEnabled,
-    [...datasourcePermissions, ...pagePermissions],
+    datasourcePermissions,
+    pagePermissions,
   );
 
   const gsheetToken = getGsheetToken(state);

@@ -40,15 +40,23 @@ export class AggregateHelper extends ReusableHelper {
   public _modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
   private assertHelper = ObjectsRegistry.AssertHelper;
 
-  public isMac = Cypress.platform === "darwin";
+  public get isMac() {
+    return Cypress.platform === "darwin";
+  }
   private selectLine = `${
     this.isMac ? "{cmd}{shift}{leftArrow}" : "{shift}{home}"
   }`;
-  private removeLine = "{backspace}";
+  public get removeLine() {
+    return "{backspace}";
+  }
   private selectAll = `${this.isMac ? "{cmd}{a}" : "{ctrl}{a}"}`;
   private lazyCodeEditorFallback = ".t--lazyCodeEditor-fallback";
   private lazyCodeEditorRendered = ".t--lazyCodeEditor-editor";
   private toolTipSpan = ".rc-tooltip-inner span";
+  _walkthroughOverlay = ".t--walkthrough-overlay";
+  _walkthroughOverlayClose = ".t--walkthrough-overlay .t--walkthrough-close";
+  _walkthroughOverlayTitle = (title: string) =>
+    `//div[contains(@class, 't--walkthrough-overlay')]//p[text()='${title}']`;
 
   private selectChars = (noOfChars: number) =>
     `${"{leftArrow}".repeat(noOfChars) + "{shift}{cmd}{leftArrow}{backspace}"}`;
@@ -125,11 +133,12 @@ export class AggregateHelper extends ReusableHelper {
           }).then((dslDumpResp) => {
             //cy.log("Pages resposne is : " + dslDumpResp.body);
             expect(dslDumpResp.status).equal(200);
-            this.Sleep(3000); //for dsl to settle in layouts api & then refresh
+            //this.Sleep(3000); //for dsl to settle in layouts api & then refresh
             this.RefreshPage();
             if (elementToCheckPresenceaftDslLoad)
               this.WaitUntilEleAppear(elementToCheckPresenceaftDslLoad);
-            this.Sleep(2000); //settling time for dsl
+            //this.Sleep(2000); //settling time for dsl
+            this.assertHelper.AssertNetworkResponseData("@getPluginForm");
             this.AssertElementAbsence(this.locator._loading); //Checks the spinner is gone & dsl loaded!
             this.AssertElementAbsence(this.locator._animationSpnner, 20000); //Checks page is loaded with dsl!
           });
@@ -1039,8 +1048,8 @@ export class AggregateHelper extends ReusableHelper {
 
   public ActionContextMenuWithInPane({
     action = "Delete",
-    subAction = "",
     entityType = EntityItems.JSObject,
+    subAction = "",
     toastToValidate = "",
   }: DeleteParams) {
     cy.get(this.locator._contextMenuInPane).click();
@@ -1657,6 +1666,10 @@ export class AggregateHelper extends ReusableHelper {
 
   public AssertClassExists(selector: string, className: string) {
     this.GetElement(selector).should("have.class", className);
+  }
+
+  public VerifySnapshot(selector: string, identifier: string) {
+    this.GetElement(selector).matchImageSnapshot(identifier);
   }
 
   //Not used:

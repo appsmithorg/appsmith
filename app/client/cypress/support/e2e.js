@@ -28,6 +28,7 @@ import "./gitSync";
 import { initLocalstorageRegistry } from "./Objects/Registry";
 import RapidMode from "./RapidMode.ts";
 import "cypress-mochawesome-reporter/register";
+import installLogsCollector from "cypress-terminal-report/src/installLogsCollector";
 
 import "./WorkspaceCommands";
 import "./queryCommands";
@@ -35,17 +36,22 @@ import "./widgetCommands";
 import "./themeCommands";
 import "./AdminSettingsCommands";
 import "cypress-plugin-tab";
-import { WALKTHROUGH_TEST_PAGE } from "./Constants.js";
+import {
+  FEATURE_WALKTHROUGH_INDEX_KEY,
+  WALKTHROUGH_TEST_PAGE,
+} from "./Constants.js";
 /// <reference types="cypress-xpath" />
 
-Cypress.on("uncaught:exception", () => {
-  // returning false here prevents Cypress from
-  // failing the test
-  return false;
+installLogsCollector();
+
+Cypress.on("uncaught:exception", (error) => {
+  //cy.log(error.message);
+  return false; // returning false here prevents Cypress from failing the test
 });
 
 Cypress.on("fail", (error) => {
-  throw error; // throw error to have test still fail
+  cy.log(error.message);
+  throw error; // throw error to have test fail
 });
 
 Cypress.env("MESSAGES", MESSAGES);
@@ -111,7 +117,7 @@ before(function () {
 
   if (!Cypress.currentTest.titlePath[0].includes(WALKTHROUGH_TEST_PAGE)) {
     // Adding key FEATURE_WALKTHROUGH (which is used to check if the walkthrough is already shown to the user or not) for non walkthrough cypress tests (to not show walkthrough)
-    addIndexedDBKey("FEATURE_WALKTHROUGH", {
+    addIndexedDBKey(FEATURE_WALKTHROUGH_INDEX_KEY, {
       ab_ds_binding_enabled: true,
       ab_ds_schema_enabled: true,
       binding_widget: true,
@@ -127,11 +133,7 @@ before(function () {
   cy.get(".t--applications-container .createnew")
     .should("be.visible")
     .should("be.enabled");
-  cy.generateUUID().then((id) => {
-    cy.CreateAppInFirstListedWorkspace(id);
-    localStorage.setItem("AppName", id);
-  });
-
+  cy.CreateAppInFirstListedWorkspace(); //Creating new workspace and app
   cy.fixture("TestDataSet1").then(function (data) {
     this.dataSet = data;
   });
@@ -181,6 +183,7 @@ after(function () {
   }
   //-- Deleting the application by Api---//
   cy.DeleteAppByApi();
+  cy.DeleteWorkspaceByApi();
   //-- LogOut Application---//
   cy.LogOut();
   // Commenting until Upgrade Appsmith cases are fixed

@@ -3,18 +3,17 @@ import {
   getAllPaths,
   DataTreeDiffEvent,
   isWidget,
-  isValidEntity,
   getEntityNameAndPropertyPath,
   isDynamicLeaf,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
 import type {
-  DataTree,
   WidgetEntity,
-  ConfigTree,
   WidgetEntityConfig,
   ActionEntity,
   JSActionEntity,
+  DataTreeEntityObject,
 } from "@appsmith/entities/DataTree/types";
+import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeTypes";
 import { getEntityId, getEvalErrorPath } from "utils/DynamicBindingUtils";
 import { convertArrayToObject, extractInfoFromBindings } from "./utils";
 import type DataTreeEvaluator from "workers/common/DataTreeEvaluator";
@@ -32,6 +31,7 @@ import {
   getEntitySetterFunctions,
 } from "@appsmith/workers/Evaluation/Actions";
 import { isWidgetActionOrJsObject } from "@appsmith/entities/DataTree/utils";
+import { getValidEntityType } from "workers/common/DataTreeEvaluator/utils";
 
 interface CreateDependencyMap {
   dependencies: Record<string, string[]>;
@@ -60,7 +60,7 @@ export function createDependencyMap(
     const entity = unEvalTree[entityName];
     const entityConfig = configTree[entityName];
     const entityDependencies = getEntityDependencies(
-      entity,
+      entity as DataTreeEntityObject,
       entityConfig,
       allKeys,
     );
@@ -142,7 +142,7 @@ export const updateDependencyMap = ({
       event === DataTreeDiffEvent.DELETE
         ? oldUnEvalTree[entityName]
         : unEvalDataTree[entityName];
-    const entityType = isValidEntity(entity) ? entity.ENTITY_TYPE : "noop";
+    const entityType = getValidEntityType(entity, entityConfig);
 
     if (entityType !== "noop") {
       switch (event) {
@@ -163,7 +163,7 @@ export const updateDependencyMap = ({
 
           if (didUpdateDep) didUpdateDependencyMap = true;
 
-          if (isWidgetActionOrJsObject(entity, entityConfig)) {
+          if (isWidgetActionOrJsObject(entity)) {
             if (!isDynamicLeaf(unEvalDataTree, fullPropertyPath, configTree)) {
               const entityDependencyMap = getEntityDependencies(
                 entity,
@@ -255,7 +255,7 @@ export const updateDependencyMap = ({
 
           if (didUpdateDeps) didUpdateDependencyMap = true;
 
-          if (isWidgetActionOrJsObject(entity, entityConfig)) {
+          if (isWidgetActionOrJsObject(entity)) {
             const entityId = getEntityId(entity);
             for (const deletedPath of Object.keys(allDeletedPaths)) {
               removedPaths.push({
@@ -267,10 +267,7 @@ export const updateDependencyMap = ({
           break;
         }
         case DataTreeDiffEvent.EDIT: {
-          if (
-            isWidgetActionOrJsObject(entity, entityConfig) &&
-            typeof value === "string"
-          ) {
+          if (isWidgetActionOrJsObject(entity) && typeof value === "string") {
             const entity: ActionEntity | WidgetEntity | JSActionEntity =
               unEvalDataTree[entityName] as
                 | ActionEntity

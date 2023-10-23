@@ -1,5 +1,6 @@
 import type { Log } from "entities/AppsmithConsole";
-import type { DataTree, WidgetEntity } from "@appsmith/entities/DataTree/types";
+import type { WidgetEntity } from "@appsmith/entities/DataTree/types";
+import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { isEmpty } from "lodash";
 import type { AppState } from "@appsmith/reducers";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
@@ -11,9 +12,9 @@ import {
 } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { getDataTree } from "./dataTreeSelectors";
 
-type ErrorObejct = {
+interface ErrorObejct {
   [k: string]: Log;
-};
+}
 
 export const getDebuggerErrors = (state: AppState) => state.ui.debugger.errors;
 export const hideErrors = (state: AppState) => state.ui.debugger.hideErrors;
@@ -45,22 +46,24 @@ export const getFilteredErrors = createSelector(
         // filter error - when widget or parent widget is hidden
         // parent widgets e.g. modal, tab, container
         if (entity && isWidget(entity)) {
-          if (shouldSuppressDebuggerError(entity)) {
+          const widgetEntity = entity as WidgetEntity;
+          if (shouldSuppressDebuggerError(widgetEntity)) {
             return false;
           }
-          if (!hasParentWidget(entity)) {
-            return entity.isVisible
+          if (!hasParentWidget(widgetEntity)) {
+            return widgetEntity.isVisible
               ? true
-              : alwaysShowEntities[entity.widgetId];
+              : alwaysShowEntities[widgetEntity.widgetId];
           } else {
             const isParentWidgetVisible = isParentVisible(
-              entity,
+              widgetEntity,
               canvasWidgets,
               dataTree,
             );
-            return entity.isVisible
+            return widgetEntity.isVisible
               ? isParentWidgetVisible
-              : isParentWidgetVisible && alwaysShowEntities[entity.widgetId];
+              : isParentWidgetVisible &&
+                  alwaysShowEntities[widgetEntity.widgetId];
           }
         }
         return true;
