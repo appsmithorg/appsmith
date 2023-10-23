@@ -109,13 +109,13 @@ public class ApplicationServiceImpl extends ApplicationServiceCECompatibleImpl i
             AssetService assetService,
             DatasourcePermission datasourcePermission,
             ApplicationPermission applicationPermission,
+            SessionUserService sessionUserService,
             PermissionGroupRepository permissionGroupRepository,
             PermissionGroupPermission permissionGroupPermission,
             RoleConfigurationSolution roleConfigurationSolution,
             PolicyGenerator policyGenerator,
             UserService userService,
             UserGroupRepository userGroupRepository,
-            SessionUserService sessionUserService,
             EmailService emailService,
             ApplicationServiceHelper applicationServiceHelper) {
 
@@ -133,7 +133,8 @@ public class ApplicationServiceImpl extends ApplicationServiceCECompatibleImpl i
                 newActionRepository,
                 assetService,
                 datasourcePermission,
-                applicationPermission);
+                applicationPermission,
+                sessionUserService);
         this.permissionGroupService = permissionGroupService;
         this.policySolution = policySolution;
         this.permissionGroupRepository = permissionGroupRepository;
