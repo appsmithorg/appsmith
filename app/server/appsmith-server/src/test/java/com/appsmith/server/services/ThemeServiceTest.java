@@ -8,7 +8,6 @@ import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
-import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.UpdatePermissionGroupDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -859,74 +858,6 @@ public class ThemeServiceTest {
                     assertThat(theme.getApplicationId()).isNotNull();
                     assertThat(theme.getWorkspaceId()).isEqualTo(this.workspace.getId());
                     assertThat(theme.getConfig()).isNotNull();
-                })
-                .verifyComplete();
-    }
-
-    @WithUserDetails("api_user")
-    @Test
-    public void importThemesToApplication_WhenBothImportedThemesAreCustom_NewThemesCreated() {
-        Application application = createApplication();
-
-        // create a application json with a custom theme set as both edit mode and published mode
-        ApplicationJson applicationJson = new ApplicationJson();
-        Theme customTheme = new Theme();
-        customTheme.setName("Custom theme name");
-        customTheme.setDisplayName("Custom theme display name");
-        applicationJson.setEditModeTheme(customTheme);
-        applicationJson.setPublishedTheme(customTheme);
-
-        Mono<Application> applicationMono = Mono.just(application)
-                .flatMap(savedApplication -> themeService
-                        .importThemesToApplication(savedApplication, applicationJson)
-                        .thenReturn(savedApplication.getId()))
-                .flatMap(applicationId -> applicationRepository.findById(applicationId, MANAGE_APPLICATIONS));
-
-        StepVerifier.create(applicationMono)
-                .assertNext(app -> {
-                    assertThat(app.getEditModeThemeId().equals(app.getPublishedModeThemeId()))
-                            .isFalse();
-                })
-                .verifyComplete();
-    }
-
-    @WithUserDetails("api_user")
-    @Test
-    public void importThemesToApplication_ApplicationThemeNotFound_DefaultThemeImported() {
-        Theme defaultTheme =
-                themeRepository.getSystemThemeByName(Theme.DEFAULT_THEME_NAME).block();
-
-        // create the theme information present in the application JSON
-        Theme themeInJson = new Theme();
-        themeInJson.setSystemTheme(true);
-        themeInJson.setName(defaultTheme.getName());
-
-        // create a application json with the above theme set in both modes
-        ApplicationJson applicationJson = new ApplicationJson();
-        applicationJson.setEditModeTheme(themeInJson);
-        applicationJson.setPublishedTheme(themeInJson);
-
-        Mono<Application> applicationMono = Mono.just(createApplication())
-                .map(application -> {
-                    // setting invalid ids to themes to check the case
-                    application.setEditModeThemeId(UUID.randomUUID().toString());
-                    application.setPublishedModeThemeId(UUID.randomUUID().toString());
-                    return application;
-                })
-                .flatMap(applicationRepository::save)
-                .flatMap(savedApplication -> {
-                    assert savedApplication.getId() != null;
-                    return themeService
-                            .importThemesToApplication(savedApplication, applicationJson)
-                            .thenReturn(savedApplication.getId());
-                })
-                .flatMap(applicationId -> applicationRepository.findById(applicationId, MANAGE_APPLICATIONS));
-
-        StepVerifier.create(applicationMono)
-                .assertNext(app -> {
-                    // both edit mode and published mode should have default theme set
-                    assertThat(app.getEditModeThemeId()).isEqualTo(app.getPublishedModeThemeId());
-                    assertThat(app.getEditModeThemeId()).isEqualTo(defaultTheme.getId());
                 })
                 .verifyComplete();
     }

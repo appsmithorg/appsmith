@@ -131,6 +131,9 @@ import {
 import { setAllEntityCollapsibleStates } from "actions/editorContextActions";
 import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelectors";
 import type { DeletingMultipleApps } from "@appsmith/reducers/uiReducers/applicationsReducer";
+import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { LayoutSystemTypes } from "layoutSystems/types";
 
 export const getDefaultPageId = (
   pages?: ApplicationPagePayload[],
@@ -590,7 +593,22 @@ export function* createApplicationSaga(
         icon: icon,
         color: color,
         workspaceId,
+        layoutSystemType: LayoutSystemTypes.FIXED, // Note: This may be provided as an action payload in the future
       };
+
+      /** SPECIAL HANDLING FOR ANVIL DURING EXPERIMENTATION */
+      // Check if Anvil is enabled for the user
+      // If so, default to using Anvil as the layout system for the new app
+      const isAnvilEnabled: boolean = yield select(
+        selectFeatureFlagCheck,
+        FEATURE_FLAG.release_anvil_enabled,
+      );
+
+      if (isAnvilEnabled) {
+        request.layoutSystemType = LayoutSystemTypes.ANVIL;
+      }
+      /** EO SPECIAL HANDLING FOR ANVIL DURING EXPERIMENTATION */
+
       const response: CreateApplicationResponse = yield call(
         ApplicationApi.createApplication,
         request,

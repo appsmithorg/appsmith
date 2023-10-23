@@ -1,4 +1,5 @@
 import type { ENTITY_TYPE } from "@appsmith/entities/DataTree/types";
+import { ACTION_TYPE, JSACTION_TYPE } from "@appsmith/entities/DataTree/types";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { ENTITY_TYPE_VALUE } from "entities/DataTree/dataTreeFactory";
 import { createSelector } from "reselect";
@@ -141,20 +142,30 @@ export const getEntitiesForNavigation = createSelector(
     return navigationData;
   },
 );
-
-export const getJSFunctionNavigationUrl = createSelector(
+export const getPathNavigationUrl = createSelector(
   [
     (state: AppState, entityName: string) =>
       getEntitiesForNavigation(state, entityName),
-    (_, __, jsFunctionFullName: string | undefined) => jsFunctionFullName,
+    (_, __, fullPath: string | undefined) => fullPath,
   ],
-  (entitiesForNavigation, jsFunctionFullName) => {
-    if (!jsFunctionFullName) return undefined;
-    const { entityName: jsObjectName, propertyPath: jsFunctionName } =
-      getEntityNameAndPropertyPath(jsFunctionFullName);
-    const jsObjectNavigationData = entitiesForNavigation[jsObjectName];
-    const jsFuncNavigationData =
-      jsObjectNavigationData && jsObjectNavigationData.children[jsFunctionName];
-    return jsFuncNavigationData?.url;
+  (entitiesForNavigation, fullPath) => {
+    if (!fullPath) return undefined;
+    const { entityName, propertyPath } = getEntityNameAndPropertyPath(fullPath);
+    const navigationData = entitiesForNavigation[entityName];
+    if (!navigationData) return undefined;
+    switch (navigationData.type) {
+      case JSACTION_TYPE: {
+        const jsPropertyNavigationData = navigationData.children[propertyPath];
+        return jsPropertyNavigationData.url;
+      }
+
+      case ACTION_TYPE:
+        {
+          return navigationData.url;
+        }
+        break;
+      default:
+        return undefined;
+    }
   },
 );
