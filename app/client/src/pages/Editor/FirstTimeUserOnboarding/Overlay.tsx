@@ -1,5 +1,4 @@
 import { showSignpostingModal } from "actions/onboardingActions";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { Layers } from "constants/Layers";
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -8,7 +7,6 @@ import {
   getSignpostingSetOverlay,
 } from "selectors/onboardingSelectors";
 import styled from "styled-components";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 
 const StyledOverlay = styled.div`
   z-index: ${Layers.signpostingOverlay};
@@ -30,15 +28,8 @@ function Overlay() {
   const signpostingEnabled = useSelector(getIsFirstTimeUserOnboardingEnabled);
   const setOverlay = useSelector(getSignpostingSetOverlay);
   const dispatch = useDispatch();
-  const showStarterTemplatesInsteadofBlankCanvas = useFeatureFlag(
-    FEATURE_FLAG.ab_show_templates_instead_of_blank_canvas_enabled,
-  );
 
-  if (
-    !showStarterTemplatesInsteadofBlankCanvas &&
-    signpostingEnabled &&
-    setOverlay
-  ) {
+  if (signpostingEnabled && setOverlay) {
     return (
       <StyledOverlay
         className="fixed top-0 w-full h-full overflow-hidden"
