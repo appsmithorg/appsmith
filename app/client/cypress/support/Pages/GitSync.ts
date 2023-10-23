@@ -157,6 +157,7 @@ export class GitSync {
         this.assertHelper.AssertNetworkStatus("@connectGitLocalRepo");
         this.agHelper.AssertElementExist(this._bottomBarCommit, 0, 30000);
         this.CloseGitSyncModal();
+        this.agHelper.Sleep(3000); //for the generated key to be added to the repo for CI runs
         this.assertHelper.AssertNetworkStatus("@generatedKey", 201);
       } else {
         this.assertHelper.AssertContains(
