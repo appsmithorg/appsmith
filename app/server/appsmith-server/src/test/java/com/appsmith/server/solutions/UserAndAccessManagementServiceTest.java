@@ -15,6 +15,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.UserUtils;
+import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.UserDataRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.FeatureFlagService;
@@ -22,6 +23,7 @@ import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.UserGroupService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
+import io.jsonwebtoken.lang.Collections;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -81,6 +83,9 @@ public class UserAndAccessManagementServiceTest {
     @SpyBean
     FeatureFlagService featureFlagService;
 
+    @Autowired
+    PermissionGroupRepository permissionGroupRepository;
+
     User api_user = null;
 
     String superAdminPermissionGroupId = null;
@@ -106,6 +111,12 @@ public class UserAndAccessManagementServiceTest {
         Mono<List<UserForManagementDTO>> allUsersMono =
                 userAndAccessManagementService.getAllUsers(new LinkedMultiValueMap<>());
 
+        List<PermissionGroup> allRolesAssignedToApiUser = permissionGroupRepository
+                .findAllByAssignedToUserIdsIn(Set.of(api_user.getId()))
+                .filter(role -> !Collections.isEmpty(role.getPolicies()))
+                .collectList()
+                .block();
+
         StepVerifier.create(allUsersMono)
                 .assertNext(users -> {
                     assertThat(users).isNotNull();
@@ -116,9 +127,8 @@ public class UserAndAccessManagementServiceTest {
                             .findFirst()
                             .get();
                     assertThat(apiUserDto.getId()).isEqualTo(api_user.getId());
-                    apiUserDto.getGroups().forEach(group -> System.out.println(group.getName()));
                     assertThat(apiUserDto.getGroups().size()).isEqualTo(0);
-                    assertThat(apiUserDto.getRoles().size()).isEqualTo(2);
+                    assertThat(apiUserDto.getRoles().size()).isEqualTo(allRolesAssignedToApiUser.size());
 
                     boolean adminRole = apiUserDto.getRoles().stream()
                             .anyMatch(role -> "Instance Administrator Role".equals(role.getName()));
@@ -156,15 +166,19 @@ public class UserAndAccessManagementServiceTest {
     public void getSingleUserForManagementTest_valid() {
 
         Mono<UserForManagementDTO> userByIdMono = userAndAccessManagementService.getUserById(api_user.getId());
+        List<PermissionGroup> allRolesAssignedToApiUser = permissionGroupRepository
+                .findAllByAssignedToUserIdsIn(Set.of(api_user.getId()))
+                .filter(role -> !Collections.isEmpty(role.getPolicies()))
+                .collectList()
+                .block();
 
         StepVerifier.create(userByIdMono)
                 .assertNext(user -> {
                     assertThat(user).isNotNull();
 
                     assertThat(user.getId()).isEqualTo(api_user.getId());
-                    user.getGroups().forEach(group -> System.out.println(group.getName()));
                     assertThat(user.getGroups().size()).isEqualTo(0);
-                    assertThat(user.getRoles().size()).isEqualTo(2);
+                    assertThat(user.getRoles().size()).isEqualTo(allRolesAssignedToApiUser.size());
 
                     Optional<PermissionGroupInfoDTO> adminRole = user.getRoles().stream()
                             .filter(role -> "Instance Administrator Role".equals(role.getName()))
