@@ -101,9 +101,9 @@ import { setCurrentEditingEnvironmentID } from "@appsmith/actions/environmentAct
 import { getCurrentEnvironmentDetails } from "@appsmith/selectors/environmentSelectors";
 import { isGACEnabled } from "@appsmith/utils/planHelpers";
 import {
-  getHasCreateDatasourceActionPermission,
   getHasDeleteDatasourcePermission,
   getHasManageDatasourcePermission,
+  hasCreateDSActionPermissionInApp,
 } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 
 interface ReduxStateProps {
@@ -1053,9 +1053,10 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   );
 
   const pagePermissions = getPagePermissions(state);
-  const canCreateDatasourceActions = getHasCreateDatasourceActionPermission(
+  const canCreateDatasourceActions = hasCreateDSActionPermissionInApp(
     isFeatureEnabled,
-    [...datasourcePermissions, ...pagePermissions],
+    datasourcePermissions,
+    pagePermissions,
   );
   // Debugger render flag
   const showDebugger = showDebuggerFlag(state);
