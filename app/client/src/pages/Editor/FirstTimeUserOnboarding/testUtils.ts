@@ -57,6 +57,7 @@ export const initialState: any = {
         data: {},
       },
     },
+    editor: {},
   },
 };
 let state = JSON.parse(JSON.stringify(initialState));
