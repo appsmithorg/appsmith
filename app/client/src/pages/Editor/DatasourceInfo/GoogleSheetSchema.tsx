@@ -60,8 +60,13 @@ export const TableWrapper = styled.div`
     width: 100%;
     height: 100%;
   }
-  && > div > div {
+  && .t--table-response {
     border: none;
+    height: 100%;
+    overflow: hidden;
+  }
+  && .tableWrap {
+    overflow: auto;
   }
   & .table {
     background: none;
@@ -82,6 +87,8 @@ export const TableWrapper = styled.div`
   }
   button {
     margin-right: 24px;
+  }
+  && .tableWrap {
   }
 `;
 

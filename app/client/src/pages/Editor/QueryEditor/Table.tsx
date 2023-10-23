@@ -317,7 +317,10 @@ function Table(props: TableProps) {
 
   return (
     <ErrorBoundary>
-      <TableWrapper data-guided-tour-id="query-table-response">
+      <TableWrapper
+        className="t--table-response"
+        data-guided-tour-id="query-table-response"
+      >
         <div className="tableWrap">
           <div {...getTableProps()} className="table">
             <div>
