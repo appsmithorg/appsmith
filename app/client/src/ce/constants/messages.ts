@@ -2162,3 +2162,6 @@ export const EMPTY_TABLE_TITLE_TEXT = () => "Empty table";
 export const EMPTY_TABLE_MESSAGE_TEXT = () =>
   "There are no data records to show";
 export const EMPTY_TABLE_SVG_ALT_TEXT = () => "Empty table image";
+
+export const DATASOURCE_BLANK_STATE_MESSAGE = () =>
+  "You need a datasource connection to write your first query";

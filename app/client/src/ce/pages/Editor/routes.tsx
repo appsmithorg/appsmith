@@ -26,12 +26,18 @@ import { SaaSEditorRoutes } from "pages/Editor/SaaSEditor/routes";
 import OnboardingChecklist from "pages/Editor/FirstTimeUserOnboarding/Checklist";
 import { DatasourceEditorRoutes } from "pages/routes";
 import CurlImportEditor from "pages/Editor/APIEditor/CurlImportEditor";
+import { useFeatureFlag } from "../../../utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "../../entities/FeatureFlag";
+import CreateNewDatasourceTab from "../../../pages/Editor/IntegrationEditor/CreateNewDatasourceTab";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
 function EditorRoutes() {
   const { path } = useRouteMatch();
   const { pathname } = useLocation();
+  const isAppSidebarEnabled = useFeatureFlag(
+    FEATURE_FLAG.release_app_sidebar_enabled,
+  );
 
   useEffect(() => {
     return () => {
@@ -45,7 +51,9 @@ function EditorRoutes() {
   return (
     <Switch key={path}>
       <SentryRoute
-        component={IntegrationEditor}
+        component={
+          isAppSidebarEnabled ? CreateNewDatasourceTab : IntegrationEditor
+        }
         exact
         path={`${path}${INTEGRATION_EDITOR_PATH}`}
       />

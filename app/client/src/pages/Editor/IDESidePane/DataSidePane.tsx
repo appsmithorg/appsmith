@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import styled from "styled-components";
 import { List, Text } from "design-system";
 import { useSelector } from "react-redux";
@@ -12,6 +12,7 @@ import { getSelectedDatasourceId } from "../../../navigation/FocusSelectors";
 import { groupBy, keyBy } from "lodash";
 import { PluginType } from "entities/Action";
 import CreateDatasourcePopover from "./CreateDatasourcePopover";
+import { useLocation } from "react-router";
 
 const PaneContainer = styled.div`
   width: 300px;
@@ -51,6 +52,9 @@ const DatasourceIcon = styled.img`
 `;
 
 const DataSidePane = () => {
+  const [currentSelectedDatasource, setCurrentSelectedDatasource] = useState<
+    string | undefined
+  >("");
   const datasources = useSelector(getDatasources);
   const plugins = useSelector(getPlugins);
   const groupedPlugins = keyBy(plugins, "id");
@@ -66,9 +70,12 @@ const DataSidePane = () => {
   const goToDatasource = useCallback((id: string) => {
     history.push(datasourcesEditorIdURL({ datasourceId: id }));
   }, []);
-  const currentSelectedDatasource = getSelectedDatasourceId(
-    window.location.pathname,
-  );
+
+  const location = useLocation();
+  useEffect(() => {
+    setCurrentSelectedDatasource(getSelectedDatasourceId(location.pathname));
+  }, [location]);
+
   return (
     <PaneContainer>
       <PaneHeader>

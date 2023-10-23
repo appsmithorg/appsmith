@@ -1,30 +1,24 @@
-import {
-  Button,
-  Popover,
-  PopoverBody,
-  PopoverContent,
-  PopoverHeader,
-  PopoverTrigger,
-} from "design-system";
-import React, { useState } from "react";
+import { Button, Popover, PopoverTrigger } from "design-system";
+import React from "react";
+import history from "utils/history";
+import { builderURL } from "@appsmith/RouteBuilder";
 
 const CreateDatasourcePopover = () => {
-  const [isOpen, setOpen] = useState(false);
   return (
-    <Popover onOpenChange={setOpen} open={isOpen}>
+    <Popover open={false}>
       <PopoverTrigger>
         <Button
           kind="tertiary"
-          onClick={() => setOpen(true)}
+          onClick={() =>
+            history.push(
+              builderURL({
+                suffix: "datasources/NEW",
+              }),
+            )
+          }
           startIcon="add-line"
         />
       </PopoverTrigger>
-      <PopoverContent align="start" className="z-[25]" side="left" size="md">
-        <PopoverHeader className="sticky top-0" isClosable>
-          Datasources
-        </PopoverHeader>
-        <PopoverBody className={"!overflow-y-clip"} />
-      </PopoverContent>
     </Popover>
   );
 };
