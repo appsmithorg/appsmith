@@ -60,8 +60,6 @@
 
         <module>smtpPlugin</module>
 
-        <module>chatGptPlugin</module>
-
         <module>openAiPlugin</module>
 
     </modules>
