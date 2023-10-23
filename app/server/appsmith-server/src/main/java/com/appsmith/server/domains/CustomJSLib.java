@@ -101,6 +101,5 @@ public class CustomJSLib extends BranchAwareDomain {
         this.setId(null);
         this.setCreatedAt(null);
         this.setUpdatedAt(null);
-        super.sanitiseToExportDBObject();
     }
 }
