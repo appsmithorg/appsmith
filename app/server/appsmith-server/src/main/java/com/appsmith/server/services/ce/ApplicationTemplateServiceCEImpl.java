@@ -24,6 +24,7 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -45,6 +46,7 @@ import java.util.List;
 import java.util.Map;
 
 @Service
+@Slf4j
 public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServiceCE {
     private final CloudServicesConfig cloudServicesConfig;
     private final ReleaseNotesService releaseNotesService;
@@ -369,14 +371,21 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
     public Mono<Application> publishAsCommunityTemplate(CommunityTemplateDTO resource) {
         return exportApplicationService
                 .exportApplicationById(resource.getApplicationId(), resource.getBranchName())
-                .flatMap(appJson -> uploadCommunityTemplateToCS(
-                        createCommunityTemplateUploadDTO(resource.getApplicationId(), appJson, resource)))
+                .flatMap(appJson -> {
+                    Mono<ApplicationTemplate> template = uploadCommunityTemplateToCS(
+                            createCommunityTemplateUploadDTO(resource.getApplicationId(), appJson, resource));
+                    log.info("CommunityTemplatePublish [{}] 2. uploaded to CS", resource.getApplicationId());
+                    return template;
+                })
                 .then(updateApplicationFlags(resource.getApplicationId(), resource.getBranchName()))
                 .flatMap(application -> {
+                    log.info("CommunityTemplatePublish [{}] 3. updated app flags", resource.getApplicationId());
                     ApplicationAccessDTO applicationAccessDTO = new ApplicationAccessDTO();
                     applicationAccessDTO.setPublicAccess(true);
-                    return applicationService.changeViewAccess(
+                    Mono<Application> applicationMono = applicationService.changeViewAccess(
                             application.getId(), resource.getBranchName(), applicationAccessDTO);
+                    log.info("CommunityTemplatePublish [{}] 4. set public access", resource.getApplicationId());
+                    return applicationMono;
                 });
     }
 }

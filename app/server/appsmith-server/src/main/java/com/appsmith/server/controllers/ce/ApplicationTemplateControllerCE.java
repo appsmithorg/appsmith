@@ -99,6 +99,7 @@ public class ApplicationTemplateControllerCE {
     @PostMapping("publish/{applicationId}/{organizationId}")
     public Mono<ResponseDTO<Application>> publishAsCommunityTemplate(
             @RequestBody(required = true) CommunityTemplateDTO resource) {
+        log.info("CommunityTemplatePublish: 1. Publishing appID: [{}]", resource.getApplicationId());
         return applicationTemplateService
                 .publishAsCommunityTemplate(resource)
                 .map(template -> new ResponseDTO<>(HttpStatus.OK.value(), template, null));
