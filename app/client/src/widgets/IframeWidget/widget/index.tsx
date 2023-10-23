@@ -6,7 +6,7 @@ import type { WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
 import IframeComponent from "../component";
 import type { IframeWidgetProps } from "../constants";
-import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
+import { generateTypeDef } from "utils/autocomplete/defCreatorUtils";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type {
   AnvilConfig,

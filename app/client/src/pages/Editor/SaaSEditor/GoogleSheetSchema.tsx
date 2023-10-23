@@ -38,8 +38,8 @@ import { getDatasource } from "@appsmith/selectors/entitiesSelector";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import {
-  getHasCreateDatasourceActionPermission,
   getHasCreatePagePermission,
+  hasCreateDSActionPermissionInApp,
 } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 
 export const MessageWrapper = styled.div`
@@ -297,9 +297,10 @@ function GoogleSheetSchema(props: Props) {
     userAppPermissions,
   );
 
-  const canCreateDatasourceActions = getHasCreateDatasourceActionPermission(
+  const canCreateDatasourceActions = hasCreateDSActionPermissionInApp(
     isFeatureEnabled,
-    [...datasourcePermissions, ...pagePermissions],
+    datasourcePermissions,
+    pagePermissions,
   );
 
   const showGeneratePageBtn =
