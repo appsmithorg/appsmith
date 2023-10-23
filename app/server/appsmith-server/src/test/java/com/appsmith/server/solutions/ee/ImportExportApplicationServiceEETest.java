@@ -162,8 +162,9 @@ public class ImportExportApplicationServiceEETest {
                 .getId();
         Datasource testDatasource = new Datasource();
         // Choose plugin same as mongo, as json static file has mongo plugin for datasource
-        Plugin mongoPlugin = pluginRepository.findByName("MongoDB").block();
-        testDatasource.setPluginId(mongoPlugin.getId());
+        Plugin installedPlugin =
+                pluginRepository.findByName("Installed Plugin Name").block();
+        testDatasource.setPluginId(installedPlugin.getId());
         testDatasource.setWorkspaceId(testWorkspace.getId());
         final String datasourceName = applicationJson.getDatasourceList().get(0).getName();
         testDatasource.setName(datasourceName);
