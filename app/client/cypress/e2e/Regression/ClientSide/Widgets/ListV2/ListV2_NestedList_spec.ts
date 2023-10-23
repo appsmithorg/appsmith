@@ -19,7 +19,9 @@ describe("Nested List widget V2 ", () => {
       "not.exist",
       locators._widgetInCanvas(WIDGET.LIST_V2),
     );
-    agHelper.GetElement(locators._widgetInCanvas(WIDGET.LIST_V2)).should('have.length', 5);
+    agHelper
+      .GetElement(locators._widgetInCanvas(WIDGET.LIST_V2))
+      .should("have.length", 5);
     entityExplorer.SelectEntityByName("List1", "Widgets");
     entityExplorer.SelectEntityByName("Container1", "List1");
     entityExplorer.SelectEntityByName("List2", "Container1");
