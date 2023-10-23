@@ -139,7 +139,6 @@ export function* updateDataTreeHandler(
     jsVarsCreatedEvent,
     logs,
     removedPaths,
-    reValidatedPaths,
     staleMetaIds,
     undefinedEvalValuesMap,
     unEvalUpdates,
@@ -184,7 +183,6 @@ export function* updateDataTreeHandler(
     errors,
     updatedDataTree,
     evaluationOrder,
-    reValidatedPaths,
     configTree,
     removedPaths,
   );
