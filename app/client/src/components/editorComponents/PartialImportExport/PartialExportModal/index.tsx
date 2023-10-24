@@ -14,7 +14,10 @@ import WidgetsExport from "./WidgetsExport";
 import DatasourcesExport from "./DatasourcesExport";
 import JSObjectsNQueriesExport from "./JSObjectsNQueriesExport";
 import CustomJSLibsExport from "./CustomJSLibsExport";
-import { PARTIAL_EXPORT, createMessage } from "@appsmith/constants/messages";
+import {
+  PARTIAL_IMPORT_EXPORT,
+  createMessage,
+} from "@appsmith/constants/messages";
 import {
   JsFileIconV2,
   datasourceIcon,
@@ -32,11 +35,11 @@ const PartiaExportModel = ({ handleModalClose, isModalOpen }: Props) => {
       <ModalContent>
         <ModalHeader>
           <Text className="title" kind="heading-xl">
-            {createMessage(PARTIAL_EXPORT.modalHeading)}
+            {createMessage(PARTIAL_IMPORT_EXPORT.export.modalHeading)}
           </Text>
         </ModalHeader>
         <Text kind="heading-m" renderAs="h2">
-          {createMessage(PARTIAL_EXPORT.modalSubHeading)}
+          {createMessage(PARTIAL_IMPORT_EXPORT.export.modalSubHeading)}
         </Text>
         <ScrollableSection>
           {exportSections.map(({ children, icon, title }) => (
@@ -56,7 +59,9 @@ const PartiaExportModel = ({ handleModalClose, isModalOpen }: Props) => {
           ))}
         </ScrollableSection>
         <ModalFooter>
-          <Button size="lg">Export selected</Button>
+          <Button size="md">
+            {createMessage(PARTIAL_IMPORT_EXPORT.export.cta)}
+          </Button>
         </ModalFooter>
       </ModalContent>
     </Modal>
@@ -75,6 +80,7 @@ const Content = styled.div`
   justify-content: center;
   padding: 16px;
   background-color: var(--ads-v2-color-gray-100);
+  gap: 8px;
 `;
 
 const exportSections: {

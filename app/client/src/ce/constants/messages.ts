@@ -2165,7 +2165,10 @@ export const EMPTY_TABLE_MESSAGE_TEXT = () =>
   "There are no data records to show";
 export const EMPTY_TABLE_SVG_ALT_TEXT = () => "Empty table image";
 
-export const PARTIAL_EXPORT = {
-  modalHeading: () => "Partial export",
-  modalSubHeading: () => "Select entities below to export from the Page",
+export const PARTIAL_IMPORT_EXPORT = {
+  export: {
+    modalHeading: () => "Partial export",
+    modalSubHeading: () => "Select entities below to export from the Page",
+    cta: () => "Export selected entities",
+  },
 };
