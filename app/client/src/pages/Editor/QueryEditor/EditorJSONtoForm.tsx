@@ -326,6 +326,7 @@ const SidebarWrapper = styled.div<{ show: boolean }>`
 
 export const SegmentedControlContainer = styled.div`
   padding: 0 var(--ads-v2-spaces-7);
+  padding-top: var(--ads-v2-spaces-4);
   display: flex;
   flex-direction: column;
   gap: var(--ads-v2-spaces-4);

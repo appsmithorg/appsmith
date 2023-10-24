@@ -12,6 +12,7 @@ import {
 } from "./../config";
 import type { IconButtonWidgetProps, IconButtonWidgetState } from "./types";
 import { IconButtonComponent } from "../component";
+import type { AnvilConfig } from "WidgetProvider/constants";
 
 class WDSIconButtonWidget extends BaseWidget<
   IconButtonWidgetProps,
@@ -37,6 +38,17 @@ class WDSIconButtonWidget extends BaseWidget<
 
   static getAutoLayoutConfig() {
     return {};
+  }
+
+  static getAnvilConfig(): AnvilConfig | null {
+    return {
+      widgetSize: {
+        maxHeight: {},
+        maxWidth: {},
+        minHeight: { base: "40px" },
+        minWidth: { base: "40px" },
+      },
+    };
   }
 
   static getAutocompleteDefinitions() {

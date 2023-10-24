@@ -134,6 +134,7 @@ const mapStateToProps = (state: AppState, props: any) => {
 
 export default connect(mapStateToProps)(
   reduxForm<Datasource, DatasourceDBEditorProps>({
+    destroyOnUnmount: false,
     form: DATASOURCE_DB_FORM,
     enableReinitialize: true,
   })(DatasourceDBEditor),

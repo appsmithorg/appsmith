@@ -107,6 +107,8 @@ import {
 } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import DatasourceTabs from "../DatasourceInfo/DatasorceTabs";
 import DatasourceInformation, { ViewModeWrapper } from "./DatasourceSection";
+import { getIsAppSidebarEnabled } from "../../../selectors/ideSelectors";
+
 interface ReduxStateProps {
   canCreateDatasourceActions: boolean;
   canDeleteDatasource: boolean;
@@ -144,6 +146,7 @@ interface ReduxStateProps {
   featureFlags?: FeatureFlags;
   isEnabledForDSViewModeSchema: boolean;
   isPluginAllowedToPreviewData: boolean;
+  isAppSidebarEnabled: boolean;
 }
 
 const Form = styled.div`
@@ -902,6 +905,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       datasourceId,
       formData,
       history,
+      isAppSidebarEnabled,
       isDeleting,
       isInsideReconnectModal,
       isNewDatasource,
@@ -958,7 +962,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
           e.preventDefault();
         }}
       >
-        <CloseEditor />
+        {isAppSidebarEnabled ? null : <CloseEditor />}
         {!isInsideReconnectModal && (
           <DSFormHeader
             canCreateDatasourceActions={canCreateDatasourceActions}
@@ -1153,6 +1157,8 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     DATASOURCES_ALLOWED_FOR_PREVIEW_MODE.includes(plugin?.name || "") ||
     (plugin?.name === PluginName.MONGO && !!(datasource as Datasource)?.isMock);
 
+  const isAppSidebarEnabled = getIsAppSidebarEnabled(state);
+
   return {
     canCreateDatasourceActions,
     canDeleteDatasource,
@@ -1189,6 +1195,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     defaultKeyValueArrayConfig,
     initialValue,
     showDebugger,
+    isAppSidebarEnabled,
   };
 };
 
