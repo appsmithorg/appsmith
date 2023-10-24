@@ -4,6 +4,7 @@ import { Redirect, useLocation } from "react-router";
 import {
   isValidLicense,
   isTenantLoading,
+  getLicensePlan,
 } from "@appsmith/selectors/tenantSelectors";
 import {
   USER_AUTH_URL,
@@ -20,6 +21,8 @@ import {
   PAGE_NOT_FOUND_URL,
   APPLICATIONS_URL,
 } from "constants/routes";
+import ErrorPage from "pages/common/ErrorPage";
+import { ERROR_CODES } from "./constants/ApiConstants";
 
 const NO_LICENSE_WHITE_LIST = [
   USER_AUTH_URL,
@@ -40,13 +43,17 @@ export const requiresLicenseCheck = (Component: React.ComponentType) => {
     const location = useLocation();
     const isLicenseValid = useSelector(isValidLicense);
     const isLoading = useSelector(isTenantLoading);
+    const licensePlan = useSelector(getLicensePlan);
+    const redirectWhitelist = NO_LICENSE_WHITE_LIST.includes(location.pathname);
+    let shouldRedirect = false;
+    if (!isLoading && !isLicenseValid && !redirectWhitelist) {
+      shouldRedirect = true;
+    }
 
-    const shouldRedirect =
-      !isLoading &&
-      !isLicenseValid &&
-      !NO_LICENSE_WHITE_LIST.includes(location.pathname);
-
-    if (shouldRedirect) {
+    //If the plan attribute is Empty then we need to redirect to the Error Page since there is an error with the response
+    if (!licensePlan && !redirectWhitelist) {
+      return <ErrorPage code={ERROR_CODES.SERVER_ERROR} />;
+    } else if (shouldRedirect) {
       return <Redirect to={LICENSE_CHECK_PATH} />;
     } else if (isLicenseValid && location.pathname === LICENSE_CHECK_PATH) {
       return <Redirect to={APPLICATIONS_URL} />;

@@ -52,20 +52,17 @@ public class LicenseController {
      */
     @GetMapping("")
     public Mono<ResponseDTO<Tenant>> getLicense() {
-        log.debug("Going to refresh the current license status from the Cloud Services and return the latest status");
         return service.refreshAndGetCurrentLicense()
                 .map(tenant -> new ResponseDTO<>(HttpStatus.OK.value(), tenant, null));
     }
 
     @DeleteMapping("")
     public Mono<ResponseDTO<Tenant>> removeLicenseKey() {
-        log.debug("Going to remove the license key for default tenant and execute downgrade migrations");
         return service.removeLicenseKey().map(tenant -> new ResponseDTO<>(HttpStatus.OK.value(), tenant, null));
     }
 
     @PutMapping("/sync-plan")
     public Mono<ResponseDTO<Tenant>> syncLicensePlans() {
-        log.debug("Going to sync license plans and run feature based migrations");
         return service.syncLicensePlansAndRunFeatureBasedMigrations()
                 .map(tenant -> new ResponseDTO<>(HttpStatus.OK.value(), tenant, null));
     }
