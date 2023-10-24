@@ -78,8 +78,8 @@ export const importStarterTemplateIntoApplication = (
   },
 });
 
-export const toggleStarterTemplateDatasourcePrompt = () => ({
-  type: ReduxActionTypes.TOGGLE_STARTER_TEMPLATE_DATASOURCE_PROMPT,
+export const hideStarterTemplateDatasourcePrompt = () => ({
+  type: ReduxActionTypes.HIDE_STARTER_TEMPLATE_DATASOURCE_PROMPT,
 });
 
 export const getTemplateFilters = () => ({

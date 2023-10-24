@@ -29,7 +29,6 @@ import {
   getAllTemplates,
   setTemplateNotificationSeenAction,
   showTemplatesModal,
-  toggleStarterTemplateDatasourcePrompt,
 } from "actions/templateActions";
 import {
   getTemplateNotificationSeen,
@@ -308,9 +307,6 @@ function* forkStarterTemplateToApplicationSaga(
       yield put({
         type: ReduxActionTypes.IMPORT_STARTER_TEMPLATE_TO_APPLICATION_SUCCESS,
       });
-
-      // Trigger the final action to show the datasource prompt
-      yield put(toggleStarterTemplateDatasourcePrompt());
     } else {
       yield put({
         type: ReduxActionErrorTypes.IMPORT_STARTER_TEMPLATE_TO_APPLICATION_ERROR,

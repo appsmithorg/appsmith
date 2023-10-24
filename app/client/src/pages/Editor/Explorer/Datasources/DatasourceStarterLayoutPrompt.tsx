@@ -13,7 +13,7 @@ import styled from "styled-components";
 import { importSvg } from "design-system-old";
 
 import { starterTemplateDatasourcePromptSelector } from "selectors/templatesSelectors";
-import { toggleStarterTemplateDatasourcePrompt } from "actions/templateActions";
+import { hideStarterTemplateDatasourcePrompt } from "actions/templateActions";
 import {
   STARTER_TEMPLATE_PAGE_LAYOUTS,
   createMessage,
@@ -22,6 +22,7 @@ import history from "utils/history";
 import { integrationEditorURL } from "@appsmith/RouteBuilder";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { INTEGRATION_TABS } from "constants/routes";
+import { Colors } from "constants/Colors";
 
 function DatasourceStarterLayoutPrompt() {
   const dispatch = useDispatch();
@@ -31,10 +32,10 @@ function DatasourceStarterLayoutPrompt() {
     starterTemplateDatasourcePromptSelector,
   );
 
-  const togglePrompt = () => dispatch(toggleStarterTemplateDatasourcePrompt());
+  const disablePrompt = () => dispatch(hideStarterTemplateDatasourcePrompt());
 
   const onClickConnect = useCallback(() => {
-    dispatch(toggleStarterTemplateDatasourcePrompt());
+    dispatch(hideStarterTemplateDatasourcePrompt());
     history.push(
       integrationEditorURL({
         pageId,
@@ -44,7 +45,7 @@ function DatasourceStarterLayoutPrompt() {
   }, [pageId]);
 
   return (
-    <Popover onOpenChange={togglePrompt} open={showDatasourcePrompt}>
+    <Popover onOpenChange={disablePrompt} open={showDatasourcePrompt}>
       {/* Removing this trigger will stop Popover from rendering */}
       <PopoverTrigger>
         <div />
@@ -118,7 +119,7 @@ const Ellipse = styled.div`
 const InnerEllipse = styled.div`
   width: 18px;
   height: 18px;
-  background: rgba(225, 86, 21, 1);
+  background: ${Colors.PRIMARY_ORANGE};
   border-radius: 50%;
 `;
 

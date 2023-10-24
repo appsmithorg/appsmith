@@ -41,7 +41,6 @@ export const TemplateLayoutContainer = styled.div`
 
   background-color: transparent;
   transition: background-color 0.3s ease, box-shadow 0.3s ease;
-  cursor: pointer;
 
   &:hover {
     background-color: ${Colors.WHITE};
@@ -102,8 +101,6 @@ export const TemplateLayoutContentGrid = styled.div`
   justify-content: center;
   align-items: center;
   flex-direction: row;
-  flex-wrap: wrap;
-  width: 80%;
 `;
 
 export const TemplateLayoutContentItem = styled.div`
@@ -114,6 +111,7 @@ export const TemplateLayoutContentItem = styled.div`
   border-radius: 4px;
   background: transparent;
   transition: background 0.3s ease;
+  cursor: pointer;
 
   &:hover {
     background: rgba(241, 245, 249, 1);
