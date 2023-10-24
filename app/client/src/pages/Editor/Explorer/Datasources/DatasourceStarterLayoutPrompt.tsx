@@ -33,13 +33,6 @@ function DatasourceStarterLayoutPrompt() {
 
   const togglePrompt = () => dispatch(toggleStarterTemplateDatasourcePrompt());
 
-  const PromptImage = importSvg(
-    async () =>
-      import(
-        "../../../../assets/icons/templates/starter-template-datasource-prompt.svg"
-      ),
-  );
-
   const onClickConnect = useCallback(() => {
     dispatch(toggleStarterTemplateDatasourcePrompt());
     history.push(
@@ -90,6 +83,13 @@ function DatasourceStarterLayoutPrompt() {
 }
 
 export default DatasourceStarterLayoutPrompt;
+
+const PromptImage = importSvg(
+  async () =>
+    import(
+      "../../../../assets/icons/templates/starter-template-datasource-prompt.svg"
+    ),
+);
 
 const StyledPopoverContent = styled(PopoverContent)`
   margin-left: 23px;

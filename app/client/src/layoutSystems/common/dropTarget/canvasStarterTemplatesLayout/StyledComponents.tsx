@@ -40,9 +40,7 @@ export const TemplateLayoutContainer = styled.div`
   border-radius: 4px;
 
   background-color: transparent;
-  transition:
-    background-color 0.3s ease,
-    box-shadow 0.3s ease;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
   cursor: pointer;
 
   &:hover {
@@ -100,11 +98,12 @@ export const TemplateLayoutDragAndDropText = styled.p<{
 `;
 
 export const TemplateLayoutContentGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 0;
+  display: flex;
   justify-content: center;
   align-items: center;
+  flex-direction: row;
+  flex-wrap: wrap;
+  width: 80%;
 `;
 
 export const TemplateLayoutContentItem = styled.div`
@@ -126,4 +125,11 @@ export const TemplateLayoutContentItemContent = styled.div`
   flex-direction: column;
   width: 152px;
   margin-left: 16px;
+`;
+
+export const IconContainer = styled.div<{ layoutItemActive: boolean }>`
+  border-width: 1px;
+  border-radius: 4px;
+  border-color: ${(props) =>
+    props.layoutItemActive ? Colors.PRIMARY_ORANGE : "transparent"};
 `;
