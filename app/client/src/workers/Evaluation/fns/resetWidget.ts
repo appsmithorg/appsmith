@@ -19,10 +19,8 @@ import type { DescendantWidgetMap } from "sagas/WidgetOperationUtils";
 import type { MetaState } from "reducers/entityReducers/metaReducer";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
-import type {
-  DataTree,
-  UnEvalTreeEntity,
-} from "entities/DataTree/dataTreeTypes";
+import type { DataTree } from "entities/DataTree/dataTreeTypes";
+import { validateAndParseWidgetProperty } from "workers/common/DataTreeEvaluator/validationUtils";
 
 function resetWidgetFnDescriptor(
   widgetName: string,
@@ -79,6 +77,9 @@ async function resetWidgetMetaProperty(
   const evalTree = dataTreeEvaluator.getEvalTree();
   const oldUnEvalTree = dataTreeEvaluator.getOldUnevalTree();
   const configTree = dataTreeEvaluator.getConfigTree();
+  const evalProps = dataTreeEvaluator.getEvalProps();
+  const evalPathsIdenticalToState =
+    dataTreeEvaluator.getEvalPathsIdenticalToState();
 
   const evaluatedEntity = evalTree[widget.widgetName];
   const evaluatedEntityConfig = configTree[
@@ -95,8 +96,7 @@ async function resetWidgetMetaProperty(
         propertyOverrideDependency[propertyPath]?.DEFAULT;
       if (defaultPropertyPath) {
         const unEvalEntity = oldUnEvalTree[widget.widgetName] as WidgetEntity;
-        const expressionToEvaluate: string | UnEvalTreeEntity | undefined =
-          defaultPropertyPath && unEvalEntity[defaultPropertyPath];
+        const expressionToEvaluate: string = unEvalEntity[defaultPropertyPath];
 
         let finalValue: unknown;
         if (
@@ -119,10 +119,20 @@ async function resetWidgetMetaProperty(
           finalValue = klona(expressionToEvaluate);
         }
 
+        const parsedValue = validateAndParseWidgetProperty({
+          fullPropertyPath: `${widget.widgetName}.${defaultPropertyPath}`,
+          widget: unEvalEntity,
+          configTree,
+          evalPropertyValue: finalValue,
+          unEvalPropertyValue: expressionToEvaluate,
+          evalProps,
+          evalPathsIdenticalToState,
+        });
+
         evalMetaUpdates.push({
           widgetId: evaluatedEntity.widgetId,
           metaPropertyPath: propertyPath.split("."),
-          value: finalValue,
+          value: parsedValue,
         });
 
         continue;
