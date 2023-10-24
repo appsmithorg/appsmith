@@ -147,6 +147,16 @@ export function getHighlightsForWidgetsRow(
     getDimensions,
   );
 
+  const draggedWidgetIds: string[] = draggedWidgets.map(
+    (each: DraggedWidget) => each.widgetId,
+  );
+
+  const nonDraggedWidgets: WidgetLayoutProps[] = layout.filter(
+    (each: WidgetLayoutProps) => !draggedWidgetIds.includes(each.widgetId),
+  );
+
+  if (!nonDraggedWidgets.length && !layoutProps.isDropTarget) return [];
+
   // add a highlight before every widget and after the last one.
   const highlights: AnvilHighlightInfo[] = [];
   meta.metaData.forEach((row: RowMetaData[], index: number) => {

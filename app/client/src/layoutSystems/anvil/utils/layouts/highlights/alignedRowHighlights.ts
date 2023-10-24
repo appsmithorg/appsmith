@@ -300,7 +300,7 @@ function generateHighlight(
   isFinalHighlight: boolean,
   isDropTarget: boolean,
 ): AnvilHighlightInfo {
-  let posX: number = 0;
+  let posX = 0;
   if (!currDimension) {
     // Initial highlight
     posX =
