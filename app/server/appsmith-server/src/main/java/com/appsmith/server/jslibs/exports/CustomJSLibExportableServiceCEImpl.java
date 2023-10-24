@@ -63,7 +63,6 @@ public class CustomJSLibExportableServiceCEImpl implements ExportableServiceCE<C
                                 .map(lib -> lib.getUidString())
                                 .collect(Collectors.toSet());
                     }
-
                     applicationJson.getUpdatedResources().put(FieldName.CUSTOM_JS_LIB_LIST, updatedCustomJSLibSet);
 
                     /**

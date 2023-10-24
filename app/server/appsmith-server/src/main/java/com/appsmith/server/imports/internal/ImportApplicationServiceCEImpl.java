@@ -50,6 +50,7 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.transaction.reactive.TransactionalOperator;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.lang.reflect.Type;
@@ -614,22 +615,22 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
             Mono<Application> importedApplicationMono,
             ApplicationJson applicationJson) {
 
-        return Mono.zip(
-                        getPageIndependentImportables(
-                                importingMetaDTO,
-                                mappedImportableResourcesDTO,
-                                workspaceMono,
-                                importedApplicationMono,
-                                applicationJson),
-                        objects -> objects)
-                .then(Mono.zip(
-                        getPageDependentImportables(
-                                importingMetaDTO,
-                                mappedImportableResourcesDTO,
-                                workspaceMono,
-                                importedApplicationMono,
-                                applicationJson),
-                        objects -> objects))
+        List<Mono<Void>> pageIndependentImportables = getPageIndependentImportables(
+                importingMetaDTO,
+                mappedImportableResourcesDTO,
+                workspaceMono,
+                importedApplicationMono,
+                applicationJson);
+
+        List<Mono<Void>> pageDependentImportables = getPageDependentImportables(
+                importingMetaDTO,
+                mappedImportableResourcesDTO,
+                workspaceMono,
+                importedApplicationMono,
+                applicationJson);
+
+        return Flux.merge(pageIndependentImportables)
+                .thenMany(Flux.merge(pageDependentImportables))
                 .then();
     }
 

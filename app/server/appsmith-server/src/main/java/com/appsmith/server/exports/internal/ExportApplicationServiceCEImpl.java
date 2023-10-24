@@ -34,12 +34,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import static java.lang.Boolean.TRUE;
@@ -136,6 +138,7 @@ public class ExportApplicationServiceCEImpl implements ExportApplicationServiceC
                     exportingMetaDTO.setClientSchemaMigrated(isClientSchemaMigrated);
                     exportingMetaDTO.setServerSchemaMigrated(isServerSchemaMigrated);
                     applicationJson.setExportedApplication(application);
+                    applicationJson.setUpdatedResources(new ConcurrentHashMap<>());
 
                     List<String> unpublishedPages = application.getPages().stream()
                             .map(ApplicationPage::getId)
@@ -144,7 +147,8 @@ public class ExportApplicationServiceCEImpl implements ExportApplicationServiceC
                     exportingMetaDTO.setUnpublishedPages(unpublishedPages);
 
                     return getExportableEntities(exportingMetaDTO, mappedResourcesDTO, applicationMono, applicationJson)
-                            .then(sanitizeEntities(serialiseFor, applicationJson, mappedResourcesDTO, exportingMetaDTO))
+                            .then(Mono.defer(() -> sanitizeEntities(
+                                    serialiseFor, applicationJson, mappedResourcesDTO, exportingMetaDTO)))
                             .then(Mono.fromCallable(() -> {
                                 application.makePristine();
                                 application.sanitiseToExportDBObject();
@@ -200,14 +204,10 @@ public class ExportApplicationServiceCEImpl implements ExportApplicationServiceC
 
         // The idea with both these methods is that any amount of overriding should take care of whether they want to
         // zip the additional exportables along with these or sequence them, or combine them using any other logic
-        return Mono.zip(
-                        getPageIndependentExportables(
-                                exportingMetaDTO, mappedResourcesDTO, applicationMono, applicationJson),
-                        objects -> objects)
-                .then(Mono.zip(
-                        getPageDependentExportables(
-                                exportingMetaDTO, mappedResourcesDTO, applicationMono, applicationJson),
-                        objects -> objects))
+        return Flux.merge(getPageIndependentExportables(
+                        exportingMetaDTO, mappedResourcesDTO, applicationMono, applicationJson))
+                .thenMany(Flux.merge(getPageDependentExportables(
+                        exportingMetaDTO, mappedResourcesDTO, applicationMono, applicationJson)))
                 .then();
     }
 
