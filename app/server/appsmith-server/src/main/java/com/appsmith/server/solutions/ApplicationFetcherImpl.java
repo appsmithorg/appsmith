@@ -1,7 +1,7 @@
 package com.appsmith.server.solutions;
 
 import com.appsmith.server.helpers.ResponseUtils;
-import com.appsmith.server.newpages.base.NewPageService;
+import com.appsmith.server.models.newpages.base.NewPageService;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;

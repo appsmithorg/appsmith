@@ -11,7 +11,7 @@ import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.newpages.base.NewPageService;
+import com.appsmith.server.models.newpages.base.NewPageService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.solutions.CreateDBTablePageSolution;
 import com.fasterxml.jackson.annotation.JsonView;

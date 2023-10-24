@@ -4,7 +4,7 @@ import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ResponseDTO;
-import com.appsmith.server.plugins.base.PluginService;
+import com.appsmith.server.models.plugins.base.PluginService;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.solutions.ce.PluginScheduledTaskCEImpl;
 import com.appsmith.util.WebClientUtils;

@@ -1,6 +1,5 @@
 package com.appsmith.server.transactions;
 
-import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.NewAction;
@@ -14,7 +13,8 @@ import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.imports.importable.ImportableService;
 import com.appsmith.server.imports.internal.ImportApplicationService;
 import com.appsmith.server.migrations.JsonSchemaMigration;
-import com.appsmith.server.newactions.base.NewActionService;
+import com.appsmith.server.models.actioncollections.base.ActionCollectionService;
+import com.appsmith.server.models.newactions.base.NewActionService;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.services.WorkspaceService;

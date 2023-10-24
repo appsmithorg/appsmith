@@ -1,18 +1,18 @@
 package com.appsmith.server.services.ce_compatible;
 
 import com.appsmith.external.git.GitExecutor;
-import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.configurations.EmailConfig;
-import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.exports.internal.ExportApplicationService;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.GitPrivateRepoHelper;
 import com.appsmith.server.helpers.RedisUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.imports.internal.ImportApplicationService;
-import com.appsmith.server.newactions.base.NewActionService;
-import com.appsmith.server.newpages.base.NewPageService;
-import com.appsmith.server.plugins.base.PluginService;
+import com.appsmith.server.models.actioncollections.base.ActionCollectionService;
+import com.appsmith.server.models.datasources.base.DatasourceService;
+import com.appsmith.server.models.newactions.base.NewActionService;
+import com.appsmith.server.models.newpages.base.NewPageService;
+import com.appsmith.server.models.plugins.base.PluginService;
 import com.appsmith.server.repositories.GitDeployKeysRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;

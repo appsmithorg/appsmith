@@ -1,11 +1,12 @@
 package com.appsmith.server.fork.internal;
 
 import com.appsmith.external.models.Datasource;
-import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.fork.forkable.ForkableService;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.imports.internal.ImportApplicationService;
-import com.appsmith.server.newactions.base.NewActionService;
+import com.appsmith.server.models.actioncollections.base.ActionCollectionService;
+import com.appsmith.server.models.newactions.base.NewActionService;
+import com.appsmith.server.models.themes.base.ThemeService;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.NewPageRepository;
@@ -21,7 +22,6 @@ import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.WorkspacePermission;
-import com.appsmith.server.themes.base.ThemeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 

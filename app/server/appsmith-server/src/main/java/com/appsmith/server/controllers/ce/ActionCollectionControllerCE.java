@@ -1,7 +1,6 @@
 package com.appsmith.server.controllers.ce;
 
 import com.appsmith.external.views.Views;
-import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.dtos.ActionCollectionDTO;
@@ -11,6 +10,7 @@ import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.RefactorActionCollectionNameDTO;
 import com.appsmith.server.dtos.RefactorActionNameInCollectionDTO;
 import com.appsmith.server.dtos.ResponseDTO;
+import com.appsmith.server.models.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.services.LayoutCollectionService;
 import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.validation.Valid;

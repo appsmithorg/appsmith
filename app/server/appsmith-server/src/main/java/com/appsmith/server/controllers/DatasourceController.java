@@ -2,7 +2,7 @@ package com.appsmith.server.controllers;
 
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.controllers.ce.DatasourceControllerCE;
-import com.appsmith.server.datasources.base.DatasourceService;
+import com.appsmith.server.models.datasources.base.DatasourceService;
 import com.appsmith.server.ratelimiting.RateLimitService;
 import com.appsmith.server.services.MockDataService;
 import com.appsmith.server.solutions.AuthenticationService;

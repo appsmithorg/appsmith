@@ -1,11 +1,11 @@
 package com.appsmith.server.solutions;
 
-import com.appsmith.server.datasources.base.DatasourceService;
-import com.appsmith.server.datasourcestorages.base.DatasourceStorageService;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.ResponseUtils;
-import com.appsmith.server.newpages.base.NewPageService;
-import com.appsmith.server.plugins.base.PluginService;
+import com.appsmith.server.models.datasources.base.DatasourceService;
+import com.appsmith.server.models.datasourcestorages.base.DatasourceStorageService;
+import com.appsmith.server.models.newpages.base.NewPageService;
+import com.appsmith.server.models.plugins.base.PluginService;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;

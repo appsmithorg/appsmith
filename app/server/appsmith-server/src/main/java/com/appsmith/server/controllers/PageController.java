@@ -2,7 +2,7 @@ package com.appsmith.server.controllers;
 
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.controllers.ce.PageControllerCE;
-import com.appsmith.server.newpages.base.NewPageService;
+import com.appsmith.server.models.newpages.base.NewPageService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.solutions.CreateDBTablePageSolution;
 import lombok.extern.slf4j.Slf4j;

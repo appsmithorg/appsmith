@@ -8,7 +8,7 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.TemplateCollection;
 import com.appsmith.server.helpers.ResponseUtils;
-import com.appsmith.server.newpages.base.NewPageService;
+import com.appsmith.server.models.newpages.base.NewPageService;
 import com.appsmith.server.services.BaseApiImporter;
 import com.appsmith.server.solutions.PagePermission;
 import lombok.extern.slf4j.Slf4j;

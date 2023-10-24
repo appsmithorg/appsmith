@@ -1,14 +1,14 @@
 package com.appsmith.server.exports.internal;
 
 import com.appsmith.external.models.Datasource;
-import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.exports.exportable.ExportableService;
-import com.appsmith.server.jslibs.base.CustomJSLibService;
-import com.appsmith.server.newactions.base.NewActionService;
-import com.appsmith.server.newpages.base.NewPageService;
+import com.appsmith.server.models.actioncollections.base.ActionCollectionService;
+import com.appsmith.server.models.jslibs.base.CustomJSLibService;
+import com.appsmith.server.models.newactions.base.NewActionService;
+import com.appsmith.server.models.newpages.base.NewPageService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.google.gson.Gson;
