@@ -22,6 +22,7 @@ const StyledOverlay = styled.div`
       background-color: var(--ads-v2-color-bg-emphasis-max);
     }
   }
+  pointer-events: auto;
 `;
 
 function Overlay() {
