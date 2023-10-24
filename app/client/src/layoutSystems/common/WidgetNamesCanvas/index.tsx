@@ -35,7 +35,6 @@ import {
   getScrollEndHandler,
   getScrollHandler,
 } from "./eventHandlers";
-import { hasWidgetNameDataChanged } from "./utils";
 
 /**
  * This Component contains logic to draw widget name on canvas
@@ -187,17 +186,7 @@ const OverlayCanvasContainer = (props: {
       // will be different from the widget name data we have right now.
       if (selectedWidgetNameData?.length === 0) {
         resetCanvas(widgetNamePositions, stageRef, true);
-      }
-
-      // Check if the widget name data has actually changed
-      if (
-        hasWidgetNameDataChanged(
-          widgetNamePositions.current,
-          selectedWidgetNameData,
-          focusedWidgetNameData,
-        )
-      ) {
-        // If it has changed, redraw the components
+      } else {
         updateFn();
       }
     }

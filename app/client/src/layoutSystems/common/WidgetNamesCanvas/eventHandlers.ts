@@ -101,6 +101,7 @@ export function getMouseOverDetails(
       const { height, left, top, widgetNameData, width } = widgetNamePosition;
       if (x > left && x < left + width && y > top && y < top + height) {
         result = { isMouseOver: true, cursor: "grab", widgetNameData };
+        break;
       }
     }
   }

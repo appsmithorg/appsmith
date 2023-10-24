@@ -91,6 +91,7 @@ export const updateSelectedWidgetPositions = (props: {
 
   // For each selected widget, draw the widget name
   if (selectedWidgetNameData && selectedWidgetNameData.length > 0) {
+    widgetNamePositions.current.selected = {};
     for (const widgetNameData of selectedWidgetNameData) {
       addWidgetNameToCanvas(
         layer,
@@ -107,6 +108,8 @@ export const updateSelectedWidgetPositions = (props: {
 
   // Draw the focused widget name
   if (focusedWidgetNameData) {
+    widgetNamePositions.current.focused = {};
+
     addWidgetNameToCanvas(
       layer,
       focusedWidgetNameData,
