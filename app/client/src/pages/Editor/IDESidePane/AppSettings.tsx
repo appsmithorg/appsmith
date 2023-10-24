@@ -8,7 +8,6 @@ const SettingsPageWrapper = styled.div`
   display: flex;
   flex-direction: column;
   width: ${APP_SETTINGS_PANE_WIDTH}px;
-  border-right: 1px solid var(--ads-v2-color-border);
   &:nth-child(2) {
     height: 100%;
   }

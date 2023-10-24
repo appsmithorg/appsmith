@@ -13,7 +13,7 @@ import {
   INTEGRATION_EDITOR_PATH,
   SAAS_GSHEET_EDITOR_ID_PATH,
 } from "constants/routes";
-import AppSettingsPane from "../AppSettingsPane";
+import AppSettingsPane from "./AppSettings";
 import DataSidePane from "./DataSidePane";
 
 const SidePaneContainer = styled.div`

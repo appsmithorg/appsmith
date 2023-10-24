@@ -8,6 +8,7 @@ const CreateDatasourcePopover = () => {
     <Popover open={false}>
       <PopoverTrigger>
         <Button
+          isIconButton
           kind="tertiary"
           onClick={() =>
             history.push(
@@ -16,6 +17,7 @@ const CreateDatasourcePopover = () => {
               }),
             )
           }
+          size="sm"
           startIcon="add-line"
         />
       </PopoverTrigger>
