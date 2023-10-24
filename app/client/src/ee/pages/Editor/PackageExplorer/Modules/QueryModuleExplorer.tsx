@@ -40,8 +40,8 @@ import {
   selectAllQueryModules,
 } from "@appsmith/utils/Packages/moduleHelpers";
 import type { ModulesReducerState } from "@appsmith/reducers/entityReducers/modulesReducer";
-import QueryModuleEntity from "./QueryModules/QueryModuleEntity";
-import { useFilteredFileOperations } from "components/editorComponents/GlobalSearch/GlobalSearchHooks";
+import QueryModuleEntity from "./QueryModules/Entity";
+import { useFilteredFileOperations } from "./hooks/getFilteredFileOps";
 
 const QueryModuleExplorer = () => {
   const packageId = useSelector(getCurrentPackageId) || "";

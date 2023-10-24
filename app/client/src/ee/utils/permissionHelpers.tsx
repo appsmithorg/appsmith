@@ -143,3 +143,7 @@ export const hasDeleteModulePermission = (permissions?: string[]) =>
 
 export const hasCreateModuleActionsPermission = (permissions?: string[]) =>
   isPermitted(permissions, PERMISSION_TYPE.CREATE_MODULES_ACTIONS);
+
+export const hasCreateModuleDatasourceActionPermission = (
+  permissions: string[] = [],
+) => isPermitted(permissions, [PERMISSION_TYPE.CREATE_DATASOURCE_ACTIONS]);

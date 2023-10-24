@@ -1,15 +1,15 @@
 import React from "react";
 import { ExplorerWrapper } from "pages/Editor/Explorer/Common/ExplorerWrapper";
-import PackageEntityExplorer from "./PackageEntityExplorer";
+import EntityExplorer from "./EntityExplorer";
 
-function PackageExplorerContent() {
+function ExplorerContent() {
   const activeOption = "explorer";
 
   return (
     <ExplorerWrapper>
-      <PackageEntityExplorer isActive={activeOption === "explorer"} />
+      <EntityExplorer isActive={activeOption === "explorer"} />
     </ExplorerWrapper>
   );
 }
 
-export default PackageExplorerContent;
+export default ExplorerContent;

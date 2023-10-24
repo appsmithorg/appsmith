@@ -10,7 +10,7 @@ import { StyledEntity as Entity } from "pages/Editor/Explorer/Common/components"
 import history, { NavigationMethod } from "utils/history";
 import type { Module } from "@appsmith/constants/ModuleConstants";
 import { EntityClassNames } from "pages/Editor/Explorer/Entity";
-import QueryModuleContextMenu from "./QueryModuleContextMenu";
+import QueryModuleContextMenu from "./ContextMenu";
 import { moduleEditorURL } from "@appsmith/RouteBuilder";
 
 const QueryModuleEntity = ({
