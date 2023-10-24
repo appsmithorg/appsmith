@@ -15,15 +15,12 @@ import {
 } from "constants/routes";
 import AppSettingsPane from "./AppSettings";
 import DataSidePane from "./DataSidePane";
+import LibrarySidePane from "./LibrarySidePane";
 
 const SidePaneContainer = styled.div`
   height: 100%;
   min-width: 250px;
   border-right: 1px solid var(--ads-v2-color-border);
-`;
-
-const PlaceholderSidePane = styled.div`
-  height: 100%;
 `;
 
 const IDESidePane = () => {
@@ -46,7 +43,7 @@ const IDESidePane = () => {
           ]}
         />
         <SentryRoute
-          component={PlaceholderSidePane}
+          component={LibrarySidePane}
           exact
           path={`${path}${APP_LIBRARIES_EDITOR_PATH}`}
         />
