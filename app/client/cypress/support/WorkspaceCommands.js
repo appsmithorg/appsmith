@@ -295,7 +295,6 @@ Cypress.Commands.add("CreateNewAppInNewWorkspace", () => {
   });
   cy.get("#sidebar").should("be.visible");
   assertHelper.AssertNetworkResponseData("@getPluginForm"); //for auth rest api
-  agHelper.Sleep(2000); //for 2nd getPluginForm to complete for CI runs
   assertHelper.AssertNetworkResponseData("@getPluginForm"); //for graphql
 
   // If the intro modal is open, close it
