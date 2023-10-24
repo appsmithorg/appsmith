@@ -160,11 +160,14 @@ export class DeployMode {
     this.assertHelper.AssertDocumentReady();
   }
 
-  public NavigateBacktoEditor() {
+  public NavigateBacktoEditor(toastToCheck = "") {
     this.assertHelper.AssertDocumentReady();
     this.agHelper.GetNClick(this.locator._backToEditor, 0, true);
     this.agHelper.Sleep();
     localStorage.setItem("inDeployedMode", "false");
+    if (toastToCheck) {
+      this.agHelper.ValidateToastMessage(toastToCheck);
+    }
     //Assert no error toast in Edit mode when navigating back from Deploy mode
     this.agHelper.AssertElementAbsence(
       this.locator._specificToast("There was an unexpected error"),
