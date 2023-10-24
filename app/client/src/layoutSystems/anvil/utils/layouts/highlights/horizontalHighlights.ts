@@ -249,6 +249,19 @@ export function getInitialHighlights(
   );
 }
 
+/**
+ *
+ * @param arr | AnvilHighlightInfo[] : List of highlights.
+ * @param baseHighlight | AnvilHighlightInfo : base highlight object.
+ * @param layoutDimension | LayoutElementPosition : Dimension of the layout.
+ * @param currDimension | LayoutElementPosition : Dimension of the current widget or layout.
+ * @param nextDimension | LayoutElementPosition | undefined : Dimension of the next widget or layout.
+ * @param rowIndex | number : Index of the current entity in the layout.
+ * @param isLastHighlight | boolean
+ * @param hasAlignments | boolean
+ * @param hasFillWidget | boolean
+ * @returns AnvilHighlightInfo[] : Updated list of highlights after adding the highlights for current entity.
+ */
 export function updateHighlights(
   arr: AnvilHighlightInfo[],
   baseHighlight: AnvilHighlightInfo,
@@ -269,7 +282,7 @@ export function updateHighlights(
   let prevHighlightsIndex = -1;
   let prevHighlights: AnvilHighlightInfo[] | undefined = arr.length
     ? arr.filter((each: AnvilHighlightInfo, index: number) => {
-        if (each.rowIndex === rowIndex - 1) {
+        if (each.rowIndex === rowIndex - 1 && !each.isVertical) {
           if (prevHighlightsIndex === -1) prevHighlightsIndex = index;
           return true;
         }
@@ -287,7 +300,7 @@ export function updateHighlights(
     rowIndex,
     isLastHighlight,
     hasAlignments,
-    prevHighlights ? prevHighlights[0] : undefined,
+    prevHighlights && prevHighlights.length ? prevHighlights[0] : undefined,
     hasFillWidget,
   );
   /**
