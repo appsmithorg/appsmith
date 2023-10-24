@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { APP_SETTINGS_PANE_WIDTH } from "constants/AppConstants";
-import AppSettingsPane from "../AppSettingsPane/AppSettings";
+import AppSettingsPane from "../../AppSettingsPane/AppSettings";
 import PaneHeader from "./PaneHeader";
 
 const SettingsPageWrapper = styled.div`

@@ -9,7 +9,7 @@ import {
 } from "@appsmith/selectors/entitiesSelector";
 import history from "utils/history";
 import { datasourcesEditorIdURL } from "@appsmith/RouteBuilder";
-import { getSelectedDatasourceId } from "../../../navigation/FocusSelectors";
+import { getSelectedDatasourceId } from "../../../../navigation/FocusSelectors";
 import { countBy, groupBy, keyBy } from "lodash";
 import { PluginType } from "entities/Action";
 import CreateDatasourcePopover from "./CreateDatasourcePopover";
