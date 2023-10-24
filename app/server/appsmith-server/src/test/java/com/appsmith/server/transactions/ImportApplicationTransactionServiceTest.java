@@ -9,9 +9,10 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.export.internal.ImportExportApplicationService;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.imports.importable.ImportableService;
+import com.appsmith.server.imports.internal.ImportApplicationService;
 import com.appsmith.server.migrations.JsonSchemaMigration;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.repositories.ActionCollectionRepository;
@@ -56,7 +57,7 @@ import static org.mockito.ArgumentMatchers.any;
 public class ImportApplicationTransactionServiceTest {
 
     @Autowired
-    ImportExportApplicationService importExportApplicationService;
+    ImportApplicationService importApplicationService;
 
     @Autowired
     WorkspaceService workspaceService;
@@ -78,6 +79,9 @@ public class ImportApplicationTransactionServiceTest {
 
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
+
+    @MockBean
+    ImportableService<NewAction> newActionImportableService;
 
     Long applicationCount = 0L, pageCount = 0L, actionCount = 0L, actionCollectionCount = 0L;
     private ApplicationJson applicationJson = new ApplicationJson();
@@ -131,12 +135,12 @@ public class ImportApplicationTransactionServiceTest {
         Workspace newWorkspace = new Workspace();
         newWorkspace.setName("Template Workspace");
 
-        Mockito.when(newActionService.importActions(any(), any(), any(), any(), any(), any(), any()))
+        Mockito.when(newActionImportableService.importEntities(any(), any(), any(), any(), any()))
                 .thenReturn(Mono.error(new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST)));
 
         Workspace createdWorkspace = workspaceService.create(newWorkspace).block();
 
-        Mono<Application> resultMono = importExportApplicationService.importNewApplicationInWorkspaceFromJson(
+        Mono<Application> resultMono = importApplicationService.importNewApplicationInWorkspaceFromJson(
                 createdWorkspace.getId(), applicationJson);
 
         // Check  if expected exception is thrown
@@ -162,13 +166,13 @@ public class ImportApplicationTransactionServiceTest {
         Workspace newWorkspace = new Workspace();
         newWorkspace.setName("Template Workspace");
 
-        Mockito.when(newActionService.importActions(any(), any(), any(), any(), any(), any(), any()))
+        Mockito.when(newActionImportableService.importEntities(any(), any(), any(), any(), any()))
                 .thenReturn(Mono.error(new MongoTransactionException(
                         "Command failed with error 251 (NoSuchTransaction): 'Transaction 1 has been aborted.'")));
 
         Workspace createdWorkspace = workspaceService.create(newWorkspace).block();
 
-        Mono<Application> resultMono = importExportApplicationService.importNewApplicationInWorkspaceFromJson(
+        Mono<Application> resultMono = importApplicationService.importNewApplicationInWorkspaceFromJson(
                 createdWorkspace.getId(), applicationJson);
 
         // Check  if expected exception is thrown

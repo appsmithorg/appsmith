@@ -31,10 +31,7 @@ import MainContainerWrapper from "./MainContainerWrapper";
 import EmptyCanvasPrompts from "./EmptyCanvasPrompts";
 import { useAutoHeightUIState } from "utils/hooks/autoHeightUIHooks";
 import { PageViewWrapper } from "pages/AppViewer/AppPage.styled";
-import {
-  APP_SETTINGS_PANE_WIDTH,
-  NAVIGATION_SETTINGS,
-} from "constants/AppConstants";
+import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 import {
   getAppSettingsPaneContext,
   getIsAppSettingsPaneOpen,
@@ -50,7 +47,6 @@ import classNames from "classnames";
 import { getSnapshotUpdatedTime } from "selectors/autoLayoutSelectors";
 import { getReadableSnapShotDetails } from "layoutSystems/autolayout/utils/AutoLayoutUtils";
 import AnonymousDataPopup from "../FirstTimeUserOnboarding/AnonymousDataPopup";
-import AppSettingsPane from "../AppSettingsPane";
 import { getIsAppSidebarEnabled } from "selectors/ideSelectors";
 
 function WidgetsEditor() {
@@ -87,6 +83,8 @@ function WidgetsEditor() {
   const shouldShowSnapShotBanner =
     !!readableSnapShotDetails && !isPreviewingNavigation;
 
+  const ref = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     if (navigationPreviewRef?.current) {
       const { offsetHeight } = navigationPreviewRef.current;
@@ -121,22 +119,34 @@ function WidgetsEditor() {
   const allowDragToSelect = useAllowEditorDragToSelect();
   const { isAutoHeightWithLimitsChanging } = useAutoHeightUIState();
 
-  const handleWrapperClick = useCallback(() => {
-    // Making sure that we don't deselect the widget
-    // after we are done dragging the limits in auto height with limits
-    if (allowDragToSelect && !isAutoHeightWithLimitsChanging) {
-      focusWidget && focusWidget();
-      deselectAll && deselectAll();
-      dispatch(closePropertyPane());
-      dispatch(closeTableFilterPane());
-      dispatch(setCanvasSelectionFromEditor(false));
-    }
-  }, [
-    allowDragToSelect,
-    focusWidget,
-    deselectAll,
-    isAutoHeightWithLimitsChanging,
-  ]);
+  const handleWrapperClick = useCallback(
+    (e: any) => {
+      // This is a hack for widget name component clicks on Canvas.
+      // For some reason the stopPropagation in the konva event listener isn't working
+      // Also, the nodeName is available only for the konva event, so standard type definition
+      // for onClick handlers don't work. Hence leaving the event type as any.
+      const isCanvasWrapperClicked = e.target?.nodeName === "CANVAS";
+      // Making sure that we don't deselect the widget
+      // after we are done dragging the limits in auto height with limits
+      if (
+        allowDragToSelect &&
+        !isAutoHeightWithLimitsChanging &&
+        !isCanvasWrapperClicked
+      ) {
+        focusWidget && focusWidget();
+        deselectAll && deselectAll();
+        dispatch(closePropertyPane());
+        dispatch(closeTableFilterPane());
+        dispatch(setCanvasSelectionFromEditor(false));
+      }
+    },
+    [
+      allowDragToSelect,
+      focusWidget,
+      deselectAll,
+      isAutoHeightWithLimitsChanging,
+    ],
+  );
 
   /**
    *  drag event handler for selection drawing
@@ -174,13 +184,6 @@ function WidgetsEditor() {
     <EditorContextProvider renderMode="CANVAS">
       {guidedTourEnabled && <Guide />}
       <div className="relative flex flex-row w-full overflow-hidden">
-        {isAppSettingsPaneOpen && isAppSidebarEnabled && (
-          <div className="h-full flex">
-            <div style={{ width: APP_SETTINGS_PANE_WIDTH }}>
-              <AppSettingsPane />
-            </div>
-          </div>
-        )}
         <div
           className={classNames({
             "relative flex flex-col w-full overflow-hidden": true,
@@ -221,6 +224,7 @@ function WidgetsEditor() {
               }
               isPreviewMode={isPreviewMode}
               isPublished={isPublished}
+              ref={ref}
               sidebarWidth={isPreviewingNavigation ? sidebarWidth : 0}
             >
               {shouldShowSnapShotBanner && (
@@ -235,6 +239,7 @@ function WidgetsEditor() {
                 }
                 isPreviewMode={isPreviewMode}
                 navigationHeight={navigationHeight}
+                parentRef={ref}
                 shouldShowSnapShotBanner={shouldShowSnapShotBanner}
               />
             </PageViewWrapper>

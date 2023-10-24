@@ -124,22 +124,29 @@ export class HomePage {
     this.agHelper.GetNClick(this._homeTab);
   }
 
-  public CreateNewWorkspace(
-    workspaceNewName: string,
-    toNavigateToHome = false,
-  ) {
+  public CreateNewWorkspace(workspaceNewName = "", toNavigateToHome = false) {
     if (toNavigateToHome) this.NavigateToHome();
     let oldName = "";
     this.agHelper.GetNClick(this._newWorkSpaceLink);
     this.assertHelper.AssertNetworkStatus("createWorkspace", 201);
     this.agHelper.Sleep(2000);
-    cy.xpath(this._lastWorkspaceInHomePage)
-      .first()
-      .then(($ele) => {
-        oldName = $ele.text();
-        cy.log("oldName is : " + oldName);
-        this.RenameWorkspace(oldName, workspaceNewName);
-      });
+    cy.get("@createWorkspace").then((interception: any) => {
+      localStorage.setItem("workspaceId", interception.response.body.data.id);
+      localStorage.setItem(
+        "workspaceName",
+        interception.response.body.data.name,
+      );
+    });
+
+    workspaceNewName &&
+      cy
+        .xpath(this._lastWorkspaceInHomePage)
+        .first()
+        .then(($ele) => {
+          oldName = $ele.text();
+          cy.log("oldName is : " + oldName);
+          this.RenameWorkspace(oldName, workspaceNewName);
+        });
   }
 
   public OpenWorkspaceOptions(workspaceName: string) {
@@ -256,6 +263,9 @@ export class HomePage {
       this.onboarding.skipSignposting();
     }
     this.assertHelper.AssertNetworkStatus("getWorkspace");
+    cy.get("@createNewApplication").then((interception: any) => {
+      localStorage.setItem("appName", interception.response.body.data.name);
+    });
   }
 
   //Maps to CreateAppForWorkspace in command.js
@@ -328,13 +338,25 @@ export class HomePage {
     });
   }
 
+  public InvokeDispatchOnStore() {
+    cy.window().then((win: any) => {
+      if (win && win.store) {
+        cy.window()
+          .its("store")
+          .invoke("dispatch", { type: "LOGOUT_USER_INIT" });
+      } else {
+        // Handle the case where "store" is not present, or simply ignore and continue.
+      }
+    });
+  }
+
   public LogintoApp(
     uname: string,
     pswd: string,
     role: "App Viewer" | "Developer" | "Administrator" = "Administrator",
   ) {
     this.agHelper.Sleep(); //waiting for window to load
-    cy.window().its("store").invoke("dispatch", { type: "LOGOUT_USER_INIT" });
+    this.InvokeDispatchOnStore();
     cy.wait("@postLogout");
     this.agHelper.VisitNAssert("/user/login", "signUpLogin");
     this.agHelper.AssertElementVisibility(this._username);
@@ -409,7 +431,7 @@ export class HomePage {
   public SearchAndOpenApp(appName: string) {
     this.agHelper.TypeText(this._searchInput, appName);
     this.agHelper.Sleep(2000);
-    this.EditAppFromAppHover();
+    this.EditAppFromAppHover(appName);
   }
 
   //Maps to launchApp in command.js
@@ -419,8 +441,17 @@ export class HomePage {
     this.assertHelper.AssertNetworkStatus("getPagesForViewApp");
   }
 
-  public EditAppFromAppHover() {
-    cy.get(this._applicationCard).first().trigger("mouseover");
+  public EditAppFromAppHover(appName = "") {
+    if (appName)
+      this.agHelper
+        .GetElement(this._appCard(appName))
+        .first()
+        .trigger("mouseover");
+    else
+      this.agHelper
+        .GetElement(this._applicationCard)
+        .first()
+        .trigger("mouseover");
     this.agHelper.GetNClick(this._appHoverIcon("edit"));
     this.agHelper.AssertElementAbsence(this.locator._loading);
     this.assertHelper.AssertNetworkStatus("getWorkspace");
