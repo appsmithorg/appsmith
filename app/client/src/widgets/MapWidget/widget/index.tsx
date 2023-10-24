@@ -94,6 +94,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
       responsiveBehavior: ResponsiveBehavior.Fill,
       minWidth: FILL_WIDGET_MIN_WIDTH,
       flexVerticalAlignment: FlexVerticalAlignment.Top,
+      enableMapTypeControl: false,
     };
   }
 
@@ -276,6 +277,14 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
             controlType: "STEP",
             helpText: "Changes the default zoom of the map",
             stepType: "ZOOM_PERCENTAGE",
+            isBindProperty: false,
+            isTriggerProperty: false,
+          },
+          {
+            propertyName: "enableMapTypeControl",
+            label: "Enable map types",
+            controlType: "SWITCH",
+            isJSConvertible: false,
             isBindProperty: false,
             isTriggerProperty: false,
           },
@@ -569,6 +578,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
             clickedMarkerCentered={this.props.isClickedMarkerCentered}
             enableCreateMarker={this.props.enableCreateMarker}
             enableDrag={this.enableDrag}
+            enableMapTypeControl={this.props.enableMapTypeControl}
             enablePickLocation={this.props.enablePickLocation}
             enableSearch={this.props.enableSearch}
             isDisabled={this.props.isDisabled}
@@ -619,6 +629,7 @@ export interface MapWidgetProps extends WidgetProps {
   borderRadius: string;
   boxShadow?: string;
   allowClustering?: boolean;
+  enableMapTypeControl: boolean;
 }
 
 export default MapWidget;
