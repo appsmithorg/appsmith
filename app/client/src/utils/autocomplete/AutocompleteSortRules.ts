@@ -102,7 +102,7 @@ class RemoveBlackListedCompletionRule implements AutocompleteRule {
     const { blockCompletions } = currentFieldInfo;
 
     if (blockedCompletions.includes(completion.text)) {
-      score = BlockSuggestionsRule.threshold;
+      score = RemoveBlackListedCompletionRule.threshold;
       return score;
     }
 
@@ -228,7 +228,7 @@ class DataTreeRule implements AutocompleteRule {
  */
 class RecentEntityRule implements AutocompleteRule {
   static threshold = 1 << RuleWeight.RecentEntityMatch;
-  computeScore(completion: Completion): number {
+  computeScore(completion: Completion<TernCompletionResult>): number {
     let score = 0;
     if (completion.isRecentEntity) {
       score += RecentEntityRule.threshold;
@@ -260,7 +260,7 @@ class TypeMatchRule implements AutocompleteRule {
  */
 class DataTreeEntityNameRule implements AutocompleteRule {
   static threshold = 1 << RuleWeight.DataTreeEntityNameMatch;
-  computeScore(completion: Completion): number {
+  computeScore(completion: Completion<TernCompletionResult>): number {
     let score = 0;
     if (completion.isEntityName) score += DataTreeEntityNameRule.threshold;
     return score;
