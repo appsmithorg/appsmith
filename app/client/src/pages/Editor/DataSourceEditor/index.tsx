@@ -948,7 +948,8 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       return null;
     }
 
-    const showingTabsOnViewMode = this.shouldShowTabs() && viewMode;
+    const showingTabsOnViewMode =
+      this.shouldShowTabs() && viewMode && !isInsideReconnectModal;
 
     return (
       <Form
@@ -983,7 +984,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
             }`}
           >
             <DSEditorWrapper>
-              {viewMode ? (
+              {viewMode && !isInsideReconnectModal ? (
                 this.renderTabsForViewMode()
               ) : (
                 <>
