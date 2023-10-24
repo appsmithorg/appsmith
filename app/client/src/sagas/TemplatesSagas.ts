@@ -298,15 +298,10 @@ function* forkStarterTemplateToApplicationSaga(
       yield fork(renameStarterTemplatePageToDefault, templatePageIds[0]);
 
       // 4. Wait for page update and delete to complete
-      const updatePageResult: unknown = yield race([
+      yield race([
         take(ReduxActionTypes.UPDATE_PAGE_SUCCESS),
         take(ReduxActionErrorTypes.UPDATE_PAGE_ERROR),
       ]);
-      const deletePageResult: unknown = yield race([
-        take(ReduxActionTypes.DELETE_PAGE_SUCCESS),
-        take(ReduxActionErrorTypes.DELETE_PAGE_ERROR),
-      ]);
-      yield all([updatePageResult, deletePageResult]);
 
       // 5. Complete the page addition flow
       yield put({
