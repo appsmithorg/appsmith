@@ -37,8 +37,10 @@ public class NewPageExportableServiceCEImpl implements ExportableServiceCE<NewPa
         this.pagePermission = pagePermission;
     }
 
+    // Updates pageId to name map in exportable resources. Also directly updates required pages information in
+    // application json
     @Override
-    public Mono<List<NewPage>> getExportableEntities(
+    public Mono<Void> getExportableEntities(
             ExportingMetaDTO exportingMetaDTO,
             MappedExportableResourcesDTO mappedExportableResourcesDTO,
             Mono<Application> applicationMono,
@@ -115,7 +117,8 @@ public class NewPageExportableServiceCEImpl implements ExportableServiceCE<NewPa
                         }
                     });
                     return newPageList;
-                });
+                })
+                .then();
     }
 
     @Override

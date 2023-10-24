@@ -26,8 +26,9 @@ public class CustomJSLibExportableServiceCEImpl implements ExportableServiceCE<C
         this.customJSLibService = customJSLibService;
     }
 
+    // Directly sets required custom JS lib information in application JSON
     @Override
-    public Mono<List<CustomJSLib>> getExportableEntities(
+    public Mono<Void> getExportableEntities(
             ExportingMetaDTO exportingMetaDTO,
             MappedExportableResourcesDTO mappedExportableResourcesDTO,
             Mono<Application> applicationMono,
@@ -73,6 +74,7 @@ public class CustomJSLibExportableServiceCEImpl implements ExportableServiceCE<C
                     Collections.sort(unpublishedCustomJSLibList, Comparator.comparing(CustomJSLib::getUidString));
                     applicationJson.setCustomJSLibList(unpublishedCustomJSLibList);
                     return unpublishedCustomJSLibList;
-                });
+                })
+                .then();
     }
 }
