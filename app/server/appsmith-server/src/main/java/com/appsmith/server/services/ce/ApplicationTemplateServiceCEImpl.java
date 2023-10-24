@@ -33,6 +33,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -353,7 +354,8 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
                 .accept(MediaType.APPLICATION_JSON)
                 .body(BodyInserters.fromValue(payload))
                 .retrieve()
-                .bodyToMono(ApplicationTemplate.class);
+                .bodyToMono(ApplicationTemplate.class)
+                .onErrorResume(WebClientResponseException.class, ex -> Mono.error(ex));
     }
 
     private Mono<Application> updateApplicationFlags(String applicationId, String branchId) {
