@@ -356,20 +356,19 @@ export function generateHighlights(
   const isInitialHighlight: boolean = rowIndex === 0;
 
   let posY = 0;
-  if (isInitialHighlight) {
-    // Position values are relative to the MainCanvas. Hence it is important to deduct parent's position from widget's to get a position that is relative to the parent widget.
-    posY = Math.max(
-      currentDimension.top - layoutDimension.top - HIGHLIGHT_SIZE,
-      0,
-    );
-  } else if (isLastHighlight) {
-    posY = Math.min(
-      currentDimension.top -
-        layoutDimension.top +
-        currentDimension.height +
-        HIGHLIGHT_SIZE / 2,
-      layoutDimension.height - HIGHLIGHT_SIZE,
-    );
+  if (isLastHighlight) {
+    if (isInitialHighlight) {
+      // Position values are relative to the MainCanvas. Hence it is important to deduct parent's position from widget's to get a position that is relative to the parent widget.
+      posY = Math.max(currentDimension.top - layoutDimension.top, 0);
+    } else {
+      posY = Math.min(
+        currentDimension.top -
+          layoutDimension.top +
+          currentDimension.height +
+          HIGHLIGHT_SIZE / 2,
+        layoutDimension.height - HIGHLIGHT_SIZE,
+      );
+    }
   } else {
     posY = Math.max(
       currentDimension.top - layoutDimension.top - HIGHLIGHT_SIZE,

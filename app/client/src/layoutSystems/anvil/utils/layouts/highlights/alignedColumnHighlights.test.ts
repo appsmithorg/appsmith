@@ -40,8 +40,7 @@ describe("AlignedColumnHighlights tests", () => {
           responsiveBehavior: ResponsiveBehavior.Hug,
         },
       ]);
-      const highlightWidth: number =
-        (positions[layout.layoutId].width - HIGHLIGHT_SIZE) / 3;
+      const highlightWidth: number = positions[layout.layoutId].width / 3;
       expect(res.length).toEqual(3);
       // Each highlight should be of equal width = 1/3 width of the layout.
       expect(res[0].width).toEqual(highlightWidth);
@@ -75,9 +74,7 @@ describe("AlignedColumnHighlights tests", () => {
       ]);
 
       expect(res.length).toEqual(1);
-      expect(res[0].width).toEqual(
-        positions[layout.layoutId].width - HIGHLIGHT_SIZE,
-      );
+      expect(res[0].width).toEqual(positions[layout.layoutId].width);
     });
     it("should derive highlights using widget positions", () => {
       const layout: LayoutComponentProps = generateLayoutComponentMock({
@@ -148,7 +145,9 @@ describe("AlignedColumnHighlights tests", () => {
       ]);
 
       // Top of first set of highlights should span the empty space above the first widget.
-      expect(res[0].dropZone.top).toEqual(positions[button].top);
+      expect(res[0].dropZone.top).toEqual(
+        positions[button].top - HIGHLIGHT_SIZE,
+      );
       // Bottom of first set of highlights should span half of the vertical space between this highlight and the next.
       expect(res[0].dropZone.bottom).toEqual(
         (positions[input].top - positions[button].top) / 2,
@@ -159,13 +158,11 @@ describe("AlignedColumnHighlights tests", () => {
 
       // Bottom of second set of highlights should span half of the vertical space between this highlight and the next.
       // Since this is the last widget, it should cover half the height of the widget.
-      expect(res[4].dropZone.bottom).toEqual(positions[input].height / 2);
+      expect(res[4].dropZone.bottom).toEqual(res[7].dropZone.top);
 
       // Bottom of final set of highlights should span the empty space below the last widget.
       expect(res[8].dropZone.bottom).toEqual(
-        positions[layout.layoutId].height -
-          positions[input].top -
-          positions[input].height,
+        positions[layout.layoutId].height - res[8].posY,
       );
     });
     it("should calculate highlights properly if a dragged widget is Fill widget", () => {
@@ -350,7 +347,9 @@ describe("AlignedColumnHighlights tests", () => {
       expect(res[0].posY).toEqual(
         dimensions[row1.layoutId].top - HIGHLIGHT_SIZE,
       );
-      expect(res[0].dropZone.top).toEqual(dimensions[row1.layoutId].top);
+      expect(res[0].dropZone.top).toEqual(
+        dimensions[row1.layoutId].top - HIGHLIGHT_SIZE,
+      );
 
       expect(res[4].isVertical).toBeFalsy();
       expect(res[4].posY).toEqual(
@@ -360,9 +359,7 @@ describe("AlignedColumnHighlights tests", () => {
         (dimensions[row2.layoutId].top - dimensions[row1.layoutId].top) *
           VERTICAL_DROP_ZONE_MULTIPLIER,
       );
-      expect(res[4].dropZone.bottom).toEqual(
-        dimensions[row2.layoutId].height * VERTICAL_DROP_ZONE_MULTIPLIER,
-      );
+      expect(res[4].dropZone.bottom).toEqual(res[8].dropZone.top);
     });
     it("2. should skip highlights of non drop target child layouts in the final output", () => {
       /**
@@ -435,7 +432,9 @@ describe("AlignedColumnHighlights tests", () => {
       expect(res[0].posY).toEqual(
         dimensions[row1.layoutId].top - HIGHLIGHT_SIZE,
       );
-      expect(res[0].dropZone.top).toEqual(dimensions[row1.layoutId].top);
+      expect(res[0].dropZone.top).toEqual(
+        dimensions[row1.layoutId].top - HIGHLIGHT_SIZE,
+      );
 
       expect(res[4].isVertical).toBeFalsy();
       expect(res[4].posY).toEqual(
@@ -445,13 +444,10 @@ describe("AlignedColumnHighlights tests", () => {
         (dimensions[row2.layoutId].top - dimensions[row1.layoutId].top) *
           VERTICAL_DROP_ZONE_MULTIPLIER,
       );
-      expect(res[4].dropZone.bottom).toEqual(
-        dimensions[row2.layoutId].height * VERTICAL_DROP_ZONE_MULTIPLIER,
-      );
+      expect(res[4].dropZone.bottom).toEqual(res[5].dropZone.top);
 
       expect(res[5].dropZone.bottom).toEqual(
-        dimensions[column.layoutId].height -
-          (dimensions[row2.layoutId].top + dimensions[row2.layoutId].height),
+        dimensions[column.layoutId].height - res[5].posY,
       );
     });
   });

@@ -9,6 +9,7 @@ import type {
 import {
   HIGHLIGHT_SIZE,
   HORIZONTAL_DROP_ZONE_MULTIPLIER,
+  INFINITE_DROP_ZONE,
 } from "../../constants";
 import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
 import LayoutFactory from "layoutSystems/anvil/layoutComponents/LayoutFactory";
@@ -494,13 +495,16 @@ export function generateHighlights(
   const dropZone: DropZone = {
     left: prevHighlight
       ? (posX - prevHighlight.posX) * multiplier
-      : (posX - layoutDimension.left) *
-        (alignment === FlexLayerAlignment.Start ? 1 : multiplier),
+      : Math.max(
+          (posX - layoutDimension.left) *
+            (alignment === FlexLayerAlignment.Start ? 1 : multiplier),
+          HIGHLIGHT_SIZE,
+        ),
     right: isLastHighlight
       ? Math.max(
           (layoutDimension.left + layoutDimension.width - posX) *
             (alignment === FlexLayerAlignment.End ? 1 : multiplier),
-          100,
+          INFINITE_DROP_ZONE,
         )
       : nextDimension
       ? (nextDimension.left + nextDimension.width - posX) * multiplier
