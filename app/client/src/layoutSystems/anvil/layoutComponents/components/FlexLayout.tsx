@@ -31,6 +31,7 @@ export interface FlexLayoutProps
   children: ReactNode;
   isDropTarget?: boolean;
   layoutId: string;
+  layoutIndex: number;
   renderMode: RenderMode;
 
   border?: string;
@@ -66,6 +67,7 @@ export const FlexLayout = React.memo((props: FlexLayoutProps) => {
     isDropTarget,
     justifyContent,
     layoutId,
+    layoutIndex,
     maxHeight,
     maxWidth,
     minHeight,
@@ -147,9 +149,14 @@ export const FlexLayout = React.memo((props: FlexLayoutProps) => {
     };
   }, [border, isDropTarget, position, renderMode]);
 
+  const className = useMemo(() => {
+    return `layout-${layoutId} layout-index-${layoutIndex}`;
+  }, [layoutId, layoutIndex]);
+
   return (
     <Flex
       {...flexProps}
+      className={className}
       id={getAnvilLayoutDOMId(canvasId, layoutId)}
       ref={ref}
       style={styleProps}

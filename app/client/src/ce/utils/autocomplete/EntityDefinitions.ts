@@ -57,8 +57,8 @@ export const entityDefinitions = {
         "!doc": "The response meta of the action",
         "!type": "?",
       },
-      run: "fn(params: ?) -> +Promise[:t=[!0.<i>.:t]]",
-      clear: "fn() -> +Promise[:t=[!0.<i>.:t]]",
+      run: "fn(params: ?) -> +Promise",
+      clear: "fn() -> +Promise",
     };
   },
 };
@@ -101,45 +101,43 @@ export const GLOBAL_FUNCTIONS = {
   navigateTo: {
     "!doc": "Action to navigate the user to another page or url",
     "!type":
-      "fn(pageNameOrUrl: string, params: {}, target?: string) -> +Promise[:t=[!0.<i>.:t]]",
+      "fn(pageNameOrUrl: string, params: {}, target?: string) -> +Promise",
   },
   showAlert: {
     "!doc": "Show a temporary notification style message to the user",
-    "!type": "fn(message: string, style: string) -> +Promise[:t=[!0.<i>.:t]]",
+    "!type": "fn(message: string, style: string) -> +Promise",
   },
   showModal: {
     "!doc": "Open a modal",
-    "!type": "fn(modalName: string) -> +Promise[:t=[!0.<i>.:t]]",
+    "!type": "fn(modalName: string) -> +Promise",
   },
   closeModal: {
     "!doc": "Close a modal",
-    "!type": "fn(modalName: string) -> +Promise[:t=[!0.<i>.:t]]",
+    "!type": "fn(modalName: string) -> +Promise",
   },
   storeValue: {
     "!doc": "Store key value data locally",
-    "!type": "fn(key: string, value: any) -> +Promise[:t=[!0.<i>.:t]]",
+    "!type": "fn(key: string, value: any) -> +Promise",
   },
   removeValue: {
     "!doc": "Remove key value data locally",
-    "!type": "fn(key: string) -> +Promise[:t=[!0.<i>.:t]]",
+    "!type": "fn(key: string) -> +Promise",
   },
   clearStore: {
     "!doc": "Clear all key value data locally",
-    "!type": "fn() -> +Promise[:t=[!0.<i>.:t]]",
+    "!type": "fn() -> +Promise",
   },
   download: {
     "!doc": "Download anything as a file",
-    "!type":
-      "fn(data: any, fileName: string, fileType?: string) -> +Promise[:t=[!0.<i>.:t]]",
+    "!type": "fn(data: any, fileName: string, fileType?: string) -> +Promise",
   },
   copyToClipboard: {
     "!doc": "Copy text to clipboard",
-    "!type": "fn(data: string, options: object) -> +Promise[:t=[!0.<i>.:t]]",
+    "!type": "fn(data: string, options: object) -> +Promise",
   },
   resetWidget: {
     "!doc": "Reset widget values",
-    "!type":
-      "fn(widgetName: string, resetChildren: boolean) -> +Promise[:t=[!0.<i>.:t]]",
+    "!type": "fn(widgetName: string, resetChildren: boolean) -> +Promise",
   },
   setInterval: {
     "!doc": "Execute triggers at a given interval",

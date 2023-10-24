@@ -1,7 +1,7 @@
 import log from "loglevel";
 import type { Def } from "tern";
 
-function getTernDocType(obj: any) {
+export function getTernDocType(obj: any) {
   const type = typeof obj;
   switch (type) {
     case "string":
