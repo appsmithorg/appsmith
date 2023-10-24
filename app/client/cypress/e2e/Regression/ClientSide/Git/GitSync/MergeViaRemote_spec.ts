@@ -1,5 +1,5 @@
-const widgetsPage = require("../../../../../locators/Widgets.json");
-const commonlocators = require("../../../../../locators/commonlocators.json");
+import widgetsPage from "../../../../../locators/Widgets.json";
+import commonlocators from "../../../../../locators/commonlocators.json";
 import gitSyncLocators from "../../../../../locators/gitSyncLocators";
 import homePage from "../../../../../locators/HomePage";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
@@ -259,7 +259,7 @@ describe("Git sync: Merge changes via remote", function () {
       expect(location.pathname).includes(newPathname);
     });
 
-    _.gitSync.CreateGitBranch(cleanUrlBranch, false, false);
+    _.gitSync.CreateGitBranch(cleanUrlBranch, false, false); //false is sent for assertCreateBranch since here it only goes to the branch already created
     cy.location().should((location) => {
       expect(location.pathname).includes(legacyPathname);
     });
