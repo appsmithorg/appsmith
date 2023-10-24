@@ -830,7 +830,7 @@ function getJsObjectValues(
 }
 
 function getWidgetBindings(widgets: NavigationData[]) {
-  const widgetBindings: Completion[] = [];
+  const widgetBindings: Completion<any>[] = [];
 
   widgets.forEach((widget) => {
     const widgetType = widget.widgetType;
@@ -890,7 +890,6 @@ function getWidgetBindings(widgets: NavigationData[]) {
             type: bindingType,
             data: {
               ...widget,
-              doc: "",
             },
           });
         }
@@ -1078,7 +1077,7 @@ export function getAllPossibleBindingsForSuggestions(
        * Transform the structure into the completions format so we can pass
        * it through the sort function to get the best match results like we do in autocomplete.
        *  */
-      const completions: Completion[] = listOfBindings.map((b: any) => {
+      const completions: Completion<any>[] = listOfBindings.map((b: any) => {
         return {
           origin: b.origin || "DATA_TREE",
           data: {
