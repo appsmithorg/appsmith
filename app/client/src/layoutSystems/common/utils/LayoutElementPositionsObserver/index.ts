@@ -22,13 +22,7 @@ class LayoutElementPositionObserver {
   private registeredWidgets: {
     [widgetDOMId: string]: { ref: RefObject<HTMLDivElement>; id: string };
   } = {};
-  private registeredLayers: {
-    [layerId: string]: {
-      ref: RefObject<HTMLDivElement>;
-      canvasId: string;
-      layerIndex: number;
-    };
-  } = {};
+
   private registeredLayouts: {
     [layoutDOMId: string]: {
       ref: RefObject<HTMLDivElement>;
@@ -37,6 +31,11 @@ class LayoutElementPositionObserver {
       isDropTarget: boolean;
     };
   } = {};
+
+  private mutationOptions: MutationObserverInit = {
+    attributes: true,
+    attributeFilter: ["class"],
+  };
 
   private debouncedProcessBatch = debounce(this.processWidgetBatch, 200);
 
@@ -48,10 +47,22 @@ class LayoutElementPositionObserver {
       for (const entry of entries) {
         if (entry?.target?.id) {
           const DOMId = entry?.target?.id;
-          if (DOMId.indexOf(ANVIL_WIDGET) > -1) {
-            this.addWidgetToProcess(DOMId);
-          } else if (DOMId.indexOf(LAYOUT) > -1) {
-            this.addLayoutToProcess(DOMId);
+          this.trackEntry(DOMId);
+        }
+      }
+    },
+  );
+
+  private mutationObserver = new MutationObserver(
+    (mutations: MutationRecord[]) => {
+      for (const mutation of mutations) {
+        if (
+          mutation.type === "attributes" &&
+          mutation.attributeName === "class"
+        ) {
+          const DOMId: string = (mutation?.target as HTMLElement)?.id;
+          if (DOMId) {
+            this.trackEntry(DOMId);
           }
         }
       }
@@ -65,6 +76,7 @@ class LayoutElementPositionObserver {
         const widgetDOMId = getAnvilWidgetDOMId(widgetId);
         this.registeredWidgets[widgetDOMId] = { ref, id: widgetId };
         this.resizeObserver.observe(ref.current);
+        this.mutationObserver.observe(ref.current, this.mutationOptions);
       }
     }
   }
@@ -74,7 +86,6 @@ class LayoutElementPositionObserver {
     const element = this.registeredWidgets[widgetDOMId]?.ref?.current;
     if (element) {
       this.resizeObserver.unobserve(element);
-      this.resizeObserver.disconnect();
     }
 
     delete this.registeredWidgets[widgetDOMId];
@@ -98,6 +109,7 @@ class LayoutElementPositionObserver {
             isDropTarget,
           };
         this.resizeObserver.observe(ref.current);
+        this.mutationObserver.observe(ref.current, this.mutationOptions);
       }
     }
   }
@@ -107,7 +119,6 @@ class LayoutElementPositionObserver {
     const element = this.registeredLayouts[layoutDOMId]?.ref?.current;
     if (element) {
       this.resizeObserver.unobserve(element);
-      this.resizeObserver.disconnect();
     }
 
     delete this.registeredLayouts[layoutDOMId];
@@ -149,6 +160,14 @@ class LayoutElementPositionObserver {
   // Getters for registered elements
   public getRegisteredLayouts() {
     return this.registeredLayouts;
+  }
+
+  private trackEntry(DOMId: string) {
+    if (DOMId.indexOf(ANVIL_WIDGET) > -1) {
+      this.addWidgetToProcess(DOMId);
+    } else if (DOMId.indexOf(LAYOUT) > -1) {
+      this.addLayoutToProcess(DOMId);
+    }
   }
 }
 
