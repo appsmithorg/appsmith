@@ -394,8 +394,8 @@ export const PopoverStyles = createGlobalStyle<{
     }
 
     .${portalClassName} .${DTClasses.DATEPICKER_FOOTER} .${
-    Classes.BUTTON
-  }:hover {
+      Classes.BUTTON
+    }:hover {
       background-color: ${lightenColor(accentColor)};
     }
 
@@ -408,10 +408,10 @@ export const PopoverStyles = createGlobalStyle<{
     }
 
     .${portalClassName} .${DTClasses.DATEPICKER_YEAR_SELECT} select + .${
-    Classes.ICON
-  }, .${portalClassName} .${DTClasses.DATEPICKER_MONTH_SELECT} select + .${
-    Classes.ICON
-  } {
+      Classes.ICON
+    }, .${portalClassName} .${DTClasses.DATEPICKER_MONTH_SELECT} select + .${
+      Classes.ICON
+    } {
       color: var(--wds-color-icon) !important;
     }
 
@@ -424,8 +424,8 @@ export const PopoverStyles = createGlobalStyle<{
     }
 
     .${portalClassName} .${DTClasses.DATERANGEPICKER_SHORTCUTS} li a.${
-    Classes.ACTIVE
-  } {
+      Classes.ACTIVE
+    } {
       color: ${getComplementaryGrayscaleColor(accentColor)};
       background-color: ${accentColor};
     }
