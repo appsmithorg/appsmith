@@ -13,7 +13,6 @@ import {
   INTEGRATION_EDITOR_PATH,
   SAAS_GSHEET_EDITOR_ID_PATH,
 } from "constants/routes";
-import { APP_SETTINGS_PANE_WIDTH } from "constants/AppConstants";
 import AppSettingsPane from "../AppSettingsPane";
 import DataSidePane from "./DataSidePane";
 
@@ -26,16 +25,6 @@ const SidePaneContainer = styled.div`
 const PlaceholderSidePane = styled.div`
   height: 100%;
 `;
-
-const SettingsPane = () => {
-  return (
-    <div className="h-full flex">
-      <div style={{ width: APP_SETTINGS_PANE_WIDTH }}>
-        <AppSettingsPane />
-      </div>
-    </div>
-  );
-};
 
 const IDESidePane = () => {
   const isAppSidebarEnabled = useSelector(getIsAppSidebarEnabled);
@@ -62,7 +51,7 @@ const IDESidePane = () => {
           path={`${path}${APP_LIBRARIES_EDITOR_PATH}`}
         />
         <SentryRoute
-          component={SettingsPane}
+          component={AppSettingsPane}
           exact
           path={`${path}${APP_SETTINGS_EDITOR_PATH}`}
         />
