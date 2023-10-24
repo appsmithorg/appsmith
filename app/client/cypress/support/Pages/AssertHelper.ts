@@ -73,11 +73,16 @@ export class AssertHelper extends ReusableHelper {
     //   "response.body.responseMeta.status",
     //   expectedStatus,
     // );
-    this.Sleep(3000); //wait a bit to avoid flaky tests
-    cy.wait(this.GetAliasName(aliasName), { timeout: responseTimeout });
+    this.Sleep(); //wait a bit to avoid flaky tests
+    // cy.wait(this.GetAliasName(aliasName), { timeout: responseTimeout });
+    // return cy
+    //   .get(this.GetAliasName(aliasName))
+    //   .then((interceptions: any) => interceptions);
+
     return cy
-      .get(this.GetAliasName(aliasName))
-      .then((interceptions: any) => interceptions);
+      .wait(this.GetAliasName(aliasName), { timeout: responseTimeout })
+      .then(() => cy.get(this.GetAliasName(aliasName)));
+
     //   interceptions.length > 0
     //     ? interceptions[interceptions.length - 1].response
     //     : interceptions,
