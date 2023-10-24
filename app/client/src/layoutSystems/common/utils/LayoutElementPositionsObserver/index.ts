@@ -72,10 +72,12 @@ class LayoutElementPositionObserver {
   //Method to register widgets for resize observer changes
   public observeWidget(widgetId: string, ref: RefObject<HTMLDivElement>) {
     if (ref.current) {
-      const widgetDOMId = getAnvilWidgetDOMId(widgetId);
-      this.registeredWidgets[widgetDOMId] = { ref, id: widgetId };
-      this.resizeObserver.observe(ref.current);
-      this.mutationObserver.observe(ref.current, this.mutationOptions);
+      if (!this.registeredWidgets.hasOwnProperty(widgetId)) {
+        const widgetDOMId = getAnvilWidgetDOMId(widgetId);
+        this.registeredWidgets[widgetDOMId] = { ref, id: widgetId };
+        this.resizeObserver.observe(ref.current);
+        this.mutationObserver.observe(ref.current, this.mutationOptions);
+      }
     }
   }
 
@@ -97,16 +99,18 @@ class LayoutElementPositionObserver {
     ref: RefObject<HTMLDivElement>,
   ) {
     if (ref?.current) {
-      this.registeredLayouts[layoutId] = this.registeredLayouts[
-        getAnvilLayoutDOMId(canvasId, layoutId)
-      ] = {
-        ref,
-        canvasId,
-        layoutId,
-        isDropTarget,
-      };
-      this.resizeObserver.observe(ref.current);
-      this.mutationObserver.observe(ref.current, this.mutationOptions);
+      const layoutDOMId = getAnvilLayoutDOMId(canvasId, layoutId);
+      if (!this.registeredLayouts.hasOwnProperty(layoutDOMId)) {
+        this.registeredLayouts[layoutId] = this.registeredLayouts[layoutDOMId] =
+          {
+            ref,
+            canvasId,
+            layoutId,
+            isDropTarget,
+          };
+        this.resizeObserver.observe(ref.current);
+        this.mutationObserver.observe(ref.current, this.mutationOptions);
+      }
     }
   }
 
