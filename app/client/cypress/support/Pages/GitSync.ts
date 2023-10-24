@@ -157,7 +157,6 @@ export class GitSync {
         this.assertHelper.AssertNetworkStatus("@connectGitLocalRepo");
         this.agHelper.AssertElementExist(this._bottomBarCommit, 0, 30000);
         this.CloseGitSyncModal();
-        this.agHelper.Sleep(3000); //for the generated key to be added to the repo for CI runs
         this.assertHelper.AssertNetworkStatus("@generatedKey", 201);
       } else {
         this.assertHelper.AssertContains(
@@ -359,7 +358,6 @@ export class GitSync {
         `{selectall}` + `${branch + uid}` + `{enter}`,
         { parseSpecialCharSeq: true },
       );
-      this.agHelper.Sleep(3000); //for createBranch call to go through
       assertCreateBranch &&
         this.assertHelper.AssertNetworkStatus("createBranch", 201);
       this.agHelper.AssertElementAbsence(
