@@ -10,7 +10,7 @@ const initialState: TemplatesReduxState = {
   isImportingTemplate: false,
   isImportingTemplateToApp: false,
   isImportingStarterTemplateToApp: false,
-  starterTemplateDatasourcePrompt: true,
+  starterTemplateDatasourcePrompt: false,
   loadingFilters: false,
   gettingAllTemplates: false,
   gettingTemplate: false,
