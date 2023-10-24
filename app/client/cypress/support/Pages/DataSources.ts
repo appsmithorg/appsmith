@@ -332,7 +332,7 @@ export class DataSources {
     this.assertHelper.AssertNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
     this.agHelper.GetNClick(this._selectTableDropdown, 0, true);
     this.agHelper.GetNClickByContains(this._dropdownOption, "public.users");
-    this.agHelper.GetNClick(this._generatePageBtn);
+    this.agHelper.GetNClick(this._generatePageBtn, 0, true);
     this.assertHelper.AssertNetworkStatus("@replaceLayoutWithCRUDPage", 201);
     this.agHelper.ClickButton("Got it");
   }
