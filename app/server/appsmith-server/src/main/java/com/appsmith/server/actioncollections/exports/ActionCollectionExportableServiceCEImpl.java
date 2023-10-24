@@ -48,50 +48,11 @@ public class ActionCollectionExportableServiceCEImpl implements ExportableServic
         Flux<ActionCollection> actionCollectionFlux =
                 actionCollectionService.findByListOfPageIds(exportingMetaDTO.getUnpublishedPages(), optionalPermission);
         return actionCollectionFlux
-                .map(actionCollection -> {
-                    // Remove references to ids since the serialized version does not have this information
-                    actionCollection.setWorkspaceId(null);
-                    actionCollection.setPolicies(null);
-                    actionCollection.setApplicationId(null);
-                    // Set unique ids for actionCollection, also populate collectionIdToName map which will
-                    // be used to replace collectionIds in action
-                    if (actionCollection.getUnpublishedCollection() != null) {
-                        ActionCollectionDTO actionCollectionDTO = actionCollection.getUnpublishedCollection();
-                        actionCollectionDTO.setPageId(mappedExportableResourcesDTO
-                                .getPageIdToNameMap()
-                                .get(actionCollectionDTO.getPageId() + EDIT));
-                        actionCollectionDTO.setPluginId(
-                                mappedExportableResourcesDTO.getPluginMap().get(actionCollectionDTO.getPluginId()));
-
-                        final String updatedCollectionId =
-                                actionCollectionDTO.getPageId() + "_" + actionCollectionDTO.getName();
-                        mappedExportableResourcesDTO
-                                .getCollectionIdToNameMap()
-                                .put(actionCollection.getId(), updatedCollectionId);
-                        actionCollection.setId(updatedCollectionId);
-                    }
-                    if (actionCollection.getPublishedCollection() != null) {
-                        ActionCollectionDTO actionCollectionDTO = actionCollection.getPublishedCollection();
-                        actionCollectionDTO.setPageId(mappedExportableResourcesDTO
-                                .getPageIdToNameMap()
-                                .get(actionCollectionDTO.getPageId() + VIEW));
-                        actionCollectionDTO.setPluginId(
-                                mappedExportableResourcesDTO.getPluginMap().get(actionCollectionDTO.getPluginId()));
-
-                        if (!mappedExportableResourcesDTO
-                                .getCollectionIdToNameMap()
-                                .containsValue(actionCollection.getId())) {
-                            final String updatedCollectionId =
-                                    actionCollectionDTO.getPageId() + "_" + actionCollectionDTO.getName();
-                            mappedExportableResourcesDTO
-                                    .getCollectionIdToNameMap()
-                                    .put(actionCollection.getId(), updatedCollectionId);
-                            actionCollection.setId(updatedCollectionId);
-                        }
-                    }
-                    return actionCollection;
-                })
                 .collectList()
+                .map(actionCollectionList -> {
+                    mapNameToIdForExportableEntities(mappedExportableResourcesDTO, actionCollectionList);
+                    return actionCollectionList;
+                })
                 .map(actionCollections -> {
                     // This object won't have the list of actions but we don't care about that today
                     // Because the actions will have a reference to the collection
@@ -134,5 +95,49 @@ public class ActionCollectionExportableServiceCEImpl implements ExportableServic
 
                     return actionCollections;
                 });
+    }
+
+    @Override
+    public Set<String> mapNameToIdForExportableEntities(
+            MappedExportableResourcesDTO mappedExportableResourcesDTO, List<ActionCollection> actionCollectionList) {
+        actionCollectionList.forEach(actionCollection -> {
+            // Remove references to ids since the serialized version does not have this information
+            actionCollection.setWorkspaceId(null);
+            actionCollection.setPolicies(null);
+            actionCollection.setApplicationId(null);
+            // Set unique ids for actionCollection, also populate collectionIdToName map which will
+            // be used to replace collectionIds in action
+            if (actionCollection.getUnpublishedCollection() != null) {
+                ActionCollectionDTO actionCollectionDTO = actionCollection.getUnpublishedCollection();
+                actionCollectionDTO.setPageId(
+                        mappedExportableResourcesDTO.getPageIdToNameMap().get(actionCollectionDTO.getPageId() + EDIT));
+                actionCollectionDTO.setPluginId(
+                        mappedExportableResourcesDTO.getPluginMap().get(actionCollectionDTO.getPluginId()));
+
+                final String updatedCollectionId =
+                        actionCollectionDTO.getPageId() + "_" + actionCollectionDTO.getName();
+                mappedExportableResourcesDTO
+                        .getCollectionIdToNameMap()
+                        .put(actionCollection.getId(), updatedCollectionId);
+                actionCollection.setId(updatedCollectionId);
+            }
+            if (actionCollection.getPublishedCollection() != null) {
+                ActionCollectionDTO actionCollectionDTO = actionCollection.getPublishedCollection();
+                actionCollectionDTO.setPageId(
+                        mappedExportableResourcesDTO.getPageIdToNameMap().get(actionCollectionDTO.getPageId() + VIEW));
+                actionCollectionDTO.setPluginId(
+                        mappedExportableResourcesDTO.getPluginMap().get(actionCollectionDTO.getPluginId()));
+
+                if (!mappedExportableResourcesDTO.getCollectionIdToNameMap().containsValue(actionCollection.getId())) {
+                    final String updatedCollectionId =
+                            actionCollectionDTO.getPageId() + "_" + actionCollectionDTO.getName();
+                    mappedExportableResourcesDTO
+                            .getCollectionIdToNameMap()
+                            .put(actionCollection.getId(), updatedCollectionId);
+                    actionCollection.setId(updatedCollectionId);
+                }
+            }
+        });
+        return new HashSet<>();
     }
 }
