@@ -51,7 +51,10 @@ export class JSONtoForm<
     return (
       // <MainContainer>
       <FormContainer className="t--json-to-form-wrapper">
-        <CloseEditor />
+        {this.props.featureFlags?.release_app_sidebar_enabled ===
+        true ? null : (
+          <CloseEditor />
+        )}
         <FormContainerBody className="t--json-to-form-body">
           {formContent}
         </FormContainerBody>

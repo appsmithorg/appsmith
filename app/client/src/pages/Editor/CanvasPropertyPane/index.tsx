@@ -26,6 +26,9 @@ const MainHeading = styled.h3`
 export function CanvasPropertyPane() {
   const dispatch = useDispatch();
   const isAnvilEnabled = useFeatureFlag(FEATURE_FLAG.release_anvil_enabled);
+  const isAppSidebarEnabled = useFeatureFlag(
+    FEATURE_FLAG.release_app_sidebar_enabled,
+  );
 
   const openAppSettingsPane = () => {
     AnalyticsUtil.logEvent("APP_SETTINGS_BUTTON_CLICK");
@@ -52,25 +55,27 @@ export function CanvasPropertyPane() {
             </>
           )}
           {!isAnvilEnabled && <ConversionButton />}
-          <Tooltip
-            content={
-              <>
-                <p className="text-center">Update your app theme, URL</p>
-                <p className="text-center">and other settings</p>
-              </>
-            }
-            placement="bottom"
-          >
-            <Button
-              UNSAFE_width="100%"
-              className="t--app-settings-cta"
-              kind="secondary"
-              onClick={openAppSettingsPane}
-              size="md"
+          {!isAppSidebarEnabled && (
+            <Tooltip
+              content={
+                <>
+                  <p className="text-center">Update your app theme, URL</p>
+                  <p className="text-center">and other settings</p>
+                </>
+              }
+              placement="bottom"
             >
-              App settings
-            </Button>
-          </Tooltip>
+              <Button
+                UNSAFE_width="100%"
+                className="t--app-settings-cta"
+                kind="secondary"
+                onClick={openAppSettingsPane}
+                size="md"
+              >
+                App settings
+              </Button>
+            </Tooltip>
+          )}
         </div>
       </div>
     </div>
