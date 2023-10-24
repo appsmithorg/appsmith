@@ -31,6 +31,8 @@ import {
   saveExplorerStatus,
 } from "@appsmith/pages/Editor/Explorer/helpers";
 import { integrationEditorURL } from "@appsmith/RouteBuilder";
+import { useFeatureFlag } from "../../../utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 const NoEntityFoundSvg = importSvg(
   async () => import("assets/svg/no_entities_found.svg"),
@@ -91,6 +93,9 @@ function EntityExplorer({ isActive }: { isActive: boolean }) {
 
   const applicationId = useSelector(getCurrentApplicationId);
   const isDatasourcesOpen = getExplorerStatus(applicationId, "datasource");
+  const isAppSidebarEnabled = useFeatureFlag(
+    FEATURE_FLAG.release_app_sidebar_enabled,
+  );
 
   const addDatasource = useCallback(
     (entryPoint: string) => {
@@ -140,13 +145,15 @@ function EntityExplorer({ isActive }: { isActive: boolean }) {
           title="No entities found"
         />
       )}
-      <Datasources
-        addDatasource={addDatasource}
-        entityId={pageId}
-        isDatasourcesOpen={isDatasourcesOpen}
-        listDatasource={listDatasource}
-        onDatasourcesToggle={onDatasourcesToggle}
-      />
+      {!isAppSidebarEnabled && (
+        <Datasources
+          addDatasource={addDatasource}
+          entityId={pageId}
+          isDatasourcesOpen={isDatasourcesOpen}
+          listDatasource={listDatasource}
+          onDatasourcesToggle={onDatasourcesToggle}
+        />
+      )}
       <JSDependencies />
     </EntityExplorerWrapper>
   );

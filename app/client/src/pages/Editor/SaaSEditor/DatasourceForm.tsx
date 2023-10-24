@@ -815,6 +815,7 @@ const mapStateToProps = (state: AppState, props: any) => {
     showDebugger,
     scopeValue,
     isPluginAuthFailed,
+    featureFlags: state.ui.users.featureFlag.data,
   };
 };
 

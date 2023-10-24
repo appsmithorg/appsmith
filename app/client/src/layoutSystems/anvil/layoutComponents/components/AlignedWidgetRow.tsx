@@ -29,8 +29,14 @@ class AlignedWidgetRow extends BaseLayoutComponent {
   static rendersWidgets: boolean = true;
 
   render() {
-    const { canvasId, isDropTarget, layoutId, layoutStyle, renderMode } =
-      this.props;
+    const {
+      canvasId,
+      isDropTarget,
+      layoutId,
+      layoutIndex,
+      layoutStyle,
+      renderMode,
+    } = this.props;
 
     return (
       <FlexLayout
@@ -40,6 +46,7 @@ class AlignedWidgetRow extends BaseLayoutComponent {
         direction="row"
         isDropTarget={!!isDropTarget}
         layoutId={layoutId}
+        layoutIndex={layoutIndex}
         renderMode={renderMode}
         wrap="wrap"
         {...(layoutStyle || {})}
