@@ -9,7 +9,6 @@ import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.UpdatableConnection;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.constants.RateLimitConstants;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.datasourcestorages.base.DatasourceStorageService;
 import com.appsmith.server.domains.DatasourceContext;
@@ -19,7 +18,6 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.plugins.base.PluginService;
-import com.appsmith.server.ratelimiting.RateLimitService;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.solutions.DatasourcePermission;
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +25,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import reactor.core.publisher.Mono;
 
-import java.time.Duration;
 import java.time.Instant;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -46,12 +43,9 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
     private final PluginExecutorHelper pluginExecutorHelper;
     private final ConfigService configService;
     private final DatasourcePermission datasourcePermission;
-    private final RateLimitService rateLimitService;
 
-    // Defines blocking duration for test as well as connection created for query execution
-    // This will block the creation of datasource connection for 5 minutes, in case of more than 3 failed connection
-    // attempts
-    private final Integer BLOCK_TEST_API_DURATION = 5;
+    private final AppsmithException tooManyRequestsException =
+            new AppsmithException(AppsmithError.TOO_MANY_FAILED_DATASOURCE_CONNECTION_REQUESTS);
 
     @Autowired
     public DatasourceContextServiceCEImpl(
@@ -60,8 +54,7 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
             PluginService pluginService,
             PluginExecutorHelper pluginExecutorHelper,
             ConfigService configService,
-            DatasourcePermission datasourcePermission,
-            RateLimitService rateLimitService) {
+            DatasourcePermission datasourcePermission) {
         this.datasourceService = datasourceService;
         this.datasourceStorageService = datasourceStorageService;
         this.pluginService = pluginService;
@@ -71,7 +64,6 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
         this.datasourceContextSynchronizationMonitorMap = new ConcurrentHashMap<>();
         this.configService = configService;
         this.datasourcePermission = datasourcePermission;
-        this.rateLimitService = rateLimitService;
     }
 
     /**
@@ -266,61 +258,46 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
 
     @Override
     public Mono<DatasourceContext<?>> getDatasourceContext(DatasourceStorage datasourceStorage) {
-        Mono<String> rateLimitIdentifierMono = datasourceService.getRateLimitIdentifier(datasourceStorage);
+        final String datasourceId = datasourceStorage.getDatasourceId();
+        DatasourceContextIdentifier datasourceContextIdentifier =
+                this.initializeDatasourceContextIdentifier(datasourceStorage);
+        if (datasourceId == null) {
+            log.debug(
+                    "This is a dry run or an embedded datasourceStorage. The datasourceStorage context would not exist in this "
+                            + "scenario");
+        } else {
+            if (isValidDatasourceContextAvailable(datasourceStorage, datasourceContextIdentifier)) {
+                log.debug("Resource context exists. Returning the same.");
+                return Mono.just(datasourceContextMap.get(datasourceContextIdentifier));
+            }
+        }
+
+        // As per https://github.com/appsmithorg/appsmith/issues/27745, Rate Limiting needs to applied
+        // on connection failure, otherwise brute force attacks may happen and our IP may get blocked
+        // For connection creation, the assumption is that whenever connection creation fails error
+        // is thrown by respective plugin, following plugins throw error: Postgres, Oracle, Mssql and Redshift
+        // For other plugins like MySQL, SMTP, Elastic Search, ArangoDB, Redis, In createNewDatasourceContext,
+        // Instead of connection, connection pool is created, connection is created when we query execution happens
+        // Hence cannot add rate limiting for these plugins here. Rate limiting for plugins which create connection pool
+        // should be handled separately, refer https://github.com/appsmithorg/appsmith/issues/28259
         return datasourceService
                 .isEndpointBlockedForConnectionRequest(datasourceStorage)
                 .flatMap(isBlocked -> {
                     if (isBlocked) {
                         log.debug("Datasource is blocked for connection request");
-                        AppsmithException exception =
-                                new AppsmithException(AppsmithError.TOO_MANY_FAILED_DATASOURCE_CONNECTION_REQUESTS);
-                        return Mono.error(exception);
+                        return Mono.error(tooManyRequestsException);
                     } else {
-                        final String datasourceId = datasourceStorage.getDatasourceId();
-                        DatasourceContextIdentifier datasourceContextIdentifier =
-                                this.initializeDatasourceContextIdentifier(datasourceStorage);
-                        if (datasourceId == null) {
-                            log.debug(
-                                    "This is a dry run or an embedded datasourceStorage. The datasourceStorage context would not exist in this "
-                                            + "scenario");
-                        } else {
-                            if (isValidDatasourceContextAvailable(datasourceStorage, datasourceContextIdentifier)) {
-                                log.debug("Resource context exists. Returning the same.");
-                                return Mono.just(datasourceContextMap.get(datasourceContextIdentifier));
-                            }
-                        }
-
-                        // For adding rate limit on create connection, the assumption is that whenever
-                        // connection creation fails error is thrown by respective plugin, following plugins throw error
-                        // in case of invalid connection
-                        // Postgres, Oracle, Mssql and Redshift
                         return createNewDatasourceContext(datasourceStorage, datasourceContextIdentifier)
-                                .flatMap(datasourceContext -> {
-                                    return Mono.just(datasourceContext);
-                                })
                                 .onErrorResume(AppsmithPluginException.class, error -> {
                                     return datasourceService
                                             .consumeTokenIfAvailable(datasourceStorage)
-                                            .zipWith(rateLimitIdentifierMono)
-                                            .flatMap(tuple -> {
-                                                Boolean isSuccessful = tuple.getT1();
-                                                String rateLimitIdentifier = tuple.getT2();
-                                                if (!isSuccessful) {
-                                                    AppsmithException exception = new AppsmithException(
-                                                            AppsmithError
-                                                                    .TOO_MANY_FAILED_DATASOURCE_CONNECTION_REQUESTS);
+                                            .flatMap(wasTokenAvailable -> {
+                                                if (!wasTokenAvailable) {
                                                     // This will block the datasource connection for next 5 minutes, as
                                                     // bucket has been exhausted, and return too many requests response
-                                                    return rateLimitService
-                                                            .blockEndpointForConnectionRequest(
-                                                                    RateLimitConstants
-                                                                            .BUCKET_KEY_FOR_TEST_DATASOURCE_API,
-                                                                    rateLimitIdentifier,
-                                                                    Duration.ofMinutes(BLOCK_TEST_API_DURATION),
-                                                                    exception)
-                                                            .flatMap(isAdded -> {
-                                                                return Mono.error(exception);
-                                                            });
+                                                    return datasourceService
+                                                            .blockEndpointForConnectionRequest(datasourceStorage)
+                                                            .flatMap(isAdded -> Mono.error(tooManyRequestsException));
                                                 }
                                                 return Mono.error(error);
                                             });

@@ -99,4 +99,6 @@ public interface DatasourceServiceCE {
     Mono<Boolean> isEndpointBlockedForConnectionRequest(DatasourceStorage datasourceStorage);
 
     Mono<Boolean> consumeTokenIfAvailable(DatasourceStorage datasourceStorage);
+
+    Mono<Boolean> blockEndpointForConnectionRequest(DatasourceStorage datasourceStorage);
 }
