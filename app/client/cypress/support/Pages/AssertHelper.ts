@@ -93,13 +93,11 @@ export class AssertHelper extends ReusableHelper {
     aliasName: string,
     expectedStatus: number | number[] = 200,
     waitForNetworkCall = true,
-    timeout = 150000,
   ) {
     if (waitForNetworkCall) {
       // If waitForNetworkCall is true, then use the interception from received call
-      return this.WaitForNetworkCall(aliasName, timeout).then(
-        (interception: any) =>
-          this.processNetworkStatus(interception, expectedStatus),
+      return this.WaitForNetworkCall(aliasName).then((interception: any) =>
+        this.processNetworkStatus(interception, expectedStatus),
       );
     } else {
       // If interception is not available, directly get the alias & use it
@@ -132,7 +130,7 @@ export class AssertHelper extends ReusableHelper {
   ) {
     if (waitForNetworkCall) {
       // If waitForNetworkCall is true, then use the interception from received call
-      this.WaitForNetworkCall(aliasName, 150000).then((interception: any) => {
+      this.WaitForNetworkCall(aliasName, 100000).then((interception: any) => {
         this.processNetworkResponseData(interception);
       });
     } else {

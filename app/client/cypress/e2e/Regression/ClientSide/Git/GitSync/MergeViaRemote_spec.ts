@@ -139,7 +139,7 @@ describe("Git sync: Merge changes via remote", function () {
     cy.commitAndPush();
     cy.merge(mainBranch);
     cy.get(gitSyncLocators.closeGitSyncModal).click();
-    cy.wait(8000);
+    cy.wait(4000);
     cy.switchGitBranch(mainBranch);
     cy.wait(4000); // wait for switch branch
     cy.contains("NewPage");
