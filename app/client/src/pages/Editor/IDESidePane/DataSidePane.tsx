@@ -28,7 +28,7 @@ const PaneContainer = styled.div`
 const PaneHeader = styled.div`
   height: 40px;
   background: #f8fafc;
-  border-bottom: 1px solid #cdd5df;
+  border-bottom: 1px solid var(--ads-v2-color-border);
   padding: 8px 12px;
   display: flex;
   align-items: center;
