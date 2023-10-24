@@ -14,6 +14,7 @@ import {
   select,
   take,
   fork,
+  race,
 } from "redux-saga/effects";
 import type {
   ImportTemplateResponse,
@@ -284,27 +285,41 @@ function* forkStarterTemplateToApplicationSaga(
             applicationId,
           },
         });
-        yield take(ReduxActionTypes.SET_DEFAULT_APPLICATION_PAGE_SUCCESS);
+        yield race([
+          take(ReduxActionTypes.SET_DEFAULT_APPLICATION_PAGE_SUCCESS),
+          take(ReduxActionErrorTypes.SET_DEFAULT_APPLICATION_PAGE_ERROR),
+        ]);
       }
 
       // 2. Delete the existing page
       yield fork(deleteExistingEmptyPageInApp, activePageId);
+
       // 3. Rename the template page to clicked from page
       yield fork(renameStarterTemplatePageToDefault, templatePageIds[0]);
+
       // 4. Wait for page update and delete to complete
-      yield take(ReduxActionTypes.UPDATE_PAGE_SUCCESS);
-      yield take(ReduxActionTypes.DELETE_PAGE_SUCCESS);
+      const updatePageResult: unknown = yield race([
+        take(ReduxActionTypes.UPDATE_PAGE_SUCCESS),
+        take(ReduxActionErrorTypes.UPDATE_PAGE_ERROR),
+      ]);
+      const deletePageResult: unknown = yield race([
+        take(ReduxActionTypes.DELETE_PAGE_SUCCESS),
+        take(ReduxActionErrorTypes.DELETE_PAGE_ERROR),
+      ]);
+      yield all([updatePageResult, deletePageResult]);
+
       // 5. Complete the page addition flow
       yield put({
         type: ReduxActionTypes.IMPORT_STARTER_TEMPLATE_TO_APPLICATION_SUCCESS,
+      });
+    } else {
+      yield put({
+        type: ReduxActionErrorTypes.IMPORT_STARTER_TEMPLATE_TO_APPLICATION_ERROR,
       });
     }
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.IMPORT_STARTER_TEMPLATE_TO_APPLICATION_ERROR,
-      payload: {
-        error,
-      },
     });
   }
 }
