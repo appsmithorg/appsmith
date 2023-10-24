@@ -115,6 +115,7 @@ import {
   setToEvalPathsIdenticalToState,
   validateActionProperty,
   validateAndParseWidgetProperty,
+  validateWidgetProperty,
 } from "./validationUtils";
 import { errorModifier } from "workers/Evaluation/errorModifier";
 import JSObjectCollection from "workers/Evaluation/JSObject/Collection";
@@ -322,6 +323,91 @@ export default class DataTreeEvaluator {
     };
   }
 
+  /**
+   * Validates all the nodes of the tree to make sure all the values are as expected according to the validation config
+   *
+   * For example :- If Button.isDisabled is set to false in propertyPane then it would be passed as "false" in unEvalTree and validateTree method makes sure to convert it to boolean.
+   * @param tree
+   * @param option
+   * @param configTree
+   * @returns
+   */
+  getValidatedTree(
+    dataTree: DataTree,
+    option: {
+      evalProps: EvalProps;
+      evalPathsIdenticalToState: EvalPathsIdenticalToState;
+    },
+    configTree: ConfigTree,
+  ) {
+    const unParsedEvalTree = this.getUnParsedEvalTree();
+    const { evalPathsIdenticalToState, evalProps } = option;
+    for (const [entityName, entity] of Object.entries(dataTree)) {
+      if (!isWidget(entity)) continue;
+      const entityConfig = configTree[entityName] as WidgetEntityConfig;
+      const validationPathsMap = Object.entries(entityConfig.validationPaths);
+
+      for (const [propertyPath, validationConfig] of validationPathsMap) {
+        const fullPropertyPath = `${entityName}.${propertyPath}`;
+
+        const value = get(
+          unParsedEvalTree,
+          fullPropertyPath,
+          get(entity, propertyPath),
+        );
+        // Pass it through parse
+        const { isValid, messages, parsed, transformed } =
+          validateWidgetProperty(validationConfig, value, entity, propertyPath);
+
+        set(entity, propertyPath, parsed);
+
+        const evaluatedValue = isValid
+          ? parsed
+          : isUndefined(transformed)
+          ? value
+          : transformed;
+
+        const isParsedValueTheSame = parsed === evaluatedValue;
+
+        const evalPath = getEvalValuePath(fullPropertyPath, {
+          isPopulated: false,
+          fullPath: true,
+        });
+
+        setToEvalPathsIdenticalToState({
+          evalPath,
+          evalPathsIdenticalToState,
+          evalProps,
+          isParsedValueTheSame,
+          fullPropertyPath,
+          value: evaluatedValue,
+        });
+
+        resetValidationErrorsForEntityProperty({
+          evalProps,
+          fullPropertyPath,
+        });
+
+        if (!isValid) {
+          const evalErrors: EvaluationError[] =
+            messages?.map((message) => ({
+              errorType: PropertyEvaluationErrorType.VALIDATION,
+              errorMessage: message,
+              severity: Severity.ERROR,
+              raw: value,
+            })) ?? [];
+
+          addErrorToEntityProperty({
+            errors: evalErrors,
+            evalProps,
+            fullPropertyPath,
+            configTree,
+          });
+        }
+      }
+    }
+  }
+
   evalAndValidateFirstTree(): {
     evalTree: DataTree;
     evalMetaUpdates: EvalMetaUpdates;
@@ -337,6 +423,15 @@ export default class DataTreeEvaluator {
       unEvalTreeClone,
       evaluationOrder,
       undefined,
+      this.oldConfigTree,
+    );
+
+    this.getValidatedTree(
+      evaluatedTree,
+      {
+        evalProps: this.evalProps,
+        evalPathsIdenticalToState: this.evalPathsIdenticalToState,
+      },
       this.oldConfigTree,
     );
 
