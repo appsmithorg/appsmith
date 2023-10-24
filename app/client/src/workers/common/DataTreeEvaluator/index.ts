@@ -426,6 +426,11 @@ export default class DataTreeEvaluator {
       this.oldConfigTree,
     );
 
+    /**
+     * We need to re-validate all widget only in case of first tree
+     * Widget fields with custom validation functions can depend on other properties of the widget,
+     * which aren't evaluated/validated yet, thereby store incorrect validation errors in the previous step
+     */
     this.getValidatedTree(
       evaluatedTree,
       {
