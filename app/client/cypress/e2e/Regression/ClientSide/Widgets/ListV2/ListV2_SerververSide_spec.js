@@ -46,11 +46,16 @@ describe("List widget V2 Serverside Pagination", () => {
   it("2. Next button disabled but visible in view mode when there's no data", () => {
     agHelper.AssertText(commonlocators.listPaginateActivePage, "text", "1");
     agHelper.GetNClick(commonlocators.listPaginateNextButton, 0, true);
+    cy.wait(1000);
     agHelper.AssertText(commonlocators.listPaginateActivePage, "text", "2");
+    cy.wait(1000);
     agHelper.GetNClick(commonlocators.listPaginateNextButton, 0, true);
+    cy.wait(1000);
     agHelper.AssertText(commonlocators.listPaginateActivePage, "text", "3");
     agHelper.AssertElementExist(commonlocators.listPaginateNextButtonDisabled);
+
     agHelper.GetNClick(commonlocators.listPaginatePrevButton, 0, true);
+    cy.wait(1000);
     agHelper.AssertText(commonlocators.listPaginateActivePage, "text", "2");
 
     deployMode.NavigateBacktoEditor();

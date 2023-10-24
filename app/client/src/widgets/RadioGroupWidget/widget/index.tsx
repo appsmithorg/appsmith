@@ -20,7 +20,10 @@ import BaseWidget from "../../BaseWidget";
 import RadioGroupComponent from "../component";
 import type { RadioOption } from "../constants";
 import { isAutoLayout } from "layoutSystems/autolayout/utils/flexWidgetUtils";
-import type { AutocompletionDefinitions } from "WidgetProvider/constants";
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
+} from "WidgetProvider/constants";
 import IconSVG from "../icon.svg";
 import type {
   SnipingModeProperty,
@@ -275,6 +278,17 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
       ],
       disableResizeHandles: {
         vertical: true,
+      },
+    };
+  }
+
+  static getAnvilConfig(): AnvilConfig | null {
+    return {
+      widgetSize: {
+        maxHeight: {},
+        maxWidth: {},
+        minHeight: { base: "70px" },
+        minWidth: { base: "240px" },
       },
     };
   }

@@ -32,10 +32,10 @@ export const restructureWidgetSizeConfig = (
   sizeConfig: Array<WidgetSizeConfig> | undefined,
   props: BaseWidgetProps,
 ): {
-  maxHeight: Record<string, string | number>;
-  maxWidth: Record<string, string | number>;
-  minHeight: Record<string, string | number>;
-  minWidth: Record<string, string | number>;
+  maxHeight: Record<string, string>;
+  maxWidth: Record<string, string>;
+  minHeight: Record<string, string>;
+  minWidth: Record<string, string>;
 } => {
   /**
    * Size config is stored as an array of objects.
@@ -48,10 +48,10 @@ export const restructureWidgetSizeConfig = (
    */
   // TODO: We should look into how size config is stored. Both structure and values can be updated.
   const res: {
-    maxHeight: Record<string, string | number>;
-    maxWidth: Record<string, string | number>;
-    minHeight: Record<string, string | number>;
-    minWidth: Record<string, string | number>;
+    maxHeight: Record<string, string>;
+    maxWidth: Record<string, string>;
+    minHeight: Record<string, string>;
+    minWidth: Record<string, string>;
   } = {
     maxHeight: {},
     maxWidth: {},

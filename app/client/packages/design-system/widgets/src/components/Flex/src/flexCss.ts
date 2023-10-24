@@ -130,11 +130,12 @@ export const flexWrapValue = (value: FlexCssProps["wrap"]) => {
 const cssVarValue = (value: CssVarValues) => {
   if (value == null) return;
 
-  if (
-    (value as string).includes("spacing") ||
-    (value as string).includes("sizing")
-  ) {
+  if ((value as string).includes("sizing")) {
     return `var(--${value})`;
+  }
+
+  if ((value as string).includes("spacing")) {
+    return `var(--outer-${value})`;
   }
 
   return value;

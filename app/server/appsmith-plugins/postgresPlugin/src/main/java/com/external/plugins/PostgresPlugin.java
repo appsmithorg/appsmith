@@ -97,6 +97,7 @@ import static com.external.plugins.utils.PostgresDataTypeUtils.DataType.VARCHAR;
 import static com.external.plugins.utils.PostgresDataTypeUtils.extractExplicitCasting;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Slf4j
 public class PostgresPlugin extends BasePlugin {
@@ -126,6 +127,8 @@ public class PostgresPlugin extends BasePlugin {
     private static final long LEAK_DETECTION_TIME_MS = 60 * 1000;
 
     private static final int HEAVY_OP_FREQUENCY = 100;
+
+    public static final Long DEFAULT_POSTGRES_PORT = 5432L;
 
     private static int MAX_SIZE_SUPPORTED;
 
@@ -286,6 +289,23 @@ public class PostgresPlugin extends BasePlugin {
             pluginSpecifiedTemplates.add(preparedStatement);
             actionConfig.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
             return actionConfig;
+        }
+
+        @Override
+        public Mono<String> getEndpointIdentifierForRateLimit(DatasourceConfiguration datasourceConfiguration) {
+            List<Endpoint> endpoints = datasourceConfiguration.getEndpoints();
+            String identifier = "";
+            // When hostname and port both are available, both will be used as identifier
+            // When port is not present, default port along with hostname will be used
+            // This ensures rate limiting will only be applied if hostname is present
+            if (endpoints.size() > 0) {
+                String hostName = endpoints.get(0).getHost();
+                Long port = endpoints.get(0).getPort();
+                if (!isBlank(hostName)) {
+                    identifier = hostName + "_" + ObjectUtils.defaultIfNull(port, DEFAULT_POSTGRES_PORT);
+                }
+            }
+            return Mono.just(identifier);
         }
 
         private Mono<ActionExecutionResult> executeCommon(

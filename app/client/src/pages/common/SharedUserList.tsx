@@ -45,9 +45,9 @@ export default function SharedUserList(props: any) {
     });
 
     const { users } = workspace;
-    const newUsers = users?.filter((user: any) => user.userId) || [];
-    return convertUsersToAvatar(newUsers);
+    return convertUsersToAvatar(users || []);
   }, [userWorkspaces]);
+
   return (
     <UserImageContainer isMobile={isMobile}>
       <AvatarGroup avatars={allUsers} size="sm" />

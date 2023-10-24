@@ -15,7 +15,10 @@ import type { ContainerStyle } from "widgets/ContainerWidget/component";
 import type { TextAlign } from "../component";
 import TextComponent from "../component";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
-import type { AutocompletionDefinitions } from "WidgetProvider/constants";
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
+} from "WidgetProvider/constants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { DEFAULT_FONT_SIZE, WIDGET_TAGS } from "constants/WidgetConstants";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
@@ -127,6 +130,17 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
       ],
       disableResizeHandles: {
         vertical: true,
+      },
+    };
+  }
+
+  static getAnvilConfig(): AnvilConfig | null {
+    return {
+      widgetSize: {
+        maxHeight: {},
+        maxWidth: {},
+        minHeight: { base: "40px" },
+        minWidth: { base: "120px" },
       },
     };
   }

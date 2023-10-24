@@ -10474,7 +10474,7 @@ __metadata:
     craco-babel-loader: ^1.0.4
     cssnano: ^6.0.1
     cy-verify-downloads: ^0.0.5
-    cypress: 13.2.0
+    cypress: 13.3.1
     cypress-file-upload: ^4.1.1
     cypress-image-snapshot: ^4.0.1
     cypress-log-to-output: ^1.1.2
@@ -10511,7 +10511,6 @@ __metadata:
     factory.ts: ^0.5.1
     fast-deep-equal: ^3.1.3
     fast-sort: ^3.4.0
-    fast-xml-parser: ^3.17.5
     fastdom: ^1.0.11
     focus-trap-react: ^8.9.2
     fuse.js: ^3.4.5
@@ -10560,7 +10559,7 @@ __metadata:
     pg: ^8.11.3
     plop: ^3.1.1
     popper.js: ^1.15.0
-    postcss: ^8.4.31
+    postcss: 8.4.31
     postcss-at-rules-variables: ^0.3.0
     postcss-each: ^1.1.0
     postcss-import: ^15.1.0
@@ -14120,9 +14119,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cypress@npm:13.2.0":
-  version: 13.2.0
-  resolution: "cypress@npm:13.2.0"
+"cypress@npm:13.3.1":
+  version: 13.3.1
+  resolution: "cypress@npm:13.3.1"
   dependencies:
     "@cypress/request": ^3.0.0
     "@cypress/xvfb": ^1.2.4
@@ -14169,7 +14168,7 @@ __metadata:
     yauzl: ^2.10.0
   bin:
     cypress: bin/cypress
-  checksum: 7647814f07626bd63e7b8dc4d066179fa40bf492c588bbc2626d983a2baab6cb77c29958dc92442f277e0a8e94866decc51c4de306021739c47e32baf5970219
+  checksum: 51798ecc6c5a33860012ecf39c428540911c3cf4df6ee63ea950cafea4a6c415d18da87951721f45b8601637e9731af4cf1464d37d62a36ce7243f8bfc8a59d2
   languageName: node
   linkType: hard
 
@@ -16676,15 +16675,6 @@ __metadata:
   version: 3.4.0
   resolution: "fast-sort@npm:3.4.0"
   checksum: b925d68438629b7176dc52c6f5bb88162675e88286b6e06041c6fb1095ec44af6aac3edd5b7e09ada044b90bced078a013683d2d75337ae6f5e7224f7e073019
-  languageName: node
-  linkType: hard
-
-"fast-xml-parser@npm:^3.17.5":
-  version: 3.17.5
-  resolution: "fast-xml-parser@npm:3.17.5"
-  bin:
-    xml2js: cli.js
-  checksum: 6c436f540a4dcab67d395c0f6e8dc70090e6ced2ff73ed5fec181c1b25df755ed9fd9ba8271d6f70096fbe3add8b4eac130a5f4daeb12970427f72403a56934e
   languageName: node
   linkType: hard
 
@@ -23718,13 +23708,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"picocolors@npm:^0.2.1":
-  version: 0.2.1
-  resolution: "picocolors@npm:0.2.1"
-  checksum: 3b0f441f0062def0c0f39e87b898ae7461c3a16ffc9f974f320b44c799418cabff17780ee647fda42b856a1dc45897e2c62047e1b546d94d6d5c6962f45427b2
-  languageName: node
-  linkType: hard
-
 "picocolors@npm:^1.0.0":
   version: 1.0.0
   resolution: "picocolors@npm:1.0.0"
@@ -25116,7 +25099,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"postcss@npm:*, postcss@npm:^8.3.5, postcss@npm:^8.4.21, postcss@npm:^8.4.23, postcss@npm:^8.4.27, postcss@npm:^8.4.31, postcss@npm:^8.4.4":
+"postcss@npm:8.4.31":
   version: 8.4.31
   resolution: "postcss@npm:8.4.31"
   dependencies:
@@ -25124,16 +25107,6 @@ __metadata:
     picocolors: ^1.0.0
     source-map-js: ^1.0.2
   checksum: 1d8611341b073143ad90486fcdfeab49edd243377b1f51834dc4f6d028e82ce5190e4f11bb2633276864503654fb7cab28e67abdc0fbf9d1f88cad4a0ff0beea
-  languageName: node
-  linkType: hard
-
-"postcss@npm:^7.0.35":
-  version: 7.0.39
-  resolution: "postcss@npm:7.0.39"
-  dependencies:
-    picocolors: ^0.2.1
-    source-map: ^0.6.1
-  checksum: 4ac793f506c23259189064bdc921260d869a115a82b5e713973c5af8e94fbb5721a5cc3e1e26840500d7e1f1fa42a209747c5b1a151918a9bc11f0d7ed9048e3
   languageName: node
   linkType: hard
 
@@ -29998,9 +29971,9 @@ __metadata:
   linkType: hard
 
 "tinymce@npm:^5.5.1":
-  version: 5.10.7
-  resolution: "tinymce@npm:5.10.7"
-  checksum: fe471f1004a29523d5ac39fc5023c2aa30efee653366dfd1c3c6649be2178bd04f87985c9cec00662465cd623a4f3572734ee1009c4edcf0f5af339dd7a544ad
+  version: 5.10.8
+  resolution: "tinymce@npm:5.10.8"
+  checksum: 702f4f576ecd64087ee588c79f66d859dac8c3d6e9f671016dc41885fcb8c30a637a169eb67195ee2bb0eb1368759801ec191b2325a3bb341d32da1a88f5b680
   languageName: node
   linkType: hard
 

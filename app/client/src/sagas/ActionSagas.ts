@@ -132,6 +132,7 @@ import { setAIPromptTriggered } from "utils/storage";
 import { getDefaultTemplateActionConfig } from "utils/editorContextUtils";
 import { sendAnalyticsEventSaga } from "./AnalyticsSaga";
 import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
+import { updateActionAPICall } from "@appsmith/sagas/ApiCallerSagas";
 
 export function* createDefaultActionPayload(
   pageId: string,
@@ -447,7 +448,10 @@ export function* updateActionSaga(actionPayload: ReduxAction<{ id: string }>) {
       // @ts-expect-error: Types are not available
       action = fixActionPayloadForMongoQuery(action);
     }
-    const response: ApiResponse<Action> = yield ActionAPI.updateAction(action);
+    const response: ApiResponse<Action> = yield call(
+      updateActionAPICall,
+      action,
+    );
 
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
@@ -990,9 +994,8 @@ function* executeCommandSaga(actionPayload: ReduxAction<SlashCommandPayload>) {
       }
 
       yield put({
-        type: ReduxActionTypes.TOGGLE_AI_WINDOW,
+        type: ReduxActionTypes.UPDATE_AI_CONTEXT,
         payload: {
-          show: true,
           context,
         },
       });
