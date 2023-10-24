@@ -142,17 +142,17 @@ export const getCustomHoverColor = (
   switch (buttonVariant) {
     case ButtonVariantTypes.SECONDARY:
       return backgroundColor
-        ? calculateHoverColor(backgroundColor, true)
+        ? calulateHoverColor(backgroundColor, true)
         : theme.colors.button.primary.secondary.hoverColor;
 
     case ButtonVariantTypes.TERTIARY:
       return backgroundColor
-        ? calculateHoverColor(backgroundColor, true)
+        ? calulateHoverColor(backgroundColor, true)
         : theme.colors.button.primary.tertiary.hoverColor;
 
     default:
       return backgroundColor
-        ? calculateHoverColor(backgroundColor, false)
+        ? calulateHoverColor(backgroundColor, false)
         : theme.colors.button.primary.primary.hoverColor;
   }
 };
@@ -175,7 +175,7 @@ export const getCustomHoverColor = (
  *
  * @returns An RGB string (in case of transparent backgrounds) or a HSL string (in case of solid backgrounds).
  */
-export const calculateHoverColor = (
+export const calulateHoverColor = (
   backgroundColor: string,
   hasTransparentBackground?: boolean,
 ) => {
@@ -394,8 +394,8 @@ export const PopoverStyles = createGlobalStyle<{
     }
 
     .${portalClassName} .${DTClasses.DATEPICKER_FOOTER} .${
-    Classes.BUTTON
-  }:hover {
+      Classes.BUTTON
+    }:hover {
       background-color: ${lightenColor(accentColor)};
     }
 
@@ -408,10 +408,10 @@ export const PopoverStyles = createGlobalStyle<{
     }
 
     .${portalClassName} .${DTClasses.DATEPICKER_YEAR_SELECT} select + .${
-    Classes.ICON
-  }, .${portalClassName} .${DTClasses.DATEPICKER_MONTH_SELECT} select + .${
-    Classes.ICON
-  } {
+      Classes.ICON
+    }, .${portalClassName} .${DTClasses.DATEPICKER_MONTH_SELECT} select + .${
+      Classes.ICON
+    } {
       color: var(--wds-color-icon) !important;
     }
 
@@ -424,8 +424,8 @@ export const PopoverStyles = createGlobalStyle<{
     }
 
     .${portalClassName} .${DTClasses.DATERANGEPICKER_SHORTCUTS} li a.${
-    Classes.ACTIVE
-  } {
+      Classes.ACTIVE
+    } {
       color: ${getComplementaryGrayscaleColor(accentColor)};
       background-color: ${accentColor};
     }
