@@ -523,7 +523,14 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
 
         // Start the stopwatch to log the execution time
         Stopwatch stopwatch = new Stopwatch(AnalyticsEvents.IMPORT.getEventName());
-        final Mono<Application> importedApplicationMono = installedJsLibsMono
+
+        /*
+         Calling the workspaceMono first to avoid creating multiple mongo transactions.
+         If the first db call inside a transaction is a Flux, then there's a chance of creating multiple mongo
+         transactions which will lead to NoSuchTransaction exception.
+        */
+        final Mono<Application> importedApplicationMono = workspaceMono
+                .then(installedJsLibsMono)
                 .then(getImportApplicationMono(
                         importedApplication, importingMetaDTO, mappedImportableResourcesDTO, currUserMono))
                 .cache();
