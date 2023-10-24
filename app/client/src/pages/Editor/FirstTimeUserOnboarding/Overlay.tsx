@@ -6,6 +6,7 @@ import {
   getIsFirstTimeUserOnboardingEnabled,
   getSignpostingSetOverlay,
 } from "selectors/onboardingSelectors";
+import { isImportingStarterTemplateToAppSelector } from "selectors/templatesSelectors";
 import styled from "styled-components";
 
 const StyledOverlay = styled.div`
@@ -29,8 +30,11 @@ function Overlay() {
   const signpostingEnabled = useSelector(getIsFirstTimeUserOnboardingEnabled);
   const setOverlay = useSelector(getSignpostingSetOverlay);
   const dispatch = useDispatch();
+  const isImportingStarterTemplateToApp = useSelector(
+    isImportingStarterTemplateToAppSelector,
+  );
 
-  if (signpostingEnabled && setOverlay) {
+  if (isImportingStarterTemplateToApp || (signpostingEnabled && setOverlay)) {
     return (
       <StyledOverlay
         className="fixed top-0 w-full h-full overflow-hidden"
