@@ -475,6 +475,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     ); //verify Delete File dialog appears
     agHelper.ClickButton("Confirm", { sleepTime: 3000 }); //wait for Delete operation to be successfull, //Verifies 8684
     assertHelper.AssertNetworkExecutionSuccess("@postExecute", true);
+    agHelper.Sleep(2000); //for the delete to reflect in UI for CI runs
     agHelper.GetNAssertElementText(
       locators._textWidgetInDeployed,
       fileNameToDelete,

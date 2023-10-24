@@ -6,6 +6,7 @@ import com.appsmith.server.constants.Url;
 import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.exceptions.AppsmithErrorCode;
 import com.appsmith.server.exports.internal.ExportApplicationService;
+import com.appsmith.server.exports.internal.PartialExportService;
 import com.appsmith.server.fork.internal.ApplicationForkingService;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.RedisUtils;
@@ -78,6 +79,9 @@ public class ApplicationControllerTest {
 
     @MockBean
     SessionUserService sessionUserService;
+
+    @MockBean
+    PartialExportService partialExportService;
 
     private String getFileName(int length) {
         StringBuilder fileName = new StringBuilder();

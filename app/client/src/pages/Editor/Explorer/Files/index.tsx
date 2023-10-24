@@ -27,6 +27,9 @@ import styled from "styled-components";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { getHasCreateActionPermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import { useFilteredFileOperations } from "components/editorComponents/GlobalSearch/GlobalSearchHooks";
+import { SEARCH_ITEM_TYPES } from "components/editorComponents/GlobalSearch/utils";
+import { DatasourceCreateEntryPoints } from "constants/Datasource";
 
 const StyledText = styled(Text)`
   color: var(--ads-v2-color-fg-emphasis);
@@ -41,6 +44,9 @@ function Files() {
   const dispatch = useDispatch();
   const isFilesOpen = getExplorerStatus(applicationId, "queriesAndJs");
   const [isMenuOpen, openMenu] = useState(false);
+  const [query, setQuery] = useState("");
+
+  const fileOperations = useFilteredFileOperations(query);
 
   const onCreate = useCallback(() => {
     openMenu(true);
@@ -114,16 +120,32 @@ function Files() {
     [files, activeActionId],
   );
 
+  const handleClick = useCallback(
+    (item: any) => {
+      if (item.kind === SEARCH_ITEM_TYPES.sectionTitle) return;
+      if (item.action) {
+        dispatch(item.action(pageId, DatasourceCreateEntryPoints.SUBMENU));
+      } else if (item.redirect) {
+        item.redirect(pageId, DatasourceCreateEntryPoints.SUBMENU);
+      }
+    },
+    [pageId, dispatch],
+  );
+
   return (
     <Entity
       alwaysShowRightIcon
       className={`group files`}
       customAddButton={
         <ExplorerSubMenu
-          canCreateActions={canCreateActions}
+          canCreate={canCreateActions}
           className={`${EntityClassNames.ADD_BUTTON} group files`}
+          fileOperations={fileOperations}
+          handleClick={handleClick}
           onMenuClose={onMenuClose}
           openMenu={isMenuOpen}
+          query={query}
+          setQuery={setQuery}
         />
       }
       entityId={pageId + "_actions"}
