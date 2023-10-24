@@ -154,11 +154,7 @@ const OverlayCanvasContainer = (props: { canvasWidth: number }) => {
       scrollParent.removeEventListener("scroll", scrollHandler);
       scrollParent.removeEventListener("scrollend", scrollEndHandler);
     };
-  }, [
-    wrapperRef?.current,
-    widgetNamePositions.current,
-    canvasPositions.current,
-  ]);
+  }, [wrapperRef?.current, stageRef?.current]);
 
   // Reset the canvas if no widgets are focused or selected
   // Update the widget name positions if there are widgets focused or selected

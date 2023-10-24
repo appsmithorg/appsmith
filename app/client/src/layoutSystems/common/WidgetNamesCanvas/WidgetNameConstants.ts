@@ -38,7 +38,7 @@ export const WIDGET_NAME_FILL_COLORS = {
 //CSS properties of the wrapper object of the html canvas
 export const widgetNameWrapperStyle: CSSProperties = {
   position: "absolute",
-  top: "-20px",
+  top: 0,
   left: 0,
   zIndex: 2,
   pointerEvents: "none",
