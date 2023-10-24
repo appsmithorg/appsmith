@@ -75,6 +75,7 @@ export function validateAndParseWidgetProperty({
   evalPathsIdenticalToState: EvalPathsIdenticalToState;
 }): unknown {
   const { propertyPath } = getEntityNameAndPropertyPath(fullPropertyPath);
+
   if (isPathDynamicTrigger(widget, propertyPath)) {
     // TODO find a way to validate triggers
     return unEvalPropertyValue;
