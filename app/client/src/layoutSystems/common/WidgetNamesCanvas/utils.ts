@@ -26,7 +26,6 @@ import {
  *          widgetName Group on Konva, position of widgetName on canvas and canvas offsets
  */
 export const getWidgetNameComponent = (
-  position: LayoutElementPosition,
   widgetName: string,
   widgetNameData: WidgetNameData,
   parentDOM: HTMLDivElement | null,
@@ -64,8 +63,14 @@ export const getWidgetNameComponent = (
     canvasTopOffset,
     left: widgetLeft,
     top: widgetTop,
-  } = getPositionsForBoundary(parentDOM, htmlCanvasDOM, position, scrollTop);
-  const left: number = widgetLeft + position.width - componentWidth;
+  } = getPositionsForBoundary(
+    parentDOM,
+    htmlCanvasDOM,
+    widgetNameData.position,
+    scrollTop,
+  );
+  const left: number =
+    widgetLeft + widgetNameData.position.width - componentWidth;
   const top: number = widgetTop - WIDGET_NAME_HEIGHT;
 
   //Store the widget name positions for future use

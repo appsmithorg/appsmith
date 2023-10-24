@@ -22,7 +22,6 @@ import com.appsmith.server.dtos.MappedExportableResourcesDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.exports.exportable.ExportableService;
-import com.appsmith.server.exports.exportable.ExportableServiceCE;
 import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationService;
@@ -41,7 +40,6 @@ import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static java.lang.Boolean.TRUE;
@@ -61,7 +59,7 @@ public class ExportApplicationServiceCEImpl implements ExportApplicationServiceC
     private final ExportableService<NewPage> newPageExportableService;
     private final ExportableService<NewAction> newActionExportableService;
     private final ExportableService<ActionCollection> actionCollectionExportableService;
-    private final ExportableServiceCE<Theme> themeExportableService;
+    private final ExportableService<Theme> themeExportableService;
     private final ExportableService<CustomJSLib> customJSLibExportableService;
 
     /**
@@ -195,8 +193,8 @@ public class ExportApplicationServiceCEImpl implements ExportApplicationServiceC
                             AnalyticsEvents.UNIT_EXECUTION_TIME.getEventName(), user.getUsername(), data);
                     return applicationJson;
                 })
-                // TODO : Why are we sending two sets of events here? -- Ask Git team
-                .then(sendImportExportApplicationAnalyticsEvent(applicationId, AnalyticsEvents.EXPORT))
+                .then(applicationMono)
+                .map(application -> sendImportExportApplicationAnalyticsEvent(application, AnalyticsEvents.EXPORT))
                 .thenReturn(applicationJson);
     }
 
@@ -246,18 +244,5 @@ public class ExportApplicationServiceCEImpl implements ExportApplicationServiceC
 
             return analyticsService.sendObjectEvent(event, application, data);
         });
-    }
-
-    /**
-     * To send analytics event for import and export of application
-     *
-     * @param applicationId id of application being imported or exported
-     * @param event         analyticsEvents event
-     * @return The application which is imported or exported
-     */
-    private Mono<Application> sendImportExportApplicationAnalyticsEvent(String applicationId, AnalyticsEvents event) {
-        return applicationService
-                .findById(applicationId, Optional.empty())
-                .flatMap(application -> sendImportExportApplicationAnalyticsEvent(application, event));
     }
 }

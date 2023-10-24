@@ -114,7 +114,8 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
                 .filter(permissionGroup ->
                         permissionGroup.getDefaultDomainType().equals(Workspace.class.getSimpleName())
                                 && StringUtils.hasText(permissionGroup.getDefaultDomainId()))
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ROLE)))
+                .switchIfEmpty(Mono.error(new AppsmithException(
+                        AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.ROLE, inviteUsersDTO.getPermissionGroupId())))
                 .cache();
 
         // Get workspace from the default group.
