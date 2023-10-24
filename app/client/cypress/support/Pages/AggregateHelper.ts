@@ -1068,7 +1068,7 @@ export class AggregateHelper extends ReusableHelper {
       });
     });
     this.assertHelper.AssertDocumentReady();
-    this.Sleep(2000);
+    this.Sleep(4000);
     networkCallAlias &&
       this.assertHelper.AssertNetworkStatus("@" + networkCallAlias); //getWorkspace for Edit page!
   }

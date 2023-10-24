@@ -283,6 +283,7 @@ export class HomePage {
       );
       this.onboarding.skipSignposting();
     }
+    this.agHelper.Sleep(2000); //for getWorkspace to go thru!
     this.assertHelper.AssertNetworkStatus("getWorkspace");
   }
 
