@@ -55,7 +55,7 @@ const EmptyStateContainer = styled.div`
 const DatasourceIcon = styled.img`
   height: 16px;
   width: 16px;
-  align-self: center;
+  align-self: flex-start;
 `;
 
 const DataSidePane = () => {
