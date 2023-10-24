@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 // Heavily inspired from https://github.com/codemirror/CodeMirror/blob/master/addon/tern/tern.js
-import type { Server, Def } from "tern";
+import type { Server, Def, QueryRegistry } from "tern";
 import type { Hint, Hints } from "codemirror";
 import type CodeMirror from "codemirror";
 import {
@@ -25,12 +25,14 @@ const bigDoc = 250;
 const cls = "CodeMirror-Tern-";
 const hintDelay = 1700;
 
-export interface Completion extends Hint {
+export interface Completion<
+  T = {
+    doc: string;
+  },
+> extends Hint {
   origin: string;
   type: AutocompleteDataType | string;
-  data: {
-    doc: string;
-  };
+  data: T;
   render?: any;
   isHeader?: boolean;
 }
@@ -49,6 +51,15 @@ interface TernDoc {
   doc: CodeMirror.Doc;
   name: string;
   changed: { to: number; from: number } | null;
+}
+
+export interface TernCompletionResult {
+  name: string;
+  type?: string | undefined;
+  depth?: number | undefined;
+  doc?: string | undefined;
+  url?: string | undefined;
+  origin?: string | undefined;
 }
 
 interface ArgHints {
@@ -196,7 +207,12 @@ class CodeMirrorTernService {
     this.server.deleteDefs(name);
   }
 
-  requestCallback(error: any, data: any, cm: CodeMirror.Editor, resolve: any) {
+  requestCallback(
+    error: any,
+    data: QueryRegistry["completions"]["result"],
+    cm: CodeMirror.Editor,
+    resolve: any,
+  ) {
     if (error) return this.showError(cm, error);
     if (data.completions.length === 0) {
       return this.showError(cm, "No suggestions");
@@ -208,9 +224,11 @@ class CodeMirrorTernService {
 
     const query = this.getQueryForAutocomplete(cm);
 
-    let completions: Completion[] = [];
+    let completions: Completion<TernCompletionResult>[] = [];
     let after = "";
     const { end, start } = data;
+
+    if (typeof end === "number" || typeof start === "number") return;
 
     const from = {
       ...start,
@@ -235,31 +253,27 @@ class CodeMirrorTernService {
 
     for (let i = 0; i < data.completions.length; ++i) {
       const completion = data.completions[i];
+      if (typeof completion === "string") continue;
       const isCustomKeyword = isCustomKeywordType(completion.name);
-
-      if (isCustomKeyword) {
-        completion.isKeyword = true;
-      }
-      let className = typeToIcon(completion.type, completion.isKeyword);
-      const dataType = getDataType(completion.type);
-      if (data.guess) className += " " + cls + "guess";
+      const className = typeToIcon(completion.type as string, isCustomKeyword);
+      const dataType = getDataType(completion.type as string);
       let completionText = completion.name + after;
       if (dataType === "FUNCTION" && !completion.origin?.startsWith("LIB/")) {
         if (token.type !== "string" && token.string !== "[") {
           completionText = completionText + "()";
         }
       }
-      const codeMirrorCompletion: Completion = {
+      const codeMirrorCompletion: Completion<TernCompletionResult> = {
         text: completionText,
-        displayText: completionText,
+        displayText: completion.name,
         className: className,
         data: completion,
-        origin: completion.origin,
+        origin: completion.origin as string,
         type: dataType,
         isHeader: false,
       };
 
-      if (completion.isKeyword) {
+      if (isCustomKeyword) {
         codeMirrorCompletion.render = (
           element: HTMLElement,
           self: any,
@@ -365,7 +379,7 @@ class CodeMirrorTernService {
 
   async getHint(cm: CodeMirror.Editor) {
     const hints: Record<string, any> = await new Promise((resolve) => {
-      this.request(
+      this.request<"completions">(
         cm,
         {
           type: "completions",
@@ -419,7 +433,7 @@ class CodeMirrorTernService {
   }
 
   showContextInfo(cm: CodeMirror.Editor, queryName: string, callbackFn?: any) {
-    this.request(cm, { type: queryName }, (error, data) => {
+    this.request<"type">(cm, { type: queryName }, (error, data) => {
       if (error) return this.showError(cm, error);
       const tip = this.elt(
         "span",
@@ -441,10 +455,10 @@ class CodeMirrorTernService {
     });
   }
 
-  request(
+  request<T extends keyof QueryRegistry>(
     cm: CodeMirror.Editor,
     query: RequestQuery | string,
-    callbackFn: (error: any, data: any) => void,
+    callbackFn: (error: any, data: QueryRegistry[T]["result"]) => void,
     pos?: CodeMirror.Position,
   ) {
     const doc = this.findDoc(cm.getDoc());
@@ -480,11 +494,7 @@ class CodeMirrorTernService {
     return (this.docs[name] = data);
   }
 
-  buildRequest(
-    doc: TernDoc,
-    query: Partial<RequestQuery> | string,
-    pos?: CodeMirror.Position,
-  ) {
+  buildRequest(doc: TernDoc, query: any, pos?: CodeMirror.Position) {
     const files = [];
     let offsetLines = 0;
     if (typeof query == "string") query = { type: query };
@@ -924,7 +934,7 @@ class CodeMirrorTernService {
   }
 }
 
-export const createCompletionHeader = (name: string): Completion => ({
+export const createCompletionHeader = (name: string): Completion<any> => ({
   text: name,
   displayText: name,
   className: "CodeMirror-hint-header",
