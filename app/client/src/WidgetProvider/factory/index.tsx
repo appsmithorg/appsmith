@@ -233,9 +233,7 @@ class WidgetFactory {
     if (dependencyMap) {
       return dependencyMap;
     } else {
-      log.error(
-        `Default properties are not defined for widget type: ${widgetType}`,
-      );
+      log.error(`Dependency map is defined for widget type: ${widgetType}`);
       return {};
     }
   }
