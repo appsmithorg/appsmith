@@ -39,12 +39,7 @@ public class CustomJSLibExportableServiceCEImpl implements ExportableServiceCE<C
         return customJSLibService
                 .getAllJSLibsInApplication(exportingMetaDTO.getApplicationId(), exportingMetaDTO.getBranchName(), false)
                 .map(jsLibList -> {
-                    jsLibList.forEach(jsLib -> {
-                        jsLib.setId(null);
-                        jsLib.setCreatedAt(null);
-                        jsLib.setUpdatedAt(null);
-                    });
-
+                    jsLibList.forEach(CustomJSLib::sanitiseToExportDBObject);
                     return jsLibList;
                 })
                 .zipWith(applicationMono)
