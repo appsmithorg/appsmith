@@ -1,6 +1,5 @@
 package com.appsmith.server.jslibs.imports;
 
-import com.appsmith.server.constants.ApplicationConstants;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.Workspace;
@@ -37,8 +36,6 @@ public class CustomJSLibImportableServiceCEImpl implements ImportableServiceCE<C
             customJSLibs = new ArrayList<>();
         }
 
-        ensureXmlParserPresenceInCustomJsLibList(customJSLibs, applicationJson);
-
         return Flux.fromIterable(customJSLibs)
                 .flatMap(customJSLib -> {
                     customJSLib.setId(null);
@@ -55,39 +52,5 @@ public class CustomJSLibImportableServiceCEImpl implements ImportableServiceCE<C
                     log.error("Error importing custom jslibs", e);
                     return Mono.error(e);
                 });
-    }
-
-    /**
-     * This method takes customJSLibList from application JSON, checks if an entry for XML parser exists,
-     * otherwise adds the entry.
-     * This has been done to add the xmlParser entry in imported application as appsmith is stopping native support
-     * for xml parser.
-     * Read More: https://github.com/appsmithorg/appsmith/pull/28012
-     *
-     * @param customJSLibList
-     * @param applicationJson
-     */
-    private void ensureXmlParserPresenceInCustomJsLibList(
-            List<CustomJSLib> customJSLibList, ApplicationJson applicationJson) {
-        // this is to ensure that newer applications(server schema > 6) does not get xml parser when imported.
-        if (applicationJson.getServerSchemaVersion() > 6) {
-            return;
-        }
-
-        boolean isXmlParserLibFound = false;
-
-        for (CustomJSLib customJSLib : customJSLibList) {
-            if (!customJSLib.getUidString().equals(ApplicationConstants.XML_PARSER_LIBRARY_UID)) {
-                continue;
-            }
-
-            isXmlParserLibFound = true;
-            break;
-        }
-
-        if (!isXmlParserLibFound) {
-            CustomJSLib xmlParserJsLib = ApplicationConstants.getDefaultParserCustomJsLibCompatibilityDTO();
-            customJSLibList.add(xmlParserJsLib);
-        }
     }
 }
