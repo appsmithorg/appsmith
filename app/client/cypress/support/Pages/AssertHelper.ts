@@ -133,7 +133,7 @@ export class AssertHelper extends ReusableHelper {
   ) {
     if (waitForNetworkCall) {
       // If waitForNetworkCall is true, then use the interception from received call
-      this.WaitForNetworkCall(aliasName, 100000).then((interception: any) => {
+      this.WaitForNetworkCall(aliasName).then((interception: any) => {
         this.processNetworkResponseData(interception);
       });
     } else {
