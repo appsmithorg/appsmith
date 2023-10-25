@@ -76,7 +76,7 @@ function AppsmithIDE() {
           </Switch>
         </EditorWrapperBody>
       </EditorWrapperContainer>
-      <BottomBar viewMode={isPreviewMode || isProtectedMode} />
+      <BottomBar isProtected={isProtectedMode} viewMode={isPreviewMode} />
     </>
   );
 }

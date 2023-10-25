@@ -9,8 +9,13 @@ import { getCurrentAppGitMetaData } from "@appsmith/selectors/applicationSelecto
 import BranchList from "../components/BranchList";
 import { getGitStatus } from "selectors/gitSyncSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { Button, Tooltip } from "design-system";
+import { Button, Text, Tooltip } from "design-system";
 import { isEllipsisActive } from "../../../../utils/helpers";
+import {
+  BRANCH_TOOLTIP_MESSAGE,
+  BRANCH_TOOLTIP_TITLE,
+  createMessage,
+} from "@appsmith/constants/messages";
 
 const ButtonContainer = styled(Button)`
   display: flex;
@@ -18,6 +23,11 @@ const ButtonContainer = styled(Button)`
   margin: 0 ${(props) => props.theme.spaces[4]}px;
   max-width: 122px;
   min-width: unset !important;
+`;
+
+const TooltipText = styled(Text)`
+  font-size: 12px;
+  color: #fff;
 `;
 
 function BranchButton() {
@@ -46,29 +56,48 @@ function BranchButton() {
       placement="top-start"
     >
       <Tooltip
-        content={currentBranch || ""}
-        isDisabled={!isEllipsisActive(labelTarget.current)}
+        content={
+          <>
+            <TooltipText
+              renderAs="p"
+              style={{ fontWeight: "bold", marginBottom: 16 }}
+            >
+              {createMessage(BRANCH_TOOLTIP_TITLE)}
+            </TooltipText>
+            <TooltipText renderAs="p">
+              {createMessage(BRANCH_TOOLTIP_MESSAGE)}
+            </TooltipText>
+          </>
+        }
+        defaultVisible
         placement="topLeft"
+        trigger={["click", "hover"]}
       >
-        <ButtonContainer
-          className="t--branch-button"
-          data-testid={"t--branch-button-currentBranch"}
-          kind="secondary"
-          startIcon="git-branch"
+        <Tooltip
+          content={currentBranch || ""}
+          isDisabled={!isEllipsisActive(labelTarget.current)}
+          placement="topLeft"
         >
-          <span
-            ref={labelTarget}
-            style={{
-              maxWidth: "82px",
-              whiteSpace: "nowrap",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-            }}
+          <ButtonContainer
+            className="t--branch-button"
+            data-testid={"t--branch-button-currentBranch"}
+            kind="secondary"
+            startIcon="git-branch"
           >
-            {currentBranch}
-          </span>
-          {!status?.isClean && "*"}
-        </ButtonContainer>
+            <span
+              ref={labelTarget}
+              style={{
+                maxWidth: "82px",
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+              }}
+            >
+              {currentBranch}
+            </span>
+            {!status?.isClean && "*"}
+          </ButtonContainer>
+        </Tooltip>
       </Tooltip>
     </Popover2>
   );

@@ -1077,6 +1077,12 @@ export const BRANCH_PROTECTION_RULE_3 = () =>
   "You can still pull the latest changes and create new branches to edit the app.";
 export const BRANCH_PROTECTION_CHANGE_RULE = () =>
   "You can remove protection on your default branch in Git settings.";
+
+export const BRANCH_TOOLTIP_TITLE = () =>
+  "🚫&nbsp;&nbsp;This is a protected branch";
+
+export const BRANCH_TOOLTIP_MESSAGE = () =>
+  "You can remove protection on your default branch in Git settings.";
 // Git Branch Protection end
 
 export const NAV_DESCRIPTION = () =>
