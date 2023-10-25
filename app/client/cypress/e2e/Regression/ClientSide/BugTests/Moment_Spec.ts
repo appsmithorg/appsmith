@@ -110,8 +110,7 @@ describe("Bug #14299 - The data from the query does not show up on the widget", 
   after(
     "Verify Deletion of the datasource after all created queries are deleted",
     () => {
-      deployMode.NavigateBacktoEditor();
-      agHelper.AssertContains("ran successfully"); //runAstros triggered on PageLaoad of Edit page!
+      deployMode.NavigateBacktoEditor("ran successfully"); //runAstros triggered on PageLaoad of Edit page!
       entityExplorer.ExpandCollapseEntity("Queries/JS");
       entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: "JSObject1",
