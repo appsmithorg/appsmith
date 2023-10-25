@@ -272,7 +272,7 @@ export default {
           parent: FlattenedWidgetProps,
           layoutSystemType: LayoutSystemTypes,
         ) => {
-          if (layoutSystemType === LayoutSystemTypes.AUTO) {
+          if (layoutSystemType !== LayoutSystemTypes.AUTO) {
             return [];
           }
 

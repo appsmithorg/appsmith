@@ -43,10 +43,7 @@ import {
  * @prop canvasWidth width of canvas in pixels
  * @prop containerRef ref of PageViewWrapper component
  */
-const OverlayCanvasContainer = (props: {
-  canvasWidth: number;
-  containerRef: React.RefObject<HTMLDivElement | null>;
-}) => {
+const OverlayCanvasContainer = (props: { canvasWidth: number }) => {
   //widget name data of widgets
   const selectedWidgetNameData: WidgetNameData[] | undefined = useSelector(
     getSelectedWidgetNameData,
@@ -125,11 +122,7 @@ const OverlayCanvasContainer = (props: {
     const scrollParent: HTMLDivElement | null =
       getMainContainerAnvilCanvasDOMElement();
 
-    if (!props.containerRef?.current || !wrapperRef?.current || !scrollParent)
-      return;
-
-    const container: HTMLDivElement = props.containerRef
-      ?.current as HTMLDivElement;
+    if (!wrapperRef?.current || !scrollParent) return;
 
     const reset = resetCanvas.bind(this, widgetNamePositions, stageRef);
 
@@ -152,21 +145,16 @@ const OverlayCanvasContainer = (props: {
       widgetNamePositions,
     );
 
-    container.addEventListener("mousemove", mouseMoveHandler);
+    scrollParent.addEventListener("mousemove", mouseMoveHandler);
     scrollParent.addEventListener("scroll", scrollHandler);
     scrollParent.addEventListener("scrollend", scrollEndHandler);
 
     return () => {
-      container.removeEventListener("mousemove", mouseMoveHandler);
+      scrollParent.removeEventListener("mousemove", mouseMoveHandler);
       scrollParent.removeEventListener("scroll", scrollHandler);
       scrollParent.removeEventListener("scrollend", scrollEndHandler);
     };
-  }, [
-    props.containerRef?.current,
-    wrapperRef?.current,
-    widgetNamePositions.current,
-    canvasPositions.current,
-  ]);
+  }, [wrapperRef?.current, stageRef?.current]);
 
   // Reset the canvas if no widgets are focused or selected
   // Update the widget name positions if there are widgets focused or selected

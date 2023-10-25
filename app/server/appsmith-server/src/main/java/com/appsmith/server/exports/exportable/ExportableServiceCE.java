@@ -8,11 +8,13 @@ import com.appsmith.server.dtos.ExportingMetaDTO;
 import com.appsmith.server.dtos.MappedExportableResourcesDTO;
 import reactor.core.publisher.Mono;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public interface ExportableServiceCE<T extends BaseDomain> {
 
-    Mono<List<T>> getExportableEntities(
+    Mono<Void> getExportableEntities(
             ExportingMetaDTO exportingMetaDTO,
             MappedExportableResourcesDTO mappedExportableResourcesDTO,
             Mono<Application> applicationMono,
@@ -23,4 +25,9 @@ public interface ExportableServiceCE<T extends BaseDomain> {
             MappedExportableResourcesDTO mappedExportableResourcesDTO,
             ApplicationJson applicationJson,
             SerialiseApplicationObjective serialiseFor) {}
+
+    default Set<String> mapNameToIdForExportableEntities(
+            MappedExportableResourcesDTO mappedExportableResourcesDTO, List<T> entityList) {
+        return new HashSet<>();
+    }
 }

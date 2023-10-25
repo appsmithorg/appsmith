@@ -3,13 +3,14 @@ import { DataTreeFunctionSortOrder, PriorityOrder } from "./dataTypeSortRules";
 import type {
   Completion,
   DataTreeDefEntityInformation,
+  TernCompletionResult,
 } from "./CodemirrorTernService";
 import { createCompletionHeader } from "./CodemirrorTernService";
 import { AutocompleteDataType } from "./AutocompleteDataType";
 
 interface AutocompleteRule {
   computeScore(
-    completion: Completion,
+    completion: Completion<TernCompletionResult>,
     entityInfo?: FieldEntityInformation,
   ): number;
 }
@@ -29,7 +30,7 @@ enum RuleWeight {
 
 export class NestedPropertyInsideLiteralRule implements AutocompleteRule {
   computeScore(
-    completion: Completion,
+    completion: Completion<TernCompletionResult>,
     entityInfo: FieldEntityInformation,
   ): number {
     const { token } = entityInfo;
@@ -49,7 +50,7 @@ export class AndRule implements AutocompleteRule {
   constructor(rules: AutocompleteRule[]) {
     this.rules = rules;
   }
-  computeScore(completion: Completion): number {
+  computeScore(completion: Completion<TernCompletionResult>): number {
     let score = 0;
     for (const rule of this.rules) {
       const localScore = rule.computeScore(completion);
@@ -71,7 +72,7 @@ export class AndRule implements AutocompleteRule {
 class HideInternalDefsRule implements AutocompleteRule {
   static threshold = -Infinity;
 
-  computeScore(completion: Completion): number {
+  computeScore(completion: Completion<TernCompletionResult>): number {
     let score = 0;
 
     if (completion.text.includes("$__") && completion.text.includes("__$")) {
@@ -86,10 +87,10 @@ class HideInternalDefsRule implements AutocompleteRule {
  * Max score - 0
  * Min score - -Infinity
  */
-class BlockSuggestionsRule implements AutocompleteRule {
+class RemoveBlackListedCompletionRule implements AutocompleteRule {
   static threshold = -Infinity;
 
-  computeScore(completion: Completion): number {
+  computeScore(completion: Completion<TernCompletionResult>): number {
     let score = 0;
     const { currentFieldInfo } = AutocompleteSorter;
     const { blockCompletions } = currentFieldInfo;
@@ -98,7 +99,7 @@ class BlockSuggestionsRule implements AutocompleteRule {
       for (let index = 0; index < blockCompletions.length; index++) {
         const { subPath } = blockCompletions[index];
         if (completion.text === subPath && completion.origin !== "DATA_TREE") {
-          score = BlockSuggestionsRule.threshold;
+          score = RemoveBlackListedCompletionRule.threshold;
           break;
         }
       }
@@ -115,7 +116,7 @@ class BlockSuggestionsRule implements AutocompleteRule {
  */
 class NoDeepNestedSuggestionsRule implements AutocompleteRule {
   static threshold = -Infinity;
-  computeScore(completion: Completion): number {
+  computeScore(completion: Completion<TernCompletionResult>): number {
     let score = 0;
     if (completion.text.split(".").length > 2)
       score = NoDeepNestedSuggestionsRule.threshold;
@@ -130,7 +131,7 @@ class NoDeepNestedSuggestionsRule implements AutocompleteRule {
  */
 class NoSelfReferenceRule implements AutocompleteRule {
   static threshold = -Infinity;
-  computeScore(completion: Completion): number {
+  computeScore(completion: Completion<TernCompletionResult>): number {
     let score = 0;
     const entityName = AutocompleteSorter.currentFieldInfo.entityName;
     if (!entityName) return score;
@@ -150,7 +151,7 @@ class NoSelfReferenceRule implements AutocompleteRule {
  */
 class GlobalJSRule implements AutocompleteRule {
   static threshold = 1 << RuleWeight.GlobalJS;
-  computeScore(completion: Completion): number {
+  computeScore(completion: Completion<TernCompletionResult>): number {
     let score = 0;
     if (completion.origin === "ecmascript" || completion.origin === "base-64")
       score += GlobalJSRule.threshold;
@@ -165,7 +166,7 @@ class GlobalJSRule implements AutocompleteRule {
  */
 class JSLibraryRule implements AutocompleteRule {
   static threshold = 1 << RuleWeight.JSLibrary;
-  computeScore(completion: Completion): number {
+  computeScore(completion: Completion<TernCompletionResult>): number {
     const score = 0;
     if (!completion.origin) return score;
     if (!completion.origin.startsWith("LIB/")) return score;
@@ -180,7 +181,7 @@ class JSLibraryRule implements AutocompleteRule {
  */
 class DataTreeFunctionRule implements AutocompleteRule {
   static threshold = 1 << RuleWeight.DataTreeFunction;
-  computeScore(completion: Completion): number {
+  computeScore(completion: Completion<TernCompletionResult>): number {
     let score = 0;
     if (!(completion.origin === "DATA_TREE.APPSMITH.FUNCTIONS")) return score;
     score += DataTreeFunctionRule.threshold;
@@ -200,7 +201,7 @@ class DataTreeFunctionRule implements AutocompleteRule {
  */
 class DataTreeRule implements AutocompleteRule {
   static threshold = 1 << RuleWeight.DataTreeMatch;
-  computeScore(completion: Completion): number {
+  computeScore(completion: Completion<TernCompletionResult>): number {
     let score = 0;
     if (!(completion.origin === "DATA_TREE")) return score;
     score = DataTreeRule.threshold;
@@ -216,7 +217,7 @@ class DataTreeRule implements AutocompleteRule {
  */
 class TypeMatchRule implements AutocompleteRule {
   static threshold = 1 << RuleWeight.TypeMatch;
-  computeScore(completion: Completion): number {
+  computeScore(completion: Completion<TernCompletionResult>): number {
     let score = 0;
     const currentFieldInfo = AutocompleteSorter.currentFieldInfo;
     if (completion.type === currentFieldInfo.expectedType)
@@ -232,7 +233,7 @@ class TypeMatchRule implements AutocompleteRule {
  */
 class PriorityMatchRule implements AutocompleteRule {
   static threshold = 1 << RuleWeight.PriorityMatch;
-  computeScore(completion: Completion): number {
+  computeScore(completion: Completion<TernCompletionResult>): number {
     let score = 0;
     const { currentFieldInfo } = AutocompleteSorter;
     if (!completion.text) return score;
@@ -254,10 +255,34 @@ class PriorityMatchRule implements AutocompleteRule {
  */
 class ScopeMatchRule implements AutocompleteRule {
   static threshold = 1 << RuleWeight.ScopeMatch;
-  computeScore(completion: Completion): number {
+  computeScore(completion: Completion<TernCompletionResult>): number {
     let score = 0;
     if (completion.origin === "[doc]" || completion.origin === "customDataTree")
       score += PriorityMatchRule.threshold;
+    return score;
+  }
+}
+
+class BlockAsyncFnsInDataFieldRule implements AutocompleteRule {
+  static threshold = -Infinity;
+  static blackList = [
+    "setTimeout",
+    "clearTimeout",
+    "setInterval",
+    "clearInterval",
+  ];
+  computeScore(
+    completion: Completion<TernCompletionResult>,
+    entityInfo?: FieldEntityInformation | undefined,
+  ): number {
+    const score = 0;
+    if (entityInfo?.isTriggerPath) return score;
+    if (completion.type !== "FUNCTION") return score;
+    if (!completion.displayText) return score;
+    const isAsyncFunction = completion.data?.type?.endsWith("Promise");
+    if (isAsyncFunction) return BlockAsyncFnsInDataFieldRule.threshold;
+    if (BlockAsyncFnsInDataFieldRule.blackList.includes(completion.displayText))
+      return BlockAsyncFnsInDataFieldRule.threshold;
     return score;
   }
 }
@@ -267,7 +292,7 @@ export class AutocompleteSorter {
   static currentFieldInfo: FieldEntityInformation;
   static bestMatchEndIndex: number;
   static sort(
-    completions: Completion[],
+    completions: Completion<TernCompletionResult>[],
     currentFieldInfo: FieldEntityInformation,
     entityDefInfo?: DataTreeDefEntityInformation,
     shouldComputeBestMatch = true,
@@ -311,6 +336,7 @@ export class AutocompleteSorter {
 export class ScoredCompletion {
   score = 0;
   static rules = [
+    new BlockAsyncFnsInDataFieldRule(),
     new NoDeepNestedSuggestionsRule(),
     new NoSelfReferenceRule(),
     new ScopeMatchRule(),
@@ -320,14 +346,14 @@ export class ScoredCompletion {
     new DataTreeFunctionRule(),
     new JSLibraryRule(),
     new GlobalJSRule(),
-    new BlockSuggestionsRule(),
+    new RemoveBlackListedCompletionRule(),
     new HideInternalDefsRule(),
     new NestedPropertyInsideLiteralRule(),
   ];
-  completion: Completion;
+  completion: Completion<TernCompletionResult>;
 
   constructor(
-    completion: Completion,
+    completion: Completion<TernCompletionResult>,
     currentFieldInfo: FieldEntityInformation,
   ) {
     this.completion = completion;

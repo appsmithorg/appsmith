@@ -14,7 +14,7 @@ import {
   flattenDef,
   generateTypeDef,
   getFunctionsArgsType,
-} from "./defCreatorUtils";
+} from "../defCreatorUtils";
 
 describe("dataTreeTypeDefCreator", () => {
   it("creates the right def for a widget", () => {
