@@ -27,6 +27,7 @@ import reactor.core.publisher.Mono;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -209,7 +210,7 @@ public class OpenAiPlugin extends BasePlugin {
                         }
                     })
                     .map(data -> {
-                        List<String> modelList = new ArrayList<>();
+                        Map<String, String> modelList = new HashMap<>();
                         if (!data.containsKey("data")) {
                             return new TriggerResultDTO(modelList);
                         }
@@ -223,7 +224,9 @@ public class OpenAiPlugin extends BasePlugin {
                                 continue;
                             }
 
-                            modelList.add((String) modelMap.get("id"));
+                            String modelId = (String) modelMap.get("id");
+
+                            modelList.put(modelId, modelId);
                         }
                         return new TriggerResultDTO(modelList);
                     });
