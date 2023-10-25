@@ -22,11 +22,17 @@ const Container = styled.div`
 
 const IconContainer = styled.div<{ selected: boolean }>`
   padding: 2px;
-  background-color: ${(props) =>
-    props.selected ? "var(--ads-v2-color-bg-muted)" : "white"};
+  background-color: ${(props) => (props.selected ? "#fbe6dc" : "white")};
   border-radius: 3px;
-  width: 28px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
+  &:hover {
+    background-color: #fbe6dc;
+  }
 `;
 
 function SidebarButton(props: Props) {
