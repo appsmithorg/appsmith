@@ -157,6 +157,33 @@ const OverlayCanvasContainer = (props: { canvasWidth: number }) => {
     };
   }, [wrapperRef?.current, stageRef?.current]);
 
+  useEffect(() => {
+    const wrapper = wrapperRef?.current as HTMLDivElement;
+    if (!wrapper) return;
+
+    const pointerEvents: string = wrapper?.style?.pointerEvents;
+    const mouseMoveHandler = getMouseMoveHandler(
+      wrapperRef,
+      canvasPositions,
+      widgetNamePositions,
+    );
+
+    /**
+     * When pointerEvents are set to "auto" for the wrapper,
+     * it will absorb mouse events
+     * and the mousemove handler on the canvas stops working,
+     * which prevents users from selecting widgets.
+     */
+    if (pointerEvents === "auto") {
+      /**
+       * Add the same listener to the wrapper when pointerEvents are enabled.
+       */
+      wrapper.addEventListener("mousemove", mouseMoveHandler);
+    } else {
+      wrapper.removeEventListener("mousemove", mouseMoveHandler);
+    }
+  }, [wrapperRef?.current?.style?.pointerEvents]);
+
   // Reset the canvas if no widgets are focused or selected
   // Update the widget name positions if there are widgets focused or selected
   // and they've changed.
