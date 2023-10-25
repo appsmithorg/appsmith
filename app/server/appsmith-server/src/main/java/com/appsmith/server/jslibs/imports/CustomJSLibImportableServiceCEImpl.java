@@ -37,7 +37,7 @@ public class CustomJSLibImportableServiceCEImpl implements ImportableServiceCE<C
             customJSLibs = new ArrayList<>();
         }
 
-        ensureXmlParserPresenceInCustomJsLibList(customJSLibs);
+        ensureXmlParserPresenceInCustomJsLibList(customJSLibs, applicationJson);
 
         return Flux.fromIterable(customJSLibs)
                 .flatMap(customJSLib -> {
@@ -65,9 +65,15 @@ public class CustomJSLibImportableServiceCEImpl implements ImportableServiceCE<C
      * Read More: https://github.com/appsmithorg/appsmith/pull/28012
      *
      * @param customJSLibList
+     * @param applicationJson
      */
-    private void ensureXmlParserPresenceInCustomJsLibList(List<CustomJSLib> customJSLibList) {
+    private void ensureXmlParserPresenceInCustomJsLibList(List<CustomJSLib> customJSLibList, ApplicationJson applicationJson) {
         boolean isXmlParserLibFound = false;
+        // this is to ensure that newer applications(server schema > 6) does not get xml parser when imported.
+        if (applicationJson.getServerSchemaVersion() > 6) {
+            return;
+        }
+
         for (CustomJSLib customJSLib : customJSLibList) {
             if (!customJSLib.getUidString().equals(ApplicationConstants.XML_PARSER_LIBRARY_UID)) {
                 continue;
