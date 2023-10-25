@@ -150,9 +150,11 @@ export class AssertHelper extends ReusableHelper {
       });
     } else {
       // If interception is not available, directly get the alias & use it
-      cy.get(this.GetAliasName(aliasName)).then((interception: any) => {
-        this.processNetworkResponseData(interception);
-      });
+      cy.get(this.GetAliasName(aliasName))
+        .its("response")
+        .then((interception: any) => {
+          this.processNetworkResponseData(interception);
+        });
     }
   }
 
