@@ -12,6 +12,7 @@ import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import type { ModuleInput } from "@appsmith/constants/ModuleConstants";
+
 //overriding this entire funtion
 export const generateDataTreeModuleInputs = (
   moduleInputs: Record<string, ModuleInput>,
@@ -21,9 +22,10 @@ export const generateDataTreeModuleInputs = (
   const dynamicBindingPathList = [];
 
   for (const [key, value] of Object.entries(moduleInputs)) {
-    unEvalEntity[key] = value.defaultValue;
+    const defaultValue = value.defaultValue || "";
+    unEvalEntity[key] = defaultValue;
     bindingPaths[key] = EvaluationSubstitutionType.TEMPLATE;
-    if (isDynamicValue(value.defaultValue)) {
+    if (isDynamicValue(defaultValue)) {
       dynamicBindingPathList.push({ key: key });
     }
   }
