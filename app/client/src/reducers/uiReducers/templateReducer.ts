@@ -10,6 +10,7 @@ const initialState: TemplatesReduxState = {
   isImportingTemplate: false,
   isImportingTemplateToApp: false,
   isImportingStarterTemplateToApp: false,
+  starterTemplateDatasourcePrompt: false,
   loadingFilters: false,
   gettingAllTemplates: false,
   gettingTemplate: false,
@@ -150,6 +151,15 @@ const templateReducer = createReducer(initialState, {
     return {
       ...state,
       isImportingStarterTemplateToApp: false,
+      starterTemplateDatasourcePrompt: true,
+    };
+  },
+  [ReduxActionTypes.HIDE_STARTER_TEMPLATE_DATASOURCE_PROMPT]: (
+    state: TemplatesReduxState,
+  ) => {
+    return {
+      ...state,
+      starterTemplateDatasourcePrompt: false,
     };
   },
   [ReduxActionErrorTypes.IMPORT_STARTER_TEMPLATE_TO_APPLICATION_ERROR]: (
@@ -233,6 +243,7 @@ export interface TemplatesReduxState {
   isImportingTemplate: boolean;
   isImportingTemplateToApp: boolean;
   isImportingStarterTemplateToApp: boolean;
+  starterTemplateDatasourcePrompt: boolean;
   templateNotificationSeen: boolean | null;
   showTemplatesModal: boolean;
   loadingFilters: boolean;

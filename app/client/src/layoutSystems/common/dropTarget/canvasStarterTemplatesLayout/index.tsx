@@ -10,10 +10,14 @@ import { importSvg } from "@design-system/widgets-old/src/utils/icon-loadables";
 import { importStarterTemplateIntoApplication } from "actions/templateActions";
 import LoadingScreen from "pages/Templates/TemplatesModal/LoadingScreen";
 import { useDispatch, useSelector } from "react-redux";
-import { getCurrentApplication } from "selectors/editorSelectors";
+import {
+  getCurrentApplication,
+  getCurrentApplicationId,
+} from "selectors/editorSelectors";
 import { isImportingStarterTemplateToAppSelector } from "selectors/templatesSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
+  IconContainer,
   TemplateLayoutContainer,
   TemplateLayoutContentGrid,
   TemplateLayoutContentItem,
@@ -25,16 +29,19 @@ import {
   TemplateLayoutRowItemDescription,
   TemplateLayoutRowItemTitle,
 } from "./StyledComponents";
+import { saveExplorerStatus } from "@appsmith/pages/Editor/Explorer/helpers";
 
 const STARTER_TEMPLATE_NAME = "Starter template";
 
 function CanvasStarterTemplatesLayout() {
   const dispatch = useDispatch();
   const [layoutActive, setLayoutActive] = useState<boolean>(false); // manage "or" text and "Drag and Drop Widgets" text
+  const [layoutItemActive, setLayoutItemActive] = useState<string>(""); // manage layout item hover
   const [templateSreenshot, setTemplateScreenshot] = useState<string | null>(
     null,
   ); // manage template background screenshot image
   const currentApplication = useSelector(getCurrentApplication);
+  const applicationId = useSelector(getCurrentApplicationId);
   const currentWorkSpace = useSelector(getCurrentAppWorkspace);
   const currentAppMode = useSelector(getAppMode);
   const isImportingStarterTemplateToApp = useSelector(
@@ -43,6 +50,7 @@ function CanvasStarterTemplatesLayout() {
 
   const handleItemHover = (index: number) => {
     setTemplateScreenshot(layoutItems[index].screenshot);
+    setLayoutItemActive(layoutItems[index].title);
   };
 
   const onClick = (
@@ -51,6 +59,11 @@ function CanvasStarterTemplatesLayout() {
     templatePageName: string,
   ) => {
     if (!templateId || !templateName || !templatePageName) return;
+
+    // Close explorer tabs to allow datasource prompt show up
+    saveExplorerStatus(applicationId, "widgets", false);
+    saveExplorerStatus(applicationId, "queriesAndJs", false);
+    saveExplorerStatus(applicationId, "datasource", false);
 
     dispatch(
       importStarterTemplateIntoApplication(
@@ -104,9 +117,14 @@ function CanvasStarterTemplatesLayout() {
                 )
               }
               onMouseEnter={() => handleItemHover(index)}
-              onMouseLeave={() => setTemplateScreenshot(null)}
+              onMouseLeave={() => {
+                setTemplateScreenshot(null);
+                setLayoutItemActive("");
+              }}
             >
-              {item.icon}
+              <IconContainer layoutItemActive={layoutItemActive === item.title}>
+                {item.icon}
+              </IconContainer>
 
               <TemplateLayoutContentItemContent>
                 <TemplateLayoutRowItemTitle layoutActive={layoutActive}>
