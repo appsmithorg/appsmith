@@ -8,14 +8,20 @@ import com.appsmith.external.helpers.restApiUtils.helpers.RequestCaptureFilter;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
+import com.appsmith.external.models.BearerTokenAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Property;
+import com.appsmith.external.models.TriggerRequestDTO;
+import com.appsmith.external.models.TriggerResultDTO;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.BaseRestApiPluginExecutor;
 import com.appsmith.external.services.SharedConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.pf4j.PluginWrapper;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
+import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
@@ -34,6 +40,13 @@ public class OpenAiPlugin extends BasePlugin {
     }
 
     public static class OpenAiPluginExecutor extends BaseRestApiPluginExecutor {
+
+        public static final ExchangeStrategies EXCHANGE_STRATEGIES = ExchangeStrategies.builder()
+                .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(/* 10MB */ 10 * 1024 * 1024))
+                .build();
+
+        private static final String OPEN_AI_HOST = "https://api.openai.com";
+        private static final String MODELS_ENDPOINT = "/v1/models";
 
         private static OpenAiPluginExecutor instance;
 
@@ -162,6 +175,58 @@ public class OpenAiPlugin extends BasePlugin {
         @Override
         public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration) {
             return datasourceUtils.validateDatasource(datasourceConfiguration, false);
+        }
+
+        @Override
+        public Mono<TriggerResultDTO> trigger(
+                APIConnection connection, DatasourceConfiguration datasourceConfiguration, TriggerRequestDTO request) {
+
+            // Initializing webClient to be used for http call
+            WebClient.Builder webClientBuilder = WebClient.builder();
+
+            WebClient client =
+                    webClientBuilder.exchangeStrategies(EXCHANGE_STRATEGIES).build();
+
+            // Authentication will already be valid at this point
+            final BearerTokenAuth bearerTokenAuth = (BearerTokenAuth) datasourceConfiguration.getAuthentication();
+            assert (bearerTokenAuth.getAuthenticationResponse() != null);
+            URI uri;
+            try {
+                uri = new URI(OPEN_AI_HOST + MODELS_ENDPOINT);
+            } catch (Exception e) {
+                uri = URI.create(OPEN_AI_HOST + MODELS_ENDPOINT);
+            }
+
+            return client.method(HttpMethod.GET)
+                    .uri(uri)
+                    .body(BodyInserters.empty())
+                    .headers(headers -> headers.set("Authorization", "Bearer " + bearerTokenAuth.getBearerToken()))
+                    .exchangeToMono(clientResponse -> {
+                        if (clientResponse.statusCode().is2xxSuccessful()) {
+                            return clientResponse.bodyToMono(new ParameterizedTypeReference<Map<String, Object>>() {});
+                        } else {
+                            return clientResponse.createError();
+                        }
+                    })
+                    .map(data -> {
+                        List<String> modelList = new ArrayList<>();
+                        if (!data.containsKey("data")) {
+                            return new TriggerResultDTO(modelList);
+                        }
+
+                        List<Object> models = (List<Object>) data.get("data");
+                        for (Object model : models) {
+
+                            Map<String, Object> modelMap = (Map<String, Object>) model;
+
+                            if (!modelMap.containsKey("id")) {
+                                continue;
+                            }
+
+                            modelList.add((String) modelMap.get("id"));
+                        }
+                        return new TriggerResultDTO(modelList);
+                    });
         }
     }
 }

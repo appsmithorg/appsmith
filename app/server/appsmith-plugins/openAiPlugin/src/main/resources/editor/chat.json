@@ -1,0 +1,54 @@
+{
+  "identifier": "CHAT",
+  "controlType": "SECTION",
+  "conditionals": {
+    "show": "{{actionConfiguration.formData.command.data === 'CHAT'}}"
+  },
+  "children": [
+    {
+      "label": "Models",
+      "tooltipText": "Select the model to for response generation",
+      "propertyName": "model_id",
+      "configProperty": "actionConfiguration.formData.model.data",
+      "controlType": "DROP_DOWN",
+      "initialValue": [],
+      "options": [],
+      "placeholderText": "All columns will be fetched.",
+      "fetchOptionsConditionally": true,
+      "alternateViewTypes": ["json"],
+      "conditionals": {
+        "enable": "{{true}}",
+        "fetchDynamicValues": {
+          "condition": "{{true}}",
+          "config": {
+            "params": {
+              "requestType": "CHAT_MODELS",
+              "displayType": "DROP_DOWN",
+              "parameters": {
+                "sheetUrl": "{{actionConfiguration.formData.sheetUrl.data}}",
+                "sheetName": "{{actionConfiguration.formData.sheetName.data}}",
+                "tableHeaderIndex": "{{actionConfiguration.formData.tableHeaderIndex.data}}"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "label": "path to query",
+      "configProperty": "datasourceConfiguration.url",
+      "controlType": "INPUT_TEXT",
+      "initialValue": "/v1/chat/completions",
+      "isRequired": true,
+      "hidden": true
+    },
+    {
+      "label": "Prompt",
+      "tooltipText": "Ask a question",
+      "propertyName": "body",
+      "configProperty": "actionConfiguration.formData.queryFormat.data",
+      "controlType": "INPUT_TEXT",
+      "initialValue": "Hello World!"
+    }
+  ]
+}

@@ -29,11 +29,11 @@ public class Migration033AddOpenAIPlugin {
     public void addPluginToDbAndWorkspace() {
         Plugin plugin = new Plugin();
         plugin.setName(PluginConstants.PluginName.OPEN_AI_PLUGIN_NAME);
-        plugin.setType(PluginType.SAAS);
+        plugin.setType(PluginType.REMOTE);
         plugin.setPluginName(PluginConstants.PluginName.OPEN_AI_PLUGIN_NAME);
         plugin.setPackageName(PluginConstants.PackageName.OPEN_AI_PLUGIN);
         plugin.setUiComponent("UQIDbEditorForm");
-        plugin.setDatasourceComponent("DbEditorForm");
+        plugin.setDatasourceComponent("OAuth2DatasourceForm");
         plugin.setResponseType(Plugin.ResponseType.JSON);
         plugin.setIconLocation("https://assets.appsmith.com/logo/open-ai.svg");
         plugin.setDocumentationLink("https://docs.appsmith.com/datasource-reference/");
