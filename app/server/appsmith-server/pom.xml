@@ -427,14 +427,6 @@
             <version>2.14.2.Final</version>
             <scope>test</scope>
         </dependency>
-
-        <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.datatype/jackson-datatype-jsr310 -->
-        <!-- To support the Java 8 Time with Jackson -->
-        <dependency>
-            <groupId>com.fasterxml.jackson.datatype</groupId>
-            <artifactId>jackson-datatype-jsr310</artifactId>
-            <version>2.15.3</version>
-        </dependency>
     </dependencies>
 
     <repositories>

@@ -21,7 +21,6 @@ import com.appsmith.server.solutions.ReleaseNotesService;
 import com.appsmith.util.WebClientUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -57,6 +56,8 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
     private final ResponseUtils responseUtils;
     private final ApplicationPermission applicationPermission;
 
+    private final ObjectMapper objectMapper;
+
     public ApplicationTemplateServiceCEImpl(
             CloudServicesConfig cloudServicesConfig,
             ReleaseNotesService releaseNotesService,
@@ -66,7 +67,8 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
             UserDataService userDataService,
             ApplicationService applicationService,
             ResponseUtils responseUtils,
-            ApplicationPermission applicationPermission) {
+            ApplicationPermission applicationPermission,
+            ObjectMapper objectMapper) {
         this.cloudServicesConfig = cloudServicesConfig;
         this.releaseNotesService = releaseNotesService;
         this.importApplicationService = importApplicationService;
@@ -76,6 +78,7 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
         this.applicationService = applicationService;
         this.responseUtils = responseUtils;
         this.applicationPermission = applicationPermission;
+        this.objectMapper = objectMapper;
     }
 
     @Override
@@ -338,9 +341,7 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
         String authHeader = "Authorization";
         String payload;
         try {
-            ObjectMapper mapper = new ObjectMapper();
-            mapper.registerModule(new JavaTimeModule());
-            ObjectWriter ow = mapper.writer().withDefaultPrettyPrinter();
+            ObjectWriter ow = objectMapper.writer().withDefaultPrettyPrinter();
             payload = ow.writeValueAsString(communityTemplate);
         } catch (Exception e) {
             return Mono.error(e);
