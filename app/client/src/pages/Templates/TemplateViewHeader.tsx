@@ -3,7 +3,7 @@ import {
   GO_BACK,
   createMessage,
 } from "@appsmith/constants/messages";
-import { templateIdUrl } from "RouteBuilder";
+import { templateIdUrl } from "@appsmith/RouteBuilder";
 import { Button, Link, Text } from "design-system";
 import { useQuery } from "pages/Editor/utils";
 import React from "react";
@@ -27,11 +27,11 @@ const Title = styled(Text)`
   color: var(--ads-v2-color-fg-emphasis-plus);
 `;
 
-type Props = {
+interface Props {
+  templateId: string;
   onClickUseTemplate?: (id: string) => void;
   showBack: boolean;
-  templateId: string;
-};
+}
 const SHOW_FORK_MODAL_PARAM = "showForkTemplateModal";
 
 function TemplateViewHeader({

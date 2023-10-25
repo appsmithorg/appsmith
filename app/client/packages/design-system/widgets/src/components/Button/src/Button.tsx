@@ -20,12 +20,13 @@ const _Button = (props: ButtonProps, ref: HeadlessButtonRef) => {
     color = "accent",
     icon: Icon,
     iconPosition = "start",
-    isLoading,
+    isDisabled = false,
+    isLoading = false,
     loadingText = "Loading...",
     // eslint-disable-next-line -- TODO add onKeyUp when the bug is fixed https://github.com/adobe/react-spectrum/issues/4350
     onKeyUp,
     variant = "filled",
-    visuallyDisabled,
+    visuallyDisabled = false,
     ...rest
   } = props;
   const { visuallyHiddenProps } = useVisuallyHidden();
@@ -39,7 +40,7 @@ const _Button = (props: ButtonProps, ref: HeadlessButtonRef) => {
               <Icon />
             </HeadlessIcon>
           )}
-          {children && (
+          {Boolean(children) && (
             <Text fontWeight={600} lineClamp={1} textAlign="center">
               {children}
             </Text>
@@ -58,7 +59,7 @@ const _Button = (props: ButtonProps, ref: HeadlessButtonRef) => {
     <HeadlessButton
       aria-busy={isLoading ? true : undefined}
       aria-disabled={
-        visuallyDisabled || isLoading || props.isDisabled ? true : undefined
+        visuallyDisabled || isLoading || isDisabled ? true : undefined
       }
       className={clsx(styles.button, getTypographyClassName("body"))}
       data-button=""
@@ -67,6 +68,7 @@ const _Button = (props: ButtonProps, ref: HeadlessButtonRef) => {
       data-loading={isLoading ? "" : undefined}
       data-variant={variant}
       draggable
+      isDisabled={isDisabled}
       ref={ref}
       {...rest}
     >
@@ -83,9 +85,10 @@ export const Button = forwardRef(_Button);
  * when the button is visually disabled
  */
 const useVisuallyDisabled = (props: ButtonProps) => {
+  const { isLoading = false, visuallyDisabled = false } = props;
   let computedProps = props;
 
-  if (props.visuallyDisabled || props.isLoading) {
+  if (visuallyDisabled || isLoading) {
     computedProps = {
       ...props,
       isDisabled: false,

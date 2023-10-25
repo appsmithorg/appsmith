@@ -20,6 +20,7 @@ import { Colors } from "constants/Colors";
 import type { Stylesheet } from "entities/AppTheming";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type {
+  AnvilConfig,
   AutocompletionDefinitions,
   WidgetCallout,
 } from "WidgetProvider/constants";
@@ -27,15 +28,20 @@ import { ChartErrorComponent } from "../component/ChartErrorComponent";
 import { syntaxErrorsFromProps } from "./SyntaxErrorsEvaluation";
 import { EmptyChartData } from "../component/EmptyChartData";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
+import {
+  FlexVerticalAlignment,
+  ResponsiveBehavior,
+} from "layoutSystems/common/utils/constants";
 import { generateReactKey } from "widgets/WidgetUtils";
 import { LabelOrientation } from "../constants";
 import IconSVG from "../icon.svg";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 import { EChartsDatasetBuilder } from "../component/EChartsDatasetBuilder";
 
-const ChartComponent = lazy(() =>
-  retryPromise(() => import(/* webpackChunkName: "charts" */ "../component")),
+const ChartComponent = lazy(async () =>
+  retryPromise(
+    async () => import(/* webpackChunkName: "charts" */ "../component"),
+  ),
 );
 
 export const emptyChartData = (props: ChartWidgetProps) => {
@@ -79,6 +85,7 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
       version: 1,
       animateLoading: true,
       responsiveBehavior: ResponsiveBehavior.Fill,
+      flexVerticalAlignment: FlexVerticalAlignment.Top,
       minWidth: FILL_WIDGET_MIN_WIDTH,
       showDataPointLabel: false,
       customEChartConfig: `{{\n${JSON.stringify(
@@ -119,6 +126,17 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
     };
   }
 
+  static getAnvilConfig(): AnvilConfig | null {
+    return {
+      widgetSize: {
+        maxHeight: {},
+        maxWidth: {},
+        minHeight: { base: "300px" },
+        minWidth: { base: "280px" },
+      },
+    };
+  }
+
   static getMethods() {
     return {
       getEditorCallouts(props: WidgetProps): WidgetCallout[] {
@@ -131,7 +149,7 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
             message: messages.customFusionChartDeprecationMessage,
             links: [
               {
-                text: "Learn More",
+                text: "Learn more",
                 url: "https://docs.appsmith.com",
               },
             ],

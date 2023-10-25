@@ -5,19 +5,17 @@ import {
   isWidget,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
 import type {
+  WidgetEntity as TWidgetEntity,
+  AppsmithEntity as TAppsmithEntity,
+  DataTreeEntityConfig,
+  WidgetEntityConfig as TWidgetEntityConfig,
   JSActionEntity as TJSActionEntity,
   ActionEntity as TActionEntity,
   PagelistEntity as TPageListEntity,
   ActionEntityConfig as TActionEntityConfig,
   JSActionEntityConfig as TJSActionEntityConfig,
-} from "entities/DataTree/types";
-import type {
-  WidgetEntity as TWidgetEntity,
-  AppsmithEntity as TAppsmithEntity,
-  DataTreeEntityConfig,
-  DataTreeEntity,
-  WidgetEntityConfig as TWidgetEntityConfig,
-} from "entities/DataTree/dataTreeFactory";
+} from "@appsmith/entities/DataTree/types";
+import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
 import {
   defaultDiffGenerator,
   type EntityDiffGenerator,
@@ -51,31 +49,33 @@ export default class EntityFactory {
     T extends DataTreeEntity,
     K extends DataTreeEntityConfig | undefined,
   >(entity: T, config: K, classLoader: EntityClassLoader): IEntity {
-    const { DiffGenerator, Parser } = classLoader.load(entity);
+    const { DiffGenerator, Parser } = classLoader.load(
+      entity as DataTreeEntity,
+    );
     if (isWidget(entity)) {
       return new WidgetEntity(
-        entity,
+        entity as TWidgetEntity,
         config as TWidgetEntityConfig,
         new Parser(),
         new DiffGenerator(),
       );
     } else if (isJSAction(entity)) {
       return new JSEntity(
-        entity,
+        entity as TJSActionEntity,
         config as TJSActionEntityConfig,
         new Parser(),
         new DiffGenerator(),
       );
     } else if (isAction(entity)) {
       return new ActionEntity(
-        entity,
+        entity as TActionEntity,
         config as TActionEntityConfig,
         new Parser(),
         new DiffGenerator(),
       );
     } else if (isAppsmith(entity)) {
       return new AppsmithEntity(
-        entity,
+        entity as TAppsmithEntity,
         undefined,
         new Parser(),
         new DiffGenerator(),

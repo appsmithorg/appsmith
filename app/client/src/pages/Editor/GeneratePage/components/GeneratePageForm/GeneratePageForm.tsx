@@ -23,7 +23,7 @@ import DataSourceOption, {
   CONNECT_NEW_DATASOURCE_OPTION_ID,
   DatasourceImage,
 } from "../DataSourceOption";
-import { getQueryStringfromObject } from "RouteBuilder";
+import { getQueryStringfromObject } from "@appsmith/entities/URLRedirect/URLAssembly";
 import type { DropdownOption } from "design-system-old";
 import { Button, Icon, Text, Select, Option, Tooltip } from "design-system";
 import GoogleSheetForm from "./GoogleSheetForm";
@@ -56,15 +56,20 @@ import { Bold, Label, SelectWrapper } from "./styles";
 import type { GeneratePagePayload } from "./types";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 
-import { datasourcesEditorIdURL, integrationEditorURL } from "RouteBuilder";
+import {
+  datasourcesEditorIdURL,
+  integrationEditorURL,
+} from "@appsmith/RouteBuilder";
 import { PluginPackageName } from "entities/Action";
 import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
-import { hasCreateDatasourcePermission } from "@appsmith/utils/permissionHelpers";
 import { getPluginImages } from "@appsmith/selectors/entitiesSelector";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
 import { isGoogleSheetPluginDS } from "utils/editorContextUtils";
 import equal from "fast-deep-equal";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { getHasCreateDatasourcePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 
 //  ---------- Styles ----------
 
@@ -398,7 +403,10 @@ function GeneratePageForm() {
     [selectColumn],
   );
 
-  const canCreateDatasource = hasCreateDatasourcePermission(
+  const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+
+  const canCreateDatasource = getHasCreateDatasourcePermission(
+    isFeatureEnabled,
     workspace?.userPermissions || [],
   );
 

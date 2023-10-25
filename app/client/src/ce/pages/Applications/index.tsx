@@ -32,7 +32,7 @@ import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstant
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import PageWrapper from "pages/common/PageWrapper";
 import SubHeader from "pages/common/SubHeader";
-import WorkspaceInviteUsersForm from "@appsmith/pages/workspace/WorkspaceInviteUsersForm";
+import WorkspaceInviteUsersForm from "pages/workspace/WorkspaceInviteUsersForm";
 import type { User } from "constants/userConstants";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { CREATE_WORKSPACE_FORM_NAME } from "@appsmith/constants/forms";
@@ -55,6 +55,7 @@ import { loadingUserWorkspaces } from "pages/Applications/ApplicationLoaders";
 import type { creatingApplicationMap } from "@appsmith/reducers/uiReducers/applicationsReducer";
 import {
   deleteWorkspace,
+  resetCurrentWorkspace,
   saveWorkspace,
 } from "@appsmith/actions/workspaceActions";
 import { leaveWorkspace } from "actions/userActions";
@@ -80,12 +81,11 @@ import DisconnectGitModal from "pages/Editor/gitSync/DisconnectGitModal";
 import ReconnectDatasourceModal from "pages/Editor/gitSync/ReconnectDatasourceModal";
 import LeftPaneBottomSection from "pages/Home/LeftPaneBottomSection";
 import { MOBILE_MAX_WIDTH } from "constants/AppConstants";
-import urlBuilder from "entities/URLRedirect/URLAssembly";
+import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
 import RepoLimitExceededErrorModal from "pages/Editor/gitSync/RepoLimitExceededErrorModal";
 import { resetEditorRequest } from "actions/initActions";
 import {
   hasCreateNewAppPermission,
-  hasCreateWorkspacePermission,
   hasDeleteWorkspacePermission,
   isPermitted,
   PERMISSION_TYPE,
@@ -103,6 +103,7 @@ import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import ResourceListLoader from "@appsmith/pages/Applications/ResourceListLoader";
+import { getHasCreateWorkspacePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import { getCurrentWorkspaceForCreateNewApp } from "@appsmith/selectors/workspaceSelectors";
 
 const START_CREATE_NEW_APP_FLOW_URL_KEY = "startCreateNewApp";
@@ -310,9 +311,9 @@ export const submitCreateWorkspaceForm = async (data: any, dispatch: any) => {
   return result;
 };
 
-export type LeftPaneProps = {
+export interface LeftPaneProps {
   isBannerVisible?: boolean;
-};
+}
 
 export function LeftPane(props: LeftPaneProps) {
   const { isBannerVisible = false } = props;
@@ -320,6 +321,7 @@ export function LeftPane(props: LeftPaneProps) {
   const fetchedUserWorkspaces = useSelector(getUserApplicationsWorkspaces);
   const isFetchingApplications = useSelector(getIsFetchingApplications);
   const isMobile = useIsMobileDevice();
+  const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
 
   let userWorkspaces;
   if (!isFetchingApplications) {
@@ -329,7 +331,10 @@ export function LeftPane(props: LeftPaneProps) {
   }
 
   const tenantPermissions = useSelector(getTenantPermissions);
-  const canCreateWorkspace = hasCreateWorkspacePermission(tenantPermissions);
+  const canCreateWorkspace = getHasCreateWorkspacePermission(
+    isFeatureEnabled,
+    tenantPermissions,
+  );
 
   const location = useLocation();
   const urlHash = location.hash.slice(1);
@@ -349,7 +354,7 @@ export function LeftPane(props: LeftPaneProps) {
               color="var(--ads-v2-color-fg-emphasis)"
               data-testid="t--workspace-new-workspace-auto-create"
               icon="plus"
-              onSelect={() =>
+              onSelect={async () =>
                 submitCreateWorkspaceForm(
                   {
                     name: getNextEntityName(
@@ -473,6 +478,7 @@ export function ApplicationsSection(props: any) {
     dispatch(updateApplication(id, data));
   };
   const isLoadingResources = isFetchingApplications || isFetchingPackages;
+  const isGACEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
 
   useEffect(() => {
     // Clears URL params cache
@@ -633,7 +639,7 @@ export function ApplicationsSection(props: any) {
                         Form={WorkspaceInviteUsersForm}
                         placeholder={createMessage(
                           INVITE_USERS_PLACEHOLDER,
-                          cloudHosting,
+                          !isGACEnabled,
                         )}
                         workspace={workspace}
                       />
@@ -750,6 +756,7 @@ export interface ApplicationProps {
   ) => void;
   resetEditor: () => void;
   queryModuleFeatureFlagEnabled: boolean;
+  resetCurrentWorkspace: () => void;
 }
 
 const ApplicationContainerWrapper = () => {
@@ -940,6 +947,10 @@ export class Applications<
     PerformanceTracker.stopTracking(PerformanceTransactionName.SIGN_UP);
     this.props.getAllApplication();
     this.props.setHeaderMetaData(true, true);
+
+    // Whenever we go back to home page from application page,
+    // we should reset current workspace, as this workspace is not in context anymore
+    this.props.resetCurrentWorkspace();
   }
 
   componentWillUnmount() {
@@ -951,7 +962,7 @@ export class Applications<
   }
 }
 
-const mapStateToProps = (state: AppState) => ({
+export const mapStateToProps = (state: AppState) => ({
   applicationList: getApplicationList(state),
   isFetchingApplications: getIsFetchingApplications(state),
   isCreatingApplication: getIsCreatingApplication(state),
@@ -962,7 +973,7 @@ const mapStateToProps = (state: AppState) => ({
   searchKeyword: getApplicationSearchKeyword(state),
 });
 
-const mapDispatchToProps = (dispatch: any) => ({
+export const mapDispatchToProps = (dispatch: any) => ({
   getAllApplication: () => {
     dispatch({ type: ReduxActionTypes.GET_ALL_APPLICATION_INIT });
   },
@@ -975,6 +986,7 @@ const mapDispatchToProps = (dispatch: any) => ({
   ) => {
     dispatch(setHeaderMeta(hideHeaderShadow, showHeaderSeparator));
   },
+  resetCurrentWorkspace: () => dispatch(resetCurrentWorkspace()),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Applications);

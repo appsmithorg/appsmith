@@ -3,7 +3,6 @@ import React, { useEffect } from "react";
 import { useSelector } from "react-redux";
 
 import {
-  getCanvasWidth,
   getIsFetchingPage,
   getViewModePageList,
   showCanvasTopSectionSelector,
@@ -31,7 +30,6 @@ import {
 } from "utils/hooks/useDynamicAppLayout";
 import Canvas from "../Canvas";
 import type { AppState } from "@appsmith/reducers";
-import { MainContainerResizer } from "layoutSystems/autolayout/MainContainerResizer/MainContainerResizer";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { getIsAnonymousDataPopupVisible } from "selectors/onboardingSelectors";
 import {
@@ -39,14 +37,16 @@ import {
   useLayoutSystemFeatures,
 } from "../../../layoutSystems/common/useLayoutSystemFeatures";
 import { CANVAS_VIEWPORT } from "constants/componentClassNameConstants";
+import { MainContainerResizer } from "layoutSystems/common/mainContainerResizer/MainContainerResizer";
 
-type MainCanvasWrapperProps = {
+interface MainCanvasWrapperProps {
   isPreviewMode: boolean;
   shouldShowSnapShotBanner: boolean;
   navigationHeight?: number;
   isAppSettingsPaneWithNavigationTabOpen?: boolean;
   currentPageId: string;
-};
+  canvasWidth: number;
+}
 
 const Wrapper = styled.section<{
   $enableMainCanvasResizer: boolean;
@@ -123,7 +123,6 @@ function MainContainerWrapper(props: MainCanvasWrapperProps) {
   const { currentPageId, isPreviewMode, shouldShowSnapShotBanner } = props;
 
   const isFetchingPage = useSelector(getIsFetchingPage);
-  const canvasWidth = useSelector(getCanvasWidth);
   const widgetsStructure = useSelector(getCanvasWidgetsStructure, equal);
   const pages = useSelector(getViewModePageList);
   const theme = useSelector(getCurrentThemeDetails);
@@ -170,7 +169,7 @@ function MainContainerWrapper(props: MainCanvasWrapperProps) {
   if (!isPageInitializing && widgetsStructure) {
     node = (
       <Canvas
-        canvasWidth={canvasWidth}
+        canvasWidth={props.canvasWidth}
         enableMainCanvasResizer={enableMainContainerResizer}
         pageId={params.pageId}
         widgetsStructure={widgetsStructure}

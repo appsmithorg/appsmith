@@ -72,6 +72,11 @@ else
   pretty_print "Local branch is now up to date. Starting server build ..."
 fi
 
+edition=ce
+if [[ "$(git remote get-url origin)" == *"/appsmith-ee"* ]]; then
+  edition=ee
+fi
+
 pretty_print "Starting server build ..."
 
 pushd app/server > /dev/null && ./build.sh -DskipTests > /dev/null && pretty_print "Server build successful. Starting client build ..."
@@ -83,7 +88,11 @@ popd
 pushd app/client/packages/rts/ > /dev/null && ./build.sh > /dev/null && pretty_print "RTS build successful. Starting Docker build ..."
 
 popd
-docker build -t appsmith/appsmith-ce:local-testing --build-arg APPSMITH_CLOUD_SERVICES_BASE_URL="${cs_url:-https://release-cs.appsmith.com}" . > /dev/null
+docker build -t appsmith/appsmith-ce:local-testing \
+  --build-arg BASE="appsmith/base-$edition:release" \
+  --build-arg APPSMITH_CLOUD_SERVICES_BASE_URL="${cs_url:-https://release-cs.appsmith.com}" \
+  . \
+  > /dev/null
 pretty_print "Docker image build successful. Triggering run now ..."
 
 (docker stop appsmith || true) && (docker rm appsmith || true)

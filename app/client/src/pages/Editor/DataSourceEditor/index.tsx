@@ -45,7 +45,7 @@ import {
   getPagePermissions,
   selectURLSlugs,
 } from "selectors/editorSelectors";
-import { saasEditorDatasourceIdURL } from "RouteBuilder";
+import { saasEditorDatasourceIdURL } from "@appsmith/RouteBuilder";
 import {
   createMessage,
   REST_API_AUTHORIZATION_APPSMITH_ERROR,
@@ -59,11 +59,6 @@ import { isDatasourceInViewMode } from "selectors/ui";
 import { getQueryParams } from "utils/URLUtils";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import SaveOrDiscardDatasourceModal from "./SaveOrDiscardDatasourceModal";
-import {
-  hasCreateDatasourceActionPermission,
-  hasDeleteDatasourcePermission,
-  hasManageDatasourcePermission,
-} from "@appsmith/utils/permissionHelpers";
 
 import { toast, Callout } from "design-system";
 import styled from "styled-components";
@@ -104,6 +99,13 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { DATASOURCES_ALLOWED_FOR_PREVIEW_MODE } from "constants/QueryEditorConstants";
 import { setCurrentEditingEnvironmentID } from "@appsmith/actions/environmentAction";
 import { getCurrentEnvironmentDetails } from "@appsmith/selectors/environmentSelectors";
+import { isGACEnabled } from "@appsmith/utils/planHelpers";
+import {
+  getHasDeleteDatasourcePermission,
+  getHasManageDatasourcePermission,
+  hasCreateDSActionPermissionInApp,
+} from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import { getIsAppSidebarEnabled } from "../../../selectors/ideSelectors";
 
 interface ReduxStateProps {
   canCreateDatasourceActions: boolean;
@@ -142,6 +144,7 @@ interface ReduxStateProps {
   featureFlags?: FeatureFlags;
   isEnabledForDSViewModeSchema: boolean;
   isPluginAllowedToPreviewData: boolean;
+  isAppSidebarEnabled: boolean;
 }
 
 const Form = styled.div`
@@ -174,11 +177,11 @@ export const CalloutContainer = styled.div<{
   margin-left: ${(props) => (!props.viewMode ? "24px" : "0px")};
 `;
 
-export type DatasourceFilterState = {
+export interface DatasourceFilterState {
   id: string;
   name: string;
   userPermissions: string[];
-};
+}
 
 /*
   **** State Variables Description ****
@@ -191,7 +194,7 @@ export type DatasourceFilterState = {
   unblock: on blocking routes using history.block, it returns a function which can be used to unblock the routes
   navigation: function that navigates to path that we want to transition to, after discard action on datasource discard dialog popup
 */
-type State = {
+interface State {
   showDialog: boolean;
   routesBlocked: boolean;
   switchFilterBlocked: boolean;
@@ -202,7 +205,7 @@ type State = {
 
   unblock(): void;
   navigation(): void;
-};
+}
 
 export interface DatasourcePaneFunctions {
   switchDatasource: (id: string) => void;
@@ -853,6 +856,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       datasourceId,
       formData,
       history,
+      isAppSidebarEnabled,
       isDeleting,
       isEnabledForDSViewModeSchema,
       isInsideReconnectModal,
@@ -908,7 +912,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
           e.preventDefault();
         }}
       >
-        <CloseEditor />
+        {isAppSidebarEnabled ? null : <CloseEditor />}
         {!isInsideReconnectModal && (
           <DSFormHeader
             canCreateDatasourceActions={canCreateDatasourceActions}
@@ -1038,19 +1042,25 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
 
   const datasourcePermissions = datasource?.userPermissions || [];
 
-  const canManageDatasource = hasManageDatasourcePermission(
+  const featureFlags = selectFeatureFlags(state);
+  const isFeatureEnabled = isGACEnabled(featureFlags);
+
+  const canManageDatasource = getHasManageDatasourcePermission(
+    isFeatureEnabled,
     datasourcePermissions,
   );
 
-  const canDeleteDatasource = hasDeleteDatasourcePermission(
+  const canDeleteDatasource = getHasDeleteDatasourcePermission(
+    isFeatureEnabled,
     datasourcePermissions,
   );
 
   const pagePermissions = getPagePermissions(state);
-  const canCreateDatasourceActions = hasCreateDatasourceActionPermission([
-    ...datasourcePermissions,
-    ...pagePermissions,
-  ]);
+  const canCreateDatasourceActions = hasCreateDSActionPermissionInApp(
+    isFeatureEnabled,
+    datasourcePermissions,
+    pagePermissions,
+  );
   // Debugger render flag
   const showDebugger = showDebuggerFlag(state);
   const pluginPackageName = plugin?.packageName ?? "";
@@ -1070,8 +1080,6 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     pluginId,
   );
 
-  const featureFlags = selectFeatureFlags(state);
-
   //   A/B feature flag for datasource view mode preview data.
   let isEnabledForDSViewModeSchema = selectFeatureFlagCheck(
     state,
@@ -1090,6 +1098,8 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   const isPluginAllowedToPreviewData =
     DATASOURCES_ALLOWED_FOR_PREVIEW_MODE.includes(plugin?.name || "") ||
     (plugin?.name === PluginName.MONGO && !!(datasource as Datasource)?.isMock);
+
+  const isAppSidebarEnabled = getIsAppSidebarEnabled(state);
 
   return {
     canCreateDatasourceActions,
@@ -1127,6 +1137,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     defaultKeyValueArrayConfig,
     initialValue,
     showDebugger,
+    isAppSidebarEnabled,
   };
 };
 

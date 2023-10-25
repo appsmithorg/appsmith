@@ -20,8 +20,8 @@ describe("Omnibar functionality test cases", () => {
     agHelper.Sleep(2000);
     deployMode.StubWindowNAssert(
       '//span[text()="Learn more"]',
-      "connect-datasource",
-      "getWorkspace",
+      "connect-to-a-database",
+      "getPluginForm",
     );
   });
 
@@ -115,7 +115,7 @@ describe("Omnibar functionality test cases", () => {
       deployMode.StubWindowNAssert(
         omnibar.discordLink,
         "https://discord.com/invite/rBTTVJp",
-        "getWorkspace",
+        "getPluginForm",
       );
     },
   );

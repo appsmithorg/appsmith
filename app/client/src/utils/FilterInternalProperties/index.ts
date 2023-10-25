@@ -3,7 +3,7 @@ import type {
   ConfigTree,
   DataTree,
   DataTreeEntity,
-} from "entities/DataTree/dataTreeFactory";
+} from "entities/DataTree/dataTreeTypes";
 import type { JSCollectionDataState } from "reducers/entityReducers/jsActionsReducer";
 import { getWidgetChildrenPeekData } from "./Widget";
 import { getJsActionPeekData } from "./JsAction";

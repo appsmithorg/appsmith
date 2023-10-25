@@ -16,6 +16,7 @@ import {
 import { doesEntityHaveErrors } from "../helpers";
 import React from "react";
 import WidgetIcon from "pages/Editor/Explorer/Widgets/WidgetIcon";
+import type { WidgetEntity } from "@appsmith/entities/DataTree/types";
 
 export const useGetEntityInfo = (name: string) => {
   const entity = useSelector((state: AppState) => state.evaluations.tree[name]);
@@ -36,15 +37,19 @@ export const useGetEntityInfo = (name: string) => {
 
   const getEntityInfo = useCallback(() => {
     if (isWidget(entity)) {
+      const widgetEntity = entity as WidgetEntity;
       const icon = <WidgetIcon type={entity.type} />;
-      const hasError = doesEntityHaveErrors(entity.widgetId, debuggerErrors);
+      const hasError = doesEntityHaveErrors(
+        widgetEntity.widgetId,
+        debuggerErrors,
+      );
 
       return {
         name,
         icon,
         hasError,
         type: ENTITY_TYPE.WIDGET,
-        entityType: entity.type,
+        entityType: widgetEntity.type,
       };
     } else if (isAction(entity)) {
       const hasError = doesEntityHaveErrors(entity.actionId, debuggerErrors);

@@ -3,6 +3,7 @@ package com.appsmith.server.authentication.handlers;
 import com.appsmith.server.authentication.handlers.ce.AuthenticationSuccessHandlerCE;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.helpers.RedirectHelper;
+import com.appsmith.server.helpers.WorkspaceServiceHelper;
 import com.appsmith.server.ratelimiting.RateLimitService;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
@@ -35,6 +36,7 @@ public class AuthenticationSuccessHandler extends AuthenticationSuccessHandlerCE
             RateLimitService rateLimitService,
             TenantService tenantService,
             UserService userService,
+            WorkspaceServiceHelper workspaceServiceHelper,
             FeatureFlagService featureFlagService,
             CommonConfig commonConfig) {
         super(
@@ -50,6 +52,7 @@ public class AuthenticationSuccessHandler extends AuthenticationSuccessHandlerCE
                 rateLimitService,
                 tenantService,
                 userService,
+                workspaceServiceHelper,
                 featureFlagService,
                 commonConfig);
     }

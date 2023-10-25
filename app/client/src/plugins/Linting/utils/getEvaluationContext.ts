@@ -1,4 +1,4 @@
-import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeFactory";
+import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeTypes";
 import { createEvaluationContext } from "workers/Evaluation/evaluate";
 import { getActionTriggerFunctionNames } from "@appsmith/workers/Evaluation/fns";
 
@@ -24,7 +24,7 @@ export function getEvaluationContext(
   });
 
   const platformFnNamesMap = Object.values(
-    getActionTriggerFunctionNames(cloudHosting),
+    getActionTriggerFunctionNames(),
   ).reduce(
     (acc, name) => ({ ...acc, [name]: true }),
     {} as { [x: string]: boolean },

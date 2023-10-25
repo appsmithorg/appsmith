@@ -34,8 +34,8 @@ import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { Indices } from "constants/Layers";
 import { getExpectedValue } from "utils/validation/common";
 import { ValidationTypes } from "constants/WidgetValidation";
-import type { DataTree } from "entities/DataTree/dataTreeFactory";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import type { DataTree } from "entities/DataTree/dataTreeTypes";
+import { ENTITY_TYPE_VALUE } from "entities/DataTree/dataTreeFactory";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import type { KeyValuePair } from "entities/Action";
 import equal from "fast-deep-equal/es6";
@@ -45,10 +45,6 @@ import {
 } from "@appsmith/selectors/entitiesSelector";
 import { extractApiUrlPath } from "transformers/RestActionTransformer";
 import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
-import {
-  hasCreateDatasourcePermission,
-  hasManageDatasourcePermission,
-} from "@appsmith/utils/permissionHelpers";
 import { Text } from "design-system";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
@@ -58,8 +54,14 @@ import { isEnvironmentValid } from "@appsmith/utils/Environments";
 import { DEFAULT_DATASOURCE_NAME } from "constants/ApiEditorConstants/ApiEditorConstants";
 import { isString } from "lodash";
 import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelectors";
+import {
+  getHasCreateDatasourcePermission,
+  getHasManageDatasourcePermission,
+} from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import { isGACEnabled } from "@appsmith/utils/planHelpers";
+import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 
-type ReduxStateProps = {
+interface ReduxStateProps {
   workspaceId: string;
   currentEnvironment: string;
   datasource: EmbeddedRestDatasource;
@@ -70,11 +72,12 @@ type ReduxStateProps = {
   actionName: string;
   formName: string;
   userWorkspacePermissions: string[];
-};
+  isFeatureEnabled: boolean;
+}
 
-type ReduxDispatchProps = {
+interface ReduxDispatchProps {
   updateDatasource: (datasource: EmbeddedRestDatasource) => void;
-};
+}
 
 type Props = EditorProps &
   ReduxStateProps &
@@ -144,7 +147,8 @@ const StyledTooltip = styled.span<{ width?: number }>`
   text-align: left;
   background-color: var(--ads-v2-color-bg-emphasis-max);
   border-radius: var(--ads-v2-border-radius);
-  box-shadow: 0 2px 4px -2px rgba(0, 0, 0, 0.06),
+  box-shadow:
+    0 2px 4px -2px rgba(0, 0, 0, 0.06),
     0 4px 8px -2px rgba(0, 0, 0, 0.1);
   color: var(--ads-v2-color-fg-on-emphasis-max);
   font-family: var(--ads-v2-font-family);
@@ -420,7 +424,10 @@ class EmbeddedDatasourcePathComponent extends React.Component<
 
     if (!entity) return "";
 
-    if ("ENTITY_TYPE" in entity && entity.ENTITY_TYPE === ENTITY_TYPE.ACTION) {
+    if (
+      "ENTITY_TYPE" in entity &&
+      entity.ENTITY_TYPE === ENTITY_TYPE_VALUE.ACTION
+    ) {
       let evaluatedPath = "path" in entity.config ? entity.config.path : "";
 
       if (evaluatedPath) {
@@ -496,6 +503,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<
       datasource,
       datasourceObject,
       input: { value },
+      isFeatureEnabled,
       userWorkspacePermissions,
     } = this.props;
     const datasourceUrl = get(datasource, "datasourceConfiguration.url", "");
@@ -505,16 +513,18 @@ class EmbeddedDatasourcePathComponent extends React.Component<
       value: displayValue,
       onChange: this.handleOnChange,
     };
-
     const shouldSave = datasource && !("id" in datasource);
+    const isGACFeatureEnabled = isFeatureEnabled;
 
-    const canCreateDatasource = hasCreateDatasourcePermission(
+    const canCreateDatasource = getHasCreateDatasourcePermission(
+      isGACFeatureEnabled,
       userWorkspacePermissions,
     );
 
     const datasourcePermissions = datasourceObject?.userPermissions || [];
 
-    const canManageDatasource = hasManageDatasourcePermission(
+    const canManageDatasource = getHasManageDatasourcePermission(
+      isFeatureEnabled,
       datasourcePermissions,
     );
 
@@ -582,13 +592,20 @@ class EmbeddedDatasourcePathComponent extends React.Component<
 
 const mapStateToProps = (
   state: AppState,
-  ownProps: { pluginId: string; actionName: string; formName: string },
+  ownProps: {
+    pluginId: string;
+    actionName: string;
+    formName: string;
+    isFeatureEnabled: boolean;
+  },
 ): ReduxStateProps => {
   const apiFormValueSelector = formValueSelector(ownProps.formName);
   const datasourceFromAction = apiFormValueSelector(state, "datasource");
   let datasourceMerged = datasourceFromAction || {};
   let datasourceFromDataSourceList: Datasource | undefined;
   const currentEnvironment = getCurrentEnvironmentId(state);
+  const featureFlags = selectFeatureFlags(state);
+  const isFeatureEnabled = isGACEnabled(featureFlags);
   // Todo: fix this properly later in #2164
   if (datasourceFromAction && "id" in datasourceFromAction) {
     datasourceFromDataSourceList = getDatasource(
@@ -616,6 +633,7 @@ const mapStateToProps = (
     formName: ownProps.formName,
     userWorkspacePermissions:
       getCurrentAppWorkspace(state)?.userPermissions ?? [],
+    isFeatureEnabled: isFeatureEnabled,
   };
 };
 

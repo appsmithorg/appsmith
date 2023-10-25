@@ -26,7 +26,7 @@ const _TooltipTrigger = (
         "data-state": context.open ? "open" : "closed",
         // when the trigger is disabled, we want to make sure that the tooltip is
         // accessible with keyboard but visually disabled only
-        visuallyDisabled: children.props.isDisabled ? true : undefined,
+        visuallyDisabled: Boolean(children.props.isDisabled) ? true : undefined,
       }),
     );
   }

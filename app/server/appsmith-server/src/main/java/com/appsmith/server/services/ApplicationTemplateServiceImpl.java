@@ -1,10 +1,11 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.configurations.CloudServicesConfig;
+import com.appsmith.server.exports.internal.ExportApplicationService;
 import com.appsmith.server.helpers.ResponseUtils;
+import com.appsmith.server.imports.internal.ImportApplicationService;
 import com.appsmith.server.services.ce.ApplicationTemplateServiceCEImpl;
 import com.appsmith.server.solutions.ApplicationPermission;
-import com.appsmith.server.solutions.ImportExportApplicationService;
 import com.appsmith.server.solutions.ReleaseNotesService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -13,10 +14,12 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class ApplicationTemplateServiceImpl extends ApplicationTemplateServiceCEImpl
         implements ApplicationTemplateService {
+
     public ApplicationTemplateServiceImpl(
             CloudServicesConfig cloudServicesConfig,
             ReleaseNotesService releaseNotesService,
-            ImportExportApplicationService importExportApplicationService,
+            ImportApplicationService importApplicationService,
+            ExportApplicationService exportApplicationService,
             AnalyticsService analyticsService,
             UserDataService userDataService,
             ApplicationService applicationService,
@@ -25,7 +28,8 @@ public class ApplicationTemplateServiceImpl extends ApplicationTemplateServiceCE
         super(
                 cloudServicesConfig,
                 releaseNotesService,
-                importExportApplicationService,
+                importApplicationService,
+                exportApplicationService,
                 analyticsService,
                 userDataService,
                 applicationService,

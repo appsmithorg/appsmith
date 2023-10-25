@@ -3,25 +3,22 @@ import {
   getAllPaths,
   DataTreeDiffEvent,
   isWidget,
-  isValidEntity,
   getEntityNameAndPropertyPath,
   isDynamicLeaf,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
 import type {
-  DataTree,
   WidgetEntity,
-  ConfigTree,
   WidgetEntityConfig,
-} from "entities/DataTree/dataTreeFactory";
-import type { ActionEntity, JSActionEntity } from "entities/DataTree/types";
+  ActionEntity,
+  JSActionEntity,
+  DataTreeEntityObject,
+} from "@appsmith/entities/DataTree/types";
+import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeTypes";
 import { getEntityId, getEvalErrorPath } from "utils/DynamicBindingUtils";
 import { convertArrayToObject, extractInfoFromBindings } from "./utils";
 import type DataTreeEvaluator from "workers/common/DataTreeEvaluator";
 import { get, isEmpty, set } from "lodash";
-import {
-  getFixedTimeDifference,
-  isWidgetActionOrJsObject,
-} from "../DataTreeEvaluator/utils";
+import { getFixedTimeDifference } from "../DataTreeEvaluator/utils";
 import {
   getEntityDependencies,
   getEntityPathDependencies,
@@ -33,6 +30,8 @@ import {
   getAllSetterFunctions,
   getEntitySetterFunctions,
 } from "@appsmith/workers/Evaluation/Actions";
+import { isWidgetActionOrJsObject } from "@appsmith/entities/DataTree/utils";
+import { getValidEntityType } from "workers/common/DataTreeEvaluator/utils";
 
 interface CreateDependencyMap {
   dependencies: Record<string, string[]>;
@@ -61,7 +60,7 @@ export function createDependencyMap(
     const entity = unEvalTree[entityName];
     const entityConfig = configTree[entityName];
     const entityDependencies = getEntityDependencies(
-      entity,
+      entity as DataTreeEntityObject,
       entityConfig,
       allKeys,
     );
@@ -143,7 +142,7 @@ export const updateDependencyMap = ({
       event === DataTreeDiffEvent.DELETE
         ? oldUnEvalTree[entityName]
         : unEvalDataTree[entityName];
-    const entityType = isValidEntity(entity) ? entity.ENTITY_TYPE : "noop";
+    const entityType = getValidEntityType(entity, entityConfig);
 
     if (entityType !== "noop") {
       switch (event) {

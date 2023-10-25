@@ -4,17 +4,19 @@ import { useDispatch, useSelector } from "react-redux";
 
 import { updateLayoutForMobileBreakpointAction } from "actions/autoLayoutActions";
 import { updateCanvasLayoutAction } from "actions/editorActions";
-import { APP_SETTINGS_PANE_WIDTH } from "constants/AppConstants";
+import {
+  APP_SETTINGS_PANE_WIDTH,
+  APP_SIDEBAR_WIDTH,
+} from "constants/AppConstants";
 import {
   DefaultLayoutType,
   layoutConfigurations,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
 import { APP_MODE } from "entities/App";
-import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import { LayoutSystemTypes } from "layoutSystems/types";
 import {
   getCurrentApplicationLayout,
-  getCurrentAppPositioningType,
   getCurrentPageId,
   getMainCanvasProps,
   previewModeSelector,
@@ -42,6 +44,8 @@ import type { AppState } from "@appsmith/reducers";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { useLocation } from "react-router";
 import { CANVAS_VIEWPORT } from "constants/componentClassNameConstants";
+import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
+import { getIsAppSidebarEnabled } from "../../selectors/ideSelectors";
 
 const GUTTER_WIDTH = 72;
 export const AUTOLAYOUT_RESIZER_WIDTH_BUFFER = 40;
@@ -59,7 +63,7 @@ export const useDynamicAppLayout = () => {
   const isCanvasInitialized = useSelector(getIsCanvasInitialized);
   const appLayout = useSelector(getCurrentApplicationLayout);
   const isAppSettingsPaneOpen = useSelector(getIsAppSettingsPaneOpen);
-  const appPositioningType = useSelector(getCurrentAppPositioningType);
+  const layoutSystemType = useSelector(getLayoutSystemType);
   const isAppSidebarPinned = useSelector(getAppSidebarPinned);
   const sidebarWidth = useSelector(getSidebarWidth);
   const isAppSettingsPaneWithNavigationTabOpen = useSelector(
@@ -75,6 +79,7 @@ export const useDynamicAppLayout = () => {
   const queryParams = new URLSearchParams(search);
   const isEmbed = queryParams.get("embed");
   const isNavbarVisibleInEmbeddedApp = queryParams.get("navbar");
+  const isAppSidebarEnabled = useSelector(getIsAppSidebarEnabled);
 
   // /**
   //  * calculates min height
@@ -124,7 +129,7 @@ export const useDynamicAppLayout = () => {
     let calculatedWidth = screenWidth - scrollbarWidth();
 
     const gutterWidth =
-      appPositioningType === AppPositioningTypes.AUTO ? 0 : GUTTER_WIDTH;
+      layoutSystemType === LayoutSystemTypes.AUTO ? 0 : GUTTER_WIDTH;
 
     // if preview mode is not on and the app setting pane is not opened, we need to subtract the width of the property pane
     if (
@@ -136,7 +141,11 @@ export const useDynamicAppLayout = () => {
     }
 
     // if app setting pane is open, we need to subtract the width of app setting page width
-    if (isAppSettingsPaneOpen === true && appMode === APP_MODE.EDIT) {
+    if (
+      isAppSettingsPaneOpen === true &&
+      appMode === APP_MODE.EDIT &&
+      !isAppSidebarEnabled
+    ) {
       calculatedWidth -= APP_SETTINGS_PANE_WIDTH;
     }
 
@@ -147,6 +156,10 @@ export const useDynamicAppLayout = () => {
       appMode === APP_MODE.EDIT
     ) {
       calculatedWidth -= explorerWidth;
+    }
+
+    if (appMode === APP_MODE.EDIT && isAppSidebarEnabled) {
+      calculatedWidth -= APP_SIDEBAR_WIDTH;
     }
 
     /**
@@ -305,7 +318,7 @@ export const useDynamicAppLayout = () => {
     dispatch(
       updateLayoutForMobileBreakpointAction(
         MAIN_CONTAINER_WIDGET_ID,
-        appPositioningType === AppPositioningTypes.AUTO
+        layoutSystemType === LayoutSystemTypes.AUTO
           ? mainCanvasProps?.isMobile
           : false,
         calculateCanvasWidth(),
@@ -321,7 +334,7 @@ export const useDynamicAppLayout = () => {
       dispatch(
         updateLayoutForMobileBreakpointAction(
           MAIN_CONTAINER_WIDGET_ID,
-          appPositioningType === AppPositioningTypes.AUTO
+          layoutSystemType === LayoutSystemTypes.AUTO
             ? mainCanvasProps?.isMobile
             : false,
           canvasWidth,

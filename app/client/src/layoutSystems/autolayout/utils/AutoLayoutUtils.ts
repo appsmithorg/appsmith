@@ -1,8 +1,3 @@
-import type {
-  AlignmentColumnData,
-  FlexLayer,
-  LayerChild,
-} from "./autoLayoutTypes";
 import {
   FLEXBOX_PADDING,
   layoutConfigurations,
@@ -17,30 +12,33 @@ import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
-import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
-import {
-  defaultAutoLayoutWidgets,
-  FlexLayerAlignment,
-  Positioning,
-  ResponsiveBehavior,
-  SNAPSHOT_EXPIRY_IN_DAYS,
-} from "layoutSystems/autolayout/utils/constants";
+import { LayoutSystemTypes } from "layoutSystems/types";
 import {
   updatePositionsOfParentAndSiblings,
   updateWidgetPositions,
 } from "layoutSystems/autolayout/utils/positionUtils";
-import type { AlignmentColumnInfo } from "./autoLayoutTypes";
 import { getWidgetWidth } from "./flexWidgetUtils";
 import type { DSLWidget } from "WidgetProvider/constants";
 import { getHumanizedTime, getReadableDateInFormat } from "utils/dayJsUtils";
 import WidgetFactory from "WidgetProvider/factory";
 import { isFunction } from "lodash";
+import { SNAPSHOT_EXPIRY_IN_DAYS, defaultAutoLayoutWidgets } from "./constants";
+import {
+  FlexLayerAlignment,
+  Positioning,
+  ResponsiveBehavior,
+} from "layoutSystems/common/utils/constants";
+import type {
+  AlignmentColumnData,
+  AlignmentColumnInfo,
+} from "layoutSystems/autolayout/utils/types";
+import type { FlexLayer, LayerChild } from "./types";
 
-export type ReadableSnapShotDetails = {
+export interface ReadableSnapShotDetails {
   timeSince: string;
   timeTillExpiration: string;
   readableDate: string;
-};
+}
 
 /**
  * Update flex layers of parent canvas upon deleting a child widget.
@@ -69,8 +67,8 @@ export function updateFlexLayersOnDelete(
 ): CanvasWidgetsReduxState {
   const widgets = { ...allWidgets };
   if (
-    widgets[MAIN_CONTAINER_WIDGET_ID].appPositioningType ===
-      AppPositioningTypes.FIXED ||
+    widgets[MAIN_CONTAINER_WIDGET_ID].layoutSystemType ===
+      LayoutSystemTypes.FIXED ||
     widgets[MAIN_CONTAINER_WIDGET_ID].positioning === Positioning.Fixed
   )
     return widgets;
@@ -506,7 +504,7 @@ function getCanvasWidth(
   //modal will be the total width instead of the mainCanvasWidth
   if (widget.type === "MODAL_WIDGET") {
     width = Math.min(
-      widget.width,
+      widget.width || 0,
       mainCanvasWidth * MAX_MODAL_WIDTH_FROM_MAIN_WIDTH,
     );
   }

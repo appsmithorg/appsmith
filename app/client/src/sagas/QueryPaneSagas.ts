@@ -24,10 +24,7 @@ import {
 } from "@appsmith/constants/forms";
 import history from "utils/history";
 import { APPLICATIONS_URL, INTEGRATION_TABS } from "constants/routes";
-import {
-  getCurrentApplicationId,
-  getCurrentPageId,
-} from "selectors/editorSelectors";
+import { getCurrentPageId } from "selectors/editorSelectors";
 import { autofill, change, initialize, reset } from "redux-form";
 import {
   getAction,
@@ -68,7 +65,7 @@ import {
   generateTemplateFormURL,
   integrationEditorURL,
   queryEditorIdURL,
-} from "RouteBuilder";
+} from "@appsmith/RouteBuilder";
 import type { GenerateCRUDEnabledPluginMap, Plugin } from "api/PluginApi";
 import { UIComponentTypes } from "api/PluginApi";
 import { getUIComponent } from "pages/Editor/QueryEditor/helpers";
@@ -76,32 +73,38 @@ import { FormDataPaths } from "workers/Evaluation/formEval";
 import { fetchDynamicValuesSaga } from "./FormEvaluationSaga";
 import type { FormEvalOutput } from "reducers/evaluationReducers/formEvaluationReducer";
 import { validateResponse } from "./ErrorSagas";
-import { hasManageActionPermission } from "@appsmith/utils/permissionHelpers";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import { toast } from "design-system";
 import type { CreateDatasourceSuccessAction } from "actions/datasourceActions";
 import { createDefaultActionPayload } from "./ActionSagas";
 import { DB_NOT_SUPPORTED } from "@appsmith/utils/Environments";
 import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelectors";
+import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
+import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
+import { isGACEnabled } from "@appsmith/utils/planHelpers";
+import { getHasManageActionPermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import type { ChangeQueryPayload } from "actions/queryPaneActions";
 
 // Called whenever the query being edited is changed via the URL or query pane
-function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
-  const { id } = actionPayload.payload;
+function* changeQuerySaga(actionPayload: ReduxAction<ChangeQueryPayload>) {
+  const { applicationId, id, moduleId, packageId, pageId } =
+    actionPayload.payload;
   let configInitialValues = {};
-  const applicationId: string = yield select(getCurrentApplicationId);
-  const pageId: string = yield select(getCurrentPageId);
-  if (!applicationId || !pageId) {
+
+  if (!(packageId && moduleId) && !(applicationId && pageId)) {
     history.push(APPLICATIONS_URL);
     return;
   }
   const action: Action | undefined = yield select(getAction, id);
   if (!action) {
-    history.push(
-      integrationEditorURL({
-        pageId,
-        selectedTab: INTEGRATION_TABS.ACTIVE,
-      }),
-    );
+    if (pageId) {
+      history.push(
+        integrationEditorURL({
+          pageId,
+          selectedTab: INTEGRATION_TABS.ACTIVE,
+        }),
+      );
+    }
     return;
   }
 
@@ -175,7 +178,12 @@ function* formValueChangeSaga(
     const { values } = yield select(getFormData, QUERY_EDITOR_FORM_NAME);
     const hasRouteChanged = field === "id";
 
-    if (!hasManageActionPermission(values.userPermissions)) {
+    const featureFlags: FeatureFlags = yield select(selectFeatureFlags);
+    const isFeatureEnabled = isGACEnabled(featureFlags);
+
+    if (
+      !getHasManageActionPermission(isFeatureEnabled, values.userPermissions)
+    ) {
       yield validateResponse({
         status: 403,
         resourceType: values?.pluginType,
@@ -334,9 +342,8 @@ function* handleQueryCreatedSaga(actionPayload: ReduxAction<QueryAction>) {
     actionPayload.payload;
   const pageId: string = yield select(getCurrentPageId);
   if (pluginType !== PluginType.DB && pluginType !== PluginType.REMOTE) return;
-  const pluginTemplates: Record<string, unknown> = yield select(
-    getPluginTemplates,
-  );
+  const pluginTemplates: Record<string, unknown> =
+    yield select(getPluginTemplates);
   const queryTemplate = pluginTemplates[pluginId];
   // Do not show template view if the query has body(code) or if there are no templates or if the plugin is MongoDB
   const showTemplate = !(

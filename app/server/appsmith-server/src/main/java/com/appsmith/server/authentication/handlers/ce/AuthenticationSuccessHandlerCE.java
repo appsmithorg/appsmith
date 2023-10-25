@@ -14,6 +14,7 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ResendEmailVerificationDTO;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.RedirectHelper;
+import com.appsmith.server.helpers.WorkspaceServiceHelper;
 import com.appsmith.server.ratelimiting.RateLimitService;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
@@ -71,13 +72,14 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
     private final RateLimitService rateLimitService;
     private final TenantService tenantService;
     private final UserService userService;
+    private final WorkspaceServiceHelper workspaceServiceHelper;
     private final FeatureFlagService featureFlagService;
     private final CommonConfig commonConfig;
 
     private Mono<Boolean> isVerificationRequired(String userEmail, String method) {
         Mono<Boolean> emailVerificationEnabledMono = tenantService
                 .getTenantConfiguration()
-                .map(tenant -> tenant.getTenantConfiguration().getEmailVerificationEnabled())
+                .map(tenant -> tenant.getTenantConfiguration().isEmailVerificationEnabled())
                 .cache();
 
         Mono<User> userMono = userRepository.findByEmail(userEmail).cache();
@@ -278,7 +280,6 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
         log.debug("Login succeeded for user: {}", authentication.getPrincipal());
         Mono<Void> redirectionMono = null;
         User user = (User) authentication.getPrincipal();
-        rateLimitService.resetCounter(RateLimitConstants.BUCKET_KEY_FOR_LOGIN_API, user.getEmail());
         String originHeader =
                 webFilterExchange.getExchange().getRequest().getHeaders().getOrigin();
 
@@ -323,7 +324,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
             }
             if (isFromSignup) {
                 boolean finalIsFromSignup = isFromSignup;
-                redirectionMono = workspaceService
+                redirectionMono = workspaceServiceHelper
                         .isCreateWorkspaceAllowed(TRUE)
                         .flatMap(isCreateWorkspaceAllowed -> {
                             if (isCreateWorkspaceAllowed.equals(Boolean.TRUE)) {
@@ -355,6 +356,12 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                 .getCurrentUser()
                 .flatMap(currentUser -> {
                     List<Mono<?>> monos = new ArrayList<>();
+
+                    // Since the user has successfully logged in, lets reset the rate limit counter
+                    // for the user.
+                    monos.add(rateLimitService.resetCounter(
+                            RateLimitConstants.BUCKET_KEY_FOR_LOGIN_API, user.getEmail()));
+
                     monos.add(userDataService.ensureViewedCurrentVersionReleaseNotes(currentUser));
 
                     String modeOfLogin = FieldName.FORM_LOGIN;

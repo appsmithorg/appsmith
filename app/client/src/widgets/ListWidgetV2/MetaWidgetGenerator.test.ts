@@ -15,17 +15,17 @@ import CanvasWidget from "widgets/CanvasWidget";
 import ContainerWidget from "widgets/ContainerWidget";
 import { registerWidgets } from "WidgetProvider/factory/registrationHelper";
 
-type Validator = {
+interface Validator {
   widgetType: string;
   occurrence: number;
-};
+}
 
-type InitProps = {
+interface InitProps {
   optionsProps?: Partial<GeneratorOptions>;
   constructorProps?: Partial<ConstructorProps>;
   passedCache?: Cache;
   listWidgetId?: string;
-};
+}
 
 const data = [
   { id: 1, name: "Blue" },

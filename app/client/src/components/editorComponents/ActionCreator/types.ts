@@ -3,7 +3,7 @@ import type {
   TreeDropdownOption,
   IconName,
 } from "design-system-old";
-import type { ENTITY_TYPE, MetaArgs } from "entities/DataTree/types";
+import type { ENTITY_TYPE, MetaArgs } from "@appsmith/entities/DataTree/types";
 import type React from "react";
 import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 import type { FieldType, ViewTypes, AppsmithFunction } from "./constants";
@@ -12,11 +12,11 @@ import type { Variants } from "./constants";
 
 export type GenericFunction = (...args: any[]) => any;
 
-export type SwitchType = {
+export interface SwitchType {
   id: string;
   text: string;
   action: () => void;
-};
+}
 
 export type ActionIntegrationType =
   (typeof APPSMITH_INTEGRATIONS)[keyof typeof APPSMITH_INTEGRATIONS];
@@ -26,12 +26,12 @@ export type ActionType =
 
 export type ViewType = (typeof ViewTypes)[keyof typeof ViewTypes];
 
-export type ViewProps = {
+export interface ViewProps {
   label: string;
   get: GenericFunction;
   set: GenericFunction;
   value: string;
-};
+}
 
 export type SelectorViewProps = ViewProps & {
   options: TreeDropdownOption[];
@@ -61,15 +61,15 @@ export type ButtonViewProps = Omit<ViewProps, "get" | "set"> & {
   onClick: () => void;
 };
 
-export type FieldConfig = {
+export interface FieldConfig {
   getter: GenericFunction;
   setter: GenericFunction;
   view: ViewType;
-};
+}
 
 export type FieldConfigs = Partial<Record<FieldType, FieldConfig>>;
 
-export type ActionCreatorProps = {
+export interface ActionCreatorProps {
   value: string;
   action: string;
   onValueChange: (newValue: string, isUpdatedViaKeyboard: boolean) => void;
@@ -79,9 +79,9 @@ export type ActionCreatorProps = {
   widgetType: string;
   widgetName: string;
   dataTreePath: string | undefined;
-};
+}
 
-export type Field = {
+export interface Field {
   field: FieldType;
   value?: string;
   label?: string;
@@ -89,16 +89,16 @@ export type Field = {
   position?: number;
   getter?: (value: string) => string;
   setter?: (value: string, newValue: string) => string;
-};
+}
 
-export type SelectorField = {
+export interface SelectorField {
   field: FieldType;
   getParentValue?: (value: string) => string;
   value: string | undefined;
   label?: string;
-};
+}
 
-export type FieldProps = {
+export interface FieldProps {
   onValueChange: (
     newValue: string,
     isUpdatedViaKeyboard: boolean,
@@ -117,7 +117,7 @@ export type FieldProps = {
   activeTabApiAndQueryCallback: SwitchType;
   apiAndQueryCallbackTabSwitches: SwitchType[];
   dataTreePath?: string | undefined;
-};
+}
 
 export type FieldGroupProps = Omit<
   FieldProps,
@@ -130,9 +130,13 @@ export type FieldGroupProps = Omit<
   isChainedAction?: boolean;
 };
 
-export type OptionListType = { label: string; value: string; id: string };
+export interface OptionListType {
+  label: string;
+  value: string;
+  id: string;
+}
 
-export type AppsmithFunctionConfigValues = {
+export interface AppsmithFunctionConfigValues {
   label: (args: FieldProps) => string;
   defaultText: string;
   options: (args: FieldProps) => null | TreeDropdownOption[] | OptionListType;
@@ -145,49 +149,49 @@ export type AppsmithFunctionConfigValues = {
   view: ViewType;
   exampleText: string;
   toolTip?: string;
-};
+}
 
-export type AppsmithFunctionConfigType = {
+export interface AppsmithFunctionConfigType {
   [key: string]: AppsmithFunctionConfigValues;
-};
+}
 
-export type DataTreeForActionCreator = {
+export interface DataTreeForActionCreator {
   [key: string]: {
     ENTITY_TYPE?: ENTITY_TYPE;
     meta?: Record<string, MetaArgs>;
   };
-};
+}
 
-export type FieldGroupValueType = {
+export interface FieldGroupValueType {
   label: string;
   fields: string[];
   defaultParams: string;
   value?: string;
   children?: TreeDropdownOption[];
   icon?: IconName;
-};
+}
 
-export type FieldGroupConfig = {
+export interface FieldGroupConfig {
   [key: string]: FieldGroupValueType;
-};
+}
 
 export interface CallbackBlock extends ActionTree {
   type: "success" | "failure" | "then" | "catch";
 }
 
-export type ActionTree = {
+export interface ActionTree {
   code: string;
   actionType: (typeof AppsmithFunction)[keyof typeof AppsmithFunction];
   successBlocks: CallbackBlock[];
   errorBlocks: CallbackBlock[];
-};
+}
 
-export type SelectedActionBlock = {
+export interface SelectedActionBlock {
   type: "success" | "failure";
   index: number;
-};
+}
 
-export type TActionBlock = {
+export interface TActionBlock {
   code: string;
   actionType: (typeof AppsmithFunction)[keyof typeof AppsmithFunction];
   success: {
@@ -199,6 +203,6 @@ export type TActionBlock = {
     blocks: TActionBlock[];
   };
   type?: "success" | "failure" | "then" | "catch";
-};
+}
 
 export type VariantType = keyof typeof Variants;

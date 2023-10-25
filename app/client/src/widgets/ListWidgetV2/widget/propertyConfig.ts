@@ -30,7 +30,7 @@ export const primaryColumnValidation = (
   props: ListWidgetProps,
   _: any,
 ) => {
-  const { listData = [], dynamicPropertyPathList = [] } = props;
+  const { dynamicPropertyPathList = [], listData = [] } = props;
   const isArray = Array.isArray(inputValue);
   const isJSModeEnabled = Boolean(
     dynamicPropertyPathList.find((d) => d.key === "primaryKeys"),

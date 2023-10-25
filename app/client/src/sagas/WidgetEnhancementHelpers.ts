@@ -4,7 +4,7 @@ import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { get, set } from "lodash";
 import { useSelector } from "react-redux";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import { LayoutSystemTypes } from "layoutSystems/types";
 import { select } from "redux-saga/effects";
 import WidgetFactory from "WidgetProvider/factory";
 import { getWidgets } from "./selectors";
@@ -69,12 +69,12 @@ export function getParentWithEnhancementFn(
 
 const propertiesToExcludeForAutoLayout = ["dynamicHeight"];
 
-export function appPositioningBasedPropertyFilter(
+export function layoutSystemBasedPropertyFilter(
   parentProps: any,
   propertyName: string,
 ) {
   return (
-    parentProps.appPositioningType === AppPositioningTypes.AUTO &&
+    parentProps.layoutSystemType === LayoutSystemTypes.AUTO &&
     propertiesToExcludeForAutoLayout.includes(propertyName)
   );
 }
@@ -178,13 +178,13 @@ export function useChildWidgetEnhancementFn(
 type EnhancementFn = (parentProps: any, ...rest: any) => unknown;
 type BoundEnhancementFn = (...rest: any) => unknown;
 
-type EnhancementFns = {
+interface EnhancementFns {
   updateDataTreePathFn?: BoundEnhancementFn;
   propertyPaneEnhancementFn?: BoundEnhancementFn;
   autoCompleteEnhancementFn?: BoundEnhancementFn;
   customJSControlEnhancementFn?: BoundEnhancementFn;
   hideEvaluatedValueEnhancementFn?: BoundEnhancementFn;
-};
+}
 
 export function useChildWidgetEnhancementFns(widgetId: string): EnhancementFns {
   const enhancementFns = {

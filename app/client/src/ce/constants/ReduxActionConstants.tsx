@@ -13,11 +13,9 @@ import type {
   LayoutOnLoadActionErrors,
   PageAction,
 } from "constants/AppsmithActionConstants/ActionConstants";
-import type {
-  AppLayoutConfig,
-  AppPositioningTypeConfig,
-} from "reducers/entityReducers/pageListReducer";
+import type { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
 import type { DSLWidget } from "WidgetProvider/constants";
+import type { LayoutSystemTypeConfig } from "layoutSystems/types";
 
 export const ReduxSagaChannels = {
   WEBSOCKET_APP_LEVEL_WRITE_CHANNEL: "WEBSOCKET_APP_LEVEL_WRITE_CHANNEL",
@@ -806,7 +804,7 @@ const ActionTypes = {
   AUTOLAYOUT_REORDER_WIDGETS: "AUTOLAYOUT_REORDER_WIDGETS",
   AUTOLAYOUT_ADD_NEW_WIDGETS: "AUTOLAYOUT_ADD_NEW_WIDGETS",
   RECALCULATE_COLUMNS: "RECALCULATE_COLUMNS",
-  UPDATE_LAYOUT_POSITIONING: "UPDATE_LAYOUT_POSITIONING",
+  UPDATE_LAYOUT_SYSTEM_TYPE: "UPDATE_LAYOUT_SYSTEM_TYPE",
   SET_LAYOUT_CONVERSION_STATE: "SET_LAYOUT_CONVERSION_STATE",
   START_CONVERSION_FLOW: "START_CONVERSION_FLOW",
   STOP_CONVERSION_FLOW: "STOP_CONVERSION_FLOW",
@@ -840,7 +838,7 @@ const ActionTypes = {
   BIND_WIDGET_TO_DATASOURCE_SUCCESS: "BIND_WIDGET_TO_DATASOURCE_SUCCESS",
   BIND_WIDGET_TO_DATASOURCE_ERROR: "BIND_WIDGET_TO_DATASOURCE_ERROR",
   LOAD_FILE_PICKER_ACTION: "LOAD_FILE_PICKER_ACTION",
-  TOGGLE_AI_WINDOW: "TOGGLE_AI_WINDOW",
+  UPDATE_AI_CONTEXT: "UPDATE_AI_CONTEXT",
   UPDATE_AI_TRIGGERED: "UPDATE_AI_TRIGGERED",
   UPDATE_DATASOURCE_AUTH_STATE: "UPDATE_DATASOURCE_AUTH_STATE",
   UPDATE_POSITIONS_ON_TAB_CHANGE: "UPDATE_POSITIONS_ON_TAB_CHANGE",
@@ -868,6 +866,8 @@ const ActionTypes = {
   DELETE_MULTIPLE_APPLICATION_CANCEL: "DELETE_MULTIPLE_APPLICATION_CANCEL",
   TRIGGER_EVAL: "TRIGGER_EVAL",
   UPDATE_ACTION_DATA: "UPDATE_ACTION_DATA",
+  SET_ACTIVE_EDITOR_FIELD: "SET_ACTIVE_EDITOR_FIELD",
+  RESET_ACTIVE_EDITOR_FIELD: "RESET_ACTIVE_EDITOR_FIELD",
   SET_CURRENT_WORKSPACE_FOR_CREATE_NEW_APP:
     "SET_CURRENT_WORKSPACE_FOR_CREATE_NEW_APP",
   RESET_CURRENT_WORKSPACE_FOR_CREATE_NEW_APP:
@@ -1198,7 +1198,7 @@ export interface ApplicationPayload {
   isManualUpdate?: boolean;
   embedSetting?: AppEmbedSetting;
   applicationDetail?: {
-    appPositioning?: AppPositioningTypeConfig;
+    appPositioning?: LayoutSystemTypeConfig;
     navigationSetting?: NavigationSetting;
   };
   collapseInvisibleWidgets?: boolean;
@@ -1209,10 +1209,10 @@ export interface ApplicationPayload {
   forkedFromTemplateTitle?: string;
 }
 
-export type WorkspaceDetails = {
+export interface WorkspaceDetails {
   workspace: Workspace;
   applications: any[];
-};
+}
 
 export interface LoadWidgetEditorPayload {
   widgets: WidgetProps[];

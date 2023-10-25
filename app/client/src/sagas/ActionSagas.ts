@@ -111,7 +111,7 @@ import {
   integrationEditorURL,
   queryEditorIdURL,
   saasEditorApiIdURL,
-} from "RouteBuilder";
+} from "@appsmith/RouteBuilder";
 import {
   RequestPayloadAnalyticsPath,
   checkAndLogErrorsIfCyclicDependency,
@@ -132,6 +132,7 @@ import { setAIPromptTriggered } from "utils/storage";
 import { getDefaultTemplateActionConfig } from "utils/editorContextUtils";
 import { sendAnalyticsEventSaga } from "./AnalyticsSaga";
 import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
+import { updateActionAPICall } from "@appsmith/sagas/ApiCallerSagas";
 
 export function* createDefaultActionPayload(
   pageId: string,
@@ -301,9 +302,8 @@ export function* fetchActionsSaga(
     { mode: "EDITOR", appId: applicationId },
   );
   try {
-    const response: ApiResponse<Action[]> = yield ActionAPI.fetchActions(
-      applicationId,
-    );
+    const response: ApiResponse<Action[]> =
+      yield ActionAPI.fetchActions(applicationId);
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put({
@@ -448,7 +448,10 @@ export function* updateActionSaga(actionPayload: ReduxAction<{ id: string }>) {
       // @ts-expect-error: Types are not available
       action = fixActionPayloadForMongoQuery(action);
     }
-    const response: ApiResponse<Action> = yield ActionAPI.updateAction(action);
+    const response: ApiResponse<Action> = yield call(
+      updateActionAPICall,
+      action,
+    );
 
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
@@ -727,9 +730,8 @@ export function* refactorActionName(
       newName: newName,
     });
 
-    const isRefactorSuccessful: boolean = yield validateResponse(
-      refactorResponse,
-    );
+    const isRefactorSuccessful: boolean =
+      yield validateResponse(refactorResponse);
 
     const currentPageId: string = yield select(getCurrentPageId);
 
@@ -992,9 +994,8 @@ function* executeCommandSaga(actionPayload: ReduxAction<SlashCommandPayload>) {
       }
 
       yield put({
-        type: ReduxActionTypes.TOGGLE_AI_WINDOW,
+        type: ReduxActionTypes.UPDATE_AI_CONTEXT,
         payload: {
-          show: true,
           context,
         },
       });

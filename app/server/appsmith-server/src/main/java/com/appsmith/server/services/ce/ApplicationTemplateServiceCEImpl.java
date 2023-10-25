@@ -10,12 +10,13 @@ import com.appsmith.server.domains.UserData;
 import com.appsmith.server.dtos.*;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.exports.internal.ExportApplicationService;
 import com.appsmith.server.helpers.ResponseUtils;
+import com.appsmith.server.imports.internal.ImportApplicationService;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.solutions.ApplicationPermission;
-import com.appsmith.server.solutions.ImportExportApplicationService;
 import com.appsmith.server.solutions.ReleaseNotesService;
 import com.appsmith.util.WebClientUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -47,7 +48,8 @@ import java.util.Map;
 public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServiceCE {
     private final CloudServicesConfig cloudServicesConfig;
     private final ReleaseNotesService releaseNotesService;
-    private final ImportExportApplicationService importExportApplicationService;
+    private final ImportApplicationService importApplicationService;
+    private final ExportApplicationService exportApplicationService;
     private final AnalyticsService analyticsService;
     private final UserDataService userDataService;
     private final ApplicationService applicationService;
@@ -57,7 +59,8 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
     public ApplicationTemplateServiceCEImpl(
             CloudServicesConfig cloudServicesConfig,
             ReleaseNotesService releaseNotesService,
-            ImportExportApplicationService importExportApplicationService,
+            ImportApplicationService importApplicationService,
+            ExportApplicationService exportApplicationService,
             AnalyticsService analyticsService,
             UserDataService userDataService,
             ApplicationService applicationService,
@@ -65,7 +68,8 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
             ApplicationPermission applicationPermission) {
         this.cloudServicesConfig = cloudServicesConfig;
         this.releaseNotesService = releaseNotesService;
-        this.importExportApplicationService = importExportApplicationService;
+        this.importApplicationService = importApplicationService;
+        this.exportApplicationService = exportApplicationService;
         this.analyticsService = analyticsService;
         this.userDataService = userDataService;
         this.applicationService = applicationService;
@@ -131,7 +135,8 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
                         applicationTemplateList.sort(Comparator.comparingInt(o -> {
                             int index = recentlyUsedTemplateIds.indexOf(o.getId());
                             if (index < 0) {
-                                // template not in recent list, return a large value so that it's sorted out to the end
+                                // template not in recent list, return a large value so that it's sorted out to
+                                // the end
                                 index = Integer.MAX_VALUE;
                             }
                             return index;
@@ -162,9 +167,13 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
     private Mono<ApplicationJson> getApplicationJsonFromTemplate(String templateId) {
         final String baseUrl = cloudServicesConfig.getBaseUrl();
         final String templateUrl = baseUrl + "/api/v1/app-templates/" + templateId + "/application";
-        /* using a custom url builder factory because default builder always encodes URL.
-        It's expected that the appDataUrl is already encoded, so we don't need to encode that again.
-        Encoding an encoded URL will not work and end up resulting a 404 error */
+        /*
+         * using a custom url builder factory because default builder always encodes
+         * URL.
+         * It's expected that the appDataUrl is already encoded, so we don't need to
+         * encode that again.
+         * Encoding an encoded URL will not work and end up resulting a 404 error
+         */
         final int size = 4 * 1024 * 1024; // 4 MB
         final ExchangeStrategies strategies = ExchangeStrategies.builder()
                 .codecs(codecs -> codecs.defaultCodecs().maxInMemorySize(size))
@@ -196,8 +205,7 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
     public Mono<ApplicationImportDTO> importApplicationFromTemplate(String templateId, String workspaceId) {
         return getApplicationJsonFromTemplate(templateId)
                 .flatMap(applicationJson -> Mono.zip(
-                        importExportApplicationService.importNewApplicationInWorkspaceFromJson(
-                                workspaceId, applicationJson),
+                        importApplicationService.importNewApplicationInWorkspaceFromJson(workspaceId, applicationJson),
                         Mono.just(applicationJson.getExportedApplication().getName())))
                 .flatMap(tuple -> {
                     Application application = tuple.getT1();
@@ -205,7 +213,7 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
                     application.setForkedFromTemplateTitle(templateTitle);
                     return applicationService.save(application).thenReturn(application);
                 })
-                .flatMap(application -> importExportApplicationService.getApplicationImportDTO(
+                .flatMap(application -> importApplicationService.getApplicationImportDTO(
                         application.getId(), application.getWorkspaceId(), application))
                 .flatMap(applicationImportDTO -> {
                     Application application = applicationImportDTO.getApplication();
@@ -263,12 +271,17 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
     }
 
     /**
-     * Merge Template API is slow today because it needs to communicate with ImportExport Service, CloudService and/or serialise and de-serialise the
-     * application. This process takes time and the client may cancel the request. This leads to the flow getting stopped
+     * Merge Template API is slow today because it needs to communicate with
+     * ImportExport Service, CloudService and/or serialise and de-serialise the
+     * application. This process takes time and the client may cancel the request.
+     * This leads to the flow getting stopped
      * midway producing corrupted states.
-     * We use the synchronous sink to ensure that even though the client may have cancelled the flow, git operations should
-     * proceed uninterrupted and whenever the user refreshes the page, we will have the sane state. Synchronous sink does
-     * not take subscription cancellations into account. This means that even if the subscriber has cancelled its
+     * We use the synchronous sink to ensure that even though the client may have
+     * cancelled the flow, git operations should
+     * proceed uninterrupted and whenever the user refreshes the page, we will have
+     * the sane state. Synchronous sink does
+     * not take subscription cancellations into account. This means that even if the
+     * subscriber has cancelled its
      * subscription, the create method still generates its event.
      */
     @Override
@@ -284,18 +297,17 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
                         return applicationService
                                 .findByBranchNameAndDefaultApplicationId(
                                         branchName, applicationId, applicationPermission.getEditPermission())
-                                .flatMap(application ->
-                                        importExportApplicationService.mergeApplicationJsonWithApplication(
-                                                organizationId,
-                                                application.getId(),
-                                                branchName,
-                                                applicationJson,
-                                                pagesToImport));
+                                .flatMap(application -> importApplicationService.mergeApplicationJsonWithApplication(
+                                        organizationId,
+                                        application.getId(),
+                                        branchName,
+                                        applicationJson,
+                                        pagesToImport));
                     }
-                    return importExportApplicationService.mergeApplicationJsonWithApplication(
+                    return importApplicationService.mergeApplicationJsonWithApplication(
                             organizationId, applicationId, branchName, applicationJson, pagesToImport);
                 })
-                .flatMap(application -> importExportApplicationService.getApplicationImportDTO(
+                .flatMap(application -> importApplicationService.getApplicationImportDTO(
                         application.getId(), application.getWorkspaceId(), application))
                 .flatMap(applicationImportDTO -> {
                     responseUtils.updateApplicationWithDefaultResources(applicationImportDTO.getApplication());
@@ -372,7 +384,7 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
 
     @Override
     public Mono<Application> publishAsCommunityTemplate(CommunityTemplateDTO resource) {
-        return importExportApplicationService
+        return exportApplicationService
                 .exportApplicationById(resource.getApplicationId(), resource.getBranchName())
                 .flatMap(appJson -> uploadCommunityTemplateToCS(
                         createCommunityTemplateUploadDTO(resource.getApplicationId(), appJson, resource)))

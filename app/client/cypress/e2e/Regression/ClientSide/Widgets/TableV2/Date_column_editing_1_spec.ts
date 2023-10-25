@@ -40,6 +40,7 @@ describe("Table widget date column inline editing functionality", () => {
     );
     agHelper.AssertElementAbsence(table._dateInputPopover);
     agHelper.AssertElementAbsence(table._editCellEditor);
+    agHelper.WaitUntilToastDisappear("onDateSelected");
     agHelper
       .GetText(`${table._tableRow1Child3}`)
       .then(($textData) => expect($textData).to.eq(`2021-05-17T00:00:00`));

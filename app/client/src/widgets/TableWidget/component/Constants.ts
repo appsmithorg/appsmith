@@ -8,12 +8,12 @@ import type {
   ButtonVariant,
 } from "components/constants";
 
-export type TableSizes = {
+export interface TableSizes {
   COLUMN_HEADER_HEIGHT: number;
   TABLE_HEADER_HEIGHT: number;
   ROW_HEIGHT: number;
   ROW_FONT_SIZE: number;
-};
+}
 
 export enum CompactModeTypes {
   SHORT = "SHORT",

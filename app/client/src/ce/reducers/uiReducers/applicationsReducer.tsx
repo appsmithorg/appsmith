@@ -27,7 +27,7 @@ import type { IconNames } from "design-system";
 import type { NavigationSetting } from "constants/AppConstants";
 import { defaultNavigationSetting } from "constants/AppConstants";
 import produce from "immer";
-import { groupBy } from "lodash";
+import { groupBy, isEmpty } from "lodash";
 
 export const initialState: ApplicationsReduxState = {
   isFetchingApplications: false,
@@ -52,6 +52,10 @@ export const initialState: ApplicationsReduxState = {
   isUploadingNavigationLogo: false,
   isDeletingNavigationLogo: false,
   deletingMultipleApps: {},
+  loadingStates: {
+    isFetchingAllRoles: false,
+    isFetchingAllUsers: false,
+  },
 };
 
 export const handlers = {
@@ -242,7 +246,10 @@ export const handlers = {
       isFetchingApplication: false,
     };
 
-    if (!newState.currentApplication.applicationDetail.navigationSetting) {
+    if (
+      !newState.currentApplication.applicationDetail.navigationSetting ||
+      isEmpty(newState.currentApplication.applicationDetail.navigationSetting)
+    ) {
       newState.currentApplication.applicationDetail.navigationSetting =
         defaultNavigationSetting;
     }
@@ -815,10 +822,10 @@ const applicationsReducer = createReducer(initialState, handlers);
 
 export type creatingApplicationMap = Record<string, boolean>;
 
-export type DeletingMultipleApps = {
+export interface DeletingMultipleApps {
   list?: string[];
   isDeleting?: boolean;
-};
+}
 
 export interface ApplicationsReduxState {
   applicationList: ApplicationPayload[];
@@ -847,6 +854,10 @@ export interface ApplicationsReduxState {
   isUploadingNavigationLogo: boolean;
   isDeletingNavigationLogo: boolean;
   deletingMultipleApps: DeletingMultipleApps;
+  loadingStates: {
+    isFetchingAllRoles: boolean;
+    isFetchingAllUsers: boolean;
+  };
 }
 
 export interface Application {

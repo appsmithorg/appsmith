@@ -6,7 +6,6 @@ import DatasourceField from "./DatasourceField";
 import type { DatasourceTable } from "entities/Datasource";
 import { useCloseMenuOnScroll } from "../hooks";
 import { SIDEBAR_ID } from "constants/Explorer";
-import { hasCreateDatasourceActionPermission } from "@appsmith/utils/permissionHelpers";
 import { useSelector } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
 import { getDatasource, getPlugin } from "@appsmith/selectors/entitiesSelector";
@@ -18,6 +17,9 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import type { Plugin } from "api/PluginApi";
 import { omit } from "lodash";
 import { Virtuoso } from "react-virtuoso";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { hasCreateDSActionPermissionInApp } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 
 export enum DatasourceStructureContext {
   EXPLORER = "entity-explorer",
@@ -27,7 +29,7 @@ export enum DatasourceStructureContext {
   API_EDITOR = "api-editor",
 }
 
-type DatasourceStructureItemProps = {
+interface DatasourceStructureItemProps {
   dbStructure: DatasourceTable;
   step: number;
   datasourceId: string;
@@ -37,7 +39,7 @@ type DatasourceStructureItemProps = {
   currentActionId: string;
   onEntityTableClick?: (table: string) => void;
   tableName?: string;
-};
+}
 
 const StyledMenuContent = styled(MenuContent)`
   min-width: 220px;
@@ -67,11 +69,13 @@ const DatasourceStructureItem = memo((props: DatasourceStructureItemProps) => {
 
   const datasourcePermissions = datasource?.userPermissions || [];
   const pagePermissions = useSelector(getPagePermissions);
+  const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
 
-  const canCreateDatasourceActions = hasCreateDatasourceActionPermission([
-    ...datasourcePermissions,
-    ...pagePermissions,
-  ]);
+  const canCreateDatasourceActions = hasCreateDSActionPermissionInApp(
+    isFeatureEnabled,
+    datasourcePermissions,
+    pagePermissions,
+  );
 
   const onSelect = () => {
     setActive(false);

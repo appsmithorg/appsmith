@@ -10,6 +10,7 @@ import io.github.bucket4j.redis.lettuce.cas.LettuceBasedProxyManager;
 import io.lettuce.core.AbstractRedisClient;
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.cluster.RedisClusterClient;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,8 +21,9 @@ import java.util.Map;
 import java.util.Optional;
 
 @Configuration
+@Slf4j
 public class RateLimitConfig {
-    private static final Map<String, BucketConfiguration> apiConfigurations = new HashMap<>();
+    private static final Map<String, BucketConfiguration> apiConfigurationMap = new HashMap<>();
 
     @Autowired
     private final AbstractRedisClient redisClient;
@@ -31,8 +33,11 @@ public class RateLimitConfig {
     }
 
     static {
-        apiConfigurations.put(
+        apiConfigurationMap.put(
                 RateLimitConstants.BUCKET_KEY_FOR_LOGIN_API, createBucketConfiguration(Duration.ofDays(1), 5));
+        apiConfigurationMap.put(
+                RateLimitConstants.BUCKET_KEY_FOR_TEST_DATASOURCE_API,
+                createBucketConfiguration(Duration.ofSeconds(5), 3));
         // Add more API configurations as needed
     }
 
@@ -60,7 +65,7 @@ public class RateLimitConfig {
     public Map<String, BucketProxy> apiBuckets() {
         Map<String, BucketProxy> apiBuckets = new HashMap<>();
 
-        apiConfigurations.forEach((apiIdentifier, configuration) ->
+        apiConfigurationMap.forEach((apiIdentifier, configuration) ->
                 apiBuckets.put(apiIdentifier, proxyManager().builder().build(apiIdentifier.getBytes(), configuration)));
 
         return apiBuckets;
@@ -73,7 +78,7 @@ public class RateLimitConfig {
             return proxyManager().builder().build(bucketIdentifier.getBytes(), bucketProxy.get());
         }
 
-        return proxyManager().builder().build(bucketIdentifier.getBytes(), apiConfigurations.get(apiIdentifier));
+        return proxyManager().builder().build(bucketIdentifier.getBytes(), apiConfigurationMap.get(apiIdentifier));
     }
 
     private static BucketConfiguration createBucketConfiguration(Duration refillDuration, int limit) {

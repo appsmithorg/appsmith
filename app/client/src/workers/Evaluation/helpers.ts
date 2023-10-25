@@ -1,9 +1,10 @@
 import { serialiseToBigInt } from "@appsmith/workers/Evaluation/evaluationUtils";
 import type { Diff } from "deep-diff";
 import { diff } from "deep-diff";
-import type { DataTree } from "entities/DataTree/dataTreeFactory";
+import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import equal from "fast-deep-equal";
 import { get, isNumber, isObject } from "lodash";
+import { isMoment } from "moment";
 import { EvalErrorTypes } from "utils/DynamicBindingUtils";
 
 export interface DiffReferenceState {
@@ -201,6 +202,20 @@ const generateDiffUpdates = (
 
       const lhs = get(oldDataTree, segmentedPath);
 
+      //convert all invalid moment objects to nulls ...
+      //large collect nodes are anyway getting serialised so the invalid objects will be converted to nulls
+      if (isMoment(rhs) && !rhs.isValid()) {
+        if (lhs === undefined || lhs !== null) {
+          attachDirectly.push({
+            kind: "E",
+            lhs,
+            rhs: null as any,
+            path: segmentedPath,
+          });
+        }
+        // ignore invalid moment objects
+        return true;
+      }
       if (rhs === undefined) {
         //if an undefined value is being set it should be a delete
         if (lhs !== undefined) {

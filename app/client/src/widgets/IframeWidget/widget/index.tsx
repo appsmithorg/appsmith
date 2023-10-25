@@ -6,10 +6,12 @@ import type { WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
 import IframeComponent from "../component";
 import type { IframeWidgetProps } from "../constants";
-import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
+import { generateTypeDef } from "utils/autocomplete/defCreatorUtils";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
-import type { AutocompletionDefinitions } from "WidgetProvider/constants";
-import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
+} from "WidgetProvider/constants";
 import IconSVG from "../icon.svg";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import type {
@@ -17,6 +19,10 @@ import type {
   PropertyUpdates,
 } from "WidgetProvider/constants";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
+import {
+  FlexVerticalAlignment,
+  ResponsiveBehavior,
+} from "layoutSystems/common/utils/constants";
 
 const isAirgappedInstance = isAirgapped();
 
@@ -48,6 +54,7 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
       version: 1,
       animateLoading: true,
       responsiveBehavior: ResponsiveBehavior.Fill,
+      flexVerticalAlignment: FlexVerticalAlignment.Top,
     };
   }
 
@@ -80,6 +87,17 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
           },
         },
       ],
+    };
+  }
+
+  static getAnvilConfig(): AnvilConfig | null {
+    return {
+      widgetSize: {
+        maxHeight: {},
+        maxWidth: {},
+        minHeight: { base: "300px" },
+        minWidth: { base: "280px" },
+      },
     };
   }
 

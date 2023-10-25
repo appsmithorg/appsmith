@@ -1,5 +1,7 @@
-import type { DataTree } from "entities/DataTree/dataTreeFactory";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import type { ENTITY_TYPE } from "@appsmith/entities/DataTree/types";
+import { ACTION_TYPE, JSACTION_TYPE } from "@appsmith/entities/DataTree/types";
+import type { DataTree } from "entities/DataTree/dataTreeTypes";
+import { ENTITY_TYPE_VALUE } from "entities/DataTree/dataTreeFactory";
 import { createSelector } from "reselect";
 import {
   getCurrentActions,
@@ -10,7 +12,7 @@ import {
 import { getWidgets } from "sagas/selectors";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
-import { jsCollectionIdURL, widgetURL } from "RouteBuilder";
+import { jsCollectionIdURL, widgetURL } from "@appsmith/RouteBuilder";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { createNavData } from "utils/NavigationSelector/common";
 import { getWidgetChildrenNavData } from "utils/NavigationSelector/WidgetChildren";
@@ -24,7 +26,7 @@ import { PluginType } from "entities/Action";
 import type { StoredDatasource } from "entities/Action";
 import type { Datasource } from "entities/Datasource";
 
-export type NavigationData = {
+export interface NavigationData {
   name: string;
   id: string;
   type: ENTITY_TYPE;
@@ -40,7 +42,7 @@ export type NavigationData = {
   actionType?: string;
   widgetType?: string;
   value?: boolean | string;
-};
+}
 export type EntityNavigationData = Record<string, NavigationData>;
 
 export const getEntitiesForNavigation = createSelector(
@@ -80,7 +82,7 @@ export const getEntitiesForNavigation = createSelector(
       navigationData[action.config.name] = createNavData({
         id: action.config.id,
         name: action.config.name,
-        type: ENTITY_TYPE.ACTION,
+        type: ENTITY_TYPE_VALUE.ACTION,
         url: config.getURL(
           pageId,
           action.config.id,
@@ -104,7 +106,7 @@ export const getEntitiesForNavigation = createSelector(
       navigationData[jsAction.config.name] = createNavData({
         id: jsAction.config.id,
         name: jsAction.config.name,
-        type: ENTITY_TYPE.JSACTION,
+        type: ENTITY_TYPE_VALUE.JSACTION,
         url: jsCollectionIdURL({ pageId, collectionId: jsAction.config.id }),
         children: result?.childNavData || {},
       });
@@ -121,7 +123,7 @@ export const getEntitiesForNavigation = createSelector(
       navigationData[widget.widgetName] = createNavData({
         id: widget.widgetId,
         name: widget.widgetName,
-        type: ENTITY_TYPE.WIDGET,
+        type: ENTITY_TYPE_VALUE.WIDGET,
         url: widgetURL({ pageId, selectedWidgets: [widget.widgetId] }),
         children: result?.childNavData || {},
         widgetType: widget.type,
@@ -140,20 +142,30 @@ export const getEntitiesForNavigation = createSelector(
     return navigationData;
   },
 );
-
-export const getJSFunctionNavigationUrl = createSelector(
+export const getPathNavigationUrl = createSelector(
   [
     (state: AppState, entityName: string) =>
       getEntitiesForNavigation(state, entityName),
-    (_, __, jsFunctionFullName: string | undefined) => jsFunctionFullName,
+    (_, __, fullPath: string | undefined) => fullPath,
   ],
-  (entitiesForNavigation, jsFunctionFullName) => {
-    if (!jsFunctionFullName) return undefined;
-    const { entityName: jsObjectName, propertyPath: jsFunctionName } =
-      getEntityNameAndPropertyPath(jsFunctionFullName);
-    const jsObjectNavigationData = entitiesForNavigation[jsObjectName];
-    const jsFuncNavigationData =
-      jsObjectNavigationData && jsObjectNavigationData.children[jsFunctionName];
-    return jsFuncNavigationData?.url;
+  (entitiesForNavigation, fullPath) => {
+    if (!fullPath) return undefined;
+    const { entityName, propertyPath } = getEntityNameAndPropertyPath(fullPath);
+    const navigationData = entitiesForNavigation[entityName];
+    if (!navigationData) return undefined;
+    switch (navigationData.type) {
+      case JSACTION_TYPE: {
+        const jsPropertyNavigationData = navigationData.children[propertyPath];
+        return jsPropertyNavigationData.url;
+      }
+
+      case ACTION_TYPE:
+        {
+          return navigationData.url;
+        }
+        break;
+      default:
+        return undefined;
+    }
   },
 );

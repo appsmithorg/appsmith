@@ -28,7 +28,10 @@ import {
   getDefaultValueExpressionSuffix,
 } from "../constants";
 import derivedProperties from "./parseDerivedProperties";
-import type { AutocompletionDefinitions } from "WidgetProvider/constants";
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
+} from "WidgetProvider/constants";
 import {
   defaultOptionValueValidation,
   labelKeyValidation,
@@ -43,7 +46,7 @@ import type {
 import { DynamicHeight } from "utils/WidgetFeatures";
 import { WIDGET_TAGS, layoutConfigurations } from "constants/WidgetConstants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
+import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import type {
   SnipingModeProperty,
   PropertyUpdates,
@@ -178,6 +181,17 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
       ],
       disableResizeHandles: {
         vertical: true,
+      },
+    };
+  }
+
+  static getAnvilConfig(): AnvilConfig | null {
+    return {
+      widgetSize: {
+        maxHeight: {},
+        maxWidth: {},
+        minHeight: {},
+        minWidth: { base: "120px" },
       },
     };
   }

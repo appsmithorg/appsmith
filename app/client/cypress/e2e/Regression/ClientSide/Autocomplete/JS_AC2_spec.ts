@@ -49,7 +49,7 @@ describe("Autocomplete tests", () => {
       0,
     );
 
-    agHelper.GetNAssertElementText(locators._hints, "myFun1()", "have.text", 4);
+    agHelper.GetNAssertElementText(locators._hints, "myFun1", "have.text", 4);
 
     // Same check in JSObject1
     entityExplorer.SelectEntityByName("JSObject1", "Queries/JS");
@@ -65,7 +65,7 @@ describe("Autocomplete tests", () => {
       0,
     );
 
-    agHelper.GetNAssertElementText(locators._hints, "myFun1()", "have.text", 4);
+    agHelper.GetNAssertElementText(locators._hints, "myFun1", "have.text", 4);
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "JSObject1",
       action: "Delete",
