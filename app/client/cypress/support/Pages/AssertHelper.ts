@@ -93,10 +93,9 @@ export class AssertHelper extends ReusableHelper {
 
     return cy
       .wait(this.GetAliasName(aliasName), { timeout: responseTimeout })
-      .then(() => {
-        const aliasNameToGet = this.GetAliasName(aliasName);
+      .then((interceptions) => {
         return cy
-          .get(aliasNameToGet)
+          .wrap(interceptions)
           .its("response")
           .then((response: any) => response);
         //   interceptions.length > 0
