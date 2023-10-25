@@ -147,10 +147,13 @@ const OverlayCanvasContainer = (props: { canvasWidth: number }) => {
     );
 
     scrollParent.addEventListener("mousemove", mouseMoveHandler);
+    wrapperRef.current.addEventListener("mousemove", mouseMoveHandler);
     scrollParent.addEventListener("scroll", scrollHandler);
     scrollParent.addEventListener("scrollend", scrollEndHandler);
 
     return () => {
+      if (wrapperRef?.current)
+        wrapperRef.current.removeEventListener("mousemove", mouseMoveHandler);
       scrollParent.removeEventListener("mousemove", mouseMoveHandler);
       scrollParent.removeEventListener("scroll", scrollHandler);
       scrollParent.removeEventListener("scrollend", scrollEndHandler);
@@ -172,7 +175,7 @@ const OverlayCanvasContainer = (props: { canvasWidth: number }) => {
       // has changed after the layout element positions have been computed
       // In the case of layout element positions being recomputed, the actual widget name data
       // will be different from the widget name data we have right now.
-      if (selectedWidgetNameData?.length === 0) {
+      if (selectedWidgetNameData?.length === 0 && !shouldAllowDrag) {
         resetCanvas(widgetNamePositions, stageRef, true);
       } else {
         updateFn();
