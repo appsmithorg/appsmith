@@ -56,11 +56,6 @@ public class AstServiceCEImpl implements AstServiceCE {
         if (bindingValues == null || bindingValues.isEmpty()) {
             return Flux.empty();
         }
-
-        if (bindingValues.contains(null)) {
-            log.debug("Null value found in binding values. Returning empty set");
-        }
-
         /*
            For the binding value which starts with "appsmith.theme" can be directly served
            without calling the AST API or the calling the method for non-AST implementation
