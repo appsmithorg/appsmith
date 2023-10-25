@@ -67,12 +67,14 @@ public class CustomJSLibImportableServiceCEImpl implements ImportableServiceCE<C
      * @param customJSLibList
      * @param applicationJson
      */
-    private void ensureXmlParserPresenceInCustomJsLibList(List<CustomJSLib> customJSLibList, ApplicationJson applicationJson) {
-        boolean isXmlParserLibFound = false;
+    private void ensureXmlParserPresenceInCustomJsLibList(
+            List<CustomJSLib> customJSLibList, ApplicationJson applicationJson) {
         // this is to ensure that newer applications(server schema > 6) does not get xml parser when imported.
         if (applicationJson.getServerSchemaVersion() > 6) {
             return;
         }
+
+        boolean isXmlParserLibFound = false;
 
         for (CustomJSLib customJSLib : customJSLibList) {
             if (!customJSLib.getUidString().equals(ApplicationConstants.XML_PARSER_LIBRARY_UID)) {
