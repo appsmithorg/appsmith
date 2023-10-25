@@ -20,6 +20,7 @@ import {
 import {
   HIGHLIGHT_SIZE,
   HORIZONTAL_DROP_ZONE_MULTIPLIER,
+  INFINITE_DROP_ZONE,
 } from "../../constants";
 import { generateLayoutComponentMock } from "mocks/layoutComponents/layoutComponentMock";
 import type { LayoutElementPositions } from "layoutSystems/common/types";
@@ -204,9 +205,7 @@ describe("rowHighlights tests", () => {
       );
       expect(highlights[0].dropZone.left).toEqual(dimensions["1"].left);
       expect(highlights[highlights.length - 1].dropZone.right).toEqual(
-        dimensions["layoutID"].width -
-          dimensions["3"].left -
-          dimensions["3"].width,
+        INFINITE_DROP_ZONE,
       );
 
       // Drop zone on either side of the highlight should extend up to 35% of the gap between itself and it's neighbor in that direction.
@@ -262,9 +261,7 @@ describe("rowHighlights tests", () => {
       // Drop zone at the end should be maximum
       expect(highlights[0].dropZone.left).toEqual(dimensions["1"].left);
       expect(highlights[highlights.length - 1].dropZone.right).toEqual(
-        dimensions["layoutID"].width -
-          dimensions["3"].left -
-          dimensions["3"].width,
+        INFINITE_DROP_ZONE,
       );
 
       // Drop zone on either side of the highlight should extend up to 35% of the gap between itself and it's neighbor in that direction.
@@ -318,9 +315,7 @@ describe("rowHighlights tests", () => {
       // Drop zone at the end should be maximum
       expect(highlights[0].dropZone.left).toEqual(dimensions["1"].left);
       expect(highlights[highlights.length - 1].dropZone.right).toEqual(
-        dimensions["layoutID"].width -
-          dimensions["3"].left -
-          dimensions["3"].width,
+        INFINITE_DROP_ZONE,
       );
 
       // Drop zone on either side of the highlight should extend up to 35% of the gap between itself and it's neighbor in that direction.
@@ -377,9 +372,7 @@ describe("rowHighlights tests", () => {
       // Drop zone at the end should be maximum
       expect(highlights[0].dropZone.left).toEqual(dimensions["1"].left);
       expect(highlights[highlights.length - 1].dropZone.right).toEqual(
-        dimensions["layoutID"].width -
-          dimensions["3"].left -
-          dimensions["3"].width,
+        INFINITE_DROP_ZONE,
       );
 
       // Drop zone on either side of the highlight should extend up to 35% of the gap between itself and it's neighbor in that direction.
@@ -491,9 +484,7 @@ describe("rowHighlights tests", () => {
       expect(res[0].posX).toEqual(posX);
       expect(res[0].height).toEqual(positions[layout.layoutId].height);
       expect(res[0].width).toEqual(HIGHLIGHT_SIZE);
-      expect(res[0].dropZone?.right).toEqual(
-        positions[layout.layoutId].width - posX,
-      );
+      expect(res[0].dropZone?.right).toEqual(INFINITE_DROP_ZONE);
       expect(res[0].dropZone?.left).toEqual(posX);
     });
   });
@@ -622,7 +613,7 @@ describe("rowHighlights tests", () => {
       );
       // Second highlight should be placed after input widget
       expect(res[1].posX).toEqual(
-        positions[input1].left + positions[input1].width + HIGHLIGHT_SIZE / 2,
+        positions[input1].left + positions[input1].width,
       );
     });
   });
