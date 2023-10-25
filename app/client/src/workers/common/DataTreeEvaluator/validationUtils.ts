@@ -105,7 +105,7 @@ export function validateAndParseWidgetProperty({
       messages?.map((message) => {
         return {
           raw: unEvalPropertyValue,
-          errorMessage: message || "",
+          errorMessage: message || {},
           errorType: PropertyEvaluationErrorType.VALIDATION,
           severity: Severity.ERROR,
         };

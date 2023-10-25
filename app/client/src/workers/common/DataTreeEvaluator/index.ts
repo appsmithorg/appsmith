@@ -324,6 +324,7 @@ export default class DataTreeEvaluator {
   }
 
   /**
+   * Mutates the dataTree.
    * Validates all the nodes of the tree to make sure all the values are as expected according to the validation config
    *
    * For example :- If Button.isDisabled is set to false in propertyPane then it would be passed as "false" in unEvalTree and validateTree method makes sure to convert it to boolean.
@@ -332,7 +333,7 @@ export default class DataTreeEvaluator {
    * @param configTree
    * @returns
    */
-  getValidatedTree(
+  validatedTree(
     dataTree: DataTree,
     option: {
       evalProps: EvalProps;
@@ -392,7 +393,7 @@ export default class DataTreeEvaluator {
           const evalErrors: EvaluationError[] =
             messages?.map((message) => ({
               errorType: PropertyEvaluationErrorType.VALIDATION,
-              errorMessage: message,
+              errorMessage: message ?? {},
               severity: Severity.ERROR,
               raw: value,
             })) ?? [];
@@ -427,11 +428,11 @@ export default class DataTreeEvaluator {
     );
 
     /**
-     * We need to re-validate all widget only in case of first tree
+     * We need to re-validate all widgets only in case of first tree
      * Widget fields with custom validation functions can depend on other properties of the widget,
      * which aren't evaluated/validated yet, thereby store incorrect validation errors in the previous step
      */
-    this.getValidatedTree(
+    this.validatedTree(
       evaluatedTree,
       {
         evalProps: this.evalProps,
