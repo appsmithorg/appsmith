@@ -2167,7 +2167,7 @@ export const STARTER_TEMPLATE_PAGE_LAYOUTS = {
   layouts: {
     dashboard: {
       name: () => "Dashboard",
-      description: () => "Visual representations of your data and a table",
+      description: () => "Visual representation of data",
     },
     form: {
       name: () => "Form",
@@ -2175,11 +2175,11 @@ export const STARTER_TEMPLATE_PAGE_LAYOUTS = {
     },
     recordEdit: {
       name: () => "Record Edit",
-      description: () => "Edit selected record with a form",
+      description: () => "Edit records with a form",
     },
     recordDetails: {
       name: () => "Record Details",
-      description: () => "View more details about a selected record",
+      description: () => "View details about a record",
     },
   },
   datasourceConnectPrompt: {
