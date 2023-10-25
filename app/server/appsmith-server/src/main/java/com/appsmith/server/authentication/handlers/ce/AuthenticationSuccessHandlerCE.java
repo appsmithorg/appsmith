@@ -2,7 +2,6 @@ package com.appsmith.server.authentication.handlers.ce;
 
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.server.authentication.handlers.CustomServerOAuth2AuthorizationRequestResolver;
-import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.constants.ApiConstants;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.RateLimitConstants;
@@ -74,7 +73,6 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
     private final UserService userService;
     private final WorkspaceServiceHelper workspaceServiceHelper;
     private final FeatureFlagService featureFlagService;
-    private final CommonConfig commonConfig;
 
     private Mono<Boolean> isVerificationRequired(String userEmail, String method) {
         Mono<Boolean> emailVerificationEnabledMono = tenantService
@@ -451,11 +449,8 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
              * This flow is for not creating any default application which is :
              * - when the user is enabled for create new app flow
              * - when the skip create new app cookie is not set
-             * - when the instance is a cloudhosting
              */
-            if (Boolean.TRUE.equals(isEnabledForCreateNewApps)
-                    && !skipCreateNewAppFlagCookieValue
-                    && commonConfig.isCloudHosting()) {
+            if (Boolean.TRUE.equals(isEnabledForCreateNewApps) && !skipCreateNewAppFlagCookieValue) {
                 return app;
             }
 

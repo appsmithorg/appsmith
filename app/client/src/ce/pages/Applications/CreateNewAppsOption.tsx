@@ -109,13 +109,13 @@ const CardContainer = styled.div`
   }
 `;
 
-type CardProps = {
+interface CardProps {
   onClick?: () => void;
   src: string;
   subTitle: string;
   testid: string;
   title: string;
-};
+}
 
 const Card = ({ onClick, src, subTitle, testid, title }: CardProps) => {
   return (

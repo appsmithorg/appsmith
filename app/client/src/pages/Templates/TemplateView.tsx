@@ -122,12 +122,12 @@ function TemplateNotFound() {
   return <EntityNotFoundPane />;
 }
 
-type TemplateViewProps = {
+interface TemplateViewProps {
   onClickUseTemplate?: (id: string) => void;
   showBack?: boolean;
   showSimilarTemplate?: boolean;
   templateId: string;
-};
+}
 
 export function TemplateView({
   onClickUseTemplate,
