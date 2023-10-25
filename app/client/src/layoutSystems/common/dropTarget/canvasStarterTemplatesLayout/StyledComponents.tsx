@@ -102,7 +102,10 @@ export const TemplateLayoutContentGrid = styled.div`
   justify-content: center;
   align-items: center;
   flex-direction: row;
+<<<<<<< HEAD
   gap: 12px;
+=======
+>>>>>>> 48a87c76279b37fd451bd450e7f5c9774df8d45f
 `;
 
 export const TemplateLayoutContentItem = styled.div`
@@ -115,9 +118,12 @@ export const TemplateLayoutContentItem = styled.div`
   background: transparent;
   transition: background 0.3s ease;
   cursor: pointer;
+<<<<<<< HEAD
   width: 146px;
   border-width: 1px;
   border-color: #cdd5df;
+=======
+>>>>>>> 48a87c76279b37fd451bd450e7f5c9774df8d45f
 
   &:hover {
     background: rgba(241, 245, 249, 1);
@@ -135,6 +141,13 @@ export const IconContainer = styled.div<{ layoutItemActive: boolean }>`
   border-width: 1px;
   border-radius: 4px;
   margin-bottom: 8px;
+  border-color: ${(props) =>
+    props.layoutItemActive ? Colors.PRIMARY_ORANGE : "transparent"};
+`;
+
+export const IconContainer = styled.div<{ layoutItemActive: boolean }>`
+  border-width: 1px;
+  border-radius: 4px;
   border-color: ${(props) =>
     props.layoutItemActive ? Colors.PRIMARY_ORANGE : "transparent"};
 `;

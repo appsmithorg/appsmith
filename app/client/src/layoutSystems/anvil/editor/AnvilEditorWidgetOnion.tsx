@@ -43,7 +43,9 @@ export const AnvilEditorWidgetOnion = (props: BaseWidgetProps) => {
   return (
     <AnvilFlexComponent
       isResizeDisabled={props.resizeDisabled}
+      layoutId={props.layoutId}
       parentId={props.parentId}
+      rowIndex={props.rowIndex}
       widgetId={props.widgetId}
       widgetName={props.widgetName}
       widgetSize={widgetSize}

@@ -1,25 +1,19 @@
-import React, { useEffect, useRef } from "react";
+import React from "react";
 import { connect } from "react-redux";
 import type { InjectedFormProps } from "redux-form";
 import { reduxForm } from "redux-form";
 import styled from "styled-components";
 import type { AppState } from "@appsmith/reducers";
 import { API_HOME_SCREEN_FORM } from "@appsmith/constants/forms";
-import NewApiScreen from "./NewApi";
-import NewQueryScreen from "./NewQuery";
 import ActiveDataSources from "./ActiveDataSources";
-import MockDataSources from "./MockDataSources";
-import AddDatasourceSecurely from "./AddDatasourceSecurely";
 import {
   getDatasources,
   getMockDatasources,
 } from "@appsmith/selectors/entitiesSelector";
 import type { Datasource, MockDatasource } from "entities/Datasource";
 import type { TabProp } from "design-system-old";
-import { IconSize, Text, TextType } from "design-system-old";
-import scrollIntoView from "scroll-into-view-if-needed";
+import { IconSize } from "design-system-old";
 import { INTEGRATION_TABS, INTEGRATION_EDITOR_MODES } from "constants/routes";
-import { thinScrollbar } from "constants/DefaultTheme";
 import BackButton from "../DataSourceEditor/BackButton";
 import UnsupportedPluginDialog from "./UnsupportedPluginDialog";
 import { getQueryParams } from "utils/URLUtils";
@@ -36,10 +30,10 @@ import Debugger, {
 import { showDebuggerFlag } from "selectors/debuggerSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
-import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 import { isGACEnabled } from "@appsmith/utils/planHelpers";
 import { getHasCreateDatasourcePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import CreateNewDatasourceTab from "./CreateNewDatasourceTab";
 
 const HeaderFlex = styled.div`
   font-size: 20px;
@@ -90,14 +84,6 @@ const SectionGrid = styled.div<{ isActiveTab?: boolean }>`
   flex: 1;
   min-height: 100%;
 `;
-const NewIntegrationsContainer = styled.div`
-  ${thinScrollbar};
-  overflow: auto;
-  flex: 1;
-  & > div {
-    margin-bottom: 20px;
-  }
-`;
 
 interface IntegrationsHomeScreenProps {
   pageId: string;
@@ -145,144 +131,6 @@ const TERTIARY_MENU_IDS = {
   ACTIVE_CONNECTIONS: 0,
   MOCK_DATABASE: 1,
 };
-
-interface MockDataSourcesProps {
-  mockDatasources: MockDatasource[];
-  active: boolean;
-}
-
-function UseMockDatasources({ active, mockDatasources }: MockDataSourcesProps) {
-  const useMockRef = useRef<HTMLDivElement>(null);
-  const isMounted = useRef(false);
-  useEffect(() => {
-    if (active && useMockRef.current) {
-      isMounted.current &&
-        scrollIntoView(useMockRef.current, {
-          behavior: "smooth",
-          scrollMode: "always",
-          block: "start",
-          boundary: document.getElementById("new-integrations-wrapper"),
-        });
-    } else {
-      isMounted.current = true;
-    }
-  }, [active]);
-  return (
-    <div id="mock-database" ref={useMockRef}>
-      <Text type={TextType.H2}>Get started with our sample datasources</Text>
-      <MockDataSources mockDatasources={mockDatasources} />
-    </div>
-  );
-}
-
-function CreateNewAPI({
-  active,
-  history,
-  isCreating,
-  pageId,
-  showUnsupportedPluginDialog,
-}: any) {
-  const newAPIRef = useRef<HTMLDivElement>(null);
-  const isMounted = useRef(false);
-
-  useEffect(() => {
-    if (active && newAPIRef.current) {
-      isMounted.current &&
-        scrollIntoView(newAPIRef.current, {
-          behavior: "smooth",
-          scrollMode: "always",
-          block: "start",
-          boundary: document.getElementById("new-integrations-wrapper"),
-        });
-    } else {
-      isMounted.current = true;
-    }
-  }, [active]);
-  return (
-    <div id="new-api" ref={newAPIRef}>
-      <Text type={TextType.H2}>APIs</Text>
-      <NewApiScreen
-        history={history}
-        isCreating={isCreating}
-        location={location}
-        pageId={pageId}
-        showSaasAPIs={false}
-        showUnsupportedPluginDialog={showUnsupportedPluginDialog}
-      />
-    </div>
-  );
-}
-
-function CreateNewSaasIntegration({
-  active,
-  history,
-  isCreating,
-  pageId,
-  showUnsupportedPluginDialog,
-}: any) {
-  const newSaasAPIRef = useRef<HTMLDivElement>(null);
-  const isMounted = useRef(false);
-  const isAirgappedInstance = isAirgapped();
-
-  useEffect(() => {
-    if (active && newSaasAPIRef.current) {
-      isMounted.current &&
-        scrollIntoView(newSaasAPIRef.current, {
-          behavior: "smooth",
-          scrollMode: "always",
-          block: "start",
-          boundary: document.getElementById("new-integrations-wrapper"),
-        });
-    } else {
-      isMounted.current = true;
-    }
-  }, [active]);
-  return !isAirgappedInstance ? (
-    <div id="new-saas-api" ref={newSaasAPIRef}>
-      <Text type={TextType.H2}>Saas Integrations</Text>
-      <NewApiScreen
-        history={history}
-        isCreating={isCreating}
-        location={location}
-        pageId={pageId}
-        showSaasAPIs
-        showUnsupportedPluginDialog={showUnsupportedPluginDialog}
-      />
-    </div>
-  ) : null;
-}
-
-function CreateNewDatasource({
-  active,
-  history,
-  isCreating,
-  pageId,
-  showUnsupportedPluginDialog,
-}: any) {
-  const newDatasourceRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    if (active && newDatasourceRef.current) {
-      scrollIntoView(newDatasourceRef.current, {
-        behavior: "smooth",
-        scrollMode: "always",
-        block: "start",
-        boundary: document.getElementById("new-integrations-wrapper"),
-      });
-    }
-  }, [active]);
-  return (
-    <div id="new-datasources" ref={newDatasourceRef}>
-      <Text type={TextType.H2}>Databases</Text>
-      <NewQueryScreen
-        history={history}
-        isCreating={isCreating}
-        location={location}
-        pageId={pageId}
-        showUnsupportedPluginDialog={showUnsupportedPluginDialog}
-      />
-    </div>
-  );
-}
 
 class IntegrationsHomeScreen extends React.Component<
   Props,
@@ -408,26 +256,17 @@ class IntegrationsHomeScreen extends React.Component<
     this.setState({ activeSecondaryMenuId });
   };
 
-  showUnsupportedPluginDialog = (callback: () => void) => {
-    this.setState({
-      unsupportedPluginDialogVisible: true,
-    });
-    this.unsupportedPluginContinueAction = callback;
-  };
-
   render() {
     const {
       canCreateDatasource = false,
       dataSources,
-      history,
-      isCreating,
       location,
       pageId,
       showDebugger,
     } = this.props;
     const { unsupportedPluginDialogVisible } = this.state;
     let currentScreen;
-    const { activePrimaryMenuId, activeSecondaryMenuId } = this.state;
+    const { activePrimaryMenuId } = this.state;
 
     const PRIMARY_MENU: TabProp[] = [
       {
@@ -451,62 +290,9 @@ class IntegrationsHomeScreen extends React.Component<
     const isGeneratePageInitiator = getIsGeneratePageInitiator();
     // Avoid user to switch tabs when in generate page flow by hiding the tabs itself.
     const showTabs = !isGeneratePageInitiator;
-    const mockDataSection =
-      this.props.mockDatasources.length > 0 ? (
-        <UseMockDatasources
-          active={
-            activeSecondaryMenuId ===
-            getSecondaryMenuIds(dataSources.length > 0).MOCK_DATABASE
-          }
-          mockDatasources={this.props.mockDatasources}
-        />
-      ) : null;
 
     if (activePrimaryMenuId === PRIMARY_MENU_IDS.CREATE_NEW) {
-      currentScreen = (
-        <NewIntegrationsContainer id="new-integrations-wrapper">
-          {dataSources.length === 0 && <AddDatasourceSecurely />}
-          {dataSources.length === 0 &&
-            this.props.mockDatasources.length > 0 &&
-            mockDataSection}
-          <CreateNewAPI
-            active={
-              activeSecondaryMenuId ===
-              getSecondaryMenuIds(dataSources.length > 0).API
-            }
-            history={history}
-            isCreating={isCreating}
-            location={location}
-            pageId={pageId}
-            showUnsupportedPluginDialog={this.showUnsupportedPluginDialog}
-          />
-          <CreateNewDatasource
-            active={
-              activeSecondaryMenuId ===
-              getSecondaryMenuIds(dataSources.length > 0).DATABASE
-            }
-            history={history}
-            isCreating={isCreating}
-            location={location}
-            pageId={pageId}
-            showUnsupportedPluginDialog={this.showUnsupportedPluginDialog}
-          />
-          <CreateNewSaasIntegration
-            active={
-              activeSecondaryMenuId ===
-              getSecondaryMenuIds(dataSources.length > 0).API
-            }
-            history={history}
-            isCreating={isCreating}
-            location={location}
-            pageId={pageId}
-            showUnsupportedPluginDialog={this.showUnsupportedPluginDialog}
-          />
-          {dataSources.length > 0 &&
-            this.props.mockDatasources.length > 0 &&
-            mockDataSection}
-        </NewIntegrationsContainer>
-      );
+      currentScreen = <CreateNewDatasourceTab />;
     } else {
       currentScreen = (
         <ActiveDataSources
