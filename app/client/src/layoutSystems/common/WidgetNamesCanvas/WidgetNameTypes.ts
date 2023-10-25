@@ -31,3 +31,8 @@ export interface CanvasPositions {
   yDiff: number;
   height: number;
 }
+
+export interface WidgetNamePositionType {
+  selected: Record<string, WidgetNamePositionData | undefined>;
+  focused: Record<string, WidgetNamePositionData | undefined>;
+}

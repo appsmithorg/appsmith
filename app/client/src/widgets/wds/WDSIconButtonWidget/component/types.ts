@@ -1,7 +1,7 @@
 import type { IconName } from "@blueprintjs/icons";
 import type { IconButtonProps } from "@design-system/widgets";
 
-export type IconButtonComponentProps = {
+export interface IconButtonComponentProps {
   tooltip?: string;
   visuallyDisabled?: boolean;
   isLoading: boolean;
@@ -13,4 +13,4 @@ export type IconButtonComponentProps = {
   minWidth?: number;
   maxWidth?: number;
   minHeight?: number;
-};
+}

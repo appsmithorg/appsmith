@@ -21,7 +21,7 @@ describe("Omnibar functionality test cases", () => {
     deployMode.StubWindowNAssert(
       '//span[text()="Learn more"]',
       "connect-to-a-database",
-      "getWorkspace",
+      "getPluginForm",
     );
   });
 
@@ -115,7 +115,7 @@ describe("Omnibar functionality test cases", () => {
       deployMode.StubWindowNAssert(
         omnibar.discordLink,
         "https://discord.com/invite/rBTTVJp",
-        "getWorkspace",
+        "getPluginForm",
       );
     },
   );

@@ -17,6 +17,7 @@ import type { JSCollectionDataState } from "reducers/entityReducers/jsActionsRed
 import type { AppTheme } from "entities/AppTheming";
 import type { LoadingEntitiesState } from "reducers/evaluationReducers/loadingEntitiesReducer";
 import type { LayoutSystemTypes } from "layoutSystems/types";
+import type { ModuleInput } from "@appsmith/constants/ModuleConstants";
 
 export type ActionDispatcher = (...args: any[]) => ActionDescription;
 
@@ -26,6 +27,8 @@ export enum ENTITY_TYPE {
   APPSMITH = "APPSMITH",
   JSACTION = "JSACTION",
 }
+export const JSACTION_TYPE = ENTITY_TYPE.JSACTION;
+export const ACTION_TYPE = ENTITY_TYPE.ACTION;
 
 export enum EvaluationSubstitutionType {
   TEMPLATE = "TEMPLATE",
@@ -185,11 +188,6 @@ export interface DataTreeSeed {
   moduleInputs: Record<string, ModuleInput>;
   layoutSystemType: LayoutSystemTypes;
   loadingEntities: LoadingEntitiesState;
-}
-
-export interface ModuleInput {
-  name: string;
-  defaultValue: any;
 }
 
 export type DataTreeEntityConfig =

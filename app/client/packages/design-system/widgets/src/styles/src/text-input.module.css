@@ -3,10 +3,10 @@
   & [data-field-input] {
     display: flex;
     align-items: center;
-    gap: var(--spacing-1);
+    gap: var(--inner-spacing-1);
     border-radius: var(--border-radius-1);
     box-shadow: 0 0 0 1px var(--color-bd-neutral);
-    padding-inline: var(--spacing-2);
+    padding-inline: var(--inner-spacing-2);
     block-size: var(--sizing-8);
   }
 
@@ -90,7 +90,7 @@
   *-----------------------------------------------------------------------------
   */
   & [data-field-input] [data-icon-button] {
-    block-size: calc(100% - var(--spacing-1));
+    block-size: calc(100% - var(--inner-spacing-1));
   }
 
   /**

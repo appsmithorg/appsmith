@@ -4,7 +4,6 @@ import {
   locators,
   agHelper,
 } from "../../../../support/Objects/ObjectsCore";
-import datasource from "../../../../locators/DatasourcesEditor.json";
 
 describe(
   "excludeForAirgap",
@@ -40,7 +39,7 @@ describe(
       deployMode.StubWindowNAssert(
         locators._learnMore,
         "querying-google-sheets#create-queries",
-        "getWorkspace",
+        "getPluginForm",
       );
       agHelper.GetNClick(locators._visibleTextSpan("Don't save"));
       agHelper.Sleep();
