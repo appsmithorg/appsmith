@@ -26,7 +26,7 @@ export class LibraryInstaller {
     this._aggregateHelper.GetNClick(this._installer_close_locator);
   }
 
-  public installLibrary(
+  public InstallLibrary(
     libraryName: string,
     accessor: string,
     checkIfSuccessful = true,
@@ -37,7 +37,7 @@ export class LibraryInstaller {
     if (checkIfSuccessful) this.assertInstall(libraryName, accessor);
   }
 
-  public installLibraryViaURL(
+  public InstallLibraryViaURL(
     url: string,
     accessor: string,
     checkIfSuccessful = true,
@@ -71,7 +71,7 @@ export class LibraryInstaller {
   }
 
   public assertUnInstall(libraryName: string) {
-    this._aggregateHelper.AssertContains(
+    this._aggregateHelper.WaitUntilToastDisappear(
       `${libraryName} is uninstalled successfully.`,
     );
     this._aggregateHelper.AssertElementAbsence(
