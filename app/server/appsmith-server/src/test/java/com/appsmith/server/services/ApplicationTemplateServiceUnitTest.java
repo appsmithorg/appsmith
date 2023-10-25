@@ -95,7 +95,8 @@ public class ApplicationTemplateServiceUnitTest {
                 userDataService,
                 applicationService,
                 responseUtils,
-                applicationPermission);
+                applicationPermission,
+                objectMapper);
     }
 
     private ApplicationTemplate create(String id, String title) {
