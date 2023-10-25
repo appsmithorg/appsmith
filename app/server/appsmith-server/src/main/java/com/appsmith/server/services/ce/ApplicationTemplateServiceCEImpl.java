@@ -21,6 +21,7 @@ import com.appsmith.server.solutions.ReleaseNotesService;
 import com.appsmith.util.WebClientUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -337,7 +338,9 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
         String authHeader = "Authorization";
         String payload;
         try {
-            ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.registerModule(new JavaTimeModule());
+            ObjectWriter ow = mapper.writer().withDefaultPrettyPrinter();
             payload = ow.writeValueAsString(communityTemplate);
         } catch (Exception e) {
             return Mono.error(e);
