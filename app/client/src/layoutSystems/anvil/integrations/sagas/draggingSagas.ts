@@ -15,6 +15,8 @@ import { addWidgetsToPreset } from "../../utils/layouts/update/additionUtils";
 import { moveWidgets } from "../../utils/layouts/update/moveUtils";
 import { AnvilReduxActionTypes } from "../actions/actionTypes";
 import { generateDefaultLayoutPreset } from "layoutSystems/anvil/layoutComponents/presets/DefaultLayoutPreset";
+import { selectWidgetInitAction } from "actions/widgetSelectionActions";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 
 function* addWidgetsSaga(
   actionPayload: ReduxAction<{
@@ -76,6 +78,9 @@ function* addWidgetsSaga(
       },
     };
     yield put(updateAndSaveLayout(updatedWidgets));
+    yield put(
+      selectWidgetInitAction(SelectionRequestType.One, [newWidget.newWidgetId]),
+    );
     log.debug("Anvil : add new widget took", performance.now() - start, "ms");
   } catch (error) {
     yield put({
