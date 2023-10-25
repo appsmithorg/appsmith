@@ -15,6 +15,7 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.Theme;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ExportFileDTO;
 import com.appsmith.server.dtos.ExportingMetaDTO;
@@ -179,7 +180,7 @@ public class ExportApplicationServiceCEImpl implements ExportApplicationServiceC
                     return applicationJson;
                 })
                 .then(applicationMono)
-                .map(application -> sendImportExportApplicationAnalyticsEvent(application, AnalyticsEvents.EXPORT))
+                .flatMap(application -> sendExportApplicationAnalyticsEvent(applicationId, AnalyticsEvents.EXPORT))
                 .thenReturn(applicationJson);
     }
 
@@ -297,23 +298,29 @@ public class ExportApplicationServiceCEImpl implements ExportApplicationServiceC
     /**
      * To send analytics event for import and export of application
      *
-     * @param application Application object imported or exported
-     * @param event       AnalyticsEvents event
+     * @param applicationId Application id for which the analytics event needs to be sent
+     * @param event         AnalyticsEvents event
      * @return The application which is imported or exported
      */
-    private Mono<Application> sendImportExportApplicationAnalyticsEvent(
-            Application application, AnalyticsEvents event) {
-        return workspaceService.getById(application.getWorkspaceId()).flatMap(workspace -> {
-            final Map<String, Object> eventData = Map.of(
-                    FieldName.APPLICATION, application,
-                    FieldName.WORKSPACE, workspace);
+    private Mono<Application> sendExportApplicationAnalyticsEvent(String applicationId, AnalyticsEvents event) {
+        return applicationService
+                .findById(applicationId)
+                .zipWhen(application -> workspaceService.getById(application.getWorkspaceId()))
+                .flatMap(tuple2 -> {
+                    Application application = tuple2.getT1();
+                    Workspace workspace = tuple2.getT2();
+                    final Map<String, Object> eventData = Map.of(
+                            FieldName.APPLICATION, application,
+                            FieldName.WORKSPACE, workspace);
 
-            final Map<String, Object> data = Map.of(
-                    FieldName.APPLICATION_ID, application.getId(),
-                    FieldName.WORKSPACE_ID, workspace.getId(),
-                    FieldName.EVENT_DATA, eventData);
+                    final Map<String, Object> data = Map.of(
+                            FieldName.APPLICATION_ID, application.getId(),
+                            FieldName.WORKSPACE_ID, workspace.getId(),
+                            FieldName.EVENT_DATA, eventData);
 
-            return analyticsService.sendObjectEvent(event, application, data);
-        });
+                    return analyticsService.sendObjectEvent(event, application, data);
+                })
+                .switchIfEmpty(Mono.error(
+                        new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId)));
     }
 }
