@@ -12,7 +12,7 @@ import moment from "moment";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import type { WidgetFeatures } from "utils/WidgetFeatures";
 import type { WidgetProps } from "../widgets/BaseWidget";
-import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
+import type { ExtraDef } from "utils/autocomplete/defCreatorUtils";
 import type { WidgetEntityConfig } from "@appsmith/entities/DataTree/types";
 import type {
   WidgetQueryConfig,
@@ -56,8 +56,8 @@ export interface AutoLayoutConfig {
   disabledPropsDefaults?: Partial<WidgetProps>;
 }
 export interface SizeConfig {
-  maxHeight: Record<string, string>;
-  maxWidth: Record<string, string>;
+  maxHeight?: Record<string, string>;
+  maxWidth?: Record<string, string>;
   minHeight: Record<string, string>;
   minWidth: Record<string, string>;
 }

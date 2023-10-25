@@ -20,6 +20,7 @@ import {
   getFunctionalParamsFromNode,
   isTypeOfFunction,
   isFunctionPresent,
+  getMemberExpressionObjectFromProperty,
 } from "./src";
 
 // constants
@@ -133,4 +134,5 @@ export {
   isJSFunctionProperty,
   isFunctionPresent,
   PeekOverlayExpressionIdentifier,
+  getMemberExpressionObjectFromProperty,
 };

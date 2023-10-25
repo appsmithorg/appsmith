@@ -144,7 +144,9 @@ describe("AlignedRow highlights", () => {
       expect(res[0].posX).toEqual(dimensions[button].left - HIGHLIGHT_SIZE);
       expect(res[0].posY).toEqual(dimensions[button].top);
       expect(res[0].height).toEqual(dimensions[input].height);
-      expect(res[0].dropZone.left).toEqual(dimensions[button].left);
+      expect(res[0].dropZone.left).toEqual(
+        dimensions[button].left - HIGHLIGHT_SIZE,
+      );
 
       expect(res[1].alignment).toEqual(FlexLayerAlignment.Start);
       expect(res[1].posX).toEqual(dimensions[input].left - HIGHLIGHT_SIZE);
@@ -157,7 +159,7 @@ describe("AlignedRow highlights", () => {
 
       expect(res[2].alignment).toEqual(FlexLayerAlignment.Start);
       expect(res[2].posX).toEqual(
-        dimensions[input].left + dimensions[input].width + HIGHLIGHT_SIZE / 2,
+        dimensions[input].left + dimensions[input].width,
       );
       expect(res[2].posY).toEqual(dimensions[input].top);
       expect(res[2].height).toEqual(dimensions[input].height);
