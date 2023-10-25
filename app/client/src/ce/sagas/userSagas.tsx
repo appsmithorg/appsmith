@@ -90,6 +90,7 @@ import type {
   ProductAlertConfig,
 } from "reducers/uiReducers/usersReducer";
 import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
+import { faro } from "index";
 
 export function* createUserSaga(
   action: ReduxActionWithPromise<CreateUserRequest>,
@@ -162,6 +163,8 @@ export function* getCurrentUserSaga() {
         type: ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS,
         payload: response.data,
       });
+      const email = (response as any)?.data?.email;
+      faro && faro.api.setUser({ email });
     }
   } catch (error) {
     PerformanceTracker.stopAsyncTracking(

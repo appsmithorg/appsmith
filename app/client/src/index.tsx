@@ -22,11 +22,33 @@ import GlobalStyles from "globalStyles";
 // enable autofreeze only in development
 import { setAutoFreeze } from "immer";
 import AppErrorBoundary from "./AppErrorBoundry";
+import { getWebInstrumentations, initializeFaro } from "@grafana/faro-web-sdk";
+import { TracingInstrumentation } from "@grafana/faro-web-tracing";
 
 const shouldAutoFreeze = process.env.NODE_ENV === "development";
 
 setAutoFreeze(shouldAutoFreeze);
 runSagaMiddleware();
+
+export const faro = initializeFaro({
+  url: "provide here telemetrics agent url",
+  app: {
+    name: "provide application name",
+    version: "1.0.0",
+    environment: "production",
+  },
+  batching: {
+    enabled: true,
+  },
+  instrumentations: [
+    // Mandatory, overwriting the instrumentations array would cause the default instrumentations to be omitted
+    ...getWebInstrumentations(),
+
+    // Initialization of the tracing package.
+    // This packages is optional because it increases the bundle size noticeably. Only add it if you want tracing data.
+    new TracingInstrumentation(),
+  ],
+});
 
 appInitializer();
 
