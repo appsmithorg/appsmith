@@ -97,7 +97,8 @@ export class AssertHelper extends ReusableHelper {
         const aliasNameToGet = this.GetAliasName(aliasName);
         return cy
           .get(aliasNameToGet)
-          .then((interceptions: any) => interceptions);
+          .its("response")
+          .then((response: any) => response);
         //   interceptions.length > 0
         //     ? interceptions[interceptions.length - 1].response
         //     : interceptions,
@@ -112,13 +113,14 @@ export class AssertHelper extends ReusableHelper {
   ) {
     if (waitForNetworkCall) {
       // If waitForNetworkCall is true, then use the interception from received call
-      return this.WaitForNetworkCall(aliasName).then((interception: any) =>
-        this.processNetworkStatus(interception, expectedStatus),
+      return this.WaitForNetworkCall(aliasName).then((response: any) =>
+        this.processNetworkStatus(response, expectedStatus),
       );
     } else {
       // If interception is not available, directly get the alias & use it
       return cy
         .get(this.GetAliasName(aliasName))
+        .its("response")
         .then((interception: any) =>
           this.processNetworkStatus(interception, expectedStatus),
         );
@@ -126,12 +128,10 @@ export class AssertHelper extends ReusableHelper {
   }
 
   private processNetworkStatus(
-    interception: any,
+    response: any,
     expectedStatus: number | number[],
   ) {
-    const responseStatus = Number(
-      interception.response.body.responseMeta.status,
-    );
+    const responseStatus = Number(response.body.responseMeta.status);
     const expectedStatusArray = Array.isArray(expectedStatus)
       ? expectedStatus
       : [expectedStatus];
@@ -157,9 +157,8 @@ export class AssertHelper extends ReusableHelper {
     }
   }
 
-  private processNetworkResponseData(interception: any) {
-    const responseData = interception.response.body.data;
-    expect(responseData).to.not.be.empty;
+  private processNetworkResponseData(response: any) {
+    expect(response.body.data).to.not.be.empty;
   }
 
   public AssertNetworkExecutionSuccess(
