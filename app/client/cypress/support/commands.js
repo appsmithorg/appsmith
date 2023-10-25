@@ -353,7 +353,7 @@ Cypress.Commands.add("LoginFromAPI", (uname, pword) => {
   // Check if cookie is present
   cy.getCookie("SESSION").then((cookie) => {
     expect(cookie).to.not.be.null;
-    cy.log(cookie.value);
+    cy.log("cookie.value is: " + cookie.value);
 
     cy.location().should((loc) => {
       expect(loc.href).to.eq(loc.origin + "/applications");
@@ -362,13 +362,9 @@ Cypress.Commands.add("LoginFromAPI", (uname, pword) => {
     if (CURRENT_REPO === REPO.EE) {
       cy.wait(2000);
     } else {
-      cy.wait("@getMe");
-      cy.wait("@applications").should(
-        "have.nested.property",
-        "response.body.responseMeta.status",
-        200,
-      );
-      cy.wait("@getReleaseItems");
+      assertHelper.AssertNetworkStatus("getMe");
+      assertHelper.AssertNetworkStatus("applications");
+      assertHelper.AssertNetworkStatus("getReleaseItems");
     }
   });
 });
@@ -394,7 +390,19 @@ Cypress.Commands.add("DeletepageFromSideBar", () => {
   cy.wait(2000);
 });
 
-Cypress.Commands.add("LogOut", () => {
+Cypress.Commands.add("LogOut", (toCheckgetPluginForm = true) => {
+  agHelper.WaitUntilAllToastsDisappear();
+  //Since these are coming in every self-hosted 1st time login, commenting for CI runs
+  // agHelper.AssertElementAbsence(
+  //   locators._specificToast("There was an unexpected error"),
+  // );
+  // agHelper.AssertElementAbsence(
+  //   locators._specificToast("Internal server error while processing request"),
+  // );
+  if (CURRENT_REPO === REPO.CE)
+    toCheckgetPluginForm &&
+      assertHelper.AssertNetworkResponseData("@getPluginForm", false);
+
   cy.request({
     method: "POST",
     url: "/api/v1/logout",
@@ -1149,6 +1157,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.intercept("GET", "/api/v1/admin/env").as("getEnvVariables");
   cy.intercept("DELETE", "/api/v1/git/branch/app/*").as("deleteBranch");
   cy.intercept("GET", "/api/v1/git/branch/app/*").as("getBranch");
+  cy.intercept("POST", "/api/v1/git/create-branch/app/*").as("createBranch");
   cy.intercept("GET", "/api/v1/git/status/app/*").as("gitStatus");
   cy.intercept("PUT", "/api/v1/layouts/refactor").as("updateWidgetName");
   cy.intercept("GET", "/api/v1/workspaces/*/members").as("getMembers");
@@ -1160,6 +1169,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   );
   cy.intercept("PUT", "/api/v1/datasources/*").as("updateDatasource");
   cy.intercept("POST", "/api/v1/applications/ssh-keypair/*").as("generateKey");
+  cy.intercept("GET", "/api/v1/applications/ssh-keypair/*").as("generatedKey");
   cy.intercept("POST", "/api/v1/applications/snapshot/*").as("snapshotSuccess");
   cy.intercept(
     {
@@ -1172,9 +1182,9 @@ Cypress.Commands.add("startServerAndRoutes", () => {
     },
   ).as("connectGitLocalRepo");
 
-  cy.intercept({
-    method: "PUT",
-  }).as("sucessSave");
+  // cy.intercept({
+  //   method: "PUT",
+  // }).as("sucessSave");
 
   cy.intercept("POST", "https://api.segment.io/v1/b", (req) => {
     req.reply({
@@ -1448,7 +1458,13 @@ Cypress.Commands.add("createSuperUser", () => {
       expect(interception.request.body).contains("signupForNewsletter=true");
     });
   }
-  if (CURRENT_REPO === REPO.CE) cy.wait("@getWorkspace");
+
+  cy.wait(2000);
+
+  if (CURRENT_REPO === REPO.CE) {
+    cy.get("#loading").should("not.exist");
+    cy.get("#sidebar").should("be.visible");
+  }
 
   cy.LogOut();
   cy.wait(2000);

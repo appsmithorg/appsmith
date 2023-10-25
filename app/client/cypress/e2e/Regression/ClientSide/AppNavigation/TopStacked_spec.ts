@@ -14,9 +14,9 @@ describe("Test Top + Stacked navigation style", function () {
     homePage.ImportApp("appNavigationTestingAppWithLongPageNamesAndTitle.json");
     assertHelper
       .WaitForNetworkCall("importNewApplication")
-      .then((interception: any) => {
+      .then((response: any) => {
         agHelper.Sleep();
-        const { isPartialImport } = interception.response.body.data;
+        const { isPartialImport } = response.body.data;
         if (isPartialImport) {
           homePage.AssertNCloseImport();
         } else {
