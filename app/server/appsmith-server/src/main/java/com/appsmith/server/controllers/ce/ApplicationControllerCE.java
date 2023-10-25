@@ -388,14 +388,17 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
     }
 
     @JsonView(Views.Public.class)
-    @PostMapping(value = "/import/partial/{applicationId}/{pageId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(
+            value = "/import/partial/{workspaceId}/{applicationId}",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public Mono<ResponseDTO<Application>> importApplicationPartially(
             @RequestPart("file") Mono<Part> fileMono,
+            @PathVariable String workspaceId,
             @PathVariable String applicationId,
-            @PathVariable String pageId,
+            @RequestParam String pageId,
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
-        return fileMono.flatMap(fileData ->
-                        partialImportService.importResourceInPage(applicationId, pageId, branchName, fileData))
+        return fileMono.flatMap(fileData -> partialImportService.importResourceInPage(
+                        workspaceId, applicationId, pageId, branchName, fileData))
                 .map(fetchedResource -> new ResponseDTO<>(HttpStatus.OK.value(), fetchedResource, null));
     }
 }
