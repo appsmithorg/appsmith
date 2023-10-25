@@ -3,7 +3,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 const publicWidgetsPage = require("../../../../../locators/publishWidgetspage.json");
 
 describe("3D Custom EChart feature", function () {
-  it("5. 3D EChart Custom Chart Widget Functionality", function () {
+  it("1. 3D EChart Custom Chart Widget Functionality", function () {
     featureFlagIntercept({
       release_custom_echarts_enabled: true,
     });

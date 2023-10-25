@@ -1,20 +1,19 @@
 import React, { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
-import { DatasourceStructureContext } from "../Explorer/Datasources/DatasourceStructure";
-import { DatasourceStructureContainer as DatasourceStructureList } from "../Explorer/Datasources/DatasourceStructureContainer";
+import { DatasourceStructureContainer as DatasourceStructureList } from "./DatasourceStructureContainer";
 import {
   getDatasourceStructureById,
   getIsFetchingDatasourceStructure,
   getNumberOfEntitiesInCurrentPage,
 } from "@appsmith/selectors/entitiesSelector";
-import DatasourceStructureHeader from "../Explorer/Datasources/DatasourceStructureHeader";
-import { MessageWrapper, TableWrapper } from "../SaaSEditor/GoogleSheetSchema";
+import DatasourceStructureHeader from "./DatasourceStructureHeader";
+import { MessageWrapper, TableWrapper } from "./GoogleSheetSchema";
 import { Spinner, Text, Button } from "design-system";
 import {
-  GSHEETS_FETCHING_PREVIEW_DATA,
-  GSHEETS_GENERATE_PAGE_BUTTON,
-  GSHEETS_ERR_FETCHING_PREVIEW_DATA,
+  ERR_FETCHING_DATASOURCE_PREVIEW_DATA,
+  FETCHING_DATASOURCE_PREVIEW_DATA,
+  DATASOURCE_GENERATE_PAGE_BUTTON,
   EMPTY_TABLE_TITLE_TEXT,
   EMPTY_TABLE_MESSAGE_TEXT,
   createMessage,
@@ -29,12 +28,13 @@ import {
   getPagePermissions,
 } from "selectors/editorSelectors";
 import { GENERATE_PAGE_MODE } from "../GeneratePage/components/GeneratePageForm/GeneratePageForm";
-import { useDatasourceQuery } from "./hooks";
+import { useDatasourceQuery } from "../DataSourceEditor/hooks";
 import type {
   Datasource,
   DatasourceTable,
   QueryTemplate,
 } from "entities/Datasource";
+import { DatasourceStructureContext } from "entities/Datasource";
 import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
 import type { AppState } from "@appsmith/reducers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -50,90 +50,89 @@ const ViewModeSchemaContainer = styled.div`
   height: 100%;
   width: 100%;
   display: flex;
-  justify-content: space-between;
-  margin-top: 1rem;
+  flex-direction: column;
+`;
+
+const DataWrapperContainer = styled.div`
+  display: flex;
+  flex: 1;
+  overflow: hidden;
 `;
 
 const StructureContainer = styled.div`
   height: 100%;
   width: 25%;
+  padding: var(--ads-v2-spaces-4) var(--ads-v2-spaces-5);
+  padding-left: var(--ads-v2-spaces-7);
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  border-right: 1px solid var(--ads-v2-color-gray-300);
+  flex-shrink: 0;
 `;
 
 const DatasourceDataContainer = styled.div`
   height: 100%;
-  width: 73%;
+  width: 75%;
   display: flex;
   flex-direction: column;
 `;
 
 const DatasourceListContainer = styled.div`
   height: 100%;
-  margin-top: 1rem;
   display: flex;
   flex-direction: column;
   div {
     flex-shrink: 0;
   }
   div ~ div {
-    flex-grow: 1;
+    flex: 1;
   }
   .t--schema-virtuoso-container {
     height: 100%;
   }
 `;
 
-export const SchemaDisplayEmptyOrErrorOrLoadingStateWrapper = styled.div`
+const SchemaStateMessageWrapper = styled.div`
   width: auto;
   display: flex;
   flex-direction: column;
   align-items: center;
   position: relative;
-  left: 20%;
-`;
-
-export const SchemaDisplayEmptyOrErrorOrLoadingMessageWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  left: 10%;
+  img {
+    padding-bottom: var(--ads-v2-spaces-7);
+  }
+  span:first-child {
+    padding-bottom: var(--ads-v2-spaces-2);
+  }
 `;
 
 const ButtonContainer = styled.div`
-  margin-bottom: 1rem;
   display: flex;
+  flex-shrink: 0;
   justify-content: flex-end;
+  border-top: 1px solid var(--ads-v2-color-gray-300);
+  padding: var(--ads-v2-spaces-4);
 `;
 
 interface Props {
-  datasourceId: string;
   datasource: Datasource;
   setDatasourceViewModeFlag: (viewMode: boolean) => void;
 }
 
 const renderEmptyTablePage = () => {
   return (
-    <SchemaDisplayEmptyOrErrorOrLoadingStateWrapper>
+    <SchemaStateMessageWrapper>
       {/* Render empty table image */}
-      <img
-        alt={createMessage(EMPTY_TABLE_SVG_ALT_TEXT)}
-        src={EmptyTableSVG}
-        style={{ paddingBottom: "10%", paddingTop: "50%" }}
-      />
+      <img alt={createMessage(EMPTY_TABLE_SVG_ALT_TEXT)} src={EmptyTableSVG} />
       {/* Show description below the image */}
-      <SchemaDisplayEmptyOrErrorOrLoadingMessageWrapper>
-        {/* Show title */}
-        <Text style={{ fontWeight: "bold" }}>
-          {createMessage(EMPTY_TABLE_TITLE_TEXT)}
-        </Text>
-        {/* Show description */}
-        <Text>{createMessage(EMPTY_TABLE_MESSAGE_TEXT)}</Text>
-      </SchemaDisplayEmptyOrErrorOrLoadingMessageWrapper>
-    </SchemaDisplayEmptyOrErrorOrLoadingStateWrapper>
+      {/* Show title */}
+      <Text style={{ fontWeight: "bold" }}>
+        {createMessage(EMPTY_TABLE_TITLE_TEXT)}
+      </Text>
+      {/* Show description */}
+      <Text>{createMessage(EMPTY_TABLE_MESSAGE_TEXT)}</Text>
+    </SchemaStateMessageWrapper>
   );
 };
 
@@ -141,11 +140,11 @@ const DatasourceViewModeSchema = (props: Props) => {
   const dispatch = useDispatch();
 
   const datasourceStructure = useSelector((state) =>
-    getDatasourceStructureById(state, props.datasourceId),
+    getDatasourceStructureById(state, props.datasource.id),
   );
 
   const isDatasourceStructureLoading = useSelector((state: AppState) =>
-    getIsFetchingDatasourceStructure(state, props.datasourceId),
+    getIsFetchingDatasourceStructure(state, props.datasource.id),
   );
 
   const pagePermissions = useSelector(getPagePermissions);
@@ -233,7 +232,7 @@ const DatasourceViewModeSchema = (props: Props) => {
         }
 
         fetchPreviewData({
-          datasourceId: props.datasourceId,
+          datasourceId: props.datasource.id,
           template: suggestedTemPlate,
         });
       }
@@ -243,7 +242,7 @@ const DatasourceViewModeSchema = (props: Props) => {
   useEffect(() => {
     if (previewData && previewData.length > 0) {
       AnalyticsUtil.logEvent("DATASOURCE_PREVIEW_DATA_SHOWN", {
-        datasourceId: props.datasourceId,
+        datasourceId: props.datasource.id,
         pluginId: props.datasource.pluginId,
       });
     }
@@ -251,7 +250,7 @@ const DatasourceViewModeSchema = (props: Props) => {
 
   const onEntityTableClick = (table: string) => {
     AnalyticsUtil.logEvent("DATASOURCE_PREVIEW_TABLE_CHANGE", {
-      datasourceId: props.datasourceId,
+      datasourceId: props.datasource.id,
       pluginId: props.datasource.pluginId,
     });
     setTableName(table);
@@ -272,11 +271,11 @@ const DatasourceViewModeSchema = (props: Props) => {
         columns: [],
         searchColumn: "",
         tableName: tableName,
-        datasourceId: props.datasourceId || "",
+        datasourceId: props.datasource.id || "",
       };
 
       AnalyticsUtil.logEvent("DATASOURCE_GENERATE_PAGE_BUTTON_CLICKED", {
-        datasourceId: props.datasourceId,
+        datasourceId: props.datasource.id,
         pluginId: props.datasource.pluginId,
       });
 
@@ -303,67 +302,67 @@ const DatasourceViewModeSchema = (props: Props) => {
 
   return (
     <ViewModeSchemaContainer>
-      <StructureContainer>
-        <DatasourceStructureHeader datasourceId={props.datasourceId} />
-
-        <DatasourceListContainer>
-          <DatasourceStructureList
-            context={DatasourceStructureContext.DATASOURCE_VIEW_MODE}
-            customEditDatasourceFn={customEditDatasourceFn}
-            datasourceId={props.datasourceId}
-            datasourceStructure={datasourceStructure}
-            onEntityTableClick={onEntityTableClick}
-            step={0}
-            tableName={tableName}
+      <DataWrapperContainer>
+        <StructureContainer>
+          <DatasourceStructureHeader
+            datasourceId={props.datasource.id}
+            paddingBottom
           />
-        </DatasourceListContainer>
-      </StructureContainer>
-      <DatasourceDataContainer>
-        {showGeneratePageBtn && (
-          <ButtonContainer>
-            <Button
-              className="t--gsheet-generate-page"
-              key="gsheet-generate-page"
-              kind="primary"
-              onClick={generatePageAction}
-              size="md"
-            >
-              {createMessage(GSHEETS_GENERATE_PAGE_BUTTON)}
-            </Button>
-          </ButtonContainer>
-        )}
-
-        <TableWrapper>
-          {isLoading && (
-            <MessageWrapper>
-              <Spinner size="md" />
-              <Text style={{ marginLeft: "8px" }}>
-                {createMessage(GSHEETS_FETCHING_PREVIEW_DATA)}
-              </Text>
-            </MessageWrapper>
-          )}
-          {!isLoading && failedFetchingPreviewData && (
-            <Text color="var(--ads-color-red-500)">
-              {createMessage(GSHEETS_ERR_FETCHING_PREVIEW_DATA)}
-            </Text>
-          )}
-          {!isLoading &&
-            !failedFetchingPreviewData &&
-            !previewDataError &&
-            previewData?.length > 0 && <Table data={previewData} />}
-          {!isLoading &&
-            !failedFetchingPreviewData &&
-            !previewDataError &&
-            previewData?.length < 1 &&
-            renderEmptyTablePage()}
-          {/* leaving this here in case we decide to show errors from server */}
-          {/* {!isLoading && !failedFetchingPreviewData && previewDataError && (
-            <MessageWrapper>
-              <Text>{previewDataError}</Text>
-            </MessageWrapper>
-          )} */}
-        </TableWrapper>
-      </DatasourceDataContainer>
+          <DatasourceListContainer>
+            <DatasourceStructureList
+              context={DatasourceStructureContext.DATASOURCE_VIEW_MODE}
+              customEditDatasourceFn={customEditDatasourceFn}
+              datasourceId={props.datasource.id}
+              datasourceStructure={datasourceStructure}
+              onEntityTableClick={onEntityTableClick}
+              step={0}
+              tableName={tableName}
+            />
+          </DatasourceListContainer>
+        </StructureContainer>
+        <DatasourceDataContainer>
+          <TableWrapper>
+            {isLoading && (
+              <MessageWrapper>
+                <Spinner size="md" />
+                <Text style={{ marginLeft: "8px" }}>
+                  {createMessage(FETCHING_DATASOURCE_PREVIEW_DATA)}
+                </Text>
+              </MessageWrapper>
+            )}
+            {!isLoading && failedFetchingPreviewData && (
+              <MessageWrapper>
+                <Text color="var(--ads-color-red-500)">
+                  {createMessage(ERR_FETCHING_DATASOURCE_PREVIEW_DATA)}
+                </Text>
+              </MessageWrapper>
+            )}
+            {!isLoading &&
+              !failedFetchingPreviewData &&
+              !previewDataError &&
+              previewData?.length > 0 && <Table data={previewData} />}
+            {!isLoading &&
+              !failedFetchingPreviewData &&
+              !previewDataError &&
+              previewData?.length < 1 && (
+                <MessageWrapper>{renderEmptyTablePage()}</MessageWrapper>
+              )}
+          </TableWrapper>
+        </DatasourceDataContainer>
+      </DataWrapperContainer>
+      {showGeneratePageBtn && (
+        <ButtonContainer>
+          <Button
+            className="t--datasource-generate-page"
+            key="datasource-generate-page"
+            kind="secondary"
+            onClick={generatePageAction}
+            size="md"
+          >
+            {createMessage(DATASOURCE_GENERATE_PAGE_BUTTON)}
+          </Button>
+        </ButtonContainer>
+      )}
     </ViewModeSchemaContainer>
   );
 };
