@@ -123,4 +123,9 @@ public enum FeatureFlagEnum {
      * Feature flag to detect if scheduled backup is supported for the tenant
      */
     license_scheduled_backup_enabled,
+
+    /**
+     * Feature flag to detect if workflows feature is enabled for the tenant
+     */
+    license_workflows_enabled,
 }
