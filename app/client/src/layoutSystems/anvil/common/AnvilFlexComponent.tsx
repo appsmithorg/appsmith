@@ -105,8 +105,17 @@ export function AnvilFlexComponent(props: AnvilFlexComponentProps) {
         props.widgetId
       } ${widgetTypeClassname(
         props.widgetType,
-      )} t--widget-${props.widgetName.toLowerCase()}`,
-    [props.parentId, props.widgetId, props.widgetType, props.widgetName],
+      )} t--widget-${props.widgetName.toLowerCase()} drop-target-${
+        props.layoutId
+      } row-index-${props.rowIndex}`,
+    [
+      props.parentId,
+      props.widgetId,
+      props.widgetType,
+      props.widgetName,
+      props.layoutId,
+      props.rowIndex,
+    ],
   );
 
   // Memoize flex props to be passed to the WDS Flex component.

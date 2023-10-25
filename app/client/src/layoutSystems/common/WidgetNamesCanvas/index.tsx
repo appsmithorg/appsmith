@@ -43,10 +43,7 @@ import {
  * @prop canvasWidth width of canvas in pixels
  * @prop containerRef ref of PageViewWrapper component
  */
-const OverlayCanvasContainer = (props: {
-  canvasWidth: number;
-  containerRef: React.RefObject<HTMLDivElement | null>;
-}) => {
+const OverlayCanvasContainer = (props: { canvasWidth: number }) => {
   //widget name data of widgets
   const selectedWidgetNameData: WidgetNameData[] | undefined = useSelector(
     getSelectedWidgetNameData,
@@ -54,6 +51,7 @@ const OverlayCanvasContainer = (props: {
   const focusedWidgetNameData: WidgetNameData | undefined = useSelector(
     getFocusedWidgetNameData,
   );
+
   // should we allow dragging of widgets
   const shouldAllowDrag = useSelector(getShouldAllowDrag);
   // When we begin dragging, the drag and resize hooks need a few details to take over
@@ -64,8 +62,8 @@ const OverlayCanvasContainer = (props: {
   const wrapperRef = useRef<HTMLDivElement>(null);
   // used to keep track of positions of widgetName drawn on canvas to make it intractable
   const widgetNamePositions = useRef<WidgetNamePositionType>({
-    selected: undefined,
-    focused: undefined,
+    selected: {},
+    focused: {},
   });
   //Positions of canvas
   const canvasPositions = useRef<CanvasPositions>({
@@ -125,11 +123,7 @@ const OverlayCanvasContainer = (props: {
     const scrollParent: HTMLDivElement | null =
       getMainContainerAnvilCanvasDOMElement();
 
-    if (!props.containerRef?.current || !wrapperRef?.current || !scrollParent)
-      return;
-
-    const container: HTMLDivElement = props.containerRef
-      ?.current as HTMLDivElement;
+    if (!wrapperRef?.current || !scrollParent) return;
 
     const reset = resetCanvas.bind(this, widgetNamePositions, stageRef);
 
@@ -152,33 +146,37 @@ const OverlayCanvasContainer = (props: {
       widgetNamePositions,
     );
 
-    container.addEventListener("mousemove", mouseMoveHandler);
+    scrollParent.addEventListener("mousemove", mouseMoveHandler);
     scrollParent.addEventListener("scroll", scrollHandler);
     scrollParent.addEventListener("scrollend", scrollEndHandler);
 
     return () => {
-      container.removeEventListener("mousemove", mouseMoveHandler);
+      scrollParent.removeEventListener("mousemove", mouseMoveHandler);
       scrollParent.removeEventListener("scroll", scrollHandler);
       scrollParent.removeEventListener("scrollend", scrollEndHandler);
     };
-  }, [
-    props.containerRef?.current,
-    wrapperRef?.current,
-    widgetNamePositions.current,
-    canvasPositions.current,
-  ]);
+  }, [wrapperRef?.current, stageRef?.current]);
 
   // Reset the canvas if no widgets are focused or selected
   // Update the widget name positions if there are widgets focused or selected
   // and they've changed.
-
-  // Note: If the selector for `selectWidgetNameData` reference changes
-  // Then this will run on every render. We should be careful about this.
   useEffect(() => {
     if (!selectedWidgetNameData && !focusedWidgetNameData) {
       resetCanvas(widgetNamePositions, stageRef);
     } else {
-      updateFn();
+      // The following is a hack, where if the widget name data is an empty array
+      // The source is the fact that we're moving a widget
+      // In this case, we don't want to lose the references we have right now,
+      // because after dropping, the selectedWidgetNameData will come back as it was before
+      // the move. We only want to recompute widget name positions if the widget name data
+      // has changed after the layout element positions have been computed
+      // In the case of layout element positions being recomputed, the actual widget name data
+      // will be different from the widget name data we have right now.
+      if (selectedWidgetNameData?.length === 0) {
+        resetCanvas(widgetNamePositions, stageRef, true);
+      } else {
+        updateFn();
+      }
     }
   }, [selectedWidgetNameData, focusedWidgetNameData]);
 
