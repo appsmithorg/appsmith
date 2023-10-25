@@ -26,8 +26,8 @@ enum RuleWeight {
   GlobalJS = 1,
   JSLibrary,
   DataTreeFunction,
-  RecentEntityMatch,
   DataTreeMatch,
+  RecentEntityMatch,
   TypeMatch,
   DataTreeEntityNameMatch,
   PriorityMatch,
@@ -298,7 +298,7 @@ class ScopeMatchRule implements AutocompleteRule {
   computeScore(completion: Completion<TernCompletionResult>): number {
     let score = 0;
     if (
-      completion.origin.startsWith("[doc") ||
+      completion.origin?.startsWith("[doc") ||
       completion.origin === "customDataTree"
     )
       score += ScopeMatchRule.threshold;
