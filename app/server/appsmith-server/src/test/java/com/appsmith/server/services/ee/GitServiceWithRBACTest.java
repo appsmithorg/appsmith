@@ -370,7 +370,7 @@ public class GitServiceWithRBACTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void connectApplicationToGit_WithCRUDPermissionsOnApplication_ConnectSuccess()
+    public void connectApplicationToGit_WithCRUDPermissionsOnWorkspaceAndApplication_ConnectSuccess()
             throws IOException, GitAPIException {
 
         Mockito.when(gitExecutor.cloneApplication(
@@ -450,7 +450,7 @@ public class GitServiceWithRBACTest {
                 .updatePolicies(
                         workspaceId,
                         permissionGroup.getId(),
-                        List.of(AclPermission.READ_WORKSPACES),
+                        List.of(AclPermission.READ_WORKSPACES, AclPermission.WORKSPACE_CREATE_APPLICATION),
                         List.of(),
                         Workspace.class)
                 .block();
@@ -590,7 +590,7 @@ public class GitServiceWithRBACTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void detachRemote_withCRUDOnApplication_Success() {
+    public void detachRemote_withCRUDOnWorkspaceAndApplication_Success() {
         List<GitBranchDTO> branchList = new ArrayList<>();
         GitBranchDTO gitBranchDTO = new GitBranchDTO();
         gitBranchDTO.setBranchName("defaultBranch");
@@ -649,7 +649,7 @@ public class GitServiceWithRBACTest {
                 .updatePolicies(
                         workspaceId,
                         permissionGroup.getId(),
-                        List.of(AclPermission.READ_WORKSPACES),
+                        List.of(AclPermission.WORKSPACE_CREATE_APPLICATION),
                         List.of(),
                         Workspace.class)
                 .block();
