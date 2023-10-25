@@ -11,7 +11,10 @@ export const MainPane = (props: { id: string }) => {
   const { path } = useRouteMatch();
   const isAppSidebarEnabled = useSelector(getIsAppSidebarEnabled);
   return (
-    <div className="relative flex flex-col flex-1 overflow-auto" id={props.id}>
+    <div
+      className="relative flex flex-col flex-1 overflow-auto z-2"
+      id={props.id}
+    >
       <Switch key={BUILDER_PATH}>
         {routes(path, isAppSidebarEnabled).map((route) => (
           <SentryRoute {...route} key={route.key} />

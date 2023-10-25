@@ -28,6 +28,8 @@ const PaneContainer = styled.div`
 
 const PaneBody = styled.div`
   padding: 12px;
+  height: calc(100vh - 120px);
+  overflow-y: scroll;
 `;
 
 const SubListContainer = styled.div`

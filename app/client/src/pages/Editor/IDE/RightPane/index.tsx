@@ -1,14 +1,30 @@
 import React from "react";
 import PropertyPaneWrapper from "pages/Editor/WidgetsEditor/PropertyPaneWrapper";
-import useCurrentAppState from "../hooks";
-import { AppState } from "entities/IDE/constants";
+import {
+  BUILDER_CUSTOM_PATH,
+  BUILDER_PATH,
+  BUILDER_PATH_DEPRECATED,
+  WIDGETS_EDITOR_BASE_PATH,
+  WIDGETS_EDITOR_ID_PATH,
+} from "constants/routes";
+import { useRouteMatch } from "react-router";
+import { SentryRoute } from "@appsmith/AppRouter";
 
 const RightPane = () => {
-  const appState = useCurrentAppState();
-  if (appState === AppState.PAGES) {
-    return <PropertyPaneWrapper />;
-  }
-  return null;
+  const { path } = useRouteMatch();
+  return (
+    <SentryRoute
+      component={PropertyPaneWrapper}
+      exact
+      path={[
+        BUILDER_PATH_DEPRECATED,
+        BUILDER_PATH,
+        BUILDER_CUSTOM_PATH,
+        `${path}${WIDGETS_EDITOR_BASE_PATH}`,
+        `${path}${WIDGETS_EDITOR_ID_PATH}`,
+      ]}
+    />
+  );
 };
 
 export default RightPane;
