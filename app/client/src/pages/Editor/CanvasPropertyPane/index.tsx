@@ -25,7 +25,6 @@ const MainHeading = styled.h3`
 `;
 export function CanvasPropertyPane() {
   const dispatch = useDispatch();
-  const isAnvilEnabled = useFeatureFlag(FEATURE_FLAG.release_anvil_enabled);
   const isAppSidebarEnabled = useFeatureFlag(
     FEATURE_FLAG.release_app_sidebar_enabled,
   );
@@ -36,9 +35,11 @@ export function CanvasPropertyPane() {
   };
 
   const checkLayoutSystemFeatures = useLayoutSystemFeatures();
-  const [enableLayoutControl] = checkLayoutSystemFeatures([
-    LayoutSystemFeatures.ENABLE_CANVAS_LAYOUT_CONTROL,
-  ]);
+  const [enableLayoutControl, enableLayoutConversion] =
+    checkLayoutSystemFeatures([
+      LayoutSystemFeatures.ENABLE_CANVAS_LAYOUT_CONTROL,
+      LayoutSystemFeatures.ENABLE_LAYOUT_CONVERSION,
+    ]);
 
   return (
     <div className="relative ">
@@ -54,7 +55,7 @@ export function CanvasPropertyPane() {
               <MainContainerWidthToggles />
             </>
           )}
-          {!isAnvilEnabled && <ConversionButton />}
+          {enableLayoutConversion && <ConversionButton />}
           {!isAppSidebarEnabled && (
             <Tooltip
               content={
