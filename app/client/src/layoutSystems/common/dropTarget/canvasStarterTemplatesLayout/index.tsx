@@ -203,9 +203,9 @@ const layoutItems: {
     icon: <RecordDetails />,
     screenshot:
       "https://s3.us-east-2.amazonaws.com/template.appsmith.com/canvas-starter-page-layout-record-detail.png",
-    templateId: "62221f5300c64549b31b9466",
+    templateId: "631f717b47a7d75706eb6ef1",
     templateName: STARTER_TEMPLATE_NAME,
-    templatePageName: "2 Application Upload2 Application Upload",
+    templatePageName: "Feedback Form",
   },
   {
     id: 3,
