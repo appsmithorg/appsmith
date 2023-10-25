@@ -302,8 +302,16 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
                                                     // bucket has been exhausted, and return too many requests response
                                                     return datasourceService
                                                             .blockEndpointForConnectionRequest(datasourceStorage)
-                                                            .flatMap(
-                                                                    isAdded -> Mono.error(TOO_MANY_REQUESTS_EXCEPTION));
+                                                            .flatMap(isAdded -> {
+                                                                if (isAdded) {
+                                                                    return Mono.error(TOO_MANY_REQUESTS_EXCEPTION);
+                                                                } else {
+                                                                    return Mono.error(
+                                                                            new AppsmithException(
+                                                                                    AppsmithError
+                                                                                            .DATASOURCE_CONNECTION_RATE_LIMIT_BLOCKING_FAILED));
+                                                                }
+                                                            });
                                                 }
                                                 return Mono.error(error);
                                             });

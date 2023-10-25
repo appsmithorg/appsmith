@@ -549,8 +549,19 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                                                     // This will block the test API for next 5 minutes, as bucket has
                                                     // been exhausted, and return too many requests response
                                                     return this.blockEndpointForConnectionRequest(datasourceStorage)
-                                                            .flatMap(isAdded -> Mono.just(tooManyRequests))
-                                                            .onErrorResume(error -> Mono.just(tooManyRequests));
+                                                            .flatMap(isAdded -> {
+                                                                if (isAdded) {
+                                                                    return Mono.just(tooManyRequests);
+                                                                } else {
+                                                                    return Mono.just(new DatasourceTestResult(
+                                                                            new AppsmithException(
+                                                                                            AppsmithError
+                                                                                                    .DATASOURCE_CONNECTION_RATE_LIMIT_BLOCKING_FAILED)
+                                                                                    .getMessage()));
+                                                                }
+                                                            })
+                                                            .onErrorResume(error -> Mono.just(
+                                                                    new DatasourceTestResult(error.getMessage())));
                                                 }
                                                 return Mono.just(datasourceTestResult);
                                             })
