@@ -11,15 +11,6 @@ import type { RenderMode } from "constants/WidgetConstants";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { previewModeSelector } from "selectors/editorSelectors";
 
-// Use an IframeComponentContainer instead of an IframeComponent directly.
-// If the IframeComponent's isVisible property is false, it will not render.
-function IframeComponentContainer(props: IframeComponentProps) {
-  if (!props.isVisible) {
-    return null;
-  }
-  return <IframeComponent {...props} />;
-}
-
 interface IframeContainerProps {
   borderColor?: string;
   borderOpacity?: number;
@@ -188,4 +179,4 @@ function IframeComponent(props: IframeComponentProps) {
   );
 }
 
-export default IframeComponentContainer;
+export default IframeComponent;
