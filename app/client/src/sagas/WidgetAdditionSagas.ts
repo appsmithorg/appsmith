@@ -49,6 +49,7 @@ import {
 } from "selectors/editorSelectors";
 import { getWidgetMinMaxDimensionsInPixel } from "layoutSystems/autolayout/utils/flexWidgetUtils";
 import { isFunction } from "lodash";
+import type { LayoutComponentProps } from "layoutSystems/anvil/utils/anvilTypes";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -108,6 +109,17 @@ function* getChildWidgetProps(
           draft.children = [];
         }
       });
+      if (props.layout && props.layout.length) {
+        props = {
+          ...props,
+          layout: props.layout.map((each: LayoutComponentProps) => {
+            return {
+              ...each,
+              layoutId: generateReactKey(),
+            };
+          }),
+        };
+      }
     }
   }
 
