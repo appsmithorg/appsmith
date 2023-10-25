@@ -2,6 +2,7 @@ package com.appsmith.server.exports.internal;
 
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.helpers.Stopwatch;
+import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
@@ -44,7 +45,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
 import static java.lang.Boolean.TRUE;
 
 @Slf4j
@@ -125,13 +125,8 @@ public class ExportApplicationServiceCEImpl implements ExportApplicationServiceC
          * We need to cache the applicationMono because the application object inside the applicationMono will be
          * updated in the subsequent steps. We need to use the original application object for analytics.
          */
-        Mono<Application> cachedApplicationMono = applicationMono
-                .map(application -> {
-                    Application cachedApplication = new Application();
-                    copyNestedNonNullProperties(application, cachedApplication);
-                    return cachedApplication;
-                })
-                .cache();
+        Mono<String> cachedApplicationIdMono =
+                applicationMono.map(BaseDomain::getId).cache();
 
         // Set json schema version which will be used to check the compatibility while importing the JSON
         applicationJson.setServerSchemaVersion(JsonSchemaVersions.serverVersion);
@@ -139,7 +134,7 @@ public class ExportApplicationServiceCEImpl implements ExportApplicationServiceC
 
         return applicationMono
                 // create a copy of the application object, we'll need later to log the analytics
-                .flatMap(cachedApplicationMono::thenReturn)
+                .flatMap(cachedApplicationIdMono::thenReturn)
                 .flatMap(application -> {
                     // Refactor application to remove the ids
                     GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
@@ -194,7 +189,7 @@ public class ExportApplicationServiceCEImpl implements ExportApplicationServiceC
                             .thenReturn(applicationJson);
                 })
                 .flatMap(unused ->
-                        sendImportExportApplicationAnalyticsEvent(cachedApplicationMono, AnalyticsEvents.EXPORT))
+                        sendImportExportApplicationAnalyticsEvent(cachedApplicationIdMono, AnalyticsEvents.EXPORT))
                 .thenReturn(applicationJson);
     }
 
@@ -312,25 +307,25 @@ public class ExportApplicationServiceCEImpl implements ExportApplicationServiceC
     /**
      * To send analytics event for import and export of application
      *
-     * @param applicationMono Mono<Application></Application> object imported or exported
+     * @param applicationIdMono Mono<Application></Application> object imported or exported
      * @param event       AnalyticsEvents event
      * @return The application which is imported or exported
      */
     private Mono<Application> sendImportExportApplicationAnalyticsEvent(
-            Mono<Application> applicationMono, AnalyticsEvents event) {
-        return applicationMono.flatMap(application -> {
-            return workspaceService.getById(application.getWorkspaceId()).flatMap(workspace -> {
-                final Map<String, Object> eventData = Map.of(
-                        FieldName.APPLICATION, application,
-                        FieldName.WORKSPACE, workspace);
+            Mono<String> applicationIdMono, AnalyticsEvents event) {
+        return applicationIdMono.flatMap(applicationService::findById).flatMap(application -> workspaceService
+                .getById(application.getWorkspaceId())
+                .flatMap(workspace -> {
+                    final Map<String, Object> eventData = Map.of(
+                            FieldName.APPLICATION, application,
+                            FieldName.WORKSPACE, workspace);
 
-                final Map<String, Object> data = Map.of(
-                        FieldName.APPLICATION_ID, application.getId(),
-                        FieldName.WORKSPACE_ID, workspace.getId(),
-                        FieldName.EVENT_DATA, eventData);
+                    final Map<String, Object> data = Map.of(
+                            FieldName.APPLICATION_ID, application.getId(),
+                            FieldName.WORKSPACE_ID, workspace.getId(),
+                            FieldName.EVENT_DATA, eventData);
 
-                return analyticsService.sendObjectEvent(event, application, data);
-            });
-        });
+                    return analyticsService.sendObjectEvent(event, application, data);
+                }));
     }
 }
