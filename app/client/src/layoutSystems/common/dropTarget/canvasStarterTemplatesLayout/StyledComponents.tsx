@@ -24,6 +24,7 @@ export const TemplateLayoutFrame = styled.div<{ screenshot?: string | null }>`
     background: ${(props) =>
       props.screenshot ? `url(${props.screenshot}) no-repeat` : "none"};
     background-size: contain;
+    background-position: center;
     opacity: 0.6;
     z-index: -1;
   }
@@ -101,7 +102,7 @@ export const TemplateLayoutContentGrid = styled.div`
   justify-content: center;
   align-items: center;
   flex-direction: row;
-  gap: 16px;
+  gap: 12px;
 `;
 
 export const TemplateLayoutContentItem = styled.div`
