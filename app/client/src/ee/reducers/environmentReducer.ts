@@ -30,10 +30,6 @@ export interface EnvironmentsReduxState {
    */
   error: boolean;
   /**
-   * @param {boolean} showEnvInfoModal - Whether to show the environment info modal before deploy
-   */
-  showEnvDeployInfoModal: boolean;
-  /**
    * @param {string} currentEnvironmentDetails - The current environment details (id, name, appId, editingId)
    */
   currentEnvironmentDetails: CurrentEnvironmentDetails;
@@ -46,7 +42,6 @@ export interface EnvironmentsReduxState {
 // Initial state of the environment state in redux
 export const initialEnvironmentState: EnvironmentsReduxState = {
   isLoading: false,
-  showEnvDeployInfoModal: false,
   error: false,
   data: [],
   currentEnvironmentDetails: {
@@ -101,18 +96,6 @@ const handlers = {
       ...state.currentEnvironmentDetails,
       editingId: action.payload.currentEditingId,
     },
-  }),
-  [ReduxActionTypes.SHOW_ENV_INFO_MODAL]: (
-    state: EnvironmentsReduxState,
-  ): EnvironmentsReduxState => ({
-    ...state,
-    showEnvDeployInfoModal: true,
-  }),
-  [ReduxActionTypes.HIDE_ENV_INFO_MODAL]: (
-    state: EnvironmentsReduxState,
-  ): EnvironmentsReduxState => ({
-    ...state,
-    showEnvDeployInfoModal: false,
   }),
 };
 

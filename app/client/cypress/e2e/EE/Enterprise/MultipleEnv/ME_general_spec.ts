@@ -2,9 +2,7 @@ import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 import {
   multipleEnv,
   agHelper,
-  deployMode,
   dataManager,
-  locators,
 } from "../../../../support/ee/ObjectsCore_EE";
 
 let prodEnv: string, stagingEnv: string;
@@ -42,25 +40,7 @@ describe(
         "false",
       );
     });
-
-    it("2. Check for deploy modal for env enabled workspaces", function () {
-      deployMode.DeployApp(
-        locators._emptyPageTxt,
-        true,
-        true,
-        true,
-        "present",
-        true,
-      );
-      featureFlagIntercept({ release_datasource_environments_enabled: true });
-      agHelper.GetNAssertContains(
-        locators._emptyPageTxt,
-        "This page seems to be blank",
-      );
-      deployMode.NavigateBacktoEditor();
-      deployMode.DeployApp(locators._emptyPageTxt, true, true, true, "absent");
-    });
-    it("3. Ramps should visible when feature flag is false ", function () {
+    it("2. Ramps should visible when feature flag is false ", function () {
       featureFlagIntercept({ release_datasource_environments_enabled: false });
       agHelper.GetNClick(multipleEnv.env_switcher);
       agHelper.GetNClick(multipleEnv.env_switcher_dropdown_opt_stage);

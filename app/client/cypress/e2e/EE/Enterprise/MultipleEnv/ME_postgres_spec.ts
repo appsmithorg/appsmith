@@ -170,7 +170,6 @@ describe(
         true,
         true,
         true,
-        "present",
       );
       featureFlagIntercept({ release_datasource_environments_enabled: true });
       agHelper.GetNClickByContains(locators._deployedPage, "Public.city");

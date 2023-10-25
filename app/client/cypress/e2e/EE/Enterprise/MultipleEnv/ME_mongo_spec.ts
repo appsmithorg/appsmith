@@ -168,7 +168,6 @@ describe(
         true,
         true,
         true,
-        "present",
       );
       featureFlagIntercept({ release_datasource_environments_enabled: true });
       // Check for env switcher
