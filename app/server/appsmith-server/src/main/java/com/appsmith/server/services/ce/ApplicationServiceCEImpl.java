@@ -980,9 +980,10 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
     }
 
     @Override
-    public Mono<Application> findByNameAndWorkspaceId(
-            String applicationName, String workspaceId, AclPermission permission) {
-        return repository.findByNameAndWorkspaceId(applicationName, workspaceId, permission);
+    public Mono<Boolean> isApplicationNameTaken(String applicationName, String workspaceId, AclPermission permission) {
+        return repository
+                .countByNameAndWorkspaceId(applicationName, workspaceId, permission)
+                .map(count -> count > 0);
     }
 
     @Override
