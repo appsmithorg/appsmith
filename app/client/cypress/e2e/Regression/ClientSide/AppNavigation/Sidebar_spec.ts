@@ -9,10 +9,8 @@ import {
 
 describe("Test Sidebar navigation style", function () {
   before(() => {
-    agHelper.Sleep(2000); //for new workspace to show up & settle for CI runs
     // Import an application
     homePage.NavigateToHome();
-    agHelper.Sleep(2000);
     homePage.ImportApp("appNavigationTestingAppWithLongPageNamesAndTitle.json");
     assertHelper
       .WaitForNetworkCall("@importNewApplication")

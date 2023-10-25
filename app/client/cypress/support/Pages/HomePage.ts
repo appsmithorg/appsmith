@@ -185,6 +185,7 @@ export class HomePage {
     this.agHelper.Sleep(2000);
     this.assertHelper.AssertNetworkStatus("@updateWorkspace");
     this.agHelper.AssertContains(newWorkspaceName);
+    this.agHelper.Sleep(2000); //for new workspace to settle for CI
   }
 
   //Maps to CheckShareIcon in command.js
@@ -558,6 +559,7 @@ export class HomePage {
     intoWorkspaceName = "",
     onlyImport = false,
   ) {
+    this.agHelper.Sleep(3000); //for new workspace to settle for CI
     if (onlyImport === false) {
       cy.get(this._homeIcon).click({ force: true });
       if (intoWorkspaceName)
