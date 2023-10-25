@@ -26,8 +26,8 @@ enum RuleWeight {
   GlobalJS = 1,
   JSLibrary,
   DataTreeFunction,
-  DataTreeMatch,
   RecentEntityMatch,
+  DataTreeMatch,
   TypeMatch,
   DataTreeEntityNameMatch,
   PriorityMatch,
@@ -203,27 +203,9 @@ class DataTreeFunctionRule implements AutocompleteRule {
     return score;
   }
 }
-
-/**
- * Set's threshold value for completions that belong to the dataTree and sets higher score for
- * completions that are not functions
- * Max score - 11000 - binary
- * Min score - 0
- */
-class DataTreeRule implements AutocompleteRule {
-  static threshold = 1 << RuleWeight.DataTreeMatch;
-  computeScore(completion: Completion<TernCompletionResult>): number {
-    let score = 0;
-    if (!(completion.origin === "DATA_TREE")) return score;
-    score = DataTreeRule.threshold;
-    if (completion.type === "FUNCTION") return score;
-    return score + DataTreeRule.threshold / 2;
-  }
-}
-
 /**
  * Sets threshold value for completions that are recent entities
- * Max score - 100000 + number
+ * Max score - 10000 + number
  * Min score - 0
  */
 class RecentEntityRule implements AutocompleteRule {
@@ -234,6 +216,23 @@ class RecentEntityRule implements AutocompleteRule {
       score += RecentEntityRule.threshold + completion.recencyWeight;
     }
     return score;
+  }
+}
+
+/**
+ * Set's threshold value for completions that belong to the dataTree and sets higher score for
+ * completions that are not functions
+ * Max score - 110000 - binary
+ * Min score - 0
+ */
+class DataTreeRule implements AutocompleteRule {
+  static threshold = 1 << RuleWeight.DataTreeMatch;
+  computeScore(completion: Completion<TernCompletionResult>): number {
+    let score = 0;
+    if (!(completion.origin === "DATA_TREE")) return score;
+    score = DataTreeRule.threshold;
+    if (completion.type === "FUNCTION") return score;
+    return score + DataTreeRule.threshold / 2;
   }
 }
 
