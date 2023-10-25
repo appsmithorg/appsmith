@@ -51,6 +51,7 @@ const OverlayCanvasContainer = (props: { canvasWidth: number }) => {
   const focusedWidgetNameData: WidgetNameData | undefined = useSelector(
     getFocusedWidgetNameData,
   );
+
   // should we allow dragging of widgets
   const shouldAllowDrag = useSelector(getShouldAllowDrag);
   // When we begin dragging, the drag and resize hooks need a few details to take over
@@ -61,8 +62,8 @@ const OverlayCanvasContainer = (props: { canvasWidth: number }) => {
   const wrapperRef = useRef<HTMLDivElement>(null);
   // used to keep track of positions of widgetName drawn on canvas to make it intractable
   const widgetNamePositions = useRef<WidgetNamePositionType>({
-    selected: undefined,
-    focused: undefined,
+    selected: {},
+    focused: {},
   });
   //Positions of canvas
   const canvasPositions = useRef<CanvasPositions>({
@@ -159,14 +160,23 @@ const OverlayCanvasContainer = (props: { canvasWidth: number }) => {
   // Reset the canvas if no widgets are focused or selected
   // Update the widget name positions if there are widgets focused or selected
   // and they've changed.
-
-  // Note: If the selector for `selectWidgetNameData` reference changes
-  // Then this will run on every render. We should be careful about this.
   useEffect(() => {
     if (!selectedWidgetNameData && !focusedWidgetNameData) {
       resetCanvas(widgetNamePositions, stageRef);
     } else {
-      updateFn();
+      // The following is a hack, where if the widget name data is an empty array
+      // The source is the fact that we're moving a widget
+      // In this case, we don't want to lose the references we have right now,
+      // because after dropping, the selectedWidgetNameData will come back as it was before
+      // the move. We only want to recompute widget name positions if the widget name data
+      // has changed after the layout element positions have been computed
+      // In the case of layout element positions being recomputed, the actual widget name data
+      // will be different from the widget name data we have right now.
+      if (selectedWidgetNameData?.length === 0) {
+        resetCanvas(widgetNamePositions, stageRef, true);
+      } else {
+        updateFn();
+      }
     }
   }, [selectedWidgetNameData, focusedWidgetNameData]);
 
