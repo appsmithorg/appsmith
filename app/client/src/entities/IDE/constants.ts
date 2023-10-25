@@ -8,7 +8,7 @@ export enum AppState {
 export interface SidebarButton {
   state: AppState;
   icon: string;
-  title?: string;
+  title: string;
   urlSuffix: string;
 }
 

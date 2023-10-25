@@ -29,6 +29,7 @@ import { ReusableHelper } from "./ReusableHelper";
 import { Tabs } from "../Pages/Tabs";
 import { GsheetHelper } from "../Pages/GSheetHelper";
 import { CommunityTemplates } from "../Pages/CommunityTemplates";
+import { AppSidebar } from "../Pages/AppSidebar";
 
 export class ObjectsRegistry {
   private static aggregateHelper__: AggregateHelper;
@@ -77,6 +78,14 @@ export class ObjectsRegistry {
       ObjectsRegistry.entityExplorer__ = new EntityExplorer();
     }
     return ObjectsRegistry.entityExplorer__;
+  }
+
+  private static appSidebar__: AppSidebar;
+  static get AppSidebar(): AppSidebar {
+    if (ObjectsRegistry.appSidebar__ === undefined) {
+      ObjectsRegistry.appSidebar__ = new AppSidebar();
+    }
+    return ObjectsRegistry.appSidebar__;
   }
 
   private static apiPage__: ApiPage;

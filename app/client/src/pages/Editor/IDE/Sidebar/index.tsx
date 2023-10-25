@@ -38,10 +38,11 @@ function Sidebar() {
   }
 
   return (
-    <Container className="z-[3]">
+    <Container className="z-[3] t--ide-sidebar">
       <div>
         {TopButtons.map((b) => (
           <SidebarButton
+            className={`t--ide-sidebar-${b.title.toLowerCase()}`}
             icon={b.icon}
             key={b.state}
             onClick={() => onClick(b.urlSuffix)}
@@ -53,6 +54,7 @@ function Sidebar() {
       <div>
         {ButtonButtons.map((b) => (
           <SidebarButton
+            className={`t--ide-sidebar-${b.title.toLowerCase()}`}
             icon={b.icon}
             key={b.state}
             onClick={() => onClick(b.urlSuffix)}

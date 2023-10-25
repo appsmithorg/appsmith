@@ -1,6 +1,7 @@
 import { ObjectsRegistry } from "../Objects/Registry";
 import { WIDGET } from "../../locators/WidgetLocators";
 import { EntityItems } from "./AssertHelper";
+import { AppState } from "./AppSidebar";
 
 export const DataSourceKVP = {
   Postgres: "PostgreSQL",
@@ -41,6 +42,8 @@ export class DataSources {
   private dataManager = ObjectsRegistry.DataManager;
   private assertHelper = ObjectsRegistry.AssertHelper;
 
+  private appSideBar = ObjectsRegistry.AppSidebar;
+
   public ContainerKVP = (containerName: string) => {
     return {
       MsSql: this.dataManager.mssql_docker(containerName),
@@ -51,7 +54,7 @@ export class DataSources {
 
   private _dsCreateNewTab = "[data-testid=t--tab-CREATE_NEW]";
   private _dsReviewSection = "[data-testid='t--ds-review-section']";
-  private _addNewDataSource = ".t--entity-add-btn.datasources button";
+  private _addNewDataSource = ".t--add-datasource-button";
   private _createNewPlgin = (pluginName: string) =>
     ".t--plugin-name:contains('" + pluginName + "')";
   public _host = (index = "0") =>
@@ -444,14 +447,10 @@ export class DataSources {
   }
 
   public NavigateToDSCreateNew() {
-    this.entityExplorer.HoverOnEntityItem("Datasources");
+    this.appSideBar.navigate(AppState.Data);
     Cypress._.times(2, () => {
       this.agHelper.GetNClick(this._addNewDataSource, 0, true);
       this.agHelper.Sleep();
-    });
-    this.agHelper.RemoveTooltip("Add a new datasource");
-    cy.get(this._newDatasourceContainer).scrollTo("bottom", {
-      ensureScrollable: false,
     });
     cy.get(this._newDatabases).should("be.visible");
   }

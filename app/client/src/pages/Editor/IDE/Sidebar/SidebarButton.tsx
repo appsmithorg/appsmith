@@ -7,6 +7,7 @@ interface Props {
   selected: boolean;
   icon: string;
   onClick: () => void;
+  className?: string;
 }
 
 const Container = styled.div`
@@ -38,7 +39,11 @@ const IconContainer = styled.div<{ selected: boolean }>`
 function SidebarButton(props: Props) {
   return (
     <Container>
-      <IconContainer onClick={props.onClick} selected={props.selected}>
+      <IconContainer
+        className={props.className}
+        onClick={props.onClick}
+        selected={props.selected}
+      >
         <Icon name={props.icon} size="lg" />
       </IconContainer>
       {props.title ? <Text kind="body-s">{props.title}</Text> : null}
