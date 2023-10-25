@@ -28,8 +28,8 @@ enum RuleWeight {
   DataTreeFunction,
   DataTreeMatch,
   RecentEntityMatch,
-  DataTreeEntityNameMatch,
   TypeMatch,
+  DataTreeEntityNameMatch,
   PriorityMatch,
   ScopeMatch,
 }

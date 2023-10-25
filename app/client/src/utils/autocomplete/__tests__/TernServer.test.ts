@@ -384,7 +384,7 @@ describe("Tern server sorting", () => {
       dataTreeCompletion,
       AutocompleteSorter.currentFieldInfo,
     );
-    expect(scoredCompletion1.score).toEqual(2 ** 7 + 2 ** 4 + 2 ** 3);
+    expect(scoredCompletion1.score).toEqual(2 ** 6 + 2 ** 4 + 2 ** 3);
     //completion that belongs to the same entity.
     const scoredCompletion2 = new ScoredCompletion(
       sameEntityCompletion,
