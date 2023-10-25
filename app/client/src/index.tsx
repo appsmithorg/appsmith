@@ -1,6 +1,5 @@
 // This file must be executed as early as possible to ensure the preloads are triggered ASAP
 import "./preload-route-chunks";
-
 import React from "react";
 import "./wdyr";
 import ReactDOM from "react-dom";
@@ -22,6 +21,7 @@ import GlobalStyles from "globalStyles";
 // enable autofreeze only in development
 import { setAutoFreeze } from "immer";
 import AppErrorBoundary from "./AppErrorBoundry";
+import log from "loglevel";
 
 const shouldAutoFreeze = process.env.NODE_ENV === "development";
 
@@ -69,3 +69,15 @@ ReactDOM.render(<App />, document.getElementById("root"));
 if ((window as any).Cypress) {
   (window as any).store = store;
 }
+
+(async () => {
+  if ((window as any).CLOUD_HOSTING) {
+    try {
+      await import(
+        /* webpackChunkName: "telemetry" */ "./utils/client-telemetry"
+      );
+    } catch (e) {
+      log.error("Error loading client telemetry", e);
+    }
+  }
+})();
