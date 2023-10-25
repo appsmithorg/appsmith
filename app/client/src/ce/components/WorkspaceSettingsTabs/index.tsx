@@ -38,6 +38,7 @@ interface TabProp {
 export interface WorkspaceSettingsTabsProps {
   currentTab: string | undefined;
   isMemberofTheWorkspace: boolean;
+  hasManageWorkspacePermissions: boolean;
   searchValue: string;
   setTabArrLen: (tabArrLen: number) => void;
   addTabComponent?: () => TabProp;
@@ -47,6 +48,7 @@ export interface WorkspaceSettingsTabsProps {
 export const WorkspaceSettingsTabs = ({
   addTabComponent,
   currentTab,
+  hasManageWorkspacePermissions,
   isMemberofTheWorkspace,
   searchValue,
   setTabArrLen,
@@ -77,7 +79,7 @@ export const WorkspaceSettingsTabs = ({
   );
 
   const tabArr: TabProp[] = [
-    {
+    hasManageWorkspacePermissions && {
       key: "general",
       title: "General Settings",
       panelComponent: GeneralSettingsComponent,

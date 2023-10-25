@@ -165,6 +165,7 @@ export default function Settings() {
         </StyledStickyHeader>
         <WorkspaceSettingsTabs
           currentTab={currentTab}
+          hasManageWorkspacePermissions={hasManageWorkspacePermissions}
           isMemberofTheWorkspace={isMemberofTheWorkspace}
           searchValue={searchValue}
           setTabArrLen={setTabArrLen}
