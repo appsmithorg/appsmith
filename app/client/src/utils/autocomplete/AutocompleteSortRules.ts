@@ -297,8 +297,11 @@ class ScopeMatchRule implements AutocompleteRule {
   static threshold = 1 << RuleWeight.ScopeMatch;
   computeScore(completion: Completion<TernCompletionResult>): number {
     let score = 0;
-    if (completion.origin === "[doc]" || completion.origin === "customDataTree")
-      score += PriorityMatchRule.threshold;
+    if (
+      completion.origin.startsWith("[doc") ||
+      completion.origin === "customDataTree"
+    )
+      score += ScopeMatchRule.threshold;
     return score;
   }
 }
