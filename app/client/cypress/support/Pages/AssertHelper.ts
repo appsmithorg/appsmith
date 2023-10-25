@@ -79,17 +79,30 @@ export class AssertHelper extends ReusableHelper {
     //   .get(this.GetAliasName(aliasName))
     //   .then((interceptions: any) => interceptions);
 
+    // return cy
+    //   .wait(this.GetAliasName(aliasName), { timeout: responseTimeout })
+    //   .then(() =>
+    //     cy
+    //       .get(this.GetAliasName(aliasName))
+    //       .then((interceptions: any) =>
+    //         interceptions.length > 0
+    //           ? interceptions[interceptions.length - 1].response
+    //           : interceptions,
+    //       ),
+    //   );
+
     return cy
       .wait(this.GetAliasName(aliasName), { timeout: responseTimeout })
-      .then(() =>
-        cy
-          .get(this.GetAliasName(aliasName))
-          .then((interceptions: any) =>
-            interceptions.length > 0
-              ? interceptions[interceptions.length - 1].response
-              : interceptions,
-          ),
-      );
+      .then(() => {
+        const aliasNameToGet = this.GetAliasName(aliasName);
+        return cy
+          .get(aliasNameToGet)
+          .then((interceptions: any) => interceptions);
+        //   interceptions.length > 0
+        //     ? interceptions[interceptions.length - 1].response
+        //     : interceptions,
+        // );
+      });
   }
 
   public AssertNetworkStatus(
