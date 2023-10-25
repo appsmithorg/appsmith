@@ -1941,9 +1941,8 @@ export class DataSources {
           .WaitForNetworkCall(
             `@getDatasourceStructureUpdated_${ds_entity_name}`,
           )
-          .then(async (interception) => {
-            const tables: any[] =
-              interception?.response?.body.data?.tables || [];
+          .then(async (response) => {
+            const tables: any[] = response?.body.data?.tables || [];
             const indexOfTable = tables.findIndex(
               (table) => table.name === targetTableName,
             );
@@ -1986,7 +1985,6 @@ export class DataSources {
                       );
                     }
                   }
-
                   this.agHelper.AssertElementVisibility(
                     this._dsVirtuosoElementTable(targetTableName),
                   );
