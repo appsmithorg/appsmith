@@ -19,7 +19,7 @@ import {
   getCodeMirrorNamespaceFromEditor,
 } from "../getCodeMirrorNamespace";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { findIndex } from "lodash";
+import { findIndex, isString } from "lodash";
 
 const bigDoc = 250;
 const cls = "CodeMirror-Tern-";
@@ -35,7 +35,7 @@ export interface Completion<
   data: T;
   render?: any;
   isHeader?: boolean;
-  isRecentEntity?: boolean;
+  recencyWeight?: number;
   isEntityName?: boolean;
 }
 
@@ -129,6 +129,28 @@ export function typeToIcon(type: string, isKeyword: boolean) {
   else if (/^\[/.test(type)) suffix = "array";
   else suffix = "object";
   return cls + "completion " + cls + "completion-" + suffix;
+}
+
+function getRecencyWeight(
+  completion:
+    | string
+    | {
+        name: string;
+        origin?: string | undefined;
+      },
+  recentEntities: string[],
+) {
+  const completionEntityName = isString(completion)
+    ? completion.split(".")[0]
+    : completion.name.split(".")[0];
+  const completionOrigin = isString(completion) ? "" : completion.origin;
+  if (completionOrigin !== "DATA_TREE") return 0;
+  const recencyIndex = recentEntities.findIndex(
+    (entityName) => entityName === completionEntityName,
+  );
+  if (recencyIndex === -1) return 0;
+  const recencyWeight = recentEntities.length - recencyIndex;
+  return recencyWeight;
 }
 
 class CodeMirrorTernService {
@@ -260,10 +282,7 @@ class CodeMirrorTernService {
       const isCustomKeyword = isCustomKeywordType(completion.name);
       const className = typeToIcon(completion.type as string, isCustomKeyword);
       const dataType = getDataType(completion.type as string);
-      const isCompletionARecentEntity =
-        completion.origin === "DATA_TREE"
-          ? this.recentEntities.includes(completion.name?.split(".")[0])
-          : false;
+      const recencyWeight = getRecencyWeight(completion, this.recentEntities);
       const isCompletionADataTreeEntityName =
         completion.origin === "DATA_TREE" &&
         this.defEntityInformation.has(completion.name);
@@ -282,7 +301,7 @@ class CodeMirrorTernService {
         origin: completion.origin as string,
         type: dataType,
         isHeader: false,
-        isRecentEntity: isCompletionARecentEntity,
+        recencyWeight,
         isEntityName: isCompletionADataTreeEntityName,
       };
 

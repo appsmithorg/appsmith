@@ -223,15 +223,15 @@ class DataTreeRule implements AutocompleteRule {
 
 /**
  * Sets threshold value for completions that are recent entities
- * Max score - 100000 - binary
+ * Max score - 100000 + number
  * Min score - 0
  */
 class RecentEntityRule implements AutocompleteRule {
   static threshold = 1 << RuleWeight.RecentEntityMatch;
   computeScore(completion: Completion<TernCompletionResult>): number {
     let score = 0;
-    if (completion.isRecentEntity) {
-      score += RecentEntityRule.threshold;
+    if (completion.recencyWeight) {
+      score += RecentEntityRule.threshold + completion.recencyWeight;
     }
     return score;
   }
