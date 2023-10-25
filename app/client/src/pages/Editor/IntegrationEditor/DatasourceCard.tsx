@@ -50,10 +50,10 @@ import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelector
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import {
-  getHasCreateDatasourceActionPermission,
   getHasCreatePagePermission,
   getHasDeleteDatasourcePermission,
   getHasManageDatasourcePermission,
+  hasCreateDSActionPermissionInApp,
 } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 
 const Wrapper = styled.div`
@@ -177,9 +177,10 @@ function DatasourceCard(props: DatasourceCardProps) {
     userAppPermissions,
   );
 
-  const canCreateDatasourceActions = getHasCreateDatasourceActionPermission(
+  const canCreateDatasourceActions = hasCreateDSActionPermissionInApp(
     isFeatureEnabled,
-    [...datasourcePermissions, ...pagePermissions],
+    datasourcePermissions,
+    pagePermissions,
   );
 
   const canEditDatasource = getHasManageDatasourcePermission(

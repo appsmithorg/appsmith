@@ -5,7 +5,7 @@ import type { BaseInputWidgetProps } from "../../WDSBaseInputWidget";
 
 export interface InputWidgetProps extends BaseInputWidgetProps {
   defaultText?: string | number;
-  inputText: string;
+  rawText: string;
   inputType: InputComponentProps["inputType"];
 
   // input type text props

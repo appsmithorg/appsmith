@@ -2,7 +2,6 @@ import type { FocusState } from "reducers/uiReducers/focusHistoryReducer";
 import type {
   CallEffectDescriptor,
   PutEffectDescriptor,
-  SelectEffectDescriptor,
   SimpleEffect,
 } from "redux-saga/effects";
 import { call, put, select, take } from "redux-saga/effects";
@@ -14,9 +13,10 @@ import {
   identifyEntityFromPath,
   shouldStoreURLForFocus,
 } from "navigation/FocusEntity";
-import { FocusElementsConfig } from "navigation/FocusElements";
+import type { Config } from "navigation/FocusElements";
+import { ConfigType, FocusElementsConfig } from "navigation/FocusElements";
 import { setFocusHistory } from "actions/focusHistoryActions";
-import { builderURL } from "@appsmith/RouteBuilder";
+import { builderURL, datasourcesEditorURL } from "@appsmith/RouteBuilder";
 import type { AppsmithLocationState } from "utils/history";
 import history, { NavigationMethod } from "utils/history";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
@@ -26,13 +26,26 @@ import type { Plugin } from "api/PluginApi";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import { has } from "lodash";
 
+/**
+ * Context switching works by restoring the states of ui elements to as they were
+ * the last time the user was on a particular URL.
+ *
+ * To do this, there are two simple steps
+ *  1. When leaving an url, store the ui or url states
+ *  2. When entering an url, restore stored ui or url states, or defaults
+ *
+ * @param currentPath
+ * @param previousPath
+ * @param state
+ */
 export function* contextSwitchingSaga(
   currentPath: string,
   previousPath: string,
   state: AppsmithLocationState,
 ) {
   if (previousPath) {
-    // store current state
+    /* STORE THE UI STATE OF PREVIOUS URL */
+    // First get all the entities
     const storePaths: Array<{
       key: string;
       entityInfo: FocusEntityInfo;
@@ -46,6 +59,7 @@ export function* contextSwitchingSaga(
       );
     }
   }
+  /* RESTORE THE UI STATE OF THE NEW URL */
   yield call(waitForPathLoad, currentPath, previousPath);
   const setPaths: Array<{
     key: string;
@@ -68,8 +82,7 @@ function* waitForPathLoad(currentPath: string, previousPath?: string) {
 }
 
 type StoreStateOfPathType = Generator<
-  | SimpleEffect<"SELECT", SelectEffectDescriptor>
-  | SimpleEffect<"CALL", CallEffectDescriptor<void>>
+  | SimpleEffect<"CALL", CallEffectDescriptor<unknown>>
   | SimpleEffect<
       "PUT",
       PutEffectDescriptor<{
@@ -89,7 +102,7 @@ function* storeStateOfPath(
   const selectors = FocusElementsConfig[entityInfo.entity];
   const state: Record<string, any> = {};
   for (const selectorInfo of selectors) {
-    state[selectorInfo.name] = yield select(selectorInfo.selector);
+    state[selectorInfo.name] = yield call(getState, selectorInfo, fromPath);
   }
   if (entityInfo.entity === FocusEntity.PAGE) {
     if (shouldStoreURLForFocus(fromPath)) {
@@ -113,7 +126,7 @@ function* setStateOfPath(key: string, entityInfo: FocusEntityInfo) {
 
   if (focusHistory) {
     for (const selectorInfo of selectors) {
-      yield put(selectorInfo.setter(focusHistory.state[selectorInfo.name]));
+      yield call(setState, selectorInfo, focusHistory.state[selectorInfo.name]);
     }
     if (entityInfo.entity === FocusEntity.PAGE) {
       if (focusHistory.state._routingURL) {
@@ -129,9 +142,16 @@ function* setStateOfPath(key: string, entityInfo: FocusEntityInfo) {
     for (const selectorInfo of selectors) {
       const { defaultValue, subTypes } = selectorInfo;
       if (subType && subTypes && subType in subTypes) {
-        yield put(selectorInfo.setter(subTypes[subType].defaultValue));
+        yield call(setState, selectorInfo, subTypes[subType].defaultValue);
       } else if (defaultValue !== undefined) {
-        yield put(selectorInfo.setter(defaultValue));
+        if (typeof defaultValue === "function") {
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          const stateDefaultValue: unknown = yield select(defaultValue);
+          yield call(setState, selectorInfo, stateDefaultValue);
+        } else {
+          yield call(setState, selectorInfo, defaultValue);
+        }
       }
     }
   }
@@ -188,6 +208,9 @@ const getEntityParentUrl = (
   if (parentEntity === FocusEntity.CANVAS) {
     const canvasUrl = builderURL({ pageId: entityInfo.pageId ?? "" });
     return canvasUrl.split("?")[0];
+  }
+  if (parentEntity === FocusEntity.DATASOURCE_LIST) {
+    return datasourcesEditorURL({ pageId: entityInfo.pageId });
   }
   return "";
 };
@@ -280,4 +303,20 @@ function* getEntitiesForSet(
   return entities.filter(
     (entity) => entity.entityInfo.entity !== FocusEntity.NONE,
   );
+}
+
+function* getState(config: Config, previousURL: string): unknown {
+  if (config.type === ConfigType.Redux) {
+    return yield select(config.selector);
+  } else if (config.type === ConfigType.URL) {
+    return config.selector(previousURL);
+  }
+}
+
+function* setState(config: Config, value: unknown): unknown {
+  if (config.type === ConfigType.Redux) {
+    yield put(config.setter(value));
+  } else if (config.type === ConfigType.URL) {
+    config.setter(value);
+  }
 }

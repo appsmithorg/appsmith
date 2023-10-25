@@ -37,6 +37,7 @@ describe("Bug #14299 - The data from the query does not show up on the widget", 
         completeReplace: true,
         toRun: false,
         shouldCreateNewJSObj: true,
+        prettify: false,
       },
     );
 

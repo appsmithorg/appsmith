@@ -1,4 +1,4 @@
-import React, { useRef, useCallback, useEffect, useContext } from "react";
+import React, { useRef, useCallback, useEffect } from "react";
 import styled from "styled-components";
 import { NonIdealState, Classes } from "@blueprintjs/core";
 import JSDependencies from "./Libraries";
@@ -31,7 +31,8 @@ import {
   saveExplorerStatus,
 } from "@appsmith/pages/Editor/Explorer/helpers";
 import { integrationEditorURL } from "@appsmith/RouteBuilder";
-import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
+import { useFeatureFlag } from "../../../utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 const NoEntityFoundSvg = importSvg(
   async () => import("assets/svg/no_entities_found.svg"),
@@ -90,16 +91,11 @@ function EntityExplorer({ isActive }: { isActive: boolean }) {
     dispatch(fetchWorkspace(currentWorkspaceId));
   }, [currentWorkspaceId]);
 
-  const { isOpened: isWalkthroughOpened, popFeature } =
-    useContext(WalkthroughContext) || {};
   const applicationId = useSelector(getCurrentApplicationId);
   const isDatasourcesOpen = getExplorerStatus(applicationId, "datasource");
-
-  const closeWalkthrough = useCallback(() => {
-    if (isWalkthroughOpened && popFeature) {
-      popFeature("EXPLORER_DATASOURCE_ADD");
-    }
-  }, [isWalkthroughOpened, popFeature]);
+  const isAppSidebarEnabled = useFeatureFlag(
+    FEATURE_FLAG.release_app_sidebar_enabled,
+  );
 
   const addDatasource = useCallback(
     (entryPoint: string) => {
@@ -113,9 +109,8 @@ function EntityExplorer({ isActive }: { isActive: boolean }) {
       AnalyticsUtil.logEvent("NAVIGATE_TO_CREATE_NEW_DATASOURCE_PAGE", {
         entryPoint,
       });
-      closeWalkthrough();
     },
-    [pageId, closeWalkthrough],
+    [pageId],
   );
 
   const listDatasource = useCallback(() => {
@@ -150,13 +145,15 @@ function EntityExplorer({ isActive }: { isActive: boolean }) {
           title="No entities found"
         />
       )}
-      <Datasources
-        addDatasource={addDatasource}
-        entityId={pageId}
-        isDatasourcesOpen={isDatasourcesOpen}
-        listDatasource={listDatasource}
-        onDatasourcesToggle={onDatasourcesToggle}
-      />
+      {!isAppSidebarEnabled && (
+        <Datasources
+          addDatasource={addDatasource}
+          entityId={pageId}
+          isDatasourcesOpen={isDatasourcesOpen}
+          listDatasource={listDatasource}
+          onDatasourcesToggle={onDatasourcesToggle}
+        />
+      )}
       <JSDependencies />
     </EntityExplorerWrapper>
   );

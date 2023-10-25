@@ -39,12 +39,12 @@ import {
 
 import { InstallState } from "reducers/uiReducers/libraryReducer";
 import recommendedLibraries from "pages/Editor/Explorer/Libraries/recommendedLibraries";
-import type { TJSLibrary } from "workers/common/JSLibrary";
+import type { JSLibrary } from "workers/common/JSLibrary";
 import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { getFormValues } from "redux-form";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import { MAX_DATASOURCE_SUGGESTIONS } from "pages/Editor/Explorer/hooks";
-import type { ModuleInput } from "@appsmith/entities/DataTree/types";
+import type { ModuleInput } from "@appsmith/constants/ModuleConstants";
 
 export const getEntities = (state: AppState): AppState["entities"] =>
   state.entities;
@@ -1099,7 +1099,7 @@ export const selectLibrariesForExplorer = createSelector(
           version: recommendedLibrary?.version || "",
           url: recommendedLibrary?.url || url,
           accessor: [],
-        } as TJSLibrary;
+        } as JSLibrary;
       });
     return [...queuedInstalls, ...libs];
   },

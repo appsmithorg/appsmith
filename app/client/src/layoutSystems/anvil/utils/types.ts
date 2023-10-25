@@ -1,19 +1,18 @@
 import type { ReactNode } from "react";
+import type { SizeConfig } from "WidgetProvider/constants";
 import type { WidgetType } from "WidgetProvider/factory";
 
 export interface AnvilFlexComponentProps {
   children: ReactNode;
-  componentHeight: number;
-  componentWidth: number;
-  hasAutoHeight: boolean;
-  hasAutoWidth: boolean;
   isResizeDisabled?: boolean;
+  layoutId: string;
   focused?: boolean;
   parentId?: string;
+  rowIndex: number;
   selected?: boolean;
   widgetId: string;
   widgetName: string;
-  widgetSize?: { [key: string]: Record<string, string> };
+  widgetSize?: SizeConfig;
   widgetType: WidgetType;
 }
 
@@ -22,6 +21,6 @@ export type PositionValues =
   | "relative"
   | "fixed"
   | "sticky"
-  | "Static";
+  | "static";
 
-export type OverflowValues = "overflow" | "hidden" | "visible" | "scroll";
+export type OverflowValues = "hidden" | "scroll" | "visible" | "auto";
