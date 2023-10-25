@@ -44,8 +44,11 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
         this.repository = repository;
     }
 
+    // Requires pageNameMap, pageNameToOldNameMap, pluginMap and actionResultDTO to be present in importable resources.
+    // Updates actionCollectionResultDTO in importable resources.
+    // Also directly updates required information in DB
     @Override
-    public Mono<List<ActionCollection>> importEntities(
+    public Mono<Void> importEntities(
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
@@ -61,7 +64,7 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
 
         return importActionCollectionMono
                 .doOnNext(mappedImportableResourcesDTO::setActionCollectionResultDTO)
-                .thenReturn(List.of());
+                .then();
     }
 
     private Mono<ImportActionCollectionResultDTO> createImportActionCollectionMono(

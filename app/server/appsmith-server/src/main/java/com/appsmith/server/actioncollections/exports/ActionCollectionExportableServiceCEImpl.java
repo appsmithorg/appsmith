@@ -36,8 +36,11 @@ public class ActionCollectionExportableServiceCEImpl implements ExportableServic
         this.actionPermission = actionPermission;
     }
 
+    // Requires pageIdToNameMap, pluginMap.
+    // Updates collectionId to name map in exportable resources. Also directly updates required collection information
+    // in application json
     @Override
-    public Mono<List<ActionCollection>> getExportableEntities(
+    public Mono<Void> getExportableEntities(
             ExportingMetaDTO exportingMetaDTO,
             MappedExportableResourcesDTO mappedExportableResourcesDTO,
             Mono<Application> applicationMono,
@@ -94,7 +97,8 @@ public class ActionCollectionExportableServiceCEImpl implements ExportableServic
                             .put(FieldName.ACTION_COLLECTION_LIST, updatedActionCollectionSet);
 
                     return actionCollections;
-                });
+                })
+                .then();
     }
 
     @Override

@@ -9,20 +9,12 @@ import type {
 } from "../../anvilTypes";
 import { HIGHLIGHT_SIZE } from "../../constants";
 import {
-  getFinalVerticalDropZone,
-  getInitialVerticalDropZone,
-  getVerticalDropZone,
-} from "./dropZoneUtils";
-import {
   getHighlightsForLayouts,
   getHighlightsForWidgets,
   getInitialHighlights,
 } from "./horizontalHighlights";
 import { deriveHighlights } from "./highlightUtils";
-import type {
-  LayoutElementPosition,
-  LayoutElementPositions,
-} from "layoutSystems/common/types";
+import type { LayoutElementPositions } from "layoutSystems/common/types";
 
 /**
  * @param layoutProps | LayoutProps
@@ -83,71 +75,10 @@ export const deriveAlignedColumnHighlights =
       layoutOrder,
       baseHighlight,
       parentDropTarget,
-      generateHighlights,
       getInitialHighlights,
       getHighlightsForLayouts,
       getHighlightsForWidgets,
+      true,
       hasFillWidget,
     );
   };
-
-function generateHighlights(
-  baseHighlight: AnvilHighlightInfo,
-  layoutDimension: LayoutElementPosition,
-  currentDimension: LayoutElementPosition,
-  prevDimension: LayoutElementPosition | undefined,
-  nextDimension: LayoutElementPosition | undefined,
-  rowIndex: number,
-  isLastHighlight: boolean,
-  hasFillWidget = false,
-): AnvilHighlightInfo[] {
-  /**
-   * If dragged widgets include a Fill widget,
-   * then show a single highlight with start alignment.
-   */
-  const arr = hasFillWidget
-    ? [FlexLayerAlignment.Start]
-    : [
-        FlexLayerAlignment.Start,
-        FlexLayerAlignment.Center,
-        FlexLayerAlignment.End,
-      ];
-  /**
-   * For fill widget => single highlight spanning the total width.
-   * For hug widget => 3 highlights, one for each alignment. width / 3.
-   */
-  const width: number = (layoutDimension.width - HIGHLIGHT_SIZE) / arr.length;
-
-  const isInitialHighlight: boolean = rowIndex === 0;
-
-  return arr.map((alignment: FlexLayerAlignment, index: number) => ({
-    ...baseHighlight,
-    alignment,
-    dropZone: isLastHighlight
-      ? isInitialHighlight
-        ? getInitialVerticalDropZone(currentDimension, layoutDimension)
-        : getFinalVerticalDropZone(currentDimension, layoutDimension)
-      : getVerticalDropZone(currentDimension, prevDimension, nextDimension),
-    posX: width * index,
-    posY: isLastHighlight
-      ? isInitialHighlight
-        ? // Position values are relative to the MainCanvas. Hence it is important to deduct parent's position from widget's to get a position that is relative to the parent widget.
-          Math.max(
-            currentDimension.top - layoutDimension.top - HIGHLIGHT_SIZE,
-            0,
-          )
-        : Math.min(
-            currentDimension.top -
-              layoutDimension.top +
-              currentDimension.height +
-              HIGHLIGHT_SIZE / 2,
-            layoutDimension.height - HIGHLIGHT_SIZE,
-          )
-      : Math.max(
-          currentDimension.top - layoutDimension.top - HIGHLIGHT_SIZE,
-          HIGHLIGHT_SIZE / 2,
-        ),
-    rowIndex: rowIndex,
-    width,
-  }));
-}
