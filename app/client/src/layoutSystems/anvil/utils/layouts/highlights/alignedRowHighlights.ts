@@ -300,7 +300,7 @@ function generateHighlight(
   isFinalHighlight: boolean,
   isDropTarget: boolean,
 ): AnvilHighlightInfo {
-  let posX: number = 0;
+  let posX = 0;
   if (!currDimension) {
     // Initial highlight
     posX =
@@ -326,9 +326,12 @@ function generateHighlight(
         : (posX - layoutDimension.left) *
           (alignment === FlexLayerAlignment.Start ? 1 : multiplier),
       right: isFinalHighlight
-        ? (layoutDimension.left + layoutDimension.width - posX) *
-          (alignment === FlexLayerAlignment.End ? 1 : multiplier)
-        : 0,
+        ? Math.max(
+            (layoutDimension.left + layoutDimension.width - posX) *
+              (alignment === FlexLayerAlignment.End ? 1 : multiplier),
+            HIGHLIGHT_SIZE,
+          )
+        : HIGHLIGHT_SIZE,
     },
     height: tallestWidget?.height ?? layoutDimension.height,
     posX,
