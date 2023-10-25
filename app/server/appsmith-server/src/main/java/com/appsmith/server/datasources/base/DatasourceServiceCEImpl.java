@@ -94,7 +94,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
     // This will block the creation of datasource connection for 5 minutes, in case of more than 3 failed connection
     // attempts
     private final Integer BLOCK_TEST_API_DURATION = 5;
-    private final AppsmithException tooManyRequestsException =
+    private final AppsmithException TOO_MANY_REQUESTS_EXCEPTION =
             new AppsmithException(AppsmithError.TOO_MANY_FAILED_DATASOURCE_CONNECTION_REQUESTS);
 
     @Autowired
@@ -516,7 +516,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                         .flatMap(datasourceStorageService::checkEnvironment)
                         .flatMap(this::verifyDatasourceAndTest);
             } else {
-                return Mono.just(new DatasourceTestResult(tooManyRequestsException.getMessage()));
+                return Mono.just(new DatasourceTestResult(TOO_MANY_REQUESTS_EXCEPTION.getMessage()));
             }
         });
     }
@@ -544,7 +544,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                                             .flatMap(wasTokenAvailable -> {
                                                 if (!wasTokenAvailable) {
                                                     DatasourceTestResult tooManyRequests = new DatasourceTestResult(
-                                                            tooManyRequestsException.getMessage());
+                                                            TOO_MANY_REQUESTS_EXCEPTION.getMessage());
 
                                                     // This will block the test API for next 5 minutes, as bucket has
                                                     // been exhausted, and return too many requests response
@@ -664,7 +664,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                     RateLimitConstants.BUCKET_KEY_FOR_TEST_DATASOURCE_API,
                     rateLimitIdentifier,
                     Duration.ofMinutes(BLOCK_TEST_API_DURATION),
-                    tooManyRequestsException);
+                    TOO_MANY_REQUESTS_EXCEPTION);
         });
     }
 

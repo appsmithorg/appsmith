@@ -44,7 +44,7 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
     private final ConfigService configService;
     private final DatasourcePermission datasourcePermission;
 
-    private final AppsmithException tooManyRequestsException =
+    private final AppsmithException TOO_MANY_REQUESTS_EXCEPTION =
             new AppsmithException(AppsmithError.TOO_MANY_FAILED_DATASOURCE_CONNECTION_REQUESTS);
 
     @Autowired
@@ -280,12 +280,17 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
         // Instead of connection, connection pool is created, connection is created when we query execution happens
         // Hence cannot add rate limiting for these plugins here. Rate limiting for plugins which create connection pool
         // should be handled separately, refer https://github.com/appsmithorg/appsmith/issues/28259
+
+        // Note: Plugins that throw error may be using connection pool mechanism but in such cases, connection is
+        // created
+        // right away, where as for other plugins with connection pool, connection is created at a later time, when
+        // query execution happens
         return datasourceService
                 .isEndpointBlockedForConnectionRequest(datasourceStorage)
                 .flatMap(isBlocked -> {
                     if (isBlocked) {
                         log.debug("Datasource is blocked for connection request");
-                        return Mono.error(tooManyRequestsException);
+                        return Mono.error(TOO_MANY_REQUESTS_EXCEPTION);
                     } else {
                         return createNewDatasourceContext(datasourceStorage, datasourceContextIdentifier)
                                 .onErrorResume(AppsmithPluginException.class, error -> {
@@ -297,7 +302,8 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
                                                     // bucket has been exhausted, and return too many requests response
                                                     return datasourceService
                                                             .blockEndpointForConnectionRequest(datasourceStorage)
-                                                            .flatMap(isAdded -> Mono.error(tooManyRequestsException));
+                                                            .flatMap(
+                                                                    isAdded -> Mono.error(TOO_MANY_REQUESTS_EXCEPTION));
                                                 }
                                                 return Mono.error(error);
                                             });
