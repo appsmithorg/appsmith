@@ -11,7 +11,10 @@ import type {
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import { select } from "redux-saga/effects";
 import { getWidgetMetaProps, getWidgets } from "sagas/selectors";
-import { previewModeSelector } from "selectors/editorSelectors";
+import {
+  previewModeSelector,
+  protectedModeSelector,
+} from "selectors/editorSelectors";
 import { getAppMode } from "@appsmith/selectors/entitiesSelector";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import { getCanvasHeightOffset } from "utils/WidgetSizeUtils";
@@ -21,9 +24,10 @@ import { getDataTree } from "selectors/dataTreeSelectors";
 
 export function* shouldWidgetsCollapse() {
   const isPreviewMode: boolean = yield select(previewModeSelector);
+  const isProtectedMode: boolean = yield select(protectedModeSelector);
   const appMode: APP_MODE = yield select(getAppMode);
 
-  return isPreviewMode || appMode === APP_MODE.PUBLISHED;
+  return isPreviewMode || isProtectedMode || appMode === APP_MODE.PUBLISHED;
 }
 
 export function* shouldAllInvisibleWidgetsInAutoHeightContainersCollapse() {

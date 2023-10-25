@@ -90,6 +90,7 @@ import {
   getMainCanvasProps,
   getPageById,
   previewModeSelector,
+  protectedModeSelector,
 } from "selectors/editorSelectors";
 import {
   executePageLoadActions,
@@ -676,6 +677,7 @@ export function* saveLayoutSaga(action: ReduxAction<{ isRetry?: boolean }>) {
     const currentPageId: string = yield select(getCurrentPageId);
     const currentPage: Page = yield select(getPageById(currentPageId));
     const isPreviewMode: boolean = yield select(previewModeSelector);
+    const isProtectedMode: boolean = yield select(protectedModeSelector);
 
     const appMode: APP_MODE | undefined = yield select(getAppMode);
 
@@ -696,7 +698,7 @@ export function* saveLayoutSaga(action: ReduxAction<{ isRetry?: boolean }>) {
       });
     }
 
-    if (appMode === APP_MODE.EDIT && !isPreviewMode) {
+    if (appMode === APP_MODE.EDIT && !isPreviewMode && !isProtectedMode) {
       yield put(saveLayout(action.payload.isRetry));
     }
   } catch (error) {

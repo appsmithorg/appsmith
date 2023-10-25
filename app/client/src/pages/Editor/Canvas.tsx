@@ -6,7 +6,10 @@ import { useSelector } from "react-redux";
 import type { CanvasWidgetStructure } from "WidgetProvider/constants";
 import useWidgetFocus from "utils/hooks/useWidgetFocus";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { previewModeSelector } from "selectors/editorSelectors";
+import {
+  previewModeSelector,
+  protectedModeSelector,
+} from "selectors/editorSelectors";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { getViewportClassName } from "layoutSystems/autolayout/utils/AutoLayoutUtils";
 import type { FontFamily } from "@design-system/theming";
@@ -41,6 +44,7 @@ const Wrapper = styled.section<{
 const Canvas = (props: CanvasProps) => {
   const { canvasWidth } = props;
   const isPreviewMode = useSelector(previewModeSelector);
+  const isProtectedMode = useSelector(protectedModeSelector);
   const isAppSettingsPaneWithNavigationTabOpen = useSelector(
     getIsAppSettingsPaneWithNavigationTabOpen,
   );
@@ -59,7 +63,11 @@ const Canvas = (props: CanvasProps) => {
    */
   let backgroundForCanvas;
 
-  if (isPreviewMode || isAppSettingsPaneWithNavigationTabOpen) {
+  if (
+    isPreviewMode ||
+    isProtectedMode ||
+    isAppSettingsPaneWithNavigationTabOpen
+  ) {
     if (isWDSV2Enabled) {
       backgroundForCanvas = "var(--color-bg)";
     } else {

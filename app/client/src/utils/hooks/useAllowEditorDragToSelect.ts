@@ -3,6 +3,7 @@ import {
   snipingModeSelector,
   previewModeSelector,
   getIsAutoLayout,
+  protectedModeSelector,
 } from "selectors/editorSelectors";
 import { useSelector } from "react-redux";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
@@ -40,6 +41,7 @@ export const useAllowEditorDragToSelect = () => {
   const isResizingOrDragging = !!isResizing || !!isDragging || !!isSelecting;
   const isSnipingMode = useSelector(snipingModeSelector);
   const isPreviewMode = useSelector(previewModeSelector);
+  const isProtectedMode = useSelector(protectedModeSelector);
   const isAppSettingsPaneWithNavigationTabOpen = useSelector(
     getIsAppSettingsPaneWithNavigationTabOpen,
   );
@@ -51,6 +53,7 @@ export const useAllowEditorDragToSelect = () => {
     !isDraggingDisabled &&
     !isSnipingMode &&
     !isPreviewMode &&
+    !isProtectedMode &&
     !isAppSettingsPaneWithNavigationTabOpen
   );
 };

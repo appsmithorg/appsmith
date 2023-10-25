@@ -9,7 +9,10 @@ import PerformanceTracker, {
 import { getSelectedWidgets } from "selectors/ui";
 import { tailwindLayers } from "constants/Layers";
 import WidgetPropertyPane from "pages/Editor/PropertyPane";
-import { previewModeSelector } from "selectors/editorSelectors";
+import {
+  previewModeSelector,
+  protectedModeSelector,
+} from "selectors/editorSelectors";
 import CanvasPropertyPane from "pages/Editor/CanvasPropertyPane";
 import useHorizontalResize from "utils/hooks/useHorizontalResize";
 import { getIsDraggingForSelection } from "selectors/canvasSelectors";
@@ -53,6 +56,7 @@ export const PropertyPaneSidebar = memo((props: Props) => {
     useHorizontalResize(sidebarRef, props.onWidthChange, props.onDragEnd, true);
 
   const isPreviewMode = useSelector(previewModeSelector);
+  const isProtectedMode = useSelector(protectedModeSelector);
   const selectedWidgetIds = useSelector(getSelectedWidgets);
   const isDraggingOrResizing = useSelector(getIsDraggingOrResizing);
   const isAppSettingsPaneOpen = useSelector(getIsAppSettingsPaneOpen);
@@ -137,8 +141,8 @@ export const PropertyPaneSidebar = memo((props: Props) => {
         className={classNames({
           [`js-property-pane-sidebar t--property-pane-sidebar flex h-full border-l bg-white transition-transform transform duration-400 ${tailwindLayers.propertyPane}`]:
             true,
-          "relative ": !isPreviewMode,
-          "fixed translate-x-full right-0": isPreviewMode,
+          "relative ": !(isPreviewMode || isProtectedMode),
+          "fixed translate-x-full right-0": isPreviewMode || isProtectedMode,
         })}
         id={PROPERTY_PANE_ID}
         ref={sidebarRef}

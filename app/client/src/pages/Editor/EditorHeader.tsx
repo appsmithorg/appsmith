@@ -9,6 +9,7 @@ import {
   getIsPublishingApplication,
   getPageSavingError,
   previewModeSelector,
+  protectedModeSelector,
 } from "selectors/editorSelectors";
 import {
   getCurrentAppWorkspace,
@@ -95,6 +96,7 @@ export function EditorHeader() {
   const isErroredSavingName = useSelector(getIsErroredSavingAppName);
   const applicationList = useSelector(getApplicationList);
   const isPreviewMode = useSelector(previewModeSelector);
+  const isProtectedMode = useSelector(protectedModeSelector);
   const signpostingEnabled = useSelector(getIsFirstTimeUserOnboardingEnabled);
   const workspaceId = useSelector(getCurrentWorkspaceId);
   const currentWorkspace = useSelector(getCurrentAppWorkspace);
@@ -111,7 +113,7 @@ export function EditorHeader() {
     getIsAppSettingsPaneWithNavigationTabOpen,
   );
   const isPreviewingApp =
-    isPreviewMode || isAppSettingsPaneWithNavigationTabOpen;
+    isPreviewMode || isProtectedMode || isAppSettingsPaneWithNavigationTabOpen;
 
   const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false);
   const [showModal, setShowModal] = useState(false);

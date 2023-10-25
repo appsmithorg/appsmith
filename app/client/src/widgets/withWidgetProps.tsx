@@ -26,6 +26,7 @@ import {
   previewModeSelector,
   getIsAutoLayoutMobileBreakPoint,
   getCanvasWidth,
+  protectedModeSelector,
 } from "selectors/editorSelectors";
 import {
   createCanvasWidget,
@@ -63,6 +64,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
     } = props;
 
     const isPreviewMode = useSelector(previewModeSelector);
+    const isProtectedMode = useSelector(protectedModeSelector);
     const canvasWidget = useSelector((state: AppState) =>
       getWidget(state, widgetId),
     );
@@ -231,15 +233,16 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
     const shouldCollapseWidgetInViewOrPreviewMode =
       !widgetProps.isVisible &&
       !selectedWidgetAncestry.includes(widgetProps.widgetId) &&
-      (renderMode === RenderModes.PAGE || isPreviewMode);
+      (renderMode === RenderModes.PAGE || isPreviewMode || isProtectedMode);
 
     const shouldResetCollapsedContainerHeightInViewOrPreviewMode =
       widgetProps.isVisible && widgetProps.topRow === widgetProps.bottomRow;
 
     const shouldResetCollapsedContainerHeightInCanvasMode =
-      widgetProps.topRow === widgetProps.bottomRow &&
-      renderMode === RenderModes.CANVAS &&
-      !isPreviewMode;
+      (widgetProps.topRow === widgetProps.bottomRow &&
+        renderMode === RenderModes.CANVAS &&
+        !isPreviewMode) ||
+      !isProtectedMode;
 
     widgetProps.mainCanvasWidth = mainCanvasWidth;
     if (layoutSystemType !== LayoutSystemTypes.ANVIL) {

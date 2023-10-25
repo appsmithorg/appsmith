@@ -10,6 +10,7 @@ import { hideErrors } from "selectors/debuggerSelectors";
 import {
   getIsAutoLayout,
   previewModeSelector,
+  protectedModeSelector,
   snipingModeSelector,
 } from "selectors/editorSelectors";
 import { getIsTableFilterPaneVisible } from "selectors/tableFilterSelectors";
@@ -81,6 +82,7 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
   const dispatch = useDispatch();
   const isSnipingMode = useSelector(snipingModeSelector);
   const isPreviewMode = useSelector(previewModeSelector);
+  const isProtectedMode = useSelector(protectedModeSelector);
   const isAppSettingsPaneWithNavigationTabOpen = useSelector(
     getIsAppSettingsPaneWithNavigationTabOpen,
   );
@@ -149,6 +151,7 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
       !isAutoCanvasResizing &&
       !resizingOrDragging &&
       !isPreviewMode &&
+      !isProtectedMode &&
       !isAppSettingsPaneWithNavigationTabOpen &&
       !isMultiSelected &&
       (isSnipingMode

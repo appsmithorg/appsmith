@@ -24,6 +24,7 @@ import {
   getCurrentApplicationLayout,
   getCurrentPageId,
   previewModeSelector,
+  protectedModeSelector,
 } from "selectors/editorSelectors";
 import { getNearestParentCanvas } from "utils/generators";
 import { getAbsolutePixels } from "utils/helpers";
@@ -71,6 +72,7 @@ export function CanvasSelectionArena({
   );
   const appMode = useSelector(getAppMode);
   const isPreviewMode = useSelector(previewModeSelector);
+  const isProtectedMode = useSelector(protectedModeSelector);
   const isAppSettingsPaneWithNavigationTabOpen = useSelector(
     getIsAppSettingsPaneWithNavigationTabOpen,
   );
@@ -501,6 +503,7 @@ export function CanvasSelectionArena({
     !(
       isDragging ||
       isPreviewMode ||
+      isProtectedMode ||
       isAppSettingsPaneWithNavigationTabOpen ||
       dropDisabled
     );

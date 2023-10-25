@@ -7,6 +7,7 @@ import {
   getCurrentPageId,
   getCurrentPageName,
   previewModeSelector,
+  protectedModeSelector,
 } from "selectors/editorSelectors";
 import NavigationPreview from "./NavigationPreview";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -57,6 +58,7 @@ function WidgetsEditor() {
   const currentApp = useSelector(getCurrentApplication);
   const guidedTourEnabled = useSelector(inGuidedTour);
   const isPreviewMode = useSelector(previewModeSelector);
+  const isProtectedMode = useSelector(protectedModeSelector);
   const lastUpdatedTime = useSelector(getSnapshotUpdatedTime);
   const readableSnapShotDetails = getReadableSnapShotDetails(lastUpdatedTime);
 
@@ -75,7 +77,7 @@ function WidgetsEditor() {
   const fontFamily = `${selectedTheme.properties.fontFamily.appFont}, sans-serif`;
   const isMobile = useIsMobileDevice();
   const isPreviewingNavigation =
-    isPreviewMode || isAppSettingsPaneWithNavigationTabOpen;
+    isPreviewMode || isProtectedMode || isAppSettingsPaneWithNavigationTabOpen;
 
   const isAppSettingsPaneOpen = useSelector(getIsAppSettingsPaneOpen);
   const isAppSidebarEnabled = useSelector(getIsAppSidebarEnabled);
@@ -96,6 +98,7 @@ function WidgetsEditor() {
   }, [
     navigationPreviewRef,
     isPreviewMode,
+    isProtectedMode,
     appSettingsPaneContext?.type,
     currentApplicationDetails?.applicationDetail?.navigationSetting,
   ]);
@@ -192,7 +195,7 @@ function WidgetsEditor() {
           })}
         >
           {!isAppSettingsPaneWithNavigationTabOpen && (
-            <EmptyCanvasPrompts isPreviewMode={isPreviewMode} />
+            <EmptyCanvasPrompts isPreview={isPreviewMode || isProtectedMode} />
           )}
           <AnonymousDataPopup />
           <div
@@ -222,7 +225,7 @@ function WidgetsEditor() {
                       NAVIGATION_SETTINGS.ORIENTATION.SIDE && isAppSidebarPinned
                   : false
               }
-              isPreviewMode={isPreviewMode}
+              isPreview={isPreviewMode || isProtectedMode}
               isPublished={isPublished}
               ref={ref}
               sidebarWidth={isPreviewingNavigation ? sidebarWidth : 0}
@@ -238,6 +241,7 @@ function WidgetsEditor() {
                   AppSettingsTabs.Navigation === appSettingsPaneContext?.type
                 }
                 isPreviewMode={isPreviewMode}
+                isProtectedMode={isProtectedMode}
                 navigationHeight={navigationHeight}
                 parentRef={ref}
                 shouldShowSnapShotBanner={shouldShowSnapShotBanner}

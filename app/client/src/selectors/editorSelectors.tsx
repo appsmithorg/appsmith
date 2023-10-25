@@ -942,6 +942,10 @@ export const previewModeSelector = (state: AppState) => {
   return state.ui.editor.isPreviewMode;
 };
 
+export const protectedModeSelector = (state: AppState) => {
+  return state.ui.editor.isProtectedMode;
+};
+
 /**
  * returns the `state.ui.editor.zoomLevel`
  *

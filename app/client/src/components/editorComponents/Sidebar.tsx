@@ -24,7 +24,10 @@ import {
 } from "selectors/explorerSelector";
 import { tailwindLayers } from "constants/Layers";
 import { Tooltip } from "design-system";
-import { previewModeSelector } from "selectors/editorSelectors";
+import {
+  previewModeSelector,
+  protectedModeSelector,
+} from "selectors/editorSelectors";
 import useHorizontalResize from "utils/hooks/useHorizontalResize";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { SIDEBAR_ID } from "constants/Explorer";
@@ -62,11 +65,12 @@ export const EntityExplorerSidebar = memo(({ children }: Props) => {
   const sidebarRef = useRef<HTMLDivElement>(null);
   const pinned = useSelector(getExplorerPinned);
   const isPreviewMode = useSelector(previewModeSelector);
+  const isProtectedMode = useSelector(protectedModeSelector);
   const isAppSettingsPaneWithNavigationTabOpen = useSelector(
     getIsAppSettingsPaneWithNavigationTabOpen,
   );
   const isPreviewingApp =
-    isPreviewMode || isAppSettingsPaneWithNavigationTabOpen;
+    isPreviewMode || isProtectedMode || isAppSettingsPaneWithNavigationTabOpen;
 
   /**
    * on entity explorer sidebar width change
@@ -197,6 +201,7 @@ export const EntityExplorerSidebar = memo(({ children }: Props) => {
     resizerLeft,
     pinned,
     isPreviewMode,
+    isProtectedMode,
     isAppSettingsPaneWithNavigationTabOpen,
   ]);
 

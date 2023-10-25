@@ -19,6 +19,7 @@ import { getIsAutoLayout } from "selectors/canvasSelectors";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 import {
   previewModeSelector,
+  protectedModeSelector,
   snipingModeSelector,
 } from "selectors/editorSelectors";
 import {
@@ -80,6 +81,7 @@ export const ResizableComponent = memo(function ResizableComponent(
   const Resizable = isAutoLayout ? AutoLayoutResizable : FixedLayoutResizable;
   const isSnipingMode = useSelector(snipingModeSelector);
   const isPreviewMode = useSelector(previewModeSelector);
+  const isProtectedMode = useSelector(protectedModeSelector);
   const isAppSettingsPaneWithNavigationTabOpen = useSelector(
     getIsAppSettingsPaneWithNavigationTabOpen,
   );
@@ -325,6 +327,7 @@ export const ResizableComponent = memo(function ResizableComponent(
     !props.resizeDisabled &&
     !isSnipingMode &&
     !isPreviewMode &&
+    !isProtectedMode &&
     !isAppSettingsPaneWithNavigationTabOpen;
   const { updateDropTargetRows } = useContext(DropTargetContext);
 
@@ -385,6 +388,7 @@ export const ResizableComponent = memo(function ResizableComponent(
   const showResizeBoundary =
     !isAutoCanvasResizing &&
     !isPreviewMode &&
+    !isProtectedMode &&
     !isAppSettingsPaneWithNavigationTabOpen &&
     !isDragging &&
     (isHovered || isSelected);
