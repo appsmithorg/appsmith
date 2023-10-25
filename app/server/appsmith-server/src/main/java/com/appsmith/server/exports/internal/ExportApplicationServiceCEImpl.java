@@ -44,6 +44,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
+import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
 import static java.lang.Boolean.TRUE;
 
 @Slf4j
@@ -120,11 +121,25 @@ public class ExportApplicationServiceCEImpl implements ExportApplicationServiceC
                         })
                         .cache();
 
+        /*
+         * We need to cache the applicationMono because the application object inside the applicationMono will be
+         * updated in the subsequent steps. We need to use the original application object for analytics.
+         */
+        Mono<Application> cachedApplicationMono = applicationMono
+                .map(application -> {
+                    Application cachedApplication = new Application();
+                    copyNestedNonNullProperties(application, cachedApplication);
+                    return cachedApplication;
+                })
+                .cache();
+
         // Set json schema version which will be used to check the compatibility while importing the JSON
         applicationJson.setServerSchemaVersion(JsonSchemaVersions.serverVersion);
         applicationJson.setClientSchemaVersion(JsonSchemaVersions.clientVersion);
 
         return applicationMono
+                // create a copy of the application object, we'll need later to log the analytics
+                .flatMap(cachedApplicationMono::thenReturn)
                 .flatMap(application -> {
                     // Refactor application to remove the ids
                     GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
@@ -159,7 +174,7 @@ public class ExportApplicationServiceCEImpl implements ExportApplicationServiceC
                             }));
                 })
                 .then(sessionUserService.getCurrentUser())
-                .map(user -> {
+                .flatMap(user -> {
                     stopwatch.stopTimer();
                     final Map<String, Object> data = Map.of(
                             FieldName.APPLICATION_ID,
@@ -174,12 +189,12 @@ public class ExportApplicationServiceCEImpl implements ExportApplicationServiceC
                             stopwatch.getFlow(),
                             "executionTime",
                             stopwatch.getExecutionTime());
-                    analyticsService.sendEvent(
-                            AnalyticsEvents.UNIT_EXECUTION_TIME.getEventName(), user.getUsername(), data);
-                    return applicationJson;
+                    return analyticsService
+                            .sendEvent(AnalyticsEvents.UNIT_EXECUTION_TIME.getEventName(), user.getUsername(), data)
+                            .thenReturn(applicationJson);
                 })
-                .then(applicationMono)
-                .map(application -> sendImportExportApplicationAnalyticsEvent(application, AnalyticsEvents.EXPORT))
+                .flatMap(unused ->
+                        sendImportExportApplicationAnalyticsEvent(cachedApplicationMono, AnalyticsEvents.EXPORT))
                 .thenReturn(applicationJson);
     }
 
@@ -297,23 +312,25 @@ public class ExportApplicationServiceCEImpl implements ExportApplicationServiceC
     /**
      * To send analytics event for import and export of application
      *
-     * @param application Application object imported or exported
+     * @param applicationMono Mono<Application></Application> object imported or exported
      * @param event       AnalyticsEvents event
      * @return The application which is imported or exported
      */
     private Mono<Application> sendImportExportApplicationAnalyticsEvent(
-            Application application, AnalyticsEvents event) {
-        return workspaceService.getById(application.getWorkspaceId()).flatMap(workspace -> {
-            final Map<String, Object> eventData = Map.of(
-                    FieldName.APPLICATION, application,
-                    FieldName.WORKSPACE, workspace);
+            Mono<Application> applicationMono, AnalyticsEvents event) {
+        return applicationMono.flatMap(application -> {
+            return workspaceService.getById(application.getWorkspaceId()).flatMap(workspace -> {
+                final Map<String, Object> eventData = Map.of(
+                        FieldName.APPLICATION, application,
+                        FieldName.WORKSPACE, workspace);
 
-            final Map<String, Object> data = Map.of(
-                    FieldName.APPLICATION_ID, application.getId(),
-                    FieldName.WORKSPACE_ID, workspace.getId(),
-                    FieldName.EVENT_DATA, eventData);
+                final Map<String, Object> data = Map.of(
+                        FieldName.APPLICATION_ID, application.getId(),
+                        FieldName.WORKSPACE_ID, workspace.getId(),
+                        FieldName.EVENT_DATA, eventData);
 
-            return analyticsService.sendObjectEvent(event, application, data);
+                return analyticsService.sendObjectEvent(event, application, data);
+            });
         });
     }
 }
