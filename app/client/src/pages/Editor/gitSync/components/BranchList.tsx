@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   createNewBranchInit,
   fetchBranchesInit,
+  setIsGitSyncModalOpen,
   switchGitBranchInit,
 } from "actions/gitSyncActions";
 import {
@@ -34,6 +35,7 @@ import {
   Button,
   SearchInput,
   Text,
+  Callout,
 } from "design-system";
 import { get } from "lodash";
 import {
@@ -48,6 +50,7 @@ import { RemoteBranchList } from "./RemoteBranchList";
 import { LocalBranchList } from "./LocalBranchList";
 import type { Theme } from "constants/DefaultTheme";
 import { Space } from "./StyledComponents";
+import { GitSyncModalTab } from "entities/GitSync";
 
 const ListContainer = styled.div`
   flex: 1;
@@ -365,6 +368,29 @@ export default function BranchList(props: {
             />
           )}
         </div>
+        <Space size={3} />
+        <Callout
+          links={[
+            {
+              children: "Go to settings",
+              onClick: () => {
+                props.setIsPopupOpen?.(false);
+                dispatch(
+                  setIsGitSyncModalOpen({
+                    isOpen: true,
+                    tab: GitSyncModalTab.SETTINGS,
+                  }),
+                );
+              },
+            },
+            {
+              children: "Learn more",
+              to: "#",
+            },
+          ]}
+        >
+          You can now protect your default branch.
+        </Callout>
         <Space size={3} />
         {fetchingBranches && <BranchesLoading />}
         {!fetchingBranches && (
