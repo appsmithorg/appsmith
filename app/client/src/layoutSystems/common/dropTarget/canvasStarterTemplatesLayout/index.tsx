@@ -60,7 +60,7 @@ function CanvasStarterTemplatesLayout() {
   ) => {
     if (!templateId || !templateName || !templatePageName) return;
 
-    // Close explorer tabs to allow datasource prompt show up
+    // Close explorer tabs to allow datasource prompt show properly
     saveExplorerStatus(applicationId, "widgets", false);
     saveExplorerStatus(applicationId, "queriesAndJs", false);
     saveExplorerStatus(applicationId, "datasource", false);

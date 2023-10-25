@@ -24,6 +24,7 @@ export const TemplateLayoutFrame = styled.div<{ screenshot?: string | null }>`
     background: ${(props) =>
       props.screenshot ? `url(${props.screenshot}) no-repeat` : "none"};
     background-size: contain;
+    background-position: center;
     opacity: 0.6;
     z-index: -1;
   }
@@ -62,7 +63,7 @@ export const TemplateLayoutHeaderText = styled(Text)<{ layoutActive: boolean }>`
 export const TemplateLayoutRowItemTitle = styled.p<{ layoutActive: boolean }>`
   font-size: 14px;
   line-height: 20px;
-  text-align: left;
+  text-align: center;
   font-weight: 500;
   color: var(--colors-ui-content-heading-sub-section-heading);
   opacity: ${(props) => (props.layoutActive ? "1" : "0.7")};
@@ -73,7 +74,7 @@ export const TemplateLayoutRowItemDescription = styled.p<{
 }>`
   font-size: 12px;
   line-height: 16px;
-  text-align: left;
+  text-align: center;
   font-weight: 400;
   color: var(--colors-ui-content-supplementary);
   opacity: ${(props) => (props.layoutActive ? "1" : "0.7")};
@@ -103,17 +104,22 @@ export const TemplateLayoutContentGrid = styled.div`
   justify-content: center;
   align-items: center;
   flex-direction: row;
+  gap: 12px;
 `;
 
 export const TemplateLayoutContentItem = styled.div`
-  text-align: center;
   align-items: center;
+  justify-content: center;
   display: flex;
-  padding: 10px;
+  flex-direction: column;
+  padding: 12px;
   border-radius: 4px;
   background: transparent;
   transition: background 0.3s ease;
   cursor: pointer;
+  width: 146px;
+  border-width: 1px;
+  border-color: #cdd5df;
 
   &:hover {
     background: rgba(241, 245, 249, 1);
@@ -123,13 +129,14 @@ export const TemplateLayoutContentItem = styled.div`
 export const TemplateLayoutContentItemContent = styled.div`
   display: flex;
   flex-direction: column;
-  width: 152px;
-  margin-left: 16px;
+  align-items: center;
+  justify-content: center;
 `;
 
 export const IconContainer = styled.div<{ layoutItemActive: boolean }>`
   border-width: 1px;
   border-radius: 4px;
+  margin-bottom: 8px;
   border-color: ${(props) =>
     props.layoutItemActive ? Colors.PRIMARY_ORANGE : "transparent"};
 `;
