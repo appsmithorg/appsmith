@@ -48,6 +48,7 @@ export const SCHEMALESS_PLUGINS: Array<string> = [
   PluginName.REST_API,
   PluginName.REDIS,
   PluginName.GOOGLE_SHEETS,
+  PluginName.OPEN_AI,
 ];
 
 const DatasourceStructureSearchContainer = styled.div`

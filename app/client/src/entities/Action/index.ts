@@ -48,6 +48,7 @@ export enum PluginName {
   HUBSPOT = "HubSpot",
   ELASTIC_SEARCH = "Elasticsearch",
   GRAPHQL = "Authenticated GraphQL API",
+  OPEN_AI = "Open AI",
 }
 
 export enum PaginationType {
