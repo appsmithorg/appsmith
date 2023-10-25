@@ -123,11 +123,6 @@ export class Onboarding {
   skipSignposting() {
     cy.get("body").then(($body) => {
       if ($body.find(OnboardingLocator.introModalCloseBtn).length) {
-        // this._aggregateHelper.GetNClick(
-        //   OnboardingLocator.introModalCloseBtn,
-        //   0,
-        //   true,
-        // );
         cy.wrap(null).then(async () => {
           localForage.config({
             name: "Appsmith",
@@ -136,10 +131,10 @@ export class Onboarding {
           // is awaited until it resolves
           return localForage.setItem("ENABLE_START_SIGNPOSTING", false);
         });
+        //this._aggregateHelper.RefreshPage();//this is causing CI flakiness, so using below
         cy.window().then((win) => {
           win.location.reload();
         });
-        //this._aggregateHelper.RefreshPage();
       }
     });
   }

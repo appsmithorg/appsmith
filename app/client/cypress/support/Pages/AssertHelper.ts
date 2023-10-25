@@ -68,29 +68,7 @@ export class AssertHelper extends ReusableHelper {
     //   expect($apiCall.response.body.responseMeta.status).to.eq(expectedStatus);
     // });
 
-    // cy.wait(aliasName).should(
-    //   "have.nested.property",
-    //   "response.body.responseMeta.status",
-    //   expectedStatus,
-    // );
     this.Sleep(); //wait a bit to avoid flaky tests
-    // cy.wait(this.GetAliasName(aliasName), { timeout: responseTimeout });
-    // return cy
-    //   .get(this.GetAliasName(aliasName))
-    //   .then((interceptions: any) => interceptions);
-
-    // return cy
-    //   .wait(this.GetAliasName(aliasName), { timeout: responseTimeout })
-    //   .then(() =>
-    //     cy
-    //       .get(this.GetAliasName(aliasName))
-    //       .then((interceptions: any) =>
-    //         interceptions.length > 0
-    //           ? interceptions[interceptions.length - 1].response
-    //           : interceptions,
-    //       ),
-    //   );
-
     return cy
       .wait(this.GetAliasName(aliasName), { timeout: responseTimeout })
       .then((interceptions) => {
@@ -98,11 +76,6 @@ export class AssertHelper extends ReusableHelper {
           .get(this.GetAliasName(aliasName), { timeout: responseTimeout })
           .its("response");
       });
-    //   interceptions.length > 0
-    //     ? interceptions[interceptions.length - 1].response
-    //     : interceptions,
-    // );
-    // });
   }
 
   public AssertNetworkStatus(
@@ -111,7 +84,7 @@ export class AssertHelper extends ReusableHelper {
     waitForNetworkCall = true,
   ) {
     if (waitForNetworkCall) {
-      // If waitForNetworkCall is true, then use the interception from received call
+      // If waitForNetworkCall is true, then use the response from WaitForNetworkCall call
       return this.WaitForNetworkCall(aliasName).then((response: any) =>
         this.processNetworkStatus(response, expectedStatus),
       );
