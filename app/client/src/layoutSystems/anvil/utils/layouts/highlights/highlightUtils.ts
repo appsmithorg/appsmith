@@ -2,7 +2,6 @@ import LayoutFactory from "layoutSystems/anvil/layoutComponents/LayoutFactory";
 import type {
   AnvilHighlightInfo,
   DraggedWidget,
-  GenerateHighlights,
   GetDimensions,
   GetInitialHighlights,
   GetLayoutHighlights,
@@ -22,10 +21,10 @@ import { getRelativeDimensions } from "./dimensionUtils";
  * @param layoutOrder | string[] : Hierarchy (Top - down) of layouts.
  * @param baseHighlight | AnvilHighlightInfo : base highlight object.
  * @param parentDropTargetId | string : id of immediate drop target ancestor.
- * @param generateHighlights | GenerateHighlights : method to generate highlights for the parent layout.
  * @param getInitialHighlights | GetInitialHighlights : method to generate initial highlights for an empty layout.
  * @param getHighlightsForLayouts | GetLayoutHighlights : method to generate highlights for child layouts.
  * @param getHighlightsForWidgets | GetWidgetHighlights : method to generate highlights for child widgets.
+ * @param hasAlignments: boolean | whether the layout is aligned.
  * @param hasFillWidget | boolean | undefined : whether the list of dragged widgets includes a Fill widget.
  * @returns AnvilHighlightInfo[]
  */
@@ -37,10 +36,10 @@ export function deriveHighlights(
   layoutOrder: string[],
   baseHighlight: AnvilHighlightInfo,
   parentDropTargetId: string,
-  generateHighlights: GenerateHighlights,
   getInitialHighlights: GetInitialHighlights,
   getHighlightsForLayouts: GetLayoutHighlights,
   getHighlightsForWidgets: GetWidgetHighlights,
+  hasAlignments: boolean,
   hasFillWidget?: boolean,
 ): AnvilHighlightInfo[] {
   const getDimensions: GetDimensions = getRelativeDimensions(
@@ -52,9 +51,9 @@ export function deriveHighlights(
     return getInitialHighlights(
       layoutProps,
       baseHighlight,
-      generateHighlights,
       getDimensions,
       !!layoutProps.isDropTarget,
+      hasAlignments,
       hasFillWidget,
     );
   }
@@ -77,8 +76,8 @@ export function deriveHighlights(
       canvasId,
       layoutOrder,
       parentDropTargetId,
-      generateHighlights,
       getDimensions,
+      hasAlignments,
       hasFillWidget,
     );
   }
@@ -87,8 +86,8 @@ export function deriveHighlights(
     layoutProps,
     baseHighlight,
     draggedWidgets,
-    generateHighlights,
     getDimensions,
+    hasAlignments,
     hasFillWidget,
   );
 }
