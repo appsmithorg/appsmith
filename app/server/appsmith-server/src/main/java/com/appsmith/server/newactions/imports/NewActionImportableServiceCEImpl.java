@@ -56,8 +56,12 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
         this.actionCollectionService = actionCollectionService;
     }
 
+    // Requires pageNameMap, pageNameToOldNameMap, pluginMap and datasourceNameToIdMap to be present in importable
+    // resources.
+    // Updates actionResultDTO in importable resources.
+    // Also directly updates required information in DB
     @Override
-    public Mono<List<NewAction>> importEntities(
+    public Mono<Void> importEntities(
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
@@ -124,7 +128,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                     log.error("Error while importing actions and deleting unused ones", throwable);
                     return Mono.error(throwable);
                 })
-                .thenReturn(List.of());
+                .then();
     }
 
     @Override
