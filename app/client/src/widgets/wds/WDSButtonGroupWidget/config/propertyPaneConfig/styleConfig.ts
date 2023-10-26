@@ -16,32 +16,17 @@ export const propertyPaneStyleConfig = [
         controlType: "ICON_TABS",
         fullWidth: true,
         helpText: "Sets the variant of the button",
-        options: [
-          {
-            label: "Primary",
-            value: BUTTON_VARIANTS.filled,
-          },
-          {
-            label: "Secondary",
-            value: BUTTON_VARIANTS.outlined,
-          },
-          {
-            label: "Tertiary",
-            value: BUTTON_VARIANTS.ghost,
-          },
-        ],
-        defaultValue: BUTTON_VARIANTS.filled,
+        options: Object.values(BUTTON_VARIANTS).map((variant) => ({
+          label: capitalize(variant),
+          value: variant,
+        })),
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: false,
         validation: {
           type: ValidationTypes.TEXT,
           params: {
-            allowedValues: [
-              BUTTON_VARIANTS.filled,
-              BUTTON_VARIANTS.outlined,
-              BUTTON_VARIANTS.ghost,
-            ],
+            allowedValues: Object.values(BUTTON_VARIANTS),
             default: BUTTON_VARIANTS.filled,
           },
         },
