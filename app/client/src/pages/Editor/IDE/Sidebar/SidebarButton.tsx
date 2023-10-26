@@ -23,7 +23,8 @@ const Container = styled.div`
 
 const IconContainer = styled.div<{ selected: boolean }>`
   padding: 2px;
-  background-color: ${(props) => (props.selected ? "#fbe6dc" : "white")};
+  background-color: ${(props) =>
+    props.selected ? "var(--colors-raw-orange-100, #fbe6dc)" : "white"};
   border-radius: 3px;
   width: 32px;
   height: 32px;
@@ -32,7 +33,7 @@ const IconContainer = styled.div<{ selected: boolean }>`
   justify-content: center;
   cursor: pointer;
   &:hover {
-    background-color: #fbe6dc;
+    background: var(--colors-ui-content-surface-hover-bg, #f1f5f9);
   }
 `;
 

@@ -146,15 +146,17 @@ function EntityExplorer({ isActive }: { isActive: boolean }) {
         />
       )}
       {!isAppSidebarEnabled && (
-        <Datasources
-          addDatasource={addDatasource}
-          entityId={pageId}
-          isDatasourcesOpen={isDatasourcesOpen}
-          listDatasource={listDatasource}
-          onDatasourcesToggle={onDatasourcesToggle}
-        />
+        <>
+          <Datasources
+            addDatasource={addDatasource}
+            entityId={pageId}
+            isDatasourcesOpen={isDatasourcesOpen}
+            listDatasource={listDatasource}
+            onDatasourcesToggle={onDatasourcesToggle}
+          />
+          <JSDependencies />
+        </>
       )}
-      <JSDependencies />
     </EntityExplorerWrapper>
   );
 }
