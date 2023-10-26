@@ -1,10 +1,11 @@
 import React, { memo, useEffect, useMemo, useRef, useState } from "react";
-import Entity, { EntityClassNames } from "../Entity";
-import { datasourceTableIcon } from "../ExplorerIcons";
+import Entity, { EntityClassNames } from "../Explorer/Entity";
+import { datasourceTableIcon } from "../Explorer/ExplorerIcons";
 import QueryTemplates from "./QueryTemplates";
 import DatasourceField from "./DatasourceField";
 import type { DatasourceTable } from "entities/Datasource";
-import { useCloseMenuOnScroll } from "../hooks";
+import { DatasourceStructureContext } from "entities/Datasource";
+import { useCloseMenuOnScroll } from "../Explorer/hooks";
 import { SIDEBAR_ID } from "constants/Explorer";
 import { useSelector } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
@@ -20,14 +21,6 @@ import { Virtuoso } from "react-virtuoso";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { hasCreateDSActionPermissionInApp } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
-
-export enum DatasourceStructureContext {
-  EXPLORER = "entity-explorer",
-  QUERY_EDITOR = "query-editor",
-  DATASOURCE_VIEW_MODE = "datasource-view-mode",
-  // this does not exist yet, but in case it does in the future.
-  API_EDITOR = "api-editor",
-}
 
 interface DatasourceStructureItemProps {
   dbStructure: DatasourceTable;

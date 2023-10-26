@@ -34,7 +34,7 @@ describe("Dynamic Height Width validation list widget", function () {
     );
     agHelper
       .GetWidgetCSSHeight(locators._widgetInDeployed(draggableWidgets.LIST))
-      .then((currentListHeight: number) => {
+      .then((currentListHeight: any) => {
         //Widgets within list widget have no dynamic height
         agHelper.AssertElementAbsence(propPane._propertyPaneHeightLabel);
         //Widgets within list widget in existing applications have no dynamic height
@@ -49,7 +49,7 @@ describe("Dynamic Height Width validation list widget", function () {
         propPane.UpdatePropertyFieldValue("Text", textMsg, true);
         agHelper
           .GetWidgetCSSHeight(locators._widgetInDeployed(draggableWidgets.LIST))
-          .then((updatedListHeight: number) => {
+          .then((updatedListHeight: any) => {
             expect(currentListHeight).to.equal(updatedListHeight);
           });
         entityExplorer.SelectEntityByName("Container1", "List1");
@@ -85,7 +85,7 @@ describe("Dynamic Height Width validation list widget", function () {
         agHelper.GetNClick(locators._widgetInDeployed(draggableWidgets.TEXT));
         agHelper
           .GetWidgetCSSHeight(locators._widgetInDeployed(draggableWidgets.TEXT))
-          .then((height: number) => {
+          .then((height: any) => {
             propPane.SelectPropertiesDropDown("height", "Auto Height");
             assertHelper.AssertNetworkStatus("@updateLayout", 200);
             agHelper.GetNClick(
@@ -96,7 +96,7 @@ describe("Dynamic Height Width validation list widget", function () {
                 locators._widgetInDeployed(draggableWidgets.TEXT),
               )
               .wait(1000)
-              .then((updatedListHeight: number) => {
+              .then((updatedListHeight: any) => {
                 expect(height).to.not.equal(updatedListHeight);
               });
           });
