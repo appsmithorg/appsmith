@@ -19,7 +19,7 @@ describe("Issue 24486 - Issue with Export Application", () => {
     });
   });
 
-  it("Should export the current branch", () => {
+  it("1. Should export the current branch", () => {
     _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.BUTTON, 200, 200);
     _.gitSync.CreateNConnectToGit();
     cy.get("@gitRepoName").then((repName) => {
@@ -60,7 +60,7 @@ describe("Issue 24486 - Issue with Export Application", () => {
     });
   });
 
-  it("Should import the exported branch", () => {
+  it("2. Should import the exported branch", () => {
     ws2Name = "Bug24486-w2" + guid;
     _.homePage.CreateNewWorkspace(ws2Name, true);
     _.homePage.ImportApp("app-b24486.json", ws2Name);
