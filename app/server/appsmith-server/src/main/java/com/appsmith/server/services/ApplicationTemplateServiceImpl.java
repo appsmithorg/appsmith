@@ -7,6 +7,7 @@ import com.appsmith.server.imports.internal.ImportApplicationService;
 import com.appsmith.server.services.ce.ApplicationTemplateServiceCEImpl;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.ReleaseNotesService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -24,7 +25,8 @@ public class ApplicationTemplateServiceImpl extends ApplicationTemplateServiceCE
             UserDataService userDataService,
             ApplicationService applicationService,
             ResponseUtils responseUtils,
-            ApplicationPermission applicationPermission) {
+            ApplicationPermission applicationPermission,
+            ObjectMapper objectMapper) {
         super(
                 cloudServicesConfig,
                 releaseNotesService,
@@ -34,6 +36,7 @@ public class ApplicationTemplateServiceImpl extends ApplicationTemplateServiceCE
                 userDataService,
                 applicationService,
                 responseUtils,
-                applicationPermission);
+                applicationPermission,
+                objectMapper);
     }
 }

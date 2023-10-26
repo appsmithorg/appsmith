@@ -42,7 +42,6 @@ import { Spinner } from "design-system";
 import SignpostingOverlay from "pages/Editor/FirstTimeUserOnboarding/Overlay";
 import { editorInitializer } from "../../utils/editor/EditorUtils";
 import { widgetInitialisationSuccess } from "../../actions/widgetActions";
-import { EnvDeployInfoModal } from "@appsmith/components/EnvDeployInfoModal";
 import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
 
 interface EditorProps {
@@ -167,7 +166,6 @@ class Editor extends Component<Props> {
           <GlobalHotKeys>
             <IDE />
             <GitSyncModal />
-            <EnvDeployInfoModal />
             <DisconnectGitModal />
             <GuidedTourModal />
             <RepoLimitExceededErrorModal />
