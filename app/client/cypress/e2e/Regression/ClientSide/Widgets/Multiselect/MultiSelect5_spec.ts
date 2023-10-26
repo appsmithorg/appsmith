@@ -325,6 +325,7 @@ describe("Multi Select widget Tests", function () {
       locators._propertyInputField("Default selected values"),
     );
 
+    agHelper.Sleep(1000);
     agHelper.AssertElementAbsence(locators._evaluatedErrorMessage);
 
     // Changes options to bring back validation error
@@ -362,6 +363,7 @@ describe("Multi Select widget Tests", function () {
       true,
     );
 
+    agHelper.Sleep(1000);
     agHelper.AssertElementAbsence(locators._evaluatedErrorMessage);
   });
 });
