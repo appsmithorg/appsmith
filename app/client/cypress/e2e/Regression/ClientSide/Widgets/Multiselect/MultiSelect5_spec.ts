@@ -302,7 +302,7 @@ describe("Multi Select widget Tests", function () {
 
     propPane.MoveToTab("Content");
 
-    propPane.TypeTextIntoField(
+    propPane.UpdatePropertyFieldValue(
       "Default selected values",
       '["GREEN1", "RED1"]',
       true,
@@ -315,7 +315,7 @@ describe("Multi Select widget Tests", function () {
     propPane.ToggleJSMode("Source Data", true);
 
     // Updates the options and asserts that the validation error is fixed
-    propPane.TypeTextIntoField(
+    propPane.UpdatePropertyFieldValue(
       "Source Data",
       '[{"name": "Green", "code":"GREEN1"}, { "name": "Red","code": "RED1" }]',
       true,
@@ -329,7 +329,7 @@ describe("Multi Select widget Tests", function () {
     agHelper.AssertElementAbsence(locators._evaluatedErrorMessage);
 
     // Changes options to bring back validation error
-    propPane.TypeTextIntoField(
+    propPane.UpdatePropertyFieldValue(
       "Source Data",
       '[{"name": "Green", "code":"GREEN1"}, { "name": "Red","code": "RED" }]',
       true,
@@ -344,7 +344,7 @@ describe("Multi Select widget Tests", function () {
     );
 
     // Reload to check if the error persists
-    cy.reload();
+    agHelper.RefreshPage();
 
     entityExplorer.SelectEntityByName("NewMultiSelect", "Widgets");
 
@@ -357,7 +357,7 @@ describe("Multi Select widget Tests", function () {
     );
 
     // Fixes the validation error
-    propPane.TypeTextIntoField(
+    propPane.UpdatePropertyFieldValue(
       "Default selected values",
       '{{["GREEN1"]}}',
       true,

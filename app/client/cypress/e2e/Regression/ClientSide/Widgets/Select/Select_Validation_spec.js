@@ -37,7 +37,7 @@ describe("Select Widget Functionality", function () {
 
     entityExplorer.SelectEntityByName("SelectRenamed", "Widgets");
 
-    propPane.TypeTextIntoField("Default selected value", "GREEN1", true);
+    propPane.UpdatePropertyFieldValue("Default selected value", "GREEN1", true);
 
     agHelper.VerifyEvaluatedErrorMessage(
       "Default value is missing in options. Please update the value.",
@@ -46,7 +46,7 @@ describe("Select Widget Functionality", function () {
     propPane.ToggleJSMode("Source Data", true);
 
     // Updates the options and asserts that the validation error is fixed
-    propPane.TypeTextIntoField(
+    propPane.UpdatePropertyFieldValue(
       "Source Data",
       '[{"name": "Green", "code":"GREEN1"}]',
       true,
@@ -59,7 +59,7 @@ describe("Select Widget Functionality", function () {
     agHelper.AssertElementAbsence(locators._evaluatedErrorMessage);
 
     // Changes options to bring back validation error
-    propPane.TypeTextIntoField(
+    propPane.UpdatePropertyFieldValue(
       "Source Data",
       '[{"name": "Green", "code":"GREEN"}]',
       true,
@@ -74,7 +74,7 @@ describe("Select Widget Functionality", function () {
     );
 
     // Reload to check if the error persists
-    cy.reload();
+    agHelper.RefreshPage();
 
     entityExplorer.SelectEntityByName("SelectRenamed", "Widgets");
 
@@ -87,9 +87,9 @@ describe("Select Widget Functionality", function () {
     );
 
     // Fixes the validation error
-    propPane.TypeTextIntoField(
+    propPane.UpdatePropertyFieldValue(
       "Source Data",
-      '[{"name": "Green", "code": {{"GREEN"}}}]',
+      '[{"name": "Green", "code": {{"GREEN1"}}}]',
       true,
     );
 
