@@ -298,7 +298,7 @@ describe("Multi Select widget Tests", function () {
   });
 
   it("8. Verify validation error in default selected values", () => {
-    entityExplorer.SelectEntityByName("MultiSelect1", "Widgets");
+    entityExplorer.SelectEntityByName("NewMultiSelect", "Widgets");
 
     propPane.MoveToTab("Content");
 
@@ -345,7 +345,7 @@ describe("Multi Select widget Tests", function () {
     // Reload to check if the error persists
     cy.reload();
 
-    entityExplorer.SelectEntityByName("MultiSelect1", "Widgets");
+    entityExplorer.SelectEntityByName("NewMultiSelect", "Widgets");
 
     agHelper.FocusElement(
       locators._propertyInputField("Default selected values"),
