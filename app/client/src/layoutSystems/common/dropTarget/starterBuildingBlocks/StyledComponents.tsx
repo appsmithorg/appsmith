@@ -41,9 +41,7 @@ export const TemplateLayoutContainer = styled.div`
   border-radius: 4px;
 
   background-color: transparent;
-  transition:
-    background-color 0.3s ease,
-    box-shadow 0.3s ease;
+  transition: box-shadow 0.3s ease;
 
   &:hover {
     background-color: ${Colors.WHITE};
