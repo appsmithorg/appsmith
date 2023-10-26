@@ -7,7 +7,7 @@
   "children": [
     {
       "label": "Models",
-      "tooltipText": "Select the model to for response generation",
+      "tooltipText": "Select the model for response generation",
       "propertyName": "model_id",
       "configProperty": "actionConfiguration.formData.model.data",
       "controlType": "DROP_DOWN",

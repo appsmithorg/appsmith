@@ -25,13 +25,11 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -91,18 +89,11 @@ public class OpenAiPlugin extends BasePlugin {
             ActionExecutionResult errorResult = new ActionExecutionResult();
             initUtils.initializeResponseWithError(errorResult);
 
-            // Set of hint messages that can be returned to the user.
-            Set<String> hintMessages = new HashSet<>();
-
             // Initializing request URL
             URI uri = RequestUtils.createUri(actionConfiguration);
 
             ActionExecutionRequest actionExecutionRequest =
                     RequestCaptureFilter.populateRequestFields(actionConfiguration, uri, insertedParams, objectMapper);
-
-            WebClient.Builder webClientBuilder =
-                    restAPIActivateUtils.getWebClientBuilder(actionConfiguration, datasourceConfiguration);
-            String reqContentType = headerUtils.getRequestContentType(actionConfiguration, datasourceConfiguration);
 
             /* Check for content type */
             final String contentTypeError = headerUtils.verifyContentType(actionConfiguration.getHeaders());
