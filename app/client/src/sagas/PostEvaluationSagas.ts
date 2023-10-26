@@ -232,12 +232,11 @@ export function* evalErrorHandler(
     const currentDebuggerErrors: Record<string, Log> =
       yield select(getDebuggerErrors);
 
-    const evalAndValidationOrder = new Set([...evaluationOrder]);
     // Update latest errors to the debugger
     logLatestEvalPropertyErrors(
       currentDebuggerErrors,
       dataTree,
-      [...evalAndValidationOrder],
+      evaluationOrder,
       configTree,
       removedPaths,
     );
