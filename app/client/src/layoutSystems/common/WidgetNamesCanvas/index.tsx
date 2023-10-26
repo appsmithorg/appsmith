@@ -122,8 +122,9 @@ const OverlayCanvasContainer = (props: { canvasWidth: number }) => {
   useEffect(() => {
     const scrollParent: HTMLDivElement | null =
       getMainContainerAnvilCanvasDOMElement();
+    const wrapper: HTMLDivElement | null = wrapperRef?.current;
 
-    if (!wrapperRef?.current || !scrollParent) return;
+    if (!wrapper || !scrollParent) return;
 
     const reset = resetCanvas.bind(this, widgetNamePositions, stageRef);
 
@@ -149,40 +150,15 @@ const OverlayCanvasContainer = (props: { canvasWidth: number }) => {
     scrollParent.addEventListener("mousemove", mouseMoveHandler);
     scrollParent.addEventListener("scroll", scrollHandler);
     scrollParent.addEventListener("scrollend", scrollEndHandler);
+    wrapper.addEventListener("mousemove", mouseMoveHandler);
 
     return () => {
       scrollParent.removeEventListener("mousemove", mouseMoveHandler);
       scrollParent.removeEventListener("scroll", scrollHandler);
       scrollParent.removeEventListener("scrollend", scrollEndHandler);
+      wrapper.removeEventListener("mousemove", mouseMoveHandler);
     };
   }, [wrapperRef?.current, stageRef?.current]);
-
-  useEffect(() => {
-    const wrapper = wrapperRef?.current as HTMLDivElement;
-    if (!wrapper) return;
-
-    const pointerEvents: string = wrapper?.style?.pointerEvents;
-    const mouseMoveHandler = getMouseMoveHandler(
-      wrapperRef,
-      canvasPositions,
-      widgetNamePositions,
-    );
-
-    /**
-     * When pointerEvents are set to "auto" for the wrapper,
-     * it will absorb mouse events
-     * and the mousemove handler on the canvas stops working,
-     * which prevents users from selecting widgets.
-     */
-    if (pointerEvents === "auto") {
-      /**
-       * Add the same listener to the wrapper when pointerEvents are enabled.
-       */
-      wrapper.addEventListener("mousemove", mouseMoveHandler);
-    } else {
-      wrapper.removeEventListener("mousemove", mouseMoveHandler);
-    }
-  }, [wrapperRef?.current?.style?.pointerEvents]);
 
   // Reset the canvas if no widgets are focused or selected
   // Update the widget name positions if there are widgets focused or selected
