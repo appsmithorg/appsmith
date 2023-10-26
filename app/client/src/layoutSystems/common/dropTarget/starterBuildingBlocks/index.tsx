@@ -33,7 +33,7 @@ import { saveExplorerStatus } from "@appsmith/pages/Editor/Explorer/helpers";
 
 const BUILDING_BLOCK_TEMPLATE_NAME = "Starter template";
 
-function CanvasStarterTemplatesLayout() {
+function StarterBuildingBlocks() {
   const dispatch = useDispatch();
   const [layoutActive, setLayoutActive] = useState<boolean>(false); // manage "or" text and "Drag and Drop Widgets" text
   const [layoutItemActive, setLayoutItemActive] = useState<string>(""); // manage layout item hover
@@ -150,7 +150,7 @@ function CanvasStarterTemplatesLayout() {
   );
 }
 
-export default CanvasStarterTemplatesLayout;
+export default StarterBuildingBlocks;
 
 const RecordEdit = importSvg(
   async () =>
