@@ -2,7 +2,6 @@ package com.appsmith.server.exports.internal;
 
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.helpers.Stopwatch;
-import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
@@ -121,20 +120,11 @@ public class ExportApplicationServiceCEImpl implements ExportApplicationServiceC
                         })
                         .cache();
 
-        /*
-         * We need to cache the applicationMono because the application object inside the applicationMono will be
-         * updated in the subsequent steps. We need to use the original application object for analytics.
-         */
-        Mono<String> cachedApplicationIdMono =
-                applicationMono.map(BaseDomain::getId).cache();
-
         // Set json schema version which will be used to check the compatibility while importing the JSON
         applicationJson.setServerSchemaVersion(JsonSchemaVersions.serverVersion);
         applicationJson.setClientSchemaVersion(JsonSchemaVersions.clientVersion);
 
         return applicationMono
-                // create a copy of the application object, we'll need later to log the analytics
-                .flatMap(cachedApplicationIdMono::thenReturn)
                 .flatMap(application -> {
                     // Refactor application to remove the ids
                     GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
@@ -188,8 +178,7 @@ public class ExportApplicationServiceCEImpl implements ExportApplicationServiceC
                             .sendEvent(AnalyticsEvents.UNIT_EXECUTION_TIME.getEventName(), user.getUsername(), data)
                             .thenReturn(applicationJson);
                 })
-                .flatMap(unused ->
-                        sendImportExportApplicationAnalyticsEvent(cachedApplicationIdMono, AnalyticsEvents.EXPORT))
+                .flatMap(unused -> sendImportExportApplicationAnalyticsEvent(applicationId, AnalyticsEvents.EXPORT))
                 .thenReturn(applicationJson);
     }
 
@@ -307,13 +296,12 @@ public class ExportApplicationServiceCEImpl implements ExportApplicationServiceC
     /**
      * To send analytics event for import and export of application
      *
-     * @param applicationIdMono Mono<Application></Application> object imported or exported
+     * @param applicationId String application id
      * @param event       AnalyticsEvents event
      * @return The application which is imported or exported
      */
-    private Mono<Application> sendImportExportApplicationAnalyticsEvent(
-            Mono<String> applicationIdMono, AnalyticsEvents event) {
-        return applicationIdMono.flatMap(applicationService::findById).flatMap(application -> workspaceService
+    private Mono<Application> sendImportExportApplicationAnalyticsEvent(String applicationId, AnalyticsEvents event) {
+        return applicationService.findById(applicationId).flatMap(application -> workspaceService
                 .getById(application.getWorkspaceId())
                 .flatMap(workspace -> {
                     final Map<String, Object> eventData = Map.of(
