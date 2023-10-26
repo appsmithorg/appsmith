@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import static com.external.plugins.constants.OpenAIConstants.CHAT;
 import static com.external.plugins.constants.OpenAIConstants.CHAT_MODEL_SELECETOR;
@@ -35,6 +36,9 @@ import static com.external.plugins.constants.OpenAIConstants.MODEL;
 public class ChatCommand implements OpenAICommand {
 
     private final ObjectMapper objectMapper;
+
+    private final String regex = "(ft:)?(gpt).*";
+    private final Pattern pattern = Pattern.compile(regex);
 
     public ChatCommand(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
@@ -79,6 +83,10 @@ public class ChatCommand implements OpenAICommand {
                         }
 
                         String modelId = (String) modelMap.get(ID);
+                        if (!pattern.matcher(modelId).matches()) {
+                            continue;
+                        }
+
                         Map<String, String> responseMap = new HashMap<>();
                         responseMap.put("label", modelId);
                         responseMap.put("value", modelId);

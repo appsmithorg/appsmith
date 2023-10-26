@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import static com.external.plugins.constants.OpenAIConstants.DATA;
 import static com.external.plugins.constants.OpenAIConstants.EMBEDDINGS;
@@ -34,6 +35,8 @@ import static com.external.plugins.utils.RequestUtils.extractDataFromFormData;
 public class EmbeddingsCommand implements OpenAICommand {
 
     private final ObjectMapper objectMapper;
+    private final String regex = "(ft:)?(text-embedding-ada-002).*";
+    private final Pattern pattern = Pattern.compile(regex);
 
     public EmbeddingsCommand(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
@@ -78,6 +81,10 @@ public class EmbeddingsCommand implements OpenAICommand {
                         }
 
                         String modelId = (String) modelMap.get(ID);
+                        if (!pattern.matcher(modelId).matches()) {
+                            continue;
+                        }
+
                         Map<String, String> responseMap = new HashMap<>();
                         responseMap.put("label", modelId);
                         responseMap.put("value", modelId);

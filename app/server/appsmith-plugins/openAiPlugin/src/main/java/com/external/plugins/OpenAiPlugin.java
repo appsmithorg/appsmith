@@ -19,6 +19,7 @@ import com.external.plugins.commands.OpenAICommand;
 import com.external.plugins.models.OpenAIRequestDTO;
 import com.external.plugins.utils.OpenAIMethodStrategy;
 import com.external.plugins.utils.RequestUtils;
+import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.extern.slf4j.Slf4j;
 import org.pf4j.PluginWrapper;
 import org.springframework.http.HttpHeaders;
@@ -27,6 +28,7 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.web.reactive.function.BodyInserters;
 import reactor.core.publisher.Mono;
 
+import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
@@ -123,7 +125,13 @@ public class OpenAiPlugin extends BasePlugin {
                         }
 
                         actionExecutionResult.setIsExecutionSuccess(true);
-                        actionExecutionResult.setBody(responseEntity.getBody());
+                        try {
+                            Object body = objectMapper.readValue(
+                                    responseEntity.getBody(), new TypeReference<Map<String, Object>>() {});
+                            actionExecutionResult.setBody(body);
+                        } catch (IOException ex) {
+                            actionExecutionResult.setIsExecutionSuccess(false);
+                        }
                         return Mono.just(actionExecutionResult);
                     });
         }
