@@ -50,7 +50,11 @@ import {
   createActionRequest,
   setActionProperty,
 } from "actions/pluginActionActions";
-import type { Action, CreateApiActionDefaultsParams } from "entities/Action";
+import type {
+  Action,
+  ApiAction,
+  CreateApiActionDefaultsParams,
+} from "entities/Action";
 import { PluginPackageName, PluginType } from "entities/Action";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import log from "loglevel";
@@ -703,11 +707,14 @@ function* handleCreateNewApiActionSaga(
     // Note: Do NOT send pluginId on top level here.
     // It breaks embedded rest datasource flow.
 
-    const createApiActionPayload = createDefaultApiActionPayload({
-      apiType,
-      from,
-      newActionName,
-    });
+    const createApiActionPayload: Partial<ApiAction> = yield call(
+      createDefaultApiActionPayload,
+      {
+        apiType,
+        from,
+        newActionName,
+      },
+    );
 
     yield put(
       createActionRequest({
