@@ -29,6 +29,7 @@ describe("Select Widget Functionality", function () {
       "contain.text",
       "Green",
     );
+    _.deployMode.NavigateBacktoEditor();
   });
 
   it("2. Shows validation error for invalid defaultSelectedValue", () => {
