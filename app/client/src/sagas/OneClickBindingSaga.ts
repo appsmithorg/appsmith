@@ -4,7 +4,11 @@ import {
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import type { Plugin } from "api/PluginApi";
-import type { Action, QueryActionConfig } from "entities/Action";
+import {
+  PluginType,
+  type Action,
+  type QueryActionConfig,
+} from "entities/Action";
 import type { Datasource } from "entities/Datasource";
 import { invert, merge, omit, partition } from "lodash";
 import { all, call, put, select, take, takeLatest } from "redux-saga/effects";
@@ -18,12 +22,9 @@ import {
   getDatasource,
   getPlugin,
 } from "@appsmith/selectors/entitiesSelector";
-import { createNewQueryName } from "utils/AppsmithUtils";
+import { createNewApiName, createNewQueryName } from "utils/AppsmithUtils";
 import WidgetQueryGeneratorRegistry from "utils/WidgetQueryGeneratorRegistry";
-import {
-  createDefaultActionPayload,
-  getPulginActionDefaultValues,
-} from "./ActionSagas";
+import { createDefaultActionPayloadWithPluginDefaults } from "./ActionSagas";
 import "../WidgetQueryGenerators";
 import type { ActionDataState } from "@appsmith/reducers/entityReducers/actionsReducer";
 import "WidgetQueryGenerators";
@@ -108,11 +109,6 @@ function* BindWidgetToDatasource(
   const newActions: string[] = [];
 
   try {
-    const defaultValues: object | undefined = yield call(
-      getPulginActionDefaultValues,
-      datasource?.pluginId,
-    );
-
     const { getQueryGenerationConfig } = WidgetFactory.getWidgetMethods(
       widget.type,
     );
@@ -129,14 +125,20 @@ function* BindWidgetToDatasource(
     const actionConfigurationList = widgetQueryGenerator.build(
       widgetQueryGenerationConfig,
       action.payload,
-      defaultValues,
     );
 
+    const newActionName =
+      plugin.type === PluginType.DB
+        ? createNewQueryName(actions, pageId || "")
+        : createNewApiName(actions, pageId || "");
+
     const commonActionPayload: Partial<Action> = yield call(
-      createDefaultActionPayload,
-      pageId,
-      datasourceId,
-      "ONE_CLICK_BINDING",
+      createDefaultActionPayloadWithPluginDefaults,
+      {
+        datasourceId,
+        from: "ONE_CLICK_BINDING",
+        newActionName,
+      },
     );
 
     const queryNameMap: Record<string, string> = {};
@@ -154,12 +156,19 @@ function* BindWidgetToDatasource(
 
           queryNameMap[type] = createNewQueryName(actions, pageId || "", name);
 
-          return merge({}, commonActionPayload, {
-            actionConfiguration: payload,
-            name: queryNameMap[type],
-            dynamicBindingPathList,
-            type,
-          });
+          return merge(
+            {},
+            {
+              ...commonActionPayload,
+              pageId,
+            },
+            {
+              actionConfiguration: payload,
+              name: queryNameMap[type],
+              dynamicBindingPathList,
+              type,
+            },
+          );
         },
       );
 
