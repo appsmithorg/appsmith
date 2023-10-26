@@ -249,6 +249,8 @@ describe("Tabs widget Tests", function () {
 
     agHelper.AssertAutoSave();
 
+    agHelper.Sleep(1000);
+
     agHelper.FocusElement(locators._propertyInputField("Default tab"));
 
     agHelper.AssertElementAbsence(locators._evaluatedErrorMessage);
@@ -256,6 +258,10 @@ describe("Tabs widget Tests", function () {
     propPane.TypeTextIntoField("Default tab", "Tab 13", true);
 
     agHelper.VerifyEvaluatedErrorMessage("Tab name Tab 13 does not exist");
+
+    agHelper.AssertAutoSave();
+
+    agHelper.Sleep(1000);
 
     cy.reload();
 
