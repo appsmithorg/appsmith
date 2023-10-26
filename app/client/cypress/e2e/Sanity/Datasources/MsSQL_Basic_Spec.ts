@@ -309,7 +309,7 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
 
     //Should not be able to delete ds until app is published again
     //coz if app is published & shared then deleting ds may cause issue, So!
-    dataSources.DeleteDatasouceFromActiveTab(dsName, 409);
+    dataSources.DeleteDatasourceFromWithinDS(dsName, 409);
     agHelper.WaitUntilAllToastsDisappear();
     deployMode.DeployApp(locators._emptyPageTxt);
     agHelper.Sleep(3000);

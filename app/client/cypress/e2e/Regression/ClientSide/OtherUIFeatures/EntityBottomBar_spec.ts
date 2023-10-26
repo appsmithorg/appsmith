@@ -107,7 +107,7 @@ describe("Entity bottom bar", () => {
       _.debuggerHelper.AssertSelectedTab("Response");
       // clean up
       _.dataSources.DeleteQuery("Query1");
-      _.dataSources.DeleteDatasouceFromActiveTab(dbName);
+      _.dataSources.DeleteDatasourceFromWithinDS(dbName);
     });
   });
 
@@ -138,7 +138,7 @@ describe("Entity bottom bar", () => {
     // clean up
     _.dataSources.DeleteQuery("Query1");
     cy.get("@dsName").then(($dsName) => {
-      _.dataSources.DeleteDatasouceFromActiveTab($dsName as any);
+      _.dataSources.DeleteDatasourceFromWithinDS($dsName as any);
     });
   });
 });

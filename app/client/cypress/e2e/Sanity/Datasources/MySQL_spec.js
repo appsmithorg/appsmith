@@ -16,7 +16,7 @@ describe("MySQL datasource test cases", function () {
       datasourceName = `MySQL MOCKDS ${UUID}`;
       cy.renameDatasource(datasourceName);
       cy.testSaveDatasource();
-      dataSources.DeleteDatasouceFromActiveTab(datasourceName);
+      dataSources.DeleteDatasourceFromWithinDS(datasourceName);
     });
   });
 

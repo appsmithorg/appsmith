@@ -353,7 +353,7 @@ describe("Validate Firestore DS", () => {
       action: "Delete",
       entityType: entityItems.Query,
     });
-    dataSources.DeleteDatasouceFromActiveTab(dsName, 409);
+    dataSources.DeleteDatasourceFromWithinDS(dsName, 409);
     //commenting below since after query delete, we run into risk of not seeing the datasource in EntityExplorer
     // entityExplorer.SelectEntityByName(dsName, "Datasources");
     // entityExplorer.ActionContextMenuByEntityName({

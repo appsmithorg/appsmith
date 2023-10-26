@@ -77,7 +77,7 @@ describe("excludeForAirgap", "Query pane navigation", () => {
       entityType: entityItems.Query,
     });
 
-    dataSources.DeleteDSFromEntityExplorer(ds1Name);
-    dataSources.DeleteDSFromEntityExplorer(ds2Name);
+    dataSources.DeleteDatasourceFromWithinDS(ds1Name);
+    dataSources.DeleteDatasourceFromWithinDS(ds2Name);
   });
 });

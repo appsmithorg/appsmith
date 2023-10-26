@@ -98,11 +98,9 @@ describe(
       agHelper
         .GetText(dataSources._queriesOnPageText(dsName))
         .then(($queryCount) =>
-          expect($queryCount).to.eq(
-            "No query in this application is using this datasource",
-          ),
+          expect($queryCount).to.eq("No query in this app"),
         );
-      dataSources.DeleteDatasouceFromActiveTab(dsName);
+      dataSources.DeleteDatasourceFromWithinDS(dsName);
     });
   },
 );

@@ -275,7 +275,7 @@ Cypress.Commands.add("createGoogleSheetsDatasource", () => {
 
 Cypress.Commands.add("deleteDatasource", (datasourceName) => {
   cy.NavigateToQueryEditor();
-  dataSources.DeleteDatasouceFromActiveTab(datasourceName);
+  dataSources.DeleteDatasourceFromWithinDS(datasourceName);
 });
 
 Cypress.Commands.add("renameDatasource", (datasourceName) => {
@@ -332,7 +332,7 @@ Cypress.Commands.add("createNewAuthApiDatasource", (renameVal) => {
 Cypress.Commands.add("deleteAuthApiDatasource", (renameVal) => {
   //Navigate to active datasources panel.
   cy.get(pages.addEntityAPI).last().should("be.visible").click({ force: true });
-  dataSources.DeleteDatasouceFromActiveTab(renameVal);
+  dataSources.DeleteDatasourceFromWithinDS(renameVal);
 });
 
 Cypress.Commands.add("createGraphqlDatasource", (datasourceName) => {

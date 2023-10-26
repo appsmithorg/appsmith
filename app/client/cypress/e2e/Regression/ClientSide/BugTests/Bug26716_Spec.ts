@@ -61,9 +61,9 @@ describe(
               action: "Delete",
             });
 
-            dataSources.DeleteDatasouceFromActiveTab(userMock);
-            dataSources.DeleteDatasouceFromActiveTab(movieMock);
-            dataSources.DeleteDatasouceFromActiveTab(dsName);
+            dataSources.DeleteDatasourceFromWithinDS(userMock);
+            dataSources.DeleteDatasourceFromWithinDS(movieMock);
+            dataSources.DeleteDatasourceFromWithinDS(dsName);
           });
         });
       });

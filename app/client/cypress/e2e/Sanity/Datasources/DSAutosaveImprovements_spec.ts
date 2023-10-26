@@ -37,7 +37,7 @@ describe("Datasource Autosave Improvements Tests", function () {
       agHelper.AssertContains(dsName, "exist", dataSources._datasourceCard);
 
       // delete datasource
-      dataSources.DeleteDatasouceFromActiveTab(dsName);
+      dataSources.DeleteDatasourceFromWithinDS(dsName);
     });
   });
 
@@ -64,7 +64,7 @@ describe("Datasource Autosave Improvements Tests", function () {
       // delete datasource
       cy.get("@dsName").then(($dsName) => {
         dsName = $dsName;
-        dataSources.DeleteDatasouceFromActiveTab(dsName);
+        dataSources.DeleteDatasourceFromWithinDS(dsName);
       });
     });
   });

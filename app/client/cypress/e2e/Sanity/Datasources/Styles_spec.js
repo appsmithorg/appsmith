@@ -146,7 +146,7 @@ describe("excludeForAirgap", "Validate Datasource Panel Styles", function () {
   });
 
   after(() => {
-    dataSources.DeleteDatasouceFromActiveTab(dsName);
+    dataSources.DeleteDatasourceFromWithinDS(dsName);
     //entityExplorer.ActionContextMenuByEntityName(dsName, "Delete");//Since Users is not appearing in EntityExplorer, this has potential to fail
   });
 });

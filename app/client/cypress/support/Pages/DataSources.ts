@@ -846,40 +846,7 @@ export class DataSources {
   }
 
   public ShowAllDatasources() {
-    this.agHelper.GetElement(this.locator._body).then(($body) => {
-      if ($body.find(this._selectedActiveTab).length === 0) {
-        this.agHelper.ClickButton("Show all datasources");
-      }
-    });
-  }
-
-  public ClickActiveTabDSContextMenu(datasourceName: string) {
-    this.agHelper.GetElement(this.locator._body).then(($body) => {
-      if (
-        $body.find(this.locator._visibleTextSpan("Show all datasources", true))
-          .length !== 0
-      ) {
-        this.ShowAllDatasources();
-      } else this.NavigateToActiveTab();
-    });
-
-    cy.get(this._datasourceCard)
-      .contains(datasourceName)
-      .parents(this._datasourceCard)
-      .find(this._dsMenuoptions)
-      .scrollIntoView()
-      .should("be.visible")
-      .click();
-  }
-
-  public DeleteDatasouceFromActiveTab(
-    datasourceName: string,
-    expectedRes = 200 || 409 || [200, 409],
-  ) {
-    this.ClickActiveTabDSContextMenu(datasourceName);
-    this.agHelper.GetNClick(this._dsOptionMenuItem("Delete"), 0, false, 200);
-    this.agHelper.GetNClick(this._dsOptionMenuItem("Are you sure?"));
-    this.ValidateDSDeletion(expectedRes);
+    this.appSideBar.navigate(AppState.Data);
   }
 
   public DeleteDatasourceFromWithinDS(
@@ -923,19 +890,6 @@ export class DataSources {
     this.ValidateDSDeletion(expectedRes);
   }
 
-  public DeleteDSFromEntityExplorer(
-    dsName: string,
-    expectedRes: number | number[] = 200,
-  ) {
-    this.entityExplorer.SelectEntityByName(dsName, "Datasources");
-    this.entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: dsName,
-      action: "Delete",
-      entityType: EntityItems.Datasource,
-    });
-    this.ValidateDSDeletion(expectedRes);
-  }
-
   public ValidateDSDeletion(expectedRes: number | number[] = 200) {
     this.assertHelper
       .AssertNetworkStatus("@deleteDatasource", expectedRes)
@@ -949,12 +903,7 @@ export class DataSources {
   }
 
   public NavigateToActiveTab() {
-    this.agHelper.GetElement(this.locator._body).then(($body) => {
-      if ($body.find(this._selectedActiveTab).length === 0) {
-        this.NavigateToDSCreateNew();
-        this.agHelper.GetNClick(this._activeTab, 0, true);
-      }
-    });
+    this.appSideBar.navigate(AppState.Data);
   }
 
   public NavigateFromActiveDS(
@@ -985,11 +934,7 @@ export class DataSources {
   }
 
   public AssertDSInActiveList(dsName: string | RegExp) {
-    this.entityExplorer.NavigateToSwitcher("Explorer", 0, true);
-    this.entityExplorer.ExpandCollapseEntity("Datasources", false);
-    //this.entityExplorer.SelectEntityByName(datasourceName, "Datasources");
-    //this.entityExplorer.ExpandCollapseEntity(datasourceName, false);
-    this.NavigateToActiveTab();
+    this.appSideBar.navigate(AppState.Data);
     return this.agHelper.GetNAssertContains(this._datasourceCard, dsName);
   }
 
@@ -999,7 +944,6 @@ export class DataSources {
   ) {
     if (toNavigateToActive) this.NavigateToActiveTab();
     cy.get(this._datasourceCard, { withinSubject: null })
-      .find(this._activeDS)
       .contains(new RegExp("^" + datasourceName + "$")) //This regex is to exact match the datasource name
       .scrollIntoView()
       .should("be.visible")

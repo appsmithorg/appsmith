@@ -15,7 +15,7 @@ describe("MsSQL datasource test cases", function () {
         fixture: "testAction.json",
       }).as("testDatasource");
       cy.testSaveDatasource(false);
-      dataSources.DeleteDatasouceFromActiveTab(datasourceName);
+      dataSources.DeleteDatasourceFromWithinDS(datasourceName);
     });
   });
 
