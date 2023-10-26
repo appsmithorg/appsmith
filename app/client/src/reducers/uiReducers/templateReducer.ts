@@ -9,8 +9,8 @@ import type { Template, TemplateFiltersResponse } from "api/TemplatesApi";
 const initialState: TemplatesReduxState = {
   isImportingTemplate: false,
   isImportingTemplateToApp: false,
-  isImportingStarterTemplateToApp: false,
-  starterTemplateDatasourcePrompt: false,
+  isImportingStarterBuildingBlockToApp: false,
+  starterBuildingBlockDatasourcePrompt: false,
   loadingFilters: false,
   gettingAllTemplates: false,
   gettingTemplate: false,
@@ -137,12 +137,12 @@ const templateReducer = createReducer(initialState, {
       isImportingTemplateToApp: false,
     };
   },
-  [ReduxActionTypes.IMPORT_STARTER_TEMPLATE_TO_APPLICATION_INIT]: (
+  [ReduxActionTypes.IMPORT_STARTER_BUILDING_BLOCK_TO_APPLICATION_INIT]: (
     state: TemplatesReduxState,
   ) => {
     return {
       ...state,
-      isImportingStarterTemplateToApp: true,
+      isImportingStarterBuildingBlockToApp: true,
     };
   },
   [ReduxActionTypes.IMPORT_STARTER_TEMPLATE_TO_APPLICATION_SUCCESS]: (
@@ -150,24 +150,33 @@ const templateReducer = createReducer(initialState, {
   ) => {
     return {
       ...state,
-      isImportingStarterTemplateToApp: false,
-      starterTemplateDatasourcePrompt: true,
+      isImportingStarterBuildingBlockToApp: false,
     };
   },
-  [ReduxActionTypes.HIDE_STARTER_TEMPLATE_DATASOURCE_PROMPT]: (
+  [ReduxActionTypes.SHOW_STARTER_BUILDING_BLOCK_DATASOURCE_PROMPT]: (
+    state: TemplatesReduxState,
+    action: ReduxAction<string>,
+  ) => {
+    return {
+      ...state,
+      buildingBlockSourcePageId: action.payload,
+      starterBuildingBlockDatasourcePrompt: true,
+    };
+  },
+  [ReduxActionTypes.HIDE_STARTER_BUILDING_BLOCK_DATASOURCE_PROMPT]: (
     state: TemplatesReduxState,
   ) => {
     return {
       ...state,
-      starterTemplateDatasourcePrompt: false,
+      starterBuildingBlockDatasourcePrompt: false,
     };
   },
-  [ReduxActionErrorTypes.IMPORT_STARTER_TEMPLATE_TO_APPLICATION_ERROR]: (
+  [ReduxActionErrorTypes.IMPORT_STARTER_BUILDING_BLOCK_TO_APPLICATION_ERROR]: (
     state: TemplatesReduxState,
   ) => {
     return {
       ...state,
-      isImportingStarterTemplateToApp: false,
+      isImportingStarterBuildingBlockToApp: false,
     };
   },
   [ReduxActionErrorTypes.GET_TEMPLATE_ERROR]: (state: TemplatesReduxState) => {
@@ -242,8 +251,9 @@ export interface TemplatesReduxState {
   templateSearchQuery: string;
   isImportingTemplate: boolean;
   isImportingTemplateToApp: boolean;
-  isImportingStarterTemplateToApp: boolean;
-  starterTemplateDatasourcePrompt: boolean;
+  isImportingStarterBuildingBlockToApp: boolean;
+  starterBuildingBlockDatasourcePrompt: boolean;
+  buildingBlockSourcePageId?: string;
   templateNotificationSeen: boolean | null;
   showTemplatesModal: boolean;
   loadingFilters: boolean;

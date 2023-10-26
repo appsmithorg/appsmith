@@ -65,12 +65,12 @@ export const importTemplateIntoApplication = (
   },
 });
 
-export const importStarterTemplateIntoApplication = (
+export const importStarterBuildingBlockIntoApplication = (
   templateId: string,
   templateName: string,
   templatePageName: string,
 ) => ({
-  type: ReduxActionTypes.IMPORT_STARTER_TEMPLATE_TO_APPLICATION_INIT,
+  type: ReduxActionTypes.IMPORT_STARTER_BUILDING_BLOCK_TO_APPLICATION_INIT,
   payload: {
     templateId,
     templateName,
@@ -78,8 +78,15 @@ export const importStarterTemplateIntoApplication = (
   },
 });
 
-export const hideStarterTemplateDatasourcePrompt = () => ({
-  type: ReduxActionTypes.HIDE_STARTER_TEMPLATE_DATASOURCE_PROMPT,
+export const showStarterBuildingBlockDatasourcePrompt = (
+  buildingBlockSourcePageId: string,
+) => ({
+  type: ReduxActionTypes.SHOW_STARTER_BUILDING_BLOCK_DATASOURCE_PROMPT,
+  payload: buildingBlockSourcePageId,
+});
+
+export const hideStarterBuildingBlockDatasourcePrompt = () => ({
+  type: ReduxActionTypes.HIDE_STARTER_BUILDING_BLOCK_DATASOURCE_PROMPT,
 });
 
 export const getTemplateFilters = () => ({
