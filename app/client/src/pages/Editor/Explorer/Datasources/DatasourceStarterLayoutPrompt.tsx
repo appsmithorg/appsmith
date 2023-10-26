@@ -12,8 +12,11 @@ import { useSelector, useDispatch } from "react-redux";
 import styled from "styled-components";
 import { importSvg } from "design-system-old";
 
-import { starterTemplateDatasourcePromptSelector } from "selectors/templatesSelectors";
-import { hideStarterTemplateDatasourcePrompt } from "actions/templateActions";
+import {
+  buildingBlocksSourcePageIdSelector,
+  starterBuildingBlockDatasourcePromptSelector,
+} from "selectors/templatesSelectors";
+import { hideStarterBuildingBlockDatasourcePrompt } from "actions/templateActions";
 import {
   STARTER_TEMPLATE_PAGE_LAYOUTS,
   createMessage,
@@ -29,23 +32,30 @@ function DatasourceStarterLayoutPrompt() {
 
   const pageId = useSelector(getCurrentPageId);
   const showDatasourcePrompt = useSelector(
-    starterTemplateDatasourcePromptSelector,
+    starterBuildingBlockDatasourcePromptSelector,
+  );
+  const buildingBlockSourcePageId = useSelector(
+    buildingBlocksSourcePageIdSelector,
   );
 
-  const disablePrompt = () => dispatch(hideStarterTemplateDatasourcePrompt());
+  const disablePrompt = () =>
+    dispatch(hideStarterBuildingBlockDatasourcePrompt());
+
+  const showActivePageDatasourcePrompt =
+    buildingBlockSourcePageId === pageId && showDatasourcePrompt;
 
   const onClickConnect = useCallback(() => {
-    dispatch(hideStarterTemplateDatasourcePrompt());
+    dispatch(hideStarterBuildingBlockDatasourcePrompt());
     history.push(
       integrationEditorURL({
         pageId,
-        selectedTab: INTEGRATION_TABS.ACTIVE,
+        selectedTab: INTEGRATION_TABS.NEW,
       }),
     );
   }, [pageId]);
 
   return (
-    <Popover onOpenChange={disablePrompt} open={showDatasourcePrompt}>
+    <Popover onOpenChange={disablePrompt} open={showActivePageDatasourcePrompt}>
       {/* Removing this trigger will stop Popover from rendering */}
       <PopoverTrigger>
         <div />
@@ -64,7 +74,7 @@ function DatasourceStarterLayoutPrompt() {
         <PopoverBody className={"!overflow-y-clip"}>
           <Text kind="body-m">
             Your application is now using sample data, but with Appsmith you can
-            do much more! Click on <strong>Data</strong>, and
+            do much more! Click on <strong>Datasources</strong>, and
             <strong> make this application yours in a blink!</strong>
           </Text>
 
@@ -98,7 +108,7 @@ const StyledPopoverContent = styled(PopoverContent)`
   padding-vertical: 12px;
   border-radius: 4px;
   border-width: 1px;
-  border-color: #cdd5df;
+  border-color: ${Colors.GEYSER};
   display: flex;
   flex-direction: column;
 `;

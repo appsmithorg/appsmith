@@ -15,6 +15,7 @@ import {
   take,
   fork,
   race,
+  delay,
 } from "redux-saga/effects";
 import type {
   ImportTemplateResponse,
@@ -28,6 +29,7 @@ import { getDefaultPageId as selectDefaultPageId } from "sagas/selectors";
 import {
   getAllTemplates,
   setTemplateNotificationSeenAction,
+  showStarterBuildingBlockDatasourcePrompt,
   showTemplatesModal,
 } from "actions/templateActions";
 import {
@@ -60,6 +62,7 @@ import { getAllPageIds } from "./selectors";
 import { fetchPageDSLSaga } from "sagas/PageSagas";
 import { toast } from "design-system";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
+import { STARTER_BUILDING_BLOCKS } from "constants/TemplatesConstants";
 
 const isAirgappedInstance = isAirgapped();
 
@@ -230,7 +233,7 @@ function* postPageAdditionSaga(applicationId: string) {
   yield put(fetchAllPageEntityCompletion([executePageLoadActions()]));
 }
 
-function* forkStarterTemplateToApplicationSaga(
+function* forkStarterBuildingBlockToApplicationSaga(
   action: ReduxAction<{
     pageNames?: string[];
     templateId: string;
@@ -307,14 +310,18 @@ function* forkStarterTemplateToApplicationSaga(
       yield put({
         type: ReduxActionTypes.IMPORT_STARTER_TEMPLATE_TO_APPLICATION_SUCCESS,
       });
+
+      // Show datasource prompt after 3 seconds
+      yield delay(STARTER_BUILDING_BLOCKS.DATASOURCE_PROMPT_DELAY);
+      yield put(showStarterBuildingBlockDatasourcePrompt(templatePageIds[0]));
     } else {
       yield put({
-        type: ReduxActionErrorTypes.IMPORT_STARTER_TEMPLATE_TO_APPLICATION_ERROR,
+        type: ReduxActionErrorTypes.IMPORT_STARTER_BUILDING_BLOCK_TO_APPLICATION_ERROR,
       });
     }
   } catch (error) {
     yield put({
-      type: ReduxActionErrorTypes.IMPORT_STARTER_TEMPLATE_TO_APPLICATION_ERROR,
+      type: ReduxActionErrorTypes.IMPORT_STARTER_BUILDING_BLOCK_TO_APPLICATION_ERROR,
     });
   }
 }
@@ -481,8 +488,8 @@ export default function* watchActionSagas() {
         getTemplateFiltersSaga,
       ),
       takeEvery(
-        ReduxActionTypes.IMPORT_STARTER_TEMPLATE_TO_APPLICATION_INIT,
-        forkStarterTemplateToApplicationSaga,
+        ReduxActionTypes.IMPORT_STARTER_BUILDING_BLOCK_TO_APPLICATION_INIT,
+        forkStarterBuildingBlockToApplicationSaga,
       ),
     ]);
 }

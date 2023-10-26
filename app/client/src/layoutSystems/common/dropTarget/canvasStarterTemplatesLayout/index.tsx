@@ -7,14 +7,14 @@ import {
 import { getAppMode } from "@appsmith/selectors/applicationSelectors";
 import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
 import { importSvg } from "@design-system/widgets-old/src/utils/icon-loadables";
-import { importStarterTemplateIntoApplication } from "actions/templateActions";
+import { importStarterBuildingBlockIntoApplication } from "actions/templateActions";
 import LoadingScreen from "pages/Templates/TemplatesModal/LoadingScreen";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getCurrentApplication,
   getCurrentApplicationId,
 } from "selectors/editorSelectors";
-import { isImportingStarterTemplateToAppSelector } from "selectors/templatesSelectors";
+import { isImportingStarterBuildingBlockToAppSelector } from "selectors/templatesSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   IconContainer,
@@ -44,8 +44,8 @@ function CanvasStarterTemplatesLayout() {
   const applicationId = useSelector(getCurrentApplicationId);
   const currentWorkSpace = useSelector(getCurrentAppWorkspace);
   const currentAppMode = useSelector(getAppMode);
-  const isImportingStarterTemplateToApp = useSelector(
-    isImportingStarterTemplateToAppSelector,
+  const isImportingStarterBuildingBlockToApp = useSelector(
+    isImportingStarterBuildingBlockToAppSelector,
   );
 
   const handleItemHover = (index: number) => {
@@ -66,7 +66,7 @@ function CanvasStarterTemplatesLayout() {
     saveExplorerStatus(applicationId, "datasource", false);
 
     dispatch(
-      importStarterTemplateIntoApplication(
+      importStarterBuildingBlockIntoApplication(
         templateId,
         templateName,
         templatePageName,
@@ -85,7 +85,7 @@ function CanvasStarterTemplatesLayout() {
     });
   };
 
-  if (isImportingStarterTemplateToApp) {
+  if (isImportingStarterBuildingBlockToApp) {
     return (
       <TemplateLayoutFrame>
         <LoadingScreen
