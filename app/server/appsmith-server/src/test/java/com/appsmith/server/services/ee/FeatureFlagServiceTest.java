@@ -30,6 +30,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -121,6 +122,37 @@ public class FeatureFlagServiceTest {
                 .assertNext(tenant1 -> {
                     assertThat(tenant1.getTenantConfiguration().getMigrationStatus())
                             .isEqualTo(MigrationStatus.PENDING);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    void
+            checkAndExecuteMigrationsForTenantFeatureFlags_pendingMigrations_activeLicense_withNullPreviousPlan_updateStatus() {
+
+        Tenant tenant = new Tenant();
+        TenantConfiguration tenantConfiguration = new TenantConfiguration();
+        Map<FeatureFlagEnum, FeatureMigrationType> pendingFeatureFlags = new HashMap<>();
+        pendingFeatureFlags.put(FeatureFlagEnum.TENANT_TEST_FEATURE, FeatureMigrationType.ENABLE);
+        tenantConfiguration.setFeaturesWithPendingMigration(pendingFeatureFlags);
+        License license = new License();
+        license.setActive(true);
+        license.setPlan(LicensePlan.ENTERPRISE);
+
+        tenantConfiguration.setLicense(license);
+        tenant.setTenantConfiguration(tenantConfiguration);
+        tenant = tenantService.save(tenant).block();
+        Mono<Tenant> tenantMono = featureFlagService.checkAndExecuteMigrationsForTenantFeatureFlags(tenant);
+
+        assert tenant != null;
+        assertThat(tenant.getTenantConfiguration().getFeaturesWithPendingMigration())
+                .isNotEmpty();
+        StepVerifier.create(tenantMono)
+                .assertNext(tenant1 -> {
+                    assertThat(tenant1.getTenantConfiguration().getMigrationStatus())
+                            .isEqualTo(MigrationStatus.COMPLETED);
+                    assertThat(tenant1.getTenantConfiguration().getFeaturesWithPendingMigration())
+                            .isEmpty();
                 })
                 .verifyComplete();
     }
