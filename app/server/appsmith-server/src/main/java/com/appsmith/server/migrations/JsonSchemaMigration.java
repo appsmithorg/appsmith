@@ -66,6 +66,9 @@ public class JsonSchemaMigration {
             case 5:
                 MigrationHelperMethods.migrateGoogleSheetsActionsToUqi(applicationJson);
                 applicationJson.setServerSchemaVersion(6);
+            case 6:
+                MigrationHelperMethods.ensureXmlParserPresenceInCustomJsLibList(applicationJson);
+                applicationJson.setServerSchemaVersion(7);
             default:
                 // Unable to detect the serverSchema
         }
