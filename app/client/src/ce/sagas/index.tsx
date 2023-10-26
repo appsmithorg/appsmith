@@ -55,6 +55,7 @@ import communityTemplateSagas from "sagas/CommunityTemplatesSagas";
 /* Sagas that are registered by a module that is designed to be independent of the core platform */
 import LayoutElementPositionsSaga from "layoutSystems/anvil/integrations/sagas/LayoutElementPositionsSaga";
 import anvilDraggingSagas from "layoutSystems/anvil/integrations/sagas/draggingSagas";
+import ternSagas from "sagas/TernSaga";
 
 export const sagas = [
   initSagas,
@@ -112,4 +113,5 @@ export const sagas = [
   LayoutElementPositionsSaga,
   communityTemplateSagas,
   anvilDraggingSagas,
+  ternSagas,
 ];

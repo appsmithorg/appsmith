@@ -2,7 +2,7 @@ import React, { useRef } from "react";
 import {
   DATASOURCE_FIELD_ICONS_MAP,
   datasourceColumnIcon,
-} from "../ExplorerIcons";
+} from "../Explorer/ExplorerIcons";
 import styled from "styled-components";
 import type { DatasourceColumns, DatasourceKeys } from "entities/Datasource";
 import { Tooltip } from "design-system";

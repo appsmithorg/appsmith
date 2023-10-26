@@ -74,6 +74,12 @@ function* addWidgetsSaga(
           },
         ]),
       },
+      [newWidget.newWidgetId]: {
+        ...updatedWidgetsOnAddition[newWidget.newWidgetId],
+        // This is a temp fix, widget dimensions will be self computed by widgets
+        height: newWidget.height,
+        width: newWidget.width,
+      },
     };
     yield put(updateAndSaveLayout(updatedWidgets));
     log.debug("Anvil : add new widget took", performance.now() - start, "ms");
