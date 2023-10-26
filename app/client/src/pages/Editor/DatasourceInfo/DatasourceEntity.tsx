@@ -1,10 +1,11 @@
 import React, { useCallback } from "react";
 import type { Datasource } from "entities/Datasource";
+import { DatasourceStructureContext } from "entities/Datasource";
 import type { Plugin } from "api/PluginApi";
-import DataSourceContextMenu from "./DataSourceContextMenu";
-import { getPluginIcon } from "../ExplorerIcons";
+import DataSourceContextMenu from "../Explorer/Datasources/DataSourceContextMenu";
+import { getPluginIcon } from "../Explorer/ExplorerIcons";
 import { getQueryIdFromURL } from "@appsmith/pages/Editor/Explorer/helpers";
-import Entity, { EntityClassNames } from "../Entity";
+import Entity, { EntityClassNames } from "../Explorer/Entity";
 import history, { NavigationMethod } from "utils/history";
 import {
   expandDatasourceEntity,
@@ -14,7 +15,6 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
 import { DatasourceStructureContainer } from "./DatasourceStructureContainer";
-import { DatasourceStructureContext } from "./DatasourceStructure";
 import { isStoredDatasource, PluginType } from "entities/Action";
 import {
   getAction,

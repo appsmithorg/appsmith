@@ -10,6 +10,7 @@ import {
 import type { QueryAction } from "entities/Action";
 import history from "utils/history";
 import type { Datasource, QueryTemplate } from "entities/Datasource";
+import { DatasourceStructureContext } from "entities/Datasource";
 import { INTEGRATION_TABS } from "constants/routes";
 import {
   getAction,
@@ -19,7 +20,7 @@ import {
 import { integrationEditorURL } from "@appsmith/RouteBuilder";
 import { MenuItem, Tag } from "design-system";
 import type { Plugin } from "api/PluginApi";
-import { DatasourceStructureContext } from "./DatasourceStructure";
+
 import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
 import { setFeatureWalkthroughShown } from "utils/storage";
 import styled from "styled-components";

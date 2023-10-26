@@ -5,12 +5,11 @@ import {
   TABLE_NOT_FOUND,
 } from "@appsmith/constants/messages";
 import type { DatasourceStructure as DatasourceStructureType } from "entities/Datasource";
+import { DatasourceStructureContext } from "entities/Datasource";
 import type { ReactElement } from "react";
-import React, { memo, useEffect, useState, useContext, useMemo } from "react";
-import EntityPlaceholder from "../Entity/Placeholder";
-import DatasourceStructure, {
-  DatasourceStructureContext,
-} from "./DatasourceStructure";
+import React, { memo, useEffect, useState, useContext } from "react";
+import EntityPlaceholder from "../Explorer/Entity/Placeholder";
+import DatasourceStructure from "./DatasourceStructure";
 import { SearchInput, Text } from "design-system";
 import styled from "styled-components";
 import { getIsFetchingDatasourceStructure } from "@appsmith/selectors/entitiesSelector";
@@ -103,23 +102,6 @@ const Container = (props: Props) => {
     }
   }, [props.datasourceStructure]);
 
-  const flatStructure = useMemo(() => {
-    if (!props.datasourceStructure?.tables?.length) return [];
-    const list: string[] = [];
-
-    props.datasourceStructure.tables.map((table) => {
-      // if the column is empty push the table name alone.
-      if (table.columns.length === 0) {
-        list.push(`${table.name}~`);
-      }
-      table.columns.forEach((column) => {
-        list.push(`${table.name}~${column.name}`);
-      });
-    });
-
-    return list;
-  }, [props.datasourceStructure]);
-
   const handleOnChange = (value: string) => {
     if (!props.datasourceStructure?.tables?.length) return;
 
@@ -129,21 +111,9 @@ const Container = (props: Props) => {
       hasSearchedOccured && setHasSearchedOccured(false);
     }
 
-    const tables = new Set();
-
-    flatStructure.forEach((structure: string) => {
-      const segments = structure.split("~");
-
-      // if the value is present in the table but not in the columns, add the table
-      if (segments[0].toLowerCase().includes(value)) {
-        tables.add(segments[0]);
-        return;
-      }
-    });
-
     const filteredDastasourceStructure =
       props.datasourceStructure.tables.filter((table) =>
-        tables.has(table.name),
+        table.name.includes(value),
       );
 
     setDatasourceStructure({ tables: filteredDastasourceStructure });
