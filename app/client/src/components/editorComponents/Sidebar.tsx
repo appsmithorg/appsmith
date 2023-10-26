@@ -34,8 +34,8 @@ import { getEditingEntityName } from "@appsmith/selectors/entitiesSelector";
 import styled from "styled-components";
 import moment from "moment";
 import AnalyticsUtil from "../../utils/AnalyticsUtil";
-import { protectedModeSelector } from "selectors/gitSyncSelectors";
 import { getIsAppSidebarEnabled } from "../../selectors/ideSelectors";
+import { protectedModeSelector } from "selectors/gitSyncSelectors";
 
 const StyledResizer = styled.div<{ resizing: boolean }>`
   ${(props) =>
