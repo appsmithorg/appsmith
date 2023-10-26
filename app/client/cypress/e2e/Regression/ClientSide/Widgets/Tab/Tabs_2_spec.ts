@@ -247,9 +247,9 @@ describe("Tabs widget Tests", function () {
       0,
     );
 
-    agHelper.FocusElement(locators._propertyInputField("Default tab"));
+    agHelper.AssertAutoSave();
 
-    agHelper.Sleep(1000);
+    agHelper.FocusElement(locators._propertyInputField("Default tab"));
 
     agHelper.AssertElementAbsence(locators._evaluatedErrorMessage);
 
