@@ -69,6 +69,7 @@ import { NavigationMethod } from "../utils/history";
 import { JSEditorTab } from "../reducers/uiReducers/jsPaneReducer";
 import { getSelectedDatasourceId } from "./FocusSelectors";
 import { setSelectedDatasource } from "./FocusSetters";
+import { getFirstDatasourceId } from "../selectors/datasourceSelectors";
 
 export enum FocusElement {
   ApiPaneConfigTabs = "ApiPaneConfigTabs",
@@ -101,7 +102,9 @@ export enum ConfigType {
 
 interface ConfigOther {
   name: FocusElement;
-  defaultValue?: unknown;
+  /* If a selector is added for default value, it will be supplied the state to
+  derive a default value */
+  defaultValue?: unknown | ((state: AppState) => unknown);
   subTypes?: Record<string, { defaultValue: unknown }>;
 }
 
@@ -206,6 +209,7 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
       name: FocusElement.SelectedDatasource,
       selector: getSelectedDatasourceId,
       setter: setSelectedDatasource,
+      defaultValue: getFirstDatasourceId,
     },
   ],
   [FocusEntity.DATASOURCE]: [

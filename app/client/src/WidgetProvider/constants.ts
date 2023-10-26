@@ -56,8 +56,8 @@ export interface AutoLayoutConfig {
   disabledPropsDefaults?: Partial<WidgetProps>;
 }
 export interface SizeConfig {
-  maxHeight: Record<string, string>;
-  maxWidth: Record<string, string>;
+  maxHeight?: Record<string, string>;
+  maxWidth?: Record<string, string>;
   minHeight: Record<string, string>;
   minWidth: Record<string, string>;
 }
