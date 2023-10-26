@@ -144,7 +144,7 @@ public class EmbeddingsCommand implements OpenAICommand {
         try {
             return Enum.valueOf(EncodingFormat.class, encodingFormatString.toUpperCase());
         } catch (Exception exception) {
-             return defaultEncodingFormat;
+            return defaultEncodingFormat;
         }
     }
 }
