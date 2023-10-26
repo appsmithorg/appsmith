@@ -138,7 +138,7 @@ export function* createDefaultActionPayloadWithPluginDefaults(
   );
 
   if (actionDefaults.pluginId) {
-    const pluginDefaults: Partial<any> = yield call(
+    const pluginDefaults: Partial<Record<string, unknown>> = yield call(
       getPluginActionDefaultValues,
       actionDefaults.pluginId,
     );
