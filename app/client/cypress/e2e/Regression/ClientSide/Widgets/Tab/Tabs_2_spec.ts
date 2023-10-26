@@ -232,8 +232,8 @@ describe("Tabs widget Tests", function () {
     );
   });
 
-  it.only("Checks validation error in default selected tab", () => {
-    entityExplorer.SelectEntityByName("Tabs1", "Widgets");
+  it("Checks validation error in default selected tab", () => {
+    entityExplorer.SelectEntityByName("NewTabs", "Widgets");
 
     propPane.MoveToTab("Content");
 
@@ -259,7 +259,7 @@ describe("Tabs widget Tests", function () {
 
     cy.reload();
 
-    entityExplorer.SelectEntityByName("Tabs1", "Widgets");
+    entityExplorer.SelectEntityByName("NewTabs", "Widgets");
 
     agHelper.FocusElement(locators._propertyInputField("Default tab"));
 
