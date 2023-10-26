@@ -22,7 +22,8 @@ export const Wrapper = styled.div`
   align-items: flex-start;
   justify-content: center;
   cursor: grab;
-
+  user-select: none;
+  -webkit-user-select: none;
   img {
     cursor: grab;
   }
