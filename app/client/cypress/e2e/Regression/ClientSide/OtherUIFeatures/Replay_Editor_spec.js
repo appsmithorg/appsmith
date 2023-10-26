@@ -57,8 +57,7 @@ describe("Undo/Redo functionality", function () {
       "https://mock-api.appsmith.com/users", //testing placeholder!
     );
     cy.enterDatasourceAndPath(testdata.baseUrl, testdata.methods);
-    agHelper.RemoveTooltip("Add a new query/JS Object");
-
+    agHelper.RemoveUIElement("Tooltip", "Add a new query/JS Object");
     cy.get(`${apiwidget.headerKey}`).type("Authorization");
     cy.get("body").click(0, 0);
     cy.get(apiwidget.settings).click({ force: true });
