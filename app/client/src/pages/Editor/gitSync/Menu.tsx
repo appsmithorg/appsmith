@@ -16,7 +16,6 @@ const StyledTab = styled(Tab)`
 `;
 
 export default function Menu(props: Props) {
-  console.log({ o: props.options });
   return (
     <Tabs onValueChange={props.onSelect} value={props.activeTabKey}>
       <TabsList>

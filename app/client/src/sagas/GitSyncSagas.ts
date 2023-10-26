@@ -1044,7 +1044,6 @@ function* fetchGitProtectedBranchesSaga() {
     const appId: string = yield select(getCurrentApplicationId);
     response = yield GitSyncAPI.getProtectedBranches(appId);
 
-    console.log({ response });
     const isValidResponse: boolean = yield validateResponse(
       response,
       false,
