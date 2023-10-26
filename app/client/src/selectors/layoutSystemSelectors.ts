@@ -5,14 +5,17 @@ import { LayoutSystemTypes } from "layoutSystems/types";
  * selector to fetch the application's layout type
  */
 export const getLayoutSystemType = (state: AppState) => {
-  if (
-    state.ui.applications?.currentApplication?.applicationDetail?.appPositioning
-      ?.type
-  ) {
-    return LayoutSystemTypes[
-      state.ui.applications.currentApplication?.applicationDetail
-        ?.appPositioning?.type
-    ];
+  if (state) {
+    return LayoutSystemTypes.ANVIL;
   }
-  return LayoutSystemTypes.FIXED;
+  // if (
+  //   state.ui.applications?.currentApplication?.applicationDetail?.appPositioning
+  //     ?.type
+  // ) {
+  //   return LayoutSystemTypes[
+  //     state.ui.applications.currentApplication?.applicationDetail
+  //       ?.appPositioning?.type
+  //   ];
+  // }
+  // return LayoutSystemTypes.FIXED;
 };
