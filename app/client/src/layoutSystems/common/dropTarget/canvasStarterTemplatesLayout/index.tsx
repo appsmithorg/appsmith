@@ -31,7 +31,7 @@ import {
 } from "./StyledComponents";
 import { saveExplorerStatus } from "@appsmith/pages/Editor/Explorer/helpers";
 
-const STARTER_TEMPLATE_NAME = "Starter template";
+const BUILDING_BLOCK_TEMPLATE_NAME = "Starter template";
 
 function CanvasStarterTemplatesLayout() {
   const dispatch = useDispatch();
@@ -76,7 +76,7 @@ function CanvasStarterTemplatesLayout() {
     AnalyticsUtil.logEvent("FORK_APLICATIONTEMPLATE", {
       applicationId: currentApplication?.id,
       workspaceId: currentWorkSpace.id,
-      templateAppName: STARTER_TEMPLATE_NAME,
+      templateAppName: BUILDING_BLOCK_TEMPLATE_NAME,
       source: "canvas",
       eventData: {
         appMode: currentAppMode,
@@ -188,9 +188,9 @@ const layoutItems: {
     icon: <RecordEdit />,
     screenshot:
       "https://s3.us-east-2.amazonaws.com/template.appsmith.com/canvas-starter-page-layout-record-edit.png",
-    templateId: "62221f5300c64549b31b9466",
-    templateName: STARTER_TEMPLATE_NAME,
-    templatePageName: "1 Track Applications",
+    templateId: "6530e343fa63b553e4be0266",
+    templateName: BUILDING_BLOCK_TEMPLATE_NAME,
+    templatePageName: "Record Edit",
   },
   {
     id: 2,
@@ -203,9 +203,9 @@ const layoutItems: {
     icon: <RecordDetails />,
     screenshot:
       "https://s3.us-east-2.amazonaws.com/template.appsmith.com/canvas-starter-page-layout-record-detail.png",
-    templateId: "631f717b47a7d75706eb6ef1",
-    templateName: STARTER_TEMPLATE_NAME,
-    templatePageName: "Feedback Form",
+    templateId: "6530e343fa63b553e4be0266",
+    templateName: BUILDING_BLOCK_TEMPLATE_NAME,
+    templatePageName: "Record Details",
   },
   {
     id: 3,
@@ -216,8 +216,8 @@ const layoutItems: {
     icon: <Dashboard />,
     screenshot:
       "https://s3.us-east-2.amazonaws.com/template.appsmith.com/canvas-starter-page-layout-dashboard.png",
-    templateId: "6318ccfd7e9aa41f2e0db691",
-    templateName: STARTER_TEMPLATE_NAME,
+    templateId: "6530e343fa63b553e4be0266",
+    templateName: BUILDING_BLOCK_TEMPLATE_NAME,
     templatePageName: "Dashboard",
   },
 ];
