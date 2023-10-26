@@ -232,7 +232,7 @@ describe("Tabs widget Tests", function () {
     );
   });
 
-  it("Checks validation error in default selected tab", () => {
+  it("8. Checks validation error in default selected tab", () => {
     entityExplorer.SelectEntityByName("NewTabs", "Widgets");
 
     propPane.MoveToTab("Content");
