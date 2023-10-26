@@ -84,7 +84,9 @@ public enum AnalyticsEvents {
     DS_TEST_EVENT_FAILED("Test_Datasource_Failed"),
 
     GIT_STALE_FILE_LOCK_DELETED,
-    SERVER_SETUP_COMPLETE("server_setup_complete");
+    SERVER_SETUP_COMPLETE("server_setup_complete"),
+
+    PARTIAL_IMPORT;
 
     private final String eventName;
 
