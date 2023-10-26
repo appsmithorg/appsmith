@@ -1020,7 +1020,7 @@ public enum AppsmithError {
             ErrorType.INTERNAL_ERROR,
             null),
     DATASOURCE_CONNECTION_RATE_LIMIT_BLOCKING_FAILED(
-            200,
+            500,
             AppsmithErrorCode.DATASOURCE_CONNECTION_RATE_LIMIT_BLOCKING_FAILED.getCode(),
             "Rate limit exhausted, blocking the host name failed",
             AppsmithErrorAction.DEFAULT,
