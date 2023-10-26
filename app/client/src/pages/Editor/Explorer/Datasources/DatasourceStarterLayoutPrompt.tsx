@@ -39,7 +39,7 @@ function DatasourceStarterLayoutPrompt() {
     history.push(
       integrationEditorURL({
         pageId,
-        selectedTab: INTEGRATION_TABS.ACTIVE,
+        selectedTab: INTEGRATION_TABS.NEW,
       }),
     );
   }, [pageId]);
@@ -64,7 +64,7 @@ function DatasourceStarterLayoutPrompt() {
         <PopoverBody className={"!overflow-y-clip"}>
           <Text kind="body-m">
             Your application is now using sample data, but with Appsmith you can
-            do much more! Click on <strong>Data</strong>, and
+            do much more! Click on <strong>Datasources</strong>, and
             <strong> make this application yours in a blink!</strong>
           </Text>
 
