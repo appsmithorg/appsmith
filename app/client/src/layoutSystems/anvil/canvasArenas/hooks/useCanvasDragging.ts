@@ -132,6 +132,7 @@ export const useCanvasDragging = (
         draggedBlocks,
       );
     }
+    console.log("####", { highlights: allHighlightsRef.current });
   };
 
   useEffect(() => {
