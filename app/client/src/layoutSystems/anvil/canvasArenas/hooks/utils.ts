@@ -69,10 +69,17 @@ function getViableDropPositions(
         (pos.x >= highlight.posX &&
           pos.x <=
             highlight.posX +
-              (highlight.dropZone.right || DEFAULT_DROP_RANGE)) ||
+              Math.max(
+                highlight.dropZone.right || DEFAULT_DROP_RANGE,
+                DEFAULT_DROP_RANGE,
+              )) ||
         (pos.x < highlight.posX &&
           pos.x >=
-            highlight.posX - (highlight.dropZone.left || DEFAULT_DROP_RANGE))
+            highlight.posX -
+              Math.max(
+                highlight.dropZone.left || DEFAULT_DROP_RANGE,
+                DEFAULT_DROP_RANGE,
+              ))
       )
         selection.push(highlight);
   });
@@ -103,15 +110,21 @@ function getViableDropPositions(
         (pos.y >= highlight.posY &&
           pos.y <=
             highlight.posY +
-              (highlight.dropZone.bottom !== undefined
-                ? highlight.dropZone.bottom * (hasVerticalSelection ? 0.2 : 1)
-                : DEFAULT_DROP_RANGE)) ||
+              Math.max(
+                highlight.dropZone.bottom !== undefined
+                  ? highlight.dropZone.bottom * (hasVerticalSelection ? 0.2 : 1)
+                  : DEFAULT_DROP_RANGE,
+                DEFAULT_DROP_RANGE,
+              )) ||
         (pos.y < highlight.posY &&
           pos.y >=
             highlight.posY -
-              (highlight.dropZone.top !== undefined
-                ? highlight.dropZone.top * (hasVerticalSelection ? 0.2 : 1)
-                : DEFAULT_DROP_RANGE))
+              Math.max(
+                highlight.dropZone.top !== undefined
+                  ? highlight.dropZone.top * (hasVerticalSelection ? 0.2 : 1)
+                  : DEFAULT_DROP_RANGE,
+                DEFAULT_DROP_RANGE,
+              ))
       )
         selection.push(highlight);
   });
