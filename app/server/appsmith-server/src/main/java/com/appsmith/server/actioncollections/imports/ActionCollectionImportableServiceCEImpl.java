@@ -74,6 +74,7 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
         if (importingMetaDTO.getAppendToApp()) {
             importedActionCollectionMono = importedActionCollectionMono.map(importedActionCollectionList1 -> {
                 List<NewPage> importedNewPages = mappedImportableResourcesDTO.getPageNameMap().values().stream()
+                        .distinct()
                         .toList();
                 Map<String, String> newToOldNameMap = mappedImportableResourcesDTO.getNewPageNameToOldPageNameMap();
 

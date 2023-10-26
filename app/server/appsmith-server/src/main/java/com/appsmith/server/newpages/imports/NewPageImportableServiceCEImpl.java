@@ -117,8 +117,9 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
                 mappedImportableResourcesDTO.getActionAndCollectionMapsDTO();
 
         ImportActionResultDTO importActionResultDTO = mappedImportableResourcesDTO.getActionResultDTO();
-        List<NewPage> newPages =
-                mappedImportableResourcesDTO.getPageNameMap().values().stream().toList();
+        List<NewPage> newPages = mappedImportableResourcesDTO.getPageNameMap().values().stream()
+                .distinct()
+                .toList();
         return Flux.fromIterable(newPages)
                 .flatMap(newPage -> {
                     if (newPage.getDefaultResources() != null) {
@@ -564,65 +565,57 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
             Map<String, List<String>> unpublishedActionIdToCollectionIdsMap,
             Map<String, List<String>> publishedActionIdToCollectionIdsMap) {
 
-        return Mono.just(newPage)
-                .flatMap(page -> {
-                    return newActionService
-                            .findAllById(getLayoutOnLoadActionsForPage(
-                                    page,
-                                    actionIdMap,
-                                    unpublishedActionIdToCollectionIdsMap,
-                                    publishedActionIdToCollectionIdsMap))
-                            .map(newAction -> {
-                                final String defaultActionId =
-                                        newAction.getDefaultResources().getActionId();
-                                if (page.getUnpublishedPage().getLayouts() != null) {
-                                    final String defaultCollectionId = newAction
-                                            .getUnpublishedAction()
-                                            .getDefaultResources()
-                                            .getCollectionId();
-                                    page.getUnpublishedPage().getLayouts().forEach(layout -> {
-                                        if (layout.getLayoutOnLoadActions() != null) {
-                                            layout.getLayoutOnLoadActions()
-                                                    .forEach(onLoadAction -> onLoadAction.stream()
-                                                            .filter(actionDTO -> StringUtils.equals(
-                                                                    actionDTO.getId(), newAction.getId()))
-                                                            .forEach(actionDTO -> {
-                                                                actionDTO.setDefaultActionId(defaultActionId);
-                                                                actionDTO.setDefaultCollectionId(defaultCollectionId);
-                                                            }));
-                                        }
-                                    });
-                                }
+        Set<String> layoutOnLoadActionsForPage = getLayoutOnLoadActionsForPage(
+                newPage, actionIdMap, unpublishedActionIdToCollectionIdsMap, publishedActionIdToCollectionIdsMap);
 
-                                if (page.getPublishedPage() != null
-                                        && page.getPublishedPage().getLayouts() != null) {
-                                    page.getPublishedPage().getLayouts().forEach(layout -> {
-                                        if (layout.getLayoutOnLoadActions() != null) {
-                                            layout.getLayoutOnLoadActions()
-                                                    .forEach(onLoadAction -> onLoadAction.stream()
-                                                            .filter(actionDTO -> StringUtils.equals(
-                                                                    actionDTO.getId(), newAction.getId()))
-                                                            .forEach(actionDTO -> {
-                                                                actionDTO.setDefaultActionId(defaultActionId);
-                                                                if (newAction.getPublishedAction() != null
-                                                                        && newAction
-                                                                                        .getPublishedAction()
-                                                                                        .getDefaultResources()
-                                                                                != null) {
-                                                                    actionDTO.setDefaultCollectionId(newAction
-                                                                            .getPublishedAction()
-                                                                            .getDefaultResources()
-                                                                            .getCollectionId());
-                                                                }
-                                                            }));
-                                        }
-                                    });
-                                }
-                                return newAction;
-                            })
-                            .collectList()
-                            .thenReturn(page);
+        return newActionService
+                .findAllById(layoutOnLoadActionsForPage)
+                .map(newAction -> {
+                    final String defaultActionId =
+                            newAction.getDefaultResources().getActionId();
+                    if (newPage.getUnpublishedPage().getLayouts() != null) {
+                        final String defaultCollectionId = newAction
+                                .getUnpublishedAction()
+                                .getDefaultResources()
+                                .getCollectionId();
+                        newPage.getUnpublishedPage().getLayouts().forEach(layout -> {
+                            if (layout.getLayoutOnLoadActions() != null) {
+                                layout.getLayoutOnLoadActions().forEach(onLoadAction -> onLoadAction.stream()
+                                        .filter(actionDTO -> StringUtils.equals(actionDTO.getId(), newAction.getId()))
+                                        .forEach(actionDTO -> {
+                                            actionDTO.setDefaultActionId(defaultActionId);
+                                            actionDTO.setDefaultCollectionId(defaultCollectionId);
+                                        }));
+                            }
+                        });
+                    }
+
+                    if (newPage.getPublishedPage() != null
+                            && newPage.getPublishedPage().getLayouts() != null) {
+                        newPage.getPublishedPage().getLayouts().forEach(layout -> {
+                            if (layout.getLayoutOnLoadActions() != null) {
+                                layout.getLayoutOnLoadActions().forEach(onLoadAction -> onLoadAction.stream()
+                                        .filter(actionDTO -> StringUtils.equals(actionDTO.getId(), newAction.getId()))
+                                        .forEach(actionDTO -> {
+                                            actionDTO.setDefaultActionId(defaultActionId);
+                                            if (newAction.getPublishedAction() != null
+                                                    && newAction
+                                                                    .getPublishedAction()
+                                                                    .getDefaultResources()
+                                                            != null) {
+                                                actionDTO.setDefaultCollectionId(newAction
+                                                        .getPublishedAction()
+                                                        .getDefaultResources()
+                                                        .getCollectionId());
+                                            }
+                                        }));
+                            }
+                        });
+                    }
+                    return newAction;
                 })
+                .collectList()
+                .thenReturn(newPage)
                 .onErrorResume(error -> {
                     log.error("Error while updating action collection id in page layout", error);
                     return Mono.error(error);
@@ -641,7 +634,8 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
                 if (layout.getLayoutOnLoadActions() != null) {
                     layout.getLayoutOnLoadActions()
                             .forEach(onLoadAction -> onLoadAction.forEach(actionDTO -> {
-                                actionDTO.setId(actionIdMap.get(actionDTO.getId()));
+                                String oldActionDTOId = actionDTO.getId();
+                                actionDTO.setId(actionIdMap.get(oldActionDTOId));
                                 if (!CollectionUtils.sizeIsEmpty(unpublishedActionIdToCollectionIdsMap)
                                         && !CollectionUtils.isEmpty(
                                                 unpublishedActionIdToCollectionIdsMap.get(actionDTO.getId()))) {
@@ -661,7 +655,8 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
                 if (layout.getLayoutOnLoadActions() != null) {
                     layout.getLayoutOnLoadActions()
                             .forEach(onLoadAction -> onLoadAction.forEach(actionDTO -> {
-                                actionDTO.setId(actionIdMap.get(actionDTO.getId()));
+                                String oldActionDTOId = actionDTO.getId();
+                                actionDTO.setId(actionIdMap.get(oldActionDTOId));
                                 if (!CollectionUtils.sizeIsEmpty(publishedActionIdToCollectionIdsMap)
                                         && !CollectionUtils.isEmpty(
                                                 publishedActionIdToCollectionIdsMap.get(actionDTO.getId()))) {
