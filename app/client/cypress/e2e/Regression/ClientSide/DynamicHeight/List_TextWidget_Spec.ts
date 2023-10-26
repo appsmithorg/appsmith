@@ -17,14 +17,14 @@ describe("Dynamic Height Width validation list widget", function () {
     entityExplorer.SelectEntityByName("List1", "Widgets");
     //Widgets which were not possible to be added to list widget cannot be pasted/moved into the list widget with multitreeselect
     entityExplorer.SelectEntityByName("MultiTreeSelect1", "List1");
-    agHelper.TypeText(locators._canvasBody, `{${modifierKey}}c`, {
+    agHelper.TypeText(locators._body, `{${modifierKey}}c`, {
       parseSpecialCharSeq: true,
     });
     agHelper.WaitUntilAllToastsDisappear();
     agHelper.Sleep(2000);
     entityExplorer.SelectEntityByName("List1", "Widgets");
     propPane.MoveToTab("Style");
-    agHelper.TypeText(locators._canvasBody, `{${modifierKey}}v`, {
+    agHelper.TypeText(locators._body, `{${modifierKey}}v`, {
       parseSpecialCharSeq: true,
     });
     agHelper.ValidateToastMessage(
@@ -58,24 +58,24 @@ describe("Dynamic Height Width validation list widget", function () {
         //Widgets when moved into the list widget have no dynamic height
         entityExplorer.SelectEntityByName("Text3", "Widgets");
         propPane.MoveToTab("Style");
-        agHelper.TypeText(locators._canvasBody, `{${modifierKey}}c`, {
+        agHelper.TypeText(locators._body, `{${modifierKey}}c`, {
           parseSpecialCharSeq: true,
         });
         entityExplorer.SelectEntityByName("List1", "Widgets");
         propPane.MoveToTab("Style");
-        agHelper.TypeText(locators._canvasBody, `{${modifierKey}}v`, {
+        agHelper.TypeText(locators._body, `{${modifierKey}}v`, {
           parseSpecialCharSeq: true,
         });
         assertHelper.AssertNetworkStatus("@updateLayout", 200);
         entityExplorer.NavigateToSwitcher("Explorer");
         entityExplorer.SelectEntityByName("Text3Copy");
         agHelper.AssertElementAbsence(propPane._propertyPaneHeightLabel);
-        agHelper.TypeText(locators._canvasBody, `{${modifierKey}}c`, {
+        agHelper.TypeText(locators._body, `{${modifierKey}}c`, {
           parseSpecialCharSeq: true,
         });
         //agHelper.GetElement(locators._body).click({ force: true });
         agHelper.GetElement(locators._canvasBody).click({ force: true });
-        agHelper.TypeText(locators._canvasBody, `{${modifierKey}}v`, {
+        agHelper.TypeText(locators._body, `{${modifierKey}}v`, {
           parseSpecialCharSeq: true,
         });
         assertHelper.AssertNetworkStatus("@updateLayout");
@@ -101,12 +101,12 @@ describe("Dynamic Height Width validation list widget", function () {
               });
           });
         entityExplorer.SelectEntityByName("Text3CopyCopy", "Widgets");
-        agHelper.TypeText(locators._canvasBody, `{${modifierKey}}c`, {
+        agHelper.TypeText(locators._body, `{${modifierKey}}c`, {
           parseSpecialCharSeq: true,
         });
         entityExplorer.SelectEntityByName("List1", "Widgets");
         propPane.MoveToTab("Style");
-        agHelper.TypeText(locators._canvasBody, `{${modifierKey}}v`, {
+        agHelper.TypeText(locators._body, `{${modifierKey}}v`, {
           parseSpecialCharSeq: true,
         });
         assertHelper.AssertNetworkStatus("@updateLayout", 200);
@@ -114,13 +114,13 @@ describe("Dynamic Height Width validation list widget", function () {
         entityExplorer.SelectEntityByName("Text3CopyCopyCopy", "Container1");
         agHelper.AssertElementAbsence(propPane._propertyPaneHeightLabel);
         entityExplorer.SelectEntityByName("Text3CopyCopy");
-        agHelper.TypeText(locators._canvasBody, `{${modifierKey}}x`, {
+        agHelper.TypeText(locators._body, `{${modifierKey}}x`, {
           parseSpecialCharSeq: true,
         });
         entityExplorer.SelectEntityByName("List1");
         propPane.MoveToTab("Style");
         agHelper.Sleep(500);
-        agHelper.TypeText(locators._canvasBody, `{${modifierKey}}v`, {
+        agHelper.TypeText(locators._body, `{${modifierKey}}v`, {
           parseSpecialCharSeq: true,
         });
         assertHelper.AssertNetworkStatus("@updateLayout", 200);
