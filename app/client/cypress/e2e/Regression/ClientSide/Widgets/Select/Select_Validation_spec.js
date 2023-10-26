@@ -32,7 +32,7 @@ describe("Select Widget Functionality", function () {
   });
 
   it("2. Shows validation error for invalid defaultSelectedValue", () => {
-    const { propPane, entityExplorer, agHelper, locators } = _;
+    const { agHelper, entityExplorer, locators, propPane } = _;
 
     entityExplorer.SelectEntityByName("SelectRenamed", "Widgets");
 
