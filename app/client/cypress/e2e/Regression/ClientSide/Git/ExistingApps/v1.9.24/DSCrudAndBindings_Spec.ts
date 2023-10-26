@@ -155,6 +155,7 @@ describe("Import and validate older app (app created in older versions of Appsmi
     agHelper.Sleep(500);
     agHelper.ClickButton("Update");
     agHelper.Sleep(2000); //for CI update to be successful
+    table.WaitUntilTableLoad(0, 0, "v1");
 
     //Validate updated values in table
     table.ReadTableRowColumnData(0, 3).then(($cellData) => {
