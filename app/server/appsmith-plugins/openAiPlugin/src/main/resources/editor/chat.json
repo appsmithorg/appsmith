@@ -8,8 +8,8 @@
     {
       "label": "Models",
       "tooltipText": "Select the model for response generation",
-      "propertyName": "model_id",
-      "configProperty": "actionConfiguration.formData.model.data",
+      "propertyName": "chat_model_id",
+      "configProperty": "actionConfiguration.formData.chatModel.data",
       "controlType": "DROP_DOWN",
       "initialValue": [],
       "options": [],

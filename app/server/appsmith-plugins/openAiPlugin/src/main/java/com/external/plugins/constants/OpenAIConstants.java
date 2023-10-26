@@ -10,9 +10,15 @@ public class OpenAIConstants {
     public static final String CHAT_ENDPOINT = "/v1/chat/completions";
     public static final String EMBEDDINGS_ENDPOINT = "/v1/embeddings";
 
-    // Form data constants
+    // COMMANDS
+    public static final String EMBEDDINGS_MODELS = "EMBEDDING_MODELS";
+    public static final String CHAT_MODELS = "CHAT_MODELS";
     public static final String CHAT = "CHAT";
     public static final String EMBEDDINGS = "EMBEDDINGS";
+
+    // Form data constants
+    public static final String CHAT_MODEL_SELECETOR = "chatModel";
+    public static final String EMBEDDINGS_MODEL_SELECTOR = "embeddingsModel";
     public static final String DATA = "data";
     public static final String ID = "id";
     public static final String COMMAND = "command";

@@ -15,10 +15,10 @@ import com.appsmith.external.models.TriggerResultDTO;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.BaseRestApiPluginExecutor;
 import com.appsmith.external.services.SharedConfig;
+import com.external.plugins.commands.OpenAICommand;
 import com.external.plugins.models.OpenAIRequestDTO;
+import com.external.plugins.utils.OpenAIMethodStrategy;
 import com.external.plugins.utils.RequestUtils;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.extern.slf4j.Slf4j;
 import org.pf4j.PluginWrapper;
 import org.springframework.http.HttpHeaders;
@@ -29,14 +29,9 @@ import reactor.core.publisher.Mono;
 
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import static com.external.plugins.constants.OpenAIConstants.DATA;
-import static com.external.plugins.constants.OpenAIConstants.ID;
-import static com.external.plugins.constants.OpenAIConstants.MODEL;
 
 @Slf4j
 public class OpenAiPlugin extends BasePlugin {
@@ -89,8 +84,13 @@ public class OpenAiPlugin extends BasePlugin {
             ActionExecutionResult errorResult = new ActionExecutionResult();
             initUtils.initializeResponseWithError(errorResult);
 
-            // Initializing request URL
-            URI uri = RequestUtils.createUri(actionConfiguration);
+            // Find the right execution command
+            OpenAICommand openAICommand = OpenAIMethodStrategy.selectExecutionMethod(actionConfiguration, objectMapper);
+
+            // morph the essentials
+            OpenAIRequestDTO openAIRequestDTO = openAICommand.makeRequestBody(actionConfiguration);
+            URI uri = openAICommand.createExecutionUri();
+            HttpMethod httpMethod = HttpMethod.POST;
 
             ActionExecutionRequest actionExecutionRequest =
                     RequestCaptureFilter.populateRequestFields(actionConfiguration, uri, insertedParams, objectMapper);
@@ -103,9 +103,6 @@ public class OpenAiPlugin extends BasePlugin {
                 errorResult.setRequest(actionExecutionRequest);
                 return Mono.just(errorResult);
             }
-
-            HttpMethod httpMethod = HttpMethod.POST;
-            OpenAIRequestDTO openAIRequestDTO = RequestUtils.makeRequestBody(actionConfiguration);
 
             // Authentication will already be valid at this point
             final BearerTokenAuth bearerTokenAuth = (BearerTokenAuth) datasourceConfiguration.getAuthentication();
@@ -144,48 +141,8 @@ public class OpenAiPlugin extends BasePlugin {
             final BearerTokenAuth bearerTokenAuth = (BearerTokenAuth) datasourceConfiguration.getAuthentication();
             assert (bearerTokenAuth.getBearerToken() != null);
 
-            HttpMethod httpMethod = HttpMethod.GET;
-            URI uri = RequestUtils.createUriFromCommand(MODEL);
-
-            return RequestUtils.makeRequest(httpMethod, uri, bearerTokenAuth, BodyInserters.empty())
-                    .flatMap(responseEntity -> {
-                        if (!responseEntity.getStatusCode().is2xxSuccessful()) {
-                            return Mono.error(
-                                    new AppsmithPluginException(AppsmithPluginError.PLUGIN_GET_STRUCTURE_ERROR));
-                        }
-
-                        try {
-                            return Mono.just(objectMapper.readValue(
-                                    responseEntity.getBody(), new TypeReference<Map<String, Object>>() {}));
-                        } catch (JsonProcessingException ex) {
-                            return Mono.error(
-                                    new AppsmithPluginException(AppsmithPluginError.PLUGIN_GET_STRUCTURE_ERROR));
-                        }
-                    })
-                    .map(data -> {
-                        List<Map<String, String>> modelList = new ArrayList<>();
-
-                        if (!data.containsKey(DATA)) {
-                            return new TriggerResultDTO(modelList);
-                        }
-
-                        List<Object> models = (List<Object>) data.get(DATA);
-                        for (Object model : models) {
-
-                            Map<String, Object> modelMap = (Map<String, Object>) model;
-
-                            if (!modelMap.containsKey("id")) {
-                                continue;
-                            }
-
-                            String modelId = (String) modelMap.get(ID);
-                            Map<String, String> responseMap = new HashMap<>();
-                            responseMap.put("label", modelId);
-                            responseMap.put("value", modelId);
-                            modelList.add(responseMap);
-                        }
-                        return new TriggerResultDTO(modelList);
-                    });
+            OpenAICommand openAICommand = OpenAIMethodStrategy.selectTriggerMethod(request, objectMapper);
+            return openAICommand.trigger(datasourceConfiguration).map(TriggerResultDTO::new);
         }
     }
 }

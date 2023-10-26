@@ -8,8 +8,8 @@
     {
       "label": "Models",
       "tooltipText": "Select the model for embedding generation",
-      "propertyName": "model_id",
-      "configProperty": "actionConfiguration.formData.model.data",
+      "propertyName": "embedding_model_id",
+      "configProperty": "actionConfiguration.formData.embeddingsModel.data",
       "controlType": "DROP_DOWN",
       "initialValue": [],
       "options": [],
