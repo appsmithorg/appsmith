@@ -37,7 +37,6 @@ const DEFAULT_ENTERVALUE_OPTIONS = {
 
 export class AggregateHelper extends ReusableHelper {
   private locator = ObjectsRegistry.CommonLocators;
-  public _modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
   private assertHelper = ObjectsRegistry.AssertHelper;
 
   public get isMac() {
@@ -49,6 +48,7 @@ export class AggregateHelper extends ReusableHelper {
   public get removeLine() {
     return "{backspace}";
   }
+  public _modifierKey = `${this.isMac ? "meta" : "ctrl"}`;
   private selectAll = `${this.isMac ? "{cmd}{a}" : "{ctrl}{a}"}`;
   private lazyCodeEditorFallback = ".t--lazyCodeEditor-fallback";
   private lazyCodeEditorRendered = ".t--lazyCodeEditor-editor";
@@ -97,6 +97,28 @@ export class AggregateHelper extends ReusableHelper {
       which: 9,
       shiftKey: shiftKey,
       ctrlKey: ctrlKey,
+    });
+  }
+
+  public SimulateCopyPaste(action: "copy" | "paste" | "cut") {
+    const actionToKey = {
+      copy: "c",
+      paste: "v",
+      cut: "x",
+    };
+    const keyToSimulate = actionToKey[action];
+
+    // Simulate Ctrl keypress (Ctrl down)
+    this.GetElement(this.locator._body).type(`{${this._modifierKey}}`, {
+      release: false,
+    });
+
+    // Simulate 'C' keypress while Ctrl is held (Ctrl + C)
+    this.GetElement(this.locator._body).type(keyToSimulate, { release: false });
+
+    // Release the Ctrl key
+    this.GetElement(this.locator._body).type(`{${this._modifierKey}}`, {
+      release: true,
     });
   }
 
