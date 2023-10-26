@@ -359,7 +359,7 @@ describe("Multi Select widget Tests", function () {
     // Fixes the validation error
     propPane.TypeTextIntoField(
       "Default selected values",
-      '{{["GREEN"]}}',
+      '{{["GREEN1"]}}',
       true,
     );
 
