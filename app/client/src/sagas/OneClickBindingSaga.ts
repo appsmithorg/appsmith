@@ -24,7 +24,10 @@ import {
 } from "@appsmith/selectors/entitiesSelector";
 import { createNewApiName, createNewQueryName } from "utils/AppsmithUtils";
 import WidgetQueryGeneratorRegistry from "utils/WidgetQueryGeneratorRegistry";
-import { createDefaultActionPayloadWithPluginDefaults } from "./ActionSagas";
+import {
+  createDefaultActionPayloadWithPluginDefaults,
+  getPluginActionDefaultValues,
+} from "./ActionSagas";
 import "../WidgetQueryGenerators";
 import type { ActionDataState } from "@appsmith/reducers/entityReducers/actionsReducer";
 import "WidgetQueryGenerators";
@@ -109,6 +112,11 @@ function* BindWidgetToDatasource(
   const newActions: string[] = [];
 
   try {
+    const defaultValues: object | undefined = yield call(
+      getPluginActionDefaultValues,
+      datasource?.pluginId,
+    );
+
     const { getQueryGenerationConfig } = WidgetFactory.getWidgetMethods(
       widget.type,
     );
@@ -125,6 +133,7 @@ function* BindWidgetToDatasource(
     const actionConfigurationList = widgetQueryGenerator.build(
       widgetQueryGenerationConfig,
       action.payload,
+      defaultValues,
     );
 
     const newActionName =
