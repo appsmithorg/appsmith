@@ -522,6 +522,6 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
   });
 
   after("Deletes the datasource", () => {
-    dataSources.DeleteDatasouceFromActiveTab(datasourceName, [200 | 409]);
+    dataSources.DeleteDatasouceFromActiveTab(datasourceName, [200, 409]);
   });
 });

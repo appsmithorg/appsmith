@@ -26,10 +26,10 @@ import {
 import { generateTemplateToUpdatePage } from "actions/pageActions";
 import {
   createMessage,
-  GSHEETS_ERR_FETCHING_PREVIEW_DATA,
-  GSHEETS_FETCHING_PREVIEW_DATA,
-  GSHEETS_GENERATE_PAGE_BUTTON,
-  GSHEETS_SCHEMA_NO_DATA,
+  ERR_FETCHING_DATASOURCE_PREVIEW_DATA,
+  FETCHING_DATASOURCE_PREVIEW_DATA,
+  DATASOURCE_GENERATE_PAGE_BUTTON,
+  SCHEMA_PREVIEW_NO_DATA,
 } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
@@ -51,15 +51,22 @@ export const MessageWrapper = styled.div`
 
 export const TableWrapper = styled.div`
   overflow-x: auto;
+  height: 100%;
   && > div {
-    width: fit-content;
+    width: 100%;
   }
 
   && > ${MessageWrapper} {
     width: 100%;
+    height: 100%;
   }
-  && > div > div {
+  && .t--table-response {
     border: none;
+    height: 100%;
+    overflow: hidden;
+  }
+  && .tableWrap {
+    overflow: auto;
   }
   & .table {
     background: none;
@@ -81,13 +88,15 @@ export const TableWrapper = styled.div`
   button {
     margin-right: 24px;
   }
+  && .tableWrap {
+  }
 `;
 
 const SelectContainer = styled.div`
   display: flex;
   margin-top: 16px;
   margin-bottom: 16px;
-  .t--gsheet-generate-page {
+  .t--datasource-generate-page {
     align-self: flex-end;
     margin-left: auto;
   }
@@ -371,14 +380,14 @@ function GoogleSheetSchema(props: Props) {
         ) : null}
         {showGeneratePageBtn && (
           <Button
-            className="t--gsheet-generate-page"
+            className="t--datasource-generate-page"
             isDisabled={!currentSheetData || currentSheetData?.length == 0}
-            key="gsheet-generate-page"
-            kind="primary"
+            key="datasource-generate-page"
+            kind="secondary"
             onClick={onGsheetGeneratePage}
             size="md"
           >
-            {createMessage(GSHEETS_GENERATE_PAGE_BUTTON)}
+            {createMessage(DATASOURCE_GENERATE_PAGE_BUTTON)}
           </Button>
         )}
       </SelectContainer>
@@ -387,18 +396,18 @@ function GoogleSheetSchema(props: Props) {
           <MessageWrapper>
             <Spinner size="md" />
             <Text style={{ marginLeft: "8px" }}>
-              {createMessage(GSHEETS_FETCHING_PREVIEW_DATA)}
+              {createMessage(FETCHING_DATASOURCE_PREVIEW_DATA)}
             </Text>
           </MessageWrapper>
         ) : isError ? (
           <Text color="var(--ads-color-red-500)">
-            {createMessage(GSHEETS_ERR_FETCHING_PREVIEW_DATA)}
+            {createMessage(ERR_FETCHING_DATASOURCE_PREVIEW_DATA)}
           </Text>
         ) : currentSheetData?.length > 0 ? (
           <Table data={currentSheetData} />
         ) : (
           <MessageWrapper>
-            <Text>{createMessage(GSHEETS_SCHEMA_NO_DATA)}</Text>
+            <Text>{createMessage(SCHEMA_PREVIEW_NO_DATA)}</Text>
           </MessageWrapper>
         )}
       </TableWrapper>
