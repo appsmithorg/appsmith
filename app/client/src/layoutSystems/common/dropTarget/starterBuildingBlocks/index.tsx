@@ -31,7 +31,7 @@ import {
 } from "./StyledComponents";
 import { saveExplorerStatus } from "@appsmith/pages/Editor/Explorer/helpers";
 
-const BUILDING_BLOCK_TEMPLATE_NAME = "Starter template";
+const BUILDING_BLOCK_TEMPLATE_NAME = "Starter Building Block";
 
 function StarterBuildingBlocks() {
   const dispatch = useDispatch();
@@ -76,11 +76,12 @@ function StarterBuildingBlocks() {
     AnalyticsUtil.logEvent("FORK_APLICATIONTEMPLATE", {
       applicationId: currentApplication?.id,
       workspaceId: currentWorkSpace.id,
-      templateAppName: BUILDING_BLOCK_TEMPLATE_NAME,
       source: "canvas",
       eventData: {
         appMode: currentAppMode,
         application: currentApplication,
+        templateAppName: BUILDING_BLOCK_TEMPLATE_NAME,
+        templatePageName,
       },
     });
   };
