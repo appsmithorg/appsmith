@@ -6,6 +6,7 @@ import { createImmerReducer } from "utils/ReducerUtils";
 import type { ActionDataState } from "ce/reducers/entityReducers/actionsReducer";
 import type { Action } from "entities/Action";
 import _ from "lodash";
+import type { Module } from "@appsmith/constants/ModuleConstants";
 
 const handlers = {
   ...CE_handlers,
@@ -41,6 +42,19 @@ const handlers = {
 
       return result;
     }
+  },
+  [ReduxActionTypes.SAVE_MODULE_NAME_SUCCESS]: (
+    draftMetaState: ActionDataState,
+    action: ReduxAction<Module>,
+  ) => {
+    const { name, publicEntityId } = action.payload;
+    draftMetaState.forEach((a) => {
+      if (a.config.id === publicEntityId) {
+        a.config.name = name;
+      }
+    });
+
+    return draftMetaState;
   },
 };
 

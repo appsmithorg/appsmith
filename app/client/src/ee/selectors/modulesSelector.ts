@@ -1,5 +1,6 @@
 import type { AppState } from "@appsmith/reducers";
 import type { Module } from "@appsmith/constants/ModuleConstants";
+import { createSelector } from "reselect";
 
 export const getAllModules = (state: AppState) => state.entities.modules;
 
@@ -20,3 +21,11 @@ export const getModuleById = (
 
 export const getIsModuleFetchingActions = (state: AppState) =>
   state.ui.editor.isModuleFetchingActions;
+
+export const getInputsForModule = createSelector(
+  getAllModules,
+  getCurrentModuleId,
+  (modules, currentModuleId) => {
+    return modules[currentModuleId].inputs;
+  },
+);

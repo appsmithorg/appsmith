@@ -66,8 +66,8 @@ const QueryModuleEntity = ({
       step={1}
       updateEntityName={(id, name) =>
         saveModuleName({
-          ...module,
-          newName: name,
+          id: module.id,
+          name,
         })
       }
     />

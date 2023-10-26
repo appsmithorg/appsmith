@@ -1,22 +1,14 @@
 import type { AxiosPromise } from "axios";
-import type {
-  DeleteModulePayload,
-  SaveModulePayload,
-} from "@appsmith/actions/moduleActions";
+import type { DeleteModulePayload } from "@appsmith/actions/moduleActions";
 
 import Api from "api/Api";
-import type { ModuleAction } from "@appsmith/constants/ModuleConstants";
+import type { Module, ModuleAction } from "@appsmith/constants/ModuleConstants";
 import type { ApiResponse } from "api/ApiResponses";
 
 interface FetchModuleActionsPayload {
   moduleId: string;
 }
 
-interface UpdateModuleActionPayload {
-  moduleId: string;
-  actionId: string;
-  action: ModuleAction;
-}
 export type UpdateModuleActionsResponse = ModuleAction;
 
 export type FetchModuleActionsResponse = ModuleAction[];
@@ -43,16 +35,16 @@ class ModuleApi extends Api {
   }
 
   static async updateAction(
-    payload: UpdateModuleActionPayload,
+    payload: ModuleAction,
   ): Promise<AxiosPromise<ApiResponse<UpdateModuleActionsResponse>>> {
-    const { action, actionId, moduleId } = payload;
-    const url = `${BASE_URL}/${moduleId}/${actionId}`;
+    const { id, moduleId } = payload;
+    const url = `${BASE_URL}/${moduleId}/${id}`;
 
-    return Api.put(url, action);
+    return Api.put(url, payload);
   }
 
-  static async saveModuleName(
-    payload: SaveModulePayload,
+  static async updateModule(
+    payload: Module,
   ): Promise<AxiosPromise<ApiResponse>> {
     const { id } = payload;
     const url = `${BASE_URL}/${id}`;

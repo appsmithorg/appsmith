@@ -1,4 +1,4 @@
-import { takeLatest, all, call, put } from "redux-saga/effects";
+import { takeLatest, all, call, put, select } from "redux-saga/effects";
 
 import ModuleApi from "@appsmith/api/ModuleApi";
 import {
@@ -6,14 +6,15 @@ import {
   ReduxActionErrorTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import { validateResponse } from "sagas/ErrorSagas";
+import { getModuleById } from "@appsmith/selectors/modulesSelector";
 import type { ApiResponse } from "api/ApiResponses";
 import type {
   DeleteModulePayload,
   FetchModuleActionsPayload,
+  SaveModuleNamePayload,
 } from "@appsmith/actions/moduleActions";
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import type { FetchModuleActionsResponse } from "@appsmith/api/ModuleApi";
-import type { SaveModulePayload } from "@appsmith/actions/moduleActions";
 
 export function* deleteModuleSaga(action: ReduxAction<DeleteModulePayload>) {
   try {
@@ -37,11 +38,28 @@ export function* deleteModuleSaga(action: ReduxAction<DeleteModulePayload>) {
   }
 }
 
-export function* saveModuleNameSaga(action: ReduxAction<SaveModulePayload>) {
+export function* saveModuleNameSaga(
+  action: ReduxAction<SaveModuleNamePayload>,
+) {
   try {
+    const { id, name } = action.payload;
+    const module: ReturnType<typeof getModuleById> = yield select(
+      getModuleById,
+      id,
+    );
+
+    if (!module) {
+      throw Error("Saving module name failed. Module not found.");
+    }
+
+    const updatedModule = {
+      ...module,
+      name,
+    };
+
     const response: ApiResponse = yield call(
-      ModuleApi.saveModuleName,
-      action.payload,
+      ModuleApi.updateModule,
+      updatedModule,
     );
     const isValidResponse: boolean = yield validateResponse(response);
 

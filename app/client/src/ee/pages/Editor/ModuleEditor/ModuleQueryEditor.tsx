@@ -1,8 +1,10 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import type { RouteComponentProps } from "react-router";
+import { noop } from "lodash";
 
 import Editor from "pages/Editor/QueryEditor/Editor";
+import ActionEditorContextMenu from "./ActionEditorContextMenu";
 import {
   changeQuery,
   setQueryPaneConfigSelectedTabIndex,
@@ -14,9 +16,9 @@ import {
   getAction,
   getPluginSettingConfigs,
 } from "@appsmith/selectors/entitiesSelector";
-import { noop } from "lodash";
 import { filterWhitelistedConfig } from "./helper";
-import ActionEditorContextMenu from "./ActionEditorContextMenu";
+import { deleteModule, saveModuleName } from "@appsmith/actions/moduleActions";
+import type { SaveModuleNamePayload } from "@appsmith/actions/moduleActions";
 
 interface ModuleQueryEditorRouteParams {
   pageId: string; // TODO: @ashit remove this and add generic key in the Editor
@@ -69,8 +71,24 @@ function ModuleQueryEditor(props: ModuleQueryEditorProps) {
     dispatch(changeQuery({ id: queryId, moduleId, packageId }));
   };
 
+  const onSaveModuleName = useCallback(
+    ({ name }: SaveModuleNamePayload) => {
+      return saveModuleName({
+        id: module?.id || "",
+        name,
+      });
+    },
+    [module?.id],
+  );
+
+  const onDeleteModule = useCallback(() => {
+    dispatch(deleteModule({ id: module?.id || "" }));
+  }, [module?.id]);
+
   const moreActionsMenu = useMemo(() => {
-    return <ActionEditorContextMenu isDeletePermitted onDelete={noop} />;
+    return (
+      <ActionEditorContextMenu isDeletePermitted onDelete={onDeleteModule} />
+    );
   }, []);
 
   return (
@@ -79,6 +97,7 @@ function ModuleQueryEditor(props: ModuleQueryEditorProps) {
       moreActionsMenu={moreActionsMenu}
       onCreateDatasourceClick={noop}
       onEntityNotFoundBackClick={noop}
+      saveActionName={onSaveModuleName}
     >
       <Editor
         {...props}

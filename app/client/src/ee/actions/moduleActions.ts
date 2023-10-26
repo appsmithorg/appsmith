@@ -1,8 +1,8 @@
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import type { Module } from "@appsmith/constants/ModuleConstants";
 
-export interface SaveModulePayload extends Module {
-  newName: string;
+export interface SaveModuleNamePayload {
+  id: string;
+  name: string;
 }
 
 export interface DeleteModulePayload {
@@ -14,7 +14,7 @@ export interface FetchModuleActionsPayload {
   moduleId: string;
 }
 
-export const saveModuleName = (payload: SaveModulePayload) => {
+export const saveModuleName = (payload: SaveModuleNamePayload) => {
   return {
     type: ReduxActionTypes.SAVE_MODULE_NAME_INIT,
     payload,
