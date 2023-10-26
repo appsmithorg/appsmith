@@ -47,12 +47,8 @@ describe("Slug URLs", () => {
       action: "Edit name",
     });
     cy.get(explorer.editEntity).last().type("Renamed", { force: true });
-    cy.get("body").click(0, 0, { force: true });
-    cy.wait("@updatePage").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
+    agHelper.Sleep(2000); //for new name to settle & url to update
+    assertHelper.AssertNetworkStatus("updatePage");
     // cy.location("pathname").then((pathname) => {
     cy.url().then((url) => {
       const urlObject = new URL(url);
