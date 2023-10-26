@@ -46,7 +46,9 @@ describe("Slug URLs", () => {
       entityNameinLeftSidebar: "Page1",
       action: "Edit name",
     });
-    cy.get(explorer.editEntity).last().type("Renamed", { force: true });
+    cy.get(explorer.editEntity)
+      .last()
+      .type("Renamed" + "{enter}", { force: true });
     agHelper.Sleep(2000); //for new name to settle & url to update
     assertHelper.AssertNetworkStatus("updatePage");
     // cy.location("pathname").then((pathname) => {
