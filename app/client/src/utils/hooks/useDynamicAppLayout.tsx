@@ -145,7 +145,11 @@ export const useDynamicAppLayout = () => {
     }
 
     // if app setting pane is open, we need to subtract the width of app setting page width
-    if (isAppSettingsPaneOpen === true && appMode === APP_MODE.EDIT) {
+    if (
+      isAppSettingsPaneOpen === true &&
+      appMode === APP_MODE.EDIT &&
+      !isAppSidebarEnabled
+    ) {
       calculatedWidth -= APP_SETTINGS_PANE_WIDTH;
     }
 

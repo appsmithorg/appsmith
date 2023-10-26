@@ -70,8 +70,6 @@ import { useHref } from "./utils";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 import type { NavigationSetting } from "constants/AppConstants";
-import { getUserPreferenceFromStorage } from "@appsmith/utils/Environments";
-import { showEnvironmentDeployInfoModal } from "@appsmith/actions/environmentAction";
 import CommunityTemplatesPublishInfo from "./CommunityTemplates/Modals/CommunityTemplatesPublishInfo";
 import PublishCommunityTemplateModal from "./CommunityTemplates/Modals/PublishCommunityTemplate";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
@@ -119,9 +117,6 @@ export function EditorHeader() {
 
   const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false);
   const [showModal, setShowModal] = useState(false);
-  const isMultipleEnvEnabled = useFeatureFlag(
-    FEATURE_FLAG.release_datasource_environments_enabled,
-  );
   const [
     showPublishCommunityTemplateModal,
     setShowPublishCommunityTemplateModal,
@@ -180,14 +175,7 @@ export function EditorHeader() {
             : "Application name menu (top left)",
         });
       } else {
-        if (
-          !isMultipleEnvEnabled ||
-          getUserPreferenceFromStorage() === "true"
-        ) {
-          handlePublish();
-        } else {
-          dispatch(showEnvironmentDeployInfoModal());
-        }
+        handlePublish();
       }
     },
     [dispatch, handlePublish],
