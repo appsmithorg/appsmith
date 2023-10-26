@@ -5,4 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class EmbeddingRequestDTO extends OpenAIRequestDTO {}
+public class EmbeddingRequestDTO extends OpenAIRequestDTO {
+
+    String input;
+}

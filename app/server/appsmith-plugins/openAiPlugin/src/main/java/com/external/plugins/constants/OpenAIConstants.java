@@ -18,6 +18,7 @@ public class OpenAIConstants {
     public static final String COMMAND = "command";
     public static final String MODEL = "model";
     public static final String MESSAGES = "messages";
+    public static final String INPUT = "input";
     public static final ExchangeStrategies EXCHANGE_STRATEGIES = ExchangeStrategies.builder()
             .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(/* 10MB */ 10 * 1024 * 1024))
             .build();

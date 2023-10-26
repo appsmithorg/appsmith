@@ -1,0 +1,49 @@
+{
+  "identifier": "EMBEDDINGS",
+  "controlType": "SECTION",
+  "conditionals": {
+    "show": "{{actionConfiguration.formData.command.data === 'EMBEDDINGS'}}"
+  },
+  "children": [
+    {
+      "label": "Models",
+      "tooltipText": "Select the model to for response generation",
+      "propertyName": "model_id",
+      "configProperty": "actionConfiguration.formData.model.data",
+      "controlType": "DROP_DOWN",
+      "initialValue": [],
+      "options": [],
+      "placeholderText": "All models will be fetched.",
+      "fetchOptionsConditionally": true,
+      "alternateViewTypes": ["json"],
+      "conditionals": {
+        "enable": "{{true}}",
+        "fetchDynamicValues": {
+          "condition": "{{true}}",
+          "config": {
+            "params": {
+              "requestType": "EMBEDDING_MODELS",
+              "displayType": "DROP_DOWN"
+            }
+          }
+        }
+      }
+    },
+    {
+      "label": "path to query",
+      "configProperty": "actionConfiguration.path",
+      "controlType": "INPUT_TEXT",
+      "initialValue": "/v1/embeddings",
+      "isRequired": true,
+      "hidden": true
+    },
+    {
+      "label": "Prompt",
+      "tooltipText": "Ask a question",
+      "propertyName": "body",
+      "configProperty": "actionConfiguration.formData.input",
+      "controlType": "QUERY_DYNAMIC_TEXT",
+      "placeholderText": "Hello World! OR ['hello', 'world']"
+    }
+  ]
+}

@@ -25,6 +25,7 @@
     }
   ],
   "files": [
-    "chat.json"
+    "chat.json",
+    "embeddings.json"
   ]
 }

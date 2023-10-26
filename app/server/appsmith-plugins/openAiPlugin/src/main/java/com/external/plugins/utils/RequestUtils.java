@@ -31,6 +31,7 @@ import static com.external.plugins.constants.OpenAIConstants.DATA;
 import static com.external.plugins.constants.OpenAIConstants.EMBEDDINGS;
 import static com.external.plugins.constants.OpenAIConstants.EMBEDDINGS_ENDPOINT;
 import static com.external.plugins.constants.OpenAIConstants.EXCHANGE_STRATEGIES;
+import static com.external.plugins.constants.OpenAIConstants.INPUT;
 import static com.external.plugins.constants.OpenAIConstants.MESSAGES;
 import static com.external.plugins.constants.OpenAIConstants.MODEL;
 import static com.external.plugins.constants.OpenAIConstants.MODELS_ENDPOINT;
@@ -71,7 +72,6 @@ public class RequestUtils {
         List<ChatMessage> chatMessages = transformToMessages((String) formData.get(MESSAGES));
         verifyRoleForChatMessages(chatMessages);
         chatRequestDTO.setMessages(chatMessages);
-        // set Messages
         return chatRequestDTO;
     }
 
@@ -101,8 +101,21 @@ public class RequestUtils {
 
     protected static EmbeddingRequestDTO makeEmbeddingRequestBody(
             ActionConfiguration actionConfiguration, Map<String, Object> formData) {
-        EmbeddingRequestDTO embeddingRequestDTO = new EmbeddingRequestDTO();
-        return embeddingRequestDTO;
+        EmbeddingRequestDTO embeddings = new EmbeddingRequestDTO();
+
+        String model = extractDataFromFormData(formData, MODEL);
+        if (!StringUtils.hasText(model)) {
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR);
+        }
+
+        String input = (String) formData.get(INPUT);
+        if (!StringUtils.hasText(model)) {
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR);
+        }
+
+        embeddings.setModel(model);
+        embeddings.setInput(input);
+        return embeddings;
     }
 
     public static URI createUri(ActionConfiguration actionConfiguration) {
