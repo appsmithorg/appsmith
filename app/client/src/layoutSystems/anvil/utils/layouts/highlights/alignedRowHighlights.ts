@@ -13,7 +13,7 @@ import {
   HIGHLIGHT_SIZE,
   HORIZONTAL_DROP_ZONE_MULTIPLIER,
 } from "../../constants";
-import { getStartPosition } from "./highlightUtils";
+import { getNonDraggedWidgets, getStartPosition } from "./highlightUtils";
 import {
   type RowMetaData,
   type RowMetaInformation,
@@ -182,6 +182,16 @@ export function getHighlightsForWidgets(
     );
     return highlights;
   }
+
+  /**
+   * Check if layout has widgets that are not being dragged.
+   */
+  const nonDraggedWidgets: WidgetLayoutProps[] = getNonDraggedWidgets(
+    layout,
+    draggedWidgets,
+  );
+
+  if (!nonDraggedWidgets.length && !layoutProps.isDropTarget) return [];
 
   /**
    * Collect all information on alignments
