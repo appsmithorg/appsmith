@@ -70,6 +70,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
         if (Boolean.TRUE.equals(importingMetaDTO.getAppendToApp())) {
             importedNewActionMono = importedNewActionMono.map(importedNewActionList1 -> {
                 List<NewPage> importedNewPages = mappedImportableResourcesDTO.getPageNameMap().values().stream()
+                        .distinct()
                         .toList();
                 Map<String, String> newToOldNameMap = mappedImportableResourcesDTO.getNewPageNameToOldPageNameMap();
 
