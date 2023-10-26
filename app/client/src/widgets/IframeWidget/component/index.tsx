@@ -9,10 +9,8 @@ import { getAppMode } from "@appsmith/selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 import type { RenderMode } from "constants/WidgetConstants";
 import { getAppsmithConfigs } from "@appsmith/configs";
-import {
-  previewModeSelector,
-  protectedModeSelector,
-} from "selectors/editorSelectors";
+import { previewModeSelector } from "selectors/editorSelectors";
+import { protectedModeSelector } from "selectors/gitSyncSelectors";
 
 interface IframeContainerProps {
   borderColor?: string;

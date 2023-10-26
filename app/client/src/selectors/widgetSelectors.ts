@@ -20,7 +20,8 @@ import { APP_MODE } from "entities/App";
 import { getIsTableFilterPaneVisible } from "selectors/tableFilterSelectors";
 import { getIsAutoHeightWithLimitsChanging } from "utils/hooks/autoHeightUIHooks";
 import { getIsPropertyPaneVisible } from "./propertyPaneSelectors";
-import { previewModeSelector, protectedModeSelector } from "./editorSelectors";
+import { previewModeSelector } from "./editorSelectors";
+import { protectedModeSelector } from "./gitSyncSelectors";
 
 export const getIsDraggingOrResizing = (state: AppState) =>
   state.ui.widgetDragResize.isResizing || state.ui.widgetDragResize.isDragging;

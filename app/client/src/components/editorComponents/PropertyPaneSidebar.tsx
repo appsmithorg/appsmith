@@ -9,10 +9,7 @@ import PerformanceTracker, {
 import { getSelectedWidgets } from "selectors/ui";
 import { tailwindLayers } from "constants/Layers";
 import WidgetPropertyPane from "pages/Editor/PropertyPane";
-import {
-  previewModeSelector,
-  protectedModeSelector,
-} from "selectors/editorSelectors";
+import { previewModeSelector } from "selectors/editorSelectors";
 import CanvasPropertyPane from "pages/Editor/CanvasPropertyPane";
 import useHorizontalResize from "utils/hooks/useHorizontalResize";
 import { getIsDraggingForSelection } from "selectors/canvasSelectors";
@@ -24,6 +21,7 @@ import AppSettingsPane from "pages/Editor/AppSettingsPane";
 import { APP_SETTINGS_PANE_WIDTH } from "constants/AppConstants";
 import styled from "styled-components";
 import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
+import { protectedModeSelector } from "selectors/gitSyncSelectors";
 
 export const PROPERTY_PANE_ID = "t--property-pane-sidebar";
 

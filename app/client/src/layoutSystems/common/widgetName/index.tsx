@@ -10,7 +10,6 @@ import { hideErrors } from "selectors/debuggerSelectors";
 import {
   getIsAutoLayout,
   previewModeSelector,
-  protectedModeSelector,
   snipingModeSelector,
 } from "selectors/editorSelectors";
 import { getIsTableFilterPaneVisible } from "selectors/tableFilterSelectors";
@@ -35,6 +34,7 @@ import { RESIZE_BORDER_BUFFER } from "layoutSystems/common/resizer/common";
 import { Layers } from "constants/Layers";
 import memoize from "micro-memoize";
 import { NavigationMethod } from "utils/history";
+import { protectedModeSelector } from "selectors/gitSyncSelectors";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 export const WidgetNameComponentHeight = theme.spaces[10];

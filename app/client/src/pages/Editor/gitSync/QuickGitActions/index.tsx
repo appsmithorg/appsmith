@@ -31,6 +31,7 @@ import {
   getIsGitConnected,
   getPullFailed,
   getPullInProgress,
+  protectedModeSelector,
 } from "selectors/gitSyncSelectors";
 import SpinnerLoader from "pages/common/SpinnerLoader";
 import { inGuidedTour } from "selectors/onboardingSelectors";
@@ -39,7 +40,6 @@ import { Button, Icon, Tooltip } from "design-system";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import { protectedModeSelector } from "selectors/editorSelectors";
 
 interface QuickActionButtonProps {
   className?: string;

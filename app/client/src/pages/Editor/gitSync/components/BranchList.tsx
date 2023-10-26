@@ -15,6 +15,7 @@ import {
   getFetchingBranches,
   getGitBranches,
   getGitBranchNames,
+  getProtectedBranchesSelector,
 } from "selectors/gitSyncSelectors";
 
 import Skeleton from "components/utils/Skeleton";
@@ -248,7 +249,7 @@ export default function BranchList(props: {
   const currentBranch = useSelector(getCurrentGitBranch);
   const fetchingBranches = useSelector(getFetchingBranches);
   const defaultBranch = useSelector(getDefaultGitBranchName);
-
+  const protectedBranches = useSelector(getProtectedBranchesSelector);
   const [searchText, changeSearchTextInState] = useState("");
   const changeSearchText = (text: string) => {
     changeSearchTextInState(removeSpecialChars(text));
@@ -333,6 +334,7 @@ export default function BranchList(props: {
     activeHoverIndex,
     defaultBranch,
     switchBranch,
+    protectedBranches,
   );
   return (
     <BranchListHotkeys

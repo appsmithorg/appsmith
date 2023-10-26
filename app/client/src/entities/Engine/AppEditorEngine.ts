@@ -8,7 +8,7 @@ import {
 } from "actions/datasourceActions";
 import {
   fetchBranchesInit,
-  fetchGitProtectedBranches,
+  fetchGitProtectedBranchesInit,
   fetchGitStatusInit,
   remoteUrlInputValue,
   resetPullMergeStatus,
@@ -282,7 +282,7 @@ export default class AppEditorEngine extends AppEngine {
 
       yield put(fetchBranchesInit());
       yield take(ReduxActionTypes.FETCH_BRANCHES_SUCCESS);
-      yield put(fetchGitProtectedBranches());
+      yield put(fetchGitProtectedBranchesInit());
     }
     yield put(resetPullMergeStatus());
   }

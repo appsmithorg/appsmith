@@ -6,7 +6,6 @@ import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { useSelector } from "react-redux";
 import {
   previewModeSelector,
-  protectedModeSelector,
   snipingModeSelector,
 } from "selectors/editorSelectors";
 import { getIsResizing } from "selectors/widgetSelectors";
@@ -16,6 +15,7 @@ import { widgetTypeClassname } from "widgets/WidgetUtils";
 import { RESIZE_BORDER_BUFFER } from "layoutSystems/common/resizer/common";
 import { checkIsDropTarget } from "WidgetProvider/factory/helpers";
 import type { FlexComponentProps } from "../../autolayout/utils/types";
+import { protectedModeSelector } from "selectors/gitSyncSelectors";
 
 const FlexWidget = styled.div`
   position: relative;

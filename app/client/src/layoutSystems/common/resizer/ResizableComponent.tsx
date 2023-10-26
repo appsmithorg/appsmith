@@ -19,7 +19,6 @@ import { getIsAutoLayout } from "selectors/canvasSelectors";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 import {
   previewModeSelector,
-  protectedModeSelector,
   snipingModeSelector,
 } from "selectors/editorSelectors";
 import {
@@ -66,6 +65,7 @@ import {
   computeFinalRowCols,
   computeFinalAutoLayoutRowCols,
 } from "layoutSystems/common/resizer/ResizableUtils";
+import { protectedModeSelector } from "selectors/gitSyncSelectors";
 
 export type ResizableComponentProps = WidgetProps & {
   paddingOffset: number;

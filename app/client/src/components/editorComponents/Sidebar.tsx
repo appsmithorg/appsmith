@@ -24,10 +24,7 @@ import {
 } from "selectors/explorerSelector";
 import { tailwindLayers } from "constants/Layers";
 import { Tooltip } from "design-system";
-import {
-  previewModeSelector,
-  protectedModeSelector,
-} from "selectors/editorSelectors";
+import { previewModeSelector } from "selectors/editorSelectors";
 import useHorizontalResize from "utils/hooks/useHorizontalResize";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { SIDEBAR_ID } from "constants/Explorer";
@@ -37,6 +34,7 @@ import { getEditingEntityName } from "@appsmith/selectors/entitiesSelector";
 import styled from "styled-components";
 import moment from "moment";
 import AnalyticsUtil from "../../utils/AnalyticsUtil";
+import { protectedModeSelector } from "selectors/gitSyncSelectors";
 
 const StyledResizer = styled.div<{ resizing: boolean }>`
   ${(props) =>

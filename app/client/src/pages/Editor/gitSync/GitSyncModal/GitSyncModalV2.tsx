@@ -4,6 +4,7 @@ import {
   getIsDeploying,
   getIsGitConnected,
   getIsGitSyncModalOpen,
+  protectedModeSelector,
 } from "selectors/gitSyncSelectors";
 import { useDispatch, useSelector } from "react-redux";
 import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
@@ -32,7 +33,6 @@ import ConnectionSuccess from "../Tabs/ConnectionSuccess";
 import styled from "styled-components";
 import ReconnectSSHError from "../components/ReconnectSSHError";
 import { getCurrentAppGitMetaData } from "@appsmith/selectors/applicationSelectors";
-import { protectedModeSelector } from "selectors/editorSelectors";
 
 const StyledModalContent = styled(ModalContent)`
   &&& {

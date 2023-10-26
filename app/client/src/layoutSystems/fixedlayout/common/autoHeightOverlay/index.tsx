@@ -3,12 +3,10 @@ import type { CSSProperties } from "react";
 import React, { memo } from "react";
 import { useSelector } from "react-redux";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
-import {
-  previewModeSelector,
-  protectedModeSelector,
-} from "selectors/editorSelectors";
+import { previewModeSelector } from "selectors/editorSelectors";
 import type { WidgetProps } from "widgets/BaseWidget";
 import AutoHeightOverlayWithStateContext from "./AutoHeightOverlayWithStateContext";
+import { protectedModeSelector } from "selectors/gitSyncSelectors";
 
 export interface MinMaxHeightProps {
   maxDynamicHeight: number;

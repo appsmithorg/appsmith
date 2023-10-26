@@ -4,13 +4,15 @@ import {
   UPDATE,
   createMessage,
 } from "@appsmith/constants/messages";
-import { getGitProtectedBranches } from "@appsmith/selectors/gitSelectors";
 import { isCEMode } from "@appsmith/utils";
 import { Button, Link, Option, Select, Text } from "design-system";
 import { xor } from "lodash";
 import React, { useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
-import { getGitBranches } from "selectors/gitSyncSelectors";
+import {
+  getGitBranches,
+  getProtectedBranchesSelector,
+} from "selectors/gitSyncSelectors";
 import styled from "styled-components";
 
 const Container = styled.div`
@@ -48,7 +50,7 @@ function GitProtectedBranches() {
     (b) => !b.branchName.includes("origin/"),
   );
 
-  const protectedBranches = useSelector(getGitProtectedBranches);
+  const protectedBranches = useSelector(getProtectedBranchesSelector);
   const [selectedValues, setSelectedValues] = useState<string[]>();
 
   useEffect(() => {

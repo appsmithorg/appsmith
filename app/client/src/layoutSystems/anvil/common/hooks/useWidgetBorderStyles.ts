@@ -1,10 +1,8 @@
 import type { AppState } from "@appsmith/reducers";
 import { Colors } from "constants/Colors";
 import { useSelector } from "react-redux";
-import {
-  previewModeSelector,
-  protectedModeSelector,
-} from "selectors/editorSelectors";
+import { previewModeSelector } from "selectors/editorSelectors";
+import { protectedModeSelector } from "selectors/gitSyncSelectors";
 import {
   isCurrentWidgetFocused,
   isWidgetSelected,

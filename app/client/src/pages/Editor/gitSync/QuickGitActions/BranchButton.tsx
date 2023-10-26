@@ -7,9 +7,12 @@ import "@blueprintjs/popover2/lib/css/blueprint-popover2.css";
 
 import { getCurrentAppGitMetaData } from "@appsmith/selectors/applicationSelectors";
 import BranchList from "../components/BranchList";
-import { getGitStatus } from "selectors/gitSyncSelectors";
+import {
+  getGitStatus,
+  protectedModeSelector,
+} from "selectors/gitSyncSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { Button, Text, Tooltip } from "design-system";
+import { Button, Icon, Text, Tooltip } from "design-system";
 import { isEllipsisActive } from "../../../../utils/helpers";
 import {
   BRANCH_TOOLTIP_MESSAGE,
@@ -32,6 +35,7 @@ const TooltipText = styled(Text)`
 
 function BranchButton() {
   const gitMetaData = useSelector(getCurrentAppGitMetaData);
+  const isProtectedMode = useSelector(protectedModeSelector);
   const currentBranch = gitMetaData?.branchName;
   const [isOpen, setIsOpen] = useState(false);
   const labelTarget = useRef<HTMLSpanElement>(null);
@@ -70,6 +74,7 @@ function BranchButton() {
           </>
         }
         defaultVisible
+        isDisabled={!isProtectedMode}
         placement="topLeft"
         trigger={["click", "hover"]}
       >
@@ -82,8 +87,11 @@ function BranchButton() {
             className="t--branch-button"
             data-testid={"t--branch-button-currentBranch"}
             kind="secondary"
-            startIcon="git-branch"
           >
+            <Icon
+              name={isProtectedMode ? "lock-2-line" : "git-branch"}
+              style={{ marginRight: 4 }}
+            />
             <span
               ref={labelTarget}
               style={{

@@ -20,9 +20,8 @@ export const BranchListItemContainer = styled.div<{
 background-color: var(--ads-v2-color-bg-subtle);
 }`}
 
-  display: grid;
-  grid-gap: 16px;
-  grid-template-columns: 9fr 1fr;
+  display: flex;
+  align-items: center;
 
   .branch-list-item-text {
     white-space: nowrap;
@@ -31,5 +30,6 @@ background-color: var(--ads-v2-color-bg-subtle);
     display: flex;
     align-items: center;
     gap: 4px;
+    flex: 1;
   }
 `;

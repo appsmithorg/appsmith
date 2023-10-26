@@ -20,7 +20,6 @@ import {
   getCurrentPageId,
   getMainCanvasProps,
   previewModeSelector,
-  protectedModeSelector,
 } from "selectors/editorSelectors";
 import { getAppMode } from "@appsmith/selectors/entitiesSelector";
 import {
@@ -47,6 +46,7 @@ import { useLocation } from "react-router";
 import { CANVAS_VIEWPORT } from "constants/componentClassNameConstants";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import { getIsAppSidebarEnabled } from "../../selectors/ideSelectors";
+import { protectedModeSelector } from "selectors/gitSyncSelectors";
 
 const GUTTER_WIDTH = 72;
 export const AUTOLAYOUT_RESIZER_WIDTH_BUFFER = 40;

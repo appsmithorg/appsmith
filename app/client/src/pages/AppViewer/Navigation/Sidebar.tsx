@@ -17,7 +17,6 @@ import { builderURL } from "@appsmith/RouteBuilder";
 import {
   getCurrentPageId,
   previewModeSelector,
-  protectedModeSelector,
 } from "selectors/editorSelectors";
 import type { User } from "constants/userConstants";
 import SidebarProfileComponent from "./components/SidebarProfileComponent";
@@ -38,6 +37,7 @@ import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettings
 import NavigationLogo from "@appsmith/pages/AppViewer/NavigationLogo";
 import MenuItemContainer from "./components/MenuItemContainer";
 import BackToAppsButton from "./components/BackToAppsButton";
+import { protectedModeSelector } from "selectors/gitSyncSelectors";
 
 interface SidebarProps {
   currentApplicationDetails?: ApplicationPayload;

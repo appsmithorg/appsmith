@@ -3,10 +3,10 @@ import {
   snipingModeSelector,
   previewModeSelector,
   getIsAutoLayout,
-  protectedModeSelector,
 } from "selectors/editorSelectors";
 import { useSelector } from "react-redux";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
+import { protectedModeSelector } from "selectors/gitSyncSelectors";
 
 export const useAllowEditorDragToSelect = () => {
   // This state tells us whether a `ResizableComponent` is resizing

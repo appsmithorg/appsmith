@@ -31,7 +31,11 @@ import type {
   GetSSHKeyResponseData,
   GitStatusParams,
 } from "actions/gitSyncActions";
-import { fetchGitRemoteStatusSuccess } from "actions/gitSyncActions";
+import {
+  fetchGitProtectedBranchesError,
+  fetchGitProtectedBranchesSuccess,
+  fetchGitRemoteStatusSuccess,
+} from "actions/gitSyncActions";
 import {
   commitToRepoSuccess,
   connectToGitSuccess,
@@ -100,7 +104,10 @@ import { log } from "loglevel";
 import GIT_ERROR_CODES from "constants/GitErrorCodes";
 import { builderURL } from "@appsmith/RouteBuilder";
 import { APP_MODE } from "entities/App";
-import type { GitDiscardResponse } from "reducers/uiReducers/gitSyncReducer";
+import type {
+  GitDiscardResponse,
+  GitProtectedBranchesResponse,
+} from "reducers/uiReducers/gitSyncReducer";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
 import {
   getActions,
@@ -109,11 +116,7 @@ import {
 import type { Action } from "entities/Action";
 import type { JSCollectionDataState } from "reducers/entityReducers/jsActionsReducer";
 import { toast } from "design-system";
-import {
-  fetchGitProtectedBranchesSaga,
-  updateGitDefaultBranchSaga,
-  updateGitProtectedBranchesSaga,
-} from "@appsmith/sagas/GitExtendedSagas";
+import { updateGitDefaultBranchSaga } from "@appsmith/sagas/GitExtendedSagas";
 
 export function* handleRepoLimitReachedError(response?: ApiResponse) {
   const { responseMeta } = response || {};
@@ -1035,6 +1038,32 @@ function* discardChanges() {
   }
 }
 
+function* fetchGitProtectedBranchesSaga() {
+  let response: ApiResponse<GitProtectedBranchesResponse>;
+  try {
+    const appId: string = yield select(getCurrentApplicationId);
+    response = yield GitSyncAPI.getProtectedBranches(appId);
+
+    console.log({ response });
+    const isValidResponse: boolean = yield validateResponse(
+      response,
+      false,
+      getLogToSentryFromResponse(response),
+    );
+    if (isValidResponse) {
+      yield put(
+        fetchGitProtectedBranchesSuccess(response?.data?.protectedBranches),
+      );
+    } else {
+      yield put(
+        fetchGitProtectedBranchesError(response?.responseMeta?.error?.message),
+      );
+    }
+  } catch (error) {
+    yield put(fetchGitProtectedBranchesError(error));
+  }
+}
+
 const gitRequestActions: Record<
   (typeof ReduxActionTypes)[keyof typeof ReduxActionTypes],
   (...args: any[]) => any
@@ -1063,8 +1092,6 @@ const gitRequestActions: Record<
   [ReduxActionTypes.GIT_UPDATE_DEFAULT_BRANCH_INIT]: updateGitDefaultBranchSaga,
   [ReduxActionTypes.GIT_FETCH_PROTECTED_BRANCHES_INIT]:
     fetchGitProtectedBranchesSaga,
-  [ReduxActionTypes.GIT_UPDATE_PROTECTED_BRANCHES_INIT]:
-    updateGitProtectedBranchesSaga,
 };
 
 /**

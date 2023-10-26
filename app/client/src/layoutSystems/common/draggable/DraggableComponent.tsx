@@ -17,10 +17,8 @@ import {
   useWidgetDragResize,
 } from "utils/hooks/dragResizeHooks";
 import { getShouldAllowDrag } from "selectors/widgetDragSelectors";
-import {
-  previewModeSelector,
-  protectedModeSelector,
-} from "selectors/editorSelectors";
+import { previewModeSelector } from "selectors/editorSelectors";
+import { protectedModeSelector } from "selectors/gitSyncSelectors";
 
 const DraggableWrapper = styled.div`
   display: block;

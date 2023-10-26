@@ -468,12 +468,30 @@ export const updateGitDefaultBranch = (payload: { branchName: string }) => {
   };
 };
 
-export const fetchGitProtectedBranches = () => {
+export const fetchGitProtectedBranchesInit = () => {
   return {
     type: ReduxActionTypes.GIT_FETCH_PROTECTED_BRANCHES_INIT,
   };
 };
 
+export const fetchGitProtectedBranchesSuccess = (
+  protectedBranches: string[],
+) => {
+  return {
+    type: ReduxActionTypes.GIT_FETCH_PROTECTED_BRANCHES_SUCCESS,
+    payload: { protectedBranches },
+  };
+};
+
+export const fetchGitProtectedBranchesError = (
+  error: any,
+  show: boolean = true,
+) => {
+  return {
+    type: ReduxActionTypes.GIT_FETCH_PROTECTED_BRANCHES_ERROR,
+    payload: { error, show },
+  };
+};
 export const updateGitProtectedBranches = (payload: {
   protectedBranches: string[];
 }) => {

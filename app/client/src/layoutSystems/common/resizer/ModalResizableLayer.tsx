@@ -21,9 +21,9 @@ import type { UIElementSize } from "./ResizableUtils";
 import { useModalWidth } from "widgets/ModalWidget/component/useModalWidth";
 import {
   previewModeSelector,
-  protectedModeSelector,
   snipingModeSelector,
 } from "selectors/editorSelectors";
+import { protectedModeSelector } from "selectors/gitSyncSelectors";
 const minSize = 100;
 
 /**

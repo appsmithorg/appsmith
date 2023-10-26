@@ -9,7 +9,6 @@ import {
   getIsPublishingApplication,
   getPageSavingError,
   previewModeSelector,
-  protectedModeSelector,
 } from "selectors/editorSelectors";
 import {
   getCurrentAppWorkspace,
@@ -49,7 +48,10 @@ import { EditorSaveIndicator } from "./EditorSaveIndicator";
 import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 import { fetchUsersForWorkspace } from "@appsmith/actions/workspaceActions";
 
-import { getIsGitConnected } from "selectors/gitSyncSelectors";
+import {
+  getIsGitConnected,
+  protectedModeSelector,
+} from "selectors/gitSyncSelectors";
 import {
   createMessage,
   DEPLOY_BUTTON_TOOLTIP,

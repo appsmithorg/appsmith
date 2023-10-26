@@ -11,11 +11,9 @@ import log from "loglevel";
 import type { AppState } from "@appsmith/reducers";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { APP_MODE } from "entities/App";
-import {
-  previewModeSelector,
-  protectedModeSelector,
-} from "selectors/editorSelectors";
+import { previewModeSelector } from "selectors/editorSelectors";
 import { getAppMode } from "@appsmith/selectors/entitiesSelector";
+import { protectedModeSelector } from "selectors/gitSyncSelectors";
 
 /**
  * This saga is used to read(from DOM) and update(in reducers) the widget and layout positions

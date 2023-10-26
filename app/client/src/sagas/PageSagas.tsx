@@ -90,7 +90,6 @@ import {
   getMainCanvasProps,
   getPageById,
   previewModeSelector,
-  protectedModeSelector,
 } from "selectors/editorSelectors";
 import {
   executePageLoadActions,
@@ -137,7 +136,10 @@ import { getPageList } from "@appsmith/selectors/entitiesSelector";
 import { setPreviewModeAction } from "actions/editorActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { toast } from "design-system";
-import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
+import {
+  getCurrentGitBranch,
+  protectedModeSelector,
+} from "selectors/gitSyncSelectors";
 import type { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
 import { UserCancelledActionExecutionError } from "./ActionExecution/errorUtils";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";

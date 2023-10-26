@@ -3,12 +3,10 @@ import { useEffect } from "react";
 import { positionObserver } from ".";
 import { APP_MODE } from "entities/App";
 import { useSelector } from "react-redux";
-import {
-  previewModeSelector,
-  protectedModeSelector,
-} from "selectors/editorSelectors";
+import { previewModeSelector } from "selectors/editorSelectors";
 import { getAppMode } from "@appsmith/selectors/entitiesSelector";
 import { getAnvilLayoutDOMId, getAnvilWidgetDOMId } from "./utils";
+import { protectedModeSelector } from "selectors/gitSyncSelectors";
 export type ObservableElementType = "widget" | "layout";
 
 /**

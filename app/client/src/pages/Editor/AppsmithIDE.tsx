@@ -13,16 +13,14 @@ import {
   WIDGETS_EDITOR_BASE_PATH,
   WIDGETS_EDITOR_ID_PATH,
 } from "constants/routes";
-import {
-  previewModeSelector,
-  protectedModeSelector,
-} from "selectors/editorSelectors";
+import { previewModeSelector } from "selectors/editorSelectors";
 import WidgetsEditor from "./WidgetsEditor";
 import EditorsRouter from "@appsmith/pages/Editor/routes";
 import EditorWrapperBody from "./commons/EditorWrapperBody";
 import EditorWrapperContainer from "./commons/EditorWrapperContainer";
 import Sidebar from "components/Sidebar";
 import IDESidePane from "./IDESidePane";
+import { protectedModeSelector } from "selectors/gitSyncSelectors";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 

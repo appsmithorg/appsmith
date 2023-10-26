@@ -4,7 +4,7 @@ import { BranchListItemContainer } from "./BranchListItemContainer";
 import DefaultTag from "./DefaultTag";
 import { useHover } from "../hooks";
 import BranchMoreMenu from "./BranchMoreMenu";
-import { Tooltip, Text, Spinner } from "design-system";
+import { Tooltip, Text, Spinner, Icon } from "design-system";
 import { isEllipsisActive } from "utils/helpers";
 import { useSelector } from "react-redux";
 import { getBranchSwitchingDetails } from "selectors/gitSyncSelectors";
@@ -22,6 +22,7 @@ export function BranchListItem({
   branch,
   className,
   isDefault,
+  isProtected,
   onClick,
   selected,
   shouldScrollIntoView,
@@ -53,6 +54,9 @@ export function BranchListItem({
       ref={itemRef}
       selected={selected}
     >
+      {isProtected && (
+        <Icon name="lock-2-line" size="md" style={{ marginRight: 8 }} />
+      )}
       <Tooltip
         content={branch}
         isDisabled={!isEllipsisActive(document.getElementById(branch))}

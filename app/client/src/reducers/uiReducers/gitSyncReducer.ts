@@ -659,6 +659,10 @@ export interface GitDiscardResponse {
   modifiedAt: string;
 }
 
+export interface GitProtectedBranchesResponse {
+  protectedBranches: string[];
+}
+
 export type GitSyncReducerState = GitBranchDeleteState & {
   isGitSyncModalOpen: boolean;
   isCommitting?: boolean;

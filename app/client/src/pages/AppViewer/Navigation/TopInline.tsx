@@ -13,14 +13,11 @@ import MenuItem from "./components/MenuItem";
 import { Container } from "./TopInline.styled";
 import MenuItemContainer from "./components/MenuItemContainer";
 import MoreDropdownButton from "./components/MoreDropdownButton";
-import {
-  getCanvasWidth,
-  previewModeSelector,
-  protectedModeSelector,
-} from "selectors/editorSelectors";
+import { getCanvasWidth, previewModeSelector } from "selectors/editorSelectors";
 import { useSelector } from "react-redux";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 import { throttle } from "lodash";
+import { protectedModeSelector } from "selectors/gitSyncSelectors";
 
 // TODO - @Dhruvik - ImprovedAppNav
 // Replace with NavigationProps if nothing changes

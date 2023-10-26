@@ -7,7 +7,6 @@ import {
   getCurrentPageId,
   getCurrentPageName,
   previewModeSelector,
-  protectedModeSelector,
 } from "selectors/editorSelectors";
 import NavigationPreview from "./NavigationPreview";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -49,6 +48,7 @@ import { getSnapshotUpdatedTime } from "selectors/autoLayoutSelectors";
 import { getReadableSnapShotDetails } from "layoutSystems/autolayout/utils/AutoLayoutUtils";
 import AnonymousDataPopup from "../FirstTimeUserOnboarding/AnonymousDataPopup";
 import { getIsAppSidebarEnabled } from "selectors/ideSelectors";
+import { protectedModeSelector } from "selectors/gitSyncSelectors";
 
 function WidgetsEditor() {
   const { deselectAll, focusWidget } = useWidgetSelection();

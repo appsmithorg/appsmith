@@ -26,7 +26,6 @@ import {
   previewModeSelector,
   getIsAutoLayoutMobileBreakPoint,
   getCanvasWidth,
-  protectedModeSelector,
 } from "selectors/editorSelectors";
 import {
   createCanvasWidget,
@@ -46,6 +45,7 @@ import { defaultAutoLayoutWidgets } from "layoutSystems/autolayout/utils/constan
 import { getFlattenedChildCanvasWidgets } from "selectors/flattenedChildCanvasSelector";
 import { LayoutSystemTypes } from "layoutSystems/types";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
+import { protectedModeSelector } from "selectors/gitSyncSelectors";
 
 const WIDGETS_WITH_CHILD_WIDGETS = ["LIST_WIDGET", "FORM_WIDGET"];
 const WIDGETS_REQUIRING_SELECTED_ANCESTRY = ["MODAL_WIDGET", "TABS_WIDGET"];
