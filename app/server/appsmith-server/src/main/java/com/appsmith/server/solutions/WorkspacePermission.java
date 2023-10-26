@@ -5,4 +5,6 @@ import com.appsmith.server.solutions.ce.WorkspacePermissionCE;
 
 public interface WorkspacePermission extends WorkspacePermissionCE, DomainPermission {
     AclPermission getPackageCreatePermission();
+
+    AclPermission getWorkflowCreatePermission();
 }

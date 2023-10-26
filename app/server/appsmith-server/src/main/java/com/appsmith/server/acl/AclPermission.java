@@ -19,6 +19,7 @@ import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserGroup;
+import com.appsmith.server.domains.Workflow;
 import com.appsmith.server.domains.Workspace;
 import lombok.Getter;
 
@@ -85,6 +86,7 @@ public enum AclPermission {
     WORKSPACE_CREATE_APPLICATION("create:applications", Workspace.class),
     WORKSPACE_CREATE_DATASOURCE("create:datasources", Workspace.class),
     WORKSPACE_CREATE_PACKAGE("create:packages", Workspace.class),
+    WORKSPACE_CREATE_WORKFLOW("create:workflows", Workspace.class),
 
     // Was the user assigned a global permission at the workspace level to manage applications?
     WORKSPACE_MANAGE_APPLICATIONS("manage:workspaceApplications", Workspace.class),
@@ -110,6 +112,12 @@ public enum AclPermission {
     WORKSPACE_EXPORT_PACKAGES("export:workspacePackages", Workspace.class),
     WORKSPACE_DELETE_PACKAGES("delete:workspacePackages", Workspace.class),
 
+    // Was the user assigned a global permission at the workspace level to manage workflows?
+    WORKSPACE_MANAGE_WORKFLOWS("manage:workspaceWorkflows", Workspace.class),
+    WORKSPACE_READ_WORKFLOWS("read:workspaceWorkflows", Workspace.class),
+    WORKSPACE_PUBLISH_WORKFLOWS("publish:workspaceWorkflows", Workspace.class),
+    WORKSPACE_EXPORT_WORKFLOWS("export:workspaceWorkflows", Workspace.class),
+    WORKSPACE_DELETE_WORKFLOWS("delete:workspaceWorkflows", Workspace.class),
     // Invitation related permissions : TODO : Delete this since invitation would be led by user groups
     @Deprecated
     WORKSPACE_INVITE_USERS("inviteUsers:workspace", Workspace.class),
@@ -194,6 +202,14 @@ public enum AclPermission {
 
     // AuditLogs Permission
     READ_AUDIT_LOGS("read:auditLogs", AuditLog.class),
+
+    // Workflow Permissions
+    MANAGE_WORKFLOWS("manage:workflows", Workflow.class),
+    READ_WORKFLOWS("read:workflows", Workflow.class),
+    PUBLISH_WORKFLOWS("publish:workflows", Workflow.class),
+    DELETE_WORKFLOWS("delete:workflows", Workflow.class),
+    EXPORT_WORKFLOWS("export:workflows", Workflow.class),
+    EXECUTE_WORKFLOWS("execute:workflows", Workflow.class),
     ;
 
     private final String value;

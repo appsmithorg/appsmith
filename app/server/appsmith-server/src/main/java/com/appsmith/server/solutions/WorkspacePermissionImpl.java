@@ -30,4 +30,9 @@ public class WorkspacePermissionImpl extends WorkspacePermissionCEImpl implement
     public AclPermission getPackageCreatePermission() {
         return AclPermission.WORKSPACE_CREATE_PACKAGE;
     }
+
+    @Override
+    public AclPermission getWorkflowCreatePermission() {
+        return AclPermission.WORKSPACE_CREATE_WORKFLOW;
+    }
 }
