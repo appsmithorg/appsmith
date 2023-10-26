@@ -28,7 +28,8 @@ export function LocalBranchList(
         <Text
           color="var(--ads-v2-color-fg-muted)"
           data-testid="t--branch-list-header-local"
-          kind="heading-xs"
+          kind="heading-s"
+          style={{ fontWeight: 600 }}
         >
           {createMessage(LOCAL_BRANCHES)}
         </Text>

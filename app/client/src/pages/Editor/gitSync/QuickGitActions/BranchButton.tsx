@@ -19,6 +19,11 @@ import {
   BRANCH_TOOLTIP_TITLE,
   createMessage,
 } from "@appsmith/constants/messages";
+import { importRemixIcon } from "design-system-old";
+
+const ProtectedIcon = importRemixIcon(
+  async () => import("remixicon-react/ShieldKeyholeLineIcon"),
+);
 
 const ButtonContainer = styled(Button)`
   display: flex;
@@ -88,10 +93,13 @@ function BranchButton() {
             data-testid={"t--branch-button-currentBranch"}
             kind="secondary"
           >
-            <Icon
-              name={isProtectedMode ? "lock-2-line" : "git-branch"}
-              style={{ marginRight: 4 }}
-            />
+            {isProtectedMode ? (
+              <ProtectedIcon
+                style={{ height: 14, width: 14, marginRight: 4, marginTop: 1 }}
+              />
+            ) : (
+              <Icon name={"git-branch"} style={{ marginRight: 4 }} />
+            )}
             <span
               ref={labelTarget}
               style={{
