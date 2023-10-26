@@ -32,6 +32,12 @@ import static com.external.plugins.constants.OpenAIConstants.ENCODING_FORMAT;
 import static com.external.plugins.constants.OpenAIConstants.ID;
 import static com.external.plugins.constants.OpenAIConstants.INPUT;
 import static com.external.plugins.constants.OpenAIConstants.MODEL;
+import static com.external.plugins.constants.OpenAIErrorMessages.ENCODING_CONVERSION_ERROR;
+import static com.external.plugins.constants.OpenAIErrorMessages.EXECUTION_FAILURE;
+import static com.external.plugins.constants.OpenAIErrorMessages.INPUT_NOT_CONFIGURED;
+import static com.external.plugins.constants.OpenAIErrorMessages.MODEL_NOT_SELECTED;
+import static com.external.plugins.constants.OpenAIErrorMessages.QUERY_NOT_CONFIGURED;
+import static com.external.plugins.constants.OpenAIErrorMessages.STRING_APPENDER;
 import static com.external.plugins.utils.RequestUtils.extractDataFromFormData;
 
 public class EmbeddingsCommand implements OpenAICommand {
@@ -110,19 +116,26 @@ public class EmbeddingsCommand implements OpenAICommand {
     public OpenAIRequestDTO makeRequestBody(ActionConfiguration actionConfiguration) {
         Map<String, Object> formData = actionConfiguration.getFormData();
         if (CollectionUtils.isEmpty(formData)) {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR);
+            throw new AppsmithPluginException(
+                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                    String.format(STRING_APPENDER, EXECUTION_FAILURE, QUERY_NOT_CONFIGURED));
         }
 
         EmbeddingRequestDTO embeddings = new EmbeddingRequestDTO();
 
         String model = extractDataFromFormData(formData, EMBEDDINGS_MODEL_SELECTOR);
         if (!StringUtils.hasText(model)) {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR);
+            throw new AppsmithPluginException(
+                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                    String.format(STRING_APPENDER, EXECUTION_FAILURE, MODEL_NOT_SELECTED));
         }
 
+        // TODO: write separate logic for elaborate parsing
         String input = (String) formData.get(INPUT);
-        if (!StringUtils.hasText(model)) {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR);
+        if (!StringUtils.hasText(input)) {
+            throw new AppsmithPluginException(
+                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                    String.format(STRING_APPENDER, EXECUTION_FAILURE, INPUT_NOT_CONFIGURED));
         }
 
         EncodingFormat encodingFormat = getEncodingFormatFromFormData(formData);
@@ -143,8 +156,12 @@ public class EmbeddingsCommand implements OpenAICommand {
 
         try {
             return Enum.valueOf(EncodingFormat.class, encodingFormatString.toUpperCase());
-        } catch (Exception exception) {
+        } catch (IllegalArgumentException illegalArgumentException) {
             return defaultEncodingFormat;
+        } catch (Exception exception) {
+            throw new AppsmithPluginException(
+                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                    String.format(STRING_APPENDER, EXECUTION_FAILURE, ENCODING_CONVERSION_ERROR));
         }
     }
 }

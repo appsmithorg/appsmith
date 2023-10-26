@@ -97,15 +97,6 @@ public class OpenAiPlugin extends BasePlugin {
             ActionExecutionRequest actionExecutionRequest =
                     RequestCaptureFilter.populateRequestFields(actionConfiguration, uri, insertedParams, objectMapper);
 
-            /* Check for content type */
-            final String contentTypeError = headerUtils.verifyContentType(actionConfiguration.getHeaders());
-            if (contentTypeError != null) {
-                errorResult.setErrorInfo(
-                        new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR));
-                errorResult.setRequest(actionExecutionRequest);
-                return Mono.just(errorResult);
-            }
-
             // Authentication will already be valid at this point
             final BearerTokenAuth bearerTokenAuth = (BearerTokenAuth) datasourceConfiguration.getAuthentication();
             assert (bearerTokenAuth.getBearerToken() != null);
@@ -133,6 +124,19 @@ public class OpenAiPlugin extends BasePlugin {
                             actionExecutionResult.setIsExecutionSuccess(false);
                         }
                         return Mono.just(actionExecutionResult);
+                    })
+                    .onErrorResume(error -> {
+                        errorResult.setIsExecutionSuccess(false);
+                        error.printStackTrace();
+                        log.debug(
+                                "An error has occurred while trying to run the open API query command with error {}",
+                                error.getStackTrace());
+                        if (!(error instanceof AppsmithPluginException)) {
+                            error = new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_ERROR, error.getMessage(), error);
+                        }
+                        errorResult.setErrorInfo(error);
+                        return Mono.just(errorResult);
                     });
         }
 

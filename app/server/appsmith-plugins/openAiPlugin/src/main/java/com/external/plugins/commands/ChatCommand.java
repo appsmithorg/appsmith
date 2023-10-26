@@ -33,6 +33,13 @@ import static com.external.plugins.constants.OpenAIConstants.ID;
 import static com.external.plugins.constants.OpenAIConstants.MESSAGES;
 import static com.external.plugins.constants.OpenAIConstants.MODEL;
 import static com.external.plugins.constants.OpenAIConstants.TEMPERATURE;
+import static com.external.plugins.constants.OpenAIErrorMessages.BAD_TEMPERATURE_CONFIGURATION;
+import static com.external.plugins.constants.OpenAIErrorMessages.EXECUTION_FAILURE;
+import static com.external.plugins.constants.OpenAIErrorMessages.INCORRECT_MESSAGE_FORMAT;
+import static com.external.plugins.constants.OpenAIErrorMessages.INCORRECT_ROLE_VALUE;
+import static com.external.plugins.constants.OpenAIErrorMessages.MODEL_NOT_SELECTED;
+import static com.external.plugins.constants.OpenAIErrorMessages.QUERY_NOT_CONFIGURED;
+import static com.external.plugins.constants.OpenAIErrorMessages.STRING_APPENDER;
 
 public class ChatCommand implements OpenAICommand {
 
@@ -111,14 +118,18 @@ public class ChatCommand implements OpenAICommand {
     public OpenAIRequestDTO makeRequestBody(ActionConfiguration actionConfiguration) {
         Map<String, Object> formData = actionConfiguration.getFormData();
         if (CollectionUtils.isEmpty(formData)) {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR);
+            throw new AppsmithPluginException(
+                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                    String.format(STRING_APPENDER, EXECUTION_FAILURE, QUERY_NOT_CONFIGURED));
         }
 
         ChatRequestDTO chatRequestDTO = new ChatRequestDTO();
         String model = RequestUtils.extractDataFromFormData(formData, CHAT_MODEL_SELECTOR);
 
         if (!StringUtils.hasText(model)) {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR);
+            throw new AppsmithPluginException(
+                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                    String.format(STRING_APPENDER, EXECUTION_FAILURE, MODEL_NOT_SELECTED));
         }
 
         chatRequestDTO.setModel(model);
@@ -133,20 +144,26 @@ public class ChatCommand implements OpenAICommand {
 
     private List<ChatMessage> transformToMessages(String messages) {
         if (!StringUtils.hasText(messages)) {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR);
+            throw new AppsmithPluginException(
+                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                    String.format(STRING_APPENDER, EXECUTION_FAILURE, INCORRECT_MESSAGE_FORMAT));
         }
 
         try {
             return objectMapper.readValue(messages, new TypeReference<List<ChatMessage>>() {});
         } catch (JsonProcessingException jsonProcessingException) {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR);
+            throw new AppsmithPluginException(
+                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                    String.format(STRING_APPENDER, EXECUTION_FAILURE, INCORRECT_MESSAGE_FORMAT));
         }
     }
 
     private void verifyRoleForChatMessages(List<ChatMessage> chatMessages) {
         for (ChatMessage chatMessage : chatMessages) {
             if (chatMessage.getRole() == null) {
-                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR);
+                throw new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                        String.format(STRING_APPENDER, EXECUTION_FAILURE, INCORRECT_ROLE_VALUE));
             }
         }
     }
@@ -162,8 +179,12 @@ public class ChatCommand implements OpenAICommand {
         try {
             float temperature = Float.parseFloat(temperatureString);
             return (temperature > 2.0f || temperature < 0.0f) ? defaultFloatValue : temperature;
-        } catch (Exception e) {
+        } catch (IllegalArgumentException illegalArgumentException) {
             return defaultFloatValue;
+        } catch (Exception exception) {
+            throw new AppsmithPluginException(
+                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                    String.format(STRING_APPENDER, EXECUTION_FAILURE, BAD_TEMPERATURE_CONFIGURATION));
         }
     }
 }
