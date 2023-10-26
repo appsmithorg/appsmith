@@ -10,18 +10,21 @@ import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.BearerTokenAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
-import com.appsmith.external.models.Property;
 import com.appsmith.external.models.TriggerRequestDTO;
 import com.appsmith.external.models.TriggerResultDTO;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.BaseRestApiPluginExecutor;
 import com.appsmith.external.services.SharedConfig;
+import com.external.plugins.models.OpenAIRequestDTO;
+import com.external.plugins.utils.RequestUtils;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.extern.slf4j.Slf4j;
 import org.pf4j.PluginWrapper;
-import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
@@ -33,6 +36,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static com.external.plugins.constants.OpenAIConstants.DATA;
+import static com.external.plugins.constants.OpenAIConstants.ID;
+import static com.external.plugins.constants.OpenAIConstants.MODEL;
+
 @Slf4j
 public class OpenAiPlugin extends BasePlugin {
 
@@ -41,13 +48,6 @@ public class OpenAiPlugin extends BasePlugin {
     }
 
     public static class OpenAiPluginExecutor extends BaseRestApiPluginExecutor {
-
-        public static final ExchangeStrategies EXCHANGE_STRATEGIES = ExchangeStrategies.builder()
-                .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(/* 10MB */ 10 * 1024 * 1024))
-                .build();
-
-        private static final String OPEN_AI_HOST = "https://api.openai.com";
-        private static final String MODELS_ENDPOINT = "/v1/models";
 
         private static OpenAiPluginExecutor instance;
 
@@ -71,7 +71,6 @@ public class OpenAiPlugin extends BasePlugin {
             prepareConfigurationsForExecution(executeActionDTO, actionConfiguration, datasourceConfiguration);
 
             // Get prompt from action configuration
-            final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
             List<Map.Entry<String, String>> parameters = new ArrayList<>();
 
             prepareConfigurationsForExecution(executeActionDTO, actionConfiguration, datasourceConfiguration);
@@ -96,22 +95,7 @@ public class OpenAiPlugin extends BasePlugin {
             Set<String> hintMessages = new HashSet<>();
 
             // Initializing request URL
-            String url = initUtils.initializeRequestUrl(actionConfiguration, datasourceConfiguration);
-            boolean encodeParamsToggle = headerUtils.isEncodeParamsToggleEnabled(actionConfiguration);
-
-            URI uri;
-            try {
-                uri = uriUtils.createUriWithQueryParams(
-                        actionConfiguration, datasourceConfiguration, url, encodeParamsToggle);
-            } catch (Exception e) {
-                ActionExecutionRequest actionExecutionRequest = RequestCaptureFilter.populateRequestFields(
-                        actionConfiguration, null, insertedParams, objectMapper);
-                actionExecutionRequest.setUrl(url);
-                errorResult.setErrorInfo(
-                        new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, e.getMessage()));
-                errorResult.setRequest(actionExecutionRequest);
-                return Mono.just(errorResult);
-            }
+            URI uri = RequestUtils.createUri(actionConfiguration);
 
             ActionExecutionRequest actionExecutionRequest =
                     RequestCaptureFilter.populateRequestFields(actionConfiguration, uri, insertedParams, objectMapper);
@@ -129,47 +113,30 @@ public class OpenAiPlugin extends BasePlugin {
                 return Mono.just(errorResult);
             }
 
-            HttpMethod httpMethod = actionConfiguration.getHttpMethod();
-            if (httpMethod == null) {
-                errorResult.setErrorInfo(
-                        new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR));
-                errorResult.setRequest(actionExecutionRequest);
-                return Mono.just(errorResult);
-            }
+            HttpMethod httpMethod = HttpMethod.POST;
+            OpenAIRequestDTO openAIRequestDTO = RequestUtils.makeRequestBody(actionConfiguration);
 
-            final RequestCaptureFilter requestCaptureFilter = new RequestCaptureFilter(objectMapper);
-            Object requestBodyObj =
-                    dataUtils.getRequestBodyObject(actionConfiguration, reqContentType, encodeParamsToggle, httpMethod);
-            WebClient client = restAPIActivateUtils.getWebClient(
-                    webClientBuilder, apiConnection, reqContentType, EXCHANGE_STRATEGIES, requestCaptureFilter);
+            // Authentication will already be valid at this point
+            final BearerTokenAuth bearerTokenAuth = (BearerTokenAuth) datasourceConfiguration.getAuthentication();
+            assert (bearerTokenAuth.getBearerToken() != null);
 
-            /* Triggering the actual REST API call */
-            return restAPIActivateUtils
-                    .triggerApiCall(
-                            client,
-                            httpMethod,
-                            uri,
-                            requestBodyObj,
-                            actionExecutionRequest,
-                            objectMapper,
-                            hintMessages,
-                            errorResult,
-                            requestCaptureFilter)
-                    .onErrorResume(error -> {
-                        boolean isBodySentWithApiRequest = requestBodyObj == null ? false : true;
-                        errorResult.setRequest(requestCaptureFilter.populateRequestFields(
-                                actionExecutionRequest, isBodySentWithApiRequest));
-                        errorResult.setIsExecutionSuccess(false);
-                        log.debug(
-                                "An error has occurred while trying to run the API query for url: {}, path : {}",
-                                datasourceConfiguration.getUrl(),
-                                actionConfiguration.getPath());
-                        error.printStackTrace();
-                        if (!(error instanceof AppsmithPluginException)) {
-                            error = error;
+            return RequestUtils.makeRequest(httpMethod, uri, bearerTokenAuth, BodyInserters.fromValue(openAIRequestDTO))
+                    .flatMap(responseEntity -> {
+                        HttpStatusCode statusCode = responseEntity.getStatusCode();
+                        HttpHeaders headers = responseEntity.getHeaders();
+
+                        ActionExecutionResult actionExecutionResult = new ActionExecutionResult();
+                        actionExecutionResult.setRequest(actionExecutionRequest);
+                        actionExecutionResult.setStatusCode(statusCode.toString());
+
+                        if (!statusCode.is2xxSuccessful()) {
+                            actionExecutionResult.setIsExecutionSuccess(false);
+                            return Mono.just(actionExecutionResult);
                         }
-                        errorResult.setErrorInfo(error);
-                        return Mono.just(errorResult);
+
+                        actionExecutionResult.setIsExecutionSuccess(true);
+                        actionExecutionResult.setBody(responseEntity.getBody());
+                        return Mono.just(actionExecutionResult);
                     });
         }
 
@@ -182,40 +149,36 @@ public class OpenAiPlugin extends BasePlugin {
         public Mono<TriggerResultDTO> trigger(
                 APIConnection connection, DatasourceConfiguration datasourceConfiguration, TriggerRequestDTO request) {
 
-            // Initializing webClient to be used for http call
-            WebClient.Builder webClientBuilder = WebClient.builder();
-
-            WebClient client =
-                    webClientBuilder.exchangeStrategies(EXCHANGE_STRATEGIES).build();
-
             // Authentication will already be valid at this point
             final BearerTokenAuth bearerTokenAuth = (BearerTokenAuth) datasourceConfiguration.getAuthentication();
-            assert (bearerTokenAuth.getAuthenticationResponse() != null);
-            URI uri;
-            try {
-                uri = new URI(OPEN_AI_HOST + MODELS_ENDPOINT);
-            } catch (Exception e) {
-                uri = URI.create(OPEN_AI_HOST + MODELS_ENDPOINT);
-            }
+            assert (bearerTokenAuth.getBearerToken() != null);
 
-            return client.method(HttpMethod.GET)
-                    .uri(uri)
-                    .body(BodyInserters.empty())
-                    .headers(headers -> headers.set("Authorization", "Bearer " + bearerTokenAuth.getBearerToken()))
-                    .exchangeToMono(clientResponse -> {
-                        if (clientResponse.statusCode().is2xxSuccessful()) {
-                            return clientResponse.bodyToMono(new ParameterizedTypeReference<Map<String, Object>>() {});
-                        } else {
-                            return clientResponse.createError();
+            HttpMethod httpMethod = HttpMethod.GET;
+            URI uri = RequestUtils.createUriFromCommand(MODEL);
+
+            return RequestUtils.makeRequest(httpMethod, uri, bearerTokenAuth, BodyInserters.empty())
+                    .flatMap(responseEntity -> {
+                        if (!responseEntity.getStatusCode().is2xxSuccessful()) {
+                            return Mono.error(
+                                    new AppsmithPluginException(AppsmithPluginError.PLUGIN_GET_STRUCTURE_ERROR));
+                        }
+
+                        try {
+                            return Mono.just(objectMapper.readValue(
+                                    responseEntity.getBody(), new TypeReference<Map<String, Object>>() {}));
+                        } catch (JsonProcessingException ex) {
+                            return Mono.error(
+                                    new AppsmithPluginException(AppsmithPluginError.PLUGIN_GET_STRUCTURE_ERROR));
                         }
                     })
                     .map(data -> {
-                        Map<String, String> modelList = new HashMap<>();
-                        if (!data.containsKey("data")) {
+                        List<Map<String, String>> modelList = new ArrayList<>();
+
+                        if (!data.containsKey(DATA)) {
                             return new TriggerResultDTO(modelList);
                         }
 
-                        List<Object> models = (List<Object>) data.get("data");
+                        List<Object> models = (List<Object>) data.get(DATA);
                         for (Object model : models) {
 
                             Map<String, Object> modelMap = (Map<String, Object>) model;
@@ -224,9 +187,11 @@ public class OpenAiPlugin extends BasePlugin {
                                 continue;
                             }
 
-                            String modelId = (String) modelMap.get("id");
-
-                            modelList.put(modelId, modelId);
+                            String modelId = (String) modelMap.get(ID);
+                            Map<String, String> responseMap = new HashMap<>();
+                            responseMap.put("label", modelId);
+                            responseMap.put("value", modelId);
+                            modelList.add(responseMap);
                         }
                         return new TriggerResultDTO(modelList);
                     });

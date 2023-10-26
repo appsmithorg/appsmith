@@ -13,7 +13,7 @@
       "controlType": "DROP_DOWN",
       "initialValue": [],
       "options": [],
-      "placeholderText": "All columns will be fetched.",
+      "placeholderText": "All models will be fetched.",
       "fetchOptionsConditionally": true,
       "alternateViewTypes": ["json"],
       "conditionals": {
@@ -23,12 +23,7 @@
           "config": {
             "params": {
               "requestType": "CHAT_MODELS",
-              "displayType": "DROP_DOWN",
-              "parameters": {
-                "sheetUrl": "{{actionConfiguration.formData.sheetUrl.data}}",
-                "sheetName": "{{actionConfiguration.formData.sheetName.data}}",
-                "tableHeaderIndex": "{{actionConfiguration.formData.tableHeaderIndex.data}}"
-              }
+              "displayType": "DROP_DOWN"
             }
           }
         }
@@ -36,7 +31,7 @@
     },
     {
       "label": "path to query",
-      "configProperty": "datasourceConfiguration.url",
+      "configProperty": "actionConfiguration.path",
       "controlType": "INPUT_TEXT",
       "initialValue": "/v1/chat/completions",
       "isRequired": true,
@@ -46,9 +41,9 @@
       "label": "Prompt",
       "tooltipText": "Ask a question",
       "propertyName": "body",
-      "configProperty": "actionConfiguration.formData.queryFormat.data",
-      "controlType": "INPUT_TEXT",
-      "initialValue": "Hello World!"
+      "configProperty": "actionConfiguration.formData.messages",
+      "controlType": "QUERY_DYNAMIC_TEXT",
+      "placeholderText": "[{'role': 'user' , 'message' : 'Hello World!'}]"
     }
   ]
 }

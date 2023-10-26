@@ -7,9 +7,7 @@ import java.util.List;
 
 @Getter
 @Setter
-public class ChatRequestDTO {
+public class ChatRequestDTO extends OpenAIRequestDTO {
 
-    String model;
-
-    List<Object> messages;
+    List<ChatMessage> messages;
 }
