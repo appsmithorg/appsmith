@@ -27,11 +27,12 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 import static com.external.plugins.constants.OpenAIConstants.CHAT;
-import static com.external.plugins.constants.OpenAIConstants.CHAT_MODEL_SELECETOR;
+import static com.external.plugins.constants.OpenAIConstants.CHAT_MODEL_SELECTOR;
 import static com.external.plugins.constants.OpenAIConstants.DATA;
 import static com.external.plugins.constants.OpenAIConstants.ID;
 import static com.external.plugins.constants.OpenAIConstants.MESSAGES;
 import static com.external.plugins.constants.OpenAIConstants.MODEL;
+import static com.external.plugins.constants.OpenAIConstants.TEMPERATURE;
 
 public class ChatCommand implements OpenAICommand {
 
@@ -114,7 +115,7 @@ public class ChatCommand implements OpenAICommand {
         }
 
         ChatRequestDTO chatRequestDTO = new ChatRequestDTO();
-        String model = RequestUtils.extractDataFromFormData(formData, CHAT_MODEL_SELECETOR);
+        String model = RequestUtils.extractDataFromFormData(formData, CHAT_MODEL_SELECTOR);
 
         if (!StringUtils.hasText(model)) {
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR);
@@ -123,7 +124,10 @@ public class ChatCommand implements OpenAICommand {
         chatRequestDTO.setModel(model);
         List<ChatMessage> chatMessages = transformToMessages((String) formData.get(MESSAGES));
         verifyRoleForChatMessages(chatMessages);
+
+        Float temperature = getTemperatureFromFormData(formData);
         chatRequestDTO.setMessages(chatMessages);
+        chatRequestDTO.setTemperature(temperature);
         return chatRequestDTO;
     }
 
@@ -144,6 +148,22 @@ public class ChatCommand implements OpenAICommand {
             if (chatMessage.getRole() == null) {
                 throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR);
             }
+        }
+    }
+
+    private Float getTemperatureFromFormData(Map<String, Object> formData) {
+        float defaultFloatValue = 1.0f;
+        String temperatureString = RequestUtils.extractValueFromFormData(formData, TEMPERATURE);
+
+        if (!StringUtils.hasText(temperatureString)) {
+            return defaultFloatValue;
+        }
+
+        try {
+            float temperature = Float.parseFloat(temperatureString);
+            return (temperature > 2.0f || temperature < 0.0f) ? defaultFloatValue : temperature;
+        } catch (Exception e) {
+            return defaultFloatValue;
         }
     }
 }

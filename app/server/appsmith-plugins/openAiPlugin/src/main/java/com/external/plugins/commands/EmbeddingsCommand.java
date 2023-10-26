@@ -6,6 +6,7 @@ import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.BearerTokenAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.external.plugins.models.EmbeddingRequestDTO;
+import com.external.plugins.models.EncodingFormat;
 import com.external.plugins.models.OpenAIRequestDTO;
 import com.external.plugins.utils.RequestUtils;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -27,6 +28,7 @@ import java.util.regex.Pattern;
 import static com.external.plugins.constants.OpenAIConstants.DATA;
 import static com.external.plugins.constants.OpenAIConstants.EMBEDDINGS;
 import static com.external.plugins.constants.OpenAIConstants.EMBEDDINGS_MODEL_SELECTOR;
+import static com.external.plugins.constants.OpenAIConstants.ENCODING_FORMAT;
 import static com.external.plugins.constants.OpenAIConstants.ID;
 import static com.external.plugins.constants.OpenAIConstants.INPUT;
 import static com.external.plugins.constants.OpenAIConstants.MODEL;
@@ -123,8 +125,26 @@ public class EmbeddingsCommand implements OpenAICommand {
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR);
         }
 
+        EncodingFormat encodingFormat = getEncodingFormatFromFormData(formData);
+
         embeddings.setModel(model);
         embeddings.setInput(input);
+        embeddings.setEncodingFormat(encodingFormat);
         return embeddings;
+    }
+
+    private EncodingFormat getEncodingFormatFromFormData(Map<String, Object> formData) {
+        EncodingFormat defaultEncodingFormat = EncodingFormat.FLOAT;
+        String encodingFormatString = RequestUtils.extractValueFromFormData(formData, ENCODING_FORMAT);
+
+        if (!StringUtils.hasText(encodingFormatString)) {
+            return defaultEncodingFormat;
+        }
+
+        try {
+            return Enum.valueOf(EncodingFormat.class, encodingFormatString.toUpperCase());
+        } catch (Exception exception) {
+             return defaultEncodingFormat;
+        }
     }
 }

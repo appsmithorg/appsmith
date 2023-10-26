@@ -36,6 +36,10 @@ public class RequestUtils {
         return (String) ((Map<String, Object>) formData.get(key)).get(DATA);
     }
 
+    public static String extractValueFromFormData(Map<String, Object> formData, String key) {
+        return (String) formData.get(key);
+    }
+
     public static URI createUri(ActionConfiguration actionConfiguration) {
         Map<String, Object> formData = actionConfiguration.getFormData();
         if (CollectionUtils.isEmpty(formData)) {

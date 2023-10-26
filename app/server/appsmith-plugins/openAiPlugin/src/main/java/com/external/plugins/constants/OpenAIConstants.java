@@ -17,7 +17,7 @@ public class OpenAIConstants {
     public static final String EMBEDDINGS = "EMBEDDINGS";
 
     // Form data constants
-    public static final String CHAT_MODEL_SELECETOR = "chatModel";
+    public static final String CHAT_MODEL_SELECTOR = "chatModel";
     public static final String EMBEDDINGS_MODEL_SELECTOR = "embeddingsModel";
     public static final String DATA = "data";
     public static final String ID = "id";
@@ -25,6 +25,8 @@ public class OpenAIConstants {
     public static final String MODEL = "model";
     public static final String MESSAGES = "messages";
     public static final String INPUT = "input";
+    public static final String ENCODING_FORMAT = "encodingFormat";
+    public static final String TEMPERATURE = "temperature";
     public static final ExchangeStrategies EXCHANGE_STRATEGIES = ExchangeStrategies.builder()
             .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(/* 10MB */ 10 * 1024 * 1024))
             .build();
