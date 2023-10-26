@@ -331,17 +331,20 @@ function generateHighlight(
     ...baseHighlight,
     alignment,
     dropZone: {
-      left: prevHighlight
-        ? (posX - prevHighlight.posX) * multiplier
-        : (posX - layoutDimension.left) *
-          (alignment === FlexLayerAlignment.Start ? 1 : multiplier),
-      right: isFinalHighlight
-        ? Math.max(
-            (layoutDimension.left + layoutDimension.width - posX) *
-              (alignment === FlexLayerAlignment.End ? 1 : multiplier),
-            HIGHLIGHT_SIZE,
-          )
-        : HIGHLIGHT_SIZE,
+      left: Math.max(
+        prevHighlight
+          ? (posX - prevHighlight.posX) * multiplier
+          : (posX - layoutDimension.left) *
+              (alignment === FlexLayerAlignment.Start ? 1 : multiplier),
+        HIGHLIGHT_SIZE,
+      ),
+      right: Math.max(
+        isFinalHighlight
+          ? (layoutDimension.left + layoutDimension.width - posX) *
+              (alignment === FlexLayerAlignment.End ? 1 : multiplier)
+          : HIGHLIGHT_SIZE,
+        HIGHLIGHT_SIZE,
+      ),
     },
     height: tallestWidget?.height ?? layoutDimension.height,
     posX,
