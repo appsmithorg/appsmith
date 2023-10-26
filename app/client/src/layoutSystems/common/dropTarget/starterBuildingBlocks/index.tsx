@@ -4,10 +4,14 @@ import {
   STARTER_TEMPLATE_PAGE_LAYOUTS,
   createMessage,
 } from "@appsmith/constants/messages";
+import { saveExplorerStatus } from "@appsmith/pages/Editor/Explorer/helpers";
 import { getAppMode } from "@appsmith/selectors/applicationSelectors";
 import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
-import { importSvg } from "@design-system/widgets-old/src/utils/icon-loadables";
 import { importStarterBuildingBlockIntoApplication } from "actions/templateActions";
+import {
+  STARTER_BUILDING_BLOCKS,
+  STARTER_BUILDING_BLOCK_TEMPLATE_NAME,
+} from "constants/TemplatesConstants";
 import LoadingScreen from "pages/Templates/TemplatesModal/LoadingScreen";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -29,9 +33,6 @@ import {
   TemplateLayoutRowItemDescription,
   TemplateLayoutRowItemTitle,
 } from "./StyledComponents";
-import { saveExplorerStatus } from "@appsmith/pages/Editor/Explorer/helpers";
-
-const BUILDING_BLOCK_TEMPLATE_NAME = "Starter Building Block";
 
 function StarterBuildingBlocks() {
   const dispatch = useDispatch();
@@ -80,7 +81,7 @@ function StarterBuildingBlocks() {
       eventData: {
         appMode: currentAppMode,
         application: currentApplication,
-        templateAppName: BUILDING_BLOCK_TEMPLATE_NAME,
+        templateAppName: STARTER_BUILDING_BLOCK_TEMPLATE_NAME,
         templatePageName,
       },
     });
@@ -153,23 +154,6 @@ function StarterBuildingBlocks() {
 
 export default StarterBuildingBlocks;
 
-const RecordEdit = importSvg(
-  async () =>
-    import(
-      "../../../../assets/icons/templates/starter-template-record-edit.svg"
-    ),
-);
-const RecordDetails = importSvg(
-  async () =>
-    import(
-      "../../../../assets/icons/templates/starter-template-record-details.svg"
-    ),
-);
-const Dashboard = importSvg(
-  async () =>
-    import("../../../../assets/icons/templates/starter-template-dashboard.svg"),
-);
-
 const layoutItems: {
   id: number;
   title: string;
@@ -179,46 +163,4 @@ const layoutItems: {
   templateId: string;
   templateName: string;
   templatePageName: string;
-}[] = [
-  {
-    id: 1,
-    title: createMessage(STARTER_TEMPLATE_PAGE_LAYOUTS.layouts.recordEdit.name),
-    description: createMessage(
-      STARTER_TEMPLATE_PAGE_LAYOUTS.layouts.recordEdit.description,
-    ),
-    icon: <RecordEdit />,
-    screenshot:
-      "https://s3.us-east-2.amazonaws.com/template.appsmith.com/canvas-starter-page-layout-record-edit.png",
-    templateId: "6530e343fa63b553e4be0266",
-    templateName: BUILDING_BLOCK_TEMPLATE_NAME,
-    templatePageName: "Record Edit",
-  },
-  {
-    id: 2,
-    title: createMessage(
-      STARTER_TEMPLATE_PAGE_LAYOUTS.layouts.recordDetails.name,
-    ),
-    description: createMessage(
-      STARTER_TEMPLATE_PAGE_LAYOUTS.layouts.recordDetails.description,
-    ),
-    icon: <RecordDetails />,
-    screenshot:
-      "https://s3.us-east-2.amazonaws.com/template.appsmith.com/canvas-starter-page-layout-record-detail.png",
-    templateId: "6530e343fa63b553e4be0266",
-    templateName: BUILDING_BLOCK_TEMPLATE_NAME,
-    templatePageName: "Record Details",
-  },
-  {
-    id: 3,
-    title: createMessage(STARTER_TEMPLATE_PAGE_LAYOUTS.layouts.dashboard.name),
-    description: createMessage(
-      STARTER_TEMPLATE_PAGE_LAYOUTS.layouts.dashboard.description,
-    ),
-    icon: <Dashboard />,
-    screenshot:
-      "https://s3.us-east-2.amazonaws.com/template.appsmith.com/canvas-starter-page-layout-dashboard.png",
-    templateId: "6530e343fa63b553e4be0266",
-    templateName: BUILDING_BLOCK_TEMPLATE_NAME,
-    templatePageName: "Dashboard",
-  },
-];
+}[] = STARTER_BUILDING_BLOCKS.STARTER_BUILDING_BLOCKS_TEMPLATES;
