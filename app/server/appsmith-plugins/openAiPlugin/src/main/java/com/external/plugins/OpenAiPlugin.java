@@ -91,7 +91,7 @@ public class OpenAiPlugin extends BasePlugin {
             // morph the essentials
             OpenAIRequestDTO openAIRequestDTO = openAICommand.makeRequestBody(actionConfiguration);
             URI uri = openAICommand.createExecutionUri();
-            HttpMethod httpMethod = HttpMethod.POST;
+            HttpMethod httpMethod = openAICommand.getExecutionMethod();
 
             ActionExecutionRequest actionExecutionRequest =
                     RequestCaptureFilter.populateRequestFields(actionConfiguration, uri, insertedParams, objectMapper);
