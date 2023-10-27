@@ -223,6 +223,23 @@ class WidgetFactory {
 
   @memoize
   @freeze
+  static getWidgetDependencyMap(
+    widgetType: WidgetType,
+  ): Record<string, string[]> {
+    const widget = WidgetFactory.widgetsMap.get(widgetType);
+
+    const dependencyMap = widget?.getDependencyMap();
+
+    if (dependencyMap) {
+      return dependencyMap;
+    } else {
+      log.error(`Dependency map is defined for widget type: ${widgetType}`);
+      return {};
+    }
+  }
+
+  @memoize
+  @freeze
   static getWidgetMetaPropertiesMap(
     widgetType: WidgetType,
   ): Record<string, unknown> {
