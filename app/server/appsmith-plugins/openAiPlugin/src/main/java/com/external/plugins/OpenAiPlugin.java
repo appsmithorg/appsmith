@@ -19,13 +19,15 @@ import com.external.plugins.commands.OpenAICommand;
 import com.external.plugins.models.OpenAIRequestDTO;
 import com.external.plugins.utils.OpenAIMethodStrategy;
 import com.external.plugins.utils.RequestUtils;
-import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.extern.slf4j.Slf4j;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.pf4j.PluginWrapper;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.web.reactive.function.BodyInserters;
+import reactor.core.Exceptions;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
@@ -34,6 +36,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import static com.external.plugins.constants.OpenAIConstants.DATA;
+import static com.external.plugins.constants.OpenAIConstants.ID;
 
 @Slf4j
 public class OpenAiPlugin extends BasePlugin {
@@ -117,8 +122,7 @@ public class OpenAiPlugin extends BasePlugin {
 
                         actionExecutionResult.setIsExecutionSuccess(true);
                         try {
-                            Object body = objectMapper.readValue(
-                                    responseEntity.getBody(), new TypeReference<Map<String, Object>>() {});
+                            Object body = objectMapper.readValue(responseEntity.getBody(), Object.class);
                             actionExecutionResult.setBody(body);
                         } catch (IOException ex) {
                             actionExecutionResult.setIsExecutionSuccess(false);
@@ -154,7 +158,45 @@ public class OpenAiPlugin extends BasePlugin {
             assert (bearerTokenAuth.getBearerToken() != null);
 
             OpenAICommand openAICommand = OpenAIMethodStrategy.selectTriggerMethod(request, objectMapper);
-            return openAICommand.trigger(datasourceConfiguration).map(TriggerResultDTO::new);
+            HttpMethod httpMethod = openAICommand.getTriggerHTTPMethod();
+            URI uri = openAICommand.createTriggerUri();
+
+            return RequestUtils.makeRequest(httpMethod, uri, bearerTokenAuth, BodyInserters.empty())
+                    .flatMap(responseEntity -> {
+                        if (!responseEntity.getStatusCode().is2xxSuccessful()) {
+                            return Mono.error(
+                                    new AppsmithPluginException(AppsmithPluginError.PLUGIN_GET_STRUCTURE_ERROR));
+                        }
+
+                        // link to get response data https://platform.openai.com/docs/api-reference/models/list
+                        return Mono.just(new JSONObject(new String(responseEntity.getBody())));
+                    })
+                    .map(jsonObject -> {
+                        if (!jsonObject.has(DATA) && jsonObject.get(DATA) instanceof JSONArray) {
+                            // let's throw some error.
+                            throw Exceptions.propagate(
+                                    new AppsmithPluginException(AppsmithPluginError.PLUGIN_GET_STRUCTURE_ERROR));
+                        }
+
+                        List<Map<String, String>> triggerModelList = new ArrayList<>();
+                        JSONArray modelList = jsonObject.getJSONArray(DATA);
+                        int modelListIndex = 0;
+                        while (modelListIndex < modelList.length()) {
+                            JSONObject model = modelList.getJSONObject(modelListIndex);
+                            if (!model.has(ID)) {
+                                continue;
+                            }
+
+                            if (openAICommand.isModelCompatible(model)) {
+                                triggerModelList.add(openAICommand.getModelMap(model));
+                            }
+
+                            modelListIndex += 1;
+                        }
+
+                        return triggerModelList;
+                    })
+                    .map(TriggerResultDTO::new);
         }
     }
 }

@@ -12,6 +12,7 @@ import com.external.plugins.utils.RequestUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.json.JSONObject;
 import org.springframework.http.HttpMethod;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -30,9 +31,11 @@ import static com.external.plugins.constants.OpenAIConstants.CHAT;
 import static com.external.plugins.constants.OpenAIConstants.CHAT_MODEL_SELECTOR;
 import static com.external.plugins.constants.OpenAIConstants.DATA;
 import static com.external.plugins.constants.OpenAIConstants.ID;
+import static com.external.plugins.constants.OpenAIConstants.LABEL;
 import static com.external.plugins.constants.OpenAIConstants.MESSAGES;
 import static com.external.plugins.constants.OpenAIConstants.MODEL;
 import static com.external.plugins.constants.OpenAIConstants.TEMPERATURE;
+import static com.external.plugins.constants.OpenAIConstants.VALUE;
 import static com.external.plugins.constants.OpenAIErrorMessages.BAD_TEMPERATURE_CONFIGURATION;
 import static com.external.plugins.constants.OpenAIErrorMessages.EXECUTION_FAILURE;
 import static com.external.plugins.constants.OpenAIErrorMessages.INCORRECT_MESSAGE_FORMAT;
@@ -102,6 +105,16 @@ public class ChatCommand implements OpenAICommand {
                     }
                     return modelList;
                 });
+    }
+
+    @Override
+    public HttpMethod getTriggerHTTPMethod() {
+        return HttpMethod.GET;
+    }
+
+    @Override
+    public HttpMethod getExecutionMethod() {
+        return HttpMethod.POST;
     }
 
     @Override
@@ -186,5 +199,22 @@ public class ChatCommand implements OpenAICommand {
                     AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                     String.format(STRING_APPENDER, EXECUTION_FAILURE, BAD_TEMPERATURE_CONFIGURATION));
         }
+    }
+
+    @Override
+    public Boolean isModelCompatible(JSONObject modelJsonObject) {
+        if (!modelJsonObject.has(ID)) {
+            return false;
+        }
+
+        return pattern.matcher(modelJsonObject.getString(ID)).matches();
+    }
+
+    @Override
+    public Map<String, String> getModelMap(JSONObject modelJsonObject) {
+        Map<String, String> modelMap = new HashMap<>();
+        modelMap.put(LABEL, modelJsonObject.getString(ID));
+        modelMap.put(VALUE, modelJsonObject.getString(ID));
+        return modelMap;
     }
 }

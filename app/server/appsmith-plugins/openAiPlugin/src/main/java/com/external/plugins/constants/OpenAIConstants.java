@@ -21,12 +21,15 @@ public class OpenAIConstants {
     public static final String EMBEDDINGS_MODEL_SELECTOR = "embeddingsModel";
     public static final String DATA = "data";
     public static final String ID = "id";
+    public static final String LABEL = "label";
+    public static final String VALUE = "value";
     public static final String COMMAND = "command";
     public static final String MODEL = "model";
     public static final String MESSAGES = "messages";
     public static final String INPUT = "input";
     public static final String ENCODING_FORMAT = "encodingFormat";
     public static final String TEMPERATURE = "temperature";
+
     public static final ExchangeStrategies EXCHANGE_STRATEGIES = ExchangeStrategies.builder()
             .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(/* 10MB */ 10 * 1024 * 1024))
             .build();
