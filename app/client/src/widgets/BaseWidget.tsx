@@ -136,6 +136,10 @@ abstract class BaseWidget<
     return {};
   }
 
+  static getDependencyMap(): Record<string, string[]> {
+    return {};
+  }
+
   // TODO Find a way to enforce this, (dont let it be set)
   static getMetaPropertiesMap(): Record<string, any> {
     return {};
