@@ -125,6 +125,18 @@ public class PartialExportServiceCEImpl implements PartialExportServiceCE {
                 // update page name in meta and exportable DTO for resource to name mapping
                 .flatMap(branchedPageId -> updatePageNameInResourceMapDTO(branchedPageId, mappedResourcesDTO))
                 // export actions
+                // export js objects
+                .flatMap(branchedPageId -> {
+                    if (params.containsKey(FieldName.ACTION_COLLECTION_LIST)) {
+                        return exportActionCollections(
+                                        branchedPageId,
+                                        Set.copyOf(params.get(FieldName.ACTION_COLLECTION_LIST)),
+                                        applicationJson,
+                                        mappedResourcesDTO)
+                                .then(Mono.just(branchedPageId));
+                    }
+                    return Mono.just(branchedPageId);
+                })
                 .flatMap(branchedPageId -> {
                     if (params.containsKey(FieldName.ACTION_LIST)
                             || params.containsKey(FieldName.ACTION_COLLECTION_LIST)) {
@@ -136,17 +148,6 @@ public class PartialExportServiceCEImpl implements PartialExportServiceCE {
                                 .then(Mono.just(branchedPageId));
                     }
                     return Mono.just(branchedPageId);
-                })
-                // export js objects
-                .flatMap(branchedPageId -> {
-                    if (params.containsKey(FieldName.ACTION_COLLECTION_LIST)) {
-                        return exportActionCollections(
-                                branchedPageId,
-                                Set.copyOf(params.get(FieldName.ACTION_COLLECTION_LIST)),
-                                applicationJson,
-                                mappedResourcesDTO);
-                    }
-                    return Mono.just(applicationJson);
                 })
                 .flatMap(appJson -> {
                     // Remove the datasources not in use
