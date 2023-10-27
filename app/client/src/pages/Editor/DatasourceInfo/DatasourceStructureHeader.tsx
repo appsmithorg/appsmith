@@ -17,6 +17,7 @@ interface Props {
   datasource?: Datasource;
   onRefreshCallback?: () => void;
   paddingBottom?: boolean;
+  refetchFn?: () => void;
 }
 
 const HeaderWrapper = styled.div<{ paddingBottom: boolean }>`
@@ -34,12 +35,17 @@ export default function DatasourceStructureHeader(props: Props) {
     (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
       if (props.datasource?.id) {
         event.stopPropagation();
-        dispatch(
-          refreshDatasourceStructure(
-            props.datasource?.id,
-            DatasourceStructureContext.QUERY_EDITOR,
-          ),
-        );
+
+        if (props.refetchFn) {
+          props.refetchFn();
+        } else {
+          dispatch(
+            refreshDatasourceStructure(
+              props.datasource?.id,
+              DatasourceStructureContext.QUERY_EDITOR,
+            ),
+          );
+        }
 
         !!props.onRefreshCallback && props.onRefreshCallback();
       }
@@ -63,10 +69,7 @@ export default function DatasourceStructureHeader(props: Props) {
         )}
       </Text>
       {props.datasource?.id && (
-        <div
-          className="datasourceStructure-refresh"
-          onClick={(event) => dispatchRefresh(event)}
-        >
+        <div className="datasourceStructure-refresh" onClick={dispatchRefresh}>
           <Icon name="refresh" size={"md"} />
         </div>
       )}

@@ -1907,6 +1907,7 @@ export const GSHEET_SPREADSHEET_LABEL = () => "Spreadsheets";
 export const GSHEET_SPREADSHEET_LOADING = () => "Loading Spreadsheets";
 export const GSHEET_SHEET_LOADING = () => "Loading Sheets";
 export const GSHEET_DATA_LOADING = () => "Loading attributes";
+export const GSHEET_SEARCH_PLACEHOLDER = () => "Search for spreadsheet";
 
 //Layout Conversion flow
 export const CONVERT = () => "Convert layout";

@@ -117,6 +117,7 @@ const DatasourceViewModeSchema = (props: Props) => {
     if (
       isDatasourceStructureLoading ||
       !datasourceStructure ||
+      !datasourceStructure.tables ||
       (datasourceStructure && datasourceStructure?.error)
     ) {
       setPreviewData([]);
@@ -164,6 +165,10 @@ const DatasourceViewModeSchema = (props: Props) => {
       });
     }
   }, [previewData]);
+
+  useEffect(() => {
+    setPreviewData([]);
+  }, [props.datasource.id]);
 
   const onEntityTableClick = (table: string) => {
     AnalyticsUtil.logEvent("DATASOURCE_PREVIEW_TABLE_CHANGE", {
@@ -241,20 +246,23 @@ const DatasourceViewModeSchema = (props: Props) => {
         </StructureContainer>
         <DatasourceDataContainer>
           <TableWrapper>
-            {isLoading && <RenderInterimDataState state="LOADING" />}
-            {!isLoading && failedFetchingPreviewData && (
-              <RenderInterimDataState state="FAILED" />
+            {(isLoading || isDatasourceStructureLoading) && (
+              <RenderInterimDataState state="LOADING" />
             )}
+            {(!isLoading || !isDatasourceStructureLoading) &&
+              (failedFetchingPreviewData || previewDataError) && (
+                <RenderInterimDataState state="FAILED" />
+              )}
             {!isLoading &&
+              !isDatasourceStructureLoading &&
               !failedFetchingPreviewData &&
               !previewDataError &&
               previewData?.length > 0 && <Table data={previewData} />}
             {!isLoading &&
+              !isDatasourceStructureLoading &&
               !failedFetchingPreviewData &&
               !previewDataError &&
-              previewData?.length < 1 && (
-                <RenderInterimDataState state="NODATA" />
-              )}
+              !previewData?.length && <RenderInterimDataState state="NODATA" />}
           </TableWrapper>
         </DatasourceDataContainer>
       </DataWrapperContainer>

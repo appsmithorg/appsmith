@@ -16,13 +16,16 @@ export const DataWrapperContainer = styled.div`
 export const StructureContainer = styled.div`
   height: 100%;
   width: 25%;
-  padding: var(--ads-v2-spaces-4) var(--ads-v2-spaces-5);
-  padding-left: var(--ads-v2-spaces-7);
+  padding: var(--ads-v2-spaces-4) 0 var(--ads-v2-spaces-4)
+    var(--ads-v2-spaces-5);
   display: flex;
   flex-direction: column;
   overflow: hidden;
   border-right: 1px solid var(--ads-v2-color-gray-300);
   flex-shrink: 0;
+  & > .datasourceStructure-header {
+    padding: 0 var(--ads-v2-spaces-5);
+  }
 `;
 
 export const DatasourceDataContainer = styled.div`
@@ -36,14 +39,18 @@ export const DatasourceListContainer = styled.div`
   height: 100%;
   display: flex;
   flex-direction: column;
+  padding-left: var(--ads-v2-spaces-5);
   &.t--gsheet-structure {
     overflow-y: auto;
     .t--spreadsheet-structure > .t--entity-item {
       font-weight: var(--ads-v2-font-weight-bold);
       height: 25px;
+      padding-left: 0;
     }
     .t--spreadsheet-structure {
       padding-right: var(--ads-spaces-3);
+      flex-grow: 0;
+      flex-shrink: 0;
     }
     .t--sheet-structure:not(:last-of-type) {
       padding-bottom: var(--ads-spaces-3);
@@ -69,7 +76,7 @@ export const DatasourceListContainer = styled.div`
     flex-shrink: 0;
   }
   div ~ div {
-    flex: 1;
+    flex-grow: 1;
   }
   .t--schema-virtuoso-container {
     height: 100%;
@@ -164,5 +171,19 @@ export const TableWrapper = styled.div`
     margin-right: 24px;
   }
   && .tableWrap {
+  }
+`;
+
+export const DatasourceStructureSearchContainer = styled.div`
+  margin-bottom: 8px;
+  position: sticky;
+  top: 0;
+  overflow: hidden;
+  z-index: 10;
+  background: white;
+  &.t--gsheet-search-container {
+    flex-shrink: 0;
+    padding: 0 var(--ads-v2-spaces-5);
+    margin-top: 8px;
   }
 `;

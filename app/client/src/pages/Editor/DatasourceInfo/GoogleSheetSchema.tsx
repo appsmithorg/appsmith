@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import type { DropdownOption } from "design-system-old";
-import { Button, Spinner, Text } from "design-system";
+import { Button, SearchInput, Spinner, Text } from "design-system";
 import {
   useSheetData,
   useSheetsList,
@@ -20,6 +20,7 @@ import {
   createMessage,
   DATASOURCE_GENERATE_PAGE_BUTTON,
   GSHEET_DATA_LOADING,
+  GSHEET_SEARCH_PLACEHOLDER,
   GSHEET_SHEET_LOADING,
   GSHEET_SPREADSHEET_LOADING,
 } from "@appsmith/constants/messages";
@@ -40,6 +41,7 @@ import {
   DatasourceAttributesWrapper,
   DatasourceDataContainer,
   DatasourceListContainer,
+  DatasourceStructureSearchContainer,
   MessageWrapper,
   StructureContainer,
   TableWrapper,
@@ -82,81 +84,49 @@ function GoogleSheetSchema(props: Props) {
   const [spreadsheetOptions, setSpreadsheetOptions] = useState<DropdownOptions>(
     [],
   );
+  const [sheetOptions, setSheetOptions] = useState<DropdownOptions>([]);
+  const [sheetData, setSheetData] = useState<any>([]);
+  const [selectedSpreadsheet, setSelectedSpreadsheet] =
+    useState<DropdownOption>({});
+  const [selectedSheet, setSelectedSheet] = useState<DropdownOption>({});
+  const [searchString, setSearchString] = useState<string>("");
   const [selectedDatasourceIsInvalid, setSelectedDatasourceIsInvalid] =
     useState(false);
   const { fetchAllSpreadsheets, isFetchingSpreadsheets } = useSpreadSheets({
     setSelectedDatasourceTableOptions: setSpreadsheetOptions,
     setSelectedDatasourceIsInvalid,
   });
-  const {
-    failedFetchingSheetsList,
-    fetchSheetsList,
-    isFetchingSheetsList,
-    sheetsList,
-  } = useSheetsList();
-  const { fetchSheetData, isFetchingSheetData, sheetData } = useSheetData();
-  const [selectedSpreadsheet, setSelectedSpreadsheet] =
-    useState<DropdownOption>({});
-  const [selectedSheet, setSelectedSheet] = useState<DropdownOption>({});
-  const [currentSheetData, setCurrentSheetData] = useState<any>();
+
+  const handleSearch = (value: string) => {
+    setSearchString(value.toLowerCase());
+
+    AnalyticsUtil.logEvent("GSHEET_SPREADSHEET_SEARCH", {
+      datasourceId: props.datasourceId,
+      pluginId: props.pluginId,
+    });
+  };
+
+  const setSlicedSheetData = (response: DropdownOptions) => {
+    // Getting the top 12 rows as for experimentation we need to keep this number fixed for preview
+    AnalyticsUtil.logEvent("GSHEET_PREVIEW_DATA_SHOWN", {
+      datasourceId: props.datasourceId,
+      pluginId: props.pluginId,
+    });
+    setSheetData(response.slice(0, MAX_SHEET_ROWS_LENGTH));
+  };
+
+  const { failedFetchingSheetsList, fetchSheetsList, isFetchingSheetsList } =
+    useSheetsList({ setSheetOptions });
+  const { fetchSheetData, isFetchingSheetData } = useSheetData({
+    setSheetData: setSlicedSheetData,
+  });
+
   const applicationId: string = useSelector(getCurrentApplicationId);
   const datasource = useSelector((state) =>
     getDatasource(state, props.datasourceId),
   );
 
   const dispatch = useDispatch();
-
-  // Fetch spreadsheets if datasourceId present
-  useEffect(() => {
-    if (!!props.datasourceId && !!props.pluginId) {
-      fetchAllSpreadsheets({
-        selectedDatasourceId: props.datasourceId,
-        pluginId: props.pluginId || "",
-        requestObject: {},
-      });
-    }
-  }, [props.datasourceId, props.pluginId, dispatch]);
-
-  // When user selects a spreadsheet
-  // Fetch all sheets inside that spreadsheet
-  useEffect(() => {
-    if (!!props.datasourceId && !!props.pluginId && selectedSpreadsheet.value) {
-      setSelectedSheet(DEFAULT_DROPDOWN_OPTION);
-      setCurrentSheetData(undefined);
-      fetchSheetsList({
-        requestObject: {},
-        selectedDatasourceId: props.datasourceId,
-        selectedSpreadsheetUrl: selectedSpreadsheet.value,
-        pluginId: props.pluginId,
-      });
-    }
-  }, [
-    selectedSpreadsheet.value,
-    props.datasourceId,
-    props.pluginId,
-    dispatch,
-    fetchSheetsList,
-  ]);
-
-  // When user selects a sheet name
-  // Fetch all sheet data inside that sheet
-  useEffect(() => {
-    if (!!props.datasourceId && !!props.pluginId && selectedSheet.value) {
-      setCurrentSheetData(undefined);
-      fetchSheetData({
-        selectedDatasourceId: props.datasourceId,
-        selectedSpreadsheetUrl: selectedSpreadsheet.value || "",
-        selectedSheetName: selectedSheet.value,
-        pluginId: props.pluginId || "",
-      });
-    }
-  }, [
-    selectedSheet.value,
-    props.datasourceId,
-    props.pluginId,
-    dispatch,
-    fetchSheetData,
-  ]);
 
   const scrollIntoView = (
     elementId: string,
@@ -179,24 +149,36 @@ function GoogleSheetSchema(props: Props) {
     } catch {}
   };
 
+  const collapseAccordions = (
+    datasourceId: string,
+    spreadSheet?: string,
+    sheet?: string,
+    collapseSpreadsheet: boolean = true,
+  ) => {
+    if (!isEmpty(spreadSheet) && !isEmpty(sheet)) {
+      dispatch(
+        setEntityCollapsibleState(
+          `${datasourceId}-${spreadSheet}-${sheet}`,
+          false,
+        ),
+      );
+    }
+    if (!isEmpty(spreadSheet) && collapseSpreadsheet) {
+      dispatch(
+        setEntityCollapsibleState(`${datasourceId}-${spreadSheet}`, false),
+      );
+    }
+  };
+
   const selectSpreadsheetAndToggle = (option: DropdownOption) => {
-    if (!isEmpty(selectedSpreadsheet.value) && !isEmpty(selectedSheet.value)) {
-      dispatch(
-        setEntityCollapsibleState(
-          `${datasource?.id}-${selectedSpreadsheet.value}-${selectedSheet.value}`,
-          false,
-        ),
-      );
-    }
-    if (!isEmpty(selectedSpreadsheet.value)) {
-      dispatch(
-        setEntityCollapsibleState(
-          `${datasource?.id}-${selectedSpreadsheet.value}`,
-          false,
-        ),
-      );
-    }
-    setSelectedSpreadsheet(option);
+    collapseAccordions(
+      datasource?.id || "",
+      selectedSpreadsheet.value,
+      selectedSheet.value,
+    );
+    setSelectedSheet(DEFAULT_DROPDOWN_OPTION);
+    setSheetOptions([]);
+    setSheetData(undefined);
     dispatch(
       setEntityCollapsibleState(`${datasource?.id}-${option.value}`, true),
     );
@@ -204,34 +186,73 @@ function GoogleSheetSchema(props: Props) {
       `#${CSS.escape(`entity-${datasource?.id}-${option.value}`)}`,
       ".t--gsheet-structure",
     );
+    setSelectedSpreadsheet(option);
+    fetchSheetsList({
+      requestObject: {},
+      selectedDatasourceId: props.datasourceId,
+      selectedSpreadsheetUrl: option.value || "",
+      pluginId: props.pluginId || "",
+    });
   };
 
   const selectSheetAndToggle = (option: DropdownOption) => {
-    if (!isEmpty(selectedSpreadsheet.value) && !isEmpty(selectedSheet.value)) {
-      dispatch(
-        setEntityCollapsibleState(
-          `${datasource?.id}-${selectedSpreadsheet.value}-${selectedSheet.value}`,
-          false,
-        ),
-      );
-    }
-    setSelectedSheet(option);
+    collapseAccordions(
+      datasource?.id || "",
+      selectedSpreadsheet.value,
+      selectedSheet.value,
+      false,
+    );
     dispatch(
       setEntityCollapsibleState(
         `${datasource?.id}-${selectedSpreadsheet.value}-${option.value}`,
         true,
       ),
     );
-    setTimeout(() => {
-      scrollIntoView(
-        `#${CSS.escape(
-          `entity-${datasource?.id}-${selectedSpreadsheet.value}-${option.value}`,
-        )}`,
-        ".t--gsheet-structure",
-        -30,
-      );
-    }, 0);
+    scrollIntoView(
+      `#${CSS.escape(
+        `entity-${datasource?.id}-${selectedSpreadsheet.value}-${option.value}`,
+      )}`,
+      ".t--gsheet-structure",
+      -30,
+    );
+    setSelectedSheet(option);
+    setSheetData(undefined);
+    fetchSheetData({
+      selectedDatasourceId: datasource?.id || "",
+      selectedSpreadsheetUrl: selectedSpreadsheet.value || "",
+      selectedSheetName: option.value || "",
+      pluginId: props.pluginId || "",
+    });
   };
+
+  const refetchAllSpreadsheets = () => {
+    if (!!props.datasourceId && !!props.pluginId) {
+      fetchAllSpreadsheets({
+        selectedDatasourceId: props.datasourceId,
+        pluginId: props.pluginId || "",
+        requestObject: {},
+      });
+      setSpreadsheetOptions([]);
+      setSheetOptions([]);
+      setSheetData(undefined);
+      setSelectedSpreadsheet((ss) => {
+        setSelectedSheet((s) => {
+          collapseAccordions(datasource?.id || "", ss.value, s.value);
+          return {};
+        });
+        return {};
+      });
+    }
+  };
+
+  // Fetch spreadsheets if datasourceId present
+  useEffect(() => {
+    fetchAllSpreadsheets({
+      selectedDatasourceId: props.datasourceId,
+      pluginId: props.pluginId || "",
+      requestObject: {},
+    });
+  }, [props.datasourceId, props.pluginId, dispatch]);
 
   // Set first spreadsheet as default option in the dropdown
   useEffect(() => {
@@ -243,25 +264,29 @@ function GoogleSheetSchema(props: Props) {
   // Set first sheet as default option in the dropdown
   useEffect(() => {
     if (
-      sheetsList?.length > 0 &&
+      sheetOptions?.length > 0 &&
       isEmpty(selectedSheet.value) &&
-      !isFetchingSheetsList
+      !isFetchingSheetsList &&
+      !isFetchingSpreadsheets
     ) {
-      selectSheetAndToggle(sheetsList[0]);
+      selectSheetAndToggle(sheetOptions[0]);
     }
-  }, [selectedSheet, sheetsList, isFetchingSheetsList]);
+  }, [
+    selectedSheet,
+    sheetOptions,
+    isFetchingSheetsList,
+    isFetchingSpreadsheets,
+  ]);
 
-  // Set current sheet data
   useEffect(() => {
-    if (sheetData) {
-      // Getting the top 12 rows as for experimentation we need to keep this number fixed for preview
-      AnalyticsUtil.logEvent("GSHEET_PREVIEW_DATA_SHOWN", {
-        datasourceId: props.datasourceId,
-        pluginId: props.pluginId,
-      });
-      setCurrentSheetData(sheetData.slice(0, MAX_SHEET_ROWS_LENGTH));
-    }
-  }, [sheetData]);
+    return () => {
+      collapseAccordions(
+        datasource?.id || "",
+        selectedSpreadsheet.value,
+        selectedSheet.value,
+      );
+    };
+  }, [datasource?.id]);
 
   const onSelectSpreadsheet = (
     table: string | undefined,
@@ -294,16 +319,13 @@ function GoogleSheetSchema(props: Props) {
     isFetchingSpreadsheets ||
     isFetchingSheetsList ||
     isFetchingSheetData ||
-    (!isError && !currentSheetData);
+    (!isError && !sheetData?.length);
 
   const onGsheetGeneratePage = () => {
     const payload = {
       applicationId: applicationId || "",
       pageId: "",
-      columns:
-        !!currentSheetData && currentSheetData.length > 0
-          ? Object.keys(currentSheetData[0])
-          : [],
+      columns: sheetData?.length > 0 ? Object.keys(sheetData[0]) : [],
       searchColumn: "",
       tableName: selectedSheet?.value || "",
       datasourceId: props.datasourceId || "",
@@ -342,28 +364,59 @@ function GoogleSheetSchema(props: Props) {
     pagePermissions,
   );
 
+  const refreshSpreadSheetButton = (option: DropdownOption) => (
+    <Button
+      isIconButton
+      kind="tertiary"
+      onClick={() => selectSpreadsheetAndToggle(option)}
+      startIcon="refresh"
+    />
+  );
+
   const showGeneratePageBtn =
     !isLoading &&
     !isError &&
-    currentSheetData &&
+    sheetData?.length &&
     canCreateDatasourceActions &&
     canCreatePages;
+
+  const filteredSpreadsheets = spreadsheetOptions.filter(
+    (option) => (option.label || "").toLowerCase()?.includes(searchString),
+  );
 
   return (
     <ViewModeSchemaContainer>
       <DataWrapperContainer>
         <StructureContainer>
           {datasource && (
-            <DatasourceStructureHeader datasource={datasource} paddingBottom />
+            <DatasourceStructureHeader
+              datasource={datasource}
+              paddingBottom
+              refetchFn={refetchAllSpreadsheets}
+            />
+          )}
+          {!isFetchingSpreadsheets && (
+            <DatasourceStructureSearchContainer className="t--gsheet-search-container">
+              <SearchInput
+                className="datasourceStructure-search"
+                endIcon="close"
+                onChange={(value) => handleSearch(value)}
+                placeholder={createMessage(GSHEET_SEARCH_PLACEHOLDER)}
+                size={"sm"}
+                startIcon="search"
+                type="text"
+              />
+            </DatasourceStructureSearchContainer>
           )}
           <DatasourceListContainer className="t--gsheet-structure">
             {isFetchingSpreadsheets ? (
               <LoadingItemIndicator type="SPREADSHEET" />
             ) : (
-              spreadsheetOptions.map((spreadsheet) => {
+              filteredSpreadsheets.map((spreadsheet) => {
                 return (
                   <Entity
                     className="t--spreadsheet-structure"
+                    customAddButton={refreshSpreadSheetButton(spreadsheet)}
                     entityId={`${datasource?.id}-${spreadsheet.value}`}
                     icon={null}
                     key={`${datasource?.id}-${spreadsheet.value}`}
@@ -372,12 +425,15 @@ function GoogleSheetSchema(props: Props) {
                       isOpen &&
                         onSelectSpreadsheet(spreadsheet.value, spreadsheet);
                     }}
+                    showAddButton={
+                      spreadsheet.value === selectedSpreadsheet.value
+                    }
                     step={0}
                   >
                     {isFetchingSheetsList ? (
                       <LoadingItemIndicator type="SHEET" />
-                    ) : sheetsList.length > 0 ? (
-                      sheetsList.map((sheet) => (
+                    ) : sheetOptions.length > 0 ? (
+                      sheetOptions.map((sheet) => (
                         <Entity
                           className={`t--sheet-structure ${
                             sheet.value === selectedSheet.value
@@ -396,9 +452,9 @@ function GoogleSheetSchema(props: Props) {
                           {selectedSheet.value === sheet.value ? (
                             isFetchingSheetData ? (
                               <LoadingItemIndicator type="DATA" />
-                            ) : currentSheetData?.length > 0 ? (
+                            ) : sheetData?.length > 0 ? (
                               <DatasourceAttributesWrapper>
-                                {Object.keys(currentSheetData[0]).map(
+                                {Object.keys(sheetData[0]).map(
                                   (fieldValue, index) => (
                                     <DatasourceField
                                       field={{
@@ -432,8 +488,8 @@ function GoogleSheetSchema(props: Props) {
               <RenderInterimDataState state="LOADING" />
             ) : isError ? (
               <RenderInterimDataState state="FAILED" />
-            ) : currentSheetData?.length > 0 ? (
-              <Table data={currentSheetData} />
+            ) : sheetData?.length > 0 ? (
+              <Table data={sheetData} />
             ) : (
               <RenderInterimDataState state="NODATA" />
             )}
@@ -444,7 +500,6 @@ function GoogleSheetSchema(props: Props) {
         <ButtonContainer>
           <Button
             className="t--datasource-generate-page"
-            isDisabled={!currentSheetData || currentSheetData?.length == 0}
             key="datasource-generate-page"
             kind="secondary"
             onClick={onGsheetGeneratePage}
