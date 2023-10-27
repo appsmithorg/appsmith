@@ -20,9 +20,9 @@
     <script type="text/javascript">
       function runNewRelicAnalytics(){
 
-      const newRelicAccountId = "__APPSMITH_NEW_RELIC_ACCOUNT_ID__";
-      const newRelicApplicationId = "__APPSMITH_NEW_RELIC_APPLICATION_ID__";
-      const newRelicLicenseKey="__APPSMITH_APP_NEW_RELIC_LICENSE_KEY__";
+      const newRelicAccountId = parseConfig("__APPSMITH_NEW_RELIC_ACCOUNT_ID__");
+      const newRelicApplicationId = parseConfig("__APPSMITH_NEW_RELIC_APPLICATION_ID__");
+      const newRelicLicenseKey=parseConfig("__APPSMITH_APP_NEW_RELIC_LICENSE_KEY__");
 
       ;window.NREUM||(NREUM={});NREUM.init={distributed_tracing:{enabled:true},privacy:{cookies_enabled:true},ajax:{deny_list:["bam.nr-data.net"]}};
       
