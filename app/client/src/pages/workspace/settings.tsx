@@ -82,7 +82,6 @@ export default function Settings() {
   const isGACEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
 
   const currentTab = location.pathname.split("/").pop();
-  // const [selectedTab, setSelectedTab] = useState(currentTab);
 
   const isMemberofTheWorkspace = isPermitted(
     currentWorkspace?.userPermissions || [],
@@ -92,14 +91,17 @@ export default function Settings() {
     currentWorkspace?.userPermissions,
     PERMISSION_TYPE.MANAGE_WORKSPACE,
   );
+  const showMembersTab =
+    isMemberofTheWorkspace && hasManageWorkspacePermissions;
+
   const shouldRedirect = useMemo(
     () =>
       currentWorkspace &&
-      ((!isMemberofTheWorkspace && currentTab === TABS.MEMBERS) ||
+      ((!showMembersTab && currentTab === TABS.MEMBERS) ||
         (!hasManageWorkspacePermissions && currentTab === TABS.GENERAL)),
     [
       currentWorkspace,
-      isMemberofTheWorkspace,
+      showMembersTab,
       hasManageWorkspacePermissions,
       currentTab,
     ],
@@ -166,7 +168,7 @@ export default function Settings() {
         <WorkspaceSettingsTabs
           currentTab={currentTab}
           hasManageWorkspacePermissions={hasManageWorkspacePermissions}
-          isMemberofTheWorkspace={isMemberofTheWorkspace}
+          isMemberofTheWorkspace={showMembersTab}
           searchValue={searchValue}
           setTabArrLen={setTabArrLen}
           workspacePermissions={currentWorkspace?.userPermissions || []}
