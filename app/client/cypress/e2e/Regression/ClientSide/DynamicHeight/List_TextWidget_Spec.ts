@@ -100,6 +100,8 @@ describe("Dynamic Height Width validation list widget", function () {
         //Widgets when copied and pasted into the list widget no longer have dynamic height
         entityExplorer.SelectEntityByName("Text3CopyCopyCopy", "Container1");
         agHelper.AssertElementAbsence(propPane._propertyPaneHeightLabel);
+        agHelper.Sleep(2000); //wait a bit to ensure that the 'Text3CopyCopy' is selected for cut
+
         entityExplorer.SelectEntityByName("Text3CopyCopy");
         agHelper.SimulateCopyPaste("cut");
         entityExplorer.SelectEntityByName("List1");
