@@ -48,7 +48,7 @@
       const newRelicAccountId = parseConfig("__APPSMITH_NEW_RELIC_ACCOUNT_ID__");
       const newRelicApplicationId = parseConfig("__APPSMITH_NEW_RELIC_APPLICATION_ID__");
       const newRelicLicenseKey=parseConfig("__APPSMITH_APP_NEW_RELIC_LICENSE_KEY__");
-      console.log("new relic ", newRelicAccountId,newRelicApplicationId,newRelicLicenseKey);
+
       
       ;window.NREUM||(NREUM={});NREUM.init={distributed_tracing:{enabled:true},privacy:{cookies_enabled:true},ajax:{deny_list:["bam.nr-data.net"]}};
       
@@ -59,13 +59,9 @@
       }
       const enableNewRelic = parseConfig("__APPSMITH_NEW_RELIC_ACCOUNT_ENABLE__");
       if(!!enableNewRelic){
-        console.log("running analytics");
         runNewRelicAnalytics();
       }
-      else{
-        console.log("not running")
-      }
-      console.log("typeof ",enableNewRelic, typeof enableNewRelic );
+    
       </script>
   
     <script>
