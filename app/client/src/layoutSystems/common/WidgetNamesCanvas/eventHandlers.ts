@@ -93,14 +93,14 @@ export function getMouseOverDetails(
     isMouseOver: boolean;
     cursor?: string;
     widgetNameData?: WidgetNameData;
-  } = { isMouseOver: false };
+  } = { isMouseOver: false, cursor: "default" };
 
   //for selected and focused widget names check the widget name positions with respect to mouse positions
   for (const widgetNamePosition of widgetNamePositionsArray) {
     if (widgetNamePosition) {
       const { height, left, top, widgetNameData, width } = widgetNamePosition;
       if (x > left && x < left + width && y > top && y < top + height) {
-        result = { isMouseOver: true, cursor: "grab", widgetNameData };
+        result = { isMouseOver: true, cursor: "pointer", widgetNameData };
         break;
       }
     }
