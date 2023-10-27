@@ -1,4 +1,4 @@
-import React from "react";
+import React, { memo } from "react";
 import type { WidgetCardProps } from "widgets/BaseWidget";
 import styled from "styled-components";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
@@ -63,7 +63,7 @@ function WidgetCard(props: CardProps) {
   const { deselectAll } = useWidgetSelection();
 
   const onDragStart = (e: any) => {
-    e.preventDefault();
+    // e.preventDefault();
     e.stopPropagation();
     AnalyticsUtil.logEvent("WIDGET_CARD_DRAG", {
       widgetType: props.details.type,
@@ -88,7 +88,7 @@ function WidgetCard(props: CardProps) {
       id={`widget-card-draggable-${type}`}
       onDragStart={onDragStart}
     >
-      <div className="gap-2 mt-2">
+      <div className="gap-2 mt-2" style={{ pointerEvents: "none" }}>
         <IconWrapper>
           <img className="w-6 h-6" src={props.details.icon} />
         </IconWrapper>
@@ -99,4 +99,4 @@ function WidgetCard(props: CardProps) {
   );
 }
 
-export default WidgetCard;
+export default memo(WidgetCard);

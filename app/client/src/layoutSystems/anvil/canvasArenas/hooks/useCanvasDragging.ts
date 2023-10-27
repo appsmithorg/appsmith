@@ -187,7 +187,8 @@ export const useCanvasDragging = (
       };
 
       if (isDragging) {
-        const onMouseUp = () => {
+        const onMouseUp = (e: MouseEvent) => {
+          e.preventDefault();
           if (
             isDragging &&
             canvasIsDragging &&
@@ -245,6 +246,7 @@ export const useCanvasDragging = (
         };
 
         const onMouseMove = (e: any) => {
+          e.preventDefault();
           if (
             isDragging &&
             canvasIsDragging &&
@@ -319,10 +321,16 @@ export const useCanvasDragging = (
             false,
           );
           slidingArenaRef.current?.addEventListener(
+            "dragover",
+            onMouseMove,
+            false,
+          );
+          slidingArenaRef.current?.addEventListener(
             "mouseup",
             onMouseUp,
             false,
           );
+          slidingArenaRef.current?.addEventListener("drop", onMouseUp, false);
           scrollParent?.addEventListener("scroll", onScroll, false);
         }
 
@@ -331,7 +339,9 @@ export const useCanvasDragging = (
             "mousemove",
             onMouseMove,
           );
+          slidingArenaRef.current?.removeEventListener("dragover", onMouseMove);
           slidingArenaRef.current?.removeEventListener("mouseup", onMouseUp);
+          slidingArenaRef.current?.removeEventListener("drop", onMouseUp);
           scrollParent?.removeEventListener("scroll", onScroll);
         };
       } else {

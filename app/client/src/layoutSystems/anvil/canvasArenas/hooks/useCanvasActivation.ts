@@ -207,6 +207,7 @@ export const useCanvasActivation = (
    * and draw highlights appropriately.
    */
   const onMouseMoveWhileDragging = (e: MouseEvent) => {
+    // e.preventDefault();
     if (
       isDragging &&
       mainContainerDOMNode &&
@@ -245,7 +246,8 @@ export const useCanvasActivation = (
   /**
    * callback function to process mouse up events and reset dragging state.
    */
-  const onMouseUp = () => {
+  const onMouseUp = (e: any) => {
+    e.preventDefault();
     if (isDragging) {
       if (isNewWidget) {
         setDraggingNewWidget(false, undefined);
@@ -273,7 +275,7 @@ export const useCanvasActivation = (
   useEffect(() => {
     if (isDragging && layoutId === mainCanvasLayoutId) {
       currentActivatedLayout.current = dragDetails.draggedOn || "";
-      if (!dragPreviewRef.current) {
+      if (!dragPreviewRef.current && !isNewWidget) {
         dragPreviewRef.current = isNewWidget
           ? createNewWidgetPreview(dragDetails)
           : createSelectedWidgetsPreview(draggedBlocks);
@@ -281,11 +283,15 @@ export const useCanvasActivation = (
       }
       document?.addEventListener("mousemove", onMouseMoveWhileDragging);
       document?.addEventListener("mousemove", renderDragPreview);
+      document?.addEventListener("dragover", onMouseMoveWhileDragging);
       document.body.addEventListener("mouseup", onMouseUp, false);
+      document.body.addEventListener("drop", onMouseUp, false);
       window.addEventListener("mouseup", onMouseUp, false);
       return () => {
         document?.removeEventListener("mousemove", onMouseMoveWhileDragging);
         document?.removeEventListener("mousemove", renderDragPreview);
+        document?.removeEventListener("dragover", onMouseMoveWhileDragging);
+        document.body.removeEventListener("drop", onMouseUp);
         document.body.removeEventListener("mouseup", onMouseUp);
         window.removeEventListener("mouseup", onMouseUp);
         if (dragPreviewRef.current) {
