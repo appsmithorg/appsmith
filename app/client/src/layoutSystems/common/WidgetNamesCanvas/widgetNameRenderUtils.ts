@@ -24,9 +24,12 @@ export function getMainContainerAnvilCanvasDOMElement() {
 export function resetCanvas(
   widgetNamePositions: MutableRefObject<WidgetNamePositionType>,
   stageRef: MutableRefObject<CanvasStageType | null>,
+  keepRef = false,
 ) {
-  // Resets stored widget position names
-  widgetNamePositions.current = { selected: undefined, focused: undefined };
+  if (!keepRef) {
+    // Resets stored widget position names
+    widgetNamePositions.current = { selected: {}, focused: {} };
+  }
 
   // clears all drawings on canvas
   const stage = stageRef.current;
@@ -81,6 +84,7 @@ export const updateSelectedWidgetPositions = (props: {
 
   // For each selected widget, draw the widget name
   if (selectedWidgetNameData && selectedWidgetNameData.length > 0) {
+    widgetNamePositions.current.selected = {};
     for (const widgetNameData of selectedWidgetNameData) {
       addWidgetNameToCanvas(
         layer,
@@ -97,6 +101,8 @@ export const updateSelectedWidgetPositions = (props: {
 
   // Draw the focused widget name
   if (focusedWidgetNameData) {
+    widgetNamePositions.current.focused = {};
+
     addWidgetNameToCanvas(
       layer,
       focusedWidgetNameData,
@@ -163,7 +169,9 @@ export const addWidgetNameToCanvas = (
     );
 
     // Store the drawn widget name position
-    widgetNamePositions.current[type] = { ...widgetNamePosition };
+    widgetNamePositions.current[type][widgetNamePosition.widgetNameData.id] = {
+      ...widgetNamePosition,
+    };
 
     // Update the Canvas positions' x and y diffs
     canvasPositions.current = {
@@ -183,7 +191,7 @@ export const addWidgetNameToCanvas = (
     };
 
     //Make widget name clickable
-    widgetNameComponent.on("click", eventHandler);
+    widgetNameComponent.on("mousedown", eventHandler);
 
     //Add widget name to canvas
     layer.add(widgetNameComponent);

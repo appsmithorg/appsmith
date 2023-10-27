@@ -3,11 +3,16 @@ import type { RefObject } from "react";
 import {
   ANVIL_WIDGET,
   LAYOUT,
+  extractLayoutIdFromLayoutDOMId,
+  extractWidgetIdFromAnvilWidgetDOMId,
   getAnvilLayoutDOMId,
   getAnvilWidgetDOMId,
 } from "./utils";
 import store from "store";
-import { readLayoutElementPositions } from "layoutSystems/anvil/integrations/actions";
+import {
+  deleteLayoutElementPositions,
+  readLayoutElementPositions,
+} from "layoutSystems/anvil/integrations/actions";
 import ResizeObserver from "resize-observer-polyfill";
 // Note: We have a singleton observer in `utils/resizeObserver.ts`. I noticed this too late and the API is not easy to adapt in this file.
 // Adding this to the list of things to fix in the future.
@@ -89,6 +94,11 @@ class LayoutElementPositionObserver {
     }
 
     delete this.registeredWidgets[widgetDOMId];
+    store.dispatch(
+      deleteLayoutElementPositions([
+        extractWidgetIdFromAnvilWidgetDOMId(widgetDOMId),
+      ]),
+    );
   }
 
   //Method to register layouts for resize observer changes
@@ -122,6 +132,11 @@ class LayoutElementPositionObserver {
     }
 
     delete this.registeredLayouts[layoutDOMId];
+    store.dispatch(
+      deleteLayoutElementPositions([
+        extractLayoutIdFromLayoutDOMId(layoutDOMId),
+      ]),
+    );
   }
 
   //This method is triggered from the resize observer to add widgets to queue

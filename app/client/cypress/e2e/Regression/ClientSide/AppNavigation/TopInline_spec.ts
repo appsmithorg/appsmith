@@ -15,11 +15,9 @@ describe("Test Top + Inline navigation style", function () {
 
     assertHelper
       .WaitForNetworkCall("@importNewApplication")
-      .then((interception) => {
+      .then((response) => {
         agHelper.Sleep();
-
-        const { isPartialImport } = interception.response.body.data;
-
+        const { isPartialImport } = response.body.data;
         if (isPartialImport) {
           homePage.AssertNCloseImport();
         } else {

@@ -157,6 +157,8 @@ export function AnvilFlexComponent(props: AnvilFlexComponentProps) {
   const styleProps: CSSProperties = useMemo(() => {
     return {
       position: "relative",
+      // overflow is set to make sure widgets internal components/divs don't overflow this boundary causing scrolls
+      overflow: "hidden",
       opacity: isDragging && isSelected ? 0.5 : 1,
       "&:hover": {
         zIndex: onHoverZIndex,
