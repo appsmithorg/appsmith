@@ -45,4 +45,46 @@ describe("modulesReducer", () => {
       }),
     ).toEqual(expectedState);
   });
+
+  it("SAVE_MODULE_NAME_SUCCESS - should updated the respective module name from the payload in the state", () => {
+    const initialState = DEFAULT_STATE;
+    initialState[module2.id] = module2;
+    initialState[module3.id] = module3;
+
+    const updatedName = "Mod 3 Updated";
+    const expectedState = klona(DEFAULT_STATE);
+    expectedState[module2.id] = module2;
+    expectedState[module3.id] = {
+      ...module3,
+      name: updatedName,
+    };
+
+    expect(
+      reducer(initialState, {
+        type: ReduxActionTypes.SAVE_MODULE_NAME_SUCCESS,
+        payload: {
+          ...module3,
+          name: updatedName,
+        },
+      }),
+    ).toEqual(expectedState);
+  });
+
+  it("DELETE_QUERY_MODULE_SUCCESS - should delete the respective module in the state", () => {
+    const initialState = DEFAULT_STATE;
+    initialState[module2.id] = module2;
+    initialState[module3.id] = module3;
+
+    const expectedState = klona(DEFAULT_STATE);
+    delete expectedState[module3.id];
+
+    expect(
+      reducer(initialState, {
+        type: ReduxActionTypes.DELETE_QUERY_MODULE_SUCCESS,
+        payload: {
+          id: module3.id,
+        },
+      }),
+    ).toEqual(expectedState);
+  });
 });

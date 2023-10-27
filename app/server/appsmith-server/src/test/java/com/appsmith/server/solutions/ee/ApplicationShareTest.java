@@ -26,12 +26,13 @@ import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.dtos.UpdateApplicationRoleDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.export.internal.ImportExportApplicationService;
+import com.appsmith.server.exports.internal.ExportApplicationService;
 import com.appsmith.server.featureflags.CachedFeatures;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.UserUtils;
+import com.appsmith.server.imports.internal.ImportApplicationService;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.ApplicationRepository;
@@ -50,15 +51,18 @@ import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.LayoutCollectionService;
 import com.appsmith.server.services.PermissionGroupService;
+import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserGroupService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.UserWorkspaceService;
 import com.appsmith.server.services.WorkspaceService;
+import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.EnvironmentPermission;
 import com.appsmith.server.solutions.UserAndAccessManagementService;
 import com.appsmith.server.themes.base.ThemeService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -69,7 +73,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.test.context.support.WithUserDetails;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -125,7 +128,6 @@ import static org.mockito.ArgumentMatchers.eq;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
-@DirtiesContext
 @Slf4j
 public class ApplicationShareTest {
 
@@ -145,7 +147,10 @@ public class ApplicationShareTest {
     DatasourceService datasourceService;
 
     @Autowired
-    ImportExportApplicationService importExportApplicationService;
+    ImportApplicationService importApplicationService;
+
+    @Autowired
+    ExportApplicationService exportApplicationService;
 
     @Autowired
     LayoutActionService layoutActionService;
@@ -213,8 +218,20 @@ public class ApplicationShareTest {
     @Autowired
     ActionCollectionRepository actionCollectionRepository;
 
+    @Autowired
+    SessionUserService sessionUserService;
+
     @SpyBean
     FeatureFlagService featureFlagService;
+
+    @Autowired
+    ApplicationPermission applicationPermission;
+
+    Workspace workspace;
+
+    List<PermissionGroup> defaultWorkspaceRoles;
+
+    PermissionGroup workspaceAdminRole, workspaceDevRole, workspaceViewRole;
 
     User apiUser = null;
     User testUser = null;
@@ -222,7 +239,6 @@ public class ApplicationShareTest {
     String originHeader = "http://localhost:8080";
 
     @BeforeEach
-    @WithUserDetails(value = "api_user")
     public void setup() {
         if (apiUser == null) {
             apiUser = userRepository.findByEmail("api_user").block();
@@ -230,6 +246,7 @@ public class ApplicationShareTest {
         if (testUser == null) {
             testUser = userRepository.findByEmail("usertest@usertest.com").block();
         }
+        User currentUser = sessionUserService.getCurrentUser().block();
         Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_gac_enabled)))
                 .thenReturn(Mono.just(TRUE));
         Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_audit_logs_enabled)))
@@ -238,6 +255,41 @@ public class ApplicationShareTest {
         CachedFeatures cachedFeatures = new CachedFeatures();
         cachedFeatures.setFeatures(Map.of(FeatureFlagEnum.license_gac_enabled.name(), TRUE));
         Mockito.when(featureFlagService.getCachedTenantFeatureFlags()).thenReturn(cachedFeatures);
+
+        Workspace workspace1 = new Workspace();
+        workspace1.setName("ApplicationShareTest");
+        workspace = workspaceService.create(workspace1, currentUser, TRUE).block();
+        defaultWorkspaceRoles = permissionGroupService
+                .findAllByIds(workspace.getDefaultPermissionGroups())
+                .collectList()
+                .block();
+        workspaceAdminRole = defaultWorkspaceRoles.stream()
+                .filter(role -> role.getName().startsWith(ADMINISTRATOR))
+                .findFirst()
+                .get();
+        workspaceDevRole = defaultWorkspaceRoles.stream()
+                .filter(role -> role.getName().startsWith(DEVELOPER))
+                .findFirst()
+                .get();
+        workspaceViewRole = defaultWorkspaceRoles.stream()
+                .filter(role -> role.getName().startsWith(VIEWER))
+                .findFirst()
+                .get();
+    }
+
+    @AfterEach
+    public void cleanup() {
+        User currentUser = sessionUserService.getCurrentUser().block();
+        Boolean updateWorkspaceAdminRole = permissionGroupService
+                .bulkAssignToUsersWithoutPermission(workspaceAdminRole, List.of(currentUser))
+                .block();
+        List<Application> deletedApplications = applicationService
+                .findByWorkspaceId(workspace.getId(), applicationPermission.getDeletePermission())
+                .flatMap(remainingApplication -> applicationPageService.deleteApplication(remainingApplication.getId()))
+                .collectList()
+                .block();
+        Workspace deletedWorkspace =
+                workspaceService.archiveById(workspace.getId()).block();
     }
 
     @Test
@@ -250,28 +302,12 @@ public class ApplicationShareTest {
                 pluginService.findByPackageName("restapi-plugin").block().getId();
         PermissionGroup instanceAdminRole =
                 userUtils.getSuperAdminPermissionGroup().block();
-        Workspace workspace = new Workspace();
-        workspace.setName(testName);
-        Workspace createdWorkspace =
-                workspaceService.create(workspace, testUser, TRUE).block();
-        List<PermissionGroup> defaultWorkspaceRoles = permissionGroupService
-                .findAllByIds(createdWorkspace.getDefaultPermissionGroups())
-                .collectList()
-                .block();
-        String adminRoleId = defaultWorkspaceRoles.stream()
-                .filter(role -> role.getName().startsWith(ADMINISTRATOR))
-                .map(role -> role.getId())
-                .findFirst()
-                .get();
-        String devRoleId = defaultWorkspaceRoles.stream()
-                .filter(role -> role.getName().startsWith(DEVELOPER))
-                .map(role -> role.getId())
-                .findFirst()
-                .get();
+        String adminRoleId = workspaceAdminRole.getId();
+        String devRoleId = workspaceDevRole.getId();
 
         Application application = new Application();
         application.setName(testName);
-        application.setWorkspaceId(createdWorkspace.getId());
+        application.setWorkspaceId(workspace.getId());
         Application createdApplication =
                 applicationPageService.createApplication(application).block();
 
@@ -314,7 +350,7 @@ public class ApplicationShareTest {
 
         ActionDTO action = new ActionDTO();
         action.setName(testName);
-        action.setWorkspaceId(createdWorkspace.getId());
+        action.setWorkspaceId(workspace.getId());
         action.setPluginId(pluginId);
         action.setPageId(createdApplication.getPages().get(0).getId());
         ActionConfiguration actionConfiguration = new ActionConfiguration();
@@ -328,7 +364,7 @@ public class ApplicationShareTest {
         ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
         actionCollectionDTO.setName("testActionCollection");
         actionCollectionDTO.setApplicationId(createdApplication.getId());
-        actionCollectionDTO.setWorkspaceId(createdWorkspace.getId());
+        actionCollectionDTO.setWorkspaceId(workspace.getId());
         actionCollectionDTO.setPageId(
                 createdApplication.getPages().stream().findAny().get().getDefaultPageId());
         actionCollectionDTO.setPluginId(pluginId);
@@ -397,7 +433,7 @@ public class ApplicationShareTest {
         Set<Policy> applicationThemePolicies =
                 themeRepository.findById(applicationTheme.getId()).block().getPolicies();
         Set<Policy> workspacePolicies =
-                workspaceRepository.findById(createdWorkspace.getId()).block().getPolicies();
+                workspaceRepository.findById(workspace.getId()).block().getPolicies();
 
         applicationPolicies.forEach(policy -> {
             if (policy.getPermission().equals(EXPORT_APPLICATIONS.getValue())) {
@@ -536,33 +572,13 @@ public class ApplicationShareTest {
                 pluginService.findByPackageName("restapi-plugin").block().getId();
         PermissionGroup instanceAdminRole =
                 userUtils.getSuperAdminPermissionGroup().block();
-        Workspace workspace = new Workspace();
-        workspace.setName(testName);
-        Workspace createdWorkspace =
-                workspaceService.create(workspace, testUser, TRUE).block();
-        List<PermissionGroup> defaultWorkspaceRoles = permissionGroupService
-                .findAllByIds(createdWorkspace.getDefaultPermissionGroups())
-                .collectList()
-                .block();
-        String adminRoleId = defaultWorkspaceRoles.stream()
-                .filter(role -> role.getName().startsWith(ADMINISTRATOR))
-                .map(role -> role.getId())
-                .findFirst()
-                .get();
-        String devRoleId = defaultWorkspaceRoles.stream()
-                .filter(role -> role.getName().startsWith(DEVELOPER))
-                .map(role -> role.getId())
-                .findFirst()
-                .get();
-        String viewRoleId = defaultWorkspaceRoles.stream()
-                .filter(role -> role.getName().startsWith(VIEWER))
-                .map(role -> role.getId())
-                .findFirst()
-                .get();
+        String adminRoleId = workspaceAdminRole.getId();
+        String devRoleId = workspaceDevRole.getId();
+        String viewRoleId = workspaceViewRole.getId();
 
         Application application = new Application();
         application.setName(testName);
-        application.setWorkspaceId(createdWorkspace.getId());
+        application.setWorkspaceId(workspace.getId());
         Application createdApplication =
                 applicationPageService.createApplication(application).block();
 
@@ -592,7 +608,7 @@ public class ApplicationShareTest {
 
         ActionDTO action = new ActionDTO();
         action.setName(testName);
-        action.setWorkspaceId(createdWorkspace.getId());
+        action.setWorkspaceId(workspace.getId());
         action.setPluginId(pluginId);
         action.setPageId(createdApplication.getPages().get(0).getId());
         ActionConfiguration actionConfiguration = new ActionConfiguration();
@@ -708,7 +724,7 @@ public class ApplicationShareTest {
         Set<Policy> applicationThemePolicies =
                 themeRepository.findById(applicationTheme.getId()).block().getPolicies();
         Set<Policy> workspacePolicies =
-                workspaceRepository.findById(createdWorkspace.getId()).block().getPolicies();
+                workspaceRepository.findById(workspace.getId()).block().getPolicies();
 
         applicationPolicies.forEach(policy -> {
             if (policy.getPermission().equals(EXPORT_APPLICATIONS.getValue())) {
@@ -848,33 +864,13 @@ public class ApplicationShareTest {
                 pluginService.findByPackageName("restapi-plugin").block().getId();
         PermissionGroup instanceAdminRole =
                 userUtils.getSuperAdminPermissionGroup().block();
-        Workspace workspace = new Workspace();
-        workspace.setName(testName);
-        Workspace createdWorkspace =
-                workspaceService.create(workspace, testUser, TRUE).block();
-        List<PermissionGroup> defaultWorkspaceRoles = permissionGroupService
-                .findAllByIds(createdWorkspace.getDefaultPermissionGroups())
-                .collectList()
-                .block();
-        String adminRoleId = defaultWorkspaceRoles.stream()
-                .filter(role -> role.getName().startsWith(ADMINISTRATOR))
-                .map(role -> role.getId())
-                .findFirst()
-                .get();
-        String devRoleId = defaultWorkspaceRoles.stream()
-                .filter(role -> role.getName().startsWith(DEVELOPER))
-                .map(role -> role.getId())
-                .findFirst()
-                .get();
-        String viewRoleId = defaultWorkspaceRoles.stream()
-                .filter(role -> role.getName().startsWith(VIEWER))
-                .map(role -> role.getId())
-                .findFirst()
-                .get();
+        String adminRoleId = workspaceAdminRole.getId();
+        String devRoleId = workspaceDevRole.getId();
+        String viewRoleId = workspaceViewRole.getId();
 
         Application application = new Application();
         application.setName(testName);
-        application.setWorkspaceId(createdWorkspace.getId());
+        application.setWorkspaceId(workspace.getId());
         Application createdApplication =
                 applicationPageService.createApplication(application).block();
 
@@ -911,7 +907,7 @@ public class ApplicationShareTest {
 
         ActionDTO action = new ActionDTO();
         action.setName(testName);
-        action.setWorkspaceId(createdWorkspace.getId());
+        action.setWorkspaceId(workspace.getId());
         action.setPluginId(pluginId);
         action.setPageId(createdApplication.getPages().get(0).getId());
         ActionConfiguration actionConfiguration = new ActionConfiguration();
@@ -976,7 +972,7 @@ public class ApplicationShareTest {
         Set<Policy> newActionPolicies =
                 newActionRepository.findById(createdActionBlock.getId()).block().getPolicies();
         Set<Policy> workspacePolicies =
-                workspaceRepository.findById(createdWorkspace.getId()).block().getPolicies();
+                workspaceRepository.findById(workspace.getId()).block().getPolicies();
 
         applicationPolicies.forEach(policy -> {
             if (policy.getPermission().equals(EXPORT_APPLICATIONS.getValue())) {
@@ -1092,33 +1088,13 @@ public class ApplicationShareTest {
                 pluginService.findByPackageName("restapi-plugin").block().getId();
         PermissionGroup instanceAdminRole =
                 userUtils.getSuperAdminPermissionGroup().block();
-        Workspace workspace = new Workspace();
-        workspace.setName(testName);
-        Workspace createdWorkspace =
-                workspaceService.create(workspace, testUser, TRUE).block();
-        List<PermissionGroup> defaultWorkspaceRoles = permissionGroupService
-                .findAllByIds(createdWorkspace.getDefaultPermissionGroups())
-                .collectList()
-                .block();
-        String adminRoleId = defaultWorkspaceRoles.stream()
-                .filter(role -> role.getName().startsWith(ADMINISTRATOR))
-                .map(role -> role.getId())
-                .findFirst()
-                .get();
-        String devRoleId = defaultWorkspaceRoles.stream()
-                .filter(role -> role.getName().startsWith(DEVELOPER))
-                .map(role -> role.getId())
-                .findFirst()
-                .get();
-        String viewRoleId = defaultWorkspaceRoles.stream()
-                .filter(role -> role.getName().startsWith(VIEWER))
-                .map(role -> role.getId())
-                .findFirst()
-                .get();
+        String adminRoleId = workspaceAdminRole.getId();
+        String devRoleId = workspaceDevRole.getId();
+        String viewRoleId = workspaceViewRole.getId();
 
         Application application = new Application();
         application.setName(testName);
-        application.setWorkspaceId(createdWorkspace.getId());
+        application.setWorkspaceId(workspace.getId());
         Application createdApplication =
                 applicationPageService.createApplication(application).block();
 
@@ -1141,7 +1117,7 @@ public class ApplicationShareTest {
 
         ActionDTO action = new ActionDTO();
         action.setName(testName);
-        action.setWorkspaceId(createdWorkspace.getId());
+        action.setWorkspaceId(workspace.getId());
         action.setPluginId(pluginId);
         action.setPageId(createdApplication.getPages().get(0).getId());
         ActionConfiguration actionConfiguration = new ActionConfiguration();
@@ -1219,7 +1195,7 @@ public class ApplicationShareTest {
         Set<Policy> newActionPolicies =
                 newActionRepository.findById(createdActionBlock.getId()).block().getPolicies();
         Set<Policy> workspacePolicies =
-                workspaceRepository.findById(createdWorkspace.getId()).block().getPolicies();
+                workspaceRepository.findById(workspace.getId()).block().getPolicies();
 
         applicationPolicies.forEach(policy -> {
             if (policy.getPermission().equals(EXPORT_APPLICATIONS.getValue())) {
@@ -1335,14 +1311,10 @@ public class ApplicationShareTest {
     @WithUserDetails(value = "usertest@usertest.com")
     public void testDeleteDefaultRoleForTestUser_deleteDevRole() {
         String testName = "testDeleteDefaultRoleForTestUser_deleteDevRole";
-        Workspace workspace = new Workspace();
-        workspace.setName(testName);
-        Workspace createdWorkspace =
-                workspaceService.create(workspace, testUser, TRUE).block();
 
         Application application = new Application();
         application.setName(testName);
-        application.setWorkspaceId(createdWorkspace.getId());
+        application.setWorkspaceId(workspace.getId());
         Application createdApplication =
                 applicationPageService.createApplication(application).block();
 
@@ -1363,33 +1335,13 @@ public class ApplicationShareTest {
         String testName = "testDeleteDefaultRoleForTestUser_deleteDevRoleWhenViewRolePresent";
         PermissionGroup instanceAdminRole =
                 userUtils.getSuperAdminPermissionGroup().block();
-        Workspace workspace = new Workspace();
-        workspace.setName(testName);
-        Workspace createdWorkspace =
-                workspaceService.create(workspace, testUser, TRUE).block();
-        List<PermissionGroup> defaultWorkspaceRoles = permissionGroupService
-                .findAllByIds(createdWorkspace.getDefaultPermissionGroups())
-                .collectList()
-                .block();
-        String adminRoleId = defaultWorkspaceRoles.stream()
-                .filter(role -> role.getName().startsWith(ADMINISTRATOR))
-                .map(role -> role.getId())
-                .findFirst()
-                .get();
-        String devRoleId = defaultWorkspaceRoles.stream()
-                .filter(role -> role.getName().startsWith(DEVELOPER))
-                .map(role -> role.getId())
-                .findFirst()
-                .get();
-        String viewRoleId = defaultWorkspaceRoles.stream()
-                .filter(role -> role.getName().startsWith(VIEWER))
-                .map(role -> role.getId())
-                .findFirst()
-                .get();
+        String adminRoleId = workspaceAdminRole.getId();
+        String devRoleId = workspaceDevRole.getId();
+        String viewRoleId = workspaceViewRole.getId();
 
         Application application = new Application();
         application.setName(testName);
-        application.setWorkspaceId(createdWorkspace.getId());
+        application.setWorkspaceId(workspace.getId());
         Application createdApplication =
                 applicationPageService.createApplication(application).block();
 
@@ -1446,14 +1398,10 @@ public class ApplicationShareTest {
     @WithUserDetails(value = "usertest@usertest.com")
     public void testDeleteDefaultRoleForTestUser_deleteViewRole() {
         String testName = "testDeleteDefaultRoleForTestUser_deleteViewRole";
-        Workspace workspace = new Workspace();
-        workspace.setName(testName);
-        Workspace createdWorkspace =
-                workspaceService.create(workspace, testUser, TRUE).block();
 
         Application application = new Application();
         application.setName(testName);
-        application.setWorkspaceId(createdWorkspace.getId());
+        application.setWorkspaceId(workspace.getId());
         Application createdApplication =
                 applicationPageService.createApplication(application).block();
 
@@ -1472,14 +1420,10 @@ public class ApplicationShareTest {
     @WithUserDetails(value = "usertest@usertest.com")
     public void testFetchAllDefaultRolesTestUser_userHasWorkspaceAdminAccess() {
         String testName = "testFetchAllDefaultRolesTestUser_userHasWorkspaceAdminAccess";
-        Workspace workspace = new Workspace();
-        workspace.setName(testName);
-        Workspace createdWorkspace =
-                workspaceService.create(workspace, testUser, TRUE).block();
 
         Application application = new Application();
         application.setName(testName);
-        application.setWorkspaceId(createdWorkspace.getId());
+        application.setWorkspaceId(workspace.getId());
         Application createdApplication =
                 applicationPageService.createApplication(application).block();
 
@@ -1497,14 +1441,10 @@ public class ApplicationShareTest {
     @WithUserDetails(value = "usertest@usertest.com")
     public void testFetchAllDefaultRolesTestUser_userHasWorkspaceDeveloperAccess() {
         String testName = "testFetchAllDefaultRolesTestUser_userHasWorkspaceDeveloperAccess";
-        Workspace workspace = new Workspace();
-        workspace.setName(testName);
-        Workspace createdWorkspace =
-                workspaceService.create(workspace, testUser, TRUE).block();
 
         Application application = new Application();
         application.setName(testName);
-        application.setWorkspaceId(createdWorkspace.getId());
+        application.setWorkspaceId(workspace.getId());
         Application createdApplication =
                 applicationPageService.createApplication(application).block();
 
@@ -1512,19 +1452,6 @@ public class ApplicationShareTest {
         user.setEmail(testName);
         user.setPassword(testName);
         User newUser = userService.userCreate(user, false).block();
-
-        List<PermissionGroup> defaultWorkspaceRoles = permissionGroupService
-                .findAllByIds(createdWorkspace.getDefaultPermissionGroups())
-                .collectList()
-                .block();
-        PermissionGroup workspaceAdminRole = defaultWorkspaceRoles.stream()
-                .filter(role -> role.getName().startsWith(ADMINISTRATOR))
-                .findFirst()
-                .get();
-        PermissionGroup workspaceDevRole = defaultWorkspaceRoles.stream()
-                .filter(role -> role.getName().startsWith(DEVELOPER))
-                .findFirst()
-                .get();
 
         permissionGroupService.assignToUser(workspaceAdminRole, newUser).block();
         permissionGroupService.assignToUser(workspaceDevRole, testUser).block();
@@ -1544,14 +1471,10 @@ public class ApplicationShareTest {
     @WithUserDetails(value = "usertest@usertest.com")
     public void testFetchAllDefaultRolesTestUser_userHasWorkspaceViewerAccess() {
         String testName = "testFetchAllDefaultRolesTestUser_userHasWorkspaceViewerAccess";
-        Workspace workspace = new Workspace();
-        workspace.setName(testName);
-        Workspace createdWorkspace =
-                workspaceService.create(workspace, testUser, TRUE).block();
 
         Application application = new Application();
         application.setName(testName);
-        application.setWorkspaceId(createdWorkspace.getId());
+        application.setWorkspaceId(workspace.getId());
         Application createdApplication =
                 applicationPageService.createApplication(application).block();
 
@@ -1559,19 +1482,6 @@ public class ApplicationShareTest {
         user.setEmail(testName);
         user.setPassword(testName);
         User newUser = userService.userCreate(user, false).block();
-
-        List<PermissionGroup> defaultWorkspaceRoles = permissionGroupService
-                .findAllByIds(createdWorkspace.getDefaultPermissionGroups())
-                .collectList()
-                .block();
-        PermissionGroup workspaceAdminRole = defaultWorkspaceRoles.stream()
-                .filter(role -> role.getName().startsWith(ADMINISTRATOR))
-                .findFirst()
-                .get();
-        PermissionGroup workspaceViewRole = defaultWorkspaceRoles.stream()
-                .filter(role -> role.getName().startsWith(VIEWER))
-                .findFirst()
-                .get();
 
         permissionGroupService.assignToUser(workspaceAdminRole, newUser).block();
         permissionGroupService.assignToUser(workspaceViewRole, testUser).block();
@@ -1589,14 +1499,10 @@ public class ApplicationShareTest {
     @WithUserDetails(value = "usertest@usertest.com")
     public void testFetchAllDefaultRolesTestUser_userHasApplicationDeveloperAccess() {
         String testName = "testFetchAllDefaultRolesTestUser_userHasApplicationDeveloperAccess";
-        Workspace workspace = new Workspace();
-        workspace.setName(testName);
-        Workspace createdWorkspace =
-                workspaceService.create(workspace, testUser, TRUE).block();
 
         Application application = new Application();
         application.setName(testName);
-        application.setWorkspaceId(createdWorkspace.getId());
+        application.setWorkspaceId(workspace.getId());
         Application createdApplication =
                 applicationPageService.createApplication(application).block();
 
@@ -1605,14 +1511,6 @@ public class ApplicationShareTest {
         user.setPassword(testName);
         User newUser = userService.userCreate(user, false).block();
 
-        List<PermissionGroup> defaultWorkspaceRoles = permissionGroupService
-                .findAllByIds(createdWorkspace.getDefaultPermissionGroups())
-                .collectList()
-                .block();
-        PermissionGroup workspaceAdminRole = defaultWorkspaceRoles.stream()
-                .filter(role -> role.getName().startsWith(ADMINISTRATOR))
-                .findFirst()
-                .get();
         PermissionGroup applicationDevRole = applicationService
                 .createDefaultRole(createdApplication, APPLICATION_DEVELOPER)
                 .block();
@@ -1635,14 +1533,10 @@ public class ApplicationShareTest {
     @WithUserDetails(value = "usertest@usertest.com")
     public void testFetchAllDefaultRolesTestUser_userHasApplicationViewerAccess() {
         String testName = "testFetchAllDefaultRolesTestUser_userHasApplicationViewerAccess";
-        Workspace workspace = new Workspace();
-        workspace.setName(testName);
-        Workspace createdWorkspace =
-                workspaceService.create(workspace, testUser, TRUE).block();
 
         Application application = new Application();
         application.setName(testName);
-        application.setWorkspaceId(createdWorkspace.getId());
+        application.setWorkspaceId(workspace.getId());
         Application createdApplication =
                 applicationPageService.createApplication(application).block();
 
@@ -1651,14 +1545,6 @@ public class ApplicationShareTest {
         user.setPassword(testName);
         User newUser = userService.userCreate(user, false).block();
 
-        List<PermissionGroup> defaultWorkspaceRoles = permissionGroupService
-                .findAllByIds(createdWorkspace.getDefaultPermissionGroups())
-                .collectList()
-                .block();
-        PermissionGroup workspaceAdminRole = defaultWorkspaceRoles.stream()
-                .filter(role -> role.getName().startsWith(ADMINISTRATOR))
-                .findFirst()
-                .get();
         PermissionGroup applicationViewRole = applicationService
                 .createDefaultRole(createdApplication, APPLICATION_VIEWER)
                 .block();
@@ -1679,14 +1565,10 @@ public class ApplicationShareTest {
     @WithUserDetails(value = "usertest@usertest.com")
     public void testFetchAllDefaultRolesTestUser_userHasWorkspaceDeveloperApplicationViewerAccess() {
         String testName = "testFetchAllDefaultRolesTestUser_userHasWorkspaceDeveloperApplicationViewerAccess";
-        Workspace workspace = new Workspace();
-        workspace.setName(testName);
-        Workspace createdWorkspace =
-                workspaceService.create(workspace, testUser, TRUE).block();
 
         Application application = new Application();
         application.setName(testName);
-        application.setWorkspaceId(createdWorkspace.getId());
+        application.setWorkspaceId(workspace.getId());
         Application createdApplication =
                 applicationPageService.createApplication(application).block();
 
@@ -1695,18 +1577,6 @@ public class ApplicationShareTest {
         user.setPassword(testName);
         User newUser = userService.userCreate(user, false).block();
 
-        List<PermissionGroup> defaultWorkspaceRoles = permissionGroupService
-                .findAllByIds(createdWorkspace.getDefaultPermissionGroups())
-                .collectList()
-                .block();
-        PermissionGroup workspaceAdminRole = defaultWorkspaceRoles.stream()
-                .filter(role -> role.getName().startsWith(ADMINISTRATOR))
-                .findFirst()
-                .get();
-        PermissionGroup workspaceDevRole = defaultWorkspaceRoles.stream()
-                .filter(role -> role.getName().startsWith(DEVELOPER))
-                .findFirst()
-                .get();
         PermissionGroup applicationViewRole = applicationService
                 .createDefaultRole(createdApplication, APPLICATION_VIEWER)
                 .block();
@@ -1730,14 +1600,10 @@ public class ApplicationShareTest {
     @WithUserDetails(value = "usertest@usertest.com")
     public void testFetchAllDefaultRolesTestUser_userHasWorkspaceViewerApplicationDeveloperAccess() {
         String testName = "testFetchAllDefaultRolesTestUser_userHasWorkspaceViewerApplicationDeveloperAccess";
-        Workspace workspace = new Workspace();
-        workspace.setName(testName);
-        Workspace createdWorkspace =
-                workspaceService.create(workspace, testUser, TRUE).block();
 
         Application application = new Application();
         application.setName(testName);
-        application.setWorkspaceId(createdWorkspace.getId());
+        application.setWorkspaceId(workspace.getId());
         Application createdApplication =
                 applicationPageService.createApplication(application).block();
 
@@ -1746,18 +1612,6 @@ public class ApplicationShareTest {
         user.setPassword(testName);
         User newUser = userService.userCreate(user, false).block();
 
-        List<PermissionGroup> defaultWorkspaceRoles = permissionGroupService
-                .findAllByIds(createdWorkspace.getDefaultPermissionGroups())
-                .collectList()
-                .block();
-        PermissionGroup workspaceAdminRole = defaultWorkspaceRoles.stream()
-                .filter(role -> role.getName().startsWith(ADMINISTRATOR))
-                .findFirst()
-                .get();
-        PermissionGroup workspaceViewRole = defaultWorkspaceRoles.stream()
-                .filter(role -> role.getName().startsWith(VIEWER))
-                .findFirst()
-                .get();
         PermissionGroup applicationDevRole = applicationService
                 .createDefaultRole(createdApplication, APPLICATION_DEVELOPER)
                 .block();
@@ -1781,14 +1635,10 @@ public class ApplicationShareTest {
     @WithUserDetails(value = "usertest@usertest.com")
     public void testApplicationNameUpdate_checkDefaultRoleNamesUpdated() {
         String testName = "testApplicationNameUpdate_checkDefaultRoleNamesUpdated";
-        Workspace workspace = new Workspace();
-        workspace.setName(testName);
-        Workspace createdWorkspace =
-                workspaceService.create(workspace, testUser, TRUE).block();
 
         Application application = new Application();
         application.setName(testName);
-        application.setWorkspaceId(createdWorkspace.getId());
+        application.setWorkspaceId(workspace.getId());
         Application createdApplication =
                 applicationPageService.createApplication(application).block();
 
@@ -1817,14 +1667,10 @@ public class ApplicationShareTest {
     @WithUserDetails(value = "usertest@usertest.com")
     public void testDefaultBranchedApplicationNameUpdate_checkDefaultRoleNamesUpdated() {
         String testName = "testDefaultBranchedApplicationNameUpdate_checkDefaultRoleNamesUpdated";
-        Workspace workspace = new Workspace();
-        workspace.setName(testName);
-        Workspace createdWorkspace =
-                workspaceService.create(workspace, testUser, TRUE).block();
 
         Application application = new Application();
         application.setName(testName);
-        application.setWorkspaceId(createdWorkspace.getId());
+        application.setWorkspaceId(workspace.getId());
         GitApplicationMetadata gitData = new GitApplicationMetadata();
         gitData.setBranchName("release");
         gitData.setDefaultBranchName("release");
@@ -1865,14 +1711,10 @@ public class ApplicationShareTest {
     @WithUserDetails(value = "usertest@usertest.com")
     public void testBranchedApplicationNameUpdate_checkDefaultRoleNamesNotUpdated() {
         String testName = "testBranchedApplicationNameUpdate_checkDefaultRoleNamesNotUpdated";
-        Workspace workspace = new Workspace();
-        workspace.setName(testName);
-        Workspace createdWorkspace =
-                workspaceService.create(workspace, testUser, TRUE).block();
 
         Application application = new Application();
         application.setName(testName);
-        application.setWorkspaceId(createdWorkspace.getId());
+        application.setWorkspaceId(workspace.getId());
         GitApplicationMetadata gitData = new GitApplicationMetadata();
         gitData.setBranchName("release");
         gitData.setDefaultBranchName("release");
@@ -1888,10 +1730,10 @@ public class ApplicationShareTest {
                 })
                 .block();
 
-        Application branchedApplication = importExportApplicationService
+        Application branchedApplication = exportApplicationService
                 .exportApplicationById(createdApplication.getId(), gitData.getBranchName())
-                .flatMap(applicationJson -> importExportApplicationService.importApplicationInWorkspaceFromGit(
-                        createdWorkspace.getId(), applicationJson, null, gitData.getBranchName()))
+                .flatMap(applicationJson -> importApplicationService.importApplicationInWorkspaceFromGit(
+                        workspace.getId(), applicationJson, null, gitData.getBranchName()))
                 .flatMap(application1 -> {
                     GitApplicationMetadata gitData1 = new GitApplicationMetadata();
                     gitData1.setBranchName("testBranch");
@@ -1932,14 +1774,10 @@ public class ApplicationShareTest {
     @WithUserDetails(value = "usertest@usertest.com")
     public void testDeleteApplication_deleteDefaultApplicationRoles() {
         String testName = "testDeleteApplication_deleteDefaultApplicationRoles";
-        Workspace workspace = new Workspace();
-        workspace.setName(testName);
-        Workspace createdWorkspace =
-                workspaceService.create(workspace, testUser, TRUE).block();
 
         Application application = new Application();
         application.setName(testName);
-        application.setWorkspaceId(createdWorkspace.getId());
+        application.setWorkspaceId(workspace.getId());
         Application createdApplication =
                 applicationPageService.createApplication(application).block();
 
@@ -1968,14 +1806,10 @@ public class ApplicationShareTest {
     @WithUserDetails(value = "usertest@usertest.com")
     public void testBranchedApplicationDelete_checkDefaultRoleExist() {
         String testName = "testBranchedApplicationDelete_checkDefaultRoleExist";
-        Workspace workspace = new Workspace();
-        workspace.setName(testName);
-        Workspace createdWorkspace =
-                workspaceService.create(workspace, testUser, TRUE).block();
 
         Application application = new Application();
         application.setName(testName);
-        application.setWorkspaceId(createdWorkspace.getId());
+        application.setWorkspaceId(workspace.getId());
         GitApplicationMetadata gitData = new GitApplicationMetadata();
         gitData.setBranchName("release");
         gitData.setDefaultBranchName("release");
@@ -1991,10 +1825,10 @@ public class ApplicationShareTest {
                 })
                 .block();
 
-        Application branchedApplication = importExportApplicationService
+        Application branchedApplication = exportApplicationService
                 .exportApplicationById(createdApplication.getId(), gitData.getBranchName())
-                .flatMap(applicationJson -> importExportApplicationService.importApplicationInWorkspaceFromGit(
-                        createdWorkspace.getId(), applicationJson, null, gitData.getBranchName()))
+                .flatMap(applicationJson -> importApplicationService.importApplicationInWorkspaceFromGit(
+                        workspace.getId(), applicationJson, null, gitData.getBranchName()))
                 .flatMap(application1 -> {
                     GitApplicationMetadata gitData1 = new GitApplicationMetadata();
                     gitData1.setBranchName("testBranch");
@@ -2041,14 +1875,10 @@ public class ApplicationShareTest {
                 .mapToObj(index -> testName + index + "@applicationShareTest.com")
                 .map(String::toLowerCase)
                 .collect(Collectors.toSet());
-        Workspace workspace = new Workspace();
-        workspace.setName(testName);
-        Workspace createdWorkspace =
-                workspaceService.create(workspace, testUser, TRUE).block();
 
         Application application = new Application();
         application.setName(testName);
-        application.setWorkspaceId(createdWorkspace.getId());
+        application.setWorkspaceId(workspace.getId());
         Application createdApplication =
                 applicationPageService.createApplication(application).block();
 
@@ -2128,14 +1958,10 @@ public class ApplicationShareTest {
                 .mapToObj(index -> testName + index + "@applicationShareTest.com")
                 .map(String::toLowerCase)
                 .collect(Collectors.toSet());
-        Workspace workspace = new Workspace();
-        workspace.setName(testName);
-        Workspace createdWorkspace =
-                workspaceService.create(workspace, testUser, TRUE).block();
 
         Application application = new Application();
         application.setName(testName);
-        application.setWorkspaceId(createdWorkspace.getId());
+        application.setWorkspaceId(workspace.getId());
         Application createdApplication =
                 applicationPageService.createApplication(application).block();
 
@@ -2220,14 +2046,10 @@ public class ApplicationShareTest {
                 .mapToObj(index -> testName + index + "@applicationShareTest.com")
                 .map(String::toLowerCase)
                 .collect(Collectors.toSet());
-        Workspace workspace = new Workspace();
-        workspace.setName(testName);
-        Workspace createdWorkspace =
-                workspaceService.create(workspace, testUser, TRUE).block();
 
         Application application = new Application();
         application.setName(testName);
-        application.setWorkspaceId(createdWorkspace.getId());
+        application.setWorkspaceId(workspace.getId());
         Application createdApplication =
                 applicationPageService.createApplication(application).block();
 
@@ -2235,19 +2057,6 @@ public class ApplicationShareTest {
         user.setEmail(testName);
         user.setPassword(testName);
         User newUser = userService.userCreate(user, false).block();
-
-        List<PermissionGroup> defaultWorkspaceRoles = permissionGroupService
-                .findAllByIds(createdWorkspace.getDefaultPermissionGroups())
-                .collectList()
-                .block();
-        PermissionGroup workspaceAdminRole = defaultWorkspaceRoles.stream()
-                .filter(role -> role.getName().startsWith(ADMINISTRATOR))
-                .findFirst()
-                .get();
-        PermissionGroup workspaceDevRole = defaultWorkspaceRoles.stream()
-                .filter(role -> role.getName().startsWith(DEVELOPER))
-                .findFirst()
-                .get();
 
         permissionGroupService.assignToUser(workspaceAdminRole, newUser).block();
         permissionGroupService.assignToUser(workspaceDevRole, testUser).block();
@@ -2310,14 +2119,10 @@ public class ApplicationShareTest {
                 .mapToObj(index -> testName + index + "@applicationShareTest.com")
                 .map(String::toLowerCase)
                 .collect(Collectors.toSet());
-        Workspace workspace = new Workspace();
-        workspace.setName(testName);
-        Workspace createdWorkspace =
-                workspaceService.create(workspace, testUser, TRUE).block();
 
         Application application = new Application();
         application.setName(testName);
-        application.setWorkspaceId(createdWorkspace.getId());
+        application.setWorkspaceId(workspace.getId());
         Application createdApplication =
                 applicationPageService.createApplication(application).block();
 
@@ -2325,19 +2130,6 @@ public class ApplicationShareTest {
         user.setEmail(testName);
         user.setPassword(testName);
         User newUser = userService.userCreate(user, false).block();
-
-        List<PermissionGroup> defaultWorkspaceRoles = permissionGroupService
-                .findAllByIds(createdWorkspace.getDefaultPermissionGroups())
-                .collectList()
-                .block();
-        PermissionGroup workspaceAdminRole = defaultWorkspaceRoles.stream()
-                .filter(role -> role.getName().startsWith(ADMINISTRATOR))
-                .findFirst()
-                .get();
-        PermissionGroup workspaceDevRole = defaultWorkspaceRoles.stream()
-                .filter(role -> role.getName().startsWith(DEVELOPER))
-                .findFirst()
-                .get();
 
         permissionGroupService.assignToUser(workspaceAdminRole, newUser).block();
         permissionGroupService.assignToUser(workspaceDevRole, testUser).block();
@@ -2400,14 +2192,10 @@ public class ApplicationShareTest {
                 .mapToObj(index -> testName + index + "@applicationShareTest.com")
                 .map(String::toLowerCase)
                 .collect(Collectors.toSet());
-        Workspace workspace = new Workspace();
-        workspace.setName(testName);
-        Workspace createdWorkspace =
-                workspaceService.create(workspace, testUser, TRUE).block();
 
         Application application = new Application();
         application.setName(testName);
-        application.setWorkspaceId(createdWorkspace.getId());
+        application.setWorkspaceId(workspace.getId());
         Application createdApplication =
                 applicationPageService.createApplication(application).block();
 
@@ -2415,19 +2203,6 @@ public class ApplicationShareTest {
         user.setEmail(testName);
         user.setPassword(testName);
         User newUser = userService.userCreate(user, false).block();
-
-        List<PermissionGroup> defaultWorkspaceRoles = permissionGroupService
-                .findAllByIds(createdWorkspace.getDefaultPermissionGroups())
-                .collectList()
-                .block();
-        PermissionGroup workspaceAdminRole = defaultWorkspaceRoles.stream()
-                .filter(role -> role.getName().startsWith(ADMINISTRATOR))
-                .findFirst()
-                .get();
-        PermissionGroup workspaceViewRole = defaultWorkspaceRoles.stream()
-                .filter(role -> role.getName().startsWith(VIEWER))
-                .findFirst()
-                .get();
 
         permissionGroupService.assignToUser(workspaceAdminRole, newUser).block();
         permissionGroupService.assignToUser(workspaceViewRole, testUser).block();
@@ -2457,14 +2232,10 @@ public class ApplicationShareTest {
                 .mapToObj(index -> testName + index + "@applicationShareTest.com")
                 .map(String::toLowerCase)
                 .collect(Collectors.toSet());
-        Workspace workspace = new Workspace();
-        workspace.setName(testName);
-        Workspace createdWorkspace =
-                workspaceService.create(workspace, testUser, TRUE).block();
 
         Application application = new Application();
         application.setName(testName);
-        application.setWorkspaceId(createdWorkspace.getId());
+        application.setWorkspaceId(workspace.getId());
         Application createdApplication =
                 applicationPageService.createApplication(application).block();
 
@@ -2472,20 +2243,6 @@ public class ApplicationShareTest {
         user.setEmail(testName);
         user.setPassword(testName);
         User newUser = userService.userCreate(user, false).block();
-
-        List<PermissionGroup> defaultWorkspaceRoles = permissionGroupService
-                .findAllByIds(createdWorkspace.getDefaultPermissionGroups())
-                .collectList()
-                .block();
-        PermissionGroup workspaceAdminRole = defaultWorkspaceRoles.stream()
-                .filter(role -> role.getName().startsWith(ADMINISTRATOR))
-                .findFirst()
-                .get();
-        PermissionGroup workspaceViewRole = defaultWorkspaceRoles.stream()
-                .filter(role -> role.getName().startsWith(VIEWER))
-                .findFirst()
-                .get();
-
         permissionGroupService.assignToUser(workspaceAdminRole, newUser).block();
         permissionGroupService.assignToUser(workspaceViewRole, testUser).block();
         permissionGroupService.unassignFromUser(workspaceAdminRole, testUser).block();
@@ -2545,14 +2302,10 @@ public class ApplicationShareTest {
                 .mapToObj(index -> testName + index + "@applicationShareTest.com")
                 .map(String::toLowerCase)
                 .collect(Collectors.toSet());
-        Workspace workspace = new Workspace();
-        workspace.setName(testName);
-        Workspace createdWorkspace =
-                workspaceService.create(workspace, testUser, TRUE).block();
 
         Application application = new Application();
         application.setName(testName);
-        application.setWorkspaceId(createdWorkspace.getId());
+        application.setWorkspaceId(workspace.getId());
         Application createdApplication =
                 applicationPageService.createApplication(application).block();
 
@@ -2561,14 +2314,6 @@ public class ApplicationShareTest {
         user.setPassword(testName);
         User newUser = userService.userCreate(user, false).block();
 
-        List<PermissionGroup> defaultWorkspaceRoles = permissionGroupService
-                .findAllByIds(createdWorkspace.getDefaultPermissionGroups())
-                .collectList()
-                .block();
-        PermissionGroup workspaceAdminRole = defaultWorkspaceRoles.stream()
-                .filter(role -> role.getName().startsWith(ADMINISTRATOR))
-                .findFirst()
-                .get();
         PermissionGroup applicationDevRole = applicationService
                 .createDefaultRole(createdApplication, APPLICATION_DEVELOPER)
                 .block();
@@ -2624,14 +2369,10 @@ public class ApplicationShareTest {
                 .mapToObj(index -> testName + index + "@applicationShareTest.com")
                 .map(String::toLowerCase)
                 .collect(Collectors.toSet());
-        Workspace workspace = new Workspace();
-        workspace.setName(testName);
-        Workspace createdWorkspace =
-                workspaceService.create(workspace, testUser, TRUE).block();
 
         Application application = new Application();
         application.setName(testName);
-        application.setWorkspaceId(createdWorkspace.getId());
+        application.setWorkspaceId(workspace.getId());
         Application createdApplication =
                 applicationPageService.createApplication(application).block();
 
@@ -2640,14 +2381,6 @@ public class ApplicationShareTest {
         user.setPassword(testName);
         User newUser = userService.userCreate(user, false).block();
 
-        List<PermissionGroup> defaultWorkspaceRoles = permissionGroupService
-                .findAllByIds(createdWorkspace.getDefaultPermissionGroups())
-                .collectList()
-                .block();
-        PermissionGroup workspaceAdminRole = defaultWorkspaceRoles.stream()
-                .filter(role -> role.getName().startsWith(ADMINISTRATOR))
-                .findFirst()
-                .get();
         PermissionGroup applicationDevRole = applicationService
                 .createDefaultRole(createdApplication, APPLICATION_DEVELOPER)
                 .block();
@@ -2711,14 +2444,10 @@ public class ApplicationShareTest {
                 .mapToObj(index -> testName + index + "@applicationShareTest.com")
                 .map(String::toLowerCase)
                 .collect(Collectors.toSet());
-        Workspace workspace = new Workspace();
-        workspace.setName(testName);
-        Workspace createdWorkspace =
-                workspaceService.create(workspace, testUser, TRUE).block();
 
         Application application = new Application();
         application.setName(testName);
-        application.setWorkspaceId(createdWorkspace.getId());
+        application.setWorkspaceId(workspace.getId());
         Application createdApplication =
                 applicationPageService.createApplication(application).block();
 
@@ -2727,14 +2456,6 @@ public class ApplicationShareTest {
         user.setPassword(testName);
         User newUser = userService.userCreate(user, false).block();
 
-        List<PermissionGroup> defaultWorkspaceRoles = permissionGroupService
-                .findAllByIds(createdWorkspace.getDefaultPermissionGroups())
-                .collectList()
-                .block();
-        PermissionGroup workspaceAdminRole = defaultWorkspaceRoles.stream()
-                .filter(role -> role.getName().startsWith(ADMINISTRATOR))
-                .findFirst()
-                .get();
         PermissionGroup applicationViewRole = applicationService
                 .createDefaultRole(createdApplication, APPLICATION_VIEWER)
                 .block();
@@ -2765,14 +2486,10 @@ public class ApplicationShareTest {
                 .mapToObj(index -> testName + index + "@applicationShareTest.com")
                 .map(String::toLowerCase)
                 .collect(Collectors.toSet());
-        Workspace workspace = new Workspace();
-        workspace.setName(testName);
-        Workspace createdWorkspace =
-                workspaceService.create(workspace, testUser, TRUE).block();
 
         Application application = new Application();
         application.setName(testName);
-        application.setWorkspaceId(createdWorkspace.getId());
+        application.setWorkspaceId(workspace.getId());
         Application createdApplication =
                 applicationPageService.createApplication(application).block();
 
@@ -2781,14 +2498,6 @@ public class ApplicationShareTest {
         user.setPassword(testName);
         User newUser = userService.userCreate(user, false).block();
 
-        List<PermissionGroup> defaultWorkspaceRoles = permissionGroupService
-                .findAllByIds(createdWorkspace.getDefaultPermissionGroups())
-                .collectList()
-                .block();
-        PermissionGroup workspaceAdminRole = defaultWorkspaceRoles.stream()
-                .filter(role -> role.getName().startsWith(ADMINISTRATOR))
-                .findFirst()
-                .get();
         PermissionGroup applicationViewRole = applicationService
                 .createDefaultRole(createdApplication, APPLICATION_VIEWER)
                 .block();
@@ -2854,14 +2563,10 @@ public class ApplicationShareTest {
                 })
                 .toList();
         userUtils.removeSuperUser(List.of(testUser)).block();
-        Workspace workspace = new Workspace();
-        workspace.setName(testName);
-        Workspace createdWorkspace =
-                workspaceService.create(workspace, testUser, TRUE).block();
 
         Application application = new Application();
         application.setName(testName);
-        application.setWorkspaceId(createdWorkspace.getId());
+        application.setWorkspaceId(workspace.getId());
         Application createdApplication =
                 applicationPageService.createApplication(application).block();
 
@@ -2934,14 +2639,9 @@ public class ApplicationShareTest {
                 .toList();
         userUtils.removeSuperUser(List.of(testUser)).block();
 
-        Workspace workspace = new Workspace();
-        workspace.setName(testName);
-        Workspace createdWorkspace =
-                workspaceService.create(workspace, testUser, TRUE).block();
-
         Application application = new Application();
         application.setName(testName);
-        application.setWorkspaceId(createdWorkspace.getId());
+        application.setWorkspaceId(workspace.getId());
         Application createdApplication =
                 applicationPageService.createApplication(application).block();
 
@@ -3016,14 +2716,9 @@ public class ApplicationShareTest {
                 .map(String::toLowerCase)
                 .collect(Collectors.toSet());
 
-        Workspace workspace = new Workspace();
-        workspace.setName(testName);
-        Workspace createdWorkspace =
-                workspaceService.create(workspace, testUser, TRUE).block();
-
         Application application = new Application();
         application.setName(testName);
-        application.setWorkspaceId(createdWorkspace.getId());
+        application.setWorkspaceId(workspace.getId());
         Application createdApplication =
                 applicationPageService.createApplication(application).block();
 
@@ -3138,14 +2833,9 @@ public class ApplicationShareTest {
         userUtils.removeSuperUser(List.of(testUser)).block();
         Set<String> groupIdsToInvite = groups.stream().map(UserGroup::getId).collect(Collectors.toSet());
 
-        Workspace workspace = new Workspace();
-        workspace.setName(testName);
-        Workspace createdWorkspace =
-                workspaceService.create(workspace, testUser, TRUE).block();
-
         Application application = new Application();
         application.setName(testName);
-        application.setWorkspaceId(createdWorkspace.getId());
+        application.setWorkspaceId(workspace.getId());
         Application createdApplication =
                 applicationPageService.createApplication(application).block();
 
@@ -3338,14 +3028,9 @@ public class ApplicationShareTest {
         userUtils.removeSuperUser(List.of(testUser)).block();
         Set<String> groupIdsToInvite = groups.stream().map(UserGroup::getId).collect(Collectors.toSet());
 
-        Workspace workspace = new Workspace();
-        workspace.setName(testName);
-        Workspace createdWorkspace =
-                workspaceService.create(workspace, testUser, TRUE).block();
-
         Application application = new Application();
         application.setName(testName);
-        application.setWorkspaceId(createdWorkspace.getId());
+        application.setWorkspaceId(workspace.getId());
         Application createdApplication =
                 applicationPageService.createApplication(application).block();
 
@@ -3477,14 +3162,9 @@ public class ApplicationShareTest {
         userUtils.removeSuperUser(List.of(testUser)).block();
         Set<String> groupIdsToInvite = groups.stream().map(UserGroup::getId).collect(Collectors.toSet());
 
-        Workspace workspace = new Workspace();
-        workspace.setName(testName);
-        Workspace createdWorkspace =
-                workspaceService.create(workspace, testUser, TRUE).block();
-
         Application application = new Application();
         application.setName(testName);
-        application.setWorkspaceId(createdWorkspace.getId());
+        application.setWorkspaceId(workspace.getId());
         Application createdApplication =
                 applicationPageService.createApplication(application).block();
 
@@ -3564,34 +3244,15 @@ public class ApplicationShareTest {
         Set<String> groupIdsToInviteToWorkspace = Set.of(createdGroup2.getId());
         Set<String> groupIdsToInviteToApplicationAndWorkspace = Set.of(createdGroup3.getId());
 
-        Workspace workspace = new Workspace();
-        workspace.setName(testName);
-        Workspace createdWorkspace =
-                workspaceService.create(workspace, testUser, TRUE).block();
-
-        PermissionGroup adminWorkspaceRole = permissionGroupRepository
-                .findAllById(createdWorkspace.getDefaultPermissionGroups())
-                .filter(role -> role.getName().startsWith(ADMINISTRATOR))
-                .collectList()
-                .block()
-                .get(0);
-
-        PermissionGroup devWorkspaceRole = permissionGroupRepository
-                .findAllById(createdWorkspace.getDefaultPermissionGroups())
-                .filter(role -> role.getName().startsWith(DEVELOPER))
-                .collectList()
-                .block()
-                .get(0);
-
         Application application1 = new Application();
         application1.setName(testName + 1);
-        application1.setWorkspaceId(createdWorkspace.getId());
+        application1.setWorkspaceId(workspace.getId());
         Application createdApplication1 =
                 applicationPageService.createApplication(application1).block();
 
         Application application2 = new Application();
         application2.setName(testName + 2);
-        application2.setWorkspaceId(createdWorkspace.getId());
+        application2.setWorkspaceId(workspace.getId());
         Application createdApplication2 =
                 applicationPageService.createApplication(application2).block();
 
@@ -3608,12 +3269,12 @@ public class ApplicationShareTest {
         inviteToApplicationAndWorkspaceDTO1.setGroups(groupIdsToInviteToApplicationAndWorkspace);
 
         InviteUsersDTO inviteToWorkspaceDTO = new InviteUsersDTO();
-        inviteToWorkspaceDTO.setPermissionGroupId(devWorkspaceRole.getId());
+        inviteToWorkspaceDTO.setPermissionGroupId(workspaceDevRole.getId());
         inviteToWorkspaceDTO.setUsernames(usersToInviteToWorkspace);
         inviteToWorkspaceDTO.setGroups(groupIdsToInviteToWorkspace);
 
         InviteUsersDTO inviteToApplicationAndWorkspaceDTO2 = new InviteUsersDTO();
-        inviteToApplicationAndWorkspaceDTO2.setPermissionGroupId(devWorkspaceRole.getId());
+        inviteToApplicationAndWorkspaceDTO2.setPermissionGroupId(workspaceDevRole.getId());
         inviteToApplicationAndWorkspaceDTO2.setUsernames(usersToInviteToApplicationAndWorkspaceList);
         inviteToApplicationAndWorkspaceDTO2.setGroups(groupIdsToInviteToApplicationAndWorkspace);
 
@@ -3656,9 +3317,8 @@ public class ApplicationShareTest {
          * It also checks for the order of roles present inside each member.
          * Also, it checks for the individual roles which are present inside each member
          */
-        List<MemberInfoDTO> members = userWorkspaceService
-                .getWorkspaceMembers(createdWorkspace.getId())
-                .block();
+        List<MemberInfoDTO> members =
+                userWorkspaceService.getWorkspaceMembers(workspace.getId()).block();
         assertThat(members).hasSize(7);
         MemberInfoDTO member1 = members.get(0);
         assertThat(member1.getName()).isEqualTo(testUser.getName());
@@ -3666,16 +3326,16 @@ public class ApplicationShareTest {
         assertThat(member1.getRoles()).hasSize(1);
         PermissionGroupInfoDTO member1Role1 = member1.getRoles().get(0);
         assertThat(member1Role1.getEntityType()).isEqualTo(Workspace.class.getSimpleName());
-        assertThat(member1Role1.getId()).isEqualTo(adminWorkspaceRole.getId());
-        assertThat(member1Role1.getName()).isEqualTo(adminWorkspaceRole.getName());
+        assertThat(member1Role1.getId()).isEqualTo(workspaceAdminRole.getId());
+        assertThat(member1Role1.getName()).isEqualTo(workspaceAdminRole.getName());
 
         MemberInfoDTO member2 = members.get(1);
         assertThat(member2.getUsername()).isEqualToIgnoringCase("b+" + testName + "@applicationShareTest.com");
         assertThat(member2.getRoles()).hasSize(1);
         PermissionGroupInfoDTO member2Role1 = member2.getRoles().get(0);
         assertThat(member2Role1.getEntityType()).isEqualTo(Workspace.class.getSimpleName());
-        assertThat(member2Role1.getId()).isEqualTo(devWorkspaceRole.getId());
-        assertThat(member2Role1.getName()).isEqualTo(devWorkspaceRole.getName());
+        assertThat(member2Role1.getId()).isEqualTo(workspaceDevRole.getId());
+        assertThat(member2Role1.getName()).isEqualTo(workspaceDevRole.getName());
 
         MemberInfoDTO member3 = members.get(2);
         assertThat(member3.getName()).isEqualTo("b" + testName);
@@ -3683,17 +3343,16 @@ public class ApplicationShareTest {
         assertThat(member3.getRoles()).hasSize(1);
         PermissionGroupInfoDTO member3Role1 = member3.getRoles().get(0);
         assertThat(member3Role1.getEntityType()).isEqualTo(Workspace.class.getSimpleName());
-        assertThat(member3Role1.getId()).isEqualTo(devWorkspaceRole.getId());
-        assertThat(member3Role1.getName()).isEqualTo(devWorkspaceRole.getName());
-        System.out.println();
+        assertThat(member3Role1.getId()).isEqualTo(workspaceDevRole.getId());
+        assertThat(member3Role1.getName()).isEqualTo(workspaceDevRole.getName());
 
         MemberInfoDTO member4 = members.get(3);
         assertThat(member4.getUsername()).isEqualToIgnoringCase("c+" + testName + "@applicationShareTest.com");
         assertThat(member4.getRoles()).hasSize(2);
         PermissionGroupInfoDTO member4Role1 = member4.getRoles().get(0);
         assertThat(member4Role1.getEntityType()).isEqualTo(Workspace.class.getSimpleName());
-        assertThat(member4Role1.getId()).isEqualTo(devWorkspaceRole.getId());
-        assertThat(member4Role1.getName()).isEqualTo(devWorkspaceRole.getName());
+        assertThat(member4Role1.getId()).isEqualTo(workspaceDevRole.getId());
+        assertThat(member4Role1.getName()).isEqualTo(workspaceDevRole.getName());
         PermissionGroupInfoDTO member4Role2 = member4.getRoles().get(1);
         assertThat(member4Role2.getEntityType()).isEqualTo(Application.class.getSimpleName());
         assertThat(member4Role2.getEntityName()).isEqualTo(createdApplication2.getName());
@@ -3706,8 +3365,8 @@ public class ApplicationShareTest {
         assertThat(member5.getUserGroupId()).isEqualTo(createdGroup3.getId());
         PermissionGroupInfoDTO member5Role1 = member5.getRoles().get(0);
         assertThat(member5Role1.getEntityType()).isEqualTo(Workspace.class.getSimpleName());
-        assertThat(member5Role1.getId()).isEqualTo(devWorkspaceRole.getId());
-        assertThat(member5Role1.getName()).isEqualTo(devWorkspaceRole.getName());
+        assertThat(member5Role1.getId()).isEqualTo(workspaceDevRole.getId());
+        assertThat(member5Role1.getName()).isEqualTo(workspaceDevRole.getName());
         PermissionGroupInfoDTO member5Role2 = member5.getRoles().get(1);
         assertThat(member5Role2.getEntityType()).isEqualTo(Application.class.getSimpleName());
         assertThat(member5Role2.getEntityName()).isEqualTo(createdApplication2.getName());
@@ -3752,14 +3411,10 @@ public class ApplicationShareTest {
                 .thenReturn(Mono.just(new MockPluginExecutor()));
         String pluginId =
                 pluginService.findByPackageName("restapi-plugin").block().getId();
-        Workspace workspace = new Workspace();
-        workspace.setName(testName);
-        Workspace createdWorkspace =
-                workspaceService.create(workspace, testUser, TRUE).block();
 
         Application application = new Application();
         application.setName(testName);
-        application.setWorkspaceId(createdWorkspace.getId());
+        application.setWorkspaceId(workspace.getId());
         Application createdApplication =
                 applicationPageService.createApplication(application).block();
 
@@ -3808,7 +3463,7 @@ public class ApplicationShareTest {
         ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
         actionCollectionDTO.setName("testActionCollection");
         actionCollectionDTO.setApplicationId(createdApplication.getId());
-        actionCollectionDTO.setWorkspaceId(createdWorkspace.getId());
+        actionCollectionDTO.setWorkspaceId(workspace.getId());
         actionCollectionDTO.setPageId(
                 createdApplication.getPages().stream().findAny().get().getDefaultPageId());
         actionCollectionDTO.setPluginId(pluginId);
@@ -3880,14 +3535,10 @@ public class ApplicationShareTest {
                 .thenReturn(Mono.just(new MockPluginExecutor()));
         String pluginId =
                 pluginService.findByPackageName("restapi-plugin").block().getId();
-        Workspace workspace = new Workspace();
-        workspace.setName(testName);
-        Workspace createdWorkspace =
-                workspaceService.create(workspace, testUser, TRUE).block();
 
         Application application = new Application();
         application.setName(testName);
-        application.setWorkspaceId(createdWorkspace.getId());
+        application.setWorkspaceId(workspace.getId());
         Application createdApplication =
                 applicationPageService.createApplication(application).block();
 
@@ -3979,14 +3630,10 @@ public class ApplicationShareTest {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
                 .thenReturn(Mono.just(new MockPluginExecutor()));
         pluginService.findByPackageName("restapi-plugin").block().getId();
-        Workspace workspace = new Workspace();
-        workspace.setName(testName);
-        Workspace createdWorkspace =
-                workspaceService.create(workspace, testUser, TRUE).block();
 
         Application application = new Application();
         application.setName(testName);
-        application.setWorkspaceId(createdWorkspace.getId());
+        application.setWorkspaceId(workspace.getId());
         Application createdApplication =
                 applicationPageService.createApplication(application).block();
 
@@ -4034,14 +3681,10 @@ public class ApplicationShareTest {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
                 .thenReturn(Mono.just(new MockPluginExecutor()));
         pluginService.findByPackageName("restapi-plugin").block().getId();
-        Workspace workspace = new Workspace();
-        workspace.setName(testName);
-        Workspace createdWorkspace =
-                workspaceService.create(workspace, testUser, TRUE).block();
 
         Application application = new Application();
         application.setName(testName);
-        application.setWorkspaceId(createdWorkspace.getId());
+        application.setWorkspaceId(workspace.getId());
         Application createdApplication =
                 applicationPageService.createApplication(application).block();
 

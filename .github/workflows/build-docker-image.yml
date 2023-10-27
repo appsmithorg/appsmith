@@ -106,21 +106,20 @@ jobs:
         run: |
           set -o xtrace
           declare -a args
-          if [[ "${{ inputs.pr }}" != 0 ]]; then
-            cache_image="${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-${{ vars.EDITION }}:release"
-            args+=(--cache-from "$cache_image")
-            docker pull "$cache_image"
-          fi
           if [[ "${{ inputs.pr }}" != 0 || "${{ github.ref_name }}" != master ]]; then
             args+=(--build-arg "APPSMITH_CLOUD_SERVICES_BASE_URL=https://release-cs.appsmith.com")
+            base_tag=release
+          else
+            base_tag=nightly
           fi
+          args+=(--build-arg "BASE=${{ vars.DOCKER_HUB_ORGANIZATION }}/base-${{ vars.EDITION }}:$base_tag")
           docker build -t cicontainer "${args[@]}" .
 
       - name: Build airgapped docker image
         if: steps.run_result.outputs.run_result != 'success' && inputs.airgap-enabled == 'true'
         working-directory: "."
         run: |
-          docker build --build-arg KEYGEN_LICENSE_VERIFICATION_KEY=${{ secrets.KEYGEN_LICENSE_VERIFICATION_KEY_CI }} --build-arg APPSMITH_AIRGAP_ENABLED=true --build-arg APPSMITH_CLIENT_BUILD_PATH=./app/client/build_airgap -t airgap-cicontainer .
+          docker build --build-arg BASE="${{ vars.DOCKER_HUB_ORGANIZATION }}/base-${{ vars.EDITION }}:release" --build-arg KEYGEN_LICENSE_VERIFICATION_KEY=${{ secrets.KEYGEN_LICENSE_VERIFICATION_KEY_CI }} --build-arg APPSMITH_AIRGAP_ENABLED=true --build-arg APPSMITH_CLIENT_BUILD_PATH=./app/client/build_airgap -t airgap-cicontainer .
 
       # Saving the docker image to tar file
       - name: Save Docker image to tar file

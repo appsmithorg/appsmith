@@ -2,7 +2,6 @@ package com.appsmith.server.services;
 
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.helpers.AppsmithBeanUtils;
-import com.appsmith.external.helpers.DataTypeStringUtils;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.LicensePlan;
@@ -412,26 +411,10 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
                     Tenant tenant = tuple.getT1().getT1();
                     boolean isActivateInstance = tuple.getT1().getT2();
                     License existingLicense = tuple.getT2();
-                    License license1 = tenant.getTenantConfiguration().getLicense();
-                    AnalyticsEvents analyticsEvent = isActivateInstance
-                            ? AnalyticsEvents.ACTIVATE_NEW_INSTANCE
-                            : AnalyticsEvents.UPDATE_EXISTING_LICENSE;
-                    Map<String, Object> analyticsProperties = Map.of(
-                            FieldName.LICENSE_KEY,
-                                    StringUtils.isNullOrEmpty(license1.getKey())
-                                            ? ""
-                                            : DataTypeStringUtils.maskString(license1.getKey(), 8, 32, 'x'),
-                            FieldName.LICENSE_VALID,
-                                    license1.getStatus() != null && LicenseStatus.ACTIVE.equals(license1.getStatus()),
-                            FieldName.LICENSE_TYPE, license1.getType() == null ? "" : license1.getType(),
-                            FieldName.LICENSE_STATUS, license1.getStatus() == null ? "" : license1.getStatus());
-                    Mono<Tenant> analyticsEventMono =
-                            analyticsService.sendObjectEvent(analyticsEvent, tenant, analyticsProperties);
                     // Update/save license only in case of a valid license key
                     if (!Boolean.TRUE.equals(
                             tenant.getTenantConfiguration().getLicense().getActive())) {
-                        return analyticsEventMono.then(
-                                Mono.error(new AppsmithException(AppsmithError.INVALID_LICENSE_KEY_ENTERED)));
+                        return Mono.error(new AppsmithException(AppsmithError.INVALID_LICENSE_KEY_ENTERED));
                     }
 
                     Mono<Tenant> tenantMono;
@@ -450,7 +433,7 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
                                 .flatMap(this::forceUpdateTenantFeaturesAndUpdateFeaturesWithPendingMigrations)
                                 .then(syncLicensePlansAndRunFeatureBasedMigrations());
                     }
-                    return tenantMono.flatMap(analyticsEventMono::thenReturn).zipWith(Mono.just(isActivateInstance));
+                    return tenantMono.zipWith(Mono.just(isActivateInstance));
                 });
     }
 
@@ -786,7 +769,7 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
                 .flatMap(instanceId -> networkUtils.getExternalAddress().flatMap(ipAddress -> {
                     analyticsProperties.put(FieldName.IP_ADDRESS, ipAddress);
                     analyticsProperties.put(FieldName.INSTANCE_ID, instanceId);
-                    return analyticsService.sendEvent(event.getEventName(), instanceId, analyticsProperties);
+                    return analyticsService.sendEvent(event.getEventName(), instanceId, analyticsProperties, false);
                 }))
                 .subscribeOn(scheduler)
                 .subscribe();

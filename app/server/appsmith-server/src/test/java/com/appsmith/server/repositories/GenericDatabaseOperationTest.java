@@ -14,10 +14,10 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ApplicationJson;
-import com.appsmith.server.export.internal.ImportExportApplicationService;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.UserUtils;
+import com.appsmith.server.imports.internal.ImportApplicationService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.services.ApplicationPageService;
@@ -100,7 +100,7 @@ public class GenericDatabaseOperationTest {
     RoleConfigurationSolution roleConfigurationSolution;
 
     @Autowired
-    ImportExportApplicationService importExportApplicationService;
+    ImportApplicationService importApplicationService;
 
     @Autowired
     ApplicationRepository applicationRepository;
@@ -173,7 +173,7 @@ public class GenericDatabaseOperationTest {
                         ApplicationJson.class);
 
         // Import application in master branch
-        importedApplicationMasterBranchId = importExportApplicationService
+        importedApplicationMasterBranchId = importApplicationService
                 .importApplicationInWorkspaceFromGit(workspace.getId(), applicationJson, application.getId(), "master")
                 .block()
                 .getId();
@@ -211,7 +211,7 @@ public class GenericDatabaseOperationTest {
         ApplicationJson applicationJson = new Gson().fromJson(applicationJsonFeature1, ApplicationJson.class);
 
         // Import application in feature1 branch
-        importedApplicationFeature1BranchId = importExportApplicationService
+        importedApplicationFeature1BranchId = importApplicationService
                 .importApplicationInWorkspaceFromGit(
                         workspace.getId(), applicationJson, srcApplication.getId(), "feature1")
                 .block()
@@ -254,7 +254,7 @@ public class GenericDatabaseOperationTest {
                         ApplicationJson.class);
 
         // Import application in master branch
-        application = importExportApplicationService
+        application = importApplicationService
                 .importApplicationInWorkspaceFromGit(workspace.getId(), applicationJson, application.getId(), "master")
                 .block();
 
@@ -277,7 +277,7 @@ public class GenericDatabaseOperationTest {
         applicationJson = new Gson().fromJson(applicationJsonFeature1, ApplicationJson.class);
 
         // Import application in feature1 branch
-        importExportApplicationService
+        importApplicationService
                 .importApplicationInWorkspaceFromGit(
                         workspace.getId(), applicationJson, srcApplication.getId(), "feature1")
                 .block();
@@ -285,7 +285,7 @@ public class GenericDatabaseOperationTest {
         // Import again in master branch to simulate merge
         applicationJson = new Gson().fromJson(applicationJsonFeature1, ApplicationJson.class);
 
-        mergedApplicationToMasterId = importExportApplicationService
+        mergedApplicationToMasterId = importApplicationService
                 .importApplicationInWorkspaceFromGit(workspace.getId(), applicationJson, application.getId(), "master")
                 .block()
                 .getId();

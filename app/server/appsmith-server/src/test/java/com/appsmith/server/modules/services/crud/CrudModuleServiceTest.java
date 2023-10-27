@@ -10,8 +10,10 @@ import com.appsmith.server.dtos.ModuleActionDTO;
 import com.appsmith.server.dtos.ModuleDTO;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.MockPluginExecutor;
+import com.appsmith.server.helpers.ModuleConsumable;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.moduleinstances.services.permissions.ModuleInstancePermissionChecker;
+import com.appsmith.server.modules.services.crud.entity.CrudModuleEntityService;
 import com.appsmith.server.packages.services.crud.CrudPackageService;
 import com.appsmith.server.packages.services.permissions.PackagePermissionChecker;
 import com.appsmith.server.services.FeatureFlagService;
@@ -34,6 +36,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
@@ -58,6 +61,9 @@ public class CrudModuleServiceTest {
 
     @Autowired
     CrudModuleService crudModuleService;
+
+    @Autowired
+    CrudModuleEntityService crudModuleEntityService;
 
     @SpyBean
     UserService userService;
@@ -267,5 +273,39 @@ public class CrudModuleServiceTest {
                     return true;
                 })
                 .verify();
+    }
+
+    @WithUserDetails(value = "api_user")
+    @Test
+    public void testGetEntitiesShouldReturnAtLeastOneEntity() {
+
+        ModuleDTO moduleDTO = new ModuleDTO();
+        moduleDTO.setName("PublicEntityTestModule");
+        moduleDTO.setType(ModuleType.QUERY_MODULE);
+        moduleDTO.setPackageId(packageId);
+
+        ModuleActionDTO moduleActionDTO = new ModuleActionDTO();
+
+        moduleDTO.setEntity(moduleActionDTO);
+
+        Mono<ModuleDTO> moduleMono = crudModuleService.createModule(moduleDTO);
+        AtomicReference<String> moduleIdRef = new AtomicReference<>();
+
+        StepVerifier.create(moduleMono)
+                .assertNext(createdModule -> {
+                    assertThat(createdModule.getId()).isNotEmpty();
+                    moduleIdRef.set(createdModule.getId());
+                    assertThat(createdModule.getName()).isEqualTo(moduleDTO.getName());
+                })
+                .verifyComplete();
+
+        Mono<List<ModuleConsumable>> moduleActionsMono = crudModuleEntityService.getModuleActions(moduleIdRef.get());
+
+        StepVerifier.create(moduleActionsMono)
+                .assertNext(moduleConsumables -> {
+                    assertThat(moduleConsumables).isNotNull();
+                    assertThat(moduleConsumables).size().isGreaterThanOrEqualTo(1);
+                })
+                .verifyComplete();
     }
 }

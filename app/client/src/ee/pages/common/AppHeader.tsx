@@ -5,7 +5,7 @@ import ReactDOM from "react-dom";
 import { Route, Switch } from "react-router";
 import type { RouteComponentProps } from "react-router";
 import { withRouter } from "react-router";
-import PackageEditorHeader from "../Editor/PackageEditorHeader";
+import PackageEditorHeader from "../Editor/PackageEditor/PackageEditorHeader";
 import { PACKAGE_EDITOR_URL } from "@appsmith/constants/routes/packageRoutes";
 
 type Props = RouteComponentProps;

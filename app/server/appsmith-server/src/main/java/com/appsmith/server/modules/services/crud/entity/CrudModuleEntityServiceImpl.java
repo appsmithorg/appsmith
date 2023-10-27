@@ -9,11 +9,16 @@ import com.appsmith.server.dtos.ModuleActionDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
+import com.appsmith.server.helpers.ModuleConsumable;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.repositories.ModuleRepository;
 import com.appsmith.server.solutions.ModulePermission;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNewFieldValuesIntoOldObject;
 
@@ -67,8 +72,24 @@ public class CrudModuleEntityServiceImpl implements CrudModuleEntityService {
                 return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, actionId));
             }
 
-            return newActionService.validateAndSaveActionToRepository(dbAction).map(actionDTO ->
-                    ((ModuleActionDTO) actionDTO));
+            return newActionService
+                    .updateUnpublishedActionWithoutAnalytics(dbAction.getId(), moduleActionDTO, Optional.empty())
+                    .flatMap(moduleActionTuple -> Mono.just((ModuleActionDTO) moduleActionTuple.getT1()));
         });
+    }
+
+    @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_query_module_enabled)
+    public Mono<List<ModuleConsumable>> getModuleActions(String moduleId) {
+        Mono<Module> moduleMono = moduleRepository
+                .findById(moduleId, modulePermission.getEditPermission())
+                .switchIfEmpty(Mono.error(
+                        new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.MODULE_ID, moduleId)));
+
+        return moduleMono.flatMap(module -> newActionService
+                .getAllUnpublishedModuleActions(module.getId())
+                .map(actionList -> actionList.stream()
+                        .map(actionDTO -> (ModuleConsumable) actionDTO)
+                        .collect(Collectors.toList())));
     }
 }

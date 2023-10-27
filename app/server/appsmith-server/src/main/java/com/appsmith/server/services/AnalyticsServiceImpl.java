@@ -68,10 +68,7 @@ public class AnalyticsServiceImpl extends AnalyticsServiceCEImpl implements Anal
     @Override
     public List<AnalyticsEvents> getNonResourceEvents() {
         List<AnalyticsEvents> nonResourceEvents = new ArrayList<>();
-        nonResourceEvents.addAll(List.of(
-                AnalyticsEvents.ACTIVATE_NEW_INSTANCE,
-                AnalyticsEvents.UPDATE_EXISTING_LICENSE,
-                AnalyticsEvents.SCIM_DISABLED));
+        nonResourceEvents.add(AnalyticsEvents.SCIM_DISABLED);
         nonResourceEvents.addAll(super.getNonResourceEvents());
 
         return nonResourceEvents;

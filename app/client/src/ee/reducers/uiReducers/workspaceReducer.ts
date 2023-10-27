@@ -19,7 +19,10 @@ import type {
   PackageMetadata,
   Package,
 } from "@appsmith/constants/PackageConstants";
-import type { CreatePackageFromWorkspacePayload } from "@appsmith/actions/packageActions";
+import type {
+  CreatePackageFromWorkspacePayload,
+  DeletePackagePayload,
+} from "@appsmith/actions/packageActions";
 
 export const initialState: WorkspaceReduxState = {
   ...CE_initialState,
@@ -31,6 +34,8 @@ export const initialState: WorkspaceReduxState = {
     packageCreationRequestMap: {},
   },
   packagesList: [],
+  isSavingPkgName: false,
+  isErrorSavingPkgName: false,
 };
 
 type ID = string;
@@ -50,6 +55,8 @@ export interface WorkspaceReduxState extends FilteredCE_WorkspaceRedux {
   groupSuggestions: GroupSuggestions[];
   loadingStates: LoadingStates;
   packagesList: PackageMetadata[];
+  isSavingPkgName: boolean;
+  isErrorSavingPkgName: boolean;
 }
 
 const handlers = {
@@ -306,6 +313,46 @@ const handlers = {
     draftState.loadingStates.packageCreationRequestMap[workspaceId] = false;
 
     return draftState;
+  },
+  [ReduxActionTypes.DELETE_PACKAGE_SUCCESS]: (
+    draftState: WorkspaceReduxState,
+    action: ReduxAction<DeletePackagePayload>,
+  ) => {
+    const { id } = action.payload;
+    const index = draftState.packagesList.findIndex((p) => p.id === id);
+    if (index !== -1) draftState.packagesList.splice(index, 1);
+
+    return draftState;
+  },
+  [ReduxActionTypes.UPDATE_PACKAGE_NAME_INIT]: (
+    draftState: WorkspaceReduxState,
+  ) => {
+    return {
+      ...draftState,
+      isSavingPkgName: true,
+      isErrorSavingPkgName: false,
+    };
+  },
+  [ReduxActionTypes.UPDATE_PACKAGE_NAME_SUCCESS]: (
+    draftState: WorkspaceReduxState,
+    action: ReduxAction<Package>,
+  ) => {
+    const pkg = action.payload;
+    const index = draftState.packagesList.findIndex((p) => p.id === pkg.id);
+    if (index !== -1) draftState.packagesList[index] = pkg;
+    draftState.isSavingPkgName = false;
+    draftState.isErrorSavingPkgName = false;
+
+    return draftState;
+  },
+  [ReduxActionErrorTypes.UPDATE_PACKAGE_NAME_ERROR]: (
+    draftState: WorkspaceReduxState,
+  ) => {
+    return {
+      ...draftState,
+      isSavingPkgName: false,
+      isErrorSavingPkgName: true,
+    };
   },
 };
 

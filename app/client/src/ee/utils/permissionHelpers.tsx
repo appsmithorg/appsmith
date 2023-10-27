@@ -50,9 +50,11 @@ export enum EE_PERMISSION_TYPE {
   MANAGE_WORKSPACE_PACKAGES = "manage:workspacePackages",
   CREATE_PACKAGE = "create:packages",
   MANAGE_PACKAGES = "manage:packages",
+  DELETE_PACKAGE = "delete:packages",
   /** Module permissions */
   CREATE_MODULES = "create:modules",
   MANAGE_MODULES = "manage:modules",
+  DELETE_MODULES = "delete:modules",
   CREATE_MODULES_ACTIONS = "create:moduleActions",
 }
 
@@ -94,11 +96,7 @@ export const hasDeleteDatasourcePermission = (permissions: string[] = []) =>
 
 export const hasCreateDatasourceActionPermission = (
   permissions: string[] = [],
-) =>
-  isPermitted(permissions, [
-    PERMISSION_TYPE.CREATE_DATASOURCE_ACTIONS,
-    PERMISSION_TYPE.CREATE_ACTIONS,
-  ]);
+) => isPermitted(permissions, PERMISSION_TYPE.CREATE_DATASOURCE_ACTIONS);
 
 export const hasCreatePagePermission = (permissions: string[] = []) =>
   isPermitted(permissions, PERMISSION_TYPE.CREATE_PAGES);
@@ -131,11 +129,17 @@ export const hasManageWorkspacePackagePermission = (
 export const hasCreatePackagePermission = (permissions: string[] = []) =>
   isPermitted(permissions, PERMISSION_TYPE.CREATE_PACKAGE);
 
+export const hasDeletePackagePermission = (permissions: string[] = []) =>
+  isPermitted(permissions, PERMISSION_TYPE.DELETE_PACKAGE);
+
 export const hasCreateModulePermission = (permissions?: string[]) =>
   isPermitted(permissions, PERMISSION_TYPE.CREATE_MODULES);
 
 export const hasManageModulePermission = (permissions?: string[]) =>
   isPermitted(permissions, PERMISSION_TYPE.MANAGE_MODULES);
+
+export const hasDeleteModulePermission = (permissions?: string[]) =>
+  isPermitted(permissions, PERMISSION_TYPE.DELETE_MODULES);
 
 export const hasCreateModuleActionsPermission = (permissions?: string[]) =>
   isPermitted(permissions, PERMISSION_TYPE.CREATE_MODULES_ACTIONS);

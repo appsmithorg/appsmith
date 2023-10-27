@@ -52,6 +52,8 @@
   "updateLicenseBtn":".update-license-btn",
   "licenseForm":".license-form",
   "downgradeConfirmButton":".downgrade-license-btn-confirm",
+  "downgradeCancelButton":".downgrade-license-btn-cancel",
   "downgradeCallout":"[data-testid=t--downgrade-callout]",
-  "downgradeMainText":"[data-testid=t--downgrade-main-text]"
+  "downgradeMainText":"[data-testid=t--downgrade-main-text]",
+  "licenseCheckPaidButton":"[data-testid=t--activate-instance-btn-paid]"
 }

@@ -167,6 +167,10 @@ public class UserAndAccessManagementServiceTest {
                 .isTrue();
         assertThat(updatedAdminPermissionGroup.getAssignedToUserIds().contains(testUser.getId()))
                 .isTrue();
+
+        // cleanup
+        Workspace deleteCreatedWorkspace =
+                workspaceService.archiveById(createdWorkspace.getId()).block();
     }
 
     @Test
@@ -226,6 +230,10 @@ public class UserAndAccessManagementServiceTest {
         assertThat(updatedAdminPermissionGroup.getAssignedToUserIds()).hasSize(1);
         assertThat(updatedAdminPermissionGroup.getAssignedToUserIds().contains(apiUser.getId()))
                 .isTrue();
+
+        // cleanup
+        Workspace deleteCreatedWorkspace =
+                workspaceService.archiveById(createdWorkspace.getId()).block();
     }
 
     @Test
@@ -285,6 +293,10 @@ public class UserAndAccessManagementServiceTest {
         assertThat(updatedAdminPermissionGroup.getAssignedToUserIds()).hasSize(1);
         assertThat(updatedAdminPermissionGroup.getAssignedToUserIds().contains(apiUser.getId()))
                 .isTrue();
+
+        // cleanup
+        Workspace deleteCreatedWorkspace =
+                workspaceService.archiveById(createdWorkspace.getId()).block();
     }
 
     @Test
@@ -350,6 +362,10 @@ public class UserAndAccessManagementServiceTest {
         assertThat(updatedAdminPermissionGroup.getAssignedToUserIds()).hasSize(1);
         assertThat(updatedAdminPermissionGroup.getAssignedToUserIds().contains(apiUser.getId()))
                 .isTrue();
+
+        // cleanup
+        Workspace deleteCreatedWorkspace =
+                workspaceService.archiveById(createdWorkspace.getId()).block();
     }
 
     @Test
@@ -419,6 +435,10 @@ public class UserAndAccessManagementServiceTest {
         assertThat(updatedAdminPermissionGroup.getAssignedToUserIds()).hasSize(1);
         assertThat(updatedAdminPermissionGroup.getAssignedToUserIds().contains(apiUser.getId()))
                 .isTrue();
+
+        // cleanup
+        Workspace deleteCreatedWorkspace =
+                workspaceService.archiveById(createdWorkspace.getId()).block();
     }
 
     @Test
@@ -468,6 +488,10 @@ public class UserAndAccessManagementServiceTest {
                 .verify();
         PermissionGroup setPoliciesBack =
                 permissionGroupRepository.save(updatedPermissionGroup).block();
+
+        // cleanup
+        Workspace deleteCreatedWorkspace =
+                workspaceService.archiveById(createdWorkspace.getId()).block();
     }
 
     @Test
@@ -519,6 +543,10 @@ public class UserAndAccessManagementServiceTest {
                 .verify();
         PermissionGroup setPoliciesBack =
                 permissionGroupRepository.save(updatedPermissionGroup).block();
+
+        // cleanup
+        Workspace deleteCreatedWorkspace =
+                workspaceService.archiveById(createdWorkspace.getId()).block();
     }
 
     @Test
@@ -659,5 +687,9 @@ public class UserAndAccessManagementServiceTest {
                             .isTrue();
                 })
                 .verifyComplete();
+
+        PermissionGroup deleteCreatedPermissionGroup = permissionGroupService
+                .archiveById(createdPermissionGroup.getId())
+                .block();
     }
 }

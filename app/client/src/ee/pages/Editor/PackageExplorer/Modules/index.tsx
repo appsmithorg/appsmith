@@ -1,14 +1,14 @@
 import React from "react";
-import QueryModuleEntities from "./QueryModuleEntities";
-import UIModuleEntities from "./UIModuleEntities";
-import JSModuleEntities from "./JSModuleEntities";
+import QueryModuleExplorer from "./QueryModuleExplorer";
+import UIModuleExplorer from "./UIModuleExplorer";
+import JSModuleExplorer from "./JSModuleExplorer";
 
 const Modules = () => {
   return (
     <>
-      <UIModuleEntities />
-      <QueryModuleEntities />
-      <JSModuleEntities />
+      <UIModuleExplorer />
+      <QueryModuleExplorer />
+      <JSModuleExplorer />
     </>
   );
 };

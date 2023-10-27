@@ -16,7 +16,7 @@ import {
   PluginFormConfigsNotFoundError,
   PluginsNotFoundError,
 } from "entities/Engine";
-import { fetchPackageSaga } from "@appsmith/sagas/packagesSaga";
+import { fetchPackageSaga } from "@appsmith/sagas/packagesSagas";
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import type { FetchPackageResponse } from "@appsmith/api/PackageApi";
 

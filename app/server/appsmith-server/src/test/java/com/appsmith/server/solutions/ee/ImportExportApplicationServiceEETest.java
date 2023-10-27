@@ -15,9 +15,10 @@ import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.PageDTO;
-import com.appsmith.server.export.internal.ImportExportApplicationService;
+import com.appsmith.server.exports.internal.ExportApplicationService;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.imports.internal.ImportApplicationService;
 import com.appsmith.server.migrations.JsonSchemaMigration;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.repositories.PluginRepository;
@@ -72,7 +73,10 @@ import static org.junit.jupiter.api.Assertions.fail;
 public class ImportExportApplicationServiceEETest {
 
     @Autowired
-    private ImportExportApplicationService importExportApplicationService;
+    private ImportApplicationService importApplicationService;
+
+    @Autowired
+    private ExportApplicationService exportApplicationService;
 
     @Autowired
     private Gson gson;
@@ -158,8 +162,9 @@ public class ImportExportApplicationServiceEETest {
                 .getId();
         Datasource testDatasource = new Datasource();
         // Choose plugin same as mongo, as json static file has mongo plugin for datasource
-        Plugin mongoPlugin = pluginRepository.findByName("MongoDB").block();
-        testDatasource.setPluginId(mongoPlugin.getId());
+        Plugin installedPlugin =
+                pluginRepository.findByName("Installed Plugin Name").block();
+        testDatasource.setPluginId(installedPlugin.getId());
         testDatasource.setWorkspaceId(testWorkspace.getId());
         final String datasourceName = applicationJson.getDatasourceList().get(0).getName();
         testDatasource.setName(datasourceName);
@@ -175,7 +180,7 @@ public class ImportExportApplicationServiceEETest {
         testDatasource.setDatasourceStorages(storages);
         datasourceService.create(testDatasource).block();
 
-        final Mono<Application> resultMono = importExportApplicationService.importNewApplicationInWorkspaceFromJson(
+        final Mono<Application> resultMono = importApplicationService.importNewApplicationInWorkspaceFromJson(
                 testWorkspace.getId(), applicationJson);
 
         Mono<List<Datasource>> datasourcesMono = resultMono.flatMap(application -> datasourceService
@@ -302,7 +307,7 @@ public class ImportExportApplicationServiceEETest {
                             .then(layoutActionService.createSingleAction(action2, Boolean.FALSE))
                             .then(layoutActionService.updateLayout(
                                     testPage.getId(), testPage.getApplicationId(), layout.getId(), layout))
-                            .then(importExportApplicationService.exportApplicationById(testApp.getId(), ""));
+                            .then(exportApplicationService.exportApplicationById(testApp.getId(), ""));
                 });
 
         StepVerifier.create(resultMono)

@@ -1018,6 +1018,14 @@ public enum AppsmithError {
             "Forking application failed",
             ErrorType.INTERNAL_ERROR,
             null),
+    TOO_MANY_FAILED_DATASOURCE_CONNECTION_REQUESTS(
+            429,
+            AppsmithErrorCode.TOO_MANY_FAILED_DATASOURCE_CONNECTION_REQUESTS.getCode(),
+            "Too many failed requests received. Please try again after 5 minutes",
+            AppsmithErrorAction.DEFAULT,
+            "Too many requests",
+            ErrorType.INTERNAL_ERROR,
+            null),
 
     // EE-only errors below this line:
     ASSIGN_UNASSIGN_MISSING_PERMISSION(

@@ -54,6 +54,14 @@ const response = {
       brandLogoUrl: "https://assets.appsmith.com/appsmith-logo.svg",
       brandFaviconUrl:
         "https://assets.appsmith.com/appsmith-favicon-orange.ico",
+      brandColors: {
+        active: "",
+        background: "#F1F5F9",
+        disabled: "#fce4da",
+        font: "#fff",
+        hover: "",
+        primary: "#E15615",
+      },
     },
     new: true,
   },
@@ -78,6 +86,10 @@ describe("fetchCurrentTenantConfigSaga", () => {
           tenantConfiguration: {
             ...CE_defaultBrandingConfig,
             ...response.data.tenantConfiguration,
+            brandColors: {
+              ...CE_defaultBrandingConfig.brandColors,
+              ...response.data.tenantConfiguration.brandColors,
+            },
           },
         },
       }),

@@ -12,12 +12,13 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.export.internal.ImportExportApplicationService;
+import com.appsmith.server.exports.internal.ExportApplicationService;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.GitPrivateRepoHelper;
 import com.appsmith.server.helpers.RedisUtils;
 import com.appsmith.server.helpers.ResponseUtils;
+import com.appsmith.server.imports.internal.ImportApplicationService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
@@ -25,6 +26,7 @@ import com.appsmith.server.repositories.GitDeployKeysRepository;
 import com.appsmith.server.services.ce_compatible.GitServiceCECompatibleImpl;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
+import com.appsmith.server.solutions.WorkspacePermission;
 import io.micrometer.observation.ObservationRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Import;
@@ -53,7 +55,8 @@ public class GitServiceImpl extends GitServiceCECompatibleImpl implements GitSer
             NewActionService newActionService,
             ActionCollectionService actionCollectionService,
             GitFileUtils fileUtils,
-            ImportExportApplicationService importExportApplicationService,
+            ImportApplicationService importApplicationService,
+            ExportApplicationService exportApplicationService,
             GitExecutor gitExecutor,
             ResponseUtils responseUtils,
             EmailConfig emailConfig,
@@ -63,11 +66,11 @@ public class GitServiceImpl extends GitServiceCECompatibleImpl implements GitSer
             PluginService pluginService,
             DatasourcePermission datasourcePermission,
             ApplicationPermission applicationPermission,
+            WorkspacePermission workspacePermission,
             WorkspaceService workspaceService,
             RedisUtils redisUtils,
             ObservationRegistry observationRegistry,
             GitPrivateRepoHelper gitPrivateRepoHelper) {
-
         super(
                 userService,
                 userDataService,
@@ -78,7 +81,8 @@ public class GitServiceImpl extends GitServiceCECompatibleImpl implements GitSer
                 newActionService,
                 actionCollectionService,
                 fileUtils,
-                importExportApplicationService,
+                importApplicationService,
+                exportApplicationService,
                 gitExecutor,
                 responseUtils,
                 emailConfig,
@@ -88,6 +92,7 @@ public class GitServiceImpl extends GitServiceCECompatibleImpl implements GitSer
                 pluginService,
                 datasourcePermission,
                 applicationPermission,
+                workspacePermission,
                 workspaceService,
                 redisUtils,
                 observationRegistry,

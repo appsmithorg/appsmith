@@ -3,6 +3,7 @@ import type { Package } from "@appsmith/constants/PackageConstants";
 import type { ApiResponse } from "api/ApiResponses";
 import type { AxiosPromise } from "axios";
 import type { Module } from "@appsmith/constants/ModuleConstants";
+import type { DeletePackagePayload } from "@appsmith/actions/packageActions";
 
 export interface CreatePackagePayload {
   workspaceId: string;
@@ -11,7 +12,7 @@ export interface CreatePackagePayload {
   color?: string;
 }
 
-interface FetchPackagePayload {
+export interface FetchPackagePayload {
   packageId: string;
 }
 
@@ -48,6 +49,22 @@ class PackageApi extends Api {
     const url = `${BASE_URL}/${packageId}`;
 
     return Api.get(url);
+  }
+
+  static async updatePackage(
+    payload: Package,
+  ): Promise<AxiosPromise<ApiResponse<Package>>> {
+    const url = `${BASE_URL}/${payload.id}`;
+
+    return Api.put(url, payload);
+  }
+
+  static async deletePackage(
+    payload: DeletePackagePayload,
+  ): Promise<AxiosPromise<ApiResponse<Package>>> {
+    const url = `${BASE_URL}/${payload.id}`;
+
+    return Api.delete(url);
   }
 }
 

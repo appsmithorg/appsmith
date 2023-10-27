@@ -28,7 +28,7 @@ export const KBEditorMenuItem = () => {
       onClick={goToDeployedVersion}
       startIcon="book-line"
     >
-      Generate Knowledge Base
+      Generate knowledge base
     </MenuItem>
   );
 };

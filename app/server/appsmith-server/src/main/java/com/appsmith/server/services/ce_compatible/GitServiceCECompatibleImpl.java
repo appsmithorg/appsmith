@@ -7,11 +7,12 @@ import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.export.internal.ImportExportApplicationService;
+import com.appsmith.server.exports.internal.ExportApplicationService;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.GitPrivateRepoHelper;
 import com.appsmith.server.helpers.RedisUtils;
 import com.appsmith.server.helpers.ResponseUtils;
+import com.appsmith.server.imports.internal.ImportApplicationService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
@@ -26,6 +27,7 @@ import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.services.ce.GitServiceCEImpl;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
+import com.appsmith.server.solutions.WorkspacePermission;
 import io.micrometer.observation.ObservationRegistry;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -34,6 +36,7 @@ import java.util.List;
 
 @Service
 public class GitServiceCECompatibleImpl extends GitServiceCEImpl implements GitServiceCECompatible {
+
     public GitServiceCECompatibleImpl(
             UserService userService,
             UserDataService userDataService,
@@ -44,7 +47,8 @@ public class GitServiceCECompatibleImpl extends GitServiceCEImpl implements GitS
             NewActionService newActionService,
             ActionCollectionService actionCollectionService,
             GitFileUtils fileUtils,
-            ImportExportApplicationService importExportApplicationService,
+            ImportApplicationService importApplicationService,
+            ExportApplicationService exportApplicationService,
             GitExecutor gitExecutor,
             ResponseUtils responseUtils,
             EmailConfig emailConfig,
@@ -54,10 +58,11 @@ public class GitServiceCECompatibleImpl extends GitServiceCEImpl implements GitS
             PluginService pluginService,
             DatasourcePermission datasourcePermission,
             ApplicationPermission applicationPermission,
+            WorkspacePermission workspacePermission,
             WorkspaceService workspaceService,
             RedisUtils redisUtils,
             ObservationRegistry observationRegistry,
-            GitPrivateRepoHelper gitPrivateRepoCountHelper) {
+            GitPrivateRepoHelper gitPrivateRepoHelper) {
         super(
                 userService,
                 userDataService,
@@ -68,7 +73,8 @@ public class GitServiceCECompatibleImpl extends GitServiceCEImpl implements GitS
                 newActionService,
                 actionCollectionService,
                 fileUtils,
-                importExportApplicationService,
+                importApplicationService,
+                exportApplicationService,
                 gitExecutor,
                 responseUtils,
                 emailConfig,
@@ -78,10 +84,11 @@ public class GitServiceCECompatibleImpl extends GitServiceCEImpl implements GitS
                 pluginService,
                 datasourcePermission,
                 applicationPermission,
+                workspacePermission,
                 workspaceService,
                 redisUtils,
                 observationRegistry,
-                gitPrivateRepoCountHelper);
+                gitPrivateRepoHelper);
     }
 
     @Override

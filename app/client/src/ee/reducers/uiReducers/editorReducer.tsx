@@ -1,6 +1,9 @@
 export * from "ce/reducers/uiReducers/editorReducer";
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import {
+  ReduxActionErrorTypes,
+  ReduxActionTypes,
+} from "@appsmith/constants/ReduxActionConstants";
 import {
   handlers as CE_handlers,
   initialState as CE_initialState,
@@ -13,12 +16,14 @@ export type EditorReduxState = CE_EditorReduxState & {
   currentModuleId?: string;
   currentPackageId?: string;
   isPackagePublishing: boolean;
+  isModuleFetchingActions: boolean;
 };
 
 export const initialState: EditorReduxState = {
   ...CE_initialState,
   isPackageEditorInitialized: false,
   isPackagePublishing: false,
+  isModuleFetchingActions: false,
 };
 
 const handlers = {
@@ -45,6 +50,31 @@ const handlers = {
     return {
       ...state,
       currentPackageId: action.payload.packageId,
+    };
+  },
+
+  [ReduxActionTypes.FETCH_MODULE_ACTIONS_INIT]: (state: EditorReduxState) => {
+    return {
+      ...state,
+      isModuleFetchingActions: true,
+    };
+  },
+
+  [ReduxActionTypes.FETCH_MODULE_ACTIONS_SUCCESS]: (
+    state: EditorReduxState,
+  ) => {
+    return {
+      ...state,
+      isModuleFetchingActions: false,
+    };
+  },
+
+  [ReduxActionErrorTypes.FETCH_MODULE_ACTIONS_ERROR]: (
+    state: EditorReduxState,
+  ) => {
+    return {
+      ...state,
+      isModuleFetchingActions: false,
     };
   },
 };

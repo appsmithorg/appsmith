@@ -25,11 +25,11 @@ public interface PermissionGroupService extends PermissionGroupServiceCECompatib
 
     Flux<PermissionGroup> findAllByAssignedToUserIdWithoutPermission(String userId);
 
-    Flux<String> getRoleNamesAssignedToUserIds(Set<String> userIds);
-
     Flux<PermissionGroup> getAllDefaultRolesForApplication(
             Application application, Optional<AclPermission> aclPermission);
 
     Mono<PermissionGroup> bulkUnassignFromUserGroupsWithoutPermission(
             PermissionGroup permissionGroup, Set<String> userGroupIds);
+
+    Flux<String> getRoleNamesAssignedDirectlyOrIndirectlyToUserIds(Set<String> userIds);
 }

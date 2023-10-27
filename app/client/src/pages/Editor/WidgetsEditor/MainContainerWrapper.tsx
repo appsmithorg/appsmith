@@ -39,6 +39,7 @@ import {
 } from "../../../layoutSystems/common/useLayoutSystemFeatures";
 import { CANVAS_VIEWPORT } from "constants/componentClassNameConstants";
 import { MainContainerResizer } from "layoutSystems/common/mainContainerResizer/MainContainerResizer";
+import OverlayCanvasContainer from "layoutSystems/common/WidgetNamesCanvas";
 
 interface MainCanvasWrapperProps {
   isPreviewMode: boolean;
@@ -46,6 +47,7 @@ interface MainCanvasWrapperProps {
   navigationHeight?: number;
   isAppSettingsPaneWithNavigationTabOpen?: boolean;
   currentPageId: string;
+  parentRef: React.RefObject<HTMLDivElement | null>;
 }
 
 const Wrapper = styled.section<{
@@ -141,9 +143,11 @@ function MainContainerWrapper(props: MainCanvasWrapperProps) {
   const isWDSV2Enabled = useFeatureFlag("ab_wds_enabled");
 
   const checkLayoutSystemFeatures = useLayoutSystemFeatures();
-  const [enableMainContainerResizer] = checkLayoutSystemFeatures([
-    LayoutSystemFeatures.ENABLE_MAIN_CONTAINER_RESIZER,
-  ]);
+  const [enableMainContainerResizer, enableOverlayCanvas] =
+    checkLayoutSystemFeatures([
+      LayoutSystemFeatures.ENABLE_MAIN_CONTAINER_RESIZER,
+      LayoutSystemFeatures.ENABLE_CANVAS_OVERLAY_FOR_EDITOR_UI,
+    ]);
 
   useEffect(() => {
     return () => {
@@ -250,6 +254,12 @@ function MainContainerWrapper(props: MainCanvasWrapperProps) {
           </div>
         )}
         {node}
+        {enableOverlayCanvas && (
+          <OverlayCanvasContainer
+            canvasWidth={canvasWidth}
+            containerRef={props.parentRef}
+          />
+        )}
       </Wrapper>
       <MainContainerResizer
         currentPageId={currentPageId}

@@ -421,6 +421,9 @@ class ProvisionServiceImplTest {
         UserApiKey provisionUserApiKey =
                 apiKeyRepository.findById(provisionTokenId).block();
         assertThat(provisionUserApiKey).isNull();
+
+        PermissionGroup deleteCreatedRole1 =
+                permissionGroupService.archiveById(createdRole1.getId()).block();
     }
 
     @Test
@@ -673,6 +676,9 @@ class ProvisionServiceImplTest {
         UserApiKey provisionUserApiKey =
                 apiKeyRepository.findById(provisionTokenId).block();
         assertThat(provisionUserApiKey).isNull();
+
+        PermissionGroup deleteCreatedRole1 =
+                permissionGroupService.archiveById(createdRole1.getId()).block();
     }
 
     @Test
@@ -1272,6 +1278,9 @@ class ProvisionServiceImplTest {
         UserApiKey provisionUserApiKey =
                 apiKeyRepository.findById(provisionTokenId).block();
         assertThat(provisionUserApiKey).isNull();
+
+        PermissionGroup deleteCreatedRole1 =
+                permissionGroupService.archiveById(createdRole1.getId()).block();
     }
 
     @Test
@@ -1467,5 +1476,8 @@ class ProvisionServiceImplTest {
         UserApiKey provisionUserApiKey =
                 apiKeyRepository.findById(provisionTokenId).block();
         assertThat(provisionUserApiKey).isNull();
+
+        PermissionGroup deleteCreatedRole1 =
+                permissionGroupService.archiveById(createdRole1.getId()).block();
     }
 }

@@ -48,4 +48,7 @@ public interface CustomUserGroupRepository extends AppsmithRepository<UserGroup>
 
     Mono<Boolean> updateProvisionedUserGroupsPoliciesAndIsProvisionedWithoutPermission(
             Boolean isProvisioned, Set<Policy> policies);
+
+    Flux<UserGroup> findAllByUsersIn(
+            Set<String> userIds, Optional<AclPermission> aclPermission, Optional<List<String>> includeFields);
 }

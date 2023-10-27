@@ -19,6 +19,7 @@ import type { GeneratorOptions, HookOptions } from "../MetaWidgetGenerator";
 import MetaWidgetGenerator from "../MetaWidgetGenerator";
 import type { BatchPropertyUpdatePayload } from "actions/controlActions";
 import type {
+  AnvilConfig,
   AutocompletionDefinitions,
   CanvasWidgetStructure,
   FlattenedWidgetProps,
@@ -45,9 +46,9 @@ import type {
 } from "widgets/TabsWidget/constants";
 import { getMetaFlexLayers, isTargetElementClickable } from "./helper";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
-import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
+import type { ExtraDef } from "utils/autocomplete/defCreatorUtils";
 import { LayoutSystemTypes } from "layoutSystems/types";
-import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
+import { generateTypeDef } from "utils/autocomplete/defCreatorUtils";
 import defaultProps from "./defaultProps";
 
 import IconSVG from "../icon.svg";
@@ -201,6 +202,17 @@ class ListWidget extends BaseWidget<
           },
         },
       ],
+    };
+  }
+
+  static getAnvilConfig(): AnvilConfig | null {
+    return {
+      widgetSize: {
+        maxHeight: {},
+        maxWidth: {},
+        minHeight: { base: "300px" },
+        minWidth: { base: "280px" },
+      },
     };
   }
 

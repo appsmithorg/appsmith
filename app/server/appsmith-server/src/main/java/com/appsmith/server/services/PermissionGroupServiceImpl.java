@@ -9,6 +9,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.QPermissionGroup;
+import com.appsmith.server.domains.QUserGroup;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserGroup;
@@ -629,14 +630,32 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCECompatib
      * @param userIds
      * @return
      */
-    @Override
-    public Flux<String> getRoleNamesAssignedToUserIds(Set<String> userIds) {
+    private Flux<PermissionGroup> getRoleNamesAssignedToUserIds(Set<String> userIds) {
         List<String> includeFields = List.of(
-                fieldName(QPermissionGroup.permissionGroup.name), fieldName(QPermissionGroup.permissionGroup.policies));
+                fieldName(QPermissionGroup.permissionGroup.id),
+                fieldName(QPermissionGroup.permissionGroup.name),
+                fieldName(QPermissionGroup.permissionGroup.policies));
         return repository
                 .findAllByAssignedToUserIn(userIds, Optional.of(includeFields), Optional.empty())
-                .filter(role -> !permissionGroupHelper.isUserManagementRole(role))
-                .map(PermissionGroup::getName);
+                .filter(role -> !permissionGroupHelper.isUserManagementRole(role));
+    }
+
+    /**
+     * The method will get all the roles assigned to group.
+     **/
+    private Flux<PermissionGroup> getRolesAssignedToGroupIds(Set<String> groupIds) {
+        List<String> includeFields = List.of(
+                fieldName(QPermissionGroup.permissionGroup.id), fieldName(QPermissionGroup.permissionGroup.name));
+        return repository.findAllByAssignedToGroupIds(groupIds, Optional.of(includeFields), Optional.empty());
+    }
+
+    private Flux<PermissionGroup> getRoleNamesAssignedToUserIdsViaGroups(Set<String> userIds) {
+        List<String> includeFields = List.of(fieldName(QUserGroup.userGroup.id));
+        return userGroupRepository
+                .findAllByUsersIn(userIds, Optional.empty(), Optional.of(includeFields))
+                .mapNotNull(UserGroup::getId)
+                .collect(Collectors.toSet())
+                .flatMapMany(this::getRolesAssignedToGroupIds);
     }
 
     @Override
@@ -757,5 +776,31 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCECompatib
     @Override
     public Flux<PermissionGroup> findAllByAssignedToUserIdWithoutPermission(String userId) {
         return findAllByAssignedToUserIdsInWithoutPermission(Set.of(userId));
+    }
+
+    /**
+     * <p>
+     *     This method is used to get names of all distinct roles associated to the user.
+     * </p>
+     * <p>
+     *     Roles can be associated to the user either
+     *     <ul>
+     *          <li><b>directly (if the roles are associated directly to the user)</b></li>
+     *          <li><b>indirectly (if the roles are associated to groups, and users are part of those groups)</b></li>
+     *     </ul>
+     * </p>
+     * @param userIds
+     * @return Flux of String
+     * @implNote The method does not return "<u><b>the user management roles</b></u>" which are associated to individual
+     * users.
+     */
+    @Override
+    public Flux<String> getRoleNamesAssignedDirectlyOrIndirectlyToUserIds(Set<String> userIds) {
+        Flux<PermissionGroup> rolesAssignedToUserIdsFlux = getRoleNamesAssignedToUserIds(userIds);
+        Flux<PermissionGroup> rolesAssignedToUserIdsViaGroupsFlux = getRoleNamesAssignedToUserIdsViaGroups(userIds);
+
+        return Flux.concat(rolesAssignedToUserIdsFlux, rolesAssignedToUserIdsViaGroupsFlux)
+                .distinct(PermissionGroup::getId)
+                .map(PermissionGroup::getName);
     }
 }

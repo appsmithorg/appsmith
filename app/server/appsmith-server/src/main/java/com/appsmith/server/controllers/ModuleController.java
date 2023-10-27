@@ -5,6 +5,7 @@ import com.appsmith.server.constants.Url;
 import com.appsmith.server.dtos.ModuleActionDTO;
 import com.appsmith.server.dtos.ModuleDTO;
 import com.appsmith.server.dtos.ResponseDTO;
+import com.appsmith.server.helpers.ModuleConsumable;
 import com.appsmith.server.modules.services.crud.CrudModuleService;
 import com.appsmith.server.modules.services.crud.entity.CrudModuleEntityService;
 import com.fasterxml.jackson.annotation.JsonView;
@@ -24,6 +25,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 @Slf4j
 @RequestMapping(Url.MODULE_URL)
@@ -90,5 +93,14 @@ public class ModuleController {
                 .deleteModule(moduleId)
                 .map(deletedModule ->
                         new ResponseDTO<>(HttpStatus.OK.value(), deletedModule, "Module deleted successfully"));
+    }
+
+    @JsonView(Views.Public.class)
+    @GetMapping("/{moduleId}/actions")
+    @ResponseStatus(HttpStatus.OK)
+    public Mono<ResponseDTO<List<ModuleConsumable>>> getModuleActions(@PathVariable String moduleId) {
+        return crudModuleEntityService
+                .getModuleActions(moduleId)
+                .map(moduleActions -> new ResponseDTO<>(HttpStatus.OK.value(), moduleActions, null));
     }
 }

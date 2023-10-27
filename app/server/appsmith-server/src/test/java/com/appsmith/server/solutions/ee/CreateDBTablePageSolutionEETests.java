@@ -22,7 +22,6 @@ import com.appsmith.server.dtos.UpdateRoleAssociationDTO;
 import com.appsmith.server.dtos.UserCompactDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.export.internal.ImportExportApplicationService;
 import com.appsmith.server.featureflags.CachedFeatures;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.MockPluginExecutor;
@@ -36,8 +35,10 @@ import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.DatasourceStructureService;
 import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.PermissionGroupService;
+import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserWorkspaceService;
 import com.appsmith.server.services.WorkspaceService;
+import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.CreateDBTablePageSolution;
 import com.appsmith.server.solutions.EnvironmentPermission;
 import com.appsmith.server.solutions.UserAndAccessManagementService;
@@ -47,6 +48,7 @@ import com.appsmith.server.solutions.roles.dtos.RoleViewDTO;
 import com.appsmith.server.solutions.roles.dtos.UpdateRoleConfigDTO;
 import com.appsmith.server.solutions.roles.dtos.UpdateRoleEntityDTO;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -83,6 +85,7 @@ public class CreateDBTablePageSolutionEETests {
     private Datasource testDatasource = new Datasource();
     private static final DatasourceStorageStructure testDatasourceStructure = new DatasourceStorageStructure();
     private Workspace testWorkspace;
+    private PermissionGroup workspaceAdminRole;
     private String testDefaultEnvironmentId;
     private static Application testApp;
     private static Plugin postgreSQLPlugin;
@@ -105,9 +108,6 @@ public class CreateDBTablePageSolutionEETests {
 
     @Autowired
     PluginRepository pluginRepository;
-
-    @Autowired
-    ImportExportApplicationService importExportApplicationService;
 
     @Autowired
     ApplicationService applicationService;
@@ -136,6 +136,12 @@ public class CreateDBTablePageSolutionEETests {
     @Autowired
     PermissionGroupService permissionGroupService;
 
+    @Autowired
+    ApplicationPermission applicationPermission;
+
+    @Autowired
+    SessionUserService sessionUserService;
+
     DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
 
     @MockBean
@@ -151,7 +157,6 @@ public class CreateDBTablePageSolutionEETests {
     User api_user;
 
     @BeforeEach
-    @WithUserDetails(value = "api_user")
     public void setup() {
         Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_audit_logs_enabled)))
                 .thenReturn(Mono.just(FALSE));
@@ -183,6 +188,15 @@ public class CreateDBTablePageSolutionEETests {
         Workspace workspace = new Workspace();
         workspace.setName("Create-DB-Table-Page-Org");
         testWorkspace = workspaceService.create(workspace).block();
+        workspaceAdminRole =
+                permissionGroupService
+                        .findAllByIds(testWorkspace.getDefaultPermissionGroups())
+                        .collectList()
+                        .block()
+                        .stream()
+                        .filter(role -> role.getName().startsWith(ADMINISTRATOR))
+                        .findFirst()
+                        .get();
         testDefaultEnvironmentId = workspaceService
                 .getDefaultEnvironmentId(testWorkspace.getId(), environmentPermission.getExecutePermission())
                 .block();
@@ -244,6 +258,21 @@ public class CreateDBTablePageSolutionEETests {
 
         resource.setTableName(structure.getTables().get(0).getName());
         resource.setDatasourceId(testDatasource.getId());
+    }
+
+    @AfterEach
+    public void cleanup() {
+        User currentUser = sessionUserService.getCurrentUser().block();
+        Boolean updateWorkspaceAdminRole = permissionGroupService
+                .bulkAssignToUsersWithoutPermission(workspaceAdminRole, List.of(currentUser))
+                .block();
+        List<Application> deletedApplications = applicationService
+                .findByWorkspaceId(testWorkspace.getId(), applicationPermission.getDeletePermission())
+                .flatMap(remainingApplication -> applicationPageService.deleteApplication(remainingApplication.getId()))
+                .collectList()
+                .block();
+        Workspace deletedWorkspace =
+                workspaceService.archiveById(testWorkspace.getId()).block();
     }
 
     private void giveApiUserCustomRoleAccessToOwnWorkspace(Workspace workspace, PermissionGroup customRole) {
