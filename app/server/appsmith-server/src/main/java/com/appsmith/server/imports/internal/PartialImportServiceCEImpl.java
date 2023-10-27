@@ -36,6 +36,7 @@ import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -81,7 +82,7 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
         MappedImportableResourcesDTO mappedImportableResourcesDTO = new MappedImportableResourcesDTO();
 
         Mono<String> branchedPageIdMono =
-                newPageService.findBranchedPageId(pageId, branchName, AclPermission.MANAGE_PAGES);
+                newPageService.findBranchedPageId(branchName, pageId, AclPermission.MANAGE_PAGES);
 
         // Extract file and get App Json
         Mono<Application> partiallyImportedAppMono = importApplicationService
@@ -130,9 +131,11 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                                     workspaceMono,
                                     importedApplicationMono,
                                     applicationJson))
+                            .thenReturn("done")
                             // Update the pageName map for actions and action collection
                             .then(paneNameMapForActionAndActionCollectionInAppJson(
                                     branchedPageIdMono, applicationJson, mappedImportableResourcesDTO))
+                            .thenReturn("done")
                             // Import Actions and action collection
                             .then(getActionAndActionCollectionImport(
                                     importingMetaDTO,
@@ -140,6 +143,7 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                                     workspaceMono,
                                     importedApplicationMono,
                                     applicationJson))
+                            .thenReturn("done")
                             .then(Mono.defer(() -> {
                                 Application application = applicationJson.getExportedApplication();
                                 return newActionImportableService
@@ -147,7 +151,8 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                                                 application, importingMetaDTO, mappedImportableResourcesDTO)
                                         .then(newPageImportableService.updateImportedEntities(
                                                 application, importingMetaDTO, mappedImportableResourcesDTO))
-                                        .then(applicationService.update(application.getId(), application));
+                                        .flatMap(
+                                                newPage -> applicationService.update(application.getId(), application));
                             }));
                 })
                 .as(transactionalOperator::transactional);
@@ -241,16 +246,20 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                 pageId -> newPageService.findById(pageId, Optional.empty()).flatMap(newPage -> {
                     String pageName = newPage.getUnpublishedPage().getName();
                     // update page name reference with newPage
-                    mappedImportableResourcesDTO.getPageNameMap().put(pageName, newPage);
+                    Map<String, NewPage> pageNameMap = new HashMap<>();
+                    pageNameMap.put(pageName, newPage);
+                    mappedImportableResourcesDTO.setPageNameMap(pageNameMap);
 
                     applicationJson.getActionList().forEach(action -> {
                         action.getPublishedAction().setPageId(pageName);
-                        String collectionName =
-                                action.getPublishedAction().getCollectionId().split("_")[1];
-                        action.getPublishedAction().setCollectionId(pageName + "_" + collectionName);
-
                         action.getUnpublishedAction().setPageId(pageName);
-                        action.getUnpublishedAction().setCollectionId(pageName + "_" + collectionName);
+                        if (action.getPublishedAction().getCollectionId() != null) {
+                            String collectionName = action.getPublishedAction()
+                                    .getCollectionId()
+                                    .split("_")[1];
+                            action.getPublishedAction().setCollectionId(pageName + "_" + collectionName);
+                            action.getUnpublishedAction().setCollectionId(pageName + "_" + collectionName);
+                        }
 
                         String actionName = action.getId().split("_")[1];
                         action.setId(pageName + "_" + actionName);
