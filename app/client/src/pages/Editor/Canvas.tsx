@@ -80,9 +80,15 @@ const Canvas = (props: CanvasProps) => {
     ? `mx-0`
     : `mx-auto`;
   const paddingBottomClass = props.enableMainCanvasResizer ? "" : "pb-52";
+  const themeWrapperStyles =
+    layoutSystemType === LayoutSystemTypes.ANVIL
+      ? {
+          height: "inherit",
+        }
+      : {};
   try {
     return (
-      <WDSThemeProvider theme={theme}>
+      <WDSThemeProvider style={themeWrapperStyles} theme={theme}>
         <Wrapper
           $enableMainCanvasResizer={!!props.enableMainCanvasResizer}
           background={backgroundForCanvas}
