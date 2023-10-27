@@ -18,6 +18,7 @@ import com.appsmith.server.dtos.UserHomepageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.exports.internal.ExportApplicationService;
+import com.appsmith.server.exports.internal.PartialExportService;
 import com.appsmith.server.fork.internal.ApplicationForkingService;
 import com.appsmith.server.imports.internal.ImportApplicationService;
 import com.appsmith.server.services.ApplicationPageService;
@@ -64,6 +65,8 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
     private final ThemeService themeService;
     private final ApplicationSnapshotService applicationSnapshotService;
 
+    private final PartialExportService partialExportService;
+
     @Autowired
     public ApplicationControllerCE(
             ApplicationService service,
@@ -73,7 +76,8 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
             ImportApplicationService importApplicationService,
             ExportApplicationService exportApplicationService,
             ThemeService themeService,
-            ApplicationSnapshotService applicationSnapshotService) {
+            ApplicationSnapshotService applicationSnapshotService,
+            PartialExportService partialExportService) {
         super(service);
         this.applicationPageService = applicationPageService;
         this.applicationFetcher = applicationFetcher;
@@ -82,6 +86,7 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
         this.exportApplicationService = exportApplicationService;
         this.themeService = themeService;
         this.applicationSnapshotService = applicationSnapshotService;
+        this.partialExportService = partialExportService;
     }
 
     @JsonView(Views.Public.class)
@@ -360,5 +365,23 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         return Mono.just(new ResponseDTO<>(
                 HttpStatus.BAD_REQUEST.value(), null, AppsmithError.UNSUPPORTED_OPERATION.getMessage()));
+    }
+
+    @JsonView(Views.Public.class)
+    @PostMapping("/export/partial/{applicationId}/{pageId}")
+    public Mono<ResponseEntity<Object>> exportApplicationPartially(
+            @PathVariable String applicationId,
+            @PathVariable String pageId,
+            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName,
+            @RequestBody MultiValueMap<String, String> params,
+            @RequestBody String widgets) {
+        // params - contains ids of jsLib, actions and datasourceIds to be exported
+        return partialExportService
+                .getPartialExportResources(applicationId, pageId, branchName, params, widgets)
+                .map(fetchedResource -> {
+                    HttpHeaders responseHeaders = fetchedResource.getHttpHeaders();
+                    Object applicationResource = fetchedResource.getApplicationResource();
+                    return new ResponseEntity<>(applicationResource, responseHeaders, HttpStatus.OK);
+                });
     }
 }

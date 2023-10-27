@@ -1363,23 +1363,25 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
         Mono<User> userMono = sessionUserService.getCurrentUser().cache();
         Mono<Application> applicationWithPoliciesMono =
                 this.setApplicationPolicies(userMono, application.getWorkspaceId(), application);
-        Mono<Application> applicationMono = applicationService.findByNameAndWorkspaceId(
+        Mono<Boolean> applicationNameTakenMono = applicationService.isApplicationNameTaken(
                 actualName, application.getWorkspaceId(), MANAGE_APPLICATIONS);
 
         // We are taking pessimistic approach as this flow is used in import application where we are using transactions
         // which creates problem if we hit duplicate key exception
-        return applicationMono
-                .flatMap(application1 -> this.createOrUpdateSuffixedApplication(application, name, 1 + suffix))
-                .switchIfEmpty(Mono.defer(
-                        () -> applicationWithPoliciesMono.zipWith(userMono).flatMap(tuple -> {
-                            Application application1 = tuple.getT1();
-                            application1.setModifiedBy(
-                                    tuple.getT2().getUsername()); // setting modified by to current user
-                            // We can't use create or createApplication method here as we are expecting update operation
-                            // if the
-                            // _id is available with application object
-                            return applicationService.save(application);
-                        })));
+        return applicationNameTakenMono.flatMap(isNameTaken -> {
+            if (isNameTaken) {
+                return this.createOrUpdateSuffixedApplication(application, name, 1 + suffix);
+            } else {
+                return applicationWithPoliciesMono.zipWith(userMono).flatMap(tuple -> {
+                    Application application1 = tuple.getT1();
+                    application1.setModifiedBy(tuple.getT2().getUsername()); // setting modified by to current user
+                    // We can't use create or createApplication method here as we are expecting update operation
+                    // if the
+                    // _id is available with application object
+                    return applicationService.save(application);
+                });
+            }
+        });
     }
 
     /**

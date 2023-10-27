@@ -1,5 +1,9 @@
 import type { FieldEntityInformation } from "components/editorComponents/CodeEditor/EditorConfig";
-import { DataTreeFunctionSortOrder, PriorityOrder } from "./dataTypeSortRules";
+import {
+  DataTreeFunctionSortOrder,
+  PriorityOrder,
+  blockedCompletions,
+} from "./dataTypeSortRules";
 import type {
   Completion,
   DataTreeDefEntityInformation,
@@ -23,7 +27,9 @@ enum RuleWeight {
   JSLibrary,
   DataTreeFunction,
   DataTreeMatch,
+  RecentEntityMatch,
   TypeMatch,
+  DataTreeEntityNameMatch,
   PriorityMatch,
   ScopeMatch,
 }
@@ -94,6 +100,11 @@ class RemoveBlackListedCompletionRule implements AutocompleteRule {
     let score = 0;
     const { currentFieldInfo } = AutocompleteSorter;
     const { blockCompletions } = currentFieldInfo;
+
+    if (blockedCompletions.includes(completion.text)) {
+      score = RemoveBlackListedCompletionRule.threshold;
+      return score;
+    }
 
     if (blockCompletions) {
       for (let index = 0; index < blockCompletions.length; index++) {
@@ -192,11 +203,26 @@ class DataTreeFunctionRule implements AutocompleteRule {
     return score;
   }
 }
+/**
+ * Sets threshold value for completions that are recent entities
+ * Max score - 10000 + number
+ * Min score - 0
+ */
+class RecentEntityRule implements AutocompleteRule {
+  static threshold = 1 << RuleWeight.RecentEntityMatch;
+  computeScore(completion: Completion<TernCompletionResult>): number {
+    let score = 0;
+    if (completion.recencyWeight) {
+      score += RecentEntityRule.threshold + completion.recencyWeight;
+    }
+    return score;
+  }
+}
 
 /**
  * Set's threshold value for completions that belong to the dataTree and sets higher score for
  * completions that are not functions
- * Max score - 11000 - binary
+ * Max score - 110000 - binary
  * Min score - 0
  */
 class DataTreeRule implements AutocompleteRule {
@@ -212,7 +238,7 @@ class DataTreeRule implements AutocompleteRule {
 
 /**
  * Set's threshold value for completions that match the expectedValue of the current field.
- * Max score - 100000 - binary
+ * Max score - 1000000 - binary
  * Min score - 0
  */
 class TypeMatchRule implements AutocompleteRule {
@@ -227,8 +253,22 @@ class TypeMatchRule implements AutocompleteRule {
 }
 
 /**
+ * Set's threshold value for completions that belong to the dataTree and are entity names
+ * Max score - 10000000 - binary
+ * Min score - 0
+ */
+class DataTreeEntityNameRule implements AutocompleteRule {
+  static threshold = 1 << RuleWeight.DataTreeEntityNameMatch;
+  computeScore(completion: Completion<TernCompletionResult>): number {
+    let score = 0;
+    if (completion.isEntityName) score += DataTreeEntityNameRule.threshold;
+    return score;
+  }
+}
+
+/**
  * Set's threshold value for completions that resides in PriorityOrder, eg. selectedRow for Table1.
- * Max score - 1000000 - binary
+ * Max score - 100000000 - binary
  * Min score - 0
  */
 class PriorityMatchRule implements AutocompleteRule {
@@ -249,16 +289,43 @@ class PriorityMatchRule implements AutocompleteRule {
 }
 
 /**
- * Sets threshold value.to completions from the same scop.
- * Max score - 10000000 - binary
+ * Sets threshold value.to completions from the same scope.
+ * Max score - 1000000000 - binary
  * Min score - 0
  */
 class ScopeMatchRule implements AutocompleteRule {
   static threshold = 1 << RuleWeight.ScopeMatch;
   computeScore(completion: Completion<TernCompletionResult>): number {
     let score = 0;
-    if (completion.origin === "[doc]" || completion.origin === "customDataTree")
-      score += PriorityMatchRule.threshold;
+    if (
+      completion.origin?.startsWith("[doc") ||
+      completion.origin === "customDataTree"
+    )
+      score += ScopeMatchRule.threshold;
+    return score;
+  }
+}
+
+class BlockAsyncFnsInDataFieldRule implements AutocompleteRule {
+  static threshold = -Infinity;
+  static blackList = [
+    "setTimeout",
+    "clearTimeout",
+    "setInterval",
+    "clearInterval",
+  ];
+  computeScore(
+    completion: Completion<TernCompletionResult>,
+    entityInfo?: FieldEntityInformation | undefined,
+  ): number {
+    const score = 0;
+    if (entityInfo?.isTriggerPath) return score;
+    if (completion.type !== "FUNCTION") return score;
+    if (!completion.displayText) return score;
+    const isAsyncFunction = completion.data?.type?.endsWith("Promise");
+    if (isAsyncFunction) return BlockAsyncFnsInDataFieldRule.threshold;
+    if (BlockAsyncFnsInDataFieldRule.blackList.includes(completion.displayText))
+      return BlockAsyncFnsInDataFieldRule.threshold;
     return score;
   }
 }
@@ -341,8 +408,10 @@ export class ScoredCompletion {
     new NoSelfReferenceRule(),
     new ScopeMatchRule(),
     new PriorityMatchRule(),
+    new DataTreeEntityNameRule(),
     new TypeMatchRule(),
     new DataTreeRule(),
+    new RecentEntityRule(),
     new DataTreeFunctionRule(),
     new JSLibraryRule(),
     new GlobalJSRule(),
