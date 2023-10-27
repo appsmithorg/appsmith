@@ -33,8 +33,11 @@
       }
       console.log("newRelic loaded", "__APPSMITH_NEW_RELIC_ACCOUNT_ID__","__APPSMITH_NEW_RELIC_APPLICATION_ID__","__APPSMITH_APP_NEW_RELIC_LICENSE_KEY__","__APPSMITH_NEW_RELIC_ACCOUNT_ENABLE__");
       const enableNewRelic = "__APPSMITH_NEW_RELIC_ACCOUNT_ENABLE__";
-
-      enableNewRelic === "true" && runNewRelicAnalytics();
+      if(enableNewRelic === "true" ||enableNewRelic === true ){
+        console.log("running analytics")
+       runNewRelicAnalytics();
+      }
+      console.log("typeof ",typeof enableNewRelic )
       </script>
     <script>
       // '' (empty strings), 'false' are falsy
