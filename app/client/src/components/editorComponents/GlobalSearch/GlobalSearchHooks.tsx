@@ -73,12 +73,12 @@ export const useFilteredFileOperations = (query = "") => {
   );
 
   return useFilteredAndSortedFileOperations({
-    query,
     allDatasources,
-    recentlyUsedDSMap,
     canCreateActions,
     canCreateDatasource,
     plugins,
+    recentlyUsedDSMap,
+    query,
   });
 };
 
@@ -90,12 +90,12 @@ export const useFilteredAndSortedFileOperations = ({
   query,
   recentlyUsedDSMap = {},
 }: {
-  query: string;
   allDatasources?: Datasource[];
-  recentlyUsedDSMap?: Record<string, number>;
   canCreateActions?: boolean;
   canCreateDatasource?: boolean;
   plugins?: Plugin[];
+  recentlyUsedDSMap?: Record<string, number>;
+  query: string;
 }) => {
   const fileOperations: ActionOperation[] = [];
   if (!canCreateActions) return fileOperations;
