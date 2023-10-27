@@ -2170,22 +2170,23 @@ export const DATASOURCE_BLANK_STATE_MESSAGE = () =>
   "You need a datasource connection to write your first query";
 
 export const STARTER_TEMPLATE_PAGE_LAYOUTS = {
+  header: () => "Choose a template",
   layouts: {
     dashboard: {
-      name: () => "Dashboard",
-      description: () => "Visual representation of data",
+      name: () => "Visualize your data",
+      description: () => "Use to see your data in charts",
     },
     form: {
       name: () => "Form",
       description: () => "Add records to a database with a form",
     },
     recordEdit: {
-      name: () => "Record Edit",
-      description: () => "Edit records with a form",
+      name: () => "Change your data",
+      description: () => "Use to add or edit records via forms",
     },
     recordDetails: {
-      name: () => "Record Details",
-      description: () => "View details about a record",
+      name: () => "View your data",
+      description: () => "Use to view fields for your records",
     },
   },
   datasourceConnectPrompt: {
@@ -2194,5 +2195,5 @@ export const STARTER_TEMPLATE_PAGE_LAYOUTS = {
   },
   or: () => "or",
   dragAndDrop: () => "Drag and Drop Widgets",
-  importLoadingText: () => "Importing Page Layout",
+  importLoadingText: () => "Importing template",
 };

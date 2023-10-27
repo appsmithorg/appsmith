@@ -104,7 +104,7 @@ function StarterBuildingBlocks() {
         onMouseLeave={() => setLayoutActive(false)}
       >
         <TemplateLayoutHeaderText layoutActive={layoutActive}>
-          Choose a Page Layout
+          {createMessage(STARTER_TEMPLATE_PAGE_LAYOUTS.header)}
         </TemplateLayoutHeaderText>
 
         <TemplateLayoutContentGrid>
@@ -142,11 +142,11 @@ function StarterBuildingBlocks() {
       </TemplateLayoutContainer>
 
       <TemplateLayoutOrText layoutActive={layoutActive}>
-        or
+        {createMessage(STARTER_TEMPLATE_PAGE_LAYOUTS.or)}
       </TemplateLayoutOrText>
 
       <TemplateLayoutDragAndDropText layoutActive={layoutActive}>
-        Drag and Drop Widgets
+        {createMessage(STARTER_TEMPLATE_PAGE_LAYOUTS.dragAndDrop)}
       </TemplateLayoutDragAndDropText>
     </TemplateLayoutFrame>
   );

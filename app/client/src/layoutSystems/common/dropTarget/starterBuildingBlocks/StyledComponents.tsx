@@ -115,7 +115,8 @@ export const TemplateLayoutContentItem = styled.div`
   background: transparent;
   transition: background 0.3s ease;
   cursor: pointer;
-  width: 146px;
+  width: 156px;
+  height: 156px;
   border-width: 1px;
   border-color: #cdd5df;
 
