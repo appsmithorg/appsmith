@@ -448,13 +448,6 @@ export function EditorJSONtoForm(props: Props) {
     userWorkspacePermissions,
   );
 
-  useEffect(() => {
-    if (responseDisplayFormat && !!responseDisplayFormat?.title) {
-      dispatch(showDebugger(true));
-      dispatch(setDebuggerSelectedTab(DEBUGGER_TAB_KEYS.RESPONSE_TAB));
-    }
-  }, [responseDisplayFormat]);
-
   // get the current action's plugin name
   const currentActionPluginName = useSelector((state: AppState) =>
     getPluginNameFromId(state, currentActionConfig?.pluginId || ""),
@@ -509,6 +502,13 @@ export function EditorJSONtoForm(props: Props) {
       hintMessages = executedQueryData.messages;
     }
   }
+
+  useEffect(() => {
+    if (responseDisplayFormat && !!responseDisplayFormat?.title && output) {
+      dispatch(showDebugger(true));
+      dispatch(setDebuggerSelectedTab(DEBUGGER_TAB_KEYS.RESPONSE_TAB));
+    }
+  }, [responseDisplayFormat]);
 
   const dispatch = useDispatch();
 
