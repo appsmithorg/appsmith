@@ -1244,9 +1244,9 @@ export class AggregateHelper extends ReusableHelper {
               setTimeout(() => {
                 // Move cursor to the end of the line
                 input.execCommand("goLineEnd");
-              }, 300);
-            }, 300);
-          }, 300);
+              }, 500);
+            }, 500);
+          }, 500);
         } else {
           input.focus();
           this.Sleep(200);
