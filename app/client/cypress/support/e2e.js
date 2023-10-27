@@ -29,6 +29,7 @@ import { initLocalstorageRegistry } from "./Objects/Registry";
 import RapidMode from "./RapidMode.ts";
 import "cypress-mochawesome-reporter/register";
 import installLogsCollector from "cypress-terminal-report/src/installLogsCollector";
+import { CURRENT_REPO, REPO } from "../fixtures/REPO";
 
 import "./WorkspaceCommands";
 import "./queryCommands";
