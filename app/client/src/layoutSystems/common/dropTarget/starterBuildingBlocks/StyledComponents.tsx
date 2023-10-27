@@ -118,7 +118,7 @@ export const TemplateLayoutContentItem = styled.div`
   width: 156px;
   height: 156px;
   border-width: 1px;
-  border-color: #cdd5df;
+  border-color: ${Colors.GEYSER};
 
   &:hover {
     background: rgba(241, 245, 249, 1);
