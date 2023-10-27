@@ -30,10 +30,25 @@ const widgetPositionsReducer = createImmerReducer(initialState, {
           top: 0,
         };
       }
-      state[widgetId].height = newPosition.height;
-      state[widgetId].width = newPosition.width;
-      state[widgetId].left = newPosition.left;
-      state[widgetId].top = newPosition.top;
+      if (state[widgetId].height !== newPosition.height)
+        state[widgetId].height = newPosition.height;
+      if (state[widgetId].width !== newPosition.width)
+        state[widgetId].width = newPosition.width;
+      if (state[widgetId].left !== newPosition.left)
+        state[widgetId].left = newPosition.left;
+      if (state[widgetId].top !== newPosition.top)
+        state[widgetId].top = newPosition.top;
+    }
+  },
+  [AnvilReduxActionTypes.REMOVE_LAYOUT_ELEMENT_POSITIONS]: (
+    state: LayoutElementPositions,
+    action: AnvilReduxAction<string[]>,
+  ) => {
+    const elements = action.payload;
+    for (const each of elements) {
+      if (state[each]) {
+        delete state[each];
+      }
     }
   },
 });

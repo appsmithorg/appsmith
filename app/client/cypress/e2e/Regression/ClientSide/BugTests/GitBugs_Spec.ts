@@ -47,6 +47,7 @@ describe("Git Bugs", function () {
       });
     });
   });
+
   it("3. Bug 18376:  navigateTo fails to set queryParams if the app is connected to Git", () => {
     _.entityExplorer.AddNewPage();
     _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TEXT);

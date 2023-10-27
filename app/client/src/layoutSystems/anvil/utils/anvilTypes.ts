@@ -123,6 +123,7 @@ export type GenerateHighlights = (
   nextDimension: LayoutElementPosition | undefined,
   rowIndex: number,
   isLastHighlight: boolean,
+  prevHighlight: AnvilHighlightInfo | undefined,
   hasFillWidget?: boolean,
   isDropTarget?: boolean,
 ) => AnvilHighlightInfo[];
@@ -130,9 +131,9 @@ export type GenerateHighlights = (
 export type GetInitialHighlights = (
   layoutProps: LayoutProps,
   baseHighlight: AnvilHighlightInfo,
-  generateHighlights: GenerateHighlights,
   getDimensions: GetDimensions,
   isDropTarget: boolean,
+  hasAlignments: boolean,
   hasFillWidget?: boolean,
 ) => AnvilHighlightInfo[];
 
@@ -140,8 +141,8 @@ export type GetWidgetHighlights = (
   layoutProps: LayoutProps,
   baseHighlight: AnvilHighlightInfo,
   draggedWidgets: DraggedWidget[],
-  generateHighlights: GenerateHighlights,
   getDimensions: GetDimensions,
+  hasAlignments: boolean,
   hasFillWidget?: boolean,
 ) => AnvilHighlightInfo[];
 
@@ -153,8 +154,8 @@ export type GetLayoutHighlights = (
   canvasId: string,
   layoutOrder: string[],
   parentDropTargetId: string,
-  generateHighlights: GenerateHighlights,
   getDimensions: GetDimensions,
+  hasAlignments: boolean,
   hasFillWidget?: boolean,
 ) => AnvilHighlightInfo[];
 
@@ -170,4 +171,15 @@ export type DeriveHighlightsFn = (
 export type GetHighlights = (
   widgetPositions: LayoutElementPositions,
   draggedWidgets: DraggedWidget[],
+) => AnvilHighlightInfo[];
+
+export type UpdateHighlights = (
+  arr: AnvilHighlightInfo[],
+  baseHighlight: AnvilHighlightInfo,
+  layoutDimension: LayoutElementPosition,
+  currDimension: LayoutElementPosition,
+  nextDimension: LayoutElementPosition | undefined,
+  rowIndex: number,
+  isLastHighlight: boolean,
+  hasFillWidget?: boolean,
 ) => AnvilHighlightInfo[];
