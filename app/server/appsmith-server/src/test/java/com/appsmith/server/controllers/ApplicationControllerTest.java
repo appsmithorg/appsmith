@@ -2,6 +2,7 @@ package com.appsmith.server.controllers;
 
 import com.appsmith.server.configurations.RedisTestContainerConfig;
 import com.appsmith.server.configurations.SecurityTestConfig;
+import com.appsmith.server.configurations.solutions.OidcAccessTokenUpdateSolution;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.exceptions.AppsmithErrorCode;
@@ -86,6 +87,9 @@ public class ApplicationControllerTest {
 
     @MockBean
     PartialExportService partialExportService;
+
+    @MockBean
+    OidcAccessTokenUpdateSolution oidcAccessTokenUpdateSolution;
 
     private String getFileName(int length) {
         StringBuilder fileName = new StringBuilder();
