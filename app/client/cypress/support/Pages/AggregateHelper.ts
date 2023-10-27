@@ -939,7 +939,7 @@ export class AggregateHelper extends ReusableHelper {
   ) {
     return cy
       .get(selector)
-      .contains(containsText)
+      .contains(containsText, { matchCase: false })
       .eq(index)
       .click({ force: force })
       .wait(waitTimeInterval);
