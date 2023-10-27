@@ -18,7 +18,7 @@ import type {
   LayoutElementPositions,
 } from "layoutSystems/common/types";
 import { getRelativeDimensions } from "./dimensionUtils";
-import { getStartPosition } from "./highlightUtils";
+import { getNonDraggedWidgets, getStartPosition } from "./highlightUtils";
 import type { DropZone } from "layoutSystems/common/utils/types";
 
 export interface RowMetaInformation {
@@ -145,12 +145,9 @@ export function getHighlightsForWidgetsRow(
     getDimensions,
   );
 
-  const draggedWidgetIds: string[] = draggedWidgets.map(
-    (each: DraggedWidget) => each.widgetId,
-  );
-
-  const nonDraggedWidgets: WidgetLayoutProps[] = layout.filter(
-    (each: WidgetLayoutProps) => !draggedWidgetIds.includes(each.widgetId),
+  const nonDraggedWidgets: WidgetLayoutProps[] = getNonDraggedWidgets(
+    layout,
+    draggedWidgets,
   );
 
   if (!nonDraggedWidgets.length && !layoutProps.isDropTarget) return [];
