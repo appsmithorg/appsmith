@@ -135,8 +135,7 @@ public class ChatCommand implements OpenAICommand {
         }
 
         try {
-            float temperature = Float.parseFloat(temperatureString);
-            return (temperature > 2.0f || temperature < 0.0f) ? defaultFloatValue : temperature;
+            return Float.parseFloat(temperatureString);
         } catch (IllegalArgumentException illegalArgumentException) {
             return defaultFloatValue;
         } catch (Exception exception) {

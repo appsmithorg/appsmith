@@ -47,8 +47,7 @@
       "configProperty": "actionConfiguration.formData.temperature",
       "controlType": "INPUT_TEXT",
       "initialValue": "1",
-      "isRequired": false,
-      "dataType" : "NUMBER"
+      "isRequired": false
     },
     {
       "label": "Messages",
@@ -58,7 +57,7 @@
       "isRequired": true,
       "configProperty": "actionConfiguration.formData.messages",
       "controlType": "QUERY_DYNAMIC_TEXT",
-      "placeholderText": "[{'role': 'user' , 'message' : 'Hello World!'}]"
+      "placeholderText": "{{[{'role': 'user' , 'message' : Input1.text}]}}"
     }
   ]
 }
