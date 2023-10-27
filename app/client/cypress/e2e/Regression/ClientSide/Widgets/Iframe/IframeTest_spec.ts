@@ -114,7 +114,7 @@ describe("Iframe widget Tests", function () {
     agHelper.ValidateToastMessage("URL Changed");
   });
 
-  it.only("3. Verify colors, borders and shadows", () => {
+  it("3. Verify colors, borders and shadows", () => {
     propPane.MoveToTab("Style");
 
     // Change Border Color
