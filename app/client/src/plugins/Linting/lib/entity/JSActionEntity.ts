@@ -12,7 +12,7 @@ import { isJSFunctionProperty } from "@shared/ast";
 import {
   ENTITY_TYPE,
   type IEntity,
-} from "../../../../ee/plugins/Linting/lib/entity/types";
+} from "@appsmith/plugins/Linting/lib/entity/types";
 import type { Diff } from "deep-diff";
 
 export class JSEntity implements IEntity {
