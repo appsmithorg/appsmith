@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import type { RefObject } from "react";
 import React, { useCallback, useRef, useState } from "react";
 import type { InjectedFormProps } from "redux-form";
@@ -447,6 +447,13 @@ export function EditorJSONtoForm(props: Props) {
     isFeatureEnabled,
     userWorkspacePermissions,
   );
+
+  useEffect(() => {
+    if (responseDisplayFormat && !!responseDisplayFormat?.title) {
+      dispatch(showDebugger(true));
+      dispatch(setDebuggerSelectedTab(DEBUGGER_TAB_KEYS.RESPONSE_TAB));
+    }
+  }, [responseDisplayFormat]);
 
   // get the current action's plugin name
   const currentActionPluginName = useSelector((state: AppState) =>
