@@ -1,6 +1,9 @@
 import { BUTTON_VARIANTS, COLORS } from "@design-system/widgets";
 import { IconNames } from "@blueprintjs/icons";
-import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
+import {
+  FlexVerticalAlignment,
+  ResponsiveBehavior,
+} from "layoutSystems/common/utils/constants";
 import { ICON_BUTTON_MIN_WIDTH } from "constants/minWidthConstants";
 
 export const defaultsConfig = {
@@ -16,4 +19,5 @@ export const defaultsConfig = {
   animateLoading: true,
   responsiveBehavior: ResponsiveBehavior.Hug,
   minWidth: ICON_BUTTON_MIN_WIDTH,
+  flexVerticalAlignment: FlexVerticalAlignment.Bottom,
 };

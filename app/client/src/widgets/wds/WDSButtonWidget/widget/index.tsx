@@ -19,7 +19,10 @@ import type {
 import { ButtonPlacementTypes, RecaptchaTypes } from "components/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { ExecutionResult } from "constants/AppsmithActionConstants/ActionConstants";
-import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
+import {
+  FlexVerticalAlignment,
+  ResponsiveBehavior,
+} from "layoutSystems/common/utils/constants";
 
 class WDSButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
   constructor(props: ButtonWidgetProps) {
@@ -66,6 +69,7 @@ class WDSButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
       version: 1,
       responsiveBehavior: ResponsiveBehavior.Hug,
       minWidth: BUTTON_MIN_WIDTH,
+      flexVerticalAlignment: FlexVerticalAlignment.Bottom,
     };
   }
 
