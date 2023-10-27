@@ -25,10 +25,10 @@ import com.appsmith.server.dtos.ForkingMetaDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.export.internal.ImportExportApplicationService;
 import com.appsmith.server.fork.forkable.ForkableService;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.helpers.UserPermissionUtils;
+import com.appsmith.server.imports.internal.ImportApplicationService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.NewActionRepository;
@@ -73,7 +73,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
     private final ResponseUtils responseUtils;
     protected final WorkspacePermission workspacePermission;
     protected final ApplicationPermission applicationPermission;
-    private final ImportExportApplicationService importExportApplicationService;
+    private final ImportApplicationService importApplicationService;
     private final ApplicationPageService applicationPageService;
     protected final NewPageRepository newPageRepository;
     private final NewActionService newActionService;
@@ -627,7 +627,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                     return forkApplicationToWorkspaceWithEnvironment(
                                     fromApplicationId, targetWorkspaceId, sourceEnvironmentId)
                             .map(responseUtils::updateApplicationWithDefaultResources)
-                            .flatMap(application -> importExportApplicationService.getApplicationImportDTO(
+                            .flatMap(application -> importApplicationService.getApplicationImportDTO(
                                     application.getId(), application.getWorkspaceId(), application));
                 });
     }

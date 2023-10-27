@@ -16,6 +16,7 @@ describe("Audio Recorder functionality tests", () => {
       200,
     );
   });
+
   it("1. Verify properties and sub events are present and js convertible", () => {
     // assert properties are present
     propPane.Search("general");

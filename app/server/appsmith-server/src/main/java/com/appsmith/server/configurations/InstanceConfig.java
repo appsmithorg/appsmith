@@ -12,6 +12,10 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
 import static java.lang.Boolean.TRUE;
 
 @Slf4j
@@ -25,8 +29,18 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
 
     private final InstanceConfigHelper instanceConfigHelper;
 
+    private static final String WWW_PATH = System.getenv("NGINX_WWW_PATH");
+
     @Override
     public void onApplicationEvent(ApplicationReadyEvent applicationReadyEvent) {
+        if (WWW_PATH != null) {
+            try {
+                // Delete the loading.html file if it exists.
+                Files.deleteIfExists(Path.of(WWW_PATH + "/loading.html"));
+            } catch (IOException e) {
+                log.error("Error deleting loading.html file: {}", e.getMessage());
+            }
+        }
 
         Mono<Void> registrationAndRtsCheckMono = configService
                 .getByName(Appsmith.APPSMITH_REGISTERED)

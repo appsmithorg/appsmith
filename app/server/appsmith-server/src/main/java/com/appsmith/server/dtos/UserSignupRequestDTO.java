@@ -19,7 +19,6 @@ public class UserSignupRequestDTO {
 
     private String password;
 
-    @Deprecated
     private String role;
 
     private String proficiency;

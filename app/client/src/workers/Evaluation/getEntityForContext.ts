@@ -39,7 +39,7 @@ export function getEntityForEvalContext(
     switch (entity.ENTITY_TYPE) {
       case ENTITY_TYPE_VALUE.JSACTION: {
         const jsObjectName = entityName;
-        const jsObject = entity;
+        const jsObject = entity as JSActionEntity;
 
         let jsObjectForEval = JSObjectCollection.getVariableState(entityName);
 

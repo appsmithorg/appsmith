@@ -1,19 +1,8 @@
-import { adaptiveSignpostingEnabled } from "@appsmith/selectors/featureFlagsSelectors";
-import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
 import { Colors } from "constants/Colors";
 
-import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
 import { Button } from "design-system";
-import { SignpostingWalkthroughConfig } from "pages/Editor/FirstTimeUserOnboarding/Utils";
-import React, { useContext, useEffect } from "react";
-import { useSelector } from "react-redux";
-import { actionsExistInCurrentPage } from "@appsmith/selectors/entitiesSelector";
-import {
-  getIsFirstTimeUserOnboardingEnabled,
-  isWidgetActionConnectionPresent,
-} from "selectors/onboardingSelectors";
+import React from "react";
 import styled from "styled-components";
-import { getFeatureWalkthroughShown } from "utils/storage";
 
 const Wrapper = styled.div`
   position: absolute;
@@ -57,49 +46,8 @@ export function ConnectDataOverlay(props: {
   message: string;
   btnText: string;
 }) {
-  const {
-    isOpened: isWalkthroughOpened,
-    popFeature,
-    pushFeature,
-  } = useContext(WalkthroughContext) || {};
-  const signpostingEnabled = useSelector(getIsFirstTimeUserOnboardingEnabled);
-  const adaptiveSignposting = useSelector(adaptiveSignpostingEnabled);
-  const actionsExist = useSelector(actionsExistInCurrentPage);
-  const isConnectionPresent = useSelector(isWidgetActionConnectionPresent);
-
-  useEffect(() => {
-    if (
-      signpostingEnabled &&
-      adaptiveSignposting &&
-      !isConnectionPresent &&
-      actionsExist
-    ) {
-      checkAndShowWalkthrough();
-    }
-  }, [
-    signpostingEnabled,
-    adaptiveSignposting,
-    isConnectionPresent,
-    actionsExist,
-  ]);
-  const closeWalkthrough = () => {
-    if (popFeature && isWalkthroughOpened) {
-      popFeature();
-    }
-  };
-  const checkAndShowWalkthrough = async () => {
-    const isFeatureWalkthroughShown = await getFeatureWalkthroughShown(
-      FEATURE_WALKTHROUGH_KEYS.connect_data,
-    );
-    !isFeatureWalkthroughShown &&
-      pushFeature &&
-      pushFeature(SignpostingWalkthroughConfig.CONNECT_DATA, true);
-  };
-
   const onClick = () => {
     props.onConnectData();
-
-    closeWalkthrough();
   };
 
   return (

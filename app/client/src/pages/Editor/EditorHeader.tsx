@@ -1,12 +1,13 @@
-import React, { useCallback, useEffect, useState, useContext } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { ThemeProvider } from "styled-components";
 import AppInviteUsersForm from "pages/workspace/AppInviteUsersForm";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
-  getApplicationLastDeployedAt,
   getCurrentApplicationId,
   getCurrentPageId,
+  getIsPageSaving,
   getIsPublishingApplication,
+  getPageSavingError,
   previewModeSelector,
 } from "selectors/editorSelectors";
 import {
@@ -25,7 +26,7 @@ import {
   getIsErroredSavingAppName,
   getCurrentApplication,
 } from "@appsmith/selectors/applicationSelectors";
-import EditorAppName from "./EditorAppName";
+import EditorName from "./EditorName";
 import { EditInteractionKind, SavingState } from "design-system-old";
 import {
   Button,
@@ -44,10 +45,7 @@ import ToggleModeButton from "pages/Editor/ToggleModeButton";
 import { showConnectGitModal } from "actions/gitSyncActions";
 import RealtimeAppEditors from "./RealtimeAppEditors";
 import { EditorSaveIndicator } from "./EditorSaveIndicator";
-import {
-  adaptiveSignpostingEnabled,
-  selectFeatureFlags,
-} from "@appsmith/selectors/featureFlagsSelectors";
+import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 import { fetchUsersForWorkspace } from "@appsmith/actions/workspaceActions";
 
 import { getIsGitConnected } from "selectors/gitSyncSelectors";
@@ -71,14 +69,6 @@ import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettings
 import type { NavigationSetting } from "constants/AppConstants";
 import { getUserPreferenceFromStorage } from "@appsmith/utils/Environments";
 import { showEnvironmentDeployInfoModal } from "@appsmith/actions/environmentAction";
-import {
-  getIsFirstTimeUserOnboardingEnabled,
-  isWidgetActionConnectionPresent,
-} from "selectors/onboardingSelectors";
-import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
-import { getFeatureWalkthroughShown } from "utils/storage";
-import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
-import { SignpostingWalkthroughConfig } from "./FirstTimeUserOnboarding/Utils";
 import CommunityTemplatesPublishInfo from "./CommunityTemplates/Modals/CommunityTemplatesPublishInfo";
 import PublishCommunityTemplateModal from "./CommunityTemplates/Modals/PublishCommunityTemplate";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
@@ -90,6 +80,8 @@ import { Omnibar } from "./commons/Omnibar";
 import { EditorShareButton } from "./EditorShareButton";
 import { HelperBarInHeader } from "./HelpBarInHeader";
 import { AppsmithLink } from "./AppsmithLink";
+import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
+import { GetNavigationMenuData } from "./EditorName/NavigationMenuData";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -111,6 +103,8 @@ export function EditorHeader() {
   const isPublishing = useSelector(getIsPublishingApplication);
   const pageId = useSelector(getCurrentPageId) as string;
   const featureFlags = useSelector(selectFeatureFlags);
+  const isSaving = useSelector(getIsPageSaving);
+  const pageSaveError = useSelector(getPageSavingError);
 
   const deployLink = useHref(viewerURL, { pageId });
   const isAppSettingsPaneWithNavigationTabOpen = useSelector(
@@ -191,8 +185,6 @@ export function EditorHeader() {
           dispatch(showEnvironmentDeployInfoModal());
         }
       }
-
-      closeWalkthrough();
     },
     [dispatch, handlePublish],
   );
@@ -204,45 +196,9 @@ export function EditorHeader() {
     }
   }, [workspaceId]);
 
-  const {
-    isOpened: isWalkthroughOpened,
-    popFeature,
-    pushFeature,
-  } = useContext(WalkthroughContext) || {};
-  const adaptiveSignposting = useSelector(adaptiveSignpostingEnabled);
-  const isConnectionPresent = useSelector(isWidgetActionConnectionPresent);
-  const isDeployed = !!useSelector(getApplicationLastDeployedAt);
   const isPrivateEmbedEnabled = useFeatureFlag(
     FEATURE_FLAG.license_private_embeds_enabled,
   );
-  useEffect(() => {
-    if (
-      signpostingEnabled &&
-      isConnectionPresent &&
-      adaptiveSignposting &&
-      !isDeployed
-    ) {
-      checkAndShowWalkthrough();
-    }
-  }, [
-    signpostingEnabled,
-    isConnectionPresent,
-    adaptiveSignposting,
-    isDeployed,
-  ]);
-  const closeWalkthrough = () => {
-    if (popFeature && isWalkthroughOpened) {
-      popFeature();
-    }
-  };
-  const checkAndShowWalkthrough = async () => {
-    const isFeatureWalkthroughShown = await getFeatureWalkthroughShown(
-      FEATURE_WALKTHROUGH_KEYS.deploy,
-    );
-    !isFeatureWalkthroughShown &&
-      pushFeature &&
-      pushFeature(SignpostingWalkthroughConfig.DEPLOY_APP, true);
-  };
 
   const isGACEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
 
@@ -265,7 +221,7 @@ export function EditorHeader() {
             placement="bottom"
           >
             <div>
-              <EditorAppName
+              <EditorName
                 applicationId={applicationId}
                 className="t--application-name editable-application-name max-w-48"
                 defaultSavingState={
@@ -273,9 +229,11 @@ export function EditorHeader() {
                 }
                 defaultValue={currentApplication?.name || ""}
                 editInteractionKind={EditInteractionKind.SINGLE}
+                editorName="Application"
                 fill
+                getNavigationMenu={GetNavigationMenuData}
                 isError={isErroredSavingName}
-                isNewApp={
+                isNewEditor={
                   applicationList.filter((el) => el.id === applicationId)
                     .length > 0
                 }
@@ -290,7 +248,7 @@ export function EditorHeader() {
               />
             </div>
           </Tooltip>
-          <EditorSaveIndicator />
+          <EditorSaveIndicator isSaving={isSaving} saveError={pageSaveError} />
         </HeaderSection>
 
         <HelperBarInHeader />
