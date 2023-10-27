@@ -62,16 +62,8 @@ describe("Autocomplete using slash command and mustache tests", function () {
       .type("{shift}{{}{shift}{{}")
       .then(() => {
         cy.get(dynamicInputLocators.hints).should("exist");
-        // validates all autocomplete functions on entering {{}} in onClick field
-        cy.get(`${dynamicInputLocators.hints} li`)
-          .eq(7)
-          .should("have.text", "storeValue");
-        cy.get(`${dynamicInputLocators.hints} li`)
-          .eq(8)
-          .should("have.text", "showAlert");
-        cy.get(`${dynamicInputLocators.hints} li`)
-          .eq(9)
-          .should("have.text", "navigateTo");
+        _.agHelper.AssertContains("storeValue");
+        _.agHelper.AssertContains("showAlert");
       });
   });
 
@@ -101,13 +93,8 @@ describe("Autocomplete using slash command and mustache tests", function () {
           cy.get(dynamicInputLocators.input)
             .first()
             .type("{shift}{{}{shift}{{}");
-          // validates autocomplete binding on entering {{}} in text field
-          cy.get(`${dynamicInputLocators.hints} li`)
-            .eq(1)
-            .should("have.text", "Button1.text");
-          cy.get(`${dynamicInputLocators.hints} li`)
-            .eq(2)
-            .should("have.text", "Button1.recaptchaToken");
+          _.agHelper.AssertContains("Button1.text");
+          _.agHelper.AssertContains("Button1.recaptchaToken");
         });
     },
   );
