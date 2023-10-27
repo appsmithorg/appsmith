@@ -1,62 +1,39 @@
 import { selectWidgetsForCurrentPage } from "@appsmith/selectors/entitiesSelector";
-import { partialExportWidgets } from "actions/widgetActions";
-import { Button, Checkbox } from "design-system";
-import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { Checkbox } from "design-system";
+import React from "react";
+import { useSelector } from "react-redux";
+import type { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureReducer";
+import { CheckboxWrapper } from "./StyledSheet";
+import styled from "styled-components";
 
 const WidgetsExport = () => {
-  const dispatch = useDispatch();
   const widgets = useSelector(selectWidgetsForCurrentPage);
-  const [selectedWidgetIds, setSelectedWidgetIds] = useState<string[]>([]);
-
-  const onExportClick = () => {
-    dispatch(partialExportWidgets(selectedWidgetIds));
-  };
-  return (
-    <div>
-      {widgets?.children?.map((child) => (
-        <WidgetEntity
-          id={child.widgetId}
-          key={child.widgetId}
-          name={child.widgetName}
-          setSelected={(id: string) =>
-            setSelectedWidgetIds([...selectedWidgetIds, id])
-          }
-          //   type={child.type}
-        />
-      ))}
-      <Button onClick={onExportClick}>Export</Button>
-    </div>
-  );
+  if (!widgets || !widgets.children || widgets.children.length === 0)
+    return null;
+  return <WidgetSelector widgets={widgets.children} />;
 };
 
 export default WidgetsExport;
 
-const WidgetEntity = ({
-  id,
-  name,
-  setSelected,
-}: //   type,
-{
-  id: string;
-  name: string;
-  setSelected: (id: string) => void;
-  //   type: string;
-}) => {
-  const [isChecked, setIsChecked] = useState(false);
-
-  useEffect(() => {
-    if (!isChecked) return;
-    setSelected(id);
-  }, [isChecked]);
+function WidgetSelector({ widgets }: { widgets: CanvasStructure[] }) {
+  function renderWidget(widget: CanvasStructure, level = 0) {
+    return (
+      <div style={{ marginLeft: level * 8 }}>
+        <CheckboxContainer>
+          <Checkbox>{widget.widgetName}</Checkbox>
+        </CheckboxContainer>
+        {widget.children?.map((child) => renderWidget(child, level + 1))}
+      </div>
+    );
+  }
 
   return (
-    <Checkbox
-      isSelected={isChecked}
-      name={name}
-      onChange={() => setIsChecked(!isChecked)}
-    >
-      {name}
-    </Checkbox>
+    <CheckboxWrapper>
+      {widgets.map((widget) => renderWidget(widget))}
+    </CheckboxWrapper>
   );
-};
+}
+
+const CheckboxContainer = styled.div`
+  margin-bottom: 8px;
+`;

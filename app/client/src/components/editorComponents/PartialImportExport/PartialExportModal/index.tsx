@@ -5,6 +5,7 @@ import {
 import {
   selectFilesForExplorer,
   selectLibrariesForExplorer,
+  selectWidgetsForCurrentPage,
 } from "@appsmith/selectors/entitiesSelector";
 import {
   Button,
@@ -52,7 +53,9 @@ const PartiaExportModel = ({ handleModalClose, isModalOpen }: Props) => {
         groupedData[currentGroup as string].push(item);
       }
     }
-    const jsObjects = groupedData["JS Objects"].map((item: any) => item.entity);
+    const jsObjects =
+      groupedData["JS Objects"] &&
+      groupedData["JS Objects"].map((item: any) => item.entity);
     delete groupedData["JS Objects"];
 
     return [
@@ -64,25 +67,33 @@ const PartiaExportModel = ({ handleModalClose, isModalOpen }: Props) => {
       {
         title: "JsObjects",
         icon: JsFileIconV2(16, 16),
-        children: <EntityCheckboxSelector entities={jsObjects} />,
+        children: jsObjects ? (
+          <EntityCheckboxSelector entities={jsObjects} />
+        ) : null,
       },
       {
         title: "Databases",
         icon: datasourceIcon,
-        children: <EntityCheckboxSelector entities={appWideDS} />,
+        children: appWideDS ? (
+          <EntityCheckboxSelector entities={appWideDS} />
+        ) : null,
       },
       {
         title: "Queries",
         icon: dbQueryIcon,
-        children: <JSObjectsNQueriesExport data={groupedData} />,
+        children: groupedData ? (
+          <JSObjectsNQueriesExport data={groupedData} />
+        ) : null,
       },
       {
         title: "Custom libraries",
         icon: <span />,
-        children: <EntityCheckboxSelector entities={libraries} />,
+        children: libraries ? (
+          <EntityCheckboxSelector entities={libraries} />
+        ) : null,
       },
     ];
-  }, [files]);
+  }, [files, selectWidgetsForCurrentPage]);
 
   return (
     <Modal onOpenChange={handleModalClose} open={isModalOpen}>
