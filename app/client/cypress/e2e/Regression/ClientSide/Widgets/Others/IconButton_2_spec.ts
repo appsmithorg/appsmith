@@ -69,6 +69,7 @@ describe("Icon Button widget Tests", function () {
     // Select from dropdown
     agHelper.GetNClick(`${locators._propertyControl}icon`);
     agHelper.GetElement(propPane._iconDropdown).scrollTo("top");
+    agHelper.Sleep();
     agHelper.GetNClick(propPane._dataIcon("airplane"));
     agHelper.AssertElementVisibility(
       `${locators._widgetInDeployed("iconbuttonwidget")} ${propPane._dataIcon(

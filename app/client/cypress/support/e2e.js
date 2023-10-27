@@ -29,6 +29,7 @@ import { initLocalstorageRegistry } from "./Objects/Registry";
 import RapidMode from "./RapidMode.ts";
 import "cypress-mochawesome-reporter/register";
 import installLogsCollector from "cypress-terminal-report/src/installLogsCollector";
+import { CURRENT_REPO, REPO } from "../fixtures/REPO";
 
 import "./WorkspaceCommands";
 import "./queryCommands";
@@ -118,6 +119,14 @@ before(function () {
     } else if (url.indexOf("user/login") > -1) {
       //Cypress.Cookies.preserveOnce("SESSION", "remember_token");
       cy.LoginFromAPI(username, password);
+      if (CURRENT_REPO === REPO.EE) {
+        cy.wait(2000);
+        cy.url().then((url) => {
+          if (url.indexOf("/license") > -1) {
+            cy.validateLicense();
+          }
+        });
+      }
       cy.wait(3000);
     }
   });
