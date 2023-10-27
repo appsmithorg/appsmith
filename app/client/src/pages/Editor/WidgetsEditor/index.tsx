@@ -140,11 +140,7 @@ function WidgetsEditor() {
       const isCanvasWrapperClicked = e.target?.nodeName === "CANVAS";
       // Making sure that we don't deselect the widget
       // after we are done dragging the limits in auto height with limits
-      if (
-        allowDragToSelect &&
-        !isAutoHeightWithLimitsChanging &&
-        !isCanvasWrapperClicked
-      ) {
+      if (!isAutoHeightWithLimitsChanging && !isCanvasWrapperClicked) {
         focusWidget && focusWidget();
         deselectAll && deselectAll();
         dispatch(closePropertyPane());
@@ -152,12 +148,7 @@ function WidgetsEditor() {
         dispatch(setCanvasSelectionFromEditor(false));
       }
     },
-    [
-      allowDragToSelect,
-      focusWidget,
-      deselectAll,
-      isAutoHeightWithLimitsChanging,
-    ],
+    [focusWidget, deselectAll, isAutoHeightWithLimitsChanging],
   );
 
   /**
