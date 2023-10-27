@@ -122,8 +122,9 @@ const OverlayCanvasContainer = (props: { canvasWidth: number }) => {
   useEffect(() => {
     const scrollParent: HTMLDivElement | null =
       getMainContainerAnvilCanvasDOMElement();
+    const wrapper: HTMLDivElement | null = wrapperRef?.current;
 
-    if (!wrapperRef?.current || !scrollParent) return;
+    if (!wrapper || !scrollParent) return;
 
     const reset = resetCanvas.bind(this, widgetNamePositions, stageRef);
 
@@ -150,6 +151,7 @@ const OverlayCanvasContainer = (props: { canvasWidth: number }) => {
     wrapperRef.current.addEventListener("mousemove", mouseMoveHandler);
     scrollParent.addEventListener("scroll", scrollHandler);
     scrollParent.addEventListener("scrollend", scrollEndHandler);
+    wrapper.addEventListener("mousemove", mouseMoveHandler);
 
     return () => {
       if (wrapperRef?.current)
@@ -157,6 +159,7 @@ const OverlayCanvasContainer = (props: { canvasWidth: number }) => {
       scrollParent.removeEventListener("mousemove", mouseMoveHandler);
       scrollParent.removeEventListener("scroll", scrollHandler);
       scrollParent.removeEventListener("scrollend", scrollEndHandler);
+      wrapper.removeEventListener("mousemove", mouseMoveHandler);
     };
   }, [wrapperRef?.current, stageRef?.current]);
 
