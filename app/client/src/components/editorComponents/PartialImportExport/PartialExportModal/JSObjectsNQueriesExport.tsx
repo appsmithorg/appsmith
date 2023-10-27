@@ -1,26 +1,45 @@
-import { selectFilesForExplorer } from "@appsmith/selectors/entitiesSelector";
-import { Checkbox } from "design-system";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleHeader,
+  Text,
+} from "design-system";
 import React from "react";
-import { useSelector } from "react-redux";
+import EntityCheckboxSelector from "./EntityCheckboxSelector";
 
-const JSObjectsNQueriesExport = () => {
-  const files = useSelector(selectFilesForExplorer);
+interface Props {
+  data: Record<
+    string,
+    {
+      type: string;
+      group: string;
+      entity: {
+        id: string;
+        name: string;
+      };
+    }[]
+  >;
+}
+const JSObjectsNQueriesExport = ({ data }: Props) => {
   return (
-    <div>
-      {files.map(({ entity, type }: any) => {
-        switch (type) {
-          case "JS":
-            return <Checkbox key={entity.id}>{entity.name}</Checkbox>;
-          // case "group":
-          //   return (
-          //     <Text kind="heading-m" renderAs="h2">
-          //       {entity.name}
-          //     </Text>
-          //   );
-          default:
-            return <Checkbox key={entity.id}>{entity.name}</Checkbox>;
-        }
-      })}
+    <div className="pl-4 pr-4">
+      {Object.keys(data).map((key) => (
+        <Collapsible isOpen key={key}>
+          <CollapsibleHeader>
+            <Text
+              kind="heading-s"
+              style={{ display: "flex", alignItems: "center", gap: "8px" }}
+            >
+              {key}
+            </Text>
+          </CollapsibleHeader>
+          <CollapsibleContent>
+            <EntityCheckboxSelector
+              entities={data[key].map((item) => item.entity)}
+            />
+          </CollapsibleContent>
+        </Collapsible>
+      ))}
     </div>
   );
 };
