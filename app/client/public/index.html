@@ -17,6 +17,30 @@
         transition: all ease-in 0.3s;
       }
     </style>
+      <script>
+        // '' (empty strings), 'false' are falsy
+        // could return either boolean or string based on value
+        const parseConfig = (config) => {
+          if (
+            config.indexOf("__") === 0 ||
+            config.indexOf("$") === 0 ||
+            config.indexOf("%") === 0
+          )
+            return "";
+  
+          const result = config.trim();
+          if (result.toLowerCase() === "false" || result === "") {
+            return false;
+          } else if (result.toLowerCase() === "true") {
+            return true;
+          }
+  
+          return result;
+        };
+        const CLOUD_HOSTING = parseConfig("__APPSMITH_CLOUD_HOSTING__");
+        const ZIPY_KEY = parseConfig("__APPSMITH_ZIPY_SDK_KEY__");
+        const AIRGAPPED = parseConfig("__APPSMITH_AIRGAP_ENABLED__");
+      </script>
     <script type="text/javascript">
       function runNewRelicAnalytics(){
 
@@ -42,30 +66,7 @@
       }
       console.log("typeof ",enableNewRelic, typeof enableNewRelic );
       </script>
-    <script>
-      // '' (empty strings), 'false' are falsy
-      // could return either boolean or string based on value
-      const parseConfig = (config) => {
-        if (
-          config.indexOf("__") === 0 ||
-          config.indexOf("$") === 0 ||
-          config.indexOf("%") === 0
-        )
-          return "";
-
-        const result = config.trim();
-        if (result.toLowerCase() === "false" || result === "") {
-          return false;
-        } else if (result.toLowerCase() === "true") {
-          return true;
-        }
-
-        return result;
-      };
-      const CLOUD_HOSTING = parseConfig("__APPSMITH_CLOUD_HOSTING__");
-      const ZIPY_KEY = parseConfig("__APPSMITH_ZIPY_SDK_KEY__");
-      const AIRGAPPED = parseConfig("__APPSMITH_AIRGAP_ENABLED__");
-    </script>
+  
     <script>
         window.__APPSMITH_CHUNKS_TO_PRELOAD =
       <%=
