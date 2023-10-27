@@ -148,7 +148,7 @@ const OverlayCanvasContainer = (props: { canvasWidth: number }) => {
     );
 
     scrollParent.addEventListener("mousemove", mouseMoveHandler);
-    wrapperRef.current.addEventListener("mousemove", mouseMoveHandler);
+    wrapperRef.current?.addEventListener("mousemove", mouseMoveHandler);
     scrollParent.addEventListener("scroll", scrollHandler);
     scrollParent.addEventListener("scrollend", scrollEndHandler);
     wrapper.addEventListener("mousemove", mouseMoveHandler);
