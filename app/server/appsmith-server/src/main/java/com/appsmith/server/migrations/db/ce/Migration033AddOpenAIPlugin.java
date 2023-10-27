@@ -33,10 +33,10 @@ public class Migration033AddOpenAIPlugin {
         plugin.setPluginName(PluginConstants.PluginName.OPEN_AI_PLUGIN_NAME);
         plugin.setPackageName(PluginConstants.PackageName.OPEN_AI_PLUGIN);
         plugin.setUiComponent("UQIDbEditorForm");
-        plugin.setDatasourceComponent("OAuth2DatasourceForm");
+        plugin.setDatasourceComponent("DbEditorFrom");
         plugin.setResponseType(Plugin.ResponseType.JSON);
         plugin.setIconLocation("https://assets.appsmith.com/logo/open-ai.svg");
-        plugin.setDocumentationLink("https://docs.appsmith.com/datasource-reference/");
+        plugin.setDocumentationLink("https://docs.appsmith.com/datasource-reference/open-ai");
         plugin.setDefaultInstall(true);
         try {
             mongoTemplate.insert(plugin);
