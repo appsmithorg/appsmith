@@ -186,6 +186,8 @@ const generateDataTreeWidgetWithoutMeta = (
   );
   const defaultProps = WidgetFactory.getWidgetDefaultPropertiesMap(widget.type);
 
+  const dependencyMap = WidgetFactory.getWidgetDependencyMap(widget.type);
+
   const propertyPaneConfigs = WidgetFactory.getWidgetPropertyPaneConfig(
     widget.type,
   );
@@ -324,6 +326,7 @@ const generateDataTreeWidgetWithoutMeta = (
       reactivePaths,
       triggerPaths,
       validationPaths,
+      dependencyMap,
       ENTITY_TYPE: ENTITY_TYPE_VALUE.WIDGET,
       privateWidgets: {
         ...widget.privateWidgets,

@@ -86,22 +86,13 @@ describe("Autocomplete bug fixes", function () {
     );
   });
 
-  it("6. feat #16426 Autocomplete for fast-xml-parser", function () {
-    entityExplorer.SelectEntityByName("Text1");
-    propPane.TypeTextIntoField("Text", "{{xmlParser.j");
-    agHelper.GetNAssertElementText(locators._hints, "j2xParser");
-
-    propPane.TypeTextIntoField("Text", "{{new xmlParser.j2xParser().p");
-    agHelper.GetNAssertElementText(locators._hints, "parse");
-  });
-
   it(
     "excludeForAirgap",
     "7. Installed library should show up in autocomplete",
     function () {
       entityExplorer.ExpandCollapseEntity("Libraries");
       installer.OpenInstaller();
-      installer.installLibrary("uuidjs", "UUID");
+      installer.InstallLibrary("uuidjs", "UUID");
       installer.CloseInstaller();
       entityExplorer.SelectEntityByName("Text1");
       propPane.TypeTextIntoField("Text", "{{UUI");

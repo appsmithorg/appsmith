@@ -77,21 +77,22 @@ export const getSelectedWidgetNameData = createSelector(
     widgets,
     dataTree,
     shouldShowWidgetName,
-  ): WidgetNameData | undefined => {
-    if (
-      !selectedWidgets ||
-      selectedWidgets.length !== 1 ||
-      !shouldShowWidgetName
-    )
-      return;
+  ): WidgetNameData[] | undefined => {
+    // This way, we know that we're dragging so we'll clear the canvas, but keep existing references
+    // Then, we can prevent a redraw until the widget positions change
+    if (!shouldShowWidgetName) return [];
+    // This way, we know that we're supposed to clear all the widget names
+    // This would happen if there are no selected widgets and we need to clear the canvas
+    if (!selectedWidgets || selectedWidgets.length === 0) return;
 
-    const selectedWidgetId = selectedWidgets[0];
-
-    const selectedWidget = widgets[selectedWidgetId];
-
-    if (!selectedWidget) return;
-
-    return getWidgetNameState(selectedWidget, dataTree, positions);
+    const result: WidgetNameData[] = [];
+    for (const selectedWidgetId of selectedWidgets) {
+      const selectedWidget = widgets[selectedWidgetId];
+      if (!selectedWidget) continue;
+      result.push(getWidgetNameState(selectedWidget, dataTree, positions));
+    }
+    if (result.length > 0) return result;
+    else return;
   },
 );
 

@@ -7,8 +7,7 @@ export const useCanvasDragToScroll = (
   canvasRef: RefObject<HTMLElement>,
   isCurrentDraggedCanvas: boolean,
   isDragging: boolean,
-  snapRows: number,
-  canExtend: boolean,
+  dependencies: Record<string, any> = {},
 ) => {
   const canScroll = useRef(true);
   useEffect(() => {
@@ -92,6 +91,6 @@ export const useCanvasDragToScroll = (
         canvasRef.current?.removeEventListener("mousemove", checkIfNeedsScroll);
       };
     }
-  }, [isCurrentDraggedCanvas, isDragging, snapRows, canExtend]);
+  }, [isCurrentDraggedCanvas, isDragging, dependencies]);
   return canScroll;
 };

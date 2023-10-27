@@ -19,7 +19,7 @@ describe("Check datasource doc links", function () {
       deployMode.StubWindowNAssert(
         dataSources._queryDoc,
         "querying-postgres#create-crud-queries",
-        "getWorkspace",
+        "getPluginForm",
       );
     });
   });
@@ -32,7 +32,7 @@ describe("Check datasource doc links", function () {
       deployMode.StubWindowNAssert(
         dataSources._queryDoc,
         "querying-mongodb#create-queries",
-        "getWorkspace",
+        "getPluginForm",
       );
     });
   });
@@ -45,7 +45,7 @@ describe("Check datasource doc links", function () {
       deployMode.StubWindowNAssert(
         dataSources._queryDoc,
         "querying-mysql#create-queries",
-        "getWorkspace",
+        "getPluginForm",
       );
     });
   });
@@ -58,7 +58,7 @@ describe("Check datasource doc links", function () {
       deployMode.StubWindowNAssert(
         dataSources._queryDoc,
         "querying-arango-db#using-queries-in-applications",
-        "getWorkspace",
+        "getPluginForm",
       );
     });
   });
@@ -71,7 +71,7 @@ describe("Check datasource doc links", function () {
       deployMode.StubWindowNAssert(
         dataSources._queryDoc,
         "querying-amazon-s3#list-files",
-        "getWorkspace",
+        "getPluginForm",
       );
     });
   });
@@ -84,7 +84,7 @@ describe("Check datasource doc links", function () {
       deployMode.StubWindowNAssert(
         dataSources._queryDoc,
         "connect-data/reference/using-smtp",
-        "getWorkspace",
+        "getPluginForm",
       );
     });
   });
@@ -97,7 +97,7 @@ describe("Check datasource doc links", function () {
       deployMode.StubWindowNAssert(
         dataSources._queryDoc,
         "airtable#create-queries",
-        "getWorkspace",
+        "getPluginForm",
       );
     });
   });
@@ -115,7 +115,7 @@ describe("Check datasource doc links", function () {
       deployMode.StubWindowNAssert(
         dataSources._queryDoc,
         "querying-oracle#create-queries",
-        "getWorkspace",
+        "getPluginForm",
       );
     });
   });
@@ -133,7 +133,7 @@ describe("Check datasource doc links", function () {
       deployMode.StubWindowNAssert(
         dataSources._queryDoc,
         "querying-firestore#understanding-commands",
-        "getWorkspace",
+        "getPluginForm",
       );
     });
   });

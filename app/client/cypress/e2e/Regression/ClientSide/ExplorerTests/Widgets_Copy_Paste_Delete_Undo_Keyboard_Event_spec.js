@@ -58,5 +58,6 @@ describe("Test Suite to validate copy/delete/undo functionalites", function () {
       cy.get(".bp3-input").first().click({ force: true });
       cy.get(".bp3-input").first().type(`{${modifierKey}}v`, { force: true });
     });
+    agHelper.RemoveUIElement("Toast", "7 widgets are added back.");
   });
 });

@@ -1,4 +1,5 @@
 import type { RenderModes } from "constants/WidgetConstants";
+import type { AdditionalAnvilProperties } from "layoutSystems/anvil/canvas/types";
 import type { AdditionalAutoLayoutProperties } from "layoutSystems/autolayout/canvas/types";
 import type { AdditionalFixedLayoutProperties } from "layoutSystems/fixedlayout/canvas/types";
 import { map } from "lodash";
@@ -7,7 +8,8 @@ import type { WidgetProps } from "widgets/BaseWidget";
 
 type LayoutSystemProps =
   | AdditionalFixedLayoutProperties
-  | AdditionalAutoLayoutProperties;
+  | AdditionalAutoLayoutProperties
+  | AdditionalAnvilProperties;
 
 /**
  * This utility function renders a child widget based on the widget data passed to it.
@@ -17,7 +19,7 @@ type LayoutSystemProps =
  *
  * @returns
  */
-function renderChildWidget({
+export function renderChildWidget({
   childWidgetData,
   defaultWidgetProps,
   layoutSystemProps,

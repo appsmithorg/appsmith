@@ -7,7 +7,6 @@ import { snipingModeSelector } from "selectors/editorSelectors";
 import { useClickToSelectWidget } from "utils/hooks/useClickToSelectWidget";
 import { usePositionedContainerZIndex } from "utils/hooks/usePositionedContainerZIndex";
 import {
-  getIsResizing,
   isCurrentWidgetFocused,
   isWidgetSelected,
 } from "selectors/widgetSelectors";
@@ -28,6 +27,9 @@ import WidgetFactory from "WidgetProvider/factory";
 import type { WidgetProps } from "widgets/BaseWidget";
 import type { WidgetConfigProps } from "WidgetProvider/constants";
 import { usePositionObserver } from "layoutSystems/common/utils/LayoutElementPositionsObserver/usePositionObserver";
+import { useWidgetBorderStyles } from "./hooks/useWidgetBorderStyles";
+import { getAnvilWidgetDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
+import type { AppState } from "@appsmith/reducers";
 
 /**
  * Adds following functionalities to the widget:
@@ -45,10 +47,14 @@ import { usePositionObserver } from "layoutSystems/common/utils/LayoutElementPos
 export function AnvilFlexComponent(props: AnvilFlexComponentProps) {
   const isDropTarget = checkIsDropTarget(props.widgetType);
   const isFocused = useSelector(isCurrentWidgetFocused(props.widgetId));
-  const isResizing = useSelector(getIsResizing);
   const isSelected = useSelector(isWidgetSelected(props.widgetId));
   const isSnipingMode = useSelector(snipingModeSelector);
-  const isCurrentWidgetResizing = isResizing && isSelected;
+  const isDragging = useSelector(
+    (state: AppState) => state.ui.widgetDragResize.isDragging,
+  );
+  const isCanvasResizing: boolean = useSelector(
+    (state: AppState) => state.ui.widgetDragResize.isAutoCanvasResizing,
+  );
 
   /** POSITIONS OBSERVER LOGIC */
   // Create a ref so that this DOM node can be
@@ -99,8 +105,17 @@ export function AnvilFlexComponent(props: AnvilFlexComponentProps) {
         props.widgetId
       } ${widgetTypeClassname(
         props.widgetType,
-      )} t--widget-${props.widgetName.toLowerCase()}`,
-    [props.parentId, props.widgetId, props.widgetType, props.widgetName],
+      )} t--widget-${props.widgetName.toLowerCase()} drop-target-${
+        props.layoutId
+      } row-index-${props.rowIndex}`,
+    [
+      props.parentId,
+      props.widgetId,
+      props.widgetType,
+      props.widgetName,
+      props.layoutId,
+      props.rowIndex,
+    ],
   );
 
   // Memoize flex props to be passed to the WDS Flex component.
@@ -111,15 +126,9 @@ export function AnvilFlexComponent(props: AnvilFlexComponentProps) {
       flexGrow: isFillWidget ? 1 : 0,
       flexShrink: isFillWidget ? 1 : 0,
       flexBasis: isFillWidget ? "0%" : "auto",
-      height:
-        props.hasAutoHeight || isCurrentWidgetResizing
-          ? "auto"
-          : `${props.componentHeight}px`,
+      height: "auto",
       padding: WIDGET_PADDING + "px",
-      width:
-        isFillWidget || props.hasAutoWidth || isCurrentWidgetResizing
-          ? "auto"
-          : `${props.componentWidth}px`,
+      width: "auto",
     };
     if (props?.widgetSize) {
       // adding min max limits only if they are available, as WDS Flex doesn't handle undefined values.
@@ -141,28 +150,31 @@ export function AnvilFlexComponent(props: AnvilFlexComponentProps) {
       }
     }
     return data;
-  }, [
-    isCurrentWidgetResizing,
-    isFillWidget,
-    props.componentHeight,
-    props.hasAutoHeight,
-    props.hasAutoWidth,
-    props.componentWidth,
-    props.widgetSize,
-    verticalAlignment,
-  ]);
+  }, [isFillWidget, props.widgetSize, verticalAlignment]);
+
+  const borderStyles = useWidgetBorderStyles(props.widgetId);
 
   const styleProps: CSSProperties = useMemo(() => {
     return {
       position: "relative",
+      // overflow is set to make sure widgets internal components/divs don't overflow this boundary causing scrolls
+      overflow: "hidden",
+      opacity: isDragging && isSelected ? 0.5 : 1,
       "&:hover": {
         zIndex: onHoverZIndex,
       },
+      ...borderStyles,
     };
-  }, [onHoverZIndex]);
+  }, [borderStyles, isDragging, isSelected, onHoverZIndex, isCanvasResizing]);
 
   return (
-    <Flex {...flexProps} className={className} ref={ref} style={styleProps}>
+    <Flex
+      {...flexProps}
+      className={className}
+      id={getAnvilWidgetDOMId(props.widgetId)}
+      ref={ref}
+      style={styleProps}
+    >
       <div
         className="w-full h-full"
         onClick={stopEventPropagation}
