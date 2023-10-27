@@ -504,11 +504,12 @@ export function EditorJSONtoForm(props: Props) {
   }
 
   useEffect(() => {
+    // output and responseDisplayFormat is present only when query has response available
     if (responseDisplayFormat && !!responseDisplayFormat?.title && output) {
       dispatch(showDebugger(true));
       dispatch(setDebuggerSelectedTab(DEBUGGER_TAB_KEYS.RESPONSE_TAB));
     }
-  }, [responseDisplayFormat]);
+  }, [responseDisplayFormat, output]);
 
   const dispatch = useDispatch();
 
