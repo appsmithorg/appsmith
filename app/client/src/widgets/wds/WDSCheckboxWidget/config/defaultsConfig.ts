@@ -1,5 +1,8 @@
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
+import {
+  FlexVerticalAlignment,
+  ResponsiveBehavior,
+} from "layoutSystems/common/utils/constants";
 
 export const defaultsConfig = {
   rows: 4,
@@ -14,4 +17,5 @@ export const defaultsConfig = {
   animateLoading: true,
   responsiveBehavior: ResponsiveBehavior.Fill,
   minWidth: FILL_WIDGET_MIN_WIDTH,
+  flexVerticalAlignment: FlexVerticalAlignment.Bottom,
 };

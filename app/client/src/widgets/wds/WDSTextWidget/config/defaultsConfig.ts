@@ -4,7 +4,10 @@ import { isDynamicValue } from "utils/DynamicBindingUtils";
 import type { DynamicPath } from "utils/DynamicBindingUtils";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { BlueprintOperationTypes } from "WidgetProvider/constants";
-import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
+import {
+  FlexVerticalAlignment,
+  ResponsiveBehavior,
+} from "layoutSystems/common/utils/constants";
 
 export const defaultsConfig = {
   text: "Hello {{appsmith.user.name || appsmith.user.email}}",
@@ -19,6 +22,7 @@ export const defaultsConfig = {
   animateLoading: true,
   responsiveBehavior: ResponsiveBehavior.Fill,
   minWidth: FILL_WIDGET_MIN_WIDTH,
+  flexVerticalAlignment: FlexVerticalAlignment.Bottom,
   blueprint: {
     operations: [
       {
