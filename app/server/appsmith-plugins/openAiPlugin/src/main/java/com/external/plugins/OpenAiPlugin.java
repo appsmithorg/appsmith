@@ -19,6 +19,7 @@ import com.external.plugins.commands.OpenAICommand;
 import com.external.plugins.models.OpenAIRequestDTO;
 import com.external.plugins.utils.OpenAIMethodStrategy;
 import com.external.plugins.utils.RequestUtils;
+import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -49,17 +50,10 @@ public class OpenAiPlugin extends BasePlugin {
 
     public static class OpenAiPluginExecutor extends BaseRestApiPluginExecutor {
 
-        private static OpenAiPluginExecutor instance;
+        private static Gson gson = new Gson();
 
         public OpenAiPluginExecutor(SharedConfig config) {
             super(config);
-        }
-
-        public static OpenAiPluginExecutor getInstance(SharedConfig sharedConfig) {
-            if (instance == null) {
-                instance = new OpenAiPluginExecutor(sharedConfig);
-            }
-            return instance;
         }
 
         @Override
@@ -92,7 +86,7 @@ public class OpenAiPlugin extends BasePlugin {
             initUtils.initializeResponseWithError(errorResult);
 
             // Find the right execution command
-            OpenAICommand openAICommand = OpenAIMethodStrategy.selectExecutionMethod(actionConfiguration, objectMapper);
+            OpenAICommand openAICommand = OpenAIMethodStrategy.selectExecutionMethod(actionConfiguration, gson);
 
             // morph the essentials
             OpenAIRequestDTO openAIRequestDTO = openAICommand.makeRequestBody(actionConfiguration);
@@ -157,7 +151,7 @@ public class OpenAiPlugin extends BasePlugin {
             final BearerTokenAuth bearerTokenAuth = (BearerTokenAuth) datasourceConfiguration.getAuthentication();
             assert (bearerTokenAuth.getBearerToken() != null);
 
-            OpenAICommand openAICommand = OpenAIMethodStrategy.selectTriggerMethod(request, objectMapper);
+            OpenAICommand openAICommand = OpenAIMethodStrategy.selectTriggerMethod(request, gson);
             HttpMethod httpMethod = openAICommand.getTriggerHTTPMethod();
             URI uri = openAICommand.createTriggerUri();
 

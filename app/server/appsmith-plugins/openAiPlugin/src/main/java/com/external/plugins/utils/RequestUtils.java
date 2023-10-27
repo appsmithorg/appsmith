@@ -4,7 +4,6 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.BearerTokenAuth;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -29,8 +28,6 @@ import static com.external.plugins.constants.OpenAIConstants.MODELS_ENDPOINT;
 import static com.external.plugins.constants.OpenAIConstants.OPEN_AI_HOST;
 
 public class RequestUtils {
-
-    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     public static String extractDataFromFormData(Map<String, Object> formData, String key) {
         return (String) ((Map<String, Object>) formData.get(key)).get(DATA);

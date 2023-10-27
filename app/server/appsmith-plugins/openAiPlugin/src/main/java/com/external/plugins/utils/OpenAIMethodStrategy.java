@@ -8,7 +8,7 @@ import com.external.plugins.commands.ChatCommand;
 import com.external.plugins.commands.EmbeddingsCommand;
 import com.external.plugins.commands.OpenAICommand;
 import com.external.plugins.constants.OpenAIConstants;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
 import org.springframework.util.CollectionUtils;
 import reactor.core.Exceptions;
 
@@ -21,18 +21,17 @@ import static com.external.plugins.utils.RequestUtils.extractDataFromFormData;
 
 public class OpenAIMethodStrategy {
 
-    public static OpenAICommand selectTriggerMethod(TriggerRequestDTO triggerRequestDTO, ObjectMapper objectMapper) {
+    public static OpenAICommand selectTriggerMethod(TriggerRequestDTO triggerRequestDTO, Gson gson) {
         String requestType = triggerRequestDTO.getRequestType();
         return switch (requestType) {
-            case OpenAIConstants.CHAT_MODELS -> new ChatCommand(objectMapper);
-            case OpenAIConstants.EMBEDDINGS_MODELS -> new EmbeddingsCommand(objectMapper);
+            case OpenAIConstants.CHAT_MODELS -> new ChatCommand(gson);
+            case OpenAIConstants.EMBEDDINGS_MODELS -> new EmbeddingsCommand(gson);
             default -> throw Exceptions.propagate(
                     new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR));
         };
     }
 
-    public static OpenAICommand selectExecutionMethod(
-            ActionConfiguration actionConfiguration, ObjectMapper objectMapper) {
+    public static OpenAICommand selectExecutionMethod(ActionConfiguration actionConfiguration, Gson gson) {
         Map<String, Object> formData = actionConfiguration.getFormData();
         if (CollectionUtils.isEmpty(formData)) {
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR);
@@ -40,8 +39,8 @@ public class OpenAIMethodStrategy {
 
         String command = extractDataFromFormData(formData, COMMAND);
         return switch (command) {
-            case CHAT -> new ChatCommand(objectMapper);
-            case EMBEDDINGS -> new EmbeddingsCommand(objectMapper);
+            case CHAT -> new ChatCommand(gson);
+            case EMBEDDINGS -> new EmbeddingsCommand(gson);
             default -> throw Exceptions.propagate(
                     new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR));
         };
