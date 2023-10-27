@@ -26,15 +26,14 @@ import { getWidgetSizeConfiguration } from "../utils/widgetUtils";
  * @returns Enhanced Widget
  */
 export const AnvilEditorWidgetOnion = (props: BaseWidgetProps) => {
-  const { layoutId, parentId } = props;
+  const { layoutId } = props;
   // if layoutId is not present on widget props then we need a selector to fetch layout id of a widget.
   // const layoutId = useSelector(getLayoutIdByWidgetId(props.widgetId));
   const generateDragState = useCallback(() => {
     return generateDragStateForAnvilLayout({
-      canvasId: parentId || "",
-      layoutId: layoutId,
+      layoutId,
     });
-  }, [layoutId, parentId]);
+  }, [layoutId]);
   const widgetSize: SizeConfig = useMemo(
     () => getWidgetSizeConfiguration(props.type, props),
     [props.type],

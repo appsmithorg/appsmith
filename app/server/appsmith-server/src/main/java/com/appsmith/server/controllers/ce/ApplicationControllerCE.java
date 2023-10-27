@@ -371,15 +371,16 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
     }
 
     @JsonView(Views.Public.class)
-    @GetMapping("/export/partial/{applicationId}/{pageId}")
+    @PostMapping("/export/partial/{applicationId}/{pageId}")
     public Mono<ResponseEntity<Object>> exportApplicationPartially(
             @PathVariable String applicationId,
             @PathVariable String pageId,
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName,
-            @RequestParam MultiValueMap<String, String> params) {
+            @RequestBody MultiValueMap<String, String> params,
+            @RequestBody String widgets) {
         // params - contains ids of jsLib, actions and datasourceIds to be exported
         return partialExportService
-                .getPartialExportResources(applicationId, pageId, branchName, params)
+                .getPartialExportResources(applicationId, pageId, branchName, params, widgets)
                 .map(fetchedResource -> {
                     HttpHeaders responseHeaders = fetchedResource.getHttpHeaders();
                     Object applicationResource = fetchedResource.getApplicationResource();

@@ -60,7 +60,11 @@ public class PartialExportServiceCEImpl implements PartialExportServiceCE {
 
     @Override
     public Mono<ExportFileDTO> getPartialExportResources(
-            String applicationId, String pageId, String branchName, MultiValueMap<String, String> params) {
+            String applicationId,
+            String pageId,
+            String branchName,
+            MultiValueMap<String, String> params,
+            String widgets) {
         /*
          * Params has ids for actions, customJsLibs and datasource
          * Export the resources based on the value of these entities
@@ -165,6 +169,7 @@ public class PartialExportServiceCEImpl implements PartialExportServiceCE {
                 .map(exportedJson -> {
                     String applicationName =
                             applicationJson.getExportedApplication().getName();
+                    applicationJson.setWidgets(widgets);
                     applicationJson.setExportedApplication(null);
                     String stringifiedFile = gson.toJson(exportedJson);
                     Object jsonObject = gson.fromJson(stringifiedFile, Object.class);

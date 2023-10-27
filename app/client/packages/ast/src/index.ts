@@ -2,8 +2,8 @@ import type { Node, SourceLocation, Options, Comment } from "acorn";
 import { parse } from "acorn";
 import { ancestor, simple } from "acorn-walk";
 import { ECMA_VERSION, NodeTypes } from "./constants";
-import { has, isFinite, isString, toPath } from "lodash";
-import { isTrueObject, sanitizeScript } from "./utils";
+import { has, isFinite, isNil, isString, toPath } from "lodash";
+import { getStringValue, isTrueObject, sanitizeScript } from "./utils";
 import { jsObjectDeclaration } from "./jsObject";
 import { attachComments } from "astravel";
 import { generate } from "astring";
@@ -907,7 +907,7 @@ export function getMemberExpressionObjectFromProperty(
         const propName = isLiteralNode(property)
           ? property.value
           : property.name;
-        if (propName && propName.toString() === propertyName) {
+        if (!isNil(propName) && getStringValue(propName) === propertyName) {
           const memberExpressionObjectString = generate(object);
           memberExpressionObjects.add(memberExpressionObjectString);
         }
