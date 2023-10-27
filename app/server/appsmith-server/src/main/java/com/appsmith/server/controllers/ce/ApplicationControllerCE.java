@@ -12,6 +12,7 @@ import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.dtos.GitAuthDTO;
+import com.appsmith.server.dtos.PartialExportFileDTO;
 import com.appsmith.server.dtos.ReleaseItemsDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.dtos.UserHomepageDTO;
@@ -371,16 +372,15 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
     }
 
     @JsonView(Views.Public.class)
-    @PostMapping("/export/partial/{applicationId}/{pageId}")
+    @PostMapping(value = "/export/partial/{applicationId}/{pageId}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public Mono<ResponseEntity<Object>> exportApplicationPartially(
             @PathVariable String applicationId,
             @PathVariable String pageId,
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName,
-            @RequestBody MultiValueMap<String, String> params,
-            @RequestBody String widgets) {
+            @Valid @RequestBody PartialExportFileDTO fileDTO) {
         // params - contains ids of jsLib, actions and datasourceIds to be exported
         return partialExportService
-                .getPartialExportResources(applicationId, pageId, branchName, params, widgets)
+                .getPartialExportResources(applicationId, pageId, branchName, fileDTO)
                 .map(fetchedResource -> {
                     HttpHeaders responseHeaders = fetchedResource.getHttpHeaders();
                     Object applicationResource = fetchedResource.getApplicationResource();
