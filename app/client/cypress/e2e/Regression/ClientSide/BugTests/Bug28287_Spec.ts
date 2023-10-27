@@ -4,17 +4,18 @@ import {
   entityExplorer,
   propPane,
   debuggerHelper,
+  draggableWidgets,
 } from "../../../../support/Objects/ObjectsCore";
 
 let dsName: any;
 let queryName: string;
 
 describe("Bug 28287: Binding query to widget, check query response in query editor on page load", function () {
-  before("adds a text widget", () => {
-    agHelper.AddDsl("textDsl");
+  before("Drag drop a text widget", () => {
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.TEXT);
   });
 
-  it("1. Create datasources", () => {
+  it("1. Check query response in query editor on page load", () => {
     agHelper.GenerateUUID();
     cy.get("@guid").then((uuid) => {
       dataSources.CreateDataSource("Postgres");
