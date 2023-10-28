@@ -27,7 +27,7 @@ describe("excludeForAirgap", "SSO with Google test functionality", function () {
   });
 
   it("2. Go to admin settings and enable Google", function () {
-    cy.LogOut();
+    cy.LogOut(false);
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     cy.get(".admin-settings-menu-option").should("be.visible");
     cy.get(".admin-settings-menu-option").click();
@@ -64,7 +64,7 @@ describe("excludeForAirgap", "SSO with Google test functionality", function () {
   });
 
   it("3. Go to admin settings and disable Google", function () {
-    cy.LogOut();
+    cy.LogOut(false);
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     cy.get(".admin-settings-menu-option").should("be.visible");
     cy.get(".admin-settings-menu-option").click();
