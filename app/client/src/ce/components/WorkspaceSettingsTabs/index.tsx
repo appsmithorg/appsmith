@@ -22,7 +22,6 @@ export const TabsWrapper = styled.div`
     overflow: hidden;
 
     .tab-panel {
-      overflow: auto;
       height: calc(100% - 46px);
     }
   }

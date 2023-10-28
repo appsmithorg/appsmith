@@ -52,6 +52,8 @@ export const MembersWrapper = styled.div<{
   isMobile?: boolean;
 }>`
   &.members-wrapper {
+    overflow: scroll;
+    height: 100%;
     ${(props) => (props.isMobile ? "width: 100%; margin: auto" : null)}
     table {
       table-layout: fixed;
