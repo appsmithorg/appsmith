@@ -225,23 +225,18 @@ export function* evalErrorHandler(
   errors: EvalError[],
   dataTree?: DataTree,
   evaluationOrder?: Array<string>,
-  reValidatedPaths?: Array<string>,
   configTree?: ConfigTree,
   removedPaths?: Array<{ entityId: string; fullpath: string }>,
 ) {
-  if (dataTree && evaluationOrder && configTree && reValidatedPaths) {
+  if (dataTree && evaluationOrder && configTree) {
     const currentDebuggerErrors: Record<string, Log> =
       yield select(getDebuggerErrors);
 
-    const evalAndValidationOrder = new Set([
-      ...reValidatedPaths,
-      ...evaluationOrder,
-    ]);
     // Update latest errors to the debugger
     logLatestEvalPropertyErrors(
       currentDebuggerErrors,
       dataTree,
-      [...evalAndValidationOrder],
+      evaluationOrder,
       configTree,
       removedPaths,
     );

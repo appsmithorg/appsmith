@@ -29,5 +29,74 @@ describe("Select Widget Functionality", function () {
       "contain.text",
       "Green",
     );
+    _.deployMode.NavigateBacktoEditor();
+  });
+
+  it("2. Shows validation error for invalid defaultSelectedValue", () => {
+    const { agHelper, entityExplorer, locators, propPane } = _;
+
+    entityExplorer.SelectEntityByName("SelectRenamed", "Widgets");
+
+    propPane.UpdatePropertyFieldValue("Default selected value", "GREEN1", true);
+
+    agHelper.VerifyEvaluatedErrorMessage(
+      "Default value is missing in options. Please update the value.",
+    );
+
+    propPane.ToggleJSMode("Source Data", true);
+
+    // Updates the options and asserts that the validation error is fixed
+    propPane.UpdatePropertyFieldValue(
+      "Source Data",
+      '[{"name": "Green", "code":"GREEN1"}]',
+      true,
+    );
+
+    agHelper.FocusElement(
+      locators._propertyInputField("Default selected value"),
+    );
+
+    agHelper.AssertElementAbsence(locators._evaluatedErrorMessage);
+
+    // Changes options to bring back validation error
+    propPane.UpdatePropertyFieldValue(
+      "Source Data",
+      '[{"name": "Green", "code":"GREEN"}]',
+      true,
+    );
+
+    agHelper.FocusElement(
+      locators._propertyInputField("Default selected value"),
+    );
+
+    agHelper.VerifyEvaluatedErrorMessage(
+      "Default value is missing in options. Please update the value.",
+    );
+
+    // Reload to check if the error persists
+    agHelper.RefreshPage();
+
+    entityExplorer.SelectEntityByName("SelectRenamed", "Widgets");
+
+    agHelper.FocusElement(
+      locators._propertyInputField("Default selected value"),
+    );
+
+    agHelper.VerifyEvaluatedErrorMessage(
+      "Default value is missing in options. Please update the value.",
+    );
+
+    // Fixes the validation error
+    propPane.UpdatePropertyFieldValue(
+      "Source Data",
+      '[{"name": "Green", "code": {{"GREEN1"}}}]',
+      true,
+    );
+
+    agHelper.FocusElement(
+      locators._propertyInputField("Default selected value"),
+    );
+
+    agHelper.AssertElementAbsence(locators._evaluatedErrorMessage);
   });
 });

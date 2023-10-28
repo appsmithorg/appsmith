@@ -442,11 +442,11 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
       dataSources.ValidateNSelectDropdown("Commands", "List files in bucket");
       agHelper.UpdateCodeInput(formControls.s3BucketName, bucketName);
       dataSources.RunQuery();
+      agHelper.ScrollIntoView("." + dataSources._addSuggestedExisting);
       dataSources.AddSuggestedWidget(
         Widgets.Table,
         dataSources._addSuggestedExisting,
       );
-
       propPane.DeleteWidgetDirectlyFromPropertyPane();
       entityExplorer.SelectEntityByName($queryName, "Queries/JS");
       agHelper.ActionContextMenuWithInPane({

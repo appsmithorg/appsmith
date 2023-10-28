@@ -66,6 +66,18 @@ export function getWidgetDependencies(
 
   dependencies = { ...widgetInternalDependencies };
 
+  const dependencyMap = widgetConfig.dependencyMap;
+
+  for (const source in dependencyMap) {
+    if (!dependencyMap.hasOwnProperty(source)) continue;
+    const targetPaths = dependencyMap[source];
+    const fullPropertyPath = `${widgetName}.${source}`;
+    dependencies[fullPropertyPath] = dependencies[fullPropertyPath] || [];
+    dependencies[fullPropertyPath].push(
+      ...targetPaths.map((p) => `${widgetName}.${p}`),
+    );
+  }
+
   const dynamicBindingPathList = getEntityDynamicBindingPathList(widgetConfig);
   const dynamicTriggerPathList = widgetConfig.dynamicTriggerPathList || [];
 
