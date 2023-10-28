@@ -127,7 +127,7 @@ export const UserCard = styled(Card)`
   border: 1px solid var(--ads-v2-color-border);
   border-radius: var(--ads-v2-border-radius);
   padding: ${(props) =>
-    `${props.theme.spaces[15]}px ${props.theme.spaces[7] * 4}px;`}
+    `${props.theme.spaces[15]}px ${props.theme.spaces[7] * 4}px;`};
   width: 100%;
   height: 201px;
   margin: auto;
