@@ -14,7 +14,7 @@ import { SearchInput, Text } from "design-system";
 import { getIsFetchingDatasourceStructure } from "@appsmith/selectors/entitiesSelector";
 import { useSelector } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
-import DatasourceStructureLoadingContainer from "./DatasourceStructureLoadingContainer";
+import ItemLoadingIndicator from "./ItemLoadingIndicator";
 import DatasourceStructureNotFound from "./DatasourceStructureNotFound";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { PluginName } from "entities/Action";
@@ -119,7 +119,9 @@ const Container = (props: Props) => {
       view = (
         <>
           {props.context !== DatasourceStructureContext.EXPLORER && (
-            <DatasourceStructureSearchContainer>
+            <DatasourceStructureSearchContainer
+              className={`t--search-container--${props.context.toLowerCase()}`}
+            >
               <SearchInput
                 className="datasourceStructure-search"
                 endIcon="close"
@@ -189,7 +191,7 @@ const Container = (props: Props) => {
     props.context !== DatasourceStructureContext.EXPLORER &&
     isLoading
   ) {
-    view = <DatasourceStructureLoadingContainer />;
+    view = <ItemLoadingIndicator type="SCHEMA" />;
   }
 
   return view;

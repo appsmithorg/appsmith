@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import type { DropdownOption } from "design-system-old";
-import { Button, SearchInput, Spinner, Text } from "design-system";
+import { Button, SearchInput } from "design-system";
 import {
   useSheetData,
   useSheetsList,
@@ -19,10 +19,7 @@ import { generateTemplateToUpdatePage } from "actions/pageActions";
 import {
   createMessage,
   DATASOURCE_GENERATE_PAGE_BUTTON,
-  GSHEET_DATA_LOADING,
   GSHEET_SEARCH_PLACEHOLDER,
-  GSHEET_SHEET_LOADING,
-  GSHEET_SPREADSHEET_LOADING,
 } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
@@ -42,7 +39,6 @@ import {
   DatasourceDataContainer,
   DatasourceListContainer,
   DatasourceStructureSearchContainer,
-  MessageWrapper,
   StructureContainer,
   TableWrapper,
   ViewModeSchemaContainer,
@@ -51,6 +47,7 @@ import DatasourceStructureHeader from "./DatasourceStructureHeader";
 import Entity from "../Explorer/Entity";
 import DatasourceField from "./DatasourceField";
 import { setEntityCollapsibleState } from "actions/editorContextActions";
+import ItemLoadingIndicator from "./ItemLoadingIndicator";
 
 interface Props {
   datasourceId: string;
@@ -58,25 +55,6 @@ interface Props {
 }
 
 const MAX_SHEET_ROWS_LENGTH = 12;
-
-type LoadingItemType = "SPREADSHEET" | "SHEET" | "DATA";
-
-const LoadingItemIndicator = ({ type }: { type: LoadingItemType }) => {
-  return (
-    <MessageWrapper className="t--gsheet-loading-indicator">
-      <Spinner size="md" />
-      <Text style={{ marginLeft: "8px" }}>
-        {createMessage(
-          type === "SPREADSHEET"
-            ? GSHEET_SPREADSHEET_LOADING
-            : type === "SHEET"
-            ? GSHEET_SHEET_LOADING
-            : GSHEET_DATA_LOADING,
-        )}
-      </Text>
-    </MessageWrapper>
-  );
-};
 
 // ---------- GoogleSheetSchema Component -------
 
@@ -395,91 +373,93 @@ function GoogleSheetSchema(props: Props) {
               refetchFn={refetchAllSpreadsheets}
             />
           )}
-          {!isFetchingSpreadsheets && (
-            <DatasourceStructureSearchContainer className="t--gsheet-search-container">
-              <SearchInput
-                className="datasourceStructure-search"
-                endIcon="close"
-                onChange={(value) => handleSearch(value)}
-                placeholder={createMessage(GSHEET_SEARCH_PLACEHOLDER)}
-                size={"sm"}
-                startIcon="search"
-                type="text"
-              />
-            </DatasourceStructureSearchContainer>
-          )}
           <DatasourceListContainer className="t--gsheet-structure">
-            {isFetchingSpreadsheets ? (
-              <LoadingItemIndicator type="SPREADSHEET" />
-            ) : (
-              filteredSpreadsheets.map((spreadsheet) => {
-                return (
-                  <Entity
-                    className="t--spreadsheet-structure"
-                    customAddButton={refreshSpreadSheetButton(spreadsheet)}
-                    entityId={`${datasource?.id}-${spreadsheet.value}`}
-                    icon={null}
-                    key={`${datasource?.id}-${spreadsheet.value}`}
-                    name={spreadsheet.label as string}
-                    onToggle={(isOpen) => {
-                      isOpen &&
-                        onSelectSpreadsheet(spreadsheet.value, spreadsheet);
-                    }}
-                    showAddButton={
-                      spreadsheet.value === selectedSpreadsheet.value
-                    }
-                    step={0}
-                  >
-                    {isFetchingSheetsList ? (
-                      <LoadingItemIndicator type="SHEET" />
-                    ) : sheetOptions.length > 0 ? (
-                      sheetOptions.map((sheet) => (
-                        <Entity
-                          className={`t--sheet-structure ${
-                            sheet.value === selectedSheet.value
-                              ? "t--sheet-structure-active"
-                              : ""
-                          }`}
-                          entityId={`${datasource?.id}-${selectedSpreadsheet.value}-${sheet.value}`}
-                          icon={null}
-                          key={`${datasource?.id}-${selectedSpreadsheet.value}-${sheet.value}`}
-                          name={sheet.label as string}
-                          onToggle={(isOpen) => {
-                            isOpen && onSelectSheetOption(sheet.value, sheet);
-                          }}
-                          step={1}
-                        >
-                          {selectedSheet.value === sheet.value ? (
-                            isFetchingSheetData ? (
-                              <LoadingItemIndicator type="DATA" />
-                            ) : sheetData?.length > 0 ? (
-                              <DatasourceAttributesWrapper>
-                                {Object.keys(sheetData[0]).map(
-                                  (fieldValue, index) => (
-                                    <DatasourceField
-                                      field={{
-                                        name: fieldValue,
-                                        type: "string",
-                                      }}
-                                      key={`${fieldValue}${index}`}
-                                      step={2}
-                                    />
-                                  ),
-                                )}
-                              </DatasourceAttributesWrapper>
-                            ) : null
-                          ) : (
-                            <LoadingItemIndicator type="DATA" />
-                          )}
-                        </Entity>
-                      ))
-                    ) : (
-                      <LoadingItemIndicator type="SPREADSHEET" />
-                    )}
-                  </Entity>
-                );
-              })
+            {!isFetchingSpreadsheets && (
+              <DatasourceStructureSearchContainer className="t--gsheet-search-container">
+                <SearchInput
+                  className="datasourceStructure-search"
+                  endIcon="close"
+                  onChange={(value) => handleSearch(value)}
+                  placeholder={createMessage(GSHEET_SEARCH_PLACEHOLDER)}
+                  size={"sm"}
+                  startIcon="search"
+                  type="text"
+                />
+              </DatasourceStructureSearchContainer>
             )}
+            <div className="t--gsheet-structure-list">
+              {isFetchingSpreadsheets ? (
+                <ItemLoadingIndicator type="SPREADSHEET" />
+              ) : (
+                filteredSpreadsheets.map((spreadsheet) => {
+                  return (
+                    <Entity
+                      className="t--spreadsheet-structure"
+                      customAddButton={refreshSpreadSheetButton(spreadsheet)}
+                      entityId={`${datasource?.id}-${spreadsheet.value}`}
+                      icon={null}
+                      key={`${datasource?.id}-${spreadsheet.value}`}
+                      name={spreadsheet.label as string}
+                      onToggle={(isOpen) => {
+                        isOpen &&
+                          onSelectSpreadsheet(spreadsheet.value, spreadsheet);
+                      }}
+                      showAddButton={
+                        spreadsheet.value === selectedSpreadsheet.value
+                      }
+                      step={0}
+                    >
+                      {isFetchingSheetsList ? (
+                        <ItemLoadingIndicator type="SHEET" />
+                      ) : sheetOptions.length > 0 ? (
+                        sheetOptions.map((sheet) => (
+                          <Entity
+                            className={`t--sheet-structure ${
+                              sheet.value === selectedSheet.value
+                                ? "t--sheet-structure-active"
+                                : ""
+                            }`}
+                            entityId={`${datasource?.id}-${selectedSpreadsheet.value}-${sheet.value}`}
+                            icon={null}
+                            key={`${datasource?.id}-${selectedSpreadsheet.value}-${sheet.value}`}
+                            name={sheet.label as string}
+                            onToggle={(isOpen) => {
+                              isOpen && onSelectSheetOption(sheet.value, sheet);
+                            }}
+                            step={1}
+                          >
+                            {selectedSheet.value === sheet.value ? (
+                              isFetchingSheetData ? (
+                                <ItemLoadingIndicator type="DATA" />
+                              ) : sheetData?.length > 0 ? (
+                                <DatasourceAttributesWrapper>
+                                  {Object.keys(sheetData[0]).map(
+                                    (fieldValue, index) => (
+                                      <DatasourceField
+                                        field={{
+                                          name: fieldValue,
+                                          type: "string",
+                                        }}
+                                        key={`${fieldValue}${index}`}
+                                        step={2}
+                                      />
+                                    ),
+                                  )}
+                                </DatasourceAttributesWrapper>
+                              ) : null
+                            ) : (
+                              <ItemLoadingIndicator type="DATA" />
+                            )}
+                          </Entity>
+                        ))
+                      ) : (
+                        <ItemLoadingIndicator type="SPREADSHEET" />
+                      )}
+                    </Entity>
+                  );
+                })
+              )}
+            </div>
           </DatasourceListContainer>
         </StructureContainer>
         <DatasourceDataContainer>

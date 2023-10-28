@@ -11,6 +11,10 @@ export const DataWrapperContainer = styled.div`
   display: flex;
   flex: 1;
   overflow: hidden;
+  .t--datasource-column:hover {
+    background: none;
+    cursor: default;
+  }
 `;
 
 export const StructureContainer = styled.div`
@@ -40,12 +44,24 @@ export const DatasourceListContainer = styled.div`
   display: flex;
   flex-direction: column;
   padding-left: var(--ads-v2-spaces-5);
+  .t--entity.datasourceStructure-datasource-view-mode {
+    padding-right: var(--ads-v2-spaces-5);
+  }
   &.t--gsheet-structure {
-    overflow-y: auto;
+    .t--gsheet-structure-list {
+      overflow-y: auto;
+      flex-shrink: 1;
+      flex-grow: 0;
+      padding-bottom: var(--ads-v2-spaces-4);
+      scrollbar-gutter: stable;
+    }
     .t--spreadsheet-structure > .t--entity-item {
       font-weight: var(--ads-v2-font-weight-bold);
-      height: 25px;
+      height: 36px;
       padding-left: 0;
+      & .ads-v2-button__content:hover {
+        background: none;
+      }
     }
     .t--spreadsheet-structure {
       padding-right: var(--ads-spaces-3);
@@ -59,10 +75,14 @@ export const DatasourceListContainer = styled.div`
       padding-top: var(--ads-spaces-1);
       padding-bottom: var(--ads-spaces-1);
     }
-    .t--sheet-structure > .t--entity-item,
+    .t--sheet-structure > .t--entity-item {
+      color: var(--ads-v2-color-gray-600);
+      height: 36px;
+      padding-left: var(--ads-spaces-10);
+    }
     .t--sheet-structure .t--datasource-column {
       color: var(--ads-v2-color-gray-600);
-      height: 25px;
+      height: 30px;
       padding-left: var(--ads-spaces-10);
     }
     .t--sheet-structure.t--sheet-structure-active > .t--entity-item {
@@ -72,12 +92,6 @@ export const DatasourceListContainer = styled.div`
       padding: var(--ads-spaces-2) 0;
     }
   }
-  div {
-    flex-shrink: 0;
-  }
-  div ~ div {
-    flex-grow: 1;
-  }
   .t--schema-virtuoso-container {
     height: 100%;
   }
@@ -85,9 +99,6 @@ export const DatasourceListContainer = styled.div`
 
 export const DatasourceAttributesWrapper = styled.div`
   padding: var(--ads-spaces-1) 0 var(--ads-spaces-1) var(--ads-spaces-10);
-  .t--datasource-column:hover {
-    background: none;
-  }
   .t--datasource-column > div > div:first-of-type {
     padding-right: var(--ads-spaces-3);
   }
@@ -110,10 +121,14 @@ export const MessageWrapper = styled.div`
   align-items: center;
   justify-content: center;
   width: 100%;
-  height: 100%;
-  &.t--gsheet-loading-indicator {
+  height: auto;
+  &.t--item-loading-indicator {
     justify-content: flex-start;
     padding: var(--ads-spaces-1) 0 var(--ads-spaces-1) var(--ads-spaces-11);
+  }
+  &.t--item-loading-indicator--spreadsheet,
+  &.t--item-loading-indicator--schema {
+    padding-left: 0;
   }
 `;
 
@@ -175,15 +190,15 @@ export const TableWrapper = styled.div`
 `;
 
 export const DatasourceStructureSearchContainer = styled.div`
-  margin-bottom: 8px;
-  position: sticky;
-  top: 0;
-  overflow: hidden;
-  z-index: 10;
+  margin: var(--ads-v2-spaces-3) 0 var(--ads-v2-spaces-4) 0;
   background: white;
+  flex-shrink: 0;
+  padding-right: var(--ads-v2-spaces-5);
   &.t--gsheet-search-container {
-    flex-shrink: 0;
-    padding: 0 var(--ads-v2-spaces-5);
-    margin-top: 8px;
+    margin-top: var(--ads-v2-spaces-4);
+    margin-bottom: var(--ads-v2-spaces-3);
+  }
+  &.t--search-container--query-editor {
+    padding-right: 0;
   }
 `;

@@ -153,7 +153,7 @@ const Placeholder = styled.div`
 `;
 
 const DataStructureListWrapper = styled.div`
-  overflow-y: auto;
+  overflow-y: hidden;
   height: 100%;
   display: flex;
   flex-direction: column;
