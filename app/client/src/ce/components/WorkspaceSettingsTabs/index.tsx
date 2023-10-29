@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import {
   useRouteMatch,
   Route,
@@ -12,6 +12,7 @@ import { navigateToTab } from "@appsmith/pages/workspace/helpers";
 import styled from "styled-components";
 
 import * as Sentry from "@sentry/react";
+import { APPLICATIONS_URL } from "constants/routes/baseRoutes";
 export const SentryRoute = Sentry.withSentryRouting(Route);
 
 export const TabsWrapper = styled.div`
@@ -40,21 +41,57 @@ export interface WorkspaceSettingsTabsProps {
   hasManageWorkspacePermissions: boolean;
   searchValue: string;
   setTabArrLen: (tabArrLen: number) => void;
+  workspacePermissions?: string[];
+  // EE Tab Props
   addTabComponent?: () => TabProp;
-  workspacePermissions: string[];
+  eeTabRedirect?: boolean;
+}
+
+enum TABS {
+  GENERAL = "general",
+  MEMBERS = "members",
 }
 
 export const WorkspaceSettingsTabs = ({
   addTabComponent,
   currentTab,
+  eeTabRedirect,
   hasManageWorkspacePermissions,
   isMemberofTheWorkspace,
   searchValue,
   setTabArrLen,
+  workspacePermissions,
 }: WorkspaceSettingsTabsProps) => {
   const { path } = useRouteMatch();
   const location = useLocation();
   const history = useHistory();
+
+  const shouldRedirect = useMemo(() => {
+    // If the permissions are not yet fetched, don't redirect
+    if (!workspacePermissions) {
+      return false;
+    }
+    // If user doesn't have manage workspace permissions & is on settings page, redirect to applications
+    if (currentTab === TABS.GENERAL && !hasManageWorkspacePermissions)
+      return true;
+    // If user doesn't have manage members permissions & is on members page, redirect to applications
+    if (currentTab === TABS.MEMBERS && !isMemberofTheWorkspace) return true;
+    // If the redirect flag is set to true by EE application, redirect to applications
+    if (eeTabRedirect) return true;
+    return false;
+  }, [
+    workspacePermissions,
+    isMemberofTheWorkspace,
+    hasManageWorkspacePermissions,
+    currentTab,
+    eeTabRedirect,
+  ]);
+
+  useEffect(() => {
+    if (shouldRedirect) {
+      history.replace(APPLICATIONS_URL);
+    }
+  }, [shouldRedirect]);
 
   const GeneralSettingsComponent = (
     <SentryRoute

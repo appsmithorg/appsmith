@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { useLocation, useParams, useHistory } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useLocation, useParams } from "react-router-dom";
 import { getCurrentWorkspace } from "@appsmith/selectors/workspaceSelectors";
 import { useSelector, useDispatch } from "react-redux";
 import styled from "styled-components";
@@ -17,7 +17,6 @@ import {
   INVITE_USERS_PLACEHOLDER,
   SEARCH_USERS,
 } from "@appsmith/constants/messages";
-import { APPLICATIONS_URL } from "constants/routes";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
 import { debounce } from "lodash";
 import { WorkspaceSettingsTabs } from "@appsmith/components/WorkspaceSettingsTabs";
@@ -77,8 +76,6 @@ export default function Settings() {
   const [pageTitle, setPageTitle] = useState<string>("");
   const [tabArrLen, setTabArrLen] = useState<number>(0);
 
-  const history = useHistory();
-
   const isGACEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
 
   const currentTab = location.pathname.split("/").pop();
@@ -94,35 +91,15 @@ export default function Settings() {
   const showMembersTab =
     isMemberofTheWorkspace && hasManageWorkspacePermissions;
 
-  const shouldRedirect = useMemo(
-    () =>
-      currentWorkspace &&
-      ((!showMembersTab && currentTab === TABS.MEMBERS) ||
-        (!hasManageWorkspacePermissions && currentTab === TABS.GENERAL)),
-    [
-      currentWorkspace,
-      showMembersTab,
-      hasManageWorkspacePermissions,
-      currentTab,
-    ],
-  );
-
   const onButtonClick = () => {
     setShowModal(true);
   };
 
   useEffect(() => {
-    if (shouldRedirect) {
-      history.replace(APPLICATIONS_URL);
-    }
-    if (currentWorkspace) {
-      setPageTitle(`${currentWorkspace?.name}`);
-    }
-  }, [currentWorkspace, shouldRedirect]);
-
-  useEffect(() => {
     if (!currentWorkspace) {
       dispatch(getAllApplications());
+    } else {
+      setPageTitle(`${currentWorkspace?.name}`);
     }
   }, [dispatch, currentWorkspace]);
 
@@ -130,15 +107,12 @@ export default function Settings() {
     {
       icon: "book-line",
       className: "documentation-page-menu-item",
-      onSelect: () => {
-        /*console.log("hello onSelect")*/
-      },
+      onSelect: () => {},
       text: "Documentation",
     },
   ];
 
   const isMembersPage = tabArrLen > 1 && currentTab === TABS.MEMBERS;
-  // const isGeneralPage = tabArrLen === 1 && currentTab === TABS.GENERAL;
 
   const onSearch = debounce((search: string) => {
     if (search.trim().length > 0) {
@@ -171,7 +145,7 @@ export default function Settings() {
           isMemberofTheWorkspace={showMembersTab}
           searchValue={searchValue}
           setTabArrLen={setTabArrLen}
-          workspacePermissions={currentWorkspace?.userPermissions || []}
+          workspacePermissions={currentWorkspace?.userPermissions}
         />
       </SettingsWrapper>
       {currentWorkspace && (
