@@ -554,7 +554,8 @@ export default class DataTreeEvaluator {
       stringifiedLocalUnEvalTreeJSCollection,
     );
 
-    const differences: Diff<DataTree, DataTree>[] = klona(
+    // Diffs can contains refs, so we clone
+    const differences: Diff<DataTree, DataTree>[] = klonaJSON(
       diff(
         oldUnEvalTreeWithStringifiedJSFunctions,
         localUnEvalTreeWithStringifiedJSFunctions,

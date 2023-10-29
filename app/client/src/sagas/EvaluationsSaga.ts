@@ -88,6 +88,7 @@ import { initiateLinting, lintWorker } from "./LintingSagas";
 import type {
   EvalTreeRequestData,
   EvalTreeResponseData,
+  WorkerResponse,
 } from "workers/Evaluation/types";
 import type { ActionDescription } from "@appsmith/workers/Evaluation/fns";
 import { handleEvalWorkerRequestSaga } from "./EvalWorkerActionSagas";
@@ -101,6 +102,12 @@ import { fetchFeatureFlagsInit } from "actions/userActions";
 import { parseUpdatesAndDeleteUndefinedUpdates } from "./EvaluationSaga.utils";
 import { getFeatureFlagsFetched } from "selectors/usersSelectors";
 const APPSMITH_CONFIGS = getAppsmithConfigs();
+
+const isValidEvalTreeResponse = (
+  response: WorkerResponse<EvalTreeResponseData>,
+): response is EvalTreeResponseData => {
+  return "configTree" in response;
+};
 export const evalWorker = new GracefulWorkerService(
   new Worker(
     new URL("../workers/Evaluation/evaluation.worker.ts", import.meta.url),
@@ -117,7 +124,7 @@ let widgetTypeConfigMap: WidgetTypeConfigMap;
 
 export function* updateDataTreeHandler(
   data: {
-    evalTreeResponse: EvalTreeResponseData;
+    evalTreeResponse: WorkerResponse<EvalTreeResponseData>;
     unevalTree: UnEvalTree;
     requiresLogging: boolean;
   },
@@ -126,6 +133,11 @@ export function* updateDataTreeHandler(
   const { evalTreeResponse, requiresLogging, unevalTree } = data;
   const postEvalActionsToDispatch: Array<AnyReduxAction> =
     postEvalActions || [];
+
+  if (!isValidEvalTreeResponse(evalTreeResponse)) {
+    yield call(evalErrorHandler, evalTreeResponse.errors);
+    return;
+  }
 
   const {
     configTree,
@@ -267,7 +279,7 @@ export function* evaluateTreeSaga(
     appMode,
   };
 
-  const workerResponse: EvalTreeResponseData = yield call(
+  const workerResponse: WorkerResponse<EvalTreeResponseData> = yield call(
     evalWorker.request,
     EVAL_WORKER_ACTIONS.EVAL_TREE,
     evalTreeRequestData,
