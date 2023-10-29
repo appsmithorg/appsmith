@@ -1,5 +1,1 @@
-const ManageEnvironmentsMenu = ({}: { workspaceId: string }) => {
-  return null;
-};
-
-export default ManageEnvironmentsMenu;
+export * from "ce/pages/Applications/ManageEnvironmentsMenu";

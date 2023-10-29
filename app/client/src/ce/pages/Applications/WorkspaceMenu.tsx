@@ -18,7 +18,7 @@ import {
   DropdownOnSelectActions,
   getOnSelectAction,
 } from "pages/common/CustomizedDropdown/dropdownHelpers";
-import ManageEnvironmentsMenu from "@appsmith/pages/Applications/ManageEnvironmentsMenu";
+import { ManageEnvironmentsMenu } from "@appsmith/pages/Applications/ManageEnvironmentsMenu";
 
 interface WorkspaceMenuProps {
   canDeleteWorkspace: boolean;
