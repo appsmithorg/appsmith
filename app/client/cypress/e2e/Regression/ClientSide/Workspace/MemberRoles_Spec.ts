@@ -13,7 +13,6 @@ describe("Create new workspace and invite user & validate all roles", () => {
       appid = uid;
       featureFlagIntercept({ license_gac_enabled: true });
       _.agHelper.Sleep(2000);
-      //localStorage.setItem("WorkspaceName", workspaceId);
       _.homePage.CreateNewWorkspace(workspaceId);
       _.homePage.CheckWorkspaceShareUsersCount(workspaceId, 1);
       _.homePage.InviteUserToWorkspaceErrorMessage(workspaceId, "abcdef");
