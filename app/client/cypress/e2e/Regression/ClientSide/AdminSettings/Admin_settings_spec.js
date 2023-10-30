@@ -36,7 +36,7 @@ describe("Admin settings page", function () {
     cy.visit("/settings/general", { timeout: 60000 });
     // non super users are redirected to home page
     cy.url().should("contain", "/applications");
-    cy.LogOut();
+    cy.LogOut(false);
   });
 
   it("3. Should test that settings page is redirected to default tab", () => {
@@ -71,7 +71,7 @@ describe("Admin settings page", function () {
 
   it(
     "airgap",
-    "4. Should test that settings page tab redirects and google maps doesn't exist - airgap",
+    "4. Should test that settings page tab redirects and developer settings doesn't exist - airgap",
     () => {
       cy.visit("/applications", { timeout: 60000 });
       if (!Cypress.env("AIRGAPPED")) {

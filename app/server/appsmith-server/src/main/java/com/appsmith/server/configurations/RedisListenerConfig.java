@@ -1,7 +1,7 @@
 package com.appsmith.server.configurations;
 
 import com.appsmith.server.dtos.InstallPluginRedisDTO;
-import com.appsmith.server.services.PluginService;
+import com.appsmith.server.plugins.base.PluginService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

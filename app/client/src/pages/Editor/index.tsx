@@ -5,7 +5,7 @@ import type { RouteComponentProps } from "react-router-dom";
 import { withRouter } from "react-router-dom";
 import type { BuilderRouteParams } from "constants/routes";
 import type { AppState } from "@appsmith/reducers";
-import WidgetsEditorWrapper from "./WidgetsEditorWrapper";
+import AppsmithIDE from "./AppsmithIDE";
 import {
   getCurrentApplicationId,
   getIsEditorInitialized,
@@ -42,7 +42,6 @@ import { Spinner } from "design-system";
 import SignpostingOverlay from "pages/Editor/FirstTimeUserOnboarding/Overlay";
 import { editorInitializer } from "../../utils/editor/EditorUtils";
 import { widgetInitialisationSuccess } from "../../actions/widgetActions";
-import { EnvDeployInfoModal } from "@appsmith/components/EnvDeployInfoModal";
 import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
 
 interface EditorProps {
@@ -165,9 +164,8 @@ class Editor extends Component<Props> {
             </title>
           </Helmet>
           <GlobalHotKeys>
-            <WidgetsEditorWrapper />
+            <AppsmithIDE />
             <GitSyncModal />
-            <EnvDeployInfoModal />
             <DisconnectGitModal />
             <GuidedTourModal />
             <RepoLimitExceededErrorModal />

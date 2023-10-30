@@ -67,6 +67,9 @@ import { setDebuggerContext } from "actions/debuggerActions";
 import { DefaultDebuggerContext } from "reducers/uiReducers/debuggerReducer";
 import { NavigationMethod } from "../utils/history";
 import { JSEditorTab } from "../reducers/uiReducers/jsPaneReducer";
+import { getSelectedDatasourceId } from "./FocusSelectors";
+import { setSelectedDatasource } from "./FocusSetters";
+import { getFirstDatasourceId } from "../selectors/datasourceSelectors";
 
 export enum FocusElement {
   ApiPaneConfigTabs = "ApiPaneConfigTabs",
@@ -76,6 +79,7 @@ export enum FocusElement {
   ExplorerSwitchIndex = "ExplorerSwitchIndex",
   DatasourceViewMode = "DatasourceViewMode",
   DatasourceAccordions = "DatasourceAccordions",
+  SelectedDatasource = "SelectedDatasource",
   DebuggerContext = "DebuggerContext",
   ApiRightPaneTabs = "ApiRightPaneTabs",
   QueryPaneConfigTabs = "QueryPaneConfigTabs",
@@ -91,48 +95,73 @@ export enum FocusElement {
   InputField = "InputField",
 }
 
-interface Config {
+export enum ConfigType {
+  Redux = "Redux",
+  URL = "URL",
+}
+
+interface ConfigOther {
   name: FocusElement;
-  selector: (state: AppState) => unknown;
-  setter: (payload: any) => ReduxAction<any>;
-  defaultValue?: unknown;
+  /* If a selector is added for default value, it will be supplied the state to
+  derive a default value */
+  defaultValue?: unknown | ((state: AppState) => unknown);
   subTypes?: Record<string, { defaultValue: unknown }>;
 }
+
+type ConfigRedux = {
+  type: ConfigType.Redux;
+  selector: (state: AppState) => unknown;
+  setter: (payload: any) => ReduxAction<any>;
+} & ConfigOther;
+
+type ConfigURL = {
+  type: ConfigType.URL;
+  selector: (url: string) => unknown;
+  setter: (payload: any) => void;
+} & ConfigOther;
+
+export type Config = ConfigRedux | ConfigURL;
 
 export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
   [FocusEntity.NONE]: [],
   [FocusEntity.PAGE]: [
     {
+      type: ConfigType.Redux,
       name: FocusElement.CodeEditorHistory,
       selector: getCodeEditorHistory,
       setter: setCodeEditorHistory,
       defaultValue: {},
     },
     {
+      type: ConfigType.Redux,
       name: FocusElement.EntityExplorerWidth,
       selector: getExplorerWidth,
       setter: updateExplorerWidthAction,
       defaultValue: DEFAULT_ENTITY_EXPLORER_WIDTH,
     },
     {
+      type: ConfigType.Redux,
       name: FocusElement.EntityCollapsibleState,
       selector: getAllEntityCollapsibleStates,
       setter: setAllEntityCollapsibleStates,
       defaultValue: {},
     },
     {
+      type: ConfigType.Redux,
       name: FocusElement.SubEntityCollapsibleState,
       selector: getAllSubEntityCollapsibleStates,
       setter: setAllSubEntityCollapsibleStates,
       defaultValue: {},
     },
     {
+      type: ConfigType.Redux,
       name: FocusElement.ExplorerSwitchIndex,
       selector: getExplorerSwitchIndex,
       setter: setExplorerSwitchIndex,
       defaultValue: 0,
     },
     {
+      type: ConfigType.Redux,
       name: FocusElement.PropertyPanelContext,
       selector: getPropertyPanelState,
       setter: setPanelPropertiesState,
@@ -141,18 +170,21 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
   ],
   [FocusEntity.CANVAS]: [
     {
+      type: ConfigType.Redux,
       name: FocusElement.PropertySections,
       selector: getAllPropertySectionState,
       setter: setAllPropertySectionState,
       defaultValue: {},
     },
     {
+      type: ConfigType.Redux,
       name: FocusElement.SelectedPropertyPanel,
       selector: getSelectedPropertyPanel,
       setter: setSelectedPropertyPanels,
       defaultValue: {},
     },
     {
+      type: ConfigType.Redux,
       name: FocusElement.SelectedWidgets,
       selector: getSelectedWidgets,
       setter: (widgetIds: string[]) =>
@@ -164,20 +196,32 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
       defaultValue: [],
     },
     {
+      type: ConfigType.Redux,
       name: FocusElement.PropertyPaneWidth,
       selector: getPropertyPaneWidth,
       setter: setPropertyPaneWidthAction,
       defaultValue: DEFAULT_PROPERTY_PANE_WIDTH,
     },
   ],
+  [FocusEntity.DATASOURCE_LIST]: [
+    {
+      type: ConfigType.URL,
+      name: FocusElement.SelectedDatasource,
+      selector: getSelectedDatasourceId,
+      setter: setSelectedDatasource,
+      defaultValue: getFirstDatasourceId,
+    },
+  ],
   [FocusEntity.DATASOURCE]: [
     {
+      type: ConfigType.Redux,
       name: FocusElement.DatasourceViewMode,
       selector: getDsViewModeValues,
       setter: setDatasourceViewMode,
       defaultValue: { datasourceId: "", viewMode: true },
     },
     {
+      type: ConfigType.Redux,
       name: FocusElement.DatasourceAccordions,
       selector: getAllDatasourceCollapsibleState,
       setter: setAllDatasourceCollapsible,
@@ -185,11 +229,13 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
   ],
   [FocusEntity.JS_OBJECT]: [
     {
+      type: ConfigType.Redux,
       name: FocusElement.InputField,
       selector: getFocusableInputField,
       setter: setFocusableInputField,
     },
     {
+      type: ConfigType.Redux,
       name: FocusElement.JSPaneConfigTabs,
       selector: getJSPaneConfigSelectedTab,
       setter: setJsPaneConfigSelectedTab,
@@ -198,11 +244,13 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
   ],
   [FocusEntity.QUERY]: [
     {
+      type: ConfigType.Redux,
       name: FocusElement.InputField,
       selector: getFocusableInputField,
       setter: setFocusableInputField,
     },
     {
+      type: ConfigType.Redux,
       name: FocusElement.QueryPaneConfigTabs,
       selector: getQueryPaneConfigSelectedTabIndex,
       setter: setQueryPaneConfigSelectedTabIndex,
@@ -211,12 +259,14 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
   ],
   [FocusEntity.PROPERTY_PANE]: [
     {
+      type: ConfigType.Redux,
       name: FocusElement.PropertyTabs,
       selector: getWidgetSelectedPropertyTabIndex,
       setter: setWidgetSelectedPropertyTabIndex,
       defaultValue: 0,
     },
     {
+      type: ConfigType.Redux,
       name: FocusElement.PropertyField,
       selector: getFocusablePropertyPaneField,
       setter: setFocusablePropertyPaneField,
@@ -225,6 +275,7 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
   ],
   [FocusEntity.API]: [
     {
+      type: ConfigType.Redux,
       name: FocusElement.ApiPaneConfigTabs,
       selector: getApiPaneConfigSelectedTabIndex,
       setter: setApiPaneConfigSelectedTabIndex,
@@ -236,11 +287,13 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
       },
     },
     {
+      type: ConfigType.Redux,
       name: FocusElement.InputField,
       selector: getFocusableInputField,
       setter: setFocusableInputField,
     },
     {
+      type: ConfigType.Redux,
       name: FocusElement.ApiRightPaneTabs,
       selector: getApiRightPaneSelectedTab,
       setter: setApiRightPaneSelectedTab,
@@ -248,6 +301,7 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
   ],
   [FocusEntity.DEBUGGER]: [
     {
+      type: ConfigType.Redux,
       name: FocusElement.DebuggerContext,
       selector: getDebuggerContext,
       setter: setDebuggerContext,

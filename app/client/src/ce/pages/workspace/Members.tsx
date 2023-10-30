@@ -57,7 +57,6 @@ export const MembersWrapper = styled.div<{
       table-layout: fixed;
 
       thead {
-        z-index: 1;
         tr {
           border-bottom: 1px solid var(--ads-v2-color-border);
           th {

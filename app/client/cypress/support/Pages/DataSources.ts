@@ -296,6 +296,8 @@ export class DataSources {
   _dsPageTableTriggermenuTarget = (tableName: string) =>
     `${this._dsPageTabContainerTableName(tableName)} .t--template-menu-trigger`;
   _gSheetQueryPlaceholder = ".CodeMirror-placeholder";
+  _dsNameInExplorer = (dsName: string) =>
+    `div.t--entity-name:contains('${dsName}')`;
 
   public AssertDSEditViewMode(mode: "Edit" | "View") {
     if (mode == "Edit") this.agHelper.AssertElementAbsence(this._editButton);
@@ -330,7 +332,7 @@ export class DataSources {
     this.assertHelper.AssertNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
     this.agHelper.GetNClick(this._selectTableDropdown, 0, true);
     this.agHelper.GetNClickByContains(this._dropdownOption, "public.users");
-    this.agHelper.GetNClick(this._generatePageBtn);
+    this.agHelper.GetNClick(this._generatePageBtn, 0, true);
     this.assertHelper.AssertNetworkStatus("@replaceLayoutWithCRUDPage", 201);
     this.agHelper.ClickButton("Got it");
   }
@@ -447,7 +449,7 @@ export class DataSources {
       this.agHelper.GetNClick(this._addNewDataSource, 0, true);
       this.agHelper.Sleep();
     });
-    this.agHelper.RemoveTooltip("Add a new datasource");
+    this.agHelper.RemoveUIElement("Tooltip", "Add a new datasource");
     cy.get(this._newDatasourceContainer).scrollTo("bottom", {
       ensureScrollable: false,
     });
@@ -873,7 +875,7 @@ export class DataSources {
 
   public DeleteDatasouceFromActiveTab(
     datasourceName: string,
-    expectedRes = 200 || 409 || [200 | 409],
+    expectedRes = 200 || 409 || [200, 409],
   ) {
     this.ClickActiveTabDSContextMenu(datasourceName);
     this.agHelper.GetNClick(this._dsOptionMenuItem("Delete"), 0, false, 200);
@@ -883,7 +885,7 @@ export class DataSources {
 
   public DeleteDatasourceFromWithinDS(
     datasourceName: string,
-    expectedRes: number | number[] = 200 || 409 || [200 | 409],
+    expectedRes: number | number[] = 200 || 409 || [200, 409],
   ) {
     this.NavigateToActiveTab();
     cy.get(this._datasourceCard)
@@ -911,7 +913,7 @@ export class DataSources {
   }
 
   public DeleteDSDirectly(
-    expectedRes: number | number[] = 200 || 409 || [200 | 409],
+    expectedRes: number | number[] = 200 || 409 || [200, 409],
     toNavigateToDSInfoPage = true,
   ) {
     toNavigateToDSInfoPage &&
@@ -936,20 +938,15 @@ export class DataSources {
   }
 
   public ValidateDSDeletion(expectedRes: number | number[] = 200) {
-    let toValidateRes = expectedRes == 200 || expectedRes == 409 ? true : false;
-    if (toValidateRes) {
-      if (expectedRes == 200)
-        this.agHelper.AssertContains("datasource deleted successfully");
-      else this.agHelper.AssertContains("action(s) using it.");
-      this.assertHelper.AssertNetworkStatus(
-        "@deleteDatasource",
-        expectedRes as number,
-      );
-    } else {
-      cy.wait("@deleteDatasource")
-        .its("response.body.responseMeta.status")
-        .should("be.oneOf", [200, 409]);
-    }
+    this.assertHelper
+      .AssertNetworkStatus("@deleteDatasource", expectedRes)
+      .then((responseStatus) => {
+        this.agHelper.AssertContains(
+          responseStatus === 200
+            ? "datasource deleted successfully"
+            : "action(s) using it",
+        );
+      });
   }
 
   public NavigateToActiveTab() {
@@ -1356,7 +1353,7 @@ export class DataSources {
     queryName = "",
     sleep = 500,
   ) {
-    this.agHelper.RemoveEvaluatedPopUp(); //to close the evaluated pop-up
+    this.agHelper.RemoveUIElement("EvaluatedPopUp"); //to close the evaluated pop-up
     this.entityExplorer.CreateNewDsQuery(dsName);
     if (query) {
       this.EnterQuery(query, sleep);
@@ -1929,63 +1926,75 @@ export class DataSources {
   ) {
     const ds_entity_name = dsName.replace(/\s/g, "_");
     this.entityExplorer.ExpandCollapseEntity("Datasources");
-    this.entityExplorer.ExpandCollapseEntity(dsName);
-    cy.intercept("GET", "/api/v1/datasources/*/structure?ignoreCache=*").as(
-      `getDatasourceStructureUpdated_${ds_entity_name}`,
-    );
-    this.entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: dsName,
-      action: "Refresh",
-    });
-
-    this.assertHelper
-      .WaitForNetworkCall(`@getDatasourceStructureUpdated_${ds_entity_name}`)
-      .then(async (interception) => {
-        const tables: any[] = interception?.response?.body.data?.tables || [];
-        const indexOfTable = tables.findIndex(
-          (table) => table.name === targetTableName,
+    cy.get(this.locator._body).then(($body: any) => {
+      if ($body.find(this._dsNameInExplorer(dsName)).length > 0) {
+        this.entityExplorer.ExpandCollapseEntity(dsName);
+        cy.intercept("GET", "/api/v1/datasources/*/structure?ignoreCache=*").as(
+          `getDatasourceStructureUpdated_${ds_entity_name}`,
         );
-        if (presence) {
-          this.agHelper.Sleep();
-          this.agHelper
-            .GetNClick(this._dsVirtuosoElement(dsName))
-            .then((parentElement) => {
-              const heightOfParentElement = parentElement.outerHeight() || 0;
+        this.entityExplorer.ActionContextMenuByEntityName({
+          entityNameinLeftSidebar: dsName,
+          action: "Refresh",
+        });
 
-              // Every element (tables in this scenario) in the virtual list has equal heights. Assumption: Every table element accordion is collapsed by default.
-              const containerElement = parentElement.find(this._dsVirtuosoList);
-              const elementHeight = parseInt(
-                containerElement.children().first().attr("data-known-size") ||
-                  "",
-                10,
-              );
-              // Total height of the parent container holding the tables in the dom normally without virtualization rendering
-              const totalScroll = tables.length * elementHeight;
-              cy.log(JSON.stringify({ heightOfParentElement, totalScroll }));
-              if (heightOfParentElement < totalScroll) {
-                // Index of the table present in the array of tables which will determine the presence of element inside the parent container
-                let offset = indexOfTable * elementHeight;
-                const scrollPercent = Math.max(
-                  (offset / (totalScroll || 1)) * 100,
-                  0,
-                );
-                if (scrollPercent > 0) {
-                  this.agHelper.ScrollToXY(
-                    this._dsVirtuosoElement(dsName),
-                    0,
-                    `${scrollPercent}%`,
+        this.assertHelper
+          .WaitForNetworkCall(
+            `@getDatasourceStructureUpdated_${ds_entity_name}`,
+          )
+          .then(async (response) => {
+            const tables: any[] = response?.body.data?.tables || [];
+            const indexOfTable = tables.findIndex(
+              (table) => table.name === targetTableName,
+            );
+            if (presence) {
+              this.agHelper.Sleep();
+              this.agHelper
+                .GetNClick(this._dsVirtuosoElement(dsName))
+                .then((parentElement) => {
+                  const heightOfParentElement =
+                    parentElement.outerHeight() || 0;
+
+                  // Every element (tables in this scenario) in the virtual list has equal heights. Assumption: Every table element accordion is collapsed by default.
+                  const containerElement = parentElement.find(
+                    this._dsVirtuosoList,
                   );
-                }
-              }
-
-              this.agHelper.AssertElementVisibility(
-                this._dsVirtuosoElementTable(targetTableName),
-              );
-            });
-        } else {
-          expect(indexOfTable).to.equal(-1);
-        }
-      });
+                  const elementHeight = parseInt(
+                    containerElement
+                      .children()
+                      .first()
+                      .attr("data-known-size") || "",
+                    10,
+                  );
+                  // Total height of the parent container holding the tables in the dom normally without virtualization rendering
+                  const totalScroll = tables.length * elementHeight;
+                  cy.log(
+                    JSON.stringify({ heightOfParentElement, totalScroll }),
+                  );
+                  if (heightOfParentElement < totalScroll) {
+                    // Index of the table present in the array of tables which will determine the presence of element inside the parent container
+                    let offset = indexOfTable * elementHeight;
+                    const scrollPercent = Math.max(
+                      (offset / (totalScroll || 1)) * 100,
+                      0,
+                    );
+                    if (scrollPercent > 0) {
+                      this.agHelper.ScrollToXY(
+                        this._dsVirtuosoElement(dsName),
+                        0,
+                        `${scrollPercent}%`,
+                      );
+                    }
+                  }
+                  this.agHelper.AssertElementVisibility(
+                    this._dsVirtuosoElementTable(targetTableName),
+                  );
+                });
+            } else {
+              expect(indexOfTable).to.equal(-1);
+            }
+          });
+      }
+    });
   }
 
   public selectTabOnDatasourcePage(tab: "View data" | "Configurations") {

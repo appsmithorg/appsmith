@@ -21,7 +21,10 @@ import {
 } from "widgets/WidgetUtils";
 import MultiSelectComponent from "../component";
 import derivedProperties from "./parseDerivedProperties";
-import type { AutocompletionDefinitions } from "WidgetProvider/constants";
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
+} from "WidgetProvider/constants";
 import {
   defaultValueExpressionPrefix,
   getDefaultValueExpressionSuffix,
@@ -129,6 +132,17 @@ class MultiSelectWidget extends BaseWidget<
     };
   }
 
+  static getAnvilConfig(): AnvilConfig | null {
+    return {
+      widgetSize: {
+        maxHeight: {},
+        maxWidth: {},
+        minHeight: {},
+        minWidth: { base: "160px" },
+      },
+    };
+  }
+
   static getMethods() {
     return {
       getQueryGenerationConfig(widget: WidgetProps) {
@@ -190,6 +204,13 @@ class MultiSelectWidget extends BaseWidget<
       isValid: "bool",
       isDirty: "bool",
       options: "[$__dropdownOption__$]",
+    };
+  }
+
+  static getDependencyMap(): Record<string, string[]> {
+    return {
+      optionValue: ["sourceData"],
+      defaultOptionValue: ["serverSideFiltering", "options"],
     };
   }
 
@@ -306,7 +327,6 @@ class MultiSelectWidget extends BaseWidget<
                   autocompleteDataType: AutocompleteDataType.STRING,
                 },
               },
-              dependentPaths: ["sourceData"],
             },
             additionalAutoComplete: getLabelValueAdditionalAutocompleteData,
           },
@@ -334,7 +354,6 @@ class MultiSelectWidget extends BaseWidget<
                   autocompleteDataType: AutocompleteDataType.ARRAY,
                 },
               },
-              dependentPaths: ["serverSideFiltering", "options"],
             },
             dependencies: ["serverSideFiltering", "options"],
           },

@@ -197,6 +197,8 @@ ${({ dropDownWidth, id }) => `
 	.rc-select-item-option-state {
 		pointer-events: all;
 		margin-right: 0px;
+    position: inherit;
+    top: 2px;
 	}
 }
 .rc-select-item-option-grouped {

@@ -60,7 +60,7 @@ const _TextInput = (props: TextInputProps, ref: HeadlessTextInputRef) => {
     />
   );
 
-  const contextualHelp = Boolean(label) && Boolean(contextualHelpProp) && (
+  const contextualHelp = Boolean(contextualHelpProp) && (
     <ContextualHelp contextualHelp={contextualHelpProp} />
   );
 

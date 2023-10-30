@@ -3,7 +3,6 @@ import React, { useEffect } from "react";
 import { useSelector } from "react-redux";
 
 import {
-  getCanvasWidth,
   getIsFetchingPage,
   getViewModePageList,
   showCanvasTopSectionSelector,
@@ -46,6 +45,7 @@ interface MainCanvasWrapperProps {
   navigationHeight?: number;
   isAppSettingsPaneWithNavigationTabOpen?: boolean;
   currentPageId: string;
+  canvasWidth: number;
 }
 
 const Wrapper = styled.section<{
@@ -123,7 +123,6 @@ function MainContainerWrapper(props: MainCanvasWrapperProps) {
   const { currentPageId, isPreviewMode, shouldShowSnapShotBanner } = props;
 
   const isFetchingPage = useSelector(getIsFetchingPage);
-  const canvasWidth = useSelector(getCanvasWidth);
   const widgetsStructure = useSelector(getCanvasWidgetsStructure, equal);
   const pages = useSelector(getViewModePageList);
   const theme = useSelector(getCurrentThemeDetails);
@@ -170,7 +169,7 @@ function MainContainerWrapper(props: MainCanvasWrapperProps) {
   if (!isPageInitializing && widgetsStructure) {
     node = (
       <Canvas
-        canvasWidth={canvasWidth}
+        canvasWidth={props.canvasWidth}
         enableMainCanvasResizer={enableMainContainerResizer}
         pageId={params.pageId}
         widgetsStructure={widgetsStructure}
