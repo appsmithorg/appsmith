@@ -1244,7 +1244,7 @@ export class AggregateHelper extends ReusableHelper {
               setTimeout(() => {
                 // Move cursor to the end of the line
                 input.execCommand("goLineEnd");
-              }, 500);
+              }, 1000);
             }, 500);
           }, 500);
         } else {
