@@ -8,6 +8,7 @@ import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DefaultResources;
+import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
@@ -27,25 +28,24 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.fork.forkable.ForkableService;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.helpers.UserPermissionUtils;
+import com.appsmith.server.imports.internal.ImportApplicationService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
-import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
-import com.appsmith.server.services.ThemeService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ApplicationPermission;
-import com.appsmith.server.solutions.ImportExportApplicationService;
 import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.WorkspacePermission;
+import com.appsmith.server.themes.base.ThemeService;
 import com.mongodb.client.result.UpdateResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -73,7 +73,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
     private final ResponseUtils responseUtils;
     protected final WorkspacePermission workspacePermission;
     protected final ApplicationPermission applicationPermission;
-    private final ImportExportApplicationService importExportApplicationService;
+    private final ImportApplicationService importApplicationService;
     private final ApplicationPageService applicationPageService;
     protected final NewPageRepository newPageRepository;
     private final NewActionService newActionService;
@@ -627,7 +627,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                     return forkApplicationToWorkspaceWithEnvironment(
                                     fromApplicationId, targetWorkspaceId, sourceEnvironmentId)
                             .map(responseUtils::updateApplicationWithDefaultResources)
-                            .flatMap(application -> importExportApplicationService.getApplicationImportDTO(
+                            .flatMap(application -> importApplicationService.getApplicationImportDTO(
                                     application.getId(), application.getWorkspaceId(), application));
                 });
     }

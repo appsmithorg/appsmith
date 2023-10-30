@@ -1,4 +1,4 @@
-import type { ConfigTree, DataTree } from "@appsmith/entities/DataTree/types";
+import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeTypes";
 import type ReplayEntity from "entities/Replay";
 import ReplayCanvas from "entities/Replay/ReplayEntity/ReplayCanvas";
 import { isEmpty } from "lodash";
@@ -20,7 +20,6 @@ import type {
 } from "../types";
 import { clearAllIntervals } from "../fns/overrides/interval";
 import JSObjectCollection from "workers/Evaluation/JSObject/Collection";
-import { setEvalContext } from "../evaluate";
 import { getJSVariableCreatedEvents } from "../JSObject/JSVariableEvents";
 import { errorModifier } from "../errorModifier";
 import { generateOptimisedUpdatesAndSetPrevState } from "../helpers";
@@ -33,10 +32,8 @@ export const CANVAS = "canvas";
 export default function (request: EvalWorkerSyncRequest) {
   const { data } = request;
   let evalOrder: string[] = [];
-  let reValidatedPaths: string[] = [];
   let jsUpdates: Record<string, JSUpdate> = {};
   let unEvalUpdates: DataTreeDiff[] = [];
-  let nonDynamicFieldValidationOrder: string[] = [];
   let isCreateFirstTree = false;
   let dataTree: DataTree = {};
   let errors: EvalError[] = [];
@@ -117,13 +114,6 @@ export default function (request: EvalWorkerSyncRequest) {
 
       const dataTreeResponse = dataTreeEvaluator.evalAndValidateFirstTree();
 
-      setEvalContext({
-        dataTree: dataTreeEvaluator.evalTree,
-        configTree,
-        isDataField: false,
-        isTriggerBased: true,
-      });
-
       dataTree = makeEntityConfigsAsObjProperties(dataTreeResponse.evalTree, {
         evalProps: dataTreeEvaluator.evalProps,
         identicalEvalPathsPatches:
@@ -151,25 +141,12 @@ export default function (request: EvalWorkerSyncRequest) {
       removedPaths = setupUpdateTreeResponse.removedPaths;
       isNewWidgetAdded = setupUpdateTreeResponse.isNewWidgetAdded;
 
-      nonDynamicFieldValidationOrder =
-        setupUpdateTreeResponse.nonDynamicFieldValidationOrder;
-
       const updateResponse = dataTreeEvaluator.evalAndValidateSubTree(
         evalOrder,
-        nonDynamicFieldValidationOrder,
         configTree,
         unEvalUpdates,
         Object.keys(metaWidgets),
       );
-
-      reValidatedPaths = updateResponse.reValidatedPaths;
-
-      setEvalContext({
-        dataTree: dataTreeEvaluator.evalTree,
-        configTree,
-        isDataField: false,
-        isTriggerBased: true,
-      });
 
       dataTree = makeEntityConfigsAsObjProperties(dataTreeEvaluator.evalTree, {
         evalProps: dataTreeEvaluator.evalProps,
@@ -231,7 +208,6 @@ export default function (request: EvalWorkerSyncRequest) {
     errors,
     evalMetaUpdates,
     evaluationOrder: evalOrder,
-    reValidatedPaths,
     jsUpdates,
     logs,
     unEvalUpdates,

@@ -69,6 +69,7 @@ import DatasourcesApi from "api/DatasourcesApi";
 import type {
   Datasource,
   DatasourceStorage,
+  DatasourceStructureContext,
   MockDatasource,
   TokenResponse,
 } from "entities/Datasource";
@@ -135,7 +136,7 @@ import {
   generateTemplateFormURL,
   integrationEditorURL,
   saasEditorDatasourceIdURL,
-} from "RouteBuilder";
+} from "@appsmith/RouteBuilder";
 import {
   DATASOURCE_NAME_DEFAULT_PREFIX,
   GOOGLE_SHEET_FILE_PICKER_OVERLAY_CLASS,
@@ -153,7 +154,6 @@ import {
   isGoogleSheetPluginDS,
 } from "utils/editorContextUtils";
 import { getDefaultEnvId } from "@appsmith/api/ApiUtils";
-import type { DatasourceStructureContext } from "pages/Editor/Explorer/Datasources/DatasourceStructure";
 import { MAX_DATASOURCE_SUGGESTIONS } from "pages/Editor/Explorer/hooks";
 import { klona } from "klona/lite";
 import {

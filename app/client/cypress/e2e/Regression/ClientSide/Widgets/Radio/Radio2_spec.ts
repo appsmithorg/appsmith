@@ -306,18 +306,17 @@ describe("Radio Widget test cases", function () {
     agHelper.GetNClick(
       locators._widgetInDeployed(draggableWidgets.RADIO_GROUP),
     );
-    agHelper
-      .GetWidgetCSSHeight(
-        locators._widgetInDeployed(draggableWidgets.RADIO_GROUP),
-      )
-      .then((currentHeight: any) => {
-        const updatedHeight = parseInt(currentHeight?.split("px")[0]);
-        expect(updatedHeight).to.be.greaterThan(130);
-      });
+
+    agHelper.GetHeight(
+      locators._widgetInDeployed(draggableWidgets.RADIO_GROUP),
+    );
+    cy.get("@eleHeight").then(($currentHeight: any) => {
+      expect($currentHeight).to.be.greaterThan(130);
+    });
 
     agHelper.GetWidth(locators._widgetInDeployed(draggableWidgets.RADIO_GROUP));
-    agHelper.GetElement("@eleWidth").then((currentWidth) => {
-      expect(currentWidth).to.be.greaterThan(420);
+    agHelper.GetElement("@eleWidth").then(($currentWidth) => {
+      expect($currentWidth).to.be.greaterThan(420);
     });
   });
 
@@ -348,23 +347,25 @@ describe("Radio Widget test cases", function () {
     entityExplorer.SelectEntityByName("Text1", "Widgets");
     propPane.UpdatePropertyFieldValue("Text", "false");
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TEXT));
+    agHelper.Sleep(2000); //for Radio Group to load fully, for CI flakyness
+    agHelper.WaitUntilEleAppear(
+      locators._widgetInDeployed(draggableWidgets.RADIO_GROUP),
+    );
     agHelper.AssertElementEnabledDisabled(
       locators._widgetInDeployed(draggableWidgets.RADIO_GROUP),
       0,
       true,
     );
-    agHelper
-      .GetWidgetCSSHeight(
-        locators._widgetInDeployed(draggableWidgets.RADIO_GROUP),
-      )
-      .then((currentHeight) => {
-        const updatedHeight = parseInt(currentHeight?.split("px")[0]);
-        expect(updatedHeight).to.be.greaterThan(270);
-      });
+    agHelper.GetHeight(
+      locators._widgetInDeployed(draggableWidgets.RADIO_GROUP),
+    );
+    cy.get("@eleHeight").then(($currentHeight: any) => {
+      expect($currentHeight).to.be.greaterThan(270);
+    });
 
     agHelper.GetWidth(locators._widgetInDeployed(draggableWidgets.RADIO_GROUP));
-    agHelper.GetElement("@eleWidth").then((currentWidth) => {
-      expect(currentWidth).to.be.greaterThan(420);
+    agHelper.GetElement("@eleWidth").then(($currentWidth) => {
+      expect($currentWidth).to.be.greaterThan(420);
     });
   });
 

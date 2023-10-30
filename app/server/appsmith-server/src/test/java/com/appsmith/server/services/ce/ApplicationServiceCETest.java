@@ -12,6 +12,7 @@ import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.ActionCollection;
@@ -33,17 +34,24 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
+import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
+import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.UserHomepageDTO;
 import com.appsmith.server.dtos.WorkspaceApplicationsDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.exports.internal.ExportApplicationService;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.TextUtils;
+import com.appsmith.server.imports.internal.ImportApplicationService;
+import com.appsmith.server.jslibs.base.CustomJSLibService;
 import com.appsmith.server.migrations.ApplicationVersion;
 import com.appsmith.server.newactions.base.NewActionService;
+import com.appsmith.server.newpages.base.NewPageService;
+import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.AssetRepository;
 import com.appsmith.server.repositories.DatasourceRepository;
@@ -51,24 +59,21 @@ import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.UserRepository;
-import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.ApplicationService;
-import com.appsmith.server.services.CustomJSLibService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.LayoutCollectionService;
-import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.PermissionGroupService;
-import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.SessionUserService;
-import com.appsmith.server.services.ThemeService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ApplicationFetcher;
+import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.EnvironmentPermission;
-import com.appsmith.server.solutions.ImportExportApplicationService;
 import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.ReleaseNotesService;
+import com.appsmith.server.solutions.UserAndAccessManagementService;
+import com.appsmith.server.themes.base.ThemeService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -76,11 +81,13 @@ import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.core.io.ClassPathResource;
@@ -92,6 +99,9 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.FilePart;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -160,7 +170,7 @@ public class ApplicationServiceCETest {
     @Autowired
     ApplicationService applicationService;
 
-    @Autowired
+    @Qualifier("applicationPageServiceCEImpl") @Autowired
     ApplicationPageServiceCE applicationPageService;
 
     @Autowired
@@ -209,7 +219,10 @@ public class ApplicationServiceCETest {
     PluginRepository pluginRepository;
 
     @Autowired
-    ImportExportApplicationService importExportApplicationService;
+    ImportApplicationService importApplicationService;
+
+    @Autowired
+    ExportApplicationService exportApplicationService;
 
     @Autowired
     ThemeService themeService;
@@ -247,14 +260,30 @@ public class ApplicationServiceCETest {
     @Autowired
     DatasourceRepository datasourceRepository;
 
+    @Autowired
+    ApplicationPermission applicationPermission;
+
+    @Autowired
+    UserAndAccessManagementService userAndAccessManagementService;
+
     String workspaceId;
     String defaultEnvironmentId;
+
+    private final String tempUserPassword = "tempUserPassword";
 
     @Autowired
     private AssetRepository assetRepository;
 
+    private <I> Mono<I> runAs(Mono<I> input, User user) {
+        log.info("Running as user: {}", user.getEmail());
+        return input.contextWrite((ctx) -> {
+            SecurityContext securityContext = new SecurityContextImpl(
+                    new UsernamePasswordAuthenticationToken(user, tempUserPassword, user.getAuthorities()));
+            return ctx.put(SecurityContext.class, Mono.just(securityContext));
+        });
+    }
+
     @BeforeEach
-    @WithUserDetails(value = "api_user")
     public void setup() {
 
         User currentUser = sessionUserService.getCurrentUser().block();
@@ -270,78 +299,88 @@ public class ApplicationServiceCETest {
         Workspace toCreate = new Workspace();
         toCreate.setName("ApplicationServiceTest");
 
-        if (workspaceId == null) {
-            Workspace workspace =
-                    workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
-            workspaceId = workspace.getId();
+        Workspace workspace =
+                workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
+        workspaceId = workspace.getId();
 
-            defaultEnvironmentId = workspaceService
-                    .getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission())
-                    .block();
+        defaultEnvironmentId = workspaceService
+                .getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission())
+                .block();
 
-            if (StringUtils.hasLength(gitConnectedApp.getId())) {
-                applicationPageService
-                        .deleteApplication(gitConnectedApp.getId())
-                        .block();
-            }
+        Application gitConnectedApp1 = new Application();
+        gitConnectedApp1.setWorkspaceId(workspaceId);
+        GitApplicationMetadata gitData = new GitApplicationMetadata();
+        gitData.setBranchName("testBranch");
+        gitData.setDefaultBranchName("testBranch");
+        gitData.setRepoName("testRepo");
+        gitData.setRemoteUrl("git@test.com:user/testRepo.git");
+        gitData.setRepoName("testRepo");
+        gitConnectedApp1.setGitApplicationMetadata(gitData);
+        // This will be altered in update app by branch test
+        gitConnectedApp1.setName("gitConnectedApp");
+        Application newGitConnectedApp = applicationPageService
+                .createApplication(gitConnectedApp1)
+                .flatMap(application -> {
+                    application.getGitApplicationMetadata().setDefaultApplicationId(application.getId());
+                    return applicationService.save(application);
+                })
+                .block();
 
-            gitConnectedApp = new Application();
-            gitConnectedApp.setWorkspaceId(workspaceId);
-            GitApplicationMetadata gitData = new GitApplicationMetadata();
-            gitData.setBranchName("testBranch");
-            gitData.setDefaultBranchName("testBranch");
-            gitData.setRepoName("testRepo");
-            gitData.setRemoteUrl("git@test.com:user/testRepo.git");
-            gitData.setRepoName("testRepo");
-            gitConnectedApp.setGitApplicationMetadata(gitData);
-            // This will be altered in update app by branch test
-            gitConnectedApp.setName("gitConnectedApp");
-            gitConnectedApp = applicationPageService
-                    .createApplication(gitConnectedApp)
-                    .flatMap(application -> {
-                        application.getGitApplicationMetadata().setDefaultApplicationId(application.getId());
-                        return applicationService.save(application);
-                    })
-                    // Assign the branchName to all the resources connected to the application
-                    .flatMap(application -> importExportApplicationService.exportApplicationById(
-                            application.getId(), gitData.getBranchName()))
-                    .flatMap(applicationJson -> importExportApplicationService.importApplicationInWorkspaceFromGit(
-                            workspaceId, applicationJson, gitConnectedApp.getId(), gitData.getBranchName()))
-                    .block();
+        // Assign the branchName to all the resources connected to the application
+        ApplicationJson gitConnectedApplicationJson = exportApplicationService
+                .exportApplicationById(newGitConnectedApp.getId(), gitData.getBranchName())
+                .block();
+        gitConnectedApp = importApplicationService
+                .importApplicationInWorkspaceFromGit(
+                        workspaceId, gitConnectedApplicationJson, newGitConnectedApp.getId(), gitData.getBranchName())
+                .block();
 
-            testPlugin = pluginService.findByPackageName("restapi-plugin").block();
+        testPlugin = pluginService.findByPackageName("restapi-plugin").block();
 
-            Datasource datasource = new Datasource();
-            datasource.setName("Clone App with action Test");
-            datasource.setPluginId(testPlugin.getId());
-            datasource.setWorkspaceId(workspaceId);
-            DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
-            datasourceConfiguration.setUrl("http://test.com");
+        Datasource datasource = new Datasource();
+        datasource.setName("Clone App with action Test");
+        datasource.setPluginId(testPlugin.getId());
+        datasource.setWorkspaceId(workspaceId);
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        datasourceConfiguration.setUrl("http://test.com");
 
-            HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-            storages.put(
-                    defaultEnvironmentId,
-                    new DatasourceStorageDTO(null, defaultEnvironmentId, datasourceConfiguration));
-            datasource.setDatasourceStorages(storages);
-            testDatasource = datasourceService.create(datasource).block();
+        HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
+        storages.put(
+                defaultEnvironmentId, new DatasourceStorageDTO(null, defaultEnvironmentId, datasourceConfiguration));
+        datasource.setDatasourceStorages(storages);
+        testDatasource = datasourceService.create(datasource).block();
 
-            String environmentId = workspaceService
-                    .getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission())
-                    .block();
+        String environmentId = workspaceService
+                .getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission())
+                .block();
 
-            Datasource datasource1 = new Datasource();
-            datasource1.setName("Clone App with action Test1");
-            datasource1.setPluginId(testPlugin.getId());
-            DatasourceConfiguration datasourceConfiguration1 = new DatasourceConfiguration();
-            datasourceConfiguration1.setUrl("http://test.com");
-            datasource1.setWorkspaceId(workspaceId);
+        Datasource datasource1 = new Datasource();
+        datasource1.setName("Clone App with action Test1");
+        datasource1.setPluginId(testPlugin.getId());
+        DatasourceConfiguration datasourceConfiguration1 = new DatasourceConfiguration();
+        datasourceConfiguration1.setUrl("http://test.com");
+        datasource1.setWorkspaceId(workspaceId);
 
-            HashMap<String, DatasourceStorageDTO> storages1 = new HashMap<>();
-            storages1.put(environmentId, new DatasourceStorageDTO(null, environmentId, datasourceConfiguration1));
-            datasource1.setDatasourceStorages(storages1);
+        HashMap<String, DatasourceStorageDTO> storages1 = new HashMap<>();
+        storages1.put(environmentId, new DatasourceStorageDTO(null, environmentId, datasourceConfiguration1));
+        datasource1.setDatasourceStorages(storages1);
 
-            testDatasource1 = datasourceService.create(datasource1).block();
+        testDatasource1 = datasourceService.create(datasource1).block();
+    }
+
+    @AfterEach
+    public void cleanup() {
+        User currentUser = sessionUserService.getCurrentUser().block();
+        if (!currentUser.getEmail().equals("api_user")) {
+            // Since no setup was done, hence no cleanup needs to happen
+            return;
         }
+        List<Application> deletedApplications = applicationService
+                .findByWorkspaceId(workspaceId, applicationPermission.getDeletePermission())
+                .flatMap(remainingApplication -> applicationPageService.deleteApplication(remainingApplication.getId()))
+                .collectList()
+                .block();
+        Workspace deletedWorkspace = workspaceService.archiveById(workspaceId).block();
     }
 
     private Mono<? extends BaseDomain> getArchivedResource(String id, Class<? extends BaseDomain> domainClass) {
@@ -3951,9 +3990,9 @@ public class ApplicationServiceCETest {
         testApplication.setGitApplicationMetadata(gitData);
         Application application = applicationPageService
                 .createApplication(testApplication)
-                .flatMap(application1 -> importExportApplicationService
+                .flatMap(application1 -> exportApplicationService
                         .exportApplicationById(gitConnectedApp.getId(), gitData.getBranchName())
-                        .flatMap(applicationJson -> importExportApplicationService.importApplicationInWorkspaceFromGit(
+                        .flatMap(applicationJson -> importApplicationService.importApplicationInWorkspaceFromGit(
                                 workspaceId, applicationJson, application1.getId(), gitData.getBranchName())))
                 .block();
 
@@ -4345,5 +4384,92 @@ public class ApplicationServiceCETest {
          */
         StepVerifier.create(applicationsInWorkspace)
                 .assertNext(applications -> assertThat(applications).hasSize(existingApplicationCount));
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testUpdateApplication_modifiedByShouldUpdate() {
+        String testName = "testUpdateApplication_modifiedByShouldUpdate";
+
+        User user1 = new User();
+        user1.setEmail(testName + "@appsmith.com");
+        user1.setPassword(tempUserPassword);
+        User createdUser = userService.create(user1).block();
+
+        List<PermissionGroup> defaultWorkspaceRoles = permissionGroupRepository
+                .findByDefaultDomainIdAndDefaultDomainType(workspaceId, Workspace.class.getSimpleName())
+                .collectList()
+                .block();
+
+        PermissionGroup administratorRole = defaultWorkspaceRoles.stream()
+                .filter(role -> role.getName().startsWith(ADMINISTRATOR))
+                .findFirst()
+                .get();
+        InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
+        inviteUsersDTO.setPermissionGroupId(administratorRole.getId());
+        inviteUsersDTO.setUsernames(List.of(createdUser.getUsername()));
+        userAndAccessManagementService.inviteUsers(inviteUsersDTO, testName).block();
+
+        Application application = new Application();
+        application.setName(testName);
+        application.setWorkspaceId(workspaceId);
+        Application createdApplication =
+                applicationPageService.createApplication(application).block();
+
+        Application updateNameOfApplication = new Application();
+        updateNameOfApplication.setName(testName + "_editedBy_" + createdUser.getUsername());
+
+        Application updatedNameOfApplication = runAs(
+                        applicationService.update(createdApplication.getId(), updateNameOfApplication), createdUser)
+                .block();
+
+        Application applicationPostNameUpdate =
+                applicationRepository.findById(createdApplication.getId()).block();
+
+        assertThat(applicationPostNameUpdate.getName()).isEqualTo(testName + "_editedBy_" + createdUser.getUsername());
+        assertThat(applicationPostNameUpdate.getModifiedBy()).isEqualTo(createdUser.getUsername());
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testCreatePage_lastModifiedByShouldGetChanged() {
+        String testName = "testSavedLastEditInformation";
+
+        User user1 = new User();
+        user1.setEmail(testName + "@appsmith.com");
+        user1.setPassword(tempUserPassword);
+        User createdUser = userService.create(user1).block();
+
+        List<PermissionGroup> defaultWorkspaceRoles = permissionGroupRepository
+                .findByDefaultDomainIdAndDefaultDomainType(workspaceId, Workspace.class.getSimpleName())
+                .collectList()
+                .block();
+
+        PermissionGroup administratorRole = defaultWorkspaceRoles.stream()
+                .filter(role -> role.getName().startsWith(ADMINISTRATOR))
+                .findFirst()
+                .get();
+        InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
+        inviteUsersDTO.setPermissionGroupId(administratorRole.getId());
+        inviteUsersDTO.setUsernames(List.of(createdUser.getUsername()));
+        userAndAccessManagementService.inviteUsers(inviteUsersDTO, testName).block();
+
+        Application application = new Application();
+        application.setName(testName);
+        application.setWorkspaceId(workspaceId);
+        Application createdApplication =
+                applicationPageService.createApplication(application).block();
+
+        PageDTO pageDTO = new PageDTO();
+        pageDTO.setName(testName);
+        pageDTO.setApplicationId(createdApplication.getId());
+        PageDTO createdPageDTO =
+                runAs(applicationPageService.createPage(pageDTO), createdUser).block();
+
+        Application applicationPostLastEdit =
+                applicationRepository.findById(createdApplication.getId()).block();
+
+        assertThat(applicationPostLastEdit.getPages()).hasSize(2);
+        assertThat(applicationPostLastEdit.getModifiedBy()).isEqualTo(createdUser.getUsername());
     }
 }

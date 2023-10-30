@@ -38,12 +38,12 @@ const EXPECTED_VARIABLE = {
   autocompleteDataType: AutocompleteDataType.OBJECT,
 };
 
-type VariableProps = {
+interface VariableProps {
   // Name of the action to define the path to the config property
   actionName: string;
   // Theme to be used in CodeEditor
   theme: EditorTheme;
-};
+}
 
 /**
  * Variable Editor is for writing Graphql variables using the Codemirror Editor which we use for JSON

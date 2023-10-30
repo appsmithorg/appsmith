@@ -13,7 +13,10 @@ import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import type { MarkerProps } from "../constants";
 import { getBorderCSSShorthand } from "constants/DefaultTheme";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
-import type { AutocompletionDefinitions } from "WidgetProvider/constants";
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
+} from "WidgetProvider/constants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import {
   FlexVerticalAlignment,
@@ -52,11 +55,11 @@ const DisabledContainer = styled.div<{
 
 const DefaultCenter = { ...DEFAULT_CENTER, long: DEFAULT_CENTER.lng };
 
-type Center = {
+interface Center {
   lat: number;
   long: number;
   [x: string]: any;
-};
+}
 
 class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
   static defaultProps = {};
@@ -123,6 +126,17 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
           },
         },
       ],
+    };
+  }
+
+  static getAnvilConfig(): AnvilConfig | null {
+    return {
+      widgetSize: {
+        maxHeight: {},
+        maxWidth: {},
+        minHeight: { base: "300px" },
+        minWidth: { base: "280px" },
+      },
     };
   }
 

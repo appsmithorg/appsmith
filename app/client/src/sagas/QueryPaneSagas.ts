@@ -24,10 +24,7 @@ import {
 } from "@appsmith/constants/forms";
 import history from "utils/history";
 import { APPLICATIONS_URL, INTEGRATION_TABS } from "constants/routes";
-import {
-  getCurrentApplicationId,
-  getCurrentPageId,
-} from "selectors/editorSelectors";
+import { getCurrentPageId } from "selectors/editorSelectors";
 import { autofill, change, initialize, reset } from "redux-form";
 import {
   getAction,
@@ -38,6 +35,7 @@ import {
   getSettingConfig,
   getPlugins,
   getGenerateCRUDEnabledPluginMap,
+  getActions,
 } from "@appsmith/selectors/entitiesSelector";
 import type { Action, QueryAction } from "entities/Action";
 import { PluginType } from "entities/Action";
@@ -68,7 +66,7 @@ import {
   generateTemplateFormURL,
   integrationEditorURL,
   queryEditorIdURL,
-} from "RouteBuilder";
+} from "@appsmith/RouteBuilder";
 import type { GenerateCRUDEnabledPluginMap, Plugin } from "api/PluginApi";
 import { UIComponentTypes } from "api/PluginApi";
 import { getUIComponent } from "pages/Editor/QueryEditor/helpers";
@@ -79,32 +77,37 @@ import { validateResponse } from "./ErrorSagas";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import { toast } from "design-system";
 import type { CreateDatasourceSuccessAction } from "actions/datasourceActions";
-import { createDefaultActionPayload } from "./ActionSagas";
+import { createDefaultActionPayloadWithPluginDefaults } from "./ActionSagas";
 import { DB_NOT_SUPPORTED } from "@appsmith/utils/Environments";
 import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelectors";
 import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
 import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 import { isGACEnabled } from "@appsmith/utils/planHelpers";
 import { getHasManageActionPermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import type { ChangeQueryPayload } from "actions/queryPaneActions";
+import { createNewApiName, createNewQueryName } from "utils/AppsmithUtils";
+import type { ActionDataState } from "@appsmith/reducers/entityReducers/actionsReducer";
 
 // Called whenever the query being edited is changed via the URL or query pane
-function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
-  const { id } = actionPayload.payload;
+function* changeQuerySaga(actionPayload: ReduxAction<ChangeQueryPayload>) {
+  const { applicationId, id, moduleId, packageId, pageId } =
+    actionPayload.payload;
   let configInitialValues = {};
-  const applicationId: string = yield select(getCurrentApplicationId);
-  const pageId: string = yield select(getCurrentPageId);
-  if (!applicationId || !pageId) {
+
+  if (!(packageId && moduleId) && !(applicationId && pageId)) {
     history.push(APPLICATIONS_URL);
     return;
   }
   const action: Action | undefined = yield select(getAction, id);
   if (!action) {
-    history.push(
-      integrationEditorURL({
-        pageId,
-        selectedTab: INTEGRATION_TABS.ACTIVE,
-      }),
-    );
+    if (pageId) {
+      history.push(
+        integrationEditorURL({
+          pageId,
+          selectedTab: INTEGRATION_TABS.ACTIVE,
+        }),
+      );
+    }
     return;
   }
 
@@ -342,9 +345,8 @@ function* handleQueryCreatedSaga(actionPayload: ReduxAction<QueryAction>) {
     actionPayload.payload;
   const pageId: string = yield select(getCurrentPageId);
   if (pluginType !== PluginType.DB && pluginType !== PluginType.REMOTE) return;
-  const pluginTemplates: Record<string, unknown> = yield select(
-    getPluginTemplates,
-  );
+  const pluginTemplates: Record<string, unknown> =
+    yield select(getPluginTemplates);
   const queryTemplate = pluginTemplates[pluginId];
   // Do not show template view if the query has body(code) or if there are no templates or if the plugin is MongoDB
   const showTemplate = !(
@@ -477,17 +479,32 @@ function* createNewQueryForDatasourceSaga(
     from: EventLocation;
   }>,
 ) {
-  const { datasourceId } = action.payload;
+  const { datasourceId, from, pageId } = action.payload;
   if (!datasourceId) return;
 
+  const actions: ActionDataState = yield select(getActions);
+  const datasource: Datasource = yield select(getDatasource, datasourceId);
+  const plugin: Plugin = yield select(getPlugin, datasource?.pluginId);
+  const newActionName =
+    plugin?.type === PluginType.DB
+      ? createNewQueryName(actions, pageId || "")
+      : createNewApiName(actions, pageId || "");
+
   const createActionPayload: Partial<Action> = yield call(
-    createDefaultActionPayload,
-    action.payload.pageId,
-    action.payload.datasourceId,
-    action.payload.from,
+    createDefaultActionPayloadWithPluginDefaults,
+    {
+      datasourceId,
+      from,
+      newActionName,
+    },
   );
 
-  yield put(createActionRequest(createActionPayload));
+  yield put(
+    createActionRequest({
+      ...createActionPayload,
+      pageId: action.payload.pageId,
+    }),
+  );
 }
 
 function* handleNameChangeFailureSaga(

@@ -32,8 +32,9 @@ import type {
 } from "entities/AppTheming";
 import type { BatchPropertyUpdatePayload } from "actions/controlActions";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
-import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
+import { generateTypeDef } from "utils/autocomplete/defCreatorUtils";
 import type {
+  AnvilConfig,
   AutocompletionDefinitions,
   PropertyUpdates,
   SnipingModeProperty,
@@ -104,11 +105,11 @@ export type MetaInternalFieldState = FieldState<{
   filterText?: string;
 }>;
 
-export type JSONFormWidgetState = {
+export interface JSONFormWidgetState {
   resetObserverCallback: () => void;
   isSubmitting: boolean;
   metaInternalFieldState: MetaInternalFieldState;
-};
+}
 
 export type Action = ExecuteTriggerPayload & {
   updateDependencyType?: ActionUpdateDependency;
@@ -270,9 +271,10 @@ class JSONFormWidget extends BaseWidget<
             (column) => `${column.name}`,
           );
           modify = {
-            sourceData: `{{_.pick(${
-              formConfig?.otherFields?.defaultValues
-            },${selectedColumnNames.map((name) => `'${name}'`).join(",")})}}`,
+            sourceData: `{{_.pick(${formConfig?.otherFields
+              ?.defaultValues},${selectedColumnNames
+              .map((name) => `'${name}'`)
+              .join(",")})}}`,
             title: `Update Row ${primaryKey} {{${formConfig?.otherFields?.defaultValues}.${primaryKey}}}`,
             onSubmit: queryConfig?.update.run,
           };
@@ -314,6 +316,17 @@ class JSONFormWidget extends BaseWidget<
           },
         },
       ],
+    };
+  }
+
+  static getAnvilConfig(): AnvilConfig | null {
+    return {
+      widgetSize: {
+        maxHeight: {},
+        maxWidth: {},
+        minHeight: { base: "300px" },
+        minWidth: { base: "280px" },
+      },
     };
   }
 

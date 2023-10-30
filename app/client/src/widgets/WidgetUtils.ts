@@ -39,9 +39,9 @@ import { WIDGET_COMPONENT_BOUNDARY_CLASS } from "constants/componentClassNameCon
 import punycode from "punycode";
 import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 
-type SanitizeOptions = {
+interface SanitizeOptions {
   existingKeys?: string[];
-};
+}
 
 const REACT_ELEMENT_PROPS = "__reactProps$";
 
@@ -142,17 +142,17 @@ export const getCustomHoverColor = (
   switch (buttonVariant) {
     case ButtonVariantTypes.SECONDARY:
       return backgroundColor
-        ? calulateHoverColor(backgroundColor, true)
+        ? calculateHoverColor(backgroundColor, true)
         : theme.colors.button.primary.secondary.hoverColor;
 
     case ButtonVariantTypes.TERTIARY:
       return backgroundColor
-        ? calulateHoverColor(backgroundColor, true)
+        ? calculateHoverColor(backgroundColor, true)
         : theme.colors.button.primary.tertiary.hoverColor;
 
     default:
       return backgroundColor
-        ? calulateHoverColor(backgroundColor, false)
+        ? calculateHoverColor(backgroundColor, false)
         : theme.colors.button.primary.primary.hoverColor;
   }
 };
@@ -175,7 +175,7 @@ export const getCustomHoverColor = (
  *
  * @returns An RGB string (in case of transparent backgrounds) or a HSL string (in case of solid backgrounds).
  */
-export const calulateHoverColor = (
+export const calculateHoverColor = (
   backgroundColor: string,
   hasTransparentBackground?: boolean,
 ) => {
@@ -394,8 +394,8 @@ export const PopoverStyles = createGlobalStyle<{
     }
 
     .${portalClassName} .${DTClasses.DATEPICKER_FOOTER} .${
-    Classes.BUTTON
-  }:hover {
+      Classes.BUTTON
+    }:hover {
       background-color: ${lightenColor(accentColor)};
     }
 
@@ -408,10 +408,10 @@ export const PopoverStyles = createGlobalStyle<{
     }
 
     .${portalClassName} .${DTClasses.DATEPICKER_YEAR_SELECT} select + .${
-    Classes.ICON
-  }, .${portalClassName} .${DTClasses.DATEPICKER_MONTH_SELECT} select + .${
-    Classes.ICON
-  } {
+      Classes.ICON
+    }, .${portalClassName} .${DTClasses.DATEPICKER_MONTH_SELECT} select + .${
+      Classes.ICON
+    } {
       color: var(--wds-color-icon) !important;
     }
 
@@ -424,8 +424,8 @@ export const PopoverStyles = createGlobalStyle<{
     }
 
     .${portalClassName} .${DTClasses.DATERANGEPICKER_SHORTCUTS} li a.${
-    Classes.ACTIVE
-  } {
+      Classes.ACTIVE
+    } {
       color: ${getComplementaryGrayscaleColor(accentColor)};
       background-color: ${accentColor};
     }
@@ -921,7 +921,7 @@ const findReactInstanceProps = (domElement: any) => {
 
 export function isCompactMode(componentHeight: number) {
   return (
-    componentHeight <
+    componentHeight <=
     COMPACT_MODE_MIN_ROWS * GridDefaults.DEFAULT_GRID_ROW_HEIGHT
   );
 }

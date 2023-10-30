@@ -1,10 +1,7 @@
-import type {
-  DataTreeEntity,
-  JSActionEntity,
-} from "@appsmith/entities/DataTree/types";
+import type { JSActionEntity } from "@appsmith/entities/DataTree/types";
+import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
 import { ENTITY_TYPE_VALUE } from "entities/DataTree/dataTreeFactory";
 import JSObjectCollection from "./JSObject/Collection";
-import JSFactory from "./JSObject/JSVariableFactory";
 import { jsObjectFunctionFactory } from "./fns/utils/jsObjectFnFactory";
 import { isObject } from "lodash";
 
@@ -42,7 +39,7 @@ export function getEntityForEvalContext(
     switch (entity.ENTITY_TYPE) {
       case ENTITY_TYPE_VALUE.JSACTION: {
         const jsObjectName = entityName;
-        const jsObject = entity;
+        const jsObject = entity as JSActionEntity;
 
         let jsObjectForEval = JSObjectCollection.getVariableState(entityName);
 
@@ -55,7 +52,8 @@ export function getEntityForEvalContext(
           return Object.assign({}, jsObject, fns);
         }
 
-        jsObjectForEval = JSFactory.create(entityName, jsObjectForEval);
+        jsObjectForEval =
+          JSObjectCollection.getVariablesForEvaluationContext(entityName);
         return Object.assign(jsObjectForEval, fns);
       }
     }

@@ -17,7 +17,10 @@ import type { WidgetProps, WidgetState } from "../../BaseWidget";
 import BaseWidget from "../../BaseWidget";
 
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
-import type { AutocompletionDefinitions } from "WidgetProvider/constants";
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
+} from "WidgetProvider/constants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import {
   FlexVerticalAlignment,
@@ -36,8 +39,10 @@ export enum RTEFormats {
   MARKDOWN = "markdown",
   HTML = "html",
 }
-const RichTextEditorComponent = lazy(() =>
-  retryPromise(() => import(/* webpackChunkName: "rte" */ "../component")),
+const RichTextEditorComponent = lazy(async () =>
+  retryPromise(
+    async () => import(/* webpackChunkName: "rte" */ "../component"),
+  ),
 );
 
 const converter = new showdown.Converter();
@@ -119,6 +124,17 @@ class RichTextEditorWidget extends BaseWidget<
           },
         },
       ],
+    };
+  }
+
+  static getAnvilConfig(): AnvilConfig | null {
+    return {
+      widgetSize: {
+        maxHeight: {},
+        maxWidth: {},
+        minHeight: { base: "300px" },
+        minWidth: { base: "280px" },
+      },
     };
   }
 

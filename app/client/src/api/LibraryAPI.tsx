@@ -1,5 +1,5 @@
 import { APP_MODE } from "entities/App";
-import type { TJSLibrary } from "workers/common/JSLibrary";
+import type { JSLibrary } from "workers/common/JSLibrary";
 import Api from "./Api";
 
 export default class LibraryApi extends Api {
@@ -8,20 +8,23 @@ export default class LibraryApi extends Api {
   static getUpdateLibraryBaseURL = (applicationId: string) =>
     `${LibraryApi.base_url}/${applicationId}`;
 
-  static addLibrary(
+  static async addLibrary(
     applicationId: string,
-    library: Partial<TJSLibrary> & { defs: string },
+    library: Partial<JSLibrary> & { defs: string },
   ) {
     const url = LibraryApi.getUpdateLibraryBaseURL(applicationId) + "/add";
     return Api.patch(url, library);
   }
 
-  static removeLibrary(applicationId: string, library: Partial<TJSLibrary>) {
+  static async removeLibrary(
+    applicationId: string,
+    library: Partial<JSLibrary>,
+  ) {
     const url = LibraryApi.getUpdateLibraryBaseURL(applicationId) + "/remove";
     return Api.patch(url, library);
   }
 
-  static getLibraries(applicationId: string, mode: APP_MODE) {
+  static async getLibraries(applicationId: string, mode: APP_MODE) {
     const url = `${LibraryApi.getUpdateLibraryBaseURL(applicationId)}${
       mode === APP_MODE.PUBLISHED ? "/view" : ""
     }`;

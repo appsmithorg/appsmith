@@ -2,8 +2,8 @@ import type {
   ConfigTree,
   DataTree,
   DataTreeEntity,
-} from "@appsmith/entities/DataTree/types";
-import type { IEntity } from ".";
+} from "entities/DataTree/dataTreeTypes";
+import type { IEntity } from "@appsmith/plugins/Linting/lib/entity/types";
 import type { Diff } from "deep-diff";
 import EntityFactory from ".";
 import { PathUtils } from "plugins/Linting/utils/pathUtils";

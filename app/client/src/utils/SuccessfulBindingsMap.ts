@@ -1,8 +1,8 @@
-import type { UnEvalTreeEntity } from "@appsmith/entities/DataTree/types";
+import type { UnEvalTreeEntity } from "entities/DataTree/dataTreeTypes";
 
-export type SuccessfulBindings = {
+export interface SuccessfulBindings {
   [entityName: string]: UnEvalTreeEntity;
-};
+}
 export default class SuccessfulBindingMap {
   successfulBindings: SuccessfulBindings;
 

@@ -32,10 +32,10 @@ import { getVideoConstraints } from "widgets/utils";
 import { isMobile } from "react-device-detect";
 
 const CameraOfflineIcon = importSvg(
-  () => import("assets/icons/widget/camera/camera-offline.svg"),
+  async () => import("assets/icons/widget/camera/camera-offline.svg"),
 );
 const FlipImageIcon = importSvg(
-  () => import("assets/icons/widget/codeScanner/flip.svg"),
+  async () => import("assets/icons/widget/codeScanner/flip.svg"),
 );
 
 const CodeScannerGlobalStyles = createGlobalStyle<{

@@ -3,18 +3,23 @@ package com.appsmith.server.services;
 import com.appsmith.git.constants.CommonConstants;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.PageDTO;
+import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.helpers.DSLMigrationUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.solutions.ApplicationPermission;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
 import org.apache.commons.io.FileUtils;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -31,6 +36,7 @@ import java.io.File;
 import java.io.IOException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -59,6 +65,32 @@ public class ApplicationPageServiceTest {
     @MockBean
     DSLMigrationUtils dslMigrationUtils;
 
+    @Autowired
+    ApplicationService applicationService;
+
+    @Autowired
+    ApplicationPermission applicationPermission;
+
+    Workspace workspace;
+
+    @BeforeEach
+    public void setup() {
+        Workspace unsavedWorkspace = new Workspace();
+        unsavedWorkspace.setName("ApplicationPageServiceTest Workspace");
+        workspace = workspaceService.create(unsavedWorkspace).block();
+    }
+
+    @AfterEach
+    public void cleanup() {
+        List<Application> deletedApplications = applicationService
+                .findByWorkspaceId(workspace.getId(), applicationPermission.getDeletePermission())
+                .flatMap(remainingApplication -> applicationPageService.deleteApplication(remainingApplication.getId()))
+                .collectList()
+                .block();
+        Workspace deletedWorkspace =
+                workspaceService.archiveById(workspace.getId()).block();
+    }
+
     /**
      * Creates an workspace, an application and a page under that application
      *
@@ -66,19 +98,14 @@ public class ApplicationPageServiceTest {
      * @return publisher of PageDTO
      */
     private Mono<PageDTO> createPageMono(String uniquePrefix) {
-        Workspace unsavedWorkspace = new Workspace();
-        unsavedWorkspace.setName(uniquePrefix + "_org");
-        return workspaceService
-                .create(unsavedWorkspace)
-                .flatMap(workspace -> {
-                    Application application = new Application();
-                    application.setName(uniquePrefix + "_app");
-                    return applicationPageService.createApplication(application, workspace.getId());
-                })
-                .flatMap(application -> {
+        Application application = new Application();
+        application.setName(uniquePrefix + "_app");
+        return applicationPageService
+                .createApplication(application, workspace.getId())
+                .flatMap(application1 -> {
                     PageDTO page = new PageDTO();
                     page.setName("Test page");
-                    page.setApplicationId(application.getId());
+                    page.setApplicationId(application1.getId());
                     return applicationPageService.createPage(page);
                 });
     }
@@ -120,13 +147,9 @@ public class ApplicationPageServiceTest {
     }
 
     Mono<Application> createApplication(String uniquePrefix) {
-        Workspace unsavedWorkspace = new Workspace();
-        unsavedWorkspace.setName(uniquePrefix + "_org");
-        return workspaceService.create(unsavedWorkspace).flatMap(workspace -> {
-            Application application = new Application();
-            application.setName(uniquePrefix + "_app");
-            return applicationPageService.createApplication(application, workspace.getId());
-        });
+        Application application = new Application();
+        application.setName(uniquePrefix + "_app");
+        return applicationPageService.createApplication(application, workspace.getId());
     }
 
     JSONObject getOlderDSL() {
@@ -293,6 +316,44 @@ public class ApplicationPageServiceTest {
                             .isEqualTo(currentDslVersion);
                     assertThat(publishedDslAfterMigration.getAsString("testKey"))
                             .isEqualTo("testValue");
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void createOrUpdateSuffixedApplication_GitConnectedAppExistsWithSameName_AppCreatedWithSuffixedName() {
+        // create a Git connected application with two branches
+        final String appName = "app" + UUID.randomUUID();
+        Application application = new Application();
+        application.setName(appName);
+        GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
+        gitApplicationMetadata.setBranchName("branch1");
+        application.setGitApplicationMetadata(gitApplicationMetadata);
+
+        Mono<Application> importAppMono = applicationPageService
+                .createApplication(application, workspace.getId())
+                .flatMap(createdApp -> {
+                    createdApp.getGitApplicationMetadata().setDefaultApplicationId(createdApp.getId());
+                    return applicationService.save(createdApp);
+                })
+                .flatMap(createdApp -> {
+                    createdApp.setId(null);
+                    createdApp.getGitApplicationMetadata().setBranchName("branch2");
+                    // just duplicate the app, we're not considering the pages, they remain same in both apps
+                    return applicationRepository.save(createdApp);
+                })
+                .flatMap(createdApp -> {
+                    Application newApplication = new Application();
+                    newApplication.setName(appName);
+                    newApplication.setWorkspaceId(workspace.getId());
+                    return applicationPageService.createOrUpdateSuffixedApplication(
+                            newApplication, newApplication.getName(), 0);
+                });
+
+        StepVerifier.create(importAppMono)
+                .assertNext(application1 -> {
+                    assertThat(application1.getName()).isEqualTo(appName + " (1)");
                 })
                 .verifyComplete();
     }

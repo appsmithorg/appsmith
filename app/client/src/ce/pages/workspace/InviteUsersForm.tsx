@@ -375,7 +375,7 @@ function InviteUsersForm(props: any) {
 
   return (
     <StyledForm
-      onSubmit={handleSubmit((values: any, dispatch: any) => {
+      onSubmit={handleSubmit(async (values: any, dispatch: any) => {
         const roles = isMultiSelectDropdown
           ? selectedOption
               .map((option: DefaultOptionType) => option.value)
@@ -388,7 +388,7 @@ function InviteUsersForm(props: any) {
         const validEmails = usersAsStringsArray.filter((user: string) =>
           isEmail(user),
         );
-        const validEmailsString = validEmails.join(",");
+        const validEmailsString = [...new Set(validEmails)].join(",");
         invitedEmails.current = validEmails;
 
         AnalyticsUtil.logEvent("INVITE_USER", {

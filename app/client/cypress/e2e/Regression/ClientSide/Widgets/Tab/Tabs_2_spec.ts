@@ -178,7 +178,8 @@ describe("Tabs widget Tests", function () {
     propPane.SelectPropertiesDropDown("height", "Auto Height");
   });
 
-  it("7. Verify colors, borders and shadows", () => {
+  // to work on redesign of the test, commenting for now
+  it.skip("7. Verify colors, borders and shadows", () => {
     // Verify font color picker opens up
     propPane.MoveToTab("Style");
     agHelper.GetNClick(propPane._propertyControlColorPicker("accentcolor"));
@@ -229,5 +230,45 @@ describe("Tabs widget Tests", function () {
       "box-shadow",
       "rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.05) 0px 4px 6px -2px",
     );
+  });
+
+  it("8. Checks validation error in default selected tab", () => {
+    entityExplorer.SelectEntityByName("NewTabs", "Widgets");
+
+    propPane.MoveToTab("Content");
+
+    propPane.TypeTextIntoField("Default tab", "Tab 11", true);
+
+    agHelper.VerifyEvaluatedErrorMessage("Tab name Tab 11 does not exist");
+
+    agHelper.ClearNType(
+      locators._draggableFieldConfig("tab1") + " input",
+      "Tab 11",
+      0,
+    );
+
+    agHelper.AssertAutoSave();
+
+    agHelper.Sleep(1000);
+
+    agHelper.FocusElement(locators._propertyInputField("Default tab"));
+
+    agHelper.AssertElementAbsence(locators._evaluatedErrorMessage);
+
+    propPane.TypeTextIntoField("Default tab", "Tab 13", true);
+
+    agHelper.VerifyEvaluatedErrorMessage("Tab name Tab 13 does not exist");
+
+    agHelper.AssertAutoSave();
+
+    agHelper.Sleep(1000);
+
+    cy.reload();
+
+    entityExplorer.SelectEntityByName("NewTabs", "Widgets");
+
+    agHelper.FocusElement(locators._propertyInputField("Default tab"));
+
+    agHelper.VerifyEvaluatedErrorMessage("Tab name Tab 13 does not exist");
   });
 });

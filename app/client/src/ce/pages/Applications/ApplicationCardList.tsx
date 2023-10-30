@@ -13,10 +13,16 @@ import { NoAppsFound } from "@appsmith/pages/Applications";
 import ApplicationCard from "pages/Applications/ApplicationCard";
 import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
 import type { UpdateApplicationPayload } from "@appsmith/api/ApplicationApi";
+import {
+  APPLICATION_CARD_LIST_ZERO_STATE,
+  createMessage,
+} from "@appsmith/constants/messages";
 
-const NoAppsFoundIcon = importSvg(() => import("assets/svg/no-apps-icon.svg"));
+const NoAppsFoundIcon = importSvg(
+  async () => import("assets/svg/no-apps-icon.svg"),
+);
 
-type ApplicationCardListProps = {
+interface ApplicationCardListProps {
   applications: ApplicationPayload[];
   canInviteToWorkspace: boolean;
   enableImportExport: boolean;
@@ -30,7 +36,7 @@ type ApplicationCardListProps = {
     id: string,
     data: UpdateApplicationPayload,
   ) => void;
-};
+}
 
 function ApplicationCardList({
   applications,
@@ -79,7 +85,7 @@ function ApplicationCardList({
       {applications.length === 0 && (
         <NoAppsFound>
           <NoAppsFoundIcon />
-          <span>There’s nothing inside this workspace</span>
+          <span>{createMessage(APPLICATION_CARD_LIST_ZERO_STATE)}</span>
           {/* below component is duplicate. This is because of cypress test were failing */}
           {hasCreateNewApplicationPermission && (
             <Button

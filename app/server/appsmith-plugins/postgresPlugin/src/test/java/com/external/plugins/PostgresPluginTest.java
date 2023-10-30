@@ -1,5 +1,6 @@
 package com.external.plugins;
 
+import com.appsmith.external.connectionpoolconfig.configurations.ConnectionPoolConfig;
 import com.appsmith.external.datatypes.ClientDataType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
@@ -77,8 +78,15 @@ public class PostgresPluginTest {
         }
     }
 
+    public class MockConnectionPoolConfig implements ConnectionPoolConfig {
+        @Override
+        public Mono<Integer> getMaxConnectionPoolSize() {
+            return Mono.just(5);
+        }
+    }
+
     PostgresPlugin.PostgresPluginExecutor pluginExecutor =
-            new PostgresPlugin.PostgresPluginExecutor(new MockSharedConfig());
+            new PostgresPlugin.PostgresPluginExecutor(new MockSharedConfig(), new MockConnectionPoolConfig());
 
     @SuppressWarnings("rawtypes") // The type parameter for the container type is just itself and is pseudo-optional.
     @Container
@@ -1625,5 +1633,71 @@ public class PostgresPluginTest {
                         .collect(Collectors.toList())
                         .size()
                 == 0);
+    }
+
+    @Test
+    public void testGetEndpointIdentifierForRateLimit_endpointNotPresent_ReturnsEmptyString() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        // setting endpoints to empty list
+        dsConfig.setEndpoints(new ArrayList());
+
+        final Mono<String> rateLimitIdentifierMono = pluginExecutor.getEndpointIdentifierForRateLimit(dsConfig);
+
+        StepVerifier.create(rateLimitIdentifierMono)
+                .assertNext(endpointIdentifier -> {
+                    assertEquals("", endpointIdentifier);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testGetEndpointIdentifierForRateLimit_HostAbsent_ReturnsEmptyString() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+
+        // Setting hostname and port
+        dsConfig.getEndpoints().get(0).setHost("");
+        dsConfig.getEndpoints().get(0).setPort(5432L);
+
+        final Mono<String> endPointIdentifierMono = pluginExecutor.getEndpointIdentifierForRateLimit(dsConfig);
+
+        StepVerifier.create(endPointIdentifierMono)
+                .assertNext(endpointIdentifier -> {
+                    assertEquals("", endpointIdentifier);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testGetEndpointIdentifierForRateLimit_HostAndPortPresent_ReturnsCorrectString() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+
+        // Setting hostname and port
+        dsConfig.getEndpoints().get(0).setHost("localhost");
+        dsConfig.getEndpoints().get(0).setPort(5431L);
+
+        final Mono<String> endPointIdentifierMono = pluginExecutor.getEndpointIdentifierForRateLimit(dsConfig);
+
+        StepVerifier.create(endPointIdentifierMono)
+                .assertNext(endpointIdentifier -> {
+                    assertEquals("localhost_5431", endpointIdentifier);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testGetEndpointIdentifierForRateLimit_HostPresentPortAbsent_ReturnsCorrectString() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+
+        // Setting hostname and port
+        dsConfig.getEndpoints().get(0).setHost("localhost");
+        dsConfig.getEndpoints().get(0).setPort(null);
+
+        final Mono<String> endPointIdentifierMono = pluginExecutor.getEndpointIdentifierForRateLimit(dsConfig);
+
+        StepVerifier.create(endPointIdentifierMono)
+                .assertNext(endpointIdentifier -> {
+                    assertEquals("localhost_5432", endpointIdentifier);
+                })
+                .verifyComplete();
     }
 }

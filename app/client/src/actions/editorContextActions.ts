@@ -25,13 +25,13 @@ export const setCodeEditorCursorAction = (
   };
 };
 
-export type CodeEditorFocusState = {
+export interface CodeEditorFocusState {
   key: string | undefined;
   cursorPosition: {
     ch: number;
     line: number;
   };
-};
+}
 
 export const setEditorFieldFocusAction = (payload: CodeEditorFocusState) => {
   return {

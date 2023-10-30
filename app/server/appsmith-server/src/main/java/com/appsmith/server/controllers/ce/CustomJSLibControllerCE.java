@@ -5,7 +5,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.dtos.ResponseDTO;
-import com.appsmith.server.services.CustomJSLibService;
+import com.appsmith.server.jslibs.base.CustomJSLibService;
 import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;

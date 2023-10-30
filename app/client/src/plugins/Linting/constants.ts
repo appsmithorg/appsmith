@@ -27,7 +27,7 @@ export const lintOptions = (globalData: Record<string, boolean>) =>
     // global values
     globals: globalData,
     loopfunc: true,
-  } as LintOptions);
+  }) as LintOptions;
 export const JS_OBJECT_START_STATEMENT = "export default";
 export const INVALID_JSOBJECT_START_STATEMENT = `JSObject must start with '${JS_OBJECT_START_STATEMENT}'`;
 export const INVALID_JSOBJECT_START_STATEMENT_ERROR_CODE =

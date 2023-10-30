@@ -12,6 +12,8 @@ import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.JSValue;
 import com.appsmith.external.models.PluginType;
+import com.appsmith.external.models.Policy;
+import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.ActionCollection;
@@ -46,19 +48,20 @@ import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.migrations.JsonSchemaMigration;
 import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.newactions.base.NewActionService;
+import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
-import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.LayoutCollectionService;
-import com.appsmith.server.services.NewPageService;
-import com.appsmith.server.services.ThemeService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
+import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.EnvironmentPermission;
+import com.appsmith.server.solutions.WorkspacePermission;
+import com.appsmith.server.themes.base.ThemeService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -71,6 +74,7 @@ import org.eclipse.jgit.api.errors.EmptyCommitException;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.eclipse.jgit.lib.BranchTrackingStatus;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -107,6 +111,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
@@ -201,40 +206,46 @@ public class GitServiceCETest {
     @Autowired
     EnvironmentPermission environmentPermission;
 
+    @Autowired
+    ApplicationPermission applicationPermission;
+
+    @Autowired
+    WorkspacePermission workspacePermission;
+
     @BeforeEach
     public void setup() throws IOException, GitAPIException {
 
-        if (StringUtils.isEmpty(workspaceId)) {
+        User apiUser = userService.findByEmail("api_user").block();
+        Workspace toCreate = new Workspace();
+        toCreate.setName("Git Service Test");
 
-            User apiUser = userService.findByEmail("api_user").block();
-            Workspace toCreate = new Workspace();
-            toCreate.setName("Git Service Test");
-
-            if (!org.springframework.util.StringUtils.hasLength(workspaceId)) {
-                Workspace workspace = workspaceService
-                        .create(toCreate, apiUser, Boolean.FALSE)
-                        .block();
-                workspaceId = workspace.getId();
-                defaultEnvironmentId = workspaceService
-                        .getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission())
-                        .block();
-            }
-        }
+        Workspace workspace =
+                workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
+        workspaceId = workspace.getId();
+        defaultEnvironmentId = workspaceService
+                .getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission())
+                .block();
 
         Mockito.when(gitCloudServicesUtils.getPrivateRepoLimitForOrg(eq(workspaceId), Mockito.anyBoolean()))
                 .thenReturn(Mono.just(-1));
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
-        if (TRUE.equals(isSetupDone)) {
-            return;
-        }
-
         gitConnectedApplication = createApplicationConnectedToGit("gitConnectedApplication", DEFAULT_BRANCH);
         // applicationPermission = new ApplicationPermissionImpl();
         testUserProfile.setAuthorEmail("test@email.com");
         testUserProfile.setAuthorName("testUser");
-        isSetupDone = true;
+    }
+
+    @AfterEach
+    public void cleanup() {
+        Mockito.when(gitFileUtils.deleteLocalRepo(any(Path.class))).thenReturn(Mono.just(true));
+        List<Application> deletedApplications = applicationService
+                .findByWorkspaceId(workspaceId, applicationPermission.getDeletePermission())
+                .flatMap(remainingApplication -> applicationPageService.deleteApplication(remainingApplication.getId()))
+                .collectList()
+                .block();
+        Workspace deletedWorkspace = workspaceService.archiveById(workspaceId).block();
     }
 
     private Mono<ApplicationJson> createAppJson(String filePath) {
@@ -4093,5 +4104,62 @@ public class GitServiceCETest {
                     assertThat(app.getGitApplicationMetadata().getGitAuth()).isNotNull();
                 })
                 .verifyComplete();
+    }
+
+    /**
+     * This method creates an workspace, creates an application in the workspace and removes the
+     * create application permission from the workspace for the api_user.
+     * @return Created Application
+     */
+    private Application createApplicationAndRemoveCreateAppPermissionFromWorkspace() {
+        User apiUser = userService.findByEmail("api_user").block();
+
+        Workspace toCreate = new Workspace();
+        toCreate.setName("Workspace_" + UUID.randomUUID());
+        Workspace workspace =
+                workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
+
+        Application testApplication = new Application();
+        testApplication.setWorkspaceId(workspace.getId());
+        testApplication.setName("Test App");
+        Application application1 =
+                applicationPageService.createApplication(testApplication).block();
+
+        // remove create application permission from the workspace for the api user
+        Set<Policy> existingPolicies = workspace.getPolicies();
+        Set<Policy> newPoliciesWithoutExport = existingPolicies.stream()
+                .filter(policy -> !policy.getPermission()
+                        .equals(workspacePermission
+                                .getApplicationCreatePermission()
+                                .getValue()))
+                .collect(Collectors.toSet());
+        workspace.setPolicies(newPoliciesWithoutExport);
+        workspaceRepository.save(workspace).block();
+        return application1;
+    }
+
+    @WithUserDetails("api_user")
+    @Test
+    public void ConnectApplicationToGit_WhenUserDoesNotHaveRequiredPermission_OperationFails() {
+        Application application = createApplicationAndRemoveCreateAppPermissionFromWorkspace();
+
+        GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testRepo.git", testUserProfile);
+        Mono<Application> applicationMono =
+                gitService.connectApplicationToGit(application.getId(), gitConnectDTO, "baseUrl");
+
+        StepVerifier.create(applicationMono)
+                .expectErrorMessage(AppsmithError.ACTION_IS_NOT_AUTHORIZED.getMessage("Connect to Git"))
+                .verify();
+    }
+
+    @WithUserDetails("api_user")
+    @Test
+    public void detachRemote_WhenUserDoesNotHaveRequiredPermission_OperationFails() {
+        Application application = createApplicationAndRemoveCreateAppPermissionFromWorkspace();
+        Mono<Application> applicationMono = gitService.detachRemote(application.getId());
+
+        StepVerifier.create(applicationMono)
+                .expectErrorMessage(AppsmithError.ACTION_IS_NOT_AUTHORIZED.getMessage("Disconnect from Git"))
+                .verify();
     }
 }

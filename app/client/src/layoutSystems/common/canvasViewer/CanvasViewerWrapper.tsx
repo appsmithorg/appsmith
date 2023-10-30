@@ -3,11 +3,11 @@ import type { CSSProperties, ReactNode } from "react";
 import React from "react";
 import { getCanvasClassName } from "utils/generators";
 
-type CanvasViewerWrapperProps = {
+interface CanvasViewerWrapperProps {
   snapRows: number;
   isListWidgetCanvas: boolean;
   children: ReactNode;
-};
+}
 
 /**
  * This component is a wrapper for the canvas in the viewer.

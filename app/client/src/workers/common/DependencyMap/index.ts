@@ -2,19 +2,16 @@ import type { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils"
 import {
   getAllPaths,
   DataTreeDiffEvent,
-  isWidget,
-  isValidEntity,
   getEntityNameAndPropertyPath,
   isDynamicLeaf,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
 import type {
-  DataTree,
   WidgetEntity,
-  ConfigTree,
-  WidgetEntityConfig,
   ActionEntity,
   JSActionEntity,
+  DataTreeEntityObject,
 } from "@appsmith/entities/DataTree/types";
+import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeTypes";
 import { getEntityId, getEvalErrorPath } from "utils/DynamicBindingUtils";
 import { convertArrayToObject, extractInfoFromBindings } from "./utils";
 import type DataTreeEvaluator from "workers/common/DataTreeEvaluator";
@@ -24,7 +21,6 @@ import {
   getEntityDependencies,
   getEntityPathDependencies,
 } from "./utils/getEntityDependencies";
-import { getValidationDependencies } from "./utils/getValidationDependencies";
 import { DependencyMapUtils } from "entities/DependencyMap/DependencyMapUtils";
 import { AppsmithFunctionsWithFields } from "components/editorComponents/ActionCreator/constants";
 import {
@@ -32,20 +28,14 @@ import {
   getEntitySetterFunctions,
 } from "@appsmith/workers/Evaluation/Actions";
 import { isWidgetActionOrJsObject } from "@appsmith/entities/DataTree/utils";
-
-interface CreateDependencyMap {
-  dependencies: Record<string, string[]>;
-  validationDependencies: Record<string, string[]>;
-  inverseDependencies: Record<string, string[]>;
-  inverseValidationDependencies: Record<string, string[]>;
-}
+import { getValidEntityType } from "workers/common/DataTreeEvaluator/utils";
 
 export function createDependencyMap(
   dataTreeEvalRef: DataTreeEvaluator,
   unEvalTree: DataTree,
   configTree: ConfigTree,
-): CreateDependencyMap {
-  const { allKeys, dependencyMap, validationDependencyMap } = dataTreeEvalRef;
+) {
+  const { allKeys, dependencyMap } = dataTreeEvalRef;
   const allAppsmithInternalFunctions = convertArrayToObject(
     AppsmithFunctionsWithFields,
   );
@@ -54,13 +44,12 @@ export function createDependencyMap(
     { ...allKeys, ...allAppsmithInternalFunctions, ...setterFunctions },
     false,
   );
-  validationDependencyMap.addNodes(allKeys, false);
 
   Object.keys(configTree).forEach((entityName) => {
     const entity = unEvalTree[entityName];
     const entityConfig = configTree[entityName];
     const entityDependencies = getEntityDependencies(
-      entity,
+      entity as DataTreeEntityObject,
       entityConfig,
       allKeys,
     );
@@ -74,35 +63,16 @@ export function createDependencyMap(
       dependencyMap.addDependency(path, references);
       dataTreeEvalRef.errors.push(...errors);
     }
-
-    const validationDependencies = getValidationDependencies(
-      entity,
-      entityName,
-      entityConfig as WidgetEntityConfig,
-    );
-    for (const path of Object.keys(validationDependencies)) {
-      validationDependencyMap.addDependency(path, validationDependencies[path]);
-    }
   });
 
   DependencyMapUtils.makeParentsDependOnChildren(dependencyMap);
 
   return {
     dependencies: dependencyMap.dependencies,
-    validationDependencies: validationDependencyMap.dependencies,
     inverseDependencies: dependencyMap.inverseDependencies,
-    inverseValidationDependencies: validationDependencyMap.inverseDependencies,
   };
 }
 
-interface UpdateDependencyMap {
-  dependenciesOfRemovedPaths: string[];
-  removedPaths: Array<{ entityId: string; fullpath: string }>;
-  dependencies: Record<string, string[]>;
-  validationDependencies: Record<string, string[]>;
-  inverseDependencies: Record<string, string[]>;
-  inverseValidationDependencies: Record<string, string[]>;
-}
 export const updateDependencyMap = ({
   configTree,
   dataTreeEvalRef,
@@ -113,18 +83,13 @@ export const updateDependencyMap = ({
   translatedDiffs: Array<DataTreeDiff>;
   unEvalDataTree: DataTree;
   configTree: ConfigTree;
-}): UpdateDependencyMap => {
+}) => {
   const diffCalcStart = performance.now();
   const dependenciesOfRemovedPaths: Array<string> = [];
   const removedPaths: Array<{ entityId: string; fullpath: string }> = [];
   let didUpdateDependencyMap = false;
-  const {
-    allKeys,
-    dependencyMap,
-    oldConfigTree,
-    oldUnEvalTree,
-    validationDependencyMap,
-  } = dataTreeEvalRef;
+  const { allKeys, dependencyMap, oldConfigTree, oldUnEvalTree } =
+    dataTreeEvalRef;
   let { errors: dataTreeEvalErrors } = dataTreeEvalRef;
 
   translatedDiffs.forEach((dataTreeDiff) => {
@@ -142,7 +107,7 @@ export const updateDependencyMap = ({
       event === DataTreeDiffEvent.DELETE
         ? oldUnEvalTree[entityName]
         : unEvalDataTree[entityName];
-    const entityType = isValidEntity(entity) ? entity.ENTITY_TYPE : "noop";
+    const entityType = getValidEntityType(entity, entityConfig);
 
     if (entityType !== "noop") {
       switch (event) {
@@ -159,11 +124,10 @@ export const updateDependencyMap = ({
           }
 
           const didUpdateDep = dependencyMap.addNodes(allAddedPaths, false);
-          validationDependencyMap.addNodes(allAddedPaths);
 
           if (didUpdateDep) didUpdateDependencyMap = true;
 
-          if (isWidgetActionOrJsObject(entity, entityConfig)) {
+          if (isWidgetActionOrJsObject(entity)) {
             if (!isDynamicLeaf(unEvalDataTree, fullPropertyPath, configTree)) {
               const entityDependencyMap = getEntityDependencies(
                 entity,
@@ -185,21 +149,6 @@ export const updateDependencyMap = ({
                   },
                 );
               }
-              if (isWidget(entity)) {
-                // For widgets,
-                // we need to update the validation dependencyMap
-                const validationDependencies = getValidationDependencies(
-                  entity,
-                  entityName,
-                  entityConfig as WidgetEntityConfig,
-                );
-                for (const path of Object.keys(validationDependencies)) {
-                  validationDependencyMap.addDependency(
-                    path,
-                    validationDependencies[path],
-                  );
-                }
-              }
             } else {
               const entityPathDependencies = getEntityPathDependencies(
                 entity,
@@ -214,20 +163,6 @@ export const updateDependencyMap = ({
               dataTreeEvalErrors = dataTreeEvalErrors.concat(
                 extractDependencyErrors,
               );
-
-              if (isWidget(entity)) {
-                const validationDependencies = getValidationDependencies(
-                  entity,
-                  entityName,
-                  entityConfig as WidgetEntityConfig,
-                );
-                for (const path of Object.keys(validationDependencies)) {
-                  validationDependencyMap.addDependency(
-                    path,
-                    validationDependencies[path],
-                  );
-                }
-              }
             }
           }
           break;
@@ -251,11 +186,10 @@ export const updateDependencyMap = ({
           }
 
           const didUpdateDeps = dependencyMap.removeNodes(allDeletedPaths);
-          validationDependencyMap.removeNodes(allDeletedPaths);
 
           if (didUpdateDeps) didUpdateDependencyMap = true;
 
-          if (isWidgetActionOrJsObject(entity, entityConfig)) {
+          if (isWidgetActionOrJsObject(entity)) {
             const entityId = getEntityId(entity);
             for (const deletedPath of Object.keys(allDeletedPaths)) {
               removedPaths.push({
@@ -267,10 +201,7 @@ export const updateDependencyMap = ({
           break;
         }
         case DataTreeDiffEvent.EDIT: {
-          if (
-            isWidgetActionOrJsObject(entity, entityConfig) &&
-            typeof value === "string"
-          ) {
+          if (isWidgetActionOrJsObject(entity) && typeof value === "string") {
             const entity: ActionEntity | WidgetEntity | JSActionEntity =
               unEvalDataTree[entityName] as
                 | ActionEntity
@@ -333,8 +264,6 @@ export const updateDependencyMap = ({
     dependenciesOfRemovedPaths,
     removedPaths,
     dependencies: dependencyMap.dependencies,
-    validationDependencies: validationDependencyMap.dependencies,
     inverseDependencies: dependencyMap.inverseDependencies,
-    inverseValidationDependencies: validationDependencyMap.inverseDependencies,
   };
 };

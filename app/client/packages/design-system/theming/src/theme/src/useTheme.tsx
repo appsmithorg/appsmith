@@ -20,27 +20,18 @@ export function useTheme(props: UseThemeProps = {}) {
     borderRadius,
     colorMode = "light",
     fontFamily,
-    rootUnitRatio: rootUnitRatioProp,
     seedColor,
+    userDensity = 1,
+    userSizing = 1,
   } = props;
 
-  const [rootUnitRatio, setRootUnitRatio] = useState(1);
-
-  const { rootUnit, sizing, spacing, typography } = useFluidTokens(
+  const { innerSpacing, outerSpacing, sizing, typography } = useFluidTokens(
     fluid,
-    rootUnitRatio,
+    userDensity,
+    userSizing,
   );
 
   const [theme, setTheme] = useState(tokensAccessor.getAllTokens());
-
-  useEffect(() => {
-    tokensAccessor.updateRootUnit(rootUnit);
-    tokensAccessor.updateSpacing(spacing);
-    tokensAccessor.updateSizing(sizing);
-    tokensAccessor.updateTypography(typography);
-
-    setTheme(tokensAccessor.getAllTokens());
-  }, []);
 
   useEffect(() => {
     if (colorMode) {
@@ -107,33 +98,55 @@ export function useTheme(props: UseThemeProps = {}) {
   }, [fontFamily]);
 
   useEffect(() => {
-    if (rootUnitRatioProp != null) {
-      setRootUnitRatio(rootUnitRatioProp);
+    if (sizing) {
+      tokensAccessor.updateSizing(sizing);
+
+      setTheme((prevState) => {
+        return {
+          ...prevState,
+          ...tokensAccessor.getSizing(),
+        };
+      });
     }
-  }, [rootUnitRatioProp]);
+  }, [sizing]);
 
   useEffect(() => {
-    tokensAccessor.updateRootUnit(rootUnit);
-    tokensAccessor.updateSpacing(spacing);
+    if (outerSpacing) {
+      tokensAccessor.updateOuterSpacing(outerSpacing);
 
-    setTheme((prevState) => {
-      return {
-        ...prevState,
-        rootUnit: tokensAccessor.getRootUnit(),
-        ...tokensAccessor.getSpacing(),
-      };
-    });
-  }, [rootUnit, spacing]);
+      setTheme((prevState) => {
+        return {
+          ...prevState,
+          ...tokensAccessor.getOuterSpacing(),
+        };
+      });
+    }
+  }, [outerSpacing]);
 
   useEffect(() => {
-    tokensAccessor.updateTypography(typography);
+    if (innerSpacing) {
+      tokensAccessor.updateInnerSpacing(innerSpacing);
 
-    setTheme((prevState) => {
-      return {
-        ...prevState,
-        typography: tokensAccessor.getTypography(),
-      };
-    });
+      setTheme((prevState) => {
+        return {
+          ...prevState,
+          ...tokensAccessor.getInnerSpacing(),
+        };
+      });
+    }
+  }, [innerSpacing]);
+
+  useEffect(() => {
+    if (typography) {
+      tokensAccessor.updateTypography(typography);
+
+      setTheme((prevState) => {
+        return {
+          ...prevState,
+          typography: tokensAccessor.getTypography(),
+        };
+      });
+    }
   }, [typography]);
 
   return { theme, setTheme };
