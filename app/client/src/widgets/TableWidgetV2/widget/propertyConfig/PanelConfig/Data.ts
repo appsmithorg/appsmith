@@ -115,6 +115,7 @@ export default {
             ColumnTypes.DATE,
             ColumnTypes.IMAGE,
             ColumnTypes.NUMBER,
+            ColumnTypes.CURRENCY,
             ColumnTypes.TEXT,
             ColumnTypes.VIDEO,
             ColumnTypes.URL,
