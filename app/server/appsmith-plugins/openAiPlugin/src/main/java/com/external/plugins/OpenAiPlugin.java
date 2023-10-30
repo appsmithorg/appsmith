@@ -64,7 +64,6 @@ public class OpenAiPlugin extends BasePlugin {
                 ExecuteActionDTO executeActionDTO,
                 DatasourceConfiguration datasourceConfiguration,
                 ActionConfiguration actionConfiguration) {
-            prepareConfigurationsForExecution(executeActionDTO, actionConfiguration, datasourceConfiguration);
 
             // Get prompt from action configuration
             List<Map.Entry<String, String>> parameters = new ArrayList<>();
