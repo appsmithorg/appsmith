@@ -106,9 +106,9 @@ const PartiaExportModel = ({ handleModalClose, isModalOpen }: Props) => {
           {createMessage(PARTIAL_IMPORT_EXPORT.export.modalSubHeading)}
         </Text>
         <ScrollableSection>
-          {entities.map(({ children, icon, title }) => (
+          {entities.map(({ children, icon, title }, index) => (
             <>
-              <Collapsible className="mt-4" isOpen key={title}>
+              <Collapsible className="mt-4" isOpen={index === 0} key={title}>
                 <CollapsibleHeader>
                   <Text
                     kind="heading-s"
