@@ -33,12 +33,12 @@ export type TransmissionErrorHandler = (
   e: unknown,
 ) => void;
 
-function defaultErrorHandler(
+const defaultErrorHandler: TransmissionErrorHandler = (
   messageId: string,
   timeTaken: number,
   responseData: unknown,
   e: unknown,
-) {
+) => {
   console.error(e);
   sendMessage.call(self, {
     messageId,
@@ -60,7 +60,7 @@ function defaultErrorHandler(
       },
     },
   });
-}
+};
 
 export class WorkerMessenger {
   static async request(payload: any) {
