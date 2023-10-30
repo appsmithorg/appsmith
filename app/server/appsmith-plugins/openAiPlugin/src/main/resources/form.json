@@ -36,5 +36,6 @@
         }
       ]
     }
-  ]
+  ],
+  "formButton" : ["TEST", "CANCEL", "SAVE"]
 }
