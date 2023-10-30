@@ -1,5 +1,4 @@
 import React, { useCallback, useMemo } from "react";
-import { Icon } from "design-system";
 import { resolveAsSpaceChar } from "utils/helpers";
 import {
   hasDeleteModulePermission,
@@ -12,6 +11,7 @@ import type { Module } from "@appsmith/constants/ModuleConstants";
 import { EntityClassNames } from "pages/Editor/Explorer/Entity";
 import QueryModuleContextMenu from "./ContextMenu";
 import { moduleEditorURL } from "@appsmith/RouteBuilder";
+import { Icon } from "design-system";
 
 const QueryModuleEntity = ({
   currentModuleId,
@@ -22,7 +22,7 @@ const QueryModuleEntity = ({
   module: Module;
   packageId: string;
 }) => {
-  const icon = <Icon name="module" size={20} />;
+  const icon = <Icon name="module" />;
   const isCurrentModule = currentModuleId === module.id;
   const modulePermissions = module.userPermissions;
   const canManageModule = hasManageModulePermission(modulePermissions);
@@ -36,7 +36,6 @@ const QueryModuleEntity = ({
         id={module.id}
         key={module.id + "_context-menu"}
         name={module.name}
-        packageId={packageId}
       />
     ),
     [canDeleteModule, canManageModule, module.id, module.name, packageId],
@@ -66,7 +65,7 @@ const QueryModuleEntity = ({
       step={1}
       updateEntityName={(id, name) =>
         saveModuleName({
-          id: module.id,
+          id,
           name,
         })
       }

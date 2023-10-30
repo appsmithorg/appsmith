@@ -35,7 +35,7 @@ function PackageEntityExplorer({ isActive }: { isActive: boolean }) {
   const addDatasource = useCallback(() => {
     history.push(
       integrationEditorURL({
-        pageId: moduleId,
+        pageId: packageId, // ankita: update later
         selectedTab: INTEGRATION_TABS.NEW,
       }),
     );
@@ -44,7 +44,7 @@ function PackageEntityExplorer({ isActive }: { isActive: boolean }) {
   const listDatasource = useCallback(() => {
     history.push(
       integrationEditorURL({
-        pageId: moduleId,
+        pageId: packageId, // ankita: update later
         selectedTab: INTEGRATION_TABS.ACTIVE,
       }),
     );

@@ -8,7 +8,7 @@ import {
   CONTEXT_EDIT_NAME,
   createMessage,
 } from "@appsmith/constants/messages";
-import { builderURL } from "@appsmith/RouteBuilder";
+import { currentPackageEditorURL } from "@appsmith/RouteBuilder";
 import ContextMenu from "pages/Editor/Explorer/ContextMenu";
 import type { TreeDropdownOption } from "pages/Editor/Explorer/ContextMenu";
 import {
@@ -20,12 +20,11 @@ interface EntityContextMenuProps {
   id: string;
   name: string;
   className?: string;
-  packageId: string;
   canManageModule?: boolean;
   canDeleteModule?: boolean;
 }
 export function QueryModuleContextMenu(props: EntityContextMenuProps) {
-  const { canDeleteModule = false, canManageModule = false, packageId } = props;
+  const { canDeleteModule = false, canManageModule = false } = props;
   const dispatch = useDispatch();
   const [confirmDelete, setConfirmDelete] = useState(false);
   const onDeleteModule = ({ id, onSuccess }: DeleteModulePayload) => {
@@ -55,7 +54,7 @@ export function QueryModuleContextMenu(props: EntityContextMenuProps) {
           ? onDeleteModule({
               id: props.id,
               onSuccess: () => {
-                history.push(builderURL({ pageId: packageId })); // ankita: update later
+                history.push(currentPackageEditorURL());
                 setConfirmDelete(false);
               },
             })

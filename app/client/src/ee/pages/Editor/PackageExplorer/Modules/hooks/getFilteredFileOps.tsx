@@ -8,7 +8,6 @@ import { useSelector } from "react-redux";
 import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
 import history from "utils/history";
 import { integrationEditorURL } from "@appsmith/RouteBuilder";
-import { createNewQueryAction } from "actions/apiPaneActions";
 import type { AppState } from "@appsmith/reducers";
 import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
@@ -32,6 +31,8 @@ import {
 } from "components/editorComponents/GlobalSearch/GlobalSearchHooks";
 import { actionOperations } from "./utils";
 import type { Plugin } from "api/PluginApi";
+import { createQueryModule } from "@appsmith/actions/moduleActions";
+import { ModuleType } from "@appsmith/constants/ModuleInstanceConstants";
 
 export const useFilteredFileOperations = (query = "") => {
   const allDatasources = useSelector(getDatasources);
@@ -66,12 +67,12 @@ export const useFilteredFileOperations = (query = "") => {
   );
 
   return useFilteredAndSortedFileOperations({
-    query,
     allDatasources: allDatasourcesWithCreateActionPerm,
-    recentlyUsedDSMap,
     canCreateModules,
     canCreateDatasource,
     plugins,
+    recentlyUsedDSMap,
+    query,
   });
 };
 
@@ -83,12 +84,12 @@ export const useFilteredAndSortedFileOperations = ({
   query,
   recentlyUsedDSMap = {},
 }: {
-  query: string;
   allDatasources?: Datasource[];
-  recentlyUsedDSMap?: Record<string, number>;
   canCreateModules?: boolean;
   canCreateDatasource?: boolean;
   plugins?: Plugin[];
+  recentlyUsedDSMap?: Record<string, number>;
+  query: string;
 }) => {
   const fileOperations: ActionOperation[] = [];
   if (!canCreateModules) return fileOperations;
@@ -107,13 +108,18 @@ export const useFilteredAndSortedFileOperations = ({
   // Sort datasources based on recency
   const datasources = getSortedDatasources(allDatasources, recentlyUsedDSMap);
 
-  const createQueryAction =
-    (dsId: string) => (pageId: string, from: EventLocation) =>
-      createNewQueryAction(pageId, from, dsId);
+  const createQueryModuleGenerator =
+    (datasourceId: string) => (packageId: string, from: EventLocation) =>
+      createQueryModule({
+        packageId,
+        from,
+        datasourceId,
+        type: ModuleType.QUERY,
+      });
 
   // map into operations
   const dsOperations = datasources.map((ds) =>
-    generateCreateQueryForDSOption(ds, createQueryAction(ds.id)),
+    generateCreateQueryForDSOption(ds, createQueryModuleGenerator(ds.id)),
   );
   fileOperations.push(...dsOperations);
 
@@ -124,10 +130,10 @@ export const useFilteredAndSortedFileOperations = ({
     .filter(Boolean)
     .filter((ds) => ds.title.toLowerCase().includes(query.toLowerCase()));
   // Add genetic datasource creation
-  const onRedirect = (pageId: string) => {
+  const onRedirect = (packageId: string) => {
     history.push(
       integrationEditorURL({
-        pageId,
+        pageId: packageId, // ankita: update later
         selectedTab: INTEGRATION_TABS.NEW,
       }),
     );

@@ -1,10 +1,10 @@
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import type { ModuleType } from "@appsmith/constants/ModuleInstanceConstants";
 
 export interface SaveModuleNamePayload {
   id: string;
   name: string;
 }
-
 export interface DeleteModulePayload {
   id: string;
   onSuccess?: () => void;
@@ -12,6 +12,14 @@ export interface DeleteModulePayload {
 
 export interface FetchModuleActionsPayload {
   moduleId: string;
+}
+
+export interface CreateQueryModulePayload {
+  datasourceId?: string;
+  type: ModuleType;
+  from: string;
+  packageId: string;
+  apiType?: string;
 }
 
 export const saveModuleName = (payload: SaveModuleNamePayload) => {
@@ -30,5 +38,10 @@ export const deleteModule = (payload: DeleteModulePayload) => {
 
 export const fetchModuleActions = (payload: FetchModuleActionsPayload) => ({
   type: ReduxActionTypes.FETCH_MODULE_ACTIONS_INIT,
+  payload,
+});
+
+export const createQueryModule = (payload: CreateQueryModulePayload) => ({
+  type: ReduxActionTypes.CREATE_QUERY_MODULE_INIT,
   payload,
 });

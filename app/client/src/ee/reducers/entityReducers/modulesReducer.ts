@@ -17,6 +17,7 @@ const modulesReducer = createImmerReducer(INITIAL_STATE, {
     draftState: ModulesReducerState,
     action: ReduxAction<FetchPackageResponse>,
   ) => {
+    draftState = {};
     const { modules } = action.payload;
     modules.forEach((module) => {
       draftState[module.id] = module;
@@ -39,6 +40,15 @@ const modulesReducer = createImmerReducer(INITIAL_STATE, {
   ) => {
     const { id: moduleId } = action.payload;
     delete draftState[moduleId];
+
+    return draftState;
+  },
+  [ReduxActionTypes.CREATE_QUERY_MODULE_SUCCESS]: (
+    draftState: ModulesReducerState,
+    action: ReduxAction<Module>,
+  ) => {
+    const module = action.payload;
+    draftState[module.id] = module;
 
     return draftState;
   },
