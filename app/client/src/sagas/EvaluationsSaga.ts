@@ -100,6 +100,7 @@ import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 import { fetchFeatureFlagsInit } from "actions/userActions";
 import { parseUpdatesAndDeleteUndefinedUpdates } from "./EvaluationSaga.utils";
 import { getFeatureFlagsFetched } from "selectors/usersSelectors";
+import { getIsCurrentEditorWorkflowType } from "@appsmith/selectors/workflowSelectors";
 const APPSMITH_CONFIGS = getAppsmithConfigs();
 export const evalWorker = new GracefulWorkerService(
   new Worker(
@@ -600,7 +601,15 @@ function* evaluationChangeListenerSaga(): any {
   const initAction: EvaluationReduxAction<unknown> = yield take(
     FIRST_EVAL_REDUX_ACTIONS,
   );
-  yield call(waitForWidgetConfigBuild);
+
+  const isCurrentEditorWorkflowType = yield select(
+    getIsCurrentEditorWorkflowType,
+  );
+
+  if (!isCurrentEditorWorkflowType) {
+    yield call(waitForWidgetConfigBuild);
+  }
+
   widgetTypeConfigMap = WidgetFactory.getWidgetTypeConfigMap();
   yield fork(evalAndLintingHandler, false, initAction, {
     shouldReplay: false,

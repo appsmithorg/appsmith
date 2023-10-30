@@ -13,3 +13,8 @@ export const getIsCreatingWorkflow = (state: AppState, workspaceId: string) =>
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const getWorkflowsList = (state: AppState): WorkflowMetadata[] =>
   DEFAULT_WORKFLOW_LIST;
+
+export const getIsCurrentEditorWorkflowType = (
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  state: AppState,
+) => false;
