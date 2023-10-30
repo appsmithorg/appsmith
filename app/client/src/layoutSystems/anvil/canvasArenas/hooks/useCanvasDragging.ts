@@ -188,13 +188,13 @@ export const useCanvasDragging = (
 
       if (isDragging) {
         const onMouseUp = (e: MouseEvent) => {
-          e.preventDefault();
           if (
             isDragging &&
             canvasIsDragging &&
             (currentRectanglesToDraw || activateOverlayWidgetDrop) &&
             anvilDragStates.allowToDrop
           ) {
+            e.preventDefault();
             onDrop(
               activateOverlayWidgetDrop
                 ? {
@@ -246,13 +246,13 @@ export const useCanvasDragging = (
         };
 
         const onMouseMove = (e: any) => {
-          e.preventDefault();
           if (
             isDragging &&
             canvasIsDragging &&
             slidingArenaRef.current &&
             stickyCanvasRef.current
           ) {
+            e.preventDefault();
             if (!anvilDragStates.allowToDrop) {
               renderDisallowOnCanvas(slidingArenaRef.current);
               return;
@@ -330,7 +330,7 @@ export const useCanvasDragging = (
             onMouseUp,
             false,
           );
-          slidingArenaRef.current?.addEventListener("drop", onMouseUp, false);
+          document.addEventListener("drop", onMouseUp, false);
           scrollParent?.addEventListener("scroll", onScroll, false);
         }
 
@@ -341,7 +341,7 @@ export const useCanvasDragging = (
           );
           slidingArenaRef.current?.removeEventListener("dragover", onMouseMove);
           slidingArenaRef.current?.removeEventListener("mouseup", onMouseUp);
-          slidingArenaRef.current?.removeEventListener("drop", onMouseUp);
+          document.removeEventListener("drop", onMouseUp);
           scrollParent?.removeEventListener("scroll", onScroll);
         };
       } else {

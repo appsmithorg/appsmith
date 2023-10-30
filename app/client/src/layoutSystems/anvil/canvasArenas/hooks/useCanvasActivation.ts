@@ -207,7 +207,7 @@ export const useCanvasActivation = (
    * and draw highlights appropriately.
    */
   const onMouseMoveWhileDragging = (e: MouseEvent) => {
-    // e.preventDefault();
+    e.stopPropagation();
     if (
       isDragging &&
       mainContainerDOMNode &&
@@ -222,7 +222,18 @@ export const useCanvasActivation = (
       const hoveredLayoutId = isMousePositionOutsideOfDraggingWidgets
         ? dragDetails.dragGroupActualParent
         : smallToLargeSortedDroppableLayoutIds.find((each) => {
-            const currentCanvasPositions = layoutElementPositions[each];
+            let currentCanvasPositions = layoutElementPositions[each];
+            if (
+              dragDetails.draggedOn === mainCanvasLayoutId &&
+              each === mainCanvasLayoutId
+            ) {
+              currentCanvasPositions = {
+                top: currentCanvasPositions.top - 10,
+                left: currentCanvasPositions.left - 10,
+                width: currentCanvasPositions.width + 20,
+                height: currentCanvasPositions.height + 20,
+              };
+            }
             if (currentCanvasPositions) {
               return checkIfMousePositionIsInsideBlock(
                 e,
@@ -246,8 +257,7 @@ export const useCanvasActivation = (
   /**
    * callback function to process mouse up events and reset dragging state.
    */
-  const onMouseUp = (e: any) => {
-    e.preventDefault();
+  const onMouseUp = () => {
     if (isDragging) {
       if (isNewWidget) {
         setDraggingNewWidget(false, undefined);
@@ -284,20 +294,22 @@ export const useCanvasActivation = (
       document?.addEventListener("mousemove", onMouseMoveWhileDragging);
       document?.addEventListener("mousemove", renderDragPreview);
       document?.addEventListener("dragover", onMouseMoveWhileDragging);
-      document.body.addEventListener("mouseup", onMouseUp, false);
-      document.body.addEventListener("drop", onMouseUp, false);
+      document.addEventListener("mouseup", onMouseUp, false);
+      document.addEventListener("dragend", onMouseUp, false);
       window.addEventListener("mouseup", onMouseUp, false);
       return () => {
         document?.removeEventListener("mousemove", onMouseMoveWhileDragging);
         document?.removeEventListener("mousemove", renderDragPreview);
         document?.removeEventListener("dragover", onMouseMoveWhileDragging);
-        document.body.removeEventListener("drop", onMouseUp);
-        document.body.removeEventListener("mouseup", onMouseUp);
+        document.removeEventListener("mouseup", onMouseUp);
+        document.removeEventListener("dragend", onMouseUp, false);
         window.removeEventListener("mouseup", onMouseUp);
-        if (dragPreviewRef.current) {
-          document.body.removeChild(dragPreviewRef.current);
-          dragPreviewRef.current = undefined;
-        }
+        window.requestIdleCallback(() => {
+          if (dragPreviewRef.current) {
+            document.body.removeChild(dragPreviewRef.current);
+            dragPreviewRef.current = undefined;
+          }
+        });
       };
     }
   }, [
