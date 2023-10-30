@@ -2169,3 +2169,32 @@ export const DATASOURCE_LIST_BLANK_TITLE = () =>
   "No datasources exist in your workplace.";
 export const DATASOURCE_BLANK_STATE_MESSAGE = () =>
   "You need a datasource connection to write your first query";
+
+export const STARTER_TEMPLATE_PAGE_LAYOUTS = {
+  header: () => "Choose a template",
+  layouts: {
+    dashboard: {
+      name: () => "Visualize your data",
+      description: () => "Use to see your data in charts",
+    },
+    form: {
+      name: () => "Form",
+      description: () => "Add records to a database with a form",
+    },
+    recordEdit: {
+      name: () => "Change your data",
+      description: () => "Use to add or edit records via forms",
+    },
+    recordDetails: {
+      name: () => "View your data",
+      description: () => "Use to view fields for your records",
+    },
+  },
+  datasourceConnectPrompt: {
+    header: () => "Bring your data in!",
+    buttonText: () => "Connect your datasource",
+  },
+  or: () => "or",
+  dragAndDrop: () => "Drag and Drop Widgets",
+  importLoadingText: () => "Importing template",
+};
