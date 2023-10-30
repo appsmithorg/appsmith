@@ -9,13 +9,13 @@ import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { EVAL_ERROR_PATH } from "utils/DynamicBindingUtils";
 import get from "lodash/get";
 import { getErrorCount } from "layoutSystems/common/widgetName/utils";
-import type { WidgetPositions } from "./types";
+import type { LayoutElementPositions } from "./types";
 import type { WidgetProps } from "widgets/BaseWidget";
 import type { WidgetNameData } from "./WidgetNamesCanvas/WidgetNameTypes";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 
-export const getWidgetPositions = (state: AppState) =>
-  state.entities.widgetPositions;
+export const getLayoutElementPositions = (state: AppState) =>
+  state.entities.layoutElementPositions;
 
 /**
  * method to get the widget data required to draw widget name component on canvas
@@ -28,7 +28,7 @@ export const getWidgetPositions = (state: AppState) =>
 const getWidgetNameState = (
   widget: WidgetProps,
   dataTree: DataTree,
-  positions: WidgetPositions,
+  positions: LayoutElementPositions,
   isFocused = false,
 ): WidgetNameData => {
   let nameState = isFocused
@@ -66,7 +66,7 @@ const getWidgetNameState = (
  * selector to get information regarding the selected widget to draw it's widget name on canvas
  */
 export const getSelectedWidgetNameData = createSelector(
-  getWidgetPositions,
+  getLayoutElementPositions,
   getSelectedWidgets,
   getWidgets,
   getDataTree,
@@ -77,21 +77,22 @@ export const getSelectedWidgetNameData = createSelector(
     widgets,
     dataTree,
     shouldShowWidgetName,
-  ): WidgetNameData | undefined => {
-    if (
-      !selectedWidgets ||
-      selectedWidgets.length !== 1 ||
-      !shouldShowWidgetName
-    )
-      return;
+  ): WidgetNameData[] | undefined => {
+    // This way, we know that we're dragging so we'll clear the canvas, but keep existing references
+    // Then, we can prevent a redraw until the widget positions change
+    if (!shouldShowWidgetName) return [];
+    // This way, we know that we're supposed to clear all the widget names
+    // This would happen if there are no selected widgets and we need to clear the canvas
+    if (!selectedWidgets || selectedWidgets.length === 0) return;
 
-    const selectedWidgetId = selectedWidgets[0];
-
-    const selectedWidget = widgets[selectedWidgetId];
-
-    if (!selectedWidget) return;
-
-    return getWidgetNameState(selectedWidget, dataTree, positions);
+    const result: WidgetNameData[] = [];
+    for (const selectedWidgetId of selectedWidgets) {
+      const selectedWidget = widgets[selectedWidgetId];
+      if (!selectedWidget) continue;
+      result.push(getWidgetNameState(selectedWidget, dataTree, positions));
+    }
+    if (result.length > 0) return result;
+    else return;
   },
 );
 
@@ -99,7 +100,7 @@ export const getSelectedWidgetNameData = createSelector(
  * selector to get information regarding the focused widget to draw it's widget name on canvas
  */
 export const getFocusedWidgetNameData = createSelector(
-  getWidgetPositions,
+  getLayoutElementPositions,
   getFocusedWidget,
   getSelectedWidgets,
   getWidgets,

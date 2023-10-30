@@ -94,7 +94,6 @@ function* fetchPluginFormConfigsSaga() {
     for (const pluginId of actionPluginIds) {
       pluginIdFormsToFetch.add(pluginId);
     }
-    log.error("pluginIdFormsToFetch acquired");
 
     const pluginFormData: PluginFormPayload[] = [];
     const pluginFormResponses: ApiResponse<PluginFormPayload>[] = yield all(
@@ -102,12 +101,12 @@ function* fetchPluginFormConfigsSaga() {
         call(PluginsApi.fetchFormConfig, id),
       ),
     );
-    for (const response of pluginFormResponses) {
+
+    for (let i = 0; i < pluginFormResponses.length; i++) {
+      const response = pluginFormResponses[i];
       yield validateResponse(response);
       pluginFormData.push(response.data);
     }
-
-    log.error("pluginIdFormsToFetch API completion");
 
     if (jsPlugin) {
       pluginIdFormsToFetch.add(jsPlugin.id);
@@ -117,8 +116,6 @@ function* fetchPluginFormConfigsSaga() {
     const settingConfigs: FormSettingsConfigs = {};
     const dependencies: FormDependencyConfigs = {};
     const datasourceFormButtonConfigs: FormDatasourceButtonConfigs = {};
-
-    log.error("pluginIdFormsToFetch jsPlugin details added");
 
     Array.from(pluginIdFormsToFetch).forEach((pluginId, index) => {
       const plugin = plugins.find((plugin) => plugin.id === pluginId);
@@ -162,7 +159,6 @@ function* fetchPluginFormConfigsSaga() {
       }
     });
 
-    log.error("pluginIdFormsToFetch values added");
     yield put(
       fetchPluginFormConfigsSuccess({
         formConfigs,
@@ -172,9 +168,7 @@ function* fetchPluginFormConfigsSaga() {
         datasourceFormButtonConfigs,
       }),
     );
-    log.error("pluginIdFormsToFetch success handler called");
   } catch (error) {
-    log.error(error);
     yield put({
       type: ReduxActionErrorTypes.FETCH_PLUGIN_FORM_CONFIGS_ERROR,
       payload: { error },

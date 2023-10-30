@@ -6,7 +6,7 @@ import ContainerComponent from "../component";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
 import { ValidationTypes } from "constants/WidgetValidation";
-import { compact, map, sortBy } from "lodash";
+import { compact, get, map, sortBy } from "lodash";
 import WidgetsMultiSelectBox from "layoutSystems/fixedlayout/common/widgetGrouping/WidgetsMultiSelectBox";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { getSnappedGrid } from "sagas/WidgetOperationUtils";
@@ -16,11 +16,14 @@ import {
   DefaultAutocompleteDefinitions,
   isAutoHeightEnabledForWidgetWithLimits,
 } from "widgets/WidgetUtils";
-import type {
-  AutocompletionDefinitions,
-  AutoLayoutConfig,
-  WidgetBaseConfiguration,
-  WidgetDefaultProps,
+import {
+  BlueprintOperationTypes,
+  type AnvilConfig,
+  type AutocompletionDefinitions,
+  type AutoLayoutConfig,
+  type WidgetBaseConfiguration,
+  type WidgetDefaultProps,
+  type FlattenedWidgetProps,
 } from "WidgetProvider/constants";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 import IconSVG from "../icon.svg";
@@ -34,6 +37,11 @@ import {
   ResponsiveBehavior,
 } from "layoutSystems/common/utils/constants";
 import { renderAppsmithCanvas } from "layoutSystems/CanvasFactory";
+import { generateDefaultLayoutPreset } from "layoutSystems/anvil/layoutComponents/presets/DefaultLayoutPreset";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { LayoutSystemTypes } from "layoutSystems/types";
+import type { LayoutProps } from "layoutSystems/anvil/utils/anvilTypes";
+import { getWidgetBluePrintUpdates } from "utils/WidgetBlueprintUtils";
 
 export class ContainerWidget extends BaseWidget<
   ContainerWidgetProps<WidgetProps>,
@@ -106,6 +114,35 @@ export class ContainerWidget extends BaseWidget<
             },
           },
         ],
+        operations: [
+          {
+            type: BlueprintOperationTypes.MODIFY_PROPS,
+            fn: (
+              widget: FlattenedWidgetProps,
+              widgets: CanvasWidgetsReduxState,
+              parent: FlattenedWidgetProps,
+              layoutSystemType: LayoutSystemTypes,
+            ) => {
+              if (layoutSystemType !== LayoutSystemTypes.ANVIL) {
+                return [];
+              }
+
+              //get Canvas Widget
+              const canvasWidget: FlattenedWidgetProps = get(
+                widget,
+                "children.0",
+              );
+
+              const layout: LayoutProps[] = generateDefaultLayoutPreset();
+
+              return getWidgetBluePrintUpdates({
+                [canvasWidget.widgetId]: {
+                  layout,
+                },
+              });
+            },
+          },
+        ],
       },
       version: 1,
       flexVerticalAlignment: FlexVerticalAlignment.Stretch,
@@ -131,6 +168,17 @@ export class ContainerWidget extends BaseWidget<
         // Disables vertical resize handles for all container widgets except for the List item container
         vertical: !props.isListItemContainer,
       }),
+    };
+  }
+
+  static getAnvilConfig(): AnvilConfig | null {
+    return {
+      widgetSize: {
+        maxHeight: {},
+        maxWidth: {},
+        minHeight: { base: "50px" },
+        minWidth: { base: "280px" },
+      },
     };
   }
 
@@ -310,6 +358,7 @@ export class ContainerWidget extends BaseWidget<
     childWidget.useAutoLayout = this.props.positioning
       ? this.props.positioning === Positioning.Vertical
       : false;
+
     return renderAppsmithCanvas(childWidget as WidgetProps);
   }
 

@@ -1,0 +1,22 @@
+<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="48" height="48" rx="4" fill="#FAEAE8"/>
+<rect x="6" y="5" width="14" height="38" rx="2" fill="white" stroke="#FFB4B4" stroke-width="2"/>
+<g clip-path="url(#clip0_589_3637)">
+<rect x="6" y="5" width="14" height="38" fill="white"/>
+<rect x="8" y="8" width="6" height="2" rx="1" fill="#FAEAE8"/>
+<rect x="8" y="13" width="6" height="3" rx="1" fill="#FAEAE8"/>
+<rect x="8" y="31" width="6" height="3" rx="1" fill="#FAEAE8"/>
+<rect x="8" y="19" width="10" height="3" rx="1" fill="#E15615"/>
+<rect x="8" y="37" width="6" height="3" rx="1" fill="#FAEAE8"/>
+<rect x="8" y="25" width="6" height="3" rx="1" fill="#FAEAE8"/>
+</g>
+<rect x="23" y="5" width="19" height="38" rx="2" fill="#E15615"/>
+<path d="M29.5 24C29.5 24.6904 28.9404 25.25 28.25 25.25C27.5596 25.25 27 24.6904 27 24C27 23.3096 27.5596 22.75 28.25 22.75C28.9404 22.75 29.5 23.3096 29.5 24Z" fill="white"/>
+<path d="M33.75 24C33.75 24.6904 33.1904 25.25 32.5 25.25C31.8096 25.25 31.25 24.6904 31.25 24C31.25 23.3096 31.8096 22.75 32.5 22.75C33.1904 22.75 33.75 23.3096 33.75 24Z" fill="white"/>
+<path d="M38 24C38 24.6904 37.4404 25.25 36.75 25.25C36.0596 25.25 35.5 24.6904 35.5 24C35.5 23.3096 36.0596 22.75 36.75 22.75C37.4404 22.75 38 23.3096 38 24Z" fill="white"/>
+<defs>
+<clipPath id="clip0_589_3637">
+<rect x="6" y="5" width="14" height="38" rx="2" fill="white"/>
+</clipPath>
+</defs>
+</svg>

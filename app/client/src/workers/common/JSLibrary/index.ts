@@ -1,7 +1,7 @@
 import lodashPackageJson from "lodash/package.json";
 import momentPackageJson from "moment-timezone/package.json";
 
-export interface TJSLibrary {
+export interface JSLibrary {
   version?: string;
   docsURL: string;
   name: string;
@@ -9,7 +9,7 @@ export interface TJSLibrary {
   url?: string;
 }
 
-export const defaultLibraries: TJSLibrary[] = [
+export const defaultLibraries: JSLibrary[] = [
   {
     accessor: ["_"],
     version: lodashPackageJson.version,
@@ -21,12 +21,6 @@ export const defaultLibraries: TJSLibrary[] = [
     version: momentPackageJson.version,
     docsURL: `https://momentjs.com/docs/`,
     name: "moment",
-  },
-  {
-    accessor: ["xmlParser"],
-    version: "3.17.5",
-    docsURL: "https://github.com/NaturalIntelligence/fast-xml-parser",
-    name: "xmlParser",
   },
   {
     accessor: ["forge"],

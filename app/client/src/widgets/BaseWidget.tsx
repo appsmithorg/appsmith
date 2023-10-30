@@ -33,6 +33,7 @@ import type {
 } from "utils/DynamicBindingUtils";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import type {
+  AnvilConfig,
   AutoLayoutConfig,
   CanvasWidgetStructure,
   FlattenedWidgetProps,
@@ -107,6 +108,10 @@ abstract class BaseWidget<
     return null;
   }
 
+  static getAnvilConfig(): AnvilConfig | null {
+    return null;
+  }
+
   static getSetterConfig(): SetterConfig | null {
     return null;
   }
@@ -128,6 +133,10 @@ abstract class BaseWidget<
   }
 
   static getDefaultPropertiesMap(): Record<string, any> {
+    return {};
+  }
+
+  static getDependencyMap(): Record<string, string[]> {
     return {};
   }
 
@@ -485,6 +494,7 @@ export interface WidgetDisplayProps {
   deferRender?: boolean;
   wrapperRef?: RefObject<HTMLDivElement>;
   selectedWidgetAncestry?: string[];
+  classList?: string[];
 }
 
 export interface WidgetDataProps

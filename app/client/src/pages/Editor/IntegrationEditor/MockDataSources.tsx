@@ -92,7 +92,7 @@ interface MockDatasourceCardProps {
   workspaceId: string;
 }
 
-function MockDatasourceCard(props: MockDatasourceCardProps) {
+export function MockDatasourceCard(props: MockDatasourceCardProps) {
   const { datasource, workspaceId } = props;
   const dispatch = useDispatch();
   const pluginImages = useSelector(getPluginImages);
