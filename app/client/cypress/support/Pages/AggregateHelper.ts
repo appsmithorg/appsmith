@@ -574,10 +574,10 @@ export class AggregateHelper extends ReusableHelper {
     this.Sleep(); //for selected value to reflect!
   }
 
-  public SelectDropdownList(ddName: string, dropdownOption: string) {
-    this.GetNClick(this.locator._existingFieldTextByName(ddName));
-    cy.get(this.locator._dropdownText).contains(dropdownOption).click();
-  }
+  // public SelectDropdownList(ddName: string, dropdownOption: string) {
+  //   this.GetNClick(this.locator._existingFieldTextByName(ddName));
+  //   cy.get(this.locator._dropdownText).contains(dropdownOption).click();
+  // }
 
   public SelectFromMultiSelect(
     options: string[],
