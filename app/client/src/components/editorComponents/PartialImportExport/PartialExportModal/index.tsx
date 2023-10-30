@@ -12,17 +12,15 @@ import {
   Collapsible,
   CollapsibleContent,
   CollapsibleHeader,
+  Icon,
   Modal,
   ModalContent,
   ModalFooter,
   ModalHeader,
   Text,
 } from "design-system";
-import {
-  JsFileIconV2,
-  datasourceIcon,
-  dbQueryIcon,
-} from "pages/Editor/Explorer/ExplorerIcons";
+import { ControlIcons } from "icons/ControlIcons";
+import { JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
 import { useAppWideAndOtherDatasource } from "pages/Editor/Explorer/hooks";
 import React, { useMemo } from "react";
 import { useSelector } from "react-redux";
@@ -30,6 +28,7 @@ import styled from "styled-components";
 import EntityCheckboxSelector from "./EntityCheckboxSelector";
 import JSObjectsNQueriesExport from "./JSObjectsNQueriesExport";
 import WidgetsExport from "./WidgetsExport";
+import { MenuIcons } from "icons/MenuIcons";
 
 interface Props {
   handleModalClose: () => void;
@@ -60,11 +59,6 @@ const PartiaExportModel = ({ handleModalClose, isModalOpen }: Props) => {
 
     return [
       {
-        title: "Widgets",
-        icon: <span />,
-        children: <WidgetsExport />,
-      },
-      {
         title: "JsObjects",
         icon: JsFileIconV2(16, 16),
         children: jsObjects ? (
@@ -73,24 +67,29 @@ const PartiaExportModel = ({ handleModalClose, isModalOpen }: Props) => {
       },
       {
         title: "Databases",
-        icon: datasourceIcon,
+        icon: <Icon name="database-2-line" size="md" />,
         children: appWideDS ? (
           <EntityCheckboxSelector entities={appWideDS} />
         ) : null,
       },
       {
         title: "Queries",
-        icon: dbQueryIcon,
+        icon: <MenuIcons.GROUP_QUERY_ICON height={16} keepColors width={16} />,
         children: groupedData ? (
-          <JSObjectsNQueriesExport data={groupedData} />
+          <JSObjectsNQueriesExport appDS={appWideDS} data={groupedData} />
         ) : null,
       },
       {
         title: "Custom libraries",
-        icon: <span />,
+        icon: <MenuIcons.LIBRARY_ICON height={16} keepColors width={16} />,
         children: libraries ? (
           <EntityCheckboxSelector entities={libraries} />
         ) : null,
+      },
+      {
+        title: "Widgets",
+        icon: <ControlIcons.GROUP_CONTROL height={16} keepColors width={16} />,
+        children: <WidgetsExport />,
       },
     ];
   }, [files, selectWidgetsForCurrentPage]);
