@@ -155,7 +155,7 @@ function FloatingAIWindow(props: TAIWrapperProps) {
         }}
         onClose={handleClose}
         placement="left-start"
-        popoverClassName="w-[520px] max-h-[400px]"
+        popoverClassName="w-[520px]"
         portalClassName="ai-window"
       >
         {props.children}
@@ -166,7 +166,7 @@ function FloatingAIWindow(props: TAIWrapperProps) {
   const popoverClassName =
     props.mode === editorSQLModes.POSTGRESQL_WITH_BINDING
       ? "w-[520px]"
-      : "w-[480px] !translate-x-[-21px]";
+      : "w-[400px] !translate-x-[-21px]";
 
   const placement: Placement =
     props.mode === editorSQLModes.POSTGRESQL_WITH_BINDING

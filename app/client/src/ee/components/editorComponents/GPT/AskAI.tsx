@@ -15,7 +15,7 @@ import { useGPTTask } from "./utils";
 import { useGPTContextGenerator } from "./utils";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import BetaCard from "components/editorComponents/BetaCard";
-import { Button, Callout, Text } from "design-system";
+import { Button, Callout, Link, Spinner, Text } from "design-system";
 import { usePrevious } from "@mantine/hooks";
 import { APPSMITH_AI_LINK } from "./constants";
 import type { TAIWrapperProps } from "@appsmith/components/editorComponents/GPT";
@@ -31,11 +31,19 @@ import { getPlatformFunctions } from "@appsmith/workers/Evaluation/fns";
 import { getConfigTree, getDataTree } from "selectors/dataTreeSelectors";
 import { getEntityInCurrentPath } from "sagas/RecentEntitiesSagas";
 import { useLocation } from "react-router";
-
 import { PromptTriggers } from "./constants";
 import { getJSCollectionFromName } from "@appsmith/selectors/entitiesSelector";
 import { autoIndentCode } from "components/editorComponents/CodeEditor/utils/autoIndentUtils";
 import { updateJSCollectionBody } from "actions/jsPaneActions";
+import {
+  AI_INCORRECT_FEEDBACK_BUTTON_LABEL,
+  AI_POPOVER_TITLE,
+  AI_PROMPT_EXAMPLE_PREFIX,
+  AI_PROMPT_HELP_TEXT,
+  AI_RECENT_PROMPTS,
+  AI_RESPONSE_LOADING,
+  AI_USE_THIS_BUTTON_LABEL,
+} from "@appsmith/constants/messages";
 
 const QueryForm = styled.form`
   > div {
@@ -73,6 +81,31 @@ const QueryForm = styled.form`
   }
 `;
 
+const Dropdown = styled.div`
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  z-index: 10;
+  width: 100%;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: var(--ads-color-black-0);
+  box-shadow: var(--ads-v2-shadow-popovers);
+  padding: 4px;
+`;
+
+const DropdownItem = styled.div`
+  padding: 8px;
+  cursor: pointer;
+  &:hover {
+    background-color: var(--ads-v2-colors-content-surface-hover-bg);
+  }
+`;
+
+const DropdownHeader = styled.div`
+  padding: 8px;
+`;
+
 const resizeTextArea = (el: React.RefObject<HTMLTextAreaElement>) => {
   if (!el.current) return;
   el.current.style.height = "";
@@ -94,13 +127,15 @@ export function AskAI(props: TAskAIProps) {
   const { close, currentValue, dataTreePath } = props;
   const ref = useRef<HTMLDivElement>(null);
   const contextGenerator = useGPTContextGenerator(
+    props.currentValue,
+    props.entity,
     props.dataTreePath,
     props.triggerContext,
   );
   const task = useGPTTask();
   const applicationId = useSelector(getCurrentApplicationId);
   const configTree = useSelector(getConfigTree);
-  const [suggestedBindings, setSuggestedBindings] = useState<string[]>([]);
+  const [suggestedBinding, setSuggestedBinding] = useState<string>("");
   const dataTree = useSelector(getDataTree);
   const aiContext = useSelector((state) => state.ai.context);
   const jsCollection = useSelector((state) =>
@@ -259,7 +294,10 @@ export function AskAI(props: TAskAIProps) {
       props.dataTreePath,
     );
 
-    setSuggestedBindings(bestBindings.map((b: Record<string, any>) => b.text));
+    if (bestBindings.length) {
+      const suggestedBindingForEntity = bestBindings[0].text;
+      setSuggestedBinding(suggestedBindingForEntity);
+    }
   }, []);
 
   const [
@@ -302,7 +340,7 @@ export function AskAI(props: TAskAIProps) {
       noOfTimesSuggestedPromptsShownForType < 5 &&
       !response &&
       !isLoading &&
-      suggestedBindings.length > 0 &&
+      suggestedBinding &&
       pageType !== "queryEditor" &&
       pageType !== "jsEditor"
     );
@@ -310,7 +348,7 @@ export function AskAI(props: TAskAIProps) {
     noOfTimesSuggestedPromptsShownForType,
     response,
     isLoading,
-    suggestedBindings,
+    suggestedBinding,
   ]);
 
   const showRecentQueries = useMemo(() => {
@@ -373,8 +411,7 @@ export function AskAI(props: TAskAIProps) {
         content: inputQuery.slice(0, CHARACTER_LIMIT),
         taskId,
       };
-      const [context, enhancedQuery, wrapWithBinding] =
-        contextGenerator(userPropmpt);
+      const [context, enhancedQuery] = contextGenerator(userPropmpt);
 
       AnalyticsUtil.logEvent("AI_QUERY_SENT", {
         requestedOutputType: taskId,
@@ -418,11 +455,7 @@ export function AskAI(props: TAskAIProps) {
           throw new Error(response);
         }
 
-        const { editorCode, previewCode } = getFormattedCode(
-          response,
-          taskId,
-          wrapWithBinding,
-        );
+        const { editorCode, previewCode } = getFormattedCode(response, taskId);
 
         const assistantResponse: TChatGPTPrompt = {
           role: "assistant",
@@ -458,6 +491,7 @@ export function AskAI(props: TAskAIProps) {
         await fetchRecentQueries();
       } catch (e: any) {
         const errorMessage = getErrorMessage(e);
+        const error = e?.response?.data || e;
         setError(errorMessage);
         AnalyticsUtil.logEvent("AI_RESPONSE_GENERATED", {
           success: false,
@@ -468,7 +502,7 @@ export function AskAI(props: TAskAIProps) {
           property: props.entity.propertyPath,
           widgetName: props.entity.entityName,
           widgetType: props.entity.widgetType,
-          error: e,
+          error,
           isSuggestedPrompt,
           isRecentPrompt,
           entityId: props.entity.entityId,
@@ -524,9 +558,7 @@ export function AskAI(props: TAskAIProps) {
       isRecentPrompt: showRecentQueries,
       propertyName: props.entity.propertyPath,
       widgetName: props.entity.entityName,
-      totalPrompts: showSuggestedPrompts
-        ? suggestedBindings.length
-        : recentQueries.length,
+      totalPrompts: showSuggestedPrompts ? 1 : recentQueries.length,
       entityId: props.entity.entityId,
       entityName: props.entity.entityName,
     });
@@ -540,8 +572,8 @@ export function AskAI(props: TAskAIProps) {
 
   const onClickRecentQuery = (
     query: string,
-    index: number,
     trigger: PromptTriggers,
+    index = 0,
   ) => {
     AnalyticsUtil.logEvent("AI_PROMPT_CLICKED", {
       isSuggestedPrompt: trigger === PromptTriggers.SUGGESTED,
@@ -549,9 +581,7 @@ export function AskAI(props: TAskAIProps) {
       propertyName: props.entity.propertyPath,
       widgetName: props.entity.entityName,
       totalPrompts:
-        trigger === PromptTriggers.SUGGESTED
-          ? suggestedBindings.length
-          : recentQueries.length,
+        trigger === PromptTriggers.SUGGESTED ? 1 : recentQueries.length,
       selectedPromptIndex: index,
       userQuery: query,
       entityId: props.entity.entityId,
@@ -560,22 +590,21 @@ export function AskAI(props: TAskAIProps) {
 
     setQuery(query);
     queryContainerRef.current?.focus();
-    fireQuery(query, trigger);
   };
 
   if (!task) return null;
 
   return (
-    <div
-      className="flex flex-col justify-between w-full h-full overflow-hidden"
-      ref={ref}
-    >
+    <div className="flex flex-col justify-between w-full h-full" ref={ref}>
       <div className="flex flex-col flex-shrink-0 p-4">
-        <div className="flex flex-row justify-between pb-4">
+        <div className="flex flex-row justify-between pb-2">
           <div className="flex items-center gap-1">
-            <Text color="var(--ads-v2-color-fg-emphasis)" kind="heading-s">
-              {task.desc}
+            <Text color="var(--ads-v2-color-fg-emphasis)" kind="heading-xs">
+              {AI_POPOVER_TITLE()}
             </Text>
+            <BetaCard />
+          </div>
+          <div className="flex items-center gap-1">
             <Button
               isIconButton
               kind="tertiary"
@@ -584,15 +613,14 @@ export function AskAI(props: TAskAIProps) {
               size="sm"
               startIcon="question-line"
             />
-            <BetaCard />
+            <Button
+              isIconButton
+              kind="tertiary"
+              onClick={close}
+              size="sm"
+              startIcon="close-line"
+            />
           </div>
-          <Button
-            isIconButton
-            kind="tertiary"
-            onClick={close}
-            size="md"
-            startIcon="close-line"
-          />
         </div>
         <QueryForm
           className={"flex w-full relative items-start gap-2 justify-between"}
@@ -605,41 +633,54 @@ export function AskAI(props: TAskAIProps) {
               },
             )}
           >
-            <div className="relative flex items-center w-full h-auto">
-              <textarea
-                className="min-h-[28px] w-full max-h-40 z-2 overflow-auto"
-                disabled={isLoading}
-                name="text"
-                onChange={(e) => {
-                  setQuery(e.target.value);
-                }}
-                onKeyDown={handleEnter}
-                placeholder={task.inputPlaceholder}
-                ref={queryContainerRef}
-                rows={1}
-                style={{ resize: "none" }}
-                value={query}
-              />
-            </div>
+            <textarea
+              className="min-h-[28px] w-full max-h-40 z-2 overflow-auto"
+              disabled={isLoading}
+              name="text"
+              onChange={(e) => {
+                setQuery(e.target.value);
+              }}
+              onKeyDown={handleEnter}
+              placeholder={task.inputPlaceholder}
+              ref={queryContainerRef}
+              rows={1}
+              style={{ resize: "none" }}
+              value={query}
+            />
           </div>
-          <Button
-            className="!z-2 flex-shrink-0"
-            color="red"
-            isIconButton
-            isLoading={isLoading}
-            kind="secondary"
-            onClick={sendQuery}
-            size="md"
-            startIcon="enter-line"
-          />
+          {!query && showRecentQueries && (
+            <Dropdown>
+              <DropdownHeader>
+                <Text kind="body-m">{AI_RECENT_PROMPTS()}</Text>
+              </DropdownHeader>
+              {recentQueries.map((query, index) => (
+                <DropdownItem
+                  key={query}
+                  onClick={() =>
+                    onClickRecentQuery(query, PromptTriggers.RECENT, index)
+                  }
+                >
+                  <Text kind="body-s">{query}</Text>
+                </DropdownItem>
+              ))}
+            </Dropdown>
+          )}
         </QueryForm>
         {isLoading && (
-          <Text
-            className="!text-[color:var(--ads-v2\-color-fg-muted)] pt-1"
-            kind="action-s"
+          <div
+            className="flex items-center p-2 gap-2 mt-1"
+            style={{
+              backgroundColor: "#f1f5f9",
+            }}
           >
-            Generating the code for you...
-          </Text>
+            <Spinner size="sm" />
+            <Text
+              className="!text-[color:var(--ads-v2\-color-fg-muted)]"
+              kind="action-s"
+            >
+              {AI_RESPONSE_LOADING()}
+            </Text>
+          </div>
         )}
         {/* Show the error prompt if there is an error */}
         {error && (
@@ -647,84 +688,95 @@ export function AskAI(props: TAskAIProps) {
             <Callout kind="error">{error}</Callout>
           </div>
         )}
-        {showRecentQueries && (
-          <div className="flex flex-col pt-3">
-            <Text
-              className="!mb-1"
-              color="var(--ads-v2-color-gray-600)"
-              kind="heading-xs"
-            >
-              Recent prompts
-            </Text>
-            {recentQueries.map((query, index) => (
-              <div
-                className="flex items-center justify-between py-1 cursor-pointer"
-                key={index}
-                onClick={() =>
-                  onClickRecentQuery(query, index, PromptTriggers.RECENT)
-                }
-              >
-                <Text className="text-ellipsis" kind="body-m">
-                  {query}
-                </Text>
-              </div>
-            ))}
-          </div>
-        )}
+
         {showSuggestedPrompts && (
-          <div className="flex flex-col pt-3">
-            <Text className="!mb-1" kind="heading-xs">
-              Suggested prompts
-            </Text>
-            {suggestedBindings.map((query, index) => (
-              <div
-                className="flex items-center justify-between py-1 cursor-pointer"
-                key={index}
-                onClick={() =>
-                  onClickRecentQuery(query, index, PromptTriggers.SUGGESTED)
-                }
-              >
-                <Text className="text-ellipsis">{query}</Text>
-              </div>
-            ))}
-          </div>
+          <SuggestedPrompt
+            onClickRecentQuery={() =>
+              onClickRecentQuery(suggestedBinding, PromptTriggers.SUGGESTED)
+            }
+            query={query}
+            suggestedBinding={suggestedBinding}
+          />
         )}
         {/* Show the response if it is set */}
         {!!response && (
-          <div className="flex flex-col pt-3">
-            <Text
-              className="!mb-1"
-              color="var(--ads-v2-color-gray-600)"
-              kind="heading-xs"
-            >
-              Response
-            </Text>
-            <pre
-              className="p-2 whitespace-pre-wrap"
-              style={{
-                border: "1px solid var(--ads-v2-color-gray-300)",
-                color: "var(--ads-v2-color-gray-400)",
-                borderRadius: "4px",
-              }}
-            >
-              {response.content.previewCode}
-            </pre>
-            <div className="flex items-center justify-between pt-2">
-              <Button
-                kind="secondary"
-                onClick={() => rejectResponse()}
-                size="md"
-                startIcon="thumb-down-line"
-              >
-                Incorrect response
-              </Button>
-              <Button kind="primary" onClick={() => acceptResponse()} size="md">
-                {task.buttonLabel}
-              </Button>
-            </div>
-          </div>
+          <ResponsePreview
+            acceptResponse={acceptResponse}
+            previewCode={response.content.previewCode}
+            rejectResponse={rejectResponse}
+          />
         )}
       </div>
     </div>
   );
 }
+
+const SuggestedPrompt = ({
+  onClickRecentQuery,
+  query,
+  suggestedBinding,
+}: {
+  query: string;
+  onClickRecentQuery: () => void;
+  suggestedBinding: string;
+}) => {
+  return (
+    <div className="pt-1">
+      <Text className="leading-tight inline" kind="body-s">
+        {query ? AI_PROMPT_HELP_TEXT() : AI_PROMPT_EXAMPLE_PREFIX()}
+      </Text>
+      {!query && (
+        <Link className="!inline" onClick={onClickRecentQuery}>
+          <Text
+            className="leading-tight"
+            kind="body-s"
+            style={{
+              fontWeight: "var(--ads-font-weight-bold)",
+            }}
+          >
+            {suggestedBinding}
+          </Text>
+        </Link>
+      )}
+    </div>
+  );
+};
+
+const ResponsePreview = ({
+  acceptResponse,
+  previewCode,
+  rejectResponse,
+}: {
+  previewCode: string;
+  rejectResponse: () => void;
+  acceptResponse: () => void;
+}) => {
+  return (
+    <div className="flex flex-col pt-1">
+      <pre
+        className="p-2 whitespace-pre-wrap max-h-[300px] overflow-auto"
+        style={{
+          border: "1px solid var(--ads-v2-color-gray-300)",
+          color: "var(--ads-old-color-outer-space)",
+          borderRadius: "4px",
+          backgroundColor: "var(--ads-color-black-5)",
+        }}
+      >
+        {previewCode}
+      </pre>
+      <div className="flex justify-end pt-2 gap-2">
+        <Button
+          kind="tertiary"
+          onClick={rejectResponse}
+          size="md"
+          startIcon="thumb-down-line"
+        >
+          {AI_INCORRECT_FEEDBACK_BUTTON_LABEL()}
+        </Button>
+        <Button kind="primary" onClick={acceptResponse} size="md">
+          {AI_USE_THIS_BUTTON_LABEL()}
+        </Button>
+      </div>
+    </div>
+  );
+};

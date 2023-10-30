@@ -1,11 +1,5 @@
 import type { AppState } from "@appsmith/reducers";
-import {
-  getEntityNameAndPropertyPath,
-  isAction,
-  isJSAction,
-  isTrueObject,
-  isWidget,
-} from "@appsmith/workers/Evaluation/evaluationUtils";
+import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
 import {
   useCallback,
   useEffect,
@@ -25,11 +19,8 @@ import {
   getDatasourcesStructure,
   getPlugins,
 } from "@appsmith/selectors/entitiesSelector";
-import FuzzySet from "fuzzyset";
 import WidgetFactory from "WidgetProvider/factory";
 import log from "loglevel";
-import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
-import type { WidgetType } from "constants/WidgetConstants";
 import type { FieldEntityInformation } from "components/editorComponents/CodeEditor/EditorConfig";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type {
@@ -56,7 +47,6 @@ import type {
   JSActionEntity,
   JSActionEntityConfig,
   DataTreeEntityObject,
-  WidgetEntity,
 } from "@appsmith/entities/DataTree/types";
 import { ENTITY_TYPE_VALUE } from "entities/DataTree/dataTreeFactory";
 import type { DatasourceStructure } from "entities/Datasource";
@@ -65,6 +55,18 @@ import type {
   DataTree,
   DataTreeEntity,
 } from "entities/DataTree/dataTreeTypes";
+import type { Variable } from "entities/JSCollection";
+import { getEntityLintErrors } from "selectors/lintingSelectors";
+import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
+import {
+  AI_CONN_TIMEOUT_ERROR_MESSAGE,
+  AI_GENERATION_ERROR_MESSAGE,
+  AI_JS_EXPR_PLACEHOLDER,
+  AI_JS_FUNC_PLACEHOLDER,
+  AI_SQL_PLACEHOLDER,
+  AI_TOO_MANY_REQUESTS_ERROR_MESSAGE,
+} from "@appsmith/constants/messages";
+import type { WidgetBaseProps } from "widgets/BaseWidget";
 
 export interface TUserPrompt {
   role: "user";
@@ -111,23 +113,17 @@ export enum GPTTask {
 
 export const GPT_JS_EXPRESSION = {
   id: GPTTask.JS_EXPRESSION,
-  desc: "Generate Javascript expressions",
-  inputPlaceholder: "I can generate JavaScript code, Ask me something.",
-  buttonLabel: "Use this",
+  inputPlaceholder: AI_JS_EXPR_PLACEHOLDER(),
 };
 
 export const GPT_SQL_QUERY = {
   id: GPTTask.SQL_QUERY,
-  desc: "Generate SQL query",
-  inputPlaceholder: "I can generate SQL queries, Ask me something.",
-  buttonLabel: "Use this",
+  inputPlaceholder: AI_SQL_PLACEHOLDER(),
 };
 
 export const GPT_JS_FUNCTION = {
   id: GPTTask.JS_FUNCTION,
-  desc: "Generate JS functions",
-  inputPlaceholder: "I can generate JS functions, Ask me something.",
-  buttonLabel: "Insert Code",
+  inputPlaceholder: AI_JS_FUNC_PLACEHOLDER(),
 };
 
 export const getErrorMessage = (
@@ -146,7 +142,7 @@ export const getErrorMessage = (
   }>,
 ) => {
   if (error?.code === "ECONNABORTED") {
-    return "Connection timed out, its taking too long to generate code for you. Can you try again.";
+    return AI_CONN_TIMEOUT_ERROR_MESSAGE();
   }
 
   if (
@@ -154,10 +150,10 @@ export const getErrorMessage = (
       "Too many requests",
     )
   ) {
-    return "Too many requests. You have already used 50 requests today. Please try again tomorrow or contact Appsmith team.";
+    return AI_TOO_MANY_REQUESTS_ERROR_MESSAGE();
   }
 
-  return "We can not generate a response for this prompt, to get accurate responses we need prompts to be more specific.";
+  return AI_GENERATION_ERROR_MESSAGE();
 };
 
 export const chatGenerationApi = async ({
@@ -216,148 +212,29 @@ const JS_BEAUTIFY_OPTIONS: js_beautify.JSBeautifyOptions = {
   indent_empty_lines: false,
 };
 const PREVIEW_MAX_LENGTH = 50;
-const EDITOR_MAX_LENGTH = 28;
 
-export const getFormattedCode = (
-  code: string,
-  taskId: GPTTask,
-  wrapWithBinding = false,
-) => {
+export const getFormattedCode = (code: string, taskId: GPTTask) => {
   const formattedCode = {
     previewCode: code,
     editorCode: code,
   };
 
+  if (taskId === GPTTask.SQL_QUERY) {
+    return formattedCode;
+  }
+
+  formattedCode.previewCode = js_beautify(code, {
+    ...JS_BEAUTIFY_OPTIONS,
+    wrap_line_length: PREVIEW_MAX_LENGTH,
+  });
+
   if (taskId === GPTTask.JS_EXPRESSION) {
-    const previewCode = js_beautify(code, {
-      ...JS_BEAUTIFY_OPTIONS,
-      wrap_line_length: PREVIEW_MAX_LENGTH,
-    });
-
-    const editorCode = js_beautify(code, {
-      ...JS_BEAUTIFY_OPTIONS,
-      wrap_line_length: EDITOR_MAX_LENGTH,
-    });
-
-    if (wrapWithBinding) {
-      const isMultiLinePreview = previewCode.split("\n").length > 1;
-      const isMultiLineEditor = editorCode.split("\n").length > 1;
-
-      formattedCode.previewCode = isMultiLinePreview
-        ? `{{\n${previewCode}\n}}`
-        : `{{${previewCode}}}`;
-      formattedCode.editorCode = isMultiLineEditor
-        ? `{{\n${editorCode}\n}}`
-        : `{{${editorCode}}}`;
-    }
+    formattedCode.previewCode = formattedCode.previewCode
+      .replace(/{\s*{\s*/g, "{{\n")
+      .replace(/\s*}\s*}/g, "}}\n");
   }
 
   return formattedCode;
-};
-
-/**
- * Looks at the words in user query and tries to fuzzy match it with an existing application entity
- * @param message
- * @param entityNames
- * @returns
- */
-function getPotentialEntityNamesFromMessage(
-  message: string,
-  entityNames: string[],
-) {
-  const words = message
-    .split(" ")
-    .filter(Boolean)
-    .map((word) => word?.toLowerCase());
-  const smallestEntityNameLength = Math.min(
-    ...entityNames.map((e) => e.length),
-  );
-  const set = FuzzySet(
-    entityNames,
-    true,
-    smallestEntityNameLength,
-    smallestEntityNameLength + 1,
-  );
-  const exactMatches = new Set<string>();
-  const partialMatches: [number, string][] = [];
-  for (const word of words) {
-    const matches = set.get(word);
-    if (!matches) continue;
-    for (const match of matches) {
-      const [score, entityName] = match;
-      if (score === 1) {
-        exactMatches.add(entityName);
-      } else {
-        partialMatches.push([score, entityName]);
-      }
-    }
-  }
-  const pMatches = Array.from(
-    new Set(partialMatches.sort((a, b) => b[0] - a[0]).map((a) => a[1])),
-  );
-
-  return { exactMatches: Array.from(exactMatches), partialMatches: pMatches };
-}
-
-const getGPTContextGenerator = createSelector(getDataTree, (dataTree) => {
-  return (entityName: string) => {
-    const entity = dataTree[entityName];
-    const context: TChatGPTContext = {};
-    if (isAction(entity)) {
-      context[entityName] = {
-        data: getDataSkeleton(entity.data),
-        run: "() => {}",
-        type: "ACTION",
-      };
-    } else if (isWidget(entity)) {
-      //Selects only paths that can be autocompleted
-      let autocompleteDefinitions =
-        WidgetFactory.getAutocompleteDefinitions(entity.type) || {};
-      if (typeof autocompleteDefinitions === "function") {
-        try {
-          autocompleteDefinitions = autocompleteDefinitions(
-            entity as WidgetEntity,
-          );
-        } catch (e) {
-          log.debug(e);
-          autocompleteDefinitions = {};
-        }
-      }
-      const minimumEntityInfo: Record<string, unknown> = {};
-      const entityFields = Object.keys(entity);
-      for (const field of entityFields) {
-        if (autocompleteDefinitions.hasOwnProperty(field))
-          minimumEntityInfo[field] = entity[field];
-      }
-      const widgetSkeleton = getDataSkeleton(minimumEntityInfo);
-      context[entityName] = {
-        ...widgetSkeleton,
-        type: "WIDGET",
-        widgetType: entity.type,
-      };
-    } else if (isJSAction(entity)) {
-      context[entityName] = {
-        body: entity.body.replace(/export default/g, ""),
-        type: "JS_ACTION",
-      };
-    }
-    return context;
-  };
-});
-
-const FIELD_SPECIFIC_PROMPTS: Record<WidgetType, Record<string, string>> = {
-  SELECT_WIDGET: {
-    options: `"value" must be unique`,
-  },
-  MULTI_SELECT_WIDGET: {
-    options: `"value" must be unique`,
-  },
-  MULTI_SELECT_WIDGET_V2: {
-    options: `"value" must be unique`,
-  },
-  MULTI_SELECT_TREE_WIDGET: {
-    options: `"value" must be unique`,
-  },
 };
 
 const getStoreType = (dataTree: DataTree): { [key: string]: string } => {
@@ -373,54 +250,36 @@ const getStoreType = (dataTree: DataTree): { [key: string]: string } => {
   return store;
 };
 
-const getJSEditorContext = ({
-  canvasWidgets,
-  datasourcesStructure,
-  dataTree,
-  editorContext,
-  pageActions,
-  pageJSCollections,
-  pluginList,
-}: {
-  canvasWidgets: CanvasWidgetsReduxState;
-  editorContext: AIEditorContext;
-  pageActions: ActionData[];
-  pageJSCollections: JSCollectionData[];
-  pluginList: Plugin[];
-  dataTree: DataTree;
-  datasourcesStructure: Record<string, DatasourceStructure>;
-}): TChatGPTContext => {
-  const { widgetTree, widgetTypes } = compressedWidgetData(canvasWidgets);
-  const { cursorLineNumber, functionName, functionString } = editorContext;
-  const store = getStoreType(dataTree);
-
-  const datasourceActions = pageActions.map(
-    ({
-      config: {
-        actionConfiguration,
-        datasource,
-        jsonPathKeys,
-        name,
-        pluginId,
-        pluginType,
-      },
-
-      data,
-    }) => {
-      const dataType = getTypeDef(data?.body);
-      return {
-        name,
-        pluginType,
-        pluginSubType: pluginList.find((p) => p.id === pluginId)?.name,
-        dataType: JSON.stringify(dataType),
-        query: actionConfiguration?.body || "",
-        variables: jsonPathKeys,
-        actionConfiguration,
-        datasource,
-      };
+const getActionContext = (action: ActionData, pluginList: Plugin[]) => {
+  const {
+    config: {
+      actionConfiguration,
+      datasource,
+      jsonPathKeys,
+      name,
+      pluginId,
+      pluginType,
     },
-  );
-  const jsObjects = pageJSCollections.map(
+    data,
+  } = action;
+  const dataType = getTypeDef(data?.body);
+  return {
+    name,
+    pluginType,
+    pluginSubType: pluginList.find((p) => p.id === pluginId)?.name,
+    dataType: JSON.stringify(dataType),
+    query: actionConfiguration?.body || "",
+    variables: jsonPathKeys,
+    actionConfiguration,
+    datasource,
+  };
+};
+
+const getJSObjectContext = (
+  pageJSCollections: JSCollectionData[],
+  dataTree: DataTree,
+) => {
+  return pageJSCollections.map(
     ({ config: { actions: jsActions, name: jsObjectName, variables } }) => {
       return {
         name: jsObjectName,
@@ -454,6 +313,32 @@ const getJSEditorContext = ({
       };
     },
   );
+};
+
+const getJSEditorContext = ({
+  canvasWidgets,
+  datasourcesStructure,
+  dataTree,
+  editorContext,
+  pageActions,
+  pageJSCollections,
+  pluginList,
+}: {
+  canvasWidgets: CanvasWidgetsReduxState;
+  editorContext: AIEditorContext;
+  pageActions: ActionData[];
+  pageJSCollections: JSCollectionData[];
+  pluginList: Plugin[];
+  dataTree: DataTree;
+  datasourcesStructure: Record<string, DatasourceStructure>;
+}): TChatGPTContext => {
+  const { widgetTree, widgetTypes } = compressedWidgetData(canvasWidgets);
+  const { cursorLineNumber, functionName, functionString } = editorContext;
+  const store = getStoreType(dataTree);
+  const datasourceActions = pageActions.map((action) =>
+    getActionContext(action, pluginList),
+  );
+  const jsObjects = getJSObjectContext(pageJSCollections, dataTree);
 
   return {
     widgetTypes,
@@ -468,14 +353,82 @@ const getJSEditorContext = ({
   };
 };
 
-const QUERY_SEPARATOR = ". ";
+const getSqlEditorContext = ({
+  canvasWidgets,
+  datasourcesStructure,
+  dataTree,
+  errors,
+  id,
+  pageActions,
+  pageJSCollections,
+  pluginList,
+}: {
+  id: string;
+  canvasWidgets: CanvasWidgetsReduxState;
+  pageActions: ActionData[];
+  pageJSCollections: JSCollectionData[];
+  pluginList: Plugin[];
+  datasourcesStructure: Record<string, DatasourceStructure>;
+  dataTree: DataTree;
+  errors: string[];
+}) => {
+  const { widgetTree, widgetTypes } = compressedWidgetData(canvasWidgets);
+  const query = pageActions.find((a) => a.config.id === id);
+  const jsObjects = getJSObjectContext(pageJSCollections, dataTree);
+  const store = getStoreType(dataTree);
+
+  const api_context: {
+    widgetTypes: string[];
+    widgetTree: [string, { type: string } | string, (any[] | undefined)?][];
+    datasourceStructure?: DatasourceStructure;
+    action?: any;
+    store: Record<string, string>;
+    jsObjects: {
+      name: string;
+      functions: {
+        name: string;
+        body: string;
+        arguments: Variable[];
+        variables: string[];
+      }[];
+      variables: {
+        name: string;
+        value: any;
+        dataType: string;
+      }[];
+    }[];
+    errors: string[];
+  } = {
+    widgetTypes,
+    widgetTree,
+    jsObjects,
+    store,
+    errors,
+  };
+
+  if (query) {
+    const datasourceId = query.config.datasource?.id;
+    if (datasourceId) {
+      api_context.datasourceStructure = datasourcesStructure[datasourceId];
+    }
+    api_context.action = getActionContext(query, pluginList);
+  }
+
+  return {
+    api_context,
+    meta: {
+      datasourceId: query?.config.datasource?.id,
+    },
+  };
+};
 
 export function useGPTContextGenerator(
-  dataTreePath?: string,
+  currentValue: string,
+  entity: FieldEntityInformation,
+  dataTreePath = "",
   triggerContext?: CodeEditorExpected,
 ) {
   const dataTree = useSelector(getDataTree);
-  const contextGenerator = useSelector(getGPTContextGenerator);
   const location = useLocation();
   const pageActions = useSelector(getCurrentActions);
   const canvasWidgets = useSelector((state) => state.entities.canvasWidgets);
@@ -483,20 +436,23 @@ export function useGPTContextGenerator(
   const pageJSCollections = useSelector(getCurrentJSCollections);
   const pluginList = useSelector(getPlugins);
   const datasourcesStructure = useSelector(getDatasourcesStructure);
+  const lintingErrors = useSelector((state) =>
+    getEntityLintErrors(state, dataTreePath),
+  );
 
   const generator = useMemo(
     () =>
-      (prompt: TChatGPTPrompt): [TChatGPTContext, string, boolean] => {
-        const defaultContext = [{}, "", true] as [
-          TChatGPTContext,
-          string,
-          boolean,
-        ];
+      (prompt: TChatGPTPrompt): [TChatGPTContext, string] => {
+        const defaultContext = [{}, ""] as [TChatGPTContext, string];
         try {
           const { id, pageType } = getEntityInCurrentPath(location.pathname);
 
           if (prompt?.role !== "user") return defaultContext;
           if (!prompt.content) return defaultContext;
+
+          const errors = lintingErrors.map(
+            ({ errorMessage: { message } }) => message,
+          );
 
           if (pageType === "jsEditor") {
             const api_context = getJSEditorContext({
@@ -509,62 +465,57 @@ export function useGPTContextGenerator(
               datasourcesStructure,
             });
 
-            return [{ api_context }, prompt.content, true];
+            return [{ api_context }, prompt.content];
           }
 
-          let wrapWithBinding = true;
-          const promptLines: string[] = [prompt.content];
-          const entityNames = Object.keys(dataTree);
-          const { exactMatches, partialMatches } =
-            getPotentialEntityNamesFromMessage(prompt.content, entityNames);
-          //Ignore partial matches if exact match exists
-          const entityNamesFromMessage = exactMatches.length
-            ? exactMatches
-            : partialMatches.slice(0, 2);
-          const api_context = entityNamesFromMessage.reduce(
-            (acc, entityName) => {
-              acc = { ...acc, ...contextGenerator(entityName) };
-              return acc;
-            },
-            {} as any,
-          );
-          const meta: any = {};
           if (pageType === "queryEditor") {
-            const query = pageActions.find((a) => a.config.id === id);
-            const datasourceId = (query?.config?.datasource as any)?.id;
-            meta["datasourceId"] = datasourceId;
-          }
-          if (
-            triggerContext &&
-            triggerContext.type &&
-            triggerContext.type !== "Function"
-          ) {
-            promptLines.push(
-              `Return type of the expression should be of type '${triggerContext.type}'`,
-            );
+            const context = getSqlEditorContext({
+              id,
+              canvasWidgets,
+              pageActions,
+              pluginList,
+              datasourcesStructure,
+              dataTree,
+              pageJSCollections,
+              errors,
+            });
 
-            if (triggerContext.type === "regExp") {
-              wrapWithBinding = false;
-            }
+            return [context, prompt.content];
           }
-          if (dataTreePath) {
-            const { entityName, propertyPath } =
-              getEntityNameAndPropertyPath(dataTreePath);
-            const entity = dataTree[entityName];
-            if (isWidget(entity)) {
-              const type = entity.type;
-              const fieldSpecificPrompt =
-                FIELD_SPECIFIC_PROMPTS[type]?.[propertyPath] || "";
-              if (fieldSpecificPrompt) promptLines.push(fieldSpecificPrompt);
-            }
+
+          if (!entity.entityId) {
+            return defaultContext;
           }
+
+          const { widgetTree, widgetTypes } =
+            compressedWidgetData(canvasWidgets);
+
+          const widget = canvasWidgets[entity.entityId];
+          const store = getStoreType(dataTree);
+
           return [
             {
-              api_context,
-              meta,
+              api_context: {
+                widgetTree,
+                widgetTypes,
+                widget: {
+                  name: entity.entityName || "",
+                  propertyPath: entity.propertyPath || "",
+                  currentValue,
+                  propertyValueType: triggerContext?.type,
+                  propertyValueExample: triggerContext?.example,
+                  type: widget.type,
+                },
+                store,
+                datasourcesStructure,
+                datasourceActions: pageActions.map((action) =>
+                  getActionContext(action, pluginList),
+                ),
+                jsObjects: getJSObjectContext(pageJSCollections, dataTree),
+                errors,
+              },
             },
-            promptLines.join(QUERY_SEPARATOR),
-            wrapWithBinding,
+            prompt.content,
           ];
         } catch (e) {
           return defaultContext;
@@ -572,33 +523,16 @@ export function useGPTContextGenerator(
       },
     [
       dataTree,
-      contextGenerator,
       location.pathname,
       pageActions,
       dataTreePath,
-      triggerContext,
+      entity,
+      currentValue,
+      lintingErrors,
     ],
   );
-  return generator;
-}
 
-/**
- * Takes a value and recursive replaces it with `typeof value`
- * @param data
- * @returns
- */
-function getDataSkeleton(data: unknown): any {
-  if (!data) return {};
-  if (Array.isArray(data)) {
-    return [getDataSkeleton(data[0])];
-  } else if (isTrueObject(data)) {
-    return Object.keys(data).reduce((acc, key) => {
-      acc[key] = getDataSkeleton(data[key]);
-      return acc;
-    }, {} as any);
-  } else {
-    return typeof data;
-  }
+  return generator;
 }
 
 export const selectEvaluatedResult = (messageId: string) => (state: AppState) =>
@@ -1163,38 +1097,132 @@ export function getAllPossibleBindingsForSuggestions(
 
   return transformedBindings;
 }
-function replaceWidgetSuffix(input: string): string {
-  const replacements: { [key: string]: string } = {
-    _WIDGET: "", // Replace with whatever you want
-    _WIDGET2: "", // Replace with whatever you want
-    WIDGET_V2: "", // Replace with whatever you want
-  };
 
-  for (const key in replacements) {
-    if (input.endsWith(key)) {
-      const value = replacements[key];
-      return input.substring(0, input.length - key.length) + value;
+const getWidgetConfig = (widget: FlattenedWidgetProps) => {
+  const widgetProperties: any = {};
+
+  switch (widget.type) {
+    case "JSON_FORM_WIDGET": {
+      const {
+        schema: {
+          __root_schema__: { children: formElements },
+        },
+      } = widget;
+
+      if (formElements && typeof formElements === "object") {
+        widgetProperties.formData = Object.keys(formElements)
+          .map((key) => {
+            const formElement = formElements[key];
+            return {
+              key: formElement.accessor,
+              dataType: formElement.dataType,
+            };
+          })
+          .reduce(
+            (acc, curr) => {
+              acc[curr.key] = curr.dataType;
+              return acc;
+            },
+            {} as Record<string, string>,
+          );
+      }
+      break;
     }
+    case "INPUT_WIDGET_V2":
+    case "CURRENCY_INPUT_WIDGET":
+    case "DATE_PICKER_WIDGET2":
+    case "FILE_PICKER_WIDGET_V2":
+    case "PHONE_INPUT_WIDGET":
+    case "CHECKBOX_WIDGET":
+    case "SWITCH_WIDGET":
+      widgetProperties.label = widget.label;
+      break;
+    case "BUTTON_WIDGET":
+    case "FORM_BUTTON_WIDGET":
+      widgetProperties.label = widget.text;
+      break;
+    case "SELECT_WIDGET":
+    case "MULTI_SELECT_WIDGET_V2":
+    case "SINGLE_SELECT_TREE_WIDGET":
+    case "MULTI_SELECT_TREE_WIDGET":
+    case "CHECKBOX_GROUP_WIDGET":
+    case "RADIO_GROUP_WIDGET":
+    case "SWITCH_GROUP_WIDGET":
+      widgetProperties.label = widget.label;
+      widgetProperties.options = widget.options;
+      break;
+    case "BUTTON_GROUP_WIDGET": {
+      const { groupButtons } = widget;
+      if (groupButtons && typeof groupButtons === "object") {
+        widgetProperties.buttons = Object.keys(widget.groupButtons).map(
+          (key) => {
+            const button = widget.groupButtons[key];
+            return {
+              label: button.label,
+            };
+          },
+        );
+      }
+      break;
+    }
+    case "MENU_BUTTON_WIDGET": {
+      const { configureMenuItems } = widget;
+      if (configureMenuItems && typeof configureMenuItems === "object") {
+        widgetProperties.menuItems = Object.keys(widget.configureMenuItems).map(
+          (key) => {
+            const menuItem = widget.configureMenuItems[key];
+            return {
+              label: menuItem.label,
+            };
+          },
+        );
+      }
+      break;
+    }
+    case "TABS_WIDGET": {
+      const { tabs } = widget;
+      if (tabs && typeof tabs === "object") {
+        widgetProperties.tabs = Object.keys(widget.tabsObj).map((key) => {
+          const tab = widget.tabsObj[key];
+          return {
+            label: tab.label,
+          };
+        });
+      }
+      break;
+    }
+    default:
+      break;
   }
 
-  return input;
-}
+  return {
+    config: widgetProperties,
+    type: widget.type,
+  };
+};
+
+type CompressedWidget = [
+  string,
+  { type: WidgetBaseProps["type"] },
+  CompressedWidget[]?,
+];
+
 export function compressedWidgetData(widgets: CanvasWidgetsReduxState) {
   const widgetTypes: string[] = [];
 
   function processWidgets(parentId: string, widgets: CanvasWidgetsReduxState) {
-    const children: [string, string, any[]?][] = [];
+    const children: CompressedWidget[] = [];
 
     Object.values(widgets).forEach((widget: FlattenedWidgetProps) => {
       if (widget.parentId === parentId) {
         if (widget.type !== "CANVAS_WIDGET") {
-          const widgetType = replaceWidgetSuffix(widget.type);
-          const currentChildren: [string, string, any[]?] = [
+          const widgetConfig = getWidgetConfig(widget);
+          const currentChildren: CompressedWidget = [
             widget.widgetName,
-            widgetType,
+            widgetConfig,
           ];
 
-          widgetTypes.push(widgetType);
+          widgetTypes.push(widgetConfig.type);
 
           if (widget.children) {
             currentChildren.push(processWidgets(widget.widgetId, widgets));
