@@ -35,13 +35,19 @@ describe(
         .GetText(_.locators._widgetInCanvas("textwidget") + " span")
         .should("be.empty");
       _.entityExplorer.SelectEntityByName("Button1");
-      _.agHelper.SelectDropdownList("Google reCAPTCHA version", "reCAPTCHA v2");
+      _.propPane.SelectPropertiesDropDown(
+        "Google reCAPTCHA version",
+        "reCAPTCHA v2",
+      );
       _.agHelper.ClickButton("Submit");
       _.agHelper.Sleep();
       _.agHelper
         .GetText(_.locators._widgetInCanvas("textwidget") + " span")
         .should("not.be.empty");
-      _.agHelper.SelectDropdownList("Google reCAPTCHA version", "reCAPTCHA v3");
+      _.propPane.SelectPropertiesDropDown(
+        "Google reCAPTCHA version",
+        "reCAPTCHA v3",
+      );
       _.agHelper.ClickButton("Submit");
       _.agHelper.Sleep();
     });
