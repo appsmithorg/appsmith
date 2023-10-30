@@ -1,5 +1,5 @@
 import React from "react";
-import { Icon, Text } from "design-system";
+import { Icon, Text, Tooltip } from "design-system";
 import styled from "styled-components";
 
 interface Props {
@@ -7,6 +7,7 @@ interface Props {
   selected: boolean;
   icon: string;
   onClick: () => void;
+  tooltip?: string;
 }
 
 const Container = styled.div`
@@ -16,7 +17,6 @@ const Container = styled.div`
   width: 50px;
   text-align: center;
   align-items: center;
-  gap: 5px;
   padding: 8px 0;
 `;
 
@@ -32,16 +32,25 @@ const IconContainer = styled.div<{ selected: boolean }>`
   justify-content: center;
   cursor: pointer;
   &:hover {
-    background: var(--colors-ui-content-surface-hover-bg, #f1f5f9);
+    background: ${(props) =>
+      props.selected
+        ? "var(--colors-raw-orange-100, #fbe6dc)"
+        : "var(--colors-ui-content-surface-hover-bg, #f1f5f9);"};
   }
 `;
 
 function SidebarButton(props: Props) {
   return (
     <Container>
-      <IconContainer onClick={props.onClick} selected={props.selected}>
-        <Icon name={props.icon} size="lg" />
-      </IconContainer>
+      <Tooltip
+        content={props.tooltip}
+        isDisabled={!!props.title && !props.tooltip}
+        placement={"right"}
+      >
+        <IconContainer onClick={props.onClick} selected={props.selected}>
+          <Icon name={props.icon} size="lg" />
+        </IconContainer>
+      </Tooltip>
       {props.title ? <Text kind="body-s">{props.title}</Text> : null}
     </Container>
   );

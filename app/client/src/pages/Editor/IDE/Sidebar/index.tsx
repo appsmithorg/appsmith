@@ -57,6 +57,7 @@ function Sidebar() {
             key={b.state}
             onClick={() => onClick(b.urlSuffix)}
             selected={appState === b.state}
+            tooltip={b.title}
           />
         ))}
       </div>
