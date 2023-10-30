@@ -60,10 +60,5 @@ export interface EvalTreeResponseData {
   jsVarsCreatedEvent?: { path: string; type: string }[];
   updates: string;
 }
-// Worker's response either contains expected data or a clone error
-export type WorkerResponse<T> =
-  | {
-      errors: EvalError[];
-    }
-  | T;
+
 export type JSVarMutatedEvents = Record<string, { path: string; type: string }>;
