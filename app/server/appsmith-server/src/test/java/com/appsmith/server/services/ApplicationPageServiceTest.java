@@ -8,8 +8,8 @@ import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.PageDTO;
-import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.helpers.DSLMigrationUtils;
+import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.solutions.ApplicationPermission;
@@ -194,7 +194,7 @@ public class ApplicationPageServiceTest {
         Mockito.when(dslMigrationUtils.getLatestDslVersion()).thenReturn(Mono.just(currentDslVersion));
 
         StepVerifier.create(applicationPageService.getPageAndMigrateDslByBranchAndDefaultPageId(
-                        newPage.getId(), null, false))
+                        newPage.getId(), null, false, true))
                 .assertNext(pageDTO -> {
                     Layout layout2 = pageDTO.getLayouts().get(0);
                     assertThat(layout2.getDsl().getAsNumber("version").intValue())
@@ -238,7 +238,7 @@ public class ApplicationPageServiceTest {
         Mockito.when(dslMigrationUtils.migratePageDsl(any(JSONObject.class))).thenReturn(Mono.just(dslAfterMigration));
 
         Mono<NewPage> newPageMono = applicationPageService
-                .getPageAndMigrateDslByBranchAndDefaultPageId(newPage.getId(), null, false)
+                .getPageAndMigrateDslByBranchAndDefaultPageId(newPage.getId(), null, false, true)
                 .then(newPageService.getById(newPage.getId()));
 
         StepVerifier.create(newPageMono)
@@ -294,7 +294,7 @@ public class ApplicationPageServiceTest {
         Mockito.when(dslMigrationUtils.migratePageDsl(any(JSONObject.class))).thenReturn(Mono.just(dslAfterMigration));
 
         Mono<NewPage> newPageMono = applicationPageService
-                .getPageAndMigrateDslByBranchAndDefaultPageId(newPage.getId(), null, true)
+                .getPageAndMigrateDslByBranchAndDefaultPageId(newPage.getId(), null, true, true)
                 .then(newPageService.getById(newPage.getId()));
 
         StepVerifier.create(newPageMono)

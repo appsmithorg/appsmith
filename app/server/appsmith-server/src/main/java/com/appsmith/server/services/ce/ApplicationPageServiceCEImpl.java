@@ -277,7 +277,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
     @Override
     public Mono<PageDTO> getPageAndMigrateDslByBranchAndDefaultPageId(
-            String defaultPageId, String branchName, boolean viewMode) {
+            String defaultPageId, String branchName, boolean viewMode, boolean migrateDsl) {
         // Fetch the page with read permission in both editor and in viewer.
         return newPageService
                 .findByBranchNameAndDefaultPageId(branchName, defaultPageId, pagePermission.getReadPermission())
@@ -287,13 +287,15 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                             .zipWith(Mono.just(newPage));
                 })
                 .flatMap(objects -> {
-                    // Call the DSL Utils for on demand migration of the page.
-                    // Based on view mode save the migrated DSL to the database
-                    // Migrate the DSL to the latest version if required
                     PageDTO pageDTO = objects.getT1();
-                    NewPage newPage = objects.getT2();
-                    if (pageDTO.getLayouts() != null) {
-                        return migrateAndUpdatePageDsl(newPage, pageDTO, viewMode);
+                    if (migrateDsl) {
+                        // Call the DSL Utils for on demand migration of the page.
+                        // Based on view mode save the migrated DSL to the database
+                        // Migrate the DSL to the latest version if required
+                        NewPage newPage = objects.getT2();
+                        if (pageDTO.getLayouts() != null) {
+                            return migrateAndUpdatePageDsl(newPage, pageDTO, viewMode);
+                        }
                     }
                     return Mono.just(pageDTO);
                 })

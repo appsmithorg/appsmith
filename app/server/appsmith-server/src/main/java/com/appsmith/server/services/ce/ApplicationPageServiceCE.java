@@ -23,7 +23,7 @@ public interface ApplicationPageServiceCE {
     Mono<PageDTO> getPage(String pageId, boolean viewMode);
 
     Mono<PageDTO> getPageAndMigrateDslByBranchAndDefaultPageId(
-            String defaultPageId, String branchName, boolean viewMode);
+            String defaultPageId, String branchName, boolean viewMode, boolean migrateDsl);
 
     Mono<Application> createApplication(Application application);
 
