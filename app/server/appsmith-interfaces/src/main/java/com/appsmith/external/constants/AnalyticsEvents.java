@@ -85,6 +85,9 @@ public enum AnalyticsEvents {
 
     GIT_STALE_FILE_LOCK_DELETED,
     SERVER_SETUP_COMPLETE("server_setup_complete"),
+
+    PARTIAL_IMPORT,
+
     SCIM_DISABLED("scim_disabled"),
     SCIM_LINKED("scim_linked"),
 
