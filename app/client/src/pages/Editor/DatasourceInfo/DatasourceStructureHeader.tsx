@@ -1,6 +1,6 @@
 import React, { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Icon, Text } from "design-system";
+import { Button, Text } from "design-system";
 import styled from "styled-components";
 import { refreshDatasourceStructure } from "actions/datasourceActions";
 import {
@@ -32,7 +32,7 @@ export default function DatasourceStructureHeader(props: Props) {
   const dispatch = useDispatch();
 
   const dispatchRefresh = useCallback(
-    (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
       if (props.datasource?.id) {
         event.stopPropagation();
 
@@ -68,11 +68,14 @@ export default function DatasourceStructureHeader(props: Props) {
           isGoogleSheetPlugin ? GSHEET_SPREADSHEET_LABEL : SCHEMA_LABEL,
         )}
       </Text>
-      {props.datasource?.id && (
-        <div className="datasourceStructure-refresh" onClick={dispatchRefresh}>
-          <Icon name="refresh" size={"md"} />
-        </div>
-      )}
+      <Button
+        className="datasourceStructure-refresh"
+        isIconButton
+        kind="tertiary"
+        onClick={(event: any) => dispatchRefresh(event)}
+        size="md"
+        startIcon="refresh"
+      />
     </HeaderWrapper>
   );
 }
