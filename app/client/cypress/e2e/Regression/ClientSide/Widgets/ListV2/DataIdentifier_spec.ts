@@ -33,6 +33,7 @@ const data = [
 describe("List v2 - Data Identifier property", () => {
   before(() => {
     agHelper.AddDsl("Listv2/ListV2WithNullPrimaryKey");
+    agHelper.Sleep(3000); //for List to load for CI flakyness
   });
 
   it("1. Widgets get displayed when PrimaryKey doesn't exist - SSP", () => {
