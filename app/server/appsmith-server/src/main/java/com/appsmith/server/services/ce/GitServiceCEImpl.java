@@ -1672,6 +1672,8 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 defaultApplicationId, applicationPermission.getEditPermission())
                         .flatMap(application2 -> {
                             application2.getGitApplicationMetadata().setDefaultBranchName(defaultBranchName);
+                            // clear the branch protection rules as the default branch name has been changed
+                            application2.getGitApplicationMetadata().setBranchProtectionRules(null);
                             return applicationService.save(application2);
                         }));
     }
@@ -1687,6 +1689,10 @@ public class GitServiceCEImpl implements GitServiceCE {
                     if (StringUtils.isEmptyOrNull(defaultBranchNameInRemote)) {
                         // If the default branch name in remote is empty or same as the one in DB, nothing to do
                         return Mono.just(defaultBranchInDb);
+                    }
+                    // check if default branch has been changed in remote
+                    if (defaultBranchNameInRemote.equals(defaultBranchInDb)) {
+                        return Mono.just(defaultBranchNameInRemote);
                     }
                     return updateDefaultBranchName(
                                     repoPath, defaultBranchNameInRemote, metadata.getDefaultApplicationId())
