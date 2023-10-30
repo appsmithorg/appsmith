@@ -39,7 +39,7 @@ const DatasourceBlankState = (
   }>,
 ) => {
   return (
-    <Container>
+    <Container className="t--data-blank-state">
       <Content>
         <BlankStateIllustration />
         <Text kind="body-s">

@@ -122,6 +122,6 @@ describe("Entity explorer tests related to query and datasource", function () {
       action: "Delete",
       entityType: entityItems.Query,
     });
-    dataSources.DeleteDatasouceFromActiveTab(datasourceName);
+    dataSources.DeleteDatasourceFromWithinDS(datasourceName);
   });
 });

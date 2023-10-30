@@ -1,4 +1,7 @@
 import { agHelper, dataSources } from "../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  SidebarButton,
+} from "../../../support/Pages/EditorNavigation";
 
 let dsName;
 describe("excludeForAirgap", "Validate Datasource Panel Styles", function () {
@@ -83,7 +86,7 @@ describe("excludeForAirgap", "Validate Datasource Panel Styles", function () {
 
   it("4. Datasource Active card styles", () => {
     // Action button icon placement
-    dataSources.NavigateToActiveTab();
+    EditorNavigation.sidebar(SidebarButton.Data);
     //Icon should be placed left to the text.
     cy.get(".t--create-query span");
 
@@ -146,7 +149,7 @@ describe("excludeForAirgap", "Validate Datasource Panel Styles", function () {
   });
 
   after(() => {
-    dataSources.DeleteDatasouceFromActiveTab(dsName);
+    dataSources.DeleteDatasourceFromWithinDS(dsName);
     //entityExplorer.ActionContextMenuByEntityName(dsName, "Delete");//Since Users is not appearing in EntityExplorer, this has potential to fail
   });
 });

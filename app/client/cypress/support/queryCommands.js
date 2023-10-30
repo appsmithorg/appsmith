@@ -1,6 +1,7 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
 /* eslint-disable cypress/no-assigning-return-values */
 import { ObjectsRegistry } from "../support/Objects/Registry";
+import EditorNavigation, { SidebarButton } from "./Pages/EditorNavigation";
 require("cy-verify-downloads").addCustomCommand();
 require("cypress-file-upload");
 const jsEditorLocators = require("../locators/JSEditor.json");
@@ -30,7 +31,7 @@ Cypress.Commands.add("NavigateToQueriesInExplorer", () => {
 });
 
 Cypress.Commands.add("NavigateToActiveDSQueryPane", (datasourceName) => {
-  DataSources.NavigateToActiveTab();
+  EditorNavigation.sidebar(SidebarButton.Data);
 
   cy.get(datasource.datasourceCard)
     .contains(datasourceName)
@@ -44,7 +45,7 @@ Cypress.Commands.add("NavigateToActiveDSQueryPane", (datasourceName) => {
 });
 
 Cypress.Commands.add("NavigateToDSGeneratePage", (datasourceName) => {
-  DataSources.NavigateToActiveTab();
+  EditorNavigation.sidebar(SidebarButton.Data);
 
   cy.get(datasource.datasourceCard)
     .contains(datasourceName)

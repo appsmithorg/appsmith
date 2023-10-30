@@ -271,7 +271,7 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
 
   it("9. Validate Deletion of the Newly Created Page", () => {
     cy.NavigateToQueryEditor();
-    dataSources.DeleteDatasouceFromActiveTab(datasourceName, 409);
+    dataSources.DeleteDatasourceFromWithinDS(datasourceName, 409);
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "Public.users_crud",
       action: "Delete",
@@ -321,6 +321,6 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
 
   it("13. Deletes the datasource", () => {
     cy.NavigateToQueryEditor();
-    dataSources.DeleteDatasouceFromActiveTab(datasourceName, [200, 409]);
+    dataSources.DeleteDatasourceFromWithinDS(datasourceName, [200, 409]);
   });
 });

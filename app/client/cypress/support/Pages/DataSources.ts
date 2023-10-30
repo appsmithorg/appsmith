@@ -1,6 +1,7 @@
 import { ObjectsRegistry } from "../Objects/Registry";
 import { WIDGET } from "../../locators/WidgetLocators";
 import { EntityItems } from "./AssertHelper";
+import EditorNavigation, { SidebarButton } from "./EditorNavigation";
 
 export const DataSourceKVP = {
   Postgres: "PostgreSQL",
@@ -51,7 +52,7 @@ export class DataSources {
 
   private _dsCreateNewTab = "[data-testid=t--tab-CREATE_NEW]";
   private _dsReviewSection = "[data-testid='t--ds-review-section']";
-  private _addNewDataSource = ".t--entity-add-btn.datasources button";
+  private _addNewDataSource = ".t--add-datasource-button";
   private _createNewPlgin = (pluginName: string) =>
     ".t--plugin-name:contains('" + pluginName + "')";
   public _host = (index = "0") =>
@@ -444,14 +445,10 @@ export class DataSources {
   }
 
   public NavigateToDSCreateNew() {
-    this.entityExplorer.HoverOnEntityItem("Datasources");
+    EditorNavigation.sidebar(SidebarButton.Data);
     Cypress._.times(2, () => {
       this.agHelper.GetNClick(this._addNewDataSource, 0, true);
       this.agHelper.Sleep();
-    });
-    this.agHelper.RemoveUIElement("Tooltip", "Add a new datasource");
-    cy.get(this._newDatasourceContainer).scrollTo("bottom", {
-      ensureScrollable: false,
     });
     cy.get(this._newDatabases).should("be.visible");
   }
@@ -846,48 +843,11 @@ export class DataSources {
     this.agHelper.AssertContains("datasource updated");
   }
 
-  public ShowAllDatasources() {
-    this.agHelper.GetElement(this.locator._body).then(($body) => {
-      if ($body.find(this._selectedActiveTab).length === 0) {
-        this.agHelper.ClickButton("Show all datasources");
-      }
-    });
-  }
-
-  public ClickActiveTabDSContextMenu(datasourceName: string) {
-    this.agHelper.GetElement(this.locator._body).then(($body) => {
-      if (
-        $body.find(this.locator._visibleTextSpan("Show all datasources", true))
-          .length !== 0
-      ) {
-        this.ShowAllDatasources();
-      } else this.NavigateToActiveTab();
-    });
-
-    cy.get(this._datasourceCard)
-      .contains(datasourceName)
-      .parents(this._datasourceCard)
-      .find(this._dsMenuoptions)
-      .scrollIntoView()
-      .should("be.visible")
-      .click();
-  }
-
-  public DeleteDatasouceFromActiveTab(
-    datasourceName: string,
-    expectedRes = 200 || 409 || [200, 409],
-  ) {
-    this.ClickActiveTabDSContextMenu(datasourceName);
-    this.agHelper.GetNClick(this._dsOptionMenuItem("Delete"), 0, false, 200);
-    this.agHelper.GetNClick(this._dsOptionMenuItem("Are you sure?"));
-    this.ValidateDSDeletion(expectedRes);
-  }
-
   public DeleteDatasourceFromWithinDS(
     datasourceName: string,
     expectedRes: number | number[] = 200 || 409 || [200, 409],
   ) {
-    this.NavigateToActiveTab();
+    EditorNavigation.sidebar(SidebarButton.Data);
     cy.get(this._datasourceCard)
       .contains(datasourceName)
       .scrollIntoView()
@@ -924,19 +884,6 @@ export class DataSources {
     this.ValidateDSDeletion(expectedRes);
   }
 
-  public DeleteDSFromEntityExplorer(
-    dsName: string,
-    expectedRes: number | number[] = 200,
-  ) {
-    this.entityExplorer.SelectEntityByName(dsName, "Datasources");
-    this.entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: dsName,
-      action: "Delete",
-      entityType: EntityItems.Datasource,
-    });
-    this.ValidateDSDeletion(expectedRes);
-  }
-
   public ValidateDSDeletion(expectedRes: number | number[] = 200) {
     this.assertHelper
       .AssertNetworkStatus("@deleteDatasource", expectedRes)
@@ -947,15 +894,6 @@ export class DataSources {
             : "action(s) using it",
         );
       });
-  }
-
-  public NavigateToActiveTab() {
-    this.agHelper.GetElement(this.locator._body).then(($body) => {
-      if ($body.find(this._selectedActiveTab).length === 0) {
-        this.NavigateToDSCreateNew();
-        this.agHelper.GetNClick(this._activeTab, 0, true);
-      }
-    });
   }
 
   public NavigateFromActiveDS(
@@ -986,11 +924,7 @@ export class DataSources {
   }
 
   public AssertDSInActiveList(dsName: string | RegExp) {
-    this.entityExplorer.NavigateToSwitcher("Explorer", 0, true);
-    this.entityExplorer.ExpandCollapseEntity("Datasources", false);
-    //this.entityExplorer.SelectEntityByName(datasourceName, "Datasources");
-    //this.entityExplorer.ExpandCollapseEntity(datasourceName, false);
-    this.NavigateToActiveTab();
+    EditorNavigation.sidebar(SidebarButton.Data);
     return this.agHelper.GetNAssertContains(this._datasourceCard, dsName);
   }
 
@@ -998,7 +932,7 @@ export class DataSources {
     datasourceName: string,
     toNavigateToActive = true,
   ) {
-    if (toNavigateToActive) this.NavigateToActiveTab();
+    if (toNavigateToActive) EditorNavigation.sidebar(SidebarButton.Data);
     cy.get(this._datasourceCard, { withinSubject: null })
       .find(this._activeDS)
       .contains(new RegExp("^" + datasourceName + "$")) //This regex is to exact match the datasource name
@@ -1040,7 +974,7 @@ export class DataSources {
     queryName = "",
     cancelEditDs = true,
   ) {
-    this.NavigateToActiveTab();
+    EditorNavigation.sidebar(SidebarButton.Data);
     cy.get(this._datasourceCard)
       .contains(new RegExp("^" + datasourceName + "$")) //This regex is to exact match the datasource name
       .scrollIntoView()

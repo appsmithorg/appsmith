@@ -20,7 +20,7 @@ describe("datasource unsaved changes popup shows even without changes", function
       _.dataSources.EditDatasource();
       _.agHelper.GoBack();
       _.agHelper.AssertElementVisibility(_.dataSources._activeDS);
-      _.dataSources.DeleteDatasouceFromActiveTab(dsName);
+      _.dataSources.DeleteDatasourceFromWithinDS(dsName);
     });
   });
 
@@ -44,7 +44,7 @@ describe("datasource unsaved changes popup shows even without changes", function
       _.dataSources.EditDatasource();
       _.agHelper.GoBack();
       _.agHelper.AssertElementVisibility(_.dataSources._activeDS);
-      _.dataSources.DeleteDatasouceFromActiveTab(dsName);
+      _.dataSources.DeleteDatasourceFromWithinDS(dsName);
     });
   });
 
@@ -68,7 +68,7 @@ describe("datasource unsaved changes popup shows even without changes", function
       // Assert that popup is visible
       _.dataSources.SaveDSFromDialog(false);
 
-      _.dataSources.DeleteDatasouceFromActiveTab(dsName);
+      _.dataSources.DeleteDatasourceFromWithinDS(dsName);
     });
   });
 
@@ -92,7 +92,7 @@ describe("datasource unsaved changes popup shows even without changes", function
       // Assert that popup is visible
       _.dataSources.cancelDSEditAndAssertModalPopUp(true, false);
 
-      _.dataSources.DeleteDatasouceFromActiveTab(dsName);
+      _.dataSources.DeleteDatasourceFromWithinDS(dsName);
     });
   });
 
@@ -115,7 +115,7 @@ describe("datasource unsaved changes popup shows even without changes", function
       // Assert that popup is visible
       _.dataSources.cancelDSEditAndAssertModalPopUp(false, false);
 
-      _.dataSources.DeleteDatasouceFromActiveTab(dsName);
+      _.dataSources.DeleteDatasourceFromWithinDS(dsName);
     });
   });
 
@@ -149,7 +149,7 @@ describe("datasource unsaved changes popup shows even without changes", function
         _.dataManager.dsValues.Staging.mongo_host,
       );
 
-      _.dataSources.DeleteDatasouceFromActiveTab(dsName);
+      _.dataSources.DeleteDatasourceFromWithinDS(dsName);
     });
   });
 

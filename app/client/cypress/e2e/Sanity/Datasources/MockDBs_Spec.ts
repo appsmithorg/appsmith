@@ -7,6 +7,9 @@ import {
 } from "../../../support/Objects/ObjectsCore";
 let dsName: any;
 import formControls from "../../../locators/FormControl.json";
+import EditorNavigation, {
+  SidebarButton,
+} from "../../../support/Pages/EditorNavigation";
 
 describe(
   "excludeForAirgap",
@@ -27,7 +30,7 @@ describe(
         );
 
         dataSources.RunQueryNVerifyResponseViews(5); //minimum 5 rows are expected
-        dataSources.NavigateToActiveTab();
+        EditorNavigation.sidebar(SidebarButton.Data);
         agHelper
           .GetText(dataSources._queriesOnPageText(mockDBName))
           .then(($queryCount) =>
@@ -36,7 +39,7 @@ describe(
 
         entityExplorer.CreateNewDsQuery(mockDBName);
         dataSources.RunQueryNVerifyResponseViews(10, true);
-        dataSources.NavigateToActiveTab();
+        EditorNavigation.sidebar(SidebarButton.Data);
         agHelper
           .GetText(dataSources._queriesOnPageText(mockDBName))
           .then(($queryCount) =>
@@ -62,7 +65,7 @@ describe(
         agHelper.Sleep(2000); //for movies collection to load & populate in dropdown
         dataSources.ValidateNSelectDropdown("Collection", "movies");
         dataSources.RunQueryNVerifyResponseViews(1, false);
-        dataSources.NavigateToActiveTab();
+        EditorNavigation.sidebar(SidebarButton.Data);
         agHelper
           .GetText(dataSources._queriesOnPageText(mockDBName))
           .then(($queryCount) =>
@@ -73,7 +76,7 @@ describe(
         dataSources.ValidateNSelectDropdown("Commands", "Find document(s)");
         dataSources.ValidateNSelectDropdown("Collection", "movies");
         dataSources.RunQueryNVerifyResponseViews(1, false);
-        dataSources.NavigateToActiveTab();
+        EditorNavigation.sidebar(SidebarButton.Data);
         agHelper
           .GetText(dataSources._queriesOnPageText(mockDBName))
           .then(($queryCount) =>
@@ -94,7 +97,7 @@ describe(
         action: "Delete",
         entityType: entityItems.Query,
       });
-      dataSources.NavigateToActiveTab();
+      EditorNavigation.sidebar(SidebarButton.Data);
       agHelper
         .GetText(dataSources._queriesOnPageText(dsName))
         .then(($queryCount) =>
@@ -102,7 +105,7 @@ describe(
             "No query in this application is using this datasource",
           ),
         );
-      dataSources.DeleteDatasouceFromActiveTab(dsName);
+      dataSources.DeleteDatasourceFromWithinDS(dsName);
     });
   },
 );

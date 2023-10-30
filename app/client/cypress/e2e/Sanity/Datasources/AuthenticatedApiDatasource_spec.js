@@ -26,7 +26,7 @@ describe("Authenticated API Datasource", function () {
     cy.get(".t--save-datasource").click({ force: true });
     cy.contains(URL + "/users");
     agHelper.WaitUntilAllToastsDisappear();
-    dataSources.DeleteDatasouceFromActiveTab(dsName);
+    dataSources.DeleteDatasourceFromWithinDS(dsName);
   });
 
   it("3. Bug: 14181 -Make sure the datasource view mode page does not contain labels with no value.", function () {
@@ -38,7 +38,7 @@ describe("Authenticated API Datasource", function () {
     cy.contains(headers).should("not.exist");
     cy.contains(queryParams).should("not.exist");
     agHelper.WaitUntilAllToastsDisappear();
-    dataSources.DeleteDatasouceFromActiveTab(dsName);
+    dataSources.DeleteDatasourceFromWithinDS(dsName);
   });
 
   it("4. Bug: 18051 - Save and Authorise should return to datasource page in view mode and not new datasource page", () => {
@@ -55,7 +55,7 @@ describe("Authenticated API Datasource", function () {
           );
           agHelper.RefreshPage();
           agHelper.AssertElementVisibility(dataSources._editButton);
-          dataSources.DeleteDatasouceFromActiveTab("TED_OAuth" + uid);
+          dataSources.DeleteDatasourceFromWithinDS("TED_OAuth" + uid);
         });
       });
     });

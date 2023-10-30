@@ -813,14 +813,6 @@ Cypress.Commands.add("importCurl", () => {
   );
 });
 
-Cypress.Commands.add("NavigateToActiveTab", () => {
-  cy.get(explorer.activeTab).click({ force: true });
-
-  // cy.get(pages.integrationActiveTab)
-  //   .should("be.visible")
-  //   .click({ force: true });
-});
-
 Cypress.Commands.add("selectAction", (option) => {
   cy.get(".ads-v2-menu__menu-item-children")
     .contains(option)

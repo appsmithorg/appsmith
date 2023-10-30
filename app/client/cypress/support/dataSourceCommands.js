@@ -1,6 +1,8 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
 /* eslint-disable cypress/no-assigning-return-values */
 
+import EditorNavigation, { SidebarButton } from "./Pages/EditorNavigation";
+
 require("cy-verify-downloads").addCustomCommand();
 require("cypress-file-upload");
 import { ObjectsRegistry } from "../support/Objects/Registry";
@@ -52,15 +54,11 @@ Cypress.Commands.add("testSaveDeleteDatasource", () => {
 });
 
 Cypress.Commands.add("NavigateToDatasourceEditor", () => {
-  cy.get(explorer.addDBQueryEntity).last().click({ force: true });
-  dataSources.NavigateToDSCreateNew();
+  EditorNavigation.sidebar(SidebarButton.Data);
 });
 
 Cypress.Commands.add("NavigateToActiveDatasources", () => {
-  cy.get(explorer.addDBQueryEntity).last().click({ force: true });
-  cy.get(pages.integrationActiveTab)
-    .should("be.visible")
-    .click({ force: true });
+  EditorNavigation.sidebar(SidebarButton.Data);
 });
 
 Cypress.Commands.add("testDatasource", (expectedRes = true) => {
@@ -275,7 +273,7 @@ Cypress.Commands.add("createGoogleSheetsDatasource", () => {
 
 Cypress.Commands.add("deleteDatasource", (datasourceName) => {
   cy.NavigateToQueryEditor();
-  dataSources.DeleteDatasouceFromActiveTab(datasourceName);
+  dataSources.DeleteDatasourceFromWithinDS(datasourceName);
 });
 
 Cypress.Commands.add("renameDatasource", (datasourceName) => {
@@ -332,7 +330,7 @@ Cypress.Commands.add("createNewAuthApiDatasource", (renameVal) => {
 Cypress.Commands.add("deleteAuthApiDatasource", (renameVal) => {
   //Navigate to active datasources panel.
   cy.get(pages.addEntityAPI).last().should("be.visible").click({ force: true });
-  dataSources.DeleteDatasouceFromActiveTab(renameVal);
+  dataSources.DeleteDatasourceFromWithinDS(renameVal);
 });
 
 Cypress.Commands.add("createGraphqlDatasource", (datasourceName) => {

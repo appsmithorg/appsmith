@@ -41,7 +41,7 @@ describe("Validate Mongo URI CRUD with JSON Form", () => {
       table.WaitUntilTableLoad();
       //Should not be able to delete ds until app is published again
       //coz if app is published & shared then deleting ds may cause issue, So!
-      dataSources.DeleteDatasouceFromActiveTab(dsName as string, 409);
+      dataSources.DeleteDatasourceFromWithinDS(dsName as string, 409);
     });
   });
 

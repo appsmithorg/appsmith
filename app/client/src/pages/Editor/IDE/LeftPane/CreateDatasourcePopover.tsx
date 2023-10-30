@@ -8,6 +8,7 @@ const CreateDatasourcePopover = () => {
     <Popover open={false}>
       <PopoverTrigger>
         <Button
+          className={"t--add-datasource-button"}
           isIconButton
           kind="tertiary"
           onClick={() =>

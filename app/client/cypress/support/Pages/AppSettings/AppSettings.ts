@@ -1,11 +1,10 @@
 import { ObjectsRegistry } from "../../Objects/Registry";
+import EditorNavigation, { SidebarButton } from "../EditorNavigation";
 export class AppSettings {
   private agHelper = ObjectsRegistry.AggregateHelper;
   private theme = ObjectsRegistry.ThemeSettings;
 
   public locators = {
-    _appSettings: ".t--app-settings-cta",
-    _closeSettings: "#t--close-app-settings-pane",
     _themeSettingsHeader: "#t--theme-settings-header",
     _generalSettingsHeader: "#t--general-settings-header",
     _embedSettingsHeader: "#t--share-embed-settings",
@@ -69,11 +68,11 @@ export class AppSettings {
   };
 
   public OpenAppSettings() {
-    this.agHelper.GetNClick(this.locators._appSettings, 0, true);
+    EditorNavigation.sidebar(SidebarButton.Settings);
   }
 
   public ClosePane() {
-    this.agHelper.GetNClick(this.locators._closeSettings);
+    EditorNavigation.sidebar(SidebarButton.Pages);
   }
 
   public GoToThemeSettings() {

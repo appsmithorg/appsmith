@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  SidebarButton,
+} from "../../../../../support/Pages/EditorNavigation";
+
 const publishLocators = require("../../../../../locators/publishWidgetspage.json");
 const datasource = require("../../../../../locators/DatasourcesEditor.json");
 const queryLocators = require("../../../../../locators/QueryEditor.json");
@@ -328,7 +332,7 @@ describe("List widget v2 - Basic server side data tests", () => {
       // Click on sample(mock) user database.
       cy.get(datasource.mockUserDatabase).click();
 
-      _.dataSources.NavigateToActiveTab();
+      EditorNavigation.sidebar(SidebarButton.Data);
 
       // Choose the first data source which consists of users keyword & Click on the "New query +"" button
       cy.get(`${datasource.datasourceCard}`)

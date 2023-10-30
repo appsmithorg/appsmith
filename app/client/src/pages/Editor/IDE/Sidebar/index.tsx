@@ -39,7 +39,7 @@ function Sidebar() {
   }
 
   return (
-    <Container>
+    <Container className="t--sidebar">
       <div>
         {TopButtons.map((b) => (
           <SidebarButton

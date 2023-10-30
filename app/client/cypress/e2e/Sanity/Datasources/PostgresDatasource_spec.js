@@ -11,7 +11,7 @@ describe("Postgres datasource test cases", function () {
     dataSources.CreateDataSource("Postgres");
     cy.get("@saveDatasource").then((httpResponse) => {
       datasourceName = JSON.stringify(httpResponse.response.body.data.name);
-      dataSources.DeleteDatasouceFromActiveTab(
+      dataSources.DeleteDatasourceFromWithinDS(
         datasourceName.replace(/['"]+/g, ""),
       );
     });

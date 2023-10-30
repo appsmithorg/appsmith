@@ -52,6 +52,6 @@ describe("Verify setting tab form controls not to have tooltip and tooltip (unde
       action: "Delete",
       entityType: entityItems.Query,
     });
-    dataSources.DeleteDatasouceFromActiveTab(datasourceName, 200);
+    dataSources.DeleteDatasourceFromWithinDS(datasourceName, 200);
   });
 });

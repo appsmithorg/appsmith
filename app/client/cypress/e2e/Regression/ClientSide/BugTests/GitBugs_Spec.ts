@@ -1,5 +1,8 @@
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 import * as _ from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  SidebarButton,
+} from "../../../../support/Pages/EditorNavigation";
 
 let repoName: any;
 let tempBranch: any;
@@ -199,7 +202,7 @@ describe("Git Bugs", function () {
 
   it("9. Bug 24920: Not able to discard app settings changes for the first time in git connected app ", function () {
     // add navigation settings changes
-    _.agHelper.GetNClick(_.appSettings.locators._appSettings);
+    EditorNavigation.sidebar(SidebarButton.Settings);
     _.agHelper.GetNClick(_.appSettings.locators._navigationSettingsTab);
     _.agHelper.GetNClick(
       _.appSettings.locators._navigationSettings._orientationOptions._side,

@@ -106,7 +106,7 @@ describe("Entity explorer context menu should hide on scrolling", function () {
       action: "Delete",
       entityType: entityItems.Query,
     });
-    dataSources.DeleteDatasouceFromActiveTab(mockDBNameMovies); //Since sometimes after Queries are deleted, ds is no more visible in EE tree
-    dataSources.DeleteDatasouceFromActiveTab(mockDBNameUsers);
+    dataSources.DeleteDatasourceFromWithinDS(mockDBNameMovies); //Since sometimes after Queries are deleted, ds is no more visible in EE tree
+    dataSources.DeleteDatasourceFromWithinDS(mockDBNameUsers);
   });
 });

@@ -1,12 +1,15 @@
 import {
   agHelper,
-  locators,
-  entityExplorer,
-  propPane,
   appSettings,
   autoLayout,
   draggableWidgets,
+  entityExplorer,
+  locators,
+  propPane,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  SidebarButton,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe("Validating multiple widgets in auto layout mode with App navigation settings", function () {
   it("1. Drag and Drop multiple widgets in auto layout mode", function () {
@@ -19,7 +22,7 @@ describe("Validating multiple widgets in auto layout mode with App navigation se
 
   it("2. Change App navigation settings and valdiate the layout settings", () => {
     entityExplorer.SelectEntityByName("Page1", "Pages");
-    agHelper.GetNClick(appSettings.locators._appSettings);
+    EditorNavigation.sidebar(SidebarButton.Settings);
     agHelper.GetNClick(appSettings.locators._navigationSettingsTab);
     agHelper.GetNClick(
       appSettings.locators._navigationSettings._orientationOptions._side,

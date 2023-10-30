@@ -336,7 +336,7 @@ describe("Validate Arango & CURL Import Datasources", () => {
     }); //needed for the deletion of ds to reflect
     agHelper.AssertElementVisibility(dataSources._noSchemaAvailable(dsName));
     //Deleting datasource finally
-    dataSources.DeleteDatasouceFromActiveTab(dsName);
+    dataSources.DeleteDatasourceFromWithinDS(dsName);
 
     dataSources.StopNDeleteContainer(containerName);
   });

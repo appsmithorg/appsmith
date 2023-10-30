@@ -54,7 +54,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     //coz if app is published & shared then deleting ds may cause issue, So!
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
-      dataSources.DeleteDatasouceFromActiveTab(dsName as string, 409);
+      dataSources.DeleteDatasourceFromWithinDS(dsName as string, 409);
       agHelper.WaitUntilAllToastsDisappear();
     });
     deployMode.DeployApp(locators._emptyPageTxt);
@@ -62,7 +62,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     deployMode.NavigateBacktoEditor();
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
-      dataSources.DeleteDatasouceFromActiveTab(dsName as string, 200);
+      dataSources.DeleteDatasourceFromWithinDS(dsName as string, 200);
     });
     agHelper.WaitUntilAllToastsDisappear();
   });

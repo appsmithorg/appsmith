@@ -47,7 +47,11 @@ function SidebarButton(props: Props) {
         isDisabled={!!props.title && !props.tooltip}
         placement={"right"}
       >
-        <IconContainer onClick={props.onClick} selected={props.selected}>
+        <IconContainer
+          className={`t--sidebar-${props.title || props.tooltip}`}
+          onClick={props.onClick}
+          selected={props.selected}
+        >
           <Icon name={props.icon} size="lg" />
         </IconContainer>
       </Tooltip>
