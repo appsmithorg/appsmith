@@ -3,10 +3,8 @@ import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import type { AppState } from "@appsmith/reducers";
 import { connect, useDispatch, useSelector } from "react-redux";
-import type {
-  CurrentEnvironmentDetails,
-  EnvironmentType,
-} from "@appsmith/reducers/environmentReducer";
+import type { CurrentEnvironmentDetails } from "@appsmith/reducers/environmentReducer";
+import type { EnvironmentType } from "@appsmith/configs/types";
 import {
   getEnvironmentsWithPermission,
   getDefaultEnvironment,

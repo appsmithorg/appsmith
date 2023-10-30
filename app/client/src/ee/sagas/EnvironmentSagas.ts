@@ -13,10 +13,8 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { validateResponse } from "sagas/ErrorSagas";
 import EnvironmentApi from "@appsmith/api/EnvironmentApi";
 import { fetchingEnvironmentConfigs } from "@appsmith/actions/environmentAction";
-import type {
-  CurrentEnvironmentDetails,
-  EnvironmentType,
-} from "@appsmith/reducers/environmentReducer";
+import type { CurrentEnvironmentDetails } from "@appsmith/reducers/environmentReducer";
+import type { EnvironmentType } from "@appsmith/configs/types";
 import { ENVIRONMENT_QUERY_KEY } from "@appsmith/utils/Environments";
 import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 import { PERMISSION_TYPE } from "@appsmith/utils/permissionHelpers";

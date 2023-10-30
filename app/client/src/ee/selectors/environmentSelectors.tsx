@@ -1,7 +1,7 @@
 export * from "ce/selectors/environmentSelectors";
 import { DEFAULT_ENV_ID } from "@appsmith/api/ApiUtils";
 import type { AppState } from "@appsmith/reducers";
-import type { EnvironmentType } from "@appsmith/reducers/environmentReducer";
+import type { EnvironmentType } from "@appsmith/configs/types";
 import { PERMISSION_TYPE } from "@appsmith/utils/permissionHelpers";
 
 export const getEnvironmentByName = (state: AppState, name: string) => {

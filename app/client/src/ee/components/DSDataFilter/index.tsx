@@ -1,4 +1,4 @@
-import type { EnvironmentType } from "@appsmith/reducers/environmentReducer";
+import type { EnvironmentType } from "@appsmith/configs/types";
 import { getEnvironments } from "@appsmith/selectors/environmentSelectors";
 import { Text, Icon, Tooltip } from "design-system";
 import { capitalizeFirstLetter } from "pages/Editor/gitSync/QuickGitActions";

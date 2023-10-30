@@ -1,15 +1,7 @@
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { createReducer } from "utils/ReducerUtils";
-
-// Type for one environment
-export interface EnvironmentType {
-  id: string;
-  name: string;
-  workspaceId: string;
-  isDefault?: boolean;
-  userPermissions?: string[];
-}
+import type { EnvironmentType } from "@appsmith/configs/types";
 
 export interface CurrentEnvironmentDetails {
   id: string; // current environment id
