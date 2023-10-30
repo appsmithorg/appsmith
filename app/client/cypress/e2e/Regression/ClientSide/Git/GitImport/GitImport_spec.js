@@ -19,12 +19,13 @@ import {
 describe("Git import flow ", function () {
   before(() => {
     homePage.NavigateToHome();
-    cy.createWorkspace();
-    cy.wait("@createWorkspace").then((interception) => {
-      newWorkspaceName = interception.response.body.data.name;
-      cy.CreateAppForWorkspace(newWorkspaceName, newWorkspaceName);
+    homePage.CreateNewWorkspace();
+    cy.get("@workspaceName").then((workspaceName) => {
+      newWorkspaceName = workspaceName;
+      homePage.CreateAppInWorkspace(workspaceName);
     });
   });
+
   it("1. Import an app from JSON with Postgres, MySQL, Mongo db & then connect it to Git", () => {
     homePage.NavigateToHome();
     cy.get(homePageLocators.optionsIcon).first().click();
@@ -147,6 +148,7 @@ describe("Git import flow ", function () {
     // verify js object binded to input widget
     cy.xpath("//input[@value='Success']").should("be.visible");
   });
+
   it("4. Create a new branch, clone page and validate data on that branch in view and edit mode", () => {
     //cy.createGitBranch(newBranch);
     gitSync.CreateGitBranch(newBranch, true);

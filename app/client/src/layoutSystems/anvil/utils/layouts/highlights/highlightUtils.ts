@@ -7,6 +7,7 @@ import type {
   GetLayoutHighlights,
   GetWidgetHighlights,
   LayoutProps,
+  WidgetLayoutProps,
 } from "../../anvilTypes";
 import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
 import { HIGHLIGHT_SIZE } from "../../constants";
@@ -109,4 +110,17 @@ export function getStartPosition(
     default:
       return HIGHLIGHT_SIZE / 2;
   }
+}
+
+export function getNonDraggedWidgets(
+  layout: WidgetLayoutProps[],
+  draggedWidgets: DraggedWidget[],
+): WidgetLayoutProps[] {
+  const draggedWidgetIds: string[] = draggedWidgets.map(
+    (each: DraggedWidget) => each.widgetId,
+  );
+
+  return layout.filter(
+    (each: WidgetLayoutProps) => !draggedWidgetIds.includes(each.widgetId),
+  );
 }

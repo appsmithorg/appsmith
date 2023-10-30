@@ -40,6 +40,17 @@ const widgetPositionsReducer = createImmerReducer(initialState, {
         state[widgetId].top = newPosition.top;
     }
   },
+  [AnvilReduxActionTypes.REMOVE_LAYOUT_ELEMENT_POSITIONS]: (
+    state: LayoutElementPositions,
+    action: AnvilReduxAction<string[]>,
+  ) => {
+    const elements = action.payload;
+    for (const each of elements) {
+      if (state[each]) {
+        delete state[each];
+      }
+    }
+  },
 });
 
 export default widgetPositionsReducer;

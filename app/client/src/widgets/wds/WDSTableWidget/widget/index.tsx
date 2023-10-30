@@ -138,6 +138,7 @@ import {
   ResponsiveBehavior,
 } from "layoutSystems/common/utils/constants";
 import IconSVG from "../icon.svg";
+import { getAnvilWidgetDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
 
 const ReactTableComponent = lazy(async () =>
   retryPromise(async () => import("../component")),
@@ -1180,7 +1181,12 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
   getPaddingAdjustedDimensions = () => {
     // eslint-disable-next-line prefer-const
-    let { componentHeight, componentWidth } = this.props;
+    let { componentHeight } = this.props;
+    // Hacky fix for now to supply width to table widget
+    let componentWidth: number =
+      document
+        .getElementById(getAnvilWidgetDOMId(this.props.widgetId))
+        ?.getBoundingClientRect().width || this.props.componentWidth;
     // (2 * WIDGET_PADDING) gives the total horizontal padding (i.e. paddingLeft + paddingRight)
     componentWidth = componentWidth - 2 * WIDGET_PADDING;
     return { componentHeight, componentWidth };
