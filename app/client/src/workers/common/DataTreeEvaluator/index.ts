@@ -554,13 +554,11 @@ export default class DataTreeEvaluator {
       stringifiedLocalUnEvalTreeJSCollection,
     );
 
-    const differences: Diff<DataTree, DataTree>[] = klona(
+    const differences: Diff<DataTree, DataTree>[] =
       diff(
         oldUnEvalTreeWithStringifiedJSFunctions,
         localUnEvalTreeWithStringifiedJSFunctions,
-      ) || [],
-    );
-
+      ) || [];
     // Since eval tree is listening to possible events that don't cause differences
     // We want to check if no diffs are present and bail out early
     if (differences.length === 0) {
