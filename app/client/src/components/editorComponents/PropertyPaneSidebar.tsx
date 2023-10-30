@@ -132,7 +132,7 @@ export const PropertyPaneSidebar = memo((props: Props) => {
     <div className="relative h-full">
       {/* PROPERTY PANE */}
       <div
-        className={`js-property-pane-sidebar t--property-pane-sidebar flex h-full border-l bg-white ${tailwindLayers.propertyPane}`}
+        className="js-property-pane-sidebar t--property-pane-sidebar flex h-full border-l bg-white"
         id={PROPERTY_PANE_ID}
         ref={sidebarRef}
       >

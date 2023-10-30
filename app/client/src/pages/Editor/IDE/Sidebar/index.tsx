@@ -16,6 +16,7 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  background-color: var(--ads-v2-color-bg);
 `;
 
 function Sidebar() {
@@ -38,7 +39,7 @@ function Sidebar() {
   }
 
   return (
-    <Container className="z-[3]">
+    <Container>
       <div>
         {TopButtons.map((b) => (
           <SidebarButton

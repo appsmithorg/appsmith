@@ -5,6 +5,11 @@ import { useSelector } from "react-redux";
 import { selectLibrariesForExplorer } from "@appsmith/selectors/entitiesSelector";
 import { animated, useTransition } from "react-spring";
 import { LibraryEntity } from "pages/Editor/Explorer/Libraries";
+import styled from "styled-components";
+
+const Container = styled.div`
+  width: 250px;
+`;
 
 const LibrarySidePane = () => {
   const libraries = useSelector(selectLibrariesForExplorer);
@@ -15,7 +20,7 @@ const LibrarySidePane = () => {
     leave: { opacity: 1 },
   });
   return (
-    <div>
+    <Container>
       <PaneHeader
         rightIcon={<AddLibraryPopover />}
         title="Installed Libraries"
@@ -25,7 +30,7 @@ const LibrarySidePane = () => {
           <LibraryEntity lib={lib} />
         </animated.div>
       ))}
-    </div>
+    </Container>
   );
 };
 
