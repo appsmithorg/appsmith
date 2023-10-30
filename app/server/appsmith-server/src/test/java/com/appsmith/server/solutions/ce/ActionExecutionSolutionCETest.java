@@ -650,6 +650,9 @@ public class ActionExecutionSolutionCETest {
         Mockito.when(pluginExecutor.executeParameterizedWithMetrics(any(), any(), any(), any(), any()))
                 .thenAnswer(x -> Mono.delay(Duration.ofMillis(1000)).ofType(ActionExecutionResult.class));
         Mockito.when(pluginExecutor.datasourceCreate(any())).thenReturn(Mono.empty());
+        Mockito.doReturn(Mono.just(false))
+                .when(spyDatasourceService)
+                .isEndpointBlockedForConnectionRequest(Mockito.any());
 
         Mono<ActionExecutionResult> executionResultMono = actionExecutionSolution.executeAction(executeActionDTO, null);
 
