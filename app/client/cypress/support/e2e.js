@@ -58,11 +58,17 @@ Cypress.env("MESSAGES", MESSAGES);
 let dataSet; // Declare a variable to hold the test data
 
 before(function () {
+  let t0 = performance.now();
   if (RapidMode.config.enabled) {
     cy.startServerAndRoutes();
     cy.getCookie("SESSION").then((cookie) => {
       if (!cookie) {
         cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+        cy.wrap(performance.now()).then(t1 => {   // this is now a queued command which will 
+          // only run after the previous command
+          cy.log(`Step1 - Login Using API  ---- ${t1 - t0} milliseconds.`);
+          t0 = t1;
+        })
       }
     });
 
@@ -70,11 +76,17 @@ before(function () {
     if (!RapidMode.config.usesDSL) {
       cy.visit(RapidMode.url());
       cy.wait("@getWorkspace");
+      cy.wrap(performance.now()).then(t1 => {   // this is now a queued command which will 
+        // only run after the previous command
+        cy.log(`Step1 - Opening Appsmith  ---- ${t1 - t0} milliseconds.`);
+        t0 = t1;
+      })
     }
   }
 });
 
 before(function () {
+  let t0 = performance.now();
   if (RapidMode.config.enabled) {
     return;
   }
@@ -87,15 +99,36 @@ before(function () {
     window.indexedDB.deleteDatabase("Appsmith");
   });
   cy.visit("/setup/welcome", { timeout: 60000 });
+  cy.wrap(performance.now()).then(t1 => {   // this is now a queued command which will 
+    // only run after the previous command
+    cy.log(`Step1 - Opening Appsmith  ---- ${t1 - t0} milliseconds.`);
+    t0 = t1;
+  })
   cy.wait("@getMe");
+  cy.wrap(performance.now()).then(t1 => {   // this is now a queued command which will 
+    // only run after the previous command
+    cy.log(`Step1 - GetMe API Call  ---- ${t1 - t0} milliseconds.`);
+    t0 = t1;
+  })
   cy.wait(2000);
+  t0 = performance.now();
   cy.url().then((url) => {
     if (url.indexOf("setup/welcome") > -1) {
       cy.createSuperUser();
+      cy.wrap(performance.now()).then(t1 => {   // this is now a queued command which will 
+        // only run after the previous command
+        cy.log(`Step1 - Creating Super User  ---- ${t1 - t0} milliseconds.`);
+        t0 = t1;
+      })
       cy.SignupFromAPI(
         Cypress.env("TESTUSERNAME1"),
         Cypress.env("TESTPASSWORD1"),
       );
+      cy.wrap(performance.now()).then(t1 => {   // this is now a queued command which will 
+        // only run after the previous command
+        cy.log(`Step1 - Creating test User  ---- ${t1 - t0} milliseconds.`);
+        t0 = t1;
+      })
       cy.LogOut();
       cy.SignupFromAPI(
         Cypress.env("TESTUSERNAME2"),
@@ -130,13 +163,24 @@ before(function () {
   const password = Cypress.env("PASSWORD");
   cy.LoginFromAPI(username, password);
   cy.wait(3000);
+  t0 = performance.now()
   cy.get(".t--applications-container .createnew")
     .should("be.visible")
     .should("be.enabled");
+  cy.wrap(performance.now()).then(t1 => {   // this is now a queued command which will 
+    // only run after the previous command
+    cy.log(`Step1 - Appsmith Home Page loading  ---- ${t1 - t0} milliseconds.`);
+    t0 = t1;
+  })
   cy.generateUUID().then((id) => {
     cy.CreateAppInFirstListedWorkspace(id);
     localStorage.setItem("AppName", id);
   });
+  cy.wrap(performance.now()).then(t1 => {   // this is now a queued command which will 
+    // only run after the previous command
+    cy.log(`Step1 - Adding First App  ---- ${t1 - t0} milliseconds.`);
+    t0 = t1;
+  })
 
   cy.fixture("TestDataSet1").then(function (data) {
     this.dataSet = data;
