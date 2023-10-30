@@ -35,7 +35,7 @@ const IconContainer = styled.div<{ selected: boolean }>`
     background: ${(props) =>
       props.selected
         ? "var(--colors-raw-orange-100, #fbe6dc)"
-        : "var(--colors-ui-content-surface-hover-bg, #f1f5f9);"};
+        : "var(--ads-v2-color-bg-subtle, #f1f5f9);"};
   }
 `;
 
