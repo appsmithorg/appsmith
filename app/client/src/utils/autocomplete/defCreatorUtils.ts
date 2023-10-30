@@ -138,7 +138,7 @@ export function addSettersToDefinitions(
       );
 
       if (shouldAddSetter(setter, entity)) {
-        definitions[setterName] = `fn(value:${setterType}) -> +Promise`;
+        definitions[setterName] = `fn(value: ${setterType}) -> +Promise`;
       }
     });
   }

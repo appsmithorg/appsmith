@@ -236,9 +236,6 @@ export const CodemirrorHintStyles = createGlobalStyle<{
     .CodeMirror-Tern-completion-keyword[keyword]:after {
       content: attr(keyword);
     }
-    .CodeMirror-Tern-tooltip {
-      z-index: 20 !important;
-    }
     li.CodeMirror-hint-active {
       background-color: var(--ads-v2-color-bg-muted);
       border-radius: var(--ads-v2-border-radius);
@@ -259,22 +256,26 @@ export const CodemirrorHintStyles = createGlobalStyle<{
   .CodeMirror-Tern-tooltip {
     font-family: ${(props) => props.theme.fonts.code};
     &&& {
-      font-size: 11px;
+      font-size: 12px;
       z-index: 20 !important;
-      background-color: var(--ads-v2-color-bg);
-      box-shadow: 0px 0px 10px #0000001A;
+      background: var(--ads-v2-color-bg);
+      box-shadow: var(--ads-v2-shadow-popovers);
+      border: 1px solid var(--ads-v2-color-border);
       border-radius: var(--ads-v2-border-radius);
-      border: none;
+      z-index: 15px;
+      // white-space: nowrap;
       .CodeMirror-Tern-fname {
-        display: none;
+        color: var(--ads-v2-color-fg);
       }
       .CodeMirror-Tern-farg {
-        color: hsl(288, 44%, 44%);
+        color: var(--ads-v2-color-fg);
         &.CodeMirror-Tern-farg-current {
           font-weight: 600;
+          color: var(--ads-v2-color-fg);
         }
       }
       .CodeMirror-Tern-type {
+        color: var(--ads-v2-color-fg);
       }
     }
   }

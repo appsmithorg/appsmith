@@ -267,6 +267,7 @@ interface State {
     | undefined;
   isDynamic: boolean;
   showAIWindow: boolean;
+  ternToolTipActive: boolean;
 }
 
 const getEditorIdentifier = (props: EditorProps): string => {
@@ -305,6 +306,7 @@ class CodeEditor extends Component<Props, State> {
       ctrlPressed: false,
       peekOverlayProps: undefined,
       showAIWindow: false,
+      ternToolTipActive: false,
     };
     this.updatePropertyValue = this.updatePropertyValue.bind(this);
     this.focusEditor = this.focusEditor.bind(this);
@@ -665,8 +667,8 @@ class CodeEditor extends Component<Props, State> {
         tokenElement,
         textWidth: tokenElementPosition.width,
       },
+      ternToolTipActive: CodeMirrorTernService.closeArgHints(),
     });
-    CodeMirrorTernService.closeArgHints();
 
     AnalyticsUtil.logEvent("PEEK_OVERLAY_OPENED", {
       property: expression,
@@ -682,7 +684,9 @@ class CodeEditor extends Component<Props, State> {
         peekOverlayProps: undefined,
       });
     }
-    CodeMirrorTernService.updateArgHints(this.editor);
+    this.setState({
+      ternToolTipActive: CodeMirrorTernService.updateArgHints(this.editor),
+    });
   };
 
   debounceHandleMouseOver = debounce(
@@ -1038,7 +1042,9 @@ class CodeEditor extends Component<Props, State> {
 
   handleCursorMovement = (cm: CodeMirror.Editor) => {
     const line = cm.getCursor().line;
-    CodeMirrorTernService.updateArgHints(cm);
+    this.setState({
+      ternToolTipActive: CodeMirrorTernService.updateArgHints(cm),
+    });
     this.handleCustomGutter(line, true);
     // ignore if disabled
     if (!this.props.input.onChange || this.props.disabled) {
@@ -1551,7 +1557,8 @@ class CodeEditor extends Component<Props, State> {
       (this.state.isDynamic || isInvalid) &&
       !this.state.showAIWindow &&
       !this.state.peekOverlayProps &&
-      !this.editor.state.completionActive;
+      !this.editor.state.completionActive &&
+      !this.state.ternToolTipActive;
 
     return (
       <DynamicAutocompleteInputWrapper
