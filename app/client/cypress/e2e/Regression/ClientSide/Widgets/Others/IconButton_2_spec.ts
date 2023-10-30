@@ -5,6 +5,7 @@ import {
   entityExplorer,
   propPane,
   draggableWidgets,
+  assertHelper,
 } from "../../../../../support/Objects/ObjectsCore";
 
 describe("Icon Button widget Tests", function () {
@@ -68,6 +69,7 @@ describe("Icon Button widget Tests", function () {
     // Select from dropdown
     agHelper.GetNClick(`${locators._propertyControl}icon`);
     agHelper.GetElement(propPane._iconDropdown).scrollTo("top");
+    agHelper.Sleep();
     agHelper.GetNClick(propPane._dataIcon("airplane"));
     agHelper.AssertElementVisibility(
       `${locators._widgetInDeployed("iconbuttonwidget")} ${propPane._dataIcon(
@@ -102,10 +104,18 @@ describe("Icon Button widget Tests", function () {
       "onClick",
       "{{navigateTo('www.yahoo.com', {}, 'SAME_WINDOW');}}",
     );
-    deployMode.DeployApp();
+    deployMode.DeployApp(
+      locators._widgetInDeployed(draggableWidgets.ICONBUTTON),
+    );
     agHelper.GetNClick(`${locators._widgetInDeployed("iconbuttonwidget")}`);
     agHelper.AssertURL("yahoo.com");
-    agHelper.BrowserNavigation(-1);
+    // agHelper.BrowserNavigation(-1);
+    cy.window({ timeout: 60000 }).then((win) => {
+      win.history.back();
+    });
+    assertHelper.AssertNetworkResponseData("@viewPage");
+    assertHelper.AssertDocumentReady();
+    agHelper.Sleep(3000); //for view page to complete loading & then navigate back
     deployMode.NavigateBacktoEditor();
   });
 

@@ -25,6 +25,8 @@ export const FEATURE_FLAG = {
     "release_show_publish_app_to_community_enabled",
   license_gac_enabled: "license_gac_enabled",
   release_anvil_enabled: "release_anvil_enabled",
+  ab_show_templates_instead_of_blank_canvas_enabled:
+    "ab_show_templates_instead_of_blank_canvas_enabled",
   release_app_sidebar_enabled: "release_app_sidebar_enabled",
   ab_create_new_apps_enabled: "ab_create_new_apps_enabled",
 } as const;
@@ -53,6 +55,7 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   release_show_publish_app_to_community_enabled: false,
   license_gac_enabled: false,
   release_anvil_enabled: false,
+  ab_show_templates_instead_of_blank_canvas_enabled: false,
   release_app_sidebar_enabled: false,
   ab_create_new_apps_enabled: false,
 };

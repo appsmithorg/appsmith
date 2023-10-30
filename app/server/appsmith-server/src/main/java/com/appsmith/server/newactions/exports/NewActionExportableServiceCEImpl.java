@@ -37,8 +37,11 @@ public class NewActionExportableServiceCEImpl implements ExportableServiceCE<New
         this.actionPermission = actionPermission;
     }
 
+    // Requires datasourceIdToNameMap, pageIdToNameMap, pluginMap, collectionIdToNameMap
+    // Updates actionId to name map in exportable resources. Also directly updates required collection information in
+    // application json
     @Override
-    public Mono<List<NewAction>> getExportableEntities(
+    public Mono<Void> getExportableEntities(
             ExportingMetaDTO exportingMetaDTO,
             MappedExportableResourcesDTO mappedExportableResourcesDTO,
             Mono<Application> applicationMono,
@@ -101,7 +104,8 @@ public class NewActionExportableServiceCEImpl implements ExportableServiceCE<New
                             .removeIf(datasource -> !dbNamesUsedInActions.contains(datasource.getName()));
 
                     return actionList;
-                });
+                })
+                .then();
     }
 
     @Override

@@ -126,7 +126,7 @@ function* deleteTabChildSaga(
         );
       } else if (layoutSystemType === LayoutSystemTypes.ANVIL) {
         finalData = updateAnvilParentPostWidgetDeletion(
-          parentUpdatedWidgets,
+          finalData,
           tabWidget.parentId,
           widgetId,
         );
@@ -268,7 +268,7 @@ function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
           );
         } else if (layoutSystemType === LayoutSystemTypes.ANVIL) {
           finalData = updateAnvilParentPostWidgetDeletion(
-            finalWidgets,
+            finalData,
             parentId,
             widgetId,
           );
@@ -369,7 +369,7 @@ function* deleteAllSelectedWidgetsSaga(
       } else if (layoutSystemType === LayoutSystemTypes.ANVIL) {
         for (const widgetId of selectedWidgets) {
           finalData = updateAnvilParentPostWidgetDeletion(
-            finalWidgets,
+            finalData,
             parentId,
             widgetId,
           );

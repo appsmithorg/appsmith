@@ -21,6 +21,7 @@ import com.appsmith.server.solutions.ReleaseNotesService;
 import com.appsmith.util.WebClientUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -56,6 +57,8 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
     private final ResponseUtils responseUtils;
     private final ApplicationPermission applicationPermission;
 
+    private final ObjectMapper objectMapper;
+
     public ApplicationTemplateServiceCEImpl(
             CloudServicesConfig cloudServicesConfig,
             ReleaseNotesService releaseNotesService,
@@ -65,7 +68,8 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
             UserDataService userDataService,
             ApplicationService applicationService,
             ResponseUtils responseUtils,
-            ApplicationPermission applicationPermission) {
+            ApplicationPermission applicationPermission,
+            ObjectMapper objectMapper) {
         this.cloudServicesConfig = cloudServicesConfig;
         this.releaseNotesService = releaseNotesService;
         this.importApplicationService = importApplicationService;
@@ -75,6 +79,7 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
         this.applicationService = applicationService;
         this.responseUtils = responseUtils;
         this.applicationPermission = applicationPermission;
+        this.objectMapper = objectMapper;
     }
 
     @Override
@@ -226,6 +231,7 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
                             FieldName.APPLICATION_ID, application.getId(),
                             FieldName.WORKSPACE_ID, application.getWorkspaceId(),
                             FieldName.TEMPLATE_APPLICATION_NAME, application.getName(),
+                            FieldName.SOURCE, "Templates page",
                             FieldName.EVENT_DATA, eventData);
 
                     return analyticsService
@@ -321,6 +327,7 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
                             FieldName.APPLICATION_ID, application.getId(),
                             FieldName.WORKSPACE_ID, application.getWorkspaceId(),
                             FieldName.TEMPLATE_APPLICATION_NAME, application.getName(),
+                            FieldName.SOURCE, "Templates page",
                             FieldName.EVENT_DATA, eventData);
 
                     return analyticsService
@@ -354,8 +361,13 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
         String authHeader = "Authorization";
         String payload;
         try {
-            ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
-            payload = ow.writeValueAsString(communityTemplate);
+            // Please don't use the default ObjectMapper.
+            // The default mapper is registered with views.public.class and removes few attributes due to this
+            // The templates flow has different requirement hence not using the same
+            ObjectMapper ow = new ObjectMapper();
+            ow.registerModule(new JavaTimeModule());
+            ObjectWriter writer = ow.writer().withDefaultPrettyPrinter();
+            payload = writer.writeValueAsString(communityTemplate);
         } catch (Exception e) {
             return Mono.error(e);
         }

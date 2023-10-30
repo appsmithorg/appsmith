@@ -1897,11 +1897,11 @@ export const DATASOURCE_INTERCOM_TEXT = () =>
 export const GOOGLE_SHEETS_ASK_FOR_SUPPORT = () => "Ask for support";
 export const GOOGLE_SHEETS_FILE_PICKER_TITLE = () =>
   "Select Google Sheets to query";
-export const GSHEETS_GENERATE_PAGE_BUTTON = () => "Generate new page";
-export const GSHEETS_ERR_FETCHING_PREVIEW_DATA = () =>
+export const DATASOURCE_GENERATE_PAGE_BUTTON = () => "Generate new page";
+export const ERR_FETCHING_DATASOURCE_PREVIEW_DATA = () =>
   "Some problem occured while fetching data";
-export const GSHEETS_FETCHING_PREVIEW_DATA = () => "Loading data";
-export const GSHEETS_SCHEMA_NO_DATA = () =>
+export const FETCHING_DATASOURCE_PREVIEW_DATA = () => "Loading data";
+export const SCHEMA_PREVIEW_NO_DATA = () =>
   "No data records to show or the table header begins with an index other than 1";
 
 //Layout Conversion flow
@@ -2168,6 +2168,35 @@ export const DATASOURCE_LIST_BLANK_TITLE = () =>
   "No datasources exist in your workplace.";
 export const DATASOURCE_BLANK_STATE_MESSAGE = () =>
   "You need a datasource connection to write your first query";
+
+export const STARTER_TEMPLATE_PAGE_LAYOUTS = {
+  header: () => "Choose a template",
+  layouts: {
+    dashboard: {
+      name: () => "Visualize your data",
+      description: () => "Use to see your data in charts",
+    },
+    form: {
+      name: () => "Form",
+      description: () => "Add records to a database with a form",
+    },
+    recordEdit: {
+      name: () => "Change your data",
+      description: () => "Use to add or edit records via forms",
+    },
+    recordDetails: {
+      name: () => "View your data",
+      description: () => "Use to view fields for your records",
+    },
+  },
+  datasourceConnectPrompt: {
+    header: () => "Bring your data in!",
+    buttonText: () => "Connect your datasource",
+  },
+  or: () => "or",
+  dragAndDrop: () => "Drag and Drop Widgets",
+  importLoadingText: () => "Importing template",
+};
 
 // Create New Apps Intermediary step
 export const CREATE_NEW_APPS_STEP_TITLE = () => "Pick a starting point";

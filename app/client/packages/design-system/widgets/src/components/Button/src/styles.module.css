@@ -119,7 +119,7 @@
   *-----------------------------------------------------------------------------
   */
   &[aria-disabled] {
-    cursor: default;
+    cursor: not-allowed;
     opacity: var(--opacity-disabled);
   }
 

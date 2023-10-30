@@ -13,7 +13,7 @@ import {
   HIGHLIGHT_SIZE,
   HORIZONTAL_DROP_ZONE_MULTIPLIER,
 } from "../../constants";
-import { getStartPosition } from "./highlightUtils";
+import { getNonDraggedWidgets, getStartPosition } from "./highlightUtils";
 import {
   type RowMetaData,
   type RowMetaInformation,
@@ -184,6 +184,16 @@ export function getHighlightsForWidgets(
   }
 
   /**
+   * Check if layout has widgets that are not being dragged.
+   */
+  const nonDraggedWidgets: WidgetLayoutProps[] = getNonDraggedWidgets(
+    layout,
+    draggedWidgets,
+  );
+
+  if (!nonDraggedWidgets.length && !layoutProps.isDropTarget) return [];
+
+  /**
    * Collect all information on alignments
    */
   const alignmentInfo: AlignmentInfo = extractAlignmentInfo(
@@ -300,7 +310,7 @@ function generateHighlight(
   isFinalHighlight: boolean,
   isDropTarget: boolean,
 ): AnvilHighlightInfo {
-  let posX: number = 0;
+  let posX = 0;
   if (!currDimension) {
     // Initial highlight
     posX =
@@ -321,14 +331,20 @@ function generateHighlight(
     ...baseHighlight,
     alignment,
     dropZone: {
-      left: prevHighlight
-        ? (posX - prevHighlight.posX) * multiplier
-        : (posX - layoutDimension.left) *
-          (alignment === FlexLayerAlignment.Start ? 1 : multiplier),
-      right: isFinalHighlight
-        ? (layoutDimension.left + layoutDimension.width - posX) *
-          (alignment === FlexLayerAlignment.End ? 1 : multiplier)
-        : 0,
+      left: Math.max(
+        prevHighlight
+          ? (posX - prevHighlight.posX) * multiplier
+          : (posX - layoutDimension.left) *
+              (alignment === FlexLayerAlignment.Start ? 1 : multiplier),
+        HIGHLIGHT_SIZE,
+      ),
+      right: Math.max(
+        isFinalHighlight
+          ? (layoutDimension.left + layoutDimension.width - posX) *
+              (alignment === FlexLayerAlignment.End ? 1 : multiplier)
+          : HIGHLIGHT_SIZE,
+        HIGHLIGHT_SIZE,
+      ),
     },
     height: tallestWidget?.height ?? layoutDimension.height,
     posX,

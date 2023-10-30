@@ -347,6 +347,7 @@ describe("Radio Widget test cases", function () {
     entityExplorer.SelectEntityByName("Text1", "Widgets");
     propPane.UpdatePropertyFieldValue("Text", "false");
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TEXT));
+    agHelper.Sleep(2000); //for Radio Group to load fully, for CI flakyness
     agHelper.WaitUntilEleAppear(
       locators._widgetInDeployed(draggableWidgets.RADIO_GROUP),
     );
