@@ -1,21 +1,54 @@
 import React from "react";
 import EmptyTableSVG from "assets/images/empty-table-in-display-preview.svg";
-import { Spinner, Text } from "design-system";
+import { Text } from "design-system";
 import {
-  ERR_FETCHING_DATASOURCE_PREVIEW_DATA,
-  FETCHING_DATASOURCE_PREVIEW_DATA,
   EMPTY_TABLE_TITLE_TEXT,
   EMPTY_TABLE_MESSAGE_TEXT,
   createMessage,
   EMPTY_TABLE_SVG_ALT_TEXT,
 } from "@appsmith/constants/messages";
 import { MessageWrapper, SchemaStateMessageWrapper } from "./SchemaViewModeCSS";
+import styled, { keyframes } from "styled-components";
 
 type InterimState = "LOADING" | "NODATA" | "FAILED";
 
 interface RenderInterimDataStateProps {
   state: InterimState;
 }
+
+export const indeterminateProgressBarAnimation = keyframes`
+  0% {
+    background-position: -50px 0;
+  }
+  100% {
+    background-position: 0px 0px;
+  }
+`;
+
+export const IndeterminateProgressBarDiv = styled.div`
+  border: 1px solid #A9A9A9;
+  border-radius: .50em;
+  height: 8px;
+  margin-bottom: 2em;
+  width: 200px;
+  background-image: repeating-linear-gradient(
+    -45deg,
+    #DCDCDC,
+    #DCDCDC 18px,
+    #fff 18px,
+    #fff 36px
+  );
+  -webkit-animation: ${indeterminateProgressBarAnimation} 1s linear infinite;
+  -moz-animation: ${indeterminateProgressBarAnimation} 1s linear infinite;
+  animation: ${indeterminateProgressBarAnimation} 1.5s linear infinite;
+  background-size: 200% 100%;
+`;
+
+const TestPB = () => {
+  return (
+    <IndeterminateProgressBarDiv/>
+  );
+};
 
 const RenderInterimDataState = ({ state }: RenderInterimDataStateProps) => {
   return (
@@ -37,15 +70,17 @@ const RenderInterimDataState = ({ state }: RenderInterimDataStateProps) => {
             <Text>{createMessage(EMPTY_TABLE_MESSAGE_TEXT)}</Text>
           </>
         ) : state === "FAILED" ? (
-          <Text color="var(--ads-color-red-500)">
-            {createMessage(ERR_FETCHING_DATASOURCE_PREVIEW_DATA)}
-          </Text>
+          // <Text color="var(--ads-color-red-500)">
+          //   {createMessage(ERR_FETCHING_DATASOURCE_PREVIEW_DATA)}
+          // </Text>
+          <TestPB/>
         ) : state === "LOADING" ? (
           <>
-            <Spinner size="md" />
-            <Text style={{ marginLeft: "8px" }}>
-              {createMessage(FETCHING_DATASOURCE_PREVIEW_DATA)}
-            </Text>
+            {/*<Spinner size="md" />*/}
+            {/*<Text style={{ marginLeft: "8px" }}>*/}
+            {/*  {createMessage(FETCHING_DATASOURCE_PREVIEW_DATA)}*/}
+            {/*</Text>*/}
+            <IndeterminateProgressBarDiv />
           </>
         ) : null}
       </SchemaStateMessageWrapper>
