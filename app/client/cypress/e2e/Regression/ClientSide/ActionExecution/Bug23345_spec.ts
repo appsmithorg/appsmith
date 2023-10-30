@@ -11,14 +11,14 @@ describe("Delete No Action card without any error", () => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON, 200, 200);
     cy.wrap(performance.now()).then(t1 => {   // this is now a queued command which will 
       // only run after the previous command
-      console.log(`Step1 - DragNdropWidgetNVerify ---- ${t1 - t0} milliseconds.`);
+      cy.log(`Step1 - DragNdropWidgetNVerify ---- ${t1 - t0} milliseconds.`);
       t0 = t1;
     })
 
     propPane.AddAction("onClick");
     cy.wrap(performance.now()).then(t1 => {   // this is now a queued command which will 
       // only run after the previous command
-      console.log(`Step1 - Adding Onclick Action ---- ${t1 - t0} milliseconds.`);
+      cy.log(`Step1 - Adding Onclick Action ---- ${t1 - t0} milliseconds.`);
       t0 = t1;
     })
 
@@ -33,7 +33,7 @@ describe("Delete No Action card without any error", () => {
     agHelper.AssertElementAbsence(propPane._actionCardByTitle("No action"));
     cy.wrap(performance.now()).then(t1 => {   // this is now a queued command which will 
       // only run after the previous command
-      console.log(`Step1 - Deleting the widget  ---- ${t1 - t0} milliseconds.`);
+      cy.log(`Step1 - Deleting the widget  ---- ${t1 - t0} milliseconds.`);
       t0 = t1;
     })
   });

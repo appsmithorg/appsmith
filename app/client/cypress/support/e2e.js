@@ -46,12 +46,12 @@ import {
 installLogsCollector();
 
 Cypress.on("uncaught:exception", (error) => {
-  //console.log(error.message);
+  //cy.log(error.message);
   return false; // returning false here prevents Cypress from failing the test
 });
 
 Cypress.on("fail", (error) => {
-  console.log(error.message);
+  cy.log(error.message);
   throw error; // throw error to have test fail
 });
 
@@ -67,7 +67,7 @@ before(function () {
         cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
         cy.wrap(performance.now()).then(t1 => {   // this is now a queued command which will 
           // only run after the previous command
-          console.log(`Step1 - Login Using API  ---- ${t1 - t0} milliseconds.`);
+          cy.log(`Step1 - Login Using API  ---- ${t1 - t0} milliseconds.`);
           t0 = t1;
         })
       }
@@ -79,7 +79,7 @@ before(function () {
       cy.wait("@getWorkspace");
       cy.wrap(performance.now()).then(t1 => {   // this is now a queued command which will 
         // only run after the previous command
-        console.log(`Step1 - Opening Appsmith  ---- ${t1 - t0} milliseconds.`);
+        cy.log(`Step1 - Opening Appsmith  ---- ${t1 - t0} milliseconds.`);
         t0 = t1;
       })
     }
@@ -102,13 +102,13 @@ before(function () {
   cy.visit("/setup/welcome", { timeout: 60000 });
   cy.wrap(performance.now()).then(t1 => {   // this is now a queued command which will 
     // only run after the previous command
-    console.log(`Step1 - Opening Appsmith  ---- ${t1 - t0} milliseconds.`);
+    cy.log(`Step1 - Opening Appsmith  ---- ${t1 - t0} milliseconds.`);
     t0 = t1;
   })
   cy.wait("@getMe");
   cy.wrap(performance.now()).then(t1 => {   // this is now a queued command which will 
     // only run after the previous command
-    console.log(`Step1 - GetMe API Call  ---- ${t1 - t0} milliseconds.`);
+    cy.log(`Step1 - GetMe API Call  ---- ${t1 - t0} milliseconds.`);
     t0 = t1;
   })
   cy.wait(2000);
@@ -120,7 +120,7 @@ before(function () {
       cy.createSuperUser();
       cy.wrap(performance.now()).then(t1 => {   // this is now a queued command which will 
         // only run after the previous command
-        console.log(`Step1 - Creating Super User  ---- ${t1 - t0} milliseconds.`);
+        cy.log(`Step1 - Creating Super User  ---- ${t1 - t0} milliseconds.`);
         t0 = t1;
       })
       cy.SignupFromAPI(
@@ -129,7 +129,7 @@ before(function () {
       );
       cy.wrap(performance.now()).then(t1 => {   // this is now a queued command which will 
         // only run after the previous command
-        console.log(`Step1 - Creating test User  ---- ${t1 - t0} milliseconds.`);
+        cy.log(`Step1 - Creating test User  ---- ${t1 - t0} milliseconds.`);
         t0 = t1;
       })
       cy.LogOut();
@@ -207,6 +207,6 @@ after(function () {
   //cy.LogOut(false);
   // Commenting until Upgrade Appsmith cases are fixed
   // const tedUrl = "http://localhost:5001/v1/parent/cmd";
-  // console.log("Start the appsmith container");
+  // cy.log("Start the appsmith container");
   // cy.StartContainer(tedUrl, "appsmith"); // start the old container
 });
