@@ -257,7 +257,9 @@ const DatasourceViewModeSchema = (props: Props) => {
               !isDatasourceStructureLoading &&
               !failedFetchingPreviewData &&
               !previewDataError &&
-              previewData?.length > 0 && <Table data={previewData} />}
+              previewData?.length > 0 && (
+                <Table data={previewData} shouldResize={false} />
+              )}
             {!isLoading &&
               !isDatasourceStructureLoading &&
               !failedFetchingPreviewData &&

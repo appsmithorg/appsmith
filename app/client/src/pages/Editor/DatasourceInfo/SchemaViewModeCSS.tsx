@@ -167,6 +167,14 @@ export const TableWrapper = styled.div`
   }
   & .table {
     background: none;
+    & > div:first-child {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+    & .draggable-header {
+      cursor: default;
+    }
   }
   & .table div:first-of-type .tr {
     background: var(--ads-v2-color-black-5);

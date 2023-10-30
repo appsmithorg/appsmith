@@ -469,7 +469,7 @@ function GoogleSheetSchema(props: Props) {
             ) : isError ? (
               <RenderInterimDataState state="FAILED" />
             ) : sheetData?.length > 0 ? (
-              <Table data={sheetData} />
+              <Table data={sheetData} shouldResize={false} />
             ) : (
               <RenderInterimDataState state="NODATA" />
             )}
