@@ -13,6 +13,7 @@ import { error } from "loglevel";
 import { matchPath } from "react-router";
 import { getIsSafeRedirectURL } from "utils/helpers";
 import history from "utils/history";
+import { setUsersFirstApplicationId } from "utils/storage";
 
 // TODO: Try to refactor this function to make it more readable
 export const redirectUserAfterSignup = (
@@ -20,6 +21,7 @@ export const redirectUserAfterSignup = (
   shouldEnableFirstTimeUserOnboarding: string | null,
   validLicense?: boolean,
   dispatch?: any,
+  showStarterTemplatesInsteadofBlankCanvas: boolean = false,
 ): any => {
   if (redirectUrl) {
     if (!validLicense) {
@@ -51,6 +53,9 @@ export const redirectUserAfterSignup = (
           });
           const { applicationId, pageId } = match?.params || {};
           if (applicationId || pageId) {
+            showStarterTemplatesInsteadofBlankCanvas &&
+              applicationId &&
+              setUsersFirstApplicationId(applicationId);
             dispatch(
               firstTimeUserOnboardingInit(applicationId, pageId as string),
             );
