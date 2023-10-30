@@ -58,7 +58,7 @@ function WidgetSelector({ widgets }: { widgets: CanvasStructure[] }) {
   ) {
     const isSelected = selectedNodes.includes(widget.widgetId);
     return (
-      <div style={{ marginLeft: level * 8 }}>
+      <div style={{ marginLeft: level + 8 }}>
         <CheckboxContainer>
           <Checkbox
             isSelected={isSelected}
