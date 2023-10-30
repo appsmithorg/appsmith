@@ -24,11 +24,9 @@ import {
 } from "selectors/explorerSelector";
 import { tailwindLayers } from "constants/Layers";
 import { Tooltip } from "design-system";
-import { previewModeSelector } from "selectors/editorSelectors";
 import useHorizontalResize from "utils/hooks/useHorizontalResize";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { SIDEBAR_ID } from "constants/Explorer";
-import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 import { EntityClassNames } from "pages/Editor/Explorer/Entity";
 import { getEditingEntityName } from "@appsmith/selectors/entitiesSelector";
 import styled from "styled-components";
@@ -62,13 +60,7 @@ export const EntityExplorerSidebar = memo(({ children }: Props) => {
   const active = useSelector(getExplorerActive);
   const sidebarRef = useRef<HTMLDivElement>(null);
   const pinned = useSelector(getExplorerPinned);
-  const isPreviewMode = useSelector(previewModeSelector);
-  const isAppSettingsPaneWithNavigationTabOpen = useSelector(
-    getIsAppSettingsPaneWithNavigationTabOpen,
-  );
   const isAppSidebarEnabled = useSelector(getIsAppSidebarEnabled);
-  const isPreviewingApp =
-    isPreviewMode || isAppSettingsPaneWithNavigationTabOpen;
 
   /**
    * on entity explorer sidebar width change
@@ -195,12 +187,7 @@ export const EntityExplorerSidebar = memo(({ children }: Props) => {
       type: ReduxActionTypes.SET_ENTITY_INFO,
       payload: { show: false },
     });
-  }, [
-    resizerLeft,
-    pinned,
-    isPreviewMode,
-    isAppSettingsPaneWithNavigationTabOpen,
-  ]);
+  }, [resizerLeft, pinned]);
 
   const [hoverStartTime, setHoverStartTime] = useState(0);
 
@@ -222,10 +209,10 @@ export const EntityExplorerSidebar = memo(({ children }: Props) => {
         [`js-entity-explorer t--entity-explorer transition-transform transform  flex h-[inherit] duration-400 ${tailwindLayers.entityExplorer}`]:
           true,
         "border-r": !isAppSidebarEnabled,
-        relative: pinned && !isPreviewingApp,
-        "-translate-x-full": (!pinned && !active) || isPreviewingApp,
+        relative: pinned,
+        "-translate-x-80": !pinned && !active,
         "shadow-xl": !pinned,
-        fixed: !pinned || isPreviewingApp,
+        fixed: !pinned,
       })}
       data-testid={active ? "sidebar-active" : "sidebar"}
       id={SIDEBAR_ID}
@@ -251,7 +238,7 @@ export const EntityExplorerSidebar = memo(({ children }: Props) => {
         resizing={resizer.resizing}
         style={{
           left: resizerLeft,
-          display: isPreviewingApp ? "none" : "initial",
+          display: "initial",
         }}
       >
         <div

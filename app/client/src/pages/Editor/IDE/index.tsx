@@ -8,6 +8,7 @@ import Sidebar from "pages/Editor/IDE/Sidebar";
 import LeftPane from "./LeftPane";
 import MainPane from "./MainPane";
 import RightPane from "./RightPane";
+import classNames from "classnames";
 
 /**
  * OldName: MainContainer
@@ -18,10 +19,26 @@ function IDE() {
   return (
     <>
       <EditorWrapperContainer>
-        <Sidebar />
-        <LeftPane />
+        <div
+          className={classNames({
+            "transition-transform transform duration-400 flex": true,
+            relative: !isPreviewMode,
+            "-translate-x-full fixed": isPreviewMode,
+          })}
+        >
+          <Sidebar />
+          <LeftPane />
+        </div>
         <MainPane id="app-body" />
-        <RightPane />
+        <div
+          className={classNames({
+            "transition-transform transform duration-400": true,
+            relative: !isPreviewMode,
+            "translate-x-full fixed": isPreviewMode,
+          })}
+        >
+          <RightPane />
+        </div>
       </EditorWrapperContainer>
       <BottomBar viewMode={isPreviewMode} />
     </>
