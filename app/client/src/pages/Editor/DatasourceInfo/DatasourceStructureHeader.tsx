@@ -1,6 +1,6 @@
 import React, { useCallback } from "react";
 import { useDispatch } from "react-redux";
-import { Icon, Text } from "design-system";
+import { Button, Text } from "design-system";
 import styled from "styled-components";
 import { refreshDatasourceStructure } from "actions/datasourceActions";
 import { SCHEMA_LABEL, createMessage } from "@appsmith/constants/messages";
@@ -46,12 +46,14 @@ export default function DatasourceStructureHeader(props: Props) {
       <Text kind="heading-xs" renderAs="h3">
         {createMessage(SCHEMA_LABEL)}
       </Text>
-      <div
+      <Button
         className="datasourceStructure-refresh"
-        onClick={(event) => dispatchRefresh(event)}
-      >
-        <Icon name="refresh" size={"md"} />
-      </div>
+        isIconButton
+        kind="tertiary"
+        onClick={(event: any) => dispatchRefresh(event)}
+        size="md"
+        startIcon="refresh"
+      />
     </HeaderWrapper>
   );
 }
