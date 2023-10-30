@@ -4,17 +4,21 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.BearerTokenAuth;
+import com.appsmith.external.models.DatasourceConfiguration;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.reactive.ClientHttpRequest;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.BodyInserter;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 import java.net.URI;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import static com.external.plugins.constants.OpenAIConstants.CHAT;
 import static com.external.plugins.constants.OpenAIConstants.CHAT_ENDPOINT;
@@ -79,5 +83,16 @@ public class RequestUtils {
                 .headers(
                         headers -> headers.set(HttpHeaders.AUTHORIZATION, "Bearer " + bearerTokenAuth.getBearerToken()))
                 .exchangeToMono(clientResponse -> clientResponse.toEntity(byte[].class));
+    }
+
+    public static Set<String> validateBearerTokenDatasource(DatasourceConfiguration datasourceConfiguration) {
+        Set<String> invalids = new HashSet<>();
+        final BearerTokenAuth bearerTokenAuth = (BearerTokenAuth) datasourceConfiguration.getAuthentication();
+        String bearerToken = bearerTokenAuth.getBearerToken();
+        if (!StringUtils.hasText(bearerToken)) {
+            String bearerTokenInvalid = "Bearer token should not be empty, Please add a bearer token";
+            invalids.add(bearerTokenInvalid);
+        }
+        return invalids;
     }
 }

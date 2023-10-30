@@ -6,11 +6,16 @@
       "children": [
         {
           "label": "Authentication type",
+          "description": "Select the authentication type to use",
           "configProperty": "datasourceConfiguration.authentication.authenticationType",
-          "controlType": "INPUT_TEXT",
-          "initialValue": "bearerToken",
-          "isRequired": true,
-          "hidden": true
+          "controlType": "DROP_DOWN",
+          "initialValue" : "bearerToken",
+          "options": [
+            {
+              "label": "Bearer token",
+              "value": "bearerToken"
+            }
+          ]
         },
         {
           "label": "API Key",

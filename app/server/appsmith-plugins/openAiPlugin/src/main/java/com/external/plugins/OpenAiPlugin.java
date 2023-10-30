@@ -10,6 +10,7 @@ import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.BearerTokenAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.TriggerRequestDTO;
 import com.appsmith.external.models.TriggerResultDTO;
 import com.appsmith.external.plugins.BasePlugin;
@@ -40,6 +41,7 @@ import java.util.Set;
 
 import static com.external.plugins.constants.OpenAIConstants.DATA;
 import static com.external.plugins.constants.OpenAIConstants.ID;
+import static com.external.plugins.constants.OpenAIConstants.MODEL;
 
 @Slf4j
 public class OpenAiPlugin extends BasePlugin {
@@ -50,7 +52,7 @@ public class OpenAiPlugin extends BasePlugin {
 
     public static class OpenAiPluginExecutor extends BaseRestApiPluginExecutor {
 
-        private static Gson gson = new Gson();
+        private static final Gson gson = new Gson();
 
         public OpenAiPluginExecutor(SharedConfig config) {
             super(config);
@@ -140,7 +142,7 @@ public class OpenAiPlugin extends BasePlugin {
 
         @Override
         public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration) {
-            return datasourceUtils.validateDatasource(datasourceConfiguration, false);
+            return RequestUtils.validateBearerTokenDatasource(datasourceConfiguration);
         }
 
         @Override
@@ -191,6 +193,31 @@ public class OpenAiPlugin extends BasePlugin {
                         return triggerModelList;
                     })
                     .map(TriggerResultDTO::new);
+        }
+
+        @Override
+        public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
+            final BearerTokenAuth bearerTokenAuth = (BearerTokenAuth) datasourceConfiguration.getAuthentication();
+
+            HttpMethod httpMethod = HttpMethod.GET;
+            URI uri = RequestUtils.createUriFromCommand(MODEL);
+
+            return RequestUtils.makeRequest(httpMethod, uri, bearerTokenAuth, BodyInserters.empty())
+                    .map(responseEntity -> {
+                        if (responseEntity.getStatusCode().is2xxSuccessful()) {
+                            return new DatasourceTestResult();
+                        }
+
+                        AppsmithPluginException error =
+                                new AppsmithPluginException(AppsmithPluginError.PLUGIN_AUTHENTICATION_ERROR);
+                        return new DatasourceTestResult(error.getMessage());
+                    })
+                    .onErrorResume(error -> {
+                        if (!(error instanceof AppsmithPluginException)) {
+                            error = new AppsmithPluginException(AppsmithPluginError.PLUGIN_AUTHENTICATION_ERROR);
+                        }
+                        return Mono.just(new DatasourceTestResult(error.getMessage()));
+                    });
         }
     }
 }
