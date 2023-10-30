@@ -281,7 +281,7 @@ export const setAIRecentQuery = async (
     let applicationTypeQueries = applicationRecentQueries[type] || [];
 
     if (!applicationTypeQueries.includes(query)) {
-      if (applicationTypeQueries.length >= 5) {
+      if (applicationTypeQueries.length >= 3) {
         applicationTypeQueries.pop();
       }
       applicationTypeQueries = [query, ...applicationTypeQueries];
@@ -312,7 +312,10 @@ export const getApplicationAIRecentQueriesByType = async (
         [task: string]: string[];
       };
     } | null = await store.getItem(STORAGE_KEYS.AI_RECENT_QUERIES);
-    return recentQueries?.[applicationId]?.[type] ?? defaultRecentQueries;
+    return (
+      recentQueries?.[applicationId]?.[type]?.slice(0, 3) ??
+      defaultRecentQueries
+    );
   } catch (error) {
     log.error("An error occurred while fetching AI_RECENT_QUERIES");
     log.error(error);
