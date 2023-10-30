@@ -9,6 +9,7 @@ import LeftPane from "./LeftPane";
 import MainPane from "./MainPane";
 import RightPane from "./RightPane";
 import classNames from "classnames";
+import { tailwindLayers } from "../../../constants/Layers";
 
 /**
  * OldName: MainContainer
@@ -21,7 +22,8 @@ function IDE() {
       <EditorWrapperContainer>
         <div
           className={classNames({
-            "transition-transform transform duration-400 flex": true,
+            [`transition-transform transform duration-400 flex ${tailwindLayers.entityExplorer}`]:
+              true,
             relative: !isPreviewMode,
             "-translate-x-full fixed": isPreviewMode,
           })}
@@ -32,7 +34,8 @@ function IDE() {
         <MainPane id="app-body" />
         <div
           className={classNames({
-            "transition-transform transform duration-400": true,
+            [`transition-transform transform duration-400 ${tailwindLayers.propertyPane}`]:
+              true,
             relative: !isPreviewMode,
             "translate-x-full fixed": isPreviewMode,
           })}
