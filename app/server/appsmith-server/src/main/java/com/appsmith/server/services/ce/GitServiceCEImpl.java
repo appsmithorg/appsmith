@@ -3304,23 +3304,31 @@ public class GitServiceCEImpl implements GitServiceCE {
 
     @Override
     public Mono<List<String>> updateProtectedBranches(String defaultApplicationId, List<String> branchNames) {
-        return getApplicationById(defaultApplicationId).flatMap(rootApplication -> {
-            GitApplicationMetadata metadata = rootApplication.getGitApplicationMetadata();
-            String defaultBranchName = metadata.getDefaultBranchName();
+        return getApplicationById(defaultApplicationId)
+                .flatMap(application ->
+                        // Check if the user has permission to create app on the workspace, if yes then proceed
+                        checkPermissionOnWorkspace(
+                                        application.getWorkspaceId(),
+                                        workspacePermission.getApplicationCreatePermission(),
+                                        "Protect branch")
+                                .thenReturn(application))
+                .flatMap(rootApplication -> {
+                    GitApplicationMetadata metadata = rootApplication.getGitApplicationMetadata();
+                    String defaultBranchName = metadata.getDefaultBranchName();
 
-            if (branchNames.isEmpty()
-                    || (branchNames.size() == 1 && branchNames.get(0).equals(defaultBranchName))) {
-                // user wants to unprotect all branches or user wants to protect only default branch
-                metadata.setBranchProtectionRules(branchNames);
-                return applicationService
-                        .save(rootApplication)
-                        .then(applicationService.updateProtectedBranches(defaultApplicationId, branchNames))
-                        .thenReturn(branchNames);
-            } else {
-                // user want to protect multiple branches, not allowed
-                return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
-            }
-        });
+                    if (branchNames.isEmpty()
+                            || (branchNames.size() == 1 && branchNames.get(0).equals(defaultBranchName))) {
+                        // user wants to unprotect all branches or user wants to protect only default branch
+                        metadata.setBranchProtectionRules(branchNames);
+                        return applicationService
+                                .save(rootApplication)
+                                .then(applicationService.updateProtectedBranches(defaultApplicationId, branchNames))
+                                .thenReturn(branchNames);
+                    } else {
+                        // user want to protect multiple branches, not allowed
+                        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
+                    }
+                });
     }
 
     @Override

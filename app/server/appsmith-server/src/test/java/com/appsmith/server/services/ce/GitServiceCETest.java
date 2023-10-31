@@ -4362,4 +4362,16 @@ public class GitServiceCETest {
                 })
                 .verifyComplete();
     }
+
+    @WithUserDetails("api_user")
+    @Test
+    public void updateProtectedBranches_WhenUserDoesNotHaveRequiredPermission_OperationFails() {
+        Application application = createApplicationAndRemoveCreateAppPermissionFromWorkspace();
+        Mono<List<String>> updateProtectedBranchesMono =
+                gitService.updateProtectedBranches(application.getId(), List.of());
+
+        StepVerifier.create(updateProtectedBranchesMono)
+                .expectErrorMessage(AppsmithError.ACTION_IS_NOT_AUTHORIZED.getMessage("Protect branch"))
+                .verify();
+    }
 }
