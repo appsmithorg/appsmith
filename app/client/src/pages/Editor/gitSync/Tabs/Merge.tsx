@@ -22,6 +22,7 @@ import {
   getGitStatus,
   getIsFetchingGitStatus,
   getIsFetchingMergeStatus,
+  getIsGitStatusLiteEnabled,
   getIsMergeInProgress,
   getMergeError,
   getMergeStatus,
@@ -29,6 +30,7 @@ import {
 import type { DropdownOptions } from "../../GeneratePage/components/constants";
 import {
   fetchBranchesInit,
+  fetchGitRemoteStatusInit,
   fetchGitStatusInit,
   fetchMergeStatusInit,
   mergeBranchInit,
@@ -79,6 +81,7 @@ function MergeSuccessIndicator() {
 export default function Merge() {
   const dispatch = useDispatch();
   const gitMetaData = useSelector(getCurrentAppGitMetaData);
+  const isGitStatusLiteEnabled = useSelector(getIsGitStatusLiteEnabled);
   const gitBranches = useSelector(getGitBranches);
   const isFetchingBranches = useSelector(getFetchingBranches);
   const isFetchingMergeStatus = useSelector(getIsFetchingMergeStatus);
@@ -172,12 +175,17 @@ export default function Merge() {
   }, [currentBranch, selectedBranchOption?.value, dispatch]);
 
   useEffect(() => {
-    dispatch(fetchGitStatusInit({ compareRemote: false }));
+    if (isGitStatusLiteEnabled) {
+      dispatch(fetchGitRemoteStatusInit());
+      dispatch(fetchGitStatusInit({ compareRemote: false }));
+    } else {
+      dispatch(fetchGitStatusInit({ compareRemote: true }));
+    }
     dispatch(fetchBranchesInit());
     return () => {
       dispatch(resetMergeStatus());
     };
-  }, []);
+  }, [isGitStatusLiteEnabled]);
 
   useEffect(() => {
     // when user selects a branch to merge
