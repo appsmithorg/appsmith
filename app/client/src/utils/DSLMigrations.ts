@@ -1,14 +1,20 @@
-import { generateReactKey } from "./generators";
-import {
-  GridDefaults,
-  LATEST_PAGE_VERSION,
-  MAIN_CONTAINER_WIDGET_ID,
-} from "constants/WidgetConstants";
-import { nextAvailableRowInContainer } from "entities/Widget/utils";
-import { get, has, isEmpty, isString, omit, set } from "lodash";
-import * as Sentry from "@sentry/react";
-import type { ChartDataPoint } from "widgets/ChartWidget/constants";
-import log from "loglevel";
+/**
+ * ! DEPRECATION NOTICE
+ * This file is no longer used to manage migrations, please refer packages/dsl/migrate/migrations instead
+ * Do not remove these comments. As these are maintained for easier rollbacks. Will be removed later
+ */
+
+// import { generateReactKey } from "./generators";
+// import {
+//   GridDefaults,
+//   LATEST_PAGE_VERSION,
+//   MAIN_CONTAINER_WIDGET_ID,
+// } from "constants/WidgetConstants";
+// import { nextAvailableRowInContainer } from "entities/Widget/utils";
+// import { get, has, isEmpty, isString, omit, set } from "lodash";
+// import * as Sentry from "@sentry/react";
+// import type { ChartDataPoint } from "widgets/ChartWidget/constants";
+// import log from "loglevel";
 // import { migrateIncorrectDynamicBindingPathLists } from "./migrations/IncorrectDynamicBindingPathLists";
 // import {
 //   migrateTablePrimaryColumnsBindings,
@@ -29,34 +35,35 @@ import log from "loglevel";
 //   migrateTableSelectOptionAttributesForNewRow,
 //   migrateBindingPrefixSuffixForInlineEditValidationControl,
 //   migrateTableWidgetTableDataJsMode,
+//   migrateTableServerSideFiltering,
 // } from "./migrations/TableWidget";
 // import {
 //   migrateTextStyleFromTextWidget,
 //   migrateScrollTruncateProperties,
 // } from "./migrations/TextWidget";
-import { DATA_BIND_REGEX_GLOBAL } from "constants/BindingsConstants";
-import { theme } from "constants/DefaultTheme";
+// import { DATA_BIND_REGEX_GLOBAL } from "constants/BindingsConstants";
+// import { theme } from "constants/DefaultTheme";
 // import { getCanvasSnapRows } from "./WidgetPropsUtils";
-import type { FetchPageResponse } from "api/PageApi";
-import { GRID_DENSITY_MIGRATION_V1 } from "WidgetProvider/constants";
-// import defaultTemplate from "templates/default";
-import { renameKeyInObject } from "./helpers";
-import type { ColumnProperties } from "widgets/TableWidget/component/Constants";
+// import type { FetchPageResponse } from "api/PageApi";
+// import { GRID_DENSITY_MIGRATION_V1 } from "WidgetProvider/constants";
+// // import defaultTemplate from "templates/default";
+// import { renameKeyInObject } from "./helpers";
+// import type { ColumnProperties } from "widgets/TableWidget/component/Constants";
 // import {
 //   migrateMenuButtonDynamicItems,
 //   migrateMenuButtonWidgetButtonProperties,
 // } from "./migrations/MenuButtonWidget";
-import { ButtonStyleTypes, ButtonVariantTypes } from "components/constants";
-import { Colors } from "constants/Colors";
+// import { ButtonStyleTypes, ButtonVariantTypes } from "components/constants";
+// import { Colors } from "constants/Colors";
 // import {
 //   migrateModalIconButtonWidget,
 //   migrateResizableModalWidgetProperties,
 // } from "./migrations/ModalWidget";
 // import { migrateCheckboxGroupWidgetInlineProperty } from "./migrations/CheckboxGroupWidget";
 // import { migrateMapWidgetIsClickedMarkerCentered } from "./migrations/MapWidget";
-import type { DSLWidget } from "WidgetProvider/constants";
+// import type { DSLWidget } from "WidgetProvider/constants";
 // import { migrateRecaptchaType } from "./migrations/ButtonWidgetMigrations";
-// import type { PrivateWidgets } from "entities/DataTree/types";
+// import type { PrivateWidgets } from "@appsmith/entities/DataTree/types";
 // import {
 //   migrateChildStylesheetFromDynamicBindingPathList,
 //   migrateStylingPropertiesForTheming,
@@ -95,708 +102,704 @@ import type { DSLWidget } from "WidgetProvider/constants";
 //   migrateAddShowHideDataPointLabels,
 //   migrateDefaultValuesForCustomEChart,
 // } from "./migrations/ChartWidget";
-// import { migrateDSL } from "@shared/dsl";
-import type { PrivateWidgets } from "@appsmith/entities/DataTree/types";
+// import { flattenDSL } from "@shared/dsl";
 
-/**
- * adds logBlackList key for all list widget children
- *
- * @param currentDSL
- * @returns
- */
-export const addLogBlackListToAllListWidgetChildren = (
-  currentDSL: DSLWidget,
-) => {
-  currentDSL.children = currentDSL.children?.map((children: DSLWidget) => {
-    if (children.type === "LIST_WIDGET") {
-      const widgets = get(
-        children,
-        "children.0.children.0.children.0.children",
-      );
+// /**
+//  * adds logBlackList key for all list widget children
+//  *
+//  * @param currentDSL
+//  * @returns
+//  */
+// export const addLogBlackListToAllListWidgetChildren = (
+//   currentDSL: DSLWidget,
+// ) => {
+//   currentDSL.children = currentDSL.children?.map((children: DSLWidget) => {
+//     if (children.type === "LIST_WIDGET") {
+//       const widgets = get(
+//         children,
+//         "children.0.children.0.children.0.children",
+//       );
 
-      widgets.map((widget: any, index: number) => {
-        const logBlackList: { [key: string]: boolean } = {};
+//       widgets.map((widget: any, index: number) => {
+//         const logBlackList: { [key: string]: boolean } = {};
 
-        Object.keys(widget).map((key) => {
-          logBlackList[key] = true;
-        });
-        if (!widget.logBlackList) {
-          set(
-            children,
-            `children.0.children.0.children.0.children.${index}.logBlackList`,
-            logBlackList,
-          );
-        }
-      });
-    }
+//         Object.keys(widget).map((key) => {
+//           logBlackList[key] = true;
+//         });
+//         if (!widget.logBlackList) {
+//           set(
+//             children,
+//             `children.0.children.0.children.0.children.${index}.logBlackList`,
+//             logBlackList,
+//           );
+//         }
+//       });
+//     }
 
-    return children;
-  });
+//     return children;
+//   });
 
-  return currentDSL;
-};
+//   return currentDSL;
+// };
 
-/**
- * adds 'privateWidgets' key for all list widgets
- *
- * @param currentDSL
- * @returns
- */
-export const addPrivateWidgetsToAllListWidgets = (currentDSL: DSLWidget) => {
-  currentDSL.children = currentDSL.children?.map((child: DSLWidget) => {
-    if (child.type === "LIST_WIDGET") {
-      const privateWidgets: PrivateWidgets = {};
-      Object.keys(child.template).forEach((entityName) => {
-        privateWidgets[entityName] = true;
-      });
+// /**
+//  * adds 'privateWidgets' key for all list widgets
+//  *
+//  * @param currentDSL
+//  * @returns
+//  */
+// export const addPrivateWidgetsToAllListWidgets = (currentDSL: DSLWidget) => {
+//   currentDSL.children = currentDSL.children?.map((child: DSLWidget) => {
+//     if (child.type === "LIST_WIDGET") {
+//       const privateWidgets: PrivateWidgets = {};
+//       Object.keys(child.template).forEach((entityName) => {
+//         privateWidgets[entityName] = true;
+//       });
 
-      if (!child.privateWidgets) {
-        set(child, `privateWidgets`, privateWidgets);
-      }
-    }
-    return child;
-  });
+//       if (!child.privateWidgets) {
+//         set(child, `privateWidgets`, privateWidgets);
+//       }
+//     }
+//     return child;
+//   });
 
-  return currentDSL;
-};
+//   return currentDSL;
+// };
 
-/**
- * changes items -> listData
- *
- * @param currentDSL
- * @returns
- */
-export const migrateItemsToListDataInListWidget = (currentDSL: DSLWidget) => {
-  if (currentDSL.type === "LIST_WIDGET") {
-    currentDSL = renameKeyInObject(currentDSL, "items", "listData");
+// /**
+//  * changes items -> listData
+//  *
+//  * @param currentDSL
+//  * @returns
+//  */
+// export const migrateItemsToListDataInListWidget = (currentDSL: DSLWidget) => {
+//   if (currentDSL.type === "LIST_WIDGET") {
+//     currentDSL = renameKeyInObject(currentDSL, "items", "listData");
 
-    currentDSL.dynamicBindingPathList = currentDSL.dynamicBindingPathList?.map(
-      (path: { key: string }) => {
-        if (path.key === "items") {
-          return { key: "listData" };
-        }
+//     currentDSL.dynamicBindingPathList = currentDSL.dynamicBindingPathList?.map(
+//       (path: { key: string }) => {
+//         if (path.key === "items") {
+//           return { key: "listData" };
+//         }
 
-        return path;
-      },
-    );
+//         return path;
+//       },
+//     );
 
-    currentDSL.dynamicBindingPathList?.map((path: { key: string }) => {
-      if (
-        get(currentDSL, path.key) &&
-        path.key !== "items" &&
-        path.key !== "listData" &&
-        isString(get(currentDSL, path.key))
-      ) {
-        set(
-          currentDSL,
-          path.key,
-          get(currentDSL, path.key, "").replace("items", "listData"),
-        );
-      }
-    });
+//     currentDSL.dynamicBindingPathList?.map((path: { key: string }) => {
+//       if (
+//         get(currentDSL, path.key) &&
+//         path.key !== "items" &&
+//         path.key !== "listData" &&
+//         isString(get(currentDSL, path.key))
+//       ) {
+//         set(
+//           currentDSL,
+//           path.key,
+//           get(currentDSL, path.key, "").replace("items", "listData"),
+//         );
+//       }
+//     });
 
-    Object.keys(currentDSL.template).map((widgetName) => {
-      const currentWidget = currentDSL.template[widgetName];
+//     Object.keys(currentDSL.template).map((widgetName) => {
+//       const currentWidget = currentDSL.template[widgetName];
 
-      currentWidget.dynamicBindingPathList?.map((path: { key: string }) => {
-        set(
-          currentWidget,
-          path.key,
-          get(currentWidget, path.key).replace("items", "listData"),
-        );
-      });
-    });
-  }
+//       currentWidget.dynamicBindingPathList?.map((path: { key: string }) => {
+//         set(
+//           currentWidget,
+//           path.key,
+//           get(currentWidget, path.key).replace("items", "listData"),
+//         );
+//       });
+//     });
+//   }
 
-  if (currentDSL.children && currentDSL.children.length > 0) {
-    currentDSL.children = currentDSL.children.map(
-      migrateItemsToListDataInListWidget,
-    );
-  }
-  return currentDSL;
-};
+//   if (currentDSL.children && currentDSL.children.length > 0) {
+//     currentDSL.children = currentDSL.children.map(
+//       migrateItemsToListDataInListWidget,
+//     );
+//   }
+//   return currentDSL;
+// };
 
-export const updateContainers = (dsl: DSLWidget) => {
-  if (dsl.type === "CONTAINER_WIDGET" || dsl.type === "FORM_WIDGET") {
-    if (
-      !(
-        dsl.children &&
-        dsl.children.length > 0 &&
-        (dsl.children[0].type === "CANVAS_WIDGET" ||
-          dsl.children[0].type === "FORM_WIDGET")
-      )
-    ) {
-      const canvas = {
-        ...dsl,
-        backgroundColor: "transparent",
-        type: "CANVAS_WIDGET",
-        detachFromLayout: true,
-        topRow: 0,
-        leftColumn: 0,
-        rightColumn: dsl.parentColumnSpace * (dsl.rightColumn - dsl.leftColumn),
-        bottomRow: dsl.parentRowSpace * (dsl.bottomRow - dsl.topRow),
-        widgetName: generateReactKey(),
-        widgetId: generateReactKey(),
-        parentRowSpace: 1,
-        parentColumnSpace: 1,
-        containerStyle: "none",
-        canExtend: false,
-        isVisible: true,
-      };
-      // @ts-expect-error: Types are not available
-      delete canvas.dynamicBindings;
-      // @ts-expect-error: Types are not available
-      delete canvas.dynamicProperties;
-      if (canvas.children && canvas.children.length > 0)
-        canvas.children = canvas.children.map(updateContainers);
-      dsl.children = [{ ...canvas }];
-    }
-  }
-  return dsl;
-};
+// export const updateContainers = (dsl: DSLWidget) => {
+//   if (dsl.type === "CONTAINER_WIDGET" || dsl.type === "FORM_WIDGET") {
+//     if (
+//       !(
+//         dsl.children &&
+//         dsl.children.length > 0 &&
+//         (dsl.children[0].type === "CANVAS_WIDGET" ||
+//           dsl.children[0].type === "FORM_WIDGET")
+//       )
+//     ) {
+//       const canvas = {
+//         ...dsl,
+//         backgroundColor: "transparent",
+//         type: "CANVAS_WIDGET",
+//         detachFromLayout: true,
+//         topRow: 0,
+//         leftColumn: 0,
+//         rightColumn: dsl.parentColumnSpace * (dsl.rightColumn - dsl.leftColumn),
+//         bottomRow: dsl.parentRowSpace * (dsl.bottomRow - dsl.topRow),
+//         widgetName: generateReactKey(),
+//         widgetId: generateReactKey(),
+//         parentRowSpace: 1,
+//         parentColumnSpace: 1,
+//         containerStyle: "none",
+//         canExtend: false,
+//         isVisible: true,
+//       };
+//       // @ts-expect-error: Types are not available
+//       delete canvas.dynamicBindings;
+//       // @ts-expect-error: Types are not available
+//       delete canvas.dynamicProperties;
+//       if (canvas.children && canvas.children.length > 0)
+//         canvas.children = canvas.children.map(updateContainers);
+//       dsl.children = [{ ...canvas }];
+//     }
+//   }
+//   return dsl;
+// };
 
-//transform chart data, from old chart widget to new chart widget
-//updated chart widget has support for multiple series
-export const chartDataMigration = (currentDSL: DSLWidget) => {
-  currentDSL.children = currentDSL.children?.map((children: DSLWidget) => {
-    if (
-      children.type === "CHART_WIDGET" &&
-      children.chartData &&
-      children.chartData.length &&
-      !Array.isArray(children.chartData[0])
-    ) {
-      children.chartData = [{ data: children.chartData as ChartDataPoint[] }];
-    } else if (
-      children.type === "CONTAINER_WIDGET" ||
-      children.type === "FORM_WIDGET" ||
-      children.type === "CANVAS_WIDGET" ||
-      children.type === "TABS_WIDGET"
-    ) {
-      children = chartDataMigration(children);
-    }
-    return children;
-  });
-  return currentDSL;
-};
+// //transform chart data, from old chart widget to new chart widget
+// //updated chart widget has support for multiple series
+// export const chartDataMigration = (currentDSL: DSLWidget) => {
+//   currentDSL.children = currentDSL.children?.map((children: DSLWidget) => {
+//     if (
+//       children.type === "CHART_WIDGET" &&
+//       children.chartData &&
+//       children.chartData.length &&
+//       !Array.isArray(children.chartData[0])
+//     ) {
+//       children.chartData = [{ data: children.chartData as ChartDataPoint[] }];
+//     } else if (
+//       children.type === "CONTAINER_WIDGET" ||
+//       children.type === "FORM_WIDGET" ||
+//       children.type === "CANVAS_WIDGET" ||
+//       children.type === "TABS_WIDGET"
+//     ) {
+//       children = chartDataMigration(children);
+//     }
+//     return children;
+//   });
+//   return currentDSL;
+// };
 
-export const singleChartDataMigration = (currentDSL: DSLWidget) => {
-  currentDSL.children = currentDSL.children?.map((child) => {
-    if (child.type === "CHART_WIDGET") {
-      // Check if chart widget has the deprecated singleChartData property
-      if (child.hasOwnProperty("singleChartData")) {
-        // This is to make sure that the format of the chartData is accurate
-        if (
-          Array.isArray(child.singleChartData) &&
-          !child.singleChartData[0].hasOwnProperty("seriesName")
-        ) {
-          child.singleChartData = {
-            seriesName: "Series 1",
-            data: child.singleChartData || [],
-          };
-        }
-        //TODO: other possibilities?
-        child.chartData = JSON.stringify([...child.singleChartData]);
-        delete child.singleChartData;
-      }
-    }
-    if (child.children && child.children.length > 0) {
-      child = singleChartDataMigration(child);
-    }
-    return child;
-  });
+// export const singleChartDataMigration = (currentDSL: DSLWidget) => {
+//   currentDSL.children = currentDSL.children?.map((child) => {
+//     if (child.type === "CHART_WIDGET") {
+//       // Check if chart widget has the deprecated singleChartData property
+//       if (child.hasOwnProperty("singleChartData")) {
+//         // This is to make sure that the format of the chartData is accurate
+//         if (
+//           Array.isArray(child.singleChartData) &&
+//           !child.singleChartData[0].hasOwnProperty("seriesName")
+//         ) {
+//           child.singleChartData = {
+//             seriesName: "Series 1",
+//             data: child.singleChartData || [],
+//           };
+//         }
+//         //TODO: other possibilities?
+//         child.chartData = JSON.stringify([...child.singleChartData]);
+//         delete child.singleChartData;
+//       }
+//     }
+//     if (child.children && child.children.length > 0) {
+//       child = singleChartDataMigration(child);
+//     }
+//     return child;
+//   });
 
-  return currentDSL;
-};
+//   return currentDSL;
+// };
 
-export const mapDataMigration = (currentDSL: DSLWidget) => {
-  currentDSL.children = currentDSL.children?.map((children: DSLWidget) => {
-    if (children.type === "MAP_WIDGET") {
-      if (children.markers) {
-        children.markers = children.markers.map(
-          (marker: { lat: any; lng: any; long: any; title: any }) => {
-            return {
-              lat: marker.lat,
-              long: marker.lng || marker.long,
-              title: marker.title,
-            };
-          },
-        );
-      }
-      if (children.defaultMarkers) {
-        const defaultMarkers = JSON.parse(children.defaultMarkers);
-        children.defaultMarkers = defaultMarkers.map(
-          (marker: {
-            lat: number;
-            lng: number;
-            long: number;
-            title: string;
-          }) => {
-            return {
-              lat: marker.lat,
-              long: marker.lng || marker.long,
-              title: marker.title,
-            };
-          },
-        );
-      }
-      if (children.selectedMarker) {
-        children.selectedMarker = {
-          lat: children.selectedMarker.lat,
-          long: children.selectedMarker.lng || children.selectedMarker.long,
-          title: children.selectedMarker.title,
-        };
-      }
-      if (children.mapCenter) {
-        children.mapCenter = {
-          lat: children.mapCenter.lat,
-          long: children.mapCenter.lng || children.mapCenter.long,
-          title: children.mapCenter.title,
-        };
-      }
-      if (children.center) {
-        children.center = {
-          lat: children.center.lat,
-          long: children.center.lng || children.center.long,
-          title: children.center.title,
-        };
-      }
-    } else if (children.children && children.children.length > 0) {
-      children = mapDataMigration(children);
-    }
-    return children;
-  });
-  return currentDSL;
-};
+// export const mapDataMigration = (currentDSL: DSLWidget) => {
+//   currentDSL.children = currentDSL.children?.map((children: DSLWidget) => {
+//     if (children.type === "MAP_WIDGET") {
+//       if (children.markers) {
+//         children.markers = children.markers.map(
+//           (marker: { lat: any; lng: any; long: any; title: any }) => {
+//             return {
+//               lat: marker.lat,
+//               long: marker.lng || marker.long,
+//               title: marker.title,
+//             };
+//           },
+//         );
+//       }
+//       if (children.defaultMarkers) {
+//         const defaultMarkers = JSON.parse(children.defaultMarkers);
+//         children.defaultMarkers = defaultMarkers.map(
+//           (marker: {
+//             lat: number;
+//             lng: number;
+//             long: number;
+//             title: string;
+//           }) => {
+//             return {
+//               lat: marker.lat,
+//               long: marker.lng || marker.long,
+//               title: marker.title,
+//             };
+//           },
+//         );
+//       }
+//       if (children.selectedMarker) {
+//         children.selectedMarker = {
+//           lat: children.selectedMarker.lat,
+//           long: children.selectedMarker.lng || children.selectedMarker.long,
+//           title: children.selectedMarker.title,
+//         };
+//       }
+//       if (children.mapCenter) {
+//         children.mapCenter = {
+//           lat: children.mapCenter.lat,
+//           long: children.mapCenter.lng || children.mapCenter.long,
+//           title: children.mapCenter.title,
+//         };
+//       }
+//       if (children.center) {
+//         children.center = {
+//           lat: children.center.lat,
+//           long: children.center.lng || children.center.long,
+//           title: children.center.title,
+//         };
+//       }
+//     } else if (children.children && children.children.length > 0) {
+//       children = mapDataMigration(children);
+//     }
+//     return children;
+//   });
+//   return currentDSL;
+// };
 
-export const mapAllowHorizontalScrollMigration = (currentDSL: DSLWidget) => {
-  currentDSL.children = currentDSL.children?.map((child: DSLWidget) => {
-    if (child.type === "CHART_WIDGET") {
-      child.allowScroll = child.allowHorizontalScroll;
-      delete child.allowHorizontalScroll;
-    }
+// export const mapAllowHorizontalScrollMigration = (currentDSL: DSLWidget) => {
+//   currentDSL.children = currentDSL.children?.map((child: DSLWidget) => {
+//     if (child.type === "CHART_WIDGET") {
+//       child.allowScroll = child.allowHorizontalScroll;
+//       delete child.allowHorizontalScroll;
+//     }
 
-    if (Array.isArray(child.children) && child.children.length > 0)
-      child = mapAllowHorizontalScrollMigration(child);
+//     if (Array.isArray(child.children) && child.children.length > 0)
+//       child = mapAllowHorizontalScrollMigration(child);
 
-    return child;
-  });
+//     return child;
+//   });
 
-  return currentDSL;
-};
+//   return currentDSL;
+// };
 
-export const tabsWidgetTabsPropertyMigration = (currentDSL: DSLWidget) => {
-  currentDSL.children = currentDSL.children
-    ?.filter(Boolean)
-    .map((child: DSLWidget) => {
-      if (child.type === "TABS_WIDGET") {
-        try {
-          const tabs = isString(child.tabs)
-            ? JSON.parse(child.tabs)
-            : child.tabs;
-          const newTabs = tabs.map((tab: any) => {
-            const childForTab = child.children
-              ?.filter(Boolean)
-              .find((tabChild: DSLWidget) => tabChild.tabId === tab.id);
-            if (childForTab) {
-              tab.widgetId = childForTab.widgetId;
-            }
-            return tab;
-          });
-          child.tabs = JSON.stringify(newTabs);
-        } catch (migrationError) {
-          log.debug({ migrationError });
-        }
-      }
-      if (child.children && child.children.length) {
-        child = tabsWidgetTabsPropertyMigration(child);
-      }
-      return child;
-    });
-  return currentDSL;
-};
+// export const tabsWidgetTabsPropertyMigration = (currentDSL: DSLWidget) => {
+//   currentDSL.children = currentDSL.children
+//     ?.filter(Boolean)
+//     .map((child: DSLWidget) => {
+//       if (child.type === "TABS_WIDGET") {
+//         try {
+//           const tabs = isString(child.tabs)
+//             ? JSON.parse(child.tabs)
+//             : child.tabs;
+//           const newTabs = tabs.map((tab: any) => {
+//             const childForTab = child.children
+//               ?.filter(Boolean)
+//               .find((tabChild: DSLWidget) => tabChild.tabId === tab.id);
+//             if (childForTab) {
+//               tab.widgetId = childForTab.widgetId;
+//             }
+//             return tab;
+//           });
+//           child.tabs = JSON.stringify(newTabs);
+//         } catch (migrationError) {
+//           log.debug({ migrationError });
+//         }
+//       }
+//       if (child.children && child.children.length) {
+//         child = tabsWidgetTabsPropertyMigration(child);
+//       }
+//       return child;
+//     });
+//   return currentDSL;
+// };
 
-export const dynamicPathListMigration = (currentDSL: DSLWidget) => {
-  if (currentDSL.children && currentDSL.children.length) {
-    currentDSL.children = currentDSL.children.map(dynamicPathListMigration);
-  }
-  if (currentDSL.dynamicBindings) {
-    currentDSL.dynamicBindingPathList = Object.keys(
-      currentDSL.dynamicBindings,
-    ).map((path) => ({ key: path }));
-    delete currentDSL.dynamicBindings;
-  }
-  if (currentDSL.dynamicTriggers) {
-    currentDSL.dynamicTriggerPathList = Object.keys(
-      currentDSL.dynamicTriggers,
-    ).map((path) => ({ key: path }));
-    delete currentDSL.dynamicTriggers;
-  }
-  if (currentDSL.dynamicProperties) {
-    currentDSL.dynamicPropertyPathList = Object.keys(
-      currentDSL.dynamicProperties,
-    ).map((path) => ({ key: path }));
-    delete currentDSL.dynamicProperties;
-  }
-  return currentDSL;
-};
+// export const dynamicPathListMigration = (currentDSL: DSLWidget) => {
+//   if (currentDSL.children && currentDSL.children.length) {
+//     currentDSL.children = currentDSL.children.map(dynamicPathListMigration);
+//   }
+//   if (currentDSL.dynamicBindings) {
+//     currentDSL.dynamicBindingPathList = Object.keys(
+//       currentDSL.dynamicBindings,
+//     ).map((path) => ({ key: path }));
+//     delete currentDSL.dynamicBindings;
+//   }
+//   if (currentDSL.dynamicTriggers) {
+//     currentDSL.dynamicTriggerPathList = Object.keys(
+//       currentDSL.dynamicTriggers,
+//     ).map((path) => ({ key: path }));
+//     delete currentDSL.dynamicTriggers;
+//   }
+//   if (currentDSL.dynamicProperties) {
+//     currentDSL.dynamicPropertyPathList = Object.keys(
+//       currentDSL.dynamicProperties,
+//     ).map((path) => ({ key: path }));
+//     delete currentDSL.dynamicProperties;
+//   }
+//   return currentDSL;
+// };
 
-export const addVersionNumberMigration = (currentDSL: DSLWidget) => {
-  if (currentDSL.children && currentDSL.children.length) {
-    currentDSL.children = currentDSL.children.map(addVersionNumberMigration);
-  }
-  if (currentDSL.version === undefined) {
-    currentDSL.version = 1;
-  }
-  return currentDSL;
-};
+// export const addVersionNumberMigration = (currentDSL: DSLWidget) => {
+//   if (currentDSL.children && currentDSL.children.length) {
+//     currentDSL.children = currentDSL.children.map(addVersionNumberMigration);
+//   }
+//   if (currentDSL.version === undefined) {
+//     currentDSL.version = 1;
+//   }
+//   return currentDSL;
+// };
 
-export const canvasNameConflictMigration = (
-  currentDSL: DSLWidget,
-  props = { counter: 1 },
-): DSLWidget => {
-  if (
-    currentDSL.type === "CANVAS_WIDGET" &&
-    currentDSL.widgetName.startsWith("Canvas")
-  ) {
-    currentDSL.widgetName = `Canvas${props.counter}`;
-    // Canvases inside tabs have `name` property as well
-    if (currentDSL.name) {
-      currentDSL.name = currentDSL.widgetName;
-    }
-    props.counter++;
-  }
-  currentDSL.children?.forEach((c) => canvasNameConflictMigration(c, props));
+// export const canvasNameConflictMigration = (
+//   currentDSL: DSLWidget,
+//   props = { counter: 1 },
+// ): DSLWidget => {
+//   if (
+//     currentDSL.type === "CANVAS_WIDGET" &&
+//     currentDSL.widgetName.startsWith("Canvas")
+//   ) {
+//     currentDSL.widgetName = `Canvas${props.counter}`;
+//     // Canvases inside tabs have `name` property as well
+//     if (currentDSL.name) {
+//       currentDSL.name = currentDSL.widgetName;
+//     }
+//     props.counter++;
+//   }
+//   currentDSL.children?.forEach((c) => canvasNameConflictMigration(c, props));
 
-  return currentDSL;
-};
+//   return currentDSL;
+// };
 
-export const renamedCanvasNameConflictMigration = (
-  currentDSL: DSLWidget,
-  props = { counter: 1 },
-): DSLWidget => {
-  // Rename all canvas widgets except for MainContainer
-  if (
-    currentDSL.type === "CANVAS_WIDGET" &&
-    currentDSL.widgetName !== "MainContainer"
-  ) {
-    currentDSL.widgetName = `Canvas${props.counter}`;
-    // Canvases inside tabs have `name` property as well
-    if (currentDSL.name) {
-      currentDSL.name = currentDSL.widgetName;
-    }
-    props.counter++;
-  }
-  currentDSL.children?.forEach((c) => canvasNameConflictMigration(c, props));
+// export const renamedCanvasNameConflictMigration = (
+//   currentDSL: DSLWidget,
+//   props = { counter: 1 },
+// ): DSLWidget => {
+//   // Rename all canvas widgets except for MainContainer
+//   if (
+//     currentDSL.type === "CANVAS_WIDGET" &&
+//     currentDSL.widgetName !== "MainContainer"
+//   ) {
+//     currentDSL.widgetName = `Canvas${props.counter}`;
+//     // Canvases inside tabs have `name` property as well
+//     if (currentDSL.name) {
+//       currentDSL.name = currentDSL.widgetName;
+//     }
+//     props.counter++;
+//   }
+//   currentDSL.children?.forEach((c) => canvasNameConflictMigration(c, props));
 
-  return currentDSL;
-};
+//   return currentDSL;
+// };
 
-export const rteDefaultValueMigration = (currentDSL: DSLWidget): DSLWidget => {
-  if (currentDSL.type === "RICH_TEXT_EDITOR_WIDGET") {
-    currentDSL.inputType = "html";
-  }
-  currentDSL.children?.forEach((children) =>
-    rteDefaultValueMigration(children),
-  );
+// export const rteDefaultValueMigration = (currentDSL: DSLWidget): DSLWidget => {
+//   if (currentDSL.type === "RICH_TEXT_EDITOR_WIDGET") {
+//     currentDSL.inputType = "html";
+//   }
+//   currentDSL.children?.forEach((children) =>
+//     rteDefaultValueMigration(children),
+//   );
 
-  return currentDSL;
-};
+//   return currentDSL;
+// };
 
-function migrateTabsDataUsingMigrator(currentDSL: DSLWidget) {
-  if (currentDSL.type === "TABS_WIDGET" && currentDSL.version === 1) {
-    try {
-      currentDSL.type = "TABS_MIGRATOR_WIDGET";
-      currentDSL.version = 1;
-    } catch (error) {
-      Sentry.captureException({
-        message: "Tabs Migration Failed",
-        oldData: currentDSL.tabs,
-      });
-      currentDSL.tabsObj = {};
-      delete currentDSL.tabs;
-    }
-  }
-  if (currentDSL.children && currentDSL.children.length) {
-    currentDSL.children = currentDSL.children.map(migrateTabsDataUsingMigrator);
-  }
-  return currentDSL;
-}
+// function migrateTabsDataUsingMigrator(currentDSL: DSLWidget) {
+//   if (currentDSL.type === "TABS_WIDGET" && currentDSL.version === 1) {
+//     try {
+//       currentDSL.type = "TABS_MIGRATOR_WIDGET";
+//       currentDSL.version = 1;
+//     } catch (error) {
+//       Sentry.captureException({
+//         message: "Tabs Migration Failed",
+//         oldData: currentDSL.tabs,
+//       });
+//       currentDSL.tabsObj = {};
+//       delete currentDSL.tabs;
+//     }
+//   }
+//   if (currentDSL.children && currentDSL.children.length) {
+//     currentDSL.children = currentDSL.children.map(migrateTabsDataUsingMigrator);
+//   }
+//   return currentDSL;
+// }
 
-export const migrateTabsData = (currentDSL: DSLWidget) => {
-  if (
-    ["TABS_WIDGET", "TABS_MIGRATOR_WIDGET"].includes(currentDSL.type as any) &&
-    currentDSL.version === 1
-  ) {
-    try {
-      currentDSL.type = "TABS_WIDGET";
-      const isTabsDataBinded = isString(currentDSL.tabs);
-      currentDSL.dynamicPropertyPathList =
-        currentDSL.dynamicPropertyPathList || [];
-      currentDSL.dynamicBindingPathList =
-        currentDSL.dynamicBindingPathList || [];
+// export const migrateTabsData = (currentDSL: DSLWidget) => {
+//   if (
+//     ["TABS_WIDGET", "TABS_MIGRATOR_WIDGET"].includes(currentDSL.type as any) &&
+//     currentDSL.version === 1
+//   ) {
+//     try {
+//       currentDSL.type = "TABS_WIDGET";
+//       const isTabsDataBinded = isString(currentDSL.tabs);
+//       currentDSL.dynamicPropertyPathList =
+//         currentDSL.dynamicPropertyPathList || [];
+//       currentDSL.dynamicBindingPathList =
+//         currentDSL.dynamicBindingPathList || [];
 
-      if (isTabsDataBinded) {
-        const tabsString = currentDSL.tabs.replace(
-          DATA_BIND_REGEX_GLOBAL,
-          (word: any) => `"${word}"`,
-        );
-        try {
-          currentDSL.tabs = JSON.parse(tabsString);
-        } catch (error) {
-          return migrateTabsDataUsingMigrator(currentDSL);
-        }
-        const dynamicPropsList = currentDSL.tabs
-          .filter((each: any) => DATA_BIND_REGEX_GLOBAL.test(each.isVisible))
-          .map((each: any) => {
-            return { key: `tabsObj.${each.id}.isVisible` };
-          });
-        const dynamicBindablePropsList = currentDSL.tabs.map((each: any) => {
-          return { key: `tabsObj.${each.id}.isVisible` };
-        });
-        currentDSL.dynamicPropertyPathList = [
-          ...currentDSL.dynamicPropertyPathList,
-          ...dynamicPropsList,
-        ];
-        currentDSL.dynamicBindingPathList = [
-          ...currentDSL.dynamicBindingPathList,
-          ...dynamicBindablePropsList,
-        ];
-      }
-      currentDSL.dynamicPropertyPathList =
-        currentDSL.dynamicPropertyPathList.filter((each) => {
-          return each.key !== "tabs";
-        });
-      currentDSL.dynamicBindingPathList =
-        currentDSL.dynamicBindingPathList.filter((each) => {
-          return each.key !== "tabs";
-        });
-      currentDSL.tabsObj = currentDSL.tabs.reduce(
-        (obj: any, tab: any, index: number) => {
-          obj = {
-            ...obj,
-            [tab.id]: {
-              ...tab,
-              isVisible: tab.isVisible === undefined ? true : tab.isVisible,
-              index,
-            },
-          };
-          return obj;
-        },
-        {},
-      );
-      currentDSL.version = 2;
-      delete currentDSL.tabs;
-    } catch (error) {
-      Sentry.captureException({
-        message: "Tabs Migration Failed",
-        oldData: currentDSL.tabs,
-      });
-      currentDSL.tabsObj = {};
-      delete currentDSL.tabs;
-    }
-  }
-  if (currentDSL.children && currentDSL.children.length) {
-    currentDSL.children = currentDSL.children.map(migrateTabsData);
-  }
-  return currentDSL;
-};
+//       if (isTabsDataBinded) {
+//         const tabsString = currentDSL.tabs.replace(
+//           DATA_BIND_REGEX_GLOBAL,
+//           (word: any) => `"${word}"`,
+//         );
+//         try {
+//           currentDSL.tabs = JSON.parse(tabsString);
+//         } catch (error) {
+//           return migrateTabsDataUsingMigrator(currentDSL);
+//         }
+//         const dynamicPropsList = currentDSL.tabs
+//           .filter((each: any) => DATA_BIND_REGEX_GLOBAL.test(each.isVisible))
+//           .map((each: any) => {
+//             return { key: `tabsObj.${each.id}.isVisible` };
+//           });
+//         const dynamicBindablePropsList = currentDSL.tabs.map((each: any) => {
+//           return { key: `tabsObj.${each.id}.isVisible` };
+//         });
+//         currentDSL.dynamicPropertyPathList = [
+//           ...currentDSL.dynamicPropertyPathList,
+//           ...dynamicPropsList,
+//         ];
+//         currentDSL.dynamicBindingPathList = [
+//           ...currentDSL.dynamicBindingPathList,
+//           ...dynamicBindablePropsList,
+//         ];
+//       }
+//       currentDSL.dynamicPropertyPathList =
+//         currentDSL.dynamicPropertyPathList.filter((each) => {
+//           return each.key !== "tabs";
+//         });
+//       currentDSL.dynamicBindingPathList =
+//         currentDSL.dynamicBindingPathList.filter((each) => {
+//           return each.key !== "tabs";
+//         });
+//       currentDSL.tabsObj = currentDSL.tabs.reduce(
+//         (obj: any, tab: any, index: number) => {
+//           obj = {
+//             ...obj,
+//             [tab.id]: {
+//               ...tab,
+//               isVisible: tab.isVisible === undefined ? true : tab.isVisible,
+//               index,
+//             },
+//           };
+//           return obj;
+//         },
+//         {},
+//       );
+//       currentDSL.version = 2;
+//       delete currentDSL.tabs;
+//     } catch (error) {
+//       Sentry.captureException({
+//         message: "Tabs Migration Failed",
+//         oldData: currentDSL.tabs,
+//       });
+//       currentDSL.tabsObj = {};
+//       delete currentDSL.tabs;
+//     }
+//   }
+//   if (currentDSL.children && currentDSL.children.length) {
+//     currentDSL.children = currentDSL.children.map(migrateTabsData);
+//   }
+//   return currentDSL;
+// };
 
-// A rudimentary transform function which updates the DSL based on its version.
-export const migrateOldChartData = (currentDSL: DSLWidget) => {
-  if (currentDSL.type === "CHART_WIDGET") {
-    if (isString(currentDSL.chartData)) {
-      try {
-        currentDSL.chartData = JSON.parse(currentDSL.chartData);
-      } catch (error) {
-        Sentry.captureException({
-          message: "Chart Migration Failed",
-          oldData: currentDSL.chartData,
-        });
-        currentDSL.chartData = [];
-      }
-    }
-  }
-  if (currentDSL.children && currentDSL.children.length) {
-    currentDSL.children = currentDSL.children.map(migrateOldChartData);
-  }
-  return currentDSL;
-};
+// // A rudimentary transform function which updates the DSL based on its version.
+// export const migrateOldChartData = (currentDSL: DSLWidget) => {
+//   if (currentDSL.type === "CHART_WIDGET") {
+//     if (isString(currentDSL.chartData)) {
+//       try {
+//         currentDSL.chartData = JSON.parse(currentDSL.chartData);
+//       } catch (error) {
+//         Sentry.captureException({
+//           message: "Chart Migration Failed",
+//           oldData: currentDSL.chartData,
+//         });
+//         currentDSL.chartData = [];
+//       }
+//     }
+//   }
+//   if (currentDSL.children && currentDSL.children.length) {
+//     currentDSL.children = currentDSL.children.map(migrateOldChartData);
+//   }
+//   return currentDSL;
+// };
 
-/**
- * changes chartData which we were using as array. now it will be a object
- *
- *
- * @param currentDSL
- * @returns
- */
-export const migrateChartDataFromArrayToObject = (currentDSL: DSLWidget) => {
-  currentDSL.children = currentDSL.children?.map((children: DSLWidget) => {
-    if (children.type === "CHART_WIDGET") {
-      if (Array.isArray(children.chartData)) {
-        const newChartData = {};
-        const dynamicBindingPathList = children?.dynamicBindingPathList
-          ? children?.dynamicBindingPathList.slice()
-          : [];
+// /**
+//  * changes chartData which we were using as array. now it will be a object
+//  *
+//  *
+//  * @param currentDSL
+//  * @returns
+//  */
+// export const migrateChartDataFromArrayToObject = (currentDSL: DSLWidget) => {
+//   currentDSL.children = currentDSL.children?.map((children: DSLWidget) => {
+//     if (children.type === "CHART_WIDGET") {
+//       if (Array.isArray(children.chartData)) {
+//         const newChartData = {};
+//         const dynamicBindingPathList = children?.dynamicBindingPathList
+//           ? children?.dynamicBindingPathList.slice()
+//           : [];
 
-        children.chartData.map((datum: any, index: number) => {
-          const generatedKey = generateReactKey();
-          set(newChartData, `${generatedKey}`, datum);
+//         children.chartData.map((datum: any, index: number) => {
+//           const generatedKey = generateReactKey();
+//           set(newChartData, `${generatedKey}`, datum);
 
-          if (
-            Array.isArray(children.dynamicBindingPathList) &&
-            children.dynamicBindingPathList?.findIndex(
-              (path) => (path.key = `chartData[${index}].data`),
-            ) > -1
-          ) {
-            const foundIndex = children.dynamicBindingPathList.findIndex(
-              (path) => (path.key = `chartData[${index}].data`),
-            );
+//           if (
+//             Array.isArray(children.dynamicBindingPathList) &&
+//             children.dynamicBindingPathList?.findIndex(
+//               (path) => (path.key = `chartData[${index}].data`),
+//             ) > -1
+//           ) {
+//             const foundIndex = children.dynamicBindingPathList.findIndex(
+//               (path) => (path.key = `chartData[${index}].data`),
+//             );
 
-            dynamicBindingPathList[foundIndex] = {
-              key: `chartData.${generatedKey}.data`,
-            };
-          }
-        });
+//             dynamicBindingPathList[foundIndex] = {
+//               key: `chartData.${generatedKey}.data`,
+//             };
+//           }
+//         });
 
-        children.dynamicBindingPathList = dynamicBindingPathList;
-        children.chartData = newChartData;
-      }
-    } else if (
-      children.type === "CONTAINER_WIDGET" ||
-      children.type === "FORM_WIDGET" ||
-      children.type === "CANVAS_WIDGET" ||
-      children.type === "TABS_WIDGET"
-    ) {
-      children = migrateChartDataFromArrayToObject(children);
-    }
+//         children.dynamicBindingPathList = dynamicBindingPathList;
+//         children.chartData = newChartData;
+//       }
+//     } else if (
+//       children.type === "CONTAINER_WIDGET" ||
+//       children.type === "FORM_WIDGET" ||
+//       children.type === "CANVAS_WIDGET" ||
+//       children.type === "TABS_WIDGET"
+//     ) {
+//       children = migrateChartDataFromArrayToObject(children);
+//     }
 
-    return children;
-  });
+//     return children;
+//   });
 
-  return currentDSL;
-};
+//   return currentDSL;
+// };
 
-const pixelToNumber = (pixel: string) => {
-  if (pixel.includes("px")) {
-    return parseInt(pixel.split("px").join(""));
-  }
-  return 0;
-};
+// const pixelToNumber = (pixel: string) => {
+//   if (pixel.includes("px")) {
+//     return parseInt(pixel.split("px").join(""));
+//   }
+//   return 0;
+// };
 
-export const calculateDynamicHeight = () => {
-  const screenHeight = window.innerHeight;
-  const gridRowHeight = GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
-  // DGRH - DEFAULT_GRID_ROW_HEIGHT
-  // View Mode: Header height + Page Selection Tab = 8 * DGRH (approx)
-  // Edit Mode: Header height + Canvas control = 8 * DGRH (approx)
-  // buffer: ~8 grid row height
-  const buffer =
-    gridRowHeight +
-    2 * pixelToNumber(theme.smallHeaderHeight) +
-    pixelToNumber(theme.bottomBarHeight);
-  const calculatedMinHeight =
-    Math.floor((screenHeight - buffer) / gridRowHeight) * gridRowHeight;
-  return calculatedMinHeight;
-};
+// export const calculateDynamicHeight = () => {
+//   const screenHeight = window.innerHeight;
+//   const gridRowHeight = GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+//   // DGRH - DEFAULT_GRID_ROW_HEIGHT
+//   // View Mode: Header height + Page Selection Tab = 8 * DGRH (approx)
+//   // Edit Mode: Header height + Canvas control = 8 * DGRH (approx)
+//   // buffer: ~8 grid row height
+//   const buffer =
+//     gridRowHeight +
+//     2 * pixelToNumber(theme.smallHeaderHeight) +
+//     pixelToNumber(theme.bottomBarHeight);
+//   const calculatedMinHeight =
+//     Math.floor((screenHeight - buffer) / gridRowHeight) * gridRowHeight;
+//   return calculatedMinHeight;
+// };
 
-export const migrateInitialValues = (currentDSL: DSLWidget) => {
-  currentDSL.children = currentDSL.children?.map((child: DSLWidget) => {
-    if (child.type === "INPUT_WIDGET") {
-      child = {
-        isRequired: false,
-        isDisabled: false,
-        resetOnSubmit: false,
-        ...child,
-      };
-    } else if (child.type === "DROP_DOWN_WIDGET") {
-      child = {
-        isRequired: false,
-        isDisabled: false,
-        ...child,
-      };
-    } else if (child.type === "DATE_PICKER_WIDGET2") {
-      child = {
-        minDate: "2001-01-01 00:00",
-        maxDate: "2041-12-31 23:59",
-        isRequired: false,
-        ...child,
-      };
-    } else if (child.type === "SWITCH_WIDGET") {
-      child = {
-        isDisabled: false,
-        ...child,
-      };
-    } else if (child.type === "ICON_WIDGET") {
-      child = {
-        isRequired: false,
-        ...child,
-      };
-    } else if (child.type === "VIDEO_WIDGET") {
-      child = {
-        isRequired: false,
-        isDisabled: false,
-        ...child,
-      };
-    } else if (child.type === "CHECKBOX_WIDGET") {
-      child = {
-        isDisabled: false,
-        isRequired: false,
-        ...child,
-      };
-    } else if (child.type === "RADIO_GROUP_WIDGET") {
-      child = {
-        isDisabled: false,
-        isRequired: false,
-        ...child,
-      };
-    } else if (child.type === "FILE_PICKER_WIDGET") {
-      child = {
-        isDisabled: false,
-        isRequired: false,
-        allowedFileTypes: [],
-        ...child,
-      };
-    } else if (child.children && child.children.length > 0) {
-      child = migrateInitialValues(child);
-    }
-    return child;
-  });
-  return currentDSL;
-};
+// export const migrateInitialValues = (currentDSL: DSLWidget) => {
+//   currentDSL.children = currentDSL.children?.map((child: DSLWidget) => {
+//     if (child.type === "INPUT_WIDGET") {
+//       child = {
+//         isRequired: false,
+//         isDisabled: false,
+//         resetOnSubmit: false,
+//         ...child,
+//       };
+//     } else if (child.type === "DROP_DOWN_WIDGET") {
+//       child = {
+//         isRequired: false,
+//         isDisabled: false,
+//         ...child,
+//       };
+//     } else if (child.type === "DATE_PICKER_WIDGET2") {
+//       child = {
+//         minDate: "2001-01-01 00:00",
+//         maxDate: "2041-12-31 23:59",
+//         isRequired: false,
+//         ...child,
+//       };
+//     } else if (child.type === "SWITCH_WIDGET") {
+//       child = {
+//         isDisabled: false,
+//         ...child,
+//       };
+//     } else if (child.type === "ICON_WIDGET") {
+//       child = {
+//         isRequired: false,
+//         ...child,
+//       };
+//     } else if (child.type === "VIDEO_WIDGET") {
+//       child = {
+//         isRequired: false,
+//         isDisabled: false,
+//         ...child,
+//       };
+//     } else if (child.type === "CHECKBOX_WIDGET") {
+//       child = {
+//         isDisabled: false,
+//         isRequired: false,
+//         ...child,
+//       };
+//     } else if (child.type === "RADIO_GROUP_WIDGET") {
+//       child = {
+//         isDisabled: false,
+//         isRequired: false,
+//         ...child,
+//       };
+//     } else if (child.type === "FILE_PICKER_WIDGET") {
+//       child = {
+//         isDisabled: false,
+//         isRequired: false,
+//         allowedFileTypes: [],
+//         ...child,
+//       };
+//     } else if (child.children && child.children.length > 0) {
+//       child = migrateInitialValues(child);
+//     }
+//     return child;
+//   });
+//   return currentDSL;
+// };
 
-export const buildInitialDSL = (currentDSL: DSLWidget) => {
-  if (currentDSL.version === undefined) {
-    // Since this top level widget is a CANVAS_WIDGET,
-    // DropTargetComponent needs to know the minimum height the canvas can take
-    // See DropTargetUtils.ts
-    currentDSL.minHeight = calculateDynamicHeight();
-    currentDSL.bottomRow =
-      currentDSL.minHeight - GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
-    // For the first time the DSL is created, remove one row from the total possible rows
-    // to adjust for padding and margins.
-    currentDSL.snapRows =
-      Math.floor(currentDSL.bottomRow / GridDefaults.DEFAULT_GRID_ROW_HEIGHT) -
-      1;
+// // A rudimentary transform function which updates the DSL based on its version.
+// // A more modular approach needs to be designed.
+// // This needs the widget config to be already built to migrate correctly
+// export const transformDSL = (currentDSL: DSLWidget, newPage = false) => {
+//   if (currentDSL.version === undefined) {
+//     // Since this top level widget is a CANVAS_WIDGET,
+//     // DropTargetComponent needs to know the minimum height the canvas can take
+//     // See DropTargetUtils.ts
+//     currentDSL.minHeight = calculateDynamicHeight();
+//     currentDSL.bottomRow =
+//       currentDSL.minHeight - GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+//     // For the first time the DSL is created, remove one row from the total possible rows
+//     // to adjust for padding and margins.
+//     currentDSL.snapRows =
+//       Math.floor(currentDSL.bottomRow / GridDefaults.DEFAULT_GRID_ROW_HEIGHT) -
+//       1;
 
-    // Force the width of the canvas to 1224 px
-    currentDSL.rightColumn = 1224;
-    // The canvas is a CANVAS_WIDGET which doesn't have a background or borders by default
-    currentDSL.backgroundColor = "none";
-    currentDSL.containerStyle = "none";
-    currentDSL.type = "CANVAS_WIDGET";
-    currentDSL.detachFromLayout = true;
-    currentDSL.canExtend = true;
+//     // Force the width of the canvas to 1224 px
+//     currentDSL.rightColumn = 1224;
+//     // The canvas is a CANVAS_WIDGET which doesn't have a background or borders by default
+//     currentDSL.backgroundColor = "none";
+//     currentDSL.containerStyle = "none";
+//     currentDSL.type = "CANVAS_WIDGET";
+//     currentDSL.detachFromLayout = true;
+//     currentDSL.canExtend = true;
 
-    // Update version to make sure this doesn't run every time.
-    currentDSL.version = 1;
-  }
-  return currentDSL;
-};
+//     // Update version to make sure this doesn't run every time.
+//     currentDSL.version = 1;
+//   }
 
-// A rudimentary transform function which updates the DSL based on its version.
-// A more modular approach needs to be designed.
-// This needs the widget config to be already built to migrate correctly
-// export const migrateDSL = (currentDSL: DSLWidget, newPage = false) => {
 //   if (currentDSL.version === 1) {
 //     if (currentDSL.children && currentDSL.children.length > 0)
 //       currentDSL.children = currentDSL.children.map(updateContainers);
@@ -1231,458 +1234,451 @@ export const buildInitialDSL = (currentDSL: DSLWidget) => {
 
 //   if (currentDSL.version === 85) {
 //     currentDSL = migrateDefaultValuesForCustomEChart(currentDSL);
+//     currentDSL.version = 86;
+//   }
+
+//   if (currentDSL.version === 86) {
+//     currentDSL = migrateTableServerSideFiltering(currentDSL);
 //     currentDSL.version = LATEST_PAGE_VERSION;
 //   }
 
 //   return currentDSL;
 // };
 
-// export const transformDSL = (
-//   currentDSL: DSLWidget,
-//   newPage = false,
-// ): DSLWidget => {
-//   if (currentDSL.version === undefined) {
-//     const initialDSL = buildInitialDSL(currentDSL);
-//     return migrateDSL(initialDSL, newPage) as DSLWidget;
-//   } else {
-//     return migrateDSL(currentDSL, newPage) as DSLWidget;
+// export const migrateButtonVariant = (currentDSL: DSLWidget) => {
+//   if (
+//     currentDSL.type === "BUTTON_WIDGET" ||
+//     currentDSL.type === "FORM_BUTTON_WIDGET" ||
+//     currentDSL.type === "ICON_BUTTON_WIDGET"
+//   ) {
+//     switch (currentDSL.buttonVariant) {
+//       case "OUTLINE":
+//         currentDSL.buttonVariant = ButtonVariantTypes.SECONDARY;
+//         break;
+//       case "GHOST":
+//         currentDSL.buttonVariant = ButtonVariantTypes.TERTIARY;
+//         break;
+//       default:
+//         currentDSL.buttonVariant = ButtonVariantTypes.PRIMARY;
+//     }
 //   }
+//   if (currentDSL.type === "MENU_BUTTON_WIDGET") {
+//     switch (currentDSL.menuVariant) {
+//       case "OUTLINE":
+//         currentDSL.menuVariant = ButtonVariantTypes.SECONDARY;
+//         break;
+//       case "GHOST":
+//         currentDSL.menuVariant = ButtonVariantTypes.TERTIARY;
+//         break;
+//       default:
+//         currentDSL.menuVariant = ButtonVariantTypes.PRIMARY;
+//     }
+//   }
+//   if (currentDSL.type === "TABLE_WIDGET") {
+//     if (currentDSL.hasOwnProperty("primaryColumns")) {
+//       Object.keys(currentDSL.primaryColumns).forEach((column) => {
+//         if (currentDSL.primaryColumns[column].columnType === "iconButton") {
+//           let newVariant = ButtonVariantTypes.PRIMARY;
+//           switch (currentDSL.primaryColumns[column].buttonVariant) {
+//             case "OUTLINE":
+//               newVariant = ButtonVariantTypes.SECONDARY;
+//               break;
+//             case "GHOST":
+//               newVariant = ButtonVariantTypes.TERTIARY;
+//               break;
+//           }
+//           currentDSL.primaryColumns[column].buttonVariant = newVariant;
+//         }
+//       });
+//     }
+//   }
+//   if (currentDSL.children && currentDSL.children.length) {
+//     currentDSL.children = currentDSL.children.map((child) =>
+//       migrateButtonVariant(child),
+//     );
+//   }
+//   return currentDSL;
 // };
 
-export const migrateButtonVariant = (currentDSL: DSLWidget) => {
-  if (
-    currentDSL.type === "BUTTON_WIDGET" ||
-    currentDSL.type === "FORM_BUTTON_WIDGET" ||
-    currentDSL.type === "ICON_BUTTON_WIDGET"
-  ) {
-    switch (currentDSL.buttonVariant) {
-      case "OUTLINE":
-        currentDSL.buttonVariant = ButtonVariantTypes.SECONDARY;
-        break;
-      case "GHOST":
-        currentDSL.buttonVariant = ButtonVariantTypes.TERTIARY;
-        break;
-      default:
-        currentDSL.buttonVariant = ButtonVariantTypes.PRIMARY;
-    }
-  }
-  if (currentDSL.type === "MENU_BUTTON_WIDGET") {
-    switch (currentDSL.menuVariant) {
-      case "OUTLINE":
-        currentDSL.menuVariant = ButtonVariantTypes.SECONDARY;
-        break;
-      case "GHOST":
-        currentDSL.menuVariant = ButtonVariantTypes.TERTIARY;
-        break;
-      default:
-        currentDSL.menuVariant = ButtonVariantTypes.PRIMARY;
-    }
-  }
-  if (currentDSL.type === "TABLE_WIDGET") {
-    if (currentDSL.hasOwnProperty("primaryColumns")) {
-      Object.keys(currentDSL.primaryColumns).forEach((column) => {
-        if (currentDSL.primaryColumns[column].columnType === "iconButton") {
-          let newVariant = ButtonVariantTypes.PRIMARY;
-          switch (currentDSL.primaryColumns[column].buttonVariant) {
-            case "OUTLINE":
-              newVariant = ButtonVariantTypes.SECONDARY;
-              break;
-            case "GHOST":
-              newVariant = ButtonVariantTypes.TERTIARY;
-              break;
-          }
-          currentDSL.primaryColumns[column].buttonVariant = newVariant;
-        }
-      });
-    }
-  }
-  if (currentDSL.children && currentDSL.children.length) {
-    currentDSL.children = currentDSL.children.map((child) =>
-      migrateButtonVariant(child),
-    );
-  }
-  return currentDSL;
-};
+// export const revertTableDefaultSelectedRow = (currentDSL: DSLWidget) => {
+//   if (currentDSL.type === "TABLE_WIDGET") {
+//     if (currentDSL.version === 1 && currentDSL.defaultSelectedRow === "0")
+//       currentDSL.defaultSelectedRow = undefined;
+//     // update version to 3 for all table dsl
+//     currentDSL.version = 3;
+//   }
+//   if (currentDSL.children && currentDSL.children.length) {
+//     currentDSL.children = currentDSL.children.map((child) =>
+//       revertTableDefaultSelectedRow(child),
+//     );
+//   }
+//   return currentDSL;
+// };
 
-export const revertTableDefaultSelectedRow = (currentDSL: DSLWidget) => {
-  if (currentDSL.type === "TABLE_WIDGET") {
-    if (currentDSL.version === 1 && currentDSL.defaultSelectedRow === "0")
-      currentDSL.defaultSelectedRow = undefined;
-    // update version to 3 for all table dsl
-    currentDSL.version = 3;
-  }
-  if (currentDSL.children && currentDSL.children.length) {
-    currentDSL.children = currentDSL.children.map((child) =>
-      revertTableDefaultSelectedRow(child),
-    );
-  }
-  return currentDSL;
-};
+// export const revertButtonStyleToButtonColor = (currentDSL: DSLWidget) => {
+//   if (
+//     currentDSL.type === "BUTTON_WIDGET" ||
+//     currentDSL.type === "FORM_BUTTON_WIDGET" ||
+//     currentDSL.type === "ICON_BUTTON_WIDGET"
+//   ) {
+//     if (currentDSL.hasOwnProperty("buttonStyle")) {
+//       switch (currentDSL.buttonStyle) {
+//         case ButtonStyleTypes.DANGER:
+//           currentDSL.buttonColor = Colors.DANGER_SOLID;
+//           break;
+//         case ButtonStyleTypes.PRIMARY:
+//           currentDSL.buttonColor = Colors.GREEN;
+//           break;
+//         case ButtonStyleTypes.WARNING:
+//           currentDSL.buttonColor = Colors.WARNING_SOLID;
+//           break;
+//         case ButtonStyleTypes.INFO:
+//           currentDSL.buttonColor = Colors.INFO_SOLID;
+//           break;
+//         case ButtonStyleTypes.SECONDARY:
+//           currentDSL.buttonColor = Colors.GRAY;
+//           break;
+//         case "PRIMARY_BUTTON":
+//           currentDSL.buttonColor = Colors.GREEN;
+//           break;
+//         case "SECONDARY_BUTTON":
+//           currentDSL.buttonColor = Colors.GREEN;
+//           currentDSL.buttonVariant = ButtonVariantTypes.SECONDARY;
+//           break;
+//         case "DANGER_BUTTON":
+//           currentDSL.buttonColor = Colors.DANGER_SOLID;
+//           break;
+//         default:
+//           if (!currentDSL.buttonColor) currentDSL.buttonColor = Colors.GREEN;
+//           break;
+//       }
+//       delete currentDSL.buttonStyle;
+//     }
+//   }
+//   if (currentDSL.type === "MENU_BUTTON_WIDGET") {
+//     if (currentDSL.hasOwnProperty("menuStyle")) {
+//       switch (currentDSL.menuStyle) {
+//         case ButtonStyleTypes.DANGER:
+//           currentDSL.menuColor = Colors.DANGER_SOLID;
+//           break;
+//         case ButtonStyleTypes.PRIMARY:
+//           currentDSL.menuColor = Colors.GREEN;
+//           break;
+//         case ButtonStyleTypes.WARNING:
+//           currentDSL.menuColor = Colors.WARNING_SOLID;
+//           break;
+//         case ButtonStyleTypes.INFO:
+//           currentDSL.menuColor = Colors.INFO_SOLID;
+//           break;
+//         case ButtonStyleTypes.SECONDARY:
+//           currentDSL.menuColor = Colors.GRAY;
+//           break;
+//         default:
+//           if (!currentDSL.menuColor) currentDSL.menuColor = Colors.GREEN;
+//           break;
+//       }
+//       delete currentDSL.menuStyle;
+//       delete currentDSL.prevMenuStyle;
+//     }
+//   }
+//   if (currentDSL.type === "TABLE_WIDGET") {
+//     if (currentDSL.hasOwnProperty("primaryColumns")) {
+//       Object.keys(currentDSL.primaryColumns).forEach((column) => {
+//         if (currentDSL.primaryColumns[column].columnType === "button") {
+//           currentDSL.primaryColumns[column].buttonColor =
+//             currentDSL.primaryColumns[column].buttonStyle;
+//           delete currentDSL.primaryColumns[column].buttonStyle;
+//         }
+//       });
+//     }
+//   }
+//   if (currentDSL.children && currentDSL.children.length) {
+//     currentDSL.children = currentDSL.children.map((child) =>
+//       revertButtonStyleToButtonColor(child),
+//     );
+//   }
+//   return currentDSL;
+// };
 
-export const revertButtonStyleToButtonColor = (currentDSL: DSLWidget) => {
-  if (
-    currentDSL.type === "BUTTON_WIDGET" ||
-    currentDSL.type === "FORM_BUTTON_WIDGET" ||
-    currentDSL.type === "ICON_BUTTON_WIDGET"
-  ) {
-    if (currentDSL.hasOwnProperty("buttonStyle")) {
-      switch (currentDSL.buttonStyle) {
-        case ButtonStyleTypes.DANGER:
-          currentDSL.buttonColor = Colors.DANGER_SOLID;
-          break;
-        case ButtonStyleTypes.PRIMARY:
-          currentDSL.buttonColor = Colors.GREEN;
-          break;
-        case ButtonStyleTypes.WARNING:
-          currentDSL.buttonColor = Colors.WARNING_SOLID;
-          break;
-        case ButtonStyleTypes.INFO:
-          currentDSL.buttonColor = Colors.INFO_SOLID;
-          break;
-        case ButtonStyleTypes.SECONDARY:
-          currentDSL.buttonColor = Colors.GRAY;
-          break;
-        case "PRIMARY_BUTTON":
-          currentDSL.buttonColor = Colors.GREEN;
-          break;
-        case "SECONDARY_BUTTON":
-          currentDSL.buttonColor = Colors.GREEN;
-          currentDSL.buttonVariant = ButtonVariantTypes.SECONDARY;
-          break;
-        case "DANGER_BUTTON":
-          currentDSL.buttonColor = Colors.DANGER_SOLID;
-          break;
-        default:
-          if (!currentDSL.buttonColor) currentDSL.buttonColor = Colors.GREEN;
-          break;
-      }
-      delete currentDSL.buttonStyle;
-    }
-  }
-  if (currentDSL.type === "MENU_BUTTON_WIDGET") {
-    if (currentDSL.hasOwnProperty("menuStyle")) {
-      switch (currentDSL.menuStyle) {
-        case ButtonStyleTypes.DANGER:
-          currentDSL.menuColor = Colors.DANGER_SOLID;
-          break;
-        case ButtonStyleTypes.PRIMARY:
-          currentDSL.menuColor = Colors.GREEN;
-          break;
-        case ButtonStyleTypes.WARNING:
-          currentDSL.menuColor = Colors.WARNING_SOLID;
-          break;
-        case ButtonStyleTypes.INFO:
-          currentDSL.menuColor = Colors.INFO_SOLID;
-          break;
-        case ButtonStyleTypes.SECONDARY:
-          currentDSL.menuColor = Colors.GRAY;
-          break;
-        default:
-          if (!currentDSL.menuColor) currentDSL.menuColor = Colors.GREEN;
-          break;
-      }
-      delete currentDSL.menuStyle;
-      delete currentDSL.prevMenuStyle;
-    }
-  }
-  if (currentDSL.type === "TABLE_WIDGET") {
-    if (currentDSL.hasOwnProperty("primaryColumns")) {
-      Object.keys(currentDSL.primaryColumns).forEach((column) => {
-        if (currentDSL.primaryColumns[column].columnType === "button") {
-          currentDSL.primaryColumns[column].buttonColor =
-            currentDSL.primaryColumns[column].buttonStyle;
-          delete currentDSL.primaryColumns[column].buttonStyle;
-        }
-      });
-    }
-  }
-  if (currentDSL.children && currentDSL.children.length) {
-    currentDSL.children = currentDSL.children.map((child) =>
-      revertButtonStyleToButtonColor(child),
-    );
-  }
-  return currentDSL;
-};
+// export const migrateInputValidation = (currentDSL: DSLWidget) => {
+//   if (currentDSL.type === "INPUT_WIDGET") {
+//     if (has(currentDSL, "validation")) {
+//       // convert boolean to string expression
+//       if (typeof currentDSL.validation === "boolean") {
+//         currentDSL.validation = String(currentDSL.validation);
+//       } else if (typeof currentDSL.validation !== "string") {
+//         // for any other type of value set to default undefined
+//         currentDSL.validation = undefined;
+//       }
+//     }
+//   }
+//   if (currentDSL.children && currentDSL.children.length) {
+//     currentDSL.children = currentDSL.children.map((child) =>
+//       migrateInputValidation(child),
+//     );
+//   }
+//   return currentDSL;
+// };
 
-export const migrateInputValidation = (currentDSL: DSLWidget) => {
-  if (currentDSL.type === "INPUT_WIDGET") {
-    if (has(currentDSL, "validation")) {
-      // convert boolean to string expression
-      if (typeof currentDSL.validation === "boolean") {
-        currentDSL.validation = String(currentDSL.validation);
-      } else if (typeof currentDSL.validation !== "string") {
-        // for any other type of value set to default undefined
-        currentDSL.validation = undefined;
-      }
-    }
-  }
-  if (currentDSL.children && currentDSL.children.length) {
-    currentDSL.children = currentDSL.children.map((child) =>
-      migrateInputValidation(child),
-    );
-  }
-  return currentDSL;
-};
+// export const migrateButtonWidgetValidation = (currentDSL: DSLWidget) => {
+//   if (currentDSL.type === "INPUT_WIDGET") {
+//     if (!has(currentDSL, "validation")) {
+//       currentDSL.validation = true;
+//     }
+//   }
+//   if (currentDSL.children && currentDSL.children.length) {
+//     currentDSL.children.map((eachWidgetDSL: DSLWidget) => {
+//       migrateButtonWidgetValidation(eachWidgetDSL);
+//     });
+//   }
+//   return currentDSL;
+// };
 
-export const migrateButtonWidgetValidation = (currentDSL: DSLWidget) => {
-  if (currentDSL.type === "INPUT_WIDGET") {
-    if (!has(currentDSL, "validation")) {
-      currentDSL.validation = true;
-    }
-  }
-  if (currentDSL.children && currentDSL.children.length) {
-    currentDSL.children.map((eachWidgetDSL: DSLWidget) => {
-      migrateButtonWidgetValidation(eachWidgetDSL);
-    });
-  }
-  return currentDSL;
-};
+// export const migrateTableDefaultSelectedRow = (currentDSL: DSLWidget) => {
+//   if (currentDSL.type === "TABLE_WIDGET") {
+//     if (!currentDSL.defaultSelectedRow) currentDSL.defaultSelectedRow = "0";
+//   }
+//   if (currentDSL.children && currentDSL.children.length) {
+//     currentDSL.children = currentDSL.children.map((child) =>
+//       migrateTableDefaultSelectedRow(child),
+//     );
+//   }
+//   return currentDSL;
+// };
 
-export const migrateTableDefaultSelectedRow = (currentDSL: DSLWidget) => {
-  if (currentDSL.type === "TABLE_WIDGET") {
-    if (!currentDSL.defaultSelectedRow) currentDSL.defaultSelectedRow = "0";
-  }
-  if (currentDSL.children && currentDSL.children.length) {
-    currentDSL.children = currentDSL.children.map((child) =>
-      migrateTableDefaultSelectedRow(child),
-    );
-  }
-  return currentDSL;
-};
+// const addIsDisabledToButtonColumn = (currentDSL: DSLWidget) => {
+//   if (currentDSL.type === "TABLE_WIDGET") {
+//     if (!isEmpty(currentDSL.primaryColumns)) {
+//       for (const key of Object.keys(
+//         currentDSL.primaryColumns as Record<string, ColumnProperties>,
+//       )) {
+//         if (currentDSL.primaryColumns[key].columnType === "button") {
+//           if (!currentDSL.primaryColumns[key].hasOwnProperty("isDisabled")) {
+//             currentDSL.primaryColumns[key]["isDisabled"] = false;
+//           }
+//         }
+//         if (!currentDSL.primaryColumns[key].hasOwnProperty("isCellVisible")) {
+//           currentDSL.primaryColumns[key]["isCellVisible"] = true;
+//         }
+//       }
+//     }
+//   }
+//   return currentDSL;
+// };
 
-const addIsDisabledToButtonColumn = (currentDSL: DSLWidget) => {
-  if (currentDSL.type === "TABLE_WIDGET") {
-    if (!isEmpty(currentDSL.primaryColumns)) {
-      for (const key of Object.keys(
-        currentDSL.primaryColumns as Record<string, ColumnProperties>,
-      )) {
-        if (currentDSL.primaryColumns[key].columnType === "button") {
-          if (!currentDSL.primaryColumns[key].hasOwnProperty("isDisabled")) {
-            currentDSL.primaryColumns[key]["isDisabled"] = false;
-          }
-        }
-        if (!currentDSL.primaryColumns[key].hasOwnProperty("isCellVisible")) {
-          currentDSL.primaryColumns[key]["isCellVisible"] = true;
-        }
-      }
-    }
-  }
-  return currentDSL;
-};
+// export const migrateIsDisabledToButtonColumn = (currentDSL: DSLWidget) => {
+//   const newDSL = addIsDisabledToButtonColumn(currentDSL);
 
-export const migrateIsDisabledToButtonColumn = (currentDSL: DSLWidget) => {
-  const newDSL = addIsDisabledToButtonColumn(currentDSL);
+//   newDSL.children = newDSL.children?.map((children: DSLWidget) => {
+//     return migrateIsDisabledToButtonColumn(children);
+//   });
+//   return currentDSL;
+// };
 
-  newDSL.children = newDSL.children?.map((children: DSLWidget) => {
-    return migrateIsDisabledToButtonColumn(children);
-  });
-  return currentDSL;
-};
+// export const migrateToNewMultiSelect = (currentDSL: DSLWidget) => {
+//   if (currentDSL.type === "DROP_DOWN_WIDGET") {
+//     if (currentDSL.selectionType === "MULTI_SELECT") {
+//       currentDSL.type = "MULTI_SELECT_WIDGET";
+//       delete currentDSL.isFilterable;
+//     }
+//     delete currentDSL.selectionType;
+//   }
+//   if (currentDSL.children && currentDSL.children.length) {
+//     currentDSL.children = currentDSL.children.map((child) =>
+//       migrateToNewMultiSelect(child),
+//     );
+//   }
+//   return currentDSL;
+// };
 
-export const migrateToNewMultiSelect = (currentDSL: DSLWidget) => {
-  if (currentDSL.type === "DROP_DOWN_WIDGET") {
-    if (currentDSL.selectionType === "MULTI_SELECT") {
-      currentDSL.type = "MULTI_SELECT_WIDGET";
-      delete currentDSL.isFilterable;
-    }
-    delete currentDSL.selectionType;
-  }
-  if (currentDSL.children && currentDSL.children.length) {
-    currentDSL.children = currentDSL.children.map((child) =>
-      migrateToNewMultiSelect(child),
-    );
-  }
-  return currentDSL;
-};
+// export const migrateObjectFitToImageWidget = (dsl: DSLWidget) => {
+//   const addObjectFitProperty = (widgetProps: DSLWidget) => {
+//     widgetProps.objectFit = "cover";
+//     if (widgetProps.children && widgetProps.children.length) {
+//       widgetProps.children.forEach((eachWidgetProp: DSLWidget) => {
+//         if (widgetProps.type === "IMAGE_WIDGET") {
+//           addObjectFitProperty(eachWidgetProp);
+//         }
+//       });
+//     }
+//   };
+//   addObjectFitProperty(dsl);
+//   return dsl;
+// };
 
-export const migrateObjectFitToImageWidget = (dsl: DSLWidget) => {
-  const addObjectFitProperty = (widgetProps: DSLWidget) => {
-    widgetProps.objectFit = "cover";
-    if (widgetProps.children && widgetProps.children.length) {
-      widgetProps.children.forEach((eachWidgetProp: DSLWidget) => {
-        if (widgetProps.type === "IMAGE_WIDGET") {
-          addObjectFitProperty(eachWidgetProp);
-        }
-      });
-    }
-  };
-  addObjectFitProperty(dsl);
-  return dsl;
-};
+// export const migrateOverFlowingTabsWidgets = (
+//   currentDSL: DSLWidget,
+//   canvasWidgets: any,
+// ) => {
+//   if (
+//     currentDSL.type === "TABS_WIDGET" &&
+//     currentDSL.version === 3 &&
+//     currentDSL.children &&
+//     currentDSL.children.length
+//   ) {
+//     const tabsWidgetHeight =
+//       (currentDSL.bottomRow - currentDSL.topRow) * currentDSL.parentRowSpace;
+//     const widgetHasOverflowingChildren = currentDSL.children.some((eachTab) => {
+//       if (eachTab.children && eachTab.children.length) {
+//         return eachTab.children.some((child: DSLWidget) => {
+//           if (canvasWidgets[child.widgetId].repositioned) {
+//             const tabHeight = child.bottomRow * child.parentRowSpace;
+//             return tabsWidgetHeight < tabHeight;
+//           }
+//           return false;
+//         });
+//       }
+//       return false;
+//     });
+//     if (widgetHasOverflowingChildren) {
+//       currentDSL.shouldScrollContents = true;
+//     }
+//   }
+//   if (currentDSL.children && currentDSL.children.length) {
+//     currentDSL.children = currentDSL.children.map((eachChild) =>
+//       migrateOverFlowingTabsWidgets(eachChild, canvasWidgets),
+//     );
+//   }
+//   return currentDSL;
+// };
 
-export const migrateOverFlowingTabsWidgets = (
-  currentDSL: DSLWidget,
-  canvasWidgets: any,
-) => {
-  if (
-    currentDSL.type === "TABS_WIDGET" &&
-    currentDSL.version === 3 &&
-    currentDSL.children &&
-    currentDSL.children.length
-  ) {
-    const tabsWidgetHeight =
-      (currentDSL.bottomRow - currentDSL.topRow) * currentDSL.parentRowSpace;
-    const widgetHasOverflowingChildren = currentDSL.children.some((eachTab) => {
-      if (eachTab.children && eachTab.children.length) {
-        return eachTab.children.some((child: DSLWidget) => {
-          if (canvasWidgets[child.widgetId].repositioned) {
-            const tabHeight = child.bottomRow * child.parentRowSpace;
-            return tabsWidgetHeight < tabHeight;
-          }
-          return false;
-        });
-      }
-      return false;
-    });
-    if (widgetHasOverflowingChildren) {
-      currentDSL.shouldScrollContents = true;
-    }
-  }
-  if (currentDSL.children && currentDSL.children.length) {
-    currentDSL.children = currentDSL.children.map((eachChild) =>
-      migrateOverFlowingTabsWidgets(eachChild, canvasWidgets),
-    );
-  }
-  return currentDSL;
-};
+// export const migrateWidgetsWithoutLeftRightColumns = (
+//   currentDSL: DSLWidget,
+//   canvasWidgets: any,
+// ) => {
+//   if (
+//     currentDSL.widgetId !== MAIN_CONTAINER_WIDGET_ID &&
+//     !(
+//       currentDSL.hasOwnProperty("leftColumn") &&
+//       currentDSL.hasOwnProperty("rightColumn")
+//     )
+//   ) {
+//     try {
+//       const nextRow = nextAvailableRowInContainer(
+//         currentDSL.parentId || MAIN_CONTAINER_WIDGET_ID,
+//         omit(canvasWidgets, [currentDSL.widgetId]),
+//       );
+//       canvasWidgets[currentDSL.widgetId].repositioned = true;
+//       const leftColumn = 0;
+//       // TODO(abhinav): Figure out a way to get the correct values from the widgets
+//       const rightColumn = 4;
+//       const bottomRow = nextRow + (currentDSL.bottomRow - currentDSL.topRow);
+//       const topRow = nextRow;
+//       currentDSL = {
+//         ...currentDSL,
+//         topRow,
+//         bottomRow,
+//         rightColumn,
+//         leftColumn,
+//       };
+//     } catch (error) {
+//       Sentry.captureException({
+//         message: "Migrating position of widget on data loss failed",
+//         oldData: currentDSL,
+//       });
+//     }
+//   }
+//   if (currentDSL.children && currentDSL.children.length) {
+//     currentDSL.children = currentDSL.children.map((dsl) =>
+//       migrateWidgetsWithoutLeftRightColumns(dsl, canvasWidgets),
+//     );
+//   }
+//   return currentDSL;
+// };
 
-export const migrateWidgetsWithoutLeftRightColumns = (
-  currentDSL: DSLWidget,
-  canvasWidgets: any,
-) => {
-  if (
-    currentDSL.widgetId !== MAIN_CONTAINER_WIDGET_ID &&
-    !(
-      currentDSL.hasOwnProperty("leftColumn") &&
-      currentDSL.hasOwnProperty("rightColumn")
-    )
-  ) {
-    try {
-      const nextRow = nextAvailableRowInContainer(
-        currentDSL.parentId || MAIN_CONTAINER_WIDGET_ID,
-        omit(canvasWidgets, [currentDSL.widgetId]),
-      );
-      canvasWidgets[currentDSL.widgetId].repositioned = true;
-      const leftColumn = 0;
-      // TODO(abhinav): Figure out a way to get the correct values from the widgets
-      const rightColumn = 4;
-      const bottomRow = nextRow + (currentDSL.bottomRow - currentDSL.topRow);
-      const topRow = nextRow;
-      currentDSL = {
-        ...currentDSL,
-        topRow,
-        bottomRow,
-        rightColumn,
-        leftColumn,
-      };
-    } catch (error) {
-      Sentry.captureException({
-        message: "Migrating position of widget on data loss failed",
-        oldData: currentDSL,
-      });
-    }
-  }
-  if (currentDSL.children && currentDSL.children.length) {
-    currentDSL.children = currentDSL.children.map((dsl) =>
-      migrateWidgetsWithoutLeftRightColumns(dsl, canvasWidgets),
-    );
-  }
-  return currentDSL;
-};
+// export const migrateNewlyAddedTabsWidgetsMissingData = (
+//   currentDSL: DSLWidget,
+// ) => {
+//   if (currentDSL.type === "TABS_WIDGET" && currentDSL.version === 2) {
+//     try {
+//       if (currentDSL.children && currentDSL.children.length) {
+//         currentDSL.children = currentDSL.children.map((each) => {
+//           if (has(currentDSL, ["leftColumn", "rightColumn", "bottomRow"])) {
+//             return each;
+//           }
+//           return {
+//             ...each,
+//             leftColumn: 0,
+//             rightColumn:
+//               (currentDSL.rightColumn - currentDSL.leftColumn) *
+//               currentDSL.parentColumnSpace,
+//             bottomRow:
+//               (currentDSL.bottomRow - currentDSL.topRow) *
+//               currentDSL.parentRowSpace,
+//           };
+//         });
+//       }
+//       currentDSL.version = 3;
+//     } catch (error) {
+//       Sentry.captureException({
+//         message: "Tabs Migration to add missing fields Failed",
+//         oldData: currentDSL.children,
+//       });
+//     }
+//   }
+//   if (currentDSL.children && currentDSL.children.length) {
+//     currentDSL.children = currentDSL.children.map(
+//       migrateNewlyAddedTabsWidgetsMissingData,
+//     );
+//   }
+//   return currentDSL;
+// };
 
-export const migrateNewlyAddedTabsWidgetsMissingData = (
-  currentDSL: DSLWidget,
-) => {
-  if (currentDSL.type === "TABS_WIDGET" && currentDSL.version === 2) {
-    try {
-      if (currentDSL.children && currentDSL.children.length) {
-        currentDSL.children = currentDSL.children.map((each) => {
-          if (has(currentDSL, ["leftColumn", "rightColumn", "bottomRow"])) {
-            return each;
-          }
-          return {
-            ...each,
-            leftColumn: 0,
-            rightColumn:
-              (currentDSL.rightColumn - currentDSL.leftColumn) *
-              currentDSL.parentColumnSpace,
-            bottomRow:
-              (currentDSL.bottomRow - currentDSL.topRow) *
-              currentDSL.parentRowSpace,
-          };
-        });
-      }
-      currentDSL.version = 3;
-    } catch (error) {
-      Sentry.captureException({
-        message: "Tabs Migration to add missing fields Failed",
-        oldData: currentDSL.children,
-      });
-    }
-  }
-  if (currentDSL.children && currentDSL.children.length) {
-    currentDSL.children = currentDSL.children.map(
-      migrateNewlyAddedTabsWidgetsMissingData,
-    );
-  }
-  return currentDSL;
-};
+// export const migrateToNewLayout = (dsl: DSLWidget) => {
+//   const scaleWidget = (widgetProps: DSLWidget) => {
+//     widgetProps.bottomRow *= GRID_DENSITY_MIGRATION_V1;
+//     widgetProps.topRow *= GRID_DENSITY_MIGRATION_V1;
+//     widgetProps.leftColumn *= GRID_DENSITY_MIGRATION_V1;
+//     widgetProps.rightColumn *= GRID_DENSITY_MIGRATION_V1;
+//     if (widgetProps.children && widgetProps.children.length) {
+//       widgetProps.children.forEach((eachWidgetProp: DSLWidget) => {
+//         scaleWidget(eachWidgetProp);
+//       });
+//     }
+//   };
+//   scaleWidget(dsl);
+//   return dsl;
+// };
 
-export const migrateToNewLayout = (dsl: DSLWidget) => {
-  const scaleWidget = (widgetProps: DSLWidget) => {
-    widgetProps.bottomRow *= GRID_DENSITY_MIGRATION_V1;
-    widgetProps.topRow *= GRID_DENSITY_MIGRATION_V1;
-    widgetProps.leftColumn *= GRID_DENSITY_MIGRATION_V1;
-    widgetProps.rightColumn *= GRID_DENSITY_MIGRATION_V1;
-    if (widgetProps.children && widgetProps.children.length) {
-      widgetProps.children.forEach((eachWidgetProp: DSLWidget) => {
-        scaleWidget(eachWidgetProp);
-      });
-    }
-  };
-  scaleWidget(dsl);
-  return dsl;
-};
+// export const checkIfMigrationIsNeeded = (
+//   fetchPageResponse?: FetchPageResponse,
+// ) => {
+//   const currentDSL = fetchPageResponse?.data.layouts[0].dsl;
+//   if (!currentDSL) return false;
+//   return currentDSL.version !== LATEST_PAGE_VERSION;
+// };
 
-export const checkIfMigrationIsNeeded = (
-  fetchPageResponse?: FetchPageResponse,
-) => {
-  const currentDSL = fetchPageResponse?.data.layouts[0].dsl;
-  if (!currentDSL) return false;
-  return currentDSL.version !== LATEST_PAGE_VERSION;
-};
+// export const migrateDatePickerMinMaxDate = (currentDSL: DSLWidget) => {
+//   if (currentDSL.type === "DATE_PICKER_WIDGET2" && currentDSL.version === 2) {
+//     if (currentDSL.minDate === "2001-01-01 00:00") {
+//       currentDSL.minDate = "1920-12-31T18:30:00.000Z";
+//     }
+//     if (currentDSL.maxDate === "2041-12-31 23:59") {
+//       currentDSL.maxDate = "2121-12-31T18:29:00.000Z";
+//     }
+//   }
+//   if (currentDSL.children && currentDSL.children.length) {
+//     currentDSL.children.map((eachWidgetDSL: DSLWidget) => {
+//       migrateDatePickerMinMaxDate(eachWidgetDSL);
+//     });
+//   }
+//   return currentDSL;
+// };
 
-export const migrateDatePickerMinMaxDate = (currentDSL: DSLWidget) => {
-  if (currentDSL.type === "DATE_PICKER_WIDGET2" && currentDSL.version === 2) {
-    if (currentDSL.minDate === "2001-01-01 00:00") {
-      currentDSL.minDate = "1920-12-31T18:30:00.000Z";
-    }
-    if (currentDSL.maxDate === "2041-12-31 23:59") {
-      currentDSL.maxDate = "2121-12-31T18:29:00.000Z";
-    }
-  }
-  if (currentDSL.children && currentDSL.children.length) {
-    currentDSL.children.map((eachWidgetDSL: DSLWidget) => {
-      migrateDatePickerMinMaxDate(eachWidgetDSL);
-    });
-  }
-  return currentDSL;
-};
+// const addFilterDefaultValue = (currentDSL: DSLWidget) => {
+//   if (currentDSL.type === "DROP_DOWN_WIDGET") {
+//     if (!currentDSL.hasOwnProperty("isFilterable")) {
+//       currentDSL.isFilterable = true;
+//     }
+//   }
+//   return currentDSL;
+// };
+// export const migrateFilterValueForDropDownWidget = (currentDSL: DSLWidget) => {
+//   const newDSL = addFilterDefaultValue(currentDSL);
 
-const addFilterDefaultValue = (currentDSL: DSLWidget) => {
-  if (currentDSL.type === "DROP_DOWN_WIDGET") {
-    if (!currentDSL.hasOwnProperty("isFilterable")) {
-      currentDSL.isFilterable = true;
-    }
-  }
-  return currentDSL;
-};
-export const migrateFilterValueForDropDownWidget = (currentDSL: DSLWidget) => {
-  const newDSL = addFilterDefaultValue(currentDSL);
+//   newDSL.children = newDSL.children?.map((children: DSLWidget) => {
+//     return migrateFilterValueForDropDownWidget(children);
+//   });
 
-  newDSL.children = newDSL.children?.map((children: DSLWidget) => {
-    return migrateFilterValueForDropDownWidget(children);
-  });
-
-  return newDSL;
-};
+//   return newDSL;
+// };
