@@ -2166,6 +2166,9 @@ export const COMMUNITY_TEMPLATES = {
 export const EMPTY_TABLE_TITLE_TEXT = () => "Empty table";
 export const EMPTY_TABLE_MESSAGE_TEXT = () =>
   "There are no data records to show";
+export const LOADING_RECORDS_TITLE_TEXT = () => "Loading records";
+export const LOADING_RECORDS_MESSAGE_TEXT = () =>
+  "This may take a few seconds";
 export const EMPTY_TABLE_SVG_ALT_TEXT = () => "Empty table image";
 
 export const DATA_PANE_TITLE = () => "Datasources in your Workspace";

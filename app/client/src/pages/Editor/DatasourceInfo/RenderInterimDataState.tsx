@@ -5,7 +5,7 @@ import {
   EMPTY_TABLE_TITLE_TEXT,
   EMPTY_TABLE_MESSAGE_TEXT,
   createMessage,
-  EMPTY_TABLE_SVG_ALT_TEXT,
+  EMPTY_TABLE_SVG_ALT_TEXT, LOADING_RECORDS_MESSAGE_TEXT, LOADING_RECORDS_TITLE_TEXT,
 } from "@appsmith/constants/messages";
 import { MessageWrapper, SchemaStateMessageWrapper } from "./SchemaViewModeCSS";
 import styled, { keyframes } from "styled-components";
@@ -34,9 +34,9 @@ export const IndeterminateProgressBarDiv = styled.div`
   background-image: repeating-linear-gradient(
     -45deg,
     #DCDCDC,
-    #DCDCDC 18px,
-    #fff 18px,
-    #fff 36px
+    #DCDCDC 9px,
+    #fff 12px, 
+    #fff 15px
   );
   -webkit-animation: ${indeterminateProgressBarAnimation} 1s linear infinite;
   -moz-animation: ${indeterminateProgressBarAnimation} 1s linear infinite;
@@ -73,7 +73,16 @@ const RenderInterimDataState = ({ state }: RenderInterimDataStateProps) => {
           // <Text color="var(--ads-color-red-500)">
           //   {createMessage(ERR_FETCHING_DATASOURCE_PREVIEW_DATA)}
           // </Text>
-          <TestPB/>
+          //<TestPB/>
+          <>
+          <IndeterminateProgressBarDiv />
+          {/* Show title */}
+          <Text style={{ fontWeight: "bold" }}>
+          {createMessage(LOADING_RECORDS_TITLE_TEXT)}
+          </Text>
+          {/* Show description */}
+          <Text>{createMessage(LOADING_RECORDS_MESSAGE_TEXT)}</Text>
+          </>
         ) : state === "LOADING" ? (
           <>
             {/*<Spinner size="md" />*/}
@@ -81,6 +90,12 @@ const RenderInterimDataState = ({ state }: RenderInterimDataStateProps) => {
             {/*  {createMessage(FETCHING_DATASOURCE_PREVIEW_DATA)}*/}
             {/*</Text>*/}
             <IndeterminateProgressBarDiv />
+            {/* Show title */}
+            <Text style={{ fontWeight: "bold" }}>
+              {createMessage(LOADING_RECORDS_TITLE_TEXT)}
+            </Text>
+            {/* Show description */}
+            <Text>{createMessage(LOADING_RECORDS_MESSAGE_TEXT)}</Text>
           </>
         ) : null}
       </SchemaStateMessageWrapper>
