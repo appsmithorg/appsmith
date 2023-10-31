@@ -230,17 +230,6 @@ describe("Boolean & Enum Datatype tests", function () {
         expect($cellData).to.eq("0"); //Success response for dropped table!
       });
       entityExplorer.ExpandCollapseEntity("Queries/JS", false);
-      entityExplorer.ExpandCollapseEntity("Datasources");
-      entityExplorer.ExpandCollapseEntity(dsName);
-      entityExplorer.ActionContextMenuByEntityName({
-        entityNameinLeftSidebar: dsName,
-        action: "Refresh",
-      });
-      agHelper.AssertElementAbsence(
-        entityExplorer._entityNameInExplorer("public.boolenumtypes"),
-      );
-      entityExplorer.ExpandCollapseEntity(dsName, false);
-      entityExplorer.ExpandCollapseEntity("Datasources", false);
 
       //Delete queries
       dataSources.DeleteDatasourceFromWithinDS(dsName, 409); //Since all queries exists

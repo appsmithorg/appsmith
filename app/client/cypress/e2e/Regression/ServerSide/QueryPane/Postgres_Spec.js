@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  SidebarButton,
+} from "../../../../support/Pages/EditorNavigation";
+
 const queryLocators = require("../../../../locators/QueryEditor.json");
 const generatePage = require("../../../../locators/GeneratePage.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
@@ -270,7 +274,6 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
   });
 
   it("9. Validate Deletion of the Newly Created Page", () => {
-    cy.NavigateToQueryEditor();
     dataSources.DeleteDatasourceFromWithinDS(datasourceName, 409);
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "Public.users_crud",
@@ -285,12 +288,9 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
     dataSources.NavigateFromActiveDS(datasourceName, true);
     dataSources.EnterQuery(deleteTblQuery);
     dataSources.RunQuery();
-    entityExplorer.ExpandCollapseEntity("Datasources");
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: datasourceName,
-      action: "Refresh",
-    });
-    cy.xpath("//div[text()='public.users_crud']").should("not.exist"); //validating drop is successful!
+    // TODO use the schema on the query itself to check
+    dataSources.AssertTableInVirtuosoList(dsName, "public.users_crud", false);
+    EditorNavigation.sidebar(SidebarButton.Pages);
     cy.deleteQueryUsingContext();
   });
 
@@ -320,7 +320,6 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
   });
 
   it("13. Deletes the datasource", () => {
-    cy.NavigateToQueryEditor();
     dataSources.DeleteDatasourceFromWithinDS(datasourceName, [200, 409]);
   });
 });

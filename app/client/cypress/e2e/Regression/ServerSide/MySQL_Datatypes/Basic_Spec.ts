@@ -126,17 +126,7 @@ describe("MySQL Datatype tests", function () {
       dataSources.RunQuery();
       dataSources.AssertQueryTableResponse(0, "0"); //Success response for dropped table!
       entityExplorer.ExpandCollapseEntity("Queries/JS", false);
-      entityExplorer.ExpandCollapseEntity("Datasources");
-      entityExplorer.ExpandCollapseEntity(dsName);
-      entityExplorer.ActionContextMenuByEntityName({
-        entityNameinLeftSidebar: dsName,
-        action: "Refresh",
-      });
-      agHelper.AssertElementAbsence(
-        entityExplorer._entityNameInExplorer(inputData.tableName),
-      );
-      entityExplorer.ExpandCollapseEntity(dsName, false);
-      entityExplorer.ExpandCollapseEntity("Datasources", false);
+      dataSources.AssertTableInVirtuosoList(dsName, inputData.tableName, false);
 
       //DS deletion
       dataSources.DeleteDatasourceFromWithinDS(dsName, 409); //Since all queries exists

@@ -10,6 +10,9 @@ import {
   table,
   assertHelper,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  SidebarButton,
+} from "../../../../support/Pages/EditorNavigation";
 // import { INTERCEPT } from "../../../../fixtures/variables";
 let dsName: any;
 
@@ -272,18 +275,11 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     //agHelper.VerifyEvaluatedValue(tableCreateQuery);
 
     dataSources.RunQueryNVerifyResponseViews();
-    entityExplorer.ExpandCollapseEntity("Datasources");
-    entityExplorer.ExpandCollapseEntity(dsName);
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: dsName,
-      action: "Refresh",
-    });
-    agHelper.AssertElementAbsence(
-      entityExplorer._entityNameInExplorer("Stores"),
-    );
+    dataSources.AssertTableInVirtuosoList(dsName, "Stores", false);
   });
 
   it("10. Verify application does not break when user runs the query with wrong table name", function () {
+    EditorNavigation.sidebar(SidebarButton.Pages);
     entityExplorer.SelectEntityByName("DropProductlines", "Queries/JS");
     dataSources.RunQuery({ toValidateResponse: false });
     cy.wait("@postExecute").then(({ response }) => {

@@ -1,4 +1,7 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  SidebarButton,
+} from "../../../../support/Pages/EditorNavigation";
 
 let dsName: any;
 
@@ -18,7 +21,7 @@ describe("datasource unsaved changes popup shows even without changes", function
       _.dataSources.SaveDatasource();
       _.agHelper.Sleep();
       _.dataSources.EditDatasource();
-      _.agHelper.GoBack();
+      EditorNavigation.sidebar(SidebarButton.Pages);
       _.agHelper.AssertElementVisibility(_.dataSources._activeDS);
       _.dataSources.DeleteDatasourceFromWithinDS(dsName);
     });
@@ -42,7 +45,7 @@ describe("datasource unsaved changes popup shows even without changes", function
       // Even if headers, and query parameters are being initialized, we shouldnt see the popup
       // as those are not initialized by user
       _.dataSources.EditDatasource();
-      _.agHelper.GoBack();
+      EditorNavigation.sidebar(SidebarButton.Pages);
       _.agHelper.AssertElementVisibility(_.dataSources._activeDS);
       _.dataSources.DeleteDatasourceFromWithinDS(dsName);
     });

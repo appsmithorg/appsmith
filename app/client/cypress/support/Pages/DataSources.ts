@@ -2,6 +2,8 @@ import { ObjectsRegistry } from "../Objects/Registry";
 import { WIDGET } from "../../locators/WidgetLocators";
 import { EntityItems } from "./AssertHelper";
 import EditorNavigation, { SidebarButton } from "./EditorNavigation";
+import datasource from "../../locators/DatasourcesEditor.json";
+import { agHelper, dataSources } from "../Objects/ObjectsCore";
 
 export const DataSourceKVP = {
   Postgres: "PostgreSQL",
@@ -285,7 +287,7 @@ export class DataSources {
   _graphQlDsFromRightPane = (dsName: string) =>
     "//div/span[text() ='" + dsName + "']";
   _imgFireStoreLogo = "//img[contains(@src, 'firestore.svg')]";
-  private _dsVirtuosoElement = (dsName: string) =>
+  _dsVirtuosoElement = (dsName: string) =>
     `[data-testid='t--entity-item-${dsName}'] + div .t--schema-virtuoso-container`;
   private _dsVirtuosoList = `[data-test-id="virtuoso-item-list"]`;
   private _dsVirtuosoElementTable = (targetTableName: string) =>
@@ -1472,7 +1474,7 @@ export class DataSources {
 
   // this initiates saving via the back button.
   public SaveDSFromDialog(save = true) {
-    this.agHelper.GoBack();
+    EditorNavigation.sidebar(SidebarButton.Pages);
     this.AssertDatasourceSaveModalVisibilityAndSave(save);
   }
 
@@ -1859,18 +1861,14 @@ export class DataSources {
     presence = true,
   ) {
     const ds_entity_name = dsName.replace(/\s/g, "_");
-    this.entityExplorer.ExpandCollapseEntity("Datasources");
+    this.navigateToDatasource(dsName);
+    cy.intercept("GET", "/api/v1/datasources/*/structure?ignoreCache=*").as(
+      `getDatasourceStructureUpdated_${ds_entity_name}`,
+    );
+    this.RefreshDatasourceSchema();
     cy.get(this.locator._body).then(($body: any) => {
       if ($body.find(this._dsNameInExplorer(dsName)).length > 0) {
         this.entityExplorer.ExpandCollapseEntity(dsName);
-        cy.intercept("GET", "/api/v1/datasources/*/structure?ignoreCache=*").as(
-          `getDatasourceStructureUpdated_${ds_entity_name}`,
-        );
-        this.entityExplorer.ActionContextMenuByEntityName({
-          entityNameinLeftSidebar: dsName,
-          action: "Refresh",
-        });
-
         this.assertHelper
           .WaitForNetworkCall(
             `@getDatasourceStructureUpdated_${ds_entity_name}`,
@@ -1924,6 +1922,9 @@ export class DataSources {
                   );
                 });
             } else {
+              agHelper.AssertElementAbsence(
+                dataSources._dsVirtuosoElement(targetTableName),
+              );
               expect(indexOfTable).to.equal(-1);
             }
           });
@@ -1933,5 +1934,14 @@ export class DataSources {
 
   public selectTabOnDatasourcePage(tab: "View data" | "Configurations") {
     this.agHelper.GetNClick(this._dsPageTabListItem(tab));
+  }
+
+  public navigateToDatasource(name: string) {
+    EditorNavigation.sidebar(SidebarButton.Data);
+    cy.get(datasource.datasourceCard)
+      .contains(name)
+      .scrollIntoView()
+      .should("be.visible")
+      .click();
   }
 }

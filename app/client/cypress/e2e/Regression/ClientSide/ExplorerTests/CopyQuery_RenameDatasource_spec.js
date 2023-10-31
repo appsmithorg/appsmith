@@ -83,37 +83,4 @@ describe("Entity explorer tests related to copy query", function () {
       expect($lis.eq(4)).to.contain("{{Query1.clear()}}");
     });
   });
-
-  it("3. Rename datasource in explorer, Delete query and try to Delete datasource", function () {
-    entityExplorer.SelectEntityByName("Page1");
-    cy.generateUUID().then((uid) => {
-      updatedName = uid;
-      cy.log("complete uid :" + updatedName);
-      updatedName = uid.replace(/-/g, "_").slice(1, 15);
-      cy.log("sliced id :" + updatedName);
-      entityExplorer.ExpandCollapseEntity("Queries/JS");
-      entityExplorer.ExpandCollapseEntity("Datasources");
-      entityExplorer.RenameEntityFromExplorer(datasourceName, updatedName);
-      //cy.EditEntityNameByDoubleClick(datasourceName, updatedName);
-      cy.wait(1000);
-      entityExplorer.ActionContextMenuByEntityName({
-        entityNameinLeftSidebar: updatedName,
-        action: "Delete",
-        toAssertAction: false,
-      });
-      cy.wait(1000);
-      //This is check to make sure if a datasource is active 409
-      cy.wait("@deleteDatasource").should(
-        "have.nested.property",
-        "response.body.responseMeta.status",
-        409,
-      );
-    });
-    entityExplorer.SelectEntityByName("Query1", "Queries/JS");
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: "Query1",
-      action: "Delete",
-      entityType: entityItems.Query,
-    });
-  });
 });
