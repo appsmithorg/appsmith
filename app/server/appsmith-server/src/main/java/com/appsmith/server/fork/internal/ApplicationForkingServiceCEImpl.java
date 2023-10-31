@@ -8,6 +8,7 @@ import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DefaultResources;
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
@@ -59,6 +60,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -657,8 +659,10 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
 
     private Mono<Boolean> checkPermissionsForForking(
             String srcApplicationId, String targetWorkspaceId, String branchName) {
+        Optional<String> optionalBranchName = Optional.ofNullable(branchName);
+        Optional<AclPermission> optionalAclPermission = Optional.ofNullable(null);
         Mono<Application> applicationMono = applicationService
-                .findBranchedApplicationId(branchName, srcApplicationId, applicationPermission.getEditPermission())
+                .findBranchedApplicationId(optionalBranchName, srcApplicationId, optionalAclPermission)
                 .flatMap(branchedApplicationId ->
                         applicationService.findById(branchedApplicationId, applicationPermission.getEditPermission()));
 
