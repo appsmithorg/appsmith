@@ -1,16 +1,16 @@
+import { getPlugins } from "@appsmith/selectors/entitiesSelector";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleHeader,
   Text,
 } from "design-system";
-import React, { useMemo } from "react";
-import EntityCheckboxSelector from "./EntityCheckboxSelector";
-import { getPluginIcon } from "pages/Editor/Explorer/ExplorerIcons";
 import type { Datasource } from "entities/Datasource";
-import { getPlugins } from "@appsmith/selectors/entitiesSelector";
 import { keyBy } from "lodash";
+import { getPluginIcon } from "pages/Editor/Explorer/ExplorerIcons";
+import React, { useMemo } from "react";
 import { useSelector } from "react-redux";
+import EntityCheckboxSelector from "./EntityCheckboxSelector";
 
 interface Props {
   appDS: Datasource[];
@@ -25,8 +25,15 @@ interface Props {
       };
     }[]
   >;
+  selectedQueries: string[];
+  updateSelectedQueries: (queryIds: string[]) => void;
 }
-const JSObjectsNQueriesExport = ({ appDS, data }: Props) => {
+const JSObjectsNQueriesExport = ({
+  appDS,
+  data,
+  selectedQueries,
+  updateSelectedQueries,
+}: Props) => {
   const plugins = useSelector(getPlugins);
   const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);
   const dsIDToPluginIDMap: { [key: string]: any } = useMemo(() => {
@@ -39,6 +46,16 @@ const JSObjectsNQueriesExport = ({ appDS, data }: Props) => {
     });
     return map;
   }, [appDS]);
+
+  const onEntitySelected = (id: string, selected: boolean) => {
+    const updatedSelectedNodes = [...selectedQueries];
+    if (selected) {
+      updatedSelectedNodes.push(id);
+    } else {
+      updatedSelectedNodes.splice(updatedSelectedNodes.indexOf(id), 1);
+    }
+    updateSelectedQueries(updatedSelectedNodes);
+  };
 
   return (
     <div className="pl-4 pr-4">
@@ -55,6 +72,8 @@ const JSObjectsNQueriesExport = ({ appDS, data }: Props) => {
           <CollapsibleContent>
             <EntityCheckboxSelector
               entities={data[dsName].map((item) => item.entity)}
+              onEntityChecked={onEntitySelected}
+              selectedIds={selectedQueries}
             />
           </CollapsibleContent>
         </Collapsible>

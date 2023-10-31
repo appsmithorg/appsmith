@@ -22,7 +22,7 @@ import {
 import { ControlIcons } from "icons/ControlIcons";
 import { JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
 import { useAppWideAndOtherDatasource } from "pages/Editor/Explorer/hooks";
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import styled from "styled-components";
 import EntityCheckboxSelector from "./EntityCheckboxSelector";
@@ -30,11 +30,26 @@ import JSObjectsNQueriesExport from "./JSObjectsNQueriesExport";
 import WidgetsExport from "./WidgetsExport";
 import { MenuIcons } from "icons/MenuIcons";
 
+interface PartialExportParams {
+  jsObjects: string[];
+  datasources: string[];
+  customJSLibs: string[];
+  widgets: string[];
+  queries: string[];
+}
+
 interface Props {
   handleModalClose: () => void;
   isModalOpen: boolean;
 }
 const PartiaExportModel = ({ handleModalClose, isModalOpen }: Props) => {
+  const [selectedParams, setSelectedParams] = useState<PartialExportParams>({
+    jsObjects: [],
+    datasources: [],
+    customJSLibs: [],
+    widgets: [],
+    queries: [],
+  });
   const files = useSelector(selectFilesForExplorer);
   const { appWideDS } = useAppWideAndOtherDatasource();
   const libraries = useSelector(selectLibrariesForExplorer);
@@ -62,37 +77,87 @@ const PartiaExportModel = ({ handleModalClose, isModalOpen }: Props) => {
         title: "JsObjects",
         icon: JsFileIconV2(16, 16),
         children: jsObjects ? (
-          <EntityCheckboxSelector entities={jsObjects} />
+          <EntityCheckboxSelector
+            entities={jsObjects}
+            onEntityChecked={(id, selected) =>
+              onEntitySelected("jsObjects", id, selected)
+            }
+            selectedIds={selectedParams.jsObjects}
+          />
         ) : null,
       },
       {
         title: "Databases",
         icon: <Icon name="database-2-line" size="md" />,
-        children: appWideDS ? (
-          <EntityCheckboxSelector entities={appWideDS} />
-        ) : null,
+        children:
+          appWideDS.length > 0 ? (
+            <EntityCheckboxSelector
+              entities={appWideDS}
+              onEntityChecked={(id, selected) =>
+                onEntitySelected("datasources", id, selected)
+              }
+              selectedIds={selectedParams.datasources}
+            />
+          ) : null,
       },
       {
         title: "Queries",
         icon: <MenuIcons.GROUP_QUERY_ICON height={16} keepColors width={16} />,
         children: groupedData ? (
-          <JSObjectsNQueriesExport appDS={appWideDS} data={groupedData} />
+          <JSObjectsNQueriesExport
+            appDS={appWideDS}
+            data={groupedData}
+            selectedQueries={selectedParams.queries}
+            updateSelectedQueries={(queries) =>
+              setSelectedParams((prev) => ({ ...prev, queries }))
+            }
+          />
         ) : null,
       },
       {
         title: "Custom libraries",
         icon: <MenuIcons.LIBRARY_ICON height={16} keepColors width={16} />,
         children: libraries ? (
-          <EntityCheckboxSelector entities={libraries} />
+          <EntityCheckboxSelector
+            entities={libraries}
+            onEntityChecked={(id, selected) =>
+              onEntitySelected("customJSLibs", id, selected)
+            }
+            selectedIds={selectedParams.customJSLibs}
+          />
         ) : null,
       },
       {
         title: "Widgets",
         icon: <ControlIcons.GROUP_CONTROL height={16} keepColors width={16} />,
-        children: <WidgetsExport />,
+        children: (
+          <WidgetsExport
+            selectedWidgetIds={selectedParams.widgets}
+            updateSelectedWidgets={(widgets) =>
+              setSelectedParams((prev) => ({ ...prev, widgets }))
+            }
+          />
+        ),
       },
     ];
-  }, [files, selectWidgetsForCurrentPage]);
+  }, [files, selectWidgetsForCurrentPage, selectedParams, setSelectedParams]);
+
+  const onEntitySelected = (
+    keyToUpdate: keyof PartialExportParams,
+    id: string,
+    selected: boolean,
+  ) => {
+    const prevSelectedIdsCopy = [...selectedParams[keyToUpdate]];
+    if (selected) {
+      prevSelectedIdsCopy.push(id);
+    } else {
+      prevSelectedIdsCopy.splice(prevSelectedIdsCopy.indexOf(id), 1);
+    }
+    setSelectedParams((prev: PartialExportParams): PartialExportParams => {
+      const toUpdate = { ...prev, [keyToUpdate]: prevSelectedIdsCopy };
+      return toUpdate;
+    });
+  };
 
   return (
     <Modal onOpenChange={handleModalClose} open={isModalOpen}>

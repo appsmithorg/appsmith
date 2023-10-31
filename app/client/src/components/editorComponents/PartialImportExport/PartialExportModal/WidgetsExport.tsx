@@ -1,16 +1,26 @@
 import { selectWidgetsForCurrentPage } from "@appsmith/selectors/entitiesSelector";
 import { Checkbox } from "design-system";
-import React, { useState } from "react";
+import React from "react";
 import { useSelector } from "react-redux";
 import type { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureReducer";
-import { CheckboxWrapper } from "./StyledSheet";
 import styled from "styled-components";
+import { CheckboxWrapper } from "./StyledSheet";
 
-const WidgetsExport = () => {
+interface Props {
+  selectedWidgetIds: string[];
+  updateSelectedWidgets: (widgetIds: string[]) => void;
+}
+const WidgetsExport = ({ selectedWidgetIds, updateSelectedWidgets }: Props) => {
   const widgets = useSelector(selectWidgetsForCurrentPage);
   if (!widgets || !widgets.children || widgets.children.length === 0)
     return null;
-  return <WidgetSelector widgets={widgets.children} />;
+  return (
+    <WidgetSelector
+      selectedWidgetIds={selectedWidgetIds}
+      updateSelectedWidgets={updateSelectedWidgets}
+      widgets={widgets.children}
+    />
+  );
 };
 
 export default WidgetsExport;
@@ -27,36 +37,43 @@ function selectAllNestedChildren(
   });
 }
 
-function WidgetSelector({ widgets }: { widgets: CanvasStructure[] }) {
-  const [selectedNodes, setSelectedNodes] = useState<string[]>([]);
-
+interface WidgetSelectorProps extends Props {
+  widgets: CanvasStructure[];
+}
+function WidgetSelector({
+  selectedWidgetIds,
+  updateSelectedWidgets,
+  widgets,
+}: WidgetSelectorProps) {
   const toggleNode = (node: CanvasStructure, parentArray: string[]) => {
-    const updatedSelectedNodes = [...selectedNodes];
+    const prevSelectedWidgetIds = [...selectedWidgetIds];
 
-    if (updatedSelectedNodes.includes(node.widgetId)) {
+    if (prevSelectedWidgetIds.includes(node.widgetId)) {
       // Node is already selected, so deselect it and its children
-      updatedSelectedNodes.splice(
-        updatedSelectedNodes.indexOf(node.widgetId),
+      prevSelectedWidgetIds.splice(
+        prevSelectedWidgetIds.indexOf(node.widgetId),
         1,
       );
       parentArray.forEach((parentId) => {
-        updatedSelectedNodes.splice(updatedSelectedNodes.indexOf(parentId), 1);
+        prevSelectedWidgetIds.splice(
+          prevSelectedWidgetIds.indexOf(parentId),
+          1,
+        );
       });
     } else {
       // Node is not selected, so select it and all its children
-      updatedSelectedNodes.push(node.widgetId);
-
-      selectAllNestedChildren(node, updatedSelectedNodes);
+      prevSelectedWidgetIds.push(node.widgetId);
+      selectAllNestedChildren(node, prevSelectedWidgetIds);
     }
 
-    setSelectedNodes(updatedSelectedNodes);
+    updateSelectedWidgets(prevSelectedWidgetIds);
   };
   function renderWidget(
     widget: CanvasStructure,
     parentArray: string[],
     level = 0,
   ) {
-    const isSelected = selectedNodes.includes(widget.widgetId);
+    const isSelected = selectedWidgetIds.includes(widget.widgetId);
     return (
       <div style={{ marginLeft: level + 8 }}>
         <CheckboxContainer>
