@@ -48,7 +48,10 @@ import { EditorSaveIndicator } from "./EditorSaveIndicator";
 import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 import { fetchUsersForWorkspace } from "@appsmith/actions/workspaceActions";
 
-import { getIsGitConnected } from "selectors/gitSyncSelectors";
+import {
+  getIsGitConnected,
+  protectedModeSelector,
+} from "selectors/gitSyncSelectors";
 import {
   createMessage,
   DEPLOY_BUTTON_TOOLTIP,
@@ -93,6 +96,7 @@ export function EditorHeader() {
   const isErroredSavingName = useSelector(getIsErroredSavingAppName);
   const applicationList = useSelector(getApplicationList);
   const isPreviewMode = useSelector(previewModeSelector);
+  const isProtectedMode = useSelector(protectedModeSelector);
   const signpostingEnabled = useSelector(getIsFirstTimeUserOnboardingEnabled);
   const workspaceId = useSelector(getCurrentWorkspaceId);
   const currentWorkspace = useSelector(getCurrentAppWorkspace);
@@ -109,7 +113,7 @@ export function EditorHeader() {
     getIsAppSettingsPaneWithNavigationTabOpen,
   );
   const isPreviewingApp =
-    isPreviewMode || isAppSettingsPaneWithNavigationTabOpen;
+    isPreviewMode || isProtectedMode || isAppSettingsPaneWithNavigationTabOpen;
 
   const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false);
   const [showModal, setShowModal] = useState(false);

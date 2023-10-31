@@ -35,6 +35,7 @@ import styled from "styled-components";
 import moment from "moment";
 import AnalyticsUtil from "../../utils/AnalyticsUtil";
 import { getIsAppSidebarEnabled } from "../../selectors/ideSelectors";
+import { protectedModeSelector } from "selectors/gitSyncSelectors";
 
 const StyledResizer = styled.div<{ resizing: boolean }>`
   ${(props) =>
@@ -63,12 +64,13 @@ export const EntityExplorerSidebar = memo(({ children }: Props) => {
   const sidebarRef = useRef<HTMLDivElement>(null);
   const pinned = useSelector(getExplorerPinned);
   const isPreviewMode = useSelector(previewModeSelector);
+  const isProtectedMode = useSelector(protectedModeSelector);
   const isAppSettingsPaneWithNavigationTabOpen = useSelector(
     getIsAppSettingsPaneWithNavigationTabOpen,
   );
   const isAppSidebarEnabled = useSelector(getIsAppSidebarEnabled);
   const isPreviewingApp =
-    isPreviewMode || isAppSettingsPaneWithNavigationTabOpen;
+    isPreviewMode || isProtectedMode || isAppSettingsPaneWithNavigationTabOpen;
 
   /**
    * on entity explorer sidebar width change
@@ -199,6 +201,7 @@ export const EntityExplorerSidebar = memo(({ children }: Props) => {
     resizerLeft,
     pinned,
     isPreviewMode,
+    isProtectedMode,
     isAppSettingsPaneWithNavigationTabOpen,
   ]);
 

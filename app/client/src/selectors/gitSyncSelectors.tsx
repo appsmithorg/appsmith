@@ -216,3 +216,19 @@ export const getIsGitConnectV2Enabled = createSelector(
   selectFeatureFlags,
   (flags) => !!flags?.release_git_connect_v2_enabled,
 );
+
+export const getProtectedBranchesSelector = (state: AppState) =>
+  state.ui.gitSync.protectedBranches;
+
+export const protectedModeSelector = createSelector(
+  getIsGitConnected,
+  getCurrentGitBranch,
+  getProtectedBranchesSelector,
+  (isGitConnected, currentBranch, protectedBranches) => {
+    if (!isGitConnected || !currentBranch) {
+      return false;
+    } else {
+      return protectedBranches.includes(currentBranch);
+    }
+  },
+);

@@ -27,6 +27,10 @@ const HeadContainer = styled.div`
 
 const BodyContainer = styled.div`
   display: flex;
+  border: solid 0.4px #f22b2b;
+  padding: 12px;
+  border-radius: 4px;
+  align-items: center;
 `;
 
 const BodyInnerContainer = styled.div`

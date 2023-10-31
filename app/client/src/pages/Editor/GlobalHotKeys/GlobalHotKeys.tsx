@@ -72,6 +72,7 @@ interface Props {
   redo: () => void;
   appMode?: APP_MODE;
   isPreviewMode: boolean;
+  isProtectedMode: boolean;
   setPreviewModeAction: (shouldSet: boolean) => void;
   isExplorerPinned: boolean;
   isSignpostingEnabled: boolean;
@@ -107,7 +108,7 @@ class GlobalHotKeys extends React.Component<Props> {
     e.preventDefault();
 
     // don't open omnibar if preview mode is on
-    if (this.props.isPreviewMode) return;
+    if (this.props.isPreviewMode || this.props.isProtectedMode) return;
 
     const category = filterCategories[categoryId];
     this.props.setGlobalSearchCategory(category);
@@ -334,7 +335,9 @@ class GlobalHotKeys extends React.Component<Props> {
           global
           label="Preview Mode"
           onKeyDown={() => {
-            this.props.setPreviewModeAction(!this.props.isPreviewMode);
+            this.props.setPreviewModeAction(
+              !this.props.isPreviewMode || !this.props.isProtectedMode,
+            );
           }}
         />
         <Hotkey
@@ -370,6 +373,7 @@ const mapStateToProps = (state: AppState) => ({
   isDebuggerOpen: showDebuggerFlag(state),
   appMode: getAppMode(state),
   isPreviewMode: previewModeSelector(state),
+  isProtectedMode: previewModeSelector(state),
   isExplorerPinned: getExplorerPinned(state),
   isSignpostingEnabled: getIsFirstTimeUserOnboardingEnabled(state),
 });

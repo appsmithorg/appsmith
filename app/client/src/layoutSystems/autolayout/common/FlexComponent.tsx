@@ -15,6 +15,7 @@ import { widgetTypeClassname } from "widgets/WidgetUtils";
 import { RESIZE_BORDER_BUFFER } from "layoutSystems/common/resizer/common";
 import { checkIsDropTarget } from "WidgetProvider/factory/helpers";
 import type { FlexComponentProps } from "../../autolayout/utils/types";
+import { protectedModeSelector } from "selectors/gitSyncSelectors";
 
 const FlexWidget = styled.div`
   position: relative;
@@ -53,6 +54,7 @@ export function FlexComponent(props: FlexComponentProps) {
     [props.parentId, props.widgetId, props.widgetType, props.widgetName],
   );
   const isPreviewMode = useSelector(previewModeSelector);
+  const isProtectedMode = useSelector(protectedModeSelector);
 
   const isResizing = useSelector(getIsResizing);
   const widgetDimensionsViewCss = {
@@ -99,6 +101,7 @@ export function FlexComponent(props: FlexComponentProps) {
     zIndex,
     isResizing,
     isPreviewMode,
+    isProtectedMode,
     onHoverZIndex,
   ]);
 

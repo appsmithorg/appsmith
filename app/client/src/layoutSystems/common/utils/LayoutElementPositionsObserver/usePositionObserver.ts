@@ -6,6 +6,7 @@ import { useSelector } from "react-redux";
 import { previewModeSelector } from "selectors/editorSelectors";
 import { getAppMode } from "@appsmith/selectors/entitiesSelector";
 import { getAnvilLayoutDOMId, getAnvilWidgetDOMId } from "./utils";
+import { protectedModeSelector } from "selectors/gitSyncSelectors";
 export type ObservableElementType = "widget" | "layout";
 
 /**
@@ -26,13 +27,14 @@ export function usePositionObserver(
   ref: RefObject<HTMLDivElement>,
 ) {
   const isPreviewMode = useSelector(previewModeSelector);
+  const isProtectedMode = useSelector(protectedModeSelector);
   const appMode = useSelector(getAppMode);
 
   useEffect(() => {
     // We don't need the observer in preview mode or the published app
     // This is because the positions need to be observed only to enable
     // editor features
-    if (isPreviewMode || appMode === APP_MODE.PUBLISHED) {
+    if (isPreviewMode || isProtectedMode || appMode === APP_MODE.PUBLISHED) {
       return;
     }
 

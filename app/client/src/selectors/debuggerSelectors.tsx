@@ -148,4 +148,6 @@ export const getDebuggerContext = (state: AppState) =>
   state.ui.debugger.context;
 
 export const showDebuggerFlag = (state: AppState) =>
-  state.ui.debugger.isOpen && !state.ui.editor.isPreviewMode;
+  state.ui.debugger.isOpen &&
+  !state.ui.editor.isPreviewMode &&
+  !state.ui.editor.isProtectedMode;

@@ -21,6 +21,7 @@ import AppSettingsPane from "pages/Editor/AppSettingsPane";
 import { APP_SETTINGS_PANE_WIDTH } from "constants/AppConstants";
 import styled from "styled-components";
 import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
+import { protectedModeSelector } from "selectors/gitSyncSelectors";
 
 export const PROPERTY_PANE_ID = "t--property-pane-sidebar";
 
@@ -53,6 +54,7 @@ export const PropertyPaneSidebar = memo((props: Props) => {
     useHorizontalResize(sidebarRef, props.onWidthChange, props.onDragEnd, true);
 
   const isPreviewMode = useSelector(previewModeSelector);
+  const isProtectedMode = useSelector(protectedModeSelector);
   const selectedWidgetIds = useSelector(getSelectedWidgets);
   const isDraggingOrResizing = useSelector(getIsDraggingOrResizing);
   const isAppSettingsPaneOpen = useSelector(getIsAppSettingsPaneOpen);
@@ -137,8 +139,8 @@ export const PropertyPaneSidebar = memo((props: Props) => {
         className={classNames({
           [`js-property-pane-sidebar t--property-pane-sidebar flex h-full border-l bg-white transition-transform transform duration-400 ${tailwindLayers.propertyPane}`]:
             true,
-          "relative ": !isPreviewMode,
-          "fixed translate-x-full right-0": isPreviewMode,
+          "relative ": !(isPreviewMode || isProtectedMode),
+          "fixed translate-x-full right-0": isPreviewMode || isProtectedMode,
         })}
         id={PROPERTY_PANE_ID}
         ref={sidebarRef}

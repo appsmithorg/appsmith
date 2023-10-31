@@ -2,6 +2,7 @@ import type { AppState } from "@appsmith/reducers";
 import { Colors } from "constants/Colors";
 import { useSelector } from "react-redux";
 import { previewModeSelector } from "selectors/editorSelectors";
+import { protectedModeSelector } from "selectors/gitSyncSelectors";
 import {
   isCurrentWidgetFocused,
   isWidgetSelected,
@@ -18,7 +19,8 @@ export function useWidgetBorderStyles(widgetId: string) {
   );
 
   const isPreviewMode = useSelector(previewModeSelector);
-  if (isPreviewMode) {
+  const isProtectedMode = useSelector(protectedModeSelector);
+  if (isPreviewMode || isProtectedMode) {
     return {};
   }
 

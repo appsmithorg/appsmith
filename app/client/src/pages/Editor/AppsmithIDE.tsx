@@ -20,6 +20,7 @@ import EditorWrapperBody from "./commons/EditorWrapperBody";
 import EditorWrapperContainer from "./commons/EditorWrapperContainer";
 import Sidebar from "components/Sidebar";
 import IDESidePane from "./IDESidePane";
+import { protectedModeSelector } from "selectors/gitSyncSelectors";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -29,6 +30,7 @@ const SentryRoute = Sentry.withSentryRouting(Route);
 function AppsmithIDE() {
   const { path } = useRouteMatch();
   const isPreviewMode = useSelector(previewModeSelector);
+  const isProtectedMode = useSelector(protectedModeSelector);
 
   return (
     <>
@@ -72,7 +74,7 @@ function AppsmithIDE() {
           </Switch>
         </EditorWrapperBody>
       </EditorWrapperContainer>
-      <BottomBar viewMode={isPreviewMode} />
+      <BottomBar isProtected={isProtectedMode} viewMode={isPreviewMode} />
     </>
   );
 }

@@ -39,6 +39,9 @@ const initialState: GitSyncReducerState = {
   isSwitchingBranch: false,
   switchingToBranch: null,
   isDeploying: false,
+
+  protectedBranchesLoading: false,
+  protectedBranches: [],
 };
 
 const gitSyncReducer = createReducer(initialState, {
@@ -563,6 +566,20 @@ const gitSyncReducer = createReducer(initialState, {
     switchingToBranch: null,
     isSwitchingBranch: false,
   }),
+  [ReduxActionTypes.GIT_FETCH_PROTECTED_BRANCHES_INIT]: (
+    state: GitSyncReducerState,
+  ) => ({
+    ...state,
+    protectedBranchesLoading: true,
+  }),
+  [ReduxActionTypes.GIT_FETCH_PROTECTED_BRANCHES_SUCCESS]: (
+    state: GitSyncReducerState,
+    action: ReduxAction<{ protectedBranches: string[] }>,
+  ) => ({
+    ...state,
+    protectedBranchesLoading: true,
+    protectedBranches: action.payload.protectedBranches,
+  }),
 });
 
 export interface GitStatusData {
@@ -642,6 +659,10 @@ export interface GitDiscardResponse {
   modifiedAt: string;
 }
 
+export interface GitProtectedBranchesResponse {
+  protectedBranches: string[];
+}
+
 export type GitSyncReducerState = GitBranchDeleteState & {
   isGitSyncModalOpen: boolean;
   isCommitting?: boolean;
@@ -698,6 +719,9 @@ export type GitSyncReducerState = GitBranchDeleteState & {
   isSwitchingBranch: boolean;
   switchingToBranch: string | null;
   isDeploying: boolean;
+
+  protectedBranches: string[];
+  protectedBranchesLoading: boolean;
 };
 
 export default gitSyncReducer;

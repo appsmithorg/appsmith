@@ -20,6 +20,7 @@ import { renderAppsmithCanvas } from "layoutSystems/CanvasFactory";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { LayoutSystemTypes } from "layoutSystems/types";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
+import { protectedModeSelector } from "selectors/gitSyncSelectors";
 
 interface CanvasProps {
   widgetsStructure: CanvasWidgetStructure;
@@ -41,6 +42,7 @@ const Wrapper = styled.section<{
 const Canvas = (props: CanvasProps) => {
   const { canvasWidth } = props;
   const isPreviewMode = useSelector(previewModeSelector);
+  const isProtectedMode = useSelector(protectedModeSelector);
   const isAppSettingsPaneWithNavigationTabOpen = useSelector(
     getIsAppSettingsPaneWithNavigationTabOpen,
   );
@@ -59,7 +61,11 @@ const Canvas = (props: CanvasProps) => {
    */
   let backgroundForCanvas;
 
-  if (isPreviewMode || isAppSettingsPaneWithNavigationTabOpen) {
+  if (
+    isPreviewMode ||
+    isProtectedMode ||
+    isAppSettingsPaneWithNavigationTabOpen
+  ) {
     if (isWDSV2Enabled) {
       backgroundForCanvas = "var(--color-bg)";
     } else {

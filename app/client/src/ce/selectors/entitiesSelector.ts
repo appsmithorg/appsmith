@@ -84,10 +84,21 @@ export const getShouldShowWidgetName = createSelector(
   (state: AppState) => state.ui.widgetDragResize.isResizing,
   (state: AppState) => state.ui.widgetDragResize.isDragging,
   (state: AppState) => state.ui.editor.isPreviewMode,
+  (state: AppState) => state.ui.editor.isProtectedMode,
   (state: AppState) => state.ui.widgetDragResize.isAutoCanvasResizing,
-  (isResizing, isDragging, isPreviewMode, isAutoCanvasResizing) => {
+  (
+    isResizing,
+    isDragging,
+    isPreviewMode,
+    isProtectedMode,
+    isAutoCanvasResizing,
+  ) => {
     return (
-      !isResizing && !isDragging && !isPreviewMode && !isAutoCanvasResizing
+      !isResizing &&
+      !isDragging &&
+      !isPreviewMode &&
+      !isProtectedMode &&
+      !isAutoCanvasResizing
     );
   },
 );

@@ -136,7 +136,10 @@ import { getPageList } from "@appsmith/selectors/entitiesSelector";
 import { setPreviewModeAction } from "actions/editorActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { toast } from "design-system";
-import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
+import {
+  getCurrentGitBranch,
+  protectedModeSelector,
+} from "selectors/gitSyncSelectors";
 import type { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
 import { UserCancelledActionExecutionError } from "./ActionExecution/errorUtils";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
@@ -676,6 +679,7 @@ export function* saveLayoutSaga(action: ReduxAction<{ isRetry?: boolean }>) {
     const currentPageId: string = yield select(getCurrentPageId);
     const currentPage: Page = yield select(getPageById(currentPageId));
     const isPreviewMode: boolean = yield select(previewModeSelector);
+    const isProtectedMode: boolean = yield select(protectedModeSelector);
 
     const appMode: APP_MODE | undefined = yield select(getAppMode);
 
@@ -696,7 +700,7 @@ export function* saveLayoutSaga(action: ReduxAction<{ isRetry?: boolean }>) {
       });
     }
 
-    if (appMode === APP_MODE.EDIT && !isPreviewMode) {
+    if (appMode === APP_MODE.EDIT && !isPreviewMode && !isProtectedMode) {
       yield put(saveLayout(action.payload.isRetry));
     }
   } catch (error) {

@@ -23,6 +23,7 @@ import {
   previewModeSelector,
   snipingModeSelector,
 } from "selectors/editorSelectors";
+import { protectedModeSelector } from "selectors/gitSyncSelectors";
 const minSize = 100;
 
 /**
@@ -100,8 +101,9 @@ export const ModalResizableLayer = ({
     });
   };
   const isPreviewMode = useSelector(previewModeSelector);
+  const isProtectedMode = useSelector(protectedModeSelector);
   const isSnipingMode = useSelector(snipingModeSelector);
-  const enableResizing = !isSnipingMode && !isPreviewMode;
+  const enableResizing = !isSnipingMode && !isPreviewMode && !isProtectedMode;
   return (
     <ModalResizable
       allowResize

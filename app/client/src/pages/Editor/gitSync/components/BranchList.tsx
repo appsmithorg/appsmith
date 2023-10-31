@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   createNewBranchInit,
   fetchBranchesInit,
+  setIsGitSyncModalOpen,
   switchGitBranchInit,
 } from "actions/gitSyncActions";
 import {
@@ -14,6 +15,7 @@ import {
   getFetchingBranches,
   getGitBranches,
   getGitBranchNames,
+  getProtectedBranchesSelector,
 } from "selectors/gitSyncSelectors";
 
 import Skeleton from "components/utils/Skeleton";
@@ -34,6 +36,7 @@ import {
   Button,
   SearchInput,
   Text,
+  Callout,
 } from "design-system";
 import { get } from "lodash";
 import {
@@ -48,16 +51,18 @@ import { RemoteBranchList } from "./RemoteBranchList";
 import { LocalBranchList } from "./LocalBranchList";
 import type { Theme } from "constants/DefaultTheme";
 import { Space } from "./StyledComponents";
+import { GitSyncModalTab } from "entities/GitSync";
 
 const ListContainer = styled.div`
   flex: 1;
   overflow: auto;
-  width: 300px;
+  width: calc(300px + 5px);
+  margin-right: -5px;
   position: relative;
 `;
 
 const BranchDropdownContainer = styled.div`
-  height: 40vh;
+  height: 45vh;
   display: flex;
   flex-direction: column;
 
@@ -245,7 +250,7 @@ export default function BranchList(props: {
   const currentBranch = useSelector(getCurrentGitBranch);
   const fetchingBranches = useSelector(getFetchingBranches);
   const defaultBranch = useSelector(getDefaultGitBranchName);
-
+  const protectedBranches = useSelector(getProtectedBranchesSelector);
   const [searchText, changeSearchTextInState] = useState("");
   const changeSearchText = (text: string) => {
     changeSearchTextInState(removeSpecialChars(text));
@@ -330,6 +335,7 @@ export default function BranchList(props: {
     activeHoverIndex,
     defaultBranch,
     switchBranch,
+    protectedBranches,
   );
   return (
     <BranchListHotkeys
@@ -366,9 +372,34 @@ export default function BranchList(props: {
           )}
         </div>
         <Space size={3} />
+
         {fetchingBranches && <BranchesLoading />}
         {!fetchingBranches && (
           <ListContainer>
+            <Callout
+              links={[
+                {
+                  children: "Go to settings",
+                  onClick: () => {
+                    props.setIsPopupOpen?.(false);
+                    dispatch(
+                      setIsGitSyncModalOpen({
+                        isOpen: true,
+                        tab: GitSyncModalTab.SETTINGS,
+                      }),
+                    );
+                  },
+                },
+                {
+                  children: "Learn more",
+                  to: "#",
+                },
+              ]}
+              style={{ width: 300 }}
+            >
+              You can now protect your default branch.
+            </Callout>
+            <Space size={5} />
             {isCreateNewBranchInputValid && (
               <CreateNewBranch
                 branch={searchText}
@@ -381,6 +412,7 @@ export default function BranchList(props: {
               />
             )}
             {localBranchList}
+            <Space size={5} />
             {remoteBranchList}
           </ListContainer>
         )}

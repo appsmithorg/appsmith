@@ -31,6 +31,7 @@ import {
   getIsGitConnected,
   getPullFailed,
   getPullInProgress,
+  protectedModeSelector,
 } from "selectors/gitSyncSelectors";
 import SpinnerLoader from "pages/common/SpinnerLoader";
 import { inGuidedTour } from "selectors/onboardingSelectors";
@@ -54,11 +55,13 @@ const SpinnerContainer = styled.div`
   padding: 0 10px;
 `;
 
-const QuickActionButtonContainer = styled.div<{ disabled?: boolean }>`
+const QuickActionButtonContainer = styled.button<{ disabled?: boolean }>`
   margin: 0 ${(props) => props.theme.spaces[1]}px;
-
+  display: block;
   position: relative;
   overflow: visible;
+  cursor: ${(p) => (p.disabled ? "not-allowed" : "pointer")};
+  opacity: ${(p) => (p.disabled ? 0.6 : 1)};
 
   .count {
     position: absolute;
@@ -92,7 +95,6 @@ function QuickActionButton({
   tooltipText,
 }: QuickActionButtonProps) {
   const content = capitalizeFirstLetter(tooltipText);
-
   return (
     <QuickActionButtonContainer
       className={className}
@@ -106,7 +108,13 @@ function QuickActionButton({
       ) : (
         <Tooltip content={content}>
           <div>
-            <Button isIconButton kind="tertiary" size="md" startIcon={icon} />
+            <Button
+              isDisabled={disabled}
+              isIconButton
+              kind="tertiary"
+              size="md"
+              startIcon={icon}
+            />
             {count > 0 && <span className="count">{count}</span>}
           </div>
         </Tooltip>
@@ -139,6 +147,7 @@ const getQuickActionButtons = ({
   commit,
   gitStatus,
   isFetchingGitStatus,
+  isProtectedMode,
   merge,
   pull,
   pullDisabled,
@@ -156,10 +165,12 @@ const getQuickActionButtons = ({
   pullDisabled: boolean;
   pullTooltipMessage: string;
   showPullLoadingState: boolean;
+  isProtectedMode: boolean;
 }) => {
   return [
     {
       className: "t--bottom-bar-commit",
+      disabled: isProtectedMode,
       count: changesToCommit,
       icon: "plus",
       loading: isFetchingGitStatus,
@@ -177,6 +188,7 @@ const getQuickActionButtons = ({
     },
     {
       className: "t--bottom-bar-merge",
+      disabled: isProtectedMode,
       icon: "fork",
       onClick: merge,
       tooltipText: createMessage(MERGE),
@@ -278,6 +290,7 @@ export default function QuickGitActions() {
   const dispatch = useDispatch();
   const gitStatus = useSelector(getGitStatus);
   const pullFailed = useSelector(getPullFailed);
+  const isProtectedMode = useSelector(protectedModeSelector);
 
   const { disabled: pullDisabled, message: pullTooltipMessage } =
     getPullBtnStatus(gitStatus, !!pullFailed);
@@ -341,6 +354,7 @@ export default function QuickGitActions() {
     pullTooltipMessage,
     showPullLoadingState,
     changesToCommit,
+    isProtectedMode,
   });
   return isGitConnected ? (
     <Container>

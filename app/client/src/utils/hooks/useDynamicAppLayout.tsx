@@ -46,6 +46,7 @@ import { useLocation } from "react-router";
 import { CANVAS_VIEWPORT } from "constants/componentClassNameConstants";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import { getIsAppSidebarEnabled } from "../../selectors/ideSelectors";
+import { protectedModeSelector } from "selectors/gitSyncSelectors";
 
 const GUTTER_WIDTH = 72;
 export const AUTOLAYOUT_RESIZER_WIDTH_BUFFER = 40;
@@ -59,6 +60,7 @@ export const useDynamicAppLayout = () => {
   const { width: screenWidth } = useWindowSizeHooks();
   const mainCanvasProps = useSelector(getMainCanvasProps);
   const isPreviewMode = useSelector(previewModeSelector);
+  const isProtectedMode = useSelector(protectedModeSelector);
   const currentPageId = useSelector(getCurrentPageId);
   const isCanvasInitialized = useSelector(getIsCanvasInitialized);
   const appLayout = useSelector(getCurrentApplicationLayout);
@@ -80,6 +82,8 @@ export const useDynamicAppLayout = () => {
   const isEmbed = queryParams.get("embed");
   const isNavbarVisibleInEmbeddedApp = queryParams.get("navbar");
   const isAppSidebarEnabled = useSelector(getIsAppSidebarEnabled);
+
+  const isPreviewing = isPreviewMode || isProtectedMode;
 
   // /**
   //  * calculates min height
@@ -133,7 +137,7 @@ export const useDynamicAppLayout = () => {
 
     // if preview mode is not on and the app setting pane is not opened, we need to subtract the width of the property pane
     if (
-      isPreviewMode === false &&
+      isPreviewing === false &&
       !isAppSettingsPaneOpen &&
       appMode === APP_MODE.EDIT
     ) {
@@ -152,7 +156,7 @@ export const useDynamicAppLayout = () => {
     // if explorer is closed or its preview mode, we don't need to subtract the EE width
     if (
       isExplorerPinned === true &&
-      !isPreviewMode &&
+      !isPreviewing &&
       appMode === APP_MODE.EDIT
     ) {
       calculatedWidth -= explorerWidth;
@@ -176,7 +180,7 @@ export const useDynamicAppLayout = () => {
     const isEmbeddedAppWithNavVisible = isEmbed && isNavbarVisibleInEmbeddedApp;
     if (
       (appMode === APP_MODE.PUBLISHED ||
-        isPreviewMode ||
+        isPreviewing ||
         isAppSettingsPaneWithNavigationTabOpen) &&
       !isMobile &&
       (!isEmbed || isEmbeddedAppWithNavVisible) &&
@@ -206,7 +210,7 @@ export const useDynamicAppLayout = () => {
         return (
           calculatedWidth -
           (appMode === APP_MODE.EDIT &&
-          !isPreviewMode &&
+          !isPreviewing &&
           !isAppSettingsPaneWithNavigationTabOpen
             ? totalWidthToSubtract
             : 0)
@@ -246,7 +250,7 @@ export const useDynamicAppLayout = () => {
     currentPageId,
     appMode,
     appLayout,
-    isPreviewMode,
+    isPreviewing,
   ]);
 
   const resizeObserver = new ResizeObserver(immediateDebouncedResize);
@@ -262,7 +266,7 @@ export const useDynamicAppLayout = () => {
     return () => {
       ele && resizeObserver.unobserve(ele);
     };
-  }, [appLayout, currentPageId, isPreviewMode]);
+  }, [appLayout, currentPageId, isPreviewing]);
 
   /**
    * when screen height is changed, update canvas layout
@@ -298,7 +302,7 @@ export const useDynamicAppLayout = () => {
   }, [
     appLayout,
     mainCanvasProps?.width,
-    isPreviewMode,
+    isPreviewing,
     isAppSettingsPaneWithNavigationTabOpen,
     explorerWidth,
     sidebarWidth,

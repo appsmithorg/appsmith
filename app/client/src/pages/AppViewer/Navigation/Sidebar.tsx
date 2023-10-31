@@ -37,6 +37,7 @@ import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettings
 import NavigationLogo from "@appsmith/pages/AppViewer/NavigationLogo";
 import MenuItemContainer from "./components/MenuItemContainer";
 import BackToAppsButton from "./components/BackToAppsButton";
+import { protectedModeSelector } from "selectors/gitSyncSelectors";
 
 interface SidebarProps {
   currentApplicationDetails?: ApplicationPayload;
@@ -84,6 +85,7 @@ export function Sidebar(props: SidebarProps) {
   const { x } = useMouse();
   const theme = useSelector(getCurrentThemeDetails);
   const isPreviewMode = useSelector(previewModeSelector);
+  const isProtectedMode = useSelector(protectedModeSelector);
   const isAppSettingsPaneWithNavigationTabOpen = useSelector(
     getIsAppSettingsPaneWithNavigationTabOpen,
   );
@@ -128,7 +130,7 @@ export function Sidebar(props: SidebarProps) {
     let prefix = `calc( 100vh - `;
     const suffix = ")";
 
-    if (isPreviewMode) {
+    if (isPreviewMode || isProtectedMode) {
       prefix += `${theme.smallHeaderHeight} - ${theme.bottomBarHeight}`;
     } else if (isAppSettingsPaneWithNavigationTabOpen) {
       // We deduct 64px as well since it is the margin coming from "m-8" class from tailwind
