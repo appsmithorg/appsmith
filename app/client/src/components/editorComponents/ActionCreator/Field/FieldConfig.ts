@@ -562,10 +562,14 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
     exampleText: "postWindowMessage('hi', 'window', '*')",
     toolTip: "Specifies the target iframe widget name or parent window",
     getter: (value: any) => {
-      return enumTypeGetter(value, 1, "");
+      return textGetter(value, 1);
     },
     setter: (option: any, currentValue: string) => {
-      return enumTypeSetter(option.value, currentValue, 1);
+      const isMessageFieldSet = textGetter(currentValue, 0);
+      if (!isMessageFieldSet) {
+        currentValue = enumTypeSetter("''", currentValue, 0);
+      }
+      return textSetter(option.value, currentValue, 1);
     },
     view: ViewTypes.SELECTOR_VIEW,
   },
