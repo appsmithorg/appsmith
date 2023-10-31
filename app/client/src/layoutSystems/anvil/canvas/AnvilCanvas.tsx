@@ -6,7 +6,6 @@ import type { WidgetProps } from "widgets/BaseWidget";
 import { renderLayouts } from "../utils/layouts/renderUtils";
 import { getAnvilCanvasId } from "./utils";
 import { RenderModes } from "constants/WidgetConstants";
-import { getCanvasClassName } from "utils/generators";
 
 export const AnvilCanvas = (props: BaseWidgetProps) => {
   const map: LayoutComponentProps["childrenMap"] = {};
@@ -14,9 +13,7 @@ export const AnvilCanvas = (props: BaseWidgetProps) => {
     map[child.widgetId] = child;
   });
 
-  const className: string = `anvil-canvas ${getCanvasClassName()} ${props.classList?.join(
-    " ",
-  )}`;
+  const className: string = `anvil-canvas ${props.classList?.join(" ")}`;
 
   return (
     <div className={className} id={getAnvilCanvasId(props.widgetId)}>
