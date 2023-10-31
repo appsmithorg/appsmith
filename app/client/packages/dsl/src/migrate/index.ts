@@ -1,4 +1,4 @@
-import { flattenDSL } from "../dsl-transform";
+import { flattenDSL } from "../transform";
 import { updateContainers } from "./migrations/001-update-containers";
 import { chartDataMigration } from "./migrations/002-chart-data-migration";
 import { mapDataMigration } from "./migrations/003-map-data-migration";
