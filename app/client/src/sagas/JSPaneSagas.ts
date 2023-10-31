@@ -255,7 +255,7 @@ function* handleEachUpdateJSCollection(update: JSUpdate) {
 export function* makeUpdateJSCollection(
   action: ReduxAction<Record<string, JSUpdate>>,
 ) {
-  const jsUpdates: Record<string, JSUpdate> = action.payload;
+  const jsUpdates: Record<string, JSUpdate> = action.payload || {};
 
   yield all(
     Object.keys(jsUpdates).map((key) =>
