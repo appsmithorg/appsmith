@@ -39,6 +39,7 @@ import {
   fetchGitRemoteStatusSuccess,
   updateGitProtectedBranchesError,
   updateGitProtectedBranchesSuccess,
+  updateGitProtectedBranchesInit,
 } from "actions/gitSyncActions";
 import {
   commitToRepoSuccess,
@@ -212,7 +213,9 @@ function* commitToGitRepoSaga(
 }
 
 function* connectToGitSaga(action: ConnectToGitReduxAction) {
-  let response: ApiResponse | undefined;
+  let response:
+    | ApiResponse<{ gitApplicationMetadata: { branchName: string } }>
+    | undefined;
   try {
     const applicationId: string = yield select(getCurrentApplicationId);
     const currentPageId: string = yield select(getCurrentPageId);
@@ -227,15 +230,20 @@ function* connectToGitSaga(action: ConnectToGitReduxAction) {
     if (isValidResponse) {
       // @ts-expect-error: response is of type unknown
       yield put(connectToGitSuccess(response?.data));
+      const defaultBranch = response?.data?.gitApplicationMetadata?.branchName;
+
+      yield put(
+        updateGitProtectedBranchesInit({
+          protectedBranches: defaultBranch ? [defaultBranch] : [],
+        }),
+      );
       yield put(fetchPage(currentPageId));
       if (action.onSuccessCallback) {
         // @ts-expect-error: response is of type unknown
         action.onSuccessCallback(response?.data);
       }
-      // @ts-expect-error: response is of type unknown
       const branch = response?.data?.gitApplicationMetadata?.branchName;
-
-      const updatedPath = addBranchParam(branch);
+      const updatedPath = addBranchParam(branch || "");
       history.replace(updatedPath);
 
       /* commit effect START */

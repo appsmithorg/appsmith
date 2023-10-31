@@ -30,7 +30,7 @@ import {
 } from "actions/gitSyncActions";
 
 const Container = styled.div`
-  padding-top: 16px;
+  padding-top: 8px;
   padding-bottom: 16px;
 `;
 

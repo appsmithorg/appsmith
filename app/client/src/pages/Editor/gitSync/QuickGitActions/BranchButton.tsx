@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import { useSelector } from "react-redux";
 
@@ -45,6 +45,16 @@ function BranchButton() {
   const [isOpen, setIsOpen] = useState(false);
   const labelTarget = useRef<HTMLSpanElement>(null);
   const status = useSelector(getGitStatus);
+  const [showProtectedBranchTooltip, setShowProtectedBranchTooltip] =
+    useState(false);
+
+  useEffect(() => {
+    if (isProtectedMode) {
+      setShowProtectedBranchTooltip(true);
+    } else {
+      setShowProtectedBranchTooltip(false);
+    }
+  }, [isProtectedMode]);
 
   return (
     <Popover2
@@ -79,9 +89,11 @@ function BranchButton() {
           </>
         }
         defaultVisible
-        isDisabled={!isProtectedMode}
+        isDisabled={!isProtectedMode || isOpen}
+        onVisibleChange={(v) => setShowProtectedBranchTooltip(v)}
         placement="topLeft"
-        trigger={["click", "hover"]}
+        trigger={["hover", "click"]}
+        visible={showProtectedBranchTooltip}
       >
         <Tooltip
           content={currentBranch || ""}
