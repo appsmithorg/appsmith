@@ -98,6 +98,7 @@ import { addBranchParam, GIT_BRANCH_QUERY_KEY } from "constants/routes";
 import {
   getCurrentGitBranch,
   getDisconnectingGitApplication,
+  getIsGitProtectedFeatureEnabled,
   getIsGitStatusLiteEnabled,
 } from "selectors/gitSyncSelectors";
 import { initEditor } from "actions/initActions";
@@ -232,11 +233,17 @@ function* connectToGitSaga(action: ConnectToGitReduxAction) {
       yield put(connectToGitSuccess(response?.data));
       const defaultBranch = response?.data?.gitApplicationMetadata?.branchName;
 
-      yield put(
-        updateGitProtectedBranchesInit({
-          protectedBranches: defaultBranch ? [defaultBranch] : [],
-        }),
+      const isGitProtectedFeatureEnabled: boolean = yield select(
+        getIsGitProtectedFeatureEnabled,
       );
+      if (!isGitProtectedFeatureEnabled) {
+        yield put(
+          updateGitProtectedBranchesInit({
+            protectedBranches: defaultBranch ? [defaultBranch] : [],
+          }),
+        );
+      }
+
       yield put(fetchPage(currentPageId));
       if (action.onSuccessCallback) {
         // @ts-expect-error: response is of type unknown
@@ -1056,6 +1063,12 @@ function* discardChanges() {
 }
 
 function* fetchGitProtectedBranchesSaga() {
+  const isGitProtectedFeatureEnabled: boolean = yield select(
+    getIsGitProtectedFeatureEnabled,
+  );
+  if (!isGitProtectedFeatureEnabled) {
+    return;
+  }
   let response: ApiResponse<string[]>;
   try {
     const appId: string = yield select(getCurrentApplicationId);
@@ -1082,6 +1095,12 @@ function* fetchGitProtectedBranchesSaga() {
 function* updateGitProtectedBranchesSaga({
   payload,
 }: ReduxAction<{ protectedBranches: string[] }>) {
+  const isGitProtectedFeatureEnabled: boolean = yield select(
+    getIsGitProtectedFeatureEnabled,
+  );
+  if (!isGitProtectedFeatureEnabled) {
+    return;
+  }
   const { protectedBranches } = payload;
   const applicationId: string = yield select(getCurrentApplicationId);
   try {
