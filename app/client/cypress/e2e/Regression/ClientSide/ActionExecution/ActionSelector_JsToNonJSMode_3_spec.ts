@@ -251,10 +251,10 @@ describe("JS to non-JS mode in Action Selector", () => {
       0,
     );
     agHelper.GetNAssertElementText(
-      propPane._actionOpenDropdownSelectModal,
-      "Target",
+      propPane._windowTargetDropdown,
+      "window",
       "have.text",
-      1,
+      0,
     );
     agHelper.GetNAssertElementText(
       propPane._actionPopupTextLabel,
