@@ -145,13 +145,14 @@ import type { WidgetProps } from "widgets/BaseWidget";
 import { nestDSL, flattenDSL, LATEST_DSL_VERSION } from "@shared/dsl";
 import { fetchSnapshotDetailsAction } from "actions/autoLayoutActions";
 import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
-import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
 import { isGACEnabled } from "@appsmith/utils/planHelpers";
 import { getHasManagePagePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import { LayoutSystemTypes } from "layoutSystems/types";
 import { getLayoutSystemDSLTransformer } from "layoutSystems/common/utils/LayoutSystemDSLTransformer";
 import type { DSLWidget } from "WidgetProvider/constants";
+import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
+import { getIsServerDSLMigrationsEnabled } from "selectors/pageSelectors";
 
 export const checkIfMigrationIsNeeded = (
   fetchPageResponse?: FetchPageResponse,
@@ -272,10 +273,12 @@ export function* refreshTheApp() {
 export const getCanvasWidgetsPayload = (
   pageResponse: FetchPageResponse,
   dslTransformer?: (dsl: DSLWidget) => DSLWidget,
+  migrateDSLLocally: boolean = true,
 ): UpdateCanvasPayload => {
   const extractedDSL = extractCurrentDSL({
     dslTransformer,
     response: pageResponse,
+    migrateDSLLocally,
   }).dsl;
   const flattenedDSL = flattenDSL(extractedDSL);
   const pageWidgetId = MAIN_CONTAINER_WIDGET_ID;
@@ -323,9 +326,13 @@ export function* handleFetchedPage({
     // Wait for widget config to be loaded before we can generate the canvas payload
     yield call(waitForWidgetConfigBuild);
     // Get Canvas payload
+    const isServerDSLMigrationsEnabled: boolean = yield select(
+      getIsServerDSLMigrationsEnabled,
+    );
     const canvasWidgetsPayload = getCanvasWidgetsPayload(
       fetchPageResponse,
       dslTransformer,
+      !isServerDSLMigrationsEnabled,
     );
     // Update the canvas
     yield put(initCanvasLayout(canvasWidgetsPayload));
@@ -376,9 +383,18 @@ export function* fetchPageSaga(
       PerformanceTransactionName.FETCH_PAGE_API,
       { pageId: id },
     );
-    const fetchPageResponse: FetchPageResponse = yield call(PageApi.fetchPage, {
-      id,
-    });
+
+    const isServerDSLMigrationsEnabled = select(
+      getIsServerDSLMigrationsEnabled,
+    );
+    const params: FetchPageRequest = { id };
+    if (isServerDSLMigrationsEnabled) {
+      params.migrateDSL = "true";
+    }
+    const fetchPageResponse: FetchPageResponse = yield call(
+      PageApi.fetchPage,
+      params,
+    );
 
     yield handleFetchedPage({
       fetchPageResponse,
@@ -807,11 +823,18 @@ export function* createPageSaga(
       // Add this to the page DSLs for entity explorer
       // The dslTransformer may not be necessary for the entity explorer
       // However, we still transform for consistency.
+      const isServerDSLMigrationsEnabled: boolean = yield select(
+        getIsServerDSLMigrationsEnabled,
+      );
       yield put({
         type: ReduxActionTypes.FETCH_PAGE_DSL_SUCCESS,
         payload: {
           pageId: response.data.id,
-          dsl: extractCurrentDSL({ dslTransformer, response }).dsl,
+          dsl: extractCurrentDSL({
+            dslTransformer,
+            response,
+            migrateDSLLocally: !isServerDSLMigrationsEnabled,
+          }).dsl,
           layoutId: response.data.layouts[0].id,
         },
       });
@@ -924,7 +947,13 @@ export function* clonePageSaga(
       // We're not sending the `dslTransformer` to the `extractCurrentDSL` function
       // as this is a clone operation, and any layout system specific
       // updates to the DSL would have already been performed in the original page
-      const { dsl, layoutId } = extractCurrentDSL({ response });
+      const isServerDSLMigrationsEnabled: boolean = yield select(
+        getIsServerDSLMigrationsEnabled,
+      );
+      const { dsl, layoutId } = extractCurrentDSL({
+        response,
+        migrateDSLLocally: !isServerDSLMigrationsEnabled,
+      });
       yield put({
         type: ReduxActionTypes.FETCH_PAGE_DSL_SUCCESS,
         payload: {
@@ -1173,9 +1202,17 @@ export function* fetchPageDSLSaga(pageId: string) {
       layoutSystemType,
       mainCanvasProps.width,
     );
-    const fetchPageResponse: FetchPageResponse = yield call(PageApi.fetchPage, {
-      id: pageId,
-    });
+    const isServerDSLMigrationsEnabled = select(
+      getIsServerDSLMigrationsEnabled,
+    );
+    const params: FetchPageRequest = { id: pageId };
+    if (isServerDSLMigrationsEnabled) {
+      params.migrateDSL = "true";
+    }
+    const fetchPageResponse: FetchPageResponse = yield call(
+      PageApi.fetchPage,
+      params,
+    );
     const isValidResponse: boolean = yield validateResponse(fetchPageResponse);
     if (isValidResponse) {
       // Wait for the Widget config to be loaded before we can migrate the DSL
@@ -1190,6 +1227,7 @@ export function* fetchPageDSLSaga(pageId: string) {
       const { dsl, layoutId } = extractCurrentDSL({
         dslTransformer,
         response: fetchPageResponse,
+        migrateDSLLocally: !isServerDSLMigrationsEnabled,
       });
       return {
         pageId,
