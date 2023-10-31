@@ -3,7 +3,6 @@ import { WIDGET } from "../../locators/WidgetLocators";
 import { EntityItems } from "./AssertHelper";
 import EditorNavigation, { SidebarButton } from "./EditorNavigation";
 import datasource from "../../locators/DatasourcesEditor.json";
-import { agHelper, dataSources } from "../Objects/ObjectsCore";
 
 export const DataSourceKVP = {
   Postgres: "PostgreSQL",
@@ -1922,8 +1921,8 @@ export class DataSources {
                   );
                 });
             } else {
-              agHelper.AssertElementAbsence(
-                dataSources._dsVirtuosoElement(targetTableName),
+              this.agHelper.AssertElementAbsence(
+                this._dsVirtuosoElement(targetTableName),
               );
               expect(indexOfTable).to.equal(-1);
             }
