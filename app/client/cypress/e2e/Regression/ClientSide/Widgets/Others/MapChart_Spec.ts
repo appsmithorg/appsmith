@@ -1,6 +1,5 @@
 /// <reference types="Cypress" />
-const viewWidgetsPage = require("../../../../../locators/ViewWidgets.json");
-import * as _ from "../../../../../support/Objects/ObjectsCore";
+import viewWidgetsPage from "../../../../../locators/ViewWidgets.json";
 import {
   agHelper,
   entityExplorer,
@@ -11,10 +10,10 @@ import {
 } from "../../../../../support/Objects/ObjectsCore";
 
 const _mapChartCaption = "g[class*='-caption'] text";
-const _mapChartPlot = (text: string) => "//text()[contains(., '"+ text +"')]/.."
+const _mapChartPlot = (text: string) =>
+  "//text()[contains(., '" + text + "')]/..";
 
 describe("Map Chart Widget Functionality", function () {
-
   it("1. Drag and drop a Map Chart widget and verify", function () {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.MAPCHART, 200, 200);
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.MAPCHART));
@@ -24,7 +23,6 @@ describe("Map Chart Widget Functionality", function () {
   });
 
   it("2.1 Update the Map type to different types and verify - part1", function () {
-
     // Change the map type to World with Antarctica and verify the number of entities
     propPane.SelectPropertiesDropDown("Map type", "World with Antarctica");
     agHelper.AssertElementLength(viewWidgetsPage.mapChartEntityLabels, 7);
@@ -67,7 +65,6 @@ describe("Map Chart Widget Functionality", function () {
   });
 
   it("2.2 Update the Map type to different types and verify - part2", function () {
-
     // Change the map type to Oceania and verify the number of entities
     propPane.SelectPropertiesDropDown("Map type", "Oceania");
     agHelper.AssertElementLength(viewWidgetsPage.mapChartEntityLabels, 15);
@@ -102,11 +99,11 @@ describe("Map Chart Widget Functionality", function () {
   });
 
   it("3. Update the Chart data and verify", function () {
-    const data =[
+    const data = [
       {
-        "id": "014",
-        "value": "2"
-      }
+        id: "014",
+        value: "2",
+      },
     ];
 
     propPane.TypeTextIntoField("Chart data", JSON.stringify(data));
@@ -160,7 +157,6 @@ describe("Map Chart Widget Functionality", function () {
     entityExplorer.SelectEntityByName("MapChart1", "Widgets");
   });
 
-  
   it("5. Update onDataPointClick and Verify", function () {
     // Create the Alert Modal and verify Modal name
     propPane.SelectPropertiesDropDown("Map type", "Asia");
@@ -171,51 +167,54 @@ describe("Map Chart Widget Functionality", function () {
     );
     agHelper.GetNClick(propPane._actionSelectorPopupClose);
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.MAPCHART));
-    agHelper.GetNClick(_mapChartPlot('RU'), 0, true);
+    agHelper.GetNClick(_mapChartPlot("RU"), 0, true);
     agHelper.ValidateToastMessage("Data Point Russian Federation Clicked");
     deployMode.NavigateBacktoEditor();
     entityExplorer.SelectEntityByName("MapChart1", "Widgets");
 
     // Convert the onDataPointClick to JS, update and verify
-    propPane.EnterJSContext("onDataPointClick", "{{showAlert('Converted to Js and clicked '+ MapChart1.selectedDataPoint.label)}}");
+    propPane.EnterJSContext(
+      "onDataPointClick",
+      "{{showAlert('Converted to Js and clicked '+ MapChart1.selectedDataPoint.label)}}",
+    );
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.MAPCHART));
-    agHelper.GetNClick(_mapChartPlot('CN'), 0, true);
+    agHelper.GetNClick(_mapChartPlot("CN"), 0, true);
     agHelper.ValidateToastMessage("Converted to Js and clicked China");
     deployMode.NavigateBacktoEditor();
     entityExplorer.SelectEntityByName("MapChart1", "Widgets");
   });
 
   it("6. Verify the style changes", function () {
-      // Change Color Range and verify
-      const colorRange = [
-        {
-          "minValue": 2,
-          "maxValue": 3,
-          "code": "#FFFFF"
-        }
-      ];
-      propPane.MoveToTab("Style");
-      propPane.TypeTextIntoField("Color Range", JSON.stringify(colorRange));
-      deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.MAPCHART));
-      agHelper.VerifySnapshot(locators._root, "mapChartWithColorRange");
-      deployMode.NavigateBacktoEditor();
-      entityExplorer.SelectEntityByName("MapChart1", "Widgets");
+    // Change Color Range and verify
+    const colorRange = [
+      {
+        minValue: 2,
+        maxValue: 3,
+        code: "#FFFFF",
+      },
+    ];
+    propPane.MoveToTab("Style");
+    propPane.TypeTextIntoField("Color Range", JSON.stringify(colorRange));
+    deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.MAPCHART));
+    agHelper.VerifySnapshot(locators._root, "mapChartWithColorRange");
+    deployMode.NavigateBacktoEditor();
+    entityExplorer.SelectEntityByName("MapChart1", "Widgets");
 
-      // Change border radius and verify
-      propPane.MoveToTab("Style");
-      propPane.EnterJSContext("Border radius", "1.5rem");
-      deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.MAPCHART));
-      agHelper.VerifySnapshot(locators._root, "mapChartWithBorderRadius");
-      deployMode.NavigateBacktoEditor();
-      entityExplorer.SelectEntityByName("MapChart1", "Widgets");
-  
-      // Change box shadow and verify
-      const boxShadow =
-        "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)";
-      propPane.MoveToTab("Style");
-      propPane.EnterJSContext("Box shadow", boxShadow);
-      deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.MAPCHART));
-      agHelper.VerifySnapshot(locators._root, "mapChartWithBoxShadow");
-      deployMode.NavigateBacktoEditor();
+    // Change border radius and verify
+    propPane.MoveToTab("Style");
+    propPane.EnterJSContext("Border radius", "1.5rem");
+    deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.MAPCHART));
+    agHelper.VerifySnapshot(locators._root, "mapChartWithBorderRadius");
+    deployMode.NavigateBacktoEditor();
+    entityExplorer.SelectEntityByName("MapChart1", "Widgets");
+
+    // Change box shadow and verify
+    const boxShadow =
+      "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)";
+    propPane.MoveToTab("Style");
+    propPane.EnterJSContext("Box shadow", boxShadow);
+    deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.MAPCHART));
+    agHelper.VerifySnapshot(locators._root, "mapChartWithBoxShadow");
+    deployMode.NavigateBacktoEditor();
   });
 });
