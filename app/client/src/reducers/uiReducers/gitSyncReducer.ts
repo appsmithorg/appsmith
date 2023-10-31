@@ -42,6 +42,8 @@ const initialState: GitSyncReducerState = {
 
   protectedBranchesLoading: false,
   protectedBranches: [],
+
+  isUpdateProtectedBranchesLoading: false,
 };
 
 const gitSyncReducer = createReducer(initialState, {
@@ -577,8 +579,24 @@ const gitSyncReducer = createReducer(initialState, {
     action: ReduxAction<{ protectedBranches: string[] }>,
   ) => ({
     ...state,
-    protectedBranchesLoading: true,
+    protectedBranchesLoading: false,
     protectedBranches: action.payload.protectedBranches,
+  }),
+  [ReduxActionTypes.GIT_FETCH_PROTECTED_BRANCHES_ERROR]: (state) => ({
+    ...state,
+    protectedBranchesLoading: false,
+  }),
+  [ReduxActionTypes.GIT_UPDATE_PROTECTED_BRANCHES_INIT]: (state) => ({
+    ...state,
+    isUpdateProtectedBranchesLoading: true,
+  }),
+  [ReduxActionTypes.GIT_UPDATE_PROTECTED_BRANCHES_SUCCESS]: (state) => ({
+    ...state,
+    isUpdateProtectedBranchesLoading: false,
+  }),
+  [ReduxActionTypes.GIT_UPDATE_PROTECTED_BRANCHES_ERROR]: (state) => ({
+    ...state,
+    isUpdateProtectedBranchesLoading: false,
   }),
 });
 
@@ -659,10 +677,6 @@ export interface GitDiscardResponse {
   modifiedAt: string;
 }
 
-export interface GitProtectedBranchesResponse {
-  protectedBranches: string[];
-}
-
 export type GitSyncReducerState = GitBranchDeleteState & {
   isGitSyncModalOpen: boolean;
   isCommitting?: boolean;
@@ -722,6 +736,7 @@ export type GitSyncReducerState = GitBranchDeleteState & {
 
   protectedBranches: string[];
   protectedBranchesLoading: boolean;
+  isUpdateProtectedBranchesLoading: boolean;
 };
 
 export default gitSyncReducer;

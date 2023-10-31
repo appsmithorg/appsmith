@@ -5,12 +5,15 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import { isCEMode } from "@appsmith/utils";
+import { updateGitProtectedBranchesInit } from "actions/gitSyncActions";
 import { Button, Link, Option, Select, Text } from "design-system";
 import { xor } from "lodash";
 import React, { useEffect, useMemo, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
+  getDefaultGitBranchName,
   getGitBranches,
+  getIsUpdateProtectedBranchesLoading,
   getProtectedBranchesSelector,
 } from "selectors/gitSyncSelectors";
 import styled from "styled-components";
@@ -44,13 +47,15 @@ const StyledSelect = styled(Select)`
 
 function GitProtectedBranches() {
   const isCE = isCEMode();
+  const dispatch = useDispatch();
 
   const unfilteredBranches = useSelector(getGitBranches);
   const branches = unfilteredBranches.filter(
     (b) => !b.branchName.includes("origin/"),
   );
-
+  const defaultBranch = useSelector(getDefaultGitBranchName);
   const protectedBranches = useSelector(getProtectedBranchesSelector);
+  const isUpdateLoading = useSelector(getIsUpdateProtectedBranchesLoading);
   const [selectedValues, setSelectedValues] = useState<string[]>();
 
   useEffect(() => {
@@ -61,7 +66,15 @@ function GitProtectedBranches() {
     return xor(protectedBranches, selectedValues).length > 0;
   }, [protectedBranches, selectedValues]);
 
-  const updateIsDisabled = isCE && !areProtectedBranchesDifferent;
+  const updateIsDisabled = !areProtectedBranchesDifferent;
+
+  const handleUpdate = () => {
+    dispatch(
+      updateGitProtectedBranchesInit({
+        protectedBranches: selectedValues ?? [],
+      }),
+    );
+  };
 
   return (
     <Container>
@@ -86,19 +99,28 @@ function GitProtectedBranches() {
       </HeadContainer>
       <BodyContainer>
         <StyledSelect
-          isDisabled={isCE}
           isMultiSelect
           maxTagTextLength={8}
           onChange={(v) => setSelectedValues(v)}
           value={selectedValues}
         >
           {branches.map((b) => (
-            <Option key={b.branchName} value={b.branchName}>
+            <Option
+              disabled={isCE && b.branchName !== defaultBranch}
+              key={b.branchName}
+              value={b.branchName}
+            >
               {b.branchName}
             </Option>
           ))}
         </StyledSelect>
-        <Button isDisabled={updateIsDisabled} kind="secondary" size="md">
+        <Button
+          isDisabled={updateIsDisabled}
+          isLoading={isUpdateLoading}
+          kind="secondary"
+          onClick={handleUpdate}
+          size="md"
+        >
           {createMessage(UPDATE)}
         </Button>
       </BodyContainer>

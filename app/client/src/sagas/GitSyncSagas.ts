@@ -33,9 +33,12 @@ import type {
 } from "actions/gitSyncActions";
 import {
   fetchGitRemoteStatusInit,
-  fetchGitProtectedBranchesError,
+  fetchGitProtectedBranchesInit,
   fetchGitProtectedBranchesSuccess,
+  fetchGitProtectedBranchesError,
   fetchGitRemoteStatusSuccess,
+  updateGitProtectedBranchesError,
+  updateGitProtectedBranchesSuccess,
 } from "actions/gitSyncActions";
 import {
   commitToRepoSuccess,
@@ -105,10 +108,7 @@ import { log } from "loglevel";
 import GIT_ERROR_CODES from "constants/GitErrorCodes";
 import { builderURL } from "@appsmith/RouteBuilder";
 import { APP_MODE } from "entities/App";
-import type {
-  GitDiscardResponse,
-  GitProtectedBranchesResponse,
-} from "reducers/uiReducers/gitSyncReducer";
+import type { GitDiscardResponse } from "reducers/uiReducers/gitSyncReducer";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
 import {
   getActions,
@@ -1048,7 +1048,7 @@ function* discardChanges() {
 }
 
 function* fetchGitProtectedBranchesSaga() {
-  let response: ApiResponse<GitProtectedBranchesResponse>;
+  let response: ApiResponse<string[]>;
   try {
     const appId: string = yield select(getCurrentApplicationId);
     response = yield GitSyncAPI.getProtectedBranches(appId);
@@ -1059,9 +1059,8 @@ function* fetchGitProtectedBranchesSaga() {
       getLogToSentryFromResponse(response),
     );
     if (isValidResponse) {
-      yield put(
-        fetchGitProtectedBranchesSuccess(response?.data?.protectedBranches),
-      );
+      const protectedBranches: string[] = response?.data;
+      yield put(fetchGitProtectedBranchesSuccess(protectedBranches));
     } else {
       yield put(
         fetchGitProtectedBranchesError(response?.responseMeta?.error?.message),
@@ -1069,6 +1068,24 @@ function* fetchGitProtectedBranchesSaga() {
     }
   } catch (error) {
     yield put(fetchGitProtectedBranchesError(error));
+  }
+}
+
+function* updateGitProtectedBranchesSaga({
+  payload,
+}: ReduxAction<{ protectedBranches: string[] }>) {
+  const { protectedBranches } = payload;
+  const applicationId: string = yield select(getCurrentApplicationId);
+  try {
+    yield call(
+      GitSyncAPI.updateProtectedBranches,
+      applicationId,
+      protectedBranches,
+    );
+    yield put(updateGitProtectedBranchesSuccess());
+    yield put(fetchGitProtectedBranchesInit());
+  } catch (error) {
+    yield put(updateGitProtectedBranchesError(error));
   }
 }
 
@@ -1100,6 +1117,8 @@ const gitRequestActions: Record<
   [ReduxActionTypes.GIT_UPDATE_DEFAULT_BRANCH_INIT]: updateGitDefaultBranchSaga,
   [ReduxActionTypes.GIT_FETCH_PROTECTED_BRANCHES_INIT]:
     fetchGitProtectedBranchesSaga,
+  [ReduxActionTypes.GIT_UPDATE_PROTECTED_BRANCHES_INIT]:
+    updateGitProtectedBranchesSaga,
 };
 
 /**

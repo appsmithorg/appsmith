@@ -201,14 +201,20 @@ class GitSyncAPI extends Api {
     return Api.put(`${GitSyncAPI.baseURL}/discard/app/${applicationId}`);
   }
 
-  // MOCK RESPONSE
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   static async getProtectedBranches(applicationId: string) {
-    // return Api.get(`${GitSyncAPI.baseURL}/protected_branches/${applicationId}`);
-    return {
-      responseMeta: { success: true },
-      data: { protectedBranches: ["mock"] },
-    };
+    return Api.get(
+      `${GitSyncAPI.baseURL}/branch/app/${applicationId}/protected`,
+    );
+  }
+
+  static async updateProtectedBranches(
+    applicationId: string,
+    branchNames: string[],
+  ) {
+    return Api.post(
+      `${GitSyncAPI.baseURL}/branch/app/${applicationId}/protected`,
+      { branchNames },
+    );
   }
 }
 

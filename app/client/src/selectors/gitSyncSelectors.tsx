@@ -232,3 +232,10 @@ export const protectedModeSelector = createSelector(
     }
   },
 );
+
+export const getIsUpdateProtectedBranchesLoading = (state: AppState) => {
+  return (
+    state.ui.gitSync.isUpdateProtectedBranchesLoading ||
+    state.ui.gitSync.protectedBranchesLoading
+  );
+};

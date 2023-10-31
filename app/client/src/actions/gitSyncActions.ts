@@ -492,11 +492,28 @@ export const fetchGitProtectedBranchesError = (
     payload: { error, show },
   };
 };
-export const updateGitProtectedBranches = (payload: {
+
+export const updateGitProtectedBranchesInit = (payload: {
   protectedBranches: string[];
 }) => {
   return {
-    type: ReduxActionTypes.GIT_UPDATE_DEFAULT_BRANCH_INIT,
+    type: ReduxActionTypes.GIT_UPDATE_PROTECTED_BRANCHES_INIT,
     payload,
+  };
+};
+
+export const updateGitProtectedBranchesSuccess = () => {
+  return {
+    type: ReduxActionTypes.GIT_UPDATE_PROTECTED_BRANCHES_SUCCESS,
+  };
+};
+
+export const updateGitProtectedBranchesError = (
+  error: any,
+  show: boolean = true,
+) => {
+  return {
+    type: ReduxActionTypes.GIT_UPDATE_PROTECTED_BRANCHES_ERROR,
+    payload: { error, show },
   };
 };
