@@ -58,3 +58,14 @@ export const extractContentByPosition = (
   }
   return returnedString;
 };
+
+export const getStringValue = (
+  inputValue: string | number | boolean | RegExp,
+) => {
+  if (typeof inputValue === "object" || typeof inputValue === "boolean") {
+    inputValue = JSON.stringify(inputValue);
+  } else if (typeof inputValue === "number" || typeof inputValue === "string") {
+    inputValue += "";
+  }
+  return inputValue;
+};

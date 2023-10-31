@@ -46,7 +46,7 @@ export default function GitConnectError({
         kind="error"
         links={[
           {
-            children: "Learn More",
+            children: "Learn more",
             target: "_blank",
             to: connectingErrorDocumentUrl,
           },
