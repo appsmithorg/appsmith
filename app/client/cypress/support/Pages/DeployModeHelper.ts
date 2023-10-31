@@ -162,6 +162,9 @@ export class DeployMode {
         "Internal server error while processing request",
       ),
     );
+    this.agHelper.AssertElementAbsence(
+      this.locator._specificToast("Cannot read properties of undefined"),
+    );
     this.assertHelper.AssertNetworkResponseData("@getPluginForm"); //for auth rest api
     this.assertHelper.AssertNetworkResponseData("@getPluginForm"); //for graphql
     this.assertHelper.AssertNetworkStatus("@getWorkspace");

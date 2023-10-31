@@ -133,6 +133,9 @@ public class ActionExecutionSolutionCETest {
     @SpyBean
     PluginService pluginService;
 
+    @SpyBean
+    DatasourceService spyDatasourceService;
+
     @Autowired
     ApplicationService applicationService;
 
@@ -302,6 +305,9 @@ public class ActionExecutionSolutionCETest {
         Mockito.when(pluginExecutor.executeParameterizedWithMetrics(any(), any(), any(), any(), any()))
                 .thenReturn(Mono.just(mockResult));
         Mockito.when(pluginExecutor.datasourceCreate(any())).thenReturn(Mono.empty());
+        Mockito.doReturn(Mono.just(false))
+                .when(spyDatasourceService)
+                .isEndpointBlockedForConnectionRequest(Mockito.any());
 
         Mono<ActionExecutionResult> actionExecutionResultMono =
                 actionExecutionSolution.executeAction(executeActionDTO, defaultEnvironmentId);
@@ -495,6 +501,9 @@ public class ActionExecutionSolutionCETest {
         Mockito.when(pluginExecutor.executeParameterizedWithMetrics(any(), any(), any(), any(), any()))
                 .thenReturn(Mono.error(pluginException));
         Mockito.when(pluginExecutor.datasourceCreate(any())).thenReturn(Mono.empty());
+        Mockito.doReturn(Mono.just(false))
+                .when(spyDatasourceService)
+                .isEndpointBlockedForConnectionRequest(Mockito.any());
 
         Mono<ActionExecutionResult> executionResultMono = actionExecutionSolution.executeAction(executeActionDTO, null);
 
@@ -545,6 +554,9 @@ public class ActionExecutionSolutionCETest {
         Mockito.when(pluginExecutor.executeParameterizedWithMetrics(any(), any(), any(), any(), any()))
                 .thenReturn(Mono.error(pluginException));
         Mockito.when(pluginExecutor.datasourceCreate(any())).thenReturn(Mono.empty());
+        Mockito.doReturn(Mono.just(false))
+                .when(spyDatasourceService)
+                .isEndpointBlockedForConnectionRequest(Mockito.any());
 
         Mono<ActionExecutionResult> executionResultMono = actionExecutionSolution.executeAction(executeActionDTO, null);
 
@@ -589,6 +601,9 @@ public class ActionExecutionSolutionCETest {
                 .thenReturn(Mono.error(new StaleConnectionException()))
                 .thenReturn(Mono.error(new StaleConnectionException()));
         Mockito.when(pluginExecutor.datasourceCreate(any())).thenReturn(Mono.empty());
+        Mockito.doReturn(Mono.just(false))
+                .when(spyDatasourceService)
+                .isEndpointBlockedForConnectionRequest(Mockito.any());
 
         Mono<ActionExecutionResult> executionResultMono = actionExecutionSolution.executeAction(executeActionDTO, null);
 
@@ -633,6 +648,9 @@ public class ActionExecutionSolutionCETest {
         Mockito.when(pluginExecutor.executeParameterizedWithMetrics(any(), any(), any(), any(), any()))
                 .thenAnswer(x -> Mono.delay(Duration.ofMillis(1000)).ofType(ActionExecutionResult.class));
         Mockito.when(pluginExecutor.datasourceCreate(any())).thenReturn(Mono.empty());
+        Mockito.doReturn(Mono.just(false))
+                .when(spyDatasourceService)
+                .isEndpointBlockedForConnectionRequest(Mockito.any());
 
         Mono<ActionExecutionResult> executionResultMono = actionExecutionSolution.executeAction(executeActionDTO, null);
 
@@ -660,6 +678,9 @@ public class ActionExecutionSolutionCETest {
         Mockito.when(pluginExecutor.datasourceCreate(any())).thenReturn(Mono.empty());
         Mockito.when(pluginExecutor.getHintMessages(any(), any()))
                 .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
+        Mockito.doReturn(Mono.just(false))
+                .when(spyDatasourceService)
+                .isEndpointBlockedForConnectionRequest(Mockito.any());
 
         ActionDTO action = new ActionDTO();
         ActionConfiguration actionConfiguration = new ActionConfiguration();

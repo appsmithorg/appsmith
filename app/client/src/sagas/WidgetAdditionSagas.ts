@@ -49,9 +49,6 @@ import {
 } from "selectors/editorSelectors";
 import { getWidgetMinMaxDimensionsInPixel } from "layoutSystems/autolayout/utils/flexWidgetUtils";
 import { isFunction } from "lodash";
-import type { LayoutComponentProps } from "layoutSystems/anvil/utils/anvilTypes";
-import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
-import { LayoutSystemTypes } from "layoutSystems/types";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -76,7 +73,7 @@ function* getChildWidgetProps(
   widgets: { [widgetId: string]: FlattenedWidgetProps },
 ) {
   const { leftColumn, newWidgetId, topRow, type } = params;
-  const layoutSystemType: LayoutSystemTypes = yield select(getLayoutSystemType);
+
   let { columns, parentColumnSpace, parentRowSpace, props, rows, widgetName } =
     params;
   let minHeight = undefined;
@@ -112,21 +109,6 @@ function* getChildWidgetProps(
           draft.children = [];
         }
       });
-      if (
-        layoutSystemType === LayoutSystemTypes.ANVIL &&
-        props.layout &&
-        props.layout.length
-      ) {
-        props = {
-          ...props,
-          layout: props.layout.map((each: LayoutComponentProps) => {
-            return {
-              ...each,
-              layoutId: generateReactKey(),
-            };
-          }),
-        };
-      }
     }
   }
 

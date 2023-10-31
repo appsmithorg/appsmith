@@ -3,6 +3,7 @@ package com.appsmith.server.services.ce;
 import com.appsmith.external.constants.PluginConstants;
 import com.appsmith.external.dtos.ExecutePluginDTO;
 import com.appsmith.external.dtos.RemoteDatasourceDTO;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.UpdatableConnection;
@@ -13,6 +14,8 @@ import com.appsmith.server.datasourcestorages.base.DatasourceStorageService;
 import com.appsmith.server.domains.DatasourceContext;
 import com.appsmith.server.domains.DatasourceContextIdentifier;
 import com.appsmith.server.domains.Plugin;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.services.ConfigService;
@@ -40,6 +43,9 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
     private final PluginExecutorHelper pluginExecutorHelper;
     private final ConfigService configService;
     private final DatasourcePermission datasourcePermission;
+
+    private final AppsmithException TOO_MANY_REQUESTS_EXCEPTION =
+            new AppsmithException(AppsmithError.TOO_MANY_FAILED_DATASOURCE_CONNECTION_REQUESTS);
 
     @Autowired
     public DatasourceContextServiceCEImpl(
@@ -265,7 +271,53 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
                 return Mono.just(datasourceContextMap.get(datasourceContextIdentifier));
             }
         }
-        return createNewDatasourceContext(datasourceStorage, datasourceContextIdentifier);
+
+        // As per https://github.com/appsmithorg/appsmith/issues/27745, Rate Limiting needs to applied
+        // on connection failure, otherwise brute force attacks may happen and our IP may get blocked
+        // For connection creation, the assumption is that whenever connection creation fails error
+        // is thrown by respective plugin, following plugins throw error: Postgres, Oracle, Mssql and Redshift
+        // For other plugins like MySQL, SMTP, Elastic Search, ArangoDB, Redis, In createNewDatasourceContext,
+        // Instead of connection, connection pool is created, connection is created when we query execution happens
+        // Hence cannot add rate limiting for these plugins here. Rate limiting for plugins which create connection pool
+        // should be handled separately, refer https://github.com/appsmithorg/appsmith/issues/28259
+
+        // Note: Plugins that throw error may be using connection pool mechanism but in such cases, connection is
+        // created
+        // right away, where as for other plugins with connection pool, connection is created at a later time, when
+        // query execution happens
+        return datasourceService
+                .isEndpointBlockedForConnectionRequest(datasourceStorage)
+                .flatMap(isBlocked -> {
+                    if (isBlocked) {
+                        log.debug("Datasource is blocked for connection request");
+                        return Mono.error(TOO_MANY_REQUESTS_EXCEPTION);
+                    } else {
+                        return createNewDatasourceContext(datasourceStorage, datasourceContextIdentifier)
+                                .onErrorResume(AppsmithPluginException.class, error -> {
+                                    return datasourceService
+                                            .consumeTokenIfAvailable(datasourceStorage)
+                                            .flatMap(wasTokenAvailable -> {
+                                                if (!wasTokenAvailable) {
+                                                    // This will block the datasource connection for next 5 minutes, as
+                                                    // bucket has been exhausted, and return too many requests response
+                                                    return datasourceService
+                                                            .blockEndpointForConnectionRequest(datasourceStorage)
+                                                            .flatMap(isAdded -> {
+                                                                if (isAdded) {
+                                                                    return Mono.error(TOO_MANY_REQUESTS_EXCEPTION);
+                                                                } else {
+                                                                    return Mono.error(
+                                                                            new AppsmithException(
+                                                                                    AppsmithError
+                                                                                            .DATASOURCE_CONNECTION_RATE_LIMIT_BLOCKING_FAILED));
+                                                                }
+                                                            });
+                                                }
+                                                return Mono.error(error);
+                                            });
+                                });
+                    }
+                });
     }
 
     @Override
