@@ -263,7 +263,7 @@ export const CodemirrorHintStyles = createGlobalStyle<{
       border: 1px solid var(--ads-v2-color-border);
       border-radius: var(--ads-v2-border-radius);
       z-index: 15px;
-      // white-space: nowrap;
+      white-space: nowrap;
       .CodeMirror-Tern-fname {
         color: var(--ads-v2-color-fg);
       }
@@ -361,7 +361,7 @@ export const CodemirrorHintStyles = createGlobalStyle<{
       border-radius: var(--ads-v2-border-radius);
       background: var(--ads-v2-color-bg) !important;
       box-shadow: 0px 12px 28px -6px rgba(0, 0, 0, 0.32);
-      padding: 7px 12px;
+      padding: 4px;
       color: var(--ads-v2-color-fg);
 
       display: flex;
@@ -375,12 +375,9 @@ export const CodemirrorHintStyles = createGlobalStyle<{
   }
   .CodeMirror-lint-message {
     && {
-      margin-top: 5px;
-      margin-bottom: 5px;
       font-family: ${(props) => props.theme.fonts.text};
       color: var(--ads-v2-color-fg);
       background-position: 0 2.8px;
-      padding-left: 20px;
     }
   }
   .CodeMirror-lint-mark-warning {
