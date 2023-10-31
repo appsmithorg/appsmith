@@ -204,15 +204,12 @@ const generateDiffUpdates = (
 
       //convert all invalid moment objects to nulls ...
       //large collect nodes are anyway getting serialised so the invalid objects will be converted to nulls
-      if (isMoment(rhs) && !rhs.isValid()) {
-        if (lhs === undefined || lhs !== null) {
-          attachDirectly.push({
-            kind: "E",
-            lhs,
-            rhs: null as any,
-            path: segmentedPath,
-          });
-        }
+      if (isMoment(rhs)) {
+        attachDirectly.push({
+          kind: "N",
+          rhs: rhs as any,
+          path: segmentedPath,
+        });
         // ignore invalid moment objects
         return true;
       }
