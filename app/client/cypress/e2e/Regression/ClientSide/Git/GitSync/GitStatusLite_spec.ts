@@ -20,8 +20,6 @@ describe("Git Connect V2", function () {
     });
   });
 
-  
-
   it("Issue 26038 - 1 : Simultaneous git status and remote compare api calls on commit modal", function () {
     featureFlagIntercept({
       release_git_status_lite_enabled: true,
@@ -39,7 +37,6 @@ describe("Git Connect V2", function () {
       url: "/api/v1/git/status/app/**",
       query: { compareRemote: "false" },
     }).as("gitStatusApi");
-
 
     _.agHelper.GetNClick(_.locators._publishButton);
 
@@ -91,7 +88,6 @@ describe("Git Connect V2", function () {
       url: "/api/v1/git/status/app/**",
       query: { compareRemote: "false" },
     }).as("gitStatusApi");
-
 
     cy.reload();
 
