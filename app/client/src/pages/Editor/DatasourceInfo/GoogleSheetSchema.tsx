@@ -95,9 +95,10 @@ function GoogleSheetSchema(props: Props) {
 
   const { failedFetchingSheetsList, fetchSheetsList, isFetchingSheetsList } =
     useSheetsList({ setSheetOptions });
-  const { fetchSheetData, isFetchingSheetData } = useSheetData({
-    setSheetData: setSlicedSheetData,
-  });
+  const { failedFetchingSheetData, fetchSheetData, isFetchingSheetData } =
+    useSheetData({
+      setSheetData: setSlicedSheetData,
+    });
 
   const applicationId: string = useSelector(getCurrentApplicationId);
   const datasource = useSelector((state) =>
@@ -292,7 +293,10 @@ function GoogleSheetSchema(props: Props) {
     }
   };
 
-  const isError = selectedDatasourceIsInvalid || failedFetchingSheetsList;
+  const isError =
+    selectedDatasourceIsInvalid ||
+    failedFetchingSheetsList ||
+    failedFetchingSheetData;
   const isLoading =
     isFetchingSpreadsheets ||
     isFetchingSheetsList ||

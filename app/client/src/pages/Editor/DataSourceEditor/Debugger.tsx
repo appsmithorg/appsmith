@@ -85,6 +85,9 @@ export const ResizerContentContainer = styled.div`
       border-bottom: none;
     }
   }
+  &.saas-form-resizer-content.saas-form-resizer-content-show-tabs form {
+    padding-bottom: 0;
+  }
   border-top: none;
   .db-form-content-container {
     display: flex;

@@ -48,11 +48,11 @@ export const DatasourceListContainer = styled.div`
     padding-right: var(--ads-v2-spaces-5);
   }
   &.t--gsheet-structure {
+    padding-bottom: var(--ads-v2-spaces-8);
     .t--gsheet-structure-list {
       overflow-y: auto;
       flex-shrink: 1;
       flex-grow: 0;
-      padding-bottom: var(--ads-v2-spaces-4);
       scrollbar-gutter: stable;
     }
     .t--spreadsheet-structure > .t--entity-item {
