@@ -443,6 +443,9 @@ export function EditorJSONtoForm(props: Props) {
     (state: AppState) => getCurrentAppWorkspace(state).userPermissions ?? [],
   );
 
+  const [showResponseOnFirstLoad, setShowResponseOnFirstLoad] =
+    useState<boolean>(false);
+
   const canCreateDatasource = getHasCreateDatasourcePermission(
     isFeatureEnabled,
     userWorkspacePermissions,
@@ -503,13 +506,29 @@ export function EditorJSONtoForm(props: Props) {
     }
   }
 
+  // These useEffects are used to open the response tab by default for page load queries
+  // as for page load queries, query response is available and can be shown in response tab
   useEffect(() => {
     // output and responseDisplayFormat is present only when query has response available
-    if (responseDisplayFormat && !!responseDisplayFormat?.title && output) {
+    if (
+      responseDisplayFormat &&
+      !!responseDisplayFormat?.title &&
+      output &&
+      !showResponseOnFirstLoad
+    ) {
       dispatch(showDebugger(true));
       dispatch(setDebuggerSelectedTab(DEBUGGER_TAB_KEYS.RESPONSE_TAB));
+      setShowResponseOnFirstLoad(true);
     }
-  }, [responseDisplayFormat, output]);
+  }, [responseDisplayFormat, output, showResponseOnFirstLoad]);
+
+  // When multiple page load queries exist, we want to response tab by default for all of them
+  // Hence this useEffect will reset showResponseOnFirstLoad flag used to track whether to show response tab or not
+  useEffect(() => {
+    if (!!currentActionConfig?.id) {
+      setShowResponseOnFirstLoad(false);
+    }
+  }, [currentActionConfig?.id]);
 
   const dispatch = useDispatch();
 
