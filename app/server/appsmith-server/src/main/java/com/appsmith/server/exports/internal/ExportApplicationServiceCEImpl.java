@@ -34,12 +34,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import static java.lang.Boolean.TRUE;
@@ -136,6 +138,7 @@ public class ExportApplicationServiceCEImpl implements ExportApplicationServiceC
                     exportingMetaDTO.setClientSchemaMigrated(isClientSchemaMigrated);
                     exportingMetaDTO.setServerSchemaMigrated(isServerSchemaMigrated);
                     applicationJson.setExportedApplication(application);
+                    applicationJson.setUpdatedResources(new ConcurrentHashMap<>());
 
                     List<String> unpublishedPages = application.getPages().stream()
                             .map(ApplicationPage::getId)
@@ -143,38 +146,20 @@ public class ExportApplicationServiceCEImpl implements ExportApplicationServiceC
 
                     exportingMetaDTO.setUnpublishedPages(unpublishedPages);
 
-                    return pluginExportableService
-                            .getExportableEntities(
-                                    exportingMetaDTO, mappedResourcesDTO, applicationMono, applicationJson)
-                            .then(themeExportableService.getExportableEntities(
-                                    exportingMetaDTO, mappedResourcesDTO, applicationMono, applicationJson))
-                            .then(newPageExportableService.getExportableEntities(
-                                    exportingMetaDTO, mappedResourcesDTO, applicationMono, applicationJson))
-                            .then(datasourceExportableService.getExportableEntities(
-                                    exportingMetaDTO, mappedResourcesDTO, applicationMono, applicationJson))
-                            .then(actionCollectionExportableService.getExportableEntities(
-                                    exportingMetaDTO, mappedResourcesDTO, applicationMono, applicationJson))
-                            .then(newActionExportableService.getExportableEntities(
-                                    exportingMetaDTO, mappedResourcesDTO, applicationMono, applicationJson))
-                            .then(customJSLibExportableService.getExportableEntities(
-                                    exportingMetaDTO, mappedResourcesDTO, applicationMono, applicationJson))
-                            .map(newActions -> {
-                                datasourceExportableService.sanitizeEntities(
-                                        exportingMetaDTO, mappedResourcesDTO, applicationJson, serialiseFor);
-
-                                newPageExportableService.sanitizeEntities(
-                                        exportingMetaDTO, mappedResourcesDTO, applicationJson, serialiseFor);
-
+                    return getExportableEntities(exportingMetaDTO, mappedResourcesDTO, applicationMono, applicationJson)
+                            .then(Mono.defer(() -> sanitizeEntities(
+                                    serialiseFor, applicationJson, mappedResourcesDTO, exportingMetaDTO)))
+                            .then(Mono.fromCallable(() -> {
                                 application.makePristine();
                                 application.sanitiseToExportDBObject();
                                 // Disable exporting the application with datasource config once imported in destination
                                 // instance
                                 application.setExportWithConfiguration(null);
                                 return applicationJson;
-                            });
+                            }));
                 })
                 .then(sessionUserService.getCurrentUser())
-                .map(user -> {
+                .flatMap(user -> {
                     stopwatch.stopTimer();
                     final Map<String, Object> data = Map.of(
                             FieldName.APPLICATION_ID,
@@ -189,13 +174,98 @@ public class ExportApplicationServiceCEImpl implements ExportApplicationServiceC
                             stopwatch.getFlow(),
                             "executionTime",
                             stopwatch.getExecutionTime());
-                    analyticsService.sendEvent(
-                            AnalyticsEvents.UNIT_EXECUTION_TIME.getEventName(), user.getUsername(), data);
-                    return applicationJson;
+                    return analyticsService
+                            .sendEvent(AnalyticsEvents.UNIT_EXECUTION_TIME.getEventName(), user.getUsername(), data)
+                            .thenReturn(applicationJson);
                 })
-                .then(applicationMono)
-                .map(application -> sendImportExportApplicationAnalyticsEvent(application, AnalyticsEvents.EXPORT))
+                .flatMap(unused -> sendImportExportApplicationAnalyticsEvent(applicationId, AnalyticsEvents.EXPORT))
                 .thenReturn(applicationJson);
+    }
+
+    private Mono<Void> sanitizeEntities(
+            SerialiseApplicationObjective serialiseFor,
+            ApplicationJson applicationJson,
+            MappedExportableResourcesDTO mappedResourcesDTO,
+            ExportingMetaDTO exportingMetaDTO) {
+        datasourceExportableService.sanitizeEntities(
+                exportingMetaDTO, mappedResourcesDTO, applicationJson, serialiseFor);
+
+        newPageExportableService.sanitizeEntities(exportingMetaDTO, mappedResourcesDTO, applicationJson, serialiseFor);
+
+        return Mono.empty().then();
+    }
+
+    private Mono<Void> getExportableEntities(
+            ExportingMetaDTO exportingMetaDTO,
+            MappedExportableResourcesDTO mappedResourcesDTO,
+            Mono<Application> applicationMono,
+            ApplicationJson applicationJson) {
+
+        // The idea with both these methods is that any amount of overriding should take care of whether they want to
+        // zip the additional exportables along with these or sequence them, or combine them using any other logic
+        return Flux.merge(getPageIndependentExportables(
+                        exportingMetaDTO, mappedResourcesDTO, applicationMono, applicationJson))
+                .thenMany(Flux.merge(getPageDependentExportables(
+                        exportingMetaDTO, mappedResourcesDTO, applicationMono, applicationJson)))
+                .then();
+    }
+
+    protected List<Mono<Void>> getPageIndependentExportables(
+            ExportingMetaDTO exportingMetaDTO,
+            MappedExportableResourcesDTO mappedResourcesDTO,
+            Mono<Application> applicationMono,
+            ApplicationJson applicationJson) {
+        // Updates plugin map in exportable resources
+        Mono<Void> pluginExportablesMono = pluginExportableService.getExportableEntities(
+                exportingMetaDTO, mappedResourcesDTO, applicationMono, applicationJson);
+
+        // Directly updates required theme information in application json
+        Mono<Void> themeExportablesMono = themeExportableService.getExportableEntities(
+                exportingMetaDTO, mappedResourcesDTO, applicationMono, applicationJson);
+
+        // Updates pageId to name map in exportable resources.
+        // Also directly updates required pages information in application json
+        Mono<Void> newPageExportablesMono = newPageExportableService.getExportableEntities(
+                exportingMetaDTO, mappedResourcesDTO, applicationMono, applicationJson);
+
+        // Updates datasourceId to name map in exportable resources.
+        // Also directly updates required datasources information in application json
+        Mono<Void> datasourceExportablesMono = datasourceExportableService.getExportableEntities(
+                exportingMetaDTO, mappedResourcesDTO, applicationMono, applicationJson);
+
+        // Directly sets required custom JS lib information in application JSON
+        Mono<Void> customJsLibsExportablesMono = customJSLibExportableService.getExportableEntities(
+                exportingMetaDTO, mappedResourcesDTO, applicationMono, applicationJson);
+
+        return List.of(
+                pluginExportablesMono,
+                datasourceExportablesMono,
+                themeExportablesMono,
+                newPageExportablesMono,
+                customJsLibsExportablesMono);
+    }
+
+    protected List<Mono<Void>> getPageDependentExportables(
+            ExportingMetaDTO exportingMetaDTO,
+            MappedExportableResourcesDTO mappedResourcesDTO,
+            Mono<Application> applicationMono,
+            ApplicationJson applicationJson) {
+
+        // Requires pageIdToNameMap, pluginMap.
+        // Updates collectionId to name map in exportable resources.
+        // Also directly updates required collection information in application json
+        Mono<Void> actionCollectionExportablesMono = actionCollectionExportableService.getExportableEntities(
+                exportingMetaDTO, mappedResourcesDTO, applicationMono, applicationJson);
+
+        // Requires datasourceIdToNameMap, pageIdToNameMap, pluginMap, collectionIdToNameMap
+        // Updates actionId to name map in exportable resources.
+        // Also directly updates required collection information in application json
+        Mono<Void> newActionExportablesMono = newActionExportableService.getExportableEntities(
+                exportingMetaDTO, mappedResourcesDTO, applicationMono, applicationJson);
+
+        Mono<Void> combinedActionExportablesMono = actionCollectionExportablesMono.then(newActionExportablesMono);
+
+        return List.of(combinedActionExportablesMono);
     }
 
     public Mono<ApplicationJson> exportApplicationById(String applicationId, String branchName) {
@@ -226,23 +296,24 @@ public class ExportApplicationServiceCEImpl implements ExportApplicationServiceC
     /**
      * To send analytics event for import and export of application
      *
-     * @param application Application object imported or exported
+     * @param applicationId String application id
      * @param event       AnalyticsEvents event
      * @return The application which is imported or exported
      */
-    private Mono<Application> sendImportExportApplicationAnalyticsEvent(
-            Application application, AnalyticsEvents event) {
-        return workspaceService.getById(application.getWorkspaceId()).flatMap(workspace -> {
-            final Map<String, Object> eventData = Map.of(
-                    FieldName.APPLICATION, application,
-                    FieldName.WORKSPACE, workspace);
+    private Mono<Application> sendImportExportApplicationAnalyticsEvent(String applicationId, AnalyticsEvents event) {
+        return applicationService.findById(applicationId).flatMap(application -> workspaceService
+                .getById(application.getWorkspaceId())
+                .flatMap(workspace -> {
+                    final Map<String, Object> eventData = Map.of(
+                            FieldName.APPLICATION, application,
+                            FieldName.WORKSPACE, workspace);
 
-            final Map<String, Object> data = Map.of(
-                    FieldName.APPLICATION_ID, application.getId(),
-                    FieldName.WORKSPACE_ID, workspace.getId(),
-                    FieldName.EVENT_DATA, eventData);
+                    final Map<String, Object> data = Map.of(
+                            FieldName.APPLICATION_ID, application.getId(),
+                            FieldName.WORKSPACE_ID, workspace.getId(),
+                            FieldName.EVENT_DATA, eventData);
 
-            return analyticsService.sendObjectEvent(event, application, data);
-        });
+                    return analyticsService.sendObjectEvent(event, application, data);
+                }));
     }
 }

@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -101,7 +102,7 @@ public class PageLoadExecutablesUtilCEImpl implements PageLoadExecutablesUtilCE 
 
         Set<String> onPageLoadExecutableSetRef = new HashSet<>();
         Set<String> explicitUserSetOnLoadExecutablesRef = new HashSet<>();
-        Set<String> bindingsFromExecutablesRef = new HashSet<>();
+        Set<String> bindingsFromExecutablesRef = ConcurrentHashMap.newKeySet();
 
         // Function `extractAndSetExecutableBindingsInGraphEdges` updates this map to keep a track of all the
         // executables which
@@ -857,7 +858,7 @@ public class PageLoadExecutablesUtilCEImpl implements PageLoadExecutablesUtilCE 
         // All executables found from possibleExecutableNames set would add their dependencies in the following set for
         // further
         // walk to find more executables recursively.
-        Set<String> newBindings = new HashSet<>();
+        Set<String> newBindings = ConcurrentHashMap.newKeySet();
 
         // First fetch all the executables in the page whose name matches the words found in all the dynamic bindings
         Mono<List<EntityDependencyNode>> findAndAddExecutablesInBindingsMono = getPossibleEntityReferences(

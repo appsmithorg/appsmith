@@ -24,6 +24,8 @@ import { getJSVariableCreatedEvents } from "../JSObject/JSVariableEvents";
 import { errorModifier } from "../errorModifier";
 import { generateOptimisedUpdatesAndSetPrevState } from "../helpers";
 import DataStore from "../dataStore";
+import type { TransmissionErrorHandler } from "../fns/utils/Messenger";
+import { MessageType, sendMessage } from "utils/MessageUtil";
 
 export let replayMap: Record<string, ReplayEntity<any>> | undefined;
 export let dataTreeEvaluator: DataTreeEvaluator | undefined;
@@ -32,10 +34,8 @@ export const CANVAS = "canvas";
 export default function (request: EvalWorkerSyncRequest) {
   const { data } = request;
   let evalOrder: string[] = [];
-  let reValidatedPaths: string[] = [];
   let jsUpdates: Record<string, JSUpdate> = {};
   let unEvalUpdates: DataTreeDiff[] = [];
-  let nonDynamicFieldValidationOrder: string[] = [];
   let isCreateFirstTree = false;
   let dataTree: DataTree = {};
   let errors: EvalError[] = [];
@@ -143,18 +143,12 @@ export default function (request: EvalWorkerSyncRequest) {
       removedPaths = setupUpdateTreeResponse.removedPaths;
       isNewWidgetAdded = setupUpdateTreeResponse.isNewWidgetAdded;
 
-      nonDynamicFieldValidationOrder =
-        setupUpdateTreeResponse.nonDynamicFieldValidationOrder;
-
       const updateResponse = dataTreeEvaluator.evalAndValidateSubTree(
         evalOrder,
-        nonDynamicFieldValidationOrder,
         configTree,
         unEvalUpdates,
         Object.keys(metaWidgets),
       );
-
-      reValidatedPaths = updateResponse.reValidatedPaths;
 
       dataTree = makeEntityConfigsAsObjProperties(dataTreeEvaluator.evalTree, {
         evalProps: dataTreeEvaluator.evalProps,
@@ -216,7 +210,6 @@ export default function (request: EvalWorkerSyncRequest) {
     errors,
     evalMetaUpdates,
     evaluationOrder: evalOrder,
-    reValidatedPaths,
     jsUpdates,
     logs,
     unEvalUpdates,
@@ -231,6 +224,19 @@ export default function (request: EvalWorkerSyncRequest) {
 
   return evalTreeResponse;
 }
+
+export const evalTreeTransmissionErrorHandler: TransmissionErrorHandler = (
+  messageId: string,
+  timeTaken: number,
+  responseData: unknown,
+) => {
+  const sanitizedData = JSON.parse(JSON.stringify(responseData));
+  sendMessage.call(self, {
+    messageId,
+    messageType: MessageType.RESPONSE,
+    body: { data: sanitizedData, timeTaken },
+  });
+};
 
 export function clearCache() {
   dataTreeEvaluator = undefined;
