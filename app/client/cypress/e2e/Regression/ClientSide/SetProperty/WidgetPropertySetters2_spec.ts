@@ -85,7 +85,6 @@ describe("Widget Property Setters - Part II", () => {
       false,
     );
     deployMode.DeployApp();
-    agHelper.ClickButton("Submit");
     agHelper
       .GetText(
         locators._widgetInDeployed(draggableWidgets.INPUT_V2) +
@@ -107,6 +106,38 @@ describe("Widget Property Setters - Part II", () => {
       .then((val) => {
         expect(val).not.be.empty;
       });
+  });
+
+  it("4. Update Input value via JS function run", () => {
+    entityExplorer.SelectEntityByName("JSObject1");
+    jsEditor.EditJSObj(
+      `export default {
+        async myFun1 () {
+          let local = await Api1.run().then((data)=> data.map((user) =>
+                                                              {return {
+                                                                name: user.name,
+                                                                id: user.id,
+                                                                email: user.email,
+                                                              }
+                                                              }));
+          Input1.setValue(local[5].email);
+        }
+      }`,
+      false,
+    );
+    jsEditor.RunJSObj();
+    entityExplorer.SelectEntityByName("Page1");
+    agHelper
+      .GetText(
+        locators._widgetInDeployed(draggableWidgets.INPUT_V2) +
+          " " +
+          locators._input,
+        "val",
+      )
+      .then((val) => {
+        expect(val).contains("@");
+      });
+    deployMode.DeployApp();
   });
 
   afterEach(() => {
