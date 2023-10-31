@@ -96,7 +96,7 @@ const UnPublishedAppInstructions = ({
       <InfoFooter>
         <Button
           endIcon="link"
-          href={`${COMMUNITY_PORTAL.BASE_URL}/library`}
+          href={`${COMMUNITY_PORTAL.BASE_URL}/library/guide`}
           kind="tertiary"
           renderAs="a"
           size="md"
