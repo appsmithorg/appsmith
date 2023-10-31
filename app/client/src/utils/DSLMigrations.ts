@@ -4,6 +4,9 @@
  * Do not remove these comments. As these are maintained for easier rollbacks. Will be removed later
  */
 
+// Need this otherwise TS will throw '--isolatedModules' error
+export {};
+
 // import { generateReactKey } from "./generators";
 // import {
 //   GridDefaults,
