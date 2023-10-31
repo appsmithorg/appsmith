@@ -118,9 +118,10 @@ public class PageControllerCE {
     @GetMapping("/{defaultPageId}")
     public Mono<ResponseDTO<PageDTO>> getPageById(
             @PathVariable String defaultPageId,
-            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName,
+            @RequestParam(required = false, defaultValue = "false") Boolean migrateDsl) {
         return applicationPageService
-                .getPageByBranchAndDefaultPageId(defaultPageId, branchName, false)
+                .getPageAndMigrateDslByBranchAndDefaultPageId(defaultPageId, branchName, false, migrateDsl)
                 .map(page -> new ResponseDTO<>(HttpStatus.OK.value(), page, null));
     }
 
@@ -128,9 +129,10 @@ public class PageControllerCE {
     @GetMapping("/{defaultPageId}/view")
     public Mono<ResponseDTO<PageDTO>> getPageView(
             @PathVariable String defaultPageId,
-            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName,
+            @RequestParam(required = false, defaultValue = "false") Boolean migrateDsl) {
         return applicationPageService
-                .getPageByBranchAndDefaultPageId(defaultPageId, branchName, true)
+                .getPageAndMigrateDslByBranchAndDefaultPageId(defaultPageId, branchName, true, migrateDsl)
                 .map(page -> new ResponseDTO<>(HttpStatus.OK.value(), page, null));
     }
 
