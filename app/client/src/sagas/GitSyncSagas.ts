@@ -31,7 +31,10 @@ import type {
   GetSSHKeyResponseData,
   GitStatusParams,
 } from "actions/gitSyncActions";
-import { fetchGitRemoteStatusSuccess } from "actions/gitSyncActions";
+import {
+  fetchGitRemoteStatusInit,
+  fetchGitRemoteStatusSuccess,
+} from "actions/gitSyncActions";
 import {
   commitToRepoSuccess,
   connectToGitSuccess,
@@ -132,6 +135,9 @@ function* commitToGitRepoSaga(
   let response: ApiResponse | undefined;
   try {
     const applicationId: string = yield select(getCurrentApplicationId);
+    const isGitStatusLiteEnabled: boolean = yield select(
+      getIsGitStatusLiteEnabled,
+    );
     const gitMetaData: GitApplicationMetadata = yield select(
       getCurrentAppGitMetaData,
     );
@@ -159,7 +165,12 @@ function* commitToGitRepoSaga(
           payload: curApplication,
         });
       }
-      yield put(fetchGitStatusInit());
+      if (isGitStatusLiteEnabled) {
+        yield put(fetchGitRemoteStatusInit());
+        yield put(fetchGitStatusInit({ compareRemote: false }));
+      } else {
+        yield put(fetchGitStatusInit({ compareRemote: true }));
+      }
     } else {
       yield put({
         type: ReduxActionErrorTypes.COMMIT_TO_GIT_REPO_ERROR,
