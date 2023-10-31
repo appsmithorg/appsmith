@@ -195,6 +195,7 @@ app/server/appsmith-server/src/main/java/com/appsmith/server/exceptions/Appsmith
 app/client/src/pages/Settings/**/* @ankitakinger
 app/client/src/pages/workspace/settings.tsx @ankitakinger
 app/client/src/pages/workspace/AppInviteUsersForm.tsx @ankitakinger
+app/client/src/pages/workspace/WorkspaceInviteUsersForm.tsx @ankitakinger
 app/client/src/components/editorComponents/form/FormDialogComponent.tsx @ankitakinger
 app/client/src/ce/pages/AdminSettings/**/* @ankitakinger
 app/client/src/ee/pages/AdminSettings/**/* @ankitakinger
@@ -204,8 +205,8 @@ app/client/src/ce/pages/Applications/PrivateEmbedSettings.tsx @ankitakinger
 app/client/src/ee/pages/Applications/PrivateEmbedSettings.tsx @ankitakinger
 app/client/src/ce/pages/workspace/Members.tsx @ankitakinger
 app/client/src/ee/pages/workspace/Members.tsx @ankitakinger
-app/client/src/ce/pages/workspace/WorkspaceInviteUsersForm.tsx @ankitakinger
-app/client/src/ee/pages/workspace/WorkspaceInviteUsersForm.tsx @ankitakinger
+app/client/src/ce/pages/workspace/InviteUsersForm.tsx @ankitakinger
+app/client/src/ee/pages/workspace/InviteUsersForm.tsx @ankitakinger
 app/client/src/ce/pages/Upgrade/**/* @ankitakinger
 app/client/src/ee/pages/Auditlogs/**/* @ankitakinger
 app/client/cypress/e2e/Regression/Enterprise/**/* @ankitakinger

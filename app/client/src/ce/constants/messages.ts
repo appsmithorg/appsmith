@@ -8,15 +8,10 @@ export function createMessage(
 }
 
 /*
-  For self hosted, it displays the string "Appsmith Community v1.10.0" or "Appsmith Business v1.10.0".
-  For cloud hosting, it displays "Appsmith v1.10.0".
-  This is because Appsmith Cloud doesn't support business features yet.
+  For self hosted CE, it displays the string "Appsmith Community v1.10.0".
  */
-export const APPSMITH_DISPLAY_VERSION = (
-  edition: string,
-  version: string,
-  cloudHosting: boolean,
-) => `Appsmith ${!cloudHosting ? edition : ""} ${version}`;
+export const APPSMITH_DISPLAY_VERSION = (edition: string, version: string) =>
+  `Appsmith ${edition} ${version}`;
 export const INTERCOM_CONSENT_MESSAGE = () =>
   `Can we have your email for better support?`;
 export const YES = () => `Yes`;
@@ -39,6 +34,8 @@ export const INPUT_DEFAULT_TEXT_MAX_NUM_ERROR = () =>
   `Default Text value must be less than Max number allowed`;
 export const INPUT_DEFAULT_TEXT_MIN_NUM_ERROR = () =>
   `Default Text value must be greater than Min number allowed`;
+export const INPUT_INVALID_TYPE_ERROR = () =>
+  `Type Mismatch. Please enter a valid value`;
 export const VALID_FUNCTION_NAME_ERROR = () =>
   `Must be a valid variable name (camelCase)`;
 export const UNIQUE_NAME_ERROR = () => `Name must be unique`;
@@ -245,8 +242,8 @@ export const DATE_WIDGET_DEFAULT_VALIDATION_ERROR = () => "Date out of range";
 export const TIMEZONE = () => `Timezone`;
 export const ENABLE_TIME = () => `Enable Time`;
 
-export const EDIT_APP = () => `Edit App`;
-export const FORK_APP = () => `Fork App`;
+export const EDIT_APP = () => `Edit app`;
+export const FORK_APP = () => `Fork app`;
 export const SIGN_IN = () => `Sign in`;
 export const SHARE_APP = () => `Share app`;
 export const ALL_APPS = () => `All apps`;
@@ -269,6 +266,8 @@ export const WORKSPACES_HEADING = () => `Workspaces`;
 export const WELCOME_TOUR = () => `Welcome tour`;
 export const NO_APPS_FOUND = () =>
   `Whale! Whale! This name doesn't ring a bell!`;
+export const APPLICATION_CARD_LIST_ZERO_STATE = () =>
+  `There are no apps in this workspace.`;
 
 // Lightning menu
 export const LIGHTNING_MENU_DATA_API = () => `Use data from an API`;
@@ -295,9 +294,9 @@ export const WIDGET_SIDEBAR_TITLE = () => `Widgets`;
 export const WIDGET_SIDEBAR_CAPTION = () =>
   `Drag a widget and drop it on the canvas`;
 export const GOOGLE_RECAPTCHA_KEY_ERROR = () =>
-  `Google Re-Captcha token generation failed! Please check the Re-captcha site key.`;
+  `Google reCAPTCHA token generation failed! Please check the reCAPTCHA site key.`;
 export const GOOGLE_RECAPTCHA_DOMAIN_ERROR = () =>
-  `Google Re-Captcha token generation failed! Please check the allowed domains.`;
+  `Google reCAPTCHA token generation failed! Please check the allowed domains.`;
 
 export const SERVER_API_TIMEOUT_ERROR = () =>
   `Appsmith server is taking too long to respond. Please try again after some time`;
@@ -337,6 +336,11 @@ export const ACTION_NAME_CONFLICT_ERROR = (name: string) =>
   `${name} is already being used or is a restricted keyword.`;
 export const ENTITY_EXPLORER_ACTION_NAME_CONFLICT_ERROR = (name: string) =>
   `${name} is already being used.`;
+
+export const ACTION_ID_NOT_FOUND_IN_URL =
+  "No correct API id or Query id found in the url.";
+export const JSOBJECT_ID_NOT_FOUND_IN_URL =
+  "No correct JS Object id found in the url.";
 
 export const DATASOURCE_CREATE = (dsName: string) =>
   `${dsName} datasource created`;
@@ -516,10 +520,10 @@ export const PRESS = () => "🎉 Press ";
 export const OPEN_THE_DEBUGGER = () => " to show/hide the debugger";
 export const DEBUGGER_QUERY_RESPONSE_SECOND_HALF = () =>
   " to see more info in the debugger";
-export const LOGS_FILTER_OPTION_ALL = () => "Show All Logs";
-export const LOGS_FILTER_OPTION_ERROR = () => "Error Logs";
-export const LOGS_FILTER_OPTION_CONSOLE = () => "Console Logs";
-export const LOGS_FILTER_OPTION_SYSTEM = () => "System Logs";
+export const LOGS_FILTER_OPTION_ALL = () => "Show all logs";
+export const LOGS_FILTER_OPTION_ERROR = () => "Error logs";
+export const LOGS_FILTER_OPTION_CONSOLE = () => "Console logs";
+export const LOGS_FILTER_OPTION_SYSTEM = () => "System logs";
 export const NO_LOGS = () => "No logs to show";
 export const NO_ERRORS = () => "No signs of trouble here!";
 export const DEBUGGER_ERRORS = () => "Errors";
@@ -579,7 +583,7 @@ export const JS_ACTION_MOVE_SUCCESS = (actionName: string, pageName: string) =>
 export const ERROR_JS_ACTION_MOVE_FAIL = (actionName: string) =>
   `Error while moving ${actionName}`;
 export const ERROR_JS_COLLECTION_RENAME_FAIL = (actionName: string) =>
-  `Unable to update js collection name to ${actionName}`;
+  `Unable to update JS collection name to ${actionName}`;
 export const PARSE_JS_FUNCTION_ERROR = (message: string) =>
   `Syntax error: ${message}`;
 
@@ -605,9 +609,9 @@ export const JS_SETTINGS_CONFIRM_EXECUTION = () =>
 export const JS_SETTINGS_CONFIRM_EXECUTION_SUBTEXT = () =>
   "Ask confirmation from the user every time before refreshing data";
 export const JS_SETTINGS_EXECUTE_TIMEOUT = () =>
-  "Function Timeout (in milliseconds)";
+  "Function timeout (in milliseconds)";
 export const FUNCTION_SETTINGS_HEADING = () => "Function settings";
-export const NO_JS_FUNCTIONS = () => "There is no function in this JSObject";
+export const NO_JS_FUNCTIONS = () => "There is no function in this JS Object";
 export const NO_JS_FUNCTION_TO_RUN = (JSObjectName: string) =>
   `${JSObjectName} has no function`;
 export const NO_JS_FUNCTION_RETURN_VALUE = (JSFunctionName: string) =>
@@ -637,7 +641,7 @@ export const RECONNECT_DATASOURCE_SUCCESS_MESSAGE1 = () =>
   "These datasources were imported successfully!";
 export const RECONNECT_DATASOURCE_SUCCESS_MESSAGE2 = () =>
   "Please fill up the missing datasources";
-export const ADD_MISSING_DATASOURCES = () => "Add missing Datasources";
+export const ADD_MISSING_DATASOURCES = () => "Add missing datasources";
 export const SKIP_TO_APPLICATION_TOOLTIP_HEADER = () =>
   "This action is irreversible.";
 export const SKIP_TO_APPLICATION_TOOLTIP_DESCRIPTION = () =>
@@ -655,9 +659,9 @@ export const DELETE_CONFIRMATION_MODAL_SUBTITLE = (
     entityType === "Application" ? "application" : "workspace"
   }`;
 export const PARSING_ERROR = () =>
-  "Syntax Error: Unable to parse code, please check error logs to debug";
+  "Syntax error: Unable to parse code, please check error logs to debug";
 export const PARSING_WARNING = () =>
-  "Linting Errors: Please resolve linting errors before using these functions";
+  "Linting errors: Please resolve linting errors before using these functions";
 export const JS_FUNCTION_CREATE_SUCCESS = () =>
   "New JS function added successfully";
 export const JS_FUNCTION_UPDATE_SUCCESS = () =>
@@ -883,13 +887,13 @@ export const AUTHENTICATION_METHOD_ENABLED = (methodName: string) => `
 `;
 
 export const REVOKE_EXISTING_REPOSITORIES = () =>
-  "Revoke Existing Repositories";
+  "Revoke existing repositories";
 export const REVOKE_EXISTING_REPOSITORIES_INFO = () =>
   "To make space for newer repositories, you can remove existing repositories.";
-export const CONTACT_SUPPORT = () => "Contact Support";
+export const CONTACT_SUPPORT = () => "Contact support";
 export const CONTACT_SALES_MESSAGE_ON_INTERCOM = (workspaceName: string) =>
   `Hey there, thanks for getting in touch! We understand that you’d like to extend the number of private repos for your ${workspaceName}. Could you tell us how many private repositories you require and why? We'll get back to you in a short while.`;
-export const REPOSITORY_LIMIT_REACHED = () => "Repository Limit Reached";
+export const REPOSITORY_LIMIT_REACHED = () => "Repository limit reached";
 export const REPOSITORY_LIMIT_REACHED_INFO = () =>
   "Adding and using upto 3 repositories is free. To add more repositories, kindly upgrade.";
 export const APPLICATION_IMPORT_SUCCESS = () =>
@@ -909,7 +913,7 @@ export const REVOKE_ACCESS = () => "Revoke Access";
 export const GIT_DISCONNECTION_SUBMENU = () => "Git Connection > Disconnect";
 export const DISCONNECT_FROM_GIT = (name: string) =>
   `Disconnect ${name} from Git`;
-export const GIT_REVOKE_ACCESS = (name: string) => `Revoke Access To ${name}`;
+export const GIT_REVOKE_ACCESS = (name: string) => `Revoke access to ${name}`;
 export const GIT_TYPE_REPO_NAME_FOR_REVOKING_ACCESS = (name: string) =>
   `Type “${name}” in the input box to revoke access.`;
 export const APPLICATION_NAME = () => "Application name";
@@ -1073,10 +1077,10 @@ export const TRIGGER_ACTION_VALIDATION_ERROR = (
   `${functionName} expected ${expectedType} for '${argumentName}' argument but received ${received}`;
 
 // Comment card tooltips
-export const MORE_OPTIONS = () => "More Options";
-export const ADD_REACTION = () => "Add Reaction";
-export const RESOLVE_THREAD = () => "Resolve Thread";
-export const RESOLVED_THREAD = () => "Resolved Thread";
+export const MORE_OPTIONS = () => "More options";
+export const ADD_REACTION = () => "Add reaction";
+export const RESOLVE_THREAD = () => "Resolve thread";
+export const RESOLVED_THREAD = () => "Resolved thread";
 export const EMOJI = () => "Emoji";
 
 // Sniping mode messages
@@ -1242,8 +1246,7 @@ export const SNIPPET_TOOLTIP = () => "Search code snippets";
 
 //Welcome page
 export const WELCOME_HEADER = () => "Almost there";
-export const WELCOME_BODY = () =>
-  "Help us provide you with a customized experience.";
+export const WELCOME_BODY = () => "Let's setup your account first";
 export const WELCOME_ACTION = () => "Get started";
 
 // API Editor
@@ -1438,6 +1441,7 @@ export const WELCOME_FORM_NON_SUPER_USER_USE_CASE = () =>
 export const WELCOME_FORM_NON_SUPER_USER_PROFICIENCY_LEVEL = () =>
   "How would you rate your development proficiency?";
 
+export const WELCOME_FORM_ROLE_ERROR_MESSAGE = () => "Please enter a role";
 export const WELCOME_FORM_PROFICIENCY_ERROR_MESSAGE = () =>
   "Please select a proficiency level";
 export const WELCOME_FORM_USE_CASE_ERROR_MESSAGE = () =>
@@ -1650,6 +1654,7 @@ export const EMPTY_QUERY_JS_MAIN_TEXT = () => "No query/JS to display";
 export const EMPTY_QUERY_JS_BUTTON_TEXT = () => "New query/JS";
 export const EMPTY_DATASOURCE_MAIN_TEXT = () => "No datasource to display";
 export const EMPTY_DATASOURCE_BUTTON_TEXT = () => "New datasource";
+export const SEARCH_DATASOURCES = () => "Search datasources";
 
 // Templates
 export const MORE = () => "More";
@@ -1877,9 +1882,9 @@ export const NEW_API_BUTTON_TEXT = () => "New API";
 export const GENERATE_NEW_PAGE_BUTTON_TEXT = () => "Generate new page";
 export const RECONNECT_BUTTON_TEXT = () => "Reconnect";
 export const SAVE_BUTTON_TEXT = () => "Save";
-export const TEST_BUTTON_TEXT = () => "Test Configuration";
-export const SAVE_AND_AUTHORIZE_BUTTON_TEXT = () => "Save and authorize";
-export const SAVE_AND_RE_AUTHORIZE_BUTTON_TEXT = () => "Save and Re-Authorize";
+export const TEST_BUTTON_TEXT = () => "Test configuration";
+export const SAVE_AND_AUTHORIZE_BUTTON_TEXT = () => "Save & Authorize";
+export const SAVE_AND_RE_AUTHORIZE_BUTTON_TEXT = () => "Save & Re-Authorize";
 export const DISCARD_POPUP_DONT_SAVE_BUTTON_TEXT = () => "Don't save";
 export const GSHEET_AUTHORISED_FILE_IDS_KEY = () => "userAuthorizedSheetIds";
 export const GOOGLE_SHEETS_INFO_BANNER_MESSAGE = () =>
@@ -1892,11 +1897,11 @@ export const DATASOURCE_INTERCOM_TEXT = () =>
 export const GOOGLE_SHEETS_ASK_FOR_SUPPORT = () => "Ask for support";
 export const GOOGLE_SHEETS_FILE_PICKER_TITLE = () =>
   "Select Google Sheets to query";
-export const GSHEETS_GENERATE_PAGE_BUTTON = () => "Generate new page";
-export const GSHEETS_ERR_FETCHING_PREVIEW_DATA = () =>
+export const DATASOURCE_GENERATE_PAGE_BUTTON = () => "Generate new page";
+export const ERR_FETCHING_DATASOURCE_PREVIEW_DATA = () =>
   "Some problem occured while fetching data";
-export const GSHEETS_FETCHING_PREVIEW_DATA = () => "Loading data";
-export const GSHEETS_SCHEMA_NO_DATA = () =>
+export const FETCHING_DATASOURCE_PREVIEW_DATA = () => "Loading data";
+export const SCHEMA_PREVIEW_NO_DATA = () =>
   "No data records to show or the table header begins with an index other than 1";
 
 //Layout Conversion flow
@@ -2075,7 +2080,7 @@ export const DATASOURCE_DROPDOWN_OPTIONS = {
 };
 
 export const COMMUNITY_TEMPLATES = {
-  publish: () => "Publish",
+  tabTitle: () => "Showcase",
   cancel: () => "Cancel",
   publishSuccessPage: {
     title: () => "Live on Appsmith community",
@@ -2151,4 +2156,44 @@ export const COMMUNITY_TEMPLATES = {
       viewTemplate: () => "View template",
     },
   },
+};
+
+export const EMPTY_TABLE_TITLE_TEXT = () => "Empty table";
+export const EMPTY_TABLE_MESSAGE_TEXT = () =>
+  "There are no data records to show";
+export const EMPTY_TABLE_SVG_ALT_TEXT = () => "Empty table image";
+
+export const DATA_PANE_TITLE = () => "Datasources in your Workspace";
+export const DATASOURCE_LIST_BLANK_TITLE = () =>
+  "No datasources exist in your workplace.";
+export const DATASOURCE_BLANK_STATE_MESSAGE = () =>
+  "You need a datasource connection to write your first query";
+
+export const STARTER_TEMPLATE_PAGE_LAYOUTS = {
+  header: () => "Choose a template",
+  layouts: {
+    dashboard: {
+      name: () => "Visualize your data",
+      description: () => "Use to see your data in charts",
+    },
+    form: {
+      name: () => "Form",
+      description: () => "Add records to a database with a form",
+    },
+    recordEdit: {
+      name: () => "Change your data",
+      description: () => "Use to add or edit records via forms",
+    },
+    recordDetails: {
+      name: () => "View your data",
+      description: () => "Use to view fields for your records",
+    },
+  },
+  datasourceConnectPrompt: {
+    header: () => "Bring your data in!",
+    buttonText: () => "Connect your datasource",
+  },
+  or: () => "or",
+  dragAndDrop: () => "Drag and Drop Widgets",
+  importLoadingText: () => "Importing template",
 };

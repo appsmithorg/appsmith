@@ -31,11 +31,14 @@ import com.appsmith.server.exceptions.AppsmithErrorCode;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
+import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.EnvironmentPermission;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -84,6 +87,9 @@ public class DatasourceServiceTest {
     DatasourceService datasourceService;
 
     @SpyBean
+    DatasourceService spyDatasourceService;
+
+    @SpyBean
     DatasourceStorageService datasourceStorageService;
 
     @Autowired
@@ -119,24 +125,37 @@ public class DatasourceServiceTest {
     @Autowired
     NewActionRepository newActionRepository;
 
+    @Autowired
+    ApplicationService applicationService;
+
+    @Autowired
+    ApplicationPermission applicationPermission;
+
     String workspaceId = "";
     private String defaultEnvironmentId;
 
     @BeforeEach
-    @WithUserDetails(value = "api_user")
     public void setup() {
         User apiUser = userService.findByEmail("api_user").block();
         Workspace toCreate = new Workspace();
         toCreate.setName("DatasourceServiceTest");
 
-        if (!StringUtils.hasLength(workspaceId)) {
-            Workspace workspace =
-                    workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
-            workspaceId = workspace.getId();
-            defaultEnvironmentId = workspaceService
-                    .getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission())
-                    .block();
-        }
+        Workspace workspace =
+                workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
+        workspaceId = workspace.getId();
+        defaultEnvironmentId = workspaceService
+                .getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission())
+                .block();
+    }
+
+    @AfterEach
+    public void cleanup() {
+        List<Application> deletedApplications = applicationService
+                .findByWorkspaceId(workspaceId, applicationPermission.getDeletePermission())
+                .flatMap(remainingApplication -> applicationPageService.deleteApplication(remainingApplication.getId()))
+                .collectList()
+                .block();
+        Workspace deletedWorkspace = workspaceService.archiveById(workspaceId).block();
     }
 
     @Test
@@ -721,6 +740,7 @@ public class DatasourceServiceTest {
         Mono<DatasourceTestResult> testResultMono = datasourceMono.flatMap(datasource1 -> {
             DatasourceStorageDTO datasourceStorageDTO =
                     datasource1.getDatasourceStorages().get(defaultEnvironmentId);
+            datasourceStorageDTO.setPluginId(datasource.getPluginId());
             return datasourceService.testDatasource(datasourceStorageDTO, defaultEnvironmentId);
         });
 
@@ -789,6 +809,7 @@ public class DatasourceServiceTest {
             DatasourceStorageDTO datasourceStorageDTO =
                     datasource1.getDatasourceStorages().get(defaultEnvironmentId);
             ((DBAuth) datasourceStorageDTO.getDatasourceConfiguration().getAuthentication()).setPassword(null);
+            datasourceStorageDTO.setPluginId(datasource.getPluginId());
             return datasourceService.testDatasource(datasourceStorageDTO, defaultEnvironmentId);
         });
 
@@ -1474,6 +1495,7 @@ public class DatasourceServiceTest {
         Mono<DatasourceTestResult> testResultMono = datasourceMono.flatMap(datasource1 -> {
             DatasourceStorageDTO datasourceStorageDTO =
                     datasource1.getDatasourceStorages().get(defaultEnvironmentId);
+            datasourceStorageDTO.setPluginId(datasource.getPluginId());
             return datasourceService.testDatasource(datasourceStorageDTO, defaultEnvironmentId);
         });
 
@@ -2022,6 +2044,35 @@ public class DatasourceServiceTest {
                 .assertNext(testResult -> {
                     assertThat(testResult).isNotNull();
                     assertThat(testResult.getInvalids()).isEmpty();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void verifyTestDatasource_withRateLimitExceeded_returnsTooManyRequests() {
+        Datasource datasource = createDatasourceObject("sampleDatasource", workspaceId, "postgres-plugin");
+        DatasourceStorageDTO datasourceStorageDTO = generateSampleDatasourceStorageDTO();
+
+        datasourceStorageDTO.setWorkspaceId(workspaceId);
+        datasourceStorageDTO.setPluginId(datasource.getPluginId());
+
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
+        Mockito.doReturn(Mono.just(true))
+                .when(spyDatasourceService)
+                .isEndpointBlockedForConnectionRequest(Mockito.any());
+        Mono<DatasourceTestResult> testResultMono =
+                spyDatasourceService.testDatasource(datasourceStorageDTO, defaultEnvironmentId);
+
+        String expectedErrorMessage = "Too many failed requests received. Please try again after 5 minutes";
+
+        StepVerifier.create(testResultMono)
+                .assertNext(testResult -> {
+                    assertThat(testResult).isNotNull();
+                    assertThat(testResult.getInvalids()).isNotEmpty();
+                    assertThat(testResult.getInvalids().contains(expectedErrorMessage))
+                            .isTrue();
                 })
                 .verifyComplete();
     }

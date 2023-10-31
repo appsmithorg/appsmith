@@ -50,6 +50,7 @@ import type {
 } from "../constants";
 import {
   ActionColumnTypes,
+  ALLOW_TABLE_WIDGET_SERVER_SIDE_FILTERING,
   ColumnTypes,
   DEFAULT_BUTTON_LABEL,
   DEFAULT_COLUMN_WIDTH,
@@ -118,9 +119,10 @@ import type {
   transformDataWithEditableCell,
 } from "./reactTableUtils/transformDataPureFn";
 import { getMemoiseTransformDataWithEditableCell } from "./reactTableUtils/transformDataPureFn";
-import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
-import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
+import type { ExtraDef } from "utils/autocomplete/defCreatorUtils";
+import { generateTypeDef } from "utils/autocomplete/defCreatorUtils";
 import type {
+  AnvilConfig,
   AutocompletionDefinitions,
   PropertyUpdates,
   SnipingModeProperty,
@@ -214,7 +216,11 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       delimiter: ",",
       version: 2,
       inlineEditingSaveOption: InlineEditingSaveOptions.ROW_LEVEL,
-      enableServerSideFiltering: false,
+      enableServerSideFiltering: TableWidgetV2.getFeatureFlag(
+        ALLOW_TABLE_WIDGET_SERVER_SIDE_FILTERING,
+      )
+        ? false
+        : undefined,
     };
   }
 
@@ -368,6 +374,17 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     };
   }
 
+  static getAnvilConfig(): AnvilConfig | null {
+    return {
+      widgetSize: {
+        maxHeight: {},
+        maxWidth: {},
+        minHeight: { base: "300px" },
+        minWidth: { base: "280px" },
+      },
+    };
+  }
+
   static getPropertyPaneContentConfig() {
     return contentConfig;
   }
@@ -442,8 +459,11 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         isAddRowInProgress: "bool",
         previousPageVisited: generateTypeDef(widget.previousPageVisited),
         nextPageVisited: generateTypeDef(widget.nextPageButtonClicked),
-        filters: generateTypeDef(widget.filters),
       };
+
+      if (this.getFeatureFlag(ALLOW_TABLE_WIDGET_SERVER_SIDE_FILTERING)) {
+        config["filters"] = generateTypeDef(widget.filters);
+      }
 
       return config;
     };

@@ -5,7 +5,7 @@ import type { RouteComponentProps } from "react-router-dom";
 import { withRouter } from "react-router-dom";
 import type { BuilderRouteParams } from "constants/routes";
 import type { AppState } from "@appsmith/reducers";
-import WidgetsEditorWrapper from "./WidgetsEditorWrapper";
+import AppsmithIDE from "./AppsmithIDE";
 import {
   getCurrentApplicationId,
   getIsEditorInitialized,
@@ -42,7 +42,7 @@ import { Spinner } from "design-system";
 import SignpostingOverlay from "pages/Editor/FirstTimeUserOnboarding/Overlay";
 import { editorInitializer } from "../../utils/editor/EditorUtils";
 import { widgetInitialisationSuccess } from "../../actions/widgetActions";
-import { EnvDeployInfoModal } from "@appsmith/components/EnvDeployInfoModal";
+import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
 
 interface EditorProps {
   currentApplicationId?: string;
@@ -70,6 +70,9 @@ type Props = EditorProps & RouteComponentProps<BuilderRouteParams>;
 
 class Editor extends Component<Props> {
   componentDidMount() {
+    const { pageId } = this.props.match.params || {};
+    urlBuilder.setCurrentPageId(pageId);
+
     editorInitializer().then(() => {
       this.props.widgetConfigBuildSuccess();
     });
@@ -131,12 +134,14 @@ class Editor extends Component<Props> {
       if (prevPageId && pageId && isPageIdUpdated) {
         this.props.updateCurrentPage(pageId);
         this.props.fetchPage(pageId);
+        urlBuilder.setCurrentPageId(pageId);
       }
     }
   }
 
   componentWillUnmount() {
     this.props.resetEditorRequest();
+    urlBuilder.setCurrentPageId(null);
   }
 
   public render() {
@@ -155,13 +160,12 @@ class Editor extends Component<Props> {
           <Helmet>
             <meta charSet="utf-8" />
             <title>
-              {`${this.props.currentApplicationName} |`} Editor | Appsmith
+              {`${this.props.currentApplicationName} | Editor | Appsmith`}
             </title>
           </Helmet>
           <GlobalHotKeys>
-            <WidgetsEditorWrapper />
+            <AppsmithIDE />
             <GitSyncModal />
-            <EnvDeployInfoModal />
             <DisconnectGitModal />
             <GuidedTourModal />
             <RepoLimitExceededErrorModal />

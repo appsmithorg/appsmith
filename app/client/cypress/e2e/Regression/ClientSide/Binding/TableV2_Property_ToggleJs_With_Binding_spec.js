@@ -92,7 +92,6 @@ describe("Table Widget V2 property pane feature validation", function () {
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000);
     propPane.EnterJSContext("Text color", testdata.bindingTextColor);
-    cy.wait("@updateLayout");
     cy.readTableV2dataValidateCSS("0", "0", "color", "rgb(0, 128, 0)");
     cy.readTableV2dataValidateCSS("1", "0", "color", "rgb(255, 0, 0)");
   });
@@ -104,7 +103,6 @@ describe("Table Widget V2 property pane feature validation", function () {
     cy.moveToStyleTab();
     cy.wait(1000);
     propPane.EnterJSContext("Cell Background", testdata.bindingTextColor);
-    cy.wait("@updateLayout");
     cy.readTableV2dataValidateCSS(
       "0",
       "0",

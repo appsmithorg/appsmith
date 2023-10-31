@@ -4,7 +4,10 @@ import { useDispatch, useSelector } from "react-redux";
 
 import { updateLayoutForMobileBreakpointAction } from "actions/autoLayoutActions";
 import { updateCanvasLayoutAction } from "actions/editorActions";
-import { APP_SETTINGS_PANE_WIDTH } from "constants/AppConstants";
+import {
+  APP_SETTINGS_PANE_WIDTH,
+  APP_SIDEBAR_WIDTH,
+} from "constants/AppConstants";
 import {
   DefaultLayoutType,
   layoutConfigurations,
@@ -42,6 +45,7 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { useLocation } from "react-router";
 import { CANVAS_VIEWPORT } from "constants/componentClassNameConstants";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
+import { getIsAppSidebarEnabled } from "../../selectors/ideSelectors";
 
 const GUTTER_WIDTH = 72;
 export const AUTOLAYOUT_RESIZER_WIDTH_BUFFER = 40;
@@ -75,6 +79,7 @@ export const useDynamicAppLayout = () => {
   const queryParams = new URLSearchParams(search);
   const isEmbed = queryParams.get("embed");
   const isNavbarVisibleInEmbeddedApp = queryParams.get("navbar");
+  const isAppSidebarEnabled = useSelector(getIsAppSidebarEnabled);
 
   // /**
   //  * calculates min height
@@ -136,7 +141,11 @@ export const useDynamicAppLayout = () => {
     }
 
     // if app setting pane is open, we need to subtract the width of app setting page width
-    if (isAppSettingsPaneOpen === true && appMode === APP_MODE.EDIT) {
+    if (
+      isAppSettingsPaneOpen === true &&
+      appMode === APP_MODE.EDIT &&
+      !isAppSidebarEnabled
+    ) {
       calculatedWidth -= APP_SETTINGS_PANE_WIDTH;
     }
 
@@ -147,6 +156,10 @@ export const useDynamicAppLayout = () => {
       appMode === APP_MODE.EDIT
     ) {
       calculatedWidth -= explorerWidth;
+    }
+
+    if (appMode === APP_MODE.EDIT && isAppSidebarEnabled) {
+      calculatedWidth -= APP_SIDEBAR_WIDTH;
     }
 
     /**

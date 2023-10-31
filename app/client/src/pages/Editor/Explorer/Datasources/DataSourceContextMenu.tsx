@@ -17,13 +17,13 @@ import type { AppState } from "@appsmith/reducers";
 import { getDatasource } from "@appsmith/selectors/entitiesSelector";
 import type { TreeDropdownOption } from "pages/Editor/Explorer/ContextMenu";
 import ContextMenu from "pages/Editor/Explorer/ContextMenu";
-import { DatasourceStructureContext } from "./DatasourceStructure";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import {
   getHasDeleteDatasourcePermission,
   getHasManageDatasourcePermission,
 } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import { DatasourceStructureContext } from "entities/Datasource";
 
 export function DataSourceContextMenu(props: {
   datasourceId: string;

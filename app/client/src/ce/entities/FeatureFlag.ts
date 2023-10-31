@@ -3,18 +3,16 @@ export const FEATURE_FLAG = {
   TEST_FLAG: "TEST_FLAG",
   release_datasource_environments_enabled:
     "release_datasource_environments_enabled",
-  ask_ai: "ask_ai",
   release_appnavigationlogoupload_enabled:
     "release_appnavigationlogoupload_enabled",
-  ask_ai_sql: "ask_ai_sql",
-  ask_ai_js: "ask_ai_js",
   release_embed_hide_share_settings_enabled:
     "release_embed_hide_share_settings_enabled",
   ab_gsheet_schema_enabled: "ab_gsheet_schema_enabled",
   ab_wds_enabled: "ab_wds_enabled",
+  release_table_serverside_filtering_enabled:
+    "release_table_serverside_filtering_enabled",
   release_custom_echarts_enabled: "release_custom_echarts_enabled",
   license_branding_enabled: "license_branding_enabled",
-  ab_gif_signposting_enabled: "ab_gif_signposting_enabled",
   release_git_status_lite_enabled: "release_git_status_lite_enabled",
   license_sso_saml_enabled: "license_sso_saml_enabled",
   license_sso_oidc_enabled: "license_sso_oidc_enabled",
@@ -26,6 +24,9 @@ export const FEATURE_FLAG = {
   release_show_publish_app_to_community_enabled:
     "release_show_publish_app_to_community_enabled",
   license_gac_enabled: "license_gac_enabled",
+  release_anvil_enabled: "release_anvil_enabled",
+  ab_show_templates_instead_of_blank_canvas_enabled:
+    "ab_show_templates_instead_of_blank_canvas_enabled",
   release_app_sidebar_enabled: "release_app_sidebar_enabled",
 } as const;
 
@@ -36,16 +37,13 @@ export type FeatureFlags = Record<FeatureFlag, boolean>;
 export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   TEST_FLAG: true,
   release_datasource_environments_enabled: false,
-  ask_ai: false,
   release_appnavigationlogoupload_enabled: false,
-  ask_ai_js: false,
-  ask_ai_sql: false,
   release_embed_hide_share_settings_enabled: false,
   ab_gsheet_schema_enabled: false,
   ab_wds_enabled: false,
+  release_table_serverside_filtering_enabled: false,
   release_custom_echarts_enabled: false,
   license_branding_enabled: false,
-  ab_gif_signposting_enabled: false,
   release_git_status_lite_enabled: false,
   license_sso_saml_enabled: false,
   license_sso_oidc_enabled: false,
@@ -55,6 +53,8 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   license_private_embeds_enabled: false,
   release_show_publish_app_to_community_enabled: false,
   license_gac_enabled: false,
+  release_anvil_enabled: false,
+  ab_show_templates_instead_of_blank_canvas_enabled: false,
   release_app_sidebar_enabled: false,
 };
 
