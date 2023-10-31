@@ -1,4 +1,4 @@
-export { nestDSL, flattenDSL, ROOT_CONTAINER_WIDGET_ID } from "./dsl-transform";
+export { nestDSL, flattenDSL, ROOT_CONTAINER_WIDGET_ID } from "./transform";
 
 export type {
   NestedDSLWidget,
@@ -6,7 +6,7 @@ export type {
   FlattenedDSLWidget,
   FlattenedDSL,
   FlattenedDSLEntities,
-} from "./dsl-transform";
+} from "./transform";
 
 export { transformDSL, LATEST_DSL_VERSION } from "./migrate";
 
