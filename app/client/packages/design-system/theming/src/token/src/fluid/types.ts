@@ -1,8 +1,9 @@
 export interface FluidConfig {
   minVw: number;
   maxVw: number;
-  rootUnit: ScaleConfig;
-  spacing: ScaleConfig;
+  sizing: ScaleConfig;
+  outerSpacing: ScaleConfig;
+  innerSpacing: ScaleConfig;
   typography: ScaleConfig;
 }
 
@@ -15,6 +16,8 @@ export interface ScaleConfig {
   maxN: number;
   stepsUp: number;
   stepsDown: number;
+  userSizingRatio?: number;
+  userDensityRatio?: number;
 }
 
 export interface Scale {

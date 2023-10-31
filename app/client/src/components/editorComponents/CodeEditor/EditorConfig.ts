@@ -58,6 +58,7 @@ export interface FieldEntityInformation {
   entityType?: ENTITY_TYPE;
   entityId?: string;
   propertyPath?: string;
+  isTriggerPath?: boolean;
   blockCompletions?: Array<{ parentPath: string; subPath: string }>;
   example?: ExpectedValueExample;
   mode?: TEditorModes;

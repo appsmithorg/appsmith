@@ -9,8 +9,8 @@ import { CONVERSION_STATES } from "reducers/uiReducers/layoutConversionReducer";
 import type { PageWidgetsReduxState } from "reducers/uiReducers/pageWidgetsReducer";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
 import { getPageWidgets } from "@appsmith/selectors/entitiesSelector";
-import { convertNormalizedDSLToFixed } from "utils/DSLConversions/autoToFixedLayout";
-import convertToAutoLayout from "utils/DSLConversions/fixedToAutoLayout";
+import { convertNormalizedDSLToFixed } from "layoutSystems/common/DSLConversions/autoToFixedLayout";
+import convertToAutoLayout from "layoutSystems/common/DSLConversions/fixedToAutoLayout";
 import type { DSLWidget } from "WidgetProvider/constants";
 import {
   createSnapshotSaga,

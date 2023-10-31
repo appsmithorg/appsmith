@@ -34,7 +34,9 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
+import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
+import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.UserHomepageDTO;
 import com.appsmith.server.dtos.WorkspaceApplicationsDTO;
@@ -70,6 +72,7 @@ import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.EnvironmentPermission;
 import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.ReleaseNotesService;
+import com.appsmith.server.solutions.UserAndAccessManagementService;
 import com.appsmith.server.themes.base.ThemeService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -96,6 +99,9 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.FilePart;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -257,11 +263,25 @@ public class ApplicationServiceCETest {
     @Autowired
     ApplicationPermission applicationPermission;
 
+    @Autowired
+    UserAndAccessManagementService userAndAccessManagementService;
+
     String workspaceId;
     String defaultEnvironmentId;
 
+    private final String tempUserPassword = "tempUserPassword";
+
     @Autowired
     private AssetRepository assetRepository;
+
+    private <I> Mono<I> runAs(Mono<I> input, User user) {
+        log.info("Running as user: {}", user.getEmail());
+        return input.contextWrite((ctx) -> {
+            SecurityContext securityContext = new SecurityContextImpl(
+                    new UsernamePasswordAuthenticationToken(user, tempUserPassword, user.getAuthorities()));
+            return ctx.put(SecurityContext.class, Mono.just(securityContext));
+        });
+    }
 
     @BeforeEach
     public void setup() {
@@ -287,28 +307,32 @@ public class ApplicationServiceCETest {
                 .getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission())
                 .block();
 
-        gitConnectedApp = new Application();
-        gitConnectedApp.setWorkspaceId(workspaceId);
+        Application gitConnectedApp1 = new Application();
+        gitConnectedApp1.setWorkspaceId(workspaceId);
         GitApplicationMetadata gitData = new GitApplicationMetadata();
         gitData.setBranchName("testBranch");
         gitData.setDefaultBranchName("testBranch");
         gitData.setRepoName("testRepo");
         gitData.setRemoteUrl("git@test.com:user/testRepo.git");
         gitData.setRepoName("testRepo");
-        gitConnectedApp.setGitApplicationMetadata(gitData);
+        gitConnectedApp1.setGitApplicationMetadata(gitData);
         // This will be altered in update app by branch test
-        gitConnectedApp.setName("gitConnectedApp");
-        gitConnectedApp = applicationPageService
-                .createApplication(gitConnectedApp)
+        gitConnectedApp1.setName("gitConnectedApp");
+        Application newGitConnectedApp = applicationPageService
+                .createApplication(gitConnectedApp1)
                 .flatMap(application -> {
                     application.getGitApplicationMetadata().setDefaultApplicationId(application.getId());
                     return applicationService.save(application);
                 })
-                // Assign the branchName to all the resources connected to the application
-                .flatMap(application ->
-                        exportApplicationService.exportApplicationById(application.getId(), gitData.getBranchName()))
-                .flatMap(applicationJson -> importApplicationService.importApplicationInWorkspaceFromGit(
-                        workspaceId, applicationJson, gitConnectedApp.getId(), gitData.getBranchName()))
+                .block();
+
+        // Assign the branchName to all the resources connected to the application
+        ApplicationJson gitConnectedApplicationJson = exportApplicationService
+                .exportApplicationById(newGitConnectedApp.getId(), gitData.getBranchName())
+                .block();
+        gitConnectedApp = importApplicationService
+                .importApplicationInWorkspaceFromGit(
+                        workspaceId, gitConnectedApplicationJson, newGitConnectedApp.getId(), gitData.getBranchName())
                 .block();
 
         testPlugin = pluginService.findByPackageName("restapi-plugin").block();
@@ -4360,5 +4384,92 @@ public class ApplicationServiceCETest {
          */
         StepVerifier.create(applicationsInWorkspace)
                 .assertNext(applications -> assertThat(applications).hasSize(existingApplicationCount));
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testUpdateApplication_modifiedByShouldUpdate() {
+        String testName = "testUpdateApplication_modifiedByShouldUpdate";
+
+        User user1 = new User();
+        user1.setEmail(testName + "@appsmith.com");
+        user1.setPassword(tempUserPassword);
+        User createdUser = userService.create(user1).block();
+
+        List<PermissionGroup> defaultWorkspaceRoles = permissionGroupRepository
+                .findByDefaultDomainIdAndDefaultDomainType(workspaceId, Workspace.class.getSimpleName())
+                .collectList()
+                .block();
+
+        PermissionGroup administratorRole = defaultWorkspaceRoles.stream()
+                .filter(role -> role.getName().startsWith(ADMINISTRATOR))
+                .findFirst()
+                .get();
+        InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
+        inviteUsersDTO.setPermissionGroupId(administratorRole.getId());
+        inviteUsersDTO.setUsernames(List.of(createdUser.getUsername()));
+        userAndAccessManagementService.inviteUsers(inviteUsersDTO, testName).block();
+
+        Application application = new Application();
+        application.setName(testName);
+        application.setWorkspaceId(workspaceId);
+        Application createdApplication =
+                applicationPageService.createApplication(application).block();
+
+        Application updateNameOfApplication = new Application();
+        updateNameOfApplication.setName(testName + "_editedBy_" + createdUser.getUsername());
+
+        Application updatedNameOfApplication = runAs(
+                        applicationService.update(createdApplication.getId(), updateNameOfApplication), createdUser)
+                .block();
+
+        Application applicationPostNameUpdate =
+                applicationRepository.findById(createdApplication.getId()).block();
+
+        assertThat(applicationPostNameUpdate.getName()).isEqualTo(testName + "_editedBy_" + createdUser.getUsername());
+        assertThat(applicationPostNameUpdate.getModifiedBy()).isEqualTo(createdUser.getUsername());
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testCreatePage_lastModifiedByShouldGetChanged() {
+        String testName = "testSavedLastEditInformation";
+
+        User user1 = new User();
+        user1.setEmail(testName + "@appsmith.com");
+        user1.setPassword(tempUserPassword);
+        User createdUser = userService.create(user1).block();
+
+        List<PermissionGroup> defaultWorkspaceRoles = permissionGroupRepository
+                .findByDefaultDomainIdAndDefaultDomainType(workspaceId, Workspace.class.getSimpleName())
+                .collectList()
+                .block();
+
+        PermissionGroup administratorRole = defaultWorkspaceRoles.stream()
+                .filter(role -> role.getName().startsWith(ADMINISTRATOR))
+                .findFirst()
+                .get();
+        InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
+        inviteUsersDTO.setPermissionGroupId(administratorRole.getId());
+        inviteUsersDTO.setUsernames(List.of(createdUser.getUsername()));
+        userAndAccessManagementService.inviteUsers(inviteUsersDTO, testName).block();
+
+        Application application = new Application();
+        application.setName(testName);
+        application.setWorkspaceId(workspaceId);
+        Application createdApplication =
+                applicationPageService.createApplication(application).block();
+
+        PageDTO pageDTO = new PageDTO();
+        pageDTO.setName(testName);
+        pageDTO.setApplicationId(createdApplication.getId());
+        PageDTO createdPageDTO =
+                runAs(applicationPageService.createPage(pageDTO), createdUser).block();
+
+        Application applicationPostLastEdit =
+                applicationRepository.findById(createdApplication.getId()).block();
+
+        assertThat(applicationPostLastEdit.getPages()).hasSize(2);
+        assertThat(applicationPostLastEdit.getModifiedBy()).isEqualTo(createdUser.getUsername());
     }
 }

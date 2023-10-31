@@ -17,7 +17,6 @@ import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { useContext, useEffect, useRef } from "react";
 import type { AutoCanvasDraggingArenaProps } from "../AutoCanvasDraggingArena";
-import type { WidgetDraggingBlock } from "../../../../common/canvasArenas/ArenaTypes";
 import type { HighlightInfo } from "layoutSystems/common/utils/types";
 import {
   LayoutDirection,
@@ -30,6 +29,7 @@ import {
   getBoundUpdateRelativeRowsMethod,
   getDragCenterSpace,
 } from "layoutSystems/common/utils/canvasDraggingUtils";
+import type { WidgetDraggingBlock } from "layoutSystems/common/canvasArenas/ArenaTypes";
 
 /**
  * useBlocksToBeDraggedOnCanvas, provides information or functions/methods related to drag n drop,

@@ -20,6 +20,7 @@ import { Colors } from "constants/Colors";
 import type { Stylesheet } from "entities/AppTheming";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type {
+  AnvilConfig,
   AutocompletionDefinitions,
   WidgetCallout,
 } from "WidgetProvider/constants";
@@ -125,6 +126,17 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
     };
   }
 
+  static getAnvilConfig(): AnvilConfig | null {
+    return {
+      widgetSize: {
+        maxHeight: {},
+        maxWidth: {},
+        minHeight: { base: "300px" },
+        minWidth: { base: "280px" },
+      },
+    };
+  }
+
   static getMethods() {
     return {
       getEditorCallouts(props: WidgetProps): WidgetCallout[] {
@@ -137,7 +149,7 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
             message: messages.customFusionChartDeprecationMessage,
             links: [
               {
-                text: "Learn More",
+                text: "Learn more",
                 url: "https://docs.appsmith.com",
               },
             ],

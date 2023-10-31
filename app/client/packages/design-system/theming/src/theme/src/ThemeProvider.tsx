@@ -23,13 +23,7 @@ const fontFamilyCss = (fontFamily?: FontFamily) => {
   return `font-family: ${fontFamilyCss}; --font-family: ${fontFamilyCss}`;
 };
 
-const providerCss = ({
-  fontFamily,
-  rootUnit,
-  typography,
-  ...theme
-}: Theme) => css`
-  --root-unit: ${rootUnit};
+const providerCss = ({ fontFamily, typography, ...theme }: Theme) => css`
   ${fontFamilyCss(fontFamily)};
   ${createTypographyStringMap(typography, fontFamily)};
   ${cssRule(theme)};
