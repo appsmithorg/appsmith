@@ -5,7 +5,10 @@ import {
   EMPTY_TABLE_TITLE_TEXT,
   EMPTY_TABLE_MESSAGE_TEXT,
   createMessage,
-  EMPTY_TABLE_SVG_ALT_TEXT, LOADING_RECORDS_MESSAGE_TEXT, LOADING_RECORDS_TITLE_TEXT,
+  EMPTY_TABLE_SVG_ALT_TEXT,
+  LOADING_RECORDS_MESSAGE_TEXT,
+  LOADING_RECORDS_TITLE_TEXT,
+  ERR_FETCHING_DATASOURCE_PREVIEW_DATA,
 } from "@appsmith/constants/messages";
 import { MessageWrapper, SchemaStateMessageWrapper } from "./SchemaViewModeCSS";
 import styled, { keyframes } from "styled-components";
@@ -26,16 +29,16 @@ export const indeterminateProgressBarAnimation = keyframes`
 `;
 
 export const IndeterminateProgressBarDiv = styled.div`
-  border: 1px solid #A9A9A9;
-  border-radius: .50em;
-  height: 8px;
+  border: 2px solid #a9a9a9;
+  border-radius: 0.5em;
+  height: 12px;
   margin-bottom: 2em;
   width: 200px;
   background-image: repeating-linear-gradient(
     -45deg,
-    #DCDCDC,
-    #DCDCDC 9px,
-    #fff 12px, 
+    #dcdcdc,
+    #dcdcdc 9px,
+    #fff 12px,
     #fff 15px
   );
   -webkit-animation: ${indeterminateProgressBarAnimation} 1s linear infinite;
@@ -43,12 +46,6 @@ export const IndeterminateProgressBarDiv = styled.div`
   animation: ${indeterminateProgressBarAnimation} 1.5s linear infinite;
   background-size: 200% 100%;
 `;
-
-const TestPB = () => {
-  return (
-    <IndeterminateProgressBarDiv/>
-  );
-};
 
 const RenderInterimDataState = ({ state }: RenderInterimDataStateProps) => {
   return (
@@ -70,25 +67,12 @@ const RenderInterimDataState = ({ state }: RenderInterimDataStateProps) => {
             <Text>{createMessage(EMPTY_TABLE_MESSAGE_TEXT)}</Text>
           </>
         ) : state === "FAILED" ? (
-          // <Text color="var(--ads-color-red-500)">
-          //   {createMessage(ERR_FETCHING_DATASOURCE_PREVIEW_DATA)}
-          // </Text>
-          //<TestPB/>
-          <>
-          <IndeterminateProgressBarDiv />
-          {/* Show title */}
-          <Text style={{ fontWeight: "bold" }}>
-          {createMessage(LOADING_RECORDS_TITLE_TEXT)}
+          <Text color="var(--ads-color-red-500)">
+            {createMessage(ERR_FETCHING_DATASOURCE_PREVIEW_DATA)}
           </Text>
-          {/* Show description */}
-          <Text>{createMessage(LOADING_RECORDS_MESSAGE_TEXT)}</Text>
-          </>
         ) : state === "LOADING" ? (
           <>
-            {/*<Spinner size="md" />*/}
-            {/*<Text style={{ marginLeft: "8px" }}>*/}
-            {/*  {createMessage(FETCHING_DATASOURCE_PREVIEW_DATA)}*/}
-            {/*</Text>*/}
+            {/* Show progress bar */}
             <IndeterminateProgressBarDiv />
             {/* Show title */}
             <Text style={{ fontWeight: "bold" }}>
