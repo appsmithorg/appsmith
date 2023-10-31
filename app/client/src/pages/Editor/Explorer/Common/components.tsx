@@ -9,8 +9,7 @@ export const RelativeContainer = styled.div`
 `;
 
 export const StyledEntity = styled(Entity)<{ entitySize?: number }>`
-  &.pages > div:not(.t--entity-item) > div > div,
-  &.query-modules > div:not(.t--entity-item) > div > div {
+  &.pages > div:not(.t--entity-item) > div > div {
       max-height: 40vh;
       min-height: ${({ entitySize }) =>
         entitySize && entitySize > MIN_PAGES_HEIGHT

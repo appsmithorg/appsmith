@@ -29,6 +29,7 @@ import { initLocalstorageRegistry } from "./Objects/Registry";
 import RapidMode from "./RapidMode.ts";
 import "cypress-mochawesome-reporter/register";
 import installLogsCollector from "cypress-terminal-report/src/installLogsCollector";
+import { CURRENT_REPO, REPO } from "../fixtures/REPO";
 
 import "./WorkspaceCommands";
 import "./queryCommands";
@@ -121,6 +122,15 @@ before(function () {
       cy.wait(3000);
     }
   });
+
+  if (CURRENT_REPO === REPO.EE) {
+    cy.wait(2000);
+    cy.url().then((url) => {
+      if (url.indexOf("/license") > -1) {
+        cy.validateLicense();
+      }
+    });
+  }
 
   if (!Cypress.currentTest.titlePath[0].includes(WALKTHROUGH_TEST_PAGE)) {
     // Adding key FEATURE_WALKTHROUGH (which is used to check if the walkthrough is already shown to the user or not) for non walkthrough cypress tests (to not show walkthrough)
