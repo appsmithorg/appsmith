@@ -73,7 +73,6 @@ import {
 import history from "utils/history";
 import { isNameValid } from "utils/helpers";
 import { extractCurrentDSL } from "utils/WidgetPropsUtils";
-import { checkIfMigrationIsNeeded } from "utils/DSLMigrations";
 import {
   getAllPageIds,
   getDefaultPageId,
@@ -143,7 +142,7 @@ import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import { getInstanceId } from "@appsmith/selectors/tenantSelectors";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import type { WidgetProps } from "widgets/BaseWidget";
-import { nestDSL, flattenDSL } from "@shared/dsl";
+import { nestDSL, flattenDSL, LATEST_DSL_VERSION } from "@shared/dsl";
 import { fetchSnapshotDetailsAction } from "actions/autoLayoutActions";
 import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
@@ -153,6 +152,14 @@ import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import { LayoutSystemTypes } from "layoutSystems/types";
 import { getLayoutSystemDSLTransformer } from "layoutSystems/common/utils/LayoutSystemDSLTransformer";
 import type { DSLWidget } from "WidgetProvider/constants";
+
+export const checkIfMigrationIsNeeded = (
+  fetchPageResponse?: FetchPageResponse,
+) => {
+  const currentDSL = fetchPageResponse?.data.layouts[0].dsl;
+  if (!currentDSL) return false;
+  return currentDSL.version !== LATEST_DSL_VERSION;
+};
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
