@@ -7,6 +7,7 @@ import type { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/Ac
 import type { BatchAction } from "actions/batchActions";
 import { batchAction } from "actions/batchActions";
 import type { WidgetProps } from "widgets/BaseWidget";
+import type { PartialExportParams } from "sagas/WidgetSelectionSagas";
 
 export const widgetInitialisationSuccess = () => {
   return {
@@ -137,9 +138,9 @@ export const groupWidgets = () => {
   };
 };
 
-export const partialExportWidgets = (widgetIds: string[]) => {
+export const partialExportWidgets = (params: PartialExportParams) => {
   return {
     type: ReduxActionTypes.PARTIAL_EXPORT_INIT,
-    payload: { widgetIds },
+    payload: params,
   };
 };

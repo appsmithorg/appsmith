@@ -23,26 +23,21 @@ import { ControlIcons } from "icons/ControlIcons";
 import { JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
 import { useAppWideAndOtherDatasource } from "pages/Editor/Explorer/hooks";
 import React, { useMemo, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 import EntityCheckboxSelector from "./EntityCheckboxSelector";
 import JSObjectsNQueriesExport from "./JSObjectsNQueriesExport";
 import WidgetsExport from "./WidgetsExport";
 import { MenuIcons } from "icons/MenuIcons";
-
-interface PartialExportParams {
-  jsObjects: string[];
-  datasources: string[];
-  customJSLibs: string[];
-  widgets: string[];
-  queries: string[];
-}
+import { partialExportWidgets } from "actions/widgetActions";
+import type { PartialExportParams } from "sagas/WidgetSelectionSagas";
 
 interface Props {
   handleModalClose: () => void;
   isModalOpen: boolean;
 }
 const PartiaExportModel = ({ handleModalClose, isModalOpen }: Props) => {
+  const dispatch = useDispatch();
   const [selectedParams, setSelectedParams] = useState<PartialExportParams>({
     jsObjects: [],
     datasources: [],
@@ -159,6 +154,10 @@ const PartiaExportModel = ({ handleModalClose, isModalOpen }: Props) => {
     });
   };
 
+  const onExportClick = () => {
+    dispatch(partialExportWidgets(selectedParams));
+  };
+
   return (
     <Modal onOpenChange={handleModalClose} open={isModalOpen}>
       <ModalContent>
@@ -193,7 +192,7 @@ const PartiaExportModel = ({ handleModalClose, isModalOpen }: Props) => {
           ))}
         </ScrollableSection>
         <ModalFooter>
-          <Button size="md">
+          <Button onClick={onExportClick} size="md">
             {createMessage(PARTIAL_IMPORT_EXPORT.export.cta)}
           </Button>
         </ModalFooter>

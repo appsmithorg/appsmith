@@ -238,6 +238,15 @@ export interface DeleteNavigationLogoRequest {
 export interface snapShotApplicationRequest {
   applicationId: string;
 }
+
+export interface exportApplicationRequest {
+  actionList: string[];
+  actionCollectionList: string[];
+  customJsLib: string[];
+  datasourceList: string[];
+  widget: string;
+}
+
 export class ApplicationApi extends Api {
   static baseURL = "v1/applications";
   static publishURLPath = (applicationId: string) =>
@@ -430,6 +439,18 @@ export class ApplicationApi extends Api {
 
   static async deleteApplicationSnapShot(request: snapShotApplicationRequest) {
     return Api.delete(getSnapShotAPIRoute(request.applicationId));
+  }
+
+  static async exportPartialApplication(
+    applicationId: string,
+    pageId: string,
+    requestBody: exportApplicationRequest,
+  ) {
+    return Api.post(
+      `${ApplicationApi.baseURL}/export/partial/${applicationId}/${pageId}`,
+      requestBody,
+      null,
+    );
   }
 }
 

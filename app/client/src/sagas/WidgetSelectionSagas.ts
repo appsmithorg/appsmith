@@ -1,14 +1,21 @@
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import { builderURL, widgetURL } from "@appsmith/RouteBuilder";
+import ApplicationApi, {
+  type exportApplicationRequest,
+} from "@appsmith/api/ApplicationApi";
+import type {
+  ApplicationPayload,
+  ReduxAction,
+} from "@appsmith/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import { all, call, put, select, take, takeLatest } from "redux-saga/effects";
+import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
 import {
-  getWidgetIdsByType,
-  getWidgetImmediateChildren,
-  getWidgets,
-} from "./selectors";
+  getAppMode,
+  getCanvasWidgets,
+} from "@appsmith/selectors/entitiesSelector";
+import { pasteWidget, showModal } from "actions/widgetActions";
 import type {
   SetSelectedWidgetsPayload,
   WidgetSelectionRequestPayload,
@@ -19,44 +26,44 @@ import {
   setSelectedWidgetAncestry,
   setSelectedWidgets,
 } from "actions/widgetSelectionActions";
-import { getLastSelectedWidget, getSelectedWidgets } from "selectors/ui";
+import { APP_MODE } from "entities/App";
+import { getFlexLayersForSelectedWidgets } from "layoutSystems/autolayout/utils/AutoLayoutUtils";
+import type { FlexLayer } from "layoutSystems/autolayout/utils/types";
 import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
-import { pasteWidget, showModal } from "actions/widgetActions";
-import history, { NavigationMethod } from "utils/history";
+import { all, call, put, select, take, takeLatest } from "redux-saga/effects";
+import type { SetSelectionResult } from "sagas/WidgetSelectUtils";
 import {
+  SelectionRequestType,
+  assertParentId,
+  getWidgetAncestry,
+  isInvalidSelectionRequest,
+  pushPopWidgetSelection,
+  selectAllWidgetsInCanvasSaga,
+  selectMultipleWidgets,
+  selectOneWidget,
+  shiftSelectWidgets,
+  unselectWidget,
+} from "sagas/WidgetSelectUtils";
+import {
+  getCurrentApplicationId,
   getCurrentPageId,
   getIsEditorInitialized,
   getIsFetchingPage,
   snipingModeSelector,
 } from "selectors/editorSelectors";
-import { builderURL, widgetURL } from "@appsmith/RouteBuilder";
-import {
-  getAppMode,
-  getCanvasWidgets,
-} from "@appsmith/selectors/entitiesSelector";
-import type { SetSelectionResult } from "sagas/WidgetSelectUtils";
-import {
-  assertParentId,
-  isInvalidSelectionRequest,
-  pushPopWidgetSelection,
-  selectAllWidgetsInCanvasSaga,
-  SelectionRequestType,
-  selectMultipleWidgets,
-  selectOneWidget,
-  getWidgetAncestry,
-  shiftSelectWidgets,
-  unselectWidget,
-} from "sagas/WidgetSelectUtils";
-import { quickScrollToWidget } from "utils/helpers";
+import { getLastSelectedWidget, getSelectedWidgets } from "selectors/ui";
 import { areArraysEqual } from "utils/AppsmithUtils";
-import { APP_MODE } from "entities/App";
-import { saveCopiedWidgets } from "utils/storage";
+import { quickScrollToWidget } from "utils/helpers";
+import history, { NavigationMethod } from "utils/history";
 import { createWidgetCopy } from "./WidgetOperationUtils";
-import { getFlexLayersForSelectedWidgets } from "layoutSystems/autolayout/utils/AutoLayoutUtils";
-import type { FlexLayer } from "layoutSystems/autolayout/utils/types";
+import {
+  getWidgetIdsByType,
+  getWidgetImmediateChildren,
+  getWidgets,
+} from "./selectors";
 
 // The following is computed to be used in the entity explorer
 // Every time a widget is selected, we need to expand widget entities
@@ -337,10 +344,55 @@ export function* widgetSelectionSagas() {
   ]);
 }
 
-export function* partialExportSaga(
-  action: ReduxAction<{ widgetIds: string[] }>,
-) {
-  const { widgetIds } = action.payload;
+export interface PartialExportParams {
+  jsObjects: string[];
+  datasources: string[];
+  customJSLibs: string[];
+  widgets: string[];
+  queries: string[];
+}
+
+export function* partialExportSaga(action: ReduxAction<PartialExportParams>) {
+  const applicationId: string = yield select(getCurrentApplicationId);
+  const currentPageId: string = yield select(getCurrentPageId);
+  const canvasWidgets: unknown = yield partialExportWidgetSaga(
+    action.payload.widgets,
+  );
+
+  const body: exportApplicationRequest = {
+    actionList: action.payload.queries,
+    actionCollectionList: action.payload.jsObjects,
+    datasourceList: action.payload.datasources,
+    customJsLib: action.payload.customJSLibs,
+    widget: JSON.stringify(canvasWidgets),
+  };
+  console.log("🎯 -> function*partialExportSaga -> body:", body);
+
+  const response: unknown = yield call(
+    ApplicationApi.exportPartialApplication,
+    applicationId,
+    currentPageId,
+    body,
+  );
+  // const isValid: boolean = yield validateResponse(response);
+  if (!!response) {
+    const application: ApplicationPayload = yield select(getCurrentApplication);
+
+    (function downloadJSON(response: unknown) {
+      const dataStr =
+        "data:text/json;charset=utf-8," +
+        encodeURIComponent(JSON.stringify(response));
+      const downloadAnchorNode = document.createElement("a");
+      downloadAnchorNode.setAttribute("href", dataStr);
+      downloadAnchorNode.setAttribute("download", `${application.name}.json`);
+      document.body.appendChild(downloadAnchorNode); // required for firefox
+      downloadAnchorNode.click();
+      downloadAnchorNode.remove();
+    })(response);
+  }
+}
+
+export function* partialExportWidgetSaga(widgetIds: string[]) {
   const canvasWidgets: {
     [widgetId: string]: FlattenedWidgetProps;
   } = yield select(getWidgets);
@@ -362,11 +414,12 @@ export function* partialExportSaga(
     widgetIds,
     canvasId ? canvasWidgets[canvasId] : undefined,
   );
-  const toSaveInJson = {
+  const widgetsDSL = {
     widgets: widgetListsToStore,
     flexLayers,
   };
-  yield saveCopiedWidgets(JSON.stringify(toSaveInJson));
+  // yield saveCopiedWidgets(JSON.stringify(widgetsDSL));
+  return widgetsDSL;
 }
 
 export function* partialImportSaga() {
