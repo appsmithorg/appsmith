@@ -564,6 +564,7 @@ class BaseInputComponent extends React.Component<
       autoFocus={this.props.autoFocus}
       autoResize={!!this.props.isDynamicHeightEnabled}
       className={this.props.isLoading ? "bp3-skeleton" : ""}
+      dir={this.props.rtl ? "rtl" : "ltr"}
       disabled={this.props.disabled}
       maxLength={this.props.maxChars}
       onBlur={() => this.setFocusState(false)}
@@ -586,6 +587,7 @@ class BaseInputComponent extends React.Component<
         autoComplete={this.props.autoComplete}
         autoFocus={this.props.autoFocus}
         className={this.props.isLoading ? "bp3-skeleton" : ""}
+        dir={this.props.rtl ? "rtl" : "ltr"}
         disabled={this.props.disabled}
         inputRef={this.props.inputRef as IRef<HTMLInputElement>}
         intent={this.props.intent}
@@ -666,6 +668,7 @@ class BaseInputComponent extends React.Component<
       <InputComponentWrapper
         compactMode={compactMode}
         data-testid="input-container"
+        dir={this.props.rtl ? "rtl" : "ltr"}
         disabled={disabled}
         fill
         hasError={isInvalid}
@@ -789,6 +792,7 @@ export interface BaseInputComponentProps extends ComponentProps {
   errorTooltipBoundary?: string;
   shouldUseLocale?: boolean;
   buttonPosition?: NumberInputStepButtonPosition;
+  rtl?: boolean;
 }
 
 export default BaseInputComponent;

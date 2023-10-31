@@ -551,6 +551,19 @@ class MultiSelectWidget extends BaseWidget<
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
           },
+          {
+            propertyName: "rtl",
+            label: "Enable RTL",
+            helpText: "Enables right to left text direction",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+            hidden: () => {
+              return false;
+            },
+          },
         ],
       },
       {
@@ -838,6 +851,7 @@ class MultiSelectWidget extends BaseWidget<
         options={options}
         placeholder={this.props.placeholderText as string}
         renderMode={this.props.renderMode}
+        rtl={this.props.rtl}
         serverSideFiltering={this.props.serverSideFiltering}
         value={values}
         widgetId={this.props.widgetId}
@@ -945,6 +959,7 @@ export interface MultiSelectWidgetProps extends WidgetProps {
   labelWidth?: number;
   isDirty?: boolean;
   labelComponentWidth?: number;
+  rtl?: boolean;
 }
 
 export default MultiSelectWidget;

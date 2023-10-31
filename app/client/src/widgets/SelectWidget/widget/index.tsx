@@ -556,6 +556,19 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
           },
+          {
+            propertyName: "rtl",
+            label: "Enable RTL",
+            helpText: "Enables right to left text direction",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+            hidden: () => {
+              return false;
+            },
+          },
         ],
       },
       {
@@ -828,6 +841,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
         options={options}
         placeholder={this.props.placeholderText}
         resetFilterTextOnClose={!this.props.serverSideFiltering}
+        rtl={this.props.rtl}
         selectedIndex={selectedIndex > -1 ? selectedIndex : undefined}
         serverSideFiltering={this.props.serverSideFiltering}
         value={this.props.selectedOptionValue}
@@ -928,6 +942,7 @@ export interface SelectWidgetProps extends WidgetProps {
   isDirty?: boolean;
   filterText: string;
   labelComponentWidth?: number;
+  rtl?: boolean;
 }
 
 export default SelectWidget;
