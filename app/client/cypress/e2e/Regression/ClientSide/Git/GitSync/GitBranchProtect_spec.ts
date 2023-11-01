@@ -55,11 +55,8 @@ describe("Git Branch Protection", function () {
       _.gitSync.CreateNConnectToGitV2();
       cy.get("@gitRepoName").then((repName) => {
         repoName2 = repName;
-
         cy.wait("@gitProtectApi").then((res1) => {
           expect(res1.response).to.have.property("statusCode", 200);
-          _.agHelper.GetNClick(_.locators._dialogCloseButton);
-
           _.agHelper.AssertElementAbsence(
             _.entityExplorer._entityExplorerWrapper,
           );
