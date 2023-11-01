@@ -49,11 +49,7 @@ function BranchButton() {
     useState(false);
 
   useEffect(() => {
-    if (isProtectedMode) {
-      setShowProtectedBranchTooltip(true);
-    } else {
-      setShowProtectedBranchTooltip(false);
-    }
+    setShowProtectedBranchTooltip(!!isProtectedMode);
   }, [isProtectedMode]);
 
   return (

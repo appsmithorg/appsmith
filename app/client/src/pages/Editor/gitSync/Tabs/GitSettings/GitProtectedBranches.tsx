@@ -1,4 +1,5 @@
 import {
+  APPSMITH_ENTERPRISE,
   BRANCH_PROTECTION,
   BRANCH_PROTECTION_DESC,
   UPDATE,
@@ -93,7 +94,7 @@ function GitProtectedBranches() {
             target="_blank"
             to="https://www.appsmith.com/enterprise?lead_source=git%20feat%20branch%20config"
           >
-            Appsmith Enterprise
+            {createMessage(APPSMITH_ENTERPRISE)}
           </Link>
         </SectionDesc>
       </HeadContainer>

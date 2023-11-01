@@ -113,10 +113,14 @@ function ConnectionSuccess() {
             {createMessage(BRANCH_PROTECTION_RULES_AS_FOLLOWS)}
           </Text>
           <FeatureList>
-            {features.map((f) => (
-              <FeatureItem key={f}>
-                <FeatureIcon color="#2d6bf4" name="oval-check" size="md" />
-                <Text>{f}</Text>
+            {features.map((feature) => (
+              <FeatureItem key={feature}>
+                <FeatureIcon
+                  color="var(--ads-v2-color-blue-600)"
+                  name="oval-check"
+                  size="md"
+                />
+                <Text>{feature}</Text>
               </FeatureItem>
             ))}
           </FeatureList>

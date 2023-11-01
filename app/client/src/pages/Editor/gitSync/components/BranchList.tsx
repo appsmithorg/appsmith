@@ -26,6 +26,9 @@ import BranchListHotkeys from "./BranchListHotkeys";
 import {
   createMessage,
   FIND_OR_CREATE_A_BRANCH,
+  GO_TO_SETTINGS,
+  LEARN_MORE,
+  NOW_PROTECT_BRANCH,
   SWITCH_BRANCHES,
   SYNC_BRANCHES,
 } from "@appsmith/constants/messages";
@@ -379,7 +382,7 @@ export default function BranchList(props: {
             <Callout
               links={[
                 {
-                  children: "Go to settings",
+                  children: createMessage(GO_TO_SETTINGS),
                   onClick: () => {
                     props.setIsPopupOpen?.(false);
                     dispatch(
@@ -391,13 +394,13 @@ export default function BranchList(props: {
                   },
                 },
                 {
-                  children: "Learn more",
+                  children: createMessage(LEARN_MORE),
                   to: "#",
                 },
               ]}
               style={{ width: 300 }}
             >
-              You can now protect your default branch.
+              {createMessage(NOW_PROTECT_BRANCH)}
             </Callout>
             <Space size={5} />
             {isCreateNewBranchInputValid && (

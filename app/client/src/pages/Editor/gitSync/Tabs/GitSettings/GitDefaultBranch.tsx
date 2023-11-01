@@ -1,4 +1,5 @@
 import {
+  APPSMITH_ENTERPRISE,
   DEFAULT_BRANCH,
   DEFAULT_BRANCH_DESC,
   UPDATE,
@@ -57,7 +58,7 @@ function GitDefaultBranch() {
   }, []);
 
   const branches = unfilteredBranches.filter(
-    (b) => !b.branchName.includes("origin/"),
+    (branch) => !branch.branchName.includes("origin/"),
   );
 
   const handleUpdate = () => {
@@ -86,7 +87,7 @@ function GitDefaultBranch() {
             target="_blank"
             to="https://www.appsmith.com/enterprise?lead_source=git%20feat%20branch%20config"
           >
-            Appsmith Enterprise
+            {createMessage(APPSMITH_ENTERPRISE)}
           </Link>
         </SectionDesc>
       </HeadContainer>

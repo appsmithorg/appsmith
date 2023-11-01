@@ -1080,6 +1080,10 @@ export const BRANCH_PROTECTION_CHANGE_RULE = () =>
 export const BRANCH_TOOLTIP_TITLE = () => "🚫 This is a protected branch";
 export const BRANCH_TOOLTIP_MESSAGE = () =>
   "You can remove protection on your default branch in Git settings.";
+export const GO_TO_SETTINGS = () => "Go to settings";
+export const NOW_PROTECT_BRANCH = () =>
+  "You can now protect your default branch.";
+export const APPSMITH_ENTERPRISE = () => "Appsmith Enterprise";
 // Git Branch Protection end
 
 export const NAV_DESCRIPTION = () =>
