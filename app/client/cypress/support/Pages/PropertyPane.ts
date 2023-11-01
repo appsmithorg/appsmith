@@ -23,6 +23,7 @@ export class PropertyPane {
   private locator = ObjectsRegistry.CommonLocators;
   private assertHelper = ObjectsRegistry.AssertHelper;
 
+  _propertyPaneSidebar = ".t--property-pane-sidebar";
   _jsonFieldEdit = (fieldName: string) =>
     "//input[@placeholder='Field label'][@value='" +
     fieldName +
