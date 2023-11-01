@@ -8,7 +8,6 @@ import SwitchEnvironment from "@appsmith/components/SwitchEnvironment";
 import { Container, Wrapper } from "./components";
 
 export default function BottomBar({
-  isProtected = false,
   viewMode,
 }: {
   isProtected?: boolean;
@@ -31,7 +30,7 @@ export default function BottomBar({
               startIcon="upgrade"
             />
           </ManualUpgrades>
-          {!isProtected && <DebuggerTrigger />}
+          <DebuggerTrigger />
           <HelpButton />
         </Wrapper>
       )}

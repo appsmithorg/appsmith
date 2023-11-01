@@ -84,21 +84,33 @@ export const getShouldShowWidgetName = createSelector(
   (state: AppState) => state.ui.widgetDragResize.isResizing,
   (state: AppState) => state.ui.widgetDragResize.isDragging,
   (state: AppState) => state.ui.editor.isPreviewMode,
-  (state: AppState) => state.ui.editor.isProtectedMode,
   (state: AppState) => state.ui.widgetDragResize.isAutoCanvasResizing,
+  // cannot import other selectors, breaks the app
+  (state) => {
+    const gitMetaData =
+      state.ui.applications.currentApplication?.gitApplicationMetadata;
+    const isGitConnected = !!(gitMetaData && gitMetaData?.remoteUrl);
+    const currentBranch = gitMetaData?.branchName;
+    const { protectedBranches = [] } = state.ui.gitSync;
+    if (!isGitConnected || !currentBranch) {
+      return false;
+    } else {
+      return protectedBranches.includes(currentBranch);
+    }
+  },
   (
     isResizing,
     isDragging,
     isPreviewMode,
-    isProtectedMode,
     isAutoCanvasResizing,
+    isProtectedMode,
   ) => {
     return (
       !isResizing &&
       !isDragging &&
       !isPreviewMode &&
-      !isProtectedMode &&
-      !isAutoCanvasResizing
+      !isAutoCanvasResizing &&
+      !isProtectedMode
     );
   },
 );

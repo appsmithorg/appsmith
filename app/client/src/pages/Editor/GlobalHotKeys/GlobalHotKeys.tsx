@@ -49,7 +49,6 @@ import { toast } from "design-system";
 import { showDebuggerFlag } from "selectors/debuggerSelectors";
 import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
 import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
-import { protectedModeSelector } from "selectors/gitSyncSelectors";
 
 interface Props {
   copySelectedWidget: () => void;
@@ -73,7 +72,6 @@ interface Props {
   redo: () => void;
   appMode?: APP_MODE;
   isPreviewMode: boolean;
-  isProtectedMode: boolean;
   setPreviewModeAction: (shouldSet: boolean) => void;
   isExplorerPinned: boolean;
   isSignpostingEnabled: boolean;
@@ -109,7 +107,7 @@ class GlobalHotKeys extends React.Component<Props> {
     e.preventDefault();
 
     // don't open omnibar if preview mode is on
-    if (this.props.isPreviewMode || this.props.isProtectedMode) return;
+    if (this.props.isPreviewMode) return;
 
     const category = filterCategories[categoryId];
     this.props.setGlobalSearchCategory(category);
@@ -336,9 +334,7 @@ class GlobalHotKeys extends React.Component<Props> {
           global
           label="Preview Mode"
           onKeyDown={() => {
-            this.props.setPreviewModeAction(
-              !this.props.isPreviewMode || !this.props.isProtectedMode,
-            );
+            this.props.setPreviewModeAction(!this.props.isPreviewMode);
           }}
         />
         <Hotkey
@@ -374,7 +370,6 @@ const mapStateToProps = (state: AppState) => ({
   isDebuggerOpen: showDebuggerFlag(state),
   appMode: getAppMode(state),
   isPreviewMode: previewModeSelector(state),
-  isProtectedMode: protectedModeSelector(state),
   isExplorerPinned: getExplorerPinned(state),
   isSignpostingEnabled: getIsFirstTimeUserOnboardingEnabled(state),
 });
