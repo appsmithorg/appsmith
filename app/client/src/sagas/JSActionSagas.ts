@@ -33,8 +33,8 @@ import {
 } from "@appsmith/selectors/entitiesSelector";
 import history from "utils/history";
 import { getCurrentPageId } from "selectors/editorSelectors";
-import type { JSCollectionCreateUpdateResponse } from "api/JSActionAPI";
-import JSActionAPI from "api/JSActionAPI";
+import type { JSCollectionCreateUpdateResponse } from "@appsmith/api/JSActionAPI";
+import JSActionAPI from "@appsmith/api/JSActionAPI";
 import {
   createMessage,
   JS_ACTION_COPY_SUCCESS,
@@ -53,7 +53,7 @@ import type { ApiResponse } from "api/ApiResponses";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import type { CreateJSCollectionRequest } from "api/JSActionAPI";
+import type { CreateJSCollectionRequest } from "@appsmith/api/JSActionAPI";
 import * as log from "loglevel";
 import { builderURL, jsCollectionIdURL } from "@appsmith/RouteBuilder";
 import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
