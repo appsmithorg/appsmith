@@ -236,7 +236,7 @@ function* connectToGitSaga(action: ConnectToGitReduxAction) {
       const isGitProtectedFeatureEnabled: boolean = yield select(
         getIsGitProtectedFeatureEnabled,
       );
-      if (!isGitProtectedFeatureEnabled) {
+      if (isGitProtectedFeatureEnabled) {
         yield put(
           updateGitProtectedBranchesInit({
             protectedBranches: defaultBranch ? [defaultBranch] : [],

@@ -110,7 +110,7 @@ function EmptyCanvasPrompts(props: EmptyCanvasPromptsProps) {
     }
   }, [showCanvasTopSection, isPreview]);
 
-  if (!showCanvasTopSection) return null;
+  if (!showCanvasTopSection || isPreview) return null;
 
   const showTemplatesModal = () => {
     dispatch(showTemplatesModalAction(true));
