@@ -5,7 +5,10 @@ import JSCollectionEntityContextMenu from "./JSActionContextMenu";
 import { saveJSObjectName } from "actions/jsActionActions";
 import { useSelector } from "react-redux";
 import { getCurrentPageId } from "selectors/editorSelectors";
-import { getJSCollection } from "@appsmith/selectors/entitiesSelector";
+import {
+  getIsJsActionForWorkflowCreation,
+  getJSCollection,
+} from "@appsmith/selectors/entitiesSelector";
 import type { AppState } from "@appsmith/reducers";
 import type { JSCollection } from "entities/JSCollection";
 import { JsFileIconV2 } from "../ExplorerIcons";
@@ -62,15 +65,16 @@ export const ExplorerJSCollectionEntity = memo(
 
     const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
 
-    const canDeleteJSAction = getHasDeleteActionPermission(
-      isFeatureEnabled,
-      jsActionPermissions,
+    const isJsActionForWorkflowCreation = useSelector((state) =>
+      getIsJsActionForWorkflowCreation(state, jsAction.id),
     );
+    const canDeleteJSAction =
+      getHasDeleteActionPermission(isFeatureEnabled, jsActionPermissions) &&
+      !isJsActionForWorkflowCreation;
 
-    const canManageJSAction = getHasManageActionPermission(
-      isFeatureEnabled,
-      jsActionPermissions,
-    );
+    const canManageJSAction =
+      getHasManageActionPermission(isFeatureEnabled, jsActionPermissions) &&
+      !isJsActionForWorkflowCreation;
 
     const contextMenu = (
       <JSCollectionEntityContextMenu

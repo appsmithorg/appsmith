@@ -114,6 +114,7 @@ function* handleCreateNewJsActionSaga(
     const { actions, body } = createDummyJSCollectionActions(
       pageId,
       workspaceId,
+      from,
     );
     yield put(
       createJSCollectionRequest({
