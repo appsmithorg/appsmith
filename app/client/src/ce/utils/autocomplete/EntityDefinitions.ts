@@ -22,13 +22,25 @@ export const entityDefinitions = {
         geolocation: {
           ...generatedTypeDef.geolocation,
           "!doc":
-            "The user's geo location information. Only available when requested",
+            "Object containing functions that allow you to retrieve the current user's location and the coordinates received from the user's device using the Geolocation API.",
           "!url":
             "https://docs.appsmith.com/reference/appsmith-framework/context-object#geolocation-object",
-          getCurrentPosition:
-            "fn(onSuccess: fn() -> void, onError: fn() -> void, options: object) -> void",
-          watchPosition: "fn(options: object) -> void",
-          clearWatch: "fn() -> void",
+          getCurrentPosition: {
+            "!type":
+              "fn(onSuccess: fn() -> void, onError: fn() -> void, options: object) -> void",
+            "!url":
+              "https://docs.appsmith.com/reference/appsmith-framework/context-object#geolocationgetcurrentposition",
+          },
+          watchPosition: {
+            "!type": "fn(options: object) -> void",
+            "!url":
+              "https://docs.appsmith.com/reference/appsmith-framework/context-object#geolocationwatchposition",
+          },
+          clearWatch: {
+            "!type": "fn() -> void",
+            "!url":
+              "https://docs.appsmith.com/reference/appsmith-framework/context-object#geolocationclearwatch",
+          },
         },
       };
     }
