@@ -126,7 +126,6 @@ public class OpenAiPlugin extends BasePlugin {
                     })
                     .onErrorResume(error -> {
                         errorResult.setIsExecutionSuccess(false);
-                        error.printStackTrace();
                         log.debug(
                                 "An error has occurred while trying to run the open API query command with error {}",
                                 error.getStackTrace());
