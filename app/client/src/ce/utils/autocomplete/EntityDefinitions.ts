@@ -180,4 +180,71 @@ export const getPropsForJSActionEntity = ({
   return properties;
 };
 
+export const ternDocsInfo: Record<string, any> = {
+  showAlert: {
+    content: "Show a temporary notification style message to the user",
+    examples: [
+      "showAlert('This is a success message', 'success')",
+      "showAlert('This is a error message', 'error')",
+    ],
+  },
+  showModal: {
+    content: "Open a modal",
+    examples: ["showModal('Modal1')"],
+  },
+  closeModal: {
+    content: "Close a modal",
+    examples: ["closeModal('Modal1')"],
+  },
+  navigateTo: {
+    content: "Action to navigate the user to another page or url",
+    examples: [
+      "navigateTo('Page1', { id: 1 })",
+      "navigateTo('https://appsmith.com')",
+    ],
+  },
+  copyToClipboard: {
+    content: "Copy text to clipboard",
+    examples: ["copyToClipboard('Hello World')"],
+  },
+  download: {
+    content: "Download anything as a file",
+    examples: [
+      "download('Hello World', 'hello.txt', 'text/plain')",
+      "download('<html><body>Hello World</body></html>', 'hello.html', 'text/html')",
+    ],
+  },
+  storeValue: {
+    content: "Store key value data locally",
+    examples: ["storeValue('key', 'value')"],
+  },
+  removeValue: {
+    content: "Remove key value data locally",
+    examples: ["removeValue('key')"],
+  },
+  clearStore: {
+    content: "Clear all key value data locally",
+    examples: ["clearStore()"],
+  },
+  resetWidget: {
+    content: "Reset widget values",
+    examples: ["resetWidget('Table1', false)"],
+  },
+  setInterval: {
+    content: "Execute triggers at a given interval",
+    examples: ["setInterval(() => console.log('Hello World'), 1000)"],
+  },
+  clearInterval: {
+    content: "Stop executing a setInterval with id",
+    examples: ["clearInterval('id')"],
+  },
+  postWindowMessage: {
+    content:
+      "Establish cross-origin communication between Window objects/page and iframes",
+    examples: [
+      "postWindowMessage({ type: 'message', message: 'Hello World' }, '*', '*')",
+    ],
+  },
+};
+
 export type EntityDefinitionsOptions = keyof typeof entityDefinitions;
