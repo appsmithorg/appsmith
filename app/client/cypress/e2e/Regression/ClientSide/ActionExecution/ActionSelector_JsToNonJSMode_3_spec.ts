@@ -252,7 +252,7 @@ describe("JS to non-JS mode in Action Selector", () => {
     );
     agHelper.GetNAssertElementText(
       propPane._windowTargetDropdown,
-      "window",
+      "Window",
       "have.text",
       0,
     );
@@ -260,7 +260,7 @@ describe("JS to non-JS mode in Action Selector", () => {
       propPane._actionPopupTextLabel,
       "Allowed origins",
       "have.text",
-      2,
+      1,
     );
 
     propPane.EnterJSContext(

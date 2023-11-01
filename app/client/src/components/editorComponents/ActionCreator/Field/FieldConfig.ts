@@ -545,10 +545,10 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
   },
   [FieldType.SOURCE_FIELD]: {
     label: () => "Target",
-    defaultText: "window",
+    defaultText: "Window",
     options: (props: FieldProps) => {
       const { widgetOptionTree } = props;
-      const defaultOption = { label: "window", value: "window" };
+      const defaultOption = { label: "Window", value: "'window'" };
       return [
         defaultOption,
         ...widgetOptionTree
@@ -569,7 +569,7 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
       if (!isMessageFieldSet) {
         currentValue = enumTypeSetter("''", currentValue, 0);
       }
-      return textSetter(option.value, currentValue, 1);
+      return enumTypeSetter(option.value, currentValue, 1);
     },
     view: ViewTypes.SELECTOR_VIEW,
   },
