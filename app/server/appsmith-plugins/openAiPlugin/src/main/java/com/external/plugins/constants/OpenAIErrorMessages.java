@@ -4,7 +4,7 @@ public class OpenAIErrorMessages {
 
     public static final String STRING_APPENDER = "%s %s";
     public static final String EXECUTION_FAILURE = "Query failed to execute because";
-    public static final String MODEL_NOT_SELECTED = "model hasn't been selected, Please select model";
+    public static final String MODEL_NOT_SELECTED = "model hasn't been selected. Please select a model";
     public static final String INPUT_NOT_CONFIGURED = "embeddings input has not been configured properly";
     public static final String ENCODING_CONVERSION_ERROR = "embeddings' encoding format is not configured properly";
     public static final String QUERY_NOT_CONFIGURED = "query is not configured.";
