@@ -124,7 +124,7 @@ export class DataSources {
   _selectedActiveTab = "button[aria-selected='true'] " + this._activeTab;
   _contextMenuDSReviewPage = "[data-testid='t--context-menu-trigger']";
   _contextMenuDelete = ".t--datasource-option-delete";
-  _datasourceCardGeneratePageBtn = ".t--generate-template";
+  _datasourceCardGeneratePageBtn = ".t--datasource-generate-page";
   _queryOption = (option: string) =>
     "//div[contains(@class, 'rc-select-item-option-content') and text() = '" +
     option +
@@ -454,8 +454,9 @@ export class DataSources {
 
   CreateMockDB(dbName: "Users" | "Movies"): Cypress.Chainable<string> {
     this.NavigateToDSCreateNew();
-    // this.agHelper.GetNClick();
-    cy.get(this._mockDatasourceName).contains(dbName.toLowerCase()).click();
+    cy.get(this._mockDatasourceName)
+      .contains(dbName, { matchCase: false })
+      .click();
     this.assertHelper.AssertNetworkStatus("@getMockDb"); //To return the right mock DB name
     return cy
       .get("@getMockDb")
@@ -909,13 +910,8 @@ export class DataSources {
     this.AssertDSInActiveList(new RegExp("^" + datasourceName + "$")) //This regex is to exact match the datasource name
       .scrollIntoView()
       .should("be.visible")
-      .then(($element) => {
-        cy.wrap($element)
-          .closest(this._datasourceCard)
-          .within(() => {
-            this.agHelper.GetNClick(btnLocator, 0, true);
-          });
-      });
+      .click();
+    this.agHelper.GetNClick(btnLocator, 0, true);
     this.agHelper.Sleep(3000); //for the CreateQuery/GeneratePage page to load
     createQuery && this.AssertRunButtonVisibility();
     validateTableDropdown &&

@@ -129,6 +129,7 @@ export class EntityExplorer {
       | "Generate page with data"
       | "Add page from template" = "New blank page",
   ) {
+    EditorNavigation.sidebar(SidebarButton.Pages);
     this.agHelper.GetNClick(this.locator._newPage);
     this.agHelper.GetNClick(this._newPageOptions(option));
     if (option === "New blank page") {
@@ -144,6 +145,7 @@ export class EntityExplorer {
     index = 0,
     force = false,
   ) {
+    EditorNavigation.sidebar(SidebarButton.Pages);
     this.agHelper
       .GetAttribute(this._openNavigationTab(navigationTab), "data-selected")
       .then(($value) => {
@@ -158,6 +160,7 @@ export class EntityExplorer {
   }
 
   public AssertEntityPresenceInExplorer(entityNameinLeftSidebar: string) {
+    EditorNavigation.sidebar(SidebarButton.Pages);
     this.agHelper.AssertElementLength(
       this._entityNameInExplorer(entityNameinLeftSidebar),
       1,
@@ -165,12 +168,14 @@ export class EntityExplorer {
   }
 
   public AssertEntityAbsenceInExplorer(entityNameinLeftSidebar: string) {
+    EditorNavigation.sidebar(SidebarButton.Pages);
     this.agHelper.AssertElementAbsence(
       this._entityNameInExplorer(entityNameinLeftSidebar),
     );
   }
 
   public ExpandCollapseEntity(entityName: string, expand = true, index = 0) {
+    EditorNavigation.sidebar(SidebarButton.Pages);
     this.agHelper.AssertElementVisibility(
       this._expandCollapseArrow(entityName),
       true,
@@ -242,6 +247,7 @@ export class EntityExplorer {
     toAssertAction,
     toastToValidate = "",
   }: EntityActionParams) {
+    EditorNavigation.sidebar(SidebarButton.Pages);
     this.agHelper.Sleep();
     cy.xpath(this._contextMenu(entityNameinLeftSidebar))
       .scrollIntoView()
@@ -262,6 +268,7 @@ export class EntityExplorer {
   }
 
   public DeleteWidgetFromEntityExplorer(widgetNameinLeftSidebar: string) {
+    EditorNavigation.sidebar(SidebarButton.Pages);
     cy.xpath(this._contextMenu(widgetNameinLeftSidebar))
       .last()
       .click({ force: true });
@@ -276,6 +283,7 @@ export class EntityExplorer {
   }
 
   public DeleteAllQueriesForDB(dsName: string) {
+    EditorNavigation.sidebar(SidebarButton.Pages);
     this.agHelper.GetElement(this._allQueriesforDB(dsName)).each(($el: any) => {
       cy.wrap($el)
         .invoke("text")
@@ -290,6 +298,7 @@ export class EntityExplorer {
   }
 
   public HoverOnEntityItem(entityNameinLeftSidebar: string) {
+    EditorNavigation.sidebar(SidebarButton.Pages);
     this.agHelper.ClickOutside();
     //cy.get("body").trigger("mousedown");
     cy.xpath(this._entityNameInExplorer(entityNameinLeftSidebar)).realHover();
@@ -299,6 +308,7 @@ export class EntityExplorer {
     entityNameinLeftSidebar: string,
     action: templateActions,
   ) {
+    EditorNavigation.sidebar(SidebarButton.Pages);
     this.HoverOnEntityItem(entityNameinLeftSidebar);
     cy.xpath(this._templateMenuTrigger(entityNameinLeftSidebar))
       .first()
@@ -395,6 +405,7 @@ export class EntityExplorer {
   }
 
   public ClonePage(pageName = "Page1") {
+    EditorNavigation.sidebar(SidebarButton.Pages);
     this.SelectEntityByName(pageName, "Pages");
     this.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: pageName,
@@ -446,6 +457,7 @@ export class EntityExplorer {
     renameVal: string,
     viaMenu = false,
   ) {
+    EditorNavigation.sidebar(SidebarButton.Pages);
     if (viaMenu)
       this.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: entityName,
@@ -460,6 +472,7 @@ export class EntityExplorer {
   }
 
   public VerifyIsCurrentPage(pageName: string) {
+    EditorNavigation.sidebar(SidebarButton.Pages);
     this.agHelper
       .GetElement(this._pageNameDiv(pageName))
       .should("have.class", "activePage");

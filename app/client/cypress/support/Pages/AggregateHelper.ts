@@ -5,6 +5,7 @@ import type CodeMirror from "codemirror";
 import { ReusableHelper } from "../Objects/ReusableHelper";
 import type { EntityItemsType } from "./AssertHelper";
 import { EntityItems } from "./AssertHelper";
+import EditorNavigation, { SidebarButton } from "./EditorNavigation";
 
 type ElementType = string | JQuery<HTMLElement>;
 

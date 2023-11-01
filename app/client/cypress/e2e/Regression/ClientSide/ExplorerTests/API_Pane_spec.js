@@ -35,7 +35,6 @@ describe("Entity explorer API pane related testcases", function () {
   });
 
   it("2. Move to page / edit API name /properties validation", function () {
-    cy.NavigateToAPI_Panel();
     cy.CreateAPI("FirstAPI");
     cy.enterDatasourceAndPath(testdata.baseUrl, testdata.methods);
     cy.SaveAndRunAPI();

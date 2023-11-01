@@ -9,7 +9,6 @@ import {
 describe("API Panel Test Functionality ", function () {
   it("1. Test API copy/Move/delete feature", function () {
     cy.Createpage("SecondPage");
-    cy.NavigateToAPI_Panel();
     cy.CreateAPI("FirstAPI");
     cy.enterDatasourceAndPath(testdata.baseUrl, "{{ '/random' }}");
     cy.assertPageSave();

@@ -9,8 +9,6 @@ import {
 
 describe("Datasource form related tests", function () {
   it("1. Check whether the number of key value pairs is equal to number of delete buttons", function () {
-    cy.NavigateToAPI_Panel();
-
     apiPage.CreateAndFillApi(testdata.baseUrl + testdata.methods);
     cy.get(".t--store-as-datasource").click();
 
@@ -28,7 +26,7 @@ describe("Datasource form related tests", function () {
     cy.get(".t--save-datasource").should("not.be.disabled");
     dataSources.SaveDSFromDialog();
     //Check if saved api as a datasource does not fail on cloning", function () {
-    cy.NavigateToAPI_Panel();
+
     entityExplorer.ExpandCollapseEntity("Queries/JS");
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "Api1",

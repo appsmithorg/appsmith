@@ -259,7 +259,7 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add("createPostgresDatasource", () => {
-  cy.NavigateToDatasourceEditor();
+  dataSources.NavigateToDSCreateNew();
   cy.get(datasourceEditor.PostgreSQL).click({ force: true });
   cy.fillPostgresDatasourceForm();
   cy.testSaveDatasource();
@@ -267,7 +267,7 @@ Cypress.Commands.add("createPostgresDatasource", () => {
 
 // this can be modified further when google sheets automation is done.
 Cypress.Commands.add("createGoogleSheetsDatasource", () => {
-  cy.NavigateToDatasourceEditor();
+  dataSources.NavigateToDSCreateNew();
   cy.get(datasourceEditor.GoogleSheets).click();
 });
 
