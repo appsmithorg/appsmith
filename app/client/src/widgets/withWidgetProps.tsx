@@ -239,10 +239,9 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       widgetProps.isVisible && widgetProps.topRow === widgetProps.bottomRow;
 
     const shouldResetCollapsedContainerHeightInCanvasMode =
-      (widgetProps.topRow === widgetProps.bottomRow &&
-        renderMode === RenderModes.CANVAS &&
-        !isPreviewMode) ||
-      !isProtectedMode;
+      widgetProps.topRow === widgetProps.bottomRow &&
+      renderMode === RenderModes.CANVAS &&
+      !(isPreviewMode || isProtectedMode);
 
     widgetProps.mainCanvasWidth = mainCanvasWidth;
     if (layoutSystemType !== LayoutSystemTypes.ANVIL) {
