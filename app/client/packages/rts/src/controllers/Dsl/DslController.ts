@@ -9,13 +9,9 @@ export default class DSLController extends BaseController {
   }
 
   migrateDSL(req: Request, res: Response) {
-    const { dsl } = req.body;
     try {
-      const latestDSL = migrateDSLToLatest(dsl);
-      super.sendResponse(res, {
-        dsl: latestDSL,
-        latestVersion: latestDSLVersion,
-      });
+      const latestDSL = migrateDSLToLatest(req.body);
+      super.sendResponse(res, latestDSL);
     } catch (err) {
       return super.sendError(
         res,
@@ -28,7 +24,7 @@ export default class DSLController extends BaseController {
 
   getLatestDSLVersion(req: Request, res: Response) {
     try {
-      super.sendResponse(res, { latestVersion: latestDSLVersion });
+      super.sendResponse(res, { version: latestDSLVersion });
     } catch (err) {
       return super.sendError(
         res,

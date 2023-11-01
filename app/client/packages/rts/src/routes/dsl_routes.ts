@@ -7,7 +7,7 @@ const dslController = new DSLController();
 const validator = new Validator();
 
 router.get(
-  "/latest-version",
+  "/version",
   validator.validateRequest,
   dslController.getLatestDSLVersion,
 );
