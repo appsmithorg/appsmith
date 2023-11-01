@@ -119,6 +119,7 @@ export class AppSettings {
     pageName: string,
     customSlug?: string,
     editMode = true,
+    restOfUrl = "",
   ) {
     appName = appName.replace(/\s+/g, "-");
     this.agHelper.AssertElementAbsence(this.locators._updateStatus, 10000);
@@ -128,14 +129,14 @@ export class AppSettings {
         expect(pathname).to.be.equal(
           `/app/${customSlug}-${pageId}${
             editMode ? "/edit" : ""
-          }`.toLowerCase(),
+          }${restOfUrl}`.toLowerCase(),
         );
       } else {
         const pageId = pathname.split("/")[3]?.split("-").pop();
         expect(pathname).to.be.equal(
           `/app/${appName}/${pageName}-${pageId}${
             editMode ? "/edit" : ""
-          }`.toLowerCase(),
+          }${restOfUrl}`.toLowerCase(),
         );
       }
     });
