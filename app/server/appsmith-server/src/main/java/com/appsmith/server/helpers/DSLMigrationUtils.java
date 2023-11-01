@@ -66,12 +66,16 @@ public class DSLMigrationUtils {
      * @return List of page dsl after migration
      */
     public Mono<JSONObject> migratePageDsl(JSONObject pageDsl) {
+        ParameterizedTypeReference<ResponseDTO<JSONObject>> parameterizedTypeReference =
+                new ParameterizedTypeReference<>() {};
+
         return webClient
                 .post()
                 .uri(commonConfig.getRtsBaseUrl() + "/rts-api/v1/dsl/migrate")
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(BodyInserters.fromValue(pageDsl))
                 .retrieve()
-                .bodyToMono(JSONObject.class);
+                .bodyToMono(parameterizedTypeReference)
+                .map(responseDTO -> responseDTO.getData());
     }
 }
