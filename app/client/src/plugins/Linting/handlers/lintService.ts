@@ -17,7 +17,7 @@ import type {
   TJSPropertiesState,
   TJSpropertyState,
 } from "workers/Evaluation/JSObject/jsPropertiesState";
-import { isJSEntity } from "plugins/Linting/lib/entity";
+import { isJSEntity } from "@appsmith/plugins/Linting/lib/entity";
 import DependencyMap from "entities/DependencyMap";
 import {
   LintEntityTree,
