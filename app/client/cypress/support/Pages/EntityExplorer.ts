@@ -404,6 +404,7 @@ export class EntityExplorer {
   }
 
   public CreateNewDsQuery(dsName: string, isQuery = true) {
+    EditorNavigation.sidebar(SidebarButton.Pages);
     this.agHelper.ClickOutside(); //to close the evaluated pop-up
     cy.get(this.locator._createNew).last().click();
     const searchText = isQuery ? dsName + " query" : dsName;

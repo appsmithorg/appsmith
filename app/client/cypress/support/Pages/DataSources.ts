@@ -153,8 +153,6 @@ export class DataSources {
   _noRecordFound = "span[data-testid='no-data-table-message']";
   _usePreparedStatement =
     "input[name='actionConfiguration.pluginSpecifiedTemplates[0].value'][type='checkbox'], input[name='actionConfiguration.formData.preparedStatement.data'][type='checkbox']";
-  _queriesOnPageText = (dsName: string) =>
-    ".t--datasource-name:contains('" + dsName + "') .t--queries-for-DB";
   _mockDB = (dbName: string) =>
     "//span[text()='" +
     dbName +
@@ -456,7 +454,8 @@ export class DataSources {
 
   CreateMockDB(dbName: "Users" | "Movies"): Cypress.Chainable<string> {
     this.NavigateToDSCreateNew();
-    this.agHelper.GetNClick(this._mockDB(dbName));
+    // this.agHelper.GetNClick();
+    cy.get(this._mockDatasourceName).contains(dbName.toLowerCase()).click();
     this.assertHelper.AssertNetworkStatus("@getMockDb"); //To return the right mock DB name
     return cy
       .get("@getMockDb")
@@ -1942,6 +1941,16 @@ export class DataSources {
       .scrollIntoView()
       .should("be.visible")
       .click()
-      .should("have.attr", "data-selected", true);
+      .parents(datasource.datasourceCard)
+      .should("have.attr", "data-selected", "true");
+  }
+
+  public getDatasourceListItemDescription(name: string) {
+    return cy
+      .get(datasource.datasourceCard)
+      .contains(name)
+      .parents(datasource.datasourceCard)
+      .find(".ads-v2-listitem__bdesc")
+      .invoke("text");
   }
 }

@@ -31,19 +31,19 @@ describe(
 
         dataSources.RunQueryNVerifyResponseViews(5); //minimum 5 rows are expected
         EditorNavigation.sidebar(SidebarButton.Data);
-        agHelper
-          .GetText(dataSources._queriesOnPageText(mockDBName))
+        dataSources
+          .getDatasourceListItemDescription(mockDBName)
           .then(($queryCount) =>
-            expect($queryCount).to.eq("1 query on this page"),
+            expect($queryCount).to.eq("1 queries in this app"),
           );
 
         entityExplorer.CreateNewDsQuery(mockDBName);
         dataSources.RunQueryNVerifyResponseViews(10, true);
         EditorNavigation.sidebar(SidebarButton.Data);
-        agHelper
-          .GetText(dataSources._queriesOnPageText(mockDBName))
+        dataSources
+          .getDatasourceListItemDescription(mockDBName)
           .then(($queryCount) =>
-            expect($queryCount).to.eq("2 queries on this page"),
+            expect($queryCount).to.eq("2 queries in this app"),
           );
       });
     });
@@ -66,10 +66,10 @@ describe(
         dataSources.ValidateNSelectDropdown("Collection", "movies");
         dataSources.RunQueryNVerifyResponseViews(1, false);
         EditorNavigation.sidebar(SidebarButton.Data);
-        agHelper
-          .GetText(dataSources._queriesOnPageText(mockDBName))
+        dataSources
+          .getDatasourceListItemDescription(mockDBName)
           .then(($queryCount) =>
-            expect($queryCount).to.eq("1 query on this page"),
+            expect($queryCount).to.eq("1 queries in this app"),
           );
 
         entityExplorer.CreateNewDsQuery(mockDBName);
@@ -77,15 +77,16 @@ describe(
         dataSources.ValidateNSelectDropdown("Collection", "movies");
         dataSources.RunQueryNVerifyResponseViews(1, false);
         EditorNavigation.sidebar(SidebarButton.Data);
-        agHelper
-          .GetText(dataSources._queriesOnPageText(mockDBName))
+        dataSources
+          .getDatasourceListItemDescription(mockDBName)
           .then(($queryCount) =>
-            expect($queryCount).to.eq("2 queries on this page"),
+            expect($queryCount).to.eq("2 queries in this app"),
           );
       });
     });
 
     afterEach(() => {
+      EditorNavigation.sidebar(SidebarButton.Pages);
       entityExplorer.ExpandCollapseEntity("Queries/JS");
       entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: "Query1",
@@ -98,12 +99,10 @@ describe(
         entityType: entityItems.Query,
       });
       EditorNavigation.sidebar(SidebarButton.Data);
-      agHelper
-        .GetText(dataSources._queriesOnPageText(dsName))
+      dataSources
+        .getDatasourceListItemDescription(dsName)
         .then(($queryCount) =>
-          expect($queryCount).to.eq(
-            "No query in this application is using this datasource",
-          ),
+          expect($queryCount).to.eq("No queries in this app"),
         );
       dataSources.DeleteDatasourceFromWithinDS(dsName);
     });
