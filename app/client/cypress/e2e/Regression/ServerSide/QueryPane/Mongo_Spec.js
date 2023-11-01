@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  SidebarButton,
+} from "../../../../support/Pages/EditorNavigation";
+
 const queryLocators = require("../../../../locators/QueryEditor.json");
 const generatePage = require("../../../../locators/GeneratePage.json");
 const formControls = require("../../../../locators/FormControl.json");
@@ -275,7 +279,6 @@ describe("Validate Mongo query commands", function () {
   });
 
   it("7. Validate Deletion of the Newly Created Page", () => {
-    cy.NavigateToQueryEditor();
     dataSources.DeleteDatasourceFromWithinDS(datasourceName, 409);
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "ListingAndReviews",
@@ -364,7 +367,6 @@ describe("Validate Mongo query commands", function () {
   });
 
   it("9. Delete the datasource after NewPage deletion is success", () => {
-    cy.NavigateToQueryEditor();
     dataSources.DeleteDatasourceFromWithinDS(datasourceName, [200, 409]);
   });
 
@@ -563,15 +565,8 @@ describe("Validate Mongo query commands", function () {
     cy.typeValueNValidate('{"drop": "NonAsciiTest"}', formControls.rawBody);
     cy.wait(1000); //Waiting a bit before runing the command
     dataSources.RunQuery({ waitTimeInterval: 2000 });
-    entityExplorer.ExpandCollapseEntity("Datasources");
-    cy.get("@dSName").then((dbName) => {
-      entityExplorer.ActionContextMenuByEntityName({
-        entityNameinLeftSidebar: dbName,
-        action: "Refresh",
-        entityType: entityItems.Datasource,
-      });
-    });
-    cy.xpath("//div[text()='NonAsciiTest']").should("not.exist"); //validating drop is successful!
+    dataSources.AssertTableInVirtuosoList(dsName, "NonAsciiTest", false);
+    EditorNavigation.sidebar(SidebarButton.Pages);
     cy.deleteQueryUsingContext();
   });
 });

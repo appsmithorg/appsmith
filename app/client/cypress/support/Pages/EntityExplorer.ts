@@ -1,5 +1,6 @@
 import { ObjectsRegistry } from "../Objects/Registry";
 import { EntityItems } from "./AssertHelper";
+import EditorNavigation, { SidebarButton } from "./EditorNavigation";
 
 type templateActions =
   | "Find"
@@ -94,15 +95,10 @@ export class EntityExplorer {
 
   public SelectEntityByName(
     entityNameinLeftSidebar: string,
-    section:
-      | "Widgets"
-      | "Queries/JS"
-      | "Datasources"
-      | "Pages"
-      | ""
-      | string = "",
+    section: "Widgets" | "Queries/JS" | "Pages" | "" | string = "",
     ctrlKey = false,
   ) {
+    EditorNavigation.sidebar(SidebarButton.Pages);
     this.NavigateToSwitcher("Explorer");
     if (section) this.ExpandCollapseEntity(section); //to expand respective section
     cy.xpath(this._entityNameInExplorer(entityNameinLeftSidebar))

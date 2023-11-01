@@ -85,7 +85,6 @@ describe("Validate API Panel CSS Styles", function () {
           .contains("test_styles")
           .should("not.exist");
         //Delete two datasources
-        entityExplorer.ExpandCollapseEntity("Datasources");
         cy.deleteDatasource(appName1);
         cy.deleteDatasource(appName2);
       });

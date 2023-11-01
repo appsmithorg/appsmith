@@ -9,6 +9,9 @@ import {
   entityItems,
   assertHelper,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  SidebarButton,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe("Array Datatype tests", function () {
   let dsName: any, query: string;
@@ -19,6 +22,7 @@ describe("Array Datatype tests", function () {
       dsName = $dsName;
     });
     agHelper.AddDsl("Datatypes/ArrayDTdsl");
+    EditorNavigation.sidebar(SidebarButton.Pages);
     entityExplorer.NavigateToSwitcher("Widgets");
     appSettings.OpenPaneAndChangeThemeColors(-31, -27);
   });
@@ -517,17 +521,7 @@ describe("Array Datatype tests", function () {
     dataSources.RunQuery();
     dataSources.AssertQueryTableResponse(0, "0");
     entityExplorer.ExpandCollapseEntity("Queries/JS", false);
-    entityExplorer.ExpandCollapseEntity("Datasources");
-    entityExplorer.ExpandCollapseEntity(dsName);
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: dsName,
-      action: "Refresh",
-    });
-    agHelper.AssertElementAbsence(
-      entityExplorer._entityNameInExplorer("public.arraytypes"),
-    );
-    entityExplorer.ExpandCollapseEntity(dsName, false);
-    entityExplorer.ExpandCollapseEntity("Datasources", false);
+    dataSources.AssertTableInVirtuosoList(dsName, "public.arraytypes", false);
   });
 
   after(
@@ -535,6 +529,7 @@ describe("Array Datatype tests", function () {
     () => {
       //Verify Deletion of all created queries
       dataSources.DeleteDatasourceFromWithinDS(dsName, 409); //Since all queries exists
+      EditorNavigation.sidebar(SidebarButton.Pages);
       entityExplorer.ExpandCollapseEntity("Queries/JS");
       entityExplorer.DeleteAllQueriesForDB(dsName);
       //Ds Deletion
@@ -542,6 +537,7 @@ describe("Array Datatype tests", function () {
       deployMode.NavigateBacktoEditor();
       entityExplorer.ExpandCollapseEntity("Queries/JS");
       dataSources.DeleteDatasourceFromWithinDS(dsName, 200);
+      EditorNavigation.sidebar(SidebarButton.Pages);
     },
   );
 });

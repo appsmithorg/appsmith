@@ -22,26 +22,14 @@ export const initLocalstorage = () => {
   });
 };
 
-Cypress.Commands.add("NavigateToQueryEditor", () => {
-  cy.get(explorer.addDBQueryEntity).last().click({ force: true });
-});
-
 Cypress.Commands.add("NavigateToQueriesInExplorer", () => {
   cy.get(explorer.entityQuery).click({ force: true });
 });
 
 Cypress.Commands.add("NavigateToActiveDSQueryPane", (datasourceName) => {
-  EditorNavigation.sidebar(SidebarButton.Data);
-
-  cy.get(datasource.datasourceCard)
-    .contains(datasourceName)
-    .scrollIntoView()
-    .should("be.visible")
-    .closest(datasource.datasourceCard)
-    .within(() => {
-      cy.get(queryLocators.createQuery).click({ force: true });
-    })
-    .wait(2000); //for the specified page to load
+  DataSources.navigateToDatasource(datasourceName);
+  cy.get(queryLocators.createQuery).click({ force: true });
+  cy.wait(2000); //for the specified page to load
 });
 
 Cypress.Commands.add("NavigateToDSGeneratePage", (datasourceName) => {

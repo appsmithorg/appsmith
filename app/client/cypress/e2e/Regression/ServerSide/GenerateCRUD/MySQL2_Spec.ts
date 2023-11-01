@@ -363,15 +363,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
       action: "Delete",
       entityType: entityItems.Query,
     });
-    entityExplorer.ExpandCollapseEntity("Datasources");
-    entityExplorer.ExpandCollapseEntity(dsName);
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: dsName,
-      action: "Refresh",
-    });
-    agHelper.AssertElementAbsence(
-      entityExplorer._entityNameInExplorer("Stores"),
-    );
+    dataSources.AssertTableInVirtuosoList(dsName, "Stores", false);
   });
 
   after(

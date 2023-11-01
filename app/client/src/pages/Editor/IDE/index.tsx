@@ -37,7 +37,7 @@ function IDE() {
             [`transition-transform transform duration-400 ${tailwindLayers.propertyPane}`]:
               true,
             relative: !isPreviewMode,
-            "translate-x-full fixed": isPreviewMode,
+            "translate-x-full fixed right-0": isPreviewMode,
           })}
         >
           <RightPane />

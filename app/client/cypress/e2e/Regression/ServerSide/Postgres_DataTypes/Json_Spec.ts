@@ -9,6 +9,9 @@ import {
   locators,
   assertHelper,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  SidebarButton,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe("Json & JsonB Datatype tests", function () {
   let dsName: any, query: string;
@@ -18,6 +21,7 @@ describe("Json & JsonB Datatype tests", function () {
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });
+    EditorNavigation.sidebar(SidebarButton.Pages);
     agHelper.AddDsl("Datatypes/JsonDTdsl");
 
     entityExplorer.NavigateToSwitcher("Widgets");

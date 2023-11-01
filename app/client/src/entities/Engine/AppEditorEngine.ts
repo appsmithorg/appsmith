@@ -7,6 +7,7 @@ import {
   fetchMockDatasources,
 } from "actions/datasourceActions";
 import {
+  fetchGitRemoteStatusInit,
   fetchGitStatusInit,
   remoteUrlInputValue,
   resetPullMergeStatus,
@@ -42,7 +43,10 @@ import {
   waitForWidgetConfigBuild,
 } from "sagas/InitSagas";
 import { getCurrentApplication } from "selectors/editorSelectors";
-import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
+import {
+  getCurrentGitBranch,
+  getIsGitStatusLiteEnabled,
+} from "selectors/gitSyncSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import history from "utils/history";
 import PerformanceTracker, {
@@ -265,6 +269,9 @@ export default class AppEditorEngine extends AppEngine {
 
   public *loadGit(applicationId: string) {
     const branchInStore: string = yield select(getCurrentGitBranch);
+    const isGitStatusLiteEnabled: boolean = yield select(
+      getIsGitStatusLiteEnabled,
+    );
     yield put(
       restoreRecentEntitiesRequest({
         applicationId,
@@ -276,7 +283,13 @@ export default class AppEditorEngine extends AppEngine {
     // add branch query to path and fetch status
     if (branchInStore) {
       history.replace(addBranchParam(branchInStore));
-      yield put(fetchGitStatusInit({ compareRemote: false }));
+
+      if (isGitStatusLiteEnabled) {
+        yield put(fetchGitRemoteStatusInit());
+        yield put(fetchGitStatusInit({ compareRemote: false }));
+      } else {
+        yield put(fetchGitStatusInit({ compareRemote: true }));
+      }
     }
     yield put(resetPullMergeStatus());
   }

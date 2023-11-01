@@ -144,7 +144,6 @@ describe("Check datasource doc links", function () {
       action: "Delete",
       entityType: entityItems.Query,
     });
-    entityExplorer.ExpandCollapseEntity("Datasources");
     dataSources.DeleteDatasourceFromWithinDS(dsName);
     // entityExplorer.ActionContextMenuByEntityName({
     //   entityNameinLeftSidebar: dsName,

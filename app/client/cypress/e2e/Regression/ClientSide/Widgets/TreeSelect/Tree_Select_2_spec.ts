@@ -160,10 +160,6 @@ describe("Tree Select widget Tests", function () {
     // Execute the query
     let postgresDatasourceName: any;
     dataSources.StartDataSourceRoutes();
-    agHelper
-      .GetElement(locators._newDataSourceBtn)
-      .last()
-      .click({ force: true });
     dataSources.NavigateToDSCreateNew();
     dataSources.CreatePlugIn("PostgreSQL");
     agHelper.GenerateUUID();
@@ -300,7 +296,7 @@ describe("Tree Select widget Tests", function () {
     propPane.UpdatePropertyFieldValue(
       "srcDoc",
       `<div id="target"></div>
-  
+
             <script>
             window.addEventListener('message', (event) => {
                 const tgt = document.querySelector("#target")

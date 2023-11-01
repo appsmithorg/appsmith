@@ -336,17 +336,7 @@ describe("Character Datatype tests", function () {
       expect($cellData).to.eq("0"); //Success response for dropped table!
     });
     entityExplorer.ExpandCollapseEntity("Queries/JS", false);
-    entityExplorer.ExpandCollapseEntity("Datasources");
-    entityExplorer.ExpandCollapseEntity(dsName);
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: dsName,
-      action: "Refresh",
-    });
-    agHelper.AssertElementAbsence(
-      entityExplorer._entityNameInExplorer("public.chartypes"),
-    );
-    entityExplorer.ExpandCollapseEntity(dsName, false);
-    entityExplorer.ExpandCollapseEntity("Datasources", false);
+    dataSources.AssertTableInVirtuosoList(dsName, "public.chartypes", false);
   });
 
   it("15. Verify Deletion of the datasource after all created queries are deleted", () => {
