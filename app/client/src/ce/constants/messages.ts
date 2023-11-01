@@ -803,8 +803,8 @@ export const GIT_USER_SETTINGS_TITLE = () => "Git author";
 export const USE_DEFAULT_CONFIGURATION = () => "Use default configuration";
 export const AUTHOR_NAME_ONLY = () => "Name";
 export const AUTHOR_EMAIL_ONLY = () => "E-mail";
-export const AUTHOR_NAME = () => "Author Name";
-export const AUTHOR_EMAIL = () => "Author E-mail";
+export const AUTHOR_NAME = () => "Author name";
+export const AUTHOR_EMAIL = () => "Author email";
 export const AUTHOR_NAME_CANNOT_BE_EMPTY = () => "Author name cannot be empty";
 export const AUTHOR_EMAIL_CANNOT_BE_EMPTY = () =>
   "Author email cannot be empty";
