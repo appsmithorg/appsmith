@@ -22,6 +22,7 @@ import GlobalStyles from "globalStyles";
 // enable autofreeze only in development
 import { setAutoFreeze } from "immer";
 import AppErrorBoundary from "./AppErrorBoundry";
+import log from "loglevel";
 
 const shouldAutoFreeze = process.env.NODE_ENV === "development";
 
@@ -30,6 +31,19 @@ runSagaMiddleware();
 
 appInitializer();
 
+(async () => {
+  const enableNewRelic =
+    !!process.env.REACT_APP_APPSMITH_NEW_RELIC_ACCOUNT_ENABLE;
+  if (enableNewRelic) {
+    try {
+      // eslint-disable-next-line no-console
+      console.log("loading telemetry");
+      await import(/* webpackChunkName: "otlpTelemetry" */ "./auto-otel-web");
+    } catch (e) {
+      log.error("Error loading otlp telemetry", e);
+    }
+  }
+})();
 function App() {
   return (
     <Sentry.ErrorBoundary fallback={"An error has occured"}>
