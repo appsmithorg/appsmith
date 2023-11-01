@@ -30,6 +30,7 @@ import static com.external.plugins.constants.OpenAIConstants.EXCHANGE_STRATEGIES
 import static com.external.plugins.constants.OpenAIConstants.MODEL;
 import static com.external.plugins.constants.OpenAIConstants.MODELS_ENDPOINT;
 import static com.external.plugins.constants.OpenAIConstants.OPEN_AI_HOST;
+import static com.external.plugins.constants.OpenAIErrorMessages.EMPTY_BEARER_TOKEN;
 
 public class RequestUtils {
 
@@ -88,11 +89,11 @@ public class RequestUtils {
     public static Set<String> validateBearerTokenDatasource(DatasourceConfiguration datasourceConfiguration) {
         Set<String> invalids = new HashSet<>();
         final BearerTokenAuth bearerTokenAuth = (BearerTokenAuth) datasourceConfiguration.getAuthentication();
-        String bearerToken = bearerTokenAuth.getBearerToken();
-        if (!StringUtils.hasText(bearerToken)) {
-            String bearerTokenInvalid = "Bearer token should not be empty, Please add a bearer token";
-            invalids.add(bearerTokenInvalid);
+
+        if (bearerTokenAuth == null || !StringUtils.hasText(bearerTokenAuth.getBearerToken())) {
+            invalids.add(EMPTY_BEARER_TOKEN);
         }
+
         return invalids;
     }
 }

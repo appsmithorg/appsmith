@@ -14,4 +14,6 @@ public class OpenAIErrorMessages {
             "role value is incorrect. Please choose a role value which conforms to the OpenAI contract";
     public static final String INCORRECT_MESSAGE_FORMAT =
             "messages object is not correctly configured. Please provide a list of messages";
+
+    public static final String EMPTY_BEARER_TOKEN = "Bearer token should not be empty, Please add a bearer token";
 }
