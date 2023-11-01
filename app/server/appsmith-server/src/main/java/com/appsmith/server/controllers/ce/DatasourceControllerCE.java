@@ -210,6 +210,11 @@ public class DatasourceControllerCE {
         log.debug("Trigger received for datasource {}", datasourceId);
         return datasourceTriggerSolution
                 .trigger(datasourceId, environmentId, triggerRequestDTO)
+                .onErrorResume(error -> {
+                    int x = 1;
+                    return Mono.error(error);
+                })
+                //.timeout(Duration.ofMillis(1))
                 .map(triggerResultDTO -> new ResponseDTO<>(HttpStatus.OK.value(), triggerResultDTO, null));
     }
 

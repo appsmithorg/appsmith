@@ -9,6 +9,7 @@ import type { DropdownOption } from "design-system-old";
 import { useDispatch, useSelector } from "react-redux";
 import { PluginPackageName } from "entities/Action";
 import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelectors";
+import AnalyticsUtil from "../../../../../utils/AnalyticsUtil";
 
 export const FAKE_DATASOURCE_OPTION = {
   CONNECT_NEW_DATASOURCE_OPTION: {
@@ -398,6 +399,7 @@ export const useSheetData = (
           props.setSheetData && props.setSheetData(responseBody);
         } else {
           // to handle error like "401 Unauthorized"
+          AnalyticsUtil.logEvent("DATA_FETCH_FAILED_POST_SCHEMA_FETCH", payload);
         }
       }
     },

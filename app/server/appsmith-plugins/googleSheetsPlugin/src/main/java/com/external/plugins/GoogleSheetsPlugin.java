@@ -340,7 +340,7 @@ public class GoogleSheetsPlugin extends BasePlugin {
                     .getTriggerClient(client, methodConfig)
                     .headers(headers -> headers.set(
                             "Authorization",
-                            "Bearer " + oauth2.getAuthenticationResponse().getToken()))
+                            "Bearer x" + oauth2.getAuthenticationResponse().getToken()))
                     .exchange()
                     .flatMap(clientResponse -> clientResponse.toEntity(byte[].class))
                     .map(response -> {
