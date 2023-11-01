@@ -263,14 +263,15 @@ export const CodemirrorHintStyles = createGlobalStyle<{
       box-shadow: var(--ads-v2-shadow-popovers);
       border: 1px solid var(--ads-v2-color-border);
       border-radius: var(--ads-v2-border-radius);
-      color: hsl(21, 70%, 53%);
       z-index: 15px;
       font-weight: 500;
       white-space: nowrap;
       color: var(--ads-v2-color-fg);
       .CodeMirror-Tern-fname {
+        color: var(--ads-v2-color-fg);
       }
       .CodeMirror-Tern-farg {
+        color: var(--ads-v2-color-fg);
         &.CodeMirror-Tern-farg-current {
           color: ${CodeEditorColors.KEYWORD};
           font-weight: 600;
