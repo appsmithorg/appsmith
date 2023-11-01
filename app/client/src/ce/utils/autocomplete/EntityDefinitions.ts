@@ -212,18 +212,18 @@ export const ternDocsInfo: Record<string, any> = {
     content: "Action to navigate the user to another page or url",
     exampleArgs: [
       "'Page1', { id: 1 }",
-      "'https://appsmith.com', { query: 123 }, 'NEW_WINDOW'",
+      "'https://appsmith.com', {}, 'NEW_WINDOW'",
     ],
   },
   copyToClipboard: {
     content: "Copy text to clipboard",
-    exampleArgs: ["'Hello World'"],
+    exampleArgs: ["'Hello'"],
   },
   download: {
     content: "Download anything as a file",
     exampleArgs: [
       "'Hello World', 'hello.txt', 'text/plain'",
-      "'<html><body>Hello World</body></html>', 'hello.html', 'text/html'",
+      "FilePicker1.files[0].data, 'data.json'",
     ],
   },
   storeValue: {
@@ -244,7 +244,7 @@ export const ternDocsInfo: Record<string, any> = {
   },
   setInterval: {
     content: "Calls a function at a given interval",
-    exampleArgs: ["() => console.log('Hello World'), 1000, 'id'"],
+    exampleArgs: ["() => showAlert('Hello'), 1000, 'id'"],
   },
   clearInterval: {
     content: "Stop executing a setInterval with id",
@@ -253,7 +253,7 @@ export const ternDocsInfo: Record<string, any> = {
   postWindowMessage: {
     content:
       "Establish cross-origin communication between Window objects/page and iframes",
-    exampleArgs: ["{ type: 'message', message: 'Hello World' }, '*', '*'"],
+    exampleArgs: ["message, 'Iframe1', '*'"],
   },
 };
 

@@ -15,9 +15,8 @@ export const CodemirrorHintStyles = createGlobalStyle<{
       z-index: 20;
       overflow: hidden;
       list-style: none;
-      margin-top: ${(props) => props.theme.spaces[3]}px;
-      padding: 0px 0px;
-      font-family: monospace;
+      padding: 0px;
+      font-family: ${(props) => props.theme.fonts.code};
       max-height: 25em;
       overflow-y: auto;
       background: var(--ads-v2-color-bg);
@@ -251,29 +250,27 @@ export const CodemirrorHintStyles = createGlobalStyle<{
     font-family: ${(props) => props.theme.fonts.code};
     &&& {
       font-size: 12px;
-      z-index: 20 !important;
+      z-index: 20;
       background: var(--ads-v2-color-bg);
       box-shadow: var(--ads-v2-shadow-popovers);
       border: 1px solid var(--ads-v2-color-border);
       z-index: 15px;
       font-weight: 500;
       white-space: nowrap;
+      max-width: 500px;
       color: var(--ads-v2-color-fg);
       .CodeMirror-Tern-fname {
-        color: var(--ads-v2-color-fg);
+        color: hsl(30,77%,40%);
       }
       .CodeMirror-Tern-farg {
         color: var(--ads-v2-color-fg);
         &.CodeMirror-Tern-farg-current {
           color: ${CodeEditorColors.KEYWORD};
           font-weight: 600;
-          + span {
-            color: ${CodeEditorColors.KEYWORD};
-          }
         }
       }
       .CodeMirror-Tern-type {
-        color: var(--ads-v2-color-fg);
+        color: ${CodeEditorColors.FUNCTION_ARGS};
       }
       &.CodeMirror-Tern-hint-doc {
         display: block;
@@ -282,7 +279,7 @@ export const CodemirrorHintStyles = createGlobalStyle<{
         border: 1px solid var(--ads-v2-color-border);
         color: var(--ads-v2-color-fg);
         max-height: 150px;
-        max-width: 500px;
+        max-width: 350px;
         overflow: auto;
         font-size: 11px;
         padding: 0 !important;
