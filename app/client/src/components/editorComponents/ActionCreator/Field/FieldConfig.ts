@@ -545,7 +545,7 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
   },
   [FieldType.SOURCE_FIELD]: {
     label: () => "Target",
-    defaultText: "Window",
+    defaultText: "window",
     options: (props: FieldProps) => {
       const { widgetOptionTree } = props;
       const defaultOption = { label: "window", value: "window" };
