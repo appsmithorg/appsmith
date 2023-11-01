@@ -49,7 +49,7 @@ describe("Git Branch Protection", function () {
 
       cy.intercept({
         method: "POST",
-        url: "/api/v1/git/branvh/app/**/protected",
+        url: /\/api\/v1\/git\/branch\/app\/.*\/protected/,
       }).as("gitProtectApi");
 
       _.gitSync.CreateNConnectToGitV2();
