@@ -258,30 +258,26 @@ export const CodemirrorHintStyles = createGlobalStyle<{
     font-family: ${(props) => props.theme.fonts.code};
     &&& {
       font-size: 12px;
-      z-index: 20 !important;
+      z-index: 20;
       background: var(--ads-v2-color-bg);
       box-shadow: var(--ads-v2-shadow-popovers);
       border: 1px solid var(--ads-v2-color-border);
       border-radius: var(--ads-v2-border-radius);
-      z-index: 15px;
-      font-weight: 500;
+      max-width: 500px;
       white-space: nowrap;
       color: var(--ads-v2-color-fg);
       .CodeMirror-Tern-fname {
-        color: var(--ads-v2-color-fg);
+        color: hsl(30,77%,40%);
       }
       .CodeMirror-Tern-farg {
         color: var(--ads-v2-color-fg);
         &.CodeMirror-Tern-farg-current {
           color: ${CodeEditorColors.KEYWORD};
           font-weight: 600;
-          + span {
-            color: ${CodeEditorColors.KEYWORD};
-          }
         }
       }
       .CodeMirror-Tern-type {
-        color: var(--ads-v2-color-fg);
+        color: ${CodeEditorColors.FUNCTION_ARGS};
       }
     }
   }
