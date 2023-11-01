@@ -14,8 +14,6 @@ describe("API Panel Test Functionality", function () {
 
   it("1. Test Search API fetaure", function () {
     cy.log("Login Successful");
-    cy.NavigateToAPI_Panel();
-    cy.log("Navigation to API Panel screen successful");
     cy.CreateAPI("FirstAPI");
     cy.get(".CodeMirror-placeholder")
       .first()
@@ -40,8 +38,6 @@ describe("API Panel Test Functionality", function () {
   });
 
   it("2. Should update loading state after cancellation of confirmation for run query", function () {
-    cy.NavigateToAPI_Panel();
-    cy.log("Navigation to API Panel screen successful");
     cy.CreateAPI("FirstAPI");
     cy.get(".CodeMirror-placeholder")
       .first()
@@ -56,7 +52,6 @@ describe("API Panel Test Functionality", function () {
   });
 
   it("3. Should not crash on key delete", function () {
-    cy.NavigateToAPI_Panel();
     cy.CreateAPI("CrashTestAPI");
     cy.SelectAction(testdata.postAction);
     cy.get(apiwidget.headerKey)
@@ -71,7 +66,6 @@ describe("API Panel Test Functionality", function () {
   });
 
   it("4. Should correctly parse query params", function () {
-    cy.NavigateToAPI_Panel();
     cy.CreateAPI("APIWithQueryParams");
     cy.enterDatasourceAndPath(testdata.baseUrl, testdata.methodWithQueryParam);
     cy.ValidateQueryParams({
@@ -81,7 +75,6 @@ describe("API Panel Test Functionality", function () {
   });
 
   it("5. Shows evaluated value pane when url field is focused", function () {
-    cy.NavigateToAPI_Panel();
     cy.CreateAPI("TestAPI");
     cy.get(".CodeMirror textarea")
       .first()

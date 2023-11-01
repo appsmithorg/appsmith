@@ -1113,7 +1113,6 @@ export class AggregateHelper extends ReusableHelper {
       });
       toastToValidate && this.AssertContains(toastToValidate);
     }
-    EditorNavigation.sidebar(SidebarButton.Pages);
   }
 
   public DeleteEntityNAssert(

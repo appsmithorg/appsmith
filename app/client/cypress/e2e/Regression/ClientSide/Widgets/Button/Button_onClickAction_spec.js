@@ -38,7 +38,6 @@ describe("Button Widget Functionality", function () {
     //creating an api and calling it from the onClickAction of the button widget.
     // Creating the api
     propPane.ClearActionField("onClick");
-    cy.NavigateToAPI_Panel();
     cy.CreateAPI("buttonApi");
     cy.log("Creation of buttonApi Action successful");
     cy.enterDatasourceAndPath(

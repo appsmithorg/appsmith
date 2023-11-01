@@ -454,8 +454,9 @@ export class DataSources {
 
   CreateMockDB(dbName: "Users" | "Movies"): Cypress.Chainable<string> {
     this.NavigateToDSCreateNew();
-    // this.agHelper.GetNClick();
-    cy.get(this._mockDatasourceName).contains(dbName.toLowerCase()).click();
+    cy.get(this._mockDatasourceName)
+      .contains(dbName, { matchCase: false })
+      .click();
     this.assertHelper.AssertNetworkStatus("@getMockDb"); //To return the right mock DB name
     return cy
       .get("@getMockDb")

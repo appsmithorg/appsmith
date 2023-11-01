@@ -49,7 +49,6 @@ describe("GlobalSearch", function () {
   });
 
   it("3. navigatesToApi", () => {
-    cy.NavigateToAPI_Panel();
     cy.CreateAPI("SomeApi");
 
     cy.get(commonlocators.globalSearchTrigger).click({ force: true });

@@ -42,7 +42,6 @@ describe("Dropdown Widget", function () {
   it("2. Dropdown-Call-Api Validation", function () {
     //creating an api and calling it from the onOptionChangeAction of the Dropdown widget.
     // Creating the api
-    cy.NavigateToAPI_Panel();
     cy.CreateAPI("dropdownApi");
     cy.log("Creation of buttonApi Action successful");
     cy.enterDatasourceAndPath(
