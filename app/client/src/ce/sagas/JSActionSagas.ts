@@ -6,14 +6,7 @@ import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import {
-  all,
-  put,
-  takeEvery,
-  takeLatest,
-  select,
-  call,
-} from "redux-saga/effects";
+import { put, select, call } from "redux-saga/effects";
 import type { FetchActionsPayload } from "actions/pluginActionActions";
 import type { JSCollection, JSAction } from "entities/JSCollection";
 import {
@@ -432,28 +425,4 @@ export function* fetchJSCollectionsForViewModeSaga(
       payload: { error },
     });
   }
-}
-
-export function* watchJSActionSagas() {
-  yield all([
-    takeEvery(ReduxActionTypes.FETCH_JS_ACTIONS_INIT, fetchJSCollectionsSaga),
-    takeEvery(ReduxActionTypes.CREATE_JS_ACTION_INIT, createJSCollectionSaga),
-    takeLatest(ReduxActionTypes.COPY_JS_ACTION_INIT, copyJSCollectionSaga),
-    takeEvery(ReduxActionTypes.COPY_JS_ACTION_SUCCESS, handleMoveOrCopySaga),
-    takeEvery(ReduxActionErrorTypes.COPY_JS_ACTION_ERROR, handleMoveOrCopySaga),
-    takeLatest(ReduxActionTypes.MOVE_JS_ACTION_INIT, moveJSCollectionSaga),
-    takeEvery(ReduxActionErrorTypes.MOVE_JS_ACTION_ERROR, handleMoveOrCopySaga),
-    takeEvery(ReduxActionTypes.MOVE_JS_ACTION_SUCCESS, handleMoveOrCopySaga),
-    takeEvery(ReduxActionTypes.MOVE_JS_ACTION_SUCCESS, handleMoveOrCopySaga),
-    takeLatest(ReduxActionTypes.DELETE_JS_ACTION_INIT, deleteJSCollectionSaga),
-    takeLatest(ReduxActionTypes.SAVE_JS_COLLECTION_NAME_INIT, saveJSObjectName),
-    takeLatest(
-      ReduxActionTypes.FETCH_JS_ACTIONS_FOR_PAGE_INIT,
-      fetchJSCollectionsForPageSaga,
-    ),
-    takeEvery(
-      ReduxActionTypes.FETCH_JS_ACTIONS_VIEW_MODE_INIT,
-      fetchJSCollectionsForViewModeSaga,
-    ),
-  ]);
 }
