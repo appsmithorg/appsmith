@@ -13,11 +13,13 @@ import MenuItem from "./components/MenuItem";
 import { Container } from "./TopInline.styled";
 import MenuItemContainer from "./components/MenuItemContainer";
 import MoreDropdownButton from "./components/MoreDropdownButton";
-import { getCanvasWidth, previewModeSelector } from "selectors/editorSelectors";
+import {
+  combinedPreviewModeSelector,
+  getCanvasWidth,
+} from "selectors/editorSelectors";
 import { useSelector } from "react-redux";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 import { throttle } from "lodash";
-import { protectedModeSelector } from "selectors/gitSyncSelectors";
 
 // TODO - @Dhruvik - ImprovedAppNav
 // Replace with NavigationProps if nothing changes
@@ -45,13 +47,11 @@ export function TopInline(props: TopInlineProps) {
   const maxMenuItemWidth = 220;
   const [maxMenuItemsThatCanFit, setMaxMenuItemsThatCanFit] = useState(0);
   const { width: screenWidth } = useWindowSizeHooks();
-  const isPreviewMode = useSelector(previewModeSelector);
-  const isProtectedMode = useSelector(protectedModeSelector);
+  const isPreviewMode = useSelector(combinedPreviewModeSelector);
   const isAppSettingsPaneWithNavigationTabOpen = useSelector(
     getIsAppSettingsPaneWithNavigationTabOpen,
   );
-  const isPreviewing =
-    isPreviewMode || isProtectedMode || isAppSettingsPaneWithNavigationTabOpen;
+  const isPreviewing = isPreviewMode || isAppSettingsPaneWithNavigationTabOpen;
   const canvasWidth = useSelector(getCanvasWidth);
   const THROTTLE_TIMEOUT = 50;
 

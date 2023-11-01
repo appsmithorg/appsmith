@@ -9,8 +9,7 @@ import { getAppMode } from "@appsmith/selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 import type { RenderMode } from "constants/WidgetConstants";
 import { getAppsmithConfigs } from "@appsmith/configs";
-import { previewModeSelector } from "selectors/editorSelectors";
-import { protectedModeSelector } from "selectors/gitSyncSelectors";
+import { combinedPreviewModeSelector } from "selectors/editorSelectors";
 
 interface IframeContainerProps {
   borderColor?: string;
@@ -136,8 +135,7 @@ function IframeComponent(props: IframeComponentProps) {
   }, [srcDoc]);
 
   const appMode = useSelector(getAppMode);
-  const isPreviewMode = useSelector(previewModeSelector);
-  const isProtectedMode = useSelector(protectedModeSelector);
+  const isPreviewMode = useSelector(combinedPreviewModeSelector);
   const selectedWidget = useSelector(getWidgetPropsForPropertyPane);
 
   return (
@@ -150,7 +148,6 @@ function IframeComponent(props: IframeComponentProps) {
     >
       {appMode === APP_MODE.EDIT &&
         !isPreviewMode &&
-        !isProtectedMode &&
         widgetId !== selectedWidget?.widgetId && <OverlayDiv />}
 
       {message ? (

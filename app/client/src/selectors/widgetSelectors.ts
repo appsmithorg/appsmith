@@ -20,8 +20,7 @@ import { APP_MODE } from "entities/App";
 import { getIsTableFilterPaneVisible } from "selectors/tableFilterSelectors";
 import { getIsAutoHeightWithLimitsChanging } from "utils/hooks/autoHeightUIHooks";
 import { getIsPropertyPaneVisible } from "./propertyPaneSelectors";
-import { previewModeSelector } from "./editorSelectors";
-import { protectedModeSelector } from "./gitSyncSelectors";
+import { combinedPreviewModeSelector } from "./editorSelectors";
 
 export const getIsDraggingOrResizing = (state: AppState) =>
   state.ui.widgetDragResize.isResizing || state.ui.widgetDragResize.isDragging;
@@ -153,8 +152,7 @@ export const shouldWidgetIgnoreClicksSelector = (widgetId: string) => {
     (state: AppState) => state.ui.widgetDragResize.isDragging,
     (state: AppState) => state.ui.canvasSelection.isDraggingForSelection,
     getAppMode,
-    previewModeSelector,
-    protectedModeSelector,
+    combinedPreviewModeSelector,
     getIsAutoHeightWithLimitsChanging,
     (
       focusedWidgetId,
@@ -164,7 +162,6 @@ export const shouldWidgetIgnoreClicksSelector = (widgetId: string) => {
       isDraggingForSelection,
       appMode,
       isPreviewMode,
-      isProtectedMode,
       isAutoHeightWithLimitsChanging,
     ) => {
       const isFocused = focusedWidgetId === widgetId;
@@ -174,7 +171,6 @@ export const shouldWidgetIgnoreClicksSelector = (widgetId: string) => {
         isResizing ||
         isDragging ||
         isPreviewMode ||
-        isProtectedMode ||
         appMode !== APP_MODE.EDIT ||
         !isFocused ||
         isTableFilterPaneVisible ||

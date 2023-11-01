@@ -20,10 +20,9 @@ import {
 import type { UIElementSize } from "./ResizableUtils";
 import { useModalWidth } from "widgets/ModalWidget/component/useModalWidth";
 import {
-  previewModeSelector,
+  combinedPreviewModeSelector,
   snipingModeSelector,
 } from "selectors/editorSelectors";
-import { protectedModeSelector } from "selectors/gitSyncSelectors";
 const minSize = 100;
 
 /**
@@ -100,10 +99,9 @@ export const ModalResizableLayer = ({
       widgetType: "MODAL_WIDGET",
     });
   };
-  const isPreviewMode = useSelector(previewModeSelector);
-  const isProtectedMode = useSelector(protectedModeSelector);
+  const isPreviewMode = useSelector(combinedPreviewModeSelector);
   const isSnipingMode = useSelector(snipingModeSelector);
-  const enableResizing = !isSnipingMode && !isPreviewMode && !isProtectedMode;
+  const enableResizing = !isSnipingMode && !isPreviewMode;
   return (
     <ModalResizable
       allowResize

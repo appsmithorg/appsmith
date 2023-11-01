@@ -5,7 +5,7 @@ import styled from "styled-components";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { useSelector } from "react-redux";
 import {
-  previewModeSelector,
+  combinedPreviewModeSelector,
   snipingModeSelector,
 } from "selectors/editorSelectors";
 import { getIsResizing } from "selectors/widgetSelectors";
@@ -15,7 +15,6 @@ import { widgetTypeClassname } from "widgets/WidgetUtils";
 import { RESIZE_BORDER_BUFFER } from "layoutSystems/common/resizer/common";
 import { checkIsDropTarget } from "WidgetProvider/factory/helpers";
 import type { FlexComponentProps } from "../../autolayout/utils/types";
-import { protectedModeSelector } from "selectors/gitSyncSelectors";
 
 const FlexWidget = styled.div`
   position: relative;
@@ -53,8 +52,7 @@ export function FlexComponent(props: FlexComponentProps) {
       )} t--widget-${props.widgetName.toLowerCase()}`,
     [props.parentId, props.widgetId, props.widgetType, props.widgetName],
   );
-  const isPreviewMode = useSelector(previewModeSelector);
-  const isProtectedMode = useSelector(protectedModeSelector);
+  const isPreviewMode = useSelector(combinedPreviewModeSelector);
 
   const isResizing = useSelector(getIsResizing);
   const widgetDimensionsViewCss = {
@@ -101,7 +99,6 @@ export function FlexComponent(props: FlexComponentProps) {
     zIndex,
     isResizing,
     isPreviewMode,
-    isProtectedMode,
     onHoverZIndex,
   ]);
 

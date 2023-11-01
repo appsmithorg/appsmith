@@ -15,8 +15,8 @@ import PrimaryCTA from "../PrimaryCTA";
 import { useHref } from "pages/Editor/utils";
 import { builderURL } from "@appsmith/RouteBuilder";
 import {
+  combinedPreviewModeSelector,
   getCurrentPageId,
-  previewModeSelector,
 } from "selectors/editorSelectors";
 import type { User } from "constants/userConstants";
 import SidebarProfileComponent from "./components/SidebarProfileComponent";
@@ -37,7 +37,6 @@ import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettings
 import NavigationLogo from "@appsmith/pages/AppViewer/NavigationLogo";
 import MenuItemContainer from "./components/MenuItemContainer";
 import BackToAppsButton from "./components/BackToAppsButton";
-import { protectedModeSelector } from "selectors/gitSyncSelectors";
 
 interface SidebarProps {
   currentApplicationDetails?: ApplicationPayload;
@@ -84,8 +83,7 @@ export function Sidebar(props: SidebarProps) {
   const [isOpen, setIsOpen] = useState(true);
   const { x } = useMouse();
   const theme = useSelector(getCurrentThemeDetails);
-  const isPreviewMode = useSelector(previewModeSelector);
-  const isProtectedMode = useSelector(protectedModeSelector);
+  const isPreviewMode = useSelector(combinedPreviewModeSelector);
   const isAppSettingsPaneWithNavigationTabOpen = useSelector(
     getIsAppSettingsPaneWithNavigationTabOpen,
   );
@@ -130,7 +128,7 @@ export function Sidebar(props: SidebarProps) {
     let prefix = `calc( 100vh - `;
     const suffix = ")";
 
-    if (isPreviewMode || isProtectedMode) {
+    if (isPreviewMode) {
       prefix += `${theme.smallHeaderHeight} - ${theme.bottomBarHeight}`;
     } else if (isAppSettingsPaneWithNavigationTabOpen) {
       // We deduct 64px as well since it is the margin coming from "m-8" class from tailwind

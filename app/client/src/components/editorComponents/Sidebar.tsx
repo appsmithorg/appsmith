@@ -24,7 +24,7 @@ import {
 } from "selectors/explorerSelector";
 import { tailwindLayers } from "constants/Layers";
 import { Tooltip } from "design-system";
-import { previewModeSelector } from "selectors/editorSelectors";
+import { combinedPreviewModeSelector } from "selectors/editorSelectors";
 import useHorizontalResize from "utils/hooks/useHorizontalResize";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { SIDEBAR_ID } from "constants/Explorer";
@@ -35,7 +35,6 @@ import styled from "styled-components";
 import moment from "moment";
 import AnalyticsUtil from "../../utils/AnalyticsUtil";
 import { getIsAppSidebarEnabled } from "../../selectors/ideSelectors";
-import { protectedModeSelector } from "selectors/gitSyncSelectors";
 
 const StyledResizer = styled.div<{ resizing: boolean }>`
   ${(props) =>
@@ -63,14 +62,13 @@ export const EntityExplorerSidebar = memo(({ children }: Props) => {
   const active = useSelector(getExplorerActive);
   const sidebarRef = useRef<HTMLDivElement>(null);
   const pinned = useSelector(getExplorerPinned);
-  const isPreviewMode = useSelector(previewModeSelector);
-  const isProtectedMode = useSelector(protectedModeSelector);
+  const isPreviewMode = useSelector(combinedPreviewModeSelector);
   const isAppSettingsPaneWithNavigationTabOpen = useSelector(
     getIsAppSettingsPaneWithNavigationTabOpen,
   );
   const isAppSidebarEnabled = useSelector(getIsAppSidebarEnabled);
   const isPreviewingApp =
-    isPreviewMode || isProtectedMode || isAppSettingsPaneWithNavigationTabOpen;
+    isPreviewMode || isAppSettingsPaneWithNavigationTabOpen;
 
   /**
    * on entity explorer sidebar width change
@@ -201,7 +199,6 @@ export const EntityExplorerSidebar = memo(({ children }: Props) => {
     resizerLeft,
     pinned,
     isPreviewMode,
-    isProtectedMode,
     isAppSettingsPaneWithNavigationTabOpen,
   ]);
 

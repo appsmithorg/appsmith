@@ -49,6 +49,7 @@ import { toast } from "design-system";
 import { showDebuggerFlag } from "selectors/debuggerSelectors";
 import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
 import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
+import { protectedModeSelector } from "selectors/gitSyncSelectors";
 
 interface Props {
   copySelectedWidget: () => void;
@@ -373,7 +374,7 @@ const mapStateToProps = (state: AppState) => ({
   isDebuggerOpen: showDebuggerFlag(state),
   appMode: getAppMode(state),
   isPreviewMode: previewModeSelector(state),
-  isProtectedMode: previewModeSelector(state),
+  isProtectedMode: protectedModeSelector(state),
   isExplorerPinned: getExplorerPinned(state),
   isSignpostingEnabled: getIsFirstTimeUserOnboardingEnabled(state),
 });

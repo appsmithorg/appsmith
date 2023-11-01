@@ -21,16 +21,15 @@ import {
   getIsDraggingForSelection,
 } from "selectors/canvasSelectors";
 import {
+  combinedPreviewModeSelector,
   getCurrentApplicationLayout,
   getCurrentPageId,
-  previewModeSelector,
 } from "selectors/editorSelectors";
 import { getNearestParentCanvas } from "utils/generators";
 import { getAbsolutePixels } from "utils/helpers";
 import type { XYCord } from "layoutSystems/common/canvasArenas/ArenaTypes";
 import { useCanvasDragToScroll } from "layoutSystems/common/canvasArenas/useCanvasDragToScroll";
 import { StickyCanvasArena } from "layoutSystems/common/canvasArenas/StickyCanvasArena";
-import { protectedModeSelector } from "selectors/gitSyncSelectors";
 
 export interface SelectedArenaDimensions {
   top: number;
@@ -71,8 +70,7 @@ export function CanvasSelectionArena({
     (parentWidget && parentWidget.detachFromLayout)
   );
   const appMode = useSelector(getAppMode);
-  const isPreviewMode = useSelector(previewModeSelector);
-  const isProtectedMode = useSelector(protectedModeSelector);
+  const isPreviewMode = useSelector(combinedPreviewModeSelector);
   const isAppSettingsPaneWithNavigationTabOpen = useSelector(
     getIsAppSettingsPaneWithNavigationTabOpen,
   );
@@ -503,7 +501,6 @@ export function CanvasSelectionArena({
     !(
       isDragging ||
       isPreviewMode ||
-      isProtectedMode ||
       isAppSettingsPaneWithNavigationTabOpen ||
       dropDisabled
     );

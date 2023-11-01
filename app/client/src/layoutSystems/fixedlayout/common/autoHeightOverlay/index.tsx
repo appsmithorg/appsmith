@@ -3,10 +3,9 @@ import type { CSSProperties } from "react";
 import React, { memo } from "react";
 import { useSelector } from "react-redux";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
-import { previewModeSelector } from "selectors/editorSelectors";
+import { combinedPreviewModeSelector } from "selectors/editorSelectors";
 import type { WidgetProps } from "widgets/BaseWidget";
 import AutoHeightOverlayWithStateContext from "./AutoHeightOverlayWithStateContext";
-import { protectedModeSelector } from "selectors/gitSyncSelectors";
 
 export interface MinMaxHeightProps {
   maxDynamicHeight: number;
@@ -32,8 +31,7 @@ const AutoHeightOverlayContainer: React.FC<AutoHeightOverlayContainerProps> =
       selectedWidgets,
     } = useSelector((state: AppState) => state.ui.widgetDragResize);
 
-    const isPreviewMode = useSelector(previewModeSelector);
-    const isProtectedMode = useSelector(protectedModeSelector);
+    const isPreviewMode = useSelector(combinedPreviewModeSelector);
     const isAppSettingsPaneWithNavigationTabOpen = useSelector(
       getIsAppSettingsPaneWithNavigationTabOpen,
     );
@@ -44,9 +42,7 @@ const AutoHeightOverlayContainer: React.FC<AutoHeightOverlayContainerProps> =
 
     if (
       isWidgetSelected &&
-      (!isPreviewMode ||
-        !isProtectedMode ||
-        !isAppSettingsPaneWithNavigationTabOpen)
+      (!isPreviewMode || !isAppSettingsPaneWithNavigationTabOpen)
     ) {
       return (
         <AutoHeightOverlayWithStateContext isHidden={isHidden} {...props} />

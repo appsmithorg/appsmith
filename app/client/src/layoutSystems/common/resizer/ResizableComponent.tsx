@@ -18,7 +18,7 @@ import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { getIsAutoLayout } from "selectors/canvasSelectors";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 import {
-  previewModeSelector,
+  combinedPreviewModeSelector,
   snipingModeSelector,
 } from "selectors/editorSelectors";
 import {
@@ -65,7 +65,6 @@ import {
   computeFinalRowCols,
   computeFinalAutoLayoutRowCols,
 } from "layoutSystems/common/resizer/ResizableUtils";
-import { protectedModeSelector } from "selectors/gitSyncSelectors";
 
 export type ResizableComponentProps = WidgetProps & {
   paddingOffset: number;
@@ -80,8 +79,7 @@ export const ResizableComponent = memo(function ResizableComponent(
   const isAutoLayout = useSelector(getIsAutoLayout);
   const Resizable = isAutoLayout ? AutoLayoutResizable : FixedLayoutResizable;
   const isSnipingMode = useSelector(snipingModeSelector);
-  const isPreviewMode = useSelector(previewModeSelector);
-  const isProtectedMode = useSelector(protectedModeSelector);
+  const isPreviewMode = useSelector(combinedPreviewModeSelector);
   const isAppSettingsPaneWithNavigationTabOpen = useSelector(
     getIsAppSettingsPaneWithNavigationTabOpen,
   );
@@ -327,7 +325,6 @@ export const ResizableComponent = memo(function ResizableComponent(
     !props.resizeDisabled &&
     !isSnipingMode &&
     !isPreviewMode &&
-    !isProtectedMode &&
     !isAppSettingsPaneWithNavigationTabOpen;
   const { updateDropTargetRows } = useContext(DropTargetContext);
 
@@ -388,7 +385,6 @@ export const ResizableComponent = memo(function ResizableComponent(
   const showResizeBoundary =
     !isAutoCanvasResizing &&
     !isPreviewMode &&
-    !isProtectedMode &&
     !isAppSettingsPaneWithNavigationTabOpen &&
     !isDragging &&
     (isHovered || isSelected);

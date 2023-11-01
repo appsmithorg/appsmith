@@ -17,8 +17,7 @@ import {
   useWidgetDragResize,
 } from "utils/hooks/dragResizeHooks";
 import { getShouldAllowDrag } from "selectors/widgetDragSelectors";
-import { previewModeSelector } from "selectors/editorSelectors";
-import { protectedModeSelector } from "selectors/gitSyncSelectors";
+import { combinedPreviewModeSelector } from "selectors/editorSelectors";
 
 const DraggableWrapper = styled.div`
   display: block;
@@ -87,8 +86,7 @@ function DraggableComponent(props: DraggableComponentProps) {
       state.ui.widgetDragResize?.dragDetails?.draggedOn === props.parentId,
   );
 
-  const isPreviewMode = useSelector(previewModeSelector);
-  const isProtectedMode = useSelector(protectedModeSelector);
+  const isPreviewMode = useSelector(combinedPreviewModeSelector);
 
   // True when any widget is dragging or resizing, including this one
   const isResizingOrDragging = !!isResizing || !!isDragging;
@@ -104,7 +102,6 @@ function DraggableComponent(props: DraggableComponentProps) {
       !isFocused &&
       !props.resizeDisabled &&
       !isPreviewMode &&
-      !isProtectedMode &&
       focusWidget(props.widgetId);
     e.stopPropagation();
   };

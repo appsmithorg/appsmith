@@ -224,7 +224,7 @@ export const protectedModeSelector = createSelector(
   getIsGitConnected,
   getCurrentGitBranch,
   getProtectedBranchesSelector,
-  (isGitConnected, currentBranch, protectedBranches) => {
+  (isGitConnected, currentBranch, protectedBranches = []) => {
     if (!isGitConnected || !currentBranch) {
       return false;
     } else {

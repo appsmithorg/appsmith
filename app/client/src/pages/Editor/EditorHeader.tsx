@@ -3,12 +3,12 @@ import { ThemeProvider } from "styled-components";
 import AppInviteUsersForm from "pages/workspace/AppInviteUsersForm";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
+  combinedPreviewModeSelector,
   getCurrentApplicationId,
   getCurrentPageId,
   getIsPageSaving,
   getIsPublishingApplication,
   getPageSavingError,
-  previewModeSelector,
 } from "selectors/editorSelectors";
 import {
   getCurrentAppWorkspace,
@@ -48,10 +48,7 @@ import { EditorSaveIndicator } from "./EditorSaveIndicator";
 import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 import { fetchUsersForWorkspace } from "@appsmith/actions/workspaceActions";
 
-import {
-  getIsGitConnected,
-  protectedModeSelector,
-} from "selectors/gitSyncSelectors";
+import { getIsGitConnected } from "selectors/gitSyncSelectors";
 import {
   createMessage,
   DEPLOY_BUTTON_TOOLTIP,
@@ -95,8 +92,7 @@ export function EditorHeader() {
   const isGitConnected = useSelector(getIsGitConnected);
   const isErroredSavingName = useSelector(getIsErroredSavingAppName);
   const applicationList = useSelector(getApplicationList);
-  const isPreviewMode = useSelector(previewModeSelector);
-  const isProtectedMode = useSelector(protectedModeSelector);
+  const isPreviewMode = useSelector(combinedPreviewModeSelector);
   const signpostingEnabled = useSelector(getIsFirstTimeUserOnboardingEnabled);
   const workspaceId = useSelector(getCurrentWorkspaceId);
   const currentWorkspace = useSelector(getCurrentAppWorkspace);
@@ -113,7 +109,7 @@ export function EditorHeader() {
     getIsAppSettingsPaneWithNavigationTabOpen,
   );
   const isPreviewingApp =
-    isPreviewMode || isProtectedMode || isAppSettingsPaneWithNavigationTabOpen;
+    isPreviewMode || isAppSettingsPaneWithNavigationTabOpen;
 
   const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false);
   const [showModal, setShowModal] = useState(false);

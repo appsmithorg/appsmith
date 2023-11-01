@@ -16,10 +16,10 @@ import {
 import { APP_MODE } from "entities/App";
 import { LayoutSystemTypes } from "layoutSystems/types";
 import {
+  combinedPreviewModeSelector,
   getCurrentApplicationLayout,
   getCurrentPageId,
   getMainCanvasProps,
-  previewModeSelector,
 } from "selectors/editorSelectors";
 import { getAppMode } from "@appsmith/selectors/entitiesSelector";
 import {
@@ -46,7 +46,6 @@ import { useLocation } from "react-router";
 import { CANVAS_VIEWPORT } from "constants/componentClassNameConstants";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import { getIsAppSidebarEnabled } from "../../selectors/ideSelectors";
-import { protectedModeSelector } from "selectors/gitSyncSelectors";
 
 const GUTTER_WIDTH = 72;
 export const AUTOLAYOUT_RESIZER_WIDTH_BUFFER = 40;
@@ -59,8 +58,7 @@ export const useDynamicAppLayout = () => {
   const appMode: APP_MODE | undefined = useSelector(getAppMode);
   const { width: screenWidth } = useWindowSizeHooks();
   const mainCanvasProps = useSelector(getMainCanvasProps);
-  const isPreviewMode = useSelector(previewModeSelector);
-  const isProtectedMode = useSelector(protectedModeSelector);
+  const isPreviewMode = useSelector(combinedPreviewModeSelector);
   const currentPageId = useSelector(getCurrentPageId);
   const isCanvasInitialized = useSelector(getIsCanvasInitialized);
   const appLayout = useSelector(getCurrentApplicationLayout);
@@ -83,7 +81,7 @@ export const useDynamicAppLayout = () => {
   const isNavbarVisibleInEmbeddedApp = queryParams.get("navbar");
   const isAppSidebarEnabled = useSelector(getIsAppSidebarEnabled);
 
-  const isPreviewing = isPreviewMode || isProtectedMode;
+  const isPreviewing = isPreviewMode;
 
   // /**
   //  * calculates min height

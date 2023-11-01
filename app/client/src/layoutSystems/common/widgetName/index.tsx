@@ -8,8 +8,8 @@ import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 import { hideErrors } from "selectors/debuggerSelectors";
 import {
+  combinedPreviewModeSelector,
   getIsAutoLayout,
-  previewModeSelector,
   snipingModeSelector,
 } from "selectors/editorSelectors";
 import { getIsTableFilterPaneVisible } from "selectors/tableFilterSelectors";
@@ -34,7 +34,6 @@ import { RESIZE_BORDER_BUFFER } from "layoutSystems/common/resizer/common";
 import { Layers } from "constants/Layers";
 import memoize from "micro-memoize";
 import { NavigationMethod } from "utils/history";
-import { protectedModeSelector } from "selectors/gitSyncSelectors";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 export const WidgetNameComponentHeight = theme.spaces[10];
@@ -81,8 +80,7 @@ interface WidgetNameComponentProps {
 export function WidgetNameComponent(props: WidgetNameComponentProps) {
   const dispatch = useDispatch();
   const isSnipingMode = useSelector(snipingModeSelector);
-  const isPreviewMode = useSelector(previewModeSelector);
-  const isProtectedMode = useSelector(protectedModeSelector);
+  const isPreviewMode = useSelector(combinedPreviewModeSelector);
   const isAppSettingsPaneWithNavigationTabOpen = useSelector(
     getIsAppSettingsPaneWithNavigationTabOpen,
   );
@@ -151,7 +149,6 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
       !isAutoCanvasResizing &&
       !resizingOrDragging &&
       !isPreviewMode &&
-      !isProtectedMode &&
       !isAppSettingsPaneWithNavigationTabOpen &&
       !isMultiSelected &&
       (isSnipingMode
