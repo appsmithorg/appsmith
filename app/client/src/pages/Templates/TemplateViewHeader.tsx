@@ -11,6 +11,7 @@ import { useSelector } from "react-redux";
 import {
   getActiveTemplateSelector,
   getForkableWorkspaces,
+  isImportingTemplateSelector,
 } from "selectors/templatesSelectors";
 import styled from "styled-components";
 import history from "utils/history";
@@ -42,6 +43,7 @@ function TemplateViewHeader({
   const currentTemplate = useSelector(getActiveTemplateSelector);
   const query = useQuery();
   const workspaceList = useSelector(getForkableWorkspaces);
+  const isImportingTemplate = useSelector(isImportingTemplateSelector);
   const goBack = () => {
     history.goBack();
   };
@@ -81,6 +83,7 @@ function TemplateViewHeader({
             <Button
               className="template-fork-button"
               data-testid="template-fork-button"
+              isLoading={onClickUseTemplate && isImportingTemplate}
               onClick={onForkButtonTrigger}
               size="md"
               startIcon="fork-2"

@@ -5,7 +5,7 @@ import {
 import type { Template } from "api/TemplatesApi";
 import type { AppState } from "@appsmith/reducers";
 import { TemplatesContent } from "pages/Templates";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   allTemplatesFiltersSelector,
@@ -15,7 +15,7 @@ import {
 } from "selectors/templatesSelectors";
 import styled from "styled-components";
 import { getAllTemplates } from "actions/templateActions";
-import { Link, Text } from "design-system";
+import { Link, Spinner, Text } from "design-system";
 import {
   CREATE_NEW_APPS_STEP_SUBTITLE,
   CREATE_NEW_APPS_STEP_TITLE,
@@ -33,6 +33,7 @@ import StartTemplate from "assets/images/start-from-template.svg";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { TemplateView } from "pages/Templates/TemplateView";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { getIsCreatingApplicationByWorkspaceId } from "@appsmith/selectors/applicationSelectors";
 
 const SectionWrapper = styled.div`
   display: flex;
@@ -107,9 +108,18 @@ const CardContainer = styled.div`
     height: 160px;
     margin-bottom: 48px;
   }
+  position: relative;
+`;
+
+const CardLoading = styled(Spinner)`
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
 `;
 
 interface CardProps {
+  loading?: boolean;
   onClick?: () => void;
   src: string;
   subTitle: string;
@@ -117,9 +127,17 @@ interface CardProps {
   title: string;
 }
 
-const Card = ({ onClick, src, subTitle, testid, title }: CardProps) => {
+const Card = ({
+  loading,
+  onClick,
+  src,
+  subTitle,
+  testid,
+  title,
+}: CardProps) => {
   return (
     <CardContainer data-testid={testid} onClick={onClick}>
+      {loading && <CardLoading size="lg" />}
       <img alt={title} src={src} />
       <Text kind="heading-s">{title}</Text>
       <Text>{subTitle}</Text>
@@ -145,8 +163,12 @@ const CreateNewAppsOption = ({
   const workspaceList = useSelector(getForkableWorkspaces);
   const isImportingTemplate = useSelector(isImportingTemplateSelector);
   const allTemplates = useSelector(getTemplatesSelector);
+  const isCreatingNewApp = useSelector(
+    getIsCreatingApplicationByWorkspaceId(currentSelectedWorkspace),
+  );
   const dispatch = useDispatch();
   const onClickStartFromTemplate = () => {
+    if (isCreatingNewApp) return;
     AnalyticsUtil.logEvent("CREATE_APP_FROM_TEMPLATE");
 
     if (isEmpty(filters.functions)) {
@@ -157,6 +179,11 @@ const CreateNewAppsOption = ({
       dispatch(getAllTemplates());
     }
     setUseTemplate(true);
+  };
+
+  const onClickStartFromScratch = () => {
+    if (isCreatingNewApp) return;
+    startFromScratch();
   };
 
   const goBackFromTemplate = () => {
@@ -187,7 +214,6 @@ const CreateNewAppsOption = ({
     // When Use template is clicked on template view detail screen
     if (!isImportingTemplate) {
       dispatch(importTemplateToWorkspace(id, currentSelectedWorkspace));
-      resetCurrentWorkspaceForCreateNewApp();
     }
   };
 
@@ -199,7 +225,6 @@ const CreateNewAppsOption = ({
       dispatch(
         importTemplateToWorkspace(template.id, currentSelectedWorkspace),
       );
-      resetCurrentWorkspaceForCreateNewApp();
     }
   };
 
@@ -209,6 +234,7 @@ const CreateNewAppsOption = ({
   };
 
   const onClickBackButton = () => {
+    if (isCreatingNewApp || isImportingTemplate) return;
     if (useTemplate) {
       if (selectedTemplate) {
         // Going back from template details view screen
@@ -233,6 +259,33 @@ const CreateNewAppsOption = ({
       onClickBack();
     }
   };
+
+  const selectionOptions: CardProps[] = [
+    {
+      onClick: onClickStartFromTemplate,
+      src: StartTemplate,
+      subTitle: createMessage(START_FROM_TEMPLATE_TITLE),
+      testid: "t--start-from-template",
+      title: createMessage(START_FROM_TEMPLATE_SUBTITLE),
+    },
+    {
+      loading: isCreatingNewApp,
+      onClick: onClickStartFromScratch,
+      src: StartScratch,
+      subTitle: createMessage(START_FROM_SCRATCH_SUBTITLE),
+      testid: "t--start-from-scratch",
+      title: createMessage(START_FROM_SCRATCH_TITLE),
+    },
+  ];
+
+  useEffect(() => {
+    AnalyticsUtil.logEvent("ONBOARDING_CREATE_APP_FLOW", {
+      totalOptions: selectionOptions.length,
+    });
+    return () => {
+      resetCurrentWorkspaceForCreateNewApp();
+    };
+  }, []);
 
   return (
     <SectionWrapper>
@@ -275,20 +328,9 @@ const CreateNewAppsOption = ({
           </Text>
           <Text>{createMessage(CREATE_NEW_APPS_STEP_SUBTITLE)}</Text>
           <CardsWrapper>
-            <Card
-              onClick={onClickStartFromTemplate}
-              src={StartTemplate}
-              subTitle={createMessage(START_FROM_TEMPLATE_TITLE)}
-              testid="t--start-from-template"
-              title={createMessage(START_FROM_TEMPLATE_SUBTITLE)}
-            />
-            <Card
-              onClick={startFromScratch}
-              src={StartScratch}
-              subTitle={createMessage(START_FROM_SCRATCH_SUBTITLE)}
-              testid="t--start-from-scratch"
-              title={createMessage(START_FROM_SCRATCH_TITLE)}
-            />
+            {selectionOptions.map((option: CardProps) => (
+              <Card key={option.testid} {...option} />
+            ))}
           </CardsWrapper>
         </OptionWrapper>
       )}

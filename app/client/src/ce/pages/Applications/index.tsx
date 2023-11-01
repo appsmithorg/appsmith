@@ -849,9 +849,6 @@ const ApplicationContainerWrapper = () => {
     if (currentSelectedWorkspace) {
       AnalyticsUtil.logEvent("CREATE_APP_FROM_SCRATCH");
       addNewAppInit(currentSelectedWorkspace);
-      dispatch({
-        type: ReduxActionTypes.RESET_CURRENT_WORKSPACE_FOR_CREATE_NEW_APP,
-      });
     }
   };
 
