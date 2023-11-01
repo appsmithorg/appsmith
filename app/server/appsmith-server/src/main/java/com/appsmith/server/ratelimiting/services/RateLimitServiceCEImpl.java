@@ -1,9 +1,9 @@
-package com.appsmith.server.ratelimiting.ce;
+package com.appsmith.server.ratelimiting.services;
 
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.RedisUtils;
-import com.appsmith.server.ratelimiting.RateLimitConfig;
+import com.appsmith.server.ratelimiting.solutions.RateLimitSolution;
 import io.github.bucket4j.distributed.BucketProxy;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
@@ -11,7 +11,6 @@ import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
 import java.time.Duration;
-import java.util.Map;
 
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
@@ -20,19 +19,17 @@ import static java.lang.Boolean.TRUE;
 public class RateLimitServiceCEImpl implements RateLimitServiceCE {
 
     private final Scheduler scheduler = Schedulers.boundedElastic();
-    private final Map<String, BucketProxy> apiBuckets;
-    private final RateLimitConfig rateLimitConfig;
     // this number of tokens can later be customised per API in the configuration.
     private final Integer DEFAULT_NUMBER_OF_TOKENS_CONSUMED_PER_REQUEST = 1;
     // this is required for blocking the execution if bucket exhausted
     private final RedisUtils redisUtils;
     private final String BLOCKED_HOSTNAME_PREFIX = "blocked";
 
-    public RateLimitServiceCEImpl(
-            Map<String, BucketProxy> apiBuckets, RateLimitConfig rateLimitConfig, RedisUtils redisUtils) {
-        this.apiBuckets = apiBuckets;
-        this.rateLimitConfig = rateLimitConfig;
+    private final RateLimitSolution rateLimitSolution;
+
+    public RateLimitServiceCEImpl(RedisUtils redisUtils, RateLimitSolution rateLimitSolution) {
         this.redisUtils = redisUtils;
+        this.rateLimitSolution = rateLimitSolution;
     }
 
     @Override
@@ -41,7 +38,7 @@ public class RateLimitServiceCEImpl implements RateLimitServiceCE {
         return sanitizeInput(apiIdentifier, userIdentifier)
                 .flatMap(isInputValid -> {
                     BucketProxy userSpecificBucket =
-                            rateLimitConfig.getOrCreateAPIUserSpecificBucket(apiIdentifier, userIdentifier);
+                            rateLimitSolution.getOrCreateAPIUserSpecificBucket(apiIdentifier, userIdentifier);
 
                     return Mono.just(userSpecificBucket.tryConsume(DEFAULT_NUMBER_OF_TOKENS_CONSUMED_PER_REQUEST));
                 })
@@ -66,7 +63,7 @@ public class RateLimitServiceCEImpl implements RateLimitServiceCE {
 
         return sanitizeInput(apiIdentifier, userIdentifier)
                 .flatMap(isInputValid -> {
-                    rateLimitConfig
+                    rateLimitSolution
                             .getOrCreateAPIUserSpecificBucket(apiIdentifier, userIdentifier)
                             .reset();
 
@@ -150,7 +147,7 @@ public class RateLimitServiceCEImpl implements RateLimitServiceCE {
         return Mono.just(userIdentifier)
                 .flatMap(username -> {
                     // Handle the case where API itself is not rate limited.
-                    if (!apiBuckets.containsKey(apiIdentifier)) {
+                    if (!rateLimitSolution.getApiProxyBuckets().containsKey(apiIdentifier)) {
                         return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
                     }
 

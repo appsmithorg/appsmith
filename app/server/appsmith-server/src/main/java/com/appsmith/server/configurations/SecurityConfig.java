@@ -11,7 +11,7 @@ import com.appsmith.server.filters.CSRFFilter;
 import com.appsmith.server.filters.ConditionalFilter;
 import com.appsmith.server.filters.PreAuth;
 import com.appsmith.server.helpers.RedirectHelper;
-import com.appsmith.server.ratelimiting.RateLimitService;
+import com.appsmith.server.ratelimiting.services.RateLimitService;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;

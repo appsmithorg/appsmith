@@ -1,4 +1,4 @@
-package com.appsmith.server.ratelimiting.ce;
+package com.appsmith.server.ratelimiting.services;
 
 import com.appsmith.server.exceptions.AppsmithException;
 import reactor.core.publisher.Mono;

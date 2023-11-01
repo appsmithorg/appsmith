@@ -5,6 +5,7 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FeatureMigrationType;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.MigrationStatus;
+import com.appsmith.server.constants.RateLimitConstants;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -12,6 +13,8 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.FeatureFlagMigrationHelper;
+import com.appsmith.server.ratelimiting.domains.RateLimit;
+import com.appsmith.server.ratelimiting.solutions.RateLimitSolution;
 import com.appsmith.server.repositories.TenantRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
@@ -27,8 +30,10 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
 import java.util.Map;
+import java.util.Objects;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_TENANT;
+import static com.appsmith.server.constants.RateLimitConstants.BUCKET_KEY_FOR_LOGIN_API;
 import static java.lang.Boolean.TRUE;
 
 @Slf4j
@@ -42,6 +47,8 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
 
     private final FeatureFlagMigrationHelper featureFlagMigrationHelper;
 
+    private final RateLimitSolution rateLimitSolution;
+
     public TenantServiceCEImpl(
             Scheduler scheduler,
             Validator validator,
@@ -51,11 +58,13 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
             AnalyticsService analyticsService,
             ConfigService configService,
             @Lazy EnvManager envManager,
-            FeatureFlagMigrationHelper featureFlagMigrationHelper) {
+            FeatureFlagMigrationHelper featureFlagMigrationHelper,
+            RateLimitSolution rateLimitSolution) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.configService = configService;
         this.envManager = envManager;
         this.featureFlagMigrationHelper = featureFlagMigrationHelper;
+        this.rateLimitSolution = rateLimitSolution;
     }
 
     @Override
@@ -169,7 +178,22 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
     public Mono<Tenant> updateDefaultTenantConfiguration(TenantConfiguration tenantConfiguration) {
         return getDefaultTenantId()
                 .flatMap(tenantId -> updateTenantConfiguration(tenantId, tenantConfiguration))
+                .flatMap(updatedTenant ->
+                        updateRateLimitInvalidLogin(tenantConfiguration).thenReturn(updatedTenant))
                 .flatMap(updatedTenant -> getTenantConfiguration());
+    }
+
+    private Mono<Long> updateRateLimitInvalidLogin(TenantConfiguration tenantConfiguration) {
+        if (Objects.nonNull(tenantConfiguration.getDisableRateLimitInvalidLogin())) {
+            RateLimit newRateLimit;
+            if (TRUE.equals(tenantConfiguration.getDisableRateLimitInvalidLogin())) {
+                newRateLimit = RateLimitConstants.DEFAULT_MAX_RATE_LIMIT_LOGIN_API;
+            } else {
+                newRateLimit = RateLimitConstants.DEFAULT_PRESET_RATE_LIMIT_LOGIN_API;
+            }
+            return rateLimitSolution.updateApiProxyBucketForApiIdentifier(BUCKET_KEY_FOR_LOGIN_API, newRateLimit);
+        }
+        return Mono.just(1L);
     }
 
     /**

@@ -51,6 +51,8 @@ public class TenantConfigurationCE {
     // is complete.
     Boolean isRestartRequired;
 
+    Boolean disableRateLimitInvalidLogin;
+
     public void addThirdPartyAuth(String auth) {
         if (thirdPartyAuths == null) {
             thirdPartyAuths = new ArrayList<>();

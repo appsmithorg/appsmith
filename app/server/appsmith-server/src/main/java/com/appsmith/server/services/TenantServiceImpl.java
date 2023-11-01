@@ -33,6 +33,7 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
                 analyticsService,
                 configService,
                 envManager,
-                featureFlagMigrationHelper);
+                featureFlagMigrationHelper,
+                rateLimitSolution);
     }
 }

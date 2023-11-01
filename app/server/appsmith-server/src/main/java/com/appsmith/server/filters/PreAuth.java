@@ -2,7 +2,7 @@ package com.appsmith.server.filters;
 
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.RateLimitConstants;
-import com.appsmith.server.ratelimiting.RateLimitService;
+import com.appsmith.server.ratelimiting.services.RateLimitService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.web.server.DefaultServerRedirectStrategy;
 import org.springframework.security.web.server.ServerRedirectStrategy;

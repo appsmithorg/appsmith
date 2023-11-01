@@ -2,6 +2,8 @@ package com.appsmith.caching.components;
 
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+
 public interface CacheManager {
     /**
      * This will log the cache stats with INFO severity.
@@ -39,4 +41,6 @@ public interface CacheManager {
      * @return Mono<Void> that will complete after the items are removed.
      */
     Mono<Void> evictAll(String cacheName);
+
+    Mono<List<String>> getKeysWithPrefix(String prefix);
 }

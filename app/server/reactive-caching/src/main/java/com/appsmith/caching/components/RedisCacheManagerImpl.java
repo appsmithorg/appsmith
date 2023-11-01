@@ -10,6 +10,7 @@ import org.springframework.data.redis.core.script.RedisScript;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -112,5 +113,14 @@ public class RedisCacheManagerImpl implements CacheManager {
         final String script =
                 "for _,k in ipairs(redis.call('keys','" + path + ":*'))" + " do redis.call('del',k) " + "end";
         return reactiveRedisOperations.execute(RedisScript.of(script)).then();
+    }
+
+    @Override
+    public Mono<List<String>> getKeysWithPrefix(String prefix) {
+        return reactiveRedisTemplate.keys(createRedisPrefixPattern(prefix)).collectList();
+    }
+
+    private String createRedisPrefixPattern(String prefix) {
+        return prefix + "*";
     }
 }
