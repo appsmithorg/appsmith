@@ -1,9 +1,9 @@
 import React, { useEffect, useMemo } from "react";
 import { Space } from "../../components/StyledComponents";
 import {
-  AUTHOR_EMAIL,
+  AUTHOR_EMAIL_ONLY,
   AUTHOR_EMAIL_CANNOT_BE_EMPTY,
-  AUTHOR_NAME,
+  AUTHOR_NAME_ONLY,
   AUTHOR_NAME_CANNOT_BE_EMPTY,
   FORM_VALIDATION_INVALID_EMAIL,
   GIT_USER_SETTINGS_TITLE,
@@ -253,7 +253,7 @@ const GitUserSettings = () => {
                 errorMessage={errors?.authorName?.message}
                 isReadOnly={useGlobalProfile}
                 isValid={!errors?.authorName}
-                label={createMessage(AUTHOR_NAME)}
+                label={createMessage(AUTHOR_NAME_ONLY)}
                 size="md"
                 type="text"
                 {...register("authorName", {
@@ -273,7 +273,7 @@ const GitUserSettings = () => {
                 errorMessage={errors?.authorEmail?.message}
                 isReadOnly={useGlobalProfile}
                 isValid={!errors?.authorEmail}
-                label={createMessage(AUTHOR_EMAIL)}
+                label={createMessage(AUTHOR_EMAIL_ONLY)}
                 size="md"
                 // type="email"
                 {...register("authorEmail", {
