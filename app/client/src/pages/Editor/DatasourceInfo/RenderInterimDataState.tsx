@@ -29,17 +29,17 @@ export const indeterminateProgressBarAnimation = keyframes`
 `;
 
 export const IndeterminateProgressBarDiv = styled.div`
-  border: 2px solid #a9a9a9;
+  border: 2px solid var(--ads-v2-colors-response-label-default-fg);
   border-radius: 0.5em;
   height: 12px;
   margin-bottom: 2em;
   width: 200px;
   background-image: repeating-linear-gradient(
     -45deg,
-    #dcdcdc,
-    #dcdcdc 9px,
-    #fff 12px,
-    #fff 15px
+    var(--ads-v2-colors-response-surface-default-border),
+    var(--ads-v2-colors-response-surface-default-border) 9px,
+    var(--ads-v2-colors-response-surface-default-bg) 12px,
+    var(--ads-v2-colors-response-surface-default-bg) 15px
   );
   -webkit-animation: ${indeterminateProgressBarAnimation} 1s linear infinite;
   -moz-animation: ${indeterminateProgressBarAnimation} 1s linear infinite;
