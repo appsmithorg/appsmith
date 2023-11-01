@@ -44,7 +44,7 @@ import {
   ERROR_JS_ACTION_MOVE_FAIL,
   ERROR_JS_COLLECTION_RENAME_FAIL,
 } from "@appsmith/constants/messages";
-import { validateResponse } from "./ErrorSagas";
+import { validateResponse } from "../../sagas/ErrorSagas";
 import type { FetchPageResponse, PageLayout } from "api/PageApi";
 import PageApi from "api/PageApi";
 import { updateCanvasWithDSL } from "sagas/PageSagas";
@@ -58,11 +58,11 @@ import * as log from "loglevel";
 import { builderURL, jsCollectionIdURL } from "@appsmith/RouteBuilder";
 import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { checkAndLogErrorsIfCyclicDependency } from "./helper";
+import { checkAndLogErrorsIfCyclicDependency } from "../../sagas/helper";
 import { toast } from "design-system";
 import { updateAndSaveLayout } from "actions/pageActions";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import { getWidgets } from "./selectors";
+import { getWidgets } from "../../sagas/selectors";
 
 export function* fetchJSCollectionsSaga(
   action: EvaluationReduxAction<FetchActionsPayload>,
