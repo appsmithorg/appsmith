@@ -123,7 +123,7 @@ export function* createJSCollectionSaga(
     });
   }
 }
-function* copyJSCollectionSaga(
+export function* copyJSCollectionSaga(
   action: ReduxAction<{ id: string; destinationPageId: string; name: string }>,
 ) {
   const actionObject: JSCollection = yield select(
@@ -177,7 +177,9 @@ function* copyJSCollectionSaga(
   }
 }
 
-function* handleMoveOrCopySaga(actionPayload: ReduxAction<{ id: string }>) {
+export function* handleMoveOrCopySaga(
+  actionPayload: ReduxAction<{ id: string }>,
+) {
   const { id } = actionPayload.payload;
   const { pageId }: JSCollection = yield select(getJSCollection, id);
   history.push(
@@ -188,7 +190,7 @@ function* handleMoveOrCopySaga(actionPayload: ReduxAction<{ id: string }>) {
   );
 }
 
-function* moveJSCollectionSaga(
+export function* moveJSCollectionSaga(
   action: ReduxAction<{
     id: string;
     destinationPageId: string;
@@ -303,7 +305,9 @@ export function* deleteJSCollectionSaga(
   }
 }
 
-function* saveJSObjectName(action: ReduxAction<{ id: string; name: string }>) {
+export function* saveJSObjectName(
+  action: ReduxAction<{ id: string; name: string }>,
+) {
   // Takes from state, checks if the name isValid, saves
   const collectionId = action.payload.id;
   const collection: JSCollectionData | undefined = yield select((state) =>
