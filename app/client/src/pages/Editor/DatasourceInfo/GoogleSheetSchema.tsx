@@ -297,11 +297,7 @@ function GoogleSheetSchema(props: Props) {
     selectedDatasourceIsInvalid ||
     failedFetchingSheetsList ||
     failedFetchingSheetData;
-  const isLoading =
-    isFetchingSpreadsheets ||
-    isFetchingSheetsList ||
-    isFetchingSheetData ||
-    (!isError && !sheetData?.length);
+  const isLoading = isFetchingSpreadsheets || isFetchingSheetsList || isFetchingSheetData;
 
   const onGsheetGeneratePage = () => {
     const payload = {
