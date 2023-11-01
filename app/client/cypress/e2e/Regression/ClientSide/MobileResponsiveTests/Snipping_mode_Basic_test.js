@@ -16,9 +16,6 @@ describe("Add widget - Postgress DataSource", function () {
   });
 
   it("1. Validate Snipping with query and table widget on canvas", () => {
-    cy.get(".t--close-editor span:contains('Back')").click({ force: true });
-    cy.get(".t--back-button span:contains('Back')").click({ force: true });
-
     _.autoLayout.ConvertToAutoLayoutAndVerify(false);
     cy.NavigateToActiveDSQueryPane(datasourceName);
     _.dataSources.EnterQuery("select * from public.configs");
