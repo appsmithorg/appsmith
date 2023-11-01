@@ -76,7 +76,7 @@ public class RequestUtils {
                 webClientBuilder.exchangeStrategies(EXCHANGE_STRATEGIES).build();
 
         // Authentication will already be valid at this point
-        assert (bearerTokenAuth.getAuthenticationResponse() != null);
+        assert (bearerTokenAuth.getBearerToken() != null);
 
         return client.method(httpMethod)
                 .uri(uri)
