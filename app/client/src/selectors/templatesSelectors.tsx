@@ -20,6 +20,12 @@ export const isImportingTemplateSelector = (state: AppState) =>
   state.ui.templates.isImportingTemplate;
 export const isImportingTemplateToAppSelector = (state: AppState) =>
   state.ui.templates.isImportingTemplateToApp;
+export const isImportingStarterBuildingBlockToAppSelector = (state: AppState) =>
+  state.ui.templates.isImportingStarterBuildingBlockToApp;
+export const starterBuildingBlockDatasourcePromptSelector = (state: AppState) =>
+  state.ui.templates.starterBuildingBlockDatasourcePrompt;
+export const buildingBlocksSourcePageIdSelector = (state: AppState) =>
+  state.ui.templates.buildingBlockSourcePageId;
 export const showTemplateNotificationSelector = (state: AppState) =>
   state.ui.templates.templateNotificationSeen;
 
