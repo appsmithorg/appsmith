@@ -23,24 +23,24 @@ export function TernDocToolTip(props: {
   if (!doc || !displayText) return null;
 
   const examples =
-    displayText in ternDocsInfo ? ternDocsInfo[displayText].examples : null;
+    displayText in ternDocsInfo ? ternDocsInfo[displayText].exampleArgs : null;
 
   return (
     <div className="flex flex-col pb-1">
-      <div className="flex items-center justify-start p-1 border-b border-mercury text-sm font-semibold">
+      <div className="flex items-center justify-start px-2 p-1 border-b border-mercury text-sm font-semibold">
         {displayText}
       </div>
-      <div className="flex items-center justify-start p-1 text-xs whitespace-normal">
+      <div className="flex items-center justify-start px-2 p-1 text-xs whitespace-normal">
         {doc}
       </div>
       {examples && (
-        <div className="flex px-1 py-[2px] text-xs font-semibold">Example</div>
+        <div className="flex px-2 py-[2px] text-xs font-semibold">Example</div>
       )}
       {examples && (
-        <div className="px-1">
+        <div className="px-2">
           {examples.map((example: string) => {
-            const fnName = example.split("(")[0];
-            const args = example.split("(")[1].split(")")[0];
+            const fnName = displayText;
+            const args = example;
             return (
               <span
                 className="flex items-center justify-start py-[2px] text-xs whitespace-nowrap"

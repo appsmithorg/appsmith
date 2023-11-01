@@ -183,67 +183,65 @@ export const getPropsForJSActionEntity = ({
 export const ternDocsInfo: Record<string, any> = {
   showAlert: {
     content: "Show a temporary notification style message to the user",
-    examples: [
-      "showAlert('This is a success message', 'success')",
-      "showAlert('This is a error message', 'error')",
+    exampleArgs: [
+      "'This is a success message', 'success'",
+      "'This is an error message', 'error'",
     ],
   },
   showModal: {
     content: "Open a modal",
-    examples: ["showModal('Modal1')"],
+    exampleArgs: ["'Modal1'"],
   },
   closeModal: {
     content: "Close a modal",
-    examples: ["closeModal('Modal1')"],
+    exampleArgs: ["'Modal1'"],
   },
   navigateTo: {
     content: "Action to navigate the user to another page or url",
-    examples: [
-      "navigateTo('Page1', { id: 1 })",
-      "navigateTo('https://appsmith.com')",
+    exampleArgs: [
+      "'Page1', { id: 1 }",
+      "'https://appsmith.com', { query: 123 }, 'NEW_WINDOW'",
     ],
   },
   copyToClipboard: {
     content: "Copy text to clipboard",
-    examples: ["copyToClipboard('Hello World')"],
+    exampleArgs: ["'Hello World'"],
   },
   download: {
     content: "Download anything as a file",
-    examples: [
-      "download('Hello World', 'hello.txt', 'text/plain')",
-      "download('<html><body>Hello World</body></html>', 'hello.html', 'text/html')",
+    exampleArgs: [
+      "'Hello World', 'hello.txt', 'text/plain'",
+      "'<html><body>Hello World</body></html>', 'hello.html', 'text/html'",
     ],
   },
   storeValue: {
     content: "Store key value data locally",
-    examples: ["storeValue('key', 'value')"],
+    exampleArgs: ["'key', 'value'"],
   },
   removeValue: {
     content: "Remove key value data locally",
-    examples: ["removeValue('key')"],
+    exampleArgs: ["'key'"],
   },
   clearStore: {
     content: "Clear all key value data locally",
-    examples: ["clearStore()"],
+    exampleArgs: [""],
   },
   resetWidget: {
     content: "Reset widget values",
-    examples: ["resetWidget('Table1', false)"],
+    exampleArgs: ["'Table1', false"],
   },
   setInterval: {
-    content: "Execute triggers at a given interval",
-    examples: ["setInterval(() => console.log('Hello World'), 1000)"],
+    content: "Calls a function at a given interval",
+    exampleArgs: ["() => console.log('Hello World'), 1000, 'id'"],
   },
   clearInterval: {
     content: "Stop executing a setInterval with id",
-    examples: ["clearInterval('id')"],
+    exampleArgs: ["'id'"],
   },
   postWindowMessage: {
     content:
       "Establish cross-origin communication between Window objects/page and iframes",
-    examples: [
-      "postWindowMessage({ type: 'message', message: 'Hello World' }, '*', '*')",
-    ],
+    exampleArgs: ["{ type: 'message', message: 'Hello World' }, '*', '*'"],
   },
 };
 

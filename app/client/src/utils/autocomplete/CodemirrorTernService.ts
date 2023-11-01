@@ -567,8 +567,8 @@ class CodeMirrorTernService {
           node.getBoundingClientRect().top + window.pageYOffset + 2,
           docTooltipContainer,
           cm,
+          cls + "hint-doc",
         );
-        tooltip.className += " " + cls + "hint-doc";
         CodeMirror.on(
           cm,
           "keyup",
