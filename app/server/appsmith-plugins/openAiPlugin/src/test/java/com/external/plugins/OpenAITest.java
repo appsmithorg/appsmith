@@ -3,6 +3,8 @@ package com.external.plugins;
 import com.appsmith.external.models.BearerTokenAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
+import com.appsmith.external.models.TriggerRequestDTO;
+import com.appsmith.external.models.TriggerResultDTO;
 import com.appsmith.external.services.SharedConfig;
 import mockwebserver3.MockResponse;
 import mockwebserver3.MockWebServer;
@@ -13,8 +15,11 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Set;
 
+import static com.external.plugins.constants.OpenAIConstants.CHAT_MODELS;
+import static com.external.plugins.constants.OpenAIConstants.EMBEDDINGS_MODELS;
 import static com.external.plugins.constants.OpenAIErrorMessages.EMPTY_BEARER_TOKEN;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -111,6 +116,54 @@ public class OpenAITest {
             assertEquals(datasourceTestResult.getInvalids().size(), 1);
             assertEquals(datasourceTestResult.getMessages().size(), 0);
             assertFalse(datasourceTestResult.isSuccess());
+        });
+    }
+
+    @Test
+    public void verifyDatasourceTriggerResultsForChatModels() {
+        BearerTokenAuth bearerTokenAuth = new BearerTokenAuth();
+        bearerTokenAuth.setBearerToken("bearerToken");
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        datasourceConfiguration.setAuthentication(bearerTokenAuth);
+        String responseBody =
+                "{\n    \"object\": \"list\",\n    \"data\": [\n        {\n          \"id\": \"gpt-3.5\",\n          \"object\": \"model\",\n          \"created\": 1651172509,\n          \"owned_by\": \"openai-dev\",\n          \"root\": \"text-search-babbage-doc-001\",\n          \"parent\": null\n        },\n        {\n          \"id\": \"gpt-3.5-turbo-16k-0613\",\n          \"object\": \"model\",\n          \"created\": 1685474247,\n          \"owned_by\": \"openai\"\n        }\n    ]\n}";
+        MockResponse mockResponse = new MockResponse().setBody(responseBody);
+        mockResponse.setResponseCode(200);
+        mockEndpoint.enqueue(mockResponse);
+
+        TriggerRequestDTO request = new TriggerRequestDTO();
+        request.setRequestType(CHAT_MODELS);
+        Mono<TriggerResultDTO> datasourceTriggerResultMono =
+                pluginExecutor.trigger(null, datasourceConfiguration, request);
+
+        StepVerifier.create(datasourceTriggerResultMono).assertNext(result -> {
+            assertTrue(result.getTrigger() instanceof List<?>);
+            assertEquals(((List) result.getTrigger()).size(), 1);
+            assertEquals(result.getTrigger(), List.of("gpt-3.5", "gpt-3.5-turbo-16k-0613"));
+        });
+    }
+
+    @Test
+    public void verifyDatasourceTriggerResultsForEmbeddingModels() {
+        BearerTokenAuth bearerTokenAuth = new BearerTokenAuth();
+        bearerTokenAuth.setBearerToken("bearerToken");
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        datasourceConfiguration.setAuthentication(bearerTokenAuth);
+        String responseBody =
+                "{\n    \"object\": \"list\",\n    \"data\": [\n        {\n          \"id\": \"gpt-3.5\",\n          \"object\": \"model\",\n          \"created\": 1651172509,\n          \"owned_by\": \"openai-dev\",\n          \"root\": \"text-search-babbage-doc-001\",\n          \"parent\": null\n        },\n         {\n            \"id\": \"text-embedding-ada-002\",\n            \"object\": \"model\",\n            \"created\": 1671217299,\n            \"owned_by\": \"openai-internal\"\n           \n         }\n    ]\n}";
+        MockResponse mockResponse = new MockResponse().setBody(responseBody);
+        mockResponse.setResponseCode(200);
+        mockEndpoint.enqueue(mockResponse);
+
+        TriggerRequestDTO request = new TriggerRequestDTO();
+        request.setRequestType(EMBEDDINGS_MODELS);
+        Mono<TriggerResultDTO> datasourceTriggerResultMono =
+                pluginExecutor.trigger(null, datasourceConfiguration, request);
+
+        StepVerifier.create(datasourceTriggerResultMono).assertNext(result -> {
+            assertTrue(result.getTrigger() instanceof List<?>);
+            assertEquals(((List) result.getTrigger()).size(), 1);
+            assertEquals(result.getTrigger(), List.of("text-embedding-ada-002"));
         });
     }
 }
