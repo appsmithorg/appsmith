@@ -10,6 +10,9 @@ import {
   entityItems,
   assertHelper,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  SidebarButton,
+} from "../../../../support/Pages/EditorNavigation";
 
 let dsName: any;
 
@@ -18,6 +21,7 @@ describe("Postgres Generate CRUD with JSON Form", () => {
     dataSources.CreateDataSource("Postgres");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
+      EditorNavigation.sidebar(SidebarButton.Pages);
       entityExplorer.AddNewPage();
       entityExplorer.AddNewPage("Generate page with data");
       agHelper.GetNClick(dataSources._selectDatasourceDropdown);

@@ -208,12 +208,7 @@ describe("Validate Elasticsearch DS", () => {
       action: "Delete",
       entityType: entityItems.Query,
     });
-    entityExplorer.SelectEntityByName(dsName, "Datasources");
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: dsName,
-      action: "Delete",
-      entityType: entityItems.Datasource,
-    });
+    dataSources.DeleteDatasourceFromWithinDS(dsName);
     //dataSources.StopNDeleteContainer(containerName);
   });
 });

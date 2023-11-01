@@ -10,6 +10,9 @@ import {
   entityItems,
   assertHelper,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  SidebarButton,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe("UUID Datatype tests", function () {
   let dsName: any, query: string, imageNameToUpload: string;
@@ -19,6 +22,7 @@ describe("UUID Datatype tests", function () {
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });
+    EditorNavigation.sidebar(SidebarButton.Pages);
     agHelper.AddDsl("Datatypes/UUIDDTdsl");
 
     entityExplorer.NavigateToSwitcher("Widgets");

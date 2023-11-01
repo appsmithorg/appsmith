@@ -855,7 +855,7 @@ export class DataSources {
       .should("be.visible")
       .click();
     this.agHelper.Sleep(); //for the Datasource page to open
-    this.DeleteDSDirectly(expectedRes);
+    this.DeleteDSDirectly(expectedRes, false);
   }
 
   // this initiates saving via the cancel button.
@@ -1941,6 +1941,7 @@ export class DataSources {
       .contains(name)
       .scrollIntoView()
       .should("be.visible")
-      .click();
+      .click()
+      .should("have.attr", "data-selected", true);
   }
 }

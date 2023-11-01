@@ -11,6 +11,9 @@ import {
   entityItems,
   dataManager,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  SidebarButton,
+} from "../../../../support/Pages/EditorNavigation";
 
 const successMessage = "Successful Trigger";
 const errorMessage = "Unsuccessful Trigger";
@@ -60,6 +63,7 @@ describe("Linting", () => {
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName as unknown as string;
     });
+    EditorNavigation.sidebar(SidebarButton.Pages);
   });
 
   it("1. TC 1927 - Shows correct lint error when Api is deleted or created", () => {

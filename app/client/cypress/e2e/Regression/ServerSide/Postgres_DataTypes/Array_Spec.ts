@@ -22,6 +22,7 @@ describe("Array Datatype tests", function () {
       dsName = $dsName;
     });
     agHelper.AddDsl("Datatypes/ArrayDTdsl");
+    EditorNavigation.sidebar(SidebarButton.Pages);
     entityExplorer.NavigateToSwitcher("Widgets");
     appSettings.OpenPaneAndChangeThemeColors(-31, -27);
   });
@@ -536,6 +537,7 @@ describe("Array Datatype tests", function () {
       deployMode.NavigateBacktoEditor();
       entityExplorer.ExpandCollapseEntity("Queries/JS");
       dataSources.DeleteDatasourceFromWithinDS(dsName, 200);
+      EditorNavigation.sidebar(SidebarButton.Pages);
     },
   );
 });

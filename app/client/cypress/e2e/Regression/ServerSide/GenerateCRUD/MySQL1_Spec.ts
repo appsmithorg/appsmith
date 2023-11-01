@@ -28,6 +28,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     dataSources.CreateDataSource("MySql");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
+      EditorNavigation.sidebar(SidebarButton.Pages);
       entityExplorer.AddNewPage();
       entityExplorer.AddNewPage("Generate page with data");
       agHelper.GetNClick(dataSources._selectDatasourceDropdown);

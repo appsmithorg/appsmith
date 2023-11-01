@@ -4,6 +4,9 @@ import {
   apiPage,
   entityItems,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  SidebarButton,
+} from "../../../../support/Pages/EditorNavigation";
 
 let APIName;
 const testUrl1 =
@@ -19,6 +22,7 @@ describe("API Panel Test Functionality ", function () {
     cy.NavigateToAPI_Panel();
     cy.log("Navigation to API Panel screen successful");
     cy.generateUUID().then((uid) => {
+      EditorNavigation.sidebar(SidebarButton.Pages);
       cy.CreateAPI(`FirstAPI_${uid}`);
       cy.log("Creation of FirstAPI Action successful");
       cy.NavigateToAPI_Panel();

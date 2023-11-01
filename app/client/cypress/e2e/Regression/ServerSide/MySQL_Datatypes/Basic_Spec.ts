@@ -9,6 +9,9 @@ import {
   entityItems,
 } from "../../../../support/Objects/ObjectsCore";
 import inputData from "../../../../support/Objects/mySqlData";
+import EditorNavigation, {
+  SidebarButton,
+} from "../../../../support/Pages/EditorNavigation";
 
 let dsName: any, query: string;
 
@@ -21,6 +24,7 @@ describe("MySQL Datatype tests", function () {
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });
+    EditorNavigation.sidebar(SidebarButton.Pages);
   });
 
   it("1. Creating mysqlDTs table & queries", () => {
