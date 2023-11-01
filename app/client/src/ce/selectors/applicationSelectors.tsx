@@ -1,6 +1,7 @@
 import { createSelector } from "reselect";
 import { groupBy } from "lodash";
 import type { AppState } from "@appsmith/reducers";
+import type { WorkflowMetadata } from "@appsmith/constants/WorkflowConstants";
 import type {
   ApplicationsReduxState,
   creatingApplicationMap,
@@ -13,6 +14,7 @@ import { hasCreateNewAppPermission } from "@appsmith/utils/permissionHelpers";
 import { NAVIGATION_SETTINGS, SIDEBAR_WIDTH } from "constants/AppConstants";
 import { getPackagesList } from "@appsmith/selectors/packageSelectors";
 import type { PackageMetadata } from "@appsmith/constants/PackageConstants";
+import { getWorkflowsList } from "@appsmith/selectors/workflowSelectors";
 
 const fuzzySearchOptions = {
   keys: ["applications.name", "workspace.name", "packages.name"],
@@ -39,11 +41,13 @@ const fuzzySearchOptions = {
  *    packages: []
  *  }
  */
-const injectPackagesToWorkspacesList = (
+const injectPackagesAndWOrkflowsToWorkspacesList = (
   workspacesList: Workspaces[] = [],
   packages: PackageMetadata[] = [],
+  workflows: WorkflowMetadata[] = [],
 ) => {
   const packagesGroupByWorkspaceId = groupBy(packages, (p) => p.workspaceId);
+  const workflowsGroupByWorkspaceId = groupBy(workflows, (w) => w.workspaceId);
 
   return workspacesList.map((workspacesObj) => {
     const { workspace } = workspacesObj;
@@ -51,6 +55,7 @@ const injectPackagesToWorkspacesList = (
     return {
       ...workspacesObj,
       packages: packagesGroupByWorkspaceId[workspace.id] || [],
+      workflows: workflowsGroupByWorkspaceId[workspace.id] || [],
     };
   });
 };
@@ -116,14 +121,17 @@ export const getUserApplicationsWorkspacesList = createSelector(
   getUserApplicationsWorkspaces,
   getApplicationSearchKeyword,
   getPackagesList,
+  getWorkflowsList,
   (
     applicationsWorkspaces?: Workspaces[],
     keyword?: string,
     packages?: PackageMetadata[],
+    workflows?: WorkflowMetadata[],
   ) => {
-    const workspacesList = injectPackagesToWorkspacesList(
+    const workspacesList = injectPackagesAndWOrkflowsToWorkspacesList(
       applicationsWorkspaces,
       packages,
+      workflows,
     );
 
     if (

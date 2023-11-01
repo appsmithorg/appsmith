@@ -102,6 +102,7 @@ import ResourceListLoader from "@appsmith/pages/Applications/ResourceListLoader"
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { getHasCreateWorkspacePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import WorkflowCardList from "@appsmith/pages/Applications/WorkflowCardList";
 
 export const { cloudHosting } = getAppsmithConfigs();
 
@@ -590,7 +591,8 @@ export function ApplicationsSection(props: any) {
     workspacesListComponent = updatedWorkspaces.map(
       (workspaceObject: any, index: number) => {
         const isLastWorkspace = updatedWorkspaces.length === index + 1;
-        const { applications, packages, workspace } = workspaceObject;
+        const { applications, packages, workflows, workspace } =
+          workspaceObject;
         const hasManageWorkspacePermissions = isPermitted(
           workspace.userPermissions,
           PERMISSION_TYPE.MANAGE_WORKSPACE,
@@ -745,6 +747,13 @@ export function ApplicationsSection(props: any) {
                 <PackageCardList
                   isMobile={isMobile}
                   packages={packages}
+                  workspaceId={workspace.id}
+                />
+              )}
+              {!isLoadingResources && (
+                <WorkflowCardList
+                  isMobile={isMobile}
+                  workflows={workflows}
                   workspaceId={workspace.id}
                 />
               )}
