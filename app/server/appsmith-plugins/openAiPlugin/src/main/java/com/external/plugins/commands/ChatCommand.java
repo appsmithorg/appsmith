@@ -89,7 +89,8 @@ public class ChatCommand implements OpenAICommand {
         }
 
         chatRequestDTO.setModel(model);
-        List<ChatMessage> chatMessages = transformToMessages((String) formData.get(MESSAGES));
+        // this will change to objects
+        List<ChatMessage> chatMessages = transformToMessages(formData.get(MESSAGES));
         verifyRoleForChatMessages(chatMessages);
 
         Float temperature = getTemperatureFromFormData(formData);
@@ -98,8 +99,8 @@ public class ChatCommand implements OpenAICommand {
         return chatRequestDTO;
     }
 
-    private List<ChatMessage> transformToMessages(String messages) {
-        if (!StringUtils.hasText(messages)) {
+    private List<ChatMessage> transformToMessages(Object messages) {
+        if (messages == null) {
             throw new AppsmithPluginException(
                     AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                     String.format(STRING_APPENDER, EXECUTION_FAILURE, INCORRECT_MESSAGE_FORMAT));
@@ -107,7 +108,7 @@ public class ChatCommand implements OpenAICommand {
 
         Type chatListType = new TypeToken<List<ChatMessage>>() {}.getType();
         try {
-            return gson.fromJson(messages, chatListType);
+            return gson.fromJson(gson.toJson(messages), chatListType);
         } catch (Exception exception) {
             log.debug("An exception occurred while converting types for messages: {}", messages);
             throw new AppsmithPluginException(

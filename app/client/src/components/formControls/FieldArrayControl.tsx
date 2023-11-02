@@ -59,7 +59,7 @@ const AddMoreAction = styled.div`
 function NestedComponents(props: any) {
   useEffect(() => {
     if (props.fields.length < 1) {
-      props.fields.push({ path: "", value: "" });
+      props.fields.push({});
     }
   }, [props.fields.length]);
   return (
@@ -99,21 +99,26 @@ function NestedComponents(props: any) {
             </SecondaryBox>
           );
         })}
-      <AddMoreAction onClick={() => props.fields.push({ path: "", value: "" })}>
+      <AddMoreAction onClick={() => props.fields.push({})}>
         {/*Hardcoded label to be removed */}
-        <Text type={TextType.H5}>+ Add Condition (And)</Text>
+        <Text type={TextType.H5}>{props.addMoreButtonLabel}</Text>
       </AddMoreAction>
     </PrimaryBox>
   );
 }
 
 export default function FieldArrayControl(props: FieldArrayControlProps) {
-  const { configProperty, formName, schema } = props;
+  const {
+    addMoreButtonLabel = "+ Add Condition (And)",
+    configProperty,
+    formName,
+    schema,
+  } = props;
   return (
     <FieldArray
       component={NestedComponents}
       name={configProperty}
-      props={{ formName, schema }}
+      props={{ formName, schema, addMoreButtonLabel }}
       rerenderOnEveryChange={false}
     />
   );
