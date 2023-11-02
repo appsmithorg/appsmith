@@ -110,6 +110,13 @@ public class OpenAiPlugin extends BasePlugin {
                         actionExecutionResult.setRequest(actionExecutionRequest);
                         actionExecutionResult.setStatusCode(statusCode.toString());
 
+                        if (statusCode.is4xxClientError()) {
+                            actionExecutionResult.setIsExecutionSuccess(false);
+                            actionExecutionResult.setErrorInfo(
+                                    new AppsmithPluginException(AppsmithPluginError.PLUGIN_AUTHENTICATION_ERROR));
+                            return Mono.just(actionExecutionResult);
+                        }
+
                         if (!statusCode.is2xxSuccessful()) {
                             actionExecutionResult.setIsExecutionSuccess(false);
                             return Mono.just(actionExecutionResult);
@@ -157,6 +164,11 @@ public class OpenAiPlugin extends BasePlugin {
 
             return RequestUtils.makeRequest(httpMethod, uri, bearerTokenAuth, BodyInserters.empty())
                     .flatMap(responseEntity -> {
+                        if (responseEntity.getStatusCode().is4xxClientError()) {
+                            return Mono.error(
+                                    new AppsmithPluginException(AppsmithPluginError.PLUGIN_AUTHENTICATION_ERROR));
+                        }
+
                         if (!responseEntity.getStatusCode().is2xxSuccessful()) {
                             return Mono.error(
                                     new AppsmithPluginException(AppsmithPluginError.PLUGIN_GET_STRUCTURE_ERROR));

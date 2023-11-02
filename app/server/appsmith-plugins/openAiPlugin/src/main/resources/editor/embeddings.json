@@ -13,7 +13,7 @@
       "propertyName": "embedding_model_id",
       "configProperty": "actionConfiguration.formData.embeddingsModel.data",
       "controlType": "DROP_DOWN",
-      "initialValue": [],
+      "initialValue": "",
       "options": [],
       "placeholderText": "All models will be fetched.",
       "fetchOptionsConditionally": true,
