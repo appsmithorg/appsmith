@@ -16,8 +16,7 @@ public class RateLimitConstants {
     public static RateLimit DEFAULT_PRESET_RATE_LIMIT_LOGIN_API =
             RateLimit.builder().refillDuration(Duration.ofDays(1)).limit(5).build();
 
-    public static RateLimit DEFAULT_MAX_RATE_LIMIT_LOGIN_API = RateLimit.builder()
-            .refillDuration(Duration.ofSeconds(1))
-            .limit(Integer.MAX_VALUE)
-            .build();
+    // Bucket4j's highest supported rate is 1 token/nanosecond.
+    public static RateLimit DEFAULT_MAX_RATE_LIMIT_LOGIN_API =
+            RateLimit.builder().refillDuration(Duration.ofNanos(1)).limit(1).build();
 }
