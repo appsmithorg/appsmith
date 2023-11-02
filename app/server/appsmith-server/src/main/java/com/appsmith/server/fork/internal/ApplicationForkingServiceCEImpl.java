@@ -549,20 +549,6 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                     // application
                     application.setGitApplicationMetadata(null);
 
-                    boolean allowFork = (
-                            // Is this a non-anonymous user that has access to this application?
-                            !user.isAnonymous()
-                                    && application
-                                            .getUserPermissions()
-                                            .contains(applicationPermission
-                                                    .getEditPermission()
-                                                    .getValue()))
-                            || Boolean.TRUE.equals(application.getForkingEnabled());
-
-                    if (!allowFork) {
-                        return Mono.error(new AppsmithException(AppsmithError.APPLICATION_FORKING_NOT_ALLOWED));
-                    }
-
                     return this.forkApplications(targetWorkspace.getId(), application, sourceEnvironmentId);
                 })
                 .flatMap(applicationIds -> {
@@ -664,11 +650,14 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
         Mono<Application> applicationMono = applicationService
                 .findBranchedApplicationId(optionalBranchName, srcApplicationId, optionalAclPermission)
                 .flatMap(branchedApplicationId ->
-                        applicationService.findById(branchedApplicationId, optionalAclPermission));
+                        applicationService.findById(branchedApplicationId, optionalAclPermission))
+                .switchIfEmpty(Mono.error(new AppsmithException(
+                        AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, srcApplicationId)))
+                .cache();
 
         // For sample apps that are marked as forked, we allow forking to any workspace without any permission checks
-        return isSampleApp(applicationMono).flatMap(isSampleApp -> {
-            if (isSampleApp) {
+        return isForkingEnabled(applicationMono).flatMap(isForkingEnabled -> {
+            if (isForkingEnabled) {
                 return Mono.just(Boolean.TRUE);
             }
             // Normal Application forking with developer/edit access
@@ -689,37 +678,40 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                     .retrieveById(targetWorkspaceId)
                     .flatMap(workspaceRepository::setUserPermissionsInObject));
 
+            Mono<Set<String>> permissionGroupIdsMono =
+                    permissionGroupService.getSessionUserPermissionGroupIds().cache();
+
             Mono<Boolean> pagesValidatedForPermission = UserPermissionUtils.validateDomainObjectPermissionsOrError(
                     pageFlux,
                     FieldName.PAGE,
-                    permissionGroupService.getSessionUserPermissionGroupIds(),
+                    permissionGroupIdsMono,
                     pagePermission.getEditPermission(),
                     AppsmithError.APPLICATION_NOT_FORKED_MISSING_PERMISSIONS);
             Mono<Boolean> actionsValidatedForPermission = UserPermissionUtils.validateDomainObjectPermissionsOrError(
                     actionFlux,
                     FieldName.ACTION,
-                    permissionGroupService.getSessionUserPermissionGroupIds(),
+                    permissionGroupIdsMono,
                     actionPermission.getEditPermission(),
                     AppsmithError.APPLICATION_NOT_FORKED_MISSING_PERMISSIONS);
             Mono<Boolean> actionCollectionsValidatedForPermission =
                     UserPermissionUtils.validateDomainObjectPermissionsOrError(
                             actionCollectionFlux,
                             FieldName.ACTION,
-                            permissionGroupService.getSessionUserPermissionGroupIds(),
+                            permissionGroupIdsMono,
                             actionPermission.getEditPermission(),
                             AppsmithError.APPLICATION_NOT_FORKED_MISSING_PERMISSIONS);
             Mono<Boolean> workspaceValidatedForCreateApplicationPermission =
                     UserPermissionUtils.validateDomainObjectPermissionsOrError(
                             workspaceFlux,
                             FieldName.WORKSPACE,
-                            permissionGroupService.getSessionUserPermissionGroupIds(),
+                            permissionGroupIdsMono,
                             workspacePermission.getApplicationCreatePermission(),
                             AppsmithError.APPLICATION_NOT_FORKED_MISSING_PERMISSIONS);
             Mono<Boolean> workspaceValidatedForCreateDatasourcePermission =
                     UserPermissionUtils.validateDomainObjectPermissionsOrError(
                             workspaceFlux,
                             FieldName.WORKSPACE,
-                            permissionGroupService.getSessionUserPermissionGroupIds(),
+                            permissionGroupIdsMono,
                             workspacePermission.getDatasourceCreatePermission(),
                             AppsmithError.APPLICATION_NOT_FORKED_MISSING_PERMISSIONS);
 
@@ -733,7 +725,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
         });
     }
 
-    private Mono<Boolean> isSampleApp(Mono<Application> applicationMono) {
+    private Mono<Boolean> isForkingEnabled(Mono<Application> applicationMono) {
         return applicationMono
                 .map(application -> application.getForkingEnabled() != null && application.getForkingEnabled())
                 .defaultIfEmpty(Boolean.FALSE);
