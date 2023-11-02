@@ -100,6 +100,12 @@ public class ChatCommand implements OpenAICommand {
     }
 
     private List<ChatMessage> transformToMessages(Object messages) {
+        if (messages == null) {
+            throw new AppsmithPluginException(
+                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                    String.format(STRING_APPENDER, EXECUTION_FAILURE, INCORRECT_MESSAGE_FORMAT));
+        }
+
         Type chatListType = new TypeToken<List<ChatMessage>>() {}.getType();
         try {
             return gson.fromJson(gson.toJson(messages), chatListType);

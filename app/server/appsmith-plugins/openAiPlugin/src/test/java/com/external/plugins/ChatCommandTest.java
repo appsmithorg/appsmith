@@ -3,7 +3,6 @@ package com.external.plugins;
 import com.appsmith.external.models.ActionConfiguration;
 import com.external.plugins.commands.ChatCommand;
 import com.external.plugins.models.ChatRequestDTO;
-import com.external.plugins.models.OpenAIRequestDTO;
 import com.google.gson.Gson;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
@@ -17,6 +16,7 @@ import static com.external.plugins.constants.OpenAIConstants.CHAT_MODEL_SELECTOR
 import static com.external.plugins.constants.OpenAIConstants.DATA;
 import static com.external.plugins.constants.OpenAIConstants.ID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class ChatCommandTest {
 
@@ -46,16 +46,17 @@ public class ChatCommandTest {
         Map<String, Object> formData = new HashMap<>();
         formData.put(CHAT_MODEL_SELECTOR, Map.of(DATA, "gpt-3.5-turbo"));
 
-        String messages =
-                "[{\"role\": \"user\", \"content\": \"Hello\"}, {\"role\": \"assistant\", \"content\": \"Hi there!\"}]";
+        Object messages = List.of(
+                Map.of("role", "user", "content", "Hello"), Map.of("role", "assistant", "content", "Hi there!"));
         formData.put("messages", messages);
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setFormData(formData);
 
-        OpenAIRequestDTO request = command.makeRequestBody(actionConfiguration);
+        ChatRequestDTO request = (ChatRequestDTO) command.makeRequestBody(actionConfiguration);
 
         assertEquals("gpt-3.5-turbo", request.getModel());
-        assertEquals(2, ((ChatRequestDTO) request).getMessages().size());
+        assertNotNull(request.getMessages());
+        assertEquals(2, request.getMessages().size());
     }
 
     @Test
