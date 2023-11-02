@@ -1,16 +1,20 @@
-package com.appsmith.server.solutions;
+package com.appsmith.server.refactors.applications;
 
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.configurations.InstanceConfig;
+import com.appsmith.server.domains.ActionCollection;
+import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
+import com.appsmith.server.refactors.entities.EntityRefactoringService;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.AstService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.SessionUserService;
-import com.appsmith.server.solutions.ce.RefactoringSolutionCEImpl;
+import com.appsmith.server.solutions.ActionPermission;
+import com.appsmith.server.solutions.PagePermission;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -32,7 +36,9 @@ public class RefactoringSolutionImpl extends RefactoringSolutionCEImpl implement
             AnalyticsService analyticsService,
             SessionUserService sessionUserService,
             PagePermission pagePermission,
-            ActionPermission actionPermission) {
+            ActionPermission actionPermission,
+            EntityRefactoringService<NewAction> newActionEntityRefactoringService,
+            EntityRefactoringService<ActionCollection> actionCollectionEntityRefactoringService) {
         super(
                 objectMapper,
                 newPageService,
@@ -46,6 +52,8 @@ public class RefactoringSolutionImpl extends RefactoringSolutionCEImpl implement
                 analyticsService,
                 sessionUserService,
                 pagePermission,
-                actionPermission);
+                actionPermission,
+                newActionEntityRefactoringService,
+                actionCollectionEntityRefactoringService);
     }
 }

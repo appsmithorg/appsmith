@@ -1,7 +1,8 @@
-package com.appsmith.server.solutions.ce;
+package com.appsmith.server.refactors.applications;
 
 import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.RefactorActionNameDTO;
+import com.appsmith.server.dtos.RefactorEntityNameDTO;
 import com.appsmith.server.dtos.RefactorNameDTO;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
@@ -32,4 +33,6 @@ public interface RefactoringSolutionCE {
      * @return A tuple of the updated layout after refactoring and a set of all the paths in the page that ended up getting refactored
      */
     Mono<Tuple2<LayoutDTO, Set<String>>> refactorName(String pageId, String layoutId, String oldName, String newName);
+
+    Mono<LayoutDTO> refactorEntityName(RefactorEntityNameDTO refactorEntityNameDTO, String branchName);
 }

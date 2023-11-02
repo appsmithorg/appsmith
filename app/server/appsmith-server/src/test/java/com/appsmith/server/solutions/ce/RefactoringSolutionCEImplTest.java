@@ -2,9 +2,13 @@ package com.appsmith.server.solutions.ce;
 
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.configurations.InstanceConfig;
+import com.appsmith.server.domains.ActionCollection;
+import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
+import com.appsmith.server.refactors.applications.RefactoringSolutionCEImpl;
+import com.appsmith.server.refactors.entities.EntityRefactoringService;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.AstService;
@@ -81,6 +85,12 @@ class RefactoringSolutionCEImplTest {
     @MockBean
     private SessionUserService sessionUserService;
 
+    @MockBean
+    private EntityRefactoringService<NewAction> newActionEntityRefactoringService;
+
+    @MockBean
+    private EntityRefactoringService<ActionCollection> actionCollectionEntityRefactoringService;
+
     @BeforeEach
     public void setUp() {
         refactoringSolutionCE = new RefactoringSolutionCEImpl(
@@ -96,7 +106,9 @@ class RefactoringSolutionCEImplTest {
                 analyticsService,
                 sessionUserService,
                 pagePermission,
-                actionPermission);
+                actionPermission,
+                newActionEntityRefactoringService,
+                actionCollectionEntityRefactoringService);
     }
 
     @Test
