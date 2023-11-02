@@ -406,6 +406,7 @@ export function EditorJSONtoForm(props: Props) {
 
   const {
     actionRightPaneBackLink,
+    actionRightPaneSections,
     closeEditorLink,
     moreActionsMenu,
     saveActionName,
@@ -1116,6 +1117,7 @@ export function EditorJSONtoForm(props: Props) {
               hasConnections={hasDependencies}
               hasResponse={!!output}
               pluginId={props.pluginId}
+              sections={actionRightPaneSections}
               suggestedWidgets={executedQueryData?.suggestedWidgets}
             />
           </SidebarWrapper>
