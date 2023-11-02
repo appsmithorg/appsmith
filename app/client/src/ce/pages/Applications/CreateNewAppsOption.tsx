@@ -32,11 +32,12 @@ import StartScratch from "assets/images/start-from-scratch.svg";
 import StartTemplate from "assets/images/start-from-template.svg";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { TemplateView } from "pages/Templates/TemplateView";
-import { resetCurrentApplicationIdForCreateNewApp } from "actions/onboardingActions";
-import { builderURL } from "@appsmith/RouteBuilder";
+import {
+  firstTimeUserOnboardingInit,
+  resetCurrentApplicationIdForCreateNewApp,
+} from "actions/onboardingActions";
 import { getApplicationByIdFromWorkspaces } from "@appsmith/selectors/applicationSelectors";
 import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
-import history from "utils/history";
 
 const SectionWrapper = styled.div`
   display: flex;
@@ -171,14 +172,11 @@ const CreateNewAppsOption = ({
   const onClickStartFromScratch = () => {
     if (application) {
       AnalyticsUtil.logEvent("CREATE_APP_FROM_SCRATCH");
-      /*
-       * Implement the first time onboarding flow
-       */
-
-      history.push(
-        builderURL({
-          pageId: application.defaultPageId,
-        }),
+      dispatch(
+        firstTimeUserOnboardingInit(
+          application.id,
+          application.defaultPageId as string,
+        ),
       );
     }
   };
@@ -187,41 +185,45 @@ const CreateNewAppsOption = ({
     setUseTemplate(false);
   };
 
+  const getTemplateById = (id: string) => {
+    const template = allTemplates.find((template) => template.id === id);
+    return template;
+  };
+
   const onTemplateClick = (id: string) => {
-    const title = getTemplateTitleById(id);
-    AnalyticsUtil.logEvent("CLICK_ON_TEMPLATE_CARD_WHEN_ONBOARDING", {
-      id,
-      title,
-    });
-    // When template is clicked to view the template details
-    if (!isImportingTemplate) setSelectedTemplate(id);
+    const template = getTemplateById(id);
+    if (template) {
+      AnalyticsUtil.logEvent("CLICK_ON_TEMPLATE_CARD_WHEN_ONBOARDING", {
+        id,
+        title: template.title,
+      });
+      // When template is clicked to view the template details
+      if (!isImportingTemplate) setSelectedTemplate(id);
+    }
   };
 
   const resetCreateNewAppFlow = () => {
     dispatch(resetCurrentApplicationIdForCreateNewApp());
   };
 
-  const getTemplateTitleById = (id: string) => {
-    const template = allTemplates.find((template) => template.id === id);
-    return template?.title;
-  };
-
   const onClickUseTemplate = (id: string) => {
-    const title = getTemplateTitleById(id);
-    AnalyticsUtil.logEvent("USE_TEMPLATE_FROM_DETAILS_PAGE_WHEN_ONBOARDING", {
-      title,
-    });
-    // When Use template is clicked on template view detail screen
-    if (!isImportingTemplate) {
-      dispatch(
-        importTemplateIntoApplication(
-          id,
-          title as string,
-          undefined,
-          application?.id,
-          application?.workspaceId,
-        ),
-      );
+    const template = getTemplateById(id);
+    if (template) {
+      AnalyticsUtil.logEvent("USE_TEMPLATE_FROM_DETAILS_PAGE_WHEN_ONBOARDING", {
+        title: template.title,
+      });
+      // When Use template is clicked on template view detail screen
+      if (!isImportingTemplate) {
+        dispatch(
+          importTemplateIntoApplication(
+            id,
+            template.title as string,
+            template.pages.map((p) => p.name),
+            application?.id,
+            application?.workspaceId,
+          ),
+        );
+      }
     }
   };
 
@@ -234,7 +236,7 @@ const CreateNewAppsOption = ({
         importTemplateIntoApplication(
           template.id,
           template.title,
-          undefined,
+          template.pages.map((p) => p.name),
           application?.id,
           application?.workspaceId,
         ),
@@ -247,11 +249,13 @@ const CreateNewAppsOption = ({
     if (useTemplate) {
       if (selectedTemplate) {
         // Going back from template details view screen
-        const title = getTemplateTitleById(selectedTemplate);
-        AnalyticsUtil.logEvent(
-          "ONBOARDING_FLOW_CLICK_BACK_BUTTON_TEMPLATE_DETAILS_PAGE",
-          { title },
-        );
+        const template = getTemplateById(selectedTemplate);
+        if (template) {
+          AnalyticsUtil.logEvent(
+            "ONBOARDING_FLOW_CLICK_BACK_BUTTON_TEMPLATE_DETAILS_PAGE",
+            { title: template.title },
+          );
+        }
         setSelectedTemplate("");
       } else {
         // Going back from start from template screen

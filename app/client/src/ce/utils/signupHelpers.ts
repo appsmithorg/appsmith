@@ -49,15 +49,15 @@ export const redirectUserAfterSignup = (
         });
         const { applicationId, pageId } = match?.params || {};
         if (applicationId || pageId) {
+          showStarterTemplatesInsteadofBlankCanvas &&
+            applicationId &&
+            setUsersFirstApplicationId(applicationId);
           if (isEnabledForCreateNew) {
             dispatch(
               setCurrentApplicationIdForCreateNewApp(applicationId as string),
             );
             history.replace(APPLICATIONS_URL);
           } else {
-            showStarterTemplatesInsteadofBlankCanvas &&
-              applicationId &&
-              setUsersFirstApplicationId(applicationId);
             dispatch(
               firstTimeUserOnboardingInit(applicationId, pageId as string),
             );
