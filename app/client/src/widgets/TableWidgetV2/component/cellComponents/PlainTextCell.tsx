@@ -20,7 +20,6 @@ import CurrencyTypeDropdown, {
 } from "widgets/CurrencyInputWidget/component/CurrencyCodeDropdown";
 import { getLocale } from "utils/helpers";
 import * as Sentry from "@sentry/react";
-import type { InputHTMLType } from "widgets/BaseInputWidget/component";
 import { getLocaleThousandSeparator } from "widgets/WidgetUtils";
 
 const Container = styled.div<{
@@ -88,7 +87,7 @@ export function getCellText(
   if (value && columnType === ColumnTypes.URL && displayText) {
     text = displayText;
   } else if (columnType === ColumnTypes.CURRENCY) {
-    text = !isNil(value) ? value : "";
+    text = value ?? "";
   } else if (!isNil(value) && (!isNumber(value) || !isNaN(value))) {
     text = (value as string).toString();
   } else {
@@ -235,7 +234,7 @@ function PlainTextCell(
   }, [value, decimals, currencyCode, notation, thousandSeparator, columnType]);
 
   if (isCellEditMode) {
-    const [inputType, inputHTMLType] = (() => {
+    const [inputType, inputHTMLType]: [InputTypes, "TEXT" | "NUMBER"] = (() => {
       switch (columnType) {
         case ColumnTypes.NUMBER:
           return [InputTypes.NUMBER, "NUMBER"];
@@ -270,7 +269,7 @@ function PlainTextCell(
         allowCellWrapping={allowCellWrapping}
         autoFocus={!isNewRow}
         compactMode={compactMode}
-        inputHTMLType={inputHTMLType as InputHTMLType}
+        inputHTMLType={inputHTMLType}
         inputType={inputType}
         isEditableCellValid={isEditableCellValid}
         multiline={isMultiline}
