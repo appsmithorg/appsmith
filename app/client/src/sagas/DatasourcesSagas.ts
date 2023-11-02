@@ -1570,8 +1570,12 @@ function* executeDatasourceQuerySaga(
       },
     });
     if (action.onErrorCallback) {
-      // @ts-expect-error: onErrorCallback expects string
-      action.onErrorCallback(error);
+      if (error instanceof Error) {
+        action.onErrorCallback(error.message);
+      } else {
+        // @ts-expect-error: onErrorCallback expects string
+        action.onErrorCallback(error);
+      }
     }
   }
 }

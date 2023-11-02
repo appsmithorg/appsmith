@@ -380,10 +380,16 @@ export const useSheetData = (
   const [failedFetchingSheetData, setFailedFetchingSheetData] =
     useState<boolean>(false);
 
-  const onFetchAllSheetFailure = useCallback(() => {
-    setIsFetchingSheetData(false);
-    setFailedFetchingSheetData(true);
-  }, [setIsFetchingSheetData]);
+  const onFetchAllSheetFailure = useCallback(
+    (errorMessage: string) => {
+      setIsFetchingSheetData(false);
+      setFailedFetchingSheetData(true);
+      AnalyticsUtil.logEvent("DATA_FETCH_FAILED_POST_SCHEMA_FETCH", {
+        error: errorMessage,
+      });
+    },
+    [setIsFetchingSheetData],
+  );
 
   const onFetchAllSheetSuccess = useCallback(
     (
@@ -399,7 +405,10 @@ export const useSheetData = (
           props.setSheetData && props.setSheetData(responseBody);
         } else {
           // to handle error like "401 Unauthorized"
-          AnalyticsUtil.logEvent("DATA_FETCH_FAILED_POST_SCHEMA_FETCH", payload);
+          AnalyticsUtil.logEvent(
+            "DATA_FETCH_FAILED_POST_SCHEMA_FETCH",
+            payload,
+          );
         }
       }
     },
