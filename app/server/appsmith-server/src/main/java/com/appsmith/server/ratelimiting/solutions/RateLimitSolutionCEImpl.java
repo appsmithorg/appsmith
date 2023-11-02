@@ -9,6 +9,7 @@ import io.github.bucket4j.BucketConfiguration;
 import io.github.bucket4j.Refill;
 import io.github.bucket4j.TokensInheritanceStrategy;
 import io.github.bucket4j.distributed.BucketProxy;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
@@ -18,6 +19,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @Component
+@Slf4j
 public class RateLimitSolutionCEImpl implements RateLimitSolutionCE {
     private final Map<String, BucketConfiguration> apiConfigurationMap = new HashMap<>();
     private final Map<String, BucketProxy> apiBuckets = new HashMap<>();
@@ -80,7 +82,7 @@ public class RateLimitSolutionCEImpl implements RateLimitSolutionCE {
         apiConfigurationMap.put(apiIdentifier, newBucketConfiguration);
         return cacheManager.getKeysWithPrefix(apiIdentifier).map(existingKeys -> {
             existingKeys.forEach(key -> {
-                System.out.println("Login Api Bucket Key " + key);
+                log.debug("Login Api Bucket Key {}", key);
                 proxyManagerConfiguration
                         .lettuceBasedProxyManager()
                         .getProxyConfiguration(key.getBytes())
@@ -89,10 +91,10 @@ public class RateLimitSolutionCEImpl implements RateLimitSolutionCE {
                                     .lettuceBasedProxyManager()
                                     .builder()
                                     .build(key.getBytes(), existingConfiguration);
-                            System.out.println("Tokens for : " + key + " " + existingBucketProxy.getAvailableTokens());
+                            log.debug("Tokens before {} : {}", key, existingBucketProxy.getAvailableTokens());
                             existingBucketProxy.replaceConfiguration(
                                     newBucketConfiguration, TokensInheritanceStrategy.RESET);
-                            System.out.println("Tokens for : " + key + " " + existingBucketProxy.getAvailableTokens());
+                            log.debug("Tokens after {} : {}", key, existingBucketProxy.getAvailableTokens());
                         });
             });
             return 1L;
