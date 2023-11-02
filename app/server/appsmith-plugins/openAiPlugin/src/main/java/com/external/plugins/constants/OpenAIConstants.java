@@ -30,6 +30,9 @@ public class OpenAIConstants {
     public static final String ENCODING_FORMAT = "encodingFormat";
     public static final String TEMPERATURE = "temperature";
 
+    // Other constants
+    public static final String BODY = "body";
+
     public static final ExchangeStrategies EXCHANGE_STRATEGIES = ExchangeStrategies.builder()
             .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(/* 10MB */ 10 * 1024 * 1024))
             .build();

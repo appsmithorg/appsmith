@@ -39,9 +39,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static com.external.plugins.constants.OpenAIConstants.BODY;
 import static com.external.plugins.constants.OpenAIConstants.DATA;
 import static com.external.plugins.constants.OpenAIConstants.ID;
 import static com.external.plugins.constants.OpenAIConstants.MODEL;
+import static com.external.plugins.constants.OpenAIErrorMessages.QUERY_FAILED_TO_EXECUTE;
 
 @Slf4j
 public class OpenAiPlugin extends BasePlugin {
@@ -117,18 +119,26 @@ public class OpenAiPlugin extends BasePlugin {
                             return Mono.just(actionExecutionResult);
                         }
 
+                        Object body;
+                        try {
+                            body = objectMapper.readValue(responseEntity.getBody(), Object.class);
+                            actionExecutionResult.setBody(body);
+                        } catch (IOException ex) {
+                            actionExecutionResult.setIsExecutionSuccess(false);
+                            actionExecutionResult.setErrorInfo(new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR, BODY, ex.getMessage()));
+                            return Mono.just(actionExecutionResult);
+                        }
+
                         if (!statusCode.is2xxSuccessful()) {
                             actionExecutionResult.setIsExecutionSuccess(false);
+                            actionExecutionResult.setErrorInfo(new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_ERROR, QUERY_FAILED_TO_EXECUTE, body));
                             return Mono.just(actionExecutionResult);
                         }
 
                         actionExecutionResult.setIsExecutionSuccess(true);
-                        try {
-                            Object body = objectMapper.readValue(responseEntity.getBody(), Object.class);
-                            actionExecutionResult.setBody(body);
-                        } catch (IOException ex) {
-                            actionExecutionResult.setIsExecutionSuccess(false);
-                        }
+
                         return Mono.just(actionExecutionResult);
                     })
                     .onErrorResume(error -> {
