@@ -1,4 +1,7 @@
-import { firstTimeUserOnboardingInit } from "actions/onboardingActions";
+import {
+  firstTimeUserOnboardingInit,
+  setCurrentApplicationIdForCreateNewApp,
+} from "actions/onboardingActions";
 import {
   SIGNUP_SUCCESS_URL,
   BUILDER_PATH,
@@ -46,20 +49,24 @@ export const redirectUserAfterSignup = (
         });
         const { applicationId, pageId } = match?.params || {};
         if (applicationId || pageId) {
-          showStarterTemplatesInsteadofBlankCanvas &&
-            applicationId &&
-            setUsersFirstApplicationId(applicationId);
-          dispatch(
-            firstTimeUserOnboardingInit(applicationId, pageId as string),
-          );
+          if (isEnabledForCreateNew) {
+            dispatch(
+              setCurrentApplicationIdForCreateNewApp(applicationId as string),
+            );
+            history.replace(APPLICATIONS_URL);
+          } else {
+            showStarterTemplatesInsteadofBlankCanvas &&
+              applicationId &&
+              setUsersFirstApplicationId(applicationId);
+            dispatch(
+              firstTimeUserOnboardingInit(applicationId, pageId as string),
+            );
+          }
         } else {
           if (!urlObject) {
             try {
               urlObject = new URL(redirectUrl, window.location.origin);
             } catch (e) {}
-          }
-          if (isEnabledForCreateNew) {
-            urlObject?.searchParams.set("startCreateNewApp", "true");
           }
           const newRedirectUrl = urlObject?.toString() || "";
           if (getIsSafeRedirectURL(newRedirectUrl)) {

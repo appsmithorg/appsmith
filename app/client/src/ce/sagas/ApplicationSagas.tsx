@@ -653,10 +653,6 @@ export function* createApplicationSaga(
           });
         }
 
-        // Resetting current workspace for creating new app flow if going through it
-        yield put({
-          type: ReduxActionTypes.RESET_CURRENT_WORKSPACE_FOR_CREATE_NEW_APP,
-        });
         // Show cta's in empty canvas for the first page
         yield put(
           setCanvasCardsState(getDefaultPageId(response.data.pages) ?? ""),

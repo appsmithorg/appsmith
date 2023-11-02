@@ -101,12 +101,10 @@ import WorkspaceAction from "@appsmith/pages/Applications/WorkspaceAction";
 import CreateNewAppsOption from "@appsmith/pages/Applications/CreateNewAppsOption";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import AnalyticsUtil from "utils/AnalyticsUtil";
 import ResourceListLoader from "@appsmith/pages/Applications/ResourceListLoader";
 import { getHasCreateWorkspacePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
-import { getCurrentWorkspaceForCreateNewApp } from "@appsmith/selectors/workspaceSelectors";
-
-const START_CREATE_NEW_APP_FLOW_URL_KEY = "startCreateNewApp";
+import { getCurrentApplicationIdForCreateNewApp } from "@appsmith/selectors/applicationSelectors";
+import { resetCurrentApplicationIdForCreateNewApp } from "actions/onboardingActions";
 
 export const { cloudHosting } = getAppsmithConfigs();
 
@@ -760,8 +758,8 @@ export interface ApplicationProps {
 }
 
 const ApplicationContainerWrapper = () => {
-  const currentSelectedWorkspace = useSelector(
-    getCurrentWorkspaceForCreateNewApp,
+  const currentApplicationIdForCreateNewApp = useSelector(
+    getCurrentApplicationIdForCreateNewApp,
   );
   const searchKeyword = useSelector(getApplicationSearchKeyword);
   const isFetchingApplications = useSelector(getIsFetchingApplications);
@@ -770,18 +768,6 @@ const ApplicationContainerWrapper = () => {
   const dispatch = useDispatch();
   const theme = useContext(ThemeContext);
   const creatingApplicationMap = useSelector(getIsCreatingApplication);
-
-  const setCurrentSelectedWorkspace = (id: string) => {
-    dispatch({
-      type: ReduxActionTypes.SET_CURRENT_WORKSPACE_FOR_CREATE_NEW_APP,
-      payload: id,
-    });
-  };
-
-  //   A/B to enable the intermediary step for creating new application
-  const isEnabledForCreateNew = useFeatureFlag(
-    FEATURE_FLAG.ab_create_new_apps_enabled,
-  );
 
   const searchApplications = (keyword: string) => {
     dispatch({
@@ -820,7 +806,7 @@ const ApplicationContainerWrapper = () => {
     });
   };
 
-  const addNewAppInit = (workspaceId: string) => {
+  const onClickAddNewAppButton = (workspaceId: string) => {
     const workspaceObject = updatedWorkspaces?.find(
       ({ workspace }) => workspace.id === workspaceId,
     );
@@ -841,60 +827,20 @@ const ApplicationContainerWrapper = () => {
     }
   };
 
-  const onClickAddNewAppButton = (workspaceId: string) => {
-    addNewAppInit(workspaceId);
-  };
-
-  const startFromScratch = () => {
-    if (currentSelectedWorkspace) {
-      AnalyticsUtil.logEvent("CREATE_APP_FROM_SCRATCH");
-      addNewAppInit(currentSelectedWorkspace);
-    }
-  };
-
   useEffect(() => {
     return () => {
       searchApplications("");
     };
   }, []);
 
-  // This function checks whether the Url has {START_CREATE_NEW_APP_FLOW_URL_KEY} in the url to signify that Signup is success and we need to start the new create app flow.
-  const checkAndSetWorkspaceForCreateNewApp = () => {
-    try {
-      const urlObject = new URL(window.location.href);
-      const workspaceId = updatedWorkspaces[0]?.workspace?.id;
-      if (
-        urlObject.searchParams.get(START_CREATE_NEW_APP_FLOW_URL_KEY) ==
-          "true" &&
-        workspaceId
-      ) {
-        setCurrentSelectedWorkspace(workspaceId);
-
-        urlObject.searchParams.delete(START_CREATE_NEW_APP_FLOW_URL_KEY);
-        // Replace the current URL without reloading the page
-        history.replaceState({}, "", urlObject.toString());
-      }
-    } catch (e) {}
-  };
-
-  useEffect(() => {
-    // Checks for atleast one workspace and if the New Create App flow is enabled for this user or not
-    if (isEnabledForCreateNew && updatedWorkspaces.length === 1) {
-      checkAndSetWorkspaceForCreateNewApp();
-    }
-  }, [isEnabledForCreateNew, updatedWorkspaces]);
-
   const onClickBack = () => {
-    dispatch({
-      type: ReduxActionTypes.RESET_CURRENT_WORKSPACE_FOR_CREATE_NEW_APP,
-    });
+    dispatch(resetCurrentApplicationIdForCreateNewApp());
   };
 
-  return currentSelectedWorkspace ? (
+  return currentApplicationIdForCreateNewApp ? (
     <CreateNewAppsOption
-      currentSelectedWorkspace={currentSelectedWorkspace}
+      currentApplicationIdForCreateNewApp={currentApplicationIdForCreateNewApp}
       onClickBack={onClickBack}
-      startFromScratch={startFromScratch}
     />
   ) : (
     <PageWrapper displayName="Applications">

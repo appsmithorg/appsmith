@@ -1,6 +1,6 @@
 import {
   getTemplateFilters,
-  importTemplateToWorkspace,
+  importTemplateIntoApplication,
 } from "actions/templateActions";
 import type { Template } from "api/TemplatesApi";
 import type { AppState } from "@appsmith/reducers";
@@ -11,11 +11,11 @@ import {
   allTemplatesFiltersSelector,
   getForkableWorkspaces,
   getTemplatesSelector,
-  isImportingTemplateSelector,
+  isImportingTemplateToAppSelector,
 } from "selectors/templatesSelectors";
 import styled from "styled-components";
 import { getAllTemplates } from "actions/templateActions";
-import { Link, Spinner, Text } from "design-system";
+import { Link, Text } from "design-system";
 import {
   CREATE_NEW_APPS_STEP_SUBTITLE,
   CREATE_NEW_APPS_STEP_TITLE,
@@ -32,8 +32,11 @@ import StartScratch from "assets/images/start-from-scratch.svg";
 import StartTemplate from "assets/images/start-from-template.svg";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { TemplateView } from "pages/Templates/TemplateView";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { getIsCreatingApplicationByWorkspaceId } from "@appsmith/selectors/applicationSelectors";
+import { resetCurrentApplicationIdForCreateNewApp } from "actions/onboardingActions";
+import { builderURL } from "@appsmith/RouteBuilder";
+import { getApplicationByIdFromWorkspaces } from "@appsmith/selectors/applicationSelectors";
+import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
+import history from "utils/history";
 
 const SectionWrapper = styled.div`
   display: flex;
@@ -111,15 +114,7 @@ const CardContainer = styled.div`
   position: relative;
 `;
 
-const CardLoading = styled(Spinner)`
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-`;
-
 interface CardProps {
-  loading?: boolean;
   onClick?: () => void;
   src: string;
   subTitle: string;
@@ -127,17 +122,9 @@ interface CardProps {
   title: string;
 }
 
-const Card = ({
-  loading,
-  onClick,
-  src,
-  subTitle,
-  testid,
-  title,
-}: CardProps) => {
+const Card = ({ onClick, src, subTitle, testid, title }: CardProps) => {
   return (
     <CardContainer data-testid={testid} onClick={onClick}>
-      {loading && <CardLoading size="lg" />}
       <img alt={title} src={src} />
       <Text kind="heading-s">{title}</Text>
       <Text>{subTitle}</Text>
@@ -146,13 +133,11 @@ const Card = ({
 };
 
 const CreateNewAppsOption = ({
-  currentSelectedWorkspace,
+  currentApplicationIdForCreateNewApp,
   onClickBack,
-  startFromScratch,
 }: {
-  currentSelectedWorkspace: string;
+  currentApplicationIdForCreateNewApp: string;
   onClickBack: () => void;
-  startFromScratch: () => void;
 }) => {
   const [useTemplate, setUseTemplate] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState("");
@@ -161,14 +146,16 @@ const CreateNewAppsOption = ({
   );
   const filters = useSelector(allTemplatesFiltersSelector);
   const workspaceList = useSelector(getForkableWorkspaces);
-  const isImportingTemplate = useSelector(isImportingTemplateSelector);
+  const isImportingTemplate = useSelector(isImportingTemplateToAppSelector);
   const allTemplates = useSelector(getTemplatesSelector);
-  const isCreatingNewApp = useSelector(
-    getIsCreatingApplicationByWorkspaceId(currentSelectedWorkspace),
+  const application = useSelector((state) =>
+    getApplicationByIdFromWorkspaces(
+      state,
+      currentApplicationIdForCreateNewApp,
+    ),
   );
   const dispatch = useDispatch();
   const onClickStartFromTemplate = () => {
-    if (isCreatingNewApp) return;
     AnalyticsUtil.logEvent("CREATE_APP_FROM_TEMPLATE");
 
     if (isEmpty(filters.functions)) {
@@ -182,8 +169,30 @@ const CreateNewAppsOption = ({
   };
 
   const onClickStartFromScratch = () => {
-    if (isCreatingNewApp) return;
-    startFromScratch();
+    if (application) {
+      AnalyticsUtil.logEvent("CREATE_APP_FROM_SCRATCH");
+      /*
+       * Implement the first time onboarding flow
+       */
+
+      urlBuilder.updateURLParams(
+        {
+          applicationSlug: application.slug,
+          applicationVersion: application.applicationVersion,
+          applicationId: application.id,
+        },
+        application.pages.map((page) => ({
+          pageSlug: page.slug,
+          customSlug: page.customSlug,
+          pageId: page.id,
+        })),
+      );
+      history.push(
+        builderURL({
+          pageId: application.defaultPageId,
+        }),
+      );
+    }
   };
 
   const goBackFromTemplate = () => {
@@ -200,10 +209,13 @@ const CreateNewAppsOption = ({
     if (!isImportingTemplate) setSelectedTemplate(id);
   };
 
-  const resetCurrentWorkspaceForCreateNewApp = () => {
-    dispatch({
-      type: ReduxActionTypes.RESET_CURRENT_WORKSPACE_FOR_CREATE_NEW_APP,
-    });
+  const resetCreateNewAppFlow = () => {
+    dispatch(resetCurrentApplicationIdForCreateNewApp());
+  };
+
+  const getTemplateTitleById = (id: string) => {
+    const template = allTemplates.find((template) => template.id === id);
+    return template?.title;
   };
 
   const onClickUseTemplate = (id: string) => {
@@ -213,7 +225,15 @@ const CreateNewAppsOption = ({
     });
     // When Use template is clicked on template view detail screen
     if (!isImportingTemplate) {
-      dispatch(importTemplateToWorkspace(id, currentSelectedWorkspace));
+      dispatch(
+        importTemplateIntoApplication(
+          id,
+          title as string,
+          undefined,
+          application?.id,
+          application?.workspaceId,
+        ),
+      );
     }
   };
 
@@ -223,18 +243,19 @@ const CreateNewAppsOption = ({
     // When fork template is clicked to add a new app using the template
     if (!isImportingTemplate) {
       dispatch(
-        importTemplateToWorkspace(template.id, currentSelectedWorkspace),
+        importTemplateIntoApplication(
+          template.id,
+          template.title,
+          undefined,
+          application?.id,
+          application?.workspaceId,
+        ),
       );
     }
   };
 
-  const getTemplateTitleById = (id: string) => {
-    const template = allTemplates.find((template) => template.id === id);
-    return template?.title;
-  };
-
   const onClickBackButton = () => {
-    if (isCreatingNewApp || isImportingTemplate) return;
+    if (isImportingTemplate) return;
     if (useTemplate) {
       if (selectedTemplate) {
         // Going back from template details view screen
@@ -269,7 +290,6 @@ const CreateNewAppsOption = ({
       title: createMessage(START_FROM_TEMPLATE_SUBTITLE),
     },
     {
-      loading: isCreatingNewApp,
       onClick: onClickStartFromScratch,
       src: StartScratch,
       subTitle: createMessage(START_FROM_SCRATCH_SUBTITLE),
@@ -283,7 +303,7 @@ const CreateNewAppsOption = ({
       totalOptions: selectionOptions.length,
     });
     return () => {
-      resetCurrentWorkspaceForCreateNewApp();
+      resetCreateNewAppFlow();
     };
   }, []);
 

@@ -331,6 +331,8 @@ function* forkTemplateToApplicationSaga(
     pageNames?: string[];
     templateId: string;
     templateName: string;
+    applicationId?: string;
+    workspaceId?: string;
   }>,
 ) {
   try {
@@ -365,13 +367,25 @@ function* apiCallForForkTemplateToApplicaion(
     templateId: string;
     templateName: string;
     pageNames?: string[] | undefined;
+    applicationId?: string;
+    workspaceId?: string;
   }>,
 ) {
   const pagesToImport = action.payload.pageNames
     ? action.payload.pageNames
     : undefined;
-  const applicationId: string = yield select(getCurrentApplicationId);
-  const workspaceId: string = yield select(getCurrentWorkspaceId);
+  let applicationId: string;
+  if (action.payload.applicationId) {
+    applicationId = action.payload.applicationId;
+  } else {
+    applicationId = yield select(getCurrentApplicationId);
+  }
+  let workspaceId: string;
+  if (action.payload.workspaceId) {
+    workspaceId = action.payload.workspaceId;
+  } else {
+    workspaceId = yield select(getCurrentWorkspaceId);
+  }
   const prevPageIds: string[] = yield select(getAllPageIds);
   const response: ImportTemplateResponse = yield call(
     TemplatesAPI.importTemplateToApplication,

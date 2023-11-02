@@ -60,19 +60,6 @@ Cypress.env("MESSAGES", MESSAGES);
 let dataSet; // Declare a variable to hold the test data
 
 before(function () {
-  /* 
-    Disabling flag check value for create new app flow.
-    This flag check can be used on server to disable flag check for a particular feature.
-    Search for SKIP_CREATE_NEW_APP_FLAG_COOKIE in the server codebase for its implementation.
-    ----------
-    Use `import { SKIP_CREATE_NEW_APP_FLAG_COOKIE } from "path/to/Constants.js";`
-    Use `before` function to override the header in your specific test case. Copy the below code to test your server side skipped flag checks.
-    `cy.setCookie(SKIP_CREATE_NEW_APP_FLAG_COOKIE, 'false');`
-  */
-  cy.setCookie(SKIP_CREATE_NEW_APP_FLAG_COOKIE, "true");
-});
-
-before(function () {
   if (RapidMode.config.enabled) {
     cy.startServerAndRoutes();
     cy.getCookie("SESSION").then((cookie) => {
@@ -190,5 +177,4 @@ after(function () {
   // const tedUrl = "http://localhost:5001/v1/parent/cmd";
   // cy.log("Start the appsmith container");
   // cy.StartContainer(tedUrl, "appsmith"); // start the old container
-  cy.clearCookie(SKIP_CREATE_NEW_APP_FLAG_COOKIE);
 });

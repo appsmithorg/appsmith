@@ -34,7 +34,7 @@ import { get } from "lodash";
 import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 import { getAssetUrl, isAirgapped } from "@appsmith/utils/airgapHelpers";
 import { Banner } from "@appsmith/utils/licenseHelpers";
-import { getCurrentWorkspaceForCreateNewApp } from "@appsmith/selectors/workspaceSelectors";
+import { getCurrentApplicationIdForCreateNewApp } from "@appsmith/selectors/applicationSelectors";
 
 const StyledPageHeader = styled(StyledHeader)<{
   hideShadow?: boolean;
@@ -168,8 +168,8 @@ export function PageHeader(props: PageHeaderProps) {
     "inherit",
   );
 
-  const currentSelectedWorkspace = useSelector(
-    getCurrentWorkspaceForCreateNewApp,
+  const currentApplicationIdForCreateNewApp = useSelector(
+    getCurrentApplicationIdForCreateNewApp,
   );
 
   useEffect(() => {
@@ -226,7 +226,7 @@ export function PageHeader(props: PageHeaderProps) {
           )}
         </HeaderSection>
         <Tabs>
-          {showTabs && !isMobile && !currentSelectedWorkspace && (
+          {showTabs && !isMobile && !currentApplicationIdForCreateNewApp && (
             <TabsList>
               <Tab
                 className="t--apps-tab"
