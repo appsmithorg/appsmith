@@ -1268,6 +1268,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     extraProperties.put("jsFuncCount", jsFuncCount);
                     extraProperties.put("saasQueryCount", saasQueryCount);
                     extraProperties.put("remoteQueryCount", remoteQueryCount);
+                    extraProperties.put("aiQueryCount", aiQueryCount);
                     extraProperties.put(
                             "queryCount",
                             (dbQueryCount + apiCount + jsFuncCount + saasQueryCount + remoteQueryCount + aiQueryCount));
