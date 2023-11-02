@@ -1,6 +1,6 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect } from "react";
 import { getIsAppSidebarEnabled } from "selectors/ideSelectors";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import styled from "styled-components";
 import SidebarButton from "./SidebarButton";
 import { builderURL } from "@appsmith/RouteBuilder";
@@ -8,6 +8,8 @@ import { getCurrentPageId } from "selectors/editorSelectors";
 import history from "utils/history";
 import { ButtonButtons, TopButtons } from "entities/IDE/constants";
 import useCurrentAppState from "../hooks";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
+import { fetchWorkspace } from "@appsmith/actions/workspaceActions";
 
 const Container = styled.div`
   width: 50px;
@@ -20,9 +22,17 @@ const Container = styled.div`
 `;
 
 function Sidebar() {
+  const dispatch = useDispatch();
   const appState = useCurrentAppState();
   const isAppSidebarEnabled = useSelector(getIsAppSidebarEnabled);
   const pageId = useSelector(getCurrentPageId);
+
+  const currentWorkspaceId = useSelector(getCurrentWorkspaceId);
+
+  useEffect(() => {
+    dispatch(fetchWorkspace(currentWorkspaceId));
+  }, [currentWorkspaceId]);
+
   const onClick = useCallback(
     (suffix) => {
       history.push(
