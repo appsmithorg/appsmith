@@ -1,7 +1,7 @@
 import API from "api/Api";
 import type { AxiosPromise } from "axios";
 import type { JSCollection } from "entities/JSCollection";
-import type { ApiResponse } from "./ApiResponses";
+import type { ApiResponse } from "../../api/ApiResponses";
 import type { Variable, JSAction } from "entities/JSCollection";
 import type { PluginType } from "entities/Action";
 

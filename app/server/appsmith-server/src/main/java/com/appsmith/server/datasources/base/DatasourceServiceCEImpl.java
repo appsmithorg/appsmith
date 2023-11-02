@@ -94,6 +94,8 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
     // This will block the creation of datasource connection for 5 minutes, in case of more than 3 failed connection
     // attempts
     private final Integer BLOCK_TEST_API_DURATION = 5;
+    private final AppsmithException TOO_MANY_REQUESTS_EXCEPTION =
+            new AppsmithException(AppsmithError.TOO_MANY_FAILED_DATASOURCE_CONNECTION_REQUESTS);
 
     @Autowired
     public DatasourceServiceCEImpl(
@@ -510,9 +512,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                         .flatMap(datasourceStorageService::checkEnvironment)
                         .flatMap(this::verifyDatasourceAndTest);
             } else {
-                AppsmithException exception =
-                        new AppsmithException(AppsmithError.TOO_MANY_FAILED_DATASOURCE_CONNECTION_REQUESTS);
-                return Mono.just(new DatasourceTestResult(exception.getMessage()));
+                return Mono.just(new DatasourceTestResult(TOO_MANY_REQUESTS_EXCEPTION.getMessage()));
             }
         });
     }
@@ -532,39 +532,32 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                         datasourceTestResultMono = Mono.just(new DatasourceTestResult(storage.getInvalids()));
                     }
 
-                    Mono<String> rateLimitIdentifierMono = this.getRateLimitIdentifier(datasourceStorage);
-
                     return datasourceTestResultMono
-                            .zipWith(rateLimitIdentifierMono)
-                            .flatMap(tuple -> {
-                                DatasourceTestResult datasourceTestResult = tuple.getT1();
-                                String rateLimitIdentifier = tuple.getT2();
+                            .flatMap(datasourceTestResult -> {
                                 if (!CollectionUtils.isEmpty(datasourceTestResult.getInvalids())) {
                                     // Consumes a token from bucket whenever test api fails
                                     return this.consumeTokenIfAvailable(datasourceStorage)
-                                            .flatMap(isSuccessful -> {
-                                                if (!isSuccessful) {
-                                                    AppsmithException exception = new AppsmithException(
-                                                            AppsmithError
-                                                                    .TOO_MANY_FAILED_DATASOURCE_CONNECTION_REQUESTS);
-                                                    DatasourceTestResult tooManyRequests =
-                                                            new DatasourceTestResult(exception.getMessage());
+                                            .flatMap(wasTokenAvailable -> {
+                                                if (!wasTokenAvailable) {
+                                                    DatasourceTestResult tooManyRequests = new DatasourceTestResult(
+                                                            TOO_MANY_REQUESTS_EXCEPTION.getMessage());
 
                                                     // This will block the test API for next 5 minutes, as bucket has
                                                     // been exhausted, and return too many requests response
-                                                    return rateLimitService
-                                                            .blockEndpointForConnectionRequest(
-                                                                    RateLimitConstants
-                                                                            .BUCKET_KEY_FOR_TEST_DATASOURCE_API,
-                                                                    rateLimitIdentifier,
-                                                                    Duration.ofMinutes(BLOCK_TEST_API_DURATION),
-                                                                    exception)
+                                                    return this.blockEndpointForConnectionRequest(datasourceStorage)
                                                             .flatMap(isAdded -> {
-                                                                return Mono.just(tooManyRequests);
+                                                                if (isAdded) {
+                                                                    return Mono.just(tooManyRequests);
+                                                                } else {
+                                                                    return Mono.just(new DatasourceTestResult(
+                                                                            new AppsmithException(
+                                                                                            AppsmithError
+                                                                                                    .DATASOURCE_CONNECTION_RATE_LIMIT_BLOCKING_FAILED)
+                                                                                    .getMessage()));
+                                                                }
                                                             })
-                                                            .onErrorResume(error -> {
-                                                                return Mono.just(tooManyRequests);
-                                                            });
+                                                            .onErrorResume(error -> Mono.just(
+                                                                    new DatasourceTestResult(error.getMessage())));
                                                 }
                                                 return Mono.just(datasourceTestResult);
                                             })
@@ -611,7 +604,8 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
      * and will also be used for creating connections during query execution.
      * For more details: https://github.com/appsmithorg/appsmith/issues/22868
      */
-    protected Mono<String> getRateLimitIdentifier(DatasourceStorage datasourceStorage) {
+    @Override
+    public Mono<String> getRateLimitIdentifier(DatasourceStorage datasourceStorage) {
         Mono<PluginExecutor> pluginExecutorMono = pluginExecutorHelper
                 .getPluginExecutor(pluginService.findById(datasourceStorage.getPluginId()))
                 .switchIfEmpty(Mono.error(new AppsmithException(
@@ -621,7 +615,11 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                 .getEndpointIdentifierForRateLimit(datasourceStorage.getDatasourceConfiguration()));
     }
 
-    protected Mono<Boolean> isEndpointBlockedForConnectionRequest(DatasourceStorage datasourceStorage) {
+    /*
+     * This method checks if the given endpoint is blocked for connection request or not.
+     */
+    @Override
+    public Mono<Boolean> isEndpointBlockedForConnectionRequest(DatasourceStorage datasourceStorage) {
         Mono<String> rateLimitIdentifierMono = this.getRateLimitIdentifier(datasourceStorage);
         return featureFlagService
                 .check(FeatureFlagEnum.rollout_datasource_test_rate_limit_enabled)
@@ -641,7 +639,11 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                 });
     }
 
-    protected Mono<Boolean> consumeTokenIfAvailable(DatasourceStorage datasourceStorage) {
+    /*
+     * This method consumes a token from bucket if available, otherwise returns false.
+     */
+    @Override
+    public Mono<Boolean> consumeTokenIfAvailable(DatasourceStorage datasourceStorage) {
         Mono<String> rateLimitIdentifierMono = this.getRateLimitIdentifier(datasourceStorage);
         return featureFlagService
                 .check(FeatureFlagEnum.rollout_datasource_test_rate_limit_enabled)
@@ -659,6 +661,18 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                         return Mono.just(true);
                     }
                 });
+    }
+
+    @Override
+    public Mono<Boolean> blockEndpointForConnectionRequest(DatasourceStorage datasourceStorage) {
+        Mono<String> rateLimitIdentifierMono = this.getRateLimitIdentifier(datasourceStorage);
+        return rateLimitIdentifierMono.flatMap(rateLimitIdentifier -> {
+            return rateLimitService.blockEndpointForConnectionRequest(
+                    RateLimitConstants.BUCKET_KEY_FOR_TEST_DATASOURCE_API,
+                    rateLimitIdentifier,
+                    Duration.ofMinutes(BLOCK_TEST_API_DURATION),
+                    TOO_MANY_REQUESTS_EXCEPTION);
+        });
     }
 
     @Override

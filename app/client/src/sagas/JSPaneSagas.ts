@@ -43,8 +43,8 @@ import type {
   JSCollectionCreateUpdateResponse,
   RefactorAction,
   SetFunctionPropertyPayload,
-} from "api/JSActionAPI";
-import JSActionAPI from "api/JSActionAPI";
+} from "@appsmith/api/JSActionAPI";
+import JSActionAPI from "@appsmith/api/JSActionAPI";
 import ActionAPI from "api/ActionAPI";
 import {
   updateJSCollectionSuccess,
@@ -251,7 +251,7 @@ function* handleEachUpdateJSCollection(update: JSUpdate) {
 export function* makeUpdateJSCollection(
   action: ReduxAction<Record<string, JSUpdate>>,
 ) {
-  const jsUpdates: Record<string, JSUpdate> = action.payload;
+  const jsUpdates: Record<string, JSUpdate> = action.payload || {};
 
   yield all(
     Object.keys(jsUpdates).map((key) =>
