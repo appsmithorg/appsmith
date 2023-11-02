@@ -22,13 +22,32 @@ import GlobalStyles from "globalStyles";
 // enable autofreeze only in development
 import { setAutoFreeze } from "immer";
 import AppErrorBoundary from "./AppErrorBoundry";
+import log from "loglevel";
+import { getAppsmithConfigs } from "@appsmith/configs";
 
 const shouldAutoFreeze = process.env.NODE_ENV === "development";
+const { newRelic } = getAppsmithConfigs();
 
 setAutoFreeze(shouldAutoFreeze);
 runSagaMiddleware();
 
 appInitializer();
+const { enableNewRelic } = newRelic;
+enableNewRelic &&
+  (async () => {
+    //loading these scripts in parallel, atleast one of them should load.
+    const resolvedPromises = await Promise.allSettled([
+      import(
+        /* webpackChunkName: "newRelicBrowserAgent" */ "./newRelicBrowserAgent.js"
+      ),
+      import(/* webpackChunkName: "otlpTelemetry" */ "./auto-otel-web.js"),
+    ]);
+    resolvedPromises.forEach((res) => {
+      if (res.status === "rejected") {
+        log.error("Error loading script", res.reason);
+      }
+    });
+  })();
 
 function App() {
   return (
