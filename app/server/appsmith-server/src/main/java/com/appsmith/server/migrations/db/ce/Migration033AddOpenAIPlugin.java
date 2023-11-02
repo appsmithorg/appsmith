@@ -33,7 +33,7 @@ public class Migration033AddOpenAIPlugin {
         plugin.setPluginName(PluginConstants.PluginName.OPEN_AI_PLUGIN_NAME);
         plugin.setPackageName(PluginConstants.PackageName.OPEN_AI_PLUGIN);
         plugin.setUiComponent("UQIDbEditorForm");
-        plugin.setDatasourceComponent("DbEditorFrom");
+        plugin.setDatasourceComponent("DbEditorForm");
         plugin.setResponseType(Plugin.ResponseType.JSON);
         plugin.setIconLocation("https://assets.appsmith.com/logo/open-ai.svg");
         plugin.setDocumentationLink("https://docs.appsmith.com/datasource-reference/open-ai");
