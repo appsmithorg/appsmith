@@ -19,6 +19,7 @@ const AddLibraryPopover = () => {
     <Popover onOpenChange={setOpen} open={open}>
       <PopoverTrigger>
         <Button
+          className="t--install-library-button"
           isIconButton
           kind="tertiary"
           onClick={() => setOpen(true)}

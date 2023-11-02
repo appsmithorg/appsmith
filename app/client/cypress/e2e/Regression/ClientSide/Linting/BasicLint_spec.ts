@@ -346,22 +346,24 @@ describe("Linting", () => {
       });
 
       agHelper.AssertElementExist(locators._lintErrorElement);
-      entityExplorer.ExpandCollapseEntity("Libraries");
+      EditorNavigation.sidebar(SidebarButton.Libraries);
       // install the library
       installer.OpenInstaller();
       installer.InstallLibrary("uuidjs", "UUID");
       installer.CloseInstaller();
+      EditorNavigation.sidebar(SidebarButton.Pages);
 
       agHelper.AssertElementAbsence(locators._lintErrorElement);
-
+      EditorNavigation.sidebar(SidebarButton.Libraries);
       installer.uninstallLibrary("uuidjs");
-
+      EditorNavigation.sidebar(SidebarButton.Pages);
       agHelper.AssertElementExist(locators._lintErrorElement);
       agHelper.Sleep(2000);
+      EditorNavigation.sidebar(SidebarButton.Libraries);
       installer.OpenInstaller();
       installer.InstallLibrary("uuidjs", "UUID");
       installer.CloseInstaller();
-
+      EditorNavigation.sidebar(SidebarButton.Pages);
       homePage.NavigateToHome();
 
       homePage.CreateNewApplication();
