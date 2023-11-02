@@ -472,6 +472,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
       datasource,
       formConfig,
       formData,
+      isPluginAuthFailed,
       isPluginAuthorized,
       pageId,
       plugin,
@@ -491,15 +492,18 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
 
     return (
       <ViewModeWrapper data-testid="t--ds-review-section">
-        {datasource && isGoogleSheetPlugin && !isPluginAuthorized && (
-          <AuthMessage
-            actionType={ActionType.AUTHORIZE}
-            datasource={datasource}
-            description={authErrorMessage}
-            isInViewMode
-            pageId={pageId}
-          />
-        )}
+        {datasource &&
+          isGoogleSheetPlugin &&
+          isPluginAuthFailed &&
+          datasource.id !== TEMP_DATASOURCE_ID && (
+            <AuthMessage
+              actionType={ActionType.AUTHORIZE}
+              datasource={datasource}
+              description={authErrorMessage}
+              isInViewMode
+              pageId={pageId}
+            />
+          )}
         {!isNil(formConfig) && !isNil(datasource) && !hideDatasourceSection && (
           <DatasourceInformation
             config={formConfig[0]}
