@@ -1,24 +1,28 @@
-import { selectWidgetsForCurrentPage } from "@appsmith/selectors/entitiesSelector";
 import { Checkbox } from "design-system";
 import React from "react";
-import { useSelector } from "react-redux";
 import type { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureReducer";
 import styled from "styled-components";
 import { CheckboxWrapper } from "./StyledSheet";
 
-interface Props {
+interface BaseProps {
   selectedWidgetIds: string[];
   updateSelectedWidgets: (widgetIds: string[]) => void;
 }
-const WidgetsExport = ({ selectedWidgetIds, updateSelectedWidgets }: Props) => {
-  const widgets = useSelector(selectWidgetsForCurrentPage);
+interface Props extends BaseProps {
+  widgets: CanvasStructure;
+}
+const WidgetsExport = ({
+  selectedWidgetIds,
+  updateSelectedWidgets,
+  widgets,
+}: Props) => {
   if (!widgets || !widgets.children || widgets.children.length === 0)
     return null;
   return (
     <WidgetSelector
       selectedWidgetIds={selectedWidgetIds}
       updateSelectedWidgets={updateSelectedWidgets}
-      widgets={widgets.children}
+      widgetList={widgets.children}
     />
   );
 };
@@ -37,13 +41,13 @@ function selectAllNestedChildren(
   });
 }
 
-interface WidgetSelectorProps extends Props {
-  widgets: CanvasStructure[];
+interface WidgetSelectorProps extends BaseProps {
+  widgetList: CanvasStructure[];
 }
 function WidgetSelector({
   selectedWidgetIds,
   updateSelectedWidgets,
-  widgets,
+  widgetList,
 }: WidgetSelectorProps) {
   const toggleNode = (node: CanvasStructure, parentArray: string[]) => {
     const prevSelectedWidgetIds = [...selectedWidgetIds];
@@ -93,7 +97,7 @@ function WidgetSelector({
 
   return (
     <CheckboxWrapper>
-      {widgets.map((widget) => renderWidget(widget, [], 0))}
+      {widgetList.map((widget) => renderWidget(widget, [], 0))}
     </CheckboxWrapper>
   );
 }

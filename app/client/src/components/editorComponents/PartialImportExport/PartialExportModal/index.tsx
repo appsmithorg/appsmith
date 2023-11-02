@@ -7,6 +7,7 @@ import {
   selectLibrariesForExplorer,
   selectWidgetsForCurrentPage,
 } from "@appsmith/selectors/entitiesSelector";
+import { partialExportWidgets } from "actions/widgetActions";
 import {
   Button,
   Collapsible,
@@ -20,17 +21,16 @@ import {
   Text,
 } from "design-system";
 import { ControlIcons } from "icons/ControlIcons";
+import { MenuIcons } from "icons/MenuIcons";
 import { JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
 import { useAppWideAndOtherDatasource } from "pages/Editor/Explorer/hooks";
 import React, { useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import type { PartialExportParams } from "sagas/WidgetSelectionSagas";
 import styled from "styled-components";
 import EntityCheckboxSelector from "./EntityCheckboxSelector";
 import JSObjectsNQueriesExport from "./JSObjectsNQueriesExport";
 import WidgetsExport from "./WidgetsExport";
-import { MenuIcons } from "icons/MenuIcons";
-import { partialExportWidgets } from "actions/widgetActions";
-import type { PartialExportParams } from "sagas/WidgetSelectionSagas";
 
 interface Props {
   handleModalClose: () => void;
@@ -48,6 +48,7 @@ const PartiaExportModel = ({ handleModalClose, isModalOpen }: Props) => {
   const files = useSelector(selectFilesForExplorer);
   const { appWideDS } = useAppWideAndOtherDatasource();
   const libraries = useSelector(selectLibrariesForExplorer);
+  const canvasWidgets = useSelector(selectWidgetsForCurrentPage);
 
   const entities = useMemo(() => {
     const groupedData: Record<string, any> = {};
@@ -125,17 +126,25 @@ const PartiaExportModel = ({ handleModalClose, isModalOpen }: Props) => {
       {
         title: "Widgets",
         icon: <ControlIcons.GROUP_CONTROL height={16} keepColors width={16} />,
-        children: (
+        children: canvasWidgets ? (
           <WidgetsExport
             selectedWidgetIds={selectedParams.widgets}
             updateSelectedWidgets={(widgets) =>
               setSelectedParams((prev) => ({ ...prev, widgets }))
             }
+            widgets={canvasWidgets}
           />
-        ),
+        ) : null,
       },
     ];
-  }, [files, selectWidgetsForCurrentPage, selectedParams, setSelectedParams]);
+  }, [
+    files,
+    appWideDS,
+    libraries,
+    canvasWidgets,
+    selectedParams,
+    setSelectedParams,
+  ]);
 
   const onEntitySelected = (
     keyToUpdate: keyof PartialExportParams,

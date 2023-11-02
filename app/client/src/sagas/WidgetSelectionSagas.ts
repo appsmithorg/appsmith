@@ -64,6 +64,7 @@ import {
   getWidgetImmediateChildren,
   getWidgets,
 } from "./selectors";
+import { saveCopiedWidgets } from "utils/storage";
 
 // The following is computed to be used in the entity explorer
 // Every time a widget is selected, we need to expand widget entities
@@ -353,11 +354,11 @@ export interface PartialExportParams {
 }
 
 export function* partialExportSaga(action: ReduxAction<PartialExportParams>) {
-  const applicationId: string = yield select(getCurrentApplicationId);
-  const currentPageId: string = yield select(getCurrentPageId);
   const canvasWidgets: unknown = yield partialExportWidgetSaga(
     action.payload.widgets,
   );
+  const applicationId: string = yield select(getCurrentApplicationId);
+  const currentPageId: string = yield select(getCurrentPageId);
 
   const body: exportApplicationRequest = {
     actionList: action.payload.queries,
@@ -366,7 +367,6 @@ export function* partialExportSaga(action: ReduxAction<PartialExportParams>) {
     customJsLib: action.payload.customJSLibs,
     widget: JSON.stringify(canvasWidgets),
   };
-  console.log("🎯 -> function*partialExportSaga -> body:", body);
 
   const response: unknown = yield call(
     ApplicationApi.exportPartialApplication,
@@ -418,7 +418,7 @@ export function* partialExportWidgetSaga(widgetIds: string[]) {
     widgets: widgetListsToStore,
     flexLayers,
   };
-  // yield saveCopiedWidgets(JSON.stringify(widgetsDSL));
+  yield saveCopiedWidgets(JSON.stringify(widgetsDSL));
   return widgetsDSL;
 }
 
