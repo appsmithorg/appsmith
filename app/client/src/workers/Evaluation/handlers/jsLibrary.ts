@@ -327,7 +327,7 @@ function flattenModule(module: Record<string, any>) {
   if (keys.length === 1 && keys[0] === "default") return module.default;
   // If there are keys other than default, return a new object with all the keys
   // and set its prototype of default export.
-  const libModule = Object.create(module.default);
+  const libModule = Object.create(module.default || {});
   for (const key of Object.keys(module)) {
     if (key === "default") continue;
     libModule[key] = module[key];
