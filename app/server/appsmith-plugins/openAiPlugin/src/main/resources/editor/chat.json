@@ -52,12 +52,36 @@
     {
       "label": "Messages",
       "tooltipText": "Ask a question",
-      "subtitle" : "A list of messages comprising the conversation so far.",
+      "subtitle": "A list of messages comprising the conversation so far.",
       "propertyName": "messages",
       "isRequired": true,
       "configProperty": "actionConfiguration.formData.messages",
-      "controlType": "QUERY_DYNAMIC_TEXT",
-      "initialValue": " [\n      {\n        \"role\": \"system\",\n        \"content\": \"You are a helpful assistant.\"\n      },\n      {\n        \"role\": \"user\",\n        \"content\": \"Hello!\"\n      }\n] "
+      "controlType": "ARRAY_FIELD",
+      "addMoreButtonLabel": "Add message",
+      "initialValue": [
+        {
+          "role": "user",
+          "content": "Hello, how are you?"
+        },
+        {
+          "role": "system",
+          "content": "I'm fine, how are you?"
+        }
+      ],
+      "schema": [
+        {
+          "label": "Role",
+          "key": "role",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "placeholderText": "user OR system OR assistant"
+        },
+        {
+          "label": "Content",
+          "key": "content",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "placeholderText": "{{ Input1.text }}"
+        }
+      ]
     }
   ]
 }
