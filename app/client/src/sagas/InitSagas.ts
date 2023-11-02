@@ -139,10 +139,26 @@ export function* startAppEngine(action: ReduxAction<AppEnginePayload>) {
     );
     engine.startPerformanceTracking();
     yield call(engine.setupEngine, action.payload);
-    const { applicationId, toLoadPageId } = yield call(
-      engine.loadAppData,
-      action.payload,
-    );
+
+    // const [users, repos] = yield all([
+    //   call(fetch, '/users'),
+    //   call(fetch, '/repos')
+    // ])
+
+    const [{ applicationId, toLoadPageId }] = yield all([
+      call(engine.loadAppData, action.payload),
+      // call(
+      //   engine.loadAppEntities,
+      //   "653223b7f00059159121a7aa",
+      //   "653223b7f00059159121a7a7",
+      // ),
+    ]);
+    // const { applicationId, toLoadPageId } = yield call(
+    //   engine.loadAppData,
+    //   action.payload,
+    // );
+    // yield call(engine.loadAppEntities, toLoadPageId, applicationId);
+
     yield call(engine.loadAppURL, toLoadPageId, action.payload.pageId);
     yield call(engine.loadAppEntities, toLoadPageId, applicationId);
     yield call(engine.loadGit, applicationId);
