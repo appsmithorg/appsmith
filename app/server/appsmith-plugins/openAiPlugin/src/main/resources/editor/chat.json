@@ -57,7 +57,7 @@
       "isRequired": true,
       "configProperty": "actionConfiguration.formData.messages",
       "controlType": "QUERY_DYNAMIC_TEXT",
-      "placeholderText": "{{[{'role': 'user' , 'message' : Input1.text}]}}"
+      "placeholderText": "{{[{'role': 'user' , 'content' : Input1.text}]}}"
     }
   ]
 }
