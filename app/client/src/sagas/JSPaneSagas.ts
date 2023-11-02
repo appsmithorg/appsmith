@@ -47,8 +47,8 @@ import type {
   JSCollectionCreateUpdateResponse,
   RefactorAction,
   SetFunctionPropertyPayload,
-} from "api/JSActionAPI";
-import JSActionAPI from "api/JSActionAPI";
+} from "@appsmith/api/JSActionAPI";
+import JSActionAPI from "@appsmith/api/JSActionAPI";
 import ActionAPI from "api/ActionAPI";
 import {
   updateJSCollectionSuccess,

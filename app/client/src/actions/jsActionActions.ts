@@ -7,7 +7,7 @@ import {
   ReduxActionErrorTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import type { JSCollection } from "entities/JSCollection";
-import type { CreateJSCollectionRequest } from "api/JSActionAPI";
+import type { CreateJSCollectionRequest } from "@appsmith/api/JSActionAPI";
 import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
 
 export interface FetchJSCollectionsPayload {

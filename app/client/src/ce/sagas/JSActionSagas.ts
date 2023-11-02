@@ -6,14 +6,7 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import {
-  all,
-  call,
-  put,
-  select,
-  takeEvery,
-  takeLatest,
-} from "redux-saga/effects";
+import { put, select, call } from "redux-saga/effects";
 import type { FetchActionsPayload } from "actions/pluginActionActions";
 import type { JSAction, JSCollection } from "entities/JSCollection";
 import {
@@ -32,12 +25,9 @@ import {
   getPageNameByPageId,
 } from "@appsmith/selectors/entitiesSelector";
 import history from "utils/history";
-import { getCurrentPageId, getIsViewMode } from "selectors/editorSelectors";
-import type {
-  CreateJSCollectionRequest,
-  JSCollectionCreateUpdateResponse,
-} from "api/JSActionAPI";
-import JSActionAPI from "api/JSActionAPI";
+import { getCurrentPageId } from "selectors/editorSelectors";
+import type { JSCollectionCreateUpdateResponse } from "@appsmith/api/JSActionAPI";
+import JSActionAPI from "@appsmith/api/JSActionAPI";
 import {
   createMessage,
   ERROR_JS_ACTION_COPY_FAIL,
@@ -47,7 +37,7 @@ import {
   JS_ACTION_DELETE_SUCCESS,
   JS_ACTION_MOVE_SUCCESS,
 } from "@appsmith/constants/messages";
-import { validateResponse } from "./ErrorSagas";
+import { validateResponse } from "../../sagas/ErrorSagas";
 import type { FetchPageResponse, PageLayout } from "api/PageApi";
 import PageApi from "api/PageApi";
 import { updateCanvasWithDSL } from "sagas/PageSagas";
@@ -56,15 +46,16 @@ import type { ApiResponse } from "api/ApiResponses";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
+import type { CreateJSCollectionRequest } from "@appsmith/api/JSActionAPI";
 import * as log from "loglevel";
 import { builderURL, jsCollectionIdURL } from "@appsmith/RouteBuilder";
 import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { checkAndLogErrorsIfCyclicDependency } from "./helper";
+import { checkAndLogErrorsIfCyclicDependency } from "../../sagas/helper";
 import { toast } from "design-system";
 import { updateAndSaveLayout } from "actions/pageActions";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import { getWidgets } from "./selectors";
+import { getWidgets } from "../../sagas/selectors";
 
 export function* fetchJSCollectionsSaga(
   action: EvaluationReduxAction<FetchActionsPayload>,
@@ -125,7 +116,7 @@ export function* createJSCollectionSaga(
     });
   }
 }
-function* copyJSCollectionSaga(
+export function* copyJSCollectionSaga(
   action: ReduxAction<{ id: string; destinationPageId: string; name: string }>,
 ) {
   const actionObject: JSCollection = yield select(
@@ -179,7 +170,9 @@ function* copyJSCollectionSaga(
   }
 }
 
-function* handleMoveOrCopySaga(actionPayload: ReduxAction<{ id: string }>) {
+export function* handleMoveOrCopySaga(
+  actionPayload: ReduxAction<{ id: string }>,
+) {
   const { id } = actionPayload.payload;
   const { pageId }: JSCollection = yield select(getJSCollection, id);
   history.push(
@@ -190,7 +183,7 @@ function* handleMoveOrCopySaga(actionPayload: ReduxAction<{ id: string }>) {
   );
 }
 
-function* moveJSCollectionSaga(
+export function* moveJSCollectionSaga(
   action: ReduxAction<{
     id: string;
     destinationPageId: string;
@@ -305,7 +298,9 @@ export function* deleteJSCollectionSaga(
   }
 }
 
-function* saveJSObjectName(action: ReduxAction<{ id: string; name: string }>) {
+export function* saveJSObjectName(
+  action: ReduxAction<{ id: string; name: string }>,
+) {
   // Takes from state, checks if the name isValid, saves
   const collectionId = action.payload.id;
   const collection: JSCollectionData | undefined = yield select((state) =>
@@ -430,58 +425,4 @@ export function* fetchJSCollectionsForViewModeSaga(
       payload: { error },
     });
   }
-}
-
-export function* logActionExecutionSaga(
-  action: ReduxAction<{
-    actionId: string;
-    pageId: string;
-    collectionId: string;
-    actionName: string;
-    pageName: string;
-  }>,
-) {
-  try {
-    const response: ApiResponse = yield JSActionAPI.logActionExecution({
-      metadata: {
-        ...action.payload,
-        origin: "client",
-        viewMode: yield select(getIsViewMode),
-      },
-      event: "EXECUTE",
-      resourceType: "ACTION",
-      resourceId: action.payload.actionId,
-    });
-    yield validateResponse(response);
-  } catch (error) {
-    log.error(error);
-  }
-}
-
-export function* watchJSActionSagas() {
-  yield all([
-    takeEvery(ReduxActionTypes.FETCH_JS_ACTIONS_INIT, fetchJSCollectionsSaga),
-    takeEvery(ReduxActionTypes.CREATE_JS_ACTION_INIT, createJSCollectionSaga),
-    takeLatest(ReduxActionTypes.COPY_JS_ACTION_INIT, copyJSCollectionSaga),
-    takeEvery(ReduxActionTypes.COPY_JS_ACTION_SUCCESS, handleMoveOrCopySaga),
-    takeEvery(ReduxActionErrorTypes.COPY_JS_ACTION_ERROR, handleMoveOrCopySaga),
-    takeLatest(ReduxActionTypes.MOVE_JS_ACTION_INIT, moveJSCollectionSaga),
-    takeEvery(ReduxActionErrorTypes.MOVE_JS_ACTION_ERROR, handleMoveOrCopySaga),
-    takeEvery(ReduxActionTypes.MOVE_JS_ACTION_SUCCESS, handleMoveOrCopySaga),
-    takeEvery(ReduxActionTypes.MOVE_JS_ACTION_SUCCESS, handleMoveOrCopySaga),
-    takeLatest(ReduxActionTypes.DELETE_JS_ACTION_INIT, deleteJSCollectionSaga),
-    takeLatest(ReduxActionTypes.SAVE_JS_COLLECTION_NAME_INIT, saveJSObjectName),
-    takeLatest(
-      ReduxActionTypes.FETCH_JS_ACTIONS_FOR_PAGE_INIT,
-      fetchJSCollectionsForPageSaga,
-    ),
-    takeEvery(
-      ReduxActionTypes.FETCH_JS_ACTIONS_VIEW_MODE_INIT,
-      fetchJSCollectionsForViewModeSaga,
-    ),
-    takeEvery(
-      ReduxActionTypes.AUDIT_LOGS_LOG_ACTION_EXECUTION,
-      logActionExecutionSaga,
-    ),
-  ]);
 }

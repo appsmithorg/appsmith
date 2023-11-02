@@ -1,7 +1,7 @@
 import API from "api/Api";
 import type { AxiosPromise } from "axios";
 import type { JSCollection } from "entities/JSCollection";
-import type { ApiResponse } from "./ApiResponses";
+import type { ApiResponse } from "../../api/ApiResponses";
 import type { Variable, JSAction } from "entities/JSCollection";
 import type { PluginType } from "entities/Action";
 
@@ -115,23 +115,6 @@ class JSActionAPI extends API {
       JSActionAPI.url + "/refactorAction",
       updateJSCollectionActionName,
     );
-  }
-
-  static async logActionExecution(payload: {
-    metadata: {
-      origin: string;
-      viewMode: string;
-      actionId: string;
-      pageId: string;
-      collectionId: string;
-      actionName: string;
-      pageName: string;
-    };
-    event: string;
-    resourceType: string;
-    resourceId: string;
-  }): Promise<AxiosPromise<any>> {
-    return API.post(`v1/analytics/event`, payload);
   }
 }
 
