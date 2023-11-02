@@ -89,6 +89,7 @@ public class ChatCommand implements OpenAICommand {
         }
 
         chatRequestDTO.setModel(model);
+        // this will change to objects
         List<ChatMessage> chatMessages = transformToMessages((String) formData.get(MESSAGES));
         verifyRoleForChatMessages(chatMessages);
 
