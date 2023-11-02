@@ -10,10 +10,10 @@ import type { TextInputBaseProps } from "./types";
 function TextInputBase(props: TextInputBaseProps, ref: Ref<HTMLDivElement>) {
   const {
     autoFocus,
-    className,
     descriptionProps,
     endIcon,
     errorMessageProps,
+    fieldClassName,
     inputClassName,
     inputProps,
     inputRef: userInputRef,
@@ -23,7 +23,9 @@ function TextInputBase(props: TextInputBaseProps, ref: Ref<HTMLDivElement>) {
     multiLine = false,
     onBlur,
     onFocus,
+    prefix,
     startIcon,
+    suffix,
     validationState,
   } = props;
   const [isFocussed, setIsFocused] = useState(false);
@@ -99,9 +101,13 @@ function TextInputBase(props: TextInputBaseProps, ref: Ref<HTMLDivElement>) {
       errorMessageProps={errorMessageProps}
       labelProps={labelProps}
       ref={domRef}
-      wrapperClassName={className}
+      wrapperClassName={fieldClassName}
     >
-      {inputField}
+      <div data-field-input-group="">
+        {Boolean(prefix) && <span data-field-input-prefix>{prefix}</span>}
+        {inputField}
+        {Boolean(suffix) && <span data-field-input-suffix>{suffix}</span>}
+      </div>
     </Field>
   );
 }

@@ -11,7 +11,6 @@ export type TextAreaRef = Ref<HTMLDivElement>;
 
 function TextArea(props: TextAreaProps, ref: TextAreaRef) {
   const {
-    className,
     isDisabled = false,
     isReadOnly = false,
     isRequired = false,
@@ -80,7 +79,6 @@ function TextArea(props: TextAreaProps, ref: TextAreaRef) {
   return (
     <TextInputBase
       {...otherProps}
-      className={className}
       descriptionProps={descriptionProps}
       errorMessageProps={errorMessageProps}
       inputProps={inputProps}

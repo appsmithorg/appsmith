@@ -8,10 +8,13 @@ interface HelpTextProps extends Omit<SpectrumHelpTextProps, "showErrorIcon"> {
   descriptionProps?: HTMLAttributes<HTMLElement>;
   /** Props for the help text error message element. */
   errorMessageProps?: HTMLAttributes<HTMLElement>;
+  /** classname  */
+  className?: string;
 }
 
 function _HelpText(props: HelpTextProps, ref: DOMRef<HTMLDivElement>) {
   const {
+    className,
     description,
     descriptionProps,
     errorMessage,
@@ -22,7 +25,7 @@ function _HelpText(props: HelpTextProps, ref: DOMRef<HTMLDivElement>) {
   const isErrorMessage = Boolean(errorMessage) && validationState === "invalid";
 
   return (
-    <div ref={domRef}>
+    <div className={className} ref={domRef}>
       {isErrorMessage ? (
         <div {...errorMessageProps} data-field-error-text="">
           {errorMessage}

@@ -7,8 +7,6 @@ import React, { forwardRef, useState } from "react";
 import { getTypographyClassName } from "@design-system/theming";
 import { TextInput as HeadlessTextInput } from "@design-system/headless";
 
-import { Label } from "./Label";
-import { Text } from "../../Text";
 import { Spinner } from "../../Spinner";
 import { EyeIcon } from "./icons/EyeIcon";
 import { IconButton } from "../../IconButton";
@@ -21,14 +19,6 @@ export interface TextInputProps extends HeadlessTextInputProps {
   loaderPosition?: "auto" | "start" | "end";
   /** loading state for the input */
   isLoading?: boolean;
-  /** indicates what to use when input is required
-   * @default "icon"
-   */
-  necessityIndicator?: "label" | "icon";
-  /** adds as span for accesiblity for necessity indicator */
-  includeNecessityIndicatorInAccessibilityName?: boolean;
-  /** label for the input */
-  label?: string;
 }
 
 const _TextInput = (props: TextInputProps, ref: HeadlessTextInputRef) => {
@@ -37,39 +27,18 @@ const _TextInput = (props: TextInputProps, ref: HeadlessTextInputRef) => {
     description,
     endIcon,
     errorMessage,
-    includeNecessityIndicatorInAccessibilityName,
     isLoading = false,
     isRequired,
     label,
     loaderPosition = "auto",
-    necessityIndicator = "icon",
     startIcon,
     type,
     ...rest
   } = props;
   const [showPassword, togglePassword] = useState(false);
 
-  const wrappedLabel = Boolean(label) && (
-    <Label
-      includeNecessityIndicatorInAccessibilityName={
-        includeNecessityIndicatorInAccessibilityName
-      }
-      isRequired={isRequired}
-      label={label}
-      necessityIndicator={necessityIndicator}
-    />
-  );
-
   const contextualHelp = Boolean(contextualHelpProp) && (
     <ContextualHelp contextualHelp={contextualHelpProp} />
-  );
-
-  const wrappedDescription = Boolean(description) && (
-    <Text variant="footnote">{description}</Text>
-  );
-
-  const wrappedErrorMessage = Boolean(errorMessage) && (
-    <Text variant="footnote">{errorMessage}</Text>
   );
 
   const onPressEyeIcon = () => {
@@ -113,14 +82,16 @@ const _TextInput = (props: TextInputProps, ref: HeadlessTextInputRef) => {
 
   return (
     <HeadlessTextInput
-      className={clsx(textInputStyles["text-input"], fieldStyles.field)}
       contextualHelp={contextualHelp}
-      description={wrappedDescription}
+      description={description}
       endIcon={renderEndIcon()}
-      errorMessage={wrappedErrorMessage}
+      errorMessage={errorMessage}
+      fieldClassName={clsx(textInputStyles["text-input"], fieldStyles.field)}
+      helpTextClassName={getTypographyClassName("footnote")}
       inputClassName={getTypographyClassName("body")}
       isRequired={isRequired}
-      label={wrappedLabel}
+      label={label}
+      labelClassName={getTypographyClassName("body")}
       ref={ref}
       startIcon={renderStartIcon()}
       type={showPassword ? "text" : type}

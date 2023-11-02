@@ -2292,7 +2292,9 @@ __metadata:
     "@react-types/checkbox": ^3.4.3
     "@react-types/label": ^3.7.3
     "@react-types/shared": ^3.17.0
+    "@types/react-input-mask": ^3.0.4
     classnames: "*"
+    react-input-mask: ^2.0.4
   peerDependencies:
     react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0
   languageName: unknown
@@ -2402,6 +2404,7 @@ __metadata:
     colorjs.io: ^0.4.3
     eslint-plugin-storybook: ^0.6.10
     lodash: "*"
+    react-input-mask: ^2.0.4
   peerDependencies:
     react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0
   languageName: unknown
@@ -8572,6 +8575,15 @@ __metadata:
   dependencies:
     "@types/react": "*"
   checksum: faa85b313ce6e5f50408806ea8650c658b8f162358728c449501bdcc56596108f24701d36ebf9c1f5af56aabd5707162b6b153d0ad79652430cf037e9371bfcf
+  languageName: node
+  linkType: hard
+
+"@types/react-input-mask@npm:^3.0.4":
+  version: 3.0.4
+  resolution: "@types/react-input-mask@npm:3.0.4"
+  dependencies:
+    "@types/react": "*"
+  checksum: cfe3136225679b9acd22f2e6045a7d6520e23328a983cf6610b7baac0d2e9163b44f4b694ff1aa0227febccb0dfbecc7992036a4e03f35dac0da8dda31f0bbd0
   languageName: node
   linkType: hard
 
@@ -26422,6 +26434,19 @@ __metadata:
   peerDependencies:
     react: ^0.14.9 || ^15.3.0 || ^16.0.0-rc || ^16.0
   checksum: 5164cbbff5091618f889a2a68368ef95460423dd3addd32d7db7cbde2f880816552ed750839baa278b28c210d77b9e3fbae48faf62ba90f3838abef1cfde58e6
+  languageName: node
+  linkType: hard
+
+"react-input-mask@npm:^2.0.4":
+  version: 2.0.4
+  resolution: "react-input-mask@npm:2.0.4"
+  dependencies:
+    invariant: ^2.2.4
+    warning: ^4.0.2
+  peerDependencies:
+    react: ">=0.14.0"
+    react-dom: ">=0.14.0"
+  checksum: 429b46c54c9572fe2d4856c399c41c3b02b3ac398adde88e6f8f5f6dd95999528551d84222e0925a538eec775b2330e7b56c40dd79549addfe8b10e901ed4446
   languageName: node
   linkType: hard
 
