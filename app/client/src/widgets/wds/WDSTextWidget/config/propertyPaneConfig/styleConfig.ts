@@ -81,10 +81,6 @@ export const propertyPaneStyleConfig = [
             label: "Warning",
             value: "warning",
           },
-          {
-            label: "Heading",
-            value: "heading",
-          },
         ],
         isJSConvertible: true,
         isBindProperty: true,
