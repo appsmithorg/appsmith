@@ -29,7 +29,7 @@ public class Migration033AddOpenAIPlugin {
     public void addPluginToDbAndWorkspace() {
         Plugin plugin = new Plugin();
         plugin.setName(PluginConstants.PluginName.OPEN_AI_PLUGIN_NAME);
-        plugin.setType(PluginType.REMOTE);
+        plugin.setType(PluginType.AI);
         plugin.setPluginName(PluginConstants.PluginName.OPEN_AI_PLUGIN_NAME);
         plugin.setPackageName(PluginConstants.PackageName.OPEN_AI_PLUGIN);
         plugin.setUiComponent("UQIDbEditorForm");
