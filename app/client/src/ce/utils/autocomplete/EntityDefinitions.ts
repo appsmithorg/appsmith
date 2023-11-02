@@ -27,7 +27,7 @@ export const entityDefinitions = {
             "https://docs.appsmith.com/reference/appsmith-framework/context-object#geolocation-object",
           getCurrentPosition: {
             "!type":
-              "fn(onSuccess: fn() -> void, onError: fn() -> void, options: object) -> void",
+              "fn(onSuccess: fn() -> void, onError: fn() -> void, options: object) -> +Promise|void",
             "!url":
               "https://docs.appsmith.com/reference/appsmith-framework/context-object#geolocationgetcurrentposition",
           },
@@ -37,7 +37,7 @@ export const entityDefinitions = {
               "https://docs.appsmith.com/reference/appsmith-framework/context-object#geolocationwatchposition",
           },
           clearWatch: {
-            "!type": "fn() -> void",
+            "!type": "fn() -> +Promise|void",
             "!url":
               "https://docs.appsmith.com/reference/appsmith-framework/context-object#geolocationclearwatch",
           },
