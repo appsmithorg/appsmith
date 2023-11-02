@@ -71,8 +71,7 @@ function ConnectionSuccess() {
   const handleStartGit = () => {
     dispatch(
       setIsGitSyncModalOpen({
-        isOpen: true,
-        tab: GitSyncModalTab.DEPLOY,
+        isOpen: false,
       }),
     );
     AnalyticsUtil.logEvent("GS_START_USING_GIT", {

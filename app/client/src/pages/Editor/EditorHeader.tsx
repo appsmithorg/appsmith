@@ -48,7 +48,10 @@ import { EditorSaveIndicator } from "./EditorSaveIndicator";
 import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 import { fetchUsersForWorkspace } from "@appsmith/actions/workspaceActions";
 
-import { getIsGitConnected } from "selectors/gitSyncSelectors";
+import {
+  getIsGitConnected,
+  protectedModeSelector,
+} from "selectors/gitSyncSelectors";
 import {
   createMessage,
   DEPLOY_BUTTON_TOOLTIP,
@@ -110,6 +113,7 @@ export function EditorHeader() {
   );
   const isPreviewingApp =
     isPreviewMode || isAppSettingsPaneWithNavigationTabOpen;
+  const isProtectedMode = useSelector(protectedModeSelector);
 
   const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false);
   const [showModal, setShowModal] = useState(false);
@@ -320,6 +324,7 @@ export function EditorHeader() {
                   className="t--application-publish-btn"
                   data-guided-tour-iid="deploy"
                   id={"application-publish-btn"}
+                  isDisabled={isProtectedMode}
                   isLoading={isPublishing}
                   kind="tertiary"
                   onClick={() => handleClickDeploy(true)}

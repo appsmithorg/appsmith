@@ -380,6 +380,7 @@ export default function BranchList(props: {
         {!fetchingBranches && (
           <ListContainer>
             <Callout
+              isClosable
               links={[
                 {
                   children: createMessage(GO_TO_SETTINGS),
@@ -395,7 +396,8 @@ export default function BranchList(props: {
                 },
                 {
                   children: createMessage(LEARN_MORE),
-                  to: "#",
+                  to: "https://docs.appsmith.com/advanced-concepts/version-control-with-git",
+                  target: "_blank",
                 },
               ]}
               style={{ width: 300 }}
