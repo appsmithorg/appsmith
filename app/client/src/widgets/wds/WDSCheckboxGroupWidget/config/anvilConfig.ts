@@ -4,7 +4,7 @@ export const anvilConfig: AnvilConfig = {
   widgetSize: {
     maxHeight: {},
     maxWidth: {},
-    minHeight: { base: "100px" },
+    minHeight: { base: "42px" },
     minWidth: { base: "130px" },
   },
 };

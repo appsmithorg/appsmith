@@ -9,9 +9,7 @@ export const CheckboxGroupComponent = (props: CheckboxGroupComponentProps) => {
       isDisabled={props.isDisabled}
       isRequired={props.isRequired}
       label={props.labelText}
-      onChange={(value) => {
-        props.onChange(value);
-      }}
+      onChange={props.onChange}
       orientation={props.orientation}
       value={props.selectedValues}
     >
