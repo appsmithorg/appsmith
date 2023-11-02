@@ -23,7 +23,7 @@ import {
   DEFAULT_PACKAGE_ICON,
   DEFAULT_PACKAGE_PREFIX,
 } from "@appsmith/constants/PackageConstants";
-import { BASE_PACKAGE_EDITOR_URL } from "@appsmith/constants/routes/packageRoutes";
+import { BASE_PACKAGE_EDITOR_PATH } from "@appsmith/constants/routes/packageRoutes";
 import type { ApiResponse } from "api/ApiResponses";
 import type {
   CreatePackageFromWorkspacePayload,
@@ -92,7 +92,7 @@ export function* createPackageFromWorkspaceSaga(
         payload: response.data,
       });
 
-      history.push(`${BASE_PACKAGE_EDITOR_URL}/${id}`);
+      history.push(`${BASE_PACKAGE_EDITOR_PATH}/${id}`);
     }
   } catch (error) {
     yield put({

@@ -45,3 +45,8 @@ export const createQueryModule = (payload: CreateQueryModulePayload) => ({
   type: ReduxActionTypes.CREATE_QUERY_MODULE_INIT,
   payload,
 });
+
+export const setCurrentModule = (id: string | null) => ({
+  type: ReduxActionTypes.SET_CURRENT_MODULE,
+  payload: { id },
+});

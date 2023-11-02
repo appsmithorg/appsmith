@@ -32,7 +32,7 @@ import { requiresLicenseCheck } from "./requiresLicenseCheck";
 import ProductAlertBanner from "components/editorComponents/ProductAlertBanner";
 import Walkthrough from "components/featureWalkthrough";
 import PackageEditorLoader from "./pages/Editor/PackageEditor/PackageEditorLoader";
-import { PACKAGE_EDITOR_URL } from "@appsmith/constants/routes/packageRoutes";
+import { PACKAGE_EDITOR_PATH } from "@appsmith/constants/routes/packageRoutes";
 import { getShowQueryModule } from "@appsmith/selectors/moduleFeatureSelectors";
 import { Migrations } from "./pages/Billing/Migrations";
 
@@ -118,7 +118,7 @@ function AppRouter(props: {
                 {showQueryModule && (
                   <SentryRoute
                     component={PackageEditorLoader}
-                    path={PACKAGE_EDITOR_URL}
+                    path={PACKAGE_EDITOR_PATH}
                   />
                 )}
                 <SentryRoute component={Migrations} path={MIGRATIONS_URL} />

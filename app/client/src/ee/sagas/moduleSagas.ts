@@ -20,7 +20,10 @@ import type {
   FetchModuleActionsResponse,
 } from "@appsmith/api/ModuleApi";
 import history from "utils/history";
-import { currentPackageEditorURL } from "@appsmith/RouteBuilder";
+import {
+  currentPackageEditorURL,
+  moduleEditorURL,
+} from "@appsmith/RouteBuilder";
 import type { ApiAction } from "entities/Action";
 import {
   PluginPackageName,
@@ -208,6 +211,8 @@ export function* createQueryModuleSaga(
         type: ReduxActionTypes.CREATE_QUERY_MODULE_SUCCESS,
         payload: response.data,
       });
+
+      history.push(moduleEditorURL({ moduleId: response.data.id }));
     }
   } catch (error) {
     yield put({
