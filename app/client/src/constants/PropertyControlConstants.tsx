@@ -140,7 +140,6 @@ interface ValidationConfigParams {
 export interface ValidationConfig {
   type: ValidationTypes;
   params?: ValidationConfigParams;
-  dependentPaths?: string[];
 }
 
 export type PropertyPaneConfig =

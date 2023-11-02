@@ -65,6 +65,7 @@ import { WDSTextWidget } from "./wds/WDSTextWidget";
 import type BaseWidget from "./BaseWidget";
 import { WDSTableWidget } from "./wds/WDSTableWidget";
 import { WDSCurrencyInputWidget } from "./wds/WDSCurrencyInputWidget";
+import { WDSButtonGroupWidget } from "./wds/WDSButtonGroupWidget";
 
 const Widgets = [
   CanvasWidget,
@@ -123,6 +124,7 @@ const Widgets = [
   WDSTextWidget,
   WDSTableWidget,
   WDSCurrencyInputWidget,
+  WDSButtonGroupWidget,
 
   //Deprecated Widgets
   InputWidget,

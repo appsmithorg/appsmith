@@ -11,6 +11,7 @@ import type { WidgetEntity } from "@appsmith/entities/DataTree/types";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { DataTreeFactory } from "entities/DataTree/dataTreeFactory";
 import {
+  getIsMobileBreakPoint,
   getMetaWidgets,
   getWidgetsForEval,
   getWidgetsMeta,
@@ -25,7 +26,7 @@ import type { EvaluationError } from "utils/DynamicBindingUtils";
 import { getEvalErrorPath } from "utils/DynamicBindingUtils";
 import ConfigTreeActions from "utils/configTree";
 import { DATATREE_INTERNAL_KEYWORDS } from "constants/WidgetValidation";
-import { LayoutSystemTypes } from "layoutSystems/types";
+import { getLayoutSystemType } from "./layoutSystemSelectors";
 
 export const getLoadingEntities = (state: AppState) =>
   state.evaluations.loadingEntities;
@@ -35,16 +36,16 @@ export const getLoadingEntities = (state: AppState) =>
  * Current version of reselect package only allows upto 12 arguments. Hence, this workaround.
  * TODO: Figure out a better way to do this in a separate task. Or update the package if possible.
  */
-const getLayoutSystemPayload = (state: AppState) => ({
-  // appPositioning?.type instead of appPositioning.type is for legacy applications that may not have the appPositioning object.
-  // All new applications will have appPositioning.type
-  layoutSystemType:
-    LayoutSystemTypes[
-      state.ui.applications.currentApplication?.applicationDetail
-        ?.appPositioning?.type || LayoutSystemTypes.FIXED
-    ],
-  isMobile: state.ui.mainCanvas.isMobile,
-});
+const getLayoutSystemPayload = createSelector(
+  getLayoutSystemType,
+  getIsMobileBreakPoint,
+  (layoutSystemType, isMobile) => {
+    return {
+      layoutSystemType,
+      isMobile,
+    };
+  },
+);
 
 const getCurrentActionEntities = createSelector(
   getCurrentActions,
