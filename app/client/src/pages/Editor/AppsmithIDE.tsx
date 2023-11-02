@@ -13,7 +13,7 @@ import {
   WIDGETS_EDITOR_BASE_PATH,
   WIDGETS_EDITOR_ID_PATH,
 } from "constants/routes";
-import { combinedPreviewModeSelector } from "selectors/editorSelectors";
+import { previewModeSelector } from "selectors/editorSelectors";
 import WidgetsEditor from "./WidgetsEditor";
 import EditorsRouter from "@appsmith/pages/Editor/routes";
 import EditorWrapperBody from "./commons/EditorWrapperBody";
@@ -28,7 +28,7 @@ const SentryRoute = Sentry.withSentryRouting(Route);
  */
 function AppsmithIDE() {
   const { path } = useRouteMatch();
-  const isPreviewMode = useSelector(combinedPreviewModeSelector);
+  const isPreviewMode = useSelector(previewModeSelector);
 
   return (
     <>

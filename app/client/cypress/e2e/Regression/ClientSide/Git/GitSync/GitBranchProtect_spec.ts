@@ -57,10 +57,14 @@ describe("Git Branch Protection", function () {
         repoName2 = repName;
         cy.wait("@gitProtectApi").then((res1) => {
           expect(res1.response).to.have.property("statusCode", 200);
-          _.agHelper.AssertElementAbsence(
+          _.agHelper.AssertElementVisibility(
             _.entityExplorer._entityExplorerWrapper,
+            false,
           );
-          _.agHelper.AssertElementAbsence(_.propPane._propertyPaneSidebar);
+          _.agHelper.AssertElementVisibility(
+            _.propPane._propertyPaneSidebar,
+            false,
+          );
           _.agHelper.AssertElementEnabledDisabled(
             _.gitSync._bottomBarCommit,
             0,

@@ -7,12 +7,7 @@ import { Button } from "design-system";
 import SwitchEnvironment from "@appsmith/components/SwitchEnvironment";
 import { Container, Wrapper } from "./components";
 
-export default function BottomBar({
-  viewMode,
-}: {
-  isProtected?: boolean;
-  viewMode: boolean;
-}) {
+export default function BottomBar({ viewMode }: { viewMode: boolean }) {
   return (
     <Container>
       <Wrapper>
