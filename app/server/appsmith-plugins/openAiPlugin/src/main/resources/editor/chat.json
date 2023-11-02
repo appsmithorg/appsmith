@@ -58,28 +58,19 @@
       "configProperty": "actionConfiguration.formData.messages",
       "controlType": "ARRAY_FIELD",
       "addMoreButtonLabel": "Add message",
-      "initialValue": [
-        {
-          "role": "user",
-          "content": "Hello, how are you?"
-        },
-        {
-          "role": "system",
-          "content": "I'm fine, how are you?"
-        }
-      ],
       "schema": [
         {
           "label": "Role",
           "key": "role",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-          "placeholderText": "user OR system OR assistant"
+          "placeholderText": "\"user\", \"system\" or \"assistant\"",
+          "initialValue": "user"
         },
         {
           "label": "Content",
           "key": "content",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-          "placeholderText": "{{ Input1.text }}"
+          "placeholderText": "{{ UserInput.text }}"
         }
       ]
     }
