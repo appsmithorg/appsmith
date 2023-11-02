@@ -175,18 +175,6 @@ const CreateNewAppsOption = ({
        * Implement the first time onboarding flow
        */
 
-      urlBuilder.updateURLParams(
-        {
-          applicationSlug: application.slug,
-          applicationVersion: application.applicationVersion,
-          applicationId: application.id,
-        },
-        application.pages.map((page) => ({
-          pageSlug: page.slug,
-          customSlug: page.customSlug,
-          pageId: page.id,
-        })),
-      );
       history.push(
         builderURL({
           pageId: application.defaultPageId,
@@ -302,6 +290,20 @@ const CreateNewAppsOption = ({
     AnalyticsUtil.logEvent("ONBOARDING_CREATE_APP_FLOW", {
       totalOptions: selectionOptions.length,
     });
+    if (application)
+      urlBuilder.updateURLParams(
+        {
+          applicationSlug: application.slug,
+          applicationVersion: application.applicationVersion,
+          applicationId: application.id,
+        },
+        application.pages.map((page) => ({
+          pageSlug: page.slug,
+          customSlug: page.customSlug,
+          pageId: page.id,
+        })),
+      );
+
     return () => {
       resetCreateNewAppFlow();
     };
