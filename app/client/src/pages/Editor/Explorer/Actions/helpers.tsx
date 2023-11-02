@@ -44,7 +44,13 @@ export interface ActionGroupConfig {
 export const ACTION_PLUGIN_MAP: Array<ActionGroupConfig | undefined> = [
   {
     groupName: "Datasources",
-    types: [PluginType.API, PluginType.SAAS, PluginType.DB, PluginType.REMOTE],
+    types: [
+      PluginType.API,
+      PluginType.SAAS,
+      PluginType.DB,
+      PluginType.REMOTE,
+      PluginType.AI,
+    ],
     icon: dbQueryIcon,
     key: generateReactKey(),
     getURL: (

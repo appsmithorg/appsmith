@@ -11,6 +11,7 @@ export enum PluginType {
   SAAS = "SAAS",
   JS = "JS",
   REMOTE = "REMOTE",
+  AI = "AI",
 }
 
 export enum PluginPackageName {
@@ -171,6 +172,11 @@ export interface RemoteAction extends BaseAction {
   actionConfiguration: any;
   datasource: StoredDatasource;
 }
+export interface AIAction extends BaseAction {
+  pluginType: PluginType.AI;
+  actionConfiguration: any;
+  datasource: StoredDatasource;
+}
 
 export interface EmbeddedApiAction extends BaseApiAction {
   datasource: EmbeddedRestDatasource;
@@ -206,7 +212,12 @@ export interface ActionViewMode {
   timeoutInMillisecond?: number;
 }
 
-export type Action = ApiAction | QueryAction | SaaSAction | RemoteAction;
+export type Action =
+  | ApiAction
+  | QueryAction
+  | SaaSAction
+  | RemoteAction
+  | AIAction;
 
 export enum SlashCommand {
   NEW_API,

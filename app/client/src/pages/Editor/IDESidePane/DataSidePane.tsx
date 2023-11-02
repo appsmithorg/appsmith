@@ -69,7 +69,11 @@ const DataSidePane = () => {
   const actionCount = countBy(actions, "config.datasource.id");
   const groupedDatasources = groupBy(datasources, (d) => {
     const plugin = groupedPlugins[d.pluginId];
-    if (plugin.type === PluginType.SAAS || plugin.type === PluginType.REMOTE) {
+    if (
+      plugin.type === PluginType.SAAS ||
+      plugin.type === PluginType.REMOTE ||
+      plugin.type === PluginType.AI
+    ) {
       return "Integrations";
     }
     if (plugin.type === PluginType.DB) return "Databases";
