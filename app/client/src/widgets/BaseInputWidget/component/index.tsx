@@ -722,6 +722,7 @@ class BaseInputComponent extends React.Component<
             isDynamicHeightEnabled={isDynamicHeightEnabled}
             loading={isLoading}
             position={labelPosition}
+            rtl={this.props.rtl}
             text={label}
             width={labelWidth}
           />
