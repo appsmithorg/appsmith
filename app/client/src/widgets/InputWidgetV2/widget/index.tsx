@@ -49,6 +49,7 @@ import type {
 } from "WidgetProvider/constants";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 export function defaultValueValidation(
   value: any,
@@ -547,7 +548,9 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
           isTriggerProperty: false,
           validation: { type: ValidationTypes.BOOLEAN },
           hidden: () => {
-            return false;
+            return !super.getFeatureFlag(
+              FEATURE_FLAG.license_widget_rtl_support_enabled,
+            );
           },
         },
       ]),

@@ -26,6 +26,7 @@ export const FEATURE_FLAG = {
   license_gac_enabled: "license_gac_enabled",
   release_anvil_enabled: "release_anvil_enabled",
   release_app_sidebar_enabled: "release_app_sidebar_enabled",
+  license_widget_rtl_support_enabled: "license_widget_rtl_support_enabled",
 } as const;
 
 export type FeatureFlag = keyof typeof FEATURE_FLAG;
@@ -53,6 +54,7 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   license_gac_enabled: false,
   release_anvil_enabled: false,
   release_app_sidebar_enabled: false,
+  license_widget_rtl_support_enabled: false,
 };
 
 export const AB_TESTING_EVENT_KEYS = {

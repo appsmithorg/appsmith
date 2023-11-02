@@ -53,6 +53,7 @@ import type {
 } from "WidgetProvider/constants";
 
 import IconSVG from "../icon.svg";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
   constructor(props: SelectWidgetProps) {
@@ -566,7 +567,9 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
             hidden: () => {
-              return false;
+              return !super.getFeatureFlag(
+                FEATURE_FLAG.license_widget_rtl_support_enabled,
+              );
             },
           },
         ],
