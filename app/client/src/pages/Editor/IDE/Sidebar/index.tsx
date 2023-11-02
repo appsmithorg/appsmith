@@ -55,7 +55,11 @@ function Sidebar() {
           <SidebarButton
             icon={b.icon}
             key={b.state}
-            onClick={() => onClick(b.urlSuffix)}
+            onClick={() => {
+              if (appState !== b.state) {
+                onClick(b.urlSuffix);
+              }
+            }}
             selected={appState === b.state}
             title={b.title}
           />
@@ -66,7 +70,11 @@ function Sidebar() {
           <SidebarButton
             icon={b.icon}
             key={b.state}
-            onClick={() => onClick(b.urlSuffix)}
+            onClick={() => {
+              if (appState !== b.state) {
+                onClick(b.urlSuffix);
+              }
+            }}
             selected={appState === b.state}
             tooltip={b.title}
           />
