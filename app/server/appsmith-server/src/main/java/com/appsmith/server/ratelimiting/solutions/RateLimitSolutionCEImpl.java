@@ -7,7 +7,6 @@ import com.appsmith.server.ratelimiting.domains.RateLimit;
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.BucketConfiguration;
 import io.github.bucket4j.Refill;
-import io.github.bucket4j.TokensInheritanceStrategy;
 import io.github.bucket4j.distributed.BucketProxy;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -49,8 +48,10 @@ public class RateLimitSolutionCEImpl implements RateLimitSolutionCE {
     }
 
     private void initializeApiBuckets() {
-        apiConfigurationMap.forEach((apiIdentifier, configuration) ->
-                apiBuckets.put(apiIdentifier, createBucketProxy(apiIdentifier, configuration)));
+        apiConfigurationMap.forEach((apiIdentifier, configuration) -> {
+            apiIdentifier = apiIdentifier.toLowerCase();
+            apiBuckets.put(apiIdentifier, createBucketProxy(apiIdentifier, configuration));
+        });
     }
 
     private BucketConfiguration createBucketConfiguration(Duration refillDuration, int limit) {
@@ -64,6 +65,7 @@ public class RateLimitSolutionCEImpl implements RateLimitSolutionCE {
     }
 
     private BucketProxy createBucketProxy(String apiIdentifier, BucketConfiguration configuration) {
+        apiIdentifier = apiIdentifier.toLowerCase();
         return proxyManagerConfiguration
                 .lettuceBasedProxyManager()
                 .builder()
@@ -77,32 +79,28 @@ public class RateLimitSolutionCEImpl implements RateLimitSolutionCE {
 
     @Override
     public Mono<Long> updateApiProxyBucketForApiIdentifier(String apiIdentifier, RateLimit rateLimit) {
+        String finalApiIdentifier = apiIdentifier.toLowerCase();
         BucketConfiguration newBucketConfiguration =
                 createBucketConfiguration(rateLimit.getRefillDuration(), rateLimit.getLimit());
         apiConfigurationMap.put(apiIdentifier, newBucketConfiguration);
+        proxyManagerConfiguration.lettuceBasedProxyManager().removeProxy(apiIdentifier.getBytes());
         return cacheManager.getKeysWithPrefix(apiIdentifier).map(existingKeys -> {
-            existingKeys.forEach(key -> {
-                log.debug("Login Api Bucket Key {}", key);
-                proxyManagerConfiguration
-                        .lettuceBasedProxyManager()
-                        .getProxyConfiguration(key.getBytes())
-                        .ifPresent(existingConfiguration -> {
-                            BucketProxy existingBucketProxy = proxyManagerConfiguration
-                                    .lettuceBasedProxyManager()
-                                    .builder()
-                                    .build(key.getBytes(), existingConfiguration);
-                            log.debug("Tokens before {} : {}", key, existingBucketProxy.getAvailableTokens());
-                            existingBucketProxy.replaceConfiguration(
-                                    newBucketConfiguration, TokensInheritanceStrategy.RESET);
-                            log.debug("Tokens after {} : {}", key, existingBucketProxy.getAvailableTokens());
-                        });
-            });
+            existingKeys.forEach(key -> proxyManagerConfiguration
+                    .lettuceBasedProxyManager()
+                    .getProxyConfiguration(key.getBytes())
+                    .ifPresent(existingConfiguration -> {
+                        proxyManagerConfiguration.lettuceBasedProxyManager().removeProxy(key.getBytes());
+                    }));
+            apiBuckets.put(
+                    finalApiIdentifier, createBucketProxy(finalApiIdentifier, createBucketConfiguration(rateLimit)));
             return 1L;
         });
     }
 
     @Override
     public BucketProxy getOrCreateAPIUserSpecificBucket(String apiIdentifier, String userId) {
+        apiIdentifier = apiIdentifier.toLowerCase();
+        userId = userId.toLowerCase();
         String bucketIdentifier = apiIdentifier + userId;
         Optional<BucketConfiguration> bucketProxy =
                 proxyManagerConfiguration.lettuceBasedProxyManager().getProxyConfiguration(bucketIdentifier.getBytes());
