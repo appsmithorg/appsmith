@@ -9,6 +9,7 @@ import { TextArea as HeadlessTextArea } from "@design-system/headless";
 import textAreaStyles from "./styles.module.css";
 import { textInputStyles, fieldStyles } from "../../../styles";
 import { ContextualHelp } from "../../TextInput/src/ContextualHelp";
+import { getTypographyClassName } from "@design-system/theming";
 
 export interface TextAreaProps extends HeadlessTextAreaProps {
   /** loading state for the input */
@@ -42,6 +43,7 @@ const _TextArea = (props: TextAreaProps, ref: HeadlessTextAreaRef) => {
       inputClassName="wds-body-text"
       isRequired={isRequired}
       label={label}
+      labelClassName={getTypographyClassName("body")}
       ref={ref}
       {...rest}
     />
