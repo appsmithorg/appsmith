@@ -652,7 +652,6 @@ export function* createApplicationSaga(
             payload: application.id,
           });
         }
-
         // Show cta's in empty canvas for the first page
         yield put(
           setCanvasCardsState(getDefaultPageId(response.data.pages) ?? ""),

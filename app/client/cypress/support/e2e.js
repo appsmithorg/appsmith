@@ -39,7 +39,6 @@ import "./AdminSettingsCommands";
 import "cypress-plugin-tab";
 import {
   FEATURE_WALKTHROUGH_INDEX_KEY,
-  SKIP_CREATE_NEW_APP_FLAG_COOKIE,
   WALKTHROUGH_TEST_PAGE,
 } from "./Constants.js";
 /// <reference types="cypress-xpath" />
