@@ -660,9 +660,9 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                 return Mono.just(Boolean.TRUE);
             }
             Mono<Application> applicationMono = applicationService
-                    .findBranchedApplicationId(optionalBranchName, srcApplicationId, optionalAclPermission)
-                    .flatMap(branchedApplicationId ->
-                            applicationService.findById(branchedApplicationId, optionalAclPermission))
+                    .findBranchedApplicationId(branchName, srcApplicationId, applicationPermission.getEditPermission())
+                    .flatMap(branchedApplicationId -> applicationService.findById(
+                            branchedApplicationId, applicationPermission.getEditPermission()))
                     .switchIfEmpty(Mono.error(new AppsmithException(
                             AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, srcApplicationId)))
                     .cache();
