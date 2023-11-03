@@ -35,18 +35,13 @@ appInitializer();
 const { enableNewRelic } = newRelic;
 enableNewRelic &&
   (async () => {
-    //loading these scripts in parallel, atleast one of them should load.
-    const resolvedPromises = await Promise.allSettled([
-      import(
-        /* webpackChunkName: "newRelicBrowserAgent" */ "../public/libraries/newRelicBrowserAgent.js"
-      ),
-      import(/* webpackChunkName: "otlpTelemetry" */ "./auto-otel-web.js"),
-    ]);
-    resolvedPromises.forEach((res) => {
-      if (res.status === "rejected") {
-        log.error("Error loading script", res.reason);
-      }
-    });
+    try {
+      await import(
+        /* webpackChunkName: "otlpTelemetry" */ "./auto-otel-web.js"
+      );
+    } catch (e) {
+      log.error("Error loading telemetry script", e);
+    }
   })();
 
 function App() {

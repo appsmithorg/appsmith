@@ -43,6 +43,24 @@
         // NREUM variable is required when we are we are are dynamically loading new relic browser agent script
         NREUM = undefined
       </script>
+      <script>
+        
+        const enableNewRelic = parseConfig("__APPSMITH_NEW_RELIC_ACCOUNT_ENABLE__"),
+
+      if (!!enableNewRelic) {
+          const accountId = parseConfig("__APPSMITH_NEW_RELIC_ACCOUNT_ID__");
+          const applicationId = parseConfig("__APPSMITH_NEW_RELIC_APPLICATION_ID__");
+          const browserAgentlicenseKey = parseConfig("__APPSMITH_NEW_RELIC_BROWSER_AGENT_LICENSE_KEY__");
+          const script = document.createElement("script");
+          script.crossOrigin = "anonymous";
+          script.src = "https://assets.appsmith.com/newRelicBrowserAgent.js";
+          script.onload = () => {
+            BROWSER_AGENT && BROWSER_AGENT.init([accountId,applicationId,browserAgentlicenseKey]);
+          };
+          const head = document.getElementsByTagName("head")[0];
+          head && head.appendChild(script);
+        }
+      </script>
     <script>
         window.__APPSMITH_CHUNKS_TO_PRELOAD =
       <%=
