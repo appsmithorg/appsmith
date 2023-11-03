@@ -647,19 +647,26 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
             String srcApplicationId, String targetWorkspaceId, String branchName) {
         Optional<String> optionalBranchName = Optional.ofNullable(branchName);
         Optional<AclPermission> optionalAclPermission = Optional.empty();
-        Mono<Application> applicationMono = applicationService
+        Mono<Application> applicationMonoWithOutPermission = applicationService
                 .findBranchedApplicationId(optionalBranchName, srcApplicationId, optionalAclPermission)
                 .flatMap(branchedApplicationId ->
                         applicationService.findById(branchedApplicationId, optionalAclPermission))
                 .switchIfEmpty(Mono.error(new AppsmithException(
-                        AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, srcApplicationId)))
-                .cache();
+                        AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, srcApplicationId)));
 
         // For sample apps that are marked as forked, we allow forking to any workspace without any permission checks
-        return isForkingEnabled(applicationMono).flatMap(isForkingEnabled -> {
+        return isForkingEnabled(applicationMonoWithOutPermission).flatMap(isForkingEnabled -> {
             if (isForkingEnabled) {
                 return Mono.just(Boolean.TRUE);
             }
+            Mono<Application> applicationMono = applicationService
+                    .findBranchedApplicationId(optionalBranchName, srcApplicationId, optionalAclPermission)
+                    .flatMap(branchedApplicationId ->
+                            applicationService.findById(branchedApplicationId, optionalAclPermission))
+                    .switchIfEmpty(Mono.error(new AppsmithException(
+                            AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, srcApplicationId)))
+                    .cache();
+
             // Normal Application forking with developer/edit access
             Flux<BaseDomain> pageFlux = applicationMono.flatMapMany(application -> newPageRepository
                     .findAllByApplicationIdsWithoutPermission(List.of(application.getId()), List.of("id", "policies"))
