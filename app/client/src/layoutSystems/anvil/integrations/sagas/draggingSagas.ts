@@ -9,7 +9,7 @@ import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidg
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
 import { getUpdateDslAfterCreatingChild } from "sagas/WidgetAdditionSagas";
 import { executeWidgetBlueprintBeforeOperations } from "sagas/WidgetBlueprintSagas";
-import { getWidgets } from "sagas/selectors";
+import { getWidget, getWidgets } from "sagas/selectors";
 import type { AnvilHighlightInfo } from "../../utils/anvilTypes";
 import { addWidgetsToPreset } from "../../utils/layouts/update/additionUtils";
 import { moveWidgets } from "../../utils/layouts/update/moveUtils";
@@ -17,6 +17,66 @@ import { AnvilReduxActionTypes } from "../actions/actionTypes";
 import { generateDefaultLayoutPreset } from "layoutSystems/anvil/layoutComponents/presets/DefaultLayoutPreset";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import {
+  GridDefaults,
+  MAIN_CONTAINER_WIDGET_ID,
+} from "constants/WidgetConstants";
+import type { WidgetProps } from "widgets/BaseWidget";
+import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
+import { WDS_V2_WIDGET_MAP } from "components/wds/constants";
+import { addNewAnvilWidgetAction } from "../actions/draggingActions";
+
+export function* getMainCanvasLastRowHighlight() {
+  const mainCanvas: WidgetProps = yield select(
+    getWidget,
+    MAIN_CONTAINER_WIDGET_ID,
+  );
+  const layoutId: string = mainCanvas.layout[0].layoutId;
+  const layoutOrder = [layoutId];
+  const rowIndex = mainCanvas.layout[0].layout.length;
+  return {
+    canvasId: MAIN_CONTAINER_WIDGET_ID,
+    layoutOrder,
+    rowIndex,
+    posX: 0,
+    posY: 0,
+    alignment: FlexLayerAlignment.Start,
+    dropZone: {},
+    height: 0,
+    width: 0,
+    isVertical: false,
+  };
+}
+
+function* addSuggestedWidgetsAnvilSaga(
+  actionPayload: ReduxAction<{
+    newWidget: {
+      newWidgetId: string;
+      type: string;
+      rows?: number;
+      columns?: number;
+    };
+  }>,
+) {
+  const { newWidget } = actionPayload.payload;
+  const wdsEntry = Object.entries(WDS_V2_WIDGET_MAP).find(
+    ([legacyType]) => legacyType === newWidget.type,
+  );
+  if (wdsEntry) {
+    const [, wdsType] = wdsEntry;
+    const newWidgetParams = {
+      width: (newWidget.rows || 0 / GridDefaults.DEFAULT_GRID_COLUMNS) * 100,
+      height: newWidget.columns || 0 * GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+      newWidgetId: newWidget.newWidgetId,
+      parentId: MAIN_CONTAINER_WIDGET_ID,
+      type: wdsType,
+    };
+    const mainCanvasHighLight: AnvilHighlightInfo = yield call(
+      getMainCanvasLastRowHighlight,
+    );
+    yield put(addNewAnvilWidgetAction(newWidgetParams, mainCanvasHighLight));
+  }
+}
 
 function* addWidgetsSaga(
   actionPayload: ReduxAction<{
@@ -134,5 +194,9 @@ export default function* anvilDraggingSagas() {
   yield all([
     takeLatest(AnvilReduxActionTypes.ANVIL_ADD_NEW_WIDGET, addWidgetsSaga),
     takeLatest(AnvilReduxActionTypes.ANVIL_MOVE_WIDGET, moveWidgetsSaga),
+    takeLatest(
+      AnvilReduxActionTypes.ANVIL_ADD_SUGGESTED_WIDGET,
+      addSuggestedWidgetsAnvilSaga,
+    ),
   ]);
 }

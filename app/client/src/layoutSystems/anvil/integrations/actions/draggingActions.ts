@@ -37,3 +37,20 @@ export const moveAnvilWidgets = (
     },
   };
 };
+
+/**
+ * Add suggested widget to Anvil canvas.
+ */
+export const addSuggestedWidgetAnvilAction = (newWidget: {
+  newWidgetId: string;
+  type?: string;
+  rows?: number;
+  columns?: number;
+}) => {
+  return {
+    type: AnvilReduxActionTypes.ANVIL_ADD_SUGGESTED_WIDGET,
+    payload: {
+      newWidget,
+    },
+  };
+};
