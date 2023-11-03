@@ -64,7 +64,7 @@ import {
   getWidgetImmediateChildren,
   getWidgets,
 } from "./selectors";
-import { saveCopiedWidgets } from "utils/storage";
+import { getCopiedWidgets, saveCopiedWidgets } from "utils/storage";
 
 // The following is computed to be used in the entity explorer
 // Every time a widget is selected, we need to expand widget entities
@@ -423,6 +423,12 @@ export function* partialExportWidgetSaga(widgetIds: string[]) {
 }
 
 export function* partialImportSaga() {
+  // Cache existing copied widgets as we utilize copy paste functionality with partial import of widgets
+  const existingCopiedWidgets: unknown = yield call(getCopiedWidgets);
   yield put(selectWidgetInitAction(SelectionRequestType.Empty));
   yield put(pasteWidget(false, { x: 0, y: 0 }));
+
+  if (existingCopiedWidgets) {
+    yield call(saveCopiedWidgets, JSON.stringify(existingCopiedWidgets));
+  }
 }
