@@ -8,10 +8,10 @@ import type { DependencyMap as TDependencyMap } from "utils/DynamicBindingUtils"
 import { getPropertyPath } from "utils/DynamicBindingUtils";
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
 import { getEntityDynamicBindingPathList } from "utils/DynamicBindingUtils";
-import { mergeMaps } from "./mergeMaps";
+import { mergeMaps } from "plugins/Linting/utils/mergeMaps";
 import { flatten, get, has, isString, toPath, union, uniq } from "lodash";
 import { extractIdentifierInfoFromCode } from "@shared/ast";
-import { PathUtils } from "./pathUtils";
+import { PathUtils } from "plugins/Linting/utils/pathUtils";
 
 import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
 import type { ActionEntity } from "plugins/Linting/lib/entity/ActionEntity";
@@ -99,7 +99,7 @@ function getActionDependencies(actionEntity: ActionEntity): TDependencyMap {
   return dependencies;
 }
 
-function getDependencyFromEntityPath(
+export function getDependencyFromEntityPath(
   propertyPath: string,
   entity: IEntity,
 ): TDependencyMap {

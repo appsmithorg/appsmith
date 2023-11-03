@@ -1,4 +1,4 @@
-import { isWidgetEntity } from "plugins/Linting/lib/entity";
+import { isWidgetEntity } from "@appsmith/plugins/Linting/lib/entity";
 import {
   convertPathToString,
   getEntityNameAndPropertyPath,
