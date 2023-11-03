@@ -2090,6 +2090,7 @@ function* addSuggestedWidget(action: ReduxAction<Partial<WidgetProps>>) {
             rows: newWidget.rows,
             columns: newWidget.columns,
             type: newWidget.type,
+            ...widgetConfig,
           }),
         );
         break;

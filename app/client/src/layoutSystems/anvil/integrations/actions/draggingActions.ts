@@ -1,3 +1,4 @@
+import type { WidgetProps } from "widgets/BaseWidget";
 import type { AnvilHighlightInfo } from "../../utils/anvilTypes";
 import { AnvilReduxActionTypes } from "./actionTypes";
 
@@ -46,6 +47,7 @@ export const addSuggestedWidgetAnvilAction = (newWidget: {
   type?: string;
   rows?: number;
   columns?: number;
+  widgetConfig?: WidgetProps;
 }) => {
   return {
     type: AnvilReduxActionTypes.ANVIL_ADD_SUGGESTED_WIDGET,

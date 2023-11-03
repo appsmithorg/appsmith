@@ -11,7 +11,7 @@ describe(`${ANVIL_EDITOR_TEST}:Check Suggested Widgets Feature`, function () {
     });
     dataSources.RunQuery({ toValidateResponse: false });
     dataSources.AddSuggestedWidget(Widgets.Table);
-    table.ReadTableRowColumnData(1, 0, "v2").then((cellData) => {
+    table.ReadTableRowColumnData(1, 0, "wds").then((cellData) => {
       expect(cellData).to.eq("5");
     });
   });
