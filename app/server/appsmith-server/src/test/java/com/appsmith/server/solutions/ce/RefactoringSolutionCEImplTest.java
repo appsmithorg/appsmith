@@ -2,8 +2,6 @@ package com.appsmith.server.solutions.ce;
 
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.DefaultResources;
-import com.appsmith.server.actioncollections.base.ActionCollectionService;
-import com.appsmith.server.configurations.InstanceConfig;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
@@ -25,16 +23,12 @@ import com.appsmith.server.refactors.entities.EntityRefactoringService;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationService;
-import com.appsmith.server.services.AstService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.PagePermission;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -48,13 +42,9 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.regex.Pattern;
 
 import static com.appsmith.server.services.ce.ApplicationPageServiceCEImpl.EVALUATION_VERSION;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -64,9 +54,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @Slf4j
 @SpringBootTest
 class RefactoringSolutionCEImplTest {
-
-    private final String preWord = "\\b(";
-    private final String postWord = ")\\b";
     RefactoringSolutionCEImpl refactoringSolutionCE;
 
     @Autowired
@@ -75,19 +62,11 @@ class RefactoringSolutionCEImplTest {
     @Autowired
     ActionPermission actionPermission;
 
-    ObjectMapper mapper = new ObjectMapper();
-
-    @MockBean
-    private ObjectMapper objectMapper;
-
     @MockBean
     private NewPageService newPageService;
 
     @SpyBean
     private NewActionService newActionService;
-
-    @MockBean
-    private ActionCollectionService actionCollectionService;
 
     @MockBean
     private ResponseUtils responseUtils;
@@ -97,12 +76,6 @@ class RefactoringSolutionCEImplTest {
 
     @MockBean
     private ApplicationService applicationService;
-
-    @MockBean
-    private AstService astService;
-
-    @MockBean
-    private InstanceConfig instanceConfig;
 
     @MockBean
     private AnalyticsService analyticsService;
@@ -131,82 +104,17 @@ class RefactoringSolutionCEImplTest {
         Mockito.when(sessionUserService.getCurrentUser()).thenReturn(Mono.just(new User()));
 
         refactoringSolutionCE = new RefactoringSolutionCEImpl(
-                objectMapper,
                 newPageService,
-                newActionService,
-                actionCollectionService,
                 responseUtils,
                 layoutActionService,
                 applicationService,
-                astService,
                 pagePermission,
-                actionPermission,
-                instanceConfig,
                 analyticsService,
                 sessionUserService,
                 jsActionEntityRefactoringService,
                 newActionEntityRefactoringService,
                 actionCollectionEntityRefactoringService,
                 widgetEntityRefactoringService);
-    }
-
-    @Test
-    void testRefactorNameInDsl_whenRenamingTextWidget_replacesAllReferences() {
-        try (InputStream initialStream = this.getClass().getResourceAsStream("refactorDslWithOnlyWidgets.json");
-                InputStream finalStream =
-                        this.getClass().getResourceAsStream("refactorDslWithOnlyWidgetsWithNewText.json")) {
-            assert initialStream != null;
-            JsonNode dslAsJsonNode = mapper.readTree(initialStream);
-            final String oldName = "Text";
-            Mono<Set<String>> updatesMono = refactoringSolutionCE.refactorNameInDsl(
-                    dslAsJsonNode, oldName, "newText", 2, Pattern.compile(preWord + oldName + postWord));
-
-            StepVerifier.create(updatesMono)
-                    .assertNext(updatedPaths -> {
-                        Assertions.assertThat(updatedPaths).hasSize(3);
-                        Assertions.assertThat(updatedPaths)
-                                .containsExactlyInAnyOrder(
-                                        "Text.widgetName", "List1.template", "List1.onListItemClick");
-                    })
-                    .verifyComplete();
-
-            JsonNode finalDslAsJsonNode = mapper.readTree(finalStream);
-            Assertions.assertThat(dslAsJsonNode).isEqualTo(finalDslAsJsonNode);
-
-        } catch (IOException e) {
-            Assertions.fail("Unexpected IOException", e);
-        }
-    }
-
-    @Test
-    void testRefactorNameInDsl_whenRenamingListWidget_replacesTemplateReferences() {
-        try (InputStream initialStream = this.getClass().getResourceAsStream("refactorDslWithOnlyWidgets.json");
-                InputStream finalStream =
-                        this.getClass().getResourceAsStream("refactorDslWithOnlyWidgetsWithNewList.json")) {
-            assert initialStream != null;
-            JsonNode dslAsJsonNode = mapper.readTree(initialStream);
-            final String oldName = "List1";
-            Mono<Set<String>> updatesMono = refactoringSolutionCE.refactorNameInDsl(
-                    dslAsJsonNode, oldName, "newList", 2, Pattern.compile(preWord + oldName + postWord));
-
-            StepVerifier.create(updatesMono)
-                    .assertNext(updatedPaths -> {
-                        Assertions.assertThat(updatedPaths).hasSize(4);
-                        Assertions.assertThat(updatedPaths)
-                                .containsExactlyInAnyOrder(
-                                        "List1.widgetName",
-                                        "List1.template.Text4.text",
-                                        "List1.template.Image1.image",
-                                        "List1.template.Text.text");
-                    })
-                    .verifyComplete();
-
-            JsonNode finalDslAsJsonNode = mapper.readTree(finalStream);
-            Assertions.assertThat(dslAsJsonNode).isEqualTo(finalDslAsJsonNode);
-
-        } catch (IOException e) {
-            Assertions.fail("Unexpected IOException", e);
-        }
     }
 
     @Test

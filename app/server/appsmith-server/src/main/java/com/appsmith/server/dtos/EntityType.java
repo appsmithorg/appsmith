@@ -4,6 +4,5 @@ public enum EntityType {
     WIDGET,
     JS_ACTION,
     ACTION,
-    JS_OBJECT,
-    MODULE_INSTANCE
+    JS_OBJECT
 }

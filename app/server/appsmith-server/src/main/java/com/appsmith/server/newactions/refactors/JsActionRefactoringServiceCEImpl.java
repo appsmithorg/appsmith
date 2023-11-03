@@ -8,6 +8,7 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.EntityType;
 import com.appsmith.server.dtos.RefactorEntityNameDTO;
+import com.appsmith.server.dtos.RefactoringMetaDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.newactions.base.NewActionService;
@@ -55,6 +56,12 @@ public class JsActionRefactoringServiceCEImpl implements EntityRefactoringServic
     @Override
     public Mono<Boolean> validateName(String name) {
         return Mono.just(newActionService.validateActionName(name));
+    }
+
+    @Override
+    public Mono<Void> refactorReferencesInExistingEntities(
+            RefactorEntityNameDTO refactorEntityNameDTO, RefactoringMetaDTO refactoringMetaDTO) {
+        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
     }
 
     @Override
