@@ -59,10 +59,11 @@ function WidgetSelector({
         1,
       );
       parentArray.forEach((parentId) => {
-        prevSelectedWidgetIds.splice(
-          prevSelectedWidgetIds.indexOf(parentId),
-          1,
-        );
+        prevSelectedWidgetIds.includes(parentId) &&
+          prevSelectedWidgetIds.splice(
+            prevSelectedWidgetIds.indexOf(parentId),
+            1,
+          );
       });
     } else {
       // Node is not selected, so select it and all its children

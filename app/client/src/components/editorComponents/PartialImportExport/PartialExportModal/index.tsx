@@ -31,6 +31,7 @@ import styled from "styled-components";
 import EntityCheckboxSelector from "./EntityCheckboxSelector";
 import JSObjectsNQueriesExport from "./JSObjectsNQueriesExport";
 import WidgetsExport from "./WidgetsExport";
+import type { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureReducer";
 
 interface Props {
   handleModalClose: () => void;
@@ -163,8 +164,30 @@ const PartiaExportModel = ({ handleModalClose, isModalOpen }: Props) => {
     });
   };
 
+  const selectOnlyParentIds = (
+    widget: CanvasStructure,
+    ids: string[],
+    finalWidgetIDs: string[] = [],
+  ) => {
+    if (widget.widgetId && ids.includes(widget.widgetId)) {
+      finalWidgetIDs.push(widget.widgetId);
+      return finalWidgetIDs;
+    }
+    if (widget.children) {
+      widget.children.forEach((child) => {
+        selectOnlyParentIds(child, ids, finalWidgetIDs);
+      });
+    }
+    return finalWidgetIDs;
+  };
+
   const onExportClick = () => {
-    dispatch(partialExportWidgets(selectedParams));
+    dispatch(
+      partialExportWidgets({
+        ...selectedParams,
+        widgets: selectOnlyParentIds(canvasWidgets!, selectedParams.widgets),
+      }),
+    );
   };
 
   return (
