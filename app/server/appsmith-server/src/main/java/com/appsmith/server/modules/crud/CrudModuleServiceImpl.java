@@ -339,4 +339,13 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
 
         return updateObj;
     }
+
+    @Override
+    public Mono<Void> archiveModulesByPackageId(String packageId) {
+        return moduleRepository
+                .getAllModulesByPackageId(packageId, modulePermission.getDeletePermission())
+                .flatMap(toBeDeletedModule -> deleteModule(toBeDeletedModule.getId()))
+                .collectList()
+                .then();
+    }
 }

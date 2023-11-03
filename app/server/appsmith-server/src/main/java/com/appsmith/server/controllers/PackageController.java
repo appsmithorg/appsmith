@@ -12,6 +12,7 @@ import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -93,5 +94,14 @@ public class PackageController {
         return publishPackageService
                 .publishPackage(packageId)
                 .map(isPublished -> new ResponseDTO<>(HttpStatus.OK.value(), isPublished, null));
+    }
+
+    @JsonView(Views.Public.class)
+    @DeleteMapping("/{packageId}")
+    public Mono<ResponseDTO<PackageDTO>> deletePackage(@PathVariable String packageId) {
+        log.debug("Going to delete package {}", packageId);
+        return crudPackageService
+                .deletePackage(packageId)
+                .map(deletedPackage -> new ResponseDTO<>(HttpStatus.OK.value(), deletedPackage, null));
     }
 }

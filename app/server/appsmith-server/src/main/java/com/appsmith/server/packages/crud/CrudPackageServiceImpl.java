@@ -28,6 +28,7 @@ import org.bson.types.ObjectId;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.reactive.TransactionalOperator;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 
@@ -48,6 +49,7 @@ public class CrudPackageServiceImpl extends CrudPackageServiceCECompatibleImpl i
     private final PackagePermission packagePermission;
     private final CrudModuleService crudModuleService;
     private final SessionUserService sessionUserService;
+    private final TransactionalOperator transactionalOperator;
 
     public CrudPackageServiceImpl(
             PackageRepository packageRepository,
@@ -56,7 +58,8 @@ public class CrudPackageServiceImpl extends CrudPackageServiceCECompatibleImpl i
             PolicyGenerator policyGenerator,
             PackagePermission packagePermission,
             CrudModuleService crudModuleService,
-            SessionUserService sessionUserService) {
+            SessionUserService sessionUserService,
+            TransactionalOperator transactionalOperator) {
         super(packageRepository);
         this.packageRepository = packageRepository;
         this.workspaceService = workspaceService;
@@ -65,6 +68,7 @@ public class CrudPackageServiceImpl extends CrudPackageServiceCECompatibleImpl i
         this.packagePermission = packagePermission;
         this.crudModuleService = crudModuleService;
         this.sessionUserService = sessionUserService;
+        this.transactionalOperator = transactionalOperator;
     }
 
     @Override
@@ -181,6 +185,24 @@ public class CrudPackageServiceImpl extends CrudPackageServiceCECompatibleImpl i
                             .flatMap(updatedPackage -> setTransientFieldsFromPackageToPackageDTO(
                                     updatedPackage, updatedPackage.getUnpublishedPackage()));
                 });
+    }
+
+    @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_query_module_enabled)
+    public Mono<PackageDTO> deletePackage(String packageId) {
+        Mono<Package> packageMono = packageRepository
+                .findById(packageId, packagePermission.getDeletePermission())
+                .switchIfEmpty(Mono.error(
+                        new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PACKAGE_ID, packageId)))
+                .cache();
+
+        return packageMono.flatMap(aPackage -> {
+            return crudModuleService
+                    .archiveModulesByPackageId(packageId)
+                    .then(packageRepository.archiveById(aPackage.getId()))
+                    .as(transactionalOperator::transactional)
+                    .then(setTransientFieldsFromPackageToPackageDTO(aPackage, aPackage.getUnpublishedPackage()));
+        });
     }
 
     private Update prepareUpdatableFieldsForPackage(PackageDTO packageResource) {

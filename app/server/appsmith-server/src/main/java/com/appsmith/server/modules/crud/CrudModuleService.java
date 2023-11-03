@@ -23,4 +23,6 @@ public interface CrudModuleService extends BaseModuleService, CrudModuleServiceC
     Mono<ModuleDTO> deleteModule(String moduleId);
 
     Flux<Module> saveModuleInBulk(List<Module> modules);
+
+    Mono<Void> archiveModulesByPackageId(String packageId);
 }

@@ -19,4 +19,6 @@ public interface CrudPackageService extends BasePackageService, CrudPackageServi
     Mono<PackageDetailsDTO> getPackageDetails(String packageId);
 
     Mono<PackageDTO> updatePackage(PackageDTO packageResource, String packageId);
+
+    Mono<PackageDTO> deletePackage(String packageId);
 }

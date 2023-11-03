@@ -3,6 +3,7 @@ package com.appsmith.server.modules.services.crud;
 import com.appsmith.external.models.ModuleInput;
 import com.appsmith.external.models.ModuleType;
 import com.appsmith.server.configurations.CommonConfig;
+import com.appsmith.server.domains.Module;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ModuleActionDTO;
@@ -306,6 +307,170 @@ public class CrudModuleServiceTest {
                 .assertNext(moduleConsumables -> {
                     assertThat(moduleConsumables).isNotNull();
                     assertThat(moduleConsumables).size().isGreaterThanOrEqualTo(1);
+                })
+                .verifyComplete();
+    }
+
+    @WithUserDetails(value = "api_user")
+    @Test
+    public void testDeletePackageShouldPassWhenNoModuleHasAnyInstances() {
+        final PackageDTO aPackage = new PackageDTO();
+        aPackage.setName("PackagePublishableEntitiesNegativeTest");
+        aPackage.setColor("#C2DAF0");
+        aPackage.setIcon("rupee");
+
+        AtomicReference<String> packageId = new AtomicReference<>();
+        AtomicReference<PackageDTO> testPackageRef = new AtomicReference<>();
+
+        // create package
+        Mono<PackageDTO> firstPackageMono = crudPackageService.createPackage(aPackage, workspaceId);
+
+        StepVerifier.create(firstPackageMono)
+                .assertNext(createdPackage -> {
+                    assertThat(createdPackage.getId()).isNotEmpty();
+                    packageId.set(createdPackage.getId());
+                    testPackageRef.set(createdPackage);
+                    assertThat(createdPackage.getName()).isEqualTo(aPackage.getName());
+                })
+                .verifyComplete();
+
+        ModuleDTO moduleDTO = new ModuleDTO();
+        moduleDTO.setName("Module1");
+        moduleDTO.setType(ModuleType.QUERY_MODULE);
+        moduleDTO.setPackageId(packageId.get());
+
+        ModuleActionDTO moduleActionDTO = new ModuleActionDTO();
+
+        moduleDTO.setEntity(moduleActionDTO);
+
+        Mono<ModuleDTO> moduleMono = crudModuleService.createModule(moduleDTO);
+        AtomicReference<String> moduleIdRef = new AtomicReference<>();
+
+        StepVerifier.create(moduleMono)
+                .assertNext(createdModule -> {
+                    assertThat(createdModule.getId()).isNotEmpty();
+                    moduleIdRef.set(createdModule.getId());
+                    assertThat(createdModule.getName()).isEqualTo(moduleDTO.getName());
+                })
+                .verifyComplete();
+
+        ModuleDTO anotherModuleDTO = new ModuleDTO();
+        anotherModuleDTO.setName("Module2");
+        anotherModuleDTO.setType(ModuleType.QUERY_MODULE);
+        anotherModuleDTO.setPackageId(packageId.get());
+
+        ModuleActionDTO anotherModuleActionDTO = new ModuleActionDTO();
+
+        anotherModuleDTO.setEntity(anotherModuleActionDTO);
+
+        Mono<ModuleDTO> anotherModuleMono = crudModuleService.createModule(anotherModuleDTO);
+
+        StepVerifier.create(anotherModuleMono)
+                .assertNext(createdModule -> {
+                    assertThat(createdModule.getId()).isNotEmpty();
+                    assertThat(createdModule.getName()).isEqualTo(anotherModuleDTO.getName());
+                })
+                .verifyComplete();
+
+        Mono<PackageDTO> deletePackageMono = crudPackageService.deletePackage(packageId.get());
+
+        StepVerifier.create(deletePackageMono)
+                .assertNext(deletedPackage -> {
+                    assertThat(deletedPackage.getId()).isNotNull();
+                })
+                .verifyComplete();
+
+        Mono<List<Module>> allModulesMono =
+                crudModuleService.getAllModules(packageId.get()).collectList();
+
+        StepVerifier.create(allModulesMono)
+                .assertNext(allModules -> {
+                    assertThat(allModules.size()).isEqualTo(0);
+                })
+                .verifyComplete();
+    }
+
+    @WithUserDetails(value = "api_user")
+    @Test
+    public void testDeletePackageShouldFailWhenModuleHasInstances() {
+        final PackageDTO aPackage = new PackageDTO();
+        aPackage.setName("PackagePublishableEntitiesNegativeTest");
+        aPackage.setColor("#C2DAF0");
+        aPackage.setIcon("rupee");
+
+        AtomicReference<String> packageId = new AtomicReference<>();
+        AtomicReference<PackageDTO> testPackageRef = new AtomicReference<>();
+
+        // create package
+        Mono<PackageDTO> firstPackageMono = crudPackageService.createPackage(aPackage, workspaceId);
+
+        StepVerifier.create(firstPackageMono)
+                .assertNext(createdPackage -> {
+                    assertThat(createdPackage.getId()).isNotEmpty();
+                    packageId.set(createdPackage.getId());
+                    testPackageRef.set(createdPackage);
+                    assertThat(createdPackage.getName()).isEqualTo(aPackage.getName());
+                })
+                .verifyComplete();
+
+        ModuleDTO moduleDTO = new ModuleDTO();
+        moduleDTO.setName("Module1");
+        moduleDTO.setType(ModuleType.QUERY_MODULE);
+        moduleDTO.setPackageId(packageId.get());
+
+        ModuleActionDTO moduleActionDTO = new ModuleActionDTO();
+
+        moduleDTO.setEntity(moduleActionDTO);
+
+        Mono<ModuleDTO> moduleMono = crudModuleService.createModule(moduleDTO);
+        AtomicReference<String> moduleIdRef = new AtomicReference<>();
+
+        StepVerifier.create(moduleMono)
+                .assertNext(createdModule -> {
+                    assertThat(createdModule.getId()).isNotEmpty();
+                    moduleIdRef.set(createdModule.getId());
+                    assertThat(createdModule.getName()).isEqualTo(moduleDTO.getName());
+                })
+                .verifyComplete();
+
+        ModuleDTO anotherModuleDTO = new ModuleDTO();
+        anotherModuleDTO.setName("Module2");
+        anotherModuleDTO.setType(ModuleType.QUERY_MODULE);
+        anotherModuleDTO.setPackageId(packageId.get());
+
+        ModuleActionDTO anotherModuleActionDTO = new ModuleActionDTO();
+
+        anotherModuleDTO.setEntity(anotherModuleActionDTO);
+
+        Mono<ModuleDTO> anotherModuleMono = crudModuleService.createModule(anotherModuleDTO);
+
+        StepVerifier.create(anotherModuleMono)
+                .assertNext(createdModule -> {
+                    assertThat(createdModule.getId()).isNotEmpty();
+                    assertThat(createdModule.getName()).isEqualTo(anotherModuleDTO.getName());
+                })
+                .verifyComplete();
+
+        Mockito.doReturn(Mono.just(Long.valueOf(1)))
+                .when(moduleInstancePermissionChecker)
+                .getModuleInstanceCountByModuleId(moduleIdRef.get());
+
+        Mono<PackageDTO> deletePackageMono = crudPackageService.deletePackage(packageId.get());
+
+        StepVerifier.create(deletePackageMono)
+                .expectErrorMatches(throwable -> {
+                    assertThat(throwable.getMessage())
+                            .isEqualTo("Module cannot be deleted since it has 1 module instance(s) using it.");
+                    return true;
+                })
+                .verify();
+
+        Mono<List<Module>> allModulesMono =
+                crudModuleService.getAllModules(packageId.get()).collectList();
+
+        StepVerifier.create(allModulesMono)
+                .assertNext(allModules -> {
+                    assertThat(allModules.size()).isEqualTo(2);
                 })
                 .verifyComplete();
     }
