@@ -135,11 +135,7 @@ function ConnectionSuccess() {
         >
           {createMessage(START_USING_GIT)}
         </Button>
-        <Button
-          data-testid="t--start-using-git-button"
-          onClick={handleOpenSettings}
-          size="md"
-        >
+        <Button onClick={handleOpenSettings} size="md">
           {createMessage(OPEN_GIT_SETTINGS)}
         </Button>
       </ModalFooter>
