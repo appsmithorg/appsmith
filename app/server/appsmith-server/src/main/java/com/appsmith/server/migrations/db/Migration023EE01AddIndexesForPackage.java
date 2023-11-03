@@ -14,7 +14,7 @@ import static com.appsmith.server.migrations.DatabaseChangelog1.makeIndex;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 
 @Slf4j
-@ChangeUnit(order = "023-ee-01", id = "composite-indexes-on-pkg", author = " ")
+@ChangeUnit(order = "023-ee-01", id = "composite-indexes-on-package", author = " ")
 public class Migration023EE01AddIndexesForPackage {
     private final MongoTemplate mongoTemplate;
 
@@ -38,7 +38,8 @@ public class Migration023EE01AddIndexesForPackage {
                                 fieldName(QPackage.package$.workspaceId),
                                 "unpublishedPackage.name",
                                 fieldName(QPackage.package$.deletedAt),
-                                fieldName(QPackage.package$.deleted))
+                                fieldName(QPackage.package$.deleted),
+                                fieldName(QPackage.package$.lastPublishedAt))
                         .unique()
                         .named(workspace_pkg_name_deleted_at_uindex));
 

@@ -12,11 +12,13 @@ import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static com.appsmith.server.constants.Constraint.NO_RECORD_LIMIT;
+import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Component
 @Slf4j
@@ -52,10 +54,39 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
     }
 
     @Override
-    public Flux<NewAction> findAllByModuleId(String moduleId) {
+    public Flux<NewAction> findAllNonJSActionsByModuleId(String moduleId) {
+        List<Criteria> criteria = new ArrayList<>();
+
         String moduleIdPath = fieldName(QNewAction.newAction.unpublishedAction) + "."
                 + fieldName(QNewAction.newAction.unpublishedAction.moduleId);
         Criteria moduleIdCriteria = Criteria.where(moduleIdPath).is(moduleId);
-        return queryAll(List.of(moduleIdCriteria), Optional.empty());
+
+        Criteria nonJsTypeCriteria =
+                where(fieldName(QNewAction.newAction.pluginType)).ne(PluginType.JS);
+
+        criteria.add(moduleIdCriteria);
+        criteria.add(nonJsTypeCriteria);
+        return queryAll(criteria, Optional.empty());
+    }
+
+    @Override
+    public Mono<NewAction> findPublicActionByModuleId(String moduleId) {
+        List<Criteria> criteria = new ArrayList<>();
+
+        String moduleIdPath = fieldName(QNewAction.newAction.unpublishedAction) + "."
+                + fieldName(QNewAction.newAction.unpublishedAction.moduleId);
+        Criteria moduleIdCriteria = Criteria.where(moduleIdPath).is(moduleId);
+
+        Criteria nonJsTypeCriteria =
+                where(fieldName(QNewAction.newAction.pluginType)).ne(PluginType.JS);
+
+        Criteria isPublicCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "."
+                        + fieldName(QNewAction.newAction.unpublishedAction.isPublic))
+                .is(Boolean.TRUE);
+
+        criteria.add(moduleIdCriteria);
+        criteria.add(nonJsTypeCriteria);
+        criteria.add(isPublicCriteria);
+        return queryOne(criteria);
     }
 }

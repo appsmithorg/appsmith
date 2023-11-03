@@ -3,19 +3,20 @@ package com.appsmith.server.modules.services.crud;
 import com.appsmith.external.models.ModuleInput;
 import com.appsmith.external.models.ModuleType;
 import com.appsmith.server.configurations.CommonConfig;
-import com.appsmith.server.domains.Package;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ModuleActionDTO;
 import com.appsmith.server.dtos.ModuleDTO;
+import com.appsmith.server.dtos.PackageDTO;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.ModuleConsumable;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.moduleinstances.services.permissions.ModuleInstancePermissionChecker;
-import com.appsmith.server.modules.services.crud.entity.CrudModuleEntityService;
-import com.appsmith.server.packages.services.crud.CrudPackageService;
-import com.appsmith.server.packages.services.permissions.PackagePermissionChecker;
+import com.appsmith.server.modules.crud.CrudModuleService;
+import com.appsmith.server.modules.crud.entity.CrudModuleEntityService;
+import com.appsmith.server.packages.crud.CrudPackageService;
+import com.appsmith.server.packages.permissions.PackagePermissionChecker;
 import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserService;
@@ -92,7 +93,7 @@ public class CrudModuleServiceTest {
     static String workspaceId;
     static String defaultEnvironmentId;
     static String packageId;
-    static Package testPackage = null;
+    static PackageDTO testPackage = null;
 
     @BeforeEach
     @WithUserDetails(value = "api_user")
@@ -132,7 +133,7 @@ public class CrudModuleServiceTest {
 
     public void setupTestPackage() {
         if (testPackage == null) {
-            Package newPackage = new Package();
+            PackageDTO newPackage = new PackageDTO();
             newPackage.setName(UUID.randomUUID().toString());
             newPackage.setColor("#C2DAF0");
             newPackage.setIcon("rupee");

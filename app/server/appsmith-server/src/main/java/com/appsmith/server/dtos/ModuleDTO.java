@@ -57,11 +57,9 @@ public class ModuleDTO implements Identifiable {
     @JsonView(Views.Public.class)
     Map<String, ModuleInput> inputs;
 
-    // Variants of publicEntity { Query module : ActionDTO, JS module: ActionCollectionDTO,
+    // Public entity is created along with the creation of module. Variants of publicEntity { Query module : ActionDTO,
+    // JS module: ActionCollectionDTO,
     // UI module: Layout}
-    @JsonView(Views.Public.class)
-    String publicEntityId;
-
     @Transient
     @JsonView(Views.Public.class)
     ModuleConsumable entity;

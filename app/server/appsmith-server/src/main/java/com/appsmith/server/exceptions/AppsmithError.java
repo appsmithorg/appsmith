@@ -1165,7 +1165,16 @@ public enum AppsmithError {
             AppsmithErrorAction.DEFAULT,
             "Access token could not be updated.",
             ErrorType.AUTHENTICATION_ERROR,
-            null);
+            null),
+    PACKAGE_CANNOT_BE_PUBLISHED(
+            400,
+            AppsmithErrorCode.PACKAGE_CANNOT_BE_PUBLISHED.getCode(),
+            "Package {0} cannot be published because it doesn''t have any modules",
+            AppsmithErrorAction.DEFAULT,
+            "Package cannot be published",
+            ErrorType.BAD_REQUEST,
+            null),
+    ;
 
     private final Integer httpErrorCode;
     private final String appErrorCode;

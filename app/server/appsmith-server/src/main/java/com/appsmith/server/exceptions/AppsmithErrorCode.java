@@ -151,6 +151,7 @@ public enum AppsmithErrorCode {
     NO_IMPLEMENTATION_EXCEPTION("AE-NI-4000", "No implementation exception"),
     MODULE_HAS_INSTANCES("AE-MOD-4090", "Module has instances"),
     UPDATE_ACCESS_TOKEN_FAILED("AE-OIDC-4000", "Updating access token failed"),
+    PACKAGE_CANNOT_BE_PUBLISHED("AE-PKG-4000", "Package cannot be published"),
     DATASOURCE_CONNECTION_RATE_LIMIT_BLOCKING_FAILED(
             "AE-TMR-4031", "Rate limit exhausted, blocking the host name failed");
     private final String code;

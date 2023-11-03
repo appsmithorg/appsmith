@@ -288,10 +288,27 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
     public Mono<List<ActionDTO>> getAllUnpublishedModuleActions(String moduleId) {
 
         return repository
-                .findAllByModuleId(moduleId)
+                .findAllNonJSActionsByModuleId(moduleId)
                 .collectList()
                 .flatMapMany(this::addMissingPluginDetailsIntoAllActions)
                 .flatMap(newAction -> generateActionByViewMode(newAction, false))
                 .collectList();
+    }
+
+    @Override
+    public Mono<List<NewAction>> archiveActionsByModuleId(String moduleId) {
+        return repository
+                .findAllNonJSActionsByModuleId(moduleId)
+                .flatMap(repository::archive)
+                .onErrorResume(throwable -> {
+                    log.error(throwable.getMessage());
+                    return Mono.empty();
+                })
+                .collectList();
+    }
+
+    @Override
+    public Mono<NewAction> findPublicActionByModuleId(String moduleId) {
+        return repository.findPublicActionByModuleId(moduleId);
     }
 }
