@@ -1,15 +1,23 @@
 import React, { useCallback } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Button, Text } from "design-system";
 import styled from "styled-components";
 import { refreshDatasourceStructure } from "actions/datasourceActions";
-import { SCHEMA_LABEL, createMessage } from "@appsmith/constants/messages";
+import {
+  GSHEET_SPREADSHEET_LABEL,
+  SCHEMA_LABEL,
+  createMessage,
+} from "@appsmith/constants/messages";
+import type { Datasource } from "entities/Datasource";
 import { DatasourceStructureContext } from "entities/Datasource";
+import { getPluginPackageNameFromId } from "@appsmith/selectors/entitiesSelector";
+import { isGoogleSheetPluginDS } from "utils/editorContextUtils";
 
 interface Props {
-  datasourceId: string;
+  datasource?: Datasource;
   onRefreshCallback?: () => void;
   paddingBottom?: boolean;
+  refetchFn?: () => void;
 }
 
 const HeaderWrapper = styled.div<{ paddingBottom: boolean }>`
@@ -24,19 +32,31 @@ export default function DatasourceStructureHeader(props: Props) {
   const dispatch = useDispatch();
 
   const dispatchRefresh = useCallback(
-    (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-      event.stopPropagation();
-      dispatch(
-        refreshDatasourceStructure(
-          props.datasourceId,
-          DatasourceStructureContext.QUERY_EDITOR,
-        ),
-      );
+    (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+      if (props.datasource?.id) {
+        event.stopPropagation();
 
-      !!props.onRefreshCallback && props.onRefreshCallback();
+        if (props.refetchFn) {
+          props.refetchFn();
+        } else {
+          dispatch(
+            refreshDatasourceStructure(
+              props.datasource?.id,
+              DatasourceStructureContext.QUERY_EDITOR,
+            ),
+          );
+        }
+
+        !!props.onRefreshCallback && props.onRefreshCallback();
+      }
     },
-    [dispatch, props.datasourceId],
+    [dispatch, props.datasource?.id],
   );
+
+  const pluginPackageName = useSelector((state) =>
+    getPluginPackageNameFromId(state, props.datasource?.pluginId || ""),
+  );
+  const isGoogleSheetPlugin = isGoogleSheetPluginDS(pluginPackageName);
 
   return (
     <HeaderWrapper
@@ -44,7 +64,9 @@ export default function DatasourceStructureHeader(props: Props) {
       paddingBottom={!!props.paddingBottom}
     >
       <Text kind="heading-xs" renderAs="h3">
-        {createMessage(SCHEMA_LABEL)}
+        {createMessage(
+          isGoogleSheetPlugin ? GSHEET_SPREADSHEET_LABEL : SCHEMA_LABEL,
+        )}
       </Text>
       <Button
         className="datasourceStructure-refresh"

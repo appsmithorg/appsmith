@@ -1903,6 +1903,11 @@ export const ERR_FETCHING_DATASOURCE_PREVIEW_DATA = () =>
 export const FETCHING_DATASOURCE_PREVIEW_DATA = () => "Loading data";
 export const SCHEMA_PREVIEW_NO_DATA = () =>
   "No data records to show or the table header begins with an index other than 1";
+export const GSHEET_SPREADSHEET_LABEL = () => "Spreadsheets";
+export const GSHEET_SPREADSHEET_LOADING = () => "Loading Spreadsheets";
+export const GSHEET_SHEET_LOADING = () => "Loading Sheets";
+export const GSHEET_DATA_LOADING = () => "Loading attributes";
+export const GSHEET_SEARCH_PLACEHOLDER = () => "Search for spreadsheet";
 
 //Layout Conversion flow
 export const CONVERT = () => "Convert layout";
@@ -2161,6 +2166,8 @@ export const COMMUNITY_TEMPLATES = {
 export const EMPTY_TABLE_TITLE_TEXT = () => "Empty table";
 export const EMPTY_TABLE_MESSAGE_TEXT = () =>
   "There are no data records to show";
+export const LOADING_RECORDS_TITLE_TEXT = () => "Loading records";
+export const LOADING_RECORDS_MESSAGE_TEXT = () => "This may take a few seconds";
 export const EMPTY_TABLE_SVG_ALT_TEXT = () => "Empty table image";
 
 export const DATA_PANE_TITLE = () => "Datasources in your Workspace";
