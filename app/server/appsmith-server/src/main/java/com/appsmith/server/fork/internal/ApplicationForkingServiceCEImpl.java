@@ -652,7 +652,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                 .flatMap(branchedApplicationId ->
                         applicationService.findById(branchedApplicationId, optionalAclPermission))
                 .switchIfEmpty(Mono.error(new AppsmithException(
-                        AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, srcApplicationId)))
+                        AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, srcApplicationId)))
                 .cache();
 
         // For sample apps that are marked as forked, we allow forking to any workspace without any permission checks
