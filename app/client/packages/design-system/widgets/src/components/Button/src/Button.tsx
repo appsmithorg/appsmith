@@ -47,10 +47,12 @@ const _Button = (props: ButtonProps, ref: HeadlessButtonRef) => {
           )}
         </span>
 
-        <span aria-hidden={!isLoading ? true : undefined} data-loader="">
-          <Spinner />
-          <span {...visuallyHiddenProps}>{loadingText}</span>
-        </span>
+        {isLoading && (
+          <span aria-hidden={!isLoading ? true : undefined} data-loader="">
+            <Spinner />
+            <span {...visuallyHiddenProps}>{loadingText}</span>
+          </span>
+        )}
       </>
     );
   };
