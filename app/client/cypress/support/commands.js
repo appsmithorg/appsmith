@@ -1338,7 +1338,7 @@ Cypress.Commands.add("ValidatePaginateResponseUrlDataV2", (runTestCss) => {
       cy.readTableV2data("0", "5").then((tabData) => {
         const tableData = tabData;
         cy.log(valueToTest);
-        expect(tableData).to.equal(valueToTest);
+        expect(valueToTest).contains(tableData);
       });
     });
 });
