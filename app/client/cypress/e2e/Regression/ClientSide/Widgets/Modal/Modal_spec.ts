@@ -22,7 +22,7 @@ describe("Modal Widget test cases", function () {
     entityExplorer.SelectEntityByName("Button1");
     propPane.EnterJSContext("onClick", "{{showModal('Modal1');}}");
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.BUTTON));
-    agHelper.Sleep(); //Wait for widgets to settle
+    agHelper.Sleep(2000); //Wait for widgets to settle
 
     //Verify that the Modal widget opens correctly when configured on a button click.
     agHelper.ClickButton("Submit");

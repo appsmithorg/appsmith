@@ -370,7 +370,9 @@ export const getDBPlugins = createSelector(getPlugins, (plugins) =>
 export const getDBAndRemotePlugins = createSelector(getPlugins, (plugins) =>
   plugins.filter(
     (plugin) =>
-      plugin.type === PluginType.DB || plugin.type === PluginType.REMOTE,
+      plugin.type === PluginType.DB ||
+      plugin.type === PluginType.REMOTE ||
+      plugin.type === PluginType.AI,
   ),
 );
 

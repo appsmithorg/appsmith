@@ -98,13 +98,14 @@ podAnnotations: {}
 podLabels: {}
 
 podSecurityContext: {}
-  # fsGroup: 2000
+# For non-root user
+#  fsGroup: 1001
+#  sysctls:
+#  - name: net.ipv4.ip_unprivileged_port_start
+#    value: "80"
 
 securityContext: {}
-  # capabilities:
-  #   drop:
-  #   - ALL
-  # readOnlyRootFilesystem: true
+  # For non-root user
   # runAsNonRoot: true
   # runAsUser: 1000
 

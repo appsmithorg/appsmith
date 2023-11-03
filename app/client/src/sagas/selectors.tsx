@@ -85,6 +85,7 @@ export const getWidgetOptionsTree = memoize((state: AppState) =>
         label: w.widgetName,
         id: w.widgetName,
         value: `"${w.widgetName}"`,
+        type: w.type,
       };
     }),
 );
