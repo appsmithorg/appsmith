@@ -5,7 +5,6 @@ import type {
   WidgetEntityConfig as TWidgetEntityConfig,
   JSActionEntity as TJSActionEntity,
   ActionEntity as TActionEntity,
-  PagelistEntity as TPageListEntity,
   ActionEntityConfig as TActionEntityConfig,
   JSActionEntityConfig as TJSActionEntityConfig,
 } from "@appsmith/entities/DataTree/types";
@@ -19,10 +18,8 @@ import { JSEntity } from "plugins/Linting/lib/entity/JSActionEntity";
 import { ActionEntity } from "plugins/Linting/lib/entity/ActionEntity";
 import { AppsmithEntity } from "plugins/Linting/lib/entity/AppsmithEntity";
 import { WidgetEntity } from "plugins/Linting/lib/entity/WidgetEntity";
-import { PagelistEntity } from "plugins/Linting/lib/entity/PagelistEntity";
 import {
   isAction,
-  isAppsmithEntity as isAppsmith,
   isJSAction,
   isWidget,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
@@ -56,15 +53,13 @@ export default class EntityFactory {
         new Parser(),
         new DiffGenerator(),
       );
-    } else if (isAppsmith(entity)) {
+    } else {
       return new AppsmithEntity(
         entity as TAppsmithEntity,
         undefined,
         new Parser(),
         new DiffGenerator(),
       );
-    } else {
-      return new PagelistEntity(entity as TPageListEntity, undefined);
     }
   }
 }
@@ -80,7 +75,4 @@ export function isAppsmithEntity(entity: IEntity): entity is AppsmithEntity {
 }
 export function isWidgetEntity(entity: IEntity): entity is WidgetEntity {
   return entity.getType() === ENTITY_TYPE.WIDGET;
-}
-export function isPagelistEntity(entity: IEntity): entity is PagelistEntity {
-  return entity.getType() === ENTITY_TYPE.PAGELIST;
 }
