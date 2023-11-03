@@ -148,6 +148,7 @@ function Pages() {
           <PageContextMenu
             applicationId={applicationId as string}
             className={EntityClassNames.CONTEXT_MENU}
+            isCurrentPage={isCurrentPage}
             isDefaultPage={page.isDefault}
             isHidden={!!page.isHidden}
             key={page.pageId + "_context-menu"}

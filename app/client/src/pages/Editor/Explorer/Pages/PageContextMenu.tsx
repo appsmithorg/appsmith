@@ -50,6 +50,7 @@ export function PageContextMenu(props: {
   name: string;
   applicationId: string;
   className?: string;
+  isCurrentPage: boolean;
   isDefaultPage: boolean;
   isHidden: boolean;
 }) {
@@ -190,12 +191,12 @@ export function PageContextMenu(props: {
         value: "setdefault",
         label: createMessage(CONTEXT_SET_AS_HOME_PAGE),
       },
-    {
+    props.isCurrentPage && {
       value: "partial-export",
       onSelect: openPartialExportModal,
       label: createMessage(CONTEXT_PARTIAL_EXPORT),
     },
-    {
+    props.isCurrentPage && {
       value: "partial-import",
       onSelect: onPartialImportClick,
       label: createMessage(CONTEXT_PARTIAL_IMPORT),
