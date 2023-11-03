@@ -1,5 +1,5 @@
 import React from "react";
-import WidgetsEditorEntityExplorer from "../WidgetsEditorEntityExplorer";
+import WidgetsEditorEntityExplorer from "../../WidgetsEditorEntityExplorer";
 import { useSelector } from "react-redux";
 import { getIsAppSidebarEnabled } from "selectors/ideSelectors";
 import styled from "styled-components";
@@ -15,25 +15,23 @@ import {
 } from "constants/routes";
 import AppSettingsPane from "./AppSettings";
 import DataSidePane from "./DataSidePane";
+import LibrarySidePane from "./LibrarySidePane";
 
-const SidePaneContainer = styled.div`
+const LeftPaneContainer = styled.div`
   height: 100%;
-  min-width: 250px;
+  min-width: 150px;
   border-right: 1px solid var(--ads-v2-color-border);
+  background: var(--ads-v2-color-bg);
 `;
 
-const PlaceholderSidePane = styled.div`
-  height: 100%;
-`;
-
-const IDESidePane = () => {
+const LeftPane = () => {
   const isAppSidebarEnabled = useSelector(getIsAppSidebarEnabled);
   const { path } = useRouteMatch();
   if (!isAppSidebarEnabled) {
     return <WidgetsEditorEntityExplorer />;
   }
   return (
-    <SidePaneContainer>
+    <LeftPaneContainer>
       <Switch>
         <SentryRoute
           component={DataSidePane}
@@ -46,7 +44,7 @@ const IDESidePane = () => {
           ]}
         />
         <SentryRoute
-          component={PlaceholderSidePane}
+          component={LibrarySidePane}
           exact
           path={`${path}${APP_LIBRARIES_EDITOR_PATH}`}
         />
@@ -57,8 +55,8 @@ const IDESidePane = () => {
         />
         <SentryRoute component={WidgetsEditorEntityExplorer} />
       </Switch>
-    </SidePaneContainer>
+    </LeftPaneContainer>
   );
 };
 
-export default IDESidePane;
+export default LeftPane;
