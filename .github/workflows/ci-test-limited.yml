@@ -374,6 +374,13 @@ jobs:
           name: cypress-console-logs
           path: ${{ github.workspace }}/app/client/cypress/cypress-logs
 
+      - name: Upload cypress snapshots
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: snapshots
+          path: ${{ github.workspace }}/app/client/cypress/snapshots
+
       - name: Collect CI container logs
         if: failure()
         working-directory: "."
