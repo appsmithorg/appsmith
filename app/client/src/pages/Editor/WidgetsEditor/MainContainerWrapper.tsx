@@ -136,7 +136,7 @@ function MainContainerWrapper(props: MainCanvasWrapperProps) {
   const selectedTheme = useSelector(getSelectedAppTheme);
   const params = useParams<{ applicationId: string; pageId: string }>();
   const shouldHaveTopMargin =
-    !(isPreviewMode || isProtectedMode) ||
+    (!isPreviewMode && !isProtectedMode) ||
     !isAppSettingsPaneWithNavigationTabOpen ||
     pages.length > 1;
   const isAppThemeChanging = useSelector(getAppThemeIsChanging);
@@ -185,7 +185,7 @@ function MainContainerWrapper(props: MainCanvasWrapperProps) {
   }
 
   const isPreviewingNavigation =
-    isPreviewMode || isProtectedMode || isAppSettingsPaneWithNavigationTabOpen;
+    isPreviewMode || isAppSettingsPaneWithNavigationTabOpen;
 
   /**
    * calculating exact height to not allow scroll at this component,
@@ -231,6 +231,7 @@ function MainContainerWrapper(props: MainCanvasWrapperProps) {
             shouldHaveTopMargin &&
             !showCanvasTopSection &&
             !isPreviewingNavigation &&
+            !isProtectedMode &&
             !showAnonymousDataPopup,
           "mt-24": shouldShowSnapShotBanner,
         })}

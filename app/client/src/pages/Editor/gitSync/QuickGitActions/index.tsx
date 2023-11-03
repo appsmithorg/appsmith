@@ -179,7 +179,7 @@ const getQuickActionButtons = ({
     {
       className: "t--bottom-bar-commit",
       disabled: isProtectedMode,
-      count: isProtectedMode ? undefined : changesToCommit,
+      count: changesToCommit,
       icon: "plus",
       loading: isFetchingGitStatus,
       onClick: commit,

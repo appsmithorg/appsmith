@@ -5,6 +5,7 @@ import {
   UPDATE,
   createMessage,
 } from "@appsmith/constants/messages";
+import { isCEMode } from "@appsmith/utils";
 import { updateGitProtectedBranchesInit } from "actions/gitSyncActions";
 import { Button, Link, Option, Select, Text } from "design-system";
 import { xor } from "lodash";
@@ -17,9 +18,6 @@ import {
   getProtectedBranchesSelector,
 } from "selectors/gitSyncSelectors";
 import styled from "styled-components";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import { useAppsmithEnterpriseLink } from "./hooks";
 
 const Container = styled.div`
   padding-top: 16px;
@@ -48,28 +46,18 @@ const StyledSelect = styled(Select)`
   margin-right: 12px;
 `;
 
-const StyledLink = styled(Link)`
-  display: inline-flex;
-`;
-
 function GitProtectedBranches() {
+  const isCE = isCEMode();
   const dispatch = useDispatch();
 
   const unfilteredBranches = useSelector(getGitBranches);
   const branches = unfilteredBranches.filter(
     (b) => !b.branchName.includes("origin/"),
   );
-  const isGitProtectedFeatureLicensed = useFeatureFlag(
-    FEATURE_FLAG.license_git_branch_protection_enabled,
-  );
   const defaultBranch = useSelector(getDefaultGitBranchName);
   const protectedBranches = useSelector(getProtectedBranchesSelector);
   const isUpdateLoading = useSelector(getIsUpdateProtectedBranchesLoading);
   const [selectedValues, setSelectedValues] = useState<string[]>();
-
-  const enterprisePricingLink = useAppsmithEnterpriseLink(
-    "git_branch_protection",
-  );
 
   useEffect(() => {
     setSelectedValues(protectedBranches);
@@ -98,22 +86,20 @@ function GitProtectedBranches() {
         <SectionDesc kind="body-m" renderAs="p">
           {createMessage(BRANCH_PROTECTION_DESC)}
         </SectionDesc>
-        {!isGitProtectedFeatureLicensed && (
-          <SectionDesc kind="body-m" renderAs="p">
-            To protect multiple branches, try{" "}
-            <StyledLink
-              kind="primary"
-              target="_blank"
-              to={enterprisePricingLink}
-            >
-              {createMessage(APPSMITH_ENTERPRISE)}
-            </StyledLink>
-          </SectionDesc>
-        )}
+        <SectionDesc kind="body-m" renderAs="p">
+          To protect multiple branches, try{" "}
+          <Link
+            kind="primary"
+            style={{ display: "inline-flex" }}
+            target="_blank"
+            to="https://www.appsmith.com/enterprise?lead_source=git%20feat%20branch%20config"
+          >
+            {createMessage(APPSMITH_ENTERPRISE)}
+          </Link>
+        </SectionDesc>
       </HeadContainer>
       <BodyContainer>
         <StyledSelect
-          data-testid="t--git-protected-branches-select"
           isMultiSelect
           maxTagTextLength={8}
           onChange={(v) => setSelectedValues(v)}
@@ -121,9 +107,7 @@ function GitProtectedBranches() {
         >
           {branches.map((b) => (
             <Option
-              disabled={
-                !isGitProtectedFeatureLicensed && b.branchName !== defaultBranch
-              }
+              disabled={isCE && b.branchName !== defaultBranch}
               key={b.branchName}
               value={b.branchName}
             >
@@ -132,7 +116,6 @@ function GitProtectedBranches() {
           ))}
         </StyledSelect>
         <Button
-          data-testid="t--git-protected-branches-update-btn"
           isDisabled={updateIsDisabled}
           isLoading={isUpdateLoading}
           kind="secondary"

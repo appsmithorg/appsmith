@@ -115,6 +115,7 @@ export function EditorHeader() {
   );
   const isPreviewingApp =
     isPreviewMode || isAppSettingsPaneWithNavigationTabOpen;
+  const isProtectedMode = useSelector(protectedModeSelector);
 
   const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false);
   const [showModal, setShowModal] = useState(false);

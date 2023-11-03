@@ -8,7 +8,6 @@ import {
   BRANCH_PROTECTION_RULE_1,
   BRANCH_PROTECTION_RULE_2,
   BRANCH_PROTECTION_RULE_3,
-  GIT_CONNECT_SUCCESS_MESSAGE,
   GIT_CONNECT_SUCCESS_TITLE,
   OPEN_GIT_SETTINGS,
   START_USING_GIT,
@@ -21,10 +20,7 @@ import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 import { getCurrentAppGitMetaData } from "@appsmith/selectors/applicationSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import {
-  getDefaultGitBranchName,
-  getIsGitProtectedFeatureEnabled,
-} from "selectors/gitSyncSelectors";
+import { getDefaultGitBranchName } from "selectors/gitSyncSelectors";
 
 const Container = styled.div``;
 
@@ -57,18 +53,6 @@ const FeatureIcon = styled(Icon)`
   margin-right: 4px;
 `;
 
-const BranchTag = styled(Tag)`
-  display: inline-flex;
-`;
-
-const DefaultBranchMessage = styled(Text)`
-  margin-bottom: 16px;
-`;
-
-const ProtectionRulesTitle = styled(Text)`
-  margin-bottom: 8px;
-`;
-
 const features = [
   createMessage(BRANCH_PROTECTION_RULE_1),
   createMessage(BRANCH_PROTECTION_RULE_2),
@@ -78,9 +62,6 @@ const features = [
 function ConnectionSuccess() {
   const gitMetadata = useSelector(getCurrentAppGitMetaData);
   const defaultBranchName = useSelector(getDefaultGitBranchName);
-  const isGitProtectedFeatureEnabled = useSelector(
-    getIsGitProtectedFeatureEnabled,
-  );
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -110,55 +91,42 @@ function ConnectionSuccess() {
     });
   };
 
-  const preBranchProtectionContent = () => {
-    return (
-      <Text renderAs="p">{createMessage(GIT_CONNECT_SUCCESS_MESSAGE)}</Text>
-    );
-  };
-
-  const postBranchProtectionContent = () => {
-    return (
-      <>
-        <DefaultBranchMessage renderAs="p">
-          Right now,{" "}
-          <BranchTag isClosable={false}>{defaultBranchName}</BranchTag> is set
-          as the default branch and it is protected.
-        </DefaultBranchMessage>
-        <ProtectionRulesTitle renderAs="p">
-          {createMessage(BRANCH_PROTECTION_RULES_AS_FOLLOWS)}
-        </ProtectionRulesTitle>
-        <FeatureList>
-          {features.map((feature) => (
-            <FeatureItem key={feature}>
-              <FeatureIcon
-                color="var(--ads-v2-color-blue-600)"
-                name="oval-check"
-                size="md"
-              />
-              <Text>{feature}</Text>
-            </FeatureItem>
-          ))}
-        </FeatureList>
-        <Text>{createMessage(BRANCH_PROTECTION_CHANGE_RULE)}</Text>
-      </>
-    );
-  };
-
-  const preBranchProtectionActions = () => {
-    return (
-      <Button
-        data-testid="t--start-using-git-button"
-        onClick={handleStartGit}
-        size="md"
-      >
-        {createMessage(START_USING_GIT)}
-      </Button>
-    );
-  };
-
-  const postBranchProtectionActions = () => {
-    return (
-      <>
+  return (
+    <>
+      <ModalBody>
+        <Container>
+          <TitleContainer>
+            <StyledIcon color="#059669" name="oval-check" size="lg" />
+            <TitleText kind="heading-s" renderAs="h3">
+              {createMessage(GIT_CONNECT_SUCCESS_TITLE)}
+            </TitleText>
+          </TitleContainer>
+          <Text renderAs="p" style={{ marginBottom: 16 }}>
+            Right now,{" "}
+            <Tag isClosable={false} style={{ display: "inline-flex" }}>
+              {defaultBranchName}
+            </Tag>{" "}
+            is set as the default branch and it is protected.
+          </Text>
+          <Text renderAs="p" style={{ marginBottom: 8 }}>
+            {createMessage(BRANCH_PROTECTION_RULES_AS_FOLLOWS)}
+          </Text>
+          <FeatureList>
+            {features.map((feature) => (
+              <FeatureItem key={feature}>
+                <FeatureIcon
+                  color="var(--ads-v2-color-blue-600)"
+                  name="oval-check"
+                  size="md"
+                />
+                <Text>{feature}</Text>
+              </FeatureItem>
+            ))}
+          </FeatureList>
+          <Text>{createMessage(BRANCH_PROTECTION_CHANGE_RULE)}</Text>
+        </Container>
+      </ModalBody>
+      <ModalFooter>
         <Button
           data-testid="t--start-using-git-button"
           kind="secondary"
@@ -170,29 +138,6 @@ function ConnectionSuccess() {
         <Button onClick={handleOpenSettings} size="md">
           {createMessage(OPEN_GIT_SETTINGS)}
         </Button>
-      </>
-    );
-  };
-
-  return (
-    <>
-      <ModalBody>
-        <Container>
-          <TitleContainer>
-            <StyledIcon color="#059669" name="oval-check" size="lg" />
-            <TitleText kind="heading-s" renderAs="h3">
-              {createMessage(GIT_CONNECT_SUCCESS_TITLE)}
-            </TitleText>
-          </TitleContainer>
-          {isGitProtectedFeatureEnabled
-            ? postBranchProtectionContent()
-            : preBranchProtectionContent()}
-        </Container>
-      </ModalBody>
-      <ModalFooter>
-        {isGitProtectedFeatureEnabled
-          ? postBranchProtectionActions()
-          : preBranchProtectionActions()}
       </ModalFooter>
     </>
   );

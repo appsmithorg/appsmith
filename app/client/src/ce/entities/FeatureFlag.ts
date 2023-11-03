@@ -30,8 +30,6 @@ export const FEATURE_FLAG = {
   release_app_sidebar_enabled: "release_app_sidebar_enabled",
   release_git_branch_protection_enabled:
     "release_git_branch_protection_enabled",
-  license_git_branch_protection_enabled:
-    "license_git_branch_protection_enabled",
   license_widget_rtl_support_enabled: "license_widget_rtl_support_enabled",
 } as const;
 
@@ -62,7 +60,6 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   ab_show_templates_instead_of_blank_canvas_enabled: false,
   release_app_sidebar_enabled: false,
   release_git_branch_protection_enabled: false,
-  license_git_branch_protection_enabled: false,
   license_widget_rtl_support_enabled: false,
 };
 

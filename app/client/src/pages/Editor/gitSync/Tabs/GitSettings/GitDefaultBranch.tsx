@@ -6,14 +6,12 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import { updateGitDefaultBranch } from "actions/gitSyncActions";
+import { isCEMode } from "@appsmith/utils";
 import { Button, Link, Option, Select, Text } from "design-system";
 import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getGitBranches } from "selectors/gitSyncSelectors";
 import styled from "styled-components";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import { useAppsmithEnterpriseLink } from "./hooks";
 
 const Container = styled.div`
   padding-top: 16px;
@@ -43,10 +41,9 @@ const StyledSelect = styled(Select)`
 `;
 
 function GitDefaultBranch() {
+  const isCE = isCEMode();
+
   const dispatch = useDispatch();
-  const isGitProtectedFeatureLicensed = useFeatureFlag(
-    FEATURE_FLAG.license_git_branch_protection_enabled,
-  );
   const unfilteredBranches = useSelector(getGitBranches);
   const [selectedValue, setSelectedValue] = useState<string | undefined>();
 
@@ -54,10 +51,6 @@ function GitDefaultBranch() {
     const defaultBranch = unfilteredBranches.find((b) => b.default);
     return defaultBranch?.branchName;
   }, [unfilteredBranches]);
-
-  const enterprisePricingLink = useAppsmithEnterpriseLink(
-    "git_branch_protection",
-  );
 
   useEffect(() => {
     const defaultBranch = unfilteredBranches.find((b) => b.default);
@@ -75,7 +68,7 @@ function GitDefaultBranch() {
   };
 
   const updateIsDisabled =
-    !selectedValue || selectedValue === currentDefaultBranch;
+    isCE && (!selectedValue || selectedValue === currentDefaultBranch);
 
   return (
     <Container>
@@ -86,24 +79,21 @@ function GitDefaultBranch() {
         <SectionDesc kind="body-m" renderAs="p">
           {createMessage(DEFAULT_BRANCH_DESC)}
         </SectionDesc>
-        {!isGitProtectedFeatureLicensed && (
-          <SectionDesc kind="body-m" renderAs="p">
-            To change your default branch, try{" "}
-            <Link
-              kind="primary"
-              style={{ display: "inline-flex" }}
-              target="_blank"
-              to={enterprisePricingLink}
-            >
-              {createMessage(APPSMITH_ENTERPRISE)}
-            </Link>
-          </SectionDesc>
-        )}
+        <SectionDesc kind="body-m" renderAs="p">
+          To change your default branch, try{" "}
+          <Link
+            kind="primary"
+            style={{ display: "inline-flex" }}
+            target="_blank"
+            to="https://www.appsmith.com/enterprise?lead_source=git%20feat%20branch%20config"
+          >
+            {createMessage(APPSMITH_ENTERPRISE)}
+          </Link>
+        </SectionDesc>
       </HeadContainer>
       <BodyContainer>
         <StyledSelect
-          data-testid="t--git-default-branch-select"
-          isDisabled={!isGitProtectedFeatureLicensed}
+          isDisabled={isCE}
           onChange={(v) => setSelectedValue(v)}
           value={selectedValue}
         >
@@ -114,7 +104,6 @@ function GitDefaultBranch() {
           ))}
         </StyledSelect>
         <Button
-          data-testid="t--git-default-branch-update-btn"
           isDisabled={updateIsDisabled}
           kind="secondary"
           onClick={handleUpdate}
