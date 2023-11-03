@@ -72,6 +72,9 @@ export function PageContextMenu(props: {
     if (partialImportExportLoadingState.isExportDone) {
       setShowPartialExportModal(false);
     }
+    if (partialImportExportLoadingState.isImportDone) {
+      setShowPartialImportModal(false);
+    }
   }, [partialImportExportLoadingState]);
   /**
    * delete the page

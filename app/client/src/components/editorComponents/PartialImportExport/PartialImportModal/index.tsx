@@ -144,7 +144,9 @@ function PartialImportModal(props: PartialImportModalProps) {
 
   const dispatch = useDispatch();
 
-  const importingApplication = useSelector(getIsImportingPartialApplication);
+  const importingPartialApplication = useSelector(
+    getIsImportingPartialApplication,
+  );
   const workspaceId = useSelector(getCurrentWorkspaceId);
   const appId = useSelector(getCurrentApplicationId);
   const pageId = useSelector(getCurrentPageId);
@@ -162,7 +164,6 @@ function PartialImportModal(props: PartialImportModalProps) {
             appId,
             pageId,
             applicationFile: file,
-            // progress: setProgress,
           }),
         );
       } else {
@@ -174,11 +175,11 @@ function PartialImportModal(props: PartialImportModalProps) {
 
   useEffect(() => {
     // finished of importing application
-    if (appFileToBeUploaded && !importingApplication) {
+    if (appFileToBeUploaded && !importingPartialApplication) {
       setAppFileToBeUploaded(null);
       onClose && onClose();
     }
-  }, [appFileToBeUploaded, importingApplication]);
+  }, [appFileToBeUploaded, importingPartialApplication]);
 
   const onRemoveFile = useCallback(() => setAppFileToBeUploaded(null), []);
 
@@ -193,7 +194,7 @@ function PartialImportModal(props: PartialImportModalProps) {
       <ModalContent
         className={"t--import-application-modal"}
         style={{
-          width: importingApplication ? "40vw" : "fit-content",
+          width: importingPartialApplication ? "40vw" : "fit-content",
           minWidth: "30vw",
         }}
       >
@@ -203,13 +204,13 @@ function PartialImportModal(props: PartialImportModalProps) {
         <TextWrapper>
           <Text kind="body-m">
             {createMessage(
-              importingApplication
+              importingPartialApplication
                 ? UPLOADING_JSON
                 : PARTIAL_IMPORT_EXPORT.import.modalSubheading,
             )}
           </Text>
         </TextWrapper>
-        {!importingApplication && (
+        {!importingPartialApplication && (
           <Row>
             <FileImportCard
               className="t--import-json-card"
@@ -228,7 +229,7 @@ function PartialImportModal(props: PartialImportModalProps) {
             </FileImportCard>
           </Row>
         )}
-        {importingApplication && (
+        {importingPartialApplication && (
           <Row className="t-import-app-progress-wrapper">
             <StatusbarWrapper className="t--importing-app-statusbar">
               <Icon name="file-line" size="md" />
@@ -236,7 +237,7 @@ function PartialImportModal(props: PartialImportModalProps) {
                 {appFileToBeUploaded?.file?.name || "filename.json"}
               </Text>
               <Statusbar
-                completed={!importingApplication}
+                completed={!importingPartialApplication}
                 message={createMessage(UPLOADING_APPLICATION)}
                 period={4}
               />

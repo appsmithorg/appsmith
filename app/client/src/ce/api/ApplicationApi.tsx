@@ -249,7 +249,7 @@ export interface exportApplicationRequest {
 
 export interface ImportPartialApplicationRequest {
   workspaceId: string;
-  applicationFile?: File;
+  applicationFile: File;
   progress?: (progressEvent: ProgressEvent) => void;
   onSuccessCallback?: () => void;
   appId: string;

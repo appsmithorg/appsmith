@@ -22,7 +22,6 @@ import type {
   FetchUsersApplicationsWorkspacesResponse,
   ForkApplicationRequest,
   ImportApplicationRequest,
-  ImportPartialApplicationRequest,
   PublishApplicationRequest,
   PublishApplicationResponse,
   SetDefaultPageRequest,
@@ -780,32 +779,6 @@ export function* showReconnectDatasourcesModalSaga(
   yield put(setWorkspaceIdForImport(workspaceId));
   yield put(setPageIdForImport(pageId));
   yield put(setIsReconnectingDatasourcesModalOpen({ isOpen: true }));
-}
-
-export function* importPartialApplicationSaga(
-  action: ReduxAction<ImportPartialApplicationRequest>,
-) {
-  try {
-    const response: ApiResponse = yield call(
-      ApplicationApi.importPartialApplication,
-      action.payload,
-    );
-
-    const isValidResponse: boolean = yield validateResponse(response);
-
-    if (isValidResponse) {
-      toast.show("Partial Application imported successfully", {
-        kind: "success",
-      });
-    }
-  } catch (error) {
-    yield put({
-      type: ReduxActionErrorTypes.PARTIAL_IMPORT_ERROR,
-      payload: {
-        error,
-      },
-    });
-  }
 }
 
 export function* importApplicationSaga(

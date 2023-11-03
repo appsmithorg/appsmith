@@ -214,7 +214,7 @@ export const getIsImportingApplication = (state: AppState) =>
   state.ui.applications.importingApplication;
 
 export const getIsImportingPartialApplication = (state: AppState) =>
-  state.ui.applications.importingPartialApplication;
+  state.ui.applications.loadingStates.partialImportExport.isImporting;
 
 export const getWorkspaceIdForImport = (state: AppState) =>
   state.ui.applications.workspaceIdForImport;

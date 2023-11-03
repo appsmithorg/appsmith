@@ -164,6 +164,12 @@ export const importPartialApplication = (
   };
 };
 
+export const importPartialApplicationSuccess = () => {
+  return {
+    type: ReduxActionTypes.PARTIAL_IMPORT_SUCCESS,
+  };
+};
+
 export const importApplicationSuccess = (
   importedApp: ApplicationResponsePayload,
 ) => {

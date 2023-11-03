@@ -1,4 +1,5 @@
 import { builderURL, widgetURL } from "@appsmith/RouteBuilder";
+import type { ImportPartialApplicationRequest } from "@appsmith/api/ApplicationApi";
 import ApplicationApi, {
   type exportApplicationRequest,
 } from "@appsmith/api/ApplicationApi";
@@ -66,6 +67,8 @@ import {
 } from "./selectors";
 import { getCopiedWidgets, saveCopiedWidgets } from "utils/storage";
 import { toast } from "design-system";
+import type { ApiResponse } from "api/ApiResponses";
+import { validateResponse } from "./ErrorSagas";
 
 // The following is computed to be used in the entity explorer
 // Every time a widget is selected, we need to expand widget entities
@@ -440,13 +443,36 @@ export function* partialExportWidgetSaga(widgetIds: string[]) {
   return widgetsDSL;
 }
 
-export function* partialImportSaga() {
-  // Cache existing copied widgets as we utilize copy paste functionality with partial import of widgets
-  const existingCopiedWidgets: unknown = yield call(getCopiedWidgets);
-  yield put(selectWidgetInitAction(SelectionRequestType.Empty));
-  yield put(pasteWidget(false, { x: 0, y: 0 }));
+export function* partialImportSaga(
+  action: ReduxAction<ImportPartialApplicationRequest>,
+) {
+  try {
+    // Cache existing copied widgets as we utilize copy paste functionality with partial import of widgets
+    const existingCopiedWidgets: unknown = yield call(getCopiedWidgets);
+    yield put(selectWidgetInitAction(SelectionRequestType.Empty));
+    yield put(pasteWidget(false, { x: 0, y: 0 }));
 
-  if (existingCopiedWidgets) {
-    yield call(saveCopiedWidgets, JSON.stringify(existingCopiedWidgets));
+    const response: ApiResponse = yield call(
+      ApplicationApi.importPartialApplication,
+      action.payload,
+    );
+
+    const isValidResponse: boolean = yield validateResponse(response);
+
+    if (isValidResponse) {
+      if (existingCopiedWidgets) {
+        yield call(saveCopiedWidgets, JSON.stringify(existingCopiedWidgets));
+      }
+      toast.show("Partial Application imported successfully", {
+        kind: "success",
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.PARTIAL_IMPORT_ERROR,
+      payload: {
+        error,
+      },
+    });
   }
 }

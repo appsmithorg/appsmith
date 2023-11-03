@@ -42,7 +42,6 @@ export const initialState: ApplicationsReduxState = {
   userWorkspaces: [],
   isSavingWorkspaceInfo: false,
   importingApplication: false,
-  importingPartialApplication: false,
   importedApplication: null,
   isImportAppModalOpen: false,
   workspaceIdForImport: null,
@@ -60,6 +59,7 @@ export const initialState: ApplicationsReduxState = {
       isExporting: false,
       isExportDone: false,
       isImporting: false,
+      isImportDone: false,
     },
   },
 };
@@ -430,13 +430,40 @@ export const handlers = {
   },
   [ReduxActionTypes.PARTIAL_IMPORT_INIT]: (state: ApplicationsReduxState) => ({
     ...state,
-    importingPartialApplication: true,
+    loadingStates: {
+      ...state.loadingStates,
+      partialImportExport: {
+        ...state.loadingStates.partialImportExport,
+        isImporting: true,
+        isImportDone: false,
+      },
+    },
   }),
   [ReduxActionTypes.PARTIAL_IMPORT_SUCCESS]: (
     state: ApplicationsReduxState,
   ) => ({
     ...state,
-    importingPartialApplication: false,
+    loadingStates: {
+      ...state.loadingStates,
+      partialImportExport: {
+        ...state.loadingStates.partialImportExport,
+        isImporting: false,
+        isImportDone: true,
+      },
+    },
+  }),
+  [ReduxActionErrorTypes.PARTIAL_IMPORT_ERROR]: (
+    state: ApplicationsReduxState,
+  ) => ({
+    ...state,
+    loadingStates: {
+      ...state.loadingStates,
+      partialImportExport: {
+        ...state.loadingStates.partialImportExport,
+        isImporting: false,
+        isImportDone: true,
+      },
+    },
   }),
   [ReduxActionTypes.SAVING_WORKSPACE_INFO]: (state: ApplicationsReduxState) => {
     return {
@@ -896,7 +923,6 @@ export interface ApplicationsReduxState {
   userWorkspaces: Workspaces[];
   isSavingWorkspaceInfo: boolean;
   importingApplication: boolean;
-  importingPartialApplication: boolean;
   importedApplication: unknown;
   isImportAppModalOpen: boolean;
   workspaceIdForImport: any;
@@ -915,6 +941,7 @@ export interface ApplicationsReduxState {
       isExporting: boolean;
       isExportDone: boolean;
       isImporting: boolean;
+      isImportDone: boolean;
     };
   };
 }
