@@ -187,7 +187,7 @@ export class PropertyPane {
     //   }
     // });
     this.OpenJsonFormFieldSettings(fieldName);
-    this.agHelper.SelectDropdownList("Field Type", newDataType);
+    this.SelectPropertiesDropDown("Field Type", newDataType);
     this.agHelper.AssertAutoSave();
     this.assertHelper.AssertNetworkStatus("@updateLayout");
   }
