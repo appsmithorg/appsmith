@@ -667,9 +667,14 @@ class CodeEditor extends Component<Props, State> {
         tokenElement,
         textWidth: tokenElementPosition.width,
       },
-      ternToolTipActive: CodeMirrorTernService.closeArgHints(),
     });
 
+    if (this.state.ternToolTipActive) {
+      CodeMirrorTernService.closeArgHints();
+      this.setState({
+        ternToolTipActive: false,
+      });
+    }
     AnalyticsUtil.logEvent("PEEK_OVERLAY_OPENED", {
       property: expression,
     });
@@ -1135,7 +1140,6 @@ class CodeEditor extends Component<Props, State> {
     }
     this.props.resetActiveField();
     this.handleChange();
-    this.setState({ isFocused: false });
     this.editor.setOption("matchBrackets", false);
     this.handleCustomGutter(null);
     const cursor = this.editor.getCursor();
@@ -1200,8 +1204,7 @@ class CodeEditor extends Component<Props, State> {
     const inputValue = this.props.input.value || "";
     if (
       this.props.input.onChange &&
-      ((value !== inputValue && this.state.isFocused) ||
-        this.state.changeStarted)
+      (value !== inputValue || this.state.changeStarted)
     ) {
       this.setState({
         changeStarted: false,
