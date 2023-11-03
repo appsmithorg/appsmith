@@ -54,7 +54,7 @@ Cypress.Commands.add("testSaveDeleteDatasource", () => {
 });
 
 Cypress.Commands.add("NavigateToDatasourceEditor", () => {
-  EditorNavigation.sidebar(SidebarButton.Data);
+  dataSources.NavigateToDSCreateNew();
 });
 
 Cypress.Commands.add("NavigateToActiveDatasources", () => {
