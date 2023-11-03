@@ -39,6 +39,11 @@ const initialState: GitSyncReducerState = {
   isSwitchingBranch: false,
   switchingToBranch: null,
   isDeploying: false,
+
+  protectedBranchesLoading: false,
+  protectedBranches: [],
+
+  isUpdateProtectedBranchesLoading: false,
 };
 
 const gitSyncReducer = createReducer(initialState, {
@@ -563,6 +568,36 @@ const gitSyncReducer = createReducer(initialState, {
     switchingToBranch: null,
     isSwitchingBranch: false,
   }),
+  [ReduxActionTypes.GIT_FETCH_PROTECTED_BRANCHES_INIT]: (
+    state: GitSyncReducerState,
+  ) => ({
+    ...state,
+    protectedBranchesLoading: true,
+  }),
+  [ReduxActionTypes.GIT_FETCH_PROTECTED_BRANCHES_SUCCESS]: (
+    state: GitSyncReducerState,
+    action: ReduxAction<{ protectedBranches: string[] }>,
+  ) => ({
+    ...state,
+    protectedBranchesLoading: false,
+    protectedBranches: action.payload.protectedBranches,
+  }),
+  [ReduxActionTypes.GIT_FETCH_PROTECTED_BRANCHES_ERROR]: (state) => ({
+    ...state,
+    protectedBranchesLoading: false,
+  }),
+  [ReduxActionTypes.GIT_UPDATE_PROTECTED_BRANCHES_INIT]: (state) => ({
+    ...state,
+    isUpdateProtectedBranchesLoading: true,
+  }),
+  [ReduxActionTypes.GIT_UPDATE_PROTECTED_BRANCHES_SUCCESS]: (state) => ({
+    ...state,
+    isUpdateProtectedBranchesLoading: false,
+  }),
+  [ReduxActionTypes.GIT_UPDATE_PROTECTED_BRANCHES_ERROR]: (state) => ({
+    ...state,
+    isUpdateProtectedBranchesLoading: false,
+  }),
 });
 
 export interface GitStatusData {
@@ -698,6 +733,10 @@ export type GitSyncReducerState = GitBranchDeleteState & {
   isSwitchingBranch: boolean;
   switchingToBranch: string | null;
   isDeploying: boolean;
+
+  protectedBranches: string[];
+  protectedBranchesLoading: boolean;
+  isUpdateProtectedBranchesLoading: boolean;
 };
 
 export default gitSyncReducer;
