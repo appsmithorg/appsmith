@@ -334,11 +334,7 @@ export class EntityExplorer {
     y = 100,
     options = {} as DragDropWidgetOptions,
   ) {
-    const {
-      parentWidgetType = "",
-      dropTargetId = "",
-      skipWidgetSearch = false,
-    } = options;
+    const { parentWidgetType, dropTargetId, skipWidgetSearch } = options;
     if (!skipWidgetSearch) {
       this.SearchWidgetPane(widgetType);
     } else {
@@ -379,11 +375,7 @@ export class EntityExplorer {
     y = 100,
     options = {} as DragDropWidgetOptions,
   ) {
-    const {
-      parentWidgetType = "",
-      dropTargetId = "",
-      skipWidgetSearch = false,
-    } = options;
+    const { parentWidgetType, dropTargetId, skipWidgetSearch } = options;
     if (!skipWidgetSearch) {
       this.SearchWidgetPane(widgetType);
     } else {
