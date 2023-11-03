@@ -549,6 +549,20 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                     // application
                     application.setGitApplicationMetadata(null);
 
+                    boolean allowFork = (
+                            // Is this a non-anonymous user that has access to this application?
+                            !user.isAnonymous()
+                                    && application
+                                            .getUserPermissions()
+                                            .contains(applicationPermission
+                                                    .getEditPermission()
+                                                    .getValue()))
+                            || Boolean.TRUE.equals(application.getForkingEnabled());
+
+                    if (!allowFork) {
+                        return Mono.error(new AppsmithException(AppsmithError.APPLICATION_FORKING_NOT_ALLOWED));
+                    }
+
                     return this.forkApplications(targetWorkspace.getId(), application, sourceEnvironmentId);
                 })
                 .flatMap(applicationIds -> {
