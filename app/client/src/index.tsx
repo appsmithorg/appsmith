@@ -38,7 +38,7 @@ enableNewRelic &&
     //loading these scripts in parallel, atleast one of them should load.
     const resolvedPromises = await Promise.allSettled([
       import(
-        /* webpackChunkName: "newRelicBrowserAgent" */ "./newRelicBrowserAgent.js"
+        /* webpackChunkName: "newRelicBrowserAgent" */ "../public/libraries/newRelicBrowserAgent.js"
       ),
       import(/* webpackChunkName: "otlpTelemetry" */ "./auto-otel-web.js"),
     ]);
