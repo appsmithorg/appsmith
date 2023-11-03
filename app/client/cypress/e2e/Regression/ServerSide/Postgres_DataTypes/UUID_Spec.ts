@@ -182,6 +182,7 @@ describe("UUID Datatype tests", function () {
           locators._buttonByText("Run UpdateQuery"),
         );
         table.WaitUntilTableLoad();
+        agHelper.Sleep(5000); //some more time for rows to rearrange for CI flakyness!
         table.ReadTableRowColumnData(2, 0).then(($cellData) => {
           expect($cellData).to.eq("3"); //asserting serial column is inserting fine in sequence
         });

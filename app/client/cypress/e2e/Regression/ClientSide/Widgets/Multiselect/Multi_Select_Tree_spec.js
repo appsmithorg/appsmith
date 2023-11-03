@@ -51,6 +51,7 @@ describe("MultiSelectTree Widget Functionality", function () {
     // search for option Red in the search input
     cy.openPropertyPane("multiselecttreewidget");
     cy.testJsontext("defaultselectedvalues", "");
+    cy.wait(2000);
     cy.get(formWidgetsPage.treeSelectInput).first().click({ force: true });
     cy.get(formWidgetsPage.multiTreeSelectFilterInput)
       .click({ force: true })
