@@ -95,6 +95,7 @@ export interface ControlData {
   staticDependencyPathList?: string[];
   validator?: (value: string) => { isValid: boolean; message: string };
   isSecretExistsPath?: string;
+  addMoreButtonLabel?: string;
 }
 export type FormConfigType = Omit<ControlData, "configProperty"> & {
   configProperty?: string;
