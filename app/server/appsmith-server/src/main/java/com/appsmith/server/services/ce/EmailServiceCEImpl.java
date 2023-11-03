@@ -55,7 +55,7 @@ public class EmailServiceCEImpl implements EmailServiceCE {
                         originHeader,
                         URLEncoder.encode(invitedUser.getUsername().toLowerCase(), StandardCharsets.UTF_8))
                 : originHeader;
-        String emailSubject = String.format(WORKSPACE_EMAIL_SUBJECT_FOR_NEW_USER, workspaceInvitedTo.getName());
+        String emailSubject = emailServiceHelper.getSubjectJoinWorkspace(workspaceInvitedTo.getName());
         Map<String, String> params = getInviteToWorkspaceEmailParams(
                 workspaceInvitedTo, invitingUser, inviteUrl, assignedPermissionGroup.getName(), isNewUser);
         return emailServiceHelper
@@ -92,19 +92,21 @@ public class EmailServiceCEImpl implements EmailServiceCE {
                 : originHeader;
         params.put(PRIMARY_LINK_URL, inviteUrl);
 
-        String primaryLinkText = isNewUser ? PRIMARY_LINK_TEXT_USER_SIGNUP : PRIMARY_LINK_TEXT_INVITE_TO_INSTANCE;
+        String primaryLinkText = emailServiceHelper.getJoinInstanceCtaPrimaryText();
         params.put(PRIMARY_LINK_TEXT, primaryLinkText);
 
         if (invitingUser != null) {
             params.put(INVITER_FIRST_NAME, StringUtils.defaultIfEmpty(invitingUser.getName(), invitingUser.getEmail()));
         }
-        return emailServiceHelper
-                .enrichWithBrandParams(params, originHeader)
-                .flatMap(updatedParams -> emailSender.sendMail(
-                        invitedUser.getEmail(),
-                        String.format(INSTANCE_ADMIN_INVITE_EMAIL_SUBJECT),
-                        emailServiceHelper.getAdminInstanceInviteTemplate(),
-                        updatedParams));
+        return emailServiceHelper.enrichWithBrandParams(params, originHeader).flatMap(updatedParams -> {
+            String instanceName = updatedParams.get(INSTANCE_NAME);
+            String subject = emailServiceHelper.getSubjectJoinInstanceAsAdmin(instanceName);
+            return emailSender.sendMail(
+                    invitedUser.getEmail(),
+                    subject,
+                    emailServiceHelper.getAdminInstanceInviteTemplate(),
+                    updatedParams);
+        });
     }
 
     private Map<String, String> getInviteToWorkspaceEmailParams(

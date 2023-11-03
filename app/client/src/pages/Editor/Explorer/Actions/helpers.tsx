@@ -44,7 +44,13 @@ export interface ActionGroupConfig {
 export const ACTION_PLUGIN_MAP: Array<ActionGroupConfig | undefined> = [
   {
     groupName: "Datasources",
-    types: [PluginType.API, PluginType.SAAS, PluginType.DB, PluginType.REMOTE],
+    types: [
+      PluginType.API,
+      PluginType.SAAS,
+      PluginType.DB,
+      PluginType.REMOTE,
+      PluginType.AI,
+    ],
     icon: dbQueryIcon,
     key: generateReactKey(),
     getURL: (
@@ -61,7 +67,8 @@ export const ACTION_PLUGIN_MAP: Array<ActionGroupConfig | undefined> = [
         });
       } else if (
         pluginType === PluginType.DB ||
-        pluginType === PluginType.REMOTE
+        pluginType === PluginType.REMOTE ||
+        pluginType === PluginType.AI
       ) {
         return queryEditorIdURL({
           pageId,
