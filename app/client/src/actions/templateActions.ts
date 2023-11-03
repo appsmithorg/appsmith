@@ -58,7 +58,6 @@ export const importTemplateIntoApplication = (
   pageNames?: string[],
   applicationId?: string,
   workspaceId?: string,
-  skipWidgetConfigBuildCheck?: boolean,
 ) => ({
   type: ReduxActionTypes.IMPORT_TEMPLATE_TO_APPLICATION_INIT,
   payload: {
@@ -67,7 +66,6 @@ export const importTemplateIntoApplication = (
     pageNames,
     applicationId,
     workspaceId,
-    skipWidgetConfigBuildCheck,
   },
 });
 
@@ -97,4 +95,21 @@ export const hideStarterBuildingBlockDatasourcePrompt = () => ({
 
 export const getTemplateFilters = () => ({
   type: ReduxActionTypes.GET_TEMPLATE_FILTERS_INIT,
+});
+
+export const importTemplateIntoApplicationViaOnboardingFlow = (
+  templateId: string,
+  templateName: string,
+  pageNames: string[],
+  applicationId: string,
+  workspaceId: string,
+) => ({
+  type: ReduxActionTypes.IMPORT_TEMPLATE_TO_APPLICATION_ONBOARDING_FLOW,
+  payload: {
+    templateId,
+    templateName,
+    pageNames,
+    applicationId,
+    workspaceId,
+  },
 });

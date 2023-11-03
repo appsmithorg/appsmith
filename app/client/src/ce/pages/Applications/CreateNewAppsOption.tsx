@@ -1,6 +1,6 @@
 import {
   getTemplateFilters,
-  importTemplateIntoApplication,
+  importTemplateIntoApplicationViaOnboardingFlow,
 } from "actions/templateActions";
 import type { Template } from "api/TemplatesApi";
 import type { AppState } from "@appsmith/reducers";
@@ -213,15 +213,14 @@ const CreateNewAppsOption = ({
         title: template.title,
       });
       // When Use template is clicked on template view detail screen
-      if (!isImportingTemplate) {
+      if (!isImportingTemplate && application) {
         dispatch(
-          importTemplateIntoApplication(
+          importTemplateIntoApplicationViaOnboardingFlow(
             id,
             template.title as string,
             template.pages.map((p) => p.name),
-            application?.id,
-            application?.workspaceId,
-            true,
+            application.id,
+            application.workspaceId,
           ),
         );
       }
@@ -232,15 +231,14 @@ const CreateNewAppsOption = ({
     const title = template.title;
     AnalyticsUtil.logEvent("FORK_TEMPLATE_WHEN_ONBOARDING", { title });
     // When fork template is clicked to add a new app using the template
-    if (!isImportingTemplate) {
+    if (!isImportingTemplate && application) {
       dispatch(
-        importTemplateIntoApplication(
+        importTemplateIntoApplicationViaOnboardingFlow(
           template.id,
           template.title,
           template.pages.map((p) => p.name),
-          application?.id,
-          application?.workspaceId,
-          true,
+          application.id,
+          application.workspaceId,
         ),
       );
     }
