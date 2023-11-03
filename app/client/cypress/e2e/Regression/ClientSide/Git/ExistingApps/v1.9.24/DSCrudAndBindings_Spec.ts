@@ -80,9 +80,14 @@ describe("Import and validate older app (app created in older versions of Appsmi
     // Commenting it as part of #28012 - to be added back later
     // agHelper.AssertContains(/[0-9] librar(y|ies) modified/, "not.exist");
 
+    // agHelper.GetNAssertElementText(
+    //   gitSync._gitStatusChanges,
+    //   "Some of the changes above are due to an improved file structure designed to reduce merge conflicts. You can safely commit them to your repository.",
+    //   "contain.text",
+    // );
     agHelper.GetNAssertElementText(
       gitSync._gitStatusChanges,
-      "Some of the changes above are due to an improved file structure designed to reduce merge conflicts. You can safely commit them to your repository.",
+      "Some changes are platform upgrades from Appsmith",
       "contain.text",
     );
     agHelper.GetNClick(gitSync._commitButton);
