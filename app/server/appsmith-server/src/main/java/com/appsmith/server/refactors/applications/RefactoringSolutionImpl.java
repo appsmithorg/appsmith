@@ -3,6 +3,7 @@ package com.appsmith.server.refactors.applications;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.configurations.InstanceConfig;
 import com.appsmith.server.domains.ActionCollection;
+import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.newactions.base.NewActionService;
@@ -32,13 +33,15 @@ public class RefactoringSolutionImpl extends RefactoringSolutionCEImpl implement
             LayoutActionService layoutActionService,
             ApplicationService applicationService,
             AstService astService,
+            PagePermission pagePermission,
+            ActionPermission actionPermission,
             InstanceConfig instanceConfig,
             AnalyticsService analyticsService,
             SessionUserService sessionUserService,
-            PagePermission pagePermission,
-            ActionPermission actionPermission,
+            EntityRefactoringService<Void> jsActionEntityRefactoringSolution,
             EntityRefactoringService<NewAction> newActionEntityRefactoringService,
-            EntityRefactoringService<ActionCollection> actionCollectionEntityRefactoringService) {
+            EntityRefactoringService<ActionCollection> actionCollectionEntityRefactoringService,
+            EntityRefactoringService<Layout> widgetEntityRefactoringService) {
         super(
                 objectMapper,
                 newPageService,
@@ -48,12 +51,14 @@ public class RefactoringSolutionImpl extends RefactoringSolutionCEImpl implement
                 layoutActionService,
                 applicationService,
                 astService,
+                pagePermission,
+                actionPermission,
                 instanceConfig,
                 analyticsService,
                 sessionUserService,
-                pagePermission,
-                actionPermission,
+                jsActionEntityRefactoringSolution,
                 newActionEntityRefactoringService,
-                actionCollectionEntityRefactoringService);
+                actionCollectionEntityRefactoringService,
+                widgetEntityRefactoringService);
     }
 }

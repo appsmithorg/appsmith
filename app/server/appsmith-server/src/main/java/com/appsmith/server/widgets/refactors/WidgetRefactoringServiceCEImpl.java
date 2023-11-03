@@ -21,11 +21,6 @@ public class WidgetRefactoringServiceCEImpl implements EntityRefactoringServiceC
     }
 
     @Override
-    public void sanitizeRefactorEntityDTO(RefactorEntityNameDTO refactorEntityNameDTO) {
-        // Do nothing
-    }
-
-    @Override
     public Mono<Boolean> validateName(String name) {
         return Mono.just(Boolean.TRUE);
     }

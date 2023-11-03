@@ -13,7 +13,6 @@ import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 
 import static com.appsmith.external.constants.AnalyticsEvents.REFACTOR_ACTION;
-import static com.appsmith.external.constants.AnalyticsEvents.REFACTOR_JSACTION;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -24,11 +23,7 @@ public class NewActionRefactoringServiceCEImpl implements EntityRefactoringServi
 
     @Override
     public AnalyticsEvents getRefactorAnalyticsEvent(EntityType entityType) {
-        return switch (entityType) {
-            case JS_ACTION -> REFACTOR_JSACTION;
-            case ACTION -> REFACTOR_ACTION;
-            default -> null;
-        };
+        return REFACTOR_ACTION;
     }
 
     @Override

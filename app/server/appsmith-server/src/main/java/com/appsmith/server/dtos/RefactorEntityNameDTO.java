@@ -16,8 +16,8 @@ public class RefactorEntityNameDTO {
     String actionId;
     String actionCollectionId;
     String collectionName;
+    ActionCollectionDTO actionCollection;
 
     String oldFullyQualifiedName;
     String newFullyQualifiedName;
-    boolean isFQN;
 }

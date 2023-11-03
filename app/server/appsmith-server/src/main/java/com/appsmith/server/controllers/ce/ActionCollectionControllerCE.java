@@ -9,7 +9,6 @@ import com.appsmith.server.dtos.ActionCollectionMoveDTO;
 import com.appsmith.server.dtos.ActionCollectionViewDTO;
 import com.appsmith.server.dtos.EntityType;
 import com.appsmith.server.dtos.LayoutDTO;
-import com.appsmith.server.dtos.RefactorActionNameInCollectionDTO;
 import com.appsmith.server.dtos.RefactorEntityNameDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.refactors.applications.RefactoringSolution;
@@ -134,13 +133,15 @@ public class ActionCollectionControllerCE {
     @JsonView(Views.Public.class)
     @PutMapping("/refactorAction")
     public Mono<ResponseDTO<LayoutDTO>> refactorActionCollection(
-            @Valid @RequestBody RefactorActionNameInCollectionDTO resource,
+            @Valid @RequestBody RefactorEntityNameDTO refactorEntityNameDTO,
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         log.debug(
                 "Going to refactor action collection with id: {}",
-                resource.getActionCollection().getId());
-        return layoutCollectionService
-                .refactorAction(resource, branchName)
+                refactorEntityNameDTO.getActionCollection().getId());
+
+        refactorEntityNameDTO.setEntityType(EntityType.JS_ACTION);
+        return refactoringSolution
+                .refactorEntityName(refactorEntityNameDTO, branchName)
                 .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));
     }
 

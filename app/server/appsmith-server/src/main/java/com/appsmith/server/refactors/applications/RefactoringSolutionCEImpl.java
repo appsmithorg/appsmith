@@ -12,12 +12,9 @@ import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.dtos.ActionCollectionDTO;
-import com.appsmith.server.dtos.EntityType;
 import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.PageDTO;
-import com.appsmith.server.dtos.RefactorActionNameDTO;
 import com.appsmith.server.dtos.RefactorEntityNameDTO;
-import com.appsmith.server.dtos.RefactorNameDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.DslUtils;
@@ -37,11 +34,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -60,14 +56,11 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-import static com.appsmith.external.constants.AnalyticsEvents.REFACTOR_ACTION;
-import static com.appsmith.external.constants.AnalyticsEvents.REFACTOR_JSACTION;
-import static com.appsmith.external.constants.AnalyticsEvents.REFACTOR_JSOBJECT;
-import static com.appsmith.external.constants.AnalyticsEvents.REFACTOR_WIDGET;
 import static com.appsmith.server.services.ce.ApplicationPageServiceCEImpl.EVALUATION_VERSION;
 import static java.util.stream.Collectors.toSet;
 
 @Slf4j
+@RequiredArgsConstructor
 public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
     private final ObjectMapper objectMapper;
     private final NewPageService newPageService;
@@ -83,8 +76,11 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
     private final AnalyticsService analyticsService;
     private final SessionUserService sessionUserService;
 
+    private final EntityRefactoringService<Void> jsActionEntityRefactoringService;
     private final EntityRefactoringService<NewAction> newActionEntityRefactoringService;
     private final EntityRefactoringService<ActionCollection> actionCollectionEntityRefactoringService;
+    private final EntityRefactoringService<Layout> widgetEntityRefactoringService;
+
     /*
      * To replace fetchUsers in `{{JSON.stringify(fetchUsers)}}` with getUsers, the following regex is required :
      * `\\b(fetchUsers)\\b`. To achieve this the following strings preWord and postWord are declared here to be used
@@ -93,156 +89,9 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
     private static final String preWord = "\\b(";
     private static final String postWord = ")\\b";
 
-    public RefactoringSolutionCEImpl(
-            ObjectMapper objectMapper,
-            NewPageService newPageService,
-            NewActionService newActionService,
-            ActionCollectionService actionCollectionService,
-            ResponseUtils responseUtils,
-            LayoutActionService layoutActionService,
-            ApplicationService applicationService,
-            AstService astService,
-            InstanceConfig instanceConfig,
-            AnalyticsService analyticsService,
-            SessionUserService sessionUserService,
-            PagePermission pagePermission,
-            ActionPermission actionPermission,
-            EntityRefactoringService<NewAction> newActionEntityRefactoringService,
-            EntityRefactoringService<ActionCollection> actionCollectionEntityRefactoringService) {
-        this.objectMapper = objectMapper;
-        this.newPageService = newPageService;
-        this.newActionService = newActionService;
-        this.actionCollectionService = actionCollectionService;
-        this.responseUtils = responseUtils;
-        this.layoutActionService = layoutActionService;
-        this.applicationService = applicationService;
-        this.astService = astService;
-        this.instanceConfig = instanceConfig;
-        this.analyticsService = analyticsService;
-        this.sessionUserService = sessionUserService;
-        this.pagePermission = pagePermission;
-        this.actionPermission = actionPermission;
-        this.newActionEntityRefactoringService = newActionEntityRefactoringService;
-        this.actionCollectionEntityRefactoringService = actionCollectionEntityRefactoringService;
-    }
-
-    @Override
-    public Mono<LayoutDTO> refactorWidgetName(RefactorNameDTO refactorNameDTO) {
-        final Map<String, String> analyticsProperties = new HashMap<>();
-        String pageId = refactorNameDTO.getPageId();
-        String layoutId = refactorNameDTO.getLayoutId();
-        String oldName = refactorNameDTO.getOldName();
-        String newName = refactorNameDTO.getNewName();
-        return layoutActionService
-                .isNameAllowed(pageId, layoutId, newName)
-                .zipWith(newPageService.getById(pageId))
-                .flatMap(tuple -> {
-                    analyticsProperties.put(
-                            FieldName.APPLICATION_ID, tuple.getT2().getApplicationId());
-                    analyticsProperties.put(FieldName.PAGE_ID, pageId);
-                    if (!tuple.getT1()) {
-                        return Mono.error(new AppsmithException(
-                                AppsmithError.NAME_CLASH_NOT_ALLOWED_IN_REFACTOR, oldName, newName));
-                    }
-                    return this.refactorName(pageId, layoutId, oldName, newName)
-                            .flatMap(tuple2 -> this.sendRefactorAnalytics(
-                                            REFACTOR_WIDGET.getEventName(), analyticsProperties, tuple2.getT2())
-                                    .thenReturn(tuple2.getT1()));
-                });
-    }
-
-    @Override
-    public Mono<LayoutDTO> refactorWidgetName(RefactorNameDTO refactorNameDTO, String branchName) {
-        if (!StringUtils.hasLength(branchName)) {
-            return refactorWidgetName(refactorNameDTO);
-        }
-
-        return newPageService
-                .findByBranchNameAndDefaultPageId(
-                        branchName, refactorNameDTO.getPageId(), pagePermission.getEditPermission())
-                .flatMap(branchedPage -> {
-                    refactorNameDTO.setPageId(branchedPage.getId());
-                    return refactorWidgetName(refactorNameDTO);
-                })
-                .map(responseUtils::updateLayoutDTOWithDefaultResources);
-    }
-
-    @Override
-    public Mono<LayoutDTO> refactorActionName(RefactorActionNameDTO refactorActionNameDTO) {
-        final Map<String, String> analyticsProperties = new HashMap<>();
-        String pageId = refactorActionNameDTO.getPageId();
-        String layoutId = refactorActionNameDTO.getLayoutId();
-        String oldName = refactorActionNameDTO.getOldName();
-        final String oldFullyQualifiedName = StringUtils.hasLength(refactorActionNameDTO.getCollectionName())
-                ? refactorActionNameDTO.getCollectionName() + "." + oldName
-                : oldName;
-        String newName = refactorActionNameDTO.getNewName();
-        final String newFullyQualifiedName = StringUtils.hasLength(refactorActionNameDTO.getCollectionName())
-                ? refactorActionNameDTO.getCollectionName() + "." + newName
-                : newName;
-        String actionId = refactorActionNameDTO.getActionId();
-        return Mono.just(newActionService.validateActionName(newName))
-                .flatMap(isValidName -> {
-                    if (!isValidName) {
-                        return Mono.error(new AppsmithException(AppsmithError.INVALID_ACTION_NAME));
-                    }
-                    return layoutActionService.isNameAllowed(pageId, layoutId, newFullyQualifiedName);
-                })
-                .flatMap(allowed -> {
-                    if (!allowed) {
-                        return Mono.error(new AppsmithException(
-                                AppsmithError.NAME_CLASH_NOT_ALLOWED_IN_REFACTOR, oldName, newName));
-                    }
-                    return newActionService.findActionDTObyIdAndViewMode(
-                            actionId, false, actionPermission.getEditPermission());
-                })
-                .flatMap(action -> {
-                    analyticsProperties.put(FieldName.APPLICATION_ID, action.getApplicationId());
-                    analyticsProperties.put(FieldName.PAGE_ID, pageId);
-                    action.setName(newName);
-                    if (StringUtils.hasLength(refactorActionNameDTO.getCollectionName())) {
-                        action.setFullyQualifiedName(newFullyQualifiedName);
-                    }
-                    return newActionService.updateUnpublishedAction(actionId, action);
-                })
-                .then(this.refactorName(pageId, layoutId, oldFullyQualifiedName, newFullyQualifiedName)
-                        .flatMap(tuple -> {
-                            String eventName = REFACTOR_ACTION.getEventName();
-                            if (StringUtils.hasLength(refactorActionNameDTO.getCollectionName())) {
-                                eventName = REFACTOR_JSACTION.getEventName();
-                            }
-                            return this.sendRefactorAnalytics(eventName, analyticsProperties, tuple.getT2())
-                                    .thenReturn(tuple.getT1());
-                        }));
-    }
-
-    @Override
-    public Mono<LayoutDTO> refactorActionName(RefactorActionNameDTO refactorActionNameDTO, String branchName) {
-
-        String defaultActionId = refactorActionNameDTO.getActionId();
-        return newActionService
-                .findByBranchNameAndDefaultActionId(branchName, defaultActionId, actionPermission.getEditPermission())
-                .flatMap(branchedAction -> {
-                    refactorActionNameDTO.setActionId(branchedAction.getId());
-                    refactorActionNameDTO.setPageId(
-                            branchedAction.getUnpublishedAction().getPageId());
-                    return refactorActionName(refactorActionNameDTO);
-                })
-                .map(responseUtils::updateLayoutDTOWithDefaultResources);
-    }
-
-    @Override
-    public Mono<LayoutDTO> refactorActionCollectionName(
-            String appId, String pageId, String layoutId, String oldName, String newName) {
-        final Map<String, String> analyticsProperties = new HashMap<>();
-        analyticsProperties.put(FieldName.APPLICATION_ID, appId);
-        analyticsProperties.put(FieldName.PAGE_ID, pageId);
-        return this.refactorName(pageId, layoutId, oldName, newName).flatMap(tuple -> this.sendRefactorAnalytics(
-                        REFACTOR_JSOBJECT.getEventName(), analyticsProperties, tuple.getT2())
-                .thenReturn(tuple.getT1()));
-    }
-
     /**
+     * This method is responsible for the core logic of refactoring a valid name inside an Appsmith page.
+     * This includes refactoring inside the DSL, in actions, and JS Objects.
      * Assumption here is that the refactoring name provided is indeed unique and is fit to be replaced everywhere.
      * <p>
      * At this point, the user must have MANAGE_PAGES and MANAGE_ACTIONS permissions for page and action respectively
@@ -253,9 +102,7 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
      * @param newName  : The new name to refactor all references to
      * @return : The DSL after refactor updates
      */
-    @Override
-    public Mono<Tuple2<LayoutDTO, Set<String>>> refactorName(
-            String pageId, String layoutId, String oldName, String newName) {
+    Mono<Tuple2<LayoutDTO, Set<String>>> refactorName(String pageId, String layoutId, String oldName, String newName) {
         String regexPattern = preWord + oldName + postWord;
         Pattern oldNamePattern = Pattern.compile(regexPattern);
         final Set<String> updatedBindingPaths = new HashSet<>();
@@ -411,7 +258,13 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
         service.sanitizeRefactorEntityDTO(refactorEntityNameDTO);
 
         // Validate whether this name is allowed based on the type of entity
-        Mono<Boolean> isValidNameMono = service.validateName(refactorEntityNameDTO.getNewName());
+        Mono<Boolean> isValidNameMono = service.validateName(refactorEntityNameDTO.getNewName())
+                .flatMap(isValid -> {
+                    if (!isValid) {
+                        return Mono.error(new AppsmithException(AppsmithError.INVALID_ACTION_NAME));
+                    }
+                    return Mono.just(true);
+                });
 
         Mono<String> pageIdMono = Mono.just(refactorEntityNameDTO.getPageId());
 
@@ -423,22 +276,14 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
         final Map<String, String> analyticsProperties = new HashMap<>();
 
         return isValidNameMono
-                .zipWith(pageIdMono)
-                .flatMap(tuple -> {
-                    boolean allowed = tuple.getT1();
-                    if (!allowed) {
-                        return Mono.error(new AppsmithException(
-                                AppsmithError.NAME_CLASH_NOT_ALLOWED_IN_REFACTOR,
-                                refactorEntityNameDTO.getOldName(),
-                                refactorEntityNameDTO.getNewName()));
-                    }
-
-                    String branchedPageId = tuple.getT2();
+                .then(pageIdMono)
+                .flatMap(branchedPageId -> {
                     refactorEntityNameDTO.setPageId(branchedPageId);
-                    return isNameAllowed(
+                    return layoutActionService
+                            .isNameAllowed(
                                     branchedPageId,
                                     refactorEntityNameDTO.getLayoutId(),
-                                    refactorEntityNameDTO.getNewName())
+                                    refactorEntityNameDTO.getNewFullyQualifiedName())
                             .zipWith(newPageService.getById(branchedPageId));
                 })
                 .flatMap(tuple -> {
@@ -448,14 +293,14 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
                     if (!tuple.getT1()) {
                         return Mono.error(new AppsmithException(
                                 AppsmithError.NAME_CLASH_NOT_ALLOWED_IN_REFACTOR,
-                                refactorEntityNameDTO.getOldName(),
-                                refactorEntityNameDTO.getNewName()));
+                                refactorEntityNameDTO.getOldFullyQualifiedName(),
+                                refactorEntityNameDTO.getNewFullyQualifiedName()));
                     }
 
                     String pageId = refactorEntityNameDTO.getPageId();
                     String layoutId = refactorEntityNameDTO.getLayoutId();
-                    String oldName = refactorEntityNameDTO.getOldName();
-                    String newName = refactorEntityNameDTO.getNewName();
+                    String oldName = refactorEntityNameDTO.getOldFullyQualifiedName();
+                    String newName = refactorEntityNameDTO.getNewFullyQualifiedName();
                     return service.updateRefactoredEntity(refactorEntityNameDTO, branchName)
                             .then(this.refactorName(pageId, layoutId, oldName, newName))
                             .flatMap(tuple2 -> {
@@ -470,8 +315,9 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
 
     private EntityRefactoringService<?> getEntityRefactoringService(RefactorEntityNameDTO refactorEntityNameDTO) {
         return switch (refactorEntityNameDTO.getEntityType()) {
-            case WIDGET -> null;
-            case JS_ACTION, ACTION -> newActionEntityRefactoringService;
+            case WIDGET -> widgetEntityRefactoringService;
+            case JS_ACTION -> jsActionEntityRefactoringService;
+            case ACTION -> newActionEntityRefactoringService;
             case JS_OBJECT -> actionCollectionEntityRefactoringService;
             case MODULE_INSTANCE -> null;
         };
@@ -482,102 +328,6 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
                 .findByBranchNameAndDefaultPageId(
                         branchName, refactorEntityNameDTO.getPageId(), pagePermission.getEditPermission())
                 .map(newPage -> newPage.getId());
-    }
-
-    /**
-     * Compares the new name with the existing widget and action names for this page. If they match, then it returns
-     * false to signify that refactoring can not be allowed. Else, refactoring should be allowed and hence true is
-     * returned.
-     *
-     * @param pageId
-     * @param layoutId
-     * @param newName
-     * @return
-     */
-    private Mono<Boolean> isNameAllowed(String pageId, String layoutId, String newName) {
-        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        if (pageId != null) {
-            params.add(FieldName.PAGE_ID, pageId);
-        }
-
-        boolean isFQN = newName.contains(".");
-
-        Mono<Set<String>> actionNamesInPageMono = newActionService
-                .getUnpublishedActions(params)
-                .flatMap(actionDTO -> {
-                    /*
-                       This is unexpected. Every action inside a JS collection should have a collectionId.
-                       But there are a few documents found for plugin type JS inside newAction collection that don't have any collectionId.
-                       The reason could be due to the lack of transactional behaviour when multiple inserts/updates that take place
-                       during JS action creation. A detailed RCA is documented here
-                       https://www.notion.so/appsmith/RCA-JSObject-name-already-exists-Please-use-a-different-name-e09c407f0ddb4653bd3974f3703408e6
-                    */
-                    if (actionDTO.getPluginType().equals(PluginType.JS)
-                            && !StringUtils.hasLength(actionDTO.getCollectionId())) {
-                        log.debug(
-                                "JS Action with Id: {} doesn't have any collection Id under pageId: {}",
-                                actionDTO.getId(),
-                                pageId);
-                        return Mono.empty();
-                    } else {
-                        return Mono.just(actionDTO);
-                    }
-                })
-                .map(ActionDTO::getValidName)
-                .collect(toSet());
-
-        /*
-         * TODO : Execute this check directly on the DB server. We can query array of arrays by:
-         * https://stackoverflow.com/questions/12629692/querying-an-array-of-arrays-in-mongodb
-         */
-        Mono<Set<String>> widgetNamesMono = Mono.just(Set.of());
-        Mono<Set<String>> actionCollectionNamesMono = Mono.just(Set.of());
-
-        // Widget and collection names cannot collide with FQNs because of the dot operator
-        // Hence we can avoid unnecessary DB calls
-        if (!isFQN) {
-            widgetNamesMono = newPageService
-                    // fetch the unpublished page
-                    .findPageById(pageId, pagePermission.getReadPermission(), false)
-                    .flatMap(page -> {
-                        List<Layout> layouts = page.getLayouts();
-                        for (Layout layout : layouts) {
-                            if (layoutId.equals(layout.getId())) {
-                                if (layout.getWidgetNames() != null
-                                        && layout.getWidgetNames().size() > 0) {
-                                    return Mono.just(layout.getWidgetNames());
-                                }
-                                // In case of no widget names (which implies that there is no DSL), return an empty set.
-                                return Mono.just(new HashSet<>());
-                            }
-                        }
-                        return Mono.error(
-                                new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.LAYOUT_ID, layoutId));
-                    });
-            actionCollectionNamesMono = actionCollectionService
-                    .getActionCollectionsByViewMode(params, false)
-                    .map(ActionCollectionDTO::getName)
-                    .collect(toSet())
-                    .switchIfEmpty(Mono.just(Set.of()));
-        }
-
-        return Mono.zip(actionNamesInPageMono, widgetNamesMono, actionCollectionNamesMono)
-                .map(tuple -> {
-                    final Set<String> actionNames = tuple.getT1();
-                    boolean isAllowed = true;
-                    if (actionNames.contains(newName)) {
-                        isAllowed = false;
-                    }
-                    Set<String> widgetNames = tuple.getT2();
-                    if (widgetNames.contains(newName)) {
-                        isAllowed = false;
-                    }
-                    Set<String> collectionNames = tuple.getT3();
-                    if (collectionNames.contains(newName)) {
-                        isAllowed = false;
-                    }
-                    return isAllowed;
-                });
     }
 
     public Mono<Set<String>> refactorNameInDsl(
@@ -849,19 +599,6 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
                 .collectMap(Tuple2::getT1, Tuple2::getT2);
     }
 
-    private Mono<Void> sendRefactorAnalytics(String event, Map<String, String> properties, Set<String> updatedPaths) {
-        return sessionUserService
-                .getCurrentUser()
-                .map(user -> {
-                    final Map<String, String> analyticsProperties = new HashMap<>(properties);
-                    analyticsProperties.put("updatedPaths", updatedPaths.toString());
-                    analyticsProperties.put("userId", user.getUsername());
-                    analyticsService.sendEvent(event, user.getUsername(), analyticsProperties);
-                    return true;
-                })
-                .then();
-    }
-
     private Mono<Void> sendRefactorAnalytics(
             AnalyticsEvents event, Map<String, String> properties, Set<String> updatedPaths) {
 
@@ -875,16 +612,5 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
                     return true;
                 })
                 .then();
-    }
-
-    private AnalyticsEvents getRefactorAnalyticsEvent(EntityType entityType) {
-
-        return switch (entityType) {
-            case JS_ACTION -> REFACTOR_JSACTION;
-            case ACTION -> REFACTOR_ACTION;
-            case JS_OBJECT -> REFACTOR_JSOBJECT;
-            case WIDGET -> REFACTOR_WIDGET;
-            case MODULE_INSTANCE -> null;
-        };
     }
 }

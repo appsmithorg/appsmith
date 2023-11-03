@@ -4,6 +4,7 @@ import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.domains.ActionCollection;
+import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.EntityType;
 import com.appsmith.server.dtos.RefactorEntityNameDTO;
 import com.appsmith.server.newactions.base.NewActionService;
@@ -33,33 +34,25 @@ public class ActionCollectionRefactoringServiceCEImpl implements EntityRefactori
     }
 
     @Override
-    public void sanitizeRefactorEntityDTO(RefactorEntityNameDTO refactorEntityNameDTO) {
-        // Do nothing
-    }
-
-    @Override
     public Mono<Boolean> validateName(String name) {
         return Mono.just(Boolean.TRUE);
     }
 
     @Override
     public Mono<Void> updateRefactoredEntity(RefactorEntityNameDTO refactorEntityNameDTO, String branchName) {
-        String pageId = refactorEntityNameDTO.getPageId();
-        String layoutId = refactorEntityNameDTO.getLayoutId();
-        String oldName = refactorEntityNameDTO.getOldName();
         String newName = refactorEntityNameDTO.getNewName();
         String actionCollectionId = refactorEntityNameDTO.getActionCollectionId();
 
-        Mono<String> branchedActionCollectionIdMono = StringUtils.isEmpty(branchName)
-                ? Mono.just(actionCollectionId)
+        Mono<ActionCollectionDTO> branchedActionCollectionDTOMono = StringUtils.isEmpty(branchName)
+                ? actionCollectionService.findActionCollectionDTObyIdAndViewMode(
+                        actionCollectionId, false, actionPermission.getEditPermission())
                 : actionCollectionService
                         .findByBranchNameAndDefaultCollectionId(
                                 branchName, actionCollectionId, actionPermission.getEditPermission())
-                        .map(ActionCollection::getId);
+                        .flatMap(actionCollection ->
+                                actionCollectionService.generateActionCollectionByViewMode(actionCollection, false));
 
-        return branchedActionCollectionIdMono
-                .flatMap(collectionId -> actionCollectionService.findActionCollectionDTObyIdAndViewMode(
-                        collectionId, false, actionPermission.getEditPermission()))
+        return branchedActionCollectionDTOMono
                 .flatMap(branchedActionCollection -> {
                     final HashMap<String, String> actionIds = new HashMap<>();
                     if (branchedActionCollection.getDefaultToBranchedActionIdsMap() != null) {
