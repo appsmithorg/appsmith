@@ -333,6 +333,7 @@ function* forkTemplateToApplicationSaga(
     templateName: string;
     applicationId?: string;
     workspaceId?: string;
+    skipWidgetConfigBuildCheck?: boolean;
   }>,
 ) {
   try {
@@ -369,6 +370,7 @@ function* apiCallForForkTemplateToApplicaion(
     pageNames?: string[] | undefined;
     applicationId?: string;
     workspaceId?: string;
+    skipWidgetConfigBuildCheck?: boolean;
   }>,
 ) {
   const pagesToImport = action.payload.pageNames
@@ -410,7 +412,11 @@ function* apiCallForForkTemplateToApplicaion(
     );
     const pageDSLs: unknown = yield all(
       templatePageIds.map((pageId: string) => {
-        return call(fetchPageDSLSaga, pageId);
+        return call(
+          fetchPageDSLSaga,
+          pageId,
+          action.payload.skipWidgetConfigBuildCheck,
+        );
       }),
     );
 

@@ -1156,7 +1156,10 @@ export function* setDataUrl() {
   yield put(setUrlData(urlData));
 }
 
-export function* fetchPageDSLSaga(pageId: string) {
+export function* fetchPageDSLSaga(
+  pageId: string,
+  skipWidgetConfigBuildCheck?: boolean,
+) {
   try {
     const layoutSystemType: LayoutSystemTypes =
       yield select(getLayoutSystemType);
@@ -1171,8 +1174,11 @@ export function* fetchPageDSLSaga(pageId: string) {
     });
     const isValidResponse: boolean = yield validateResponse(fetchPageResponse);
     if (isValidResponse) {
-      // Wait for the Widget config to be loaded before we can migrate the DSL
-      yield call(waitForWidgetConfigBuild);
+      // Skipping this check for onboarding new create app flow as the widget config won't be build as we are currently on /applications page and no application is opened yet
+      if (!skipWidgetConfigBuildCheck) {
+        // Wait for the Widget config to be loaded before we can migrate the DSL
+        yield call(waitForWidgetConfigBuild);
+      }
       // DSL migrations will now happen on the server
       // So, it may not be necessary to run dslTransformer on the pageDSL
       // or to run the DSL by the extractCurrentDSL function

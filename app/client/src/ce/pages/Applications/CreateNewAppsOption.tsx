@@ -221,6 +221,7 @@ const CreateNewAppsOption = ({
             template.pages.map((p) => p.name),
             application?.id,
             application?.workspaceId,
+            true,
           ),
         );
       }
@@ -239,6 +240,7 @@ const CreateNewAppsOption = ({
           template.pages.map((p) => p.name),
           application?.id,
           application?.workspaceId,
+          true,
         ),
       );
     }

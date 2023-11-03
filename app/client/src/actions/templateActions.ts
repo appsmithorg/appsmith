@@ -58,6 +58,7 @@ export const importTemplateIntoApplication = (
   pageNames?: string[],
   applicationId?: string,
   workspaceId?: string,
+  skipWidgetConfigBuildCheck?: boolean,
 ) => ({
   type: ReduxActionTypes.IMPORT_TEMPLATE_TO_APPLICATION_INIT,
   payload: {
@@ -66,6 +67,7 @@ export const importTemplateIntoApplication = (
     pageNames,
     applicationId,
     workspaceId,
+    skipWidgetConfigBuildCheck,
   },
 });
 
