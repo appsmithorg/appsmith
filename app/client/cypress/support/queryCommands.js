@@ -33,17 +33,9 @@ Cypress.Commands.add("NavigateToActiveDSQueryPane", (datasourceName) => {
 });
 
 Cypress.Commands.add("NavigateToDSGeneratePage", (datasourceName) => {
-  EditorNavigation.sidebar(SidebarButton.Data);
-
-  cy.get(datasource.datasourceCard)
-    .contains(datasourceName)
-    .scrollIntoView()
-    .should("be.visible")
-    .closest(datasource.datasourceCard)
-    .within(() => {
-      cy.get(datasource.datasourceCardGeneratePageBtn).click();
-    })
-    .wait(2000); //for the specified page to load
+  DataSources.navigateToDatasource(datasourceName);
+  cy.get(datasource.datasourceCardGeneratePageBtn).click();
+  cy.wait(2000); //for the specified page to load
 });
 
 Cypress.Commands.add("ClickGotIt", () => {

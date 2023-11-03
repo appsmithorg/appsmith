@@ -9,9 +9,10 @@ import {
   CONTEXT_DELETE,
   EDIT,
   createMessage,
+  GENERATE_NEW_PAGE_BUTTON_TEXT,
 } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { deleteDatasource } from "actions/datasourceActions";
 import { debounce } from "lodash";
 import type { ApiDatasourceForm } from "entities/Datasource/RestAPIForm";
@@ -19,6 +20,18 @@ import { MenuWrapper, StyledMenu } from "components/utils/formComponents";
 import styled from "styled-components";
 import { Button, MenuContent, MenuItem, MenuTrigger } from "design-system";
 import { DatasourceEditEntryPoints } from "constants/Datasource";
+import { getHasCreatePagePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { getCurrentPageId } from "selectors/editorSelectors";
+import type { AppState } from "@appsmith/reducers";
+import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
+import type { GenerateCRUDEnabledPluginMap } from "api/PluginApi";
+import { getGenerateCRUDEnabledPluginMap } from "@appsmith/selectors/entitiesSelector";
+import history from "utils/history";
+import { generateTemplateFormURL } from "@appsmith/RouteBuilder";
+import { PluginName } from "entities/Action";
+import { DATASOURCES_ALLOWED_FOR_PREVIEW_MODE } from "constants/QueryEditorConstants";
 
 export const ActionWrapper = styled.div`
   display: flex;
@@ -116,6 +129,48 @@ export const DSFormHeader = (props: DSFormHeaderProps) => {
 
   const onCloseMenu = debounce(() => setConfirmDelete(false), 20);
 
+  const userAppPermissions = useSelector(
+    (state: AppState) => getCurrentApplication(state)?.userPermissions ?? [],
+  );
+
+  const pageId = useSelector(getCurrentPageId);
+
+  const isGACEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+
+  //   A/B feature flag for datasource view mode preview data.
+  let isEnabledForDSViewModeSchema = useFeatureFlag(
+    FEATURE_FLAG.ab_gsheet_schema_enabled,
+  );
+
+  const isEnabledForMockMongoSchema = useFeatureFlag(
+    FEATURE_FLAG.ab_mock_mongo_schema_enabled,
+  );
+
+  // for mongoDB, the feature flag should be based on ab_mock_mongo_schema_enabled.
+  if (pluginName === PluginName.MONGO) {
+    isEnabledForDSViewModeSchema = isEnabledForMockMongoSchema;
+  }
+
+  const isPluginAllowedToPreviewData = isEnabledForDSViewModeSchema
+    ? DATASOURCES_ALLOWED_FOR_PREVIEW_MODE.includes(pluginName || "") ||
+      (pluginName === PluginName.MONGO && !!(datasource as Datasource)?.isMock)
+    : false;
+
+  const generateCRUDSupportedPlugin: GenerateCRUDEnabledPluginMap = useSelector(
+    getGenerateCRUDEnabledPluginMap,
+  );
+
+  const canCreatePages = getHasCreatePagePermission(
+    isGACEnabled,
+    userAppPermissions,
+  );
+
+  const canGeneratePage = canCreateDatasourceActions && canCreatePages;
+
+  const supportTemplateGeneration =
+    !isPluginAllowedToPreviewData &&
+    !!generateCRUDSupportedPlugin[(datasource as Datasource).pluginId];
+
   const renderMenuOptions = () => {
     return [
       <MenuItem
@@ -140,6 +195,23 @@ export const DSFormHeader = (props: DSFormHeaderProps) => {
           : createMessage(CONTEXT_DELETE)}
       </MenuItem>,
     ];
+  };
+
+  const routeToGeneratePage = () => {
+    if (!supportTemplateGeneration || !canGeneratePage) {
+      // disable button when it doesn't support page generation
+      return;
+    }
+    AnalyticsUtil.logEvent("DATASOURCE_CARD_GEN_CRUD_PAGE_ACTION");
+    history.push(
+      generateTemplateFormURL({
+        pageId,
+        params: {
+          datasourceId: (datasource as Datasource).id,
+          new_page: true,
+        },
+      }),
+    );
   };
 
   return (
@@ -200,6 +272,21 @@ export const DSFormHeader = (props: DSFormHeaderProps) => {
             eventFrom="datasource-pane"
             pluginType={pluginType}
           />
+          {supportTemplateGeneration && (
+            <Button
+              className={"t--generate-template"}
+              isDisabled={!canGeneratePage}
+              kind="secondary"
+              onClick={(e: any) => {
+                e.stopPropagation();
+                e.preventDefault();
+                routeToGeneratePage();
+              }}
+              size="md"
+            >
+              {createMessage(GENERATE_NEW_PAGE_BUTTON_TEXT)}
+            </Button>
+          )}
         </ActionWrapper>
       )}
     </Header>
