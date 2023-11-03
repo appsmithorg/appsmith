@@ -15,8 +15,8 @@ import PrimaryCTA from "../PrimaryCTA";
 import { useHref } from "pages/Editor/utils";
 import { builderURL } from "@appsmith/RouteBuilder";
 import {
+  combinedPreviewModeSelector,
   getCurrentPageId,
-  previewModeSelector,
 } from "selectors/editorSelectors";
 import type { User } from "constants/userConstants";
 import SidebarProfileComponent from "./components/SidebarProfileComponent";
@@ -83,7 +83,7 @@ export function Sidebar(props: SidebarProps) {
   const [isOpen, setIsOpen] = useState(true);
   const { x } = useMouse();
   const theme = useSelector(getCurrentThemeDetails);
-  const isPreviewMode = useSelector(previewModeSelector);
+  const isPreviewMode = useSelector(combinedPreviewModeSelector);
   const isAppSettingsPaneWithNavigationTabOpen = useSelector(
     getIsAppSettingsPaneWithNavigationTabOpen,
   );

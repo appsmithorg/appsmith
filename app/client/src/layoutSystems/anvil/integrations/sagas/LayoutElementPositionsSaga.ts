@@ -11,7 +11,7 @@ import log from "loglevel";
 import type { AppState } from "@appsmith/reducers";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { APP_MODE } from "entities/App";
-import { previewModeSelector } from "selectors/editorSelectors";
+import { combinedPreviewModeSelector } from "selectors/editorSelectors";
 import { getAppMode } from "@appsmith/selectors/entitiesSelector";
 
 /**
@@ -33,7 +33,7 @@ function* readAndUpdateLayoutElementPositions() {
 
   // The positions are used only in the editor, so we should not be running this saga
   // in the viewer or the preview mode.
-  const isPreviewMode: boolean = yield select(previewModeSelector);
+  const isPreviewMode: boolean = yield select(combinedPreviewModeSelector);
   const appMode: APP_MODE = yield select(getAppMode);
   if (isPreviewMode || appMode === APP_MODE.PUBLISHED) {
     return;
