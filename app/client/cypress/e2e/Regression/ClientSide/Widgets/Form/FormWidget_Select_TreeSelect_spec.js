@@ -11,8 +11,8 @@ describe("Form Widget Functionality", function () {
     cy.get(widgetsPage.formButtonWidget)
       .contains("Submit")
       .should("have.attr", "disabled");
-    cy.wait(2000); //for dropdown to load for CI runs
-    cy.get(formWidgetsPage.treeSelectInput)
+    cy.wait(1000) //for dropdown to load for CI runs
+      .get(formWidgetsPage.treeSelectInput)
       .last()
       .click({ force: true })
       .wait(500);
