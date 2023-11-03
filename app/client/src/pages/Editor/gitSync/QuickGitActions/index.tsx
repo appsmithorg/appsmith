@@ -22,7 +22,11 @@ import {
 
 import { Colors } from "constants/Colors";
 import { useDispatch, useSelector } from "react-redux";
-import { gitPullInit, setIsGitSyncModalOpen } from "actions/gitSyncActions";
+import {
+  discardChanges,
+  gitPullInit,
+  setIsGitSyncModalOpen,
+} from "actions/gitSyncActions";
 import { GitSyncModalTab } from "entities/GitSync";
 import {
   getCountOfChangesToCommit,
@@ -123,10 +127,14 @@ function QuickActionButton({
   );
 }
 
-const getPullBtnStatus = (gitStatus: any, pullFailed: boolean) => {
+const getPullBtnStatus = (
+  gitStatus: any,
+  pullFailed: boolean,
+  isProtected: boolean,
+) => {
   const { behindCount, isClean } = gitStatus || {};
   let message = createMessage(NO_COMMITS_TO_PULL);
-  let disabled = behindCount === 0;
+  let disabled = isProtected ? false : behindCount === 0;
   if (!isClean) {
     disabled = true;
     message = createMessage(CANNOT_PULL_WITH_LOCAL_UNCOMMITTED_CHANGES);
@@ -179,7 +187,7 @@ const getQuickActionButtons = ({
     },
     {
       className: "t--bottom-bar-pull",
-      count: gitStatus?.behindCount,
+      count: isProtectedMode ? undefined : gitStatus?.behindCount,
       icon: "down-arrow-2",
       onClick: () => !pullDisabled && pull(),
       tooltipText: pullTooltipMessage,
@@ -293,7 +301,7 @@ export default function QuickGitActions() {
   const isProtectedMode = useSelector(protectedModeSelector);
 
   const { disabled: pullDisabled, message: pullTooltipMessage } =
-    getPullBtnStatus(gitStatus, !!pullFailed);
+    getPullBtnStatus(gitStatus, !!pullFailed, isProtectedMode);
 
   const isPullInProgress = useSelector(getPullInProgress);
   const isFetchingGitStatus = useSelector(getIsFetchingGitStatus);
@@ -334,7 +342,11 @@ export default function QuickGitActions() {
       AnalyticsUtil.logEvent("GS_PULL_GIT_CLICK", {
         source: "BOTTOM_BAR_GIT_PULL_BUTTON",
       });
-      dispatch(gitPullInit({ triggeredFromBottomBar: true }));
+      if (isProtectedMode) {
+        dispatch(discardChanges());
+      } else {
+        dispatch(gitPullInit({ triggeredFromBottomBar: true }));
+      }
     },
     merge: () => {
       AnalyticsUtil.logEvent("GS_MERGE_GIT_MODAL_TRIGGERED", {
