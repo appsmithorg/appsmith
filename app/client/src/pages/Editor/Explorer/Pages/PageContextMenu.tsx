@@ -55,6 +55,9 @@ export function PageContextMenu(props: {
   isHidden: boolean;
 }) {
   const dispatch = useDispatch();
+  const isPartialImportExportEnabled = useFeatureFlag(
+    FEATURE_FLAG.release_show_partial_import_export_enabled,
+  );
   const [showPartialExportModal, setShowPartialExportModal] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
 
@@ -191,16 +194,18 @@ export function PageContextMenu(props: {
         value: "setdefault",
         label: createMessage(CONTEXT_SET_AS_HOME_PAGE),
       },
-    props.isCurrentPage && {
-      value: "partial-export",
-      onSelect: openPartialExportModal,
-      label: createMessage(CONTEXT_PARTIAL_EXPORT),
-    },
-    props.isCurrentPage && {
-      value: "partial-import",
-      onSelect: onPartialImportClick,
-      label: createMessage(CONTEXT_PARTIAL_IMPORT),
-    },
+    isPartialImportExportEnabled &&
+      props.isCurrentPage && {
+        value: "partial-export",
+        onSelect: openPartialExportModal,
+        label: createMessage(CONTEXT_PARTIAL_EXPORT),
+      },
+    isPartialImportExportEnabled &&
+      props.isCurrentPage && {
+        value: "partial-import",
+        onSelect: onPartialImportClick,
+        label: createMessage(CONTEXT_PARTIAL_IMPORT),
+      },
     {
       value: "settings",
       onSelect: openAppSettingsPane,
