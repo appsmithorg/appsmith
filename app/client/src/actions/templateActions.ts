@@ -56,16 +56,12 @@ export const importTemplateIntoApplication = (
   templateId: string,
   templateName: string,
   pageNames?: string[],
-  applicationId?: string,
-  workspaceId?: string,
 ) => ({
   type: ReduxActionTypes.IMPORT_TEMPLATE_TO_APPLICATION_INIT,
   payload: {
     templateId,
     templateName,
     pageNames,
-    applicationId,
-    workspaceId,
   },
 });
 
