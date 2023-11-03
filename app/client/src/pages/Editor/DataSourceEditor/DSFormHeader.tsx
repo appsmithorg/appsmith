@@ -32,6 +32,7 @@ import history from "utils/history";
 import { generateTemplateFormURL } from "@appsmith/RouteBuilder";
 import { PluginName } from "entities/Action";
 import { DATASOURCES_ALLOWED_FOR_PREVIEW_MODE } from "constants/QueryEditorConstants";
+import { isGoogleSheetPluginDS } from "../../../utils/editorContextUtils";
 
 export const ActionWrapper = styled.div`
   display: flex;
@@ -92,6 +93,7 @@ interface DSFormHeaderProps {
   pluginImage: string;
   pluginType: string;
   pluginName: string;
+  pluginPackageName: string;
   setDatasourceViewMode: (payload: {
     datasourceId: string;
     viewMode: boolean;
@@ -113,6 +115,7 @@ export const DSFormHeader = (props: DSFormHeaderProps) => {
     noBottomBorder,
     pluginImage,
     pluginName,
+    pluginPackageName,
     pluginType,
     setDatasourceViewMode,
     viewMode,
@@ -137,6 +140,8 @@ export const DSFormHeader = (props: DSFormHeaderProps) => {
 
   const isGACEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
 
+  const isGoogleSheetPlugin = isGoogleSheetPluginDS(pluginPackageName);
+
   //   A/B feature flag for datasource view mode preview data.
   let isEnabledForDSViewModeSchema = useFeatureFlag(
     FEATURE_FLAG.ab_gsheet_schema_enabled,
@@ -153,7 +158,9 @@ export const DSFormHeader = (props: DSFormHeaderProps) => {
 
   const isPluginAllowedToPreviewData = isEnabledForDSViewModeSchema
     ? DATASOURCES_ALLOWED_FOR_PREVIEW_MODE.includes(pluginName || "") ||
-      (pluginName === PluginName.MONGO && !!(datasource as Datasource)?.isMock)
+      (pluginName === PluginName.MONGO &&
+        !!(datasource as Datasource)?.isMock) ||
+      isGoogleSheetPlugin
     : false;
 
   const generateCRUDSupportedPlugin: GenerateCRUDEnabledPluginMap = useSelector(

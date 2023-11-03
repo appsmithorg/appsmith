@@ -124,7 +124,7 @@ export class DataSources {
   _selectedActiveTab = "button[aria-selected='true'] " + this._activeTab;
   _contextMenuDSReviewPage = "[data-testid='t--context-menu-trigger']";
   _contextMenuDelete = ".t--datasource-option-delete";
-  _datasourceCardGeneratePageBtn = ".t--datasource-generate-page";
+  _datasourceCardGeneratePageBtn = ".t--generate-template";
   _queryOption = (option: string) =>
     "//div[contains(@class, 'rc-select-item-option-content') and text() = '" +
     option +
@@ -848,12 +848,7 @@ export class DataSources {
     datasourceName: string,
     expectedRes: number | number[] = 200 || 409 || [200, 409],
   ) {
-    EditorNavigation.sidebar(SidebarButton.Data);
-    cy.get(this._datasourceCard)
-      .contains(datasourceName)
-      .scrollIntoView()
-      .should("be.visible")
-      .click();
+    this.navigateToDatasource(datasourceName);
     this.agHelper.Sleep(); //for the Datasource page to open
     this.DeleteDSDirectly(expectedRes, false);
   }
