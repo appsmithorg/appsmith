@@ -7,6 +7,7 @@ export interface JSLibrary {
   name: string;
   accessor: string[];
   url?: string;
+  id?: string;
 }
 
 export const defaultLibraries: JSLibrary[] = [

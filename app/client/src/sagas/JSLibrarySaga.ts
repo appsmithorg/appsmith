@@ -390,6 +390,7 @@ function* fetchJSLibraries(action: ReduxAction<string>) {
         version: lib.version,
         url: lib.url,
         docsURL: lib.docsURL,
+        id: lib.id,
       })),
     });
   } catch (e) {

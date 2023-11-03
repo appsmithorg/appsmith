@@ -120,7 +120,7 @@ const PartiaExportModel = ({ handleModalClose, isModalOpen }: Props) => {
         icon: <MenuIcons.LIBRARY_ICON height={16} keepColors width={16} />,
         children: libraries ? (
           <EntityCheckboxSelector
-            entities={libraries}
+            entities={libraries.filter((lib) => !!lib.url)}
             onEntityChecked={(id, selected) =>
               onEntitySelected("customJSLibs", id, selected)
             }
