@@ -242,7 +242,11 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       !isPreviewMode;
 
     widgetProps.mainCanvasWidth = mainCanvasWidth;
-    if (layoutSystemType !== LayoutSystemTypes.ANVIL) {
+    if (layoutSystemType === LayoutSystemTypes.ANVIL) {
+      if (shouldCollapseWidgetInViewOrPreviewMode) {
+        return null;
+      }
+    } else {
       // We don't render invisible widgets in view mode
       if (shouldCollapseWidgetInViewOrPreviewMode) {
         // This flag (isMetaWidget) is used to prevent the Auto height saga from updating
