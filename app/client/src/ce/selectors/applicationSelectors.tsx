@@ -289,7 +289,7 @@ export const getCurrentApplicationIdForCreateNewApp = (state: AppState) => {
   return state.ui.applications.currentApplicationIdForCreateNewApp;
 };
 
-// Get workspace list where user can create applications
+// Get application from id from userWorkspaces
 export const getApplicationByIdFromWorkspaces = createSelector(
   getUserApplicationsWorkspaces,
   (_: AppState, applicationId: string) => applicationId,
