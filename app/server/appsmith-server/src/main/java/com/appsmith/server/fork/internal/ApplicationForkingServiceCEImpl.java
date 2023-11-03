@@ -727,7 +727,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
 
     private Mono<Boolean> isForkingEnabled(Mono<Application> applicationMono) {
         return applicationMono
-                .map(application -> application.getForkingEnabled() != null && application.getForkingEnabled())
+                .map(application -> Boolean.TRUE.equals(application.getForkingEnabled()))
                 .defaultIfEmpty(Boolean.FALSE);
     }
 }
