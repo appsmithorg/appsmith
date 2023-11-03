@@ -39,16 +39,18 @@ export const useDatasourceQuery = ({
       } else {
         // if the response from the server is anything but an array of data, set the error flag
         setFailedFetchingPreviewData(true);
-        AnalyticsUtil.logEvent("DATA_FETCH_FAILED_POST_SCHEMA_FETCH", payload.data?.pluginErrorDetails);
+        AnalyticsUtil.logEvent("DATA_FETCH_FAILED_POST_SCHEMA_FETCH", {
+          error: payload.data?.pluginErrorDetails,
+        });
       }
     }
   }, []);
 
-  const onFetchPreviewDataFailure = useCallback(() => {
+  const onFetchPreviewDataFailure = useCallback((error: any) => {
     setIsLoading(false);
     setFailedFetchingPreviewData(true);
     AnalyticsUtil.logEvent("DATA_FETCH_FAILED_POST_SCHEMA_FETCH", {
-      error: "No API response found"
+      error: error,
     });
   }, []);
 

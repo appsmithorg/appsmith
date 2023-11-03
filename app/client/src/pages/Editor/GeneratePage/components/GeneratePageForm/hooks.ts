@@ -381,11 +381,11 @@ export const useSheetData = (
     useState<boolean>(false);
 
   const onFetchAllSheetFailure = useCallback(
-    (errorMessage: string) => {
+    (error: string) => {
       setIsFetchingSheetData(false);
       setFailedFetchingSheetData(true);
       AnalyticsUtil.logEvent("DATA_FETCH_FAILED_POST_SCHEMA_FETCH", {
-        error: errorMessage,
+        error: error,
       });
     },
     [setIsFetchingSheetData],
@@ -407,7 +407,8 @@ export const useSheetData = (
           // to handle error like "401 Unauthorized"
           AnalyticsUtil.logEvent(
             "DATA_FETCH_FAILED_POST_SCHEMA_FETCH",
-            payload,
+            { error: payload }, // sending the entire payload here because it is not clear if there is a distinct
+            // field holding the error message
           );
         }
       }
