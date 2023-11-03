@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { initExplorerEntityNameEdit } from "actions/explorerActions";
@@ -25,7 +25,10 @@ import {
 import { openAppSettingsPaneAction } from "actions/appSettingsPaneActions";
 import { AppSettingsTabs } from "pages/Editor/AppSettingsPane/AppSettings";
 import { getPageById } from "selectors/editorSelectors";
-import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
+import {
+  getCurrentApplication,
+  getPartialImportExportLoadingState,
+} from "@appsmith/selectors/applicationSelectors";
 import type { AppState } from "@appsmith/reducers";
 import ContextMenu from "pages/Editor/Explorer/ContextMenu";
 import type { TreeDropdownOption } from "pages/Editor/Explorer/ContextMenu";
@@ -55,12 +58,20 @@ export function PageContextMenu(props: {
   isHidden: boolean;
 }) {
   const dispatch = useDispatch();
-  const isPartialImportExportEnabled = useFeatureFlag(
-    FEATURE_FLAG.release_show_partial_import_export_enabled,
-  );
+  const isPartialImportExportEnabled = true;
+  useFeatureFlag(FEATURE_FLAG.release_show_partial_import_export_enabled);
   const [showPartialExportModal, setShowPartialExportModal] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
 
+  const partialImportExportLoadingState = useSelector(
+    getPartialImportExportLoadingState,
+  );
+
+  useEffect(() => {
+    if (partialImportExportLoadingState.isExportDone) {
+      setShowPartialExportModal(false);
+    }
+  }, [partialImportExportLoadingState]);
   /**
    * delete the page
    *
