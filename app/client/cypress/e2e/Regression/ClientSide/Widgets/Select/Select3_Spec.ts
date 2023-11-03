@@ -68,6 +68,7 @@ describe("Select widget tests", function () {
       true,
     );
     agHelper.GetNClick(locators._selectOptionValue("Ulf Merbold"), 0, true);
+    agHelper.Sleep(); //for the new value to be set
     agHelper.ReadSelectedDropDownValue().then(($selectedValue) => {
       expect($selectedValue).to.eq("Ulf Merbold");
     });
