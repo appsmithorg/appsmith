@@ -26,6 +26,42 @@ async function responseHandler(requestId: string): Promise<TPromiseResponse> {
   });
 }
 
+export type TransmissionErrorHandler = (
+  messageId: string,
+  timeTaken: number,
+  responseData: unknown,
+  e: unknown,
+) => void;
+
+const defaultErrorHandler: TransmissionErrorHandler = (
+  messageId: string,
+  timeTaken: number,
+  responseData: unknown,
+  e: unknown,
+) => {
+  console.error(e);
+  sendMessage.call(self, {
+    messageId,
+    messageType: MessageType.RESPONSE,
+    body: {
+      timeTaken: timeTaken.toFixed(2),
+      data: {
+        errors: [
+          {
+            type: WorkerErrorTypes.CLONE_ERROR,
+            message: (e as Error)?.message,
+            errorMessage: getErrorMessage(
+              e as Error,
+              WorkerErrorTypes.CLONE_ERROR,
+            ),
+            context: JSON.stringify(responseData),
+          },
+        ],
+      },
+    },
+  });
+};
+
 export class WorkerMessenger {
   static async request(payload: any) {
     const messageId = uniqueId(`request-${payload.method}-`);
@@ -63,7 +99,12 @@ export class WorkerMessenger {
     }
   }
 
-  static respond(messageId: string, data: unknown, timeTaken: number) {
+  static respond(
+    messageId: string,
+    data: unknown,
+    timeTaken: number,
+    onErrorHandler?: TransmissionErrorHandler,
+  ) {
     try {
       sendMessage.call(self, {
         messageId,
@@ -71,28 +112,12 @@ export class WorkerMessenger {
         body: { data, timeTaken },
       });
     } catch (e) {
-      // TODO: Remove hardcoded error handling.
-      console.error(e);
-      sendMessage.call(self, {
-        messageId,
-        messageType: MessageType.RESPONSE,
-        body: {
-          timeTaken: timeTaken.toFixed(2),
-          data: {
-            errors: [
-              {
-                type: WorkerErrorTypes.CLONE_ERROR,
-                message: (e as Error)?.message,
-                errorMessage: getErrorMessage(
-                  e as Error,
-                  WorkerErrorTypes.CLONE_ERROR,
-                ),
-                context: JSON.stringify(data),
-              },
-            ],
-          },
-        },
-      });
+      const errorHandler = onErrorHandler || defaultErrorHandler;
+      try {
+        errorHandler(messageId, timeTaken, data, e);
+      } catch {
+        defaultErrorHandler(messageId, timeTaken, data, e);
+      }
     }
   }
 }

@@ -7,7 +7,7 @@ import { builderURL } from "@appsmith/RouteBuilder";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import history from "utils/history";
 import { ButtonButtons, TopButtons } from "entities/IDE/constants";
-import { getCurrentAppState } from "../../entities/IDE/utils";
+import useCurrentAppState from "../hooks";
 
 const Container = styled.div`
   width: 50px;
@@ -16,9 +16,11 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  background-color: var(--ads-v2-color-bg);
 `;
 
 function Sidebar() {
+  const appState = useCurrentAppState();
   const isAppSidebarEnabled = useSelector(getIsAppSidebarEnabled);
   const pageId = useSelector(getCurrentPageId);
   const onClick = useCallback(
@@ -35,9 +37,9 @@ function Sidebar() {
   if (!isAppSidebarEnabled) {
     return null;
   }
-  const appState = getCurrentAppState(window.location.pathname);
+
   return (
-    <Container className="z-[3]">
+    <Container>
       <div>
         {TopButtons.map((b) => (
           <SidebarButton
@@ -56,6 +58,7 @@ function Sidebar() {
             key={b.state}
             onClick={() => onClick(b.urlSuffix)}
             selected={appState === b.state}
+            tooltip={b.title}
           />
         ))}
       </div>

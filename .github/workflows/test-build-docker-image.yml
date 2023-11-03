@@ -45,16 +45,6 @@ jobs:
     with:
       pr: 0
 
-  perf-test:
-    needs: [build-docker-image]
-    # Only run if the build step is successful
-    if: success()
-    name: perf-test
-    uses: ./.github/workflows/perf-test.yml
-    secrets: inherit
-    with:
-      pr: 0
-
   ci-test:
     needs: [build-docker-image]
     # Only run if the build step is successful

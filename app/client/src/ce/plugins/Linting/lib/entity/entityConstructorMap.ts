@@ -5,7 +5,6 @@ import type {
   WidgetEntityConfig as TWidgetEntityConfig,
   JSActionEntity as TJSActionEntity,
   ActionEntity as TActionEntity,
-  PagelistEntity as TPageListEntity,
   ActionEntityConfig as TActionEntityConfig,
   JSActionEntityConfig as TJSActionEntityConfig,
 } from "@appsmith/entities/DataTree/types";
@@ -20,7 +19,6 @@ import { ActionEntity } from "plugins/Linting/lib/entity/ActionEntity";
 import { AppsmithEntity } from "plugins/Linting/lib/entity/AppsmithEntity";
 import { JSEntity } from "plugins/Linting/lib/entity/JSActionEntity";
 import { WidgetEntity } from "plugins/Linting/lib/entity/WidgetEntity";
-import { PagelistEntity } from "plugins/Linting/lib/entity/PagelistEntity";
 
 export const entityConstructorMap: Record<
   string,
@@ -57,10 +55,6 @@ export const entityConstructorMap: Record<
       new Parser(),
       new DiffGenerator(),
     );
-  },
-  [ENTITY_TYPE.PAGELIST]: (props) => {
-    const { entity } = props;
-    return new PagelistEntity(entity as TPageListEntity, undefined);
   },
   [ENTITY_TYPE.WIDGET]: (props) => {
     const { config, DiffGenerator, entity, Parser } = props;
