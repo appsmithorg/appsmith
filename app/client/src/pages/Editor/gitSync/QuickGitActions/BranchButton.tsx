@@ -119,7 +119,7 @@ function BranchButton() {
             >
               {currentBranch}
             </span>
-            {!status?.isClean && "*"}
+            {!status?.isClean && !isProtectedMode && "*"}
           </ButtonContainer>
         </Tooltip>
       </Tooltip>

@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   createNewBranchInit,
   fetchBranchesInit,
-  setIsGitSyncModalOpen,
+  // setIsGitSyncModalOpen,
   switchGitBranchInit,
 } from "actions/gitSyncActions";
 import {
@@ -26,9 +26,9 @@ import BranchListHotkeys from "./BranchListHotkeys";
 import {
   createMessage,
   FIND_OR_CREATE_A_BRANCH,
-  GO_TO_SETTINGS,
-  LEARN_MORE,
-  NOW_PROTECT_BRANCH,
+  // GO_TO_SETTINGS,
+  // LEARN_MORE,
+  // NOW_PROTECT_BRANCH,
   SWITCH_BRANCHES,
   SYNC_BRANCHES,
 } from "@appsmith/constants/messages";
@@ -39,7 +39,7 @@ import {
   Button,
   SearchInput,
   Text,
-  Callout,
+  // Callout,
 } from "design-system";
 import { get } from "lodash";
 import {
@@ -54,7 +54,7 @@ import { RemoteBranchList } from "./RemoteBranchList";
 import { LocalBranchList } from "./LocalBranchList";
 import type { Theme } from "constants/DefaultTheme";
 import { Space } from "./StyledComponents";
-import { GitSyncModalTab } from "entities/GitSync";
+// import { GitSyncModalTab } from "entities/GitSync";
 
 const ListContainer = styled.div`
   flex: 1;
@@ -379,7 +379,8 @@ export default function BranchList(props: {
         {fetchingBranches && <BranchesLoading />}
         {!fetchingBranches && (
           <ListContainer>
-            <Callout
+            {/* keeping it commented for future use */}
+            {/* <Callout
               isClosable
               links={[
                 {
@@ -403,7 +404,7 @@ export default function BranchList(props: {
               style={{ width: 300 }}
             >
               {createMessage(NOW_PROTECT_BRANCH)}
-            </Callout>
+            </Callout> */}
             <Space size={5} />
             {isCreateNewBranchInputValid && (
               <CreateNewBranch
