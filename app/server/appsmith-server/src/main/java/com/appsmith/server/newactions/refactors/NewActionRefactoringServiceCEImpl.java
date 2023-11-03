@@ -13,6 +13,7 @@ import com.appsmith.server.dtos.RefactoringMetaDTO;
 import com.appsmith.server.helpers.DslUtils;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.refactors.entities.EntityRefactoringServiceCE;
+import com.appsmith.server.refactors.utils.RefactoringUtils;
 import com.appsmith.server.services.AstService;
 import com.appsmith.server.solutions.ActionPermission;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -47,18 +48,7 @@ public class NewActionRefactoringServiceCEImpl implements EntityRefactoringServi
 
     @Override
     public void sanitizeRefactorEntityDTO(RefactorEntityNameDTO refactorEntityNameDTO) {
-
-        String oldName = refactorEntityNameDTO.getOldName();
-        final String oldFullyQualifiedName = StringUtils.hasLength(refactorEntityNameDTO.getCollectionName())
-                ? refactorEntityNameDTO.getCollectionName() + "." + oldName
-                : oldName;
-        String newName = refactorEntityNameDTO.getNewName();
-        final String newFullyQualifiedName = StringUtils.hasLength(refactorEntityNameDTO.getCollectionName())
-                ? refactorEntityNameDTO.getCollectionName() + "." + newName
-                : newName;
-
-        refactorEntityNameDTO.setOldFullyQualifiedName(oldFullyQualifiedName);
-        refactorEntityNameDTO.setNewFullyQualifiedName(newFullyQualifiedName);
+        RefactoringUtils.updateFQNUsingCollectionName(refactorEntityNameDTO);
     }
 
     @Override

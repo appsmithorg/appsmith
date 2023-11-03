@@ -21,6 +21,7 @@ import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.PagePermission;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.transaction.reactive.TransactionalOperator;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
@@ -43,6 +44,7 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
     private final PagePermission pagePermission;
     private final AnalyticsService analyticsService;
     private final SessionUserService sessionUserService;
+    private final TransactionalOperator transactionalOperator;
 
     private final EntityRefactoringService<Void> jsActionEntityRefactoringService;
     private final EntityRefactoringService<NewAction> newActionEntityRefactoringService;
@@ -182,6 +184,7 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
 
                     return service.updateRefactoredEntity(refactorEntityNameDTO, branchName)
                             .then(this.refactorName(refactorEntityNameDTO))
+                            .as(transactionalOperator::transactional)
                             .flatMap(tuple2 -> {
                                 AnalyticsEvents event =
                                         service.getRefactorAnalyticsEvent(refactorEntityNameDTO.getEntityType());

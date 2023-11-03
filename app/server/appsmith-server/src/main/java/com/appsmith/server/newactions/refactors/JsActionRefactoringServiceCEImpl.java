@@ -14,6 +14,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.refactors.entities.EntityRefactoringService;
 import com.appsmith.server.refactors.entities.EntityRefactoringServiceCE;
+import com.appsmith.server.refactors.utils.RefactoringUtils;
 import com.appsmith.server.solutions.ActionPermission;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,18 +40,7 @@ public class JsActionRefactoringServiceCEImpl implements EntityRefactoringServic
 
     @Override
     public void sanitizeRefactorEntityDTO(RefactorEntityNameDTO refactorEntityNameDTO) {
-
-        String oldName = refactorEntityNameDTO.getOldName();
-        final String oldFullyQualifiedName = StringUtils.hasLength(refactorEntityNameDTO.getCollectionName())
-                ? refactorEntityNameDTO.getCollectionName() + "." + oldName
-                : oldName;
-        String newName = refactorEntityNameDTO.getNewName();
-        final String newFullyQualifiedName = StringUtils.hasLength(refactorEntityNameDTO.getCollectionName())
-                ? refactorEntityNameDTO.getCollectionName() + "." + newName
-                : newName;
-
-        refactorEntityNameDTO.setOldFullyQualifiedName(oldFullyQualifiedName);
-        refactorEntityNameDTO.setNewFullyQualifiedName(newFullyQualifiedName);
+        RefactoringUtils.updateFQNUsingCollectionName(refactorEntityNameDTO);
     }
 
     @Override
