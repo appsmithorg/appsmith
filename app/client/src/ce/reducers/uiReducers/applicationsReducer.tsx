@@ -42,6 +42,7 @@ export const initialState: ApplicationsReduxState = {
   userWorkspaces: [],
   isSavingWorkspaceInfo: false,
   importingApplication: false,
+  importingPartialApplication: false,
   importedApplication: null,
   isImportAppModalOpen: false,
   workspaceIdForImport: null,
@@ -422,6 +423,16 @@ export const handlers = {
       importingApplication: false,
     };
   },
+  [ReduxActionTypes.PARTIAL_IMPORT_INIT]: (state: ApplicationsReduxState) => ({
+    ...state,
+    importingPartialApplication: true,
+  }),
+  [ReduxActionTypes.PARTIAL_IMPORT_SUCCESS]: (
+    state: ApplicationsReduxState,
+  ) => ({
+    ...state,
+    importingPartialApplication: false,
+  }),
   [ReduxActionTypes.SAVING_WORKSPACE_INFO]: (state: ApplicationsReduxState) => {
     return {
       ...state,
@@ -843,6 +854,7 @@ export interface ApplicationsReduxState {
   userWorkspaces: Workspaces[];
   isSavingWorkspaceInfo: boolean;
   importingApplication: boolean;
+  importingPartialApplication: boolean;
   importedApplication: unknown;
   isImportAppModalOpen: boolean;
   workspaceIdForImport: any;

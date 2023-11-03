@@ -213,6 +213,9 @@ export const getIsDatasourceConfigForImportFetched = (state: AppState) =>
 export const getIsImportingApplication = (state: AppState) =>
   state.ui.applications.importingApplication;
 
+export const getIsImportingPartialApplication = (state: AppState) =>
+  state.ui.applications.importingPartialApplication;
+
 export const getWorkspaceIdForImport = (state: AppState) =>
   state.ui.applications.workspaceIdForImport;
 
