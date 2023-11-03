@@ -14,6 +14,11 @@ type templateActions =
   | "Create"
   | "List files";
 
+type DragDropWidgetOptions = {
+  parentWidgetType?: string;
+  dropTargetId?: string;
+  skipWidgetSearch?: boolean;
+};
 interface EntityActionParams {
   entityNameinLeftSidebar: string;
   action?:
@@ -327,12 +332,17 @@ export class EntityExplorer {
     widgetType: string,
     x = 300,
     y = 100,
-    parentWidgetType = "",
-    dropTargetId = "",
-    skipWidgetSearch = false,
+    options = {} as DragDropWidgetOptions,
   ) {
+    const {
+      parentWidgetType = "",
+      dropTargetId = "",
+      skipWidgetSearch = false,
+    } = options;
     if (!skipWidgetSearch) {
       this.SearchWidgetPane(widgetType);
+    } else {
+      this.NavigateToSwitcher("Widgets", 0, true);
     }
 
     cy.get(this.locator._widgetPageIcon(widgetType))
@@ -363,22 +373,49 @@ export class EntityExplorer {
       .trigger("mouseup", x, y, { eventConstructor: "MouseEvent" });
   }
 
+  public DragAndHoldNewWidget(
+    widgetType: string,
+    x = 300,
+    y = 100,
+    options = {} as DragDropWidgetOptions,
+  ) {
+    const {
+      parentWidgetType = "",
+      dropTargetId = "",
+      skipWidgetSearch = false,
+    } = options;
+    if (!skipWidgetSearch) {
+      this.SearchWidgetPane(widgetType);
+    } else {
+      this.NavigateToSwitcher("Widgets", 0, true);
+    }
+
+    cy.get(this.locator._widgetPageIcon(widgetType))
+      .first()
+      .trigger("dragstart", { force: true })
+      .trigger("mousemove", x, y, { force: true });
+    cy.get(
+      dropTargetId
+        ? dropTargetId + this.locator._dropHere
+        : parentWidgetType
+        ? this.locator._widgetInCanvas(parentWidgetType) +
+          " " +
+          this.locator._dropHere
+        : this.locator._dropHere,
+    )
+      .first()
+      .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" })
+      .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" });
+  }
+
   public DragDropWidgetNVerify(
     widgetType: string,
     x = 300,
     y = 100,
-    parentWidgetType = "",
-    dropTargetId = "",
-    skipWidgetSearch = false,
+    options = {} as DragDropWidgetOptions,
   ) {
-    this.DragNDropWidget(
-      widgetType,
-      x,
-      y,
-      parentWidgetType,
-      dropTargetId,
-      skipWidgetSearch,
-    );
+    const { parentWidgetType = "" } = options;
+    this.DragNDropWidget(widgetType, x, y, options);
     this.agHelper.AssertAutoSave(); //settling time for widget on canvas!
     if (widgetType === "modalwidget") {
       cy.get(".t--modal-widget").should("exist");

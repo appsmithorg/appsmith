@@ -35,5 +35,6 @@
   "FusionChartlabel": ".t--draggable-chartwidget g:nth-child(5) text",
   "pickMyLocation": ".t--draggable-mapwidget div[title='Pick My Location']",
   "mapChartEntityLabels": ".t--draggable-mapchartwidget g[class*='-entityLabels'] text",
-  "listWidget": ".t--draggable-listwidget"
+  "listWidget": ".t--draggable-listwidget",
+  "wdsButtonWidget": ".t--draggable-wdsbuttonwidget"
 }

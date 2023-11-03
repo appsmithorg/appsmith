@@ -5,6 +5,7 @@ export const WIDGET = {
   PHONE_INPUT: "phoneinputwidget",
   CURRENCY_INPUT: "currencyinputwidget",
   BUTTON: "buttonwidget",
+  WDSBUTTON: "wdsbuttonwidget",
   BUTTONNAME: (index: string) => `Button${index}`,
   CODESCANNER: "codescannerwidget",
   CONTAINER: "containerwidget",
