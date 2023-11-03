@@ -1,10 +1,8 @@
 import { MAIN_CONTAINER_WIDGET_ID } from "../../../../../src/constants/WidgetConstants";
 import { WIDGET } from "../../../../locators/WidgetLocators";
-import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 import {
   agHelper,
   entityExplorer,
-  homePage,
 } from "../../../../support/Objects/ObjectsCore";
 import { getAnvilCanvasId } from "../../../../../src/layoutSystems/anvil/canvas/utils";
 import { ANVIL_EDITOR_TEST } from "../../../../support/Constants";
