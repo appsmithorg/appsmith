@@ -56,6 +56,11 @@ export const initialState: ApplicationsReduxState = {
   loadingStates: {
     isFetchingAllRoles: false,
     isFetchingAllUsers: false,
+    partialImportExport: {
+      isExporting: false,
+      isExportDone: false,
+      isImporting: false,
+    },
   },
 };
 
@@ -827,6 +832,43 @@ export const handlers = {
       },
     };
   },
+  [ReduxActionTypes.PARTIAL_EXPORT_INIT]: (state: ApplicationsReduxState) => ({
+    ...state,
+    loadingStates: {
+      ...state.loadingStates,
+      partialImportExport: {
+        ...state.loadingStates.partialImportExport,
+        isExporting: true,
+        isExportDone: false,
+      },
+    },
+  }),
+  [ReduxActionTypes.PARTIAL_EXPORT_SUCCESS]: (
+    state: ApplicationsReduxState,
+  ) => ({
+    ...state,
+    loadingStates: {
+      ...state.loadingStates,
+      partialImportExport: {
+        ...state.loadingStates.partialImportExport,
+        isExporting: false,
+        isExportDone: true,
+      },
+    },
+  }),
+  [ReduxActionErrorTypes.PARTIAL_EXPORT_ERROR]: (
+    state: ApplicationsReduxState,
+  ) => ({
+    ...state,
+    loadingStates: {
+      ...state.loadingStates,
+      partialImportExport: {
+        ...state.loadingStates.partialImportExport,
+        isExporting: false,
+        isExportDone: true,
+      },
+    },
+  }),
 };
 
 const applicationsReducer = createReducer(initialState, handlers);
@@ -869,6 +911,11 @@ export interface ApplicationsReduxState {
   loadingStates: {
     isFetchingAllRoles: boolean;
     isFetchingAllUsers: boolean;
+    partialImportExport: {
+      isExporting: boolean;
+      isExportDone: boolean;
+      isImporting: boolean;
+    };
   };
 }
 

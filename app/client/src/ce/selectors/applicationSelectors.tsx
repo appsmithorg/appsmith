@@ -287,3 +287,5 @@ export const getApplicationLoadingStates = (state: AppState) => {
 };
 
 export const getAllAppUsers = () => [];
+export const getPartialImportExportLoadingState = (state: AppState) =>
+  state.ui.applications.loadingStates.partialImportExport;

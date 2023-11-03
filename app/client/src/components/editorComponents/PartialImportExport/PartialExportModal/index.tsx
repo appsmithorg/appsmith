@@ -32,6 +32,7 @@ import EntityCheckboxSelector from "./EntityCheckboxSelector";
 import JSObjectsNQueriesExport from "./JSObjectsNQueriesExport";
 import WidgetsExport from "./WidgetsExport";
 import type { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureReducer";
+import { getPartialImportExportLoadingState } from "@appsmith/selectors/applicationSelectors";
 
 interface Props {
   handleModalClose: () => void;
@@ -50,6 +51,9 @@ const PartiaExportModel = ({ handleModalClose, isModalOpen }: Props) => {
   const { appWideDS } = useAppWideAndOtherDatasource();
   const libraries = useSelector(selectLibrariesForExplorer);
   const canvasWidgets = useSelector(selectWidgetsForCurrentPage);
+  const partialImportExportLoadingState = useSelector(
+    getPartialImportExportLoadingState,
+  );
 
   const entities = useMemo(() => {
     const groupedData: Record<string, any> = {};
@@ -224,7 +228,11 @@ const PartiaExportModel = ({ handleModalClose, isModalOpen }: Props) => {
           ))}
         </ScrollableSection>
         <ModalFooter>
-          <Button onClick={onExportClick} size="md">
+          <Button
+            isLoading={partialImportExportLoadingState.isExporting}
+            onClick={onExportClick}
+            size="md"
+          >
             {createMessage(PARTIAL_IMPORT_EXPORT.export.cta)}
           </Button>
         </ModalFooter>

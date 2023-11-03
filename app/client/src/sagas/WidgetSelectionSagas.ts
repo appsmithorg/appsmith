@@ -65,6 +65,7 @@ import {
   getWidgets,
 } from "./selectors";
 import { getCopiedWidgets, saveCopiedWidgets } from "utils/storage";
+import { toast } from "design-system";
 
 // The following is computed to be used in the entity explorer
 // Every time a widget is selected, we need to expand widget entities
@@ -354,41 +355,58 @@ export interface PartialExportParams {
 }
 
 export function* partialExportSaga(action: ReduxAction<PartialExportParams>) {
-  const canvasWidgets: unknown = yield partialExportWidgetSaga(
-    action.payload.widgets,
-  );
-  const applicationId: string = yield select(getCurrentApplicationId);
-  const currentPageId: string = yield select(getCurrentPageId);
+  try {
+    const canvasWidgets: unknown = yield partialExportWidgetSaga(
+      action.payload.widgets,
+    );
+    const applicationId: string = yield select(getCurrentApplicationId);
+    const currentPageId: string = yield select(getCurrentPageId);
 
-  const body: exportApplicationRequest = {
-    actionList: action.payload.queries,
-    actionCollectionList: action.payload.jsObjects,
-    datasourceList: action.payload.datasources,
-    customJsLib: action.payload.customJSLibs,
-    widget: JSON.stringify(canvasWidgets),
-  };
+    const body: exportApplicationRequest = {
+      actionList: action.payload.queries,
+      actionCollectionList: action.payload.jsObjects,
+      datasourceList: action.payload.datasources,
+      customJsLib: action.payload.customJSLibs,
+      widget: JSON.stringify(canvasWidgets),
+    };
 
-  const response: unknown = yield call(
-    ApplicationApi.exportPartialApplication,
-    applicationId,
-    currentPageId,
-    body,
-  );
-  // const isValid: boolean = yield validateResponse(response);
-  if (!!response) {
-    const application: ApplicationPayload = yield select(getCurrentApplication);
+    const response: unknown = yield call(
+      ApplicationApi.exportPartialApplication,
+      applicationId,
+      currentPageId,
+      body,
+    );
+    // const isValid: boolean = yield validateResponse(response);
+    if (!!response) {
+      const application: ApplicationPayload = yield select(
+        getCurrentApplication,
+      );
 
-    (function downloadJSON(response: unknown) {
-      const dataStr =
-        "data:text/json;charset=utf-8," +
-        encodeURIComponent(JSON.stringify(response));
-      const downloadAnchorNode = document.createElement("a");
-      downloadAnchorNode.setAttribute("href", dataStr);
-      downloadAnchorNode.setAttribute("download", `${application.name}.json`);
-      document.body.appendChild(downloadAnchorNode); // required for firefox
-      downloadAnchorNode.click();
-      downloadAnchorNode.remove();
-    })(response);
+      (function downloadJSON(response: unknown) {
+        const dataStr =
+          "data:text/json;charset=utf-8," +
+          encodeURIComponent(JSON.stringify(response));
+        const downloadAnchorNode = document.createElement("a");
+        downloadAnchorNode.setAttribute("href", dataStr);
+        downloadAnchorNode.setAttribute("download", `${application.name}.json`);
+        document.body.appendChild(downloadAnchorNode); // required for firefox
+        downloadAnchorNode.click();
+        downloadAnchorNode.remove();
+      })(response);
+      yield put({
+        type: ReduxActionTypes.PARTIAL_EXPORT_SUCCESS,
+      });
+    }
+  } catch (e) {
+    toast.show(`Error exporting application. Please try again.`, {
+      kind: "error",
+    });
+    yield put({
+      type: ReduxActionErrorTypes.PARTIAL_EXPORT_ERROR,
+      payload: {
+        error: "Error exporting application",
+      },
+    });
   }
 }
 
