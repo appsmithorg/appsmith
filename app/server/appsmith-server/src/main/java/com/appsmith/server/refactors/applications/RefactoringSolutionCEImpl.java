@@ -102,13 +102,15 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
         return refactoredReferencesMono.then(Mono.defer(() -> {
             PageDTO page = refactoringMetaDTO.getUpdatedPage();
             Set<String> updatedBindingPaths = refactoringMetaDTO.getUpdatedBindingPaths();
-            List<Layout> layouts = page.getLayouts();
-            for (Layout layout : layouts) {
-                if (layoutId.equals(layout.getId())) {
-                    layout.setDsl(layoutActionService.unescapeMongoSpecialCharacters(layout));
-                    return layoutActionService
-                            .updateLayout(page.getId(), page.getApplicationId(), layout.getId(), layout)
-                            .zipWith(Mono.just(updatedBindingPaths));
+            if (page != null) {
+                List<Layout> layouts = page.getLayouts();
+                for (Layout layout : layouts) {
+                    if (layoutId.equals(layout.getId())) {
+                        layout.setDsl(layoutActionService.unescapeMongoSpecialCharacters(layout));
+                        return layoutActionService
+                                .updateLayout(page.getId(), page.getApplicationId(), layout.getId(), layout)
+                                .zipWith(Mono.just(updatedBindingPaths));
+                    }
                 }
             }
             return Mono.empty();
@@ -121,13 +123,13 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
                 refactorEntityNameDTO, refactoringMetaDTO);
         Mono<Void> actionsMono = newActionEntityRefactoringService.refactorReferencesInExistingEntities(
                 refactorEntityNameDTO, refactoringMetaDTO);
-        Mono<Void> actionCollectionsMono =
-                actionCollectionEntityRefactoringService.refactorReferencesInExistingEntities(
-                        refactorEntityNameDTO, refactoringMetaDTO);
 
-        Mono<Void> actionsAndCollectionsMono = actionsMono.then(Mono.defer(() -> actionCollectionsMono));
+        Mono<Void> collectionsMono = actionCollectionEntityRefactoringService.refactorReferencesInExistingEntities(
+                refactorEntityNameDTO, refactoringMetaDTO);
 
-        return widgetsMono.zipWith(actionsAndCollectionsMono).then();
+        Mono<Void> actionsAndCollectionsMono = actionsMono.then(Mono.defer(() -> collectionsMono));
+
+        return widgetsMono.then(actionsAndCollectionsMono);
     }
 
     @Override

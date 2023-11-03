@@ -87,6 +87,7 @@ public class WidgetRefactoringServiceCEImpl implements EntityRefactoringServiceC
                                 updatedBindingPaths.addAll(dslBindingPaths);
                                 layout.setDsl(objectMapper.convertValue(dslNode, JSONObject.class));
                                 page.setLayouts(layouts);
+                                refactoringMetaDTO.setUpdatedPage(page);
                                 return Mono.just(page);
                             });
 

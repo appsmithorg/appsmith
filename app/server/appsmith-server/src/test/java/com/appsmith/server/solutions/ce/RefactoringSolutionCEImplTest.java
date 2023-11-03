@@ -160,11 +160,14 @@ class RefactoringSolutionCEImplTest {
         newPage.setUnpublishedPage(pageDTO);
         Layout layout1 = new Layout();
         layout1.setId("testLayoutId");
+        layout1.setDsl(jsonObject);
         pageDTO.setLayouts(List.of(layout1));
         Mockito.when(newPageService.getById(Mockito.anyString())).thenReturn(Mono.just(newPage));
 
         Mockito.when(newPageService.findPageById(Mockito.anyString(), Mockito.any(), Mockito.anyBoolean()))
                 .thenReturn(Mono.just(pageDTO));
+
+        Mockito.when(newPageService.saveUnpublishedPage(Mockito.any())).thenReturn(Mono.just(pageDTO));
 
         Application application = new Application();
         application.setId("testAppId");
@@ -279,11 +282,14 @@ class RefactoringSolutionCEImplTest {
         newPage.setUnpublishedPage(pageDTO);
         Layout layout1 = new Layout();
         layout1.setId("testLayoutId");
+        layout1.setDsl(new JSONObject());
         pageDTO.setLayouts(List.of(layout1));
         Mockito.when(newPageService.getById(Mockito.anyString())).thenReturn(Mono.just(newPage));
 
         Mockito.when(newPageService.findPageById(Mockito.anyString(), Mockito.any(), Mockito.anyBoolean()))
                 .thenReturn(Mono.just(pageDTO));
+
+        Mockito.when(newPageService.saveUnpublishedPage(Mockito.any())).thenReturn(Mono.just(pageDTO));
 
         Application application = new Application();
         application.setId("testAppId");
