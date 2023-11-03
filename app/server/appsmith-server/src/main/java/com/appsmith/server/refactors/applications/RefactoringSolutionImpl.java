@@ -13,6 +13,7 @@ import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.PagePermission;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.reactive.TransactionalOperator;
 
 @Service
 @Slf4j
@@ -26,6 +27,7 @@ public class RefactoringSolutionImpl extends RefactoringSolutionCEImpl implement
             PagePermission pagePermission,
             AnalyticsService analyticsService,
             SessionUserService sessionUserService,
+            TransactionalOperator transactionalOperator,
             EntityRefactoringService<Void> jsActionEntityRefactoringService,
             EntityRefactoringService<NewAction> newActionEntityRefactoringService,
             EntityRefactoringService<ActionCollection> actionCollectionEntityRefactoringService,
@@ -38,6 +40,7 @@ public class RefactoringSolutionImpl extends RefactoringSolutionCEImpl implement
                 pagePermission,
                 analyticsService,
                 sessionUserService,
+                transactionalOperator,
                 jsActionEntityRefactoringService,
                 newActionEntityRefactoringService,
                 actionCollectionEntityRefactoringService,

@@ -38,6 +38,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -98,6 +99,9 @@ class RefactoringSolutionCEImplTest {
     @SpyBean
     private EntityRefactoringService<Layout> widgetEntityRefactoringService;
 
+    @Autowired
+    private TransactionalOperator transactionalOperator;
+
     @BeforeEach
     public void setUp() {
 
@@ -111,6 +115,7 @@ class RefactoringSolutionCEImplTest {
                 pagePermission,
                 analyticsService,
                 sessionUserService,
+                transactionalOperator,
                 jsActionEntityRefactoringService,
                 newActionEntityRefactoringService,
                 actionCollectionEntityRefactoringService,
