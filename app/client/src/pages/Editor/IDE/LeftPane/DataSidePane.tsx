@@ -9,7 +9,7 @@ import {
 } from "@appsmith/selectors/entitiesSelector";
 import history from "utils/history";
 import { datasourcesEditorIdURL } from "@appsmith/RouteBuilder";
-import { getSelectedDatasourceId } from "../../../navigation/FocusSelectors";
+import { getSelectedDatasourceId } from "../../../../navigation/FocusSelectors";
 import { countBy, groupBy, keyBy } from "lodash";
 import { PluginType } from "entities/Action";
 import CreateDatasourcePopover from "./CreateDatasourcePopover";
@@ -20,23 +20,16 @@ import {
   DATASOURCE_BLANK_STATE_MESSAGE,
   DATASOURCE_LIST_BLANK_TITLE,
 } from "@appsmith/constants/messages";
+import PaneHeader from "./PaneHeader";
 
 const PaneContainer = styled.div`
   width: 300px;
 `;
 
-const PaneHeader = styled.div`
-  height: 40px;
-  background: #f8fafc;
-  border-bottom: 1px solid var(--ads-v2-color-border);
-  padding: 8px 12px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-`;
-
 const PaneBody = styled.div`
   padding: 12px;
+  height: calc(100vh - 120px);
+  overflow-y: scroll;
 `;
 
 const SubListContainer = styled.div`
@@ -91,10 +84,10 @@ const DataSidePane = () => {
 
   return (
     <PaneContainer>
-      <PaneHeader>
-        <Text kind="heading-xs">{createMessage(DATA_PANE_TITLE)}</Text>
-        <CreateDatasourcePopover />
-      </PaneHeader>
+      <PaneHeader
+        rightIcon={<CreateDatasourcePopover />}
+        title={createMessage(DATA_PANE_TITLE)}
+      />
       <PaneBody>
         {datasources.length === 0 ? (
           <EmptyStateContainer>
