@@ -5,6 +5,7 @@ import { Colors } from "constants/Colors";
 
 import { isEmptyOrNill } from "../../../utils/helpers";
 import { StyledDiv } from "./index.styled";
+import { CLASSNAMES } from "../constants";
 
 export interface SelectButtonProps {
   disabled?: boolean;
@@ -31,7 +32,7 @@ function SelectButton(props: SelectButtonProps) {
 
   return (
     <Button
-      className="select-button"
+      className={CLASSNAMES.selectButton}
       data-testid="selectbutton.btn.main"
       disabled={disabled}
       onClick={togglePopoverVisibility}
