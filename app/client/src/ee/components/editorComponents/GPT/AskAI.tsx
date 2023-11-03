@@ -72,7 +72,7 @@ const QueryForm = styled.form`
   .autocomplete-overlay {
     color: #afafaf;
     position: absolute;
-    padding: 6px 0;
+    padding: 9px 0;
     font-size: 14px;
     padding-right: 8px;
     line-height: 16px;
