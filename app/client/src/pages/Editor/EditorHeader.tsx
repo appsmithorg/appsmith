@@ -80,6 +80,7 @@ import { HelperBarInHeader } from "./HelpBarInHeader";
 import { AppsmithLink } from "./AppsmithLink";
 import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
 import { GetNavigationMenuData } from "./EditorName/NavigationMenuData";
+import { getIsAppSidebarEnabled } from "selectors/ideSelectors";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -117,6 +118,10 @@ export function EditorHeader() {
     showPublishCommunityTemplateModal,
     setShowPublishCommunityTemplateModal,
   ] = useState(false);
+
+  const isAppSidebarEnabled = useSelector(getIsAppSidebarEnabled);
+
+  const showEntityExplorerLock = !isAppSidebarEnabled && !signpostingEnabled;
 
   const handlePublish = () => {
     if (applicationId) {
@@ -198,8 +203,10 @@ export function EditorHeader() {
         data-testid="t--appsmith-editor-header"
       >
         <HeaderSection className="space-x-2">
-          {!signpostingEnabled && (
+          {showEntityExplorerLock ? (
             <LockEntityExplorer isPreviewingApp={isPreviewingApp} />
+          ) : (
+            <div />
           )}
 
           <AppsmithLink />

@@ -10,7 +10,6 @@ import type { JSEntity } from "./JSActionEntity";
 import type { ActionEntity } from "./ActionEntity";
 import type { AppsmithEntity } from "./AppsmithEntity";
 import type { WidgetEntity } from "./WidgetEntity";
-import type { PagelistEntity } from "./PagelistEntity";
 
 export default class EntityFactory {
   static getEntity<
@@ -20,13 +19,12 @@ export default class EntityFactory {
     const { DiffGenerator, Parser } = classLoader.load(
       entity as DataTreeEntity,
     );
-    let entityConstructor = entityConstructorMap[ENTITY_TYPE.PAGELIST];
-    if (!("ENTITY_TYPE" in entity)) {
-      // Pagelist entity doesn't have ENTITY_TYPE property
-      return entityConstructor({ entity, config, Parser, DiffGenerator });
-    }
-    entityConstructor = entityConstructorMap[entity.ENTITY_TYPE];
-    return entityConstructor({ entity, config, Parser, DiffGenerator });
+    return entityConstructorMap[entity.ENTITY_TYPE]({
+      entity,
+      config,
+      Parser,
+      DiffGenerator,
+    });
   }
 }
 
@@ -41,7 +39,4 @@ export function isAppsmithEntity(entity: IEntity): entity is AppsmithEntity {
 }
 export function isWidgetEntity(entity: IEntity): entity is WidgetEntity {
   return entity.getType() === ENTITY_TYPE.WIDGET;
-}
-export function isPagelistEntity(entity: IEntity): entity is PagelistEntity {
-  return entity.getType() === ENTITY_TYPE.PAGELIST;
 }

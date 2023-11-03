@@ -1,8 +1,8 @@
 import React from "react";
-import { Text } from "design-system";
 import styled from "styled-components";
 import { APP_SETTINGS_PANE_WIDTH } from "constants/AppConstants";
-import AppSettingsPane from "../AppSettingsPane/AppSettings";
+import AppSettingsPane from "../../AppSettingsPane/AppSettings";
+import PaneHeader from "./PaneHeader";
 
 const SettingsPageWrapper = styled.div`
   display: flex;
@@ -13,19 +13,11 @@ const SettingsPageWrapper = styled.div`
   }
 `;
 
-const SettingsPaneHeader = styled.div`
-  padding: var(--ads-v2-spaces-4);
-  padding-left: var(--ads-v2-spaces-5);
-  border-bottom: 1px solid var(--ads-v2-color-border);
-`;
-
 const SettingsPane = () => {
   return (
     <div className="h-full flex">
       <SettingsPageWrapper>
-        <SettingsPaneHeader>
-          <Text>App Settings</Text>
-        </SettingsPaneHeader>
+        <PaneHeader title={"App Settings"} />
         <AppSettingsPane />
       </SettingsPageWrapper>
     </div>
