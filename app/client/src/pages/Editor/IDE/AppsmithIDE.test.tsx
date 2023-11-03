@@ -25,7 +25,7 @@ import { generateReactKey } from "utils/generators";
 import { getAbsolutePixels } from "utils/helpers";
 import * as useDynamicAppLayoutHook from "utils/hooks/useDynamicAppLayout";
 import * as widgetRenderUtils from "utils/widgetRenderUtils";
-import GlobalHotKeys from "./GlobalHotKeys";
+import GlobalHotKeys from "../GlobalHotKeys";
 import * as uiSelectors from "selectors/ui";
 
 const renderNestedComponent = () => {
