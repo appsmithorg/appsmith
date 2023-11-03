@@ -5,7 +5,6 @@ export const ENTITY_TYPE = {
   WIDGET: "WIDGET",
   APPSMITH: "APPSMITH",
   JSACTION: "JSACTION",
-  PAGELIST: "PAGELIST",
 };
 
 type ValueOf<T> = T[keyof T];
