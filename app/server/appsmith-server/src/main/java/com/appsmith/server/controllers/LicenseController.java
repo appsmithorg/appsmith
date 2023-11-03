@@ -42,7 +42,8 @@ public class LicenseController {
                         ? " with the license key"
                         : " without license key");
         log.debug(logMessage);
-        return service.activateTenantAndGetRedirectUrl(updateLicenseKeyDTO, exchange)
+        return service.activateTenantAndGetRedirectUrl(
+                        updateLicenseKeyDTO, exchange.getRequest().getHeaders())
                 .map(tenant -> new ResponseDTO<>(HttpStatus.OK.value(), tenant, null));
     }
 
