@@ -5,7 +5,6 @@ export enum ENTITY_TYPE {
   WIDGET = "WIDGET",
   APPSMITH = "APPSMITH",
   JSACTION = "JSACTION",
-  PAGELIST = "PAGELIST",
 }
 
 export interface IEntity {
