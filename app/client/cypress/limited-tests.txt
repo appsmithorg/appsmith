@@ -1,8 +1,8 @@
 # To run only limited tests - give the spec names in below format:
 #cypress/e2e/Regression/ClientSide/Templates/Fork_Template_spec.js
-#cypress/e2e/Regression/ClientSide/Widgets/Multiselect/Multi_Select_Tree_spec.js
-#cypress/e2e/Regression/ClientSide/SettingsPane/EmbedSettings_spec.ts
-
+cypress/e2e/Regression/ClientSide/Widgets/Sliders/CategorySlider_spec.ts
+cypress/e2e/Regression/ClientSide/Widgets/Select/RTL_support.ts
+cypress/e2e/Regression/ClientSide/Widgets/TableV2/Edge_case_spec.js
 
 
 # For running all specs - uncomment below:
