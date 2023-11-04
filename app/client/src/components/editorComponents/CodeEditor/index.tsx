@@ -1204,7 +1204,8 @@ class CodeEditor extends Component<Props, State> {
     const inputValue = this.props.input.value || "";
     if (
       this.props.input.onChange &&
-      (value !== inputValue || this.state.changeStarted)
+      ((value !== inputValue && this.state.isFocused) ||
+        this.state.changeStarted)
     ) {
       this.setState({
         changeStarted: false,
