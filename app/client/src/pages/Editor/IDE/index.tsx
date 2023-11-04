@@ -2,7 +2,10 @@ import React from "react";
 import { useSelector } from "react-redux";
 
 import BottomBar from "components/BottomBar";
-import { previewModeSelector } from "selectors/editorSelectors";
+import {
+  combinedPreviewModeSelector,
+  previewModeSelector,
+} from "selectors/editorSelectors";
 import EditorWrapperContainer from "../commons/EditorWrapperContainer";
 import Sidebar from "pages/Editor/IDE/Sidebar";
 import LeftPane from "./LeftPane";
@@ -16,6 +19,7 @@ import { tailwindLayers } from "../../../constants/Layers";
  */
 function IDE() {
   const isPreviewMode = useSelector(previewModeSelector);
+  const isCombinedPreviewMode = useSelector(combinedPreviewModeSelector);
 
   return (
     <>
@@ -24,8 +28,8 @@ function IDE() {
           className={classNames({
             [`transition-transform transform duration-400 flex ${tailwindLayers.entityExplorer}`]:
               true,
-            relative: !isPreviewMode,
-            "-translate-x-full fixed": isPreviewMode,
+            relative: !isCombinedPreviewMode,
+            "-translate-x-full fixed": isCombinedPreviewMode,
           })}
         >
           <Sidebar />
@@ -36,8 +40,8 @@ function IDE() {
           className={classNames({
             [`transition-transform transform duration-400 ${tailwindLayers.propertyPane}`]:
               true,
-            relative: !isPreviewMode,
-            "translate-x-full fixed right-0": isPreviewMode,
+            relative: !isCombinedPreviewMode,
+            "translate-x-full fixed right-0": isCombinedPreviewMode,
           })}
         >
           <RightPane />
