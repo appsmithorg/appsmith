@@ -667,9 +667,14 @@ class CodeEditor extends Component<Props, State> {
         tokenElement,
         textWidth: tokenElementPosition.width,
       },
-      ternToolTipActive: CodeMirrorTernService.closeArgHints(),
     });
 
+    if (this.state.ternToolTipActive) {
+      CodeMirrorTernService.closeArgHints();
+      this.setState({
+        ternToolTipActive: false,
+      });
+    }
     AnalyticsUtil.logEvent("PEEK_OVERLAY_OPENED", {
       property: expression,
     });

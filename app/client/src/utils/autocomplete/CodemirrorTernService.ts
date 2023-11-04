@@ -612,6 +612,7 @@ class CodeMirrorTernService {
     // When a function is picked, move the cursor between the parenthesis
     const CodeMirror = getCodeMirrorNamespaceFromEditor(cm);
     CodeMirror.on(hints, "pick", (selected: Completion) => {
+      if (!cm.hasFocus()) cm.focus();
       const hintsWithoutHeaders = hints.list.filter(
         (h: Record<string, unknown>) => h.isHeader !== true,
       );
