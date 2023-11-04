@@ -1,5 +1,7 @@
 import { Pool } from "pg";
 import AWS from "aws-sdk";
+import { Upload } from "@aws-sdk/lib-storage";
+import { S3 } from "@aws-sdk/client-s3";
 import fs from "fs";
 import { Octokit } from "@octokit/rest";
 import fetch from "node-fetch";
@@ -94,25 +96,33 @@ export default class util {
 
   // This is to setup the AWS client
   public configureS3() {
+    // JS SDK v3 does not support global configuration.
+    // Codemod has attempted to pass values to each service client in this file.
+    // You may need to update clients outside of this file, if they use global config.
     AWS.config.update({ region: "ap-south-1" });
-    const s3client = new AWS.S3({
+    const s3client = new S3({
       credentials: {
         accessKeyId: this.getVars().cypressS3Access,
         secretAccessKey: this.getVars().cypressS3Secret,
       },
+
+      region: "ap-south-1"
     });
     return s3client;
   }
 
   // This is to upload files to s3 when required
-  public async uploadToS3(s3Client: AWS.S3, filePath: string, key: string) {
+  public async uploadToS3(s3Client: S3, filePath: string, key: string) {
     const fileContent = fs.readFileSync(filePath);
     const params = {
       Bucket: "appsmith-internal-cy-db",
       Key: key,
       Body: fileContent,
     };
-    return await s3Client.upload(params).promise();
+    return await new Upload({
+      client: s3Client,
+      params
+    }).done();
   }
 
   public async getActiveRunners() {
