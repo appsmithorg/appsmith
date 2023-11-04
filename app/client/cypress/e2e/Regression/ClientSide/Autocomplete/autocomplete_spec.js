@@ -39,7 +39,6 @@ describe("Dynamic input autocomplete", () => {
           parseSpecialCharSequences: true,
         });
       });
-    cy.evaluateErrorMessage("garbage is not defined");
   });
 
   it("2. Test if action inside non event field throws error & open current value popup", () => {
