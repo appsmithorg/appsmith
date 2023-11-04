@@ -169,6 +169,7 @@ describe("Category Slider spec", () => {
       agHelper.RemoveCharsNType(propPane._placeholderValue, -1, "xxl", 5);
       // Verify option added
       agHelper.AssertElementLength(propPane._placeholderName, len + 1);
+      agHelper.Sleep(); // Wait for the element to settle to delete it
       // Delete option
       agHelper.GetNClick(propPane._optionsDeleteButton, 5, true);
       agHelper.Sleep(); // Wait for the element to be deleted
