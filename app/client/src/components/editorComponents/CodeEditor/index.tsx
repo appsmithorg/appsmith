@@ -1140,6 +1140,7 @@ class CodeEditor extends Component<Props, State> {
     }
     this.props.resetActiveField();
     this.handleChange();
+    this.setState({ isFocused: false });
     this.editor.setOption("matchBrackets", false);
     this.handleCustomGutter(null);
     const cursor = this.editor.getCursor();
