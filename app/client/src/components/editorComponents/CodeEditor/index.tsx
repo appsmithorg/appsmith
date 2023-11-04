@@ -443,6 +443,7 @@ class CodeEditor extends Component<Props, State> {
         editor.on("keydown", this.handleAutocompleteKeydown);
         editor.on("focus", this.handleEditorFocus);
         editor.on("cursorActivity", this.handleCursorMovement);
+        editor.on("cursorActivity", this.debouncedArgHints);
         editor.on("blur", this.handleEditorBlur);
         editor.on("mousedown", this.handleClick);
         editor.on("scrollCursorIntoView", this.handleScrollCursorIntoView);
@@ -537,6 +538,12 @@ class CodeEditor extends Component<Props, State> {
   debounceEditorRefresh = _.debounce(async () => {
     this.editor.refresh();
   }, 100);
+
+  debouncedArgHints = _.debounce(() => {
+    this.setState({
+      ternToolTipActive: CodeMirrorTernService.updateArgHints(this.editor),
+    });
+  }, 200);
 
   componentDidUpdate(prevProps: Props): void {
     const identifierHasChanged =
@@ -671,9 +678,6 @@ class CodeEditor extends Component<Props, State> {
 
     if (this.state.ternToolTipActive) {
       CodeMirrorTernService.closeArgHints();
-      this.setState({
-        ternToolTipActive: false,
-      });
     }
     AnalyticsUtil.logEvent("PEEK_OVERLAY_OPENED", {
       property: expression,
@@ -689,9 +693,11 @@ class CodeEditor extends Component<Props, State> {
         peekOverlayProps: undefined,
       });
     }
-    this.setState({
-      ternToolTipActive: CodeMirrorTernService.updateArgHints(this.editor),
-    });
+    if (this.state.ternToolTipActive) {
+      this.setState({
+        ternToolTipActive: CodeMirrorTernService.updateArgHints(this.editor),
+      });
+    }
   };
 
   debounceHandleMouseOver = debounce(
@@ -888,6 +894,7 @@ class CodeEditor extends Component<Props, State> {
     this.editor.off("keydown", this.handleAutocompleteKeydown);
     this.editor.off("focus", this.handleEditorFocus);
     this.editor.off("cursorActivity", this.handleCursorMovement);
+    this.editor.off("cursorActivity", this.debouncedArgHints);
     this.editor.off("blur", this.handleEditorBlur);
     CodeMirror.off(
       this.editor.getWrapperElement(),
@@ -1047,9 +1054,6 @@ class CodeEditor extends Component<Props, State> {
 
   handleCursorMovement = (cm: CodeMirror.Editor) => {
     const line = cm.getCursor().line;
-    this.setState({
-      ternToolTipActive: CodeMirrorTernService.updateArgHints(cm),
-    });
     this.handleCustomGutter(line, true);
     // ignore if disabled
     if (!this.props.input.onChange || this.props.disabled) {
