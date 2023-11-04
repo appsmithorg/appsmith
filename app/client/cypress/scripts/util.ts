@@ -1,7 +1,6 @@
 import { Pool } from "pg";
-import AWS from "aws-sdk";
-import { Upload } from "@aws-sdk/lib-storage";
 import { S3 } from "@aws-sdk/client-s3";
+import { Upload } from "@aws-sdk/lib-storage";
 import fs from "fs";
 import { Octokit } from "@octokit/rest";
 import fetch from "node-fetch";
@@ -96,17 +95,12 @@ export default class util {
 
   // This is to setup the AWS client
   public configureS3() {
-    // JS SDK v3 does not support global configuration.
-    // Codemod has attempted to pass values to each service client in this file.
-    // You may need to update clients outside of this file, if they use global config.
-    AWS.config.update({ region: "ap-south-1" });
     const s3client = new S3({
+      region: "ap-south-1",
       credentials: {
         accessKeyId: this.getVars().cypressS3Access,
         secretAccessKey: this.getVars().cypressS3Secret,
       },
-
-      region: "ap-south-1"
     });
     return s3client;
   }
@@ -119,10 +113,7 @@ export default class util {
       Key: key,
       Body: fileContent,
     };
-    return await new Upload({
-      client: s3Client,
-      params
-    }).done();
+    return await new Upload({ client: s3Client, params }).done();
   }
 
   public async getActiveRunners() {
