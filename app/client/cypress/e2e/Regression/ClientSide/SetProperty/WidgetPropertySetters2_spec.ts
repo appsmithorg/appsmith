@@ -140,9 +140,9 @@ describe("Widget Property Setters - Part II", () => {
     deployMode.DeployApp();
   });
 
-  it("5. Update Widget property value during OnPage load", () => {
-    //
-  });
+  // it("5. Update Widget property value during OnPage load", () => {
+  //   //
+  // });
 
   afterEach(() => {
     deployMode.NavigateBacktoEditor();

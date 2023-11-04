@@ -170,7 +170,8 @@ describe("Category Slider spec", () => {
       // Verify option added
       agHelper.AssertElementLength(propPane._placeholderName, len + 1);
       // Delete option
-      agHelper.GetNClick(propPane._optionsDeleteButton, 5);
+      agHelper.GetNClick(propPane._optionsDeleteButton, 5, true);
+      agHelper.Sleep(); // Wait for the element to be deleted
       // Verify option deleted
       agHelper.AssertElementLength(propPane._placeholderName, len);
 
