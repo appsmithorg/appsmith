@@ -10,7 +10,7 @@ import {
   dataManager,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("Widget Property Setters - Part II", () => {
+describe("Widget Property Setters - Part II - Tc #2409", () => {
   it("1. Bug 25287 - CurrencyInput does not update value when set using CurrencyInput.text", () => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.CURRENCY_INPUT);
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON, 300, 200);
@@ -43,7 +43,7 @@ describe("Widget Property Setters - Part II", () => {
     );
   });
 
-  it("2. Update Visible property via JS function", () => {
+  it("2. Update Visible property via JS function - using appmsith store", () => {
     entityExplorer.SelectEntityByName("JSObject1");
     jsEditor.EditJSObj(
       `export default {
@@ -63,7 +63,7 @@ describe("Widget Property Setters - Part II", () => {
     );
   });
 
-  it("3. Update Input value via JS function", () => {
+  it("3. Update Input value via JS function - using async await - Api call", () => {
     apiPage.CreateAndFillApi(
       dataManager.dsValues[dataManager.defaultEnviorment].mockApiUrl,
     );
@@ -108,7 +108,7 @@ describe("Widget Property Setters - Part II", () => {
       });
   });
 
-  it("4. Update Input value via JS function run", () => {
+  it("4. Update Input value via JS Call back function - in Edit mode itself + OnPage load", () => {
     entityExplorer.SelectEntityByName("JSObject1");
     jsEditor.EditJSObj(
       `export default {
@@ -137,12 +137,45 @@ describe("Widget Property Setters - Part II", () => {
       .then((val) => {
         expect(val).contains("@");
       });
-    deployMode.DeployApp();
+
+    entityExplorer.SelectEntityByName("Input1");
+    propPane.UpdatePropertyFieldValue(
+      "Default value",
+      "{{appsmith.user.name}}",
+    );
+    deployMode.DeployApp(); //below validates the Page load
+    agHelper
+      .GetText(
+        locators._widgetInDeployed(draggableWidgets.INPUT_V2) +
+          " " +
+          locators._input,
+        "val",
+      )
+      .then((val) => {
+        expect(val).not.be.empty;
+      });
   });
 
-  // it("5. Update Widget property value during OnPage load", () => {
-  //   //
-  // });
+  it("5. Update Widget property through framework function - Settimeout", () => {
+    entityExplorer.SelectEntityByName("JSObject1");
+    jsEditor.EditJSObj(
+      `export default {
+        async myFun1 () {
+          setTimeout(()=>{Button1.isVisible ?Button1.setVisibility(false):Button1.setVisibility(true)},2000)
+        }
+      }`,
+      false,
+    );
+    jsEditor.EnableDisableAsyncFuncSettings("myFun1", true, false);
+    deployMode.DeployApp();
+    agHelper.AssertElementVisibility(
+      locators._widgetInDeployed(draggableWidgets.BUTTON), //Asserting before setTimeout JS function execution, button is visible
+    );
+    agHelper.Sleep(2000); //waiting for settimeout to execute
+    agHelper.AssertElementAbsence(
+      locators._widgetInDeployed(draggableWidgets.BUTTON),
+    );
+  });
 
   afterEach(() => {
     deployMode.NavigateBacktoEditor();
