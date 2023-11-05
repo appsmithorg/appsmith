@@ -20,9 +20,7 @@
         "!doc": "The then() method returns a Promise. It takes two arguments, both are callback functions for the success and failure cases of the Promise.",
         "!url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/then",
         "!type": "fn(onFulfilled: fn(value: ?), onRejected: fn(reason: ?)) -> !custom:Promise_then",
-        "!effects": [
-          "call !0 !this.:t"
-        ]
+        "!effects": ["call !0 !this.:t"]
       }
     },
     "Promise_reject": {
@@ -80,9 +78,7 @@
       "!url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray",
       "from": {
         "!type": "fn(arrayLike: ?, mapFn?: fn(elt: ?, i: number) -> number, thisArg?: ?) -> +TypedArray",
-        "!effects": [
-          "call !1 this=!2 !0.<i> number"
-        ],
+        "!effects": ["call !1 this=!2 !0.<i> number"],
         "!doc": "Creates a new typed array from an array-like or iterable object.",
         "!url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray/from"
       },
@@ -130,9 +126,7 @@
         },
         "every": {
           "!type": "fn(callback: fn(element: number, index: number, array: TypedArray) -> bool, thisArg?: ?) -> bool",
-          "!effects": [
-            "call !0 this=!1 number number !this"
-          ],
+          "!effects": ["call !0 this=!1 number number !this"],
           "!doc": "The every() method tests whether all elements in the typed array pass the test implemented by the provided function. This method has the same algorithm as Array.prototype.every(). TypedArray is one of the typed array types here.",
           "!url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray/every"
         },
@@ -143,33 +137,25 @@
         },
         "filter": {
           "!type": "fn(test: fn(element: number, i: number) -> bool, context?: ?) -> !this",
-          "!effects": [
-            "call !0 this=!1 number number"
-          ],
+          "!effects": ["call !0 this=!1 number number"],
           "!doc": "Creates a new array with all of the elements of this array for which the provided filtering function returns true. See also Array.prototype.filter().",
           "!url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray/filter"
         },
         "find": {
           "!type": "fn(callback: fn(element: number, index: number, array: +TypedArray) -> bool, thisArg?: ?) -> number",
-          "!effects": [
-            "call !0 this=!1 number number !this"
-          ],
+          "!effects": ["call !0 this=!1 number number !this"],
           "!doc": "The find() method returns a value in the typed array, if an element satisfies the provided testing function. Otherwise undefined is returned. TypedArray is one of the typed array types here.\nSee also the findIndex() method, which returns the index of a found element in the typed array instead of its value.",
           "!url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray/find"
         },
         "findIndex": {
           "!type": "fn(callback: fn(element: number, index: number, array: +TypedArray) -> bool, thisArg?: ?) -> number",
-          "!effects": [
-            "call !0 this=!1 number number !this"
-          ],
+          "!effects": ["call !0 this=!1 number number !this"],
           "!doc": "The findIndex() method returns an index in the typed array, if an element in the typed array satisfies the provided testing function. Otherwise -1 is returned.\nSee also the find() method, which returns the value of a found element in the typed array instead of its index.",
           "!url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray/findIndex"
         },
         "forEach": {
           "!type": "fn(callback: fn(value: number, key: number, array: +TypedArray), thisArg?: ?)",
-          "!effects": [
-            "call !0 this=!1 number number !this"
-          ],
+          "!effects": ["call !0 this=!1 number number !this"],
           "!doc": "Executes a provided function once per array element.",
           "!url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray/forEach"
         },
@@ -200,25 +186,19 @@
         },
         "map": {
           "!type": "fn(f: fn(element: number, i: number) -> number, context?: ?) -> +TypedArray",
-          "!effects": [
-            "call !0 this=!1 number number"
-          ],
+          "!effects": ["call !0 this=!1 number number"],
           "!doc": "Creates a new array with the results of calling a provided function on every element in this array. See also Array.prototype.map().",
           "!url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray/map"
         },
         "reduce": {
           "!type": "fn(combine: fn(sum: ?, elt: number, i: number) -> ?, init?: ?) -> !0.!ret",
-          "!effects": [
-            "call !0 !1 number number"
-          ],
+          "!effects": ["call !0 !1 number number"],
           "!doc": "Apply a function against an accumulator and each value of the array (from left-to-right) as to reduce it to a single value. See also Array.prototype.reduce().",
           "!url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray/reduce"
         },
         "reduceRight": {
           "!type": "fn(combine: fn(sum: ?, elt: number, i: number) -> ?, init?: ?) -> !0.!ret",
-          "!effects": [
-            "call !0 !1 number number"
-          ],
+          "!effects": ["call !0 !1 number number"],
           "!doc": "Apply a function against an accumulator and each value of the array (from right-to-left) as to reduce it to a single value. See also Array.prototype.reduceRight().",
           "!url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray/reduceRight"
         },
@@ -239,17 +219,13 @@
         },
         "some": {
           "!type": "fn(test: fn(elt: number, i: number) -> bool, context?: ?) -> bool",
-          "!effects": [
-            "call !0 this=!1 number number"
-          ],
+          "!effects": ["call !0 this=!1 number number"],
           "!doc": "The some() method tests whether some element in the typed array passes the test implemented by the provided function. This method has the same algorithm as Array.prototype.some(). TypedArray is one of the typed array types here.",
           "!url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray/some"
         },
         "sort": {
           "!type": "fn(compare?: fn(a: number, b: number) -> number)",
-          "!effects": [
-            "call !0 number number"
-          ],
+          "!effects": ["call !0 number number"],
           "!doc": "Sorts the elements of an array in place and returns the array. See also Array.prototype.sort().",
           "!url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray/sort"
         },
@@ -365,11 +341,7 @@
     },
     "assign": {
       "!type": "fn(target: ?, source: ?, source?: ?) -> !0",
-      "!effects": [
-        "copy !1 !0",
-        "copy !2 !0",
-        "copy !3 !0"
-      ],
+      "!effects": ["copy !1 !0", "copy !2 !0", "copy !3 !0"],
       "!doc": "The Object.assign() method is used to copy the values of all enumerable own properties from one or more source objects to a target object. It will return the target object.",
       "!url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/assign"
     },
@@ -430,17 +402,13 @@
       "!stdProto": "Function",
       "apply": {
         "!type": "fn(this: ?, args: [?])",
-        "!effects": [
-          "call and return !this this=!0 !1.<i> !1.<i> !1.<i>"
-        ],
+        "!effects": ["call and return !this this=!0 !1.<i> !1.<i> !1.<i>"],
         "!url": "https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Function/apply",
         "!doc": "Calls a function with a given this value and arguments provided as an array (or an array like object)."
       },
       "call": {
         "!type": "fn(this: ?, args?: ?) -> !this.!ret",
-        "!effects": [
-          "call and return !this this=!0 !1 !2 !3 !4"
-        ],
+        "!effects": ["call and return !this this=!0 !1 !2 !3 !4"],
         "!url": "https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Function/call",
         "!doc": "Calls a function with a given this value and arguments provided individually."
       },
@@ -463,9 +431,7 @@
     },
     "from": {
       "!type": "fn(arrayLike: ?, mapFn?: fn(elt: ?, i: number) -> ?, thisArg?: ?) -> [!0.<i>]",
-      "!effects": [
-        "call !1 this=!2 !0.<i> number"
-      ],
+      "!effects": ["call !1 this=!2 !0.<i> number"],
       "!doc": "The Array.from() method creates a new Array instance from an array-like or iterable object.",
       "!url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/from"
     },
@@ -503,9 +469,7 @@
       },
       "push": {
         "!type": "fn(newelt: ?) -> number",
-        "!effects": [
-          "propagate !0 !this.<i>"
-        ],
+        "!effects": ["propagate !0 !this.<i>"],
         "!url": "https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Array/push",
         "!doc": "Mutates an array by appending the given elements and returning the new length of the array."
       },
@@ -516,9 +480,7 @@
       },
       "unshift": {
         "!type": "fn(newelt: ?) -> number",
-        "!effects": [
-          "propagate !0 !this.<i>"
-        ],
+        "!effects": ["propagate !0 !this.<i>"],
         "!url": "https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Array/unshift",
         "!doc": "Adds one or more elements to the beginning of an array and returns the new length of the array."
       },
@@ -534,9 +496,7 @@
       },
       "sort": {
         "!type": "fn(compare?: fn(a: ?, b: ?) -> number)",
-        "!effects": [
-          "call !0 !this.<i> !this.<i>"
-        ],
+        "!effects": ["call !0 !this.<i> !this.<i>"],
         "!url": "https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Array/sort",
         "!doc": "Sorts the elements of an array in place and returns the array."
       },
@@ -552,57 +512,43 @@
       },
       "every": {
         "!type": "fn(test: fn(elt: ?, i: number, array: +Array) -> bool, context?: ?) -> bool",
-        "!effects": [
-          "call !0 this=!1 !this.<i> number !this"
-        ],
+        "!effects": ["call !0 this=!1 !this.<i> number !this"],
         "!url": "https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Array/every",
         "!doc": "Tests whether all elements in the array pass the test implemented by the provided function."
       },
       "some": {
         "!type": "fn(test: fn(elt: ?, i: number, array: +Array) -> bool, context?: ?) -> bool",
-        "!effects": [
-          "call !0 this=!1 !this.<i> number !this"
-        ],
+        "!effects": ["call !0 this=!1 !this.<i> number !this"],
         "!url": "https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Array/some",
         "!doc": "Tests whether some element in the array passes the test implemented by the provided function."
       },
       "filter": {
         "!type": "fn(test: fn(elt: ?, i: number, array: +Array) -> bool, context?: ?) -> !this",
-        "!effects": [
-          "call !0 this=!1 !this.<i> number !this"
-        ],
+        "!effects": ["call !0 this=!1 !this.<i> number !this"],
         "!url": "https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Array/filter",
         "!doc": "Creates a new array with all elements that pass the test implemented by the provided function."
       },
       "forEach": {
         "!type": "fn(f: fn(elt: ?, i: number, array: +Array), context?: ?)",
-        "!effects": [
-          "call !0 this=!1 !this.<i> number !this"
-        ],
+        "!effects": ["call !0 this=!1 !this.<i> number !this"],
         "!url": "https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Array/forEach",
         "!doc": "Executes a provided function once per array element."
       },
       "map": {
         "!type": "fn(f: fn(elt: ?, i: number, array: +Array) -> ?, context?: ?) -> [!0.!ret]",
-        "!effects": [
-          "call !0 this=!1 !this.<i> number !this"
-        ],
+        "!effects": ["call !0 this=!1 !this.<i> number !this"],
         "!url": "https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Array/map",
         "!doc": "Creates a new array with the results of calling a provided function on every element in this array."
       },
       "reduce": {
         "!type": "fn(combine: fn(sum: ?, elt: ?, i: number, array: +Array) -> ?, init?: ?) -> !0.!ret",
-        "!effects": [
-          "call !0 !1 !this.<i> number !this"
-        ],
+        "!effects": ["call !0 !1 !this.<i> number !this"],
         "!url": "https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Array/Reduce",
         "!doc": "Apply a function against an accumulator and each value of the array (from left-to-right) as to reduce it to a single value."
       },
       "reduceRight": {
         "!type": "fn(combine: fn(sum: ?, elt: ?, i: number, array: +Array) -> ?, init?: ?) -> !0.!ret",
-        "!effects": [
-          "call !0 !1 !this.<i> number !this"
-        ],
+        "!effects": ["call !0 !1 !this.<i> number !this"],
         "!url": "https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Array/ReduceRight",
         "!doc": "Apply a function simultaneously against two values of the array (from right-to-left) as to reduce it to a single value."
       },
@@ -623,17 +569,13 @@
       },
       "find": {
         "!type": "fn(callback: fn(element: ?, index: number, array: [?]) -> bool, thisArg?: ?) -> !this.<i>",
-        "!effects": [
-          "call !0 this=!2 !this.<i> number"
-        ],
+        "!effects": ["call !0 this=!2 !this.<i> number"],
         "!doc": "The find() method returns a value in the array, if an element in the array satisfies the provided testing function. Otherwise undefined is returned.",
         "!url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/find"
       },
       "findIndex": {
         "!type": "fn(callback: fn(element: ?, index: number, array: [?]), thisArg?: ?) -> number",
-        "!effects": [
-          "call !0 this=!2 !this.<i> number"
-        ],
+        "!effects": ["call !0 this=!2 !this.<i> number"],
         "!doc": "The findIndex() method returns an index in the array, if an element in the array satisfies the provided testing function. Otherwise -1 is returned.",
         "!url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/findIndex"
       },
@@ -1672,9 +1614,7 @@
       },
       "forEach": {
         "!type": "fn(callback: fn(value: ?, key: ?, map: +Map), thisArg?: ?)",
-        "!effects": [
-          "call !0 this=!1 !this.:value !this.:key !this"
-        ],
+        "!effects": ["call !0 this=!1 !this.:value !this.:key !this"],
         "!doc": "The forEach() method executes a provided function once per each key/value pair in the Map object, in insertion order.",
         "!url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map/forEach"
       },
@@ -1695,10 +1635,7 @@
       },
       "set": {
         "!type": "fn(key: ?, value: ?) -> !this",
-        "!effects": [
-          "propagate !0 !this.:key",
-          "propagate !1 !this.:value"
-        ],
+        "!effects": ["propagate !0 !this.:key", "propagate !1 !this.:value"],
         "!doc": "The set() method adds a new element with a specified key and value to a Map object.",
         "!url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map/set"
       },
@@ -1832,9 +1769,7 @@
     "prototype": {
       "add": {
         "!type": "fn(value: ?) -> !this",
-        "!effects": [
-          "propagate !0 !this.:t"
-        ],
+        "!effects": ["propagate !0 !this.:t"],
         "!doc": "The add() method appends a new element with a specified value to the end of a Set object.",
         "!url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set/add"
       },
@@ -1855,9 +1790,7 @@
       },
       "forEach": {
         "!type": "fn(callback: fn(value: ?, value2: ?, set: +Set), thisArg?: ?)",
-        "!effects": [
-          "call !0 this=!1 !this.:t number !this"
-        ],
+        "!effects": ["call !0 this=!1 !this.:t number !this"],
         "!doc": "The forEach() method executes a provided function once per each value in the Set object, in insertion order.",
         "!url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set/forEach"
       },
@@ -1943,10 +1876,7 @@
       },
       "set": {
         "!type": "fn(key: ?, value: ?)",
-        "!effects": [
-          "propagate !0 !this.:key",
-          "propagate !1 !this.:value"
-        ],
+        "!effects": ["propagate !0 !this.:key", "propagate !1 !this.:value"],
         "!doc": "The set() method adds a new element with a specified key and value to a WeakMap object.",
         "!url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakMap/set"
       }
