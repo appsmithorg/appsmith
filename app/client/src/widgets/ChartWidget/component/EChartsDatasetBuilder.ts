@@ -1,6 +1,6 @@
 import type { AllChartData, ChartType, LongestLabelParams } from "../constants";
 import { XAxisCategory } from "../constants";
-
+import { numberInLocale } from "./helpers";
 export class EChartsDatasetBuilder {
   chartDataProp: AllChartData;
   chartType: ChartType;
@@ -16,13 +16,9 @@ export class EChartsDatasetBuilder {
     this.chartDataProp = chartDataProp;
     this.chartType = chartType;
     this.filteredChartData = this.filterChartData();
-
-    // console.log("***", "filtered chart data is ", this.filteredChartData)
   }
 
   longestDataLabels(): LongestLabelParams {
-    // console.log("***", "max x string is", this.maxXLabelString)
-    // console.log("***", "max y string is", this.maxYLabelString)
     return {
       x: this.maxXLabelString,
       y: this.maxYLabelString,
@@ -30,8 +26,6 @@ export class EChartsDatasetBuilder {
   }
 
   filterChartData(): AllChartData {
-    // console.log("***", "data in chart data prop is ", this.chartDataProp)
-
     if (this.chartType == "PIE_CHART") {
       // return only first series data
       const firstSeriesKey = Object.keys(this.chartDataProp)[0];
@@ -42,12 +36,8 @@ export class EChartsDatasetBuilder {
   }
 
   checkForLongestLabel(x: number | string, y: number | string) {
-    // console.log("***", "comparing x", x)
-    // console.log("***", "comparing y", y)
-
     const xString = x.toString();
-    const yString = y.toLocaleString();
-    // console.log("***", "comparing y with locale", yString)
+    const yString = numberInLocale(y);
 
     if (xString.length > this.maxXLabelLength) {
       this.maxXLabelLength = xString.length;
@@ -77,7 +67,6 @@ export class EChartsDatasetBuilder {
         const categoryName = datapoint.x;
         const value = datapoint.y;
 
-        // console.log("***", "check for longest label category name", categoryName, " value is", value)
         this.checkForLongestLabel(categoryName, value);
 
         if (!categories[categoryName]) {

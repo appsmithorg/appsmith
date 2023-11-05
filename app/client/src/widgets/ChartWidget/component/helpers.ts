@@ -84,11 +84,10 @@ export const labelKeyForChart = (
 export const getTextWidth = (text: string, font: string) => {
   const canvas = document.createElement("canvas");
   const context = canvas.getContext("2d");
-  console.log("***", "calculating size for font ", font, " and text ", text, "context is ", context)
+
   if (context) {
     context.font = font;
     const metrics = context.measureText(text);
-    console.log("***", "returning width ", metrics.width)
     return metrics.width;
   } else {
     return 0;
@@ -210,4 +209,8 @@ export const isCustomFusionChart = (type: ChartType) => {
 
 export const isCustomEChart = (type: ChartType) => {
   return type == "CUSTOM_ECHART";
+};
+
+export const numberInLocale = (label: number | string) => {
+  return label.toLocaleString();
 };

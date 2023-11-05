@@ -115,12 +115,6 @@ export class EChartsConfigurationBuilder {
     return 0.3 * props.dimensions.componentHeight - 35;
   };
 
-  // #evaluateFontFamily(fontFamily: string | undefined) {
-  //   const result = fontFamily === "System Default" ? "System Default" : fontFamily;
-  //   console.log("***", "result of font family parsing is ", result)
-  //   return result
-  // }
-
   #titleConfigForPiechart(
     props: ChartComponentProps,
     allSeriesData: AllChartData,
@@ -341,8 +335,7 @@ export class EChartsConfigurationBuilder {
     allSeriesData: AllChartData,
     longestLabels: LongestLabelParams,
   ) {
-    this.fontFamily = props.fontFamily // this.#evaluateFontFamily(props.fontFamily);
-    console.log("***", "configuration : font family is ", this.fontFamily)
+    this.fontFamily = props.fontFamily;
     const layoutBuilder = new EChartsLayoutBuilder({
       allowScroll: props.allowScroll,
       widgetHeight: props.dimensions.componentHeight,

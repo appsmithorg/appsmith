@@ -290,7 +290,6 @@ class ChartComponent extends React.Component<
   };
 
   componentDidMount() {
-    console.log("****", "component did mount font family ", this.props.fontFamily)
     this.renderChartingLibrary();
   }
 

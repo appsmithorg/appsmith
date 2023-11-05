@@ -6,7 +6,15 @@ import {
   is3DChart,
   EChartDisposalParams,
   shouldDisposeEChartsInstance,
+  numberInLocale,
 } from "./helpers";
+
+describe("labelInLocale", () => {
+  it("returns data point label in locale format", () => {
+    expect(numberInLocale(5000)).toEqual("5,000");
+    expect(numberInLocale("5000")).toEqual("5000");
+  });
+});
 
 describe("parseOnDataPointClickParams", () => {
   it("returns appropriate chart selected point from user click data", () => {

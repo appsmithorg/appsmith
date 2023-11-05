@@ -83,7 +83,7 @@ describe("EChartsConfigurationBuilder", () => {
       type: "scroll",
       show: true,
     },
-    grid: { top: 100, bottom: 52, left: 62, show: false },
+    grid: { top: 100, bottom: 52, left: 50, show: false },
     title: {
       show: true,
       text: defaultProps.chartName,
@@ -126,12 +126,12 @@ describe("EChartsConfigurationBuilder", () => {
         color: Colors.DOVE_GRAY2,
         overflow: "truncate",
         show: true,
-        width: 22,
+        width: 2,
       },
       show: true,
       name: "yaxisname",
       nameLocation: "middle",
-      nameGap: 32,
+      nameGap: 20,
       nameTextStyle: {
         fontSize: 14,
         fontFamily: "fontfamily",
