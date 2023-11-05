@@ -218,7 +218,6 @@ class CodeMirrorTernService {
     this.activeArgType = null;
     cm.state.ternTooltip = null;
     if (cm.somethingSelected()) return false;
-    if (cm.state.completionActive) return false;
     const state = cm.getTokenAt(cm.getCursor()).state;
     const CodeMirror = getCodeMirrorNamespaceFromDoc(cm.getDoc());
     const inner = CodeMirror.innerMode(cm.getMode(), state);
@@ -271,7 +270,7 @@ class CodeMirrorTernService {
           guess: data.guess,
           doc: cm.getDoc(),
         };
-        this.showArgHints(cm, argPos);
+        if (!cm.state.completionActive) this.showArgHints(cm, argPos);
       },
     );
     return true;
@@ -548,7 +547,7 @@ class CodeMirrorTernService {
           (completion) => !completion.isHeader,
         ).length,
       });
-      this.closeArgHints();
+      this.activeArgHints && this.remove(this.activeArgHints);
     });
     CodeMirror.on(obj, "close", () => this.remove(tooltip));
     CodeMirror.on(obj, "update", () => this.remove(tooltip));
@@ -609,8 +608,8 @@ class CodeMirrorTernService {
       );
     });
 
-    // When a function is picked, move the cursor between the parenthesis
-    const CodeMirror = getCodeMirrorNamespaceFromEditor(cm);
+    // When a function is picked, move the cursor between the parenthesis.
+    const CodeMirror = getCodeMirrorNamespaceFromDoc(cm.getDoc());
     CodeMirror.on(hints, "pick", (selected: Completion) => {
       const hintsWithoutHeaders = hints.list.filter(
         (h: Record<string, unknown>) => h.isHeader !== true,
@@ -1158,7 +1157,20 @@ class CodeMirrorTernService {
     this.remove(tooltip);
   }
 
-  setEntityInformation(entityInformation: FieldEntityInformation) {
+  setEntityInformation(
+    cm: CodeMirror.Editor,
+    entityInformation: FieldEntityInformation,
+  ) {
+    const state = cm.getTokenAt(cm.getCursor()).state;
+    const CodeMirror = getCodeMirrorNamespaceFromDoc(cm.getDoc());
+    const inner = CodeMirror.innerMode(cm.getMode(), state);
+    if (inner.mode.name != "javascript") return false;
+    const lex = inner.state.lexical;
+    if (lex.info === "call") {
+      if (this.activeArgType) {
+        entityInformation.expectedType = getDataType(this.activeArgType);
+      }
+    }
     this.fieldEntityInformation = entityInformation;
   }
 
