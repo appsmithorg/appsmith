@@ -1166,10 +1166,8 @@ class CodeMirrorTernService {
     const inner = CodeMirror.innerMode(cm.getMode(), state);
     if (inner.mode.name != "javascript") return false;
     const lex = inner.state.lexical;
-    if (lex.info === "call") {
-      if (this.activeArgType) {
-        entityInformation.expectedType = getDataType(this.activeArgType);
-      }
+    if (lex.info === "call" && this.activeArgType) {
+      entityInformation.expectedType = getDataType(this.activeArgType);
     }
     this.fieldEntityInformation = entityInformation;
   }

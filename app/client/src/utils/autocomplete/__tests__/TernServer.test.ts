@@ -12,6 +12,24 @@ import _ from "lodash";
 import { AutocompleteSorter, ScoredCompletion } from "../AutocompleteSortRules";
 import type CodeMirror from "codemirror";
 
+jest.mock("utils/getCodeMirrorNamespace", () => {
+  const actual = jest.requireActual("utils/getCodeMirrorNamespace");
+  return {
+    ...actual,
+    getCodeMirrorNamespaceFromDoc: jest.fn((doc) => ({
+      ...actual.getCodeMirrorNamespaceFromDoc(doc),
+      innerMode: jest.fn(() => ({
+        mode: {
+          name: "",
+        },
+        state: {
+          lexical: {},
+        },
+      })),
+    })),
+  };
+});
+
 describe("Tern server", () => {
   it("Check whether the correct value is being sent to tern", () => {
     const testCases = [
