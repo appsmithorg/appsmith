@@ -46,15 +46,19 @@
       <script>
         
         const enableNewRelic=parseConfig("__APPSMITH_NEW_RELIC_ACCOUNT_ENABLE__");
-
+      //only when newRelic is enabled do we load the browser agent script
       if (!!enableNewRelic) {
           const accountId = parseConfig("__APPSMITH_NEW_RELIC_ACCOUNT_ID__");
           const applicationId = parseConfig("__APPSMITH_NEW_RELIC_APPLICATION_ID__");
           const browserAgentlicenseKey = parseConfig("__APPSMITH_NEW_RELIC_BROWSER_AGENT_LICENSE_KEY__");
           const script = document.createElement("script");
+          //we load the new relic browser agent script from our CDN.
           script.src = "https://assets.appsmith.com/newRelicBrowserAgent.js";
           script.onload = () => {
-            BROWSER_AGENT && BROWSER_AGENT.init([accountId,applicationId,browserAgentlicenseKey]);
+            // we have defined and init function within the Browser agent script. 
+            // This init fn gets assigned to a global var called NEW_RELIC_BROWSER_AGENT, when the script tag element loads 
+            // we call the init fn with all env vars. Through this step browser agent has the required license key to push telemetry info to new relic.
+            NEW_RELIC_BROWSER_AGENT && NEW_RELIC_BROWSER_AGENT.init([accountId,applicationId,browserAgentlicenseKey]);
           };
           const head = document.getElementsByTagName("head")[0];
           head && head.appendChild(script);
