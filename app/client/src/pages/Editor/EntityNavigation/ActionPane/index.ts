@@ -18,6 +18,7 @@ export default class ActionPaneNavigationFactory {
       case PluginType.DB:
       case PluginType.SAAS:
       case PluginType.REMOTE:
+      case PluginType.AI:
         return new QueryPaneNavigation(entityInfo);
       default:
         return new ActionPaneNavigation(entityInfo);

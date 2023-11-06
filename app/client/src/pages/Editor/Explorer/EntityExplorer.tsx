@@ -159,15 +159,17 @@ function EntityExplorer({ isActive }: { isActive: boolean }) {
       {/* Shows first time users only */}
       <DatasourceStarterLayoutPrompt />
       {!isAppSidebarEnabled && (
-        <Datasources
-          addDatasource={addDatasource}
-          entityId={pageId}
-          isDatasourcesOpen={isDatasourcesOpen}
-          listDatasource={listDatasource}
-          onDatasourcesToggle={onDatasourcesToggle}
-        />
+        <>
+          <Datasources
+            addDatasource={addDatasource}
+            entityId={pageId}
+            isDatasourcesOpen={isDatasourcesOpen}
+            listDatasource={listDatasource}
+            onDatasourcesToggle={onDatasourcesToggle}
+          />
+          <JSDependencies />
+        </>
       )}
-      <JSDependencies />
     </EntityExplorerWrapper>
   );
 }

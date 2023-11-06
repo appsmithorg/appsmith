@@ -25,6 +25,13 @@ export interface AppsmithUIConfigs {
     enabled: boolean;
     id: string;
   };
+  newRelic: {
+    enableNewRelic: boolean;
+    accountId: string;
+    applicationId: string;
+    browserAgentlicenseKey: string;
+    otlpLicenseKey: string;
+  };
   segment: {
     enabled: boolean;
     apiKey: string;

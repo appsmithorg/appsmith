@@ -23,9 +23,9 @@ import {
 import { useDispatch } from "react-redux";
 import { getDragDetails } from "sagas/selectors";
 import {
+  combinedPreviewModeSelector,
   getIsMobileCanvasLayout,
   getOccupiedSpacesSelectorForContainer,
-  previewModeSelector,
 } from "selectors/editorSelectors";
 import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
 import { useAutoHeightUIState } from "utils/hooks/autoHeightUIHooks";
@@ -235,7 +235,7 @@ function useUpdateRows(
 
 export function DropTargetComponent(props: DropTargetComponentProps) {
   // Get if this is in preview mode.
-  const isPreviewMode = useSelector(previewModeSelector);
+  const isPreviewMode = useSelector(combinedPreviewModeSelector);
   const isAppSettingsPaneWithNavigationTabOpen = useSelector(
     getIsAppSettingsPaneWithNavigationTabOpen,
   );

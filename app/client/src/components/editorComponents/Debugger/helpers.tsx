@@ -141,7 +141,7 @@ export function getDependenciesFromInverseDependencies(
   deps: DependencyMap,
   entityName: string | null,
 ) {
-  if (!entityName) return null;
+  if (!entityName || !deps) return null;
 
   const directDependencies = new Set<string>();
   const inverseDependencies = new Set<string>();

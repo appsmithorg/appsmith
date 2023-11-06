@@ -7,4 +7,4 @@ cd "$(dirname "$0")"
 
 set -o allexport
 source .env
-exec node --require source-map-support/register dist/server.js
+exec node --require source-map-support/register dist/bundle/server.js

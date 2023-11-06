@@ -181,9 +181,11 @@ export function renderDatasourceSection(
             if (
               !value &&
               !!viewMode &&
-              !!section.hidden &&
-              "comparison" in section.hidden &&
-              section.hidden.comparison === ComparisonOperationsEnum.VIEW_MODE
+              (!section.hidden ||
+                (!!section.hidden &&
+                  "comparison" in section.hidden &&
+                  section.hidden.comparison ===
+                    ComparisonOperationsEnum.VIEW_MODE))
             ) {
               value = section.initialValue;
             }
