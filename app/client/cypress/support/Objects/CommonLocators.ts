@@ -326,4 +326,5 @@ export class CommonLocators {
   _dashboardContainer = ".application-demo-new-dashboard-container";
   _exitFullScreen = ".application-demo-new-dashboard-control-exit-fullscreen";
   _menuItem = ".bp3-menu-item";
+  _anvilCanvas = "anvil-canvas-";
 }

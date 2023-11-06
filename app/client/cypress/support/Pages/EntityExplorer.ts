@@ -330,9 +330,10 @@ export class EntityExplorer {
     parentWidgetType = "",
     dropTargetId = "",
     skipWidgetSearch = false,
+    searchText = "",
   ) {
     if (!skipWidgetSearch) {
-      this.SearchWidgetPane(widgetType);
+      this.SearchWidgetPane(searchText || widgetType);
     }
 
     cy.get(this.locator._widgetPageIcon(widgetType))
@@ -363,6 +364,56 @@ export class EntityExplorer {
       .trigger("mouseup", x, y, { eventConstructor: "MouseEvent" });
   }
 
+  public AnvilDragNDropWidget(
+    widgetType: string,
+    x = 300,
+    y = 100,
+    dropTargetSelector = "",
+    skipWidgetSearch = false,
+    searchText = "",
+  ) {
+    if (!skipWidgetSearch) {
+      this.SearchWidgetPane(searchText || widgetType);
+    }
+
+    cy.get(this.locator._widgetPageIcon(widgetType))
+      .first()
+      .trigger("dragstart", { force: true })
+      .trigger("mousemove", x, y, { force: true });
+    cy.get(dropTargetSelector ?? "anvil-canvas-0 layout-index-0")
+      .first()
+      .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" })
+      .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" });
+    this.agHelper.Sleep(200);
+    cy.get(dropTargetSelector ?? "anvil-canvas-0 layout-index-0")
+      .first()
+      .trigger("mouseup", x, y, { eventConstructor: "MouseEvent" });
+  }
+
+  public AnvilDragDropWidgetNVerify(
+    widgetType: string,
+    x = 300,
+    y = 100,
+    dropTargetSelector = "",
+    skipWidgetSearch = false,
+    searchText = "",
+  ) {
+    const dtSelector = dropTargetSelector ?? "anvil-canvas-0 layout-index-0";
+    this.AnvilDragNDropWidget(
+      widgetType,
+      x,
+      y,
+      dtSelector,
+      skipWidgetSearch,
+      searchText,
+    );
+    this.agHelper.AssertAutoSave(); //settling time for widget on canvas!
+
+    this.agHelper.AssertElementExist(
+      `${dtSelector} ${this.locator._widgetInCanvas(widgetType)}`,
+    );
+  }
+
   public DragDropWidgetNVerify(
     widgetType: string,
     x = 300,
@@ -370,6 +421,7 @@ export class EntityExplorer {
     parentWidgetType = "",
     dropTargetId = "",
     skipWidgetSearch = false,
+    searchText = "",
   ) {
     this.DragNDropWidget(
       widgetType,
@@ -378,6 +430,7 @@ export class EntityExplorer {
       parentWidgetType,
       dropTargetId,
       skipWidgetSearch,
+      searchText,
     );
     this.agHelper.AssertAutoSave(); //settling time for widget on canvas!
     if (widgetType === "modalwidget") {

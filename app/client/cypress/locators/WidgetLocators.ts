@@ -46,6 +46,7 @@ export const WIDGET = {
   MENUBUTTON: "menubuttonwidget",
   DATEPICKER: "datepickerwidget2",
   MAP: "mapwidget",
+  WDS_BUTTON: "wdsbuttonwidget",
 } as const;
 
 // property pane element selector are maintained here
