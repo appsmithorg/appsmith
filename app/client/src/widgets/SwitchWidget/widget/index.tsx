@@ -6,7 +6,7 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { LabelPosition } from "components/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
-import { AlignWidgetTypes } from "WidgetProvider/constants";
+import { AlignWidgetTypes, largeWidgets } from "WidgetProvider/constants";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import {
   isAutoHeightEnabledForWidget,
@@ -103,6 +103,7 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
 
   static getAnvilConfig(): AnvilConfig | null {
     return {
+      isLargeWidget: largeWidgets[this.type],
       widgetSize: {
         maxHeight: {},
         maxWidth: {},

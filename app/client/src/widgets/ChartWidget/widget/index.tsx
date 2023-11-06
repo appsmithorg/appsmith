@@ -19,10 +19,11 @@ import type { ChartComponentProps } from "../component";
 import { Colors } from "constants/Colors";
 import type { Stylesheet } from "entities/AppTheming";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
-import type {
-  AnvilConfig,
-  AutocompletionDefinitions,
-  WidgetCallout,
+import {
+  largeWidgets,
+  type AnvilConfig,
+  type AutocompletionDefinitions,
+  type WidgetCallout,
 } from "WidgetProvider/constants";
 import { ChartErrorComponent } from "../component/ChartErrorComponent";
 import { syntaxErrorsFromProps } from "./SyntaxErrorsEvaluation";
@@ -128,6 +129,7 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
 
   static getAnvilConfig(): AnvilConfig | null {
     return {
+      isLargeWidget: largeWidgets[this.type],
       widgetSize: {
         maxHeight: {},
         maxWidth: {},

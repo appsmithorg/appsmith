@@ -30,9 +30,10 @@ import {
   DefaultAutocompleteDefinitions,
   isCompactMode,
 } from "widgets/WidgetUtils";
-import type {
-  AnvilConfig,
-  AutocompletionDefinitions,
+import {
+  largeWidgets,
+  type AnvilConfig,
+  type AutocompletionDefinitions,
 } from "WidgetProvider/constants";
 import { LabelPosition } from "components/constants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
@@ -149,6 +150,7 @@ class PhoneInputWidget extends BaseInputWidget<
 
   static getAnvilConfig(): AnvilConfig | null {
     return {
+      isLargeWidget: largeWidgets[this.type],
       widgetSize: {
         maxHeight: {},
         maxWidth: {},

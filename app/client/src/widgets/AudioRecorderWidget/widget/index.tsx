@@ -7,7 +7,7 @@ import { createBlobUrl } from "utils/AppsmithUtils";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
-import { FileDataTypes } from "WidgetProvider/constants";
+import { FileDataTypes, largeWidgets } from "WidgetProvider/constants";
 import AudioRecorderComponent from "../component";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type {
@@ -84,6 +84,7 @@ class AudioRecorderWidget extends BaseWidget<
 
   static getAnvilConfig(): AnvilConfig | null {
     return {
+      isLargeWidget: largeWidgets[this.type],
       widgetSize: {
         maxHeight: {},
         maxWidth: {},

@@ -73,7 +73,10 @@ import { cloneDeep, set } from "lodash";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import { combineDynamicBindings } from "utils/DynamicBindingUtils";
 import type { WidgetProps } from "widgets/BaseWidget";
-import { BlueprintOperationTypes } from "WidgetProvider/constants";
+import {
+  BlueprintOperationTypes,
+  largeWidgets,
+} from "WidgetProvider/constants";
 import type {
   SnipingModeProperty,
   PropertyUpdates,
@@ -321,6 +324,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
   static getAnvilConfig(): AnvilConfig | null {
     return {
+      isLargeWidget: largeWidgets[this.type],
       widgetSize: {
         maxHeight: {},
         maxWidth: {},

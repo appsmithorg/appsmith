@@ -17,9 +17,10 @@ import type { WidgetProps, WidgetState } from "../../BaseWidget";
 import BaseWidget from "../../BaseWidget";
 
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
-import type {
-  AnvilConfig,
-  AutocompletionDefinitions,
+import {
+  largeWidgets,
+  type AnvilConfig,
+  type AutocompletionDefinitions,
 } from "WidgetProvider/constants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import {
@@ -129,6 +130,7 @@ class RichTextEditorWidget extends BaseWidget<
 
   static getAnvilConfig(): AnvilConfig | null {
     return {
+      isLargeWidget: largeWidgets[this.type],
       widgetSize: {
         maxHeight: {},
         maxWidth: {},

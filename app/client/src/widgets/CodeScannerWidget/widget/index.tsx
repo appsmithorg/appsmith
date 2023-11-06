@@ -8,9 +8,10 @@ import styleConfig from "./propertyConfig/styleConfig";
 import type { CodeScannerWidgetProps } from "../constants";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
-import type {
-  AnvilConfig,
-  AutocompletionDefinitions,
+import {
+  largeWidgets,
+  type AnvilConfig,
+  type AutocompletionDefinitions,
 } from "WidgetProvider/constants";
 import IconSVG from "../icon.svg";
 
@@ -81,6 +82,7 @@ class CodeScannerWidget extends BaseWidget<
 
   static getAnvilConfig(): AnvilConfig | null {
     return {
+      isLargeWidget: largeWidgets[this.type],
       widgetSize: {
         maxHeight: {},
         maxWidth: {},

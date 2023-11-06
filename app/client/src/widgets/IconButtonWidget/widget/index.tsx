@@ -12,9 +12,10 @@ import { ButtonVariantTypes } from "components/constants";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import IconButtonComponent from "../component";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
-import type {
-  AnvilConfig,
-  AutocompletionDefinitions,
+import {
+  largeWidgets,
+  type AnvilConfig,
+  type AutocompletionDefinitions,
 } from "WidgetProvider/constants";
 import { ICON_BUTTON_MIN_WIDTH } from "constants/minWidthConstants";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
@@ -96,6 +97,7 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
 
   static getAnvilConfig(): AnvilConfig | null {
     return {
+      isLargeWidget: largeWidgets[this.type],
       widgetSize: {
         maxHeight: {},
         maxWidth: {},

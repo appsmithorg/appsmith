@@ -121,11 +121,12 @@ import type {
 import { getMemoiseTransformDataWithEditableCell } from "./reactTableUtils/transformDataPureFn";
 import type { ExtraDef } from "utils/autocomplete/defCreatorUtils";
 import { generateTypeDef } from "utils/autocomplete/defCreatorUtils";
-import type {
-  AnvilConfig,
-  AutocompletionDefinitions,
-  PropertyUpdates,
-  SnipingModeProperty,
+import {
+  largeWidgets,
+  type AnvilConfig,
+  type AutocompletionDefinitions,
+  type PropertyUpdates,
+  type SnipingModeProperty,
 } from "WidgetProvider/constants";
 import type {
   WidgetQueryConfig,
@@ -376,6 +377,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
   static getAnvilConfig(): AnvilConfig | null {
     return {
+      isLargeWidget: largeWidgets[this.type],
       widgetSize: {
         maxHeight: {},
         maxWidth: {},

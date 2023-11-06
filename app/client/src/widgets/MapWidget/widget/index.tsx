@@ -13,9 +13,10 @@ import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import type { MarkerProps } from "../constants";
 import { getBorderCSSShorthand } from "constants/DefaultTheme";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
-import type {
-  AnvilConfig,
-  AutocompletionDefinitions,
+import {
+  largeWidgets,
+  type AnvilConfig,
+  type AutocompletionDefinitions,
 } from "WidgetProvider/constants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import {
@@ -131,6 +132,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
 
   static getAnvilConfig(): AnvilConfig | null {
     return {
+      isLargeWidget: largeWidgets[this.type],
       widgetSize: {
         maxHeight: {},
         maxWidth: {},

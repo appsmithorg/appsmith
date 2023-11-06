@@ -432,6 +432,7 @@ class WidgetFactory {
     if (!baseAnvilConfig) {
       log.error(`Anvil config is not defined for widget type: ${type}`);
       return {
+        isLargeWidget: false,
         widgetSize: defaultSizeConfig,
       };
     }

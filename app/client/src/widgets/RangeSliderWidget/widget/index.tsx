@@ -11,9 +11,10 @@ import contentConfig from "./propertyConfig/contentConfig";
 import styleConfig from "./propertyConfig/styleConfig";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
-import type {
-  AnvilConfig,
-  AutocompletionDefinitions,
+import {
+  largeWidgets,
+  type AnvilConfig,
+  type AutocompletionDefinitions,
 } from "WidgetProvider/constants";
 import { Alignment } from "@blueprintjs/core";
 import { LabelPosition } from "components/constants";
@@ -133,6 +134,7 @@ class RangeSliderWidget extends BaseWidget<
 
   static getAnvilConfig(): AnvilConfig | null {
     return {
+      isLargeWidget: largeWidgets[this.type],
       widgetSize: {
         maxHeight: {},
         maxWidth: {},

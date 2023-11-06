@@ -14,7 +14,7 @@ import {
   INPUT_TEXT_MAX_CHAR_ERROR,
 } from "@appsmith/constants/messages";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
-import { ICON_NAMES } from "WidgetProvider/constants";
+import { ICON_NAMES, largeWidgets } from "WidgetProvider/constants";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import BaseInputWidget from "widgets/BaseInputWidget";
 import { isNil, isNumber, merge, toString } from "lodash";
@@ -364,6 +364,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
 
   static getAnvilConfig(): AnvilConfig | null {
     return {
+      isLargeWidget: largeWidgets[this.type],
       widgetSize: {
         maxHeight: {},
         maxWidth: {},

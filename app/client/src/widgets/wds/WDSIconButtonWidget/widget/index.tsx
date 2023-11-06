@@ -12,7 +12,7 @@ import {
 } from "./../config";
 import type { IconButtonWidgetProps, IconButtonWidgetState } from "./types";
 import { IconButtonComponent } from "../component";
-import type { AnvilConfig } from "WidgetProvider/constants";
+import { largeWidgets, type AnvilConfig } from "WidgetProvider/constants";
 
 class WDSIconButtonWidget extends BaseWidget<
   IconButtonWidgetProps,
@@ -42,6 +42,7 @@ class WDSIconButtonWidget extends BaseWidget<
 
   static getAnvilConfig(): AnvilConfig | null {
     return {
+      isLargeWidget: largeWidgets[this.type],
       widgetSize: {
         maxHeight: {},
         maxWidth: {},

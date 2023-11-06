@@ -10,6 +10,7 @@ import BaseWidget from "widgets/BaseWidget";
 import {
   FileDataTypes,
   DefaultMobileCameraTypes,
+  largeWidgets,
 } from "WidgetProvider/constants";
 
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
@@ -81,6 +82,7 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
 
   static getAnvilConfig(): AnvilConfig | null {
     return {
+      isLargeWidget: largeWidgets[this.type],
       widgetSize: {
         maxHeight: {},
         maxWidth: {},

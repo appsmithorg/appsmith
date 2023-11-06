@@ -8,9 +8,10 @@ import IframeComponent from "../component";
 import type { IframeWidgetProps } from "../constants";
 import { generateTypeDef } from "utils/autocomplete/defCreatorUtils";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
-import type {
-  AnvilConfig,
-  AutocompletionDefinitions,
+import {
+  largeWidgets,
+  type AnvilConfig,
+  type AutocompletionDefinitions,
 } from "WidgetProvider/constants";
 import IconSVG from "../icon.svg";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
@@ -93,6 +94,7 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
 
   static getAnvilConfig(): AnvilConfig | null {
     return {
+      isLargeWidget: largeWidgets[this.type],
       widgetSize: {
         maxHeight: {},
         maxWidth: {},
