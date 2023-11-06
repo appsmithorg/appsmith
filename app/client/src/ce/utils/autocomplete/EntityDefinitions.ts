@@ -50,7 +50,8 @@ export const entityDefinitions = {
     const dataDef = generateTypeDef(entity.data, extraDefsToDefine);
 
     let data: Def = {
-      "!doc": "The response of the action",
+      "!doc":
+        "A read-only property that contains the response body from the last successful execution of this query.",
     };
 
     if (_.isString(dataDef)) {
@@ -60,17 +61,28 @@ export const entityDefinitions = {
     }
     return {
       "!doc":
-        "Actions allow you to connect your widgets to your backend data in a secure manner.",
+        "Object that contains the properties required to run queries and access the query data.",
       "!url":
         "https://docs.appsmith.com/reference/appsmith-framework/query-object",
       isLoading: "bool",
       data,
       responseMeta: {
-        "!doc": "The response meta of the action",
+        "!doc":
+          "Object that contains details about the response, such as the status code, headers, and other relevant information related to the query's execution and the server's response.",
         "!type": "?",
       },
-      run: "fn(params: ?) -> +Promise",
-      clear: "fn() -> +Promise",
+      run: {
+        "!type": "fn(params: ?) -> +Promise",
+        "!url":
+          "https://docs.appsmith.com/reference/appsmith-framework/query-object#queryrun",
+        "!doc": "Execute the query with the given parameters.",
+      },
+      clear: {
+        "!type": "fn() -> +Promise",
+        "!url":
+          "https://docs.appsmith.com/reference/appsmith-framework/query-object#queryclear",
+        "!doc": "Clear the query data.",
+      },
     };
   },
 };
@@ -111,16 +123,19 @@ export const GLOBAL_DEFS = {
 export const GLOBAL_FUNCTIONS = {
   "!name": "DATA_TREE.APPSMITH.FUNCTIONS",
   navigateTo: {
-    "!doc": "Action to navigate the user to another page or url",
+    "!doc":
+      "Enables navigation between the internal pages of the App or to an external URL.",
     "!type":
       "fn(pageNameOrUrl: string, params: {}, target?: string) -> +Promise",
   },
   showAlert: {
-    "!doc": "Show a temporary notification style message to the user",
+    "!doc":
+      "Displays a temporary toast-style alert message to the user for precisely 5 seconds. The duration of the alert message can't be modified.",
     "!type": "fn(message: string, style: string) -> +Promise",
   },
   showModal: {
-    "!doc": "Open a modal",
+    "!doc":
+      "Opens an existing Modal widget and bring it into focus on the page",
     "!type": "fn(modalName: string) -> +Promise",
   },
   closeModal: {
@@ -128,8 +143,9 @@ export const GLOBAL_FUNCTIONS = {
     "!type": "fn(modalName: string) -> +Promise",
   },
   storeValue: {
-    "!doc": "Store key value data locally",
-    "!type": "fn(key: string, value: any) -> +Promise",
+    "!doc":
+      "Stores the data in the browser's local storage as key-value pairs that represent storage objects and can be later accessed anywhere in the application.",
+    "!type": "fn(key: string, value: any, persist?: bool) -> +Promise",
   },
   removeValue: {
     "!doc": "Remove key value data locally",
@@ -140,20 +156,22 @@ export const GLOBAL_FUNCTIONS = {
     "!type": "fn() -> +Promise",
   },
   download: {
-    "!doc": "Download anything as a file",
+    "!doc":
+      "Download any data as a file, leveraging the capabilities of the downloadjs library.",
     "!type":
       "fn(data: string|+Blob, fileName: string, fileType?: string) -> +Promise",
   },
   copyToClipboard: {
-    "!doc": "Copy text to clipboard",
+    "!doc": "Copies the given text to clipboard",
     "!type": "fn(data: string, options: object) -> +Promise",
   },
   resetWidget: {
-    "!doc": "Reset widget values",
+    "!doc":
+      "Resets a widget to its default state. All user input changes are reverted and its properties' default values are applied.",
     "!type": "fn(widgetName: string, resetChildren: bool) -> +Promise",
   },
   setInterval: {
-    "!doc": "Execute triggers at a given interval",
+    "!doc": "Executes a function at a given interval",
     "!type":
       "fn(callback: fn() -> void, interval: number, id?: string) -> number",
   },
