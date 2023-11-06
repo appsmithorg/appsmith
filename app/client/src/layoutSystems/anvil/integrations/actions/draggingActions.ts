@@ -47,7 +47,7 @@ export const addSuggestedWidgetAnvilAction = (newWidget: {
   type?: string;
   rows?: number;
   columns?: number;
-  widgetConfig?: WidgetProps;
+  props?: WidgetProps;
 }) => {
   return {
     type: AnvilReduxActionTypes.ANVIL_ADD_SUGGESTED_WIDGET,

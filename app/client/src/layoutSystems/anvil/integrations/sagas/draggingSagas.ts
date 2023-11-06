@@ -55,7 +55,7 @@ function* addSuggestedWidgetsAnvilSaga(
       type: string;
       rows?: number;
       columns?: number;
-      widgetConfig: WidgetProps;
+      props: WidgetProps;
     };
   }>,
 ) {
@@ -66,7 +66,7 @@ function* addSuggestedWidgetsAnvilSaga(
   if (wdsEntry) {
     const [, wdsType] = wdsEntry;
     const newWidgetParams = {
-      ...newWidget.widgetConfig,
+      ...newWidget.props,
       width: (newWidget.rows || 0 / GridDefaults.DEFAULT_GRID_COLUMNS) * 100,
       height: newWidget.columns || 0 * GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
       newWidgetId: newWidget.newWidgetId,
