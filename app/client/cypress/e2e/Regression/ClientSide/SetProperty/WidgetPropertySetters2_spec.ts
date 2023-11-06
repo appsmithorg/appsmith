@@ -177,6 +177,67 @@ describe("Widget Property Setters - Part II - Tc #2409", () => {
     );
   });
 
+  it("6. Verify SetWidget for unsupported properties - setPlaying(Audio widget) property for Button, set property via try/catch block", () => {
+    entityExplorer.SelectEntityByName("JSObject1");
+    jsEditor.EditJSObj(
+      `export default {
+        myFun1 () {
+          Button1.setPlaying(true);
+        },
+      }`,
+      false,
+    );
+    agHelper.AssertElementVisibility(locators._lintErrorElement);
+    agHelper.HoverElement(locators._lintErrorElement);
+    agHelper.AssertContains(`"setPlaying" doesn't exist in Button1`);
+
+    //try catch block
+    entityExplorer.SelectEntityByName("JSObject1");
+    jsEditor.EditJSObj(
+      `export default {
+        myFun1 () {
+          try {
+            Api1.run().then(()=>{ Button1.setVisibility(false)})
+          }
+          catch(e)
+          { showAlert(e.message) }
+        },
+      }`,
+      false,
+    );
+    deployMode.DeployApp();
+    agHelper.AssertElementAbsence(
+      locators._widgetInDeployed(draggableWidgets.BUTTON),
+    );
+  });
+
+  it("7.Update set property using mutative values", () => {
+    entityExplorer.SelectEntityByName("Button1");
+    propPane.TogglePropertyState("Visible", "Off"); //due to bug, element state is not altereed when set via settimeout
+    propPane.TogglePropertyState("Visible", "On");
+    entityExplorer.SelectEntityByName("JSObject1");
+    jsEditor.EditJSObj(
+      `export default {
+        var1: [true,false,true,false],
+        async myFun1() {
+          for (let i =0; i<=this.var1.length;i++){
+            Input1.setVisibility(this.var1[i]);
+          }
+        },
+      }`,
+      false,
+    );
+    jsEditor.EnableDisableAsyncFuncSettings("myFun1", false, false);
+    deployMode.DeployApp();
+    agHelper.AssertElementVisibility(
+      locators._widgetInDeployed(draggableWidgets.INPUT_V2), //Asserting before setTimeout JS function execution, Input is visible
+    );
+    agHelper.ClickButton("Submit");
+    agHelper.AssertElementAbsence(
+      locators._widgetInDeployed(draggableWidgets.INPUT_V2),
+    );
+  });
+
   afterEach(() => {
     deployMode.NavigateBacktoEditor();
   });
