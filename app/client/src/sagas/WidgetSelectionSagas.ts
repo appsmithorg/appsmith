@@ -1,4 +1,6 @@
 import { builderURL, widgetURL } from "@appsmith/RouteBuilder";
+import { importPartialApplicationSuccess } from "@appsmith/actions/applicationActions";
+import type { ImportPartialApplicationRequest } from "@appsmith/api/ApplicationApi";
 import ApplicationApi, {
   type exportApplicationRequest,
 } from "@appsmith/api/ApplicationApi";
@@ -26,6 +28,8 @@ import {
   setSelectedWidgetAncestry,
   setSelectedWidgets,
 } from "actions/widgetSelectionActions";
+import type { ApiResponse } from "api/ApiResponses";
+import { toast } from "design-system";
 import { APP_MODE } from "entities/App";
 import { getFlexLayersForSelectedWidgets } from "layoutSystems/autolayout/utils/AutoLayoutUtils";
 import type { FlexLayer } from "layoutSystems/autolayout/utils/types";
@@ -33,7 +37,15 @@ import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
-import { all, call, put, select, take, takeLatest } from "redux-saga/effects";
+import {
+  all,
+  call,
+  fork,
+  put,
+  select,
+  take,
+  takeLatest,
+} from "redux-saga/effects";
 import type { SetSelectionResult } from "sagas/WidgetSelectUtils";
 import {
   SelectionRequestType,
@@ -58,14 +70,14 @@ import { getLastSelectedWidget, getSelectedWidgets } from "selectors/ui";
 import { areArraysEqual } from "utils/AppsmithUtils";
 import { quickScrollToWidget } from "utils/helpers";
 import history, { NavigationMethod } from "utils/history";
+import { getCopiedWidgets, saveCopiedWidgets } from "utils/storage";
+import { validateResponse } from "./ErrorSagas";
 import { createWidgetCopy } from "./WidgetOperationUtils";
 import {
   getWidgetIdsByType,
   getWidgetImmediateChildren,
   getWidgets,
 } from "./selectors";
-import { getCopiedWidgets, saveCopiedWidgets } from "utils/storage";
-import { toast } from "design-system";
 
 // The following is computed to be used in the entity explorer
 // Every time a widget is selected, we need to expand widget entities
@@ -376,8 +388,8 @@ export function* partialExportSaga(action: ReduxAction<PartialExportParams>) {
       currentPageId,
       body,
     );
-    // const isValid: boolean = yield validateResponse(response);
-    if (!!response) {
+    const isValid: boolean = yield validateResponse(response);
+    if (isValid) {
       const application: ApplicationPayload = yield select(
         getCurrentApplication,
       );
@@ -392,7 +404,7 @@ export function* partialExportSaga(action: ReduxAction<PartialExportParams>) {
         document.body.appendChild(downloadAnchorNode); // required for firefox
         downloadAnchorNode.click();
         downloadAnchorNode.remove();
-      })(response);
+      })((response as { data: unknown }).data);
       yield put({
         type: ReduxActionTypes.PARTIAL_EXPORT_SUCCESS,
       });
@@ -436,16 +448,68 @@ export function* partialExportWidgetSaga(widgetIds: string[]) {
     widgets: widgetListsToStore,
     flexLayers,
   };
-  yield saveCopiedWidgets(JSON.stringify(widgetsDSL));
   return widgetsDSL;
 }
 
-export function* partialImportSaga() {
-  // Cache existing copied widgets as we utilize copy paste functionality with partial import of widgets
-  const existingCopiedWidgets: unknown = yield call(getCopiedWidgets);
-  yield put(selectWidgetInitAction(SelectionRequestType.Empty));
-  yield put(pasteWidget(false, { x: 0, y: 0 }));
+async function readJSONFile(file: File) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const json = JSON.parse(reader.result as string);
+        resolve(json);
+      } catch (e) {
+        reject(e);
+      }
+    };
+    reader.readAsText(file);
+  });
+}
 
+function* partialImportWidgetsSaga(file: File) {
+  // assume that action.payload.applicationFile is a JSON file. Parse it and extract widgets property
+  const userUploadedJSON: { widgets: string } = yield call(readJSONFile, file);
+  if ("widgets" in userUploadedJSON && userUploadedJSON.widgets.length > 0) {
+    yield saveCopiedWidgets(userUploadedJSON.widgets);
+    yield put(selectWidgetInitAction(SelectionRequestType.Empty));
+    yield put(pasteWidget(false, { x: 0, y: 0 }));
+  }
+}
+
+export function* partialImportSaga(
+  action: ReduxAction<ImportPartialApplicationRequest>,
+) {
+  // Cache existing copied widgets as we utilize copy paste functionality with partial import of widgets
+  // Step1: Get existing copied widgets
+  const existingCopiedWidgets: unknown = yield call(getCopiedWidgets);
+
+  try {
+    // Step2: Import widgets from file, in parallel
+    yield fork(partialImportWidgetsSaga, action.payload.applicationFile);
+    // Step3: Send backend request to import pending items.
+    const response: ApiResponse = yield call(
+      ApplicationApi.importPartialApplication,
+      action.payload,
+    );
+
+    const isValidResponse: boolean = yield validateResponse(response);
+
+    if (isValidResponse) {
+      toast.show("Partial Application imported successfully", {
+        kind: "success",
+      });
+      yield call(importPartialApplicationSuccess);
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.PARTIAL_IMPORT_ERROR,
+      payload: {
+        error,
+      },
+    });
+  }
+
+  // Step4: Save existing copied widgets back to storage
   if (existingCopiedWidgets) {
     yield call(saveCopiedWidgets, JSON.stringify(existingCopiedWidgets));
   }

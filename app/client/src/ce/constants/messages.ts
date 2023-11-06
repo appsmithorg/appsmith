@@ -2206,4 +2206,8 @@ export const PARTIAL_IMPORT_EXPORT = {
     modalSubHeading: () => "Select entities below to export from the Page",
     cta: () => "Export selected entities",
   },
+  import: {
+    modalHeading: () => "Partial import",
+    modalSubheading: () => "Import partial applicaiton from file",
+  },
 };

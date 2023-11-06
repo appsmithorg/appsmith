@@ -213,6 +213,9 @@ export const getIsDatasourceConfigForImportFetched = (state: AppState) =>
 export const getIsImportingApplication = (state: AppState) =>
   state.ui.applications.importingApplication;
 
+export const getIsImportingPartialApplication = (state: AppState) =>
+  state.ui.applications.partialImportExport.isImporting;
+
 export const getWorkspaceIdForImport = (state: AppState) =>
   state.ui.applications.workspaceIdForImport;
 
@@ -285,4 +288,4 @@ export const getApplicationLoadingStates = (state: AppState) => {
 
 export const getAllAppUsers = () => [];
 export const getPartialImportExportLoadingState = (state: AppState) =>
-  state.ui.applications.loadingStates.partialImportExport;
+  state.ui.applications.partialImportExport;

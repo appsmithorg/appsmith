@@ -247,6 +247,15 @@ export interface exportApplicationRequest {
   widget: string;
 }
 
+export interface ImportPartialApplicationRequest {
+  workspaceId: string;
+  applicationFile: File;
+  progress?: (progressEvent: ProgressEvent) => void;
+  onSuccessCallback?: () => void;
+  appId: string;
+  pageId: string;
+}
+
 export class ApplicationApi extends Api {
   static baseURL = "v1/applications";
   static publishURLPath = (applicationId: string) =>
@@ -450,6 +459,26 @@ export class ApplicationApi extends Api {
       `${ApplicationApi.baseURL}/export/partial/${applicationId}/${pageId}`,
       requestBody,
       null,
+    );
+  }
+
+  static async importPartialApplication(
+    request: ImportPartialApplicationRequest,
+  ): Promise<AxiosPromise<ApiResponse>> {
+    const formData = new FormData();
+    if (request.applicationFile) {
+      formData.append("file", request.applicationFile);
+    }
+    return Api.post(
+      `${ApplicationApi.baseURL}/import/partial/${request.workspaceId}/${request.appId}?pageId=${request.pageId}`,
+      formData,
+      null,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        onUploadProgress: request.progress,
+      },
     );
   }
 }

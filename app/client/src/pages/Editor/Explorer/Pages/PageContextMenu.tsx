@@ -40,7 +40,7 @@ import {
   getHasManagePagePermission,
 } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import PartiaExportModel from "components/editorComponents/PartialImportExport/PartialExportModal";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import PartialImportModal from "components/editorComponents/PartialImportExport/PartialImportModal";
 
 const CustomLabel = styled.div`
   display: flex;
@@ -61,6 +61,7 @@ export function PageContextMenu(props: {
   const isPartialImportExportEnabled = true;
   useFeatureFlag(FEATURE_FLAG.release_show_partial_import_export_enabled);
   const [showPartialExportModal, setShowPartialExportModal] = useState(false);
+  const [showPartialImportModal, setShowPartialImportModal] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
 
   const partialImportExportLoadingState = useSelector(
@@ -70,6 +71,9 @@ export function PageContextMenu(props: {
   useEffect(() => {
     if (partialImportExportLoadingState.isExportDone) {
       setShowPartialExportModal(false);
+    }
+    if (partialImportExportLoadingState.isImportDone) {
+      setShowPartialImportModal(false);
     }
   }, [partialImportExportLoadingState]);
   /**
@@ -139,11 +143,12 @@ export function PageContextMenu(props: {
     );
 
   const openPartialExportModal = () => setShowPartialExportModal(true);
-  const onPartialImportClick = useCallback(async () => {
-    dispatch({
-      type: ReduxActionTypes.PARTIAL_IMPORT_INIT,
-    });
-  }, []);
+  const openPartialImportModal = () => setShowPartialImportModal(true);
+  // const onPartialImportClick = useCallback(async () => {
+  //   dispatch({
+  //     type: ReduxActionTypes.PARTIAL_IMPORT_INIT,
+  //   });
+  // }, []);
 
   const pagePermissions =
     useSelector(getPageById(props.pageId))?.userPermissions || [];
@@ -214,7 +219,7 @@ export function PageContextMenu(props: {
     isPartialImportExportEnabled &&
       props.isCurrentPage && {
         value: "partial-import",
-        onSelect: onPartialImportClick,
+        onSelect: openPartialImportModal,
         label: createMessage(CONTEXT_PARTIAL_IMPORT),
       },
     {
@@ -248,6 +253,12 @@ export function PageContextMenu(props: {
         <PartiaExportModel
           handleModalClose={() => setShowPartialExportModal(false)}
           isModalOpen={showPartialExportModal}
+        />
+      )}
+      {showPartialImportModal && (
+        <PartialImportModal
+          isModalOpen={showPartialImportModal}
+          onClose={() => setShowPartialImportModal(false)}
         />
       )}
     </>

@@ -5,6 +5,7 @@ import type {
   UpdateApplicationPayload,
   ImportApplicationRequest,
   FetchApplicationPayload,
+  ImportPartialApplicationRequest,
 } from "@appsmith/api/ApplicationApi";
 import type { NavigationSetting } from "constants/AppConstants";
 import type { IconNames } from "design-system";
@@ -151,6 +152,21 @@ export const importApplication = (appDetails: ImportApplicationRequest) => {
   return {
     type: ReduxActionTypes.IMPORT_APPLICATION_INIT,
     payload: appDetails,
+  };
+};
+
+export const importPartialApplication = (
+  appPartialDetails: ImportPartialApplicationRequest,
+) => {
+  return {
+    type: ReduxActionTypes.PARTIAL_IMPORT_INIT,
+    payload: appPartialDetails,
+  };
+};
+
+export const importPartialApplicationSuccess = () => {
+  return {
+    type: ReduxActionTypes.PARTIAL_IMPORT_SUCCESS,
   };
 };
 
