@@ -89,6 +89,7 @@ function* deleteTabChildSaga(
       },
       {},
     );
+    const widgetType: string = allWidgets[widgetId].type;
     const updatedDslObj: UpdatedDSLPostDelete = yield call(
       getUpdatedDslAfterDeletingWidget,
       widgetId,
@@ -125,6 +126,7 @@ function* deleteTabChildSaga(
           finalData,
           tabWidget.parentId,
           widgetId,
+          widgetType,
         );
       }
       yield put(updateAndSaveLayout(finalData));
@@ -267,6 +269,7 @@ function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
             finalData,
             parentId,
             widgetId,
+            widget.type,
           );
         }
         yield put(updateAndSaveLayout(finalData));
@@ -363,6 +366,7 @@ function* deleteAllSelectedWidgetsSaga(
             finalData,
             parentId,
             widgetId,
+            widgets[widgetId].type,
           );
         }
       }

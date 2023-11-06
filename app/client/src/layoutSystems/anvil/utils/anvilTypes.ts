@@ -17,8 +17,10 @@ export type LayoutComponentType =
   | "ALIGNED_WIDGET_ROW"
   | "LAYOUT_COLUMN"
   | "LAYOUT_ROW"
+  | "SECTION"
   | "WIDGET_COLUMN"
-  | "WIDGET_ROW";
+  | "WIDGET_ROW"
+  | "ZONE";
 
 export enum LayoutComponentTypes {
   ALIGNED_LAYOUT_COLUMN = "ALIGNED_LAYOUT_COLUMN",
@@ -26,13 +28,16 @@ export enum LayoutComponentTypes {
   ALIGNED_WIDGET_ROW = "ALIGNED_WIDGET_ROW",
   LAYOUT_COLUMN = "LAYOUT_COLUMN",
   LAYOUT_ROW = "LAYOUT_ROW",
+  SECTION = "SECTION",
   WIDGET_COLUMN = "WIDGET_COLUMN",
   WIDGET_ROW = "WIDGET_ROW",
+  ZONE = "ZONE",
 }
 
 export interface WidgetLayoutProps {
-  widgetId: string;
   alignment: FlexLayerAlignment;
+  widgetId: string;
+  widgetType: string;
 }
 
 export interface LayoutProps {
@@ -46,6 +51,7 @@ export interface LayoutProps {
   isDropTarget?: boolean; // Whether the layout component is a drop target. Accordingly, renders
   insertChild?: boolean; // Identifies which of the child layout components in childTemplate to add new widgets to.
   isPermanent?: boolean; // Whether the layout component can exist without any children.
+  maxChildLimit?: number; // Maximum number of children that can be added to the layout component.
 }
 
 export interface LayoutComponentProps extends LayoutProps {
@@ -72,7 +78,10 @@ export interface LayoutComponent extends React.FC<LayoutComponentProps> {
     highlight: AnvilHighlightInfo,
   ) => LayoutProps;
   // get template of layout component to wrap new widgets in.
-  getChildTemplate: (props: LayoutProps) => LayoutProps | undefined;
+  getChildTemplate: (
+    props: LayoutProps,
+    widgets?: WidgetLayoutProps[],
+  ) => LayoutProps | undefined;
   // Get a list of highlights to demarcate the drop positions within the layout.
   deriveHighlights: (
     layoutProps: LayoutProps, // Properties of layout for which highlights have to be derived.

@@ -37,7 +37,11 @@ export function updateWidgetRelationships(
           const updatedPrevParent = {
             ...prevParent,
             children: prevParent.children.filter((each) => each !== widgetId),
-            layout: deleteWidgetFromPreset(prevParent.layout, widgetId),
+            layout: deleteWidgetFromPreset(
+              prevParent.layout,
+              widgetId,
+              widgets[widgetId].type,
+            ),
           };
           widgets[prevParentId] = updatedPrevParent;
         }
@@ -88,15 +92,20 @@ export function moveWidgets(
   let updatedParentLayout = [...parent.layout];
   movedChildren.forEach((each: string) => {
     // Remove each moved child from the layout
-    updatedParentLayout = deleteWidgetFromPreset(updatedParentLayout, each);
+    updatedParentLayout = deleteWidgetFromPreset(
+      updatedParentLayout,
+      each,
+      widgets[each].type,
+    );
   });
 
   /**
    * Step 3: Create WidgetLayoutProps structure for addition to new parent's layout.
    */
   const newChildren: WidgetLayoutProps[] = movedWidgets.map((each: string) => ({
-    widgetId: each,
     alignment: highlight.alignment,
+    widgetId: each,
+    widgetType: widgets[each].type,
   }));
 
   const newLayout = addWidgetsToPreset(

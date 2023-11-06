@@ -4,6 +4,8 @@ import {
 } from "layoutSystems/anvil/utils/anvilTypes";
 import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
 import { generateReactKey } from "utils/generators";
+import IconButtonWidget from "widgets/IconButtonWidget/widget";
+import TextWidget from "widgets/TextWidget/widget";
 
 export const statBoxPreset = (
   text1: string,
@@ -35,8 +37,9 @@ export const statBoxPreset = (
             layoutType: LayoutComponentTypes.WIDGET_ROW,
             layout: [
               {
+                alignment: FlexLayerAlignment.Start,
                 widgetId: text1,
-                alignment: FlexLayerAlignment.Start,
+                widgetType: TextWidget.type,
               },
             ],
           },
@@ -48,8 +51,9 @@ export const statBoxPreset = (
             layoutType: LayoutComponentTypes.WIDGET_ROW,
             layout: [
               {
+                alignment: FlexLayerAlignment.Start,
                 widgetId: text2,
-                alignment: FlexLayerAlignment.Start,
+                widgetType: TextWidget.type,
               },
             ],
           },
@@ -61,8 +65,9 @@ export const statBoxPreset = (
             layoutType: LayoutComponentTypes.WIDGET_ROW,
             layout: [
               {
-                widgetId: text3,
                 alignment: FlexLayerAlignment.Start,
+                widgetId: text3,
+                widgetType: TextWidget.type,
               },
             ],
           },
@@ -79,8 +84,9 @@ export const statBoxPreset = (
         layoutType: LayoutComponentTypes.WIDGET_COLUMN,
         layout: [
           {
-            widgetId: image,
             alignment: FlexLayerAlignment.Start,
+            widgetId: image,
+            widgetType: IconButtonWidget.type,
           },
         ],
       },

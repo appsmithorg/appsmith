@@ -11,7 +11,7 @@ import type BaseLayoutComponent from "layoutSystems/anvil/layoutComponents/BaseL
  * Update a layout preset by adding a list of widgets in correct position.
  * @param layouts | LayoutProps[] : List of layouts forming a preset.
  * @param highlight | AnvilHighlightInfo : Drop information.
- * @param widgets | string[] : List of widgets to be added.
+ * @param widgets | WidgetLayoutProps[] : List of widgets to be added.
  * @returns LayoutProps[]
  */
 export function addWidgetsToPreset(
@@ -116,7 +116,7 @@ export function updateAffectedLayout(
  * @param Comp | LayoutComponent : LayoutComponent to drop the widgets into.
  * @param layoutProps | LayoutProps : Layout json of the Comp.
  * @param highlight | AnvilHighlightInfo : Drop information.
- * @param widgets | string[] : List of widgets to be added.
+ * @param widgets | WidgetLayoutProps[] : List of widgets to be added.
  * @returns string[] | LayoutProps[]
  */
 export function prepareWidgetsForAddition(
@@ -127,7 +127,10 @@ export function prepareWidgetsForAddition(
 ): WidgetLayoutProps[] | LayoutProps[] {
   if (!widgets || !widgets.length) return [];
 
-  const childTemplate: LayoutProps | null = Comp.getChildTemplate(layoutProps);
+  const childTemplate: LayoutProps | null = Comp.getChildTemplate(
+    layoutProps,
+    widgets,
+  );
 
   /**
    * If childTemplate is undefined,

@@ -1,3 +1,4 @@
+import type { AnvilConfig } from "WidgetProvider/constants";
 import WidgetFactory from "WidgetProvider/factory";
 import type { WidgetType } from "constants/WidgetConstants";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
@@ -22,4 +23,9 @@ export function isFillWidgetType(type: WidgetType): boolean {
 export function isFillWidgetPresentInList(children: WidgetProps[]): boolean {
   if (!children || !children?.length) return false;
   return children.some((child) => child && isFillWidgetType(child.type));
+}
+
+export function isLargeWidget(type: string): boolean {
+  const config: AnvilConfig | null = WidgetFactory.getWidgetAnvilConfig(type);
+  return config && config.isLargeWidget;
 }

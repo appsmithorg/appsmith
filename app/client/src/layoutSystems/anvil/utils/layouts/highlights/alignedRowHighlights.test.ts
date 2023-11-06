@@ -22,6 +22,7 @@ import AlignedWidgetRow from "layoutSystems/anvil/layoutComponents/components/Al
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import { mockButtonProps } from "mocks/widgetProps/button";
 import { getAlignmentLayoutId } from "../layoutUtils";
+import ButtonWidget from "widgets/ButtonWidget/widget";
 
 describe("AlignedRow highlights", () => {
   beforeAll(() => {
@@ -176,8 +177,16 @@ describe("AlignedRow highlights", () => {
       // Create AlignedWidgetRow layout with two buttons at start and center alignments.
       const layout: LayoutComponentProps = generateAlignedRowMock({
         layout: [
-          { widgetId: button1.widgetId, alignment: FlexLayerAlignment.Start },
-          { widgetId: button2.widgetId, alignment: FlexLayerAlignment.Center },
+          {
+            alignment: FlexLayerAlignment.Start,
+            widgetId: button1.widgetId,
+            widgetType: ButtonWidget.type,
+          },
+          {
+            alignment: FlexLayerAlignment.Center,
+            widgetId: button2.widgetId,
+            widgetType: ButtonWidget.type,
+          },
         ],
       });
       const { layoutId } = layout;

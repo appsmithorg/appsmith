@@ -32,10 +32,12 @@ export function generateLayoutComponentMock(
     (layout as WidgetLayoutProps[]).push({
       widgetId: buttonWidget.widgetId,
       alignment: FlexLayerAlignment.Start,
+      widgetType: "BUTTON_WIDGET",
     });
     (layout as WidgetLayoutProps[]).push({
       widgetId: inputWidget.widgetId,
       alignment: FlexLayerAlignment.Start,
+      widgetType: "INPUT_WIDGET_V2",
     });
     childrenMap[buttonWidget.widgetId] = buttonWidget;
     childrenMap[inputWidget.widgetId] = inputWidget;
@@ -88,10 +90,12 @@ export function generateAlignedRowMock(
     (layout as WidgetLayoutProps[]).push({
       widgetId: buttonWidget.widgetId,
       alignment: FlexLayerAlignment.Start,
+      widgetType: "BUTTON_WIDGET",
     });
     (layout as WidgetLayoutProps[]).push({
       widgetId: inputWidget.widgetId,
       alignment: FlexLayerAlignment.Start,
+      widgetType: "INPUT_WIDGET_V2",
     });
     childrenMap[buttonWidget.widgetId] = buttonWidget;
     childrenMap[inputWidget.widgetId] = inputWidget;

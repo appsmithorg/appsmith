@@ -14,6 +14,7 @@ import type {
   WidgetLayoutProps,
 } from "../../anvilTypes";
 import { extractWidgetIdsFromLayoutProps } from "../layoutUtils";
+import ButtonWidget from "widgets/ButtonWidget/widget";
 
 describe("Layouts - additionUtils tests", () => {
   describe("getAffectedLayout", () => {
@@ -116,7 +117,13 @@ describe("Layouts - additionUtils tests", () => {
       const res: LayoutProps = addWidgetsToTemplate(
         { ...template, layout: [] }, // Empty the layout prop of the mock template.
         highlight,
-        [{ widgetId: "1", alignment: FlexLayerAlignment.Start }],
+        [
+          {
+            alignment: FlexLayerAlignment.Start,
+            widgetId: "1",
+            widgetType: ButtonWidget.type,
+          },
+        ],
       );
       expect(res.layout.length).toEqual(1);
       expect((res.layout[0] as WidgetLayoutProps).widgetId).toEqual("1");
@@ -152,7 +159,13 @@ describe("Layouts - additionUtils tests", () => {
       const res: LayoutProps = addWidgetsToTemplate(
         updatedTemplate, // Empty the layout prop of the mock template.
         highlight,
-        [{ widgetId: "1", alignment: FlexLayerAlignment.End }],
+        [
+          {
+            alignment: FlexLayerAlignment.End,
+            widgetId: "1",
+            widgetType: ButtonWidget.type,
+          },
+        ],
       );
       /**
        * Row
@@ -189,7 +202,13 @@ describe("Layouts - additionUtils tests", () => {
           { getChildTemplate: () => null } as any,
           layout,
           mockAnvilHighlightInfo(),
-          [{ widgetId: "1", alignment: FlexLayerAlignment.Start }],
+          [
+            {
+              alignment: FlexLayerAlignment.Start,
+              widgetId: "1",
+              widgetType: ButtonWidget.type,
+            },
+          ],
         );
       expect(res.length).toEqual(1);
     });
@@ -200,7 +219,13 @@ describe("Layouts - additionUtils tests", () => {
           { getChildTemplate: () => ({ ...layoutProps, layout: [] }) } as any,
           layoutProps,
           mockAnvilHighlightInfo(),
-          [{ widgetId: "1", alignment: FlexLayerAlignment.Start }],
+          [
+            {
+              alignment: FlexLayerAlignment.Start,
+              widgetId: "1",
+              widgetType: ButtonWidget.type,
+            },
+          ],
         );
       expect((res[0] as LayoutProps).layoutId.length).toBeGreaterThan(0);
       expect(

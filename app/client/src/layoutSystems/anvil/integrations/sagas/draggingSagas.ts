@@ -71,8 +71,9 @@ function* addWidgetsSaga(
         ...canvasWidget,
         layout: addWidgetsToPreset(canvasLayout, highlight, [
           {
-            widgetId: newWidget.newWidgetId,
             alignment,
+            widgetId: newWidget.newWidgetId,
+            widgetType: newWidget.type,
           },
         ]),
       },

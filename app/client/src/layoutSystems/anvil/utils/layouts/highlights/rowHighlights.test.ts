@@ -26,6 +26,7 @@ import { generateLayoutComponentMock } from "mocks/layoutComponents/layoutCompon
 import type { LayoutElementPositions } from "layoutSystems/common/types";
 import { getRelativeDimensions } from "./dimensionUtils";
 import { registerLayoutComponents } from "../layoutUtils";
+import ButtonWidget from "widgets/ButtonWidget/widget";
 
 describe("rowHighlights tests", () => {
   beforeAll(() => {
@@ -59,9 +60,21 @@ describe("rowHighlights tests", () => {
   describe("extractMetaInformation", () => {
     it("should find the tallest widget in a row", () => {
       const data: WidgetLayoutProps[] = [
-        { widgetId: "1", alignment: FlexLayerAlignment.Start },
-        { widgetId: "2", alignment: FlexLayerAlignment.Start },
-        { widgetId: "3", alignment: FlexLayerAlignment.Start },
+        {
+          alignment: FlexLayerAlignment.Start,
+          widgetId: "1",
+          widgetType: ButtonWidget.type,
+        },
+        {
+          alignment: FlexLayerAlignment.Start,
+          widgetId: "2",
+          widgetType: ButtonWidget.type,
+        },
+        {
+          alignment: FlexLayerAlignment.Start,
+          widgetId: "3",
+          widgetType: ButtonWidget.type,
+        },
       ];
       const dimensions: LayoutElementPositions = {
         "0": { top: 0, left: 0, width: 200, height: 200 },
@@ -88,10 +101,26 @@ describe("rowHighlights tests", () => {
     });
     it("should identify wrapping and determine information for each wrapped row", () => {
       const data: WidgetLayoutProps[] = [
-        { widgetId: "1", alignment: FlexLayerAlignment.Start },
-        { widgetId: "2", alignment: FlexLayerAlignment.Start },
-        { widgetId: "3", alignment: FlexLayerAlignment.Start },
-        { widgetId: "4", alignment: FlexLayerAlignment.Start },
+        {
+          alignment: FlexLayerAlignment.Start,
+          widgetId: "1",
+          widgetType: ButtonWidget.type,
+        },
+        {
+          alignment: FlexLayerAlignment.Start,
+          widgetId: "2",
+          widgetType: ButtonWidget.type,
+        },
+        {
+          alignment: FlexLayerAlignment.Start,
+          widgetId: "3",
+          widgetType: ButtonWidget.type,
+        },
+        {
+          alignment: FlexLayerAlignment.Start,
+          widgetId: "4",
+          widgetType: ButtonWidget.type,
+        },
       ];
       const dimensions: LayoutElementPositions = {
         "0": { top: 0, left: 0, width: 300, height: 200 },
@@ -121,10 +150,26 @@ describe("rowHighlights tests", () => {
     });
     it("should identify reverse wrapping", () => {
       const data: WidgetLayoutProps[] = [
-        { widgetId: "1", alignment: FlexLayerAlignment.Start },
-        { widgetId: "2", alignment: FlexLayerAlignment.Start },
-        { widgetId: "3", alignment: FlexLayerAlignment.Start },
-        { widgetId: "4", alignment: FlexLayerAlignment.Start },
+        {
+          alignment: FlexLayerAlignment.Start,
+          widgetId: "1",
+          widgetType: ButtonWidget.type,
+        },
+        {
+          alignment: FlexLayerAlignment.Start,
+          widgetId: "2",
+          widgetType: ButtonWidget.type,
+        },
+        {
+          alignment: FlexLayerAlignment.Start,
+          widgetId: "3",
+          widgetType: ButtonWidget.type,
+        },
+        {
+          alignment: FlexLayerAlignment.Start,
+          widgetId: "4",
+          widgetType: ButtonWidget.type,
+        },
       ];
       const dimensions: LayoutElementPositions = {
         "0": { top: 0, left: 0, width: 200, height: 200 },
@@ -168,9 +213,21 @@ describe("rowHighlights tests", () => {
     };
     it("should derive highlights for a row", () => {
       const data: WidgetLayoutProps[] = [
-        { widgetId: "1", alignment: FlexLayerAlignment.Start },
-        { widgetId: "2", alignment: FlexLayerAlignment.Start },
-        { widgetId: "3", alignment: FlexLayerAlignment.Start },
+        {
+          alignment: FlexLayerAlignment.Start,
+          widgetId: "1",
+          widgetType: ButtonWidget.type,
+        },
+        {
+          alignment: FlexLayerAlignment.Start,
+          widgetId: "2",
+          widgetType: ButtonWidget.type,
+        },
+        {
+          alignment: FlexLayerAlignment.Start,
+          widgetId: "3",
+          widgetType: ButtonWidget.type,
+        },
       ];
       const dimensions: LayoutElementPositions = {
         layoutID: { top: 0, left: 0, width: 340, height: 100 },
@@ -219,9 +276,21 @@ describe("rowHighlights tests", () => {
   describe("deriveRowHighlights", () => {
     it("should derive highlights for a row", () => {
       const data: WidgetLayoutProps[] = [
-        { widgetId: "1", alignment: FlexLayerAlignment.Start },
-        { widgetId: "2", alignment: FlexLayerAlignment.Start },
-        { widgetId: "3", alignment: FlexLayerAlignment.Start },
+        {
+          alignment: FlexLayerAlignment.Start,
+          widgetId: "1",
+          widgetType: ButtonWidget.type,
+        },
+        {
+          alignment: FlexLayerAlignment.Start,
+          widgetId: "2",
+          widgetType: ButtonWidget.type,
+        },
+        {
+          alignment: FlexLayerAlignment.Start,
+          widgetId: "3",
+          widgetType: ButtonWidget.type,
+        },
       ];
       const dimensions: LayoutElementPositions = {
         layoutID: { top: 0, left: 0, width: 340, height: 100 },
@@ -273,9 +342,21 @@ describe("rowHighlights tests", () => {
     });
     it("should derive highlights for a wrapped row", () => {
       const data: WidgetLayoutProps[] = [
-        { widgetId: "1", alignment: FlexLayerAlignment.Start },
-        { widgetId: "2", alignment: FlexLayerAlignment.Start },
-        { widgetId: "3", alignment: FlexLayerAlignment.Start },
+        {
+          alignment: FlexLayerAlignment.Start,
+          widgetId: "1",
+          widgetType: ButtonWidget.type,
+        },
+        {
+          alignment: FlexLayerAlignment.Start,
+          widgetId: "2",
+          widgetType: ButtonWidget.type,
+        },
+        {
+          alignment: FlexLayerAlignment.Start,
+          widgetId: "3",
+          widgetType: ButtonWidget.type,
+        },
       ];
       const dimensions: LayoutElementPositions = {
         layoutID: { top: 0, left: 0, width: 230, height: 100 },
@@ -330,9 +411,21 @@ describe("rowHighlights tests", () => {
     });
     it("should derive highlights for a reverse wrapped row", () => {
       const data: WidgetLayoutProps[] = [
-        { widgetId: "1", alignment: FlexLayerAlignment.Start },
-        { widgetId: "2", alignment: FlexLayerAlignment.Start },
-        { widgetId: "3", alignment: FlexLayerAlignment.Start },
+        {
+          alignment: FlexLayerAlignment.Start,
+          widgetId: "1",
+          widgetType: ButtonWidget.type,
+        },
+        {
+          alignment: FlexLayerAlignment.Start,
+          widgetId: "2",
+          widgetType: ButtonWidget.type,
+        },
+        {
+          alignment: FlexLayerAlignment.Start,
+          widgetId: "3",
+          widgetType: ButtonWidget.type,
+        },
       ];
       const dimensions: LayoutElementPositions = {
         layoutID: { top: 0, left: 0, width: 230, height: 100 },

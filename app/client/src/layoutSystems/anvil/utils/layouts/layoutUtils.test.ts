@@ -15,6 +15,7 @@ import { mockAnvilHighlightInfo } from "mocks/mockHighlightInfo";
 import { mockButtonProps } from "mocks/widgetProps/button";
 import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
 import { getAnvilLayoutDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
+import ButtonWidget from "widgets/ButtonWidget/widget";
 
 describe("layoutUtils tests", () => {
   describe("getLayoutId", () => {
@@ -31,8 +32,9 @@ describe("layoutUtils tests", () => {
       const buttonWidget: BaseWidgetProps = mockButtonProps();
       const children: WidgetLayoutProps[] = [
         {
-          widgetId: buttonWidget.widgetId,
           alignment: FlexLayerAlignment.Start,
+          widgetId: buttonWidget.widgetId,
+          widgetType: ButtonWidget.type,
         },
       ];
       // Add child at rowIndex 1. layout already contains two widgets.
