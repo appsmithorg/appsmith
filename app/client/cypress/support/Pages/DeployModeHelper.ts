@@ -31,6 +31,9 @@ export class DeployMode {
   private _backtoHome =
     ".t--app-viewer-navigation-header .t--app-viewer-back-to-apps-button";
   private _homeAppsmithImage = "a.t--appsmith-logo";
+  public envInfoModal = `[data-testid="t--env-info-modal"]`;
+  public envInfoModalDismissCheckbox = `[data-testid="t--env-info-dismiss-checkbox"]`;
+  public envInfoModalDeployButton = `[data-testid="t--env-info-modal-deploy-button"]`;
 
   //refering PublishtheApp from command.js
   public DeployApp(
@@ -38,6 +41,8 @@ export class DeployMode {
     toCheckFailureToast = true,
     toValidateSavedState = true,
     addDebugFlag = true,
+    assertEnvInfoModal?: "present" | "absent",
+    dismissModal = false,
   ) {
     //cy.intercept("POST", "/api/v1/applications/publish/*").as("publishAppli");
 
@@ -48,6 +53,16 @@ export class DeployMode {
     this.assertHelper.AssertDocumentReady();
     this.StubbingDeployPage(addDebugFlag);
     this.agHelper.ClickButton("Deploy");
+    if (!!assertEnvInfoModal && assertEnvInfoModal === "present") {
+      this.agHelper.WaitUntilEleAppear(this.envInfoModal);
+      this.agHelper.AssertElementExist(this.envInfoModal);
+      if (dismissModal) {
+        this.agHelper.CheckUncheck(this.envInfoModalDismissCheckbox);
+      }
+    } else {
+      this.agHelper.AssertElementAbsence(this.envInfoModal);
+    }
+    this.agHelper.GetNClickIfPresent(this.envInfoModalDeployButton);
     this.agHelper.AssertElementAbsence(this.locator._btnSpinner, 10000); //to make sure we have started navigation from Edit page
     //cy.get("@windowDeployStub").should("be.calledOnce");
     this.assertHelper.AssertDocumentReady();
@@ -145,14 +160,11 @@ export class DeployMode {
     this.assertHelper.AssertDocumentReady();
   }
 
-  public NavigateBacktoEditor(toastToCheck = "") {
+  public NavigateBacktoEditor() {
     this.assertHelper.AssertDocumentReady();
     this.agHelper.GetNClick(this.locator._backToEditor, 0, true);
     this.agHelper.Sleep();
     localStorage.setItem("inDeployedMode", "false");
-    if (toastToCheck) {
-      this.agHelper.ValidateToastMessage(toastToCheck);
-    }
     //Assert no error toast in Edit mode when navigating back from Deploy mode
     this.agHelper.AssertElementAbsence(
       this.locator._specificToast("There was an unexpected error"),
@@ -161,9 +173,6 @@ export class DeployMode {
       this.locator._specificToast(
         "Internal server error while processing request",
       ),
-    );
-    this.agHelper.AssertElementAbsence(
-      this.locator._specificToast("Cannot read properties of undefined"),
     );
     this.assertHelper.AssertNetworkResponseData("@getPluginForm"); //for auth rest api
     this.assertHelper.AssertNetworkResponseData("@getPluginForm"); //for graphql

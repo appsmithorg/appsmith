@@ -3,16 +3,11 @@ import type { RefObject } from "react";
 import {
   ANVIL_WIDGET,
   LAYOUT,
-  extractLayoutIdFromLayoutDOMId,
-  extractWidgetIdFromAnvilWidgetDOMId,
   getAnvilLayoutDOMId,
   getAnvilWidgetDOMId,
 } from "./utils";
 import store from "store";
-import {
-  deleteLayoutElementPositions,
-  readLayoutElementPositions,
-} from "layoutSystems/anvil/integrations/actions";
+import { readLayoutElementPositions } from "layoutSystems/anvil/integrations/actions";
 import ResizeObserver from "resize-observer-polyfill";
 // Note: We have a singleton observer in `utils/resizeObserver.ts`. I noticed this too late and the API is not easy to adapt in this file.
 // Adding this to the list of things to fix in the future.
@@ -27,7 +22,13 @@ class LayoutElementPositionObserver {
   private registeredWidgets: {
     [widgetDOMId: string]: { ref: RefObject<HTMLDivElement>; id: string };
   } = {};
-
+  private registeredLayers: {
+    [layerId: string]: {
+      ref: RefObject<HTMLDivElement>;
+      canvasId: string;
+      layerIndex: number;
+    };
+  } = {};
   private registeredLayouts: {
     [layoutDOMId: string]: {
       ref: RefObject<HTMLDivElement>;
@@ -36,11 +37,6 @@ class LayoutElementPositionObserver {
       isDropTarget: boolean;
     };
   } = {};
-
-  private mutationOptions: MutationObserverInit = {
-    attributes: true,
-    attributeFilter: ["class"],
-  };
 
   private debouncedProcessBatch = debounce(this.processWidgetBatch, 200);
 
@@ -52,22 +48,10 @@ class LayoutElementPositionObserver {
       for (const entry of entries) {
         if (entry?.target?.id) {
           const DOMId = entry?.target?.id;
-          this.trackEntry(DOMId);
-        }
-      }
-    },
-  );
-
-  private mutationObserver = new MutationObserver(
-    (mutations: MutationRecord[]) => {
-      for (const mutation of mutations) {
-        if (
-          mutation.type === "attributes" &&
-          mutation.attributeName === "class"
-        ) {
-          const DOMId: string = (mutation?.target as HTMLElement)?.id;
-          if (DOMId) {
-            this.trackEntry(DOMId);
+          if (DOMId.indexOf(ANVIL_WIDGET) > -1) {
+            this.addWidgetToProcess(DOMId);
+          } else if (DOMId.indexOf(LAYOUT) > -1) {
+            this.addLayoutToProcess(DOMId);
           }
         }
       }
@@ -77,12 +61,9 @@ class LayoutElementPositionObserver {
   //Method to register widgets for resize observer changes
   public observeWidget(widgetId: string, ref: RefObject<HTMLDivElement>) {
     if (ref.current) {
-      if (!this.registeredWidgets.hasOwnProperty(widgetId)) {
-        const widgetDOMId = getAnvilWidgetDOMId(widgetId);
-        this.registeredWidgets[widgetDOMId] = { ref, id: widgetId };
-        this.resizeObserver.observe(ref.current);
-        this.mutationObserver.observe(ref.current, this.mutationOptions);
-      }
+      const widgetDOMId = getAnvilWidgetDOMId(widgetId);
+      this.registeredWidgets[widgetDOMId] = { ref, id: widgetId };
+      this.resizeObserver.observe(ref.current);
     }
   }
 
@@ -94,11 +75,6 @@ class LayoutElementPositionObserver {
     }
 
     delete this.registeredWidgets[widgetDOMId];
-    store.dispatch(
-      deleteLayoutElementPositions([
-        extractWidgetIdFromAnvilWidgetDOMId(widgetDOMId),
-      ]),
-    );
   }
 
   //Method to register layouts for resize observer changes
@@ -109,18 +85,15 @@ class LayoutElementPositionObserver {
     ref: RefObject<HTMLDivElement>,
   ) {
     if (ref?.current) {
-      const layoutDOMId = getAnvilLayoutDOMId(canvasId, layoutId);
-      if (!this.registeredLayouts.hasOwnProperty(layoutDOMId)) {
-        this.registeredLayouts[layoutId] = this.registeredLayouts[layoutDOMId] =
-          {
-            ref,
-            canvasId,
-            layoutId,
-            isDropTarget,
-          };
-        this.resizeObserver.observe(ref.current);
-        this.mutationObserver.observe(ref.current, this.mutationOptions);
-      }
+      this.registeredLayouts[layoutId] = this.registeredLayouts[
+        getAnvilLayoutDOMId(canvasId, layoutId)
+      ] = {
+        ref,
+        canvasId,
+        layoutId,
+        isDropTarget,
+      };
+      this.resizeObserver.observe(ref.current);
     }
   }
 
@@ -132,11 +105,6 @@ class LayoutElementPositionObserver {
     }
 
     delete this.registeredLayouts[layoutDOMId];
-    store.dispatch(
-      deleteLayoutElementPositions([
-        extractLayoutIdFromLayoutDOMId(layoutDOMId),
-      ]),
-    );
   }
 
   //This method is triggered from the resize observer to add widgets to queue
@@ -175,14 +143,6 @@ class LayoutElementPositionObserver {
   // Getters for registered elements
   public getRegisteredLayouts() {
     return this.registeredLayouts;
-  }
-
-  private trackEntry(DOMId: string) {
-    if (DOMId.indexOf(ANVIL_WIDGET) > -1) {
-      this.addWidgetToProcess(DOMId);
-    } else if (DOMId.indexOf(LAYOUT) > -1) {
-      this.addLayoutToProcess(DOMId);
-    }
   }
 }
 

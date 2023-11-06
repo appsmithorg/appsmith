@@ -11,14 +11,12 @@ import { error } from "loglevel";
 import { matchPath } from "react-router";
 import { getIsSafeRedirectURL } from "utils/helpers";
 import history from "utils/history";
-import { setUsersFirstApplicationId } from "utils/storage";
 
 export const redirectUserAfterSignup = (
   redirectUrl: string,
   shouldEnableFirstTimeUserOnboarding: string | null,
   _validLicense?: boolean,
   dispatch?: any,
-  showStarterTemplatesInsteadofBlankCanvas: boolean = false,
 ): any => {
   if (redirectUrl) {
     try {
@@ -45,9 +43,6 @@ export const redirectUserAfterSignup = (
         });
         const { applicationId, pageId } = match?.params || {};
         if (applicationId || pageId) {
-          showStarterTemplatesInsteadofBlankCanvas &&
-            applicationId &&
-            setUsersFirstApplicationId(applicationId);
           dispatch(
             firstTimeUserOnboardingInit(applicationId, pageId as string),
           );

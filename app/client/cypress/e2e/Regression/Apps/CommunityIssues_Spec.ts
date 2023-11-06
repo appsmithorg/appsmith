@@ -31,9 +31,9 @@ describe("AForce - Community Issues page validations", function () {
     homePage.ImportApp("CommunityIssuesExport.json");
     assertHelper
       .WaitForNetworkCall("importNewApplication")
-      .then((response: any) => {
+      .then((interception: any) => {
         agHelper.Sleep();
-        const { isPartialImport } = response.body.data;
+        const { isPartialImport } = interception.response.body.data;
         if (isPartialImport) {
           // should reconnect modal
           dataSources.ReconnectSingleDSNAssert(

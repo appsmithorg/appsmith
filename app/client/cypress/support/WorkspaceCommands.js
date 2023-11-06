@@ -254,26 +254,14 @@ Cypress.Commands.add("CreateAppForWorkspace", (workspaceName, appname) => {
     "response.body.responseMeta.status",
     200,
   );
-  agHelper.RemoveUIElement("Tooltip", "Rename application");
+  agHelper.RemoveTooltip("Rename application");
 });
 
-Cypress.Commands.add("CreateNewAppInNewWorkspace", () => {
+Cypress.Commands.add("CreateAppInFirstListedWorkspace", () => {
   let applicationId, appName;
-  let toNavigateToHome = false;
-  cy.get("body").then(($ele) => {
-    if ($ele.find(".t--appsmith-logo").length < 0) {
-      toNavigateToHome = false;
-    } else {
-      toNavigateToHome = true;
-    }
-  });
-  homePageTS.CreateNewWorkspace("", toNavigateToHome); //Creating a new workspace for every test, since we are deleting the workspace in the end of the test
-  //agHelper.Sleep(2000); //for workspace to open
-  cy.get("@workspaceName").then((workspaceName) => {
-    localStorage.setItem("workspaceName", workspaceName);
-    homePageTS.CreateAppInWorkspace(localStorage.getItem("workspaceName"));
-  });
-  cy.get("@createNewApplication").then((xhr) => {
+  homePageTS.CreateNewWorkspace(); //Creating a new workspace for every test, since we are deleting the workspace in the end of the test
+  cy.get(homePage.createNew).last().click({ force: true });
+  cy.wait("@createNewApplication").then((xhr) => {
     const response = xhr.response;
     expect(response.body.responseMeta.status).to.eq(201);
     applicationId = response.body.data.id;
@@ -283,7 +271,7 @@ Cypress.Commands.add("CreateNewAppInNewWorkspace", () => {
     localStorage.setItem("appName", appName);
 
     // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(4000);
+    cy.wait(2000);
     cy.get("#loading").should("not.exist");
 
     cy.url().then((url) => {
@@ -297,7 +285,10 @@ Cypress.Commands.add("CreateNewAppInNewWorkspace", () => {
   assertHelper.AssertNetworkResponseData("@getPluginForm"); //for auth rest api
   assertHelper.AssertNetworkResponseData("@getPluginForm"); //for graphql
 
-  // If the intro modal is open, close it
+  // eslint-disable-next-line cypress/no-unnecessary-waiting
+  cy.wait(2000);
+
+  // If the into modal is open close it
   cy.skipSignposting();
 
   //Removing renaming of app from all tests, since its also verified in other separate tests
@@ -305,7 +296,7 @@ Cypress.Commands.add("CreateNewAppInNewWorkspace", () => {
   // cy.get(homePage.applicationName).type(appname + "{enter}");
   // assertHelper.AssertNetworkStatus("@updateApplication");
   // // Remove tooltip on the Application Name
-  // agHelper.RemoveTooltip("Tooltip","Rename application");
+  // agHelper.RemoveTooltip("Rename application");
 
   /* The server created app always has an old dsl so the layout will migrate
    * To avoid race conditions between that update layout and this one

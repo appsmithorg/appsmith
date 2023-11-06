@@ -144,14 +144,7 @@ function* setStateOfPath(key: string, entityInfo: FocusEntityInfo) {
       if (subType && subTypes && subType in subTypes) {
         yield call(setState, selectorInfo, subTypes[subType].defaultValue);
       } else if (defaultValue !== undefined) {
-        if (typeof defaultValue === "function") {
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore
-          const stateDefaultValue: unknown = yield select(defaultValue);
-          yield call(setState, selectorInfo, stateDefaultValue);
-        } else {
-          yield call(setState, selectorInfo, defaultValue);
-        }
+        yield call(setState, selectorInfo, defaultValue);
       }
     }
   }

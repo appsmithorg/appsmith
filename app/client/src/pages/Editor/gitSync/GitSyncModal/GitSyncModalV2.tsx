@@ -24,6 +24,7 @@ import {
 } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Modal, ModalContent, ModalHeader } from "design-system";
+import { EnvInfoHeader } from "@appsmith/components/EnvInfoHeader";
 import GitConnectionV2 from "../Tabs/GitConnectionV2";
 import GitSettings from "../Tabs/GitSettings";
 import { GitSyncModalTab } from "entities/GitSync";
@@ -127,6 +128,7 @@ function GitSyncModalV2({ isImport = false }: GitSyncModalV2Props) {
           <ModalHeader>
             {modalTitle[activeTabKey] || gitMetadata?.repoName}
           </ModalHeader>
+          {isDeploying && <EnvInfoHeader />}
           {isGitConnected && <ReconnectSSHError />}
           {possibleMenuOptions.includes(activeTabKey) && (
             <Menu

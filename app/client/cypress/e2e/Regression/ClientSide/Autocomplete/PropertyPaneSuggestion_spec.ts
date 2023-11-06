@@ -46,6 +46,6 @@ describe("Property Pane Suggestions", () => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     cy.get("body").tab();
-    propPane.ValidatePropertyFieldValue("Label", "{{JSObject1}}");
+    propPane.ValidatePropertyFieldValue("Label", "{{appsmith}}");
   });
 });

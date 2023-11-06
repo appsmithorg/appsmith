@@ -8,9 +8,11 @@ import com.appsmith.server.dtos.ImportingMetaDTO;
 import com.appsmith.server.dtos.MappedImportableResourcesDTO;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+
 public interface ImportableServiceCE<T extends BaseDomain> {
 
-    Mono<Void> importEntities(
+    Mono<List<T>> importEntities(
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,

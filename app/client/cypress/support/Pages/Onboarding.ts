@@ -131,10 +131,7 @@ export class Onboarding {
           // is awaited until it resolves
           return localForage.setItem("ENABLE_START_SIGNPOSTING", false);
         });
-        //this._aggregateHelper.RefreshPage();//this is causing CI flakiness, so using below
-        cy.window().then((win) => {
-          win.location.reload();
-        });
+        this._aggregateHelper.RefreshPage();
       }
     });
   }

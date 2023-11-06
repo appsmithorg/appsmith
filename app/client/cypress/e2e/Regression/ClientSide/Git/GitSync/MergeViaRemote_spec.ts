@@ -1,5 +1,6 @@
-import widgetsPage from "../../../../../locators/Widgets.json";
-import commonlocators from "../../../../../locators/commonlocators.json";
+const widgetsPage = require("../../../../../locators/Widgets.json");
+const commonlocators = require("../../../../../locators/commonlocators.json");
+const explorerLocators = require("../../../../../locators/explorerlocators.json");
 import gitSyncLocators from "../../../../../locators/gitSyncLocators";
 import homePage from "../../../../../locators/HomePage";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
@@ -21,21 +22,20 @@ const inputNameTempBranch31 = "inputNameTempBranch31";
 
 const cleanUrlBranch = "feat/clean_url";
 
-let applicationId: any;
-let applicationName: any;
-let repoName: any;
+let applicationId = null;
+let applicationName = null;
 
+let repoName;
 describe("Git sync: Merge changes via remote", function () {
   before(() => {
     _.homePage.NavigateToHome();
-    _.homePage.CreateNewWorkspace();
-
-    _.agHelper.GenerateUUID();
-    cy.get("@guid").then((uid: any) => {
-      cy.get("@workspaceName").then((workspaceName: any) => {
-        _.homePage.CreateAppInWorkspace(workspaceName, uid);
+    cy.createWorkspace();
+    cy.wait("@createWorkspace").then((interception) => {
+      const newWorkspaceName = interception.response.body.data.name;
+      cy.generateUUID().then((uid) => {
+        cy.CreateAppForWorkspace(newWorkspaceName, uid);
         applicationName = uid;
-        cy.get("@applicationId").then(
+        cy.get("@currentApplicationId").then(
           (currentAppId) => (applicationId = currentAppId),
         );
       });
@@ -139,7 +139,7 @@ describe("Git sync: Merge changes via remote", function () {
     cy.commitAndPush();
     cy.merge(mainBranch);
     cy.get(gitSyncLocators.closeGitSyncModal).click();
-    cy.wait(4000);
+    cy.wait(8000);
     cy.switchGitBranch(mainBranch);
     cy.wait(4000); // wait for switch branch
     cy.contains("NewPage");
@@ -259,33 +259,33 @@ describe("Git sync: Merge changes via remote", function () {
       expect(location.pathname).includes(newPathname);
     });
 
-    _.gitSync.CreateGitBranch(cleanUrlBranch, false, false); //false is sent for assertCreateBranch since here it only goes to the branch already created
+    _.gitSync.CreateGitBranch(cleanUrlBranch, false);
     cy.location().should((location) => {
       expect(location.pathname).includes(legacyPathname);
     });
   });
 
-  // after(() => {
-  //   // _.gitSync.DeleteTestGithubRepo(repoName);
-  //   // //cy.deleteTestGithubRepo(repoName);
-  //   // // TODO remove when app deletion with conflicts is fixed
-  //   // cy.get(homePage.homeIcon).click({ force: true });
-  //   // cy.get(homePage.createNew)
-  //   //   .first()
-  //   //   .click({ force: true });
-  //   // cy.wait("@createNewApplication").should(
-  //   //   "have.nested.property",
-  //   //   "response.body.responseMeta.status",
-  //   //   201,
-  //   // );
-  //   // cy.get("#loading").should("not.exist");
-  //   // cy.wait(2000);
-  //   // cy.AppSetupForRename();
-  //   // cy.get(homePage.applicationName).type(repoName + "{enter}");
-  //   // cy.wait("@updateApplication").should(
-  //   //   "have.nested.property",
-  //   //   "response.body.responseMeta.status",
-  //   //   200,
-  //   // );
-  // });
+  after(() => {
+    // _.gitSync.DeleteTestGithubRepo(repoName);
+    // //cy.deleteTestGithubRepo(repoName);
+    // // TODO remove when app deletion with conflicts is fixed
+    // cy.get(homePage.homeIcon).click({ force: true });
+    // cy.get(homePage.createNew)
+    //   .first()
+    //   .click({ force: true });
+    // cy.wait("@createNewApplication").should(
+    //   "have.nested.property",
+    //   "response.body.responseMeta.status",
+    //   201,
+    // );
+    // cy.get("#loading").should("not.exist");
+    // cy.wait(2000);
+    // cy.AppSetupForRename();
+    // cy.get(homePage.applicationName).type(repoName + "{enter}");
+    // cy.wait("@updateApplication").should(
+    //   "have.nested.property",
+    //   "response.body.responseMeta.status",
+    //   200,
+    // );
+  });
 });

@@ -1,12 +1,11 @@
 import type { DragEventHandler, MutableRefObject, DragEvent } from "react";
 import type {
   CanvasPositions,
-  WidgetNameData,
+  SetDragginStateFnType,
   WidgetNamePositionType,
 } from "./WidgetNameTypes";
 import { throttle } from "lodash";
 import { getMainContainerAnvilCanvasDOMElement } from "./widgetNameRenderUtils";
-import type { SetDraggingStateActionPayload } from "utils/hooks/dragResizeHooks";
 
 /**
  * This returns a callback for scroll event on the MainContainer
@@ -84,28 +83,18 @@ export function getMouseOverDetails(
 ) {
   const x = e.clientX - canvasPositions.current.left;
   const y = e.clientY - canvasPositions.current.top;
-  const widgetNamePositionsArray = [
-    ...Object.values(widgetNamePositions.current.focused),
-    ...Object.values(widgetNamePositions.current.selected),
-  ];
-
-  let result: {
-    isMouseOver: boolean;
-    cursor?: string;
-    widgetNameData?: WidgetNameData;
-  } = { isMouseOver: false, cursor: "default" };
+  const widgetNamePositionsArray = Object.values(widgetNamePositions.current);
 
   //for selected and focused widget names check the widget name positions with respect to mouse positions
   for (const widgetNamePosition of widgetNamePositionsArray) {
     if (widgetNamePosition) {
       const { height, left, top, widgetNameData, width } = widgetNamePosition;
       if (x > left && x < left + width && y > top && y < top + height) {
-        result = { isMouseOver: true, cursor: "pointer", widgetNameData };
-        break;
+        return { isMouseOver: true, cursor: "pointer", widgetNameData };
       }
     }
   }
-  return result;
+  return { isMouseOver: false };
 }
 
 export function getMouseMoveHandler(
@@ -146,7 +135,7 @@ export function getMouseMoveHandler(
     } else if (wrapper.style.cursor !== cursor) {
       wrapper.style.cursor = cursor;
     }
-  }, 50);
+  }, 20);
 }
 
 /**
@@ -154,7 +143,7 @@ export function getMouseMoveHandler(
  */
 export function getDragStartHandler(
   showTableFilterPane: () => void,
-  setDraggingState: (payload: SetDraggingStateActionPayload) => void,
+  setDraggingState: SetDragginStateFnType,
   shouldAllowDrag: boolean,
   canvasPositions: MutableRefObject<CanvasPositions>,
   widgetNamePositions: MutableRefObject<WidgetNamePositionType>,

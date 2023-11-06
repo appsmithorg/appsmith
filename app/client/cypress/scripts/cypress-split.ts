@@ -74,8 +74,7 @@ export class cypressSplit {
       );
 
       const specsToRun = await this.getSpecsWithTime(specFilePaths, attemptId);
-      console.log("SPECS TO RUN ----------> :", specsToRun);
-      return specsToRun === undefined || specsToRun.length === 0
+      return specsToRun === undefined
         ? []
         : specsToRun[0].map((spec) => spec.name);
     } catch (err) {

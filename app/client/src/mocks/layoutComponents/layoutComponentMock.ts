@@ -47,7 +47,6 @@ export function generateLayoutComponentMock(
   return {
     layout,
     layoutId: generateReactKey(),
-    layoutIndex: 0,
     layoutStyle: {},
     layoutType: type,
 
@@ -99,7 +98,6 @@ export function generateAlignedRowMock(
   return {
     layout,
     layoutId: "",
-    layoutIndex: 0,
     layoutStyle: {},
     layoutType: LayoutComponentTypes.ALIGNED_WIDGET_ROW,
 

@@ -110,7 +110,4 @@ public class ApplicationJson {
     @Deprecated
     @JsonView(Views.Public.class)
     Map<String, Set<String>> unpublishedLayoutmongoEscapedWidgets;
-
-    @JsonView({Views.Public.class, Views.Export.class})
-    String widgets;
 }

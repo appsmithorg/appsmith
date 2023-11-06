@@ -136,8 +136,8 @@ describe("JSObjects OnLoad Actions tests", function () {
     jsEditor.EnableDisableAsyncFuncSettings("getEmployee", false, true);
     deployMode.DeployApp(locators._widgetInDeployed("tablewidget"), false);
     agHelper.WaitUntilToastDisappear('The action "GetEmployee" has failed');
-    deployMode.NavigateBacktoEditor('The action "GetEmployee" has failed');
-    //agHelper.WaitUntilToastDisappear('The action "GetEmployee" has failed');
+    deployMode.NavigateBacktoEditor();
+    agHelper.WaitUntilToastDisappear('The action "GetEmployee" has failed');
     // ee.ExpandCollapseEntity("Queries/JS");
     // ee.SelectEntityByName(jsName as string);
     // jsEditor.EnableDisableAsyncFuncSettings("getEmployee", true, true);

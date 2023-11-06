@@ -318,13 +318,13 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     }
 
     @Override
-    public Mono<Long> countByNameAndWorkspaceId(String applicationName, String workspaceId, AclPermission permission) {
+    public Mono<Application> findByNameAndWorkspaceId(
+            String applicationName, String workspaceId, AclPermission permission) {
         Criteria workspaceIdCriteria =
                 where(fieldName(QApplication.application.workspaceId)).is(workspaceId);
         Criteria applicationNameCriteria =
                 where(fieldName(QApplication.application.name)).is(applicationName);
-
-        return count(List.of(workspaceIdCriteria, applicationNameCriteria), permission);
+        return queryOne(List.of(workspaceIdCriteria, applicationNameCriteria), permission);
     }
 
     @Override

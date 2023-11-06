@@ -3,7 +3,7 @@ import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 import { Colors } from "constants/Colors";
 import tinycolor from "tinycolor2";
 import {
-  calculateHoverColor,
+  calulateHoverColor,
   getComplementaryGrayscaleColor,
   isLightColor,
 } from "widgets/WidgetUtils";
@@ -30,7 +30,7 @@ export const getMenuItemBackgroundColorWhenActive = (
       }
     }
     case NAVIGATION_SETTINGS.COLOR_STYLE.THEME: {
-      return calculateHoverColor(color);
+      return calulateHoverColor(color);
     }
   }
 };
@@ -44,7 +44,7 @@ export const getMenuItemBackgroundColorOnHover = (
   if (navColorStyle === NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT) {
     return "var(--ads-v2-color-bg-subtle)";
   } else if (navColorStyle === NAVIGATION_SETTINGS.COLOR_STYLE.THEME) {
-    return tinycolor(calculateHoverColor(color)).toHexString();
+    return tinycolor(calulateHoverColor(color)).toHexString();
   }
 };
 
@@ -136,7 +136,7 @@ export const getSignInButtonStyles = (
     styles.color = isLightColor(color) ? Colors.WHITE : color;
   }
 
-  styles.backgroundOnHover = calculateHoverColor(styles.background, false);
+  styles.backgroundOnHover = calulateHoverColor(styles.background, false);
 
   return styles;
 };

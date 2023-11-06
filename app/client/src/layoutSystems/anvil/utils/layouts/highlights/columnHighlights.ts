@@ -5,13 +5,21 @@ import type {
   LayoutProps,
 } from "../../anvilTypes";
 import { HIGHLIGHT_SIZE } from "../../constants";
+import {
+  getFinalVerticalDropZone,
+  getInitialVerticalDropZone,
+  getVerticalDropZone,
+} from "./dropZoneUtils";
 import { deriveHighlights } from "./highlightUtils";
 import {
   getHighlightsForLayouts,
   getHighlightsForWidgets,
   getInitialHighlights,
 } from "./horizontalHighlights";
-import type { LayoutElementPositions } from "layoutSystems/common/types";
+import type {
+  LayoutElementPosition,
+  LayoutElementPositions,
+} from "layoutSystems/common/types";
 
 /**
  * @param layoutProps | LayoutProps
@@ -67,9 +75,47 @@ export const deriveColumnHighlights =
       layoutOrder,
       baseHighlight,
       parentDropTarget,
+      generateHighlights,
       getInitialHighlights,
       getHighlightsForLayouts,
       getHighlightsForWidgets,
-      false,
     );
   };
+
+function generateHighlights(
+  baseHighlight: AnvilHighlightInfo,
+  layoutDimension: LayoutElementPosition,
+  currentDimension: LayoutElementPosition,
+  prevDimension: LayoutElementPosition | undefined,
+  nextDimension: LayoutElementPosition | undefined,
+  rowIndex: number,
+  isLastHighlight: boolean,
+): AnvilHighlightInfo[] {
+  const isInitialHighlight: boolean = rowIndex === 0;
+  return [
+    {
+      ...baseHighlight,
+      dropZone: isLastHighlight
+        ? isInitialHighlight
+          ? getInitialVerticalDropZone(currentDimension, layoutDimension)
+          : getFinalVerticalDropZone(currentDimension, layoutDimension)
+        : getVerticalDropZone(currentDimension, prevDimension, nextDimension),
+      posY: isLastHighlight
+        ? isInitialHighlight
+          ? Math.max(currentDimension.top - layoutDimension.top, 0)
+          : Math.min(
+              currentDimension.top +
+                currentDimension.height +
+                HIGHLIGHT_SIZE / 2 -
+                layoutDimension.top,
+              layoutDimension.height - HIGHLIGHT_SIZE,
+            )
+        : Math.max(
+            currentDimension.top - layoutDimension.top - HIGHLIGHT_SIZE,
+            HIGHLIGHT_SIZE / 2,
+          ),
+      rowIndex: rowIndex,
+      width: layoutDimension.width - HIGHLIGHT_SIZE,
+    },
+  ];
+}

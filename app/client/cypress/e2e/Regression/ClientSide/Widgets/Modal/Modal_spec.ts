@@ -255,31 +255,34 @@ describe("Modal Widget test cases", function () {
       locators._widgetInDeployed(draggableWidgets.ICONBUTTON),
       1,
     );
-    assertHelper.WaitForNetworkCall("@postExecute").then((response: any) => {
-      agHelper.Sleep();
-      const name = response.body.data.body[0].name;
-      agHelper.ValidateToastMessage("Executed api!");
+    assertHelper
+      .WaitForNetworkCall("@postExecute")
+      .then((interception: any) => {
+        agHelper.Sleep();
 
-      //Tab
-      agHelper.GetNClick(propPane._tabId1);
+        const name = interception.response.body.data.body[0].name;
+        agHelper.ValidateToastMessage("Executed api!");
 
-      //Table
-      table.SearchTable(name);
-      table.ReadTableRowColumnData(0, 5, "v2").then(($cellData) => {
-        expect($cellData).to.contain(name);
+        //Tab
+        agHelper.GetNClick(propPane._tabId1);
+
+        //Table
+        table.SearchTable(name);
+        table.ReadTableRowColumnData(0, 5, "v2").then(($cellData) => {
+          expect($cellData).to.contain(name);
+        });
+        table.SelectTableRow(0, 0, true, "v2");
+
+        //Text
+        agHelper.ScrollTo(locators._modal, "top");
+        agHelper.AssertContains(
+          name,
+          "be.visible",
+          locators._modal +
+            " " +
+            locators._widgetInDeployed(draggableWidgets.TEXT),
+        );
       });
-      table.SelectTableRow(0, 0, true, "v2");
-
-      //Text
-      agHelper.ScrollTo(locators._modal, "top");
-      agHelper.AssertContains(
-        name,
-        "be.visible",
-        locators._modal +
-          " " +
-          locators._widgetInDeployed(draggableWidgets.TEXT),
-      );
-    });
   });
 
   it("5. Verify that the Modal widget opens correctly when configured on various events for different widget types.", () => {

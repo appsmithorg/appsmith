@@ -45,13 +45,13 @@ import { getDynamicBindingsChangesSaga } from "utils/DynamicBindingUtils";
 import { validateResponse } from "./ErrorSagas";
 import { transformRestAction } from "transformers/RestActionTransformer";
 import { getCurrentPageId } from "selectors/editorSelectors";
+import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import type {
   Action,
   ActionViewMode,
   ApiAction,
   ApiActionConfig,
-  CreateActionDefaultsParams,
   SlashCommandPayload,
 } from "entities/Action";
 import { isGraphqlPlugin } from "entities/Action";
@@ -61,9 +61,13 @@ import {
   PluginType,
   SlashCommand,
 } from "entities/Action";
-import type { ActionData } from "@appsmith/reducers/entityReducers/actionsReducer";
+import type {
+  ActionData,
+  ActionDataState,
+} from "@appsmith/reducers/entityReducers/actionsReducer";
 import {
   getAction,
+  getActions,
   getCurrentPageNameByActionId,
   getDatasource,
   getDatasourceStructureById,
@@ -122,6 +126,7 @@ import {
 } from "@appsmith/constants/forms";
 import { DEFAULT_GRAPHQL_ACTION_CONFIG } from "constants/ApiEditorConstants/GraphQLEditorConstants";
 import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants/ApiEditorConstants";
+import { createNewApiName, createNewQueryName } from "utils/AppsmithUtils";
 import { fetchDatasourceStructure } from "actions/datasourceActions";
 import { setAIPromptTriggered } from "utils/storage";
 import { getDefaultTemplateActionConfig } from "utils/editorContextUtils";
@@ -129,31 +134,14 @@ import { sendAnalyticsEventSaga } from "./AnalyticsSaga";
 import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
 import { updateActionAPICall } from "@appsmith/sagas/ApiCallerSagas";
 
-export function* createDefaultActionPayloadWithPluginDefaults(
-  props: CreateActionDefaultsParams,
+export function* createDefaultActionPayload(
+  pageId: string,
+  datasourceId: string,
+  from?: EventLocation,
 ) {
-  const actionDefaults: Partial<Action> = yield call(
-    createDefaultActionPayload,
-    props,
-  );
-
-  if (actionDefaults.pluginId) {
-    const pluginDefaults: Partial<Record<string, unknown>> = yield call(
-      getPluginActionDefaultValues,
-      actionDefaults.pluginId,
-    );
-    return merge({}, pluginDefaults, actionDefaults);
-  }
-
-  return actionDefaults;
-}
-
-export function* createDefaultActionPayload({
-  datasourceId,
-  from,
-  newActionName,
-}: CreateActionDefaultsParams) {
   const datasource: Datasource = yield select(getDatasource, datasourceId);
+  const actions: ActionDataState = yield select(getActions);
+
   const plugin: Plugin = yield select(getPlugin, datasource?.pluginId);
   const pluginType: PluginType = plugin?.type;
   const isGraphql: boolean = isGraphqlPlugin(plugin);
@@ -173,6 +161,11 @@ export function* createDefaultActionPayload({
     headers: DEFAULT_HEADERS,
   };
 
+  const newActionName =
+    pluginType === PluginType.DB
+      ? createNewQueryName(actions, pageId || "")
+      : createNewApiName(actions, pageId || "");
+
   const dsStructure: DatasourceStructure | undefined = yield select(
     getDatasourceStructureById,
     datasource?.id,
@@ -184,7 +177,9 @@ export function* createDefaultActionPayload({
     datasource?.isMock,
   );
 
-  const defaultAction: Partial<Action> = {
+  return {
+    name: newActionName,
+    pageId,
     pluginId: datasource?.pluginId,
     datasource: {
       id: datasourceId,
@@ -203,13 +198,10 @@ export function* createDefaultActionPayload({
         : !!defaultActionConfig
         ? defaultActionConfig
         : {},
-    name: newActionName,
   };
-
-  return defaultAction;
 }
 
-export function* getPluginActionDefaultValues(pluginId: string) {
+export function* getPulginActionDefaultValues(pluginId: string) {
   if (!pluginId) {
     return;
   }
@@ -237,7 +229,14 @@ export function* createActionSaga(
   >,
 ) {
   try {
-    const payload = actionPayload.payload;
+    let payload = actionPayload.payload;
+    if (actionPayload.payload.pluginId) {
+      const initialValues: object = yield call(
+        getPulginActionDefaultValues,
+        actionPayload.payload.pluginId,
+      );
+      payload = merge(initialValues, actionPayload.payload);
+    }
 
     const response: ApiResponse<ActionCreateUpdateResponse> =
       yield ActionAPI.createAction(payload);
@@ -788,7 +787,7 @@ function* saveActionName(action: ReduxAction<{ id: string; name: string }>) {
   try {
     yield refactorActionName(
       api.config.id,
-      api.config.pageId || "",
+      api.config.pageId,
       api.config.name,
       action.payload.name,
     );

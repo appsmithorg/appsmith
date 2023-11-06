@@ -32,7 +32,7 @@ describe("Slug URLs", () => {
     });
   });
 
-  it("2. Checks if application slug updates & page slug updates on the URL when application name/page name changes", () => {
+  it("2. Checks if application slug updates on the URL when application name changes", () => {
     cy.generateUUID().then((appName) => {
       applicationName = appName;
       homePage.RenameApplication(applicationName);
@@ -42,27 +42,29 @@ describe("Slug URLs", () => {
         expect(pathname).to.be.equal(`/app/${appName}/page1-${pageId}/edit`);
       });
     });
+  });
+
+  it("3. Checks if page slug updates on the URL when page name changes", () => {
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "Page1",
       action: "Edit name",
     });
-    cy.get(explorer.editEntity)
-      .last()
-      .type("Renamed" + "{enter}", { force: true });
-    agHelper.Sleep(2000); //for new name to settle & url to update
-    assertHelper.AssertNetworkStatus("updatePage");
-    // cy.location("pathname").then((pathname) => {
-    cy.url().then((url) => {
-      const urlObject = new URL(url);
-      const pathname = urlObject.pathname;
+    cy.get(explorer.editEntity).last().type("Page renamed", { force: true });
+    cy.get("body").click(0, 0, { force: true });
+    cy.wait("@updatePage").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
+    cy.location("pathname").then((pathname) => {
       const pageId = pathname.split("/")[3]?.split("-").pop();
       expect(pathname).to.be.equal(
-        `/app/${applicationName}/renamed-${pageId}/edit`,
+        `/app/${applicationName}/page-renamed-${pageId}/edit`,
       );
     });
   });
 
-  it("3. Check the url of old applications, upgrades version and compares appsmith.URL values", () => {
+  it("4. Check the url of old applications, upgrades version and compares appsmith.URL values", () => {
     cy.request("PUT", `/api/v1/applications/${applicationId}`, {
       applicationVersion: 1,
     }).then((response) => {
@@ -139,9 +141,9 @@ describe("Slug URLs", () => {
     });
   });
 
-  it("4. Checks redirect url", () => {
+  it("5. Checks redirect url", () => {
     cy.url().then((url) => {
-      cy.LogOut(false);
+      cy.LogOut();
       agHelper.VisitNAssert(url + "?embed=true&a=b", "signUpLogin");
       agHelper.Sleep(2000);
       // cy.location().should((loc) => {

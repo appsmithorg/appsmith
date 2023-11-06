@@ -52,7 +52,6 @@ module.exports = {
     "^@blueprintjs/select$":
       "<rootDir>/node_modules/@blueprintjs/select/lib/esnext",
     "design-system": "<rootDir>/node_modules/design-system/build",
-    "^canvas$": "jest-canvas-mock",
   },
   globals: {
     "ts-jest": {

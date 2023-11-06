@@ -61,10 +61,6 @@ export const TableWrapper = styled.div<{
   justify-content: space-between;
   flex-direction: column;
   overflow: hidden;
-
-  /* wriiten exclusively for safari */
-  position: sticky;
-
   .simplebar-track {
     opacity: 0.7;
     &.simplebar-horizontal {

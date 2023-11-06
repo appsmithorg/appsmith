@@ -73,7 +73,6 @@ function* getChildWidgetProps(
   widgets: { [widgetId: string]: FlattenedWidgetProps },
 ) {
   const { leftColumn, newWidgetId, topRow, type } = params;
-
   let { columns, parentColumnSpace, parentRowSpace, props, rows, widgetName } =
     params;
   let minHeight = undefined;

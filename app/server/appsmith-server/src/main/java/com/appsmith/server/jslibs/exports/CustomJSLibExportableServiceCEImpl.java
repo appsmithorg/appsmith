@@ -26,9 +26,8 @@ public class CustomJSLibExportableServiceCEImpl implements ExportableServiceCE<C
         this.customJSLibService = customJSLibService;
     }
 
-    // Directly sets required custom JS lib information in application JSON
     @Override
-    public Mono<Void> getExportableEntities(
+    public Mono<List<CustomJSLib>> getExportableEntities(
             ExportingMetaDTO exportingMetaDTO,
             MappedExportableResourcesDTO mappedExportableResourcesDTO,
             Mono<Application> applicationMono,
@@ -40,7 +39,12 @@ public class CustomJSLibExportableServiceCEImpl implements ExportableServiceCE<C
         return customJSLibService
                 .getAllJSLibsInApplication(exportingMetaDTO.getApplicationId(), exportingMetaDTO.getBranchName(), false)
                 .map(jsLibList -> {
-                    jsLibList.forEach(CustomJSLib::sanitiseToExportDBObject);
+                    jsLibList.forEach(jsLib -> {
+                        jsLib.setId(null);
+                        jsLib.setCreatedAt(null);
+                        jsLib.setUpdatedAt(null);
+                    });
+
                     return jsLibList;
                 })
                 .zipWith(applicationMono)
@@ -63,6 +67,7 @@ public class CustomJSLibExportableServiceCEImpl implements ExportableServiceCE<C
                                 .map(lib -> lib.getUidString())
                                 .collect(Collectors.toSet());
                     }
+
                     applicationJson.getUpdatedResources().put(FieldName.CUSTOM_JS_LIB_LIST, updatedCustomJSLibSet);
 
                     /**
@@ -73,7 +78,6 @@ public class CustomJSLibExportableServiceCEImpl implements ExportableServiceCE<C
                     Collections.sort(unpublishedCustomJSLibList, Comparator.comparing(CustomJSLib::getUidString));
                     applicationJson.setCustomJSLibList(unpublishedCustomJSLibList);
                     return unpublishedCustomJSLibList;
-                })
-                .then();
+                });
     }
 }

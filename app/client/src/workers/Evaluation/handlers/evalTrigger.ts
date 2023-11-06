@@ -18,13 +18,15 @@ export default async function (request: EvalWorkerASyncRequest) {
 
   ExecutionMetaData.setExecutionMetaData({ triggerMeta, eventType });
 
-  const { evalOrder, unEvalUpdates } = dataTreeEvaluator.setupUpdateTree(
-    unEvalTree.unEvalTree,
-    unEvalTree.configTree,
-  );
+  const { evalOrder, nonDynamicFieldValidationOrder, unEvalUpdates } =
+    dataTreeEvaluator.setupUpdateTree(
+      unEvalTree.unEvalTree,
+      unEvalTree.configTree,
+    );
 
   const { contextTree } = dataTreeEvaluator.evalAndValidateSubTree(
     evalOrder,
+    nonDynamicFieldValidationOrder,
     unEvalTree.configTree,
     unEvalUpdates,
   );

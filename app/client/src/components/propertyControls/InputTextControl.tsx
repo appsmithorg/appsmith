@@ -31,11 +31,9 @@ export function InputText(props: {
   additionalAutocomplete?: AdditionalDynamicDataTree;
   theme?: EditorTheme;
   hideEvaluatedValue?: boolean;
-  enableAI?: boolean;
 }) {
   const {
     dataTreePath,
-    enableAI = true,
     evaluatedValue,
     expected,
     hideEvaluatedValue,
@@ -53,7 +51,7 @@ export function InputText(props: {
   return (
     <StyledDynamicInput>
       <LazyCodeEditor
-        AIAssisted={enableAI}
+        AIAssisted
         additionalDynamicData={props.additionalAutocomplete}
         border={CodeEditorBorder.ALL_SIDE}
         dataTreePath={dataTreePath}

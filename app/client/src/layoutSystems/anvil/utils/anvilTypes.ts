@@ -52,7 +52,6 @@ export interface LayoutComponentProps extends LayoutProps {
   canvasId: string; // Parent canvas of the layout.
   children?: React.ReactNode; // The children of the layout component
   childrenMap: Record<string, WidgetProps>; // Map of child widget ids to their props.
-  layoutIndex: number; // Index of the layout component in the parent layout.
   layoutOrder: string[]; // Top - down hierarchy of layoutIds.
   parentDropTarget: string; // layoutId of the immediate drop target parent. Could be self as well.
   renderMode: RenderMode;
@@ -123,7 +122,6 @@ export type GenerateHighlights = (
   nextDimension: LayoutElementPosition | undefined,
   rowIndex: number,
   isLastHighlight: boolean,
-  prevHighlight: AnvilHighlightInfo | undefined,
   hasFillWidget?: boolean,
   isDropTarget?: boolean,
 ) => AnvilHighlightInfo[];
@@ -131,9 +129,9 @@ export type GenerateHighlights = (
 export type GetInitialHighlights = (
   layoutProps: LayoutProps,
   baseHighlight: AnvilHighlightInfo,
+  generateHighlights: GenerateHighlights,
   getDimensions: GetDimensions,
   isDropTarget: boolean,
-  hasAlignments: boolean,
   hasFillWidget?: boolean,
 ) => AnvilHighlightInfo[];
 
@@ -141,8 +139,8 @@ export type GetWidgetHighlights = (
   layoutProps: LayoutProps,
   baseHighlight: AnvilHighlightInfo,
   draggedWidgets: DraggedWidget[],
+  generateHighlights: GenerateHighlights,
   getDimensions: GetDimensions,
-  hasAlignments: boolean,
   hasFillWidget?: boolean,
 ) => AnvilHighlightInfo[];
 
@@ -154,8 +152,8 @@ export type GetLayoutHighlights = (
   canvasId: string,
   layoutOrder: string[],
   parentDropTargetId: string,
+  generateHighlights: GenerateHighlights,
   getDimensions: GetDimensions,
-  hasAlignments: boolean,
   hasFillWidget?: boolean,
 ) => AnvilHighlightInfo[];
 
@@ -171,15 +169,4 @@ export type DeriveHighlightsFn = (
 export type GetHighlights = (
   widgetPositions: LayoutElementPositions,
   draggedWidgets: DraggedWidget[],
-) => AnvilHighlightInfo[];
-
-export type UpdateHighlights = (
-  arr: AnvilHighlightInfo[],
-  baseHighlight: AnvilHighlightInfo,
-  layoutDimension: LayoutElementPosition,
-  currDimension: LayoutElementPosition,
-  nextDimension: LayoutElementPosition | undefined,
-  rowIndex: number,
-  isLastHighlight: boolean,
-  hasFillWidget?: boolean,
 ) => AnvilHighlightInfo[];

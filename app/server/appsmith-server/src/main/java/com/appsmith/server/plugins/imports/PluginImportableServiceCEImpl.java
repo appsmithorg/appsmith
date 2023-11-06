@@ -26,9 +26,8 @@ public class PluginImportableServiceCEImpl implements ImportableServiceCE<Plugin
         this.pluginService = pluginService;
     }
 
-    // Updates plugin map in importable resources
     @Override
-    public Mono<Void> importEntities(
+    public Mono<List<Plugin>> importEntities(
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
@@ -51,7 +50,9 @@ public class PluginImportableServiceCEImpl implements ImportableServiceCE<Plugin
                 })
                 .collectList()
                 .elapsed()
-                .doOnNext(tuples -> log.debug("time to get plugin map: {}", tuples.getT1()))
-                .then();
+                .map(tuples -> {
+                    log.debug("time to get plugin map: {}", tuples.getT1());
+                    return tuples.getT2();
+                });
     }
 }

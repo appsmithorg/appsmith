@@ -78,9 +78,7 @@ describe("AlignedRow highlights", () => {
       expect(res[0].posX).toEqual(startPosition.left + HIGHLIGHT_SIZE / 2);
       expect(res[0].posY).toEqual(startPosition.top);
       expect(res[0].height).toEqual(startPosition.height);
-      expect(res[0].dropZone.left).toEqual(
-        Math.max(res[0].posX, HIGHLIGHT_SIZE),
-      );
+      expect(res[0].dropZone.left).toEqual(res[0].posX);
 
       expect(res[1].alignment).toEqual(FlexLayerAlignment.Center);
       expect(res[1].posX).toEqual(
@@ -146,9 +144,7 @@ describe("AlignedRow highlights", () => {
       expect(res[0].posX).toEqual(dimensions[button].left - HIGHLIGHT_SIZE);
       expect(res[0].posY).toEqual(dimensions[button].top);
       expect(res[0].height).toEqual(dimensions[input].height);
-      expect(res[0].dropZone.left).toEqual(
-        dimensions[button].left - HIGHLIGHT_SIZE,
-      );
+      expect(res[0].dropZone.left).toEqual(dimensions[button].left);
 
       expect(res[1].alignment).toEqual(FlexLayerAlignment.Start);
       expect(res[1].posX).toEqual(dimensions[input].left - HIGHLIGHT_SIZE);
@@ -161,7 +157,7 @@ describe("AlignedRow highlights", () => {
 
       expect(res[2].alignment).toEqual(FlexLayerAlignment.Start);
       expect(res[2].posX).toEqual(
-        dimensions[input].left + dimensions[input].width,
+        dimensions[input].left + dimensions[input].width + HIGHLIGHT_SIZE / 2,
       );
       expect(res[2].posY).toEqual(dimensions[input].top);
       expect(res[2].height).toEqual(dimensions[input].height);

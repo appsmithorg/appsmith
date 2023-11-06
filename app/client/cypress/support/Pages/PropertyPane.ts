@@ -169,8 +169,6 @@ export class PropertyPane {
     control;
 
   _dataIcon = (icon: string) => `[data-icon="${icon}"]`;
-  _iconDropdown = "[data-test-id='virtuoso-scroller']";
-
   public OpenJsonFormFieldSettings(fieldName: string) {
     this.agHelper.GetNClick(this._jsonFieldEdit(fieldName));
   }

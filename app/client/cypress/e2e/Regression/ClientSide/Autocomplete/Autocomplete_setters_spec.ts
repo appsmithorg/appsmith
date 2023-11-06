@@ -40,22 +40,22 @@ describe("Autocomplete tests for setters", () => {
 
     agHelper.GetElementsNAssertTextPresence(
       locators._hints,
-      "Button1.setColor",
+      "Button1.setColor()",
     );
     agHelper.GetElementsNAssertTextPresence(
       locators._hints,
-      "Button1.setDisabled",
+      "Button1.setDisabled()",
     );
     agHelper.GetElementsNAssertTextPresence(
       locators._hints,
-      "Button1.setVisibility",
+      "Button1.setVisibility()",
     );
 
     agHelper.RemoveCharsNType(locators._codeMirrorTextArea, 7, "Input1.set");
 
-    agHelper.GetElementsNAssertTextPresence(locators._hints, "setValue");
-    agHelper.GetElementsNAssertTextPresence(locators._hints, "setDisabled");
-    agHelper.GetElementsNAssertTextPresence(locators._hints, "setVisibility");
+    agHelper.GetElementsNAssertTextPresence(locators._hints, "setValue()");
+    agHelper.GetElementsNAssertTextPresence(locators._hints, "setDisabled()");
+    agHelper.GetElementsNAssertTextPresence(locators._hints, "setVisibility()");
 
     agHelper.RemoveCharsNType(
       locators._codeMirrorTextArea,
@@ -63,14 +63,14 @@ describe("Autocomplete tests for setters", () => {
       "Checkbox1.set",
     );
 
-    agHelper.GetElementsNAssertTextPresence(locators._hints, "setValue");
-    agHelper.GetElementsNAssertTextPresence(locators._hints, "setDisabled");
-    agHelper.GetElementsNAssertTextPresence(locators._hints, "setVisibility");
+    agHelper.GetElementsNAssertTextPresence(locators._hints, "setValue()");
+    agHelper.GetElementsNAssertTextPresence(locators._hints, "setDisabled()");
+    agHelper.GetElementsNAssertTextPresence(locators._hints, "setVisibility()");
 
     agHelper.RemoveCharsNType(locators._codeMirrorTextArea, 13, "Switch1.set");
 
-    agHelper.GetElementsNAssertTextPresence(locators._hints, "setDisabled");
-    agHelper.GetElementsNAssertTextPresence(locators._hints, "setRequired");
+    agHelper.GetElementsNAssertTextPresence(locators._hints, "setDisabled()");
+    agHelper.GetElementsNAssertTextPresence(locators._hints, "setRequired()");
     agHelper.Sleep(); //a bit for time for CI
   });
 
@@ -78,6 +78,6 @@ describe("Autocomplete tests for setters", () => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.INPUT_V2, 500, 500);
     entityExplorer.SelectEntityByName("Button1");
     propPane.EnterJSContext("onClick", "{{Input1.set", true, false);
-    agHelper.GetElementsNAssertTextPresence(locators._hints, "setDisabled");
+    agHelper.GetElementsNAssertTextPresence(locators._hints, "setDisabled()");
   });
 });

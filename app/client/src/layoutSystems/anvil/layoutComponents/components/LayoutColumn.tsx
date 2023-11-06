@@ -34,14 +34,8 @@ class LayoutColumn extends BaseLayoutComponent {
   }
 
   render() {
-    const {
-      canvasId,
-      isDropTarget,
-      layoutId,
-      layoutIndex,
-      layoutStyle,
-      renderMode,
-    } = this.props;
+    const { canvasId, isDropTarget, layoutId, layoutStyle, renderMode } =
+      this.props;
 
     return (
       <FlexLayout
@@ -49,7 +43,6 @@ class LayoutColumn extends BaseLayoutComponent {
         direction="column"
         isDropTarget={!!isDropTarget}
         layoutId={layoutId}
-        layoutIndex={layoutIndex}
         renderMode={renderMode}
         {...(layoutStyle || {})}
       >

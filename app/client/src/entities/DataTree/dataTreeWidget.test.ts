@@ -294,7 +294,6 @@ describe("generateDataTreeWidget", () => {
           META: "meta.text",
         },
       },
-      dependencyMap: {},
       defaultMetaProps: ["text", "isDirty", "isFocused"],
       defaultProps: {
         text: "defaultText",

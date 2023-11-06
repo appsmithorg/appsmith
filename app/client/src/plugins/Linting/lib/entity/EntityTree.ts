@@ -3,7 +3,7 @@ import type {
   DataTree,
   DataTreeEntity,
 } from "entities/DataTree/dataTreeTypes";
-import type { IEntity } from "@appsmith/plugins/Linting/lib/entity/types";
+import type { IEntity } from ".";
 import type { Diff } from "deep-diff";
 import EntityFactory from ".";
 import { PathUtils } from "plugins/Linting/utils/pathUtils";

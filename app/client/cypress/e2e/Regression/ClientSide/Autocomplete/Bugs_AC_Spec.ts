@@ -92,7 +92,7 @@ describe("Autocomplete bug fixes", function () {
     function () {
       entityExplorer.ExpandCollapseEntity("Libraries");
       installer.OpenInstaller();
-      installer.InstallLibrary("uuidjs", "UUID");
+      installer.installLibrary("uuidjs", "UUID");
       installer.CloseInstaller();
       entityExplorer.SelectEntityByName("Text1");
       propPane.TypeTextIntoField("Text", "{{UUI");

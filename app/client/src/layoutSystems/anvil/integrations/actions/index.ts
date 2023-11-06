@@ -5,10 +5,3 @@ export const readLayoutElementPositions = () => {
     type: AnvilReduxActionTypes.READ_LAYOUT_ELEMENT_POSITIONS,
   };
 };
-
-export const deleteLayoutElementPositions = (elements: string[]) => {
-  return {
-    type: AnvilReduxActionTypes.REMOVE_LAYOUT_ELEMENT_POSITIONS,
-    payload: elements,
-  };
-};

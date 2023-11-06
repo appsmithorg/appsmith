@@ -12,12 +12,13 @@ import { mergeMaps } from "./mergeMaps";
 import { flatten, get, has, isString, toPath, union, uniq } from "lodash";
 import { extractIdentifierInfoFromCode } from "@shared/ast";
 import { PathUtils } from "./pathUtils";
-
+import type {
+  ActionEntity,
+  IEntity,
+  JSEntity,
+  WidgetEntity,
+} from "../lib/entity";
 import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
-import type { ActionEntity } from "plugins/Linting/lib/entity/ActionEntity";
-import type { JSEntity } from "plugins/Linting/lib/entity/JSActionEntity";
-import type { WidgetEntity } from "plugins/Linting/lib/entity/WidgetEntity";
-import type { IEntity } from "@appsmith/plugins/Linting/lib/entity/types";
 
 export function getEntityDependencies(
   entity: IEntity,

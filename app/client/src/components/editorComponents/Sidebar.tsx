@@ -34,7 +34,6 @@ import { getEditingEntityName } from "@appsmith/selectors/entitiesSelector";
 import styled from "styled-components";
 import moment from "moment";
 import AnalyticsUtil from "../../utils/AnalyticsUtil";
-import { getIsAppSidebarEnabled } from "../../selectors/ideSelectors";
 
 const StyledResizer = styled.div<{ resizing: boolean }>`
   ${(props) =>
@@ -66,7 +65,6 @@ export const EntityExplorerSidebar = memo(({ children }: Props) => {
   const isAppSettingsPaneWithNavigationTabOpen = useSelector(
     getIsAppSettingsPaneWithNavigationTabOpen,
   );
-  const isAppSidebarEnabled = useSelector(getIsAppSidebarEnabled);
   const isPreviewingApp =
     isPreviewMode || isAppSettingsPaneWithNavigationTabOpen;
 
@@ -219,9 +217,8 @@ export const EntityExplorerSidebar = memo(({ children }: Props) => {
   return (
     <div
       className={classNames({
-        [`js-entity-explorer t--entity-explorer transition-transform transform  flex h-[inherit] duration-400 ${tailwindLayers.entityExplorer}`]:
+        [`js-entity-explorer t--entity-explorer transition-transform transform  flex h-[inherit] duration-400 border-r ${tailwindLayers.entityExplorer}`]:
           true,
-        "border-r": !isAppSidebarEnabled,
         relative: pinned && !isPreviewingApp,
         "-translate-x-full": (!pinned && !active) || isPreviewingApp,
         "shadow-xl": !pinned,

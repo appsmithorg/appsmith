@@ -1968,8 +1968,6 @@ public class ImportApplicationServiceTests {
                     final List<ActionDTO> actionList = tuple.getT2();
 
                     assertThat(application.getWorkspaceId()).isNotNull();
-                    assertThat(application.getServerSchemaVersion()).isNotNull();
-                    assertThat(application.getClientSchemaVersion()).isNotNull();
 
                     List<String> actionNames = new ArrayList<>();
                     actionList.forEach(actionDTO -> actionNames.add(actionDTO.getName()));
@@ -2505,119 +2503,6 @@ public class ImportApplicationServiceTests {
                     assertThat(application.getWorkspaceId()).isNotNull();
                     assertThat(application.getUnpublishedAppLayout()).isNull();
                     assertThat(application.getPublishedAppLayout()).isNull();
-                })
-                .verifyComplete();
-    }
-
-    /**
-     * Testcase for checking the discard changes flow for following events:
-     * 1. Import application in org which has app positioning in applicationDetail already added
-     * 2. Add Navigation Settings to the imported application
-     * 3. User tries to import application from same application json file
-     * 4. Added NavigationSetting will be removed
-     */
-    @Test
-    @WithUserDetails(value = "api_user")
-    public void
-            discardChange_addNavigationSettingAfterAppPositioningAlreadyPresentInImport_addedNavigationSettingRemoved() {
-        Mono<ApplicationJson> applicationJsonMono =
-                createAppJson("test_assets/ImportExportServiceTest/valid-application-with-app-positioning.json");
-        String workspaceId = createTemplateWorkspace().getId();
-        final Mono<Application> resultMonoWithoutDiscardOperation = applicationJsonMono
-                .flatMap(applicationJson -> {
-                    applicationJson
-                            .getExportedApplication()
-                            .setName("discard-change-navsettings-added-appPositioning-present");
-                    return importApplicationService.importNewApplicationInWorkspaceFromJson(
-                            workspaceId, applicationJson);
-                })
-                .flatMap(application -> {
-                    ApplicationDetail applicationDetail = application.getUnpublishedApplicationDetail();
-                    Application.NavigationSetting navigationSetting = new Application.NavigationSetting();
-                    navigationSetting.setOrientation("top");
-                    applicationDetail.setNavigationSetting(navigationSetting);
-                    application.setUnpublishedApplicationDetail(applicationDetail);
-                    application.setPublishedApplicationDetail(applicationDetail);
-                    return applicationService.save(application);
-                })
-                .cache();
-
-        StepVerifier.create(resultMonoWithoutDiscardOperation)
-                .assertNext(initialApplication -> {
-                    assertThat(initialApplication.getUnpublishedApplicationDetail())
-                            .isNotNull();
-                    assertThat(initialApplication
-                                    .getUnpublishedApplicationDetail()
-                                    .getNavigationSetting())
-                            .isNotNull();
-                    assertThat(initialApplication
-                                    .getUnpublishedApplicationDetail()
-                                    .getNavigationSetting()
-                                    .getOrientation())
-                            .isEqualTo("top");
-                    assertThat(initialApplication.getPublishedApplicationDetail())
-                            .isNotNull();
-                    assertThat(initialApplication
-                                    .getPublishedApplicationDetail()
-                                    .getNavigationSetting())
-                            .isNotNull();
-                    assertThat(initialApplication
-                                    .getPublishedApplicationDetail()
-                                    .getNavigationSetting()
-                                    .getOrientation())
-                            .isEqualTo("top");
-                    assertThat(initialApplication
-                                    .getUnpublishedApplicationDetail()
-                                    .getAppPositioning())
-                            .isNotNull();
-                    assertThat(initialApplication
-                                    .getUnpublishedApplicationDetail()
-                                    .getAppPositioning()
-                                    .getType())
-                            .isEqualTo(Application.AppPositioning.Type.AUTO);
-                    assertThat(initialApplication
-                                    .getPublishedApplicationDetail()
-                                    .getAppPositioning())
-                            .isNotNull();
-                    assertThat(initialApplication
-                                    .getPublishedApplicationDetail()
-                                    .getAppPositioning()
-                                    .getType())
-                            .isEqualTo(Application.AppPositioning.Type.AUTO);
-                })
-                .verifyComplete();
-        // Import the same application again
-        final Mono<Application> resultMonoWithDiscardOperation = resultMonoWithoutDiscardOperation.flatMap(
-                importedApplication -> applicationJsonMono.flatMap(applicationJson -> {
-                    importedApplication.setGitApplicationMetadata(new GitApplicationMetadata());
-                    importedApplication
-                            .getGitApplicationMetadata()
-                            .setDefaultApplicationId(importedApplication.getId());
-                    return applicationService
-                            .save(importedApplication)
-                            .then(importApplicationService.importApplicationInWorkspaceFromGit(
-                                    importedApplication.getWorkspaceId(),
-                                    applicationJson,
-                                    importedApplication.getId(),
-                                    "main"));
-                }));
-
-        StepVerifier.create(resultMonoWithDiscardOperation)
-                .assertNext(application -> {
-                    assertThat(application.getWorkspaceId()).isNotNull();
-                    assertThat(application.getUnpublishedApplicationDetail()).isNotNull();
-                    assertThat(application.getPublishedApplicationDetail()).isNotNull();
-                    assertThat(application.getUnpublishedApplicationDetail().getAppPositioning())
-                            .isNotNull();
-                    assertThat(application
-                                    .getUnpublishedApplicationDetail()
-                                    .getAppPositioning()
-                                    .getType())
-                            .isEqualTo(Application.AppPositioning.Type.AUTO);
-                    assertThat(application.getUnpublishedApplicationDetail().getNavigationSetting())
-                            .isNull();
-                    assertThat(application.getPublishedApplicationDetail().getNavigationSetting())
-                            .isNull();
                 })
                 .verifyComplete();
     }

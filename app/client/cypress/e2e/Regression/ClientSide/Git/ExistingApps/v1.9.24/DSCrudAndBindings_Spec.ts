@@ -34,7 +34,6 @@ describe("Import and validate older app (app created in older versions of Appsmi
     dataSources.ReconnectDSbyType("MongoDB");
     dataSources.ReconnectDSbyType("MySQL");
     dataSources.ReconnectDSbyType("PostgreSQL");
-    agHelper.Sleep(3000); //for CI to reconnect successfully
     homePage.AssertNCloseImport();
   });
 
@@ -80,16 +79,11 @@ describe("Import and validate older app (app created in older versions of Appsmi
     // Commenting it as part of #28012 - to be added back later
     // agHelper.AssertContains(/[0-9] librar(y|ies) modified/, "not.exist");
 
-    // This assertions is commented out due to issue #https://github.com/appsmithorg/appsmith/issues/28563
-    // Since we don't want this specific message appearing when we are just migrating the metadata,
-    // this assertion is not required.
-    // Slack conversation: https://theappsmith.slack.com/archives/C04HERDNZPA/p1698851532418569
-
-    // agHelper.GetNAssertElementText(
-    //   gitSync._gitStatusChanges,
-    //   "Some of the changes above are due to an improved file structure designed to reduce merge conflicts. You can safely commit them to your repository.",
-    //   "contain.text",
-    // );
+    agHelper.GetNAssertElementText(
+      gitSync._gitStatusChanges,
+      "Some of the changes above are due to an improved file structure designed to reduce merge conflicts. You can safely commit them to your repository.",
+      "contain.text",
+    );
     agHelper.GetNClick(gitSync._commitButton);
     assertHelper.AssertNetworkStatus("@commit", 201);
     gitSync.CloseGitSyncModal();
@@ -160,7 +154,6 @@ describe("Import and validate older app (app created in older versions of Appsmi
     agHelper.Sleep(500);
     agHelper.ClickButton("Update");
     agHelper.Sleep(2000); //for CI update to be successful
-    table.WaitUntilTableLoad(0, 0, "v1");
 
     //Validate updated values in table
     table.ReadTableRowColumnData(0, 3).then(($cellData) => {

@@ -37,16 +37,14 @@ public class NewActionExportableServiceCEImpl implements ExportableServiceCE<New
         this.actionPermission = actionPermission;
     }
 
-    // Requires datasourceIdToNameMap, pageIdToNameMap, pluginMap, collectionIdToNameMap
-    // Updates actionId to name map in exportable resources. Also directly updates required collection information in
-    // application json
     @Override
-    public Mono<Void> getExportableEntities(
+    public Mono<List<NewAction>> getExportableEntities(
             ExportingMetaDTO exportingMetaDTO,
             MappedExportableResourcesDTO mappedExportableResourcesDTO,
             Mono<Application> applicationMono,
             ApplicationJson applicationJson) {
 
+        Set<String> dbNamesUsedInActions = new HashSet<>();
         Optional<AclPermission> optionalPermission = Optional.ofNullable(actionPermission.getExportPermission(
                 exportingMetaDTO.getIsGitSync(), exportingMetaDTO.getExportWithConfiguration()));
 
@@ -54,15 +52,70 @@ public class NewActionExportableServiceCEImpl implements ExportableServiceCE<New
                 newActionService.findByListOfPageIds(exportingMetaDTO.getUnpublishedPages(), optionalPermission);
 
         return actionFlux
-                .collectList()
-                .flatMap(newActionList -> {
-                    Set<String> dbNamesUsedInActions =
-                            mapNameToIdForExportableEntities(mappedExportableResourcesDTO, newActionList);
-                    return Mono.zip(Mono.just(newActionList), Mono.just(dbNamesUsedInActions));
+                .map(newAction -> {
+                    newAction.setPluginId(
+                            mappedExportableResourcesDTO.getPluginMap().get(newAction.getPluginId()));
+                    newAction.setWorkspaceId(null);
+                    newAction.setPolicies(null);
+                    newAction.setApplicationId(null);
+                    dbNamesUsedInActions.add(sanitizeDatasourceInActionDTO(
+                            newAction.getPublishedAction(),
+                            mappedExportableResourcesDTO.getDatasourceIdToNameMap(),
+                            mappedExportableResourcesDTO.getPluginMap(),
+                            null,
+                            true));
+                    dbNamesUsedInActions.add(sanitizeDatasourceInActionDTO(
+                            newAction.getUnpublishedAction(),
+                            mappedExportableResourcesDTO.getDatasourceIdToNameMap(),
+                            mappedExportableResourcesDTO.getPluginMap(),
+                            null,
+                            true));
+
+                    // Set unique id for action
+                    if (newAction.getUnpublishedAction() != null) {
+                        ActionDTO actionDTO = newAction.getUnpublishedAction();
+                        actionDTO.setPageId(mappedExportableResourcesDTO
+                                .getPageIdToNameMap()
+                                .get(actionDTO.getPageId() + EDIT));
+
+                        if (!StringUtils.isEmpty(actionDTO.getCollectionId())
+                                && mappedExportableResourcesDTO
+                                        .getCollectionIdToNameMap()
+                                        .containsKey(actionDTO.getCollectionId())) {
+                            actionDTO.setCollectionId(mappedExportableResourcesDTO
+                                    .getCollectionIdToNameMap()
+                                    .get(actionDTO.getCollectionId()));
+                        }
+
+                        final String updatedActionId = actionDTO.getPageId() + "_" + actionDTO.getValidName();
+                        mappedExportableResourcesDTO.getActionIdToNameMap().put(newAction.getId(), updatedActionId);
+                        newAction.setId(updatedActionId);
+                    }
+                    if (newAction.getPublishedAction() != null) {
+                        ActionDTO actionDTO = newAction.getPublishedAction();
+                        actionDTO.setPageId(mappedExportableResourcesDTO
+                                .getPageIdToNameMap()
+                                .get(actionDTO.getPageId() + VIEW));
+
+                        if (!StringUtils.isEmpty(actionDTO.getCollectionId())
+                                && mappedExportableResourcesDTO
+                                        .getCollectionIdToNameMap()
+                                        .containsKey(actionDTO.getCollectionId())) {
+                            actionDTO.setCollectionId(mappedExportableResourcesDTO
+                                    .getCollectionIdToNameMap()
+                                    .get(actionDTO.getCollectionId()));
+                        }
+
+                        if (!mappedExportableResourcesDTO.getActionIdToNameMap().containsValue(newAction.getId())) {
+                            final String updatedActionId = actionDTO.getPageId() + "_" + actionDTO.getValidName();
+                            mappedExportableResourcesDTO.getActionIdToNameMap().put(newAction.getId(), updatedActionId);
+                            newAction.setId(updatedActionId);
+                        }
+                    }
+                    return newAction;
                 })
-                .map(tuple -> {
-                    List<NewAction> actionList = tuple.getT1();
-                    Set<String> dbNamesUsedInActions = tuple.getT2();
+                .collectList()
+                .map(actionList -> {
                     Set<String> updatedActionSet = new HashSet<>();
                     actionList.forEach(newAction -> {
                         ActionDTO unpublishedActionDTO = newAction.getUnpublishedAction();
@@ -104,72 +157,6 @@ public class NewActionExportableServiceCEImpl implements ExportableServiceCE<New
                             .removeIf(datasource -> !dbNamesUsedInActions.contains(datasource.getName()));
 
                     return actionList;
-                })
-                .then();
-    }
-
-    @Override
-    public Set<String> mapNameToIdForExportableEntities(
-            MappedExportableResourcesDTO mappedExportableResourcesDTO, List<NewAction> newActionList) {
-        Set<String> dbNamesUsedInActions = new HashSet<>();
-        newActionList.forEach(newAction -> {
-            newAction.setPluginId(mappedExportableResourcesDTO.getPluginMap().get(newAction.getPluginId()));
-            newAction.setWorkspaceId(null);
-            newAction.setPolicies(null);
-            newAction.setApplicationId(null);
-            dbNamesUsedInActions.add(sanitizeDatasourceInActionDTO(
-                    newAction.getPublishedAction(),
-                    mappedExportableResourcesDTO.getDatasourceIdToNameMap(),
-                    mappedExportableResourcesDTO.getPluginMap(),
-                    null,
-                    true));
-            dbNamesUsedInActions.add(sanitizeDatasourceInActionDTO(
-                    newAction.getUnpublishedAction(),
-                    mappedExportableResourcesDTO.getDatasourceIdToNameMap(),
-                    mappedExportableResourcesDTO.getPluginMap(),
-                    null,
-                    true));
-
-            // Set unique id for action
-            if (newAction.getUnpublishedAction() != null) {
-                ActionDTO actionDTO = newAction.getUnpublishedAction();
-                actionDTO.setPageId(
-                        mappedExportableResourcesDTO.getPageIdToNameMap().get(actionDTO.getPageId() + EDIT));
-
-                if (!StringUtils.isEmpty(actionDTO.getCollectionId())
-                        && mappedExportableResourcesDTO
-                                .getCollectionIdToNameMap()
-                                .containsKey(actionDTO.getCollectionId())) {
-                    actionDTO.setCollectionId(mappedExportableResourcesDTO
-                            .getCollectionIdToNameMap()
-                            .get(actionDTO.getCollectionId()));
-                }
-
-                final String updatedActionId = actionDTO.getPageId() + "_" + actionDTO.getValidName();
-                mappedExportableResourcesDTO.getActionIdToNameMap().put(newAction.getId(), updatedActionId);
-                newAction.setId(updatedActionId);
-            }
-            if (newAction.getPublishedAction() != null) {
-                ActionDTO actionDTO = newAction.getPublishedAction();
-                actionDTO.setPageId(
-                        mappedExportableResourcesDTO.getPageIdToNameMap().get(actionDTO.getPageId() + VIEW));
-
-                if (!StringUtils.isEmpty(actionDTO.getCollectionId())
-                        && mappedExportableResourcesDTO
-                                .getCollectionIdToNameMap()
-                                .containsKey(actionDTO.getCollectionId())) {
-                    actionDTO.setCollectionId(mappedExportableResourcesDTO
-                            .getCollectionIdToNameMap()
-                            .get(actionDTO.getCollectionId()));
-                }
-
-                if (!mappedExportableResourcesDTO.getActionIdToNameMap().containsValue(newAction.getId())) {
-                    final String updatedActionId = actionDTO.getPageId() + "_" + actionDTO.getValidName();
-                    mappedExportableResourcesDTO.getActionIdToNameMap().put(newAction.getId(), updatedActionId);
-                    newAction.setId(updatedActionId);
-                }
-            }
-        });
-        return dbNamesUsedInActions;
+                });
     }
 }
