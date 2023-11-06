@@ -22,7 +22,7 @@ describe(`${ANVIL_EDITOR_TEST}: Anvil tests for DnD Module`, () => {
       // center align
       entityExplorer.DragDropWidgetNVerify(
         WIDGET.WDSBUTTON,
-        x + width / 2,
+        x + width / 2 + 20,
         y + 20,
         {
           skipWidgetSearch: true,
