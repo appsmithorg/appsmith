@@ -293,6 +293,7 @@ describe("Widget Property Setters - Part III - Tc #2409 - Validates SetOptions",
     }`);
     jsEditor.EnableDisableAsyncFuncSettings("myFunc1", true, false); //for on page load execution, since sync function is updated to async
     deployMode.DeployApp();
+    agHelper.Sleep(2000); //for call to finish for CI runs
     agHelper
       .GetText(
         locators._widgetInDeployed(draggableWidgets.INPUT_V2) +
