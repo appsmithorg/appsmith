@@ -144,11 +144,6 @@ export function PageContextMenu(props: {
 
   const openPartialExportModal = () => setShowPartialExportModal(true);
   const openPartialImportModal = () => setShowPartialImportModal(true);
-  // const onPartialImportClick = useCallback(async () => {
-  //   dispatch({
-  //     type: ReduxActionTypes.PARTIAL_IMPORT_INIT,
-  //   });
-  // }, []);
 
   const pagePermissions =
     useSelector(getPageById(props.pageId))?.userPermissions || [];

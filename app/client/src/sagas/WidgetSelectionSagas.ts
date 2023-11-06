@@ -1,6 +1,5 @@
 import { builderURL, widgetURL } from "@appsmith/RouteBuilder";
 import { importPartialApplicationSuccess } from "@appsmith/actions/applicationActions";
-import type { ImportPartialApplicationRequest } from "@appsmith/api/ApplicationApi";
 import ApplicationApi, {
   type exportApplicationRequest,
 } from "@appsmith/api/ApplicationApi";
@@ -29,6 +28,7 @@ import {
   setSelectedWidgets,
 } from "actions/widgetSelectionActions";
 import type { ApiResponse } from "api/ApiResponses";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import { toast } from "design-system";
 import { APP_MODE } from "entities/App";
 import { getFlexLayersForSelectedWidgets } from "layoutSystems/autolayout/utils/AutoLayoutUtils";
@@ -72,6 +72,7 @@ import { quickScrollToWidget } from "utils/helpers";
 import history, { NavigationMethod } from "utils/history";
 import { getCopiedWidgets, saveCopiedWidgets } from "utils/storage";
 import { validateResponse } from "./ErrorSagas";
+import { postPageAdditionSaga } from "./TemplatesSagas";
 import { createWidgetCopy } from "./WidgetOperationUtils";
 import {
   getWidgetIdsByType,
@@ -477,7 +478,7 @@ function* partialImportWidgetsSaga(file: File) {
 }
 
 export function* partialImportSaga(
-  action: ReduxAction<ImportPartialApplicationRequest>,
+  action: ReduxAction<{ applicationFile: File }>,
 ) {
   // Cache existing copied widgets as we utilize copy paste functionality with partial import of widgets
   // Step1: Get existing copied widgets
@@ -487,18 +488,27 @@ export function* partialImportSaga(
     // Step2: Import widgets from file, in parallel
     yield fork(partialImportWidgetsSaga, action.payload.applicationFile);
     // Step3: Send backend request to import pending items.
+    const workspaceId: string = yield select(getCurrentWorkspaceId);
+    const pageId: string = yield select(getCurrentPageId);
+    const applicationId: string = yield select(getCurrentApplicationId);
     const response: ApiResponse = yield call(
       ApplicationApi.importPartialApplication,
-      action.payload,
+      {
+        applicationFile: action.payload.applicationFile,
+        workspaceId,
+        pageId,
+        applicationId,
+      },
     );
 
     const isValidResponse: boolean = yield validateResponse(response);
 
     if (isValidResponse) {
+      yield call(postPageAdditionSaga, applicationId);
       toast.show("Partial Application imported successfully", {
         kind: "success",
       });
-      yield call(importPartialApplicationSuccess);
+      yield put(importPartialApplicationSuccess());
     }
   } catch (error) {
     yield put({

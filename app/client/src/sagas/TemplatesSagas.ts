@@ -197,7 +197,7 @@ function* getTemplateSaga(action: ReduxAction<string>) {
   }
 }
 
-function* postPageAdditionSaga(applicationId: string) {
+export function* postPageAdditionSaga(applicationId: string) {
   const afterActionsFetch: boolean = yield failFastApiCalls(
     [
       fetchActions({ applicationId }, []),

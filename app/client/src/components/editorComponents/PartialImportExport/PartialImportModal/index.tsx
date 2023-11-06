@@ -1,26 +1,23 @@
-import React, { useCallback, useEffect, useState } from "react";
-import styled, { css } from "styled-components";
-import { useDispatch, useSelector } from "react-redux";
 import { importPartialApplication } from "@appsmith/actions/applicationActions";
 import {
-  createMessage,
   IMPORT_APP_FROM_FILE_MESSAGE,
   IMPORT_APP_FROM_FILE_TITLE,
   PARTIAL_IMPORT_EXPORT,
   UPLOADING_APPLICATION,
   UPLOADING_JSON,
+  createMessage,
 } from "@appsmith/constants/messages";
-import type { SetProgress } from "design-system-old";
-import { FilePickerV2, FileType } from "design-system-old";
 import {
   getIsImportingPartialApplication,
   getPartialImportExportLoadingState,
 } from "@appsmith/selectors/applicationSelectors";
-import Statusbar from "pages/Editor/gitSync/components/Statusbar";
 import { Icon, Modal, ModalContent, ModalHeader, Text } from "design-system";
-import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
-import { getCurrentPageId } from "@appsmith/selectors/entitiesSelector";
+import type { SetProgress } from "design-system-old";
+import { FilePickerV2, FileType } from "design-system-old";
+import Statusbar from "pages/Editor/gitSync/components/Statusbar";
+import React, { useCallback, useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import styled, { css } from "styled-components";
 
 const TextWrapper = styled.div`
   padding: 0;
@@ -153,9 +150,6 @@ function PartialImportModal(props: PartialImportModalProps) {
   const partialImportExportLoadingState = useSelector(
     getPartialImportExportLoadingState,
   );
-  const workspaceId = useSelector(getCurrentWorkspaceId);
-  const appId = useSelector(getCurrentApplicationId);
-  const pageId = useSelector(getCurrentPageId);
 
   const FileUploader = useCallback(
     async (file: File, setProgress: SetProgress) => {
@@ -166,9 +160,6 @@ function PartialImportModal(props: PartialImportModalProps) {
         });
         dispatch(
           importPartialApplication({
-            workspaceId,
-            appId,
-            pageId,
             applicationFile: file,
           }),
         );
