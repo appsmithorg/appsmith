@@ -2,7 +2,7 @@ import { ObjectsRegistry } from "../Objects/Registry";
 import sampleTableData from "../../fixtures/Table/sampleTableData.json";
 
 const path = require("path");
-type TableVersion = "v1" | "v2" | "wds";
+
 type filterTypes =
   | "contains"
   | "does not contain"
@@ -46,13 +46,11 @@ export class Table {
     columnName +
     "')]/parent::div/parent::div";
   _columnHeaderDiv = (columnName: string) => `[data-header=${columnName}]`;
-  private _tableWidgetVersion = (version: TableVersion) =>
-    version === "wds"
-      ? ".t--widget-wdstablewidgetv2"
-      : `.t--widget-tablewidget${version == "v1" ? "" : version}`;
-  private _nextPage = (version: TableVersion) =>
+  private _tableWidgetVersion = (version: "v1" | "v2") =>
+    `.t--widget-tablewidget${version == "v1" ? "" : version}`;
+  private _nextPage = (version: "v1" | "v2") =>
     this._tableWidgetVersion(version) + " .t--table-widget-next-page";
-  private _previousPage = (version: TableVersion) =>
+  private _previousPage = (version: "v1" | "v2") =>
     this._tableWidgetVersion(version) + " .t--table-widget-prev-page";
   private _pageNumber = ".t--widget-tablewidgetv2 .page-item";
   private _pageNumberServerSideOff =
@@ -60,29 +58,29 @@ export class Table {
   private _pageNumberServerSidePagination = ".t--widget-tablewidget .page-item";
   private _pageNumberClientSidePagination =
     ".t--widget-tablewidget .t--table-widget-page-input input";
-  _tableRow = (rowNum: number, colNum: number, version: TableVersion) =>
+  _tableRow = (rowNum: number, colNum: number, version: "v1" | "v2") =>
     this._tableWidgetVersion(version) +
     ` .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}]`;
   _editCellIconDiv = ".t--editable-cell-icon";
   _editCellEditor = ".t--inlined-cell-editor";
   _editCellEditorInput = this._editCellEditor + " input";
-  _tableRowColumnDataVersion = (version: TableVersion) =>
+  _tableRowColumnDataVersion = (version: "v1" | "v2") =>
     `${version == "v1" ? " div div" : " .cell-wrapper"}`;
   _tableRowColumnData = (
     rowNum: number,
     colNum: number,
-    version: TableVersion,
+    version: "v1" | "v2",
   ) =>
     this._tableRow(rowNum, colNum, version) +
     this._tableRowColumnDataVersion(version);
-  _tableLoadStateDelete = (version: TableVersion) =>
+  _tableLoadStateDelete = (version: "v1" | "v2") =>
     this._tableRow(0, 0, version) + ` div div button span:contains('Delete')`;
   _tableRowImageColumnData = (
     rowNum: number,
     colNum: number,
-    version: TableVersion,
+    version: "v1" | "v2",
   ) => this._tableRow(rowNum, colNum, version) + ` div div.image-cell`;
-  _tableEmptyColumnData = (version: TableVersion) =>
+  _tableEmptyColumnData = (version: "v1" | "v2") =>
     this._tableWidgetVersion(version) + " .tbody .td"; //selected-row
   _tableSelectedRow =
     this._tableWrap +
@@ -193,7 +191,7 @@ export class Table {
   _listNavigation = (move: string) =>
     "//button[@aria-label='" + move + " page']";
   _listNextPage = ".rc-pagination-next";
-  _listActivePage = (version: TableVersion) =>
+  _listActivePage = (version: "v1" | "v2") =>
     `.t--widget-listwidget${
       version == "v1" ? "" : version
     } .rc-pagination-item-active`;
@@ -210,7 +208,7 @@ export class Table {
   public WaitUntilTableLoad(
     rowIndex = 0,
     colIndex = 0,
-    tableVersion: TableVersion = "v1",
+    tableVersion: "v1" | "v2" = "v1",
   ) {
     // this.agHelper
     // .GetElement(this._tableRowColumnData(rowIndex, colIndex, tableVersion), 30000)
@@ -241,7 +239,7 @@ export class Table {
   public AssertTableLoaded(
     rowIndex = 0,
     colIndex = 0,
-    tableVersion: TableVersion = "v1",
+    tableVersion: "v1" | "v2" = "v1",
   ) {
     this.agHelper
       .GetElement(
@@ -253,7 +251,7 @@ export class Table {
       );
   }
 
-  public WaitForTableEmpty(tableVersion: TableVersion = "v1") {
+  public WaitForTableEmpty(tableVersion: "v1" | "v2" = "v1") {
     this.agHelper
       .GetElement(this._tableEmptyColumnData(tableVersion))
       .children()
@@ -287,7 +285,7 @@ export class Table {
   public ReadTableRowColumnData(
     rowNum: number,
     colNum: number,
-    tableVersion: TableVersion = "v1",
+    tableVersion: "v1" | "v2" = "v1",
     timeout = 1000,
   ) {
     //timeout can be sent higher values incase of larger tables
@@ -301,7 +299,7 @@ export class Table {
     rowNum: number,
     colNum: number,
     timeout = 200,
-    tableVersion: TableVersion = "v1",
+    tableVersion: "v1" | "v2" = "v1",
   ) {
     //timeout can be sent higher values incase of larger tables
     this.agHelper.Sleep(timeout); //Settling time for table!
@@ -323,7 +321,7 @@ export class Table {
 
   public NavigateToNextPage(
     isServerPagination = true,
-    tableVersion: TableVersion = "v1",
+    tableVersion: "v1" | "v2" = "v1",
   ) {
     let curPageNo: number;
     if (tableVersion == "v1") {
@@ -357,7 +355,7 @@ export class Table {
 
   public NavigateToPreviousPage(
     isServerPagination = true,
-    tableVersion: TableVersion = "v1",
+    tableVersion: "v1" | "v2" = "v1",
   ) {
     let curPageNo: number;
     if (tableVersion == "v1") {
@@ -392,7 +390,7 @@ export class Table {
   public AssertPageNumber(
     pageNo: number,
     serverSide: "Off" | "On" | "" = "On",
-    tableVersion: TableVersion = "v1",
+    tableVersion: "v1" | "v2" = "v1",
   ) {
     const serverSideOn =
       tableVersion == "v1"
@@ -426,7 +424,7 @@ export class Table {
     rowIndex: number,
     columnIndex = 0,
     select = true,
-    tableVersion: TableVersion = "v1",
+    tableVersion: "v1" | "v2" = "v1",
   ) {
     //rowIndex - 0 for 1st row
     this.agHelper
@@ -462,7 +460,7 @@ export class Table {
 
   public RemoveSearchTextNVerify(
     cellDataAfterSearchRemoved: string,
-    tableVersion: TableVersion = "v1",
+    tableVersion: "v1" | "v2" = "v1",
   ) {
     this.ResetSearch();
     this.ReadTableRowColumnData(0, 0, tableVersion).then(
@@ -515,7 +513,7 @@ export class Table {
     toClose = true,
     removeOne = true,
     index = 0,
-    tableVersion: TableVersion = "v1",
+    tableVersion: "v1" | "v2" = "v1",
   ) {
     this.RemoveFilter(toClose, removeOne, index);
     this.ReadTableRowColumnData(0, 0, tableVersion).then(
@@ -553,7 +551,7 @@ export class Table {
   public ChangeColumnType(
     columnName: string,
     newDataType: columnTypeValues,
-    tableVersion: TableVersion = "v1",
+    tableVersion: "v1" | "v2" = "v1",
   ) {
     this.EditColumn(columnName, tableVersion);
     this.propPane.SelectPropertiesDropDown("Column type", newDataType);
@@ -565,7 +563,7 @@ export class Table {
     row: number,
     col: number,
     expectedURL: string,
-    tableVersion: TableVersion = "v1",
+    tableVersion: "v1" | "v2" = "v1",
     networkCall = "viewPage",
   ) {
     this.deployMode.StubWindowNAssert(
@@ -592,7 +590,7 @@ export class Table {
     cy.get(this._defaultColName).type(colId, { force: true });
   }
 
-  public EditColumn(columnName: string, tableVersion: TableVersion) {
+  public EditColumn(columnName: string, tableVersion: "v1" | "v2") {
     const colSettings =
       tableVersion == "v1"
         ? this._columnSettings(columnName, "Edit")
@@ -602,7 +600,7 @@ export class Table {
 
   public EnableVisibilityOfColumn(
     columnName: string,
-    tableVersion: TableVersion,
+    tableVersion: "v1" | "v2",
   ) {
     const colSettings =
       tableVersion == "v1"
@@ -613,7 +611,7 @@ export class Table {
 
   public EnableEditableOfColumn(
     columnName: string,
-    tableVersion: TableVersion = "v2",
+    tableVersion: "v1" | "v2" = "v2",
   ) {
     const colSettings =
       tableVersion == "v1"
@@ -683,7 +681,7 @@ export class Table {
   }
 
   //List methods - keeping it for now!
-  public NavigateToNextPage_List(tableVersion: TableVersion = "v1", index = 0) {
+  public NavigateToNextPage_List(tableVersion: "v1" | "v2" = "v1", index = 0) {
     let curPageNo: number;
     if (tableVersion == "v1") {
       cy.xpath(this._liCurrentSelectedPage)
@@ -707,7 +705,7 @@ export class Table {
   }
 
   public NavigateToPreviousPage_List(
-    tableVersion: TableVersion = "v1",
+    tableVersion: "v1" | "v2" = "v1",
     index = 0,
   ) {
     let curPageNo: number;
@@ -725,7 +723,7 @@ export class Table {
   public AssertPageNumber_List(
     pageNo: number,
     checkNoNextPage = false,
-    tableVersion: TableVersion = "v1",
+    tableVersion: "v1" | "v2" = "v1",
   ) {
     if (tableVersion == "v1") {
       cy.xpath(this._liCurrentSelectedPage)
@@ -803,7 +801,7 @@ export class Table {
   public NavigateToPageUsingButton_List(
     movement: string,
     pageNumber: number,
-    version: TableVersion = "v2",
+    version: "v1" | "v2" = "v2",
   ) {
     this.agHelper.GetNClick(this._listNavigation(movement), 0, true);
     this.agHelper.Sleep(2000);
@@ -814,7 +812,7 @@ export class Table {
 
   public NavigateToSpecificPage_List(
     pageNumber: number,
-    version: TableVersion = "v2",
+    version: "v1" | "v2" = "v2",
   ) {
     this.agHelper.GetNClick(`${this._paginationItem(pageNumber)}`);
     this.agHelper
