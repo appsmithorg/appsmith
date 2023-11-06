@@ -262,7 +262,7 @@ export const CodemirrorHintStyles = createGlobalStyle<{
       box-shadow: var(--ads-v2-shadow-popovers);
       border: 1px solid var(--ads-v2-color-border);
       border-radius: var(--ads-v2-border-radius);
-      max-width: 500px;
+      max-width: none;
       white-space: nowrap;
       .CodeMirror-Tern-fname {
         color: #304EAA;
