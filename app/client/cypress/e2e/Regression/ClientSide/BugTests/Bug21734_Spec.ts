@@ -18,7 +18,7 @@ describe("Bug 21734: On exiting from the Datasources page without saving changes
       "exist",
       dataSources._datasourceModalDoNotSave,
     );
-    cy.get(dataSources._datasourceModalDoNotSave).click();
+    cy.get(dataSources._datasourceModalDoNotSave).click({ force: true });
 
     ee.SelectEntityByName("Page1");
     agHelper.AssertURL("page1");

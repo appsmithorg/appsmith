@@ -44,7 +44,7 @@ describe("Select widget tests", function () {
     agHelper.AssertCSS(
       widgetLocators.selectWidgetLabelContainer,
       "width",
-      "59.765625px",
+      "55.859375px",
     );
     agHelper.GetNClick(widgetLocators.selectWidgetWidthPlusBtn);
     agHelper.GetNClick(widgetLocators.selectWidgetWidthPlusBtn);

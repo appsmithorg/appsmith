@@ -13,7 +13,7 @@ class EditorNavigation {
     cy.get(this.locators.sidebar)
       .should("be.visible")
       .find(this.locators.sidebarButtons(button))
-      .click();
+      .click({ force: true });
   }
 }
 

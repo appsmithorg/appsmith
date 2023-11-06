@@ -32,9 +32,9 @@ describe("Validate Mongo query commands", function () {
 
   before("Creates a new Mongo datasource", function () {
     dataSources.CreateDataSource("Mongo");
-    dataSources.CreateQueryAfterDSSaved();
     cy.get("@dsName").then(($dsName) => {
       datasourceName = $dsName;
+      dataSources.CreateQueryAfterDSSaved();
     });
   });
 
