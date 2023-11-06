@@ -9,7 +9,7 @@ import { ANVIL_EDITOR_TEST } from "../../../../support/Constants";
 import * as viewWidgets from "../../../../locators/ViewWidgets.json";
 
 describe(`${ANVIL_EDITOR_TEST}: Anvil tests for Widget Name Canvas`, () => {
-  it("1. Drag and Drop widget using widget name", () => {
+  it("1. Widget Name should not be cut off at the top", () => {
     const mainCanvasId = `#${getAnvilCanvasId(MAIN_CONTAINER_WIDGET_ID)}`;
     agHelper.AssertElementExist(mainCanvasId).then((mainCanvas) => {
       const x = mainCanvas.position().left;
@@ -43,25 +43,15 @@ describe(`${ANVIL_EDITOR_TEST}: Anvil tests for Widget Name Canvas`, () => {
           cy.get("#widget-name-canvas").then((widgetNameCanvas) => {
             const topOffset = widgetNameCanvas[0].getBoundingClientRect().top;
             const leftOffset = widgetNameCanvas[0].getBoundingClientRect().left;
-            cy.get("#widget-name-canvas")
-              .trigger(
-                "mouseover",
-                x + width - 10 - leftOffset,
-                y + 50 - topOffset,
-                { force: true },
-              )
-              .trigger(
-                "dragstart",
-                x + width - 10 - leftOffset,
-                y + 50 - topOffset,
-                { force: true },
-              )
-              .trigger(
-                "mousemove",
-                x + width - 10 - leftOffset,
-                y + 50 - topOffset,
-                { force: true },
-              );
+            cy.get("#widget-name-canvas").trigger(
+              "mouseover",
+              x + width - 10 - leftOffset,
+              y + 50 - topOffset,
+              { force: true },
+            );
+            cy.get("#widget-name-canvas").matchImageSnapshot(
+              "WidgetNameShouldNotBeCutOff",
+            );
           });
         });
     });
