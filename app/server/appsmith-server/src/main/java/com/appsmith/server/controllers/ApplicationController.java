@@ -9,8 +9,10 @@ import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.dtos.UpdateApplicationRoleDTO;
 import com.appsmith.server.exports.internal.ExportApplicationService;
+import com.appsmith.server.exports.internal.PartialExportService;
 import com.appsmith.server.fork.internal.ApplicationForkingService;
 import com.appsmith.server.imports.internal.ImportApplicationService;
+import com.appsmith.server.imports.internal.PartialImportService;
 import com.appsmith.server.services.ApplicationMemberService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
@@ -48,8 +50,9 @@ public class ApplicationController extends ApplicationControllerCE {
             ExportApplicationService exportApplicationService,
             ThemeService themeService,
             ApplicationSnapshotService applicationSnapshotService,
-            ApplicationMemberService applicationMemberService) {
-
+            ApplicationMemberService applicationMemberService,
+            PartialExportService partialExportService,
+            PartialImportService partialImportService) {
         super(
                 service,
                 applicationPageService,
@@ -58,7 +61,9 @@ public class ApplicationController extends ApplicationControllerCE {
                 importApplicationService,
                 exportApplicationService,
                 themeService,
-                applicationSnapshotService);
+                applicationSnapshotService,
+                partialExportService,
+                partialImportService);
 
         this.applicationMemberService = applicationMemberService;
     }

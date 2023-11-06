@@ -14,3 +14,5 @@ export const moduleInstanceQueryEditorIdURL = (
 
 export const moduleEditorURL = ({ moduleId }: URLBuilderParams): string =>
   urlBuilder.build({ moduleId });
+
+export const currentPackageEditorURL = (): string => urlBuilder.build({});

@@ -5,9 +5,17 @@ import type { Action } from "entities/Action";
 type ID = string;
 
 export enum MODULE_TYPE {
-  QUERY = "QUERY",
+  QUERY = "QUERY_MODULE",
   JS = "JS",
   UI = "UI",
+}
+
+export enum MODULE_ACTION_TYPE {
+  ACTION = "action",
+}
+
+export enum MODULE_PREFIX {
+  QUERY = "Query",
 }
 
 export type ModuleAction = Action & {

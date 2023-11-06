@@ -99,6 +99,8 @@ export class DataManager {
 
       twilio_username: "random-username",
       twilio_password: "random-password",
+
+      okta_username: "tech@appsmith.com",
     },
 
     Staging: {
@@ -192,6 +194,8 @@ export class DataManager {
 
       twilio_username: "random-username",
       twilio_password: "random-password",
+
+      okta_username: "tech@appsmith.com",
     },
   };
 

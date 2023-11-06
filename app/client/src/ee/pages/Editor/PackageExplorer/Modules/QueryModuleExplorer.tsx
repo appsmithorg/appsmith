@@ -40,8 +40,14 @@ import {
   selectAllQueryModules,
 } from "@appsmith/utils/Packages/moduleHelpers";
 import type { ModulesReducerState } from "@appsmith/reducers/entityReducers/modulesReducer";
-import QueryModuleEntity from "./QueryModules/QueryModuleEntity";
-import { useFilteredFileOperations } from "components/editorComponents/GlobalSearch/GlobalSearchHooks";
+import QueryModuleEntity from "./QueryModules/Entity";
+import { useFilteredFileOperations } from "./hooks/getFilteredFileOps";
+import {
+  type ActionOperation,
+  SEARCH_ITEM_TYPES,
+} from "components/editorComponents/GlobalSearch/utils";
+import { DatasourceCreateEntryPoints } from "constants/Datasource";
+import type { EventLocation } from "ce/utils/analyticsUtilTypes";
 
 const QueryModuleExplorer = () => {
   const packageId = useSelector(getCurrentPackageId) || "";
@@ -105,7 +111,25 @@ const QueryModuleExplorer = () => {
     />
   ));
 
-  const handleClick = () => {};
+  const handleClick = useCallback(
+    (item: ActionOperation) => {
+      if (item.kind === SEARCH_ITEM_TYPES.sectionTitle) return;
+      if (item.action) {
+        dispatch(
+          item.action(
+            packageId,
+            DatasourceCreateEntryPoints.SUBMENU as EventLocation,
+          ),
+        );
+      } else if (item.redirect) {
+        item.redirect(
+          packageId,
+          DatasourceCreateEntryPoints.SUBMENU as EventLocation,
+        );
+      }
+    },
+    [packageId],
+  );
 
   return (
     <RelativeContainer
@@ -133,7 +157,7 @@ const QueryModuleExplorer = () => {
         entitySize={
           queryModules.length > 0 ? ENTITY_HEIGHT * queryModules.length : 156
         }
-        icon={""} // ankita: update later
+        icon={""}
         isDefaultExpanded={
           isModulesOpen === null || isModulesOpen === undefined
             ? true

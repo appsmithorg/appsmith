@@ -1,4 +1,4 @@
-import { takeLatest, all, call, put } from "redux-saga/effects";
+import { takeLatest, all, call, put, select } from "redux-saga/effects";
 
 import ModuleApi from "@appsmith/api/ModuleApi";
 import {
@@ -6,14 +6,39 @@ import {
   ReduxActionErrorTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import { validateResponse } from "sagas/ErrorSagas";
+import { getModuleById } from "@appsmith/selectors/modulesSelector";
 import type { ApiResponse } from "api/ApiResponses";
 import type {
+  CreateQueryModulePayload,
   DeleteModulePayload,
   FetchModuleActionsPayload,
+  SaveModuleNamePayload,
 } from "@appsmith/actions/moduleActions";
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import type { FetchModuleActionsResponse } from "@appsmith/api/ModuleApi";
-import type { SaveModulePayload } from "@appsmith/actions/moduleActions";
+import type {
+  CreateModuleActionPayload,
+  FetchModuleActionsResponse,
+} from "@appsmith/api/ModuleApi";
+import history from "utils/history";
+import { currentPackageEditorURL } from "@appsmith/RouteBuilder";
+import type { ApiAction } from "entities/Action";
+import {
+  PluginPackageName,
+  type Action,
+  type CreateActionDefaultsParams,
+  type CreateApiActionDefaultsParams,
+} from "entities/Action";
+import { createDefaultActionPayloadWithPluginDefaults } from "sagas/ActionSagas";
+import {
+  MODULE_ACTION_TYPE,
+  MODULE_TYPE,
+  type Module,
+  MODULE_PREFIX,
+} from "@appsmith/constants/ModuleConstants";
+import type { ModulesReducerState } from "@appsmith/reducers/entityReducers/modulesReducer";
+import { getAllModules } from "@appsmith/selectors/modulesSelector";
+import { createNewQueryModuleName } from "@appsmith/utils/Packages/moduleHelpers";
+import { createDefaultApiActionPayload } from "sagas/ApiPaneSagas";
 
 export function* deleteModuleSaga(action: ReduxAction<DeleteModulePayload>) {
   try {
@@ -28,6 +53,12 @@ export function* deleteModuleSaga(action: ReduxAction<DeleteModulePayload>) {
         type: ReduxActionTypes.DELETE_QUERY_MODULE_SUCCESS,
         payload: action.payload,
       });
+
+      if (!!action.payload.onSuccess) {
+        action.payload.onSuccess();
+      } else {
+        history.push(currentPackageEditorURL());
+      }
     }
   } catch (error) {
     yield put({
@@ -37,11 +68,28 @@ export function* deleteModuleSaga(action: ReduxAction<DeleteModulePayload>) {
   }
 }
 
-export function* saveModuleNameSaga(action: ReduxAction<SaveModulePayload>) {
+export function* saveModuleNameSaga(
+  action: ReduxAction<SaveModuleNamePayload>,
+) {
   try {
+    const { id, name } = action.payload;
+    const module: ReturnType<typeof getModuleById> = yield select(
+      getModuleById,
+      id,
+    );
+
+    if (!module) {
+      throw Error("Saving module name failed. Module not found.");
+    }
+
+    const updatedModule = {
+      ...module,
+      name,
+    };
+
     const response: ApiResponse = yield call(
-      ModuleApi.saveModuleName,
-      action.payload,
+      ModuleApi.updateModule,
+      updatedModule,
     );
     const isValidResponse: boolean = yield validateResponse(response);
 
@@ -83,6 +131,92 @@ export function* fetchModuleActionsSagas(
   }
 }
 
+/**
+ * Creates an action with specific datasource created by a user
+ * @param action
+ */
+export function* createQueryModuleSaga(
+  action: ReduxAction<CreateQueryModulePayload>,
+) {
+  try {
+    const {
+      apiType = PluginPackageName.REST_API,
+      datasourceId,
+      from,
+      packageId,
+    } = action.payload;
+    const allModules: ModulesReducerState = yield select(getAllModules);
+    const newActionName = createNewQueryModuleName(
+      allModules,
+      MODULE_PREFIX.QUERY,
+    );
+
+    let actionPayload: CreateModuleActionPayload;
+
+    if (datasourceId) {
+      const createQueryModulePayload: Partial<Action> = yield call(
+        createDefaultActionPayloadWithPluginDefaults,
+        {
+          datasourceId,
+          from,
+          newActionName,
+        } as CreateActionDefaultsParams,
+      );
+
+      const { name, ...rest } = createQueryModulePayload;
+
+      actionPayload = {
+        packageId,
+        name,
+        type: MODULE_TYPE.QUERY,
+        entity: {
+          type: MODULE_ACTION_TYPE.ACTION,
+          ...rest,
+        },
+      };
+    } else {
+      const createQueryModulePayload: Partial<ApiAction> = yield call(
+        createDefaultApiActionPayload,
+        {
+          apiType,
+          from,
+          newActionName,
+        } as CreateApiActionDefaultsParams,
+      );
+
+      const { name, ...rest } = createQueryModulePayload;
+
+      actionPayload = {
+        packageId,
+        name,
+        type: MODULE_TYPE.QUERY,
+        entity: {
+          type: MODULE_ACTION_TYPE.ACTION,
+          ...rest,
+        },
+      };
+    }
+
+    const response: ApiResponse<Module> = yield call(
+      ModuleApi.createModule,
+      actionPayload,
+    );
+    const isValidResponse: boolean = yield validateResponse(response);
+
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.CREATE_QUERY_MODULE_SUCCESS,
+        payload: response.data,
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.CREATE_QUERY_MODULE_ERROR,
+      payload: { error },
+    });
+  }
+}
+
 export default function* modulesSaga() {
   yield all([
     takeLatest(ReduxActionTypes.DELETE_QUERY_MODULE_INIT, deleteModuleSaga),
@@ -90,6 +224,10 @@ export default function* modulesSaga() {
     takeLatest(
       ReduxActionTypes.FETCH_MODULE_ACTIONS_INIT,
       fetchModuleActionsSagas,
+    ),
+    takeLatest(
+      ReduxActionTypes.CREATE_QUERY_MODULE_INIT,
+      createQueryModuleSaga,
     ),
   ]);
 }

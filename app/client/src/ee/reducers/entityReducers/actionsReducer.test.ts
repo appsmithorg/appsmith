@@ -1,6 +1,61 @@
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import actionsReducer from "./actionsReducer";
 import type { ActionDataState } from "./actionsReducer";
+import type { Action } from "entities/Action";
+
+const DEFAULT_ACTIONS = [
+  {
+    id: "65265ab24b7c8d700a10265e",
+    name: "QueryModule1",
+    moduleId: "652519c44b7c8d700a102643",
+    actionConfiguration: {
+      timeoutInMillisecond: 10000,
+      paginationType: "NONE",
+    },
+    executeOnLoad: false,
+    isValid: true,
+    validName: "Api4",
+    entityReferenceType: "ACTION",
+    executableConfiguration: {
+      timeoutInMillisecond: 10000,
+    },
+    configurationPath: "Api4.actionConfiguration",
+  },
+  {
+    id: "6526621d4b7c8d700a102663",
+    name: "Query2",
+    moduleId: "652519c44b7c8d700a102643",
+    actionConfiguration: {
+      timeoutInMillisecond: 10000,
+      paginationType: "NONE",
+      encodeParamsToggle: true,
+      selfReferencingDataPaths: [],
+    },
+    executeOnLoad: false,
+    isValid: true,
+  },
+  {
+    id: "6526621d4b7c8d450a102985",
+    name: "QueryModule2",
+    moduleId: "652519c44b7c8d700a102356",
+    actionConfiguration: {
+      timeoutInMillisecond: 10000,
+      paginationType: "NONE",
+      encodeParamsToggle: true,
+      selfReferencingDataPaths: [],
+    },
+    executeOnLoad: false,
+    isValid: true,
+  },
+] as unknown as Action[];
+
+const computeInitialState = (actions: Action[]) => {
+  return actions.map((action: Action) => ({
+    data: undefined,
+    isLoading: false,
+    config: action,
+  })) as unknown as ActionDataState;
+};
 
 describe("actionsReducer", () => {
   it("should return the initial state", () => {
@@ -12,36 +67,7 @@ describe("actionsReducer", () => {
 
   it("should handle FETCH_MODULE_ACTIONS_SUCCESS action", () => {
     const initialState: ActionDataState = [];
-    const actionPayload = [
-      {
-        id: "65265ab24b7c8d700a10265e",
-        moduleId: "652519c44b7c8d700a102643",
-        actionConfiguration: {
-          timeoutInMillisecond: 10000,
-          paginationType: "NONE",
-        },
-        executeOnLoad: false,
-        isValid: true,
-        validName: "Api4",
-        entityReferenceType: "ACTION",
-        executableConfiguration: {
-          timeoutInMillisecond: 10000,
-        },
-        configurationPath: "Api4.actionConfiguration",
-      },
-      {
-        id: "6526621d4b7c8d700a102663",
-        moduleId: "652519c44b7c8d700a102643",
-        actionConfiguration: {
-          timeoutInMillisecond: 10000,
-          paginationType: "NONE",
-          encodeParamsToggle: true,
-          selfReferencingDataPaths: [],
-        },
-        executeOnLoad: false,
-        isValid: true,
-      },
-    ];
+    const actionPayload = DEFAULT_ACTIONS;
 
     const action = {
       type: ReduxActionTypes.FETCH_MODULE_ACTIONS_SUCCESS,
@@ -87,5 +113,37 @@ describe("actionsReducer", () => {
     ).toBe(true);
   });
 
-  // Add more test cases as needed
+  it("only update the name of public action with SAVE_MODULE_NAME_SUCCESS", () => {
+    const initialState: ActionDataState = computeInitialState(DEFAULT_ACTIONS);
+    const payload = {
+      id: "652519c44b7c8d700a102643",
+      publicEntityId: "65265ab24b7c8d700a10265e",
+      name: "GetUsers",
+    };
+
+    const action = {
+      type: ReduxActionTypes.SAVE_MODULE_NAME_SUCCESS,
+      payload,
+    };
+
+    const updatedState: ActionDataState = actionsReducer(initialState, action);
+
+    const updatedAction = updatedState.find(
+      (a) => a.config.id === payload.publicEntityId,
+    );
+    const otherActions = updatedState.filter(
+      (a) => a.config.id !== payload.publicEntityId,
+    );
+
+    expect(updatedState.length).toBe(initialState.length);
+    expect(updatedAction?.config.name).toBe(payload.name);
+
+    otherActions.forEach((a) => {
+      const prevActionState = initialState.find(
+        (pa) => pa.config.id === a.config.id,
+      );
+
+      expect(a.config.name).toBe(prevActionState?.config.name);
+    });
+  });
 });

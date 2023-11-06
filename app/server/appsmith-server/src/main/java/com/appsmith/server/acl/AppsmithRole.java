@@ -27,6 +27,7 @@ import static com.appsmith.server.acl.AclPermission.TENANT_READ_ALL_USERS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_CREATE_APPLICATION;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_CREATE_DATASOURCE;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_CREATE_PACKAGE;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_CREATE_WORKFLOW;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_DATASOURCE_CREATE_DATASOURCE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_DELETE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_DELETE_DATASOURCES;
@@ -34,6 +35,7 @@ import static com.appsmith.server.acl.AclPermission.WORKSPACE_DELETE_PACKAGES;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_EXECUTE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_EXPORT_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_EXPORT_PACKAGES;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_EXPORT_WORKFLOWS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_INVITE_USERS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_MAKE_PUBLIC_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_MANAGE_APPLICATIONS;
@@ -68,7 +70,9 @@ public enum AppsmithRole {
                     WORKSPACE_EXPORT_PACKAGES,
                     WORKSPACE_PUBLISH_PACKAGES,
                     DELETE_WORKSPACES,
-                    WORKSPACE_MAKE_PUBLIC_APPLICATIONS)),
+                    WORKSPACE_MAKE_PUBLIC_APPLICATIONS,
+                    WORKSPACE_CREATE_WORKFLOW,
+                    WORKSPACE_EXPORT_WORKFLOWS)),
     ORGANIZATION_DEVELOPER(
             DEVELOPER,
             WORKSPACE_DEVELOPER_DESCRIPTION,

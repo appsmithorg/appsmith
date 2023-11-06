@@ -374,3 +374,26 @@ export const ADD_QUERY_BUTTON = () => "Add query";
 export const PACKAGE_NAME_CANT_BE_EMPTY = () => "Package name can't be empty";
 export const ERROR_DELETING_PACKAGE = () => "Error while deleting Package";
 // Modules end
+
+// AI begin
+export const AI_RESPONSE_LOADING = () =>
+  "your code is being generated, give it a few seconds";
+export const AI_RECENT_PROMPTS = () => "Recent prompts";
+export const AI_POPOVER_TITLE = () => "Appsmith’s coding assistant";
+export const AI_JS_EXPR_PLACEHOLDER = () =>
+  "I can generate JavaScript code, Ask me something.";
+export const AI_SQL_PLACEHOLDER = () =>
+  "I can generate SQL queries, Ask me something.";
+export const AI_JS_FUNC_PLACEHOLDER = () =>
+  "I can complete JS Object functions, Ask me something.";
+export const AI_USE_THIS_BUTTON_LABEL = () => "Use this";
+export const AI_CONN_TIMEOUT_ERROR_MESSAGE = () =>
+  "Connection timed out, its taking too long to generate code for you. Can you try again.";
+export const AI_TOO_MANY_REQUESTS_ERROR_MESSAGE = () =>
+  "Too many requests. You have already used 50 requests today. Please try again tomorrow or contact Appsmith team.";
+export const AI_GENERATION_ERROR_MESSAGE = () =>
+  "We can not generate a response for this prompt, to get accurate responses we need prompts to be more specific.";
+export const AI_PROMPT_HELP_TEXT = () => "Press enter to send the prompt";
+export const AI_PROMPT_EXAMPLE_PREFIX = () => "Example: ";
+export const AI_INCORRECT_FEEDBACK_BUTTON_LABEL = () => "Incorrect response";
+// AI end

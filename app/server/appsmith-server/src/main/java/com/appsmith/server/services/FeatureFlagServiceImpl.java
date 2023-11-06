@@ -67,17 +67,24 @@ public class FeatureFlagServiceImpl extends FeatureFlagServiceCEImpl implements 
                 || tenant.getTenantConfiguration().getLicense() == null) {
             return Mono.just(tenant);
         }
-        TenantConfiguration tenantConfiguration = tenant.getTenantConfiguration();
-        License license = tenantConfiguration.getLicense();
-
-        Mono<Tenant> tenantMono = super.checkAndExecuteMigrationsForTenantFeatureFlags(tenant);
         // If the plan has changed or the license is not active (expired) then set the migration status to pending as
         // the execute migration is gated via user action
-        if (!CollectionUtils.isNullOrEmpty(tenantConfiguration.getFeaturesWithPendingMigration())
-                && (!license.getPlan().equals(license.getPreviousPlan()) || !TRUE.equals(license.getActive()))) {
-            tenantConfiguration.setMigrationStatus(MigrationStatus.PENDING);
-            tenantMono = tenantService.save(tenant);
+        if (shouldOnlyUpdateMigrationStatus(tenant)) {
+            tenant.getTenantConfiguration().setMigrationStatus(MigrationStatus.PENDING);
+            return tenantService.save(tenant);
         }
-        return tenantMono;
+        return super.checkAndExecuteMigrationsForTenantFeatureFlags(tenant);
+    }
+
+    private boolean shouldOnlyUpdateMigrationStatus(Tenant tenant) {
+        TenantConfiguration tenantConfiguration =
+                tenant.getTenantConfiguration() == null ? new TenantConfiguration() : tenant.getTenantConfiguration();
+        License license = tenantConfiguration.getLicense();
+
+        return license != null
+                && !CollectionUtils.isNullOrEmpty(tenantConfiguration.getFeaturesWithPendingMigration())
+                && ((license.getPreviousPlan() != null
+                                && !license.getPreviousPlan().equals(license.getPlan()))
+                        || !TRUE.equals(license.getActive()));
     }
 }

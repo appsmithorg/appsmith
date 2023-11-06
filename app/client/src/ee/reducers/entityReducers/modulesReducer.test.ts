@@ -31,7 +31,7 @@ describe("modulesReducer", () => {
   it("FETCH_PACKAGE_SUCCESS - should store the modules from the payload in the state", () => {
     const initialState = DEFAULT_STATE;
 
-    const expectedState = klona(DEFAULT_STATE);
+    const expectedState: ModulesReducerState = {};
     expectedState[module2.id] = module2;
     expectedState[module3.id] = module3;
 

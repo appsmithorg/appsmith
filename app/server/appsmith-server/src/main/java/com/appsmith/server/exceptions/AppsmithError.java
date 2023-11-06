@@ -1150,7 +1150,14 @@ public enum AppsmithError {
             "Module cannot be deleted",
             ErrorType.BAD_REQUEST,
             null),
-    ;
+    UPDATE_ACCESS_TOKEN_FAILED(
+            400,
+            AppsmithErrorCode.UPDATE_ACCESS_TOKEN_FAILED.getCode(),
+            "Updating access token failed with error: {}.",
+            AppsmithErrorAction.DEFAULT,
+            "Access token could not be updated.",
+            ErrorType.AUTHENTICATION_ERROR,
+            null);
 
     private final Integer httpErrorCode;
     private final String appErrorCode;

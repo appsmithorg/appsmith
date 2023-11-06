@@ -59,9 +59,6 @@ export const areEnvironmentsFetched = (state: AppState, workspaceId: string) =>
   state.environments.data.length > 0 &&
   state.environments.data[0].workspaceId === workspaceId;
 
-export const isEnvInfoModalOpen = (state: AppState) =>
-  state.environments.showEnvDeployInfoModal;
-
 export const getCurrentEnvironmentId = (state: AppState) =>
   state.environments.currentEnvironmentDetails.id || "unused_env";
 

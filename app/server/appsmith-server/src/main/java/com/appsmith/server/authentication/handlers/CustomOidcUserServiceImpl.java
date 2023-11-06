@@ -71,7 +71,7 @@ public class CustomOidcUserServiceImpl extends CustomOidcUserServiceCEImpl
         setOauth2UserService(defaultUserService);
 
         // DEBUG: Log the response body of the UserInfo endpoint. Will be removed once the erroneous response is fixed.
-        webClient = WebClient.builder().filter(logResponse).build();
+        webClient = WebClientUtils.builder().filter(logResponse).build();
     }
 
     /*

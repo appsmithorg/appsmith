@@ -1,5 +1,8 @@
 import RBAC from "../locators/RBAClocators.json";
 import { ObjectsRegistry } from "./Objects/Registry";
+import { agHelper } from "./Objects/ObjectsCore";
+import oidcloc from "../locators/OIDCForm.json";
+import oidcData from "../fixtures/oidcSource.json";
 
 type ActionType =
   | "Create"
@@ -64,6 +67,8 @@ export class RBACHelper {
     "')]";
   // declare the locator role label
   public roleLabel = (role: string) => `[label="${role}"]`;
+  public removeTag = "button.bp3-tag-remove";
+  public scopeTag = ".bp3-tag";
 
   /**
    *
@@ -410,5 +415,52 @@ export class RBACHelper {
     cy.intercept("POST", "/api/v1/user-groups/invite", (req) => {
       req.headers["origin"] = "Cypress";
     }).as("mockPostInvite");
+  };
+
+  public fillOIDCForm = () => {
+    agHelper.ClearNType(
+      oidcloc.clientID,
+      Cypress.env("APPSMITH_OAUTH2_OIDC_CLIENT_ID"),
+    );
+    agHelper.ClearNType(
+      oidcloc.clientSecret,
+      Cypress.env("APPSMITH_OAUTH2_OIDC_CLIENT_SECRET"),
+    );
+    agHelper.ClearNType(
+      oidcloc.authorizationURL,
+      Cypress.env("APPSMITH_OAUTH2_OIDC_AUTH_URL"),
+    );
+    agHelper.ClearNType(
+      oidcloc.tokenURL,
+      Cypress.env("APPSMITH_OAUTH2_OIDC_TOKEN_URL"),
+    );
+    agHelper.ClearNType(
+      oidcloc.userInfo,
+      Cypress.env("APPSMITH_OAUTH2_OIDC_USER_INFO"),
+    );
+    agHelper.ClearNType(
+      oidcloc.jwtSetURI,
+      Cypress.env("APPSMITH_OAUTH2_OIDC_JWKS_URL"),
+    );
+
+    agHelper.GetElementLength(this.scopeTag).then((N) => {
+      this.deleteScope(N);
+    });
+
+    agHelper.ClearNType(oidcloc.scope, oidcData.scope);
+    agHelper.ClearNType(oidcloc.userAttribute, oidcData.userAttribute);
+    agHelper.GetNClick(oidcloc.saveBtn);
+  };
+
+  private deleteScope = (N: number) => {
+    // if N is zero, nothing to delete
+    if (N === 0) {
+      return;
+    }
+    // delete one element
+    agHelper.GetNClick(this.removeTag, 0, true);
+    // fetch the list items; there should be N - 1 items
+    agHelper.AssertElementLength(this.removeTag, N - 1);
+    this.deleteScope(N - 1);
   };
 }

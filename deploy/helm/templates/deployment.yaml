@@ -78,6 +78,7 @@ spec:
       containers:
         - name: {{ .Values.containerName }}
           securityContext:
+            allowPrivilegeEscalation: false
             {{- toYaml .Values.securityContext | nindent 12 }}
           {{- $customImage := .Values._image | default dict }}
           image: {{ dig "registry" "index.docker.io" $customImage }}/{{ dig "repository" "appsmith/appsmith-ee" $customImage }}:{{ dig "tag" (.Values.image.tag | default "latest") $customImage }}
@@ -127,8 +128,6 @@ spec:
             - secretRef:
                 name: {{ .Values.secretName }}
             {{- end }}
-          securityContext:
-            allowPrivilegeEscalation: false
       {{- if .Values.image.pullSecrets}}
       imagePullSecrets:
         - name: {{ .Values.image.pullSecrets }}

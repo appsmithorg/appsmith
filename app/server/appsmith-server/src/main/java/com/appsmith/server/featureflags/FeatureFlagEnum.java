@@ -54,6 +54,11 @@ public enum FeatureFlagEnum {
     release_connection_pool_size,
 
     /**
+     * Feature flag to detect if workflows feature is enabled for the tenant
+     */
+    release_workflows_enabled,
+
+    /**
      * feature flag for making connection pool sizes for plugins manually
      * configurable
      */

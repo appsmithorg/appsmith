@@ -103,7 +103,6 @@ describe(
         true,
         true,
         true,
-        "present",
       );
       agHelper
         .GetText(locators._widgetInDeployed(draggableWidgets.TEXT) + " span")

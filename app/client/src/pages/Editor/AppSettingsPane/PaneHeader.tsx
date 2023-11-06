@@ -31,23 +31,22 @@ function PaneHeader() {
     <StyledHeader
       className={classNames({
         "flex justify-start items-center py-2.5": !isAppSidebarEnabled,
-        "flex justify-between	flex-row-reverse items-center py-2.5 pl-4":
-          isAppSidebarEnabled,
+        "flex items-center py-2.5 pl-4": isAppSidebarEnabled,
       })}
     >
-      <Tooltip content={APP_SETTINGS_CLOSE_TOOLTIP()} placement="bottom">
-        <Button
-          className="ml-2 pr-2"
-          id="t--close-app-settings-pane"
-          isIconButton
-          kind="tertiary"
-          onClick={() => dispatch(closeAppSettingsPaneAction())}
-          size="md"
-          startIcon={
-            isAppSidebarEnabled ? "close-control" : "double-arrow-right"
-          }
-        />
-      </Tooltip>
+      {!isAppSidebarEnabled && (
+        <Tooltip content={APP_SETTINGS_CLOSE_TOOLTIP()} placement="bottom">
+          <Button
+            className="ml-2 pr-2"
+            id="t--close-app-settings-pane"
+            isIconButton
+            kind="tertiary"
+            onClick={() => dispatch(closeAppSettingsPaneAction())}
+            size="md"
+            startIcon={"double-arrow-right"}
+          />
+        </Tooltip>
+      )}
       <StyledText>{APP_SETTINGS_PANE_HEADER()}</StyledText>
     </StyledHeader>
   );
