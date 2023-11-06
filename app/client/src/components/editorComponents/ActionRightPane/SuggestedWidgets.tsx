@@ -49,6 +49,7 @@ import localStorage from "utils/localStorage";
 import { WIDGET_ID_SHOW_WALKTHROUGH } from "constants/WidgetConstants";
 import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
 import type { WidgetType } from "constants/WidgetConstants";
+import type { CollapsibleProps } from "components/common/Collapsible";
 import Collapsible from "components/common/Collapsible";
 
 const BINDING_GUIDE_GIF = `${ASSETS_CDN_URL}/binding.gif`;
@@ -309,6 +310,7 @@ interface SuggestedWidgetProps {
   actionName: string;
   suggestedWidgets: SuggestedWidget[];
   hasWidgets: boolean;
+  onCollapse: CollapsibleProps["onCollapse"];
 }
 
 function renderHeading(heading: string, subHeading: string) {
@@ -501,7 +503,7 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
 
   return (
     <SuggestedWidgetContainer id={BINDING_SECTION_ID}>
-      <Collapsible label={labelNew}>
+      <Collapsible label={labelNew} onCollapse={props.onCollapse}>
         {isTableWidgetPresentOnCanvas() && (
           <SubSection className="t--suggested-widget-existing">
             {renderHeading(

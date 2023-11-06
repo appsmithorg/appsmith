@@ -7,6 +7,9 @@ import { Classes, getTypographyByKey } from "design-system-old";
 
 const Label = styled.span`
   cursor: pointer;
+  min-height: 36px;
+  display: flex;
+  align-items: center;
 `;
 
 const CollapsibleWrapper = styled.div<{
@@ -25,6 +28,7 @@ const CollapsibleWrapper = styled.div<{
 
   .${BPClasses.COLLAPSE_BODY} {
     padding-top: ${(props) => props.theme.spaces[3]}px;
+    padding-bottom: ${(props) => props.theme.spaces[3]}px;
     height: 100%;
   }
 
@@ -42,9 +46,40 @@ const CollapsibleWrapper = styled.div<{
   }
 `;
 
+const GroupWrapper = styled.div`
+  min-height: 25%;
+  height: auto;
+
+  &.group-overflow {
+    height: 50%;
+  }
+`;
+
+export const CollapsibleGroupContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+`;
+
 interface DisabledCollapsibleProps {
   label: string;
   tooltipLabel?: string;
+}
+
+export interface CollapsibleProps {
+  expand?: boolean;
+  children: ReactNode;
+  label: string;
+  CustomLabelComponent?: (props: any) => JSX.Element;
+  isDisabled?: boolean;
+  datasourceId?: string;
+  containerRef?: MutableRefObject<HTMLDivElement | null>;
+  onCollapse?: (isCollapsed: boolean) => void;
+}
+
+interface CollapsibleGroupProps {
+  children: ReactNode;
+  height?: string;
 }
 
 export function DisabledCollapsible({
@@ -65,14 +100,8 @@ export function DisabledCollapsible({
   );
 }
 
-interface CollapsibleProps {
-  expand?: boolean;
-  children: ReactNode;
-  label: string;
-  CustomLabelComponent?: (props: any) => JSX.Element;
-  isDisabled?: boolean;
-  datasourceId?: string;
-  containerRef?: MutableRefObject<HTMLDivElement | null>;
+export function CollapsibleGroup({ children, height }: CollapsibleGroupProps) {
+  return <GroupWrapper style={{ height }}>{children}</GroupWrapper>;
 }
 
 export function Collapsible({
@@ -82,6 +111,7 @@ export function Collapsible({
   datasourceId,
   expand = true,
   label,
+  onCollapse,
 }: CollapsibleProps) {
   const [isOpen, setIsOpen] = useState(!!expand);
 
@@ -94,6 +124,7 @@ export function Collapsible({
       }
     }
     setIsOpen(openStatus);
+    onCollapse?.(openStatus);
   };
 
   useEffect(() => {
