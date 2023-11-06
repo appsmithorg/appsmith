@@ -7,7 +7,6 @@
   "checklistWidgetBtn": "[data-testid='checklist-widget']",
   "checklistConnectionBtn": "[data-testid='checklist-connection']",
   "checklistDeployBtn": "[data-testid='checklist-deploy']",
-  "datasourcePage": ".t--integrationsHomePage",
   "datasourceMock": ".t--mock-datasource",
   "createQuery": ".t--create-query",
   "widgetSidebar": ".t--widget-sidebar",

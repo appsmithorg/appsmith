@@ -7,6 +7,9 @@ import {
   homePage,
   locators,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  SidebarButton,
+} from "../../../../support/Pages/EditorNavigation";
 
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const queryLocators = require("../../../../locators/QueryEditor.json");
@@ -183,16 +186,16 @@ describe("MaintainContext&Focus", function () {
   });
 
   it("4. Datasource edit mode has to be maintained", () => {
-    entityExplorer.SelectEntityByName("Appsmith", "Datasources");
+    dataSources.navigateToDatasource("Appsmith");
     dataSources.EditDatasource();
-    agHelper.GoBack();
-    entityExplorer.SelectEntityByName("Github", "Datasources");
+    dataSources.navigateToDatasource("Github");
     dataSources.AssertDSEditViewMode("View");
-    entityExplorer.SelectEntityByName("Appsmith", "Datasources");
+    dataSources.navigateToDatasource("Appsmith");
     dataSources.AssertDSEditViewMode("Edit");
   });
 
   it("5. Maintain focus of form control inputs", () => {
+    EditorNavigation.sidebar(SidebarButton.Pages);
     entityExplorer.SelectEntityByName("SQL_Query");
     dataSources.ToggleUsePreparedStatement(false);
     entityExplorer.SelectEntityByName("S3_Query");

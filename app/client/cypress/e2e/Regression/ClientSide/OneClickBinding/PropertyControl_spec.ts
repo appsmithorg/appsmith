@@ -67,7 +67,7 @@ describe("excludeForAirgap", "One click binding control", () => {
       oneClickBindingLocator.otherActionSelector("Connect new datasource"),
     );
 
-    agHelper.AssertElementExist(onboardingLocator.datasourcePage);
+    agHelper.AssertElementExist(dataSources._newDatasourceContainer);
 
     agHelper.GetNClick(onboardingLocator.datasourceBackBtn);
 

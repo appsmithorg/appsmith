@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  SidebarButton,
+} from "../../../../support/Pages/EditorNavigation";
+
 const testdata = require("../../../../fixtures/testdata.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 
@@ -34,6 +38,7 @@ describe("API Panel Test Functionality", function () {
       action: "Delete",
       entityType: entityItems.Api,
     });
+    EditorNavigation.sidebar(SidebarButton.Pages);
     entityExplorer.AssertEntityAbsenceInExplorer("SecondAPI");
   });
 

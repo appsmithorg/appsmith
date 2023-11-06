@@ -56,7 +56,7 @@ describe("Entity explorer tests related to query and datasource", function () {
 
     /* eslint-disable */
     agHelper.RenameWithInPane(`${datasourceName}new`);
-    cy.contains(commonlocators.entityName, `${datasourceName}new`);
+    cy.contains(dataSources._datasourceCard, `${datasourceName}new`);
 
     // reverting the name
     agHelper.RenameWithInPane(datasourceName);

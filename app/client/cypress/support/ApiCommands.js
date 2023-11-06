@@ -270,6 +270,7 @@ Cypress.Commands.add("RenameEntity", (value, selectFirst) => {
 });
 
 Cypress.Commands.add("CreateApiAndValidateUniqueEntityName", (apiname) => {
+  dataSources.NavigateToDSCreateNew();
   cy.get(apiwidget.createapi).click({ force: true });
   cy.wait("@createNewApi");
   cy.get(apiwidget.resourceUrl).should("be.visible");

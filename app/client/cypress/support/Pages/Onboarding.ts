@@ -33,7 +33,7 @@ export class Onboarding {
       true,
     );
     this._aggregateHelper.AssertElementVisibility(
-      OnboardingLocator.datasourcePage,
+      this._datasources._newDatasourceContainer,
     );
     this.closeIntroModal();
     this._aggregateHelper.AssertElementAbsence(
