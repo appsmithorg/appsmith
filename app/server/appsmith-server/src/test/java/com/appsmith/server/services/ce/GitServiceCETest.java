@@ -83,6 +83,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
@@ -158,7 +159,7 @@ public class GitServiceCETest {
     @Autowired
     ApplicationPageService applicationPageService;
 
-    @Autowired
+    @SpyBean
     ApplicationService applicationService;
 
     @Autowired
@@ -4353,7 +4354,7 @@ public class GitServiceCETest {
                 .assertNext(applicationList -> {
                     for (Application application : applicationList) {
                         GitApplicationMetadata metadata = application.getGitApplicationMetadata();
-                        assertThat(metadata.getIsProtectedBranch()).isNotEqualTo(true);
+                        assertThat(metadata.getIsProtectedBranch()).isNotEqualTo(TRUE);
                         if (application.getId().equals(defaultAppId)) {
                             // the default app should have the empty protected branch list
                             assertThat(metadata.getBranchProtectionRules()).isEmpty();
@@ -4373,5 +4374,31 @@ public class GitServiceCETest {
         StepVerifier.create(updateProtectedBranchesMono)
                 .expectErrorMessage(AppsmithError.ACTION_IS_NOT_AUTHORIZED.getMessage("Protect branch"))
                 .verify();
+    }
+
+    @WithUserDetails("api_user")
+    @Test
+    public void updateProtectedBranches_WhenOneOperationFails_ChangesReverted() {
+        List<String> branchList = List.of("master", "develop", "feature");
+        // create three app with master as the default branch
+        String defaultAppId = createBranchedApplication(branchList);
+
+        Mockito.when(applicationService.updateProtectedBranches(Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.error(new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, "Test error")));
+
+        Mono<List<String>> updateProtectedBranchesMono = gitService.updateProtectedBranches(defaultAppId, List.of());
+
+        StepVerifier.create(updateProtectedBranchesMono)
+                .expectErrorMessage(AppsmithError.GENERIC_BAD_REQUEST.getMessage("Test error"))
+                .verify();
+
+        StepVerifier.create(applicationService.findById(defaultAppId))
+                .assertNext(application -> {
+                    GitApplicationMetadata metadata = application.getGitApplicationMetadata();
+                    assertThat(metadata.getIsProtectedBranch()).isNotEqualTo(TRUE);
+                    // the default app should have the empty protected branch list
+                    assertThat(metadata.getBranchProtectionRules()).isNullOrEmpty();
+                })
+                .verifyComplete();
     }
 }
