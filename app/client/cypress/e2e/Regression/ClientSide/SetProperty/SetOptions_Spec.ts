@@ -11,8 +11,8 @@ import {
 
 describe("Widget Property Setters - Part III - Tc #2409 - Validates SetOptions", () => {
   before(() => {
-    entityExplorer.DragDropWidgetNVerify(draggableWidgets.INPUT_V2, 300, 200);
-    entityExplorer.DragDropWidgetNVerify(draggableWidgets.SELECT, 300, 400);
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.INPUT_V2, 300);
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.SELECT, 300, 200);
     entityExplorer.SelectEntityByName("Input1");
     propPane.UpdatePropertyFieldValue("Default value", "{{Select1.options}}");
   });
@@ -171,7 +171,106 @@ describe("Widget Property Setters - Part III - Tc #2409 - Validates SetOptions",
     // deployMode.DeployApp();
   });
 
-  // afterEach(() => {
-  //   deployMode.NavigateBacktoEditor();
-  // });
+  it("2.  Update 'setOptions' property By JS function & By action selector", () => {
+    entityExplorer.SelectEntityByName("Select1");
+    propPane.EnterJSContext("Source Data", ""); // By JS function
+    entityExplorer.SelectEntityByName("JSObject1");
+    jsEditor.EditJSObj(`export default {
+      myFun1 () {
+        Select1.setOptions([{label: 'monday', value: 'weekday'}])
+        }
+    }`);
+    jsEditor.RunJSObj();
+    entityExplorer.SelectEntityByName("Page1");
+    agHelper
+      .GetText(
+        locators._widgetInDeployed(draggableWidgets.INPUT_V2) +
+          " " +
+          locators._input,
+        "val",
+      )
+      .then((val) => {
+        expect(val).to.include("monday").and.to.include("weekday");
+      });
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON, 300, 300);
+    propPane.EnterJSContext("onClick", "{{JSObject1.myFun1()}}"); // By action selector
+    entityExplorer.SelectEntityByName("JSObject1");
+    jsEditor.EditJSObj(`export default {
+      myFun1 () {
+        Select1.setOptions([{label: 'monday', value: 'weekday', code: '1'}])
+        }
+    }`);
+    deployMode.DeployApp();
+    agHelper
+      .GetText(
+        locators._widgetInDeployed(draggableWidgets.INPUT_V2) +
+          " " +
+          locators._input,
+        "val",
+      )
+      .then((val) => {
+        expect(val).to.eq("[]");
+      });
+    agHelper.ClickButton("Submit");
+    agHelper
+      .GetText(
+        locators._widgetInDeployed(draggableWidgets.INPUT_V2) +
+          " " +
+          locators._input,
+        "val",
+      )
+      .then((val) => {
+        expect(val)
+          .to.include("monday")
+          .and.to.include("weekday")
+          .and.to.include("1");
+      });
+    deployMode.NavigateBacktoEditor();
+  });
+
+  it("3. Update 'setOptions' property - during onPage load", () => {
+    entityExplorer.SelectEntityByName("JSObject1");
+    jsEditor.EnableDisableAsyncFuncSettings("myFun1", true, false); //for on page load execution
+    deployMode.DeployApp();
+    agHelper
+      .GetText(
+        locators._widgetInDeployed(draggableWidgets.INPUT_V2) +
+          " " +
+          locators._input,
+        "val",
+      )
+      .then((val) => {
+        expect(val)
+          .to.include("monday")
+          .and.to.include("weekday")
+          .and.to.include("1");
+      });
+    deployMode.NavigateBacktoEditor();
+  });
+
+  it("4. Update 'setOptions' property - during onPage load - via Promise", () => {
+    entityExplorer.SelectEntityByName("JSObject1");
+    jsEditor.EditJSObj(`export default {
+      myFun1 () {
+        return	new Promise((resolve,reject)=>{
+          Select1.setOptions([{label: 'monday', value: 'weekday'}])
+        })
+      }
+    }`);
+    deployMode.DeployApp();
+    agHelper
+      .GetText(
+        locators._widgetInDeployed(draggableWidgets.INPUT_V2) +
+          " " +
+          locators._input,
+        "val",
+      )
+      .then((val) => {
+        expect(val)
+          .to.include("monday")
+          .and.to.include("weekday")
+          .and.not.to.include("1");
+      });
+    deployMode.NavigateBacktoEditor();
+  });
 });
