@@ -405,8 +405,8 @@ export function EditorJSONtoForm(props: Props) {
   } = props;
 
   const {
+    actionRightPaneAdditionSections,
     actionRightPaneBackLink,
-    actionRightPaneSections,
     closeEditorLink,
     moreActionsMenu,
     saveActionName,
@@ -1139,12 +1139,12 @@ export function EditorJSONtoForm(props: Props) {
             <ActionRightPane
               actionName={actionName}
               actionRightPaneBackLink={actionRightPaneBackLink}
+              additionalSections={actionRightPaneAdditionSections}
               context={DatasourceStructureContext.QUERY_EDITOR}
               datasourceId={props.datasourceId}
               hasConnections={hasDependencies}
               hasResponse={!!output}
               pluginId={props.pluginId}
-              sections={actionRightPaneSections}
               suggestedWidgets={executedQueryData?.suggestedWidgets}
             />
           </SidebarWrapper>

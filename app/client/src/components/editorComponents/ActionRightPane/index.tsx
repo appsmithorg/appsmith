@@ -1,11 +1,4 @@
-import React, {
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { useContext, useEffect, useMemo, useRef } from "react";
 import styled from "styled-components";
 import { getTypographyByKey } from "design-system-old";
 import { Divider } from "design-system";
@@ -55,7 +48,6 @@ import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { getHasManagePagePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
-import type { Datasource } from "entities/Datasource";
 import { DatasourceStructureContext } from "entities/Datasource";
 import Collapsible, {
   CollapsibleGroup,
@@ -170,19 +162,15 @@ export function useEntityDependencies(actionName: string) {
   };
 }
 
-const hasAllSectionsCollapsed = (state: Record<string, boolean>) => {
-  return Object.values(state).every((bool) => bool);
-};
-
 function ActionSidebar({
   actionName,
   actionRightPaneBackLink,
+  additionalSections,
   context,
   datasourceId,
   hasConnections,
   hasResponse,
   pluginId,
-  sections,
   suggestedWidgets,
 }: {
   actionName: string;
@@ -192,7 +180,7 @@ function ActionSidebar({
   datasourceId: string;
   pluginId: string;
   context: DatasourceStructureContext;
-  sections?: React.ReactNode;
+  additionalSections?: React.ReactNode;
   actionRightPaneBackLink: React.ReactNode;
 }) {
   const dispatch = useDispatch();
@@ -205,14 +193,6 @@ function ActionSidebar({
     apiId?: string;
     queryId?: string;
   }>();
-  const collapseStateRef = useRef({
-    schemaSection: false,
-    bindingSection: true,
-  });
-
-  const [hasSectionsCollapsed, setHasSectionsCollapsed] = useState(() =>
-    hasAllSectionsCollapsed(collapseStateRef.current),
-  );
 
   const pluginName = useSelector((state) =>
     getPluginNameFromId(state, pluginId || ""),
@@ -310,30 +290,6 @@ function ActionSidebar({
     canEditPage && hasResponse && suggestedWidgets && !!suggestedWidgets.length;
   const showSnipingMode = hasResponse && hasWidgets;
 
-  const verifyAnUpdateCollapsedState = useCallback(() => {
-    const isCollapsed = hasAllSectionsCollapsed(collapseStateRef.current);
-
-    if (hasSectionsCollapsed !== isCollapsed) {
-      setHasSectionsCollapsed(isCollapsed);
-    }
-  }, [collapseStateRef, hasSectionsCollapsed, setHasSectionsCollapsed]);
-
-  const onSchemaCollapse = useCallback(
-    (isOpen: boolean) => {
-      collapseStateRef.current.schemaSection = !isOpen;
-      verifyAnUpdateCollapsedState();
-    },
-    [verifyAnUpdateCollapsedState],
-  );
-
-  const onSuggestedWidgetCollapse = useCallback(
-    (isOpen: boolean) => {
-      collapseStateRef.current.bindingSection = !isOpen;
-      verifyAnUpdateCollapsedState();
-    },
-    [verifyAnUpdateCollapsedState],
-  );
-
   if (
     !hasConnections &&
     !showSuggestedWidgets &&
@@ -344,25 +300,19 @@ function ActionSidebar({
     return <Placeholder>{createMessage(NO_CONNECTIONS)}</Placeholder>;
   }
 
-  const fixedCollapsibleGroupHeight = (() => {
-    if (!sections) return "100%";
-
-    return hasSectionsCollapsed ? "auto" : "50%";
-  })();
-
   return (
     <SideBar>
       {actionRightPaneBackLink}
       <CollapsibleGroupContainer>
-        {sections && (
+        {additionalSections && (
           <>
-            <CollapsibleGroup height={hasSectionsCollapsed ? "auto" : "50%"}>
-              {sections}
+            <CollapsibleGroup maxHeight={"50%"}>
+              {additionalSections}
             </CollapsibleGroup>
             <StyledDivider />
           </>
         )}
-        <CollapsibleGroup height={fixedCollapsibleGroupHeight}>
+        <CollapsibleGroup height={additionalSections ? "50%" : "100%"}>
           {showSchema && (
             <CollapsibleSection
               height={
@@ -379,7 +329,6 @@ function ActionSidebar({
                 datasourceId={datasourceId}
                 expand={!showSuggestedWidgets}
                 label="Schema"
-                onCollapse={onSchemaCollapse}
               >
                 <DataStructureListWrapper>
                   <DataStructureList
@@ -401,7 +350,6 @@ function ActionSidebar({
               <SuggestedWidgets
                 actionName={actionName}
                 hasWidgets={hasWidgets}
-                onCollapse={onSuggestedWidgetCollapse}
                 suggestedWidgets={suggestedWidgets as SuggestedWidget[]}
               />
             </CollapsibleSection>

@@ -46,13 +46,12 @@ const CollapsibleWrapper = styled.div<{
   }
 `;
 
-const GroupWrapper = styled.div`
+const GroupWrapper = styled.div<
+  Pick<CollapsibleGroupProps, "height" | "maxHeight">
+>`
   min-height: 25%;
-  height: auto;
-
-  &.group-overflow {
-    height: 50%;
-  }
+  height: ${({ height }) => height};
+  max-height: ${({ maxHeight }) => maxHeight};
 `;
 
 export const CollapsibleGroupContainer = styled.div`
@@ -74,12 +73,12 @@ export interface CollapsibleProps {
   isDisabled?: boolean;
   datasourceId?: string;
   containerRef?: MutableRefObject<HTMLDivElement | null>;
-  onCollapse?: (isCollapsed: boolean) => void;
 }
 
 interface CollapsibleGroupProps {
   children: ReactNode;
   height?: string;
+  maxHeight?: string;
 }
 
 export function DisabledCollapsible({
@@ -100,8 +99,16 @@ export function DisabledCollapsible({
   );
 }
 
-export function CollapsibleGroup({ children, height }: CollapsibleGroupProps) {
-  return <GroupWrapper style={{ height }}>{children}</GroupWrapper>;
+export function CollapsibleGroup({
+  children,
+  height,
+  maxHeight,
+}: CollapsibleGroupProps) {
+  return (
+    <GroupWrapper height={height} maxHeight={maxHeight}>
+      {children}
+    </GroupWrapper>
+  );
 }
 
 export function Collapsible({
@@ -111,7 +118,6 @@ export function Collapsible({
   datasourceId,
   expand = true,
   label,
-  onCollapse,
 }: CollapsibleProps) {
   const [isOpen, setIsOpen] = useState(!!expand);
 
@@ -124,7 +130,6 @@ export function Collapsible({
       }
     }
     setIsOpen(openStatus);
-    onCollapse?.(openStatus);
   };
 
   useEffect(() => {
