@@ -103,6 +103,7 @@ export function* lintTreeSaga(payload: LintTreeSagaRequestData) {
   yield call(logLatestLintPropertyErrors, {
     errors,
     dataTree: unevalTree,
+    configTree,
   });
 }
 

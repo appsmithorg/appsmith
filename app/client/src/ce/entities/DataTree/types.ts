@@ -29,6 +29,7 @@ export enum ENTITY_TYPE {
 }
 export const JSACTION_TYPE = ENTITY_TYPE.JSACTION;
 export const ACTION_TYPE = ENTITY_TYPE.ACTION;
+export const WIDGET_TYPE = ENTITY_TYPE.WIDGET;
 
 export enum EvaluationSubstitutionType {
   TEMPLATE = "TEMPLATE",

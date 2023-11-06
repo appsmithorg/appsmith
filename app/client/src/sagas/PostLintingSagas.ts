@@ -1,19 +1,49 @@
-import { ENTITY_TYPE, Severity } from "entities/AppsmithConsole";
+import { ENTITY_TYPE as AppsmithconsoleEntityType } from "entities/AppsmithConsole";
+import { Severity } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import type { DataTree } from "entities/DataTree/dataTreeTypes";
+import type {
+  ConfigTree,
+  DataTree,
+  DataTreeEntity,
+} from "entities/DataTree/dataTreeTypes";
 import { isEmpty } from "lodash";
 import AppsmithConsole from "utils/AppsmithConsole";
-import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
+import {
+  getEntityNameAndPropertyPath,
+  isAction,
+} from "@appsmith/workers/Evaluation/evaluationUtils";
 import type { LintErrorsStore } from "reducers/lintingReducers/lintErrorsReducers";
 import { getEntityId } from "utils/DynamicBindingUtils";
+import {
+  ACTION_TYPE,
+  JSACTION_TYPE,
+  WIDGET_TYPE,
+} from "@appsmith/entities/DataTree/types";
+import { isWidgetActionOrJsObject } from "@appsmith/entities/DataTree/utils";
+
+function getAppsmithConsoleEntityType(entity: DataTreeEntity) {
+  switch (entity.ENTITY_TYPE) {
+    case JSACTION_TYPE: {
+      return AppsmithconsoleEntityType.JSACTION;
+    }
+    case ACTION_TYPE: {
+      return AppsmithconsoleEntityType.ACTION;
+    }
+    case WIDGET_TYPE: {
+      return AppsmithconsoleEntityType.WIDGET;
+    }
+  }
+}
 
 // We currently only log lint errors in JSObjects
 export function* logLatestLintPropertyErrors({
+  configTree,
   dataTree,
   errors,
 }: {
   errors: LintErrorsStore;
   dataTree: DataTree;
+  configTree: ConfigTree;
 }) {
   const errorsToAdd = [];
   const errorsToRemove = [];
@@ -21,6 +51,8 @@ export function* logLatestLintPropertyErrors({
   for (const path of Object.keys(errors)) {
     const { entityName, propertyPath } = getEntityNameAndPropertyPath(path);
     const entity = dataTree[entityName];
+    const entityConfig = configTree[entityName];
+    if (!isWidgetActionOrJsObject(entity)) continue;
     // only log lint errors (not warnings)
     const lintErrorsInPath = errors[path].filter(
       (error) => error.severity === Severity.ERROR,
@@ -33,7 +65,11 @@ export function* logLatestLintPropertyErrors({
     }));
 
     const id = getEntityId(entity);
-    if (!id) continue;
+    const entityType = getAppsmithConsoleEntityType(entity);
+    if (!id || !entityType) continue;
+    const pluginTypeField = isAction(entity)
+      ? entityConfig.pluginType
+      : entity.type;
     const debuggerKey = id + propertyPath + "-lint";
 
     if (isEmpty(lintErrorsInPath)) {
@@ -50,8 +86,9 @@ export function* logLatestLintPropertyErrors({
         source: {
           id,
           name: entityName,
-          type: ENTITY_TYPE.JSACTION,
+          type: entityType,
           propertyPath,
+          pluginType: pluginTypeField,
         },
       },
     });
