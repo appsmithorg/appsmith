@@ -24,7 +24,7 @@ import { ControlIcons } from "icons/ControlIcons";
 import { MenuIcons } from "icons/MenuIcons";
 import { JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
 import { useAppWideAndOtherDatasource } from "pages/Editor/Explorer/hooks";
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import type { PartialExportParams } from "sagas/WidgetSelectionSagas";
 import styled from "styled-components";
@@ -33,12 +33,14 @@ import JSObjectsNQueriesExport from "./JSObjectsNQueriesExport";
 import WidgetsExport from "./WidgetsExport";
 import type { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureReducer";
 import { getPartialImportExportLoadingState } from "@appsmith/selectors/applicationSelectors";
+import type { JSLibrary } from "workers/common/JSLibrary";
 
 interface Props {
   handleModalClose: () => void;
   isModalOpen: boolean;
 }
 const PartiaExportModel = ({ handleModalClose, isModalOpen }: Props) => {
+  const [customJsLibraries, setCustomJsLibraries] = useState<JSLibrary[]>([]);
   const dispatch = useDispatch();
   const [selectedParams, setSelectedParams] = useState<PartialExportParams>({
     jsObjects: [],
@@ -54,6 +56,10 @@ const PartiaExportModel = ({ handleModalClose, isModalOpen }: Props) => {
   const partialImportExportLoadingState = useSelector(
     getPartialImportExportLoadingState,
   );
+
+  useEffect(() => {
+    setCustomJsLibraries(libraries.filter((lib) => !!lib.url));
+  }, [libraries]);
 
   const entities = useMemo(() => {
     const groupedData: Record<string, any> = {};
@@ -118,15 +124,16 @@ const PartiaExportModel = ({ handleModalClose, isModalOpen }: Props) => {
       {
         title: "Custom libraries",
         icon: <MenuIcons.LIBRARY_ICON height={16} keepColors width={16} />,
-        children: libraries ? (
-          <EntityCheckboxSelector
-            entities={libraries.filter((lib) => !!lib.url)}
-            onEntityChecked={(id, selected) =>
-              onEntitySelected("customJSLibs", id, selected)
-            }
-            selectedIds={selectedParams.customJSLibs}
-          />
-        ) : null,
+        children:
+          customJsLibraries.length > 0 ? (
+            <EntityCheckboxSelector
+              entities={customJsLibraries}
+              onEntityChecked={(id, selected) =>
+                onEntitySelected("customJSLibs", id, selected)
+              }
+              selectedIds={selectedParams.customJSLibs}
+            />
+          ) : null,
       },
       {
         title: "Widgets",
