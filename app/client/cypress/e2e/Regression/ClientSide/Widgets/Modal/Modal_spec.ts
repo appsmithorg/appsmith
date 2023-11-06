@@ -21,6 +21,7 @@ describe("Modal Widget test cases", function () {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.MODAL, 300, 300);
     entityExplorer.SelectEntityByName("Button1");
     propPane.EnterJSContext("onClick", "{{showModal('Modal1');}}");
+    agHelper.Sleep();
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.BUTTON));
     agHelper.Sleep(2000); //Wait for widgets to settle
 
@@ -48,9 +49,11 @@ describe("Modal Widget test cases", function () {
     entityExplorer.SelectEntityByName("Button1");
     propPane.ToggleJSMode("onClick", false);
     propPane.CreateModal("onClick");
+    agHelper.Sleep(500);
     propPane.CreateModal("onClick");
+    agHelper.Sleep(500);
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.BUTTON));
-
+    agHelper.Sleep(2000); //Wait for widgets to settle & be visible
     agHelper.ClickButton("Submit");
     agHelper.AssertElementLength(locators._modal, 3);
     agHelper.AssertElementVisibility(locators._modal, true, 2);
