@@ -101,6 +101,38 @@ const InputComponentWrapper = styled((props) => (
         line-height: 16px;
       }
     }
+
+    ${(props) =>
+      props.inputType === "PASSWORD" &&
+      `
+      .password-input {
+        height: 100%;
+        width: 36px;
+        cursor: pointer;
+
+        color:
+          ${
+            props.disabled
+              ? "var(--wds-color-icon-disabled)"
+              : "var(--wds-color-icon)"
+          };
+        justify-content: center;
+        height: 100%;
+        svg {
+          width: 20px;
+          height: 20px;
+        }
+        &:hover {
+          background-color: var(--wds-color-bg-hover);
+        }
+      }
+  `}
+
+  &.rtl {
+    input {
+      direction: rtl;
+    }
+  }
   }
 
   &&&& {
@@ -207,34 +239,6 @@ const InputComponentWrapper = styled((props) => (
           return "var(--wds-color-text-light)";
         }};
       }
-
-      ${(props) =>
-        props.inputType === "PASSWORD" &&
-        `
-      & + .bp3-input-action {
-        height: 100%;
-        width: 36px;
-        cursor: pointer;
-
-        .password-input {
-          color:
-            ${
-              props.disabled
-                ? "var(--wds-color-icon-disabled)"
-                : "var(--wds-color-icon)"
-            };
-          justify-content: center;
-          height: 100%;
-          svg {
-            width: 20px;
-            height: 20px;
-          }
-          &:hover {
-            background-color: var(--wds-color-bg-hover);
-          }
-        }
-      }
-    `}
     }
 
     & .${Classes.INPUT_GROUP} {
@@ -331,6 +335,12 @@ const StyledNumericInput = styled(NumericInput)`
           width: 12px;
         }
       }
+    }
+  }
+
+  &.rtl {
+    input {
+      direction: rtl;
     }
   }
 `;
@@ -471,13 +481,6 @@ class BaseInputComponent extends React.Component<
     this.props.onValueChange(valueAsString);
   };
 
-  getLeftIcon = () => {
-    if (this.props.iconName && this.props.iconAlign === "left") {
-      return this.props.iconName;
-    }
-    return this.props.leftIcon;
-  };
-
   getType(inputType: InputHTMLType = "TEXT") {
     switch (inputType) {
       case "PASSWORD":
@@ -534,7 +537,10 @@ class BaseInputComponent extends React.Component<
         allowNumericCharactersOnly
         autoFocus={this.props.autoFocus}
         buttonPosition={this.props.buttonPosition}
-        className={this.props.isLoading ? "bp3-skeleton" : Classes.FILL}
+        className={
+          (this.props.isLoading ? "bp3-skeleton" : Classes.FILL) +
+          (this.props.rtl ? " rtl" : "")
+        }
         disabled={this.props.disabled}
         inputRef={(el) => {
           if (this.props.inputRef && el) {
@@ -564,6 +570,7 @@ class BaseInputComponent extends React.Component<
       autoFocus={this.props.autoFocus}
       autoResize={!!this.props.isDynamicHeightEnabled}
       className={this.props.isLoading ? "bp3-skeleton" : ""}
+      dir={this.props.rtl ? "rtl" : "ltr"}
       disabled={this.props.disabled}
       maxLength={this.props.maxChars}
       onBlur={() => this.setFocusState(false)}
@@ -585,15 +592,14 @@ class BaseInputComponent extends React.Component<
       <InputGroup
         autoComplete={this.props.autoComplete}
         autoFocus={this.props.autoFocus}
-        className={this.props.isLoading ? "bp3-skeleton" : ""}
+        className={
+          (this.props.isLoading ? "bp3-skeleton" : "") +
+          (this.props.rtl ? " rtl" : "")
+        }
         disabled={this.props.disabled}
         inputRef={this.props.inputRef as IRef<HTMLInputElement>}
         intent={this.props.intent}
-        leftIcon={
-          this.props.iconName && this.props.iconAlign === "left"
-            ? this.props.iconName
-            : this.props.leftIcon
-        }
+        leftIcon={this.getLeftIcon()}
         maxLength={this.props.maxChars}
         onBlur={() => this.setFocusState(false)}
         onChange={this.onTextChange}
@@ -601,24 +607,47 @@ class BaseInputComponent extends React.Component<
         onKeyDown={this.onKeyDown}
         onKeyUp={this.onKeyUp}
         placeholder={this.props.placeholder}
-        rightElement={
-          this.props.inputType === "PASSWORD" ? (
-            <Icon
-              className="password-input"
-              name={this.state.showPassword ? "eye-off" : "eye-on"}
-              onClick={() => {
-                this.setState({ showPassword: !this.state.showPassword });
-              }}
-            />
-          ) : this.props.iconName && this.props.iconAlign === "right" ? (
-            <Tag icon={this.props.iconName} />
-          ) : undefined
-        }
+        rightElement={this.getRightIcon()}
         spellCheck={this.props.spellCheck}
         type={this.getType(this.props.inputHTMLType)}
         value={this.props.value}
       />
     );
+
+  private getLeftIcon = () => {
+    if (this.props.inputType === "PASSWORD" && this.props.rtl) {
+      return (
+        <Icon
+          className="password-input"
+          name={this.state.showPassword ? "eye-off" : "eye-on"}
+          onClick={() => {
+            this.setState({ showPassword: !this.state.showPassword });
+          }}
+        />
+      );
+    } else if (this.props.iconName && this.props.iconAlign === "left") {
+      return this.props.iconName;
+    } else {
+      return this.props.leftIcon;
+    }
+  };
+
+  private getRightIcon = () => {
+    if (this.props.inputType === "PASSWORD" && !this.props.rtl) {
+      return (
+        <Icon
+          className="password-input"
+          name={this.state.showPassword ? "eye-off" : "eye-on"}
+          onClick={() => {
+            this.setState({ showPassword: !this.state.showPassword });
+          }}
+        />
+      );
+    } else if (this.props.iconName && this.props.iconAlign === "right") {
+      return <Tag icon={this.props.iconName} />;
+    }
+  };
+
   private renderInputComponent = (
     inputHTMLType: InputHTMLType = "TEXT",
     isTextArea: boolean,
@@ -693,6 +722,7 @@ class BaseInputComponent extends React.Component<
             isDynamicHeightEnabled={isDynamicHeightEnabled}
             loading={isLoading}
             position={labelPosition}
+            rtl={this.props.rtl}
             text={label}
             width={labelWidth}
           />
@@ -789,6 +819,7 @@ export interface BaseInputComponentProps extends ComponentProps {
   errorTooltipBoundary?: string;
   shouldUseLocale?: boolean;
   buttonPosition?: NumberInputStepButtonPosition;
+  rtl?: boolean;
 }
 
 export default BaseInputComponent;

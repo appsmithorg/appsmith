@@ -97,8 +97,8 @@
     "cypress-log-to-output": "^1.1.2",
     "dayjs": "^1.10.6",
     "deep-diff": "^1.0.2",
-    "design-system": "npm:@appsmithorg/design-system@2.1.23",
-    "design-system-old": "npm:@appsmithorg/design-system-old@1.1.12",
+    "design-system": "npm:@appsmithorg/design-system@2.1.26",
+    "design-system-old": "npm:@appsmithorg/design-system-old@1.1.14",
     "downloadjs": "^1.4.7",
     "echarts": "^5.4.2",
     "echarts-gl": "^2.0.9",
@@ -288,7 +288,6 @@
     "@typescript-eslint/parser": "^6.7.4",
     "babel-plugin-lodash": "^3.3.4",
     "babel-plugin-module-resolver": "^4.1.0",
-    "canvas": "^2.11.2",
     "chalk": "^4.1.1",
     "compression-webpack-plugin": "^10.0.0",
     "cra-bundle-analyzer": "^0.1.0",
@@ -378,6 +377,7 @@
     "@blueprintjs/core@^3.47.0": "patch:@blueprintjs/core@npm%3A3.47.0#./.yarn/patches/@blueprintjs-core-npm-3.47.0-a5bc1ea927.patch",
     "@blueprintjs/icons": "3.22.0",
     "@types/react": "^17.0.2",
-    "postcss": "8.4.31"
+    "postcss": "8.4.31",
+    "@react-types/shared": "3.19.0"
   }
 }

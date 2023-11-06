@@ -23,6 +23,9 @@ import { openAppSettingsPaneAction } from "actions/appSettingsPaneActions";
 import { toast } from "design-system";
 import type { ThemeProp } from "WidgetProvider/constants";
 import { DISCORD_URL, DOCS_BASE_URL } from "constants/ThirdPartyConstants";
+import { useFeatureFlag } from "../../../utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { protectedModeSelector } from "selectors/gitSyncSelectors";
 
 export interface NavigationMenuDataProps extends ThemeProp {
   editMode: typeof noop;
@@ -35,6 +38,10 @@ export const GetNavigationMenuData = ({
 }: NavigationMenuDataProps): MenuItemData[] => {
   const dispatch = useDispatch();
   const history = useHistory();
+  const isAppSidebarEnabled = useFeatureFlag(
+    FEATURE_FLAG.release_app_sidebar_enabled,
+  );
+  const isProtectedMode = useSelector(protectedModeSelector);
 
   const applicationId = useSelector(getCurrentApplicationId);
 
@@ -135,7 +142,7 @@ export const GetNavigationMenuData = ({
       text: "Settings",
       onClick: openAppSettingsPane,
       type: MenuTypes.MENU,
-      isVisible: true,
+      isVisible: !isAppSidebarEnabled && !isProtectedMode,
     },
     {
       text: "Help",

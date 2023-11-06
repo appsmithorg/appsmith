@@ -3,9 +3,9 @@ import type {
   DataTree,
   DataTreeEntity,
 } from "entities/DataTree/dataTreeTypes";
-import type { IEntity } from ".";
+import type { IEntity } from "@appsmith/plugins/Linting/lib/entity/types";
 import type { Diff } from "deep-diff";
-import EntityFactory from ".";
+import EntityFactory from "@appsmith/plugins/Linting/lib/entity";
 import { PathUtils } from "plugins/Linting/utils/pathUtils";
 import { isJSAction } from "@appsmith/workers/Evaluation/evaluationUtils";
 import type { EntityParser } from "plugins/Linting/utils/entityParser";

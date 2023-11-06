@@ -9,6 +9,8 @@ import type { Template, TemplateFiltersResponse } from "api/TemplatesApi";
 const initialState: TemplatesReduxState = {
   isImportingTemplate: false,
   isImportingTemplateToApp: false,
+  isImportingStarterBuildingBlockToApp: false,
+  starterBuildingBlockDatasourcePrompt: false,
   loadingFilters: false,
   gettingAllTemplates: false,
   gettingTemplate: false,
@@ -135,6 +137,48 @@ const templateReducer = createReducer(initialState, {
       isImportingTemplateToApp: false,
     };
   },
+  [ReduxActionTypes.IMPORT_STARTER_BUILDING_BLOCK_TO_APPLICATION_INIT]: (
+    state: TemplatesReduxState,
+  ) => {
+    return {
+      ...state,
+      isImportingStarterBuildingBlockToApp: true,
+    };
+  },
+  [ReduxActionTypes.IMPORT_STARTER_TEMPLATE_TO_APPLICATION_SUCCESS]: (
+    state: TemplatesReduxState,
+  ) => {
+    return {
+      ...state,
+      isImportingStarterBuildingBlockToApp: false,
+    };
+  },
+  [ReduxActionTypes.SHOW_STARTER_BUILDING_BLOCK_DATASOURCE_PROMPT]: (
+    state: TemplatesReduxState,
+    action: ReduxAction<string>,
+  ) => {
+    return {
+      ...state,
+      buildingBlockSourcePageId: action.payload,
+      starterBuildingBlockDatasourcePrompt: true,
+    };
+  },
+  [ReduxActionTypes.HIDE_STARTER_BUILDING_BLOCK_DATASOURCE_PROMPT]: (
+    state: TemplatesReduxState,
+  ) => {
+    return {
+      ...state,
+      starterBuildingBlockDatasourcePrompt: false,
+    };
+  },
+  [ReduxActionErrorTypes.IMPORT_STARTER_BUILDING_BLOCK_TO_APPLICATION_ERROR]: (
+    state: TemplatesReduxState,
+  ) => {
+    return {
+      ...state,
+      isImportingStarterBuildingBlockToApp: false,
+    };
+  },
   [ReduxActionErrorTypes.GET_TEMPLATE_ERROR]: (state: TemplatesReduxState) => {
     return {
       ...state,
@@ -207,6 +251,9 @@ export interface TemplatesReduxState {
   templateSearchQuery: string;
   isImportingTemplate: boolean;
   isImportingTemplateToApp: boolean;
+  isImportingStarterBuildingBlockToApp: boolean;
+  starterBuildingBlockDatasourcePrompt: boolean;
+  buildingBlockSourcePageId?: string;
   templateNotificationSeen: boolean | null;
   showTemplatesModal: boolean;
   loadingFilters: boolean;

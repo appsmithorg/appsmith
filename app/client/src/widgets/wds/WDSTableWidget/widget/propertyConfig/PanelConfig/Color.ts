@@ -1,7 +1,7 @@
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { TableWidgetProps } from "widgets/TableWidgetV2/constants";
-import { ColumnTypes } from "widgets/TableWidgetV2/constants";
 import { hideByColumnType } from "../../propertyUtils";
+import { ColumnTypes } from "widgets/wds/WDSTableWidget/constants";
 
 export default {
   sectionName: "Color",

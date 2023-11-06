@@ -13,12 +13,7 @@ import styled from "styled-components";
 import { getCurrentUser } from "selectors/usersSelectors";
 import type { User } from "constants/userConstants";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
-import { Tooltip } from "design-system";
-import { importRemixIcon } from "design-system-old";
-
-const AppsLineIcon = importRemixIcon(
-  async () => import("remixicon-react/AppsLineIcon"),
-);
+import { Icon, Tooltip } from "design-system";
 
 interface BackToAppsButtonProps {
   currentApplicationDetails?: ApplicationPayload;
@@ -26,7 +21,7 @@ interface BackToAppsButtonProps {
   isMinimal?: boolean;
 }
 
-const StyledAppIcon = styled(AppsLineIcon)<{
+const StyledAppIcon = styled(Icon)<{
   primaryColor: string;
   navColorStyle: NavigationSetting["colorStyle"];
 }>`
@@ -64,8 +59,10 @@ const BackToAppsButton = (props: BackToAppsButtonProps) => {
         className="h-8 t--app-viewer-back-to-apps-button"
         icon={
           <StyledAppIcon
+            name="apps-line"
             navColorStyle={navColorStyle}
             primaryColor={primaryColor}
+            size="md"
           />
         }
         insideSidebar={insideSidebar}
