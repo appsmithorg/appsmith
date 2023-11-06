@@ -469,17 +469,13 @@ public class ApplicationForkingServiceTests {
         // timeoutException.
         Workspace workspace = workspaceService.create(targetWorkspace).block();
         testUserWorkspaceId = workspace.getId();
-        Application targetApplication = applicationForkingService
-                .forkApplicationToWorkspaceWithEnvironment(sourceAppId, testUserWorkspaceId, sourceEnvironmentId)
-                .block();
-        final Mono<Application> resultMono = Mono.just(targetApplication);
+        Mono<Application> resultMono = applicationForkingService.forkApplicationToWorkspaceWithEnvironment(
+                sourceAppId, testUserWorkspaceId, sourceEnvironmentId);
 
         StepVerifier.create(resultMono)
-                .assertNext(application -> {
-                    assertThat(application).isNotNull();
-                    assertThat(application.getName()).isEqualTo("1 - public app");
-                })
-                .verifyComplete();
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && throwable.getMessage().contains("Forking this application is not permitted at this time."))
+                .verify();
     }
 
     @Test
