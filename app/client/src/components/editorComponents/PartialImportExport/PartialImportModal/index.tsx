@@ -12,7 +12,10 @@ import {
 } from "@appsmith/constants/messages";
 import type { SetProgress } from "design-system-old";
 import { FilePickerV2, FileType } from "design-system-old";
-import { getIsImportingPartialApplication } from "@appsmith/selectors/applicationSelectors";
+import {
+  getIsImportingPartialApplication,
+  getPartialImportExportLoadingState,
+} from "@appsmith/selectors/applicationSelectors";
 import Statusbar from "pages/Editor/gitSync/components/Statusbar";
 import { Icon, Modal, ModalContent, ModalHeader, Text } from "design-system";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
@@ -147,6 +150,9 @@ function PartialImportModal(props: PartialImportModalProps) {
   const importingPartialApplication = useSelector(
     getIsImportingPartialApplication,
   );
+  const partialImportExportLoadingState = useSelector(
+    getPartialImportExportLoadingState,
+  );
   const workspaceId = useSelector(getCurrentWorkspaceId);
   const appId = useSelector(getCurrentApplicationId);
   const pageId = useSelector(getCurrentPageId);
@@ -175,11 +181,11 @@ function PartialImportModal(props: PartialImportModalProps) {
 
   useEffect(() => {
     // finished of importing application
-    if (appFileToBeUploaded && !importingPartialApplication) {
+    if (appFileToBeUploaded && partialImportExportLoadingState.isImportDone) {
       setAppFileToBeUploaded(null);
       onClose && onClose();
     }
-  }, [appFileToBeUploaded, importingPartialApplication]);
+  }, [appFileToBeUploaded, partialImportExportLoadingState]);
 
   const onRemoveFile = useCallback(() => setAppFileToBeUploaded(null), []);
 
