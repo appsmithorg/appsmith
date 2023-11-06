@@ -114,6 +114,7 @@ describe("Git sync apps", function () {
       201,
     );
   });
+
   it("2. Create api queries from api pane and cURL import , bind it to widget and clone page from page settings", () => {
     cy.fixture("datasources").then((datasourceFormData) => {
       cy.Createpage(newPage);
@@ -277,6 +278,7 @@ describe("Git sync apps", function () {
       .should("be.oneOf", ["morpheus", "This is a test"]);
     deployMode.NavigateBacktoEditor();
   });
+
   it("4. Create a new branch tempBranch, add jsObject and datasource query, move them to new page i.e. Child_Page and bind to widgets", () => {
     //cy.createGitBranch(tempBranch);
     gitSync.CreateGitBranch(tempBranch, true);
@@ -342,6 +344,7 @@ describe("Git sync apps", function () {
       });
     cy.wait(2000);
   });
+
   it("5. Commit and push changes, validate data binding on all pages in edit and deploy mode on tempBranch", () => {
     // commit and push changes
     cy.get(homePageLocators.publishButton).click();
@@ -439,6 +442,7 @@ describe("Git sync apps", function () {
       expect(cellData).to.be.equal("New Config");
     }); */
   });
+
   it("6. Switch to master and verify no uncommitted changes should be shown on master", () => {
     cy.switchGitBranch("master");
     cy.wait(2000);
@@ -449,6 +453,7 @@ describe("Git sync apps", function () {
       .and("have.text", "No changes to commit");
     cy.get(gitSyncLocators.closeGitSyncModal).click();
   });
+
   it("7. Switch to tempBranch , Clone the Child_Page, change it's visiblity to hidden and deploy, merge to master", () => {
     cy.switchGitBranch(tempBranch);
     cy.wait(2000);
@@ -479,6 +484,7 @@ describe("Git sync apps", function () {
     agHelper.AssertContains("Child_Page Copy", "not.exist");
     deployMode.NavigateBacktoEditor();
   });
+
   it("8. Verify Page visiblity on master in edit and deploy mode", () => {
     cy.switchGitBranch(mainBranch);
     cy.wait(2000);
@@ -486,6 +492,7 @@ describe("Git sync apps", function () {
     agHelper.AssertContains("Child_Page Copy", "not.exist");
     deployMode.NavigateBacktoEditor();
   });
+
   it("9. Create new branch, delete a page and merge back to master, verify page is deleted on master", () => {
     //cy.createGitBranch(tempBranch1);
     gitSync.CreateGitBranch(tempBranch1, true);
@@ -508,6 +515,7 @@ describe("Git sync apps", function () {
     cy.CheckAndUnfoldEntityItem("Pages");
     cy.get(`.t--entity-name:contains("Child_Page Copy")`).should("not.exist");
   });
+
   it("10. Import app from git and verify page order should not change", () => {
     cy.get(homePageLocators.homeIcon).click();
     cy.get(homePageLocators.optionsIcon).first().click();

@@ -148,11 +148,17 @@ export class EntityExplorer {
     index = 0,
     force = false,
   ) {
-    this.agHelper.GetNClick(
-      this._openNavigationTab(navigationTab),
-      index,
-      force,
-    );
+    this.agHelper
+      .GetAttribute(this._openNavigationTab(navigationTab), "data-selected")
+      .then(($value) => {
+        if ($value === "true") return;
+        else
+          this.agHelper.GetNClick(
+            this._openNavigationTab(navigationTab),
+            index,
+            force,
+          );
+      });
   }
 
   public AssertEntityPresenceInExplorer(entityNameinLeftSidebar: string) {
@@ -307,7 +313,7 @@ export class EntityExplorer {
   }
 
   public SearchWidgetPane(widgetType: string) {
-    this.NavigateToSwitcher("Widgets");
+    this.NavigateToSwitcher("Widgets", 0, true);
     this.agHelper.Sleep();
     this.agHelper.ClearTextField(this.locator._entityExplorersearch);
     this.agHelper.TypeText(

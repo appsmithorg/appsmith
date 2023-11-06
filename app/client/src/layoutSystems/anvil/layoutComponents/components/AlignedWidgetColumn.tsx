@@ -37,8 +37,14 @@ class AlignedWidgetColumn extends BaseLayoutComponent {
   static rendersWidgets: boolean = true;
 
   render() {
-    const { canvasId, isDropTarget, layoutId, layoutStyle, renderMode } =
-      this.props;
+    const {
+      canvasId,
+      isDropTarget,
+      layoutId,
+      layoutIndex,
+      layoutStyle,
+      renderMode,
+    } = this.props;
 
     return (
       <FlexLayout
@@ -46,6 +52,7 @@ class AlignedWidgetColumn extends BaseLayoutComponent {
         direction="column"
         isDropTarget={!!isDropTarget}
         layoutId={layoutId}
+        layoutIndex={layoutIndex}
         renderMode={renderMode}
         {...(layoutStyle || {})}
       >

@@ -3,6 +3,7 @@ import {
   locators,
   entityExplorer,
   propPane,
+  deployMode,
 } from "../../../../../support/Objects/ObjectsCore";
 
 import testdata from "../../../../../fixtures/testdata.json";
@@ -113,20 +114,22 @@ describe("Iframe widget Tests", function () {
     agHelper.ValidateToastMessage("URL Changed");
   });
 
-  // Border Color is failing Skipping to unblock - Fixing it in a separate PR by 20/10/2023
-  it.skip("3. Verify colors, borders and shadows", () => {
+  it("3. Verify colors, borders and shadows", () => {
     propPane.MoveToTab("Style");
 
-    // Border Color
+    // Change Border Color
     propPane.SelectColorFromColorPicker("bordercolor", 10);
-    agHelper.AssertCSS("iframe", "border-color", "rgb(185, 28, 28)");
 
-    // Verify border
+    // Change  border
     agHelper.GetNClick(propPane._segmentedControl("0px"));
-    agHelper.AssertCSS("iframe", "border-radius", "0px");
 
-    // Verify Box Shadow
+    // Change  Box Shadow
     agHelper.GetNClick(`${propPane._segmentedControl("0")}:contains('Large')`);
+
+    //Verify details in Deploy mode
+    deployMode.DeployApp();
+    //agHelper.AssertCSS("iframe", "border-color", "rgb(185, 28, 28)");
+    agHelper.AssertCSS("iframe", "border-radius", "0px");
     agHelper.AssertCSS(
       "iframe",
       "box-shadow",
