@@ -85,9 +85,32 @@ export const getShouldShowWidgetName = createSelector(
   (state: AppState) => state.ui.widgetDragResize.isDragging,
   (state: AppState) => state.ui.editor.isPreviewMode,
   (state: AppState) => state.ui.widgetDragResize.isAutoCanvasResizing,
-  (isResizing, isDragging, isPreviewMode, isAutoCanvasResizing) => {
+  // cannot import other selectors, breaks the app
+  (state) => {
+    const gitMetaData =
+      state.ui.applications.currentApplication?.gitApplicationMetadata;
+    const isGitConnected = !!(gitMetaData && gitMetaData?.remoteUrl);
+    const currentBranch = gitMetaData?.branchName;
+    const { protectedBranches = [] } = state.ui.gitSync;
+    if (!isGitConnected || !currentBranch) {
+      return false;
+    } else {
+      return protectedBranches.includes(currentBranch);
+    }
+  },
+  (
+    isResizing,
+    isDragging,
+    isPreviewMode,
+    isAutoCanvasResizing,
+    isProtectedMode,
+  ) => {
     return (
-      !isResizing && !isDragging && !isPreviewMode && !isAutoCanvasResizing
+      !isResizing &&
+      !isDragging &&
+      !isPreviewMode &&
+      !isAutoCanvasResizing &&
+      !isProtectedMode
     );
   },
 );
@@ -370,7 +393,9 @@ export const getDBPlugins = createSelector(getPlugins, (plugins) =>
 export const getDBAndRemotePlugins = createSelector(getPlugins, (plugins) =>
   plugins.filter(
     (plugin) =>
-      plugin.type === PluginType.DB || plugin.type === PluginType.REMOTE,
+      plugin.type === PluginType.DB ||
+      plugin.type === PluginType.REMOTE ||
+      plugin.type === PluginType.AI,
   ),
 );
 
@@ -684,7 +709,9 @@ export const getCurrentPageWidgets = createSelector(
   getPageWidgets,
   getCurrentPageId,
   (widgetsByPage, currentPageId) =>
-    currentPageId ? widgetsByPage[currentPageId].dsl : {},
+    currentPageId && widgetsByPage[currentPageId]
+      ? widgetsByPage[currentPageId].dsl
+      : {},
 );
 
 export const getParentModalId = (

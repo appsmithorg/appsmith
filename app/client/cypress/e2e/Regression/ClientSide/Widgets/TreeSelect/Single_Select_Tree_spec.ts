@@ -2,13 +2,18 @@ import formWidgetsPage from "../../../../../locators/FormWidgets.json";
 import publish from "../../../../../locators/publishWidgetspage.json";
 import commonlocators from "../../../../../locators/commonlocators.json";
 import widgetsPage from "../../../../../locators/Widgets.json";
-import * as _ from "../../../../../support/Objects/ObjectsCore";
+
+import {
+  agHelper,
+  deployMode,
+  propPane,
+} from "../../../../../support/Objects/ObjectsCore";
 
 const toggleJSButton = (name) => `.t--property-control-${name} .t--js-toggle`;
 
 describe("Single Select Widget Functionality", function () {
   before(() => {
-    _.agHelper.AddDsl("TreeSelectDsl");
+    agHelper.AddDsl("TreeSelectDsl");
   });
 
   it("1. Check isDirty meta property", function () {
@@ -19,11 +24,15 @@ describe("Single Select Widget Functionality", function () {
     );
     // Change defaultText
     cy.openPropertyPane("singleselecttreewidget");
-    cy.updateCodeInput(".t--property-control-defaultselectedvalue", "GREEN");
+    propPane.UpdatePropertyFieldValue("Default selected value", "GREEN");
     // Check if isDirty is reset to false
     cy.get(".t--widget-textwidget").should("contain", "false");
     // Interact with UI
-    cy.get(formWidgetsPage.treeSelectInput).last().click({ force: true });
+    cy.wait(1000)
+      .get(formWidgetsPage.treeSelectInput)
+      .last()
+      .click({ force: true })
+      .wait(500);
     cy.get(formWidgetsPage.treeSelectFilterInput).click().type("light");
     cy.treeSelectDropdown("Light Blue");
     // Check if isDirty is set to true
@@ -45,14 +54,22 @@ describe("Single Select Widget Functionality", function () {
   });
 
   it("3. To Validate Options", function () {
-    cy.get(formWidgetsPage.treeSelectInput).last().click({ force: true });
+    cy.wait(500)
+      .get(formWidgetsPage.treeSelectInput)
+      .last()
+      .click({ force: true })
+      .wait(500);
     cy.get(formWidgetsPage.treeSelectFilterInput).click().type("light");
     cy.treeSelectDropdown("Light Blue");
   });
 
   it("4. Clears the search field when widget is closed", () => {
     // Open the widget
-    cy.get(formWidgetsPage.treeSelectInput).last().click({ force: true });
+    cy.wait(500)
+      .get(formWidgetsPage.treeSelectInput)
+      .last()
+      .click({ force: true })
+      .wait(500);
     // Search for Green option in the search input
     cy.get(formWidgetsPage.treeSelectFilterInput).click().type("Green");
     // Select the Green Option
@@ -63,7 +80,11 @@ describe("Single Select Widget Functionality", function () {
       .first()
       .should("have.text", "Green");
     // Reopen the widget
-    cy.get(formWidgetsPage.treeSelectInput).last().click({ force: true });
+    cy.wait(500)
+      .get(formWidgetsPage.treeSelectInput)
+      .last()
+      .click({ force: true })
+      .wait(500);
     // Assert the search input is cleared
     cy.get(formWidgetsPage.treeSelectFilterInput)
       .invoke("val")
@@ -72,25 +93,29 @@ describe("Single Select Widget Functionality", function () {
 
   it("5. To Unchecked Visible Widget", function () {
     cy.togglebarDisable(commonlocators.visibleCheckbox);
-    _.deployMode.DeployApp();
+    deployMode.DeployApp();
     cy.get(
       publish.singleselecttreewidget + " " + ".rc-tree-select-single",
     ).should("not.exist");
-    _.deployMode.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
   });
 
   it("6. To Check Visible Widget", function () {
     cy.openPropertyPane("singleselecttreewidget");
     cy.togglebar(commonlocators.visibleCheckbox);
-    _.deployMode.DeployApp();
+    deployMode.DeployApp();
     cy.get(
       publish.singleselecttreewidget + " " + ".rc-tree-select-single",
     ).should("be.visible");
-    _.deployMode.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
   });
 
   it("7. To Check Option Not Found", function () {
-    cy.get(formWidgetsPage.treeSelectInput).last().click({ force: true });
+    cy.wait(500)
+      .get(formWidgetsPage.treeSelectInput)
+      .last()
+      .click({ force: true })
+      .wait(500);
     cy.get(formWidgetsPage.treeSelectFilterInput).click().type("ABCD");
     cy.get(".tree-select-dropdown .rc-tree-select-empty").contains(
       "No Results Found",
@@ -132,7 +157,11 @@ describe("Single Select Widget Functionality", function () {
     // Add a message to alert event in onOptionChange
     cy.testJsontext("onoptionchange", `{{showAlert('Option Changed')}}`);
     // Open the widget
-    cy.get(formWidgetsPage.treeSelectInput).last().click({ force: true });
+    cy.wait(500)
+      .get(formWidgetsPage.treeSelectInput)
+      .last()
+      .click({ force: true })
+      .wait(500);
     // Search for Green option in the search input
     cy.get(formWidgetsPage.treeSelectFilterInput).click().type("Green");
     // Select the Green Option
@@ -142,7 +171,11 @@ describe("Single Select Widget Functionality", function () {
     // Validate the toast message
     cy.validateToastMessage("Option Changed");
     // Open the widget
-    cy.get(formWidgetsPage.treeSelectInput).last().click({ force: true });
+    cy.wait(500)
+      .get(formWidgetsPage.treeSelectInput)
+      .last()
+      .click({ force: true })
+      .wait(500);
     // Search for Green option (selecting same option) in the search input
     cy.get(formWidgetsPage.treeSelectFilterInput).click().type("Green");
     // Select the Green Option

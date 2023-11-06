@@ -351,7 +351,7 @@ export const addDependantsOfNestedPropertyPaths = (
 };
 
 export function isWidget(
-  entity: Partial<DataTreeEntity> | WidgetEntityConfig,
+  entity: Partial<DataTreeEntity> | DataTreeEntityConfig,
 ): entity is WidgetEntity | WidgetEntityConfig {
   return (
     typeof entity === "object" &&

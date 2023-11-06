@@ -28,6 +28,9 @@ export const FEATURE_FLAG = {
   ab_show_templates_instead_of_blank_canvas_enabled:
     "ab_show_templates_instead_of_blank_canvas_enabled",
   release_app_sidebar_enabled: "release_app_sidebar_enabled",
+  release_git_branch_protection_enabled:
+    "release_git_branch_protection_enabled",
+  license_widget_rtl_support_enabled: "license_widget_rtl_support_enabled",
   release_show_partial_import_export_enabled:
     "release_show_partial_import_export_enabled",
 } as const;
@@ -58,6 +61,8 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   release_anvil_enabled: false,
   ab_show_templates_instead_of_blank_canvas_enabled: false,
   release_app_sidebar_enabled: false,
+  release_git_branch_protection_enabled: false,
+  license_widget_rtl_support_enabled: false,
   release_show_partial_import_export_enabled: false,
 };
 

@@ -83,13 +83,13 @@ import {
 import { IncorrectBindingError, validateResponse } from "./ErrorSagas";
 import type { ApiResponse } from "api/ApiResponses";
 import {
+  combinedPreviewModeSelector,
   getCurrentApplicationId,
   getCurrentLayoutId,
   getCurrentPageId,
   getCurrentPageName,
   getMainCanvasProps,
   getPageById,
-  previewModeSelector,
 } from "selectors/editorSelectors";
 import {
   executePageLoadActions,
@@ -675,7 +675,7 @@ export function* saveLayoutSaga(action: ReduxAction<{ isRetry?: boolean }>) {
   try {
     const currentPageId: string = yield select(getCurrentPageId);
     const currentPage: Page = yield select(getPageById(currentPageId));
-    const isPreviewMode: boolean = yield select(previewModeSelector);
+    const isPreviewMode: boolean = yield select(combinedPreviewModeSelector);
 
     const appMode: APP_MODE | undefined = yield select(getAppMode);
 

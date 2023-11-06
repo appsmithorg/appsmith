@@ -90,7 +90,7 @@ import {
 } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import GoogleSheetSchema from "../DatasourceInfo/GoogleSheetSchema";
+import DatasourceTabs from "../DatasourceInfo/DatasorceTabs";
 
 const ViewModeContainer = styled.div`
   display: flex;
@@ -468,13 +468,77 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
   }
 
   renderDatasourceInfo = () => {
-    const { datasource, formConfig, viewMode } = this.props;
+    const {
+      datasource,
+      formConfig,
+      formData,
+      isPluginAuthFailed,
+      isPluginAuthorized,
+      pageId,
+      plugin,
+      pluginPackageName,
+      viewMode,
+    } = this.props;
+    const isGoogleSheetPlugin = isGoogleSheetPluginDS(pluginPackageName);
+    const authErrorMessage = getDatasourceErrorMessage(
+      formData,
+      plugin,
+      this.state.filterParams.id,
+    );
+    const hideDatasourceSection =
+      isGoogleSheetPlugin &&
+      !isPluginAuthorized &&
+      authErrorMessage == GSHEET_AUTHORIZATION_ERROR;
+
     return (
-      <DatasourceInformation
-        config={formConfig[0]}
-        datasource={datasource}
-        viewMode={viewMode}
-      />
+      <ViewModeWrapper data-testid="t--ds-review-section">
+        {datasource &&
+          isGoogleSheetPlugin &&
+          isPluginAuthFailed &&
+          datasource.id !== TEMP_DATASOURCE_ID && (
+            <AuthMessage
+              actionType={ActionType.AUTHORIZE}
+              datasource={datasource}
+              description={authErrorMessage}
+              isInViewMode
+              pageId={pageId}
+            />
+          )}
+        {!isNil(formConfig) && !isNil(datasource) && !hideDatasourceSection && (
+          <DatasourceInformation
+            config={formConfig[0]}
+            datasource={datasource}
+            viewMode={viewMode}
+          />
+        )}
+      </ViewModeWrapper>
+    );
+  };
+
+  shouldShowTabs = () => {
+    const { datasource, isPluginAuthorized, pluginPackageName } = this.props;
+
+    const isGoogleSheetPlugin = isGoogleSheetPluginDS(pluginPackageName);
+
+    const isGoogleSheetSchemaAvailable =
+      isGoogleSheetPlugin && isPluginAuthorized;
+
+    return isGoogleSheetSchemaAvailable && datasource;
+  };
+
+  renderTabsForViewMode = () => {
+    const { datasource } = this.props;
+    return (
+      <ViewModeContainer>
+        {this.shouldShowTabs() ? (
+          <DatasourceTabs
+            configChild={this.renderDatasourceInfo()}
+            datasource={datasource as Datasource}
+          />
+        ) : (
+          this.renderDatasourceInfo()
+        )}
+      </ViewModeContainer>
     );
   };
 
@@ -486,7 +550,6 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
       datasource,
       datasourceButtonConfiguration,
       datasourceId,
-      formConfig,
       formData,
       gsheetProjectID,
       gsheetToken,
@@ -526,13 +589,8 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
       GOOGLE_SHEETS_INFO_BANNER_MESSAGE,
     );
 
-    const hideDatasourceSection =
-      isGoogleSheetPlugin &&
-      !isPluginAuthorized &&
-      authErrorMessage == GSHEET_AUTHORIZATION_ERROR;
-
-    const isGoogleSheetSchemaAvailable =
-      isGoogleSheetPlugin && isPluginAuthorized;
+    const showingTabsOnViewMode =
+      this.shouldShowTabs() && viewMode && !isInsideReconnectModal;
 
     return (
       <>
@@ -546,6 +604,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
             isDeleting={isDeleting}
             isNewDatasource={createFlow}
             isPluginAuthorized={isPluginAuthorized}
+            noBottomBorder={showingTabsOnViewMode}
             pluginImage={pluginImage}
             pluginName={plugin?.name || ""}
             pluginType={plugin?.type || ""}
@@ -554,7 +613,11 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
           />
         )}
         <ResizerMainContainer>
-          <ResizerContentContainer className="saas-form-resizer-content">
+          <ResizerContentContainer
+            className={`saas-form-resizer-content ${
+              showingTabsOnViewMode && "saas-form-resizer-content-show-tabs"
+            }`}
+          >
             <DSEditorWrapper>
               <DSDataFilter
                 filterId={this.state.filterParams.id}
@@ -601,35 +664,9 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
                       {""}
                     </>
                   )}
-                  {viewMode && !isInsideReconnectModal && (
-                    <ViewModeContainer>
-                      <ViewModeWrapper>
-                        {datasource &&
-                        isGoogleSheetPlugin &&
-                        isPluginAuthFailed ? (
-                          <AuthMessage
-                            actionType={ActionType.AUTHORIZE}
-                            datasource={datasource}
-                            description={authErrorMessage}
-                            isInViewMode
-                            pageId={pageId}
-                          />
-                        ) : null}
-                        {!isNil(formConfig) &&
-                        !isNil(datasource) &&
-                        !hideDatasourceSection
-                          ? this.renderDatasourceInfo()
-                          : undefined}
-                      </ViewModeWrapper>
-                      {isGoogleSheetSchemaAvailable && datasource && (
-                        <GoogleSheetSchema
-                          datasourceId={datasourceId}
-                          key={datasourceId}
-                          pluginId={plugin?.id}
-                        />
-                      )}
-                    </ViewModeContainer>
-                  )}
+                  {viewMode &&
+                    !isInsideReconnectModal &&
+                    this.renderTabsForViewMode()}
                 </Form>
                 {/* Render datasource form call-to-actions */}
                 {datasource && (
