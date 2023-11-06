@@ -116,7 +116,7 @@ export const CodemirrorHintStyles = createGlobalStyle<{
 
     .CodeMirror-hint-header {
       padding: 8px;
-      font-size: 11px;
+      font-size: var(--ads-v2-font-size-1);
       color: var(--ads-v2-color-fg);
       pointer-events: none !important;
     }
@@ -151,7 +151,7 @@ export const CodemirrorHintStyles = createGlobalStyle<{
     .CodeMirror-Tern-completion {
       font-family: ${(props) => props.theme.fonts.code};
       display: flex;
-      font-size: 12px;
+      font-size: var(--ads-v2-font-size-2);
       padding-left: ${(props) => props.theme.spaces[11]}px !important;
       &:hover{
         background: var(--ads-v2-color-bg-subtle);
@@ -248,13 +248,14 @@ export const CodemirrorHintStyles = createGlobalStyle<{
   .CodeMirror-Tern-tooltip {
     font-family: ${(props) => props.theme.fonts.code};
     &&& {
-      font-size: 12px;
+      font-size: var(--ads-v2-font-size-2);
       z-index: 20;
       background: var(--ads-v2-color-bg);
       box-shadow: var(--ads-v2-shadow-popovers);
       border: 1px solid var(--ads-v2-color-border);
       z-index: 15px;
       font-weight: 500;
+      max-width: none;
       white-space: nowrap;
       .CodeMirror-Tern-fname {
         color: #304EAA;

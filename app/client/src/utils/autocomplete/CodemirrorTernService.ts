@@ -213,6 +213,7 @@ class CodeMirrorTernService {
     });
   }
 
+  // Forked from app/client/node_modules/codemirror/addon/tern/tern.js
   updateArgHints(cm: CodeMirror.Editor) {
     this.closeArgHints();
     this.activeArgType = null;
@@ -276,6 +277,7 @@ class CodeMirrorTernService {
     return true;
   }
 
+  // Forked from app/client/node_modules/codemirror/addon/tern/tern.js
   parseFnType(text: string) {
     const args = [];
     let pos = 3;
@@ -311,6 +313,7 @@ class CodeMirrorTernService {
     return { args: args, rettype: rettype && rettype[1] };
   }
 
+  // Forked from app/client/node_modules/codemirror/addon/tern/tern.js
   closeArgHints() {
     if (this.activeArgHints) {
       // @ts-expect-error no types found
@@ -322,6 +325,7 @@ class CodeMirrorTernService {
     return true;
   }
 
+  // Forked from app/client/node_modules/codemirror/addon/tern/tern.js
   showArgHints(cm: CodeMirror.Editor, pos: number) {
     this.closeArgHints();
     const cache = this.cachedArgHints,
