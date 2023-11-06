@@ -247,8 +247,10 @@ export default {
     Object.values(existingColumns).forEach((column) => {
       /* guard to not allow columns without id */
       if (column.id) {
-        column.isAscOrder = column.id === sortByColumn ? isAscOrder : undefined;
-        columns.push(column);
+        columns.push({
+          ...column,
+          isAscOrder: column.id === sortByColumn ? isAscOrder : undefined,
+        });
       }
     });
 
@@ -348,6 +350,7 @@ export default {
           } else {
             switch (columnType) {
               case "number":
+              case "currency":
                 return sortByOrder(
                   Number(a[sortByColumnOriginalId]) >
                     Number(b[sortByColumnOriginalId]),
@@ -771,7 +774,7 @@ export default {
     };
 
     let editableColumns = [];
-    const validatableColumns = ["text", "number"];
+    const validatableColumns = ["text", "number", "currency"];
 
     if (props.isAddRowInProgress) {
       Object.values(props.primaryColumns)
@@ -822,6 +825,7 @@ export default {
         /* Column type related validations */
         switch (editedColumn.columnType) {
           case "number":
+          case "currency":
             if (
               !_.isNil(validation.min) &&
               validation.min !== "" &&

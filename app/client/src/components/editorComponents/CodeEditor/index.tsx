@@ -903,6 +903,8 @@ class CodeEditor extends Component<Props, State> {
     );
     // @ts-expect-error: Types are not available
     this.editor.closeHint();
+
+    CodeMirrorTernService.closeArgHints();
   }
 
   private handleKeydown = (e: KeyboardEvent) => {
