@@ -10,12 +10,10 @@ describe("Datasource structure schema preview data", () => {
     featureFlagIntercept({ ab_gsheet_schema_enabled: true });
     dataSources.CreateDataSource("Postgres");
   });
+
   it("1. Table selection should be enabled and add template button absent", () => {
     dataSources.selectTabOnDatasourcePage("View data");
-    agHelper.TypeText(
-      dataSources._datasourceStructureSearchInput,
-      "public.users",
-    );
+    agHelper.TypeText(dataSources._datasourceStructureSearchInput, "users");
     agHelper.GetNClick(
       dataSources._dsPageTabContainerTableName("public.users"),
     );

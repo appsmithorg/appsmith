@@ -30,6 +30,7 @@ import io.micrometer.observation.ObservationRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.reactive.TransactionalOperator;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 
@@ -70,7 +71,8 @@ public class GitServiceImpl extends GitServiceCECompatibleImpl implements GitSer
             WorkspaceService workspaceService,
             RedisUtils redisUtils,
             ObservationRegistry observationRegistry,
-            GitPrivateRepoHelper gitPrivateRepoHelper) {
+            GitPrivateRepoHelper gitPrivateRepoHelper,
+            TransactionalOperator transactionalOperator) {
         super(
                 userService,
                 userDataService,
@@ -96,7 +98,8 @@ public class GitServiceImpl extends GitServiceCECompatibleImpl implements GitSer
                 workspaceService,
                 redisUtils,
                 observationRegistry,
-                gitPrivateRepoHelper);
+                gitPrivateRepoHelper,
+                transactionalOperator);
         this.applicationService = applicationService;
         this.applicationPermission = applicationPermission;
         this.workspacePermission = workspacePermission;
