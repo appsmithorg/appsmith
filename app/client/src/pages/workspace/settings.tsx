@@ -14,6 +14,7 @@ import {
 } from "@appsmith/utils/permissionHelpers";
 import {
   createMessage,
+  DOCUMENTATION,
   INVITE_USERS_PLACEHOLDER,
   SEARCH_USERS,
 } from "@appsmith/constants/messages";
@@ -108,7 +109,7 @@ export default function Settings() {
       icon: "book-line",
       className: "documentation-page-menu-item",
       onSelect: () => {},
-      text: "Documentation",
+      text: createMessage(DOCUMENTATION),
     },
   ];
 
