@@ -369,37 +369,6 @@ export class EntityExplorer {
       .trigger("mouseup", x, y, { eventConstructor: "MouseEvent" });
   }
 
-  public DragAndHoldNewWidget(
-    widgetType: string,
-    x = 300,
-    y = 100,
-    options = {} as DragDropWidgetOptions,
-  ) {
-    const { parentWidgetType, dropTargetId, skipWidgetSearch } = options;
-    if (!skipWidgetSearch) {
-      this.SearchWidgetPane(widgetType);
-    } else {
-      this.NavigateToSwitcher("Widgets", 0, true);
-    }
-
-    cy.get(this.locator._widgetPageIcon(widgetType))
-      .first()
-      .trigger("dragstart", { force: true })
-      .trigger("mousemove", x, y, { force: true });
-    cy.get(
-      dropTargetId
-        ? dropTargetId + this.locator._dropHere
-        : parentWidgetType
-        ? this.locator._widgetInCanvas(parentWidgetType) +
-          " " +
-          this.locator._dropHere
-        : this.locator._dropHere,
-    )
-      .first()
-      .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" })
-      .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" });
-  }
-
   public DragDropWidgetNVerify(
     widgetType: string,
     x = 300,
