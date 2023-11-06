@@ -1086,6 +1086,7 @@ export const GO_TO_SETTINGS = () => "Go to settings";
 export const NOW_PROTECT_BRANCH = () =>
   "You can now protect your default branch.";
 export const APPSMITH_ENTERPRISE = () => "Appsmith Enterprise";
+export const PROTECT_BRANCH_SUCCESS = () => "Changed protected branches";
 // Git Branch Protection end
 
 export const NAV_DESCRIPTION = () =>
