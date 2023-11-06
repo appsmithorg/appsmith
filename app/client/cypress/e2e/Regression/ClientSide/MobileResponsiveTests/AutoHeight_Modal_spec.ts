@@ -39,13 +39,9 @@ describe("validate auto height for modal widget on auto layout canvas", () => {
     agHelper.GetModalDropTargetId().then((id) => {
       dropTargetClass = `.drop-target-${id}`;
       // add an input widget to the container.
-      entityExplorer.DragDropWidgetNVerify(
-        draggableWidgets.INPUT_V2,
-        250,
-        10,
-        "",
-        dropTargetClass,
-      );
+      entityExplorer.DragDropWidgetNVerify(draggableWidgets.INPUT_V2, 250, 10, {
+        dropTargetId: dropTargetClass,
+      });
 
       agHelper
         .GetWidgetCSSHeight(getWidgetSelector(draggableWidgets.INPUT_V2))
@@ -63,13 +59,9 @@ describe("validate auto height for modal widget on auto layout canvas", () => {
       });
 
       // Add a child Table widget to the container.
-      entityExplorer.DragDropWidgetNVerify(
-        draggableWidgets.TABLE,
-        100,
-        76,
-        "",
-        dropTargetClass,
-      );
+      entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 100, 76, {
+        dropTargetId: dropTargetClass,
+      });
       agHelper.Sleep();
       agHelper
         .GetWidgetCSSHeight(getWidgetSelector(draggableWidgets.TABLE))
@@ -95,13 +87,9 @@ describe("validate auto height for modal widget on auto layout canvas", () => {
 
   it("2. modal widget should update height upon flex wrap on mobile viewport", () => {
     // add an input widget to the container.
-    entityExplorer.DragDropWidgetNVerify(
-      draggableWidgets.INPUT_V2,
-      50,
-      40,
-      "",
-      dropTargetClass,
-    );
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.INPUT_V2, 50, 40, {
+      dropTargetId: dropTargetClass,
+    });
     agHelper.Sleep();
     agHelper.GetWidgetCSSHeight(modalWidgetSelector).then((newHeight) => {
       const updatedHeight = parseInt(newHeight?.split("px")[0]);

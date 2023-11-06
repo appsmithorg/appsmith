@@ -33,12 +33,9 @@ describe("validate auto height for form widget on auto layout canvas", () => {
       });
 
     // add an input widget to the container.
-    entityExplorer.DragDropWidgetNVerify(
-      draggableWidgets.INPUT_V2,
-      100,
-      2,
-      "formwidget",
-    );
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.INPUT_V2, 100, 2, {
+      parentWidgetType: "formwidget",
+    });
 
     agHelper
       .GetWidgetCSSHeight(getWidgetSelector(draggableWidgets.INPUT_V2))
@@ -58,12 +55,9 @@ describe("validate auto height for form widget on auto layout canvas", () => {
       });
 
     // Add a child Table widget to the container.
-    entityExplorer.DragDropWidgetNVerify(
-      draggableWidgets.TABLE,
-      100,
-      76,
-      "formwidget",
-    );
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 100, 76, {
+      parentWidgetType: "formwidget",
+    });
     agHelper.Sleep();
     agHelper
       .GetWidgetCSSHeight(getWidgetSelector(draggableWidgets.TABLE))
@@ -92,12 +86,9 @@ describe("validate auto height for form widget on auto layout canvas", () => {
 
   it("2. form widget should update height upon flex wrap on mobile viewport", () => {
     // add an input widget to the container.
-    entityExplorer.DragDropWidgetNVerify(
-      draggableWidgets.INPUT_V2,
-      50,
-      40,
-      "formwidget",
-    );
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.INPUT_V2, 50, 40, {
+      parentWidgetType: "formwidget",
+    });
     agHelper.Sleep();
     agHelper
       .GetWidgetCSSHeight(getWidgetSelector(draggableWidgets.FORM))

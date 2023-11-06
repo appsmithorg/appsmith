@@ -38,12 +38,9 @@ describe("validate auto height for tabs widget on auto layout canvas", () => {
       });
 
     // add an input widget to the tabs widget.
-    entityExplorer.DragDropWidgetNVerify(
-      draggableWidgets.INPUT_V2,
-      100,
-      100,
-      "tabswidget",
-    );
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.INPUT_V2, 100, 100, {
+      parentWidgetType: "tabswidget",
+    });
 
     agHelper
       .GetWidgetCSSHeight(getWidgetSelector(draggableWidgets.INPUT_V2))
@@ -64,12 +61,9 @@ describe("validate auto height for tabs widget on auto layout canvas", () => {
 
   it("2. should update height on adding child widgets", () => {
     // Add a child Table widget to the container.
-    entityExplorer.DragDropWidgetNVerify(
-      draggableWidgets.TABLE,
-      300,
-      150,
-      "tabswidget",
-    );
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 300, 150, {
+      parentWidgetType: "tabswidget",
+    });
     agHelper.Sleep();
     agHelper
       .GetWidgetCSSHeight(getWidgetSelector(draggableWidgets.TABLE))
@@ -145,12 +139,9 @@ describe("validate auto height for tabs widget on auto layout canvas", () => {
 
   it("5. should update height on flex wrap at mobile viewport", () => {
     // add an input widget to the tabs widget, in the first row.
-    entityExplorer.DragDropWidgetNVerify(
-      draggableWidgets.INPUT_V2,
-      30,
-      70,
-      "tabswidget",
-    );
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.INPUT_V2, 30, 70, {
+      parentWidgetType: "tabswidget",
+    });
 
     // Switch to mobile viewport
     agHelper.SetCanvasViewportWidth(400);

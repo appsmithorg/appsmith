@@ -80,24 +80,18 @@ describe("List widget v2 onItemClick", () => {
 
     deleteAllWidgetsInContainer();
 
-    entityExplorer.DragDropWidgetNVerify(
-      draggableWidgets.INPUT_V2,
-      250,
-      50,
-      draggableWidgets.CONTAINER,
-    );
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.INPUT_V2, 250, 50, {
+      parentWidgetType: draggableWidgets.CONTAINER,
+    });
 
     agHelper.GetNClick(`${locators._widgetByName("Input1")} input`, 0, true);
     agHelper.AssertElementAbsence(locators._toastMsg);
 
     deleteAllWidgetsInContainer();
 
-    entityExplorer.DragDropWidgetNVerify(
-      draggableWidgets.SELECT,
-      250,
-      50,
-      draggableWidgets.CONTAINER,
-    );
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.SELECT, 250, 50, {
+      parentWidgetType: draggableWidgets.CONTAINER,
+    });
 
     //This is clicking Select Widget
     agHelper.ClickButton("Green", 0);
@@ -105,12 +99,9 @@ describe("List widget v2 onItemClick", () => {
 
     deleteAllWidgetsInContainer();
 
-    entityExplorer.DragDropWidgetNVerify(
-      draggableWidgets.BUTTON,
-      250,
-      50,
-      draggableWidgets.CONTAINER,
-    );
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON, 250, 50, {
+      parentWidgetType: draggableWidgets.CONTAINER,
+    });
 
     agHelper.ClickButton("Submit", 0);
     agHelper.WaitUntilToastDisappear("ListWidget_Blue_0");

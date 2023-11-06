@@ -24,12 +24,9 @@ describe("Validating use cases for Auto Dimension", () => {
         agHelper.SetCanvasViewportWidth(375);
       }
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.CONTAINER);
-      entityExplorer.DragDropWidgetNVerify(
-        "textwidget",
-        50,
-        20,
-        draggableWidgets.CONTAINER,
-      );
+      entityExplorer.DragDropWidgetNVerify("textwidget", 50, 20, {
+        parentWidgetType: draggableWidgets.CONTAINER,
+      });
 
       // Add multi-line text & verify if the container's height increases
 
