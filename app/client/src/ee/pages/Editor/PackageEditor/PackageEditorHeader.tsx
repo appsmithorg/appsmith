@@ -90,7 +90,7 @@ export function PackageEditorHeader() {
           />
         </HeaderSection>
 
-        <HelperBarInHeader isPreviewMode={false} />
+        <HelperBarInHeader isPreview={false} />
 
         <HeaderSection />
 
