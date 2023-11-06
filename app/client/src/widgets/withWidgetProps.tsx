@@ -23,9 +23,9 @@ import {
   getRenderMode,
   getMetaWidgetChildrenStructure,
   getMetaWidget,
-  previewModeSelector,
   getIsAutoLayoutMobileBreakPoint,
   getCanvasWidth,
+  combinedPreviewModeSelector,
 } from "selectors/editorSelectors";
 import {
   createCanvasWidget,
@@ -62,7 +62,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       widgetId,
     } = props;
 
-    const isPreviewMode = useSelector(previewModeSelector);
+    const isPreviewMode = useSelector(combinedPreviewModeSelector);
     const canvasWidget = useSelector((state: AppState) =>
       getWidget(state, widgetId),
     );

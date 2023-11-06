@@ -2,13 +2,18 @@ import formWidgetsPage from "../../../../../locators/FormWidgets.json";
 import publish from "../../../../../locators/publishWidgetspage.json";
 import commonlocators from "../../../../../locators/commonlocators.json";
 import widgetsPage from "../../../../../locators/Widgets.json";
-import * as _ from "../../../../../support/Objects/ObjectsCore";
+
+import {
+  agHelper,
+  deployMode,
+  propPane,
+} from "../../../../../support/Objects/ObjectsCore";
 
 const toggleJSButton = (name) => `.t--property-control-${name} .t--js-toggle`;
 
 describe("Single Select Widget Functionality", function () {
   before(() => {
-    _.agHelper.AddDsl("TreeSelectDsl");
+    agHelper.AddDsl("TreeSelectDsl");
   });
 
   it("1. Check isDirty meta property", function () {
@@ -19,7 +24,7 @@ describe("Single Select Widget Functionality", function () {
     );
     // Change defaultText
     cy.openPropertyPane("singleselecttreewidget");
-    cy.updateCodeInput(".t--property-control-defaultselectedvalue", "GREEN");
+    propPane.UpdatePropertyFieldValue("Default selected value", "GREEN");
     // Check if isDirty is reset to false
     cy.get(".t--widget-textwidget").should("contain", "false");
     // Interact with UI
@@ -72,21 +77,21 @@ describe("Single Select Widget Functionality", function () {
 
   it("5. To Unchecked Visible Widget", function () {
     cy.togglebarDisable(commonlocators.visibleCheckbox);
-    _.deployMode.DeployApp();
+    deployMode.DeployApp();
     cy.get(
       publish.singleselecttreewidget + " " + ".rc-tree-select-single",
     ).should("not.exist");
-    _.deployMode.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
   });
 
   it("6. To Check Visible Widget", function () {
     cy.openPropertyPane("singleselecttreewidget");
     cy.togglebar(commonlocators.visibleCheckbox);
-    _.deployMode.DeployApp();
+    deployMode.DeployApp();
     cy.get(
       publish.singleselecttreewidget + " " + ".rc-tree-select-single",
     ).should("be.visible");
-    _.deployMode.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
   });
 
   it("7. To Check Option Not Found", function () {

@@ -3,11 +3,7 @@ import React from "react";
 
 import type { PreviewsProps } from ".";
 import PreviewBox from "./PreviewBox";
-import { importRemixIcon } from "design-system-old";
-
-const AppsIcon = importRemixIcon(
-  async () => import("remixicon-react/AppsLineIcon"),
-);
+import { Icon } from "design-system";
 
 const AppPreview = (props: PreviewsProps) => {
   const { logo, shades } = props;
@@ -23,7 +19,7 @@ const AppPreview = (props: PreviewsProps) => {
       <div className="w-full h-full bg-white">
         <div className="flex flex-col">
           <ContentBox className="flex items-center gap-1 px-3 py-2  border-b rounded-none">
-            <AppsIcon className="w-6 h-6 p-1 text-gray-600 group-hover:bg-gray-100" />
+            <Icon className="p-1" name="apps-line" size="md" />
             <img
               alt="Branding Logo"
               className="block h-4 t--branding-logo"

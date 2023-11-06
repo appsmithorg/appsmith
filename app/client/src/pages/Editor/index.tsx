@@ -5,7 +5,7 @@ import type { RouteComponentProps } from "react-router-dom";
 import { withRouter } from "react-router-dom";
 import type { BuilderRouteParams } from "constants/routes";
 import type { AppState } from "@appsmith/reducers";
-import AppsmithIDE from "./AppsmithIDE";
+import IDE from "./IDE";
 import {
   getCurrentApplicationId,
   getIsEditorInitialized,
@@ -164,7 +164,7 @@ class Editor extends Component<Props> {
             </title>
           </Helmet>
           <GlobalHotKeys>
-            <AppsmithIDE />
+            <IDE />
             <GitSyncModal />
             <DisconnectGitModal />
             <GuidedTourModal />

@@ -51,6 +51,7 @@ import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { getHasManagePagePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import type { Datasource } from "entities/Datasource";
 import { DatasourceStructureContext } from "entities/Datasource";
 
 const SCHEMA_GUIDE_GIF = `${ASSETS_CDN_URL}/schema.gif`;
@@ -152,7 +153,7 @@ const Placeholder = styled.div`
 `;
 
 const DataStructureListWrapper = styled.div`
-  overflow-y: auto;
+  overflow-y: hidden;
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -176,7 +177,7 @@ interface CollapsibleProps {
   label: string;
   CustomLabelComponent?: (props: any) => JSX.Element;
   isDisabled?: boolean;
-  datasourceId?: string;
+  datasource?: Partial<Datasource>;
   containerRef?: MutableRefObject<HTMLDivElement | null>;
 }
 
@@ -189,7 +190,7 @@ export function Collapsible({
   children,
   containerRef,
   CustomLabelComponent,
-  datasourceId,
+  datasource,
   expand = true,
   label,
 }: CollapsibleProps) {
@@ -220,7 +221,7 @@ export function Collapsible({
         />
         {!!CustomLabelComponent ? (
           <CustomLabelComponent
-            datasourceId={datasourceId}
+            datasource={datasource}
             onRefreshCallback={() => handleCollapse(true)}
           />
         ) : (
@@ -427,7 +428,7 @@ function ActionSidebar({
           <Collapsible
             CustomLabelComponent={DatasourceStructureHeader}
             containerRef={schemaRef}
-            datasourceId={datasourceId}
+            datasource={{ id: datasourceId }}
             expand={!showSuggestedWidgets}
             label="Schema"
           >

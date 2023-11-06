@@ -29,7 +29,7 @@ export class WidgetEntity implements IEntity {
     this.entityParser = entityParser;
     this.diffGenerator = diffGenerator;
   }
-  getType(): ENTITY_TYPE {
+  getType() {
     return ENTITY_TYPE.WIDGET;
   }
   getRawEntity() {

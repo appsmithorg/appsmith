@@ -24,6 +24,8 @@ import { getJSVariableCreatedEvents } from "../JSObject/JSVariableEvents";
 import { errorModifier } from "../errorModifier";
 import { generateOptimisedUpdatesAndSetPrevState } from "../helpers";
 import DataStore from "../dataStore";
+import type { TransmissionErrorHandler } from "../fns/utils/Messenger";
+import { MessageType, sendMessage } from "utils/MessageUtil";
 
 export let replayMap: Record<string, ReplayEntity<any>> | undefined;
 export let dataTreeEvaluator: DataTreeEvaluator | undefined;
@@ -222,6 +224,19 @@ export default function (request: EvalWorkerSyncRequest) {
 
   return evalTreeResponse;
 }
+
+export const evalTreeTransmissionErrorHandler: TransmissionErrorHandler = (
+  messageId: string,
+  timeTaken: number,
+  responseData: unknown,
+) => {
+  const sanitizedData = JSON.parse(JSON.stringify(responseData));
+  sendMessage.call(self, {
+    messageId,
+    messageType: MessageType.RESPONSE,
+    body: { data: sanitizedData, timeTaken },
+  });
+};
 
 export function clearCache() {
   dataTreeEvaluator = undefined;

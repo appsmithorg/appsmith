@@ -321,13 +321,13 @@ function generateUniqueAccessor(
   throw new Error("Unable to generate a unique accessor");
 }
 
-function flattenModule(module: Record<string, any>) {
+export function flattenModule(module: Record<string, any>) {
   const keys = Object.keys(module);
   // If there are no keys other than default, return default.
   if (keys.length === 1 && keys[0] === "default") return module.default;
   // If there are keys other than default, return a new object with all the keys
   // and set its prototype of default export.
-  const libModule = Object.create(module.default);
+  const libModule = Object.create(module.default || {});
   for (const key of Object.keys(module)) {
     if (key === "default") continue;
     libModule[key] = module[key];

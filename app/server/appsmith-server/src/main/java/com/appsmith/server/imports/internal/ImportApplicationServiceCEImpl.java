@@ -503,6 +503,8 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
         MappedImportableResourcesDTO mappedImportableResourcesDTO = new MappedImportableResourcesDTO();
 
         Application importedApplication = importedDoc.getExportedApplication();
+        importedApplication.setServerSchemaVersion(importedDoc.getServerSchemaVersion());
+        importedApplication.setClientSchemaVersion(importedDoc.getClientSchemaVersion());
 
         Mono<Workspace> workspaceMono = workspaceService
                 .findById(workspaceId, permissionProvider.getRequiredPermissionOnTargetWorkspace())
