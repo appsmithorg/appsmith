@@ -8,8 +8,27 @@ import reactor.util.function.Tuple2;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 public interface AstServiceCE {
+
+    Mono<Map<MustacheBindingToken, String>> replaceValueInMustacheKeys(
+            Set<MustacheBindingToken> mustacheKeySet,
+            String oldName,
+            String newName,
+            int evalVersion,
+            Pattern oldNamePattern);
+
+    Mono<Map<MustacheBindingToken, String>> replaceValueInMustacheKeys(
+            Set<MustacheBindingToken> mustacheKeySet,
+            String oldName,
+            String newName,
+            int evalVersion,
+            Pattern oldNamePattern,
+            boolean isJSObject);
+
+    Mono<Map<MustacheBindingToken, String>> replaceValueInMustacheKeys(
+            Set<MustacheBindingToken> mustacheKeySet, Pattern oldNamePattern, String newName);
 
     /**
      * If the RTS AST endpoints are accessible, use the service to find global references in the binding value
