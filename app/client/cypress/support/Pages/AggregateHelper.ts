@@ -1089,6 +1089,9 @@ export class AggregateHelper extends ReusableHelper {
         win.location.href = url;
       });
     });
+    this.AssertElementAbsence(
+      this.locator._specificToast("Cannot read properties of undefined"),
+    );
     this.assertHelper.AssertDocumentReady();
     this.Sleep(4000); //for page to load for CI runs
     networkCallAlias &&
