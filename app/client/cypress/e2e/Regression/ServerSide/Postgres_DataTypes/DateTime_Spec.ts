@@ -9,11 +9,16 @@ import {
   assertHelper,
   entityItems,
 } from "../../../../support/Objects/ObjectsCore";
+import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
 describe("DateTime Datatype tests", function () {
   let dsName: any, query: string;
 
   before("Create Postgress DS", () => {
+    featureFlagIntercept({
+      ab_gsheet_schema_enabled: true,
+      ab_mock_mongo_schema_enabled: true,
+    });
     agHelper.AddDsl("Datatypes/DateTimeDTdsl");
     appSettings.OpenPaneAndChangeThemeColors(22, 32);
     dataSources.CreateDataSource("Postgres");

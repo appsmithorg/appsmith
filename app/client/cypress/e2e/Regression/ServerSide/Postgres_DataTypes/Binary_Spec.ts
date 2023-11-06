@@ -9,11 +9,16 @@ import {
   table,
   assertHelper,
 } from "../../../../support/Objects/ObjectsCore";
+import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
 describe("Binary Datatype tests", function () {
   let dsName: any, query: string, imageNameToUpload: string;
 
   before("Create DS, Importing App & setting theme", () => {
+    featureFlagIntercept({
+      ab_gsheet_schema_enabled: true,
+      ab_mock_mongo_schema_enabled: true,
+    });
     agHelper.AddDsl("Datatypes/BinaryDTdsl");
     appSettings.OpenPaneAndChangeThemeColors(7, -9);
     dataSources.CreateDataSource("Postgres");

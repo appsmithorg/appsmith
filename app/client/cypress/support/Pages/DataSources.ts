@@ -1382,10 +1382,7 @@ export class DataSources {
     } else {
       this.SaveDatasource();
     }
-    this.entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: dataSourceName,
-      action: "Refresh",
-    });
+    this.selectTabOnDatasourcePage("View data");
     cy.wait("@getDatasourceStructure").then(() => {
       cy.get(".bp3-collapse-body").contains(schema);
     });

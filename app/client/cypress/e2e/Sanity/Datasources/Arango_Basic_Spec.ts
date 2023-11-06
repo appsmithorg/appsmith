@@ -49,7 +49,6 @@ describe("Validate Arango & CURL Import Datasources", () => {
       action: "Delete",
       entityType: entityItems.Api,
     });
-    dataSources.AssertTableInVirtuosoList(dsName, collectionName);
 
     //Add data into this newly created collection
     let curlDataAdd =

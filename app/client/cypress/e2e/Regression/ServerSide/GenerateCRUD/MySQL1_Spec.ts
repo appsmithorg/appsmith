@@ -13,10 +13,16 @@ import {
 import EditorNavigation, {
   SidebarButton,
 } from "../../../../support/Pages/EditorNavigation";
-// import { INTERCEPT } from "../../../../fixtures/variables";
+import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 let dsName: any;
 
 describe("Validate MySQL Generate CRUD with JSON Form", () => {
+  before(() => {
+    featureFlagIntercept({
+      ab_gsheet_schema_enabled: true,
+      ab_mock_mongo_schema_enabled: true,
+    });
+  });
   // beforeEach(function() {
   //   if (INTERCEPT.MYSQL) {
   //     cy.log("MySQL DB is not found. Using intercept");

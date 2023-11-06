@@ -152,6 +152,7 @@ describe("GlobalSearch", function () {
     cy.fillAuthenticatedAPIForm();
     cy.saveDatasource();
 
+    EditorNavigation.sidebar(SidebarButton.Pages);
     cy.get(globalSearchLocators.createNew).click({ force: true });
     cy.get(".ads-v2-menu__menu-item span:contains('omnibarApiDatasource')")
       .first()

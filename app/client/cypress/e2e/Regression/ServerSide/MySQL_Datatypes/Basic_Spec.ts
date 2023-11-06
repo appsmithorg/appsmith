@@ -12,11 +12,19 @@ import inputData from "../../../../support/Objects/mySqlData";
 import EditorNavigation, {
   SidebarButton,
 } from "../../../../support/Pages/EditorNavigation";
+import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
 let dsName: any, query: string;
 
 describe("MySQL Datatype tests", function () {
   before("Load dsl, Change theme, Create Mysql DS", () => {
+    featureFlagIntercept(
+      {
+        ab_gsheet_schema_enabled: true,
+        ab_mock_mongo_schema_enabled: true,
+      },
+      false,
+    );
     agHelper.AddDsl("Datatypes/mySQLdsl");
 
     appSettings.OpenPaneAndChangeTheme("Moon");

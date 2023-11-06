@@ -8,11 +8,16 @@ import {
   table,
   assertHelper,
 } from "../../../../support/Objects/ObjectsCore";
+import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
 describe("Character Datatype tests", function () {
   let dsName: any, query: string;
 
   before("Create Postgress DS", () => {
+    featureFlagIntercept({
+      ab_gsheet_schema_enabled: true,
+      ab_mock_mongo_schema_enabled: true,
+    });
     agHelper.AddDsl("Datatypes/CharacterDTdsl");
     appSettings.OpenPaneAndChangeTheme("Pacific");
     dataSources.CreateDataSource("Postgres");
