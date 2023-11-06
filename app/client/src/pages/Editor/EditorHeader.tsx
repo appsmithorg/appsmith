@@ -107,6 +107,7 @@ export function EditorHeader() {
   const featureFlags = useSelector(selectFeatureFlags);
   const isSaving = useSelector(getIsPageSaving);
   const pageSaveError = useSelector(getPageSavingError);
+  const isProtectedMode = useSelector(protectedModeSelector);
 
   const deployLink = useHref(viewerURL, { pageId });
   const isAppSettingsPaneWithNavigationTabOpen = useSelector(
@@ -114,7 +115,6 @@ export function EditorHeader() {
   );
   const isPreviewingApp =
     isPreviewMode || isAppSettingsPaneWithNavigationTabOpen;
-  const isProtectedMode = useSelector(protectedModeSelector);
 
   const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false);
   const [showModal, setShowModal] = useState(false);
@@ -258,7 +258,7 @@ export function EditorHeader() {
             step={GUIDED_TOUR_STEPS.BUTTON_ONSUCCESS_BINDING}
           >
             <RealtimeAppEditors applicationId={applicationId} />
-            <ToggleModeButton />
+            {!isProtectedMode && <ToggleModeButton />}
             {applicationId && <EditorShareButton setShowModal={setShowModal} />}
             <Modal
               onOpenChange={(isOpen) => setShowModal(isOpen)}
