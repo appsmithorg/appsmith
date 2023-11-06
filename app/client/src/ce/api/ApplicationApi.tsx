@@ -470,7 +470,7 @@ export class ApplicationApi extends Api {
       formData.append("file", request.applicationFile);
     }
     return Api.post(
-      `${ApplicationApi.baseURL}/import/partial/${request.workspaceId}/${request.appId}?pageId=${request.pageId}}`,
+      `${ApplicationApi.baseURL}/import/partial/${request.workspaceId}/${request.appId}?pageId=${request.pageId}`,
       formData,
       null,
       {

@@ -55,12 +55,12 @@ export const initialState: ApplicationsReduxState = {
   loadingStates: {
     isFetchingAllRoles: false,
     isFetchingAllUsers: false,
-    partialImportExport: {
-      isExporting: false,
-      isExportDone: false,
-      isImporting: false,
-      isImportDone: false,
-    },
+  },
+  partialImportExport: {
+    isExporting: false,
+    isExportDone: false,
+    isImporting: false,
+    isImportDone: false,
   },
 };
 
@@ -430,39 +430,30 @@ export const handlers = {
   },
   [ReduxActionTypes.PARTIAL_IMPORT_INIT]: (state: ApplicationsReduxState) => ({
     ...state,
-    loadingStates: {
-      ...state.loadingStates,
-      partialImportExport: {
-        ...state.loadingStates.partialImportExport,
-        isImporting: true,
-        isImportDone: false,
-      },
+    partialImportExport: {
+      ...state.partialImportExport,
+      isImporting: true,
+      isImportDone: false,
     },
   }),
   [ReduxActionTypes.PARTIAL_IMPORT_SUCCESS]: (
     state: ApplicationsReduxState,
   ) => ({
     ...state,
-    loadingStates: {
-      ...state.loadingStates,
-      partialImportExport: {
-        ...state.loadingStates.partialImportExport,
-        isImporting: false,
-        isImportDone: true,
-      },
+    partialImportExport: {
+      ...state.partialImportExport,
+      isImporting: false,
+      isImportDone: true,
     },
   }),
   [ReduxActionErrorTypes.PARTIAL_IMPORT_ERROR]: (
     state: ApplicationsReduxState,
   ) => ({
     ...state,
-    loadingStates: {
-      ...state.loadingStates,
-      partialImportExport: {
-        ...state.loadingStates.partialImportExport,
-        isImporting: false,
-        isImportDone: true,
-      },
+    partialImportExport: {
+      ...state.partialImportExport,
+      isImporting: false,
+      isImportDone: true,
     },
   }),
   [ReduxActionTypes.SAVING_WORKSPACE_INFO]: (state: ApplicationsReduxState) => {
@@ -861,39 +852,30 @@ export const handlers = {
   },
   [ReduxActionTypes.PARTIAL_EXPORT_INIT]: (state: ApplicationsReduxState) => ({
     ...state,
-    loadingStates: {
-      ...state.loadingStates,
-      partialImportExport: {
-        ...state.loadingStates.partialImportExport,
-        isExporting: true,
-        isExportDone: false,
-      },
+    partialImportExport: {
+      ...state.partialImportExport,
+      isExporting: true,
+      isExportDone: false,
     },
   }),
   [ReduxActionTypes.PARTIAL_EXPORT_SUCCESS]: (
     state: ApplicationsReduxState,
   ) => ({
     ...state,
-    loadingStates: {
-      ...state.loadingStates,
-      partialImportExport: {
-        ...state.loadingStates.partialImportExport,
-        isExporting: false,
-        isExportDone: true,
-      },
+    partialImportExport: {
+      ...state.partialImportExport,
+      isExporting: false,
+      isExportDone: true,
     },
   }),
   [ReduxActionErrorTypes.PARTIAL_EXPORT_ERROR]: (
     state: ApplicationsReduxState,
   ) => ({
     ...state,
-    loadingStates: {
-      ...state.loadingStates,
-      partialImportExport: {
-        ...state.loadingStates.partialImportExport,
-        isExporting: false,
-        isExportDone: true,
-      },
+    partialImportExport: {
+      ...state.partialImportExport,
+      isExporting: false,
+      isExportDone: true,
     },
   }),
 };
@@ -937,12 +919,12 @@ export interface ApplicationsReduxState {
   loadingStates: {
     isFetchingAllRoles: boolean;
     isFetchingAllUsers: boolean;
-    partialImportExport: {
-      isExporting: boolean;
-      isExportDone: boolean;
-      isImporting: boolean;
-      isImportDone: boolean;
-    };
+  };
+  partialImportExport: {
+    isExporting: boolean;
+    isExportDone: boolean;
+    isImporting: boolean;
+    isImportDone: boolean;
   };
 }
 
