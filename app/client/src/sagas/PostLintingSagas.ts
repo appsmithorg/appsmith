@@ -3,11 +3,9 @@ import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { isEmpty } from "lodash";
 import AppsmithConsole from "utils/AppsmithConsole";
-import {
-  getEntityNameAndPropertyPath,
-  isJSAction,
-} from "@appsmith/workers/Evaluation/evaluationUtils";
+import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
 import type { LintErrorsStore } from "reducers/lintingReducers/lintErrorsReducers";
+import { getEntityId } from "utils/DynamicBindingUtils";
 
 // We currently only log lint errors in JSObjects
 export function* logLatestLintPropertyErrors({
@@ -23,8 +21,6 @@ export function* logLatestLintPropertyErrors({
   for (const path of Object.keys(errors)) {
     const { entityName, propertyPath } = getEntityNameAndPropertyPath(path);
     const entity = dataTree[entityName];
-    // only log lint errors in JSObjects
-    if (!isJSAction(entity)) continue;
     // only log lint errors (not warnings)
     const lintErrorsInPath = errors[path].filter(
       (error) => error.severity === Severity.ERROR,
@@ -35,7 +31,10 @@ export function* logLatestLintPropertyErrors({
       lineNumber: error.line,
       character: error.ch,
     }));
-    const debuggerKey = entity.actionId + propertyPath + "-lint";
+
+    const id = getEntityId(entity);
+    if (!id) continue;
+    const debuggerKey = id + propertyPath + "-lint";
 
     if (isEmpty(lintErrorsInPath)) {
       errorsToRemove.push({ id: debuggerKey });
@@ -49,7 +48,7 @@ export function* logLatestLintPropertyErrors({
         text: "LINT ERROR",
         messages: lintErrorMessagesInPath,
         source: {
-          id: entity.actionId,
+          id,
           name: entityName,
           type: ENTITY_TYPE.JSACTION,
           propertyPath,
