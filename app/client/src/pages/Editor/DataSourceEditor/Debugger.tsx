@@ -78,11 +78,15 @@ export const ResizerContentContainer = styled.div`
       border-bottom: 1px solid var(--ads-v2-color-border);
     }
   }
-  &.db-form-resizer-content.db-form-resizer-content-show-tabs {
+  &.db-form-resizer-content.db-form-resizer-content-show-tabs,
+  &.saas-form-resizer-content.saas-form-resizer-content-show-tabs {
     padding: 0;
     & .t--ds-form-header {
       border-bottom: none;
     }
+  }
+  &.saas-form-resizer-content.saas-form-resizer-content-show-tabs form {
+    padding-bottom: 0;
   }
   border-top: none;
   .db-form-content-container {

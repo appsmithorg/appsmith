@@ -871,16 +871,9 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
   };
 
   shouldShowTabs = () => {
-    const {
-      isEnabledForDSViewModeSchema,
-      isPluginAllowedToPreviewData,
-      pluginDatasourceForm,
-    } = this.props;
-    const isRestAPI =
-      pluginDatasourceForm === DatasourceComponentTypes.RestAPIDatasourceForm;
-    return (
-      isEnabledForDSViewModeSchema && isPluginAllowedToPreviewData && !isRestAPI
-    );
+    const { isEnabledForDSViewModeSchema, isPluginAllowedToPreviewData } =
+      this.props;
+    return isEnabledForDSViewModeSchema && isPluginAllowedToPreviewData;
   };
 
   renderTabsForViewMode = () => {

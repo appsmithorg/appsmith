@@ -86,4 +86,9 @@ public interface CustomApplicationRepositoryCE extends AppsmithRepository<Applic
 
     Mono<Long> getAllApplicationsCountAccessibleToARoleWithPermission(
             AclPermission permission, String permissionGroupId);
+
+    Mono<UpdateResult> unprotectAllBranches(String applicationId, AclPermission permission);
+
+    Mono<UpdateResult> protectBranchedApplications(
+            String applicationId, List<String> branchNames, AclPermission permission);
 }
