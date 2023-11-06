@@ -238,7 +238,6 @@ export class GitSync {
         this.assertHelper.AssertNetworkStatus("@connectGitLocalRepo");
         this.agHelper.GetNClick(this.startUsingGitButton);
         this.agHelper.AssertElementExist(this._bottomBarCommit, 0, 30000);
-        this.CloseGitSyncModal();
       }
 
       cy.wrap(repoName).as("gitRepoName");

@@ -19,11 +19,13 @@ import com.appsmith.server.dtos.GitDocsDTO;
 import com.appsmith.server.dtos.GitMergeDTO;
 import com.appsmith.server.dtos.GitPullDTO;
 import com.appsmith.server.dtos.ResponseDTO;
+import com.appsmith.server.dtos.ce.BranchProtectionRequestDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.GitDeployKeyGenerator;
 import com.appsmith.server.services.GitService;
 import com.fasterxml.jackson.annotation.JsonView;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
 import org.eclipse.jgit.lib.BranchTrackingStatus;
@@ -312,5 +314,21 @@ public class GitControllerCE {
     public Mono<ResponseDTO<String>> autoCommitDSLMigration(
             @PathVariable String defaultApplicationId, @RequestHeader(name = FieldName.BRANCH_NAME) String branchName) {
         return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
+    }
+
+    @JsonView(Views.Public.class)
+    @PostMapping("/branch/app/{defaultApplicationId}/protected")
+    public Mono<ResponseDTO<List<String>>> updateProtectedBranches(
+            @PathVariable String defaultApplicationId,
+            @RequestBody @Valid BranchProtectionRequestDTO branchProtectionRequestDTO) {
+        return service.updateProtectedBranches(defaultApplicationId, branchProtectionRequestDTO.getBranchNames())
+                .map(data -> new ResponseDTO<>(HttpStatus.OK.value(), data, null));
+    }
+
+    @JsonView(Views.Public.class)
+    @GetMapping("/branch/app/{defaultApplicationId}/protected")
+    public Mono<ResponseDTO<List<String>>> getProtectedBranches(@PathVariable String defaultApplicationId) {
+        return service.getProtectedBranches(defaultApplicationId)
+                .map(list -> new ResponseDTO<>(HttpStatus.OK.value(), list, null));
     }
 }

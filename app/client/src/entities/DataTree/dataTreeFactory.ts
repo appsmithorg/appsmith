@@ -30,7 +30,6 @@ export class DataTreeFactory {
     loadingEntities,
     metaWidgets,
     moduleInputs,
-    pageList,
     pluginDependencyConfig,
     theme,
     widgets,
@@ -88,8 +87,6 @@ export class DataTreeFactory {
     });
 
     const endWidgets = performance.now();
-
-    dataTree.pageList = pageList;
 
     dataTree.appsmith = {
       ...appData,

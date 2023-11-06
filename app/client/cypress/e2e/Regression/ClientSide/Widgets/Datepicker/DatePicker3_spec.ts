@@ -86,8 +86,11 @@ describe("Date picker widget testcases", () => {
     deployMode.DeployApp();
     agHelper.GetNClick(datePickerlocators.input);
     agHelper.ClearNType(datePickerlocators.inputHour, "12", 0, true);
+    agHelper.Sleep(500); // wait for the input to be updated for CI runs
     agHelper.ClearNType(datePickerlocators.inputMinute, "58", 0, true);
+    agHelper.Sleep(500); // wait for the input to be updated for CI runs
     agHelper.ClearNType(datePickerlocators.inputSecond, "59", 0, true);
+    agHelper.Sleep(500); // wait for the input to be updated for CI runs
     agHelper.PressEnter();
     agHelper
       .GetAttribute(datePickerlocators.input, "value")
