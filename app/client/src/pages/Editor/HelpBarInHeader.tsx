@@ -4,15 +4,15 @@ import HelpBar from "components/editorComponents/GlobalSearch/HelpBar";
 import { HeaderSection } from "./commons/EditorHeaderComponents";
 
 export const HelperBarInHeader = ({
-  isPreviewMode = false,
+  isPreview = false,
 }: {
-  isPreviewMode?: boolean;
+  isPreview?: boolean;
 }) => {
   return (
     <HeaderSection
       className={classNames({
-        "-translate-y-full opacity-0": isPreviewMode,
-        "translate-y-0 opacity-100": !isPreviewMode,
+        "-translate-y-full opacity-0": isPreview,
+        "translate-y-0 opacity-100": !isPreview,
         "transition-all transform duration-400": true,
         "help-bar": "true",
       })}

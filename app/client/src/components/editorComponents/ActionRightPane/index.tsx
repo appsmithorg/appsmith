@@ -55,6 +55,7 @@ import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { getHasManagePagePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import type { Datasource } from "entities/Datasource";
 import { DatasourceStructureContext } from "entities/Datasource";
 import Collapsible, {
   CollapsibleGroup,
@@ -124,7 +125,7 @@ const Placeholder = styled.div`
 `;
 
 const DataStructureListWrapper = styled.div`
-  overflow-y: auto;
+  overflow-y: hidden;
   height: 100%;
   display: flex;
   flex-direction: column;
