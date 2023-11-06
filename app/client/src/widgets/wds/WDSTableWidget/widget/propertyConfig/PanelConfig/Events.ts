@@ -1,5 +1,4 @@
 import type { TableWidgetProps } from "widgets/TableWidgetV2/constants";
-import { ColumnTypes } from "widgets/TableWidgetV2/constants";
 import { get } from "lodash";
 import {
   getBasePropertyPath,
@@ -7,6 +6,7 @@ import {
   hideByColumnType,
   getColumnPath,
 } from "../../propertyUtils";
+import { ColumnTypes } from "widgets/wds/WDSTableWidget/constants";
 
 export default {
   sectionName: "Events",
