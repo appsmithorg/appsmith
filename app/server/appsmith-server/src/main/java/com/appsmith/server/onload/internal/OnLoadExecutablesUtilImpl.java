@@ -1,6 +1,7 @@
 package com.appsmith.server.onload.internal;
 
 import com.appsmith.external.models.ActionDTO;
+import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.onload.executables.ExecutableOnLoadService;
 import com.appsmith.server.services.AstService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -14,7 +15,7 @@ public class OnLoadExecutablesUtilImpl extends OnLoadExecutablesUtilCEImpl imple
     public OnLoadExecutablesUtilImpl(
             AstService astService,
             ObjectMapper objectMapper,
-            ExecutableOnLoadService<ActionDTO> actionExecutableOnPageLoadService) {
-        super(astService, objectMapper, actionExecutableOnPageLoadService);
+            ExecutableOnLoadService<NewPage> pageExecutableOnLoadService) {
+        super(astService, objectMapper, pageExecutableOnLoadService);
     }
 }

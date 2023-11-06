@@ -82,7 +82,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
     private final AnalyticsService analyticsService;
     private final NewPageService newPageService;
     private final NewActionService newActionService;
-    private final OnLoadExecutablesUtil pageLoadActionsUtil;
+    private final OnLoadExecutablesUtil onLoadExecutablesUtil;
     private final SessionUserService sessionUserService;
     private final ActionCollectionService actionCollectionService;
     private final CollectionService collectionService;
@@ -281,7 +281,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
      * @param dsl
      * @param widgetNames
      * @param widgetDynamicBindingsMap
-     * @param pageId
+     * @param creatorId
      * @param layoutId
      * @param escapedWidgetNames
      * @return
@@ -290,9 +290,10 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
             JSONObject dsl,
             Set<String> widgetNames,
             Map<String, Set<String>> widgetDynamicBindingsMap,
-            String pageId,
+            String creatorId,
             String layoutId,
-            Set<String> escapedWidgetNames)
+            Set<String> escapedWidgetNames,
+            CreatorContextType creatorType)
             throws AppsmithException {
         if (dsl.get(FieldName.WIDGET_NAME) == null) {
             // This isn't a valid widget configuration. No need to traverse this.
@@ -346,11 +347,12 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                                         widgetName,
                                         widgetId,
                                         fieldPath,
-                                        pageId,
+                                        creatorId,
                                         layoutId,
                                         oldParent,
                                         nextKey,
-                                        "Index out of bounds for list");
+                                        "Index out of bounds for list",
+                                     creatorType);
                             }
                         } else {
                             throw new AppsmithException(
@@ -359,11 +361,12 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                                     widgetName,
                                     widgetId,
                                     fieldPath,
-                                    pageId,
+                                    creatorId,
                                     layoutId,
                                     oldParent,
                                     nextKey,
-                                    "Child of list is not in an indexed path");
+                                    "Child of list is not in an indexed path",
+                                creatorType);
                         }
                     }
                     // After updating the parent, check for the types
@@ -374,11 +377,12 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                                 widgetName,
                                 widgetId,
                                 fieldPath,
-                                pageId,
+                                creatorId,
                                 layoutId,
                                 oldParent,
                                 nextKey,
-                                "New element is null");
+                                "New element is null",
+                            creatorType);
                     } else if (parent instanceof String) {
                         // If we get String value, then this is a leaf node
                         isLeafNode = true;
@@ -397,11 +401,12 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                                         widgetName,
                                         widgetId,
                                         fieldPath,
-                                        pageId,
+                                        creatorId,
                                         layoutId,
                                         bindingAsString,
                                         nextKey,
-                                        "Binding path has no mustache bindings");
+                                        "Binding path has no mustache bindings",
+                                    creatorType);
                             } catch (JsonProcessingException e) {
                                 throw new AppsmithException(AppsmithError.JSON_PROCESSING_ERROR, parent);
                             }
@@ -438,7 +443,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                 if (!CollectionUtils.isEmpty(data)) {
                     object.putAll(data);
                     JSONObject child = extractAllWidgetNamesAndDynamicBindingsFromDSL(
-                            object, widgetNames, widgetDynamicBindingsMap, pageId, layoutId, escapedWidgetNames);
+                            object, widgetNames, widgetDynamicBindingsMap, creatorId, layoutId, escapedWidgetNames, creatorType);
                     newChildren.add(child);
                 }
             }
@@ -657,8 +662,8 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
     }
 
     private Mono<Boolean> sendUpdateLayoutAnalyticsEvent(
-            String pageId, String layoutId, JSONObject dsl, boolean isSuccess, Throwable error) {
-        return Mono.zip(sessionUserService.getCurrentUser(), newPageService.getById(pageId))
+            String creatorId, String layoutId, JSONObject dsl, boolean isSuccess, Throwable error, CreatorContextType creatorType) {
+        return Mono.zip(sessionUserService.getCurrentUser(), newPageService.getById(creatorId))
                 .flatMap(tuple -> {
                     User t1 = tuple.getT1();
                     NewPage t2 = tuple.getT2();
@@ -668,8 +673,10 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                             t1.getUsername(),
                             "appId",
                             t2.getApplicationId(),
-                            "pageId",
-                            pageId,
+                            "creatorId",
+                            creatorId,
+                            "creatorType",
+                            creatorType,
                             "layoutId",
                             layoutId,
                             "isSuccessfulExecution",
@@ -687,7 +694,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                 });
     }
 
-    private Mono<LayoutDTO> updateLayoutDsl(String pageId, String layoutId, Layout layout, Integer evaluatedVersion) {
+    private Mono<LayoutDTO> updateLayoutDsl(String creatorId, String layoutId, Layout layout, Integer evaluatedVersion, CreatorContextType creatorType) {
         JSONObject dsl = layout.getDsl();
         if (dsl == null) {
             // There is no DSL here. No need to process anything. Return as is.
@@ -699,9 +706,9 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
         Set<String> escapedWidgetNames = new HashSet<>();
         try {
             dsl = extractAllWidgetNamesAndDynamicBindingsFromDSL(
-                    dsl, widgetNames, widgetDynamicBindingsMap, pageId, layoutId, escapedWidgetNames);
+                    dsl, widgetNames, widgetDynamicBindingsMap, creatorId, layoutId, escapedWidgetNames, creatorType);
         } catch (Throwable t) {
-            return sendUpdateLayoutAnalyticsEvent(pageId, layoutId, dsl, false, t)
+            return sendUpdateLayoutAnalyticsEvent(creatorId, layoutId, dsl, false, t, creatorType)
                     .then(Mono.error(t));
         }
 
@@ -718,24 +725,24 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
         List<LayoutExecutableUpdateDTO> executableUpdatesRef = new ArrayList<>();
         List<String> messagesRef = new ArrayList<>();
 
-        AtomicReference<Boolean> validOnPageLoadExecutables = new AtomicReference<>(Boolean.TRUE);
+        AtomicReference<Boolean> validOnLoadExecutables = new AtomicReference<>(Boolean.TRUE);
 
         // setting the layoutOnLoadActionActionErrors to empty to remove the existing errors before new DAG calculation.
         layout.setLayoutOnLoadActionErrors(new ArrayList<>());
 
-        Mono<List<Set<DslExecutableDTO>>> allOnLoadExecutablesMono = pageLoadActionsUtil
+        Mono<List<Set<DslExecutableDTO>>> allOnLoadExecutablesMono = onLoadExecutablesUtil
                 .findAllOnLoadExecutables(
-                        pageId,
+                        creatorId,
                         evaluatedVersion,
                         widgetNames,
                         edges,
                         widgetDynamicBindingsMap,
                         flatmapPageLoadExecutables,
                         executablesUsedInDSL,
-                        CreatorContextType.PAGE)
+                        creatorType)
                 .onErrorResume(AppsmithException.class, error -> {
                     log.info(error.getMessage());
-                    validOnPageLoadExecutables.set(FALSE);
+                    validOnLoadExecutables.set(FALSE);
                     layout.setLayoutOnLoadActionErrors(List.of(new ErrorDTO(
                             error.getAppErrorCode(),
                             error.getErrorType(),
@@ -751,26 +758,26 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                 .flatMap(allOnLoadExecutables -> {
                     // If there has been an error (e.g. cyclical dependency), then don't update any actions.
                     // This is so that unnecessary updates don't happen to actions while the page is in invalid state.
-                    if (!validOnPageLoadExecutables.get()) {
+                    if (!validOnLoadExecutables.get()) {
                         return Mono.just(allOnLoadExecutables);
                     }
                     // Update these actions to be executed on load, unless the user has touched the executeOnLoad
                     // setting for this
-                    return pageLoadActionsUtil
+                    return onLoadExecutablesUtil
                             .updateExecutablesExecuteOnLoad(
                                     flatmapPageLoadExecutables,
-                                    pageId,
+                                    creatorId,
                                     executableUpdatesRef,
                                     messagesRef,
-                                    CreatorContextType.PAGE)
+                                    creatorType)
                             .thenReturn(allOnLoadExecutables);
                 })
                 .zipWith(newPageService
-                        .findByIdAndLayoutsId(pageId, layoutId, pagePermission.getEditPermission(), false)
+                        .findByIdAndLayoutsId(creatorId, layoutId, pagePermission.getEditPermission(), false)
                         .switchIfEmpty(Mono.error(new AppsmithException(
                                 AppsmithError.ACL_NO_RESOURCE_FOUND,
                                 FieldName.PAGE_ID + " or " + FieldName.LAYOUT_ID,
-                                pageId + ", " + layoutId))))
+                                creatorId + ", " + layoutId))))
                 // Now update the page layout with the page load actions and the graph.
                 .flatMap(tuple -> {
                     List<Set<DslExecutableDTO>> onLoadActions = tuple.getT1();
@@ -782,15 +789,13 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                     for (Layout storedLayout : layoutList) {
                         if (storedLayout.getId().equals(layoutId)) {
                             // Now that all the on load actions have been computed, set the vertices, edges, actions in
-                            // DSL
-                            // in the layout for re-use to avoid computing DAG unnecessarily.
+                            // DSL in the layout for re-use to avoid computing DAG unnecessarily.
                             layout.setLayoutOnLoadActions(onLoadActions);
                             layout.setAllOnPageLoadActionNames(actionNames);
                             layout.setActionsUsedInDynamicBindings(executablesUsedInDSL);
                             // The below field is to ensure that we record if the page load actions computation was
-                            // valid
-                            // when last stored in the database.
-                            layout.setValidOnPageLoadActions(validOnPageLoadExecutables.get());
+                            // valid when last stored in the database.
+                            layout.setValidOnPageLoadActions(validOnLoadExecutables.get());
 
                             BeanUtils.copyProperties(layout, storedLayout);
                             storedLayout.setId(layoutId);
@@ -821,7 +826,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                     layoutDTO.setActionUpdates(executableUpdatesRef);
                     layoutDTO.setMessages(messagesRef);
 
-                    return sendUpdateLayoutAnalyticsEvent(pageId, layoutId, finalDsl, true, null)
+                    return sendUpdateLayoutAnalyticsEvent(creatorId, layoutId, finalDsl, true, null, creatorType)
                             .thenReturn(layoutDTO);
                 });
     }
@@ -837,7 +842,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                     if (evaluationVersion == null) {
                         evaluationVersion = EVALUATION_VERSION;
                     }
-                    return updateLayoutDsl(pageId, layoutId, layout, evaluationVersion);
+                    return updateLayoutDsl(pageId, layoutId, layout, evaluationVersion, CreatorContextType.PAGE);
                 });
     }
 
