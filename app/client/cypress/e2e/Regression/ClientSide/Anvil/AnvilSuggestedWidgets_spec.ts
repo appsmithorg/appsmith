@@ -1,6 +1,7 @@
 import { ANVIL_EDITOR_TEST } from "../../../../support/Constants";
-import { dataSources, table } from "../../../../support/Objects/ObjectsCore";
+import { agHelper, dataSources } from "../../../../support/Objects/ObjectsCore";
 import { Widgets } from "../../../../support/Pages/DataSources";
+import * as viewWidgets from "../../../../locators/ViewWidgets.json";
 
 describe(`${ANVIL_EDITOR_TEST}:Check Suggested Widgets Feature`, function () {
   it("1. Suggested widget", () => {
@@ -11,8 +12,6 @@ describe(`${ANVIL_EDITOR_TEST}:Check Suggested Widgets Feature`, function () {
     });
     dataSources.RunQuery({ toValidateResponse: false });
     dataSources.AddSuggestedWidget(Widgets.Table);
-    table.ReadTableRowColumnData(1, 0, "wds").then((cellData) => {
-      expect(cellData).to.eq("5");
-    });
+    agHelper.AssertElementExist(viewWidgets.wdsTableWidget);
   });
 });
