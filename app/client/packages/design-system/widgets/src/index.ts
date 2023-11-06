@@ -16,6 +16,7 @@ export * from "./components/SwitchGroup";
 export * from "./components/TextInput";
 export * from "./components/TextArea";
 export * from "./components/Spinner";
+export * from "./components/Menu";
 
 export * from "./utils";
 export * from "./styles";

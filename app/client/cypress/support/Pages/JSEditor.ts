@@ -148,16 +148,16 @@ export class JSEditor {
 
   public CreateJSObject(
     JSCode: string,
-    options: ICreateJSObjectOptions = DEFAULT_CREATE_JS_OBJECT_OPTIONS,
+    options: Partial<ICreateJSObjectOptions> = {},
   ) {
     const {
       completeReplace,
-      lineNumber = 4,
+      lineNumber,
       paste,
-      prettify = true,
+      prettify,
       shouldCreateNewJSObj,
       toRun,
-    } = options;
+    } = { ...DEFAULT_CREATE_JS_OBJECT_OPTIONS, ...options };
 
     shouldCreateNewJSObj && this.NavigateToNewJSEditor();
     if (!completeReplace) {
