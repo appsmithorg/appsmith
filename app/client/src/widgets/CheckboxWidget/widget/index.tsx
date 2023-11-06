@@ -107,7 +107,7 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
 
   static getAnvilConfig(): AnvilConfig | null {
     return {
-      isLargeWidget: largeWidgets[this.type],
+      isLargeWidget: !!largeWidgets[this.type],
       widgetSize: {
         maxHeight: {},
         maxWidth: {},

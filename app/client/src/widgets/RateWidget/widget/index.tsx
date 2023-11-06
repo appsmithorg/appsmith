@@ -179,7 +179,7 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
 
   static getAnvilConfig(): AnvilConfig | null {
     return {
-      isLargeWidget: largeWidgets[this.type],
+      isLargeWidget: !!largeWidgets[this.type],
       widgetSize: (props: RateWidgetProps) => {
         let maxCount = props.maxCount;
         if (typeof maxCount !== "number")

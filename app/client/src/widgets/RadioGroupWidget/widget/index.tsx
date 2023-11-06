@@ -285,7 +285,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
 
   static getAnvilConfig(): AnvilConfig | null {
     return {
-      isLargeWidget: largeWidgets[this.type],
+      isLargeWidget: !!largeWidgets[this.type],
       widgetSize: {
         maxHeight: {},
         maxWidth: {},

@@ -204,7 +204,7 @@ class ButtonGroupWidget extends BaseWidget<
 
   static getAnvilConfig(): AnvilConfig | null {
     return {
-      isLargeWidget: largeWidgets[this.type],
+      isLargeWidget: !!largeWidgets[this.type],
       widgetSize: (props: ButtonGroupWidgetProps) => {
         let minWidth = 120;
         const buttonLength = Object.keys(props.groupButtons).length;

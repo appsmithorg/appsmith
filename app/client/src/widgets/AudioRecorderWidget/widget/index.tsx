@@ -84,7 +84,7 @@ class AudioRecorderWidget extends BaseWidget<
 
   static getAnvilConfig(): AnvilConfig | null {
     return {
-      isLargeWidget: largeWidgets[this.type],
+      isLargeWidget: !!largeWidgets[this.type],
       widgetSize: {
         maxHeight: {},
         maxWidth: {},
