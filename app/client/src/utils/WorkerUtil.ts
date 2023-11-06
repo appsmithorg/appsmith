@@ -5,6 +5,7 @@ import { uniqueId } from "lodash";
 import log from "loglevel";
 import type { TMessage } from "./MessageUtil";
 import { MessageType, sendMessage } from "./MessageUtil";
+import { trace } from "@opentelemetry/api";
 
 /**
  * Wrap a webworker to provide a synchronous request-response semantic.
@@ -166,6 +167,9 @@ export class GracefulWorkerService {
     let timeTaken;
 
     try {
+      const tracer = trace.getTracer("eval");
+      const span = tracer?.startSpan(method);
+
       sendMessage.call(this._Worker, {
         messageType: MessageType.REQUEST,
         body: {
@@ -174,8 +178,10 @@ export class GracefulWorkerService {
         },
         messageId,
       });
+
       // The `this._broker` method is listening to events and will pass response to us over this channel.
       const response = yield take(ch);
+      span?.end();
       timeTaken = response.timeTaken;
       const { data: responseData } = response;
       return responseData;
