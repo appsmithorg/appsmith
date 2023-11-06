@@ -124,7 +124,6 @@ describe("Git sync:", function () {
     entityExplorer.RenameEntityFromExplorer(
       "ParentApi1",
       "ParentApiRenamed",
-      true,
     );
 
     cy.switchGitBranch(parentBranchKey);
