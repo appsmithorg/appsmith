@@ -269,8 +269,8 @@ class RateLimitSolutionTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testLoginRateLimitedWithDifferentCases_invalidLoginShouldRateLimit() {
-        String userEmail = "testLoginRateLimited_invalidLoginShouldRateLimit@test.com";
-        String password = "testLoginRateLimited_invalidLoginShouldRateLimit";
+        String userEmail = "testLoginRateLimitedWithDifferentCases_invalidLoginShouldRateLimit@test.com";
+        String password = "testLoginRateLimitedWithDifferentCases_invalidLoginShouldRateLimit";
         User user = new User();
         user.setEmail(userEmail);
         user.setPassword(password);
