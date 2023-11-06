@@ -16,7 +16,7 @@ import {
   initialize,
   isValid,
 } from "redux-form";
-import { merge, isEmpty, get, set, partition, omit } from "lodash";
+import { get, isEmpty, merge, omit, partition, set } from "lodash";
 import equal from "fast-deep-equal/es6";
 import type {
   ReduxAction,
@@ -34,36 +34,34 @@ import {
 } from "selectors/editorSelectors";
 import {
   getDatasource,
-  getDatasourceDraft,
-  getPluginForm,
-  getGenerateCRUDEnabledPluginMap,
-  getPluginPackageFromDatasourceId,
-  getDatasources,
   getDatasourceActionRouteInfo,
-  getPlugin,
-  getEditorConfig,
-  getPluginByPackageName,
+  getDatasourceDraft,
+  getDatasources,
   getDatasourcesUsedInApplicationByActions,
+  getEditorConfig,
   getEntityExplorerDatasources,
+  getGenerateCRUDEnabledPluginMap,
+  getPlugin,
+  getPluginByPackageName,
+  getPluginForm,
+  getPluginPackageFromDatasourceId,
 } from "@appsmith/selectors/entitiesSelector";
+import type {
+  executeDatasourceQueryReduxAction,
+  UpdateDatasourceSuccessAction,
+} from "actions/datasourceActions";
 import {
   addMockDatasourceToWorkspace,
-  setDatasourceViewModeFlag,
-} from "actions/datasourceActions";
-import type {
-  UpdateDatasourceSuccessAction,
-  executeDatasourceQueryReduxAction,
-} from "actions/datasourceActions";
-import { updateDatasourceAuthState } from "actions/datasourceActions";
-import {
   changeDatasource,
-  fetchDatasourceStructure,
-  setDatasourceViewMode,
-  updateDatasourceSuccess,
-  createTempDatasourceFromForm,
-  removeTempDatasource,
   createDatasourceSuccess,
+  createTempDatasourceFromForm,
+  fetchDatasourceStructure,
+  removeTempDatasource,
   resetDefaultKeyValPairFlag,
+  setDatasourceViewMode,
+  setDatasourceViewModeFlag,
+  updateDatasourceAuthState,
+  updateDatasourceSuccess,
 } from "actions/datasourceActions";
 import type { ApiResponse } from "api/ApiResponses";
 import type { CreateDatasourceConfig } from "api/DatasourcesApi";
@@ -71,11 +69,15 @@ import DatasourcesApi from "api/DatasourcesApi";
 import type {
   Datasource,
   DatasourceStorage,
+  DatasourceStructureContext,
   MockDatasource,
   TokenResponse,
 } from "entities/Datasource";
-import { AuthenticationStatus, ToastMessageType } from "entities/Datasource";
-import { FilePickerActionStatus } from "entities/Datasource";
+import {
+  AuthenticationStatus,
+  FilePickerActionStatus,
+  ToastMessageType,
+} from "entities/Datasource";
 import {
   INTEGRATION_EDITOR_MODES,
   INTEGRATION_TABS,
@@ -116,7 +118,7 @@ import localStorage from "utils/localStorage";
 import log from "loglevel";
 import { APPSMITH_TOKEN_STORAGE_KEY } from "pages/Editor/SaaSEditor/constants";
 import { checkAndGetPluginFormConfigsSaga } from "sagas/PluginSagas";
-import { PluginType, PluginPackageName } from "entities/Action";
+import { PluginPackageName, PluginType } from "entities/Action";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import { getQueryParams } from "utils/URLUtils";
@@ -134,7 +136,7 @@ import {
   generateTemplateFormURL,
   integrationEditorURL,
   saasEditorDatasourceIdURL,
-} from "RouteBuilder";
+} from "@appsmith/RouteBuilder";
 import {
   DATASOURCE_NAME_DEFAULT_PREFIX,
   GOOGLE_SHEET_FILE_PICKER_OVERLAY_CLASS,
@@ -152,7 +154,6 @@ import {
   isGoogleSheetPluginDS,
 } from "utils/editorContextUtils";
 import { getDefaultEnvId } from "@appsmith/api/ApiUtils";
-import type { DatasourceStructureContext } from "pages/Editor/Explorer/Datasources/DatasourceStructure";
 import { MAX_DATASOURCE_SUGGESTIONS } from "pages/Editor/Explorer/hooks";
 import { klona } from "klona/lite";
 import {
@@ -426,6 +427,23 @@ export function* deleteDatasourceSaga(
   }
 }
 
+const getConnectionMethod = (
+  datasourceStoragePayload: DatasourceStorage,
+  pluginPackageName: string,
+) => {
+  const properties = get(
+    datasourceStoragePayload,
+    "datasourceConfiguration.properties",
+  );
+
+  switch (pluginPackageName) {
+    case PluginPackageName.MY_SQL:
+      return properties?.[1]?.value;
+    default:
+      return null;
+  }
+};
+
 function* updateDatasourceSaga(
   actionPayload: ReduxActionWithCallbacks<
     Datasource & { isInsideReconnectModal: boolean; currEditingEnvId?: string },
@@ -518,6 +536,10 @@ function* updateDatasourceSaga(
         pluginPackageName: plugin?.packageName || "",
         isFormValid: isFormValid,
         editedFields: formDiffPaths,
+        connectionMethod: getConnectionMethod(
+          datasourceStoragePayload,
+          pluginPackageName,
+        ),
       });
       toast.show(createMessage(DATASOURCE_UPDATE, responseData.name), {
         kind: "success",
@@ -1040,6 +1062,10 @@ function* createDatasourceFromFormSaga(
         pluginPackageName: plugin?.packageName || "",
         isFormValid: isFormValid,
         editedFields: formDiffPaths,
+        connectionMethod: getConnectionMethod(
+          datasourceStoragePayload,
+          plugin?.packageName,
+        ),
       });
       yield put({
         type: ReduxActionTypes.UPDATE_DATASOURCE_REFS,

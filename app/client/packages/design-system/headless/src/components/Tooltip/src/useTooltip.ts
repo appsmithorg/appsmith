@@ -35,14 +35,14 @@ export interface TooltipOptions {
 export function useTooltip({
   closeDelay = 0,
   initialOpen = false,
+  interaction = "hover",
+  offset: offsetProp = DEFAULT_TOOLTIP_OFFSET,
   onOpenChange: setControlledOpen,
   open: controlledOpen,
   openDelay = 0,
-  placement = "top",
-  interaction = "hover",
-  offset: offsetProp = DEFAULT_TOOLTIP_OFFSET,
-  shift: shiftProp = DEFAULT_TOOLTIP_SHIFT,
   padding: paddingProp = DEFAULT_TOOLTIP_PADDING,
+  placement = "top",
+  shift: shiftProp = DEFAULT_TOOLTIP_SHIFT,
 }: TooltipOptions = {}) {
   const [uncontrolledOpen, setUncontrolledOpen] = React.useState(initialOpen);
 

@@ -10,7 +10,7 @@ import { Colors } from "constants/Colors";
 import { IconWrapper } from "constants/IconConstants";
 import { importSvg } from "design-system-old";
 
-const HelpIcon = importSvg(() => import("assets/icons/control/help.svg"));
+const HelpIcon = importSvg(async () => import("assets/icons/control/help.svg"));
 
 export interface LabelWithTooltipProps {
   alignment?: Alignment;
@@ -29,6 +29,7 @@ export interface LabelWithTooltipProps {
   text: string;
   width?: number;
   isDynamicHeightEnabled?: boolean;
+  rtl?: boolean;
 }
 
 export interface LabelContainerProps {
@@ -50,6 +51,7 @@ export interface StyledLabelProps {
   $hasHelpText: boolean;
   position?: LabelPosition;
   $isDynamicHeightEnabled?: boolean;
+  rtl?: boolean;
 }
 
 interface TooltipIconProps {
@@ -164,7 +166,7 @@ export const StyledTooltip = styled(Tooltip)`
 
 export const StyledLabel = styled(Label)<StyledLabelProps>`
   &&& {
-    ${({ $compact, $hasHelpText, position }) => {
+    ${({ $compact, $hasHelpText, position, rtl }) => {
       if (!position && !$compact) return;
       if (
         position === LabelPosition.Left ||
@@ -173,7 +175,7 @@ export const StyledLabel = styled(Label)<StyledLabelProps>`
         return `margin-bottom: 0px; margin-right: ${LABEL_DEFAULT_GAP}`;
       return `margin-bottom: ${LABEL_DEFAULT_GAP}; ${
         $hasHelpText
-          ? `margin-right: ${LABEL_DEFAULT_GAP}`
+          ? `margin-${rtl ? "left" : "right"}: ${LABEL_DEFAULT_GAP}`
           : "margin-right: 0px"
       }`;
     }};
@@ -238,6 +240,7 @@ const LabelWithTooltip = React.forwardRef<
     loading,
     optionCount,
     position,
+    rtl,
     text,
     width,
   } = props;
@@ -262,6 +265,7 @@ const LabelWithTooltip = React.forwardRef<
       className={LABEL_CONTAINER_CLASS}
       compact={compact}
       data-testid={LABEL_CONTAINER_CLASS}
+      dir={rtl ? "rtl" : "ltr"}
       inline={inline}
       isDynamicHeightEnabled={isDynamicHeightEnabled}
       optionCount={optionCount}
@@ -290,6 +294,7 @@ const LabelWithTooltip = React.forwardRef<
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
           position={position}
+          rtl={rtl}
         >
           {text}
         </StyledLabel>

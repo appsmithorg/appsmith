@@ -17,7 +17,7 @@ import { PluginPackageName, PluginType } from "entities/Action";
 import { getQueryParams } from "utils/URLUtils";
 import { getGenerateCRUDEnabledPluginMap } from "@appsmith/selectors/entitiesSelector";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
-import { curlImportPageURL } from "RouteBuilder";
+import { curlImportPageURL } from "@appsmith/RouteBuilder";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { Spinner } from "design-system";
 
@@ -117,7 +117,7 @@ const CardContentWrapper = styled.div`
   padding-left: 13.5px;
 `;
 
-type ApiHomeScreenProps = {
+interface ApiHomeScreenProps {
   createNewApiAction: (
     pageId: string,
     from: EventLocation,
@@ -137,7 +137,7 @@ type ApiHomeScreenProps = {
   showUnsupportedPluginDialog: (callback: any) => void;
   createTempDatasourceFromForm: (data: any) => void;
   showSaasAPIs: boolean; // If this is true, only SaaS APIs will be shown
-};
+}
 
 type Props = ApiHomeScreenProps;
 
@@ -261,7 +261,9 @@ function NewApiScreen(props: Props) {
   const API_PLUGINS = plugins.filter((p) =>
     !showSaasAPIs
       ? p.packageName === PluginPackageName.GRAPHQL
-      : p.type === PluginType.SAAS || p.type === PluginType.REMOTE,
+      : p.type === PluginType.SAAS ||
+        p.type === PluginType.REMOTE ||
+        p.type === PluginType.AI,
   );
 
   return (

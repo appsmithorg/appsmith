@@ -10,6 +10,7 @@ import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
+import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
@@ -37,26 +38,25 @@ import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.helpers.UserPermissionUtils;
 import com.appsmith.server.migrations.ApplicationVersion;
 import com.appsmith.server.newactions.base.NewActionService;
+import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
-import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.LayoutActionService;
-import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
-import com.appsmith.server.services.ThemeService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.WorkspacePermission;
+import com.appsmith.server.themes.base.ThemeService;
 import com.google.common.base.Strings;
 import com.mongodb.bulk.BulkWriteResult;
 import com.mongodb.client.result.UpdateResult;
@@ -64,6 +64,7 @@ import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.reactive.TransactionalOperator;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
@@ -88,6 +89,7 @@ import static org.apache.commons.lang.ObjectUtils.defaultIfNull;
 
 @Slf4j
 @RequiredArgsConstructor
+@Service
 public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
     private final WorkspaceService workspaceService;
@@ -1259,14 +1261,17 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     Integer jsFuncCount = getActionCount(pluginTypeCollectionMap, PluginType.JS);
                     Integer saasQueryCount = getActionCount(pluginTypeCollectionMap, PluginType.SAAS);
                     Integer remoteQueryCount = getActionCount(pluginTypeCollectionMap, PluginType.REMOTE);
+                    Integer aiQueryCount = getActionCount(pluginTypeCollectionMap, PluginType.AI);
 
                     extraProperties.put("dbQueryCount", dbQueryCount);
                     extraProperties.put("apiCount", apiCount);
                     extraProperties.put("jsFuncCount", jsFuncCount);
                     extraProperties.put("saasQueryCount", saasQueryCount);
                     extraProperties.put("remoteQueryCount", remoteQueryCount);
+                    extraProperties.put("aiQueryCount", aiQueryCount);
                     extraProperties.put(
-                            "queryCount", (dbQueryCount + apiCount + jsFuncCount + saasQueryCount + remoteQueryCount));
+                            "queryCount",
+                            (dbQueryCount + apiCount + jsFuncCount + saasQueryCount + remoteQueryCount + aiQueryCount));
                     extraProperties.put("actionCollectionCount", objects.getT3().size());
                     extraProperties.put("jsLibsCount", objects.getT5().size());
                     extraProperties.put("appId", defaultIfNull(application.getId(), ""));
@@ -1361,23 +1366,25 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
         Mono<User> userMono = sessionUserService.getCurrentUser().cache();
         Mono<Application> applicationWithPoliciesMono =
                 this.setApplicationPolicies(userMono, application.getWorkspaceId(), application);
-        Mono<Application> applicationMono = applicationService.findByNameAndWorkspaceId(
+        Mono<Boolean> applicationNameTakenMono = applicationService.isApplicationNameTaken(
                 actualName, application.getWorkspaceId(), MANAGE_APPLICATIONS);
 
         // We are taking pessimistic approach as this flow is used in import application where we are using transactions
         // which creates problem if we hit duplicate key exception
-        return applicationMono
-                .flatMap(application1 -> this.createOrUpdateSuffixedApplication(application, name, 1 + suffix))
-                .switchIfEmpty(Mono.defer(
-                        () -> applicationWithPoliciesMono.zipWith(userMono).flatMap(tuple -> {
-                            Application application1 = tuple.getT1();
-                            application1.setModifiedBy(
-                                    tuple.getT2().getUsername()); // setting modified by to current user
-                            // We can't use create or createApplication method here as we are expecting update operation
-                            // if the
-                            // _id is available with application object
-                            return applicationService.save(application);
-                        })));
+        return applicationNameTakenMono.flatMap(isNameTaken -> {
+            if (isNameTaken) {
+                return this.createOrUpdateSuffixedApplication(application, name, 1 + suffix);
+            } else {
+                return applicationWithPoliciesMono.zipWith(userMono).flatMap(tuple -> {
+                    Application application1 = tuple.getT1();
+                    application1.setModifiedBy(tuple.getT2().getUsername()); // setting modified by to current user
+                    // We can't use create or createApplication method here as we are expecting update operation
+                    // if the
+                    // _id is available with application object
+                    return applicationService.save(application);
+                });
+            }
+        });
     }
 
     /**

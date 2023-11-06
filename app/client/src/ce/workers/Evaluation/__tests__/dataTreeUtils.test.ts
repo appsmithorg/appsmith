@@ -1,4 +1,4 @@
-import type { DataTree } from "@appsmith/entities/DataTree/types";
+import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { makeEntityConfigsAsObjProperties } from "@appsmith/workers/Evaluation/dataTreeUtils";
 import { smallDataSet } from "workers/Evaluation/__tests__/generateOpimisedUpdates.test";
 import produce from "immer";
@@ -75,22 +75,6 @@ const unevalTreeFromMainThread = {
     meta: {},
     type: "BUTTON_WIDGET",
   },
-  pageList: [
-    {
-      pageName: "Page1",
-      pageId: "63349fb5d39f215f89b8245e",
-      isDefault: false,
-      isHidden: false,
-      slug: "page1",
-    },
-    {
-      pageName: "Page2",
-      pageId: "637cc6b4a3664a7fe679b7b0",
-      isDefault: true,
-      isHidden: false,
-      slug: "page2",
-    },
-  ],
   appsmith: {
     user: {
       email: "someuser@appsmith.com",

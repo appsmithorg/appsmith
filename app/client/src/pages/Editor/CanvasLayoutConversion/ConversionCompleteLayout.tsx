@@ -19,12 +19,12 @@ const AlertIcons = {
   },
 };
 
-export type ConversionCompleteLayoutProps = {
+export interface ConversionCompleteLayoutProps {
   alertType: AlertType;
   headerText: string;
   infoText: string;
   errorText?: string;
-};
+}
 
 const StyledHugeIcon = styled(Icon)`
   svg {

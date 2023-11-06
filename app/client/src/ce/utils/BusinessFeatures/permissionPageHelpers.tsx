@@ -141,3 +141,14 @@ export const getHasAuditLogsReadPermission = (
   if (isEnabled) return hasAuditLogsReadPermission_EE(permissions);
   else return hasAuditLogsReadPermission_CE(permissions);
 };
+
+export const hasCreateDSActionPermissionInApp = (
+  isEnabled: boolean,
+  dsPermissions?: string[],
+  pagePermissions?: string[],
+) => {
+  return (
+    getHasCreateDatasourceActionPermission(isEnabled, dsPermissions) &&
+    getHasCreateActionPermission(isEnabled, pagePermissions)
+  );
+};

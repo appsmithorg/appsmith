@@ -1,6 +1,6 @@
 import React from "react";
 import equal from "fast-deep-equal/es6";
-import { debounce, difference, isEmpty, noop, merge } from "lodash";
+import { debounce, difference, isEmpty, merge, noop } from "lodash";
 import { klona } from "klona";
 
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
@@ -20,7 +20,10 @@ import {
 } from "./helper";
 import type { ButtonStyleProps } from "widgets/ButtonWidget/component";
 import type { BoxShadow } from "components/designSystems/appsmith/WidgetStyleContainer";
-import { convertSchemaItemToFormData } from "../helper";
+import {
+  convertSchemaItemToFormData,
+  generateSchemaWithDefaultValues,
+} from "../helper";
 import type {
   ButtonStyles,
   ChildStylesheet,
@@ -29,22 +32,38 @@ import type {
 } from "entities/AppTheming";
 import type { BatchPropertyUpdatePayload } from "actions/controlActions";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
-import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
-import type { AutocompletionDefinitions } from "WidgetProvider/constants";
+import { generateTypeDef } from "utils/autocomplete/defCreatorUtils";
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
+  PropertyUpdates,
+  SnipingModeProperty,
+} from "WidgetProvider/constants";
+import { BlueprintOperationTypes } from "WidgetProvider/constants";
 import { ButtonVariantTypes } from "components/constants";
 import { Colors } from "constants/Colors";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
+import {
+  FlexVerticalAlignment,
+  ResponsiveBehavior,
+} from "layoutSystems/common/utils/constants";
 import { DynamicHeight } from "utils/WidgetFeatures";
-import { BlueprintOperationTypes } from "WidgetProvider/constants";
-import type {
-  SnipingModeProperty,
-  PropertyUpdates,
-} from "WidgetProvider/constants";
 
 import IconSVG from "../icon.svg";
 
-import { WIDGET_TAGS } from "constants/WidgetConstants";
+import { RenderModes, WIDGET_TAGS } from "constants/WidgetConstants";
+import type {
+  WidgetQueryConfig,
+  WidgetQueryGenerationFormConfig,
+} from "WidgetQueryGenerators/types";
+import type { DynamicPath } from "utils/DynamicBindingUtils";
+import { toast } from "design-system";
+import {
+  ONSUBMIT_NOT_CONFIGURED_ACTION_TEXT,
+  ONSUBMIT_NOT_CONFIGURED_ACTION_URL,
+  ONSUBMIT_NOT_CONFIGURED_MESSAGE,
+} from "../constants/messages";
+import { createMessage } from "@appsmith/constants/messages";
 
 const SUBMIT_BUTTON_DEFAULT_STYLES = {
   buttonVariant: ButtonVariantTypes.PRIMARY,
@@ -86,11 +105,11 @@ export type MetaInternalFieldState = FieldState<{
   filterText?: string;
 }>;
 
-export type JSONFormWidgetState = {
+export interface JSONFormWidgetState {
   resetObserverCallback: () => void;
   isSubmitting: boolean;
   metaInternalFieldState: MetaInternalFieldState;
-};
+}
 
 export type Action = ExecuteTriggerPayload & {
   updateDependencyType?: ActionUpdateDependency;
@@ -108,7 +127,6 @@ class JSONFormWidget extends BaseWidget<
 
   constructor(props: JSONFormWidgetProps) {
     super(props);
-
     this.debouncedParseAndSaveFieldState = debounce(
       this.parseAndSaveFieldState,
       SAVE_FIELD_STATE_DEBOUNCE_TIMEOUT,
@@ -117,6 +135,7 @@ class JSONFormWidget extends BaseWidget<
     this.isWidgetMounting = true;
     this.actionQueue = [];
   }
+
   formRef = React.createRef<HTMLDivElement>();
 
   state = {
@@ -148,6 +167,7 @@ class JSONFormWidget extends BaseWidget<
 
   static getDefaults() {
     return {
+      flexVerticalAlignment: FlexVerticalAlignment.Top,
       responsiveBehavior: ResponsiveBehavior.Fill,
       minWidth: FILL_WIDGET_MIN_WIDTH,
       useSourceData: false,
@@ -167,11 +187,7 @@ class JSONFormWidget extends BaseWidget<
       widgetName: "JSONForm",
       autoGenerateForm: true,
       fieldLimitExceeded: false,
-      sourceData: {
-        name: "John",
-        date_of_birth: "20/02/1990",
-        employee_id: 1001,
-      },
+      sourceData: "",
       submitButtonLabel: "Submit",
       resetButtonLabel: "Reset",
       blueprint: {
@@ -210,6 +226,67 @@ class JSONFormWidget extends BaseWidget<
 
   static getMethods() {
     return {
+      getQueryGenerationConfig: (
+        widget: WidgetProps,
+        formConfig?: WidgetQueryGenerationFormConfig,
+      ) => {
+        if (formConfig?.otherFields?.formType === "create") {
+          return {
+            create: {
+              value: `(${widget.widgetName}.formData || {})`,
+            },
+          };
+        } else {
+          return {
+            update: {
+              value: `${widget.widgetName}.formData`,
+              where: formConfig?.otherFields?.defaultValues as string,
+            },
+          };
+        }
+      },
+      getPropertyUpdatesForQueryBinding: (
+        queryConfig: WidgetQueryConfig,
+        widget: WidgetProps,
+        formConfig: WidgetQueryGenerationFormConfig,
+      ) => {
+        let modify = {};
+        const dynamicPropertyPathList: DynamicPath[] = [
+          ...(widget.dynamicPropertyPathList || []),
+        ];
+
+        if (queryConfig.create) {
+          const columns = formConfig.columns;
+          modify = {
+            sourceData: generateSchemaWithDefaultValues(columns),
+            onSubmit: queryConfig.create.run,
+          };
+        }
+
+        if (queryConfig.update) {
+          const primaryKey = formConfig?.primaryColumn;
+          const selectedColumnNames = formConfig.columns.map(
+            (column) => `${column.name}`,
+          );
+          modify = {
+            sourceData: `{{_.pick(${formConfig?.otherFields
+              ?.defaultValues},${selectedColumnNames
+              .map((name) => `'${name}'`)
+              .join(",")})}}`,
+            title: `Update Row ${primaryKey} {{${formConfig?.otherFields?.defaultValues}.${primaryKey}}}`,
+            onSubmit: queryConfig?.update.run,
+          };
+        }
+
+        dynamicPropertyPathList.push({ key: "sourceData" });
+        return {
+          modify: {
+            ...modify,
+            dynamicPropertyPathList,
+          },
+        };
+      },
+
       getSnipingModeUpdates: (
         propValueMap: SnipingModeProperty,
       ): PropertyUpdates[] => {
@@ -239,6 +316,18 @@ class JSONFormWidget extends BaseWidget<
       ],
     };
   }
+
+  static getAnvilConfig(): AnvilConfig | null {
+    return {
+      widgetSize: {
+        maxHeight: {},
+        maxWidth: {},
+        minHeight: { base: "300px" },
+        minWidth: { base: "280px" },
+      },
+    };
+  }
+
   static getPropertyPaneContentConfig() {
     return contentConfig;
   }
@@ -428,7 +517,6 @@ class JSONFormWidget extends BaseWidget<
     const pathListFromProps = (this.props.dynamicPropertyPathList || []).map(
       ({ key }) => key,
     );
-
     const newPaths = difference(pathListFromSchema, pathListFromProps);
 
     return [...pathListFromProps, ...newPaths].map((path) => ({ key: path }));
@@ -589,6 +677,24 @@ class JSONFormWidget extends BaseWidget<
           callback: this.handleSubmitResult,
         },
       });
+    } else if (
+      !this.props.onSubmit &&
+      this.props.renderMode === RenderModes.CANVAS // TODO (Sangeeth) : No design system dependencies in widgets, we should change this to get from Widget provider once that PR is merged
+    ) {
+      toast.show(
+        createMessage(ONSUBMIT_NOT_CONFIGURED_MESSAGE, this.props.widgetName),
+        {
+          kind: "warning",
+          action: {
+            text: createMessage(ONSUBMIT_NOT_CONFIGURED_ACTION_TEXT),
+            effect: () =>
+              window.open(
+                createMessage(ONSUBMIT_NOT_CONFIGURED_ACTION_URL),
+                "_blank",
+              ),
+          },
+        },
+      );
     }
   };
 
@@ -695,6 +801,7 @@ class JSONFormWidget extends BaseWidget<
         getFormData={this.getFormData}
         isSubmitting={this.state.isSubmitting}
         isWidgetMounting={this.isWidgetMounting}
+        onConnectData={this.onConnectData}
         onFormValidityUpdate={this.onFormValidityUpdate}
         onSubmit={this.onSubmit}
         ref={this.formRef}
@@ -705,6 +812,10 @@ class JSONFormWidget extends BaseWidget<
         schema={this.props.schema}
         scrollContents={this.props.scrollContents}
         setMetaInternalFieldState={this.setMetaInternalFieldState}
+        showConnectDataOverlay={
+          isEmpty(this.props.sourceData) &&
+          this.props.renderMode === RenderModes.CANVAS
+        }
         showReset={this.props.showReset}
         submitButtonLabel={this.props.submitButtonLabel}
         submitButtonStyles={this.props.submitButtonStyles}
@@ -717,6 +828,12 @@ class JSONFormWidget extends BaseWidget<
       />
     );
   }
+
+  onConnectData = () => {
+    if (this.props.renderMode === RenderModes.CANVAS) {
+      super.updateOneClickBindingOptionsVisibility(true);
+    }
+  };
 }
 
 export default JSONFormWidget;

@@ -1,5 +1,6 @@
 import { REPO, CURRENT_REPO } from "../../../../fixtures/REPO";
 import HomePage from "../../../../locators/HomePage";
+import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 import * as _ from "../../../../support/Objects/ObjectsCore";
 let workspaceId: any, appid: any;
 
@@ -10,7 +11,8 @@ describe("Create new workspace and invite user & validate all roles", () => {
     cy.get("@guid").then((uid) => {
       workspaceId = uid;
       appid = uid;
-      //localStorage.setItem("WorkspaceName", workspaceId);
+      featureFlagIntercept({ license_gac_enabled: true });
+      _.agHelper.Sleep(2000);
       _.homePage.CreateNewWorkspace(workspaceId);
       _.homePage.CheckWorkspaceShareUsersCount(workspaceId, 1);
       _.homePage.InviteUserToWorkspaceErrorMessage(workspaceId, "abcdef");
@@ -30,6 +32,8 @@ describe("Create new workspace and invite user & validate all roles", () => {
 
   it("2. Login as Administrator and search for users using search bar", () => {
     _.homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+    featureFlagIntercept({ license_gac_enabled: true });
+    _.agHelper.Sleep(2000);
     _.homePage.FilterApplication(appid, workspaceId);
     _.agHelper.GetNClick(_.homePage._shareWorkspace(workspaceId));
     _.agHelper.GetNClick(_.homePage._visibleTextSpan("Manage users"));
@@ -50,6 +54,8 @@ describe("Create new workspace and invite user & validate all roles", () => {
       Cypress.env("TESTPASSWORD1"),
       "App Viewer",
     );
+    featureFlagIntercept({ license_gac_enabled: true });
+    _.agHelper.Sleep(2000);
     _.homePage.FilterApplication(appid, workspaceId);
     cy.get(_.homePage._applicationCard).first().trigger("mouseover");
     cy.get(_.homePage._appHoverIcon("edit")).should("not.exist");
@@ -69,6 +75,8 @@ describe("Create new workspace and invite user & validate all roles", () => {
 
   it("4. Login as Workspace owner and Update the Invited user role to Developer", function () {
     _.homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+    featureFlagIntercept({ license_gac_enabled: true });
+    _.agHelper.Sleep(2000);
     _.homePage.FilterApplication(appid, workspaceId);
     _.homePage.UpdateUserRoleInWorkspace(
       workspaceId,
@@ -85,6 +93,8 @@ describe("Create new workspace and invite user & validate all roles", () => {
       Cypress.env("TESTPASSWORD1"),
       "Developer",
     );
+    featureFlagIntercept({ license_gac_enabled: true });
+    _.agHelper.Sleep(2000);
     _.homePage.FilterApplication(appid, workspaceId);
     cy.get(_.homePage._applicationCard).first().trigger("mouseover");
     _.agHelper.AssertElementExist(_.homePage._appHoverIcon("edit"));
@@ -113,6 +123,8 @@ describe("Create new workspace and invite user & validate all roles", () => {
 
   it("6. Login as Workspace owner and Update the Invited user role to Administrator", function () {
     _.homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+    featureFlagIntercept({ license_gac_enabled: true });
+    _.agHelper.Sleep(2000);
     _.homePage.FilterApplication(appid, workspaceId);
     _.homePage.UpdateUserRoleInWorkspace(
       workspaceId,
@@ -129,6 +141,8 @@ describe("Create new workspace and invite user & validate all roles", () => {
       Cypress.env("TESTPASSWORD1"),
       "Administrator",
     );
+    featureFlagIntercept({ license_gac_enabled: true });
+    _.agHelper.Sleep(2000);
     _.homePage.InviteUserToWorkspace(
       workspaceId,
       Cypress.env("TESTUSERNAME2"),
@@ -166,6 +180,8 @@ describe("Create new workspace and invite user & validate all roles", () => {
 
   it("8. Login as Workspace owner and verify all 3 users are present", function () {
     _.homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+    featureFlagIntercept({ license_gac_enabled: true });
+    _.agHelper.Sleep(2000);
     _.homePage.FilterApplication(appid, workspaceId);
     _.homePage.UpdateUserRoleInWorkspace(
       workspaceId,
@@ -190,6 +206,8 @@ describe("Create new workspace and invite user & validate all roles", () => {
       Cypress.env("TESTUSERNAME1"),
       Cypress.env("TESTPASSWORD1"),
     );
+    featureFlagIntercept({ license_gac_enabled: true });
+    _.agHelper.Sleep(2000);
     _.homePage.FilterApplication(appid, workspaceId);
     _.homePage.LeaveWorkspace(workspaceId);
     _.homePage.Signout();
@@ -201,6 +219,8 @@ describe("Create new workspace and invite user & validate all roles", () => {
       Cypress.env("TESTPASSWORD2"),
       "App Viewer",
     );
+    featureFlagIntercept({ license_gac_enabled: true });
+    _.agHelper.Sleep(2000);
     _.homePage.FilterApplication(appid, workspaceId);
     _.homePage.LeaveWorkspace(workspaceId);
     _.homePage.LogOutviaAPI();

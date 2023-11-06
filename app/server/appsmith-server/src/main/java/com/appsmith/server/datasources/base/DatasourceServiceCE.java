@@ -93,4 +93,12 @@ public interface DatasourceServiceCE {
             String workspaceId, String environmentId, String pluginId, AclPermission aclPermission, boolean isEmbedded);
 
     Datasource createDatasourceFromDatasourceStorage(DatasourceStorage datasourceStorage);
+
+    Mono<String> getRateLimitIdentifier(DatasourceStorage datasourceStorage);
+
+    Mono<Boolean> isEndpointBlockedForConnectionRequest(DatasourceStorage datasourceStorage);
+
+    Mono<Boolean> consumeTokenIfAvailable(DatasourceStorage datasourceStorage);
+
+    Mono<Boolean> blockEndpointForConnectionRequest(DatasourceStorage datasourceStorage);
 }

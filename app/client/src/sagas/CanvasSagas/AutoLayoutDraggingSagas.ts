@@ -5,8 +5,8 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import type { FlexLayerAlignment } from "layoutSystems/autolayout/utils/constants";
-import { LayoutDirection } from "layoutSystems/autolayout/utils/constants";
+import type { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
+import { LayoutDirection } from "layoutSystems/common/utils/constants";
 import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
@@ -23,10 +23,7 @@ import {
   updateExistingLayer,
   updateRelationships,
 } from "layoutSystems/autolayout/utils/autoLayoutDraggingUtils";
-import type {
-  HighlightInfo,
-  FlexLayer,
-} from "layoutSystems/autolayout/utils/autoLayoutTypes";
+import type { HighlightInfo } from "layoutSystems/common/utils/types";
 import { updatePositionsOfParentAndSiblings } from "layoutSystems/autolayout/utils/positionUtils";
 import {
   getCanvasWidth,
@@ -34,6 +31,7 @@ import {
 } from "selectors/editorSelectors";
 import { executeWidgetBlueprintBeforeOperations } from "sagas/WidgetBlueprintSagas";
 import { BlueprintOperationTypes } from "WidgetProvider/constants";
+import type { FlexLayer } from "layoutSystems/autolayout/utils/types";
 
 function* addWidgetAndReorderSaga(
   actionPayload: ReduxAction<{

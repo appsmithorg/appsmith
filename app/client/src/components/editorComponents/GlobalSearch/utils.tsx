@@ -14,6 +14,7 @@ import type { AppState } from "@appsmith/reducers";
 import WidgetFactory from "WidgetProvider/factory";
 import {
   CurlIconV2,
+  EntityIcon,
   GraphQLIconV2,
   JsFileIconV2,
 } from "pages/Editor/Explorer/ExplorerIcons";
@@ -22,9 +23,11 @@ import { createNewJSCollection } from "actions/jsPaneActions";
 import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
 import { getQueryParams } from "utils/URLUtils";
 import history from "utils/history";
-import { curlImportPageURL } from "RouteBuilder";
+import { curlImportPageURL } from "@appsmith/RouteBuilder";
 import { isMacOrIOS, modText, shiftText } from "utils/helpers";
 import { FocusEntity } from "navigation/FocusEntity";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import { Icon } from "design-system";
 
 export type SelectEvent =
   | React.MouseEvent
@@ -32,11 +35,11 @@ export type SelectEvent =
   | KeyboardEvent
   | null;
 
-export type RecentEntity = {
+export interface RecentEntity {
   type: FocusEntity;
   id: string;
   pageId: string;
-};
+}
 
 export enum SEARCH_CATEGORY_ID {
   NAVIGATION = "Navigate",
@@ -66,15 +69,15 @@ export const comboHelpText = {
   ),
 };
 
-export type Snippet = {
+export interface Snippet {
   entities?: [string];
   fields?: [string];
   dataType?: string;
   language: string;
   body: SnippetBody;
-};
+}
 
-export type SnippetBody = {
+export interface SnippetBody {
   title: string;
   snippet: string;
   isTrigger?: boolean;
@@ -83,7 +86,7 @@ export type SnippetBody = {
   template: string;
   snippetMeta?: string;
   shortTitle?: string;
-};
+}
 
 export type FilterEntity = WidgetType | ENTITY_TYPE;
 
@@ -102,20 +105,20 @@ export const getSnippetFilterLabel = (state: AppState, label: string) => {
   );
 };
 
-export type SnippetArgument = {
+export interface SnippetArgument {
   identifier: string;
   name: string;
   type: ValidationTypes;
   placeholder?: boolean;
-};
+}
 
-export type SearchCategory = {
+export interface SearchCategory {
   id: SEARCH_CATEGORY_ID;
   kind?: SEARCH_ITEM_TYPES;
   title?: string;
   desc?: string;
   show?: () => boolean;
-};
+}
 
 export function getOptionalFilters(optionalFilterMeta: any) {
   return Object.entries(optionalFilterMeta || {}).reduce(
@@ -247,7 +250,7 @@ export const getEntityId = (entity: {
   }
 };
 
-export type ActionOperation = {
+export interface ActionOperation {
   title: string;
   desc: string;
   icon?: any;
@@ -255,7 +258,7 @@ export type ActionOperation = {
   action?: (pageId: string, location: EventLocation) => any;
   redirect?: (pageId: string, from: EventLocation) => any;
   pluginId?: string;
-};
+}
 
 export const actionOperations: ActionOperation[] = [
   {
@@ -299,6 +302,52 @@ export const actionOperations: ActionOperation[] = [
     },
   },
 ];
+
+export const createQueryOption = {
+  desc: "",
+  title: "Create a query",
+  kind: SEARCH_ITEM_TYPES.sectionTitle,
+};
+
+export const generateCreateQueryForDSOption = (
+  ds: Datasource,
+  onClick: (id: string, from: EventLocation) => void,
+) => {
+  return {
+    title: `New ${ds.name} query`,
+    shortTitle: `${ds.name} query`,
+    desc: `Create a query in ${ds.name}`,
+    pluginId: ds.pluginId,
+    kind: SEARCH_ITEM_TYPES.actionOperation,
+    action: onClick,
+  };
+};
+
+export const generateCreateNewDSOption = (
+  filteredFileOperations: ActionOperation[],
+  onRedirect: (id: string) => void,
+) => {
+  return [
+    ...filteredFileOperations,
+    {
+      desc: "Create a new datasource in the workspace",
+      title: "New datasource",
+      icon: (
+        <EntityIcon>
+          <Icon name="plus" size="lg" />
+        </EntityIcon>
+      ),
+      kind: SEARCH_ITEM_TYPES.actionOperation,
+      redirect: (id: string, entryPoint: string) => {
+        onRedirect(id);
+        // Event for datasource creation click
+        AnalyticsUtil.logEvent("NAVIGATE_TO_CREATE_NEW_DATASOURCE_PAGE", {
+          entryPoint,
+        });
+      },
+    },
+  ];
+};
 
 export const isMatching = (text = "", query = "") => {
   if (typeof text === "string" && typeof query === "string") {

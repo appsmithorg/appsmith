@@ -43,14 +43,26 @@ const FieldWrapper = styled.div`
   }
 `;
 
-type RenderDatasourceSectionProps = {
+export const ViewModeWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  border-bottom: 1px solid var(--ads-v2-color-border);
+  padding: var(--ads-v2-spaces-7) 0;
+  gap: var(--ads-v2-spaces-4);
+  overflow: auto;
+  height: fit-content;
+  width: 100%;
+  flex-shrink: 0;
+`;
+
+interface RenderDatasourceSectionProps {
   config: any;
   datasource: Datasource;
   viewMode?: boolean;
   showOnlyCurrentEnv?: boolean;
   currentEnv: string;
   isEnvEnabled: boolean;
-};
+}
 const renderKVArray = (
   children: Array<any>,
   currentEnvironment: string,
@@ -169,9 +181,11 @@ export function renderDatasourceSection(
             if (
               !value &&
               !!viewMode &&
-              !!section.hidden &&
-              "comparison" in section.hidden &&
-              section.hidden.comparison === ComparisonOperationsEnum.VIEW_MODE
+              (!section.hidden ||
+                (!!section.hidden &&
+                  "comparison" in section.hidden &&
+                  section.hidden.comparison ===
+                    ComparisonOperationsEnum.VIEW_MODE))
             ) {
               value = section.initialValue;
             }

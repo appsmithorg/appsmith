@@ -49,8 +49,6 @@ module.exports = {
                       "postcss-nesting",
                       "postcss-import",
                       "postcss-at-rules-variables",
-                      "postcss-conditionals",
-                      "postcss-for",
                       "postcss-each",
                       "postcss-url",
                       "postcss-modules-values",

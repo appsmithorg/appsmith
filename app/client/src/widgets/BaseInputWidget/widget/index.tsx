@@ -15,13 +15,14 @@ import BaseInputComponent from "../component";
 import { InputTypes } from "../constants";
 import { checkInputTypeTextByProps } from "../utils";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
+import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 
 import IconSVG from "../icon.svg";
 import type {
   WidgetBaseConfiguration,
   WidgetDefaultProps,
 } from "WidgetProvider/constants";
+import type { PropertyPaneConfig } from "constants/PropertyControlConstants";
 
 class BaseInputWidget<
   T extends BaseInputWidgetProps,
@@ -66,7 +67,9 @@ class BaseInputWidget<
     };
   }
 
-  static getPropertyPaneContentConfig() {
+  static getPropertyPaneContentConfig(
+    generalProperties: PropertyPaneConfig[] = [],
+  ) {
     return [
       {
         sectionName: "Label",
@@ -317,6 +320,7 @@ class BaseInputWidget<
               return props.type !== "PHONE_INPUT_WIDGET";
             },
           },
+          ...generalProperties,
         ],
       },
       {

@@ -48,11 +48,11 @@ type UpdatePairFunction = (
   isUpdatedViaKeyboard?: boolean,
 ) => any;
 
-type KeyValueComponentProps = {
+interface KeyValueComponentProps {
   pairs: SegmentedControlOption[];
   updatePairs: UpdatePairFunction;
   addLabel?: string;
-};
+}
 
 type SegmentedControlOptionWithKey = SegmentedControlOption & {
   key: string;

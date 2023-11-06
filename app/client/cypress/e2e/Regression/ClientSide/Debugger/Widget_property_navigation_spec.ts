@@ -73,15 +73,26 @@ describe("excludeForAirgap", "Widget property navigation", () => {
   });
 
   it("5. JSONForm widget error navigation", () => {
+    const schema = {
+      name: "John",
+      date_of_birth: "20/02/1990",
+      employee_id: 1001,
+    };
     _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.JSONFORM);
+    _.propPane.EnterJSContext(
+      "sourcedata",
+      JSON.stringify(schema),
+      true,
+      false,
+    );
     _.propPane.OpenTableColumnSettings("date_of_birth");
 
-    _.agHelper.SelectDropdownList("Field Type", "Object");
+    _.propPane.SelectPropertiesDropDown("Field Type", "Object");
     _.agHelper.GetNClick(_.propPane._addColumnItem);
     _.agHelper.GetNClick(_.propPane._addColumnItem);
     _.propPane.OpenTableColumnSettings("customField1");
 
-    _.agHelper.SelectDropdownList("Field Type", "Object");
+    _.propPane.SelectPropertiesDropDown("Field Type", "Object");
     _.agHelper.GetNClick(_.propPane._addColumnItem);
     _.agHelper.GetNClick(_.propPane._addColumnItem);
     _.propPane.OpenTableColumnSettings("customField2");

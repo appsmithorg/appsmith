@@ -27,11 +27,11 @@ import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { getHasManagePagePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 
-type ExplorerWidgetGroupProps = {
+interface ExplorerWidgetGroupProps {
   step: number;
   searchKeyword?: string;
   addWidgetsFn?: () => void;
-};
+}
 
 export const ExplorerWidgetGroup = memo((props: ExplorerWidgetGroupProps) => {
   const applicationId = useSelector(getCurrentApplicationId);

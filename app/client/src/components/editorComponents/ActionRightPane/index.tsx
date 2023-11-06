@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
 import styled from "styled-components";
 import { Collapse, Classes as BPClasses } from "@blueprintjs/core";
 import { Classes, getTypographyByKey } from "design-system-old";
-import { Divider, Icon, Link, Text } from "design-system";
+import { Divider, Icon, Text } from "design-system";
 import SuggestedWidgets from "./SuggestedWidgets";
 import type { ReactNode, MutableRefObject } from "react";
 import { useParams } from "react-router";
@@ -11,7 +11,6 @@ import { getWidgets } from "sagas/selectors";
 import type { AppState } from "@appsmith/reducers";
 import { getDependenciesFromInverseDependencies } from "../Debugger/helpers";
 import {
-  BACK_TO_CANVAS,
   BINDINGS_DISABLED_TOOLTIP,
   BINDING_SECTION_LABEL,
   createMessage,
@@ -23,18 +22,12 @@ import type {
   SuggestedWidget,
   SuggestedWidget as SuggestedWidgetsType,
 } from "api/ActionAPI";
-import {
-  getCurrentPageId,
-  getPagePermissions,
-} from "selectors/editorSelectors";
-import { builderURL } from "RouteBuilder";
-import DatasourceStructureHeader from "pages/Editor/Explorer/Datasources/DatasourceStructureHeader";
+import { getPagePermissions } from "selectors/editorSelectors";
+import DatasourceStructureHeader from "pages/Editor/DatasourceInfo/DatasourceStructureHeader";
 import {
   DatasourceStructureContainer as DataStructureList,
   SCHEMALESS_PLUGINS,
-} from "pages/Editor/Explorer/Datasources/DatasourceStructureContainer";
-import { DatasourceStructureContext } from "pages/Editor/Explorer/Datasources/DatasourceStructure";
-import { adaptiveSignpostingEnabled } from "@appsmith/selectors/featureFlagsSelectors";
+} from "pages/Editor/DatasourceInfo/DatasourceStructureContainer";
 import {
   getDatasourceStructureById,
   getIsFetchingDatasourceStructure,
@@ -54,13 +47,12 @@ import { getCurrentUser } from "selectors/usersSelectors";
 import { Tooltip } from "design-system";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
-import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
-import history from "utils/history";
-import { SignpostingWalkthroughConfig } from "pages/Editor/FirstTimeUserOnboarding/Utils";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { getHasManagePagePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import type { Datasource } from "entities/Datasource";
+import { DatasourceStructureContext } from "entities/Datasource";
 
 const SCHEMA_GUIDE_GIF = `${ASSETS_CDN_URL}/schema.gif`;
 
@@ -113,12 +105,6 @@ const SideBar = styled.div`
   }
 `;
 
-const BackToCanvasLink = styled(Link)`
-  margin-left: ${(props) => props.theme.spaces[1] + 1}px;
-  margin-top: ${(props) => props.theme.spaces[11]}px;
-  margin-bottom: ${(props) => props.theme.spaces[11]}px;
-`;
-
 const Label = styled.span`
   cursor: pointer;
 `;
@@ -167,7 +153,7 @@ const Placeholder = styled.div`
 `;
 
 const DataStructureListWrapper = styled.div`
-  overflow-y: auto;
+  overflow-y: hidden;
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -185,26 +171,26 @@ const CollapsibleSection = styled.div<{ height: string; marginTop?: number }>`
   }
 `;
 
-type CollapsibleProps = {
+interface CollapsibleProps {
   expand?: boolean;
   children: ReactNode;
   label: string;
   CustomLabelComponent?: (props: any) => JSX.Element;
   isDisabled?: boolean;
-  datasourceId?: string;
+  datasource?: Partial<Datasource>;
   containerRef?: MutableRefObject<HTMLDivElement | null>;
-};
+}
 
-type DisabledCollapsibleProps = {
+interface DisabledCollapsibleProps {
   label: string;
   tooltipLabel?: string;
-};
+}
 
 export function Collapsible({
   children,
   containerRef,
   CustomLabelComponent,
-  datasourceId,
+  datasource,
   expand = true,
   label,
 }: CollapsibleProps) {
@@ -235,7 +221,7 @@ export function Collapsible({
         />
         {!!CustomLabelComponent ? (
           <CustomLabelComponent
-            datasourceId={datasourceId}
+            datasource={datasource}
             onRefreshCallback={() => handleCollapse(true)}
           />
         ) : (
@@ -291,6 +277,7 @@ export function useEntityDependencies(actionName: string) {
 
 function ActionSidebar({
   actionName,
+  actionRightPaneBackLink,
   context,
   datasourceId,
   hasConnections,
@@ -305,16 +292,12 @@ function ActionSidebar({
   datasourceId: string;
   pluginId: string;
   context: DatasourceStructureContext;
+  actionRightPaneBackLink: React.ReactNode;
 }) {
   const dispatch = useDispatch();
   const widgets = useSelector(getWidgets);
-  const pageId = useSelector(getCurrentPageId);
   const user = useSelector(getCurrentUser);
-  const {
-    isOpened: isWalkthroughOpened,
-    popFeature,
-    pushFeature,
-  } = useContext(WalkthroughContext) || {};
+  const { pushFeature } = useContext(WalkthroughContext) || {};
   const schemaRef = useRef(null);
   const params = useParams<{
     pageId: string;
@@ -391,25 +374,9 @@ function ActionSidebar({
         eventParams: {
           [FEATURE_WALKTHROUGH_KEYS.ds_schema]: true,
         },
-        delay: 5000,
+        delay: 2500,
       });
   };
-
-  const signpostingEnabled = useSelector(getIsFirstTimeUserOnboardingEnabled);
-  const adaptiveSignposting = useSelector(adaptiveSignpostingEnabled);
-  const checkAndShowBackToCanvasWalkthrough = async () => {
-    const isFeatureWalkthroughShown = await getFeatureWalkthroughShown(
-      FEATURE_WALKTHROUGH_KEYS.back_to_canvas,
-    );
-    !isFeatureWalkthroughShown &&
-      pushFeature &&
-      pushFeature(SignpostingWalkthroughConfig.BACK_TO_CANVAS);
-  };
-  useEffect(() => {
-    if (!hasWidgets && adaptiveSignposting && signpostingEnabled) {
-      checkAndShowBackToCanvasWalkthrough();
-    }
-  }, [hasWidgets, adaptiveSignposting, signpostingEnabled]);
 
   const showSchema =
     pluginDatasourceForm !== DatasourceComponentTypes.RestAPIDatasourceForm &&
@@ -444,26 +411,9 @@ function ActionSidebar({
     return <Placeholder>{createMessage(NO_CONNECTIONS)}</Placeholder>;
   }
 
-  const handleCloseWalkthrough = () => {
-    if (isWalkthroughOpened && popFeature) {
-      popFeature();
-    }
-  };
-
   return (
     <SideBar>
-      <BackToCanvasLink
-        id="back-to-canvas"
-        kind="secondary"
-        onClick={() => {
-          history.push(builderURL({ pageId }));
-
-          handleCloseWalkthrough();
-        }}
-        startIcon="arrow-left-line"
-      >
-        {createMessage(BACK_TO_CANVAS)}
-      </BackToCanvasLink>
+      {actionRightPaneBackLink}
 
       {showSchema && (
         <CollapsibleSection
@@ -478,7 +428,7 @@ function ActionSidebar({
           <Collapsible
             CustomLabelComponent={DatasourceStructureHeader}
             containerRef={schemaRef}
-            datasourceId={datasourceId}
+            datasource={{ id: datasourceId }}
             expand={!showSuggestedWidgets}
             label="Schema"
           >

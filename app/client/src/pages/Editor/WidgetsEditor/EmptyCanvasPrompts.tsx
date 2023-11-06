@@ -8,7 +8,7 @@ import {
 } from "selectors/editorSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import history from "utils/history";
-import { generateTemplateFormURL } from "RouteBuilder";
+import { generateTemplateFormURL } from "@appsmith/RouteBuilder";
 import { useParams } from "react-router";
 import type { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers";
 import { showTemplatesModal as showTemplatesModalAction } from "actions/templateActions";
@@ -67,20 +67,20 @@ const Content = styled.div`
   padding-left: ${(props) => props.theme.spaces[7]}px;
 `;
 
-type routeId = {
+interface routeId {
   applicationSlug: string;
   pageId: string;
   pageSlug: string;
-};
+}
 
 const goToGenPageForm = ({ pageId }: routeId): void => {
   AnalyticsUtil.logEvent("GEN_CRUD_PAGE_ACTION_CARD_CLICK");
   history.push(generateTemplateFormURL({ pageId }));
 };
 
-type EmptyCanvasPromptsProps = {
-  isPreviewMode: boolean;
-};
+interface EmptyCanvasPromptsProps {
+  isPreview: boolean;
+}
 
 /**
  * OldName: CanvasTopSection
@@ -89,13 +89,13 @@ type EmptyCanvasPromptsProps = {
  * This Component encompasses the prompts for empty canvas
  * prompts like generate crud app or import from template
  * @param props Object that contains
- * @prop isPreviewMode, boolean to indicate preview mode
+ * @prop isPreview, boolean to indicate preview mode
  * @returns
  */
 function EmptyCanvasPrompts(props: EmptyCanvasPromptsProps) {
   const dispatch = useDispatch();
   const showCanvasTopSection = useSelector(showCanvasTopSectionSelector);
-  const { isPreviewMode } = props;
+  const { isPreview } = props;
   const { pageId } = useParams<ExplorerURLParams>();
   const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
 
@@ -105,12 +105,12 @@ function EmptyCanvasPrompts(props: EmptyCanvasPromptsProps) {
   ]);
 
   useEffect(() => {
-    if (!showCanvasTopSection && !isPreviewMode) {
+    if (!showCanvasTopSection && !isPreview) {
       dispatch(deleteCanvasCardsState());
     }
-  }, [showCanvasTopSection, isPreviewMode]);
+  }, [showCanvasTopSection, isPreview]);
 
-  if (!showCanvasTopSection) return null;
+  if (!showCanvasTopSection || isPreview) return null;
 
   const showTemplatesModal = () => {
     dispatch(showTemplatesModalAction(true));

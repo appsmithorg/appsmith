@@ -1,6 +1,6 @@
 import React, { Suspense, useEffect } from "react";
 import history from "utils/history";
-import AppHeader from "pages/common/AppHeader";
+import AppHeader from "@appsmith/pages/common/AppHeader";
 import { Redirect, Route, Router, Switch } from "react-router-dom";
 import {
   ADMIN_SETTINGS_CATEGORY_PATH,
@@ -46,7 +46,10 @@ import * as Sentry from "@sentry/react";
 import { getSafeCrash, getSafeCrashCode } from "selectors/errorSelectors";
 import UserProfile from "pages/UserProfile";
 import { getCurrentUser } from "actions/authActions";
-import { getCurrentUserLoading } from "selectors/usersSelectors";
+import {
+  getCurrentUserLoading,
+  getFeatureFlagsFetching,
+} from "selectors/usersSelectors";
 import Setup from "pages/setup";
 import SettingsLoader from "pages/AdminSettings/loader";
 import SignupSuccess from "pages/setup/SignupSuccess";
@@ -156,6 +159,7 @@ function AppRouter(props: {
   } = props;
   const tenantIsLoading = useSelector(isTenantLoading);
   const currentUserIsLoading = useSelector(getCurrentUserLoading);
+  const featuresIsLoading = useSelector(getFeatureFlagsFetching);
 
   useEffect(() => {
     getCurrentUser();
@@ -169,7 +173,11 @@ function AppRouter(props: {
 
   // hide the top loader once the tenant is loaded
   useEffect(() => {
-    if (tenantIsLoading === false && currentUserIsLoading === false) {
+    if (
+      tenantIsLoading === false &&
+      currentUserIsLoading === false &&
+      featuresIsLoading === false
+    ) {
       const loader = document.getElementById("loader") as HTMLDivElement;
 
       if (loader) {
@@ -180,9 +188,9 @@ function AppRouter(props: {
         });
       }
     }
-  }, [tenantIsLoading, currentUserIsLoading]);
+  }, [tenantIsLoading, currentUserIsLoading, featuresIsLoading]);
 
-  if (tenantIsLoading || currentUserIsLoading) return null;
+  if (tenantIsLoading || currentUserIsLoading || featuresIsLoading) return null;
 
   return (
     <Router history={history}>

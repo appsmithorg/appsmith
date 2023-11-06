@@ -45,16 +45,6 @@ jobs:
     with:
       pr: 0
 
-  perf-test:
-    needs: [build-docker-image]
-    # Only run if the build step is successful
-    if: success()
-    name: perf-test
-    uses: ./.github/workflows/perf-test.yml
-    secrets: inherit
-    with:
-      pr: 0
-
   ci-test:
     needs: [build-docker-image]
     # Only run if the build step is successful
@@ -255,6 +245,7 @@ jobs:
           build-args: |
             APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY_RELEASE }}
             APPSMITH_CLOUD_SERVICES_BASE_URL=https://release-cs.appsmith.com
+            BASE=${{ vars.DOCKER_HUB_ORGANIZATION }}/base-${{ vars.EDITION }}:release
           tags: |
             ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-${{ vars.EDITION }}:release
 
@@ -328,6 +319,7 @@ jobs:
           platforms: linux/arm64,linux/amd64
           build-args: |
             APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }}
+            BASE=${{ vars.DOCKER_HUB_ORGANIZATION }}/base-${{ vars.EDITION }}:nightly
           tags: |
             ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-${{ vars.EDITION }}:${{ github.sha }}
             ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-${{ vars.EDITION }}:nightly

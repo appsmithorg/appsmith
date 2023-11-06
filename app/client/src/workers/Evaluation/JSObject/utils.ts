@@ -1,10 +1,12 @@
 import type {
-  ConfigTree,
-  DataTree,
-  DataTreeEntity,
   JSActionEntityConfig,
   JSActionEntity,
 } from "@appsmith/entities/DataTree/types";
+import type {
+  ConfigTree,
+  DataTree,
+  DataTreeEntity,
+} from "entities/DataTree/dataTreeTypes";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import type { ParsedBody, ParsedJSSubAction } from "utils/JSPaneUtils";
 import { unset, set, get, find } from "lodash";

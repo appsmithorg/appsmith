@@ -12,7 +12,7 @@ const _TooltipTrigger = (
 ) => {
   const { children, ...rest } = props;
   const context = useTooltipContext();
-  // @ts-expect-error we don't which type children will be
+  // @ts-expect-error we don't know which type children will be
   const childrenRef = (children as unknown).ref;
   const ref = useMergeRefs([context.refs.setReference, propRef, childrenRef]);
 
@@ -26,7 +26,7 @@ const _TooltipTrigger = (
         "data-state": context.open ? "open" : "closed",
         // when the trigger is disabled, we want to make sure that the tooltip is
         // accessible with keyboard but visually disabled only
-        visuallyDisabled: children.props.isDisabled ? true : undefined,
+        visuallyDisabled: Boolean(children.props.isDisabled) ? true : undefined,
       }),
     );
   }

@@ -12,6 +12,10 @@ import pluginsReducer from "reducers/entityReducers/pluginsReducer";
 import autoHeightLayoutTreeReducer from "reducers/entityReducers/autoHeightReducers/autoHeightLayoutTreeReducer";
 import canvasLevelsReducer from "reducers/entityReducers/autoHeightReducers/canvasLevelsReducer";
 
+/* Reducers which are integrated into the core system when registering a pluggable module
+    or done so by a module that is designed to be eventually pluggable */
+import layoutElementPositionsReducer from "layoutSystems/anvil/integrations/reducers/layoutElementPositionsReducer";
+
 export const entityReducerObject = {
   canvasWidgets: canvasWidgetsReducer,
   canvasWidgetsStructure: canvasWidgetsStructureReducer,
@@ -26,4 +30,5 @@ export const entityReducerObject = {
   jsActions: jsActionsReducer,
   autoHeightLayoutTree: autoHeightLayoutTreeReducer,
   canvasLevels: canvasLevelsReducer,
+  layoutElementPositions: layoutElementPositionsReducer,
 };

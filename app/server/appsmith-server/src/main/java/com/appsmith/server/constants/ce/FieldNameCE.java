@@ -153,6 +153,7 @@ public class FieldNameCE {
     public static final String ACTION_EXECUTION_TIME = "actionExecutionTime";
     public static final String WEBSITE = "website";
     public static final String TEMPLATE_APPLICATION_NAME = "templateAppName";
+    public static final String SOURCE = "source";
     public static final String IS_SUPPORTED_FOR_AIR_GAP = "isSupportedForAirGap";
 
     // this key will present in the analytics as a diff b/w server and user invoked flows
@@ -190,4 +191,7 @@ public class FieldNameCE {
     public static final String FILE_LOCK_DURATION = "fileLockDuration";
 
     public static final String REMOTE_PLUGINS = "remotePlugins";
+    public static final String INSTANCE_ID = "instanceId";
+    public static final String IP_ADDRESS = "ipAddress";
+    public static final String VERSION = "version";
 }

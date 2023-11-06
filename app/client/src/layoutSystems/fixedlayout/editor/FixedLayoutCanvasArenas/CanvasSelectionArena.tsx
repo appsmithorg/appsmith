@@ -11,7 +11,7 @@ import { theme } from "constants/DefaultTheme";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { APP_MODE } from "entities/App";
 import { throttle } from "lodash";
-import React, { useCallback, useEffect, useRef } from "react";
+import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getWidget } from "sagas/selectors";
 import { getAppMode } from "@appsmith/selectors/applicationSelectors";
@@ -21,15 +21,15 @@ import {
   getIsDraggingForSelection,
 } from "selectors/canvasSelectors";
 import {
+  combinedPreviewModeSelector,
   getCurrentApplicationLayout,
   getCurrentPageId,
-  previewModeSelector,
 } from "selectors/editorSelectors";
 import { getNearestParentCanvas } from "utils/generators";
 import { getAbsolutePixels } from "utils/helpers";
-import type { XYCord } from "layoutSystems/common/CanvasArenas/ArenaTypes";
-import { useCanvasDragToScroll } from "layoutSystems/common/CanvasArenas/useCanvasDragToScroll";
-import { StickyCanvasArena } from "layoutSystems/common/CanvasArenas/StickyCanvasArena";
+import type { XYCord } from "layoutSystems/common/canvasArenas/ArenaTypes";
+import { useCanvasDragToScroll } from "layoutSystems/common/canvasArenas/useCanvasDragToScroll";
+import { StickyCanvasArena } from "layoutSystems/common/canvasArenas/StickyCanvasArena";
 
 export interface SelectedArenaDimensions {
   top: number;
@@ -70,7 +70,7 @@ export function CanvasSelectionArena({
     (parentWidget && parentWidget.detachFromLayout)
   );
   const appMode = useSelector(getAppMode);
-  const isPreviewMode = useSelector(previewModeSelector);
+  const isPreviewMode = useSelector(combinedPreviewModeSelector);
   const isAppSettingsPaneWithNavigationTabOpen = useSelector(
     getIsAppSettingsPaneWithNavigationTabOpen,
   );
@@ -151,13 +151,20 @@ export function CanvasSelectionArena({
     outOfCanvasStartPositions,
   ]);
 
+  const canvasRenderingDependencies = useMemo(
+    () => ({
+      snapRows,
+      canExtend,
+    }),
+    [snapRows, canExtend],
+  );
   useCanvasDragToScroll(
     slidingArenaRef,
     isCurrentWidgetDrawing || isResizing,
     isDraggingForSelection || isResizing,
-    snapRows,
-    canExtend,
+    canvasRenderingDependencies,
   );
+
   useEffect(() => {
     if (
       appMode === APP_MODE.EDIT &&
@@ -502,19 +509,25 @@ export function CanvasSelectionArena({
     slidingArenaRef,
     stickyCanvasRef,
   });
+  const canvasReRenderDependencies = useMemo(
+    () => ({
+      canExtend,
+      snapColumnSpace,
+      snapRowSpace,
+      snapRows,
+    }),
+    [canExtend, snapColumnSpace, snapRowSpace, snapRows],
+  );
   return shouldShow ? (
     <StickyCanvasArena
-      canExtend={canExtend}
       canvasId={getStickyCanvasName(widgetId)}
       canvasPadding={canvasPadding}
+      dependencies={canvasReRenderDependencies}
       getRelativeScrollingParent={getNearestParentCanvas}
-      id={getSlidingArenaName(widgetId)}
       ref={canvasRef}
       shouldObserveIntersection={isDraggingForSelection}
       showCanvas={shouldShow}
-      snapColSpace={snapColumnSpace}
-      snapRowSpace={snapRowSpace}
-      snapRows={snapRows}
+      sliderId={getSlidingArenaName(widgetId)}
     />
   ) : null;
 }

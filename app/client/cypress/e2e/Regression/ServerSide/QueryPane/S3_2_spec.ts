@@ -433,7 +433,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     });
   });
 
-  it("6. Verify Adding Suggested widget with specific name functionality - S3 ", () => {
+  it("6. Verify Adding Suggested widget with already present widget - S3 ", () => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE);
     agHelper.Sleep(2500); //allowing sometime for widget to settle down
     dataSources.NavigateFromActiveDS(datasourceName, true);
@@ -442,11 +442,12 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
       dataSources.ValidateNSelectDropdown("Commands", "List files in bucket");
       agHelper.UpdateCodeInput(formControls.s3BucketName, bucketName);
       dataSources.RunQuery();
+      agHelper.Sleep(); //for CI runs
+      agHelper.ScrollIntoView("." + dataSources._addSuggestedExisting);
       dataSources.AddSuggestedWidget(
         Widgets.Table,
         dataSources._addSuggestedExisting,
       );
-
       propPane.DeleteWidgetDirectlyFromPropertyPane();
       entityExplorer.SelectEntityByName($queryName, "Queries/JS");
       agHelper.ActionContextMenuWithInPane({
@@ -475,6 +476,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     ); //verify Delete File dialog appears
     agHelper.ClickButton("Confirm", { sleepTime: 3000 }); //wait for Delete operation to be successfull, //Verifies 8684
     assertHelper.AssertNetworkExecutionSuccess("@postExecute", true);
+    agHelper.Sleep(2000); //for the delete to reflect in UI for CI runs
     agHelper.GetNAssertElementText(
       locators._textWidgetInDeployed,
       fileNameToDelete,

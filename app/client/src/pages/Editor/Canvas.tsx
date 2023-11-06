@@ -3,13 +3,10 @@ import React from "react";
 import styled from "styled-components";
 import * as Sentry from "@sentry/react";
 import { useSelector } from "react-redux";
-import WidgetFactory from "WidgetProvider/factory";
 import type { CanvasWidgetStructure } from "WidgetProvider/constants";
-
-import { RenderModes } from "constants/WidgetConstants";
 import useWidgetFocus from "utils/hooks/useWidgetFocus";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { previewModeSelector } from "selectors/editorSelectors";
+import { combinedPreviewModeSelector } from "selectors/editorSelectors";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { getViewportClassName } from "layoutSystems/autolayout/utils/AutoLayoutUtils";
 import type { FontFamily } from "@design-system/theming";
@@ -18,6 +15,11 @@ import {
   useTheme,
 } from "@design-system/theming";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
+import { CANVAS_ART_BOARD } from "constants/componentClassNameConstants";
+import { renderAppsmithCanvas } from "layoutSystems/CanvasFactory";
+import type { WidgetProps } from "widgets/BaseWidget";
+import { LayoutSystemTypes } from "layoutSystems/types";
+import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 
 interface CanvasProps {
   widgetsStructure: CanvasWidgetStructure;
@@ -34,15 +36,17 @@ const Wrapper = styled.section<{
   background: ${({ background }) => background};
   width: ${({ $enableMainCanvasResizer, width }) =>
     $enableMainCanvasResizer ? `100%` : `${width}px`};
+  height: 100%;
 `;
 const Canvas = (props: CanvasProps) => {
   const { canvasWidth } = props;
-  const isPreviewMode = useSelector(previewModeSelector);
+  const isPreviewMode = useSelector(combinedPreviewModeSelector);
   const isAppSettingsPaneWithNavigationTabOpen = useSelector(
     getIsAppSettingsPaneWithNavigationTabOpen,
   );
   const selectedTheme = useSelector(getSelectedAppTheme);
   const isWDSV2Enabled = useFeatureFlag("ab_wds_enabled");
+  const layoutSystemType: LayoutSystemTypes = useSelector(getLayoutSystemType);
 
   const { theme } = useTheme({
     borderRadius: selectedTheme.properties.borderRadius.appBorderRadius,
@@ -70,6 +74,7 @@ const Canvas = (props: CanvasProps) => {
   }
 
   const focusRef = useWidgetFocus();
+  const isWDSEnabled = useFeatureFlag("ab_wds_enabled");
 
   const marginHorizontalClass = props.enableMainCanvasResizer
     ? `mx-0`
@@ -84,16 +89,19 @@ const Canvas = (props: CanvasProps) => {
           className={`relative t--canvas-artboard ${paddingBottomClass} transition-all duration-400  ${marginHorizontalClass} ${getViewportClassName(
             canvasWidth,
           )}`}
-          data-testid="t--canvas-artboard"
-          id="art-board"
-          ref={focusRef}
+          data-testid={"t--canvas-artboard"}
+          id={CANVAS_ART_BOARD}
+          ref={isWDSEnabled ? undefined : focusRef}
           width={canvasWidth}
         >
           {props.widgetsStructure.widgetId &&
-            WidgetFactory.createWidget(
-              props.widgetsStructure,
-              RenderModes.CANVAS,
-            )}
+            renderAppsmithCanvas({
+              ...props.widgetsStructure,
+              classList:
+                layoutSystemType === LayoutSystemTypes.ANVIL
+                  ? ["main-anvil-canvas"]
+                  : [],
+            } as WidgetProps)}
         </Wrapper>
       </WDSThemeProvider>
     );

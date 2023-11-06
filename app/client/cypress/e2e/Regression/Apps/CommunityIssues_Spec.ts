@@ -31,12 +31,15 @@ describe("AForce - Community Issues page validations", function () {
     homePage.ImportApp("CommunityIssuesExport.json");
     assertHelper
       .WaitForNetworkCall("importNewApplication")
-      .then((interception: any) => {
+      .then((response: any) => {
         agHelper.Sleep();
-        const { isPartialImport } = interception.response.body.data;
+        const { isPartialImport } = response.body.data;
         if (isPartialImport) {
           // should reconnect modal
-          dataSources.ReconnectSingleDSNAssert("AForceDB", "PostgreSQL");
+          dataSources.ReconnectSingleDSNAssert(
+            String.raw`AForceDB`,
+            "PostgreSQL",
+          );
           homePage.AssertNCloseImport();
         } else {
           homePage.AssertImportToast();

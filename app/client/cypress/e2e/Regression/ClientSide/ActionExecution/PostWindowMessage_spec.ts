@@ -15,7 +15,8 @@ describe("Post window message", () => {
     entityExplorer.SelectEntityByName("Button1", "Widgets");
     propPane.SelectPlatformFunction("onClick", "Post message");
     agHelper.EnterActionValue("Message", "After postMessage");
-    agHelper.EnterActionValue("Target iframe", "Iframe1");
+    agHelper.GetNClick(propPane._windowTargetDropdown);
+    agHelper.GetNClick(locators._dropDownValue("Iframe1"), 0, true);
 
     entityExplorer.SelectEntityByName("Iframe1", "Widgets");
     propPane.UpdatePropertyFieldValue(

@@ -1,7 +1,9 @@
 package com.appsmith.server.services.ce;
 
+import com.appsmith.external.constants.PluginConstants;
 import com.appsmith.external.dtos.ExecutePluginDTO;
 import com.appsmith.external.dtos.RemoteDatasourceDTO;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.UpdatableConnection;
@@ -12,9 +14,11 @@ import com.appsmith.server.datasourcestorages.base.DatasourceStorageService;
 import com.appsmith.server.domains.DatasourceContext;
 import com.appsmith.server.domains.DatasourceContextIdentifier;
 import com.appsmith.server.domains.Plugin;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.services.ConfigService;
-import com.appsmith.server.services.PluginService;
 import com.appsmith.server.solutions.DatasourcePermission;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +43,9 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
     private final PluginExecutorHelper pluginExecutorHelper;
     private final ConfigService configService;
     private final DatasourcePermission datasourcePermission;
+
+    private final AppsmithException TOO_MANY_REQUESTS_EXCEPTION =
+            new AppsmithException(AppsmithError.TOO_MANY_FAILED_DATASOURCE_CONNECTION_REQUESTS);
 
     @Autowired
     public DatasourceContextServiceCEImpl(
@@ -70,6 +77,7 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
      * value instead of creating a new connection for each subscription of the source publisher.
      *
      * @param datasourceStorage           - datasource storage for which a new datasource context / connection needs to be created
+     * @param plugin
      * @param pluginExecutor              - plugin executor associated with the datasource's plugin
      * @param monitor                     - unique monitor object per datasource id. Lock is acquired on this monitor object.
      * @param datasourceContextIdentifier - key for the datasourceContextMaps.
@@ -78,6 +86,7 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
      */
     public Mono<? extends DatasourceContext<?>> getCachedDatasourceContextMono(
             DatasourceStorage datasourceStorage,
+            Plugin plugin,
             PluginExecutor<Object> pluginExecutor,
             Object monitor,
             DatasourceContextIdentifier datasourceContextIdentifier) {
@@ -114,7 +123,7 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
 
             /* Create a fresh datasource context */
             DatasourceContext<Object> datasourceContext = new DatasourceContext<>();
-            if (datasourceContextIdentifier.isKeyValid()) {
+            if (datasourceContextIdentifier.isKeyValid() && shouldCacheContextForThisPlugin(plugin)) {
                 /* For this datasource, either the context doesn't exist, or the context is stale. Replace (or add) with
                 the new connection in the context map. */
                 datasourceContextMap.put(datasourceContextIdentifier, datasourceContext);
@@ -138,11 +147,23 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
                             datasourceContext)
                     .cache(); /* Cache the value so that further evaluations don't result in new connections */
 
-            if (datasourceContextIdentifier.isKeyValid()) {
+            if (datasourceContextIdentifier.isKeyValid() && shouldCacheContextForThisPlugin(plugin)) {
                 datasourceContextMonoMap.put(datasourceContextIdentifier, datasourceContextMonoCache);
             }
             return datasourceContextMonoCache;
         }
+    }
+
+    /**
+     * determines whether we should cache context for given plugin
+     * it gives false if plugin is rest-api or graph-ql
+     * @param plugin
+     * @return
+     */
+    public boolean shouldCacheContextForThisPlugin(Plugin plugin) {
+        // !(a || b) => (!a) & (!b)
+        return !PluginConstants.PackageName.REST_API_PLUGIN.equals(plugin.getPackageName())
+                && !PluginConstants.PackageName.GRAPH_QL_PLUGIN.equals(plugin.getPackageName());
     }
 
     public Mono<Object> updateDatasourceAndSetAuthentication(Object connection, DatasourceStorage datasourceStorage) {
@@ -162,33 +183,38 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
     protected Mono<DatasourceContext<?>> createNewDatasourceContext(
             DatasourceStorage datasourceStorage, DatasourceContextIdentifier datasourceContextIdentifier) {
         log.debug("Datasource context doesn't exist. Creating connection.");
-        Mono<Plugin> pluginMono = pluginService.findById(datasourceStorage.getPluginId());
+        Mono<Plugin> pluginMono =
+                pluginService.findById(datasourceStorage.getPluginId()).cache();
 
-        return pluginExecutorHelper.getPluginExecutor(pluginMono).flatMap(pluginExecutor -> {
+        return pluginMono
+                .zipWith(pluginExecutorHelper.getPluginExecutor(pluginMono))
+                .flatMap(tuple2 -> {
+                    Plugin plugin = tuple2.getT1();
+                    PluginExecutor<Object> pluginExecutor = tuple2.getT2();
 
-            /**
-             * Keep one monitor object against each datasource id. The synchronized method
-             * `getCachedDatasourceContextMono` would then acquire lock on the monitor object which is unique
-             * for each datasourceId hence ensuring that if competing threads want to create datasource context
-             * on different datasource id then they are not blocked on each other and can run concurrently.
-             * Only threads that want to create a new datasource context on the same datasource id would be
-             * synchronized.
-             */
-            Object monitor = new Object();
-            if (datasourceContextIdentifier.isKeyValid()) {
-                if (datasourceContextSynchronizationMonitorMap.get(datasourceContextIdentifier) == null) {
-                    synchronized (this) {
-                        datasourceContextSynchronizationMonitorMap.computeIfAbsent(
-                                datasourceContextIdentifier, k -> new Object());
+                    /**
+                     * Keep one monitor object against each datasource id. The synchronized method
+                     * `getCachedDatasourceContextMono` would then acquire lock on the monitor object which is unique
+                     * for each datasourceId hence ensuring that if competing threads want to create datasource context
+                     * on different datasource id then they are not blocked on each other and can run concurrently.
+                     * Only threads that want to create a new datasource context on the same datasource id would be
+                     * synchronized.
+                     */
+                    Object monitor = new Object();
+                    if (datasourceContextIdentifier.isKeyValid()) {
+                        if (datasourceContextSynchronizationMonitorMap.get(datasourceContextIdentifier) == null) {
+                            synchronized (this) {
+                                datasourceContextSynchronizationMonitorMap.computeIfAbsent(
+                                        datasourceContextIdentifier, k -> new Object());
+                            }
+                        }
+
+                        monitor = datasourceContextSynchronizationMonitorMap.get(datasourceContextIdentifier);
                     }
-                }
 
-                monitor = datasourceContextSynchronizationMonitorMap.get(datasourceContextIdentifier);
-            }
-
-            return getCachedDatasourceContextMono(
-                    datasourceStorage, pluginExecutor, monitor, datasourceContextIdentifier);
-        });
+                    return getCachedDatasourceContextMono(
+                            datasourceStorage, plugin, pluginExecutor, monitor, datasourceContextIdentifier);
+                });
     }
 
     public boolean getIsStale(
@@ -245,7 +271,53 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
                 return Mono.just(datasourceContextMap.get(datasourceContextIdentifier));
             }
         }
-        return createNewDatasourceContext(datasourceStorage, datasourceContextIdentifier);
+
+        // As per https://github.com/appsmithorg/appsmith/issues/27745, Rate Limiting needs to applied
+        // on connection failure, otherwise brute force attacks may happen and our IP may get blocked
+        // For connection creation, the assumption is that whenever connection creation fails error
+        // is thrown by respective plugin, following plugins throw error: Postgres, Oracle, Mssql and Redshift
+        // For other plugins like MySQL, SMTP, Elastic Search, ArangoDB, Redis, In createNewDatasourceContext,
+        // Instead of connection, connection pool is created, connection is created when we query execution happens
+        // Hence cannot add rate limiting for these plugins here. Rate limiting for plugins which create connection pool
+        // should be handled separately, refer https://github.com/appsmithorg/appsmith/issues/28259
+
+        // Note: Plugins that throw error may be using connection pool mechanism but in such cases, connection is
+        // created
+        // right away, where as for other plugins with connection pool, connection is created at a later time, when
+        // query execution happens
+        return datasourceService
+                .isEndpointBlockedForConnectionRequest(datasourceStorage)
+                .flatMap(isBlocked -> {
+                    if (isBlocked) {
+                        log.debug("Datasource is blocked for connection request");
+                        return Mono.error(TOO_MANY_REQUESTS_EXCEPTION);
+                    } else {
+                        return createNewDatasourceContext(datasourceStorage, datasourceContextIdentifier)
+                                .onErrorResume(AppsmithPluginException.class, error -> {
+                                    return datasourceService
+                                            .consumeTokenIfAvailable(datasourceStorage)
+                                            .flatMap(wasTokenAvailable -> {
+                                                if (!wasTokenAvailable) {
+                                                    // This will block the datasource connection for next 5 minutes, as
+                                                    // bucket has been exhausted, and return too many requests response
+                                                    return datasourceService
+                                                            .blockEndpointForConnectionRequest(datasourceStorage)
+                                                            .flatMap(isAdded -> {
+                                                                if (isAdded) {
+                                                                    return Mono.error(TOO_MANY_REQUESTS_EXCEPTION);
+                                                                } else {
+                                                                    return Mono.error(
+                                                                            new AppsmithException(
+                                                                                    AppsmithError
+                                                                                            .DATASOURCE_CONNECTION_RATE_LIMIT_BLOCKING_FAILED));
+                                                                }
+                                                            });
+                                                }
+                                                return Mono.error(error);
+                                            });
+                                });
+                    }
+                });
     }
 
     @Override

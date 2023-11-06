@@ -189,7 +189,7 @@ export class Table {
   _divFirstChild = "div:first-child abbr";
   _listPreviousPage = ".rc-pagination-prev";
   _listNavigation = (move: string) =>
-    "//button[@area-label='" + move + " page']";
+    "//button[@aria-label='" + move + " page']";
   _listNextPage = ".rc-pagination-next";
   _listActivePage = (version: "v1" | "v2") =>
     `.t--widget-listwidget${
@@ -554,7 +554,7 @@ export class Table {
     tableVersion: "v1" | "v2" = "v1",
   ) {
     this.EditColumn(columnName, tableVersion);
-    this.agHelper.SelectDropdownList("Column type", newDataType);
+    this.propPane.SelectPropertiesDropDown("Column type", newDataType);
     this.assertHelper.AssertNetworkStatus("@updateLayout");
     if (tableVersion == "v2") this.propPane.NavigateBackToPropertyPane();
   }
