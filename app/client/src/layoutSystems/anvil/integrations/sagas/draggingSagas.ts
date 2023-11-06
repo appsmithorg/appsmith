@@ -24,7 +24,6 @@ import {
 import type { WidgetProps } from "widgets/BaseWidget";
 import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
 import { WDS_V2_WIDGET_MAP } from "components/wds/constants";
-import { addNewAnvilWidgetAction } from "../actions/draggingActions";
 
 export function* getMainCanvasLastRowHighlight() {
   const mainCanvas: WidgetProps = yield select(
@@ -66,7 +65,6 @@ function* addSuggestedWidgetsAnvilSaga(
   if (wdsEntry) {
     const [, wdsType] = wdsEntry;
     const newWidgetParams = {
-      ...newWidget.props,
       width: (newWidget.rows || 0 / GridDefaults.DEFAULT_GRID_COLUMNS) * 100,
       height: newWidget.columns || 0 * GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
       newWidgetId: newWidget.newWidgetId,
@@ -76,8 +74,85 @@ function* addSuggestedWidgetsAnvilSaga(
     const mainCanvasHighLight: AnvilHighlightInfo = yield call(
       getMainCanvasLastRowHighlight,
     );
-    yield put(addNewAnvilWidgetAction(newWidgetParams, mainCanvasHighLight));
+    const updatedWidgets: CanvasWidgetsReduxState = yield call(
+      addNewChildToDSL,
+      mainCanvasHighLight,
+      newWidgetParams,
+    );
+    updatedWidgets[newWidgetParams.newWidgetId] = {
+      ...updatedWidgets[newWidgetParams.newWidgetId],
+      ...newWidget.props,
+    };
+    yield put(updateAndSaveLayout(updatedWidgets));
+    yield put(
+      selectWidgetInitAction(SelectionRequestType.One, [
+        newWidgetParams.newWidgetId,
+      ]),
+    );
   }
+}
+
+function* addNewChildToDSL(
+  highlight: AnvilHighlightInfo,
+  newWidget: {
+    width: number;
+    height: number;
+    newWidgetId: string;
+    type: string;
+  },
+) {
+  const { alignment, canvasId } = highlight;
+  const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+
+  // Execute Blueprint operation to update widget props before creation.
+  const newParams: { [key: string]: any } = yield call(
+    executeWidgetBlueprintBeforeOperations,
+    BlueprintOperationTypes.UPDATE_CREATE_PARAMS_BEFORE_ADD,
+    {
+      parentId: canvasId,
+      widgetId: newWidget.newWidgetId,
+      widgets: allWidgets,
+      widgetType: newWidget.type,
+    },
+  );
+  const updatedParams: any = { ...newWidget, ...newParams };
+
+  // Create and add widget.
+  const updatedWidgetsOnAddition: CanvasWidgetsReduxState = yield call(
+    getUpdateDslAfterCreatingChild,
+    {
+      ...updatedParams,
+      widgetId: canvasId,
+    },
+  );
+
+  const canvasWidget = updatedWidgetsOnAddition[canvasId];
+  const canvasLayout = canvasWidget.layout
+    ? canvasWidget.layout
+    : generateDefaultLayoutPreset();
+  /**
+   * Add new widget to the children of parent canvas.
+   * Also add it to parent canvas' layout.
+   */
+  const updatedWidgets = {
+    ...updatedWidgetsOnAddition,
+    [canvasWidget.widgetId]: {
+      ...canvasWidget,
+      layout: addWidgetsToPreset(canvasLayout, highlight, [
+        {
+          widgetId: newWidget.newWidgetId,
+          alignment,
+        },
+      ]),
+    },
+    [newWidget.newWidgetId]: {
+      ...updatedWidgetsOnAddition[newWidget.newWidgetId],
+      // This is a temp fix, widget dimensions will be self computed by widgets
+      height: newWidget.height,
+      width: newWidget.width,
+    },
+  };
+  return updatedWidgets;
 }
 
 function* addWidgetsSaga(
@@ -94,57 +169,12 @@ function* addWidgetsSaga(
   try {
     const start = performance.now();
     const { highlight, newWidget } = actionPayload.payload;
-    const { alignment, canvasId } = highlight;
-    const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
 
-    // Execute Blueprint operation to update widget props before creation.
-    const newParams: { [key: string]: any } = yield call(
-      executeWidgetBlueprintBeforeOperations,
-      BlueprintOperationTypes.UPDATE_CREATE_PARAMS_BEFORE_ADD,
-      {
-        parentId: canvasId,
-        widgetId: newWidget.newWidgetId,
-        widgets: allWidgets,
-        widgetType: newWidget.type,
-      },
+    const updatedWidgets: CanvasWidgetsReduxState = yield call(
+      addNewChildToDSL,
+      highlight,
+      newWidget,
     );
-    const updatedParams: any = { ...newWidget, ...newParams };
-
-    // Create and add widget.
-    const updatedWidgetsOnAddition: CanvasWidgetsReduxState = yield call(
-      getUpdateDslAfterCreatingChild,
-      {
-        ...updatedParams,
-        widgetId: canvasId,
-      },
-    );
-
-    const canvasWidget = updatedWidgetsOnAddition[canvasId];
-    const canvasLayout = canvasWidget.layout
-      ? canvasWidget.layout
-      : generateDefaultLayoutPreset();
-    /**
-     * Add new widget to the children of parent canvas.
-     * Also add it to parent canvas' layout.
-     */
-    const updatedWidgets = {
-      ...updatedWidgetsOnAddition,
-      [canvasWidget.widgetId]: {
-        ...canvasWidget,
-        layout: addWidgetsToPreset(canvasLayout, highlight, [
-          {
-            widgetId: newWidget.newWidgetId,
-            alignment,
-          },
-        ]),
-      },
-      [newWidget.newWidgetId]: {
-        ...updatedWidgetsOnAddition[newWidget.newWidgetId],
-        // This is a temp fix, widget dimensions will be self computed by widgets
-        height: newWidget.height,
-        width: newWidget.width,
-      },
-    };
     yield put(updateAndSaveLayout(updatedWidgets));
     yield put(
       selectWidgetInitAction(SelectionRequestType.One, [newWidget.newWidgetId]),
