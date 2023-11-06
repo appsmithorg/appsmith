@@ -1037,7 +1037,7 @@ export const PREVIOUS_STEP = () => "Previous step";
 export const GIT_CONNECT_SUCCESS_TITLE = () =>
   "Successfully connected to your Git remote repository";
 export const GIT_CONNECT_SUCCESS_MESSAGE = () =>
-  "Right now, {branch} is set as the default branch and it is protected.";
+  "Now you can start collaborating with your team members by committing, merging and deploying your app";
 export const START_USING_GIT = () => "Start using Git";
 export const OPEN_GIT_SETTINGS = () => "Open Git settings";
 export const GIT_AUTHOR = () => "Git author";

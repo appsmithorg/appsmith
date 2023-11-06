@@ -244,3 +244,8 @@ export const getIsGitProtectedFeatureEnabled = createSelector(
   selectFeatureFlags,
   (flags) => !!flags?.release_git_branch_protection_enabled,
 );
+
+export const getIsGitProtectedFeatureLicensed = createSelector(
+  selectFeatureFlags,
+  (flags) => !!flags?.license_git_branch_protection_enabled,
+);

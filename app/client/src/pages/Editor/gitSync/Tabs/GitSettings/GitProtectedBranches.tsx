@@ -5,7 +5,6 @@ import {
   UPDATE,
   createMessage,
 } from "@appsmith/constants/messages";
-import { isCEMode } from "@appsmith/utils";
 import { updateGitProtectedBranchesInit } from "actions/gitSyncActions";
 import { Button, Link, Option, Select, Text } from "design-system";
 import { xor } from "lodash";
@@ -14,6 +13,7 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   getDefaultGitBranchName,
   getGitBranches,
+  getIsGitProtectedFeatureLicensed,
   getIsUpdateProtectedBranchesLoading,
   getProtectedBranchesSelector,
 } from "selectors/gitSyncSelectors";
@@ -47,12 +47,14 @@ const StyledSelect = styled(Select)`
 `;
 
 function GitProtectedBranches() {
-  const isCE = isCEMode();
   const dispatch = useDispatch();
 
   const unfilteredBranches = useSelector(getGitBranches);
   const branches = unfilteredBranches.filter(
     (b) => !b.branchName.includes("origin/"),
+  );
+  const isGitProtectedFeatureLicensed = useSelector(
+    getIsGitProtectedFeatureLicensed,
   );
   const defaultBranch = useSelector(getDefaultGitBranchName);
   const protectedBranches = useSelector(getProtectedBranchesSelector);
@@ -86,17 +88,19 @@ function GitProtectedBranches() {
         <SectionDesc kind="body-m" renderAs="p">
           {createMessage(BRANCH_PROTECTION_DESC)}
         </SectionDesc>
-        <SectionDesc kind="body-m" renderAs="p">
-          To protect multiple branches, try{" "}
-          <Link
-            kind="primary"
-            style={{ display: "inline-flex" }}
-            target="_blank"
-            to="https://www.appsmith.com/enterprise?lead_source=git%20feat%20branch%20config"
-          >
-            {createMessage(APPSMITH_ENTERPRISE)}
-          </Link>
-        </SectionDesc>
+        {!isGitProtectedFeatureLicensed && (
+          <SectionDesc kind="body-m" renderAs="p">
+            To protect multiple branches, try{" "}
+            <Link
+              kind="primary"
+              style={{ display: "inline-flex" }}
+              target="_blank"
+              to="https://www.appsmith.com/enterprise?lead_source=git%20feat%20branch%20config"
+            >
+              {createMessage(APPSMITH_ENTERPRISE)}
+            </Link>
+          </SectionDesc>
+        )}
       </HeadContainer>
       <BodyContainer>
         <StyledSelect
@@ -107,7 +111,9 @@ function GitProtectedBranches() {
         >
           {branches.map((b) => (
             <Option
-              disabled={isCE && b.branchName !== defaultBranch}
+              disabled={
+                !isGitProtectedFeatureLicensed && b.branchName !== defaultBranch
+              }
               key={b.branchName}
               value={b.branchName}
             >
