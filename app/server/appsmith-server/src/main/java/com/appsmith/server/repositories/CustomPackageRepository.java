@@ -10,5 +10,7 @@ import reactor.core.publisher.Mono;
 public interface CustomPackageRepository extends AppsmithRepository<Package> {
     Flux<Package> findAllUserPackages(AclPermission permission);
 
+    Flux<Package> findAllConsumablePackages(String workspaceId, AclPermission permission);
+
     Mono<UpdateResult> update(String id, Update updateObj, AclPermission permission);
 }

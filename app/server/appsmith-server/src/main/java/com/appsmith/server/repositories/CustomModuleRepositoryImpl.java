@@ -12,6 +12,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
@@ -29,6 +30,13 @@ public class CustomModuleRepositoryImpl extends BaseAppsmithRepositoryImpl<Modul
         Criteria packageCriteria = where(fieldName(QModule.module.packageId)).is(packageId);
 
         return queryAll(List.of(packageCriteria), permission);
+    }
+
+    @Override
+    public Flux<Module> getAllConsumableModulesByPackageIds(List<String> packageIds, AclPermission permission) {
+        Criteria packageIdInCriteria =
+                where(fieldName(QModule.module.packageId)).in(packageIds);
+        return queryAll(List.of(packageIdInCriteria), Optional.of(permission));
     }
 
     @Override

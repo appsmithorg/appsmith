@@ -348,4 +348,12 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
                 .collectList()
                 .then();
     }
+
+    @Override
+    public Mono<List<ModuleDTO>> getAllConsumableModules(List<String> packageIds) {
+        return moduleRepository
+                .getAllConsumableModulesByPackageIds(packageIds, modulePermission.getReadPermission())
+                .flatMap(module -> setTransientFieldsFromModuleToModuleDTO(module, module.getPublishedModule()))
+                .collectList();
+    }
 }

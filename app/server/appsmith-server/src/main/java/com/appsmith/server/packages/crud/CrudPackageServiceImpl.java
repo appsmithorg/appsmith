@@ -10,6 +10,7 @@ import com.appsmith.server.domains.Package;
 import com.appsmith.server.domains.QPackage;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.dtos.ConsumablePackagesAndModulesDTO;
 import com.appsmith.server.dtos.ModuleDTO;
 import com.appsmith.server.dtos.PackageDTO;
 import com.appsmith.server.dtos.PackageDetailsDTO;
@@ -203,6 +204,33 @@ public class CrudPackageServiceImpl extends CrudPackageServiceCECompatibleImpl i
                     .as(transactionalOperator::transactional)
                     .then(setTransientFieldsFromPackageToPackageDTO(aPackage, aPackage.getUnpublishedPackage()));
         });
+    }
+
+    @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_query_module_enabled)
+    public Mono<ConsumablePackagesAndModulesDTO> getAllPackagesForConsumer(String workspaceId) {
+        Mono<Workspace> workspaceMono = workspaceService
+                .findById(workspaceId, workspacePermission.getReadPermission())
+                .switchIfEmpty(Mono.error(new AppsmithException(
+                        AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.WORKSPACE_ID, workspaceId)));
+        return workspaceMono.then(packageRepository
+                .findAllConsumablePackages(workspaceId, packagePermission.getReadPermission())
+                .flatMap(aPackage -> generatePackageByViewMode(aPackage, ResourceModes.EDIT))
+                .collectList()
+                .flatMap(packageDTOS -> {
+                    List<String> packageIds = packageDTOS.stream()
+                            .map(packageDTO -> packageDTO.getId())
+                            .toList();
+
+                    return crudModuleService.getAllConsumableModules(packageIds).flatMap(moduleDTOS -> {
+                        ConsumablePackagesAndModulesDTO consumablePackagesAndModulesDTO =
+                                new ConsumablePackagesAndModulesDTO();
+                        consumablePackagesAndModulesDTO.setPackages(packageDTOS);
+                        consumablePackagesAndModulesDTO.setModules(moduleDTOS);
+
+                        return Mono.just(consumablePackagesAndModulesDTO);
+                    });
+                }));
     }
 
     private Update prepareUpdatableFieldsForPackage(PackageDTO packageResource) {

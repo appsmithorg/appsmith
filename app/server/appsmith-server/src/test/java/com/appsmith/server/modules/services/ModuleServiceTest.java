@@ -1,4 +1,4 @@
-package com.appsmith.server.modules.services.crud;
+package com.appsmith.server.modules.services;
 
 import com.appsmith.external.models.ModuleInput;
 import com.appsmith.external.models.ModuleType;
@@ -53,7 +53,7 @@ import static org.mockito.Mockito.doReturn;
 @SpringBootTest
 @Slf4j
 @DirtiesContext
-public class CrudModuleServiceTest {
+public class ModuleServiceTest {
 
     @Autowired
     PackagePermissionChecker packagePermissionChecker;

@@ -2,6 +2,7 @@ package com.appsmith.server.packages.crud;
 
 import com.appsmith.server.constants.ResourceModes;
 import com.appsmith.server.domains.Package;
+import com.appsmith.server.dtos.ConsumablePackagesAndModulesDTO;
 import com.appsmith.server.dtos.PackageDTO;
 import com.appsmith.server.dtos.PackageDetailsDTO;
 import com.appsmith.server.packages.base.BasePackageService;
@@ -13,6 +14,8 @@ public interface CrudPackageService extends BasePackageService, CrudPackageServi
     Mono<PackageDTO> createPackage(PackageDTO packageToBeCreated, String workspaceId);
 
     Mono<List<PackageDTO>> getAllPackages();
+
+    Mono<ConsumablePackagesAndModulesDTO> getAllPackagesForConsumer(String workspaceId);
 
     Mono<PackageDTO> generatePackageByViewMode(Package aPackage, ResourceModes resourceMode);
 

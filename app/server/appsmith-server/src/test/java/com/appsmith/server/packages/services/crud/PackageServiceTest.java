@@ -7,10 +7,10 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Package;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.dtos.ConsumablePackagesAndModulesDTO;
 import com.appsmith.server.dtos.ModuleActionDTO;
 import com.appsmith.server.dtos.ModuleDTO;
 import com.appsmith.server.dtos.PackageDTO;
-import com.appsmith.server.dtos.PackageDetailsDTO;
 import com.appsmith.server.dtos.PublishingMetaDTO;
 import com.appsmith.server.exceptions.AppsmithErrorCode;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -93,7 +93,8 @@ public class PackageServiceTest {
     @SpyBean
     CommonConfig commonConfig;
 
-    String workspaceId;
+    String firstWorkspaceId;
+    String secondWorkspaceId;
     String defaultEnvironmentId;
 
     @BeforeEach
@@ -119,15 +120,26 @@ public class PackageServiceTest {
         User apiUser = userService.findByEmail("api_user").block();
 
         Workspace toCreate = new Workspace();
-        toCreate.setName("ApplicationServiceTest");
+        toCreate.setName("PackageServiceTest");
 
-        if (workspaceId == null) {
+        if (firstWorkspaceId == null) {
             Workspace workspace =
                     workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
-            workspaceId = workspace.getId();
+            firstWorkspaceId = workspace.getId();
 
             defaultEnvironmentId = workspaceService
-                    .getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission())
+                    .getDefaultEnvironmentId(firstWorkspaceId, environmentPermission.getExecutePermission())
+                    .block();
+        }
+        Workspace secondWS = new Workspace();
+        secondWS.setName("PackageServiceTest2");
+        if (secondWorkspaceId == null) {
+            Workspace workspace =
+                    workspaceService.create(secondWS, apiUser, Boolean.FALSE).block();
+            secondWorkspaceId = workspace.getId();
+
+            defaultEnvironmentId = workspaceService
+                    .getDefaultEnvironmentId(secondWorkspaceId, environmentPermission.getExecutePermission())
                     .block();
         }
     }
@@ -145,7 +157,7 @@ public class PackageServiceTest {
         secondPackage.setIcon("rupee");
 
         // create package test
-        Mono<PackageDTO> firstPackageMono = crudPackageService.createPackage(firstPackage, workspaceId);
+        Mono<PackageDTO> firstPackageMono = crudPackageService.createPackage(firstPackage, firstWorkspaceId);
 
         StepVerifier.create(firstPackageMono)
                 .assertNext(createdPackage -> {
@@ -154,7 +166,7 @@ public class PackageServiceTest {
                 })
                 .verifyComplete();
 
-        Mono<PackageDTO> secondPackageMono = crudPackageService.createPackage(secondPackage, workspaceId);
+        Mono<PackageDTO> secondPackageMono = crudPackageService.createPackage(secondPackage, firstWorkspaceId);
 
         StepVerifier.create(secondPackageMono)
                 .assertNext(createdPackage -> {
@@ -174,16 +186,6 @@ public class PackageServiceTest {
                     packageId.set(allPackages.get(0).getId());
                 })
                 .verifyComplete();
-
-        // get package details by `packageId` test
-        Mono<PackageDetailsDTO> packageDetailsDTOMono = crudPackageService.getPackageDetails(packageId.get());
-
-        StepVerifier.create(packageDetailsDTOMono)
-                .assertNext(packageDetailsDTO -> {
-                    assertThat(packageDetailsDTO).isNotNull();
-                    assertThat(packageDetailsDTO.getModules()).size().isEqualTo(0);
-                })
-                .verifyComplete();
     }
 
     @WithUserDetails(value = "api_user")
@@ -193,7 +195,7 @@ public class PackageServiceTest {
         appsmithPackage.setColor("#C2DAF0");
         appsmithPackage.setIcon("rupee");
 
-        Mono<PackageDTO> packageMono = crudPackageService.createPackage(appsmithPackage, workspaceId);
+        Mono<PackageDTO> packageMono = crudPackageService.createPackage(appsmithPackage, firstWorkspaceId);
 
         StepVerifier.create(packageMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
@@ -213,7 +215,7 @@ public class PackageServiceTest {
         AtomicReference<PackageDTO> testPackageRef = new AtomicReference<>();
 
         // create package test
-        Mono<PackageDTO> firstPackageMono = crudPackageService.createPackage(aPackage, workspaceId);
+        Mono<PackageDTO> firstPackageMono = crudPackageService.createPackage(aPackage, firstWorkspaceId);
 
         User currentUser = sessionUserService.getCurrentUser().block();
 
@@ -254,7 +256,7 @@ public class PackageServiceTest {
         AtomicReference<PackageDTO> testPackageRef = new AtomicReference<>();
 
         // create package test
-        Mono<PackageDTO> firstPackageMono = crudPackageService.createPackage(aPackage, workspaceId);
+        Mono<PackageDTO> firstPackageMono = crudPackageService.createPackage(aPackage, firstWorkspaceId);
 
         StepVerifier.create(firstPackageMono)
                 .assertNext(createdPackage -> {
@@ -303,7 +305,7 @@ public class PackageServiceTest {
         AtomicReference<PackageDTO> testPackageRef = new AtomicReference<>();
 
         // create package test
-        Mono<PackageDTO> firstPackageMono = crudPackageService.createPackage(aPackage, workspaceId);
+        Mono<PackageDTO> firstPackageMono = crudPackageService.createPackage(aPackage, firstWorkspaceId);
 
         StepVerifier.create(firstPackageMono)
                 .assertNext(createdPackage -> {
@@ -339,7 +341,7 @@ public class PackageServiceTest {
         AtomicReference<PackageDTO> testPackageRef = new AtomicReference<>();
 
         // create package
-        Mono<PackageDTO> firstPackageMono = crudPackageService.createPackage(aPackage, workspaceId);
+        Mono<PackageDTO> firstPackageMono = crudPackageService.createPackage(aPackage, firstWorkspaceId);
 
         StepVerifier.create(firstPackageMono)
                 .assertNext(createdPackage -> {
@@ -427,7 +429,7 @@ public class PackageServiceTest {
         AtomicReference<PackageDTO> testPackageRef = new AtomicReference<>();
 
         // create package
-        Mono<PackageDTO> firstPackageMono = crudPackageService.createPackage(aPackage, workspaceId);
+        Mono<PackageDTO> firstPackageMono = crudPackageService.createPackage(aPackage, firstWorkspaceId);
 
         StepVerifier.create(firstPackageMono)
                 .assertNext(createdPackage -> {
@@ -459,6 +461,174 @@ public class PackageServiceTest {
         StepVerifier.create(newActionPublishableEntitiesMono)
                 .assertNext(publishedActions -> {
                     assertThat(publishedActions).isEmpty();
+                })
+                .verifyComplete();
+    }
+
+    @WithUserDetails(value = "api_user")
+    @Test
+    public void testConsumablePackagesAndModulesShouldReturnEmptyWhenThereIsNoPublishedPackages() {
+        final PackageDTO aPackage = new PackageDTO();
+        aPackage.setName("ConsumablePackageEmptyTest");
+        aPackage.setColor("#C2DAF0");
+        aPackage.setIcon("rupee");
+
+        AtomicReference<String> packageId = new AtomicReference<>();
+        AtomicReference<PackageDTO> testPackageRef = new AtomicReference<>();
+
+        // create package
+        Mono<PackageDTO> firstPackageMono = crudPackageService.createPackage(aPackage, firstWorkspaceId);
+
+        StepVerifier.create(firstPackageMono)
+                .assertNext(createdPackage -> {
+                    assertThat(createdPackage.getId()).isNotEmpty();
+                    packageId.set(createdPackage.getId());
+                    testPackageRef.set(createdPackage);
+                    assertThat(createdPackage.getName()).isEqualTo(aPackage.getName());
+                })
+                .verifyComplete();
+
+        // create a module
+        ModuleDTO moduleDTO = new ModuleDTO();
+        moduleDTO.setName("ModuleX");
+        moduleDTO.setPackageId(packageId.get());
+        moduleDTO.setType(ModuleType.QUERY_MODULE);
+
+        ModuleActionDTO moduleActionDTO = new ModuleActionDTO();
+
+        moduleDTO.setEntity(moduleActionDTO);
+
+        Mono<ModuleDTO> createModuleMono = crudModuleService.createModule(moduleDTO);
+
+        StepVerifier.create(createModuleMono)
+                .assertNext(createdModule -> {
+                    assertThat(createdModule.getId()).isNotEmpty();
+                })
+                .verifyComplete();
+
+        // create another module
+        ModuleDTO anotherModuleDTO = new ModuleDTO();
+        anotherModuleDTO.setName("ModuleY");
+        anotherModuleDTO.setPackageId(packageId.get());
+        anotherModuleDTO.setType(ModuleType.QUERY_MODULE);
+
+        ModuleActionDTO anotherModuleActionDTO = new ModuleActionDTO();
+
+        anotherModuleDTO.setEntity(anotherModuleActionDTO);
+
+        Mono<ModuleDTO> createAnotherModuleMono = crudModuleService.createModule(anotherModuleDTO);
+
+        StepVerifier.create(createAnotherModuleMono)
+                .assertNext(createdModule -> {
+                    assertThat(createdModule.getId()).isNotEmpty();
+                })
+                .verifyComplete();
+
+        // fetch all consumable packages and modules for the given `workspaceId`
+        Mono<ConsumablePackagesAndModulesDTO> packagesAndModulesDTOMono =
+                crudPackageService.getAllPackagesForConsumer(firstWorkspaceId);
+
+        // verify that there are no consumable packages and modules
+        StepVerifier.create(packagesAndModulesDTOMono)
+                .assertNext(consumablePackagesAndModulesDTO -> {
+                    assertThat(consumablePackagesAndModulesDTO.getPackages()).isEmpty();
+                    assertThat(consumablePackagesAndModulesDTO.getModules()).isEmpty();
+                })
+                .verifyComplete();
+    }
+
+    @WithUserDetails(value = "api_user")
+    @Test
+    public void testConsumablePackagesAndModulesShouldReturnConsumablePackagesAndModulesWhenThereIsPublishedPackage() {
+        final PackageDTO aPackage = new PackageDTO();
+        aPackage.setName("ConsumablePackageValidTest");
+        aPackage.setColor("#C2DAF0");
+        aPackage.setIcon("rupee");
+
+        AtomicReference<String> packageId = new AtomicReference<>();
+        AtomicReference<PackageDTO> testPackageRef = new AtomicReference<>();
+
+        // create package
+        Mono<PackageDTO> firstPackageMono = crudPackageService.createPackage(aPackage, secondWorkspaceId);
+
+        StepVerifier.create(firstPackageMono)
+                .assertNext(createdPackage -> {
+                    assertThat(createdPackage.getId()).isNotEmpty();
+                    packageId.set(createdPackage.getId());
+                    testPackageRef.set(createdPackage);
+                    assertThat(createdPackage.getName()).isEqualTo(aPackage.getName());
+                })
+                .verifyComplete();
+
+        // create a module
+        ModuleDTO moduleDTO = new ModuleDTO();
+        moduleDTO.setName("ModuleX");
+        moduleDTO.setPackageId(packageId.get());
+        moduleDTO.setType(ModuleType.QUERY_MODULE);
+
+        ModuleActionDTO moduleActionDTO = new ModuleActionDTO();
+
+        moduleDTO.setEntity(moduleActionDTO);
+
+        Mono<ModuleDTO> createModuleMono = crudModuleService.createModule(moduleDTO);
+
+        StepVerifier.create(createModuleMono)
+                .assertNext(createdModule -> {
+                    assertThat(createdModule.getId()).isNotEmpty();
+                })
+                .verifyComplete();
+
+        // create another module
+        ModuleDTO anotherModuleDTO = new ModuleDTO();
+        anotherModuleDTO.setName("ModuleY");
+        anotherModuleDTO.setPackageId(packageId.get());
+        anotherModuleDTO.setType(ModuleType.QUERY_MODULE);
+
+        ModuleActionDTO anotherModuleActionDTO = new ModuleActionDTO();
+
+        anotherModuleDTO.setEntity(anotherModuleActionDTO);
+
+        Mono<ModuleDTO> createAnotherModuleMono = crudModuleService.createModule(anotherModuleDTO);
+
+        StepVerifier.create(createAnotherModuleMono)
+                .assertNext(createdModule -> {
+                    assertThat(createdModule.getId()).isNotEmpty();
+                })
+                .verifyComplete();
+
+        // publish the package
+        Mono<Boolean> publishPackageMono = publishPackageService.publishPackage(packageId.get());
+
+        StepVerifier.create(publishPackageMono)
+                .assertNext(publishPackageStatus -> {
+                    assertThat(publishPackageStatus).isTrue();
+                })
+                .verifyComplete();
+
+        // fetch consumable packages and modules for the given `workspaceId`
+        Mono<ConsumablePackagesAndModulesDTO> packagesAndModulesDTOMono =
+                crudPackageService.getAllPackagesForConsumer(secondWorkspaceId);
+
+        // verify that there are consumable packages and modules
+        StepVerifier.create(packagesAndModulesDTOMono)
+                .assertNext(consumablePackagesAndModulesDTO -> {
+                    assertThat(consumablePackagesAndModulesDTO.getPackages().size())
+                            .isEqualTo(1);
+                    assertThat(consumablePackagesAndModulesDTO.getModules().size())
+                            .isEqualTo(2);
+                })
+                .verifyComplete();
+
+        // verify that there aren't any consumable packages and modules in the first workspace
+        Mono<ConsumablePackagesAndModulesDTO> packagesAndModulesDTOMono1 =
+                crudPackageService.getAllPackagesForConsumer(firstWorkspaceId);
+
+        StepVerifier.create(packagesAndModulesDTOMono1)
+                .assertNext(consumablePackagesAndModulesDTO -> {
+                    assertThat(consumablePackagesAndModulesDTO.getPackages().size())
+                            .isEqualTo(0);
+                    assertThat(consumablePackagesAndModulesDTO.getModules().size())
+                            .isEqualTo(0);
                 })
                 .verifyComplete();
     }

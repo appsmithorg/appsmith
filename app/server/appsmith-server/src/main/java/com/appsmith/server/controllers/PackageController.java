@@ -2,6 +2,7 @@ package com.appsmith.server.controllers;
 
 import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.Url;
+import com.appsmith.server.dtos.ConsumablePackagesAndModulesDTO;
 import com.appsmith.server.dtos.PackageDTO;
 import com.appsmith.server.dtos.PackageDetailsDTO;
 import com.appsmith.server.dtos.ResponseDTO;
@@ -61,6 +62,16 @@ public class PackageController {
     public Mono<ResponseDTO<List<PackageDTO>>> getAllPackages() {
         return crudPackageService
                 .getAllPackages()
+                .map(packageDTOS -> new ResponseDTO<>(HttpStatus.OK.value(), packageDTOS, null));
+    }
+
+    @JsonView(Views.Public.class)
+    @GetMapping("")
+    @ResponseStatus(HttpStatus.OK)
+    public Mono<ResponseDTO<ConsumablePackagesAndModulesDTO>> getAllConsumablePackages(
+            @RequestParam String workspaceId) {
+        return crudPackageService
+                .getAllPackagesForConsumer(workspaceId)
                 .map(packageDTOS -> new ResponseDTO<>(HttpStatus.OK.value(), packageDTOS, null));
     }
 

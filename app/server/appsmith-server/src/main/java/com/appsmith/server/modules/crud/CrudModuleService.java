@@ -25,4 +25,6 @@ public interface CrudModuleService extends BaseModuleService, CrudModuleServiceC
     Flux<Module> saveModuleInBulk(List<Module> modules);
 
     Mono<Void> archiveModulesByPackageId(String packageId);
+
+    Mono<List<ModuleDTO>> getAllConsumableModules(List<String> packageIds);
 }
