@@ -11,8 +11,6 @@ import com.appsmith.server.services.CacheableFeatureFlagHelper;
 import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.TenantService;
 import lombok.extern.slf4j.Slf4j;
-import org.ff4j.FF4j;
-import org.ff4j.conf.XmlParser;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,10 +19,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
-import org.springframework.context.annotation.Bean;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
@@ -101,43 +97,11 @@ public class FeatureFlagServiceCETest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void testFeatureCheckForPonderationStrategy() {
-        Math.random();
-        StepVerifier.create(featureFlagService.check(FeatureFlagEnum.TEST_FEATURE_2))
-                .assertNext(result -> {
-                    assertTrue(result);
-                })
-                .verifyComplete();
-    }
-
-    @Test
-    @WithUserDetails(value = "api_user")
-    public void testFeatureCheckForAppsmithUserStrategy() {
-        StepVerifier.create(featureFlagService.check(FeatureFlagEnum.TEST_FEATURE_1))
-                .assertNext(result -> {
-                    assertFalse(result);
-                })
-                .verifyComplete();
-    }
-
-    @Test
-    @WithUserDetails(value = "api_user")
     public void testGetFeaturesForUser() {
         StepVerifier.create(featureFlagService.getAllFeatureFlagsForUser())
                 .assertNext(result -> {
                     assertNotNull(result);
                     assertTrue(result.containsKey(FeatureFlagEnum.TEST_FEATURE_2.toString()));
-                })
-                .verifyComplete();
-    }
-
-    @Test
-    @WithUserDetails(value = "api_user")
-    public void testFeatureCheckForEmailStrategy() {
-        StepVerifier.create(featureFlagService.getAllFeatureFlagsForUser())
-                .assertNext(result -> {
-                    assertNotNull(result);
-                    assertTrue(result.containsKey(FeatureFlagEnum.TEST_FEATURE_3.toString()));
                 })
                 .verifyComplete();
     }
@@ -341,17 +305,5 @@ public class FeatureFlagServiceCETest {
                     assertTrue(cachedFeaturesAfterRemoteCall.getFeatures().get(TENANT_TEST_FEATURE.name()));
                 })
                 .verifyComplete();
-    }
-
-    @TestConfiguration
-    static class TestFeatureFlagConfig {
-
-        @Bean
-        FF4j ff4j() {
-            FF4j ff4j = new FF4j(new XmlParser(), "features/init-flags-test.xml")
-                    .audit(true)
-                    .autoCreate(false);
-            return ff4j;
-        }
     }
 }

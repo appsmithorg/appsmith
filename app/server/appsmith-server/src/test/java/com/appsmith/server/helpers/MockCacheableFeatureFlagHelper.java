@@ -7,6 +7,7 @@ import com.appsmith.server.dtos.ce.FeaturesRequestDTO;
 import com.appsmith.server.dtos.ce.FeaturesResponseDTO;
 import com.appsmith.server.featureflags.CachedFeatures;
 import com.appsmith.server.featureflags.CachedFlags;
+import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.services.CacheableFeatureFlagHelper;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
@@ -16,6 +17,7 @@ import reactor.core.publisher.Mono;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
+import java.util.Map;
 
 @Profile("test")
 @Primary
@@ -27,7 +29,7 @@ public class MockCacheableFeatureFlagHelper implements CacheableFeatureFlagHelpe
     public Mono<CachedFlags> fetchUserCachedFlags(String userIdentifier, User user) {
         CachedFlags cachedFlags = new CachedFlags();
         cachedFlags.setRefreshedAt(Instant.now().minus(1, ChronoUnit.DAYS));
-        cachedFlags.setFlags(new HashMap<>());
+        cachedFlags.setFlags(Map.of(FeatureFlagEnum.TEST_FEATURE_2.toString(), Boolean.TRUE));
         return Mono.just(cachedFlags);
     }
 
