@@ -6,10 +6,9 @@ import {
   type IEntity,
 } from "@appsmith/plugins/Linting/lib/entity/types";
 
+export type DynamicEntityType = JSEntity | WidgetEntity | ActionEntity;
 // only Widgets, jsActions and Actions have paths that can be dynamic
-export function isDynamicEntity(
-  entity: IEntity,
-): entity is JSEntity | WidgetEntity | ActionEntity {
+export function isDynamicEntity(entity: IEntity): entity is DynamicEntityType {
   return [
     ENTITY_TYPE.JSACTION,
     ENTITY_TYPE.WIDGET,

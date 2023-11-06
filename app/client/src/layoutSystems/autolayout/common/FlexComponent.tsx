@@ -5,7 +5,7 @@ import styled from "styled-components";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { useSelector } from "react-redux";
 import {
-  previewModeSelector,
+  combinedPreviewModeSelector,
   snipingModeSelector,
 } from "selectors/editorSelectors";
 import { getIsResizing } from "selectors/widgetSelectors";
@@ -52,7 +52,7 @@ export function FlexComponent(props: FlexComponentProps) {
       )} t--widget-${props.widgetName.toLowerCase()}`,
     [props.parentId, props.widgetId, props.widgetType, props.widgetName],
   );
-  const isPreviewMode = useSelector(previewModeSelector);
+  const isPreviewMode = useSelector(combinedPreviewModeSelector);
 
   const isResizing = useSelector(getIsResizing);
   const widgetDimensionsViewCss = {

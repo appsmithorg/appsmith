@@ -4,6 +4,7 @@ import {
   getIsDeploying,
   getIsGitConnected,
   getIsGitSyncModalOpen,
+  protectedModeSelector,
 } from "selectors/gitSyncSelectors";
 import { useDispatch, useSelector } from "react-redux";
 import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
@@ -42,32 +43,34 @@ const StyledModalContent = styled(ModalContent)`
   }
 `;
 
-const menuOptions = [
-  {
-    key: GitSyncModalTab.DEPLOY,
-    title: createMessage(DEPLOY),
-  },
-  {
-    key: GitSyncModalTab.MERGE,
-    title: createMessage(MERGE),
-  },
-  {
-    key: GitSyncModalTab.SETTINGS,
-    title: createMessage(SETTINGS_GIT),
-  },
-];
-
-const possibleMenuOptions = menuOptions.map((option) => option.key);
-
 interface GitSyncModalV2Props {
   isImport?: boolean;
 }
 
 function GitSyncModalV2({ isImport = false }: GitSyncModalV2Props) {
+  const isProtectedMode = useSelector(protectedModeSelector);
   const gitMetadata = useSelector(getCurrentAppGitMetaData);
   const isModalOpen = useSelector(getIsGitSyncModalOpen);
   const isGitConnected = useSelector(getIsGitConnected);
   const isDeploying = useSelector(getIsDeploying);
+
+  const menuOptions = [
+    {
+      key: GitSyncModalTab.DEPLOY,
+      title: createMessage(DEPLOY),
+      disabled: isProtectedMode,
+    },
+    {
+      key: GitSyncModalTab.MERGE,
+      title: createMessage(MERGE),
+      disabled: isProtectedMode,
+    },
+    {
+      key: GitSyncModalTab.SETTINGS,
+      title: createMessage(SETTINGS_GIT),
+    },
+  ];
+  const possibleMenuOptions = menuOptions.map((option) => option.key);
 
   let activeTabKey = useSelector(getActiveGitSyncModalTab);
   if (!isGitConnected && activeTabKey !== GitSyncModalTab.GIT_CONNECTION) {
