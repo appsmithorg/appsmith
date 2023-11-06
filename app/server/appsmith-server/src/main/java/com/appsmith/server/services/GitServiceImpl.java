@@ -8,7 +8,6 @@ import com.appsmith.server.annotations.FeatureFlagged;
 import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.datasources.base.DatasourceService;
-import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -44,6 +43,7 @@ import static com.appsmith.external.constants.GitConstants.GIT_CONFIG_ERROR;
 public class GitServiceImpl extends GitServiceCECompatibleImpl implements GitService {
     private final ApplicationService applicationService;
     private final ApplicationPermission applicationPermission;
+    private final WorkspacePermission workspacePermission;
 
     public GitServiceImpl(
             UserService userService,
@@ -99,6 +99,7 @@ public class GitServiceImpl extends GitServiceCECompatibleImpl implements GitSer
                 gitPrivateRepoHelper);
         this.applicationService = applicationService;
         this.applicationPermission = applicationPermission;
+        this.workspacePermission = workspacePermission;
     }
 
     @Override
@@ -112,6 +113,11 @@ public class GitServiceImpl extends GitServiceCECompatibleImpl implements GitSer
         return applicationService
                 .findByBranchNameAndDefaultApplicationId(
                         newDefaultBranchName, defaultApplicationId, applicationPermission.getEditPermission())
+                .flatMap(application -> checkPermissionOnWorkspace(
+                                application.getWorkspaceId(),
+                                workspacePermission.getApplicationCreatePermission(),
+                                "Disconnect from Git")
+                        .thenReturn(application))
                 .flatMapMany(application -> {
                     if (application.getGitApplicationMetadata() == null) {
                         return Mono.error(new AppsmithException(
@@ -146,46 +152,15 @@ public class GitServiceImpl extends GitServiceCECompatibleImpl implements GitSer
     }
 
     @Override
-    public Mono<Application> protectBranch(String defaultApplicationId, String branchName) {
-        return getApplicationById(defaultApplicationId)
-                .zipWith(applicationService.findByIdAndBranchName(defaultApplicationId, branchName))
-                .flatMap(tuple -> {
-                    Application application = tuple.getT1();
-                    Application branchApplication = tuple.getT2();
-                    GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
-                    if (gitApplicationMetadata.getBranchProtectionRules() == null) {
-                        List<String> branchProtectionRules = List.of(branchName);
-                        gitApplicationMetadata.setBranchProtectionRules(branchProtectionRules);
-                    } else {
-                        gitApplicationMetadata.getBranchProtectionRules().add(branchName);
-                    }
-                    branchApplication.getGitApplicationMetadata().setIsProtectedBranch(true);
-                    return applicationService.save(application).then(applicationService.save(branchApplication));
-                });
-    }
-
-    @Override
-    public Mono<Application> unProtectBranch(String defaultApplicationId, String branchName) {
-        return getApplicationById(defaultApplicationId)
-                .zipWith(applicationService.findByIdAndBranchName(defaultApplicationId, branchName))
-                .flatMap(tuple -> {
-                    Application application = tuple.getT1();
-                    Application branchApplication = tuple.getT2();
-                    GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
-                    gitApplicationMetadata.getBranchProtectionRules().remove(branchName);
-
-                    branchApplication.getGitApplicationMetadata().setIsProtectedBranch(false);
-                    return applicationService.save(application).then(applicationService.save(branchApplication));
-                });
-    }
-
-    @Override
-    public Mono<List<String>> getProtectedBranches(String defaultApplicationId) {
-        return applicationService
-                .getApplicationByDefaultApplicationIdAndDefaultBranch(defaultApplicationId)
-                .flatMap(application -> {
-                    GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
-                    return Mono.justOrEmpty(gitApplicationMetadata.getBranchProtectionRules());
-                });
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_git_branch_protection_enabled)
+    public Mono<List<String>> updateProtectedBranches(String defaultApplicationId, List<String> branchNames) {
+        return getApplicationById(defaultApplicationId).flatMap(rootApplication -> {
+            GitApplicationMetadata metadata = rootApplication.getGitApplicationMetadata();
+            metadata.setBranchProtectionRules(branchNames);
+            return applicationService
+                    .save(rootApplication)
+                    .then(applicationService.updateProtectedBranches(defaultApplicationId, branchNames))
+                    .thenReturn(branchNames);
+        });
     }
 }

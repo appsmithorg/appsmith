@@ -2,13 +2,11 @@ package com.appsmith.server.helpers;
 
 import com.appsmith.server.annotations.FeatureFlagged;
 import com.appsmith.server.configurations.CommonConfig;
-import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.helpers.ce.GitPrivateRepoHelperCEImpl;
 import com.appsmith.server.services.ApplicationService;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
-import static com.appsmith.server.featureflags.FeatureFlagEnum.license_git_branch_protection_enabled;
 import static com.appsmith.server.featureflags.FeatureFlagEnum.license_git_unlimited_repo_enabled;
 
 @Component
@@ -32,14 +30,5 @@ public class GitPrivateRepoHelperImpl extends GitPrivateRepoHelperCEImpl impleme
             return super.isRepoLimitReached(workspaceId, isClearCache);
         }
         return Mono.just(Boolean.FALSE);
-    }
-
-    @Override
-    @FeatureFlagged(featureFlagName = license_git_branch_protection_enabled)
-    public Mono<Boolean> isProtectedBranch(String branchName, GitApplicationMetadata gitApplicationMetadata) {
-        return commonConfig.isCloudHosting()
-                ? Mono.just(Boolean.FALSE)
-                : Mono.just(gitApplicationMetadata.getBranchProtectionRules() != null
-                        && gitApplicationMetadata.getBranchProtectionRules().contains(branchName));
     }
 }
