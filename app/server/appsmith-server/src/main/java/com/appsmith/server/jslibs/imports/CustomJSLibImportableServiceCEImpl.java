@@ -23,8 +23,9 @@ public class CustomJSLibImportableServiceCEImpl implements ImportableServiceCE<C
         this.customJSLibService = customJSLibService;
     }
 
+    // Persists relevant information and updates mapped resources
     @Override
-    public Mono<List<CustomJSLib>> importEntities(
+    public Mono<Void> importEntities(
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
@@ -43,15 +44,10 @@ public class CustomJSLibImportableServiceCEImpl implements ImportableServiceCE<C
                     return customJSLibService.persistCustomJSLibMetaDataIfDoesNotExistAndGetDTO(customJSLib, false);
                 })
                 .collectList()
-                .map(customJSLibApplicationDTOS -> {
-                    mappedImportableResourcesDTO.setInstalledJsLibsList(customJSLibApplicationDTOS);
-                    return List.<CustomJSLib>of();
-                })
+                .doOnNext(mappedImportableResourcesDTO::setInstalledJsLibsList)
                 .elapsed()
-                .map(objects -> {
-                    log.debug("time to import custom jslibs: {}", objects.getT1());
-                    return objects.getT2();
-                })
+                .doOnNext(objects -> log.debug("time to import custom jslibs: {}", objects.getT1()))
+                .then()
                 .onErrorResume(e -> {
                     log.error("Error importing custom jslibs", e);
                     return Mono.error(e);

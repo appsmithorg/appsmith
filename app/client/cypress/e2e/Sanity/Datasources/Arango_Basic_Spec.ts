@@ -293,7 +293,8 @@ describe("Validate Arango & CURL Import Datasources", () => {
     propPane.AssertPropertiesDropDownCurrentValue("Table data", "Connect data");
     entityExplorer.NavigateToSwitcher("Explorer");
     entityExplorer.SelectEntityByName("Query6");
-    dataSources.FilterAndVerifyDatasourceSchemaBySearch(collectionName);
+    //dataSources.FilterAndVerifyDatasourceSchemaBySearch("countries");
+    dataSources.VerifyTableSchemaOnQueryEditor(collectionName);
     dataSources.RunQuery();
     dataSources.AddSuggestedWidget(Widgets.Table); //Binding to new table from schema explorer
     propPane.AssertPropertiesDropDownCurrentValue("Table data", "Query6");

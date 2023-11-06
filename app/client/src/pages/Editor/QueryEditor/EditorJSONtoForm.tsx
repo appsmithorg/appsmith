@@ -5,6 +5,7 @@ import type { InjectedFormProps } from "redux-form";
 import { Tag } from "@blueprintjs/core";
 import { isString, noop } from "lodash";
 import type { Datasource } from "entities/Datasource";
+import { DatasourceStructureContext } from "entities/Datasource";
 import {
   getPluginImages,
   getPluginNameFromId,
@@ -126,7 +127,6 @@ import { CloseDebugger } from "components/editorComponents/Debugger/DebuggerTabs
 import { isAIEnabled } from "@appsmith/components/editorComponents/GPT/trigger";
 import { editorSQLModes } from "components/editorComponents/CodeEditor/sql/config";
 import { EditorFormSignPosting } from "@appsmith/components/editorComponents/EditorFormSignPosting";
-import { DatasourceStructureContext } from "../Explorer/Datasources/DatasourceStructure";
 import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 import {
   getHasCreateDatasourcePermission,
@@ -326,6 +326,7 @@ const SidebarWrapper = styled.div<{ show: boolean }>`
 
 export const SegmentedControlContainer = styled.div`
   padding: 0 var(--ads-v2-spaces-7);
+  padding-top: var(--ads-v2-spaces-4);
   display: flex;
   flex-direction: column;
   gap: var(--ads-v2-spaces-4);

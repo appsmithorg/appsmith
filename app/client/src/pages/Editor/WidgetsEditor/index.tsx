@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import Debugger from "components/editorComponents/Debugger";
 
 import {
+  getCanvasWidth,
   getCurrentPageId,
   getCurrentPageName,
   previewModeSelector,
@@ -48,6 +49,11 @@ import { getSnapshotUpdatedTime } from "selectors/autoLayoutSelectors";
 import { getReadableSnapShotDetails } from "layoutSystems/autolayout/utils/AutoLayoutUtils";
 import AnonymousDataPopup from "../FirstTimeUserOnboarding/AnonymousDataPopup";
 import { getIsAppSidebarEnabled } from "selectors/ideSelectors";
+import {
+  LayoutSystemFeatures,
+  useLayoutSystemFeatures,
+} from "layoutSystems/common/useLayoutSystemFeatures";
+import OverlayCanvasContainer from "layoutSystems/common/WidgetNamesCanvas";
 
 function WidgetsEditor() {
   const { deselectAll, focusWidget } = useWidgetSelection();
@@ -69,6 +75,8 @@ function WidgetsEditor() {
   const isAppSettingsPaneWithNavigationTabOpen = useSelector(
     getIsAppSettingsPaneWithNavigationTabOpen,
   );
+  const canvasWidth = useSelector(getCanvasWidth);
+
   const appMode = useSelector(getAppMode);
   const isPublished = appMode === APP_MODE.PUBLISHED;
   const selectedTheme = useSelector(getSelectedAppTheme);
@@ -83,7 +91,11 @@ function WidgetsEditor() {
   const shouldShowSnapShotBanner =
     !!readableSnapShotDetails && !isPreviewingNavigation;
 
-  const ref = useRef<HTMLDivElement>(null);
+  const checkLayoutSystemFeatures = useLayoutSystemFeatures();
+
+  const [enableOverlayCanvas] = checkLayoutSystemFeatures([
+    LayoutSystemFeatures.ENABLE_CANVAS_OVERLAY_FOR_EDITOR_UI,
+  ]);
 
   useEffect(() => {
     if (navigationPreviewRef?.current) {
@@ -224,7 +236,6 @@ function WidgetsEditor() {
               }
               isPreviewMode={isPreviewMode}
               isPublished={isPublished}
-              ref={ref}
               sidebarWidth={isPreviewingNavigation ? sidebarWidth : 0}
             >
               {shouldShowSnapShotBanner && (
@@ -233,15 +244,18 @@ function WidgetsEditor() {
                 </div>
               )}
               <MainContainerWrapper
+                canvasWidth={canvasWidth}
                 currentPageId={currentPageId}
                 isAppSettingsPaneWithNavigationTabOpen={
                   AppSettingsTabs.Navigation === appSettingsPaneContext?.type
                 }
                 isPreviewMode={isPreviewMode}
                 navigationHeight={navigationHeight}
-                parentRef={ref}
                 shouldShowSnapShotBanner={shouldShowSnapShotBanner}
               />
+              {enableOverlayCanvas && (
+                <OverlayCanvasContainer canvasWidth={canvasWidth} />
+              )}
             </PageViewWrapper>
 
             <CrudInfoModal />
