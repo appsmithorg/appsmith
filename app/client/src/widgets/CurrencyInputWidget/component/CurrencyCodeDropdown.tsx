@@ -212,7 +212,7 @@ export const getCountryCodeFromCurrencyCode = (currencyCode?: string) => {
 };
 
 interface CurrencyDropdownProps {
-  onCurrencyTypeChange: (currencyCountryCode?: string) => void;
+  onCurrencyTypeChange?: (currencyCountryCode?: string) => void;
   options: Array<DropdownOption>;
   selected?: string;
   allowCurrencyChange?: boolean;

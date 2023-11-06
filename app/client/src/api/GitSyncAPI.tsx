@@ -28,8 +28,8 @@ export interface ConnectToGitPayload {
   gitProfile?: {
     authorName: string;
     authorEmail: string;
+    useDefaultProfile?: boolean;
   };
-  isDefaultProfile?: boolean;
 }
 
 interface GitStatusParam {
@@ -199,6 +199,22 @@ class GitSyncAPI extends Api {
 
   static async discardChanges(applicationId: string) {
     return Api.put(`${GitSyncAPI.baseURL}/discard/app/${applicationId}`);
+  }
+
+  static async getProtectedBranches(applicationId: string) {
+    return Api.get(
+      `${GitSyncAPI.baseURL}/branch/app/${applicationId}/protected`,
+    );
+  }
+
+  static async updateProtectedBranches(
+    applicationId: string,
+    branchNames: string[],
+  ) {
+    return Api.post(
+      `${GitSyncAPI.baseURL}/branch/app/${applicationId}/protected`,
+      { branchNames },
+    );
   }
 }
 

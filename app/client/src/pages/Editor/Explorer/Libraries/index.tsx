@@ -215,7 +215,7 @@ const PrimaryCTA = function ({ lib }: { lib: JSLibrary }) {
   return null;
 };
 
-function LibraryEntity({ lib }: { lib: JSLibrary }) {
+export function LibraryEntity({ lib }: { lib: JSLibrary }) {
   const openDocs = useCallback(
     (url?: string) => (e: React.MouseEvent) => {
       e?.stopPropagation();
