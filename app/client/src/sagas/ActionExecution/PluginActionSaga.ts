@@ -1230,6 +1230,13 @@ function* executePageLoadAction(pageAction: PageAction) {
         pageAction.id,
       );
       yield put(
+        executePluginActionSuccess({
+          id: pageAction.id,
+          response: payload,
+          isPageLoad: true,
+        }),
+      );
+      yield put(
         updateActionData({
           entityName: action.name,
           dataPath: "data",

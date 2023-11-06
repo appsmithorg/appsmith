@@ -2,20 +2,18 @@ import type { AppState } from "@appsmith/reducers";
 import {
   snipingModeSelector,
   previewModeSelector,
+  getIsAutoLayout,
 } from "selectors/editorSelectors";
 import { useSelector } from "react-redux";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
-import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
-import { LayoutSystemTypes } from "layoutSystems/types";
 
 export const useAllowEditorDragToSelect = () => {
   // This state tells us whether a `ResizableComponent` is resizing
   const isResizing = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isResizing,
   );
-  const layoutSystemType = useSelector(getLayoutSystemType);
 
-  const isFixedLayout = layoutSystemType === LayoutSystemTypes.FIXED;
+  const isAutoLayout = useSelector(getIsAutoLayout);
 
   // This state tells us whether a `DraggableComponent` is dragging
   const isDragging = useSelector(
@@ -47,7 +45,7 @@ export const useAllowEditorDragToSelect = () => {
   );
 
   return (
-    isFixedLayout &&
+    !isAutoLayout &&
     !isAutoCanvasResizing &&
     !isResizingOrDragging &&
     !isDraggingDisabled &&

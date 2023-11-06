@@ -130,22 +130,22 @@ describe("Autocomplete tests", () => {
       // eval function verification
       {
         type: "eval",
-        expected: "eval",
+        expected: "eval()",
         haveOrNotHave: false,
       },
       {
         type: "Blob",
-        expected: "Blob",
+        expected: "Blob()",
         haveOrNotHave: true,
       },
       {
         type: "FormData",
-        expected: "FormData",
+        expected: "FormData()",
         haveOrNotHave: true,
       },
       {
         type: "FileReader",
-        expected: "FileReader",
+        expected: "FileReader()",
         haveOrNotHave: true,
       },
     ];
@@ -167,7 +167,7 @@ describe("Autocomplete tests", () => {
     agHelper.GetNClick(jsEditor._lineinJsEditor(5));
     agHelper.TypeText(locators._codeMirrorTextArea, "this.");
 
-    ["myFun2", "myVar1", "myVar2"].forEach((element, index) => {
+    ["myFun2()", "myVar1", "myVar2"].forEach((element, index) => {
       agHelper.AssertContains(element);
     });
   });

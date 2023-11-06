@@ -1,7 +1,6 @@
 import { CANVAS_ART_BOARD } from "constants/componentClassNameConstants";
 import { Indices } from "constants/Layers";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import type { LayoutElementPosition } from "layoutSystems/common/types";
 import { positionObserver } from "layoutSystems/common/utils/LayoutElementPositionsObserver";
 import { getAnvilLayoutDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
 import { useEffect, useRef } from "react";
@@ -12,22 +11,6 @@ export const AnvilCanvasZIndex = {
   activated: Indices.Layer10.toString(),
   deactivated: "",
 };
-
-const checkIfMousePositionIsInsideBlock = (
-  e: MouseEvent,
-  mainCanvasRect: DOMRect,
-  layoutElementPosition: LayoutElementPosition,
-) => {
-  return (
-    layoutElementPosition.left <= e.clientX - mainCanvasRect.left &&
-    e.clientX - mainCanvasRect.left <=
-      layoutElementPosition.left + layoutElementPosition.width &&
-    layoutElementPosition.top <= e.clientY - mainCanvasRect.top &&
-    e.clientY - mainCanvasRect.top <=
-      layoutElementPosition.top + layoutElementPosition.height
-  );
-};
-
 export const useCanvasActivation = (
   anvilDragStates: AnvilDnDStates,
   layoutId: string,
@@ -43,9 +26,6 @@ export const useCanvasActivation = (
   const mainContainerDOMNode = document.getElementById(CANVAS_ART_BOARD);
   const { setDraggingCanvas, setDraggingNewWidget, setDraggingState } =
     useWidgetDragResize();
-  const draggedWidgetPositions = anvilDragStates.selectedWidgets.map((each) => {
-    return layoutElementPositions[each];
-  });
   /**
    * boolean ref that indicates if the mouse position is outside of main canvas while dragging
    * this is being tracked in order to activate/deactivate canvas.
@@ -92,7 +72,6 @@ export const useCanvasActivation = (
       return currentPositions && !!layoutInfo.isDropTarget;
     })
     .map((each) => allLayouts[each].layoutId);
-
   /**
    * layoutIds sorted by area of each layout in ascending order.
    * This is done because a point can be inside multiple canvas areas, but only the smallest of them is the immediate parent.
@@ -122,23 +101,21 @@ export const useCanvasActivation = (
       smallToLargeSortedDroppableLayoutIds.length > 0
     ) {
       const mainCanvasRect = mainContainerDOMNode.getBoundingClientRect();
-      const isMousePositionOutsideOfDraggingWidgets =
-        !isNewWidget &&
-        draggedWidgetPositions.find((each) => {
-          return checkIfMousePositionIsInsideBlock(e, mainCanvasRect, each);
-        });
-      const hoveredCanvas = isMousePositionOutsideOfDraggingWidgets
-        ? dragDetails.dragGroupActualParent
-        : smallToLargeSortedDroppableLayoutIds.find((each) => {
-            const currentCanvasPositions = layoutElementPositions[each];
-            if (currentCanvasPositions) {
-              return checkIfMousePositionIsInsideBlock(
-                e,
-                mainCanvasRect,
-                currentCanvasPositions,
-              );
-            }
-          });
+      const hoveredCanvas = smallToLargeSortedDroppableLayoutIds.find(
+        (each) => {
+          const currentCanvasPositions = layoutElementPositions[each];
+          if (currentCanvasPositions) {
+            return (
+              currentCanvasPositions.left <= e.clientX - mainCanvasRect.left &&
+              e.clientX - mainCanvasRect.left <=
+                currentCanvasPositions.left + currentCanvasPositions.width &&
+              currentCanvasPositions.top <= e.clientY - mainCanvasRect.top &&
+              e.clientY - mainCanvasRect.top <=
+                currentCanvasPositions.top + currentCanvasPositions.height
+            );
+          }
+        },
+      );
       if (dragDetails.draggedOn !== hoveredCanvas) {
         if (hoveredCanvas) {
           isMouseOutOfMainCanvas.current = false;

@@ -17,5 +17,3 @@ export const DataTreeFunctionSortOrder = [
   "showModal()",
   "setInterval()",
 ];
-
-export const blockedCompletions = ["Function()", "MainContainer"];

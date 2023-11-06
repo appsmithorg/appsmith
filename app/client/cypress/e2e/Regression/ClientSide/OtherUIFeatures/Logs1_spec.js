@@ -1,5 +1,4 @@
 import commonlocators from "../../../../locators/commonlocators.json";
-import { homePage } from "../../../../support/Objects/ObjectsCore";
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
 const {
@@ -35,8 +34,10 @@ describe("Debugger logs", function () {
     cy.get(".t--property-control-visible").find(".t--js-toggle").click();
     cy.testJsontext("visible", "Test");
     cy.get(commonlocators.homeIcon).click({ force: true });
-    homePage.CreateNewApplication();
-    debuggerHelper.AssertErrorCount(0);
+    cy.generateUUID().then((id) => {
+      cy.CreateAppInFirstListedWorkspace(id);
+      debuggerHelper.AssertErrorCount(0);
+    });
   });
 
   it("3. Console log on button click with normal moustache binding", function () {

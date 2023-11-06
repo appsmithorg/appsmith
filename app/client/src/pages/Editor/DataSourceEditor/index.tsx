@@ -8,7 +8,7 @@ import {
   reset,
 } from "redux-form";
 import type { AppState } from "@appsmith/reducers";
-import { get, isEmpty, isEqual, isNil, memoize, merge } from "lodash";
+import { get, isEmpty, isEqual, memoize, merge } from "lodash";
 import {
   getPluginImages,
   getDatasource,
@@ -105,9 +105,6 @@ import {
   getHasManageDatasourcePermission,
   hasCreateDSActionPermissionInApp,
 } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
-import DatasourceTabs from "../DatasourceInfo/DatasorceTabs";
-import DatasourceInformation, { ViewModeWrapper } from "./DatasourceSection";
-import { getIsAppSidebarEnabled } from "../../../selectors/ideSelectors";
 
 interface ReduxStateProps {
   canCreateDatasourceActions: boolean;
@@ -146,7 +143,6 @@ interface ReduxStateProps {
   featureFlags?: FeatureFlags;
   isEnabledForDSViewModeSchema: boolean;
   isPluginAllowedToPreviewData: boolean;
-  isAppSidebarEnabled: boolean;
 }
 
 const Form = styled.div`
@@ -755,18 +751,6 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
     return null;
   }
 
-  shouldRenderRestAPIForm = () => {
-    const { isInsideReconnectModal, pluginDatasourceForm, viewMode } =
-      this.props;
-
-    const shouldViewMode = viewMode && !isInsideReconnectModal;
-    // Check for specific form types first
-    return (
-      pluginDatasourceForm === DatasourceComponentTypes.RestAPIDatasourceForm &&
-      !shouldViewMode
-    );
-  };
-
   renderForm() {
     const {
       datasource,
@@ -779,14 +763,19 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       isSaving,
       location,
       pageId,
+      pluginDatasourceForm,
       pluginName,
       pluginPackageName,
       pluginType,
       viewMode,
     } = this.props;
 
+    const shouldViewMode = viewMode && !isInsideReconnectModal;
     // Check for specific form types first
-    if (this.shouldRenderRestAPIForm()) {
+    if (
+      pluginDatasourceForm === DatasourceComponentTypes.RestAPIDatasourceForm &&
+      !shouldViewMode
+    ) {
       return (
         <>
           <RestAPIDatasourceForm
@@ -855,46 +844,6 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       });
   };
 
-  renderViewConfigChild = () => {
-    const { datasource, formConfig, viewMode } = this.props;
-    return (
-      <ViewModeWrapper data-testid="t--ds-review-section">
-        {!isNil(formConfig) && !isNil(datasource) ? (
-          <DatasourceInformation
-            config={formConfig[0]}
-            datasource={datasource}
-            viewMode={viewMode}
-          />
-        ) : undefined}
-      </ViewModeWrapper>
-    );
-  };
-
-  shouldShowTabs = () => {
-    const {
-      isEnabledForDSViewModeSchema,
-      isPluginAllowedToPreviewData,
-      pluginDatasourceForm,
-    } = this.props;
-    const isRestAPI =
-      pluginDatasourceForm === DatasourceComponentTypes.RestAPIDatasourceForm;
-    return (
-      isEnabledForDSViewModeSchema && isPluginAllowedToPreviewData && !isRestAPI
-    );
-  };
-
-  renderTabsForViewMode = () => {
-    const { datasource } = this.props;
-    return this.shouldShowTabs() ? (
-      <DatasourceTabs
-        configChild={this.renderViewConfigChild()}
-        datasource={datasource as Datasource}
-      />
-    ) : (
-      this.renderViewConfigChild()
-    );
-  };
-
   render() {
     const {
       canCreateDatasourceActions,
@@ -905,10 +854,11 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       datasourceId,
       formData,
       history,
-      isAppSidebarEnabled,
       isDeleting,
+      isEnabledForDSViewModeSchema,
       isInsideReconnectModal,
       isNewDatasource,
+      isPluginAllowedToPreviewData,
       isPluginAuthorized,
       isSaving,
       isTesting,
@@ -952,9 +902,6 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       return null;
     }
 
-    const showingTabsOnViewMode =
-      this.shouldShowTabs() && viewMode && !isInsideReconnectModal;
-
     return (
       <Form
         className="t--json-to-form-wrapper"
@@ -962,7 +909,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
           e.preventDefault();
         }}
       >
-        {isAppSidebarEnabled ? null : <CloseEditor />}
+        <CloseEditor />
         {!isInsideReconnectModal && (
           <DSFormHeader
             canCreateDatasourceActions={canCreateDatasourceActions}
@@ -972,8 +919,10 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
             datasourceId={datasourceId}
             isDeleting={isDeleting}
             isNewDatasource={isNewDatasource}
+            isNewQuerySecondaryButton={
+              isEnabledForDSViewModeSchema && isPluginAllowedToPreviewData
+            }
             isPluginAuthorized={isPluginAuthorized}
-            noBottomBorder={showingTabsOnViewMode}
             pluginImage={pluginImage}
             pluginName={pluginName}
             pluginType={pluginType}
@@ -982,56 +931,46 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
           />
         )}
         <ResizerMainContainer>
-          <ResizerContentContainer
-            className={`db-form-resizer-content ${
-              showingTabsOnViewMode && "db-form-resizer-content-show-tabs"
-            }`}
-          >
+          <ResizerContentContainer className="db-form-resizer-content">
             <DSEditorWrapper>
-              {viewMode && !isInsideReconnectModal ? (
-                this.renderTabsForViewMode()
-              ) : (
-                <>
-                  <DSDataFilter
-                    filterId={this.state.filterParams.id}
-                    isInsideReconnectModal={!!isInsideReconnectModal}
+              <DSDataFilter
+                filterId={this.state.filterParams.id}
+                isInsideReconnectModal={!!isInsideReconnectModal}
+                pluginName={pluginName}
+                pluginType={pluginType}
+                updateFilter={this.updateFilter}
+                viewMode={viewMode}
+              />
+              <div className="db-form-content-container">
+                {this.renderToast()}
+                {this.renderForm()}
+                {/* Render datasource form call-to-actions */}
+                {datasource && (
+                  <DatasourceAuth
+                    currentEnvironment={this.getEnvironmentId()}
+                    datasource={datasource as Datasource}
+                    datasourceButtonConfiguration={
+                      datasourceButtonConfiguration
+                    }
+                    formData={formData}
+                    formName={this.props.formName}
+                    getSanitizedFormData={memoize(this.getSanitizedData)}
+                    isFormDirty={this.props.isFormDirty}
+                    isInsideReconnectModal={isInsideReconnectModal}
+                    isInvalid={this.validateForm()}
+                    isSaving={isSaving}
+                    isTesting={isTesting}
+                    onCancel={() => this.onCancel()}
+                    pageId={pageId}
                     pluginName={pluginName}
-                    pluginType={pluginType}
-                    updateFilter={this.updateFilter}
+                    pluginPackageName={pluginPackageName}
+                    pluginType={pluginType as PluginType}
+                    setDatasourceViewMode={setDatasourceViewMode}
+                    triggerSave={triggerSave}
                     viewMode={viewMode}
                   />
-                  <div className="db-form-content-container">
-                    {this.renderToast()}
-                    {this.renderForm()}
-                    {/* Render datasource form call-to-actions */}
-                    {datasource && (
-                      <DatasourceAuth
-                        currentEnvironment={this.getEnvironmentId()}
-                        datasource={datasource as Datasource}
-                        datasourceButtonConfiguration={
-                          datasourceButtonConfiguration
-                        }
-                        formData={formData}
-                        formName={this.props.formName}
-                        getSanitizedFormData={memoize(this.getSanitizedData)}
-                        isFormDirty={this.props.isFormDirty}
-                        isInsideReconnectModal={isInsideReconnectModal}
-                        isInvalid={this.validateForm()}
-                        isSaving={isSaving}
-                        isTesting={isTesting}
-                        onCancel={() => this.onCancel()}
-                        pageId={pageId}
-                        pluginName={pluginName}
-                        pluginPackageName={pluginPackageName}
-                        pluginType={pluginType as PluginType}
-                        setDatasourceViewMode={setDatasourceViewMode}
-                        triggerSave={triggerSave}
-                        viewMode={viewMode}
-                      />
-                    )}
-                  </div>
-                </>
-              )}
+                )}
+              </div>
             </DSEditorWrapper>
           </ResizerContentContainer>
           {showDebugger && <Debugger />}
@@ -1157,8 +1096,6 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     DATASOURCES_ALLOWED_FOR_PREVIEW_MODE.includes(plugin?.name || "") ||
     (plugin?.name === PluginName.MONGO && !!(datasource as Datasource)?.isMock);
 
-  const isAppSidebarEnabled = getIsAppSidebarEnabled(state);
-
   return {
     canCreateDatasourceActions,
     canDeleteDatasource,
@@ -1195,7 +1132,6 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     defaultKeyValueArrayConfig,
     initialValue,
     showDebugger,
-    isAppSidebarEnabled,
   };
 };
 

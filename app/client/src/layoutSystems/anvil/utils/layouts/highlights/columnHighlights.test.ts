@@ -14,7 +14,6 @@ import {
 } from "layoutSystems/common/utils/constants";
 import { deriveColumnHighlights } from "./columnHighlights";
 import type { LayoutElementPositions } from "layoutSystems/common/types";
-import { getStartPosition } from "./highlightUtils";
 
 describe("columnHighlights", () => {
   const draggedWidgets: DraggedWidget[] = [
@@ -50,9 +49,9 @@ describe("columnHighlights", () => {
       expect(res[0].width).toBeGreaterThan(res[0].height);
       expect(res[0].isVertical).toBeFalsy();
       // Width of all horizontal highlights should be the same.
-      expect(res[0].width).toEqual(positions[layout.layoutId].width);
-      expect(res[1].width).toEqual(positions[layout.layoutId].width);
-      expect(res[2].width).toEqual(positions[layout.layoutId].width);
+      expect(res[0].width).toEqual(300 - HIGHLIGHT_SIZE);
+      expect(res[1].width).toEqual(300 - HIGHLIGHT_SIZE);
+      expect(res[2].width).toEqual(300 - HIGHLIGHT_SIZE);
 
       expect(res[0].height).toEqual(HIGHLIGHT_SIZE);
 
@@ -129,9 +128,7 @@ describe("columnHighlights", () => {
 
       // Top drop zone of first highlight should span the entire space between the start of the layout and the first child.
       expect(res[0].dropZone.top).toEqual(
-        positions[buttonId].top -
-          positions[layout.layoutId].top -
-          HIGHLIGHT_SIZE,
+        positions[buttonId].top - positions[layout.layoutId].top,
       );
       // Bottom drop zone of first highlight should be equal to the space between the top of this widget and the next.
       expect(res[0].dropZone.bottom).toEqual(
@@ -143,11 +140,15 @@ describe("columnHighlights", () => {
           VERTICAL_DROP_ZONE_MULTIPLIER,
       );
       expect(res[1].dropZone.bottom).toEqual(
-        (res[2].posY - res[1].posY) * VERTICAL_DROP_ZONE_MULTIPLIER,
+        positions[inputId].height * VERTICAL_DROP_ZONE_MULTIPLIER,
       );
-      expect(res[2].dropZone.top).toEqual(res[1].dropZone.bottom);
+      expect(res[2].dropZone.top).toEqual(
+        (positions[inputId].height + HIGHLIGHT_SIZE / 2) *
+          VERTICAL_DROP_ZONE_MULTIPLIER,
+      );
       expect(res[2].dropZone.bottom).toEqual(
-        positions[layout.layoutId].height - res[2].posY,
+        positions[layout.layoutId].height -
+          (positions[inputId].top + positions[inputId].height),
       );
     });
   });
@@ -168,7 +169,9 @@ describe("columnHighlights", () => {
         layout.layoutId,
       )(positions, draggedWidgets);
 
-      expect(res[0].width).toEqual(positions[layout.layoutId].width);
+      expect(res[0].width).toEqual(
+        positions[layout.layoutId].width - HIGHLIGHT_SIZE,
+      );
       expect(res[0].alignment).toEqual(FlexLayerAlignment.Start);
       expect(res[0].posY).toEqual(HIGHLIGHT_SIZE / 2);
     });
@@ -191,12 +194,11 @@ describe("columnHighlights", () => {
         layout.layoutId,
       )(positions, draggedWidgets);
       expect(res).toBeDefined();
-      expect(res[0].width).toEqual(positions[layout.layoutId].width);
+      expect(res[0].width).toEqual(
+        positions[layout.layoutId].width - HIGHLIGHT_SIZE,
+      );
       expect(res[0].posY).toEqual(
-        getStartPosition(
-          FlexLayerAlignment.Center,
-          positions[layout.layoutId].height,
-        ),
+        (positions[layout.layoutId].height - HIGHLIGHT_SIZE) / 2,
       );
     });
     it("should return a highlight with the correct dimensions for a end aligned empty drop target column", () => {
@@ -218,7 +220,9 @@ describe("columnHighlights", () => {
         layout.layoutId,
       )(positions, draggedWidgets);
 
-      expect(res[0].width).toEqual(positions[layout.layoutId].width);
+      expect(res[0].width).toEqual(
+        positions[layout.layoutId].width - HIGHLIGHT_SIZE,
+      );
       expect(res[0].posY).toEqual(
         positions[layout.layoutId].height - HIGHLIGHT_SIZE,
       );
@@ -278,6 +282,7 @@ describe("columnHighlights", () => {
        * Column - 3 (before every layout and after the last one)
        */
       expect(res.length).toEqual(9);
+
       // First a horizontal highlight to mark the vertical position above the first child layout.
       expect(res[0].isVertical).toBeFalsy();
       // Then highlights from the child layout.
@@ -287,9 +292,7 @@ describe("columnHighlights", () => {
       expect(res[0].posY).toEqual(
         dimensions[row1.layoutId].top - HIGHLIGHT_SIZE,
       );
-      expect(res[0].dropZone.top).toEqual(
-        dimensions[row1.layoutId].top - HIGHLIGHT_SIZE,
-      );
+      expect(res[0].dropZone.top).toEqual(dimensions[row1.layoutId].top);
 
       expect(res[4].isVertical).toBeFalsy();
       expect(res[4].posY).toEqual(
@@ -300,7 +303,7 @@ describe("columnHighlights", () => {
           VERTICAL_DROP_ZONE_MULTIPLIER,
       );
       expect(res[4].dropZone.bottom).toEqual(
-        (res[8].posY - res[4].posY) * VERTICAL_DROP_ZONE_MULTIPLIER,
+        dimensions[row2.layoutId].height * VERTICAL_DROP_ZONE_MULTIPLIER,
       );
     });
   });

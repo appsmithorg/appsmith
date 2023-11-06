@@ -5,7 +5,7 @@ describe("excludeForAirgap", "Tests JS Libraries", () => {
   it("1. Validates Library install/uninstall", () => {
     _.entityExplorer.ExpandCollapseEntity("Libraries");
     _.installer.OpenInstaller();
-    _.installer.InstallLibrary("uuidjs", "UUID");
+    _.installer.installLibrary("uuidjs", "UUID");
     _.installer.uninstallLibrary("uuidjs");
     _.installer.assertUnInstall("uuidjs");
   });
@@ -16,13 +16,13 @@ describe("excludeForAirgap", "Tests JS Libraries", () => {
     _.entityExplorer.RenameEntityFromExplorer("Table1", "jsonwebtoken");
     _.entityExplorer.ExpandCollapseEntity("Libraries");
     _.installer.OpenInstaller();
-    _.installer.InstallLibrary("jsonwebtoken", "jsonwebtoken_1", true);
+    _.installer.installLibrary("jsonwebtoken", "jsonwebtoken_1", true);
   });
 
   it("3. Checks jspdf library", () => {
     _.entityExplorer.ExpandCollapseEntity("Libraries");
     _.installer.OpenInstaller();
-    _.installer.InstallLibrary("jspdf", "jspdf");
+    _.installer.installLibrary("jspdf", "jspdf");
     _.jsEditor.CreateJSObject(
       `export default {
       myFun1: () => {
@@ -48,7 +48,7 @@ describe("excludeForAirgap", "Tests JS Libraries", () => {
   it("4. ESM build should pass installation, uninstallation and reinstallation", () => {
     _.entityExplorer.ExpandCollapseEntity("Libraries");
     _.installer.OpenInstaller();
-    _.installer.InstallLibraryViaURL(
+    _.installer.installLibraryViaURL(
       "https://cdn.jsdelivr.net/npm/fast-xml-parser@4.2.7/+esm",
       "fast_xml_parser",
     );
@@ -59,7 +59,7 @@ describe("excludeForAirgap", "Tests JS Libraries", () => {
 
     // Reinstallation should succeed with the same accessor
     _.installer.OpenInstaller();
-    _.installer.InstallLibraryViaURL(
+    _.installer.installLibraryViaURL(
       "https://cdn.jsdelivr.net/npm/fast-xml-parser@4.2.7/+esm",
       "fast_xml_parser",
     );
@@ -77,21 +77,20 @@ describe("excludeForAirgap", "Tests JS Libraries", () => {
   it("6. Checks installation in exported/forked app", () => {
     _.homePage.NavigateToHome();
     _.homePage.ImportApp("library_export.json");
-    _.homePage.AssertImportToast();
-    _.agHelper.ValidateToastMessage("true");
+    _.agHelper.AssertContains("true");
     _.agHelper.WaitUntilAllToastsDisappear();
 
     //Checks installation in forked app
     _.homePage.NavigateToHome();
     _.homePage.ForkApplication("Library_export");
-    _.agHelper.ValidateToastMessage("true");
+    _.agHelper.AssertContains("true");
     _.agHelper.WaitUntilAllToastsDisappear();
 
     //Deploy app and check installation
     _.deployMode.DeployApp();
     _.agHelper.WaitUntilToastDisappear("true");
     _.deployMode.NavigateBacktoEditor();
-    _.agHelper.ValidateToastMessage("true");
+    _.agHelper.AssertContains("true");
   });
 
   it("7. Tests library access and installation in public apps", () => {

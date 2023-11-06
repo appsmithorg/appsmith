@@ -1,4 +1,3 @@
-import { GridDefaults } from "constants/WidgetConstants";
 import {
   addNewAnvilWidgetAction,
   moveAnvilWidgets,
@@ -17,8 +16,8 @@ export const useAnvilWidgetDrop = (
   const generateNewWidgetBlock = useCallback(() => {
     const { newWidget } = dragDetails;
     return {
-      width: (newWidget.rows / GridDefaults.DEFAULT_GRID_COLUMNS) * 100,
-      height: newWidget.columns * GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+      width: newWidget.width,
+      height: newWidget.height,
       newWidgetId: newWidget.widgetId,
       parentId: canvasId,
       type: newWidget.type,

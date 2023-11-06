@@ -17,6 +17,7 @@ import org.apache.commons.collections.CollectionUtils;
 import reactor.core.publisher.Mono;
 
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -36,10 +37,8 @@ public class NewPageExportableServiceCEImpl implements ExportableServiceCE<NewPa
         this.pagePermission = pagePermission;
     }
 
-    // Updates pageId to name map in exportable resources. Also directly updates required pages information in
-    // application json
     @Override
-    public Mono<Void> getExportableEntities(
+    public Mono<List<NewPage>> getExportableEntities(
             ExportingMetaDTO exportingMetaDTO,
             MappedExportableResourcesDTO mappedExportableResourcesDTO,
             Mono<Application> applicationMono,
@@ -110,11 +109,13 @@ public class NewPageExportableServiceCEImpl implements ExportableServiceCE<NewPa
                         newPage.sanitiseToExportDBObject();
                     });
                     applicationJson.setPageList(newPageList);
-                    applicationJson.getUpdatedResources().put(FieldName.PAGE_LIST, updatedPageSet);
-
+                    applicationJson.setUpdatedResources(new HashMap<>() {
+                        {
+                            put(FieldName.PAGE_LIST, updatedPageSet);
+                        }
+                    });
                     return newPageList;
-                })
-                .then();
+                });
     }
 
     @Override

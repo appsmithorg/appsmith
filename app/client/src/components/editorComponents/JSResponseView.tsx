@@ -71,7 +71,6 @@ const ResponseContainer = styled.div`
 const ResponseTabWrapper = styled.div`
   display: flex;
   width: 100%;
-  height: 100%;
 
   &.disable * {
     opacity: 0.8;

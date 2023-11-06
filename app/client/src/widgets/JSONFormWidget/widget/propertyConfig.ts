@@ -109,7 +109,7 @@ export const sourceDataValidationFn = (
   } catch (e) {
     return {
       isValid: false,
-      parsed: {},
+      parsed: JSON.parse(value as string),
       messages: [e as Error],
     };
   }

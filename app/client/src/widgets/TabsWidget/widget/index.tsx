@@ -237,12 +237,6 @@ class TabsWidget extends BaseWidget<
     };
   }
 
-  static getDependencyMap(): Record<string, string[]> {
-    return {
-      defaultTab: ["tabsObj", "tabs"],
-    };
-  }
-
   static getPropertyPaneContentConfig() {
     return [
       {
@@ -335,6 +329,7 @@ class TabsWidget extends BaseWidget<
                   autocompleteDataType: AutocompleteDataType.STRING,
                 },
               },
+              dependentPaths: ["tabsObj", "tabs"],
             },
             dependencies: ["tabsObj", "tabs"],
           },

@@ -207,13 +207,6 @@ class MultiSelectWidget extends BaseWidget<
     };
   }
 
-  static getDependencyMap(): Record<string, string[]> {
-    return {
-      optionValue: ["sourceData"],
-      defaultOptionValue: ["serverSideFiltering", "options"],
-    };
-  }
-
   static getPropertyPaneContentConfig() {
     return [
       {
@@ -327,6 +320,7 @@ class MultiSelectWidget extends BaseWidget<
                   autocompleteDataType: AutocompleteDataType.STRING,
                 },
               },
+              dependentPaths: ["sourceData"],
             },
             additionalAutoComplete: getLabelValueAdditionalAutocompleteData,
           },
@@ -354,6 +348,7 @@ class MultiSelectWidget extends BaseWidget<
                   autocompleteDataType: AutocompleteDataType.ARRAY,
                 },
               },
+              dependentPaths: ["serverSideFiltering", "options"],
             },
             dependencies: ["serverSideFiltering", "options"],
           },

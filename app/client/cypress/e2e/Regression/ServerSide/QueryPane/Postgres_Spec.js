@@ -321,6 +321,6 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
 
   it("13. Deletes the datasource", () => {
     cy.NavigateToQueryEditor();
-    dataSources.DeleteDatasouceFromActiveTab(datasourceName, [200, 409]);
+    dataSources.DeleteDatasouceFromActiveTab(datasourceName, [200 | 409]);
   });
 });

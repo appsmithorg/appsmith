@@ -128,7 +128,12 @@ public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepository,
             String applicationId, String branchName, Boolean isViewMode) {
         return getAllCustomJSLibsFromApplication(applicationId, branchName, isViewMode)
                 .map(jsLibList -> {
-                    jsLibList.forEach(CustomJSLib::sanitiseToExportDBObject);
+                    jsLibList.forEach(jsLib -> {
+                        jsLib.setId(null);
+                        jsLib.setCreatedAt(null);
+                        jsLib.setUpdatedAt(null);
+                    });
+
                     return jsLibList;
                 });
     }

@@ -15,6 +15,7 @@ describe("Create app same name in different workspace", function () {
     cy.generateUUID().then((uid) => {
       workspaceId = uid;
       appid = uid;
+      localStorage.setItem("WorkspaceName", workspaceId);
       cy.createWorkspace();
       cy.wait("@createWorkspace").then((interception) => {
         newWorkspaceName = interception.response.body.data.name;

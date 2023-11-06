@@ -17,10 +17,8 @@ describe("excludeForAirgap", "Fork a template to an workspace", () => {
         cy.get(templateLocators.templateViewForkButton).click();
       }
     });
-    _.agHelper.WaitUntilEleAppear(
-      `div[role="dialog"]:has(` + templateLocators.dialogForkButton + `)`,
-    );
-    cy.get(templateLocators.dialogForkButton).click({ force: true });
+    cy.get(templateLocators.dialogForkButton).click();
+
     cy.get(commonlocators.canvas, { timeout: 30000 }).should("be.visible");
   });
 

@@ -307,11 +307,6 @@ export class ApplicationApi extends Api {
         name: request.name,
         color: request.color,
         icon: request.icon,
-        applicationDetail: {
-          appPositioning: {
-            type: request.layoutSystemType,
-          },
-        },
       },
     );
   }

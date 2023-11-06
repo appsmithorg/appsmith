@@ -60,10 +60,8 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
         this.newActionService = newActionService;
     }
 
-    // Updates pageNametoIdMap and pageNameMap in importable resources.
-    // Also directly updates required information in DB
     @Override
-    public Mono<Void> importEntities(
+    public Mono<List<NewPage>> importEntities(
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
@@ -106,7 +104,7 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
                         mappedImportableResourcesDTO)
                 .cache();
 
-        return updatedApplicationMono.then(importedNewPagesMono).then();
+        return updatedApplicationMono.then(importedNewPagesMono).map(Tuple2::getT1);
     }
 
     @Override

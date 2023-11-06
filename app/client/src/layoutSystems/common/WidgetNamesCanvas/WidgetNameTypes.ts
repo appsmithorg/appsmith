@@ -33,6 +33,21 @@ export interface CanvasPositions {
 }
 
 export interface WidgetNamePositionType {
-  selected: Record<string, WidgetNamePositionData | undefined>;
-  focused: Record<string, WidgetNamePositionData | undefined>;
+  selected: WidgetNamePositionData | undefined;
+  focused: WidgetNamePositionData | undefined;
 }
+
+// TODO(abhinav): Update this at the source of the setDraggingState function
+export type SetDragginStateFnType = ({
+  draggedOn,
+  draggingGroupCenter,
+  dragGroupActualParent,
+  isDragging,
+  startPoints,
+}: {
+  isDragging: boolean;
+  dragGroupActualParent?: string | undefined;
+  draggingGroupCenter?: Record<string, any> | undefined;
+  startPoints?: any;
+  draggedOn?: string | undefined;
+}) => void;

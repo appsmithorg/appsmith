@@ -31,16 +31,7 @@ export function handleTab(event: KeyboardEvent) {
     default:
       const tabbable = getTabbableDescendants(currentNode, shiftKey);
 
-      let isNextWidgetElementFocusable = false;
-      do {
-        nextTabbableDescendant = getNextTabbableDescendant(tabbable, shiftKey);
-        if (nextTabbableDescendant) {
-          isNextWidgetElementFocusable = !!getFocussableElementOfWidget(
-            nextTabbableDescendant,
-          );
-        }
-        tabbable.shift();
-      } while (!isNextWidgetElementFocusable && tabbable.length > 0);
+      nextTabbableDescendant = getNextTabbableDescendant(tabbable, shiftKey);
   }
 
   // if nextTabbableDescendant is found, focus

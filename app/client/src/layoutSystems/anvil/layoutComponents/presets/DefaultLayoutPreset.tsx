@@ -14,7 +14,6 @@ export function generateDefaultLayoutPreset(
       layout: [],
       layoutId: generateReactKey(),
       layoutStyle: {
-        border: "none",
         minHeight: "40px",
         height: "100%",
       },

@@ -65,7 +65,6 @@ spec:
       containers:
         - name: {{ .Values.containerName }}
           securityContext:
-            allowPrivilegeEscalation: false
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
@@ -114,6 +113,8 @@ spec:
             - secretRef:
                 name: {{ .Values.secretName }}
             {{- end }}
+          securityContext:
+            allowPrivilegeEscalation: false
       {{- if .Values.image.pullSecrets}}
       imagePullSecrets:
         - name: {{ .Values.image.pullSecrets }}

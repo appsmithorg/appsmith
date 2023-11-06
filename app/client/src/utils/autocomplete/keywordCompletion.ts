@@ -1,7 +1,7 @@
-import type { Completion, TernCompletionResult } from "./CodemirrorTernService";
+import type { Completion } from "./CodemirrorTernService";
 
 export const getCompletionsForKeyword = (
-  completion: Completion<TernCompletionResult>,
+  completion: Completion,
   cursorHorizontalPos: number,
 ) => {
   const keywordName = completion.text;

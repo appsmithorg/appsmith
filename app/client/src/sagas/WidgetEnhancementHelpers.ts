@@ -67,15 +67,15 @@ export function getParentWithEnhancementFn(
   }
 }
 
-const fixedLayoutOnlyProperties = ["dynamicHeight"];
+const propertiesToExcludeForAutoLayout = ["dynamicHeight"];
 
 export function layoutSystemBasedPropertyFilter(
   parentProps: any,
   propertyName: string,
 ) {
   return (
-    parentProps.layoutSystemType !== LayoutSystemTypes.FIXED &&
-    fixedLayoutOnlyProperties.includes(propertyName)
+    parentProps.layoutSystemType === LayoutSystemTypes.AUTO &&
+    propertiesToExcludeForAutoLayout.includes(propertyName)
   );
 }
 

@@ -15,7 +15,6 @@ import { stopEventPropagation } from "utils/AppsmithUtils";
 import { useWidgetSelection } from "./useWidgetSelection";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { NavigationMethod } from "../history";
-import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 
 const ContentWrapper = styled.div`
   width: 100%;
@@ -62,7 +61,6 @@ export const useClickToSelectWidget = (widgetId: string) => {
   const shouldIgnoreClicks = useSelector(
     shouldWidgetIgnoreClicksSelector(widgetId),
   );
-  const layoutSystemType = useSelector(getLayoutSystemType);
 
   const clickToSelectWidget = useCallback(
     (e: any) => {
@@ -72,7 +70,7 @@ export const useClickToSelectWidget = (widgetId: string) => {
       if (shouldIgnoreClicks) return;
       if ((!isPropPaneVisible && isSelected) || !isSelected) {
         let type: SelectionRequestType = SelectionRequestType.One;
-        if (e.metaKey || e.ctrlKey || (layoutSystemType && e.shiftKey)) {
+        if (e.metaKey || e.ctrlKey) {
           type = SelectionRequestType.PushPop;
         } else if (e.shiftKey) {
           type = SelectionRequestType.ShiftSelect;

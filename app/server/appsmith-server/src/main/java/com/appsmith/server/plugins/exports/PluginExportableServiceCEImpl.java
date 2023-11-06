@@ -27,9 +27,8 @@ public class PluginExportableServiceCEImpl implements ExportableServiceCE<Plugin
         this.workspaceService = workspaceService;
     }
 
-    // Updates plugin map in exportable resources
     @Override
-    public Mono<Void> getExportableEntities(
+    public Mono<List<Plugin>> getExportableEntities(
             ExportingMetaDTO exportingMetaDTO,
             MappedExportableResourcesDTO mappedExportableResourcesDTO,
             Mono<Application> applicationMono,
@@ -50,7 +49,6 @@ public class PluginExportableServiceCEImpl implements ExportableServiceCE<Plugin
                                     plugin.getPluginName() == null ? plugin.getPackageName() : plugin.getPluginName());
                     return plugin;
                 })
-                .collectList()
-                .then();
+                .collectList();
     }
 }

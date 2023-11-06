@@ -15,8 +15,6 @@ const CanvasResizerIcon = importSvg(
 const AutoLayoutCanvasResizer = styled.div`
   position: sticky;
   cursor: col-resize;
-  user-select: none;
-  -webkit-user-select: none;
   width: 2px;
   height: 100%;
   display: flex;
@@ -71,7 +69,7 @@ export function MainContainerResizer({
   enableMainCanvasResizer: boolean;
 }) {
   const appLayout = useSelector(getCurrentApplicationLayout);
-  const ref = useRef<HTMLDivElement>(null);
+  const ref = useRef(null);
   const dispatch = useDispatch();
   useEffect(() => {
     const ele: HTMLElement | null = document.getElementById(CANVAS_VIEWPORT);
@@ -92,19 +90,22 @@ export function MainContainerResizer({
         const smallestWidth = layoutConfigurations.MOBILE.minWidth;
         // The current position of mouse
         let x = 0;
+        // let y = 0;
 
         // The dimension of the element
         let w = 0;
+        // let h = 0;
         let events: any = [];
 
         // Handle the mousedown event
         // that's triggered when user drags the resizer
         const mouseDownHandler = function (e: any) {
-          if (!ele || e.buttons !== 1) return;
+          if (!ele) return;
           maxWidth =
             wrapperElement.offsetWidth - AUTOLAYOUT_RESIZER_WIDTH_BUFFER;
           // Get the current mouse position
           x = e.clientX;
+          // y = e.clientY;
 
           // Calculate the dimension of element
           const styles = window.getComputedStyle(ele);
@@ -116,6 +117,7 @@ export function MainContainerResizer({
           // Attach the listeners to `document`
           document.addEventListener("mousemove", mouseMove);
           document.addEventListener("mouseup", mouseUpHandler);
+          // e.stopPropagation();
         };
 
         const mouseMoveHandler = function (e: any) {
@@ -134,6 +136,7 @@ export function MainContainerResizer({
           if (smallestWidth > w + dx) {
             ele.style.width = `${smallestWidth}px`;
           }
+          // e.stopPropagation();
         };
 
         const mouseUpHandler = function (e: any) {
@@ -144,7 +147,7 @@ export function MainContainerResizer({
           document.removeEventListener("mouseup", mouseUpHandler);
           events = [];
         };
-        const rightResizer = ref.current;
+        const rightResizer: any = ref.current;
         const rightMove = (e: any) => mouseDownHandler(e);
         rightResizer && rightResizer.addEventListener("mousedown", rightMove);
 

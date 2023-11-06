@@ -142,17 +142,17 @@ export const getCustomHoverColor = (
   switch (buttonVariant) {
     case ButtonVariantTypes.SECONDARY:
       return backgroundColor
-        ? calculateHoverColor(backgroundColor, true)
+        ? calulateHoverColor(backgroundColor, true)
         : theme.colors.button.primary.secondary.hoverColor;
 
     case ButtonVariantTypes.TERTIARY:
       return backgroundColor
-        ? calculateHoverColor(backgroundColor, true)
+        ? calulateHoverColor(backgroundColor, true)
         : theme.colors.button.primary.tertiary.hoverColor;
 
     default:
       return backgroundColor
-        ? calculateHoverColor(backgroundColor, false)
+        ? calulateHoverColor(backgroundColor, false)
         : theme.colors.button.primary.primary.hoverColor;
   }
 };
@@ -175,7 +175,7 @@ export const getCustomHoverColor = (
  *
  * @returns An RGB string (in case of transparent backgrounds) or a HSL string (in case of solid backgrounds).
  */
-export const calculateHoverColor = (
+export const calulateHoverColor = (
   backgroundColor: string,
   hasTransparentBackground?: boolean,
 ) => {

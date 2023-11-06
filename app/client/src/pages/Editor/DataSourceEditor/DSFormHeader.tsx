@@ -22,7 +22,6 @@ import { DatasourceEditEntryPoints } from "constants/Datasource";
 
 export const ActionWrapper = styled.div`
   display: flex;
-  flex-direction: row-reverse;
   gap: 16px;
   align-items: center;
 `;
@@ -33,14 +32,12 @@ export const FormTitleContainer = styled.div`
   align-items: center;
 `;
 
-export const Header = styled.div<{ noBottomBorder: boolean }>`
+export const Header = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  ${(props) =>
-    !props.noBottomBorder &&
-    "border-bottom: 1px solid var(--ads-v2-color-border);"}
+  border-bottom: 1px solid var(--ads-v2-color-border);
   padding: var(--ads-v2-spaces-5) 0 var(--ads-v2-spaces-5);
   margin: 0 var(--ads-v2-spaces-7);
 `;
@@ -84,7 +81,7 @@ interface DSFormHeaderProps {
     viewMode: boolean;
   }) => void;
   viewMode: boolean;
-  noBottomBorder?: boolean;
+  isNewQuerySecondaryButton?: boolean;
 }
 
 export const DSFormHeader = (props: DSFormHeaderProps) => {
@@ -96,8 +93,8 @@ export const DSFormHeader = (props: DSFormHeaderProps) => {
     datasourceId,
     isDeleting,
     isNewDatasource,
+    isNewQuerySecondaryButton,
     isPluginAuthorized,
-    noBottomBorder,
     pluginImage,
     pluginName,
     pluginType,
@@ -143,7 +140,7 @@ export const DSFormHeader = (props: DSFormHeaderProps) => {
   };
 
   return (
-    <Header noBottomBorder={!!noBottomBorder}>
+    <Header>
       <FormTitleContainer>
         <PluginImage alt="Datasource" src={getAssetUrl(pluginImage)} />
         <FormTitle
@@ -198,6 +195,7 @@ export const DSFormHeader = (props: DSFormHeaderProps) => {
             datasource={datasource as Datasource}
             disabled={!canCreateDatasourceActions || !isPluginAuthorized}
             eventFrom="datasource-pane"
+            isNewQuerySecondaryButton={isNewQuerySecondaryButton}
             pluginType={pluginType}
           />
         </ActionWrapper>

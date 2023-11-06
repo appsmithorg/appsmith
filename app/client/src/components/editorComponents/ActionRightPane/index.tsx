@@ -23,11 +23,12 @@ import type {
   SuggestedWidget as SuggestedWidgetsType,
 } from "api/ActionAPI";
 import { getPagePermissions } from "selectors/editorSelectors";
-import DatasourceStructureHeader from "pages/Editor/DatasourceInfo/DatasourceStructureHeader";
+import DatasourceStructureHeader from "pages/Editor/Explorer/Datasources/DatasourceStructureHeader";
 import {
   DatasourceStructureContainer as DataStructureList,
   SCHEMALESS_PLUGINS,
-} from "pages/Editor/DatasourceInfo/DatasourceStructureContainer";
+} from "pages/Editor/Explorer/Datasources/DatasourceStructureContainer";
+import { DatasourceStructureContext } from "pages/Editor/Explorer/Datasources/DatasourceStructure";
 import {
   getDatasourceStructureById,
   getIsFetchingDatasourceStructure,
@@ -51,7 +52,6 @@ import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { getHasManagePagePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
-import { DatasourceStructureContext } from "entities/Datasource";
 
 const SCHEMA_GUIDE_GIF = `${ASSETS_CDN_URL}/schema.gif`;
 

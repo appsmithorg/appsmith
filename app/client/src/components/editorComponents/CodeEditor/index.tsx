@@ -1261,32 +1261,36 @@ class CodeEditor extends Component<Props, State> {
       expectedType: expected?.autocompleteDataType,
       example: expected?.example,
       mode: this.props.mode,
-      isTriggerPath: false,
     };
-    if (!dataTreePath) return entityInformation;
+    if (dataTreePath) {
+      const { entityName, propertyPath } =
+        getEntityNameAndPropertyPath(dataTreePath);
+      entityInformation.entityName = entityName;
+      const entity = configTree[entityName];
 
-    const { entityName, propertyPath } =
-      getEntityNameAndPropertyPath(dataTreePath);
-    entityInformation.entityName = entityName;
-    entityInformation.propertyPath = propertyPath;
+      if (entity) {
+        if ("ENTITY_TYPE" in entity) {
+          const entityType = entity.ENTITY_TYPE;
+          if (
+            entityType === ENTITY_TYPE_VALUE.WIDGET ||
+            entityType === ENTITY_TYPE_VALUE.ACTION ||
+            entityType === ENTITY_TYPE_VALUE.JSACTION
+          ) {
+            entityInformation.entityType = entityType;
+          }
+        }
+        if (isActionEntity(entity))
+          entityInformation.entityId = entity.actionId;
+        if (isWidgetEntity(entity)) {
+          const isTriggerPath = entity.triggerPaths[propertyPath];
+          entityInformation.entityId = entity.widgetId;
+          if (isTriggerPath)
+            entityInformation.expectedType = AutocompleteDataType.FUNCTION;
 
-    const entity = configTree[entityName];
-    if (!entity) return entityInformation;
-    if (!entity.ENTITY_TYPE) return entityInformation;
-    const entityType = entity.ENTITY_TYPE;
-    entityInformation.entityType = entityType;
-
-    if (isActionEntity(entity)) {
-      entityInformation.entityId = entity.actionId;
-    } else if (isWidgetEntity(entity)) {
-      const isTriggerPath = entity.triggerPaths[propertyPath];
-      entityInformation.entityId = entity.widgetId;
-      if (isTriggerPath)
-        entityInformation.expectedType = AutocompleteDataType.FUNCTION;
-      entityInformation.isTriggerPath = isTriggerPath;
-      entityInformation.widgetType = entity.type;
-    } else {
-      entityInformation.isTriggerPath = true;
+          entityInformation.widgetType = entity.type;
+        }
+      }
+      entityInformation.propertyPath = propertyPath;
     }
     return entityInformation;
   };

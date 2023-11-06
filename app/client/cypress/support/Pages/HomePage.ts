@@ -124,18 +124,6 @@ export class HomePage {
     this.agHelper.GetNClick(this._homeTab);
   }
 
-  //trying to wrap multiple values, not used
-  public WrapAndAliasMultipleValues(
-    values: Record<string, string>,
-  ): Record<string, string> {
-    const aliases: Record<string, string> = {};
-    Object.keys(values).forEach((key) => {
-      aliases[key] = values[key];
-      cy.wrap(values[key]).as(key);
-    });
-    return aliases;
-  }
-
   public CreateNewWorkspace(workspaceNewName = "", toNavigateToHome = false) {
     if (toNavigateToHome) this.NavigateToHome();
     let oldName = "";
@@ -148,7 +136,6 @@ export class HomePage {
         "workspaceName",
         interception.response.body.data.name,
       );
-      cy.wrap(interception.response.body.data.name).as("workspaceName");
     });
 
     workspaceNewName &&
@@ -185,7 +172,6 @@ export class HomePage {
     this.agHelper.Sleep(2000);
     this.assertHelper.AssertNetworkStatus("@updateWorkspace");
     this.agHelper.AssertContains(newWorkspaceName);
-    this.agHelper.Sleep(2000); //for new workspace to settle for CI
   }
 
   //Maps to CheckShareIcon in command.js
@@ -254,8 +240,8 @@ export class HomePage {
   }
 
   public NavigateToHome() {
-    this.agHelper.Sleep(2000); //to avoid CI flakyness
-    this.agHelper.GetNClick(this._homeIcon, 0, true, 2500);
+    cy.get(this._homeIcon).click({ force: true });
+    this.agHelper.Sleep(2000);
     if (!Cypress.env("AIRGAPPED")) {
       this.assertHelper.AssertNetworkStatus("@getReleaseItems");
     } else {
@@ -265,40 +251,32 @@ export class HomePage {
     this.agHelper.AssertElementVisibility(this._homeAppsmithImage);
   }
 
-  public AssertApplicationCreated() {
-    this.assertHelper.AssertNetworkStatus("@createNewApplication", 201);
-    cy.get("@createNewApplication").then((interception: any) => {
-      localStorage.setItem("applicationId", interception.response.body.data.id);
-      localStorage.setItem("appName", interception.response.body.data.name);
-      cy.wrap(interception.response.body.data.name).as("appName");
-      cy.wrap(interception.response.body.data.id).as("applicationId");
-    });
-    this.agHelper.AssertElementAbsence(this.locator._loading);
-  }
-
   public CreateNewApplication(skipSignposting = true) {
     cy.get(this._homePageAppCreateBtn).first().click({ force: true });
-    this.AssertApplicationCreated();
+    this.assertHelper.AssertNetworkStatus("@createNewApplication", 201);
+    cy.get(this.locator._loading).should("not.exist");
+
     if (skipSignposting) {
       this.agHelper.AssertElementVisibility(
         this.entityExplorer._entityExplorer,
       );
       this.onboarding.skipSignposting();
     }
-    this.agHelper.Sleep(2000); //for getWorkspace to go thru!
     this.assertHelper.AssertNetworkStatus("getWorkspace");
+    cy.get("@createNewApplication").then((interception: any) => {
+      localStorage.setItem("appName", interception.response.body.data.name);
+    });
   }
 
   //Maps to CreateAppForWorkspace in command.js
   public CreateAppInWorkspace(workspaceName: string, appname = "") {
-    this.agHelper
-      .GetElement(this._existingWorkspaceCreateNewApp(workspaceName))
+    cy.xpath(this._existingWorkspaceCreateNewApp(workspaceName))
       .last()
       .scrollIntoView()
       .should("be.visible")
       .click({ force: true });
-    this.AssertApplicationCreated();
-    this.agHelper.AssertElementAbsence(this.locator._loading);
+    this.assertHelper.AssertNetworkStatus("@createNewApplication", 201);
+    cy.get(this.locator._loading).should("not.exist");
     this.agHelper.Sleep(2000);
     if (appname) this.RenameApplication(appname);
     //this.assertHelper.AssertNetworkStatus("@updateApplication", 200);
@@ -317,7 +295,7 @@ export class HomePage {
     });
     cy.get(this._applicationName).type(appName);
     this.agHelper.PressEnter();
-    this.agHelper.RemoveUIElement("Tooltip", "Rename application");
+    this.agHelper.RemoveTooltip("Rename application");
   }
 
   public GetAppName() {
@@ -560,7 +538,6 @@ export class HomePage {
     intoWorkspaceName = "",
     onlyImport = false,
   ) {
-    this.agHelper.Sleep(3000); //for new workspace to settle for CI
     if (onlyImport === false) {
       cy.get(this._homeIcon).click({ force: true });
       if (intoWorkspaceName)
@@ -575,9 +552,6 @@ export class HomePage {
       force: true,
     });
     this.agHelper.Sleep(3500);
-    this.agHelper.AssertElementAbsence(
-      this.locator._specificToast("Unable to import application in workspace"),
-    );
   }
 
   public ImportGitApp(intoWorkspaceName = "") {

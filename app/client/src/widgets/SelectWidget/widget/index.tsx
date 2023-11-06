@@ -196,14 +196,6 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
     };
   }
 
-  static getDependencyMap(): Record<string, string[]> {
-    return {
-      optionLabel: ["sourceData"],
-      optionValue: ["sourceData"],
-      defaultOptionValue: ["serverSideFiltering", "options"],
-    };
-  }
-
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
     return {
       "!doc":
@@ -312,6 +304,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
                   autocompleteDataType: AutocompleteDataType.STRING,
                 },
               },
+              dependentPaths: ["sourceData"],
             },
             additionalAutoComplete: getLabelValueAdditionalAutocompleteData,
           },
@@ -344,6 +337,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
                   autocompleteDataType: AutocompleteDataType.STRING,
                 },
               },
+              dependentPaths: ["sourceData"],
             },
             additionalAutoComplete: getLabelValueAdditionalAutocompleteData,
           },
@@ -371,6 +365,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
                   autocompleteDataType: AutocompleteDataType.STRING,
                 },
               },
+              dependentPaths: ["serverSideFiltering", "options"],
             },
             dependencies: ["serverSideFiltering", "options"],
           },

@@ -36,13 +36,15 @@ export const validateResponsiveProp = (
 ) => data && Object.keys(data)?.length;
 
 export const generateDragStateForAnvilLayout = ({
+  canvasId,
   layoutId,
 }: {
+  canvasId: string;
   layoutId: string;
 }): SetDraggingStateActionPayload => {
   return {
     isDragging: true,
-    dragGroupActualParent: layoutId || "",
+    dragGroupActualParent: canvasId || "",
     draggedOn: layoutId,
   };
 };

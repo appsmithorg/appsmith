@@ -7,7 +7,6 @@ export enum LayoutSystemFeatures {
   ENABLE_FORKING_FROM_TEMPLATES = "ENABLE_FORKING_FROM_TEMPLATES",
   ENABLE_CANVAS_LAYOUT_CONTROL = "ENABLE_CANVAS_LAYOUT_CONTROL",
   ENABLE_CANVAS_OVERLAY_FOR_EDITOR_UI = "ENABLE_CANVAS_OVERLAY_FOR_EDITOR_UI",
-  ENABLE_LAYOUT_CONVERSION = "ENABLE_LAYOUT_CONVERSION",
 }
 
 const FIXED_LAYOUT_FEATURES: Record<LayoutSystemFeatures, boolean> = {
@@ -15,7 +14,6 @@ const FIXED_LAYOUT_FEATURES: Record<LayoutSystemFeatures, boolean> = {
   [LayoutSystemFeatures.ENABLE_CANVAS_LAYOUT_CONTROL]: true,
   [LayoutSystemFeatures.ENABLE_MAIN_CONTAINER_RESIZER]: false,
   [LayoutSystemFeatures.ENABLE_CANVAS_OVERLAY_FOR_EDITOR_UI]: false,
-  [LayoutSystemFeatures.ENABLE_LAYOUT_CONVERSION]: true,
 };
 
 const AUTO_LAYOUT_FEATURES: Record<LayoutSystemFeatures, boolean> = {
@@ -23,7 +21,6 @@ const AUTO_LAYOUT_FEATURES: Record<LayoutSystemFeatures, boolean> = {
   [LayoutSystemFeatures.ENABLE_CANVAS_LAYOUT_CONTROL]: false,
   [LayoutSystemFeatures.ENABLE_MAIN_CONTAINER_RESIZER]: true,
   [LayoutSystemFeatures.ENABLE_CANVAS_OVERLAY_FOR_EDITOR_UI]: false,
-  [LayoutSystemFeatures.ENABLE_LAYOUT_CONVERSION]: true,
 };
 
 const ANVIL_FEATURES: Record<LayoutSystemFeatures, boolean> = {
@@ -31,7 +28,6 @@ const ANVIL_FEATURES: Record<LayoutSystemFeatures, boolean> = {
   [LayoutSystemFeatures.ENABLE_CANVAS_LAYOUT_CONTROL]: false,
   [LayoutSystemFeatures.ENABLE_MAIN_CONTAINER_RESIZER]: true,
   [LayoutSystemFeatures.ENABLE_CANVAS_OVERLAY_FOR_EDITOR_UI]: true,
-  [LayoutSystemFeatures.ENABLE_LAYOUT_CONVERSION]: false,
 };
 
 /**
