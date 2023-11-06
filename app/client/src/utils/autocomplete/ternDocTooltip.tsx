@@ -3,6 +3,7 @@ import ReactDOM from "react-dom";
 import { ternDocsInfo } from "@appsmith/utils/autocomplete/EntityDefinitions";
 import type { Completion, TernCompletionResult } from "./CodemirrorTernService";
 import { CodeEditorColors } from "components/editorComponents/CodeEditor/styledComponents";
+import { Link } from "design-system";
 
 export function renderTernTooltipContent(
   element: HTMLElement,
@@ -16,7 +17,7 @@ export function TernDocToolTip(props: {
 }) {
   const { completion } = props;
   const {
-    data: { doc },
+    data: { doc, url },
     displayText,
   } = completion;
 
@@ -27,8 +28,13 @@ export function TernDocToolTip(props: {
 
   return (
     <div className="flex flex-col pb-1">
-      <div className="flex items-center justify-start px-2 p-1 border-b border-mercury text-sm font-semibold">
+      <div className="flex items-center justify-between px-2 p-1 border-b border-mercury text-sm font-semibold">
         {displayText}
+        {url && (
+          <Link className="text-xs" kind="primary" target="_blank" to={url}>
+            [docs]
+          </Link>
+        )}
       </div>
       <div className="flex items-center justify-start px-2 p-1 text-xs whitespace-normal">
         {doc}
