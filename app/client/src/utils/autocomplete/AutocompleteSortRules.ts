@@ -324,12 +324,14 @@ class BlockAsyncFnsRule implements AutocompleteRule {
     const score = 0;
     if (completion.type !== AutocompleteDataType.FUNCTION) return score;
     if (!completion.displayText) return score;
-    if (
-      entityInfo?.isTriggerPath &&
-      (entityInfo.expectedType === AutocompleteDataType.FUNCTION ||
-        entityInfo.expectedType === AutocompleteDataType.UNKNOWN)
-    ) {
-      return score;
+    if (entityInfo?.isTriggerPath) {
+      // triggerPath = true and expectedType = undefined for JSObjects
+      if (!entityInfo.expectedType) return score;
+      // triggerPath = true and expectedType = FUNCTION or UNKNOWN for trigger fields.
+      if (entityInfo.expectedType === AutocompleteDataType.FUNCTION)
+        return score;
+      if (entityInfo.expectedType === AutocompleteDataType.UNKNOWN)
+        return score;
     }
     const isAsyncFunction =
       completion.data?.type?.endsWith("Promise") ||
