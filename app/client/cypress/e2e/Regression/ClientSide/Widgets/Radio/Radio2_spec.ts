@@ -296,6 +296,7 @@ describe("Radio Widget test cases", function () {
     deployMode.DeployApp(
       locators._widgetInDeployed(draggableWidgets.RADIO_GROUP),
     );
+    agHelper.Sleep(2000); //for Radio Group to load fully, for CI flakyness
     agHelper.HoverElement(locators._tooltipIcon);
     agHelper.AssertPopoverTooltip("Tooltip text");
     agHelper.AssertElementEnabledDisabled(

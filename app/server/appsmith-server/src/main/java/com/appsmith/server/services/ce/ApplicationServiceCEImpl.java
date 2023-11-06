@@ -1027,4 +1027,20 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         analyticsProperties.put("orgId", ObjectUtils.defaultIfNull(savedApplication.getWorkspaceId(), ""));
         return analyticsProperties;
     }
+
+    @Override
+    public Mono<Void> updateProtectedBranches(String applicationId, List<String> protectedBranches) {
+        return repository
+                .unprotectAllBranches(applicationId, applicationPermission.getEditPermission())
+                .then(Mono.defer(() -> {
+                    // Mono.defer is used to ensure the following code is executed only after the previous Mono
+                    // completes
+                    if (protectedBranches != null && !protectedBranches.isEmpty()) {
+                        return repository.protectBranchedApplications(
+                                applicationId, protectedBranches, applicationPermission.getEditPermission());
+                    }
+                    return Mono.empty();
+                }))
+                .then();
+    }
 }

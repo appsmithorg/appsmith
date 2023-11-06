@@ -12,7 +12,6 @@ import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.dtos.ApplicationJson;
-import com.appsmith.server.dtos.ExportFileDTO;
 import com.appsmith.server.dtos.ExportingMetaDTO;
 import com.appsmith.server.dtos.MappedExportableResourcesDTO;
 import com.appsmith.server.dtos.PartialExportFileDTO;
@@ -29,12 +28,8 @@ import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.http.ContentDisposition;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import reactor.core.publisher.Mono;
 
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -58,7 +53,7 @@ public class PartialExportServiceCEImpl implements PartialExportServiceCE {
     private final Gson gson;
 
     @Override
-    public Mono<ExportFileDTO> getPartialExportResources(
+    public Mono<ApplicationJson> getPartialExportResources(
             String applicationId, String pageId, String branchName, PartialExportFileDTO partialExportFileDTO) {
         /*
          * Params has ids for actions, customJsLibs and datasource
@@ -166,23 +161,9 @@ public class PartialExportServiceCEImpl implements PartialExportServiceCE {
                     return Mono.just(applicationJson);
                 })
                 .map(exportedJson -> {
-                    String applicationName =
-                            applicationJson.getExportedApplication().getName();
                     applicationJson.setWidgets(partialExportFileDTO.getWidget());
                     applicationJson.setExportedApplication(null);
-                    String stringifiedFile = gson.toJson(exportedJson);
-                    Object jsonObject = gson.fromJson(stringifiedFile, Object.class);
-                    HttpHeaders responseHeaders = new HttpHeaders();
-                    ContentDisposition contentDisposition = ContentDisposition.builder("attachment")
-                            .filename(applicationName + ".json", StandardCharsets.UTF_8)
-                            .build();
-                    responseHeaders.setContentDisposition(contentDisposition);
-                    responseHeaders.setContentType(MediaType.APPLICATION_JSON);
-
-                    ExportFileDTO exportFileDTO = new ExportFileDTO();
-                    exportFileDTO.setApplicationResource(jsonObject);
-                    exportFileDTO.setHttpHeaders(responseHeaders);
-                    return exportFileDTO;
+                    return applicationJson;
                 });
     }
 

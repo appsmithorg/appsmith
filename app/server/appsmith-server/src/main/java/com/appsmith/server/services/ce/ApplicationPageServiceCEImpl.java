@@ -1261,14 +1261,17 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     Integer jsFuncCount = getActionCount(pluginTypeCollectionMap, PluginType.JS);
                     Integer saasQueryCount = getActionCount(pluginTypeCollectionMap, PluginType.SAAS);
                     Integer remoteQueryCount = getActionCount(pluginTypeCollectionMap, PluginType.REMOTE);
+                    Integer aiQueryCount = getActionCount(pluginTypeCollectionMap, PluginType.AI);
 
                     extraProperties.put("dbQueryCount", dbQueryCount);
                     extraProperties.put("apiCount", apiCount);
                     extraProperties.put("jsFuncCount", jsFuncCount);
                     extraProperties.put("saasQueryCount", saasQueryCount);
                     extraProperties.put("remoteQueryCount", remoteQueryCount);
+                    extraProperties.put("aiQueryCount", aiQueryCount);
                     extraProperties.put(
-                            "queryCount", (dbQueryCount + apiCount + jsFuncCount + saasQueryCount + remoteQueryCount));
+                            "queryCount",
+                            (dbQueryCount + apiCount + jsFuncCount + saasQueryCount + remoteQueryCount + aiQueryCount));
                     extraProperties.put("actionCollectionCount", objects.getT3().size());
                     extraProperties.put("jsLibsCount", objects.getT5().size());
                     extraProperties.put("appId", defaultIfNull(application.getId(), ""));

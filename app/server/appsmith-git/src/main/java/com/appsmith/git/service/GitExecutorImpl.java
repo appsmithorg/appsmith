@@ -552,8 +552,6 @@ public class GitExecutorImpl implements GitExecutor {
                                 modifiedDatasources++;
                             } else if (x.contains(GitDirectories.JS_LIB_DIRECTORY + CommonConstants.DELIMITER_PATH)) {
                                 modifiedJSLibs++;
-                            } else if (x.equals(CommonConstants.METADATA + CommonConstants.JSON_EXTENSION)) {
-                                response.setMigrationMessage(CommonConstants.FILE_MIGRATION_MESSAGE);
                             }
                         }
                         response.setModified(modifiedAssets);
