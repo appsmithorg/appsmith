@@ -146,6 +146,9 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                             .thenReturn("done")
                             .then(Mono.defer(() -> {
                                 Application application = applicationJson.getExportedApplication();
+                                if (mappedImportableResourcesDTO.getActionResultDTO() == null) {
+                                    return applicationService.update(application.getId(), application);
+                                }
                                 return newActionImportableService
                                         .updateImportedEntities(
                                                 application, importingMetaDTO, mappedImportableResourcesDTO)
@@ -249,6 +252,10 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                     Map<String, NewPage> pageNameMap = new HashMap<>();
                     pageNameMap.put(pageName, newPage);
                     mappedImportableResourcesDTO.setPageNameMap(pageNameMap);
+
+                    if (applicationJson.getActionList() == null) {
+                        return Mono.just(pageName);
+                    }
 
                     applicationJson.getActionList().forEach(action -> {
                         action.getPublishedAction().setPageId(pageName);
