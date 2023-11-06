@@ -13,6 +13,7 @@ public class RefactorEntityNameDTO {
     String oldName;
     String newName;
 
+    @JsonView(Views.Internal.class)
     EntityType entityType;
 
     String actionId;

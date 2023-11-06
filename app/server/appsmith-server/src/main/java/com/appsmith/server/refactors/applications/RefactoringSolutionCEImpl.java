@@ -183,8 +183,8 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
                     }
 
                     return service.updateRefactoredEntity(refactorEntityNameDTO, branchName)
-                            .then(this.refactorName(refactorEntityNameDTO))
                             .as(transactionalOperator::transactional)
+                            .then(this.refactorName(refactorEntityNameDTO))
                             .flatMap(tuple2 -> {
                                 AnalyticsEvents event =
                                         service.getRefactorAnalyticsEvent(refactorEntityNameDTO.getEntityType());
