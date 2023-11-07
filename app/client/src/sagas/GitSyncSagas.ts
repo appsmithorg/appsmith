@@ -36,6 +36,7 @@ import {
   fetchGitProtectedBranchesInit,
   updateGitProtectedBranchesInit,
   fetchGitRemoteStatusSuccess,
+  clearCommitSuccessfulState,
 } from "actions/gitSyncActions";
 import {
   commitToRepoSuccess,
@@ -252,6 +253,7 @@ function* connectToGitSaga(action: ConnectToGitReduxAction) {
 
       /* commit effect START */
       yield put(commitToRepoSuccess());
+      yield put(clearCommitSuccessfulState());
       const curApplication: ApplicationPayload = yield select(
         getCurrentApplication,
       );
