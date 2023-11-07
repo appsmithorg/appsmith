@@ -20,6 +20,7 @@ import {
   getApplicationList,
   getApplicationSearchKeyword,
   getCreateApplicationError,
+  getCurrentApplicationIdForCreateNewApp,
   getDeletingMultipleApps,
   getIsCreatingApplication,
   getIsDeletingApplication,
@@ -99,13 +100,12 @@ import ApplicationCardList from "@appsmith/pages/Applications/ApplicationCardLis
 import { usePackage } from "@appsmith/pages/Applications/helpers";
 import PackageCardList from "@appsmith/pages/Applications/PackageCardList";
 import WorkspaceAction from "@appsmith/pages/Applications/WorkspaceAction";
-import CreateNewAppsOption from "@appsmith/pages/Applications/CreateNewAppsOption";
+import ResourceListLoader from "@appsmith/pages/Applications/ResourceListLoader";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import ResourceListLoader from "@appsmith/pages/Applications/ResourceListLoader";
 import { getHasCreateWorkspacePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import { allowManageEnvironmentAccessForUser } from "@appsmith/selectors/environmentSelectors";
-import { getCurrentApplicationIdForCreateNewApp } from "@appsmith/selectors/applicationSelectors";
+import CreateNewAppsOption from "./CreateNewAppsOption";
 import { resetCurrentApplicationIdForCreateNewApp } from "actions/onboardingActions";
 
 export const { cloudHosting } = getAppsmithConfigs();
@@ -447,10 +447,12 @@ export const ApplicationsWrapper = styled.div<{ isMobile: boolean }>`
 export function ApplicationsSection(props: any) {
   const enableImportExport = true;
   const dispatch = useDispatch();
+  const theme = useContext(ThemeContext);
   const { isFetchingPackages } = usePackage();
   const isSavingWorkspaceInfo = useSelector(getIsSavingWorkspaceInfo);
   const isFetchingApplications = useSelector(getIsFetchingApplications);
   const userWorkspaces = useSelector(getUserApplicationsWorkspacesList);
+  const creatingApplicationMap = useSelector(getIsCreatingApplication);
   const currentUser = useSelector(getCurrentUser);
   const isMobile = useIsMobileDevice();
   const deleteMultipleApplicationObject = useSelector(getDeletingMultipleApps);
@@ -545,6 +547,25 @@ export function ApplicationsSection(props: any) {
       </WorkspaceNameWrapper>
     );
   }
+
+  const createNewApplication = (
+    applicationName: string,
+    workspaceId: string,
+  ) => {
+    const color = getRandomPaletteColor(theme.colors.appCardColors);
+    const icon =
+      AppIconCollection[Math.floor(Math.random() * AppIconCollection.length)];
+
+    return dispatch({
+      type: ReduxActionTypes.CREATE_APPLICATION_INIT,
+      payload: {
+        applicationName,
+        workspaceId,
+        icon,
+        color,
+      },
+    });
+  };
 
   let updatedWorkspaces;
   if (!isLoadingResources) {
@@ -669,7 +690,7 @@ export function ApplicationsSection(props: any) {
                     )}
                     <WorkspaceAction
                       isMobile={isMobile}
-                      onCreateNewApplication={props.onClickAddNewAppButton}
+                      onCreateNewApplication={onClickAddNewAppButton}
                       workspaceId={workspace.id}
                     />
                     {(currentUser || isLoadingResources) &&
@@ -728,7 +749,7 @@ export function ApplicationsSection(props: any) {
                   }
                   hasManageWorkspacePermissions={hasManageWorkspacePermissions}
                   isMobile={isMobile}
-                  onClickAddNewButton={props.onClickAddNewAppButton}
+                  onClickAddNewButton={onClickAddNewAppButton}
                   updateApplicationDispatch={updateApplicationDispatch}
                   workspaceId={workspace.id}
                 />
@@ -765,6 +786,7 @@ export function ApplicationsSection(props: any) {
 
 export interface ApplicationProps {
   applicationList: ApplicationPayload[];
+  searchApplications: (keyword: string) => void;
   isCreatingApplication: creatingApplicationMap;
   isFetchingApplications: boolean;
   createApplicationError?: string;
@@ -773,6 +795,7 @@ export interface ApplicationProps {
   getAllApplication: () => void;
   userWorkspaces: any;
   currentUser?: User;
+  searchKeyword: string | undefined;
   setHeaderMetaData: (
     hideHeaderShadow: boolean,
     showHeaderSeparator: boolean,
@@ -780,117 +803,9 @@ export interface ApplicationProps {
   resetEditor: () => void;
   queryModuleFeatureFlagEnabled: boolean;
   resetCurrentWorkspace: () => void;
+  currentApplicationIdForCreateNewApp?: string;
+  resetCurrentApplicationIdForCreateNewApp: () => void;
 }
-
-const ApplicationContainerWrapper = () => {
-  const currentApplicationIdForCreateNewApp = useSelector(
-    getCurrentApplicationIdForCreateNewApp,
-  );
-  const searchKeyword = useSelector(getApplicationSearchKeyword);
-  const isFetchingApplications = useSelector(getIsFetchingApplications);
-  const userWorkspaces = useSelector(getUserApplicationsWorkspacesList);
-  const { isFetchingPackages } = usePackage();
-  const dispatch = useDispatch();
-  const theme = useContext(ThemeContext);
-  const creatingApplicationMap = useSelector(getIsCreatingApplication);
-
-  const searchApplications = (keyword: string) => {
-    dispatch({
-      type: ReduxActionTypes.SEARCH_APPLICATIONS,
-      payload: {
-        keyword,
-      },
-    });
-  };
-
-  const isLoadingResources = isFetchingApplications || isFetchingPackages;
-
-  let updatedWorkspaces: any[];
-  if (!isLoadingResources) {
-    updatedWorkspaces = userWorkspaces;
-  } else {
-    updatedWorkspaces = loadingUserWorkspaces as any;
-  }
-
-  const createNewApplication = (
-    applicationName: string,
-    workspaceId: string,
-  ) => {
-    const color = getRandomPaletteColor(theme.colors.appCardColors);
-    const icon =
-      AppIconCollection[Math.floor(Math.random() * AppIconCollection.length)];
-
-    return dispatch({
-      type: ReduxActionTypes.CREATE_APPLICATION_INIT,
-      payload: {
-        applicationName,
-        workspaceId,
-        icon,
-        color,
-      },
-    });
-  };
-
-  const onClickAddNewAppButton = (workspaceId: string) => {
-    const workspaceObject = updatedWorkspaces?.find(
-      ({ workspace }) => workspace.id === workspaceId,
-    );
-    if (workspaceObject) {
-      const { applications = [] } = workspaceObject;
-      if (
-        Object.entries(creatingApplicationMap).length === 0 ||
-        (creatingApplicationMap && !creatingApplicationMap[workspaceId])
-      ) {
-        createNewApplication(
-          getNextEntityName(
-            "Untitled application ",
-            applications.map((el: any) => el.name),
-          ),
-          workspaceId,
-        );
-      }
-    }
-  };
-
-  useEffect(() => {
-    return () => {
-      searchApplications("");
-    };
-  }, []);
-
-  const onClickBack = () => {
-    dispatch(resetCurrentApplicationIdForCreateNewApp());
-  };
-
-  return currentApplicationIdForCreateNewApp ? (
-    <CreateNewAppsOption
-      currentApplicationIdForCreateNewApp={currentApplicationIdForCreateNewApp}
-      onClickBack={onClickBack}
-    />
-  ) : (
-    <PageWrapper displayName="Applications">
-      <LeftPane />
-      <MediaQuery maxWidth={MOBILE_MAX_WIDTH}>
-        {(matches: boolean) => (
-          <ApplicationsWrapper isMobile={matches}>
-            <SubHeader
-              search={{
-                placeholder: createMessage(SEARCH_APPS),
-                queryFn: searchApplications,
-                defaultValue: searchKeyword,
-              }}
-            />
-            <ApplicationsSection
-              onClickAddNewAppButton={onClickAddNewAppButton}
-              searchKeyword={searchKeyword}
-            />
-            <RepoLimitExceededErrorModal />
-          </ApplicationsWrapper>
-        )}
-      </MediaQuery>
-    </PageWrapper>
-  );
-};
 
 export interface ApplicationState {
   selectedWorkspaceId: string;
@@ -923,10 +838,37 @@ export class Applications<
 
   componentWillUnmount() {
     this.props.setHeaderMetaData(false, false);
+    this.props.searchApplications("");
   }
 
   public render() {
-    return <ApplicationContainerWrapper />;
+    return this.props.currentApplicationIdForCreateNewApp ? (
+      <CreateNewAppsOption
+        currentApplicationIdForCreateNewApp={
+          this.props.currentApplicationIdForCreateNewApp
+        }
+        onClickBack={this.props.resetCurrentApplicationIdForCreateNewApp}
+      />
+    ) : (
+      <PageWrapper displayName="Applications">
+        <LeftPane />
+        <MediaQuery maxWidth={MOBILE_MAX_WIDTH}>
+          {(matches: boolean) => (
+            <ApplicationsWrapper isMobile={matches}>
+              <SubHeader
+                search={{
+                  placeholder: createMessage(SEARCH_APPS),
+                  queryFn: this.props.searchApplications,
+                  defaultValue: this.props.searchKeyword,
+                }}
+              />
+              <ApplicationsSection searchKeyword={this.props.searchKeyword} />
+              <RepoLimitExceededErrorModal />
+            </ApplicationsWrapper>
+          )}
+        </MediaQuery>
+      </PageWrapper>
+    );
   }
 }
 
@@ -939,6 +881,8 @@ export const mapStateToProps = (state: AppState) => ({
   userWorkspaces: getUserApplicationsWorkspacesList(state),
   currentUser: getCurrentUser(state),
   searchKeyword: getApplicationSearchKeyword(state),
+  currentApplicationIdForCreateNewApp:
+    getCurrentApplicationIdForCreateNewApp(state),
 });
 
 export const mapDispatchToProps = (dispatch: any) => ({
@@ -948,6 +892,14 @@ export const mapDispatchToProps = (dispatch: any) => ({
   resetEditor: () => {
     dispatch(resetEditorRequest());
   },
+  searchApplications: (keyword: string) => {
+    dispatch({
+      type: ReduxActionTypes.SEARCH_APPLICATIONS,
+      payload: {
+        keyword,
+      },
+    });
+  },
   setHeaderMetaData: (
     hideHeaderShadow: boolean,
     showHeaderSeparator: boolean,
@@ -955,6 +907,8 @@ export const mapDispatchToProps = (dispatch: any) => ({
     dispatch(setHeaderMeta(hideHeaderShadow, showHeaderSeparator));
   },
   resetCurrentWorkspace: () => dispatch(resetCurrentWorkspace()),
+  resetCurrentApplicationIdForCreateNewApp: () =>
+    dispatch(resetCurrentApplicationIdForCreateNewApp()),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Applications);
