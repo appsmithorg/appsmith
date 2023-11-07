@@ -275,18 +275,18 @@ const CreateNewAppsOption = ({
 
   const selectionOptions: CardProps[] = [
     {
-      onClick: onClickStartFromTemplate,
-      src: StartTemplate,
-      subTitle: createMessage(START_FROM_TEMPLATE_TITLE),
-      testid: "t--start-from-template",
-      title: createMessage(START_FROM_TEMPLATE_SUBTITLE),
-    },
-    {
       onClick: onClickStartFromScratch,
       src: StartScratch,
       subTitle: createMessage(START_FROM_SCRATCH_SUBTITLE),
       testid: "t--start-from-scratch",
       title: createMessage(START_FROM_SCRATCH_TITLE),
+    },
+    {
+      onClick: onClickStartFromTemplate,
+      src: StartTemplate,
+      subTitle: createMessage(START_FROM_TEMPLATE_SUBTITLE),
+      testid: "t--start-from-template",
+      title: createMessage(START_FROM_TEMPLATE_TITLE),
     },
   ];
 
