@@ -1,6 +1,6 @@
 import type { AllChartData, ChartType, LongestLabelParams } from "../constants";
 import { XAxisCategory } from "../constants";
-import { numberInLocale } from "./helpers";
+
 export class EChartsDatasetBuilder {
   chartDataProp: AllChartData;
   chartType: ChartType;
@@ -37,7 +37,9 @@ export class EChartsDatasetBuilder {
 
   checkForLongestLabel(x: number | string, y: number | string) {
     const xString = x.toString();
-    const yString = numberInLocale(y);
+
+    // This is needed to correctly calculate the width of the y label.
+    const yString = y.toLocaleString();
 
     if (xString.length > this.maxXLabelLength) {
       this.maxXLabelLength = xString.length;

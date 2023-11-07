@@ -210,7 +210,3 @@ export const isCustomFusionChart = (type: ChartType) => {
 export const isCustomEChart = (type: ChartType) => {
   return type == "CUSTOM_ECHART";
 };
-
-export const numberInLocale = (label: number | string) => {
-  return label.toLocaleString();
-};
