@@ -13,12 +13,13 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   getDefaultGitBranchName,
   getGitBranches,
-  getIsGitProtectedFeatureLicensed,
   getIsUpdateProtectedBranchesLoading,
   getProtectedBranchesSelector,
 } from "selectors/gitSyncSelectors";
 import styled from "styled-components";
 import { APPSMITH_ENTERPRISE_LINK } from "./constants";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 const Container = styled.div`
   padding-top: 16px;
@@ -58,8 +59,8 @@ function GitProtectedBranches() {
   const branches = unfilteredBranches.filter(
     (b) => !b.branchName.includes("origin/"),
   );
-  const isGitProtectedFeatureLicensed = useSelector(
-    getIsGitProtectedFeatureLicensed,
+  const isGitProtectedFeatureLicensed = useFeatureFlag(
+    FEATURE_FLAG.license_git_branch_protection_enabled,
   );
   const defaultBranch = useSelector(getDefaultGitBranchName);
   const protectedBranches = useSelector(getProtectedBranchesSelector);

@@ -9,12 +9,11 @@ import { updateGitDefaultBranch } from "actions/gitSyncActions";
 import { Button, Link, Option, Select, Text } from "design-system";
 import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  getGitBranches,
-  getIsGitProtectedFeatureLicensed,
-} from "selectors/gitSyncSelectors";
+import { getGitBranches } from "selectors/gitSyncSelectors";
 import styled from "styled-components";
 import { APPSMITH_ENTERPRISE_LINK } from "./constants";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 const Container = styled.div`
   padding-top: 16px;
@@ -45,8 +44,8 @@ const StyledSelect = styled(Select)`
 
 function GitDefaultBranch() {
   const dispatch = useDispatch();
-  const isGitProtectedFeatureLicensed = useSelector(
-    getIsGitProtectedFeatureLicensed,
+  const isGitProtectedFeatureLicensed = useFeatureFlag(
+    FEATURE_FLAG.license_git_branch_protection_enabled,
   );
   const unfilteredBranches = useSelector(getGitBranches);
   const [selectedValue, setSelectedValue] = useState<string | undefined>();
