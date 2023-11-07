@@ -17,6 +17,9 @@ public class FieldName extends FieldNameCE {
     public static final String ENVIRONMENT_VARIABLE = "environmentVariable";
     public static final String ENVIRONMENT_VARIABLE_ID = "environmentVariableId";
     public static final String ENVIRONMENT = "environment";
+    public static final String ROLE_TAB_ENVIRONMENTS = "Environments";
+    public static final String ROLE_TAB_DATASOURCES = "Datasources";
+
     public static final String LOGGED_IN = "logged_in";
     public static final String LOGGED_OUT = "logged_out";
     public static final String SIGNED_UP = "signed_up";
@@ -60,6 +63,9 @@ public class FieldName extends FieldNameCE {
     public static final String ENTITY_UPDATED_PERMISSIONS = "entityUpdatedPermissions";
     public static final String TENANT_GROUP = "TenantGroup";
     public static final String TENANT_ROLE = "TenantRole";
+    public static final String WORKSPACE_DATASOURCE = "WorkspaceDatasource";
+    public static final String WORKSPACE_ENVIRONMENT = "WorkspaceEnvironment";
+    public static final String ENVIRONMENT_NAME = "environmentName";
     public static final String INSTANCE_ID = "instanceId";
     public static final String HASHED_INSTANCE_ID = "hashedInstanceId";
     public static final String USAGE_DATA = "usageData";

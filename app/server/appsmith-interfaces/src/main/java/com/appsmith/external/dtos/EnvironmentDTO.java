@@ -28,6 +28,8 @@ public class EnvironmentDTO {
     String workspaceId;
     Boolean isDefault;
 
+    EnvironmentDatasourcesMeta datasourceMeta;
+
     @Transient
     public Set<String> userPermissions = new HashSet<>();
 

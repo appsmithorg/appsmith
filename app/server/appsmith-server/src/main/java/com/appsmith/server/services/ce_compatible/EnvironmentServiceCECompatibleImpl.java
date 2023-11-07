@@ -67,6 +67,12 @@ public class EnvironmentServiceCECompatibleImpl extends BaseService<EnvironmentR
     }
 
     @Override
+    public Mono<EnvironmentDTO> setDatasourceConfigurationDetailsForEnvironment(
+            EnvironmentDTO environmentDTO, String workspaceId) {
+        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
+    }
+
+    @Override
     public Mono<EnvironmentDTO> getEnvironmentDTOByEnvironmentId(String envId) {
         return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
     }
@@ -106,5 +112,20 @@ public class EnvironmentServiceCECompatibleImpl extends BaseService<EnvironmentR
                 .filter(dbEnvironmentId -> dbEnvironmentId.equals(environmentId))
                 .switchIfEmpty(Mono.defer(() -> environmentNameMono.flatMap(name -> Mono.error(
                         new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.ENVIRONMENT, name)))));
+    }
+
+    @Override
+    public Mono<EnvironmentDTO> createCustomEnvironment(Map<String, String> customEnvironmentDetails) {
+        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
+    }
+
+    @Override
+    public Mono<EnvironmentDTO> deleteCustomEnvironment(String environmentId) {
+        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
+    }
+
+    @Override
+    public Mono<EnvironmentDTO> updateCustomEnvironment(String customEnvironmentId, EnvironmentDTO environmentDTO) {
+        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
     }
 }

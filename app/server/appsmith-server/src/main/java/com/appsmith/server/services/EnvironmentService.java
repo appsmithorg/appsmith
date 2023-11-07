@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.dtos.EnvironmentDTO;
 import com.appsmith.external.models.Environment;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Workspace;
@@ -23,4 +24,6 @@ public interface EnvironmentService extends EnvironmentServiceCECompatible {
     Flux<Environment> createDefaultEnvironments(Workspace createdWorkspace);
 
     Flux<Environment> archiveByWorkspaceId(String workspaceId);
+
+    Flux<EnvironmentDTO> getOrderedEnvironmentDTOsByWorkspaceId(String workspaceId, Boolean fetchDatasourceMeta);
 }

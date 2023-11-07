@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuple2;
 
 import java.util.Collection;
 import java.util.List;
@@ -25,9 +26,12 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
+import static com.appsmith.server.constants.FieldName.WORKSPACE_DATASOURCE;
+import static com.appsmith.server.constants.FieldName.WORKSPACE_ENVIRONMENT;
 import static com.appsmith.server.solutions.roles.HelperUtil.generateLateralPermissionDTOsAndUpdateMap;
 import static com.appsmith.server.solutions.roles.HelperUtil.getHierarchicalLateralPermMap;
 import static com.appsmith.server.solutions.roles.HelperUtil.getLateralPermMap;
+import static com.appsmith.server.solutions.roles.HelperUtil.getRoleViewPermissionDTO;
 import static java.lang.Boolean.TRUE;
 
 @Component
@@ -39,10 +43,29 @@ public class EnvironmentResourcesImpl extends EnvironmentResourcesCECompatibleIm
     @Override
     @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_datasource_environments_enabled)
     public Mono<BaseView> getEnvironmentEntityBaseView(
-            Map<String, Collection<EnvironmentResourceDTO>> workspaceEnvironmentMap, BaseView workspaceDTO) {
+            Map<String, Collection<EnvironmentResourceDTO>> workspaceEnvironmentMap,
+            BaseView workspaceDTO,
+            Workspace workspace,
+            String permissionGroupId) {
         // Environment View
         BaseView environmentsView = new BaseView();
+        environmentsView.setId(workspace.getId());
         environmentsView.setName("Environments");
+        Tuple2<List<Integer>, List<Integer>> roleViewPermissionDTO = getRoleViewPermissionDTO(
+                permissionGroupId,
+                Workspace.class,
+                policyGenerator,
+                workspace.getPolicies(),
+                RoleTab.DATASOURCES_ENVIRONMENTS.getDuplicateEntities().stream()
+                        .filter(tuple3 -> tuple3.getT1().equals("Environments"))
+                        .findFirst()
+                        .get()
+                        .getT3()
+                        .stream()
+                        .collect(Collectors.toSet()),
+                RoleTab.DATASOURCES_ENVIRONMENTS.getViewablePermissions());
+        environmentsView.setEnabled(roleViewPermissionDTO.getT1());
+        environmentsView.setEditable(roleViewPermissionDTO.getT2());
         EntityView environmentsEntityView = new EntityView();
         environmentsEntityView.setType(Environment.class.getSimpleName());
         List<EnvironmentResourceDTO> environmentResourceDTOS =
@@ -70,29 +93,44 @@ public class EnvironmentResourcesImpl extends EnvironmentResourcesCECompatibleIm
         Map<AclPermission, Set<AclPermission>> environmentHierarchicalLateralMap =
                 getHierarchicalLateralPermMap(environmentPermissions, policyGenerator, roleTab);
 
+        ConcurrentHashMap<String, Set<IdPermissionDTO>> hoverMapEnvironments = new ConcurrentHashMap<>();
+
         return workspaceEnvironmentMapMono
                 .flatMapMany(workspaceEnvironmentMap -> workspaceFlux.map(workspace -> {
                     String workspaceId = workspace.getId();
                     generateLateralPermissionDTOsAndUpdateMap(
-                            workspaceHierarchicalLateralMap, hoverMap, workspaceId, workspaceId, Workspace.class);
+                            workspaceHierarchicalLateralMap,
+                            hoverMapEnvironments,
+                            workspaceId,
+                            workspaceId,
+                            Workspace.class);
                     Collection<Environment> environments = workspaceEnvironmentMap.get(workspace.getId());
                     if (!CollectionUtils.isEmpty(environments)) {
                         environments.stream().forEach(environment -> {
                             String environmentId = environment.getId();
                             generateLateralPermissionDTOsAndUpdateMap(
                                     workspaceHierarchicalLateralMap,
-                                    hoverMap,
+                                    hoverMapEnvironments,
                                     workspaceId,
                                     environmentId,
                                     Environment.class);
                             generateLateralPermissionDTOsAndUpdateMap(
                                     environmentHierarchicalLateralMap,
-                                    hoverMap,
+                                    hoverMapEnvironments,
                                     environmentId,
                                     environmentId,
                                     Environment.class);
                         });
                     }
+                    hoverMapEnvironments.forEach((key, value) -> {
+                        if (key.startsWith(workspaceId)
+                                && !key.contains(WORKSPACE_DATASOURCE)
+                                && !key.contains(WORKSPACE_ENVIRONMENT)) {
+                            hoverMapEnvironments.remove(key);
+                            hoverMapEnvironments.put(key + "_" + WORKSPACE_ENVIRONMENT, value);
+                        }
+                    });
+                    hoverMap.putAll(hoverMapEnvironments);
                     return workspace;
                 }))
                 .then(Mono.just(TRUE));

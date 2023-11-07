@@ -3,6 +3,7 @@ export * from "ce/utils/permissionHelpers";
 import {
   isPermitted,
   PERMISSION_TYPE as CE_PERMISSION_TYPE,
+  LOGIC_FILTER,
 } from "ce/utils/permissionHelpers";
 
 export enum EE_PERMISSION_TYPE {
@@ -46,6 +47,12 @@ export enum EE_PERMISSION_TYPE {
   DELETE_WORKSPACE = "delete:workspace",
   /* Environment permissions */
   EXECUTE_ENVIRONMENT = "execute:environments",
+  MANAGE_WORKSPACE_ENVIRONMENT = "manage:workspaceEnvironments",
+  DELETE_WORKSPACE_ENVIRONMENT = "delete:workspaceEnvironments",
+  VIEW_WORKSPACE_ENVIRONMENT = "read:workspaceEnvironments",
+  CREATE_ENVIRONMENT = "create:environments",
+  DELETE_ENVIRONMENT = "delete:environments",
+  MANAGE_ENVIRONMENT = "manage:environments",
   /** Package permissions */
   MANAGE_WORKSPACE_PACKAGES = "manage:workspacePackages",
   CREATE_PACKAGE = "create:packages",
@@ -147,3 +154,26 @@ export const hasCreateModuleActionsPermission = (permissions?: string[]) =>
 export const hasCreateModuleDatasourceActionPermission = (
   permissions: string[] = [],
 ) => isPermitted(permissions, [PERMISSION_TYPE.CREATE_DATASOURCE_ACTIONS]);
+
+export const hasManageWorkspaceEnvironmentPermission = (
+  permissions?: string[],
+) =>
+  isPermitted(
+    permissions,
+    [
+      PERMISSION_TYPE.MANAGE_WORKSPACE_ENVIRONMENT,
+      PERMISSION_TYPE.CREATE_ENVIRONMENT,
+      PERMISSION_TYPE.DELETE_WORKSPACE_ENVIRONMENT,
+      PERMISSION_TYPE.VIEW_WORKSPACE_ENVIRONMENT,
+    ],
+    LOGIC_FILTER.OR,
+  );
+
+export const hasManageEnvironmentPermission = (permissions?: string[]) =>
+  isPermitted(permissions, PERMISSION_TYPE.MANAGE_ENVIRONMENT);
+
+export const hasCreateEnvironmentPermission = (permissions?: string[]) =>
+  isPermitted(permissions, PERMISSION_TYPE.CREATE_ENVIRONMENT);
+
+export const hasDeleteEnvironmentPermission = (permissions?: string[]) =>
+  isPermitted(permissions, PERMISSION_TYPE.DELETE_ENVIRONMENT);

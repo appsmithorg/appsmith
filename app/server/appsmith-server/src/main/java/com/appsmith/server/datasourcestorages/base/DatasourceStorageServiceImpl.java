@@ -115,4 +115,10 @@ public class DatasourceStorageServiceImpl extends DatasourceStorageServiceCEComp
             return datasourceStorage;
         });
     }
+
+    @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_custom_environments_enabled)
+    public Mono<Long> getDatasourceStorageDTOsAllowed() {
+        return Mono.just(Long.MAX_VALUE);
+    }
 }

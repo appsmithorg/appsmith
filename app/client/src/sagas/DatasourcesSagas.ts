@@ -452,12 +452,12 @@ function* updateDatasourceSaga(
   >,
 ) {
   try {
-    const currentEnvDetails: { id: string; name: string } = yield select(
+    const currentEnvDetails: { editingId: string; name: string } = yield select(
       getCurrentEnvironmentDetails,
     );
     const queryParams = getQueryParams();
     const currentEnvironment =
-      actionPayload.payload?.currEditingEnvId || currentEnvDetails.id;
+      actionPayload.payload?.currEditingEnvId || currentEnvDetails.editingId;
     const datasourcePayload = omit(actionPayload.payload, "name");
     const datasourceStoragePayload =
       datasourcePayload.datasourceStorages[currentEnvironment];

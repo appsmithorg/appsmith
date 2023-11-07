@@ -55,4 +55,9 @@ public class DatasourceStorageServiceCECompatibleImpl extends DatasourceStorageS
                         }))
                 .flux();
     }
+
+    @Override
+    public Mono<Long> getDatasourceStorageDTOsAllowed() {
+        return Mono.just(1L);
+    }
 }
