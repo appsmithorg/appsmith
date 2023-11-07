@@ -2,7 +2,7 @@ import { MAIN_CONTAINER_WIDGET_ID } from "../../../../../src/constants/WidgetCon
 import { WIDGET } from "../../../../locators/WidgetLocators";
 import {
   agHelper,
-  entityExplorer,
+  anvilLayout,
   locators,
 } from "../../../../support/Objects/ObjectsCore";
 import { getAnvilCanvasId } from "../../../../../src/layoutSystems/anvil/canvas/utils";
@@ -16,11 +16,11 @@ describe(`${ANVIL_EDITOR_TEST}: Anvil tests for DnD Module`, () => {
       const y = mainCanvas.position().top;
       const width = mainCanvas.width() || 0;
       // start align
-      entityExplorer.DragDropWidgetNVerify(WIDGET.WDSBUTTON, x, y + 20, {
+      anvilLayout.DragDropAnvilWidgetNVerify(WIDGET.WDSBUTTON, x, y + 20, {
         skipWidgetSearch: true,
       });
       // center align
-      entityExplorer.DragDropWidgetNVerify(
+      anvilLayout.DragDropAnvilWidgetNVerify(
         WIDGET.WDSBUTTON,
         x + width / 2 + 20,
         y + 20,
@@ -29,7 +29,7 @@ describe(`${ANVIL_EDITOR_TEST}: Anvil tests for DnD Module`, () => {
         },
       );
       // end align
-      entityExplorer.DragDropWidgetNVerify(
+      anvilLayout.DragDropAnvilWidgetNVerify(
         WIDGET.WDSBUTTON,
         x + width - 20,
         y + 20,

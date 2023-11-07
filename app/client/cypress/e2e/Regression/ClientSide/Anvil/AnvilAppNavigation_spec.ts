@@ -6,6 +6,7 @@ import {
   entityExplorer,
   propPane,
   appSettings,
+  anvilLayout,
 } from "../../../../support/Objects/ObjectsCore";
 import { MAIN_CONTAINER_WIDGET_ID } from "../../../../../src/constants/WidgetConstants";
 import { getAnvilCanvasId } from "../../../../../src/layoutSystems/anvil/canvas/utils";
@@ -16,13 +17,13 @@ describe(`${ANVIL_EDITOR_TEST}: Validating multiple widgets in anvil layout mode
     agHelper.AssertElementExist(mainCanvasId).then((mainCanvas) => {
       const x = mainCanvas.position().left;
       const y = mainCanvas.position().top;
-      entityExplorer.DragDropWidgetNVerify(WIDGET.WDSINPUT, x, y + 20, {
+      anvilLayout.DragDropAnvilWidgetNVerify(WIDGET.WDSINPUT, x + 5, y + 20, {
         skipWidgetSearch: true,
       });
-      entityExplorer.DragDropWidgetNVerify(WIDGET.WDSINPUT, x, y + 20, {
+      anvilLayout.DragDropAnvilWidgetNVerify(WIDGET.WDSINPUT, x + 5, y + 20, {
         skipWidgetSearch: true,
       });
-      entityExplorer.DragDropWidgetNVerify(WIDGET.WDSBUTTON, x, y + 20, {
+      anvilLayout.DragDropAnvilWidgetNVerify(WIDGET.WDSBUTTON, x + 5, y + 20, {
         skipWidgetSearch: true,
       });
     });

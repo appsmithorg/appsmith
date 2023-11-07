@@ -142,7 +142,8 @@ function MainContainerWrapper(props: MainCanvasWrapperProps) {
   const isLayoutingInitialized = useDynamicAppLayout();
   const isPageInitializing = isFetchingPage || !isLayoutingInitialized;
   const isWDSV2Enabled = useFeatureFlag("ab_wds_enabled");
-  const showMainContainerResizer = useMainContainerResizer();
+  const { canShowResizer, enableMainContainerResizer } =
+    useMainContainerResizer();
 
   useEffect(() => {
     return () => {
@@ -170,7 +171,7 @@ function MainContainerWrapper(props: MainCanvasWrapperProps) {
     node = (
       <Canvas
         canvasWidth={props.canvasWidth}
-        enableMainCanvasResizer={showMainContainerResizer}
+        enableMainCanvasResizer={enableMainContainerResizer}
         pageId={params.pageId}
         widgetsStructure={widgetsStructure}
       />
@@ -203,7 +204,7 @@ function MainContainerWrapper(props: MainCanvasWrapperProps) {
   return (
     <>
       <Wrapper
-        $enableMainCanvasResizer={showMainContainerResizer}
+        $enableMainCanvasResizer={enableMainContainerResizer}
         background={
           isPreviewMode ||
           isProtectedMode ||
@@ -256,7 +257,7 @@ function MainContainerWrapper(props: MainCanvasWrapperProps) {
       </Wrapper>
       <MainContainerResizer
         currentPageId={currentPageId}
-        enableMainCanvasResizer={showMainContainerResizer}
+        enableMainCanvasResizer={enableMainContainerResizer && canShowResizer}
         heightWithTopMargin={heightWithTopMargin}
         isPageInitiated={!isPageInitializing && !!widgetsStructure}
         isPreview={isPreviewMode || isProtectedMode}

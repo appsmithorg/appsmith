@@ -14,7 +14,7 @@ type templateActions =
   | "Create"
   | "List files";
 
-type DragDropWidgetOptions = {
+export type DragDropWidgetOptions = {
   parentWidgetType?: string;
   dropTargetId?: string;
   skipWidgetSearch?: boolean;
@@ -355,8 +355,14 @@ export class EntityExplorer {
         : this.locator._dropHere,
     )
       .first()
-      .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" })
-      .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" });
+      .trigger("mousemove", x, y, {
+        eventConstructor: "MouseEvent",
+        bubbles: false,
+      })
+      .trigger("mousemove", x, y, {
+        eventConstructor: "MouseEvent",
+        bubbles: false,
+      });
     this.agHelper.Sleep(200);
     cy.get(
       parentWidgetType
