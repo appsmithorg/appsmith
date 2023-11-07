@@ -105,10 +105,10 @@ describe("Create group, check if users in group has group roles accessess", func
     cy.wait(5000);
     homePage.SearchAndOpenApp(appName);
     entityExplorer.SelectEntityByName("Page1", "Pages");
-    entityExplorer.DragNDropWidget("checkboxwidget");
+    entityExplorer.DragNDropWidget("checkboxwidget", 300, 100, "", "", true);
     agHelper.AssertElementAbsence(locators._saveStatusError);
     entityExplorer.SelectEntityByName(pageName, "Pages");
-    entityExplorer.DragNDropWidget("checkboxwidget");
+    entityExplorer.DragNDropWidget("checkboxwidget", 300, 100, "", "", true);
     agHelper.AssertElementExist(locators._saveStatusError);
     entityExplorer.SelectEntityByName(queryName, "Queries/JS");
     agHelper.GetNClick(entityExplorer._contextMenu(queryName), 0, true, 500);
