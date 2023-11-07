@@ -1,6 +1,7 @@
 package com.appsmith.server.repositories;
 
 import com.appsmith.external.models.ActionDTO;
+import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.datasources.base.DatasourceService;
@@ -45,7 +46,7 @@ import reactor.test.StepVerifier;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.Set;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -116,6 +117,9 @@ public class GenericDatabaseOperationTest {
 
     @Autowired
     ReactiveMongoOperations reactiveMongoOperations;
+
+    @Autowired
+    WorkspaceRepository workspaceRepository;
 
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
@@ -301,6 +305,8 @@ public class GenericDatabaseOperationTest {
         Workspace workspace = new Workspace();
         workspace.setName("testUpdateRolesRemoval workspace");
         Workspace createdWorkspace = workspaceService.create(workspace).block();
+        assertThat(createdWorkspace).isNotNull();
+        assertThat(createdWorkspace.getId()).isNotBlank();
 
         String toRemove = createdWorkspace.getDefaultPermissionGroups().stream()
                 .findFirst()
@@ -315,16 +321,21 @@ public class GenericDatabaseOperationTest {
                         Workspace.class)
                 .block();
 
-        Workspace postUpdate = workspaceService
-                .findById(createdWorkspace.getId(), AclPermission.MANAGE_WORKSPACES)
-                .block();
-        postUpdate.getPolicies().stream()
-                .filter(policy -> policy.getPermission().equals(AclPermission.MANAGE_WORKSPACES))
-                .findFirst()
-                .ifPresent(policy -> {
-                    Set<String> permissionGroups = policy.getPermissionGroups();
-                    assertThat(permissionGroups).doesNotContain(toRemove);
-                });
+        // No need to fetch the resource using permission because we want to do an absolute check on the utility.
+        Workspace postUpdate =
+                workspaceRepository.findById(createdWorkspace.getId()).block();
+
+        assertThat(postUpdate).isNotNull();
+
+        assertThat(postUpdate.getPolicies()).isNotNull();
+        assertThat(postUpdate.getPolicies()).isNotEmpty();
+
+        Optional<Policy> optionalReadWorkspacePolicy = postUpdate.getPolicies().stream()
+                .filter(policy -> AclPermission.READ_WORKSPACES.getValue().equals(policy.getPermission()))
+                .findFirst();
+
+        assertThat(optionalReadWorkspacePolicy.isPresent()).isTrue();
+        assertThat(optionalReadWorkspacePolicy.get().getPermissionGroups()).doesNotContain(toRemove);
     }
 
     /**
