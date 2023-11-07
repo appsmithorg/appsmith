@@ -26,7 +26,6 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionMoveDTO;
 import com.appsmith.server.dtos.LayoutDTO;
-import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.ce.UpdateMultiplePageLayoutDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -47,7 +46,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
-import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.LinkedMultiValueMap;
@@ -734,10 +732,10 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
             layout.setMongoEscapedWidgetNames(escapedWidgetNames);
         }
 
-        Set<String> actionNames = new HashSet<>();
+        Set<String> executableNames = new HashSet<>();
         Set<ExecutableDependencyEdge> edges = new HashSet<>();
         Set<String> executablesUsedInDSL = new HashSet<>();
-        List<Executable> flatmapPageLoadExecutables = new ArrayList<>();
+        List<Executable> flatmapOnLoadExecutables = new ArrayList<>();
         List<LayoutExecutableUpdateDTO> executableUpdatesRef = new ArrayList<>();
         List<String> messagesRef = new ArrayList<>();
 
@@ -753,7 +751,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                         widgetNames,
                         edges,
                         widgetDynamicBindingsMap,
-                        flatmapPageLoadExecutables,
+                        flatmapOnLoadExecutables,
                         executablesUsedInDSL,
                         creatorType)
                 .onErrorResume(AppsmithException.class, error -> {
@@ -777,61 +775,23 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                     if (!validOnLoadExecutables.get()) {
                         return Mono.just(allOnLoadExecutables);
                     }
-                    // Update these actions to be executed on load, unless the user has touched the executeOnLoad
+                    // Update these executables to be executed on load, unless the user has touched the executeOnLoad
                     // setting for this
                     return onLoadExecutablesUtil
                             .updateExecutablesExecuteOnLoad(
-                                    flatmapPageLoadExecutables,
-                                    creatorId,
-                                    executableUpdatesRef,
-                                    messagesRef,
-                                    creatorType)
+                                    flatmapOnLoadExecutables, creatorId, executableUpdatesRef, messagesRef, creatorType)
                             .thenReturn(allOnLoadExecutables);
                 })
-                .zipWith(newPageService
-                        .findByIdAndLayoutsId(creatorId, layoutId, pagePermission.getEditPermission(), false)
-                        .switchIfEmpty(Mono.error(new AppsmithException(
-                                AppsmithError.ACL_NO_RESOURCE_FOUND,
-                                FieldName.PAGE_ID + " or " + FieldName.LAYOUT_ID,
-                                creatorId + ", " + layoutId))))
-                // Now update the page layout with the page load actions and the graph.
-                .flatMap(tuple -> {
-                    List<Set<DslExecutableDTO>> onLoadActions = tuple.getT1();
-                    PageDTO page = tuple.getT2();
+                // Now update the page layout with the page load executables and the graph.
+                .flatMap(onLoadExecutables -> {
+                    layout.setLayoutOnLoadActions(onLoadExecutables);
+                    layout.setAllOnPageLoadActionNames(executableNames);
+                    layout.setActionsUsedInDynamicBindings(executablesUsedInDSL);
+                    // The below field is to ensure that we record if the page load actions computation was
+                    // valid when last stored in the database.
+                    layout.setValidOnPageLoadActions(validOnLoadExecutables.get());
 
-                    List<Layout> layoutList = page.getLayouts();
-                    // Because the findByIdAndLayoutsId call returned non-empty result, we are guaranteed to find the
-                    // layoutId here.
-                    for (Layout storedLayout : layoutList) {
-                        if (storedLayout.getId().equals(layoutId)) {
-                            // Now that all the on load actions have been computed, set the vertices, edges, actions in
-                            // DSL in the layout for re-use to avoid computing DAG unnecessarily.
-                            layout.setLayoutOnLoadActions(onLoadActions);
-                            layout.setAllOnPageLoadActionNames(actionNames);
-                            layout.setActionsUsedInDynamicBindings(executablesUsedInDSL);
-                            // The below field is to ensure that we record if the page load actions computation was
-                            // valid when last stored in the database.
-                            layout.setValidOnPageLoadActions(validOnLoadExecutables.get());
-
-                            BeanUtils.copyProperties(layout, storedLayout);
-                            storedLayout.setId(layoutId);
-
-                            break;
-                        }
-                    }
-                    page.setLayouts(layoutList);
-                    return applicationService
-                            .saveLastEditInformation(page.getApplicationId())
-                            .then(newPageService.saveUnpublishedPage(page));
-                })
-                .flatMap(page -> {
-                    List<Layout> layoutList = page.getLayouts();
-                    for (Layout storedLayout : layoutList) {
-                        if (storedLayout.getId().equals(layoutId)) {
-                            return Mono.just(storedLayout);
-                        }
-                    }
-                    return Mono.empty();
+                    return onLoadExecutablesUtil.findAndUpdateLayout(creatorId, creatorType, layoutId, layout);
                 })
                 .map(savedLayout -> {
                     savedLayout.setDsl(this.unescapeMongoSpecialCharacters(savedLayout));

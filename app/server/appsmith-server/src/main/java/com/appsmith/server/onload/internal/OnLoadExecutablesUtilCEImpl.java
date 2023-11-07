@@ -10,6 +10,7 @@ import com.appsmith.external.models.EntityReferenceType;
 import com.appsmith.external.models.Executable;
 import com.appsmith.external.models.Property;
 import com.appsmith.server.domains.ExecutableDependencyEdge;
+import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -54,7 +55,7 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
 
     private final AstService astService;
     private final ObjectMapper objectMapper;
-    private final ExecutableOnLoadService<NewPage> actionExecutableOnPageLoadService;
+    private final ExecutableOnLoadService<NewPage> pageExecutableOnLoadService;
 
     /**
      * The following regex finds the immediate parent of an entity path.
@@ -359,9 +360,15 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                 });
     }
 
+    @Override
+    public Mono<Layout> findAndUpdateLayout(
+            String creatorId, CreatorContextType creatorType, String layoutId, Layout layout) {
+        return pageExecutableOnLoadService.findAndUpdateLayout(creatorId, layoutId, layout);
+    }
+
     private Mono<Executable> updateUnpublishedExecutable(String id, Executable executable) {
         if (executable instanceof ActionDTO actionDTO) {
-            return actionExecutableOnPageLoadService.updateUnpublishedExecutable(id, actionDTO);
+            return pageExecutableOnLoadService.updateUnpublishedExecutable(id, actionDTO);
         } else return Mono.just(executable);
     }
 
@@ -375,7 +382,7 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
     }
 
     protected Flux<Executable> getAllExecutablesByCreatorIdFlux(String creatorId, CreatorContextType creatorType) {
-        return actionExecutableOnPageLoadService.getAllExecutablesByCreatorIdFlux(creatorId);
+        return pageExecutableOnLoadService.getAllExecutablesByCreatorIdFlux(creatorId);
     }
 
     /**
@@ -616,7 +623,7 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
 
     protected <T extends Executable> Mono<Executable> fillSelfReferencingPaths(T executable) {
         if (executable instanceof ActionDTO actionDTO) {
-            return actionExecutableOnPageLoadService.fillSelfReferencingPaths(actionDTO);
+            return pageExecutableOnLoadService.fillSelfReferencingPaths(actionDTO);
         } else return Mono.just(executable);
     }
 
@@ -947,7 +954,7 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
 
     protected Flux<Executable> getUnpublishedOnLoadExecutablesExplicitSetByUserInCreatorContextFlux(
             String creatorId, CreatorContextType creatorType) {
-        return actionExecutableOnPageLoadService.getUnpublishedOnLoadExecutablesExplicitSetByUserInPageFlux(creatorId);
+        return pageExecutableOnLoadService.getUnpublishedOnLoadExecutablesExplicitSetByUserInPageFlux(creatorId);
     }
 
     /**

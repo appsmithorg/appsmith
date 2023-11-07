@@ -5,6 +5,7 @@ import com.appsmith.external.dtos.LayoutExecutableUpdateDTO;
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.Executable;
 import com.appsmith.server.domains.ExecutableDependencyEdge;
+import com.appsmith.server.domains.Layout;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -41,4 +42,6 @@ public interface OnLoadExecutablesUtilCE {
             List<LayoutExecutableUpdateDTO> executableUpdatesRef,
             List<String> messagesRef,
             CreatorContextType creatorType);
+
+    Mono<Layout> findAndUpdateLayout(String creatorId, CreatorContextType creatorType, String layoutId, Layout layout);
 }
