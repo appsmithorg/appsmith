@@ -128,6 +128,7 @@ const UseCasesSelect = ({
   return (
     <Select
       data-testid="t--community-template-usecases-input"
+      getPopupContainer={(triggerNode) => triggerNode.parentNode.parentNode}
       isMultiSelect
       onChange={setTemplateUseCases}
       value={templateUseCases}
