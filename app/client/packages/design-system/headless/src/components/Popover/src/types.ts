@@ -50,8 +50,10 @@ export interface PopoverContentProps {
   closeOnFocusOut?: boolean;
   /** Sets inline [style](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/style) for the element. Only use as a **last resort**. Use style props instead. */
   style?: CSSProperties;
-  /** Sets the CSS className  for the element. Only use as a last resort. Use style props instead. */
-  className?: string;
+  /** Sets the CSS className  for the overlay. */
+  overlayClassName?: string;
+  /** Sets the CSS className  for the content popover. */
+  contentClassName?: string;
 }
 
 export interface PopoverTriggerProps {
