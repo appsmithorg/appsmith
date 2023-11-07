@@ -72,7 +72,7 @@ export const isEnvironmentUpdating = (state: AppState) =>
 export const allowManageEnvironmentAccessForUser = (state: AppState) => {
   const isFlagEnabled = selectFeatureFlagCheck(
     state,
-    FEATURE_FLAG.release_custom_environments_enabled,
+    FEATURE_FLAG.license_custom_environments_enabled,
   );
   return isFlagEnabled;
 };

@@ -13,8 +13,7 @@ import {
   dataManager,
 } from "../../../../../support/Objects/ObjectsCore";
 
-// TODO: BEING FIXED BY AYUSH PAHWA FOR CUSTOM ENVIRONMENTS FEATURE
-describe.skip("Multiple Permission flow ", function () {
+describe("Multiple Permission flow ", function () {
   let datasourceName;
   let datasourceName2;
   let workspaceName;
@@ -112,7 +111,9 @@ describe.skip("Multiple Permission flow ", function () {
           );
           // check the create datasource role
           cy.get(RBAC.dataSourcesandQueriesTab).click();
-          cy.contains("td", `${workspaceName}`).next().next().click();
+          cy.contains("td", `${workspaceName}`).click();
+          cy.contains("td", "Datasources").next().next().click();
+          cy.contains("td", "Environments").next().click();
           // save role
           cy.get(RBAC.saveButton).click();
           cy.wait("@saveRole").should(
