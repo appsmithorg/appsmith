@@ -2,7 +2,7 @@ import type { LegacyRef } from "react";
 import React, { forwardRef } from "react";
 import classNames from "classnames";
 import { useSelector } from "react-redux";
-import { previewModeSelector } from "selectors/editorSelectors";
+import { combinedPreviewModeSelector } from "selectors/editorSelectors";
 import { Navigation } from "pages/AppViewer/Navigation";
 
 const NavigationPreview = forwardRef(
@@ -11,7 +11,7 @@ const NavigationPreview = forwardRef(
     ref: LegacyRef<HTMLDivElement> | undefined,
   ) => {
     const { isAppSettingsPaneWithNavigationTabOpen } = props;
-    const isPreviewMode = useSelector(previewModeSelector);
+    const isPreviewMode = useSelector(combinedPreviewModeSelector);
 
     return (
       <div
