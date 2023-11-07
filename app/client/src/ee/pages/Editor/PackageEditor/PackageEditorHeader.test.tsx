@@ -95,6 +95,7 @@ describe("PackageEditorHeader", () => {
     expect(
       screen.getByTestId("global-search-modal-trigger"),
     ).toBeInTheDocument();
+    expect(screen.getByTestId("t--package-publish-btn")).toBeInTheDocument();
   });
 
   it("calls updatePackageName when package name is edited", () => {

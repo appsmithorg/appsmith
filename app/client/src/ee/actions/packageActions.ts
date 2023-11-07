@@ -13,6 +13,10 @@ export interface DeletePackagePayload {
   id: string;
 }
 
+export interface PublishPackagePayload {
+  packageId: string;
+}
+
 export const fetchAllPackages = () => {
   return {
     type: ReduxActionTypes.FETCH_ALL_PACKAGES_INIT,
@@ -53,6 +57,13 @@ export const updatePackageName = (value: string, pkg: Package | null) => {
 export const deletePackage = (payload: DeletePackagePayload) => {
   return {
     type: ReduxActionTypes.DELETE_PACKAGE_INIT,
+    payload,
+  };
+};
+
+export const publishPackage = (payload: PublishPackagePayload) => {
+  return {
+    type: ReduxActionTypes.PUBLISH_PACKAGE_INIT,
     payload,
   };
 };

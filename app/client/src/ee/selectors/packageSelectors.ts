@@ -37,3 +37,6 @@ export const getIsSavingPackageName = (state: AppState) =>
 
 export const getisErrorSavingPackageName = (state: AppState) =>
   state.ui.workspaces.isErrorSavingPkgName;
+
+export const getIsPackagePublishing = (state: AppState) =>
+  state.ui.editor.isPackagePublishing;

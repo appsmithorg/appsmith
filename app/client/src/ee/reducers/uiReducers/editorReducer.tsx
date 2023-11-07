@@ -87,6 +87,27 @@ const handlers = {
       currentModuleId: action.payload.id,
     };
   },
+
+  [ReduxActionTypes.PUBLISH_PACKAGE_INIT]: (state: EditorReduxState) => {
+    return {
+      ...state,
+      isPackagePublishing: true,
+    };
+  },
+
+  [ReduxActionTypes.PUBLISH_PACKAGE_SUCCESS]: (state: EditorReduxState) => {
+    return {
+      ...state,
+      isPackagePublishing: false,
+    };
+  },
+
+  [ReduxActionErrorTypes.PUBLISH_PACKAGE_ERROR]: (state: EditorReduxState) => {
+    return {
+      ...state,
+      isPackagePublishing: false,
+    };
+  },
 };
 
 export default createReducer(initialState, handlers);

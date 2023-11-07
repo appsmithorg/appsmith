@@ -87,4 +87,20 @@ describe("modulesReducer", () => {
       }),
     ).toEqual(expectedState);
   });
+
+  it("CREATE_QUERY_MODULE_SUCCESS - should create a new module in the state", () => {
+    const initialState = DEFAULT_STATE;
+    initialState[module2.id] = module2;
+
+    const expectedState = klona(DEFAULT_STATE);
+    expectedState[module2.id] = module2;
+    expectedState[module3.id] = module3;
+
+    expect(
+      reducer(initialState, {
+        type: ReduxActionTypes.CREATE_QUERY_MODULE_SUCCESS,
+        payload: module3,
+      }),
+    ).toEqual(expectedState);
+  });
 });
