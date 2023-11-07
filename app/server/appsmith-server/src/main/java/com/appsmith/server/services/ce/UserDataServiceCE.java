@@ -42,8 +42,6 @@ public interface UserDataServiceCE {
 
     Mono<UserData> updateLastUsedAppAndWorkspaceList(Application application);
 
-    Mono<UserData> addTemplateIdToLastUsedList(String templateId);
-
     Mono<Map<String, Boolean>> getFeatureFlagsForCurrentUser();
 
     Mono<UpdateResult> removeRecentWorkspaceAndApps(String userId, String workspaceId);

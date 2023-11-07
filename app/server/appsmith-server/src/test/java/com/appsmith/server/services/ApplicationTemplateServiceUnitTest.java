@@ -117,17 +117,11 @@ public class ApplicationTemplateServiceUnitTest {
                 .setBody(objectMapper.writeValueAsString(List.of(templateOne, templateTwo, templateThree)))
                 .addHeader("Content-Type", "application/json"));
 
-        // mock the user data to set second template as recently used
-        UserData mockUserData = new UserData();
-        mockUserData.setRecentlyUsedTemplateIds(List.of("id-two"));
-        Mockito.when(userDataService.getForCurrentUser()).thenReturn(Mono.just(mockUserData));
-
         Mono<List<ApplicationTemplate>> templateListMono = applicationTemplateService.getActiveTemplates(null);
 
         StepVerifier.create(templateListMono)
                 .assertNext(applicationTemplates -> {
                     assertThat(applicationTemplates.size()).isEqualTo(3);
-                    assertThat(applicationTemplates.get(0).getId()).isEqualTo("id-two"); // second one should come first
                 })
                 .verifyComplete();
     }
@@ -144,10 +138,6 @@ public class ApplicationTemplateServiceUnitTest {
     @Test
     public void getRecentlyUsedTemplates_WhenRecentTemplatesExist_ReturnsTemplates()
             throws InterruptedException, JsonProcessingException {
-        // mock the user data to set recently used template ids
-        UserData mockUserData = new UserData();
-        mockUserData.setRecentlyUsedTemplateIds(List.of("id-one", "id-two"));
-        Mockito.when(userDataService.getForCurrentUser()).thenReturn(Mono.just(mockUserData));
 
         // mock the server to return a template when it's called
         mockCloudServices.enqueue(new MockResponse()
@@ -187,11 +177,6 @@ public class ApplicationTemplateServiceUnitTest {
         // mock the server to return a template when it's called
         mockCloudServices.enqueue(
                 new MockResponse().setBody(templates.toString()).addHeader("Content-Type", "application/json"));
-
-        // mock the user data to set recently used template ids
-        UserData mockUserData = new UserData();
-        mockUserData.setRecentlyUsedTemplateIds(List.of());
-        Mockito.when(userDataService.getForCurrentUser()).thenReturn(Mono.just(mockUserData));
 
         // make sure we've received the response returned by the mockCloudServices
         StepVerifier.create(applicationTemplateService.getActiveTemplates(null))
