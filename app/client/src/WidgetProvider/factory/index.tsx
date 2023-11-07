@@ -349,23 +349,31 @@ class WidgetFactory {
         type,
       );
 
-    return propertyPaneContentConfigWithDynamicPropertyGenerator.map(
-      (section: PropertyPaneSectionConfig) => {
-        if (section.hasDynamicProperties) {
-          const dynamicProperties =
-            section.generateDynamicProperty?.(widgetProperties);
+    if (
+      propertyPaneContentConfigWithDynamicPropertyGenerator.some(
+        (d) => d.hasDynamicProperties,
+      )
+    ) {
+      return propertyPaneContentConfigWithDynamicPropertyGenerator.map(
+        (section: PropertyPaneSectionConfig) => {
+          if (section.hasDynamicProperties) {
+            const dynamicProperties =
+              section.generateDynamicProperties?.(widgetProperties);
 
-          if (dynamicProperties && dynamicProperties.length) {
-            addPropertyConfigIds(dynamicProperties);
-            section = produce(section, (draft) => {
-              draft.children = [...dynamicProperties, ...section.children];
-            });
+            if (dynamicProperties && dynamicProperties.length) {
+              addPropertyConfigIds(dynamicProperties);
+              section = produce(section, (draft) => {
+                draft.children = [...dynamicProperties, ...section.children];
+              });
+            }
           }
-        }
 
-        return section;
-      },
-    );
+          return section;
+        },
+      );
+    } else {
+      return propertyPaneContentConfigWithDynamicPropertyGenerator;
+    }
   }
 
   @memoize

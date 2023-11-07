@@ -12,13 +12,17 @@ import { WIDGET_TAGS } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { OnButtonClickProps } from "components/propertyControls/ButtonControl";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 class ExternalWidget extends BaseWidget<ExternalWidgetProps, WidgetState> {
   static type = "EXTERNAL_WIDGET";
 
   static getConfig() {
     return {
-      name: "External",
+      name: "Custom Widget [alpha]",
+      hideCard: !super.getFeatureFlag(
+        FEATURE_FLAG.release_custom_widgets_enabled,
+      ),
       iconSVG: IconSVG,
       needsMeta: true,
       isCanvas: false,
@@ -26,18 +30,9 @@ class ExternalWidget extends BaseWidget<ExternalWidgetProps, WidgetState> {
     };
   }
 
-  static getFeatures() {
-    return {
-      dynamicHeight: {
-        sectionIndex: 0,
-        active: true,
-      },
-    };
-  }
-
   static getDefaults() {
     return {
-      widgetName: "External",
+      widgetName: "Custom widget",
       rows: 50,
       columns: 50,
       version: 1,
@@ -109,7 +104,7 @@ class ExternalWidget extends BaseWidget<ExternalWidgetProps, WidgetState> {
       {
         sectionName: "Events",
         hasDynamicProperties: true,
-        generateDynamicProperty: (widgetProps: WidgetProps) => {
+        generateDynamicProperties: (widgetProps: WidgetProps) => {
           return widgetProps.events.map((event: string) => ({
             propertyName: event,
             label: event,

@@ -83,6 +83,9 @@ export function Routes() {
   const user = useSelector(getCurrentUserSelector);
   const tenantPermissions = useSelector(getTenantPermissions);
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+  const isCustomWidgetsEnabled = useFeatureFlag(
+    FEATURE_FLAG.release_custom_widgets_enabled,
+  );
 
   return (
     <Switch>
@@ -100,7 +103,9 @@ export function Routes() {
       <SentryRoute component={SignupSuccess} exact path={SIGNUP_SUCCESS_URL} />
       <SentryRoute component={UserProfile} path={PROFILE} />
       <SentryRoute component={Setup} exact path={SETUP} />
-      <SentryRoute component={WidgetBuilder} exact path={WIDGET_BUILDER} />
+      {isCustomWidgetsEnabled && (
+        <SentryRoute component={WidgetBuilder} exact path={WIDGET_BUILDER} />
+      )}
       <SentryRoute component={TemplatesListLoader} path={TEMPLATES_PATH} />
       <Redirect
         exact
