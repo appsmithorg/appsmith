@@ -11,6 +11,7 @@ import {
   isWidget,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { getDataTree } from "./dataTreeSelectors";
+import { combinedPreviewModeSelector } from "./editorSelectors";
 
 interface ErrorObejct {
   [k: string]: Log;
@@ -147,5 +148,8 @@ export const getScrollPosition = (state: AppState) =>
 export const getDebuggerContext = (state: AppState) =>
   state.ui.debugger.context;
 
-export const showDebuggerFlag = (state: AppState) =>
-  state.ui.debugger.isOpen && !state.ui.editor.isPreviewMode;
+export const showDebuggerFlag = createSelector(
+  (state) => state.ui.debugger.isOpen,
+  combinedPreviewModeSelector,
+  (isOpen, isPreview) => isOpen && !isPreview,
+);

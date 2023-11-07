@@ -5,7 +5,7 @@ import EntityProperties from "./Explorer/Entity/EntityProperties";
 import Explorer from "./Explorer";
 import OnboardingStatusbar from "./FirstTimeUserOnboarding/Statusbar";
 import Pages from "./Explorer/Pages";
-import { EntityExplorerSidebar } from "components/editorComponents/Sidebar";
+import EntityExplorerSidebar from "components/editorComponents/EntityExplorerSidebar";
 import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
 
 function WidgetsEditorEntityExplorer() {

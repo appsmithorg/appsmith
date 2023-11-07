@@ -23,6 +23,7 @@ export class PropertyPane {
   private locator = ObjectsRegistry.CommonLocators;
   private assertHelper = ObjectsRegistry.AssertHelper;
 
+  _propertyPaneSidebar = ".t--property-pane-sidebar";
   _jsonFieldEdit = (fieldName: string) =>
     "//input[@placeholder='Field label'][@value='" +
     fieldName +
@@ -186,7 +187,7 @@ export class PropertyPane {
     //   }
     // });
     this.OpenJsonFormFieldSettings(fieldName);
-    this.agHelper.SelectDropdownList("Field Type", newDataType);
+    this.SelectPropertiesDropDown("Field Type", newDataType);
     this.agHelper.AssertAutoSave();
     this.assertHelper.AssertNetworkStatus("@updateLayout");
   }

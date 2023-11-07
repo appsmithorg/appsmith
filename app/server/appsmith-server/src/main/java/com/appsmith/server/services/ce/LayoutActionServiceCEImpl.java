@@ -458,16 +458,6 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
         return dsl;
     }
 
-    /**
-     * Compares the new name with the existing widget and action names for this page. If they match, then it returns
-     * false to signify that refactoring can not be allowed. Else, refactoring should be allowed and hence true is
-     * returned.
-     *
-     * @param pageId
-     * @param layoutId
-     * @param newName
-     * @return
-     */
     @Override
     public Mono<Boolean> isNameAllowed(String pageId, String layoutId, String newName) {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
