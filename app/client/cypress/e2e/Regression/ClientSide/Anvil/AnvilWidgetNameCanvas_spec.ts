@@ -7,7 +7,6 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 import { getAnvilCanvasId } from "../../../../../src/layoutSystems/anvil/canvas/utils";
 import { ANVIL_EDITOR_TEST } from "../../../../support/Constants";
-import * as viewWidgets from "../../../../locators/ViewWidgets.json";
 
 describe(`${ANVIL_EDITOR_TEST}: Anvil tests for Widget Name Canvas`, () => {
   it("1. Widget Name should not be cut off at the top", () => {
