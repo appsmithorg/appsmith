@@ -252,8 +252,6 @@ export class DataSources {
     "//p[contains(text(),'" +
     ddName +
     "')]/ancestor::div[@class='form-config-top']/following-sibling::div//div[contains(@class, 'rc-select-multiple')]";
-  private _datasourceTableSchemaInQueryEditor = (schemaName: string) =>
-    `//div[contains(@class, 'datasourceStructure-query-editor')]//div[contains(@class, 't--entity-name')][text()='${schemaName}']`;
   private _datasourceSchemaRefreshBtn = ".datasourceStructure-refresh";
   private _datasourceStructureHeader = ".datasourceStructure-header";
   private _datasourceColumnSchemaInQueryEditor = ".t--datasource-column";
@@ -285,8 +283,7 @@ export class DataSources {
   _graphQlDsFromRightPane = (dsName: string) =>
     "//div/span[text() ='" + dsName + "']";
   _imgFireStoreLogo = "//img[contains(@src, 'firestore.svg')]";
-  _dsVirtuosoElement = (dsName: string) =>
-    `[data-testid='t--entity-item-${dsName}'] + div .t--schema-virtuoso-container`;
+  _dsVirtuosoElement = `div .t--schema-virtuoso-container`;
   private _dsVirtuosoList = `[data-test-id="virtuoso-item-list"]`;
   private _dsVirtuosoElementTable = (targetTableName: string) =>
     `.t--entity-item[data-testid='t--entity-item-${targetTableName}']`;
@@ -296,12 +293,7 @@ export class DataSources {
     `.t--datasource-tab-container ${this._entityExplorerID(tableName)}`;
   _dsPageTableTriggermenuTarget = (tableName: string) =>
     `${this._dsPageTabContainerTableName(tableName)} .t--template-menu-trigger`;
-  _queryPageTableTriggerMenuTarget = (tableName: string) =>
-    `${this._entityExplorerID(tableName)} .t--template-menu-trigger`;
   _gSheetQueryPlaceholder = ".CodeMirror-placeholder";
-  _dsNameInExplorer = (dsName: string) =>
-    `div.t--entity-name:contains('${dsName}')`;
-
   public AssertDSEditViewMode(mode: AppModes) {
     if (mode == "Edit") this.agHelper.AssertElementAbsence(this._editButton);
     else if (mode == "View") this.agHelper.AssertElementExist(this._editButton);
@@ -1384,9 +1376,7 @@ export class DataSources {
   }
 
   public VerifyTableSchemaOnQueryEditor(schema: string) {
-    this.agHelper.AssertElementVisibility(
-      this._datasourceTableSchemaInQueryEditor(schema),
-    );
+    this.agHelper.AssertElementVisibility(this._dsVirtuosoElementTable(schema));
   }
 
   public VerifySchemaAbsenceInQueryEditor() {
@@ -1430,12 +1420,7 @@ export class DataSources {
   ) {
     this.agHelper.GetNClick(this._datasourceSchemaRefreshBtn);
     this.VerifyTableSchemaOnQueryEditor(tableName);
-    cy.get(this._datasourceTableSchemaInQueryEditor(tableName))
-      .realHover()
-      .parent()
-      .siblings()
-      .find(this._queryPageTableTriggerMenuTarget(tableName))
-      .click();
+    cy.get(this._dsVirtuosoElementTable(tableName)).click();
     this.agHelper.GetNClick(
       this.entityExplorer.locator._contextMenuItem(templateName),
       0,
@@ -1867,70 +1852,54 @@ export class DataSources {
       `getDatasourceStructureUpdated_${ds_entity_name}`,
     );
     this.RefreshDatasourceSchema();
-    cy.get(this.locator._body).then(($body: any) => {
-      if ($body.find(this._dsNameInExplorer(dsName)).length > 0) {
-        this.entityExplorer.ExpandCollapseEntity(dsName);
-        this.assertHelper
-          .WaitForNetworkCall(
-            `@getDatasourceStructureUpdated_${ds_entity_name}`,
-          )
-          .then(async (response) => {
-            const tables: any[] = response?.body.data?.tables || [];
-            const indexOfTable = tables.findIndex(
-              (table) => table.name === targetTableName,
-            );
-            if (presence) {
-              this.agHelper.Sleep();
-              this.agHelper
-                .GetNClick(this._dsVirtuosoElement(dsName))
-                .then((parentElement) => {
-                  const heightOfParentElement =
-                    parentElement.outerHeight() || 0;
+    this.assertHelper
+      .WaitForNetworkCall(`@getDatasourceStructureUpdated_${ds_entity_name}`)
+      .then(async (response) => {
+        const tables: any[] = response?.body.data?.tables || [];
+        const indexOfTable = tables.findIndex(
+          (table) => table.name === targetTableName,
+        );
+        if (presence) {
+          this.agHelper.Sleep();
+          this.agHelper
+            .GetNClick(this._dsVirtuosoElement)
+            .then((parentElement) => {
+              const heightOfParentElement = parentElement.outerHeight() || 0;
 
-                  // Every element (tables in this scenario) in the virtual list has equal heights. Assumption: Every table element accordion is collapsed by default.
-                  const containerElement = parentElement.find(
-                    this._dsVirtuosoList,
-                  );
-                  const elementHeight = parseInt(
-                    containerElement
-                      .children()
-                      .first()
-                      .attr("data-known-size") || "",
-                    10,
-                  );
-                  // Total height of the parent container holding the tables in the dom normally without virtualization rendering
-                  const totalScroll = tables.length * elementHeight;
-                  cy.log(
-                    JSON.stringify({ heightOfParentElement, totalScroll }),
-                  );
-                  if (heightOfParentElement < totalScroll) {
-                    // Index of the table present in the array of tables which will determine the presence of element inside the parent container
-                    let offset = indexOfTable * elementHeight;
-                    const scrollPercent = Math.max(
-                      (offset / (totalScroll || 1)) * 100,
-                      0,
-                    );
-                    if (scrollPercent > 0) {
-                      this.agHelper.ScrollToXY(
-                        this._dsVirtuosoElement(dsName),
-                        0,
-                        `${scrollPercent}%`,
-                      );
-                    }
-                  }
-                  this.agHelper.AssertElementVisibility(
-                    this._dsVirtuosoElementTable(targetTableName),
-                  );
-                });
-            } else {
-              this.agHelper.AssertElementAbsence(
-                this._dsVirtuosoElement(targetTableName),
+              // Every element (tables in this scenario) in the virtual list has equal heights. Assumption: Every table element accordion is collapsed by default.
+              const containerElement = parentElement.find(this._dsVirtuosoList);
+              const elementHeight = parseInt(
+                containerElement.children().first().attr("data-known-size") ||
+                  "",
+                10,
               );
-              expect(indexOfTable).to.equal(-1);
-            }
-          });
-      }
-    });
+              // Total height of the parent container holding the tables in the dom normally without virtualization rendering
+              const totalScroll = tables.length * elementHeight;
+              cy.log(JSON.stringify({ heightOfParentElement, totalScroll }));
+              if (heightOfParentElement < totalScroll) {
+                // Index of the table present in the array of tables which will determine the presence of element inside the parent container
+                let offset = indexOfTable * elementHeight;
+                const scrollPercent = Math.max(
+                  (offset / (totalScroll || 1)) * 100,
+                  0,
+                );
+                if (scrollPercent > 0) {
+                  this.agHelper.ScrollToXY(
+                    this._dsVirtuosoElement,
+                    0,
+                    `${scrollPercent}%`,
+                  );
+                }
+              }
+              this.agHelper.AssertElementVisibility(
+                this._dsVirtuosoElementTable(targetTableName),
+              );
+            });
+        } else {
+          this.agHelper.AssertElementAbsence(this._dsVirtuosoElement);
+          expect(indexOfTable).to.equal(-1);
+        }
+      });
   }
 
   public selectTabOnDatasourcePage(tab: "View data" | "Configurations") {
