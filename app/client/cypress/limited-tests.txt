@@ -3,7 +3,7 @@
 cypress/e2e/Regression/ClientSide/Git/GitSync/SwitchBranches_spec.js
 cypress/e2e/Regression/ClientSide/Widgets/Select/Select3_Spec.ts
 cypress/e2e/Regression/ClientSide/SetProperty/WidgetPropertySetters2_spec.ts
-
+cypress/e2e/Regression/ClientSide/Widgets/JSONForm/JSONForm_RadioGroupField_spec.js
 
 
 # For running all specs - uncomment below:
