@@ -20,24 +20,24 @@
       "maxV": 4,
       "minR": 2,
       "maxR": 3,
-      "minN": 3,
+      "minN": 2,
       "maxN": 3,
       "stepsUp": 8,
       "stepsDown": 0,
-      "userSizingRatio": 0.2,
-      "userDensityRatio": 1.4
+      "userSizingRatio": 0.8,
+      "userDensityRatio": 1.5
     },
     "innerSpacing": {
-      "minV": 3,
-      "maxV": 4,
+      "minV": 2.25,
+      "maxV": 3,
       "minR": 2,
       "maxR": 3,
-      "minN": 3,
+      "minN": 2,
       "maxN": 3,
       "stepsUp": 8,
       "stepsDown": 0,
-      "userSizingRatio": 0.2,
-      "userDensityRatio": 1.4
+      "userSizingRatio": 0.25,
+      "userDensityRatio": 2.5
     },
     "typography": {
       "minV": 6,
@@ -48,8 +48,8 @@
       "maxN": 5,
       "stepsUp": 5,
       "stepsDown": 1,
-      "userSizingRatio": 1.4,
-      "userDensityRatio": 0.2
+      "userSizingRatio": 1.6,
+      "userDensityRatio": 0
     }
   },
   "colorMode": "light",

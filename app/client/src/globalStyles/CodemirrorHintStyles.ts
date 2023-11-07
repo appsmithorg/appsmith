@@ -122,6 +122,7 @@ export const CodemirrorHintStyles = createGlobalStyle<{
 
     .CodeMirror-hint-header {
       padding: 8px;
+      font-size: var(--ads-v2-font-size-1);
       color: var(--ads-v2-color-fg);
       pointer-events: none !important;
     }
@@ -156,6 +157,7 @@ export const CodemirrorHintStyles = createGlobalStyle<{
     .CodeMirror-Tern-completion {
       font-family: ${(props) => props.theme.fonts.code};
       display: flex;
+      font-size: var(--ads-v2-font-size-2);
       padding-left: ${(props) => props.theme.spaces[11]}px !important;
       &:hover{
         background: var(--ads-v2-color-bg-subtle);
@@ -234,9 +236,6 @@ export const CodemirrorHintStyles = createGlobalStyle<{
     .CodeMirror-Tern-completion-keyword[keyword]:after {
       content: attr(keyword);
     }
-    .CodeMirror-Tern-tooltip {
-      z-index: 20 !important;
-    }
     li.CodeMirror-hint-active {
       background-color: var(--ads-v2-color-bg-muted);
       border-radius: var(--ads-v2-border-radius);
@@ -250,6 +249,33 @@ export const CodemirrorHintStyles = createGlobalStyle<{
         &:after {
           color: var(--ads-v2-color-fg);
         }
+      }
+    }
+  }
+
+  .CodeMirror-Tern-tooltip {
+    font-family: ${(props) => props.theme.fonts.code};
+    &&& {
+      font-size: var(--ads-v2-font-size-2);
+      z-index: 20;
+      background: var(--ads-v2-color-bg);
+      box-shadow: var(--ads-v2-shadow-popovers);
+      border: 1px solid var(--ads-v2-color-border);
+      border-radius: var(--ads-v2-border-radius);
+      max-width: none;
+      white-space: nowrap;
+      .CodeMirror-Tern-fname {
+        color: #304EAA;
+      }
+      .CodeMirror-Tern-farg {
+        color: #DB6E33;
+        &.CodeMirror-Tern-farg-current {
+          color: #DB6E33;
+          font-weight: 600;
+        }
+      }
+      .CodeMirror-Tern-type {
+        color: #364252;
       }
     }
   }
@@ -335,7 +361,7 @@ export const CodemirrorHintStyles = createGlobalStyle<{
       border-radius: var(--ads-v2-border-radius);
       background: var(--ads-v2-color-bg) !important;
       box-shadow: 0px 12px 28px -6px rgba(0, 0, 0, 0.32);
-      padding: 7px 12px;
+      padding: 4px;
       color: var(--ads-v2-color-fg);
 
       display: flex;
@@ -349,12 +375,9 @@ export const CodemirrorHintStyles = createGlobalStyle<{
   }
   .CodeMirror-lint-message {
     && {
-      margin-top: 5px;
-      margin-bottom: 5px;
       font-family: ${(props) => props.theme.fonts.text};
       color: var(--ads-v2-color-fg);
       background-position: 0 2.8px;
-      padding-left: 20px;
     }
   }
   .CodeMirror-lint-mark-warning {
