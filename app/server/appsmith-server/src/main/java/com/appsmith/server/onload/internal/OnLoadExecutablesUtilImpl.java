@@ -1,6 +1,5 @@
 package com.appsmith.server.onload.internal;
 
-import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.onload.executables.ExecutableOnLoadService;
 import com.appsmith.server.services.AstService;

@@ -352,7 +352,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                                         oldParent,
                                         nextKey,
                                         "Index out of bounds for list",
-                                     creatorType);
+                                        creatorType);
                             }
                         } else {
                             throw new AppsmithException(
@@ -366,7 +366,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                                     oldParent,
                                     nextKey,
                                     "Child of list is not in an indexed path",
-                                creatorType);
+                                    creatorType);
                         }
                     }
                     // After updating the parent, check for the types
@@ -382,7 +382,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                                 oldParent,
                                 nextKey,
                                 "New element is null",
-                            creatorType);
+                                creatorType);
                     } else if (parent instanceof String) {
                         // If we get String value, then this is a leaf node
                         isLeafNode = true;
@@ -406,7 +406,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                                         bindingAsString,
                                         nextKey,
                                         "Binding path has no mustache bindings",
-                                    creatorType);
+                                        creatorType);
                             } catch (JsonProcessingException e) {
                                 throw new AppsmithException(AppsmithError.JSON_PROCESSING_ERROR, parent);
                             }
@@ -443,7 +443,13 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                 if (!CollectionUtils.isEmpty(data)) {
                     object.putAll(data);
                     JSONObject child = extractAllWidgetNamesAndDynamicBindingsFromDSL(
-                            object, widgetNames, widgetDynamicBindingsMap, creatorId, layoutId, escapedWidgetNames, creatorType);
+                            object,
+                            widgetNames,
+                            widgetDynamicBindingsMap,
+                            creatorId,
+                            layoutId,
+                            escapedWidgetNames,
+                            creatorType);
                     newChildren.add(child);
                 }
             }
@@ -662,7 +668,12 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
     }
 
     private Mono<Boolean> sendUpdateLayoutAnalyticsEvent(
-            String creatorId, String layoutId, JSONObject dsl, boolean isSuccess, Throwable error, CreatorContextType creatorType) {
+            String creatorId,
+            String layoutId,
+            JSONObject dsl,
+            boolean isSuccess,
+            Throwable error,
+            CreatorContextType creatorType) {
         return Mono.zip(sessionUserService.getCurrentUser(), newPageService.getById(creatorId))
                 .flatMap(tuple -> {
                     User t1 = tuple.getT1();
@@ -694,7 +705,12 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                 });
     }
 
-    private Mono<LayoutDTO> updateLayoutDsl(String creatorId, String layoutId, Layout layout, Integer evaluatedVersion, CreatorContextType creatorType) {
+    private Mono<LayoutDTO> updateLayoutDsl(
+            String creatorId,
+            String layoutId,
+            Layout layout,
+            Integer evaluatedVersion,
+            CreatorContextType creatorType) {
         JSONObject dsl = layout.getDsl();
         if (dsl == null) {
             // There is no DSL here. No need to process anything. Return as is.
