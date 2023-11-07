@@ -10,10 +10,9 @@ import type { BaseInputWidgetProps } from "./types";
 import { propertyPaneContentConfig } from "./contentConfig";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
-import {
-  largeWidgets,
-  type AnvilConfig,
-  type WidgetBaseConfiguration,
+import type {
+  AnvilConfig,
+  WidgetBaseConfiguration,
 } from "WidgetProvider/constants";
 
 class WDSBaseInputWidget<
@@ -87,7 +86,7 @@ class WDSBaseInputWidget<
 
   static getAnvilConfig(): AnvilConfig | null {
     return {
-      isLargeWidget: !!largeWidgets[this.type],
+      isLargeWidget: false,
       widgetSize: {
         maxHeight: {},
         maxWidth: {},

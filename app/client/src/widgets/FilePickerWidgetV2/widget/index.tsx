@@ -20,10 +20,9 @@ import BaseWidget from "widgets/BaseWidget";
 import FilePickerComponent from "../component";
 import FileDataTypes from "../constants";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
-import {
-  largeWidgets,
-  type AnvilConfig,
-  type AutocompletionDefinitions,
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
 } from "WidgetProvider/constants";
 import parseFileData from "./FileParser";
 import { FilePickerGlobalStyles } from "./index.styled";
@@ -117,7 +116,7 @@ class FilePickerWidget extends BaseWidget<
 
   static getAnvilConfig(): AnvilConfig | null {
     return {
-      isLargeWidget: !!largeWidgets[this.type],
+      isLargeWidget: false,
       widgetSize: {
         maxHeight: {},
         maxWidth: { base: "360px" },

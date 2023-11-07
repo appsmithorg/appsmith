@@ -6,12 +6,11 @@ import {
   propertyPaneStyleConfig,
 } from "./propertyPaneConfig";
 import IconSVG from "../icon.svg";
-import {
-  largeWidgets,
-  type AnvilConfig,
-  type AutocompletionDefinitions,
-  type PropertyUpdates,
-  type SnipingModeProperty,
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
+  PropertyUpdates,
+  SnipingModeProperty,
 } from "WidgetProvider/constants";
 import InputComponent from "../component";
 import { INPUT_TYPES } from "../constants";
@@ -112,7 +111,7 @@ class WDSInputWidget extends WDSBaseInputWidget<InputWidgetProps, WidgetState> {
 
   static getAnvilConfig(): AnvilConfig | null {
     return {
-      isLargeWidget: !!largeWidgets[this.type],
+      isLargeWidget: false,
       widgetSize: {
         maxHeight: {},
         maxWidth: {},

@@ -18,10 +18,9 @@ import {
 import type { OptionProps } from "../component";
 import SwitchGroupComponent from "../component";
 import { isAutoLayout } from "layoutSystems/autolayout/utils/flexWidgetUtils";
-import {
-  largeWidgets,
-  type AnvilConfig,
-  type AutocompletionDefinitions,
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
 } from "WidgetProvider/constants";
 import IconSVG from "../icon.svg";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
@@ -110,7 +109,7 @@ class SwitchGroupWidget extends BaseWidget<
 
   static getAnvilConfig(): AnvilConfig | null {
     return {
-      isLargeWidget: !!largeWidgets[this.type],
+      isLargeWidget: false,
       widgetSize: {
         maxHeight: {},
         maxWidth: {},

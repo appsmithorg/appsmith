@@ -9,10 +9,7 @@ import { get } from "lodash";
 import React from "react";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
-import {
-  MinimumPopupWidthInPercentage,
-  largeWidgets,
-} from "WidgetProvider/constants";
+import { MinimumPopupWidthInPercentage } from "WidgetProvider/constants";
 import ButtonGroupComponent from "../component";
 import { getStylesheetValue } from "./helpers";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
@@ -204,7 +201,7 @@ class ButtonGroupWidget extends BaseWidget<
 
   static getAnvilConfig(): AnvilConfig | null {
     return {
-      isLargeWidget: !!largeWidgets[this.type],
+      isLargeWidget: false,
       widgetSize: (props: ButtonGroupWidgetProps) => {
         let minWidth = 120;
         const buttonLength = Object.keys(props.groupButtons).length;

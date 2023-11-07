@@ -24,10 +24,9 @@ import {
   MapTypes,
 } from "../constants";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
-import {
-  largeWidgets,
-  type AnvilConfig,
-  type AutocompletionDefinitions,
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
 } from "WidgetProvider/constants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import {
@@ -137,7 +136,7 @@ class MapChartWidget extends BaseWidget<MapChartWidgetProps, WidgetState> {
 
   static getAnvilConfig(): AnvilConfig | null {
     return {
-      isLargeWidget: !!largeWidgets[this.type],
+      isLargeWidget: false,
       widgetSize: {
         maxHeight: {},
         maxWidth: {},

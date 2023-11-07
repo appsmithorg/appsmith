@@ -20,10 +20,9 @@ import BaseWidget from "../../BaseWidget";
 import RadioGroupComponent from "../component";
 import type { RadioOption } from "../constants";
 import { isAutoLayout } from "layoutSystems/autolayout/utils/flexWidgetUtils";
-import {
-  largeWidgets,
-  type AnvilConfig,
-  type AutocompletionDefinitions,
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
 } from "WidgetProvider/constants";
 import IconSVG from "../icon.svg";
 import type {
@@ -285,7 +284,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
 
   static getAnvilConfig(): AnvilConfig | null {
     return {
-      isLargeWidget: !!largeWidgets[this.type],
+      isLargeWidget: false,
       widgetSize: {
         maxHeight: {},
         maxWidth: {},

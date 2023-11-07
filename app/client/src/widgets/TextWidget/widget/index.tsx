@@ -25,10 +25,7 @@ import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import { OverflowTypes } from "../constants";
 import IconSVG from "../icon.svg";
 import { DynamicHeight } from "utils/WidgetFeatures";
-import {
-  BlueprintOperationTypes,
-  largeWidgets,
-} from "WidgetProvider/constants";
+import { BlueprintOperationTypes } from "WidgetProvider/constants";
 import type {
   SnipingModeProperty,
   PropertyUpdates,
@@ -139,7 +136,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
 
   static getAnvilConfig(): AnvilConfig | null {
     return {
-      isLargeWidget: !!largeWidgets[this.type],
+      isLargeWidget: false,
       widgetSize: {
         maxHeight: {},
         maxWidth: {},

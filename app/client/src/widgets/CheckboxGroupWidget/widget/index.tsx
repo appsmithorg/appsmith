@@ -24,10 +24,9 @@ import CheckboxGroupComponent from "../component";
 import type { OptionProps, SelectAllState } from "../constants";
 import { SelectAllStates } from "../constants";
 import { isAutoLayout } from "layoutSystems/autolayout/utils/flexWidgetUtils";
-import {
-  largeWidgets,
-  type AnvilConfig,
-  type AutocompletionDefinitions,
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
 } from "WidgetProvider/constants";
 import IconSVG from "../icon.svg";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
@@ -143,7 +142,7 @@ class CheckboxGroupWidget extends BaseWidget<
 
   static getAnvilConfig(): AnvilConfig | null {
     return {
-      isLargeWidget: !!largeWidgets[this.type],
+      isLargeWidget: false,
       widgetSize: {
         maxHeight: {},
         maxWidth: {},

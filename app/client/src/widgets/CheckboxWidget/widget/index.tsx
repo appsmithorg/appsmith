@@ -5,7 +5,7 @@ import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import React from "react";
 import { isAutoLayout } from "layoutSystems/autolayout/utils/flexWidgetUtils";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
-import { AlignWidgetTypes, largeWidgets } from "WidgetProvider/constants";
+import { AlignWidgetTypes } from "WidgetProvider/constants";
 import {
   isAutoHeightEnabledForWidget,
   DefaultAutocompleteDefinitions,
@@ -107,7 +107,7 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
 
   static getAnvilConfig(): AnvilConfig | null {
     return {
-      isLargeWidget: !!largeWidgets[this.type],
+      isLargeWidget: false,
       widgetSize: {
         maxHeight: {},
         maxWidth: {},

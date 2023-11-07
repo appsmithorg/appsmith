@@ -13,10 +13,7 @@ import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import { isAutoLayout } from "layoutSystems/autolayout/utils/flexWidgetUtils";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
-import {
-  MinimumPopupWidthInPercentage,
-  largeWidgets,
-} from "WidgetProvider/constants";
+import { MinimumPopupWidthInPercentage } from "WidgetProvider/constants";
 import {
   isAutoHeightEnabledForWidget,
   DefaultAutocompleteDefinitions,
@@ -138,7 +135,7 @@ class MultiSelectWidget extends BaseWidget<
 
   static getAnvilConfig(): AnvilConfig | null {
     return {
-      isLargeWidget: !!largeWidgets[this.type],
+      isLargeWidget: false,
       widgetSize: {
         maxHeight: {},
         maxWidth: {},

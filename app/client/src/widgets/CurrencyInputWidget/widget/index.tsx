@@ -35,10 +35,9 @@ import {
 } from "widgets/WidgetUtils";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { NumberInputStepButtonPosition } from "widgets/BaseInputWidget/constants";
-import {
-  largeWidgets,
-  type AnvilConfig,
-  type AutocompletionDefinitions,
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
 } from "WidgetProvider/constants";
 import { LabelPosition } from "components/constants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
@@ -221,7 +220,7 @@ class CurrencyInputWidget extends BaseInputWidget<
 
   static getAnvilConfig(): AnvilConfig | null {
     return {
-      isLargeWidget: !!largeWidgets[this.type],
+      isLargeWidget: false,
       widgetSize: {
         maxHeight: {},
         maxWidth: {},

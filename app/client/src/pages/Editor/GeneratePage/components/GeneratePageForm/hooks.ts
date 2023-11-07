@@ -9,6 +9,7 @@ import type { DropdownOption } from "design-system-old";
 import { useDispatch, useSelector } from "react-redux";
 import { PluginPackageName } from "entities/Action";
 import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelectors";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 export const FAKE_DATASOURCE_OPTION = {
   CONNECT_NEW_DATASOURCE_OPTION: {
@@ -379,10 +380,16 @@ export const useSheetData = (
   const [failedFetchingSheetData, setFailedFetchingSheetData] =
     useState<boolean>(false);
 
-  const onFetchAllSheetFailure = useCallback(() => {
-    setIsFetchingSheetData(false);
-    setFailedFetchingSheetData(true);
-  }, [setIsFetchingSheetData]);
+  const onFetchAllSheetFailure = useCallback(
+    (error: string) => {
+      setIsFetchingSheetData(false);
+      setFailedFetchingSheetData(true);
+      AnalyticsUtil.logEvent("DATA_FETCH_FAILED_POST_SCHEMA_FETCH", {
+        error: error,
+      });
+    },
+    [setIsFetchingSheetData],
+  );
 
   const onFetchAllSheetSuccess = useCallback(
     (
@@ -398,6 +405,11 @@ export const useSheetData = (
           props.setSheetData && props.setSheetData(responseBody);
         } else {
           // to handle error like "401 Unauthorized"
+          AnalyticsUtil.logEvent(
+            "DATA_FETCH_FAILED_POST_SCHEMA_FETCH",
+            { error: payload }, // sending the entire payload here because it is not clear if there is a distinct
+            // field holding the error message
+          );
         }
       }
     },

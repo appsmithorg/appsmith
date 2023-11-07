@@ -5,10 +5,7 @@ import { isArray, orderBy } from "lodash";
 import { default as React } from "react";
 import type { WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
-import {
-  MinimumPopupWidthInPercentage,
-  largeWidgets,
-} from "WidgetProvider/constants";
+import { MinimumPopupWidthInPercentage } from "WidgetProvider/constants";
 import MenuButtonComponent from "../component";
 import type { MenuButtonWidgetProps, MenuItem } from "../constants";
 import { MenuItemsSource } from "../constants";
@@ -107,7 +104,7 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
 
   static getAnvilConfig(): AnvilConfig | null {
     return {
-      isLargeWidget: !!largeWidgets[this.type],
+      isLargeWidget: false,
       widgetSize: {
         maxHeight: {},
         maxWidth: { base: "360px" },

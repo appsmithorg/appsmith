@@ -1,7 +1,7 @@
-import { largeWidgets, type AnvilConfig } from "WidgetProvider/constants";
+import type { AnvilConfig } from "WidgetProvider/constants";
 
 export const anvilConfig: AnvilConfig = {
-  isLargeWidget: !!largeWidgets["WDS_TEXT_WIDGET"],
+  isLargeWidget: false,
   widgetSize: {
     maxHeight: {},
     maxWidth: {},
