@@ -193,7 +193,6 @@ public class ApplicationForkingServiceTests {
         Application app1 = new Application();
         app1.setName("1 - public app");
         app1.setWorkspaceId(sourceWorkspace.getId());
-        app1.setForkingEnabled(true);
         app1 = applicationPageService.createApplication(app1).block();
         sourceAppId = app1.getId();
 
