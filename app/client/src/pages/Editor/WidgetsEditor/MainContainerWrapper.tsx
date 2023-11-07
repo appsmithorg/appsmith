@@ -32,12 +32,9 @@ import Canvas from "../Canvas";
 import type { AppState } from "@appsmith/reducers";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { getIsAnonymousDataPopupVisible } from "selectors/onboardingSelectors";
-import {
-  LayoutSystemFeatures,
-  useLayoutSystemFeatures,
-} from "../../../layoutSystems/common/useLayoutSystemFeatures";
 import { CANVAS_VIEWPORT } from "constants/componentClassNameConstants";
 import { MainContainerResizer } from "layoutSystems/common/mainContainerResizer/MainContainerResizer";
+import { useMainContainerResizer } from "layoutSystems/common/mainContainerResizer/useMainContainerResizer";
 
 interface MainCanvasWrapperProps {
   isPreviewMode: boolean;
@@ -145,11 +142,7 @@ function MainContainerWrapper(props: MainCanvasWrapperProps) {
   const isLayoutingInitialized = useDynamicAppLayout();
   const isPageInitializing = isFetchingPage || !isLayoutingInitialized;
   const isWDSV2Enabled = useFeatureFlag("ab_wds_enabled");
-
-  const checkLayoutSystemFeatures = useLayoutSystemFeatures();
-  const [enableMainContainerResizer] = checkLayoutSystemFeatures([
-    LayoutSystemFeatures.ENABLE_MAIN_CONTAINER_RESIZER,
-  ]);
+  const showMainContainerResizer = useMainContainerResizer();
 
   useEffect(() => {
     return () => {
@@ -177,7 +170,7 @@ function MainContainerWrapper(props: MainCanvasWrapperProps) {
     node = (
       <Canvas
         canvasWidth={props.canvasWidth}
-        enableMainCanvasResizer={enableMainContainerResizer}
+        enableMainCanvasResizer={showMainContainerResizer}
         pageId={params.pageId}
         widgetsStructure={widgetsStructure}
       />
@@ -210,7 +203,7 @@ function MainContainerWrapper(props: MainCanvasWrapperProps) {
   return (
     <>
       <Wrapper
-        $enableMainCanvasResizer={enableMainContainerResizer}
+        $enableMainCanvasResizer={showMainContainerResizer}
         background={
           isPreviewMode ||
           isProtectedMode ||
@@ -263,7 +256,7 @@ function MainContainerWrapper(props: MainCanvasWrapperProps) {
       </Wrapper>
       <MainContainerResizer
         currentPageId={currentPageId}
-        enableMainCanvasResizer={enableMainContainerResizer}
+        enableMainCanvasResizer={showMainContainerResizer}
         heightWithTopMargin={heightWithTopMargin}
         isPageInitiated={!isPageInitializing && !!widgetsStructure}
         isPreview={isPreviewMode || isProtectedMode}
