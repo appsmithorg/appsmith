@@ -3,6 +3,7 @@ import { WIDGET } from "../../../../locators/WidgetLocators";
 import {
   agHelper,
   entityExplorer,
+  locators,
 } from "../../../../support/Objects/ObjectsCore";
 import { getAnvilCanvasId } from "../../../../../src/layoutSystems/anvil/canvas/utils";
 import { ANVIL_EDITOR_TEST } from "../../../../support/Constants";
@@ -37,7 +38,10 @@ describe(`${ANVIL_EDITOR_TEST}: Anvil tests for DnD Module`, () => {
           skipWidgetSearch: true,
         },
       );
-      agHelper.AssertElementLength(viewWidgets.wdsButtonWidget, 3);
+      agHelper.AssertElementLength(
+        locators._widgetInCanvas(WIDGET.WDSBUTTON),
+        3,
+      );
     });
   });
 });
