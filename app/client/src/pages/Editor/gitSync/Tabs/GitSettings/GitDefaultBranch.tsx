@@ -11,9 +11,9 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getGitBranches } from "selectors/gitSyncSelectors";
 import styled from "styled-components";
-import { APPSMITH_ENTERPRISE_LINK } from "./constants";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { useAppsmithEnterpriseLink } from "./hooks";
 
 const Container = styled.div`
   padding-top: 16px;
@@ -55,6 +55,10 @@ function GitDefaultBranch() {
     return defaultBranch?.branchName;
   }, [unfilteredBranches]);
 
+  const enterprisePricingLink = useAppsmithEnterpriseLink(
+    "git_branch_protection",
+  );
+
   useEffect(() => {
     const defaultBranch = unfilteredBranches.find((b) => b.default);
     setSelectedValue(defaultBranch?.branchName);
@@ -89,7 +93,7 @@ function GitDefaultBranch() {
               kind="primary"
               style={{ display: "inline-flex" }}
               target="_blank"
-              to={APPSMITH_ENTERPRISE_LINK}
+              to={enterprisePricingLink}
             >
               {createMessage(APPSMITH_ENTERPRISE)}
             </Link>

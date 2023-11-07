@@ -17,9 +17,9 @@ import {
   getProtectedBranchesSelector,
 } from "selectors/gitSyncSelectors";
 import styled from "styled-components";
-import { APPSMITH_ENTERPRISE_LINK } from "./constants";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { useAppsmithEnterpriseLink } from "./hooks";
 
 const Container = styled.div`
   padding-top: 16px;
@@ -67,6 +67,10 @@ function GitProtectedBranches() {
   const isUpdateLoading = useSelector(getIsUpdateProtectedBranchesLoading);
   const [selectedValues, setSelectedValues] = useState<string[]>();
 
+  const enterprisePricingLink = useAppsmithEnterpriseLink(
+    "git_branch_protection",
+  );
+
   useEffect(() => {
     setSelectedValues(protectedBranches);
   }, []);
@@ -100,7 +104,7 @@ function GitProtectedBranches() {
             <StyledLink
               kind="primary"
               target="_blank"
-              to={APPSMITH_ENTERPRISE_LINK}
+              to={enterprisePricingLink}
             >
               {createMessage(APPSMITH_ENTERPRISE)}
             </StyledLink>
