@@ -36,7 +36,10 @@ RUN curl --silent --show-error --location https://www.mongodb.org/static/pgp/ser
 RUN set -o xtrace \
   && mkdir -p /opt/java \
   # Assets from https://github.com/adoptium/temurin17-binaries/releases
-  && version="$(curl --write-out '%{redirect_url}' 'https://github.com/adoptium/temurin17-binaries/releases/latest' | sed 's,.*jdk-,,')" \
+  # TODO: The release jdk-17.0.9+9.1 doesn't include Linux binaries, so this fails.
+  #       Temporarily using hardcoded version in URL until we figure out a more elaborate/smarter solution.
+  #&& version="$(curl --write-out '%{redirect_url}' 'https://github.com/adoptium/temurin17-binaries/releases/latest' | sed 's,.*jdk-,,')" \
+  && version="17.0.9+9" \
   && curl --location --output /tmp/java.tar.gz "https://github.com/adoptium/temurin17-binaries/releases/download/jdk-$version/OpenJDK17U-jdk_$(uname -m | sed s/x86_64/x64/)_linux_hotspot_$(echo $version | tr + _).tar.gz" \
   && tar -xzf /tmp/java.tar.gz -C /opt/java --strip-components 1
 

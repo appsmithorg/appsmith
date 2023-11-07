@@ -33,7 +33,13 @@ import type {
 } from "actions/gitSyncActions";
 import {
   fetchGitRemoteStatusInit,
+  fetchGitProtectedBranchesInit,
+  fetchGitProtectedBranchesSuccess,
+  fetchGitProtectedBranchesError,
   fetchGitRemoteStatusSuccess,
+  updateGitProtectedBranchesError,
+  updateGitProtectedBranchesSuccess,
+  updateGitProtectedBranchesInit,
 } from "actions/gitSyncActions";
 import {
   commitToRepoSuccess,
@@ -92,6 +98,7 @@ import { addBranchParam, GIT_BRANCH_QUERY_KEY } from "constants/routes";
 import {
   getCurrentGitBranch,
   getDisconnectingGitApplication,
+  getIsGitProtectedFeatureEnabled,
   getIsGitStatusLiteEnabled,
 } from "selectors/gitSyncSelectors";
 import { initEditor } from "actions/initActions";
@@ -112,6 +119,7 @@ import {
 import type { Action } from "entities/Action";
 import type { JSCollectionDataState } from "reducers/entityReducers/jsActionsReducer";
 import { toast } from "design-system";
+import { updateGitDefaultBranchSaga } from "@appsmith/sagas/GitExtendedSagas";
 
 export function* handleRepoLimitReachedError(response?: ApiResponse) {
   const { responseMeta } = response || {};
@@ -206,7 +214,9 @@ function* commitToGitRepoSaga(
 }
 
 function* connectToGitSaga(action: ConnectToGitReduxAction) {
-  let response: ApiResponse | undefined;
+  let response:
+    | ApiResponse<{ gitApplicationMetadata: { branchName: string } }>
+    | undefined;
   try {
     const applicationId: string = yield select(getCurrentApplicationId);
     const currentPageId: string = yield select(getCurrentPageId);
@@ -221,15 +231,26 @@ function* connectToGitSaga(action: ConnectToGitReduxAction) {
     if (isValidResponse) {
       // @ts-expect-error: response is of type unknown
       yield put(connectToGitSuccess(response?.data));
+      const defaultBranch = response?.data?.gitApplicationMetadata?.branchName;
+
+      const isGitProtectedFeatureEnabled: boolean = yield select(
+        getIsGitProtectedFeatureEnabled,
+      );
+      if (isGitProtectedFeatureEnabled) {
+        yield put(
+          updateGitProtectedBranchesInit({
+            protectedBranches: defaultBranch ? [defaultBranch] : [],
+          }),
+        );
+      }
+
       yield put(fetchPage(currentPageId));
       if (action.onSuccessCallback) {
         // @ts-expect-error: response is of type unknown
         action.onSuccessCallback(response?.data);
       }
-      // @ts-expect-error: response is of type unknown
       const branch = response?.data?.gitApplicationMetadata?.branchName;
-
-      const updatedPath = addBranchParam(branch);
+      const updatedPath = addBranchParam(branch || "");
       history.replace(updatedPath);
 
       /* commit effect START */
@@ -1041,6 +1062,60 @@ function* discardChanges() {
   }
 }
 
+function* fetchGitProtectedBranchesSaga() {
+  const isGitProtectedFeatureEnabled: boolean = yield select(
+    getIsGitProtectedFeatureEnabled,
+  );
+  if (!isGitProtectedFeatureEnabled) {
+    return;
+  }
+  let response: ApiResponse<string[]>;
+  try {
+    const appId: string = yield select(getCurrentApplicationId);
+    response = yield GitSyncAPI.getProtectedBranches(appId);
+
+    const isValidResponse: boolean = yield validateResponse(
+      response,
+      false,
+      getLogToSentryFromResponse(response),
+    );
+    if (isValidResponse) {
+      const protectedBranches: string[] = response?.data;
+      yield put(fetchGitProtectedBranchesSuccess(protectedBranches));
+    } else {
+      yield put(
+        fetchGitProtectedBranchesError(response?.responseMeta?.error?.message),
+      );
+    }
+  } catch (error) {
+    yield put(fetchGitProtectedBranchesError(error));
+  }
+}
+
+function* updateGitProtectedBranchesSaga({
+  payload,
+}: ReduxAction<{ protectedBranches: string[] }>) {
+  const isGitProtectedFeatureEnabled: boolean = yield select(
+    getIsGitProtectedFeatureEnabled,
+  );
+  if (!isGitProtectedFeatureEnabled) {
+    return;
+  }
+  const { protectedBranches } = payload;
+  const applicationId: string = yield select(getCurrentApplicationId);
+  try {
+    yield call(
+      GitSyncAPI.updateProtectedBranches,
+      applicationId,
+      protectedBranches,
+    );
+    yield put(updateGitProtectedBranchesSuccess());
+    yield put(fetchGitProtectedBranchesInit());
+  } catch (error) {
+    yield put(updateGitProtectedBranchesError(error));
+  }
+}
+
 const gitRequestActions: Record<
   (typeof ReduxActionTypes)[keyof typeof ReduxActionTypes],
   (...args: any[]) => any
@@ -1066,6 +1141,11 @@ const gitRequestActions: Record<
   [ReduxActionTypes.FETCH_SSH_KEY_PAIR_INIT]: getSSHKeyPairSaga,
   [ReduxActionTypes.DELETE_BRANCH_INIT]: deleteBranch,
   [ReduxActionTypes.GIT_DISCARD_CHANGES]: discardChanges,
+  [ReduxActionTypes.GIT_UPDATE_DEFAULT_BRANCH_INIT]: updateGitDefaultBranchSaga,
+  [ReduxActionTypes.GIT_FETCH_PROTECTED_BRANCHES_INIT]:
+    fetchGitProtectedBranchesSaga,
+  [ReduxActionTypes.GIT_UPDATE_PROTECTED_BRANCHES_INIT]:
+    updateGitProtectedBranchesSaga,
 };
 
 /**

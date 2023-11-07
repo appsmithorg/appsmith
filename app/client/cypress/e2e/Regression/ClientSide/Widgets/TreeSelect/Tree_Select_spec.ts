@@ -32,7 +32,11 @@ describe("Tree Select Widget", function () {
       .invoke("val")
       .should("be.empty");
     // click on the widget
-    cy.get(formWidgetsPage.treeSelectInput).last().click({ force: true });
+    cy.wait(500)
+      .get(formWidgetsPage.treeSelectInput)
+      .last()
+      .click({ force: true })
+      .wait(500);
     // select Green option
     cy.treeSelectDropdown("Green");
     // again click on cancel icon in the widget
@@ -56,7 +60,11 @@ describe("Tree Select Widget", function () {
       .find(".rc-tree-select-clear")
       .should("not.exist");
     // click on the widget again
-    cy.get(formWidgetsPage.treeSelectInput).last().click({ force: true });
+    cy.wait(500)
+      .get(formWidgetsPage.treeSelectInput)
+      .last()
+      .click({ force: true })
+      .wait(500);
     // select Green option
     cy.treeSelectDropdown("Green");
     // assert if the widget input value is Green

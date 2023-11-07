@@ -87,6 +87,7 @@ import { resetEditorRequest } from "actions/initActions";
 import {
   hasCreateNewAppPermission,
   hasDeleteWorkspacePermission,
+  hasManageWorkspaceEnvironmentPermission,
   isPermitted,
   PERMISSION_TYPE,
 } from "@appsmith/utils/permissionHelpers";
@@ -103,6 +104,7 @@ import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import ResourceListLoader from "@appsmith/pages/Applications/ResourceListLoader";
 import { getHasCreateWorkspacePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import { allowManageEnvironmentAccessForUser } from "@appsmith/selectors/environmentSelectors";
 import { getCurrentApplicationIdForCreateNewApp } from "@appsmith/selectors/applicationSelectors";
 import { resetCurrentApplicationIdForCreateNewApp } from "actions/onboardingActions";
 
@@ -469,6 +471,9 @@ export function ApplicationsSection(props: any) {
   const [workspaceToOpenMenu, setWorkspaceToOpenMenu] = useState<string | null>(
     null,
   );
+  const isManageEnvironmentEnabled = useSelector(
+    allowManageEnvironmentAccessForUser,
+  );
   const updateApplicationDispatch = (
     id: string,
     data: UpdateApplicationPayload,
@@ -587,11 +592,31 @@ export function ApplicationsSection(props: any) {
         const hasCreateNewApplicationPermission =
           hasCreateNewAppPermission(workspace.userPermissions) && !isMobile;
 
+        const renderManageEnvironmentMenu =
+          isManageEnvironmentEnabled &&
+          hasManageWorkspaceEnvironmentPermission(workspace.userPermissions);
+
+        const onClickAddNewAppButton = (workspaceId: string) => {
+          if (
+            Object.entries(creatingApplicationMap).length === 0 ||
+            (creatingApplicationMap && !creatingApplicationMap[workspaceId])
+          ) {
+            createNewApplication(
+              getNextEntityName(
+                "Untitled application ",
+                applications.map((el: any) => el.name),
+              ),
+              workspaceId,
+            );
+          }
+        };
+
         const showWorkspaceMenuOptions =
           canInviteToWorkspace ||
           hasManageWorkspacePermissions ||
           hasCreateNewApplicationPermission ||
-          (canDeleteWorkspace && applications.length === 0);
+          (canDeleteWorkspace && applications.length === 0) ||
+          renderManageEnvironmentMenu;
 
         const handleResetMenuState = () => {
           setWorkspaceToOpenMenu(null);
