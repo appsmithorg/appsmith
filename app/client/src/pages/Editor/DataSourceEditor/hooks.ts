@@ -2,7 +2,7 @@ import { executeDatasourceQuery } from "actions/datasourceActions";
 import type { QueryTemplate } from "entities/Datasource";
 import { useState, useCallback } from "react";
 import { useDispatch } from "react-redux";
-import AnalyticsUtil from "../../../utils/AnalyticsUtil";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 interface FetchPreviewData {
   datasourceId: string;
