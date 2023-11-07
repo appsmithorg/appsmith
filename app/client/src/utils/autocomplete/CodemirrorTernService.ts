@@ -102,10 +102,13 @@ export interface DataTreeDefEntityInformation {
  * There is however no provision to add more keywords to the list. Therefore,
  * we maintain a set of keywords that we add and show the keyword icon and type for.
  */
-export function isCustomKeywordType(name: string): boolean {
+export function isCustomKeywordType(
+  completion: TernCompletionResult & { isKeyword?: boolean },
+): boolean {
   const customKeywordsList = ["async", "await"];
-
-  return customKeywordsList.includes(name);
+  return Boolean(
+    customKeywordsList.includes(completion.name) || completion.isKeyword,
+  );
 }
 
 export function getDataType(type: string): AutocompleteDataType {
@@ -129,6 +132,15 @@ export function typeToIcon(type: string, isKeyword: boolean) {
   else if (/^\[/.test(type)) suffix = "array";
   else suffix = "object";
   return cls + "completion " + cls + "completion-" + suffix;
+}
+
+function shortTernType(type: string) {
+  if (!type) return "";
+  return type
+    .replaceAll("string", "str")
+    .replaceAll("boolean", "bool")
+    .replaceAll("number", "num")
+    .replaceAll("{}", "obj");
 }
 
 function getRecencyWeight(
@@ -157,6 +169,7 @@ class CodeMirrorTernService {
   server: Server;
   docs: TernDocs = Object.create(null);
   cachedArgHints: ArgHints | null = null;
+  activeArgHints: HTMLElement | null = null;
   active: any;
   fieldEntityInformation: FieldEntityInformation = {};
   defEntityInformation: Map<string, DataTreeDefEntityInformation> = new Map<
@@ -164,6 +177,7 @@ class CodeMirrorTernService {
     DataTreeDefEntityInformation
   >();
   options: { async: boolean };
+  activeArgType: string | null = null;
   recentEntities: string[] = [];
 
   constructor(options: { async: boolean }) {
@@ -198,8 +212,171 @@ class CodeMirrorTernService {
     });
   }
 
+  // Forked from app/client/node_modules/codemirror/addon/tern/tern.js
+  updateArgHints(cm: CodeMirror.Editor) {
+    this.closeArgHints();
+    this.activeArgType = null;
+    cm.state.ternTooltip = null;
+    if (cm.somethingSelected()) return false;
+    if (cm.state.completionActive) return false;
+    const state = cm.getTokenAt(cm.getCursor()).state;
+    const CodeMirror = getCodeMirrorNamespaceFromDoc(cm.getDoc());
+    const inner = CodeMirror.innerMode(cm.getMode(), state);
+    if (inner.mode.name != "javascript") return false;
+    const lex = inner.state.lexical;
+    if (lex.info != "call") return false;
+
+    let ch;
+    const argPos = lex.pos || 0,
+      tabSize = cm.getOption("tabSize") || 0;
+    let found = false;
+    let line = cm.getCursor().line;
+    for (let e = Math.max(0, line - 9); line >= e; --line) {
+      const str = cm.getLine(line);
+      let extra = 0;
+      for (let pos = 0; ; ) {
+        const tab = str.indexOf("\t", pos);
+        if (tab == -1) break;
+        extra += tabSize - ((tab + extra) % tabSize) - 1;
+        pos = tab + 1;
+      }
+      ch = lex.column - extra;
+      if (str.charAt(ch) == "(") {
+        found = true;
+        break;
+      }
+    }
+    if (!found) return false;
+
+    const start = CodeMirror.Pos(line, ch);
+    const cache = this.cachedArgHints;
+    if (
+      cache &&
+      cache.doc == cm.getDoc() &&
+      CodeMirror.cmpPos(start, cache.start) == 0
+    ) {
+      this.showArgHints(cm, argPos);
+      return true;
+    }
+
+    this.request<"type">(
+      cm,
+      { type: "type", preferFunction: true, end: start },
+      (error, data) => {
+        if (error || !data.type || !/^fn\(/.test(data.type)) return;
+        this.cachedArgHints = {
+          start: start,
+          type: this.parseFnType(data.type),
+          name: data.exprName || data.name || "fn",
+          guess: data.guess,
+          doc: cm.getDoc(),
+        };
+        this.showArgHints(cm, argPos);
+      },
+    );
+    return true;
+  }
+
+  // Forked from app/client/node_modules/codemirror/addon/tern/tern.js
+  parseFnType(text: string) {
+    const args = [];
+    let pos = 3;
+
+    function skipMatching(upto: RegExp) {
+      let depth = 0;
+      const start = pos;
+      for (;;) {
+        const next = text.charAt(pos);
+        if (upto.test(next) && !depth) return text.slice(start, pos);
+        if (/[{\[\(]/.test(next)) ++depth;
+        else if (/[}\]\)]/.test(next)) --depth;
+        ++pos;
+      }
+    }
+
+    // Parse arguments
+    if (text.charAt(pos) != ")")
+      for (;;) {
+        const mName = text.slice(pos).match(/^([^, \(\[\{]+): /);
+        let name;
+        if (mName) {
+          pos += mName[0].length;
+          name = mName[1];
+        }
+        args.push({ name: name, type: skipMatching(/[\),]/) });
+        if (text.charAt(pos) == ")") break;
+        pos += 2;
+      }
+
+    const rettype = text.slice(pos).match(/^\) -> (.*)$/);
+
+    return { args: args, rettype: rettype && rettype[1] };
+  }
+
+  // Forked from app/client/node_modules/codemirror/addon/tern/tern.js
+  closeArgHints() {
+    if (this.activeArgHints) {
+      // @ts-expect-error no types found
+      if (this.activeArgHints.clear) this.activeArgHints.clear();
+      this.remove(this.activeArgHints);
+      this.activeArgHints = null;
+      this.activeArgType = null;
+    }
+    return true;
+  }
+
+  // Forked from app/client/node_modules/codemirror/addon/tern/tern.js
+  showArgHints(cm: CodeMirror.Editor, pos: number) {
+    this.closeArgHints();
+    const cache = this.cachedArgHints,
+      tp = cache?.type;
+    const tip = this.elt(
+      "span",
+      cache?.guess ? cls + "fhint-guess" : null,
+      this.elt("span", cls + "fname", cache?.name),
+      "(",
+    );
+    if (!tp) return;
+    for (let i = 0; i < tp.args.length; ++i) {
+      if (i) tip.appendChild(document.createTextNode(", "));
+      const arg = tp.args[i];
+      tip.appendChild(
+        this.elt(
+          "span",
+          cls + "farg" + (i == pos ? " " + cls + "farg-current" : ""),
+          arg.name || "?",
+        ),
+      );
+      if (arg.type != "?") {
+        tip.appendChild(document.createTextNode(":\u00a0"));
+        tip.appendChild(
+          this.elt("span", cls + "type", shortTernType(arg.type)),
+        );
+      }
+      if (i == pos) {
+        this.activeArgType = arg.type;
+      }
+    }
+    tip.appendChild(document.createTextNode(")"));
+    if (tp.rettype)
+      tip.appendChild(
+        this.elt("span", cls + "type", `: ${shortTernType(tp.rettype)}`),
+      );
+    const place = cm.cursorCoords(null, "page");
+
+    const tooltip: HTMLElement & { clear?: () => void } =
+      (cm.state.ternTooltip =
+      this.activeArgHints =
+        this.makeTooltip(place.left + 1, place.bottom, tip, cm));
+    setTimeout(() => {
+      tooltip.clear = this.onEditorActivity(cm, () => {
+        if (this.activeArgHints == tooltip) this.closeArgHints();
+      });
+    }, 20);
+  }
+
   showType(cm: CodeMirror.Editor) {
-    this.showContextInfo(cm, "type");
+    this.showContextInfo(cm, "type", null);
   }
 
   showDocs(cm: CodeMirror.Editor) {
@@ -239,9 +416,7 @@ class CodeMirrorTernService {
     resolve: any,
   ) {
     if (error) return this.showError(cm, error);
-    if (data.completions.length === 0) {
-      return this.showError(cm, "No suggestions");
-    }
+    if (data.completions.length === 0) return;
     const doc = this.findDoc(cm.getDoc());
     const lineValue = this.lineValue(doc);
     const cursor = cm.getCursor();
@@ -279,8 +454,8 @@ class CodeMirrorTernService {
     for (let i = 0; i < data.completions.length; ++i) {
       const completion = data.completions[i];
       if (typeof completion === "string") continue;
-      const isCustomKeyword = isCustomKeywordType(completion.name);
-      const className = typeToIcon(completion.type as string, isCustomKeyword);
+      const isKeyword = isCustomKeywordType(completion);
+      const className = typeToIcon(completion.type as string, isKeyword);
       const dataType = getDataType(completion.type as string);
       const recencyWeight = getRecencyWeight(completion, this.recentEntities);
       const isCompletionADataTreeEntityName =
@@ -292,7 +467,6 @@ class CodeMirrorTernService {
           completionText = completionText + "()";
         }
       }
-
       const codeMirrorCompletion: Completion<TernCompletionResult> = {
         text: completionText,
         displayText: completion.name,
@@ -305,7 +479,7 @@ class CodeMirrorTernService {
         isEntityName: isCompletionADataTreeEntityName,
       };
 
-      if (isCustomKeyword) {
+      if (isKeyword) {
         codeMirrorCompletion.render = (
           element: HTMLElement,
           self: any,
@@ -343,6 +517,12 @@ class CodeMirrorTernService {
     const shouldComputeBestMatch =
       this.fieldEntityInformation.entityType !== ENTITY_TYPE_VALUE.JSACTION;
 
+    if (this.activeArgType) {
+      this.fieldEntityInformation.expectedType = getDataType(
+        this.activeArgType,
+      );
+    }
+
     completions = AutocompleteSorter.sort(
       completions,
       { ...this.fieldEntityInformation, token },
@@ -371,6 +551,7 @@ class CodeMirrorTernService {
           (completion) => !completion.isHeader,
         ).length,
       });
+      this.closeArgHints();
     });
     CodeMirror.on(obj, "close", () => this.remove(tooltip));
     CodeMirror.on(obj, "update", () => this.remove(tooltip));
@@ -386,6 +567,7 @@ class CodeMirrorTernService {
             node.parentNode.getBoundingClientRect().right + window.pageXOffset,
             node.getBoundingClientRect().top + window.pageYOffset,
             content,
+            cm,
           );
           tooltip.className += " " + cls + "hint-doc";
           CodeMirror.on(
@@ -466,7 +648,7 @@ class CodeMirrorTernService {
 
   showContextInfo(cm: CodeMirror.Editor, queryName: string, callbackFn?: any) {
     this.request<"type">(cm, { type: queryName }, (error, data) => {
-      if (error) return this.showError(cm, error);
+      if (error) return;
       const tip = this.elt(
         "span",
         null,
@@ -856,6 +1038,7 @@ class CodeMirrorTernService {
       where.right + 1,
       where.bottom,
       content,
+      cm,
     ));
     const maybeClear = () => {
       old = true;
@@ -902,11 +1085,55 @@ class CodeMirrorTernService {
     };
   }
 
-  makeTooltip(x: number, y: number, content: HTMLElement | string) {
-    const node = this.elt("div", cls + "tooltip", content);
+  makeTooltip(
+    x: number,
+    y: number,
+    content: HTMLElement | string,
+    cm?: any,
+    className?: string | null,
+  ) {
+    const node = this.elt(
+      "div",
+      cls + "tooltip" + " " + (className || ""),
+      content,
+    );
     node.style.left = x + "px";
     node.style.top = y + "px";
-    document.body.appendChild(node);
+    const container = cm.options?.hintOptions?.container || document.body;
+    container.appendChild(node);
+    const pos = cm.cursorCoords();
+    const winW = window.innerWidth;
+    const winH = window.innerHeight;
+    let box = node.getBoundingClientRect();
+    const hints = document.querySelector(".CodeMirror-hints") as HTMLElement;
+    const overlapY = box.bottom - winH;
+    let overlapX = box.right - winW;
+
+    if (hints && overlapX > 0) {
+      node.style.left = "0";
+      box = node.getBoundingClientRect();
+      node.style.left = (x = x - hints.offsetWidth - box.width) + "px";
+      overlapX = box.right - winW;
+    }
+    if (overlapY > 0) {
+      const height = box.bottom - box.top,
+        curTop = pos.top - (pos.bottom - box.top);
+      if (curTop - height > 0) {
+        // Fits above cursor
+        node.style.top = pos.top - height + "px";
+      } else if (height > winH) {
+        node.style.height = winH - 5 + "px";
+        node.style.top = pos.bottom - box.top + "px";
+      }
+    }
+    if (overlapX > 0) {
+      if (box.right - box.left > winW) {
+        node.style.width = winW - 5 + "px";
+        overlapX -= box.right - box.left - winW;
+      }
+      node.style.left = x - overlapX - 5 + "px";
+    }
+
     return node;
   }
 
@@ -917,19 +1144,13 @@ class CodeMirrorTernService {
     }
   }
 
-  elt(
-    tagName: string,
-    cls: string | null,
-    content: string | HTMLElement,
-  ): HTMLElement {
-    const e = document.createElement(tagName);
+  elt(tagname: string, cls: string | null, ...rest: any[]) {
+    const e = document.createElement(tagname);
     if (cls) e.className = cls;
-    if (content) {
-      const eltNode =
-        typeof content === "string"
-          ? document.createTextNode(content)
-          : content;
-      e.appendChild(eltNode);
+    for (let i = 0; i < rest.length; ++i) {
+      let elt = rest[i];
+      if (typeof elt == "string") elt = document.createTextNode(elt);
+      e.appendChild(elt);
     }
     return e;
   }
