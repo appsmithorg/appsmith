@@ -13,8 +13,7 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 const explorer = require("../../../../../locators/explorerlocators.json");
 import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
 
-// TODO: BEING FIXED BY AYUSH PAHWA FOR CUSTOM ENVIRONMENTS FEATURE
-describe.skip("Delete Permission flow ", function () {
+describe("Delete Permission flow ", function () {
   let appName;
   let workspaceName;
   let newWorkspaceName;
@@ -113,12 +112,9 @@ describe.skip("Delete Permission flow ", function () {
           );
           // check the delete datasource role
           cy.get(RBAC.dataSourcesandQueriesTab).click();
-          cy.contains("td", `${workspaceName}`)
-            .next()
-            .next()
-            .next()
-            .next()
-            .click();
+          cy.contains("td", `${workspaceName}`).click();
+          cy.contains("td", "Datasources").next().next().next().next().click();
+          cy.contains("td", "Environments").next().click();
           // save role
           cy.get(RBAC.saveButton).click();
           cy.wait("@saveRole").should(

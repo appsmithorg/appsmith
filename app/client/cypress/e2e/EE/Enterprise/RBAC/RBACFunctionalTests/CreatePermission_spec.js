@@ -17,8 +17,7 @@ import {
 } from "../../../../../support/Objects/ObjectsCore";
 import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
 
-// TODO: BEING FIXED BY AYUSH PAHWA FOR CUSTOM ENVIRONMENTS FEATURE
-describe.skip("Create Permission flow ", function () {
+describe("Create Permission flow ", function () {
   let datasourceName;
   let datasourceName2;
   let workspaceName;
@@ -111,7 +110,9 @@ describe.skip("Create Permission flow ", function () {
           );
           // check the create datasource role
           cy.get(RBAC.dataSourcesandQueriesTab).click();
-          cy.contains("td", `${workspaceName}`).next().next().click();
+          cy.contains("td", `${workspaceName}`).click();
+          cy.contains("td", "Datasources").next().next().click();
+          cy.contains("td", "Environments").next().click();
           // save role
           cy.get(RBAC.saveButton).click();
           cy.wait("@saveRole").should(
@@ -136,14 +137,10 @@ describe.skip("Create Permission flow ", function () {
           cy.get(RBAC.dataSourcesandQueriesTab).click();
           // check the create datasource role
           cy.contains("td", `${workspaceName}`).click();
-          cy.contains("td", `${workspaceName}`)
-            .next()
-            .next()
-            .next()
-            .next()
-            .next();
+          cy.contains("td", "Datasources").next().next().next().next().next();
           cy.contains("td", "Datasources").click();
           cy.contains("td", `${datasourceName}`).next().next().click();
+          cy.contains("td", "Environments").next().click();
           // save role
           cy.get(RBAC.saveButton).click();
           cy.wait("@saveRole").should(
